@@ -1,23 +1,25 @@
 'use strict';
-/* ===== Konstansok (az árkalkulátor és a weboldal alapján) ===== */
+/* ===== Konstansok ===== */
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Egyéb'];
 const CREW_ROLES=['Termelési vezető','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
+const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
+const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
 const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Állvány / grip','Akku / táp','Adathordozó','Vágóállomás','Kábel / egyéb'];
 const CONDITIONS={ok:'Rendben',javitas:'Javításra vár',szerviz:'Szervizben',selejt:'Selejtezett'};
 const DELIVERABLES=[
-  {k:'aftermovie',label:'Aftermovie',price:189000,w:.33,max:3},
-  {k:'interju',label:'Interjúk / kiállítói imázsfilmek',price:109000,w:.30,max:8},
-  {k:'short30',label:'Short videó (30–40 mp)',price:39000,w:.08,max:15},
-  {k:'short15',label:'Short videó (15–20 mp)',price:29000,w:.07,max:15}];
+  {k:'aftermovie',label:'Aftermovie',w:.33,max:3},
+  {k:'interju',label:'Interjúk / kiállítói imázsfilmek',w:.30,max:8},
+  {k:'short30',label:'Short videó (30–40 mp)',w:.08,max:15},
+  {k:'short15',label:'Short videó (15–20 mp)',w:.07,max:15}];
 const EXTRAS=[
-  {k:'x_vago',label:'Vágó a helyszínen',price:89000,role:'Vágó'},
-  {k:'x_dron',label:'Drónos felvételek + pilóta',price:119000,role:'Drónpilóta',base:true},
-  {k:'x_timelapse',label:'Timelapse (GoPro)',price:79000,base:true},
-  {k:'x_pov',label:'POV felvétel (GoPro)',price:79000,base:true},
-  {k:'x_foto',label:'Profi fotók (120 db)',price:219000,role:'Fotós',base:true},
+  {k:'x_vago',label:'Vágó a helyszínen',role:'Vágó'},
+  {k:'x_dron',label:'Drónos felvételek + pilóta',role:'Drónpilóta',base:true},
+  {k:'x_timelapse',label:'Timelapse (GoPro)',base:true},
+  {k:'x_pov',label:'POV felvétel (GoPro)',base:true},
+  {k:'x_foto',label:'Profi fotók (120 db)',role:'Fotós',base:true},
   {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
   {k:'x_rush',label:'Villámgyors kézbesítés (72 óra)',pct:'rush'}];
@@ -26,7 +28,6 @@ const TECH=[
   {k:'t_kepkeveres',label:'Élő képkeverés / streaming',role:'Képkeverő / streaming'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
-const OP_HOURLY=9900,OP_EQUIP=39000,TRAVEL=19000;
 const USER_ROLES={admin:'Adminisztrátor',editor:'Termelési vezető',crew:'Stáb'};
 const TOKEN_KEY='lumos_pm_token_v1';
 
@@ -35,7 +36,7 @@ const $=id=>document.getElementById(id);
 const VIEW=$('view');
 const S={me:null,projects:[],crew:[],inventory:[],links:{},loaded:false,loading:false,
   tab:'attekintes',projectId:null,draft:null,dirty:false,saving:false,
-  pf:{status:'aktiv',q:''},cf:{q:'',role:''},inf:{q:'',cat:'',cond:''},
+  pf:{status:'aktiv',q:''},cf:{q:'',role:'',prio:'',view:(()=>{try{return localStorage.getItem('lumos_pm_crewview')||'cards';}catch(e){return 'cards';}})()},inf:{q:'',cat:'',cond:''},
   addCrew:{person:'',role:''},addEq:{item:'',qty:1},users:null,log:null,lastLoad:0};
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_KEY)||'';}catch(e){}
@@ -80,20 +81,12 @@ function avatar(c){const n=c?c.name:'?';return `<span class="av" style="backgrou
 const empty=t=>`<p class="empty">${t}</p>`;
 const driveUrl=id=>'https://drive.google.com/drive/folders/'+encodeURIComponent(id);
 
-/* ===== Árkalkulátor logika ===== */
+/* ===== Létszámigény (árak nélkül: a Projekttervező nem fér hozzá az árakhoz) ===== */
 function calc(p){
   const hours=Math.min(16,Math.max(1,num(p.hours)||8));
   const units=DELIVERABLES.reduce((s,it)=>s+num(p[it.k])*it.w,0);
   const ops=units>=3?4:units>=2?3:units>=1?2:1;
-  const opCost=ops*OP_EQUIP+ops*hours*OP_HOURLY+TRAVEL;
-  const edit=DELIVERABLES.reduce((s,it)=>s+num(p[it.k])*it.price,0);
-  let base=opCost,extras=0;
-  EXTRAS.forEach(e=>{if(e.price&&p[e.k]){extras+=e.price;if(e.base)base+=e.price;}});
-  const pct={nyersVetel:Math.round(base*.30),nyersTarolas:Math.round(base*.25),rush:Math.round(edit*.30)};
-  if(p.x_nyersVetel)extras+=pct.nyersVetel;
-  if(p.x_nyersTarolas)extras+=pct.nyersTarolas;
-  if(p.x_rush)extras+=pct.rush;
-  return {ops,hours,opCost,edit,extras,total:opCost+edit+extras,pct};
+  return {ops,hours};
 }
 function staffing(p){
   const c=calc(p),need={'Termelési vezető':1,'Operatőr':c.ops};

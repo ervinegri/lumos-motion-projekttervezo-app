@@ -31,6 +31,7 @@ const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'atadva', 'l
 const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Egyéb'];
 const CREW_ROLES = ['Termelési vezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
+const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Kábel / egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
@@ -53,7 +54,8 @@ const TABLES = {
     ['mutationId', 'Utolsó műveletazonosító'], ['listSentAt', 'Eszközlista kiküldve'], ['listSentTo', 'Eszközlista címzettjei']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
-    ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
+    ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
+    ['priority', 'Prioritás (1–3)'], ['company', 'Vállalkozás'], ['skills', 'Részletek']] },
   inventory: { tab: 'Leltár', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['category', 'Kategória'], ['qty', 'Darab'], ['condition', 'Állapot'],
     ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
@@ -62,7 +64,7 @@ const TABLES = {
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz']] }
 };
-const NUM_FIELDS = new Set(['hours', 'aftermovie', 'interju', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
+const NUM_FIELDS = new Set(['priority', 'hours', 'aftermovie', 'interju', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt']);
 const CONDITION_LABELS = { ok: 'Rendben', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
@@ -145,6 +147,7 @@ function fromRow_(t, r) {
     o[k] = v;
   });
   if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (o.skills !== undefined) o.skills = String(o.skills || '').split(',').map(s => s.trim()).filter(Boolean);
   return o;
 }
 
@@ -153,7 +156,7 @@ function toRow_(t, o) {
     const k = c[0];
     let v = o[k];
     if (BOOL_FIELDS.has(k)) return v ? 'igen' : '';
-    if (k === 'roles' && Array.isArray(v)) v = v.join(', ');
+    if ((k === 'roles' || k === 'skills') && Array.isArray(v)) v = v.join(', ');
     if (v == null) return '';
     return NUM_FIELDS.has(k) ? String(v) : cell_(v);
   });
@@ -226,7 +229,7 @@ function bootstrap_(u) {
   const crew = readAll_('crew');
   const inventory = readAll_('inventory');
   const byP = {};
-  projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; byP[p.id] = p; });
+  projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; delete p.quotePrice; byP[p.id] = p; });   // árakat az app senkinek nem küld
   readAll_('crewAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].crew.push({ crewId: r.crewId, role: r.role }); });
   readAll_('eqAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].equipment.push({ itemId: r.itemId, qty: r.qty || 1 }); });
   const out = {
@@ -236,8 +239,7 @@ function bootstrap_(u) {
   };
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
-    out.projects = projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)))
-      .map(p => Object.assign({}, p, { quotePrice: null }));
+    out.projects = projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
     out.crew = crew.map(c => Object.assign({}, c, { dayRate: null }));
     out.inventory = inventory.map(i => Object.assign({}, i, { value: null }));
     delete out.links.sheet;
@@ -249,7 +251,7 @@ function fullProject_(p) {
   const q = Object.assign({}, p);
   q.crew = readAll_('crewAssign').filter(r => r.projectId === p.id).map(r => ({ crewId: r.crewId, role: r.role }));
   q.equipment = readAll_('eqAssign').filter(r => r.projectId === p.id).map(r => ({ itemId: r.itemId, qty: r.qty || 1 }));
-  delete q.mutationId;
+  delete q.mutationId; delete q.quotePrice;
   return q;
 }
 
@@ -268,7 +270,7 @@ function saveProject_(u, a) {
     status: STATUSES.indexOf(a.status) >= 0 ? a.status : 'egyeztetes',
     prevStatus: STATUSES.indexOf(a.prevStatus) >= 0 ? a.prevStatus : '',
     lead: str_(a.lead, 64),
-    quotePrice: (a.quotePrice === '' || a.quotePrice == null) ? null : int_(a.quotePrice, 0, 1e9, null),
+    quotePrice: null,   // a Projekttervező nem kezel árakat
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(),
     techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveredAt: iso_(a.deliveredAt)
   };
@@ -390,7 +392,9 @@ function saveCrew_(u, a) {
     roles: (Array.isArray(a.roles) ? a.roles : []).filter(r => CREW_ROLES.indexOf(r) >= 0),
     type: CREW_TYPES.indexOf(a.type) >= 0 ? a.type : 'Belsős',
     phone: str_(a.phone, 40), email: str_(a.email, 160).toLowerCase(),
-    dayRate: (a.dayRate === '' || a.dayRate == null) ? null : int_(a.dayRate, 0, 1e8, null), note: str_(a.note, 500)
+    dayRate: (a.dayRate === '' || a.dayRate == null) ? null : int_(a.dayRate, 0, 1e8, null), note: str_(a.note, 500),
+    priority: (a.priority === '' || a.priority == null) ? null : int_(a.priority, 1, 3, null), company: str_(a.company, 120),
+    skills: (Array.isArray(a.skills) ? a.skills : []).filter(s => CREW_SKILLS.indexOf(s) >= 0)
   };
   if (c.name.length < 2) throw new Error('Add meg a nevet.');
   if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) throw new Error('Érvénytelen e-mail-cím.');

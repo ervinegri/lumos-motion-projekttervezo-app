@@ -44,7 +44,10 @@ function crewModal(c){
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
     ${mf('name','Név',{full:true,v:v.name,max:100})}
     <div class="field full"><span class="lbl">Szerepek</span><div class="rolepick">${CREW_ROLES.map(r=>`<label><input type="checkbox" name="roles" value="${esc(r)}"${roles.has(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
+    <div class="field full"><span class="lbl">Részletek</span><div class="rolepick">${CREW_SKILLS.map(r=>`<label><input type="checkbox" name="skills" value="${esc(r)}"${(v.skills||[]).includes(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
+    ${ms('priority','Prioritás',[['1','1 – elsődleges'],['2','2 – másodlagos'],['3','3 – tartalék']],v.priority!=null?String(v.priority):'',{empty:'Nincs megadva'})}
     ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
+    ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
     ${mf('dayRate','Napidíj (nettó Ft)',{type:'number',min:0,v:v.dayRate??'',im:'numeric'})}
     ${mf('phone','Telefon',{type:'tel',v:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
@@ -52,7 +55,7 @@ function crewModal(c){
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
-    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:fd.get('dayRate'),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim()};
+    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:fd.get('dayRate'),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills')};
     try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
@@ -177,6 +180,8 @@ const ACT={
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
   pf:b=>{S.pf.status=b.dataset.v;render(true);},
+  'crew-prio':b=>{S.cf.prio=b.dataset.v;render(true);},
+  'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
   'new-crew':()=>crewModal(null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
@@ -208,7 +213,6 @@ const ACT={
   'eq-remove':b=>setDraft({equipment:clone(S.draft.equipment||[]).filter(e=>e.itemId!==b.dataset.id)}),
   'send-list':()=>sendListModal(),
   'copy-pack':()=>{if(S.draft)copyText(packingList(S.draft),'Pakolási lista a vágólapon');},
-  'use-calc':()=>{if(S.draft)setDraft({quotePrice:calc(S.draft).total});},
   'make-folder':async b=>{const d=S.draft;if(!d)return;b.disabled=true;b.textContent='Mappa létrehozása…';
     try{const r=await call('createProjectFolder',{id:d.id});const p=projById(d.id);if(p)p.folderId=r.folderId;d.folderId=r.folderId;render(true);toast(r.existed?'A mappa már létezett':'Projektmappa létrehozva');}
     catch(e){handleErr(e);b.disabled=false;b.textContent='📁 Projektmappa létrehozása';}},
