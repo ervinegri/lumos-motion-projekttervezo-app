@@ -77,8 +77,8 @@ const isOpen=p=>p.status!=='atadva'&&p.status!=='lemondva';
 function pr(p){if(!p||!validISO(p.date))return null;const end=validISO(p.endDate)&&p.endDate>=p.date?p.endDate:p.date;return {start:p.date,end};}
 const overlap=(a,b)=>a&&b&&a.start<=b.end&&b.start<=a.end;
 const byStart=(a,b)=>(pr(a)?.start||'9999').localeCompare(pr(b)?.start||'9999');
-function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,p.x_rush?3:7);}
-function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return defaultDue(p);}   // egyedi határidő felülírja a garanciát
+function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,1);}   // alapból a forgatás utáni nap
+function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return defaultDue(p);}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
