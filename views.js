@@ -182,7 +182,7 @@ function viewProjects(){
 }
 function fld(p,key,label,o={}){
   const v=p[key]??'';
-  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><input class="inp" id="f-${key}" data-field="${key}" type="${o.type||'text'}" value="${esc(v)}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.max!=null?` max="${o.max}"`:''}${o.step!=null?` step="${o.step}"`:''}${o.im?` inputmode="${o.im}"`:''}${key==='contactName'?' autocomplete="off"':''}${D()}></div>`;
+  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><input class="inp" id="f-${key}" data-field="${key}" type="${o.type||'text'}" value="${esc(v)}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.max!=null?` max="${o.max}"`:''}${o.step!=null?` step="${o.step}"`:''}${o.im?` inputmode="${o.im}"`:''}${key==='contactName'||key==='client'?' autocomplete="off"':''}${D()}></div>`;
 }
 function selField(p,key,label,opts,o={}){
   const v=p[key]??'';
@@ -236,7 +236,7 @@ function viewProject(p){
     <div class="col">
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
         ${fld(p,'name','Projekt neve',{full:true})}
-        ${fld(p,'client','Ügyfél (cég)')}
+        ${fld(p,'client',ro()?'Ügyfél (cég)':'Ügyfél (cég) <span class="hs-tag">korábbi ügyfelek + HubSpot</span>',{ph:ro()?'':'Kezdd el gépelni, vagy kattints a listához…'})}
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         ${fld(p,'venue','Helyszín',{full:true,ph:'pl. MVM Dome, Budapest'})}
         ${fld(p,'date','Első nap',{type:'date'})}

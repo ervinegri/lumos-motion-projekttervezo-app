@@ -527,7 +527,7 @@ function deleteCalEvent_(u, a) {
 
 /* ===================== HUBSPOT ===================== */
 // Kapcsolattartó keresése a HubSpot névjegyek között (csak olvasás). A token a Script Properties-ben van: HUBSPOT_TOKEN
-// (HubSpot → Beállítások → Integrációk → Privát alkalmazások, jogosultság: crm.objects.contacts.read).
+// (HubSpot → Beállítások → Integrációk → Privát alkalmazások, jogosultság: crm.objects.contacts.read és crm.objects.companies.read).
 function hubspotSearch_(a) {
   const q = str_(a && a.q, 100);
   if (q.length < 2) return [];
@@ -548,6 +548,37 @@ function hubspotSearch_(a) {
     return { id: String(r.id), name: [p.lastname, p.firstname].filter(Boolean).join(' ').trim() || p.email || '', email: String(p.email || '').toLowerCase(),
       phone: p.mobilephone || p.phone || '', company: p.company || '', title: p.jobtitle || '' };
   }).filter(x => x.name);
+  try { cache.put(key, JSON.stringify(out), 300); } catch (e) {}
+  return out;
+}
+
+function hsFetch_(path, payload) {
+  const token = PropertiesService.getScriptProperties().getProperty('HUBSPOT_TOKEN');
+  if (!token) throw new Error('HUBSPOT_NOT_CONFIGURED');
+  const res = UrlFetchApp.fetch('https://api.hubapi.com' + path, { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + token }, payload: JSON.stringify(payload) });
+  const code = res.getResponseCode();
+  if (code === 401 || code === 403) throw new Error('A HubSpot nem engedi a lekérést – ellenőrizd a HUBSPOT_TOKEN jogosultságait (crm.objects.contacts.read, crm.objects.companies.read).');
+  if (code >= 300) throw new Error('HubSpot hiba (' + code + '). Próbáld újra később.');
+  return JSON.parse(res.getContentText() || '{}');
+}
+/** Cégek keresése a HubSpotban, a hozzájuk kapcsolt névjegyekkel együtt (ügyfél + kapcsolattartó kitöltéséhez). */
+function hubspotCompanies_(a) {
+  const q = str_(a && a.q, 100);
+  if (q.length < 2) return [];
+  const cache = CacheService.getScriptCache(), key = 'pm_hsc_' + sha256hex_(q.toLowerCase()).slice(0, 32), hit = cache.get(key);
+  if (hit) return JSON.parse(hit);
+  const comps = (hsFetch_('/crm/v3/objects/companies/search', { query: q, limit: 8, properties: ['name', 'domain', 'phone', 'city', 'address'] }).results || []);
+  if (!comps.length) { cache.put(key, '[]', 300); return []; }
+  const assoc = hsFetch_('/crm/v4/associations/companies/contacts/batch/read', { inputs: comps.map(c => ({ id: String(c.id) })) }).results || [];
+  const byCo = {}; assoc.forEach(r => { byCo[String(r.from && r.from.id)] = (r.to || []).slice(0, 6).map(t => String(t.toObjectId)); });
+  const ids = [...new Set([].concat.apply([], Object.keys(byCo).map(k => byCo[k])))].slice(0, 60);
+  const people = {};
+  if (ids.length) (hsFetch_('/crm/v3/objects/contacts/batch/read', { inputs: ids.map(id => ({ id: id })), properties: ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'jobtitle'] }).results || [])
+    .forEach(r => { const p = r.properties || {}; people[String(r.id)] = { name: [p.lastname, p.firstname].filter(Boolean).join(' ').trim() || p.email || '', email: String(p.email || '').toLowerCase(), phone: p.mobilephone || p.phone || '', title: p.jobtitle || '' }; });
+  const out = comps.map(c => { const p = c.properties || {};
+    return { id: String(c.id), company: p.name || p.domain || '', domain: p.domain || '', phone: p.phone || '', city: p.city || '',
+      contacts: (byCo[String(c.id)] || []).map(id => people[id]).filter(x => x && x.name) }; }).filter(x => x.company);
   try { cache.put(key, JSON.stringify(out), 300); } catch (e) {}
   return out;
 }
@@ -1105,6 +1136,7 @@ function rpc(token, name, arg) {
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'hubspotSearch': canEdit(); return hubspotSearch_(arg);
+    case 'hubspotCompanies': canEdit(); return hubspotCompanies_(arg);
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': return changePin_(u, arg, token);
