@@ -48,14 +48,18 @@ function calEventModal(id){
     <p class="hint" style="margin:0">Ez az esemény még nincs az appban. Ha projektet csinálsz belőle, a dátum, a helyszín, a leírás és a stábként felismert résztvevők átkerülnek, és ettől kezdve az app frissíti ezt a naptáreseményt.</p>`,
   {left:`<button type="button" class="btn primary small" data-action="cal-import" data-id="${esc(e.id)}">Projekt létrehozása ebből</button>`,cancelLabel:'Bezárás'});
 }
+let importing=false;
 async function importCalEvent(id){
-  const e=calEventById(id);if(!e)return;
+  const e=calEventById(id);if(!e||importing)return;
+  const ex=S.projects.find(p=>p.calEventId===id);if(ex){closeModal();openProject(ex.id);toast('Ebből az eseményből már van projekt');return;}
+  importing=true;const btn=document.querySelector('[data-action=cal-import]');if(btn){btn.disabled=true;btn.textContent='Létrehozás…';}
   const crew=[];(e.guests||[]).forEach(m=>{const c=S.crew.find(x=>String(x.email||'').toLowerCase()===m);if(c&&!crew.some(a=>a.crewId===c.id))crew.push({crewId:c.id,role:(c.roles||[]).find(r=>r!=='Projektvezető')||'Operatőr'});});
   let hours=8;if(e.start&&e.end){const [a1,a2]=e.start.split(':').map(Number),[b1,b2]=e.end.split(':').map(Number);const h=Math.round(((b1*60+b2)-(a1*60+a2))/60);if(h>=1&&h<=16)hours=h;}
   const p={id:uuid(),name:String(e.title||'Projekt').slice(0,160),date:e.date,endDate:e.endDate!==e.date?e.endDate:'',startTime:e.start||'',hours,venue:e.location||'',notes:e.description||'',
     status:'tervezes',crew,equipment:[],calEventId:e.id,baseUpdatedAt:'',mutationId:uuid()};
-  try{const saved=await call('saveProject',p);S.projects.push(saved);closeModal();S.cal.events={};openProject(saved.id);toast(saved.calError||'Projekt létrehozva a naptáreseményből',!!saved.calError);}
-  catch(err){handleErr(err);}
+  try{const saved=await call('saveProject',p);if(!projById(saved.id))S.projects.push(saved);closeModal();S.cal.events={};openProject(saved.id);toast(saved.duplicateOf?'Ebből az eseményből már van projekt':(saved.calError||'Projekt létrehozva a naptáreseményből'),!!saved.calError);}
+  catch(err){handleErr(err);if(btn&&btn.isConnected){btn.disabled=false;btn.textContent='Projekt létrehozása ebből';}}
+  finally{importing=false;}
 }
 function needName(form,msg){const el=form.querySelector('[name=name]');if(el.value.trim().length<2){el.focus();el.style.borderColor='var(--bad)';toast(msg||'Add meg a nevet.',true);return false;}return true;}
 $('modalRoot').addEventListener('submit',async e=>{

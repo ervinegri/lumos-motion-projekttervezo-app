@@ -322,6 +322,8 @@ function saveProject_(u, a) {
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
+      const calId = str_(a.calEventId, 200);
+      if (calId) { const dup = readAll_('projects').find(x => x.calEventId === calId); if (dup) return Object.assign(fullProject_(dup), { duplicateOf: true }); }   // ugyanabból a naptáreseményből már van projekt
       p.createdAt = now_(); p.folderId = ''; p.listSentAt = ''; p.listSentTo = ''; p.calEventId = str_(a.calEventId, 200);   // naptárból importált projekt
     }
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
@@ -359,7 +361,7 @@ function deleteProject_(u, a) {
     const sh = sheetFor_('projects'), row = findRow_(sh, id);
     if (!row) return { deleted: false, id: id };
     const old = readRow_('projects', sh, row);
-    calDelete_(old.calEventId);
+    if (old.calEventId && !readAll_('projects').some(x => x.id !== id && x.calEventId === old.calEventId)) calDelete_(old.calEventId);
     sh.deleteRow(row);
     rewriteAssign_('crewAssign', r => r.projectId !== id, []);
     rewriteAssign_('eqAssign', r => r.projectId !== id, []);
