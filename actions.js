@@ -110,6 +110,12 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='f-client'||!$('hsBox')
   else if(e.key==='Enter'&&i>=0){e.preventDefault();clientPick(Number(its[i].dataset.hs));}
   else if(e.key==='Escape'||e.key==='Tab'){pickClose();}});
 window.addEventListener('scroll',()=>{if($('hsBox')&&!document.activeElement.matches('#f-client'))pickClose();},{passive:true});
+/* a naptár frissítése a mentés után, a háttérben (nem kell rá várni) */
+function syncCal(id){
+  call('syncCalendar',{id}).then(r=>{if(!r)return;const p=projById(id);if(p&&r.calEventId&&p.calEventId!==r.calEventId){p.calEventId=r.calEventId;if(S.draft&&S.draft.id===id&&!S.dirty)S.draft.calEventId=r.calEventId;render(true);}
+    S.cal.events={};if(r.calError)toast(r.calError,true);})
+  .catch(e=>{const m=errText(e);if(m.indexOf('Ismeretlen művelet')<0&&m.indexOf('AUTH_REQUIRED')<0)toast('A naptár frissítése nem sikerült: '+m,true);});
+}
 let importing=false;
 async function importCalEvent(id){
   const e=calEventById(id);if(!e||importing)return;
@@ -143,7 +149,7 @@ function newProjectModal(){
     if(!needName(form,'Add meg a projekt nevét.'))return;
     const p={id:uuid(),name:fd.get('name').trim(),client:fd.get('client').trim(),eventType:fd.get('eventType'),date:fd.get('date')||'',venue:fd.get('venue').trim(),
       status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
-    try{const saved=await call('saveProject',p);S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva');}
+    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva');syncCal(saved.id);}
     catch(e){handleErr(e);}
   }});
 }
@@ -252,12 +258,12 @@ async function saveDraft(){
   const d=S.draft;
   if(String(d.name||'').trim().length<2){toast('Add meg a projekt nevét.',true);return;}
   S.saving=true;renderChrome();
-  const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid()});
+  const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
   try{
     const saved=await call('saveProject',payload);
     const i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;else S.projects.push(saved);
     if(S.projectId===saved.id){S.draft=clone(saved);S.dirty=false;}
-    S.cal.events={};toast(saved.calError||'Mentve',!!saved.calError);
+    S.cal.events={};toast('Mentve');syncCal(saved.id);
   }catch(e){
     const m=errText(e);
     if(m.indexOf('CONFLICT')===0){

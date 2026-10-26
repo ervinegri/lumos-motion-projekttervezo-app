@@ -108,13 +108,15 @@ function api_(raw) {
 let SS_CACHE_ = null;
 function ss_() { return SS_CACHE_ || (SS_CACHE_ = SpreadsheetApp.openById(SPREADSHEET_ID)); }
 
+const SHEET_MEMO_ = {};   // egy futáson belül a munkalapot és a fejléc-ellenőrzést nem ismételjük (gyorsabb mentés)
 function sheetFor_(key) {
+  if (SHEET_MEMO_[key]) return SHEET_MEMO_[key];
   const t = TABLES[key];
   const ss = ss_();
   let sh = ss.getSheetByName(t.tab);
   if (!sh) sh = ss.insertSheet(t.tab);
   ensureHeader_(sh, t.cols.map(c => c[1]), t.tab);
-  return sh;
+  return (SHEET_MEMO_[key] = sh);
 }
 
 function ensureHeader_(sh, labels, tabName) {
@@ -328,16 +330,23 @@ function saveProject_(u, a) {
     }
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
-    rewriteAssign_('crewAssign', r => r.projectId !== id,
-      crew.map(c => ({ projectId: id, crewId: c.crewId, role: c.role, projectName: p.name, crewName: crewMap[c.crewId].name })));
-    rewriteAssign_('eqAssign', r => r.projectId !== id,
-      equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name })));
+    const sig = (list, f) => list.map(f).sort().join('|');
+    const renamed = !old || old.name !== p.name;
+    const oldCrew = old ? readAll_('crewAssign').filter(r => r.projectId === id) : [];
+    if (renamed || sig(oldCrew, r => r.crewId + ':' + r.role) !== sig(crew, c => c.crewId + ':' + c.role))
+      rewriteAssign_('crewAssign', r => r.projectId !== id,
+        crew.map(c => ({ projectId: id, crewId: c.crewId, role: c.role, projectName: p.name, crewName: crewMap[c.crewId].name })));
+    const oldEq = old ? readAll_('eqAssign').filter(r => r.projectId === id) : [];
+    if (renamed || sig(oldEq, r => r.itemId + ':' + r.qty) !== sig(equipment, e => e.itemId + ':' + e.qty))
+      rewriteAssign_('eqAssign', r => r.projectId !== id,
+        equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name })));
     SpreadsheetApp.flush();
     logEvent_(u, old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p) : (p.date ? 'Dátum: ' + p.date : ''));
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
     return out;
   });
+  if (a.deferCal === true || saved.duplicateOf) return saved;   // az új felület külön kérésben frissíti a naptárat, így a mentés gyors
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
 
@@ -421,9 +430,12 @@ function syncCalendar_(p) {
       ev.setTag('lumosProjectId', p.id);
       setCalId_(p.id, ev.getId()); p.calEventId = ev.getId();
     } else {
-      ev.setTitle(title); ev.setDescription(plan.description); ev.setLocation(p.venue || '');
-      if (allDay) ev.setAllDayDates(start, end); else ev.setTime(start, end);
-      ev.setTag('lumosProjectId', p.id);
+      if (ev.getTitle() !== title) ev.setTitle(title);
+      if (ev.getDescription() !== plan.description) ev.setDescription(plan.description);
+      if ((ev.getLocation() || '') !== (p.venue || '')) ev.setLocation(p.venue || '');
+      if (allDay) { if (!ev.isAllDayEvent() || +ev.getAllDayStartDate() !== +start || +ev.getAllDayEndDate() !== +end) ev.setAllDayDates(start, end); }
+      else if (ev.isAllDayEvent() || +ev.getStartTime() !== +start || +ev.getEndTime() !== +end) ev.setTime(start, end);
+      if (ev.getTag('lumosProjectId') !== p.id) ev.setTag('lumosProjectId', p.id);
     }
     // vendégek: a beosztott stábtagok; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
     const want = {}; plan.guests.forEach(m => { want[m] = 1; });
@@ -735,6 +747,7 @@ function sendEquipmentList_(u, a) {
 const LOG_TAB = 'Napló';
 const LOG_HEADERS = ['Mikor', 'Ki', 'Szerepkör', 'Művelet', 'Tárgy', 'Részletek'];
 function logSheet_() {
+  if (SHEET_MEMO_.__log) return SHEET_MEMO_.__log;
   const ss = ss_();
   let sh = ss.getSheetByName(LOG_TAB);
   if (!sh) {
@@ -742,7 +755,7 @@ function logSheet_() {
     try { sh.protect().setDescription('A naplót csak a program írja').setWarningOnly(true); } catch (e) {}
   }
   ensureHeader_(sh, LOG_HEADERS, LOG_TAB);
-  return sh;
+  return (SHEET_MEMO_.__log = sh);
 }
 function logEvent_(u, action, subject, details) {
   try {
@@ -1077,6 +1090,7 @@ function rpc(token, name, arg) {
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
+    case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': return changePin_(u, arg, token);

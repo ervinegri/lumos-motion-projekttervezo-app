@@ -88,7 +88,7 @@ function renderChrome(){
   const bar=$('saveBar');
   const showBar=S.dirty&&S.draft&&S.tab==='projektek';
   bar.classList.toggle('hidden',!showBar);document.body.classList.toggle('has-savebar',!!showBar);
-  if(showBar)bar.innerHTML=`<div class="savebar-in"><p>Nem mentett módosítások: ${esc(S.draft.name||'projekt')}</p><button class="btn outline small" type="button" data-action="discard"${S.saving?' disabled':''}>Elvetés</button><button class="btn primary" type="button" data-action="save"${S.saving?' disabled':''}>${S.saving?'Mentés…':'Mentés'}</button></div>`;
+  if(showBar){const h=`<div class="savebar-in"><p>Nem mentett módosítások: ${esc(S.draft.name||'projekt')}</p><button class="btn outline small" type="button" data-action="discard"${S.saving?' disabled':''}>Elvetés</button><button class="btn primary" type="button" data-action="save"${S.saving?' disabled':''}>${S.saving?'Mentés…':'Mentés'}</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
 }
 function render(force){
   if(!S.me)return;
