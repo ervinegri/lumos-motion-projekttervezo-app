@@ -593,7 +593,7 @@ const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
 const LOCK_PREFIX = 'LUMOS_PM_LOCK_';
 const ROLES = ['admin', 'editor', 'crew'];
-const ROLE_NAMES_ = { admin: 'Adminisztrátor', editor: 'Projektvezető', crew: 'Stáb' };
+const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Stáb' };
 const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
 const LOCK_STEPS_MIN = [15, 60, 360, 1440];
 
@@ -639,11 +639,11 @@ function sendPinMail_(user, pin, isReset) {
   const lines = ['Kedves ' + user.name + ',', '', intro, '',
     'E-mail-cím a belépésnél: ' + user.email, 'PIN-kód: ' + pin, ''];
   if (url) lines.push('Az alkalmazás: ' + url, '');
-  lines.push('A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az adminisztrátornak.' : ''), '', MAIL_SIGNATURE_TEXT);
+  lines.push('A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : ''), '', MAIL_SIGNATURE_TEXT);
   const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p><b>E-mail-cím a belépésnél:</b> ' + escapeHtml_(user.email) + '<br><b>PIN-kód:</b> <span style="font-size:18px;letter-spacing:2px">' + escapeHtml_(pin) + '</span></p>'
     + (url ? '<p>Az alkalmazás: <a href="' + escapeHtml_(url) + '">' + escapeHtml_(url) + '</a></p>' : '')
-    + '<p>A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az adminisztrátornak.' : '') + '</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
+    + '<p>A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : '') + '</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
   try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
   GmailApp.sendEmail(user.email, APP_TITLE + (isReset ? ' – új PIN-kódod' : ' – belépési adataid'), lines.join('\n'), opts);
@@ -657,7 +657,7 @@ function requestPinReset(email) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Írd be az e-mail-címed, utána kérj új PIN-kódot.');
   const cache = CacheService.getScriptCache();
   const hour = Number(cache.get('pm_pinreset_hour') || 0);
-  if (hour >= 30) throw new Error('Túl sok kérés. Próbáld újra később, vagy szólj az adminisztrátornak.');
+  if (hour >= 30) throw new Error('Túl sok kérés. Próbáld újra később, vagy szólj az ügyvezetőnek.');
   cache.put('pm_pinreset_hour', String(hour + 1), 3600);
   let user = null, pin = '', oldSalt = '', oldHash = '';
   withLock_(() => {
@@ -678,7 +678,7 @@ function requestPinReset(email) {
     // ha a levél nem ment ki, a régi PIN marad érvényben
     withLock_(() => { const users = loadUsers_(); const x = users.find(v => v.id === user.id); if (x) { x.salt = oldSalt; x.hash = oldHash; saveUsers_(users); } });
     cache.remove('pm_pinreset_' + user.id);
-    throw new Error('Nem sikerült elküldeni az új PIN-kódot. Próbáld újra később, vagy szólj az adminisztrátornak.');
+    throw new Error('Nem sikerült elküldeni az új PIN-kódot. Próbáld újra később, vagy szólj az ügyvezetőnek.');
   }
   logEvent_(user, 'PIN-visszaállítás', user.name, 'Új PIN kiküldve e-mailben: ' + user.email);
   return GENERIC;
@@ -700,7 +700,7 @@ function setup() {
     if (String(r[0]).trim().length < 2) throw new Error('Hibás név: ' + r[0]);
     if (ROLES.indexOf(r[1]) < 0) throw new Error('Hibás szerepkör: ' + r[1] + ' (admin | editor | crew)');
   });
-  if (!SETUP_USERS.some(r => r[1] === 'admin')) throw new Error('Legalább egy adminisztrátor kell.');
+  if (!SETUP_USERS.some(r => r[1] === 'admin')) throw new Error('Legalább egy ügyvezető kell.');
   withLock_(() => {
     const users = loadUsers_();
     SETUP_USERS.forEach(r => {
@@ -824,7 +824,7 @@ function saveUser_(arg) {
     } else {
       const willDisable = a.disabled === true;
       if (u.role === 'admin' && !u.disabled && (role !== 'admin' || willDisable) && users.filter(x => x.role === 'admin' && !x.disabled).length < 2)
-        throw new Error('Legalább egy aktív adminisztrátornak maradnia kell.');
+        throw new Error('Legalább egy aktív ügyvezetőnek maradnia kell.');
       const roleChanged = u.role !== role;
       u.name = name; u.role = role; u.crewId = crewId; u.disabled = willDisable; u.email = email;
       if (pin) { u.salt = Utilities.getUuid(); u.hash = pinHash_(u.salt, pin); }
@@ -850,7 +850,7 @@ function deleteUser_(arg, self) {
     if (!u) return users.map(adminListUser_);
     if (u.id === self.id) throw new Error('A saját felhasználódat nem törölheted.');
     if (u.role === 'admin' && !u.disabled && users.filter(x => x.role === 'admin' && !x.disabled).length < 2)
-      throw new Error('Legalább egy aktív adminisztrátornak maradnia kell.');
+      throw new Error('Legalább egy aktív ügyvezetőnek maradnia kell.');
     const rest = users.filter(x => x.id !== id);
     saveUsers_(rest);
     revokeSessionsOf_(id);

@@ -28,7 +28,7 @@ const TECH=[
   {k:'t_kepkeveres',label:'Élő képkeverés / streaming',role:'Képkeverő / streaming'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
-const USER_ROLES={admin:'Adminisztrátor',editor:'Projektvezető',crew:'Stáb'};
+const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Stáb'};
 const TOKEN_KEY='lumos_pm_token_v1';
 
 /* ===== Állapot ===== */

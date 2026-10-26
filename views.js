@@ -142,7 +142,7 @@ function viewOverview(){
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Szia, '+esc(S.me.name)+'!':'Áttekintés'}</h2><p class="sub">${esc(F_FULL.format(toDate(T)))}</p></div>
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
     ${welcome}
-    ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az adminisztrátornak.</p></div>`:''}
+    ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
     <div class="tiles">
       ${tile(open.length,ro()?'aktív beosztásod':'aktív projekt')}
       ${tile(next30.length,'rendezvény a következő 30 napban')}
@@ -374,7 +374,7 @@ function viewSettings(){
     <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
     <div class="grid2">
       <div class="panel"><h3>👤 Felhasználók és PIN-kódok <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Új felhasználó</button></span></h3>
-        <p class="hint" style="margin:0 0 10px">Adminisztrátor: mindent lát és kezel. Projektvezető: projekteket, stábot és leltárt szerkeszt. Stáb: csak a saját beosztásait látja, árak nélkül.</p>
+        <p class="hint" style="margin:0 0 10px">Ügyvezető: mindent lát és kezel. Termelési vezető: projekteket, stábot és leltárt szerkeszt. Stáb: csak a saját beosztásait látja, árak nélkül.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
         <div>${log||empty('Még nincs bejegyzés.')}</div></div>
