@@ -21,6 +21,20 @@ const moneyVal=s=>{const d=String(s||'').replace(/\D/g,'');return d===''?'':Math
 const moneyField=(name,label,v,o={})=>`<div class="field"><label for="m-${name}">${label}</label><div class="money">${o.steps===false?'':`<button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="-1" aria-label="${label}: −1000 Ft">−</button>`}<input class="inp money-inp" id="m-${name}" name="${name}" type="text" inputmode="numeric" autocomplete="off" placeholder="${esc(o.ph||'pl. 40 000')}" value="${esc(moneyFmt(v))}" data-money="1"><span class="money-unit">Ft</span>${o.steps===false?'':`<button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="1" aria-label="${label}: +1000 Ft">+</button>`}</div></div>`;
 /* a Beállítások naplója a felhasználók mentése után frissül */
 function refreshLog(){if(S.tab!=='beallitasok')return;call('getLog').then(l=>{S.log=l;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}).catch(()=>{});}
+function pinModal(){
+  const pf=(n,l,ac)=>`<div class="field full"><label for="m-${n}">${l}</label><input class="inp pin" id="m-${n}" name="${n}" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="${ac}" placeholder="••••••"></div>`;
+  openModal('PIN-kód módosítása',`<div class="fields">${pf('oldPin','Jelenlegi PIN','current-password')}${pf('newPin','Új PIN (6 számjegy)','new-password')}${pf('newPin2','Új PIN még egyszer','new-password')}</div>
+    <p class="hint" style="margin:0">A többi eszközön, ahol be vagy lépve, ezután újra be kell lépni. Ha elfelejtetted a jelenlegi PIN-t, lépj ki, és a belépőn kérj újat („Elfelejtettem a PIN-kódom”).</p>`,
+  {submitLabel:'PIN módosítása',submit:async fd=>{
+    const o=String(fd.get('oldPin')||'').trim(),n=String(fd.get('newPin')||'').trim(),n2=String(fd.get('newPin2')||'').trim();
+    if(!/^\d{6}$/.test(o)){toast('Add meg a jelenlegi PIN-t (6 számjegy).',true);$('m-oldPin').focus();return;}
+    if(!/^\d{6}$/.test(n)){toast('Az új PIN 6 számjegy legyen.',true);$('m-newPin').focus();return;}
+    if(n!==n2){toast('A két új PIN nem egyezik.',true);$('m-newPin2').value='';$('m-newPin2').focus();return;}
+    try{await call('changePin',{oldPin:o,newPin:n});closeModal();toast('A PIN-kódod megváltozott.');}
+    catch(e){handleErr(e);}
+  }});
+}
+document.addEventListener('input',e=>{const t=e.target;if(t.classList&&t.classList.contains('pin')&&t.closest&&t.closest('#mform')){const v=t.value.replace(/\D/g,'').slice(0,6);if(t.value!==v)t.value=v;}});
 function needName(form,msg){const el=form.querySelector('[name=name]');if(el.value.trim().length<2){el.focus();el.style.borderColor='var(--bad)';toast(msg||'Add meg a nevet.',true);return false;}return true;}
 $('modalRoot').addEventListener('submit',async e=>{
   e.preventDefault();if(!modalSubmit)return;
@@ -220,6 +234,7 @@ const ACT={
     S.addEq={item:'',qty:1};setDraft({equipment});},
   'eq-remove':b=>setDraft({equipment:clone(S.draft.equipment||[]).filter(e=>e.itemId!==b.dataset.id)}),
   'send-list':()=>sendListModal(),
+  'my-pin':()=>{if(S.me)pinModal();},
   'money-step':b=>{const el=$(b.dataset.for);if(!el)return;const cur=Number(moneyVal(el.value)||0);const n=Math.max(0,Math.min(MONEY_MAX,(Math.round(cur/MONEY_STEP)+Number(b.dataset.d))*MONEY_STEP));el.value=moneyFmt(n);el.focus();},
   'copy-pack':()=>{if(S.draft)copyText(packingList(S.draft),'Pakolási lista a vágólapon');},
   'make-folder':async b=>{const d=S.draft;if(!d)return;b.disabled=true;b.textContent='Mappa létrehozása…';

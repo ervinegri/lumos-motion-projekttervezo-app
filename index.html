@@ -43,7 +43,8 @@ h1,h2,h3{text-wrap:balance}
 .app-name{font-weight:780;font-size:14px;color:var(--fg-3);white-space:nowrap}
 .topbar-page-title{font-size:clamp(17px,2vw,26px);font-weight:780;letter-spacing:-.03em;line-height:1.1;margin:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
 .header-tools{justify-self:end;display:flex;align-items:center;gap:8px;min-width:0}
-.user-chip{font-size:12px;font-weight:700;color:var(--fg-2);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:6px 11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.user-chip:hover{border-color:var(--accent);color:var(--accent)}
+.user-chip{cursor:pointer;font-size:12px;font-weight:700;color:var(--fg-2);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:6px 11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
 .tabs-wrap{max-width:1500px;margin:auto;padding:0 clamp(16px,3vw,44px) 10px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
 .tab{border:1px solid var(--line);background:#fff;color:var(--fg-2);font-weight:740;padding:9px 15px;border-radius:100px;font-size:14px;display:inline-flex;gap:7px;align-items:center}
@@ -54,7 +55,7 @@ h1,h2,h3{text-wrap:balance}
   .topbar-inner{grid-template-columns:auto 1fr;min-height:64px;padding-block:10px}
   .topbar-page-title{display:none}
   .logo{font-size:18px}.brand{height:44px}.vert-line,.app-name{display:none}
-  .user-chip{display:none}
+  .user-chip{max-width:110px;padding:6px 9px}
   .tab{flex:1 1 auto;justify-content:center;padding:9px 10px}
 }
 
@@ -344,7 +345,7 @@ body.ro .w{display:none!important}
       <div class="identity"><img class="brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező"></div>
       <h1 class="topbar-page-title" id="pageTitle">Áttekintés</h1>
       <div class="header-tools">
-        <span id="userChip" class="user-chip hidden"></span>
+        <button id="userChip" class="user-chip hidden" type="button" data-action="my-pin" title="PIN-kód módosítása"></button>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>
       </div>

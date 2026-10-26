@@ -75,7 +75,7 @@ function renderChrome(){
   const on=!!S.me;
   ['userChip','refreshBtn','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
   if(!on){$('tabs').innerHTML='';return;}
-  $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role);
+  $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role)+' ▾';
   const counts={projektek:S.projects.filter(isOpen).length,stab:S.crew.length,leltar:S.inventory.length};
   $('tabs').innerHTML=TABS().map(t=>`<button class="tab" role="tab" type="button" aria-selected="${S.tab===t.id}" data-action="tab" data-tab="${t.id}">${t.label}${counts[t.id]!=null?`<span class="count">${counts[t.id]}</span>`:''}</button>`).join('');
   const title=S.tab==='projektek'&&S.draft?(S.draft.name||'Projekt'):(TABS().find(t=>t.id===S.tab)||{}).label||'';

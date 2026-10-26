@@ -870,6 +870,41 @@ function deleteUser_(arg, self) {
   });
 }
 
+/** Saját PIN módosítása belépve: a régi PIN-t ellenőrizzük (hibás próbálkozásnál ugyanaz a zárolás, mint belépéskor),
+ *  a többi eszközön a munkamenetek megszűnnek, az aktuális megmarad. */
+function changePin_(u, a, token) {
+  const oldPin = String(a && a.oldPin || '').trim(), newPin = String(a && a.newPin || '').trim();
+  if (!/^\d{6}$/.test(newPin)) throw new Error('Az új PIN pontosan 6 számjegy legyen.');
+  if (/^(\d)\1{5}$/.test(newPin) || '0123456789'.indexOf(newPin) >= 0 || '9876543210'.indexOf(newPin) >= 0) throw new Error('Túl egyszerű PIN (pl. 111111 vagy 123456). Válassz másikat.');
+  if (oldPin === newPin) throw new Error('Az új PIN nem lehet ugyanaz, mint a régi.');
+  const now = Date.now();
+  withLock_(() => {
+    const users = loadUsers_(), x = users.find(v => v.id === u.id);
+    if (!x) throw new Error('AUTH_REQUIRED');
+    let st = lockState_(x.id);
+    if (st.until > now) throw new Error('Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(st.until - now) + ' múlva.');
+    if (!/^\d{6}$/.test(oldPin) || pinHash_(x.salt, oldPin) !== x.hash) {
+      Utilities.sleep(700);
+      st.fails = (st.fails || 0) + 1; st.last = now;
+      let msg = 'A jelenlegi PIN nem jó.';
+      if (st.fails >= 5) {
+        const mins = LOCK_STEPS_MIN[Math.min(st.level || 0, LOCK_STEPS_MIN.length - 1)];
+        st.until = now + mins * 60000; st.level = (st.level || 0) + 1; st.fails = 0;
+        msg = 'Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(mins * 60000) + ' múlva.';
+      }
+      lockSave_(x.id, st);
+      throw new Error(msg);
+    }
+    x.salt = Utilities.getUuid(); x.hash = pinHash_(x.salt, newPin);
+    saveUsers_(users);
+    PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + x.id);
+  });
+  const keep = SESSION_PREFIX + sha256hex_(String(token)), props = PropertiesService.getScriptProperties(), all = props.getProperties();
+  Object.keys(all).forEach(k => { if (k.indexOf(SESSION_PREFIX) === 0 && k !== keep) { try { if (JSON.parse(all[k]).uid === u.id) props.deleteProperty(k); } catch (e) {} } });
+  logEvent_(u, 'PIN módosítva', u.name, 'saját PIN, a többi eszközön kiléptetve');
+  return { ok: true };
+}
+
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
 function rpc(token, name, arg) {
   const u = authUser_(token);
@@ -881,6 +916,7 @@ function rpc(token, name, arg) {
     case 'whoAmI': return publicUser_(u);
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
+    case 'changePin': return changePin_(u, arg, token);
     case 'saveProject': canEdit(); return saveProject_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
