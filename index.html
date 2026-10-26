@@ -33,7 +33,9 @@ h1,h2,h3{text-wrap:balance}
 
 /* fejléc */
 .topbar{position:sticky;top:0;z-index:20;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.topbar-inner{max-width:1500px;margin:auto;padding:12px clamp(16px,3vw,44px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;min-height:76px}
+.topbar-inner{max-width:1500px;margin:auto;padding:12px clamp(16px,3vw,44px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'logo tabs tools';align-items:center;gap:16px 22px;min-height:76px}
+.identity{grid-area:logo}.topbar-inner>.tabs{grid-area:tabs}.header-tools{grid-area:tools}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .identity{display:flex;align-items:center;gap:16px;min-width:0}
 .logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;line-height:.88;font-size:22px;letter-spacing:-1px;color:#000;flex:none}
 .logo span{display:block}
@@ -51,8 +53,11 @@ h1,h2,h3{text-wrap:balance}
 .tab:hover{border-color:var(--line-strong)}
 .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .tab .count{font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
+@media (max-width:1180px){
+  .topbar-inner{grid-template-columns:auto 1fr;grid-template-areas:'logo tools' 'tabs tabs'}
+}
 @media (max-width:760px){
-  .topbar-inner{grid-template-columns:auto 1fr;min-height:64px;padding-block:10px}
+  .topbar-inner{grid-template-columns:auto 1fr;grid-template-areas:'logo tools' 'tabs tabs';min-height:64px;padding-block:10px}
   .topbar-page-title{display:none}
   .logo{font-size:18px}.brand{height:44px}.vert-line,.app-name{display:none}
   .user-chip{max-width:110px;padding:6px 9px}
@@ -373,14 +378,14 @@ body.ro .w{display:none!important}
   <header class="topbar">
     <div class="topbar-inner">
       <div class="identity"><img class="brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező"></div>
-      <h1 class="topbar-page-title" id="pageTitle">Áttekintés</h1>
+      <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
         <button id="userChip" class="user-chip hidden" type="button" data-action="my-pin" title="PIN-kód módosítása"></button>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>
       </div>
     </div>
-    <div class="tabs-wrap"><nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav></div>
   </header>
   <main class="content" id="view"><div class="loading"><span class="spin"></span>Betöltés…</div></main>
 </div>
