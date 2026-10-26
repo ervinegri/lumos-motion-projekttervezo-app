@@ -32,7 +32,7 @@ const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 
 const CREW_ROLES = ['Projektvezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
-const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop', 'Tablet', 'Telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
+const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny'];
@@ -147,6 +147,7 @@ function fromRow_(t, r) {
     else v = String(v).replace(/^'/, '');
     if (k === 'role' && v === 'Termelési vezető') v = 'Projektvezető';   // régi elnevezés
     if (k === 'category' && v === 'Kábel / egyéb') v = 'Egyéb';   // régi kategória
+    if (k === 'category' && (v === 'Laptop' || v === 'Tablet' || v === 'Telefon')) v = 'Laptop / tablet / telefon';
     o[k] = v;
   });
   if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean).map(r => r === 'Termelési vezető' ? 'Projektvezető' : r);   // régi elnevezés
@@ -240,6 +241,10 @@ function bootstrap_(u) {
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     serverTime: now_()
   };
+  if (u.role !== 'admin') {
+    // a beszerzési értéket csak az ügyvezető látja (a termelési vezető megadhatja, de visszaolvasni nem tudja)
+    out.inventory = inventory.map(i => Object.assign({}, i, { value: null, hasValue: i.value != null && i.value !== '' }));
+  }
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
     out.projects = projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
@@ -450,12 +455,14 @@ function saveItem_(u, a) {
       old = readRow_('inventory', sh, row);
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt az eszközt.');
       it.createdAt = old.createdAt;
+      if (u.role !== 'admin' && it.value == null) it.value = old.value;   // üresen hagyva a meglévő érték marad
     } else it.createdAt = now_();
     it.updatedAt = now_();
     putRow_('inventory', sh, it, row);
     if (old && old.name !== it.name) rewriteAssign_('eqAssign', () => true, [], r => { if (r.itemId === id) r.itemName = it.name; });
     SpreadsheetApp.flush();
     logEvent_(u, old ? 'Eszköz módosítva' : 'Eszköz felvéve', it.name, it.qty + ' db · ' + CONDITION_LABELS[it.condition]);
+    if (u.role !== 'admin') return Object.assign({}, it, { value: null, hasValue: it.value != null && it.value !== '' });
     return it;
   });
 }
