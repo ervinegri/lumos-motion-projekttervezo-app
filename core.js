@@ -8,7 +8,7 @@ const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
 const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Állvány / grip','Akku / táp','Adathordozó','Vágóállomás','Laptop','Tablet','Telefon','Kocsi / szállítás','Kábel','Egyéb'];
-const CONDITIONS={ok:'Rendben',javitas:'Javításra vár',szerviz:'Szervizben',selejt:'Selejtezett'};
+const CONDITIONS={ok:'Üzemképes',javitas:'Javításra vár',szerviz:'Szervizben',selejt:'Selejtezett'};
 const DELIVERABLES=[
   {k:'aftermovie',label:'Aftermovie',w:.33,max:3},
   {k:'interju',label:'Interjúk / kiállítói imázsfilmek',w:.30,max:8},

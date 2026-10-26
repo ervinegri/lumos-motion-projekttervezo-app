@@ -68,7 +68,7 @@ const TABLES = {
 const NUM_FIELDS = new Set(['priority', 'hours', 'aftermovie', 'interju', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt']);
-const CONDITION_LABELS = { ok: 'Rendben', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
+const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
 const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', atadva: 'Átadva', lemondva: 'Lemondva' };
 const ID_RE = /^[A-Za-z0-9-]{8,64}$/;
 
