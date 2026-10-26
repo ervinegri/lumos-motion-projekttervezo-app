@@ -247,7 +247,7 @@ function viewProject(p){
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         ${fld(p,'venue','Helyszín',{full:true,ph:'pl. MVM Dome, Budapest'})}
         ${fld(p,'date','Első nap',{type:'date'})}
-        ${fld(p,'endDate','Utolsó nap (ha több napos)',{type:'date'})}
+        ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
         ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
         ${fld(p,'hours','Helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
         ${fld(p,'contactName','Kapcsolattartó')}

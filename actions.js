@@ -365,6 +365,7 @@ document.addEventListener('change',e=>{
   const t=e.target,d=S.draft;
   if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
+  if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqQty!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment.find(x=>x.itemId===t.dataset.eqQty);if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}
