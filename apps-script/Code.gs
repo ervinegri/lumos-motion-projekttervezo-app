@@ -59,7 +59,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -76,7 +76,7 @@ const TABLES = {
 };
 const NUM_FIELDS = new Set(['er_rooms', 'er_clips', 'er_subs', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
-const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt']);
+const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
 const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', atadva: 'Átadva', lemondva: 'Lemondva' };
 const ID_RE = /^[A-Za-z0-9-]{8,64}$/;
@@ -294,7 +294,7 @@ function saveProject_(u, a) {
     lead: str_(a.lead, 64),
     quotePrice: null,   // a Projekttervező nem kezel árakat
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(),
-    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveredAt: iso_(a.deliveredAt)
+    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';

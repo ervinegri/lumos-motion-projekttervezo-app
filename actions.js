@@ -323,6 +323,7 @@ const ACT={
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.k==='er_rooms'?Math.max(1,num(d[it.k])||1):num(d[it.k]);setDraft({[it.k]:Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)))});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
+  'due-reset':()=>{if(S.draft)setDraft({dueAt:''});},
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}
@@ -372,6 +373,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
+  if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}

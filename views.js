@@ -232,9 +232,11 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole){
   const cards=ids.map(cid=>{const cr=crewById(cid),busy=busyFor(cid,p);
     const roles=(p.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);
     const roleHtml=(p.lead===cid?`<span class="statuspill p-ok">Projektvezető</span>`:'')+roles.map(({a,i})=>`<span class="role-sel"><select class="inp" data-crew-role="${i}" aria-label="Szerep"${D()}>${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===a.role?' selected':''}>${esc(rl)}</option>`).join('')}</select><button class="x w" type="button" data-action="crew-remove" data-i="${i}" aria-label="Szerep eltávolítása" title="Levétel a projektről ebben a szerepben">×</button></span>`).join('');
+    const free=CREW_ROLES.filter(r=>r!=='Projektvezető'&&!roles.some(x=>x.a.role===r));
+    const addRole=ro()||!free.length?'':`<span class="role-sel role-add"><select class="inp" data-crew-addrole="${esc(cid)}" aria-label="Extra szerep hozzáadása"><option value="">+ Szerep</option>${free.map(rl=>`<option>${esc(rl)}</option>`).join('')}</select></span>`;
     const rows=eqRowsFor(p,cid);
     return `<div class="pcrew"><div class="pcrew-top">${avatar(cr)}<div class="who"><b>${esc(cr?cr.name:'Törölt munkatárs')}</b>${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
-      <div class="pcrew-roles">${roleHtml}</div>
+      <div class="pcrew-roles">${roleHtml}${addRole}</div>
       <div class="pcrew-eq">${rows||'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${eqAddRow(p,cid,opts)}</div></div>`;}).join('');
   const commonRows=eqRowsFor(p,'')+(p.equipment||[]).map((e,i)=>({e,i})).filter(x=>x.e.crewId&&!ids.includes(x.e.crewId)).map(({e,i})=>{const it=itemById(e.itemId);
     return `<div class="eqrow"><div class="who"><b>${esc(it?it.name:'Törölt eszköz')}</b><small>${esc((crewById(e.crewId)||{}).name||'')} – már nincs a projekten</small></div><input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-i="${i}" value="${num(e.qty)}" aria-label="Darabszám"${D()}><button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
@@ -342,7 +344,8 @@ function viewProject(p){
       ${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}
       <div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
-        <div class="kv"><span>Átadási határidő</span><b>${r?fmtDay(dueDate(p)):'—'} <span class="muted" style="font-weight:500">· ${p.x_rush?'villámgyors, 72 óra':'7 napos garancia'}</span></b></div>
+        <div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
+          <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:(p.x_rush?'villámgyors, 72 óra':'7 napos garancia')}</span></span></div>
         ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}
         ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>Átadva</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
         <div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>
