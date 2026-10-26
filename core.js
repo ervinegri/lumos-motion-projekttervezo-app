@@ -23,7 +23,7 @@ const EXTRAS=[
   {k:'x_foto',label:'Fotózás',role:'Fotós',base:true},
   {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
-  {k:'x_rush',label:'Villámgyors kézbesítés (72 óra)',pct:'rush'}];
+  {k:'x_rush',label:'Villámgyors kézbesítés',pct:'rush'}];
 const REC_CAMS=[
   {k:'er_total',label:'Teljes alakos kamera szög',sub:'Alap színpadi plán'},
   {k:'er_close',label:'Közeli kamera szög kamerával',sub:'Arc és mimika'},

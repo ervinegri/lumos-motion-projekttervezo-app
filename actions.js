@@ -235,6 +235,7 @@ function sendListModal(){
   {submitLabel:'Küldés',submit:async fd=>{
     const to=fd.getAll('to');if(!to.length){toast('Válassz ki legalább egy címzettet.',true);return;}
     try{
+      await SAVE_Q;   // a még folyamatban lévő mentés előbb érjen be, hogy a friss lista menjen ki
       const r=await call('sendEquipmentList',{projectId:p.id,recipients:to,message:String(fd.get('message')||'').trim(),includePlan:fd.get('plan')==='on'});
       [projById(p.id),S.draft].forEach(x=>{if(x){x.listSentAt=r.listSentAt;x.listSentTo=r.listSentTo;}});
       closeModal();render(true);toast('Eszközlista elküldve: '+r.names.join(', '));
@@ -253,23 +254,39 @@ function guard(fn){
   if(!S.dirty){fn();return;}
   confirmModal('Nem mentett módosítások','A projekten vannak el nem mentett módosítások. Elveted őket?','Elvetés',()=>{S.dirty=false;S.draft=S.projectId&&projById(S.projectId)?clone(projById(S.projectId)):null;fn();});
 }
-async function saveDraft(){
-  if(!S.draft||S.saving)return;
-  const d=S.draft;
+/* Mentés azonnal a felületen (optimista), a háttérben sorban küldjük a szervernek.
+   Így nem kell megvárni az Apps Scriptet; ha a mentés mégsem sikerül, visszakapod a módosításokat és szólunk. */
+let SAVE_Q=Promise.resolve();
+const SAVE_PENDING={};
+function saveDraft(){
+  if(!S.draft||ro())return;
+  const d=clone(S.draft);
   if(String(d.name||'').trim().length<2){toast('Add meg a projekt nevét.',true);return;}
-  S.saving=true;renderChrome();
-  const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
-  try{
-    const saved=await call('saveProject',payload);
-    const i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;else S.projects.push(saved);
-    if(S.projectId===saved.id){S.draft=clone(saved);S.dirty=false;}
-    S.cal.events={};toast('Mentve');syncCal(saved.id);
-  }catch(e){
-    const m=errText(e);
-    if(m.indexOf('CONFLICT')===0){
-      openModal('Közben módosult a projekt',`<p style="margin:0">Valaki más is elmentette ezt a projektet, amíg szerkesztetted. A te módosításaid csak itt vannak meg, ezért ha újratöltöd, elvesznek. Jegyezd fel, mit módosítottál, aztán töltsd újra a projektet.</p>`,{submitLabel:'Újratöltés',submit:async()=>{closeModal();S.dirty=false;await load(false);const p=projById(d.id);if(p)S.draft=clone(p);render(true);}});
-    }else handleErr(e);
-  }finally{S.saving=false;render(true);}
+  const i=S.projects.findIndex(x=>x.id===d.id),prev=i>=0?S.projects[i]:null;
+  const local=Object.assign({},prev||{},d,{updatedAt:prev?prev.updatedAt:''});
+  if(i>=0)S.projects[i]=local;else S.projects.push(local);
+  S.dirty=false;S.saving=(S.saving||0)+1;SAVE_PENDING[d.id]=(SAVE_PENDING[d.id]||0)+1;
+  S.cal.events={};toast('Mentve');render(true);
+  SAVE_Q=SAVE_Q.then(async()=>{
+    const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
+    try{
+      const saved=await call('saveProject',payload);
+      const newer=--SAVE_PENDING[d.id]>0;   // közben újabb mentés is indult erre a projektre
+      const k=S.projects.findIndex(x=>x.id===d.id||x.id===saved.id);
+      if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}
+      else{if(k>=0)S.projects[k]=saved;else S.projects.push(saved);
+        if(S.projectId===saved.id&&!S.dirty)S.draft=clone(saved);}
+      S.cal.events={};syncCal(saved.id);
+    }catch(e){
+      SAVE_PENDING[d.id]--;
+      if(S.projectId===d.id&&!S.dirty){S.draft=clone(d);S.dirty=true;}   // a módosítások ne vesszenek el
+      const m=errText(e);
+      if(m.indexOf('CONFLICT')===0){
+        openModal('Közben módosult a projekt',`<p style="margin:0">Valaki más is elmentette ezt a projektet, amíg szerkesztetted. A te módosításaid csak itt vannak meg, ezért ha újratöltöd, elvesznek. Jegyezd fel, mit módosítottál, aztán töltsd újra a projektet.</p>`,{submitLabel:'Újratöltés',submit:async()=>{closeModal();S.dirty=false;await load(false);const p=projById(d.id);if(p)S.draft=clone(p);render(true);}});
+      }else{toast('Nem sikerült menteni: '+m,true);}
+    }finally{S.saving--;render(true);}
+  });
+  return SAVE_Q;
 }
 function packingList(p){
   const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,''];
@@ -319,7 +336,7 @@ const ACT={
   discard:()=>{const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
   'cancel-toggle':()=>{const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
-  'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
+  'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.k==='er_rooms'?Math.max(1,num(d[it.k])||1):num(d[it.k]);setDraft({[it.k]:Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)))});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
@@ -373,6 +390,8 @@ document.addEventListener('change',e=>{
   if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
+  if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
+    setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:{[k]:n});return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
@@ -383,7 +402,7 @@ document.addEventListener('change',e=>{
   if(t.id==='inv-cat'){S.inf.cat=t.value;render(true);return;}
   if(t.id==='inv-cond'){S.inf.cond=t.value;render(true);return;}
 });
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.dirty){e.preventDefault();saveDraft();}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('step-in')){e.preventDefault();e.target.blur();return;}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.dirty){e.preventDefault();saveDraft();}});
 
 /* ===== Indítás ===== */
 if(TOKEN)load();else{VIEW.innerHTML='';showLogin('');}
