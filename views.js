@@ -336,7 +336,7 @@ function viewProject(p){
         ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
       </details>
-      <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>🎛️ Vizuál-, hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
+      <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>💡 Hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
         <div class="toggles">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
       </details>
