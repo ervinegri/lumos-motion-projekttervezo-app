@@ -59,7 +59,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -73,7 +73,7 @@ const TABLES = {
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz']] }
 };
-const NUM_FIELDS = new Set(['er_rooms', 'er_clips', 'er_subs', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
+const NUM_FIELDS = new Set(['er_rooms', 'er_clips', 'er_subs', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
@@ -301,6 +301,8 @@ function saveProject_(u, a) {
   if (p.deliveryLink && !/^https:\/\//i.test(p.deliveryLink)) throw new Error('Az átadási link https:// előtaggal kezdődjön.');
   Object.keys(COUNTS).forEach(k => { p[k] = int_(a[k], 0, COUNTS[k], 0); });
   FLAGS.forEach(k => { p[k] = a[k] === true; });
+  p.foto_db = (a.foto_db === undefined || a.foto_db === null || a.foto_db === '') ? (p.x_foto ? 150 : 0) : int_(a.foto_db, 0, 1000, 0);
+  p.x_foto = p.foto_db > 0;
   p.er_res = a.er_res === '4k' ? '4k' : 'hd';
   p.er_rooms = int_(a.er_rooms, 1, 10, 1);
   if (['er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream'].some(k => p[k])) p.t_eloadas = true;   // a régi jelölő automatikusan
@@ -410,6 +412,7 @@ function calPlan_(p) {
   const rec = Object.keys(REC_LABELS).filter(k => p[k] === true).map(k => REC_LABELS[k]);
   if (Number(p.er_clips) > 0) rec.push(p.er_clips + ' kivágás');
   if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
+  if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
   if (rec.length) lines.push('Előadásrögzítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
   if (p.client) lines.push('Ügyfél: ' + p.client);
   if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.hours ? ' · ' + p.hours + ' óra' : ''));
