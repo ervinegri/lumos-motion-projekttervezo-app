@@ -274,9 +274,13 @@ async function saveDraft(){
 function packingList(p){
   const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,''];
   const eq=(p.equipment||[]).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
-  INV_CATS.forEach(cat=>{const items=eq.filter(x=>(x.it.category||'Egyéb')===cat);if(!items.length)return;lines.push(cat.toUpperCase());items.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));lines.push('');});
-  const crew=[...crewIds(p)].map(id=>crewById(id)).filter(Boolean);
-  if(crew.length){lines.push('STÁB');crew.forEach(c=>lines.push(`• ${c.name}${c.phone?' – '+c.phone:''}`));}
+  const line=({e,it})=>`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`;
+  const people=[...crewIds(p)];
+  people.forEach(cid=>{const mine=eq.filter(x=>x.e.crewId===cid);if(!mine.length)return;const c=crewById(cid);lines.push(((c&&c.name)||'?').toUpperCase()+(c&&c.phone?' – '+c.phone:''));mine.forEach(x=>lines.push(line(x)));lines.push('');});
+  const common=eq.filter(x=>!x.e.crewId||!people.includes(x.e.crewId));
+  if(common.length){lines.push('KÖZÖS ESZKÖZÖK');common.forEach(x=>lines.push(line(x)));lines.push('');}
+  const noEq=people.filter(cid=>!eq.some(x=>x.e.crewId===cid)).map(cid=>crewById(cid)).filter(Boolean);
+  if(noEq.length){lines.push('STÁB (eszköz nélkül)');noEq.forEach(c=>lines.push(`• ${c.name}${c.phone?' – '+c.phone:''}`));}
   return lines.join('\n').trim();
 }
 async function copyText(t,label){
@@ -323,12 +327,14 @@ const ACT={
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}
     crew.push({crewId:id,role});S.addCrew={person:'',role:''};setDraft({crew});},
-  'crew-remove':b=>{const crew=clone(S.draft.crew||[]);crew.splice(Number(b.dataset.i),1);setDraft({crew});},
-  'eq-add':()=>{const d=S.draft;if(!d)return;const id=S.addEq.item;if(!id){toast('Válassz eszközt.',true);return;}
-    const qty=Math.max(1,Math.round(num($('add-eq-qty').value)||1));const equipment=clone(d.equipment||[]);
-    const ex=equipment.find(e=>e.itemId===id);if(ex)ex.qty=num(ex.qty)+qty;else equipment.push({itemId:id,qty});
-    S.addEq={item:'',qty:1};setDraft({equipment});},
-  'eq-remove':b=>setDraft({equipment:clone(S.draft.equipment||[]).filter(e=>e.itemId!==b.dataset.id)}),
+  'crew-remove':b=>{const d=S.draft;const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
+    if(gone&&gone.crewId!==d.lead&&!crew.some(a=>a.crewId===gone.crewId)&&equipment.some(e=>e.crewId===gone.crewId)){equipment=clone(equipment).map(e=>e.crewId===gone.crewId?Object.assign(e,{crewId:''}):e);toast('A nála lévő eszközök a Közös eszközökhöz kerültek.');}
+    setDraft({crew,equipment});},
+  'eq-add':b=>{const d=S.draft;if(!d)return;const key=b.dataset.crew||'',sk=key||'common';const sel=$('add-eq-item-'+sk),qel=$('add-eq-qty-'+sk);const id=sel&&sel.value;if(!id){toast('Válassz eszközt.',true);if(sel)sel.focus();return;}
+    const qty=Math.max(1,Math.round(num(qel&&qel.value)||1));const equipment=clone(d.equipment||[]);
+    const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);if(ex)ex.qty=num(ex.qty)+qty;else equipment.push({itemId:id,qty,crewId:key});
+    setDraft({equipment});},
+  'eq-remove':b=>{const equipment=clone(S.draft.equipment||[]);equipment.splice(Number(b.dataset.i),1);setDraft({equipment});},
   'send-list':()=>sendListModal(),
   'cal-nav':b=>{const d=Number(b.dataset.d);if(!d)S.cal.month=todayISO().slice(0,7);else{const [y,m]=S.cal.month.split('-').map(Number);const n=new Date(Date.UTC(y,m-1+d,1));S.cal.month=n.toISOString().slice(0,7);}render(true);},
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
@@ -367,7 +373,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
-  if(t.dataset.eqQty!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment.find(x=>x.itemId===t.dataset.eqQty);if(ex){ex.qty=q;setDraft({equipment});}return;}
+  if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}

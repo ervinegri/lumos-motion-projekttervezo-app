@@ -29,7 +29,7 @@ const REC_CAMS=[
   {k:'er_close',label:'Közeli kamera szög',sub:'Arc és mimika'},
   {k:'er_crowd',label:'Közönség kamera',sub:'Hangulat és reakciók'},
   {k:'er_slides',label:'Diák rögzítése',sub:'Tiszta jel a projektorról'}];
-const REC_LIVE={k:'er_stream',label:'Élő közvetítés kivetítőn vagy streamen, élő vágással',sub:'Élő képválasztás, több forrás',role:'Képkeverő / streaming'};
+const REC_LIVE={k:'er_stream',label:'Élő közvetítés LED falon, projektoron vagy streamben',sub:'Élő képválasztás, több forrás',role:'Képkeverő / streaming'};
 const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:1}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||!!p.er_stream;
 const TECH=[
@@ -102,7 +102,9 @@ function staffing(p){
   const c=calc(p),need={'Projektvezető':1,'Operatőr':c.ops};
   EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+1;});
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
-  REC_CAMS.concat([REC_LIVE]).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
+  const rooms=Math.max(1,num(p.er_rooms)||1);
+  REC_CAMS.concat([REC_LIVE]).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
+  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms);   // termenként legalább 1 operatőr
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   return Object.keys(need).map(r=>({role:r,need:need[r],have:have[r]||0}));

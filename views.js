@@ -195,6 +195,57 @@ const fotoDb=p=>num(p.foto_db)>0?num(p.foto_db):(p.x_foto?FOTO_DEF:0);
 function fotoRow(p){const n=fotoDb(p);
   return `<div class="dl${n?' on':''}"><div><div class="dl-name">Fotózás</div>${n?`<div class="dl-price">${n} db fotó</div>`:''}</div>
     <div class="stepper"><button type="button" data-action="foto-step" data-d="-1" aria-label="Fotózás: kevesebb"${n<=0||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="foto-step" data-d="1" aria-label="Fotózás: több"${n>=FOTO_MAX||ro()?' disabled':''}>+</button></div></div>`;}
+/* ===== Stáb és eszközök egy panelen: munkatársanként a nála lévő eszközök ===== */
+function eqNote(e,it,p){
+  if(!it)return '';const free=num(it.qty)-usedElsewhere(it.id,p)-(eqQty(p,it.id)-num(e.qty));
+  if(num(e.qty)>free)return `<span class="bad-txt">Csak ${Math.max(0,free)} db szabad ezen a napon</span>`;
+  if(it.condition&&it.condition!=='ok')return `<span class="warn-txt">${esc(CONDITIONS[it.condition])}</span>`;
+  return `<small>${esc(it.category||'Egyéb')}${it.location?' · '+esc(it.location):''}</small>`;
+}
+function itemOptions(p){
+  return INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
+    if(!items.length)return '';return `<optgroup label="${esc(cat)}">${items.map(i=>{const free=num(i.qty)-usedElsewhere(i.id,p)-eqQty(p,i.id);return `<option value="${esc(i.id)}"${free<=0?' disabled':''}>${esc(i.name)} — ${Math.max(0,free)}/${num(i.qty)} szabad${i.condition&&i.condition!=='ok'?' ('+CONDITIONS[i.condition].toLowerCase()+')':''}</option>`;}).join('')}</optgroup>`;}).join('');
+}
+function eqRowsFor(p,key){
+  return (p.equipment||[]).map((e,i)=>({e,i})).filter(x=>(x.e.crewId||'')===key).map(({e,i})=>{const it=itemById(e.itemId);
+    return `<div class="eqrow"><div class="who"><b>${esc(it?it.name:'Törölt eszköz')}</b>${eqNote(e,it,p)}</div>
+      <input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-i="${i}" value="${num(e.qty)}" aria-label="Darabszám"${D()}>
+      <button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
+}
+function eqAddRow(p,key,opts){
+  if(ro()||!S.inventory.length)return '';
+  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" aria-label="Eszköz"><option value="">+ Eszköz hozzárendelése…</option>${opts}</select>
+    <input class="inp qty" id="add-eq-qty-${esc(key||'common')}" type="number" min="1" inputmode="numeric" value="1" aria-label="Darabszám">
+    <button class="btn outline small" type="button" data-action="eq-add" data-crew="${esc(key)}">Hozzáad</button></div>`;
+}
+function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole){
+  const opts=itemOptions(p);
+  const ids=[];if(p.lead)ids.push(p.lead);(p.crew||[]).forEach(a=>{if(!ids.includes(a.crewId))ids.push(a.crewId);});
+  const cards=ids.map(cid=>{const cr=crewById(cid),busy=busyFor(cid,p);
+    const roles=(p.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);
+    const roleHtml=(p.lead===cid?`<span class="statuspill p-ok">Projektvezető</span>`:'')+roles.map(({a,i})=>`<span class="role-sel"><select class="inp" data-crew-role="${i}" aria-label="Szerep"${D()}>${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===a.role?' selected':''}>${esc(rl)}</option>`).join('')}</select><button class="x w" type="button" data-action="crew-remove" data-i="${i}" aria-label="Szerep eltávolítása" title="Levétel a projektről ebben a szerepben">×</button></span>`).join('');
+    const rows=eqRowsFor(p,cid);
+    return `<div class="pcrew"><div class="pcrew-top">${avatar(cr)}<div class="who"><b>${esc(cr?cr.name:'Törölt munkatárs')}</b>${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
+      <div class="pcrew-roles">${roleHtml}</div>
+      <div class="pcrew-eq">${rows||'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${eqAddRow(p,cid,opts)}</div></div>`;}).join('');
+  const commonRows=eqRowsFor(p,'')+(p.equipment||[]).map((e,i)=>({e,i})).filter(x=>x.e.crewId&&!ids.includes(x.e.crewId)).map(({e,i})=>{const it=itemById(e.itemId);
+    return `<div class="eqrow"><div class="who"><b>${esc(it?it.name:'Törölt eszköz')}</b><small>${esc((crewById(e.crewId)||{}).name||'')} – már nincs a projekten</small></div><input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-i="${i}" value="${num(e.qty)}" aria-label="Darabszám"${D()}><button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
+  const eqN=eqCount(p),hasEq=(p.equipment||[]).length;
+  return `<div class="panel"><h3>👥 Stáb és eszközök <span class="aside">${ids.length} fő · ${eqN} eszköz</span></h3>
+    <div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
+    <p class="hint">A megrendelt videók alapján ${c.ops} operatőr kell. Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
+    <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
+      ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
+    <div class="pcrew-list">${cards||empty('Még nincs beosztva senki.')}</div>
+    ${ro()?'':S.crew.length?`<div class="addrow"><select class="inp" id="add-crew-person" aria-label="Munkatárs"><option value="">+ Munkatárs beosztása…</option>${personOpts}</select>
+      <select class="inp" id="add-crew-role" aria-label="Szerep">${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===selRole?' selected':''}>${esc(rl)}</option>`).join('')}</select>
+      <button class="btn primary small" type="button" data-action="crew-add">Beosztás</button></div>`:`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}
+    ${commonRows||(!ro()&&S.inventory.length&&ids.length===0)?`<div class="pcrew pcrew-common"><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${eqAddRow(p,'',opts)}</div></div>`:''}
+    ${!S.inventory.length&&!ro()?`<p class="hint">Eszközt a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön tudsz felvenni.</p>`:''}
+    ${hasEq||ids.length?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}${hasEq?`<button class="btn outline small" type="button" data-action="copy-pack">Pakolási lista másolása</button>`:''}</div>`:''}
+    ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}
+  </div>`;
+}
 function viewProject(p){
   const c=calc(p),st=staffing(p),iss=computeIssues().filter(i=>i.pids.includes(p.id));
   const r=pr(p),T=todayISO(),di=dueInfo(p);
@@ -259,13 +310,15 @@ function viewProject(p){
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
         <div class="toggles">${ex}</div></div>
       <div class="panel"><h3>🎤 Előadásrögzítés ${hasRec(p)?'<span class="aside">aktív</span>':''}</h3>
-        <div class="sec-lbl" style="margin-top:0">Rögzítés eszközei</div>
+        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl on rooms-row"><div><div class="dl-name">Rögzített termek száma</div><div class="dl-price">${n>1?`Minden kiválasztott kamera és eszköz ${n} teremre értendő`:'A kiválasztott kamerák és eszközök termenként értendők'}</div></div>
+          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
+        <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
         <div class="toggles">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
         <div class="toggles" style="margin-top:8px"><label class="toggle"><input type="checkbox" data-flag="${REC_LIVE.k}"${p[REC_LIVE.k]?' checked':''}${D()}><span class="tl">📡 ${REC_LIVE.label}</span></label></div>
         <div class="sec-lbl">Vágás és utómunka</div>
         <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
-        ${REC_COUNTS.map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
+        ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
         <p class="hint">A nyersanyag megvásárlását, tárolását és a villámgyors kézbesítést a Kreatív tartalmaknál jelölheted.</p>
       </div>
@@ -276,25 +329,7 @@ function viewProject(p){
       </div>
     </div>
     <div class="col">
-      <div class="panel"><h3>👥 Stáb <span class="aside">${crewIds(p).size} fő</span></h3>
-        <div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
-        <p class="hint">A megrendelt videók alapján ${c.ops} fő kell.</p>
-        <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
-          ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
-        <div class="sec-lbl">Beosztott stáb</div>
-        <div class="alist">${assigned||empty('Még nincs beosztva senki.')}</div>
-        ${ro()?'':S.crew.length?`<div class="addrow"><select class="inp" id="add-crew-person" aria-label="Munkatárs"><option value="">Munkatárs kiválasztása…</option>${personOpts}</select>
-          <select class="inp" id="add-crew-role" aria-label="Szerep">${CREW_ROLES.map(rl=>`<option${rl===selRole?' selected':''}>${esc(rl)}</option>`).join('')}</select>
-          <button class="btn primary small" type="button" data-action="crew-add">Beosztás</button></div>`:`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}
-      </div>
-      <div class="panel"><h3>🎒 Eszközök <span class="aside">${eqCount(p)} db</span></h3>
-        <div class="alist">${eqHtml||empty('Még nincs eszköz hozzárendelve.')}</div>
-        ${ro()?'':S.inventory.length?`<div class="addrow"><select class="inp" id="add-eq-item" aria-label="Eszköz"><option value="">Eszköz kiválasztása…</option>${itemOpts}</select>
-          <input class="inp qty" id="add-eq-qty" type="number" min="1" inputmode="numeric" value="${num(S.addEq.qty)||1}" aria-label="Darabszám">
-          <button class="btn primary small" type="button" data-action="eq-add">Hozzáadás</button></div>`:`<p class="hint">Előbb vegyél fel eszközöket a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön.</p>`}
-        ${eqList.length||crewIds(p).size?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}${eqList.length?`<button class="btn outline small" type="button" data-action="copy-pack">Pakolási lista másolása</button>`:''}</div>`:''}
-        ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}
-      </div>
+      ${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}
       <div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         <div class="kv"><span>Átadási határidő</span><b>${r?fmtDay(dueDate(p)):'—'} <span class="muted" style="font-weight:500">· ${p.x_rush?'villámgyors, 72 óra':'7 napos garancia'}</span></b></div>
