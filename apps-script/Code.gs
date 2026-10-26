@@ -38,7 +38,7 @@ const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny',
   'er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream', 'er_post'];
-const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése', er_stream: 'Élő közvetítés LED falon, projektoron vagy streamben', er_post: 'Előadások utómunkája' };
+const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése', er_stream: 'Élő közvetítés LED falon, projektoron vagy stream', er_post: 'Előadások utómunkája' };
 
 /** Munkalapok és oszlopok. Az oszlopok sorrendjét és nevét ne módosítsd a táblázatban;
  *  új oszlop csak a sor végére kerülhet (a program maga írja be a fejlécet). */

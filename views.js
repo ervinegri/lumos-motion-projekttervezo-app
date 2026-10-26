@@ -315,7 +315,7 @@ function viewProject(p){
           <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
         <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
         <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
-        <div class="toggles one" style="margin-top:8px"><label class="toggle"><input type="checkbox" data-flag="${REC_LIVE.k}"${p[REC_LIVE.k]?' checked':''}${D()}><span class="tl">📡 ${REC_LIVE.label}</span></label></div>
+        <div class="toggles one" style="margin-top:8px"><label class="toggle"><input type="checkbox" data-flag="${REC_LIVE.k}"${p[REC_LIVE.k]?' checked':''}${D()}><span class="tl">${REC_LIVE.label}</span></label></div>
         <div class="sec-lbl">Vágás és utómunka</div>
         <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>

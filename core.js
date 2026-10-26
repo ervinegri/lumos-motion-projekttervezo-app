@@ -29,7 +29,7 @@ const REC_CAMS=[
   {k:'er_close',label:'Közeli kamera szög',sub:'Arc és mimika'},
   {k:'er_crowd',label:'Közönség kamera',sub:'Hangulat és reakciók'},
   {k:'er_slides',label:'Diák rögzítése',sub:'Tiszta jel a projektorról'}];
-const REC_LIVE={k:'er_stream',label:'Élő közvetítés LED falon, projektoron vagy streamben',sub:'Élő képválasztás, több forrás',role:'Képkeverő / streaming'};
+const REC_LIVE={k:'er_stream',label:'Élő közvetítés LED falon, projektoron vagy stream',sub:'Élő képválasztás, több forrás',role:'Képkeverő / streaming'};
 const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:1}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||!!p.er_stream;
 const TECH=[
