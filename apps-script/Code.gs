@@ -38,7 +38,7 @@ const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny',
   'er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream', 'er_post'];
-const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése', er_drone: 'Drónos felvételek', er_stream: 'Élő közvetítés / kivetítés élő vágással', er_post: 'Előadások utómunkája' };
+const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése', er_stream: 'Élő közvetítés / kivetítés élő vágással', er_post: 'Előadások utómunkája' };
 
 /** Munkalapok és oszlopok. Az oszlopok sorrendjét és nevét ne módosítsd a táblázatban;
  *  új oszlop csak a sor végére kerülhet (a program maga írja be a fejlécet). */
@@ -301,6 +301,7 @@ function saveProject_(u, a) {
   if (p.deliveryLink && !/^https:\/\//i.test(p.deliveryLink)) throw new Error('Az átadási link https:// előtaggal kezdődjön.');
   Object.keys(COUNTS).forEach(k => { p[k] = int_(a[k], 0, COUNTS[k], 0); });
   FLAGS.forEach(k => { p[k] = a[k] === true; });
+  if (p.er_drone) { p.x_dron = true; p.er_drone = false; }   // a drón a Kreatív tartalmakhoz tartozik
   p.foto_db = (a.foto_db === undefined || a.foto_db === null || a.foto_db === '') ? (p.x_foto ? 150 : 0) : int_(a.foto_db, 0, 1000, 0);
   p.x_foto = p.foto_db > 0;
   p.er_res = a.er_res === '4k' ? '4k' : 'hd';
