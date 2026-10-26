@@ -12,6 +12,7 @@ const CONDITIONS={ok:'Üzemképes',javitas:'Javításra vár',szerviz:'Szervizbe
 const DELIVERABLES=[
   {k:'aftermovie',label:'Aftermovie',w:.33,max:3},
   {k:'interju',label:'Interjúk / kiállítói imázsfilmek',w:.30,max:8},
+  {k:'short60',label:'Short videó (40–60 mp)',w:.09,max:15},
   {k:'short30',label:'Short videó (30–40 mp)',w:.08,max:15},
   {k:'short15',label:'Short videó (15–20 mp)',w:.07,max:15}];
 const EXTRAS=[

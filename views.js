@@ -255,16 +255,16 @@ function viewProject(p){
         <div class="toggles">${ex}</div></div>
       <div class="panel"><h3>🎤 Előadásrögzítés ${hasRec(p)?'<span class="aside">aktív</span>':''}</h3>
         <div class="sec-lbl" style="margin-top:0">Rögzítés eszközei</div>
-        <div class="toggles">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}<br><small class="muted" style="font-weight:500">${c.sub}</small></span></label>`).join('')}</div>
-        <div class="toggles" style="margin-top:8px"><label class="toggle"><input type="checkbox" data-flag="${REC_LIVE.k}"${p[REC_LIVE.k]?' checked':''}${D()}><span class="tl">📡 ${REC_LIVE.label}<br><small class="muted" style="font-weight:500">${REC_LIVE.sub}</small></span></label></div>
+        <div class="toggles">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
+        <div class="toggles" style="margin-top:8px"><label class="toggle"><input type="checkbox" data-flag="${REC_LIVE.k}"${p[REC_LIVE.k]?' checked':''}${D()}><span class="tl">📡 ${REC_LIVE.label}</span></label></div>
         <div class="sec-lbl">Vágás és utómunka</div>
-        <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája<br><small class="muted" style="font-weight:500">Megosztható teljes előadásvideók</small></span></label>
+        <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
         ${REC_COUNTS.map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
         <p class="hint">A nyersanyag megvásárlását, tárolását és a villámgyors kézbesítést a Kreatív tartalmaknál jelölheted.</p>
       </div>
-      <div class="panel"><h3>🎛️ Technikai háttér</h3>
+      <div class="panel"><h3>🎛️ Vizuál-, hang- és fénytechnika</h3>
         <div class="toggles">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
         <div class="field full" style="margin-top:14px"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
