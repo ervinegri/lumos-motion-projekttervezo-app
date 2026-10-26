@@ -100,7 +100,7 @@ function calc(p){
   return {ops,hours};
 }
 function staffing(p){
-  const c=calc(p),need={'Projektvezető':1,'Operatőr':c.ops};
+  const c=calc(p),need={'Operatőr':c.ops};
   EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+1;});
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
@@ -108,7 +108,12 @@ function staffing(p){
   if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms);   // termenként legalább 1 operatőr
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
-  return Object.keys(need).map(r=>({role:r,need:need[r],have:have[r]||0}));
+  /* Projektvezető csak akkor kell, ha legalább 2 szakember lesz a helyszínen (tervezett vagy beosztott létszám). */
+  const planned=Object.values(need).reduce((s,n)=>s+n,0);
+  const people=new Set((p.crew||[]).map(a=>a.crewId).filter(id=>id&&id!==p.lead)).size;
+  if(Math.max(planned,people)>=2)need['Projektvezető']=1;
+  const order=['Projektvezető'].concat(Object.keys(need).filter(r=>r!=='Projektvezető'));
+  return order.filter(r=>r in need&&need[r]>0).map(r=>({role:r,need:need[r],have:have[r]||0}));
 }
 /* A projektlistában a szerkesztés alatt álló vázlatot használjuk, hogy az ütközések azonnal látszódjanak. */
 function allProjects(){if(!S.draft)return S.projects;return S.projects.map(p=>p.id===S.draft.id?S.draft:p);}
