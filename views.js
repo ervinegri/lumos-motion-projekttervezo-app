@@ -80,7 +80,9 @@ function renderChrome(){
   if(!on){$('tabs').innerHTML='';return;}
   $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role)+' ▾';
   const counts={projektek:S.projects.filter(isOpen).length,stab:S.crew.length,leltar:S.inventory.length};
+  const tabsEl=$('tabs'),keepX=tabsEl.scrollLeft;
   $('tabs').innerHTML=TABS().map(t=>`<button class="tab" role="tab" type="button" aria-selected="${S.tab===t.id}" data-action="tab" data-tab="${t.id}">${t.label}${counts[t.id]!=null?`<span class="count">${counts[t.id]}</span>`:''}</button>`).join('');
+  tabsEl.scrollLeft=keepX;{const act=tabsEl.querySelector('[aria-selected="true"]');if(act&&tabsEl.scrollWidth>tabsEl.clientWidth){const l=act.offsetLeft-tabsEl.offsetLeft,r=l+act.offsetWidth;if(l<tabsEl.scrollLeft)tabsEl.scrollLeft=l-16;else if(r>tabsEl.scrollLeft+tabsEl.clientWidth)tabsEl.scrollLeft=r-tabsEl.clientWidth+16;}}
   const title=S.tab==='projektek'&&S.draft?(S.draft.name||'Projekt'):(TABS().find(t=>t.id===S.tab)||{}).label||'';
   $('pageTitle').textContent=title;
   const bar=$('saveBar');

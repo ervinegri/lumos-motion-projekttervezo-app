@@ -61,7 +61,9 @@ h1,h2,h3{text-wrap:balance}
   .topbar-page-title{display:none}
   .logo{font-size:18px}.brand{height:44px}.vert-line,.app-name{display:none}
   .user-chip{max-width:110px;padding:6px 9px}
-  .tab{flex:1 1 auto;justify-content:center;padding:9px 10px}
+  .topbar-inner>.tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity;margin:0 calc(-1*clamp(16px,3vw,44px));padding:0 clamp(16px,3vw,44px) 2px}
+  .topbar-inner>.tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:9px 13px;scroll-snap-align:start;white-space:nowrap}
 }
 
 /* oldal */
