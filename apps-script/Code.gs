@@ -550,11 +550,11 @@ function sendEquipmentList_(u, a) {
       + '<h3 style="font-size:15px;margin:24px 0 2px">Eszközlista</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + eqHtml + '</table>'
       + '<h3 style="font-size:15px;margin:24px 0 6px">Stáb</h3><table style="border-collapse:collapse;font-size:14px">' + crewHtml + '</table>'
       + planHtml
-      + '<p style="margin-top:26px">A projekt az appban: <a href="' + e(FRONTEND_URL) + '">' + e(FRONTEND_URL) + '</a></p>'
+      + '<p style="margin-top:26px">A projekt az appban: <a href="' + e(FRONTEND_URL) + '">' + e(FRONTEND_LABEL) + '</a></p>'
       + '<p>Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>';
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
       + info.map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
-      + '\nA projekt az appban: ' + FRONTEND_URL + '\n\nÜdvözlettel,\n' + u.name + '\nLumos Motion';
+      + '\nA projekt az appban: ' + FRONTEND_LABEL + '\n\nÜdvözlettel,\n' + u.name + '\nLumos Motion';
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
     GmailApp.sendEmail(c.email, subject, text, opts);
@@ -644,17 +644,18 @@ function genPin_() {
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
+const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 function sendPinMail_(user, pin, isReset) {
   const url = appUrl_();
   const intro = isReset ? 'A kérésedre új PIN-kódot állítottunk be a ' + APP_TITLE + ' alkalmazáshoz. A régi PIN-kód ezzel érvénytelen.' : 'Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.';
   const lines = ['Kedves ' + user.name + ',', '', intro, '',
     'E-mail-cím a belépésnél: ' + user.email, 'PIN-kód: ' + pin, ''];
-  if (url) lines.push('Az alkalmazás: ' + url, '');
+  if (url) lines.push('Az alkalmazás: ' + FRONTEND_LABEL, '');
   lines.push('A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : ''), '', MAIL_SIGNATURE_TEXT);
   const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p><b>E-mail-cím a belépésnél:</b> ' + escapeHtml_(user.email) + '<br><b>PIN-kód:</b> <span style="font-size:18px;letter-spacing:2px">' + escapeHtml_(pin) + '</span></p>'
-    + (url ? '<p>Az alkalmazás: <a href="' + escapeHtml_(url) + '">' + escapeHtml_(url) + '</a></p>' : '')
+    + (url ? '<p>Az alkalmazás: <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a></p>' : '')
     + '<p>A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : '') + '</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
   try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
