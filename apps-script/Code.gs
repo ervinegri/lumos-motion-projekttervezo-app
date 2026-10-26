@@ -35,8 +35,10 @@ const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
-const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
-const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny'];
+const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15, er_clips: 20, er_subs: 10 };
+const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny',
+  'er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream', 'er_post'];
+const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése', er_drone: 'Drónos felvételek', er_stream: 'Élő közvetítés / kivetítés élő vágással', er_post: 'Előadások utómunkája' };
 
 /** Munkalapok és oszlopok. Az oszlopok sorrendjét és nevét ne módosítsd a táblázatban;
  *  új oszlop csak a sor végére kerülhet (a program maga írja be a fejlécet). */
@@ -53,7 +55,10 @@ const TABLES = {
     ['techPlan', 'Forgatási és technikai terv'], ['notes', 'Jegyzetek'], ['deliveryLink', 'Átadási link'], ['deliveredAt', 'Átadva'],
     ['folderId', 'Drive mappa azonosító'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'],
     ['mutationId', 'Utolsó műveletazonosító'], ['listSentAt', 'Eszközlista kiküldve'], ['listSentTo', 'Eszközlista címzettjei'],
-    ['calEventId', 'Naptár esemény azonosító']] },
+    ['calEventId', 'Naptár esemény azonosító'],
+    ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
+    ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
+    ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -67,7 +72,7 @@ const TABLES = {
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz']] }
 };
-const NUM_FIELDS = new Set(['priority', 'hours', 'aftermovie', 'interju', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
+const NUM_FIELDS = new Set(['er_rooms', 'er_clips', 'er_subs', 'priority', 'hours', 'aftermovie', 'interju', 'short30', 'short15', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
@@ -295,6 +300,9 @@ function saveProject_(u, a) {
   if (p.deliveryLink && !/^https:\/\//i.test(p.deliveryLink)) throw new Error('Az átadási link https:// előtaggal kezdődjön.');
   Object.keys(COUNTS).forEach(k => { p[k] = int_(a[k], 0, COUNTS[k], 0); });
   FLAGS.forEach(k => { p[k] = a[k] === true; });
+  p.er_res = a.er_res === '4k' ? '4k' : 'hd';
+  p.er_rooms = int_(a.er_rooms, 1, 10, 1);
+  if (['er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream'].some(k => p[k])) p.t_eloadas = true;   // a régi jelölő automatikusan
   if (p.status === 'atadva' && !p.deliveredAt) p.deliveredAt = today_();
   if (p.status !== 'atadva') p.deliveredAt = '';
   const crewIn = Array.isArray(a.crew) ? a.crew.slice(0, 60) : [];
@@ -398,6 +406,10 @@ function calPlan_(p) {
   const eqLines = (p.equipment || []).filter(e => invMap[e.itemId]).map(e => '☐ ' + e.qty + '× ' + invMap[e.itemId].name);
   const lines = [];
   if (p.status) lines.push('Állapot: ' + (STATUS_LABELS[p.status] || p.status));
+  const rec = Object.keys(REC_LABELS).filter(k => p[k] === true).map(k => REC_LABELS[k]);
+  if (Number(p.er_clips) > 0) rec.push(p.er_clips + ' kivágás');
+  if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
+  if (rec.length) lines.push('Előadásrögzítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
   if (p.client) lines.push('Ügyfél: ' + p.client);
   if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.hours ? ' · ' + p.hours + ' óra' : ''));
   if (p.contactName || p.contactPhone) lines.push('Kapcsolattartó: ' + [p.contactName, p.contactPhone].filter(Boolean).join(', '));

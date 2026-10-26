@@ -23,8 +23,16 @@ const EXTRAS=[
   {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
   {k:'x_rush',label:'Villámgyors kézbesítés (72 óra)',pct:'rush'}];
+const REC_CAMS=[
+  {k:'er_total',label:'Teljes alakos kamera szög',sub:'Alap színpadi plán'},
+  {k:'er_close',label:'Közeli kamera szög',sub:'Arc és mimika'},
+  {k:'er_crowd',label:'Közönség kamera',sub:'Hangulat és reakciók'},
+  {k:'er_slides',label:'Diák rögzítése',sub:'Tiszta jel a projektorról'},
+  {k:'er_drone',label:'Drónos felvételek + pilóta',sub:'Légifelvételek a helyszínről',role:'Drónpilóta'}];
+const REC_LIVE={k:'er_stream',label:'Élő közvetítés kivetítőn vagy streamen, élő vágással',sub:'Élő képválasztás, több forrás',role:'Képkeverő / streaming'};
+const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:1}];
+const hasRec=p=>REC_CAMS.some(c=>p[c.k])||!!p.er_stream;
 const TECH=[
-  {k:'t_eloadas',label:'Többkamerás előadásrögzítés'},
   {k:'t_kepkeveres',label:'Élő képkeverés / streaming',role:'Képkeverő / streaming'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
@@ -94,6 +102,7 @@ function staffing(p){
   const c=calc(p),need={'Projektvezető':1,'Operatőr':c.ops};
   EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+1;});
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
+  REC_CAMS.concat([REC_LIVE]).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   return Object.keys(need).map(r=>({role:r,need:need[r],have:have[r]||0}));
