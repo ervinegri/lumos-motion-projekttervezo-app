@@ -3,7 +3,7 @@
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Egyéb'];
-const CREW_ROLES=['Termelési vezető','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
+const CREW_ROLES=['Projektvezető','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
@@ -28,7 +28,7 @@ const TECH=[
   {k:'t_kepkeveres',label:'Élő képkeverés / streaming',role:'Képkeverő / streaming'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
-const USER_ROLES={admin:'Adminisztrátor',editor:'Termelési vezető',crew:'Stáb'};
+const USER_ROLES={admin:'Adminisztrátor',editor:'Projektvezető',crew:'Stáb'};
 const TOKEN_KEY='lumos_pm_token_v1';
 
 /* ===== Állapot ===== */
@@ -89,10 +89,10 @@ function calc(p){
   return {ops,hours};
 }
 function staffing(p){
-  const c=calc(p),need={'Termelési vezető':1,'Operatőr':c.ops};
+  const c=calc(p),need={'Projektvezető':1,'Operatőr':c.ops};
   EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+1;});
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
-  const have={};if(p.lead)have['Termelési vezető']=1;
+  const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   return Object.keys(need).map(r=>({role:r,need:need[r],have:have[r]||0}));
 }

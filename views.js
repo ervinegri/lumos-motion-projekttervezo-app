@@ -107,7 +107,7 @@ function dueInfo(p){
   const left=diffDays(todayISO(),due);
   return {due,left,cls:left<0?'bad':left<=2?'warn':'ok',txt:left<0?`${-left} napja lejárt`:left===0?'Ma kell átadni':`${left} nap az átadásig`};
 }
-function myRole(p){if(!S.me||!S.me.crewId)return '';const r=[];if(p.lead===S.me.crewId)r.push('termelési vezető');(p.crew||[]).forEach(a=>{if(a.crewId===S.me.crewId)r.push(a.role.toLowerCase());});return r.join(', ');}
+function myRole(p){if(!S.me||!S.me.crewId)return '';const r=[];if(p.lead===S.me.crewId)r.push('projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===S.me.crewId)r.push(a.role.toLowerCase());});return r.join(', ');}
 function evRow(p,opt={}){
   const r=pr(p),T=todayISO();
   const sub=[p.client,p.venue].filter(Boolean).join(' · ')||'Nincs ügyfél megadva';
@@ -258,7 +258,7 @@ function viewProject(p){
       <div class="panel"><h3>👥 Stáb <span class="aside">${crewIds(p).size} fő</span></h3>
         <div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
         <p class="hint">A megrendelt videók alapján ${c.ops} fő kell.</p>
-        <div class="field" style="margin-top:14px"><label for="f-lead">Termelési vezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
+        <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
           ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
         <div class="sec-lbl">Beosztott stáb</div>
         <div class="alist">${assigned||empty('Még nincs beosztva senki.')}</div>
@@ -302,7 +302,7 @@ function viewCrew(){
   const nextOf=c=>S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);
   const cards=f.view==='list'?'':list.map(c=>{
     const next=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);
-    const role=p=>p.lead===c.id?'termelési vezető':((p.crew||[]).filter(a=>a.crewId===c.id).map(a=>a.role.toLowerCase()).join(', '));
+    const role=p=>p.lead===c.id?'projektvezető':((p.crew||[]).filter(a=>a.crewId===c.id).map(a=>a.role.toLowerCase()).join(', '));
     const sub=[c.type,c.company].filter(Boolean).join(' · ');
     return `<article class="pcard">
       <div class="pc-top">${avatar(c)}<div class="pc-id"><div class="pc-name">${esc(c.name)} ${prioBadge(c)}</div>${sub?`<div class="pc-sub">${esc(sub)}</div>`:''}</div>
@@ -374,7 +374,7 @@ function viewSettings(){
     <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
     <div class="grid2">
       <div class="panel"><h3>👤 Felhasználók és PIN-kódok <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Új felhasználó</button></span></h3>
-        <p class="hint" style="margin:0 0 10px">Adminisztrátor: mindent lát és kezel. Termelési vezető: projekteket, stábot és leltárt szerkeszt. Stáb: csak a saját beosztásait látja, árak nélkül.</p>
+        <p class="hint" style="margin:0 0 10px">Adminisztrátor: mindent lát és kezel. Projektvezető: projekteket, stábot és leltárt szerkeszt. Stáb: csak a saját beosztásait látja, árak nélkül.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
         <div>${log||empty('Még nincs bejegyzés.')}</div></div>

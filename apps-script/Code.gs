@@ -29,7 +29,7 @@ const SETUP_USERS = [
 /* ===================== ADATMODELL ===================== */
 const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'atadva', 'lemondva'];
 const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Egyéb'];
-const CREW_ROLES = ['Termelési vezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
+const CREW_ROLES = ['Projektvezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Kábel / egyéb'];
@@ -144,9 +144,10 @@ function fromRow_(t, r) {
     if (NUM_FIELDS.has(k)) { const s = String(v).trim().replace(/\s/g, ''); v = s === '' || isNaN(Number(s)) ? null : Number(s); }
     else if (BOOL_FIELDS.has(k)) v = v === true || /^(igen|true|1|x)$/i.test(String(v).trim());
     else v = String(v).replace(/^'/, '');
+    if (k === 'role' && v === 'Termelési vezető') v = 'Projektvezető';   // régi elnevezés
     o[k] = v;
   });
-  if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean).map(r => r === 'Termelési vezető' ? 'Projektvezető' : r);   // régi elnevezés
   if (o.skills !== undefined) o.skills = String(o.skills || '').split(',').map(s => s.trim()).filter(Boolean);
   return o;
 }
@@ -291,7 +292,8 @@ function saveProject_(u, a) {
     const seen = {}, crew = [];
     crewIn.forEach(x => {
       const cid = str_(x && x.crewId, 64);
-      const role = CREW_ROLES.indexOf(x && x.role) >= 0 ? x.role : 'Operatőr';
+      const r0 = x && x.role === 'Termelési vezető' ? 'Projektvezető' : x && x.role;
+      const role = CREW_ROLES.indexOf(r0) >= 0 ? r0 : 'Operatőr';
       if (crewMap[cid] && !seen[cid + '|' + role]) { seen[cid + '|' + role] = 1; crew.push({ crewId: cid, role: role }); }
     });
     const eqm = {};
@@ -494,7 +496,7 @@ function sendEquipmentList_(u, a) {
   const p = fullProject_(readRow_('projects', sh, row));
   const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
   const onProject = {};
-  if (p.lead) onProject[p.lead] = ['Termelési vezető'];
+  if (p.lead) onProject[p.lead] = ['Projektvezető'];
   p.crew.forEach(c => { (onProject[c.crewId] = onProject[c.crewId] || []).push(c.role); });
   const recipients = wanted.filter(cid => onProject[cid] && crewMap[cid] && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(crewMap[cid].email || '')));
   if (!recipients.length) throw new Error('Nincs olyan kiválasztott stábtag, akinek van e-mail-címe.');
@@ -591,7 +593,7 @@ const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
 const LOCK_PREFIX = 'LUMOS_PM_LOCK_';
 const ROLES = ['admin', 'editor', 'crew'];
-const ROLE_NAMES_ = { admin: 'Adminisztrátor', editor: 'Termelési vezető', crew: 'Stáb' };
+const ROLE_NAMES_ = { admin: 'Adminisztrátor', editor: 'Projektvezető', crew: 'Stáb' };
 const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
 const LOCK_STEPS_MIN = [15, 60, 360, 1440];
 
