@@ -337,7 +337,7 @@ function viewProject(p){
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
       </details>
       <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>💡 Hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
-        <div class="toggles">${tech}</div>
+        <div class="toggles one">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
       </details>
     </div>
