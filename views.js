@@ -238,7 +238,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole){
   return `<div class="panel"><h3>👥 Stáb és eszközök <span class="aside">${ids.length} fő · ${eqN} eszköz</span></h3>
     <div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
     <p class="hint">A megrendelt videók alapján ${c.ops} operatőr kell. Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
-    <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető <span class="aside">${st.some(s=>s.role==='Projektvezető')?'kötelező (2+ szakember)':'nem kötelező (1 szakember)'}</span></label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
+    <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
       ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
     <div class="pcrew-list">${cards||empty('Még nincs beosztva senki.')}</div>
     ${ro()?'':S.crew.length?`<div class="addrow"><select class="inp" id="add-crew-person" aria-label="Munkatárs"><option value="">+ Munkatárs beosztása…</option>${personOpts}</select>
