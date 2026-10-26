@@ -73,6 +73,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('beforeunload',e=>{if(S.dirty){e.preventDefault();e.returnValue='';}});
 
 /* ===== Megjelenítés ===== */
+/* Lenyíló szekciók a projektlapon: alapból csukva, a nyitott állapotot megjegyezzük újrarajzolás között. */
+const FOLD={};
+const foldAside=n=>`<span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span>`;
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold)FOLD[d.dataset.fold]=d.open;if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
 function autoGrow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(110,t.scrollHeight+2)+'px';}
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
@@ -258,6 +262,9 @@ function viewProject(p){
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
   const ex=EXTRAS.filter(e=>e.k!=='x_foto').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
+  const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
+  const nRec=REC_CAMS.filter(c=>p[c.k]).length+(p[REC_LIVE.k]?1:0)+(p.er_post?1:0);
+  const nTech=TECH.filter(t=>p[t.k]).length+(String(p.techPlan||'').trim()?1:0);
   const tech=TECH.map(t=>`<label class="toggle"><input type="checkbox" data-flag="${t.k}"${p[t.k]?' checked':''}${D()}><span class="tl">${t.label}</span></label>`).join('');
   const sortedCrew=S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu'));
   const leadOpts=sortedCrew.map(cr=>`<option value="${esc(cr.id)}"${cr.id===p.lead?' selected':''}>${esc(cr.name)}</option>`).join('');
@@ -310,11 +317,11 @@ function viewProject(p){
         ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
-      <div class="panel"><h3>🎬 Kreatív tartalmak</h3>
+      <details class="panel fold" data-fold="krea"${FOLD.krea?' open':''}><summary><h3>🎬 Kreatív tartalmak ${foldAside(nKrea)}</h3></summary>
         ${dl}
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
-        <div class="toggles">${ex}</div></div>
-      <div class="panel"><h3>🎤 Előadásrögzítés ${hasRec(p)?'<span class="aside">aktív</span>':''}</h3>
+        <div class="toggles">${ex}</div></details>
+      <details class="panel fold" data-fold="rec"${FOLD.rec?' open':''}><summary><h3>🎤 Előadásrögzítés ${foldAside(nRec)}</h3></summary>
         ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
         <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
@@ -325,11 +332,11 @@ function viewProject(p){
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
         ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
-      </div>
-      <div class="panel"><h3>🎛️ Vizuál-, hang- és fénytechnika</h3>
+      </details>
+      <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>🎛️ Vizuál-, hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
         <div class="toggles">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
-      </div>
+      </details>
     </div>
     <div class="col">
       ${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}

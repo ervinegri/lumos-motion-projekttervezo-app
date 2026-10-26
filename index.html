@@ -93,6 +93,15 @@ h1,h2,h3{text-wrap:balance}
 
 .panel{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:22px 24px 24px;min-width:0}
 .panel>h3{font-size:18px;font-weight:780;letter-spacing:-.2px;margin:0 0 16px;display:flex;align-items:center;gap:8px}
+.fold>summary{list-style:none;cursor:pointer;margin:-22px -24px -24px;padding:22px 24px 24px;border-radius:22px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary>h3{font-size:18px;font-weight:780;letter-spacing:-.2px;margin:0;display:flex;align-items:center;gap:8px}
+.fold>summary>h3::after{content:"";width:9px;height:9px;border-right:2px solid var(--fg-3);border-bottom:2px solid var(--fg-3);transform:rotate(45deg);margin:-4px 4px 0 10px;transition:transform .15s;flex:none}
+.fold[open]>summary>h3::after{transform:rotate(-135deg);margin-top:4px}
+.fold[open]>summary{margin-bottom:-8px}
+.fold>summary .aside{margin-left:auto;font-weight:600;font-size:13px;color:var(--fg-3);letter-spacing:0}
+.fold>summary:focus-visible{outline:2px solid var(--accent,#2f5d3a);outline-offset:-2px}
+@media (max-width:640px){.fold>summary{margin:-18px -16px -20px;padding:18px 16px 20px;border-radius:16px}}
 .panel>h3 .aside{margin-left:auto;font-weight:600;font-size:13px;color:var(--fg-3);letter-spacing:0}
 @media (max-width:640px){.panel{padding:18px 16px 20px;border-radius:16px}}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:20px;align-items:start}
