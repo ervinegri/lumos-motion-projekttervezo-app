@@ -13,7 +13,7 @@
 const SPREADSHEET_ID = '1Jf9nELuauhFEaAxAnfg_dSDG1MudeqfmftqYPqCdif8';   // Projektek / „Lumos Projektkezelő – adatbázis”
 const PROJECTS_FOLDER_ID = '1qxSBbudO4atHkdOsfH6ur6oXc_tc9OnB';          // Projektek mappa (alatta évszámos almappák)
 const APP_TITLE = 'Lumos Projektkezelő';
-const FRONTEND_URL = 'https://lumosmotion.hu/projekttervezo/';   // a Vercelen futó felület címe (ez kerül a PIN-es e-mailekbe)
+const FRONTEND_URL = 'https://projekttervezo.lumosmotion.hu/';   // a Vercelen futó felület címe (ez kerül a PIN-es e-mailekbe)
 const MAIL_FROM = 'admin@lumosmotion.com';        // az app leveleinek feladója: Gmail „Küldés másként” alias a szkriptet futtató fiókban
 const MAIL_REPLY_TO = 'admin@lumosmotion.com';      // alapértelmezett válaszcím (az eszközlistánál a küldő kolléga címe lesz)
 const MAIL_SIGNATURE_HTML = 'Üdvözlettel,<br>Lumos Motion';

@@ -1,6 +1,6 @@
 # Lumos Motion – Projekttervező
 
-Élő cím: https://lumosmotion.hu/projekttervezo/
+Élő cím: https://projekttervezo.lumosmotion.hu/
 
 ## Felépítés
 - **Gyökérmappa** – a felület, a Vercel szolgálja ki (statikus fájlok):
