@@ -73,13 +73,14 @@ function itemModal(it){
     ${ms('category','Kategória',INV_CATS,v.category||'Kamera')}
     ${mf('qty','Darabszám',{type:'number',min:0,v:v.qty??1,im:'numeric'})}
     ${ms('condition','Állapot',Object.entries(CONDITIONS),v.condition||'ok')}
-    ${mf('value','Beszerzési érték / db (Ft)',{type:'number',min:0,v:v.value??'',im:'numeric'})}
-    ${mf('serial','Azonosító / sorozatszám',{full:true,v:v.serial})}
-    ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. tartozékok, tárolás helye, szerviz dátuma'})}
+    ${moneyField('value','Beszerzési érték / db',v.value)}
+    ${mf('serial','Azonosító / sorozatszám',{v:v.serial})}
+    <div class="field"><label for="m-location">Tárolási hely</label><input class="inp" id="m-location" name="location" type="text" list="loc-list" maxlength="120" value="${esc(v.location||'')}" placeholder="pl. Iroda, 2. polc / FX3 táska"><datalist id="loc-list">${[...new Set(S.inventory.map(i=>i.location).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu')).map(l=>`<option value="${esc(l)}">`).join('')}</datalist></div>
+    ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. tartozékok, szerviz dátuma'})}
   </div>`,{left:it?`<button type="button" class="btn danger small" data-action="del-item" data-id="${esc(it.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form,'Add meg az eszköz nevét.'))return;
-    const data={id:it?it.id:uuid(),baseUpdatedAt:it?it.updatedAt:'',name:fd.get('name').trim(),category:fd.get('category'),qty:fd.get('qty'),condition:fd.get('condition'),value:fd.get('value'),serial:fd.get('serial').trim(),note:fd.get('note').trim()};
+    const data={id:it?it.id:uuid(),baseUpdatedAt:it?it.updatedAt:'',name:fd.get('name').trim(),category:fd.get('category'),qty:fd.get('qty'),condition:fd.get('condition'),value:moneyVal(fd.get('value')),serial:fd.get('serial').trim(),location:String(fd.get('location')||'').trim(),note:fd.get('note').trim()};
     try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);closeModal();render(true);toast(it?'Mentve':'Eszköz felvéve');}
     catch(e){handleErr(e);}
   }});
@@ -163,7 +164,7 @@ async function saveDraft(){
 function packingList(p){
   const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,''];
   const eq=(p.equipment||[]).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
-  INV_CATS.forEach(cat=>{const items=eq.filter(x=>(x.it.category||'Kábel / egyéb')===cat);if(!items.length)return;lines.push(cat.toUpperCase());items.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}`));lines.push('');});
+  INV_CATS.forEach(cat=>{const items=eq.filter(x=>(x.it.category||'Kábel / egyéb')===cat);if(!items.length)return;lines.push(cat.toUpperCase());items.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));lines.push('');});
   const crew=[...crewIds(p)].map(id=>crewById(id)).filter(Boolean);
   if(crew.length){lines.push('STÁB');crew.forEach(c=>lines.push(`• ${c.name}${c.phone?' – '+c.phone:''}`));}
   return lines.join('\n').trim();

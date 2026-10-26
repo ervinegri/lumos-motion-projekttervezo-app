@@ -32,7 +32,7 @@ const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 
 const CREW_ROLES = ['Projektvezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
-const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Kábel / egyéb'];
+const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop', 'Tablet', 'Telefon', 'Kocsi / szállítás', 'Kábel / egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny'];
@@ -58,7 +58,8 @@ const TABLES = {
     ['priority', 'Prioritás (1–3)'], ['company', 'Vállalkozás'], ['skills', 'Részletek']] },
   inventory: { tab: 'Leltár', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['category', 'Kategória'], ['qty', 'Darab'], ['condition', 'Állapot'],
-    ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
+    ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
+    ['location', 'Tárolási hely']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
@@ -438,7 +439,7 @@ function saveItem_(u, a) {
   const it = {
     id: id, name: str_(a.name, 160), category: INV_CATS.indexOf(a.category) >= 0 ? a.category : 'Kábel / egyéb',
     qty: int_(a.qty, 0, 9999, 1), condition: CONDITIONS.indexOf(a.condition) >= 0 ? a.condition : 'ok',
-    serial: str_(a.serial, 200), value: (a.value === '' || a.value == null) ? null : int_(a.value, 0, 1e9, null), note: str_(a.note, 500)
+    serial: str_(a.serial, 200), location: str_(a.location, 120), value: (a.value === '' || a.value == null) ? null : int_(a.value, 0, 1e9, null), note: str_(a.note, 500)
   };
   if (it.name.length < 2) throw new Error('Add meg az eszköz nevét.');
   return withLock_(() => {
@@ -513,8 +514,8 @@ function sendEquipmentList_(u, a) {
     eqHtml += '<tr><td colspan="2" style="padding:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f7381">' + e(cat) + '</td></tr>';
     eqTxt += '\n' + cat.toUpperCase() + '\n';
     items.forEach(x => {
-      eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee"><b>' + x.qty + '×</b> ' + e(x.it.name) + (x.it.serial ? ' <span style="color:#5f7381">(' + e(x.it.serial) + ')</span>' : '') + '</td></tr>';
-      eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + '\n';
+      eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee"><b>' + x.qty + '×</b> ' + e(x.it.name) + (x.it.serial ? ' <span style="color:#5f7381">(' + e(x.it.serial) + ')</span>' : '') + (x.it.location ? '<br><span style="font-size:12px;color:#5f7381">Hol van: ' + e(x.it.location) + '</span>' : '') + '</td></tr>';
+      eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.it.location ? ' – hol van: ' + x.it.location : '') + '\n';
     });
   });
   if (!eqHtml) { eqHtml = '<tr><td style="color:#5f7381">Ehhez a projekthez még nincs eszköz rendelve.</td></tr>'; eqTxt = '\n(nincs eszköz rendelve)\n'; }

@@ -340,12 +340,12 @@ function viewInventory(){
   let list=S.inventory.slice();
   if(f.cat)list=list.filter(i=>(i.category||'Kábel / egyéb')===f.cat);
   if(f.cond)list=list.filter(i=>(i.condition||'ok')===f.cond);
-  if(q)list=list.filter(i=>[i.name,i.serial,i.category,i.note].join(' ').toLowerCase().includes(q));
+  if(q)list=list.filter(i=>[i.name,i.serial,i.category,i.note,i.location].join(' ').toLowerCase().includes(q));
   const totalQty=S.inventory.reduce((s,i)=>s+num(i.qty),0);
   const value=S.inventory.reduce((s,i)=>s+num(i.value)*num(i.qty),0);
   const broken=S.inventory.filter(i=>i.condition==='javitas'||i.condition==='szerviz').length;
   const rows=INV_CATS.map(cat=>{const items=list.filter(i=>(i.category||'Kábel / egyéb')===cat).sort((a,b)=>a.name.localeCompare(b.name,'hu'));if(!items.length)return '';
-    return `<tr class="grp"><td colspan="6">${esc(cat)} · ${items.reduce((s,i)=>s+num(i.qty),0)} db</td></tr>`+items.map(i=>{
+    return `<tr class="grp"><td colspan="7">${esc(cat)} · ${items.reduce((s,i)=>s+num(i.qty),0)} db</td></tr>`+items.map(i=>{
       const uses=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&eqQty(p,i.id)>0).sort(byStart);
       const now=uses.find(p=>pr(p).start<=T),u=now||uses[0],cond=i.condition||'ok';
       const condCls=cond==='ok'?'p-ok':cond==='selejt'?'':cond==='szerviz'?'p-bad':'p-warn';
@@ -353,14 +353,15 @@ function viewInventory(){
         <td class="num">${num(i.qty)}</td>
         <td><span class="statuspill ${condCls}">${esc(CONDITIONS[cond]||cond)}</span></td>
         <td>${u?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(u.id)}">${now?'Most kint: ':esc(fmtShort(pr(u).start))+' · '}${esc(u.name||'Névtelen projekt')} (${eqQty(u,i.id)} db)</button>${uses.length>1?`<div class="ser">+${uses.length-1} további beosztás</div>`:''}`:'<span class="muted">Nincs beosztva</span>'}</td>
+        <td>${i.location?esc(i.location):'<span class="muted">—</span>'}</td>
         <td><span class="ser">${esc(i.serial||'')}</span></td>
         <td class="num"><button class="btn ghost small w" type="button" data-action="edit-item" data-id="${esc(i.id)}">Szerkesztés</button></td></tr>`;}).join('');}).join('');
   return `<div class="page-head"><div class="grow"><h2>Leltár</h2><p class="sub">${S.inventory.length} tétel · ${totalQty} db${value&&!ro()?` · nyilvántartási érték ${huf(value)}`:''}${broken?` · <span class="warn-txt">${broken} javításra vár / szervizben</span>`:''}</p></div>
       <button class="btn primary w" type="button" data-action="new-item">+ Új eszköz</button></div>
-    <div class="toolbar"><input class="inp search" id="q-inv" type="search" placeholder="Keresés név vagy sorozatszám szerint" value="${esc(f.q)}" aria-label="Leltár keresése">
+    <div class="toolbar"><input class="inp search" id="q-inv" type="search" placeholder="Keresés név, hely vagy sorozatszám szerint" value="${esc(f.q)}" aria-label="Leltár keresése">
       <select class="inp" id="inv-cat" style="width:auto" aria-label="Kategória"><option value="">Minden kategória</option>${INV_CATS.map(c=>`<option${c===f.cat?' selected':''}>${esc(c)}</option>`).join('')}</select>
       <select class="inp" id="inv-cond" style="width:auto" aria-label="Állapot"><option value="">Minden állapot</option>${Object.entries(CONDITIONS).map(([k,v])=>`<option value="${k}"${k===f.cond?' selected':''}>${v}</option>`).join('')}</select></div>
-    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Eszköz</th><th class="num">Db</th><th>Állapot</th><th>Következő használat</th><th>Azonosító</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(S.inventory.length?'Nincs a szűrésnek megfelelő eszköz.':'Még üres a leltár. Vedd fel az eszközöket az „Új eszköz” gombbal.')}</div>`}`;
+    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Eszköz</th><th class="num">Db</th><th>Állapot</th><th>Következő használat</th><th>Tárolási hely</th><th>Azonosító</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(S.inventory.length?'Nincs a szűrésnek megfelelő eszköz.':'Még üres a leltár. Vedd fel az eszközöket az „Új eszköz” gombbal.')}</div>`}`;
 }
 
 /* ===== Beállítások (admin) ===== */
