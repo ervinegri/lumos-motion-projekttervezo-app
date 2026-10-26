@@ -110,7 +110,7 @@ function staffing(p){
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   /* Projektvezető csak akkor kell, ha legalább 2 szakember lesz a helyszínen (tervezett vagy beosztott létszám). */
   const planned=Object.values(need).reduce((s,n)=>s+n,0);
-  const people=new Set((p.crew||[]).map(a=>a.crewId).filter(id=>id&&id!==p.lead)).size;
+  const people=crewIds(p).size;   // a projektvezető is szakember a helyszínen
   if(Math.max(planned,people)>=2)need['Projektvezető']=1;
   const order=['Projektvezető'].concat(Object.keys(need).filter(r=>r!=='Projektvezető'));
   return order.filter(r=>r in need&&need[r]>0).map(r=>({role:r,need:need[r],have:have[r]||0}));
