@@ -80,66 +80,36 @@ function calFormModal(e,day){
   }});
 }
 document.addEventListener('change',e=>{if(e.target.id==='m-allDay'){document.querySelectorAll('.cal-time').forEach(x=>x.hidden=e.target.checked);}});
-/* ===== HubSpot kapcsolattartó-kereső ===== */
-let hsTimer=0,hsSeq=0,hsItems=[],hsOff=false;
-function hsClose(){const b=$('hsBox');if(b)b.remove();hsItems=[];}
-function hsShow(input,html){let b=$('hsBox');if(!b){b=document.createElement('div');b.id='hsBox';b.className='hs-box';b.setAttribute('role','listbox');document.body.appendChild(b);}
+/* ===== Ügyfél-választó: a korábbi projektek megrendelői, a legutóbbi kapcsolattartóval ===== */
+let pickItems=[];
+function pickClose(){const b=$('hsBox');if(b)b.remove();pickItems=[];}
+function pickShow(input,html){let b=$('hsBox');if(!b){b=document.createElement('div');b.id='hsBox';b.className='hs-box';b.setAttribute('role','listbox');document.body.appendChild(b);}
   const r=input.getBoundingClientRect();b.style.left=(r.left+scrollX)+'px';b.style.top=(r.bottom+scrollY+4)+'px';b.style.width=r.width+'px';b.innerHTML=html;}
-function hsSearch(input){
-  clearTimeout(hsTimer);const q=input.value.trim();
-  if(q.length<2||hsOff){hsClose();return;}
-  hsTimer=setTimeout(async()=>{const my=++hsSeq;hsShow(input,'<div class="hs-msg">Keresés a HubSpotban…</div>');
-    try{const r=await call('hubspotSearch',{q});if(my!==hsSeq||document.activeElement!==input)return;hsItems=r||[];
-      hsShow(input,hsItems.length?hsItems.map((c,i)=>`<button type="button" class="hs-item" data-hs="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<div class="hs-msg">Nincs találat a HubSpotban.</div>');}
-    catch(e){if(my!==hsSeq)return;const m=errText(e);if(m==='HUBSPOT_NOT_CONFIGURED'){hsOff=true;hsShow(input,'<div class="hs-msg">A HubSpot még nincs összekötve az appal (HUBSPOT_TOKEN hiányzik az Apps Scriptben).</div>');setTimeout(hsClose,4000);}else if(m.indexOf('Ismeretlen művelet')>=0){hsOff=true;hsClose();}else hsShow(input,'<div class="hs-msg">'+esc(m)+'</div>');}
-  },350);
-}
-/* Ügyfél-kereső: korábbi projektek ügyfelei (kapcsolattartóval) + HubSpot cégek a kapcsolt névjegyekkel */
-let hsMode='contact';
 function knownClients(q){
-  const ql=q.toLowerCase(),seen={},out=[];
+  const ql=q.toLowerCase(),seen={},out=[],cur=S.draft&&S.draft.id;
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
-    const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;seen[k]=1;
-    out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',src:'app'});});
-  return out.slice(0,8);
-}
-function clientRows(local,hs){
-  const row=(it,i)=>`<button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||'nincs kapcsolattartó megadva')}</small></button>`;
-  hsItems=[];let html='';
-  if(local.length){html+='<div class="hs-sec">Korábbi ügyfelek</div>';local.forEach(it=>{html+=row(it,hsItems.length);hsItems.push(it);});}
-  if(hs&&hs.length){html+='<div class="hs-sec">HubSpot</div>';const known=new Set(local.map(x=>x.company.toLowerCase()));
-    hs.forEach(co=>{const list=co.contacts.length?co.contacts.slice(0,4):[{name:'',phone:co.phone,email:''}];
-      list.forEach(ct=>{const it={company:co.company,name:ct.name,phone:ct.phone||co.phone||'',email:ct.email||'',src:'hs'};html+=row(it,hsItems.length);hsItems.push(it);});});}
-  return html;
+    const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
+    if(p.id===cur&&!S.projects.some(x=>x.id!==cur&&String(x.client||'').trim().toLowerCase()===k))return;
+    seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||''});});
+  return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
 function clientSearch(input){
-  hsMode='client';clearTimeout(hsTimer);const q=input.value.trim();
-  const local=knownClients(q);
-  if(q.length<2||hsOff){if(local.length)hsShow(input,clientRows(local,null));else hsClose();return;}
-  hsShow(input,clientRows(local,null)+'<div class="hs-msg">Keresés a HubSpotban…</div>');
-  hsTimer=setTimeout(async()=>{const my=++hsSeq;
-    try{const r=await call('hubspotCompanies',{q});if(my!==hsSeq||document.activeElement!==input)return;
-      const html=clientRows(local,r);hsShow(input,html||'<div class="hs-msg">Nincs találat.</div>');}
-    catch(e){if(my!==hsSeq)return;const m=errText(e);if(m==='HUBSPOT_NOT_CONFIGURED'||m.indexOf('Ismeretlen művelet')>=0){hsOff=true;}
-      hsShow(input,clientRows(local,null)+(m==='HUBSPOT_NOT_CONFIGURED'?'<div class="hs-msg">A HubSpot még nincs összekötve (HUBSPOT_TOKEN).</div>':m.indexOf('Ismeretlen')>=0?'':'<div class="hs-msg">'+esc(m)+'</div>'));}
-  },350);
+  pickItems=knownClients(input.value.trim());
+  if(!pickItems.length){pickClose();return;}
+  pickShow(input,pickItems.map((it,i)=>`<button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||'nincs kapcsolattartó megadva')}</small></button>`).join(''));
 }
-function hsPick(i){
-  if(hsMode==='client'){const it=hsItems[i],d=S.draft;if(!it||!d)return;hsClose();
-    const patch={client:it.company};if(it.name){patch.contactName=it.name;patch.contactPhone=it.phone||'';patch.contactEmail=it.email||'';}
-    setDraft(patch);toast(it.name?'Ügyfél és kapcsolattartó kitöltve':'Ügyfél kitöltve');return;}
-  const c=hsItems[i],d=S.draft;if(!c||!d)return;hsClose();
-  const patch={contactName:c.name};if(c.phone)patch.contactPhone=c.phone;if(c.email)patch.contactEmail=c.email;if(c.company&&!String(d.client||'').trim())patch.client=c.company;
-  setDraft(patch);toast('Kapcsolattartó átvéve a HubSpotból'+(patch.client?' (ügyféllel együtt)':''));}
-document.addEventListener('input',e=>{if(e.target.id==='f-contactName'&&!ro()){hsMode='contact';hsSearch(e.target);}else if(e.target.id==='f-client'&&!ro())clientSearch(e.target);});
-document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);});
-document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.hs-item');if(it){e.preventDefault();hsPick(Number(it.dataset.hs));return;}if(!e.target.closest||!e.target.closest('#hsBox'))if(e.target.id!=='f-contactName'&&e.target.id!=='f-client')hsClose();});
-document.addEventListener('keydown',e=>{if((e.target.id!=='f-contactName'&&e.target.id!=='f-client')||!$('hsBox'))return;const its=[...document.querySelectorAll('.hs-item')];if(!its.length){if(e.key==='Escape')hsClose();return;}
+function clientPick(i){const it=pickItems[i];if(!it||!S.draft)return;pickClose();try{document.activeElement.blur();}catch(e){}
+  const patch={client:it.company};if(it.name||it.phone||it.email){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}
+  setDraft(patch);toast(it.name?'Megrendelő és kapcsolattartó kitöltve':'Megrendelő kitöltve');}
+document.addEventListener('input',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);});
+document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);else if($('hsBox'))pickClose();});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.hs-item');if(it){e.preventDefault();clientPick(Number(it.dataset.hs));return;}if(e.target.id!=='f-client'&&(!e.target.closest||!e.target.closest('#hsBox')))pickClose();});
+document.addEventListener('keydown',e=>{if(e.target.id!=='f-client'||!$('hsBox'))return;const its=[...document.querySelectorAll('.hs-item')];
   let i=its.findIndex(x=>x.classList.contains('on'));
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(its.length-1,i+1):Math.max(0,i-1);its.forEach((x,j)=>x.classList.toggle('on',j===i));}
-  else if(e.key==='Enter'&&i>=0){e.preventDefault();hsPick(Number(its[i].dataset.hs));}
-  else if(e.key==='Escape'){e.stopPropagation();hsClose();}});
-window.addEventListener('scroll',()=>{if($('hsBox'))hsClose();},{passive:true});
+  else if(e.key==='Enter'&&i>=0){e.preventDefault();clientPick(Number(its[i].dataset.hs));}
+  else if(e.key==='Escape'||e.key==='Tab'){pickClose();}});
+window.addEventListener('scroll',()=>{if($('hsBox')&&!document.activeElement.matches('#f-client'))pickClose();},{passive:true});
 let importing=false;
 async function importCalEvent(id){
   const e=calEventById(id);if(!e||importing)return;
