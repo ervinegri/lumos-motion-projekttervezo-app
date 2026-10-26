@@ -248,9 +248,6 @@ document.addEventListener('change',e=>{
   if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}
-  if(t.dataset.prioCrew){const c=crewById(t.dataset.prioCrew);if(!c)return;t.disabled=true;
-    call('saveCrew',Object.assign({},c,{baseUpdatedAt:c.updatedAt,priority:t.value})).then(saved=>{const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;render(true);toast(saved.name+': '+(saved.priority?'P'+saved.priority:'nincs prioritás'));})
-      .catch(e=>{handleErr(e);render(true);});return;}
   if(t.id==='crew-role-filter'){S.cf.role=t.value;render(true);return;}
   if(t.id==='inv-cat'){S.inf.cat=t.value;render(true);return;}
   if(t.id==='inv-cond'){S.inf.cond=t.value;render(true);return;}

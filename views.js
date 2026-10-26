@@ -291,11 +291,7 @@ function viewProject(p){
 
 /* ===== Stáb ===== */
 const prioNum=c=>[1,2,3].includes(Number(c.priority))?Number(c.priority):9;
-function prioBadge(c){
-  const p=prioNum(c);
-  if(ro())return p<9?`<span class="prio prio-${p}" title="Prioritás: ${p} – ${esc(PRIO_LABEL[p])}">P${p}</span>`:'';
-  return `<select class="prio prio-sel prio-${p<9?p:0}" data-prio-crew="${esc(c.id)}" aria-label="${esc(c.name)} prioritása" title="Prioritás módosítása">${[['','P–'],['1','P1'],['2','P2'],['3','P3']].map(([v,l])=>`<option value="${v}"${String(p<9?p:'')===v?' selected':''}>${l}</option>`).join('')}</select>`;
-}
+function prioBadge(c){const p=prioNum(c);return p<9?`<span class="prio prio-${p}" title="Prioritás: ${p} – ${esc(PRIO_LABEL[p])}">P${p}</span>`:'';}
 function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
   let list=S.crew.slice().sort((a,b)=>prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));
