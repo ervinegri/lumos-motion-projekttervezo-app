@@ -304,6 +304,7 @@ function viewProject(p){
         ${fld(p,'contactName','Kapcsolattartó')}
         ${fld(p,'contactPhone','Telefon',{type:'tel',ph:'+36 …'})}
         ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
+        <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
       <div class="panel"><h3>🎬 Kreatív tartalmak</h3>
         ${dl}
@@ -325,7 +326,6 @@ function viewProject(p){
       <div class="panel"><h3>🎛️ Vizuál-, hang- és fénytechnika</h3>
         <div class="toggles">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
-        <div class="field full" style="margin-top:14px"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div>
     </div>
     <div class="col">
