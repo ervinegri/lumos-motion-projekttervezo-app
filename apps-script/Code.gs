@@ -525,6 +525,33 @@ function deleteCalEvent_(u, a) {
   return { deleted: true };
 }
 
+/* ===================== HUBSPOT ===================== */
+// Kapcsolattartó keresése a HubSpot névjegyek között (csak olvasás). A token a Script Properties-ben van: HUBSPOT_TOKEN
+// (HubSpot → Beállítások → Integrációk → Privát alkalmazások, jogosultság: crm.objects.contacts.read).
+function hubspotSearch_(a) {
+  const q = str_(a && a.q, 100);
+  if (q.length < 2) return [];
+  const token = PropertiesService.getScriptProperties().getProperty('HUBSPOT_TOKEN');
+  if (!token) throw new Error('HUBSPOT_NOT_CONFIGURED');
+  const cache = CacheService.getScriptCache(), key = 'pm_hs_' + sha256hex_(q.toLowerCase()).slice(0, 32), hit = cache.get(key);
+  if (hit) return JSON.parse(hit);
+  const res = UrlFetchApp.fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + token },
+    payload: JSON.stringify({ query: q, limit: 8, properties: ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'company', 'jobtitle'] })
+  });
+  const code = res.getResponseCode();
+  if (code === 401 || code === 403) throw new Error('A HubSpot nem engedi a keresést – ellenőrizd a HUBSPOT_TOKEN-t és a jogosultságát (crm.objects.contacts.read).');
+  if (code >= 300) throw new Error('HubSpot hiba (' + code + '). Próbáld újra később.');
+  const out = (JSON.parse(res.getContentText()).results || []).map(r => {
+    const p = r.properties || {};
+    return { id: String(r.id), name: [p.lastname, p.firstname].filter(Boolean).join(' ').trim() || p.email || '', email: String(p.email || '').toLowerCase(),
+      phone: p.mobilephone || p.phone || '', company: p.company || '', title: p.jobtitle || '' };
+  }).filter(x => x.name);
+  try { cache.put(key, JSON.stringify(out), 300); } catch (e) {}
+  return out;
+}
+
 /** Drive-mappa a Projektek / <év> / <projekt neve> helyen (ha már van ilyen nevű, azt használja). */
 function createProjectFolder_(u, a) {
   const id = str_(a && a.id, 64);
@@ -1077,6 +1104,7 @@ function rpc(token, name, arg) {
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
+    case 'hubspotSearch': canEdit(); return hubspotSearch_(arg);
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': return changePin_(u, arg, token);

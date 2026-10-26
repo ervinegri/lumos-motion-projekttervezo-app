@@ -80,6 +80,31 @@ function calFormModal(e,day){
   }});
 }
 document.addEventListener('change',e=>{if(e.target.id==='m-allDay'){document.querySelectorAll('.cal-time').forEach(x=>x.hidden=e.target.checked);}});
+/* ===== HubSpot kapcsolattartó-kereső ===== */
+let hsTimer=0,hsSeq=0,hsItems=[],hsOff=false;
+function hsClose(){const b=$('hsBox');if(b)b.remove();hsItems=[];}
+function hsShow(input,html){let b=$('hsBox');if(!b){b=document.createElement('div');b.id='hsBox';b.className='hs-box';b.setAttribute('role','listbox');document.body.appendChild(b);}
+  const r=input.getBoundingClientRect();b.style.left=(r.left+scrollX)+'px';b.style.top=(r.bottom+scrollY+4)+'px';b.style.width=r.width+'px';b.innerHTML=html;}
+function hsSearch(input){
+  clearTimeout(hsTimer);const q=input.value.trim();
+  if(q.length<2||hsOff){hsClose();return;}
+  hsTimer=setTimeout(async()=>{const my=++hsSeq;hsShow(input,'<div class="hs-msg">Keresés a HubSpotban…</div>');
+    try{const r=await call('hubspotSearch',{q});if(my!==hsSeq||document.activeElement!==input)return;hsItems=r||[];
+      hsShow(input,hsItems.length?hsItems.map((c,i)=>`<button type="button" class="hs-item" data-hs="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<div class="hs-msg">Nincs találat a HubSpotban.</div>');}
+    catch(e){if(my!==hsSeq)return;const m=errText(e);if(m==='HUBSPOT_NOT_CONFIGURED'){hsOff=true;hsShow(input,'<div class="hs-msg">A HubSpot még nincs összekötve az appal (HUBSPOT_TOKEN hiányzik az Apps Scriptben).</div>');setTimeout(hsClose,4000);}else if(m.indexOf('Ismeretlen művelet')>=0){hsOff=true;hsClose();}else hsShow(input,'<div class="hs-msg">'+esc(m)+'</div>');}
+  },350);
+}
+function hsPick(i){const c=hsItems[i],d=S.draft;if(!c||!d)return;hsClose();
+  const patch={contactName:c.name};if(c.phone)patch.contactPhone=c.phone;if(c.email)patch.contactEmail=c.email;if(c.company&&!String(d.client||'').trim())patch.client=c.company;
+  setDraft(patch);toast('Kapcsolattartó átvéve a HubSpotból'+(patch.client?' (ügyféllel együtt)':''));}
+document.addEventListener('input',e=>{if(e.target.id==='f-contactName'&&!ro())hsSearch(e.target);});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.hs-item');if(it){e.preventDefault();hsPick(Number(it.dataset.hs));return;}if(!e.target.closest||!e.target.closest('#hsBox'))if(e.target.id!=='f-contactName')hsClose();});
+document.addEventListener('keydown',e=>{if(e.target.id!=='f-contactName'||!$('hsBox'))return;const its=[...document.querySelectorAll('.hs-item')];if(!its.length){if(e.key==='Escape')hsClose();return;}
+  let i=its.findIndex(x=>x.classList.contains('on'));
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(its.length-1,i+1):Math.max(0,i-1);its.forEach((x,j)=>x.classList.toggle('on',j===i));}
+  else if(e.key==='Enter'&&i>=0){e.preventDefault();hsPick(Number(its[i].dataset.hs));}
+  else if(e.key==='Escape'){e.stopPropagation();hsClose();}});
+window.addEventListener('scroll',()=>{if($('hsBox'))hsClose();},{passive:true});
 let importing=false;
 async function importCalEvent(id){
   const e=calEventById(id);if(!e||importing)return;

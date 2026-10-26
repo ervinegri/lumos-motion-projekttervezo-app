@@ -182,7 +182,7 @@ function viewProjects(){
 }
 function fld(p,key,label,o={}){
   const v=p[key]??'';
-  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><input class="inp" id="f-${key}" data-field="${key}" type="${o.type||'text'}" value="${esc(v)}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.max!=null?` max="${o.max}"`:''}${o.step!=null?` step="${o.step}"`:''}${o.im?` inputmode="${o.im}"`:''}${D()}></div>`;
+  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><input class="inp" id="f-${key}" data-field="${key}" type="${o.type||'text'}" value="${esc(v)}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.max!=null?` max="${o.max}"`:''}${o.step!=null?` step="${o.step}"`:''}${o.im?` inputmode="${o.im}"`:''}${key==='contactName'?' autocomplete="off"':''}${D()}></div>`;
 }
 function selField(p,key,label,opts,o={}){
   const v=p[key]??'';
@@ -243,7 +243,7 @@ function viewProject(p){
         ${fld(p,'endDate','Utolsó nap (ha több napos)',{type:'date'})}
         ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
         ${fld(p,'hours','Helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
-        ${fld(p,'contactName','Kapcsolattartó')}
+        ${fld(p,'contactName',ro()?'Kapcsolattartó':'Kapcsolattartó <span class="hs-tag">keresés a HubSpotban</span>',{ph:ro()?'':'Kezdd el gépelni a nevet…'})}
         ${fld(p,'contactPhone','Telefon',{type:'tel',ph:'+36 …'})}
         ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
       </div></div>
