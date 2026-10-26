@@ -14,6 +14,11 @@ function closeModal(){$('modalRoot').innerHTML='';modalSubmit=null;document.docu
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}" value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
 const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}">${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
+/* Forintmező: csak számjegy, ezres tagolás, ± gomb 1000 Ft-onként */
+const MONEY_MAX=9999000,MONEY_STEP=1000;
+const moneyFmt=n=>n==null||n===''?'':nf.format(n);
+const moneyVal=s=>{const d=String(s||'').replace(/\D/g,'');return d===''?'':Math.min(MONEY_MAX,Number(d));};
+const moneyField=(name,label,v)=>`<div class="field"><label for="m-${name}">${label}</label><div class="money"><button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="-1" aria-label="${label}: −1000 Ft">−</button><input class="inp money-inp" id="m-${name}" name="${name}" type="text" inputmode="numeric" autocomplete="off" placeholder="pl. 40 000" value="${esc(moneyFmt(v))}" data-money="1"><span class="money-unit">Ft</span><button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="1" aria-label="${label}: +1000 Ft">+</button></div></div>`;
 function needName(form,msg){const el=form.querySelector('[name=name]');if(el.value.trim().length<2){el.focus();el.style.borderColor='var(--bad)';toast(msg||'Add meg a nevet.',true);return false;}return true;}
 $('modalRoot').addEventListener('submit',async e=>{
   e.preventDefault();if(!modalSubmit)return;
@@ -48,14 +53,14 @@ function crewModal(c){
     ${ms('priority','Prioritás',[['1','1 – elsődleges'],['2','2 – másodlagos'],['3','3 – tartalék']],v.priority!=null?String(v.priority):'',{empty:'Nincs megadva'})}
     ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
     ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
-    ${mf('dayRate','Napidíj (nettó Ft)',{type:'number',min:0,v:v.dayRate??'',im:'numeric'})}
+    ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
     ${mf('phone','Telefon',{type:'tel',v:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
-    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:fd.get('dayRate'),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills')};
+    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills')};
     try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
@@ -212,6 +217,7 @@ const ACT={
     S.addEq={item:'',qty:1};setDraft({equipment});},
   'eq-remove':b=>setDraft({equipment:clone(S.draft.equipment||[]).filter(e=>e.itemId!==b.dataset.id)}),
   'send-list':()=>sendListModal(),
+  'money-step':b=>{const el=$(b.dataset.for);if(!el)return;const cur=Number(moneyVal(el.value)||0);const n=Math.max(0,Math.min(MONEY_MAX,(Math.round(cur/MONEY_STEP)+Number(b.dataset.d))*MONEY_STEP));el.value=moneyFmt(n);el.focus();},
   'copy-pack':()=>{if(S.draft)copyText(packingList(S.draft),'Pakolási lista a vágólapon');},
   'make-folder':async b=>{const d=S.draft;if(!d)return;b.disabled=true;b.textContent='Mappa létrehozása…';
     try{const r=await call('createProjectFolder',{id:d.id});const p=projById(d.id);if(p)p.folderId=r.folderId;d.folderId=r.folderId;render(true);toast(r.existed?'A mappa már létezett':'Projektmappa létrehozva');}
@@ -227,6 +233,7 @@ function fieldValue(t){
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.field!==undefined&&S.draft&&!ro()&&t.tagName!=='SELECT'){S.draft[t.dataset.field]=t.type==='number'?(t.value===''?null:num(t.value)):t.value;if(!S.dirty){S.dirty=true;renderChrome();}return;}
+  if(t.dataset.money){const pos=t.value.length-t.selectionStart;const v=moneyVal(t.value);t.value=moneyFmt(v);try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
   if(t.id==='q-projects'){S.pf.q=t.value;render(true);}
   else if(t.id==='q-crew'){S.cf.q=t.value;render(true);}
   else if(t.id==='q-inv'){S.inf.q=t.value;render(true);}
@@ -241,6 +248,9 @@ document.addEventListener('change',e=>{
   if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}
+  if(t.dataset.prioCrew){const c=crewById(t.dataset.prioCrew);if(!c)return;t.disabled=true;
+    call('saveCrew',Object.assign({},c,{baseUpdatedAt:c.updatedAt,priority:t.value})).then(saved=>{const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;render(true);toast(saved.name+': '+(saved.priority?'P'+saved.priority:'nincs prioritás'));})
+      .catch(e=>{handleErr(e);render(true);});return;}
   if(t.id==='crew-role-filter'){S.cf.role=t.value;render(true);return;}
   if(t.id==='inv-cat'){S.inf.cat=t.value;render(true);return;}
   if(t.id==='inv-cond'){S.inf.cond=t.value;render(true);return;}
