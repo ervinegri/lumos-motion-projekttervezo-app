@@ -1,30 +1,48 @@
 'use strict';
-/* ===== Belépés ===== */
+/* ===== Belépés (a Sales App belépőjével egyező működés) ===== */
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.classList.toggle('info',!!info);}
 function showLogin(msg){
   $('loginGate').classList.remove('hidden');
-  $('loginMsg').textContent=msg||'';
+  loginMsg(msg||'',!!msg&&/Kiléptél/.test(msg));
   $('loginPin').value='';
   let last='';try{last=localStorage.getItem(TOKEN_KEY+'_email')||'';}catch(e){}
   if(last&&!$('loginEmail').value)$('loginEmail').value=last;
-  ($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();
+  setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},50);
 }
+$('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
 $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if($('loginBtn').disabled)return;
   const email=$('loginEmail').value.trim().toLowerCase(),pin=$('loginPin').value.trim();
-  if(!EMAIL_RE.test(email)){$('loginMsg').textContent='Add meg az e-mail-címed.';$('loginEmail').focus();return;}
-  if(!/^\d{6}$/.test(pin)){$('loginMsg').textContent='A PIN 6 számjegy.';$('loginPin').focus();return;}
-  $('loginBtn').disabled=true;$('loginMsg').textContent='';
+  if(!EMAIL_RE.test(email)){loginMsg('Írd be az e-mail-címed.');$('loginEmail').focus();return;}
+  if(!/^\d{6}$/.test(pin)){loginMsg('A PIN 6 számjegyből áll.');$('loginPin').focus();return;}
+  $('loginBtn').disabled=true;loginMsg('Belépés…',true);
   try{
     const r=await gs('login',email,pin);
     TOKEN=r.token;try{localStorage.setItem(TOKEN_KEY,TOKEN);localStorage.setItem(TOKEN_KEY+'_email',email);}catch(err){}
-    $('loginGate').classList.add('hidden');
+    $('loginGate').classList.add('hidden');loginMsg('');
     await load();
-  }catch(err){$('loginMsg').textContent=errText(err);$('loginPin').value='';$('loginPin').focus();}
+  }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');$('loginPin').value='';$('loginPin').focus();}
   finally{$('loginBtn').disabled=false;}
 });
-$('loginPin').addEventListener('input',e=>{if(/^\d{6}$/.test(e.target.value)&&EMAIL_RE.test($('loginEmail').value.trim()))$('loginForm').requestSubmit();});
+$('loginPin').addEventListener('input',()=>{
+  const p=$('loginPin'),v=p.value.replace(/\D/g,'').slice(0,6);if(p.value!==v)p.value=v;
+  if(v.length<6)return;
+  if(!EMAIL_RE.test($('loginEmail').value.trim())){loginMsg('Előbb írd be az e-mail-címed.');$('loginEmail').focus();return;}
+  $('loginForm').requestSubmit();   // a 6. számjegy után magától belép
+});
+$('forgotPin').addEventListener('click',async()=>{
+  const email=$('loginEmail').value.trim().toLowerCase(),b=$('forgotPin');
+  if(!EMAIL_RE.test(email)){loginMsg('Írd be az e-mail-címed, utána kérj új PIN-kódot.');$('loginEmail').focus();return;}
+  b.disabled=true;loginMsg('Új PIN-kód küldése…',true);
+  try{
+    await gs('requestPinReset',email);
+    loginMsg('Ha az e-mail-cím szerepel a rendszerben, elküldtük rá az új PIN-kódot. Nézd meg a spam mappát is.',true);
+    $('loginPin').value='';$('loginPin').focus();
+  }catch(err){loginMsg(errText(err)||'Nem sikerült új PIN-kódot küldeni.');}
+  finally{setTimeout(()=>{b.disabled=false;},3000);}
+});
 $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   try{await call('logout');}catch(e){}
   TOKEN='';try{localStorage.removeItem(TOKEN_KEY);}catch(e){}

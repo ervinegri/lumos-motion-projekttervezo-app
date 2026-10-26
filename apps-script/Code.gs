@@ -90,6 +90,7 @@ function api_(raw) {
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
     else if (fn === 'login') data = login(args[0], args[1], args[2]);
     else if (fn === 'getLoginNames') data = getLoginNames();
+    else if (fn === 'requestPinReset') data = requestPinReset(args[0]);
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
   } catch (err) {
@@ -626,19 +627,55 @@ function genPin_() {
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
 
-function sendPinMail_(user, pin) {
+function sendPinMail_(user, pin, isReset) {
   const url = appUrl_();
-  const lines = ['Kedves ' + user.name + ',', '', 'Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.', '',
+  const intro = isReset ? 'A kérésedre új PIN-kódot állítottunk be a ' + APP_TITLE + ' alkalmazáshoz. A régi PIN-kód ezzel érvénytelen.' : 'Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.';
+  const lines = ['Kedves ' + user.name + ',', '', intro, '',
     'E-mail-cím a belépésnél: ' + user.email, 'PIN-kód: ' + pin, ''];
   if (url) lines.push('Az alkalmazás: ' + url, '');
-  lines.push('A PIN-kódot ne add tovább.', '', MAIL_SIGNATURE_TEXT);
-  const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.</p>'
+  lines.push('A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az adminisztrátornak.' : ''), '', MAIL_SIGNATURE_TEXT);
+  const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p><b>E-mail-cím a belépésnél:</b> ' + escapeHtml_(user.email) + '<br><b>PIN-kód:</b> <span style="font-size:18px;letter-spacing:2px">' + escapeHtml_(pin) + '</span></p>'
     + (url ? '<p>Az alkalmazás: <a href="' + escapeHtml_(url) + '">' + escapeHtml_(url) + '</a></p>' : '')
-    + '<p>A PIN-kódot ne add tovább.</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
+    + '<p>A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az adminisztrátornak.' : '') + '</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
   try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  GmailApp.sendEmail(user.email, APP_TITLE + ' – belépési adataid', lines.join('\n'), opts);
+  GmailApp.sendEmail(user.email, APP_TITLE + (isReset ? ' – új PIN-kódod' : ' – belépési adataid'), lines.join('\n'), opts);
+}
+
+/** „Elfelejtettem a PIN-kódom”: új PIN-t állít be, és kiküldi a felhasználó e-mail-címére. Belépés nélkül hívható,
+ *  ezért szűkített (felhasználónként 10 percenként 1, összesen óránként 30). A válasz nem árulja el, létezik-e az e-mail-cím. */
+function requestPinReset(email) {
+  email = String(email || '').trim().toLowerCase();
+  const GENERIC = { ok: true };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Írd be az e-mail-címed, utána kérj új PIN-kódot.');
+  const cache = CacheService.getScriptCache();
+  const hour = Number(cache.get('pm_pinreset_hour') || 0);
+  if (hour >= 30) throw new Error('Túl sok kérés. Próbáld újra később, vagy szólj az adminisztrátornak.');
+  cache.put('pm_pinreset_hour', String(hour + 1), 3600);
+  let user = null, pin = '', oldSalt = '', oldHash = '';
+  withLock_(() => {
+    const users = loadUsers_();
+    const u = users.find(x => String(x.email || '').toLowerCase() === email && !x.disabled);
+    if (!u) return;
+    if (cache.get('pm_pinreset_' + u.id)) return;   // 10 percen belül már kiküldtük
+    pin = genPin_(); oldSalt = u.salt; oldHash = u.hash;
+    u.salt = Utilities.getUuid(); u.hash = pinHash_(u.salt, pin);
+    saveUsers_(users);
+    PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + u.id);   // a zárolás is feloldódik
+    cache.put('pm_pinreset_' + u.id, '1', 600);
+    user = u;
+  });
+  if (!user) { Utilities.sleep(700); return GENERIC; }
+  try { sendPinMail_(user, pin, true); }
+  catch (e) {
+    // ha a levél nem ment ki, a régi PIN marad érvényben
+    withLock_(() => { const users = loadUsers_(); const x = users.find(v => v.id === user.id); if (x) { x.salt = oldSalt; x.hash = oldHash; saveUsers_(users); } });
+    cache.remove('pm_pinreset_' + user.id);
+    throw new Error('Nem sikerült elküldeni az új PIN-kódot. Próbáld újra később, vagy szólj az adminisztrátornak.');
+  }
+  logEvent_(user, 'PIN-visszaállítás', user.name, 'Új PIN kiküldve e-mailben: ' + user.email);
+  return GENERIC;
 }
 
 /** EGYSZER FUTTATANDÓ a szerkesztőből: létrehozza a munkalapokat és a SETUP_USERS felhasználókat (új PIN-nel). */
