@@ -12,3 +12,6 @@
 
 ## Adatok
 Google Sheets (Projektek mappa), lapok: Projektek, Stáb, Leltár, Stábbeosztás, Eszközbeosztás, Napló.
+
+## Időzóna
+Minden dátum Europe/Budapest szerint (appsscript.json és Code.gs `SHEET_TZ`).
