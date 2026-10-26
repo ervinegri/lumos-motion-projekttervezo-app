@@ -89,7 +89,7 @@ function userModal(u){
   const crewOpts=[['','Nincs összekapcsolva'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
   openModal(u?'Felhasználó szerkesztése':'Új felhasználó',`<div class="fields">
     ${mf('name','Megjelenő név',{v:v.name,max:60})}
-    ${ms('role','Szerepkör',Object.entries(USER_ROLES),v.role||'crew')}
+    ${ms('role','Szerepkör',Object.entries(USER_ROLES),USER_ROLES[v.role]?v.role:'editor')}
     ${ms('crewId','Melyik munkatárs a stáblistában?',crewOpts,v.crewId||'',{full:true})}
     ${mf('email','E-mail-cím (ezzel lép be, ide megy a PIN)',{type:'email',v:v.email,full:true})}
     ${mf('pin',u?'Új PIN (üresen hagyva nem változik)':'PIN (üresen hagyva a program generál egyet)',{im:'numeric',max:6,ph:'6 számjegy'})}

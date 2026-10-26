@@ -75,7 +75,7 @@ function renderChrome(){
   const on=!!S.me;
   ['userChip','refreshBtn','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
   if(!on){$('tabs').innerHTML='';return;}
-  $('userChip').textContent=S.me.name+' · '+(USER_ROLES[S.me.role]||S.me.role);
+  $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role);
   const counts={projektek:S.projects.filter(isOpen).length,stab:S.crew.length,leltar:S.inventory.length};
   $('tabs').innerHTML=TABS().map(t=>`<button class="tab" role="tab" type="button" aria-selected="${S.tab===t.id}" data-action="tab" data-tab="${t.id}">${t.label}${counts[t.id]!=null?`<span class="count">${counts[t.id]}</span>`:''}</button>`).join('');
   const title=S.tab==='projektek'&&S.draft?(S.draft.name||'Projekt'):(TABS().find(t=>t.id===S.tab)||{}).label||'';
@@ -367,14 +367,14 @@ function viewInventory(){
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
-  const users=S.users.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow"><div class="who"><b>${esc(u.name)}${u.disabled?' <span class="statuspill p-bad">letiltva</span>':''}</b><small>${esc(USER_ROLES[u.role]||u.role)}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
+  const users=S.users.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow"><div class="who"><b>${esc(u.name)}${u.disabled?' <span class="statuspill p-bad">letiltva</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
     <button class="mini" type="button" data-action="edit-user" data-id="${esc(u.id)}">Szerkesztés</button></div>`).join('');
   const log=S.log.slice(0,150).map(l=>`<div class="logrow"><span class="when">${esc(l.at)}</span><span><b>${esc(l.who)}</b> · ${esc(l.action)}${l.subject?': '+esc(l.subject):''}${l.details?`<br><span class="muted">${esc(l.details)}</span>`:''}</span></div>`).join('');
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Felhasználók, napló és a háttérben futó táblázat</p></div></div>
     <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
     <div class="grid2">
       <div class="panel"><h3>👤 Felhasználók és PIN-kódok <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Új felhasználó</button></span></h3>
-        <p class="hint" style="margin:0 0 10px">Ügyvezető: mindent lát és kezel. Termelési vezető: projekteket, stábot és leltárt szerkeszt. Stáb: csak a saját beosztásait látja, árak nélkül.</p>
+        <p class="hint" style="margin:0 0 10px">Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
         <div>${log||empty('Még nincs bejegyzés.')}</div></div>

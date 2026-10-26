@@ -28,7 +28,8 @@ const TECH=[
   {k:'t_kepkeveres',label:'Élő képkeverés / streaming',role:'Képkeverő / streaming'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
-const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Stáb'};
+const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető'};
+const roleLabel=r=>USER_ROLES[r]||(r==='crew'?'Stáb (régi, csak olvas)':r);
 const TOKEN_KEY='lumos_pm_token_v1';
 
 /* ===== Állapot ===== */

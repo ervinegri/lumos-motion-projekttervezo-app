@@ -592,7 +592,7 @@ function getLog_() {
 const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
 const LOCK_PREFIX = 'LUMOS_PM_LOCK_';
-const ROLES = ['admin', 'editor', 'crew'];
+const ROLES = ['admin', 'editor'];   // Ügyvezető, Termelési vezető (a régi „crew” felhasználók csak olvasni tudnak, újat nem lehet felvenni)
 const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Stáb' };
 const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
 const LOCK_STEPS_MIN = [15, 60, 360, 1440];
@@ -698,7 +698,7 @@ function setup() {
   });
   SETUP_USERS.forEach(r => {
     if (String(r[0]).trim().length < 2) throw new Error('Hibás név: ' + r[0]);
-    if (ROLES.indexOf(r[1]) < 0) throw new Error('Hibás szerepkör: ' + r[1] + ' (admin | editor | crew)');
+    if (ROLES.indexOf(r[1]) < 0) throw new Error('Hibás szerepkör: ' + r[1] + ' (admin | editor)');
   });
   if (!SETUP_USERS.some(r => r[1] === 'admin')) throw new Error('Legalább egy ügyvezető kell.');
   withLock_(() => {
@@ -804,8 +804,7 @@ function saveUser_(arg) {
   const email = String(a.email || '').trim().toLowerCase();
   let sendPin = a.sendPin === true;
   if (name.length < 2 || name.length > 60) throw new Error('A név 2–60 karakter lehet.');
-  if (ROLES.indexOf(role) < 0) throw new Error('Érvénytelen szerepkör.');
-  if (role === 'crew' && !crewId) throw new Error('Stáb szerepkörnél válaszd ki, melyik munkatárs ő, különben nem látja a beosztásait.');
+  if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető vagy Termelési vezető.');
   if (pin && !/^\d{6}$/.test(pin)) throw new Error('A PIN pontosan 6 számjegy legyen.');
   if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel lép be a felhasználó.');
   let target = null, mailPin = '', list = null;
