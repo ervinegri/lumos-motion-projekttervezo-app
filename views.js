@@ -311,7 +311,7 @@ function viewProject(p){
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
         <div class="toggles">${ex}</div></div>
       <div class="panel"><h3>🎤 Előadásrögzítés ${hasRec(p)?'<span class="aside">aktív</span>':''}</h3>
-        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl on rooms-row"><div><div class="dl-name">Rögzített termek száma</div><div class="dl-price">${n>1?`Minden kiválasztott kamera és eszköz ${n} teremre értendő`:'A kiválasztott kamerák és eszközök termenként értendők'}</div></div>
+        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><output>${n}</output><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
         <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
         <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
