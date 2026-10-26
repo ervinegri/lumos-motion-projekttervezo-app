@@ -32,7 +32,7 @@ const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 
 const CREW_ROLES = ['Projektvezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
-const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop', 'Tablet', 'Telefon', 'Kocsi / szállítás', 'Kábel / egyéb'];
+const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop', 'Tablet', 'Telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny'];
@@ -146,6 +146,7 @@ function fromRow_(t, r) {
     else if (BOOL_FIELDS.has(k)) v = v === true || /^(igen|true|1|x)$/i.test(String(v).trim());
     else v = String(v).replace(/^'/, '');
     if (k === 'role' && v === 'Termelési vezető') v = 'Projektvezető';   // régi elnevezés
+    if (k === 'category' && v === 'Kábel / egyéb') v = 'Egyéb';   // régi kategória
     o[k] = v;
   });
   if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean).map(r => r === 'Termelési vezető' ? 'Projektvezető' : r);   // régi elnevezés
@@ -437,7 +438,7 @@ function saveItem_(u, a) {
   const id = str_(a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
   const it = {
-    id: id, name: str_(a.name, 160), category: INV_CATS.indexOf(a.category) >= 0 ? a.category : 'Kábel / egyéb',
+    id: id, name: str_(a.name, 160), category: INV_CATS.indexOf(a.category) >= 0 ? a.category : 'Egyéb',
     qty: int_(a.qty, 0, 9999, 1), condition: CONDITIONS.indexOf(a.condition) >= 0 ? a.condition : 'ok',
     serial: str_(a.serial, 200), location: str_(a.location, 120), value: (a.value === '' || a.value == null) ? null : int_(a.value, 0, 1e9, null), note: str_(a.note, 500)
   };

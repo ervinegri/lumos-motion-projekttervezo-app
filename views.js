@@ -205,7 +205,7 @@ function viewProject(p){
   const selRole=S.addCrew.role||(sel&&(crewById(sel).roles||[])[0])||'Operatőr';
   const personOpts=sortedCrew.slice().sort((a,b)=>prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu')).map(cr=>{const busy=busyFor(cr.id,p);return `<option value="${esc(cr.id)}"${cr.id===sel?' selected':''}>${prioNum(cr)<9?'P'+prioNum(cr)+' · ':''}${esc(cr.name)}${(cr.roles||[]).length?' ('+esc(cr.roles.slice(0,2).join(', '))+')':''}${busy.length?' — foglalt: '+esc(busy.map(q=>q.name).join(', ')):''}</option>`;}).join('');
   const eqList=(p.equipment||[]).map(e=>({e,it:itemById(e.itemId)}));
-  const catOf=x=>x.it?x.it.category||'Kábel / egyéb':'Törölt eszköz';
+  const catOf=x=>x.it?x.it.category||'Egyéb':'Törölt eszköz';
   const cats=[...new Set(eqList.map(catOf))].sort((a,b)=>INV_CATS.indexOf(a)-INV_CATS.indexOf(b));
   const eqHtml=cats.map(cat=>`<div class="eq-cat">${esc(cat)}</div>`+eqList.filter(x=>catOf(x)===cat).map(({e,it})=>{
     let note='';
@@ -217,7 +217,7 @@ function viewProject(p){
       <input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-qty="${esc(e.itemId)}" value="${num(e.qty)}" aria-label="Darabszám"${D()}>
       <button class="x w" type="button" data-action="eq-remove" data-id="${esc(e.itemId)}" aria-label="Eltávolítás">×</button></div>`;}).join('')).join('');
   const eqSel=S.addEq.item&&itemById(S.addEq.item)?S.addEq.item:'';
-  const itemOpts=INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Kábel / egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
+  const itemOpts=INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
     if(!items.length)return '';return `<optgroup label="${esc(cat)}">${items.map(i=>{const free=num(i.qty)-usedElsewhere(i.id,p);return `<option value="${esc(i.id)}"${i.id===eqSel?' selected':''}>${esc(i.name)} — ${free}/${num(i.qty)} szabad${i.condition&&i.condition!=='ok'?' ('+CONDITIONS[i.condition].toLowerCase()+')':''}</option>`;}).join('')}</optgroup>`;}).join('');
   const folder=p.folderId?`<a class="mini" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:(ro()?'':`<button class="mini" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`);
   const delivery=p.deliveryLink&&/^https:\/\//i.test(p.deliveryLink)?`<a class="mini" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener">Átadási link megnyitása ↗</a>`:'';
@@ -338,13 +338,13 @@ function viewCrew(){
 function viewInventory(){
   const T=todayISO(),f=S.inf,q=f.q.trim().toLowerCase();
   let list=S.inventory.slice();
-  if(f.cat)list=list.filter(i=>(i.category||'Kábel / egyéb')===f.cat);
+  if(f.cat)list=list.filter(i=>(i.category||'Egyéb')===f.cat);
   if(f.cond)list=list.filter(i=>(i.condition||'ok')===f.cond);
   if(q)list=list.filter(i=>[i.name,i.serial,i.category,i.note,i.location].join(' ').toLowerCase().includes(q));
   const totalQty=S.inventory.reduce((s,i)=>s+num(i.qty),0);
   const value=S.inventory.reduce((s,i)=>s+num(i.value)*num(i.qty),0);
   const broken=S.inventory.filter(i=>i.condition==='javitas'||i.condition==='szerviz').length;
-  const rows=INV_CATS.map(cat=>{const items=list.filter(i=>(i.category||'Kábel / egyéb')===cat).sort((a,b)=>a.name.localeCompare(b.name,'hu'));if(!items.length)return '';
+  const rows=INV_CATS.map(cat=>{const items=list.filter(i=>(i.category||'Egyéb')===cat).sort((a,b)=>a.name.localeCompare(b.name,'hu'));if(!items.length)return '';
     return `<tr class="grp"><td colspan="7">${esc(cat)} · ${items.reduce((s,i)=>s+num(i.qty),0)} db</td></tr>`+items.map(i=>{
       const uses=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&eqQty(p,i.id)>0).sort(byStart);
       const now=uses.find(p=>pr(p).start<=T),u=now||uses[0],cond=i.condition||'ok';

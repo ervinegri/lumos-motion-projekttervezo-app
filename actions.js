@@ -164,7 +164,7 @@ async function saveDraft(){
 function packingList(p){
   const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,''];
   const eq=(p.equipment||[]).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
-  INV_CATS.forEach(cat=>{const items=eq.filter(x=>(x.it.category||'Kábel / egyéb')===cat);if(!items.length)return;lines.push(cat.toUpperCase());items.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));lines.push('');});
+  INV_CATS.forEach(cat=>{const items=eq.filter(x=>(x.it.category||'Egyéb')===cat);if(!items.length)return;lines.push(cat.toUpperCase());items.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));lines.push('');});
   const crew=[...crewIds(p)].map(id=>crewById(id)).filter(Boolean);
   if(crew.length){lines.push('STÁB');crew.forEach(c=>lines.push(`• ${c.name}${c.phone?' – '+c.phone:''}`));}
   return lines.join('\n').trim();
