@@ -14,6 +14,7 @@ const SPREADSHEET_ID = '1Jf9nELuauhFEaAxAnfg_dSDG1MudeqfmftqYPqCdif8';   // Proj
 const PROJECTS_FOLDER_ID = '1qxSBbudO4atHkdOsfH6ur6oXc_tc9OnB';          // Projektek mappa (alatta évszámos almappák)
 const APP_TITLE = 'Lumos Motion Projekttervező';
 const FRONTEND_URL = 'https://projekttervezo.lumosmotion.hu';   // a Vercelen futó felület címe (ez kerül a PIN-es e-mailekbe)
+const CALENDAR_ID = 'c_2c50501c805387f783e86998c7afa0a53dcc443aaa73d96e1be5373ecb71d2fd@group.calendar.google.com';   // „Terepi Munkák Lumos Motion” naptár
 const MAIL_FROM = 'admin@lumosmotion.com';        // az app leveleinek feladója: Gmail „Küldés másként” alias a szkriptet futtató fiókban
 const MAIL_REPLY_TO = 'admin@lumosmotion.com';      // alapértelmezett válaszcím (az eszközlistánál a küldő kolléga címe lesz)
 const MAIL_SIGNATURE_HTML = 'Üdvözlettel,<br>Lumos Motion';
@@ -51,7 +52,8 @@ const TABLES = {
     ['quotePrice', 'Ajánlati ár (nettó Ft)'], ['contactName', 'Kapcsolattartó'], ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'],
     ['techPlan', 'Forgatási és technikai terv'], ['notes', 'Jegyzetek'], ['deliveryLink', 'Átadási link'], ['deliveredAt', 'Átadva'],
     ['folderId', 'Drive mappa azonosító'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'],
-    ['mutationId', 'Utolsó műveletazonosító'], ['listSentAt', 'Eszközlista kiküldve'], ['listSentTo', 'Eszközlista címzettjei']] },
+    ['mutationId', 'Utolsó műveletazonosító'], ['listSentAt', 'Eszközlista kiküldve'], ['listSentTo', 'Eszközlista címzettjei'],
+    ['calEventId', 'Naptár esemény azonosító']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -296,7 +298,7 @@ function saveProject_(u, a) {
   const crewIn = Array.isArray(a.crew) ? a.crew.slice(0, 60) : [];
   const eqIn = Array.isArray(a.equipment) ? a.equipment.slice(0, 150) : [];
 
-  return withLock_(() => {
+  const saved = withLock_(() => {
     const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
     if (p.lead && !crewMap[p.lead]) p.lead = '';
     const seen = {}, crew = [];
@@ -317,10 +319,10 @@ function saveProject_(u, a) {
       old = readRow_('projects', sh, row);
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
-      p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo;
+      p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
-      p.createdAt = now_(); p.folderId = ''; p.listSentAt = ''; p.listSentTo = '';
+      p.createdAt = now_(); p.folderId = ''; p.listSentAt = ''; p.listSentTo = ''; p.calEventId = str_(a.calEventId, 200);   // naptárból importált projekt
     }
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
@@ -334,6 +336,7 @@ function saveProject_(u, a) {
     delete out.mutationId;
     return out;
   });
+  return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
 
 function diffProject_(a, b) {
@@ -356,6 +359,7 @@ function deleteProject_(u, a) {
     const sh = sheetFor_('projects'), row = findRow_(sh, id);
     if (!row) return { deleted: false, id: id };
     const old = readRow_('projects', sh, row);
+    calDelete_(old.calEventId);
     sh.deleteRow(row);
     rewriteAssign_('crewAssign', r => r.projectId !== id, []);
     rewriteAssign_('eqAssign', r => r.projectId !== id, []);
@@ -363,6 +367,111 @@ function deleteProject_(u, a) {
     logEvent_(u, 'Projekt törölve', old.name, old.date ? 'Dátum: ' + old.date : '');
     return { deleted: true, id: id };
   });
+}
+
+/* ===================== GOOGLE NAPTÁR ===================== */
+// A projektek a „Terepi Munkák Lumos Motion” naptárba kerülnek (app → naptár). A naptár többi eseménye az app Naptár fülén látszik,
+// és egy kattintással projekt hozható létre belőle. A beosztott stáb vendégként kerül az eseményre (meghívó e-mail nélkül).
+/** EGYSZER FUTTATANDÓ a szerkesztőből a Code.gs frissítése után: engedélyt kér a Google Naptárhoz, és kiírja a naptár nevét. */
+function authorizeCalendar() { Logger.log('Naptár rendben: ' + cal_().getName()); }
+function cal_() { const c = CalendarApp.getCalendarById(CALENDAR_ID); if (!c) throw new Error('A Google Naptár nem érhető el.'); return c; }
+function calEvent_(id) { if (!id) return null; try { return cal_().getEventById(id); } catch (e) { return null; } }
+function calDelete_(id) { try { const ev = calEvent_(id); if (ev) ev.deleteEvent(); } catch (e) { Logger.log('Naptár törlés hiba: ' + e); } }
+function calDate_(iso, hhmm) { const d = Utilities.parseDate(iso + ' ' + (hhmm || '00:00'), SHEET_TZ, 'yyyy-MM-dd HH:mm'); return d; }
+function calPlan_(p) {
+  const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
+  const roles = {};
+  if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });
+  const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));
+  const eqLines = (p.equipment || []).filter(e => invMap[e.itemId]).map(e => '☐ ' + e.qty + '× ' + invMap[e.itemId].name);
+  const lines = [];
+  if (p.status) lines.push('Állapot: ' + (STATUS_LABELS[p.status] || p.status));
+  if (p.client) lines.push('Ügyfél: ' + p.client);
+  if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.hours ? ' · ' + p.hours + ' óra' : ''));
+  if (p.contactName || p.contactPhone) lines.push('Kapcsolattartó: ' + [p.contactName, p.contactPhone].filter(Boolean).join(', '));
+  if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
+  if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
+  if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
+  if (p.notes) lines.push('', 'JEGYZETEK', String(p.notes).slice(0, 1000));
+  lines.push('', 'Az appban: ' + FRONTEND_URL + '/#p=' + p.id, '(Ezt az eseményt a Projekttervező frissíti – a módosításokat az appban végezd.)');
+  const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
+  const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);
+  return { description: lines.join('\n'), guests: guests, crewEmails: crewEmails };
+}
+/** Projekt → naptáresemény (létrehozás, frissítés, törlés). Visszaadja a projektet a friss calEventId-vel. */
+function syncCalendar_(p) {
+  try {
+    const hasDate = /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''));
+    let ev = calEvent_(p.calEventId);
+    if (!hasDate) { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; } return p; }
+    const title = (p.status === 'lemondva' ? 'STORNO – ' : '') + p.name;
+    const multi = p.endDate && p.endDate > p.date;
+    const plan = calPlan_(p);
+    const lastDay = Utilities.parseDate((multi ? p.endDate : p.date) + ' 12:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
+    const dayAfter = new Date(lastDay.getTime() + 86400000);
+    const start = p.startTime && !multi ? calDate_(p.date, p.startTime) : calDate_(p.date);
+    const end = p.startTime && !multi ? new Date(start.getTime() + (Number(p.hours) || 8) * 3600000) : calDate_(Utilities.formatDate(dayAfter, SHEET_TZ, 'yyyy-MM-dd'));
+    const allDay = !(p.startTime && !multi);
+    if (!ev) {
+      ev = allDay ? cal_().createAllDayEvent(title, start, end, { description: plan.description, location: p.venue || '' })
+                  : cal_().createEvent(title, start, end, { description: plan.description, location: p.venue || '' });
+      ev.setTag('lumosProjectId', p.id);
+      setCalId_(p.id, ev.getId()); p.calEventId = ev.getId();
+    } else {
+      ev.setTitle(title); ev.setDescription(plan.description); ev.setLocation(p.venue || '');
+      if (allDay) ev.setAllDayDates(start, end); else ev.setTime(start, end);
+      ev.setTag('lumosProjectId', p.id);
+    }
+    // vendégek: a beosztott stábtagok; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
+    const want = {}; plan.guests.forEach(m => { want[m] = 1; });
+    const isCrew = {}; plan.crewEmails.forEach(m => { isCrew[m] = 1; });
+    const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
+    Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
+    Object.keys(have).forEach(m => { if (isCrew[m] && !want[m]) ev.removeGuest(m); });
+  } catch (e) {
+    Logger.log('Naptár szinkron hiba: ' + e);
+    p.calError = 'A naptár frissítése nem sikerült: ' + ((e && e.message) || e);
+  }
+  return p;
+}
+function setCalId_(id, evId) {
+  withLock_(() => {
+    const sh = sheetFor_('projects'), r = findRow_(sh, id);
+    if (!r) return;
+    const col = TABLES.projects.cols.map(c => c[0]).indexOf('calEventId') + 1;
+    sh.getRange(r, col).setNumberFormat('@').setValue(evId);   // a módosítás idejét szándékosan nem írjuk át
+  });
+}
+function plainText_(html) {
+  return String(html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>\s*<p[^>]*>/gi, '\n').replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+}
+/** A naptár eseményei egy időszakra (az app Naptár fülének). */
+function calendarEvents_(a) {
+  const from = iso_(a && a.from), to = iso_(a && a.to);
+  if (!from || !to || to < from) throw new Error('Hibás időszak.');
+  const start = calDate_(from), end = new Date(calDate_(to).getTime() + 86400000);
+  if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
+  const cache = CacheService.getScriptCache(), key = 'pm_cal_' + from + '_' + to, hit = cache.get(key);
+  if (hit) return JSON.parse(hit);
+  const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
+  const out = cal_().getEvents(start, end).map(ev => {
+    const allDay = ev.isAllDayEvent();
+    const s = allDay ? ev.getAllDayStartDate() : ev.getStartTime();
+    let e2 = allDay ? ev.getAllDayEndDate() : ev.getEndTime();
+    if (allDay) e2 = new Date(e2.getTime() - 86400000);   // a naptár a záró napot kizárólagosan adja
+    return {
+      id: ev.getId(), title: ev.getTitle(), allDay: allDay,
+      date: fmt(s, 'yyyy-MM-dd'), endDate: fmt(e2 < s ? s : e2, 'yyyy-MM-dd'),
+      start: allDay ? '' : fmt(s, 'HH:mm'), end: allDay ? '' : fmt(ev.getEndTime(), 'HH:mm'),
+      location: ev.getLocation() || '', description: plainText_(ev.getDescription()).slice(0, 1500),
+      guests: ev.getGuestList().map(g => String(g.getEmail()).toLowerCase()),
+      projectId: ev.getTag('lumosProjectId') || ''
+    };
+  });
+  try { cache.put(key, JSON.stringify(out), 60); } catch (e) {}
+  return out;
 }
 
 /** Drive-mappa a Projektek / <év> / <projekt neve> helyen (ha már van ilyen nevű, azt használja). */
@@ -916,6 +1025,7 @@ function rpc(token, name, arg) {
     case 'whoAmI': return publicUser_(u);
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
+    case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'changePin': return changePin_(u, arg, token);
     case 'saveProject': canEdit(); return saveProject_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
