@@ -431,6 +431,7 @@ function syncCalendar_(p) {
     const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
     Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
     Object.keys(have).forEach(m => { if (isCrew[m] && !want[m]) ev.removeGuest(m); });
+    calBump_();
   } catch (e) {
     Logger.log('Naptár szinkron hiba: ' + e);
     p.calError = 'A naptár frissítése nem sikerült: ' + ((e && e.message) || e);
@@ -455,7 +456,7 @@ function calendarEvents_(a) {
   if (!from || !to || to < from) throw new Error('Hibás időszak.');
   const start = calDate_(from), end = new Date(calDate_(to).getTime() + 86400000);
   if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
-  const cache = CacheService.getScriptCache(), key = 'pm_cal_' + from + '_' + to, hit = cache.get(key);
+  const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + from + '_' + to, hit = cache.get(key);
   if (hit) return JSON.parse(hit);
   const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
   const out = cal_().getEvents(start, end).map(ev => {
@@ -474,6 +475,54 @@ function calendarEvents_(a) {
   });
   try { cache.put(key, JSON.stringify(out), 60); } catch (e) {}
   return out;
+}
+
+function calBump_() { const c = CacheService.getScriptCache(); c.put('pm_cal_ver', String(Date.now()), 21600); }
+/** Önálló naptárbejegyzés (nem projekt) létrehozása / módosítása az appból. A projektek eseményét az app a projektből frissíti. */
+function saveCalEvent_(u, a) {
+  a = a || {};
+  const title = str_(a.title, 200), date = iso_(a.date);
+  let endDate = iso_(a.endDate) || date;
+  if (title.length < 2) throw new Error('Add meg a bejegyzés címét.');
+  if (!date) throw new Error('Add meg a dátumot.');
+  if (endDate < date) endDate = date;
+  const allDay = a.allDay === true || !/^\d{2}:\d{2}$/.test(String(a.start || ''));
+  const loc = str_(a.location, 300), desc = str_(a.description, 5000);
+  const guests = (Array.isArray(a.guests) ? a.guests : []).map(m => str_(m, 160).toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)).slice(0, 50);
+  let start, end;
+  if (allDay) { start = calDate_(date); end = new Date(calDate_(endDate).getTime() + 86400000 + 3600000); end = calDate_(Utilities.formatDate(end, SHEET_TZ, 'yyyy-MM-dd')); }
+  else {
+    start = calDate_(date, a.start);
+    end = calDate_(endDate, /^\d{2}:\d{2}$/.test(String(a.end || '')) ? a.end : a.start);
+    if (end <= start) end = new Date(start.getTime() + 3600000);
+  }
+  let ev = a.id ? calEvent_(str_(a.id, 200)) : null;
+  if (a.id && !ev) throw new Error('Ez a bejegyzés közben törlődött a naptárból.');
+  if (ev && ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projektben módosítsd, az app frissíti a naptárat.');
+  const opts = { description: desc, location: loc };
+  if (!ev) {
+    if (guests.length) { opts.guests = guests.join(','); opts.sendInvites = a.sendInvites === true; }
+    ev = allDay ? cal_().createAllDayEvent(title, start, end, opts) : cal_().createEvent(title, start, end, opts);
+  } else {
+    ev.setTitle(title); ev.setDescription(desc); ev.setLocation(loc);
+    if (allDay) ev.setAllDayDates(start, end); else ev.setTime(start, end);
+    const want = {}; guests.forEach(m => { want[m] = 1; });
+    const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
+    Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
+    Object.keys(have).forEach(m => { if (!want[m]) ev.removeGuest(m); });
+  }
+  calBump_();
+  logEvent_(u, a.id ? 'Naptárbejegyzés módosítva' : 'Naptárbejegyzés létrehozva', title, date + (endDate !== date ? ' – ' + endDate : '') + (allDay ? '' : ' ' + a.start));
+  return { id: ev.getId() };
+}
+function deleteCalEvent_(u, a) {
+  const ev = calEvent_(str_(a && a.id, 200));
+  if (!ev) return { deleted: false };
+  if (ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projekt törlésével tűnik el a naptárból.');
+  const t = ev.getTitle();
+  ev.deleteEvent(); calBump_();
+  logEvent_(u, 'Naptárbejegyzés törölve', t, '');
+  return { deleted: true };
 }
 
 /** Drive-mappa a Projektek / <év> / <projekt neve> helyen (ha már van ilyen nevű, azt használja). */
@@ -1028,6 +1077,8 @@ function rpc(token, name, arg) {
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
+    case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
+    case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': return changePin_(u, arg, token);
     case 'saveProject': canEdit(); return saveProject_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
