@@ -32,7 +32,7 @@ const EVENT_TYPES = ['Konferencia', 'Céges rendezvény', 'Gála, díjátadó', 
 const CREW_ROLES = ['Projektvezető', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
-const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / táp', 'Adathordozó', 'Vágóállomás', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
+const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Állvány / grip', 'Akku / powerbank / táp', 'Adathordozó', 'Vágóállomás', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, short30: 15, short15: 15 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny'];
@@ -147,6 +147,7 @@ function fromRow_(t, r) {
     else v = String(v).replace(/^'/, '');
     if (k === 'role' && v === 'Termelési vezető') v = 'Projektvezető';   // régi elnevezés
     if (k === 'category' && v === 'Kábel / egyéb') v = 'Egyéb';   // régi kategória
+    if (k === 'category' && v === 'Akku / táp') v = 'Akku / powerbank / táp';
     if (k === 'category' && (v === 'Laptop' || v === 'Tablet' || v === 'Telefon')) v = 'Laptop / tablet / telefon';
     o[k] = v;
   });
