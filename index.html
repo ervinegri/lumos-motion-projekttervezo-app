@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Lumos Projektkezelő</title>
+<title>Lumos Motion Projekttervező</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Projekttervező">
 <style>
 /* A Lumos Motion Sales App színei és formái */
 :root{
@@ -32,6 +37,8 @@ h1,h2,h3{text-wrap:balance}
 .identity{display:flex;align-items:center;gap:16px;min-width:0}
 .logo{font-family:Arial,Helvetica,sans-serif;font-weight:900;line-height:.88;font-size:22px;letter-spacing:-1px;color:#000;flex:none}
 .logo span{display:block}
+.brand{height:52px;width:auto;display:block;flex:none}
+.login-brand{height:120px;width:auto;align-self:center;display:block}
 .vert-line{height:36px;width:1px;background:var(--line)}
 .app-name{font-weight:780;font-size:14px;color:var(--fg-3);white-space:nowrap}
 .topbar-page-title{font-size:clamp(17px,2vw,26px);font-weight:780;letter-spacing:-.03em;line-height:1.1;margin:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
@@ -46,7 +53,7 @@ h1,h2,h3{text-wrap:balance}
 @media (max-width:760px){
   .topbar-inner{grid-template-columns:auto 1fr;min-height:64px;padding-block:10px}
   .topbar-page-title{display:none}
-  .logo{font-size:18px}.vert-line,.app-name{display:none}
+  .logo{font-size:18px}.brand{height:44px}.vert-line,.app-name{display:none}
   .user-chip{display:none}
   .tab{flex:1 1 auto;justify-content:center;padding:9px 10px}
 }
@@ -296,8 +303,7 @@ body.ro .w{display:none!important}
 <body>
 <div id="loginGate" class="login-gate hidden" role="dialog" aria-modal="true" aria-label="Belépés">
   <form id="loginForm" class="login-card" autocomplete="off">
-    <div class="logo login-logo" aria-label="Lumos Motion"><span>LUMOS</span><span>MOTION</span></div>
-    <h1>Projektkezelő</h1>
+    <img class="login-brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező">
     <div class="field"><label for="loginEmail">E-mail-cím</label><input id="loginEmail" class="inp" type="email" inputmode="email" autocomplete="username" placeholder="nev@lumosmotion.com" enterkeyhint="next"></div>
     <div class="field"><label for="loginPin">PIN-kód</label><input id="loginPin" class="inp pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="••••••" enterkeyhint="go"></div>
     <button class="btn primary" id="loginBtn" type="submit">Belépés</button>
@@ -308,7 +314,7 @@ body.ro .w{display:none!important}
 <div class="page">
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="identity"><div class="logo" aria-label="Lumos Motion"><span>LUMOS</span><span>MOTION</span></div><span class="vert-line" aria-hidden="true"></span><span class="app-name">Projektkezelő</span></div>
+      <div class="identity"><img class="brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező"></div>
       <h1 class="topbar-page-title" id="pageTitle">Áttekintés</h1>
       <div class="header-tools">
         <span id="userChip" class="user-chip hidden"></span>
