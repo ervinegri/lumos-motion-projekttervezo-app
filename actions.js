@@ -73,7 +73,7 @@ function itemModal(it){
     ${ms('category','Kategória',INV_CATS,v.category||'Kamera')}
     ${mf('qty','Darabszám',{type:'number',min:0,v:v.qty??1,im:'numeric'})}
     ${ms('condition','Állapot',Object.entries(CONDITIONS),v.condition||'ok')}
-    ${moneyField('value','Beszerzési érték / db',v.value,{steps:false})}
+    ${moneyField('value','Beszerzési érték / db (bruttó)',v.value,{steps:false})}
     ${mf('serial','Azonosító / sorozatszám',{v:v.serial})}
     <div class="field"><label for="m-location">Tárolási hely</label><input class="inp" id="m-location" name="location" type="text" list="loc-list" maxlength="120" value="${esc(v.location||'')}" placeholder="pl. Iroda, 2. polc / FX3 táska"><datalist id="loc-list">${[...new Set(S.inventory.map(i=>i.location).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu')).map(l=>`<option value="${esc(l)}">`).join('')}</datalist></div>
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. tartozékok, szerviz dátuma'})}
