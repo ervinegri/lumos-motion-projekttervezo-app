@@ -121,7 +121,7 @@ window.addEventListener('beforeunload',e=>{if(S.dirty||S.saving){e.preventDefaul
 const FOLD={};
 const foldAside=n=>`<span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span>`;
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold)FOLD[d.dataset.fold]=d.open;if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
-function autoGrow(t){if(!t)return;t.style.height='auto';t.style.height=Math.max(110,t.scrollHeight+2)+'px';}
+function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?58:110;t.style.height='auto';t.style.height=Math.max(min,t.scrollHeight+2)+'px';}
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
 const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat([{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
@@ -306,7 +306,6 @@ function finPanelBody(p){
         <div class="field fin-budget"><label for="f-budgetPct">Termelői keret (költséghányad)</label>
           <div class="budget-row"><div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret százalékban"><span class="money-unit">%</span></div>
           <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>`:''}
-      <div class="fin-calc">${finSumHtml(p)}</div>
     </div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
@@ -314,11 +313,12 @@ const FIN_COLS_DEF=[40,210,220,130,240,140,44];
 function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_cols')||'null');}catch(e){}return Array.isArray(w)&&w.length===FIN_COLS_DEF.length?w:FIN_COLS_DEF.slice();}
 /* Termelői keret és maradék a táblázat „Összesen” sora alatt, a Díj oszlopban (mint az Excelben). */
 function keretRows(p){
-  const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum;
-  const lbl=isAdmin()&&k!=null&&p.budgetMode==='pct'?` <span class="muted">(${pctFmt(num(p.budgetVal))})</span>`:isAdmin()&&k!=null&&num(p.projectValue)>0?` <span class="muted">(${pctFmt(k/num(p.projectValue)*100)})</span>`:'';
-  return `<tr class="keret-tr"><td></td><td colspan="2">Termelői keret<span class="fin-keret-pct">${lbl}</span></td><td class="r fin-keret-v">${k!=null?moneyFmt(k):'–'}</td><td colspan="3"></td></tr>
+  const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=num(p.projectValue);
+  const pct=isAdmin()&&k!=null?(p.budgetMode==='pct'?pctFmt(num(p.budgetVal)):val>0?pctFmt(k/val*100):''):'';
+  return `<tr class="keret-tr"><td></td><td colspan="2">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):'–'}</td><td colspan="3"></td></tr>
         <tr class="keret-tr"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'–':moneyFmt(Math.abs(left))||0}</td><td colspan="3"></td></tr>`;
 }
+function totalCell(p){const amt=(p.fees||[]).reduce((s,f)=>s+num(f.amount),0),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
 function finSumHtml(p){
   const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
@@ -329,7 +329,6 @@ function finAside(p){
   const sum=feeSum(p),val=num(p.projectValue),k=budgetFt(p),parts=[];
   if(sum)parts.push('díjak '+ftFmt(sum));
   if(k!=null)parts.push((sum>k?'⚠️ keret ':'keret ')+ftFmt(k));
-  if(isAdmin()&&val>0)parts.push('fedezet '+pctFmt((val-sum)/val*100));
   return parts.join(' · ')||'nincs kitöltve';
 }
 /* Pénzügyek: lenyíló táblázat (ügyvezető: érték, díjak, keret, fedezet; termelési vezető: díjak és keret Ft-ban). */
@@ -338,16 +337,16 @@ function financePanel(p,inner){
   const cols=finCols(),th=(t,i,cls)=>`<th${cls?` class="${cls}"`:''}>${t}${i<cols.length-1?`<span class="col-grip" data-col="${i}" title="Húzd az oszlop szélességéhez (dupla kattintás: alaphelyzet)"></span>`:''}</th>`;
   const fees=p.fees||[],adm=isAdmin();
   const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
-  const rows=fees.map((f,i)=>`<tr><td class="n">${i+1}</td><td>${tin(i,'name',f.name,'Név',{list:'fee-names'})}</td><td>${tin(i,'task',f.task||(f.roles||[]).join(' + '),'Feladat')}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${tin(i,'gear',f.gear,'Eszköz neve')}</td><td>${tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c"><button class="x w" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése">×</button></td></tr>`).join('');
+  const rows=fees.map((f,i)=>`<tr><td class="n">${i+1}</td><td>${tin(i,'name',f.name,'Név',{list:'fee-names'})}</td><td>${tin(i,'task',f.task||(f.roles||[]).join(' + '),'Feladat')}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${tin(i,'gear',f.gear,'Eszköz neve')}</td><td>${tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c"><button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button></td></tr>`).join('');
   const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+num(f.rent),0);
   return `<details class="${inner?'fin-fold fin':'panel fold fin'}" data-fold="fin"${FOLD.fin?' open':''}><summary>${inner?'<h4>':'<h3>'}💰 ${adm?'Pénzügyek':'Termelői díjak'} <span class="aside fin-aside">${finAside(p)}</span>${inner?'</h4>':'</h3>'}</summary>
-    <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét, a fedezetet és a keret százalékát csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
+    <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     <div class="sheet-wrap"><table class="sheet fin-sheet" style="width:${cols.reduce((x,y)=>x+y,0)}px;min-width:100%">
       <colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup>
       <thead><tr>${th('#',0,'n')}${th('Szakember neve',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}${th('',6)}</tr></thead>
       <tbody>${rows||`<tr><td colspan="7" class="empty-row">Még nincs tétel. Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`}</tbody>
-      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${moneyFmt(amt)||0}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr>
+      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr>
         ${keretRows(p)}</tfoot>
     </table></div>
     <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fee-add">+ Sor</button></div>
@@ -362,23 +361,27 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     const roleHtml=(p.lead===cid?`<span class="statuspill p-ok">Projektvezető</span>`:'')+roles.map(({a,i})=>`<span class="role-sel"><select class="inp" data-crew-role="${i}" aria-label="Szerep"${D()}>${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===a.role?' selected':''}>${esc(rl)}</option>`).join('')}</select><button class="x w" type="button" data-action="crew-remove" data-i="${i}" aria-label="Szerep eltávolítása" title="Levétel a projektről ebben a szerepben">×</button></span>`).join('');
     const free=CREW_ROLES.filter(r=>r!=='Projektvezető'&&!roles.some(x=>x.a.role===r));
     const addRole=ro()||!free.length?'':`<span class="role-sel role-add"><select class="inp" data-crew-addrole="${esc(cid)}" aria-label="Extra szerep hozzáadása"><option value="">+ Szerep</option>${free.map(rl=>`<option>${esc(rl)}</option>`).join('')}</select></span>`;
-    const rows=eqRowsFor(p,cid);
-    return `<div class="pcrew"><div class="pcrew-top">${avatar(cr)}<div class="who"><b>${esc(cr?cr.name:'Törölt munkatárs')}</b>${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
+    const rows=eqRowsFor(p,cid),leadOnly=p.lead===cid&&!roles.length,note=(p.crewNotes||{})[cid]||'';
+    const first=cr?String(cr.name).split(' ').slice(-1)[0]:'';
+    const eqBlock=leadOnly&&!rows&&!(FOLD['eq_'+cid])?(ro()?'':`<button class="linkbtn eq-opt" type="button" data-action="eq-open" data-id="${esc(cid)}">+ Eszköz (projektvezetőnél nem kötelező)</button>`)
+      :`<div class="pcrew-eq">${rows||'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${eqAddRow(p,cid,opts)}</div>`;
+    const noteBlock=ro()?(note?`<div class="pcrew-note-ro"><b>Neked szóló jegyzet:</b> ${esc(note)}</div>`:''):`<textarea class="inp pcrew-note" data-crew-note="${esc(cid)}" rows="2" placeholder="Személyes jegyzet ${esc(first)} számára – az eszközlistás levélbe is bekerül">${esc(note)}</textarea>`;
+    return `<div class="pcrew"><div class="pcrew-top">${avatar(cr)}${ro()?'':`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Levétel a projektről" title="Levétel a projektről (minden szerepével)">🗑️</button>`}<div class="who"><b>${esc(cr?cr.name:'Törölt munkatárs')}</b>${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
       ${tight.map(g=>`<p class="tight-note">⏱️ ${tightText(g)}</p>`).join('')}
       <div class="pcrew-roles">${roleHtml}${addRole}</div>
-      <div class="pcrew-eq">${rows||'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${eqAddRow(p,cid,opts)}</div></div>`;}).join('');
+      ${eqBlock}${noteBlock}</div>`;}).join('');
   const commonRows=eqRowsFor(p,'')+(p.equipment||[]).map((e,i)=>({e,i})).filter(x=>x.e.crewId&&!ids.includes(x.e.crewId)).map(({e,i})=>{const it=itemById(e.itemId);
     return `<div class="eqrow"><div class="who"><b>${esc(it?it.name:'Törölt eszköz')}</b><small>${esc((crewById(e.crewId)||{}).name||'')} – már nincs a projekten</small></div><input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-i="${i}" value="${num(e.qty)}" aria-label="Darabszám"${D()}><button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
   const eqN=eqCount(p),hasEq=(p.equipment||[]).length;
   const aside=`${ids.length} fő · ${eqN} eszköz`;
-  const body=`<div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
+  const body=`<div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}" title="${s.have<s.need?'Kellene: '+s.need:''}">${esc(s.role)} ${s.have}</span>`).join('')}</div>
     <p class="hint">Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
     <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
       ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
     <div class="pcrew-list">${cards||empty('Még nincs beosztva senki.')}</div>
-    ${ro()?'':S.crew.length?`<div class="addrow"><select class="inp" id="add-crew-person" aria-label="Munkatárs"><option value="">+ Munkatárs beosztása…</option>${personOpts}</select>
-      <select class="inp" id="add-crew-role" aria-label="Szerep">${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===selRole?' selected':''}>${esc(rl)}</option>`).join('')}</select>
-      <button class="btn primary small" type="button" data-action="crew-add">Beosztás</button></div>`:`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}
+    ${ro()?'':S.crew.length?`<div class="addrow labeled"><div class="field"><label for="add-crew-person">Munkatárs</label><select class="inp" id="add-crew-person"><option value="">Munkatárs kiválasztása…</option>${personOpts}</select></div>
+      <div class="field"><label for="add-crew-role">Beosztás</label><select class="inp" id="add-crew-role">${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===selRole?' selected':''}>${esc(rl)}</option>`).join('')}</select></div>
+      <button class="btn primary small" type="button" data-action="crew-add">+ Hozzáadás</button></div>`:`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}
     ${commonRows||(!ro()&&S.inventory.length&&ids.length===0)?`<div class="pcrew pcrew-common"><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${eqAddRow(p,'',opts)}</div></div>`:''}
     ${!S.inventory.length&&!ro()?`<p class="hint">Eszközt a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön tudsz felvenni.</p>`:''}
     ${hasEq||ids.length?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}<button class="btn outline small" type="button" data-action="copy-pack">📋 Eszközlista másolása</button></div>`:''}

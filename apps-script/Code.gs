@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -346,9 +346,18 @@ function parseFees_(raw) {
     amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0)
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
 }
+function parseNotes_(raw) {
+  let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : {}; } catch (e) { o = {}; } }
+  const out = {}; if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+  Object.keys(o).slice(0, 60).forEach(k => { const v = str_(o[k], 1000); if (ID_RE.test(k) && v) out[k] = v; });
+  return out;
+}
 function projectView_(p, u) {
   const q = Object.assign({}, p);
   const role = u && u.role;
+  // személyes jegyzetek: a szakember csak a sajátját kapja meg
+  const notes = parseNotes_(q.crewNotes);
+  q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees); else delete q.fees;
@@ -430,7 +439,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -445,6 +454,8 @@ function saveProject_(u, a) {
       p.budgetVal = !p.budgetMode || a.budgetVal === '' || a.budgetVal == null || !isFinite(b) || b < 0 ? ''
         : p.budgetMode === 'pct' ? Math.min(100, Math.round(b * 10) / 10) : Math.min(VALUE_MAX, Math.round(b));
     }
+    if (a.crewNotes !== undefined) p.crewNotes = JSON.stringify(parseNotes_(a.crewNotes));
+    if (p.crewNotes == null) p.crewNotes = '';
     if (p.budgetMode == null) p.budgetMode = '';
     if (p.budgetVal == null) p.budgetVal = '';
     if (p.quotePrice == null) p.quotePrice = '';
@@ -843,7 +854,7 @@ function sendEquipmentList_(u, a) {
   const planTxt = includePlan && (p.techPlan || p.notes) ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + (p.techPlan || '—') + (p.notes ? '\n\nJEGYZETEK\n' + p.notes : '') + '\n' : '';
   const sentTo = [];
   const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name);
-  const sig = signatureFor_(u);
+  const sig = signatureFor_(u), pNotes = parseNotes_(p.crewNotes);
   recipients.forEach(cid => {
     const c = crewMap[cid];
     const first = String(c.name).trim().split(/\s+/).slice(-1)[0];
@@ -854,12 +865,13 @@ function sendEquipmentList_(u, a) {
       + '<table style="border-collapse:collapse;font-size:14px">' + infoHtml + '</table>'
       + '<p style="margin:10px 0 0">A te szereped: <b>' + e(onProject[cid].join(', ')) + '</b></p>'
       + (mine(cid).length ? '<p style="margin:10px 0 0;padding:10px 12px;background:#e8f2ec;border-radius:10px"><b>Nálad lesz:</b> ' + e(mine(cid).join(', ')) + '</p>' : '')
+      + (pNotes[cid] ? '<p style="margin:10px 0 0;padding:10px 12px;background:#fff6e0;border-radius:10px"><b>Neked szóló megjegyzés:</b><br>' + e(pNotes[cid]).replace(/\n/g, '<br>') + '</p>' : '')
       + '<h3 style="font-size:15px;margin:24px 0 2px">Eszközlista</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + eqHtml + '</table>'
       + '<h3 style="font-size:15px;margin:24px 0 6px">Stáb</h3><table style="border-collapse:collapse;font-size:14px">' + crewHtml + '</table>'
       + planHtml
       + (sig ? '<div style="margin-top:26px">' + sig.html + '</div></div>' : '<p style="margin-top:26px">Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>');
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
-      + info.map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
+      + info.map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
