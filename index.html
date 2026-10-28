@@ -292,7 +292,9 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .fin-fold[open]>summary>h4::after{transform:rotate(-135deg);margin-top:4px}
 .fin-fold .aside{margin-left:auto;font-weight:600;font-size:13px;color:var(--fg-3)}
 .fin-inputs{display:grid;gap:12px}
-.budget-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px}
+.budget-row{display:grid;grid-template-columns:150px 190px;gap:8px}
+.fin-inputs{max-width:350px}
+.fin-sheet tfoot .keret-tr td,.sheet tfoot .keret-tr td{background:#fff;border-top:1px solid var(--line)}
 @media (max-width:520px){.budget-row{grid-template-columns:1fr}}
 .sheet-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 .sheet{width:100%;min-width:760px;border-collapse:collapse;font-size:14px}

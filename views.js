@@ -88,7 +88,7 @@ function bootFromCache(){
     const d=c.d;S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
-    if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=clone(projById(hm[1]));}
+    if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
     render(true);restoreScroll();return true;
   }catch(e){return false;}
@@ -101,11 +101,11 @@ async function load(quiet,announce){
     bootCacheSave(d);
     S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
-    if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=clone(p);}
+    if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
     if(S.tab==='naptar'&&ro())S.tab='attekintes';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
-    if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=clone(projById(hm[1]));}
+    if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
     if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
     render(true);restoreScroll();if(announce)toast('Adatok frissítve');
@@ -310,13 +310,17 @@ function finPanelBody(p){
       <div class="fin-calc">${finSumHtml(p)}</div>
     </div>`;
 }
+/* Termelői keret és maradék a táblázat „Összesen” sora alatt, a Díj oszlopban (mint az Excelben). */
+function keretRows(p){
+  const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum;
+  const lbl=isAdmin()&&k!=null&&p.budgetMode==='pct'?` <span class="muted">(${pctFmt(num(p.budgetVal))})</span>`:isAdmin()&&k!=null&&num(p.projectValue)>0?` <span class="muted">(${pctFmt(k/num(p.projectValue)*100)})</span>`:'';
+  return `<tr class="keret-tr"><td></td><td colspan="2">Termelői keret<span class="fin-keret-pct">${lbl}</span></td><td class="r fin-keret-v">${k!=null?moneyFmt(k):'–'}</td><td colspan="3"></td></tr>
+        <tr class="keret-tr"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'–':moneyFmt(Math.abs(left))||0}</td><td colspan="3"></td></tr>`;
+}
 function finSumHtml(p){
-  const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin(),k=budgetFt(p);
+  const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
-  const left=k==null?null:k-sum;
   return `<div class="kv"><span>Termelői díjak összesen</span><b>${ftFmt(sum)}</b></div>
-      ${k!=null?`<div class="kv"><span>Termelői keret${adm&&p.budgetMode==='pct'?' ('+pctFmt(num(p.budgetVal))+')':''}</span><b>${ftFmt(k)}</b></div>
-      <div class="kv"><span>${left<0?'Keret túllépése':'Maradt a keretből'}</span><b class="${left<0?'bad-txt':'ok-txt'}">${ftFmt(Math.abs(left))}</b></div>`:''}
       ${adm?`<div class="kv"><span>Fedezet</span><b class="${val>0&&margin<0?'bad-txt':''}">${val>0?ftFmt(margin)+' · '+pct(margin):'–'}</b></div>
       <div class="kv"><span>Tényleges költséghányad</span><b>${pct(sum)}</b></div>`:''}`;
 }
@@ -328,21 +332,22 @@ function finAside(p){
   return parts.join(' · ')||'nincs kitöltve';
 }
 /* Pénzügyek: lenyíló táblázat (ügyvezető: érték, díjak, keret, fedezet; termelési vezető: díjak és keret Ft-ban). */
-function financePanel(p){
+function financePanel(p,inner){
   if(!canSeeFees())return '';
   const fees=p.fees||[],adm=isAdmin();
   const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
   const rows=fees.map((f,i)=>`<tr><td class="n">${i+1}</td><td>${tin(i,'name',f.name,'Név',{list:'fee-names'})}</td><td>${tin(i,'task',f.task||(f.roles||[]).join(' + '),'Feladat')}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${tin(i,'gear',f.gear,'Eszköz neve')}</td><td>${tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c"><button class="x w" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése">×</button></td></tr>`).join('');
   const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+num(f.rent),0);
-  return `<details class="panel fold fin" data-fold="fin"${FOLD.fin?' open':''}><summary><h3>💰 ${adm?'Pénzügyek':'Termelői díjak'} <span class="aside fin-aside">${finAside(p)}</span></h3></summary>
+  return `<details class="${inner?'fin-fold fin':'panel fold fin'}" data-fold="fin"${FOLD.fin?' open':''}><summary>${inner?'<h4>':'<h3>'}💰 ${adm?'Pénzügyek':'Termelői díjak'} <span class="aside fin-aside">${finAside(p)}</span>${inner?'</h4>':'</h3>'}</summary>
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét, a fedezetet és a keret százalékát csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     <div class="sheet-wrap"><table class="sheet">
       <thead><tr><th class="n">#</th><th>Szakember neve</th><th>Termelői feladat</th><th class="r">Díj (Ft)</th><th>Eszköz neve</th><th class="r">Eszközbérlés (Ft)</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="7" class="empty-row">Még nincs tétel. A „Beosztottak felvétele” a stábból kitölti a napidíj és a náluk lévő eszközök alapján.</td></tr>`}</tbody>
-      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${moneyFmt(amt)||0}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr></tfoot>
+      <tbody>${rows||`<tr><td colspan="7" class="empty-row">Még nincs tétel. Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`}</tbody>
+      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${moneyFmt(amt)||0}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr>
+        ${keretRows(p)}</tfoot>
     </table></div>
-    <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fee-add">+ Sor</button><button class="btn outline small" type="button" data-action="fee-fill">👥 Beosztottak felvétele</button></div>
+    <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fee-add">+ Sor</button></div>
     ${finPanelBody(p)}
   </details>`;
 }
@@ -484,8 +489,9 @@ function viewProject(p){
         <div class="toggles">${ex}</div></section>
     </div>
   </details>
-  <div class="crew-wide">${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
-  ${financePanel(p)}`;
+  <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
+    return `<div class="panel crew-fin"><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3>${ce.body}${financePanel(p,true)}</div>`;})()
+    :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>`;
 }
 
 /* ===== Stáb ===== */

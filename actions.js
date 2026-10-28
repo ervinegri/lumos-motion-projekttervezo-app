@@ -261,7 +261,7 @@ function sendListModal(only){
 /* ===== Projekt szerkesztése ===== */
 function openProject(id){
   const p=projById(id);if(!p)return;
-  S.tab='projektek';S.projectId=id;S.draft=clone(p);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
+  S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
   closeModal();render(true);scrollTo(0,0);
 }
 /* Visszavonás / mégis (Ctrl/⌘+Z, Ctrl/⌘+Shift+Z vagy Ctrl+Y): a projekt vázlatáról pillanatképeket tartunk. */
@@ -276,6 +276,8 @@ function histStep(dir){
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);S.dirty=true;render(true);}
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
+/* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
+function prepDraft(p){const d=clone(p);try{syncFeesWithCrew(d);}catch(e){}return d;}
 function syncFeesWithCrew(d){
   if(!canSeeFees())return;
   const ids=[...crewIds(d)],days=rowDays(d);let fees=(d.fees||[]).map(f=>Object.assign({},f)),added=0;
@@ -452,6 +454,7 @@ document.addEventListener('input',e=>{
     if(!S.dirty){S.dirty=true;renderChrome();}
     const fc=document.querySelector('.fin-calc');if(fc)fc.innerHTML=finSumHtml(S.draft);   // összesítő élőben, újrarajzolás nélkül (a fókusz megmarad)
     const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
+    {const kr=document.querySelectorAll('.keret-tr');if(kr.length===2){const tmp=document.createElement('tbody');tmp.innerHTML=keretRows(S.draft);kr[0].replaceWith(tmp.children[0]);kr[1].replaceWith(tmp.children[0]);}}
     const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
     if(ea)ea.textContent=moneyFmt(fsum('amount'))||0;if(er)er.textContent=moneyFmt(fsum('rent'))||0;
   }
