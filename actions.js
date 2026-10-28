@@ -223,6 +223,7 @@ function userModal(u){
 async function switchView(role,crewId){
   try{
     document.body.classList.add('switching');
+    await SAVE_Q;if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
     const r=await call('setViewAs',{role,crewId});
     S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.tab='attekintes';S.cal.events={};
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
@@ -364,7 +365,8 @@ function saveDraft(){
   SAVE_Q=SAVE_Q.then(async()=>{
     const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
     try{
-      const saved=await call('saveProject',payload);
+      let saved;for(let k=0;;k++){try{saved=await call('saveProject',payload);break;}
+        catch(e){if(k<3&&/Zárol|lock/i.test(errText(e))){await new Promise(r=>setTimeout(r,1500*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)
       const newer=--SAVE_PENDING[d.id]>0;   // közben újabb mentés is indult erre a projektre
       const k=S.projects.findIndex(x=>x.id===d.id||x.id===saved.id);
       if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}

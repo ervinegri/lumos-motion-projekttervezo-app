@@ -710,24 +710,25 @@ function deleteCalEvent_(u, a) {
 function createProjectFolder_(u, a) {
   const id = str_(a && a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás projektazonosító.');
-  return withLock_(() => {
-    const sh = sheetFor_('projects'), row = findRow_(sh, id);
-    if (!row) throw new Error('A projekt nem található. Előbb mentsd el.');
-    const p = readRow_('projects', sh, row);
-    if (p.folderId) {
-      try { const f = DriveApp.getFolderById(p.folderId); if (!f.isTrashed()) return { folderId: p.folderId, url: f.getUrl(), existed: true }; } catch (e) {}
-    }
-    const root = DriveApp.getFolderById(PROJECTS_FOLDER_ID);
-    const year = (p.date || today_()).slice(0, 4);
-    const yearFolder = childFolder_(root, year);
-    const name = p.name.replace(/[\\/]/g, '-').trim() || 'Projekt';
-    const folder = childFolder_(yearFolder, name);
+  // a Drive-műveletek lassúak lehetnek, ezért NEM a zárolás alatt futnak (különben a mentések kifuthatnak az időből)
+  const sh = sheetFor_('projects'), row0 = findRow_(sh, id);
+  if (!row0) throw new Error('A projekt nem található. Előbb mentsd el.');
+  const p = readRow_('projects', sh, row0);
+  if (p.folderId) {
+    try { const f = DriveApp.getFolderById(p.folderId); if (!f.isTrashed()) return { folderId: p.folderId, url: f.getUrl(), existed: true }; } catch (e) {}
+  }
+  const root = DriveApp.getFolderById(PROJECTS_FOLDER_ID);
+  const year = (p.date || today_()).slice(0, 4);
+  const yearFolder = childFolder_(root, year);
+  const name = p.name.replace(/[\\/]/g, '-').trim() || 'Projekt';
+  const folder = childFolder_(yearFolder, name);
+  withLock_(() => {
+    const row = findRow_(sh, id); if (!row) return;
     const col = TABLES.projects.cols.findIndex(c => c[0] === 'folderId') + 1;
     sh.getRange(row, col).setNumberFormat('@').setValue(folder.getId());   // a módosítás idejét szándékosan nem írjuk át
-    SpreadsheetApp.flush();
-    logEvent_(u, 'Projektmappa', p.name, year + ' / ' + name);
-    return { folderId: folder.getId(), url: folder.getUrl(), existed: false };
   });
+  logEvent_(u, 'Projektmappa', p.name, year + ' / ' + name);
+  return { folderId: folder.getId(), url: folder.getUrl(), existed: false };
 }
 
 function childFolder_(parent, name) {
