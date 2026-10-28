@@ -222,10 +222,12 @@ function userModal(u){
 /* Ügyvezetői előnézet: a háttér a munkamenetet átállítja a választott szerepkörre, így pontosan azt kapod, amit ők. */
 async function switchView(role,crewId){
   try{
-    await call('setViewAs',{role,crewId});
+    document.body.classList.add('switching');
+    const r=await call('setViewAs',{role,crewId});
     S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.tab='attekintes';S.cal.events={};
-    await load(false);toast(role==='admin'?'Ügyvezetői nézet':role==='editor'?'Termelési vezető nézet':'Szakember nézet');
-  }catch(e){handleErr(e);renderChrome();}
+    if(location.hash)history.replaceState(null,'',location.pathname+location.search);
+    await load(false,false,r&&r.boot);document.body.classList.remove('switching');toast(role==='admin'?'Ügyvezetői nézet':role==='editor'?'Termelési vezető nézet':'Szakember nézet');
+  }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 function viewAsCrewModal(){
   const opts=S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name]);

@@ -1368,7 +1368,7 @@ function changePin_(u, a, token) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1 };
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -1382,8 +1382,7 @@ function rpcInner_(token, name, arg) {
   const adminOnly = () => { if (role !== 'admin') deny(); };
   switch (String(name)) {
     case 'whoAmI': return publicUser_(u);
-    case 'setViewAs': { const r = setViewAs_(token, u, arg); const v = arg && arg.role;
-      logEvent_(Object.assign({}, u, { role: 'admin', realRole: '' }), 'Nézet váltva', v === 'editor' ? 'Termelési vezető' : v === 'crew' ? 'Szakember' : 'Ügyvezető', ''); return r; }
+    case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);

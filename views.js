@@ -93,11 +93,11 @@ function bootFromCache(){
     render(true);restoreScroll();return true;
   }catch(e){return false;}
 }
-async function load(quiet,announce){
+async function load(quiet,announce,pre){
   if(S.loading)return;S.loading=true;
   if(!quiet&&!S.loaded)VIEW.innerHTML='<div class="loading"><span class="spin"></span>Betöltés…</div>';
   try{
-    const d=await call('bootstrap');
+    const d=pre||await call('bootstrap');
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
