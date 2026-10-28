@@ -311,14 +311,14 @@ function finPanelBody(p){
     </div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
-const FIN_COLS_DEF=[40,210,220,170,240,140,44];
-function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_cols2')||'null');}catch(e){}return Array.isArray(w)&&w.length===FIN_COLS_DEF.length?w:FIN_COLS_DEF.slice();}
+const FIN_COLS_DEF=[40,210,220,170,250,150];
+function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_cols3')||'null');}catch(e){}return Array.isArray(w)&&w.length===FIN_COLS_DEF.length?w:FIN_COLS_DEF.slice();}
 /* Termelői keret és maradék a táblázat „Összesen” sora alatt, a Díj oszlopban (mint az Excelben). */
 function keretRows(p){
   const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=num(p.projectValue);
   const pct=isAdmin()&&k!=null?(p.budgetMode==='pct'?pctFmt(num(p.budgetVal)):val>0?pctFmt(k/val*100):''):'';
-  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':moneyFmt(Math.abs(left))||0}</td><td colspan="3"></td></tr>
-        <tr class="keret-tr"><td></td><td colspan="2">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="3"></td></tr>`;
+  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':moneyFmt(Math.abs(left))||0}</td><td colspan="2"></td></tr>
+        <tr class="keret-tr"><td></td><td colspan="2">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="2"></td></tr>`;
 }
 function totalCell(p){const amt=feeSum(p),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
 function finSumHtml(p){
@@ -341,8 +341,8 @@ function financePanel(p,inner){
   const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
   const ro_=t=>`<div class="cell-ro">${t}</div>`;
   const rows=fees.map((f,i)=>{const fixed=f.kind==='fixed',g=f.crewId?(p.equipment||[]).filter(e=>e.crewId===f.crewId).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?num(e.qty)+'× ':'')+it.name:'';}).filter(Boolean).concat(rentalsOf(p,f.crewId).map(r=>r.name+' (bérelt)')).join(', '):'';
-    const sep=fixed&&(i===0||fees[i-1].kind!=='fixed')?`<tr class="sep-row"><td colspan="7">Egyéb költségek</td></tr>${rentalsOf(p,'').length?`<tr class="fixed-row"><td class="n"></td><td><div class="cell-ro">Közös bérelt eszközök</div></td><td><div class="cell-ro">${esc(rentalsOf(p,'').map(r=>r.name).join(', '))}</div></td><td><div class="cell-ro"></div></td><td></td><td><div class="cell-ro"><span class="num-ro">${moneyFmt(rentalSum(p,''))}</span></div></td><td></td></tr>`:''}`:'';
-    return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':i+1}</td><td>${fixed&&f.key==='egyeb'?tin(i,'name',f.name,'Egyéb tétel neve'):ro_(esc(f.name||''))}</td><td>${ro_(fixed?'':esc(f.task||(f.roles||[]).join(' + ')||''))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${ro_(fixed?'':g?esc(g):f.gear?esc(f.gear):'')}</td><td>${fixed?ro_(''):f.crewId&&rentalsOf(p,f.crewId).length?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c">${!f.crewId&&!fixed?`<button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button>`:''}</td></tr>`;}).join('');
+    const sep=fixed&&(i===0||fees[i-1].kind!=='fixed')?`<tr class="sep-row"><td colspan="6">Egyéb költségek</td></tr>${rentalsOf(p,'').length?`<tr class="fixed-row"><td class="n"></td><td><div class="cell-ro">Közös bérelt eszközök</div></td><td><div class="cell-ro">${esc(rentalsOf(p,'').map(r=>r.name).join(', '))}</div></td><td><div class="cell-ro"></div></td><td></td><td><div class="cell-ro"><span class="num-ro">${moneyFmt(rentalSum(p,''))}</span></div></td></tr>`:''}`:'';
+    return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':i+1}</td><td>${fixed&&f.key==='egyeb'?tin(i,'name',f.name,'Egyéb tétel neve'):!f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button></div>`:ro_(esc(f.name||''))}</td><td>${ro_(fixed?'':esc(f.task||(f.roles||[]).join(' + ')||''))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${ro_(fixed?'':g?esc(g):f.gear?esc(f.gear):'')}</td><td>${fixed?ro_(''):f.crewId&&rentalsOf(p,f.crewId).length?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1})}</td></tr>`;}).join('');
   const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,'');
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
@@ -350,9 +350,9 @@ function financePanel(p,inner){
     ${finPanelBody(p)}
     <div class="sheet-wrap"><table class="sheet fin-sheet" style="width:${cols.reduce((x,y)=>x+y,0)}px;min-width:100%">
       <colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup>
-      <thead><tr>${th('#',0,'n')}${th('Szakember neve',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}${th('',6)}</tr></thead>
-      <tbody>${rows||`<tr><td colspan="7" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`}</tbody>
-      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr>
+      <thead><tr>${th('#',0,'n')}${th('Szakember neve',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}</tr></thead>
+      <tbody>${rows||`<tr><td colspan="6" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`}</tbody>
+      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td></tr>
         ${keretRows(p)}</tfoot>
     </table></div>
   </div>`;
