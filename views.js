@@ -496,7 +496,7 @@ function viewProject(p){
     ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
-  <div class="dgrid">
+  <div class="dgrid${ro()&&!isCut?' one':''}">
     <div class="col">
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
         ${fld(p,'name','Projekt neve',{full:true})}
