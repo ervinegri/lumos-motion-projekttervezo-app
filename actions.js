@@ -89,7 +89,6 @@ function knownClients(q){
   const ql=q.toLowerCase(),seen={},out=[],cur=S.draft&&S.draft.id;
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
     const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
-    if(p.id===cur&&!S.projects.some(x=>x.id!==cur&&String(x.client||'').trim().toLowerCase()===k))return;
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',tax:p.clientTax||'',address:p.clientAddress||''});});
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
@@ -106,12 +105,16 @@ async function taxLookup(){
   finally{if(b){b.disabled=false;b.textContent='Cégadatok betöltése';}}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-clientTax'){const t=e.target,d=t.value.replace(/\D/g,'');if(d.length===11&&!t._done){t._done=1;t.value=d.slice(0,8)+'-'+d[8]+'-'+d.slice(9);taxLookup();}else if(d.length<11)t._done=0;}});   // teljes adószámnál magától betölt
-function newClientModal(pre){
-  openModal('Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${mf('contactPhone','Telefon',{type:'tel',ph:'+36 …',max:40})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
-    {submitLabel:'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
-      const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v)patch[k]=v;});
+function editClientModal(){
+  const d=S.draft;if(!d)return;newClientModal(null,d);
+}
+function newClientModal(pre,edit){
+  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${mf('contactPhone','Telefon',{type:'tel',ph:'+36 …',max:40})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
+    {submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
+      const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
       closeModal();if(S.draft)setDraft(patch);}});
   if(pre){const n=$('m-client');if(n)n.value=pre;}
+  if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactPhone',edit.contactPhone],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
 }
 /* Kereshető ügyfélválasztó: gépelésre szűr, a lista végén mindig ott az „Új ügyfél felvétele”. */
 function clientSearch(input,all){
@@ -536,6 +539,7 @@ const ACT={
     catch(e){handleErr(e);b.disabled=false;b.textContent='📁 Projektmappa létrehozása';}},
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
+  'client-edit':()=>editClientModal(),
 };
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const fn=ACT[b.dataset.action];if(fn)fn(b,e);});
 function fieldValue(t){

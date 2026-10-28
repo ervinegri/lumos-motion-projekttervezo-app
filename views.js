@@ -503,7 +503,7 @@ function viewProject(p){
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue','Helyszín',{ph:'pl. MVM Dome, Budapest'})}
-        <div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet…'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>
+        <div class="field"><label for="f-client">Ügyfél${!ro()&&p.client?' <button class="linkbtn" type="button" data-action="client-edit" style="font-size:12px;margin-left:6px">✏️ Ügyfél adatainak módosítása</button>':''}</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet…'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         <div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
