@@ -81,7 +81,7 @@ $('refreshBtn').addEventListener('click',()=>load(false,true));
    miközben a háttérben letölti a friss adatot. Kilépéskor és lejárt belépésnél törlődik. */
 const BOOT_KEY='lpm_boot_v1';
 function bootCacheSave(d){try{localStorage.setItem(BOOT_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
-function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}}
+function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCacheClear();}
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
@@ -99,6 +99,7 @@ async function load(quiet,announce){
   try{
     const d=await call('bootstrap');
     bootCacheSave(d);
+    setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
@@ -555,14 +556,24 @@ function viewCrew(){
 const F_MONTH=new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',timeZone:'UTC'});
 const WD_SHORT=['H','K','Sze','Cs','P','Szo','V'];
 function calRange(month){const first=month+'-01';const wd=(toDate(first).getUTCDay()+6)%7;const start=addDays(first,-wd);return {first,start,end:addDays(start,41)};}
+/* Naptár gyorsítás: a hónap eseményeit a böngésző is megjegyzi (azonnal megjelenik), a háttérben frissül;
+   a szomszédos hónapokat előre betöltjük. */
+const CAL_LS='lpm_cal_v1_';
+function calCacheGet(m){try{const c=JSON.parse(localStorage.getItem(CAL_LS+m)||'null');if(c&&c.tk===String(TOKEN).slice(-16)&&Array.isArray(c.ev))return c;}catch(e){}return null;}
+function calCacheSet(m,ev){try{localStorage.setItem(CAL_LS+m,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),ev}));}catch(e){}}
+function calCacheClear(){try{Object.keys(localStorage).filter(k=>k.indexOf(CAL_LS)===0).forEach(k=>localStorage.removeItem(k));}catch(e){}}
+const shiftMonth=(m,d)=>{const [y,mo]=m.split('-').map(Number);const t=new Date(Date.UTC(y,mo-1+d,1));return t.toISOString().slice(0,7);};
 function loadCalEvents(month){
-  const r=calRange(month),key=month;
-  if(S.cal.events[key]||S.cal.loading[key])return;
+  const r=calRange(month),key=month;S.cal.at=S.cal.at||{};
+  if(S.cal.loading[key])return;
+  if(!S.cal.events[key]){const c=calCacheGet(month);if(c){S.cal.events[key]=c.ev;S.cal.at[key]=0;}}
+  if(S.cal.events[key]&&Date.now()-(S.cal.at[key]||0)<60000)return;
   S.cal.loading[key]=true;
-  call('calendarEvents',{from:r.start,to:r.end}).then(ev=>{S.cal.events[key]=ev||[];delete S.cal.err[key];})
+  call('calendarEvents',{from:r.start,to:r.end}).then(ev=>{S.cal.events[key]=ev||[];S.cal.at[key]=Date.now();calCacheSet(month,S.cal.events[key]);delete S.cal.err[key];})
     .catch(e=>{S.cal.err[key]=errText(e);if(errText(e).indexOf('AUTH_REQUIRED')>=0)handleErr(e);})
     .finally(()=>{delete S.cal.loading[key];if(S.tab==='naptar'&&S.cal.month===month)render(true);});
 }
+function prefetchCal(m){if(ro()||!TOKEN)return;loadCalEvents(m);setTimeout(()=>{if(TOKEN){loadCalEvents(shiftMonth(m,1));loadCalEvents(shiftMonth(m,-1));}},800);}
 function calItems(month){
   const r=calRange(month),items=[];
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
@@ -579,7 +590,7 @@ function calChip(it,day){
 }
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();
-  loadCalEvents(m);
+  prefetchCal(m);
   const items=calItems(m),loading=!!S.cal.loading[m]&&!S.cal.events[m],err=S.cal.err[m];
   const days=[];for(let i=0;i<42;i++)days.push(addDays(r.start,i));
   const onDay=d=>items.filter(it=>it.date<=d&&it.endDate>=d);

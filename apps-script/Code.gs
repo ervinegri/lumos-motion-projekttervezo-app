@@ -638,7 +638,7 @@ function calendarEvents_(a) {
       projectId: ev.getTag('lumosProjectId') || ''
     };
   });
-  try { cache.put(key, JSON.stringify(out), 60); } catch (e) {}
+  try { cache.put(key, JSON.stringify(out), 300); } catch (e) {}   // 5 perc; appbeli módosításnál azonnal érvénytelen (calBump_)
   return out;
 }
 
