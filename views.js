@@ -170,7 +170,7 @@ function viewOverview(){
   const open=all.filter(isOpen);
   const upcoming=all.filter(p=>isOpen(p)&&pr(p)&&pr(p).end>=T).sort(byStart);
   const next30=upcoming.filter(p=>pr(p).start<=addDays(T,30));
-  const post=open.filter(p=>pr(p)&&pr(p).end<T).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
+  const post=open.filter(p=>pr(p)&&pr(p).end<T&&dueDate(p)).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
   const overdue=post.filter(p=>diffDays(T,dueDate(p))<0).length;
   const issues=computeIssues();
   const tile=(n,l,cls,x)=>`<div class="tile ${cls||''}"><div class="tile-n">${n}</div><div class="tile-l">${l}</div>${x||''}</div>`;
@@ -370,9 +370,9 @@ function viewProject(p){
       ${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}
       <div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
-        <div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
+        ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
           <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
-        ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}
+        ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}`:`<p class="hint" style="margin:6px 0 0">Nincs átadandó anyag, így átadási határidő sincs: nincs kiválasztva kreatív tartalom, fotó vagy előadás-utómunka.${ro()?'':` <button type="button" class="linkbtn" data-action="due-custom">Határidő megadása mégis</button>`}</p>`}
         ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>Átadva</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
         <div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>
       </div>

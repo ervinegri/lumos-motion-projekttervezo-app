@@ -89,7 +89,16 @@ function clash(p,q){
 }
 const byStart=(a,b)=>(pr(a)?.start||'9999').localeCompare(pr(b)?.start||'9999');
 function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,1);}   // alapból a forgatás utáni nap
-function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return defaultDue(p);}   // egyedi határidő felülírja az alapértelmezettet
+/* Van-e átadandó anyag: kreatív tartalom, fotó, drón/GoPro felvétel, nyersanyag, vagy előadás-utómunka / kivágás / felirat.
+   Csak helyszíni munkánál (pl. élő stream, utómunka nélküli rögzítés) nincs átadási határidő. Egyedi határidő mindig számít. */
+function needsDelivery(p){
+  if(!p)return false;if(validISO(p.dueAt))return true;
+  if(DELIVERABLES.some(it=>num(p[it.k])>0))return true;
+  if(num(p.foto_db)>0||p.x_foto)return true;
+  if(['x_dron','x_timelapse','x_pov','x_nyersVetel','er_post'].some(k=>p[k]))return true;
+  return num(p.er_clips)>0||num(p.er_subs)>0;
+}
+function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
@@ -150,7 +159,7 @@ function computeIssues(){
   }
   if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
-  for(const p of allProjects().filter(isOpen)){const r=pr(p);if(!r||r.end>=T)continue;const left=diffDays(T,dueDate(p));
+  for(const p of allProjects().filter(isOpen)){const r=pr(p);if(!r||r.end>=T||!dueDate(p))continue;const left=diffDays(T,dueDate(p));
     if(left<0)out.push({level:'bad',text:`Az átadási határidő ${-left} napja lejárt (${fmtShort(dueDate(p))}).`,pids:[p.id]});}
   return out.sort((a,b)=>(a.level==='bad'?0:1)-(b.level==='bad'?0:1));
 }
