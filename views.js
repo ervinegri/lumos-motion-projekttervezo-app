@@ -519,7 +519,7 @@ function viewSettings(){
         <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal vagy PIN-kóddal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
-        <div>${log||empty('Még nincs bejegyzés.')}</div></div>
+        <div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
     </div>`;
 }
 async function loadSettings(){
