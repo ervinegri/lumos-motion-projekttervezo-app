@@ -340,17 +340,49 @@ function viewAsCrewModal(){
     {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
-function siteModal(next){
+/* Lezáráskor (Kész / Átadva) díjcsökkentés is kiróható – szakemberenként */
+function penCrewOpts(){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))];
+  return ids.map(id=>{const c=crewById(id);return c?[id,c.name]:null;}).filter(Boolean).sort((a,b)=>a[1].localeCompare(b[1],'hu'));}
+function penBlock(){if(!canSeeFees())return '';const co=penCrewOpts();if(!co.length)return '';
+  return `<div class="field full pen-block"><div class="pen-block-h"><b>⚠️ Díjcsökkentés</b> <span class="muted">(nem kötelező – ha valaki hibázott)</span></div><div id="penRows"></div>
+    <button class="btn outline small" type="button" data-action="pen-row-add" style="align-self:flex-start">+ Díjcsökkentés hozzáadása</button></div>`;}
+let PEN_ROW_N=0;
+function penRowHtml(){const n=++PEN_ROW_N,co=penCrewOpts();
+  return `<div class="pen-rowf" data-penrow="${n}"><div class="pen-rowf-g">
+    <select class="inp" name="pen_cid_${n}" aria-label="Szakember"><option value="">Melyik szakember?</option>${co.map(([id,nm])=>`<option value="${esc(id)}">${esc(nm)}</option>`).join('')}</select>
+    <select class="inp" name="pen_kind_${n}" data-penkind="${n}" aria-label="Kategória">${Object.entries(PEN_KINDS).map(([k,v])=>`<option value="${k}">${esc(v.label)}${v.pct!=null?' – '+v.pct+'%':v.min?' – '+v.min+'–'+v.max+'%':' – Ft'}</option>`).join('')}</select>
+    <select class="inp" name="pen_pct_${n}" data-penpct="${n}" style="display:none" aria-label="Mérték">${[10,20,30,40,50].map(v=>`<option value="${v}">${v}%</option>`).join('')}</select>
+    <input class="inp" name="pen_amt_${n}" data-penamt="${n}" style="display:none" inputmode="numeric" data-money="1" placeholder="Összeg (Ft)" aria-label="Kártérítés összege">
+    <select class="inp" name="pen_case_${n}" data-pencase="${n}" aria-label="Eset">${penCaseOpts('light')}</select>
+    <button class="trash" type="button" data-action="pen-row-del" title="Sor törlése" aria-label="Sor törlése">🗑️</button></div>
+    <textarea class="inp" name="pen_reason_${n}" rows="2" maxlength="3000" placeholder="Indoklás (ha üres, a beszámoló / észrevétel szövege kerül bele)"></textarea></div>`;}
+function penRowsCollect(fd,fallback){
+  const out=[];for(const r of document.querySelectorAll('#penRows [data-penrow]')){const n=r.dataset.penrow,cid=fd.get('pen_cid_'+n),kind=fd.get('pen_kind_'+n);
+    if(!cid){throw new Error('Válaszd ki, melyik szakember kapja a díjcsökkentést (vagy töröld a sort).');}
+    const reason=String(fd.get('pen_reason_'+n)||'').trim()||String(fallback||'').trim();
+    if(reason.length<5)throw new Error('Írj indoklást a díjcsökkentéshez (a szerződés 3.6. pontja szerint kötelező).');
+    if(kind==='damage'&&!moneyVal(fd.get('pen_amt_'+n)))throw new Error('Add meg a kártérítés összegét.');
+    out.push({crewId:cid,kind,pct:Number(fd.get('pen_pct_'+n))||0,amount:moneyVal(fd.get('pen_amt_'+n))||0,caseText:String(fd.get('pen_case_'+n)||''),reason});}
+  return out;}
+async function penRowsSubmit(pid,list){if(!list.length)return;let last=null,mailed=0;
+  for(const x of list){try{const r=await call('addPenalty',Object.assign({projectId:pid},x));last=r.penalties;if(r.mailed)mailed++;}catch(e){toast('Díjcsökkentés: '+errText(e),true);}}
+  if(last){penApply(pid,last);toast(isAdmin()?`${list.length} díjcsökkentés kiróva${mailed?', a szakember e-mailt kapott':''}`:`${list.length} díjcsökkentés jóváhagyásra elküldve`);}}
+document.addEventListener('change',e=>{const t=e.target,n=t.dataset&&t.dataset.penkind;if(!n)return;const row=t.closest('[data-penrow]');
+  row.querySelector('[data-pencase]').innerHTML=penCaseOpts(t.value);row.querySelector('[data-penpct]').style.display=t.value==='prestige'?'':'none';row.querySelector('[data-penamt]').style.display=t.value==='damage'?'':'none';});
+document.addEventListener('change',e=>{if(e.target.name==='siteOk'&&e.target.value==='nem'){const box=$('penRows');if(box&&!box.children.length)box.insertAdjacentHTML('beforeend',penRowHtml());}});
+function siteModal(next,withPen){
   const d=S.draft;if(!d)return;
   openModal('📝 Helyszíni munka beszámoló',`<div class="fields">
       <div class="field full"><label>Minden rendben ment a helyszínen?</label><div class="seg-row">
         <label class="toggle"><input type="radio" name="siteOk" value="igen"${d.siteOk==='igen'?' checked':''}><span class="tl">✅ Igen, minden rendben</span></label>
         <label class="toggle"><input type="radio" name="siteOk" value="nem"${d.siteOk==='nem'?' checked':''}><span class="tl">⚠️ Nem, volt probléma</span></label></div></div>
       <div class="field full"><label for="m-siteReport">Beszámoló <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
+      ${withPen?penBlock():''}
     </div>`,{submitLabel:next?'Tovább':'Mentés',submit:async fd=>{
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
-      closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();}});
+      let pens=[];try{pens=penRowsCollect(fd,txt);}catch(e){toast(e.message,true);return;}
+      const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);}});
 }
 function deliveryModal(){
   const d=S.draft,r=pr(d);if(!d)return;
@@ -360,10 +392,12 @@ function deliveryModal(){
       ${d.status==='atadva'&&d.deliveredAt?`<div class="field"><label>Átadva</label><div class="inp" style="border:0;background:none;padding-left:0"><b class="ok-txt">${fmtDay(d.deliveredAt)}</b></div></div>`:'<div></div>'}
       ${mf('deliveryLink','Átadási link (mappa vagy videók)',{full:true,type:'url',ph:'https://drive.google.com/…',v:d.deliveryLink||''})}
       <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
+      ${penBlock()}
     </div>`,{submitLabel:d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
       const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
       const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
-      const due=String(fd.get('dueAt')||'');closeModal();
+      let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
+      const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
       setDraft({deliveryLink:link,deliveryNotes:notes,dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});}});
   const e=$('m-deliveryLink');if(e)setTimeout(()=>e.focus(),50);
 }
@@ -549,7 +583,8 @@ const ACT={
       if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});};
-    if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&!d.siteOk){siteModal(go);return;}   // előbb a helyszíni beszámoló
+    const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
+    if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
   'proj-manage':()=>{const p=S.draft;if(!p)return;
@@ -611,6 +646,8 @@ const ACT={
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
   'pen-new':b=>penModal(b.dataset.cid),
+  'pen-row-add':()=>{const box=$('penRows');if(box){box.insertAdjacentHTML('beforeend',penRowHtml());const s=box.lastElementChild.querySelector('select');if(s)s.focus();}},
+  'pen-row-del':b=>{const r=b.closest('[data-penrow]');if(r)r.remove();},
   'pen-approve':async b=>{const d=S.draft;if(!d)return;b.disabled=true;try{const r=await call('decidePenalty',{projectId:d.id,id:b.dataset.id,approve:true});penApply(d.id,r.penalties);toast(r.mailed?'Jóváhagyva, a szakember e-mailt kapott':'Jóváhagyva (e-mailt nem sikerült küldeni)');}catch(e){b.disabled=false;handleErr(e);}},
   'pen-reject':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id;openModal('Díjcsökkentés elutasítása',`<div class="fields"><div class="field full"><label for="m-note">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-note" name="note" rows="3"></textarea></div></div>`,
     {submitLabel:'Elutasítás',submit:async fd=>{try{const r=await call('decidePenalty',{projectId:d.id,id,approve:false,note:String(fd.get('note')||'')});closeModal();penApply(d.id,r.penalties);toast('Elutasítva');}catch(e){handleErr(e);}}});},
