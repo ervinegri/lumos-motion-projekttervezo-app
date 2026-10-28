@@ -335,6 +335,12 @@ function bootstrap_(u) {
    Termelői díjak (alvállalkozói díjak, eszközbérlés, egyéb): az ügyvezető és a termelési vezető látja és szerkeszti.
    A szakemberek egyiket sem kapják meg semmilyen válaszban. */
 const FEE_MAX = 99999999, VALUE_MAX = 9999999999;
+/** Van-e átadandó anyag (a felület needsDelivery függvényének megfelelője). */
+function needsDelivery_(p) {
+  if (p.dueAt) return true;
+  if (['aftermovie', 'interju', 'short60', 'short30', 'short15', 'er_clips', 'er_subs', 'foto_db'].some(k => Number(p[k]) > 0)) return true;
+  return ['x_foto', 'x_dron', 'x_timelapse', 'x_pov', 'x_nyersVetel', 'er_post'].some(k => p[k] === true);
+}
 function parseFees_(raw) {
   let arr = raw;
   if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
@@ -470,6 +476,8 @@ function saveProject_(u, a) {
     if (p.budgetVal == null) p.budgetVal = '';
     if (p.quotePrice == null) p.quotePrice = '';
     if (p.fees == null) p.fees = '';
+    if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
+      throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
     const sig = (list, f) => list.map(f).sort().join('|');

@@ -402,7 +402,9 @@ const ACT={
   'modal-bg':(b,e)=>{if(e.target===b)closeModal();},
   save:()=>saveDraft(),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
-  stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
+  stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;
+    if(b.dataset.v==='atadva'&&needsDelivery(d)&&!String(d.deliveryLink||'').trim()){toast('Átadás előtt add meg az átadási linket (mappa vagy videók).',true);const e=$('f-deliveryLink');if(e){e.classList.add('need');e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>e.focus(),300);}return;}
+    setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
   'cancel-toggle':()=>{const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
