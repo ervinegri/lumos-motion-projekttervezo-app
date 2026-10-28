@@ -419,7 +419,7 @@ function roList(items){return `<ul class="ro-list">${items.map(t=>`<li>${t}</li>
 function roTechPanel(p){
   const items=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
   if(!items.length&&!plan)return '';
-  return `<div class="panel"><h3>💡 Hang- és fénytechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
+  return `<div class="panel"><h3>💡 Hang-, fény- és vizuáltechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
 }
 function roContentPanel(p){
   // a szakember ezt a részt nem látja – kivéve a vágót, aki a kért vágnivaló anyagokat igen
@@ -444,7 +444,7 @@ function roContentPanel(p){
   EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas'&&p[e.k]).forEach(e=>krea.push(esc(e.label)));
   const tech=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
   if(!rec.length&&!krea.length&&!tech.length&&!plan)return '';
-  const techHtml=tech.length||plan?`<div class="tech-sec"><h4 class="sub-h">💡 Hang- és fénytechnika</h4>${tech.length?roList(tech):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`:'';
+  const techHtml=tech.length||plan?`<div class="tech-sec"><h4 class="sub-h">💡 Hang-, fény- és vizuáltechnika</h4>${tech.length?roList(tech):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`:'';
   const col=(t,items)=>items.length?`<section class="content-col"><h4 class="sub-h">${t}</h4>${roList(items)}</section>`:'';
   return `<div class="panel content"><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
 }
@@ -538,7 +538,7 @@ function viewProject(p){
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
         <div class="toggles">${ex}</div></section>
     </div>
-    <div class="tech-sec"><h4 class="sub-h">💡 Hang- és fénytechnika <span class="aside">${nTech?nTech+' kiválasztva':''}</span></h4>
+    <div class="tech-sec"><h4 class="sub-h">💡 Hang-, fény- és vizuáltechnika <span class="aside">${nTech?nTech+' kiválasztva':''}</span></h4>
         <div class="toggles one">${tech}</div>
       </div>
   </details>`}

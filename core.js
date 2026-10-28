@@ -3,7 +3,7 @@
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Egyéb'];
-const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
+const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
@@ -38,7 +38,8 @@ const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',m
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
-  {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
+  {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'},
+  {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'}];
 const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Szakember'};
 const roleLabel=r=>USER_ROLES[r]||r;
 const TOKEN_KEY='lumos_pm_token_v1';
