@@ -542,7 +542,7 @@ function viewProject(p){
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<div class="panel crew-fin"><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3>${ce.body}${financePanel(p,true)}</div>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
-  ${ro()&&p.myFee&&num(p.myFee.amount)?`<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="kv"><span>Termelői díj (nettó)</span><b>${ftFmt(p.myFee.amount)}</b></div></div>`:''}`;
+  ${ro()&&p.myFee&&num(p.myFee.amount)?`<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="my-fee-amt">${ftFmt(p.myFee.amount)}</div></div>`:''}`;
 }
 
 /* ===== Stáb ===== */
