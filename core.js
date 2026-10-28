@@ -111,11 +111,7 @@ function staffing(p){
   if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms);   // termenként legalább 1 operatőr
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
-  /* Projektvezető csak akkor kell, ha legalább 2 szakember lesz a helyszínen. Egy ember több szerepet is vihet
-     (pl. operatőr + képkeverő), ezért a tervezett minimum a legnagyobb egy szerepre eső igény, nem a szerepek összege. */
-  const planned=Math.max(0,...Object.values(need));
-  const people=crewIds(p).size;   // a projektvezető is szakember a helyszínen
-  if(Math.max(planned,people)>=2)need['Projektvezető']=1;
+  need['Projektvezető']=1;   // projektvezető mindig kell, egyszemélyes stábnál is
   const order=['Projektvezető'].concat(Object.keys(need).filter(r=>r!=='Projektvezető'));
   return order.filter(r=>r in need&&need[r]>0).map(r=>({role:r,need:need[r],have:have[r]||0}));
 }

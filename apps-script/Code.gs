@@ -725,12 +725,13 @@ function sendEquipmentList_(u, a) {
   const crewRows = Object.keys(onProject).filter(cid => crewMap[cid]).map(cid => ({ c: crewMap[cid], roles: onProject[cid] }));
   const crewHtml = crewRows.map(r => '<tr><td style="padding:4px 12px 4px 0"><b>' + e(r.c.name) + '</b></td><td style="padding:4px 12px 4px 0;color:#5f7381">' + e(r.roles.join(', ')) + '</td><td style="padding:4px 0">' + e(r.c.phone || '') + '</td></tr>').join('');
   const crewTxt = crewRows.map(r => '• ' + r.c.name + ' – ' + r.roles.join(', ') + (r.c.phone ? ' – ' + r.c.phone : '')).join('\n');
-  const info = [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Ügyfél', p.client], ['Kapcsolattartó', [p.contactName, p.contactPhone].filter(Boolean).join(', ')]].filter(x => x[1]);
+  const info = [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', [p.contactName, p.contactPhone].filter(Boolean).join(', ')]].filter(x => x[1]);
   const infoHtml = info.map(x => '<tr><td style="padding:3px 14px 3px 0;color:#5f7381;white-space:nowrap">' + x[0] + '</td><td style="padding:3px 0"><b>' + e(x[1]) + '</b></td></tr>').join('');
   const planHtml = includePlan && (p.techPlan || p.notes) ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan || '—') + '</div>' + (p.notes ? '<h3 style="font-size:15px;margin:18px 0 6px">Jegyzetek</h3><div style="white-space:pre-wrap">' + e(p.notes) + '</div>' : '') : '';
   const planTxt = includePlan && (p.techPlan || p.notes) ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + (p.techPlan || '—') + (p.notes ? '\n\nJEGYZETEK\n' + p.notes : '') + '\n' : '';
   const sentTo = [];
   const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name);
+  const sig = signatureFor_(u);
   recipients.forEach(cid => {
     const c = crewMap[cid];
     const first = String(c.name).trim().split(/\s+/).slice(-1)[0];
@@ -744,11 +745,10 @@ function sendEquipmentList_(u, a) {
       + '<h3 style="font-size:15px;margin:24px 0 2px">Eszközlista</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + eqHtml + '</table>'
       + '<h3 style="font-size:15px;margin:24px 0 6px">Stáb</h3><table style="border-collapse:collapse;font-size:14px">' + crewHtml + '</table>'
       + planHtml
-      + '<p style="margin-top:26px">A projekt az appban: <a href="' + e(FRONTEND_URL) + '">' + e(FRONTEND_LABEL) + '</a></p>'
-      + '<p>Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>';
+      + (sig ? '<div style="margin-top:26px">' + sig.html + '</div></div>' : '<p style="margin-top:26px">Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>');
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
       + info.map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
-      + '\nA projekt az appban: ' + FRONTEND_LABEL + '\n\nÜdvözlettel,\n' + u.name + '\nLumos Motion';
+      + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
     GmailApp.sendEmail(c.email, subject, text, opts);
@@ -839,6 +839,14 @@ function genPin_() {
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
+/* Személyes e-mail-aláírások (a küldő e-mail-címe szerint). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
+const SIGNATURES = {
+  'ervin.egri@lumosmotion.com': {
+    html: "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;width:375px;font-family:Arial,Helvetica,sans-serif;color:#111111;\" width=\"375\"><tr><td colspan=\"2\" style=\"padding:0 0 5pt 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:12pt;color:#111111;\">Üdvözlettel,</td></tr><tr><td style=\"width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;\" valign=\"middle\" width=\"116\"><img alt=\"ervin.jpg\" height=\"108\" src=\"https://projekttervezo.lumosmotion.hu/sig/ervin.jpg\" style=\"display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;\" width=\"108\"/></td><td style=\"padding:8px 8px 8px 0;vertical-align:middle;white-space:nowrap;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111111;\" valign=\"middle\"><div style=\"font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;\">Egri Ervin</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Ügyvezető igazgató</div><div style=\"font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;\">Lumos Motion Kft.</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Tel.: <a href=\"tel:+36706178235\" style=\"color:#1155cc;text-decoration:underline;\">+36 70 617 8235</a></div><div style=\"font-size:10pt;line-height:12pt;margin:0;\">Email: <a href=\"mailto:ervin.egri@lumosmotion.com\" style=\"color:#1155cc;text-decoration:underline;font-size:10pt;\">ervin.egri@lumosmotion.com</a></div></td></tr><tr><td colspan=\"2\" style=\"padding:6pt 0 0 0;\"><a href=\"https://lumosmotion.com/\" style=\"text-decoration:none;border:0;\"><img alt=\"lumosmotion.png\" height=\"23\" src=\"https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png\" style=\"display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;\" width=\"224\"/></a></td></tr></table>",
+    text: 'Üdvözlettel,\n\nEgri Ervin\nÜgyvezető igazgató\nLumos Motion Kft.\nTel.: +36 70 617 8235\nEmail: ervin.egri@lumosmotion.com\nhttps://lumosmotion.com/'
+  }
+};
+const signatureFor_ = u => SIGNATURES[String((u && u.email) || '').toLowerCase()] || null;
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 function sendPinMail_(user, pin, isReset) {
