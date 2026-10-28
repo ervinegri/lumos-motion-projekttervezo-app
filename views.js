@@ -216,11 +216,11 @@ function viewOverview(){
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
     ${welcome}
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
-    <div class="tiles">
-      ${tile(open.length,ro()?'aktív beosztásod':'aktív projekt')}
+    ${ro()?'':`<div class="tiles">
+      ${tile(open.length,'aktív projekt')}
       ${tile(next30.length,'rendezvény a következő 30 napban')}
       ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:''):''}
-    </div>
+    </div>`}
     <div class="grid2">
       <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
         <div class="list">${upcoming.slice(0,8).map(p=>evRow(p)).join('')||empty('Nincs közelgő rendezvény.')}</div>
