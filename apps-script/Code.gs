@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -383,6 +383,9 @@ function projectView_(p, u) {
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees);
   else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount }; delete q.fees; }   // a szakember csak a saját díját látja
+  // díjcsökkentések: vezetők mindet, a szakember csak a saját, jóváhagyott tételeit látja
+  const pens = parsePen_(q.penalties);
+  q.penalties = role === 'crew' ? pens.filter(x => x.crewId === u.crewId && x.status === 'approved') : (role === 'admin' || role === 'editor' ? pens : []);
   // termelői keret: az ügyvezető a beállítást (% vagy Ft) látja, a termelési vezető csak a kiszámolt forintösszeget
   const mode = q.budgetMode === 'pct' ? 'pct' : q.budgetMode === 'ft' ? 'ft' : '', bv = Number(q.budgetVal);
   const val = Number(p.quotePrice);
@@ -461,7 +464,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -484,6 +487,7 @@ function saveProject_(u, a) {
     if (p.budgetVal == null) p.budgetVal = '';
     if (p.quotePrice == null) p.quotePrice = '';
     if (p.fees == null) p.fees = '';
+    if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
     if (['helyszin', 'utomunka', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)
@@ -922,6 +926,110 @@ function saveItem_(u, a) {
     if (u.role !== 'admin') return Object.assign({}, it, { value: null, hasValue: it.value != null && it.value !== '' });
     return it;
   });
+}
+
+/* ===================== DÍJCSÖKKENTÉS (a megbízási szerződés minőségi melléklete szerint) ===================== */
+const PEN_KINDS_ = {
+  light: { label: 'Enyhe szakmai hiba', pct: 10, ref: '3.1.' }, severe: { label: 'Súlyos szakmai hiba', pct: 50, ref: '3.2.' },
+  critical: { label: 'Kritikus hiba vagy meghiúsulás', pct: 100, ref: '3.3.' }, prestige: { label: 'Presztízsveszteség, jó hírnév sérelme', min: 10, max: 50, ref: '3.4.' },
+  unfit: { label: 'Munkavégzésre alkalmatlan állapot', pct: 100, ref: '3.5.' }, damage: { label: 'Kártérítés / eszközkár', ref: '4–5.' } };
+function parsePen_(raw) {
+  let arr = raw; if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
+  if (!Array.isArray(arr)) return [];
+  return arr.filter(x => x && PEN_KINDS_[x.kind]).slice(0, 100).map(x => ({ id: str_(x.id, 40), crewId: str_(x.crewId, 64), kind: x.kind, pct: int_(x.pct, 0, 100, 0),
+    amount: int_(x.amount, 0, FEE_MAX, 0), caseText: str_(x.caseText, 300), reason: str_(x.reason, 3000), link: str_(x.link, 500),
+    status: ['pending', 'approved', 'rejected'].indexOf(x.status) >= 0 ? x.status : 'pending', by: str_(x.by, 120), at: str_(x.at, 30),
+    decidedBy: str_(x.decidedBy, 120), decidedAt: str_(x.decidedAt, 30), decisionNote: str_(x.decisionNote, 1000),
+    objection: x.objection && x.objection.text ? { text: str_(x.objection.text, 3000), at: str_(x.objection.at, 30) } : null }));
+}
+function penMutate_(projectId, fn) {
+  return withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, str_(projectId, 64));
+    if (!row) throw new Error('A projekt nem található.');
+    const p = readRow_('projects', sh, row), list = parsePen_(p.penalties), res = fn(list, p);
+    const col = TABLES.projects.cols.findIndex(c => c[0] === 'penalties') + 1;
+    sh.getRange(row, col).setNumberFormat('@').setValue(list.length ? JSON.stringify(list) : '');   // a módosítás idejét szándékosan nem írjuk át
+    SpreadsheetApp.flush();
+    return { list: list, p: p, res: res };
+  });
+}
+function penAmount_(p, x) {   // a levont összeg forintban
+  if (x.kind === 'damage') return x.amount;
+  const f = parseFees_(p.fees).find(r => r.crewId === x.crewId);
+  return Math.round((f ? Number(f.amount) || 0 : 0) * x.pct / 100);
+}
+function penMailCrew_(u, p, x) {
+  try {
+    const c = readAll_('crew').find(r => r.id === x.crewId); if (!c || !c.email) return false;
+    const k = PEN_KINDS_[x.kind], amt = penAmount_(p, x), url = FRONTEND_URL + '/#p=' + p.id;
+    const lines = ['Kedves ' + c.name + '!', '', 'A(z) „' + p.name + '” projekten (' + (fmtHuDate_(p.date) || p.date || '') + ') a megbízási szerződés minőségi mellékletének ' + k.ref + ' pontja alapján díjcsökkentés történt.', '',
+      'Kategória: ' + k.label + (x.kind === 'damage' ? '' : ' (' + x.pct + '%)'), x.kind === 'damage' ? 'Kártérítés összege: ' + amt.toLocaleString('hu-HU') + ' Ft' : 'Levont összeg: ' + amt.toLocaleString('hu-HU') + ' Ft',
+      x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, x.link ? '\nBizonyíték: ' + x.link : '', '',
+      'Ha nem értesz egyet, a projekt oldalán a „Kifogásolom” gombbal írásban jelezheted: ' + url, '', 'Üdvözlettel:', 'Lumos Motion'].filter((l, i, a) => l !== '' || a[i - 1] !== '');
+    const html = lines.map(l => escapeHtml_(l)).join('<br>');
+    GmailApp.sendEmail(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html));
+    return true;
+  } catch (e) { Logger.log('Díjcsökkentés e-mail hiba: ' + e); return false; }
+}
+function penMailAdmins_(u, subject, text) {
+  try {
+    const to = loadUsers_().filter(x => x.role === 'admin' && !x.disabled && x.email).map(x => x.email);
+    if (to.length) GmailApp.sendEmail(to.join(','), subject, text, mailOptsFor_(u, escapeHtml_(text).replace(/\n/g, '<br>')));
+  } catch (e) { Logger.log('Értesítés hiba: ' + e); }
+}
+function addPenalty_(u, a) {
+  const kind = String(a && a.kind || ''), k = PEN_KINDS_[kind];
+  if (!k) throw new Error('Válassz kategóriát.');
+  const reason = str_(a.reason, 3000).trim();
+  if (reason.length < 5) throw new Error('Írd le röviden az indoklást (a szerződés 3.6. pontja szerint kötelező).');
+  const link = str_(a.link, 500).trim();
+  if (link && !/^https:\/\//i.test(link)) throw new Error('A bizonyíték linkje https:// előtaggal kezdődjön.');
+  const pct = kind === 'damage' ? 0 : k.pct != null ? k.pct : int_(a.pct, k.min, k.max, k.min);
+  const amount = kind === 'damage' ? int_(a.amount, 0, FEE_MAX, 0) : 0;
+  if (kind === 'damage' && !amount) throw new Error('Add meg a kártérítés összegét.');
+  const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, amount: amount, caseText: str_(a.caseText, 300), reason: reason, link: link,
+    status: u.role === 'admin' ? 'approved' : 'pending', by: u.name, at: now_(), decidedBy: u.role === 'admin' ? u.name : '', decidedAt: u.role === 'admin' ? now_() : '', decisionNote: '', objection: null };
+  const r = penMutate_(a.projectId, (list, p) => {
+    const on = p.lead === x.crewId || readAll_('crewAssign').some(c => c.projectId === p.id && c.crewId === x.crewId);
+    if (!on) throw new Error('Ez a munkatárs nincs beosztva erre a projektre.');
+    list.push(x);
+  });
+  const crewName = (readAll_('crew').find(c => c.id === x.crewId) || {}).name || '';
+  logEvent_(u, 'Díjcsökkentés ' + (x.status === 'approved' ? 'kiróva' : 'javasolva'), r.p.name, crewName + ' · ' + k.label + (pct ? ' ' + pct + '%' : ' ' + amount + ' Ft'));
+  let mailed = false;
+  if (x.status === 'approved') mailed = penMailCrew_(u, r.p, x);
+  else penMailAdmins_(u, 'Jóváhagyásra vár: díjcsökkentés – ' + r.p.name, u.name + ' díjcsökkentést javasolt.\n\nProjekt: ' + r.p.name + '\nSzakember: ' + crewName + '\nKategória: ' + k.label + (pct ? ' (' + pct + '%)' : ' (' + amount + ' Ft)') + '\nIndoklás: ' + reason + '\n\nJóváhagyás az appban: ' + FRONTEND_URL + '/#p=' + r.p.id);
+  return { penalties: r.list, mailed: mailed };
+}
+function decidePenalty_(u, a) {
+  const approve = !!(a && a.approve);
+  let x = null;
+  const r = penMutate_(a.projectId, list => {
+    x = list.find(i => i.id === str_(a.id, 40)); if (!x) throw new Error('A tétel nem található.');
+    if (x.status !== 'pending') throw new Error('Erről a tételről már döntöttek.');
+    x.status = approve ? 'approved' : 'rejected'; x.decidedBy = u.name; x.decidedAt = now_(); x.decisionNote = str_(a.note, 1000);
+  });
+  logEvent_(u, approve ? 'Díjcsökkentés jóváhagyva' : 'Díjcsökkentés elutasítva', r.p.name, PEN_KINDS_[x.kind].label);
+  const mailed = approve ? penMailCrew_(u, r.p, x) : false;
+  return { penalties: r.list, mailed: mailed };
+}
+function deletePenalty_(u, a) {
+  let x = null;
+  const r = penMutate_(a.projectId, list => { const i = list.findIndex(v => v.id === str_(a.id, 40)); if (i < 0) throw new Error('A tétel nem található.'); x = list.splice(i, 1)[0]; });
+  logEvent_(u, 'Díjcsökkentés törölve', r.p.name, PEN_KINDS_[x.kind].label);
+  return { penalties: r.list };
+}
+function objectPenalty_(u, a) {
+  const text = str_(a && a.text, 3000).trim();
+  if (text.length < 5) throw new Error('Írd le röviden, miért nem értesz egyet.');
+  let x = null;
+  const r = penMutate_(a.projectId, list => {
+    x = list.find(i => i.id === str_(a.id, 40) && i.crewId === u.crewId && i.status === 'approved'); if (!x) throw new Error('A tétel nem található.');
+    x.objection = { text: text, at: now_() };
+  });
+  logEvent_(u, 'Díjcsökkentés kifogásolva', r.p.name, text.slice(0, 120));
+  penMailAdmins_(u, 'Kifogás: díjcsökkentés – ' + r.p.name, u.name + ' kifogást nyújtott be.\n\nProjekt: ' + r.p.name + '\nKategória: ' + PEN_KINDS_[x.kind].label + '\n\nKifogás:\n' + text + '\n\nMegnyitás: ' + FRONTEND_URL + '/#p=' + r.p.id);
+  return { penalties: r.list.filter(i => i.crewId === u.crewId && i.status === 'approved') };
 }
 
 /* ===================== ÜGYFELEK ===================== */
@@ -1564,6 +1672,10 @@ function rpcInner_(token, name, arg) {
     case 'saveItem': canEdit(); return saveItem_(u, arg);
     case 'deleteItem': canEdit(); return deleteItem_(u, arg);
     case 'saveClient': canEdit(); return saveClient_(u, arg);
+    case 'addPenalty': canEdit(); return addPenalty_(u, arg);
+    case 'decidePenalty': adminOnly(); return decidePenalty_(u, arg);
+    case 'deletePenalty': adminOnly(); return deletePenalty_(u, arg);
+    case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);

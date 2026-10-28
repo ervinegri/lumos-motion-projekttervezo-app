@@ -143,6 +143,40 @@ async function hsSearch(q){
   catch(e){if($('hsList'))$('hsList').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-contactName'||e.target.id==='m-client'){clearTimeout(HS_T);HS_T=setTimeout(hsInline,400);}if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
+/* ===== Díjcsökkentés ===== */
+function penApply(pid,list){const p=projById(pid);if(p)p.penalties=list;if(S.draft&&S.draft.id===pid)S.draft.penalties=list;render(true);}
+function penCaseOpts(kind){const k=PEN_KINDS[kind];return `<option value="">Válassz esetet…</option>${(k?k.cases:[]).map(c=>`<option>${esc(c)}</option>`).join('')}<option value="Egyéb">Egyéb (az indoklásban leírva)</option>`;}
+function penModal(cid){
+  const d=S.draft;if(!d)return;const c=crewById(cid),f=(d.fees||[]).find(x=>x.crewId===cid),fee=f?num(f.amount):0;
+  if(S.dirty){toast('Előbb mentsd el a projekt módosításait.',true);return;}
+  openModal('Díjcsökkentés – '+(c?c.name:'munkatárs'),`<p class="hint" style="margin:0 0 10px">A megbízási szerződés minőségi melléklete szerint. Díj ezen a projekten: <b>${ftFmt(fee)}</b>.${isAdmin()?'':' A díjcsökkentés az ügyvezető jóváhagyása után lép érvénybe.'}</p>
+    <div class="fields">
+      <div class="field full"><label for="m-penKind">Kategória</label><select class="inp" id="m-penKind" name="kind">${Object.entries(PEN_KINDS).map(([k,v])=>`<option value="${k}">${esc(v.label)}${v.pct!=null?' – '+v.pct+'%':v.min?' – '+v.min+'–'+v.max+'%':' – összeg Ft-ban'} (${v.ref} pont)</option>`).join('')}</select></div>
+      <div class="field" id="m-penPctF" style="display:none"><label for="m-penPct">Mérték</label><select class="inp" id="m-penPct" name="pct">${[10,20,30,40,50].map(v=>`<option value="${v}">${v}%</option>`).join('')}</select></div>
+      <div class="field" id="m-penAmtF" style="display:none"><label for="m-penAmt">Kártérítés összege (Ft)</label><input class="inp" id="m-penAmt" name="amount" inputmode="numeric" data-money="1" placeholder="pl. 50 000"></div>
+      <div class="field full"><label for="m-penCase">Eset</label><select class="inp" id="m-penCase" name="caseText">${penCaseOpts('light')}</select></div>
+      <div class="field full"><label for="m-penReason">Írásos indoklás <span class="muted" style="font-weight:600">(3.6. pont – kötelező)</span></label><textarea class="inp" id="m-penReason" name="reason" rows="4" maxlength="3000" placeholder="Mi történt, mikor, milyen következménnyel…"></textarea></div>
+      <div class="field full"><label for="m-penLink">Bizonyíték (link, nem kötelező)</label><input class="inp" id="m-penLink" name="link" type="url" placeholder="https://drive.google.com/…"></div>
+      <div class="field full"><p class="hint" id="m-penCalc" style="margin:0"></p></div>
+    </div>`,{submitLabel:isAdmin()?'Kiróvás':'Javaslat küldése jóváhagyásra',submit:async fd=>{
+      const kind=fd.get('kind'),reason=String(fd.get('reason')||'').trim();
+      if(reason.length<5){toast('Írd le röviden az indoklást.',true);$('m-penReason').focus();return;}
+      if(kind==='damage'&&!moneyVal(fd.get('amount'))){toast('Add meg a kártérítés összegét.',true);return;}
+      try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:String(fd.get('caseText')||''),reason,link:String(fd.get('link')||'').trim()});
+        closeModal();penApply(d.id,r.penalties);toast(isAdmin()?(r.mailed?'Díjcsökkentés kiróva, a szakember e-mailt kapott':'Díjcsökkentés kiróva (e-mailt nem sikerült küldeni)'):'Elküldve jóváhagyásra az ügyvezetőnek');}
+      catch(e){handleErr(e);}}});
+  penCalc();
+}
+function penCalc(){const k=$('m-penKind');if(!k)return;const v=k.value;
+  $('m-penPctF').style.display=v==='prestige'?'':'none';$('m-penAmtF').style.display=v==='damage'?'':'none';
+  const t=$('m-penCalc'),K=PEN_KINDS[v];if(!t||!K)return;
+  t.textContent=v==='damage'?'A kártérítés a díjon felül, külön követelésként jelenik meg.':'A díj '+(v==='prestige'?($('m-penPct').value+'%'):K.pct+'%')+'-át vonjuk le. Több levonás együtt legfeljebb a teljes díjat érintheti.';}
+document.addEventListener('change',e=>{if(e.target.id==='m-penKind'){$('m-penCase').innerHTML=penCaseOpts(e.target.value);penCalc();}else if(e.target.id==='m-penPct')penCalc();});
+function penObjectModal(pid,id){
+  openModal('Kifogás a díjcsökkentés ellen',`<p class="hint" style="margin:0 0 10px">Írd le, miért nem értesz egyet. Az ügyvezető e-mailben értesítést kap, és megvizsgálja.</p><div class="fields"><div class="field full"><label for="m-objText">Kifogás</label><textarea class="inp" id="m-objText" name="text" rows="5" maxlength="3000"></textarea></div></div>`,
+    {submitLabel:'Kifogás elküldése',submit:async fd=>{const text=String(fd.get('text')||'').trim();if(text.length<5){toast('Írd le röviden a kifogásodat.',true);return;}
+      try{const r=await call('objectPenalty',{projectId:pid,id,text});closeModal();penApply(pid,r.penalties);toast('Kifogás elküldve');}catch(e){handleErr(e);}}});
+}
 function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs nyitott projekt)
   openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó <button class="linkbtn" type="button" data-action="hs-inline" style="font-size:12px;margin-left:6px">HubSpotból…</button>',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div></div>`,
     {left:reg&&edit&&edit.id?`<button type="button" class="btn danger small" data-action="del-client" data-id="${esc(edit.id)}">Törlés</button>`:'',submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
@@ -576,6 +610,13 @@ const ACT={
     catch(e){handleErr(e);b.disabled=false;b.textContent='📁 Projektmappa létrehozása';}},
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
+  'pen-new':b=>penModal(b.dataset.cid),
+  'pen-approve':async b=>{const d=S.draft;if(!d)return;b.disabled=true;try{const r=await call('decidePenalty',{projectId:d.id,id:b.dataset.id,approve:true});penApply(d.id,r.penalties);toast(r.mailed?'Jóváhagyva, a szakember e-mailt kapott':'Jóváhagyva (e-mailt nem sikerült küldeni)');}catch(e){b.disabled=false;handleErr(e);}},
+  'pen-reject':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id;openModal('Díjcsökkentés elutasítása',`<div class="fields"><div class="field full"><label for="m-note">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-note" name="note" rows="3"></textarea></div></div>`,
+    {submitLabel:'Elutasítás',submit:async fd=>{try{const r=await call('decidePenalty',{projectId:d.id,id,approve:false,note:String(fd.get('note')||'')});closeModal();penApply(d.id,r.penalties);toast('Elutasítva');}catch(e){handleErr(e);}}});},
+  'pen-del':b=>arm(b,async()=>{const d=S.draft;if(!d)return;try{const r=await call('deletePenalty',{projectId:d.id,id:b.dataset.id});penApply(d.id,r.penalties);toast('Törölve');}catch(e){handleErr(e);}}),
+  'pen-object':b=>penObjectModal(b.dataset.pid,b.dataset.id),
+  'pen-open':b=>{const id=b.dataset.pid;guard(()=>openProject(id));},
   'new-client':()=>newClientModal(null,null,true),
   'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email},true);},
   'del-client':b=>arm(b,async()=>{try{await call('deleteClient',{id:b.dataset.id});S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),

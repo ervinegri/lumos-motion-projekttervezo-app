@@ -232,11 +232,19 @@ function viewOverview(){
         <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
     ${ro()?crewMonthsPanel():''}
+    ${isAdmin()?pendingPenPanel():''}
     ${ro()?'':`<div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`}`;
 }
 
 // szakember: projektjei hónapokra bontva, havi díjösszeggel
 const F_YM=new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',timeZone:'UTC'});
+const myNet=p=>{const a=num(p.myFee&&p.myFee.amount),cid=S.me&&S.me.crewId;return cid?a-penDeduct(p,cid,a):a;};   // díjcsökkentés után
+function pendingPenPanel(){
+  const rows=[];S.projects.forEach(p=>(p.penalties||[]).filter(x=>x.status==='pending').forEach(x=>rows.push({p,x})));
+  if(!rows.length)return '';
+  return `<div class="panel pen-pending"><h3>⚠️ Jóváhagyásra váró díjcsökkentések <span class="aside">${rows.length} db</span></h3><div class="list">${rows.map(({p,x})=>{const c=crewById(x.crewId),k=PEN_KINDS[x.kind]||{};
+    return `<button class="ev" type="button" data-action="open-project" data-id="${esc(p.id)}"><div class="ev-b"><b>${esc(c?c.name:'Munkatárs')} · ${esc(k.label||'')}${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'}</b><small>${esc(p.name||'')} · javasolta: ${esc(x.by)} · ${esc(x.at)}</small></div></button>`;}).join('')}</div></div>`;
+}
 function crewMonthsPanel(){
   const by={};
   S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const k=pr(p).start.slice(0,7);(by[k]=by[k]||[]).push(p);});
@@ -244,9 +252,9 @@ function crewMonthsPanel(){
   if(!keys.length)return '';
   const cur=todayISO().slice(0,7);
   return `<div class="panel crew-months"><h3>🗓️ Projektjeid havonta</h3>${keys.map((k,i)=>{
-    const ps=by[k].sort(byStart),sum=ps.reduce((s,p)=>s+num(p.myFee&&p.myFee.amount),0);
+    const ps=by[k].sort(byStart),sum=ps.reduce((s,p)=>s+myNet(p),0);
     return `<details class="cm-month"${k===cur||(i===0&&k<cur)?' open':''}><summary><span class="cm-name">${esc(F_YM.format(toDate(k+'-01')))}</span><span class="cm-n">${ps.length} projekt</span><b class="cm-sum">${ftFmt(sum)}</b></summary>
-      <div class="cm-list">${ps.map(p=>`<button class="cm-row" type="button" data-action="open-project" data-id="${esc(p.id)}"><span class="cm-d">${esc(F_SHORT.format(toDate(pr(p).start)))}</span><span class="cm-p">${esc(p.name||'Névtelen projekt')}</span><span class="cm-f">${num(p.myFee&&p.myFee.amount)?ftFmt(p.myFee.amount):'–'}</span></button>`).join('')}</div></details>`;}).join('')}</div>`;
+      <div class="cm-list">${ps.map(p=>`<button class="cm-row" type="button" data-action="open-project" data-id="${esc(p.id)}"><span class="cm-d">${esc(F_SHORT.format(toDate(pr(p).start)))}</span><span class="cm-p">${esc(p.name||'Névtelen projekt')}</span><span class="cm-f">${num(p.myFee&&p.myFee.amount)?ftFmt(myNet(p))+((p.penalties||[]).length?' ⚠️':''):'–'}</span></button>`).join('')}</div></details>`;}).join('')}</div>`;
 }
 
 /* ===== Projektek ===== */
@@ -308,7 +316,7 @@ const ftFmt=n=>String(Math.round(+n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0
 const rentalsOf=(p,cid)=>(p.rentals||[]).filter(r=>(r.crewId||'')===(cid||''));
 const rentalSum=(p,cid)=>rentalsOf(p,cid).reduce((s,r)=>s+num(r.price),0);
 const rentOf=(p,f)=>f.crewId&&rentalsOf(p,f.crewId).some(r=>!r.own)?rentalSum(p,f.crewId):num(f.rent);
-const feeSum=p=>(p.fees||[]).reduce((s,f)=>s+num(f.amount)+rentOf(p,f),0)+rentalSum(p,'');
+const feeSum=p=>(p.fees||[]).reduce((s,f)=>s+num(f.amount)-(f.crewId?penDeduct(p,f.crewId,f.amount):0)+rentOf(p,f),0)+rentalSum(p,'');   // jóváhagyott díjcsökkentéssel
 const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 /* Termelői keret forintban: az ügyvezetőnél a beállításból (% a projekt értékéből vagy fix összeg), a termelési vezetőnél a háttér által kiszámolt összeg. */
 function budgetFt(p){
@@ -361,7 +369,7 @@ function financePanel(p,inner){
   const ro_=t=>`<div class="cell-ro">${t}</div>`;
   const rows=fees.map((f,i)=>{const fixed=f.kind==='fixed',g=f.crewId?(p.equipment||[]).filter(e=>e.crewId===f.crewId).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?num(e.qty)+'× ':'')+it.name:'';}).filter(Boolean).concat(rentalsOf(p,f.crewId).map(r=>r.name+(r.own?' (saját)':' (bérelt)'))).join(', '):'';
     const sep=fixed&&(i===0||fees[i-1].kind!=='fixed')?`<tr class="sep-row"><td colspan="6">Egyéb költségek</td></tr>${rentalsOf(p,'').length?`<tr class="fixed-row"><td class="n"></td><td><div class="cell-ro">Közös eszközök</div></td><td><div class="cell-ro">${esc(rentalsOf(p,'').map(r=>r.name).join(', '))}</div></td><td><div class="cell-ro"></div></td><td></td><td><div class="cell-ro"><span class="num-ro">${moneyFmt(rentalSum(p,''))}</span></div></td></tr>`:''}`:'';
-    return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':i+1}</td><td>${fixed&&f.key==='egyeb'?tin(i,'name',f.name,'Egyéb tétel neve'):!f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button></div>`:ro_(esc(f.name||''))}</td><td>${ro_(fixed?'':esc(f.task||(f.roles||[]).join(' + ')||''))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${ro_(fixed?'':g?esc(g):f.gear?esc(f.gear):'')}</td><td>${fixed?ro_(''):f.crewId&&rentalsOf(p,f.crewId).some(r=>!r.own)?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1})}</td></tr>`;}).join('');
+    return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':i+1}</td><td>${fixed&&f.key==='egyeb'?tin(i,'name',f.name,'Egyéb tétel neve'):!f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button></div>`:f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><button class="pen-btn" type="button" data-action="pen-new" data-cid="${esc(f.crewId)}" title="Díjcsökkentés" aria-label="Díjcsökkentés: ${esc(f.name||'')}">⚠️</button></div>`:ro_(esc(f.name||''))}</td><td>${ro_(fixed?'':esc(f.task||(f.roles||[]).join(' + ')||''))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}${f.crewId?penCellNote(p,f):''}</td><td>${ro_(fixed?'':g?esc(g):f.gear?esc(f.gear):'')}</td><td>${fixed?ro_(''):f.crewId&&rentalsOf(p,f.crewId).some(r=>!r.own)?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1})}</td></tr>`;}).join('');
   const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,'');
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
@@ -374,7 +382,37 @@ function financePanel(p,inner){
       <tfoot><tr><td></td><td></td><td class="r tf-lbl">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td></tr>
         ${keretRows(p)}</tfoot>
     </table></div>
+    ${penPanel(p)}
   </div>`;
+}
+function myFeePanel(p){
+  const cid=S.me&&S.me.crewId,a=num(p.myFee.amount),pens=(p.penalties||[]).filter(x=>x.crewId===cid);
+  if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="my-fee-amt">${ftFmt(a)}</div></div>`;
+  const d=penDeduct(p,cid,a),dmg=penDamage(p,cid);
+  return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3>
+    <div class="kv"><span>Eredeti díj</span><b>${ftFmt(a)}</b></div>${d?`<div class="kv"><span>Díjcsökkentés (${penPct(p,cid)}%)</span><b class="bad-txt">−${ftFmt(d)}</b></div>`:''}
+    <div class="kv"><span>Kifizetendő</span><b class="my-fee-amt">${ftFmt(a-d)}</b></div>${dmg?`<div class="kv"><span>Kártérítési követelés</span><b class="bad-txt">${ftFmt(dmg)}</b></div>`:''}
+    ${pens.map(x=>{const k=PEN_KINDS[x.kind]||{};return `<div class="pen-row approved"><div class="pen-main"><b>${esc(k.label||'')}</b>${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'} <span class="muted">(szerződés ${esc(k.ref||'')} pont)</span>
+      ${x.caseText?`<div class="pen-case">${esc(x.caseText)}</div>`:''}<div class="pen-reason">${esc(x.reason)}</div>${x.link?`<a class="linkbtn" href="${esc(x.link)}" target="_blank" rel="noopener">Bizonyíték ↗</a>`:''}
+      ${x.objection?`<div class="pen-obj"><b>Kifogásod</b> (${esc(x.objection.at)}): ${esc(x.objection.text)}</div>`:`<button class="btn outline small" type="button" data-action="pen-object" data-pid="${esc(p.id)}" data-id="${esc(x.id)}" style="margin-top:8px">Kifogásolom</button>`}</div></div>`;}).join('')}</div>`;
+}
+function penCellNote(p,f){
+  const ap=penPct(p,f.crewId),d=penDeduct(p,f.crewId,f.amount),pend=penOf(p,f.crewId,'pending').length,dmg=penDamage(p,f.crewId);
+  if(!ap&&!pend&&!dmg)return '';
+  return `<div class="pen-sub">${ap?`<span class="bad-txt">−${moneyFmt(d)||0} (${ap}%) → ${moneyFmt(num(f.amount)-d)||0}</span>`:''}${dmg?`<span class="bad-txt">kártérítés: ${moneyFmt(dmg)}</span>`:''}${pend?`<span class="warn-txt">${pend} jóváhagyásra vár</span>`:''}</div>`;
+}
+/* Díjcsökkentések listája a pénzügyi panel alján (vezetőknek) */
+function penPanel(p){
+  const list=(p.penalties||[]).slice().sort((a,b)=>String(b.at).localeCompare(String(a.at)));if(!list.length)return '';
+  const fee=cid=>{const f=(p.fees||[]).find(x=>x.crewId===cid);return f?num(f.amount):0;};
+  return `<div class="pen-panel"><h4 class="sub-h">⚠️ Díjcsökkentések</h4>${list.map(x=>{const k=PEN_KINDS[x.kind]||{},c=crewById(x.crewId),amt=x.kind==='damage'?num(x.amount):Math.round(fee(x.crewId)*num(x.pct)/100);
+    const pill=x.status==='approved'?'<span class="statuspill p-bad">Jóváhagyva</span>':x.status==='rejected'?'<span class="statuspill">Elutasítva</span>':'<span class="statuspill p-warn">Jóváhagyásra vár</span>';
+    return `<div class="pen-row ${x.status}"><div class="pen-main"><b>${esc(c?c.name:'Munkatárs')}</b> · ${esc(k.label||'')}${x.kind==='damage'?'':` <b>${num(x.pct)}%</b>`} · ${x.kind==='damage'?'kártérítés':'levonás'}: <b>${ftFmt(amt)}</b> ${pill}
+      ${x.caseText?`<div class="pen-case">${esc(x.caseText)}</div>`:''}<div class="pen-reason">${esc(x.reason)}</div>
+      ${x.link?`<a class="linkbtn" href="${esc(x.link)}" target="_blank" rel="noopener">Bizonyíték ↗</a>`:''}
+      <div class="ser">Kirótta: ${esc(x.by)} · ${esc(x.at)}${x.decidedAt&&x.status!=='pending'?` · ${x.status==='approved'?'jóváhagyta':'elutasította'}: ${esc(x.decidedBy)}${x.decisionNote?' – '+esc(x.decisionNote):''}`:''}</div>
+      ${x.objection?`<div class="pen-obj"><b>Kifogás</b> (${esc(x.objection.at)}): ${esc(x.objection.text)}</div>`:''}</div>
+      ${isAdmin()?`<div class="pen-act">${x.status==='pending'?`<button class="btn primary small" type="button" data-action="pen-approve" data-id="${esc(x.id)}">Jóváhagyás</button><button class="btn outline small" type="button" data-action="pen-reject" data-id="${esc(x.id)}">Elutasítás</button>`:''}<button class="trash" type="button" data-action="pen-del" data-id="${esc(x.id)}" title="Törlés" aria-label="Törlés">🗑️</button></div>`:''}</div>`;}).join('')}</div>`;
 }
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const opts=itemOptions(p);
@@ -545,12 +583,16 @@ function viewProject(p){
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<div class="panel crew-fin"><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3>${ce.body}${financePanel(p,true)}</div>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
-  ${ro()&&p.myFee&&num(p.myFee.amount)?`<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="my-fee-amt">${ftFmt(p.myFee.amount)}</div></div>`:''}`;
+  ${ro()&&p.myFee&&num(p.myFee.amount)?myFeePanel(p):''}`;
 }
 
 /* ===== Stáb ===== */
 const prioNum=c=>[1,2,3].includes(Number(c.priority))?Number(c.priority):9;
 function prioBadge(c){const p=prioNum(c);return p<9?`<span class="prio prio-${p}" title="Prioritás: ${p} – ${esc(PRIO_LABEL[p])}">P${p}</span>`:'';}
+/* 3.7. pont: 12 hónapon belül 3 súlyos vagy kritikus hiba → azonnali felmondás joga */
+function penStrikes(cid){const from=addDays(todayISO(),-365);let n=0;S.projects.forEach(p=>(p.penalties||[]).forEach(x=>{if(x.crewId===cid&&x.status==='approved'&&(x.kind==='severe'||x.kind==='critical')&&String(x.decidedAt||x.at).slice(0,10)>=from)n++;}));return n;}
+function penStrikeNote(cid){const n=penStrikes(cid);if(!n)return '';
+  return `<p class="pen-strike${n>=3?' bad':''}">⚠️ ${n} súlyos/kritikus hiba az elmúlt 12 hónapban${n>=3?' – a szerződés 3.7. pontja szerint azonnali hatályú felmondásra van jogotok.':''}</p>`;}
 function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
   let list=S.crew.slice().sort((a,b)=>prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));
@@ -572,6 +614,7 @@ function viewCrew(){
         ${c.email?`<div class="kv"><span>E-mail</span><button class="copy mail" type="button" data-action="copy" data-text="${esc(c.email)}" title="Másolás">${esc(c.email).replace('@','<wbr>@')}</button></div>`:'<div class="kv"><span>E-mail</span><span class="warn-txt">nincs megadva</span></div>'}
         ${c.dayRate!=null&&num(c.dayRate)?`<div class="kv"><span>Napidíj</span><b class="tnum">${huf(c.dayRate)}</b></div>`:''}</div>
       ${c.note?`<p class="pc-note">${esc(c.note)}</p>`:''}
+      ${penStrikeNote(c.id)}
       <div class="next"><span class="lbl">${next.length?`Következő beosztás (${next.length})`:'Nincs közelgő beosztás'}</span>
         ${next.slice(0,3).map(p=>`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(fmtShort(pr(p).start))} · ${esc(p.name||'Névtelen projekt')} <span class="muted">(${esc(role(p))})</span></button>`).join('')}</div>
     </article>`;}).join('');
