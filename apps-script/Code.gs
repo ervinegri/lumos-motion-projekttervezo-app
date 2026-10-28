@@ -772,7 +772,26 @@ function szamlazzTaxpayer_(taxNumber) {
   if (!name || !hq) throw new Error('A NAV nem adott vissza számlázási címet ehhez az adószámhoz.');
   const street = [xmlText_(hq, 'streetName'), xmlText_(hq, 'publicPlaceCategory'), xmlText_(hq, 'number')].filter(Boolean).join(' ');
   const extra = [xmlText_(hq, 'building') ? xmlText_(hq, 'building') + '. ép.' : '', xmlText_(hq, 'staircase') ? xmlText_(hq, 'staircase') + '. lh.' : '', xmlText_(hq, 'floor') ? xmlText_(hq, 'floor') + '. em.' : '', xmlText_(hq, 'door') ? xmlText_(hq, 'door') + '. ajtó' : ''].filter(Boolean).join(' ');
-  return { name: name, zip: xmlText_(hq, 'postalCode'), city: xmlText_(hq, 'city'), address: (street + (extra ? ' ' + extra : '')).trim() };
+  return { name: name, shortName: xmlText_(doc, 'taxpayerShortName'), zip: xmlText_(hq, 'postalCode'), city: xmlText_(hq, 'city'), street: xmlText_(hq, 'streetName'),
+    place: xmlText_(hq, 'publicPlaceCategory'), number: xmlText_(hq, 'number'), extra: extra, address: (street + (extra ? ' ' + extra : '')).trim() };
+}
+/* A NAV csupa nagybetűs adatait olvashatóvá tesszük: „SHOPRENTER KFT.” → „Shoprenter Kft.”, „DEBRECEN” → „Debrecen”. */
+const LEGAL_FORMS_ = { kft: 'Kft.', zrt: 'Zrt.', nyrt: 'Nyrt.', bt: 'Bt.', kkt: 'Kkt.', ev: 'e.v.', rt: 'Rt.', kht: 'Kht.', nkft: 'Nkft.', nonprofit: 'Nonprofit', egyesület: 'Egyesület', alapítvány: 'Alapítvány' };
+const SMALL_WORDS_ = { 'és': 1, 'a': 1, 'az': 1, 'of': 1, 'and': 1 };
+function prettyName_(s) {
+  s = String(s || '').replace(/\s+/g, ' ').trim();
+  if (!s || s !== s.toUpperCase()) return s;   // ha nem csupa nagybetű, úgy hagyjuk
+  return s.split(' ').map((w, i) => {
+    const bare = w.toLowerCase().replace(/\.$/, '');
+    if (LEGAL_FORMS_[bare]) return LEGAL_FORMS_[bare];
+    if (i > 0 && SMALL_WORDS_[bare]) return bare;
+    return w.toLowerCase().split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-');
+  }).join(' ');
+}
+function prettyAddress_(t) {
+  const lower = v => String(v || '').toLowerCase();
+  const street = [prettyName_(t.street), lower(t.place), String(t.number || '').toLowerCase()].filter(Boolean).join(' ');
+  return ((t.zip ? t.zip + ' ' : '') + prettyName_(t.city) + ', ' + street + (t.extra ? ' ' + lower(t.extra) : '')).trim().replace(/^,\s*/, '');
 }
 
 /** Cégadatok betöltése az adószám alapján (új ügyfél felvételekor): hivatalos név és székhely a NAV-ból. Az eredményt 6 órára gyorsítótárazza. */
@@ -780,12 +799,12 @@ function lookupTaxpayerApi_(arg) {
   const digits = String(arg && arg.tax || '').replace(/\D/g, '');
   if (digits.length < 8) throw new Error('Az adószám első 8 számjegye szükséges.');
   const key8 = digits.slice(0, 8), cache = CacheService.getScriptCache();
-  const hit = cache.get('tp_' + key8);
+  const hit = cache.get('tp2_' + key8);
   if (hit) { try { return JSON.parse(hit); } catch (e) {} }
   if (!szamlazzKey_()) throw new Error('A cégadatok automatikus betöltése még nincs beállítva.');
   const t = szamlazzTaxpayer_(key8);
-  const out = { name: t.name, address: (t.zip + ' ' + t.city + ', ' + t.address).trim().replace(/^,\s*/, '') };
-  try { cache.put('tp_' + key8, JSON.stringify(out), 21600); } catch (e) {}
+  const out = { name: prettyName_(t.shortName || t.name), fullName: t.name, address: prettyAddress_(t) };
+  try { cache.put('tp2_' + key8, JSON.stringify(out), 21600); } catch (e) {}
   return out;
 }
 
