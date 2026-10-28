@@ -347,6 +347,7 @@ function financePanel(p,inner){
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
+    ${finPanelBody(p)}
     <div class="sheet-wrap"><table class="sheet fin-sheet" style="width:${cols.reduce((x,y)=>x+y,0)}px;min-width:100%">
       <colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup>
       <thead><tr>${th('#',0,'n')}${th('Szakember neve',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}${th('',6)}</tr></thead>
@@ -354,7 +355,6 @@ function financePanel(p,inner){
       <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr>
         ${keretRows(p)}</tfoot>
     </table></div>
-    ${finPanelBody(p)}
   </div>`;
 }
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
