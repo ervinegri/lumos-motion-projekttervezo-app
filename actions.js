@@ -116,6 +116,15 @@ function hubspotModal(){
   hsSearch('');
 }
 let HS_T=0,HS_SEQ=0;
+async function hsInline(){   // az Új ügyfél / Ügyfél adatai ablakban: a beírt név vagy a cégnév alapján
+  const box=$('hsInline');if(!box||box.style.display==='none')return;const my=++HS_SEQ;
+  const q=($('m-contactName')||{}).value||'',client=($('m-client')||{}).value||'';
+  if(q.trim().length<2&&client.trim().length<2){box.innerHTML='<p class="hint">Írd be a cégnevet vagy a kapcsolattartó nevét, és itt megjelennek a HubSpot-találatok.</p>';return;}
+  box.innerHTML='<p class="hint">Keresés a HubSpotban…</p>';
+  try{const r=await call('hubspotContacts',q.trim().length>=2?{q:q.trim()}:{q:'',client:client.trim()});if(my!==HS_SEQ||!$('hsInline'))return;S._hsi=r||[];
+    $('hsInline').innerHTML=S._hsi.length?S._hsi.map((c,i)=>`<button type="button" class="hs-item" data-action="hs-ipick" data-i="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<p class="hint">Nincs találat a HubSpotban.</p>';}
+  catch(e){if($('hsInline'))$('hsInline').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
+}
 async function hsSearch(q){
   const box=$('hsList');if(!box)return;const my=++HS_SEQ;box.innerHTML='<p class="hint">Keresés…</p>';
   try{const r=await call('hubspotContacts',{q,client:(S.draft&&S.draft.client)||''});if(my!==HS_SEQ||!$('hsList'))return;S._hs=r||[];
@@ -123,9 +132,9 @@ async function hsSearch(q){
       :`<p class="hint">${q?'Nincs találat.':'Az ügyfél cégéhez nincs kapcsolattartó a HubSpotban – keress név vagy e-mail alapján.'}</p>`;}
   catch(e){if($('hsList'))$('hsList').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
-document.addEventListener('input',e=>{if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
+document.addEventListener('input',e=>{if(e.target.id==='m-contactName'||e.target.id==='m-client'){clearTimeout(HS_T);HS_T=setTimeout(hsInline,400);}if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
 function newClientModal(pre,edit){
-  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
+  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó <button class="linkbtn" type="button" data-action="hs-inline" style="font-size:12px;margin-left:6px">HubSpotból…</button>',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div></div>`,
     {submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
       closeModal();if(S.draft)setDraft(patch);}});
@@ -556,6 +565,12 @@ const ACT={
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
   'hs-open':()=>hubspotModal(),
+  'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},
+  'hs-ipick':b=>{const it=(S._hsi||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};
+    set('m-contactName',it.name);set('m-contactEmail',it.email);
+    const row=document.querySelector('#modalRoot .phone-row');if(row&&it.phone){const p=phParse(it.phone);row.querySelector('.ph-cc').value=p.cc;row.querySelector('.ph-num').value=phJoin(p.cc,p.n).replace(p.cc+' ','');phSync(row,false);}
+    if(!$('m-client').value&&it.company)set('m-client',it.company);
+    $('hsInline').style.display='none';toast('Kapcsolattartó kitöltve a HubSpotból');},
   'hs-pick':b=>{const it=(S._hs||[])[Number(b.dataset.i)];if(!it||!S.draft)return;closeModal();setDraft({contactName:it.name,contactPhone:it.phone?phJoin(phParse(it.phone).cc,phParse(it.phone).n):'',contactEmail:it.email});toast('Kapcsolattartó kitöltve a HubSpotból');},
   'nav-search':()=>{const n=$('m-client'),q=n?n.value.trim():'';if(q){try{navigator.clipboard.writeText(q);}catch(e){}}
     window.open('https://nav.gov.hu/adatbazisok/multilekerdezo','_blank','noopener');
