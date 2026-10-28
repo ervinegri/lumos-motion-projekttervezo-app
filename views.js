@@ -220,7 +220,7 @@ function viewOverview(){
       ${tile(open.length,ro()?'aktív beosztásod':'aktív projekt')}
       ${tile(next30.length,'rendezvény a következő 30 napban')}
       ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:''):''}
-      ${tile(issues.length,'figyelmeztetés',issues.length?'warn':'')}
+      ${ro()?'':tile(issues.length,'figyelmeztetés',issues.length?'warn':'')}
     </div>
     <div class="grid2">
       <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
@@ -230,7 +230,7 @@ function viewOverview(){
         <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
     ${ro()?crewMonthsPanel():''}
-    <div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`;
+    ${ro()?'':`<div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`}`;
 }
 
 // szakember: projektjei hónapokra bontva, havi díjösszeggel
