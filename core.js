@@ -136,6 +136,17 @@ function staffing(p){
 /* A projektlistában a szerkesztés alatt álló vázlatot használjuk, hogy az ütközések azonnal látszódjanak. */
 function allProjects(){if(!S.draft)return S.projects;return S.projects.map(p=>p.id===S.draft.id?S.draft:p);}
 function liveProjects(){const T=todayISO();return allProjects().filter(p=>p.status!=='lemondva'&&p.status!=='atadva'&&pr(p)&&pr(p).end>=T);}
+/* Utazási tartalék: azonos napon, egymás után következő munkák között ennyi perc kell (utazás + esetleges késés). */
+const TRAVEL_BUFFER_MIN=60;
+const hhmm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+/* Két egynapos, azonos napi, nem átfedő munka közötti szünet percben (ha értelmezhető), különben null. */
+function gapBetween(p,q){
+  const a=pr(p),b=pr(q);if(!a||!b||a.start!==a.end||b.start!==b.end||a.start!==b.start)return null;
+  const x=timeWin(p),y=timeWin(q);if(!x||!y||(x.s<y.e&&y.s<x.e))return null;
+  return x.e<=y.s?{gap:y.s-x.e,first:p,second:q,end:x.e,start:y.s}:{gap:x.s-y.e,first:q,second:p,end:y.e,start:x.s};
+}
+function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&crewIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
+const tightText=g=>`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges késéssel is.`;
 function busyFor(personId,p){const r=pr(p);if(!r)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&crewIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
@@ -145,6 +156,11 @@ function computeIssues(){
     const B=crewIds(b);
     for(const id of crewIds(a))if(B.has(id)){const c=crewById(id);
       out.push({level:'bad',text:`${c?c.name:'Egy munkatárs'} egyszerre két projektre van beosztva (${fmtShort(pr(a).start>pr(b).start?pr(a).start:pr(b).start)}).`,pids:[a.id,b.id]});}
+  }
+  for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
+    const g=gapBetween(live[i],live[j]);if(!g||g.gap>=TRAVEL_BUFFER_MIN)continue;
+    const B=crewIds(live[j]);const names=[...crewIds(live[i])].filter(id=>B.has(id)).map(id=>(crewById(id)||{}).name).filter(Boolean);
+    if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges késéssel is.`,pids:[live[i].id,live[j].id]});
   }
   const seen=new Set();
   for(const it of S.inventory){
