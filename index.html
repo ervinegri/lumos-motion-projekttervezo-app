@@ -251,6 +251,18 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .tight-note{margin:0;padding:8px 10px;border-radius:10px;background:#fff6e0;color:#7a5200;font-size:13px;line-height:1.45}
 .panel.combo{margin-top:18px}
 .panel.content{margin-top:18px}
+.fin-sheet{table-layout:fixed;min-width:0}
+.fin-sheet th{position:relative;overflow:hidden;text-overflow:ellipsis}
+.col-grip{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;z-index:2;touch-action:none}
+.col-grip::after{content:"";position:absolute;top:20%;bottom:20%;left:4px;width:2px;border-radius:2px;background:transparent}
+.fin-sheet th:hover .col-grip::after,.col-resizing .col-grip::after{background:var(--accent)}
+body.col-resizing{cursor:col-resize;user-select:none}
+.cell-ro{padding:10px;font-size:14px;line-height:1.35;color:var(--fg);background:repeating-linear-gradient(0deg,transparent,transparent)}
+.fin-sheet tfoot .budget-tr td{background:#fff;font-weight:700;border-top:1px solid var(--line)}
+.fin-sheet .budget-row{display:flex;gap:6px;max-width:420px}
+.fin-sheet .budget-row .money{flex:1}
+.pcrew-top{position:relative}
+.pcrew-x{position:absolute;top:-4px;right:-4px}
 .panel.content,.crew-wide,.crew-wide>.panel,.panel.fin{width:100%;box-sizing:border-box;align-self:stretch}
 .crew-wide{margin-top:18px}
 .crew-wide .pcrew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
