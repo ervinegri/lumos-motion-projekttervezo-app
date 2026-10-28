@@ -35,7 +35,8 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 
 ## Fontos szabályok
 - Az app NEM kezel árakat (a Projekttervező nem férhet hozzá a Lumos árakhoz). A megrendelt tartalmakból csak az operatőrszám számolódik.
-- Belépés e-mail-címmel + 6 jegyű PIN, gomb nélkül (6. számjegy után belép), „Elfelejtettem a PIN-kódom” (10 perc / fő, 30 / óra).
+- Belépés csak Google-fiókkal (Google Identity Services, OAuth Client ID a config.js-ben és a Code.gs-ben; Google Cloud projekt: lumos-motion-projekttervezo, External, In production). Céges címnél csak a lumosmotion.com Workspace-fiók (hd) fogadható el. Csak a Beállítások → Hozzáférések listában szereplő aktív címek léphetnek be. A PIN-es belépés megszűnt; vészhelyzetben a PIN_LOGIN_ENABLED=true Script Property és a /#pin cím kapcsolja vissza.
+- Biztonsági fejlécek (CSP stb.) a vercel.json-ban.
 - Új oszlop csak a munkalap végére kerülhet; fejlécet átnevezni nem szabad (a háttér ellenőrzi).
 - Kategóriák (Leltár): Kamera, Objektív, Hang, Fény, Drón, Képkeverés / stream, GoPro / akciókamera, Gimbal / állvány, Akku / powerbank / táp, Adathordozó, Laptop / tablet / telefon, Kocsi / szállítás, Kábel, Egyéb. Állapot: Üzemképes, Javításra vár, Szervizben, Selejtezett.
 - Pénzmezők: csak szám, mindig ezres tagolás, „Ft”; napidíjnál ± 1000 Ft gomb, beszerzési értéknél nincs.

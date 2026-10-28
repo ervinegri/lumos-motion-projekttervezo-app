@@ -2,13 +2,15 @@
 /* ===== Belépés (a Sales App belépőjével egyező működés) ===== */
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.classList.toggle('info',!!info);}
-/* Google-fiókos belépés (Google Identity Services). Ha nincs beállítva ügyfél-azonosító, csak a PIN-es belépés látszik. */
+/* Belépés csak Google-fiókkal (Google Identity Services). A PIN-es űrlap csak vészhelyzetben, a #pin címen jelenik meg
+   (és csak akkor működik, ha a háttérben a PIN_LOGIN_ENABLED be van kapcsolva). */
 const G_CLIENT=String(window.LUMOS_GOOGLE_CLIENT_ID||'').trim();
-let gReady=false,pinShown=false;
-function setPinMode(on){pinShown=on;$('pinBox').hidden=!!G_CLIENT&&!on;$('gBox').hidden=!G_CLIENT;$('showPin').hidden=on;}
+const PIN_EMERGENCY=location.hash==='#pin'||!G_CLIENT;
+let gReady=false,pinShown=PIN_EMERGENCY;
+function setPinMode(on){$('pinBox').hidden=!on;$('gBox').hidden=!G_CLIENT;}
 function initGoogle(tries){
   if(!G_CLIENT||gReady)return;
-  if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<40)setTimeout(()=>initGoogle((tries||0)+1),150);else{loginMsg('A Google-belépés most nem töltődött be. Lépj be PIN-kóddal.');setPinMode(true);}return;}
+  if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');return;}
   gReady=true;
   google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
   google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:Math.min(360,$('gBtn').clientWidth||320)});
@@ -23,7 +25,6 @@ async function onGoogleCredential(resp){
     await load();
   }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');}
 }
-$('showPin').addEventListener('click',()=>{setPinMode(true);setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},30);});
 function showLogin(msg){
   $('loginGate').classList.remove('hidden');
   setPinMode(pinShown);initGoogle();
