@@ -303,9 +303,9 @@ function parseFees_(raw) {
   if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map(x => ({
-    name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120),
+    name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
     amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0)
-  })).filter(x => x.name || x.task || x.amount || x.rent);
+  })).filter(x => x.name || x.task || x.gear || x.amount || x.rent);
 }
 function projectView_(p, u) {
   const q = Object.assign({}, p);
