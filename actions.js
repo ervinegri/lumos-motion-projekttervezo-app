@@ -283,7 +283,7 @@ function syncFeesWithCrew(d){
   ids.forEach(id=>{const c=crewById(id);let f=fees.find(x=>x.crewId===id)||fees.find(x=>!x.crewId&&c&&x.name===c.name);
     if(!f){fees.push({name:c?c.name:'',crewId:id,task:rolesOf(id),autoTask:true,amount:c&&num(c.dayRate)?num(c.dayRate)*days:'',rent:''});added++;}
     else{f.crewId=id;if(f.autoTask||!f.task)f.task=rolesOf(id),f.autoTask=true;}});
-  fees=fees.filter(f=>!f.crewId||ids.includes(f.crewId));   // aki lekerült a projektről, annak a sora is (Ctrl/⌘+Z visszahozza)
+  fees=fees.filter(f=>!f.crewId||ids.includes(f.crewId)||num(f.amount)||num(f.rent));
   d.fees=fees;if(added)FOLD.fin=true;
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
@@ -388,9 +388,6 @@ const ACT={
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.k==='er_rooms'?Math.max(1,num(d[it.k])||1):num(d[it.k]);setDraft({[it.k]:Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)))});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'view-reset':()=>guard(()=>switchView('admin')),
-  'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);
-    const crew=(d.crew||[]).filter(a=>a.crewId!==id);let moved=0;const equipment=(d.equipment||[]).map(e=>{if(e.crewId===id){moved++;return Object.assign({},e,{crewId:''});}return e;});
-    setDraft({crew,lead:d.lead===id?'':d.lead,equipment});toast((c?c.name:'Munkatárs')+' lekerült a projektről'+(moved?', az eszközei a Közös eszközökhöz kerültek':'')+'. Ctrl/⌘+Z visszahozza.');},
   'undo':()=>histStep(-1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
@@ -455,7 +452,6 @@ document.addEventListener('input',e=>{
     if(!S.dirty){S.dirty=true;renderChrome();}
     const fc=document.querySelector('.fin-calc');if(fc)fc.innerHTML=finSumHtml(S.draft);   // összesítő élőben, újrarajzolás nélkül (a fókusz megmarad)
     const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
-    {const bc=budgetCells(S.draft),fl=document.querySelector('.fin-left'),fll=document.querySelector('.fin-left-lbl');if(fl)fl.innerHTML=bc.left||'<span class="muted">–</span>';if(fll)fll.textContent=bc.leftLbl;}
     const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
     if(ea)ea.textContent=moneyFmt(fsum('amount'))||0;if(er)er.textContent=moneyFmt(fsum('rent'))||0;
   }
@@ -491,15 +487,3 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
 
 /* ===== Indítás ===== */
 if(TOKEN)load();else{VIEW.innerHTML='';showLogin('');}
-
-/* Pénzügyek táblázat: oszlopszélesség húzással (egér és érintés), böngészőnként megjegyezve. */
-document.addEventListener('pointerdown',e=>{
-  const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;
-  e.preventDefault();e.stopPropagation();
-  const table=g.closest('table'),cols=[...table.querySelectorAll('col')],i=Number(g.dataset.col),startX=e.clientX,startW=cols[i].getBoundingClientRect().width||parseInt(cols[i].style.width,10);
-  const widths=cols.map(c=>parseInt(c.style.width,10));document.body.classList.add('col-resizing');
-  const move=ev=>{const w=Math.max(40,Math.round(startW+ev.clientX-startX));widths[i]=w;cols[i].style.width=w+'px';table.style.width=widths.reduce((a,b)=>a+b,0)+'px';};
-  const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.body.classList.remove('col-resizing');try{localStorage.setItem('lpm_fin_cols',JSON.stringify(widths));}catch(err){}};
-  document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
-});
-document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols');}catch(err){}render(true);});
