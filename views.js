@@ -139,7 +139,9 @@ function render(force){
 }
 
 /* közös elemek */
-function statusPill(p){const s=p.status||'egyeztetes';return `<span class="statuspill st-${esc(s)}">${esc(STATUS_LABEL[s]||s)}</span>`;}
+/* Átadandó anyag nélküli projektnél az utolsó lépés neve „Kész” (nincs mit átadni). */
+const stageLabel=(p,id)=>id==='atadva'&&!needsDelivery(p)?'Kész':(STATUS_LABEL[id]||id);
+function statusPill(p){const s=p.status||'egyeztetes';return `<span class="statuspill st-${esc(s)}">${esc(stageLabel(p,s))}</span>`;}
 function calBlock(iso){
   if(!validISO(iso))return `<span class="cal none" aria-hidden="true"><span class="cal-m">—</span><span class="cal-d">?</span></span>`;
   const d=toDate(iso);
@@ -269,53 +271,6 @@ function budgetFt(p){
   return num(v);
 }
 const pctFmt=x=>(Math.round(x*10)/10).toLocaleString('hu-HU')+'%';
-/* ===== Stáb + díjak egy táblázatban (ügyvezető, termelési vezető) =====
-   Soronként egy ember: kiválasztod a stábból (vagy „egyéb név”, pl. fuvar, külsős vágó), feladat(ok), díj, eszközök, eszközbérlés,
-   és soronként másolható / kiküldhető az eszközlistája. A sorokból számoljuk a beosztást (crew, lead) is. */
-const ROW_MIN=5,OFFSITE='Nem helyszíni';
-function rowsOf(p){
-  const rows=(p.fees||[]).map(r=>Object.assign({roles:[]},r,{roles:(r.roles||[]).slice()}));
-  rows.forEach(r=>{if(!r.crewId&&(r.name||r.task)&&!r.kind)r.kind='other';});
-  [...crewIds(p)].forEach(id=>{
-    const roles=[];if(p.lead===id)roles.push('Projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===id&&!roles.includes(a.role))roles.push(a.role);});
-    const r=rows.find(x=>x.crewId===id);
-    if(r){const off=r.roles.includes(OFFSITE);r.roles=roles.length?roles:(off?[OFFSITE]:roles);if(!r.name){const c=crewById(id);r.name=c?c.name:'';}}
-    else{const c=crewById(id);rows.push({crewId:id,name:c?c.name:'',roles,amount:'',rent:''});}
-  });
-  return rows;
-}
-function rowDays(p){const r=pr(p);return r?diffDays(r.start,r.end)+1:1;}
-function crewTableHtml(p){
-  const rows=rowsOf(p),n=Math.max(ROW_MIN,rows.length),opts=itemOptions(p);
-  const used=new Set(rows.map(r=>r.crewId).filter(Boolean));
-  const people=S.crew.slice().sort((a,b)=>prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));
-  const money=(i,k,v)=>`<input class="cell-in num" type="text" data-fee-i="${i}" data-fee-k="${k}" data-money="1" inputmode="numeric" autocomplete="off" value="${num(v)?esc(moneyFmt(v)):''}" placeholder="0" aria-label="${k==='amount'?'Díj':'Eszközbérlés'}">`;
-  const eqChips=key=>(p.equipment||[]).map((e,ix)=>({e,ix})).filter(x=>(x.e.crewId||'')===key).map(({e,ix})=>{const it=itemById(e.itemId);return `<span class="chip-s" title="${esc(it?(it.serial||'')+(it.location?' · '+it.location:''):'')}">${num(e.qty)>1?num(e.qty)+'× ':''}${esc(it?it.name:'Törölt eszköz')}<button type="button" data-action="eq-remove" data-i="${ix}" aria-label="Eszköz levétele">×</button></span>`;}).join('');
-  const eqSel=key=>S.inventory.length?`<select class="cell-sel" data-row-eq="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ eszköz</option>${opts}</select>`:'';
-  const body=Array.from({length:n},(_,i)=>{
-    const f=rows[i]||{roles:[]},cid=f.crewId||'',other=!cid&&f.kind==='other';
-    const c=cid?crewById(cid):null,busy=cid?busyFor(cid,p):[],tight=cid?tightFor(cid,p):[];
-    const person=other?`<div class="cell-other"><input class="cell-in" type="text" data-fee-i="${i}" data-fee-k="name" value="${esc(f.name||'')}" placeholder="Név (pl. fuvar, külsős vágó)" aria-label="Név"><button type="button" class="cell-x" data-action="row-unother" data-i="${i}" title="Vissza a stáblistához">↺</button></div>`
-      :`<select class="cell-sel strong" data-row-person="${i}" aria-label="Szakember"><option value="">${i<rows.length?'—':'Válassz szakembert…'}</option>${people.map(x=>`<option value="${esc(x.id)}"${x.id===cid?' selected':''}${x.id!==cid&&used.has(x.id)?' disabled':''}>${esc(x.name)}${x.id!==cid&&busyFor(x.id,p).length?' – foglalt':''}</option>`).join('')}${cid&&!c?`<option value="${esc(cid)}" selected>Törölt munkatárs</option>`:''}<option value="__other">Egyéb név (nem a stábból)…</option></select>`;
-    const warn=(busy.length?`<div class="cell-warn bad">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</div>`:'')+tight.map(g=>`<div class="cell-warn" title="${esc(tightText(g).replace(/<[^>]+>/g,''))}">⏱️ szoros váltás (${g.gap} perc)</div>`).join('');
-    const free=CREW_ROLES.concat([OFFSITE]).filter(r=>!(f.roles||[]).includes(r));
-    const task=other?`<input class="cell-in" type="text" data-fee-i="${i}" data-fee-k="task" value="${esc(f.task||'')}" placeholder="Feladat, pl. Kreatív vágó" aria-label="Feladat">`
-      :cid?`<div class="chips-s">${(f.roles||[]).map(r=>`<span class="chip-s${r===OFFSITE?' off':''}">${esc(r)}<button type="button" data-action="row-role-x" data-i="${i}" data-r="${esc(r)}" aria-label="Feladat levétele">×</button></span>`).join('')}<select class="cell-sel" data-row-addrole="${i}" aria-label="Feladat hozzáadása"><option value="">+ feladat</option>${free.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>`:'<span class="muted">—</span>';
-    const offOnly=(f.roles||[]).length>0&&(f.roles||[]).every(r=>r===OFFSITE);
-    const gear=cid&&!offOnly?`<div class="chips-s">${eqChips(cid)}${eqSel(cid)}</div>`:(f.gear?`<span class="muted">${esc(f.gear)}</span>`:'<span class="muted">—</span>');
-    const has=!!(c&&EMAIL_RE.test(c.email||''));
-    const acts=cid?`<button type="button" class="cell-btn" data-action="row-copy" data-i="${i}" title="Eszközlista másolása">📋</button><button type="button" class="cell-btn" data-action="row-send" data-i="${i}" title="${has?'Eszközlista küldése: '+esc(c.email):'Nincs e-mail-cím a Stáb fülön'}"${has?'':' disabled'}>✉️</button>`:'';
-    return `<tr class="${cid||other?'':'blank'}"><td class="n">${i+1}</td><td>${person}${warn}</td><td>${task}</td><td>${money(i,'amount',f.amount)}</td><td>${gear}</td><td>${money(i,'rent',f.rent)}</td><td class="acts">${acts}</td><td class="x-c">${i<rows.length?`<button class="x w" type="button" data-action="fee-remove" data-i="${i}" aria-label="Sor törlése">×</button>`:''}</td></tr>`;
-  }).join('');
-  const amt=rows.reduce((s,f)=>s+num(f.amount),0),rent=rows.reduce((s,f)=>s+num(f.rent),0);
-  const common=`<tr class="common"><td class="n"></td><td><b>Közös eszközök</b><div class="muted" style="font-size:12px">nincs felelőshöz rendelve</div></td><td></td><td></td><td><div class="chips-s">${eqChips('')}${eqSel('')}</div></td><td></td><td></td><td></td></tr>`;
-  return `<div class="sheet-wrap"><table class="sheet crew-sheet">
-      <colgroup><col style="width:36px"><col style="width:210px"><col style="width:250px"><col style="width:120px"><col><col style="width:120px"><col style="width:92px"><col style="width:40px"></colgroup>
-      <thead><tr><th class="n">#</th><th>Szakember</th><th>Termelői feladat</th><th class="r">Díj (Ft)</th><th>Eszközök</th><th class="r">Eszközbérlés (Ft)</th><th>Lista</th><th></th></tr></thead>
-      <tbody>${body}${common}</tbody>
-      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${moneyFmt(amt)||0}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td><td></td></tr></tfoot>
-    </table></div>`;
-}
 function finPanelBody(p){
   const adm=isAdmin(),val=num(p.projectValue),k=budgetFt(p);
   const pctV=p.budgetMode==='pct'?(p.budgetVal===''||p.budgetVal==null?'':String(p.budgetVal).replace('.',',')):(k!=null&&val>0?String(Math.round(k/val*1000)/10).replace('.',','):'');
@@ -346,15 +301,22 @@ function finAside(p){
   if(isAdmin()&&val>0)parts.push('fedezet '+pctFmt((val-sum)/val*100));
   return parts.join(' · ')||'nincs kitöltve';
 }
-/* Stáb, eszközök és pénzügyek egy blokkban (ügyvezető és termelési vezető), lenyíló panelként. */
-function comboPanel(p,st,c){
-  const adm=isAdmin(),ids=[...crewIds(p)],hasEq=(p.equipment||[]).length;
-  return `<details class="panel fold combo" data-fold="combo"${FOLD.combo!==false?' open':''}><summary><h3>👥 Stáb, eszközök és ${adm?'pénzügyek':'termelői díjak'} <span class="aside fin-aside">${ids.length} fő · ${eqCount(p)} eszköz · ${finAside(p)}</span></h3></summary>
-    <div class="need" style="margin-top:12px">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
-    <p class="hint">A megrendelt tartalmak alapján ${c.ops} operatőr kell. 🔒 ${adm?'A díjakat a termelési vezető is látja, a projekt értékét, a fedezetet és a keret százalékát csak te.':'A díjakat a szakemberek nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
-    ${crewTableHtml(p)}
-    <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fee-add">+ Sor</button><button class="btn ghost small" type="button" data-action="undo" title="Visszavonás (Ctrl/⌘+Z)">↶ Visszavonás</button><button class="btn ghost small" type="button" data-action="redo" title="Mégis (Ctrl/⌘+Shift+Z)">↷ Mégis</button>${hasEq||ids.length?`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése mindenkinek</button><button class="btn outline small" type="button" data-action="copy-pack">📋 Teljes eszközlista másolása</button>`:''}</div>
-    ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}
+/* Pénzügyek: lenyíló táblázat (ügyvezető: érték, díjak, keret, fedezet; termelési vezető: díjak és keret Ft-ban). */
+function financePanel(p){
+  if(!canSeeFees())return '';
+  const fees=p.fees||[],adm=isAdmin();
+  const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
+  const rows=fees.map((f,i)=>`<tr><td class="n">${i+1}</td><td>${tin(i,'name',f.name,'Név',{list:'fee-names'})}</td><td>${tin(i,'task',f.task||(f.roles||[]).join(' + '),'Feladat')}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${tin(i,'gear',f.gear,'Eszköz neve')}</td><td>${tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c"><button class="x w" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése">×</button></td></tr>`).join('');
+  const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+num(f.rent),0);
+  return `<details class="panel fold fin" data-fold="fin"${FOLD.fin?' open':''}><summary><h3>💰 ${adm?'Pénzügyek':'Termelői díjak'} <span class="aside fin-aside">${finAside(p)}</span></h3></summary>
+    <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét, a fedezetet és a keret százalékát csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
+    <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
+    <div class="sheet-wrap"><table class="sheet">
+      <thead><tr><th class="n">#</th><th>Szakember neve</th><th>Termelői feladat</th><th class="r">Díj (Ft)</th><th>Eszköz neve</th><th class="r">Eszközbérlés (Ft)</th><th></th></tr></thead>
+      <tbody>${rows||`<tr><td colspan="7" class="empty-row">Még nincs tétel. A „Beosztottak felvétele” a stábból kitölti a napidíj és a náluk lévő eszközök alapján.</td></tr>`}</tbody>
+      <tfoot><tr><td></td><td colspan="2">Összesen</td><td class="r fin-amt">${moneyFmt(amt)||0}</td><td></td><td class="r fin-rent">${moneyFmt(rent)||0}</td><td></td></tr></tfoot>
+    </table></div>
+    <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fee-add">+ Sor</button><button class="btn outline small" type="button" data-action="fee-fill">👥 Beosztottak felvétele</button></div>
     ${finPanelBody(p)}
   </details>`;
 }
@@ -376,7 +338,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
   const eqN=eqCount(p),hasEq=(p.equipment||[]).length;
   const aside=`${ids.length} fő · ${eqN} eszköz`;
   const body=`<div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}">${esc(s.role)} ${s.have}/${s.need}</span>`).join('')}</div>
-    <p class="hint">A megrendelt videók alapján ${c.ops} operatőr kell. Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
+    <p class="hint">Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
     <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
       ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
     <div class="pcrew-list">${cards||empty('Még nincs beosztva senki.')}</div>
@@ -396,7 +358,7 @@ function viewProject(p){
   const status=p.status||'egyeztetes',curIdx=STAGES.findIndex(s=>s.id===status);
   // átadandó anyag nélkül nincs utómunka lépés (kivéve, ha a projekt épp abban az állapotban van)
   const stList=STAGES.map((s,i)=>({s,i})).filter(x=>x.s.id!=='utomunka'||needsDelivery(p)||status==='utomunka');
-  const stages=stList.map(({s,i},k)=>`<button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${s.label}</span></button>`).join('');
+  const stages=stList.map(({s,i},k)=>`<button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>`).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
   const ex=EXTRAS.filter(e=>e.k!=='x_foto').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
@@ -478,13 +440,13 @@ function viewProject(p){
       </details>
     </div>
     <div class="col">
-      ${canSeeFees()?'':crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}
+      ${crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}
       <div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
           <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
         ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}`:`<p class="hint" style="margin:6px 0 0">Nincs átadandó anyag, így átadási határidő sincs: nincs kiválasztva kreatív tartalom, fotó vagy előadás-utómunka.${ro()?'':` <button type="button" class="linkbtn" data-action="due-custom">Határidő megadása mégis</button>`}</p>`}
-        ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>Átadva</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
+        ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>${esc(stageLabel(p,'atadva'))}</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
         ${needsDelivery(p)||p.deliveryLink?`<div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>`:''}
       </div>
       ${ro()?'':`<div class="panel"><h3>Projekt kezelése</h3>
@@ -493,7 +455,7 @@ function viewProject(p){
       </div>`}
     </div>
   </div>
-  ${canSeeFees()?comboPanel(p,st,c):''}`;
+  ${financePanel(p)}`;
 }
 
 /* ===== Stáb ===== */

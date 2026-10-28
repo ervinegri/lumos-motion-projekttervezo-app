@@ -312,17 +312,6 @@ function saveDraft(){
   });
   return SAVE_Q;
 }
-/* A táblázat sorai → beosztás (crew, lead) és eszközök; a sorokból kikerült ember eszközei a közösbe kerülnek. */
-function commitRows(rows){
-  const d=S.draft;if(!d)return;
-  rows=rows.map(r=>Object.assign({},r,{roles:(r.roles||[]).slice()}));
-  let lead='';const crew=[];
-  rows.forEach(r=>{if(!r.crewId)return;(r.roles||[]).forEach(role=>{if(role===OFFSITE)return;if(role==='Projektvezető'){if(!lead)lead=r.crewId;}else if(!crew.some(a=>a.crewId===r.crewId&&a.role===role))crew.push({crewId:r.crewId,role});});});
-  let moved=0;const equipment=(d.equipment||[]).map(e=>{if(e.crewId&&!rows.some(r=>r.crewId===e.crewId)){moved++;return Object.assign({},e,{crewId:''});}return e;});
-  while(rows.length&&!rows[rows.length-1].crewId&&!rows[rows.length-1].name&&!rows[rows.length-1].task&&!num(rows[rows.length-1].amount)&&!num(rows[rows.length-1].rent)&&rows.length>ROW_MIN&&rows[rows.length-1].kind!=='other')rows.pop();
-  setDraft({fees:rows,crew,lead,equipment});
-  if(moved)toast('A nála lévő eszközök a Közös eszközökhöz kerültek.');
-}
 function personList(p,cid){
   const c=crewById(cid);const lines=[`Eszközlista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,'',((c&&c.name)||'?').toUpperCase()];
   const mine=(p.equipment||[]).filter(e=>e.crewId===cid).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
@@ -388,12 +377,15 @@ const ACT={
   'view-reset':()=>guard(()=>switchView('admin')),
   'undo':()=>histStep(-1),
   'redo':()=>histStep(1),
-  'fee-add':()=>{const d=S.draft;if(!d)return;const rows=rowsOf(d);while(rows.length<Math.max(ROW_MIN,rows.length))rows.push({roles:[]});rows.push({roles:[]});commitRows(rows);},
-  'fee-remove':b=>{const d=S.draft;if(!d)return;const rows=rowsOf(d);rows.splice(Number(b.dataset.i),1);commitRows(rows);},
-  'row-role-x':b=>{const d=S.draft;if(!d)return;const rows=rowsOf(d),r=rows[Number(b.dataset.i)];if(!r)return;r.roles=(r.roles||[]).filter(x=>x!==b.dataset.r);commitRows(rows);},
-  'row-unother':b=>{const d=S.draft;if(!d)return;const rows=rowsOf(d),r=rows[Number(b.dataset.i)];if(!r)return;Object.assign(r,{kind:'',name:'',task:''});commitRows(rows);},
-  'row-copy':b=>{const d=S.draft;if(!d)return;const r=rowsOf(d)[Number(b.dataset.i)];if(r&&r.crewId)copyText(personList(d,r.crewId),'Eszközlista a vágólapon');},
-  'row-send':b=>{const d=S.draft;if(!d)return;const r=rowsOf(d)[Number(b.dataset.i)];if(r&&r.crewId)sendListModal(r.crewId);},
+  'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
+  'fee-remove':b=>{const d=S.draft;if(!d)return;const fees=(d.fees||[]).slice();fees.splice(Number(b.dataset.i),1);setDraft({fees});},
+  'fee-fill':()=>{const d=S.draft;if(!d)return;const r=pr(d),days=r?diffDays(r.start,r.end)+1:1;const fees=(d.fees||[]).slice();let n=0;
+    [...crewIds(d)].forEach(id=>{const c=crewById(id);if(!c||fees.some(f=>f.crewId===id||f.name===c.name))return;
+      const roles=[];if(d.lead===id)roles.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id)roles.push(a.role);});
+      const gear=(d.equipment||[]).filter(e=>e.crewId===id).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?e.qty+'× ':'')+it.name:'';}).filter(Boolean).join(', ');
+      fees.push({name:c.name,crewId:id,task:roles.join(' + '),amount:num(c.dayRate)?num(c.dayRate)*days:'',gear,rent:''});n++;});
+    if(!n){toast(crewIds(d).size?'Minden beosztott szerepel már a listában.':'Előbb osszál be stábot a projektre.',true);return;}
+    setDraft({fees});toast(n+' tétel felvéve'+(days>1?' ('+days+' napra)':''));},
   'due-reset':()=>{if(S.draft)setDraft({dueAt:''});},
   'due-custom':()=>{const d=S.draft;if(!d)return;const r=pr(d);if(!r){toast('Előbb add meg a dátumot.',true);return;}setDraft({dueAt:addDays(r.end,1)});},
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
@@ -442,12 +434,12 @@ document.addEventListener('input',e=>{
     else if(t.dataset.fin==='projectValue'){const dg=String(t.value).replace(/\D/g,'');S.draft.projectValue=dg===''?null:Math.min(9999999999,Number(dg));const nv=num(S.draft.projectValue);
       if(S.draft.budgetMode==='pct'){const o=$('f-budgetFt');if(o)o.value=nv>0&&S.draft.budgetVal!==''?moneyFmt(Math.round(nv*S.draft.budgetVal/100)):'';}else if(S.draft.budgetMode==='ft'){const o=$('f-budgetPct');if(o)o.value=nv>0?String(Math.round(num(S.draft.budgetVal)/nv*1000)/10).replace('.',','):'';}}
 
-    else{const fees=S.draft.fees=rowsOf(S.draft);const fi=Number(t.dataset.feeI);while(fees.length<=fi)fees.push({roles:[]});const f=fees[fi];if(f){const k=t.dataset.feeK;
+    else{const fees=S.draft.fees=(S.draft.fees||[]).map(x=>Object.assign({},x)),f=fees[Number(t.dataset.feeI)];if(f){const k=t.dataset.feeK;
       if(k==='amount'||k==='rent')f[k]=moneyVal(t.value);else{f[k]=t.value;if(k==='name'){const c=S.crew.find(x=>x.name===t.value.trim());f.crewId=c?c.id:'';}}}}
     if(!S.dirty){S.dirty=true;renderChrome();}
     const fc=document.querySelector('.fin-calc');if(fc)fc.innerHTML=finSumHtml(S.draft);   // összesítő élőben, újrarajzolás nélkül (a fókusz megmarad)
-    const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=[...crewIds(S.draft)].length+' fő · '+eqCount(S.draft)+' eszköz · '+finAside(S.draft);
-    const fsum=k=>rowsOf(S.draft).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
+    const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
+    const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
     if(ea)ea.textContent=moneyFmt(fsum('amount'))||0;if(er)er.textContent=moneyFmt(fsum('rent'))||0;
   }
   if(t.dataset.money==='big'){const pos=t.value.length-t.selectionStart;const d=String(t.value).replace(/\D/g,'');t.value=d===''?'':moneyFmt(Math.min(9999999999,Number(d)));try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
@@ -463,17 +455,6 @@ document.addEventListener('change',e=>{
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d)return;
-  if(t.dataset.rowPerson!==undefined&&d){const i=Number(t.dataset.rowPerson),rows=rowsOf(d);while(rows.length<=i)rows.push({roles:[]});const r=rows[i],v=t.value;
-    if(v==='__other'){Object.assign(r,{kind:'other',crewId:'',name:'',roles:[]});commitRows(rows);setTimeout(()=>{const e=document.querySelector(`[data-fee-i="${i}"][data-fee-k=name]`);if(e)e.focus();},30);return;}
-    if(!v){Object.assign(r,{crewId:'',name:'',roles:[]});commitRows(rows);return;}
-    const c=crewById(v);if(!c)return;if(rows.some((x,k)=>k!==i&&x.crewId===v)){toast(c.name+' már szerepel a táblázatban.',true);render(true);return;}
-    Object.assign(r,{crewId:v,name:c.name,kind:''});if(!(r.roles||[]).length)r.roles=[(c.roles||[]).find(x=>CREW_ROLES.includes(x))||'Operatőr'];
-    if(!num(r.amount)&&num(c.dayRate))r.amount=num(c.dayRate)*rowDays(d);
-    commitRows(rows);return;}
-  if(t.dataset.rowAddrole!==undefined&&d){if(!t.value)return;const rows=rowsOf(d),r=rows[Number(t.dataset.rowAddrole)];if(!r)return;
-    r.roles=t.value===OFFSITE?[OFFSITE]:(r.roles||[]).filter(x=>x!==OFFSITE).concat([t.value]);commitRows(rows);return;}
-  if(t.dataset.rowEq!==undefined&&d){if(!t.value)return;const key=t.dataset.rowEq,equipment=clone(d.equipment||[]);const ex=equipment.find(e=>e.itemId===t.value&&(e.crewId||'')===key);
-    if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:t.value,qty:1,crewId:key});setDraft({equipment});return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
     setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:{[k]:n});return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
