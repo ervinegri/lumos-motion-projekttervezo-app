@@ -106,22 +106,29 @@ async function taxLookup(){
   finally{if(b){b.disabled=false;b.textContent='Cégadatok betöltése';}}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-clientTax'){const t=e.target,d=t.value.replace(/\D/g,'');if(d.length===11&&!t._done){t._done=1;t.value=d.slice(0,8)+'-'+d[8]+'-'+d.slice(9);taxLookup();}else if(d.length<11)t._done=0;}});   // teljes adószámnál magától betölt
-function newClientModal(){
+function newClientModal(pre){
   openModal('Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${mf('contactPhone','Telefon',{type:'tel',ph:'+36 …',max:40})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
     {submitLabel:'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v)patch[k]=v;});
       closeModal();if(S.draft)setDraft(patch);}});
+  if(pre){const n=$('m-client');if(n)n.value=pre;}
 }
-function clientSearch(input){
-  pickItems=knownClients(input.value.trim());
-  if(!pickItems.length){pickClose();return;}
-  pickShow(input,pickItems.map((it,i)=>`<button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||'nincs kapcsolattartó megadva')}</small></button>`).join(''));
+/* Kereshető ügyfélválasztó: gépelésre szűr, a lista végén mindig ott az „Új ügyfél felvétele”. */
+function clientSearch(input,all){
+  const q=all?'':input.value.trim(),cur=S.draft&&String(S.draft.client||'').trim();
+  pickItems=knownClients(q);
+  if(cur&&!pickItems.some(c=>c.company===cur)&&(!q||cur.toLowerCase().includes(q.toLowerCase())))pickItems.unshift({company:cur,name:S.draft.contactName||'',phone:S.draft.contactPhone||'',email:S.draft.contactEmail||'',tax:S.draft.clientTax||'',address:S.draft.clientAddress||''});
+  pickItems.push({isNew:true,company:q});
+  pickShow(input,pickItems.map((it,i)=>it.isNew?`<button type="button" class="hs-item hs-new" data-hs="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
+    :`<button type="button" class="hs-item${it.company===cur?' cur':''}" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button>`).join('')+(pickItems.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));
 }
 function clientPick(i){const it=pickItems[i];if(!it||!S.draft)return;pickClose();try{document.activeElement.blur();}catch(e){}
-  const patch={client:it.company};if(it.name||it.phone||it.email){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}
-  setDraft(patch);toast(it.name?'Megrendelő és kapcsolattartó kitöltve':'Megrendelő kitöltve');}
+  if(it.isNew){newClientModal(it.company);return;}
+  const patch={client:it.company,clientTax:it.tax||'',clientAddress:it.address||''};if(it.name||it.phone||it.email){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}
+  setDraft(patch);}
 document.addEventListener('input',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);});
-document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);else if($('hsBox'))pickClose();});
+document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro()){e.target.select();clientSearch(e.target,true);}else if($('hsBox'))pickClose();});
+document.addEventListener('focusout',e=>{if(e.target.id==='f-client'){const t=e.target;setTimeout(()=>{if(document.activeElement!==t&&S.draft)t.value=S.draft.client||'';},200);}});   // választás nélkül visszaáll
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.hs-item');if(it){e.preventDefault();clientPick(Number(it.dataset.hs));return;}if(e.target.id!=='f-client'&&(!e.target.closest||!e.target.closest('#hsBox')))pickClose();});
 document.addEventListener('keydown',e=>{if(e.target.id!=='f-client'||!$('hsBox'))return;const its=[...document.querySelectorAll('.hs-item')];
   let i=its.findIndex(x=>x.classList.contains('on'));
