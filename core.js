@@ -214,3 +214,33 @@ function handleErr(e){
 let toastTimer=0;
 function toast(msg,isErr){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),isErr?5000:2600);}
 
+
+/* ===== Telefonszám országhívószámmal (alapból +36) ===== */
+const PH_CC=[['HU','🇭🇺','+36'],['AT','🇦🇹','+43'],['SK','🇸🇰','+421'],['RO','🇷🇴','+40'],['RS','🇷🇸','+381'],['HR','🇭🇷','+385'],['SI','🇸🇮','+386'],['UA','🇺🇦','+380'],
+  ['DE','🇩🇪','+49'],['CZ','🇨🇿','+420'],['PL','🇵🇱','+48'],['IT','🇮🇹','+39'],['FR','🇫🇷','+33'],['ES','🇪🇸','+34'],['PT','🇵🇹','+351'],['GB','🇬🇧','+44'],['IE','🇮🇪','+353'],
+  ['NL','🇳🇱','+31'],['BE','🇧🇪','+32'],['LU','🇱🇺','+352'],['CH','🇨🇭','+41'],['LI','🇱🇮','+423'],['DK','🇩🇰','+45'],['SE','🇸🇪','+46'],['NO','🇳🇴','+47'],['FI','🇫🇮','+358'],
+  ['IS','🇮🇸','+354'],['EE','🇪🇪','+372'],['LV','🇱🇻','+371'],['LT','🇱🇹','+370'],['GR','🇬🇷','+30'],['BG','🇧🇬','+359'],['MK','🇲🇰','+389'],['AL','🇦🇱','+355'],['BA','🇧🇦','+387'],
+  ['ME','🇲🇪','+382'],['XK','🇽🇰','+383'],['MD','🇲🇩','+373'],['MT','🇲🇹','+356'],['CY','🇨🇾','+357'],['TR','🇹🇷','+90'],['IL','🇮🇱','+972'],['AE','🇦🇪','+971'],['SA','🇸🇦','+966'],
+  ['QA','🇶🇦','+974'],['US','🇺🇸','+1'],['MX','🇲🇽','+52'],['BR','🇧🇷','+55'],['AR','🇦🇷','+54'],['AU','🇦🇺','+61'],['NZ','🇳🇿','+64'],['JP','🇯🇵','+81'],['KR','🇰🇷','+82'],
+  ['CN','🇨🇳','+86'],['HK','🇭🇰','+852'],['SG','🇸🇬','+65'],['IN','🇮🇳','+91'],['TH','🇹🇭','+66'],['VN','🇻🇳','+84'],['ZA','🇿🇦','+27'],['EG','🇪🇬','+20'],['MA','🇲🇦','+212']];
+function phParse(v){
+  v=String(v||'').trim();if(!v)return {cc:'+36',n:''};
+  if(/^00/.test(v))v='+'+v.slice(2);
+  if(v[0]==='+'){const d='+'+v.slice(1).replace(/\D/g,'');let best='';PH_CC.forEach(([,,c])=>{if(d.startsWith(c)&&c.length>best.length)best=c;});
+    if(best){const re=new RegExp('^\\+\\s*'+best.slice(1).split('').join('[\\s-]*')+'[\\s-]*');return {cc:best,n:v.replace(re,'').trim()};}
+    return {cc:'+36',n:v};}
+  if(/^06/.test(v.replace(/\s/g,'')))return {cc:'+36',n:v.replace(/^0\s*6[\s-]*/,'').trim()};
+  return {cc:'+36',n:v};
+}
+function phJoin(cc,n){n=String(n||'').trim();
+  if(/^(\+|00)/.test(n)){const p=phParse(n);cc=p.cc;n=p.n;}            // ha teljes nemzetközi számot írtak/másoltak be
+  if(cc==='+36')n=n.replace(/^0\s*6[\s-]*/,'');                       // magyar „06” előtag
+  n=n.replace(/^0+\s*/,'');return n?cc+' '+n:'';}
+/* key: projektmező (azonnal a vázlatba), name: űrlapmező (rejtett inputban a teljes szám) */
+function phoneField(o){
+  const {cc,n}=phParse(o.value),id=o.key?'f-'+o.key:'m-'+o.name,dis=o.disabled?' disabled':'';
+  return `<div class="field${o.full?' full':''}"><label for="${id}">${o.label||'Telefon'}</label><div class="phone-row" data-ph="${o.key?'k:'+o.key:'n:'+o.name}">
+    <select class="inp ph-cc" aria-label="Országhívószám"${dis}>${PH_CC.map(([c,f,code])=>`<option value="${code}"${code===cc?' selected':''}>${f} ${code}</option>`).join('')}</select>
+    <input class="inp ph-num" id="${id}" type="tel" inputmode="tel" autocomplete="off" value="${esc(n)}" placeholder="20 123 4567"${dis}>
+    ${o.name?`<input type="hidden" name="${o.name}" value="${esc(phJoin(cc,n))}">`:''}</div></div>`;
+}

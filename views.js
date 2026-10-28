@@ -507,7 +507,7 @@ function viewProject(p){
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         <div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
-        ${fld(p,'contactPhone','Telefon',{type:'tel',ph:'+36 …'})}
+        ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>
         ${fld(p,'date','Első nap',{type:'date'})}

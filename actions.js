@@ -110,12 +110,12 @@ function editClientModal(){
   const d=S.draft;if(!d)return;newClientModal(null,d);
 }
 function newClientModal(pre,edit){
-  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${mf('contactPhone','Telefon',{type:'tel',ph:'+36 …',max:40})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
+  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
     {submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
       closeModal();if(S.draft)setDraft(patch);}});
   if(pre){const n=$('m-client');if(n)n.value=pre;}
-  if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactPhone',edit.contactPhone],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
+  if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
 }
 /* Kereshető ügyfélválasztó: gépelésre szűr, a lista végén mindig ott az „Új ügyfél felvétele”. */
 function clientSearch(input,all){
@@ -197,7 +197,7 @@ function crewModal(c){
     ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
     ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
     ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
-    ${mf('phone','Telefon',{type:'tel',v:v.phone})}
+    ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
@@ -579,8 +579,13 @@ document.addEventListener('input',e=>{
   else if(t.id==='q-inv'){S.inf.q=t.value;render(true);}
   else if(t.id==='add-eq-qty'){S.addEq.qty=t.value;}
 });
+/* telefonmező: országhívószám + szám → egy érték */
+function phSync(row,commit){const v=phJoin(row.querySelector('.ph-cc').value,row.querySelector('.ph-num').value),[kind,k]=row.dataset.ph.split(':');
+  if(kind==='n'){const h=row.querySelector('input[type=hidden]');if(h)h.value=v;}else if(commit&&S.draft&&(S.draft[k]||'')!==v)setDraft({[k]:v});}
+document.addEventListener('input',e=>{const r=e.target.closest&&e.target.closest('.phone-row');if(r)phSync(r,false);});
 document.addEventListener('change',e=>{
   const t=e.target,d=S.draft;
+  {const r=t.closest&&t.closest('.phone-row');if(r){if(t.tagName==='SELECT')try{t.blur();}catch(_){}phSync(r,true);return;}}
   if(t.tagName==='SELECT'&&t.id!=='viewAs')try{t.blur();}catch(_){}   // tableten (iPad) a kiválasztás után zárjuk be a listát
   if(t.dataset.clientSel&&d){if(t.value==='__new'){t.value=d.client||'';newClientModal();return;}
     const it=knownClients('').find(c=>c.company===t.value),patch={client:t.value,clientTax:it?it.tax:'',clientAddress:it?it.address:''};if(it&&(it.name||it.phone||it.email)){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}setDraft(patch);return;}
