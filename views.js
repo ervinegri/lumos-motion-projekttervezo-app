@@ -87,9 +87,11 @@ async function load(quiet,announce){
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=clone(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
     if(S.tab==='naptar'&&ro())S.tab='attekintes';
-    const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // a naptáreseményből érkező link
-    if(hm&&!S.dirty&&projById(hm[1])){history.replaceState(null,'',location.pathname);S.tab='projektek';S.projectId=hm[1];S.draft=clone(projById(hm[1]));}
-    render(true);if(announce)toast('Adatok frissítve');
+    const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
+    if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=clone(projById(hm[1]));}
+    const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
+    if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
+    render(true);restoreScroll();if(announce)toast('Adatok frissítve');
   }catch(e){if(!handleErr(e)&&!S.loaded)VIEW.innerHTML=`<div class="panel">${empty('Nem sikerült betölteni az adatokat: '+esc(errText(e)))}<div class="btns"><button class="btn primary" type="button" data-action="reload">Újrapróbálás</button></div></div>`;}
   finally{S.loading=false;}
 }
@@ -127,6 +129,12 @@ function renderChrome(){
   bar.classList.toggle('hidden',!showBar);document.body.classList.toggle('has-savebar',!!showBar);
   if(showBar){const h=`<div class="savebar-in"><p>Nem mentett módosítások: ${esc(S.draft.name||'projekt')}</p><button class="btn outline small" type="button" data-action="discard">Elvetés</button><button class="btn primary" type="button" data-action="save">Mentés</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
 }
+/* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
+function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='attekintes'?'#t='+S.tab:'';}
+function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{history.replaceState(null,'',location.pathname+location.search+h);}catch(e){}}}
+window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('lpm_scroll',JSON.stringify({h:location.hash,y:Math.round(scrollY)}));}catch(e){}});
+let scrollRestored=false;
+function restoreScroll(){if(scrollRestored)return;scrollRestored=true;try{const v=JSON.parse(sessionStorage.getItem('lpm_scroll')||'null');if(v&&v.h===location.hash&&v.y>0)requestAnimationFrame(()=>scrollTo(0,v.y));}catch(e){}}
 function render(force){
   if(!S.me)return;
   const ae=document.activeElement;
@@ -135,6 +143,7 @@ function render(force){
   if(!S.loaded)return;
   VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='beallitasok'?viewSettings():viewOverview();
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
+  syncHash();
   if(keep){const el=$(keep.id);if(el){el.focus({preventScroll:true});try{if(keep.s!=null&&el.setSelectionRange)el.setSelectionRange(keep.s,keep.e);}catch(e){}}}
 }
 
@@ -417,23 +426,6 @@ function viewProject(p){
         ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
-      <details class="panel fold" data-fold="krea"${FOLD.krea?' open':''}><summary><h3>🎬 Kreatív tartalmak ${foldAside(nKrea)}</h3></summary>
-        ${dl}
-        <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
-        <div class="toggles">${ex}</div></details>
-      <details class="panel fold" data-fold="rec"${FOLD.rec?' open':''}><summary><h3>📽️ Előadásrögzítés és kivetítés ${foldAside(nRec)}</h3></summary>
-        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
-          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="1" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
-        <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
-        <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
-        <div class="sec-lbl">Élő kép</div>
-        <div class="toggles one">${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
-        <div class="sec-lbl">Vágás és utómunka</div>
-        <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
-          <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
-        ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
-          <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
-      </details>
       <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>💡 Hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
         <div class="toggles one">${tech}</div>
         <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
@@ -455,6 +447,27 @@ function viewProject(p){
       </div>`}
     </div>
   </div>
+  <details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea)}</h3></summary>
+    <div class="content-grid">
+      <section class="content-col"><h4 class="sub-h">📽️ Előadásrögzítés és kivetítés <span class="aside">${nRec?nRec+' kiválasztva':''}</span></h4>
+        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
+          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="1" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
+        <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
+        <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
+        <div class="sec-lbl">Élő kép</div>
+        <div class="toggles one">${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
+        <div class="sec-lbl">Vágás és utómunka</div>
+        <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
+          <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
+        ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
+          <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
+      </section>
+      <section class="content-col"><h4 class="sub-h">🎬 Kreatív tartalmak <span class="aside">${nKrea?nKrea+' kiválasztva':''}</span></h4>
+        ${dl}
+        <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
+        <div class="toggles">${ex}</div></section>
+    </div>
+  </details>
   ${financePanel(p)}`;
 }
 

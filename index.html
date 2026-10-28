@@ -250,6 +250,13 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 @media (max-width:640px){.log-scroll{max-height:60vh}}
 .tight-note{margin:0;padding:8px 10px;border-radius:10px;background:#fff6e0;color:#7a5200;font-size:13px;line-height:1.45}
 .panel.combo{margin-top:18px}
+.panel.content{margin-top:18px}
+.content-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:14px}
+.content-col{min-width:0}
+.content-col+.content-col{border-left:1px solid var(--line);padding-left:28px}
+.sub-h{margin:0 0 10px;font-size:16px;font-weight:780;display:flex;align-items:center;gap:8px}.sub-h .aside{margin-left:auto;font-size:13px;font-weight:600;color:var(--fg-3)}
+.content-col .toggles{grid-template-columns:1fr}
+@media (max-width:860px){.content-grid{grid-template-columns:1fr}.content-col+.content-col{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:18px}}
 .crew-sheet{min-width:1180px;table-layout:fixed}
 .crew-sheet td{vertical-align:top}
 .crew-sheet tr.blank td{background:#fbfcfd}
