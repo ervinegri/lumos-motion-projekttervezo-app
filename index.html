@@ -297,7 +297,7 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .fin-inputs{display:grid;gap:12px}
 .budget-row{display:grid;grid-template-columns:150px 190px;gap:8px}
 .fin-inputs{max-width:350px}
-.fin-sheet tfoot .keret-tr td,.sheet tfoot .keret-tr td{background:#fff;border-top:1px solid var(--line)}
+.fin-sheet tfoot .keret-tr td,.sheet tfoot .keret-tr td{background:#fff;border-top:1px solid #c6d2cb}
 @media (max-width:520px){.budget-row{grid-template-columns:1fr}}
 .sheet-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 .sheet{width:100%;min-width:760px;border-collapse:collapse;font-size:14px}
@@ -361,6 +361,10 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .cell-in:focus{outline:2px solid var(--accent);outline-offset:-2px;background:#fff}
 .sheet tfoot td{font-weight:800;padding:10px;background:var(--surface-2);font-variant-numeric:tabular-nums;border-bottom:0}
 .sheet .empty-row{padding:14px;color:var(--fg-3);text-align:center}
+.sheet-wrap{border:2px solid #a9bbb1}
+.sheet td,.sheet th{border-bottom:1px solid #c6d2cb}.sheet td+td,.sheet th+th{border-left:2px solid #a9bbb1}
+.sheet thead th{border-bottom:2px solid #a9bab1}
+.sheet tfoot tr:first-child td{border-top:2.5px solid #7f948a}
 .sheet tbody tr:not(.sep-row) td{background:#fff}.sheet tbody tr:nth-child(even):not(.sep-row) td{background:#f4f7f5}   /* enyhe csíkozás */
 .fin-sum{margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 24px;align-items:start}
 .fin-val{flex-direction:column;align-items:stretch;gap:6px}.fin-val label{font-weight:700;font-size:14px}
