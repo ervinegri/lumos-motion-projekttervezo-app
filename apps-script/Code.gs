@@ -482,8 +482,8 @@ function saveProject_(u, a) {
     if (p.fees == null) p.fees = '';
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
-    if (['helyszin', 'utomunka', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && (!p.siteOk || !String(p.siteReport || '').trim()))
-      throw new Error('Előbb töltsd ki a helyszíni munka beszámolóját.');
+    if (['helyszin', 'utomunka', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)
+      throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !String(p.deliveryNotes || '').trim())
       throw new Error('Átadás előtt írd be az észrevételeket.');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;

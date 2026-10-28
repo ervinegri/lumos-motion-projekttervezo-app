@@ -243,11 +243,10 @@ function siteModal(next){
       <div class="field full"><label>Minden rendben ment a helyszínen?</label><div class="seg-row">
         <label class="toggle"><input type="radio" name="siteOk" value="igen"${d.siteOk==='igen'?' checked':''}><span class="tl">✅ Igen, minden rendben</span></label>
         <label class="toggle"><input type="radio" name="siteOk" value="nem"${d.siteOk==='nem'?' checked':''}><span class="tl">⚠️ Nem, volt probléma</span></label></div></div>
-      <div class="field full"><label for="m-siteReport">Beszámoló</label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
+      <div class="field full"><label for="m-siteReport">Beszámoló <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
     </div>`,{submitLabel:next?'Tovább':'Mentés',submit:async fd=>{
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
-      if(!txt){toast('Írd be a beszámolót.',true);const e=$('m-siteReport');if(e)e.focus();return;}
       closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();}});
 }
 function deliveryModal(){
@@ -447,7 +446,7 @@ const ACT={
       if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});};
-    if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&!(d.siteOk&&String(d.siteReport||'').trim())){siteModal(go);return;}   // előbb a helyszíni beszámoló
+    if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&!d.siteOk){siteModal(go);return;}   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
   'proj-manage':()=>{const p=S.draft;if(!p)return;
