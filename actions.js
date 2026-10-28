@@ -332,7 +332,7 @@ function saveDraft(){
   const local=Object.assign({},prev||{},d,{updatedAt:prev?prev.updatedAt:''});
   if(i>=0)S.projects[i]=local;else S.projects.push(local);
   S.dirty=false;S.saving=(S.saving||0)+1;SAVE_PENDING[d.id]=(SAVE_PENDING[d.id]||0)+1;
-  S.cal.events={};toast('Mentve');render(true);
+  S.cal.events={};S.savedFlash=1;clearTimeout(S._flashT);S._flashT=setTimeout(()=>{S.savedFlash=0;renderChrome();},500);render(true);
   SAVE_Q=SAVE_Q.then(async()=>{
     const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
     try{
