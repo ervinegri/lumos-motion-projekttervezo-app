@@ -219,6 +219,21 @@ function userModal(u){
   }});
 }
 
+/* Ügyvezetői előnézet: a háttér a munkamenetet átállítja a választott szerepkörre, így pontosan azt kapod, amit ők. */
+async function switchView(role,crewId){
+  try{
+    await call('setViewAs',{role,crewId});
+    S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.tab='attekintes';S.cal.events={};
+    await load(false);toast(role==='admin'?'Ügyvezetői nézet':role==='editor'?'Termelési vezető nézet':'Szakember nézet');
+  }catch(e){handleErr(e);renderChrome();}
+}
+function viewAsCrewModal(){
+  const opts=S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name]);
+  if(!opts.length){toast('Nincs még munkatárs a Stáb fülön.',true);renderChrome();return;}
+  openModal('Szakember nézet',`<p class="hint" style="margin:0 0 10px">Válaszd ki, kinek a szemével nézed az appot: csak azokat a projekteket fogod látni, amelyekre ő be van osztva, árak és díjak nélkül.</p><div class="fields">${ms('crewId','Szakember',opts,opts[0][0],{full:true})}</div>`,
+    {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
+}
+$('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
 function sendListModal(){
   const p=S.draft;if(!p||ro())return;
   if(S.dirty){toast('Előbb mentsd el a projekt módosításait, hogy a friss lista menjen ki.',true);return;}
@@ -351,6 +366,7 @@ const ACT={
       fees.push({name:c.name,crewId:id,task:roles.join(' + '),amount:num(c.dayRate)?num(c.dayRate)*days:'',rent:''});n++;});
     if(!n){toast(crewIds(d).size?'Minden beosztott szerepel már a listában.':'Előbb osszál be stábot a projektre.',true);return;}
     setDraft({fees});toast(n+' tétel felvéve'+(days>1?' ('+days+' napra)':''));},
+  'view-reset':()=>guard(()=>switchView('admin')),
   'due-reset':()=>{if(S.draft)setDraft({dueAt:''});},
   'due-custom':()=>{const d=S.draft;if(!d)return;const r=pr(d);if(!r){toast('Előbb add meg a dátumot.',true);return;}setDraft({dueAt:addDays(r.end,1)});},
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}

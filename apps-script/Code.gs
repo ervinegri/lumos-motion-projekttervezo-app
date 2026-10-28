@@ -842,7 +842,7 @@ function logEvent_(u, action, subject, details) {
     const sh = logSheet_();
     const rg = sh.getRange(sh.getLastRow() + 1, 1, 1, LOG_HEADERS.length);
     rg.setNumberFormat('@');
-    rg.setValues([[now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 2000))]]);
+    rg.setValues([[now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '') : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 2000))]]);
   } catch (e) { Logger.log('Napló hiba: ' + e); }
 }
 function getLog_() {
@@ -884,7 +884,11 @@ function saveUsers_(users) {
   if (json.length > 8500) throw new Error('Elérted a felhasználók maximális számát (kb. 30).');
   PropertiesService.getScriptProperties().setProperty(USERS_PROPERTY, json);
 }
-function publicUser_(u) { return { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || '') }; }
+function publicUser_(u) {
+  const o = { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || '') };
+  if (u.realRole) { o.realRole = u.realRole; o.viewAs = u.viewAs; }
+  return o;
+}
 function adminListUser_(u) { return { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || ''), disabled: !!u.disabled, createdAt: u.createdAt || '' }; }
 function newUserRecord_(name, role, crewId, pin, email) {
   const salt = Utilities.getUuid();
@@ -1135,7 +1139,29 @@ function authUser_(token) {
   if (!s || s.exp < Date.now()) throw new Error('AUTH_REQUIRED');
   const u = loadUsers_().find(x => x.id === s.uid);
   if (!u || u.disabled) throw new Error('AUTH_REQUIRED');
+  // Ügyvezetői előnézet: a munkamenet szerepköre átmenetileg termelési vezető vagy szakember, így a háttér pontosan
+  // úgy szűr és engedélyez, mint annál a szerepkörnél. Csak ügyvezető kapcsolhatja be, és bármikor visszaállíthatja.
+  if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
+    return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : '', realRole: 'admin', viewAs: s.viewAs });
   return u;
+}
+
+function setViewAs_(token, u, arg) {
+  if (u.role !== 'admin' && u.realRole !== 'admin') throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  const role = String(arg && arg.role || '');
+  let view = null;
+  if (role === 'editor') view = { role: 'editor' };
+  else if (role === 'crew') {
+    const cid = str_(arg && arg.crewId, 64), c = readAll_('crew').find(x => x.id === cid);
+    if (!c) throw new Error('Válaszd ki, melyik szakember szemével nézed az appot.');
+    view = { role: 'crew', crewId: cid, crewName: c.name };
+  } else if (role && role !== 'admin') throw new Error('Ismeretlen nézet.');
+  const props = PropertiesService.getScriptProperties(), key = SESSION_PREFIX + sha256hex_(String(token));
+  const sess = JSON.parse(props.getProperty(key) || 'null');
+  if (!sess) throw new Error('AUTH_REQUIRED');
+  if (view) sess.viewAs = view; else delete sess.viewAs;
+  props.setProperty(key, JSON.stringify(sess));
+  return { ok: true };
 }
 
 function saveUser_(arg) {
@@ -1253,6 +1279,8 @@ function rpc(token, name, arg) {
   const adminOnly = () => { if (role !== 'admin') deny(); };
   switch (String(name)) {
     case 'whoAmI': return publicUser_(u);
+    case 'setViewAs': { const r = setViewAs_(token, u, arg); const v = arg && arg.role;
+      logEvent_(Object.assign({}, u, { role: 'admin', realRole: '' }), 'Nézet váltva', v === 'editor' ? 'Termelési vezető' : v === 'crew' ? 'Szakember' : 'Ügyvezető', ''); return r; }
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);

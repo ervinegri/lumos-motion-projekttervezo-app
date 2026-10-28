@@ -257,6 +257,12 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .money.sm .money-inp{min-height:38px;font-size:14px;padding-inline:10px}.money.sm .money-unit{font-size:12px}
 .fin-sum{margin-top:14px;border-top:1px dashed var(--line-strong);padding-top:10px}
 .fin-sum .kv b{font-variant-numeric:tabular-nums}
+.view-as{min-height:36px;border:1px solid var(--line);border-radius:999px;padding:4px 30px 4px 12px;font:inherit;font-size:13px;font-weight:700;color:var(--fg);background:#fff;max-width:220px}
+.view-as.on{background:#fff6e0;border-color:#e2b54a;color:#7a5200}
+.view-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;padding:10px 16px;background:#fff6e0;border-bottom:1px solid #f0d48a;color:#7a5200;font-size:14px;font-weight:650;text-align:center}
+.view-banner .btn{min-height:34px}
+.view-banner.hidden{display:none}
+@media (max-width:640px){.view-as{max-width:150px}}
 .arow-btns{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}.mini.warn{background:#fdecec;color:#b42318;border-color:#b4231855}.arow.off .who{opacity:.65}
 .arow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);flex-wrap:wrap}
 .arow:first-child{border-top:0}
@@ -443,12 +449,14 @@ body.ro .w{display:none!important}
       <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
+        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető nézet</option><option value="editor">👁 Termelési vezető nézet</option><option value="crew">👁 Szakember nézet…</option></select>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>
       </div>
     </div>
   </header>
+  <div id="viewBanner" class="view-banner hidden" role="status"></div>
   <main class="content" id="view"><div class="loading"><span class="spin"></span>Betöltés…</div></main>
 </div>
 <div id="saveBar" class="savebar hidden" role="region" aria-label="Mentés"></div>
