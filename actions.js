@@ -408,7 +408,8 @@ document.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.field!==undefined&&S.draft&&!ro()&&t.tagName!=='SELECT'){S.draft[t.dataset.field]=t.type==='number'?(t.value===''?null:num(t.value)):t.value;if(!S.dirty){S.dirty=true;renderChrome();}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&S.draft&&!ro()){
-    if(t.dataset.fin){const d=String(t.value).replace(/\D/g,'');S.draft.projectValue=d===''?null:Math.min(9999999999,Number(d));}
+    if(t.dataset.fin==='budgetPct'){let v=String(t.value).replace(/[^\d,.]/g,'').replace('.',',');if(t.value!==v)t.value=v;const n=parseFloat(v.replace(',','.'));S.draft.budgetVal=v===''||!isFinite(n)?'':Math.min(100,n);}
+    else if(t.dataset.fin){const d=String(t.value).replace(/\D/g,'');S.draft[t.dataset.fin]=d===''?null:Math.min(9999999999,Number(d));}
     else{const fees=S.draft.fees=(S.draft.fees||[]).map(x=>Object.assign({},x)),f=fees[Number(t.dataset.feeI)];if(f){const k=t.dataset.feeK;
       if(k==='amount'||k==='rent')f[k]=moneyVal(t.value);else{f[k]=t.value;if(k==='name'){const c=S.crew.find(x=>x.name===t.value.trim());f.crewId=c?c.id:'';}}}}
     if(!S.dirty){S.dirty=true;renderChrome();}
@@ -430,6 +431,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.flag&&d){setDraft({[t.dataset.flag]:t.checked});return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d)return;
+  if(t.dataset.finMode&&d){setDraft({budgetMode:t.value,budgetVal:''});setTimeout(()=>{const e=$('f-budgetVal');if(e)e.focus();},30);return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
     setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:{[k]:n});return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}

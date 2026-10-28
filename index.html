@@ -249,7 +249,19 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .log-scroll{max-height:520px;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;margin-right:-6px;border-top:1px solid var(--line)}
 @media (max-width:640px){.log-scroll{max-height:60vh}}
 .tight-note{margin:0;padding:8px 10px;border-radius:10px;background:#fff6e0;color:#7a5200;font-size:13px;line-height:1.45}
-.panel.fin{margin-top:18px}
+.panel.combo{margin-top:18px}
+.combo .pcrew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.combo .field{max-width:520px}
+.fin-fold{margin-top:18px;border-top:1px solid var(--line);padding-top:4px}
+.fin-fold>summary{list-style:none;cursor:pointer;padding:12px 0 6px}
+.fin-fold>summary::-webkit-details-marker{display:none}
+.fin-fold>summary>h4{margin:0;font-size:16px;font-weight:780;display:flex;align-items:center;gap:8px}
+.fin-fold>summary>h4::after{content:"";width:8px;height:8px;border-right:2px solid var(--fg-3);border-bottom:2px solid var(--fg-3);transform:rotate(45deg);margin:-4px 4px 0 10px;flex:none}
+.fin-fold[open]>summary>h4::after{transform:rotate(-135deg);margin-top:4px}
+.fin-fold .aside{margin-left:auto;font-weight:600;font-size:13px;color:var(--fg-3)}
+.fin-inputs{display:grid;gap:12px}
+.budget-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px}
+@media (max-width:520px){.budget-row{grid-template-columns:1fr}}
 .sheet-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 .sheet{width:100%;min-width:760px;border-collapse:collapse;font-size:14px}
 .sheet th{background:#e8f2ec;color:var(--fg);font-weight:750;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:13px}
