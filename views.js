@@ -220,7 +220,6 @@ function viewOverview(){
       ${tile(open.length,ro()?'aktív beosztásod':'aktív projekt')}
       ${tile(next30.length,'rendezvény a következő 30 napban')}
       ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:''):''}
-      ${ro()?'':tile(issues.length,'figyelmeztetés',issues.length?'warn':'')}
     </div>
     <div class="grid2">
       <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
