@@ -387,7 +387,7 @@ function arm(b,fn){
 
 /* ===== Események ===== */
 const ACT={
-  tab:b=>guard(()=>{S.tab=b.dataset.tab;S.projectId=null;S.draft=null;if(S.tab==='beallitasok'){S.users=null;S.log=null;}closeModal();render(true);scrollTo(0,0);}),
+  tab:b=>guard(()=>{const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;if(S.tab==='beallitasok'){S.users=null;S.log=null;}closeModal();render(true);scrollTo(0,0);}),
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
