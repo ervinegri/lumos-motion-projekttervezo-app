@@ -341,7 +341,7 @@ function saveDraft(){
       const k=S.projects.findIndex(x=>x.id===d.id||x.id===saved.id);
       if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}
       else{if(k>=0)S.projects[k]=saved;else S.projects.push(saved);
-        if(S.projectId===saved.id&&!S.dirty)S.draft=clone(saved);}
+        if(S.projectId===saved.id&&!S.dirty){S.draft=prepDraft(saved);render(true);}}   // a fix (üres) díjsorok is maradjanak meg
       S.cal.events={};syncCal(saved.id);
     }catch(e){
       SAVE_PENDING[d.id]--;
