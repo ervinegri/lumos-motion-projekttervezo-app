@@ -212,7 +212,7 @@ function viewOverview(){
   const welcome=!all.length&&!ro()?`<div class="panel welcome"><h3>Kezdjük el</h3>
     <p>Vedd fel a stábot és az eszközöket, aztán hozd létre az első projektet. A projektlapon megadod a megrendelt tartalmakat, és az app jelzi, ha valaki vagy valami két helyre van beosztva.</p>
     <div class="btns"><button class="btn primary" type="button" data-action="new-project">+ Új projekt</button><button class="btn outline" type="button" data-action="tab" data-tab="stab">Stáb felvétele</button><button class="btn outline" type="button" data-action="tab" data-tab="leltar">Leltár felvétele</button></div></div>`:'';
-  return `<div class="page-head"><div class="grow"><h2>${ro()?'Szia, '+esc(S.me.name)+'!':'Áttekintés'}</h2><p class="sub">${esc(F_FULL.format(toDate(T)))}</p></div>
+  return `<div class="page-head"><div class="grow"><h2>${ro()?'Szia, '+esc(S.me.viewAs&&S.me.viewAs.crewName?S.me.viewAs.crewName.trim().split(/\s+/).pop():S.me.name)+'!':'Áttekintés'}</h2><p class="sub">${esc(F_FULL.format(toDate(T)))}</p></div>
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
     ${welcome}
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
