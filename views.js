@@ -2,13 +2,36 @@
 /* ===== Belépés (a Sales App belépőjével egyező működés) ===== */
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.classList.toggle('info',!!info);}
+/* Google-fiókos belépés (Google Identity Services). Ha nincs beállítva ügyfél-azonosító, csak a PIN-es belépés látszik. */
+const G_CLIENT=String(window.LUMOS_GOOGLE_CLIENT_ID||'').trim();
+let gReady=false,pinShown=false;
+function setPinMode(on){pinShown=on;$('pinBox').hidden=!!G_CLIENT&&!on;$('gBox').hidden=!G_CLIENT;$('showPin').hidden=on;}
+function initGoogle(tries){
+  if(!G_CLIENT||gReady)return;
+  if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<40)setTimeout(()=>initGoogle((tries||0)+1),150);else{loginMsg('A Google-belépés most nem töltődött be. Lépj be PIN-kóddal.');setPinMode(true);}return;}
+  gReady=true;
+  google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
+  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:Math.min(360,$('gBtn').clientWidth||320)});
+}
+async function onGoogleCredential(resp){
+  if(!resp||!resp.credential){loginMsg('A Google-belépés megszakadt.');return;}
+  loginMsg('Belépés…',true);
+  try{
+    const r=await gs('googleLogin',resp.credential);
+    TOKEN=r.token;try{localStorage.setItem(TOKEN_KEY,TOKEN);}catch(err){}
+    $('loginGate').classList.add('hidden');loginMsg('');
+    await load();
+  }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');}
+}
+$('showPin').addEventListener('click',()=>{setPinMode(true);setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},30);});
 function showLogin(msg){
   $('loginGate').classList.remove('hidden');
+  setPinMode(pinShown);initGoogle();
   loginMsg(msg||'',!!msg&&/Kiléptél/.test(msg));
   $('loginPin').value='';
   let last='';try{last=localStorage.getItem(TOKEN_KEY+'_email')||'';}catch(e){}
   if(last&&!$('loginEmail').value)$('loginEmail').value=last;
-  setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},50);
+  if(!G_CLIENT||pinShown)setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},50);
 }
 $('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
 $('loginForm').addEventListener('submit',async e=>{
@@ -46,6 +69,7 @@ $('forgotPin').addEventListener('click',async()=>{
 $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   try{await call('logout');}catch(e){}
   TOKEN='';try{localStorage.removeItem(TOKEN_KEY);}catch(e){}
+  try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}
   S.me=null;S.loaded=false;S.projects=[];S.crew=[];S.inventory=[];S.users=null;S.log=null;S.projectId=null;S.draft=null;
   renderChrome();VIEW.innerHTML='';showLogin('Kiléptél.');
 }));

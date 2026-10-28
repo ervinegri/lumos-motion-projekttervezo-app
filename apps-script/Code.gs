@@ -14,6 +14,10 @@ const SPREADSHEET_ID = '1Jf9nELuauhFEaAxAnfg_dSDG1MudeqfmftqYPqCdif8';   // Proj
 const PROJECTS_FOLDER_ID = '1qxSBbudO4atHkdOsfH6ur6oXc_tc9OnB';          // Projektek mappa (alatta évszámos almappák)
 const APP_TITLE = 'Lumos Motion Projekttervező';
 const FRONTEND_URL = 'https://projekttervezo.lumosmotion.hu';   // a Vercelen futó felület címe (ez kerül a PIN-es e-mailekbe)
+/* Google-fiókos belépés: a Google Cloud OAuth „Web application” ügyfél azonosítója (nem titkos adat).
+   Felülírható a GOOGLE_CLIENT_ID Script Propertyvel. Üresen a Google-belépés ki van kapcsolva. */
+const GOOGLE_CLIENT_ID = '';
+const COMPANY_DOMAIN = 'lumosmotion.com';   // ilyen végű címnél csak a céges (Workspace) Google-fiók fogadható el
 const CALENDAR_ID = 'c_2c50501c805387f783e86998c7afa0a53dcc443aaa73d96e1be5373ecb71d2fd@group.calendar.google.com';   // „Terepi Munkák Lumos Motion” naptár
 const MAIL_FROM = 'admin@lumosmotion.com';        // az app leveleinek feladója: Gmail „Küldés másként” alias a szkriptet futtató fiókban
 const MAIL_REPLY_TO = 'admin@lumosmotion.com';      // alapértelmezett válaszcím (az eszközlistánál a küldő kolléga címe lesz)
@@ -101,6 +105,7 @@ function api_(raw) {
     let data;
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
     else if (fn === 'login') data = login(args[0], args[1], args[2]);
+    else if (fn === 'googleLogin') data = googleLogin(args[0]);
     else if (fn === 'getLoginNames') data = getLoginNames();
     else if (fn === 'requestPinReset') data = requestPinReset(args[0]);
     else throw new Error('Ismeretlen művelet.');
@@ -413,6 +418,12 @@ function deleteProject_(u, a) {
 // A projektek a „Terepi Munkák Lumos Motion” naptárba kerülnek (app → naptár). A naptár többi eseménye az app Naptár fülén látszik,
 // és egy kattintással projekt hozható létre belőle. A beosztott stáb vendégként kerül az eseményre (meghívó e-mail nélkül).
 /** EGYSZER FUTTATANDÓ a szerkesztőből a Code.gs frissítése után: engedélyt kér a Google Naptárhoz, és kiírja a naptár nevét. */
+/** Egyszer futtasd a szerkesztőből (▶ Run): engedélyt kér a külső hívásra, ami a Google-belépés ellenőrzéséhez kell. */
+function authorizeGoogleLogin() {
+  const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=x', { muteHttpExceptions: true });
+  Logger.log('Google-belépés ellenőrzése elérhető (' + r.getResponseCode() + '). Client ID: ' + (googleClientId_() || 'MÉG NINCS BEÁLLÍTVA'));
+}
+
 function authorizeCalendar() { Logger.log('Naptár rendben: ' + cal_().getName()); }
 function cal_() { const c = CalendarApp.getCalendarById(CALENDAR_ID); if (!c) throw new Error('A Google Naptár nem érhető el.'); return c; }
 function calEvent_(id) { if (!id) return null; try { return cal_().getEventById(id); } catch (e) { return null; } }
@@ -1005,13 +1016,49 @@ function login(email, pin) {
     }
     if (st.fails || st.level || st.until) PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + u.id);
   });
+  return createSession_(u, 'Belépés');
+}
+
+function createSession_(u, logAction) {
   const token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
   const exp = Date.now() + (SESSION_DAYS_BY_ROLE[u.role] || 2) * 86400000;
   const props = PropertiesService.getScriptProperties();
   cleanupSessions_(props);
   props.setProperty(SESSION_PREFIX + sha256hex_(token), JSON.stringify({ uid: u.id, exp: exp }));
-  logEvent_(u, 'Belépés', '', '');
+  logEvent_(u, logAction, '', '');
   return { token: token, exp: exp, user: publicUser_(u) };
+}
+
+function googleClientId_() {
+  return String(PropertiesService.getScriptProperties().getProperty('GOOGLE_CLIENT_ID') || GOOGLE_CLIENT_ID || '').trim();
+}
+
+/** Belépés Google-fiókkal: a Google által aláírt azonosító tokent a Google ellenőrző végpontjával hitelesítjük,
+    majd az e-mail-cím alapján megkeressük a felhasználót. Céges címnél csak a Workspace-fiók (hd) fogadható el. */
+function googleLogin(credential) {
+  const clientId = googleClientId_();
+  if (!clientId) throw new Error('A Google-belépés még nincs beállítva.');
+  credential = String(credential || '');
+  if (!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(credential) || credential.length > 4096) throw new Error('Érvénytelen Google-belépés.');
+  const cache = CacheService.getScriptCache();
+  if (cache.get('pm_glock')) throw new Error('Túl sok sikertelen próbálkozás. Próbáld újra 10 perc múlva.');
+  const fail = msg => { const n = Number(cache.get('pm_gfail') || 0) + 1; cache.put('pm_gfail', String(n), 600); if (n >= 20) cache.put('pm_glock', '1', 600); Utilities.sleep(500); throw new Error(msg); };
+  let info;
+  try {
+    const res = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential), { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) fail('A Google-belépés nem sikerült. Próbáld újra.');
+    info = JSON.parse(res.getContentText());
+  } catch (e) { if (String(e.message || e).indexOf('Google-belépés') >= 0) throw e; throw new Error('A Google-belépés most nem érhető el. Próbáld újra.'); }
+  const iss = String(info.iss || '');
+  if (info.aud !== clientId || (iss !== 'accounts.google.com' && iss !== 'https://accounts.google.com')) fail('Érvénytelen Google-belépés.');
+  if (Number(info.exp || 0) * 1000 < Date.now()) fail('A Google-belépés lejárt. Próbáld újra.');
+  if (String(info.email_verified) !== 'true') fail('Ez a Google-fiók nincs megerősítve.');
+  const email = String(info.email || '').toLowerCase();
+  if (email.slice(-(COMPANY_DOMAIN.length + 1)) === '@' + COMPANY_DOMAIN && String(info.hd || '').toLowerCase() !== COMPANY_DOMAIN)
+    fail('A céges címmel csak a Lumos Motion Google Workspace-fiókkal lehet belépni.');
+  const u = loadUsers_().find(x => String(x.email || '').toLowerCase() === email && !x.disabled);
+  if (!u) fail('Ehhez a Google-fiókhoz (' + email + ') nincs hozzáférés az apphoz. Kérd az ügyvezetőt, hogy vegyen fel.');
+  return createSession_(u, 'Belépés Google-lel');
 }
 
 function authUser_(token) {
