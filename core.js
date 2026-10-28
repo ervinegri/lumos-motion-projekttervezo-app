@@ -78,6 +78,15 @@ const projById=id=>S.projects.find(p=>p.id===id);
 const isOpen=p=>p.status!=='atadva'&&p.status!=='lemondva';
 function pr(p){if(!p||!validISO(p.date))return null;const end=validISO(p.endDate)&&p.endDate>=p.date?p.endDate:p.date;return {start:p.date,end};}
 const overlap=(a,b)=>a&&b&&a.start<=b.end&&b.start<=a.end;
+/* Időablak egynapos projektnél: érkezés + helyszíni munkaidő. Ha nincs érkezési idő, egész naposnak vesszük. */
+function timeWin(p){const m=/^(\d{2}):(\d{2})$/.exec(p.startTime||'');if(!m)return null;const s=+m[1]*60+ +m[2];return {s,e:s+Math.max(1,num(p.hours)||8)*60};}
+/* Két projekt ütközik-e: átfedő napok, de ugyanazon a napon (mindkettő egynapos) a délelőtti és a délutáni munka nem ütközik. */
+function clash(p,q){
+  if(!p||!q)return false;if(p.id&&p.id===q.id)return true;
+  const a=pr(p),b=pr(q);if(!overlap(a,b))return false;
+  if(a.start===a.end&&b.start===b.end){const x=timeWin(p),y=timeWin(q);if(x&&y)return x.s<y.e&&y.s<x.e;}
+  return true;
+}
 const byStart=(a,b)=>(pr(a)?.start||'9999').localeCompare(pr(b)?.start||'9999');
 function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,1);}   // alapból a forgatás utáni nap
 function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return defaultDue(p);}   // egyedi határidő felülírja az alapértelmezettet
@@ -118,12 +127,12 @@ function staffing(p){
 /* A projektlistában a szerkesztés alatt álló vázlatot használjuk, hogy az ütközések azonnal látszódjanak. */
 function allProjects(){if(!S.draft)return S.projects;return S.projects.map(p=>p.id===S.draft.id?S.draft:p);}
 function liveProjects(){const T=todayISO();return allProjects().filter(p=>p.status!=='lemondva'&&p.status!=='atadva'&&pr(p)&&pr(p).end>=T);}
-function busyFor(personId,p){const r=pr(p);if(!r)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&overlap(r,pr(q))&&crewIds(q).has(personId));}
-function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&overlap(r,pr(q))).reduce((s,q)=>s+eqQty(q,itemId),0);}
+function busyFor(personId,p){const r=pr(p);if(!r)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&crewIds(q).has(personId));}
+function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
   const T=todayISO(),out=[],live=liveProjects();
   for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
-    const a=live[i],b=live[j];if(!overlap(pr(a),pr(b)))continue;
+    const a=live[i],b=live[j];if(!clash(a,b))continue;
     const B=crewIds(b);
     for(const id of crewIds(a))if(B.has(id)){const c=crewById(id);
       out.push({level:'bad',text:`${c?c.name:'Egy munkatárs'} egyszerre két projektre van beosztva (${fmtShort(pr(a).start>pr(b).start?pr(a).start:pr(b).start)}).`,pids:[a.id,b.id]});}
@@ -132,7 +141,7 @@ function computeIssues(){
   for(const it of S.inventory){
     const users=live.filter(p=>eqQty(p,it.id)>0);
     for(const p of users){
-      const ov=users.filter(q=>overlap(pr(p),pr(q)));
+      const ov=users.filter(q=>clash(p,q));
       const need=ov.reduce((s,q)=>s+eqQty(q,it.id),0);
       if(need>num(it.qty)){const key=it.id+':'+ov.map(q=>q.id).sort().join(',');if(seen.has(key))continue;seen.add(key);
         out.push({level:'bad',text:`${it.name}: ${need} db kellene egyszerre, de csak ${num(it.qty)} db van.`,pids:ov.map(q=>q.id)});}
