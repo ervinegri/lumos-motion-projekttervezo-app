@@ -126,8 +126,22 @@ function sheetFor_(key) {
   return (SHEET_MEMO_[key] = sh);
 }
 
+/** A táblázat 10 millió cellás korlátjába az üres oszlopok is beleszámítanak, ezért a használt oszlopok utáni
+    üres oszlopokat töröljük (csak ha teljesen üresek; új oszlop szükség esetén magától visszakerül). */
+function trimEmptyCols_(sh, used) {
+  const max = sh.getMaxColumns(), extra = max - used;
+  if (extra <= 0) return;
+  try {
+    const rows = Math.max(1, sh.getLastRow());
+    const vals = sh.getRange(1, used + 1, rows, extra).getValues();
+    let keep = 0;   // a jobb szélről csak az üres oszlopokat vesszük el
+    vals.forEach(r => r.forEach((v, j) => { if (v !== '' && v !== null && j + 1 > keep) keep = j + 1; }));
+    if (keep < extra) sh.deleteColumns(used + keep + 1, extra - keep);
+  } catch (e) { Logger.log('Oszlop-takarítás kihagyva: ' + e); }
+}
 function ensureHeader_(sh, labels, tabName) {
   if (sh.getMaxColumns() < labels.length) sh.insertColumnsAfter(sh.getMaxColumns(), labels.length - sh.getMaxColumns());
+  trimEmptyCols_(sh, labels.length);
   const range = sh.getRange(1, 1, 1, labels.length);
   const first = range.getDisplayValues()[0];
   let changed = false;
