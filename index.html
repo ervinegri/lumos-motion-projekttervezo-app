@@ -367,6 +367,11 @@ td .ser{font-size:12px;color:var(--fg-3)}
 .login-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #1f5a3d22}
 .login-card input.pin{letter-spacing:.5em;text-align:center;font-size:24px}
 .pin{letter-spacing:.4em;font-size:22px;text-align:center}
+.login-msg:empty{display:none}
+.login-card.g-only{width:min(360px,100%);padding:40px 32px 36px;gap:0;justify-items:center}
+.login-card.g-only .login-brand{width:168px;margin:0 auto}
+.login-card.g-only .g-box{width:100%;margin-top:30px;padding-top:30px;border-top:1px solid var(--line)}
+.login-card.g-only .login-msg{margin-top:16px}
 .login-msg{margin:0;min-height:20px;color:#b3433c;text-align:center;font-size:14px}
 .login-msg.info{color:var(--fg-3)}
 .g-box{display:grid;gap:12px;justify-items:center}.g-btn{min-height:44px;display:flex;justify-content:center;width:100%}
@@ -439,7 +444,7 @@ body.ro .w{display:none!important}
 <div id="modalRoot"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://accounts.google.com/gsi/client?hl=hu" async></script>
 <script src="config.js"></script>
 <script src="core.js"></script>
 <script src="views.js"></script>

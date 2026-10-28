@@ -7,13 +7,13 @@ function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.clas
 const G_CLIENT=String(window.LUMOS_GOOGLE_CLIENT_ID||'').trim();
 const PIN_EMERGENCY=location.hash==='#pin'||!G_CLIENT;
 let gReady=false,pinShown=PIN_EMERGENCY;
-function setPinMode(on){$('pinBox').hidden=!on;$('gBox').hidden=!G_CLIENT;}
+function setPinMode(on){$('pinBox').hidden=!on;$('gBox').hidden=!G_CLIENT;$('loginForm').classList.toggle('g-only',!!G_CLIENT&&!on);}
 function initGoogle(tries){
   if(!G_CLIENT||gReady)return;
   if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');return;}
   gReady=true;
   google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
-  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:Math.min(360,$('gBtn').clientWidth||320)});
+  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:280});
 }
 async function onGoogleCredential(resp){
   if(!resp||!resp.credential){loginMsg('A Google-belépés megszakadt.');return;}
