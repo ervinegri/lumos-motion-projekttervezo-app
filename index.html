@@ -251,6 +251,12 @@ textarea.inp{min-height:110px;resize:vertical;line-height:1.5;overflow:hidden}
 .tight-note{margin:0;padding:8px 10px;border-radius:10px;background:#fff6e0;color:#7a5200;font-size:13px;line-height:1.45}
 .panel.combo{margin-top:18px}
 .panel.content{margin-top:18px}
+.panel.content,.crew-wide,.crew-wide>.panel,.panel.fin{width:100%;box-sizing:border-box;align-self:stretch}
+.crew-wide{margin-top:18px}
+.crew-wide .pcrew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.crew-wide .field{max-width:520px}
+.crew-wide .addrow{max-width:900px}
+.crew-wide+.panel.fin{margin-top:18px}
 .content-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:14px}
 .content-col{min-width:0}
 .content-col+.content-col{border-left:1px solid var(--line);padding-left:28px}
