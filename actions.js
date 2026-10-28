@@ -243,10 +243,12 @@ function deliveryModal(){
       <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
       ${d.status==='atadva'&&d.deliveredAt?`<div class="field"><label>Átadva</label><div class="inp" style="border:0;background:none;padding-left:0"><b class="ok-txt">${fmtDay(d.deliveredAt)}</b></div></div>`:'<div></div>'}
       ${mf('deliveryLink','Átadási link (mappa vagy videók)',{full:true,type:'url',ph:'https://drive.google.com/…',v:d.deliveryLink||''})}
+      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
     </div>`,{submitLabel:d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
       const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
+      const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
       const due=String(fd.get('dueAt')||'');closeModal();
-      setDraft({deliveryLink:link,dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});}});
+      setDraft({deliveryLink:link,deliveryNotes:notes,dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});}});
   const e=$('m-deliveryLink');if(e)setTimeout(()=>e.focus(),50);
 }
 function ownGearModal(crewId){
