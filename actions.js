@@ -93,6 +93,13 @@ function knownClients(q){
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||''});});
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
+function clientOptions(sel){const list=knownClients('').map(c=>c.company);return `<option value="">Válassz ügyfelet…</option>${list.map(c=>`<option value="${esc(c)}"${c===sel?' selected':''}>${esc(c)}</option>`).join('')}<option value="__new">+ Új ügyfél felvétele…</option>`;}
+function newClientModal(){
+  openModal('Új ügyfél',`<div class="fields">${mf('client','Ügyfél (cég) neve',{full:true,max:160})}${mf('contactName','Kapcsolattartó',{max:120})}${mf('contactPhone','Telefon',{type:'tel',ph:'+36 …',max:40})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}</div>`,
+    {submitLabel:'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
+      const patch={client:c};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v)patch[k]=v;});
+      closeModal();if(S.draft)setDraft(patch);}});
+}
 function clientSearch(input){
   pickItems=knownClients(input.value.trim());
   if(!pickItems.length){pickClose();return;}
@@ -141,14 +148,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').inne
 function newProjectModal(){
   openModal('Új projekt',`<div class="fields">
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
-    ${mf('client','Ügyfél')}
+    <div class="field"><label for="m-clientSel">Ügyfél</label><select class="inp" id="m-clientSel" name="clientSel">${clientOptions('')}</select></div>
+    <div class="field" id="m-clientNew" style="display:none"><label for="m-client">Új ügyfél neve</label><input class="inp" id="m-client" name="client" maxlength="160"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
     ${mf('date','Első nap',{type:'date'})}
     ${mf('venue','Helyszín')}
   </div>`,{submitLabel:'Létrehozás',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
-    const p={id:uuid(),name:fd.get('name').trim(),client:fd.get('client').trim(),eventType:fd.get('eventType'),date:fd.get('date')||'',venue:fd.get('venue').trim(),
+    const p={id:uuid(),name:fd.get('name').trim(),client:fd.get('clientSel')==='__new'?String(fd.get('client')||'').trim():String(fd.get('clientSel')||''),eventType:fd.get('eventType'),date:fd.get('date')||'',venue:fd.get('venue').trim(),
       status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
+    {const it=knownClients('').find(c=>c.company===p.client);if(it){p.contactName=it.name;p.contactPhone=it.phone;p.contactEmail=it.email;}}   // ismert ügyfél: a kapcsolattartó is átjön
     try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva');syncCal(saved.id);}
     catch(e){handleErr(e);}
   }});
@@ -544,6 +553,9 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target,d=S.draft;
   if(t.tagName==='SELECT'&&t.id!=='viewAs')try{t.blur();}catch(_){}   // tableten (iPad) a kiválasztás után zárjuk be a listát
+  if(t.dataset.clientSel&&d){if(t.value==='__new'){t.value=d.client||'';newClientModal();return;}
+    const it=knownClients('').find(c=>c.company===t.value),patch={client:t.value};if(it&&(it.name||it.phone||it.email)){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}setDraft(patch);return;}
+  if(t.id==='m-clientSel'){const n=$('m-clientNew');if(n){const on=t.value==='__new';n.style.display=on?'':'none';if(on)n.querySelector('input').focus();}return;}
   if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
