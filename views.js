@@ -320,7 +320,7 @@ function keretRows(p){
   return `<tr class="keret-tr"><td></td><td colspan="2">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="3"></td></tr>
         <tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':moneyFmt(Math.abs(left))||0}</td><td colspan="3"></td></tr>`;
 }
-function totalCell(p){const amt=(p.fees||[]).reduce((s,f)=>s+num(f.amount),0),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
+function totalCell(p){const amt=feeSum(p),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
 function finSumHtml(p){
   const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
