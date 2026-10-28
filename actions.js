@@ -490,3 +490,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
 
 /* ===== Indítás ===== */
 if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}
+
+/* Pénzügyek táblázat: oszlopszélesség húzással (egér és érintés), böngészőnként megjegyezve; dupla kattintás visszaállítja. */
+document.addEventListener('pointerdown',e=>{
+  const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;
+  e.preventDefault();e.stopPropagation();
+  const table=g.closest('table'),cols=[...table.querySelectorAll('col')],i=Number(g.dataset.col),startX=e.clientX;
+  const widths=cols.map(c=>Math.round(c.getBoundingClientRect().width)||parseInt(c.style.width,10));const startW=widths[i];
+  cols.forEach((c,k)=>c.style.width=widths[k]+'px');table.style.width=widths.reduce((a,b)=>a+b,0)+'px';table.style.minWidth='0';
+  document.body.classList.add('col-resizing');
+  const move=ev=>{const w=Math.max(40,Math.round(startW+ev.clientX-startX));widths[i]=w;cols[i].style.width=w+'px';table.style.width=widths.reduce((a,b)=>a+b,0)+'px';};
+  const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.body.classList.remove('col-resizing');try{localStorage.setItem('lpm_fin_cols',JSON.stringify(widths));}catch(err){}};
+  document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
+});
+document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols');}catch(err){}render(true);});
