@@ -323,8 +323,11 @@ function bootstrap_(u) {
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
     out.projects = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
-    out.crew = crew.map(c => Object.assign({}, c, { dayRate: null }));
-    out.inventory = inventory.map(i => Object.assign({}, i, { value: null }));
+    // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
+    const onIds = {}, itemIds = {};
+    out.projects.forEach(p => { if (p.lead) onIds[p.lead] = 1; p.crew.forEach(a => { onIds[a.crewId] = 1; }); p.equipment.forEach(e => { itemIds[e.itemId] = 1; }); });
+    out.crew = crew.filter(c => onIds[c.id]).map(c => ({ id: c.id, name: c.name, phone: c.phone, roles: c.roles }));
+    out.inventory = inventory.filter(i => itemIds[i.id]).map(i => ({ id: i.id, name: i.name, category: i.category, serial: i.serial, location: i.location, qty: i.qty, condition: i.condition }));
     delete out.links.sheet;
   }
   return out;

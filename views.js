@@ -104,7 +104,7 @@ async function load(quiet,announce){
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
-    if(S.tab==='naptar'&&ro())S.tab='attekintes';
+    if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar')&&ro())S.tab='attekintes';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
     if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
@@ -125,7 +125,7 @@ document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.datas
 function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?58:110;t.style.height='auto';t.style.height=Math.max(min,t.scrollHeight+2)+'px';}
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
-const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat([{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   const on=!!S.me;
   ['userChip','refreshBtn','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
@@ -204,7 +204,8 @@ function viewOverview(){
   const open=all.filter(isOpen);
   const upcoming=all.filter(p=>isOpen(p)&&pr(p)&&pr(p).end>=T).sort(byStart);
   const next30=upcoming.filter(p=>pr(p).start<=addDays(T,30));
-  const post=open.filter(p=>pr(p)&&pr(p).end<T&&dueDate(p)).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
+  const myCut=p=>!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');   // szakember: csak vágóként látja az utómunkát
+  const post=open.filter(p=>pr(p)&&pr(p).end<T&&dueDate(p)&&myCut(p)).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
   const overdue=post.filter(p=>diffDays(T,dueDate(p))<0).length;
   const issues=computeIssues();
   const tile=(n,l,cls,x)=>`<div class="tile ${cls||''}"><div class="tile-n">${n}</div><div class="tile-l">${l}</div>${x||''}</div>`;
@@ -218,15 +219,15 @@ function viewOverview(){
     <div class="tiles">
       ${tile(open.length,ro()?'aktív beosztásod':'aktív projekt')}
       ${tile(next30.length,'rendezvény a következő 30 napban')}
-      ${tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:'')}
+      ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:''):''}
       ${tile(issues.length,'figyelmeztetés',issues.length?'warn':'')}
     </div>
     <div class="grid2">
       <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
         <div class="list">${upcoming.slice(0,8).map(p=>evRow(p)).join('')||empty('Nincs közelgő rendezvény.')}</div>
         ${upcoming.length>8?`<button class="btn ghost small" type="button" data-action="tab" data-tab="projektek">Mind a ${upcoming.length} megnyitása →</button>`:''}</div>
-      <div class="panel"><h3>⏱️ Átadási határidők</h3>
-        <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>
+      ${!ro()||post.length?`<div class="panel"><h3>⏱️ Átadási határidők</h3>
+        <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
     <div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`;
 }
@@ -435,7 +436,9 @@ function viewProject(p){
   const r=pr(p),T=todayISO(),di=dueInfo(p);
   const status=p.status||'egyeztetes',curIdx=STAGES.findIndex(s=>s.id===status);
   // átadandó anyag nélkül nincs utómunka lépés (kivéve, ha a projekt épp abban az állapotban van)
-  const stList=STAGES.map((s,i)=>({s,i})).filter(x=>x.s.id!=='utomunka'||needsDelivery(p)||status==='utomunka');
+  // a szakember (ha nem vágó) nem látja az utómunkát
+  const isCut=!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');
+  const stList=STAGES.map((s,i)=>({s,i})).filter(x=>x.s.id!=='utomunka'||(isCut&&(needsDelivery(p)||status==='utomunka')));
   const stages=stList.map(({s,i},k)=>`<button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>`).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
@@ -498,14 +501,14 @@ function viewProject(p){
       
     </div>
     <div class="col">
-      <div class="panel"><h3>📦 Átadás</h3>
+      ${isCut?`<div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
           <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
         ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}`:`<p class="hint" style="margin:6px 0 0">Nincs átadandó anyag, így átadási határidő sincs: nincs kiválasztva kreatív tartalom, fotó vagy előadás-utómunka.${ro()?'':` <button type="button" class="linkbtn" data-action="due-custom">Határidő megadása mégis</button>`}</p>`}
         ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>${esc(stageLabel(p,'atadva'))}</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
         ${needsDelivery(p)||p.deliveryLink?`<div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)${needsDelivery(p)?' <span class="muted" style="font-weight:600">– az átadáshoz kötelező</span>':''}</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>`:''}
-      </div>
+      </div>`:''}
       ${ro()?'':`<div class="panel"><h3>Projekt kezelése</h3>
         <div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
         ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}
