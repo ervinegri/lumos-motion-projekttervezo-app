@@ -234,6 +234,17 @@ function viewAsCrewModal(){
     {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
+function rentalModal(crewId){
+  const c=crewById(crewId);
+  openModal('Bérelt eszköz'+(c?' – '+c.name:' – közös'),`<div class="fields">
+    ${mf('name','Eszköz neve',{full:true,ph:'pl. Sony FX6 + 24-70 GM',max:120})}
+    ${mf('company','Bérbeadó cég',{ph:'pl. Rentalcam',max:120})}
+    ${canSeeFees()?moneyField('price','Bérleti díj (nettó)','',{steps:false,ph:'pl. 25 000'}):''}
+  </div>`,{submitLabel:'Hozzáadás',submit:async(fd,form)=>{
+    const name=String(fd.get('name')||'').trim();if(!name){toast('Add meg az eszköz nevét.',true);return;}
+    const r={id:uuid(),crewId:crewId||'',name,company:String(fd.get('company')||'').trim(),price:canSeeFees()?(moneyVal(fd.get('price'))||0):0};
+    closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([r])});}});
+}
 function sendListModal(only){
   const p=S.draft;if(!p||ro())return;
   if(S.dirty){toast('Előbb mentsd el a projekt módosításait, hogy a friss lista menjen ki.',true);return;}
@@ -336,7 +347,8 @@ function saveDraft(){
 function personList(p,cid){
   const c=crewById(cid);const lines=[`Eszközlista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,'',((c&&c.name)||'?').toUpperCase()];
   const mine=(p.equipment||[]).filter(e=>e.crewId===cid).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
-  if(!mine.length)lines.push('(nincs nála eszköz)');
+  rentalsOf(p,cid).forEach(r=>lines.push(`☐ ${r.name} (bérelt${r.company?', '+r.company:''})`));
+  if(!mine.length&&!rentalsOf(p,cid).length)lines.push('(nincs nála eszköz)');
   mine.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));
   return lines.join('\n');
 }
@@ -348,6 +360,7 @@ function packingList(p){
   people.forEach(cid=>{const mine=eq.filter(x=>x.e.crewId===cid);if(!mine.length)return;const c=crewById(cid);lines.push(((c&&c.name)||'?').toUpperCase()+(c&&c.phone?' – '+c.phone:''));mine.forEach(x=>lines.push(line(x)));lines.push('');});
   const common=eq.filter(x=>!x.e.crewId||!people.includes(x.e.crewId));
   if(common.length){lines.push('KÖZÖS ESZKÖZÖK');common.forEach(x=>lines.push(line(x)));lines.push('');}
+  if((p.rentals||[]).length){lines.push('BÉRELT ESZKÖZÖK');(p.rentals||[]).forEach(r=>{const c=crewById(r.crewId);lines.push(`☐ ${r.name}${r.company?' ('+r.company+')':''}${c?' – '+c.name:''}`);});lines.push('');}
   const noEq=people.filter(cid=>!eq.some(x=>x.e.crewId===cid)).map(cid=>crewById(cid)).filter(Boolean);
   if(noEq.length){lines.push('STÁB (eszköz nélkül)');noEq.forEach(c=>lines.push(`• ${c.name}${c.phone?' – '+c.phone:''}`));}
   return lines.join('\n').trim();
@@ -401,6 +414,7 @@ const ACT={
     const fees=(d.fees||[]).filter(f=>f.crewId!==id);const crewNotes=Object.assign({},d.crewNotes||{});delete crewNotes[id];
     setDraft({crew,lead:d.lead===id?'':d.lead,equipment,fees,crewNotes});toast((c?c.name:'Munkatárs')+' lekerült a projektről'+(moved?', az eszközei a Közös eszközökhöz kerültek':'')+'. Ctrl/⌘+Z visszahozza.');},
   'eq-open':b=>{FOLD['eq_'+b.dataset.id]=true;render(true);},
+  'rent-remove':b=>{const d=S.draft;if(!d)return;setDraft({rentals:(d.rentals||[]).filter(r=>r.id!==b.dataset.id)});},
   'undo':()=>histStep(-1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
@@ -467,7 +481,7 @@ document.addEventListener('input',e=>{
     const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
     {const kr=document.querySelectorAll('.keret-tr');if(kr.length===2){const tmp=document.createElement('tbody');tmp.innerHTML=keretRows(S.draft);kr[0].replaceWith(tmp.children[0]);kr[1].replaceWith(tmp.children[0]);}}
     const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
-    if(ea)ea.innerHTML=totalCell(S.draft);if(er)er.textContent=moneyFmt(fsum('rent'))||0;
+    if(ea)ea.innerHTML=totalCell(S.draft);if(er)er.textContent=moneyFmt((S.draft.fees||[]).reduce((a,f)=>a+rentOf(S.draft,f),0)+rentalSum(S.draft,''))||0;
   }
   if(t.dataset.money==='big'){const pos=t.value.length-t.selectionStart;const d=String(t.value).replace(/\D/g,'');t.value=d===''?'':moneyFmt(Math.min(9999999999,Number(d)));try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
   if(t.dataset.money){const pos=t.value.length-t.selectionStart;const v=moneyVal(t.value);t.value=moneyFmt(v);try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
@@ -492,6 +506,7 @@ document.addEventListener('change',e=>{
     if(role==='Projektvezető'){setDraft({lead:id});toast((c?c.name:'')+' projektvezető');return;}
     const crew=clone(d.crew||[]);if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
     crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role);return;}
+  if(t.dataset.eqAuto!==undefined&&d&&t.value==='__rent'){const key=t.dataset.eqAuto;t.value='';rentalModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d){const id=t.value;if(!id)return;const key=t.dataset.eqAuto,equipment=clone(d.equipment||[]);const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);
     if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:id,qty:1,crewId:key});setDraft({equipment});return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}

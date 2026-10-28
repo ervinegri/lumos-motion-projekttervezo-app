@@ -279,13 +279,17 @@ function eqRowsFor(p,key){
       <button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
 }
 function eqAddRow(p,key,opts){
-  if(ro()||!S.inventory.length)return '';
-  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option>${opts}</select></div>`;
+  if(ro())return '';
+  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option><option value="__rent">🏷️ Bérelt eszköz…</option>${opts}</select></div>`;
 }
 /* ===== Pénzügyek: ügyvezető = projekt értéke + termelői díjak + fedezet; termelési vezető = csak termelői díjak; szakember = semmi.
    (A háttér is így szűr: a projekt értékét csak az ügyvezető, a díjakat a szakember egyáltalán nem kapja meg.) ===== */
 const ftFmt=n=>String(Math.round(+n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0')+'\u00a0Ft';
-const feeSum=p=>(p.fees||[]).reduce((s,f)=>s+num(f.amount)+num(f.rent),0);
+/* Bérelt eszközök (nem leltári): a díjtáblázatban a felelős ember „Eszközbérlés” oszlopába számítanak. */
+const rentalsOf=(p,cid)=>(p.rentals||[]).filter(r=>(r.crewId||'')===(cid||''));
+const rentalSum=(p,cid)=>rentalsOf(p,cid).reduce((s,r)=>s+num(r.price),0);
+const rentOf=(p,f)=>f.crewId&&rentalsOf(p,f.crewId).length?rentalSum(p,f.crewId):num(f.rent);
+const feeSum=p=>(p.fees||[]).reduce((s,f)=>s+num(f.amount)+rentOf(p,f),0)+rentalSum(p,'');
 const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 /* Termelői keret forintban: az ügyvezetőnél a beállításból (% a projekt értékéből vagy fix összeg), a termelési vezetőnél a háttér által kiszámolt összeg. */
 function budgetFt(p){
@@ -301,7 +305,7 @@ function finPanelBody(p){
   const ftV=k!=null?moneyFmt(k):'';
   return `<div class="fin-sum">
       ${adm?`<div class="fin-inputs"><div class="field fin-val"><label for="f-projectValue">Büdzsé – a projekt értéke (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${esc(moneyFmt(p.projectValue))}" placeholder="pl. 969 000"><span class="money-unit">Ft</span></div></div>
-        <div class="field fin-budget"><label for="f-budgetPct">Termelői keret (költséghányad)</label>
+        <div class="field fin-budget"><label for="f-budgetPct">Termelői keret</label>
           <div class="budget-row"><div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret százalékban"><span class="money-unit">%</span></div>
           <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>`:''}
     </div>`;
@@ -336,9 +340,10 @@ function financePanel(p,inner){
   const fees=p.fees||[],adm=isAdmin();
   const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
   const ro_=t=>`<div class="cell-ro">${t}</div>`;
-  const rows=fees.map((f,i)=>{const fixed=f.kind==='fixed',g=f.crewId?(p.equipment||[]).filter(e=>e.crewId===f.crewId).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?num(e.qty)+'× ':'')+it.name:'';}).filter(Boolean).join(', '):'';
-    return `<tr class="${fixed?'fixed-row':''}"><td class="n">${i+1}</td><td>${ro_(esc(f.name||'—'))}</td><td>${ro_(fixed?'<span class="muted">—</span>':esc(f.task||(f.roles||[]).join(' + ')||'—'))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${ro_(fixed?'<span class="muted">—</span>':g?esc(g):f.gear?esc(f.gear):'<span class="muted">—</span>')}</td><td>${fixed?ro_('<span class="muted">—</span>'):tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c">${!f.crewId&&!fixed?`<button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button>`:''}</td></tr>`;}).join('');
-  const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+num(f.rent),0);
+  const rows=fees.map((f,i)=>{const fixed=f.kind==='fixed',g=f.crewId?(p.equipment||[]).filter(e=>e.crewId===f.crewId).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?num(e.qty)+'× ':'')+it.name:'';}).filter(Boolean).concat(rentalsOf(p,f.crewId).map(r=>r.name+' (bérelt)')).join(', '):'';
+    const sep=fixed&&(i===0||fees[i-1].kind!=='fixed')?`<tr class="sep-row"><td colspan="7">Egyéb költségek</td></tr>${rentalsOf(p,'').length?`<tr class="fixed-row"><td class="n"></td><td><div class="cell-ro">Közös bérelt eszközök</div></td><td><div class="cell-ro">${esc(rentalsOf(p,'').map(r=>r.name).join(', '))}</div></td><td><div class="cell-ro"><span class="muted">—</span></div></td><td></td><td><div class="cell-ro"><span class="num-ro">${moneyFmt(rentalSum(p,''))}</span></div></td><td></td></tr>`:''}`:'';
+    return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':i+1}</td><td>${ro_(esc(f.name||'—'))}</td><td>${ro_(fixed?'<span class="muted">—</span>':esc(f.task||(f.roles||[]).join(' + ')||'—'))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}</td><td>${ro_(fixed?'<span class="muted">—</span>':g?esc(g):f.gear?esc(f.gear):'<span class="muted">—</span>')}</td><td>${fixed?ro_('<span class="muted">—</span>'):f.crewId&&rentalsOf(p,f.crewId).length?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1})}</td><td class="x-c">${!f.crewId&&!fixed?`<button class="trash" type="button" data-action="fee-remove" data-i="${i}" aria-label="Tétel törlése" title="Sor törlése">🗑️</button>`:''}</td></tr>`;}).join('');
+  const amt=fees.reduce((s,f)=>s+num(f.amount),0),rent=fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,'');
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek ezt nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
@@ -362,8 +367,8 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     const addRole=ro()||!free.length?'':`<span class="role-sel role-add"><select class="inp" data-crew-addrole="${esc(cid)}" aria-label="Extra szerep hozzáadása"><option value="">+ Szerep</option>${free.map(rl=>`<option>${esc(rl)}</option>`).join('')}</select></span>`;
     const rows=eqRowsFor(p,cid),leadOnly=p.lead===cid&&!roles.length,note=(p.crewNotes||{})[cid]||'';
     const first=cr?String(cr.name).split(' ').slice(-1)[0]:'';
-    const eqBlock=leadOnly&&!rows&&!(FOLD['eq_'+cid])?(ro()?'':`<button class="linkbtn eq-opt" type="button" data-action="eq-open" data-id="${esc(cid)}">+ Eszköz (projektvezetőnél nem kötelező)</button>`)
-      :`<div class="pcrew-eq">${rows||'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${eqAddRow(p,cid,opts)}</div>`;
+    const rentHtml=rentalsOf(p,cid).map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>Bérelt${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('');
+    const eqBlock=`<div class="pcrew-eq">${rows||rentHtml||leadOnly?'':'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${rows}${rentHtml}${eqAddRow(p,cid,opts)}</div>`;
     const noteBlock=ro()?(note?`<div class="pcrew-note-ro"><b>Neked szóló jegyzet:</b> ${esc(note)}</div>`:''):`<textarea class="inp pcrew-note" data-crew-note="${esc(cid)}" rows="2" placeholder="Személyes jegyzet ${esc(first)} számára – az eszközlistás levélbe is bekerül">${esc(note)}</textarea>`;
     return `<div class="pcrew"><div class="pcrew-top">${avatar(cr)}${ro()?'':`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Levétel a projektről" title="Levétel a projektről (minden szerepével)">🗑️</button>`}<div class="who"><b>${esc(cr?cr.name:'Törölt munkatárs')}</b>${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
       ${tight.map(g=>`<p class="tight-note">⏱️ ${tightText(g)}</p>`).join('')}
@@ -383,7 +388,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
       const opt=x=>{const busy=busyFor(x.id,p),already=selRole==='Projektvezető'?p.lead===x.id:(p.crew||[]).some(a=>a.crewId===x.id&&a.role===selRole);return `<option value="${esc(x.id)}"${already?' disabled':''}>${prioNum(x)<9?'P'+prioNum(x)+' · ':''}${esc(x.name)}${already?' – már be van osztva':busy.length?' – foglalt':on.has(x.id)?' – már a projekten':''}</option>`;};
       return `<div class="addrow labeled"><div class="field"><label for="add-crew-role">Beosztás</label><select class="inp" id="add-crew-role">${CREW_ROLES.map(rl=>`<option${rl===selRole?' selected':''}>${esc(rl)}</option>`).join('')}</select></div>
       <div class="field"><label for="add-crew-person">Munkatárs</label><select class="inp" id="add-crew-person"><option value="">Munkatárs kiválasztása…</option>${fit.length?`<optgroup label="${esc(selRole)}">${fit.map(opt).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(opt).join('')}</optgroup>`:''}</select></div></div>`;})():`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}
-    ${commonRows||(!ro()&&S.inventory.length&&ids.length===0)?`<div class="pcrew pcrew-common"><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${eqAddRow(p,'',opts)}</div></div>`:''}
+    ${commonRows||rentalsOf(p,'').length||(!ro()&&ids.length===0)?`<div class="pcrew pcrew-common"><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${rentalsOf(p,'').map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>Bérelt${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('')}${eqAddRow(p,'',opts)}</div></div>`:''}
     ${!S.inventory.length&&!ro()?`<p class="hint">Eszközt a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön tudsz felvenni.</p>`:''}
     ${hasEq||ids.length?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}<button class="btn outline small" type="button" data-action="copy-pack">📋 Eszközlista másolása</button></div>`:''}
     ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}`;
@@ -399,7 +404,7 @@ function viewProject(p){
   const stages=stList.map(({s,i},k)=>`<button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>`).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
-  const ex=EXTRAS.filter(e=>e.k!=='x_foto').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
+  const ex=EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
   const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
   const nRec=REC_CAMS.filter(c=>p[c.k]).length+REC_LIVE.filter(c=>p[c.k]).length+(p.er_post?1:0);
   const nTech=TECH.filter(t=>p[t.k]).length+(String(p.techPlan||'').trim()?1:0);
@@ -485,7 +490,7 @@ function viewProject(p){
         <div class="sec-lbl">Élő kép</div>
         <div class="toggles one">${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
         <div class="sec-lbl">Vágás és utómunka</div>
-        <div class="toggles"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
+        <div class="toggles post-row"><label class="toggle"><input type="checkbox" data-flag="er_post"${p.er_post?' checked':''}${D()}><span class="tl">Előadások utómunkája</span></label>
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
         ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}

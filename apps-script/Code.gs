@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -352,12 +352,20 @@ function parseNotes_(raw) {
   Object.keys(o).slice(0, 60).forEach(k => { const v = str_(o[k], 1000); if (ID_RE.test(k) && v) out[k] = v; });
   return out;
 }
+/* Bérelt eszközök (nem a leltárból): név, bérbeadó cég, ár. Az árat a szakember nem kapja meg. */
+function parseRentals_(raw) {
+  let arr = raw; if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, 60).map(x => ({ id: str_(x && x.id, 40), crewId: str_(x && x.crewId, 64), name: str_(x && x.name, 120), company: str_(x && x.company, 120), price: int_(x && x.price, 0, FEE_MAX, 0) }))
+    .filter(x => x.name);
+}
 function projectView_(p, u) {
   const q = Object.assign({}, p);
   const role = u && u.role;
   // személyes jegyzetek: a szakember csak a sajátját kapja meg
   const notes = parseNotes_(q.crewNotes);
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
+  q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company } : r);
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees); else delete q.fees;
@@ -439,7 +447,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -456,6 +464,8 @@ function saveProject_(u, a) {
     }
     if (a.crewNotes !== undefined) p.crewNotes = JSON.stringify(parseNotes_(a.crewNotes));
     if (p.crewNotes == null) p.crewNotes = '';
+    if (Array.isArray(a.rentals)) p.rentals = JSON.stringify(parseRentals_(a.rentals));
+    if (p.rentals == null) p.rentals = '';
     if (p.budgetMode == null) p.budgetMode = '';
     if (p.budgetVal == null) p.budgetVal = '';
     if (p.quotePrice == null) p.quotePrice = '';
@@ -844,6 +854,14 @@ function sendEquipmentList_(u, a) {
       eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.who ? ' – ' + x.who : '') + (x.it.location ? ' – hol van: ' + x.it.location : '') + '\n';
     });
   });
+  const rentals = parseRentals_(p.rentals);
+  if (rentals.length) {
+    eqHtml += '<tr><td colspan="2" style="padding:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f7381">Bérelt eszközök</td></tr>';
+    eqTxt += '\nBÉRELT ESZKÖZÖK\n';
+    rentals.forEach(r => { const who = r.crewId && crewMap[r.crewId] ? crewMap[r.crewId].name : '';
+      eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee">' + e(r.name) + (r.company ? ' <span style="color:#5f7381">(' + e(r.company) + ')</span>' : '') + (who ? ' – ' + e(who) : '') + '</td></tr>';
+      eqTxt += '☐ ' + r.name + (r.company ? ' (' + r.company + ')' : '') + (who ? ' – ' + who : '') + '\n'; });
+  }
   if (!eqHtml) { eqHtml = '<tr><td style="color:#5f7381">Ehhez a projekthez még nincs eszköz rendelve.</td></tr>'; eqTxt = '\n(nincs eszköz rendelve)\n'; }
   const crewRows = Object.keys(onProject).filter(cid => crewMap[cid]).map(cid => ({ c: crewMap[cid], roles: onProject[cid] }));
   const crewHtml = crewRows.map(r => '<tr><td style="padding:4px 12px 4px 0"><b>' + e(r.c.name) + '</b></td><td style="padding:4px 12px 4px 0;color:#5f7381">' + e(r.roles.join(', ')) + '</td><td style="padding:4px 0">' + e(r.c.phone || '') + '</td></tr>').join('');
@@ -853,7 +871,8 @@ function sendEquipmentList_(u, a) {
   const planHtml = includePlan && (p.techPlan || p.notes) ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan || '—') + '</div>' + (p.notes ? '<h3 style="font-size:15px;margin:18px 0 6px">Jegyzetek</h3><div style="white-space:pre-wrap">' + e(p.notes) + '</div>' : '') : '';
   const planTxt = includePlan && (p.techPlan || p.notes) ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + (p.techPlan || '—') + (p.notes ? '\n\nJEGYZETEK\n' + p.notes : '') + '\n' : '';
   const sentTo = [];
-  const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name);
+  const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name)
+    .concat(rentals.filter(r => r.crewId === cid).map(r => r.name + ' (bérelt' + (r.company ? ', ' + r.company : '') + ')'));
   const sig = signatureFor_(u), pNotes = parseNotes_(p.crewNotes);
   recipients.forEach(cid => {
     const c = crewMap[cid];
