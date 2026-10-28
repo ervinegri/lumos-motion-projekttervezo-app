@@ -322,8 +322,7 @@ function keretRows(p){
 function finSumHtml(p){
   const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
-  return `<div class="kv"><span>Termelői díjak összesen</span><b>${ftFmt(sum)}</b></div>
-      ${adm?`<div class="kv"><span>Fedezet</span><b class="${val>0&&margin<0?'bad-txt':''}">${val>0?ftFmt(margin)+' · '+pct(margin):'–'}</b></div>
+  return `${adm?`<div class="kv"><span>Fedezet</span><b class="${val>0&&margin<0?'bad-txt':''}">${val>0?ftFmt(margin)+' · '+pct(margin):'–'}</b></div>
       <div class="kv"><span>Tényleges költséghányad</span><b>${pct(sum)}</b></div>`:''}`;
 }
 function finAside(p){
