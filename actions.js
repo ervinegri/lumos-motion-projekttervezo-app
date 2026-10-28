@@ -413,7 +413,7 @@ const ACT={
   save:()=>saveDraft(),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;
-    if(b.dataset.v==='atadva'&&needsDelivery(d)&&!String(d.deliveryLink||'').trim()){toast('Átadás előtt add meg az átadási linket (mappa vagy videók).',true);const e=$('f-deliveryLink');if(e){e.classList.add('need');e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>e.focus(),300);}return;}
+    if(b.dataset.v==='atadva'&&needsDelivery(d)&&!String(d.deliveryLink||'').trim()){S.delivOpen=d.id;render(true);toast('Átadás előtt add meg az átadási linket (mappa vagy videók).',true);const e=$('f-deliveryLink');if(e){e.classList.add('need');e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>e.focus(),300);}return;}
     setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`<div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>

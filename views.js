@@ -517,7 +517,7 @@ function viewProject(p){
       </div></div>
   </div>
   <div class="dside">
-      ${isCut&&(needsDelivery(p)||p.deliveryLink||p.status==='utomunka')?`<div class="panel"><h3>📦 Átadás</h3>
+      ${isCut&&(needsDelivery(p)||p.deliveryLink)&&(p.status==='atadva'||S.delivOpen===p.id)?`<div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
           <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
