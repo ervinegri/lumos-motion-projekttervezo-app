@@ -516,16 +516,7 @@ function viewProject(p){
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
   </div>
-  <div class="dside">
-      ${isCut&&(needsDelivery(p)||p.deliveryLink)&&(p.status==='atadva'||S.delivOpen===p.id)?`<div class="panel"><h3>📦 Átadás</h3>
-        <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
-        ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
-          <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
-        ${di&&r&&r.end<T?`<div class="countdown ${di.cls}"><span class="big">${Math.abs(di.left)}</span><span>${di.left<0?'napja lejárt a határidő':di.left===0?'ma kell átadni':'nap van hátra az átadásig'}</span></div>`:''}`:`<p class="hint" style="margin:6px 0 0">Nincs átadandó anyag, így átadási határidő sincs: nincs kiválasztva kreatív tartalom, fotó vagy előadás-utómunka.${ro()?'':` <button type="button" class="linkbtn" data-action="due-custom">Határidő megadása mégis</button>`}</p>`}
-        ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>${esc(stageLabel(p,'atadva'))}</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
-        ${needsDelivery(p)||p.deliveryLink?`<div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)${needsDelivery(p)?' <span class="muted" style="font-weight:600">– az átadáshoz kötelező</span>':''}</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>`:''}
-      </div>`:''}
-  </div>
+
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
       <section class="content-col">

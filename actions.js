@@ -236,6 +236,19 @@ function viewAsCrewModal(){
     {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
+function deliveryModal(){
+  const d=S.draft,r=pr(d);if(!d)return;
+  openModal('📦 Átadás',`<div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
+    <div class="fields" style="margin-top:10px">
+      <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
+      ${d.status==='atadva'&&d.deliveredAt?`<div class="field"><label>Átadva</label><div class="inp" style="border:0;background:none;padding-left:0"><b class="ok-txt">${fmtDay(d.deliveredAt)}</b></div></div>`:'<div></div>'}
+      ${mf('deliveryLink','Átadási link (mappa vagy videók) <span class="muted" style="font-weight:600">– kötelező</span>',{full:true,type:'url',ph:'https://drive.google.com/…',v:d.deliveryLink||''})}
+    </div>`,{submitLabel:d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
+      const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
+      const due=String(fd.get('dueAt')||'');closeModal();
+      setDraft({deliveryLink:link,dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});}});
+  const e=$('m-deliveryLink');if(e)setTimeout(()=>e.focus(),50);
+}
 function ownGearModal(crewId){
   const c=crewById(crewId);
   openModal('Saját eszköz'+(c?' – '+c.name:' – közös'),`<p class="hint" style="margin:0 0 10px">A munkatárs saját felszerelése – nem leltári és nem bérelt.</p><div class="fields">
@@ -412,8 +425,9 @@ const ACT={
   'modal-bg':(b,e)=>{if(e.target===b)closeModal();},
   save:()=>saveDraft(),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
-  stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;
-    if(b.dataset.v==='atadva'&&needsDelivery(d)&&!String(d.deliveryLink||'').trim()){S.delivOpen=d.id;render(true);toast('Átadás előtt add meg az átadási linket (mappa vagy videók).',true);const e=$('f-deliveryLink');if(e){e.classList.add('need');e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>e.focus(),300);}return;}
+  stage:b=>{const d=S.draft;if(!d||ro())return;
+    if(b.dataset.v==='atadva'&&needsDelivery(d)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
+    if(d.status===b.dataset.v)return;
     setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`<div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
