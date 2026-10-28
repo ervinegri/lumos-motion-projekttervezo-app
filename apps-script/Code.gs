@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -271,11 +271,11 @@ function bootstrap_(u) {
   const crew = readAll_('crew');
   const inventory = readAll_('inventory');
   const byP = {};
-  projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; delete p.quotePrice; byP[p.id] = p; });   // árakat az app senkinek nem küld
+  projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; byP[p.id] = p; });
   readAll_('crewAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].crew.push({ crewId: r.crewId, role: r.role }); });
   readAll_('eqAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].equipment.push({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }); });
   const out = {
-    me: publicUser_(u), projects: projects, crew: crew, inventory: inventory,
+    me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory,
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     serverTime: now_()
   };
@@ -285,7 +285,7 @@ function bootstrap_(u) {
   }
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
-    out.projects = projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
+    out.projects = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
     out.crew = crew.map(c => Object.assign({}, c, { dayRate: null }));
     out.inventory = inventory.map(i => Object.assign({}, i, { value: null }));
     delete out.links.sheet;
@@ -293,11 +293,34 @@ function bootstrap_(u) {
   return out;
 }
 
+/* ===================== PÉNZÜGYEK (szerepkör szerint szűrve) =====================
+   Projekt értéke (nettó, ÁFA nélkül): csak az ügyvezető látja és állítja (a táblában az „Ajánlati ár (nettó Ft)” oszlop).
+   Termelői díjak (alvállalkozói díjak, eszközbérlés, egyéb): az ügyvezető és a termelési vezető látja és szerkeszti.
+   A szakemberek egyiket sem kapják meg semmilyen válaszban. */
+const FEE_MAX = 99999999, VALUE_MAX = 9999999999;
+function parseFees_(raw) {
+  let arr = raw;
+  if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, 40).map(x => ({
+    name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120),
+    amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0)
+  })).filter(x => x.name || x.task || x.amount || x.rent);
+}
+function projectView_(p, u) {
+  const q = Object.assign({}, p);
+  const role = u && u.role;
+  if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
+  delete q.quotePrice;
+  if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees); else delete q.fees;
+  return q;
+}
+
 function fullProject_(p) {
   const q = Object.assign({}, p);
   q.crew = readAll_('crewAssign').filter(r => r.projectId === p.id).map(r => ({ crewId: r.crewId, role: r.role }));
   q.equipment = readAll_('eqAssign').filter(r => r.projectId === p.id).map(r => ({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }));
-  delete q.mutationId; delete q.quotePrice;
+  delete q.mutationId;
   return q;
 }
 
@@ -316,7 +339,7 @@ function saveProject_(u, a) {
     status: STATUSES.indexOf(a.status) >= 0 ? a.status : 'egyeztetes',
     prevStatus: STATUSES.indexOf(a.prevStatus) >= 0 ? a.prevStatus : '',
     lead: str_(a.lead, 64),
-    quotePrice: null,   // a Projekttervező nem kezel árakat
+    quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(),
     techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
@@ -361,12 +384,17 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
+      p.quotePrice = old.quotePrice; p.fees = old.fees;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
       if (calId) { const dup = readAll_('projects').find(x => x.calEventId === calId); if (dup) return Object.assign(fullProject_(dup), { duplicateOf: true }); }   // ugyanabból a naptáreseményből már van projekt
       p.createdAt = now_(); p.folderId = ''; p.listSentAt = ''; p.listSentTo = ''; p.calEventId = str_(a.calEventId, 200);   // naptárból importált projekt
     }
+    if (u.role === 'admin' && a.projectValue !== undefined) p.quotePrice = (a.projectValue === null || a.projectValue === '') ? '' : int_(a.projectValue, 0, VALUE_MAX, 0);
+    if ((u.role === 'admin' || u.role === 'editor') && Array.isArray(a.fees)) p.fees = JSON.stringify(parseFees_(a.fees));
+    if (p.quotePrice == null) p.quotePrice = '';
+    if (p.fees == null) p.fees = '';
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
     const sig = (list, f) => list.map(f).sort().join('|');
@@ -1232,7 +1260,7 @@ function rpc(token, name, arg) {
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG); return changePin_(u, arg, token);
-    case 'saveProject': canEdit(); return saveProject_(u, arg);
+    case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);

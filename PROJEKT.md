@@ -34,7 +34,7 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 - Projekten belüli szerep (Stáb fül): Projektvezető, Operatőr, Vágó, Fotós, Drónpilóta, Hangtechnikus, Fénytechnikus, Képkeverő / streaming, Sofőr / rakodó.
 
 ## Fontos szabályok
-- Az app NEM kezel árakat (a Projekttervező nem férhet hozzá a Lumos árakhoz). A megrendelt tartalmakból csak az operatőrszám számolódik.
+- Pénzügyek (mindig nettó, ÁFA nélkül): a projekt értékét (táblában „Ajánlati ár (nettó Ft)”) csak az ügyvezető látja és állítja; a termelői díjakat (alvállalkozói díj, eszközbérlés, fuvar, jutalék – „Termelői díjak (JSON)” oszlop) az ügyvezető és a termelési vezető. A szakember egyiket sem kapja meg; a szűrést a háttér végzi (projectView_). Fedezet = érték − termelői díjak; költséghányad = díjak / érték. Napló, naptár és e-mail nem tartalmaz összeget.
 - Belépés csak Google-fiókkal (Google Identity Services, OAuth Client ID a config.js-ben és a Code.gs-ben; Google Cloud projekt: lumos-motion-projekttervezo, External, In production). Céges címnél csak a lumosmotion.com Workspace-fiók (hd) fogadható el. Csak a Beállítások → Hozzáférések listában szereplő aktív címek léphetnek be. A PIN-es belépés megszűnt; vészhelyzetben a PIN_LOGIN_ENABLED=true Script Property és a /#pin cím kapcsolja vissza.
 - Biztonsági fejlécek (CSP stb.) a vercel.json-ban.
 - Új oszlop csak a munkalap végére kerülhet; fejlécet átnevezni nem szabad (a háttér ellenőrzi).
