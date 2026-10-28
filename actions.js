@@ -236,6 +236,19 @@ function viewAsCrewModal(){
     {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
+function siteModal(next){
+  const d=S.draft;if(!d)return;
+  openModal('📝 Helyszíni munka beszámoló',`<div class="fields">
+      <div class="field full"><label>Minden rendben ment a helyszínen?</label><div class="seg-row">
+        <label class="toggle"><input type="radio" name="siteOk" value="igen"${d.siteOk==='igen'?' checked':''}><span class="tl">✅ Igen, minden rendben</span></label>
+        <label class="toggle"><input type="radio" name="siteOk" value="nem"${d.siteOk==='nem'?' checked':''}><span class="tl">⚠️ Nem, volt probléma</span></label></div></div>
+      <div class="field full"><label for="m-siteReport">Beszámoló</label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
+    </div>`,{submitLabel:next?'Tovább':'Mentés',submit:async fd=>{
+      const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
+      if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
+      if(!txt){toast('Írd be a beszámolót.',true);const e=$('m-siteReport');if(e)e.focus();return;}
+      closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();}});
+}
 function deliveryModal(){
   const d=S.draft,r=pr(d);if(!d)return;
   openModal('📦 Átadás',`<div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
@@ -428,9 +441,13 @@ const ACT={
   save:()=>saveDraft(),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;
-    if(b.dataset.v==='atadva'&&needsDelivery(d)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
-    if(d.status===b.dataset.v)return;
-    setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
+    const v=b.dataset.v,go=()=>{
+      if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
+      if(S.draft.status===v)return;
+      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});};
+    if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&!(d.siteOk&&String(d.siteReport||'').trim())){siteModal(go);return;}   // előbb a helyszíni beszámoló
+    go();},
+  'site-report':()=>siteModal(null),
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`<div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
       ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás'});},
