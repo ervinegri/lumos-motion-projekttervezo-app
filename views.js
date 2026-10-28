@@ -396,6 +396,29 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
   if(inner)return {body,aside};
   return `<div class="panel"><h3>👥 Stáb és eszközök <span class="aside">${aside}</span></h3>${body}</div>`;
 }
+/* Szakember nézet: csak a kiválasztott (pipált / nem nulla) tételek látszanak, üres panel nem jelenik meg. */
+function roList(items){return `<ul class="ro-list">${items.map(t=>`<li>${t}</li>`).join('')}</ul>`;}
+function roTechPanel(p){
+  const items=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
+  if(!items.length&&!plan)return '';
+  return `<div class="panel"><h3>💡 Hang- és fénytechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
+}
+function roContentPanel(p){
+  const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
+  REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
+  REC_LIVE.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
+  if(p.er_post)rec.push('Előadások utómunkája ('+(p.er_res==='4k'?'4K':'Full HD')+')');
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
+  if(rec.length&&rooms>1)rec.unshift(`Rögzített termek száma: <b>${rooms}</b>`);
+  const krea=[];
+  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)krea.push(`${esc(it.label)}: <b>${n}</b>`);if(it.k==='aftermovie'&&fotoDb(p)>0)krea.push(`Fotózás: <b>${fotoDb(p)} db</b>`);});
+  EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas'&&p[e.k]).forEach(e=>krea.push(esc(e.label)));
+  const tech=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
+  if(!rec.length&&!krea.length&&!tech.length&&!plan)return '';
+  const techHtml=tech.length||plan?`<div class="tech-sec"><h4 class="sub-h">💡 Hang- és fénytechnika</h4>${tech.length?roList(tech):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`:'';
+  const col=(t,items)=>items.length?`<section class="content-col"><h4 class="sub-h">${t}</h4>${roList(items)}</section>`:'';
+  return `<div class="panel content"><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
+}
 function viewProject(p){
   const c=calc(p),st=staffing(p),iss=computeIssues().filter(i=>i.pids.includes(p.id));
   const r=pr(p),T=todayISO(),di=dueInfo(p);
@@ -461,10 +484,7 @@ function viewProject(p){
         ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
-      <details class="panel fold" data-fold="tech"${FOLD.tech?' open':''}><summary><h3>💡 Hang- és fénytechnika ${foldAside(nTech)}</h3></summary>
-        <div class="toggles one">${tech}</div>
-        <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
-      </details>
+      
     </div>
     <div class="col">
       <div class="panel"><h3>📦 Átadás</h3>
@@ -481,7 +501,7 @@ function viewProject(p){
       </div>`}
     </div>
   </div>
-  <details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea)}</h3></summary>
+  ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
       <section class="content-col"><h4 class="sub-h">📽️ Előadásrögzítés és kivetítés <span class="aside">${nRec?nRec+' kiválasztva':''}</span></h4>
         ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
@@ -501,7 +521,11 @@ function viewProject(p){
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
         <div class="toggles">${ex}</div></section>
     </div>
-  </details>
+    <div class="tech-sec"><h4 class="sub-h">💡 Hang- és fénytechnika <span class="aside">${nTech?nTech+' kiválasztva':''}</span></h4>
+        <div class="toggles one">${tech}</div>
+        <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
+      </div>
+  </details>`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<div class="panel crew-fin"><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3>${ce.body}${financePanel(p,true)}</div>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>`;
