@@ -146,7 +146,7 @@ function gapBetween(p,q){
   return x.e<=y.s?{gap:y.s-x.e,first:p,second:q,end:x.e,start:y.s}:{gap:x.s-y.e,first:q,second:p,end:y.e,start:x.s};
 }
 function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&crewIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
-const tightText=g=>`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges késéssel is.`;
+const tightText=g=>`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
 function busyFor(personId,p){const r=pr(p);if(!r)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&crewIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
@@ -160,7 +160,7 @@ function computeIssues(){
   for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
     const g=gapBetween(live[i],live[j]);if(!g||g.gap>=TRAVEL_BUFFER_MIN)continue;
     const B=crewIds(live[j]);const names=[...crewIds(live[i])].filter(id=>B.has(id)).map(id=>(crewById(id)||{}).name).filter(Boolean);
-    if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges késéssel is.`,pids:[live[i].id,live[j].id]});
+    if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
   const seen=new Set();
   for(const it of S.inventory){
