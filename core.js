@@ -37,9 +37,9 @@ const REC_LIVE=[
 const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
+  {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
-  {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'},
-  {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'}];
+  {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
 const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Szakember'};
 const roleLabel=r=>USER_ROLES[r]||r;
 const TOKEN_KEY='lumos_pm_token_v1';
