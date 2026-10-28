@@ -31,7 +31,7 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 - Ügyvezető (`admin`): mindent lát és kezel, Beállítások, napló, felhasználók, beszerzési értékek.
 - Termelési vezető (`editor`): projektek, stáb, leltár szerkesztése és törlése, eszközlista küldése. Beszerzési értéket megadhat, de nem lát.
 - Régi „Stáb” (`crew`) felhasználó csak olvashat; újat nem lehet felvenni.
-- Projekten belüli szerep (Stáb fül): Projektvezető, Operatőr, Vágó, Fotós, Drónpilóta, Hangtechnikus, Fénytechnikus, Képkeverő / streaming, Sofőr / rakodó.
+- Projekten belüli szerep (Stáb fül): Projektvezető, Értékesítő, Operatőr, Vágó, Fotós, Drónpilóta, Hangtechnikus, Fénytechnikus, Képkeverő / streaming, Sofőr / rakodó.
 
 ## Fontos szabályok
 - Pénzügyek (mindig nettó, ÁFA nélkül): a projekt értékét (táblában „Ajánlati ár (nettó Ft)”) csak az ügyvezető látja és állítja; a termelői díjakat (alvállalkozói díj, eszközbérlés, fuvar, jutalék – „Termelői díjak (JSON)” oszlop) az ügyvezető és a termelési vezető. A szakember egyiket sem kapja meg; a szűrést a háttér végzi (projectView_). Fedezet = érték − termelői díjak; költséghányad = díjak / érték. Napló, naptár és e-mail nem tartalmaz összeget.

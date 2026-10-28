@@ -3,7 +3,7 @@
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Egyéb'];
-const CREW_ROLES=['Projektvezető','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
+const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Képkeverő / streaming','Sofőr / rakodó'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
