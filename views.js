@@ -298,7 +298,7 @@ function eqRowsFor(p,key){
 }
 function eqAddRow(p,key,opts){
   if(ro())return '';
-  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option><option value="__own">🎒 Saját eszköz…</option><option value="__rent">🏷️ Bérelt eszköz…</option>${opts}</select></div>`;
+  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option>${opts}<optgroup label="Egyéb"><option value="__own">🎒 Saját eszköz…</option><option value="__rent">🏷️ Bérelt eszköz…</option></optgroup></select></div>`;
 }
 /* ===== Pénzügyek: ügyvezető = projekt értéke + termelői díjak + fedezet; termelési vezető = csak termelői díjak; szakember = semmi.
    (A háttér is így szűr: a projekt értékét csak az ügyvezető, a díjakat a szakember egyáltalán nem kapja meg.) ===== */
