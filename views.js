@@ -371,7 +371,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     const rentHtml=rentalsOf(p,cid).map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>Bérelt${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('');
     const eqBlock=`<div class="pcrew-eq">${rows||rentHtml||leadOnly?'':'<p class="hint" style="margin:2px 0 0">Még nincs nála eszköz.</p>'}${rows}${rentHtml}${eqAddRow(p,cid,opts)}</div>`;
     const noteBlock=ro()?(note?`<div class="pcrew-note-ro"><b>Neked szóló jegyzet:</b> ${esc(note)}</div>`:''):`<textarea class="inp pcrew-note" data-crew-note="${esc(cid)}" rows="2" placeholder="Személyes jegyzet ${esc(first)} számára – az eszközlistás levélbe is bekerül">${esc(note)}</textarea>`;
-    return `<div class="pcrew${p.lead===cid?' is-lead':''}">${p.lead===cid?'<span class="lead-badge">★ Projektvezető</span>':''}<div class="pcrew-top">${avatar(cr)}${ro()?'':`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Levétel a projektről" title="Levétel a projektről (minden szerepével)">🗑️</button>`}<div class="who">${cr&&!ro()?`<button class="name-link" type="button" data-action="edit-crew" data-id="${esc(cid)}" title="${esc(cr.name)} profiljának megnyitása">${esc(cr.name)}</button>`:`<b>${esc(cr?cr.name:'Törölt munkatárs')}</b>`}${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:''}</div></div>
+    return `<div class="pcrew${p.lead===cid?' is-lead':''}">${p.lead===cid?'<span class="lead-badge">★ Projektvezető</span>':''}<div class="pcrew-top">${avatar(cr)}${ro()?'':`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Levétel a projektről" title="Levétel a projektről (minden szerepével)">🗑️</button>`}<div class="who">${cr&&!ro()?`<button class="name-link" type="button" data-action="edit-crew" data-id="${esc(cid)}" title="${esc(cr.name)} profiljának megnyitása">${esc(cr.name)}</button>`:`<b>${esc(cr?cr.name:'Törölt munkatárs')}</b>`}${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}${ro()&&cid===S.me.crewId&&p.myFee&&num(p.myFee.amount)?`<span class="my-fee">Díjad: ${ftFmt(p.myFee.amount)}</span>`:''}</div></div>
       ${tight.map(g=>`<p class="tight-note">⏱️ ${tightText(g)}</p>`).join('')}
       <div class="pcrew-roles">${roleHtml}${addRole}</div>
       ${eqBlock}${noteBlock}</div>`;}).join('');
@@ -404,6 +404,8 @@ function roTechPanel(p){
   return `<div class="panel"><h3>💡 Hang- és fénytechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
 }
 function roContentPanel(p){
+  return '';   // a szakember ezt a részt nem látja
+
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
   REC_LIVE.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
@@ -431,7 +433,7 @@ function viewProject(p){
   const ex=EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
   const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
   const nRec=REC_CAMS.filter(c=>p[c.k]).length+REC_LIVE.filter(c=>p[c.k]).length+(p.er_post?1:0);
-  const nTech=TECH.filter(t=>p[t.k]).length+(String(p.techPlan||'').trim()?1:0);
+  const nTech=TECH.filter(t=>p[t.k]).length;
   const tech=TECH.map(t=>`<label class="toggle"><input type="checkbox" data-flag="${t.k}"${p[t.k]?' checked':''}${D()}><span class="tl">${t.label}</span></label>`).join('');
   const sortedCrew=S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu'));
   const leadOpts=sortedCrew.map(cr=>`<option value="${esc(cr.id)}"${cr.id===p.lead?' selected':''}>${esc(cr.name)}</option>`).join('');
@@ -503,9 +505,9 @@ function viewProject(p){
   </div>
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
-      <section class="content-col"><h4 class="sub-h">📽️ Előadásrögzítés és kivetítés <span class="aside">${nRec?nRec+' kiválasztva':''}</span></h4>
-        ${(()=>{const n=Math.max(1,num(p.er_rooms)||1);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
-          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=1||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="1" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
+      <section class="content-col">
+        ${(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
+          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
         <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
         <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
         <div class="sec-lbl">Élő kép</div>
@@ -523,7 +525,6 @@ function viewProject(p){
     </div>
     <div class="tech-sec"><h4 class="sub-h">💡 Hang- és fénytechnika <span class="aside">${nTech?nTech+' kiválasztva':''}</span></h4>
         <div class="toggles one">${tech}</div>
-        <div class="field full" style="margin-top:16px"><label for="f-techPlan">Forgatási és technikai terv</label><textarea class="inp" id="f-techPlan" data-field="techPlan" placeholder="Kameraállások, hangforrások, prezentációs gép, stream platform, menetrend…"${D()}>${esc(p.techPlan||'')}</textarea></div>
       </div>
   </details>`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);

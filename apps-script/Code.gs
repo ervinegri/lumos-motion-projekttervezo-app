@@ -374,7 +374,8 @@ function projectView_(p, u) {
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company } : r);
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
   delete q.quotePrice;
-  if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees); else delete q.fees;
+  if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees);
+  else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount }; delete q.fees; }   // a szakember csak a saját díját látja
   // termelői keret: az ügyvezető a beállítást (% vagy Ft) látja, a termelési vezető csak a kiszámolt forintösszeget
   const mode = q.budgetMode === 'pct' ? 'pct' : q.budgetMode === 'ft' ? 'ft' : '', bv = Number(q.budgetVal);
   const val = Number(p.quotePrice);
@@ -422,7 +423,7 @@ function saveProject_(u, a) {
   p.foto_db = (a.foto_db === undefined || a.foto_db === null || a.foto_db === '') ? (p.x_foto ? 150 : 0) : int_(a.foto_db, 0, 1000, 0);
   p.x_foto = p.foto_db > 0;
   p.er_res = a.er_res === '4k' ? '4k' : 'hd';
-  p.er_rooms = int_(a.er_rooms, 1, 10, 1);
+  p.er_rooms = int_(a.er_rooms, 0, 10, 0);
   if (['er_total', 'er_close', 'er_zoom', 'er_crowd', 'er_slides', 'er_drone', 'er_stream'].some(k => p[k])) p.t_eloadas = true;   // a régi jelölő automatikusan
   if (p.status === 'atadva' && !p.deliveredAt) p.deliveredAt = today_();
   if (p.status !== 'atadva') p.deliveredAt = '';

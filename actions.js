@@ -408,7 +408,7 @@ const ACT={
   'cancel-toggle':()=>{const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
-  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.k==='er_rooms'?Math.max(1,num(d[it.k])||1):num(d[it.k]);setDraft({[it.k]:Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)))});},
+  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=num(d[it.k]);setDraft({[it.k]:Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)))});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'view-reset':()=>guard(()=>switchView('admin')),
   'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);

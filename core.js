@@ -34,7 +34,7 @@ const REC_CAMS=[
 const REC_LIVE=[
   {k:'er_stream',label:'Élő kivetítés LED falra vagy projektorra',role:'Képkeverő / streaming'},
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
-const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:1}];
+const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
