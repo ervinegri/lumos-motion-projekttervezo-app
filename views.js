@@ -496,8 +496,7 @@ function viewProject(p){
     ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
-  <div class="dgrid${ro()&&!isCut?' one':''}">
-    <div class="col">
+  <div class="dfull">
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
         ${fld(p,'name','Projekt neve',{full:true})}
         ${fld(p,'client','Ügyfél',{ph:ro()?'':'Válassz a korábbi megrendelők közül, vagy írj be újat'})}
@@ -507,14 +506,15 @@ function viewProject(p){
         ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
         ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
         ${fld(p,'hours','Helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
+        <div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
         ${fld(p,'contactPhone','Telefon',{type:'tel',ph:'+36 …'})}
-        ${fld(p,'contactEmail','E-mail',{type:'email',full:true})}
+        ${fld(p,'contactEmail','E-mail',{type:'email'})}
+        </div>
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
-      
-    </div>
-    <div class="col">
+  </div>
+  <div class="dside">
       ${isCut?`<div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
@@ -527,7 +527,6 @@ function viewProject(p){
         <div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
         ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}
       </div>`}
-    </div>
   </div>
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
