@@ -342,7 +342,7 @@ function parseFees_(raw) {
   return arr.slice(0, 40).map(x => ({
     name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
     roles: Array.isArray(x && x.roles) ? x.roles.map(r => str_(r, 40)).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
-    kind: x && x.kind === 'other' ? 'other' : '', autoTask: !!(x && x.autoTask),
+    kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), autoTask: !!(x && x.autoTask),
     amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0)
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
 }

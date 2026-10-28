@@ -278,6 +278,12 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
 function prepDraft(p){const d=clone(p);try{syncFeesWithCrew(d);}catch(e){}return d;}
+/* Fix sorok a díjtáblázat végén: fuvar és étel. */
+const FIXED_FEES=[['fuvar','Fuvar'],['etel','Étel']];
+function orderFees(fees){
+  fees=fees.slice();FIXED_FEES.forEach(([k,n])=>{if(!fees.some(f=>f.kind==='fixed'&&f.key===k))fees.push({kind:'fixed',key:k,name:n,amount:'',rent:''});});
+  return fees.filter(f=>f.kind!=='fixed').concat(FIXED_FEES.map(([k])=>fees.find(f=>f.kind==='fixed'&&f.key===k)));
+}
 function syncFeesWithCrew(d){
   if(!canSeeFees())return;
   const ids=[...crewIds(d)],days=rowDays(d);let fees=(d.fees||[]).map(f=>Object.assign({},f)),added=0;
@@ -286,7 +292,7 @@ function syncFeesWithCrew(d){
     if(!f){fees.push({name:c?c.name:'',crewId:id,task:rolesOf(id),autoTask:true,amount:c&&num(c.dayRate)?num(c.dayRate)*days:'',rent:''});added++;}
     else{f.crewId=id;if(f.autoTask||!f.task)f.task=rolesOf(id),f.autoTask=true;}});
   fees=fees.filter(f=>!f.crewId||ids.includes(f.crewId)||num(f.amount)||num(f.rent));
-  d.fees=fees;if(added)FOLD.fin=true;
+  d.fees=orderFees(fees);
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
 function guard(fn){
@@ -481,8 +487,13 @@ document.addEventListener('change',e=>{
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
-  if(t.id==='add-crew-person'){S.addCrew.person=t.value;const c=crewById(t.value);S.addCrew.role=(c&&(c.roles||[])[0])||'';render(true);return;}
-  if(t.id==='add-crew-role'){S.addCrew.role=t.value;return;}
+  if(t.id==='add-crew-role'){S.addCrew.role=t.value;render(true);setTimeout(()=>{const e=$('add-crew-person');if(e)e.focus();},30);return;}
+  if(t.id==='add-crew-person'&&d){const id=t.value;if(!id)return;const role=$('add-crew-role').value||'Operatőr';const c=crewById(id);
+    if(role==='Projektvezető'){setDraft({lead:id});toast((c?c.name:'')+' projektvezető');return;}
+    const crew=clone(d.crew||[]);if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
+    crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role);return;}
+  if(t.dataset.eqAuto!==undefined&&d){const id=t.value;if(!id)return;const key=t.dataset.eqAuto,equipment=clone(d.equipment||[]);const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);
+    if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:id,qty:1,crewId:key});setDraft({equipment});return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}
   if(t.id==='crew-role-filter'){S.cf.role=t.value;render(true);return;}
   if(t.id==='inv-cat'){S.inf.cat=t.value;render(true);return;}
