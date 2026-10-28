@@ -29,7 +29,7 @@ const REC_CAMS=[
   {k:'er_close',label:'Közeli kamera szög kamerával',sub:'Arc és mimika'},
   {k:'er_zoom',label:'Közeli kamera szög vágói belenagyítással',sub:'Közeli a totálból, utómunkában'},
   {k:'er_crowd',label:'Közönség kamera',sub:'Hangulat és reakciók'},
-  {k:'er_slides',label:'Diák rögzítése',sub:'Tiszta jel a projektorról'}];
+  {k:'er_slides',label:'Diák rögzítése / kivetítése',sub:'Tiszta jel a projektorról'}];
 /* Élő kép: kivetítés és streaming külön választható; mindkettőhöz képkeverő kell (termenként). */
 const REC_LIVE=[
   {k:'er_stream',label:'Élő kivetítés LED falra vagy projektorra',role:'Képkeverő / streaming'},
