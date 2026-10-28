@@ -242,7 +242,7 @@ function phJoin(cc,n){n=String(n||'').trim();
 function phoneField(o){
   const {cc,n}=phParse(o.value),id=o.key?'f-'+o.key:'m-'+o.name,dis=o.disabled?' disabled':'';
   return `<div class="field${o.full?' full':''}"><label for="${id}">${o.label||'Telefon'}</label><div class="phone-row" data-ph="${o.key?'k:'+o.key:'n:'+o.name}">
-    <select class="inp ph-cc" aria-label="Országhívószám"${dis}>${PH_CC.map(([c,f,code])=>`<option value="${code}"${code===cc?' selected':''}>${f} ${code}</option>`).join('')}</select>
+    <span class="inp ph-cc" data-cc="${cc}" aria-label="Országhívószám">${(PH_CC.find(x=>x[2]===cc)||['','🇭🇺'])[1]} ${cc}</span>
     <input class="inp ph-num" id="${id}" type="tel" inputmode="tel" autocomplete="off" value="${esc(n)}" placeholder="20 123 4567"${dis}>
     ${o.name?`<input type="hidden" name="${o.name}" value="${esc(phJoin(cc,n))}">`:''}</div></div>`;
 }

@@ -568,7 +568,7 @@ const ACT={
   'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},
   'hs-ipick':b=>{const it=(S._hsi||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};
     set('m-contactName',it.name);set('m-contactEmail',it.email);
-    const row=document.querySelector('#modalRoot .phone-row');if(row&&it.phone){const p=phParse(it.phone);row.querySelector('.ph-cc').value=p.cc;row.querySelector('.ph-num').value=phJoin(p.cc,p.n).replace(p.cc+' ','');phSync(row,false);}
+    const row=document.querySelector('#modalRoot .phone-row');if(row&&it.phone){const p=phParse(it.phone);row.querySelector('.ph-cc').dataset.cc=p.cc;row.querySelector('.ph-num').value=phJoin(p.cc,p.n).replace(p.cc+' ','');phSync(row,false);}
     if(!$('m-client').value&&it.company)set('m-client',it.company);
     $('hsInline').style.display='none';toast('Kapcsolattartó kitöltve a HubSpotból');},
   'hs-pick':b=>{const it=(S._hs||[])[Number(b.dataset.i)];if(!it||!S.draft)return;closeModal();setDraft({contactName:it.name,contactPhone:it.phone?phJoin(phParse(it.phone).cc,phParse(it.phone).n):'',contactEmail:it.email});toast('Kapcsolattartó kitöltve a HubSpotból');},
@@ -612,7 +612,7 @@ document.addEventListener('input',e=>{
   else if(t.id==='add-eq-qty'){S.addEq.qty=t.value;}
 });
 /* telefonmező: országhívószám + szám → egy érték */
-function phSync(row,commit){const v=phJoin(row.querySelector('.ph-cc').value,row.querySelector('.ph-num').value),[kind,k]=row.dataset.ph.split(':');
+function phSync(row,commit){const v=phJoin(row.querySelector('.ph-cc').dataset.cc||'+36',row.querySelector('.ph-num').value),[kind,k]=row.dataset.ph.split(':');
   if(kind==='n'){const h=row.querySelector('input[type=hidden]');if(h)h.value=v;}else if(commit&&S.draft&&(S.draft[k]||'')!==v)setDraft({[k]:v});}
 document.addEventListener('input',e=>{const r=e.target.closest&&e.target.closest('.phone-row');if(r)phSync(r,false);});
 document.addEventListener('change',e=>{
