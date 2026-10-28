@@ -415,8 +415,11 @@ const ACT={
   stage:b=>{const d=S.draft;if(!d||d.status===b.dataset.v)return;
     if(b.dataset.v==='atadva'&&needsDelivery(d)&&!String(d.deliveryLink||'').trim()){toast('Átadás előtt add meg az átadási linket (mappa vagy videók).',true);const e=$('f-deliveryLink');if(e){e.classList.add('need');e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>e.focus(),300);}return;}
     setDraft({status:b.dataset.v,deliveredAt:b.dataset.v==='atadva'?(d.deliveredAt||todayISO()):''});},
-  'cancel-toggle':()=>{const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
-  'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
+  'proj-manage':()=>{const p=S.draft;if(!p)return;
+    openModal('Projekt kezelése',`<div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
+      ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás'});},
+  'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
+  'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},

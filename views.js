@@ -494,7 +494,7 @@ function viewProject(p){
     <button class="back" type="button" data-action="back">← ${ro()?'Beosztásaim':'Összes projekt'}</button>
     <div class="dtitle"><div class="grow"><h2>${esc(p.name||'Névtelen projekt')}</h2>
       <p class="sub">${esc([p.client,p.eventType,fmtRange(p),p.venue].filter(Boolean).join(' · '))}</p></div></div>
-    <div class="btns">${folder}${delivery}${p.calEventId?`<button class="mini" type="button" data-action="tab" data-tab="naptar" data-focus="${esc(r?r.start:'')}" title="A „Terepi Munkák” Google Naptárban">📅 Naptárban</button>`:(validISO(p.date)&&!ro()?'<span class="hint" style="margin:0;align-self:center">📅 Mentéskor bekerül a Google Naptárba</span>':'')}</div>
+    <div class="btns">${folder}${delivery}${p.calEventId?`<button class="mini" type="button" data-action="tab" data-tab="naptar" data-focus="${esc(r?r.start:'')}" title="A „Terepi Munkák” Google Naptárban">📅 Naptárban</button>`:(validISO(p.date)&&!ro()?'<span class="hint" style="margin:0;align-self:center">📅 Mentéskor bekerül a Google Naptárba</span>':'')}${ro()?'':`<button class="mini" type="button" data-action="proj-manage">⚙️ Projekt kezelése</button>`}</div>
     ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
@@ -517,7 +517,7 @@ function viewProject(p){
       </div></div>
   </div>
   <div class="dside">
-      ${isCut?`<div class="panel"><h3>📦 Átadás</h3>
+      ${isCut&&(needsDelivery(p)||p.deliveryLink||p.status==='utomunka')?`<div class="panel"><h3>📦 Átadás</h3>
         <div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
         ${needsDelivery(p)?`<div class="kv due-kv"><label for="f-dueAt">Átadási határidő</label><span class="due-pick">${r?`<input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dueDate(p)||'')}" min="${esc(r.end)}"${D()}>`:'<b>—</b>'}
           <span class="muted">${validISO(p.dueAt)?`egyedi${ro()?'':` · <button type="button" class="linkbtn" data-action="due-reset">vissza: ${esc(fmtShort(defaultDue(p)||''))}</button>`}`:'forgatás utáni nap'}</span></span></div>
@@ -525,10 +525,6 @@ function viewProject(p){
         ${p.status==='atadva'&&p.deliveredAt?`<div class="kv"><span>${esc(stageLabel(p,'atadva'))}</span><b class="ok-txt">${fmtDay(p.deliveredAt)}</b></div>`:''}
         ${needsDelivery(p)||p.deliveryLink?`<div class="field full" style="margin-top:10px"><label for="f-deliveryLink">Átadási link (mappa vagy videók)${needsDelivery(p)?' <span class="muted" style="font-weight:600">– az átadáshoz kötelező</span>':''}</label><input class="inp" id="f-deliveryLink" data-field="deliveryLink" type="url" placeholder="https://drive.google.com/…" value="${esc(p.deliveryLink||'')}"${D()}></div>`:''}
       </div>`:''}
-      ${ro()?'':`<div class="panel"><h3>Projekt kezelése</h3>
-        <div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
-        ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}
-      </div>`}
   </div>
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
