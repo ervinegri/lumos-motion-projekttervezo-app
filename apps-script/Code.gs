@@ -874,6 +874,37 @@ const SIGNATURES = {
 const signatureFor_ = u => SIGNATURES[String((u && u.email) || '').toLowerCase()] || null;
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
+/** Meghívó Google-fiókos belépéshez (PIN nélkül). */
+function sendInviteMail_(user) {
+  const url = appUrl_() || FRONTEND_URL;
+  const intro = 'Hozzáférést kaptál a ' + APP_TITLE + ' alkalmazáshoz.';
+  const lines = ['Kedves ' + user.name + ',', '', intro, '',
+    'Belépés: nyisd meg a ' + FRONTEND_LABEL + ' oldalt, és kattints a „Bejelentkezés Google-fiókkal” gombra.',
+    'Ezzel a Google-fiókkal lépj be: ' + user.email, '', MAIL_SIGNATURE_TEXT];
+  const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
+    + '<p>Belépés: nyisd meg a <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a> oldalt, és kattints a <b>„Bejelentkezés Google-fiókkal”</b> gombra.</p>'
+    + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
+  const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
+  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
+  GmailApp.sendEmail(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts);
+}
+
+/** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
+function setUserDisabled_(arg, self) {
+  const id = String(arg && arg.id || ''), dis = !!(arg && arg.disabled);
+  return withLock_(() => {
+    const users = loadUsers_();
+    const u = users.find(x => x.id === id);
+    if (!u) throw new Error('A felhasználó nem található.');
+    if (dis && self && u.id === self.id) throw new Error('Saját magadat nem tilthatod le.');
+    if (dis && u.role === 'admin' && !u.disabled && users.filter(x => x.role === 'admin' && !x.disabled).length < 2) throw new Error('Legalább egy aktív ügyvezetőnek maradnia kell.');
+    u.disabled = dis;
+    if (dis) revokeSessionsOf_(u.id);
+    saveUsers_(users);
+    return { users: users.map(adminListUser_), name: u.name };
+  });
+}
+
 function sendPinMail_(user, pin, isReset) {
   const url = appUrl_();
   const intro = isReset ? 'A kérésedre új PIN-kódot állítottunk be a ' + APP_TITLE + ' alkalmazáshoz. A régi PIN-kód ezzel érvénytelen.' : 'Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.';
@@ -1080,11 +1111,13 @@ function saveUser_(arg) {
   let pin = String(a.pin || '').trim();
   const email = String(a.email || '').trim().toLowerCase();
   let sendPin = a.sendPin === true;
+  const googleOnly = a.loginMode === 'google';   // új kolléga Google-fiókkal lép be: PIN-t nem küldünk, csak meghívót
+  if (googleOnly) { sendPin = false; pin = ''; }
   if (name.length < 2 || name.length > 60) throw new Error('A név 2–60 karakter lehet.');
   if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető vagy Termelési vezető.');
   if (pin && !/^\d{6}$/.test(pin)) throw new Error('A PIN pontosan 6 számjegy legyen.');
   if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel lép be a felhasználó.');
-  let target = null, mailPin = '', list = null;
+  let target = null, mailPin = '', list = null, isNew = false;
   withLock_(() => {
     const users = loadUsers_();
     if (users.some(u => u.id !== a.id && String(u.email || '').toLowerCase() === email)) throw new Error('Ezzel az e-mail-címmel már van felhasználó.');
@@ -1092,7 +1125,7 @@ function saveUser_(arg) {
     if (a.id && !u) throw new Error('A felhasználó nem található.');
     if (!u && !pin && !email) throw new Error('Új felhasználónál adj meg e-mail-címet (ide megy a PIN), vagy írj be egy PIN-t.');
     if (sendPin && !email) throw new Error('A PIN e-mailes kiküldéséhez e-mail-cím szükséges.');
-    if (!u) { if (!pin) { pin = genPin_(); sendPin = true; } }
+    if (!u) { if (!pin) { pin = genPin_(); if (!googleOnly) sendPin = true; } }
     else if (sendPin && !pin) pin = genPin_();
     if (!u) {
       u = newUserRecord_(name, role, crewId, pin, email);
@@ -1107,7 +1140,8 @@ function saveUser_(arg) {
       if (pin || willDisable || roleChanged) revokeSessionsOf_(u.id);
     }
     saveUsers_(users);
-    target = u; mailPin = pin;
+    target = u; mailPin = googleOnly ? '' : pin;
+    isNew = !a.id;
     list = users.map(adminListUser_);
   });
   let mail = null;
@@ -1115,6 +1149,10 @@ function saveUser_(arg) {
     try { sendPinMail_(target, mailPin); mail = { sent: true, to: target.email }; }
     catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), pin: mailPin }; }
   } else if (sendPin && mailPin) mail = { sent: false, to: '', error: 'Nincs e-mail-cím.', pin: mailPin };
+  else if (googleOnly && isNew && a.sendInvite !== false && target && target.email) {
+    try { sendInviteMail_(target); mail = { sent: true, to: target.email, invite: true }; }
+    catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), invite: true }; }
+  }
   return { users: list, mail: mail };
 }
 
@@ -1199,8 +1237,14 @@ function rpc(token, name, arg) {
       adminOnly();
       const res = saveUser_(arg);
       const a = arg || {};
-      logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? ' · PIN e-mailben kiküldve' : ''));
+      logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? (res.mail.invite ? ' · Google-meghívó kiküldve' : ' · PIN e-mailben kiküldve') : ''));
       return res;
+    }
+    case 'setUserDisabled': {
+      adminOnly();
+      const res = setUserDisabled_(arg, u);
+      logEvent_(u, arg && arg.disabled ? 'Felhasználó letiltva' : 'Felhasználó engedélyezve', res.name, '');
+      return res.users;
     }
     case 'deleteUser': {
       adminOnly();

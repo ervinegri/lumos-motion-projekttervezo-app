@@ -198,22 +198,24 @@ function itemModal(it){
 function userModal(u){
   const v=u||{};
   const crewOpts=[['','Nincs összekapcsolva'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
-  openModal(u?'Felhasználó szerkesztése':'Új felhasználó',`<div class="fields">
+  openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
     ${mf('name','Megjelenő név',{v:v.name,max:60})}
     ${ms('role','Szerepkör',Object.entries(USER_ROLES),USER_ROLES[v.role]?v.role:'editor')}
     ${ms('crewId','Melyik munkatárs a stáblistában?',crewOpts,v.crewId||'',{full:true})}
-    ${mf('email','E-mail-cím (ezzel lép be, ide megy a PIN)',{type:'email',v:v.email,full:true})}
-    ${mf('pin',u?'Új PIN (üresen hagyva nem változik)':'PIN (üresen hagyva a program generál egyet)',{im:'numeric',max:6,ph:'6 számjegy'})}
-    <div class="field full"><div class="rolepick"><label><input type="checkbox" name="sendPin"${u?'':' checked'}> PIN kiküldése e-mailben</label>${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva</label>`:''}</div></div>
+    ${mf('email','E-mail-cím (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
+    ${u?'':`<div class="field full"><label>Belépés módja</label><div class="rolepick"><label><input type="radio" name="loginMode" value="google" checked> Google-fiókkal – meghívót küldünk e-mailben</label><label><input type="radio" name="loginMode" value="pin"> PIN-kóddal – a PIN-t e-mailben küldjük</label></div></div>`}
+    <div class="pin-only"${u?'':' hidden'}>${mf('pin',u?'Új PIN (tartalék belépéshez; üresen hagyva nem változik)':'PIN (üresen hagyva a program generál egyet)',{im:'numeric',max:6,ph:'6 számjegy'})}</div>
+    <div class="field full"><div class="rolepick"><label class="pin-only"${u?'':' hidden'}><input type="checkbox" name="sendPin"${u?'':' checked'}> PIN kiküldése e-mailben</label>${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:''}</div></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
-    const data={id:u?u.id:undefined,name:fd.get('name').trim(),role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),pin:fd.get('pin').trim(),sendPin:fd.get('sendPin')==='on',disabled:fd.get('disabled')==='on'};
+    const mode=u?'':String(fd.get('loginMode')||'google');
+    const data={id:u?u.id:undefined,name:fd.get('name').trim(),role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),pin:mode==='google'?'':fd.get('pin').trim(),sendPin:mode!=='google'&&fd.get('sendPin')==='on',disabled:fd.get('disabled')==='on',loginMode:mode||undefined};
     try{
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
       if(m&&!m.sent&&m.pin){openModal('A PIN nem ment ki e-mailben',`<p style="margin:0">Add át személyesen: <b style="font-size:20px;letter-spacing:3px">${esc(m.pin)}</b></p><p class="hint">${esc(m.error||'')}</p>`,{cancelLabel:'Rendben'});}
-      else{closeModal();toast(m&&m.sent?'Mentve, a PIN-t elküldtük: '+m.to:'Mentve');}
+      else{closeModal();toast(m&&m.sent?(m.invite?'Kolléga felvéve, meghívót küldtünk: ':'Mentve, a PIN-t elküldtük: ')+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),m&&m.invite&&!m.sent);}
       render(true);
     }catch(e){handleErr(e);}
   }});
@@ -325,6 +327,9 @@ const ACT={
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},
   'new-user':()=>userModal(null),
+  'toggle-user':async b=>{const dis=b.dataset.dis==='1';const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(!u)return;
+    const go=async()=>{try{S.users=await call('setUserDisabled',{id:u.id,disabled:dis});refreshLog();render(true);toast(dis?u.name+' letiltva – nem tud belépni':u.name+' újra beléphet');}catch(e){handleErr(e);}};
+    if(dis)confirmModal('Letiltás',`${u.name} nem tud többé belépni, és minden eszközön azonnal kilép. Később újra engedélyezheted.`,'Letiltás',()=>{closeModal();go();});else go();},
   'edit-user':b=>{const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(u)userModal(u);},
   'reload-log':async()=>{try{S.log=await call('getLog');render(true);}catch(e){handleErr(e);}},
   'del-crew':b=>arm(b,async()=>{try{await call('deleteCrew',{id:b.dataset.id});S.crew=S.crew.filter(c=>c.id!==b.dataset.id);closeModal();await load(true);toast('Munkatárs törölve');}catch(e){handleErr(e);}}),
@@ -392,6 +397,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
     setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:{[k]:n});return;}
+  if(t.name==='loginMode'){const f=t.closest('form')||document;f.querySelectorAll('.pin-only').forEach(x=>x.hidden=t.value!=='pin');return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
