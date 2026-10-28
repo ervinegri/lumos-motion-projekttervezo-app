@@ -494,7 +494,7 @@ function viewProject(p){
   return `<div class="dhead">
     <button class="back" type="button" data-action="back">← ${ro()?'Beosztásaim':'Összes projekt'}</button>
     <div class="dtitle"><div class="grow"><h2>${esc(p.name||'Névtelen projekt')}</h2>
-      <p class="sub">${esc([p.client,p.eventType,fmtRange(p),p.venue].filter(Boolean).join(' · '))}</p></div></div>
+      <p class="sub">${esc([p.client,p.eventType,fmtRange(p)?fmtRange(p)+(p.startTime?', '+p.startTime:''):'',p.venue].filter(Boolean).join(' · '))}</p></div></div>
     <div class="btns">${folder}${delivery}${p.calEventId?`<button class="mini" type="button" data-action="tab" data-tab="naptar" data-focus="${esc(r?r.start:'')}" title="A „Terepi Munkák” Google Naptárban">📅 Naptárban</button>`:(validISO(p.date)&&!ro()?'<span class="hint" style="margin:0;align-self:center">📅 Mentéskor bekerül a Google Naptárba</span>':'')}${ro()?'':`<button class="mini" type="button" data-action="proj-manage">⚙️ Projekt kezelése</button>`}</div>
     ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>${p.siteOk?`<div class="site-rep ${p.siteOk==='nem'?'bad':'ok'}"><b>${p.siteOk==='nem'?'⚠️ Helyszíni munka: volt probléma':'✅ Helyszíni munka: minden rendben'}</b><span>${esc(p.siteReport)}</span>${ro()?'':'<button class="linkbtn" type="button" data-action="site-report">Szerkesztés</button>'}</div>`:''}`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
