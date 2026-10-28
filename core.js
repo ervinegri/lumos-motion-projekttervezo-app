@@ -118,7 +118,7 @@ const driveUrl=id=>'https://drive.google.com/drive/folders/'+encodeURIComponent(
 function calc(p){
   const hours=Math.min(16,Math.max(1,num(p.hours)||8));
   const units=DELIVERABLES.reduce((s,it)=>s+num(p[it.k])*it.w,0);
-  const ops=units>=3?4:units>=2?3:units>=1?2:1;
+  const ops=units>=3?4:units>=2?3:units>=1?2:units>0?1:0;   // ha nem kérnek videót, operatőr sem kell
   return {ops,hours};
 }
 function staffing(p){
