@@ -1129,6 +1129,7 @@ function saveUser_(arg) {
   withLock_(() => {
     const users = loadUsers_();
     if (users.some(u => u.id !== a.id && String(u.email || '').toLowerCase() === email)) throw new Error('Ezzel az e-mail-címmel már van felhasználó.');
+    if (role === 'admin' && users.some(u => u.id !== a.id && u.role === 'admin')) throw new Error('Csak egy ügyvezető lehet. Válassz Termelési vezető vagy Szakember szerepkört.');
     let u = a.id ? users.find(x => x.id === a.id) : null;
     if (a.id && !u) throw new Error('A felhasználó nem található.');
     if (!u && !pin && !email) throw new Error('Új felhasználónál adj meg e-mail-címet (ide megy a PIN), vagy írj be egy PIN-t.');
