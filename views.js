@@ -333,7 +333,7 @@ function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_col
 function keretRows(p){
   const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=num(p.projectValue);
   const pct=isAdmin()&&k!=null?(p.budgetMode==='pct'?pctFmt(num(p.budgetVal)):val>0?pctFmt(k/val*100):''):'';
-  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':moneyFmt(Math.abs(left))||0}</td><td colspan="2"></td></tr>
+  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td colspan="2" class="fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':(left<0?'−':'')+(moneyFmt(Math.abs(left))||0)}</td><td colspan="2"></td></tr>
         <tr class="keret-tr"><td></td><td colspan="2">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="2"></td></tr>`;
 }
 function totalCell(p){const amt=feeSum(p),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
@@ -396,7 +396,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
   const aside=`${ids.length} fő · ${eqN} eszköz`;
   const body=`<div class="need">${st.map(s=>`<span class="statuspill ${s.have>=s.need?'p-ok':'p-warn'}" title="${s.have<s.need?'Kellene: '+s.need:''}">${esc(s.role)} ${s.have}</span>`).join('')}</div>
     <p class="hint">Munkatársanként rendeld hozzá, kinél milyen eszköz lesz.</p>
-    <div class="field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
+    <div class="field lead-field" style="margin-top:14px"><label for="f-lead">Projektvezető</label><select class="inp" id="f-lead" data-field="lead"${D()}><option value="">Nincs kijelölve</option>${leadOpts}</select>
       ${leadBusy.length?`<span class="bad-txt">Ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</span>`:''}</div>
     ${ro()?'':S.crew.length?(()=>{const people=sortedCrew.slice().sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
       const on=new Set(ids),fit=people.filter(x=>(x.roles||[]).includes(selRole)),rest=people.filter(x=>!(x.roles||[]).includes(selRole));
@@ -498,19 +498,19 @@ function viewProject(p){
   </div>
   <div class="dfull">
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
-        ${fld(p,'name','Projekt neve',{full:true})}
+        ${fld(p,'name','Projekt neve')}
+        ${fld(p,'venue','Helyszín',{ph:'pl. MVM Dome, Budapest'})}
         ${fld(p,'client','Ügyfél',{ph:ro()?'':'Válassz a korábbi megrendelők közül, vagy írj be újat'})}
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
-        ${fld(p,'venue','Helyszín',{full:true,ph:'pl. MVM Dome, Budapest'})}
-        ${fld(p,'date','Első nap',{type:'date'})}
-        ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
-        ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
-        ${fld(p,'hours','Helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
         <div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
         ${fld(p,'contactPhone','Telefon',{type:'tel',ph:'+36 …'})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>
+        ${fld(p,'date','Első nap',{type:'date'})}
+        ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
+        ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
+        ${fld(p,'hours','Helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></div>
   </div>
