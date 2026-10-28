@@ -449,7 +449,7 @@ function viewProject(p){
     <div class="col">
       <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
         ${fld(p,'name','Projekt neve',{full:true})}
-        ${fld(p,'client','Ügyfél (cég)',{ph:ro()?'':'Válassz a korábbi megrendelők közül, vagy írj be újat'})}
+        ${fld(p,'client','Ügyfél',{ph:ro()?'':'Válassz a korábbi megrendelők közül, vagy írj be újat'})}
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         ${fld(p,'venue','Helyszín',{full:true,ph:'pl. MVM Dome, Budapest'})}
         ${fld(p,'date','Első nap',{type:'date'})}

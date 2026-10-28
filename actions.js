@@ -141,7 +141,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').inne
 function newProjectModal(){
   openModal('Új projekt',`<div class="fields">
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
-    ${mf('client','Ügyfél (cég)')}
+    ${mf('client','Ügyfél')}
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
     ${mf('date','Első nap',{type:'date'})}
     ${mf('venue','Helyszín')}
