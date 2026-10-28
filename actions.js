@@ -10,6 +10,9 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
   document.documentElement.style.overflow='hidden';
   const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first)first.focus();
 }
+/* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;const f=$('mform');if(!f||!modalSubmit)return;
+  const b=f.querySelector('button[type=submit]');if(!b||b.disabled)return;e.preventDefault();if(f.requestSubmit)f.requestSubmit(b);else b.click();});
 function closeModal(){$('modalRoot').innerHTML='';modalSubmit=null;document.documentElement.style.overflow='';}
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}" value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
