@@ -504,7 +504,7 @@ function viewProject(p){
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue','Helyszín',{ph:'pl. MVM Dome, Budapest'})}
         ${(()=>{const cur=String(p.client||'').trim(),list=knownClients('').map(c=>c.company);if(cur&&!list.some(c=>c.toLowerCase()===cur.toLowerCase()))list.push(cur);list.sort((a,b)=>a.localeCompare(b,'hu'));
-          return `<div class="field"><label for="f-clientSel">Ügyfél</label><select class="inp" id="f-clientSel" data-client-sel="1"${D()}><option value="">Válassz ügyfelet…</option>${list.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('')}${ro()?'':'<option value="__new">+ Új ügyfél felvétele…</option>'}</select></div>`;})()}
+          return `<div class="field"><label for="f-clientSel">Ügyfél</label><select class="inp" id="f-clientSel" data-client-sel="1"${D()}><option value="">Válassz ügyfelet…</option>${list.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('')}${ro()?'':'<option value="__new">+ Új ügyfél felvétele…</option>'}</select>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>`;})()}
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         <div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
