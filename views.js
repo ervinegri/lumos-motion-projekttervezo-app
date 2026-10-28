@@ -158,7 +158,7 @@ function restoreScroll(){if(scrollRestored)return;scrollRestored=true;try{const 
 function render(force){
   if(!S.me)return;
   const ae=document.activeElement;
-  const keep=ae&&ae.id&&VIEW.contains(ae)?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
+  const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
   VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='beallitasok'?viewSettings():viewOverview();
