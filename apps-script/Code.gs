@@ -266,7 +266,36 @@ function withLock_(fn) {
 }
 
 /* ===================== ADATOK BETÖLTÉSE ===================== */
-function bootstrap_(u) {
+/* Gyorsítótár a betöltéshez: a táblázat teljes tartalmát (szerepkör-szűrés előtt) 10 percig a Script Cache-ben tartjuk.
+   Minden módosító művelet után új verziószámot kap, így a változás azonnal látszik. (Ha valaki közvetlenül a táblázatban
+   szerkeszt, az legkésőbb 10 perc múlva vagy a következő app-beli mentés után jelenik meg.) */
+const DATA_CACHE_TTL = 600;
+function dataVer_() { const c = CacheService.getScriptCache(); let v = c.get('pm_data_ver'); if (!v) { v = String(Date.now()); c.put('pm_data_ver', v, 21600); } return v; }
+function dataBump_() { try { CacheService.getScriptCache().put('pm_data_ver', Date.now() + '_' + Math.floor(Math.random() * 1e6), 21600); } catch (e) {} }
+function cacheGetJSON_(key) {
+  try {
+    const c = CacheService.getScriptCache(), n = Number(c.get(key + ':n') || 0);
+    if (!n) return null;
+    const keys = []; for (let i = 0; i < n; i++) keys.push(key + ':' + i);
+    const parts = c.getAll(keys); let out = '';
+    for (let i = 0; i < n; i++) { const p = parts[key + ':' + i]; if (p == null) return null; out += p; }
+    return JSON.parse(out);
+  } catch (e) { return null; }
+}
+function cachePutJSON_(key, obj, ttl) {
+  try {
+    const str = JSON.stringify(obj), size = 90000, map = {};
+    const n = Math.ceil(str.length / size);
+    if (n > 50) return;   // túl nagy, nem tároljuk
+    for (let i = 0; i < n; i++) map[key + ':' + i] = str.slice(i * size, (i + 1) * size);
+    map[key + ':n'] = String(n);
+    CacheService.getScriptCache().putAll(map, ttl);
+  } catch (e) {}
+}
+function loadBase_() {
+  const key = 'pm_base_' + dataVer_();
+  const hit = cacheGetJSON_(key);
+  if (hit) return hit;
   const projects = readAll_('projects');
   const crew = readAll_('crew');
   const inventory = readAll_('inventory');
@@ -274,6 +303,14 @@ function bootstrap_(u) {
   projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; byP[p.id] = p; });
   readAll_('crewAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].crew.push({ crewId: r.crewId, role: r.role }); });
   readAll_('eqAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].equipment.push({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }); });
+  const base = { projects: projects, crew: crew, inventory: inventory };
+  cachePutJSON_(key, base, DATA_CACHE_TTL);
+  return base;
+}
+
+function bootstrap_(u) {
+  const base = loadBase_();
+  const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory,
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
@@ -1288,7 +1325,13 @@ function changePin_(u, a, token) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1 };
 function rpc(token, name, arg) {
+  const res = rpcInner_(token, name, arg);
+  if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
+  return res;
+}
+function rpcInner_(token, name, arg) {
   const u = authUser_(token);
   const role = u.role;
   const deny = () => { throw new Error('FORBIDDEN: ehhez nincs jogosultságod.'); };

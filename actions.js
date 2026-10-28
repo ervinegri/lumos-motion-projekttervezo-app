@@ -486,4 +486,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
     if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.dirty){e.preventDefault();saveDraft();}});
 
 /* ===== Indítás ===== */
-if(TOKEN)load();else{VIEW.innerHTML='';showLogin('');}
+if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}

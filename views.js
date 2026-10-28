@@ -69,7 +69,7 @@ $('forgotPin').addEventListener('click',async()=>{
 });
 $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   try{await call('logout');}catch(e){}
-  TOKEN='';try{localStorage.removeItem(TOKEN_KEY);}catch(e){}
+  TOKEN='';try{localStorage.removeItem(TOKEN_KEY);}catch(e){}bootCacheClear();
   try{if(window.google&&google.accounts&&google.accounts.id)google.accounts.id.disableAutoSelect();}catch(e){}
   S.me=null;S.loaded=false;S.projects=[];S.crew=[];S.inventory=[];S.users=null;S.log=null;S.projectId=null;S.draft=null;
   renderChrome();VIEW.innerHTML='';showLogin('Kiléptél.');
@@ -77,11 +77,28 @@ $('logoutBtn').addEventListener('click',()=>guard(async()=>{
 $('refreshBtn').addEventListener('click',()=>load(false,true));
 
 /* ===== Betöltés ===== */
+/* Gyors indulás: az utolsó betöltött adatot a böngésző megjegyzi, és frissítéskor azonnal megmutatja,
+   miközben a háttérben letölti a friss adatot. Kilépéskor és lejárt belépésnél törlődik. */
+const BOOT_KEY='lpm_boot_v1';
+function bootCacheSave(d){try{localStorage.setItem(BOOT_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
+function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}}
+function bootFromCache(){
+  try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
+    if(Date.now()-c.at>7*864e5)return false;
+    const d=c.d;S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    document.body.classList.toggle('ro',ro());
+    const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
+    if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=clone(projById(hm[1]));}
+    const ht=/^#t=([a-z]+)$/.exec(location.hash||'');if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
+    render(true);restoreScroll();return true;
+  }catch(e){return false;}
+}
 async function load(quiet,announce){
   if(S.loading)return;S.loading=true;
   if(!quiet&&!S.loaded)VIEW.innerHTML='<div class="loading"><span class="spin"></span>Betöltés…</div>';
   try{
     const d=await call('bootstrap');
+    bootCacheSave(d);
     S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=clone(p);}

@@ -206,7 +206,7 @@ const call=(name,arg)=>gs('rpc',TOKEN,name,arg===undefined?null:arg);
 const errText=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
 function handleErr(e){
   const m=errText(e);
-  if(m.indexOf('AUTH_REQUIRED')>=0){showLogin('Lépj be újra.');return true;}
+  if(m.indexOf('AUTH_REQUIRED')>=0){try{localStorage.removeItem('lpm_boot_v1');}catch(err){}showLogin('Lépj be újra.');return true;}
   if(m.indexOf('FORBIDDEN')===0){toast('Ehhez nincs jogosultságod.',true);return true;}
   toast(m.replace(/^CONFLICT:\s*/,'')||'Hiba történt. Próbáld újra.',true);return false;
 }
