@@ -829,8 +829,8 @@ function getLog_() {
 const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
 const LOCK_PREFIX = 'LUMOS_PM_LOCK_';
-const ROLES = ['admin', 'editor'];   // Ügyvezető, Termelési vezető (a régi „crew” felhasználók csak olvasni tudnak, újat nem lehet felvenni)
-const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Stáb' };
+const ROLES = ['admin', 'editor', 'crew'];   // Ügyvezető, Termelési vezető, Szakember (csak a saját beosztásait látja, nem szerkeszt)
+const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Szakember' };
 const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
 const LOCK_STEPS_MIN = [15, 60, 360, 1440];
 
@@ -1121,7 +1121,8 @@ function saveUser_(arg) {
   const googleOnly = a.loginMode === 'google' || !pinLoginEnabled_();   // új kolléga Google-fiókkal lép be: PIN-t nem küldünk, csak meghívót
   if (googleOnly) { sendPin = false; pin = ''; }
   if (name.length < 2 || name.length > 60) throw new Error('A név 2–60 karakter lehet.');
-  if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető vagy Termelési vezető.');
+  if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető, Termelési vezető vagy Szakember.');
+  if (role === 'crew' && !crewId) throw new Error('Szakembernél válaszd ki, melyik munkatárs a stáblistában – csak az ő beosztásait fogja látni.');
   if (pin && !/^\d{6}$/.test(pin)) throw new Error('A PIN pontosan 6 számjegy legyen.');
   if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel lép be a felhasználó.');
   let target = null, mailPin = '', list = null, isNew = false;

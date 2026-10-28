@@ -201,7 +201,7 @@ function userModal(u){
   openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
     ${mf('name','Megjelenő név',{v:v.name,max:60})}
     ${ms('role','Szerepkör',Object.entries(USER_ROLES),USER_ROLES[v.role]?v.role:'editor')}
-    ${ms('crewId','Melyik munkatárs a stáblistában?',crewOpts,v.crewId||'',{full:true})}
+    ${ms('crewId','Melyik munkatárs a stáblistában? (Szakembernél kötelező)',crewOpts,v.crewId||'',{full:true})}
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label>`}</div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
