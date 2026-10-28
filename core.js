@@ -48,7 +48,7 @@ const $=id=>document.getElementById(id);
 const VIEW=$('view');
 const S={me:null,projects:[],crew:[],inventory:[],links:{},loaded:false,loading:false,
   tab:'attekintes',projectId:null,draft:null,dirty:false,saving:false,
-  pf:{status:'aktiv',q:''},cf:{q:'',role:'',prio:'',view:(()=>{try{return localStorage.getItem('lumos_pm_crewview')||'cards';}catch(e){return 'cards';}})()},inf:{q:'',cat:'',cond:''},
+  pf:{status:'aktiv',q:''},cf:{q:'',role:'',prio:'',view:(()=>{try{return localStorage.getItem('lumos_pm_crewview')||'cards';}catch(e){return 'cards';}})()},inf:{q:'',cat:'',cond:''},clf:{q:''},clients:[],
   addCrew:{person:'',role:''},addEq:{item:'',qty:1},users:null,log:null,lastLoad:0,
   cal:{month:todayISO().slice(0,7),events:{},loading:{},err:{}}};
 let TOKEN='';

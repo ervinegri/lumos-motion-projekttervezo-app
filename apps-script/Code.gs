@@ -77,6 +77,9 @@ const TABLES = {
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['category', 'Kategória'], ['qty', 'Darab'], ['condition', 'Állapot'],
     ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
     ['location', 'Tárolási hely']] },
+  clients: { tab: 'Ügyfelek', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
+    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
@@ -299,11 +302,12 @@ function loadBase_() {
   const projects = readAll_('projects');
   const crew = readAll_('crew');
   const inventory = readAll_('inventory');
+  const clients = readAll_('clients');
   const byP = {};
   projects.forEach(p => { p.crew = []; p.equipment = []; delete p.mutationId; byP[p.id] = p; });
   readAll_('crewAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].crew.push({ crewId: r.crewId, role: r.role }); });
   readAll_('eqAssign').forEach(r => { if (byP[r.projectId]) byP[r.projectId].equipment.push({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }); });
-  const base = { projects: projects, crew: crew, inventory: inventory };
+  const base = { projects: projects, crew: crew, inventory: inventory, clients: clients };
   cachePutJSON_(key, base, DATA_CACHE_TTL);
   return base;
 }
@@ -312,7 +316,7 @@ function bootstrap_(u) {
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
-    me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory,
+    me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     serverTime: now_()
   };
@@ -920,6 +924,52 @@ function saveItem_(u, a) {
   });
 }
 
+/* ===================== ÜGYFELEK ===================== */
+/** Ügyfél felvétele/módosítása. Ha a cégnév megváltozik, a projektek „Ügyfél” mezője is átíródik. */
+function saveClient_(u, a) {
+  if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
+  const id = str_(a.id, 64);
+  if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
+  const c = { id: id, name: str_(a.name, 160).replace(/\s+/g, ' '), tax: str_(a.tax, 20).replace(/[^\d-]/g, ''), address: str_(a.address, 300),
+    contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000) };
+  if (c.name.length < 2) throw new Error('Add meg az ügyfél nevét.');
+  if (c.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.contactEmail)) throw new Error('Az e-mail-cím érvénytelen.');
+  const oldName = str_(a.oldName, 160).trim();
+  return withLock_(() => {
+    const sh = sheetFor_('clients');
+    let row = findRow_(sh, id), old = null;
+    if (!row) {   // ugyanilyen nevű ügyfél már van → azt frissítjük (nem duplikálunk)
+      const ex = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === c.name.toLowerCase());
+      if (ex) { c.id = ex.id; row = findRow_(sh, ex.id); }
+    }
+    if (row) { old = readRow_('clients', sh, row); c.createdAt = old.createdAt; } else c.createdAt = now_();
+    c.updatedAt = now_();
+    putRow_('clients', sh, c, row);
+    let renamed = 0;
+    const from = (oldName || (old && old.name) || '').toLowerCase();
+    if (from && from !== c.name.toLowerCase()) {   // átnevezés: a projektek ügyfélmezője is
+      const ps = sheetFor_('projects'), col = TABLES.projects.cols.findIndex(x => x[0] === 'client') + 1, n = ps.getLastRow() - 1;
+      if (n > 0) { const rg = ps.getRange(2, col, n, 1), vals = rg.getValues();
+        vals.forEach(v => { if (String(v[0] || '').trim().toLowerCase() === from) { v[0] = c.name; renamed++; } });
+        if (renamed) rg.setValues(vals); }
+    }
+    SpreadsheetApp.flush();
+    logEvent_(u, old ? 'Ügyfél módosítva' : 'Ügyfél felvéve', c.name, renamed ? renamed + ' projekt átnevezve' : '');
+    return Object.assign({}, c, { renamed: renamed });
+  });
+}
+function deleteClient_(u, a) {
+  const id = str_(a && a.id, 64);
+  return withLock_(() => {
+    const sh = sheetFor_('clients'), row = findRow_(sh, id);
+    if (!row) return { deleted: false, id: id };
+    const old = readRow_('clients', sh, row);
+    sh.deleteRow(row); SpreadsheetApp.flush();
+    logEvent_(u, 'Ügyfél törölve', old.name, '');
+    return { deleted: true, id: id };
+  });
+}
+
 function deleteItem_(u, a) {
   const id = str_(a && a.id, 64);
   return withLock_(() => {
@@ -1513,6 +1563,8 @@ function rpcInner_(token, name, arg) {
     case 'deleteCrew': canEdit(); return deleteCrew_(u, arg);
     case 'saveItem': canEdit(); return saveItem_(u, arg);
     case 'deleteItem': canEdit(); return deleteItem_(u, arg);
+    case 'saveClient': canEdit(); return saveClient_(u, arg);
+    case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {

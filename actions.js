@@ -86,7 +86,9 @@ function pickClose(){const b=$('hsBox');if(b)b.remove();pickItems=[];}
 function pickShow(input,html){let b=$('hsBox');if(!b){b=document.createElement('div');b.id='hsBox';b.className='hs-box';b.setAttribute('role','listbox');document.body.appendChild(b);}
   const r=input.getBoundingClientRect();b.style.left=(r.left+scrollX)+'px';b.style.top=(r.bottom+scrollY+4)+'px';b.style.width=r.width+'px';b.innerHTML=html;}
 function knownClients(q){
-  const ql=q.toLowerCase(),seen={},out=[],cur=S.draft&&S.draft.id;
+  const ql=q.toLowerCase(),seen={},out=[];
+  (S.clients||[]).forEach(r=>{const c=String(r.name||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
+    seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||''});});
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
     const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',tax:p.clientTax||'',address:p.clientAddress||''});});
@@ -106,6 +108,11 @@ async function taxLookup(){
   finally{if(b){b.disabled=false;b.textContent='Cégadatok betöltése';}}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-clientTax'){const t=e.target,d=t.value.replace(/\D/g,'');if(d.length===11&&!t._done){t._done=1;t.value=d.slice(0,8)+'-'+d[8]+'-'+d.slice(9);taxLookup();}else if(d.length<11)t._done=0;}});   // teljes adószámnál magától betölt
+async function saveClientRec(rec){
+  const saved=await call('saveClient',rec);S.clients=(S.clients||[]).filter(x=>x.id!==saved.id&&x.id!==rec.id).concat([saved]);
+  if(rec.oldName&&saved.renamed){const o=rec.oldName.trim().toLowerCase();S.projects.forEach(p=>{if(String(p.client||'').trim().toLowerCase()===o)p.client=saved.name;});}
+  if(S.tab==='ugyfelek')render(true);return saved;
+}
 function editClientModal(){
   const d=S.draft;if(!d)return;newClientModal(null,d);
 }
@@ -133,11 +140,13 @@ async function hsSearch(q){
   catch(e){if($('hsList'))$('hsList').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-contactName'||e.target.id==='m-client'){clearTimeout(HS_T);HS_T=setTimeout(hsInline,400);}if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
-function newClientModal(pre,edit){
+function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs nyitott projekt)
   openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó <button class="linkbtn" type="button" data-action="hs-inline" style="font-size:12px;margin-left:6px">HubSpotból…</button>',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div></div>`,
-    {submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
+    {left:reg&&edit&&edit.id?`<button type="button" class="btn danger small" data-action="del-client" data-id="${esc(edit.id)}">Törlés</button>`:'',submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
-      closeModal();if(S.draft)setDraft(patch);}});
+      const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',oldName:reg&&edit?edit.client:''};
+      if(reg){try{await saveClientRec(rec);closeModal();toast(edit?'Ügyfél mentve':'Ügyfél felvéve');}catch(e){handleErr(e);}return;}
+      closeModal();if(S.draft)setDraft(patch);saveClientRec(rec).catch(()=>{});}});   // a projektből felvett ügyfél is bekerül az Ügyfelek közé
   if(pre){const n=$('m-client');if(n)n.value=pre;}
   if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
 }
@@ -564,6 +573,9 @@ const ACT={
     catch(e){handleErr(e);b.disabled=false;b.textContent='📁 Projektmappa létrehozása';}},
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
+  'new-client':()=>newClientModal(null,null,true),
+  'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email},true);},
+  'del-client':b=>arm(b,async()=>{try{await call('deleteClient',{id:b.dataset.id});S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
   'hs-open':()=>hubspotModal(),
   'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},
   'hs-ipick':b=>{const it=(S._hsi||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};
@@ -609,6 +621,7 @@ document.addEventListener('input',e=>{
   if(t.id==='q-projects'){S.pf.q=t.value;render(true);}
   else if(t.id==='q-crew'){S.cf.q=t.value;render(true);}
   else if(t.id==='q-inv'){S.inf.q=t.value;render(true);}
+  else if(t.id==='q-cl'){S.clf.q=t.value;render(true);}
   else if(t.id==='add-eq-qty'){S.addEq.qty=t.value;}
 });
 /* telefonmező: országhívószám + szám → egy érték */
