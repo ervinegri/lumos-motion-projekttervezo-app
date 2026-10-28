@@ -290,7 +290,7 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
 function prepDraft(p){const d=clone(p);try{syncFeesWithCrew(d);}catch(e){}return d;}
 /* Fix sorok a díjtáblázat végén: fuvar és étel. */
-const FIXED_FEES=[['fuvar','Fuvar'],['etel','Étel']];
+const FIXED_FEES=[['fuvar','Fuvar'],['etel','Étel'],['egyeb','']];   // az „egyéb” sor neve szabadon írható
 function orderFees(fees){
   fees=fees.slice();FIXED_FEES.forEach(([k,n])=>{if(!fees.some(f=>f.kind==='fixed'&&f.key===k))fees.push({kind:'fixed',key:k,name:n,amount:'',rent:''});});
   return fees.filter(f=>f.kind!=='fixed').concat(FIXED_FEES.map(([k])=>fees.find(f=>f.kind==='fixed'&&f.key===k)));
