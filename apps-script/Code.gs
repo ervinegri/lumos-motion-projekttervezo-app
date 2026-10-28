@@ -795,6 +795,42 @@ function prettyAddress_(t) {
 }
 
 /** Cégadatok betöltése az adószám alapján (új ügyfél felvételekor): hivatalos név és székhely a NAV-ból. Az eredményt 6 órára gyorsítótárazza. */
+/* ===================== HUBSPOT KAPCSOLATTARTÓK (csak olvasás) ===================== */
+/* Kulcs a Szkript-tulajdonságok között: HUBSPOT_TOKEN (Service Key vagy Private App token; hatókör: crm.objects.contacts.read, crm.objects.companies.read). */
+function hubspot_(method, path, body) {
+  const tok = String(PropertiesService.getScriptProperties().getProperty('HUBSPOT_TOKEN') || '').trim();
+  if (!tok) throw new Error('A HubSpot-kapcsolat még nincs beállítva (HUBSPOT_TOKEN).');
+  const opt = { method: method, muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + tok } };
+  if (body) { opt.contentType = 'application/json'; opt.payload = JSON.stringify(body); }
+  const res = UrlFetchApp.fetch('https://api.hubapi.com' + path, opt);
+  const code = res.getResponseCode();
+  if (code === 401 || code === 403) throw new Error('A HubSpot elutasította a kérést – ellenőrizd a kulcsot és a hatóköröket.');
+  if (code >= 300) throw new Error('HubSpot-hiba (HTTP ' + code + ').');
+  return JSON.parse(res.getContentText() || '{}');
+}
+const HS_PROPS_ = ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'company', 'jobtitle'];
+function hsContact_(c) {
+  const p = c.properties || {};
+  return { id: c.id, name: [p.lastname, p.firstname].filter(Boolean).join(' ').trim() || p.email || '', email: p.email || '',
+    phone: p.mobilephone || p.phone || '', company: p.company || '', title: p.jobtitle || '' };
+}
+function hubspotContactsApi_(arg) {
+  const q = str_(arg && arg.q, 100).trim(), client = str_(arg && arg.client, 160).trim();
+  const out = [], seen = {};
+  const add = list => list.forEach(c => { const x = hsContact_(c); if (!seen[x.id] && (x.name || x.email)) { seen[x.id] = 1; out.push(x); } });
+  if (q.length >= 2) {
+    add((hubspot_('post', '/crm/v3/objects/contacts/search', { query: q, properties: HS_PROPS_, limit: 15 }).results) || []);
+  } else if (client.length >= 2) {   // nincs keresőszó: az ügyfél cégéhez kapcsolt kapcsolattartók
+    const co = (hubspot_('post', '/crm/v3/objects/companies/search', { query: client, properties: ['name'], limit: 3 }).results) || [];
+    co.forEach(c => {
+      const as = (hubspot_('get', '/crm/v4/objects/companies/' + c.id + '/associations/contacts?limit=50').results) || [];
+      const ids = as.map(a => String(a.toObjectId)).slice(0, 50);
+      if (ids.length) add((hubspot_('post', '/crm/v3/objects/contacts/batch/read', { properties: HS_PROPS_, inputs: ids.map(id => ({ id: id })) }).results) || []);
+    });
+  }
+  return out.slice(0, 30);
+}
+
 function lookupTaxpayerApi_(arg) {
   const digits = String(arg && arg.tax || '').replace(/\D/g, '');
   if (digits.length < 8) throw new Error('Az adószám első 8 számjegye szükséges.');
@@ -1445,7 +1481,7 @@ function changePin_(u, a, token) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -1471,6 +1507,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
+    case 'hubspotContacts': canEdit(); return hubspotContactsApi_(arg);
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
     case 'saveCrew': canEdit(); return saveCrew_(u, arg);
     case 'deleteCrew': canEdit(); return deleteCrew_(u, arg);

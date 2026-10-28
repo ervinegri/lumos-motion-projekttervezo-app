@@ -235,7 +235,9 @@ function phParse(v){
 function phJoin(cc,n){n=String(n||'').trim();
   if(/^(\+|00)/.test(n)){const p=phParse(n);cc=p.cc;n=p.n;}            // ha teljes nemzetközi számot írtak/másoltak be
   if(cc==='+36')n=n.replace(/^0\s*6[\s-]*/,'');                       // magyar „06” előtag
-  n=n.replace(/^0+\s*/,'');return n?cc+' '+n:'';}
+  n=n.replace(/^0+\s*/,'');
+  if(cc==='+36'&&/^\d+$/.test(n)){if(n.length===9)n=n.replace(/^(\d{2})(\d{3})(\d{4})$/,'$1 $2 $3');else if(n.length===8&&n[0]==='1')n=n.replace(/^1(\d{3})(\d{4})$/,'1 $1 $2');else if(n.length===8)n=n.replace(/^(\d{2})(\d{3})(\d{3})$/,'$1 $2 $3');}   // magyar szám tagolása
+  return n?cc+' '+n:'';}
 /* key: projektmező (azonnal a vázlatba), name: űrlapmező (rejtett inputban a teljes szám) */
 function phoneField(o){
   const {cc,n}=phParse(o.value),id=o.key?'f-'+o.key:'m-'+o.name,dis=o.disabled?' disabled':'';

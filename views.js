@@ -506,7 +506,7 @@ function viewProject(p){
         <div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet…'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
         <div class="field full contact3">
-        ${fld(p,'contactName','Kapcsolattartó')}
+        ${fld(p,'contactName',`Kapcsolattartó${ro()?'':' <button class="linkbtn" type="button" data-action="hs-open" style="font-size:12px;margin-left:6px">HubSpotból…</button>'}`)}
         ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>
