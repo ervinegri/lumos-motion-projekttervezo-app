@@ -229,7 +229,22 @@ function viewOverview(){
       ${!ro()||post.length?`<div class="panel"><h3>⏱️ Átadási határidők</h3>
         <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
+    ${ro()?crewMonthsPanel():''}
     <div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`;
+}
+
+// szakember: projektjei hónapokra bontva, havi díjösszeggel
+const F_YM=new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',timeZone:'UTC'});
+function crewMonthsPanel(){
+  const by={};
+  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const k=pr(p).start.slice(0,7);(by[k]=by[k]||[]).push(p);});
+  const keys=Object.keys(by).sort().reverse();
+  if(!keys.length)return '';
+  const cur=todayISO().slice(0,7);
+  return `<div class="panel crew-months"><h3>🗓️ Projektjeid havonta</h3>${keys.map((k,i)=>{
+    const ps=by[k].sort(byStart),sum=ps.reduce((s,p)=>s+num(p.myFee&&p.myFee.amount),0);
+    return `<details class="cm-month"${k===cur||(i===0&&k<cur)?' open':''}><summary><span class="cm-name">${esc(F_YM.format(toDate(k+'-01')))}</span><span class="cm-n">${ps.length} projekt</span><b class="cm-sum">${ftFmt(sum)}</b></summary>
+      <div class="cm-list">${ps.map(p=>`<button class="cm-row" type="button" data-action="open-project" data-id="${esc(p.id)}"><span class="cm-d">${esc(F_SHORT.format(toDate(pr(p).start)))}</span><span class="cm-p">${esc(p.name||'Névtelen projekt')}</span><span class="cm-f">${num(p.myFee&&p.myFee.amount)?ftFmt(p.myFee.amount):'–'}</span></button>`).join('')}</div></details>`;}).join('')}</div>`;
 }
 
 /* ===== Projektek ===== */

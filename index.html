@@ -330,6 +330,12 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .tech-sec{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 .tech-sec .toggles{grid-template-columns:repeat(2,minmax(0,1fr))}
 .my-fee{display:inline-block;margin-top:4px;background:#e8f2ec;color:var(--accent);font-weight:800;font-size:13px;padding:3px 10px;border-radius:999px}
+.crew-months .cm-month{border-top:1px solid var(--line,#e5e7eb)}.crew-months .cm-month:first-of-type{border-top:0}
+.cm-month summary{display:flex;align-items:center;gap:12px;padding:10px 4px;cursor:pointer;list-style:none}.cm-month summary::-webkit-details-marker{display:none}
+.cm-month summary::before{content:'▸';color:#9ca3af;transition:transform .15s}.cm-month[open] summary::before{transform:rotate(90deg)}
+.cm-name{font-weight:700}.cm-n{color:#6b7280;font-size:13px}.cm-sum{margin-left:auto;color:var(--accent);font-size:16px}
+.cm-list{padding:0 4px 10px 22px}.cm-row{display:flex;gap:12px;width:100%;background:none;border:0;padding:6px 0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-bottom:1px dashed #eef0f2}.cm-row:hover .cm-p{text-decoration:underline}
+.cm-d{width:70px;color:#6b7280;font-size:13px}.cm-p{flex:1}.cm-f{font-weight:600;white-space:nowrap}
 .my-fee-panel{margin-top:18px;width:calc(50% - 9px)}.my-fee-amt{font-size:22px;font-weight:800;color:var(--accent)}@media(max-width:800px){.my-fee-panel{width:auto}}
 .num-ro{display:block;text-align:right;font-variant-numeric:tabular-nums}
 .eqrow.rent .who small{color:#8a5a00}
