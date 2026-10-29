@@ -68,8 +68,8 @@ async function load(quiet,announce,pre){
     S.capabilities=d.capabilities||{};S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
-    if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
-    if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='attekintes';
+    if(S.tab==='beallitasok'&&!isAdmin())S.tab='projektek';
+    if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='projektek';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
     if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
@@ -94,7 +94,7 @@ document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.datas
 function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?58:110;t.style.height='auto';t.style.height=Math.max(min,t.scrollHeight+2)+'px';}
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
-const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'kifizetesek',label:'Kifizetések'}]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:'Kifizetések'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>[{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'kifizetesek',label:'Kifizetések'}]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:'Kifizetések'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   const on=!!S.me;
   {let sp=$('savingPill');if(!sp){sp=document.createElement('div');sp.id='savingPill';sp.className='saving-pill';sp.setAttribute('role','status');document.body.appendChild(sp);}
@@ -104,7 +104,7 @@ function renderChrome(){
   $('viewAs').classList.toggle('hidden',!realAdmin);$('viewAs').classList.toggle('on',!!va);
   if(realAdmin){const sel=$('viewAs');sel.value=va?va.role:'admin';const co=sel.querySelector('option[value=crew]');co.textContent=va&&va.role==='crew'?'👁 Szakember: '+(va.crewName||''):'👁 Szakember';}
   const vb=$('viewBanner');vb.classList.toggle('hidden',!va);
-  if(va){const h=`<span>👁 ${va.role==='crew'?'Szakember nézet – így látja az appot <b>'+esc(va.crewName||'')+'</b>':'T. vezető nézet – így látja az appot egy termelési vezető'}. Amit itt teszel, az a te nevedben történik.</span><button class="btn outline small" type="button" data-action="view-reset">Vissza: Ügyvezető</button>`;if(vb._h!==h){vb.innerHTML=h;vb._h=h;}}
+  if(va){const h=`<span>👁 ${va.role==='crew'?'Szakember nézet – így látja az appot <b>'+esc(va.crewName||'')+'</b>':'Termelési v. nézet – így látja az appot egy termelési vezető'}. Amit itt teszel, az a te nevedben történik.</span><button class="btn outline small" type="button" data-action="view-reset">Vissza: Ügyvezető</button>`;if(vb._h!==h){vb.innerHTML=h;vb._h=h;}}
   if(!on){$('tabs').innerHTML='';return;}
   $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role);
   const counts={projektek:S.projects.filter(isOpen).length,stab:S.crew.length,leltar:S.inventory.length};
@@ -121,13 +121,13 @@ function renderChrome(){
   else if(showBar){const h=`<div class="savebar-in"><p>Automatikus mentés: ${esc(S.draft.name||'projekt')}</p><button class="btn outline saved-btn" type="button" disabled>⏳ Mentés…</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
 }
 /* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
-function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='attekintes'?'#t='+S.tab:'';}
+function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
 function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
 /* Böngésző vissza/előre: az előző nézetre (fül vagy projekt) lépünk; a folyamatban lévő módosítás előtte elmentődik. */
 window.addEventListener('popstate',()=>{if(!S.me||!S.loaded)return;const h=location.hash||'';
   const go=()=>{const pm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(h),tm=/^#t=([a-z]+)$/.exec(h);
     if(pm&&projById(pm[1])){S.tab='projektek';S.projectId=pm[1];S.draft=prepDraft(projById(pm[1]));}
-    else{S.projectId=null;S.draft=null;S.tab=tm&&TABS().some(t=>t.id===tm[1])?tm[1]:'attekintes';}
+    else{S.projectId=null;S.draft=null;S.tab=tm&&TABS().some(t=>t.id===tm[1])?tm[1]:'projektek';}
     const was=S._histReady;S._histReady=false;render(true);S._histReady=was;scrollTo(0,0);};
   if(typeof guard==='function')guard(go);else go();});
 window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('lpm_scroll',JSON.stringify({h:location.hash,y:Math.round(scrollY)}));}catch(e){}});
@@ -140,7 +140,7 @@ function render(force){
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
-  VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='beallitasok'?viewSettings():viewOverview();
+  VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='beallitasok'?viewSettings():viewProjects();
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();
   syncHash();
@@ -166,6 +166,9 @@ function calBlock(iso){
 }
 function dueInfo(p){
   const due=dueDate(p);if(!due||!isOpen(p))return null;
+  if(p.status==='leadva'||p.status==='jovahagyas'){const n=validISO(p.leadvaAt)?diffDays(p.leadvaAt,todayISO()):null;   // a videók már leadva: nem az átadási határidőt mutatjuk
+    if(n==null)return null;
+    return {due,left:null,cls:'ok',txt:n<=0?'A videók ma lettek leadva, jóváhagyásra várnak':`A videók ${n} napja jóváhagyásra várnak`};}
   const left=diffDays(todayISO(),due);
   return {due,left,cls:left<0?'bad':left<=2?'warn':'ok',txt:left<0?`${-left} napja lejárt`:left===0?'Ma kell átadni':`${left} nap az átadásig`};
 }
@@ -189,42 +192,6 @@ function issueRow(i,exceptId){
 }
 
 /* ===== Áttekintés ===== */
-function viewOverview(){
-  const T=todayISO(),all=S.projects;
-  const open=all.filter(isOpen);
-  const upcoming=all.filter(p=>isOpen(p)&&pr(p)&&pr(p).end>=T).sort(byStart);
-  const next30=upcoming.filter(p=>pr(p).start<=addDays(T,30));
-  const myCut=p=>!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');   // szakember: csak vágóként látja az utómunkát
-  const post=open.filter(p=>pr(p)&&pr(p).end<T&&dueDate(p)&&myCut(p)).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
-  const overdue=post.filter(p=>diffDays(T,dueDate(p))<0).length;
-  const issues=computeIssues();
-  const tile=(n,l,cls,x,go)=>`<button type="button" class="tile tile-btn ${cls||''}" data-action="tile-go" data-go="${go||''}"><div class="tile-n">${n}</div><div class="tile-l">${l}</div>${x||''}</button>`;
-  const welcome=!all.length&&!ro()?`<div class="panel welcome"><h3>Kezdjük el</h3>
-    <p>Vedd fel a stábot és az eszközöket, aztán hozd létre az első projektet. A projektlapon megadod a megrendelt tartalmakat, és az app jelzi, ha valaki vagy valami két helyre van beosztva.</p>
-    <div class="btns"><button class="btn primary" type="button" data-action="new-project">+ Új projekt</button><button class="btn outline" type="button" data-action="tab" data-tab="stab">Stáb felvétele</button><button class="btn outline" type="button" data-action="tab" data-tab="leltar">Leltár felvétele</button></div></div>`:'';
-  return `<div class="page-head"><div class="grow"><h2>${ro()?'Szia, '+esc(S.me.viewAs&&S.me.viewAs.crewName?S.me.viewAs.crewName.trim().split(/\s+/).pop():S.me.name)+'!':'Áttekintés'}</h2><p class="sub">${esc(F_FULL.format(toDate(T)))}</p></div>
-      <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
-    ${welcome}
-    ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
-    ${ro()?'':`<div class="panel"><h3>⚠️ Figyelmeztetések</h3>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</div>`}
-    ${ro()?'':`<div class="tiles">
-      ${tile(open.length,'aktív projekt','','','aktiv')}
-      ${tile(next30.length,'rendezvény a következő 30 napban','','','naptar')}
-      ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:'','atadas'):''}
-    </div>`}
-    <div class="grid2">
-      <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
-        <div class="list">${upcoming.slice(0,8).map(p=>evRow(p)).join('')||empty('Nincs közelgő rendezvény.')}</div>
-        ${upcoming.length>8?`<button class="btn ghost small" type="button" data-action="tab" data-tab="projektek">Mind a ${upcoming.length} megnyitása →</button>`:''}</div>
-      ${!ro()||post.length?`<div class="panel" id="due-panel"><h3>⏱️ Átadási határidők</h3>
-        <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
-    </div>
-    ${ro()?crewMonthsPanel():''}
-    ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
-`;
-}
-
-// szakember: projektjei hónapokra bontva, havi díjösszeggel
 const F_YM=new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',timeZone:'UTC'});
 /* ⚠️ hoverre: mit hibázott (szakember nézet) */
 function penIcon(p){const t=(p.penalties||[]).map(x=>{const k=PEN_KINDS[x.kind]||{};return (k.label||'')+(x.kind==='damage'?' ('+ftFmt(x.amount)+')':' ('+num(x.pct)+'%)')+(x.caseText?' – '+x.caseText:'')+(x.reason?': '+x.reason:'');}).join('\n');
@@ -281,19 +248,6 @@ function pendingPenPanel(){
   return `<div class="panel pen-pending"><h3>⚠️ Jóváhagyásra váró díjcsökkentések <span class="aside">${rows.length} db</span></h3><div class="list">${rows.map(({p,x})=>{const c=crewById(x.crewId),k=PEN_KINDS[x.kind]||{};
     return `<button class="ev" type="button" data-action="open-project" data-id="${esc(p.id)}"><div class="ev-b"><b>${esc(c?c.name:'Munkatárs')} · ${esc(k.label||'')}${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'}</b><small>${esc(p.name||'')} · javasolta: ${esc(x.by)} · ${esc(x.at)}</small></div></button>`;}).join('')}</div></div>`;
 }
-function crewMonthsPanel(){
-  const by={};
-  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const k=pr(p).start.slice(0,7);(by[k]=by[k]||[]).push(p);});
-  const keys=Object.keys(by).sort().reverse();
-  if(!keys.length)return '';
-  const cur=todayISO().slice(0,7);
-  return `<div class="panel crew-months"><h3>🗓️ Projektjeid havonta</h3>${keys.map((k,i)=>{
-    const ps=by[k].sort(byStart),sum=ps.reduce((s,p)=>s+myNet(p),0);
-    return `<details class="cm-month"${k===cur||(i===0&&k<cur)?' open':''}><summary><span class="cm-name">${esc(F_YM.format(toDate(k+'-01')))}</span><span class="cm-n">${ps.length} projekt</span><b class="cm-sum">${ftFmt(sum)}</b></summary>
-      <div class="cm-list">${ps.map(p=>`<button class="cm-row" type="button" data-action="open-project" data-id="${esc(p.id)}"><span class="cm-d">${esc(F_SHORT.format(toDate(pr(p).start)))}</span><span class="cm-p">${esc(p.name||'Névtelen projekt')}</span><span class="cm-f">${(p.penalties||[]).length?penIcon(p):''}${num(p.myFee&&p.myFee.amount)?ftFmt(myNet(p)):'–'}</span></button>`).join('')}</div></details>`;}).join('')}</div>`;
-}
-
-/* ===== Projektek ===== */
 function viewProjects(){
   if(S.projectId&&S.draft)return viewProject(S.draft);
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
@@ -303,13 +257,24 @@ function viewProjects(){
   const ahead=list.filter(p=>pr(p)&&pr(p).end>=T).sort(byStart);
   const past=list.filter(p=>pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));
   const nod=list.filter(p=>!pr(p));
-  const grp=(t,arr)=>arr.length?`<div class="gh">${t}</div>${arr.map(p=>evRow(p,{value:true})).join('')}`:'';
+  const issues=ro()?[]:computeIssues();
+  const row=p=>{const r=pr(p),di=dueInfo(p),sub=[p.client,p.venue].filter(Boolean).join(' · ')||'Nincs ügyfél megadva',days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
+    const due=di&&r&&(r.end<T||POST_STAGES.includes(p.status))?`<span class="statuspill p-${di.cls}">${di.txt}</span>`:'';
+    const extra=ro()?[myRole(p)?`<span class="smallnum">Te: ${esc(myRole(p))}</span>`:'',p.myFee&&num(p.myFee.amount)?`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))}</span>`:''].join('')
+      :`<span class="smallnum">${crewIds(p).size} fő · ${eqCount(p)} eszköz</span>`;
+    return `<tr class="pt-row" data-action="open-project" data-id="${esc(p.id)}" tabindex="0"><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
+      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}</div></td><td class="pt-extra">${extra}</td></tr>`;};
+  const grp=(t,arr)=>arr.length?`<tr class="pt-group"><td colspan="3">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const body=grp('Előttünk',ahead)+grp('Lezajlott',past)+grp('Dátum nélkül',nod);
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2><p class="sub">${ro()?'Azok a projektek, amelyekre be vagy osztva':'Rendezvények az egyeztetéstől az átadásig'}</p></div>
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
+    ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
+    ${ro()?'':`<details class="panel fold issues-panel" data-fold="issues"${FOLD.issues!==false&&issues.length?' open':''}><summary><h3>⚠️ Figyelmeztetések <span class="aside">${issues.length?issues.length+' db':'minden rendben'}</span></h3></summary>${issues.length?`<div class="issues">${issues.map(i=>issueRow(i)).join('')}</div>`:empty('Minden rendben: senki és semmi nincs duplán beosztva, és a stáb is teljes.')}</details>`}
+    ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
     <div class="toolbar"><input class="inp search" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">
       <div class="chips">${filters.map(([v,l,c])=>`<button class="chip" type="button" data-action="pf" data-v="${v}" aria-pressed="${f.status===v}">${l}<span class="c">${c}</span></button>`).join('')}</div></div>
-    <div class="panel"><div class="list">${body||empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':ro()?'Még nem vagy beosztva egy projektre sem.':'Még nincs projekt. Hozd létre az elsőt az „Új projekt” gombbal.')}</div></div>`;
+    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>Projekt</th><th>Státusz</th><th>${ro()?'Szereped · díjad':'Stáb'}</th></tr></thead><tbody>${body}</tbody></table></div>`
+      :`<div class="panel">${empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':ro()?'Még nem vagy beosztva egy projektre sem.':'Még nincs projekt. Hozd létre az elsőt az „Új projekt” gombbal.')}</div>`}`;
 }
 function fld(p,key,label,o={}){
   const v=p[key]??'';
@@ -639,7 +604,7 @@ function viewProject(p){
     <div class="dtitle"><div class="grow"><h2>${esc(p.name||'Névtelen projekt')}</h2>
       <p class="sub">${esc([p.client,p.eventType,fmtRange(p)?fmtRange(p)+(p.startTime?', '+p.startTime+(p.endTime?'–'+p.endTime:''):''):'',p.venue].filter(Boolean).join(' · '))}</p></div></div>
     <div class="btns">${folder}${delivery}${p.calEventId?`<button class="mini" type="button" data-action="tab" data-tab="naptar" data-focus="${esc(r?r.start:'')}" title="A „Terepi Munkák” Google Naptárban">📅 Naptárban</button>`:(validISO(p.date)&&!ro()?'<span class="hint" style="margin:0;align-self:center">📅 Mentéskor bekerül a Google Naptárba</span>':'')}${ro()?'':`<button class="mini" type="button" data-action="proj-manage">⚙️ Projekt kezelése</button>`}</div>
-    ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages${status==='atadva'?' locked':''}" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>${status==='atadva'?`<p class="hint locked-hint">🔒 A projekt lezárva${p.deliveredAt?' ('+esc(fmtDay(p.deliveredAt))+')':''} – a lépések már nem módosíthatók.${isAdmin()?' <button class="linkbtn" type="button" data-action="proj-unlock" style="margin-left:6px">🔓 Felnyitás</button>':''}</p>`:''}${p.siteOk&&status!=='atadva'?`<div class="site-rep ${p.siteOk==='nem'?'bad':'ok'}"><b>${p.siteOk==='nem'?'🚨 Helyszíni munka: elakadás történt':'✅ Helyszíni munka: minden rendben'}</b><span>${esc(p.siteReport)}</span>${ro()?'':'<button class="linkbtn" type="button" data-action="site-report">Szerkesztés</button>'}</div>`:''}`}
+    ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe, pénzügyekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages${status==='atadva'?' locked':''}" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>${status==='atadva'?`<p class="hint locked-hint">🔒 A projekt lezárva${p.deliveredAt?' ('+esc(fmtDay(p.deliveredAt))+')':''} – a lépések már nem módosíthatók.${isAdmin()?' <button class="linkbtn" type="button" data-action="proj-unlock" style="margin-left:6px">🔓 Felnyitás</button>':''}</p>`:''}${p.siteOk&&status!=='atadva'?`<div class="site-rep ${p.siteOk==='nem'?'bad':'ok'}"><b>${p.siteOk==='nem'?'🚨 Helyszíni munka: elakadás történt':'✅ Helyszíni munka: minden rendben'}</b><span>${esc(p.siteReport)}</span>${ro()?'':'<button class="linkbtn" type="button" data-action="site-report">Szerkesztés</button>'}</div>`:''}`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
   <div class="dfull">

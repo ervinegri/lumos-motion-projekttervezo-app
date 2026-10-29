@@ -64,7 +64,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -597,6 +597,7 @@ function saveProject_(u, a) {
     prevStatus: STATUSES.indexOf(a.prevStatus) >= 0 ? a.prevStatus : '',
     lead: str_(a.lead, 64),
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
+    leadvaAt: /^\d{4}-\d{2}-\d{2}$/.test(String(a.leadvaAt || '')) ? String(a.leadvaAt) : '',
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), clientTax: str_(a.clientTax, 20).replace(/[^\d-]/g, ''), clientAddress: str_(a.clientAddress, 300),
     techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
@@ -615,6 +616,8 @@ function saveProject_(u, a) {
   p.er_rooms = int_(a.er_rooms, 0, 10, 0);
   if (['er_total', 'er_close', 'er_zoom', 'er_crowd', 'er_slides', 'er_drone', 'er_stream'].some(k => p[k])) p.t_eloadas = true;   // a régi jelölő automatikusan
   if (p.status === 'atadva' && !p.deliveredAt) p.deliveredAt = today_();
+  if ((p.status === 'leadva' || p.status === 'jovahagyas') && !p.leadvaAt) p.leadvaAt = today_();   // mióta várnak jóváhagyásra a videók
+  if (['leadva', 'jovahagyas', 'atadva'].indexOf(p.status) < 0) p.leadvaAt = '';
   if (p.status !== 'atadva') p.deliveredAt = '';
   const crewIn = Array.isArray(a.crew) ? a.crew.slice(0, 60) : [];
   const eqIn = Array.isArray(a.equipment) ? a.equipment.slice(0, 150) : [];
@@ -1361,7 +1364,7 @@ function sendEquipmentList_(u, a) {
     eqTxt += '\n' + cat.toUpperCase() + '\n';
     items.forEach(x => {
       eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee"><b>' + x.qty + '×</b> ' + e(x.it.name) + (x.it.serial ? ' <span style="color:#5f7381">(' + e(x.it.serial) + ')</span>' : '') + (x.who ? ' <span style="color:#1f5a3d;font-weight:600">– ' + e(x.who) + '</span>' : '') + (x.it.location ? '<br><span style="font-size:12px;color:#5f7381">Hol van: ' + e(x.it.location) + '</span>' : '') + '</td></tr>';
-      eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.who ? ' – ' + x.who : '') + (x.it.location ? ' – hol van: ' + x.it.location : '') + '\n';
+      eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.who ? ' – ' + x.who : '') + '\n';
     });
   });
   const rentals = parseRentals_(p.rentals);
@@ -1382,8 +1385,8 @@ function sendEquipmentList_(u, a) {
     : (leadC ? [leadC.name + ' (projektvezető)', leadC.phone, leadC.email].filter(Boolean).join(', ') : '');
   const infoOf = cid => [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', contactFor(cid)]].filter(x => x[1]);
   const infoHtmlOf = cid => infoOf(cid).map(x => '<tr><td style="padding:3px 14px 3px 0;color:#5f7381;white-space:nowrap">' + x[0] + '</td><td style="padding:3px 0"><b>' + e(x[1]) + '</b></td></tr>').join('');
-  const planHtml = includePlan && (p.techPlan || p.notes) ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan || '—') + '</div>' + (p.notes ? '<h3 style="font-size:15px;margin:18px 0 6px">Jegyzetek</h3><div style="white-space:pre-wrap">' + e(p.notes) + '</div>' : '') : '';
-  const planTxt = includePlan && (p.techPlan || p.notes) ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + (p.techPlan || '—') + (p.notes ? '\n\nJEGYZETEK\n' + p.notes : '') + '\n' : '';
+  const planHtml = includePlan && String(p.techPlan || '').trim() ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan) + '</div>' : '';   // csak ha van terv; a jegyzetek nem kerülnek a levélbe
+  const planTxt = includePlan && String(p.techPlan || '').trim() ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + p.techPlan + '\n' : '';
   const sentTo = [];
   const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name)
     .concat(rentals.filter(r => r.crewId === cid).map(r => r.name + (r.own ? ' (saját)' : ' (bérelt' + (r.company ? ', ' + r.company : '') + ')')));

@@ -369,9 +369,9 @@ async function switchView(role,crewId){
     S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.cal.events={};
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     await load(false,false,r&&r.boot);
-    S.tab=TABS().some(t=>t.id===keepTab)?keepTab:'attekintes';
+    S.tab=TABS().some(t=>t.id===keepTab)?keepTab:'projektek';
     if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));}
-    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: T. vezető':'Nézet: Szakember');
+    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 function viewAsCrewModal(){
@@ -440,10 +440,10 @@ function deliveryModal(){
       <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
       <div class="field full"><label class="toggle"><input type="checkbox" name="dueKept" value="1"${d.dueKept!=='nem'?' checked':''}><span class="tl">⏱️ Sikerült tartani az átadási határidőt</span></label></div>
       ${d.status==='atadva'&&d.deliveredAt?`<div class="field full"><span class="hint" style="margin:0">Átadva: <b class="ok-txt">${fmtDay(d.deliveredAt)}</b></span></div>`:''}
-      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
       ${stuckSummary(d)}
       ${canSeeFees()&&penCrewOpts().length?`<div class="field full"><label class="toggle"><input type="checkbox" id="m-stuck"${stuck?' checked':''}><span class="tl">🚨 Elakadás történt</span></label></div>`:''}
       ${penBlock(stuck)}
+      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
     </div>`,{submitLabel:d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
       const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
       const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
@@ -479,9 +479,10 @@ function rentalModal(crewId){
     const r={id:uuid(),crewId:crewId||'',name,company:String(fd.get('company')||'').trim(),price:canSeeFees()?(moneyVal(fd.get('price'))||0):0};
     closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([r])});}});
 }
-function sendListModal(only){
-  const p=S.draft;if(!p||ro())return;
-  if(S.dirty){toast('Előbb mentsd el a projekt módosításait, hogy a friss lista menjen ki.',true);return;}
+async function sendListModal(only){
+  if(!S.draft||ro())return;
+  if(S.dirty){flushSave();await SAVE_Q;if(S.dirty){toast('A módosítások mentése nem sikerült – próbáld újra, hogy a friss lista menjen ki.',true);return;}}
+  const p=S.draft;if(!p)return;
   const ids=[...crewIds(p)];
   if(!ids.length){toast('Előbb osszál be stábot a projektre.',true);return;}
   const roleOf=id=>{const r=[];if(p.lead===id)r.push('Projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===id)r.push(a.role);});return r.join(', ');};
@@ -490,7 +491,7 @@ function sendListModal(only){
   openModal(p.listSentAt?'Eszközlista újraküldése':'Eszközlista küldése',`<p class="hint" style="margin:0">A levél az admin@lumosmotion.com címről megy ki a te neveddel. Ha valaki válaszol, a válasz hozzád érkezik, és te is kapsz másolatot.</p>
     <div class="toggles" style="grid-template-columns:1fr">${rows}</div>
     <div class="field"><label for="m-msg">Üzenet (nem kötelező)</label><textarea class="inp" id="m-msg" name="message" placeholder="pl. Reggel 7-kor találkozunk a raktárnál."></textarea></div>
-    <div class="rolepick"><label><input type="checkbox" name="plan" checked> Technikai terv és jegyzetek csatolása</label></div>
+    ${String(p.techPlan||'').trim()?'<div class="rolepick"><label><input type="checkbox" name="plan" checked> Forgatási és technikai terv csatolása</label></div>':''}
     ${p.listSentAt?`<p class="hint" style="margin:0">Utoljára kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}`,
   {submitLabel:'Küldés',submit:async fd=>{
     const to=fd.getAll('to');if(!to.length){toast('Válassz ki legalább egy címzettet.',true);return;}
@@ -697,7 +698,7 @@ function arm(b,fn){
 /* ===== Események ===== */
 const ACT={
   tab:b=>guard(()=>{const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
-  home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='attekintes';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
+  home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
@@ -730,7 +731,7 @@ const ACT={
     const v=b.dataset.v,go=()=>{
       if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
       if(S.draft.status===v)return;
-      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',stepsDone:ticksUpTo(S.draft,v)});
+      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
@@ -741,10 +742,6 @@ const ACT={
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
-  'tile-go':b=>{const g=b.dataset.go;
-    if(g==='aktiv'){guard(()=>{S.pf.status='aktiv';S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});}
-    else if(g==='naptar'){guard(()=>{S.tab='naptar';S.projectId=null;S.draft=null;S.cal.month=todayISO().slice(0,7);render(true);scrollTo(0,0);});}
-    else if(g==='atadas'){const el=$('due-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}},
   'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
     const ORD=['egyeztetes','tervezes','helyszin'],ix=ORD.indexOf(v);
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
@@ -1092,3 +1089,5 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ'))setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.mct-item,.hs-empty'))pickClose();},150);});
 document.addEventListener('scroll',e=>{if($('hsBox')&&e.target&&e.target.classList&&e.target.classList.contains('modal'))pickClose();},true);
+/* Projekttáblázat: a sor Enterrel is megnyitható */
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const r=e.target.closest&&e.target.closest('.pt-row');if(!r)return;e.preventDefault();ACT['open-project'](r);});

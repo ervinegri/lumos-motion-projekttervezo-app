@@ -623,6 +623,14 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .cf-list{margin:0;padding-left:18px;display:grid;gap:6px}
 .past-warn{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:13.5px}
 .cf-tag{display:inline-block;font-size:11.5px;font-weight:650;padding:1px 7px;border-radius:999px;background:#eef2f4;color:var(--fg-3);margin-left:4px}.cf-tag.new{background:var(--ok-soft);color:var(--ok)}.cf-tag.chg{background:var(--warn-soft);color:var(--warn)}
+.proj-table{width:100%;table-layout:fixed}.proj-table th:nth-child(1){width:auto}.proj-table th:nth-child(2){width:300px}.proj-table th:nth-child(3){width:190px}
+.proj-table td{vertical-align:middle;padding:10px 12px}.pt-row{cursor:pointer}.pt-row:hover td{background:#f4f8f6}.pt-row:focus-visible td{outline:2px solid var(--accent);outline-offset:-2px}
+.pt-flex{display:flex;align-items:center;gap:12px;min-width:0}.pt-flex .ev-main{min-width:0}.pt-flex .ev-title,.pt-flex .ev-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt-pills{display:flex;flex-wrap:wrap;gap:6px}.pt-extra{color:var(--fg-3)}.pt-extra .smallnum{display:inline-block;margin-right:6px}
+.pt-group td{background:#eef3f1;font-size:12px;font-weight:780;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2);padding:8px 12px}
+.issues-panel{margin-bottom:14px}
+@media (max-width:760px){.proj-table th:nth-child(3),.proj-table td.pt-extra{display:none}.proj-table th:nth-child(2){width:44%}.proj-table td{padding:8px}.pt-flex{gap:8px}}
+.pt-pills .statuspill{white-space:normal;max-width:100%}
 </style>
 </head>
 <body>
@@ -643,7 +651,7 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
       <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
-        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető</option><option value="editor">👁 T. vezető</option><option value="crew">👁 Szakember</option></select>
+        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető</option><option value="editor">👁 Termelési v.</option><option value="crew">👁 Szakember</option></select>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>

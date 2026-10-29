@@ -276,4 +276,10 @@ test('crew signature is identical in the backend and the frontend',()=>{
   front.__P=proj;const fr2=vm.runInContext("crewSig(__P,'a')",front);
   assert.equal(back,fr2);
 });
+test('frontend: delivered videos show waiting days instead of the delivery deadline',()=>{
+  const t=fr('todayISO()');
+  fr(`var lp={status:'jovahagyas',date:'2026-10-01',leadvaAt:addDays(todayISO(),-3),dueAt:todayISO()};`);
+  assert.match(fr('dueInfo(lp).txt'),/A videók 3 napja jóváhagyásra várnak/);
+  fr(`lp.status='utomunka';`);assert.doesNotMatch(fr('dueInfo(lp).txt'),/videók/);
+});
 console.log('All finance checks passed.');
