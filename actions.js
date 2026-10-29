@@ -653,7 +653,7 @@ const ACT={
   'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft(n>0?{foto_db:n,x_foto:true}:{foto_db:n});},
-  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs'||it.k==='er_summary')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
+  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs'||it.k==='er_summary')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'view-reset':()=>guard(()=>switchView('admin')),
   'lead-remove':()=>{const d=S.draft;if(!d)return;setDraft({lead:''});toast('A projektvezető szerep lekerült – jelölj ki új projektvezetőt.');},

@@ -537,7 +537,7 @@ function roContentPanel(p){
   return `<div class="panel content"><h3>✂️ Vágnivaló anyagok</h3>${items.length?roList(items):'<p class="hint" style="margin:0">Ehhez a projekthez nincs megrendelt vágnivaló anyag.</p>'}${due?`<p class="hint" style="margin:10px 0 0">Átadási határidő: <b>${esc(fmtDay(due))}</b></p>`:''}</div>`;
 
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
-  REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
+  REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
   REC_LIVE.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
   if(p.er_post)rec.push('Előadások utómunkája ('+(p.er_res==='4k'?'4K':'Full HD')+')');
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
@@ -630,7 +630,9 @@ function viewProject(p){
         ${(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
         <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
-        <div class="toggles one">${REC_CAMS.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
+        <div class="toggles one">${REC_CAMS.map(c=>{const cc=CAM_COUNTS.find(x=>x.flag===c.k),n=camN(p,c.k);
+          return cc?`<div class="cam-row"><label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>${p[c.k]?`<div class="stepper cam-step"><button type="button" data-action="rec-step" data-k="${cc.k}" data-d="-1" aria-label="${cc.label}: kevesebb"${n<=1||D()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" data-step-k="${cc.k}" data-min="1" data-max="10" aria-label="${cc.label} száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${cc.k}" data-d="1" aria-label="${cc.label}: több"${n>=10||D()?' disabled':''}>+</button></div>`:''}</div>`
+            :`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`;}).join('')}</div>
         <div class="sec-lbl">Élő kép</div>
         <div class="toggles one">${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>

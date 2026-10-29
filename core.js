@@ -2,7 +2,7 @@
 /* ===== Konstansok ===== */
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
-const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Egyéb'];
+const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Podcast','Egyéb'];
 const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Ajánlói jutalék'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
@@ -34,6 +34,8 @@ const REC_CAMS=[
 const REC_LIVE=[
   {k:'er_stream',label:'Élő kivetítés LED falra vagy projektorra',role:'Képkeverő / streaming'},
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
+const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1}];   // kameraszög darabszáma
+const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 const REC_COUNTS=[{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
@@ -128,7 +130,7 @@ function staffing(p){
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
-  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms);   // termenként legalább 1 operatőr
+  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms,rooms*(camN(p,'er_total')+camN(p,'er_close')));   // termenként kamerásonként 1 operatőr
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
