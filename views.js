@@ -417,8 +417,8 @@ function financePanel(p,inner){
     const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
     tables+=postTbl()+`<div class="day-tbl-h">Egyéb költségek és összesítés</div>`+tbl(commonRow()+fixedRows,foot);
   }else{
-    if(postRows.length){const field=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
-      const fr=field.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Még nincs helyszíni stáb.</td></tr>`;
+    if(true){const field=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
+      const fr=field.map((x,n)=>`<tr><td class="n"><div class="mv-cell"><span>${n+1}</span>${field.length>1?`<span class="mv"><button type="button" data-action="fee-move" data-i="${x.i}" data-d="-1"${n===0?' disabled':''} title="Feljebb" aria-label="Sor feljebb">▲</button><button type="button" data-action="fee-move" data-i="${x.i}" data-d="1"${n===field.length-1?' disabled':''} title="Lejjebb" aria-label="Sor lejjebb">▼</button></span>`:''}</div></td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`;
       const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
       tables=`<div class="day-tbl-h">📍 Helyszíni stáb</div>`+tbl(fr,'','day-sheet')+postTbl()+`<div class="day-tbl-h">Egyéb költségek és összesítés</div>`+tbl(commonRow()+fixedRows,foot);
     }else{
@@ -565,7 +565,8 @@ function viewProject(p){
     return `<div class="stage-w${tk?' has-tick':''}"><button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}${on?' ticked':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${closed?' disabled':D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>${tk?(ro()||closed?(on?'<span class="stage-tick on" title="Megtörtént">✓</span>':''):`<button type="button" class="stage-tick${on?' on':''}" data-action="step-done" data-v="${s.id}" aria-pressed="${on}" title="${on?'Megtörtént – kattints a visszavonáshoz':'Jelöld, ha ez a lépés megtörtént'}" aria-label="${esc(stageLabel(p,s.id))}: megtörtént">✓</button>`):''}</div>`;}).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
-  const ex=EXTRAS.filter(e=>e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
+  const tg=k=>{const e=EXTRAS.find(x=>x.k===k);return `<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${e?e.label:k}</span></label>`;};
+  const ex=EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
   const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
   const nRec=REC_CAMS.filter(c=>p[c.k]).length+REC_LIVE.filter(c=>p[c.k]).length+(p.er_post?1:0);
   const nTech=TECH.filter(t=>p[t.k]).length;
@@ -635,6 +636,8 @@ function viewProject(p){
             :`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`;}).join('')}</div>
         <div class="sec-lbl">Élő kép</div>
         <div class="toggles one">${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>
+        <div class="sec-lbl">Fotózás</div>
+        <div class="toggles one">${tg('x_foto')}</div>
         <div class="sec-lbl">Helyszíni extrák és kiegészítők</div>
         <div class="toggles one">${ex}</div>
         <div class="tech-sec"><h4 class="sub-h">💡 Hang-, fény- és vizuáltechnika <span class="aside">${nTech?nTech+' kiválasztva':''}</span></h4>
@@ -646,7 +649,7 @@ function viewProject(p){
           <div class="field" style="align-self:center"><select class="inp" id="f-er_res" data-field="er_res" aria-label="Felbontás"${D()}><option value="hd"${p.er_res!=='4k'?' selected':''}>Full HD</option><option value="4k"${p.er_res==='4k'?' selected':''}>4K</option></select></div></div>
         ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
-        <div class="sec-lbl">Kreatív tartalmak</div>
+        <div class="toggles one" style="margin:10px 0">${tg('x_rush')}</div>
         ${dl}
 </section>
     </div>

@@ -245,9 +245,9 @@ async function importCalEvent(id){
   const pad=t=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(t||''));return m?String(m[1]).padStart(2,'0')+':'+m[2]:'';};
   let nm=String(e.title||'').trim();if(nm.length<2)nm='Projekt – '+fmtShort(e.date);
   const p={id:uuid(),name:nm.slice(0,160),date:e.date,endDate:e.endDate&&e.endDate>e.date?e.endDate:'',startTime:pad(e.start),endTime:pad(e.end),hours,venue:String(e.location||'').slice(0,300),notes:String(e.description||'').slice(0,4900),
-    status:'tervezes',crew,equipment:[],calEventId:e.id,baseUpdatedAt:'',mutationId:uuid()};
+    status:'tervezes',crew,equipment:[],calEventId:e.id,baseUpdatedAt:'',mutationId:uuid(),deferCal:true};   // a naptár frissítése a háttérben – gyorsabb létrehozás
   if(crew.length&&new Set(crew.map(a=>a.crewId)).size===1)p.lead=crew[0].crewId;
-  const saved=await call('saveProject',p);if(!projById(saved.id))S.projects.push(saved);closeModal();S.cal.events={};openProject(saved.id);toast(saved.duplicateOf?'Ebből az eseményből már van projekt':(saved.calError||'Projekt létrehozva a naptáreseményből'),!!saved.calError);
+  const saved=await call('saveProject',p);if(!projById(saved.id))S.projects.push(saved);closeModal();S.cal.events={};openProject(saved.id);if(!saved.duplicateOf)syncCal(saved.id);toast(saved.duplicateOf?'Ebből az eseményből már van projekt':(saved.calError||'Projekt létrehozva a naptáreseményből'),!!saved.calError);
   }catch(err){handleErr(err);if(btn&&btn.isConnected){btn.disabled=false;btn.textContent='Projekt létrehozása ebből';}}
   finally{importing=false;}
 }
@@ -395,6 +395,9 @@ document.addEventListener('change',e=>{const t=e.target,n=t.dataset&&t.dataset.p
   row.querySelector('[data-pencase]').innerHTML=penCaseOpts(t.value,'pen_case_'+n);row.querySelector('[data-penpct]').style.display=t.value==='prestige'?'':'none';row.querySelector('[data-penamt]').style.display=t.value==='damage'?'':'none';});
 document.addEventListener('change',e=>{const t=e.target,w=$('penWrap');if(!w)return;
   if(t.name==='siteOk')w.style.display=t.value==='nem'?'':'none';else if(t.id==='m-stuck')w.style.display=t.checked?'':'none';});   // díjcsökkentés csak elakadásnál
+/* egy későbbi lépésre lépve az előtte lévő lépések kipipálódnak */
+function ticksUpTo(d,v){const ORD=['egyeztetes','tervezes','helyszin'],ids=STAGES.map(s=>s.id),vi=ids.indexOf(v),s2=new Set(String(d.stepsDone||'').split(',').filter(Boolean));
+  ORD.forEach(x=>{if(ids.indexOf(x)<vi)s2.add(x);});return ORD.filter(x=>s2.has(x)).join(',');}
 function siteModal(next,withPen){
   const d=S.draft;if(!d)return;
   openModal('📝 Helyszíni munka beszámoló',`<div class="fields">
@@ -429,7 +432,7 @@ function deliveryModal(){
       const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
-      setDraft({deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});saveDraft();}});
+      setDraft({deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')});saveDraft();}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
 }
 /* az eddigi elakadások és kirótt díjcsökkentések (beszámoló és átadás ablakban) */
@@ -627,7 +630,7 @@ const ACT={
     const v=b.dataset.v,go=()=>{
       if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
       if(S.draft.status===v)return;
-      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});
+      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
     if(['helyszin','utomunka','atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
@@ -716,7 +719,8 @@ const ACT={
     const cd=Object.assign({},d.crewDays||{});if(cur.length===all.length)delete cd[cid];else cd[cid]=all.filter(x=>cur.includes(x));
     const fees=(d.fees||[]).map(f=>{if(f.crewId!==cid||!f.dayAmounts)return f;const g=Object.assign({},f);g.amount=cur.reduce((s,x)=>s+num(g.dayAmounts[x]),0);return g;});
     setDraft({crewDays:cd,fees});},
-  'fee-move':b=>{const d=S.draft;if(!d)return;const i=Number(b.dataset.i),j=i+Number(b.dataset.d),f=(d.fees||[]).slice();
+  'fee-move':b=>{const d=S.draft;if(!d)return;const i=Number(b.dataset.i),st=Number(b.dataset.d),f=(d.fees||[]).slice(),grp=x=>isPostOnly(d,x.crewId);
+    let j=i+st;while(j>=0&&j<f.length&&f[j].kind!=='fixed'&&grp(f[j])!==grp(f[i]))j+=st;   // ugyanabban a táblázatban lévő szomszéddal cserél
     if(j<0||j>=f.length||f[i].kind==='fixed'||f[j].kind==='fixed')return;[f[i],f[j]]=[f[j],f[i]];setDraft({fees:f});},
   'pen-row-add':b=>{const box=$('penRows');if(!box)return;box.insertAdjacentHTML('beforeend',penRowHtml());const row=box.lastElementChild,cs=row.querySelector('select');
     if(b.dataset.cid&&cs){cs.value=b.dataset.cid;const k=row.querySelector('[data-penkind]');if(k)k.focus();}else if(cs)cs.focus();},

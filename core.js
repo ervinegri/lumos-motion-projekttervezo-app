@@ -20,21 +20,21 @@ const EXTRAS=[
   {k:'x_dron',label:'Drónos felvételek + pilóta',role:'Drónpilóta',base:true},
   {k:'x_timelapse',label:'Timelapse (GoPro)',base:true},
   {k:'x_pov',label:'POV felvétel (GoPro)',base:true},
-  {k:'x_foto',label:'Fotózás (fotós a helyszínen)',role:'Fotós',base:true},
+  {k:'x_foto',label:'Fotós a helyszínen',role:'Fotós',base:true},
   {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
   {k:'x_rush',label:'Villámgyors kézbesítés',pct:'rush'}];
 const REC_CAMS=[
   {k:'er_total',label:'Teljes alakos kamera szög',sub:'Alap színpadi plán'},
-  {k:'er_close',label:'Közeli kamera szög kamerával',sub:'Arc és mimika'},
-  {k:'er_zoom',label:'Közeli kamera szög vágói belenagyítással',sub:'Közeli a totálból, utómunkában'},
+  {k:'er_close',label:'Közeli kamera szög',sub:'Arc és mimika'},
+  {k:'er_creative',label:'Kreatív kamera',sub:'Mozgó, hangulati képek'},
   {k:'er_crowd',label:'Közönség kamera',sub:'Hangulat és reakciók'},
   {k:'er_slides',label:'Diák rögzítése / kivetítése',sub:'Tiszta jel a projektorról'}];
 /* Élő kép: kivetítés és streaming külön választható; mindkettőhöz képkeverő kell (termenként). */
 const REC_LIVE=[
   {k:'er_stream',label:'Élő kivetítés LED falra vagy projektorra',role:'Képkeverő / streaming'},
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
-const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1}];   // kameraszög darabszáma
+const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1},{k:'er_creative_n',flag:'er_creative',label:'Kreatív kamerák',max:10,min:1}];   // kameraszög darabszáma
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 const REC_COUNTS=[{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
@@ -130,7 +130,7 @@ function staffing(p){
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
-  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms,rooms*(camN(p,'er_total')+camN(p,'er_close')));   // termenként kamerásonként 1 operatőr
+  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms,rooms*(camN(p,'er_total')+camN(p,'er_close')+camN(p,'er_creative')));   // termenként kamerásonként 1 operatőr
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
