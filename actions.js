@@ -265,25 +265,41 @@ $('modalRoot').addEventListener('submit',async e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').innerHTML)closeModal();});
 
-function newProjectModal(){
+/* Új projekt (a Projektek és a Naptár „+ Új bejegyzés” gombja is ezt nyitja): ugyanazok a kötelező adatok, mint az Alapadatoknál.
+   A projekt létrehozás után automatikusan bekerül a Google Naptárba is. */
+function newProjectModal(day){
+  const d0=day||'';
   openModal('Új projekt',`<div class="fields">
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
     <div class="field"><label for="m-clientSel">Ügyfél</label><select class="inp" id="m-clientSel" name="clientSel">${clientOptions('')}</select></div>
-    <div class="field full" id="m-clientNew" style="display:none"><div class="fields">${taxBlock()}</div></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
-    ${mf('date','Első nap',{type:'date'})}
-    ${mf('venue','Helyszín')}
-  </div>`,{submitLabel:'Létrehozás',submit:async(fd,form)=>{
+    <div class="field full" id="m-clientNew" style="display:none"><div class="fields">${taxBlock()}</div></div>
+    ${mf('venue','Helyszín',{full:true,max:300})}
+    ${mf('contactName','Kapcsolattartó',{max:120})}
+    ${phoneField({name:'contactPhone',value:''})}
+    ${mf('contactEmail','Kapcsolattartó e-mail',{type:'email',full:true,max:160})}
+    ${mf('date','Első nap',{type:'date',v:d0})}
+    ${mf('endDate','Utolsó nap (ha több napos)',{type:'date'})}
+    ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
+    ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5})}
+    <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
+  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül.</p>`,{submitLabel:'Projekt létrehozása',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
-    {const req=[['clientSel','Ügyfél'],['eventType','Rendezvény típusa'],['date','Első nap'],['venue','Helyszín']];
-      if(fd.get('clientSel')==='__new')req.push(['client','Cégnév']);
-      const bad=req.find(([n])=>!String(fd.get(n)||'').trim());
-      if(bad){const el=form.querySelector('[name='+bad[0]+']');if(el){el.focus();el.style.borderColor='var(--bad)';}toast('Kötelező mező: '+bad[1]+'.',true);return;}}
-    const p={id:uuid(),name:fd.get('name').trim(),client:fd.get('clientSel')==='__new'?String(fd.get('client')||'').trim():String(fd.get('clientSel')||''),eventType:fd.get('eventType'),date:fd.get('date')||'',venue:fd.get('venue').trim(),
+    const g=k=>String(fd.get(k)||'').trim(),time=v=>/^([01]?\d|2[0-3])[:.]?([0-5]\d)$/.test(v)?v.replace(/^(\d{1,2})[:.]?(\d{2})$/,(m,h,mm)=>h.padStart(2,'0')+':'+mm):'';
+    const clientNew=fd.get('clientSel')==='__new';
+    const p={id:uuid(),name:g('name'),client:clientNew?g('client'):g('clientSel'),eventType:g('eventType'),date:g('date'),endDate:g('endDate')&&g('endDate')>g('date')?g('endDate'):'',venue:g('venue'),
+      contactName:g('contactName'),contactPhone:g('contactPhone'),contactEmail:g('contactEmail'),startTime:time(g('startTime')),endTime:time(g('endTime')),notes:g('notes'),
       status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
-    if(fd.get('clientSel')==='__new'){p.clientTax=String(fd.get('clientTax')||'').trim();p.clientAddress=String(fd.get('clientAddress')||'').trim();}
-    {const it=knownClients('').find(c=>c.company===p.client);if(it){p.contactName=it.name;p.contactPhone=it.phone;p.contactEmail=it.email;if(!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}}   // ismert ügyfél: a kapcsolattartó is átjön
-    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva');syncCal(saved.id);}
+    if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
+    {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
+    const fieldOf={client:clientNew?'client':'clientSel'};
+    const miss=missingReq(p).filter(([k])=>k!=='endDate');
+    if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Érkezés (óó:pp formában)']);
+    if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Távozás (óó:pp formában)']);
+    if(miss.length){const k=miss[0][0],el=form.querySelector('[name='+(fieldOf[k]||k)+']')||(k==='contactPhone'?$('m-contactPhone'):null);
+      form.querySelectorAll('.inp').forEach(x=>x.style.borderColor='');miss.forEach(([mk])=>{const e2=form.querySelector('[name='+(fieldOf[mk]||mk)+']');const vis=mk==='contactPhone'?$('m-contactPhone'):e2;if(vis)vis.style.borderColor='var(--bad)';});
+      if(el&&el.type!=='hidden')el.focus();toast('Kötelező mező: '+miss.map(x=>x[1]).join(', ')+'.',true);return;}
+    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva, a naptárba is bekerül');syncCal(saved.id);S.cal.events={};}
     catch(e){handleErr(e);}
   }});
 }
@@ -366,7 +382,7 @@ async function switchView(role,crewId){
     await load(false,false,r&&r.boot);
     S.tab=TABS().some(t=>t.id===keepTab)?keepTab:'attekintes';
     if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));}
-    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Ügyvezetői nézet':role==='editor'?'Termelési vezető nézet':'Szakember nézet');
+    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: T. vezető':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 function viewAsCrewModal(){
@@ -526,7 +542,7 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
-function prepDraft(p){const d=clone(p);if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
+function prepDraft(p){const d=clone(p);d.er_post_n=postN(d);d.x_foto_n=fotoN(d);if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
 function budgetApply(saved){
   const i=S.projects.findIndex(p=>p.id===saved.id);if(i>=0)S.projects[i]=saved;
   if(S.projectId===saved.id){if(S.dirty){for(const k of ['budgetRequest','budgetMode','budgetVal','budgetFt','updatedAt'])S.draft[k]=saved[k];}else S.draft=prepDraft(saved);}render(true);
@@ -670,6 +686,7 @@ function arm(b,fn){
 /* ===== Események ===== */
 const ACT={
   tab:b=>guard(()=>{const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
+  home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='attekintes';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
@@ -728,8 +745,8 @@ const ACT={
       closeModal();if(name===S.draft.name&&!S.dirty)return;setDraft({name});saveDraft();toast('Átnevezve – a Google Naptárban is frissül');}});},
   'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
-  'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft(n>0?{foto_db:n,x_foto:true}:{foto_db:n});},
-  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs'||it.k==='er_summary')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
+  'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n});},
+  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft(stepPatch(d,it.k,n));},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'view-reset':()=>guard(()=>switchView('admin')),
   'crew-add-focus':()=>{const e=$('add-crew-person');if(!e)return;e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>{e.focus();try{e.showPicker&&e.showPicker();}catch(_){}},350);},
@@ -776,7 +793,7 @@ const ACT={
   'cal-event':b=>calEventModal(b.dataset.id),
   'cal-day':b=>{const d=b.dataset.d,its=calItems(S.cal.month).filter(it=>it.date<=d&&it.endDate>=d);openModal(F_FULL.format(toDate(d)),`<div class="cal-daylist">${its.map(it=>calChip(it,d)).join('')}</div>`,{cancelLabel:'Bezárás'});},
   'cal-import':b=>importCalEvent(b.dataset.id),
-  'cal-new':b=>calFormModal(null,b.dataset.d||''),
+  'cal-new':b=>{if(!ro())guard(()=>newProjectModal(b.dataset.d||(S.cal.month===todayISO().slice(0,7)?todayISO():S.cal.month+'-01')));},
   'cal-edit':b=>{const e=calEventById(b.dataset.id);if(e)calFormModal(e);},
   'cal-del':b=>arm(b,async()=>{try{await call('deleteCalEvent',{id:b.dataset.id});S.cal.events={};closeModal();render(true);toast('Bejegyzés törölve');}catch(e){handleErr(e);}}),
   'money-step':b=>{const el=$(b.dataset.for);if(!el)return;const cur=Number(moneyVal(el.value)||0);const n=Math.max(0,Math.min(MONEY_MAX,(Math.round(cur/MONEY_STEP)+Number(b.dataset.d))*MONEY_STEP));el.value=moneyFmt(n);el.focus();},
@@ -874,7 +891,10 @@ document.addEventListener('change',e=>{
   if(t.tagName==='SELECT'&&t.id!=='viewAs')try{t.blur();}catch(_){}   // tableten (iPad) a kiválasztás után zárjuk be a listát
   if(t.dataset.clientSel&&d){if(t.value==='__new'){t.value=d.client||'';newClientModal();return;}
     const it=knownClients('').find(c=>c.company===t.value),patch={client:t.value,clientTax:it?it.tax:'',clientAddress:it?it.address:''};if(it&&(it.name||it.phone||it.email)){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}setDraft(patch);return;}
-  if(t.id==='m-clientSel'){const n=$('m-clientNew');if(n){const on=t.value==='__new';n.style.display=on?'':'none';if(on)$('m-clientTax').focus();}return;}
+  if(t.id==='m-clientSel'){const n=$('m-clientNew');if(n){const on=t.value==='__new';n.style.display=on?'':'none';if(on)$('m-clientTax').focus();}
+    const it=knownClients('').find(c=>c.company===t.value),set=(id,v)=>{const e2=$(id);if(e2&&!e2.value&&v)e2.value=v;};
+    if(it){set('m-contactName',it.name);set('m-contactEmail',it.email);const ph=$('m-contactPhone');if(ph&&!ph.value&&it.phone){const pr2=phParse(it.phone);ph.value=pr2.n;const hid=document.querySelector('input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}}
+    return;}
   if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
@@ -882,7 +902,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d){if(S.dirty&&!ro()){const pid=d.id;setTimeout(()=>{if(S.draft&&S.draft.id===pid&&S.dirty)saveDraft();},0);}return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
-    setDraft(k==='foto_db'?(n>0?{foto_db:n,x_foto:true}:{foto_db:n}):(k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0?{[k]:n,er_post:true}:{[k]:n});return;}
+    setDraft(k==='foto_db'?{foto_db:n}:stepPatch(d,k,n));return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;if(t.value==='Projektvezető'){setDraft({lead:t.dataset.crewAddrole});return;}const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}

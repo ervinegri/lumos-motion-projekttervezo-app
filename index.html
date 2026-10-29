@@ -617,6 +617,9 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .cgroup .cg-b{padding:0 14px 12px}.cgroup .cg-b>.sec-lbl:first-child,.cgroup .cg-b>.dl:first-child{margin-top:0}
 .tf-sub{display:block;font-size:11px;font-weight:500}
 .pay-ded-note{display:block;font-size:11px;color:var(--bad);font-weight:600;white-space:nowrap}td.pay-ded{background:var(--bad-soft)}
+.brand-link{display:inline-block;line-height:0}
+.pay-sheet{table-layout:fixed;width:auto;min-width:0}.pay-sheet .pay-c-proj{width:300px}.pay-sheet .pay-c-person{width:128px}.pay-sheet .pay-c-sum{width:140px}
+.pay-sheet td:first-child{white-space:normal}.pay-sheet th{overflow:hidden;text-overflow:ellipsis}.pay-ded-note{cursor:help}
 </style>
 </head>
 <body>
@@ -639,11 +642,11 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 <div class="page">
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="identity"><img class="brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező"></div>
+      <div class="identity"><a href="#" class="brand-link" data-action="home" aria-label="Áttekintés"><img class="brand" src="logo.png" width="440" height="320" alt="Lumos Motion Projekttervező"></a></div>
       <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
-        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető nézet</option><option value="editor">👁 Termelési vezető nézet</option><option value="crew">👁 Szakember nézet</option></select>
+        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető</option><option value="editor">👁 T. vezető</option><option value="crew">👁 Szakember</option></select>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>

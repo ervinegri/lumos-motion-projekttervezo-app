@@ -50,7 +50,12 @@ const REC_LIVE=[
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
 const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1},{k:'er_creative_n',flag:'er_creative',label:'Kreatív kamerák',max:10,min:1}];   // kameraszög darabszáma
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
-const REC_COUNTS=[{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
+const REC_COUNTS=[{k:'er_post_n',label:'Termek előadásainak utómunkája',max:10,min:0},{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
+const FOTO_COUNT={k:'x_foto_n',label:'Fotós a helyszínen',max:10,min:0};
+const postN=p=>num(p.er_post_n)||(p.er_post?1:0),fotoN=p=>num(p.x_foto_n)||(p.x_foto?1:0);   // régi adatnál a pipa = 1
+/* Léptetős tartalommezők: a hozzájuk tartozó pipát is beállítjuk (a régi háttér a pipát menti). */
+function stepPatch(d,k,n){if(k==='er_post_n')return {er_post_n:n,er_post:n>0};if(k==='x_foto_n')return {x_foto_n:n,x_foto:n>0};
+  if((k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0)return {[k]:n,er_post:true,er_post_n:Math.max(1,postN(d))};return {[k]:n};}
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
@@ -140,7 +145,7 @@ function calc(p){
 }
 function staffing(p){
   const c=calc(p),need={'Operatőr':c.ops};
-  EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+1;});
+  EXTRAS.forEach(e=>{if(e.role&&p[e.k])need[e.role]=(need[e.role]||0)+(e.k==='x_foto'?Math.max(1,fotoN(p)):1);});
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});

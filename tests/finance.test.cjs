@@ -94,10 +94,16 @@ const doc={getElementById(id){if(!nodes.has(id))nodes.set(id,element());return n
 let timers=[];
 
 /* --- 2026-10-29: visszajelzések javításai --- */
-test('backend keeps on-site photographer without photo post-production',()=>{
-  run(`USER={role:'admin',name:'Ervin'};var ph=rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-foto',deferCal:true,crew:DB.crewAssign,x_foto:true,foto_db:0});`);
+test('backend: photographer and lecture post-production counts drive the flags (legacy flag = 1)',()=>{
+  run(`USER={role:'admin',name:'Ervin'};var legacy={...DB.projects[0]};delete legacy.x_foto_n;delete legacy.er_post_n;var ph=rpc('token','saveProject',{...legacy,baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-foto',deferCal:true,crew:DB.crewAssign,x_foto:true,foto_db:0});`);
   assert.equal(run('DB.projects[0].x_foto'),true);
+  assert.equal(run('DB.projects[0].x_foto_n'),1);
   assert.equal(run('DB.projects[0].foto_db'),0);
+  run(`rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-foto2',deferCal:true,crew:DB.crewAssign,x_foto_n:2,er_post_n:3,foto_db:0});`);
+  assert.equal(run('DB.projects[0].x_foto'),true);assert.equal(run('DB.projects[0].x_foto_n'),2);
+  assert.equal(run('DB.projects[0].er_post'),true);assert.equal(run('DB.projects[0].er_post_n'),3);
+  run(`rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-foto3',deferCal:true,crew:DB.crewAssign,x_foto_n:0,er_post_n:0});`);
+  assert.equal(run('DB.projects[0].x_foto'),false);assert.equal(run('DB.projects[0].er_post'),false);
 });
 test('backend accepts the new video delivery stages',()=>{
   for(const st of ['leadva','jovahagyas']){
@@ -166,13 +172,15 @@ test('frontend: required basics are checked, notes are optional',()=>{
   assert.deepEqual(JSON.parse(fr('JSON.stringify(missingReq(rp).map(x=>x[0]))')),['contactPhone','endDate']);
 });
 test('frontend: payouts mark the penalised item and show the kept amount to leaders',()=>{
-  fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved'}]}];`);
+  fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved',reason:'Helyszíni elakadás'}]}];`);
   const html=fr('viewPayouts()');
-  assert.match(html,/keretben maradt/);
+  assert.match(html,/nem kerül kifizetésre/);
   assert.match(html,/30\s?000/);
   assert.match(html,/🚨 −30\s?000/);
+  assert.match(html,/title="[^"]*Helyszíni elakadás/);
+  assert.doesNotMatch(html,/kezdőnapjuk/);
   fr(`S.me={role:'editor'};`);
-  assert.match(fr('viewPayouts()'),/keretben maradt/);
+  assert.match(fr('viewPayouts()'),/nem kerül kifizetésre/);
 });
 test('frontend: daily totals include the day-two deduction and match the grand total',()=>{
   fr(`S.me={role:'admin'};var q=S.projects[0];q.fees.push({crewId:'bence-123',name:'Bence',amount:50000,dayAmounts:{'2026-10-02':25000,'2026-10-03':25000}},{kind:'fixed',key:'fuvar',name:'Fuvar',amount:10000});`);
@@ -180,5 +188,17 @@ test('frontend: daily totals include the day-two deduction and match the grand t
   assert.equal(fr("daySumOf(q,'2026-10-03')"),55000);
   assert.equal(fr('otherSumOf(q)'),10000);
   assert.equal(fr("daySumOf(q,'2026-10-02')+daySumOf(q,'2026-10-03')+otherSumOf(q)"),fr('feeSum(q)'));
+});
+test('frontend: long names are shortened to fit the fixed payout column',()=>{
+  assert.equal(fr("shortName('Gál Flóra')"),'Gál Flóra');
+  assert.equal(fr("shortName('Gáspár-Kovács Flóra')"),'G. Flóra');
+  assert.equal(fr("shortName('Nagy Kis Bernadett')"),'N. K. Bernadett');
+});
+test('frontend: crew sees only their own payout column',()=>{
+  fr(`S.me={role:'crew',crewId:'bence-123'};S.crew=[{id:'david-123',name:'Zajácz Dávid'},{id:'bence-123',name:'Kiss Bence'}];S.payMonth='2026-10';
+    S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},myFee:{amount:50000},penalties:[]}];`);
+  const html=fr('viewPayouts()');
+  assert.match(html,/Kiss Bence/);assert.doesNotMatch(html,/Zajácz/);assert.match(html,/50\s?000/);assert.doesNotMatch(html,/Projekt összesen/);
+  assert(fr("TABS().some(t=>t.id==='kifizetesek')"));
 });
 console.log('All finance checks passed.');
