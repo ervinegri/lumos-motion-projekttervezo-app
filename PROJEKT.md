@@ -33,6 +33,11 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 - Régi „Stáb” (`crew`) felhasználó csak olvashat; újat nem lehet felvenni.
 - Projekten belüli szerep (Stáb fül): Projektvezető, Értékesítő, Operatőr, Vágó, Fotós, Drónpilóta, Hangtechnikus, Fénytechnikus, Képkeverő / streaming, Sofőr / rakodó.
 
+## Bevétel és kiadás (csak ügyvezető, `finance.js`)
+- A régi „Lumos Motion Árbevétel” táblázatot váltja ki. Lapok: Bevételek, Kiadások, Tagi kölcsön; beállítások a `LUMOS_PM_FIN_SETTINGS` Script Propertyben.
+- Felosztás: nyereség %, ügyvezető %, marketing % (beállítható), a termelési költség (feeSum) után a maradék az eszköz-rezsi alap. Az alapok egyenlege hónapról hónapra áthozódik; a régi hónapokban a régi táblázat áthozata a hiteles (`carries`).
+- Az „app számol” hónaptól a projektekből (projekt értéke + `payStatus`), előtte a régi táblázatból importált sorokból. Import: Beállítások → Régi táblázat importálása (a háttér olvassa a táblázatot, újraimportáláskor a régi sorokat cseréli).
+
 ## Fontos szabályok
 - Pénzügyek (mindig nettó, ÁFA nélkül): a projekt értékét (táblában „Ajánlati ár (nettó Ft)”) csak az ügyvezető látja és állítja; a termelői díjakat (alvállalkozói díj, eszközbérlés, fuvar, jutalék – „Termelői díjak (JSON)” oszlop) az ügyvezető és a termelési vezető. A szakember egyiket sem kapja meg; a szűrést a háttér végzi (projectView_). Fedezet = érték − termelői díjak; költséghányad = díjak / érték. Napló, naptár és e-mail nem tartalmaz összeget.
 - Belépés csak Google-fiókkal (Google Identity Services, OAuth Client ID a config.js-ben és a Code.gs-ben; Google Cloud projekt: lumos-motion-projekttervezo, External, In production). Céges címnél csak a lumosmotion.com Workspace-fiók (hd) fogadható el. Csak a Beállítások → Hozzáférések listában szereplő aktív címek léphetnek be. PIN-es belépés nincs (minden része törölve); új kolléga felvételekor csak Google-meghívó megy ki.

@@ -194,8 +194,54 @@ test('re-finalize: only new members and members with changed role/equipment are 
   run(`MAILS=[];var r3=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
   assert.deepEqual(json('MAILS'),[]);
 });
+
+test('finance: legacy sheet import (two header rows, status column, expenses, carry, loans)',()=>{
+  run(`
+    var HDR1=['','','','','','','Dávid','','Operatőr','','Vágó','','Ervin','','Külsős','','Eszköz, Rezsi','','Marketing','',''];
+    var HDR2=['','Nap','Forgatás','','Díjazás','Nyereség 30%','%','Ft.','%','Ft.','%','Ft.','%','Ft.','%','Ft.','%','Ft.','%','Ft.','Teszt'];
+    var okt=[HDR1,HDR2,
+      ['','1','','','','','','','','','','','','','','','','','','','OK'],
+      ['','2','Queens Night','Teljes Fizetve',899000,269700,16.7,150133,0,0,8.1,72819,5,44950,6.7,60233,28.5,256215,5,44950,899000],
+      ['','6','Kulcs. Ak. levelező','Fizetésre vár',199000,59700,30,59700,0,0,0,0,5,9950,0,0,30,59700,5,9950,199000],
+      ['','TOTAL:','','',1098000,'','','','','','','','','','','','','','','',''],
+      ['','Kiadások:','','','','','','','','','','','','','','','','','','',''],
+      ['','Rezsi','','','','','','','','','','','','','','','','','','',''],
+      ['','Könyvelő','',30000,'','','','','','','','','','','','','','','','',''],
+      ['','Facebook hirdetés','','',15000,'','','','','','','','','','','','','','','',''],
+      ['','Total Kiadás:','',30000,15000,'','','','','','','','','','','','','','','',''],
+      ['','Megtakarítás/Tartozás előző hónapból:','',-7728648,102005,'','','','','','','','','','','','','','','',''],
+      ['','Tagi Kölcsön Egri Ervin Részéről:','','','','','','','','','','','','','','','','','','',''],
+      ['','2026.02.05','',100000,'','','','','','','','','','','','','','','','',''],
+      ['','2026.02.16','',7300000,'','','','','','','','','','','','','','','','',''],
+      ['','Összesen:','',7400000,'','','','','','','','','','','','','','','','',''],
+      ['','Visszafizetve:','','','','','','','','','','','','','','','','','','',''],
+      ['','2026.03.04','',1000000,'','','','','','','','','','','','','','','','',''],
+      ['','2026.10.18','Binx',160000,'','','','','','','','','','','','','','','','',''],
+      ['','Maradt:','',6240000,'','','','','','','','','','','','','','','','','']];
+    var apr=[['','','','','','Gácsa','','Márk','','Ervin','','Eszköz, Rezsi','','Marketing',''],['','Nap','Forgatás','Díjazás','Nyereség 30%','%','Ft.','%','Ft.','%','Ft.','%','Ft.','%','Ft.'],
+      ['','3','Kulcs. Ak. Csop. Tal.',119000,35700,0,0,35,41650,10,11900,20,23800,5,5950]];
+    var nov=okt.slice(0,2).concat([['','5','Novemberi projekt','Fizetésre vár',100000,30000,0,0,0,0,0,0,5,5000,0,0,60,60000,5,5000,100000]]);
+    var mk=(n,V)=>({getName:()=>n,getDataRange:()=>({getValues:()=>V})});
+    SpreadsheetApp.openByUrl=()=>({getSheets:()=>[mk('November 26',nov),mk('Október 26',okt),mk('Április 25',apr),mk('Munkalap',[[1]])]});
+    DB.finIncome=[{id:'keep-1',month:'2026-10',name:'Kézi',amount:5000,legacy:false}];DB.finExpense=[];DB.finLoan=[];
+    var _sf2=sheetFor_;sheetFor_=key=>({key,getLastRow:()=>(DB[key]||[]).length+1,getRange:()=>({clearContent(){DB[key]=[];},setNumberFormat(){return this;},setValues(vals){DB[key]=vals.map(v=>fromRow_(TABLES[key],v));}})});
+    readAll_=key=>(DB[key]||[]).map(x=>Object.assign({},x));
+    USER={role:'admin',name:'Ervin'};
+    var imp=rpc('token','finImport',{url:'https://docs.google.com/spreadsheets/d/x',appFromMonth:'2026-11'});
+    sheetFor_=_sf2;`);
+  const inc=json('DB.finIncome');
+  assert.equal(inc.length,4);   // kézi + 2 októberi + 1 áprilisi; a novemberi (app hónap) nem
+  const q=inc.find(r=>r.name==='Queens Night');
+  assert.equal(q.month,'2026-10');assert.equal(q.payStatus,'teljes');assert.equal(q.amount,899000);assert.equal(q.prod,150133+72819+60233);assert.equal(q.ceo,44950);assert.equal(q.rezsi,256215);assert.equal(q.marketing,44950);assert.equal(q.profit,269700);
+  assert.equal(inc.find(r=>r.name==='Kulcs. Ak. levelező').payStatus,'var');
+  const a=inc.find(r=>r.month==='2025-04');assert.equal(a.prod,41650);assert.equal(a.ceo,11900);assert.equal(a.rezsi,23800);assert.equal(a.payStatus,'teljes');
+  const ex=json('DB.finExpense');
+  assert.deepEqual(ex.map(e=>[e.name,e.fund,e.amount,e.month]),[['Könyvelő','rezsi',30000,'2026-10'],['Facebook hirdetés','marketing',15000,'2026-10']]);
+  const lo=json('DB.finLoan');assert.equal(lo.length,4);assert.equal(lo.filter(l=>l.kind==='be').length,2);assert.equal(lo.find(l=>l.amount===160000).note,'Binx');
+  const st=json('finSettings_()');assert.equal(st.openMonth,'2025-04');assert.equal(st.appFromMonth,'2026-11');
+});
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
-for(const f of ['core.js','views.js','actions.js']){
+for(const f of ['core.js','views.js','actions.js','finance.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
   source=source.replace("if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}",'');
   vm.runInContext(source,front,{filename:f});
@@ -287,5 +333,19 @@ test('frontend: warnings compute for overdue, delivered and normal projects with
   const iss=JSON.parse(fr('JSON.stringify(computeIssues().map(i=>i.text))'));
   assert(iss.some(t=>/napja lejárt/.test(t)));assert(iss.some(t=>/10 napja leadva/.test(t)));
   assert.doesNotThrow(()=>fr('viewProjects()'));
+});
+test('finance frontend: split, legacy/app cut-over, recurring expenses and fund balances',()=>{
+  fr(`S.me={role:'admin'};S.capabilities={finance:true};S.crew=[];
+    S.projects=[{id:'p1',name:'Novemberi',status:'tervezes',date:'2026-11-05',projectValue:100000,fees:[{crewId:'x',name:'X',amount:20000}],penalties:[]}];
+    S.fin={settings:{profitPct:30,ceoPct:5,marketingPct:5,openMonth:'2026-10',openRezsi:-1000,openMarketing:500,appFromMonth:'2026-11'},
+      income:[{id:'l1',month:'2026-10',name:'Régi',amount:50000,prod:0,profit:15000,ceo:2500,rezsi:30000,marketing:2500,legacy:true},{id:'l2',month:'2026-11',name:'Régi nov',amount:999,legacy:true}],
+      expense:[{id:'e1',name:'Könyvelő',fund:'rezsi',kind:'fix',from:'2026-10',to:'',amount:30000},{id:'e2',name:'Hirdetés',fund:'marketing',kind:'egyszeri',month:'2026-11',amount:1000}],loan:[]};`);
+  const nov=JSON.parse(fr("JSON.stringify(finIncomeFor('2026-11'))"));
+  assert.deepEqual(nov.map(r=>r.name),['Novemberi']);   // a régi novemberi sor nem számít, az app számol
+  assert.equal(nov[0].rezsi,100000-30000-5000-5000-20000);
+  assert.equal(JSON.parse(fr("JSON.stringify(finIncomeFor('2026-10'))")).length,1);
+  const b=JSON.parse(fr("JSON.stringify(finBalances('2026-11'))"));
+  assert.equal(b.carryRezsi,-1000+30000-30000);assert.equal(b.endRezsi,-1000+40000-30000);assert.equal(b.carryMkt,500+2500);assert.equal(b.endMkt,500+2500+5000-1000);
+  assert.doesNotThrow(()=>fr("S.finMonth='2026-11';viewFinance()"));
 });
 console.log('All finance checks passed.');

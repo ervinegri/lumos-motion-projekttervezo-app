@@ -64,7 +64,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -76,6 +76,15 @@ const TABLES = {
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
     ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
+  finIncome: { tab: 'Bevételek', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['day', 'Nap'], ['name', 'Megnevezés'], ['payStatus', 'Fizetési állapot'], ['amount', 'Díjazás (nettó Ft)'],
+    ['prod', 'Termelési költség (Ft)'], ['profit', 'Nyereség (Ft)'], ['ceo', 'Ügyvezető (Ft)'], ['rezsi', 'Eszköz, rezsi (Ft)'], ['marketing', 'Marketing (Ft)'],
+    ['legacy', 'Régi táblázatból'], ['note', 'Megjegyzés'], ['people', 'Szakemberek (régi)']] },
+  finExpense: { tab: 'Kiadások', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['fund', 'Alap (rezsi / marketing)'], ['kind', 'Típus (fix / egyszeri)'], ['month', 'Hónap (egyszeri)'],
+    ['from', 'Ettől (fix)'], ['to', 'Eddig (fix)'], ['amount', 'Összeg (Ft)'], ['legacy', 'Régi táblázatból'], ['note', 'Megjegyzés']] },
+  finLoan: { tab: 'Tagi kölcsön', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['date', 'Dátum'], ['kind', 'Befizetés / visszafizetés'], ['amount', 'Összeg (Ft)'], ['note', 'Megjegyzés']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -84,8 +93,8 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] }
 };
-const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value']);
-const BOOL_FIELDS = new Set(FLAGS);
+const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing']);
+const BOOL_FIELDS = new Set(FLAGS.concat(['legacy']));
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
 const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', leadva: 'Videók leadva', jovahagyas: 'Videók jóváhagyásra várnak', atadva: 'Kész', lemondva: 'Lemondva' };
@@ -315,7 +324,7 @@ function bootstrap_(u) {
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true },
+    capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
   if (u.role !== 'admin') {
@@ -405,6 +414,7 @@ function projectView_(p, u) {
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
   if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
+  if (role !== 'admin') delete q.payStatus;   // a fizetési állapotot csak az ügyvezető látja
   const request = parseBudgetRequest_(q.budgetRequest);
   if (role === 'admin' || role === 'editor') q.budgetRequest = request;
   else delete q.budgetRequest;
@@ -509,6 +519,198 @@ function finalizeCrew_(u, a) {
   });
   logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : ''));
   return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link };
+}
+
+/* ===================== BEVÉTEL ÉS KIADÁS (ügyvezetői pénzügyek) ===================== */
+/* A régi „Lumos Motion Árbevétel” táblázat kiváltása. Felosztás projektenként: nyereség %, ügyvezető %, marketing %,
+   a termelési költség (szakemberek, fuvar, étel, bérlés) után a maradék az Eszköz/Rezsi alapba kerül.
+   A rezsi- és marketingkiadások ezekből az alapokból mennek; hónapról hónapra áthozott egyenleggel.
+   Az app a beállított hónaptól a projektekből számol; előtte a régi táblázatból importált sorokból. */
+const FIN_SETTINGS_PROPERTY = 'LUMOS_PM_FIN_SETTINGS';
+const PAY_STATUSES = ['', 'var', 'eloleg', 'teljes'];
+const FIN_FUNDS = ['rezsi', 'marketing'];
+function finSettings_() {
+  let s = {}; try { s = JSON.parse(PropertiesService.getScriptProperties().getProperty(FIN_SETTINGS_PROPERTY) || '{}') || {}; } catch (e) { s = {}; }
+  const pct = (v, d) => { const n = Number(v); return isFinite(n) && n >= 0 && n <= 100 ? n : d; };
+  const ym = v => /^\d{4}-\d{2}$/.test(String(v || '')) ? String(v) : '';
+  const money = v => { const n = Math.round(Number(v)); return isFinite(n) ? n : 0; };
+  return { profitPct: pct(s.profitPct, 30), ceoPct: pct(s.ceoPct, 5), marketingPct: pct(s.marketingPct, 5),
+    openMonth: ym(s.openMonth), openRezsi: money(s.openRezsi), openMarketing: money(s.openMarketing),
+    appFromMonth: ym(s.appFromMonth), importedAt: str_(s.importedAt, 30), importedFrom: str_(s.importedFrom, 300),
+    carries: s.carries && typeof s.carries === 'object' ? s.carries : {} };   // a régi táblázat havi áthozatai (hónap → [rezsi, marketing]) – a régi hónapokban ezek a hitelesek
+}
+function finSaveSettings_(u, a) {
+  const cur = finSettings_(), next = Object.assign({}, cur);
+  ['profitPct', 'ceoPct', 'marketingPct'].forEach(k => { if (a && a[k] !== undefined) { const n = Number(a[k]); if (!isFinite(n) || n < 0 || n > 100) throw new Error('A százalék 0 és 100 között legyen.'); next[k] = n; } });
+  if (next.profitPct + next.ceoPct + next.marketingPct > 100) throw new Error('A százalékok összege nem lehet több 100-nál.');
+  ['openMonth', 'appFromMonth'].forEach(k => { if (a && a[k] !== undefined) { if (a[k] && !/^\d{4}-\d{2}$/.test(String(a[k]))) throw new Error('Hibás hónap.'); next[k] = String(a[k] || ''); } });
+  ['openRezsi', 'openMarketing'].forEach(k => { if (a && a[k] !== undefined) { const n = Math.round(Number(a[k])); if (!isFinite(n)) throw new Error('Hibás összeg.'); next[k] = n; } });
+  PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(next));
+  logEvent_(u, 'Pénzügyi beállítások', '', 'módosítva');
+  return finData_();
+}
+function finData_() {
+  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_() };
+}
+function finClean_(table, a) {
+  const id = str_(a && a.id, 64) || Utilities.getUuid();
+  const ym = v => /^\d{4}-\d{2}$/.test(String(v || '')) ? String(v) : '';
+  const money = (v, neg) => { const n = Math.round(Number(String(v == null ? '' : v).replace(/\s/g, ''))); if (!isFinite(n)) return 0; return neg ? n : Math.max(0, n); };
+  if (table === 'finIncome') {
+    const r = { id: id, month: ym(a.month), day: str_(a.day, 10), name: str_(a.name, 200), payStatus: PAY_STATUSES.indexOf(a.payStatus) >= 0 ? a.payStatus : '',
+      amount: money(a.amount), prod: money(a.prod), profit: money(a.profit), ceo: money(a.ceo), rezsi: money(a.rezsi, true), marketing: money(a.marketing),
+      legacy: a.legacy === true, note: str_(a.note, 1000), people: str_(a.people, 1500) };
+    if (!r.month) throw new Error('Hiányzik a hónap.'); if (r.name.length < 2) throw new Error('Add meg a megnevezést.');
+    return r;
+  }
+  if (table === 'finExpense') {
+    const r = { id: id, name: str_(a.name, 200), fund: FIN_FUNDS.indexOf(a.fund) >= 0 ? a.fund : 'rezsi', kind: a.kind === 'fix' ? 'fix' : 'egyszeri',
+      month: ym(a.month), from: ym(a.from), to: ym(a.to), amount: money(a.amount), legacy: a.legacy === true, note: str_(a.note, 1000) };
+    if (r.name.length < 2) throw new Error('Add meg a kiadás megnevezését.');
+    if (r.kind === 'egyszeri' && !r.month) throw new Error('Hiányzik a hónap.');
+    if (r.kind === 'fix' && !r.from) throw new Error('Add meg, melyik hónaptól érvényes.');
+    if (r.kind === 'fix' && r.to && r.to < r.from) throw new Error('A záró hónap nem lehet korábbi a kezdőnél.');
+    return r;
+  }
+  if (table === 'finLoan') {
+    const r = { id: id, date: /^\d{4}-\d{2}-\d{2}$/.test(String(a.date || '')) ? String(a.date) : '', kind: a.kind === 'vissza' ? 'vissza' : 'be', amount: money(a.amount), note: str_(a.note, 300) };
+    if (!r.date) throw new Error('Add meg a dátumot.'); if (!r.amount) throw new Error('Add meg az összeget.');
+    return r;
+  }
+  throw new Error('Ismeretlen táblázat.');
+}
+function finUpsert_(u, a) {
+  const table = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan' }[a && a.table];
+  if (!table) throw new Error('Ismeretlen táblázat.');
+  const rows = (Array.isArray(a.rows) ? a.rows : [a.row]).filter(Boolean).slice(0, 20).map(r => finClean_(table, r));
+  withLock_(() => {
+    const sh = sheetFor_(table);
+    rows.forEach(r => putRow_(table, sh, r, findRow_(sh, r.id)));
+    SpreadsheetApp.flush();
+  });
+  logEvent_(u, 'Bevétel és kiadás', rows.map(r => r.name || r.date).join(', '), a.table + ' mentve');   // összeg nem kerül a naplóba
+  return finData_();
+}
+function finDelete_(u, a) {
+  const table = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan' }[a && a.table];
+  if (!table) throw new Error('Ismeretlen táblázat.');
+  withLock_(() => { const sh = sheetFor_(table), row = findRow_(sh, str_(a.id, 64)); if (row) sh.deleteRow(row); SpreadsheetApp.flush(); });
+  logEvent_(u, 'Bevétel és kiadás', '', a.table + ' tétel törölve');
+  return finData_();
+}
+/* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
+function finSetPay_(u, a) {
+  const st = PAY_STATUSES.indexOf(a && a.payStatus) >= 0 ? a.payStatus : '';
+  return withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, str_(a && a.projectId, 64));
+    if (!row) throw new Error('A projekt nem található.');
+    const col = TABLES.projects.cols.findIndex(c => c[0] === 'payStatus') + 1;
+    sh.getRange(row, col).setNumberFormat('@').setValue(st);
+    SpreadsheetApp.flush(); dataBump_();
+    return { projectId: a.projectId, payStatus: st };
+  });
+}
+
+/* ===== Régi táblázat importálása (egyszer, a Bevétel és kiadás fül beállításaiból) =====
+   Hónap-fülek: „Október 26”, „Április 25” … Fejléc: a „Marketing” feliratot tartalmazó sor; a nevek oszlopa a %,
+   mellette a Ft. A projektsorok: B = nap, C = megnevezés, (állapot), díjazás, nyereség, majd a %/Ft párok. */
+const HU_MONTHS_ = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'];
+function legacyNum_(v) { if (typeof v === 'number') return v; const s = String(v == null ? '' : v).replace(/\s/g, '').replace(/Ft\.?$/i, '').replace(',', '.'); return s === '' || isNaN(Number(s)) ? null : Number(s); }
+function legacyPay_(s) { s = String(s || '').toLowerCase(); return /teljes/.test(s) ? 'teljes' : /előleg|eloleg/.test(s) ? 'eloleg' : /vár|var/.test(s) ? 'var' : ''; }
+function legacyDate_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, SHEET_TZ, 'yyyy-MM-dd');
+  const m = /(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/.exec(String(v || ''));
+  return m ? m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2) : '';
+}
+function parseLegacyMonth_(sh) {
+  const mm = /^\s*([^\s]+)\s+(\d{2})\s*$/.exec(sh.getName()); if (!mm) return null;
+  const mi = HU_MONTHS_.indexOf(mm[1].toLowerCase()); if (mi < 0) return null;
+  const month = '20' + mm[2] + '-' + ('0' + (mi + 1)).slice(-2);
+  const V = sh.getDataRange().getValues();
+  const hRow = V.findIndex(r => r.some(c => String(c).trim() === 'Marketing'));
+  if (hRow < 0) return { month: month, income: [], expense: [], carry: null, V: V };
+  // a „Nyereség” oszlop a két fejlécsor valamelyikében; utána jönnek a nevek (% és Ft oszloppárok)
+  let nyCol = -1; for (let ri = Math.max(0, hRow - 1); ri <= Math.min(V.length - 1, hRow + 1) && nyCol < 0; ri++) nyCol = V[ri].findIndex(c => /^nyereség/i.test(String(c).trim()));
+  const labs = []; V[hRow].forEach((c, i) => { const t = String(c).trim(); if (t && i > Math.max(2, nyCol) && !/^(%|ft\.?|teszt|ok)$/i.test(t)) labs.push([i, t]); });
+  if (!labs.length) return { month: month, income: [], expense: [], carry: null, V: V };
+  const L = nyCol > 0 ? nyCol + 1 : labs[0][0];
+  const isCeo = t => /^ervin$/i.test(t), isRezsi = t => /eszköz|rezsi/i.test(t), isMkt = t => /^marketing$/i.test(t);
+  const income = [];
+  let expStart = -1, expEnd = -1, carryRow = -1;
+  V.forEach((r, ri) => {
+    const line = r.map(c => String(c)).join('|');
+    if (expStart < 0 && /Kiadások:/.test(line)) expStart = ri;
+    if (expEnd < 0 && /Total Kiad/.test(line)) expEnd = ri;
+    if (carryRow < 0 && /Megtakarítás\/Tartozás/.test(line)) carryRow = ri;
+    if (ri <= hRow || (expStart >= 0 && ri >= expStart)) return;
+    const day = String(r[1] == null ? '' : (r[1] instanceof Date ? Utilities.formatDate(r[1], SHEET_TZ, 'd') : r[1])).trim(), name = String(r[2] || '').trim(), amt = legacyNum_(r[L - 2]);
+    if (!day || !name || !amt || /^total/i.test(day)) return;
+    const o = { month: month, day: day, name: name, payStatus: L - 3 > 2 ? legacyPay_(r[L - 3]) : 'teljes', amount: amt, profit: legacyNum_(r[L - 1]) || 0, prod: 0, ceo: 0, rezsi: 0, marketing: 0, legacy: true };
+    const people = [];
+    labs.forEach(([i, t]) => { const v = legacyNum_(r[i + 1]) || 0; if (isCeo(t)) o.ceo += v; else if (isRezsi(t)) o.rezsi += v; else if (isMkt(t)) o.marketing += v; else { o.prod += v; if (v) people.push(t + ': ' + Math.round(v)); } });
+    o.people = people.join(', ');
+    ['amount', 'profit', 'prod', 'ceo', 'rezsi', 'marketing'].forEach(k => { o[k] = Math.round(o[k]); });
+    income.push(o);
+  });
+  const expense = [];
+  if (expStart >= 0 && expEnd > expStart) {
+    const numCols = V[expEnd].map((c, i) => legacyNum_(c) != null && String(c).trim() !== '' ? i : -1).filter(i => i >= 0);
+    const rezCol = numCols[0], mktCol = numCols[1];
+    for (let ri = expStart + 1; ri < expEnd; ri++) {
+      const r = V[ri], name = String(r.find(c => typeof c === 'string' && c.trim() && legacyNum_(c) == null) || '').trim();
+      if (!name || /^rezsi$/i.test(name)) continue;
+      const rez = rezCol != null ? legacyNum_(r[rezCol]) || 0 : 0, mkt = mktCol != null ? legacyNum_(r[mktCol]) || 0 : 0;
+      if (rez) expense.push({ name: name, fund: 'rezsi', kind: 'egyszeri', month: month, amount: Math.round(rez), legacy: true });
+      if (mkt) expense.push({ name: name, fund: 'marketing', kind: 'egyszeri', month: month, amount: Math.round(mkt), legacy: true });
+    }
+  }
+  let carry = null;
+  if (carryRow >= 0) { const nums = V[carryRow].map(legacyNum_).filter(x => x != null); if (nums.length) carry = { rezsi: Math.round(nums[0]), marketing: Math.round(nums[1] || 0) }; }
+  return { month: month, income: income, expense: expense, carry: carry, V: V };
+}
+function parseLegacyLoans_(V) {
+  const out = []; let mode = '';
+  for (const r of V) {
+    const line = r.map(c => String(c)).join('|');
+    if (/Tagi Kölcsön/i.test(line)) { mode = 'be'; continue; }
+    if (/Visszafizetve/i.test(line)) { mode = 'vissza'; continue; }
+    if (/Maradt/i.test(line)) { if (mode === 'vissza') break; continue; }
+    if (!mode) continue;
+    const dateCell = r.find(c => legacyDate_(c)), amt = [...r].reverse().map(legacyNum_).find(x => x != null && x > 0);
+    if (!dateCell || !amt) continue;
+    const note = r.filter(c => typeof c === 'string' && c.trim() && !legacyDate_(c) && legacyNum_(c) == null && !/összesen/i.test(c)).join(' ').trim();
+    out.push({ date: legacyDate_(dateCell), kind: mode, amount: Math.round(amt), note: note });
+  }
+  return out;
+}
+function finImport_(u, a) {
+  const url = str_(a && a.url, 500), fromMonth = /^\d{4}-\d{2}$/.test(String(a && a.appFromMonth || '')) ? String(a.appFromMonth) : '';
+  if (!fromMonth) throw new Error('Add meg, melyik hónaptól számoljon az app a projektekből.');
+  let src; try { src = SpreadsheetApp.openByUrl(url); } catch (e) { throw new Error('A táblázat nem nyitható meg. Ellenőrizd a linket, és hogy a szkriptet futtató fiók hozzáfér-e.'); }
+  const months = src.getSheets().map(parseLegacyMonth_).filter(Boolean).filter(m => m.month < fromMonth).sort((x, y) => x.month.localeCompare(y.month));
+  if (!months.length) throw new Error('Nem találtam importálható hónap-fület (pl. „Október 26”) a megadott hónap előtt.');
+  let loans = [];   // a tagi kölcsön a legfrissebb olyan fülről, amelyen szerepel
+  for (const m of src.getSheets().map(parseLegacyMonth_).filter(Boolean).sort((x, y) => y.month.localeCompare(x.month))) { loans = parseLegacyLoans_(m.V || []); if (loans.length) break; }
+  const income = [], expense = [];
+  months.forEach(m => { m.income.forEach(o => income.push(Object.assign({ id: Utilities.getUuid() }, o))); m.expense.forEach(o => expense.push(Object.assign({ id: Utilities.getUuid() }, o))); });
+  withLock_(() => {
+    const keepNonLegacy = (key) => readAll_(key).filter(r => !r.legacy);
+    const write = (key, rows) => { const sh = sheetFor_(key), n = sh.getLastRow(); if (n > 1) sh.getRange(2, 1, n - 1, TABLES[key].cols.length).clearContent();
+      if (rows.length) { const rg = sh.getRange(2, 1, rows.length, TABLES[key].cols.length); rg.setNumberFormat('@'); rg.setValues(rows.map(o => toRow_(TABLES[key], o))); } };
+    write('finIncome', keepNonLegacy('finIncome').concat(income.map(r => finClean_('finIncome', r))));
+    write('finExpense', keepNonLegacy('finExpense').concat(expense.map(r => finClean_('finExpense', r))));
+    if (loans.length) write('finLoan', loans.map(r => finClean_('finLoan', Object.assign({ id: Utilities.getUuid() }, r))));
+    const s = finSettings_();
+    s.openMonth = months[0].month; s.openRezsi = months[0].carry ? months[0].carry.rezsi : 0; s.openMarketing = months[0].carry ? months[0].carry.marketing : 0;
+    s.appFromMonth = fromMonth; s.importedAt = now_(); s.importedFrom = url;
+    s.carries = {}; months.forEach(m => { if (m.carry) s.carries[m.month] = [m.carry.rezsi, m.carry.marketing]; });
+    PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(s));
+    SpreadsheetApp.flush();
+  });
+  // ellenőrzés: a régi táblázat havi áthozatai a mi számításunkkal
+  const check = months.filter(m => m.carry).map(m => ({ month: m.month, rezsi: m.carry.rezsi, marketing: m.carry.marketing }));
+  logEvent_(u, 'Bevétel és kiadás', 'Régi táblázat importálva', months.length + ' hónap, ' + income.length + ' bevételi sor, ' + expense.length + ' kiadás, ' + loans.length + ' kölcsöntétel');
+  return Object.assign(finData_(), { imported: { months: months.length, income: income.length, expense: expense.length, loans: loans.length, check: check } });
 }
 
 /* ===================== STÁB SORRENDJE ===================== */
@@ -647,7 +849,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal; p.payStatus = old.payStatus;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -678,6 +880,7 @@ function saveProject_(u, a) {
     if (p.fees == null) p.fees = '';
     if (p.budgetRequest == null) p.budgetRequest = '';
     if (p.crewFinal == null) p.crewFinal = '';
+    if (p.payStatus == null) p.payStatus = '';
     if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal))
       throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
@@ -1717,7 +1920,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -1740,6 +1943,12 @@ function rpcInner_(token, name, arg) {
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
+    case 'finData': adminOnly(); return finData_();
+    case 'finUpsert': adminOnly(); return finUpsert_(u, arg);
+    case 'finDelete': adminOnly(); return finDelete_(u, arg);
+    case 'finSettings': adminOnly(); return finSaveSettings_(u, arg);
+    case 'finSetPay': adminOnly(); return finSetPay_(u, arg);
+    case 'finImport': adminOnly(); return finImport_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
