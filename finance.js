@@ -94,7 +94,7 @@ function viewFinance(){
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
   return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>
       <div class="btns fin-nav"><button class="btn outline small" type="button" data-action="fin-nav" data-d="-1" aria-label="Előző hónap"${months.indexOf(m)>=months.length-1?' disabled':''}>‹</button><button class="btn outline small fin-nav-m" type="button" data-action="fin-nav" data-d="0" title="Ugrás az aktuális hónapra">${esc(F_YM.format(toDate(m+'-01')))}</button><button class="btn outline small" type="button" data-action="fin-nav" data-d="1" aria-label="Következő hónap"${months.indexOf(m)<=0?' disabled':''}>›</button></div>
-      ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás</button>`:''}
+      ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
     <div class="tiles fin-tiles tiles-3">
       <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ebben a hónapban</span><b>${ftFmt(T('amount'))}</b></div>
