@@ -93,9 +93,9 @@ function viewFinance(){
   const expRows=exp.map(e=>`<tr><td><button class="linkbtn" type="button" data-action="fin-exp-edit" data-id="${esc(e.id)}">${esc(e.name)}</button></td><td>${e.kind==='fix'?`<span class="statuspill">havi fix</span>`:'<span class="statuspill p-mute">egyszeri</span>'}</td><td>${FUND_LABEL[e.fund]||'Eszköz, rezsi'}</td><td class="r"><b>${moneyFmt(e.amount)||0}</b></td></tr>`).join('');
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
   return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>
-      <select class="inp" id="fin-month" style="width:auto" aria-label="Hónap">${months.map(x=>`<option value="${x}"${x===m?' selected':''}>${esc(F_YM.format(toDate(x+'-01')))}</option>`).join('')}</select>
+      <div class="btns fin-nav"><button class="btn outline small" type="button" data-action="fin-nav" data-d="-1" aria-label="Előző hónap"${months.indexOf(m)>=months.length-1?' disabled':''}>‹</button><button class="btn outline small fin-nav-m" type="button" data-action="fin-nav" data-d="0" title="Ugrás az aktuális hónapra">${esc(F_YM.format(toDate(m+'-01')))}</button><button class="btn outline small" type="button" data-action="fin-nav" data-d="1" aria-label="Következő hónap"${months.indexOf(m)<=0?' disabled':''}>›</button></div>
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás</button>`:''}
-      <button class="btn outline small" type="button" data-action="fin-settings">⚙️ Beállítások</button></div>
+</div>
     <div class="tiles fin-tiles tiles-3">
       <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ebben a hónapban</span><b>${ftFmt(T('amount'))}</b></div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
@@ -199,6 +199,8 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     if(!row.amount){toast('Add meg az összeget.',true);return;}
     row.id=row.id||newId();finSave('finUpsert',{table:'loan',row},'Tétel mentve',()=>finLocal('loan',[row]));}});}
 Object.assign(ACT,{
+  'fin-nav':b=>{const d=Number(b.dataset.d),ms=finMonths();let m=S.finMonth||todayISO().slice(0,7);
+    if(!d)m=todayISO().slice(0,7);else{const t=shiftMonth(m,d);if(ms.includes(t))m=t;}S.finMonth=m;render(true);},
   'fin-settings':()=>finSettingsModal(),
   'fin-retry':()=>{S.finErr='';finLoad(true);render(true);},
   'fin-import':()=>finImport(),
