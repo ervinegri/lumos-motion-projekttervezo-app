@@ -793,13 +793,6 @@ document.addEventListener('input',e=>{
   else if(t.id==='pay-month'){S.payMonth=t.value;render(true);}
   else if(t.id==='add-eq-qty'){S.addEq.qty=t.value;}
 });
-/* Kifizetések: irodabérleti díj (mentés mezőelhagyáskor) */
-document.addEventListener('change',async e=>{const t=e.target;
-  if(t.classList&&t.classList.contains('pay-rent-add')&&t.value){const m=$('pay-month')?$('pay-month').value:todayISO().slice(0,7);S.payAdd=S.payAdd||{};(S.payAdd[m]=S.payAdd[m]||[]).push(t.value);const id=t.value;render(true);setTimeout(()=>{const e=document.querySelector(`[data-rent-cid="${id}"]`);if(e)e.focus();},50);}
-  else if(t.classList&&t.classList.contains('pay-rent')){const m=$('pay-month')?$('pay-month').value:todayISO().slice(0,7),cid=t.dataset.rentCid,v=moneyVal(t.value),r=rentFor(cid,m);
-    if(r&&r.carry&&v!==''&&v===r.v)return;   // nem változott
-    try{S.officeRent=await call('saveOfficeRent',{crewId:cid,month:m,amount:v});render(true);toast(v===''?'Irodabérlet törölve erre a hónapra':'Irodabérleti díj mentve – a következő hónapokra is érvényes, amíg át nem írod');}catch(e){handleErr(e);}}
-});
 /* telefonmező: országhívószám + szám → egy érték */
 function phSync(row,commit){const v=phJoin(row.querySelector('.ph-cc').dataset.cc||'+36',row.querySelector('.ph-num').value),[kind,k]=row.dataset.ph.split(':');
   if(kind==='n'){const h=row.querySelector('input[type=hidden]');if(h)h.value=v;}else if(commit&&S.draft&&(S.draft[k]||'')!==v)setDraft({[k]:v});}

@@ -260,6 +260,7 @@ const PEN_KINDS={
   prestige:{label:'Presztízsveszteség, jó hírnév sérelme',min:10,max:50,ref:'3.4.',cases:['Tiszteletlen, sértő vagy nem professzionális kommunikáció','Ügyfél előtti felkészületlenség vagy szakmai bizonytalanság','Öltözködési, megjelenési vagy viselkedési elvárások megszegése','Indokolatlan konfliktus vagy vita kezdeményezése','A Lumos Motion jó hírnevét sértő nyilatkozat vagy megjegyzés','Ügyfélpanaszt vagy bizalomvesztést okozó magatartás']},
   unfit:{label:'Munkavégzésre alkalmatlan állapot',pct:100,ref:'3.5.',cases:['Alkohol vagy tudatmódosító szer hatása alatt a helyszínen','Munkavégzésre alkalmatlan állapot alapos gyanúja']},
   damage:{label:'Kártérítés / eszközkár',ref:'4–5.',cases:['Ügyfélnek adott árengedmény vagy visszatérítés','Újraforgatás, pótfelvétel költsége','Helyettesítő szakember költsége','Sürgősségi utómunka költsége','Ügyfél által érvényesített kötbér / kártérítés','Eszköz javítási vagy pótlási költsége','Adatmentés, helyreállítás költsége','Egyéb dokumentált többletköltség']}};
+const OFFICE_RENT=[{name:'Zajácz Dávid',amount:60000}];   // fix havi irodabérlet (szakembertől bérelt iroda) – a Kifizetéseknél a díjához adódik
 const penOf=(p,cid,st)=>(p.penalties||[]).filter(x=>x.crewId===cid&&(!st||x.status===st));
 const penPct=(p,cid,st)=>Math.min(100,penOf(p,cid,st||'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+num(x.pct),0));
 const penDamage=(p,cid)=>penOf(p,cid,'approved').filter(x=>x.kind==='damage').reduce((s,x)=>s+num(x.amount),0);

@@ -80,8 +80,6 @@ const TABLES = {
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
     ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
-  officeRent: { tab: 'Irodabérlet', cols: [
-    ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
@@ -319,7 +317,6 @@ function bootstrap_(u) {
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
-    officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     serverTime: now_()
   };
@@ -1052,22 +1049,6 @@ function objectPenalty_(u, a) {
 
 /* ===================== ÜGYFELEK ===================== */
 /** Ügyfél felvétele/módosítása. Ha a cégnév megváltozik, a projektek „Ügyfél” mezője is átíródik. */
-/* Irodabérlet: szakembertől bérelt iroda havi díja – a Kifizetéseknél a díjához adódik.
-   Egy sor = egy szakember egy hónapja; a következő hónapokra a legutóbbi érték érvényes, amíg nem írják át (0 = megszűnt). */
-function saveOfficeRent_(u, a) {
-  const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
-  if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
-  const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
-  const clear = a.amount === '' || a.amount == null, amount = clear ? 0 : int_(a.amount, 0, FEE_MAX, 0);
-  return withLock_(() => {
-    const sh = sheetFor_('officeRent'), id = crewId + '|' + month, row = findRow_(sh, id);
-    if (clear) { if (row) sh.deleteRow(row); }
-    else putRow_('officeRent', sh, { id: id, crewId: crewId, crewName: c.name, month: month, amount: amount, updatedAt: now_(), updatedBy: u.name }, row);
-    SpreadsheetApp.flush();
-    logEvent_(u, 'Irodabérlet', c.name, month + ': ' + (clear ? 'törölve' : amount + ' Ft'));
-    return readAll_('officeRent');
-  });
-}
 function saveClient_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64);
@@ -1710,7 +1691,6 @@ function rpcInner_(token, name, arg) {
     case 'decidePenalty': adminOnly(); return decidePenalty_(u, arg);
     case 'deletePenalty': adminOnly(); return deletePenalty_(u, arg);
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
-    case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz
