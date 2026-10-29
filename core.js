@@ -1,7 +1,21 @@
 'use strict';
 /* ===== Konstansok ===== */
-const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
-const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
+const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Videók jóváhagyásra várnak'},{id:'atadva',label:'Kész'}];
+/* Kötelező alapadatok (a jegyzetek kivételével). Mentéskor a felület ellenőrzi. */
+const REQ_FIELDS=[['name','Projekt neve'],['venue','Helyszín'],['client','Ügyfél'],['eventType','Rendezvény típusa'],['contactName','Kapcsolattartó'],['contactPhone','Kapcsolattartó telefonja'],['contactEmail','Kapcsolattartó e-mail-címe'],['date','Első nap'],['endDate','Utolsó nap'],['startTime','Érkezés a helyszínre'],['endTime','Hozzávetőleges távozási óra']];
+function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
+  if(k==='endDate')return !!(p._multi||p.endDate)&&!v;   // csak több napos projektnél
+  if(k==='contactPhone')return v.replace(/\D/g,'').length<8;   // az országhívószám önmagában nem elég
+  if(k==='contactEmail')return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  return !v;}
+const missingReq=p=>p?REQ_FIELDS.filter(([k])=>reqEmpty(p,k)):[];
+/* Stáb kártyáinak sorrendje: a húzással beállított közös sorrend, utána prioritás és név. */
+function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_crew_order')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id);return i<0?1e6:i;};
+  return S.crew.slice().sort((a,b)=>rank(a.id)-rank(b.id)||prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));}
+const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
+const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
+const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Podcast','Egyéb'];
 const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Ajánlói jutalék'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];

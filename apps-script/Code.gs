@@ -37,7 +37,7 @@ const SETUP_USERS = [
 ];
 
 /* ===================== ADATMODELL ===================== */
-const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'atadva', 'lemondva'];
+const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva', 'lemondva'];
 const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Podcast', 'Egyéb'];
 const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó', 'Ajánlói jutalék'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
@@ -92,7 +92,7 @@ const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
-const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', atadva: 'Átadva', lemondva: 'Lemondva' };
+const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', leadva: 'Videók leadva', jovahagyas: 'Videók jóváhagyásra várnak', atadva: 'Kész', lemondva: 'Lemondva' };
 const ID_RE = /^[A-Za-z0-9-]{8,64}$/;
 
 /* ===================== WEBALKALMAZÁS ===================== */
@@ -321,7 +321,8 @@ function bootstrap_(u) {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
-    capabilities: { budgetApproval: true, financeAutosave: true },
+    crewOrder: crewOrder_(),
+    capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true },
     serverTime: now_()
   };
   if (u.role !== 'admin') {
@@ -419,6 +420,21 @@ function fullProject_(p) {
   return q;
 }
 
+/* ===================== STÁB SORRENDJE ===================== */
+/* A Stáb fül kártyáinak közös sorrendje (húzással állítható), munkatárs-azonosítók listája a Script Propertiesben. */
+const CREW_ORDER_PROPERTY = 'CREW_ORDER';
+function crewOrder_() {
+  try { const a = JSON.parse(PropertiesService.getScriptProperties().getProperty(CREW_ORDER_PROPERTY) || '[]'); return Array.isArray(a) ? a.map(x => str_(x, 64)).filter(Boolean) : []; }
+  catch (e) { return []; }
+}
+function saveCrewOrder_(u, a) {
+  const ids = new Set(readAll_('crew').map(c => c.id));
+  const seen = {}, order = (Array.isArray(a && a.order) ? a.order : []).map(x => str_(x, 64)).filter(x => ids.has(x) && !seen[x] && (seen[x] = true));
+  PropertiesService.getScriptProperties().setProperty(CREW_ORDER_PROPERTY, JSON.stringify(order));
+  logEvent_(u, 'Stáb sorrendje', '', 'Kártyák átrendezve');
+  return { crewOrder: order };
+}
+
 /* ===================== TERMELŐI KERET JÓVÁHAGYÁSA ===================== */
 function parseBudgetRequest_(raw) {
   let x = raw; if (typeof raw === 'string') { try { x = JSON.parse(raw || 'null'); } catch (e) { return null; } }
@@ -500,8 +516,8 @@ function saveProject_(u, a) {
   Object.keys(COUNTS).forEach(k => { p[k] = int_(a[k], 0, COUNTS[k], 0); });
   FLAGS.forEach(k => { p[k] = a[k] === true; });
   if (p.er_drone) { p.x_dron = true; p.er_drone = false; }   // a drón a Kreatív tartalmakhoz tartozik
-  p.foto_db = (a.foto_db === undefined || a.foto_db === null || a.foto_db === '') ? (p.x_foto ? 150 : 0) : int_(a.foto_db, 0, 1000, 0);
-  p.x_foto = p.foto_db > 0;
+  p.foto_db = (a.foto_db === undefined || a.foto_db === null || a.foto_db === '') ? 0 : int_(a.foto_db, 0, 1000, 0);
+  p.x_foto = p.x_foto || p.foto_db > 0;   // „Fotós a helyszínen” külön pipa: fotó-utómunka nélkül is megmarad
   p.er_res = a.er_res === '4k' ? '4k' : 'hd';
   p.er_rooms = int_(a.er_rooms, 0, 10, 0);
   if (['er_total', 'er_close', 'er_zoom', 'er_crowd', 'er_slides', 'er_drone', 'er_stream'].some(k => p[k])) p.t_eloadas = true;   // a régi jelölő automatikusan
@@ -568,7 +584,7 @@ function saveProject_(u, a) {
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
-    if (['helyszin', 'utomunka', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)
+    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !String(p.deliveryNotes || '').trim())
       throw new Error('Átadás előtt írd be az észrevételeket.');
@@ -1107,6 +1123,20 @@ function deletePenalty_(u, a) {
   let x = null;
   const r = penMutate_(a.projectId, list => { const i = list.findIndex(v => v.id === str_(a.id, 40)); if (i < 0) throw new Error('A tétel nem található.'); x = list.splice(i, 1)[0]; });
   logEvent_(u, 'Díjcsökkentés törölve', r.p.name, PEN_KINDS_[x.kind].label);
+  return { penalties: r.list };
+}
+/* Díjcsökkentés áthelyezése másik napra (ügyvezető): csak a nap változik, e-mail nem megy ki. Üres nap = teljes díjból. */
+function movePenaltyDay_(u, a) {
+  const day = str_(a && a.day, 10);
+  if (day && !/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new Error('Hibás nap.');
+  let x = null;
+  const r = penMutate_(a.projectId, (list, p) => {
+    x = list.find(i => i.id === str_(a.id, 40)); if (!x) throw new Error('A tétel nem található.');
+    if (x.kind === 'damage') throw new Error('Kártérítés nem köthető naphoz.');
+    if (day && (day < p.date || day > (p.endDate || p.date))) throw new Error('A nap a projekt időtartamán kívül esik.');
+    x.day = day;
+  });
+  logEvent_(u, 'Díjcsökkentés áthelyezve', r.p.name, PEN_KINDS_[x.kind].label + ' → ' + (day || 'teljes díj'));
   return { penalties: r.list };
 }
 function objectPenalty_(u, a) {
@@ -1767,6 +1797,7 @@ function rpcInner_(token, name, arg) {
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG); return changePin_(u, arg, token);
+    case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
@@ -1783,6 +1814,7 @@ function rpcInner_(token, name, arg) {
     case 'addPenalty': canEdit(); return addPenalty_(u, arg);
     case 'decidePenalty': adminOnly(); return decidePenalty_(u, arg);
     case 'deletePenalty': adminOnly(); return deletePenalty_(u, arg);
+    case 'movePenaltyDay': adminOnly(); return movePenaltyDay_(u, arg);
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);

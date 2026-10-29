@@ -92,6 +92,39 @@ const listeners={};const nodes=new Map();
 const element=()=>({innerHTML:'',value:'',classList:{toggle(){},add(){},remove(){}},style:{},addEventListener(){},querySelectorAll(){return []},querySelector(){return element()},contains(){return false},setAttribute(){},appendChild(){},focus(){},scrollLeft:0});
 const doc={getElementById(id){if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)},addEventListener(n,fn){(listeners[n]||=[]).push(fn)},querySelectorAll(){return []},querySelector(){return null},createElement:element,body:element(),documentElement:element(),visibilityState:'visible'};
 let timers=[];
+
+/* --- 2026-10-29: visszajelzések javításai --- */
+test('backend keeps on-site photographer without photo post-production',()=>{
+  run(`USER={role:'admin',name:'Ervin'};var ph=rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-foto',deferCal:true,crew:DB.crewAssign,x_foto:true,foto_db:0});`);
+  assert.equal(run('DB.projects[0].x_foto'),true);
+  assert.equal(run('DB.projects[0].foto_db'),0);
+});
+test('backend accepts the new video delivery stages',()=>{
+  for(const st of ['leadva','jovahagyas']){
+    run(`rpc('token','saveProject',{...DB.projects[0],status:'${st}',siteOk:'igen',lead:'david-123',baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-${st}',deferCal:true,crew:DB.crewAssign});`);
+    assert.equal(run('DB.projects[0].status'),st);
+  }
+});
+test('executive moves a penalty to day two without changing anything else',()=>{
+  run(`DB.projects[0].fees=JSON.stringify([{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}]);
+    DB.projects[0].penalties=JSON.stringify([{id:'pen-1',crewId:'david-123',kind:'severe',pct:50,day:'',status:'approved',by:'Ervin',at:'1',reason:'Helyszíni elakadás'}]);
+    penMutate_=(pid,fn)=>{const p=DB.projects.find(x=>x.id===pid);const list=parsePen_(p.penalties);const res=fn(list,p);p.penalties=JSON.stringify(list);return {list,p,res};};
+    var before=DB.projects[0].updatedAt;var mv=rpc('token','movePenaltyDay',{projectId:'project-123',id:'pen-1',day:'2026-10-03'});`);
+  assert.equal(run('mv.penalties[0].day'),'2026-10-03');
+  assert.equal(run('penAmount_(DB.projects[0],parsePen_(DB.projects[0].penalties)[0])'),30000);
+  assert.equal(run('DB.projects[0].updatedAt'),run('before'));
+  assert.throws(()=>run(`rpc('token','movePenaltyDay',{projectId:'project-123',id:'pen-1',day:'2026-11-01'})`),/időtartamán kívül/);
+  run(`USER={role:'editor',name:'Dávid',crewId:'david-123'};`);
+  assert.throws(()=>run(`rpc('token','movePenaltyDay',{projectId:'project-123',id:'pen-1',day:''})`));
+  run(`USER={role:'admin',name:'Ervin'};`);
+});
+test('crew card order is saved, de-duplicated and limited to existing crew',()=>{
+  run(`var PROPS={};PropertiesService={getScriptProperties:()=>({getProperty:k=>PROPS[k]||null,setProperty:(k,v)=>{PROPS[k]=v;}})};
+    var ord=rpc('token','saveCrewOrder',{order:['bence-123','ghost','bence-123','david-123']});`);
+  assert.deepEqual(json('ord.crewOrder'),['bence-123','david-123']);
+  assert.deepEqual(json('crewOrder_()'),['bence-123','david-123']);
+});
+
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
 for(const f of ['core.js','views.js','actions.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
@@ -125,5 +158,19 @@ test('approval UI preserves backward compatibility until backend is updated',()=
   assert.match(fr("budgetRequestPanel({})"),/disabled/);
   fr('S.capabilities={budgetApproval:true};');
   assert(!fr('budgetRequestPanel({})').includes(' disabled'));
+});
+test('frontend: required basics are checked, notes are optional',()=>{
+  fr(`var rp={name:'X',venue:'V',client:'C',eventType:'Konferencia',contactName:'K',contactPhone:'+36 30 123 4567',contactEmail:'a@b.hu',date:'2026-10-10',startTime:'10:00',endTime:'18:00'};`);
+  assert.deepEqual(JSON.parse(fr('JSON.stringify(missingReq(rp))')),[]);
+  fr(`rp.contactPhone='+36 ';rp.endDate='';rp._multi=true;`);
+  assert.deepEqual(JSON.parse(fr('JSON.stringify(missingReq(rp).map(x=>x[0]))')),['contactPhone','endDate']);
+});
+test('frontend: payouts row shows the amount kept by penalties for executives only',()=>{
+  fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved'}]}];`);
+  const html=fr('viewPayouts()');
+  assert.match(html,/keretben maradt/);
+  assert.match(html,/30\s?000/);
+  fr(`S.me={role:'editor'};`);
+  assert.doesNotMatch(fr('viewPayouts()'),/keretben maradt/);
 });
 console.log('All finance checks passed.');
