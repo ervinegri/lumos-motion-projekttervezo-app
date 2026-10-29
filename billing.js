@@ -2,8 +2,8 @@
 /* ===== Szerződés és számlázás (csak ügyvezető) =====
    Projektenként: szerződés (feltöltés / link / állapot), díjbekérő → foglaló fizetve → végszámla → fizetve.
    A bizonylatok a számlázz.hu-ból jönnek (finance.js: szInvoiceModal, IPN, szSync), az adatok a finData-ban (billing, invoices). */
-const CONTRACT_LABEL={'':'Nincs szerződés',kikuldve:'Kiküldve, aláírásra vár',alairva:'Aláírva',nemkell:'Nem szükséges'};
-const CONTRACT_CLS={'':'p-mute',kikuldve:'p-warn',alairva:'p-ok',nemkell:'p-mute'};
+const CONTRACT_LABEL={'':'Szerződés hiányzik',kikuldve:'Kiküldve, aláírásra vár',alairva:'Aláírva',nemkell:'Nincs szerződés'};
+const CONTRACT_CLS={'':'p-bad',kikuldve:'p-warn',alairva:'p-ok',nemkell:'p-mute'};
 const billOn=()=>isAdmin()&&!!(S.capabilities&&S.capabilities.finance);
 const billOf=pid=>((S.fin&&S.fin.billing)||[]).find(b=>b.projectId===pid)||{projectId:pid,contractStatus:'',mode:'eloleg',advancePct:50,poNumber:'',note:'',contractUrl:'',contractName:''};
 const projDone=p=>['leadva','jovahagyas','atadva'].includes(p.status)||(pr(p)&&pr(p).end<todayISO());
@@ -13,8 +13,9 @@ function billInfo(p){
   const b=billOf(p.id),inv=invFor('project',p.id),last=k=>inv.filter(x=>x.kind===k).pop()||null;
   const db=last('dijbekero'),el=last('eloleg'),fin=b.mode==='egyben'?(last('szamla')||last('vegszamla')):(last('vegszamla')||last('szamla'));
   // a szerződés opcionális: csak akkor lépés, ha van (kiküldve / aláírva); kiküldött szerződésnél az aláírás a következő teendő
-  const hasContract=b.contractStatus==='kikuldve'||b.contractStatus==='alairva',contractOk=b.contractStatus!=='kikuldve';
-  const cStep=hasContract?[['contract','Szerződés aláírva',contractOk]]:[];
+  // alapból kell szerződés; ha a „Nincs szerződés” ki van pipálva, kimarad a lépések közül
+  const contractOk=b.contractStatus==='alairva'||b.contractStatus==='nemkell';
+  const cStep=b.contractStatus==='nemkell'?[]:[['contract','Szerződés aláírva',contractOk]];
   const advIssued=!!(db||el),advPaid=!!((db&&invPaidOk(db))||(el&&invPaidOk(el)));
   const steps=b.mode==='egyben'
     ?[...cStep,['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!(fin&&invPaidOk(fin))]]
@@ -24,8 +25,8 @@ function billInfo(p){
   const due=x=>Math.max(0,num(x.invGross)-num(x.invPaid));
   let next='Lezárva',nextCls='p-ok';
   if(!closed){const k=steps[nextI][0];
-    next=k==='contract'?'Szerződés aláírásra vár':k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
-    nextCls=(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
+    next=k==='contract'?(b.contractStatus==='kikuldve'?'Szerződés aláírásra vár':'Szerződés hiányzik'):k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
+    nextCls=k==='contract'&&b.contractStatus!=='kikuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
   return {p,b,inv,db,el,fin,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
@@ -37,8 +38,8 @@ function invLine(x,label){if(!x)return '';const s=invState(x);
   return `<div class="bl-doc"><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${label?`<span class="muted">${label}</span> `:''}${esc(x.no)}</button><span class="bl-sub">${ftFmt(num(x.invGross))} · ${st}</span></div>`;}
 const billAddBtn=(pid,type,label,strong)=>`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}" data-type="${type}">+ ${label}</button>`;
 function billRow(i){const p=i.p,b=i.b,r=pr(p),val=num(p.projectValue);
-  const contract=`<div class="bl-contract"><button class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}" type="button" data-action="bill-edit" data-id="${esc(p.id)}">${CONTRACT_LABEL[b.contractStatus||'']}</button>
-    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,22))}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${esc(p.id)}" data-focus="file">⬆️ Feltöltés</button>`}</div>`;
+  const contract=b.contractStatus==='nemkell'?`<div class="bl-contract"><label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}" checked> Nincs szerződés</label></div>`:`<div class="bl-contract"><button class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}" type="button" data-action="bill-edit" data-id="${esc(p.id)}">${CONTRACT_LABEL[b.contractStatus||'']}</button>
+    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,22))}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${esc(p.id)}" data-focus="file">⬆️ Feltöltés</button>`}${b.contractUrl||b.contractStatus==='alairva'||b.contractStatus==='kikuldve'?'':`<label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}"${b.contractStatus==='nemkell'?' checked':''}> Nincs szerződés</label>`}</div>`;
   const adv=b.mode==='egyben'?'<span class="muted">nincs foglaló</span>'
     :(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${esc(p.id)}" data-type="eloleg">+ Foglalószámla</button>`:''))
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI][0]==='advIssued');
@@ -58,18 +59,18 @@ function viewBilling(){
   const f=S.blf||(S.blf={v:'teendo',q:''}),q=f.q.trim().toLowerCase();
   const all=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).map(billInfo);
   const sets={teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0),lejart:all.filter(i=>i.late.length),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
-  const labels=[['teendo','Nyitott'],['szerzodes','Aláírásra vár'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
+  const labels=[['teendo','Nyitott'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
   let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,i.b.poNumber,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
   const cols=8,openSum=all.reduce((s,i)=>s+i.openSum,0),lateSum=all.reduce((s,i)=>s+i.lateSum,0),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;
   const sz=S.fin.sz||{};
-  return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: díjbekérő → foglaló → végszámla → kifizetés · szerződés, ha van · csak te látod</p></div>
+  return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p></div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
       <button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
-      <button class="tile tile-btn${noC?' warn':''}" type="button" data-action="blf" data-v="szerzodes" data-k="c"><div class="tile-n">${noC}</div><div class="tile-l">aláírásra váró szerződés</div></button>
+      <button class="tile tile-btn${noC?' bad':''}" type="button" data-action="blf" data-v="szerzodes" data-k="c"><div class="tile-n">${noC}</div><div class="tile-l">szerződés hiányzik</div></button>
       <button class="tile tile-btn${todo?' warn':''}" type="button" data-action="blf" data-v="teendo"><div class="tile-n">${todo}</div><div class="tile-l">kiállítandó díjbekérő / végszámla</div></button>
       <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség (bruttó, ${sets.kint.length} projekt)</div></button>
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (${sets.lejart.length} projekt)</div></button>
@@ -125,9 +126,9 @@ function projBillingPanel(p){
   if(!S.fin){if(!S.finErr)finLoad();return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside">${S.finErr?'nem sikerült betölteni':'betöltés…'}</span></h3></summary>${S.finErr?`<div class="btns"><button class="btn outline small" type="button" data-action="fin-retry">Újrapróbálás</button></div>`:'<div class="loading"><span class="spin"></span>Betöltés…</div>'}`);}
   if(!S.fin.billing)return wrap(`<summary><h3>📄 Szerződés és számlázás</h3></summary><p class="hint">A legújabb háttérkód (Code.gs) telepítése után érhető el.</p>`);
   const i=billInfo(p),b=i.b;
-  const contract=`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
+  const contract=b.contractStatus==='nemkell'?`<div class="pb-c"><label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}" checked> Nincs szerződés</label></div>`:`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
     ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${esc(p.id)}" data-focus="file">⬆️ Szerződés feltöltése</button>`}
-    ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}</div>`;
+    ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}${b.contractUrl||b.contractStatus==='alairva'||b.contractStatus==='kikuldve'?'':`<label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}"${b.contractStatus==='nemkell'?' checked':''}> Nincs szerződés</label>`}</div>`;
   const adv=b.mode==='egyben'?'<span class="muted">egy számla, nincs foglaló</span>'
     :(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${esc(p.id)}" data-type="eloleg">+ Foglalószámla</button>`:''))
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI][0]==='advIssued');
@@ -144,3 +145,7 @@ function projBillingPanel(p){
     <div class="pb-foot"><span class="bl-meta">${esc([b.mode==='egyben'?'Egy számla':'Foglaló + végszámla',b.poNumber?'PO: '+b.poNumber:'',b.note||''].filter(Boolean).join(' · '))}</span>
       <button class="btn outline small" type="button" data-action="bill-edit" data-id="${esc(p.id)}">✏️ Szerződés és számlázás beállításai</button></div>`);
 }
+
+/* „Nincs szerződés” pipa: a projekthez nem kérünk szerződést (kivéve, ha visszaveszed a pipát) */
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||!t.dataset.nocontract)return;
+  finCall('billSave',{projectId:t.dataset.nocontract,contractStatus:t.checked?'nemkell':''},t.checked?'Ehhez a projekthez nem kell szerződés':'Szerződés kérve');});
