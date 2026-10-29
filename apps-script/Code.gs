@@ -85,6 +85,10 @@ const TABLES = {
     ['from', 'Ettől (fix)'], ['to', 'Eddig (fix)'], ['amount', 'Összeg (Ft)'], ['legacy', 'Régi táblázatból'], ['note', 'Megjegyzés']] },
   finLoan: { tab: 'Tagi kölcsön', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['date', 'Dátum'], ['kind', 'Befizetés / visszafizetés'], ['amount', 'Összeg (Ft)'], ['note', 'Megjegyzés'], ['bank', 'Bank']] },
+  finInvoice: { tab: 'Számlák', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['no', 'Számlaszám'], ['kind', 'Típus (szamla / dijbekero)'], ['projectId', 'Projekt azonosító'], ['incomeId', 'Bevételi sor azonosító'],
+    ['buyer', 'Vevő'], ['date', 'Kelt'], ['due', 'Fizetési határidő'], ['invNet', 'Nettó (Ft)'], ['invGross', 'Bruttó (Ft)'], ['invPaid', 'Kifizetve (Ft)'],
+    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -93,7 +97,7 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] }
 };
-const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing']);
+const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing', 'invNet', 'invGross', 'invPaid']);
 const BOOL_FIELDS = new Set(FLAGS.concat(['legacy']));
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
@@ -109,6 +113,7 @@ function doGet(e) {
 
 /** A felület kérései: GET ?p=... (rövid kérések) vagy POST törzs (hosszú kérések). Tartalom: { fn, args }. */
 function doPost(e) {
+  if (e && e.parameter && e.parameter.ipn) return szIpn_(e);   // számlázz.hu fizetési értesítés (IPN)
   return api_((e && e.postData && e.postData.contents) || '{}');
 }
 
@@ -550,7 +555,7 @@ function finSaveSettings_(u, a) {
   return finData_();
 }
 function finData_() {
-  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_() };
+  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), sz: szSettingsView_() };
 }
 function finClean_(table, a) {
   const id = str_(a && a.id, 64) || Utilities.getUuid();
@@ -604,14 +609,13 @@ function finDelete_(u, a) {
 /* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
 function finSetPay_(u, a) {
   const st = PAY_STATUSES.indexOf(a && a.payStatus) >= 0 ? a.payStatus : '';
-  return withLock_(() => {
-    const sh = sheetFor_('projects'), row = findRow_(sh, str_(a && a.projectId, 64));
-    if (!row) throw new Error('A projekt nem található.');
-    const col = TABLES.projects.cols.findIndex(c => c[0] === 'payStatus') + 1;
-    sh.getRange(row, col).setNumberFormat('@').setValue(st);
-    SpreadsheetApp.flush(); dataBump_();
-    return { projectId: a.projectId, payStatus: st };
-  });
+  return withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); SpreadsheetApp.flush(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
+}
+function writeProjectPay_(projectId, st) {
+  const sh = sheetFor_('projects'), row = findRow_(sh, projectId);
+  if (!row) throw new Error('A projekt nem található.');
+  const col = TABLES.projects.cols.findIndex(c => c[0] === 'payStatus') + 1;
+  sh.getRange(row, col).setNumberFormat('@').setValue(st);
 }
 
 /* ===== Régi táblázat importálása (egyszer, a Bevétel és kiadás fül beállításaiból) =====
@@ -1254,6 +1258,242 @@ function lookupTaxpayerApi_(arg) {
   const out = { name: prettyName_(t.shortName || t.name), fullName: t.name, address: prettyAddress_(t) };
   try { cache.put('tp2_' + key8, JSON.stringify(out), 21600); } catch (e) {}
   return out;
+}
+
+/* ===================== SZÁMLÁZÁS (számlázz.hu Számla Agent) =====================
+   Számla / díjbekérő kiállítása a projektből vagy a bevételi sorból, meglévő számla hozzárendelése,
+   és a kifizetések követése: a számlázz.hu IPN-értesítése (doPost ?ipn=…) és lekérdezés (szSync).
+   A kifizetés alapján a projekt / bevételi sor fizetési állapota magától frissül. Az Agent-kulcs: SZAMLAZZ_AGENT_KEY. */
+const SZ_SETTINGS_PROPERTY = 'LUMOS_PM_SZ';
+const SZ_VATS = ['27', '18', '5', '0', 'AAM', 'TAM', 'EU', 'EUK', 'MAA', 'F.AFA', 'K.AFA', 'ÁKK', 'TEHK', 'HO', 'KBAET'];
+const SZ_PAYMETHODS = ['Átutalás', 'Készpénz', 'Bankkártya'];
+function szSettings_() {
+  let s = {}; try { s = JSON.parse(PropertiesService.getScriptProperties().getProperty(SZ_SETTINGS_PROPERTY) || '{}') || {}; } catch (e) { s = {}; }
+  const due = Math.round(Number(s.dueDays));
+  return { ipnToken: str_(s.ipnToken, 64), dueDays: isFinite(due) && due >= 0 && due <= 120 ? due : 8, vat: SZ_VATS.indexOf(String(s.vat)) >= 0 ? String(s.vat) : '27',
+    unit: str_(s.unit, 20) || 'db', payMethod: SZ_PAYMETHODS.indexOf(s.payMethod) >= 0 ? s.payMethod : 'Átutalás',
+    eInvoice: s.eInvoice !== false, sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
+}
+function szSettingsView_() { const s = szSettings_(); s.hasKey = !!szamlazzKey_(); return s; }
+function szStore_(s) { delete s.hasKey; PropertiesService.getScriptProperties().setProperty(SZ_SETTINGS_PROPERTY, JSON.stringify(s)); }
+function szSaveSettings_(u, a) {
+  a = a || {};
+  const s = szSettings_();
+  if (a.agentKey !== undefined && String(a.agentKey).trim()) {
+    const k = String(a.agentKey).trim();
+    if (!/^[A-Za-z0-9]{20,120}$/.test(k)) throw new Error('Az Agent-kulcs formátuma nem megfelelő (csak betűk és számok).');
+    PropertiesService.getScriptProperties().setProperty(SZAMLAZZ_KEY_PROPERTY, k);
+    logEvent_(u, 'Számlázás', '', 'Agent-kulcs beállítva');
+  }
+  if (a.dueDays !== undefined) { const n = Math.round(Number(a.dueDays)); if (!isFinite(n) || n < 0 || n > 120) throw new Error('A fizetési határidő 0–120 nap lehet.'); s.dueDays = n; }
+  if (a.vat !== undefined) { if (SZ_VATS.indexOf(String(a.vat)) < 0) throw new Error('Ismeretlen ÁFA-kulcs.'); s.vat = String(a.vat); }
+  if (a.unit !== undefined) s.unit = str_(a.unit, 20) || 'db';
+  if (a.payMethod !== undefined) { if (SZ_PAYMETHODS.indexOf(a.payMethod) < 0) throw new Error('Ismeretlen fizetési mód.'); s.payMethod = a.payMethod; }
+  if (a.eInvoice !== undefined) s.eInvoice = !!a.eInvoice;
+  if (a.sendEmail !== undefined) s.sendEmail = !!a.sendEmail;
+  if (a.comment !== undefined) s.comment = str_(a.comment, 500);
+  if (!s.ipnToken || a.newIpnToken) s.ipnToken = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '').slice(0, 8);
+  szStore_(s);
+  return finData_();
+}
+
+/* --- kérés a számlázz.hu felé --- */
+function szPost_(field, xml) {
+  const payload = {}; payload[field] = Utilities.newBlob(xml, 'text/xml', 'request.xml');
+  const res = UrlFetchApp.fetch(SZAMLAZZ_URL, { method: 'post', muteHttpExceptions: true, payload: payload });
+  const h = {}; const raw = res.getAllHeaders ? res.getAllHeaders() : res.getHeaders();
+  Object.keys(raw || {}).forEach(k => { h[k.toLowerCase()] = Array.isArray(raw[k]) ? raw[k][0] : raw[k]; });
+  const dec = v => { try { return decodeURIComponent(String(v || '').replace(/\+/g, ' ')); } catch (e) { return String(v || ''); } };
+  if (h.szlahu_error_code) throw new Error('számlázz.hu hiba (' + h.szlahu_error_code + '): ' + dec(h.szlahu_error));
+  if (res.getResponseCode() !== 200) throw new Error('A számlázz.hu nem érhető el (HTTP ' + res.getResponseCode() + ').');
+  return { headers: h, body: res.getContentText('UTF-8'), dec: dec };
+}
+const szXmlHead_ = (tag, dir) => '<?xml version="1.0" encoding="UTF-8"?><' + tag + ' xmlns="http://www.szamlazz.hu/' + tag + '" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.szamlazz.hu/' + tag + ' https://www.szamlazz.hu/szamla/docs/xsds/' + dir + '/' + tag + '.xsd">';
+const szEl_ = (name, v) => v === undefined || v === null ? '' : '<' + name + '>' + xmlEsc_(v) + '</' + name + '>';
+function szNeedKey_() { const k = szamlazzKey_(); if (!k) throw new Error('Nincs beállítva a számlázz.hu Agent-kulcs (Bevétel és kiadás → Beállítások → Számlázás).'); return k; }
+
+/** Egy számla aktuális adatai a számlázz.hu-ból (összeg, határidő, kifizetések; kérésre a PDF base64-ben). */
+function szQuery_(no, withPdf) {
+  const key = szNeedKey_();
+  const xml = szXmlHead_('xmlszamlaxml', 'agentxml') + szEl_('szamlaagentkulcs', key) + szEl_('szamlaszam', no) + szEl_('pdf', withPdf ? 'true' : 'false') + '</xmlszamlaxml>';
+  const r = szPost_('action-szamla_agent_xml', xml);
+  let doc; try { doc = XmlService.parse(r.body).getRootElement(); } catch (e) { throw new Error('A számlázz.hu válasza nem értelmezhető: ' + r.body.slice(0, 200)); }
+  if (xmlText_(doc, 'sikeres') === 'false' || xmlText_(doc, 'hibakod')) throw new Error('számlázz.hu: ' + (xmlText_(doc, 'hibauzenet') || xmlText_(doc, 'hibakod')));
+  const alap = xmlFindAll_(doc, 'alap')[0] || doc, vevo = xmlFindAll_(doc, 'vevo')[0], tot = xmlFindAll_(doc, 'totalossz')[0];
+  const nr = v => { const n = Number(String(v || '').replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? Math.round(n) : 0; };
+  let paid = 0, paidAt = '';
+  xmlFindAll_(doc, 'kifizetes').forEach(k => { paid += nr(xmlText_(k, 'osszeg')); const d = xmlText_(k, 'datum'); if (d > paidAt) paidAt = d; });
+  const out = { no: xmlText_(alap, 'szamlaszam') || no, tipus: xmlText_(alap, 'tipus'), date: xmlText_(alap, 'kelt').slice(0, 10), due: xmlText_(alap, 'fizh').slice(0, 10),
+    payMethod: xmlText_(alap, 'fizmod'), buyer: vevo ? xmlText_(vevo, 'nev') : '', invNet: tot ? nr(xmlText_(tot, 'netto')) : 0, invGross: tot ? nr(xmlText_(tot, 'brutto')) : 0,
+    invPaid: paid, paidAt: paidAt };
+  if (withPdf) { const p = doc.getChildren().find(c => c.getName() === 'pdf'); out.pdf = p ? String(p.getText() || '').replace(/\s/g, '') : ''; }
+  return out;
+}
+
+/* --- fizetési állapot a számlák alapján --- */
+function szPayStatusFor_(list) {
+  const real = list.filter(x => x.kind !== 'dijbekero'), use = real.length ? real : list;
+  if (!use.length) return null;
+  const gross = use.reduce((s, x) => s + (Number(x.invGross) || 0), 0), paid = use.reduce((s, x) => s + (Number(x.invPaid) || 0), 0);
+  return gross > 0 && paid >= gross - 1 ? 'teljes' : paid > 0 ? 'eloleg' : 'var';
+}
+/** A megadott projektek / bevételi sorok fizetési állapotát a hozzájuk tartozó számlákból írja vissza (zárolás alatt hívandó). */
+function szApplyPay_(targets) {
+  const inv = readAll_('finInvoice');
+  const seen = {};
+  targets.forEach(t => {
+    const key = (t.projectId ? 'p:' + t.projectId : 'i:' + t.incomeId); if (!t.projectId && !t.incomeId || seen[key]) return; seen[key] = 1;
+    const st = szPayStatusFor_(inv.filter(x => t.projectId ? x.projectId === t.projectId : x.incomeId === t.incomeId));
+    if (!st) return;
+    if (t.projectId) { try { writeProjectPay_(t.projectId, st); } catch (e) {} }
+    else { const sh = sheetFor_('finIncome'), row = findRow_(sh, t.incomeId); if (row) { const r = readRow_('finIncome', sh, row); if (r.payStatus !== st) { r.payStatus = st; putRow_('finIncome', sh, r, row); } } }
+  });
+  dataBump_();
+}
+function szTarget_(a) {
+  const projectId = str_(a && a.projectId, 64), incomeId = str_(a && a.incomeId, 64);
+  if (!projectId && !incomeId) throw new Error('Hiányzik, melyik projekthez vagy bevételhez tartozik a számla.');
+  if (projectId && !findRow_(sheetFor_('projects'), projectId)) throw new Error('A projekt nem található.');
+  if (!projectId && !findRow_(sheetFor_('finIncome'), incomeId)) throw new Error('A bevételi sor nem található.');
+  return { projectId: projectId, incomeId: projectId ? '' : incomeId };
+}
+
+/** Számla vagy díjbekérő kiállítása. a: {projectId|incomeId, kind, buyer:{name,tax,zip,city,address,email}, items:[{name,qty,unit,price,vat}], fulfill, due, payMethod, comment, eInvoice, sendEmail} */
+function szInvoice_(u, a) {
+  a = a || {};
+  const key = szNeedKey_(), tg = szTarget_(a), set = szSettings_();
+  const b = a.buyer || {}, kind = a.kind === 'dijbekero' ? 'dijbekero' : 'szamla';
+  const buyer = { name: str_(b.name, 200), tax: str_(b.tax, 20), zip: str_(b.zip, 10), city: str_(b.city, 80), address: str_(b.address, 200), email: str_(b.email, 300) };
+  if (buyer.name.length < 2) throw new Error('Add meg a vevő nevét.');
+  if (!buyer.zip || !buyer.city || !buyer.address) throw new Error('Add meg a vevő teljes címét (irányítószám, település, cím).');
+  if (buyer.email && !buyer.email.split(/[,;]\s*/).every(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))) throw new Error('Hibás e-mail-cím a vevőnél.');
+  const items = (Array.isArray(a.items) ? a.items : []).slice(0, 30).map(it => {
+    const qty = Number(String(it.qty).replace(',', '.')), price = Math.round(Number(String(it.price).replace(/\s/g, '').replace(',', '.'))), vat = String(it.vat || set.vat);
+    if (str_(it.name, 300).length < 2) throw new Error('Minden tételnek adj megnevezést.');
+    if (!isFinite(qty) || qty <= 0) throw new Error('Hibás mennyiség: ' + it.name);
+    if (!isFinite(price)) throw new Error('Hibás egységár: ' + it.name);
+    if (SZ_VATS.indexOf(vat) < 0) throw new Error('Ismeretlen ÁFA-kulcs: ' + vat);
+    const net = Math.round(price * qty), rate = /^\d+$/.test(vat) ? Number(vat) : 0, vatAmt = Math.round(net * rate / 100);
+    return { name: str_(it.name, 300), qty: qty, unit: str_(it.unit, 20) || set.unit, price: price, vat: vat, net: net, vatAmt: vatAmt, gross: net + vatAmt, note: str_(it.note, 300) };
+  });
+  if (!items.length) throw new Error('Adj meg legalább egy tételt.');
+  const today = today_(), fulfill = iso_(a.fulfill) || today, due = iso_(a.due) || today;
+  const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
+  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);
+  const taxDigits = buyer.tax.replace(/\D/g, '');
+  const xml = szXmlHead_('xmlszamla', 'agent')
+    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
+    + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
+    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', tg.projectId || tg.incomeId)
+    + szEl_('elolegszamla', 'false') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + '</fejlec>'
+    + '<vevo>' + szEl_('nev', buyer.name) + szEl_('irsz', buyer.zip) + szEl_('telepules', buyer.city) + szEl_('cim', buyer.address)
+    + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', sendEmail ? 'true' : 'false')
+    + szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '') + '</vevo>'
+    + '<tetelek>' + items.map(it => '<tetel>' + szEl_('megnevezes', it.name) + szEl_('mennyiseg', String(it.qty)) + szEl_('mennyisegiEgyseg', it.unit) + szEl_('nettoEgysegar', String(it.price))
+      + szEl_('afakulcs', it.vat) + szEl_('nettoErtek', String(it.net)) + szEl_('afaErtek', String(it.vatAmt)) + szEl_('bruttoErtek', String(it.gross)) + (it.note ? szEl_('megjegyzes', it.note) : '') + '</tetel>').join('') + '</tetelek>'
+    + '</xmlszamla>';
+  const r = szPost_('action-xmlagentxmlfile', xml);
+  let no = r.dec(r.headers.szlahu_szamlaszam), gross = Number(r.headers.szlahu_bruttovegosszeg) || 0, net = Number(r.headers.szlahu_nettovegosszeg) || 0, open = null, url = r.dec(r.headers.szlahu_vevoifiokurl);
+  try {
+    const doc = XmlService.parse(r.body).getRootElement();
+    if (xmlText_(doc, 'sikeres') === 'false') throw new Error('számlázz.hu hiba (' + xmlText_(doc, 'hibakod') + '): ' + xmlText_(doc, 'hibauzenet'));
+    no = xmlText_(doc, 'szamlaszam') || no; gross = Number(xmlText_(doc, 'szamlabrutto')) || gross; net = Number(xmlText_(doc, 'szamlanetto')) || net;
+    const k = xmlText_(doc, 'kintlevoseg'); if (k !== '') open = Number(k); url = r.dec(xmlText_(doc, 'vevoifiokurl')) || url;
+  } catch (e) { if (/számlázz\.hu hiba/.test(String(e.message))) throw e; }
+  if (!no) throw new Error('A számlázz.hu nem adott vissza számlaszámot: ' + r.body.slice(0, 200));
+  const row = { id: Utilities.getUuid(), no: no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: buyer.name, date: today, due: due,
+    invNet: Math.round(net) || items.reduce((s, x) => s + x.net, 0), invGross: Math.round(gross) || items.reduce((s, x) => s + x.gross, 0), invPaid: 0, paidAt: '', payMethod: payMethod,
+    createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: url ? 'Vevői fiók: ' + url : '' };
+  if (open !== null && isFinite(open)) row.invPaid = Math.max(0, row.invGross - Math.round(open));
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); SpreadsheetApp.flush(); });
+  logEvent_(u, 'Számlázás', buyer.name, (kind === 'dijbekero' ? 'Díjbekérő' : 'Számla') + ' kiállítva: ' + no);
+  return Object.assign(finData_(), { invoice: row });
+}
+
+/** Meglévő (a számlázz.hu-ban kiállított) számla hozzárendelése egy projekthez / bevételi sorhoz. */
+function szLink_(u, a) {
+  const tg = szTarget_(a), no = str_(a && a.no, 60);
+  if (!no) throw new Error('Add meg a számlaszámot.');
+  if (readAll_('finInvoice').some(x => x.no === no)) throw new Error('Ez a számla már hozzá van rendelve valamihez.');
+  const q = szQuery_(no, false);
+  const row = { id: Utilities.getUuid(), no: q.no, kind: /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
+    invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '' };
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); SpreadsheetApp.flush(); });
+  logEvent_(u, 'Számlázás', q.buyer, 'Számla hozzárendelve: ' + q.no);
+  return Object.assign(finData_(), { invoice: row });
+}
+function szUnlink_(u, a) {
+  const id = str_(a && a.id, 64);
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
+  return finData_();
+}
+
+/** Kifizetések frissítése a számlázz.hu-ból: a még nem teljesen kifizetett számlák (legfeljebb 25 egy körben). */
+function szSync_(u, a) {
+  szNeedKey_();
+  const started = Date.now(), all = readAll_('finInvoice');
+  const ids = a && a.id ? [str_(a.id, 64)] : null;
+  const todo = all.filter(x => ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1)
+    .sort((x, y) => String(x.checkedAt).localeCompare(String(y.checkedAt))).slice(0, 25);
+  const changed = [], errors = [];
+  todo.forEach(x => {
+    if (Date.now() - started > 22000) return;
+    try { const q = szQuery_(x.no, false); const was = Number(x.invPaid) || 0;
+      Object.assign(x, { invPaid: q.invPaid, paidAt: q.paidAt || x.paidAt, invGross: q.invGross || x.invGross, invNet: q.invNet || x.invNet, due: q.due || x.due, checkedAt: now_() });
+      x._dirty = true; if (q.invPaid !== was) changed.push(x);
+    } catch (e) { errors.push(x.no + ': ' + e.message); }
+  });
+  withLock_(() => {
+    const sh = sheetFor_('finInvoice');
+    todo.filter(x => x._dirty).forEach(x => { const row = findRow_(sh, x.id); if (row) { delete x._dirty; putRow_('finInvoice', sh, x, row); } });
+    szApplyPay_(todo.map(x => ({ projectId: x.projectId, incomeId: x.incomeId })));
+    const s = szSettings_(); s.lastSync = now_(); szStore_(s);
+    SpreadsheetApp.flush();
+  });
+  if (changed.length) logEvent_(u, 'Számlázás', '', 'Kifizetés frissítve: ' + changed.map(x => x.no).join(', '));
+  return Object.assign(finData_(), { synced: { checked: todo.length, changed: changed.map(x => ({ no: x.no, buyer: x.buyer, paid: x.invPaid, gross: x.invGross })), errors: errors } });
+}
+function szPdf_(u, a) {
+  const r = readAll_('finInvoice').find(x => x.id === str_(a && a.id, 64));
+  if (!r) throw new Error('A számla nem található.');
+  const q = szQuery_(r.no, true);
+  if (!q.pdf) throw new Error('A számlázz.hu nem adta vissza a PDF-et.');
+  return { name: r.no.replace(/[^\w.-]+/g, '_') + '.pdf', b64: q.pdf };
+}
+
+/** A számlázz.hu IPN-értesítése (a beállításokban megadott URL: …/exec?ipn=<titkos kulcs>).
+    Az értesítésben kapott összeget a számlázz.hu-tól lekérdezve ellenőrizzük; mindig 200-zal válaszolunk. */
+function szIpn_(e) {
+  const ok = () => ContentService.createTextOutput('OK');
+  try {
+    const s = szSettings_(), p = e.parameter || {};
+    if (!s.ipnToken || String(p.ipn) !== s.ipnToken) return ok();
+    const no = str_(p.szlahu_szamlaszam, 60), order = str_(p.szlahu_rendelesszam, 64);
+    if (!no) return ok();
+    const sys = { name: 'számlázz.hu (IPN)', role: 'admin' };
+    withLock_(() => {
+      const sh = sheetFor_('finInvoice'), all = readAll_('finInvoice');
+      let r = all.find(x => x.no === no);
+      if (!r && order) {   // az appból kiállított számla rendelésszáma a projekt / bevételi sor azonosítója
+        const isProj = !!findRow_(sheetFor_('projects'), order), isInc = !isProj && !!findRow_(sheetFor_('finIncome'), order);
+        if (isProj || isInc) r = { id: Utilities.getUuid(), no: no, kind: 'szamla', projectId: isProj ? order : '', incomeId: isInc ? order : '',
+          buyer: '', date: today_(), due: '', invNet: 0, invGross: 0, invPaid: 0, paidAt: '', payMethod: str_(p.szlahu_fizetesmod, 40), createdAt: now_(), createdBy: sys.name, checkedAt: '', note: '' };
+      }
+      if (!r) return;
+      try { const q = szQuery_(no, false); Object.assign(r, { invPaid: q.invPaid, paidAt: q.paidAt || r.paidAt, invGross: q.invGross || r.invGross, invNet: q.invNet || r.invNet, due: q.due || r.due, buyer: r.buyer || q.buyer, date: r.date || q.date }); }
+      catch (err) {   // ha a lekérdezés nem megy, az értesítés adatait használjuk
+        const n = v => Math.round(Number(String(v || '').replace(',', '.'))) || 0;
+        r.invPaid = n(p.szlahu_kifizetettbrutto); r.invGross = n(p.szlahu_bruttovegosszeg) || r.invGross; if (p.szlahu_kifizdat) r.paidAt = iso_(p.szlahu_kifizdat);
+        if (!r.paidAt && r.invPaid) r.paidAt = today_();
+      }
+      r.checkedAt = now_();
+      putRow_('finInvoice', sh, r, findRow_(sh, r.id));
+      szApplyPay_([{ projectId: r.projectId, incomeId: r.incomeId }]);
+      SpreadsheetApp.flush();
+      logEvent_(sys, 'Számlázás', r.buyer, 'Kifizetési értesítés: ' + no + ' – kifizetve ' + r.invPaid + ' / ' + r.invGross + ' Ft');
+    });
+  } catch (err) { Logger.log('IPN hiba: ' + err); }
+  return ok();
 }
 
 /* ===================== STÁB ÉS LELTÁR ===================== */
@@ -1932,7 +2172,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -1961,6 +2201,12 @@ function rpcInner_(token, name, arg) {
     case 'finSettings': adminOnly(); return finSaveSettings_(u, arg);
     case 'finSetPay': adminOnly(); return finSetPay_(u, arg);
     case 'finImport': adminOnly(); return finImport_(u, arg);
+    case 'szSettings': adminOnly(); return szSaveSettings_(u, arg);
+    case 'szInvoice': adminOnly(); return szInvoice_(u, arg);
+    case 'szLink': adminOnly(); return szLink_(u, arg);
+    case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
+    case 'szSync': adminOnly(); return szSync_(u, arg);
+    case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
