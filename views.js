@@ -639,7 +639,7 @@ function viewProject(p){
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></details>
   </div>
-
+  ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
     <div class="content-grid">
       <section class="content-col"><h4 class="sub-h">📍 Terepi feladatok</h4>

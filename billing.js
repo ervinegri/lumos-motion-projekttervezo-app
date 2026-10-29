@@ -115,3 +115,30 @@ Object.assign(ACT,{
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}
 });
 document.addEventListener('input',e=>{if(e.target.id==='q-bill'){(S.blf||(S.blf={v:'teendo',q:''})).q=e.target.value;const pos=e.target.selectionStart;render(true);const n=$('q-bill');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}}});
+
+/* Projekt oldalán (csak ügyvezető): az aktuális projekt szerződése és számlázása */
+function projBillingPanel(p){
+  if(!billOn()||!p||!p.id||!projById(p.id))return '';
+  const wrap=inner=>`<details class="panel fold billing-fold" id="proj-bill" data-fold="billing"${FOLD.billing!==false?' open':''}>${inner}</details>`;
+  if(!S.fin){if(!S.finErr)finLoad();return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside">${S.finErr?'nem sikerült betölteni':'betöltés…'}</span></h3></summary>${S.finErr?`<div class="btns"><button class="btn outline small" type="button" data-action="fin-retry">Újrapróbálás</button></div>`:'<div class="loading"><span class="spin"></span>Betöltés…</div>'}`);}
+  if(!S.fin.billing)return wrap(`<summary><h3>📄 Szerződés és számlázás</h3></summary><p class="hint">A legújabb háttérkód (Code.gs) telepítése után érhető el.</p>`);
+  const i=billInfo(p),b=i.b;
+  const contract=`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
+    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${esc(p.id)}" data-focus="file">⬆️ Szerződés feltöltése</button>`}
+    ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}</div>`;
+  const adv=b.mode==='egyben'?'<span class="muted">egy számla, nincs foglaló</span>'
+    :(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${esc(p.id)}" data-type="eloleg">+ Foglalószámla</button>`:''))
+    :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI][0]==='advIssued');
+  const fin=i.fin?invLine(i.fin):billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
+  const dots=`<div class="bl-dots">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
+  const val=num(p.projectValue);
+  return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside"><span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
+    <div class="pb-grid">
+      <div class="pb-box"><div class="pb-t">Szerződés</div>${contract}</div>
+      <div class="pb-box"><div class="pb-t">${b.mode==='egyben'?'Foglaló':'Díjbekérő / foglaló'}${b.mode!=='egyben'&&val?` <span class="muted">${num(b.advancePct)}% · ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}</div>${adv}</div>
+      <div class="pb-box"><div class="pb-t">${b.mode==='egyben'?'Számla':'Végszámla'}${val?` <span class="muted">${ftFmt(val)} nettó</span>`:''}</div>${fin}</div>
+      <div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>
+    </div>
+    <div class="pb-foot"><span class="bl-meta">${esc([b.mode==='egyben'?'Egy számla':'Foglaló + végszámla',b.poNumber?'PO: '+b.poNumber:'',b.note||''].filter(Boolean).join(' · '))}</span>
+      <button class="btn outline small" type="button" data-action="bill-edit" data-id="${esc(p.id)}">✏️ Szerződés és számlázás beállításai</button></div>`);
+}
