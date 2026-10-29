@@ -91,7 +91,7 @@ const TABLES = {
     ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat']] },
   finBilling: { tab: 'Szerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
-    ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Előleg (%)'],
+    ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
     ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
@@ -627,7 +627,7 @@ function writeProjectPay_(projectId, st) {
    mellette a Ft. A projektsorok: B = nap, C = megnevezés, (állapot), díjazás, nyereség, majd a %/Ft párok. */
 const HU_MONTHS_ = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'];
 function legacyNum_(v) { if (typeof v === 'number') return v; const s = String(v == null ? '' : v).replace(/\s/g, '').replace(/Ft\.?$/i, '').replace(',', '.'); return s === '' || isNaN(Number(s)) ? null : Number(s); }
-function legacyPay_(s) { s = String(s || '').toLowerCase(); return /teljes/.test(s) ? 'teljes' : /előleg|eloleg/.test(s) ? 'eloleg' : /vár|var/.test(s) ? 'var' : ''; }
+function legacyPay_(s) { s = String(s || '').toLowerCase(); return /teljes/.test(s) ? 'teljes' : /foglaló|eloleg/.test(s) ? 'eloleg' : /vár|var/.test(s) ? 'var' : ''; }
 function legacyDate_(v) {
   if (v instanceof Date) return Utilities.formatDate(v, SHEET_TZ, 'yyyy-MM-dd');
   const m = /(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/.exec(String(v || ''));
@@ -1269,7 +1269,7 @@ function lookupTaxpayerApi_(arg) {
    és a kifizetések követése: a számlázz.hu IPN-értesítése (doPost ?ipn=…) és lekérdezés (szSync).
    A kifizetés alapján a projekt / bevételi sor fizetési állapota magától frissül. Az Agent-kulcs: SZAMLAZZ_AGENT_KEY. */
 const SZ_SETTINGS_PROPERTY = 'LUMOS_PM_SZ';
-const SZ_KIND_LABEL_ = { szamla: 'Számla', dijbekero: 'Díjbekérő', eloleg: 'Előlegszámla', vegszamla: 'Végszámla' };
+const SZ_KIND_LABEL_ = { szamla: 'Számla', dijbekero: 'Díjbekérő', eloleg: 'Foglalószámla', vegszamla: 'Végszámla' };
 const SZ_VATS = ['27', '18', '5', '0', 'AAM', 'TAM', 'EU', 'EUK', 'MAA', 'F.AFA', 'K.AFA', 'ÁKK', 'TEHK', 'HO', 'KBAET'];
 const SZ_PAYMETHODS = ['Átutalás', 'Készpénz', 'Bankkártya'];
 function szSettings_() {
@@ -1452,7 +1452,7 @@ function szSync_(u, a) {
     if (Date.now() - started > 22000) return;
     try { let q;
       try { q = szQuery_(x.no, false); }
-      catch (e0) {   // a kifizetett díjbekérőt a számlázz.hu automatikus számlázáskor törli – ilyenkor a rendelésszám alapján az előlegszámlát kapjuk
+      catch (e0) {   // a kifizetett díjbekérőt a számlázz.hu automatikus számlázáskor törli – ilyenkor a rendelésszám alapján a foglalószámlát kapjuk
         if (x.kind !== 'dijbekero') throw e0;
         const o = szQuery_('', false, x.projectId || x.incomeId);
         if (o.fromDijbekero !== x.no) throw e0;
@@ -1475,7 +1475,7 @@ function szSync_(u, a) {
   if (changed.length) logEvent_(u, 'Számlázás', '', 'Kifizetés frissítve: ' + changed.map(x => x.no).join(', '));
   return Object.assign(finData_(), { synced: { checked: todo.length, changed: changed.map(x => ({ no: x.no, buyer: x.buyer, paid: x.invPaid, gross: x.invGross })), errors: errors } });
 }
-/** Díjbekérőből (automatikusan) készült előlegszámla felvétele, ha még nincs nálunk. */
+/** Díjbekérőből (automatikusan) készült foglalószámla felvétele, ha még nincs nálunk. */
 function szAddAdvance_(all, db, q, out) {
   if (!q || !q.no || all.some(x => x.no === q.no) || out.some(x => x.no === q.no)) return;
   const r = { id: Utilities.getUuid(), no: q.no, kind: 'eloleg', projectId: db.projectId, incomeId: db.incomeId, buyer: q.buyer || db.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross,
@@ -1504,7 +1504,7 @@ function szIpn_(e) {
       const sh = sheetFor_('finInvoice'), all = readAll_('finInvoice');
       const dbNo = str_(p.szlahu_dijbekero_szama, 60), db = dbNo ? all.find(x => x.no === dbNo) : null;
       let r = all.find(x => x.no === no);
-      if (!r && db) {   // kifizetett díjbekérőből automatikusan készült előlegszámla
+      if (!r && db) {   // kifizetett díjbekérőből automatikusan készült foglalószámla
         const extra = [];
         let q = null; try { q = szQuery_(no, false); } catch (err) { q = { no: no, date: today_(), due: '', invNet: 0, invGross: Math.round(Number(p.szlahu_bruttovegosszeg) || 0), invPaid: Math.round(Number(p.szlahu_kifizetettbrutto) || 0), paidAt: iso_(p.szlahu_kifizdat) || today_(), payMethod: str_(p.szlahu_fizetesmod, 40), buyer: db.buyer }; }
         szAddAdvance_(all, db, q, extra);
@@ -1513,7 +1513,7 @@ function szIpn_(e) {
         putRow_('finInvoice', sh, db, findRow_(sh, db.id));
         szApplyPay_([{ projectId: db.projectId, incomeId: db.incomeId }]);
         SpreadsheetApp.flush();
-        logEvent_(sys, 'Számlázás', db.buyer, 'Díjbekérő kifizetve: ' + dbNo + ' → előlegszámla ' + no);
+        logEvent_(sys, 'Számlázás', db.buyer, 'Díjbekérő kifizetve: ' + dbNo + ' → foglalószámla ' + no);
         return;
       }
       if (!r && order) {   // az appból kiállított számla rendelésszáma a projekt / bevételi sor azonosítója
@@ -1554,7 +1554,7 @@ function billSave_(u, a) {
     if (a.contractUrl !== undefined) { const v = str_(a.contractUrl, 500); if (v && !/^https:\/\//.test(v)) throw new Error('A szerződés linkje https:// kezdetű legyen.'); if (v !== r.contractUrl) { r.contractUrl = v; r.contractFileId = ''; r.contractName = v ? (r.contractName && !r.contractFileId ? r.contractName : 'Link') : ''; } }
     if (a.clearFile) { r.contractUrl = ''; r.contractFileId = ''; r.contractName = ''; r.contractAt = ''; r.contractBy = ''; }
     if (a.mode !== undefined) r.mode = a.mode === 'egyben' ? 'egyben' : 'eloleg';
-    if (a.advancePct !== undefined) { const n = Math.round(Number(a.advancePct)); if (!isFinite(n) || n < 0 || n > 100) throw new Error('Az előleg 0–100% lehet.'); r.advancePct = n; }
+    if (a.advancePct !== undefined) { const n = Math.round(Number(a.advancePct)); if (!isFinite(n) || n < 0 || n > 100) throw new Error('A foglaló 0–100% lehet.'); r.advancePct = n; }
     if (a.poNumber !== undefined) r.poNumber = str_(a.poNumber, 80);
     if (a.note !== undefined) r.note = str_(a.note, 1000);
     if (a.signedAt !== undefined) r.signedAt = iso_(a.signedAt);

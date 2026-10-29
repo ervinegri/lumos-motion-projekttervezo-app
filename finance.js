@@ -3,7 +3,7 @@
    Bevétel projektenként: díjazás → nyereség % + értékesítés % + marketing % + termelési költség, a maradék az Eszköz/Rezsi alapba.
    A rezsi- és marketingkiadások ezekből az alapokból mennek, az egyenleg hónapról hónapra áthozódik.
    A beállított hónaptól („app számol”) a projektekből számolunk, előtte a régi táblázatból importált sorokból. */
-const PAY_LABEL={'':'—',var:'Fizetésre vár',eloleg:'Előleg fizetve',teljes:'Teljes fizetve'};
+const PAY_LABEL={'':'—',var:'Fizetésre vár',eloleg:'Foglaló fizetve',teljes:'Teljes fizetve'};
 const PAY_CLS={'':'',var:'p-warn',eloleg:'p-info',teljes:'p-ok'};
 const FUND_LABEL={rezsi:'Eszköz, rezsi',marketing:'Marketing'};
 const finOn=()=>isAdmin()&&!!(S.capabilities&&S.capabilities.finance);
@@ -31,7 +31,7 @@ function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth
 /* Régi / kézi bevételi sor projektje: az appból frissített sor megjegyzése vagy azonos nevű projekt ugyanabban a hónapban */
 function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
   return S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month)||null;}
-/* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; előlegnél a számlák kifizetett része, ennek hiányában az előleg %-a */
+/* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; foglalónál a számlák kifizetett része, ennek hiányában a foglaló %-a */
 function finReceived(r){if(r.payStatus==='teljes')return num(r.amount);if(r.payStatus!=='eloleg')return 0;
   const inv=invFor(r.kind,r.id).filter(x=>num(x.invGross)>0&&!(x.kind==='dijbekero'&&x.ref));
   if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+num(x.invPaid)*num(x.invNet)/num(x.invGross),0)));
@@ -52,7 +52,7 @@ function finMonths(){const set=new Set([todayISO().slice(0,7),shiftMonth(todayIS
   (fin.income||[]).forEach(r=>r.month&&set.add(r.month));(fin.expense||[]).forEach(e=>{if(e.month)set.add(e.month);});
   S.projects.forEach(p=>{if(pr(p))set.add(pr(p).start.slice(0,7));});if(finSet().openMonth)set.add(finSet().openMonth);
   const arr=[...set].sort();const first=finSet().openMonth||arr[0],last=arr[arr.length-1],out=[];for(let x=first;x<=last;x=shiftMonth(x,1))out.push(x);return out.reverse();}
-/* Kintlévőség: minden hónap fizetésre váró / előleges tétele */
+/* Kintlévőség: minden hónap fizetésre váró / foglalós tétele */
 function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(m=>finIncomeFor(m).forEach(r=>{if(r.payStatus==='var'||r.payStatus==='eloleg'){n++;sum+=r.amount;}}));return {n,sum};}
 
 function viewFinance(){
@@ -199,7 +199,7 @@ const SZ_VATS=[['27','27%'],['18','18%'],['5','5%'],['0','0%'],['AAM','AAM – a
 const invFor=(kind,id)=>((S.fin&&S.fin.invoices)||[]).filter(x=>kind==='project'?x.projectId===id:x.incomeId===id);
 const invState=x=>{const g=num(x.invGross),p=num(x.invPaid);if(g&&p>=g-1)return 'paid';if(p>0)return 'part';return x.due&&x.due<todayISO()?'late':'open';};
 const INV_CLS={paid:'p-ok',part:'p-info',late:'p-bad',open:'p-warn'};
-const SZ_KIND={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Előlegszámla',vegszamla:'Végszámla'},SZ_KIND_S={dijbekero:'D ',eloleg:'E ',vegszamla:'V '};
+const SZ_KIND={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalószámla',vegszamla:'Végszámla'},SZ_KIND_S={dijbekero:'D ',eloleg:'E ',vegszamla:'V '};
 const invChip=x=>{const s=invState(x);return `<button class="statuspill inv-chip ${INV_CLS[s]}" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'Számla')+' · '+(x.buyer||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${SZ_KIND_S[x.kind]||''}${esc(x.no)} ${s==='paid'?'✓':s==='part'?'½':s==='late'?'⚠':'…'}</button>`;};
 const invCell=r=>`<div class="inv-cell">${invFor(r.kind,r.id).map(invChip).join('')}<button class="linkbtn inv-new" type="button" data-action="sz-new" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" title="Számla kiállítása vagy meglévő hozzárendelése">🧾${invFor(r.kind,r.id).length?'':' Számla'}</button></div>`;
 function szBillingEmail(cl,p){const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');const first=m?m[1].split(/[,\s]+/).find(x=>x.includes('@')):'';return first||(cl&&cl.contactEmail)||(p&&p.contactEmail)||'';}
@@ -221,15 +221,15 @@ function szReadItems(){return [...document.querySelectorAll('[data-szitem]')].ma
   unit:el.querySelector('[name=it_unit]').value.trim(),price:num(moneyVal(el.querySelector('[name=it_price]').value)),vat:el.querySelector('[name=it_vat]').value}));}
 function szTotals(){const its=szReadItems();let net=0,vat=0;its.forEach(it=>{const n=Math.round(it.price*it.qty);net+=n;vat+=/^\d+$/.test(it.vat)?Math.round(n*Number(it.vat)/100):0;});
   const el=$('sz-total');if(el)el.innerHTML=`Nettó <b>${ftFmt(net)}</b> · ÁFA <b>${ftFmt(vat)}</b> · Bruttó <b>${ftFmt(net+vat)}</b>`;return {net,vat,gross:net+vat};}
-/* Az egyes bizonylattípusok javasolt tétele (a projekt nettó értékéből, az előleg %-ából) */
+/* Az egyes bizonylattípusok javasolt tétele (a projekt nettó értékéből, a foglaló %-ából) */
 function szPreset(type,kind,id){const t=szTargetInfo(kind,id);if(!t)return {name:'',price:0};const inv=invFor(kind,id),b=kind==='project'?billOf(id):null,pct=b?num(b.advancePct):50;
   const db=inv.filter(x=>x.kind==='dijbekero').pop();
-  if(type==='dijbekero')return {name:'Előleg – '+t.name,price:Math.round(t.net*pct/100)};
-  if(type==='eloleg')return {name:'Előleg – '+t.name,price:db?num(db.invNet):Math.round(t.net*pct/100)};
+  if(type==='dijbekero')return {name:'Foglaló – '+t.name,price:Math.round(t.net*pct/100)};
+  if(type==='eloleg')return {name:'Foglaló – '+t.name,price:db?num(db.invNet):Math.round(t.net*pct/100)};
   if(type==='vegszamla')return {name:t.name,price:t.net};
   const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);return {name:t.name,price:Math.max(0,t.net-done)};}
-const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a számlázz.hu-ban be van kapcsolva az automatikus számlázás, a kifizetése után magától elkészül az előlegszámla.',
-  eloleg:'Előlegszámla a már beérkezett előlegről – fizetettként kerül kiállításra.',vegszamla:'A végszámla a teljes összegről szól; a számlázz.hu a projekthez tartozó előlegszámlát (rendelésszám alapján) levonja, a vevő csak a különbözetet fizeti.',
+const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a számlázz.hu-ban be van kapcsolva az automatikus számlázás, a kifizetése után magától elkészül a foglalószámla.',
+  eloleg:'Foglalószámla a már beérkezett foglalóról – fizetettként kerül kiállításra.',vegszamla:'A végszámla a teljes összegről szól; a számlázz.hu a projekthez tartozó foglalószámlát (rendelésszám alapján) levonja, a vevő csak a különbözetet fizeti.',
   szamla:'Egyetlen számla a teljes (vagy a még nem számlázott) összegről.'};
 function szInvoiceModal(kind,id,o={}){
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
@@ -239,7 +239,7 @@ function szInvoiceModal(kind,id,o={}){
   const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg').pop();
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
   openModal('Bizonylat kiállítása – '+t.name,`<div class="fields">
-    ${ms('kind','Típus',[['dijbekero','Díjbekérő (előleg bekérése)'],['eloleg','Előlegszámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
+    ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
     <div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
     ${mf('bTax','Adószám (magánszemélynél üres)',{v:b.tax,max:20,ph:'12345678-2-42'})}
