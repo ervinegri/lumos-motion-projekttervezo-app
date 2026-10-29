@@ -39,7 +39,7 @@ const SETUP_USERS = [
 /* ===================== ADATMODELL ===================== */
 const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'atadva', 'lemondva'];
 const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Egyéb'];
-const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó'];
+const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó', 'Ajánlói jutalék'];
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -356,8 +356,15 @@ function parseFees_(raw) {
     name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
     roles: Array.isArray(x && x.roles) ? x.roles.map(r => str_(r, 40)).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
     kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), autoTask: !!(x && x.autoTask),
-    amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0)
+    amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0),
+    dayAmounts: x && x.dayAmounts && typeof x.dayAmounts === 'object' ? Object.keys(x.dayAmounts).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).slice(0, 31).reduce((o, k) => { o[k] = int_(x.dayAmounts[k], 0, FEE_MAX, 0); return o; }, {}) : undefined
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
+}
+function parseCrewDays_(raw) {   // több napos projekt: ki melyik napokon dolgozik ({ crewId: [nap, …] })
+  let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : {}; } catch (e) { o = {}; } }
+  const out = {}; if (!o || typeof o !== 'object') return out;
+  Object.keys(o).slice(0, 60).forEach(k => { if (Array.isArray(o[k])) out[str_(k, 64)] = o[k].map(d => str_(d, 10)).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0, 31); });
+  return out;
 }
 function parseNotes_(raw) {
   let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : {}; } catch (e) { o = {}; } }
@@ -378,6 +385,7 @@ function projectView_(p, u) {
   // személyes jegyzetek: a szakember csak a sajátját kapja meg
   const notes = parseNotes_(q.crewNotes);
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
+  q.crewDays = parseCrewDays_(q.crewDays);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
   delete q.quotePrice;
@@ -421,7 +429,7 @@ function saveProject_(u, a) {
     lead: str_(a.lead, 64),
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), clientTax: str_(a.clientTax, 20).replace(/[^\d-]/g, ''), clientAddress: str_(a.clientAddress, 300),
-    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryNotes: str_(a.deliveryNotes, 3000), stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
+    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';
@@ -480,6 +488,8 @@ function saveProject_(u, a) {
         : p.budgetMode === 'pct' ? Math.min(100, Math.round(b * 10) / 10) : Math.min(VALUE_MAX, Math.round(b));
     }
     if (a.crewNotes !== undefined) p.crewNotes = JSON.stringify(parseNotes_(a.crewNotes));
+    if (a.crewDays !== undefined) p.crewDays = JSON.stringify(parseCrewDays_(a.crewDays));
+    if (p.crewDays == null) p.crewDays = old ? old.crewDays : '';
     if (p.crewNotes == null) p.crewNotes = '';
     if (Array.isArray(a.rentals)) p.rentals = JSON.stringify(parseRentals_(a.rentals));
     if (p.rentals == null) p.rentals = '';

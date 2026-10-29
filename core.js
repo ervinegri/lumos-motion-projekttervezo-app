@@ -3,7 +3,7 @@
 const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'atadva',label:'Átadva'}];
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',atadva:'Átadva',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Egyéb'];
-const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];
+const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Ajánlói jutalék'];
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer'];
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
@@ -260,3 +260,9 @@ const penOf=(p,cid,st)=>(p.penalties||[]).filter(x=>x.crewId===cid&&(!st||x.stat
 const penPct=(p,cid,st)=>Math.min(100,penOf(p,cid,st||'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+num(x.pct),0));
 const penDamage=(p,cid)=>penOf(p,cid,'approved').filter(x=>x.kind==='damage').reduce((s,x)=>s+num(x.amount),0);
 const penDeduct=(p,cid,fee)=>Math.round(num(fee)*penPct(p,cid)/100);   // jóváhagyott levonás forintban (legfeljebb a teljes díj)
+
+/* ===== Több napos projekt: napok, ki melyik napon dolgozik ===== */
+function projDays(p){const r=pr(p);if(!r||r.start===r.end)return [];const out=[];for(let d=r.start;d<=r.end&&out.length<31;d=addDays(d,1))out.push(d);return out;}
+function crewDaysOf(p,cid){const all=projDays(p),c=(p.crewDays||{})[cid];return Array.isArray(c)&&c.length?all.filter(d=>c.includes(d)):all;}
+const dayLbl=d=>{const x=toDate(d);return (x.getUTCMonth()+1)+'.'+String(x.getUTCDate()).padStart(2,'0')+'. '+F_WD.format(x);};
+function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0);}
