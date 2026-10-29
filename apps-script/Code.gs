@@ -427,6 +427,7 @@ function projectView_(p, u) {
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
   if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
+  if (role === 'crew') { delete q.client; delete q.clientTax; delete q.clientAddress; }   // a szakember nem látja az ügyfelet
   if (role !== 'admin') delete q.payStatus;   // a fizetési állapotot csak az ügyvezető látja
   const request = parseBudgetRequest_(q.budgetRequest);
   if (role === 'admin' || role === 'editor') q.budgetRequest = request;

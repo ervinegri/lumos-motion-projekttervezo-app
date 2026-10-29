@@ -185,7 +185,7 @@ function dueInfo(p){
 function myRole(p){if(!S.me||!S.me.crewId)return '';const r=[];if(p.lead===S.me.crewId)r.push('projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===S.me.crewId)r.push(a.role.toLowerCase());});return r.join(', ');}
 function evRow(p,opt={}){
   const r=pr(p),T=todayISO();
-  const sub=[p.client,p.venue].filter(Boolean).join(' · ')||'Nincs ügyfél megadva';
+  const sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva');
   const days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
   let side=statusPill(p);
   const di=dueInfo(p);
@@ -269,7 +269,7 @@ function viewProjects(){
   const past=list.filter(p=>!closed(p)&&pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));   // lezajlott, utómunkára vár
   const done=list.filter(closed).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // lezárt: hónaponként
   const issues=ro()?[]:computeIssues();
-  const row=p=>{const r=pr(p),di=dueInfo(p),sub=[p.client,p.venue].filter(Boolean).join(' · ')||'Nincs ügyfél megadva',days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
+  const row=p=>{const r=pr(p),di=dueInfo(p),sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva'),days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
     const due=di&&r&&(r.end<T||POST_STAGES.includes(p.status))?`<span class="statuspill p-${di.cls}">${di.txt}</span>`:'';
     const extra=ro()?[myRole(p)?`<span class="smallnum">Te: ${esc(myRole(p))}</span>`:'',p.myFee&&num(p.myFee.amount)?`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))}</span>`:''].join('')
       :`<span class="smallnum">${crewIds(p).size} fő · ${eqCount(p)} eszköz</span>`;
@@ -616,7 +616,7 @@ function viewProject(p){
   return `<div class="dhead">
     <button class="back" type="button" data-action="back">← ${ro()?'Beosztásaim':'Összes projekt'}</button>
     <div class="dtitle"><div class="grow"><h2>${esc(p.name||'Névtelen projekt')}</h2>
-      <p class="sub">${esc([p.client,p.eventType,fmtRange(p)?fmtRange(p)+(p.startTime?', '+p.startTime+(p.endTime?'–'+p.endTime:''):''):'',p.venue].filter(Boolean).join(' · '))}</p></div></div>
+      <p class="sub">${esc([ro()?'':p.client,p.eventType,fmtRange(p)?fmtRange(p)+(p.startTime?', '+p.startTime+(p.endTime?'–'+p.endTime:''):''):'',p.venue].filter(Boolean).join(' · '))}</p></div></div>
     <div class="btns">${folder}${delivery}${p.calEventId?`<button class="mini" type="button" data-action="tab" data-tab="naptar" data-focus="${esc(r?r.start:'')}" title="A „Terepi Munkák” Google Naptárban">📅 Naptárban</button>`:(validISO(p.date)&&!ro()?'<span class="hint" style="margin:0;align-self:center">📅 Mentéskor bekerül a Google Naptárba</span>':'')}${ro()?'':`<button class="mini" type="button" data-action="proj-manage">⚙️ Projekt kezelése</button>`}</div>
     ${status==='lemondva'?`<div class="banner"><p><b>Ez a projekt le van mondva.</b> Nem számít bele az ütközésekbe, pénzügyekbe és a határidőkbe.</p><button class="btn outline small w" type="button" data-action="cancel-toggle">Visszaállítás</button></div>`:`<div class="stages${status==='atadva'?' locked':''}" role="group" aria-label="Projekt állapota" style="--n:${stList.length}">${stages}</div>${status==='atadva'?`<p class="hint locked-hint">🔒 A projekt lezárva${p.deliveredAt?' ('+esc(fmtDay(p.deliveredAt))+')':''} – a lépések már nem módosíthatók.${isAdmin()?' <button class="linkbtn" type="button" data-action="proj-unlock" style="margin-left:6px">🔓 Felnyitás</button>':''}</p>`:''}${p.siteOk&&status!=='atadva'?`<div class="site-rep ${p.siteOk==='nem'?'bad':'ok'}"><b>${p.siteOk==='nem'?'🚨 Helyszíni munka: elakadás történt':'✅ Helyszíni munka: minden rendben'}</b><span>${esc(p.siteReport)}</span>${ro()?'':'<button class="linkbtn" type="button" data-action="site-report">Szerkesztés</button>'}</div>`:''}`}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
@@ -625,13 +625,13 @@ function viewProject(p){
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}
-        <div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet… (üresen is hagyható)'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>
+        ${ro()?'':`<div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet… (üresen is hagyható)'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>`}
         ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
-        <div class="field full contact3">
+        ${ro()?'':`<div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
         ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
-        </div>
+        </div>`}
         ${fld(p,'date','Első nap',{type:'date'})}
         ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
         ${fld(p,'startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=')}
