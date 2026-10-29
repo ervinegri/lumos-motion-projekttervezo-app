@@ -80,7 +80,7 @@ const isOpen=p=>p.status!=='atadva'&&p.status!=='lemondva';
 function pr(p){if(!p||!validISO(p.date))return null;const end=validISO(p.endDate)&&p.endDate>=p.date?p.endDate:p.date;return {start:p.date,end};}
 const overlap=(a,b)=>a&&b&&a.start<=b.end&&b.start<=a.end;
 /* Időablak egynapos projektnél: érkezés + helyszíni munkaidő. Ha nincs érkezési idő, egész naposnak vesszük. */
-function timeWin(p){const m=/^(\d{2}):(\d{2})$/.exec(p.startTime||'');if(!m)return null;const s=+m[1]*60+ +m[2];return {s,e:s+Math.max(1,num(p.hours)||8)*60};}
+function timeWin(p){const m=/^(\d{2}):(\d{2})$/.exec(p.startTime||'');if(!m)return null;const s=+m[1]*60+ +m[2];const x=/^(\d{2}):(\d{2})$/.exec(p.endTime||'');if(x){let e=+x[1]*60+ +x[2];if(e<=s)e+=1440;return {s,e};}return {s,e:s+Math.max(1,num(p.hours)||8)*60};}
 /* Két projekt ütközik-e: átfedő napok, de ugyanazon a napon (mindkettő egynapos) a délelőtti és a délutáni munka nem ütközik. */
 function clash(p,q){
   if(!p||!q)return false;if(p.id&&p.id===q.id)return true;
@@ -106,7 +106,8 @@ const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
 const ro=()=>!S.me||S.me.role==='crew';
 const isAdmin=()=>S.me&&S.me.role==='admin';
-const D=()=>ro()?' disabled':'';
+const projLocked=()=>!!(S.tab==='projektek'&&S.draft&&S.draft.status==='atadva');   // lezárt projekt: csak a pénzügyek módosíthatók
+const D=()=>ro()||projLocked()?' disabled':'';
 function uuid(){try{if(crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});}
 function initials(n){const p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
 function hue(s){let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))%360;return h;}
