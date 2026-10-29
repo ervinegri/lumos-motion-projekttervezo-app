@@ -96,14 +96,18 @@ function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?5
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
 /* Pénzügyek: az ügyvezetőnél a Kifizetések, a Szerződés és számlázás és a Bevétel és kiadás egy fül alá kerül (alfülekkel) */
-const FIN_GROUP=['kifizetesek','szerzodes','penzugy'];
-const finGrouped=()=>TABS().filter(t=>FIN_GROUP.includes(t.id)).length>1;
-function NAV_TABS(){const all=TABS();if(!finGrouped())return all;const out=[];let added=false;
-  all.forEach(t=>{if(!FIN_GROUP.includes(t.id)){out.push(t);return;}if(added)return;added=true;
-    const last=FIN_GROUP.includes(S.finSub)&&all.some(x=>x.id===S.finSub)?S.finSub:'kifizetesek';out.push({id:last,label:'Pénzügyek',group:true});});
+/* Csoportosított fülek: Források (Stáb + Leltár) és – az ügyvezetőnél – Pénzügyek (Termelői fizetések, Szerződés és számlázás, Bevétel és kiadás) */
+const TAB_GROUPS=[{label:'Források',ids:['stab','leltar'],icons:{stab:'👥 ',leltar:'🎒 '}},{label:'Pénzügyek',ids:['kifizetesek','szerzodes','penzugy'],icons:{kifizetesek:'⚒️ ',szerzodes:'📄 ',penzugy:'📊 '}}];
+const FIN_GROUP=TAB_GROUPS[1].ids;
+S.groupSub=S.groupSub||{};
+const groupOf=id=>{const all=TABS();return TAB_GROUPS.find(g=>g.ids.includes(id)&&all.filter(t=>g.ids.includes(t.id)).length>1)||null;};
+const finGrouped=()=>!!groupOf('penzugy')||!!groupOf('szerzodes');
+function NAV_TABS(){const all=TABS(),out=[],done={};
+  all.forEach(t=>{const g=groupOf(t.id);if(!g){out.push(t);return;}if(done[g.label])return;done[g.label]=1;
+    const last=S.groupSub[g.label],id=last&&all.some(x=>x.id===last)?last:g.ids.find(x=>all.some(y=>y.id===x));out.push({id,label:g.label,group:g});});
   return out;}
-function finSubNav(){if(!finGrouped()||!FIN_GROUP.includes(S.tab))return '';S.finSub=S.tab;
-  return `<nav class="subtabs" aria-label="Pénzügyek">${TABS().filter(t=>FIN_GROUP.includes(t.id)).sort((a,b)=>FIN_GROUP.indexOf(a.id)-FIN_GROUP.indexOf(b.id)).map(t=>`<button class="subtab" type="button" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${{kifizetesek:'⚒️ ',szerzodes:'📄 ',penzugy:'📊 '}[t.id]||''}${t.label}</button>`).join('')}</nav>`;}
+function finSubNav(){const g=groupOf(S.tab);if(!g)return '';S.groupSub[g.label]=S.tab;
+  return `<nav class="subtabs" aria-label="${esc(g.label)}">${TABS().filter(t=>g.ids.includes(t.id)).sort((a,b)=>g.ids.indexOf(a.id)-g.ids.indexOf(b.id)).map(t=>`<button class="subtab" type="button" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${g.icons[t.id]||''}${t.label}</button>`).join('')}</nav>`;}
 const TABS=()=>[{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   const on=!!S.me;
@@ -119,9 +123,9 @@ function renderChrome(){
   $('userChip').textContent=S.me.name+' · '+roleLabel(S.me.role);
   const counts={projektek:S.projects.filter(isOpen).length,stab:S.crew.length,leltar:S.inventory.length};
   const tabsEl=$('tabs'),keepX=tabsEl.scrollLeft;
-  $('tabs').innerHTML=NAV_TABS().map(t=>`<button class="tab" role="tab" type="button" aria-selected="${t.group?FIN_GROUP.includes(S.tab):S.tab===t.id}" data-action="tab" data-tab="${t.id}">${t.label}${counts[t.id]!=null?`<span class="count">${counts[t.id]}</span>`:''}</button>`).join('');
+  $('tabs').innerHTML=NAV_TABS().map(t=>`<button class="tab" role="tab" type="button" aria-selected="${t.group?t.group.ids.includes(S.tab):S.tab===t.id}" data-action="tab" data-tab="${t.id}">${t.label}${counts[t.id]!=null&&!t.group?`<span class="count">${counts[t.id]}</span>`:''}</button>`).join('');
   tabsEl.scrollLeft=keepX;{const act=tabsEl.querySelector('[aria-selected="true"]');if(act&&tabsEl.scrollWidth>tabsEl.clientWidth){const l=act.offsetLeft-tabsEl.offsetLeft,r=l+act.offsetWidth;if(l<tabsEl.scrollLeft)tabsEl.scrollLeft=l-16;else if(r>tabsEl.scrollLeft+tabsEl.clientWidth)tabsEl.scrollLeft=r-tabsEl.clientWidth+16;}}
-  const title=S.tab==='projektek'&&S.draft?(S.draft.name||'Projekt'):((finGrouped()&&FIN_GROUP.includes(S.tab)?'Pénzügyek · ':'')+((TABS().find(t=>t.id===S.tab)||{}).label||''));
+  const title=S.tab==='projektek'&&S.draft?(S.draft.name||'Projekt'):((groupOf(S.tab)?groupOf(S.tab).label+' · ':'')+((TABS().find(t=>t.id===S.tab)||{}).label||''));
   $('pageTitle').textContent=title;
   const bar=$('saveBar');
   const flash=!S.dirty&&S.savedFlash&&S.draft&&S.tab==='projektek';   // mentés után fél másodpercig még látszik: „✓ Mentve”
