@@ -92,7 +92,8 @@ const TABLES = {
   finBilling: { tab: 'Szerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
-    ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma']] },
+    ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma'],
+    ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -1554,7 +1555,7 @@ const BILL_CONTRACT = ['', 'kikuldve', 'alairva', 'nemkell'];
 function billRow_(projectId) {
   const sh = sheetFor_('finBilling'), all = readAll_('finBilling'), r = all.find(x => x.projectId === projectId);
   return { sh: sh, r: r || { id: Utilities.getUuid(), projectId: projectId, contractStatus: '', contractUrl: '', contractName: '', contractFileId: '', contractAt: '', contractBy: '',
-    mode: 'eloleg', advancePct: 50, poNumber: '', note: '', updatedAt: '', updatedBy: '', signedAt: '' } };
+    mode: 'eloleg', advancePct: 50, poNumber: '', note: '', updatedAt: '', updatedBy: '', signedAt: '', ceoPct: '', rezsiPct: '' } };
 }
 function billSave_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -1569,6 +1570,8 @@ function billSave_(u, a) {
     if (a.poNumber !== undefined) r.poNumber = str_(a.poNumber, 80);
     if (a.note !== undefined) r.note = str_(a.note, 1000);
     if (a.signedAt !== undefined) r.signedAt = iso_(a.signedAt);
+    ['ceoPct', 'rezsiPct'].forEach(k => { if (a[k] === undefined) return; if (a[k] === '' || a[k] === null) { r[k] = ''; return; }
+      const n = Math.round(Number(a[k]) * 10) / 10; if (!isFinite(n) || n < 0 || n > 100) throw new Error('A százalék 0 és 100 között legyen.'); r[k] = String(n); });
     if (r.contractStatus === 'alairva' && !r.signedAt) r.signedAt = today_();
     r.updatedAt = now_(); r.updatedBy = u.name;
     putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id));

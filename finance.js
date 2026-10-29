@@ -23,9 +23,12 @@ const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>x.projectId=
   if(fin.length)return fin.every(invPaidOk)?'teljes':any(fin)||any(adv)?'eloleg':'var';return any(adv)?'eloleg':'var';};
 const finSet=()=>(S.fin&&S.fin.settings)||{profitPct:30,ceoPct:5,marketingPct:5,openMonth:'',openRezsi:0,openMarketing:0,appFromMonth:''};
 /* Egy projekt felosztása */
+const ovPct=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
 function finProjectRow(p){const st=finSet(),amount=num(p.projectValue),prod=Math.round(feeSum(p));
-  const profit=Math.round(amount*st.profitPct/100),ceo=Math.round(amount*st.ceoPct/100),marketing=Math.round(amount*st.marketingPct/100);
-  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,profit,ceo,marketing,rezsi:amount-profit-ceo-marketing-prod};}
+  const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);   // projektenként egyedi értékesítés / eszköz-rezsi %
+  const ceo=Math.round(amount*(cp??st.ceoPct)/100),marketing=Math.round(amount*st.marketingPct/100);
+  let profit,rezsi;if(rp!=null){rezsi=Math.round(amount*rp/100);profit=amount-prod-ceo-marketing-rezsi;}else{profit=Math.round(amount*st.profitPct/100);rezsi=amount-profit-ceo-marketing-prod;}
+  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,profit,ceo,marketing,rezsi,ceoOv:cp!=null,rezsiOv:rp!=null};}
 function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth;
   const fromApp=!appFrom||m>=appFrom;
   const proj=fromApp?S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&(num(p.projectValue)||feeSum(p))).map(finProjectRow):[];
@@ -43,6 +46,20 @@ function finReceived(r){if(r.payStatus==='teljes')return num(r.amount);if(r.payS
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||a.name.localeCompare(b.name,'hu'));}
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
 const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.round(Number(v)/base*100);return `<span class="pct${x<0?' neg':''}">${x<0?'−':''}${Math.abs(x)}%</span>`;};
+/* Módosítható %: értékesítés és eszköz-rezsi (a termelés % fix, a díjakból jön). Üresre törölve visszaáll az alapértékre. */
+const pctNum=(v,base)=>{base=Number(base)||0;return base?Math.round(Number(v)/base*1000)/10:0;};
+function pctIn(r,k){const v=pctNum(r[k],r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv;
+  return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
+async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
+  const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
+  if(kind==='project'){finCall('billSave',{projectId:id,[k==='ceo'?'ceoPct':'rezsiPct']:v==null?'':v},'Mentve');return;}
+  const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return;const st=finSet(),amount=num(r.amount),prod=num(r.prod),mk=num(r.marketing);
+  let ceo=num(r.ceo),profit=num(r.profit),rezsi=Number(r.rezsi)||0;
+  if(k==='ceo'){ceo=Math.round(amount*(v??st.ceoPct)/100);rezsi=amount-prod-profit-ceo-mk;}   // értékesítés változott: a maradék (eszköz-rezsi) igazodik
+  else{rezsi=v==null?amount-prod-Math.round(amount*st.profitPct/100)-ceo-mk:Math.round(amount*v/100);profit=amount-prod-ceo-mk-rezsi;}   // eszköz-rezsi változott: a nyereség igazodik
+  finCall('finUpsert',{table:'income',row:Object.assign({},r,{ceo,profit,rezsi})},'Mentve');}
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.finpct)finSetPct(t);});
+document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.finpct){e.preventDefault();t.blur();}});
 const sumK=(arr,k)=>arr.reduce((s,x)=>s+(Number(x[k])||0),0);
 /* Az alapok egyenlege hónapról hónapra a nyitó hónaptól */
 function finBalances(m){const st=finSet(),start=st.openMonth||finMonths()[finMonths().length-1]||m;
@@ -71,7 +88,7 @@ function viewFinance(){
   const payCell=r=>`<select class="inp pay-sel ${PAY_CLS[r.payStatus]||''}" data-finpay="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="Fizetési állapot">${Object.entries(PAY_LABEL).map(([v,l])=>`<option value="${v}"${v===(r.payStatus||'')?' selected':''}>${l}</option>`).join('')}</select>`;
   const incRows=inc.map(r=>`<tr${r.kind==='project'?'':' class="fin-manual"'}><td class="n">${esc(r.day||'')}</td>
     <td>${r.kind==='project'?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.id)}">${esc(r.name)}</button>`:(()=>{const lp=incProj(r);return `${lp?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(lp.id)}" title="Projekt megnyitása">${esc(r.name)}</button>`:`<button class="linkbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" title="${esc(r.people||'')}">${esc(r.name)}</button>`}${r.legacy?' <span class="muted fin-leg">régi táblázat</span>':''} <button class="editbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" aria-label="Módosítás" title="Módosítás">✏️</button>`;})()}</td>
-    <td>${payCell(r)}</td><td class="r"><b>${moneyFmt(r.amount)||0}</b></td><td class="r">${moneyFmt(r.profit)||0}</td><td class="r">${pctOf(r.prod,r.amount)}${moneyFmt(r.prod)||0}</td><td class="r">${pctOf(r.ceo,r.amount)}${moneyFmt(r.ceo)||0}</td><td class="r${r.rezsi<0?' bad-txt':''}">${pctOf(r.rezsi,r.amount)}${r.rezsi<0?'−':''}${moneyFmt(Math.abs(r.rezsi))||0}</td><td class="r">${moneyFmt(r.marketing)||0}</td></tr>`).join('');
+    <td>${payCell(r)}</td><td class="r"><b>${moneyFmt(r.amount)||0}</b></td><td class="r">${moneyFmt(r.profit)||0}</td><td class="pc">${pctOf(r.prod,r.amount)}</td><td class="r">${moneyFmt(r.prod)||0}</td><td class="pc">${pctIn(r,'ceo')}</td><td class="r">${moneyFmt(r.ceo)||0}</td><td class="pc">${pctIn(r,'rezsi')}</td><td class="r${r.rezsi<0?' bad-txt':''}">${r.rezsi<0?'−':''}${moneyFmt(Math.abs(r.rezsi))||0}</td><td class="r">${moneyFmt(r.marketing)||0}</td></tr>`).join('');
   const expRows=exp.map(e=>`<tr><td><button class="linkbtn" type="button" data-action="fin-exp-edit" data-id="${esc(e.id)}">${esc(e.name)}</button></td><td>${e.kind==='fix'?`<span class="statuspill">havi fix</span>`:'<span class="statuspill p-mute">egyszeri</span>'}</td><td>${FUND_LABEL[e.fund]||'Eszköz, rezsi'}</td><td class="r"><b>${moneyFmt(e.amount)||0}</b></td></tr>`).join('');
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
   return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>
@@ -87,9 +104,9 @@ function viewFinance(){
       <div class="tile${rec.sum?' warn':''}"><div class="tile-n">${ftFmt(rec.sum)}</div><div class="tile-l">kintlévőség összesen (${rec.n} tétel, minden hónap)</div></div>
     </div>
     <div class="panel"><h3>💰 Bevételek <span class="aside">${fromApp?'a projektekből':'a régi táblázatból'}</span></h3>
-      <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th><th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="r">Termelés</th><th class="r">Értékesítés</th><th class="r">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
-      <tbody>${incRows||`<tr><td colspan="9" class="empty-row">Ebben a hónapban még nincs bevétel.${fromApp?' A projektek a projekt értékének megadása után jelennek meg itt.':''}</td></tr>`}</tbody>
-      <tfoot><tr><td></td><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(T('amount'))||0}</b></td><td class="r"><b>${moneyFmt(T('profit'))||0}</b></td><td class="r">${pctOf(T('prod'),T('amount'))}<b>${moneyFmt(T('prod'))||0}</b></td><td class="r">${pctOf(T('ceo'),T('amount'))}<b>${moneyFmt(T('ceo'))||0}</b></td><td class="r${T('rezsi')<0?' bad-txt':''}">${pctOf(T('rezsi'),T('amount'))}<b>${T('rezsi')<0?'−':''}${moneyFmt(Math.abs(T('rezsi')))||0}</b></td><td class="r"><b>${moneyFmt(T('marketing'))||0}</b></td></tr></tfoot></table></div>
+      <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th><th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="pc">%</th><th class="r">Termelés</th><th class="pc">%</th><th class="r">Értékesítés</th><th class="pc">%</th><th class="r">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
+      <tbody>${incRows||`<tr><td colspan="12" class="empty-row">Ebben a hónapban még nincs bevétel.${fromApp?' A projektek a projekt értékének megadása után jelennek meg itt.':''}</td></tr>`}</tbody>
+      <tfoot><tr><td></td><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(T('amount'))||0}</b></td><td class="r"><b>${moneyFmt(T('profit'))||0}</b></td><td class="pc">${pctOf(T('prod'),T('amount'))}</td><td class="r"><b>${moneyFmt(T('prod'))||0}</b></td><td class="pc">${pctOf(T('ceo'),T('amount'))}</td><td class="r"><b>${moneyFmt(T('ceo'))||0}</b></td><td class="pc">${pctOf(T('rezsi'),T('amount'))}</td><td class="r${T('rezsi')<0?' bad-txt':''}"><b>${T('rezsi')<0?'−':''}${moneyFmt(Math.abs(T('rezsi')))||0}</b></td><td class="r"><b>${moneyFmt(T('marketing'))||0}</b></td></tr></tfoot></table></div>
       <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-income-new">+ Egyéb bevétel</button></div>
       ${fromApp?`<p class="hint">A projektek a kezdőnapjuk hónapjához számítanak. A termelés a projekt termelői költsége (díjak díjcsökkentés után, fuvar, étel, bérlés); az eszköz-rezsi rész a maradék.</p>`:''}</div>
     <div class="grid2">
