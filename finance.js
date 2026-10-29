@@ -135,7 +135,7 @@ async function finImport(){const url=($('m-importUrl')||{}).value||'',from=($('m
   if(!/^\d{4}-\d{2}$/.test(from)){toast('Add meg, melyik hónaptól számoljon az app.',true);return;}
   const b=document.querySelector('[data-action="fin-import"]');if(b){b.disabled=true;b.textContent='Importálás… (fél perc is lehet)';}
   try{const d=await call('finImport',{url:url.trim(),appFromMonth:from});closeModal();finApply(d);const i=d.imported||{};
-    toast(`Importálva: ${i.months} hónap, ${i.income} bevételi sor, ${i.expense} kiadás, ${i.loans} kölcsöntétel.`);}
+    toast(`Importálva: ${i.months} hónap, ${i.income} bevételi sor, ${i.expense} kiadás${i.fixes?', '+i.fixes+' havi fix tétel':''}, ${i.loans} kölcsöntétel.`);}
   catch(e){handleErr(e);if(b){b.disabled=false;b.textContent='⬇️ Importálás most';}}}
 function finLoanModal(){openModal('Tagi kölcsön – új tétel',`<div class="fields">
     ${ms('kind','Típus',[['be','Kölcsön a cégnek'],['vissza','Visszafizetés']],'be')}

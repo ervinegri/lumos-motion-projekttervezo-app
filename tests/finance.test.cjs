@@ -206,9 +206,9 @@ test('finance: legacy sheet import (two header rows, status column, expenses, ca
       ['','TOTAL:','','',1098000,'','','','','','','','','','','','','','','',''],
       ['','Kiadások:','','','','','','','','','','','','','','','','','','',''],
       ['','Rezsi','','','','','','','','','','','','','','','','','','',''],
-      ['','Könyvelő','',30000,'','','','','','','','','','','','','','','','',''],
-      ['','Facebook hirdetés','','',15000,'','','','','','','','','','','','','','','',''],
-      ['','Total Kiadás:','',30000,15000,'','','','','','','','','','','','','','','',''],
+      ['','Könyvelő','',30000,'','Facebook hirdetés','',15000,'','','','','','','','','','','','',''],
+      ['','iPad Air','',284000,'','','','','','','','','','','','','','','','',''],
+      ['','Total Kiadás:','',314000,'','Total Kiadás:','',15000,'','','','','','','','','','','','',''],
       ['','Megtakarítás/Tartozás előző hónapból:','',-7728648,102005,'','','','','','','','','','','','','','','',''],
       ['','Tagi Kölcsön Egri Ervin Részéről:','','','','','','','','','','','','','','','','','','',''],
       ['','2026.02.05','',100000,'','','','','','','','','','','','','','','','',''],
@@ -220,9 +220,10 @@ test('finance: legacy sheet import (two header rows, status column, expenses, ca
       ['','Maradt:','',6240000,'','','','','','','','','','','','','','','','','']];
     var apr=[['','','','','','Gácsa','','Márk','','Ervin','','Eszköz, Rezsi','','Marketing',''],['','Nap','Forgatás','Díjazás','Nyereség 30%','%','Ft.','%','Ft.','%','Ft.','%','Ft.','%','Ft.'],
       ['','3','Kulcs. Ak. Csop. Tal.',119000,35700,0,0,35,41650,10,11900,20,23800,5,5950]];
+    var szept=okt.slice(0,2).concat([['','Kiadások:'],['','Könyvelő','',30000,'','','',''],['','Total Kiadás:','',30000,'','Total Kiadás:','',0]]);
     var nov=okt.slice(0,2).concat([['','5','Novemberi projekt','Fizetésre vár',100000,30000,0,0,0,0,0,0,5,5000,0,0,60,60000,5,5000,100000]]);
     var mk=(n,V)=>({getName:()=>n,getDataRange:()=>({getValues:()=>V})});
-    SpreadsheetApp.openByUrl=()=>({getSheets:()=>[mk('November 26',nov),mk('Október 26',okt),mk('Április 25',apr),mk('Munkalap',[[1]])]});
+    SpreadsheetApp.openByUrl=()=>({getSheets:()=>[mk('November 26',nov),mk('Október 26',okt),mk('Szeptember 26',szept),mk('Április 25',apr),mk('Munkalap',[[1]])]});
     DB.finIncome=[{id:'keep-1',month:'2026-10',name:'Kézi',amount:5000,legacy:false}];DB.finExpense=[];DB.finLoan=[];
     var _sf2=sheetFor_;sheetFor_=key=>({key,getLastRow:()=>(DB[key]||[]).length+1,getRange:()=>({clearContent(){DB[key]=[];},setNumberFormat(){return this;},setValues(vals){DB[key]=vals.map(v=>fromRow_(TABLES[key],v));}})});
     readAll_=key=>(DB[key]||[]).map(x=>Object.assign({},x));
@@ -236,7 +237,9 @@ test('finance: legacy sheet import (two header rows, status column, expenses, ca
   assert.equal(inc.find(r=>r.name==='Kulcs. Ak. levelező').payStatus,'var');
   const a=inc.find(r=>r.month==='2025-04');assert.equal(a.prod,41650);assert.equal(a.ceo,11900);assert.equal(a.rezsi,23800);assert.equal(a.payStatus,'teljes');
   const ex=json('DB.finExpense');
-  assert.deepEqual(ex.map(e=>[e.name,e.fund,e.amount,e.month]),[['Könyvelő','rezsi',30000,'2026-10'],['Facebook hirdetés','marketing',15000,'2026-10']]);
+  const legacyEx=ex.filter(e=>e.legacy).map(e=>[e.name,e.fund,e.amount,e.month]);
+  assert.deepEqual(legacyEx.filter(e=>e[3]==='2026-10'),[['Könyvelő','rezsi',30000,'2026-10'],['Facebook hirdetés','marketing',15000,'2026-10'],['iPad Air','rezsi',284000,'2026-10']]);
+  assert.deepEqual(ex.filter(e=>e.kind==='fix').map(e=>[e.name,e.from,e.amount]),[['Könyvelő','2026-11',30000]]);   // havi fix az app hónaptól
   const lo=json('DB.finLoan');assert.equal(lo.length,4);assert.equal(lo.filter(l=>l.kind==='be').length,2);assert.equal(lo.find(l=>l.amount===160000).note,'Binx');
   const st=json('finSettings_()');assert.equal(st.openMonth,'2025-04');assert.equal(st.appFromMonth,'2026-11');
 });

@@ -656,12 +656,16 @@ function parseLegacyMonth_(sh) {
   if (expStart >= 0 && expEnd > expStart) {
     const numCols = V[expEnd].map((c, i) => legacyNum_(c) != null && String(c).trim() !== '' ? i : -1).filter(i => i >= 0);
     const rezCol = numCols[0], mktCol = numCols[1];
+    // a rezsi és a marketing kiadások egymás mellett, saját név- és összegoszloppal: a nevet az összeg bal oldalán keressük
+    const nameLeftOf = (r, col, from) => { for (let i = col - 1; i >= from; i--) { const c = r[i]; if (typeof c === 'string' && c.trim() && legacyNum_(c) == null) return c.trim(); } return ''; };
     for (let ri = expStart + 1; ri < expEnd; ri++) {
-      const r = V[ri], name = String(r.find(c => typeof c === 'string' && c.trim() && legacyNum_(c) == null) || '').trim();
-      if (!name || /^rezsi$/i.test(name)) continue;
-      const rez = rezCol != null ? legacyNum_(r[rezCol]) || 0 : 0, mkt = mktCol != null ? legacyNum_(r[mktCol]) || 0 : 0;
-      if (rez) expense.push({ name: name, fund: 'rezsi', kind: 'egyszeri', month: month, amount: Math.round(rez), legacy: true });
-      if (mkt) expense.push({ name: name, fund: 'marketing', kind: 'egyszeri', month: month, amount: Math.round(mkt), legacy: true });
+      const r = V[ri];
+      [[rezCol, 0, 'rezsi'], [mktCol, rezCol != null ? rezCol + 1 : 0, 'marketing']].forEach(([col, from, fund]) => {
+        if (col == null) return;
+        const amt = legacyNum_(r[col]) || 0, name = nameLeftOf(r, col, from);
+        if (!amt || !name || /^(rezsi|marketing)$/i.test(name)) return;
+        expense.push({ name: name, fund: fund, kind: 'egyszeri', month: month, amount: Math.round(amt), legacy: true });
+      });
     }
   }
   let carry = null;
@@ -692,13 +696,18 @@ function finImport_(u, a) {
   let loans = [];   // a tagi kölcsön a legfrissebb olyan fülről, amelyen szerepel
   for (const m of src.getSheets().map(parseLegacyMonth_).filter(Boolean).sort((x, y) => y.month.localeCompare(x.month))) { loans = parseLegacyLoans_(m.V || []); if (loans.length) break; }
   const income = [], expense = [];
+  // ismétlődő kiadások (bér, könyvelő, irodabérlet, előfizetések): ami az utolsó két importált hónapban is szerepel, az app hónaptól havi fix tétel lesz
+  const lastM = months[months.length - 1], prevM = months[months.length - 2];
+  const fixes = lastM && prevM ? lastM.expense.filter(e => prevM.expense.some(x => x.fund === e.fund && x.name.toLowerCase() === e.name.toLowerCase()))
+    .map(e => ({ id: Utilities.getUuid(), name: e.name, fund: e.fund, kind: 'fix', from: fromMonth, to: '', amount: e.amount, legacy: false, note: 'A régi táblázatból átvett havi tétel' })) : [];
   months.forEach(m => { m.income.forEach(o => income.push(Object.assign({ id: Utilities.getUuid() }, o))); m.expense.forEach(o => expense.push(Object.assign({ id: Utilities.getUuid() }, o))); });
   withLock_(() => {
     const keepNonLegacy = (key) => readAll_(key).filter(r => !r.legacy);
     const write = (key, rows) => { const sh = sheetFor_(key), n = sh.getLastRow(); if (n > 1) sh.getRange(2, 1, n - 1, TABLES[key].cols.length).clearContent();
       if (rows.length) { const rg = sh.getRange(2, 1, rows.length, TABLES[key].cols.length); rg.setNumberFormat('@'); rg.setValues(rows.map(o => toRow_(TABLES[key], o))); } };
     write('finIncome', keepNonLegacy('finIncome').concat(income.map(r => finClean_('finIncome', r))));
-    write('finExpense', keepNonLegacy('finExpense').concat(expense.map(r => finClean_('finExpense', r))));
+    const kept = keepNonLegacy('finExpense'), has = e => kept.some(x => x.kind === 'fix' && x.fund === e.fund && String(x.name).toLowerCase() === e.name.toLowerCase());
+    write('finExpense', kept.concat(fixes.filter(e => !has(e)).map(r => finClean_('finExpense', r)), expense.map(r => finClean_('finExpense', r))));
     if (loans.length) write('finLoan', loans.map(r => finClean_('finLoan', Object.assign({ id: Utilities.getUuid() }, r))));
     const s = finSettings_();
     s.openMonth = months[0].month; s.openRezsi = months[0].carry ? months[0].carry.rezsi : 0; s.openMarketing = months[0].carry ? months[0].carry.marketing : 0;
@@ -710,7 +719,7 @@ function finImport_(u, a) {
   // ellenőrzés: a régi táblázat havi áthozatai a mi számításunkkal
   const check = months.filter(m => m.carry).map(m => ({ month: m.month, rezsi: m.carry.rezsi, marketing: m.carry.marketing }));
   logEvent_(u, 'Bevétel és kiadás', 'Régi táblázat importálva', months.length + ' hónap, ' + income.length + ' bevételi sor, ' + expense.length + ' kiadás, ' + loans.length + ' kölcsöntétel');
-  return Object.assign(finData_(), { imported: { months: months.length, income: income.length, expense: expense.length, loans: loans.length, check: check } });
+  return Object.assign(finData_(), { imported: { months: months.length, income: income.length, expense: expense.length, fixes: fixes.length, loans: loans.length, check: check } });
 }
 
 /* ===================== STÁB SORRENDJE ===================== */
