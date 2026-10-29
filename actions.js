@@ -345,7 +345,7 @@ function userModal(u){
 async function switchView(role,crewId){
   try{
     document.body.classList.add('switching');
-    await SAVE_Q;if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
+    await Promise.race([SAVE_Q,new Promise(r=>setTimeout(r,15000))]);if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
     const r=await call('setViewAs',{role,crewId});
     S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.tab='attekintes';S.cal.events={};
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
@@ -424,7 +424,7 @@ function deliveryModal(){
       const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
-      setDraft({deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});}});
+      setDraft({deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:'',status:'atadva',deliveredAt:d.deliveredAt||todayISO()});saveDraft();}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
 }
 /* az eddigi elakadások és kirótt díjcsökkentések (beszámoló és átadás ablakban) */
@@ -618,12 +618,13 @@ const ACT={
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveDraft(),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
-  stage:b=>{const d=S.draft;if(!d||ro())return;
+  stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a ⚙️ Projekt kezelése alatt.',true);return;}
     const v=b.dataset.v,go=()=>{
       if(v==='atadva'&&needsDelivery(S.draft)){deliveryModal();return;}   // videós anyagnál felugró Átadás ablak (link kötelező)
       if(S.draft.status===v)return;
-      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});};
-    if(['helyszin','utomunka','atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('f-lead');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.scrollIntoView({block:'center',behavior:'smooth'});e.classList.add('need');setTimeout(()=>e.focus(),300);}return;}
+      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):''});
+      if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
+    if(['helyszin','utomunka','atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
     if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
@@ -632,12 +633,15 @@ const ACT={
     if(g==='aktiv'){guard(()=>{S.pf.status='aktiv';S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});}
     else if(g==='naptar'){guard(()=>{S.tab='naptar';S.projectId=null;S.draft=null;S.cal.month=todayISO().slice(0,7);render(true);scrollTo(0,0);});}
     else if(g==='atadas'){const el=$('due-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}},
-  'step-done':b=>{const d=S.draft;if(!d||ro())return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
-    const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));if(on)s2.add(v);else s2.delete(v);setDraft({stepsDone:[...s2].join(',')});};
+  'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
+    const ORD=['egyeztetes','tervezes','helyszin'],ix=ORD.indexOf(v);
+    const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
+      if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
+      setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});};
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     apply();},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
-    openModal('Projekt kezelése',`<div class="fields" style="margin-bottom:14px">${mf('name','Projekt neve',{full:true,v:p.name||'',max:120})}</div><div class="btns" style="margin-bottom:10px">${p.folderId?`<a class="btn outline small" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:`<button class="btn outline small" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`}</div><div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
+    openModal('Projekt kezelése',`<div class="fields" style="margin-bottom:14px">${mf('name','Projekt neve',{full:true,v:p.name||'',max:120})}</div><div class="btns" style="margin-bottom:10px">${p.folderId?`<a class="btn outline small" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:`<button class="btn outline small" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`}</div>${p.status==='atadva'&&isAdmin()?`<div class="btns" style="margin-bottom:10px"><button class="btn outline small" type="button" data-action="proj-unlock">🔓 Lezárás feloldása</button></div>`:''}<div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
       ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás',submitLabel:'Átnevezés',submit:async fd=>{
       const name=String(fd.get('name')||'').trim().replace(/\s+/g,' ');if(name.length<2){toast('Add meg a projekt nevét.',true);return;}
       closeModal();if(name===S.draft.name&&!S.dirty)return;setDraft({name});saveDraft();toast('Átnevezve – a Google Naptárban is frissül');}});},
@@ -695,6 +699,7 @@ const ACT={
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
   'pen-new':b=>penModal(b.dataset.cid),
+  'proj-unlock':()=>{const d=S.draft;if(!d||!isAdmin())return;closeModal();setDraft({status:needsDelivery(d)?'utomunka':'helyszin',deliveredAt:''});saveDraft();toast('Lezárás feloldva – a lépések újra módosíthatók');},
   'crew-day':b=>{const d=S.draft;if(!d)return;const cid=b.dataset.cid,day=b.dataset.d,all=projDays(d);let cur=crewDaysOf(d,cid).slice();
     if(cur.includes(day)){if(cur.length===1){toast('Legalább egy napot hagyj meg (vagy vedd le a projektről).',true);return;}cur=cur.filter(x=>x!==day);}else cur.push(day);
     const cd=Object.assign({},d.crewDays||{});if(cur.length===all.length)delete cd[cid];else cd[cid]=all.filter(x=>cur.includes(x));
@@ -821,10 +826,10 @@ document.addEventListener('pointerdown',e=>{
   cols.forEach((c,k)=>c.style.width=widths[k]+'px');table.style.width=widths.reduce((a,b)=>a+b,0)+'px';table.style.minWidth='0';
   document.body.classList.add('col-resizing');
   const move=ev=>{const w=Math.max(40,Math.round(startW+ev.clientX-startX));widths[i]=w;cols[i].style.width=w+'px';table.style.width=widths.reduce((a,b)=>a+b,0)+'px';};
-  const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.body.classList.remove('col-resizing');try{localStorage.setItem('lpm_fin_cols',JSON.stringify(widths));}catch(err){}};
+  const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.body.classList.remove('col-resizing');try{localStorage.setItem('lpm_fin_cols4',JSON.stringify(widths));}catch(err){}};
   document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
 });
-document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols');}catch(err){}render(true);});
+document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols4');}catch(err){}render(true);});
 
 /* ===== Naptár: nap kijelölése, buborék a projektekről, jobb klikkes törlés ===== */
 document.addEventListener('click',e=>{const day=e.target.closest&&e.target.closest('.cal-day');if(!day||e.target.closest('button'))return;
@@ -853,3 +858,18 @@ document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.
 document.addEventListener('click',e=>{const m=$('calMenu');if(m&&!e.target.closest('#calMenu'))m.remove();else if(m&&e.target.closest('button'))setTimeout(()=>{const x=$('calMenu');if(x)x.remove();},0);},true);
 ACT['cal-ctx-del']=b=>{const id=b.dataset.id;let ev=null;Object.values(S.cal.events||{}).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;}));
   confirmModal('Bejegyzés törlése',`Biztosan törlöd a(z) „${ev?ev.title:'bejegyzés'}” bejegyzést a Google Naptárból?`,'Törlés',async()=>{try{await call('deleteCalEvent',{id});S.cal.events={};render(true);toast('Bejegyzés törölve');}catch(e){handleErr(e);}});};
+
+/* ===== Helyszín: címkereső (OpenStreetMap / Photon), gépelés közben ===== */
+let ADDR_T=0,ADDR_SEQ=0,ADDR_ITEMS=[];
+function addrFmt(f){const p=f.properties||{},street=[p.street,p.housenumber].filter(Boolean).join(' '),city=[p.postcode,p.city||p.town||p.village||p.county].filter(Boolean).join(' ');
+  const name=p.name&&p.name!==p.street?p.name:'';return [name,street,city].filter(Boolean).join(', ')||p.name||'';}
+async function addrSearch(input){const q=input.value.trim();if(q.length<3){pickClose();return;}const my=++ADDR_SEQ;
+  try{const r=await fetch('https://photon.komoot.io/api/?limit=7&lat=47.5&lon=19.05&q='+encodeURIComponent(q));const j=await r.json();if(my!==ADDR_SEQ||document.activeElement!==input)return;
+    const seen=new Set();ADDR_ITEMS=(j.features||[]).map(addrFmt).filter(x=>x&&!seen.has(x)&&seen.add(x));
+    if(!ADDR_ITEMS.length){pickClose();return;}
+    pickShow(input,ADDR_ITEMS.map((t,i)=>`<button type="button" class="addr-item" data-addr="${i}"><b>${esc(t.split(', ')[0])}</b><small>${esc(t.split(', ').slice(1).join(', '))}</small></button>`).join('')+'<div class="hs-empty" style="font-size:11px">Címadatok: © OpenStreetMap</div>');}
+  catch(e){}}
+document.addEventListener('input',e=>{if(e.target.id==='f-venue'&&!ro()){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.addr-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=ADDR_ITEMS[Number(it.dataset.addr)];pickClose();
+  const inp=$('f-venue');if(inp&&v){inp.value=v;setDraft({venue:v});}},true);
+document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});

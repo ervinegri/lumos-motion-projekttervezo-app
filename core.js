@@ -192,8 +192,8 @@ async function gs(fn,...args){
   for(const mode of modes){
     try{
       const res=mode==='get'
-        ?await fetch(API_URL+(API_URL.indexOf('?')>=0?'&':'?')+'p='+encodeURIComponent(body),{redirect:'follow'})
-        :await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow'});
+        ?await fetch(API_URL+(API_URL.indexOf('?')>=0?'&':'?')+'p='+encodeURIComponent(body),{redirect:'follow',keepalive:body.length<8000})
+        :await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow',keepalive:body.length<60000});   // keepalive: frissítés/bezárás közben is végigmegy a mentés
       j=await res.json();netErr=false;
     }catch(e){j=null;netErr=true;break;}
     if(j&&j.ok&&!('data' in j))continue; /* nem a kérésre érkezett válasz: próbáljuk a másik módon */
