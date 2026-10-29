@@ -9,8 +9,11 @@ const FUND_LABEL={rezsi:'Eszköz, rezsi',marketing:'Marketing'};
 const finOn=()=>isAdmin()&&!!(S.capabilities&&S.capabilities.finance);
 const sFt=n=>(n<0?'−':'')+ftFmt(Math.abs(n));
 const signedVal=s=>{const t=String(s||'').replace(/\s/g,'');if(!t)return 0;const neg=/^[-−]/.test(t),d=t.replace(/\D/g,'');return d?(neg?-1:1)*Number(d):0;};
+/* Betöltés / hiba: hibánál nem próbálkozunk újra magától (különben végtelen újratöltés lenne), csak gombra */
+function finLoadingView(){if(S.finErr)return `<div class="panel">${empty('Nem sikerült betölteni: '+esc(S.finErr))}<div class="btns"><button class="btn primary" type="button" data-action="fin-retry">Újrapróbálás</button></div></div>`;
+  finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
 async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;
-  try{S.fin=await call('finData');}catch(e){S.fin=null;handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);}
+  try{S.fin=await call('finData');S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
 function finApply(d){S.fin=Object.assign({},S.fin||{},{income:d.income,expense:d.expense,loan:d.loan,settings:d.settings},d.invoices?{invoices:d.invoices}:{},d.billing?{billing:d.billing}:{},d.sz?{sz:d.sz}:{});
   (d.invoices||[]).forEach(x=>{if(x.projectId){const p=projById(x.projectId);if(p){const st=szPayOf(x.projectId);if(st)p.payStatus=st;}}});render(true);}
@@ -57,7 +60,7 @@ function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(
 
 function viewFinance(){
   if(!finOn())return `<div class="panel">${empty('A Bevétel és kiadás a háttérkód frissítése után érhető el.')}</div>`;
-  if(!S.fin){finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
+  if(!S.fin)return finLoadingView();
   const months=finMonths(),m=months.includes(S.finMonth)?S.finMonth:todayISO().slice(0,7),st=finSet();S.finMonth=m;
   const inc=finIncomeFor(m),exp=finExpensesFor(m),bal=finBalances(m),rec=finReceivables();
   const fromApp=!st.appFromMonth||m>=st.appFromMonth;
@@ -172,6 +175,7 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     if(await finCall('finUpsert',{table:'loan',row},'Tétel mentve'))closeModal();}});}
 Object.assign(ACT,{
   'fin-settings':()=>finSettingsModal(),
+  'fin-retry':()=>{S.finErr='';finLoad(true);render(true);},
   'fin-import':()=>finImport(),
   'fin-income-new':()=>finIncomeModal(null),
   'fin-income-edit':b=>{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===b.dataset.id);if(r)finIncomeModal(r);},

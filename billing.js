@@ -51,7 +51,7 @@ function billRow(i){const p=i.p,b=i.b,r=pr(p),val=num(p.projectValue);
 
 function viewBilling(){
   if(!billOn())return `<div class="panel">${empty('Ez a fül a háttérkód frissítése után érhető el.')}</div>`;
-  if(!S.fin){finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
+  if(!S.fin)return finLoadingView();
   if(!S.fin.billing)return `<div class="panel">${empty('A Szerződés és számlázás a legújabb háttérkód (Code.gs) bemásolása és új verzióként való telepítése után érhető el.')}</div>`;
   const f=S.blf||(S.blf={v:'teendo',q:''}),q=f.q.trim().toLowerCase();
   const all=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).map(billInfo);

@@ -165,6 +165,8 @@ function trimEmptyCols_(sh, used) {
     if (keep < extra) sh.deleteColumns(used + keep + 1, extra - keep);
   } catch (e) { Logger.log('Oszlop-takarítás kihagyva: ' + e); }
 }
+/* Átnevezett oszlopcímek: a régi címet elfogadjuk, és az újra cseréljük (az oszlop tartalma ugyanaz). */
+const HEADER_ALIASES_ = { 'Foglaló (%)': ['Előleg (%)'] };
 function ensureHeader_(sh, labels, tabName) {
   if (sh.getMaxColumns() < labels.length) sh.insertColumnsAfter(sh.getMaxColumns(), labels.length - sh.getMaxColumns());
   trimEmptyCols_(sh, labels.length);
@@ -172,6 +174,7 @@ function ensureHeader_(sh, labels, tabName) {
   const first = range.getDisplayValues()[0];
   let changed = false;
   labels.forEach((h, i) => {
+    if (first[i] && first[i] !== h && (HEADER_ALIASES_[h] || []).indexOf(first[i]) >= 0) { changed = true; return; }
     if (first[i] && first[i] !== h) throw new Error('A(z) „' + tabName + '” munkalap ' + (i + 1) + '. oszlopa „' + first[i] + '”, de „' + h + '” kellene. Ne nevezd át és ne rendezd át az oszlopokat.');
     if (!first[i]) changed = true;
   });
@@ -557,6 +560,14 @@ function finSaveSettings_(u, a) {
   PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(next));
   logEvent_(u, 'Pénzügyi beállítások', '', 'módosítva');
   return finData_();
+}
+/* Betöltéskor gyorsítótárból (minden módosítás új verziószámot ad, így mindig friss); a módosító műveletek a friss finData_()-t adják vissza */
+function finDataCached_() {
+  const key = 'pm_fin_' + dataVer_(), hit = cacheGetJSON_(key);
+  if (hit) { hit.sz = szSettingsView_(); return hit; }
+  const out = finData_();
+  cachePutJSON_(key, out, DATA_CACHE_TTL);
+  return out;
 }
 function finData_() {
   return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), sz: szSettingsView_() };
@@ -2286,7 +2297,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
-    case 'finData': adminOnly(); return finData_();
+    case 'finData': adminOnly(); return finDataCached_();
     case 'finUpsert': adminOnly(); return finUpsert_(u, arg);
     case 'finDelete': adminOnly(); return finDelete_(u, arg);
     case 'finSettings': adminOnly(); return finSaveSettings_(u, arg);
