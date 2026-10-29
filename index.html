@@ -324,6 +324,15 @@ button.stage-tick:hover::after{opacity:1}
 .fin-sheet th:hover .col-grip::after,body.col-resizing .col-grip::after{background:var(--accent)}
 body.col-resizing{cursor:col-resize;user-select:none}
 .trash{border:0;background:none;cursor:pointer;font-size:15px;padding:4px 6px;border-radius:8px;opacity:.7;line-height:1}
+.tile-btn{text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%}.tile-btn:hover{border-color:var(--accent)}
+.warn-txt{color:var(--warn)}.info-txt{color:#2b5a9c}
+.bill-tbl{min-width:1080px}.bill-tbl td{vertical-align:top;padding:10px 10px}.bill-tbl th{white-space:nowrap}
+.bl-name{font-weight:750;text-align:left}.bl-meta{font-size:12px;color:var(--fg-3,#7a8580);margin-top:3px}.bl-note{font-size:12px;color:var(--fg-2);margin-top:3px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl-contract{display:flex;flex-direction:column;gap:5px;align-items:flex-start}.bl-contract .statuspill{cursor:pointer}.bl-file{font-size:12.5px;font-weight:650;color:var(--accent);text-decoration:none}.bl-file:hover{text-decoration:underline}.bl-up{font-size:12.5px}
+.bl-doc{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.bl-doc:last-child{margin-bottom:0}.bl-no{border:0;background:none;padding:0;font:inherit;font-weight:750;font-size:13px;color:var(--fg);cursor:pointer;text-align:left}.bl-no:hover{color:var(--accent);text-decoration:underline}.bl-sub{font-size:12px;color:var(--fg-2)}
+.bl-add{white-space:nowrap}
+.bl-dots{display:flex;gap:4px;margin:2px 0 7px}.bl-dot{width:22px;height:6px;border-radius:4px;background:var(--line)}.bl-dot.on{background:var(--ok)}.bl-dot.cur{background:var(--warn-soft);box-shadow:inset 0 0 0 1.5px var(--warn)}
+.bl-next{font-size:11.5px}.bl-closed td{background:#fbfcfb}.bl-closed .bl-name{color:var(--fg-2)}
 .editbtn{border:0;background:none;cursor:pointer;font-size:13px;padding:2px 5px;border-radius:8px;opacity:.55;line-height:1}.editbtn:hover,.trash:hover{opacity:1;background:var(--surface-2)}.nowrap{white-space:nowrap}
 .trash:hover{opacity:1;background:#fdecec}
 .pcrew{position:relative}
@@ -691,5 +700,6 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 <script src="views.js"></script>
 <script src="actions.js"></script>
 <script src="finance.js"></script>
+<script src="billing.js"></script>
 </body>
 </html>
