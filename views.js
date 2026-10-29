@@ -85,7 +85,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCa
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.officeRent=d.officeRent||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
     if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
@@ -103,7 +103,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.officeRent=d.officeRent||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
@@ -249,20 +249,30 @@ function penIcon(p){const t=(p.penalties||[]).map(x=>{const k=PEN_KINDS[x.kind]|
   return `<span class="pen-ic" tabindex="0" data-tip="${esc(t)}" aria-label="Díjcsökkentés: ${esc(t)}">⚠️</span>`;}
 const myNet=p=>{const a=num(p.myFee&&p.myFee.amount),cid=S.me&&S.me.crewId;return cid?a-penDeduct(p,cid,a):a;};   // díjcsökkentés után
 /* Kifizetések havonta: ki melyik projekten mennyit kap (díjcsökkentés után), és a hónap összesen – visszamenőleg is */
+function rentFor(cid,m){   // az adott hónapra érvényes irodabérlet: saját érték, vagy a legutóbbi korábbi hónapé
+  let best=null;(S.officeRent||[]).forEach(x=>{if(x.crewId!==cid||String(x.month)>m)return;if(!best||String(x.month)>String(best.month))best=x;});
+  return best?{v:num(best.amount),carry:String(best.month)!==m,from:String(best.month)}:null;}
 /* Kifizetések fül: soronként a projektek, oszloponként a szakemberek (díjcsökkentés után), alul a total – hónaponként, visszamenőleg is */
 function viewPayouts(){
   const cur=todayISO().slice(0,7),by={};
   S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const m=pr(p).start.slice(0,7);(p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
     const net=ref?num(f.amount):num(f.amount)-penDeduct(p,cid,f.amount);const b=(by[m]=by[m]||{});(b[p.id]=b[p.id]||{p,cells:{}}).cells[cid]=(b[p.id].cells[cid]||0)+net;});});
-  const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
+  const rm=(S.officeRent||[]).map(x=>String(x.month)).filter(m=>/^\d{4}-\d{2}$/.test(m)).sort(),fill=[];   // irodabérlet: a kezdő hónaptól minden hónap megjelenik
+  if(rm.length){let m=rm[0];const end=rm[rm.length-1]>cur?rm[rm.length-1]:cur;for(let k=0;m<=end&&k<240;k++){fill.push(m);const [y,mo]=m.split('-').map(Number);m=mo===12?(y+1)+'-01':y+'-'+String(mo+1).padStart(2,'0');}}
+  const months=Object.keys(by).concat([cur],fill).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
-  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0),cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
-  const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),total=rows.reduce((s,r)=>s+rowSum(r),0);
-  const allTotal=Object.keys(by).reduce((s,m)=>s+Object.values(by[m]).reduce((s2,r)=>s2+rowSum(r),0),0);
-  return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak hónaponként, díjcsökkentés után · nettó</p></div>
+  const rentIds=m=>[...new Set((S.officeRent||[]).map(x=>x.crewId))].filter(c=>(rentFor(c,m)||{}).v>0);
+  const rent=c=>(rentFor(c,sel)||{}).v||0,adds=(S.payAdd||{})[sel]||[];
+  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c),cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentIds(sel),adds))].filter(c=>crewById(c)).sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend (irodabérlettel)
+  const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=cids.reduce((s,c)=>s+rent(c),0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal;
+  const allTotal=months.reduce((s,m)=>s+Object.values(by[m]||{}).reduce((s2,r)=>s2+rowSum(r),0)+rentIds(m).reduce((s2,c)=>s2+rentFor(c,m).v,0),0);
+  const rentCell=c=>{const r=rentFor(c,sel);return `<td class="r"><input class="inp pay-rent${r&&r.carry?' carry':''}" data-rent-cid="${esc(c)}" data-money="1" inputmode="numeric" value="${r?moneyFmt(r.v)||0:''}" placeholder="0" aria-label="Irodabérleti díj – ${esc((crewById(c)||{}).name||'')}"${r&&r.carry?` title="A ${esc(F_YM.format(toDate(r.from+'-01')))} havi értékből folytatva – átírva csak ettől a hónaptól változik"`:''}></td>`;};
+  const addOpts=S.crew.filter(c=>!cids.includes(c.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
+  const rentRow=`<tr class="rent-row"><td><div class="rent-lbl"><b>🏢 Irodabérleti díj</b>${addOpts.length?`<select class="inp pay-rent-add" aria-label="Szakember hozzáadása az irodabérlethez"><option value="">+ szakember</option>${addOpts.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select>`:''}</div></td>${cids.map(rentCell).join('')}<td class="r"><b>${moneyFmt(rentTotal)||0}</b></td></tr>`;
+  return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak és irodabérlet hónaponként, díjcsökkentés után · nettó</p></div>
       <select class="inp" id="pay-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select></div>
-    ${rows.length?`<div class="sheet-wrap pay-wrap"><table class="sheet pay-sheet"><thead><tr><th>Projekt</th>${cids.map(c=>`<th class="r">${esc((crewById(c)||{}).name||'Munkatárs')}</th>`).join('')}<th class="r">Projekt összesen</th></tr></thead>
-      <tbody>${rows.map(r=>`<tr><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button></td>${cids.map(c=>`<td class="r">${r.cells[c]!=null?moneyFmt(r.cells[c])||0:'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td></tr>`).join('')}</tbody>
+    ${rows.length||cids.length||true?`<div class="sheet-wrap pay-wrap"><table class="sheet pay-sheet"><thead><tr><th>Projekt</th>${cids.map(c=>`<th class="r">${esc((crewById(c)||{}).name||'Munkatárs')}</th>`).join('')}<th class="r">Projekt összesen</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button></td>${cids.map(c=>`<td class="r">${r.cells[c]!=null?moneyFmt(r.cells[c])||0:'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td></tr>`).join('')}${rows.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}</tbody>
       <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}<td class="r pay-total"><b>${ftFmt(total)}</b></td></tr></tfoot></table></div>`
       :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}
     <p class="hint">A projektek a kezdőnapjuk hónapjához számítanak. Az összes hónap együtt: <b>${ftFmt(allTotal)}</b>.</p>`;
