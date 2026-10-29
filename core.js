@@ -334,4 +334,4 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
   const hide=()=>{cur=null;if(tip)tip.style.display='none';};
   document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
   document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
-  document.addEventListener('focusout',hide);addEventListener('scroll',hide,true);})();
+  document.addEventListener('focusout',hide);document.addEventListener('scroll',hide,true);})();
