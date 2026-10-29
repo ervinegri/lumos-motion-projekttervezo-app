@@ -165,12 +165,20 @@ test('frontend: required basics are checked, notes are optional',()=>{
   fr(`rp.contactPhone='+36 ';rp.endDate='';rp._multi=true;`);
   assert.deepEqual(JSON.parse(fr('JSON.stringify(missingReq(rp).map(x=>x[0]))')),['contactPhone','endDate']);
 });
-test('frontend: payouts row shows the amount kept by penalties for executives only',()=>{
+test('frontend: payouts mark the penalised item and show the kept amount to leaders',()=>{
   fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved'}]}];`);
   const html=fr('viewPayouts()');
   assert.match(html,/keretben maradt/);
   assert.match(html,/30\s?000/);
+  assert.match(html,/🚨 −30\s?000/);
   fr(`S.me={role:'editor'};`);
-  assert.doesNotMatch(fr('viewPayouts()'),/keretben maradt/);
+  assert.match(fr('viewPayouts()'),/keretben maradt/);
+});
+test('frontend: daily totals include the day-two deduction and match the grand total',()=>{
+  fr(`S.me={role:'admin'};var q=S.projects[0];q.fees.push({crewId:'bence-123',name:'Bence',amount:50000,dayAmounts:{'2026-10-02':25000,'2026-10-03':25000}},{kind:'fixed',key:'fuvar',name:'Fuvar',amount:10000});`);
+  assert.equal(fr("daySumOf(q,'2026-10-02')"),85000);
+  assert.equal(fr("daySumOf(q,'2026-10-03')"),55000);
+  assert.equal(fr('otherSumOf(q)'),10000);
+  assert.equal(fr("daySumOf(q,'2026-10-02')+daySumOf(q,'2026-10-03')+otherSumOf(q)"),fr('feeSum(q)'));
 });
 console.log('All finance checks passed.');

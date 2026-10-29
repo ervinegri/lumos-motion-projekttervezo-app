@@ -289,6 +289,16 @@ const penDeduct=(p,cid,fee)=>Math.min(num(fee),penOf(p,cid,'approved').filter(x=
 function projDays(p){const r=pr(p);if(!r||r.start===r.end)return [];const out=[];for(let d=r.start;d<=r.end&&out.length<31;d=addDays(d,1))out.push(d);return out;}
 function crewDaysOf(p,cid){const all=projDays(p),c=(p.crewDays||{})[cid];return Array.isArray(c)&&c.length?all.filter(d=>c.includes(d)):all;}
 const dayLbl=d=>{const x=toDate(d);return (x.getUTCMonth()+1)+'.'+String(x.getUTCDate()).padStart(2,'0')+'. '+F_WD.format(x);};
+/* Egy szakember napi levonása: a napra szabott jóváhagyott díjcsökkentések, az első munkanapján a teljes díjra szólók is. */
+function penDayDeduct(p,f,dd){if(!f||!f.crewId)return 0;const first=crewDaysOf(p,f.crewId)[0]===dd;
+  return penOf(p,f.crewId,'approved').filter(x=>x.kind!=='damage'&&(x.day?x.day===dd:first)).reduce((s,x)=>s+penAmt(p,x,f.amount),0);}
+/* Napi összesen (levonások után) – a napi táblázat alján, gépelés közben is ugyanezzel számolunk. */
+function daySumOf(p,dd){const first=projDays(p)[0];
+  return (p.fees||[]).filter(g=>g.kind!=='fixed'&&!isPostOnly(p,g.crewId)).reduce((s,g)=>g.crewId?(crewDaysOf(p,g.crewId).includes(dd)?s+num((g.dayAmounts||{})[dd])-penDayDeduct(p,g,dd):s):(dd===first?s+num(g.amount):s),0);}
+/* Egyéb költségek összesen: fix sorok (fuvar, étel, egyéb) + közös bérelt eszközök. */
+const otherSumOf=p=>(p.fees||[]).filter(f=>f.kind==='fixed').reduce((s,f)=>s+num(f.amount),0)+rentalSum(p,'');
+/* Helyszíni stáb összesen (egynapos projekt), levonások után */
+const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!isPostOnly(p,f.crewId)).reduce((s,f)=>s+num(f.amount)-(f.crewId?penDeduct(p,f.crewId,f.amount):0),0);
 function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0);}
 
 /* Utómunka: csak vágóként beosztott munkatárs (nem a projektvezető) – nem napokhoz kötött, külön táblázatba kerül */

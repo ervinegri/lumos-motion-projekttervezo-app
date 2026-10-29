@@ -606,6 +606,17 @@ body.switching #view{opacity:.45;pointer-events:none;transition:opacity .15s}bod
 .crew-card[draggable=true]{cursor:grab}.crew-card.dragging{opacity:.4}.crew-card.drop-before{box-shadow:-4px 0 0 0 var(--accent)}.crew-card.drop-after{box-shadow:4px 0 0 0 var(--accent)}
 tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .pen-day{width:auto;min-width:0;font-size:13px;padding:4px 8px;height:auto}
+.pcrew-add-card{border:2px dashed var(--line-strong,#c9d3cd);background:transparent;border-radius:16px;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.pcrew-add-h{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--fg-3)}.pcrew-add-h .plus{font-size:22px;line-height:1}
+.addrow.add-in-card{flex-direction:column;align-items:stretch;margin-top:0;gap:10px}.addrow.add-in-card .field{flex:0 0 auto}
+.cgroup{border:1px solid var(--line);border-radius:14px;margin:10px 0;background:#fff}
+.cgroup>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;font-weight:750}
+.cgroup>summary::-webkit-details-marker{display:none}
+.cgroup>summary::after{content:'▾';color:var(--fg-3);transition:transform .15s}.cgroup[open]>summary::after{transform:rotate(180deg)}
+.cgroup>summary .aside{margin-left:auto;font-size:12px;font-weight:600;color:var(--fg-3)}
+.cgroup .cg-b{padding:0 14px 12px}.cgroup .cg-b>.sec-lbl:first-child,.cgroup .cg-b>.dl:first-child{margin-top:0}
+.tf-sub{display:block;font-size:11px;font-weight:500}
+.pay-ded-note{display:block;font-size:11px;color:var(--bad);font-weight:600;white-space:nowrap}td.pay-ded{background:var(--bad-soft)}
 </style>
 </head>
 <body>

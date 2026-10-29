@@ -513,9 +513,16 @@ function histStep(dir){
   if(!S.draft||ro())return;const from=dir<0?HIST.u:HIST.r,to=dir<0?HIST.r:HIST.u;if(!from.length){toast(dir<0?'Nincs mit visszavonni.':'Nincs mit újra végrehajtani.');return;}
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
+/* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
+function refreshFinSums(p){
+  document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
+  const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
+  const f=document.querySelector('[data-field-sum]');if(f)f.textContent=moneyFmt(fieldSumOf(p))||0;
+  const ps=document.querySelector('[data-post-sum]');if(ps)ps.textContent=moneyFmt((p.fees||[]).filter(x=>x.kind!=='fixed'&&isPostOnly(p,x.crewId)).reduce((s,x)=>s+num(x.amount)-penDeduct(p,x.crewId,x.amount),0))||0;
+}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
-  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);S.dirty=true;render(true);}
+  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);S.dirty=true;render(true);autoSave(400);}
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
@@ -565,9 +572,14 @@ function syncFeesWithCrew(d){
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
 function guard(fn){
-  if(!S.dirty){fn();return;}
-  confirmModal('Nem mentett módosítások','A projekten vannak el nem mentett módosítások. Elveted őket?','Elvetés',()=>{S.dirty=false;S.draft=S.projectId&&projById(S.projectId)?clone(projById(S.projectId)):null;fn();});
+  if(S.dirty&&S.draft&&!ro()){clearTimeout(AUTO_T);saveDraft();}   // automatikus mentés: elnavigálás előtt azonnal elküldjük (a mentés sorban fut, nem vész el)
+  fn();
 }
+/* Automatikus mentés: minden módosítás után rövid várakozással mentünk (gépelésnél kicsit később).
+   A mentések sorban futnak (SAVE_Q), mindig a legfrissebb állapotot küldik, így a gyors kattintgatás sem veszít adatot. */
+let AUTO_T=0;
+function autoSave(delay){if(!S.draft||ro()||!S.dirty)return;clearTimeout(AUTO_T);AUTO_T=setTimeout(()=>{if(S.draft&&S.dirty&&!ro())saveDraft();},delay);}
+function flushSave(){if(S.draft&&S.dirty&&!ro()){clearTimeout(AUTO_T);saveDraft();}}
 /* Mentés azonnal a felületen (optimista), a háttérben sorban küldjük a szervernek.
    Így nem kell megvárni az Apps Scriptet; ha a mentés mégsem sikerül, visszakapod a módosításokat és szólunk. */
 let SAVE_Q=Promise.resolve();
@@ -582,12 +594,13 @@ function verifySavedFees(d,saved){
   }
 }
 /* Kézi mentés (Mentés gomb, Ctrl+S): előbb a kötelező alapadatok. Az automatikus díjmentést ez nem akadályozza. */
-function saveChecked(){
-  const d=S.draft;if(!d||ro())return;const miss=missingReq(d);
-  if(!miss.length){d._reqShown=false;return saveDraft();}
-  d._reqShown=true;FOLD.basics=true;render(true);
+function saveChecked(){flushSave();}
+/* Kötelező alapadatok: a hiányzó mezőkre ugrik és szól (a helyszíni munkára lépés előtt kötelező). */
+function reqBlock(){
+  const d=S.draft;if(!d||ro())return false;const miss=missingReq(d);if(!miss.length)return false;
+  FOLD.basics=true;render(true);
   const el=reqEl(miss[0][0]);if(el){const dd=el.closest('details');if(dd)dd.open=true;el.scrollIntoView({block:'center',behavior:'smooth'});const inp=el.matches('input,select,textarea')?el:el.querySelector('input');if(inp)setTimeout(()=>inp.focus({preventScroll:true}),250);}
-  toast('Kötelező mező: '+miss.map(x=>x[1]).join(', ')+'. A jegyzeteken kívül minden alapadatot ki kell tölteni.',true);
+  toast('Előbb töltsd ki a kötelező alapadatokat: '+miss.map(x=>x[1]).join(', ')+'.',true);return true;
 }
 function saveDraft(){
   if(!S.draft||ro())return;
@@ -692,6 +705,7 @@ const ACT={
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
+    if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
@@ -827,9 +841,10 @@ document.addEventListener('input',e=>{
       if(S.draft.budgetMode==='pct'){const o=$('f-budgetFt');if(o)o.value=nv>0&&S.draft.budgetVal!==''?moneyFmt(Math.round(nv*S.draft.budgetVal/100)):'';}else if(S.draft.budgetMode==='ft'){const o=$('f-budgetPct');if(o)o.value=nv>0?String(Math.round(num(S.draft.budgetVal)/nv*1000)/10).replace('.',','):'';}}
 
     else{const fees=S.draft.fees=(S.draft.fees||[]).map(x=>Object.assign({},x)),f=fees[Number(t.dataset.feeI)];if(f){const k=t.dataset.feeK;
-      if(k.startsWith('day:')){f.dayAmounts=Object.assign({},f.dayAmounts||{});const v=moneyVal(t.value);if(v==='')delete f.dayAmounts[k.slice(4)];else f.dayAmounts[k.slice(4)]=v;f.amount=feeDaySum(S.draft,f);const dd=k.slice(4),ds=document.querySelector(`[data-day-sum="${dd}"]`);if(ds){const first=projDays(S.draft)[0];ds.textContent=moneyFmt(fees.reduce((s2,g)=>g.kind==='fixed'?s2:g.crewId?(crewDaysOf(S.draft,g.crewId).includes(dd)?s2+num((g.dayAmounts||{})[dd]):s2):(dd===first?s2+num(g.amount):s2),0))||0;}}
+      if(k.startsWith('day:')){f.dayAmounts=Object.assign({},f.dayAmounts||{});const v=moneyVal(t.value);if(v==='')delete f.dayAmounts[k.slice(4)];else f.dayAmounts[k.slice(4)]=v;f.amount=feeDaySum(S.draft,f);}
       else if(k==='amount'||k==='rent')f[k]=moneyVal(t.value);else{f[k]=t.value;if(k==='name'){const c=S.crew.find(x=>x.name===t.value.trim());f.crewId=c?c.id:'';}}}}
     if(!S.dirty){S.dirty=true;renderChrome();}
+    refreshFinSums(S.draft);
     const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
     {const kr=document.querySelectorAll('.keret-tr');if(kr.length===2){const tmp=document.createElement('tbody');tmp.innerHTML=keretRows(S.draft);kr[0].replaceWith(tmp.children[0]);kr[1].replaceWith(tmp.children[0]);}}
     const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
@@ -993,3 +1008,10 @@ document.addEventListener('drop',async e=>{if(!CREW_DRAG)return;const c=e.target
 });
 document.addEventListener('change',async e=>{const t=e.target,id=t.dataset&&t.dataset.penDay;if(!id||!S.draft||!isAdmin())return;const pid=S.draft.id;
   try{const r=await call('movePenaltyDay',{projectId:pid,id,day:t.value});penApply(pid,r.penalties);toast(t.value?'Levonás áthelyezve: '+dayLbl(t.value):'Levonás a teljes díjból');}catch(err){handleErr(err);render(true);}});
+
+/* Automatikus mentés indítása minden felhasználói módosítás után (a fenti kezelők után fut). */
+document.addEventListener('input',()=>{if(S.dirty)autoSave(900);});
+document.addEventListener('change',()=>{if(S.dirty)autoSave(200);});
+document.addEventListener('click',()=>setTimeout(()=>{if(S.dirty)autoSave(300);},0));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushSave();});
+window.addEventListener('pagehide',flushSave);
