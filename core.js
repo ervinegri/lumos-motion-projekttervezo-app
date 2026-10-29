@@ -325,3 +325,13 @@ function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};retur
 const POST_ROLES=['Vágó'];
 function isPostOnly(p,cid){if(!cid||p.lead===cid)return false;const r=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return r.length>0&&r.every(x=>POST_ROLES.includes(x));}
 function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips)>0||num(p.er_subs)>0||DELIVERABLES.some(it=>num(p[it.k])>0);}
+
+/* Azonnali súgó: [data-tip] elemek fölé víve (vagy fókuszban) késleltetés nélkül megjelenik */
+(function(){let tip=null,cur=null;
+  const show=el=>{const t=el.getAttribute('data-tip');if(!t)return;cur=el;if(!tip){tip=document.createElement('div');tip.className='qtip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);}
+    tip.textContent=t;tip.style.display='block';const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;
+    let x=r.left+r.width/2-w/2;x=Math.max(8,Math.min(x,innerWidth-w-8));let y=r.top-h-8;if(y<8)y=r.bottom+8;tip.style.left=x+'px';tip.style.top=y+'px';};
+  const hide=()=>{cur=null;if(tip)tip.style.display='none';};
+  document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
+  document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
+  document.addEventListener('focusout',hide);addEventListener('scroll',hide,true);})();
