@@ -13,6 +13,10 @@ const missingReq=p=>p?REQ_FIELDS.filter(([k])=>reqEmpty(p,k)):[];
 function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_crew_order')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
 function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id);return i<0?1e6:i;};
   return S.crew.slice().sort((a,b)=>rank(a.id)-rank(b.id)||prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));}
+/* Csapat véglegesítése: a stáb csak ekkor kerül a naptárba (értesítéssel). „changed”: azóta módosult a beosztás. */
+const crewFinalOn=()=>!!(S.capabilities&&S.capabilities.crewFinalize);
+const crewIdsNow=p=>[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].sort();
+function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';return JSON.stringify(f.ids.slice().sort())===JSON.stringify(crewIdsNow(p))?'ok':'changed';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};

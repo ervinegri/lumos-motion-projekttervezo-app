@@ -486,6 +486,15 @@ function penPanel(p){
       ${x.objection?`<div class="pen-obj"><b>Kifogás</b> (${esc(x.objection.at)}): ${esc(x.objection.text)}</div>`:''}</div>
       ${isAdmin()?`<div class="pen-act">${x.status==='pending'?`<button class="btn primary small" type="button" data-action="pen-approve" data-id="${esc(x.id)}">Jóváhagyás</button><button class="btn outline small" type="button" data-action="pen-reject" data-id="${esc(x.id)}">Elutasítás</button>`:''}${penDaySelect(p,x)}<button class="trash" type="button" data-action="pen-del" data-id="${esc(x.id)}" title="Törlés" aria-label="Törlés">🗑️</button></div>`:''}</div>`;}).join('')}</div>`;
 }
+/* Csapat véglegesítése doboz a stáb alatt */
+function crewFinalBox(p,ids){
+  if(!ids.length)return '';
+  const st=crewFinalState(p),f=p.crewFinal,on=crewFinalOn();
+  const msg=st==='ok'?`<b>✅ Csapat véglegesítve</b><small>${esc(f.at||'')}${f.by?' · '+esc(f.by):''} · a tagok a naptárban vannak, értesítést kaptak</small>`
+    :st==='changed'?`<b>⚠️ A csapat módosult a véglegesítés óta</b><small>Véglegesítsd újra, hogy a naptár és az értesítések az új csapatot kövessék.</small>`
+    :`<b>⚠️ A csapat még nincs véglegesítve</b><small>A tagok csak véglegesítéskor kerülnek a naptárba, és csak akkor kapnak e-mailt és naptárértesítést. A helyszíni munkára lépéshez kötelező.</small>`;
+  return `<div class="crew-final ${st}" id="crew-final"><div class="cf-msg">${msg}</div>${st==='ok'?'':`<button class="btn ${st==='none'?'primary':'outline'} small" type="button" data-action="crew-finalize"${on?'':' disabled'}>${st==='changed'?'🔁 Csapat újra véglegesítése':'✅ Csapat véglegesítése'}</button>`}${on?'':'<small class="hint" style="margin:0">A háttérkód frissítése után kapcsol be.</small>'}</div>`;
+}
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const opts=itemOptions(p);
   const ids=[];if(p.lead)ids.push(p.lead);(p.crew||[]).forEach(a=>{if(!ids.includes(a.crewId))ids.push(a.crewId);});
@@ -522,6 +531,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
       <div class="field"><label for="add-crew-person">Munkatárs</label><select class="inp" id="add-crew-person"><option value="">Munkatárs kiválasztása…</option>${fit.length?`<optgroup label="${esc(selRole)}">${fit.map(opt).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(opt).join('')}</optgroup>`:''}</select></div></div>`;})():`<p class="hint">Előbb vegyél fel munkatársakat a <button class="linkbtn" type="button" data-action="tab" data-tab="stab">Stáb</button> fülön.</p>`}</div>`}</div>
     ${commonRows||rentalsOf(p,'').length||(!ro()&&ids.length===0)?`<div class="pcrew pcrew-common"><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${rentalsOf(p,'').map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>${r.own?'Saját eszköz':'Bérelt'}${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('')}${eqAddRow(p,'',opts)}</div></div>`:''}
     ${!S.inventory.length&&!ro()?`<p class="hint">Eszközt a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön tudsz felvenni.</p>`:''}
+    ${ro()?'':crewFinalBox(p,ids)}
     ${hasEq||ids.length?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}<button class="btn outline small" type="button" data-action="copy-pack">📋 Eszközlista másolása</button></div>`:''}
     ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}`;
   if(inner)return {body,aside};

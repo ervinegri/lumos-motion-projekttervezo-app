@@ -521,6 +521,25 @@ function refreshFinSums(p){
   const f=document.querySelector('[data-field-sum]');if(f)f.textContent=moneyFmt(fieldSumOf(p))||0;
   const ps=document.querySelector('[data-post-sum]');if(ps)ps.textContent=moneyFmt((p.fees||[]).filter(x=>x.kind!=='fixed'&&isPostOnly(p,x.crewId)).reduce((s,x)=>s+num(x.amount)-penDeduct(p,x.crewId,x.amount),0))||0;
 }
+/* Csapat véglegesítése: megerősítés után a tagok a naptárba kerülnek, e-mailt és naptárértesítést kapnak. */
+async function crewFinalizeModal(){
+  const d=S.draft;if(!d||ro()||!crewFinalOn())return;
+  flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
+  const p=projById(d.id)||d,ids=crewIdsNow(p);if(!ids.length){toast('Még nincs beosztva senki.',true);return;}
+  if(!validISO(p.date)){toast('Előbb add meg a projekt első napját.',true);return;}
+  const roleOf=id=>(id===p.lead?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).join(', ');
+  const rows=ids.map(id=>{const c=crewById(id)||{},ok=EMAIL_RE.test(c.email||'');return `<li><b>${esc(c.name||'Munkatárs')}</b> <span class="muted">· ${esc(roleOf(id))}</span><br><small class="${ok?'muted':'warn-txt'}">${ok?esc(c.email):'nincs e-mail-címe – nem kap értesítést (a Stáb fülön pótolható)'}</small></li>`;}).join('');
+  openModal('Biztosan élesíted a csapatot?',`<p style="margin:0 0 10px">Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b></p><ul class="cf-list">${rows}</ul>
+    ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async()=>{
+    try{const r=await call('finalizeCrew',{projectId:p.id});closeModal();
+      const saved=r.project,i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;
+      if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
+      render(true);S.cal.events={};
+      const warn=[].concat(r.failed&&r.failed.length?['nem ment ki: '+r.failed.join(', ')]:[],r.noEmail&&r.noEmail.length?['nincs e-mail-címe: '+r.noEmail.join(', ')]:[]);
+      toast(`Csapat véglegesítve – ${r.sent.length} e-mail kiment${r.calendarNotified?', a naptárértesítések is':''}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length);
+    }catch(e){handleErr(e);}
+  }});
+}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
   if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);S.dirty=true;render(true);autoSave(400);}
@@ -708,6 +727,9 @@ const ACT={
       if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
+    if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'){
+      FOLD.crew=true;render(true);const cf=$('crew-final');if(cf)cf.scrollIntoView({block:'center',behavior:'smooth'});
+      toast(crewFinalState(d)==='changed'?'A csapat módosult – a helyszíni munka előtt véglegesítsd újra.':'A helyszíni munkára lépés előtt véglegesítsd a csapatot.',true);return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
@@ -773,6 +795,7 @@ const ACT={
     setDraft({equipment});},
   'eq-remove':b=>{const equipment=clone(S.draft.equipment||[]);equipment.splice(Number(b.dataset.i),1);setDraft({equipment});},
   'send-list':()=>sendListModal(),
+  'crew-finalize':()=>crewFinalizeModal(),
   'cal-nav':b=>{const d=Number(b.dataset.d);if(!d){S.cal.month=todayISO().slice(0,7);S.cal.sel=todayISO();}else{const [y,m]=S.cal.month.split('-').map(Number);const n=new Date(Date.UTC(y,m-1+d,1));S.cal.month=n.toISOString().slice(0,7);}render(true);},
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
   'cal-event':b=>calEventModal(b.dataset.id),

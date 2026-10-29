@@ -106,6 +106,7 @@ test('backend: photographer and lecture post-production counts drive the flags (
   assert.equal(run('DB.projects[0].x_foto'),false);assert.equal(run('DB.projects[0].er_post'),false);
 });
 test('backend accepts the new video delivery stages',()=>{
+  run(`DB.projects[0].crewFinal=JSON.stringify({at:'1',by:'Ervin',ids:['david-123']});`);
   for(const st of ['leadva','jovahagyas']){
     run(`rpc('token','saveProject',{...DB.projects[0],status:'${st}',siteOk:'igen',lead:'david-123',baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-${st}',deferCal:true,crew:DB.crewAssign});`);
     assert.equal(run('DB.projects[0].status'),st);
@@ -140,6 +141,27 @@ test('users: no PIN anywhere – new user gets only a Google invite, old PIN has
   assert(stored.every(u=>!('salt' in u)&&!('hash' in u)));
   assert.equal(typeof run('typeof login'),'string');assert.equal(run('typeof login'),'undefined');
   assert.equal(run('typeof requestPinReset'),'undefined');assert.equal(run('typeof changePin_'),'undefined');
+});
+
+test('crew finalize: guests only on finalize, everyone with e-mail notified, on-site stage needs it',()=>{
+  run(`DB.crew=[{id:'david-123',name:'Zajácz Dávid',email:'david@x.hu',phone:'+36 30 1'},{id:'bence-123',name:'Kiss Bence',email:'bence@x.hu'},{id:'ervin-123',name:'Ervin',email:''}];
+    DB.projects.push({id:'final-1234',name:'Final',status:'tervezes',date:'2026-12-01',lead:'david-123',updatedAt:'f0',fees:'[]',crewDays:'{}',calEventId:''});
+    DB.crewAssign.push({projectId:'final-1234',crewId:'bence-123',role:'Operatőr'},{projectId:'final-1234',crewId:'ervin-123',role:'Vágó'});
+    var GUESTS=[],MAILS=[];var EV={getId:()=>'ev1@google.com',getGuestList:()=>GUESTS.map(e=>({getEmail:()=>e})),addGuest:e=>GUESTS.push(e),removeGuest:e=>{GUESTS=GUESTS.filter(x=>x!==e);}};
+    syncCalendar_=p=>{p.calEventId='ev1@google.com';return p;};calEvent_=id=>id?EV:null;
+    GmailApp={sendEmail:(to,sub)=>MAILS.push([to,sub]),getAliases:()=>[]};
+    Utilities.parseDate=(iso)=>new Date(iso+'T12:00:00');
+    USER={role:'editor',name:'Dávid',crewId:'david-123'};`);
+  assert.throws(()=>run(`rpc('token','saveProject',{...DB.projects.find(x=>x.id==='final-1234'),status:'helyszin',siteOk:'igen',baseUpdatedAt:'f0',mutationId:'mutation-final1',deferCal:true,crew:[{crewId:'bence-123',role:'Operatőr'}]})`),/véglegesítsd a csapatot/);
+  run(`var fin=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
+  assert.deepEqual(json('GUESTS.sort()'),['bence@x.hu','david@x.hu']);
+  assert.deepEqual(json('MAILS.map(m=>m[0]).sort()'),['bence@x.hu','david@x.hu']);
+  assert.deepEqual(json('fin.noEmail'),['Ervin']);
+  assert.deepEqual(json('fin.project.crewFinal.ids'),['bence-123','david-123','ervin-123']);
+  const pr=json("DB.projects.find(x=>x.id==='final-1234')");
+  run(`rpc('token','saveProject',{...DB.projects.find(x=>x.id==='final-1234'),status:'helyszin',siteOk:'igen',baseUpdatedAt:DB.projects.find(x=>x.id==='final-1234').updatedAt,mutationId:'mutation-final2',deferCal:true,crew:[{crewId:'bence-123',role:'Operatőr'},{crewId:'ervin-123',role:'Vágó'}]})`);
+  assert.equal(run("DB.projects.find(x=>x.id==='final-1234').status"),'helyszin');
+  assert(run("!!parseCrewFinal_(DB.projects.find(x=>x.id==='final-1234').crewFinal)"));
 });
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
 for(const f of ['core.js','views.js','actions.js']){
@@ -210,5 +232,10 @@ test('frontend: crew sees only their own payout column',()=>{
   const html=fr('viewPayouts()');
   assert.match(html,/Kiss Bence/);assert.doesNotMatch(html,/Zajácz/);assert.match(html,/50\s?000/);assert.doesNotMatch(html,/Projekt összesen/);
   assert(fr("TABS().some(t=>t.id==='kifizetesek')"));
+});
+test('frontend: crew final state tracks changes after finalizing',()=>{
+  assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'}]})"),'none');
+  assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'}],crewFinal:{ids:['b','a']}})"),'ok');
+  assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'},{crewId:'c'}],crewFinal:{ids:['a','b']}})"),'changed');
 });
 console.log('All finance checks passed.');

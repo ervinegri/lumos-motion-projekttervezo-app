@@ -64,7 +64,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -315,7 +315,7 @@ function bootstrap_(u) {
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true },
+    capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true },
     serverTime: now_()
   };
   if (u.role !== 'admin') {
@@ -399,6 +399,7 @@ function projectView_(p, u) {
     : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(val * bv / 100) : null) : Math.round(bv);
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
+  if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
   const request = parseBudgetRequest_(q.budgetRequest);
   if (role === 'admin' || role === 'editor') q.budgetRequest = request;
   else delete q.budgetRequest;
@@ -411,6 +412,78 @@ function fullProject_(p) {
   q.equipment = readAll_('eqAssign').filter(r => r.projectId === p.id).map(r => ({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }));
   delete q.mutationId;
   return q;
+}
+
+/* ===================== CSAPAT VÉGLEGESÍTÉSE ===================== */
+/* A beosztott stáb csak a „Csapat véglegesítése” gombra kerül be a projekt naptár-eseményébe vendégként.
+   Ekkor minden tag e-mailt kap az appból, és a Google Naptár is értesíti (ha a Calendar speciális szolgáltatás be van kapcsolva). */
+function parseCrewFinal_(raw) {
+  let x = raw; if (typeof raw === 'string') { try { x = JSON.parse(raw || 'null'); } catch (e) { return null; } }
+  if (!x || !x.at || !Array.isArray(x.ids)) return null;
+  return { at: str_(x.at, 30), by: str_(x.by, 120), ids: x.ids.map(i => str_(i, 64)).filter(Boolean), notified: Array.isArray(x.notified) ? x.notified.map(n => str_(n, 120)) : [] };
+}
+function crewMembers_(p) {
+  const crewMap = byId_(readAll_('crew')), roles = {};
+  if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });
+  const days = parseCrewDays_(p.crewDays);
+  return Object.keys(roles).map(id => ({ id: id, name: crewMap[id].name, phone: crewMap[id].phone || '', email: String(crewMap[id].email || '').trim().toLowerCase(), roles: roles[id], days: days[id] || [] }));
+}
+function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállítása; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
+  const want = {}; emails.forEach(m => { want[m] = 1; });
+  if (typeof Calendar !== 'undefined' && Calendar.Events) {   // speciális szolgáltatás: a Google értesítést is küld (sendUpdates: all)
+    const eid = String(ev.getId()).replace(/@google\.com$/, '');
+    const cur = Calendar.Events.get(CALENDAR_ID, eid);
+    const keep = (cur.attendees || []).filter(x => !allCrewEmails[String(x.email || '').toLowerCase()] || want[String(x.email || '').toLowerCase()]);
+    const have = {}; keep.forEach(x => { have[String(x.email || '').toLowerCase()] = 1; });
+    emails.forEach(m => { if (!have[m]) keep.push({ email: m }); });
+    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: 'all' });
+    return true;
+  }
+  const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
+  Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
+  Object.keys(have).forEach(m => { if (allCrewEmails[m] && !want[m]) ev.removeGuest(m); });
+  return false;
+}
+function crewFinalMail_(u, p, m, lead) {
+  const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
+  const link = FRONTEND_URL + '/#p=' + p.id;
+  const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
+    ['Érkezés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
+    ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
+  const text = ['Szia ' + String(m.name).split(/\s+/).pop() + '!', '', 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:', '']
+    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(['', 'A naptárbejegyzést a Google Naptárban is megkapod.', 'Részletek az appban: ' + link, '', MAIL_SIGNATURE_TEXT]).join('\n');
+  const html = '<p>Szia ' + escapeHtml_(String(m.name).split(/\s+/).pop()) + '!</p><p>Véglegesítettük a csapatot, és beosztottunk erre a projektre:</p><table cellpadding="4" style="border-collapse:collapse">'
+    + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
+    + '<p>A naptárbejegyzést a Google Naptárban is megkapod.<br><a href="' + link + '">Részletek az appban</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
+  GmailApp.sendEmail(m.email, 'Beosztás: ' + p.name + ' – ' + range, text, mailOptsFor_(u, html));
+}
+function finalizeCrew_(u, a) {
+  const pid = str_(a && a.projectId, 64);
+  const sh = sheetFor_('projects'), row = findRow_(sh, pid);
+  if (!row) throw new Error('A projekt nem található.');
+  let p = fullProject_(readRow_('projects', sh, row));
+  if (p.status === 'lemondva') throw new Error('Lemondott projekt csapatát nem lehet véglegesíteni.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''))) throw new Error('Előbb add meg a projekt első napját.');
+  const members = crewMembers_(p);
+  if (!members.length) throw new Error('Még nincs beosztva senki a projektre.');
+  p = syncCalendar_(p);   // az esemény biztosan létezzen
+  const ev = calEvent_(p.calEventId); if (!ev) throw new Error('A naptárbejegyzést nem sikerült létrehozni. Próbáld újra.');
+  const allCrewEmails = {}; readAll_('crew').forEach(c => { const e = String(c.email || '').trim().toLowerCase(); if (e) allCrewEmails[e] = 1; });
+  const valid = members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email));
+  const calNotified = calGuestsSet_(ev, valid.map(m => m.email), allCrewEmails);
+  const lead = members.find(m => m.id === p.lead) || null;
+  const sent = [], failed = [];
+  valid.forEach(m => { try { crewFinalMail_(u, p, m, lead); sent.push(m.name); } catch (e) { failed.push(m.name); } });
+  const saved = withLock_(() => {
+    const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
+    q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent });
+    if (p.calEventId && !q.calEventId) q.calEventId = p.calEventId;
+    putRow_('projects', sh, q, r2); SpreadsheetApp.flush();
+    return q;
+  });
+  logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : ''));
+  return { project: projectView_(fullProject_(saved), u), sent: sent, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified };
 }
 
 /* ===================== STÁB SORRENDJE ===================== */
@@ -546,7 +619,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -576,6 +649,9 @@ function saveProject_(u, a) {
     if (p.quotePrice == null) p.quotePrice = '';
     if (p.fees == null) p.fees = '';
     if (p.budgetRequest == null) p.budgetRequest = '';
+    if (p.crewFinal == null) p.crewFinal = '';
+    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal))
+      throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
@@ -704,12 +780,7 @@ function syncCalendar_(p) {
       else if (ev.isAllDayEvent() || +ev.getStartTime() !== +start || +ev.getEndTime() !== +end) ev.setTime(start, end);
       if (ev.getTag('lumosProjectId') !== p.id) ev.setTag('lumosProjectId', p.id);
     }
-    // vendégek: a beosztott stábtagok; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
-    const want = {}; plan.guests.forEach(m => { want[m] = 1; });
-    const isCrew = {}; plan.crewEmails.forEach(m => { isCrew[m] = 1; });
-    const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
-    Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
-    Object.keys(have).forEach(m => { if (isCrew[m] && !want[m]) ev.removeGuest(m); });
+    // a stábtagok csak a „Csapat véglegesítése” gombra kerülnek vendégként az eseménybe (finalizeCrew_)
     calBump_();
   } catch (e) {
     Logger.log('Naptár szinkron hiba: ' + e);
@@ -1636,6 +1707,7 @@ function rpcInner_(token, name, arg) {
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
+    case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
