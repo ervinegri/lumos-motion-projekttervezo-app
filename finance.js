@@ -16,7 +16,7 @@ async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S.
   try{S.fin=await call('finData');S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
-function finApply(d){S.fin=Object.assign({},S.fin||{},{income:d.income,expense:d.expense,loan:d.loan,settings:d.settings},d.invoices?{invoices:d.invoices}:{},d.billing?{billing:d.billing}:{},d.sz?{sz:d.sz}:{});
+function finApply(d){S.fin=Object.assign({},S.fin||{},{income:d.income,expense:d.expense,loan:d.loan,settings:d.settings},d.invoices?{invoices:d.invoices}:{},d.billing?{billing:d.billing}:{},d.frameworks?{frameworks:d.frameworks}:{},d.sz?{sz:d.sz}:{});
   (d.invoices||[]).forEach(x=>{if(x.projectId){const p=projById(x.projectId);if(p){const st=szPayOf(x.projectId);if(st)p.payStatus=st;}}});render(true);}
 const invPaidOk=x=>num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
 const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>x.projectId===pid);if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0);

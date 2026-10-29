@@ -94,6 +94,9 @@ const TABLES = {
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
     ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma'],
     ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)']] },
+  finFramework: { tab: 'Keretszerződések', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
+    ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -572,7 +575,7 @@ function finDataCached_() {
   return out;
 }
 function finData_() {
-  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), sz: szSettingsView_() };
+  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), sz: szSettingsView_() };
 }
 function finClean_(table, a) {
   const id = str_(a && a.id, 64) || Utilities.getUuid();
@@ -1602,6 +1605,42 @@ function billUpload_(u, a) {
   return finData_();
 }
 
+/* ===================== KERETSZERZŐDÉSEK (ügyfelenként) =====================
+   Ha egy ügyféllel keretszerződés van, a projektjeinél nem kell külön szerződés (a lejárati dátumig, ha van). */
+function fwSave_(u, a) {
+  a = a || {};
+  const client = str_(a.client, 160).replace(/\s+/g, ' ');
+  if (client.length < 2) throw new Error('Hiányzik az ügyfél neve.');
+  const url = str_(a.url, 500); if (url && !/^https:\/\//.test(url)) throw new Error('A link https:// kezdetű legyen.');
+  let file = null;
+  if (a.b64) {   // feltöltés a Projektek / Keretszerződések mappába
+    if (String(a.b64).length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+    const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
+    const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'keretszerzodes.pdf';
+    const folder = childFolder_(DriveApp.getFolderById(PROJECTS_FOLDER_ID), 'Keretszerződések');
+    file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, client.replace(/[\\/]/g, '-') + ' – ' + name));
+  }
+  return withLock_(() => {
+    const sh = sheetFor_('finFramework'), all = readAll_('finFramework');
+    const old = (a.id && all.find(x => x.id === str_(a.id, 64))) || all.find(x => String(x.client).trim().toLowerCase() === client.toLowerCase());
+    const r = Object.assign({ id: Utilities.getUuid(), client: client, url: '', fileName: '', fileId: '', signedAt: '', validTo: '', note: '', createdAt: now_(), createdBy: u.name }, old || {});
+    r.client = client;
+    if (file) { r.url = file.getUrl(); r.fileName = str_(a.name, 150); r.fileId = file.getId(); }
+    else if (a.url !== undefined && url !== r.url) { r.url = url; r.fileId = ''; r.fileName = url ? 'Link' : ''; }
+    if (a.signedAt !== undefined) r.signedAt = iso_(a.signedAt);
+    if (a.validTo !== undefined) r.validTo = iso_(a.validTo);
+    if (a.note !== undefined) r.note = str_(a.note, 500);
+    putRow_('finFramework', sh, r, old ? findRow_(sh, old.id) : 0);
+    SpreadsheetApp.flush();
+    logEvent_(u, 'Keretszerződés', client, old ? 'módosítva' : 'felvéve');
+    return finData_();
+  });
+}
+function fwDelete_(u, a) {
+  withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
+  return finData_();
+}
+
 /* ===================== STÁB ÉS LELTÁR ===================== */
 function saveCrew_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
@@ -2315,6 +2354,8 @@ function rpcInner_(token, name, arg) {
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
+    case 'fwSave': adminOnly(); return fwSave_(u, arg);
+    case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
