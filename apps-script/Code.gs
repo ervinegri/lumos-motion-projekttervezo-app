@@ -377,9 +377,14 @@ function parseRentals_(raw) {
   return arr.slice(0, 60).map(x => ({ id: str_(x && x.id, 40), crewId: str_(x && x.crewId, 64), name: str_(x && x.name, 120), company: x && x.own ? '' : str_(x && x.company, 120), price: x && x.own ? 0 : int_(x && x.price, 0, FEE_MAX, 0), own: !!(x && x.own) }))
     .filter(x => x.name);
 }
+let CREW_MAP_CACHE_ = null;
 function projectView_(p, u) {
   const q = Object.assign({}, p);
   const role = u && u.role;
+  if (role === 'crew' && q.lead !== u.crewId) {   // szakember: kapcsolattartóként a projektvezetőt látja (a projektvezető az ügyfélét)
+    const m = CREW_MAP_CACHE_ || (CREW_MAP_CACHE_ = byId_(readAll_('crew'))), l = m[q.lead];
+    q.contactName = l ? l.name + ' (projektvezető)' : ''; q.contactPhone = l ? String(l.phone || '') : ''; q.contactEmail = l ? String(l.email || '') : '';
+  }
   // személyes jegyzetek: a szakember csak a sajátját kapja meg
   const notes = parseNotes_(q.crewNotes);
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
@@ -743,7 +748,7 @@ function calPlan_(p) {
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
   if (p.client) lines.push('Ügyfél: ' + p.client);
   if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.endTime ? ' · távozás kb. ' + p.endTime : p.hours ? ' · ' + p.hours + ' óra' : ''));
-  if (p.contactName || p.contactPhone) lines.push('Kapcsolattartó: ' + [p.contactName, p.contactPhone].filter(Boolean).join(', '));
+  if (p.lead && crewMap[p.lead]) lines.push('Kapcsolattartó (projektvezető): ' + [crewMap[p.lead].name, crewMap[p.lead].phone].filter(Boolean).join(', '));   // a naptár vendégei a stábtagok: az ügyfél kapcsolattartója nem kerül ide
   if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
   if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
   if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
@@ -1351,8 +1356,12 @@ function sendEquipmentList_(u, a) {
   const crewRows = Object.keys(onProject).filter(cid => crewMap[cid]).map(cid => ({ c: crewMap[cid], roles: onProject[cid] }));
   const crewHtml = crewRows.map(r => '<tr><td style="padding:4px 12px 4px 0"><b>' + e(r.c.name) + '</b></td><td style="padding:4px 12px 4px 0;color:#5f7381">' + e(r.roles.join(', ')) + '</td><td style="padding:4px 0">' + e(r.c.phone || '') + '</td></tr>').join('');
   const crewTxt = crewRows.map(r => '• ' + r.c.name + ' – ' + r.roles.join(', ') + (r.c.phone ? ' – ' + r.c.phone : '')).join('\n');
-  const info = [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', [p.contactName, p.contactPhone].filter(Boolean).join(', ')]].filter(x => x[1]);
-  const infoHtml = info.map(x => '<tr><td style="padding:3px 14px 3px 0;color:#5f7381;white-space:nowrap">' + x[0] + '</td><td style="padding:3px 0"><b>' + e(x[1]) + '</b></td></tr>').join('');
+  // kapcsolattartó: a projektvezető az ügyfél valódi kapcsolattartóját kapja, a többi szakember a projektvezető elérhetőségét
+  const leadC = p.lead && crewMap[p.lead] ? crewMap[p.lead] : null;
+  const contactFor = cid => cid === p.lead ? [p.contactName, p.contactPhone, p.contactEmail].filter(Boolean).join(', ')
+    : (leadC ? [leadC.name + ' (projektvezető)', leadC.phone, leadC.email].filter(Boolean).join(', ') : '');
+  const infoOf = cid => [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', contactFor(cid)]].filter(x => x[1]);
+  const infoHtmlOf = cid => infoOf(cid).map(x => '<tr><td style="padding:3px 14px 3px 0;color:#5f7381;white-space:nowrap">' + x[0] + '</td><td style="padding:3px 0"><b>' + e(x[1]) + '</b></td></tr>').join('');
   const planHtml = includePlan && (p.techPlan || p.notes) ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan || '—') + '</div>' + (p.notes ? '<h3 style="font-size:15px;margin:18px 0 6px">Jegyzetek</h3><div style="white-space:pre-wrap">' + e(p.notes) + '</div>' : '') : '';
   const planTxt = includePlan && (p.techPlan || p.notes) ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + (p.techPlan || '—') + (p.notes ? '\n\nJEGYZETEK\n' + p.notes : '') + '\n' : '';
   const sentTo = [];
@@ -1366,7 +1375,7 @@ function sendEquipmentList_(u, a) {
       + '<p>Szia ' + e(first) + '!</p>'
       + (message ? '<p style="white-space:pre-wrap">' + e(message) + '</p>' : '<p>' + (resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:</p>')
       + '<h2 style="font-size:20px;margin:18px 0 8px">' + e(p.name) + '</h2>'
-      + '<table style="border-collapse:collapse;font-size:14px">' + infoHtml + '</table>'
+      + '<table style="border-collapse:collapse;font-size:14px">' + infoHtmlOf(cid) + '</table>'
       + '<p style="margin:10px 0 0">A te szereped: <b>' + e(onProject[cid].join(', ')) + '</b></p>'
       + (mine(cid).length ? '<p style="margin:10px 0 0;padding:10px 12px;background:#e8f2ec;border-radius:10px"><b>Nálad lesz:</b> ' + e(mine(cid).join(', ')) + '</p>' : '')
       + (pNotes[cid] ? '<p style="margin:10px 0 0;padding:10px 12px;background:#fff6e0;border-radius:10px"><b>Neked szóló megjegyzés:</b><br>' + e(pNotes[cid]).replace(/\n/g, '<br>') + '</p>' : '')
@@ -1375,7 +1384,7 @@ function sendEquipmentList_(u, a) {
       + planHtml
       + (sig ? '<div style="margin-top:26px">' + sig.html + '</div></div>' : '<p style="margin-top:26px">Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>');
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
-      + info.map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
+      + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;

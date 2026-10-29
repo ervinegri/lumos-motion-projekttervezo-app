@@ -163,6 +163,21 @@ test('crew finalize: guests only on finalize, everyone with e-mail notified, on-
   assert.equal(run("DB.projects.find(x=>x.id==='final-1234').status"),'helyszin');
   assert(run("!!parseCrewFinal_(DB.projects.find(x=>x.id==='final-1234').crewFinal)"));
 });
+
+test('equipment list: lead gets the client contact, others get the lead as contact; crew app view too',()=>{
+  run(`var DB2P=DB.projects.find(x=>x.id==='final-1234');DB2P.contactName='Ügyfél Anna';DB2P.contactPhone='+36 1 999';DB2P.contactEmail='anna@ugyfel.hu';
+    MAILS=[];var BODIES={};GmailApp={sendEmail:(to,sub,text)=>{MAILS.push([to,sub]);BODIES[to]=text;},getAliases:()=>[]};
+    USER={role:'editor',name:'Dávid',crewId:'david-123',email:''};var _sf=sheetFor_;sheetFor_=key=>({key,getRange:()=>({setNumberFormat(){return this;},setValues(){}})});
+    rpc('token','sendEquipmentList',{projectId:'final-1234',recipients:['david-123','bence-123'],message:''});`);
+  run('sheetFor_=_sf;CREW_MAP_CACHE_=null;');const b=json('BODIES');
+  assert.match(b['david@x.hu'],/Kapcsolattartó: Ügyfél Anna/);
+  assert.match(b['bence@x.hu'],/Kapcsolattartó: Zajácz Dávid \(projektvezető\)/);
+  assert.doesNotMatch(b['bence@x.hu'],/Ügyfél Anna|anna@ugyfel/);
+  const crewView=json(`projectView_(fullProject_(DB2P),{role:'crew',crewId:'bence-123'})`);
+  assert.match(crewView.contactName,/Zajácz Dávid/);assert.notEqual(crewView.contactEmail,'anna@ugyfel.hu');
+  const leadView=json(`projectView_(fullProject_(DB2P),{role:'crew',crewId:'david-123'})`);
+  assert.equal(leadView.contactName,'Ügyfél Anna');
+});
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
 for(const f of ['core.js','views.js','actions.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
@@ -206,13 +221,13 @@ test('frontend: required basics are checked, notes are optional',()=>{
 test('frontend: payouts mark the penalised item and show the kept amount to leaders',()=>{
   fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved',reason:'Helyszíni elakadás'}]}];`);
   const html=fr('viewPayouts()');
-  assert.match(html,/nem kerül kifizetésre/);
+  assert.match(html,/Nem kerül kifizetésre/);
   assert.match(html,/30\s?000/);
   assert.match(html,/🚨 −30\s?000/);
   assert.match(html,/title="[^"]*Helyszíni elakadás/);
   assert.doesNotMatch(html,/kezdőnapjuk/);
   fr(`S.me={role:'editor'};`);
-  assert.match(fr('viewPayouts()'),/nem kerül kifizetésre/);
+  assert.match(fr('viewPayouts()'),/Nem kerül kifizetésre/);
 });
 test('frontend: daily totals include the day-two deduction and match the grand total',()=>{
   fr(`S.me={role:'admin'};var q=S.projects[0];q.fees.push({crewId:'bence-123',name:'Bence',amount:50000,dayAmounts:{'2026-10-02':25000,'2026-10-03':25000}},{kind:'fixed',key:'fuvar',name:'Fuvar',amount:10000});`);

@@ -282,6 +282,10 @@ function newProjectModal(day){
     const miss=missingReq(p).filter(([k])=>k!=='endDate');
     if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Érkezés (óó:pp formában)']);
     if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Távozás (óó:pp formában)']);
+    if(p.date&&p.date<todayISO()&&form.dataset.pastOk!==p.date){form.dataset.pastOk=p.date;
+      let w=$('m-pastWarn');if(!w){w=document.createElement('div');w.id='m-pastWarn';w.className='past-warn';form.querySelector('.fields').after(w);}
+      w.innerHTML=`⚠️ <b>A projekt első napja a múltban van (${esc(fmtDay(p.date))}).</b> Biztosan múltbeli projektet hozol létre? Ha igen, kattints újra a „Projekt létrehozása” gombra.`;w.scrollIntoView({block:'nearest',behavior:'smooth'});
+      toast('A megadott dátum a múltban van – ellenőrizd, aztán kattints újra a létrehozásra.',true);return;}
     if(miss.length){const k=miss[0][0],el=form.querySelector('[name='+(fieldOf[k]||k)+']')||(k==='contactPhone'?$('m-contactPhone'):null);
       form.querySelectorAll('.inp').forEach(x=>x.style.borderColor='');miss.forEach(([mk])=>{const e2=form.querySelector('[name='+(fieldOf[mk]||mk)+']');const vis=mk==='contactPhone'?$('m-contactPhone'):e2;if(vis)vis.style.borderColor='var(--bad)';});
       if(el&&el.type!=='hidden')el.focus();toast('Kötelező mező: '+miss.map(x=>x[1]).join(', ')+'.',true);return;}
