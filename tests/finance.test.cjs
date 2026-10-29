@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const ctx = vm.createContext({console, Utilities:{getUuid:()=>crypto.randomUUID()}, SpreadsheetApp:{flush(){}}, Logger:{log(){}}});
+const ctx = vm.createContext({console, Utilities:{getUuid:()=>crypto.randomUUID(),base64EncodeWebSafe:x=>Buffer.from(x).toString('base64')}, SpreadsheetApp:{flush(){}}, Logger:{log(){}}});
 vm.runInContext(fs.readFileSync(path.join(root,'apps-script/Code.gs'),'utf8'),ctx);
 vm.runInContext(`
   var DB={projects:[],crew:[],inventory:[],crewAssign:[],eqAssign:[]}, USER={role:'editor',name:'Dávid',crewId:'david-123'}, LOG=[], tick=0;
@@ -178,6 +178,22 @@ test('equipment list: lead gets the client contact, others get the lead as conta
   const leadView=json(`projectView_(fullProject_(DB2P),{role:'crew',crewId:'david-123'})`);
   assert.equal(leadView.contactName,'Ügyfél Anna');
 });
+
+test('re-finalize: only new members and members with changed role/equipment are notified; link points to the calendar',()=>{
+  run(`DB.crew.push({id:'anna-123',name:'Nagy Anna',email:'anna@x.hu'});MAILS=[];var BODIES2={};GmailApp={sendEmail:(to,sub,text)=>{MAILS.push([to,sub]);BODIES2[to]=text;},getAliases:()=>[]};
+
+    USER={role:'editor',name:'Dávid',crewId:'david-123',email:''};
+    DB.crewAssign.push({projectId:'final-1234',crewId:'anna-123',role:'Fotós'});
+    var r1=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
+  assert.deepEqual(json('MAILS.map(m=>m[0])'),['anna@x.hu']);
+  assert.match(json("BODIES2['anna@x.hu']"),/calendar\.google\.com\/calendar\/event\?eid=/);
+  assert.doesNotMatch(json("BODIES2['anna@x.hu']"),/projekttervezo\.lumosmotion\.hu\/#p=/);
+  run(`MAILS=[];DB.crewAssign.find(a=>a.projectId==='final-1234'&&a.crewId==='bence-123').role='Drónpilóta';var r2=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
+  assert.deepEqual(json('MAILS.map(m=>m[0])'),['bence@x.hu']);
+  assert.match(json('MAILS[0][1]'),/Módosult beosztás/);
+  run(`MAILS=[];var r3=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
+  assert.deepEqual(json('MAILS'),[]);
+});
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
 for(const f of ['core.js','views.js','actions.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
@@ -252,5 +268,12 @@ test('frontend: crew final state tracks changes after finalizing',()=>{
   assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'}]})"),'none');
   assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'}],crewFinal:{ids:['b','a']}})"),'ok');
   assert.equal(fr("crewFinalState({lead:'a',crew:[{crewId:'b'},{crewId:'c'}],crewFinal:{ids:['a','b']}})"),'changed');
+});
+test('crew signature is identical in the backend and the frontend',()=>{
+  const proj={lead:'a',crew:[{crewId:'a',role:'Operatőr'},{crewId:'b',role:'Vágó'}],equipment:[{itemId:'i1',qty:2,crewId:'a'}],rentals:[{crewId:'a',name:'Drón'}],crewDays:{a:['2026-12-02','2026-12-01']}};
+  ctx.__P=JSON.parse(JSON.stringify(proj));ctx.__P.rentals=JSON.stringify(proj.rentals);ctx.__P.crewDays=JSON.stringify(proj.crewDays);
+  const back=vm.runInContext("crewSig_(__P,'a')",ctx);
+  front.__P=proj;const fr2=vm.runInContext("crewSig(__P,'a')",front);
+  assert.equal(back,fr2);
 });
 console.log('All finance checks passed.');

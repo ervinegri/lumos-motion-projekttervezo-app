@@ -16,7 +16,16 @@ function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id
 /* Csapat véglegesítése: a stáb csak ekkor kerül a naptárba (értesítéssel). „changed”: azóta módosult a beosztás. */
 const crewFinalOn=()=>!!(S.capabilities&&S.capabilities.crewFinalize);
 const crewIdsNow=p=>[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].sort();
-function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';return JSON.stringify(f.ids.slice().sort())===JSON.stringify(crewIdsNow(p))?'ok':'changed';}
+function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role)).sort();
+  const eq=(p.equipment||[]).filter(e=>(e.crewId||'')===cid).map(e=>e.itemId+'x'+(Number(e.qty)||1)).sort();
+  const rent=(p.rentals||[]).filter(r=>(r.crewId||'')===cid&&r.name).map(r=>r.name).sort();
+  const days=(((p.crewDays||{})[cid])||[]).slice().sort();
+  return roles.join('+')+'|'+eq.join(',')+'|'+rent.join(',')+'|'+days.join(',');}
+/* Kik kapnak értesítést újraélesítéskor: új tagok + akiknek a szerepe, eszközei vagy napjai változtak */
+function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array.isArray(f.ids))return {added:ids,changed:[],removed:[]};
+  const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&f.sigs[id]!==crewSig(p,id)):[];
+  return {added,changed,removed};}
+function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';const d=crewFinalDiff(p);return d.added.length||d.changed.length||d.removed.length?'changed':'ok';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
