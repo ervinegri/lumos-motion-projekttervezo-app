@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -80,6 +80,8 @@ const TABLES = {
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
     ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
+  officeRent: { tab: 'Irodabérlet', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
@@ -317,7 +319,9 @@ function bootstrap_(u) {
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
+    officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
+    capabilities: { budgetApproval: true, financeAutosave: true },
     serverTime: now_()
   };
   if (u.role !== 'admin') {
@@ -390,7 +394,7 @@ function projectView_(p, u) {
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; }
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees);
-  else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount }; delete q.fees; }   // a szakember csak a saját díját látja
+  else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount, dayAmounts: mine.dayAmounts }; delete q.fees; }   // a szakember csak a saját díját látja
   // díjcsökkentések: vezetők mindet, a szakember csak a saját, jóváhagyott tételeit látja
   const pens = parsePen_(q.penalties);
   q.penalties = role === 'crew' ? pens.filter(x => x.crewId === u.crewId && x.status === 'approved') : (role === 'admin' || role === 'editor' ? pens : []);
@@ -401,6 +405,9 @@ function projectView_(p, u) {
     : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(val * bv / 100) : null) : Math.round(bv);
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
+  const request = parseBudgetRequest_(q.budgetRequest);
+  if (role === 'admin' || role === 'editor') q.budgetRequest = request;
+  else delete q.budgetRequest;
   return q;
 }
 
@@ -410,6 +417,59 @@ function fullProject_(p) {
   q.equipment = readAll_('eqAssign').filter(r => r.projectId === p.id).map(r => ({ itemId: r.itemId, qty: r.qty || 1, crewId: r.crewId || '' }));
   delete q.mutationId;
   return q;
+}
+
+/* ===================== TERMELŐI KERET JÓVÁHAGYÁSA ===================== */
+function parseBudgetRequest_(raw) {
+  let x = raw; if (typeof raw === 'string') { try { x = JSON.parse(raw || 'null'); } catch (e) { return null; } }
+  if (!x || !x.id || !['pending', 'approved', 'rejected', 'superseded'].includes(x.status)) return null;
+  return { id: str_(x.id, 64), amount: int_(x.amount, 0, VALUE_MAX, 0), previousFt: x.previousFt == null ? null : int_(x.previousFt, 0, VALUE_MAX, 0),
+    reason: str_(x.reason, 1500), by: str_(x.by, 120), at: str_(x.at, 30), status: x.status,
+    decidedBy: str_(x.decidedBy, 120), decidedAt: str_(x.decidedAt, 30) };
+}
+function effectiveBudget_(p) {
+  if (p.budgetVal === '' || p.budgetVal == null) return null;
+  if (p.budgetMode === 'ft') return Number(p.budgetVal);
+  if (p.budgetMode === 'pct' && Number(p.quotePrice) > 0) return Math.round(Number(p.quotePrice) * Number(p.budgetVal) / 100);
+  return null;
+}
+function budgetMutate_(u, a, fn) {
+  return withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, str_(a && a.projectId, 64));
+    if (!row) throw new Error('A projekt azonosítója érvénytelen.');
+    const p = readRow_('projects', sh, row);
+    fn(p); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
+    putRow_('projects', sh, p, row); SpreadsheetApp.flush();
+    return projectView_(fullProject_(p), u);
+  });
+}
+function requestBudgetChange_(u, a) {
+  if (u.role !== 'editor') throw new Error('FORBIDDEN: keretkérelmet a termelési vezető küldhet.');
+  const amount = Number(a && a.amount), reason = str_(a && a.reason, 1500).trim();
+  if (a.amount === '' || a.amount == null || !Number.isInteger(amount) || amount < 0 || amount > VALUE_MAX) throw new Error('Adj meg érvényes forintösszeget.');
+  if (reason.length < 5) throw new Error('Írd le röviden a módosítás indokát.');
+  const saved = budgetMutate_(u, a, p => {
+    if (p.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: A projekt módosult. Frissítsd az adatokat.');
+    if (effectiveBudget_(p) === amount) throw new Error('A kért összeg megegyezik az aktuális kerettel.');
+    const existing = parseBudgetRequest_(p.budgetRequest);
+    if (existing && existing.status === 'pending') throw new Error('Egy keretkérelem már jóváhagyásra vár.');
+    p.budgetRequest = JSON.stringify({ id: Utilities.getUuid(), amount: amount, previousFt: effectiveBudget_(p), reason: reason, by: u.name, at: now_(), status: 'pending' });
+    logEvent_(u, 'Termelői keret módosítása kérve', p.name, 'Ügyvezetői jóváhagyásra vár');
+  });
+  return saved;
+}
+function decideBudgetChange_(u, a) {
+  if (u.role !== 'admin') throw new Error('FORBIDDEN: ügyvezetői jóváhagyás szükséges.');
+  if (typeof a.approve !== 'boolean') throw new Error('Válassz döntést.');
+  return budgetMutate_(u, a, p => {
+    const request = parseBudgetRequest_(p.budgetRequest);
+    if (!request || request.status !== 'pending' || request.id !== str_(a.id, 64)) throw new Error('A kérelem már módosult vagy lezárult. Frissítsd az adatokat.');
+    if (a.approve && effectiveBudget_(p) !== request.previousFt) throw new Error('CONFLICT: A keret időközben módosult. Kérj friss javaslatot.');
+    request.status = a.approve ? 'approved' : 'rejected'; request.decidedBy = u.name; request.decidedAt = now_();
+    if (a.approve) { p.budgetMode = 'ft'; p.budgetVal = request.amount; }
+    p.budgetRequest = JSON.stringify(request);
+    logEvent_(u, a.approve ? 'Termelői keret jóváhagyva' : 'Termelői keret elutasítva', p.name, 'Ügyvezetői döntés rögzítve');
+  });
 }
 
 /* ===================== PROJEKTEK ===================== */
@@ -475,7 +535,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties;
+      p.quotePrice = old.quotePrice; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -485,6 +545,10 @@ function saveProject_(u, a) {
     if (u.role === 'admin' && a.projectValue !== undefined) p.quotePrice = (a.projectValue === null || a.projectValue === '') ? '' : int_(a.projectValue, 0, VALUE_MAX, 0);
     if ((u.role === 'admin' || u.role === 'editor') && Array.isArray(a.fees)) p.fees = JSON.stringify(parseFees_(a.fees));
     if (u.role === 'admin' && a.budgetMode !== undefined) {
+      if (old && (a.budgetMode !== old.budgetMode || Number(a.budgetVal) !== Number(old.budgetVal))) {
+        const request = parseBudgetRequest_(p.budgetRequest);
+        if (request && request.status === 'pending') { request.status = 'superseded'; request.decidedBy = u.name; request.decidedAt = now_(); p.budgetRequest = JSON.stringify(request); }
+      }
       p.budgetMode = a.budgetMode === 'pct' || a.budgetMode === 'ft' ? a.budgetMode : '';
       const b = Number(String(a.budgetVal == null ? '' : a.budgetVal).replace(',', '.'));
       p.budgetVal = !p.budgetMode || a.budgetVal === '' || a.budgetVal == null || !isFinite(b) || b < 0 ? ''
@@ -500,6 +564,7 @@ function saveProject_(u, a) {
     if (p.budgetVal == null) p.budgetVal = '';
     if (p.quotePrice == null) p.quotePrice = '';
     if (p.fees == null) p.fees = '';
+    if (p.budgetRequest == null) p.budgetRequest = '';
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
@@ -967,10 +1032,20 @@ function penMutate_(projectId, fn) {
     return { list: list, p: p, res: res };
   });
 }
-function penAmount_(p, x) {   // a levont összeg forintban
+function penAmount_(p, x) {
   if (x.kind === 'damage') return x.amount;
   const f = parseFees_(p.fees).find(r => r.crewId === x.crewId && r.kind !== 'fixed');
-  const base = x.day && f && f.dayAmounts && f.dayAmounts[x.day] != null ? f.dayAmounts[x.day] : (f ? Number(f.amount) || 0 : 0);   // napra szabott levonás: annak a napnak a díjából
+  if (!f) return 0;
+  let base = f.amount;
+  if (x.day) {
+    const days = [];
+    for (let day = p.date; day && day <= (p.endDate || p.date) && days.length < 31; day = new Date(new Date(day + 'T12:00:00Z').getTime() + 86400000).toISOString().slice(0, 10)) days.push(day);
+    const assigned = parseCrewDays_(p.crewDays)[x.crewId];
+    const worked = assigned && assigned.length ? days.filter(d => assigned.includes(d)) : days;
+    if (!worked.includes(x.day)) return 0;
+    if (f.dayAmounts && Object.keys(f.dayAmounts).length) base = Number(f.dayAmounts[x.day]) || 0;
+    else { const per = Math.floor(f.amount / worked.length); base = x.day === worked[worked.length - 1] ? f.amount - per * (worked.length - 1) : per; }
+  }
   return Math.round(base * x.pct / 100);
 }
 function penMailCrew_(u, p, x) {
@@ -1049,6 +1124,22 @@ function objectPenalty_(u, a) {
 
 /* ===================== ÜGYFELEK ===================== */
 /** Ügyfél felvétele/módosítása. Ha a cégnév megváltozik, a projektek „Ügyfél” mezője is átíródik. */
+/* Irodabérlet: szakembertől bérelt iroda havi díja – a Kifizetéseknél a díjához adódik.
+   Egy sor = egy szakember egy hónapja; a következő hónapokra a legutóbbi érték érvényes, amíg nem írják át (0 = megszűnt). */
+function saveOfficeRent_(u, a) {
+  const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
+  if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
+  const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
+  const clear = a.amount === '' || a.amount == null, amount = clear ? 0 : int_(a.amount, 0, FEE_MAX, 0);
+  return withLock_(() => {
+    const sh = sheetFor_('officeRent'), id = crewId + '|' + month, row = findRow_(sh, id);
+    if (clear) { if (row) sh.deleteRow(row); }
+    else putRow_('officeRent', sh, { id: id, crewId: crewId, crewName: c.name, month: month, amount: amount, updatedAt: now_(), updatedBy: u.name }, row);
+    SpreadsheetApp.flush();
+    logEvent_(u, 'Irodabérlet', c.name, month + ': ' + (clear ? 'törölve' : amount + ' Ft'));
+    return readAll_('officeRent');
+  });
+}
 function saveClient_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64);
@@ -1676,6 +1767,8 @@ function rpcInner_(token, name, arg) {
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'changePin': if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG); return changePin_(u, arg, token);
+    case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
+    case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
@@ -1691,6 +1784,7 @@ function rpcInner_(token, name, arg) {
     case 'decidePenalty': adminOnly(); return decidePenalty_(u, arg);
     case 'deletePenalty': adminOnly(); return deletePenalty_(u, arg);
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
+    case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz

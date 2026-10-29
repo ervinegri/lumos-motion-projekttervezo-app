@@ -512,6 +512,25 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
 function prepDraft(p){const d=clone(p);if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
+function budgetApply(saved){
+  const i=S.projects.findIndex(p=>p.id===saved.id);if(i>=0)S.projects[i]=saved;
+  if(S.projectId===saved.id){if(S.dirty){for(const k of ['budgetRequest','budgetMode','budgetVal','budgetFt','updatedAt'])S.draft[k]=saved[k];}else S.draft=prepDraft(saved);}render(true);
+}
+async function budgetDecision(id,approve){
+  if(!isAdmin()||!S.draft)return;
+  if(S.dirty)await saveDraft();await SAVE_Q;if(S.dirty)return;
+  try{const saved=await call('decideBudgetChange',{projectId:S.draft.id,id,approve});budgetApply(saved);toast(approve?'Termelői keret jóváhagyva':'Keretkérelem elutasítva');}catch(e){handleErr(e);}
+}
+async function budgetRequestModal(){
+  if(!S.draft||S.me.role!=='editor')return;
+  if(S.dirty)await saveDraft();await SAVE_Q;if(S.dirty)return;
+  const d=S.draft;
+  openModal('Termelői keret módosítása',`<p>A javasolt keret az ügyvezető jóváhagyásával lép életbe.</p><div class="fields">${moneyField('budgetAmount','Javasolt termelői keret',budgetFt(d),{steps:false})}<div class="field full"><label for="m-budgetReason">Módosítás indoka</label><textarea class="inp" id="m-budgetReason" name="reason" maxlength="1500" rows="3"></textarea></div></div>`,{submitLabel:'Jóváhagyás kérése',submit:async fd=>{
+    const amount=moneyVal(fd.get('budgetAmount')),reason=String(fd.get('reason')||'').trim();
+    if(amount===''||reason.length<5){toast('Add meg az összeget és a módosítás rövid indokát.',true);return;}
+    try{const saved=await call('requestBudgetChange',{projectId:d.id,baseUpdatedAt:d.updatedAt,amount,reason});closeModal();budgetApply(saved);toast('Keretmódosítás elküldve ügyvezetői jóváhagyásra');}catch(e){handleErr(e);}
+  }});
+}
 /* Fix sorok a díjtáblázat végén: fuvar és étel. */
 const FIXED_FEES=[['fuvar','Fuvar'],['etel','Étel'],['egyeb','']];   // az „egyéb” sor neve szabadon írható
 function orderFees(fees){
@@ -532,6 +551,7 @@ function syncFeesWithCrew(d){
       fees.push(nf);added++;}
     else{f.crewId=id;if(f.autoTask||!f.task)f.task=rolesOf(id),f.autoTask=true;}});
   if(days>1)fees.forEach(f=>{if(f.crewId&&!isPostOnly(d,f.crewId)&&!f.dayAmounts&&num(f.amount)){const ds=crewDaysOf(d,f.crewId),per=Math.floor(num(f.amount)/ds.length);f.dayAmounts={};ds.forEach((x,k)=>f.dayAmounts[x]=k===ds.length-1?num(f.amount)-per*(ds.length-1):per);}});   // több napos: a meglévő díj napokra bontva
+  fees.forEach(f=>{if(f.crewId&&days>1&&!isPostOnly(d,f.crewId)&&f.dayAmounts)f.amount=feeDaySum(d,f);});
   fees=fees.filter(f=>!f.crewId||(ids.includes(f.crewId)&&!onlyRef(f.crewId))||num(f.amount)||num(f.rent));
   d.fees=orderFees(fees);
 }
@@ -544,6 +564,15 @@ function guard(fn){
    Így nem kell megvárni az Apps Scriptet; ha a mentés mégsem sikerül, visszakapod a módosításokat és szólunk. */
 let SAVE_Q=Promise.resolve();
 const SAVE_PENDING={};
+function verifySavedFees(d,saved){
+  if(!canSeeFees())return;
+  const key=f=>f.kind==='fixed'?'fixed|'+f.key+'|'+(f.refCrewId||''):'crew|'+(f.crewId||f.name);
+  for(const f of d.fees||[]){
+    const actual=(saved.fees||[]).find(x=>key(x)===key(f));
+    if(!actual&&!num(f.amount)&&!num(f.rent))continue;
+    if(!actual||num(f.amount)!==num(actual.amount)||num(f.rent)!==num(actual.rent)||Object.keys(f.dayAmounts||{}).some(day=>num(f.dayAmounts[day])!==num((actual.dayAmounts||{})[day])))throw new Error('A szerver eltérő díjat igazolt vissza. A megadott összegek szerkeszthetők maradtak; frissítsd a háttérkódot, majd ments újra.');
+  }
+}
 function saveDraft(){
   if(!S.draft||ro())return;
   const d=clone(S.draft);
@@ -552,18 +581,21 @@ function saveDraft(){
   const local=Object.assign({},prev||{},d,{updatedAt:prev?prev.updatedAt:''});
   if(i>=0)S.projects[i]=local;else S.projects.push(local);
   S.dirty=false;S.saving=(S.saving||0)+1;SAVE_PENDING[d.id]=(SAVE_PENDING[d.id]||0)+1;
-  S.cal.events={};S.savedFlash=1;clearTimeout(S._flashT);S._flashT=setTimeout(()=>{S.savedFlash=0;renderChrome();},500);render(true);
+  S.cal.events={};S.savedFlash=0;render(true);
   SAVE_Q=SAVE_Q.then(async()=>{
     const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
     try{
       let saved;for(let k=0;;k++){try{saved=await call('saveProject',payload);break;}
         catch(e){if(k<3&&/Zárol|lock/i.test(errText(e))){await new Promise(r=>setTimeout(r,1500*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)
+      const current=projById(d.id);if(current)current.updatedAt=saved.updatedAt;
+      verifySavedFees(d,saved);
       const newer=--SAVE_PENDING[d.id]>0;   // közben újabb mentés is indult erre a projektre
       const k=S.projects.findIndex(x=>x.id===d.id||x.id===saved.id);
       if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}
       else{if(k>=0)S.projects[k]=saved;else S.projects.push(saved);
         if(S.projectId===saved.id&&!S.dirty){S.draft=prepDraft(saved);render(true);}}   // a fix (üres) díjsorok is maradjanak meg
       S.cal.events={};syncCal(saved.id);
+      S.savedFlash=1;clearTimeout(S._flashT);S._flashT=setTimeout(()=>{S.savedFlash=0;renderChrome();},1800);
     }catch(e){
       SAVE_PENDING[d.id]--;
       if(S.projectId===d.id&&!S.dirty){S.draft=clone(d);S.dirty=true;}   // a módosítások ne vesszenek el
@@ -633,6 +665,9 @@ const ACT={
   'modal-bg':()=>{},   // mellékattintásra nem zárul be (a tartalom megmarad)
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveDraft(),
+  'budget-request':()=>budgetRequestModal(),
+  'budget-approve':b=>budgetDecision(b.dataset.id,true),
+  'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a ⚙️ Projekt kezelése alatt.',true);return;}
     const v=b.dataset.v,go=()=>{
@@ -814,7 +849,7 @@ document.addEventListener('change',e=>{
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
     setDraft(ch);return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
-  if((t.dataset.feeI!==undefined||t.dataset.fin)&&d)return;
+  if((t.dataset.feeI!==undefined||t.dataset.fin)&&d){if(S.dirty&&!ro()){const pid=d.id;setTimeout(()=>{if(S.draft&&S.draft.id===pid&&S.dirty)saveDraft();},0);}return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
     setDraft(k==='foto_db'?(n>0?{foto_db:n,x_foto:true}:{foto_db:n}):(k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0?{[k]:n,er_post:true}:{[k]:n});return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;if(t.value==='Projektvezető'){setDraft({lead:t.dataset.crewAddrole});return;}const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}

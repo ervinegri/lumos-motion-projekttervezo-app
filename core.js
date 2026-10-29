@@ -264,7 +264,10 @@ const OFFICE_RENT=[{name:'Zajácz Dávid',amount:60000}];   // fix havi irodabé
 const penOf=(p,cid,st)=>(p.penalties||[]).filter(x=>x.crewId===cid&&(!st||x.status===st));
 const penPct=(p,cid,st)=>Math.min(100,penOf(p,cid,st||'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+num(x.pct),0));
 const penDamage=(p,cid)=>penOf(p,cid,'approved').filter(x=>x.kind==='damage').reduce((s,x)=>s+num(x.amount),0);
-const penBase=(p,x,total)=>{const f=(p.fees||[]).find(r=>r.crewId===x.crewId&&r.kind!=='fixed'),da=f&&f.dayAmounts;return x.day&&da&&da[x.day]!=null?num(da[x.day]):num(total!=null?total:f&&f.amount);};   // napra szabott levonásnál annak a napnak a díja
+const penBase=(p,x,total)=>{const f=(p.fees||[]).find(r=>r.crewId===x.crewId&&r.kind!=='fixed')||(S.me&&S.me.crewId===x.crewId?p.myFee:null),amount=num(total!=null?total:f&&f.amount);if(!x.day)return amount;
+  const days=projDays(p).length?crewDaysOf(p,x.crewId):[p.date];if(!days.includes(x.day))return 0;
+  const da=f&&f.dayAmounts;if(da&&Object.keys(da).length)return num(da[x.day]);
+  const per=Math.floor(amount/days.length);return x.day===days[days.length-1]?amount-per*(days.length-1):per;};
 const penAmt=(p,x,total)=>x.kind==='damage'?num(x.amount):Math.round(penBase(p,x,total)*num(x.pct)/100);
 const penDeduct=(p,cid,fee)=>Math.min(num(fee),penOf(p,cid,'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+penAmt(p,x,fee),0));   // jóváhagyott levonás forintban (legfeljebb a teljes díj)
 

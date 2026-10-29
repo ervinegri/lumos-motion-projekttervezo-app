@@ -85,7 +85,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCa
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.capabilities=d.capabilities||{};S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
     if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
@@ -103,7 +103,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
@@ -132,7 +132,7 @@ const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro(
 function renderChrome(){
   const on=!!S.me;
   {let sp=$('savingPill');if(!sp){sp=document.createElement('div');sp.id='savingPill';sp.className='saving-pill';sp.setAttribute('role','status');document.body.appendChild(sp);}
-    const busy=on&&S.saving>0;sp.classList.toggle('on',busy);sp.textContent=busy?'⏳ Mentés folyamatban… ne zárd be az oldalt':'';}   // látszik, amíg a háttérben ment
+    const busy=on&&S.saving>0;sp.classList.toggle('on',busy);sp.textContent=busy?'⏳ Mentés folyamatban…':'';}   // látszik, amíg a háttérben ment
   ['userChip','refreshBtn','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
   const realAdmin=on&&(S.me.role==='admin'||S.me.realRole==='admin'),va=on&&S.me.viewAs;
   $('viewAs').classList.toggle('hidden',!realAdmin);$('viewAs').classList.toggle('on',!!va);
@@ -238,7 +238,7 @@ function viewOverview(){
         <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
     ${ro()?crewMonthsPanel():''}
-    ${isAdmin()?pendingPenPanel():''}
+    ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
 `;
 }
 
@@ -260,14 +260,25 @@ function viewPayouts(){
   const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c),cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
   const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal;
   const allTotal=months.reduce((s,m)=>s+Object.values(by[m]||{}).reduce((s2,r)=>s2+rowSum(r),0)+rentTotal,0);
-  const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rentTotal)}</b></td></tr>`:'';
-  return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak és irodabérlet hónaponként, díjcsökkentés után · nettó</p></div>
+  const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rentTotal)}</b></td></tr>`:'';
+  return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak, irodabérleti és termelési vezetői díj hónaponként, díjcsökkentés után · nettó</p></div>
       <select class="inp" id="pay-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select></div>
     ${rows.length||rentOn.length?`<div class="sheet-wrap pay-wrap"><table class="sheet pay-sheet"><thead><tr><th>Projekt</th>${cids.map(c=>`<th class="r">${esc((crewById(c)||{}).name||'Munkatárs')}</th>`).join('')}<th class="r">Projekt összesen</th></tr></thead>
       <tbody>${rows.map(r=>`<tr><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button></td>${cids.map(c=>`<td class="r">${r.cells[c]!=null?moneyFmt(r.cells[c])||0:'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td></tr>`).join('')}${rows.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}</tbody>
       <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}<td class="r pay-total"><b>${ftFmt(total)}</b></td></tr></tfoot></table></div>`
       :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}
     <p class="hint">A projektek a kezdőnapjuk hónapjához számítanak. Az összes hónap együtt: <b>${ftFmt(allTotal)}</b>.</p>`;
+}
+function pendingBudgetPanel(){
+  const rows=S.projects.filter(p=>p.budgetRequest&&p.budgetRequest.status==='pending');
+  if(!rows.length)return '';
+  return `<div class="panel pen-pending"><h3>💰 Jóváhagyásra váró keretmódosítások <span class="aside">${rows.length} db</span></h3><div class="list">${rows.map(p=>`<button class="ev" type="button" data-action="open-project" data-id="${esc(p.id)}"><div class="ev-b"><b>${esc(p.name)} · ${ftFmt(p.budgetRequest.amount)}</b><small>${esc(p.budgetRequest.by)} · ${esc(p.budgetRequest.reason)}</small></div></button>`).join('')}</div></div>`;
+}
+function budgetRequestPanel(p){
+  if(!canSeeFees())return '';
+  const r=p.budgetRequest,waiting=r&&r.status==='pending',adm=isAdmin();
+  return `<div class="panel budget-request"><h4>Termelői keret módosítása</h4>${waiting?`<p><b>${ftFmt(r.amount)}</b> · ügyvezetői jóváhagyásra vár</p><p>${esc(r.reason)} · ${esc(r.by)}</p>${adm?`<div class="btns"><button class="btn primary small" type="button" data-action="budget-approve" data-id="${esc(r.id)}">Jóváhagyás</button><button class="btn outline small" type="button" data-action="budget-reject" data-id="${esc(r.id)}">Elutasítás</button></div>`:''}`:r?`<p class="hint">${r.status==='approved'?'Jóváhagyva':r.status==='superseded'?'Új keretbeállítás lépett életbe':'Elutasítva'} · ${esc(r.decidedBy||'')} · ${esc(r.decidedAt||'')}</p>`:''}
+    ${!adm&&!waiting?`<p>Aktuális keret: <b>${budgetFt(p)==null?'Kitöltésre vár':ftFmt(budgetFt(p))}</b></p><button class="btn outline small" type="button" data-action="budget-request"${S.capabilities&&S.capabilities.budgetApproval?'':' disabled'}>Keretmódosítás kérése</button>${S.capabilities&&S.capabilities.budgetApproval?'':'<p class="hint">A jóváhagyási funkció a háttérkód frissítésével aktiválódik.</p>'}`:''}</div>`;
 }
 function pendingPenPanel(){
   const rows=[];S.projects.forEach(p=>(p.penalties||[]).filter(x=>x.status==='pending').forEach(x=>rows.push({p,x})));
@@ -396,7 +407,7 @@ function financePanel(p,inner){
   if(!canSeeFees())return '';
   const cols=finCols(),th=(t,i,cls)=>`<th${cls?` class="${cls}"`:''}>${t}${i<cols.length-1?`<span class="col-grip" data-col="${i}" title="Húzd az oszlop szélességéhez (dupla kattintás: alaphelyzet)"></span>`:''}</th>`;
   const fees=p.fees||[],adm=isAdmin();
-  const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
+  const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" id="fee-${i}-${esc(k)}" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
   const ro_=t=>`<div class="cell-ro">${t}</div>`;
   const gearOf=f=>f.crewId?(p.equipment||[]).filter(e=>e.crewId===f.crewId).map(e=>{const it=itemById(e.itemId);return it?(num(e.qty)>1?num(e.qty)+'× ':'')+it.name:'';}).filter(Boolean).concat(rentalsOf(p,f.crewId).map(r=>r.name+(r.own?' (saját)':' (bérelt)'))).join(', '):'';
   const nameCell=(f,i)=>{const fixed=f.kind==='fixed';return fixed&&f.key==='egyeb'?tin(i,'name',f.name,'Egyéb tétel neve'):!f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><button class="trash" type="button" data-action="fee-remove" data-i="${i}" title="Sor törlése" aria-label="Sor törlése">🗑️</button></div>`:f.crewId&&!fixed?`<div class="cell-ro cell-flex"><span>${esc(f.name||'')}</span><span class="cell-acts"><button class="pen-btn" type="button" data-action="pen-new" data-cid="${esc(f.crewId)}" title="Díjcsökkentés" aria-label="Díjcsökkentés: ${esc(f.name||'')}">🚨</button><button class="trash" type="button" data-action="crew-person-remove" data-id="${esc(f.crewId)}" title="Levétel a projektről (a stábból is)" aria-label="${esc(f.name||'')} levétele a projektről">🗑️</button></span></div>`:ro_(esc(f.name||''));};
@@ -435,6 +446,8 @@ function financePanel(p,inner){
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek az alábbi táblázatot nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     ${finPanelBody(p)}
+    ${budgetRequestPanel(p)}
+    <p class="hint">A díjmezők elhagyásakor az összegek automatikusan mentődnek. A felső jelzés mutatja a mentés állapotát.</p>
     ${tables}
     ${penPanel(p)}
   </div>`;

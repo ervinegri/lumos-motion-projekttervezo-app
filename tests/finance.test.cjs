@@ -1,0 +1,129 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const ctx = vm.createContext({console, Utilities:{getUuid:()=>crypto.randomUUID()}, SpreadsheetApp:{flush(){}}, Logger:{log(){}}});
+vm.runInContext(fs.readFileSync(path.join(root,'apps-script/Code.gs'),'utf8'),ctx);
+vm.runInContext(`
+  var DB={projects:[],crew:[],inventory:[],crewAssign:[],eqAssign:[]}, USER={role:'editor',name:'Dávid',crewId:'david-123'}, LOG=[], tick=0;
+  readAll_=key=>DB[key]||[];
+  sheetFor_=key=>({key});
+  findRow_=(sh,id)=>{const i=DB[sh.key].findIndex(x=>x.id===id);return i<0?0:i+1;};
+  readRow_=(key,sh,row)=>Object.assign({},DB[key][row-1]);
+  putRow_=(key,sh,obj,row)=>{if(row)DB[key][row-1]=Object.assign({},obj);else DB[key].push(Object.assign({},obj));};
+  rewriteAssign_=(key,keep,add)=>{DB[key]=DB[key].filter(keep).concat(add);};
+  withLock_=fn=>fn(); now_=()=>String(++tick); today_=()=> '2026-10-29';
+  authUser_=()=>USER; dataBump_=()=>{}; logEvent_=(...a)=>LOG.push(a);
+  DB.crew=[{id:'david-123',name:'Dávid'},{id:'bence-123',name:'Bence'},{id:'ervin-123',name:'Ervin'}];
+  DB.projects=[{id:'project-123',name:'Test',status:'egyeztetes',date:'2026-10-02',endDate:'2026-10-03',quotePrice:400000,budgetMode:'ft',budgetVal:160000,updatedAt:'original',fees:'[]',crewDays:'{}'}];
+  DB.crewAssign=DB.crew.map(c=>({projectId:'project-123',crewId:c.id,role:'Operatőr'}));
+`,ctx);
+const run=s=>vm.runInContext(s,ctx);
+const json=s=>JSON.parse(JSON.stringify(run(s)));
+function test(name,fn){fn();console.log('PASS',name);}
+
+test('editor saves own, colleague and CEO fees and receives them after reload',()=>{
+  run(`var saved=rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:'original',mutationId:'mutation-123',deferCal:true,crew:DB.crewAssign,fees:[{crewId:'david-123',name:'Dávid',amount:60000},{crewId:'bence-123',name:'Bence',amount:40000},{crewId:'ervin-123',name:'Ervin',amount:50000}]});`);
+  assert.deepEqual(json('saved.fees.map(x=>x.amount)'),[60000,40000,50000]);
+  assert.deepEqual(json("parseFees_(DB.projects[0].fees).map(x=>x.amount)"),[60000,40000,50000]);
+});
+test('direct editor project save preserves approved budget and hides project value',()=>{
+  run(`saved=rpc('token','saveProject',{...DB.projects[0],baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-456',deferCal:true,crew:DB.crewAssign,budgetMode:'ft',budgetVal:1,projectValue:1});`);
+  assert.equal(run('DB.projects[0].budgetVal'),160000);
+  assert.equal(run('DB.projects[0].quotePrice'),400000);
+  assert.equal(run('saved.projectValue'),undefined);
+  assert.equal(run('saved.budgetMode'),undefined);
+});
+test('editor requests a budget; effective budget remains until approval',()=>{
+  run(`var pending=rpc('token','requestBudgetChange',{projectId:'project-123',baseUpdatedAt:DB.projects[0].updatedAt,amount:150000,reason:'Egyeztetett módosítás'});`);
+  assert.equal(run('pending.budgetRequest.status'),'pending');
+  assert.equal(run('DB.projects[0].budgetVal'),160000);
+  assert.equal(run('pending.budgetFt'),160000);
+  assert.equal(run('pending.projectValue'),undefined);
+});
+test('editor cannot approve own request',()=>{
+  assert.throws(()=>run(`rpc('token','decideBudgetChange',{projectId:'project-123',id:pending.budgetRequest.id,approve:true})`),/FORBIDDEN/);
+});
+test('only matching pending request can be approved; decision cannot be replayed',()=>{
+  run(`USER={role:'admin',name:'Ervin'};`);
+  assert.throws(()=>run(`rpc('token','decideBudgetChange',{projectId:'project-123',id:'wrong',approve:true})`),/módosult/);
+  run(`saved=rpc('token','decideBudgetChange',{projectId:'project-123',id:pending.budgetRequest.id,approve:true});`);
+  assert.equal(run('DB.projects[0].budgetVal'),150000);
+  assert.equal(run('saved.budgetRequest.status'),'approved');
+  assert.throws(()=>run(`rpc('token','decideBudgetChange',{projectId:'project-123',id:pending.budgetRequest.id,approve:true})`),/módosult/);
+});
+test('crew cannot submit requests and receives no request, budget, or colleague fees',()=>{
+  run(`USER={role:'crew',crewId:'david-123'};var crewView=projectView_(fullProject_(DB.projects[0]),USER);`);
+  for(const field of ['fees','budgetRequest','budgetFt','budgetMode','budgetVal','projectValue','quotePrice'])assert.equal(run(`crewView.${field}`),undefined,field);
+  assert.equal(run('crewView.myFee.amount'),60000);
+  assert.throws(()=>run(`rpc('token','requestBudgetChange',{projectId:'project-123',amount:1,reason:'test request'})`),/FORBIDDEN/);
+});
+test('rejected requests keep existing budget; stale and duplicate requests are blocked',()=>{
+  run(`USER={role:'editor',name:'Dávid'};var rejected=rpc('token','requestBudgetChange',{projectId:'project-123',baseUpdatedAt:DB.projects[0].updatedAt,amount:170000,reason:'Második javaslat'});`);
+  assert.throws(()=>run(`rpc('token','requestBudgetChange',{projectId:'project-123',baseUpdatedAt:DB.projects[0].updatedAt,amount:190000,reason:'Másik javaslat'})`),/jóváhagyásra/);
+  run(`USER={role:'admin',name:'Ervin'};rpc('token','decideBudgetChange',{projectId:'project-123',id:rejected.budgetRequest.id,approve:false});`);
+  assert.equal(run('DB.projects[0].budgetVal'),150000);
+  assert.equal(run("parseBudgetRequest_(DB.projects[0].budgetRequest).status"),'rejected');
+  run(`USER={role:'editor',name:'Dávid'};`);
+  assert.throws(()=>run(`rpc('token','requestBudgetChange',{projectId:'project-123',baseUpdatedAt:'outdated',amount:190000,reason:'Másik javaslat'})`),/CONFLICT/);
+});
+test('changed effective budget invalidates approval; new admin budget supersedes request',()=>{
+  run(`USER={role:'editor',name:'Dávid'};var req=rpc('token','requestBudgetChange',{projectId:'project-123',baseUpdatedAt:DB.projects[0].updatedAt,amount:180000,reason:'Friss javaslat'}); DB.projects[0].budgetVal=155000;USER={role:'admin',name:'Ervin'};`);
+  assert.throws(()=>run(`rpc('token','decideBudgetChange',{projectId:'project-123',id:req.budgetRequest.id,approve:true})`),/CONFLICT/);
+  run(`rpc('token','saveProject',{...DB.projects[0],crew:DB.crewAssign,baseUpdatedAt:DB.projects[0].updatedAt,mutationId:'mutation-789',deferCal:true,budgetMode:'ft',budgetVal:151000});`);
+  assert.equal(run("parseBudgetRequest_(DB.projects[0].budgetRequest).status"),'superseded');
+});
+test('Queens Night day two deduction is 30000; missing day map splits total instead of charging twice',()=>{
+  run(`var qp={date:'2026-10-02',endDate:'2026-10-03',crewDays:'{}',fees:[{crewId:'david-123',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}]}, pen={crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03'};`);
+  assert.equal(run('penAmount_(qp,pen)'),30000);
+  run('delete qp.fees[0].dayAmounts;');
+  assert.equal(run('penAmount_(qp,pen)'),30000);
+  run(`qp.crewDays={'david-123':['2026-10-02']};`);
+  assert.equal(run('penAmount_(qp,pen)'),0);
+});
+test('logs contain no financial amounts',()=>{
+  assert(!/150000|160000|180000/.test(JSON.stringify(json('LOG'))));
+});
+
+// Evaluate actual frontend handlers without a network connection or live app data.
+const listeners={};const nodes=new Map();
+const element=()=>({innerHTML:'',value:'',classList:{toggle(){},add(){},remove(){}},style:{},addEventListener(){},querySelectorAll(){return []},querySelector(){return element()},contains(){return false},setAttribute(){},appendChild(){},focus(){},scrollLeft:0});
+const doc={getElementById(id){if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)},addEventListener(n,fn){(listeners[n]||=[]).push(fn)},querySelectorAll(){return []},querySelector(){return null},createElement:element,body:element(),documentElement:element(),visibilityState:'visible'};
+let timers=[];
+const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
+for(const f of ['core.js','views.js','actions.js']){
+  let source=fs.readFileSync(path.join(root,f),'utf8');
+  source=source.replace("if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}",'');
+  vm.runInContext(source,front,{filename:f});
+}
+const fr=s=>vm.runInContext(s,front);
+fr(`render=()=>{};renderChrome=()=>{};syncCal=()=>{};toast=()=>{};S.me={role:'editor',crewId:'david-123'};S.tab='projektek';S.crew=[{id:'david-123',name:'Dávid'},{id:'bence-123',name:'Bence'}];S.draft={id:'test-project',name:'Test',date:'2026-10-10',status:'utomunka',budgetFt:150000,fees:[{crewId:'david-123',amount:0},{crewId:'bence-123',amount:0}],crew:[],equipment:[]};`);
+test('frontend records fee edits in the draft and autosaves on leaving the field',()=>{
+  const target={dataset:{feeI:'0',feeK:'amount',money:'1'},value:'60 000',tagName:'INPUT',selectionStart:6,closest(){return null},setSelectionRange(){}};
+  listeners.input.forEach(fn=>fn({target}));
+  assert.equal(fr('S.draft.fees[0].amount'),60000);
+  assert.equal(fr('S.dirty'),true);
+  fr('var autoSaved=false;saveDraft=()=>{autoSaved=true;};');
+  listeners.change.forEach(fn=>fn({target}));
+  for(const fn of timers.splice(0))fn();
+  assert.equal(fr('autoSaved'),true);
+});
+test('frontend rejects server responses that silently lose entered fees',()=>{
+  assert.throws(()=>fr(`verifySavedFees(S.draft,{fees:[{crewId:'david-123',amount:0},{crewId:'bence-123',amount:0}]})`),/eltérő díjat/);
+});
+test('frontend computes day two penalty identically for leader and crew views',()=>{
+  fr(`var p={date:'2026-10-02',endDate:'2026-10-03',fees:[{crewId:'david-123',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}]},x={crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03'};`);
+  assert.equal(fr('penAmt(p,x)'),30000);
+  fr('p.myFee=p.fees[0];delete p.fees;');
+  assert.equal(fr('penAmt(p,x)'),30000);
+  fr('delete p.myFee.dayAmounts;');
+  assert.equal(fr('penAmt(p,x)'),30000);
+});
+test('approval UI preserves backward compatibility until backend is updated',()=>{
+  assert.match(fr("budgetRequestPanel({})"),/disabled/);
+  fr('S.capabilities={budgetApproval:true};');
+  assert(!fr('budgetRequestPanel({})').includes(' disabled'));
+});
+console.log('All finance checks passed.');
