@@ -81,8 +81,8 @@ function viewFinance(){
           <tfoot><tr><td><b>Elérhető</b></td><td class="r ${bal.endRezsi<0?'bad-txt':'ok-txt'}"><b>${sFt(bal.endRezsi)}</b></td><td class="r ${bal.endMkt<0?'bad-txt':'ok-txt'}"><b>${sFt(bal.endMkt)}</b></td></tr></tfoot></table></div></div>
     </div>
     <div class="panel"><h3>🤝 Tagi kölcsön <span class="aside">fennmaradó: <b>${ftFmt(lIn-lOut)}</b></span></h3>
-      <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Dátum</th><th>Típus</th><th>Megjegyzés</th><th class="r">Összeg</th><th></th></tr></thead><tbody>${loans.map(l=>`<tr><td>${esc(l.date)}</td><td>${l.kind==='vissza'?'<span class="statuspill p-ok">Visszafizetés</span>':'<span class="statuspill p-warn">Kölcsön</span>'}</td><td>${esc(l.note||'')}</td><td class="r">${moneyFmt(l.amount)}</td><td><button class="trash" type="button" data-action="fin-loan-del" data-id="${esc(l.id)}" aria-label="Törlés">🗑️</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty-row">Nincs tagi kölcsön.</td></tr>'}</tbody>
-      <tfoot><tr><td colspan="3">Kölcsön összesen: <b>${ftFmt(lIn)}</b> · visszafizetve: <b>${ftFmt(lOut)}</b></td><td class="r"><b>${ftFmt(lIn-lOut)}</b></td><td></td></tr></tfoot></table></div>
+      <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Dátum</th><th>Típus</th><th>Bank</th><th>Megjegyzés</th><th class="r">Összeg</th><th></th></tr></thead><tbody>${loans.map(l=>`<tr><td>${esc(l.date)}</td><td>${l.kind==='vissza'?'<span class="statuspill p-ok">Cég visszafizeti</span>':'<span class="statuspill p-warn">Kölcsön a cégnek</span>'}</td><td>${esc(loanBank(l))}</td><td>${esc(l.note||'')}</td><td class="r">${moneyFmt(l.amount)}</td><td><button class="trash" type="button" data-action="fin-loan-del" data-id="${esc(l.id)}" aria-label="Törlés">🗑️</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-row">Nincs tagi kölcsön.</td></tr>'}</tbody>
+      <tfoot><tr><td colspan="4">Kölcsön összesen: <b>${ftFmt(lIn)}</b> · visszafizetve: <b>${ftFmt(lOut)}</b></td><td class="r"><b>${ftFmt(lIn-lOut)}</b></td><td></td></tr></tfoot></table></div>
       <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-loan-new">+ Tétel</button></div></div>`;
 }
 
@@ -137,12 +137,17 @@ async function finImport(){const url=($('m-importUrl')||{}).value||'',from=($('m
   try{const d=await call('finImport',{url:url.trim(),appFromMonth:from});closeModal();finApply(d);const i=d.imported||{};
     toast(`Importálva: ${i.months} hónap, ${i.income} bevételi sor, ${i.expense} kiadás${i.fixes?', '+i.fixes+' havi fix tétel':''}, ${i.loans} kölcsöntétel.`);}
   catch(e){handleErr(e);if(b){b.disabled=false;b.textContent='⬇️ Importálás most';}}}
+/* Bank: kölcsönnél OTP vagy Revolut, visszafizetésnél Binx is */
+const LOAN_BANKS={be:['OTP','Revolut'],vissza:['Binx','OTP','Revolut']};
+const loanBank=l=>l.bank||((/\b(binx|otp|revolut)\b/i.exec(l.note||'')||[])[1]||'').replace(/^./,c=>c.toUpperCase()).replace(/^Otp$/,'OTP');   // régi tételeknél a megjegyzésből
+const bankOpts=k=>(LOAN_BANKS[k]||LOAN_BANKS.be).map(b=>`<option value="${b}">${b}</option>`).join('');
 function finLoanModal(){openModal('Tagi kölcsön – új tétel',`<div class="fields">
-    ${ms('kind','Típus',[['be','Kölcsön a cégnek'],['vissza','Visszafizetés']],'be')}
+    ${ms('kind','Típus',[['be','Kölcsön a cégnek'],['vissza','Cég visszafizeti']],'be')}
     ${mf('date','Dátum',{type:'date',v:todayISO()})}
     ${moneyField('amount','Összeg',null,{steps:false})}
+    <div class="field"><label for="m-bank">Bank</label><select class="inp" id="m-bank" name="bank">${bankOpts('be')}</select></div>
     ${mf('note','Megjegyzés',{full:true,max:300})}</div>`,{submitLabel:'Mentés',submit:async fd=>{
-    const row={kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),note:String(fd.get('note')||'').trim()};
+    const row={kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),bank:String(fd.get('bank')||''),note:String(fd.get('note')||'').trim()};
     if(!row.amount){toast('Add meg az összeget.',true);return;}
     if(await finCall('finUpsert',{table:'loan',row},'Tétel mentve'))closeModal();}});}
 Object.assign(ACT,{
@@ -161,6 +166,7 @@ Object.assign(ACT,{
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='fin-month'){S.finMonth=t.value;render(true);return;}
+  if(t.id==='m-kind'&&$('m-bank')){const b=$('m-bank'),cur=b.value;b.innerHTML=bankOpts(t.value);if([...b.options].some(o=>o.value===cur))b.value=cur;return;}   // a bank-lista a típushoz igazodik
   if(t.dataset&&t.dataset.finpay){const id=t.dataset.id,v=t.value;
     if(t.dataset.finpay==='project'){try{await call('finSetPay',{projectId:id,payStatus:v});const p=projById(id);if(p)p.payStatus=v;if(S.draft&&S.draft.id===id)S.draft.payStatus=v;render(true);toast('Fizetési állapot: '+PAY_LABEL[v]);}catch(err){handleErr(err);render(true);}}
     else{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(r)finCall('finUpsert',{table:'income',row:Object.assign({},r,{payStatus:v})},'Fizetési állapot: '+PAY_LABEL[v]);}}

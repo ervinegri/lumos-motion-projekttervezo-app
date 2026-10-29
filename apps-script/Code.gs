@@ -84,7 +84,7 @@ const TABLES = {
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['fund', 'Alap (rezsi / marketing)'], ['kind', 'Típus (fix / egyszeri)'], ['month', 'Hónap (egyszeri)'],
     ['from', 'Ettől (fix)'], ['to', 'Eddig (fix)'], ['amount', 'Összeg (Ft)'], ['legacy', 'Régi táblázatból'], ['note', 'Megjegyzés']] },
   finLoan: { tab: 'Tagi kölcsön', cols: [
-    ['id', 'Azonosító (ne módosítsd)'], ['date', 'Dátum'], ['kind', 'Befizetés / visszafizetés'], ['amount', 'Összeg (Ft)'], ['note', 'Megjegyzés']] },
+    ['id', 'Azonosító (ne módosítsd)'], ['date', 'Dátum'], ['kind', 'Befizetés / visszafizetés'], ['amount', 'Összeg (Ft)'], ['note', 'Megjegyzés'], ['bank', 'Bank']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -574,6 +574,9 @@ function finClean_(table, a) {
   }
   if (table === 'finLoan') {
     const r = { id: id, date: /^\d{4}-\d{2}-\d{2}$/.test(String(a.date || '')) ? String(a.date) : '', kind: a.kind === 'vissza' ? 'vissza' : 'be', amount: money(a.amount), note: str_(a.note, 300) };
+    const banks = r.kind === 'vissza' ? ['Binx', 'OTP', 'Revolut'] : ['OTP', 'Revolut'];   // kölcsön: OTP, Revolut; visszafizetés: Binx, OTP, Revolut
+    const nb = /\b(binx|otp|revolut)\b/i.exec(r.note) || [];
+    r.bank = banks.find(b => b.toLowerCase() === String(a.bank || nb[1] || '').toLowerCase()) || '';
     if (!r.date) throw new Error('Add meg a dátumot.'); if (!r.amount) throw new Error('Add meg az összeget.');
     return r;
   }
