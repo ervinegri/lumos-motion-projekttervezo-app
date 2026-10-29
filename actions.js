@@ -163,13 +163,15 @@ function penApply(pid,list){const p=projById(pid);if(p)p.penalties=list;if(S.dra
 function penCaseOpts(kind,name){const k=PEN_KINDS[kind];   // több eset is bejelölhető
   return (k?k.cases:[]).concat(['Egyéb (az indoklásban leírva)']).map(c=>`<label class="pen-case-o"><input type="checkbox" name="${name}" value="${esc(c)}"><span>${esc(c)}</span></label>`).join('');}
 function penModal(cid){
-  const d=S.draft;if(!d)return;const c=crewById(cid),f=(d.fees||[]).find(x=>x.crewId===cid),fee=f?num(f.amount):0;
+  const d=S.draft;if(!d)return;const c=crewById(cid),f=(d.fees||[]).find(x=>x.crewId===cid&&x.kind!=='fixed'),fee=f?num(f.amount):0;
+  const cds=projDays(d).length>1&&!isPostOnly(d,cid)?crewDaysOf(d,cid):[],da=(f&&f.dayAmounts)||{};PEN_CTX={fee,da};
   if(S.dirty){toast('Előbb mentsd el a projekt módosításait.',true);return;}
   openModal('Díjcsökkentés – '+(c?c.name:'munkatárs'),`<p class="hint" style="margin:0 0 10px">A megbízási szerződés minőségi melléklete szerint. Díj ezen a projekten: <b>${ftFmt(fee)}</b>.${isAdmin()?'':' A díjcsökkentés az ügyvezető jóváhagyása után lép érvénybe.'}</p>
     <div class="fields">
       <div class="field full"><label for="m-penKind">Kategória</label><select class="inp" id="m-penKind" name="kind">${Object.entries(PEN_KINDS).map(([k,v])=>`<option value="${k}">${esc(v.label)}${v.pct!=null?' – '+v.pct+'%':v.min?' – '+v.min+'–'+v.max+'%':' – összeg Ft-ban'} (${v.ref} pont)</option>`).join('')}</select></div>
       <div class="field" id="m-penPctF" style="display:none"><label for="m-penPct">Mérték</label><select class="inp" id="m-penPct" name="pct">${[10,20,30,40,50].map(v=>`<option value="${v}">${v}%</option>`).join('')}</select></div>
       <div class="field" id="m-penAmtF" style="display:none"><label for="m-penAmt">Kártérítés összege (Ft)</label><input class="inp" id="m-penAmt" name="amount" inputmode="numeric" data-money="1" placeholder="pl. 50 000"></div>
+      ${cds.length?`<div class="field" id="m-penDayF"><label for="m-penDay">Melyik napi munkájára?</label><select class="inp" id="m-penDay" name="day">${cds.map(x=>`<option value="${x}">${esc(dayLbl(x))} – ${ftFmt(num(da[x]))}</option>`).join('')}<option value="">Teljes díj (minden nap) – ${ftFmt(fee)}</option></select></div>`:''}
       <div class="field full"><label>Eset(ek) <span class="muted" style="font-weight:600">– több is bejelölhető</span></label><div class="pen-cases" id="m-penCase">${penCaseOpts('light','caseText')}</div></div>
       <div class="field full"><label for="m-penReason">Írásos indoklás <span class="muted" style="font-weight:600">(3.6. pont – kötelező)</span></label><textarea class="inp" id="m-penReason" name="reason" rows="4" maxlength="3000" placeholder="Mi történt, mikor, milyen következménnyel…"></textarea></div>
       <div class="field full"><label for="m-penLink">Bizonyíték (link, nem kötelező)</label><input class="inp" id="m-penLink" name="link" type="url" placeholder="https://drive.google.com/…"></div>
@@ -178,16 +180,18 @@ function penModal(cid){
       const kind=fd.get('kind'),reason=String(fd.get('reason')||'').trim();
       if(reason.length<5){toast('Írd le röviden az indoklást.',true);$('m-penReason').focus();return;}
       if(kind==='damage'&&!moneyVal(fd.get('amount'))){toast('Add meg a kártérítés összegét.',true);return;}
-      try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:fd.getAll('caseText').join('; '),reason,link:String(fd.get('link')||'').trim()});
+      try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:fd.getAll('caseText').join('; '),day:kind==='damage'?'':String(fd.get('day')||''),reason,link:String(fd.get('link')||'').trim()});
         closeModal();penApply(d.id,r.penalties);toast(isAdmin()?(r.mailed?'Díjcsökkentés kiróva, a szakember e-mailt kapott':'Díjcsökkentés kiróva (e-mailt nem sikerült küldeni)'):'Elküldve jóváhagyásra az ügyvezetőnek');}
       catch(e){handleErr(e);}}});
   penCalc();
 }
+let PEN_CTX={fee:0,da:{}};
 function penCalc(){const k=$('m-penKind');if(!k)return;const v=k.value;
-  $('m-penPctF').style.display=v==='prestige'?'':'none';$('m-penAmtF').style.display=v==='damage'?'':'none';
+  $('m-penPctF').style.display=v==='prestige'?'':'none';$('m-penAmtF').style.display=v==='damage'?'':'none';if($('m-penDayF'))$('m-penDayF').style.display=v==='damage'?'none':'';
   const t=$('m-penCalc'),K=PEN_KINDS[v];if(!t||!K)return;
-  t.textContent=v==='damage'?'A kártérítés a díjon felül, külön követelésként jelenik meg.':'A díj '+(v==='prestige'?($('m-penPct').value+'%'):K.pct+'%')+'-át vonjuk le. Több levonás együtt legfeljebb a teljes díjat érintheti.';}
-document.addEventListener('change',e=>{if(e.target.id==='m-penKind'){$('m-penCase').innerHTML=penCaseOpts(e.target.value,'caseText');penCalc();}else if(e.target.id==='m-penPct')penCalc();});
+  const pc=v==='prestige'?Number($('m-penPct').value):K.pct,day=$('m-penDay')?$('m-penDay').value:'',base=day?num(PEN_CTX.da[day]):PEN_CTX.fee;
+  t.textContent=v==='damage'?'A kártérítés a díjon felül, külön követelésként jelenik meg.':`${day?'A '+dayLbl(day)+' napi díj':'A díj'} ${pc}%-át vonjuk le: −${ftFmt(Math.round(base*pc/100))}. Több levonás együtt legfeljebb a teljes díjat érintheti.`;}
+document.addEventListener('change',e=>{if(e.target.id==='m-penKind'){$('m-penCase').innerHTML=penCaseOpts(e.target.value,'caseText');penCalc();}else if(e.target.id==='m-penPct'||e.target.id==='m-penDay')penCalc();});
 function penObjectModal(pid,id){
   openModal('Kifogás a díjcsökkentés ellen',`<p class="hint" style="margin:0 0 10px">Írd le, miért nem értesz egyet. Az ügyvezető e-mailben értesítést kap, és megvizsgálja.</p><div class="fields"><div class="field full"><label for="m-objText">Kifogás</label><textarea class="inp" id="m-objText" name="text" rows="5" maxlength="3000"></textarea></div></div>`,
     {submitLabel:'Kifogás elküldése',submit:async fd=>{const text=String(fd.get('text')||'').trim();if(text.length<5){toast('Írd le röviden a kifogásodat.',true);return;}
@@ -512,19 +516,23 @@ function prepDraft(p){const d=clone(p);if(!d.lead){const ids=[...new Set((d.crew
 const FIXED_FEES=[['fuvar','Fuvar'],['etel','Étel'],['egyeb','']];   // az „egyéb” sor neve szabadon írható
 function orderFees(fees){
   fees=fees.slice();FIXED_FEES.forEach(([k,n])=>{if(!fees.some(f=>f.kind==='fixed'&&f.key===k))fees.push({kind:'fixed',key:k,name:n,amount:'',rent:''});});
-  return fees.filter(f=>f.kind!=='fixed').concat(FIXED_FEES.map(([k])=>fees.find(f=>f.kind==='fixed'&&f.key===k)));
+  return fees.filter(f=>f.kind!=='fixed').concat(fees.filter(f=>f.kind==='fixed'&&f.key==='ref'),FIXED_FEES.map(([k])=>fees.find(f=>f.kind==='fixed'&&f.key===k)));
 }
 function syncFeesWithCrew(d){
   if(!canSeeFees())return;
   const ids=[...crewIds(d)],days=rowDays(d);let fees=(d.fees||[]).map(f=>Object.assign({},f)),added=0;
-  const rolesOf=id=>{const r=[];if(d.lead===id)r.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id&&!r.includes(a.role))r.push(a.role);});return r.join(' + ');};
-  ids.forEach(id=>{const c=crewById(id);let f=fees.find(x=>x.crewId===id)||fees.find(x=>!x.crewId&&c&&x.name===c.name);
+  const REF='Ajánlói jutalék',rolesOf=id=>{const r=[];if(d.lead===id)r.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id&&a.role!==REF&&!r.includes(a.role))r.push(a.role);});return r.join(' + ');};
+  const refIds=[...new Set((d.crew||[]).filter(a=>a.role===REF).map(a=>a.crewId))];   // ajánlói jutalék → külön sor az Egyéb költségek között
+  fees=fees.filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&!refIds.includes(f.refCrewId)));
+  refIds.forEach(id=>{const c=crewById(id),nm=(c?c.name:'Szakember')+' ajánlói jutaléka';let f=fees.find(x=>x.kind==='fixed'&&x.key==='ref'&&x.refCrewId===id);if(f)f.name=nm;else fees.push({kind:'fixed',key:'ref',refCrewId:id,name:nm,amount:'',rent:''});});
+  const onlyRef=id=>d.lead!==id&&!(d.crew||[]).some(a=>a.crewId===id&&a.role!==REF);
+  ids.forEach(id=>{if(onlyRef(id))return;const c=crewById(id);let f=fees.find(x=>x.crewId===id)||fees.find(x=>!x.crewId&&c&&x.name===c.name);
     if(!f){const post=isPostOnly(d,id),myDays=days>1&&!post?crewDaysOf(d,id):[];const nf={name:c?c.name:'',crewId:id,task:rolesOf(id),autoTask:true,amount:c&&num(c.dayRate)&&!post?num(c.dayRate)*(days>1?myDays.length:1):'',rent:''};
       if(days>1&&!post&&c&&num(c.dayRate)){nf.dayAmounts={};myDays.forEach(x=>nf.dayAmounts[x]=num(c.dayRate));}
       fees.push(nf);added++;}
     else{f.crewId=id;if(f.autoTask||!f.task)f.task=rolesOf(id),f.autoTask=true;}});
   if(days>1)fees.forEach(f=>{if(f.crewId&&!isPostOnly(d,f.crewId)&&!f.dayAmounts&&num(f.amount)){const ds=crewDaysOf(d,f.crewId),per=Math.floor(num(f.amount)/ds.length);f.dayAmounts={};ds.forEach((x,k)=>f.dayAmounts[x]=k===ds.length-1?num(f.amount)-per*(ds.length-1):per);}});   // több napos: a meglévő díj napokra bontva
-  fees=fees.filter(f=>!f.crewId||ids.includes(f.crewId)||num(f.amount)||num(f.rent));
+  fees=fees.filter(f=>!f.crewId||(ids.includes(f.crewId)&&!onlyRef(f.crewId))||num(f.amount)||num(f.rent));
   d.fees=orderFees(fees);
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};

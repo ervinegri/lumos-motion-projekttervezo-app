@@ -355,7 +355,7 @@ function parseFees_(raw) {
   return arr.slice(0, 40).map(x => ({
     name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
     roles: Array.isArray(x && x.roles) ? x.roles.map(r => str_(r, 40)).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
-    kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), autoTask: !!(x && x.autoTask),
+    kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), refCrewId: str_(x && x.refCrewId, 64), autoTask: !!(x && x.autoTask),
     amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0),
     dayAmounts: x && x.dayAmounts && typeof x.dayAmounts === 'object' ? Object.keys(x.dayAmounts).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).slice(0, 31).reduce((o, k) => { o[k] = int_(x.dayAmounts[k], 0, FEE_MAX, 0); return o; }, {}) : undefined
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
@@ -950,7 +950,7 @@ const PEN_KINDS_ = {
 function parsePen_(raw) {
   let arr = raw; if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
   if (!Array.isArray(arr)) return [];
-  return arr.filter(x => x && PEN_KINDS_[x.kind]).slice(0, 100).map(x => ({ id: str_(x.id, 40), crewId: str_(x.crewId, 64), kind: x.kind, pct: int_(x.pct, 0, 100, 0),
+  return arr.filter(x => x && PEN_KINDS_[x.kind]).slice(0, 100).map(x => ({ id: str_(x.id, 40), crewId: str_(x.crewId, 64), kind: x.kind, pct: int_(x.pct, 0, 100, 0), day: /^\d{4}-\d{2}-\d{2}$/.test(String(x.day || '')) ? String(x.day) : '',
     amount: int_(x.amount, 0, FEE_MAX, 0), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), link: str_(x.link, 500),
     status: ['pending', 'approved', 'rejected'].indexOf(x.status) >= 0 ? x.status : 'pending', by: str_(x.by, 120), at: str_(x.at, 30),
     decidedBy: str_(x.decidedBy, 120), decidedAt: str_(x.decidedAt, 30), decisionNote: str_(x.decisionNote, 1000),
@@ -969,15 +969,16 @@ function penMutate_(projectId, fn) {
 }
 function penAmount_(p, x) {   // a levont összeg forintban
   if (x.kind === 'damage') return x.amount;
-  const f = parseFees_(p.fees).find(r => r.crewId === x.crewId);
-  return Math.round((f ? Number(f.amount) || 0 : 0) * x.pct / 100);
+  const f = parseFees_(p.fees).find(r => r.crewId === x.crewId && r.kind !== 'fixed');
+  const base = x.day && f && f.dayAmounts && f.dayAmounts[x.day] != null ? f.dayAmounts[x.day] : (f ? Number(f.amount) || 0 : 0);   // napra szabott levonás: annak a napnak a díjából
+  return Math.round(base * x.pct / 100);
 }
 function penMailCrew_(u, p, x) {
   try {
     const c = readAll_('crew').find(r => r.id === x.crewId); if (!c || !c.email) return false;
     const k = PEN_KINDS_[x.kind], amt = penAmount_(p, x), url = FRONTEND_URL + '/#p=' + p.id;
     const lines = ['Kedves ' + c.name + '!', '', 'A(z) „' + p.name + '” projekten (' + (fmtHuDate_(p.date) || p.date || '') + ') a megbízási szerződés minőségi mellékletének ' + k.ref + ' pontja alapján díjcsökkentés történt.', '',
-      'Kategória: ' + k.label + (x.kind === 'damage' ? '' : ' (' + x.pct + '%)'), x.kind === 'damage' ? 'Kártérítés összege: ' + amt.toLocaleString('hu-HU') + ' Ft' : 'Levont összeg: ' + amt.toLocaleString('hu-HU') + ' Ft',
+      'Kategória: ' + k.label + (x.kind === 'damage' ? '' : ' (' + x.pct + '%' + (x.day ? ', a ' + (fmtHuDate_(x.day) || x.day) + ' napi díjból' : '') + ')'), x.kind === 'damage' ? 'Kártérítés összege: ' + amt.toLocaleString('hu-HU') + ' Ft' : 'Levont összeg: ' + amt.toLocaleString('hu-HU') + ' Ft',
       x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, x.link ? '\nBizonyíték: ' + x.link : '', '',
       'Ha nem értesz egyet, a projekt oldalán a „Kifogásolom” gombbal írásban jelezheted: ' + url, '', 'Üdvözlettel:', 'Lumos Motion'].filter((l, i, a) => l !== '' || a[i - 1] !== '');
     const html = lines.map(l => escapeHtml_(l)).join('<br>');
@@ -1001,7 +1002,7 @@ function addPenalty_(u, a) {
   const pct = kind === 'damage' ? 0 : k.pct != null ? k.pct : int_(a.pct, k.min, k.max, k.min);
   const amount = kind === 'damage' ? int_(a.amount, 0, FEE_MAX, 0) : 0;
   if (kind === 'damage' && !amount) throw new Error('Add meg a kártérítés összegét.');
-  const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, amount: amount, caseText: str_(a.caseText, 1500), reason: reason, link: link,
+  const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, day: kind !== 'damage' && /^\d{4}-\d{2}-\d{2}$/.test(String(a.day || '')) ? String(a.day) : '', amount: amount, caseText: str_(a.caseText, 1500), reason: reason, link: link,
     status: u.role === 'admin' ? 'approved' : 'pending', by: u.name, at: now_(), decidedBy: u.role === 'admin' ? u.name : '', decidedAt: u.role === 'admin' ? now_() : '', decisionNote: '', objection: null };
   const r = penMutate_(a.projectId, (list, p) => {
     const on = p.lead === x.crewId || readAll_('crewAssign').some(c => c.projectId === p.id && c.crewId === x.crewId);

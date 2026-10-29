@@ -263,7 +263,9 @@ const PEN_KINDS={
 const penOf=(p,cid,st)=>(p.penalties||[]).filter(x=>x.crewId===cid&&(!st||x.status===st));
 const penPct=(p,cid,st)=>Math.min(100,penOf(p,cid,st||'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+num(x.pct),0));
 const penDamage=(p,cid)=>penOf(p,cid,'approved').filter(x=>x.kind==='damage').reduce((s,x)=>s+num(x.amount),0);
-const penDeduct=(p,cid,fee)=>Math.round(num(fee)*penPct(p,cid)/100);   // jóváhagyott levonás forintban (legfeljebb a teljes díj)
+const penBase=(p,x,total)=>{const f=(p.fees||[]).find(r=>r.crewId===x.crewId&&r.kind!=='fixed'),da=f&&f.dayAmounts;return x.day&&da&&da[x.day]!=null?num(da[x.day]):num(total!=null?total:f&&f.amount);};   // napra szabott levonásnál annak a napnak a díja
+const penAmt=(p,x,total)=>x.kind==='damage'?num(x.amount):Math.round(penBase(p,x,total)*num(x.pct)/100);
+const penDeduct=(p,cid,fee)=>Math.min(num(fee),penOf(p,cid,'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+penAmt(p,x,fee),0));   // jóváhagyott levonás forintban (legfeljebb a teljes díj)
 
 /* ===== Több napos projekt: napok, ki melyik napon dolgozik ===== */
 function projDays(p){const r=pr(p);if(!r||r.start===r.end)return [];const out=[];for(let d=r.start;d<=r.end&&out.length<31;d=addDays(d,1))out.push(d);return out;}

@@ -252,8 +252,8 @@ const myNet=p=>{const a=num(p.myFee&&p.myFee.amount),cid=S.me&&S.me.crewId;retur
 /* Kifizetések fül: soronként a projektek, oszloponként a szakemberek (díjcsökkentés után), alul a total – hónaponként, visszamenőleg is */
 function viewPayouts(){
   const cur=todayISO().slice(0,7),by={};
-  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const m=pr(p).start.slice(0,7);(p.fees||[]).forEach(f=>{if(!f.crewId||f.kind==='fixed'||!num(f.amount))return;
-    const net=num(f.amount)-penDeduct(p,f.crewId,f.amount);const b=(by[m]=by[m]||{});(b[p.id]=b[p.id]||{p,cells:{}}).cells[f.crewId]=(b[p.id].cells[f.crewId]||0)+net;});});
+  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const m=pr(p).start.slice(0,7);(p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
+    const net=ref?num(f.amount):num(f.amount)-penDeduct(p,cid,f.amount);const b=(by[m]=by[m]||{});(b[p.id]=b[p.id]||{p,cells:{}}).cells[cid]=(b[p.id].cells[cid]||0)+net;});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
   const cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)))].sort((a,b)=>((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));
@@ -413,7 +413,7 @@ function financePanel(p,inner){
     tables=days.map((dd,k)=>{const on=crewF.filter(x=>!x.f.crewId?k===0:crewDaysOf(p,x.f.crewId).includes(dd));
       const firstDay=x=>!x.f.crewId||crewDaysOf(p,x.f.crewId)[0]===dd;
       const daySum=on.reduce((s,x)=>s+(x.f.crewId?num((x.f.dayAmounts||{})[dd]):num(x.f.amount)),0);
-      const body=on.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${x.f.crewId?tin(x.i,'day:'+dd,(x.f.dayAmounts||{})[dd],'0',{money:1}):tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId&&firstDay(x)?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${firstDay(x)?rentCell(x.f,x.i):ro_('')}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Erre a napra még nincs beosztva senki.</td></tr>`;
+      const body=on.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${x.f.crewId?tin(x.i,'day:'+dd,(x.f.dayAmounts||{})[dd],'0',{money:1}):tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId?penCellNote(p,x.f,dd,firstDay(x)):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${firstDay(x)?rentCell(x.f,x.i):ro_('')}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Erre a napra még nincs beosztva senki.</td></tr>`;
       return `<div class="day-tbl-h">${k+1}. nap – ${esc(dayLbl(dd))}</div>`+tbl(body,`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Napi összesen</td><td class="r" data-day-sum="${dd}">${moneyFmt(daySum)||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet');}).join('');
     const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
     tables+=`<div class="day-tbl-h">Egyéb költségek</div>`+tbl(commonRow()+fixedRows,'','day-sheet')+postTbl()+sumTbl();
@@ -442,24 +442,28 @@ function myFeePanel(p){
   if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="my-fee-amt">${ftFmt(a)}</div></div>`;
   const d=penDeduct(p,cid,a),dmg=penDamage(p,cid);
   return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3>
-    <div class="kv"><span>Eredeti díj</span><b>${ftFmt(a)}</b></div>${d?`<div class="kv"><span>Díjcsökkentés (${penPct(p,cid)}%)</span><b class="bad-txt">−${ftFmt(d)}</b></div>`:''}
+    <div class="kv"><span>Eredeti díj</span><b>${ftFmt(a)}</b></div>${d?`<div class="kv"><span>Díjcsökkentés${pens.some(x=>x.day)?'':` (${penPct(p,cid)}%)`}</span><b class="bad-txt">−${ftFmt(d)}</b></div>`:''}
     <div class="kv"><span>Kifizetendő</span><b class="my-fee-amt">${ftFmt(a-d)}</b></div>${dmg?`<div class="kv"><span>Kártérítési követelés</span><b class="bad-txt">${ftFmt(dmg)}</b></div>`:''}
-    ${pens.map(x=>{const k=PEN_KINDS[x.kind]||{};return `<div class="pen-row approved"><div class="pen-main"><b>${esc(k.label||'')}</b>${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'} <span class="muted">(szerződés ${esc(k.ref||'')} pont)</span>
+    ${pens.map(x=>{const k=PEN_KINDS[x.kind]||{};return `<div class="pen-row approved"><div class="pen-main"><b>${esc(k.label||'')}</b>${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'+(x.day?' a '+esc(dayLbl(x.day))+' napi díjból':'')} <span class="muted">(szerződés ${esc(k.ref||'')} pont)</span>
       ${x.caseText?`<div class="pen-case">${esc(x.caseText)}</div>`:''}<div class="pen-reason">${esc(x.reason)}</div>${x.link?`<a class="linkbtn" href="${esc(x.link)}" target="_blank" rel="noopener">Bizonyíték ↗</a>`:''}
       ${x.objection?`<div class="pen-obj"><b>Kifogásod</b> (${esc(x.objection.at)}): ${esc(x.objection.text)}</div>`:`<button class="btn outline small" type="button" data-action="pen-object" data-pid="${esc(p.id)}" data-id="${esc(x.id)}" style="margin-top:8px">Kifogásolom</button>`}</div></div>`;}).join('')}</div>`;
 }
-function penCellNote(p,f){
-  const ap=penPct(p,f.crewId),d=penDeduct(p,f.crewId,f.amount),pend=penOf(p,f.crewId,'pending').length,dmg=penDamage(p,f.crewId);
-  if(!ap&&!pend&&!dmg)return '';
-  return `<div class="pen-sub">${ap?`<span class="bad-txt">−${moneyFmt(d)||0} (${ap}%) → ${moneyFmt(num(f.amount)-d)||0}</span>`:''}${dmg?`<span class="bad-txt">kártérítés: ${moneyFmt(dmg)}</span>`:''}${pend?`<span class="warn-txt">${pend} jóváhagyásra vár</span>`:''}</div>`;
+function penCellNote(p,f,dd,first){   // dd: napi táblázat (több napos projekt) – a napra szabott levonás ott jelenik meg
+  const all=penOf(p,f.crewId,'approved').filter(x=>x.kind!=='damage'),pend=penOf(p,f.crewId,'pending').length,dmg=penDamage(p,f.crewId),tot=num(f.amount);
+  const line=(arr,base,pre)=>{if(!arr.length)return '';const pc=Math.min(100,arr.reduce((s,x)=>s+num(x.pct),0)),d=Math.min(base,Math.round(base*pc/100));return `<span class="bad-txt">${pre||''}−${moneyFmt(d)||0} (${pc}%) → ${moneyFmt(base-d)||0}</span>`;};
+  let h='';
+  if(dd){h=line(all.filter(x=>x.day===dd),num((f.dayAmounts||{})[dd]))+(first?line(all.filter(x=>!x.day),tot,'teljes díjból: '):'');if(!first)return h?`<div class="pen-sub">${h}</div>`:'';}
+  else if(all.some(x=>x.day)){const d=penDeduct(p,f.crewId,tot);h=d?`<span class="bad-txt">−${moneyFmt(d)} → ${moneyFmt(tot-d)||0}</span>`:'';}
+  else h=line(all,tot);
+  if(!h&&!pend&&!dmg)return '';
+  return `<div class="pen-sub">${h}${dmg?`<span class="bad-txt">kártérítés: ${moneyFmt(dmg)}</span>`:''}${pend?`<span class="warn-txt">${pend} jóváhagyásra vár</span>`:''}</div>`;
 }
 /* Díjcsökkentések listája a pénzügyi panel alján (vezetőknek) */
 function penPanel(p){
   const list=(p.penalties||[]).slice().sort((a,b)=>String(b.at).localeCompare(String(a.at)));if(!list.length)return '';
-  const fee=cid=>{const f=(p.fees||[]).find(x=>x.crewId===cid);return f?num(f.amount):0;};
-  return `<div class="pen-panel"><h4 class="sub-h">🚨 Díjcsökkentések</h4>${list.map(x=>{const k=PEN_KINDS[x.kind]||{},c=crewById(x.crewId),amt=x.kind==='damage'?num(x.amount):Math.round(fee(x.crewId)*num(x.pct)/100);
+  return `<div class="pen-panel"><h4 class="sub-h">🚨 Díjcsökkentések</h4>${list.map(x=>{const k=PEN_KINDS[x.kind]||{},c=crewById(x.crewId),amt=penAmt(p,x);
     const pill=x.status==='approved'?'<span class="statuspill p-bad">Jóváhagyva</span>':x.status==='rejected'?'<span class="statuspill">Elutasítva</span>':'<span class="statuspill p-warn">Jóváhagyásra vár</span>';
-    return `<div class="pen-row ${x.status}"><div class="pen-main"><b>${esc(c?c.name:'Munkatárs')}</b> · ${esc(k.label||'')}${x.kind==='damage'?'':` <b>${num(x.pct)}%</b>`} · ${x.kind==='damage'?'kártérítés':'levonás'}: <b>${ftFmt(amt)}</b> ${pill}
+    return `<div class="pen-row ${x.status}"><div class="pen-main"><b>${esc(c?c.name:'Munkatárs')}</b> · ${esc(k.label||'')}${x.kind==='damage'?'':` <b>${num(x.pct)}%</b>`}${x.day?' · '+esc(dayLbl(x.day))+' napi díjából':''} · ${x.kind==='damage'?'kártérítés':'levonás'}: <b>${ftFmt(amt)}</b> ${pill}
       ${x.caseText?`<div class="pen-case">${esc(x.caseText)}</div>`:''}<div class="pen-reason">${esc(x.reason)}</div>
       ${x.link?`<a class="linkbtn" href="${esc(x.link)}" target="_blank" rel="noopener">Bizonyíték ↗</a>`:''}
       <div class="ser">Kirótta: ${esc(x.by)} · ${esc(x.at)}${x.decidedAt&&x.status!=='pending'?` · ${x.status==='approved'?'jóváhagyta':'elutasította'}: ${esc(x.decidedBy)}${x.decisionNote?' – '+esc(x.decisionNote):''}`:''}</div>
