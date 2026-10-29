@@ -616,14 +616,14 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .tf-sub{display:block;font-size:11px;font-weight:500}
 .pay-ded-note{display:block;font-size:11px;color:var(--bad);font-weight:600;white-space:nowrap}td.pay-ded{background:var(--bad-soft)}
 .brand-link{display:inline-block;line-height:0}
-.pay-sheet{table-layout:fixed;width:auto;min-width:0}.pay-sheet .pay-c-proj{width:300px}.pay-sheet .pay-c-person{width:128px}.pay-sheet .pay-c-sum{width:140px}
+.pay-sheet{table-layout:fixed;width:auto;min-width:0}.pay-sheet .pay-c-proj{width:240px}.pay-sheet .pay-c-person{width:96px}.pay-sheet .pay-c-sum{width:112px}.pay-sheet th,.pay-sheet td{padding:7px 8px}.pay-sheet th{font-size:12.5px}
 .pay-sheet td:first-child{white-space:normal}.pay-sheet th{overflow:hidden;text-overflow:ellipsis}.pay-ded-note{cursor:help}
 .crew-final{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--warn-soft)}
 .crew-final.ok{background:var(--ok-soft)}.crew-final .cf-msg{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}.crew-final small{color:var(--fg-3)}
 .cf-list{margin:0;padding-left:18px;display:grid;gap:6px}
 .past-warn{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:13.5px}
 .cf-tag{display:inline-block;font-size:11.5px;font-weight:650;padding:1px 7px;border-radius:999px;background:#eef2f4;color:var(--fg-3);margin-left:4px}.cf-tag.new{background:var(--ok-soft);color:var(--ok)}.cf-tag.chg{background:var(--warn-soft);color:var(--warn)}
-.proj-table{width:100%;table-layout:fixed}.proj-table th:nth-child(1){width:auto}.proj-table th:nth-child(2){width:300px}.proj-table th:nth-child(3){width:190px}
+.proj-table{width:100%;table-layout:fixed}.proj-table th:nth-child(1){width:auto}.proj-table th:nth-child(2){width:340px}.proj-table th:nth-child(3){width:190px}
 .proj-table td{vertical-align:middle;padding:10px 12px}.pt-row{cursor:pointer}.pt-row:hover td{background:#f4f8f6}.pt-row:focus-visible td{outline:2px solid var(--accent);outline-offset:-2px}
 .pt-flex{display:flex;align-items:center;gap:12px;min-width:0}.pt-flex .ev-main{min-width:0}.pt-flex .ev-title,.pt-flex .ev-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pt-pills{display:flex;flex-wrap:wrap;gap:6px}.pt-extra{color:var(--fg-3)}.pt-extra .smallnum{display:inline-block;margin-right:6px}
@@ -631,6 +631,11 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .issues-panel{margin-bottom:14px}
 @media (max-width:760px){.proj-table th:nth-child(3),.proj-table td.pt-extra{display:none}.proj-table th:nth-child(2){width:44%}.proj-table td{padding:8px}.pt-flex{gap:8px}}
 .pt-pills .statuspill{white-space:normal;max-width:100%}
+.statuspill.p-alarm{background:#b3261e;color:#fff;border-color:#b3261e;font-weight:800;animation:alarmPulse 1.6s ease-in-out infinite}
+@keyframes alarmPulse{0%,100%{box-shadow:0 0 0 0 rgba(179,38,30,.45)}50%{box-shadow:0 0 0 6px rgba(179,38,30,0)}}
+@media (prefers-reduced-motion:reduce){.statuspill.p-alarm{animation:none}}
+.statuspill.p-bad{font-weight:750}
+.pt-month td{background:#f6f8f7;font-size:12px;font-weight:700;color:var(--fg-3);padding:6px 12px}
 </style>
 </head>
 <body>

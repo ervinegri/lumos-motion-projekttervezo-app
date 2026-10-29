@@ -168,7 +168,7 @@ function dueInfo(p){
   const due=dueDate(p);if(!due||!isOpen(p))return null;
   if(p.status==='leadva'||p.status==='jovahagyas'){const n=validISO(p.leadvaAt)?diffDays(p.leadvaAt,todayISO()):null;   // a videók már leadva: nem az átadási határidőt mutatjuk
     if(n==null)return null;
-    return {due,left:null,cls:'ok',txt:n<=0?'A videók ma lettek leadva, jóváhagyásra várnak':`A videók ${n} napja jóváhagyásra várnak`};}
+    return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:n<=0?'Ma leadva – jóváhagyásra vár':`${n>=7?'🚨 ':''}${n} napja leadva – nincs jóváhagyás`};}
   const left=diffDays(todayISO(),due);
   return {due,left,cls:left<0?'bad':left<=2?'warn':'ok',txt:left<0?`${-left} napja lejárt`:left===0?'Ma kell átadni':`${left} nap az átadásig`};
 }
@@ -217,7 +217,7 @@ function viewPayouts(){
   const keptM=kept[sel]||{},keptTotal=Object.values(keptM).reduce((s,x)=>s+x,0);
   const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
   const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal;
-  const keptRow=keptTotal?`<tr class="pay-left"><td>🚨 Nem kerül kifizetésre</td>${cids.map(c=>`<td class="r">${keptM[c]?moneyFmt(keptM[c]):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':`<td class="r"><b>${moneyFmt(keptTotal)}</b></td>`}</tr>`:'';
+  const keptRow=keptTotal?`<tr class="pay-left"><td>🚨 Nem kerül kifizetésre</td>${cids.map(c=>`<td class="r">${keptM[c]?moneyFmt(keptM[c]):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':'<td></td>'}</tr>`:'';   // az összesen oszlopba nem kerül
   const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':`<td class="r"><b>${moneyFmt(rentTotal)}</b></td>`}</tr>`:'';
   const nameOf=c=>(crewById(c)||{}).name||(crewMode?(S.me.viewAs&&S.me.viewAs.crewName)||S.me.name:'Munkatárs');
   const cell=(r,c)=>{const d=r.ded[c],why=d?esc(`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c)):'';
@@ -254,18 +254,22 @@ function viewProjects(){
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'egyeztetes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
   let list=S.projects.filter(p=>f.status==='mind'||(f.status==='aktiv'?isOpen(p):(p.status||'egyeztetes')===f.status));
   if(q)list=list.filter(p=>[p.name,p.client,p.venue,p.eventType,p.contactName].join(' ').toLowerCase().includes(q));
-  const ahead=list.filter(p=>pr(p)&&pr(p).end>=T).sort(byStart);
-  const past=list.filter(p=>pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));
-  const nod=list.filter(p=>!pr(p));
+  const closed=p=>p.status==='atadva'||p.status==='lemondva';
+  const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(a,b));   // terepi munkára vár (dátum nélküliek a végén)
+  const past=list.filter(p=>!closed(p)&&pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));   // lezajlott, utómunkára vár
+  const done=list.filter(closed).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // lezárt: hónaponként
   const issues=ro()?[]:computeIssues();
   const row=p=>{const r=pr(p),di=dueInfo(p),sub=[p.client,p.venue].filter(Boolean).join(' · ')||'Nincs ügyfél megadva',days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
     const due=di&&r&&(r.end<T||POST_STAGES.includes(p.status))?`<span class="statuspill p-${di.cls}">${di.txt}</span>`:'';
     const extra=ro()?[myRole(p)?`<span class="smallnum">Te: ${esc(myRole(p))}</span>`:'',p.myFee&&num(p.myFee.amount)?`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))}</span>`:''].join('')
       :`<span class="smallnum">${crewIds(p).size} fő · ${eqCount(p)} eszköz</span>`;
     return `<tr class="pt-row" data-action="open-project" data-id="${esc(p.id)}" tabindex="0"><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
-      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}</div></td><td class="pt-extra">${extra}</td></tr>`;};
-  const grp=(t,arr)=>arr.length?`<tr class="pt-group"><td colspan="3">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
-  const body=grp('Előttünk',ahead)+grp('Lezajlott',past)+grp('Dátum nélkül',nod);
+      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
+  const cols=ro()?3:2;
+  const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
+  const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
+  const body=grp('Terepi munkára vár',ahead)+grp('Utómunkára vár',past)
+    +(done.length?`<tr class="pt-group pt-closed"><td colspan="${cols}">Lezárt <span class="muted">${done.length}</span></td></tr>`+months.map(g=>`<tr class="pt-month"><td colspan="${cols}">${g.m?esc(F_YM.format(toDate(g.m+'-01'))):'Dátum nélkül'}</td></tr>${g.arr.map(row).join('')}`).join(''):'');
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2><p class="sub">${ro()?'Azok a projektek, amelyekre be vagy osztva':'Rendezvények az egyeztetéstől az átadásig'}</p></div>
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
@@ -273,7 +277,7 @@ function viewProjects(){
     ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
     <div class="toolbar"><input class="inp search" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">
       <div class="chips">${filters.map(([v,l,c])=>`<button class="chip" type="button" data-action="pf" data-v="${v}" aria-pressed="${f.status===v}">${l}<span class="c">${c}</span></button>`).join('')}</div></div>
-    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>Projekt</th><th>Státusz</th><th>${ro()?'Szereped · díjad':'Stáb'}</th></tr></thead><tbody>${body}</tbody></table></div>`
+    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>Projekt</th><th>Státusz</th>${ro()?'<th>Szereped · díjad</th>':''}</tr></thead><tbody>${body}</tbody></table></div>`
       :`<div class="panel">${empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':ro()?'Még nem vagy beosztva egy projektre sem.':'Még nincs projekt. Hozd létre az elsőt az „Új projekt” gombbal.')}</div>`}`;
 }
 function fld(p,key,label,o={}){
