@@ -282,4 +282,10 @@ test('frontend: delivered videos show waiting days instead of the delivery deadl
   assert.match(fr('dueInfo(lp).txt'),/3 napja leadva/);
   fr(`lp.status='utomunka';`);assert.doesNotMatch(fr('dueInfo(lp).txt'),/videók/);
 });
+test('frontend: warnings compute for overdue, delivered and normal projects without errors',()=>{
+  fr(`S.me={role:'admin'};S.crew=[];S.draft=null;S.projectId=null;S.projects=[{id:'o1',name:'Lejárt',status:'utomunka',date:'2026-09-01',aftermovie:1,crew:[],fees:[]},{id:'o2',name:'Leadva',status:'jovahagyas',date:'2026-09-01',leadvaAt:addDays(todayISO(),-10),aftermovie:1,crew:[],fees:[]}];`);
+  const iss=JSON.parse(fr('JSON.stringify(computeIssues().map(i=>i.text))'));
+  assert(iss.some(t=>/napja lejárt/.test(t)));assert(iss.some(t=>/10 napja leadva/.test(t)));
+  assert.doesNotThrow(()=>fr('viewProjects()'));
+});
 console.log('All finance checks passed.');

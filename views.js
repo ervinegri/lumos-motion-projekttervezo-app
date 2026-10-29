@@ -559,7 +559,7 @@ function viewProject(p){
   // a szakember (ha nem vágó) nem látja az utómunkát
   const isCut=!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');
   const stList=STAGES.map((s,i)=>({s,i})).filter(x=>{if(!POST_STAGES.includes(x.s.id))return true;if(x.s.id!=='utomunka'&&!videoStagesOn()&&status!==x.s.id)return false;return isCut&&(needsDelivery(p)||status===x.s.id);});
-  const doneSet=new Set(String(p.stepsDone||'').split(',').filter(Boolean)),TICKS=['egyeztetes','tervezes','helyszin'];
+  const doneSet=new Set(String(p.stepsDone||'').split(',').filter(Boolean)),TICKS=['egyeztetes','tervezes','helyszin','utomunka'];
   const closed=status==='atadva';   // lezárt projekt: a lépések nem módosíthatók
   const stages=stList.map(({s,i},k)=>{const tk=TICKS.includes(s.id),on=doneSet.has(s.id||'')||(closed&&tk);
     return `<div class="stage-w${tk?' has-tick':''}"><button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}${on?' ticked':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${closed?' disabled':D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>${tk?(ro()||closed?(on?'<span class="stage-tick on" title="Megtörtént">✓</span>':''):`<button type="button" class="stage-tick${on?' on':''}" data-action="step-done" data-v="${s.id}" aria-pressed="${on}" title="${on?'Megtörtént – kattints a visszavonáshoz':'Jelöld, ha ez a lépés megtörtént'}" aria-label="${esc(stageLabel(p,s.id))}: megtörtént">✓</button>`):''}</div>`;}).join('');
