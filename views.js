@@ -107,7 +107,7 @@ async function load(quiet,announce,pre){
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if(S.tab==='beallitasok'&&!isAdmin())S.tab='attekintes';
-    if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='attekintes';
+    if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek'||S.tab==='kifizetesek')&&ro())S.tab='attekintes';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
     if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
@@ -128,7 +128,7 @@ document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.datas
 function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?58:110;t.style.height='auto';t.style.height=Math.max(min,t.scrollHeight+2)+'px';}
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
-const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>[{id:'attekintes',label:'Áttekintés'},{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:'Kifizetések'}]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   const on=!!S.me;
   {let sp=$('savingPill');if(!sp){sp=document.createElement('div');sp.id='savingPill';sp.className='saving-pill';sp.setAttribute('role','status');document.body.appendChild(sp);}
@@ -167,7 +167,7 @@ function render(force){
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
-  VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='beallitasok'?viewSettings():viewOverview();
+  VIEW.innerHTML=S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='beallitasok'?viewSettings():viewOverview();
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   syncHash();
   if(keep){const el=$(keep.id);if(el){el.focus({preventScroll:true});try{if(keep.s!=null&&el.setSelectionRange)el.setSelectionRange(keep.s,keep.e);}catch(e){}}}
@@ -239,7 +239,6 @@ function viewOverview(){
     </div>
     ${ro()?crewMonthsPanel():''}
     ${isAdmin()?pendingPenPanel():''}
-    ${!ro()&&canSeeFees()?payoutsPanel():''}
 `;
 }
 
@@ -250,17 +249,23 @@ function penIcon(p){const t=(p.penalties||[]).map(x=>{const k=PEN_KINDS[x.kind]|
   return `<span class="pen-ic" tabindex="0" data-tip="${esc(t)}" aria-label="Díjcsökkentés: ${esc(t)}">⚠️</span>`;}
 const myNet=p=>{const a=num(p.myFee&&p.myFee.amount),cid=S.me&&S.me.crewId;return cid?a-penDeduct(p,cid,a):a;};   // díjcsökkentés után
 /* Kifizetések havonta: ki melyik projekten mennyit kap (díjcsökkentés után), és a hónap összesen – visszamenőleg is */
-function payoutsPanel(){
-  const T=todayISO(),cur=T.slice(0,7),by={};
-  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const m=pr(p).start.slice(0,7);(p.fees||[]).forEach(f=>{if(!f.crewId||f.kind==='fixed')return;const net=num(f.amount)-penDeduct(p,f.crewId,f.amount);if(!net&&!num(f.amount))return;
-    ((by[m]=by[m]||{})[f.crewId]=by[m][f.crewId]||[]).push({p,amt:net,orig:num(f.amount)});});});
+/* Kifizetések fül: soronként a projektek, oszloponként a szakemberek (díjcsökkentés után), alul a total – hónaponként, visszamenőleg is */
+function viewPayouts(){
+  const cur=todayISO().slice(0,7),by={};
+  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{const m=pr(p).start.slice(0,7);(p.fees||[]).forEach(f=>{if(!f.crewId||f.kind==='fixed'||!num(f.amount))return;
+    const net=num(f.amount)-penDeduct(p,f.crewId,f.amount);const b=(by[m]=by[m]||{});(b[p.id]=b[p.id]||{p,cells:{}}).cells[f.crewId]=(b[p.id].cells[f.crewId]||0)+net;});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
-  const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=by[sel]||{};
-  const people=Object.keys(rows).map(cid=>({cid,c:crewById(cid),items:rows[cid].sort((a,b)=>byStart(a.p,b.p)),sum:rows[cid].reduce((s,x)=>s+x.amt,0)})).sort((a,b)=>b.sum-a.sum);
-  const total=people.reduce((s,x)=>s+x.sum,0);
-  return `<div class="panel payouts"><h3>💸 Kifizetések havonta <span class="aside"><select class="inp" id="pay-month" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select></span></h3>
-    ${people.length?`<div class="tbl-wrap"><table><thead><tr><th>Szakember</th><th>Projekt</th><th class="num">Díj</th></tr></thead><tbody>${people.map(x=>x.items.map((it,k)=>`<tr${k===0?' class="pay-first"':''}>${k===0?`<td rowspan="${x.items.length+(x.items.length>1?1:0)}"><b>${esc(x.c?x.c.name:'Munkatárs')}</b></td>`:''}<td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(it.p.id)}">${esc(fmtShort(pr(it.p).start))} · ${esc(it.p.name||'Névtelen projekt')}</button></td><td class="num">${it.amt!==it.orig?`<span class="muted" style="text-decoration:line-through;font-size:12px">${ftFmt(it.orig)}</span> `:''}${ftFmt(it.amt)}</td></tr>`).join('')+(x.items.length>1?`<tr class="pay-sub"><td class="r">Összesen</td><td class="num"><b>${ftFmt(x.sum)}</b></td></tr>`:'')).join('')}</tbody>
-      <tfoot><tr><td colspan="2"><b>A hónapban összesen (${people.length} fő)</b></td><td class="num"><b>${ftFmt(total)}</b></td></tr></tfoot></table></div>`:empty('Ebben a hónapban nincs termelői díj.')}</div>`;
+  const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
+  const cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)))].sort((a,b)=>((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));
+  const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),total=rows.reduce((s,r)=>s+rowSum(r),0);
+  const allTotal=Object.keys(by).reduce((s,m)=>s+Object.values(by[m]).reduce((s2,r)=>s2+rowSum(r),0),0);
+  return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak hónaponként, díjcsökkentés után · nettó</p></div>
+      <select class="inp" id="pay-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select></div>
+    ${rows.length?`<div class="sheet-wrap pay-wrap"><table class="sheet pay-sheet"><thead><tr><th>Projekt</th>${cids.map(c=>`<th class="r">${esc((crewById(c)||{}).name||'Munkatárs')}</th>`).join('')}<th class="r">Projekt összesen</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button></td>${cids.map(c=>`<td class="r">${r.cells[c]!=null?moneyFmt(r.cells[c])||0:'<span class="muted">–</span>'}</td>`).join('')}<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td></tr>`).join('')}</tbody>
+      <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}<td class="r pay-total"><b>${ftFmt(total)}</b></td></tr></tfoot></table></div>`
+      :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}
+    <p class="hint">A projektek a kezdőnapjuk hónapjához számítanak. Az összes hónap együtt: <b>${ftFmt(allTotal)}</b>.</p>`;
 }
 function pendingPenPanel(){
   const rows=[];S.projects.forEach(p=>(p.penalties||[]).filter(x=>x.status==='pending').forEach(x=>rows.push({p,x})));
@@ -307,10 +312,10 @@ function selField(p,key,label,opts,o={}){
   return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><select class="inp" id="f-${key}" data-field="${key}"${D()}><option value="">${o.empty||'Válassz…'}</option>${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 }
 const FOTO_DEF=150,FOTO_STEP=10,FOTO_MAX=1000;
-const fotoDb=p=>num(p.foto_db)>0?num(p.foto_db):(p.x_foto?FOTO_DEF:0);
+const fotoDb=p=>num(p.foto_db);   // fotók utómunkája (db) – a helyszíni fotózás külön pipa a Terepi feladatoknál
 function fotoRow(p){const n=fotoDb(p);
-  return `<div class="dl${n?' on':''}"><div><div class="dl-name">Fotózás</div>${n?`<div class="dl-price">${n} db fotó</div>`:''}</div>
-    <div class="stepper"><button type="button" data-action="foto-step" data-d="-1" aria-label="Fotózás: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="foto_db" data-min="0" data-max="${FOTO_MAX}" aria-label="Fotók száma" value="${n}"${D()}><button type="button" data-action="foto-step" data-d="1" aria-label="Fotózás: több"${n>=FOTO_MAX||ro()?' disabled':''}>+</button></div></div>`;}
+  return `<div class="dl${n?' on':''}"><div><div class="dl-name">Fotók utómunkája</div>${n?`<div class="dl-price">${n} db fotó</div>`:''}</div>
+    <div class="stepper"><button type="button" data-action="foto-step" data-d="-1" aria-label="Fotók utómunkája: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="foto_db" data-min="0" data-max="${FOTO_MAX}" aria-label="Fotók száma" value="${n}"${D()}><button type="button" data-action="foto-step" data-d="1" aria-label="Fotózás: több"${n>=FOTO_MAX||ro()?' disabled':''}>+</button></div></div>`;}
 /* ===== Stáb és eszközök egy panelen: munkatársanként a nála lévő eszközök ===== */
 function eqNote(e,it,p){
   if(!it)return '';const free=num(it.qty)-usedElsewhere(it.id,p)-(eqQty(p,it.id)-num(e.qty));
@@ -399,21 +404,29 @@ function financePanel(p,inner){
   const head=`<colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${th('#',0,'n')}${th('Szakember neve',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}</tr></thead>`;
   const tbl=(body,foot,cls)=>`<div class="sheet-wrap${cls?' '+cls:''}"><table class="sheet fin-sheet" style="width:${cols.reduce((x,y)=>x+y,0)}px;min-width:100%">${head}<tbody>${body}</tbody>${foot||''}</table></div>`;
   const foot=`<tfoot><tr><td></td><td></td><td class="r tf-lbl">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,''))||0}</td></tr>${keretRows(p)}</tfoot>`;
+  const postRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&isPostOnly(p,x.f.crewId));
+  const postTbl=()=>postRows.length?`<div class="day-tbl-h">✂️ Utómunka</div>`+tbl(postRows.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${penCellNote(p,x.f)}</td><td>${ro_(esc(gearOf(x.f)||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join(''),`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Utómunka összesen</td><td class="r">${moneyFmt(postRows.reduce((s,x)=>s+num(x.f.amount)-penDeduct(p,x.f.crewId,x.f.amount),0))||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet'):'';
   let tables='';
   if(days.length){   // több napos projekt: minden napnak saját táblázata, a végén az egyéb költségek és az összesítő
-    const crewF=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed');
+    const crewF=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
     tables=days.map((dd,k)=>{const on=crewF.filter(x=>!x.f.crewId?k===0:crewDaysOf(p,x.f.crewId).includes(dd));
       const firstDay=x=>!x.f.crewId||crewDaysOf(p,x.f.crewId)[0]===dd;
       const daySum=on.reduce((s,x)=>s+(x.f.crewId?num((x.f.dayAmounts||{})[dd]):num(x.f.amount)),0);
       const body=on.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${x.f.crewId?tin(x.i,'day:'+dd,(x.f.dayAmounts||{})[dd],'0',{money:1}):tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId&&firstDay(x)?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${firstDay(x)?rentCell(x.f,x.i):ro_('')}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Erre a napra még nincs beosztva senki.</td></tr>`;
       return `<div class="day-tbl-h">${k+1}. nap – ${esc(dayLbl(dd))}</div>`+tbl(body,`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Napi összesen</td><td class="r" data-day-sum="${dd}">${moneyFmt(daySum)||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet');}).join('');
     const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
-    tables+=`<div class="day-tbl-h">Egyéb költségek és összesítés</div>`+tbl(commonRow()+fixedRows,foot);
+    tables+=postTbl()+`<div class="day-tbl-h">Egyéb költségek és összesítés</div>`+tbl(commonRow()+fixedRows,foot);
   }else{
+    if(postRows.length){const field=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
+      const fr=field.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Még nincs helyszíni stáb.</td></tr>`;
+      const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
+      tables=`<div class="day-tbl-h">📍 Helyszíni stáb</div>`+tbl(fr,'','day-sheet')+postTbl()+`<div class="day-tbl-h">Egyéb költségek és összesítés</div>`+tbl(commonRow()+fixedRows,foot);
+    }else{
     const rows=fees.map((f,i)=>{const fixed=f.kind==='fixed';
       const sep=fixed&&(i===0||fees[i-1].kind!=='fixed')?`<tr class="sep-row"><td colspan="6">Egyéb költségek</td></tr>${commonRow()}`:'';
       return sep+`<tr class="${fixed?'fixed-row':''}"><td class="n">${fixed?'':`<div class="mv-cell"><span>${i+1}</span>${nf>1?`<span class="mv"><button type="button" data-action="fee-move" data-i="${i}" data-d="-1"${i===0?' disabled':''} title="Feljebb" aria-label="Sor feljebb">▲</button><button type="button" data-action="fee-move" data-i="${i}" data-d="1"${i>=nf-1?' disabled':''} title="Lejjebb" aria-label="Sor lejjebb">▼</button></span>`:''}</div>`}</td><td>${nameCell(f,i)}</td><td>${ro_(fixed?'':esc(f.task||(f.roles||[]).join(' + ')||''))}</td><td>${tin(i,'amount',f.amount,'0',{money:1})}${f.crewId?penCellNote(p,f):''}</td><td>${ro_(fixed?'':esc(gearOf(f)||f.gear||''))}</td><td>${rentCell(f,i)}</td></tr>`;}).join('');
     tables=tbl(rows||`<tr><td colspan="6" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`,foot);
+    }
   }
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek az alábbi táblázatot nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
@@ -455,8 +468,8 @@ function penPanel(p){
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const opts=itemOptions(p);
   const ids=[];if(p.lead)ids.push(p.lead);(p.crew||[]).forEach(a=>{if(!ids.includes(a.crewId))ids.push(a.crewId);});
-  const PD=projDays(p),selDay=PD.includes(S.crewDay)?S.crewDay:'',shownIds=selDay?ids.filter(id=>crewDaysOf(p,id).includes(selDay)):ids;   // több napos: napokra bontott stáb
-  const dayTabs=PD.length?`<div class="day-tabs" role="tablist" aria-label="Stáb napok szerint"><button type="button" class="day-tab${selDay?'':' on'}" data-action="crew-day-tab" data-d="" role="tab" aria-selected="${!selDay}">Minden nap <span class="c">${ids.length}</span></button>${PD.map((dd,k)=>{const n=ids.filter(id=>crewDaysOf(p,id).includes(dd)).length;return `<button type="button" class="day-tab${selDay===dd?' on':''}" data-action="crew-day-tab" data-d="${dd}" role="tab" aria-selected="${selDay===dd}">${k+1}. nap · ${esc(dayLbl(dd))} <span class="c">${n}</span></button>`;}).join('')}</div>${selDay&&!ro()?`<p class="hint" style="margin:6px 0 0">A ${PD.indexOf(selDay)+1}. napra beosztott stáb. Akit most veszel fel, csak erre a napra kerül.</p>`:''}`:'';
+  const PD=projDays(p),selDay=PD.includes(S.crewDay)?S.crewDay:'',shownIds=selDay?ids.filter(id=>!isPostOnly(p,id)&&crewDaysOf(p,id).includes(selDay)):ids;   // több napos: napokra bontott stáb
+  const dayTabs=PD.length?`<div class="day-tabs" role="tablist" aria-label="Stáb napok szerint"><button type="button" class="day-tab${selDay?'':' on'}" data-action="crew-day-tab" data-d="" role="tab" aria-selected="${!selDay}">Minden nap <span class="c">${ids.length}</span></button>${PD.map((dd,k)=>{const n=ids.filter(id=>!isPostOnly(p,id)&&crewDaysOf(p,id).includes(dd)).length;return `<button type="button" class="day-tab${selDay===dd?' on':''}" data-action="crew-day-tab" data-d="${dd}" role="tab" aria-selected="${selDay===dd}">${k+1}. nap · ${esc(dayLbl(dd))} <span class="c">${n}</span></button>`;}).join('')}</div>${selDay&&!ro()?`<p class="hint" style="margin:6px 0 0">A ${PD.indexOf(selDay)+1}. napra beosztott stáb. Akit most veszel fel, csak erre a napra kerül.</p>`:''}`:'';
   const cards=shownIds.map(cid=>{const cr=crewById(cid),busy=busyFor(cid,p),tight=tightFor(cid,p);
     const roles=(p.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);
     const roleHtml=roles.map(({a,i})=>`<span class="role-sel"><select class="inp" data-crew-role="${i}" aria-label="Szerep"${D()}>${CREW_ROLES.filter(r=>r!=='Projektvezető').map(rl=>`<option${rl===a.role?' selected':''}>${esc(rl)}</option>`).join('')}</select><button class="x w" type="button" data-action="crew-remove" data-i="${i}" aria-label="Szerep eltávolítása" title="Levétel a projektről ebben a szerepben">×</button></span>`).join('');
@@ -470,7 +483,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     return `<div class="pcrew${p.lead===cid?' is-lead':''}">${p.lead===cid?'<span class="lead-badge">★ Projektvezető</span>':''}<div class="pcrew-top">${avatar(cr)}${ro()?'':`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Levétel a projektről" title="Levétel a projektről (minden szerepével)">🗑️</button>`}<div class="who">${cr&&!ro()?`<button class="name-link" type="button" data-action="edit-crew" data-id="${esc(cid)}" title="${esc(cr.name)} profiljának megnyitása">${esc(cr.name)}</button>`:`<b>${esc(cr?cr.name:'Törölt munkatárs')}</b>`}${busy.length?`<span class="bad-txt">Ütközik: ${esc(busy.map(q=>q.name).join(', '))}</span>`:cr&&cr.phone?`<small>${esc(cr.phone)}</small>`:''}</div></div>
       ${tight.map(g=>`<p class="tight-note${g.gap<TRAVEL_RED_MIN?' bad':''}">${g.gap<TRAVEL_RED_MIN?'⛔':'⏱️'} ${tightText(g)}</p>`).join('')}
       <div class="pcrew-roles">${p.lead===cid?`<span class="role-sel lead-role"><span class="inp role-fixed">★ Projektvezető</span>${ro()||projLocked()?'':`<button class="x w" type="button" data-action="lead-remove" aria-label="Projektvezető szerep levétele" title="Projektvezető szerep levétele">×</button>`}</span>`:''}${roleHtml}${addRole}</div>
-      ${projDays(p).length?`<div class="pcrew-days" aria-label="Munkanapok">${projDays(p).map(dd=>{const on=crewDaysOf(p,cid).includes(dd);return ro()?(on?`<span class="day-chip on">${esc(dayLbl(dd))}</span>`:''):`<button type="button" class="day-chip${on?' on':''}" data-action="crew-day" data-cid="${esc(cid)}" data-d="${dd}" aria-pressed="${on}" title="${on?'Dolgozik ezen a napon – kattints, ha mégsem':'Nem dolgozik ezen a napon'}">${esc(dayLbl(dd))}</button>`;}).join('')}</div>`:''}
+      ${projDays(p).length&&!isPostOnly(p,cid)?`<div class="pcrew-days" aria-label="Munkanapok">${projDays(p).map(dd=>{const on=crewDaysOf(p,cid).includes(dd);return ro()?(on?`<span class="day-chip on">${esc(dayLbl(dd))}</span>`:''):`<button type="button" class="day-chip${on?' on':''}" data-action="crew-day" data-cid="${esc(cid)}" data-d="${dd}" aria-pressed="${on}" title="${on?'Dolgozik ezen a napon – kattints, ha mégsem':'Nem dolgozik ezen a napon'}">${esc(dayLbl(dd))}</button>`;}).join('')}</div>`:''}
       ${eqBlock}${noteBlock}</div>`;}).join('');
   const commonRows=eqRowsFor(p,'')+(p.equipment||[]).map((e,i)=>({e,i})).filter(x=>x.e.crewId&&!ids.includes(x.e.crewId)).map(({e,i})=>{const it=itemById(e.itemId);
     return `<div class="eqrow"><div class="who"><b>${esc(it?it.name:'Törölt eszköz')}</b><small>${esc((crewById(e.crewId)||{}).name||'')} – már nincs a projekten</small></div><input class="inp qty" type="number" min="1" inputmode="numeric" data-eq-i="${i}" value="${num(e.qty)}" aria-label="Darabszám"${D()}><button class="x w" type="button" data-action="eq-remove" data-i="${i}" aria-label="Eszköz eltávolítása">×</button></div>`;}).join('');
@@ -507,7 +520,7 @@ function deliverItems(p){
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)items.push(`${esc(it.label)}: <b>${n}</b>`);});
   if(p.er_post)items.push('Előadások utómunkája ('+(p.er_res==='4k'?'4K':'Full HD')+')'+(num(p.er_rooms)>1?` · ${num(p.er_rooms)} terem`:''));
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>items.push(`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
-  if(num(p.foto_db)>0||p.x_foto)items.push('Fotózás'+(num(p.foto_db)>0?`: <b>${num(p.foto_db)}</b> db`:''));
+  if(num(p.foto_db)>0)items.push(`Fotók utómunkája: <b>${num(p.foto_db)}</b> db`);
   ['x_dron','x_timelapse','x_pov','x_nyersVetel','x_nyersTarolas','x_rush'].forEach(k=>{const e=EXTRAS.find(x=>x.k===k);if(e&&p[k])items.push(esc(e.label));});
   return items;
 }
@@ -530,7 +543,7 @@ function roContentPanel(p){
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
   if(rec.length&&rooms>1)rec.unshift(`Rögzített termek száma: <b>${rooms}</b>`);
   const krea=[];
-  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)krea.push(`${esc(it.label)}: <b>${n}</b>`);if(it.k==='aftermovie'&&fotoDb(p)>0)krea.push(`Fotózás: <b>${fotoDb(p)} db</b>`);});
+  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)krea.push(`${esc(it.label)}: <b>${n}</b>`);if(it.k==='aftermovie'&&fotoDb(p)>0)krea.push(`Fotók utómunkája: <b>${fotoDb(p)} db</b>`);});
   EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas'&&p[e.k]).forEach(e=>krea.push(esc(e.label)));
   const tech=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
   if(!rec.length&&!krea.length&&!tech.length&&!plan)return '';
@@ -552,7 +565,7 @@ function viewProject(p){
     return `<div class="stage-w${tk?' has-tick':''}"><button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}${on?' ticked':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${closed?' disabled':D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>${tk?(ro()||closed?(on?'<span class="stage-tick on" title="Megtörtént">✓</span>':''):`<button type="button" class="stage-tick${on?' on':''}" data-action="step-done" data-v="${s.id}" aria-pressed="${on}" title="${on?'Megtörtént – kattints a visszavonáshoz':'Jelöld, ha ez a lépés megtörtént'}" aria-label="${esc(stageLabel(p,s.id))}: megtörtént">✓</button>`):''}</div>`;}).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
-  const ex=EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
+  const ex=EXTRAS.filter(e=>e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
   const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
   const nRec=REC_CAMS.filter(c=>p[c.k]).length+REC_LIVE.filter(c=>p[c.k]).length+(p.er_post?1:0);
   const nTech=TECH.filter(t=>p[t.k]).length;

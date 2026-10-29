@@ -20,7 +20,7 @@ const EXTRAS=[
   {k:'x_dron',label:'Drónos felvételek + pilóta',role:'Drónpilóta',base:true},
   {k:'x_timelapse',label:'Timelapse (GoPro)',base:true},
   {k:'x_pov',label:'POV felvétel (GoPro)',base:true},
-  {k:'x_foto',label:'Fotózás',role:'Fotós',base:true},
+  {k:'x_foto',label:'Fotózás (fotós a helyszínen)',role:'Fotós',base:true},
   {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
   {k:'x_rush',label:'Villámgyors kézbesítés',pct:'rush'}];
@@ -129,6 +129,7 @@ function staffing(p){
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
   if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms);   // termenként legalább 1 operatőr
+  if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   need['Projektvezető']=1;   // projektvezető mindig kell, egyszemélyes stábnál is
@@ -267,3 +268,8 @@ function projDays(p){const r=pr(p);if(!r||r.start===r.end)return [];const out=[]
 function crewDaysOf(p,cid){const all=projDays(p),c=(p.crewDays||{})[cid];return Array.isArray(c)&&c.length?all.filter(d=>c.includes(d)):all;}
 const dayLbl=d=>{const x=toDate(d);return (x.getUTCMonth()+1)+'.'+String(x.getUTCDate()).padStart(2,'0')+'. '+F_WD.format(x);};
 function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0);}
+
+/* Utómunka: csak vágóként beosztott munkatárs (nem a projektvezető) – nem napokhoz kötött, külön táblázatba kerül */
+const POST_ROLES=['Vágó'];
+function isPostOnly(p,cid){if(!cid||p.lead===cid)return false;const r=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return r.length>0&&r.every(x=>POST_ROLES.includes(x));}
+function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips)>0||num(p.er_subs)>0||DELIVERABLES.some(it=>num(p[it.k])>0);}
