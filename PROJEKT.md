@@ -25,7 +25,7 @@ A lumosmotion.hu DNS-e a Vercelen van. A főoldal (lumos-motion projekt), a sale
 - `actions.js` – ablakok, események, mentés
 - `apps-script/Code.gs`, `apps-script/appsscript.json` – a háttér másolata (a Vercel nem tölti fel, `.vercelignore`)
 
-Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatja (a jogosultságot a token és a szerepkör adja). Felhasználók és munkamenetek a Script Propertiesben, PIN SHA-256 + só, lépcsőzetes zárolás, ütközésvédelem (`baseUpdatedAt`), ismétlésvédelem (`mutationId`), képletbeszúrás ellen `'` előtag. Időzóna: Europe/Budapest.
+Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatja (a jogosultságot a token és a szerepkör adja). Felhasználók és munkamenetek a Script Propertiesben (token SHA-256), ütközésvédelem (`baseUpdatedAt`), ismétlésvédelem (`mutationId`), képletbeszúrás ellen `'` előtag. Időzóna: Europe/Budapest.
 
 ## Szerepkörök
 - Ügyvezető (`admin`): mindent lát és kezel, Beállítások, napló, felhasználók, beszerzési értékek.
@@ -35,7 +35,7 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 
 ## Fontos szabályok
 - Pénzügyek (mindig nettó, ÁFA nélkül): a projekt értékét (táblában „Ajánlati ár (nettó Ft)”) csak az ügyvezető látja és állítja; a termelői díjakat (alvállalkozói díj, eszközbérlés, fuvar, jutalék – „Termelői díjak (JSON)” oszlop) az ügyvezető és a termelési vezető. A szakember egyiket sem kapja meg; a szűrést a háttér végzi (projectView_). Fedezet = érték − termelői díjak; költséghányad = díjak / érték. Napló, naptár és e-mail nem tartalmaz összeget.
-- Belépés csak Google-fiókkal (Google Identity Services, OAuth Client ID a config.js-ben és a Code.gs-ben; Google Cloud projekt: lumos-motion-projekttervezo, External, In production). Céges címnél csak a lumosmotion.com Workspace-fiók (hd) fogadható el. Csak a Beállítások → Hozzáférések listában szereplő aktív címek léphetnek be. A PIN-es belépés megszűnt; vészhelyzetben a PIN_LOGIN_ENABLED=true Script Property és a /#pin cím kapcsolja vissza.
+- Belépés csak Google-fiókkal (Google Identity Services, OAuth Client ID a config.js-ben és a Code.gs-ben; Google Cloud projekt: lumos-motion-projekttervezo, External, In production). Céges címnél csak a lumosmotion.com Workspace-fiók (hd) fogadható el. Csak a Beállítások → Hozzáférések listában szereplő aktív címek léphetnek be. PIN-es belépés nincs (minden része törölve); új kolléga felvételekor csak Google-meghívó megy ki.
 - Biztonsági fejlécek (CSP stb.) a vercel.json-ban.
 - Új oszlop csak a munkalap végére kerülhet; fejlécet átnevezni nem szabad (a háttér ellenőrzi).
 - Kategóriák (Leltár): Kamera, Objektív, Hang, Fény, Drón, Képkeverés / stream, GoPro / akciókamera, Gimbal / állvány, Akku / powerbank / táp, Adathordozó, Laptop / tablet / telefon, Kocsi / szállítás, Kábel, Egyéb. Állapot: Üzemképes, Javításra vár, Szervizben, Selejtezett.

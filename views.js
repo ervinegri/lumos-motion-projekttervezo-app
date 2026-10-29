@@ -2,14 +2,12 @@
 /* ===== Belépés (a Sales App belépőjével egyező működés) ===== */
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.classList.toggle('info',!!info);}
-/* Belépés csak Google-fiókkal (Google Identity Services). A PIN-es űrlap csak vészhelyzetben, a #pin címen jelenik meg
-   (és csak akkor működik, ha a háttérben a PIN_LOGIN_ENABLED be van kapcsolva). */
+/* Belépés csak Google-fiókkal (Google Identity Services). */
 const G_CLIENT=String(window.LUMOS_GOOGLE_CLIENT_ID||'').trim();
-const PIN_EMERGENCY=location.hash==='#pin'||!G_CLIENT;
-let gReady=false,pinShown=PIN_EMERGENCY;
-function setPinMode(on){$('pinBox').hidden=!on;$('gBox').hidden=!G_CLIENT;$('loginForm').classList.toggle('g-only',!!G_CLIENT&&!on);}
+let gReady=false;
 function initGoogle(tries){
-  if(!G_CLIENT||gReady)return;
+  if(!G_CLIENT){loginMsg('A Google-belépés nincs beállítva.');return;}
+  if(gReady)return;
   if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');return;}
   gReady=true;
   google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
@@ -27,46 +25,10 @@ async function onGoogleCredential(resp){
 }
 function showLogin(msg){
   $('loginGate').classList.remove('hidden');
-  setPinMode(pinShown);initGoogle();
+  initGoogle();
   loginMsg(msg||'',!!msg&&/Kiléptél/.test(msg));
-  $('loginPin').value='';
-  let last='';try{last=localStorage.getItem(TOKEN_KEY+'_email')||'';}catch(e){}
-  if(last&&!$('loginEmail').value)$('loginEmail').value=last;
-  if(!G_CLIENT||pinShown)setTimeout(()=>{try{($('loginEmail').value?$('loginPin'):$('loginEmail')).focus();}catch(e){}},50);
 }
-$('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
-$('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  if($('loginBtn').disabled)return;
-  const email=$('loginEmail').value.trim().toLowerCase(),pin=$('loginPin').value.trim();
-  if(!EMAIL_RE.test(email)){loginMsg('Írd be az e-mail-címed.');$('loginEmail').focus();return;}
-  if(!/^\d{6}$/.test(pin)){loginMsg('A PIN 6 számjegyből áll.');$('loginPin').focus();return;}
-  $('loginBtn').disabled=true;loginMsg('Belépés…',true);
-  try{
-    const r=await gs('login',email,pin);
-    TOKEN=r.token;try{localStorage.setItem(TOKEN_KEY,TOKEN);localStorage.setItem(TOKEN_KEY+'_email',email);}catch(err){}
-    $('loginGate').classList.add('hidden');loginMsg('');
-    await load();
-  }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');$('loginPin').value='';$('loginPin').focus();}
-  finally{$('loginBtn').disabled=false;}
-});
-$('loginPin').addEventListener('input',()=>{
-  const p=$('loginPin'),v=p.value.replace(/\D/g,'').slice(0,6);if(p.value!==v)p.value=v;
-  if(v.length<6)return;
-  if(!EMAIL_RE.test($('loginEmail').value.trim())){loginMsg('Előbb írd be az e-mail-címed.');$('loginEmail').focus();return;}
-  $('loginForm').requestSubmit();   // a 6. számjegy után magától belép
-});
-$('forgotPin').addEventListener('click',async()=>{
-  const email=$('loginEmail').value.trim().toLowerCase(),b=$('forgotPin');
-  if(!EMAIL_RE.test(email)){loginMsg('Írd be az e-mail-címed, utána kérj új PIN-kódot.');$('loginEmail').focus();return;}
-  b.disabled=true;loginMsg('Új PIN-kód küldése…',true);
-  try{
-    await gs('requestPinReset',email);
-    loginMsg('Ha az e-mail-cím szerepel a rendszerben, elküldtük rá az új PIN-kódot. Nézd meg a spam mappát is.',true);
-    $('loginPin').value='';$('loginPin').focus();
-  }catch(err){loginMsg(errText(err)||'Nem sikerült új PIN-kódot küldeni.');}
-  finally{setTimeout(()=>{b.disabled=false;},3000);}
-});
+$('loginForm').addEventListener('submit',e=>e.preventDefault());
 $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   try{await call('logout');}catch(e){}
   TOKEN='';try{localStorage.removeItem(TOKEN_KEY);}catch(e){}bootCacheClear();
@@ -886,7 +848,7 @@ function viewSettings(){
     <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
-        <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal vagy PIN-kóddal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld. Szakember: csak a saját beosztásait látja (helyszín, időpont, stáb, eszközök), szerkeszteni nem tud.</p>
+        <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld. Szakember: csak a saját beosztásait látja (helyszín, időpont, stáb, eszközök), szerkeszteni nem tud.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
         <div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>

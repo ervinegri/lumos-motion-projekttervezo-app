@@ -131,6 +131,16 @@ test('crew card order is saved, de-duplicated and limited to existing crew',()=>
   assert.deepEqual(json('crewOrder_()'),['bence-123','david-123']);
 });
 
+
+test('users: no PIN anywhere – new user gets only a Google invite, old PIN hashes are stripped',()=>{
+  run(`var INV=[];sendInviteMail_=u=>INV.push(u.email);PROPS['LUMOS_PM_USERS_V1']=JSON.stringify([{id:'old-1',name:'Régi',role:'editor',email:'regi@x.hu',salt:'s',hash:'h',disabled:false}]);
+    var su=saveUser_({name:'Új Kolléga',role:'editor',email:'uj@x.hu',sendInvite:true});`);
+  assert.deepEqual(json('INV'),['uj@x.hu']);
+  const stored=JSON.parse(run("PROPS['LUMOS_PM_USERS_V1']"));
+  assert(stored.every(u=>!('salt' in u)&&!('hash' in u)));
+  assert.equal(typeof run('typeof login'),'string');assert.equal(run('typeof login'),'undefined');
+  assert.equal(run('typeof requestPinReset'),'undefined');assert.equal(run('typeof changePin_'),'undefined');
+});
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
 for(const f of ['core.js','views.js','actions.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');

@@ -13,16 +13,12 @@
 const SPREADSHEET_ID = '1Jf9nELuauhFEaAxAnfg_dSDG1MudeqfmftqYPqCdif8';   // Projektek / „Lumos Projektkezelő – adatbázis”
 const PROJECTS_FOLDER_ID = '1qxSBbudO4atHkdOsfH6ur6oXc_tc9OnB';          // Projektek mappa (alatta évszámos almappák)
 const APP_TITLE = 'Lumos Motion Projekttervező';
-const FRONTEND_URL = 'https://projekttervezo.lumosmotion.hu';   // a Vercelen futó felület címe (ez kerül a PIN-es e-mailekbe)
+const FRONTEND_URL = 'https://projekttervezo.lumosmotion.hu';   // a Vercelen futó felület címe (ez kerül a meghívó e-mailekbe)
 /* Google-fiókos belépés: a Google Cloud OAuth „Web application” ügyfél azonosítója (nem titkos adat).
    Felülírható a GOOGLE_CLIENT_ID Script Propertyvel. Üresen a Google-belépés ki van kapcsolva. */
 const GOOGLE_CLIENT_ID = '236393101415-be2dql04j8msn834o5afad87vib0n54v.apps.googleusercontent.com';
 const COMPANY_DOMAIN = 'lumosmotion.com';
-/* A PIN-es belépés megszűnt, csak Google-fiókkal lehet belépni. Vészhelyzetre (pl. ha a Google-belépés nem működik)
-   a Script Propertiesben a PIN_LOGIN_ENABLED = true visszakapcsolja, és az app a projekttervezo.lumosmotion.hu/#pin címen
-   mutatja a PIN-es űrlapot. Utána állítsd vissza false-ra vagy töröld. */
-function pinLoginEnabled_() { return String(PropertiesService.getScriptProperties().getProperty('PIN_LOGIN_ENABLED') || '').toLowerCase() === 'true'; }
-const PIN_OFF_MSG = 'A PIN-kódos belépés megszűnt. Lépj be a „Bejelentkezés Google-fiókkal” gombbal.';   // ilyen végű címnél csak a céges (Workspace) Google-fiók fogadható el
+/* Belépés csak Google-fiókkal (a PIN-es belépés minden része megszűnt). */
 const CALENDAR_ID = 'c_2c50501c805387f783e86998c7afa0a53dcc443aaa73d96e1be5373ecb71d2fd@group.calendar.google.com';   // „Terepi Munkák Lumos Motion” naptár
 const MAIL_FROM = 'admin@lumosmotion.com';        // az app leveleinek feladója: Gmail „Küldés másként” alias a szkriptet futtató fiókban
 const MAIL_REPLY_TO = 'admin@lumosmotion.com';      // alapértelmezett válaszcím (az eszközlistánál a küldő kolléga címe lesz)
@@ -31,7 +27,7 @@ const MAIL_SIGNATURE_TEXT = 'Üdvözlettel,\nLumos Motion';
 const SHEET_TZ = 'Europe/Budapest';
 
 /** EGYSZERI beállítás a setup() futtatásához: [megjelenő név, szerepkör (admin | editor | crew), e-mail-cím]
- *  A PIN-t a program generálja: e-mailben kiküldi, és a végrehajtási naplóba is kiírja. */
+ *  Az új felhasználó Google-fiókkal lép be; a program meghívót küld neki. */
 const SETUP_USERS = [
   ['Ervin', 'admin', 'ervin.egri@lumosmotion.com']
 ];
@@ -114,10 +110,7 @@ function api_(raw) {
     const fn = String(body.fn || ''), args = Array.isArray(body.args) ? body.args : [];
     let data;
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
-    else if (fn === 'login') data = login(args[0], args[1], args[2]);
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
-    else if (fn === 'getLoginNames') data = getLoginNames();
-    else if (fn === 'requestPinReset') data = requestPinReset(args[0]);
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
   } catch (err) {
@@ -1362,11 +1355,9 @@ function getLog_() {
 /* ===================== FELHASZNÁLÓK ÉS BELÉPÉS (a Sales App mintájára) ===================== */
 const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
-const LOCK_PREFIX = 'LUMOS_PM_LOCK_';
 const ROLES = ['admin', 'editor', 'crew'];   // Ügyvezető, Termelési vezető, Szakember (csak a saját beosztásait látja, nem szerkeszt)
 const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Szakember' };
 const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
-const LOCK_STEPS_MIN = [15, 60, 360, 1440];
 
 function ownerOnly_() {
   let active = '', effective = '';
@@ -1379,13 +1370,13 @@ function sha256hex_(text) {
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8)
     .map(b => ('0' + (b & 0xff).toString(16)).slice(-2)).join('');
 }
-function pinHash_(salt, pin) { return sha256hex_(salt + ':' + pin); }
 function sameName_(a, b) { return String(a || '').trim().toLocaleLowerCase('hu-HU') === String(b || '').trim().toLocaleLowerCase('hu-HU'); }
 function loadUsers_() {
   try { const a = JSON.parse(PropertiesService.getScriptProperties().getProperty(USERS_PROPERTY) || '[]'); return Array.isArray(a) ? a : []; }
   catch (e) { return []; }
 }
 function saveUsers_(users) {
+  users.forEach(u => { delete u.salt; delete u.hash; });   // a régi PIN-kódok nyoma is törlődik
   const json = JSON.stringify(users);
   if (json.length > 8500) throw new Error('Elérted a felhasználók maximális számát (kb. 30).');
   PropertiesService.getScriptProperties().setProperty(USERS_PROPERTY, json);
@@ -1396,14 +1387,8 @@ function publicUser_(u) {
   return o;
 }
 function adminListUser_(u) { return { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || ''), disabled: !!u.disabled, createdAt: u.createdAt || '' }; }
-function newUserRecord_(name, role, crewId, pin, email) {
-  const salt = Utilities.getUuid();
-  return { id: Utilities.getUuid(), name: name, role: role, crewId: crewId || '', email: String(email || ''), salt: salt, hash: pinHash_(salt, pin), disabled: false, createdAt: new Date().toISOString() };
-}
-function genPin_() {
-  let digits = '';
-  while (digits.length < 6) digits += (Utilities.getUuid() + Utilities.getUuid()).replace(/\D/g, '');
-  return digits.slice(0, 6);
+function newUserRecord_(name, role, crewId, email) {
+  return { id: Utilities.getUuid(), name: name, role: role, crewId: crewId || '', email: String(email || ''), disabled: false, createdAt: new Date().toISOString() };
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
@@ -1448,59 +1433,7 @@ function setUserDisabled_(arg, self) {
   });
 }
 
-function sendPinMail_(user, pin, isReset) {
-  const url = appUrl_();
-  const intro = isReset ? 'A kérésedre új PIN-kódot állítottunk be a ' + APP_TITLE + ' alkalmazáshoz. A régi PIN-kód ezzel érvénytelen.' : 'Beállítottuk a hozzáférésedet a ' + APP_TITLE + ' alkalmazáshoz.';
-  const lines = ['Kedves ' + user.name + ',', '', intro, '',
-    'E-mail-cím a belépésnél: ' + user.email, 'PIN-kód: ' + pin, ''];
-  if (url) lines.push('Az alkalmazás: ' + FRONTEND_LABEL, '');
-  lines.push('A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : ''), '', MAIL_SIGNATURE_TEXT);
-  const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
-    + '<p><b>E-mail-cím a belépésnél:</b> ' + escapeHtml_(user.email) + '<br><b>PIN-kód:</b> <span style="font-size:18px;letter-spacing:2px">' + escapeHtml_(pin) + '</span></p>'
-    + (url ? '<p>Az alkalmazás: <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a></p>' : '')
-    + '<p>A PIN-kódot ne add tovább.' + (isReset ? ' Ha nem te kérted az új PIN-kódot, szólj az ügyvezetőnek.' : '') + '</p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
-  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  GmailApp.sendEmail(user.email, APP_TITLE + (isReset ? ' – új PIN-kódod' : ' – belépési adataid'), lines.join('\n'), opts);
-}
-
-/** „Elfelejtettem a PIN-kódom”: új PIN-t állít be, és kiküldi a felhasználó e-mail-címére. Belépés nélkül hívható,
- *  ezért szűkített (felhasználónként 10 percenként 1, összesen óránként 30). A válasz nem árulja el, létezik-e az e-mail-cím. */
-function requestPinReset(email) {
-  if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG);
-  email = String(email || '').trim().toLowerCase();
-  const GENERIC = { ok: true };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Írd be az e-mail-címed, utána kérj új PIN-kódot.');
-  const cache = CacheService.getScriptCache();
-  const hour = Number(cache.get('pm_pinreset_hour') || 0);
-  if (hour >= 30) throw new Error('Túl sok kérés. Próbáld újra később, vagy szólj az ügyvezetőnek.');
-  cache.put('pm_pinreset_hour', String(hour + 1), 3600);
-  let user = null, pin = '', oldSalt = '', oldHash = '';
-  withLock_(() => {
-    const users = loadUsers_();
-    const u = users.find(x => String(x.email || '').toLowerCase() === email && !x.disabled);
-    if (!u) return;
-    if (cache.get('pm_pinreset_' + u.id)) return;   // 10 percen belül már kiküldtük
-    pin = genPin_(); oldSalt = u.salt; oldHash = u.hash;
-    u.salt = Utilities.getUuid(); u.hash = pinHash_(u.salt, pin);
-    saveUsers_(users);
-    PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + u.id);   // a zárolás is feloldódik
-    cache.put('pm_pinreset_' + u.id, '1', 600);
-    user = u;
-  });
-  if (!user) { Utilities.sleep(700); return GENERIC; }
-  try { sendPinMail_(user, pin, true); }
-  catch (e) {
-    // ha a levél nem ment ki, a régi PIN marad érvényben
-    withLock_(() => { const users = loadUsers_(); const x = users.find(v => v.id === user.id); if (x) { x.salt = oldSalt; x.hash = oldHash; saveUsers_(users); } });
-    cache.remove('pm_pinreset_' + user.id);
-    throw new Error('Nem sikerült elküldeni az új PIN-kódot. Próbáld újra később, vagy szólj az ügyvezetőnek.');
-  }
-  logEvent_(user, 'PIN-visszaállítás', user.name, 'Új PIN kiküldve e-mailben: ' + user.email);
-  return GENERIC;
-}
-
-/** EGYSZER FUTTATANDÓ a szerkesztőből: létrehozza a munkalapokat és a SETUP_USERS felhasználókat (új PIN-nel). */
+/** EGYSZER FUTTATANDÓ a szerkesztőből: létrehozza a munkalapokat és a SETUP_USERS felhasználókat (meghívóval). */
 function setup() {
   ownerOnly_();
   Object.keys(TABLES).forEach(k => {
@@ -1523,24 +1456,21 @@ function setup() {
       const name = String(r[0]).trim(), email = String(r[2] || '').trim().toLowerCase();
       if (!email) throw new Error('A SETUP_USERS listában mindenkinek kell e-mail-cím (ezzel lép be): ' + name);
       let u = users.find(x => String(x.email || '').toLowerCase() === email);
-      if (u) { Logger.log('Már létezik, kihagyva: ' + name + ' (' + r[1] + '). Új PIN-t az app Beállítások lapján adhatsz.'); return; }
-      const pin = genPin_();
-      u = newUserRecord_(name, r[1], '', pin, email);
+      if (u) { Logger.log('Már létezik, kihagyva: ' + name + ' (' + r[1] + ').'); return; }
+      u = newUserRecord_(name, r[1], '', email);
       users.push(u);
       saveUsers_(users);
-      Logger.log('Felhasználó létrehozva: ' + name + ' (' + r[1] + ') · vész-PIN: ' + pin);
+      Logger.log('Felhasználó létrehozva: ' + name + ' (' + r[1] + ')');
       if (email) { try { sendInviteMail_(u); Logger.log('Meghívó elküldve: ' + email); } catch (e) { Logger.log('A meghívó nem ment ki: ' + e); } }
     });
   });
   Logger.log('Kész. A munkalapok: ' + Object.keys(TABLES).map(k => TABLES[k].tab).join(', ') + ', ' + LOG_TAB);
 }
 
-/** Régi felületek kompatibilitása miatt marad meg: a belépés már e-mail-címmel történik, ezért nem ad ki neveket. */
-function getLoginNames() { return []; }
-
 function cleanupSessions_(props) {
   const now = Date.now(), all = props.getProperties();
   Object.keys(all).forEach(k => {
+    if (k.indexOf('LUMOS_PM_LOCK_') === 0 || k === 'PIN_LOGIN_ENABLED') { props.deleteProperty(k); return; }   // a megszűnt PIN-es belépés maradványai
     if (k.indexOf(SESSION_PREFIX) !== 0) return;
     try { const s = JSON.parse(all[k]); if (!s || s.exp < now) props.deleteProperty(k); } catch (e) { props.deleteProperty(k); }
   });
@@ -1552,49 +1482,6 @@ function revokeSessionsOf_(uid) {
     try { if (JSON.parse(all[k]).uid === uid) props.deleteProperty(k); } catch (e) {}
   });
 }
-function lockWait_(ms) { const m = Math.ceil(ms / 60000); return (m >= 60 && m % 60 === 0) ? (m / 60) + ' óra' : m + ' perc'; }
-function lockState_(uid) {
-  try { return JSON.parse(PropertiesService.getScriptProperties().getProperty(LOCK_PREFIX + uid) || 'null') || { fails: 0, level: 0, until: 0, last: 0 }; }
-  catch (e) { return { fails: 0, level: 0, until: 0, last: 0 }; }
-}
-function lockSave_(uid, st) { PropertiesService.getScriptProperties().setProperty(LOCK_PREFIX + uid, JSON.stringify(st)); }
-
-/** Belépés e-mail-címmel és PIN-nel. Hibás próbálkozásoknál lépcsőzetes zárolás (5 hiba után 15 perc, 1 óra, 6 óra, 24 óra). */
-function login(email, pin) {
-  if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG);
-  email = String(email || '').trim().toLowerCase(); pin = String(pin || '').trim();
-  const u = email ? loadUsers_().find(x => String(x.email || '').toLowerCase() === email && !x.disabled) : null;
-  const cache = CacheService.getScriptCache();
-  const now = Date.now();
-  if (!u) {
-    if (cache.get('pm_llock_unknown')) throw new Error('Túl sok hibás próbálkozás. Próbáld újra 10 perc múlva.');
-    Utilities.sleep(700);
-    const n = Number(cache.get('pm_lfail_unknown') || 0) + 1;
-    cache.put('pm_lfail_unknown', String(n), 600);
-    if (n >= 10) cache.put('pm_llock_unknown', '1', 600);
-    throw new Error('Hibás e-mail-cím vagy PIN.');
-  }
-  withLock_(() => {
-    let st = lockState_(u.id);
-    if (st.until > now) throw new Error('Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(st.until - now) + ' múlva.');
-    if (st.last && now - st.last > 86400000) st = { fails: 0, level: 0, until: 0, last: 0 };
-    if (!/^\d{6}$/.test(pin) || pinHash_(u.salt, pin) !== u.hash) {
-      Utilities.sleep(700);
-      st.fails = (st.fails || 0) + 1; st.last = now;
-      let msg = 'Hibás e-mail-cím vagy PIN.';
-      if (st.fails >= 5) {
-        const mins = LOCK_STEPS_MIN[Math.min(st.level || 0, LOCK_STEPS_MIN.length - 1)];
-        st.until = now + mins * 60000; st.level = (st.level || 0) + 1; st.fails = 0;
-        msg = 'Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(mins * 60000) + ' múlva.';
-      }
-      lockSave_(u.id, st);
-      throw new Error(msg);
-    }
-    if (st.fails || st.level || st.until) PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + u.id);
-  });
-  return createSession_(u, 'Belépés');
-}
-
 function createSession_(u, logAction) {
   const token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
   const exp = Date.now() + (SESSION_DAYS_BY_ROLE[u.role] || 2) * 86400000;
@@ -1675,50 +1562,35 @@ function saveUser_(arg) {
   const name = String(a.name || '').trim().replace(/\s+/g, ' ');
   const role = String(a.role || '');
   const crewId = String(a.crewId || '').trim().slice(0, 64);
-  let pin = String(a.pin || '').trim();
   const email = String(a.email || '').trim().toLowerCase();
-  let sendPin = a.sendPin === true;
-  const googleOnly = a.loginMode === 'google' || !pinLoginEnabled_();   // új kolléga Google-fiókkal lép be: PIN-t nem küldünk, csak meghívót
-  if (googleOnly) { sendPin = false; pin = ''; }
   if (name.length < 2 || name.length > 60) throw new Error('A név 2–60 karakter lehet.');
   if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető, Termelési vezető vagy Szakember.');
   if (role === 'crew' && !crewId) throw new Error('Szakembernél válaszd ki, melyik munkatárs a stáblistában – csak az ő beosztásait fogja látni.');
-  if (pin && !/^\d{6}$/.test(pin)) throw new Error('A PIN pontosan 6 számjegy legyen.');
-  if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel lép be a felhasználó.');
-  let target = null, mailPin = '', list = null, isNew = false;
+  if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel a Google-fiókkal lép be a felhasználó.');
+  let target = null, list = null, isNew = false;
   withLock_(() => {
     const users = loadUsers_();
     if (users.some(u => u.id !== a.id && String(u.email || '').toLowerCase() === email)) throw new Error('Ezzel az e-mail-címmel már van felhasználó.');
     if (role === 'admin' && users.some(u => u.id !== a.id && u.role === 'admin')) throw new Error('Csak egy ügyvezető lehet. Válassz Termelési vezető vagy Szakember szerepkört.');
     let u = a.id ? users.find(x => x.id === a.id) : null;
     if (a.id && !u) throw new Error('A felhasználó nem található.');
-    if (!u && !pin && !email) throw new Error('Új felhasználónál adj meg e-mail-címet (ide megy a PIN), vagy írj be egy PIN-t.');
-    if (sendPin && !email) throw new Error('A PIN e-mailes kiküldéséhez e-mail-cím szükséges.');
-    if (!u) { if (!pin) { pin = genPin_(); if (!googleOnly) sendPin = true; } }
-    else if (sendPin && !pin) pin = genPin_();
     if (!u) {
-      u = newUserRecord_(name, role, crewId, pin, email);
+      u = newUserRecord_(name, role, crewId, email);
       users.push(u);
     } else {
       const willDisable = a.disabled === true;
       if (u.role === 'admin' && !u.disabled && (role !== 'admin' || willDisable) && users.filter(x => x.role === 'admin' && !x.disabled).length < 2)
         throw new Error('Legalább egy aktív ügyvezetőnek maradnia kell.');
-      const roleChanged = u.role !== role;
+      const roleChanged = u.role !== role, emailChanged = String(u.email || '').toLowerCase() !== email;
       u.name = name; u.role = role; u.crewId = crewId; u.disabled = willDisable; u.email = email;
-      if (pin) { u.salt = Utilities.getUuid(); u.hash = pinHash_(u.salt, pin); }
-      if (pin || willDisable || roleChanged) revokeSessionsOf_(u.id);
+      if (willDisable || roleChanged || emailChanged) revokeSessionsOf_(u.id);
     }
     saveUsers_(users);
-    target = u; mailPin = googleOnly ? '' : pin;
-    isNew = !a.id;
+    target = u; isNew = !a.id;
     list = users.map(adminListUser_);
   });
   let mail = null;
-  if (sendPin && target && target.email) {
-    try { sendPinMail_(target, mailPin); mail = { sent: true, to: target.email }; }
-    catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), pin: mailPin }; }
-  } else if (sendPin && mailPin) mail = { sent: false, to: '', error: 'Nincs e-mail-cím.', pin: mailPin };
-  else if (googleOnly && isNew && a.sendInvite !== false && target && target.email) {
+  if (isNew && a.sendInvite !== false && target && target.email) {   // új kolléga: meghívó a Google-fiókos belépéshez
     try { sendInviteMail_(target); mail = { sent: true, to: target.email, invite: true }; }
     catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), invite: true }; }
   }
@@ -1739,41 +1611,6 @@ function deleteUser_(arg, self) {
     revokeSessionsOf_(id);
     return rest.map(adminListUser_);
   });
-}
-
-/** Saját PIN módosítása belépve: a régi PIN-t ellenőrizzük (hibás próbálkozásnál ugyanaz a zárolás, mint belépéskor),
- *  a többi eszközön a munkamenetek megszűnnek, az aktuális megmarad. */
-function changePin_(u, a, token) {
-  const oldPin = String(a && a.oldPin || '').trim(), newPin = String(a && a.newPin || '').trim();
-  if (!/^\d{6}$/.test(newPin)) throw new Error('Az új PIN pontosan 6 számjegy legyen.');
-  if (/^(\d)\1{5}$/.test(newPin) || '0123456789'.indexOf(newPin) >= 0 || '9876543210'.indexOf(newPin) >= 0) throw new Error('Túl egyszerű PIN (pl. 111111 vagy 123456). Válassz másikat.');
-  if (oldPin === newPin) throw new Error('Az új PIN nem lehet ugyanaz, mint a régi.');
-  const now = Date.now();
-  withLock_(() => {
-    const users = loadUsers_(), x = users.find(v => v.id === u.id);
-    if (!x) throw new Error('AUTH_REQUIRED');
-    let st = lockState_(x.id);
-    if (st.until > now) throw new Error('Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(st.until - now) + ' múlva.');
-    if (!/^\d{6}$/.test(oldPin) || pinHash_(x.salt, oldPin) !== x.hash) {
-      Utilities.sleep(700);
-      st.fails = (st.fails || 0) + 1; st.last = now;
-      let msg = 'A jelenlegi PIN nem jó.';
-      if (st.fails >= 5) {
-        const mins = LOCK_STEPS_MIN[Math.min(st.level || 0, LOCK_STEPS_MIN.length - 1)];
-        st.until = now + mins * 60000; st.level = (st.level || 0) + 1; st.fails = 0;
-        msg = 'Túl sok hibás próbálkozás. Próbáld újra ' + lockWait_(mins * 60000) + ' múlva.';
-      }
-      lockSave_(x.id, st);
-      throw new Error(msg);
-    }
-    x.salt = Utilities.getUuid(); x.hash = pinHash_(x.salt, newPin);
-    saveUsers_(users);
-    PropertiesService.getScriptProperties().deleteProperty(LOCK_PREFIX + x.id);
-  });
-  const keep = SESSION_PREFIX + sha256hex_(String(token)), props = PropertiesService.getScriptProperties(), all = props.getProperties();
-  Object.keys(all).forEach(k => { if (k.indexOf(SESSION_PREFIX) === 0 && k !== keep) { try { if (JSON.parse(all[k]).uid === u.id) props.deleteProperty(k); } catch (e) {} } });
-  logEvent_(u, 'PIN módosítva', u.name, 'saját PIN, a többi eszközön kiléptetve');
-  return { ok: true };
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
@@ -1798,7 +1635,6 @@ function rpcInner_(token, name, arg) {
     case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
-    case 'changePin': if (!pinLoginEnabled_()) throw new Error(PIN_OFF_MSG); return changePin_(u, arg, token);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
@@ -1827,7 +1663,7 @@ function rpcInner_(token, name, arg) {
       adminOnly();
       const res = saveUser_(arg);
       const a = arg || {};
-      logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? (res.mail.invite ? ' · Google-meghívó kiküldve' : ' · PIN e-mailben kiküldve') : ''));
+      logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? ' · Google-meghívó kiküldve' : ''));
       return res;
     }
     case 'setUserDisabled': {

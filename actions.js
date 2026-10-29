@@ -39,20 +39,6 @@ const moneyVal=s=>{const d=String(s||'').replace(/\D/g,'');return d===''?'':Math
 const moneyField=(name,label,v,o={})=>`<div class="field"><label for="m-${name}">${label}</label><div class="money">${o.steps===false?'':`<button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="-1" aria-label="${label}: −1000 Ft">−</button>`}<input class="inp money-inp" id="m-${name}" name="${name}" type="text" inputmode="numeric" autocomplete="off" placeholder="${esc(o.ph||'pl. 40 000')}" value="${esc(moneyFmt(v))}" data-money="1"><span class="money-unit">Ft</span>${o.steps===false?'':`<button type="button" class="money-btn" data-action="money-step" data-for="m-${name}" data-d="1" aria-label="${label}: +1000 Ft">+</button>`}</div></div>`;
 /* a Beállítások naplója a felhasználók mentése után frissül */
 function refreshLog(){if(S.tab!=='beallitasok')return;call('getLog').then(l=>{S.log=l;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}).catch(()=>{});}
-function pinModal(){
-  const pf=(n,l,ac)=>`<div class="field full"><label for="m-${n}">${l}</label><input class="inp pin" id="m-${n}" name="${n}" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="${ac}" placeholder="••••••"></div>`;
-  openModal('PIN-kód módosítása',`<div class="fields">${pf('oldPin','Jelenlegi PIN','current-password')}${pf('newPin','Új PIN (6 számjegy)','new-password')}${pf('newPin2','Új PIN még egyszer','new-password')}</div>
-    <p class="hint" style="margin:0">A többi eszközön, ahol be vagy lépve, ezután újra be kell lépni. Ha elfelejtetted a jelenlegi PIN-t, lépj ki, és a belépőn kérj újat („Elfelejtettem a PIN-kódom”).</p>`,
-  {submitLabel:'PIN módosítása',submit:async fd=>{
-    const o=String(fd.get('oldPin')||'').trim(),n=String(fd.get('newPin')||'').trim(),n2=String(fd.get('newPin2')||'').trim();
-    if(!/^\d{6}$/.test(o)){toast('Add meg a jelenlegi PIN-t (6 számjegy).',true);$('m-oldPin').focus();return;}
-    if(!/^\d{6}$/.test(n)){toast('Az új PIN 6 számjegy legyen.',true);$('m-newPin').focus();return;}
-    if(n!==n2){toast('A két új PIN nem egyezik.',true);$('m-newPin2').value='';$('m-newPin2').focus();return;}
-    try{await call('changePin',{oldPin:o,newPin:n});closeModal();toast('A PIN-kódod megváltozott.');}
-    catch(e){handleErr(e);}
-  }});
-}
-document.addEventListener('input',e=>{const t=e.target;if(t.classList&&t.classList.contains('pin')&&t.closest&&t.closest('#mform')){const v=t.value.replace(/\D/g,'').slice(0,6);if(t.value!==v)t.value=v;}});
 function calEventById(id){for(const k in S.cal.events){const e=(S.cal.events[k]||[]).find(x=>x.id===id);if(e)return e;}return null;}
 function calEventModal(id){
   const e=calEventById(id);if(!e)return;S._calEv=e;   // az ablak nyitva tartása alatt a naptár frissülhet – megjegyezzük az eseményt
@@ -359,12 +345,11 @@ function userModal(u){
   submit:async(fd,form)=>{
     const cr=crewById(fd.get('crewId'));
     if(!cr&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából (ha még nincs benne, előbb vedd fel a Stáb fülön).',true);return;}
-        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',loginMode:'google',sendInvite:u?false:fd.get('sendInvite')==='on'};
+        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};
     try{
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
-      if(m&&!m.sent&&m.pin){openModal('A PIN nem ment ki e-mailben',`<p style="margin:0">Add át személyesen: <b style="font-size:20px;letter-spacing:3px">${esc(m.pin)}</b></p><p class="hint">${esc(m.error||'')}</p>`,{cancelLabel:'Rendben'});}
-      else{closeModal();toast(m&&m.sent?(m.invite?'Kolléga felvéve, meghívót küldtünk: ':'Mentve, a PIN-t elküldtük: ')+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),m&&m.invite&&!m.sent);}
+      closeModal();toast(m&&m.sent?'Kolléga felvéve, meghívót küldtünk: '+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),!!(m&&m.invite&&!m.sent));
       render(true);
     }catch(e){handleErr(e);}
   }});
