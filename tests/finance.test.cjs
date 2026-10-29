@@ -289,7 +289,7 @@ test('frontend: payouts mark the penalised item and show the kept amount to lead
   assert.match(html,/Nem kerül kifizetésre/);
   assert.match(html,/30\s?000/);
   assert.match(html,/🚨 −30\s?000/);
-  assert.match(html,/title="[^"]*Helyszíni elakadás/);
+  assert.match(html,/data-tip="[^"]*Helyszíni elakadás/);
   assert.doesNotMatch(html,/kezdőnapjuk/);
   fr(`S.me={role:'editor'};`);
   assert.match(fr('viewPayouts()'),/Nem kerül kifizetésre/);
