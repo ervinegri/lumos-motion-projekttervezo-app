@@ -31,6 +31,11 @@ function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth
 /* Régi / kézi bevételi sor projektje: az appból frissített sor megjegyzése vagy azonos nevű projekt ugyanabban a hónapban */
 function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
   return S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month)||null;}
+/* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; előlegnél a számlák kifizetett része, ennek hiányában az előleg %-a */
+function finReceived(r){if(r.payStatus==='teljes')return num(r.amount);if(r.payStatus!=='eloleg')return 0;
+  const inv=invFor(r.kind,r.id).filter(x=>num(x.invGross)>0&&!(x.kind==='dijbekero'&&x.ref));
+  if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+num(x.invPaid)*num(x.invNet)/num(x.invGross),0)));
+  const pct=r.kind==='project'&&typeof billOf==='function'?num(billOf(r.id).advancePct):50;return Math.round(num(r.amount)*(pct||50)/100);}
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||a.name.localeCompare(b.name,'hu'));}
 const sumK=(arr,k)=>arr.reduce((s,x)=>s+(Number(x[k])||0),0);
 /* Az alapok egyenlege hónapról hónapra a nyitó hónaptól */
@@ -56,7 +61,7 @@ function viewFinance(){
   const months=finMonths(),m=months.includes(S.finMonth)?S.finMonth:todayISO().slice(0,7),st=finSet();S.finMonth=m;
   const inc=finIncomeFor(m),exp=finExpensesFor(m),bal=finBalances(m),rec=finReceivables();
   const fromApp=!st.appFromMonth||m>=st.appFromMonth;
-  const T=k=>sumK(inc,k);
+  const T=k=>sumK(inc,k),planned=T('amount'),recv=inc.reduce((s,r)=>s+finReceived(r),0);
   const payCell=r=>`<select class="inp pay-sel ${PAY_CLS[r.payStatus]||''}" data-finpay="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="Fizetési állapot">${Object.entries(PAY_LABEL).map(([v,l])=>`<option value="${v}"${v===(r.payStatus||'')?' selected':''}>${l}</option>`).join('')}</select>`;
   const incRows=inc.map(r=>`<tr${r.kind==='project'?'':' class="fin-manual"'}><td class="n">${esc(r.day||'')}</td>
     <td>${r.kind==='project'?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.id)}">${esc(r.name)}</button>`:(()=>{const lp=incProj(r);return `${lp?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(lp.id)}" title="Projekt megnyitása">${esc(r.name)}</button>`:`<button class="linkbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" title="${esc(r.people||'')}">${esc(r.name)}</button>`}${r.legacy?' <span class="muted fin-leg">régi táblázat</span>':''} <button class="editbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" aria-label="Módosítás" title="Módosítás">✏️</button>`;})()}</td>
@@ -68,10 +73,12 @@ function viewFinance(){
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás</button>`:''}
       <button class="btn outline small" type="button" data-action="fin-settings">⚙️ Beállítások</button></div>
     <div class="tiles fin-tiles">
-      <div class="tile"><div class="tile-n">${ftFmt(T('amount'))}</div><div class="tile-l">bevétel ebben a hónapban</div></div>
+      <div class="tile fin-flow"><div class="tile-n">${ftFmt(T('amount'))}</div><div class="tile-l">tervezett bevétel ebben a hónapban</div>
+        <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
+        <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>
       <div class="tile${bal.endRezsi<0?' bad':''}"><div class="tile-n">${sFt(bal.endRezsi)}</div><div class="tile-l">elérhető – eszköz, rezsi</div></div>
-      <div class="tile${rec.sum?' warn':''}"><div class="tile-n">${ftFmt(rec.sum)}</div><div class="tile-l">kintlévőség (${rec.n} tétel, minden hónap)</div></div>
+      <div class="tile${rec.sum?' warn':''}"><div class="tile-n">${ftFmt(rec.sum)}</div><div class="tile-l">kintlévőség összesen (${rec.n} tétel, minden hónap)</div></div>
     </div>
     <div class="panel"><h3>💰 Bevételek <span class="aside">${fromApp?'a projektekből':'a régi táblázatból'}</span></h3>
       <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th>${szOn()?'<th>Számla</th>':''}<th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="r">Termelés</th><th class="r">Értékesítés ${st.ceoPct}%</th><th class="r">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
