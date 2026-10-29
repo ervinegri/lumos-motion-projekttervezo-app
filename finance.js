@@ -95,13 +95,12 @@ function viewFinance(){
       <select class="inp" id="fin-month" style="width:auto" aria-label="Hónap">${months.map(x=>`<option value="${x}"${x===m?' selected':''}>${esc(F_YM.format(toDate(x+'-01')))}</option>`).join('')}</select>
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás</button>`:''}
       <button class="btn outline small" type="button" data-action="fin-settings">⚙️ Beállítások</button></div>
-    <div class="tiles fin-tiles">
+    <div class="tiles fin-tiles tiles-3">
       <div class="tile fin-flow"><div class="tile-n">${ftFmt(T('amount'))}</div><div class="tile-l">tervezett bevétel ebben a hónapban</div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>
       <div class="tile${bal.endRezsi<0?' bad':''}"><div class="tile-n">${sFt(bal.endRezsi)}</div><div class="tile-l">elérhető – eszköz, rezsi</div></div>
-      <div class="tile${rec.sum?' warn':''}"><div class="tile-n">${ftFmt(rec.sum)}</div><div class="tile-l">kintlévőség összesen (${rec.n} tétel, minden hónap)</div></div>
     </div>
     <div class="panel"><h3>💰 Bevételek <span class="aside">${fromApp?'a projektekből':'a régi táblázatból'}</span></h3>
       <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th><th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="r" colspan="2">Termelés</th><th class="r" colspan="2">Értékesítés</th><th class="r" colspan="2">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
