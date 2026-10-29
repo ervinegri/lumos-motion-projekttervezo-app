@@ -938,7 +938,7 @@ function parsePen_(raw) {
   let arr = raw; if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
   if (!Array.isArray(arr)) return [];
   return arr.filter(x => x && PEN_KINDS_[x.kind]).slice(0, 100).map(x => ({ id: str_(x.id, 40), crewId: str_(x.crewId, 64), kind: x.kind, pct: int_(x.pct, 0, 100, 0),
-    amount: int_(x.amount, 0, FEE_MAX, 0), caseText: str_(x.caseText, 300), reason: str_(x.reason, 3000), link: str_(x.link, 500),
+    amount: int_(x.amount, 0, FEE_MAX, 0), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), link: str_(x.link, 500),
     status: ['pending', 'approved', 'rejected'].indexOf(x.status) >= 0 ? x.status : 'pending', by: str_(x.by, 120), at: str_(x.at, 30),
     decidedBy: str_(x.decidedBy, 120), decidedAt: str_(x.decidedAt, 30), decisionNote: str_(x.decisionNote, 1000),
     objection: x.objection && x.objection.text ? { text: str_(x.objection.text, 3000), at: str_(x.objection.at, 30) } : null }));
@@ -988,7 +988,7 @@ function addPenalty_(u, a) {
   const pct = kind === 'damage' ? 0 : k.pct != null ? k.pct : int_(a.pct, k.min, k.max, k.min);
   const amount = kind === 'damage' ? int_(a.amount, 0, FEE_MAX, 0) : 0;
   if (kind === 'damage' && !amount) throw new Error('Add meg a kártérítés összegét.');
-  const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, amount: amount, caseText: str_(a.caseText, 300), reason: reason, link: link,
+  const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, amount: amount, caseText: str_(a.caseText, 1500), reason: reason, link: link,
     status: u.role === 'admin' ? 'approved' : 'pending', by: u.name, at: now_(), decidedBy: u.role === 'admin' ? u.name : '', decidedAt: u.role === 'admin' ? now_() : '', decisionNote: '', objection: null };
   const r = penMutate_(a.projectId, (list, p) => {
     const on = p.lead === x.crewId || readAll_('crewAssign').some(c => c.projectId === p.id && c.crewId === x.crewId);
@@ -1640,7 +1640,7 @@ function changePin_(u, a, token) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -1679,6 +1679,7 @@ function rpcInner_(token, name, arg) {
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
+    case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       adminOnly();
