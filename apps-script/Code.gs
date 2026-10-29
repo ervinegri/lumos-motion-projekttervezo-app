@@ -44,7 +44,7 @@ const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
-const COUNTS = { aftermovie: 3, interju: 8, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10 };
+const COUNTS = { aftermovie: 3, interju: 8, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10, er_summary: 10 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny', 't_vizual',
   'er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream', 'er_post', 'er_zoom'];
 const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera (kamerával)', er_zoom: 'Közeli (vágói belenagyítással)', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése / kivetítése', er_stream: 'Élő kivetítés LED falra vagy projektorra', t_kepkeveres: 'Streaming', er_post: 'Előadások utómunkája' };
@@ -68,7 +68,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -86,7 +86,7 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] }
 };
-const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value']);
+const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value']);
 const BOOL_FIELDS = new Set(FLAGS);
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
@@ -345,7 +345,7 @@ const FEE_MAX = 99999999, VALUE_MAX = 9999999999;
 /** Van-e átadandó anyag (a felület needsDelivery függvényének megfelelője). */
 function needsDelivery_(p) {
   if (p.dueAt) return true;
-  if (['aftermovie', 'interju', 'short60', 'short30', 'short15', 'er_clips', 'er_subs', 'foto_db'].some(k => Number(p[k]) > 0)) return true;
+  if (['aftermovie', 'interju', 'short60', 'short30', 'short15', 'er_clips', 'er_subs', 'er_summary', 'foto_db'].some(k => Number(p[k]) > 0)) return true;
   return ['x_foto', 'x_dron', 'x_timelapse', 'x_pov', 'x_nyersVetel', 'er_post'].some(k => p[k] === true);
 }
 function parseFees_(raw) {
@@ -421,7 +421,7 @@ function saveProject_(u, a) {
     lead: str_(a.lead, 64),
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), clientTax: str_(a.clientTax, 20).replace(/[^\d-]/g, ''), clientAddress: str_(a.clientAddress, 300),
-    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryNotes: str_(a.deliveryNotes, 3000), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
+    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryNotes: str_(a.deliveryNotes, 3000), stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';
@@ -573,6 +573,7 @@ function calPlan_(p) {
   const rec = Object.keys(REC_LABELS).filter(k => p[k] === true).map(k => REC_LABELS[k]);
   if (Number(p.er_clips) > 0) rec.push(p.er_clips + ' kivágás');
   if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
+  if (Number(p.er_summary) > 0) rec.push(p.er_summary + ' rövid összefoglaló videó');
   if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
   if (p.client) lines.push('Ügyfél: ' + p.client);

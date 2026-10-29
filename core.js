@@ -34,7 +34,7 @@ const REC_CAMS=[
 const REC_LIVE=[
   {k:'er_stream',label:'Élő kivetítés LED falra vagy projektorra',role:'Képkeverő / streaming'},
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
-const REC_COUNTS=[{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
+const REC_COUNTS=[{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
@@ -97,7 +97,7 @@ function needsDelivery(p){
   if(DELIVERABLES.some(it=>num(p[it.k])>0))return true;
   if(num(p.foto_db)>0||p.x_foto)return true;
   if(['x_dron','x_timelapse','x_pov','x_nyersVetel','er_post'].some(k=>p[k]))return true;
-  return num(p.er_clips)>0||num(p.er_subs)>0;
+  return num(p.er_clips)>0||num(p.er_subs)>0||num(p.er_summary)>0;
 }
 function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}

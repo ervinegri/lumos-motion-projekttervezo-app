@@ -194,7 +194,7 @@ function clientSearch(input,all){
   if(cur&&!pickItems.some(c=>c.company===cur)&&(!q||cur.toLowerCase().includes(q.toLowerCase())))pickItems.unshift({company:cur,name:S.draft.contactName||'',phone:S.draft.contactPhone||'',email:S.draft.contactEmail||'',tax:S.draft.clientTax||'',address:S.draft.clientAddress||''});
   pickItems.push({isNew:true,company:q});
   pickShow(input,pickItems.map((it,i)=>it.isNew?`<button type="button" class="hs-item hs-new" data-hs="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
-    :`<div class="hs-row${it.company===cur?' cur':''}"><button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button><button type="button" class="hs-edit" data-hsedit="${i}" title="Ügyfél adatainak módosítása" aria-label="${esc(it.company)} módosítása">✏️</button></div>`).join('')+(pickItems.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));
+    :`<div class="hs-row${it.company===cur?' cur':''}"><button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button></div>`).join('')+(pickItems.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));
 }
 function clientPick(i){const it=pickItems[i];if(!it||!S.draft)return;pickClose();try{document.activeElement.blur();}catch(e){}
   if(it.isNew){newClientModal(it.company);return;}
@@ -298,20 +298,21 @@ function itemModal(it){
     catch(e){handleErr(e);}
   }});
 }
+document.addEventListener('change',e=>{if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
   const v=u||{};
-  const crewOpts=[['','Nincs összekapcsolva'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
+  const crewOpts=[['','Válassz a stáblistából…'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
   openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
-    ${mf('name','Megjelenő név',{v:v.name,max:60})}
+    ${ms('crewId','Munkatárs (a stáblistából – ez lesz a megjelenő név)',crewOpts,v.crewId||'',{full:true})}
     ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),USER_ROLES[v.role]?v.role:'editor')}
-    ${ms('crewId','Melyik munkatárs a stáblistában? (Szakembernél kötelező)',crewOpts,v.crewId||'',{full:true})}
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label>`}</div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
   submit:async(fd,form)=>{
-    if(!needName(form))return;
-        const data={id:u?u.id:undefined,name:fd.get('name').trim(),role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',loginMode:'google',sendInvite:u?false:fd.get('sendInvite')==='on'};
+    const cr=crewById(fd.get('crewId'));
+    if(!cr&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából (ha még nincs benne, előbb vedd fel a Stáb fülön).',true);return;}
+        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',loginMode:'google',sendInvite:u?false:fd.get('sendInvite')==='on'};
     try{
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
@@ -344,8 +345,8 @@ $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v
 function penCrewOpts(){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))];
   return ids.map(id=>{const c=crewById(id);return c?[id,c.name]:null;}).filter(Boolean).sort((a,b)=>a[1].localeCompare(b[1],'hu'));}
 function penBlock(){if(!canSeeFees())return '';const co=penCrewOpts();if(!co.length)return '';
-  return `<div class="field full pen-block"><div class="pen-block-h"><b>⚠️ Díjcsökkentés</b> <span class="muted">(nem kötelező – ha valaki hibázott)</span></div><div id="penRows"></div>
-    <button class="btn outline small" type="button" data-action="pen-row-add" style="align-self:flex-start">+ Díjcsökkentés hozzáadása</button></div>`;}
+  return `<div class="field full pen-block"><div class="pen-block-h"><b>Hiba jelzése díjcsökkentéssel</b> <span class="muted">(nem kötelező – kattints a ⚠️ jelre annál, aki hibázott)</span></div>
+    <div class="pen-chips">${co.map(([id,nm])=>`<button class="pen-chip" type="button" data-action="pen-row-add" data-cid="${esc(id)}" title="Díjcsökkentés: ${esc(nm)}"><span>${esc(nm)}</span><span class="pen-btn" aria-hidden="true">⚠️</span></button>`).join('')}</div><div id="penRows"></div></div>`;}
 let PEN_ROW_N=0;
 function penRowHtml(){const n=++PEN_ROW_N,co=penCrewOpts();
   return `<div class="pen-rowf" data-penrow="${n}"><div class="pen-rowf-g">
@@ -369,7 +370,6 @@ async function penRowsSubmit(pid,list){if(!list.length)return;let last=null,mail
   if(last){penApply(pid,last);toast(isAdmin()?`${list.length} díjcsökkentés kiróva${mailed?', a szakember e-mailt kapott':''}`:`${list.length} díjcsökkentés jóváhagyásra elküldve`);}}
 document.addEventListener('change',e=>{const t=e.target,n=t.dataset&&t.dataset.penkind;if(!n)return;const row=t.closest('[data-penrow]');
   row.querySelector('[data-pencase]').innerHTML=penCaseOpts(t.value);row.querySelector('[data-penpct]').style.display=t.value==='prestige'?'':'none';row.querySelector('[data-penamt]').style.display=t.value==='damage'?'':'none';});
-document.addEventListener('change',e=>{if(e.target.name==='siteOk'&&e.target.value==='nem'){const box=$('penRows');if(box&&!box.children.length)box.insertAdjacentHTML('beforeend',penRowHtml());}});
 function siteModal(next,withPen){
   const d=S.draft;if(!d)return;
   openModal('📝 Helyszíni munka beszámoló',`<div class="fields">
@@ -377,7 +377,7 @@ function siteModal(next,withPen){
         <label class="toggle"><input type="radio" name="siteOk" value="igen"${d.siteOk==='igen'?' checked':''}><span class="tl">✅ Igen, minden rendben</span></label>
         <label class="toggle"><input type="radio" name="siteOk" value="nem"${d.siteOk==='nem'?' checked':''}><span class="tl">⚠️ Nem, volt probléma</span></label></div></div>
       <div class="field full"><label for="m-siteReport">Beszámoló <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
-      ${withPen?penBlock():''}
+      ${penBlock()}
     </div>`,{submitLabel:next?'Tovább':'Mentés',submit:async fd=>{
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
@@ -386,7 +386,8 @@ function siteModal(next,withPen){
 }
 function deliveryModal(){
   const d=S.draft,r=pr(d);if(!d)return;
-  openModal('📦 Átadás',`<div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
+  const its=deliverItems(d);
+  openModal('📦 Átadás',`${its.length?`<div class="deliv-list"><div class="sec-lbl" style="margin-top:0">Átadandó anyagok</div>${roList(its)}</div>`:''}<div class="kv"><span>Rendezvény utolsó napja</span><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div>
     <div class="fields" style="margin-top:10px">
       <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
       ${d.status==='atadva'&&d.deliveredAt?`<div class="field"><label>Átadva</label><div class="inp" style="border:0;background:none;padding-left:0"><b class="ok-txt">${fmtDay(d.deliveredAt)}</b></div></div>`:'<div></div>'}
@@ -587,6 +588,14 @@ const ACT={
     if(['helyszin','utomunka','atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
+  'tile-go':b=>{const g=b.dataset.go;
+    if(g==='aktiv'){guard(()=>{S.pf.status='aktiv';S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});}
+    else if(g==='naptar'){guard(()=>{S.tab='naptar';S.projectId=null;S.draft=null;S.cal.month=todayISO().slice(0,7);render(true);scrollTo(0,0);});}
+    else if(g==='atadas'){const el=$('due-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}},
+  'step-done':b=>{const d=S.draft;if(!d||ro())return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
+    const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));if(on)s2.add(v);else s2.delete(v);setDraft({stepsDone:[...s2].join(',')});};
+    if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
+    apply();},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`<div class="fields" style="margin-bottom:14px">${mf('name','Projekt neve',{full:true,v:p.name||'',max:120})}</div><div class="btns" style="margin-bottom:10px">${p.folderId?`<a class="btn outline small" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:`<button class="btn outline small" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`}</div><div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
       ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás',submitLabel:'Átnevezés',submit:async fd=>{
@@ -595,7 +604,7 @@ const ACT={
   'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n,x_foto:n>0});},
-  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
+  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.find(x=>x.k===b.dataset.k);if(!it)return;const cur=num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft((it.k==='er_clips'||it.k==='er_subs'||it.k==='er_summary')&&n>0?{[it.k]:n,er_post:true}:{[it.k]:n});},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'view-reset':()=>guard(()=>switchView('admin')),
   'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);
@@ -646,7 +655,8 @@ const ACT={
   copy:b=>copyText(b.dataset.text),
   'tax-lookup':()=>taxLookup(),
   'pen-new':b=>penModal(b.dataset.cid),
-  'pen-row-add':()=>{const box=$('penRows');if(box){box.insertAdjacentHTML('beforeend',penRowHtml());const s=box.lastElementChild.querySelector('select');if(s)s.focus();}},
+  'pen-row-add':b=>{const box=$('penRows');if(!box)return;box.insertAdjacentHTML('beforeend',penRowHtml());const row=box.lastElementChild,cs=row.querySelector('select');
+    if(b.dataset.cid&&cs){cs.value=b.dataset.cid;const k=row.querySelector('[data-penkind]');if(k)k.focus();}else if(cs)cs.focus();},
   'pen-row-del':b=>{const r=b.closest('[data-penrow]');if(r)r.remove();},
   'pen-approve':async b=>{const d=S.draft;if(!d)return;b.disabled=true;try{const r=await call('decidePenalty',{projectId:d.id,id:b.dataset.id,approve:true});penApply(d.id,r.penalties);toast(r.mailed?'Jóváhagyva, a szakember e-mailt kapott':'Jóváhagyva (e-mailt nem sikerült küldeni)');}catch(e){b.disabled=false;handleErr(e);}},
   'pen-reject':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id;openModal('Díjcsökkentés elutasítása',`<div class="fields"><div class="field full"><label for="m-note">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-note" name="note" rows="3"></textarea></div></div>`,
@@ -708,7 +718,12 @@ document.addEventListener('input',e=>{
 /* telefonmező: országhívószám + szám → egy érték */
 function phSync(row,commit){const v=phJoin(row.querySelector('.ph-cc').dataset.cc||'+36',row.querySelector('.ph-num').value),[kind,k]=row.dataset.ph.split(':');
   if(kind==='n'){const h=row.querySelector('input[type=hidden]');if(h)h.value=v;}else if(commit&&S.draft&&(S.draft[k]||'')!==v)setDraft({[k]:v});}
-document.addEventListener('input',e=>{const r=e.target.closest&&e.target.closest('.phone-row');if(r)phSync(r,false);});
+/* gépelés közben tagolja a magyar számot: 20 123 4567, Budapesten 1 234 5678 */
+function phLive(t){const before=t.value.slice(0,t.selectionStart||0).replace(/\D/g,'').length;let d=t.value.replace(/\D/g,'');
+  if(/^06/.test(d))d=d.slice(2);else if(/^36/.test(d)&&d.length>9)d=d.slice(2);
+  d=d.slice(0,9);const g=d[0]==='1'?[1,3,4]:[2,3,4];let out='',i=0;for(const n of g){if(i>=d.length)break;out+=(out?' ':'')+d.slice(i,i+n);i+=n;}
+  if(out===t.value)return;t.value=out;let c=0,k=0;while(c<out.length&&k<before){if(/\d/.test(out[c]))k++;c++;}try{t.setSelectionRange(c,c);}catch(_){}}
+document.addEventListener('input',e=>{const r=e.target.closest&&e.target.closest('.phone-row');if(r){if(e.target.classList.contains('ph-num')&&!e.isComposing&&(r.querySelector('.ph-cc').dataset.cc||'+36')==='+36')phLive(e.target);phSync(r,false);}});
 document.addEventListener('change',e=>{
   const t=e.target,d=S.draft;
   {const r=t.closest&&t.closest('.phone-row');if(r){if(t.tagName==='SELECT')try{t.blur();}catch(_){}phSync(r,true);return;}}
@@ -723,7 +738,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d)return;
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
-    setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:(k==='er_clips'||k==='er_subs')&&n>0?{[k]:n,er_post:true}:{[k]:n});return;}
+    setDraft(k==='foto_db'?{foto_db:n,x_foto:n>0}:(k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0?{[k]:n,er_post:true}:{[k]:n});return;}
   if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}

@@ -211,7 +211,7 @@ function viewOverview(){
   const post=open.filter(p=>pr(p)&&pr(p).end<T&&dueDate(p)&&myCut(p)).sort((a,b)=>dueDate(a).localeCompare(dueDate(b)));
   const overdue=post.filter(p=>diffDays(T,dueDate(p))<0).length;
   const issues=computeIssues();
-  const tile=(n,l,cls,x)=>`<div class="tile ${cls||''}"><div class="tile-n">${n}</div><div class="tile-l">${l}</div>${x||''}</div>`;
+  const tile=(n,l,cls,x,go)=>`<button type="button" class="tile tile-btn ${cls||''}" data-action="tile-go" data-go="${go||''}"><div class="tile-n">${n}</div><div class="tile-l">${l}</div>${x||''}</button>`;
   const welcome=!all.length&&!ro()?`<div class="panel welcome"><h3>Kezdjük el</h3>
     <p>Vedd fel a stábot és az eszközöket, aztán hozd létre az első projektet. A projektlapon megadod a megrendelt tartalmakat, és az app jelzi, ha valaki vagy valami két helyre van beosztva.</p>
     <div class="btns"><button class="btn primary" type="button" data-action="new-project">+ Új projekt</button><button class="btn outline" type="button" data-action="tab" data-tab="stab">Stáb felvétele</button><button class="btn outline" type="button" data-action="tab" data-tab="leltar">Leltár felvétele</button></div></div>`:'';
@@ -220,15 +220,15 @@ function viewOverview(){
     ${welcome}
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
     ${ro()?'':`<div class="tiles">
-      ${tile(open.length,'aktív projekt')}
-      ${tile(next30.length,'rendezvény a következő 30 napban')}
-      ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:''):''}
+      ${tile(open.length,'aktív projekt','','','aktiv')}
+      ${tile(next30.length,'rendezvény a következő 30 napban','','','naptar')}
+      ${!ro()||post.length?tile(post.length,'anyag átadásra vár',overdue?'bad':'',overdue?`<div class="tile-x bad">${overdue} lejárt határidő</div>`:'','atadas'):''}
     </div>`}
     <div class="grid2">
       <div class="panel"><h3>📅 Közelgő rendezvények <span class="aside">${upcoming.length} db</span></h3>
         <div class="list">${upcoming.slice(0,8).map(p=>evRow(p)).join('')||empty('Nincs közelgő rendezvény.')}</div>
         ${upcoming.length>8?`<button class="btn ghost small" type="button" data-action="tab" data-tab="projektek">Mind a ${upcoming.length} megnyitása →</button>`:''}</div>
-      ${!ro()||post.length?`<div class="panel"><h3>⏱️ Átadási határidők</h3>
+      ${!ro()||post.length?`<div class="panel" id="due-panel"><h3>⏱️ Átadási határidők</h3>
         <div class="list">${post.map(p=>evRow(p)).join('')||empty('Nincs átadásra váró anyag. Ide kerülnek a lezajlott, de még át nem adott projektek.')}</div></div>`:''}
     </div>
     ${ro()?crewMonthsPanel():''}
@@ -459,6 +459,16 @@ function roTechPanel(p){
   if(!items.length&&!plan)return '';
   return `<div class="panel"><h3>💡 Hang-, fény- és vizuáltechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
 }
+/* a projekten kért videós / átadandó szolgáltatások (Átadás ablak, vágó nézete) */
+function deliverItems(p){
+  const items=[];
+  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)items.push(`${esc(it.label)}: <b>${n}</b>`);});
+  if(p.er_post)items.push('Előadások utómunkája ('+(p.er_res==='4k'?'4K':'Full HD')+')'+(num(p.er_rooms)>1?` · ${num(p.er_rooms)} terem`:''));
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>items.push(`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
+  if(num(p.foto_db)>0||p.x_foto)items.push('Fotózás'+(num(p.foto_db)>0?`: <b>${num(p.foto_db)}</b> db`:''));
+  ['x_dron','x_timelapse','x_pov','x_nyersVetel','x_nyersTarolas','x_rush'].forEach(k=>{const e=EXTRAS.find(x=>x.k===k);if(e&&p[k])items.push(esc(e.label));});
+  return items;
+}
 function roContentPanel(p){
   // a szakember ezt a részt nem látja – kivéve a vágót, aki a kért vágnivaló anyagokat igen
   const me=S.me&&S.me.crewId,isEditor=me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
@@ -494,7 +504,9 @@ function viewProject(p){
   // a szakember (ha nem vágó) nem látja az utómunkát
   const isCut=!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');
   const stList=STAGES.map((s,i)=>({s,i})).filter(x=>x.s.id!=='utomunka'||(isCut&&(needsDelivery(p)||status==='utomunka')));
-  const stages=stList.map(({s,i},k)=>`<button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>`).join('');
+  const doneSet=new Set(String(p.stepsDone||'').split(',').filter(Boolean)),TICKS=['egyeztetes','tervezes','helyszin'];
+  const stages=stList.map(({s,i},k)=>{const tk=TICKS.includes(s.id),on=doneSet.has(s.id);
+    return `<div class="stage-w${tk?' has-tick':''}"><button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}${on?' ticked':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>${tk?(ro()?(on?'<span class="stage-tick on" title="Megtörtént">✓</span>':''):`<button type="button" class="stage-tick${on?' on':''}" data-action="step-done" data-v="${s.id}" aria-pressed="${on}" title="${on?'Megtörtént – kattints a visszavonáshoz':'Jelöld, ha ez a lépés megtörtént'}" aria-label="${esc(stageLabel(p,s.id))}: megtörtént">✓</button>`):''}</div>`;}).join('');
   const dl=DELIVERABLES.map(it=>{const n=num(p[it.k]);return `<div class="dl${n?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="dlv" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="0" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="dlv" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`+(it.k==='aftermovie'?fotoRow(p):'');}).join('');
   const ex=EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas').map(e=>{return `<label class="toggle"><input type="checkbox" data-flag="${e.k}"${p[e.k]?' checked':''}${D()}><span class="tl">${e.label}</span></label>`;}).join('');
@@ -538,7 +550,7 @@ function viewProject(p){
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
   <div class="dfull">
-      <div class="panel"><h3>📋 Alapadatok</h3><div class="fields">
+      <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue','Helyszín',{ph:'pl. MVM Dome, Budapest'})}
         <div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet…'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>
@@ -553,7 +565,7 @@ function viewProject(p){
         ${fld(p,'startTime','Érkezés a helyszínre',{type:'time'})}
         ${fld(p,'hours','Hozzávetőleges helyszíni munkaidő (óra)',{type:'number',min:1,max:16,im:'numeric'})}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
-      </div></div>
+      </div></details>
   </div>
 
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech)}</h3></summary>
@@ -581,7 +593,7 @@ function viewProject(p){
       </div>
   </details>`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
-    return `<div class="panel crew-fin"><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3>${ce.body}${financePanel(p,true)}</div>`;})()
+    return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3></summary>${ce.body}${financePanel(p,true)}</details>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
   ${ro()&&p.myFee&&num(p.myFee.amount)?myFeePanel(p):''}`;
 }
