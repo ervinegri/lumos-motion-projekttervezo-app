@@ -146,5 +146,8 @@ function projBillingPanel(p){
 }
 
 /* „Nincs szerződés” pipa: a projekthez nem kérünk szerződést (kivéve, ha visszaveszed a pipát) */
-document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||!t.dataset.nocontract)return;
-  finCall('billSave',{projectId:t.dataset.nocontract,contractStatus:t.checked?'nemkell':''},t.checked?'Ehhez a projekthez nem kell szerződés':'Szerződés kérve');});
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.nocontract||!S.fin||!S.fin.billing)return;
+  const pid=t.dataset.nocontract,st=t.checked?'nemkell':'',arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);const prev=b?b.contractStatus:'';
+  if(!b){b=Object.assign({},billOf(pid));arr.push(b);}b.contractStatus=st;render(true);   // azonnal látszik, a mentés a háttérben fut
+  try{const d=await call('billSave',{projectId:pid,contractStatus:st});if(d&&d.billing){S.fin.billing=d.billing;render(true);}toast(st?'Ehhez a projekthez nem kell szerződés':'Szerződés kérve');}
+  catch(err){b.contractStatus=prev;render(true);handleErr(err);}});

@@ -103,7 +103,7 @@ function NAV_TABS(){const all=TABS();if(!finGrouped())return all;const out=[];le
     const last=FIN_GROUP.includes(S.finSub)&&all.some(x=>x.id===S.finSub)?S.finSub:'kifizetesek';out.push({id:last,label:'Pénzügyek',group:true});});
   return out;}
 function finSubNav(){if(!finGrouped()||!FIN_GROUP.includes(S.tab))return '';S.finSub=S.tab;
-  return `<nav class="subtabs" aria-label="Pénzügyek">${TABS().filter(t=>FIN_GROUP.includes(t.id)).sort((a,b)=>FIN_GROUP.indexOf(a.id)-FIN_GROUP.indexOf(b.id)).map(t=>`<button class="subtab" type="button" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${{kifizetesek:'💸 ',szerzodes:'📄 ',penzugy:'📊 '}[t.id]||''}${t.label}</button>`).join('')}</nav>`;}
+  return `<nav class="subtabs" aria-label="Pénzügyek">${TABS().filter(t=>FIN_GROUP.includes(t.id)).sort((a,b)=>FIN_GROUP.indexOf(a.id)-FIN_GROUP.indexOf(b.id)).map(t=>`<button class="subtab" type="button" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${{kifizetesek:'⚒️ ',szerzodes:'📄 ',penzugy:'📊 '}[t.id]||''}${t.label}</button>`).join('')}</nav>`;}
 const TABS=()=>[{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(isAdmin()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   const on=!!S.me;
