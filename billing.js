@@ -42,8 +42,8 @@ function billRow(i){const p=i.p,b=i.b,r=pr(p),val=num(p.projectValue);
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI][0]==='advIssued');
   const fin=i.fin?invLine(i.fin):billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
   const dots=`<div class="bl-dots" aria-label="Haladás">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
-  return `<tr${i.closed?' class="bl-closed"':''}><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
-      <div class="bl-meta">${esc([r?fmtMD(r.start).replace(/\.$/,'')+'.':'',p.client].filter(Boolean).join(' · ')||'—')}${b.poNumber?` · PO: ${esc(b.poNumber)}`:''}</div>${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
+  return `<tr${i.closed?' class="bl-closed"':''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
+      <div class="bl-meta">${esc(p.client||'—')}${b.poNumber?` · PO: ${esc(b.poNumber)}`:''}</div>${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
     <td class="r"><b>${val?ftFmt(val):'<span class="muted">—</span>'}</b>${b.mode!=='egyben'&&val?`<div class="bl-meta">foglaló ${num(b.advancePct)}%</div>`:''}</td>
     <td>${contract}</td><td>${adv}</td><td>${fin}</td>
     <td>${dots}<span class="statuspill ${i.nextCls} bl-next">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b></div>`:''}</td>
@@ -60,7 +60,7 @@ function viewBilling(){
   let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,i.b.poNumber,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
-  const cols=7,openSum=all.reduce((s,i)=>s+i.openSum,0),lateSum=all.reduce((s,i)=>s+i.lateSum,0),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;
+  const cols=8,openSum=all.reduce((s,i)=>s+i.openSum,0),lateSum=all.reduce((s,i)=>s+i.lateSum,0),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;
   const sz=S.fin.sz||{};
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p></div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
@@ -74,7 +74,7 @@ function viewBilling(){
     </div>
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám, PO szerint" value="${esc(f.q)}" aria-label="Keresés">
       <div class="chips">${labels.map(([v,l])=>`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}<span class="c">${sets[v].length}</span></button>`).join('')}</div></div>
-    ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th>Projekt</th><th class="r">Érték (nettó)</th><th>Szerződés</th><th>Díjbekérő / foglaló</th><th>Végszámla</th><th>Állapot</th><th></th></tr></thead>
+    ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th class="r">Érték (nettó)</th><th>Szerződés</th><th>Díjbekérő / foglaló</th><th>Végszámla</th><th>Állapot</th><th></th></tr></thead>
       <tbody>${months.map(g=>`<tr class="pt-month"><td colspan="${cols}">${esc(F_YM.format(toDate(g.m+'-01')))} <span class="muted">${g.arr.length}</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
       :`<div class="panel">${empty(all.length?'Nincs a szűrésnek megfelelő projekt.':'Még nincs dátummal rendelkező projekt.')}</div>`}`;
