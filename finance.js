@@ -28,8 +28,10 @@ const sumK=(arr,k)=>arr.reduce((s,x)=>s+(Number(x[k])||0),0);
 /* Az alapok egyenlege hónapról hónapra a nyitó hónaptól */
 function finBalances(m){const st=finSet(),start=st.openMonth||finMonths()[finMonths().length-1]||m;
   let rez=st.openRezsi||0,mkt=st.openMarketing||0;const out={};
+  // a régi táblázat áthozata csak addig hiteles, amíg egy korábbi hónap sorait nem frissítettük az appból (utána a láncolt számítás érvényes)
+  const edited=((S.fin&&S.fin.income)||[]).filter(r=>/^Az appból frissítve/.test(r.note||'')).map(r=>r.month).sort()[0]||'';
   for(let x=start;x<=m;x=shiftMonth(x,1)){const inc=finIncomeFor(x),exp=finExpensesFor(x),ov=(st.carries||{})[x];
-    if(Array.isArray(ov)&&(!st.appFromMonth||x<st.appFromMonth)){rez=Number(ov[0])||0;mkt=Number(ov[1])||0;}   // a régi táblázat szerinti áthozat a hiteles
+    if(Array.isArray(ov)&&(!st.appFromMonth||x<st.appFromMonth)&&(!edited||x<=edited)){rez=Number(ov[0])||0;mkt=Number(ov[1])||0;}   // a régi táblázat szerinti áthozat a hiteles
     const r={carryRezsi:rez,carryMkt:mkt,inRezsi:sumK(inc,'rezsi'),inMkt:sumK(inc,'marketing'),outRezsi:sumK(exp.filter(e=>e.fund!=='marketing'),'amount'),outMkt:sumK(exp.filter(e=>e.fund==='marketing'),'amount')};
     rez=rez+r.inRezsi-r.outRezsi;mkt=mkt+r.inMkt-r.outMkt;r.endRezsi=rez;r.endMkt=mkt;out[x]=r;}
   return out[m]||{carryRezsi:rez,carryMkt:mkt,inRezsi:0,inMkt:0,outRezsi:0,outMkt:0,endRezsi:rez,endMkt:mkt};}
