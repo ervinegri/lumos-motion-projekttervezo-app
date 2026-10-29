@@ -256,7 +256,7 @@ function viewPayouts(){
     const net=ref?num(f.amount):num(f.amount)-penDeduct(p,cid,f.amount);const b=(by[m]=by[m]||{});(b[p.id]=b[p.id]||{p,cells:{}}).cells[cid]=(b[p.id].cells[cid]||0)+net;});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
-  const cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)))].sort((a,b)=>((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));
+  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0),cids=[...new Set(rows.flatMap(r=>Object.keys(r.cells)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
   const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),total=rows.reduce((s,r)=>s+rowSum(r),0);
   const allTotal=Object.keys(by).reduce((s,m)=>s+Object.values(by[m]).reduce((s2,r)=>s2+rowSum(r),0),0);
   return `<div class="page-head"><div class="grow"><h2>Kifizetések</h2><p class="sub">Termelői díjak hónaponként, díjcsökkentés után · nettó</p></div>
