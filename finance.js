@@ -16,7 +16,8 @@ async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S.
   try{S.fin=await call('finData');S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
-function finApply(d){S.fin=Object.assign({},S.fin||{},{income:d.income,expense:d.expense,loan:d.loan,settings:d.settings},d.invoices?{invoices:d.invoices}:{},d.billing?{billing:d.billing}:{},d.frameworks?{frameworks:d.frameworks}:{},d.sz?{sz:d.sz}:{});
+const FIN_KEYS=['income','expense','loan','settings','invoices','billing','frameworks','sz'];
+function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});S.fin=Object.assign({},S.fin||{},part);   // a szerver csak a módosult táblát küldi vissza
   (d.invoices||[]).forEach(x=>{if(x.projectId){const p=projById(x.projectId);if(p){const st=szPayOf(x.projectId);if(st)p.payStatus=st;}}});render(true);}
 const invPaidOk=x=>num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
 const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>x.projectId===pid);if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0);
@@ -52,12 +53,12 @@ function pctIn(r,k){const v=pctNum(r[k],r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv
   return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
 async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
   const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
-  if(kind==='project'){finCall('billSave',{projectId:id,[k==='ceo'?'ceoPct':'rezsiPct']:v==null?'':v},'Mentve');return;}
+  if(kind==='project'){const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v;finSave('billSave',{projectId:id,[f]:val},'Mentve',()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return;const st=finSet(),amount=num(r.amount),prod=num(r.prod),mk=num(r.marketing);
   let ceo=num(r.ceo),profit=num(r.profit),rezsi=Number(r.rezsi)||0;
   if(k==='ceo'){ceo=Math.round(amount*(v??st.ceoPct)/100);rezsi=amount-prod-profit-ceo-mk;}   // értékesítés változott: a maradék (eszköz-rezsi) igazodik
   else{rezsi=v==null?amount-prod-Math.round(amount*st.profitPct/100)-ceo-mk:Math.round(amount*v/100);profit=amount-prod-ceo-mk-rezsi;}   // eszköz-rezsi változott: a nyereség igazodik
-  finCall('finUpsert',{table:'income',row:Object.assign({},r,{ceo,profit,rezsi})},'Mentve');}
+  const row=Object.assign({},r,{ceo,profit,rezsi});finSave('finUpsert',{table:'income',row},'Mentve',()=>finLocal('income',[row]));}
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.finpct)finSetPct(t);});
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.finpct){e.preventDefault();t.blur();}});
 const sumK=(arr,k)=>arr.reduce((s,x)=>s+(Number(x[k])||0),0);
@@ -96,7 +97,7 @@ function viewFinance(){
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás</button>`:''}
       <button class="btn outline small" type="button" data-action="fin-settings">⚙️ Beállítások</button></div>
     <div class="tiles fin-tiles tiles-3">
-      <div class="tile fin-flow"><div class="tile-n">${ftFmt(T('amount'))}</div><div class="tile-l">tervezett bevétel ebben a hónapban</div>
+      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ebben a hónapban</span><b>${ftFmt(T('amount'))}</b></div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>
@@ -128,6 +129,11 @@ function viewFinance(){
 }
 
 /* ===== Műveletek ===== */
+/* Gyors mentés: a változás azonnal látszik (és a felugró ablak bezárul), a szerver a háttérben ment; hiba esetén újratöltjük */
+const newId=()=>(window.crypto&&crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2,10));
+function finLocal(key,rows,del){if(!S.fin)return;const arr=(S.fin[key]||[]).slice();(rows||[]).forEach(r=>{const i=arr.findIndex(x=>x.id===r.id);if(del){if(i>=0)arr.splice(i,1);}else if(i>=0)arr[i]=Object.assign({},arr[i],r);else arr.push(r);});S.fin[key]=arr;}
+function finSave(name,arg,okMsg,local){if(local)try{local();}catch(e){}closeModal();render(true);
+  call(name,arg).then(d=>{finApply(d);if(okMsg)toast(okMsg);}).catch(e=>{handleErr(e);finLoad(true);});return true;}
 async function finCall(name,arg,okMsg){try{const d=await call(name,arg);finApply(d);if(okMsg)toast(okMsg);return d;}catch(e){handleErr(e);return null;}}
 function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
   openModal(r?'Bevétel szerkesztése':'Egyéb bevétel',`<div class="fields">
@@ -142,7 +148,7 @@ function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
     const keepSplit=r&&r.legacy&&amount===num(r.amount)&&prod===num(r.prod);   // régi sornál a régi felosztás marad, ha az összeg nem változott
     const profit=keepSplit?r.profit:Math.round(amount*st.profitPct/100),ceo=keepSplit?r.ceo:Math.round(amount*st.ceoPct/100),marketing=keepSplit?r.marketing:Math.round(amount*st.marketingPct/100);
     const row=Object.assign({},v,{id:v.id||'',month:v.month||m,name:String(fd.get('name')||'').trim(),day:String(fd.get('day')||'').trim(),payStatus:fd.get('payStatus'),amount,prod,profit,ceo,marketing,rezsi:keepSplit?r.rezsi:amount-profit-ceo-marketing-prod});
-    if(await finCall('finUpsert',{table:'income',row},'Bevétel mentve'))closeModal();}});}
+    row.id=row.id||newId();finSave('finUpsert',{table:'income',row},'Bevétel mentve',()=>finLocal('income',[row]));}});}
 function finExpenseModal(e){const v=e||{},m=S.finMonth;
   openModal(e?'Kiadás szerkesztése':'Új kiadás',`<div class="fields">
     ${mf('name','Megnevezés',{full:true,v:v.name,max:200,ph:'pl. Könyvelő'})}
@@ -155,7 +161,7 @@ function finExpenseModal(e){const v=e||{},m=S.finMonth;
     let rows;
     if(e&&e.kind==='fix'&&kind==='fix'&&e.from<m&&(amount!==num(e.amount)||fund!==e.fund||name!==e.name))rows=[Object.assign({},e,{to:shiftMonth(m,-1)}),{name,amount,fund,kind:'fix',from:m,to:e.to||''}];   // ettől a hónaptól új összeg
     else rows=[Object.assign({},v,{id:v.id||'',name,amount,fund,kind,month:kind==='egyszeri'?(v.month||m):'',from:kind==='fix'?(v.from||m):'',to:kind==='fix'?(v.to||''):'',legacy:false})];
-    if(await finCall('finUpsert',{table:'expense',rows},'Kiadás mentve'))closeModal();}});}
+    rows.forEach(r=>{r.id=r.id||newId();});finSave('finUpsert',{table:'expense',rows},'Kiadás mentve',()=>finLocal('expense',rows));}});}
 function finSettingsModal(){const st=finSet(),cur=todayISO().slice(0,7);
   openModal('Bevétel és kiadás – beállítások',`<div class="fields">
     ${mf('profitPct','Nyereség (%)',{v:st.profitPct,im:'decimal'})}${mf('ceoPct','Értékesítés (%)',{v:st.ceoPct,im:'decimal'})}${mf('marketingPct','Marketing (%)',{v:st.marketingPct,im:'decimal'})}
@@ -191,29 +197,29 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     ${mf('note','Megjegyzés',{full:true,max:300,v:v.note||''})}</div>`,{left:l?`<button type="button" class="btn danger small" data-action="fin-loan-del" data-id="${esc(l.id)}">Törlés</button>`:'',submitLabel:'Mentés',submit:async fd=>{
     const row={id:v.id||'',kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),bank:String(fd.get('bank')||''),note:String(fd.get('note')||'').trim()};
     if(!row.amount){toast('Add meg az összeget.',true);return;}
-    if(await finCall('finUpsert',{table:'loan',row},'Tétel mentve'))closeModal();}});}
+    row.id=row.id||newId();finSave('finUpsert',{table:'loan',row},'Tétel mentve',()=>finLocal('loan',[row]));}});}
 Object.assign(ACT,{
   'fin-settings':()=>finSettingsModal(),
   'fin-retry':()=>{S.finErr='';finLoad(true);render(true);},
   'fin-import':()=>finImport(),
   'fin-income-new':()=>finIncomeModal(null),
   'fin-income-edit':b=>{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===b.dataset.id);if(r)finIncomeModal(r);},
-  'fin-income-del':b=>{const id=b.dataset.id;confirmModal('Bevétel törlése','Biztosan törlöd ezt a bevételi sort?','Törlés',()=>finCall('finDelete',{table:'income',id},'Törölve'));},
+  'fin-income-del':b=>{const id=b.dataset.id;confirmModal('Bevétel törlése','Biztosan törlöd ezt a bevételi sort?','Törlés',()=>finSave('finDelete',{table:'income',id},'Törölve',()=>finLocal('income',[{id}],true)));},
   'fin-exp-new':()=>finExpenseModal(null),
   'fin-exp-edit':b=>{const e=((S.fin&&S.fin.expense)||[]).find(x=>x.id===b.dataset.id);if(e)finExpenseModal(e);},
   'fin-exp-del':b=>{const e=((S.fin&&S.fin.expense)||[]).find(x=>x.id===b.dataset.id);if(!e)return;const m=S.finMonth;
-    if(e.kind==='fix'&&e.from<m){confirmModal('Fix kiadás megszüntetése',`A(z) „${e.name}” ${F_YM.format(toDate(m+'-01'))}-tól már nem jelenik meg; a korábbi hónapokban megmarad.`,'Megszüntetés',()=>finCall('finUpsert',{table:'expense',row:Object.assign({},e,{to:shiftMonth(m,-1)})},'Megszüntetve'));}
-    else confirmModal('Kiadás törlése','Biztosan törlöd ezt a kiadást?','Törlés',()=>finCall('finDelete',{table:'expense',id:e.id},'Törölve'));},
+    if(e.kind==='fix'&&e.from<m){confirmModal('Fix kiadás megszüntetése',`A(z) „${e.name}” ${F_YM.format(toDate(m+'-01'))}-tól már nem jelenik meg; a korábbi hónapokban megmarad.`,'Megszüntetés',()=>{const row=Object.assign({},e,{to:shiftMonth(m,-1)});finSave('finUpsert',{table:'expense',row},'Megszüntetve',()=>finLocal('expense',[row]));});}
+    else confirmModal('Kiadás törlése','Biztosan törlöd ezt a kiadást?','Törlés',()=>finSave('finDelete',{table:'expense',id:e.id},'Törölve',()=>finLocal('expense',[{id:e.id}],true)));},
   'fin-loan-new':()=>finLoanModal(null),
   'fin-loan-edit':b=>{const l=((S.fin&&S.fin.loan)||[]).find(x=>x.id===b.dataset.id);if(l)finLoanModal(l);},
-  'fin-loan-del':b=>{const id=b.dataset.id;confirmModal('Tétel törlése','Biztosan törlöd ezt a tagi kölcsön tételt?','Törlés',()=>finCall('finDelete',{table:'loan',id},'Törölve'));}
+  'fin-loan-del':b=>{const id=b.dataset.id;confirmModal('Tétel törlése','Biztosan törlöd ezt a tagi kölcsön tételt?','Törlés',()=>finSave('finDelete',{table:'loan',id},'Törölve',()=>finLocal('loan',[{id}],true)));}
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='fin-month'){S.finMonth=t.value;render(true);return;}
   if(t.id==='m-kind'&&$('m-bank')){const b=$('m-bank'),cur=b.value;b.innerHTML=bankOpts(t.value);if([...b.options].some(o=>o.value===cur))b.value=cur;return;}   // a bank-lista a típushoz igazodik
   if(t.dataset&&t.dataset.finpay){const id=t.dataset.id,v=t.value;
     if(t.dataset.finpay==='project'){try{await call('finSetPay',{projectId:id,payStatus:v});const p=projById(id);if(p)p.payStatus=v;if(S.draft&&S.draft.id===id)S.draft.payStatus=v;render(true);toast('Fizetési állapot: '+PAY_LABEL[v]);}catch(err){handleErr(err);render(true);}}
-    else{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(r)finCall('finUpsert',{table:'income',row:Object.assign({},r,{payStatus:v})},'Fizetési állapot: '+PAY_LABEL[v]);}}
+    else{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(r){const row=Object.assign({},r,{payStatus:v});finSave('finUpsert',{table:'income',row},'Fizetési állapot: '+PAY_LABEL[v],()=>finLocal('income',[row]));}}}
 });
 
 /* ===== Számlázás (számlázz.hu): kiállítás, hozzárendelés, kifizetések követése ===== */

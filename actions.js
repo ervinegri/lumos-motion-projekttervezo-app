@@ -167,7 +167,7 @@ function penModal(cid){
       if(reason.length<5){toast('Írd le röviden az indoklást.',true);$('m-penReason').focus();return;}
       if(kind==='damage'&&!moneyVal(fd.get('amount'))){toast('Add meg a kártérítés összegét.',true);return;}
       try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:fd.getAll('caseText').join('; '),day:kind==='damage'?'':String(fd.get('day')||''),reason,link:String(fd.get('link')||'').trim()});
-        closeModal();penApply(d.id,r.penalties);toast(isAdmin()?(r.mailed?'Díjcsökkentés kiróva, a szakember e-mailt kapott':'Díjcsökkentés kiróva (e-mailt nem sikerült küldeni)'):'Elküldve jóváhagyásra az ügyvezetőnek');}
+        closeModal();penApply(d.id,r.penalties);toast(isAdmin()?(r.mailed?'Díjcsökkentés kiróva, a szakember e-mailt kapott':S.mailOn===false?'Díjcsökkentés kiróva (az e-mailek szünetelnek, értesítés nem ment ki)':'Díjcsökkentés kiróva (e-mailt nem sikerült küldeni)'):'Elküldve jóváhagyásra az ügyvezetőnek');}
       catch(e){handleErr(e);}}});
   penCalc();
 }
@@ -514,7 +514,7 @@ async function sendListModal(only){
       await SAVE_Q;   // a még folyamatban lévő mentés előbb érjen be, hogy a friss lista menjen ki
       const r=await call('sendEquipmentList',{projectId:p.id,recipients:to,message:String(fd.get('message')||'').trim(),includePlan:fd.get('plan')==='on'});
       [projById(p.id),S.draft].forEach(x=>{if(x){x.listSentAt=r.listSentAt;x.listSentTo=r.listSentTo;}});
-      closeModal();render(true);toast('Eszközlista elküldve: '+r.names.join(', '));
+      closeModal();render(true);toast(S.mailOn===false?'Az e-mailek szünetelnek – az eszközlista nem ment ki (Beállítások → E-mail értesítések).':'Eszközlista elküldve: '+r.names.join(', '),S.mailOn===false);
     }catch(e){handleErr(e);}
   }});
 }
@@ -559,7 +559,7 @@ async function crewFinalizeModal(){
       if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
       render(true);S.cal.events={};
       const warn=[].concat(r.failed&&r.failed.length?['nem ment ki: '+r.failed.join(', ')]:[],r.noEmail&&r.noEmail.length?['nincs e-mail-címe: '+r.noEmail.join(', ')]:[]);
-      toast(`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length);
+      toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length);
     }catch(e){handleErr(e);}
   }});
 }
@@ -718,6 +718,8 @@ function arm(b,fn){
 
 /* ===== Események ===== */
 const ACT={
+  'mail-toggle':b=>{const on=!S.mailOn;const go=async()=>{b.disabled=true;try{const r=await call('setMail',{on});S.mailOn=r.mailOn;render(true);toast(on?'E-mail értesítések bekapcsolva':'E-mailek szüneteltetve – senki nem kap e-mailt');}catch(e){handleErr(e);b.disabled=false;}};
+    if(on)confirmModal('E-mailek bekapcsolása','Ettől kezdve a szakemberek (beosztás, eszközlista, díjcsökkentés) és – számla kiállításakor – az ügyfelek is kapnak e-mailt.','Bekapcsolás',go);else go();},
   tab:b=>guard(()=>{S.finErr='';const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},

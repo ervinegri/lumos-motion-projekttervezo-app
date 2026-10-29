@@ -340,6 +340,7 @@ function bootstrap_(u) {
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
+    mailOn: mailOn_(),
     capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
@@ -471,6 +472,20 @@ function crewMembers_(p) {
   const days = parseCrewDays_(p.crewDays);
   return Object.keys(roles).map(id => ({ id: id, name: crewMap[id].name, phone: crewMap[id].phone || '', email: String(crewMap[id].email || '').trim().toLowerCase(), roles: roles[id], days: days[id] || [] }));
 }
+/* ===== E-mail kapcsoló: amíg nincs bekapcsolva (Beállítások → E-mail értesítések), az app SEMMILYEN e-mailt nem küld:
+   sem a szakembereknek, sem az ügyfeleknek (számlázz.hu), sem naptár-meghívót. Alapértelmezés: kikapcsolva. */
+const MAIL_ON_PROPERTY = 'LUMOS_PM_MAIL_ON';
+function mailOn_() { try { return PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) === '1'; } catch (e) { return false; } }
+function gmailSend_(to, subject, text, opts) {
+  if (!mailOn_()) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
+  GmailApp.sendEmail(to, subject, text, opts); return true;
+}
+function setMail_(u, a) {
+  const on = !!(a && a.on);
+  PropertiesService.getScriptProperties().setProperty(MAIL_ON_PROPERTY, on ? '1' : '0');
+  logEvent_(u, 'E-mail értesítések', '', on ? 'bekapcsolva' : 'kikapcsolva');
+  return { mailOn: on };
+}
 function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállítása; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
   const want = {}; emails.forEach(m => { want[m] = 1; });
   if (typeof Calendar !== 'undefined' && Calendar.Events) {   // speciális szolgáltatás: a Google értesítést is küld (sendUpdates: all)
@@ -479,9 +494,10 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
     const keep = (cur.attendees || []).filter(x => !allCrewEmails[String(x.email || '').toLowerCase()] || want[String(x.email || '').toLowerCase()]);
     const have = {}; keep.forEach(x => { have[String(x.email || '').toLowerCase()] = 1; });
     emails.forEach(m => { if (!have[m]) keep.push({ email: m }); });
-    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: 'all' });
-    return true;
+    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: mailOn_() ? 'all' : 'none' });   // kikapcsolt e-mailnél a Google sem értesít
+    return mailOn_();
   }
+  if (!mailOn_()) return false;   // speciális szolgáltatás nélkül a vendégek felvétele értesítést küldhet – kikapcsolt e-mailnél kihagyjuk
   const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
   Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
   Object.keys(have).forEach(m => { if (allCrewEmails[m] && !want[m]) ev.removeGuest(m); });
@@ -503,7 +519,7 @@ function crewFinalMail_(u, p, m, lead, link, changed) {
   const html = '<p>Szia ' + escapeHtml_(String(m.name).split(/\s+/).pop()) + '!</p><p>' + escapeHtml_(intro) + '</p><table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  GmailApp.sendEmail(m.email, (changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range, text, mailOptsFor_(u, html));
+  return gmailSend_(m.email, (changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range, text, mailOptsFor_(u, html));
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -526,7 +542,7 @@ function finalizeCrew_(u, a) {
   const toNotify = valid.filter(m => isNewM(m) || isChanged(m));
   const link = calEventLink_(ev);
   const sent = [], failed = [], changedNames = [];
-  toNotify.forEach(m => { const ch = isChanged(m); try { crewFinalMail_(u, p, m, lead, link, ch); sent.push(m.name); if (ch) changedNames.push(m.name); } catch (e) { failed.push(m.name); } });
+  toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
   const saved = withLock_(() => {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
     q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sigs: sigs });
@@ -535,7 +551,7 @@ function finalizeCrew_(u, a) {
     return q;
   });
   logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : ''));
-  return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link };
+  return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_() };
 }
 
 /* ===================== BEVÉTEL ÉS KIADÁS (ügyvezetői pénzügyek) ===================== */
@@ -564,7 +580,7 @@ function finSaveSettings_(u, a) {
   ['openRezsi', 'openMarketing'].forEach(k => { if (a && a[k] !== undefined) { const n = Math.round(Number(a[k])); if (!isFinite(n)) throw new Error('Hibás összeg.'); next[k] = n; } });
   PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(next));
   logEvent_(u, 'Pénzügyi beállítások', '', 'módosítva');
-  return finData_();
+  return finPart_(['settings']);
 }
 /* Betöltéskor gyorsítótárból (minden módosítás új verziószámot ad, így mindig friss); a módosító műveletek a friss finData_()-t adják vissza */
 function finDataCached_() {
@@ -577,6 +593,9 @@ function finDataCached_() {
 function finData_() {
   return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), sz: szSettingsView_() };
 }
+/* Gyors válasz: a módosító műveletek csak az érintett táblát adják vissza (a többi nem változott) */
+const FIN_PART_TABLES_ = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan', invoices: 'finInvoice', billing: 'finBilling', frameworks: 'finFramework' };
+function finPart_(keys) { const o = {}; keys.forEach(k => { if (k === 'settings') o.settings = finSettings_(); else if (k === 'sz') o.sz = szSettingsView_(); else o[k] = readAll_(FIN_PART_TABLES_[k]); }); return o; }
 function finClean_(table, a) {
   const id = str_(a && a.id, 64) || Utilities.getUuid();
   const ym = v => /^\d{4}-\d{2}$/.test(String(v || '')) ? String(v) : '';
@@ -617,14 +636,14 @@ function finUpsert_(u, a) {
     SpreadsheetApp.flush();
   });
   logEvent_(u, 'Bevétel és kiadás', rows.map(r => r.name || r.date).join(', '), a.table + ' mentve');   // összeg nem kerül a naplóba
-  return finData_();
+  return finPart_([a.table]);
 }
 function finDelete_(u, a) {
   const table = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan' }[a && a.table];
   if (!table) throw new Error('Ismeretlen táblázat.');
   withLock_(() => { const sh = sheetFor_(table), row = findRow_(sh, str_(a.id, 64)); if (row) sh.deleteRow(row); SpreadsheetApp.flush(); });
   logEvent_(u, 'Bevétel és kiadás', '', a.table + ' tétel törölve');
-  return finData_();
+  return finPart_([a.table]);
 }
 /* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
 function finSetPay_(u, a) {
@@ -1118,15 +1137,19 @@ function saveCalEvent_(u, a) {
   if (ev && ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projektben módosítsd, az app frissíti a naptárat.');
   const opts = { description: desc, location: loc };
   if (!ev) {
-    if (guests.length) { opts.guests = guests.join(','); opts.sendInvites = a.sendInvites === true; }
+    if (guests.length) { opts.guests = guests.join(','); opts.sendInvites = a.sendInvites === true && mailOn_(); }
     ev = allDay ? cal_().createAllDayEvent(title, start, end, opts) : cal_().createEvent(title, start, end, opts);
   } else {
     ev.setTitle(title); ev.setDescription(desc); ev.setLocation(loc);
     if (allDay) ev.setAllDayDates(start, end); else ev.setTime(start, end);
-    const want = {}; guests.forEach(m => { want[m] = 1; });
-    const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
-    Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
-    Object.keys(have).forEach(m => { if (!want[m]) ev.removeGuest(m); });
+    if (!mailOn_() && typeof Calendar !== 'undefined' && Calendar.Events) {   // kikapcsolt e-mail: értesítés nélkül állítjuk a vendéglistát
+      Calendar.Events.patch({ attendees: guests.map(m => ({ email: m })) }, CALENDAR_ID, String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' });
+    } else if (mailOn_()) {
+      const want = {}; guests.forEach(m => { want[m] = 1; });
+      const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
+      Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
+      Object.keys(have).forEach(m => { if (!want[m]) ev.removeGuest(m); });
+    }
   }
   calBump_();
   logEvent_(u, a.id ? 'Naptárbejegyzés módosítva' : 'Naptárbejegyzés létrehozva', title, date + (endDate !== date ? ' – ' + endDate : '') + (allDay ? '' : ' ' + a.start));
@@ -1404,7 +1427,7 @@ function szInvoice_(u, a) {
   if (!items.length) throw new Error('Adj meg legalább egy tételt.');
   const today = today_(), fulfill = iso_(a.fulfill) || today, due = iso_(a.due) || today;
   const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
-  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);
+  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = mailOn_() && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
@@ -1582,7 +1605,7 @@ function billSave_(u, a) {
     SpreadsheetApp.flush();
   });
   logEvent_(u, 'Szerződés és számlázás', (readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), pid)) || {}).name || pid, 'módosítva');
-  return finData_();
+  return finPart_(['billing']);
 }
 /** Szerződés feltöltése a projekt Drive-mappájába (a mappát szükség esetén létrehozza). a: {projectId, name, mime, b64, contractStatus} */
 function billUpload_(u, a) {
@@ -1602,7 +1625,7 @@ function billUpload_(u, a) {
     SpreadsheetApp.flush();
   });
   logEvent_(u, 'Szerződés feltöltve', name, '');
-  return finData_();
+  return finPart_(['billing']);
 }
 
 /* ===================== KERETSZERZŐDÉSEK (ügyfelenként) =====================
@@ -1633,12 +1656,12 @@ function fwSave_(u, a) {
     putRow_('finFramework', sh, r, old ? findRow_(sh, old.id) : 0);
     SpreadsheetApp.flush();
     logEvent_(u, 'Keretszerződés', client, old ? 'módosítva' : 'felvéve');
-    return finData_();
+    return finPart_(['frameworks']);
   });
 }
 function fwDelete_(u, a) {
   withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
-  return finData_();
+  return finPart_(['frameworks']);
 }
 
 /* ===================== STÁB ÉS LELTÁR ===================== */
@@ -1767,14 +1790,13 @@ function penMailCrew_(u, p, x) {
       x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, x.link ? '\nBizonyíték: ' + x.link : '', '',
       'Ha nem értesz egyet, a projekt oldalán a „Kifogásolom” gombbal írásban jelezheted: ' + url, '', 'Üdvözlettel:', 'Lumos Motion'].filter((l, i, a) => l !== '' || a[i - 1] !== '');
     const html = lines.map(l => escapeHtml_(l)).join('<br>');
-    GmailApp.sendEmail(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html));
-    return true;
+    return gmailSend_(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html));
   } catch (e) { Logger.log('Díjcsökkentés e-mail hiba: ' + e); return false; }
 }
 function penMailAdmins_(u, subject, text) {
   try {
     const to = loadUsers_().filter(x => x.role === 'admin' && !x.disabled && x.email).map(x => x.email);
-    if (to.length) GmailApp.sendEmail(to.join(','), subject, text, mailOptsFor_(u, escapeHtml_(text).replace(/\n/g, '<br>')));
+    if (to.length) gmailSend_(to.join(','), subject, text, mailOptsFor_(u, escapeHtml_(text).replace(/\n/g, '<br>')));
   } catch (e) { Logger.log('Értesítés hiba: ' + e); }
 }
 function addPenalty_(u, a) {
@@ -2011,8 +2033,7 @@ function sendEquipmentList_(u, a) {
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
-    GmailApp.sendEmail(c.email, subject, text, opts);
-    sentTo.push(c.name);
+    if (gmailSend_(c.email, subject, text, opts)) sentTo.push(c.name);
   });
   const when = now_(), info2 = sentTo.length + ' fő: ' + sentTo.join(', ');
   withLock_(() => {
@@ -2117,7 +2138,7 @@ function sendInviteMail_(user) {
     + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
   try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  GmailApp.sendEmail(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts);
+  gmailSend_(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts);
 }
 
 /** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
@@ -2355,6 +2376,7 @@ function rpcInner_(token, name, arg) {
     case 'billSave': adminOnly(); return billSave_(u, arg);
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
+    case 'setMail': adminOnly(); return setMail_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);

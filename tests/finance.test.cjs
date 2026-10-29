@@ -152,6 +152,9 @@ test('crew finalize: guests only on finalize, everyone with e-mail notified, on-
     GmailApp={sendEmail:(to,sub)=>MAILS.push([to,sub]),getAliases:()=>[]};
     Utilities.parseDate=(iso)=>new Date(iso+'T12:00:00');
     USER={role:'editor',name:'Dávid',crewId:'david-123'};`);
+  // kikapcsolt e-mail (alapértelmezés): semmi nem megy ki
+  assert.equal(run(`mailOn_()`),false);assert.equal(run(`gmailSend_('x@y.hu','t','b',{})`),false);assert.equal(run(`MAILS.length`),0);
+  run(`PROPS['LUMOS_PM_MAIL_ON']='1';`);   // bekapcsolva: a véglegesítés értesít
   assert.throws(()=>run(`rpc('token','saveProject',{...DB.projects.find(x=>x.id==='final-1234'),status:'helyszin',siteOk:'igen',baseUpdatedAt:'f0',mutationId:'mutation-final1',deferCal:true,crew:[{crewId:'bence-123',role:'Operatőr'}]})`),/véglegesítsd a csapatot/);
   run(`var fin=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
   assert.deepEqual(json('GUESTS.sort()'),['bence@x.hu','david@x.hu']);
