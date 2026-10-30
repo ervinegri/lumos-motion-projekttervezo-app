@@ -90,10 +90,16 @@ let pickItems=[];
 function pickClose(){const b=$('hsBox');if(b)b.remove();pickItems=[];}
 function pickShow(input,html){let b=$('hsBox');if(!b){b=document.createElement('div');b.id='hsBox';b.className='hs-box';b.setAttribute('role','listbox');document.body.appendChild(b);}
   const r=input.getBoundingClientRect();b.style.left=(r.left+scrollX)+'px';b.style.top=(r.bottom+scrollY+4)+'px';b.style.width=r.width+'px';b.innerHTML=html;}
+/* Másik lapon (pl. a TIG-ből megnyitott projekt) mentett projekt: ez a lap is frissül, a nyitott TIG-sorok is */
+const PROJ_BC=(()=>{try{return new BroadcastChannel('lumos-pm-proj');}catch(e){return null;}})();
+function projBroadcast(p){try{if(PROJ_BC)PROJ_BC.postMessage({p});}catch(e){}}
+if(PROJ_BC)PROJ_BC.onmessage=ev=>{const p=ev.data&&ev.data.p;if(!p||!p.id||!S.projects)return;const k=S.projects.findIndex(x=>x.id===p.id);
+  if(k>=0){if(String(S.projects[k].updatedAt||'')>String(p.updatedAt||''))return;S.projects[k]=p;}else S.projects.push(p);
+  if(typeof tigSyncRows==='function'&&$('tig-rows'))tigSyncRows(p);else if(!$('mform')&&S.projectId!==p.id)render(true);};
 function knownClients(q){
   const ql=q.toLowerCase(),seen={},out=[];
   (S.clients||[]).forEach(r=>{const c=String(r.name||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
-    seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||''});});
+    seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||'',rep:r.rep||''});});
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
     const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',tax:p.clientTax||'',address:p.clientAddress||''});});
@@ -185,13 +191,14 @@ function penObjectModal(pid,id){
       try{const r=await call('objectPenalty',{projectId:pid,id,text});closeModal();penApply(pid,r.penalties);toast('Kifogás elküldve');}catch(e){handleErr(e);}}});
 }
 function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs nyitott projekt)
-  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div></div>`,
+  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('rep','A cég képviselője (aláíró – TIG, szerződés)',{full:true,max:120,ph:'pl. Kovács Anna, ügyvezető'})}${mf('contactName','Kapcsolattartó',{max:120})}${phoneField({name:'contactPhone',value:edit?edit.contactPhone:''})}${mf('contactEmail','E-mail',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div></div>`,
     {left:reg&&edit&&edit.id?`<button type="button" class="btn danger small" data-action="del-client" data-id="${esc(edit.id)}">Törlés</button>`:'',submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
-      const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',oldName:reg&&edit?edit.client:''};
+      const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',rep:String(fd.get('rep')||'').trim(),oldName:reg&&edit?edit.client:''};
       if(reg){try{await saveClientRec(rec);closeModal();toast(edit?'Ügyfél mentve':'Ügyfél felvéve');}catch(e){handleErr(e);}return;}
       closeModal();if(S.draft)setDraft(patch);saveClientRec(rec).catch(()=>{});}});   // a projektből felvett ügyfél is bekerül az Ügyfelek közé
   if(pre){const n=$('m-client');if(n)n.value=pre;}
+  {const nm=String((edit&&edit.client)||pre||'').trim().toLowerCase(),cr=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===nm),r=$('m-rep');if(r)r.value=(edit&&edit.rep)||(cr&&cr.rep)||'';}
   if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
 }
 /* Kereshető ügyfélválasztó: gépelésre szűr, a lista végén mindig ott az „Új ügyfél felvétele”. */
@@ -761,7 +768,7 @@ function saveDraft(){
       if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}
       else{if(k>=0)S.projects[k]=saved;else S.projects.push(saved);
         if(S.projectId===saved.id){S.draftBase=prepDraft(saved);if(!S.dirty){S.draft=prepDraft(saved);render(true);}}}   // a fix (üres) díjsorok is maradjanak meg
-      S.cal.events={};syncCal(saved.id);
+      S.cal.events={};syncCal(saved.id);projBroadcast(saved);
       S.savedFlash=1;clearTimeout(S._flashT);S._flashT=setTimeout(()=>{S.savedFlash=0;renderChrome();},1800);
     }catch(e){
       SAVE_PENDING[d.id]--;
@@ -970,7 +977,7 @@ const ACT={
   'pen-object':b=>penObjectModal(b.dataset.pid,b.dataset.id),
   'pen-open':b=>{const id=b.dataset.pid;guard(()=>openProject(id));},
   'new-client':()=>newClientModal(null,null,true),
-  'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email},true);},
+  'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email,rep:c.rep},true);},
   'del-client':b=>arm(b,async()=>{try{await call('deleteClient',{id:b.dataset.id});S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
   'hs-open':()=>hubspotModal(),
   'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},

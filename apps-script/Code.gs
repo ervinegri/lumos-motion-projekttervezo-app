@@ -75,7 +75,7 @@ const TABLES = {
     ['location', 'Tárolási hely']] },
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
-    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva']] },
+    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)']] },
   finIncome: { tab: 'Bevételek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['day', 'Nap'], ['name', 'Megnevezés'], ['payStatus', 'Fizetési állapot'], ['amount', 'Díjazás (nettó Ft)'],
     ['prod', 'Termelési költség (Ft)'], ['profit', 'Nyereség (Ft)'], ['ceo', 'Ügyvezető (Ft)'], ['rezsi', 'Eszköz, rezsi (Ft)'], ['marketing', 'Marketing (Ft)'],
@@ -2344,7 +2344,7 @@ function saveClient_(u, a) {
   const id = str_(a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
   const c = { id: id, name: str_(a.name, 160).replace(/\s+/g, ' '), tax: str_(a.tax, 20).replace(/[^\d-]/g, ''), address: str_(a.address, 300),
-    contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000) };
+    contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000), rep: str_(a.rep, 120) };
   if (c.name.length < 2) throw new Error('Add meg az ügyfél nevét.');
   if (c.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.contactEmail)) throw new Error('Az e-mail-cím érvénytelen.');
   const oldName = str_(a.oldName, 160).trim();
