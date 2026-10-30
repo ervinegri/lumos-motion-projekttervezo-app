@@ -1692,7 +1692,17 @@ function szInvoice_(u, a) {
 function szLink_(u, a) {
   const tg = szTarget_(a), no = str_(a && a.no, 60);
   if (!no) throw new Error('Add meg a számlaszámot.');
-  if (readAll_('finInvoice').some(x => x.no === no)) throw new Error('Ez a számla már hozzá van rendelve valamihez.');
+  const ex = readAll_('finInvoice').find(x => x.no === no);
+  if (ex) {   // már hozzá van rendelve: ha projekthez, közös számlává bővítjük ezzel a projekttel (és a bejelöltekkel)
+    if (!tg.projectId || !ex.projectId) throw new Error('Ez a számla már hozzá van rendelve egy bevételi sorhoz.');
+    let added = [];
+    withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, ex.id), r = readRow_('finInvoice', sh, row);
+      const ids = String(r.projectIds || '').split(',').filter(String);
+      [tg.projectId].concat(szExtraProjects_(a, r.projectId).split(',').filter(String)).forEach(id => { if (id && id !== r.projectId && ids.indexOf(id) < 0) { ids.push(id); added.push(id); } });
+      r.projectIds = ids.join(','); putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_(); Object.assign(ex, r); });
+    logEvent_(u, 'Számlázás', ex.buyer, 'Közös számla bővítve: ' + no + (added.length ? ' (+' + added.length + ' projekt)' : ''));
+    return Object.assign(finData_(), { invoice: ex, extended: added.length });
+  }
   const q = szQuery_(no, false);
   const row = { id: Utilities.getUuid(), no: q.no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
     invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '',
@@ -1762,7 +1772,8 @@ function szPeek_(u, a) {
   m = /^([A-Z]+)-(\d{1,4})$/.exec(raw); if (m && m[2].length < 4) tries.push(m[1] + '-' + y + '-' + m[2]);
   if (/^\d{1,4}$/.test(raw)) tries.push(str_(a.prefix, 20).toUpperCase() + '-' + y + '-' + raw);
   let last = null;
-  for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false); return { no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus }; } catch (e) { last = e; } }
+  const linked = readAll_('finInvoice');
+  for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false), l = linked.find(x => x.no === (q.no || tries[i])); return { linked: l ? invTargets_(l).map(t => t.projectId || t.incomeId) : [], no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus }; } catch (e) { last = e; } }
   throw new Error('Nem található ilyen számla a számlázz.hu-ban (' + tries.join(', ') + ').');
 }
 function szUnlink_(u, a) {
