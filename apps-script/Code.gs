@@ -909,8 +909,9 @@ function saveProject_(u, a) {
   const crewIn = Array.isArray(a.crew) ? a.crew.slice(0, 60) : [];
   const eqIn = Array.isArray(a.equipment) ? a.equipment.slice(0, 150) : [];
 
+  const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));   // olvasás a zár előtt – a zár így rövidebb ideig foglalt
+  let logArgs = null;
   const saved = withLock_(() => {
-    const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
     if (p.lead && !crewMap[p.lead]) p.lead = '';
     const seen = {}, crew = [];
     crewIn.forEach(x => {
@@ -988,11 +989,12 @@ function saveProject_(u, a) {
       rewriteAssign_('eqAssign', r => r.projectId !== id,
         equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name, crewId: e.crewId, crewName: e.crewId ? crewMap[e.crewId].name : '' })));
     SpreadsheetApp.flush();
-    logEvent_(u, old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p) : (p.date ? 'Dátum: ' + p.date : ''));
+    logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
     return out;
   });
+  if (logArgs) logEvent_(u, logArgs[0], logArgs[1], logArgs[2]);
   if (a.deferCal === true || saved.duplicateOf) return saved;   // az új felület külön kérésben frissíti a naptárat, így a mentés gyors
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }

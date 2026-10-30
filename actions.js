@@ -753,7 +753,7 @@ function saveDraft(){
     const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
     try{
       let saved;for(let k=0;;k++){try{saved=await call('saveProject',payload);break;}
-        catch(e){if(k<3&&/Zárol|lock/i.test(errText(e))){await new Promise(r=>setTimeout(r,1500*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)
+        catch(e){if(k<2&&/Zárol|lock/i.test(errText(e))){toast('A szerver épp foglalt (más is ment) – újrapróbálom… ('+(k+1)+'/2)');await new Promise(r=>setTimeout(r,2000*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)
       const current=projById(d.id);if(current)current.updatedAt=saved.updatedAt;
       verifySavedFees(d,saved);
       const newer=--SAVE_PENDING[d.id]>0;   // közben újabb mentés is indult erre a projektre
@@ -1251,3 +1251,15 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
   const cur=new Set((S.mailCc&&S.mailCc[cat])||[]);if(t.checked)cur.add(t.dataset.role);else cur.delete(t.dataset.role);const list=[...cur];
   S.mailCc=Object.assign({},S.mailCc||{},{[cat]:list});t.closest('.cc-chip').classList.toggle('on',t.checked);
   try{const r=await call('setMail',{cat,cc:list});if(r.mailCc)S.mailCc=r.mailCc;toast('Másolat mentve');}catch(err){handleErr(err);render(true);}});
+
+/* Díjtáblázat sorainak sorrendje: húzással (a ⠿ fogantyúnál fogva) – csak ugyanazon a táblázaton belül */
+let FEE_DRAG=null;
+document.addEventListener('mousedown',e=>{const h=e.target.closest&&e.target.closest('[data-drag-fee]');if(!h)return;const tr=h.closest('tr');if(tr)tr.draggable=true;});
+document.addEventListener('dragstart',e=>{const tr=e.target.closest&&e.target.closest('tr[data-fee-row]');if(!tr||!tr.draggable)return;FEE_DRAG={i:Number(tr.dataset.feeRow),tbody:tr.parentNode};tr.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','fee');}catch(_){}});
+document.addEventListener('dragover',e=>{if(!FEE_DRAG)return;const tr=e.target.closest&&e.target.closest('tr[data-fee-row]');if(!tr||tr.parentNode!==FEE_DRAG.tbody)return;e.preventDefault();
+  document.querySelectorAll('tr.drop-above,tr.drop-below').forEach(x=>x.classList.remove('drop-above','drop-below'));const r=tr.getBoundingClientRect();tr.classList.add(e.clientY<r.top+r.height/2?'drop-above':'drop-below');});
+document.addEventListener('drop',e=>{if(!FEE_DRAG)return;const tr=e.target.closest&&e.target.closest('tr[data-fee-row]');const src=FEE_DRAG;FEE_DRAG=null;
+  document.querySelectorAll('tr.drop-above,tr.drop-below,tr.dragging').forEach(x=>x.classList.remove('drop-above','drop-below','dragging'));
+  if(!tr||tr.parentNode!==src.tbody||!S.draft)return;e.preventDefault();const r=tr.getBoundingClientRect(),after=e.clientY>=r.top+r.height/2;
+  const f=(S.draft.fees||[]).slice(),from=src.i;let to=Number(tr.dataset.feeRow);if(from===to)return;const item=f.splice(from,1)[0];if(from<to)to--;if(after)to++;f.splice(to,0,item);setDraft({fees:f});});
+document.addEventListener('dragend',()=>{FEE_DRAG=null;document.querySelectorAll('tr[data-fee-row]').forEach(x=>{x.draggable=false;x.classList.remove('dragging','drop-above','drop-below');});});

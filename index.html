@@ -711,6 +711,8 @@ body:not(.ro) .cal-day{cursor:pointer}body:not(.ro) .cal-day:hover{background:#f
 .mail-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-top:14px}.mail-cats.dis{opacity:.5}
 .mail-cat{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:#fff}.mail-cat.off{opacity:.55}.mail-cat-h{display:flex;gap:8px;align-items:center;cursor:pointer}.mail-cat small{color:var(--fg-3);font-size:12.5px}.mail-to{font-size:13px}
 .mail-cc{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;margin-top:2px}.cc-chip{border:1px solid var(--line);border-radius:999px;padding:3px 9px;cursor:pointer;display:inline-flex;gap:4px;align-items:center}.cc-chip.on{background:#e8f2ec;border-color:#9bc7ad;color:var(--accent);font-weight:700}.cc-chip input{margin:0}
+.drag-h{cursor:grab;color:var(--fg-4,#9aa7a1);font-size:15px;padding:0 3px;user-select:none;line-height:1}.drag-h:hover{color:var(--accent)}tr.dragging{opacity:.4}
+tr.drop-above td{box-shadow:inset 0 2px 0 var(--accent)}tr.drop-below td{box-shadow:inset 0 -2px 0 var(--accent)}
 </style>
 </head>
 <body>
