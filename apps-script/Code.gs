@@ -154,23 +154,26 @@ function dbOn_() {
   try {
     const P = PropertiesService.getScriptProperties();
     if (P.getProperty(DB_MODE_PROPERTY) !== 'neon') return false;
-    const url = P.getProperty(NEON_URL_PROPERTY); if (!url) return false;
-    DB_ = { url: url, sheets: {}, loaded: false };
+    DB_ = { url: P.getProperty(NEON_URL_PROPERTY) || '', sheets: {}, loaded: false };   // NEON_URL nélkül a Vercel-közvetítőn át
     return true;
   } catch (e) { return false; }
 }
 function neonUrl_() { return PropertiesService.getScriptProperties().getProperty(NEON_URL_PROPERTY) || ''; }
 /** Neon SQL HTTP-n keresztül (a hivatalos „serverless driver” végpontja). list: [{query, params}] → eredmények. */
+const DB_PROXY_URL = FRONTEND_URL.replace(/\/$/, '') + '/api/sql';   // a jelszó a Vercelen van (DATABASE_URL); az Apps Script a saját Google-tokenjével hitelesít
 function neonSql_(list, url) {
   url = url || (DB_ && DB_.url) || neonUrl_();
-  const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(String(url || ''));
-  if (!m) throw new Error('A NEON_URL nem érvényes Postgres-cím.');
   const single = list.length === 1;
-  const res = UrlFetchApp.fetch('https://' + m[1] + '/sql', {
-    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
-    headers: { 'Neon-Connection-String': url, 'Neon-Raw-Text-Output': 'true', 'Neon-Array-Mode': 'true' },
-    payload: JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) })
-  });
+  const payload = JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) });
+  let res;
+  if (url) {   // közvetlen kapcsolat (ha a NEON_URL szkripttulajdonság be van állítva)
+    const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(String(url));
+    if (!m) throw new Error('A NEON_URL nem érvényes Postgres-cím.');
+    res = UrlFetchApp.fetch('https://' + m[1] + '/sql', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, payload: payload,
+      headers: { 'Neon-Connection-String': url, 'Neon-Raw-Text-Output': 'true', 'Neon-Array-Mode': 'true' } });
+  } else {
+    res = UrlFetchApp.fetch(DB_PROXY_URL, { method: 'post', contentType: 'application/json', muteHttpExceptions: true, payload: payload, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
+  }
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
@@ -243,14 +246,14 @@ function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, actio
 
 /** Kapcsolat-teszt (ügyvezető): elérhető-e az adatbázis, és mennyi idő egy lekérdezés. */
 function dbPing_() {
-  const url = neonUrl_(); if (!url) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
+  const url = neonUrl_();
   const t0 = Date.now(); dbSchema_(url); const t1 = Date.now();
   const r = neonSql_([{ query: 'SELECT count(*)::text, coalesce(max(updated_at)::text, \'\') FROM lpm_sheet' }], url)[0];
-  return { ok: true, schemaMs: t1 - t0, queryMs: Date.now() - t1, tables: Number((r.rows[0] || [])[0] || 0), lastWrite: (r.rows[0] || [])[1] || '', mode: PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) || 'sheet' };
+  return { ok: true, via: url ? 'közvetlen' : 'Vercel', account: Session.getEffectiveUser().getEmail(), schemaMs: t1 - t0, queryMs: Date.now() - t1, tables: Number((r.rows[0] || [])[0] || 0), lastWrite: (r.rows[0] || [])[1] || '', mode: PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) || 'sheet' };
 }
 /** Átköltöztetés: a Google-táblázat összes munkalapja (és a napló) az adatbázisba. Újra futtatható (felülír). */
 function dbMigrate_(u) {
-  const url = neonUrl_(); if (!url) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
+  const url = neonUrl_();
   dbSchema_(url);
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID), out = {};
   const conv = v => v instanceof Date ? Utilities.formatDate(v, SHEET_TZ, (v.getHours() || v.getMinutes() || v.getSeconds()) ? 'yyyy-MM-dd HH:mm:ss' : 'yyyy-MM-dd') : v;
@@ -278,7 +281,6 @@ function dbMigrate_(u) {
 /** Átkapcsolás: 'neon' vagy 'sheet'. Neonra kapcsoláskor előtte friss átköltöztetés (ha a felület kéri). */
 function dbSetMode_(u, a) {
   const mode = a && a.mode === 'neon' ? 'neon' : 'sheet';
-  if (mode === 'neon' && !neonUrl_()) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
   let mig = null;
   if (mode === 'neon' && a.migrate) mig = dbMigrate_(u);
   if (mode === 'sheet' && dbOn_() && a.backup !== false) dbBackup_();   // visszakapcsoláskor a friss adatok a táblázatba
@@ -289,7 +291,7 @@ function dbSetMode_(u, a) {
 }
 /** Biztonsági mentés: az adatbázis tartalma vissza a Google-táblázatba (éjszakánként és visszakapcsoláskor). */
 function dbBackup_() {
-  const url = neonUrl_(); if (!url) return { ok: false };
+  const url = neonUrl_();
   const r = neonSql_([{ query: 'SELECT tab, rows::text FROM lpm_sheet' }], url)[0], ss = SpreadsheetApp.openById(SPREADSHEET_ID), out = {};
   (r.rows || []).forEach(row => {
     const tab = row[0], rows = JSON.parse(row[1] || '[]'); if (!rows.length) return;

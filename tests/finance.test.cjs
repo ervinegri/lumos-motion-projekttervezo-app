@@ -276,10 +276,8 @@ test('frontend computes day two penalty identically for leader and crew views',(
   fr('delete p.myFee.dayAmounts;');
   assert.equal(fr('penAmt(p,x)'),30000);
 });
-test('approval UI preserves backward compatibility until backend is updated',()=>{
-  assert.match(fr("budgetRequestPanel({})"),/disabled/);
-  fr('S.capabilities={budgetApproval:true};');
-  assert(!fr('budgetRequestPanel({})').includes(' disabled'));
+test('production manager no longer sees the budget change request panel',()=>{
+  assert.equal(fr("budgetRequestPanel({})"),'');
 });
 test('frontend: required basics are checked, notes are optional',()=>{
   fr(`var rp={name:'X',venue:'V',client:'C',eventType:'Konferencia',contactName:'K',contactPhone:'+36 30 123 4567',contactEmail:'a@b.hu',date:'2026-10-10',startTime:'10:00',endTime:'18:00'};`);
