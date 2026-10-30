@@ -372,7 +372,9 @@ function impMatch(o,T){const txt=(o.buyer||'')+' '+(o.items||''),d0=o.fulfill||o
     const mon=mi>=0?(()=>{let y=Number(d0.slice(0,4));if(mi+1>Number(d0.slice(5,7))+1)y--;return y+'-'+String(mi+1).padStart(2,'0');})():'';
     const c=sc.filter(x=>x.nm>=0.5&&x.t.amt>0&&(mon?x.t.date.slice(0,7)===mon:x.dd<=45&&x.t.date<=addDays(d0,3))).slice(0,16).map(x=>x.t);
     const rec=(i,sum,pick)=>{if(sum===net&&pick.length>1)return pick;if(i>=c.length||sum>net||pick.length>=8)return null;return rec(i+1,sum+c[i].amt,[...pick,c[i]])||rec(i+1,sum,pick);};
-    const m=rec(0,0,[]);if(m&&m.every(x=>x.k===m[0].k))multi=m;}
+    let m=rec(0,0,[]);
+    if(!m&&mon&&c.length>1){const sum=c.reduce((s,t)=>s+t.amt,0);if(Math.abs(sum-net)/net<=0.05)m=c;}   // a hónap összes tétele, ha az összeg majdnem egyezik (pl. közben módosult egy díj)
+    if(m&&m.every(x=>x.k===m[0].k))multi=m;}
   return {cands:sc.slice(0,8),best,multi,conf:multi?80:best?Math.round(best.s):0};}
 async function impRead(files){const out=[],pdfs=[];const st=$('imp-st');const say=t=>{if(st)st.textContent=t;};
   for(const f of files){if(/\.zip$/i.test(f.name)){say('ZIP kicsomagolása…');const Z=await jszipLib(),z=await Z.loadAsync(f);for(const n of Object.keys(z.files).filter(n=>/\.pdf$/i.test(n)&&!z.files[n].dir))pdfs.push({name:n.split('/').pop(),buf:()=>z.files[n].async('arraybuffer')});}
