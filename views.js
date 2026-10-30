@@ -135,6 +135,9 @@ function renderChrome(){
   if(flash){const h=`<div class="savebar-in"><p>Módosítások mentve: ${esc(S.draft.name||'projekt')}</p><button class="btn primary saved-btn" type="button" disabled>✓ Mentve</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}
   else if(showBar){const h=`<div class="savebar-in"><p>Mentetlen módosítások: ${esc(S.draft.name||'projekt')}</p><button class="btn ghost" type="button" data-action="discard">Elvetés</button><button class="btn primary" type="button" data-action="save" title="Ctrl+S / ⌘S">💾 Mentés <span class="kbd">Ctrl+S</span></button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
 }
+/* Egységes csíkozás: csoport- és hónapsorok után újrakezdve minden második adatsor enyhén zöld */
+const ZB_SKIP=/(^|\s)(sep-row|pt-month|pt-group|grp|bill-month)(\s|$)/;
+function zebra(root){(root||document).querySelectorAll('table tbody').forEach(tb=>{let n=0;[...tb.rows].forEach(r=>{if(ZB_SKIP.test(r.className)){n=0;return;}r.classList.toggle('zb',n%2===1);r.classList.toggle('zw',n%2===0);n++;});});}
 /* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
 function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
 function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
@@ -159,7 +162,7 @@ function render(force){
   if(!S.loaded)return;
   VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():viewProjects());
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
-  markReq();
+  markReq();zebra(VIEW);
   syncHash();
   if(keep){const el=$(keep.id);if(el){el.focus({preventScroll:true});try{if(keep.s!=null&&el.setSelectionRange)el.setSelectionRange(keep.s,keep.e);}catch(e){}}}
 }
@@ -835,16 +838,15 @@ function viewClients(){
     return `<tr><td><button class="linkbtn nm cl-name" type="button" data-action="edit-client" data-name="${esc(c.company)}" title="Ügyfél adatai">${esc(c.company)}</button>${c.address?`<div class="ser">${esc(c.address)}</div>`:''}</td>
       <td><span class="ser">${esc(c.tax||'')}</span></td>
       <td>${c.name?esc(c.name):'<span class="muted">—</span>'}</td>
-      <td>${c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'<span class="muted">—</span>'}</td>
+      <td class="cl-ph">${c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'<span class="muted">—</span>'}</td>
       <td>${c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:'<span class="muted">—</span>'}</td>
-      <td>${ps.length?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(last.id)}">${next?'Következő: ':''}${esc(last.name||'Névtelen projekt')}${pr(last)?' · '+esc(fmtShort(pr(last).start)):''}</button><div class="ser">${ps.length} projekt</div>`:'<span class="muted">Még nincs projekt</span>'}</td>
       ${adm?`<td>${clContract(c,ps)}</td>`:''}
       <td class="num"><button class="btn ghost small w" type="button" data-action="edit-client" data-name="${esc(c.company)}">Szerkesztés</button></td></tr>`;}).join('');
   const all=knownClients('').length;
   return `<div class="page-head"><div class="grow"><h2>Ügyfelek</h2><p class="sub">${all} ügyfél${adm&&S._clDocsBusy?' · <span class="spin" style="width:11px;height:11px;vertical-align:-1px"></span> szerződések keresése a Drive-ban…':''}</p></div>
       <button class="btn primary w" type="button" data-action="new-client">+ Új ügyfél</button></div>
     <div class="toolbar"><input class="inp search" id="q-cl" type="search" placeholder="Keresés cégnév, adószám, kapcsolattartó vagy e-mail szerint" value="${esc(S.clf.q)}" aria-label="Ügyfelek keresése"></div>
-    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th>Telefon</th><th>E-mail</th><th>Projektek</th>${adm?'<th>Szerződés</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
+    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th class="cl-ph">Telefon</th><th>E-mail</th>${adm?'<th>Szerződés</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
 }
 
 /* Ügyfélmappák a Drive-ban (02 Ügyfelek) – név vagy zárójeles név alapján párosítva, mint a háttérben */
@@ -870,7 +872,7 @@ function clContract(c,ps){
   if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}" checked> Nem kell szerződés</label></div>`;
   if(docs.length>1)return `<div class="cl-ctr"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
   if(docs.length)return `<div class="cl-ctr"><a class="bl-file" href="${esc(docs[0].url)}" target="_blank" rel="noopener" data-tip="${esc(docs[0].name)}">📄 ${esc(docLabel(docs[0]))} ↗</a>${edit}</div>`;
-  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}"> Nem kell</label></div>`;
+  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button></div>`;
 }
 function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{company:name};const ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===name.toLowerCase());
   const {dir,docs}=clDocs(c,ps);
