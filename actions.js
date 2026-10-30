@@ -253,6 +253,23 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').inne
 
 /* Új projekt (a Projektek és a Naptár „+ Új bejegyzés” gombja is ezt nyitja): ugyanazok a kötelező adatok, mint az Alapadatoknál.
    A projekt létrehozás után automatikusan bekerül a Google Naptárba is. */
+/* Új projekt adatai az űrlapból (létrehozáshoz és piszkozathoz) */
+function npBuild(fd){
+  const g=k=>String(fd.get(k)||'').trim(),time=v=>/^([01]?\d|2[0-3])[:.]?([0-5]\d)$/.test(v)?v.replace(/^(\d{1,2})[:.]?(\d{2})$/,(m,h,mm)=>h.padStart(2,'0')+':'+mm):'';
+  const clientNew=fd.get('clientSel')==='__new';
+  const p={id:uuid(),name:g('name'),client:clientNew?g('client'):(g('clientSel')||g('clientQ')),eventType:g('eventType'),date:g('date'),endDate:g('endDate')&&g('endDate')>g('date')?g('endDate'):'',venue:g('venue'),
+      contactName:g('contactName'),contactPhone:g('contactPhone'),contactEmail:g('contactEmail'),startTime:time(g('startTime')),endTime:time(g('endTime')),notes:g('notes'),
+      status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
+    if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
+    {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
+  return {p,clientNew,g};
+}
+/* Piszkozat: csak a név kötelező, a hiányzó adatok a projekt oldalán pótolhatók (piros keret jelzi) */
+async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(form,'A piszkozathoz legalább a projekt nevét add meg.'))return;
+  const {p}=npBuild(new FormData(form));if(p.name.length<2){toast('A projekt neve legalább 2 karakter legyen.',true);return;}
+  btn.disabled=true;btn.textContent='Mentés…';const k=MD_KEY;
+  try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);MD_KEY='';mdClear(k);closeModal();openProject(saved.id);toast('Piszkozat mentve – a hiányzó adatokat itt pótolhatod');if(saved.date)syncCal(saved.id);S.cal.events={};}
+  catch(e){btn.disabled=false;btn.textContent='💾 Piszkozat mentése';handleErr(e);}}
 function newProjectModal(day){
   const d0=day||'';
   openModal('Új projekt',`<div class="fields">
@@ -269,15 +286,9 @@ function newProjectModal(day){
     ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
     ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5})}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
-  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül.</p>`,{submitLabel:'Projekt létrehozása',submit:async(fd,form)=>{
+  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
-    const g=k=>String(fd.get(k)||'').trim(),time=v=>/^([01]?\d|2[0-3])[:.]?([0-5]\d)$/.test(v)?v.replace(/^(\d{1,2})[:.]?(\d{2})$/,(m,h,mm)=>h.padStart(2,'0')+':'+mm):'';
-    const clientNew=fd.get('clientSel')==='__new';
-    const p={id:uuid(),name:g('name'),client:clientNew?g('client'):(g('clientSel')||g('clientQ')),eventType:g('eventType'),date:g('date'),endDate:g('endDate')&&g('endDate')>g('date')?g('endDate'):'',venue:g('venue'),
-      contactName:g('contactName'),contactPhone:g('contactPhone'),contactEmail:g('contactEmail'),startTime:time(g('startTime')),endTime:time(g('endTime')),notes:g('notes'),
-      status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
-    if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
-    {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
+    const {p,clientNew,g}=npBuild(fd);
     const fieldOf={client:clientNew?'client':'clientQ'};
     const miss=missingReq(p).filter(([k])=>k!=='endDate');
     if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Érkezés (óó:pp formában)']);
@@ -729,6 +740,7 @@ const ACT={
   'crew-prio':b=>{S.cf.prio=b.dataset.v;render(true);},
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
+  'np-draft':b=>npDraft(b),
   'new-crew':()=>crewModal(null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
   'new-item':()=>itemModal(null),

@@ -172,7 +172,7 @@ function markReq(){
 /* közös elemek */
 /* Átadandó anyag nélküli projektnél az utolsó lépés neve „Kész” (nincs mit átadni). */
 const stageLabel=(p,id)=>STATUS_LABEL[id]||id;
-function statusPill(p){const s=p.status||'egyeztetes';return `<span class="statuspill st-${esc(s)}">${esc(stageLabel(p,s))}</span>`;}
+function statusPill(p){const s=p.status||'egyeztetes';return `<span class="statuspill st-${esc(s)}">${esc(stageLabel(p,s))}</span>${s==='egyeztetes'&&!ro()&&missingReq(p).length?'<span class="statuspill p-mute" data-tip="Hiányos alapadatok – a projekt oldalán pótolhatók">📝 Piszkozat</span>':''}`;}
 function calBlock(iso){
   if(!validISO(iso))return `<span class="cal none" aria-hidden="true"><span class="cal-m">—</span><span class="cal-d">?</span></span>`;
   const d=toDate(iso);
