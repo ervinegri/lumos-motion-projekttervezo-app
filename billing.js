@@ -16,7 +16,7 @@ function billInfo(p){
   // alapból kell szerződés; ha a „Nincs szerződés” ki van pipálva, kimarad a lépések közül
   const fw=!b.contractStatus?fwFor(p):null;   // keretszerződés az ügyféllel → nem kell külön szerződés
   const contractOk=b.contractStatus==='alairva'||b.contractStatus==='nemkell'||!!fw;
-  const cStep=b.contractStatus==='nemkell'?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
+  const cStep=b.contractStatus==='nemkell'||(fw&&fw.mode==='nemkell')?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
   const advIssued=!!(db||el),advPaid=!!((db&&invPaidOk(db))||(el&&invPaidOk(el)));
   const steps=b.mode==='egyben'
     ?[...cStep,['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!(fin&&invPaidOk(fin))]]
@@ -88,7 +88,7 @@ function viewBilling(){
 /* Projekt szerződés- és számlázási beállításai + szerződés feltöltése */
 function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(pid),fw=fwFor(p),fwAny=fwOfClient(p.client);
   openModal('Szerződés és számlázás – '+(p.name||''),`<div class="fields">
-    ${fw?`<div class="field full fw-note">🤝 <b>${esc(p.client)}</b> céggel keretszerződés van${fw.validTo?' (érvényes: '+esc(fw.validTo)+')':''} – ennél a projektnél nem kell külön szerződés. ${fw.url?`<a href="${esc(fw.url)}" target="_blank" rel="noopener">Megnyitás</a> · `:''}<button class="linkbtn" type="button" data-action="fw-edit" data-id="${esc(fw.id)}">Keretszerződés szerkesztése</button>
+    ${fw&&fw.mode==='nemkell'?`<div class="field full fw-note">🚫 <b>${esc(p.client)}</b> nem igényel szerződést – ennél a projektnél sem kérjük. <button class="linkbtn" type="button" data-action="fw-edit" data-id="${esc(fw.id)}">Módosítás</button></div>`:fw?`<div class="field full fw-note">🤝 <b>${esc(p.client)}</b> céggel keretszerződés van${fw.validTo?' (érvényes: '+esc(fw.validTo)+')':''} – ennél a projektnél nem kell külön szerződés. ${fw.url?`<a href="${esc(fw.url)}" target="_blank" rel="noopener">Megnyitás</a> · `:''}<button class="linkbtn" type="button" data-action="fw-edit" data-id="${esc(fw.id)}">Keretszerződés szerkesztése</button>
       <small class="hint" style="margin:4px 0 0">Ha mégis külön szerződés kell ehhez a projekthez, állítsd be lent az állapotát.</small></div>`:fwAny?`<div class="field full fw-note warn">⚠️ ${esc(p.client)} keretszerződése ${esc(fwAny.validTo)}-ig volt érvényes, ez a projekt utána van. <button class="linkbtn" type="button" data-action="fw-edit" data-id="${esc(fwAny.id)}">Meghosszabbítás</button></div>`:''}
     ${ms('contractStatus','Szerződés állapota',Object.entries(CONTRACT_LABEL).map(([k,l])=>[k,k===''&&fw?'Keretszerződés alapján':l]),b.contractStatus||'')}
     ${mf('signedAt','Aláírás dátuma',{type:'date',v:b.signedAt||''})}
@@ -170,30 +170,34 @@ const fwNorm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
 const fwOfClient=c=>c?((S.fin&&S.fin.frameworks)||[]).find(f=>fwNorm(f.client)===fwNorm(c))||null:null;
 function fwFor(p){const f=fwOfClient(p&&p.client);if(!f)return null;const r=pr(p);return !f.validTo||!r||f.validTo>=r.start?f:null;}
 const readB64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=()=>no(new Error('A fájl nem olvasható.'));r.readAsDataURL(file);});
-const fwCell=(f,cls)=>`<div class="${cls}"><span class="statuspill p-ok" title="Keretszerződés az ügyféllel">🤝 Keretszerződés</span>${f.url?`<a class="bl-file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc((f.fileName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,22))}</a>`:''}${f.validTo?`<span class="bl-meta">érvényes: ${esc(f.validTo)}</span>`:''}</div>`;
+const fwCell=(f,cls)=>f.mode==='nemkell'?`<div class="${cls}"><span class="statuspill p-mute" title="Az ügyfél nem igényel szerződést">🚫 Nem igényel szerződést</span></div>`:`<div class="${cls}"><span class="statuspill p-ok" title="Keretszerződés az ügyféllel">🤝 Keretszerződés</span>${f.url?`<a class="bl-file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc((f.fileName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,22))}</a>`:''}${f.validTo?`<span class="bl-meta">érvényes: ${esc(f.validTo)}</span>`:''}</div>`;
 function fwPanel(){const list=((S.fin&&S.fin.frameworks)||[]).slice().sort((a,b)=>a.client.localeCompare(b.client,'hu'));const T=todayISO();
   return `<details class="panel fold" data-fold="fw"${FOLD.fw?' open':''}><summary><h3>🤝 Keretszerződések <span class="aside">${list.length?list.length+' ügyfél':'nincs'}</span></h3></summary>
     ${list.length?`<div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Ügyfél</th><th>Szerződés</th><th>Aláírva</th><th>Érvényes eddig</th><th>Projektek</th><th></th></tr></thead><tbody>${list.map(f=>{const n=S.projects.filter(p=>p.status!=='lemondva'&&fwFor(p)===f).length,exp=f.validTo&&f.validTo<T;
-      return `<tr><td><b>${esc(f.client)}</b>${f.note?`<div class="bl-meta">${esc(f.note)}</div>`:''}</td><td>${f.url?`<a class="bl-file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.fileName||'Megnyitás')}</a>`:'<span class="muted">—</span>'}</td><td>${esc(f.signedAt||'—')}</td><td>${f.validTo?`<span class="${exp?'bad-txt':''}">${esc(f.validTo)}${exp?' (lejárt)':''}</span>`:'határozatlan'}</td><td>${n}</td>
+      return `<tr><td><b>${esc(f.client)}</b>${f.note?`<div class="bl-meta">${esc(f.note)}</div>`:''}</td><td>${f.mode==='nemkell'?'<span class="statuspill p-mute">🚫 Nem igényel szerződést</span>':f.url?`<a class="bl-file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.fileName||'Megnyitás')}</a>`:'<span class="muted">—</span>'}</td><td>${esc(f.signedAt||'—')}</td><td>${f.validTo?`<span class="${exp?'bad-txt':''}">${esc(f.validTo)}${exp?' (lejárt)':''}</span>`:'határozatlan'}</td><td>${n}</td>
         <td class="nowrap"><button class="editbtn" type="button" data-action="fw-edit" data-id="${esc(f.id)}" aria-label="Módosítás">✏️</button><button class="trash" type="button" data-action="fw-del" data-id="${esc(f.id)}" aria-label="Törlés">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="hint" style="margin:8px 0 0">Ha egy ügyféllel keretszerződés van, az ügyfél projektjeinél nem kell külön szerződés.</p>'}
     <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fw-new">+ Keretszerződés</button></div></details>`;}
-function fwModal(f){const v=f||{},names=[...new Set([...(S.clients||[]).map(c=>c.name),...S.projects.map(p=>p.client)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu'));
-  openModal(f?'Keretszerződés – '+f.client:'Új keretszerződés',`<div class="fields">
-    <div class="field full"><label for="m-fwClient">Ügyfél</label><input class="inp" id="m-fwClient" name="client" list="fw-clients" value="${esc(v.client||'')}" maxlength="160" autocomplete="off"${f?' readonly':''}><datalist id="fw-clients">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
-    <div class="field full"><label for="m-fwFile">Szerződés feltöltése (max. 10 MB)</label><input class="inp" id="m-fwFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
+function fwModal(f){const v=f||{},isNew=!v.id,nk=v.mode==='nemkell',names=[...new Set([...(S.clients||[]).map(c=>c.name),...S.projects.map(p=>p.client)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu'));
+  openModal(!isNew?'Szerződés – '+v.client:v.client?'Szerződés – '+v.client:'Új keretszerződés',`<div class="fields">
+    <div class="field full"><label for="m-fwClient">Ügyfél</label><input class="inp" id="m-fwClient" name="client" list="fw-clients" value="${esc(v.client||'')}" maxlength="160" autocomplete="off"${!isNew?' readonly':''}><datalist id="fw-clients">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
+    <div class="field full"><label class="bl-nocontract fw-chk"><input type="checkbox" id="m-fwNone" name="fwNone"${nk?' checked':''}> Ez az ügyfél nem igényel szerződést – a projektjeinél nem kérjük</label></div>
+    <div class="fw-files fields field full"${nk?' hidden':''}><div class="field full"><label for="m-fwFile">Keretszerződés feltöltése (max. 10 MB)</label><input class="inp" id="m-fwFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
       ${v.url?`<small class="hint" style="margin:4px 0 0">Jelenleg: <a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.fileName||v.url)}</a> – új fájllal lecseréled.</small>`:''}</div>
     ${mf('fwUrl','…vagy link',{full:true,v:v.fileId?'':(v.url||''),ph:'https://…',max:500})}
     ${mf('fwSigned','Aláírás dátuma',{type:'date',v:v.signedAt||''})}${mf('fwValid','Érvényes eddig (üresen: határozatlan)',{type:'date',v:v.validTo||''})}
-    ${mf('fwNote','Megjegyzés',{full:true,v:v.note||'',max:500})}</div>`,{submitLabel:'Mentés',submit:async fd=>{
+    </div>${mf('fwNote','Megjegyzés',{full:true,v:v.note||'',max:500})}</div>`,{submitLabel:'Mentés',submit:async fd=>{
     const client=String(fd.get('client')||'').trim(),file=($('m-fwFile')||{}).files&&$('m-fwFile').files[0],url=String(fd.get('fwUrl')||'').trim();
     if(client.length<2){toast('Add meg az ügyfelet.',true);return;}if(file&&file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
-    const a={id:v.id||'',client,signedAt:fd.get('fwSigned')||'',validTo:fd.get('fwValid')||'',note:String(fd.get('fwNote')||'').trim()};
+    const none=!!($('m-fwNone')||{}).checked;const a={id:v.id||'',client,mode:none?'nemkell':'',signedAt:fd.get('fwSigned')||'',validTo:fd.get('fwValid')||'',note:String(fd.get('fwNote')||'').trim()};
     if(file){a.b64=await readB64(file);a.name=file.name;a.mime=file.type||'application/octet-stream';}else if(!v.fileId||url)a.url=url;
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Mentés…';}
-    try{const d=await call('fwSave',a);closeModal();finApply(d);toast('Keretszerződés mentve: '+client);}catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Mentés';}}}});}
+    try{const d=await call('fwSave',a);closeModal();if(a.b64){S.clDocs=null;S._clDocsForce=true;}finApply(d);toast((none?'Nem igényel szerződést: ':'Szerződés mentve: ')+client);}catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Mentés';}}}});}
 Object.assign(ACT,{
   'fw-new':()=>fwModal(null),
+  'cl-folder':async b=>{const w=window.open('about:blank','_blank');   // azonnal nyitjuk (különben a böngésző letiltja), a mappa linkje utána érkezik
+    try{const r=await call('clientFolder',{client:b.dataset.client});if(w)w.location.href=r.url;else location.href=r.url;}catch(e){if(w)w.close();handleErr(e);}},
+  'fw-client':b=>{const f=fwOfClient(b.dataset.client);fwModal(f||{client:b.dataset.client});},
   'fw-edit':b=>{const f=((S.fin&&S.fin.frameworks)||[]).find(x=>x.id===b.dataset.id);if(f){closeModal();fwModal(f);}},
   'fw-del':b=>{const id=b.dataset.id,f=((S.fin&&S.fin.frameworks)||[]).find(x=>x.id===id);confirmModal('Keretszerződés törlése',`${f?f.client+': ':''}a projektjeinél újra kérni fogjuk a szerződést. A Drive-fájl megmarad.`,'Törlés',()=>finCall('fwDelete',{id},'Törölve'));}
 });
-document.addEventListener('change',e=>{if(e.target.id==='m-asFw'){const x=document.querySelector('.fw-extra');if(x)x.hidden=!e.target.checked;}});
+document.addEventListener('change',e=>{if(e.target.id==='m-fwNone'){const x=document.querySelector('.fw-files');if(x)x.hidden=e.target.checked;}if(e.target.id==='m-asFw'){const x=document.querySelector('.fw-extra');if(x)x.hidden=!e.target.checked;}});

@@ -96,7 +96,7 @@ const TABLES = {
     ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)']] },
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
-    ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette']] },
+    ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -1652,8 +1652,9 @@ function fwSave_(u, a) {
   return withLock_(() => {
     const sh = sheetFor_('finFramework'), all = readAll_('finFramework');
     const old = (a.id && all.find(x => x.id === str_(a.id, 64))) || all.find(x => String(x.client).trim().toLowerCase() === client.toLowerCase());
-    const r = Object.assign({ id: Utilities.getUuid(), client: client, url: '', fileName: '', fileId: '', signedAt: '', validTo: '', note: '', createdAt: now_(), createdBy: u.name }, old || {});
+    const r = Object.assign({ id: Utilities.getUuid(), client: client, url: '', fileName: '', fileId: '', signedAt: '', validTo: '', note: '', createdAt: now_(), createdBy: u.name, mode: '' }, old || {});
     r.client = client;
+    if (a.mode !== undefined) r.mode = a.mode === 'nemkell' ? 'nemkell' : '';
     if (file) { r.url = file.getUrl(); r.fileName = str_(a.name, 150); r.fileId = file.getId(); }
     else if (a.url !== undefined && url !== r.url) { r.url = url; r.fileId = ''; r.fileName = url ? 'Link' : ''; }
     if (a.signedAt !== undefined) r.signedAt = iso_(a.signedAt);
@@ -1664,6 +1665,24 @@ function fwSave_(u, a) {
     logEvent_(u, 'Keretszerződés', client, old ? 'módosítva' : 'felvéve');
     return finPart_(['frameworks']);
   });
+}
+/** Az ügyfél mappája (02 Ügyfelek / <ügyfél>) – ha több szerződés van, ezt nyitja meg az app. */
+function clientFolderUrl_(a) {
+  const f = clientFolder_(str_(a && a.client, 160)); if (!f) throw new Error('Még nincs beállítva a LUMOS MOTION AUTOMATIZÁLT főmappa.');
+  return { url: f.getUrl() };
+}
+/** Ügyfélmappák áttekintése: mappánként a link és a benne lévő szerződésfájlok száma (a _munka piszkozatai nélkül). 10 percig gyorsítótárban. */
+function clientDocs_(a) {
+  const cache = CacheService.getScriptCache(), key = 'clientDocs_v1';
+  if (!(a && a.force)) { const c = cache.get(key); if (c) return JSON.parse(c); }
+  const root = lumosRoot_(); if (!root) return { folders: [] };
+  const base = findFolder_(root, '02 Ügyfelek'); if (!base) return { folders: [] };
+  const count = (f, depth) => { let n = 0; const fi = f.getFiles(); while (fi.hasNext()) { fi.next(); n++; } if (depth < 4) { const di = f.getFolders(); while (di.hasNext()) { const d = di.next(); if (!/^_munka/i.test(d.getName())) n += count(d, depth + 1); } } return n; };
+  const out = [], it = base.getFolders();
+  while (it.hasNext()) { const f = it.next(); out.push({ name: f.getName(), url: f.getUrl(), n: count(f, 0) }); }
+  const res = { folders: out };
+  try { cache.put(key, JSON.stringify(res), 600); } catch (e) { }
+  return res;
 }
 function fwDelete_(u, a) {
   withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
@@ -2490,6 +2509,8 @@ function rpcInner_(token, name, arg) {
     case 'driveOps': adminOnly(); return driveOps_(u, arg);
     case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
+    case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
+    case 'clientDocs': adminOnly(); return clientDocs_(arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);

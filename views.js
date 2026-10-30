@@ -815,6 +815,7 @@ function viewClients(){
   let list=knownClients('');
   if(q)list=list.filter(c=>[c.company,c.tax,c.address,c.name,c.email,c.phone].join(' ').toLowerCase().includes(q));
   const projOf=c=>S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===c.company.toLowerCase()).sort((a,b)=>byStart(b,a));
+  const adm=isAdmin()&&S.capabilities&&S.capabilities.finance;if(adm&&!S.fin&&!S.finErr)setTimeout(()=>finLoad().then(()=>{if(S.tab==='ugyfelek')render(true);}),0);
   const rows=list.map(c=>{const ps=projOf(c),next=ps.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T).sort(byStart)[0],last=next||ps[0];
     return `<tr><td><div class="nm">${esc(c.company)}</div>${c.address?`<div class="ser">${esc(c.address)}</div>`:''}</td>
       <td><span class="ser">${esc(c.tax||'')}</span></td>
@@ -822,12 +823,30 @@ function viewClients(){
       <td>${c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'<span class="muted">—</span>'}</td>
       <td>${c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:'<span class="muted">—</span>'}</td>
       <td>${ps.length?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(last.id)}">${next?'Következő: ':''}${esc(last.name||'Névtelen projekt')}${pr(last)?' · '+esc(fmtShort(pr(last).start)):''}</button><div class="ser">${ps.length} projekt</div>`:'<span class="muted">Még nincs projekt</span>'}</td>
+      ${adm?`<td>${clContract(c,ps)}</td>`:''}
       <td class="num"><button class="btn ghost small w" type="button" data-action="edit-client" data-name="${esc(c.company)}">Szerkesztés</button></td></tr>`;}).join('');
   const all=knownClients('').length;
   return `<div class="page-head"><div class="grow"><h2>Ügyfelek</h2><p class="sub">${all} ügyfél</p></div>
       <button class="btn primary w" type="button" data-action="new-client">+ Új ügyfél</button></div>
     <div class="toolbar"><input class="inp search" id="q-cl" type="search" placeholder="Keresés cégnév, adószám, kapcsolattartó vagy e-mail szerint" value="${esc(S.clf.q)}" aria-label="Ügyfelek keresése"></div>
-    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th>Telefon</th><th>E-mail</th><th>Projektek</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
+    ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th>Telefon</th><th>E-mail</th><th>Projektek</th>${adm?'<th>Szerződés</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
+}
+
+/* Ügyfélmappák a Drive-ban (02 Ügyfelek) – név vagy zárójeles név alapján párosítva, mint a háttérben */
+const clNorm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/g,' ').trim();
+function clDir(company){if(!S.clDocs){if(!S._clDocsLoading){S._clDocsLoading=true;call('clientDocs',{force:!!S._clDocsForce}).then(r=>{S.clDocs=r.folders||[];S._clDocsForce=false;}).catch(()=>{S.clDocs=[];}).finally(()=>{S._clDocsLoading=false;if(S.tab==='ugyfelek')render(true);});}return null;}
+  const w=clNorm(company);return S.clDocs.find(d=>clNorm(d.name.replace(/\s*\(.*\)\s*$/,''))===w||clNorm((/\(([^)]*)\)/.exec(d.name)||[])[1])===w)||null;}
+/* Ügyfél szerződése: keretszerződés (kattintásra megnyílik) / nem igényel / projektszerződések / feltöltés */
+function clContract(c,ps){
+  if(!S.fin)return '<span class="muted">…</span>';
+  const f=fwOfClient(c.company),cl=esc(c.company),edit=`<button class="editbtn" type="button" data-action="fw-client" data-client="${cl}" aria-label="Módosítás" data-tip="Szerződés módosítása">✏️</button>`;
+  if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><button class="statuspill p-mute" type="button" data-action="fw-client" data-client="${cl}">🚫 Nem igényel</button></div>`;
+  const urls=[...new Set([f&&f.url,...ps.map(p=>billOf(p.id).contractUrl)].filter(Boolean))],dir=clDir(c.company),n=Math.max(urls.length,dir?dir.n:0);
+  if(n>1)return `<div class="cl-ctr">${dir?`<a class="bl-file" href="${esc(dir.url)}" target="_blank" rel="noopener"`:`<button class="bl-file linkbtn" type="button" data-action="cl-folder" data-client="${cl}"`} data-tip="Több szerződés (határozott / határozatlan idejű, Egri Ervin E.V.) – az ügyfél mappáját nyitja meg">📁 ${n} szerződés ↗${dir?'</a>':'</button>'}${edit}</div>`;
+  if(urls.length)return `<div class="cl-ctr"><a class="bl-file" href="${esc(urls[0])}" target="_blank" rel="noopener" data-tip="${f&&f.url?esc(f.fileName||'Keretszerződés')+(f.validTo?' · érvényes: '+esc(f.validTo):''):'Projektszerződés'}">📄 ${f&&f.url?'Keretszerződés':'Szerződés'} ↗</a>${edit}</div>`;
+  if(dir&&dir.n===1)return `<div class="cl-ctr"><a class="bl-file" href="${esc(dir.url)}" target="_blank" rel="noopener" data-tip="Az ügyfél mappája a Drive-ban">📄 Szerződés ↗</a>${edit}</div>`;
+  if(f)return `<div class="cl-ctr"><button class="statuspill p-ok" type="button" data-action="fw-client" data-client="${cl}">🤝 Keretszerződés (fájl nélkül)</button></div>`;
+  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button></div>`;
 }
 
 /* ===== Beállítások (admin) ===== */
