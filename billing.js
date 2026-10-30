@@ -150,7 +150,7 @@ function projBillingPanel(p){
   return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside"><span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
     <div class="pb-grid">
       ${box('contract','Szerződés',i.fw?contract+`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Új szerződés feltöltése</button>`:contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}
-      ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="number" min="0" max="100" step="5" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
+      ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
       ${box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?` <span class="muted">${ftFmt(val)} nettó</span>`:''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}
       <div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>
     </div>${b.note?`<div class="pb-foot"><span class="bl-meta">📝 ${esc(b.note)}</span></div>`:''}`);
@@ -212,7 +212,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.d
 ACT['pb-skip']=async btn=>{const pid=btn.dataset.id,k=btn.dataset.k,on=btn.getAttribute('aria-pressed')!=='true';if(!S.fin||!S.fin.billing)return;
   const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}const prev=Object.assign({},b);
   const patch=k==='contract'?{contractStatus:on?'nemkell':''}:k==='adv'?{mode:on?'egyben':'eloleg'}:{noFinal:on?'1':''};
-  Object.assign(b,patch);const repaint=()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&p)el.outerHTML=projBillingPanel(p)||'';else render(true);};repaint();
+  Object.assign(b,patch);const repaint=()=>setTimeout(()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&el.isConnected&&p){try{el.outerHTML=projBillingPanel(p)||'';}catch(e){render(true);}}else render(true);},0);repaint();
   try{const d=await call('billSave',Object.assign({projectId:pid},k==='fin'?{noFinal:on}:patch));if(d&&d.billing)S.fin.billing=d.billing;repaint();}
   catch(e){Object.assign(b,prev);repaint();handleErr(e);}};
 
@@ -259,6 +259,7 @@ Object.assign(ACT,{'tig-new':b=>tigModal(b&&b.dataset&&b.dataset.client?{client:
 /* Foglaló % közvetlenül a kártyán (ablak nélkül) */
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.advpct||!S.fin||!S.fin.billing)return;
   const pid=t.dataset.advpct,v=Math.max(0,Math.min(100,Math.round(Number(t.value)||0)));const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
-  const prev=b.advancePct;b.advancePct=v;const repaint=()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&p)el.outerHTML=projBillingPanel(p)||'';};repaint();
+  const prev=b.advancePct;b.advancePct=v;const repaint=()=>setTimeout(()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&el.isConnected&&p){try{el.outerHTML=projBillingPanel(p)||'';}catch(e){render(true);}}},0);repaint();
   try{const d=await call('billSave',{projectId:pid,advancePct:v});if(d&&d.billing)S.fin.billing=d.billing;repaint();toast('Foglaló: '+v+'%');}catch(err){b.advancePct=prev;repaint();handleErr(err);}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.advpct){e.preventDefault();e.target.blur();}});
+document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||!t.dataset.advpct)return;let v=t.value.replace(/\D/g,'').slice(0,3);if(Number(v)>100)v=v.slice(0,2);if(t.value!==v)t.value=v;});   // csak 0–100
