@@ -381,7 +381,7 @@ async function switchView(role,crewId){
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     await load(false,false,r&&r.boot);
     S.tab=TABS().some(t=>t.id===keepTab)?keepTab:'projektek';
-    if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));}
+    if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));S.draftBase=clone(S.draft);}
     render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
@@ -541,7 +541,7 @@ async function sendListModal(only){
 /* ===== Projekt szerkesztése ===== */
 function openProject(id){
   const p=projById(id);if(!p)return;S.crewDay='';
-  S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
+  S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.draftBase=clone(S.draft);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
   closeModal();render(true);scrollTo(0,0);
 }
 /* Visszavonás / mégis (Ctrl/⌘+Z, Ctrl/⌘+Shift+Z vagy Ctrl+Y): a projekt vázlatáról pillanatképeket tartunk. */
@@ -588,6 +588,31 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
+/* Ütközés (valaki más is mentette a projektet): mezőnként összefésüljük – a te módosításaid megmaradnak,
+   az ő módosításai is bekerülnek; ha ugyanazt a mezőt módosítottátok, megkérdezzük, melyik maradjon. */
+const MERGE_SKIP=new Set(['updatedAt','updatedBy','mutationId','baseUpdatedAt','createdAt','calEventId','_multi','er_post_n','x_foto_n']);
+const FIELD_LABEL={name:'Projekt neve',client:'Ügyfél',venue:'Helyszín',eventType:'Rendezvény típusa',date:'Első nap',endDate:'Utolsó nap',startTime:'Érkezés',endTime:'Távozás',lastStartTime:'Utolsó nap érkezés',lastEndTime:'Utolsó nap távozás',contactName:'Kapcsolattartó',contactPhone:'Telefon',contactEmail:'E-mail',notes:'Jegyzetek',techPlan:'Technikai terv',crew:'Stáb',equipment:'Eszközök',fees:'Termelői díjak',status:'Állapot',stepsDone:'Lépések',lead:'Projektvezető',projectValue:'Büdzsé',budgetVal:'Termelői keret',budgetMode:'Termelői keret módja',deliveryLink:'Átadási link',deliveryNotes:'Átadási megjegyzés'};
+async function conflictMerge(mine){
+  const id=mine.id,base=(S.draftBase&&S.draftBase.id===id)?S.draftBase:null;let srv=null;
+  try{const bt=await call('bootstrap');srv=(bt.projects||[]).find(x=>x.id===id)||null;}catch(e){}
+  if(!srv){toast('Közben valaki más is módosította ezt a projektet, és nem sikerült betölteni az új változatot. Próbáld újra a mentést.',true);return;}
+  const J=v=>v==null||v===''?'':typeof v==='object'?JSON.stringify(v):String(v),   // null / üres / szám-szöveg különbség nem módosítás
+    i=S.projects.findIndex(x=>x.id===id);if(i>=0)S.projects[i]=srv;
+  const theirs=prepDraft(srv),keys=new Set([...Object.keys(mine),...Object.keys(theirs)].filter(k=>!MERGE_SKIP.has(k)));
+  const myChanged=[...keys].filter(k=>base?J(mine[k])!==J(base[k]):J(mine[k])!==J(theirs[k]));
+  const both=base?myChanged.filter(k=>J(theirs[k])!==J(base[k])&&J(theirs[k])!==J(mine[k])):[];
+  const merged=clone(theirs);myChanged.forEach(k=>{merged[k]=clone(mine[k]);});
+  const who=srv.updatedBy||'valaki más';
+  const finish=keepMine=>{const m=clone(merged);if(!keepMine)both.forEach(k=>{m[k]=clone(theirs[k]);});
+    S.draftBase=clone(theirs);if(S.projectId===id){S.draft=m;S.dirty=true;}render(true);saveDraft();};
+  if(!both.length){finish(true);toast(`Közben ${who} is módosította a projektet – összefésültük a módosításaitokat és elmentettük.`);return;}
+  const lbl=k=>FIELD_LABEL[k]||k;
+  openModal('Közben módosult a projekt',`<p style="margin:0 0 8px"><b>${esc(who)}</b> is módosította ezt a projektet, amíg szerkesztetted. A többi módosítást összefésültük, de ezeket mindketten átírtátok:</p>
+    <ul style="margin:0 0 6px 18px">${both.map(k=>`<li><b>${esc(lbl(k))}</b></li>`).join('')}</ul><p class="hint" style="margin:0">Melyik változat maradjon ezeknél?</p>`,
+    {left:'<button type="button" class="btn outline" data-action="merge-theirs">Az övé</button>',cancelLabel:'Mégse',submitLabel:'Az enyém',submit:async()=>{closeModal();finish(true);}});
+  MERGE_THEIRS=()=>{closeModal();finish(false);};
+}
+let MERGE_THEIRS=null;
 function prepDraft(p){const d=clone(p);d.er_post_n=postN(d);d.x_foto_n=fotoN(d);if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
 function budgetApply(saved){
   const i=S.projects.findIndex(p=>p.id===saved.id);if(i>=0)S.projects[i]=saved;
@@ -650,7 +675,7 @@ function guard(fn,onCancel){
   if(onCancel&&mr)mr.addEventListener('click',function h(e){if(e.target.closest('[data-action="modal-cancel"],[data-action="modal-close"],[data-action="modal-bg"]')&&GUARD_NEXT){const c=GUARD_NEXT.onCancel;GUARD_NEXT=null;mr.removeEventListener('click',h,true);setTimeout(c,0);}},true);
 }
 let GUARD_NEXT=null;
-function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=false;if(p)S.draft=prepDraft(p);else{S.projectId=null;S.draft=null;}renderChrome();}
+function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=false;if(p){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}else{S.projectId=null;S.draft=null;}renderChrome();}
 /* Automatikus mentés: minden módosítás után rövid várakozással mentünk (gépelésnél kicsit később).
    A mentések sorban futnak (SAVE_Q), mindig a legfrissebb állapotot küldik, így a gyors kattintgatás sem veszít adatot. */
 let AUTO_T=0;
@@ -699,15 +724,14 @@ function saveDraft(){
       const k=S.projects.findIndex(x=>x.id===d.id||x.id===saved.id);
       if(newer){if(k>=0)S.projects[k].updatedAt=saved.updatedAt;}
       else{if(k>=0)S.projects[k]=saved;else S.projects.push(saved);
-        if(S.projectId===saved.id&&!S.dirty){S.draft=prepDraft(saved);render(true);}}   // a fix (üres) díjsorok is maradjanak meg
+        if(S.projectId===saved.id){S.draftBase=prepDraft(saved);if(!S.dirty){S.draft=prepDraft(saved);render(true);}}}   // a fix (üres) díjsorok is maradjanak meg
       S.cal.events={};syncCal(saved.id);
       S.savedFlash=1;clearTimeout(S._flashT);S._flashT=setTimeout(()=>{S.savedFlash=0;renderChrome();},1800);
     }catch(e){
       SAVE_PENDING[d.id]--;
       if(S.projectId===d.id&&!S.dirty){S.draft=clone(d);S.dirty=true;}   // a módosítások ne vesszenek el
       const m=errText(e);
-      if(m.indexOf('CONFLICT')===0){
-        openModal('Közben módosult a projekt',`<p style="margin:0">Valaki más is elmentette ezt a projektet, amíg szerkesztetted. A te módosításaid csak itt vannak meg, ezért ha újratöltöd, elvesznek. Jegyezd fel, mit módosítottál, aztán töltsd újra a projektet.</p>`,{submitLabel:'Újratöltés',submit:async()=>{closeModal();S.dirty=false;await load(false);const p=projById(d.id);if(p)S.draft=clone(p);render(true);}});
+      if(m.indexOf('CONFLICT')===0){setTimeout(()=>conflictMerge(d),0);
       }else{toast('Nem sikerült menteni: '+m,true);}
     }finally{S.saving--;render(true);}
   });
@@ -776,6 +800,7 @@ const ACT={
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveChecked(),
   'discard':()=>{discardDraft();render(true);toast('Módosítások elvetve');},
+  'merge-theirs':()=>{if(MERGE_THEIRS){const f=MERGE_THEIRS;MERGE_THEIRS=null;f();}},
   'guard-discard':()=>{const g=GUARD_NEXT;GUARD_NEXT=null;closeModal();discardDraft();if(g)g.fn();},
   'budget-request':()=>budgetRequestModal(),
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
@@ -929,7 +954,8 @@ document.addEventListener('input',e=>{
     if(t.dataset.fin==='budgetPct'){let v=String(t.value).replace(/[^\d,.]/g,'').replace('.',',');if(t.value!==v)t.value=v;const n=parseFloat(v.replace(',','.'));
       S.draft.budgetMode=v===''?'':'pct';S.draft.budgetVal=v===''||!isFinite(n)?'':Math.min(100,n);const o=$('f-budgetFt');if(o)o.value=S.draft.budgetVal!==''&&val>0?moneyFmt(Math.round(val*S.draft.budgetVal/100)):'';}
     else if(t.dataset.fin==='budgetFt'){const dg=String(t.value).replace(/\D/g,'');S.draft.budgetMode=dg===''?'':'ft';S.draft.budgetVal=dg===''?'':Math.min(9999999999,Number(dg));const o=$('f-budgetPct');if(o)o.value=dg!==''&&val>0?String(Math.round(S.draft.budgetVal/val*1000)/10).replace('.',','):'';}
-    else if(t.dataset.fin==='projectValue'){const dg=String(t.value).replace(/\D/g,'');S.draft.projectValue=dg===''||Number(dg)===0?null:Math.min(9999999999,Number(dg));   // 0 Ft helyett a „Nem fizetős” pipaconst nv=num(S.draft.projectValue);
+    else if(t.dataset.fin==='projectValue'){const dg=String(t.value).replace(/\D/g,'');S.draft.projectValue=dg===''||Number(dg)===0?null:Math.min(9999999999,Number(dg));const nv=num(S.draft.projectValue);   // 0 Ft helyett a „Nem fizetős” pipa
+
       if(S.draft.budgetMode==='pct'){const o=$('f-budgetFt');if(o)o.value=nv>0&&S.draft.budgetVal!==''?moneyFmt(Math.round(nv*S.draft.budgetVal/100)):'';}else if(S.draft.budgetMode==='ft'){const o=$('f-budgetPct');if(o)o.value=nv>0?String(Math.round(num(S.draft.budgetVal)/nv*1000)/10).replace('.',','):'';}}
 
     else{const fees=S.draft.fees=(S.draft.fees||[]).map(x=>Object.assign({},x)),f=fees[Number(t.dataset.feeI)];if(f){const k=t.dataset.feeK;
