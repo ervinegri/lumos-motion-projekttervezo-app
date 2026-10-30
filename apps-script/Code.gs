@@ -1700,6 +1700,24 @@ function clientDocs_(a) {
   try { bigPut_('CLIENT_DOCS', js); } catch (e) { }
   return res;
 }
+/* Helyszínkereső: Google geokódoló (a cégek, intézmények angol vagy magyar nevét is ismeri); 6 órás gyorsítótár */
+function geoSearch_(a) {
+  const q = str_(a && a.q, 160); if (q.length < 3) return { items: [] };
+  const c = CacheService.getScriptCache(), key = 'geo_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, q.toLowerCase()));
+  const hit = c.get(key); if (hit) return JSON.parse(hit);
+  let items = [];
+  try {
+    const r = Maps.newGeocoder().setRegion('hu').setLanguage('hu').setBounds(45.7, 16.1, 48.6, 22.9).geocode(q);
+    items = (r && r.results || []).slice(0, 5).map(x => {
+      const poi = (x.address_components || []).find(k => (k.types || []).some(t => t === 'point_of_interest' || t === 'establishment' || t === 'premise'));
+      const addr = String(x.formatted_address || '').replace(/,\s*Magyarország$/, '');
+      return poi && addr.indexOf(poi.long_name) < 0 ? poi.long_name + ', ' + addr : addr;
+    }).filter(Boolean);
+  } catch (e) { items = []; }
+  const out = { items: items };
+  try { c.put(key, JSON.stringify(out), 21600); } catch (e) { }
+  return out;
+}
 /* ===== Teljesítésigazolás (TIG) =====
    Az ügyfél adott havi munkáit összegző PDF a megszokott formában; az ügyfél mappájába kerül: 02 Ügyfelek / <ügyfél> / Teljesítésigazolások / <év>. */
 const TIG_ISSUERS_ = {
@@ -2528,7 +2546,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -2572,6 +2590,7 @@ function rpcInner_(token, name, arg) {
     case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
+    case 'geoSearch': return geoSearch_(arg);
     case 'clientDocs': adminOnly(); return clientDocs_(arg);
     case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);

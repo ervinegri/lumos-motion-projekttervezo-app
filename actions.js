@@ -208,7 +208,7 @@ function clientPick(i){const it=pickItems[i];if(!it||!S.draft)return;pickClose()
   const patch={client:it.company,clientTax:it.tax||'',clientAddress:it.address||''};if(it.name||it.phone||it.email){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}
   setDraft(patch);}
 document.addEventListener('input',e=>{if(e.target.id==='f-client'&&!ro())clientSearch(e.target);});
-document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro()){e.target.select();clientSearch(e.target,true);}else if($('hsBox'))pickClose();});
+document.addEventListener('focusin',e=>{if(e.target.id==='f-client'&&!ro()){e.target.select();clientSearch(e.target,true);}else if($('hsBox')&&!['f-venue','f-contactName','m-venue','m-clientQ','m-contactName'].includes(e.target.id))pickClose();});   // újrarajzoláskor visszakapott fókusz ne zárja be a találati listát
 document.addEventListener('focusout',e=>{if(e.target.id==='f-client'){const t=e.target;setTimeout(()=>{if(document.activeElement===t||!S.draft)return;if(!t.value.trim()&&S.draft.client){setDraft({client:'',clientTax:'',clientAddress:''});return;}t.value=S.draft.client||'';},200);}});   // üresre törölve: nincs ügyfél   // választás nélkül visszaáll
 document.addEventListener('mousedown',e=>{const ed=e.target.closest&&e.target.closest('.hs-edit');if(ed){e.preventDefault();clientPick(Number(ed.dataset.hsedit));editClientModal();return;}const it=e.target.closest&&e.target.closest('.hs-item');if(it){e.preventDefault();clientPick(Number(it.dataset.hs));return;}if(e.target.id!=='f-client'&&(!e.target.closest||!e.target.closest('#hsBox')))pickClose();});
 document.addEventListener('keydown',e=>{if(e.target.id!=='f-client'||!$('hsBox'))return;const its=[...document.querySelectorAll('.hs-item')];
@@ -216,7 +216,7 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='f-client'||!$('hsBox')
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(its.length-1,i+1):Math.max(0,i-1);its.forEach((x,j)=>x.classList.toggle('on',j===i));}
   else if(e.key==='Enter'&&i>=0){e.preventDefault();clientPick(Number(its[i].dataset.hs));}
   else if(e.key==='Escape'||e.key==='Tab'){pickClose();}});
-window.addEventListener('scroll',()=>{if($('hsBox')&&!document.activeElement.matches('#f-client'))pickClose();},{passive:true});
+window.addEventListener('scroll',()=>{const b=$('hsBox'),a=document.activeElement;if(!b)return;if(a&&a.matches&&a.matches('#f-client,#f-venue,#f-contactName')){const r=a.getBoundingClientRect();b.style.left=(r.left+scrollX)+'px';b.style.top=(r.bottom+scrollY+4)+'px';}else pickClose();},{passive:true});   // görgetéskor a kereső mező alatt marad
 /* a naptár frissítése a mentés után, a háttérben (nem kell rá várni) */
 function syncCal(id){
   call('syncCalendar',{id}).then(r=>{if(!r)return;const p=projById(id);if(p&&r.calEventId&&p.calEventId!==r.calEventId){p.calEventId=r.calEventId;if(S.draft&&S.draft.id===id&&!S.dirty)S.draft.calEventId=r.calEventId;render(true);}
@@ -784,6 +784,7 @@ const ACT={
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
       setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});};
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
+    if(on&&v==='utomunka'&&!set.has('helyszin')){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
   'proj-rename':()=>{const d=S.draft;if(!d||ro())return;
@@ -1033,17 +1034,21 @@ ACT['cal-ctx-del']=b=>{const id=b.dataset.id;let ev=null;Object.values(S.cal.eve
 let ADDR_T=0,ADDR_SEQ=0,ADDR_ITEMS=[];
 function addrFmt(f){const p=f.properties||{},street=[p.street,p.housenumber].filter(Boolean).join(' '),city=[p.postcode,p.city||p.town||p.village||p.county].filter(Boolean).join(' ');
   const name=p.name&&p.name!==p.street?p.name:'';return [name,street,city].filter(Boolean).join(', ')||p.name||'';}
-async function addrSearch(input){const q=input.value.trim();if(q.length<3){pickClose();return;}const my=++ADDR_SEQ;
-  try{const r=await fetch('https://photon.komoot.io/api/?limit=7&lat=47.5&lon=19.05&q='+encodeURIComponent(q));const j=await r.json();if(my!==ADDR_SEQ||document.activeElement!==input)return;
-    const seen=new Set();ADDR_ITEMS=(j.features||[]).map(addrFmt).filter(x=>x&&!seen.has(x)&&seen.add(x));
-    if(!ADDR_ITEMS.length){pickClose();return;}
-    pickShow(input,ADDR_ITEMS.map((t,i)=>`<button type="button" class="addr-item" data-addr="${i}"><b>${esc(t.split(', ')[0])}</b><small>${esc(t.split(', ').slice(1).join(', '))}</small></button>`).join('')+'<div class="hs-empty" style="font-size:11px">Címadatok: © OpenStreetMap</div>');}
-  catch(e){}}
+async function addrSearch(input){const q=input.value.trim();if(q.length<3){pickClose();return;}const my=++ADDR_SEQ,id=input.id;
+  const live=()=>my===ADDR_SEQ&&document.activeElement&&document.activeElement.id===id;   // újrarajzolás után a mező új elem lehet – azonosító szerint nézzük
+  const seen=new Set();ADDR_ITEMS=[];let osmDone=false,gDone=false;
+  const show=()=>{if(!live())return;const el=$(id)||input;
+    if(!ADDR_ITEMS.length){if(osmDone&&gDone)pickShow(el,'<div class="hs-empty">Nincs találat – írd be a címet (pl. 1016 Budapest, Krisztina krt. 99.), vagy a helyszín nevét magyarul.</div>');else pickShow(el,'<div class="hs-empty">Keresés…</div>');return;}
+    pickShow(el,ADDR_ITEMS.map((t,i)=>`<button type="button" class="addr-item" data-addr="${i}"><b>${esc(t.split(', ')[0])}</b><small>${esc(t.split(', ').slice(1).join(', '))}</small></button>`).join('')+'<div class="hs-empty" style="font-size:11px">Címadatok: © OpenStreetMap, Google</div>');};
+  const add=list=>list.forEach(x=>{const k=x.toLowerCase();if(x&&!seen.has(k)){seen.add(k);ADDR_ITEMS.push(x);}});
+  const osm=fetch('https://photon.komoot.io/api/?limit=6&lat=47.5&lon=19.05&bbox=16.1,45.7,22.9,48.6&q='+encodeURIComponent(q)).then(r=>r.json()).then(j=>{if(my!==ADDR_SEQ)return;add((j.features||[]).map(addrFmt));}).catch(()=>{}).finally(()=>{osmDone=true;show();});
+  const g=call('geoSearch',{q}).then(r=>{if(my!==ADDR_SEQ)return;const before=ADDR_ITEMS.slice();ADDR_ITEMS=[];seen.clear();add((r&&r.items)||[]);add(before);}).catch(()=>{}).finally(()=>{gDone=true;show();});   // a Google-találatok előre kerülnek (pontosabbak a cég- és intézménynevekre)
+  await Promise.all([osm,g]);}
 document.addEventListener('input',e=>{if(e.target.id==='f-venue'&&!ro()){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.addr-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=ADDR_ITEMS[Number(it.dataset.addr)];pickClose();
   const mv=$('m-venue');if(mv&&document.activeElement===mv){if(v)mv.value=v;return;}   // új projekt ablak
   const inp=$('f-venue');if(inp&&v){inp.value=v;setDraft({venue:v});}},true);
-document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
+document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
 
 /* ===== Kapcsolattartó: HubSpot-lenyíló (mint az Ügyfél mezőnél) ===== */
 let CT_T=0,CT_SEQ=0,CT_ITEMS=[];
@@ -1058,7 +1063,7 @@ document.addEventListener('input',e=>{if(e.target.id==='f-contactName'&&!ro()){c
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.ct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=CT_ITEMS[Number(it.dataset.ct)];pickClose();if(!c||!S.draft)return;
   const ph=c.phone?phJoin(phParse(c.phone).cc,phParse(c.phone).n):'';const inp=$('f-contactName');if(inp)inp.value=c.name||'';
   setDraft({contactName:c.name||'',contactPhone:ph||S.draft.contactPhone||'',contactEmail:c.email||S.draft.contactEmail||''});render(true);toast('Kapcsolattartó kitöltve a HubSpotból');},true);
-document.addEventListener('focusout',e=>{if(e.target.id==='f-contactName')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.ct-item,.hs-empty'))pickClose();},150);});
+document.addEventListener('focusout',e=>{if(e.target.id==='f-contactName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.ct-item,.hs-empty'))pickClose();},150);});
 
 /* Időpont gépelése: „1000” → „10:00”, „930” → „09:30” (minden böngészőben ugyanúgy) */
 function timeNorm(v){const d=String(v||'').replace(/\D/g,'').slice(0,4);if(!d)return '';let h,m;
@@ -1115,7 +1120,7 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='m-clientQ'||!$('hsBox'
   else if(e.key==='Escape'||e.key==='Tab')pickClose();},true);
 /* helyszín: címkereső az ablakban is */
 document.addEventListener('input',e=>{if(e.target.id==='m-venue'){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
-document.addEventListener('focusout',e=>{if(e.target.id==='m-venue')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
+document.addEventListener('focusout',e=>{if(e.target.id==='m-venue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
 /* kapcsolattartó: HubSpot-kereső az ablakban is */
 let MCT_ITEMS=[],MCT_SEQ=0,MCT_T=0;
 async function mctSearch(input){const q=input.value.trim(),my=++MCT_SEQ,client=(($('m-clientSel')||{}).value==='__new'?($('m-client')||{}).value:($('m-clientSel')||{}).value)||'';
@@ -1130,7 +1135,7 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
   const set=(id,v)=>{const e2=$(id);if(e2&&v)e2.value=v;};set('m-contactName',c.name);set('m-contactEmail',c.email);
   const ph=$('m-contactPhone');if(ph&&c.phone){const pr2=phParse(c.phone);ph.value=pr2.n;const hid=document.querySelector('#mform input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
-document.addEventListener('focusout',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ'))setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.mct-item,.hs-empty'))pickClose();},150);});
+document.addEventListener('focusout',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ'))setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.mct-item,.hs-empty'))pickClose();},150);});
 document.addEventListener('scroll',e=>{if($('hsBox')&&e.target&&e.target.classList&&e.target.classList.contains('modal'))pickClose();},true);
 /* Projekttáblázat: a sor Enterrel is megnyitható */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const r=e.target.closest&&e.target.closest('.pt-row');if(!r)return;e.preventDefault();ACT['open-project'](r);});
