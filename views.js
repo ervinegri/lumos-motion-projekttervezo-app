@@ -347,7 +347,7 @@ const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);
   const v=p.budgetVal;if(v===''||v==null||!p.budgetMode)return null;
-  if(p.budgetMode==='pct'){const val=num(p.projectValue);return val>0?Math.round(val*num(v)/100):null;}
+  if(p.budgetMode==='pct'){if(p.projectValue==null||p.projectValue==='')return null;return Math.round(num(p.projectValue)*num(v)/100);}   // 0 Ft-os projektnél a keret is 0
   return num(v);
 }
 const pctFmt=x=>(Math.round(x*10)/10).toLocaleString('hu-HU')+'%';
