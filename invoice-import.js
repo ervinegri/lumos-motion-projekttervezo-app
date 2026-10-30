@@ -7,11 +7,11 @@ const SZIMP = {rows:[],name:'',busy:false};
 const szImpNorm = v => String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const szImpTax = v => String(v||'').replace(/\D/g,'').slice(0,8);
 const SZIMP_COLUMNS = {
-  no:['szamlaszam','bizonylatszam','szamlasorszam','bizonylatsorszam','sorszam','bizonylatszamazonosito'],
-  buyer:['vevoneve','vevo','partnerneve','partner','vevocegneve','vevomegnevezese'],
+  no:['szamlaszam','bizonylatszam','szamlasorszam','szamlasorszama','bizonylatsorszam','bizonylatsorszama','sorszam','sorszama','bizonylatszamazonosito'],
+  buyer:['vevoneve','vevoneveesadoszama','vevo','partnerneve','partner','vevocegneve','vevomegnevezese'],
   tax:['vevoadoszama','vevoadoszam','partneradoszama','partneradoszam'],
-  type:['bizonylattipus','szamlatipus','tipus','bizonylatfajta'],
-  date:['szamlakelte','bizonylatkelte','kiallitasdatuma','kiallitasdatum','kelt','datum']
+  type:['bizonylattipus','bizonylattipusa','szamlatipus','szamlatipusa','tipus','tipusa','bizonylatfajta'],
+  date:['szamlakelte','szamlakiallitasanakdatuma','szamlakiallitasdatuma','szamlakiallitasdatum','bizonylatkelte','kiallitasdatuma','kiallitasdatum','kelt','datum']
 };
 function szImpCsv(text,sep){
   const rows=[];let row=[],field='',quoted=false;
