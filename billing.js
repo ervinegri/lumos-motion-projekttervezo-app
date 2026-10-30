@@ -18,7 +18,7 @@ function billInfo(p){
   const contractOk=b.contractStatus==='alairva'||b.contractStatus==='nemkell'||!!fw;
   const cStep=b.contractStatus==='nemkell'||(fw&&fw.mode==='nemkell')?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
   const advIssued=!!(db||el),advPaid=!!((db&&invPaidOk(db))||(el&&invPaidOk(el)));
-  const noFin=b.noFinal==='1'&&!fin,finSteps=noFin?[]:b.mode==='egyben'?[['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!(fin&&invPaidOk(fin))]]:[['finIssued','Végszámla kiállítva',!!fin],['finPaid','Végszámla kifizetve',!!(fin&&invPaidOk(fin))]];
+  const full=b.mode!=='egyben'&&num(b.advancePct)>=100,noFin=(b.noFinal==='1'||full)&&!fin,finSteps=noFin?[]:b.mode==='egyben'?[['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!(fin&&invPaidOk(fin))]]:[['finIssued','Végszámla kiállítva',!!fin],['finPaid','Végszámla kifizetve',!!(fin&&invPaidOk(fin))]];
   const steps=b.mode==='egyben'?[...cStep,...finSteps]:[...cStep,['advIssued','Díjbekérő kiállítva',advIssued],['advPaid','Foglaló kifizetve',advPaid],...finSteps];
   const nextI=steps.findIndex(s=>!s[2]),closed=nextI<0;
   const open=inv.filter(x=>!(x.kind==='dijbekero'&&(x.ref||el))&&!invPaidOk(x)),late=open.filter(x=>x.due&&x.due<todayISO());
@@ -28,7 +28,7 @@ function billInfo(p){
     next=k==='contract'?(b.contractStatus==='kikuldve'?'Szerződés aláírásra vár':'Szerződés hiányzik'):k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
     nextCls=k==='contract'&&b.contractStatus!=='kikuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
-  return {p,b,fw,inv,db,el,fin,noFin,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
+  return {p,b,fw,inv,db,el,fin,noFin,full,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
 /* A következő kiállítandó bizonylat típusa */
 function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=billInfo(p);if(i.b.mode==='egyben')return 'szamla';if(!i.db&&!i.el)return 'dijbekero';if(i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref)return 'eloleg';return 'vegszamla';}
@@ -151,7 +151,7 @@ function projBillingPanel(p){
     <div class="pb-grid">
       ${box('contract','Szerződés',i.fw?contract+`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Új szerződés feltöltése</button>`:contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}
       ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
-      ${box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?` <span class="muted">${ftFmt(val)} nettó</span>`:''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}
+      ${i.full&&!i.fin?`<div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`:box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?(skipA?` <span class="muted">${ftFmt(val)} nettó</span>`:` <span class="muted">${100-num(b.advancePct)}% · ${ftFmt(Math.round(val*(100-num(b.advancePct))/100))} nettó</span>`):''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}
       <div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>
     </div>${b.note?`<div class="pb-foot"><span class="bl-meta">📝 ${esc(b.note)}</span></div>`:''}`);
 }

@@ -270,7 +270,9 @@ function szInvoiceModal(kind,id,o={}){
   const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);
   const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg').pop();
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
+  setTimeout(szBuyerLock,40);
   openModal('Bizonylat kiállítása – '+t.name,`<div class="fields">
+    <div class="field full"><label for="m-issuer">Kiállító</label><select class="inp" id="m-issuer" name="issuer"><option value="kft" selected>Lumos Motion Kft.</option><option value="ev" disabled>Egri Ervin E.V. – még nincs bekötve a számlázz.hu-hoz</option></select></div>
     ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
     <div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
@@ -278,6 +280,7 @@ function szInvoiceModal(kind,id,o={}){
     ${mf('bEmail','E-mail (ide megy a számla)',{v:b.email,max:300,type:'email'})}
     ${mf('bZip','Irányítószám',{v:b.zip,max:10,im:'numeric'})}${mf('bCity','Település',{v:b.city,max:80})}
     ${mf('bAddr','Cím',{full:true,v:b.address,max:200})}
+    <small class="hint field full" id="sz-buyer-lock" style="margin:-6px 0 0"></small>
     <div class="field full"><span class="lbl">Tételek (nettó egységár)</span><div class="sz-items" id="sz-items">${szItemRow({name:pre.name,qty:1,price:pre.price},0)}</div>
       <button class="linkbtn" type="button" data-action="sz-item-add" style="align-self:flex-start">+ Tétel</button>
       <div class="sz-total" id="sz-total"></div><small class="hint" id="sz-hint" style="margin:0">${esc(SZ_HINT[type])}</small>${done&&type==='szamla'?`<small class="hint" style="margin:0">Erre már kiállítottál ${ftFmt(done)} nettó értékű számlát – a tétel a maradékkal van kitöltve.</small>`:''}</div>
@@ -359,4 +362,9 @@ document.addEventListener('change',e=>{const t=e.target;if(t.id!=='m-kind'||!$('
   const pre=szPreset(t.value,b.dataset.kind,b.dataset.id);f.querySelector('[name=it_name]').value=pre.name;f.querySelector('[name=it_price]').value=moneyFmt(pre.price);const h=$('sz-hint');if(h)h.textContent=SZ_HINT[t.value]||'';szTotals();});
 document.addEventListener('change',e=>{const t=e.target;if(t.closest&&t.closest('#sz-items'))szTotals();
   if(t.id==='m-szClient'){const c=(S.clients||[]).find(x=>x.id===t.value);if(!c)return;const a=szSplitAddr(c.address);
-    [['m-bName',c.name],['m-bTax',c.tax],['m-bEmail',szBillingEmail(c,null)],['m-bZip',a.zip],['m-bCity',a.city],['m-bAddr',a.address]].forEach(([k,v])=>{if($(k))$(k).value=v||'';});}});
+    [['m-bName',c.name],['m-bTax',c.tax],['m-bEmail',szBillingEmail(c,null)],['m-bZip',a.zip],['m-bCity',a.city],['m-bAddr',a.address]].forEach(([k,v])=>{if($(k))$(k).value=v||'';});}
+  if(t.id==='m-szClient')szBuyerLock();});
+/* A vevő neve, adószáma és címe az ügyféladatokból (számlázz.hu) jön – nem írható át; csak kézi megadásnál szerkeszthető */
+function szBuyerLock(){const sel=$('m-szClient');if(!sel)return;const lock=!!sel.value&&!!(($('m-bName')||{}).value||'').trim();
+  ['m-bName','m-bTax','m-bZip','m-bCity','m-bAddr'].forEach(k=>{const e=$(k);if(e){e.readOnly=lock;e.classList.toggle('ro-inp',lock);}});
+  const h=$('sz-buyer-lock');if(h)h.textContent=lock?'🔒 A vevő adatai az ügyféltörzsből jönnek. Más vevőhöz válaszd a „kézi megadás”-t.':'';}
