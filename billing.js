@@ -270,7 +270,8 @@ function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&
   const c0=(pre&&pre.client)||'';
   openModal('Teljesítésigazolás (TIG) kiállítása',`<div class="fields">
     <div class="field"><label for="m-tigClient">Ügyfél</label><select class="inp" id="m-tigClient" name="client"><option value="">Válassz…</option>${names.map(n=>`<option${n===c0?' selected':''}>${esc(n)}</option>`).join('')}</select></div>
-    ${mf('tigMonth','Hónap',{type:'month',v:m0})}
+    <div class="field"><label for="m-tigMonth">Hónap</label><select class="inp" id="m-tigMonth" name="tigMonth">${(()=>{const o=[];let m=shiftMonth(todayISO().slice(0,7),2);for(let k=0;k<26;k++){o.push(m);m=shiftMonth(m,-1);}if(!o.includes(m0))o.push(m0);
+      return o.map(x=>`<option value="${x}"${x===m0?' selected':''}>${x.slice(0,4)}. ${TIG_MN[Number(x.slice(5,7))-1]}</option>`).join('');})()}</select></div>
     ${ms('tigIssuer','Szolgáltató',[['kft','Lumos Motion Kft.'],['ev','Egri Ervin E.V.']],'kft')}
     ${mf('tigDate','Kelt',{type:'date',v:todayISO()})}
     ${mf('tigAddr','Megrendelő székhelye',{full:true,max:300})}${mf('tigTax','Megrendelő adószáma',{max:20})}${mf('tigRep','Megrendelő képviselője (aláíró)',{max:120,ph:'az ügyfél adataiból – nem a kapcsolattartó'})}
