@@ -643,10 +643,10 @@ function viewProject(p){
         ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>`}
-        ${fld(p,'date','Első nap',{type:'date'})}
-        ${(()=>{const on=!!p.endDate||!!p._multi;return `<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`;})()}
-        ${fld(p,'startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=')}
-        ${fld(p,'endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=')}
+        ${(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
+          return `<div class="field full day-cols"><div class="day-col">${fld(p,'date','Első nap',{type:'date'})}${tm('startTime',on?'Érkezés (első nap)':'Érkezés a helyszínre')}${tm('endTime',on?'Távozás kb. (első nap)':'Hozzávetőleges távozási óra')}</div>
+            <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
+            ${on?tm('lastStartTime','Érkezés (utolsó nap)')+tm('lastEndTime','Távozás kb. (utolsó nap)'):''}</div></div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>
       </div></details>
   </div>
