@@ -353,7 +353,8 @@ const jszipLib=()=>JSZIPP||(JSZIPP=new Promise((ok,no)=>{const sc=document.creat
 const IMP_STOP=new Set(['kft','zrt','bt','nyrt','kkt','ev','e.v','nonprofit','egyesulet','hungaria','hungary','magyar','video','videó','szolgaltatas','forgatas','es','a','az','the','ltd','gmbh','sztori']);
 const impTok=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w.length>=3&&!IMP_STOP.has(w));
 function impName(text,name){const A=impTok(text),B=impTok(name);if(!A.length||!B.length)return 0;
-  const hit=B.filter(b=>A.some(a=>{const n=Math.min(a.length,b.length);return n>=4?a.slice(0,n)===b.slice(0,n):a===b;})).length;return hit/B.length;}
+  const m=b=>A.some(a=>{const n=Math.min(a.length,b.length);return n>=4?a.slice(0,n)===b.slice(0,n):a===b;}),hit=B.filter(m).length;
+  return hit?Math.max(hit/B.length,m(B[0])?0.6:0):0;}   // az első szó (jellemzően az ügyfél, pl. „Kulcs. Ak.”) egyezése már erős jel
 const impDays=(a,b)=>a&&b?Math.abs((toDate(a)-toDate(b))/864e5):999;
 /* Lehetséges célok: a projektek és a régi (nem az appból jött) bevételi sorok */
 function impTargets(){const T=[];const fromApp=new Set();
@@ -364,7 +365,7 @@ function impTargets(){const T=[];const fromApp=new Set();
 function impMatch(o,T){const txt=(o.buyer||'')+' '+(o.items||''),d0=o.fulfill||o.date,net=Math.abs(num(o.invNet)),huf=!o.currency||o.currency==='HUF';
   const sc=T.map(t=>{const nm=Math.max(impName(txt,t.name),t.client?impName(o.buyer||'',t.client)*1.1:0),dd=impDays(d0,t.date);
     let am=0;if(huf&&net){if(net===t.amt)am=45;else if(t.adv&&net===t.adv)am=35;else if(t.amt&&Math.abs(net-t.amt)/t.amt<0.02)am=30;}
-    const s=nm*50+am+(dd<=60?25*(1-dd/60):-30);return {t,s,nm,am,dd};}).filter(x=>x.nm>=0.34||x.am>=35).sort((a,b)=>b.s-a.s);
+    const s=nm*50+am*(nm>0?1:0.4)+(dd<=60?25*(1-dd/60):-30);return {t,s,nm,am,dd};}).filter(x=>x.nm>=0.34||(x.am>=35&&x.dd<=20)).sort((a,b)=>b.s-a.s);
   const best=sc[0];let multi=null;
   if(huf&&net&&(!best||best.am<35)){   // havi összesítő számla több projektre (pl. Kulcsár): azonos ügyfél, a teljesítés hónapja / előtte
     const c=sc.filter(x=>x.nm>=0.5&&x.dd<=62&&x.t.date<=addDays(d0,10)&&x.t.amt>0).slice(0,14).map(x=>x.t);
