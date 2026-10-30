@@ -1673,9 +1673,12 @@ function clientFolderUrl_(a) {
 }
 /** Ügyfélmappák áttekintése: mappánként a link és a valódi szerződések listája (csak a Szerződések és Keretszerződés almappákból;
    a _munka piszkozatai, teljesítésigazolások, számlák, ajánlatok, szereplői nyilatkozatok nem számítanak). Egy évszám nélküli almappa (pl. több oldalas fotózott szerződés) egy szerződésnek számít. 10 percig gyorsítótárban. */
+/* Nagy JSON tartós tárolása a Script-tulajdonságokban, darabolva (egy érték max. 9 KB) */
+function bigPut_(key, str) { const P = PropertiesService.getScriptProperties(), n = Math.ceil(str.length / 8000), o = {}; for (let i = 0; i < n; i++) o[key + '_' + i] = str.slice(i * 8000, (i + 1) * 8000); o[key + '_n'] = String(n); P.setProperties(o); }
+function bigGet_(key) { const P = PropertiesService.getScriptProperties(), n = Number(P.getProperty(key + '_n') || 0); if (!n) return ''; let s = ''; for (let i = 0; i < n; i++) s += P.getProperty(key + '_' + i) || ''; return s; }
 function clientDocs_(a) {
   const cache = CacheService.getScriptCache(), key = 'clientDocs_v2';
-  if (!(a && a.force)) { const c = cache.get(key); if (c) return JSON.parse(c); }
+  if (!(a && a.force)) { const c = cache.get(key) || bigGet_('CLIENT_DOCS'); if (c) { try { return JSON.parse(c); } catch (e) { } } }
   const root = lumosRoot_(); if (!root) return { folders: [] };
   const base = findFolder_(root, '02 Ügyfelek'); if (!base) return { folders: [] };
   const fmt = d => d ? Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') : '';
@@ -1691,8 +1694,9 @@ function clientDocs_(a) {
     const sub = f.getFolders(); while (sub.hasNext()) { const d = sub.next(), n = d.getName(); if (/^Szerződések$/i.test(n)) walk(d, 'sz', docs, 0); else if (/^Keretszerződés/i.test(n)) walk(d, 'keret', docs, 0); }
     docs.sort((x, y) => String(y.date).localeCompare(String(x.date)));
     out.push({ name: f.getName(), url: f.getUrl(), docs: docs }); }
-  const res = { folders: out };
-  try { cache.put(key, JSON.stringify(res), 600); } catch (e) { }
+  const res = { folders: out, at: Date.now() }, js = JSON.stringify(res);
+  try { cache.put(key, js, 21600); } catch (e) { }
+  try { bigPut_('CLIENT_DOCS', js); } catch (e) { }
   return res;
 }
 function fwDelete_(u, a) {
