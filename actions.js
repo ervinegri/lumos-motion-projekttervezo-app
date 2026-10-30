@@ -49,6 +49,7 @@ function calEventModal(id){
     ${e.location?`<div class="kv"><span>Helyszín</span><b>${esc(e.location)}</b></div>`:''}
     ${guests?`<div><span class="lbl">Résztvevők</span><div class="roles" style="margin-top:6px">${guests}</div></div>`:''}
     ${e.description?`<p class="pc-note" style="max-height:220px;overflow:auto">${esc(e.description)}</p>`:''}
+    ${ro()?'':`${tplFieldHtml('Ha ez egy visszatérő munka, válaszd ki a sablont: az ügyfél, a kapcsolattartó, a tartalmak, a stáb, az eszközök és a díjak a sablonból jönnek, a dátum, az időpont és a helyszín a naptáreseményből.')}`}
     <p class="hint" style="margin:0">Ez az esemény még nincs az appban. Ha projektet csinálsz belőle, a dátum, a helyszín, a leírás és a stábként felismert résztvevők átkerülnek, és ettől kezdve az app frissíti ezt a naptáreseményt.</p>`,
   {left:`<button type="button" class="btn primary small" data-action="cal-import" data-id="${esc(e.id)}">Projekt létrehozása ebből</button> <button type="button" class="btn outline small" data-action="cal-edit" data-id="${esc(e.id)}">Szerkesztés</button> <button type="button" class="btn danger small" data-action="cal-del" data-id="${esc(e.id)}">Törlés</button>`,cancelLabel:'Bezárás'});
 }
@@ -237,6 +238,12 @@ async function importCalEvent(id){
   const p={id:uuid(),name:nm.slice(0,160),date:e.date,endDate:e.endDate&&e.endDate>e.date?e.endDate:'',startTime:pad(e.start),endTime:pad(e.end),hours,venue:String(e.location||'').slice(0,300),notes:String(e.description||'').slice(0,4900),
     status:'tervezes',crew,equipment:[],calEventId:e.id,baseUpdatedAt:'',mutationId:uuid(),deferCal:true};   // a naptár frissítése a háttérben – gyorsabb létrehozás
   if(crew.length&&new Set(crew.map(a=>a.crewId)).size===1)p.lead=crew[0].crewId;
+  const tid=($('m-tplId')||{}).value,tpl=tid&&projById(tid);
+  if(tpl){const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});   // sablon: a naptáresemény adatai (dátum, idő, helyszín, leírás) elsőbbséget élveznek
+    if(!p.venue)p.venue=tpl.venue||'';if(!p.startTime){p.startTime=tpl.startTime||'';p.endTime=tpl.endTime||'';}
+    (tpl.crew||[]).forEach(a=>{if(!p.crew.some(x=>x.crewId===a.crewId&&x.role===a.role))p.crew.push(clone(a));});
+    p.equipment=clone(tpl.equipment||[]);p.fees=clone(tpl.fees||[]).map(f=>{delete f.dayAmounts;return f;});if(tpl.lead)p.lead=tpl.lead;
+    if(tpl.notes&&p.notes.indexOf(tpl.notes)<0)p.notes=(p.notes?p.notes+'\n\n':'')+tpl.notes;}
   const saved=await call('saveProject',p);if(!projById(saved.id))S.projects.push(saved);closeModal();S.cal.events={};openProject(saved.id);if(!saved.duplicateOf)syncCal(saved.id);toast(saved.duplicateOf?'Ebből az eseményből már van projekt':(saved.calError||'Projekt létrehozva a naptáreseményből'),!!saved.calError);
   }catch(err){handleErr(err);if(btn&&btn.isConnected){btn.disabled=false;btn.textContent='Projekt létrehozása ebből';}}
   finally{importing=false;}
@@ -269,6 +276,7 @@ function npBuild(fd){
     if(!p.clientTax&&tpl.clientTax){p.clientTax=tpl.clientTax;p.clientAddress=tpl.clientAddress;}}
   return {p,clientNew,g};
 }
+function tplFieldHtml(hint){return tplList().length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Keress sablont… (a leggyakoribbak elöl)"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">${hint||'Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.'}</small></div>`:'';}
 /* Sablonok: a korábbi projektek (névenként a legutóbbi), a lemondottak nélkül */
 const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
 function tplList(){const g=new Map();
@@ -299,9 +307,8 @@ async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(f
   catch(e){btn.disabled=false;btn.textContent='💾 Piszkozat mentése';handleErr(e);}}
 function newProjectModal(day){
   const d0=day||'';
-  const tpls=tplList();
   openModal('Új projekt',`<div class="fields">
-    ${tpls.length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Keress sablont… (a leggyakoribbak elöl)"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.</small></div>`:''}
+    ${tplFieldHtml()}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
@@ -1227,3 +1234,7 @@ function confetti(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matche
   (function f(now){const el=now-t0;x.clearRect(0,0,W,H);
     P.forEach(p=>{p.vy+=0.32;p.vx*=0.985;p.x+=p.vx+Math.sin(p.t+=0.08)*0.8;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-Math.max(0,el-2600)/900);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.t)));x.restore();});
     if(el<3500)requestAnimationFrame(f);else c.remove();})(t0);}
+
+/* Naptár: üres napra kattintva új projekt (sablonnal is) – a bejegyzésekre kattintva azok nyílnak meg */
+document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar')return;const d=e.target.closest&&e.target.closest('.cal-day');if(!d||e.target.closest('button,a,.cal-chip'))return;
+  const day=d.dataset.day;if(day)guard(()=>newProjectModal(day));});

@@ -769,7 +769,7 @@ function calChip(it,day){
   const dim=it.kind==='p'&&crewDim(projById(it.id)||{});
   const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}`:'cal-chip g';
   if(dim)return `<span class="${cls}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</span>`;
-  return `<button type="button" class="${cls}" data-action=""${it.kind==='p'?'open-project':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
+  return `<button type="button" class="${cls}" data-action="${it.kind==='p'?'open-project':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();
