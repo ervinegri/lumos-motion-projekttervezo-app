@@ -442,10 +442,13 @@ function siteModal(next,withPen){
       const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);}});
 }
 /* Felugró figyelmeztetés: a helyszíni munka előtt véglegesíteni kell a stábot */
-function crewFinalPopup(d){const ch=crewFinalState(d)==='changed';
-  openModal('👥 Előbb véglegesítsd a stábot',`<p style="margin:0 0 6px">${ch?'A csapat a véglegesítés óta módosult. A helyszíni munka előtt <b>véglegesítsd újra</b> a stábot.':'A helyszíni munka kipipálása előtt <b>véglegesítsd a stábot</b> – így mindenki megkapja a beosztását, és a díjak rögzülnek.'}</p>
-    <div class="btns" style="margin-top:12px"><button class="btn primary" type="button" data-action="goto-crew-final">Ugrás a stáb véglegesítéséhez</button></div>`,{cancelLabel:'Bezárás'});}
-function gotoCrewFinal(){closeModal();FOLD.crew=true;render(true);const cf=$('crew-final');if(cf){const dd=cf.closest('details');if(dd)dd.open=true;cf.scrollIntoView({block:'center',behavior:'smooth'});}}
+function crewFinalPopup(d){const ch=crewFinalState(d)==='changed',none=!crewIds(d).size;
+  openModal('👥 Előbb véglegesítsd a stábot',`<p style="margin:0">${none?'Ehhez a projekthez még nincs stáb beosztva. Vedd fel a csapatot, majd <b>véglegesítsd</b> – csak utána pipálható ki a helyszíni munka.':ch?'A csapat a véglegesítés óta módosult. A helyszíni munka előtt <b>véglegesítsd újra</b> a stábot.':'A helyszíni munka kipipálása előtt <b>véglegesítsd a stábot</b> – így mindenki megkapja a beosztását, és a díjak rögzülnek.'}</p>`,
+    {cancelLabel:'Bezárás',submitLabel:none?'Ugrás a stábhoz':'Ugrás a stáb véglegesítéséhez',submit:async()=>{closeModal();gotoCrewFinal();}});}
+function gotoCrewFinal(){FOLD.crew=true;render(true);
+  setTimeout(()=>{const cf=$('crew-final'),target=cf||document.querySelector('[data-fold="crew"]');if(!target)return;const dd=target.closest('details')||(target.matches('details')?target:null);if(dd)dd.open=true;
+    target.scrollIntoView({block:'center',behavior:'smooth'});target.classList.add('flash');setTimeout(()=>target.classList.remove('flash'),1600);
+    if(!cf){const r=$('add-crew-role');if(r)setTimeout(()=>r.focus({preventScroll:true}),400);}},60);}
 /* Utómunka kipipálása: észrevételek és elakadás (díjcsökkentéssel), mint az Átadás ablakban. Az észrevételek az átadásnál is megjelennek. */
 function postModal(next){
   const d=S.draft;if(!d)return;

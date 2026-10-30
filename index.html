@@ -698,6 +698,7 @@ body.ro .cal-add{display:none}
 .cal-chip.dim{opacity:.45;filter:grayscale(1);cursor:default}
 .cal.none{background:#fdecea;border-color:#e3a39c;color:#b3261e}.cal.none .cal-m,.cal.none .cal-d{color:#b3261e}
 .day-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px}.day-col{display:flex;flex-direction:column;gap:16px}@media (max-width:640px){.day-cols{grid-template-columns:1fr}}
+@keyframes flashBox{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 4px rgba(46,125,82,.45)}}.flash{animation:flashBox .8s ease 2;border-radius:12px}
 </style>
 </head>
 <body>
