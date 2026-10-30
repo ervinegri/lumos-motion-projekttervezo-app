@@ -639,14 +639,23 @@ function syncFeesWithCrew(d){
   d.fees=orderFees(fees);
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
-function guard(fn){
-  if(S.dirty&&S.draft&&!ro()){clearTimeout(AUTO_T);saveDraft();}   // automatikus mentés: elnavigálás előtt azonnal elküldjük (a mentés sorban fut, nem vész el)
-  fn();
+/* Kézi mentés: elnavigálás előtt rákérdezünk a mentetlen módosításokra (Mentés és tovább / Elvetés / Mégse) */
+function guard(fn,onCancel){
+  if(!(S.dirty&&S.draft&&!ro())){fn();return;}
+  const name=S.draft.name||'projekt';
+  openModal('Mentetlen módosítások',`<p style="margin:0">A(z) <b>${esc(name)}</b> projekten mentetlen módosítások vannak. Elmented őket?</p>`,
+    {left:'<button type="button" class="btn ghost" data-action="guard-discard">Elvetés</button>',cancelLabel:'Mégse',submitLabel:'💾 Mentés és tovább',submit:async()=>{GUARD_NEXT=null;closeModal();saveDraft();fn();}});
+  GUARD_NEXT={fn,onCancel};
+  const mr=$('modalRoot');const cancelBtn=mr&&mr.querySelector('[data-action="modal-cancel"],[data-action="modal-close"]');
+  if(onCancel&&mr)mr.addEventListener('click',function h(e){if(e.target.closest('[data-action="modal-cancel"],[data-action="modal-close"],[data-action="modal-bg"]')&&GUARD_NEXT){const c=GUARD_NEXT.onCancel;GUARD_NEXT=null;mr.removeEventListener('click',h,true);setTimeout(c,0);}},true);
 }
+let GUARD_NEXT=null;
+function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=false;if(p)S.draft=prepDraft(p);else{S.projectId=null;S.draft=null;}renderChrome();}
 /* Automatikus mentés: minden módosítás után rövid várakozással mentünk (gépelésnél kicsit később).
    A mentések sorban futnak (SAVE_Q), mindig a legfrissebb állapotot küldik, így a gyors kattintgatás sem veszít adatot. */
 let AUTO_T=0;
-function autoSave(delay){if(!S.draft||ro()||!S.dirty)return;clearTimeout(AUTO_T);AUTO_T=setTimeout(()=>{if(S.draft&&S.dirty&&!ro())saveDraft();},delay);}
+function autoSave(delay){return;   // kézi mentés (Mentés gomb / Ctrl+S) – nincs automatikus mentés
+  if(!S.draft||ro()||!S.dirty)return;clearTimeout(AUTO_T);AUTO_T=setTimeout(()=>{if(S.draft&&S.dirty&&!ro())saveDraft();},delay);}
 function flushSave(){if(S.draft&&S.dirty&&!ro()){clearTimeout(AUTO_T);saveDraft();}}
 /* Mentés azonnal a felületen (optimista), a háttérben sorban küldjük a szervernek.
    Így nem kell megvárni az Apps Scriptet; ha a mentés mégsem sikerül, visszakapod a módosításokat és szólunk. */
@@ -766,6 +775,8 @@ const ACT={
   'modal-bg':()=>{},   // mellékattintásra nem zárul be (a tartalom megmarad)
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveChecked(),
+  'discard':()=>{discardDraft();render(true);toast('Módosítások elvetve');},
+  'guard-discard':()=>{const g=GUARD_NEXT;GUARD_NEXT=null;closeModal();discardDraft();if(g)g.fn();},
   'budget-request':()=>budgetRequestModal(),
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
@@ -959,7 +970,7 @@ document.addEventListener('change',e=>{
     const it=knownClients('').find(c=>c.company===t.value),set=(id,v)=>{const e2=$(id);if(e2&&!e2.value&&v)e2.value=v;};
     if(it){set('m-contactName',it.name);set('m-contactEmail',it.email);const ph=$('m-contactPhone');if(ph&&!ph.value&&it.phone){const pr2=phParse(it.phone);ph.value=pr2.n;const hid=document.querySelector('input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}}
     return;}
-  if(t.dataset.field!==undefined&&d){setDraft({[t.dataset.field]:fieldValue(t)});return;}
+  if(t.dataset.field!==undefined&&d){const fv=fieldValue(t);if(t.tagName!=='SELECT'&&String(d[t.dataset.field]??'')===String(fv??'')&&!['date','endDate','client'].includes(t.dataset.field)){renderChrome();return;}setDraft({[t.dataset.field]:fv});return;}   // gépelt szövegnél már a draftban van – ne rajzoljuk újra (különben elveszhet a következő kattintás)
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
     setDraft(ch);return;}
@@ -993,7 +1004,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('step-in')){e.preventDefault();e.target.blur();return;}
   if((e.ctrlKey||e.metaKey)&&S.draft&&S.projectId&&S.tab==='projektek'&&!ro()&&!$('modalRoot').innerHTML){const k=e.key.toLowerCase();
     if(k==='z'&&!e.shiftKey){e.preventDefault();histStep(-1);return;}
-    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.dirty){e.preventDefault();saveChecked();}});
+    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
 
 /* ===== Indítás ===== */
 if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}

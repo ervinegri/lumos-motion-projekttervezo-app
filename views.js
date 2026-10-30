@@ -81,7 +81,7 @@ async function load(quiet,announce,pre){
 }
 setInterval(()=>{if(S.loaded&&!S.dirty&&!S.saving&&document.visibilityState==='visible'&&!$('modalRoot').innerHTML&&Date.now()-S.lastLoad>90000)load(true);},15000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
-window.addEventListener('beforeunload',e=>{try{flushSave();}catch(_){}if(S.saving){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
 
 /* ===== Megjelenítés ===== */
 /* Lenyíló szekciók a projektlapon: alapból csukva, a nyitott állapotot megjegyezzük újrarajzolás között. */
@@ -129,10 +129,10 @@ function renderChrome(){
   $('pageTitle').textContent=title;
   const bar=$('saveBar');
   const flash=!S.dirty&&S.savedFlash&&S.draft&&S.tab==='projektek';   // mentés után fél másodpercig még látszik: „✓ Mentve”
-  const showBar=false;   // automatikus mentés: nincs mentési sáv, csak a kis „Mentés folyamatban…” jelzés
-  bar.classList.toggle('hidden',!showBar);document.body.classList.toggle('has-savebar',!!showBar);
+  const showBar=!!(S.dirty&&S.draft&&S.tab==='projektek'&&!ro());   // kézi mentés: mentetlen módosításnál mentési sáv
+  bar.classList.toggle('hidden',!showBar&&!flash);document.body.classList.toggle('has-savebar',!!(showBar||flash));
   if(flash){const h=`<div class="savebar-in"><p>Módosítások mentve: ${esc(S.draft.name||'projekt')}</p><button class="btn primary saved-btn" type="button" disabled>✓ Mentve</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}
-  else if(showBar){const h=`<div class="savebar-in"><p>Automatikus mentés: ${esc(S.draft.name||'projekt')}</p><button class="btn outline saved-btn" type="button" disabled>⏳ Mentés…</button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
+  else if(showBar){const h=`<div class="savebar-in"><p>Mentetlen módosítások: ${esc(S.draft.name||'projekt')}</p><button class="btn ghost" type="button" data-action="discard">Elvetés</button><button class="btn primary" type="button" data-action="save" title="Ctrl+S / ⌘S">💾 Mentés <span class="kbd">Ctrl+S</span></button></div>`;if(bar._h!==h){bar.innerHTML=h;bar._h=h;}}   // ugyanazt nem rajzoljuk újra, különben a Mentés gombra kattintás elveszhet
 }
 /* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
 function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
@@ -143,7 +143,7 @@ window.addEventListener('popstate',()=>{if(!S.me||!S.loaded)return;const h=locat
     if(pm&&projById(pm[1])){S.tab='projektek';S.projectId=pm[1];S.draft=prepDraft(projById(pm[1]));}
     else{S.projectId=null;S.draft=null;S.tab=tm&&TABS().some(t=>t.id===tm[1])?tm[1]:'projektek';}
     const was=S._histReady;S._histReady=false;render(true);S._histReady=was;scrollTo(0,0);};
-  if(typeof guard==='function')guard(go);else go();});
+  if(typeof guard==='function')guard(go,()=>{S._histReady=true;syncHash();});else go();});
 window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('lpm_scroll',JSON.stringify({h:location.hash,y:Math.round(scrollY)}));}catch(e){}});
 let scrollRestored=false;
 function restoreScroll(){if(scrollRestored)return;scrollRestored=true;try{const v=JSON.parse(sessionStorage.getItem('lpm_scroll')||'null');if(v&&v.h===location.hash&&v.y>0)requestAnimationFrame(()=>scrollTo(0,v.y));}catch(e){}}
