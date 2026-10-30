@@ -475,7 +475,7 @@ function siteModal(next,withPen){
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
       let pens=[];try{pens=penRowsCollect(fd,txt);}catch(e){toast(e.message,true);return;}
-      const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);}});
+      const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 /* Felugró figyelmeztetés: a helyszíni munka előtt véglegesíteni kell a stábot */
 function crewFinalPopup(d){const ch=crewFinalState(d)==='changed',none=!crewIds(d).size;
@@ -496,7 +496,7 @@ function postModal(next){
     </div>`,{submitLabel:'Kipipálás ✓',submit:async fd=>{
       const notes=String(fd.get('deliveryNotes')||'').trim();
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
-      const pid=d.id;closeModal();setDraft({deliveryNotes:notes});if(next)next();penRowsSubmit(pid,pens);}});
+      const pid=d.id;closeModal();setDraft({deliveryNotes:notes});if(next)next();penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 function deliveryModal(target){
   const d=S.draft,r=pr(d);if(!d)return;const toLead=target==='leadva';
@@ -518,8 +518,8 @@ function deliveryModal(target){
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
       const base={deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:''};
-      if(toLead){const st=videoStagesOn()?'jovahagyas':'leadva';setDraft(Object.assign(base,{status:st,leadvaAt:d.leadvaAt||todayISO(),deliveredAt:'',stepsDone:ticksUpTo(S.draft,st)}));toast('Videók leadva – mentsd el a Mentés gombbal');return;}   // leadás után: „Videók jóváhagyásra várnak”
-      setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));confetti();}});
+      if(toLead){const st=videoStagesOn()?'jovahagyas':'leadva';setDraft(Object.assign(base,{status:st,leadvaAt:d.leadvaAt||todayISO(),deliveredAt:'',stepsDone:ticksUpTo(S.draft,st)}));setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Videók leadva – jóváhagyásra várnak');return;}   // leadás után: „Videók jóváhagyásra várnak”
+      setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
 }
 /* az eddigi elakadások és kirótt díjcsökkentések (beszámoló és átadás ablakban) */
@@ -536,7 +536,7 @@ function ownGearModal(crewId){
     ${mf('name','Eszköz neve',{full:true,ph:'pl. saját Sony A7 IV + 24-70',max:120})}
   </div>`,{submitLabel:'Hozzáadás',submit:async fd=>{
     const name=String(fd.get('name')||'').trim();if(!name){toast('Add meg az eszköz nevét.',true);return;}
-    closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([{id:uuid(),crewId:crewId||'',name,company:'',price:0,own:true}])});}});
+    closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([{id:uuid(),crewId:crewId||'',name,company:'',price:0,own:true}])});setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 function rentalModal(crewId){
   const c=crewById(crewId);
@@ -547,7 +547,7 @@ function rentalModal(crewId){
   </div>`,{submitLabel:'Hozzáadás',submit:async(fd,form)=>{
     const name=String(fd.get('name')||'').trim();if(!name){toast('Add meg az eszköz nevét.',true);return;}
     const r={id:uuid(),crewId:crewId||'',name,company:String(fd.get('company')||'').trim(),price:canSeeFees()?(moneyVal(fd.get('price'))||0):0};
-    closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([r])});}});
+    closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([r])});setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 async function sendListModal(only){
   if(!S.draft||ro())return;
@@ -877,7 +877,7 @@ const ACT={
   'proj-rename':()=>{const d=S.draft;if(!d||ro())return;
     openModal('Projekt neve',`<div class="fields">${mf('name','Projekt neve',{full:true,v:d.name||'',max:160})}</div>`,{submitLabel:'Mentés',submit:async(fd,form)=>{
       if(!needName(form,'Add meg a projekt nevét.'))return;const n=String(fd.get('name')||'').trim();closeModal();
-      if(n!==d.name){setDraft({name:n});toast('Projekt neve módosítva – mentsd el a Mentés gombbal');}}});
+      if(n!==d.name){setDraft({name:n});setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Projekt neve módosítva');}}});
     setTimeout(()=>{const i=$('m-name');if(i){i.value=d.name||'';i.select();}},40);},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`${p.status==='atadva'?`<div class="unlock-box"><div><b>🔒 Lezárt projekt</b><small>${p.deliveredAt?'Lezárva: '+esc(fmtDay(p.deliveredAt))+'. ':''}${isAdmin()?'Felnyitás után a lépések és az adatok újra szerkeszthetők.':'Felnyitni csak az ügyvezető tudja.'}</small></div>${isAdmin()?'<button class="btn small" type="button" data-action="proj-unlock">🔓 Lezárt projekt felnyitása</button>':''}</div>`:''}<div class="fields" style="margin-bottom:14px">${mf('name','Projekt neve',{full:true,v:p.name||'',max:120})}</div><div class="btns" style="margin-bottom:10px">${p.folderId?`<a class="btn outline small" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:`<button class="btn outline small" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`}</div><div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
@@ -889,7 +889,7 @@ const ACT={
     openModal('Biztosan lemondod a projektet?',`<p style="margin:0 0 10px">A(z) <b>${esc(d.name||'projekt')}</b> lemondott projektként nem számít bele az ütközésekbe, a pénzügyekbe és a határidőkbe. Később visszaállítható.</p>
       <div class="fields"><div class="field full"><label for="m-cancelReason">Miért mondjuk le? <span class="muted">(kötelező)</span></label><textarea class="inp" id="m-cancelReason" name="cancelReason" rows="3" maxlength="1000" placeholder="pl. az ügyfél elhalasztotta a rendezvényt, más szolgáltatót választott, költségvetés…"></textarea></div></div>`,
       {submitLabel:'🚫 Igen, lemondom',submit:async fd=>{const r=String(fd.get('cancelReason')||'').trim();if(r.length<3){toast('Írd be a lemondás okát.',true);const t=$('m-cancelReason');if(t)t.focus();return;}
-        closeModal();setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes',cancelReason:r});toast('Projekt lemondva – mentsd el a Mentés gombbal');}});},
+        closeModal();setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes',cancelReason:r});setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Projekt lemondva');}});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n});},
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft(stepPatch(d,it.k,n));},
