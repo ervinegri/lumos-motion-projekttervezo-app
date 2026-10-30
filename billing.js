@@ -62,7 +62,7 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   // Szerződés
   const cs=b.contractStatus||'',sent=cs==='kikuldve'||cs==='alairva',signed=cs==='alairva';
   const cAct=st=>`data-action="bl-cstep" data-id="${pid}" data-st="${st}"`;
-  const contract=i.fw?box('','Szerződés',`${fwCell(i.fw,'pb-c')}${bsStep(true,'Szerződés elküldve')}${bsStep(true,'Szerződés aláírva')}`)
+  const contract=i.fw?box('','Szerződés',fwCell(i.fw,'pb-c'))
     :box('contract','Szerződés',`${bsStep(sent,'Szerződés elküldve','',cAct(sent?'':'kikuldve'))}${bsStep(signed,'Szerződés aláírva',b.signedAt?fmtMD(b.signedAt):'',cAct(signed?'kikuldve':'alairva'))}
       ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ ${b.contractUrl?'Új feltöltése':'Feltöltés'}</button>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?');
   // TIG

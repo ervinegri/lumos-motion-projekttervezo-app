@@ -1587,6 +1587,10 @@ function szQuery_(no, withPdf, order) {
   const out = { no: xmlText_(alap, 'szamlaszam') || no, tipus: xmlText_(alap, 'tipus'), date: xmlText_(alap, 'kelt').slice(0, 10), due: xmlText_(alap, 'fizh').slice(0, 10),
     payMethod: xmlText_(alap, 'fizmod'), buyer: vevo ? xmlText_(vevo, 'nev') : '', invNet: tot ? nr(xmlText_(tot, 'netto')) : 0, invGross: tot ? nr(xmlText_(tot, 'brutto')) : 0,
     invPaid: paid, paidAt: paidAt, fromDijbekero: xmlText_(alap, 'hivdijbekszam') };
+  // típus felismerése: a számlázz.hu jelzői, a sorszám, végül a tételek szövege (foglaló / előleg / végszámla)
+  const flag = t => /^(true|1|igen)$/i.test(xmlText_(alap, t)), names = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).join(' ') + ' ' + xmlText_(alap, 'megjegyzes');
+  out.kind = flag('dijbekero') || /^D-/i.test(out.no) || /^D/i.test(out.tipus) ? 'dijbekero' : flag('elolegszamla') || /^E/i.test(out.tipus) ? 'eloleg' : flag('vegszamla') ? 'vegszamla'
+    : /végszámla/i.test(names) ? 'vegszamla' : /foglal[oó]|előleg/i.test(names) ? 'eloleg' : 'szamla';
   if (withPdf) { const p = doc.getChildren().find(c => c.getName() === 'pdf'); out.pdf = p ? String(p.getText() || '').replace(/\s/g, '') : ''; }
   return out;
 }
@@ -1705,7 +1709,9 @@ function szLink_(u, a) {
     return Object.assign(finData_(), { invoice: ex, extended: added.length });
   }
   const q = szQuery_(no, false);
-  const row = { id: Utilities.getUuid(), no: q.no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
+  let kind = SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : q.kind || 'szamla';
+  if (kind === 'szamla' && tg.projectId && readAll_('finInvoice').some(x => invHasProj_(x, tg.projectId) && (x.kind === 'eloleg' || x.kind === 'dijbekero'))) kind = 'vegszamla';   // foglaló után a sima számla a végszámla
+  const row = { id: Utilities.getUuid(), no: q.no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
     invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '',
     projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: str_(a && a.tigId, 64) };
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: row.no }); dbFlush_(); });
@@ -1756,7 +1762,7 @@ function szLinkBatch_(u, a) {
     if (Date.now() - started > 20000) return;
     if (have[no]) { done.push(no); return; }
     try { const tg = szTarget_(it), q = szQuery_(no, false);
-      rows.push({ id: Utilities.getUuid(), no: q.no || no, kind: SZ_KINDS.indexOf(it.kind) >= 0 ? it.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
+      rows.push({ id: Utilities.getUuid(), no: q.no || no, kind: SZ_KINDS.indexOf(it.kind) >= 0 ? it.kind : q.kind || 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
         invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name + ' (import)', checkedAt: now_(), note: 'Importálva', items: '', ref: '',
         projectIds: tg.projectId ? szExtraProjects_(it, tg.projectId) : '', tigId: '' });
       have[no] = 1; done.push(no);
@@ -1774,7 +1780,7 @@ function szPeek_(u, a) {
   if (/^\d{1,4}$/.test(raw)) tries.push(str_(a.prefix, 20).toUpperCase() + '-' + y + '-' + raw);
   let last = null;
   const linked = readAll_('finInvoice');
-  for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false), l = linked.find(x => x.no === (q.no || tries[i])); return { linked: l ? invTargets_(l).map(t => t.projectId || t.incomeId) : [], no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus }; } catch (e) { last = e; } }
+  for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false), l = linked.find(x => x.no === (q.no || tries[i])); return { linked: l ? invTargets_(l).map(t => t.projectId || t.incomeId) : [], no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus, kind: q.kind }; } catch (e) { last = e; } }
   throw new Error('Nem található ilyen számla a számlázz.hu-ban (' + tries.join(', ') + ').');
 }
 function szUnlink_(u, a) {
