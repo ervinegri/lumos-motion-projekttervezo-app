@@ -19,16 +19,17 @@ function billInfo(p){
   const cStep=b.contractStatus==='nemkell'||(fw&&fw.mode==='nemkell')?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
   const advIssued=!!(db||el),advPaid=!!((db&&invPaidOk(db))||(el&&invPaidOk(el)));
   const full=b.mode!=='egyben'&&num(b.advancePct)>=100,noFin=(b.noFinal==='1'||full)&&!fin,finSteps=noFin?[]:b.mode==='egyben'?[['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!(fin&&invPaidOk(fin))]]:[['finIssued','Végszámla kiállítva',!!fin],['finPaid','Végszámla kifizetve',!!(fin&&invPaidOk(fin))]];
-  const steps=b.mode==='egyben'?[...cStep,...finSteps]:[...cStep,['advIssued','Díjbekérő kiállítva',advIssued],['advPaid','Foglaló kifizetve',advPaid],...finSteps];
+  const free=isFree(p)&&!inv.length;   // nem fizetős projekt: nincs díjbekérő és számla
+  const steps=free?[...cStep]:b.mode==='egyben'?[...cStep,...finSteps]:[...cStep,['advIssued','Díjbekérő kiállítva',advIssued],['advPaid','Foglaló kifizetve',advPaid],...finSteps];
   const nextI=steps.findIndex(s=>!s[2]),closed=nextI<0;
   const open=inv.filter(x=>!(x.kind==='dijbekero'&&(x.ref||el))&&!invPaidOk(x)),late=open.filter(x=>x.due&&x.due<todayISO());
   const due=x=>Math.max(0,num(x.invGross)-num(x.invPaid));
-  let next='Lezárva',nextCls='p-ok';
+  let next=free?'Nem fizetős':'Lezárva',nextCls=free?'p-mute':'p-ok';
   if(!closed){const k=steps[nextI][0];
     next=k==='contract'?(b.contractStatus==='kikuldve'?'Szerződés aláírásra vár':'Szerződés hiányzik'):k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
     nextCls=k==='contract'&&b.contractStatus!=='kikuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
-  return {p,b,fw,inv,db,el,fin,noFin,full,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
+  return {p,b,fw,inv,db,el,fin,noFin,full,free,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
 /* A következő kiállítandó bizonylat típusa */
 function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=billInfo(p);if(i.b.mode==='egyben')return 'szamla';if(!i.db&&!i.el)return 'dijbekero';if(i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref)return 'eloleg';return 'vegszamla';}
@@ -40,10 +41,10 @@ const billAddBtn=(pid,type,label,strong)=>`<button class="btn ${strong?'primary'
 function billRow(i){const p=i.p,b=i.b,r=pr(p),val=num(p.projectValue);
   const contract=i.fw?fwCell(i.fw,'bl-contract'):b.contractStatus==='nemkell'?`<div class="bl-contract"><label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}" checked> Nincs szerződés</label></div>`:`<div class="bl-contract"><button class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}" type="button" data-action="bill-edit" data-id="${esc(p.id)}">${CONTRACT_LABEL[b.contractStatus||'']}</button>
     ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,22))}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${esc(p.id)}" data-focus="file">⬆️ Feltöltés</button>`}${b.contractUrl||b.contractStatus==='alairva'||b.contractStatus==='kikuldve'?'':`<label class="bl-nocontract"><input type="checkbox" data-nocontract="${esc(p.id)}"${b.contractStatus==='nemkell'?' checked':''}> Nincs szerződés</label>`}</div>`;
-  const adv=b.mode==='egyben'?'<span class="muted">nincs foglaló</span>'
+  const adv=i.free?'<span class="muted">🎁 nem fizetős</span>':b.mode==='egyben'?'<span class="muted">nincs foglaló</span>'
     :(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${esc(p.id)}" data-type="eloleg">+ Foglalószámla</button>`:''))
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI][0]==='advIssued');
-  const fin=i.noFin?'<span class="muted">nem kell</span>':i.fin?invLine(i.fin):billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
+  const fin=i.free?'<span class="muted">🎁 nem fizetős</span>':i.noFin?'<span class="muted">nem kell</span>':i.fin?invLine(i.fin):billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
   const dots=`<div class="bl-dots" aria-label="Haladás">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
   return `<tr${i.closed?' class="bl-closed"':''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
       <div class="bl-meta">${esc(p.client||'—')}</div>${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
@@ -150,8 +151,8 @@ function projBillingPanel(p){
   return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside"><span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
     <div class="pb-grid">
       ${box('contract','Szerződés',i.fw?contract+`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Új szerződés feltöltése</button>`:contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}
-      ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
-      ${i.full&&!i.fin?`<div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`:box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?(skipA?` <span class="muted">${ftFmt(val)} nettó</span>`:` <span class="muted">${100-num(b.advancePct)}% · ${ftFmt(Math.round(val*(100-num(b.advancePct))/100))} nettó</span>`):''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}
+      ${i.free?`<div class="pb-box skip"><div class="pb-t">Díjbekérő / foglaló</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div><div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div>`:`${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
+      ${i.full&&!i.fin?`<div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`:box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?(skipA?` <span class="muted">${ftFmt(val)} nettó</span>`:` <span class="muted">${100-num(b.advancePct)}% · ${ftFmt(Math.round(val*(100-num(b.advancePct))/100))} nettó</span>`):''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}`}
       <div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>
     </div>${b.note?`<div class="pb-foot"><span class="bl-meta">📝 ${esc(b.note)}</span></div>`:''}`);
 }

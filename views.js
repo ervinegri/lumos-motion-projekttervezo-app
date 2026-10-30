@@ -344,6 +344,8 @@ const rentOf=(p,f)=>f.crewId&&rentalsOf(p,f.crewId).some(r=>!r.own)?rentalSum(p,
 const feeSum=p=>(p.fees||[]).reduce((s,f)=>s+num(f.amount)-(f.crewId?penDeduct(p,f.crewId,f.amount):0)+rentOf(p,f),0)+rentalSum(p,'');   // jóváhagyott díjcsökkentéssel
 const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 /* Termelői keret forintban: az ügyvezetőnél a beállításból (% a projekt értékéből vagy fix összeg), a termelési vezetőnél a háttér által kiszámolt összeg. */
+/* Nem fizetős projekt: a büdzsé 0 Ft (a „Nem fizetős” pipával állítható) */
+const isFree=p=>!!p&&p.projectValue!=null&&p.projectValue!==''&&num(p.projectValue)===0;
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);
   const v=p.budgetVal;if(v===''||v==null||!p.budgetMode)return null;
@@ -356,7 +358,7 @@ function finPanelBody(p){
   const pctV=p.budgetMode==='pct'?(p.budgetVal===''||p.budgetVal==null?'':String(p.budgetVal).replace('.',',')):(k!=null&&val>0?String(Math.round(k/val*1000)/10).replace('.',','):'');
   const ftV=k!=null?moneyFmt(k):'';
   return `<div class="fin-sum">
-      ${adm?`<div class="fin-inputs"><div class="field fin-val"><label for="f-projectValue">Büdzsé – a projekt értéke (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${esc(moneyFmt(p.projectValue))}" placeholder="pl. 969 000"><span class="money-unit">Ft</span></div></div>
+      ${adm?`<div class="fin-inputs"><div class="field fin-val"><label for="f-projectValue">Büdzsé – a projekt értéke (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${isFree(p)?'':esc(moneyFmt(p.projectValue))}" placeholder="${isFree(p)?'Nem fizetős projekt':'pl. 969 000'}"${isFree(p)?' disabled':''}><span class="money-unit">Ft</span></div><label class="free-chk"><input type="checkbox" data-free="1"${isFree(p)?' checked':''}${D()}> 🎁 Nem fizetős projekt</label></div>
         <div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
         <div class="field fin-budget"><label for="f-budgetFt">Termelői keret</label>
