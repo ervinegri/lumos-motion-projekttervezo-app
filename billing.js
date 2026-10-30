@@ -368,7 +368,9 @@ function impMatch(o,T){const txt=(o.buyer||'')+' '+(o.items||''),d0=o.fulfill||o
     const s=nm*50+am*(nm>0?1:0.4)+(dd<=60?25*(1-dd/60):-30);return {t,s,nm,am,dd};}).filter(x=>x.nm>=0.34||(x.am>=35&&x.dd<=20)).sort((a,b)=>b.s-a.s);
   const best=sc[0];let multi=null;
   if(huf&&net&&(!best||best.am<35)){   // havi összesítő számla több projektre (pl. Kulcsár): azonos ügyfél, a teljesítés hónapja / előtte
-    const c=sc.filter(x=>x.nm>=0.5&&x.dd<=62&&x.t.date<=addDays(d0,10)&&x.t.amt>0).slice(0,14).map(x=>x.t);
+    const HM=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'],mi=HM.findIndex(h=>new RegExp(h,'i').test(o.items||''));
+    const mon=mi>=0?(()=>{let y=Number(d0.slice(0,4));if(mi+1>Number(d0.slice(5,7))+1)y--;return y+'-'+String(mi+1).padStart(2,'0');})():'';
+    const c=sc.filter(x=>x.nm>=0.5&&x.t.amt>0&&(mon?x.t.date.slice(0,7)===mon:x.dd<=45&&x.t.date<=addDays(d0,3))).slice(0,16).map(x=>x.t);
     const rec=(i,sum,pick)=>{if(sum===net&&pick.length>1)return pick;if(i>=c.length||sum>net||pick.length>=8)return null;return rec(i+1,sum+c[i].amt,[...pick,c[i]])||rec(i+1,sum,pick);};
     const m=rec(0,0,[]);if(m&&m.every(x=>x.k===m[0].k))multi=m;}
   return {cands:sc.slice(0,8),best,multi,conf:multi?80:best?Math.round(best.s):0};}
@@ -392,6 +394,11 @@ document.addEventListener('change',async e=>{if(e.target.id!=='m-impf')return;co
   const T=impTargets();S._imp=L.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(o=>{const skip=o.storno?'sztornó':stornoed.has(o.no)?'sztornózva':have.has(o.no)?'már az appban':o.issuer==='ev'?'E.V. – kézi rögzítéssel':'';
     const m=skip?{cands:[],conf:0}:impMatch(o,T);const sel=m.multi?'m:'+m.multi.map(t=>t.k+':'+t.id).join(','):m.best?m.best.t.k+':'+m.best.t.id:'';
     return Object.assign(o,{skip,m,sel,on:!skip&&!!sel&&m.conf>=60});});
+  // egy cél (projekt / bevételi sor) csak egy foglaló- és egy végszámlát kaphat: a legbiztosabb párosítás nyer, a többi a következő szabad jelöltre lép
+  const used={},cls=k=>k==='eloleg'||k==='dijbekero'?'a':'f',key=(v,k)=>v+'|'+cls(k);
+  S._imp.filter(o=>!o.skip&&o.sel).sort((a,b)=>b.m.conf-a.m.conf).forEach(o=>{const ok=v=>v.replace(/^m:/,'').split(',').every(t=>!used[key(t,o.kind)]);
+    if(!ok(o.sel)){const alt=(o.m.cands||[]).map(c=>c.t.k+':'+c.t.id).find(ok);o.sel=alt||'';o.on=false;}
+    if(o.sel)o.sel.replace(/^m:/,'').split(',').forEach(t=>used[key(t,o.kind)]=1);});
   impRender();});
 function impRender(){const box=$('imp-list');if(!box||!S._imp)return;const L=S._imp,ok=L.filter(o=>!o.skip),on=ok.filter(o=>o.on).length;
   const st=$('imp-st');if(st)st.innerHTML=`<b>${L.length}</b> számla beolvasva · <b>${ok.length}</b> importálható · <b>${on}</b> kijelölve${L.length-ok.length?` · ${L.length-ok.length} kihagyva (sztornó / már bent / E.V.)`:''}`;
