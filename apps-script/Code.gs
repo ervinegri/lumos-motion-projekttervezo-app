@@ -1710,7 +1710,9 @@ function szLink_(u, a) {
   }
   const q = szQuery_(no, false);
   let kind = SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : q.kind || 'szamla';
-  if (kind === 'szamla' && tg.projectId && readAll_('finInvoice').some(x => invHasProj_(x, tg.projectId) && (x.kind === 'eloleg' || x.kind === 'dijbekero'))) kind = 'vegszamla';   // foglaló után a sima számla a végszámla
+  const advSlot = a.slot === 'dijbekero' || a.slot === 'eloleg';
+  if (kind === 'szamla' && advSlot) kind = 'eloleg';   // a Díjbekérő helyére tett rendes számla = előre kiállított (foglaló)számla
+  if (kind === 'szamla' && !advSlot && tg.projectId && readAll_('finInvoice').some(x => invHasProj_(x, tg.projectId) && (x.kind === 'eloleg' || x.kind === 'dijbekero'))) kind = 'vegszamla';   // foglaló után a sima számla a végszámla
   const row = { id: Utilities.getUuid(), no: q.no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
     invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '',
     projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: str_(a && a.tigId, 64) };
@@ -1782,6 +1784,14 @@ function szPeek_(u, a) {
   const linked = readAll_('finInvoice');
   for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false), l = linked.find(x => x.no === (q.no || tries[i])); return { linked: l ? invTargets_(l).map(t => t.projectId || t.incomeId) : [], no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus, kind: q.kind }; } catch (e) { last = e; } }
   throw new Error('Nem található ilyen számla a számlázz.hu-ban (' + tries.join(', ') + ').');
+}
+/** Hozzárendelt bizonylat helyének módosítása (díjbekérő / foglaló ↔ végszámla). */
+function szSetKind_(u, a) {
+  const kind = SZ_KINDS.indexOf(a && a.kind) >= 0 ? a.kind : '';
+  if (!kind) throw new Error('Ismeretlen típus.');
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, str_(a.id, 64)); if (!row) throw new Error('A bizonylat nem található.'); const r = readRow_('finInvoice', sh, row);
+    r.kind = kind; putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, r.no + ' típusa: ' + kind); });
+  return finData_();
 }
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
@@ -2926,6 +2936,7 @@ function rpcInner_(token, name, arg) {
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szPeek': adminOnly(); return szPeek_(u, arg);
+    case 'szSetKind': adminOnly(); return szSetKind_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
