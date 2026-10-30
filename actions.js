@@ -786,6 +786,11 @@ const ACT={
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
+  'proj-rename':()=>{const d=S.draft;if(!d||ro())return;
+    openModal('Projekt neve',`<div class="fields">${mf('name','Projekt neve',{full:true,v:d.name||'',max:160})}</div>`,{submitLabel:'Mentés',submit:async(fd,form)=>{
+      if(!needName(form,'Add meg a projekt nevét.'))return;const n=String(fd.get('name')||'').trim();closeModal();
+      if(n!==d.name){d.name=n;saveDraft();toast('Projekt neve módosítva');}}});
+    setTimeout(()=>{const i=$('m-name');if(i){i.value=d.name||'';i.select();}},40);},
   'proj-manage':()=>{const p=S.draft;if(!p)return;
     openModal('Projekt kezelése',`${p.status==='atadva'?`<div class="unlock-box"><div><b>🔒 Lezárt projekt</b><small>${p.deliveredAt?'Lezárva: '+esc(fmtDay(p.deliveredAt))+'. ':''}${isAdmin()?'Felnyitás után a lépések és az adatok újra szerkeszthetők.':'Felnyitni csak az ügyvezető tudja.'}</small></div>${isAdmin()?'<button class="btn small" type="button" data-action="proj-unlock">🔓 Lezárt projekt felnyitása</button>':''}</div>`:''}<div class="fields" style="margin-bottom:14px">${mf('name','Projekt neve',{full:true,v:p.name||'',max:120})}</div><div class="btns" style="margin-bottom:10px">${p.folderId?`<a class="btn outline small" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:`<button class="btn outline small" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`}</div><div class="btns"><button class="btn outline small" type="button" data-action="cancel-toggle">${p.status==='lemondva'?'Visszaállítás':'Projekt lemondása'}</button><button class="btn danger small" type="button" data-action="del-project">Projekt törlése</button></div>
       ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás',submitLabel:'Átnevezés',submit:async fd=>{
