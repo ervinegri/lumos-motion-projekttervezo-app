@@ -385,7 +385,9 @@ function impModal(){if(!S.fin||!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az 
   const mb=document.querySelector('#mform');if(mb)mb.classList.add('imp-wide');}
 document.addEventListener('change',async e=>{if(e.target.id!=='m-impf')return;const files=[...(e.target.files||[])];if(!files.length)return;
   let L;try{L=await impRead(files);}catch(err){toast(errText(err),true);return;}
-  const have=new Set(((S.fin&&S.fin.invoices)||[]).map(x=>x.no)),stornoed=new Set(L.filter(o=>o.storno).map(o=>o.storno));
+  const have=new Set(((S.fin&&S.fin.invoices)||[]).map(x=>x.no)),stornoed=new Set(L.filter(o=>o.storno&&o.storno!=='?').map(o=>o.storno));
+  // negatív összegű (helyesbítő / sztornó) számla: az azonos vevő korábbi, ugyanekkora számláját is kihagyjuk
+  const nrm=s=>impTok(s).join(' ');L.filter(o=>num(o.invNet)<0).forEach(o=>{o.storno=o.storno||'?';if(o.storno!=='?')return;const orig=L.filter(x=>x!==o&&num(x.invNet)===-num(o.invNet)&&nrm(x.buyer)===nrm(o.buyer)&&String(x.date)<=String(o.date)&&!stornoed.has(x.no)&&num(x.invNet)>0).sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];if(orig)stornoed.add(orig.no);});
   const T=impTargets();S._imp=L.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(o=>{const skip=o.storno?'sztornó':stornoed.has(o.no)?'sztornózva':have.has(o.no)?'már az appban':o.issuer==='ev'?'E.V. – kézi rögzítéssel':'';
     const m=skip?{cands:[],conf:0}:impMatch(o,T);const sel=m.multi?'m:'+m.multi.map(t=>t.k+':'+t.id).join(','):m.best?m.best.t.k+':'+m.best.t.id:'';
     return Object.assign(o,{skip,m,sel,on:!skip&&!!sel&&m.conf>=60});});

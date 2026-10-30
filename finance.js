@@ -345,12 +345,12 @@ function invParseItems(it,W){const all=it.map(i=>i.s).join('\n'),find=re=>it.fin
   const right=lab=>{const l=find(lab);if(!l)return '';return it.filter(i=>Math.abs(i.y-l.y)<4&&i.x>l.x&&i!==l).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' ');};
   const o={};const no=/(?:Sorsz[aá]m|Number):?\s*([A-Za-z0-9][\w\-\/]*)/.exec(all);o.no=no?no[1]:'';
   o.issuer=/92286571/.test(all)?'ev':/32701573/.test(all)?'kft':'';
-  const st=/(\S+)\s+SZTORNÓ SZÁMLÁJA/.exec(all);o.storno=st?st[1]:'';
+  const st=/([A-Z][\w]*-\d{4}-\d+)\s*SZTORNÓ SZÁMLÁJA/.exec(all);o.storno=st?st[1]:/SZTORNÓ SZÁMLÁJA/.test(all)?'?':'';
   const title=(it.find(i=>/(SZÁMLA|INVOICE|DÍJBEKÉRŐ|PROFORMA)/.test(i.s)&&i.s===i.s.toUpperCase())||{}).s||'';o.title=title;
   const hd=find(/^(Megnevez[eé]s|Description)$/),tot=it.filter(i=>/^(Összesen|Total):?$/.test(i.s)).sort((a,b)=>b.y-a.y)[0];
   o.items=hd?it.filter(i=>i.y<hd.y-2&&(!tot||i.y>tot.y+2)&&i.x<W*0.35).sort((a,b)=>b.y-a.y).map(i=>i.s).join(' '):'';
   const db=/(D-[\w-]+)\s+DÍJBEKÉRŐ ALAPJÁN/.exec(title);o.fromDb=db?db[1]:'';
-  o.kind=o.storno?'storno':/ELŐLEG/.test(title)?'eloleg':/VÉGSZÁMLA/.test(title)?'vegszamla':/(DÍJBEKÉRŐ|PROFORMA)/.test(title)&&!db?'dijbekero':/foglal[oó]|előleg/i.test(o.items)?'eloleg':'szamla';
+  o.kind=o.storno?'storno':/ELŐLEG/.test(title)?'eloleg':/VÉGSZÁMLA/.test(title)||/végszámla/i.test(o.items)?'vegszamla':/(DÍJBEKÉRŐ|PROFORMA)/.test(title)&&!db?'dijbekero':/foglal[oó]|előleg/i.test(o.items)?'eloleg':'szamla';
   const v=find(/^(VEV[OŐ]|CUSTOMER):?$/);
   if(v){const ys=[...new Set(it.filter(i=>i.x<W*0.45&&i.y<v.y-2&&(!hd||i.y>hd.y+2)).map(i=>Math.round(i.y)))].sort((a,b)=>b-a);
     const lines=ys.map(y=>it.filter(i=>Math.round(i.y)===y&&i.x<W*0.45).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' '));
