@@ -88,7 +88,10 @@ const TABLES = {
   finInvoice: { tab: 'Számlák', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['no', 'Számlaszám'], ['kind', 'Típus (szamla / dijbekero)'], ['projectId', 'Projekt azonosító'], ['incomeId', 'Bevételi sor azonosító'],
     ['buyer', 'Vevő'], ['date', 'Kelt'], ['due', 'Fizetési határidő'], ['invNet', 'Nettó (Ft)'], ['invGross', 'Bruttó (Ft)'], ['invPaid', 'Kifizetve (Ft)'],
-    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat']] },
+    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító']] },
+  finTig: { tab: 'Teljesítésigazolások', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['month', 'Hónap'], ['issuer', 'Szolgáltató'], ['projectIds', 'Projektek'], ['rows', 'Tételek (JSON)'], ['total', 'Összesen (nettó Ft)'],
+    ['url', 'PDF (link)'], ['fileName', 'Fájlnév'], ['status', 'Állapot (kikuldve / jovahagyva / szamlazva)'], ['approvedAt', 'Jóváhagyva'], ['invoiceNo', 'Számlaszám'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['clientAddress', 'Megrendelő címe'], ['clientTax', 'Megrendelő adószáma']] },
   finBilling: { tab: 'Szerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
@@ -792,10 +795,10 @@ function finDataCached_() {
   return out;
 }
 function finData_() {
-  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), sz: szSettingsView_() };
+  return { income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
 }
 /* Gyors válasz: a módosító műveletek csak az érintett táblát adják vissza (a többi nem változott) */
-const FIN_PART_TABLES_ = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan', invoices: 'finInvoice', billing: 'finBilling', frameworks: 'finFramework' };
+const FIN_PART_TABLES_ = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan', invoices: 'finInvoice', billing: 'finBilling', frameworks: 'finFramework', tigs: 'finTig' };
 function finPart_(keys) { const o = {}; keys.forEach(k => { if (k === 'settings') o.settings = finSettings_(); else if (k === 'sz') o.sz = szSettingsView_(); else o[k] = readAll_(FIN_PART_TABLES_[k]); }); return o; }
 function finClean_(table, a) {
   const id = str_(a && a.id, 64) || Utilities.getUuid();
@@ -1600,12 +1603,21 @@ function szApplyPay_(targets) {
   const seen = {};
   targets.forEach(t => {
     const key = (t.projectId ? 'p:' + t.projectId : 'i:' + t.incomeId); if (!t.projectId && !t.incomeId || seen[key]) return; seen[key] = 1;
-    const st = szPayStatusFor_(inv.filter(x => t.projectId ? x.projectId === t.projectId : x.incomeId === t.incomeId));
+    const st = szPayStatusFor_(inv.filter(x => t.projectId ? invHasProj_(x, t.projectId) : x.incomeId === t.incomeId));
     if (!st) return;
     if (t.projectId) { try { writeProjectPay_(t.projectId, st); } catch (e) {} }
     else { const sh = sheetFor_('finIncome'), row = findRow_(sh, t.incomeId); if (row) { const r = readRow_('finIncome', sh, row); if (r.payStatus !== st) { r.payStatus = st; putRow_('finIncome', sh, r, row); } } }
   });
   dataBump_();
+}
+/** Közös számla: a fő projekt mellett a további projektek (vesszővel elválasztva a projectIds oszlopban). */
+function invHasProj_(x, pid) { return x.projectId === pid || String(x.projectIds || '').split(',').indexOf(pid) >= 0; }
+function invTargets_(x) { const o = [{ projectId: x.projectId, incomeId: x.incomeId }]; String(x.projectIds || '').split(',').filter(String).forEach(id => o.push({ projectId: id, incomeId: '' })); return o; }
+function szExtraProjects_(a, main) {
+  const ids = (Array.isArray(a && a.projectIds) ? a.projectIds : String((a && a.projectIds) || '').split(',')).map(x => str_(x, 64)).filter(x => x && x !== main);
+  const sh = sheetFor_('projects'), out = [];
+  ids.forEach(id => { if (out.indexOf(id) < 0) { if (!findRow_(sh, id)) throw new Error('A közös számla egyik projektje nem található.'); out.push(id); } });
+  return out.slice(0, 40).join(',');
 }
 function szTarget_(a) {
   const projectId = str_(a && a.projectId, 64), incomeId = str_(a && a.incomeId, 64);
@@ -1663,10 +1675,11 @@ function szInvoice_(u, a) {
   const row = { id: Utilities.getUuid(), no: no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: buyer.name, date: today, due: due,
     invNet: Math.round(net) || items.reduce((s, x) => s + x.net, 0), invGross: Math.round(gross) || items.reduce((s, x) => s + x.gross, 0), invPaid: 0, paidAt: '', payMethod: payMethod,
     createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: url ? 'Vevői fiók: ' + url : '',
-    items: JSON.stringify(items.map(x => ({ name: x.name, qty: x.qty, unit: x.unit, price: x.price, vat: x.vat }))), ref: dijbekeroNo || elolegNo };
+    items: JSON.stringify(items.map(x => ({ name: x.name, qty: x.qty, unit: x.unit, price: x.price, vat: x.vat }))), ref: dijbekeroNo || elolegNo,
+    projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: str_(a.tigId, 64) };
   if (open !== null && isFinite(open)) row.invPaid = Math.max(0, row.invGross - Math.round(open));
   if (a.paid && !row.invPaid) { row.invPaid = row.invGross; row.paidAt = today; }
-  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); dbFlush_(); });
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
   return Object.assign(finData_(), { invoice: row });
 }
@@ -1678,14 +1691,15 @@ function szLink_(u, a) {
   if (readAll_('finInvoice').some(x => x.no === no)) throw new Error('Ez a számla már hozzá van rendelve valamihez.');
   const q = szQuery_(no, false);
   const row = { id: Utilities.getUuid(), no: q.no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
-    invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '' };
-  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); dbFlush_(); });
+    invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '',
+    projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: str_(a && a.tigId, 64) };
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: row.no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', q.buyer, 'Számla hozzárendelve: ' + q.no);
   return Object.assign(finData_(), { invoice: row });
 }
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
-  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
   return finData_();
 }
 
@@ -1717,7 +1731,7 @@ function szSync_(u, a) {
     const sh = sheetFor_('finInvoice');
     todo.filter(x => x._dirty).forEach(x => { const row = findRow_(sh, x.id); if (row) { delete x._dirty; putRow_('finInvoice', sh, x, row); } });
     created.forEach(x => putRow_('finInvoice', sh, x, 0));
-    szApplyPay_(todo.map(x => ({ projectId: x.projectId, incomeId: x.incomeId })));
+    szApplyPay_([].concat.apply([], todo.map(invTargets_)));
     const s = szSettings_(); s.lastSync = now_(); szStore_(s);
     dbFlush_();
   });
@@ -1728,7 +1742,7 @@ function szSync_(u, a) {
 function szAddAdvance_(all, db, q, out) {
   if (!q || !q.no || all.some(x => x.no === q.no) || out.some(x => x.no === q.no)) return;
   const r = { id: Utilities.getUuid(), no: q.no, kind: 'eloleg', projectId: db.projectId, incomeId: db.incomeId, buyer: q.buyer || db.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross,
-    invPaid: q.invPaid || q.invGross, paidAt: q.paidAt || q.date, payMethod: q.payMethod, createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A díjbekérő kifizetése után automatikusan', items: '', ref: db.no };
+    invPaid: q.invPaid || q.invGross, paidAt: q.paidAt || q.date, payMethod: q.payMethod, createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A díjbekérő kifizetése után automatikusan', items: '', ref: db.no, projectIds: db.projectIds || '' };
   out.push(r); all.push(r);
 }
 function szPdf_(u, a) {
@@ -1760,7 +1774,7 @@ function szIpn_(e) {
         extra.forEach(x => putRow_('finInvoice', sh, x, 0));
         db.invPaid = Number(db.invGross) || q.invPaid; db.paidAt = q.paidAt || today_(); db.checkedAt = now_(); db.ref = no;
         putRow_('finInvoice', sh, db, findRow_(sh, db.id));
-        szApplyPay_([{ projectId: db.projectId, incomeId: db.incomeId }]);
+        szApplyPay_(invTargets_(db));
         dbFlush_();
         logEvent_(sys, 'Számlázás', db.buyer, 'Díjbekérő kifizetve: ' + dbNo + ' → foglalószámla ' + no);
         return;
@@ -1779,7 +1793,7 @@ function szIpn_(e) {
       }
       r.checkedAt = now_();
       putRow_('finInvoice', sh, r, findRow_(sh, r.id));
-      szApplyPay_([{ projectId: r.projectId, incomeId: r.incomeId }]);
+      szApplyPay_(invTargets_(r));
       dbFlush_();
       logEvent_(sys, 'Számlázás', r.buyer, 'Kifizetési értesítés: ' + no + ' – kifizetve ' + r.invPaid + ' / ' + r.invGross + ' Ft');
     });
@@ -1941,7 +1955,7 @@ function tigCreate_(u, a) {
   const client = str_(a.client, 160); if (client.length < 2) throw new Error('Válaszd ki az ügyfelet.');
   const month = /^\d{4}-\d{2}$/.test(String(a.month || '')) ? String(a.month) : ''; if (!month) throw new Error('Hiányzik a hónap.');
   const iss = TIG_ISSUERS_[a.issuer === 'ev' ? 'ev' : 'kft'];
-  const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ period: str_(r.period, 60), task: str_(r.task, 300), link: /^https:\/\//i.test(String(r.link || '')) ? str_(r.link, 500) : '', amount: Math.round(Number(r.amount) || 0) })).filter(r => r.task);
+  const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ period: str_(r.period, 60), task: str_(r.task, 300), link: /^https:\/\//i.test(String(r.link || '')) ? str_(r.link, 500) : '', amount: Math.round(Number(r.amount) || 0), pid: str_(r.pid, 64) })).filter(r => r.task);
   if (!rows.length) throw new Error('Legalább egy tétel kell.');
   const total = rows.reduce((s, r) => s + r.amount, 0);
   const MN = ['Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'];
@@ -1968,8 +1982,28 @@ function tigCreate_(u, a) {
   const name = uniqueName_(folder, shortName_(client) + '_TIG_' + month + '_' + iss.code + '.pdf');
   const f = folder.createFile(pdf.setName(name));
   try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
+  const rec = { id: Utilities.getUuid(), client: client, month: month, issuer: a.issuer === 'ev' ? 'ev' : 'kft', projectIds: rows.map(r => r.pid).filter(String).filter((x, i, l) => l.indexOf(x) === i).join(','),
+    rows: JSON.stringify(rows), total: total, url: f.getUrl(), fileName: name, status: 'kikuldve', approvedAt: '', invoiceNo: '', createdAt: now_(), createdBy: u.name, clientAddress: cSeat, clientTax: cTax };
+  withLock_(() => { putRow_('finTig', sheetFor_('finTig'), rec, 0); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Teljesítésigazolás', client, mLabel + ' · ' + rows.length + ' tétel · ' + total + ' Ft');
-  return { url: f.getUrl(), name: name, total: total };
+  return Object.assign(finPart_(['tigs']), { url: f.getUrl(), name: name, total: total, tig: rec });
+}
+/** TIG állapotának módosítása (zárolás alatt hívandó). */
+function tigMark_(id, patch) { const sh = sheetFor_('finTig'), row = findRow_(sh, id); if (!row) return; const r = readRow_('finTig', sh, row); Object.assign(r, patch); putRow_('finTig', sh, r, row); dataBump_(); }
+/** a: {id, action: 'approve' | 'unapprove' | 'delete'} */
+function tigSave_(u, a) {
+  const id = str_(a && a.id, 64), act = String(a && a.action || '');
+  withLock_(() => {
+    const sh = sheetFor_('finTig'), row = findRow_(sh, id); if (!row) throw new Error('A teljesítésigazolás nem található.');
+    const r = readRow_('finTig', sh, row);
+    if (act === 'delete') { if (r.status === 'szamlazva') throw new Error('Már kiállítottál számlát erre a TIG-re.'); sh.deleteRow(row); }
+    else if (act === 'approve') { if (r.status !== 'szamlazva') { r.status = 'jovahagyva'; r.approvedAt = today_(); putRow_('finTig', sh, r, row); } }
+    else if (act === 'unapprove') { if (r.status === 'jovahagyva') { r.status = 'kikuldve'; r.approvedAt = ''; putRow_('finTig', sh, r, row); } }
+    else throw new Error('Ismeretlen művelet.');
+    dataBump_(); dbFlush_();
+    logEvent_(u, 'Teljesítésigazolás', r.client, (act === 'delete' ? 'Törölve (a PDF megmarad): ' : act === 'approve' ? 'Jóváhagyva: ' : 'Jóváhagyás visszavonva: ') + r.month);
+  });
+  return finPart_(['tigs']);
 }
 function fwDelete_(u, a) {
   withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
@@ -2818,6 +2852,7 @@ function rpcInner_(token, name, arg) {
     case 'dbBackup': adminOnly(); return dbBackup_();
     case 'clientDocs': adminOnly(); return clientDocs_(arg);
     case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
+    case 'tigSave': adminOnly(); return tigSave_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
