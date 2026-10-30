@@ -328,28 +328,65 @@ function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
     <p class="hint" style="margin:10px 0 0">Más fiókból (pl. <b>Egri Ervin E.V.</b>) vagy kézzel kiállított bizonylat? <button class="linkbtn" type="button" data-action="sz-manual" data-kind="${esc(kind)}" data-id="${esc(id)}" data-type="${esc(type||'szamla')}">✍️ Kézi rögzítés fájlfeltöltéssel</button></p>`,
     {submitLabel:'Hozzárendelés',submit:async fd=>{const no=String(fd.get('no')||'').trim();if(!no){toast('Add meg a számlaszámot.',true);return;}
       try{const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no,kind:fd.get('lkind')});closeModal();finApply(d);toast('Számla hozzárendelve: '+(d.invoice&&d.invoice.no));}catch(e){handleErr(e);}}});}
-/* Kézi bizonylat: nem az összekötött számlázz.hu-fiókból (pl. Egri Ervin E.V.) – adatok és PDF kézzel, a kifizetést is kézzel jelöljük */
-function szManualModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;const pre=szPreset(type||'szamla',kind,id);
-  openModal('Kézi bizonylat rögzítése – '+t.name,`<div class="fields">
-    ${ms('issuer','Kiállító',[['ev','Egri Ervin E.V.'],['kft','Lumos Motion Kft.']],'ev')}${ms('mkind','Típus',Object.entries(SZ_KIND),type||'szamla')}
-    ${mf('no','Bizonylatszám',{max:60,ph:'a számlán szereplő sorszám'})}${mf('buyer','Vevő',{v:t.buyer&&t.buyer.name||'',max:200})}
-    ${mf('date','Kelt',{type:'date',v:todayISO()})}${mf('due','Fizetési határidő',{type:'date',v:addDays(todayISO(),8)})}
-    ${mf('invNet','Nettó összeg (Ft)',{v:moneyFmt(pre.price||''),im:'numeric'})}${mf('invGross','Bruttó összeg (Ft)',{v:moneyFmt(pre.price||''),im:'numeric'})}
-    <div class="field full"><label class="bl-nocontract" style="display:inline-flex;gap:8px;align-items:center"><input type="checkbox" name="paid" id="m-mpaid"> Már kifizették</label></div>
-    ${mf('paidAt','Kifizetés dátuma',{type:'date',v:todayISO()})}
-    <div class="field full"><label for="m-mfile">Bizonylat (PDF vagy kép – max. 10 MB)</label><input class="inp" id="m-mfile" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic"></div>
-  </div><p class="hint" style="margin:0">A fájl az ügyfél Drive-mappájába kerül (Számlák / év). Mivel ez a bizonylat nem a bekötött számlázz.hu-fiókból jön, a kifizetést itt kell jelölnöd – később is, a bizonylatra kattintva.</p>`,
+/* Kézi bizonylat: nem az összekötött számlázz.hu-fiókból (pl. Egri Ervin E.V.) – csak a PDF-et kell feltölteni, az adatokat az app olvassa ki belőle */
+let PDFJS=null;
+function pdfLib(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/pdfjs/pdf.min.js';sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';ok(window.pdfjsLib);}catch(e){no(e);}};sc.onerror=()=>{PDFJS=null;no(new Error('A PDF-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));}
+const huDate=s=>{const m=/(\d{4})[.\-\/ ]\s*(\d{1,2})[.\-\/ ]\s*(\d{1,2})/.exec(String(s||''));return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:'';};
+const huNum=s=>{const t=String(s||'').replace(/Ft/i,'').replace(/[\s ]/g,'').replace(',','.');return /^-?\d+(\.\d+)?$/.test(t)?Math.round(Number(t)):null;};
+/* Számlázz.hu-s (és hasonló) számla-PDF szövegéből: szám, típus, kiállító, vevő, dátumok, összegek */
+async function invParsePdf(file){const lib=await pdfLib(),doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
+  const pg=await doc.getPage(1),W=pg.getViewport({scale:1}).width,tc=await pg.getTextContent();
+  const it=tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str.trim(),x:i.transform[4],y:i.transform[5]}));
+  const all=it.map(i=>i.s).join('\n'),find=re=>it.find(i=>re.test(i.s));
+  const right=(lab)=>{const l=find(lab);if(!l)return '';const r=it.filter(i=>Math.abs(i.y-l.y)<4&&i.x>l.x&&i!==l).sort((a,b)=>a.x-b.x);return r.map(i=>i.s).join(' ');};
+  const o={};
+  const no=/Sorsz[aá]m:?\s*([A-Za-z0-9][\w\-\/]*)/.exec(all);o.no=no?no[1]:'';
+  o.issuer=/92286571/.test(all)?'ev':/32701573/.test(all)?'kft':'';
+  const title=(it.find(i=>/^(DÍJBEKÉRŐ|ELŐLEGSZÁMLA|VÉGSZÁMLA|SZÁMLA|ELŐLEG SZÁMLA|PROFORMA)/.test(i.s))||{}).s||'';
+  const body=all.split(/Megnevez[eé]s/)[1]||'';
+  o.kind=/DÍJBEKÉRŐ|PROFORMA/.test(title)?'dijbekero':/ELŐLEG/.test(title)?'eloleg':/VÉGSZÁMLA/.test(title)?'vegszamla':/foglal[oó]|előleg/i.test(body.split(/Összesen/)[0]||'')?'eloleg':'szamla';
+  const v=find(/^VEV[OŐ]:?$/),hd=find(/^Megnevez[eé]s/);
+  if(v){const lines=[...new Set(it.filter(i=>i.x<W*0.45&&i.y<v.y-2&&(!hd||i.y>hd.y+2)).sort((a,b)=>b.y-a.y||a.x-b.x).map(i=>Math.round(i.y)))].map(y=>it.filter(i=>Math.round(i.y)===y&&i.x<W*0.45).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' '));
+    o.buyer=lines[0]||'';const tx=lines.find(l=>/Adósz[aá]m/i.test(l));o.buyerTax=tx?tx.replace(/.*?:\s*/,''):'';}
+  o.date=huDate(right(/^Kiállítás dátuma/i)||right(/^Kelt/i));o.fulfill=huDate(right(/^Teljesítés dátuma/i));o.due=huDate(right(/^Fizetési határidő/i));
+  const sum=it.filter(i=>/^Összesen/.test(i.s)).sort((a,b)=>b.y-a.y)[0];
+  if(sum){const nums=it.filter(i=>Math.abs(i.y-sum.y)<4&&i.x>sum.x).sort((a,b)=>a.x-b.x).map(i=>huNum(i.s)).filter(n=>n!==null);if(nums.length){o.invNet=nums[0];o.invGross=nums[nums.length-1];}}
+  const ft=it.filter(i=>/^[\d\s ]+(,\d+)?\s*Ft$/.test(i.s)).sort((a,b)=>a.y-b.y)[0];if(ft&&!o.invGross)o.invGross=huNum(ft.s);if(!o.invNet)o.invNet=o.invGross;
+  o.paid=/kiegyenlítve|pénzügyileg teljesítve|fizetve/i.test(all);
+  return o;}
+function szManualModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
+  openModal('Bizonylat feltöltése – '+t.name,`<div class="fields">
+    <div class="field full"><label for="m-mfile">Bizonylat PDF-ben (pl. az Egri Ervin E.V. számlázz.hu-s számlája)</label><input class="inp" id="m-mfile" type="file" accept=".pdf,application/pdf"></div>
+    <div class="field full" id="m-mparse"><p class="hint" style="margin:0">Töltsd fel a PDF-et – a számot, a típust, a vevőt, a dátumokat és az összegeket az app olvassa ki belőle.</p></div>
+    <div class="field full"><label class="bl-nocontract" style="display:inline-flex;gap:8px;align-items:center;width:auto"><input type="checkbox" name="paid" id="m-mpaid"> Már kifizették</label></div>
+    <details class="field full mp-fix" id="m-mfix" hidden><summary class="linkbtn">Adatok javítása</summary><div class="fields" style="margin-top:8px">
+      ${ms('issuer','Kiállító',[['ev','Egri Ervin E.V.'],['kft','Lumos Motion Kft.']],'ev')}${ms('mkind','Típus',Object.entries(SZ_KIND),type||'szamla')}
+      ${mf('no','Bizonylatszám',{max:60})}${mf('buyer','Vevő',{v:t.buyer&&t.buyer.name||'',max:200})}
+      ${mf('date','Kelt',{type:'date',v:todayISO()})}${mf('due','Fizetési határidő',{type:'date'})}
+      ${mf('invNet','Nettó összeg (Ft)',{im:'numeric'})}${mf('invGross','Bruttó összeg (Ft)',{im:'numeric'})}${mf('paidAt','Kifizetés dátuma',{type:'date',v:todayISO()})}</div></details>
+  </div><p class="hint" style="margin:0">A PDF az ügyfél Drive-mappájába kerül (Számlák / év). Mivel nem a bekötött számlázz.hu-fiókból jön, a kifizetést itt kell jelölnöd – később is, a bizonylatra kattintva.</p>`,
   {submitLabel:'Rögzítés',submit:async fd=>{const file=($('m-mfile')||{}).files&&$('m-mfile').files[0];
+    if(!file){toast('Válaszd ki a bizonylat PDF-jét.',true);return;}
     const a={[kind==='project'?'projectId':'incomeId']:id,no:String(fd.get('no')||'').trim(),kind:fd.get('mkind'),issuer:fd.get('issuer'),buyer:String(fd.get('buyer')||'').trim(),date:fd.get('date'),due:fd.get('due'),
       invNet:moneyVal(fd.get('invNet')),invGross:moneyVal(fd.get('invGross')),paid:!!fd.get('paid'),paidAt:fd.get('paidAt')};
-    if(!a.no){toast('Add meg a bizonylatszámot.',true);return;}if(!a.invNet){toast('Add meg a nettó összeget.',true);return;}
-    if(file&&file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
-    const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent=file?'Feltöltés…':'Mentés…';}
-    try{if(file){a.b64=await readB64(file);a.name=file.name;a.mime=file.type||'application/pdf';}
+    if(!a.no||!a.invNet){const d=$('m-mfix');if(d){d.hidden=false;d.open=true;}toast('Nem sikerült mindent kiolvasni – add meg a bizonylatszámot és az összeget.',true);return;}
+    if(file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+    const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
+    try{a.b64=await readB64(file);a.name=file.name;a.mime=file.type||'application/pdf';
       const d=await call('szManual',a);closeModal();finApply(d);toast('Bizonylat rögzítve: '+a.no);}
-    catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Rögzítés';}}}});
-  setTimeout(()=>{const iss=$('m-issuer'),n=$('m-invNet'),g=$('m-invGross');const upd=()=>{if(!n||!g)return;const v=moneyVal(n.value)||0;g.value=moneyFmt(iss&&iss.value==='kft'?Math.round(v*1.27):v);};
-    if(n)n.addEventListener('input',upd);if(iss)iss.addEventListener('change',upd);upd();},30);}
+    catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Rögzítés';}}}});}
+document.addEventListener('change',async e=>{if(e.target.id!=='m-mfile')return;const f=e.target.files&&e.target.files[0],box=$('m-mparse');if(!f||!box)return;
+  box.innerHTML='<p class="hint" style="margin:0"><span class="spin" style="width:11px;height:11px;vertical-align:-1px"></span> A bizonylat beolvasása…</p>';
+  let o={};try{o=await invParsePdf(f);}catch(err){o={};}
+  const set=(id,v)=>{const x=$(id);if(x&&v!==undefined&&v!==null&&v!=='')x.value=v;};
+  set('m-no',o.no);set('m-mkind',o.kind);set('m-issuer',o.issuer);set('m-buyer',o.buyer);set('m-date',o.date);set('m-due',o.due);if(o.invNet)set('m-invNet',moneyFmt(o.invNet));if(o.invGross)set('m-invGross',moneyFmt(o.invGross));
+  if(o.paid){const c=$('m-mpaid');if(c)c.checked=true;}
+  const ok=o.no&&o.invNet,fix=$('m-mfix');if(fix){fix.hidden=false;fix.open=!ok;}
+  if(!$('m-mparse'))return;
+  $('m-mparse').innerHTML=ok?`<div class="mp-sum"><div><span>Bizonylat</span><b>${esc(SZ_KIND[o.kind]||'Számla')} · ${esc(o.no)}</b></div><div><span>Kiállító</span><b>${o.issuer==='kft'?'Lumos Motion Kft.':o.issuer==='ev'?'Egri Ervin E.V.':'—'}</b></div>
+      <div><span>Vevő</span><b>${esc(o.buyer||'—')}</b></div><div><span>Kelt · határidő</span><b>${esc((o.date||'—').replace(/-/g,'.'))} · ${esc((o.due||'—').replace(/-/g,'.'))}</b></div>
+      <div><span>Nettó / bruttó</span><b>${ftFmt(o.invNet)} / ${ftFmt(o.invGross)}</b></div>${o.paid?'<div><span>Fizetés</span><b class="ok-txt">a számlán kiegyenlítettként szerepel</b></div>':''}</div>`
+    :`<p class="hint bad-txt" style="margin:0">Ebből a fájlból nem sikerült minden adatot kiolvasni – töltsd ki lent a hiányzókat.</p>`;});
 ACT['sz-manual']=b=>szManualModal(b.dataset.kind,b.dataset.id,b.dataset.type);
 ACT['sz-mpaid']=async b=>{try{const d=await call('szManual',{id:b.dataset.id,paid:b.dataset.paid==='1'});closeModal();finApply(d);toast(b.dataset.paid==='1'?'Kifizetettnek jelölve':'Kifizetés visszavonva');}catch(e){handleErr(e);}};
 function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
