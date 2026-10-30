@@ -901,6 +901,11 @@ function viewSettings(){
   const log=S.log.slice(0,150).map(l=>`<div class="logrow"><span class="when">${esc(l.at)}</span><span><b>${esc(l.who)}</b> · ${esc(l.action)}${l.subject?': '+esc(l.subject):''}${l.details?`<br><span class="muted">${esc(l.details)}</span>`:''}</span></div>`).join('');
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Felhasználók, napló és a háttérben futó táblázat</p></div></div>
     ${mailPanel}
+    <div class="panel db-panel"><h3>🗄️ Adatbázis <span class="aside">${S.dbInfo?`<span class="statuspill ${S.dbInfo.mode==='neon'?'p-ok':'p-mute'}">${S.dbInfo.mode==='neon'?'Neon adatbázis':'Google-táblázat'}</span>`:''}</span></h3>
+      <p class="hint" style="margin:6px 0 10px">Az app adatai a gyors Neon adatbázisban vagy a Google-táblázatban lehetnek. Neon módban a táblázat éjszakánként biztonsági másolatot kap, és egy kattintással vissza lehet állni rá.</p>
+      ${S.dbInfo&&S.dbInfo.msg?`<p class="hint" style="margin:0 0 10px">${esc(S.dbInfo.msg)}</p>`:''}
+      <div class="btns"><button class="btn outline small" type="button" data-action="db-ping">🔌 Kapcsolat ellenőrzése</button>
+        ${S.dbInfo&&S.dbInfo.mode==='neon'?`<button class="btn outline small" type="button" data-action="db-backup">💾 Mentés a táblázatba most</button><button class="btn outline small" type="button" data-action="db-mode" data-mode="sheet">↩️ Vissza a Google-táblázatra</button>`:`<button class="btn primary small" type="button" data-action="db-mode" data-mode="neon">🚀 Átköltöztetés a Neon adatbázisba</button>`}</div></div>
     <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>

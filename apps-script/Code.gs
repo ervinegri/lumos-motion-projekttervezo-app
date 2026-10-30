@@ -135,15 +135,183 @@ function api_(raw) {
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
+    if (DB_) dbFlush_();
   } catch (err) {
+    try { if (DB_) { Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; }); dbFlush_(); } } catch (e2) { }   // hibánál a félkész módosításokat eldobjuk, csak a napló megy
     out = { ok: false, error: String((err && err.message) || err) };
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
+/* ===================== ADATBÁZIS (Neon Postgres) =====================
+   Ha a DB_MODE szkripttulajdonság „neon” és a NEON_URL be van állítva, a munkalapok helyett a Neon adatbázist használjuk.
+   A program többi része ugyanúgy „munkalapokkal” dolgozik: ezek itt memóriabeli másolatok (NSheet_), amelyeket egyetlen
+   lekérdezés tölt be, és a dbFlush_() egyetlen tranzakcióval ír vissza. Zárolás alatt mindig friss adatból dolgozunk. */
+const DB_MODE_PROPERTY = 'DB_MODE', NEON_URL_PROPERTY = 'NEON_URL';
+let DB_ = null;   // { url, sheets: {tab: NSheet_}, loaded: bool }
+function dbOn_() {
+  if (DB_) return true;
+  try {
+    const P = PropertiesService.getScriptProperties();
+    if (P.getProperty(DB_MODE_PROPERTY) !== 'neon') return false;
+    const url = P.getProperty(NEON_URL_PROPERTY); if (!url) return false;
+    DB_ = { url: url, sheets: {}, loaded: false };
+    return true;
+  } catch (e) { return false; }
+}
+function neonUrl_() { return PropertiesService.getScriptProperties().getProperty(NEON_URL_PROPERTY) || ''; }
+/** Neon SQL HTTP-n keresztül (a hivatalos „serverless driver” végpontja). list: [{query, params}] → eredmények. */
+function neonSql_(list, url) {
+  url = url || (DB_ && DB_.url) || neonUrl_();
+  const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(String(url || ''));
+  if (!m) throw new Error('A NEON_URL nem érvényes Postgres-cím.');
+  const single = list.length === 1;
+  const res = UrlFetchApp.fetch('https://' + m[1] + '/sql', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { 'Neon-Connection-String': url, 'Neon-Raw-Text-Output': 'true', 'Neon-Array-Mode': 'true' },
+    payload: JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) })
+  });
+  const code = res.getResponseCode(), txt = res.getContentText();
+  if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
+  const j = JSON.parse(txt);
+  return single ? [j] : (j.results || []);
+}
+function dbSchema_(url) {
+  neonSql_([
+    { query: 'CREATE TABLE IF NOT EXISTS lpm_sheet (tab text PRIMARY KEY, rows jsonb NOT NULL, ver bigint NOT NULL DEFAULT 0, updated_at timestamptz NOT NULL DEFAULT now())' },
+    { query: 'CREATE TABLE IF NOT EXISTS lpm_log (id bigserial PRIMARY KEY, at text, who text, role text, action text, subject text, details text)' }
+  ], url);
+}
+/* Memóriabeli munkalap: a Google Sheets API általunk használt részét valósítja meg */
+function NSheet_(tab, rows) { this.tab = tab; this.v = rows || []; this.cols = this.v.reduce((m, r) => Math.max(m, r.length), 0); this.dirty = false; this.isNew = false; }
+NSheet_.prototype.getName = function () { return this.tab; };
+NSheet_.prototype.getLastRow = function () { for (let i = this.v.length - 1; i >= 0; i--) { const r = this.v[i] || []; if (r.some(x => x !== '' && x !== null && x !== undefined)) return i + 1; } return 0; };
+NSheet_.prototype.getMaxRows = function () { return Math.max(this.v.length, 1); };
+NSheet_.prototype.getMaxColumns = function () { return Math.max(this.cols, 1); };
+NSheet_.prototype.insertColumnsAfter = function (c, n) { this.cols = Math.max(this.cols, c + n); this.dirty = true; return this; };
+NSheet_.prototype.deleteColumns = function (c, n) { this.cols = Math.min(this.cols, c - 1); this.v.forEach(r => { if (r.length > c - 1) r.length = c - 1; }); this.dirty = true; return this; };
+NSheet_.prototype.setFrozenRows = function () { return this; };
+NSheet_.prototype.protect = function () { const o = { setDescription: () => o, setWarningOnly: () => o }; return o; };
+NSheet_.prototype.deleteRow = function (r) { this.v.splice(r - 1, 1); this.dirty = true; return this; };
+NSheet_.prototype.getRange = function (r, c, nr, nc) { return new NRange_(this, r, c, nr || 1, nc || 1); };
+NSheet_.prototype.getDataRange = function () { return new NRange_(this, 1, 1, Math.max(1, this.getLastRow()), Math.max(1, this.cols)); };
+function NRange_(sh, r, c, nr, nc) { this.sh = sh; this.r = r; this.c = c; this.nr = nr; this.nc = nc; }
+NRange_.prototype.getValues = function () { const out = []; for (let i = 0; i < this.nr; i++) { const row = this.sh.v[this.r - 1 + i] || [], o = []; for (let j = 0; j < this.nc; j++) { const x = row[this.c - 1 + j]; o.push(x === null || x === undefined ? '' : x); } out.push(o); } return out; };
+NRange_.prototype.getDisplayValues = function () { return this.getValues().map(r => r.map(x => x === true ? 'TRUE' : x === false ? 'FALSE' : String(x))); };
+NRange_.prototype.getValue = function () { return this.getValues()[0][0]; };
+NRange_.prototype.setValues = function (vals) {
+  const sh = this.sh;
+  for (let i = 0; i < vals.length; i++) { const ri = this.r - 1 + i; while (sh.v.length <= ri) sh.v.push([]); const row = sh.v[ri];
+    for (let j = 0; j < vals[i].length; j++) { const ci = this.c - 1 + j; while (row.length < ci) row.push(''); row[ci] = vals[i][j] instanceof Date ? Utilities.formatDate(vals[i][j], SHEET_TZ, 'yyyy-MM-dd HH:mm:ss') : vals[i][j]; } }
+  sh.cols = Math.max(sh.cols, this.c - 1 + (vals[0] ? vals[0].length : 0)); sh.dirty = true; return this; };
+NRange_.prototype.setValue = function (x) { return this.setValues([[x]]); };
+NRange_.prototype.clearContent = function () { const blank = []; for (let i = 0; i < this.nr; i++) { const r = []; for (let j = 0; j < this.nc; j++) r.push(''); blank.push(r); } return this.setValues(blank); };
+['setNumberFormat', 'setFontWeight', 'setBackground'].forEach(k => { NRange_.prototype[k] = function () { return this; }; });
+/* Memóriabeli „táblázat” */
+const NSS_ = {
+  getSheetByName: function (name) { dbLoad_(); return DB_.sheets[name] || null; },
+  insertSheet: function (name) { dbLoad_(); const s = new NSheet_(name, []); s.isNew = true; s.dirty = true; DB_.sheets[name] = s; return s; },
+  getSheets: function () { dbLoad_(); return Object.keys(DB_.sheets).map(k => DB_.sheets[k]); },
+  deleteSheet: function () { },
+  getId: function () { return SPREADSHEET_ID; },
+  getUrl: function () { return 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit'; }
+};
+/** Betöltés (vagy frissítés zárolás után): a meglévő munkalap-objektumokat helyben frissítjük, hogy a korábban átadott hivatkozások is friss adatot lássanak. */
+function dbLoad_(force) {
+  if (DB_.loaded && !force) return;
+  const r = neonSql_([{ query: 'SELECT tab, rows::text FROM lpm_sheet' }])[0];
+  const seen = {};
+  (r.rows || []).forEach(row => { const tab = row[0], rows = JSON.parse(row[1] || '[]'); seen[tab] = 1;
+    if (DB_.sheets[tab]) { const s = DB_.sheets[tab]; s.v = rows; s.cols = rows.reduce((m, x) => Math.max(m, x.length), 0); s.dirty = false; s.isNew = false; }
+    else DB_.sheets[tab] = new NSheet_(tab, rows); });
+  Object.keys(DB_.sheets).forEach(tab => { if (!seen[tab] && !DB_.sheets[tab].dirty) { DB_.sheets[tab].v = []; DB_.sheets[tab].cols = 0; } });
+  DB_.loaded = true;
+}
+/** A módosított munkalapok visszaírása egy tranzakcióban. Munkalap-módban a Google-táblázat flush-a. */
+function dbFlush_() {
+  if (!dbOn_()) { SpreadsheetApp.flush(); return; }
+  const dirty = Object.keys(DB_.sheets).map(k => DB_.sheets[k]).filter(s => s.dirty), logs = DB_.pendingLog || [];
+  if (!dirty.length && !logs.length) return;
+  DB_.pendingLog = [];
+  neonSql_(logs.map(r => ({ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) VALUES ($1,$2,$3,$4,$5,$6)', params: r })).concat(dirty.map(s => { const n = s.getLastRow(), rows = s.v.slice(0, n).map(r => (r || []).slice(0, Math.max(s.cols, 1)).map(x => x === undefined || x === null ? '' : x));
+    return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now()', params: [s.tab, JSON.stringify(rows)] }; })));
+  dirty.forEach(s => { s.dirty = false; s.isNew = false; });
+}
+/* Napló az adatbázisban (csak hozzáfűzés; a lista az utolsó 300 bejegyzés) */
+function dbLog_(row) { (DB_.pendingLog = DB_.pendingLog || []).push(row.map(x => String(x == null ? '' : x))); }   // a napló a következő mentéssel együtt megy (a kérés végén mindenképp kiírjuk)
+function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, action, subject, details FROM lpm_log ORDER BY id DESC LIMIT 300' }])[0]; return (r.rows || []).map(x => ({ at: x[0], who: x[1], role: x[2], action: x[3], subject: x[4], details: x[5] })); }
+
+/** Kapcsolat-teszt (ügyvezető): elérhető-e az adatbázis, és mennyi idő egy lekérdezés. */
+function dbPing_() {
+  const url = neonUrl_(); if (!url) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
+  const t0 = Date.now(); dbSchema_(url); const t1 = Date.now();
+  const r = neonSql_([{ query: 'SELECT count(*)::text, coalesce(max(updated_at)::text, \'\') FROM lpm_sheet' }], url)[0];
+  return { ok: true, schemaMs: t1 - t0, queryMs: Date.now() - t1, tables: Number((r.rows[0] || [])[0] || 0), lastWrite: (r.rows[0] || [])[1] || '', mode: PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) || 'sheet' };
+}
+/** Átköltöztetés: a Google-táblázat összes munkalapja (és a napló) az adatbázisba. Újra futtatható (felülír). */
+function dbMigrate_(u) {
+  const url = neonUrl_(); if (!url) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
+  dbSchema_(url);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID), out = {};
+  const conv = v => v instanceof Date ? Utilities.formatDate(v, SHEET_TZ, (v.getHours() || v.getMinutes() || v.getSeconds()) ? 'yyyy-MM-dd HH:mm:ss' : 'yyyy-MM-dd') : v;
+  return withLock_(() => {
+    const qs = [];
+    Object.keys(TABLES).forEach(k => {
+      const sh = ss.getSheetByName(TABLES[k].tab); if (!sh) return;
+      const n = sh.getLastRow(), nc = Math.max(sh.getLastColumn(), TABLES[k].cols.length);
+      const rows = n ? sh.getRange(1, 1, n, nc).getValues().map(r => r.map(conv)) : [];
+      out[TABLES[k].tab] = Math.max(0, rows.length - 1);
+      qs.push({ query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now()', params: [TABLES[k].tab, JSON.stringify(rows)] });
+    });
+    for (let i = 0; i < qs.length; i += 4) neonSql_(qs.slice(i, i + 4), url);
+    const lg = ss.getSheetByName(LOG_TAB);
+    if (lg && lg.getLastRow() > 1) {
+      const L = lg.getRange(2, 1, lg.getLastRow() - 1, LOG_HEADERS.length).getDisplayValues();
+      neonSql_([{ query: 'TRUNCATE lpm_log' }], url);
+      for (let i = 0; i < L.length; i += 2000) neonSql_([{ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) SELECT x->>0, x->>1, x->>2, x->>3, x->>4, x->>5 FROM jsonb_array_elements($1::jsonb) AS x', params: [JSON.stringify(L.slice(i, i + 2000))] }], url);
+      out[LOG_TAB] = L.length;
+    }
+    if (u) logEvent_(u, 'Adatbázis', 'Átköltöztetés', JSON.stringify(out));
+    return { ok: true, copied: out };
+  });
+}
+/** Átkapcsolás: 'neon' vagy 'sheet'. Neonra kapcsoláskor előtte friss átköltöztetés (ha a felület kéri). */
+function dbSetMode_(u, a) {
+  const mode = a && a.mode === 'neon' ? 'neon' : 'sheet';
+  if (mode === 'neon' && !neonUrl_()) throw new Error('Nincs beállítva a NEON_URL szkripttulajdonság.');
+  let mig = null;
+  if (mode === 'neon' && a.migrate) mig = dbMigrate_(u);
+  if (mode === 'sheet' && dbOn_() && a.backup !== false) dbBackup_();   // visszakapcsoláskor a friss adatok a táblázatba
+  PropertiesService.getScriptProperties().setProperty(DB_MODE_PROPERTY, mode);
+  try { if (mode === 'neon') installBackupTrigger(); } catch (e) { Logger.log('Mentési időzítő: ' + e); }
+  dataBump_();
+  return { mode: mode, migrated: mig };
+}
+/** Biztonsági mentés: az adatbázis tartalma vissza a Google-táblázatba (éjszakánként és visszakapcsoláskor). */
+function dbBackup_() {
+  const url = neonUrl_(); if (!url) return { ok: false };
+  const r = neonSql_([{ query: 'SELECT tab, rows::text FROM lpm_sheet' }], url)[0], ss = SpreadsheetApp.openById(SPREADSHEET_ID), out = {};
+  (r.rows || []).forEach(row => {
+    const tab = row[0], rows = JSON.parse(row[1] || '[]'); if (!rows.length) return;
+    let sh = ss.getSheetByName(tab); if (!sh) sh = ss.insertSheet(tab);
+    const nc = rows.reduce((m, x) => Math.max(m, x.length), 1), data = rows.map(x => { const o = x.slice(0, nc); while (o.length < nc) o.push(''); return o; });
+    if (sh.getMaxColumns() < nc) sh.insertColumnsAfter(sh.getMaxColumns(), nc - sh.getMaxColumns());
+    const last = sh.getLastRow(); if (last > data.length) sh.getRange(data.length + 1, 1, last - data.length, sh.getMaxColumns()).clearContent();
+    const rg = sh.getRange(1, 1, data.length, nc); rg.setNumberFormat('@'); rg.setValues(data); out[tab] = data.length - 1;
+  });
+  SpreadsheetApp.flush();
+  return { ok: true, tables: out, at: now_() };
+}
+/* Éjszakai mentés (időzített futás, 2–3 óra között) */
+function dbNightlyBackup() { if (PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) === 'neon') dbBackup_(); }
+function installBackupTrigger() {
+  if (ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'dbNightlyBackup')) return;
+  ScriptApp.newTrigger('dbNightlyBackup').timeBased().atHour(2).everyDays(1).inTimezone(SHEET_TZ).create();
+}
+
 /* ===================== TÁBLÁZAT-RÉTEG ===================== */
 let SS_CACHE_ = null;
-function ss_() { return SS_CACHE_ || (SS_CACHE_ = SpreadsheetApp.openById(SPREADSHEET_ID)); }
+function ss_() { if (dbOn_()) return NSS_; return SS_CACHE_ || (SS_CACHE_ = SpreadsheetApp.openById(SPREADSHEET_ID)); }
 
 const SHEET_MEMO_ = {};   // egy futáson belül a munkalapot és a fejléc-ellenőrzést nem ismételjük (gyorsabb mentés)
 function sheetFor_(key) {
@@ -285,7 +453,11 @@ function int_(v, min, max, def) {
 function withLock_(fn) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
-  try { return fn(); } finally { lock.releaseLock(); }
+  try {
+    if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
+    const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
+    try { const r = fn(); dbFlush_(); return r; } catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; }); throw e; } finally { if (outer) DB_.inLock = false; }
+  } finally { lock.releaseLock(); }
 }
 
 /* ===================== ADATOK BETÖLTÉSE ===================== */
@@ -574,7 +746,7 @@ function finalizeCrew_(u, a) {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
     q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sigs: sigs });
     if (p.calEventId && !q.calEventId) q.calEventId = p.calEventId;
-    putRow_('projects', sh, q, r2); SpreadsheetApp.flush();
+    putRow_('projects', sh, q, r2); dbFlush_();
     return q;
   });
   logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : ''));
@@ -660,7 +832,7 @@ function finUpsert_(u, a) {
   withLock_(() => {
     const sh = sheetFor_(table);
     rows.forEach(r => putRow_(table, sh, r, findRow_(sh, r.id)));
-    SpreadsheetApp.flush();
+    dbFlush_();
   });
   logEvent_(u, 'Bevétel és kiadás', rows.map(r => r.name || r.date).join(', '), a.table + ' mentve');   // összeg nem kerül a naplóba
   return finPart_([a.table]);
@@ -668,14 +840,14 @@ function finUpsert_(u, a) {
 function finDelete_(u, a) {
   const table = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan' }[a && a.table];
   if (!table) throw new Error('Ismeretlen táblázat.');
-  withLock_(() => { const sh = sheetFor_(table), row = findRow_(sh, str_(a.id, 64)); if (row) sh.deleteRow(row); SpreadsheetApp.flush(); });
+  withLock_(() => { const sh = sheetFor_(table), row = findRow_(sh, str_(a.id, 64)); if (row) sh.deleteRow(row); dbFlush_(); });
   logEvent_(u, 'Bevétel és kiadás', '', a.table + ' tétel törölve');
   return finPart_([a.table]);
 }
 /* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
 function finSetPay_(u, a) {
   const st = PAY_STATUSES.indexOf(a && a.payStatus) >= 0 ? a.payStatus : '';
-  return withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); SpreadsheetApp.flush(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
+  return withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); dbFlush_(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
 }
 function writeProjectPay_(projectId, st) {
   const sh = sheetFor_('projects'), row = findRow_(sh, projectId);
@@ -787,7 +959,7 @@ function finImport_(u, a) {
     s.appFromMonth = fromMonth; s.importedAt = now_(); s.importedFrom = url;
     s.carries = {}; months.forEach(m => { if (m.carry) s.carries[m.month] = [m.carry.rezsi, m.carry.marketing]; });
     PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(s));
-    SpreadsheetApp.flush();
+    dbFlush_();
   });
   // ellenőrzés: a régi táblázat havi áthozatai a mi számításunkkal
   const check = months.filter(m => m.carry).map(m => ({ month: m.month, rezsi: m.carry.rezsi, marketing: m.carry.marketing }));
@@ -830,7 +1002,7 @@ function budgetMutate_(u, a, fn) {
     if (!row) throw new Error('A projekt azonosítója érvénytelen.');
     const p = readRow_('projects', sh, row);
     fn(p); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
-    putRow_('projects', sh, p, row); SpreadsheetApp.flush();
+    putRow_('projects', sh, p, row); dbFlush_();
     return projectView_(fullProject_(p), u);
   });
 }
@@ -989,7 +1161,7 @@ function saveProject_(u, a) {
     if (renamed || sig(oldEq, r => r.itemId + ':' + (r.crewId || '') + ':' + r.qty) !== sig(equipment, e => e.itemId + ':' + e.crewId + ':' + e.qty))
       rewriteAssign_('eqAssign', r => r.projectId !== id,
         equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name, crewId: e.crewId, crewName: e.crewId ? crewMap[e.crewId].name : '' })));
-    SpreadsheetApp.flush();
+    dbFlush_();
     logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
@@ -1024,7 +1196,7 @@ function deleteProject_(u, a) {
     sh.deleteRow(row);
     rewriteAssign_('crewAssign', r => r.projectId !== id, []);
     rewriteAssign_('eqAssign', r => r.projectId !== id, []);
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, 'Projekt törölve', old.name, old.date ? 'Dátum: ' + old.date : '');
     return { deleted: true, id: id };
   });
@@ -1490,7 +1662,7 @@ function szInvoice_(u, a) {
     items: JSON.stringify(items.map(x => ({ name: x.name, qty: x.qty, unit: x.unit, price: x.price, vat: x.vat }))), ref: dijbekeroNo || elolegNo };
   if (open !== null && isFinite(open)) row.invPaid = Math.max(0, row.invGross - Math.round(open));
   if (a.paid && !row.invPaid) { row.invPaid = row.invGross; row.paidAt = today; }
-  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); SpreadsheetApp.flush(); });
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
   return Object.assign(finData_(), { invoice: row });
 }
@@ -1503,13 +1675,13 @@ function szLink_(u, a) {
   const q = szQuery_(no, false);
   const row = { id: Utilities.getUuid(), no: q.no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
     invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '' };
-  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); SpreadsheetApp.flush(); });
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_([tg]); dbFlush_(); });
   logEvent_(u, 'Számlázás', q.buyer, 'Számla hozzárendelve: ' + q.no);
   return Object.assign(finData_(), { invoice: row });
 }
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
-  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
   return finData_();
 }
 
@@ -1543,7 +1715,7 @@ function szSync_(u, a) {
     created.forEach(x => putRow_('finInvoice', sh, x, 0));
     szApplyPay_(todo.map(x => ({ projectId: x.projectId, incomeId: x.incomeId })));
     const s = szSettings_(); s.lastSync = now_(); szStore_(s);
-    SpreadsheetApp.flush();
+    dbFlush_();
   });
   if (changed.length) logEvent_(u, 'Számlázás', '', 'Kifizetés frissítve: ' + changed.map(x => x.no).join(', '));
   return Object.assign(finData_(), { synced: { checked: todo.length, changed: changed.map(x => ({ no: x.no, buyer: x.buyer, paid: x.invPaid, gross: x.invGross })), errors: errors } });
@@ -1585,7 +1757,7 @@ function szIpn_(e) {
         db.invPaid = Number(db.invGross) || q.invPaid; db.paidAt = q.paidAt || today_(); db.checkedAt = now_(); db.ref = no;
         putRow_('finInvoice', sh, db, findRow_(sh, db.id));
         szApplyPay_([{ projectId: db.projectId, incomeId: db.incomeId }]);
-        SpreadsheetApp.flush();
+        dbFlush_();
         logEvent_(sys, 'Számlázás', db.buyer, 'Díjbekérő kifizetve: ' + dbNo + ' → foglalószámla ' + no);
         return;
       }
@@ -1604,7 +1776,7 @@ function szIpn_(e) {
       r.checkedAt = now_();
       putRow_('finInvoice', sh, r, findRow_(sh, r.id));
       szApplyPay_([{ projectId: r.projectId, incomeId: r.incomeId }]);
-      SpreadsheetApp.flush();
+      dbFlush_();
       logEvent_(sys, 'Számlázás', r.buyer, 'Kifizetési értesítés: ' + no + ' – kifizetve ' + r.invPaid + ' / ' + r.invGross + ' Ft');
     });
   } catch (err) { Logger.log('IPN hiba: ' + err); }
@@ -1637,7 +1809,7 @@ function billSave_(u, a) {
     if (r.contractStatus === 'alairva' && !r.signedAt) r.signedAt = today_();
     r.updatedAt = now_(); r.updatedBy = u.name;
     putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id));
-    SpreadsheetApp.flush();
+    dbFlush_();
   });
   logEvent_(u, 'Szerződés és számlázás', (readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), pid)) || {}).name || pid, 'módosítva');
   return finPart_(['billing']);
@@ -1661,7 +1833,7 @@ function billUpload_(u, a) {
     if (BILL_CONTRACT.indexOf(a.contractStatus) > 0) r.contractStatus = a.contractStatus; else if (!r.contractStatus) r.contractStatus = 'alairva';
     if (r.contractStatus === 'alairva' && !r.signedAt) r.signedAt = today_();
     putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id));
-    SpreadsheetApp.flush();
+    dbFlush_();
   });
   logEvent_(u, 'Szerződés feltöltve', name, '');
   return finPart_(['billing']);
@@ -1696,7 +1868,7 @@ function fwSave_(u, a) {
     if (a.validTo !== undefined) r.validTo = iso_(a.validTo);
     if (a.note !== undefined) r.note = str_(a.note, 500);
     putRow_('finFramework', sh, r, old ? findRow_(sh, old.id) : 0);
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, 'Keretszerződés', client, old ? 'módosítva' : 'felvéve');
     return finPart_(['frameworks']);
   });
@@ -1795,7 +1967,7 @@ function tigCreate_(u, a) {
   return { url: f.getUrl(), name: name, total: total };
 }
 function fwDelete_(u, a) {
-  withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
+  withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
   return finPart_(['frameworks']);
 }
 
@@ -1933,7 +2105,7 @@ function saveCrew_(u, a) {
     c.updatedAt = now_();
     putRow_('crew', sh, c, row);
     if (old && old.name !== c.name) rewriteAssign_('crewAssign', () => true, [], r => { if (r.crewId === id) r.crewName = c.name; });
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, old ? 'Munkatárs módosítva' : 'Munkatárs felvéve', c.name, c.roles.join(', '));
     return c;
   });
@@ -1947,7 +2119,7 @@ function deleteCrew_(u, a) {
     const old = readRow_('crew', sh, row);
     sh.deleteRow(row);
     rewriteAssign_('crewAssign', r => r.crewId !== id, []);
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, 'Munkatárs törölve', old.name, '');
     return { deleted: true, id: id };
   });
@@ -1975,7 +2147,7 @@ function saveItem_(u, a) {
     it.updatedAt = now_();
     putRow_('inventory', sh, it, row);
     if (old && old.name !== it.name) rewriteAssign_('eqAssign', () => true, [], r => { if (r.itemId === id) r.itemName = it.name; });
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, old ? 'Eszköz módosítva' : 'Eszköz felvéve', it.name, it.qty + ' db · ' + CONDITION_LABELS[it.condition]);
     if (u.role !== 'admin') return Object.assign({}, it, { value: null, hasValue: it.value != null && it.value !== '' });
     return it;
@@ -2003,7 +2175,7 @@ function penMutate_(projectId, fn) {
     const p = readRow_('projects', sh, row), list = parsePen_(p.penalties), res = fn(list, p);
     const col = TABLES.projects.cols.findIndex(c => c[0] === 'penalties') + 1;
     sh.getRange(row, col).setNumberFormat('@').setValue(list.length ? JSON.stringify(list) : '');   // a módosítás idejét szándékosan nem írjuk át
-    SpreadsheetApp.flush();
+    dbFlush_();
     return { list: list, p: p, res: res };
   });
 }
@@ -2123,7 +2295,7 @@ function saveOfficeRent_(u, a) {
     const sh = sheetFor_('officeRent'), id = crewId + '|' + month, row = findRow_(sh, id);
     if (clear) { if (row) sh.deleteRow(row); }
     else putRow_('officeRent', sh, { id: id, crewId: crewId, crewName: c.name, month: month, amount: amount, updatedAt: now_(), updatedBy: u.name }, row);
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, 'Irodabérlet', c.name, month + ': ' + (clear ? 'törölve' : amount + ' Ft'));
     return readAll_('officeRent');
   });
@@ -2155,7 +2327,7 @@ function saveClient_(u, a) {
         vals.forEach(v => { if (String(v[0] || '').trim().toLowerCase() === from) { v[0] = c.name; renamed++; } });
         if (renamed) rg.setValues(vals); }
     }
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, old ? 'Ügyfél módosítva' : 'Ügyfél felvéve', c.name, renamed ? renamed + ' projekt átnevezve' : '');
     return Object.assign({}, c, { renamed: renamed });
   });
@@ -2166,7 +2338,7 @@ function deleteClient_(u, a) {
     const sh = sheetFor_('clients'), row = findRow_(sh, id);
     if (!row) return { deleted: false, id: id };
     const old = readRow_('clients', sh, row);
-    sh.deleteRow(row); SpreadsheetApp.flush();
+    sh.deleteRow(row); dbFlush_();
     logEvent_(u, 'Ügyfél törölve', old.name, '');
     return { deleted: true, id: id };
   });
@@ -2180,7 +2352,7 @@ function deleteItem_(u, a) {
     const old = readRow_('inventory', sh, row);
     sh.deleteRow(row);
     rewriteAssign_('eqAssign', r => r.itemId !== id, []);
-    SpreadsheetApp.flush();
+    dbFlush_();
     logEvent_(u, 'Eszköz törölve', old.name, '');
     return { deleted: true, id: id };
   });
@@ -2305,6 +2477,7 @@ function logSheet_() {
   return (SHEET_MEMO_.__log = sh);
 }
 function logEvent_(u, action, subject, details) {
+  if (dbOn_()) { try { dbLog_([now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '') : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 3000))]); } catch (e) { Logger.log('Napló hiba: ' + e); } return; }
   try {
     const sh = logSheet_();
     const rg = sh.getRange(sh.getLastRow() + 1, 1, 1, LOG_HEADERS.length);
@@ -2313,6 +2486,7 @@ function logEvent_(u, action, subject, details) {
   } catch (e) { Logger.log('Napló hiba: ' + e); }
 }
 function getLog_() {
+  if (dbOn_()) return dbGetLog_().map(x => Object.assign(x, { subject: String(x.subject).replace(/^'/, ''), details: String(x.details).replace(/^'/, '') }));
   const sh = logSheet_(), n = sh.getLastRow();
   if (n < 2) return [];
   const from = Math.max(2, n - 299);
@@ -2587,9 +2761,10 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
+  if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
   return res;
 }
@@ -2632,6 +2807,10 @@ function rpcInner_(token, name, arg) {
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
+    case 'dbPing': adminOnly(); return dbPing_();
+    case 'dbMigrate': adminOnly(); return dbMigrate_(u);
+    case 'dbSetMode': adminOnly(); return dbSetMode_(u, arg);
+    case 'dbBackup': adminOnly(); return dbBackup_();
     case 'clientDocs': adminOnly(); return clientDocs_(arg);
     case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
