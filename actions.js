@@ -843,7 +843,7 @@ const ACT={
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
-  stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a ⚙️ Projekt kezelése alatt.',true);return;}
+  stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
     const v=b.dataset.v,go=()=>{
       if(v==='leadva'&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
@@ -862,7 +862,9 @@ const ACT={
     const ORD=['egyeztetes','tervezes','helyszin','utomunka'],ix=ORD.indexOf(v);
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
-      setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});};
+      setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});
+      if(on){const cur=S.draft.status||'egyeztetes',ids=[...document.querySelectorAll('.stages [data-action="stage"]')].map(x=>x.dataset.v),i=ids.indexOf(v);   // kipipált lépés → a következő lépésre lépünk (ha még ennél tartott vagy korábban)
+        const ci=ids.indexOf(cur);if(i>=0&&i+1<ids.length&&ci<=i)setTimeout(()=>ACT.stage({dataset:{v:ids[i+1]}}),0);}};
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'){crewFinalPopup(d);return;}   // előbb a stáb véglegesítése
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='utomunka'&&!set.has('helyszin')){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
