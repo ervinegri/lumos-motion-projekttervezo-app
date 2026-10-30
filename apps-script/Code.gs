@@ -1043,7 +1043,7 @@ function decideBudgetChange_(u, a) {
 /* ===================== PROJEKTEK ===================== */
 /** Extra szolgáltatások (a szerződött összegen felül, nettó): [{id, name, amount}] */
 function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
-  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0) })).filter(x => x.name || x.amount); }
+  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && x.kind === 'le' ? 'le' : '' })).filter(x => x.name || x.amount); }
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64), mutationId = str_(a.mutationId, 64);

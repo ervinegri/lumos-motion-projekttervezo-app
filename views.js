@@ -356,13 +356,17 @@ function budgetMissing(p){if(!isAdmin()||!isOpen(p))return '';const m=[];if(p.pr
 /* Nem fizetős projekt: a büdzsé 0 Ft (a „Nem fizetős” pipával állítható) */
 /* Extra szolgáltatások: a szerződött érték (projectValue) felett; a végső érték = szerződött + extrák (a termelői keret a szerződöttből számol) */
 const extrasOf=p=>(p&&Array.isArray(p.extras)?p.extras:[]);
-const extrasSum=p=>extrasOf(p).reduce((s,x)=>s+num(x.amount),0);
+const exSign=x=>x&&x.kind==='le'?-1:1;   // le = kedvezmény / jutalék (a végszámlából levonva)
+const extrasPlus=p=>extrasOf(p).filter(x=>exSign(x)>0).reduce((s,x)=>s+num(x.amount),0);
+const extrasMinus=p=>extrasOf(p).filter(x=>exSign(x)<0).reduce((s,x)=>s+num(x.amount),0);
+const extrasSum=p=>extrasPlus(p)-extrasMinus(p);
+const exBreak=p=>`szerződött ${ftFmt(num(p.projectValue))}${extrasPlus(p)?' + extra '+ftFmt(extrasPlus(p)):''}${extrasMinus(p)?' − kedvezmény '+ftFmt(extrasMinus(p)):''}`;
 const projTotal=p=>num(p&&p.projectValue)+extrasSum(p);
-const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="muted">(szerződött ${ftFmt(num(p.projectValue))} + extra ${ftFmt(extrasSum(p))})</span>`;
-function extrasHtml(p){const l=extrasOf(p),tot=projTotal(p);
-  return `<div class="extras" id="proj-extras"><div class="ex-h"><b>➕ Extra szolgáltatások</b> <span class="muted">– a szerződött összegen felül, nettó; a végszámlára külön tételként kerülnek</span></div>
-    ${l.map((x,i)=>`<div class="ex-row"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="pl. +1 riport videó" maxlength="200" aria-label="Extra szolgáltatás megnevezése"><div class="money"><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button></div>`).join('')}
-    <div class="ex-foot"><button class="linkbtn" type="button" data-action="extra-add">+ Extra szolgáltatás</button>${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
+const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="muted">(${exBreak(p)})</span>`;
+function extrasHtml(p){const l=extrasOf(p);
+  return `<div class="extras" id="proj-extras"><div class="ex-h"><b>➕ Extrák és kedvezmények</b> <span class="muted">– a szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek</span></div>
+    ${l.map((x,i)=>{const le=exSign(x)<0;return `<div class="ex-row${le?' ex-minus':''}"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="${le?'pl. jutalék – kiállítói shortok':'pl. +1 riport videó'}" maxlength="200" aria-label="${le?'Kedvezmény / jutalék':'Extra szolgáltatás'} megnevezése"><div class="money"><span class="ex-sign">${le?'−':'+'}</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button></div>`;}).join('')}
+    <div class="ex-foot"><button class="linkbtn" type="button" data-action="extra-add">+ Extra szolgáltatás</button><button class="linkbtn ex-minus-btn" type="button" data-action="extra-add" data-le="1">− Kedvezmény / jutalék</button>${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
 const isFree=p=>!!p&&p.projectValue!=null&&p.projectValue!==''&&num(p.projectValue)===0;
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);

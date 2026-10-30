@@ -257,7 +257,7 @@ function szItemRow(it,i){const st=S.fin.sz;return `<div class="sz-item" data-szi
   <select class="inp" name="it_vat" aria-label="ÁFA">${SZ_VATS.map(([v,l])=>`<option value="${v}"${v===(it.vat||st.vat)?' selected':''}>${l}</option>`).join('')}</select>
   <button class="trash" type="button" data-action="sz-item-del" aria-label="Tétel törlése">🗑️</button></div>`;}
 function szReadItems(){return [...document.querySelectorAll('[data-szitem]')].map(el=>({name:el.querySelector('[name=it_name]').value.trim(),qty:Number(String(el.querySelector('[name=it_qty]').value).replace(',','.'))||0,
-  unit:el.querySelector('[name=it_unit]').value.trim(),price:num(moneyVal(el.querySelector('[name=it_price]').value)),vat:el.querySelector('[name=it_vat]').value}));}
+  unit:el.querySelector('[name=it_unit]').value.trim(),price:(v=>/^\s*[-−]/.test(v)?-num(moneyVal(v)):num(moneyVal(v)))(el.querySelector('[name=it_price]').value),vat:el.querySelector('[name=it_vat]').value}));}
 function szTotals(){const its=szReadItems();let net=0,vat=0;its.forEach(it=>{const n=Math.round(it.price*it.qty);net+=n;vat+=/^\d+$/.test(it.vat)?Math.round(n*Number(it.vat)/100):0;});
   const el=$('sz-total');if(el)el.innerHTML=`Nettó <b>${ftFmt(net)}</b> · ÁFA <b>${ftFmt(vat)}</b> · Bruttó <b>${ftFmt(net+vat)}</b>`;return {net,vat,gross:net+vat};}
 /* Az egyes bizonylattípusok javasolt tétele (a projekt nettó értékéből, a foglaló %-ából) */
@@ -265,7 +265,7 @@ function szPreset(type,kind,id){const t=szTargetInfo(kind,id);if(!t)return {name
   const db=inv.filter(x=>x.kind==='dijbekero').pop();
   if(type==='dijbekero')return {name:'Foglaló – '+t.name,price:Math.round(t.net*pct/100)};
   if(type==='eloleg')return {name:'Foglaló – '+t.name,price:db?num(db.invNet):Math.round(t.net*pct/100)};
-  const ex=(t.extras||[]).filter(x=>num(x.amount)>0),split=ex.length?[{name:t.name,qty:1,price:t.base,pid:kind==='project'?id:''},...ex.map(x=>({name:'Extra: '+(x.name||'szolgáltatás'),qty:1,price:num(x.amount)}))]:null;
+  const ex=(t.extras||[]).filter(x=>num(x.amount)>0),split=ex.length?[{name:t.name,qty:1,price:t.base,pid:kind==='project'?id:''},...ex.map(x=>exSign(x)<0?{name:'Kedvezmény: '+(x.name||'jutalék'),qty:1,price:-num(x.amount)}:{name:'Extra: '+(x.name||'szolgáltatás'),qty:1,price:num(x.amount)})]:null;
   if(type==='vegszamla')return {name:t.name,price:t.net,items:split};
   const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);return {name:t.name,price:Math.max(0,t.net-done),items:done?null:split};}
 const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a számlázz.hu-ban be van kapcsolva az automatikus számlázás, a kifizetése után magától elkészül a foglalószámla.',
