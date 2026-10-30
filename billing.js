@@ -49,12 +49,13 @@ function billRow(i){const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extrasSum(p),C
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
     <td class="bt-cell">${C.contract}</td><td class="bt-cell">${C.adv}</td><td class="bt-cell">${C.tig}</td><td class="bt-cell">${C.fin}</td></tr>`;}
 /* A táblázat cellái lépésenként: Szerződés (elküldve, aláírva), TIG (elküldve, jóváhagyva), Díjbekérő (elküldve, fizetve), Végszámla (elküldve, fizetve) */
-const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l">${label}${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
+const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l"><span>${label}</span>${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
 function bsInv(x){if(!x)return '';const s=invState(x);return `<button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}">${esc(x.no)}</button> · ${ftFmt(num(x.invGross))}${x.manual?` <span class="muted" title="Kézzel rögzített bizonylat – a kifizetést kézzel kell jelölni">✍️ ${x.issuer==='kft'?'Kft.':'E.V.'}</span>`:''}${invShared(x)?` <span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 ${invPids(x).length} projekt</span>`:''}`;}
 function bsPaid(x){if(!x)return '';const s=invState(x);return s==='paid'?(x.paidAt?fmtMD(x.paidAt):''):s==='part'?`<span class="info-txt">részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">lejárt ${fmtMD(x.due)}</span>`:x.due?`határidő ${fmtMD(x.due)}`:'';}
 const bsIss=x=>x&&x.manual&&x.issuer==='ev'?'E.V.':'L.M.';
 const bsSent=(label,x)=>bsStep(true,label+' elküldve',`${x.date?fmtMD(x.date)+' · ':''}${bsIss(x)} · <button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}">${esc(x.no)}</button>${x.manual?' ✍️':''}${invShared(x)?` <span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 ${invPids(x).length} projekt</span>`:''}`);
-const bsPaidStep=x=>{const ok=invPaidOk(x);return bsStep(ok,'Kifizetve',ok?((x.paidAt||x.date)?fmtMD(x.paidAt||x.date):''):bsPaid(x));};
+const bsPaidStep=x=>{const ok=invPaidOk(x),st=invState(x),d=x.paidAt||x.date;
+  return bsStep(ok,ok?`Kifizetve${d?` <span class="bs-in">${fmtMD(d)}</span>`:''}`:st==='part'?`Részben kifizetve <span class="bs-in">${ftFmt(num(x.invPaid))}</span>`:`Nincs kifizetve${x.due?` <span class="bs-in${st==='late'?' late':''}">· ${st==='late'?'lejárt':'határidő'} ${fmtMD(x.due)}</span>`:''}`);};
 function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.projectValue),tot=projTotal(p),ex=extrasSum(p);
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'–':''}</button>`;
   const box=(k,title,body,skip,lock,tip)=>`<div class="pb-box bs-box${skip?' skip':''}"><div class="pb-t">${title}</div>${skip?'<span class="statuspill p-mute">Nem kell</span>':body}${k?tick(k,skip,lock,tip):''}</div>`;
@@ -94,10 +95,11 @@ function viewBilling(){
   if(!billOn())return `<div class="panel">${empty('Ez a fül a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();
   if(!S.fin.billing)return `<div class="panel">${empty('A Szerződés és számlázás a legújabb háttérkód (Code.gs) bemásolása és új verzióként való telepítése után érhető el.')}</div>`;
-  const f=S.blf||(S.blf={v:'teendo',q:''}),q=f.q.trim().toLowerCase();
+  const f=S.blf||(S.blf={v:'honap',q:''}),q=f.q.trim().toLowerCase();
   const all=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).map(billInfo);
-  const sets={teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0),lejart:all.filter(i=>i.late.length),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
-  const labels=[['teendo','Nyitott'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
+  const curM=todayISO().slice(0,7);
+  const sets={honap:all.filter(i=>pr(i.p).start.slice(0,7)===curM),teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0),lejart:all.filter(i=>i.late.length),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
+  const labels=[['honap','📅 '+F_YM.format(toDate(curM+'-01'))],['teendo','Nyitott'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
   let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
@@ -187,12 +189,12 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
   if(focus==='file'){const f=$('m-cfile');if(f)setTimeout(()=>f.click(),50);}}
 
 Object.assign(ACT,{
-  'blf':b=>{(S.blf||(S.blf={v:'teendo',q:''})).v=b.dataset.v;render(true);},
+  'blf':b=>{(S.blf||(S.blf={v:'honap',q:''})).v=b.dataset.v;render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
   'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}
 });
-document.addEventListener('input',e=>{if(e.target.id==='q-bill'){(S.blf||(S.blf={v:'teendo',q:''})).q=e.target.value;const pos=e.target.selectionStart;render(true);const n=$('q-bill');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}}});
+document.addEventListener('input',e=>{if(e.target.id==='q-bill'){(S.blf||(S.blf={v:'honap',q:''})).q=e.target.value;const pos=e.target.selectionStart;render(true);const n=$('q-bill');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}}});
 
 /* Projekt oldalán (csak ügyvezető): az aktuális projekt szerződése és számlázása */
 /* A szerződés- és számlázási kártyák (projektoldal és a Szerződés és számlázás táblázat közös elemei) */
