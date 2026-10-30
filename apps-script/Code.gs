@@ -1755,6 +1755,16 @@ function szLinkBatch_(u, a) {
   if (rows.length) logEvent_(u, 'Számlázás', '', 'Számlák importálva: ' + rows.map(r => r.no).join(', '));
   return Object.assign(finData_(), { batch: { done: done, linked: rows.map(r => r.no), errors: errors } });
 }
+/** Számla előnézete a hozzárendelés előtt: vevő, kelt, összeg (a számlázz.hu-tól). Rövidített számot is megpróbál (pl. LUMOS-26-75 → LUMOS-2026-75). */
+function szPeek_(u, a) {
+  const raw = str_(a && a.no, 60).toUpperCase().replace(/\s+/g, ''), y = today_().slice(0, 4), tries = [raw];
+  let m = /^([A-Z]+)-(\d{2})-(\d+)$/.exec(raw); if (m) tries.push(m[1] + '-20' + m[2] + '-' + m[3]);
+  m = /^([A-Z]+)-(\d{1,4})$/.exec(raw); if (m && m[2].length < 4) tries.push(m[1] + '-' + y + '-' + m[2]);
+  if (/^\d{1,4}$/.test(raw)) tries.push(str_(a.prefix, 20).toUpperCase() + '-' + y + '-' + raw);
+  let last = null;
+  for (let i = 0; i < tries.length; i++) { try { const q = szQuery_(tries[i], false); return { no: q.no || tries[i], buyer: q.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, tipus: q.tipus }; } catch (e) { last = e; } }
+  throw new Error('Nem található ilyen számla a számlázz.hu-ban (' + tries.join(', ') + ').');
+}
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
   withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
@@ -2897,6 +2907,7 @@ function rpcInner_(token, name, arg) {
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
+    case 'szPeek': adminOnly(); return szPeek_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
