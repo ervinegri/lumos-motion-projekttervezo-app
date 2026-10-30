@@ -54,7 +54,7 @@ function bsInv(x){if(!x)return '';const s=invState(x);return `<button class="bl-
 function bsPaid(x){if(!x)return '';const s=invState(x);return s==='paid'?(x.paidAt?fmtMD(x.paidAt):''):s==='part'?`<span class="info-txt">részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">lejárt ${fmtMD(x.due)}</span>`:x.due?`határidő ${fmtMD(x.due)}`:'';}
 const bsIss=x=>x&&x.manual&&x.issuer==='ev'?'E.V.':'L.M.';
 const bsSent=(label,x)=>bsStep(true,label+' elküldve',`${x.date?fmtMD(x.date)+' · ':''}${bsIss(x)} · <button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}">${esc(x.no)}</button>${x.manual?' ✍️':''}${invShared(x)?` <span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 ${invPids(x).length} projekt</span>`:''}`);
-const bsPaidStep=x=>{const ok=invPaidOk(x);return bsStep(ok,'Kifizetve',ok?(x.paidAt?fmtMD(x.paidAt):''):bsPaid(x));};
+const bsPaidStep=x=>{const ok=invPaidOk(x);return bsStep(ok,'Kifizetve',ok?((x.paidAt||x.date)?fmtMD(x.paidAt||x.date):''):bsPaid(x));};
 function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.projectValue),tot=projTotal(p),ex=extrasSum(p);
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'–':''}</button>`;
   const box=(k,title,body,skip,lock,tip)=>`<div class="pb-box bs-box${skip?' skip':''}"><div class="pb-t">${title}</div>${skip?'<span class="statuspill p-mute">Nem kell</span>':body}${k?tick(k,skip,lock,tip):''}</div>`;
@@ -83,7 +83,7 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   const finCalc=!skipA&&!fx&&tot&&(ex||dx)?`<div class="bs-x">${ex?`${ftFmt(val)} + extra ${ftFmt(ex)}`:ftFmt(tot)} − foglaló ${ftFmt(dx?advNet:Math.round(val*num(b.advancePct)/100))}</div>`:'';
   const fin=i.full&&!fx?`<div class="pb-box bs-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`
     :box('fin',`${finT}${tot&&!i.noFin?` <span class="muted">· ${ftFmt(finDue)}</span>`:''}`,
-      fx?`${bsSent(finT,fx)}${bsPaidStep(fx)}`:`${finCalc}${billAddBtn(p.id,skipA?'szamla':'vegszamla',finT+' kiállítása',projDone(p)&&(skipA||!!dx))}`,i.noFin&&!fx,!!fx,`Nem kell ${finT.toLowerCase()}?`);
+      fx?`${bsSent(finT,fx)}${bsPaidStep(fx)}`:`${finCalc}${tigNeed&&!appr?`<div class="bs-x warn-txt">⏳ ${tg?'A TIG jóváhagyása után':'A TIG kiállítása és jóváhagyása után'} állítható ki.</div>`:billAddBtn(p.id,skipA?'szamla':'vegszamla',finT+' kiállítása',projDone(p)&&(skipA||!!dx))}`,i.noFin&&!fx,!!fx,`Nem kell ${finT.toLowerCase()}?`);
   return {contract,tig,adv,fin};}
 ACT['bl-cstep']=async btn=>{const pid=btn.dataset.id,st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
   const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);render(true);

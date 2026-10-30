@@ -1596,8 +1596,9 @@ const SZ_KINDS = ['szamla', 'dijbekero', 'eloleg', 'vegszamla'];
 function szPayStatusFor_(list) {
   if (!list.length) return null;
   const fin = list.filter(x => x.kind === 'szamla' || x.kind === 'vegszamla' || !x.kind), adv = list.filter(x => x.kind === 'dijbekero' || x.kind === 'eloleg');
-  const paidAll = l => l.length && l.every(x => (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && (Number(x.invGross) || 0) > 0);
-  const anyPaid = l => l.some(x => (Number(x.invPaid) || 0) > 0);
+  const mPaid = x => x.kind === 'eloleg' && !!x.manual;   // kézi foglalószámla: a befizetés után készül
+  const paidAll = l => l.length && l.every(x => mPaid(x) || (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && (Number(x.invGross) || 0) > 0);
+  const anyPaid = l => l.some(x => mPaid(x) || (Number(x.invPaid) || 0) > 0);
   if (fin.length) return paidAll(fin) ? 'teljes' : anyPaid(fin) || anyPaid(adv) ? 'eloleg' : 'var';
   return anyPaid(adv) ? 'eloleg' : 'var';
 }
@@ -1738,9 +1739,9 @@ function szManual_(u, a) {
     const f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, no.replace(/[\\/:*?"<>|]+/g, '-') + ext)));
     fileUrl = f.getUrl();
   }
-  const paid = !!a.paid, today = today_();
+  const kind0 = SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : 'szamla', paid = kind0 === 'eloleg' || !!a.paid, today = today_();
   const row = { id: Utilities.getUuid(), no: no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: str_(a.buyer, 200), date: iso_(a.date) || today, due: iso_(a.due) || '',
-    invNet: net, invGross: gross, invPaid: paid ? gross : 0, paidAt: paid ? (iso_(a.paidAt) || today) : '', payMethod: str_(a.payMethod, 40), createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: str_(a.note, 500), items: '', ref: '',
+    invNet: net, invGross: gross, invPaid: paid ? gross : 0, paidAt: paid ? (iso_(a.paidAt) || iso_(a.date) || today) : '', payMethod: str_(a.payMethod, 40), createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: str_(a.note, 500), items: '', ref: '',
     projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: '', manual: '1', issuer: a.issuer === 'kft' ? 'kft' : 'ev', fileUrl: fileUrl };
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); dbFlush_(); });
   logEvent_(u, 'Számlázás', row.buyer, 'Kézi bizonylat rögzítve: ' + no + (row.issuer === 'ev' ? ' (Egri Ervin E.V.)' : ''));

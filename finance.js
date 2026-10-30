@@ -24,8 +24,8 @@ function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)p
 const invPids=x=>[x.projectId,...String(x.projectIds||'').split(',')].filter(Boolean);
 const invShared=x=>invPids(x).length>1;
 function invShare(x,pid){const ids=invPids(x);if(ids.length<2||!ids.includes(pid))return 1;const v=ids.map(id=>projTotal(projById(id)||{})),sum=v.reduce((a,b)=>a+b,0);return sum?v[ids.indexOf(pid)]/sum:1/ids.length;}
-const invPaidOk=x=>num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
-const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>invPids(x).includes(pid));if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0);
+const invPaidOk=x=>(x.kind==='eloleg'&&!!x.manual)||(num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1);   // a kézi foglalószámla a befizetés után készül, tehát kifizetett
+const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>invPids(x).includes(pid));if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0||invPaidOk(x));
   if(fin.length)return fin.every(invPaidOk)?'teljes':any(fin)||any(adv)?'eloleg':'var';return any(adv)?'eloleg':'var';};
 const finSet=()=>(S.fin&&S.fin.settings)||{profitPct:30,ceoPct:5,marketingPct:5,openMonth:'',openRezsi:0,openMarketing:0,appFromMonth:''};
 /* Egy projekt felosztása */
@@ -47,7 +47,7 @@ function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.not
 /* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; foglalónál a számlák kifizetett része, ennek hiányában a foglaló %-a */
 function finReceived(r){if(r.payStatus==='teljes')return num(r.amount);if(r.payStatus!=='eloleg')return 0;
   const inv=invFor(r.kind,r.id).filter(x=>num(x.invGross)>0&&!(x.kind==='dijbekero'&&x.ref));
-  if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+num(x.invPaid)*num(x.invNet)/num(x.invGross)*(r.kind==='project'?invShare(x,r.id):1),0)));
+  if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+(invPaidOk(x)?num(x.invGross):num(x.invPaid))*num(x.invNet)/num(x.invGross)*(r.kind==='project'?invShare(x,r.id):1),0)));
   const pct=r.kind==='project'&&typeof billOf==='function'?num(billOf(r.id).advancePct):50;return Math.round(num(r.amount)*(pct||50)/100);}
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||a.name.localeCompare(b.name,'hu'));}
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
@@ -236,7 +236,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 const szOn=()=>!!(S.fin&&S.fin.sz);
 const SZ_VATS=[['27','27%'],['18','18%'],['5','5%'],['0','0%'],['AAM','AAM – alanyi adómentes'],['TAM','TAM – tárgyi adómentes'],['EUK','EUK – EU-n belüli'],['MAA','MAA – mentes az adó alól']];
 const invFor=(kind,id)=>((S.fin&&S.fin.invoices)||[]).filter(x=>kind==='project'?invPids(x).includes(id):x.incomeId===id);
-const invState=x=>{const g=num(x.invGross),p=num(x.invPaid);if(g&&p>=g-1)return 'paid';if(p>0)return 'part';return x.due&&x.due<todayISO()?'late':'open';};
+const invState=x=>{if(x.kind==='eloleg'&&x.manual)return 'paid';const g=num(x.invGross),p=num(x.invPaid);if(g&&p>=g-1)return 'paid';if(p>0)return 'part';return x.due&&x.due<todayISO()?'late':'open';};
 const INV_CLS={paid:'p-ok',part:'p-info',late:'p-bad',open:'p-warn'};
 const SZ_KIND={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalószámla',vegszamla:'Végszámla'},SZ_KIND_S={dijbekero:'D ',eloleg:'E ',vegszamla:'V '};
 const invChip=x=>{const s=invState(x);return `<button class="statuspill inv-chip ${INV_CLS[s]}" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'Számla')+' · '+(x.buyer||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${SZ_KIND_S[x.kind]||''}${esc(x.no)} ${s==='paid'?'✓':s==='part'?'½':s==='late'?'⚠':'…'}</button>`;};
@@ -366,18 +366,17 @@ function szManualModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
   openModal('Bizonylat feltöltése – '+t.name,`<div class="fields">
     <div class="field full"><label for="m-mfile">Bizonylat PDF-ben (pl. az Egri Ervin E.V. számlázz.hu-s számlája)</label><input class="inp" id="m-mfile" type="file" accept=".pdf,application/pdf"></div>
     <div class="field full" id="m-mparse"><p class="hint" style="margin:0">Töltsd fel a PDF-et – a számot, a típust, a vevőt, a dátumokat és az összegeket az app olvassa ki belőle.</p></div>
-    <div class="field full" id="m-mpaidw"><label class="bl-nocontract" style="display:inline-flex;gap:8px;align-items:center;width:auto"><input type="checkbox" name="paid" id="m-mpaid"> Már kifizették</label></div>
     ${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is.'):''}
     <div class="field full mp-fix" id="m-mfix" hidden><p class="hint bad-txt" style="margin:0 0 6px">Nem sikerült minden adatot kiolvasni – töltsd ki a hiányzókat:</p><div class="fields">
       ${ms('issuer','Kiállító',[['ev','Egri Ervin E.V.'],['kft','Lumos Motion Kft.']],'ev')}${ms('mkind','Típus',Object.entries(SZ_KIND),type||'szamla')}
       ${mf('no','Bizonylatszám',{max:60})}${mf('buyer','Vevő',{v:t.buyer&&t.buyer.name||'',max:200})}
       ${mf('date','Kelt',{type:'date',v:todayISO()})}${mf('due','Fizetési határidő',{type:'date'})}
-      ${mf('invNet','Nettó összeg (Ft)',{im:'numeric'})}${mf('invGross','Bruttó összeg (Ft)',{im:'numeric'})}${mf('paidAt','Kifizetés dátuma',{type:'date',v:todayISO()})}</div></div>
-  </div><p class="hint" id="m-mhint" style="margin:0">A PDF az ügyfél Drive-mappájába kerül (Számlák / év). Mivel nem a bekötött számlázz.hu-fiókból jön, a kifizetést itt kell jelölnöd – később is, a bizonylatra kattintva.</p>`,
+      ${mf('invNet','Nettó összeg (Ft)',{im:'numeric'})}${mf('invGross','Bruttó összeg (Ft)',{im:'numeric'})}</div></div>
+  </div><p class="hint" id="m-mhint" style="margin:0">A PDF az ügyfél Drive-mappájába kerül (Számlák / év). A foglalószámla kifizetettként kerül be (a befizetés után készül).</p>`,
   {submitLabel:'Rögzítés',submit:async fd=>{const file=($('m-mfile')||{}).files&&$('m-mfile').files[0];
     if(!file){toast('Válaszd ki a bizonylat PDF-jét.',true);return;}
     const a={[kind==='project'?'projectId':'incomeId']:id,no:String(fd.get('no')||'').trim(),kind:fd.get('mkind'),issuer:fd.get('issuer'),buyer:String(fd.get('buyer')||'').trim(),date:fd.get('date'),due:fd.get('due'),
-      invNet:moneyVal(fd.get('invNet')),invGross:moneyVal(fd.get('invGross')),paid:!!fd.get('paid'),paidAt:fd.get('paidAt'),projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]};
+      invNet:moneyVal(fd.get('invNet')),invGross:moneyVal(fd.get('invGross')),projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]};
     if(!a.no||!a.invNet){const d=$('m-mfix');if(d)d.hidden=false;toast('Nem sikerült mindent kiolvasni – add meg a bizonylatszámot és az összeget.',true);return;}
     if(file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
@@ -391,9 +390,8 @@ document.addEventListener('change',async e=>{if(e.target.id!=='m-mfile')return;c
   let o={};try{o=await invParsePdf(f);}catch(err){o={};}
   const set=(id,v)=>{const x=$(id);if(x&&v!==undefined&&v!==null&&v!=='')x.value=v;};
   set('m-no',o.no);set('m-mkind',o.kind);set('m-issuer',o.issuer);set('m-buyer',o.buyer);set('m-date',o.date);set('m-due',o.due);if(o.invNet)set('m-invNet',moneyFmt(o.invNet));if(o.invGross)set('m-invGross',moneyFmt(o.invGross));
-  if(o.paid){const c=$('m-mpaid');if(c)c.checked=true;}
   const ok=o.no&&o.invNet,fix=$('m-mfix');if(fix)fix.hidden=!!ok;
-  const kftLinked=ok&&o.issuer==='kft'&&S.fin&&S.fin.sz&&S.fin.sz.hasKey,pw=$('m-mpaidw');if(pw)pw.hidden=!!kftLinked;const mh=$('m-mhint');if(mh)mh.hidden=!!kftLinked;
+  const kftLinked=ok&&o.issuer==='kft'&&S.fin&&S.fin.sz&&S.fin.sz.hasKey;const mh=$('m-mhint');if(mh)mh.hidden=!!kftLinked;
   if(!$('m-mparse'))return;
   $('m-mparse').innerHTML=ok?`<div class="mp-sum"><div><span>Bizonylat</span><b>${esc(SZ_KIND[o.kind]||'Számla')} · ${esc(o.no)}</b></div><div><span>Kiállító</span><b>${o.issuer==='kft'?'Lumos Motion Kft.':o.issuer==='ev'?'Egri Ervin E.V.':'—'}</b></div>
       <div><span>Vevő</span><b>${esc(o.buyer||'—')}</b></div><div><span>Kelt · határidő</span><b>${esc((o.date||'—').replace(/-/g,'.'))} · ${esc((o.due||'—').replace(/-/g,'.'))}</b></div>
@@ -420,7 +418,7 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
     <div><span>Állapot</span><b><span class="statuspill ${INV_CLS[s]}">${{paid:'Kifizetve',part:'Részben fizetve',late:'Lejárt, nincs kifizetve',open:'Fizetésre vár'}[s]}</span></b></div>
     <div><span>${x.manual?'Kiállító':'Utoljára ellenőrizve'}</span><b>${x.manual?(x.issuer==='kft'?'Lumos Motion Kft.':'Egri Ervin E.V.')+' · kézi rögzítés':esc(x.checkedAt||'—')}</b></div></div>`,
   x.manual?{left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Törlés</button>${x.fileUrl?`<a class="btn outline small" href="${esc(x.fileUrl)}" target="_blank" rel="noopener">📄 Bizonylat megnyitása</a>`:''}`,cancelLabel:'Bezárás',
-    submitLabel:s==='paid'?'Kifizetés visszavonása':'✅ Kifizetve',submit:()=>ACT['sz-mpaid']({dataset:{id:x.id,paid:s==='paid'?'0':'1'}})}:
+    submitLabel:'Bezárás',submit:()=>closeModal()}:
   {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Letöltés…';}
     try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
