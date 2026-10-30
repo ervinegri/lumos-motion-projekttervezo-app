@@ -1614,8 +1614,12 @@ function billUpload_(u, a) {
   if (!b64) throw new Error('Nincs feltöltendő fájl.');
   if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
   const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
-  const folder = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId);
-  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, name));
+  const pr0 = readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), pid));
+  const cf = pr0 && pr0.client ? clientFolder_(pr0.client) : null;   // a főmappában: 02 Ügyfelek / <ügyfél> / Szerződések / <év>
+  const year = String(pr0 && pr0.date || today_()).slice(0, 4), ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
+  const folder = cf ? folderPath_(cf, 'Szerződések/' + year, {}) : DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId);
+  const fname = cf ? uniqueName_(folder, today_() + '_' + shortName_(pr0.client) + '_szerzodes_KFT' + (a.contractStatus === 'kikuldve' ? '' : '_alairt') + ext) : name;
+  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, fname));
   withLock_(() => {
     const b = billRow_(pid), r = b.r;
     Object.assign(r, { contractUrl: file.getUrl(), contractName: name, contractFileId: file.getId(), contractAt: now_(), contractBy: u.name, updatedAt: now_(), updatedBy: u.name });
@@ -1640,8 +1644,10 @@ function fwSave_(u, a) {
     if (String(a.b64).length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
     const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
     const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'keretszerzodes.pdf';
-    const folder = childFolder_(DriveApp.getFolderById(PROJECTS_FOLDER_ID), 'Keretszerződések');
-    file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, client.replace(/[\\/]/g, '-') + ' – ' + name));
+    const cf = clientFolder_(client);   // a főmappában: 02 Ügyfelek / <ügyfél> / Keretszerződés
+    const folder = cf ? childFolder_(cf, 'Keretszerződés') : childFolder_(DriveApp.getFolderById(PROJECTS_FOLDER_ID), 'Keretszerződések');
+    const ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
+    file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, cf ? (iso_(a.signedAt) || today_()) + '_' + shortName_(client) + '_keretszerzodes_KFT_alairt' + ext : client.replace(/[\\/]/g, '-') + ' – ' + name));
   }
   return withLock_(() => {
     const sh = sheetFor_('finFramework'), all = readAll_('finFramework');
@@ -1683,6 +1689,89 @@ function driveScan_(a) {
   ids.forEach(id => { const f = DriveApp.getFolderById(id); walk(f, f.getName(), 0); });
   return { items: out, truncated: truncated };
 }
+
+/* ===================== DRIVE-RENDSZER (LUMOS főmappa) =====================
+   A cég dokumentumai egy főmappában: 01 Projektek, 02 Ügyfelek, 03 Szakemberek, 04 Beszállítók, 10 Lumos Motion Kft, 20 Egri Ervin EV, 90 Sablonok.
+   driveOps: áthelyezés útvonal alapján (a forrás a megadott gyökérmappákon belül), átnevezéssel; minden lépésről visszaadja, honnan hová került (visszavonható). */
+const LUMOS_ROOT_PROPERTY = 'LUMOS_DRIVE_ROOT_ID';
+function lumosRoot_() { const id = PropertiesService.getScriptProperties().getProperty(LUMOS_ROOT_PROPERTY); if (!id) return null; try { return DriveApp.getFolderById(id); } catch (e) { return null; } }
+function folderPath_(root, path, cache) {
+  let f = root, acc = '';
+  String(path || '').split('/').map(s => s.trim()).filter(Boolean).forEach(part => {
+    acc += '/' + part;
+    if (cache && cache[acc]) { f = cache[acc]; return; }
+    f = childFolder_(f, part);
+    if (cache) cache[acc] = f;
+  });
+  return f;
+}
+function findFolder_(root, path) {   // meglévő mappa útvonal szerint (nem hoz létre)
+  let f = root;
+  for (const part of String(path || '').split('/').map(s => s.trim()).filter(Boolean)) { const it = f.getFoldersByName(part); if (!it.hasNext()) return null; f = it.next(); }
+  return f;
+}
+function uniqueName_(folder, name) {
+  if (!folder.getFilesByName(name).hasNext()) return name;
+  const m = /^(.*?)(\.[^.]+)?$/.exec(name);
+  for (let i = 2; i < 50; i++) { const n = m[1] + ' (' + i + ')' + (m[2] || ''); if (!folder.getFilesByName(n).hasNext()) return n; }
+  return name;
+}
+/** a: {sources:{prefix:folderId}, rootId?, rootParentOf?, ops:[{src, name?, dst, newName?}]} – name nélkül a mappa tartalma kerül át (összefésülés). */
+function driveOps_(u, a) {
+  a = a || {};
+  let root = a.rootId ? DriveApp.getFolderById(str_(a.rootId, 80)) : lumosRoot_();
+  if (!root) {
+    if (!a.rootParentOf) throw new Error('Hiányzik a főmappa helye.');
+    const parent = DriveApp.getFolderById(str_(a.rootParentOf, 80)).getParents().next();
+    root = childFolder_(parent, str_(a.rootName, 80) || 'LUMOS');
+  }
+  PropertiesService.getScriptProperties().setProperty(LUMOS_ROOT_PROPERTY, root.getId());
+  const sources = {}; Object.keys(a.sources || {}).forEach(k => { sources[k] = DriveApp.getFolderById(str_(a.sources[k], 80)); });
+  const cache = {}, out = [], started = Date.now();
+  (Array.isArray(a.ops) ? a.ops : []).slice(0, 80).forEach(op => {
+    if (Date.now() - started > 300000) { out.push({ op: op, ok: false, err: 'időtúllépés – küldd újra' }); return; }
+    try {
+      const pre = Object.keys(sources).find(k => op.src === k || String(op.src).indexOf(k + '/') === 0);
+      if (!pre) throw new Error('ismeretlen forrás');
+      const srcFolder = findFolder_(sources[pre], String(op.src).slice(pre.length));
+      if (!srcFolder) throw new Error('nincs meg a forrásmappa');
+      const it = op.name ? srcFolder.getFilesByName(op.name) : null;
+      if (it && !it.hasNext()) throw new Error('nincs meg a fájl');
+      const dst = op.dst === '.' ? root : folderPath_(root, op.dst, cache);   // a célmappa csak akkor jön létre, ha van mit áthelyezni
+      if (op.name) {
+        const f = it.next();
+        const nn = uniqueName_(dst, str_(op.newName, 200) || op.name);
+        f.moveTo(dst); if (nn !== f.getName()) f.setName(nn);
+        out.push({ ok: true, id: f.getId(), from: op.src + '/' + op.name, to: op.dst + '/' + nn });
+      } else {   // mappa tartalmának áthelyezése
+        let n = 0; const fi = srcFolder.getFiles(); while (fi.hasNext()) { const f = fi.next(); const nn = uniqueName_(dst, f.getName()); f.moveTo(dst); if (nn !== f.getName()) f.setName(nn); n++; }
+        const di = srcFolder.getFolders(); while (di.hasNext()) { di.next().moveTo(dst); n++; }
+        out.push({ ok: true, id: srcFolder.getId(), from: op.src + '/', to: op.dst + '/', items: n });
+      }
+    } catch (e) { out.push({ ok: false, from: op.src + '/' + (op.name || ''), to: op.dst, err: String(e.message || e) }); }
+  });
+  logEvent_(u, 'Drive-átrendezés', root.getName(), out.filter(x => x.ok).length + ' tétel áthelyezve, ' + out.filter(x => !x.ok).length + ' hiba');
+  return { rootId: root.getId(), rootUrl: root.getUrl(), results: out };
+}
+/** Projektmappa (a meglévő azonosítójú mappa) áthelyezése a főmappába, átnevezéssel. */
+function driveMoveFolder_(u, a) {
+  const root = lumosRoot_(); if (!root) throw new Error('Még nincs főmappa.');
+  const f = DriveApp.getFolderById(a && a.folderId === 'PROJECTS' ? PROJECTS_FOLDER_ID : str_(a && a.folderId, 80));
+  const dst = a.dst ? folderPath_(root, a.dst, {}) : root;
+  f.moveTo(dst); if (a.newName) f.setName(str_(a.newName, 120));
+  logEvent_(u, 'Drive-átrendezés', f.getName(), 'mappa áthelyezve');
+  return { id: f.getId(), url: f.getUrl() };
+}
+/* Ügyfél mappája a főmappában (02 Ügyfelek / <ügyfél>): meglévőt keres (név vagy zárójeles név alapján), különben létrehozza. */
+function clientFolder_(client) {
+  const root = lumosRoot_(); if (!root) return null;
+  const base = folderPath_(root, '02 Ügyfelek', {});
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/g, ' ').trim();
+  const want = norm(client), it = base.getFolders();
+  while (it.hasNext()) { const f = it.next(), n = f.getName(), main = norm(n.replace(/\s*\(.*\)\s*$/, '')), par = norm((/\(([^)]*)\)/.exec(n) || [])[1]); if (main === want || par === want) return f; }
+  return base.createFolder(String(client || 'Ügyfél').replace(/[\\/]/g, '-'));
+}
+function shortName_(s) { return String(s || '').replace(/\s*\(.*\)/, '').replace(/ (Kft|Zrt|Bt|Nyrt|Kkt)\.?$/i, '').replace(/[^\wÀ-ž]+/g, '-').replace(/^-+|-+$/g, ''); }
 
 /* ===================== STÁB ÉS LELTÁR ===================== */
 function saveCrew_(u, a) {
@@ -2398,6 +2487,8 @@ function rpcInner_(token, name, arg) {
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
     case 'driveScan': adminOnly(); return driveScan_(arg);
+    case 'driveOps': adminOnly(); return driveOps_(u, arg);
+    case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
