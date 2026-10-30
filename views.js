@@ -47,7 +47,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCa
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
     if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
@@ -65,7 +65,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=d.projects||[];S.crew=d.crew||[];S.inventory=d.inventory||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if((S.tab==='beallitasok'||S.tab==='penzugy'||S.tab==='szerzodes')&&!isAdmin())S.tab='projektek';
@@ -879,17 +879,20 @@ function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
-  const MC=[['assign','👥 Beosztás a szakembereknek','A stáb véglegesítésekor (és módosításkor) e-mailben megkapják a beosztásukat.'],
-    ['calendar','📅 Naptármeghívók a stábnak','A Google Naptár meghívót és értesítést küld, amikor bekerülnek egy projekt eseményébe.'],
-    ['eqlist','🎒 Eszközlista','Az „Eszközlista küldése” gombbal kiküldött levél a stábnak.'],
-    ['penalty','⚠️ Díjcsökkentés a szakembernek','Jóváhagyott díjcsökkentésről értesítés az érintettnek.'],
-    ['penAdmin','🔔 Jóváhagyásra váró díjcsökkentés','Értesítés az ügyvezetőnek, ha a termelési vezető díjcsökkentést javasol.'],
-    ['invoice','🧾 Számlák az ügyfeleknek','A számlázz.hu e-mailben elküldi a kiállított számlát / díjbekérőt a vevőnek.'],
-    ['invite','✉️ Meghívó új kollégának','Belépési meghívó, amikor új felhasználót veszel fel.']],mc=S.mailCats||{};
+  const MC=[['assign','👥 Beosztás','Szakemberek','A stáb véglegesítésekor (és módosításkor) megkapják a beosztásukat: időpont, helyszín, szerep, stáb.'],
+    ['calendar','📅 Naptármeghívó','Szakemberek','A Google Naptár meghívót és változásértesítést küld a projekt eseményéről.'],
+    ['eqlist','🎒 Eszközlista','A kiválasztott stábtagok','Az „Eszközlista küldése” gombbal kiküldött levél: ki mit visz, személyes megjegyzés.'],
+    ['penalty','⚠️ Díjcsökkentés','Az érintett szakember','Jóváhagyott díjcsökkentésről (késés, hiba, kártérítés) értesítés.'],
+    ['penAdmin','🔔 Jóváhagyásra váró díjcsökkentés','Ügyvezetők','Ha a termelési vezető díjcsökkentést javasol, az ügyvezető jóváhagyást kér.'],
+    ['invoice','🧾 Számla, díjbekérő','Az ügyfél (vevő)','A számlázz.hu e-mailben elküldi a kiállított bizonylatot a vevő e-mail-címére.'],
+    ['invite','✉️ Meghívó','Az új kolléga','Belépési meghívó, amikor új felhasználót veszel fel.']],mc=S.mailCats||{},cc=S.mailCc||{};
+  const CC=[['actor','aki küldi'],['editor','termelési vezetők'],['admin','ügyvezetők']];
   const mailPanel=S.mailOn===undefined?'':`<div class="panel mail-panel${S.mailOn?'':' off'}"><h3>📧 E-mail értesítések <span class="aside"><span class="statuspill ${S.mailOn?'p-ok':'p-bad'}">${S.mailOn?'Bekapcsolva':'Szünetel – senki nem kap e-mailt'}</span></span></h3>
     <p class="hint" style="margin:6px 0 10px">A főkapcsolóval minden e-mail egyszerre szüneteltethető. Bekapcsolt állapotban típusonként is választhatsz.</p>
     <button class="btn ${S.mailOn?'outline':'primary'} small" type="button" data-action="mail-toggle">${S.mailOn?'⏸ Minden e-mail szüneteltetése':'▶️ E-mailek bekapcsolása'}</button>
-    <div class="mail-cats${S.mailOn?'':' dis'}">${MC.map(([k,l,d])=>`<label class="mail-cat"><input type="checkbox" data-mailcat="${k}"${mc[k]!==false?' checked':''}${S.mailOn?'':' disabled'}><span><b>${l}</b><small>${d}</small></span></label>`).join('')}</div></div>`;
+    <div class="mail-cats${S.mailOn?'':' dis'}">${MC.map(([k,l,to,d])=>`<div class="mail-cat${mc[k]===false?' off':''}"><label class="mail-cat-h"><input type="checkbox" data-mailcat="${k}"${mc[k]!==false?' checked':''}${S.mailOn?'':' disabled'}><b>${l}</b></label>
+      <div class="mail-to"><span class="muted">Címzett:</span> <b>${to}</b></div><small>${d}</small>
+      ${cc[k]?`<div class="mail-cc"><span class="muted">Másolat:</span>${CC.map(([r,rl])=>`<label class="cc-chip${cc[k].includes(r)?' on':''}"><input type="checkbox" data-mailcc="${k}" data-role="${r}"${cc[k].includes(r)?' checked':''}${S.mailOn&&mc[k]!==false?'':' disabled'}> ${rl}</label>`).join('')}</div>`:''}</div>`).join('')}</div></div>`;
   if(Date.now()-(S._settingsAt||0)>30000)setTimeout(loadSettings,0);
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
   const users=S.users.slice().sort((a,b)=>(!!a.disabled-!!b.disabled)||a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow${u.disabled?' off':''}"><div class="who"><b>${esc(u.name)} <span class="statuspill ${u.disabled?'p-bad':'p-ok'}">${u.disabled?'letiltva':'aktív'}</span>${u.id===S.me.id?' <span class="muted" style="font-weight:600">(te)</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>

@@ -1244,4 +1244,10 @@ document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar')return;const d=e
 /* E-mail értesítések típusonként (Beállítások) */
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.mailcat)return;const cat=t.dataset.mailcat,on=t.checked;
   S.mailCats=Object.assign({},S.mailCats||{},{[cat]:on});
-  try{const r=await call('setMail',{cat,on});if(r.mailCats)S.mailCats=r.mailCats;toast(on?'Bekapcsolva':'Kikapcsolva');}catch(err){S.mailCats[cat]=!on;t.checked=!on;handleErr(err);}});
+  try{const r=await call('setMail',{cat,on});if(r.mailCats)S.mailCats=r.mailCats;render(true);toast(on?'Bekapcsolva':'Kikapcsolva');}catch(err){S.mailCats[cat]=!on;t.checked=!on;handleErr(err);}});
+
+/* Másolat (CC) beállítása típusonként */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.mailcc)return;const cat=t.dataset.mailcc;
+  const cur=new Set((S.mailCc&&S.mailCc[cat])||[]);if(t.checked)cur.add(t.dataset.role);else cur.delete(t.dataset.role);const list=[...cur];
+  S.mailCc=Object.assign({},S.mailCc||{},{[cat]:list});t.closest('.cc-chip').classList.toggle('on',t.checked);
+  try{const r=await call('setMail',{cat,cc:list});if(r.mailCc)S.mailCc=r.mailCc;toast('Másolat mentve');}catch(err){handleErr(err);render(true);}});

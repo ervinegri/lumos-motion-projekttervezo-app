@@ -340,7 +340,7 @@ function bootstrap_(u) {
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    mailOn: mailOn_(), mailCats: u.role === 'admin' ? mailCats_() : undefined,
+    mailOn: mailOn_(), mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
     capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
@@ -479,14 +479,31 @@ const MAIL_ON_PROPERTY = 'LUMOS_PM_MAIL_ON';
 const MAIL_CATS_PROPERTY = 'LUMOS_PM_MAIL_CATS';
 const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite'];
 function mailCats_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CATS_PROPERTY) || '{}') || {}; } catch (e) { o = {}; } const out = {}; MAIL_CATS_.forEach(k => { out[k] = o[k] !== false; }); return out; }
+const MAIL_CC_PROPERTY = 'LUMOS_PM_MAIL_CC';
+const MAIL_CC_DEFAULT_ = { assign: [], eqlist: ['actor'], penalty: [], penAdmin: [] };   // másolat (CC): admin = ügyvezetők, editor = termelési vezetők, actor = aki a műveletet végzi
+function mailCc_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CC_PROPERTY) || '{}') || {}; } catch (e) { o = {}; }
+  const out = {}; Object.keys(MAIL_CC_DEFAULT_).forEach(k => { out[k] = Array.isArray(o[k]) ? o[k].filter(x => ['admin', 'editor', 'actor'].indexOf(x) >= 0) : MAIL_CC_DEFAULT_[k].slice(); }); return out; }
+function mailCcList_(cat, actor) {
+  const want = mailCc_()[cat] || []; if (!want.length) return [];
+  const out = []; if (want.indexOf('actor') >= 0 && actor) out.push(String(actor).toLowerCase());
+  try { loadUsers_().forEach(x => { if (!x.disabled && x.email && want.indexOf(x.role) >= 0) out.push(String(x.email).toLowerCase()); }); } catch (e) { }
+  return out.filter((m, i) => out.indexOf(m) === i);
+}
 function mailOn_(cat) { try { if (PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) !== '1') return false; return !cat || mailCats_()[cat] !== false; } catch (e) { return false; } }
 function gmailSend_(to, subject, text, opts, cat) {
+  opts = opts || {}; const actor = opts.__actor; delete opts.__actor;
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
+  if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
+    const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
   GmailApp.sendEmail(to, subject, text, opts); return true;
 }
 function setMail_(u, a) {
   a = a || {};
-  if (a.cat) {
+  if (a.cat && Array.isArray(a.cc)) {
+    if (!MAIL_CC_DEFAULT_[a.cat]) throw new Error('Ehhez a típushoz nem állítható másolat.');
+    const c = mailCc_(); c[a.cat] = a.cc.filter(x => ['admin', 'editor', 'actor'].indexOf(x) >= 0); PropertiesService.getScriptProperties().setProperty(MAIL_CC_PROPERTY, JSON.stringify(c));
+    logEvent_(u, 'E-mail másolat', a.cat, c[a.cat].join(', ') || 'nincs');
+  } else if (a.cat) {
     if (MAIL_CATS_.indexOf(a.cat) < 0) throw new Error('Ismeretlen értesítéstípus.');
     const c = mailCats_(); c[a.cat] = !!a.on; PropertiesService.getScriptProperties().setProperty(MAIL_CATS_PROPERTY, JSON.stringify(c));
     logEvent_(u, 'E-mail értesítések', a.cat, a.on ? 'bekapcsolva' : 'kikapcsolva');
@@ -494,7 +511,7 @@ function setMail_(u, a) {
     PropertiesService.getScriptProperties().setProperty(MAIL_ON_PROPERTY, a.on ? '1' : '0');
     logEvent_(u, 'E-mail értesítések', '', a.on ? 'bekapcsolva' : 'kikapcsolva');
   }
-  return { mailOn: mailOn_(), mailCats: mailCats_() };
+  return { mailOn: mailOn_(), mailCats: mailCats_(), mailCc: mailCc_() };
 }
 function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállítása; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
   const want = {}; emails.forEach(m => { want[m] = 1; });
@@ -2169,7 +2186,7 @@ function deleteItem_(u, a) {
 /* ===================== ESZKÖZLISTA KIKÜLDÉSE ===================== */
 /** A levél feladója admin@ (ha be van állítva aliasként), a megjelenő név a küldő kolléga, a válasz hozzá megy. */
 function mailOptsFor_(u, html) {
-  const opts = { htmlBody: html, name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: (u && u.email) || MAIL_REPLY_TO };
+  const opts = { htmlBody: html, name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: (u && u.email) || MAIL_REPLY_TO, __actor: (u && u.email) || '' };
   try {   // a küldő a művelet végzője (pl. a termelési vezető), ha a címe „Küldés másként” álnévként be van állítva a telepítő Gmail-fiókjában
     const al = GmailApp.getAliases().map(x => String(x).toLowerCase()), me = String(u && u.email || '').toLowerCase();
     if (me && al.indexOf(me) >= 0) opts.from = me; else if (al.indexOf(String(MAIL_FROM).toLowerCase()) >= 0) opts.from = MAIL_FROM;
@@ -2257,7 +2274,6 @@ function sendEquipmentList_(u, a) {
       + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
-    if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
     if (gmailSend_(c.email, subject, text, opts, 'eqlist')) sentTo.push(c.name);
   });
   const when = now_(), info2 = sentTo.length + ' fő: ' + sentTo.join(', ');
