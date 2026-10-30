@@ -311,7 +311,7 @@ function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&
       return o.map(x=>`<option value="${x}"${x===m0?' selected':''}>${x.slice(0,4)}. ${TIG_MN[Number(x.slice(5,7))-1]}</option>`).join('');})()}</select></div>
     ${ms('tigIssuer','Szolgáltató',[['kft','Lumos Motion Kft.'],['ev','Egri Ervin E.V.']],'kft')}
     ${mf('tigDate','Kelt',{type:'date',v:todayISO()})}
-    ${mf('tigAddr','Megrendelő székhelye',{full:true,max:300})}${mf('tigTax','Megrendelő adószáma',{max:20})}${mf('tigRep','Megrendelő képviselője (aláíró)',{max:120,ph:'az ügyfél adataiból – nem a kapcsolattartó'})}
+    ${mf('tigAddr','Megrendelő székhelye',{full:true,max:300})}${mf('tigTax','Megrendelő adószáma',{max:20})}${mf('tigRep','Megrendelő képviselője (aláíró, titulus)',{max:120,ph:'pl. Kovács Anna, ügyvezető'})}
     <div class="field full"><label>Tételek <span class="muted">– díjazás: a projekt nettó értéke + ÁFA (a projektben módosítható); a videó linkje a feladat alá kerül</span></label><div id="tig-rows">${c0?tigRowsHtml(c0,m0):'<p class="hint">Válaszd ki az ügyfelet.</p>'}</div>
       <button class="linkbtn" type="button" data-action="tig-add" style="margin-top:6px">+ Tétel hozzáadása</button><div class="tig-sum" id="tig-sum"></div></div>
   </div><div id="tig-prev"></div><p class="hint" style="margin:0">A PDF az ügyfél Drive-mappájába kerül (Teljesítésigazolások / év), aláírásra kész.</p>`,{left:'<button type="button" class="btn outline" data-action="tig-preview">👁 Előnézet</button>',submitLabel:'TIG elkészítése',submit:async fd=>{
@@ -326,14 +326,15 @@ function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&
     catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='TIG elkészítése';}}}});
   setTimeout(()=>{const c=$('m-tigClient'),m=$('m-tigMonth'),box=$('tig-rows');if(c&&c.value&&m&&box&&/^\d{4}-\d{2}$/.test(m.value))box.innerHTML=tigRowsHtml(c.value,m.value);tigFill();},30);}
 /* A TIG-en megadott képviselő az ügyfél adataiba is bekerül (ha eltér) */
-function tigSaveRep(client,rep){const n=s=>String(s||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>n(x.name)===n(client));
-  if(!c||c.rep===rep)return;saveClientRec(Object.assign({},c,{rep,oldName:''})).catch(()=>{});}
+function tigSaveRep(client,full){const n=s=>String(s||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>n(x.name)===n(client));
+  const i=full.indexOf(','),rep=(i<0?full:full.slice(0,i)).trim(),repTitle=i<0?(c&&c.repTitle||''):full.slice(i+1).trim();   // „Név, titulus”
+  if(!c||(c.rep===rep&&(c.repTitle||'')===repTitle))return;saveClientRec(Object.assign({},c,{rep,repTitle,oldName:''})).catch(()=>{});}
 /* Másik lapon módosított projekt: a TIG-sor neve, összege, linkje frissül */
 function tigSyncRows(p){document.querySelectorAll(`#tig-rows .tig-row[data-pid="${CSS.escape(p.id)}"]`).forEach(r=>{const t=r.querySelector('.tig-task'),a=r.querySelector('.tig-amt'),l=r.querySelector('.tig-link');
   if(t)t.value=p.name||'';if(a)a.value=moneyFmt(projTotal(p));if(l&&/^https:\/\//i.test(p.deliveryLink||'')){l.value=p.deliveryLink;l.dispatchEvent(new Event('input',{bubbles:true}));}
   r.classList.add('tig-flash');setTimeout(()=>r.classList.remove('tig-flash'),1200);});tigSum();}
 function tigFill(){const c=($('m-tigClient')||{}).value;if(!c)return tigSum();const it=knownClients('').find(x=>x.company===c)||{};
-  const a=$('m-tigAddr'),t=$('m-tigTax'),r=$('m-tigRep');if(a&&!a.value)a.value=it.address||'';if(t&&!t.value)t.value=it.tax||'';if(r&&!r.value)r.value=it.rep||'';tigSum();}
+  const a=$('m-tigAddr'),t=$('m-tigTax'),r=$('m-tigRep');if(a&&!a.value)a.value=it.address||'';if(t&&!t.value)t.value=it.tax||'';if(r&&!r.value)r.value=[it.rep,it.repTitle].filter(Boolean).join(', ');tigSum();}
 function tigSum(){const el=$('tig-sum');if(!el)return;const s=[...document.querySelectorAll('#tig-rows .tig-row')].filter(r=>r.querySelector('.tig-on').checked).reduce((a,r)=>a+(moneyVal(r.querySelector('.tig-amt').value)||0),0);el.innerHTML=`Díjazás összesen: <b>${ftFmt(s)}</b> + ÁFA`;}
 document.addEventListener('change',e=>{const id=e.target.id;if(id==='m-tigClient'||id==='m-tigMonth'){const c=($('m-tigClient')||{}).value,m=($('m-tigMonth')||{}).value,box=$('tig-rows');
     if(id==='m-tigClient'){['m-tigAddr','m-tigTax','m-tigRep'].forEach(k=>{const x=$(k);if(x)x.value='';});}
