@@ -483,7 +483,7 @@ function deliveryModal(target){
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
       const base={deliveryLink:link,deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:''};
       if(toLead){const st=videoStagesOn()?'jovahagyas':'leadva';setDraft(Object.assign(base,{status:st,leadvaAt:d.leadvaAt||todayISO(),deliveredAt:'',stepsDone:ticksUpTo(S.draft,st)}));saveDraft();toast('Videók leadva – jóváhagyásra várnak');return;}   // leadás után: „Videók jóváhagyásra várnak”
-      setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));saveDraft();}});
+      setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));saveDraft();confetti();}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
 }
 /* az eddigi elakadások és kirótt díjcsökkentések (beszámoló és átadás ablakban) */
@@ -776,7 +776,7 @@ const ACT={
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
-      if(v==='atadva')saveDraft();};   // lezáráskor azonnal mentünk
+      if(v==='atadva'){saveDraft();confetti();}};   // lezáráskor azonnal mentünk – és ünneplünk
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'){
@@ -1148,3 +1148,14 @@ document.addEventListener('focusout',e=>{if(e.target.id==='m-contactName'&&$('m-
 document.addEventListener('scroll',e=>{if($('hsBox')&&e.target&&e.target.classList&&e.target.classList.contains('modal'))pickClose();},true);
 /* Projekttáblázat: a sor Enterrel is megnyitható */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const r=e.target.closest&&e.target.closest('.pt-row');if(!r)return;e.preventDefault();ACT['open-project'](r);});
+
+/* 🎉 Konfetti a projekt lezárásakor (könyvtár nélkül, vászonra rajzolva, ~3 mp) */
+function confetti(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
+  const c=document.createElement('canvas'),x=c.getContext('2d'),W=c.width=innerWidth,H=c.height=innerHeight;
+  c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999';document.body.appendChild(c);
+  const cols=['#1f5c3f','#2e7d52','#f2c14e','#e4572e','#4a90d9','#b05cc5','#ffffff'],P=[];
+  for(let i=0;i<220;i++){const left=i%2===0;P.push({x:left?-10:W+10,y:H*0.65,vx:(left?1:-1)*(4+Math.random()*9),vy:-(9+Math.random()*12),w:6+Math.random()*6,h:8+Math.random()*10,r:Math.random()*6,vr:(Math.random()-.5)*.35,c:cols[i%cols.length],t:Math.random()*Math.PI*2});}
+  const t0=performance.now();
+  (function f(now){const el=now-t0;x.clearRect(0,0,W,H);
+    P.forEach(p=>{p.vy+=0.32;p.vx*=0.985;p.x+=p.vx+Math.sin(p.t+=0.08)*0.8;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-Math.max(0,el-2600)/900);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.t)));x.restore();});
+    if(el<3500)requestAnimationFrame(f);else c.remove();})(t0);}
