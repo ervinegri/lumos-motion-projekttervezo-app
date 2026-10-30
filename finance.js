@@ -12,8 +12,9 @@ const signedVal=s=>{const t=String(s||'').replace(/\s/g,'');if(!t)return 0;const
 /* Betöltés / hiba: hibánál nem próbálkozunk újra magától (különben végtelen újratöltés lenne), csak gombra */
 function finLoadingView(){if(S.finErr)return `<div class="panel">${empty('Nem sikerült betölteni: '+esc(S.finErr))}<div class="btns"><button class="btn primary" type="button" data-action="fin-retry">Újrapróbálás</button></div></div>`;
   finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
-async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;
-  try{S.fin=await call('finData');S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
+async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;const mut0=S._finMut||0;
+  try{const d=await call('finData');if((S._finMut||0)!==mut0&&S.fin){S._finLoading=false;setTimeout(()=>finLoad(true),1500);return;}   // közben módosítottál: a régebbi adat ne írja felül
+    S.fin=d;S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
 const FIN_KEYS=['income','expense','loan','settings','invoices','billing','frameworks','sz'];

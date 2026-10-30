@@ -206,7 +206,8 @@ function evRow(p,opt={}){
 }
 function issueRow(i,exceptId){
   const links=i.pids.filter(id=>id!==exceptId).map(id=>{const p=projById(id);return p?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(id)}">${esc(p.name||'Névtelen projekt')} →</button>`:'';}).join('');
-  return `<div class="issue ${i.level}"><span class="ic" aria-hidden="true">!</span><div class="issue-t"><div>${esc(i.text)}</div>${links?`<div class="issue-links">${links}</div>`:''}</div></div>`;
+  const one=i.pids.length===1&&links;   // egy projekt: első sor a projekt neve, alatta a figyelmeztetés
+  return `<div class="issue ${i.level}"><span class="ic" aria-hidden="true">!</span><div class="issue-t">${one?`<div class="issue-links issue-first">${links}</div><div>${esc(i.text)}</div>`:`<div>${esc(i.text)}</div>${links?`<div class="issue-links">${links}</div>`:''}`}</div></div>`;
 }
 
 /* ===== Áttekintés ===== */
