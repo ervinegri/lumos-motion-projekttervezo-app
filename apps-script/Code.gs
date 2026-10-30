@@ -1948,13 +1948,20 @@ const TIG_ISSUERS_ = {
   kft: { name: 'Lumos Motion Kft.', seat: '2040 Budaörs, Szabadság út 137-139', tax: '32701573-2-13', rep: 'Egri Ervin, ügyvezető', code: 'KFT' },
   ev: { name: 'Egri Ervin E.V.', seat: '1136 Budapest, Tátra utca 20/B 3/5', tax: '92286571-1-41', rep: 'Egri Ervin', code: 'EV' }
 };
+/** A szolgáltató székhelye a NAV-ból (számlázz.hu adózó-lekérdezés), 30 napig megjegyezve; hiba esetén a beégetett érték. */
+function issuerSeat_(iss) {
+  const P = PropertiesService.getScriptProperties(), k = 'TIG_SEAT_' + iss.code;
+  try { const c = JSON.parse(P.getProperty(k) || 'null'); if (c && c.seat && Date.now() - c.at < 30 * 864e5) return c.seat; } catch (e) { }
+  try { const t = szamlazzTaxpayer_(iss.tax), seat = prettyAddress_(t); if (seat && t.zip) { P.setProperty(k, JSON.stringify({ seat: seat, at: Date.now() })); return seat; } } catch (e) { }
+  return iss.seat;
+}
 function tigCreate_(u, a) {
   a = a || {};
   const h = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA';
   const client = str_(a.client, 160); if (client.length < 2) throw new Error('Válaszd ki az ügyfelet.');
   const month = /^\d{4}-\d{2}$/.test(String(a.month || '')) ? String(a.month) : ''; if (!month) throw new Error('Hiányzik a hónap.');
-  const iss = TIG_ISSUERS_[a.issuer === 'ev' ? 'ev' : 'kft'];
+  const iss = Object.assign({}, TIG_ISSUERS_[a.issuer === 'ev' ? 'ev' : 'kft']); iss.seat = issuerSeat_(iss);
   const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ period: str_(r.period, 60), task: str_(r.task, 300), link: /^https:\/\//i.test(String(r.link || '')) ? str_(r.link, 500) : '', amount: Math.round(Number(r.amount) || 0), pid: str_(r.pid, 64) })).filter(r => r.task);
   if (!rows.length) throw new Error('Legalább egy tétel kell.');
   const total = rows.reduce((s, r) => s + r.amount, 0);
