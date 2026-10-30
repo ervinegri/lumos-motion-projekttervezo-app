@@ -271,8 +271,20 @@ function npBuild(fd){
 }
 /* Sablonok: a korábbi projektek (névenként a legutóbbi), a lemondottak nélkül */
 const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
-function tplList(){const seen=new Map();S.projects.filter(p=>p.status!=='lemondva'&&p.name).slice().sort((a,b)=>String((pr(b)||{}).start||'').localeCompare(String((pr(a)||{}).start||''))).forEach(p=>{const k=(p.name+'|'+(p.client||'')).toLowerCase();if(!seen.has(k))seen.set(k,p);});
-  return [...seen.values()].sort((a,b)=>String(a.client||'').localeCompare(String(b.client||''),'hu')||a.name.localeCompare(b.name,'hu'));}
+function tplList(){const g=new Map();
+  S.projects.filter(p=>p.status!=='lemondva'&&p.name).forEach(p=>{const k=(p.name.trim()+'|'+(p.client||'').trim()).toLowerCase(),st=String((pr(p)||{}).start||'');let e=g.get(k);
+    if(!e)g.set(k,e={p,n:0,last:''});e.n++;if(st>=e.last){e.last=st;e.p=p;}});   // névenként a legutóbbi projekt a minta, a darabszám a használat
+  return [...g.values()].sort((a,b)=>b.n-a.n||String(b.last).localeCompare(String(a.last)));}
+function tplSearch(input){const q=input.value.trim().toLowerCase(),items=tplList().filter(e=>!q||(e.p.name+' '+(e.p.client||'')).toLowerCase().includes(q)).slice(0,14);TPL_ITEMS=items;
+  pickShow(input,items.length?items.map((e,i)=>`<button type="button" class="hs-item tpl-item" data-tpl="${i}"><span class="tpl-n">${esc(e.p.name)}</span><small>${esc(e.p.client||'Nincs ügyfél')}${e.last?' · utoljára '+esc(fmtShort(e.last)):''}</small><span class="tpl-c" title="Ennyiszer volt ilyen projekt">${e.n}×</span></button>`).join(''):'<div class="hs-empty">Nincs ilyen sablon.</div>');}
+let TPL_ITEMS=[];
+function tplPick(e){const q=$('m-tplQ'),h=$('m-tplId'),x=document.querySelector('.tpl-clear');pickClose();if(!q||!h)return;h.value=e.p.id;q.value=e.p.name+(e.p.client?' · '+e.p.client:'');if(x)x.hidden=false;tplFill(e.p.id);}
+document.addEventListener('focusin',e=>{if(e.target.id==='m-tplQ'){e.target.select();tplSearch(e.target);}});
+document.addEventListener('click',e=>{if(e.target.id==='m-tplQ'&&!$('hsBox'))tplSearch(e.target);});
+document.addEventListener('input',e=>{if(e.target.id==='m-tplQ'){const h=$('m-tplId');if(h)h.value='';tplSearch(e.target);}});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.tpl-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=TPL_ITEMS[Number(it.dataset.tpl)];if(v)tplPick(v);},true);
+document.addEventListener('focusout',e=>{if(e.target.id==='m-tplQ')setTimeout(()=>{const a=document.activeElement;if((!a||a.id!=='m-tplQ')&&$('hsBox')&&$('hsBox').querySelector('.tpl-item'))pickClose();},150);});
+document.addEventListener('keydown',e=>{if(e.target.id!=='m-tplQ')return;if(e.key==='Enter'){e.preventDefault();if(TPL_ITEMS[0])tplPick(TPL_ITEMS[0]);}else if(e.key==='Escape')pickClose();},true);
 function tplFill(id){const t=projById(id),f=$('mform');if(!t||!f)return;
   const set=(n,v)=>{const e=f.querySelector('[name='+n+']');if(e)e.value=v||'';};
   if(t.client){const it=knownClients('').find(c=>c.company===t.client);mcSetClient(it||{isNew:true,company:t.client});}
@@ -289,7 +301,7 @@ function newProjectModal(day){
   const d0=day||'';
   const tpls=tplList();
   openModal('Új projekt',`<div class="fields">
-    ${tpls.length?`<div class="field full tpl-field"><label for="m-tpl">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><select class="inp" id="m-tpl" name="tplId"><option value="">— Üres projekt —</option>${tpls.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}${t.client?' · '+esc(t.client):''}${pr(t)?' ('+esc(fmtShort(pr(t).start))+')':''}</option>`).join('')}</select><small class="hint" style="margin:4px 0 0">Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.</small></div>`:''}
+    ${tpls.length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Keress sablont… (a leggyakoribbak elöl)"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.</small></div>`:''}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
@@ -817,6 +829,7 @@ const ACT={
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveChecked(),
   'discard':()=>{discardDraft();render(true);toast('Módosítások elvetve');},
+  'tpl-clear':()=>{const q=$('m-tplQ'),h=$('m-tplId'),x=document.querySelector('.tpl-clear');if(q)q.value='';if(h)h.value='';if(x)x.hidden=true;if(q)q.focus();},
   'merge-theirs':()=>{if(MERGE_THEIRS){const f=MERGE_THEIRS;MERGE_THEIRS=null;f();}},
   'guard-discard':()=>{const g=GUARD_NEXT;GUARD_NEXT=null;closeModal();discardDraft();if(g)g.fn();},
   'budget-request':()=>budgetRequestModal(),
@@ -1174,7 +1187,6 @@ function mcSearch(input){const q=input.value.trim();MC_ITEMS=knownClients(q);MC_
   pickShow(input,MC_ITEMS.map((it,i)=>it.isNew?`<button type="button" class="hs-item hs-new mc-item" data-mc="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
     :`<div class="hs-row"><button type="button" class="hs-item mc-item" data-mc="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button></div>`).join('')+(MC_ITEMS.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));}
 document.addEventListener('focusin',e=>{if(e.target.id==='m-clientQ')mcSearch(e.target);});
-document.addEventListener('change',e=>{if(e.target.id==='m-tpl'&&e.target.value)tplFill(e.target.value);});
 document.addEventListener('input',e=>{if(e.target.id==='m-clientQ'){const s2=$('m-clientSel');if(s2&&s2.value!=='__new')s2.value='';mcSearch(e.target);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.mc-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=MC_ITEMS[Number(it.dataset.mc)];pickClose();if(v)mcSetClient(v);},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-clientQ'){const t=e.target;setTimeout(()=>{if(document.activeElement===t)return;if($('hsBox')&&$('hsBox').querySelector('.mc-item'))pickClose();
