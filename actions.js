@@ -881,7 +881,12 @@ const ACT={
       ${p.updatedAt?`<p class="hint">Utoljára mentve: ${esc(p.updatedAt)}${p.updatedBy?' · '+esc(p.updatedBy):''}</p>`:''}`,{cancelLabel:'Bezárás',submitLabel:'Átnevezés',submit:async fd=>{
       const name=String(fd.get('name')||'').trim().replace(/\s+/g,' ');if(name.length<2){toast('Add meg a projekt nevét.',true);return;}
       closeModal();if(name===S.draft.name&&!S.dirty)return;setDraft({name});toast('Átnevezve – mentsd el a Mentés gombbal');}});},
-  'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;if(d.status==='lemondva')setDraft({status:d.prevStatus||'egyeztetes'});else setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes'});},
+  'cancel-toggle':()=>{closeModal();const d=S.draft;if(!d)return;
+    if(d.status==='lemondva'){setDraft({status:d.prevStatus||'egyeztetes',cancelReason:''});toast('Projekt visszaállítva – mentsd el a Mentés gombbal');return;}
+    openModal('Biztosan lemondod a projektet?',`<p style="margin:0 0 10px">A(z) <b>${esc(d.name||'projekt')}</b> lemondott projektként nem számít bele az ütközésekbe, a pénzügyekbe és a határidőkbe. Később visszaállítható.</p>
+      <div class="fields"><div class="field full"><label for="m-cancelReason">Miért mondjuk le? <span class="muted">(kötelező)</span></label><textarea class="inp" id="m-cancelReason" name="cancelReason" rows="3" maxlength="1000" placeholder="pl. az ügyfél elhalasztotta a rendezvényt, más szolgáltatót választott, költségvetés…"></textarea></div></div>`,
+      {submitLabel:'🚫 Igen, lemondom',submit:async fd=>{const r=String(fd.get('cancelReason')||'').trim();if(r.length<3){toast('Írd be a lemondás okát.',true);const t=$('m-cancelReason');if(t)t.focus();return;}
+        closeModal();setDraft({status:'lemondva',prevStatus:d.status||'egyeztetes',cancelReason:r});toast('Projekt lemondva – mentsd el a Mentés gombbal');}});},
   'del-project':b=>arm(b,async()=>{const id=S.projectId;try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(p=>p.id!==id);closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){handleErr(e);}}),
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n});},
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft(stepPatch(d,it.k,n));},
