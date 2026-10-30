@@ -2160,7 +2160,10 @@ function deleteItem_(u, a) {
 /** A levél feladója admin@ (ha be van állítva aliasként), a megjelenő név a küldő kolléga, a válasz hozzá megy. */
 function mailOptsFor_(u, html) {
   const opts = { htmlBody: html, name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: (u && u.email) || MAIL_REPLY_TO };
-  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
+  try {   // a küldő a művelet végzője (pl. a termelési vezető), ha a címe „Küldés másként” álnévként be van állítva a telepítő Gmail-fiókjában
+    const al = GmailApp.getAliases().map(x => String(x).toLowerCase()), me = String(u && u.email || '').toLowerCase();
+    if (me && al.indexOf(me) >= 0) opts.from = me; else if (al.indexOf(String(MAIL_FROM).toLowerCase()) >= 0) opts.from = MAIL_FROM;
+  } catch (e) {}
   return opts;
 }
 function fmtHuDate_(iso) {
