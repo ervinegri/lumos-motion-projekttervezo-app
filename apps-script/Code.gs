@@ -75,7 +75,7 @@ const TABLES = {
     ['location', 'Tárolási hely']] },
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
-    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)'], ['repPhone', 'Képviselő telefonszáma'], ['repEmail', 'Képviselő e-mail-címe'], ['contactTitle', 'Kapcsolattartó titulusa'], ['repTitle', 'Képviselő titulusa']] },
+    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)'], ['repPhone', 'Képviselő telefonszáma'], ['repEmail', 'Képviselő e-mail-címe'], ['contactTitle', 'Kapcsolattartó titulusa'], ['repTitle', 'Képviselő titulusa'], ['tigMail', 'TIG e-mail sablon (JSON)']] },
   finIncome: { tab: 'Bevételek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['day', 'Nap'], ['name', 'Megnevezés'], ['payStatus', 'Fizetési állapot'], ['amount', 'Díjazás (nettó Ft)'],
     ['prod', 'Termelési költség (Ft)'], ['profit', 'Nyereség (Ft)'], ['ceo', 'Ügyvezető (Ft)'], ['rezsi', 'Eszköz, rezsi (Ft)'], ['marketing', 'Marketing (Ft)'],
@@ -774,7 +774,7 @@ function finSettings_() {
   return { profitPct: pct(s.profitPct, 30), ceoPct: pct(s.ceoPct, 5), marketingPct: pct(s.marketingPct, 5),
     openMonth: ym(s.openMonth), openRezsi: money(s.openRezsi), openMarketing: money(s.openMarketing),
     appFromMonth: ym(s.appFromMonth), importedAt: str_(s.importedAt, 30), importedFrom: str_(s.importedFrom, 300),
-    carries: s.carries && typeof s.carries === 'object' ? s.carries : {} };   // a régi táblázat havi áthozatai (hónap → [rezsi, marketing]) – a régi hónapokban ezek a hitelesek
+    carries: s.carries && typeof s.carries === 'object' ? s.carries : {}, tigMail: s.tigMail && typeof s.tigMail === 'object' ? s.tigMail : null };   // a régi táblázat havi áthozatai (hónap → [rezsi, marketing]) – a régi hónapokban ezek a hitelesek
 }
 function finSaveSettings_(u, a) {
   const cur = finSettings_(), next = Object.assign({}, cur);
@@ -782,6 +782,7 @@ function finSaveSettings_(u, a) {
   if (next.profitPct + next.ceoPct + next.marketingPct > 100) throw new Error('A százalékok összege nem lehet több 100-nál.');
   ['openMonth', 'appFromMonth'].forEach(k => { if (a && a[k] !== undefined) { if (a[k] && !/^\d{4}-\d{2}$/.test(String(a[k]))) throw new Error('Hibás hónap.'); next[k] = String(a[k] || ''); } });
   ['openRezsi', 'openMarketing'].forEach(k => { if (a && a[k] !== undefined) { const n = Math.round(Number(a[k])); if (!isFinite(n)) throw new Error('Hibás összeg.'); next[k] = n; } });
+  if (a && a.tigMail !== undefined) next.tigMail = a.tigMail ? { subject: str_(a.tigMail.subject, 200), text: str_(a.tigMail.text, 5000) } : null;   // TIG e-mail alapsablon
   PropertiesService.getScriptProperties().setProperty(FIN_SETTINGS_PROPERTY, JSON.stringify(next));
   logEvent_(u, 'Pénzügyi beállítások', '', 'módosítva');
   return finPart_(['settings']);
@@ -2467,7 +2468,7 @@ function saveClient_(u, a) {
   const id = str_(a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
   const c = { id: id, name: str_(a.name, 160).replace(/\s+/g, ' '), tax: str_(a.tax, 20).replace(/[^\d-]/g, ''), address: str_(a.address, 300),
-    contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000), rep: str_(a.rep, 120), repPhone: str_(a.repPhone, 40), repEmail: str_(a.repEmail, 160).toLowerCase(), contactTitle: str_(a.contactTitle, 120), repTitle: str_(a.repTitle, 120) };
+    contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000), rep: str_(a.rep, 120), repPhone: str_(a.repPhone, 40), repEmail: str_(a.repEmail, 160).toLowerCase(), contactTitle: str_(a.contactTitle, 120), repTitle: str_(a.repTitle, 120), tigMail: a.tigMail && typeof a.tigMail === 'object' ? JSON.stringify({ to: str_(a.tigMail.to, 300), cc: str_(a.tigMail.cc, 300), subject: str_(a.tigMail.subject, 200), text: str_(a.tigMail.text, 5000) }) : str_(typeof a.tigMail === 'string' ? a.tigMail : '', 6000) };
   if (c.name.length < 2) throw new Error('Add meg az ügyfél nevét.');
   if (c.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.contactEmail)) throw new Error('Az e-mail-cím érvénytelen.');
   const oldName = str_(a.oldName, 160).trim();
@@ -2478,7 +2479,7 @@ function saveClient_(u, a) {
       const ex = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === c.name.toLowerCase());
       if (ex) { c.id = ex.id; row = findRow_(sh, ex.id); }
     }
-    if (row) { old = readRow_('clients', sh, row); c.createdAt = old.createdAt; } else c.createdAt = now_();
+    if (row) { old = readRow_('clients', sh, row); c.createdAt = old.createdAt; if (a.tigMail === undefined) c.tigMail = old.tigMail || ''; } else c.createdAt = now_();
     c.updatedAt = now_();
     putRow_('clients', sh, c, row);
     let renamed = 0;
