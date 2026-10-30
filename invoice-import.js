@@ -93,7 +93,7 @@ function szImpRows(text){
     out.push({no,buyer,tax,date:get(r,'date'),kind:szImpKind(type),projectId:linked?'':szImpMatchedProject(buyer,tax),linked,result:''});
     if(out.length>SZIMP_LIMIT)throw new Error('Legfeljebb '+SZIMP_LIMIT+' különböző bizonylat importálható egyszerre. Exportálj rövidebb időszakot.');
   }
-  if(!out.length)throw new Error('A fájlban feldolgozható bizonylat található helyett ellenőrizd az export oszlopait és időszakát.');
+  if(!out.length)throw new Error('A fájlban nem találtam feldolgozható bizonylatot. Ellenőrizd az export oszlopait és időszakát.');
   return {rows:out,duplicates:dup,unsupported};
 }
 function szImpFileInput(){
