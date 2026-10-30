@@ -806,8 +806,8 @@ function arm(b,fn){
 
 /* ===== Események ===== */
 const ACT={
-  'mail-toggle':b=>{const on=!S.mailOn;const go=async()=>{b.disabled=true;try{const r=await call('setMail',{on});S.mailOn=r.mailOn;render(true);toast(on?'E-mail értesítések bekapcsolva':'E-mailek szüneteltetve – senki nem kap e-mailt');}catch(e){handleErr(e);b.disabled=false;}};
-    if(on)confirmModal('E-mailek bekapcsolása','Ettől kezdve a szakemberek (beosztás, eszközlista, díjcsökkentés) és – számla kiállításakor – az ügyfelek is kapnak e-mailt.','Bekapcsolás',go);else go();},
+  'mail-toggle':b=>{const on=!S.mailOn;const go=async()=>{b.disabled=true;try{const r=await call('setMail',{on});S.mailOn=r.mailOn;if(r.mailCats)S.mailCats=r.mailCats;render(true);toast(on?'E-mail értesítések bekapcsolva':'E-mailek szüneteltetve – senki nem kap e-mailt');}catch(e){handleErr(e);b.disabled=false;}};
+    if(on)confirmModal('E-mailek bekapcsolása','Ettől kezdve a lent bepipált értesítések kimennek (a többi típus kikapcsolva marad).','Bekapcsolás',go);else go();},
   tab:b=>guard(()=>{S.finErr='';const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
@@ -1238,3 +1238,8 @@ function confetti(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matche
 /* Naptár: üres napra kattintva új projekt (sablonnal is) – a bejegyzésekre kattintva azok nyílnak meg */
 document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar')return;const d=e.target.closest&&e.target.closest('.cal-day');if(!d||e.target.closest('button,a,.cal-chip'))return;
   const day=d.dataset.day;if(day)guard(()=>newProjectModal(day));});
+
+/* E-mail értesítések típusonként (Beállítások) */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.mailcat)return;const cat=t.dataset.mailcat,on=t.checked;
+  S.mailCats=Object.assign({},S.mailCats||{},{[cat]:on});
+  try{const r=await call('setMail',{cat,on});if(r.mailCats)S.mailCats=r.mailCats;toast(on?'Bekapcsolva':'Kikapcsolva');}catch(err){S.mailCats[cat]=!on;t.checked=!on;handleErr(err);}});

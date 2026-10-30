@@ -340,7 +340,7 @@ function bootstrap_(u) {
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    mailOn: mailOn_(),
+    mailOn: mailOn_(), mailCats: u.role === 'admin' ? mailCats_() : undefined,
     capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
@@ -475,16 +475,26 @@ function crewMembers_(p) {
 /* ===== E-mail kapcsoló: amíg nincs bekapcsolva (Beállítások → E-mail értesítések), az app SEMMILYEN e-mailt nem küld:
    sem a szakembereknek, sem az ügyfeleknek (számlázz.hu), sem naptár-meghívót. Alapértelmezés: kikapcsolva. */
 const MAIL_ON_PROPERTY = 'LUMOS_PM_MAIL_ON';
-function mailOn_() { try { return PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) === '1'; } catch (e) { return false; } }
-function gmailSend_(to, subject, text, opts) {
-  if (!mailOn_()) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
+/* E-mail értesítések: főkapcsoló + típusonként külön kapcsoló (alapból mind be, ha a főkapcsoló be van kapcsolva) */
+const MAIL_CATS_PROPERTY = 'LUMOS_PM_MAIL_CATS';
+const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite'];
+function mailCats_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CATS_PROPERTY) || '{}') || {}; } catch (e) { o = {}; } const out = {}; MAIL_CATS_.forEach(k => { out[k] = o[k] !== false; }); return out; }
+function mailOn_(cat) { try { if (PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) !== '1') return false; return !cat || mailCats_()[cat] !== false; } catch (e) { return false; } }
+function gmailSend_(to, subject, text, opts, cat) {
+  if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   GmailApp.sendEmail(to, subject, text, opts); return true;
 }
 function setMail_(u, a) {
-  const on = !!(a && a.on);
-  PropertiesService.getScriptProperties().setProperty(MAIL_ON_PROPERTY, on ? '1' : '0');
-  logEvent_(u, 'E-mail értesítések', '', on ? 'bekapcsolva' : 'kikapcsolva');
-  return { mailOn: on };
+  a = a || {};
+  if (a.cat) {
+    if (MAIL_CATS_.indexOf(a.cat) < 0) throw new Error('Ismeretlen értesítéstípus.');
+    const c = mailCats_(); c[a.cat] = !!a.on; PropertiesService.getScriptProperties().setProperty(MAIL_CATS_PROPERTY, JSON.stringify(c));
+    logEvent_(u, 'E-mail értesítések', a.cat, a.on ? 'bekapcsolva' : 'kikapcsolva');
+  } else {
+    PropertiesService.getScriptProperties().setProperty(MAIL_ON_PROPERTY, a.on ? '1' : '0');
+    logEvent_(u, 'E-mail értesítések', '', a.on ? 'bekapcsolva' : 'kikapcsolva');
+  }
+  return { mailOn: mailOn_(), mailCats: mailCats_() };
 }
 function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállítása; a nem stábhoz tartozó vendégekhez (pl. ügyfél) nem nyúlunk
   const want = {}; emails.forEach(m => { want[m] = 1; });
@@ -494,10 +504,10 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
     const keep = (cur.attendees || []).filter(x => !allCrewEmails[String(x.email || '').toLowerCase()] || want[String(x.email || '').toLowerCase()]);
     const have = {}; keep.forEach(x => { have[String(x.email || '').toLowerCase()] = 1; });
     emails.forEach(m => { if (!have[m]) keep.push({ email: m }); });
-    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: mailOn_() ? 'all' : 'none' });   // kikapcsolt e-mailnél a Google sem értesít
-    return mailOn_();
+    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: mailOn_('calendar') ? 'all' : 'none' });   // kikapcsolt e-mailnél a Google sem értesít
+    return mailOn_('calendar');
   }
-  if (!mailOn_()) return false;   // speciális szolgáltatás nélkül a vendégek felvétele értesítést küldhet – kikapcsolt e-mailnél kihagyjuk
+  if (!mailOn_('calendar')) return false;   // speciális szolgáltatás nélkül a vendégek felvétele értesítést küldhet – kikapcsolt e-mailnél kihagyjuk
   const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
   Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
   Object.keys(have).forEach(m => { if (allCrewEmails[m] && !want[m]) ev.removeGuest(m); });
@@ -519,7 +529,7 @@ function crewFinalMail_(u, p, m, lead, link, changed) {
   const html = '<p>Szia ' + escapeHtml_(String(m.name).split(/\s+/).pop()) + '!</p><p>' + escapeHtml_(intro) + '</p><table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  return gmailSend_(m.email, (changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range, text, mailOptsFor_(u, html));
+  return gmailSend_(m.email, (changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range, text, mailOptsFor_(u, html), 'assign');
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -1141,14 +1151,14 @@ function saveCalEvent_(u, a) {
   if (ev && ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projektben módosítsd, az app frissíti a naptárat.');
   const opts = { description: desc, location: loc };
   if (!ev) {
-    if (guests.length) { opts.guests = guests.join(','); opts.sendInvites = a.sendInvites === true && mailOn_(); }
+    if (guests.length) { opts.guests = guests.join(','); opts.sendInvites = a.sendInvites === true && mailOn_('calendar'); }
     ev = allDay ? cal_().createAllDayEvent(title, start, end, opts) : cal_().createEvent(title, start, end, opts);
   } else {
     ev.setTitle(title); ev.setDescription(desc); ev.setLocation(loc);
     if (allDay) ev.setAllDayDates(start, end); else ev.setTime(start, end);
-    if (!mailOn_() && typeof Calendar !== 'undefined' && Calendar.Events) {   // kikapcsolt e-mail: értesítés nélkül állítjuk a vendéglistát
+    if (!mailOn_('calendar') && typeof Calendar !== 'undefined' && Calendar.Events) {   // kikapcsolt e-mail: értesítés nélkül állítjuk a vendéglistát
       Calendar.Events.patch({ attendees: guests.map(m => ({ email: m })) }, CALENDAR_ID, String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' });
-    } else if (mailOn_()) {
+    } else if (mailOn_('calendar')) {
       const want = {}; guests.forEach(m => { want[m] = 1; });
       const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
       Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
@@ -1431,7 +1441,7 @@ function szInvoice_(u, a) {
   if (!items.length) throw new Error('Adj meg legalább egy tételt.');
   const today = today_(), fulfill = iso_(a.fulfill) || today, due = iso_(a.due) || today;
   const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
-  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = mailOn_() && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
+  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
@@ -2002,13 +2012,13 @@ function penMailCrew_(u, p, x) {
       x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, x.link ? '\nBizonyíték: ' + x.link : '', '',
       'Ha nem értesz egyet, a projekt oldalán a „Kifogásolom” gombbal írásban jelezheted: ' + url, '', 'Üdvözlettel:', 'Lumos Motion'].filter((l, i, a) => l !== '' || a[i - 1] !== '');
     const html = lines.map(l => escapeHtml_(l)).join('<br>');
-    return gmailSend_(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html));
+    return gmailSend_(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html), 'penalty');
   } catch (e) { Logger.log('Díjcsökkentés e-mail hiba: ' + e); return false; }
 }
 function penMailAdmins_(u, subject, text) {
   try {
     const to = loadUsers_().filter(x => x.role === 'admin' && !x.disabled && x.email).map(x => x.email);
-    if (to.length) gmailSend_(to.join(','), subject, text, mailOptsFor_(u, escapeHtml_(text).replace(/\n/g, '<br>')));
+    if (to.length) gmailSend_(to.join(','), subject, text, mailOptsFor_(u, escapeHtml_(text).replace(/\n/g, '<br>')), 'penAdmin');
   } catch (e) { Logger.log('Értesítés hiba: ' + e); }
 }
 function addPenalty_(u, a) {
@@ -2248,7 +2258,7 @@ function sendEquipmentList_(u, a) {
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     const opts = mailOptsFor_(u, html);
     if (u.email && String(u.email).toLowerCase() !== String(c.email).toLowerCase()) opts.cc = u.email;
-    if (gmailSend_(c.email, subject, text, opts)) sentTo.push(c.name);
+    if (gmailSend_(c.email, subject, text, opts, 'eqlist')) sentTo.push(c.name);
   });
   const when = now_(), info2 = sentTo.length + ' fő: ' + sentTo.join(', ');
   withLock_(() => {
@@ -2333,12 +2343,17 @@ function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, 
 function appUrl_() { return FRONTEND_URL; }
 /* Személyes e-mail-aláírások (a küldő e-mail-címe szerint). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
 const SIGNATURES = {
+  'david.zajacz@lumosmotion.com': {
+    html: "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;width:375px;font-family:Arial,Helvetica,sans-serif;color:#111111;\" width=\"375\"><tr><td colspan=\"2\" style=\"padding:0 0 5pt 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:12pt;color:#111111;\">Üdvözlettel,</td></tr><tr><td style=\"width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;\" valign=\"middle\" width=\"116\"><img alt=\"david.jpg\" height=\"108\" src=\"https://projekttervezo.lumosmotion.hu/sig/david.jpg\" style=\"display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;\" width=\"108\"/></td><td style=\"padding:8px 8px 8px 0;vertical-align:middle;white-space:nowrap;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111111;\" valign=\"middle\"><div style=\"font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;\">Zajácz Dávid</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Produkciós koordinátor</div><div style=\"font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;\">Lumos Motion Kft.</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Tel.: <a href=\"tel:+36205995583\" style=\"color:#1155cc;text-decoration:underline;\">+36 20 599 5583</a></div><div style=\"font-size:10pt;line-height:12pt;margin:0;\">Email: <a href=\"mailto:david.zajacz@lumosmotion.com\" style=\"color:#1155cc;text-decoration:underline;font-size:10pt;\">david.zajacz@lumosmotion.com</a></div></td></tr><tr><td colspan=\"2\" style=\"padding:6pt 0 0 0;\"><a href=\"https://lumosmotion.com/\" style=\"text-decoration:none;border:0;\"><img alt=\"lumosmotion.png\" height=\"23\" src=\"https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png\" style=\"display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;\" width=\"224\"/></a></td></tr></table>",
+    text: 'Üdvözlettel,\n\nZajácz Dávid\nProdukciós koordinátor\nLumos Motion Kft.\nTel.: +36 20 599 5583\nEmail: david.zajacz@lumosmotion.com\nhttps://lumosmotion.com/'
+  },
   'ervin.egri@lumosmotion.com': {
     html: "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;width:375px;font-family:Arial,Helvetica,sans-serif;color:#111111;\" width=\"375\"><tr><td colspan=\"2\" style=\"padding:0 0 5pt 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:12pt;color:#111111;\">Üdvözlettel,</td></tr><tr><td style=\"width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;\" valign=\"middle\" width=\"116\"><img alt=\"ervin.jpg\" height=\"108\" src=\"https://projekttervezo.lumosmotion.hu/sig/ervin.jpg\" style=\"display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;\" width=\"108\"/></td><td style=\"padding:8px 8px 8px 0;vertical-align:middle;white-space:nowrap;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111111;\" valign=\"middle\"><div style=\"font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;\">Egri Ervin</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Ügyvezető igazgató</div><div style=\"font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;\">Lumos Motion Kft.</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Tel.: <a href=\"tel:+36706178235\" style=\"color:#1155cc;text-decoration:underline;\">+36 70 617 8235</a></div><div style=\"font-size:10pt;line-height:12pt;margin:0;\">Email: <a href=\"mailto:ervin.egri@lumosmotion.com\" style=\"color:#1155cc;text-decoration:underline;font-size:10pt;\">ervin.egri@lumosmotion.com</a></div></td></tr><tr><td colspan=\"2\" style=\"padding:6pt 0 0 0;\"><a href=\"https://lumosmotion.com/\" style=\"text-decoration:none;border:0;\"><img alt=\"lumosmotion.png\" height=\"23\" src=\"https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png\" style=\"display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;\" width=\"224\"/></a></td></tr></table>",
     text: 'Üdvözlettel,\n\nEgri Ervin\nÜgyvezető igazgató\nLumos Motion Kft.\nTel.: +36 70 617 8235\nEmail: ervin.egri@lumosmotion.com\nhttps://lumosmotion.com/'
   }
 };
-const signatureFor_ = u => SIGNATURES[String((u && u.email) || '').toLowerCase()] || null;
+const SIG_ALIAS_ = { 'zajacz.david@lumosmotion.com': 'david.zajacz@lumosmotion.com' };   // ugyanaz a postafiók más címmel
+const signatureFor_ = u => { const m = String((u && u.email) || '').toLowerCase(); return SIGNATURES[m] || SIGNATURES[SIG_ALIAS_[m]] || null; };
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 /** Meghívó Google-fiókos belépéshez (PIN nélkül). */
@@ -2353,7 +2368,7 @@ function sendInviteMail_(user) {
     + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
   try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  gmailSend_(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts);
+  gmailSend_(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts, 'invite');
 }
 
 /** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
