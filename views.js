@@ -437,7 +437,7 @@ function financePanel(p,inner){
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     ${finPanelBody(p)}
     ${budgetRequestPanel(p)}
-    <p class="hint">A díjmezők elhagyásakor az összegek automatikusan mentődnek. A felső jelzés mutatja a mentés állapotát.</p>
+    <p class="hint">A módosítások a 💾 Mentés gombbal (Ctrl+S) mentődnek.</p>
     ${tables}
     ${penPanel(p)}
   </div>`;
@@ -679,7 +679,8 @@ function viewProject(p){
     </div>
   </details>`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
-    return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb, eszközök és ${isAdmin()?'pénzügyek':'termelői díjak'} <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div>${financePanel(p,true)}</details>`;})()
+    return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
+      <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'} <span class="aside">${isAdmin()&&p.projectValue!=null&&p.projectValue!==''?(isFree(p)?'nem fizetős':ftFmt(num(p.projectValue))+' büdzsé'):''}</span></h3></summary>${financePanel(p,true)}</details>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
   ${ro()&&p.myFee&&num(p.myFee.amount)?myFeePanel(p):''}`;
 }
