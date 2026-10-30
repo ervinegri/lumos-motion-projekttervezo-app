@@ -286,7 +286,7 @@ function viewProjects(){
       :`<span class="smallnum">${crewIds(p).size} fő · ${eqCount(p)} eszköz</span>`;
     const dim=crewDim(p);
     return `<tr class="pt-row${dim?' pt-dim':''}"${dim?' aria-disabled="true"':` data-action="open-project" data-id="${esc(p.id)}" tabindex="0"`}><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
-      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
+      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}${/^https:\/\//i.test(p.deliveryLink||'')?`<a class="statuspill p-info pt-video" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(p.deliveryLink)}">▶ Leadott videó</a>`:''}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
   const cols=ro()?3:2;
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
