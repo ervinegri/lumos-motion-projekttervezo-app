@@ -254,7 +254,7 @@ for(const f of ['core.js','views.js','actions.js','finance.js']){
 }
 const fr=s=>vm.runInContext(s,front);
 fr(`render=()=>{};renderChrome=()=>{};syncCal=()=>{};toast=()=>{};S.me={role:'editor',crewId:'david-123'};S.tab='projektek';S.crew=[{id:'david-123',name:'Dávid'},{id:'bence-123',name:'Bence'}];S.draft={id:'test-project',name:'Test',date:'2026-10-10',status:'utomunka',budgetFt:150000,fees:[{crewId:'david-123',amount:0},{crewId:'bence-123',amount:0}],crew:[],equipment:[]};`);
-test('frontend records fee edits in the draft and autosaves on leaving the field',()=>{
+test('frontend records fee edits in the draft and does NOT autosave (manual save button)',()=>{
   const target={dataset:{feeI:'0',feeK:'amount',money:'1'},value:'60 000',tagName:'INPUT',selectionStart:6,closest(){return null},setSelectionRange(){}};
   listeners.input.forEach(fn=>fn({target}));
   assert.equal(fr('S.draft.fees[0].amount'),60000);
@@ -262,7 +262,8 @@ test('frontend records fee edits in the draft and autosaves on leaving the field
   fr('var autoSaved=false;saveDraft=()=>{autoSaved=true;};');
   listeners.change.forEach(fn=>fn({target}));
   for(const fn of timers.splice(0))fn();
-  assert.equal(fr('autoSaved'),true);
+  assert.equal(fr('autoSaved'),false);
+  assert.equal(fr('S.dirty'),true);
 });
 test('frontend rejects server responses that silently lose entered fees',()=>{
   assert.throws(()=>fr(`verifySavedFees(S.draft,{fees:[{crewId:'david-123',amount:0},{crewId:'bence-123',amount:0}]})`),/eltérő díjat/);
