@@ -232,7 +232,9 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
 /* ===== Keretszerződések ===== */
 const fwNorm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
 const fwOfClient=c=>c?((S.fin&&S.fin.frameworks)||[]).find(f=>fwNorm(f.client)===fwNorm(c))||null:null;
-function fwFor(p){const f=fwOfClient(p&&p.client);if(!f)return null;const r=pr(p);return !f.validTo||!r||f.validTo>=r.start?f:null;}
+/* üres sor (pl. a „Nem kell” pipa ki-be kapcsolása után): se szerződés, se „nem igényel” – nem számít keretszerződésnek */
+const fwReal=f=>!!f&&(f.mode==='nemkell'||!!f.url||!!f.fileId);
+function fwFor(p){const f=fwOfClient(p&&p.client);if(!fwReal(f))return null;const r=pr(p);return !f.validTo||!r||f.validTo>=r.start?f:null;}
 const readB64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=()=>no(new Error('A fájl nem olvasható.'));r.readAsDataURL(file);});
 const fwCell=(f,cls)=>f.mode==='nemkell'?`<div class="${cls}"><span class="statuspill p-mute" title="Az ügyfél nem igényel szerződést">🚫 Nem igényel szerződést</span></div>`:`<div class="${cls}">${f.url?`<a class="statuspill p-ok fw-link" href="${esc(f.url)}" target="_blank" rel="noopener" title="${esc(f.fileName||'Keretszerződés megnyitása')}">🤝 Keretszerződés ↗</a>`:`<span class="statuspill p-ok" title="Keretszerződés az ügyféllel">🤝 Keretszerződés</span>`}${f.validTo?`<span class="bl-meta">érvényes: ${esc(f.validTo)}</span>`:''}</div>`;
 function fwPanel(){const list=((S.fin&&S.fin.frameworks)||[]).slice().sort((a,b)=>a.client.localeCompare(b.client,'hu'));const T=todayISO();

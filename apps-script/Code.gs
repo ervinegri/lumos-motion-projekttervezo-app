@@ -1986,6 +1986,7 @@ function fwSave_(u, a) {
     if (a.signedAt !== undefined) r.signedAt = iso_(a.signedAt);
     if (a.validTo !== undefined) r.validTo = iso_(a.validTo);
     if (a.note !== undefined) r.note = str_(a.note, 500);
+    if (r.mode !== 'nemkell' && !r.url && !r.fileId) { if (old) sh.deleteRow(findRow_(sh, old.id)); dbFlush_(); return finPart_(['frameworks']); }   // se szerződés, se „nem kell”: nincs mit tárolni
     putRow_('finFramework', sh, r, old ? findRow_(sh, old.id) : 0);
     dbFlush_();
     logEvent_(u, 'Keretszerződés', client, old ? 'módosítva' : 'felvéve');
