@@ -30,7 +30,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlK
   const b=f.querySelector('button[type=submit]');if(!b||b.disabled)return;e.preventDefault();if(f.requestSubmit)f.requestSubmit(b);else b.click();});
 function closeModal(){if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';}
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
-const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}" value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
+const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}"${o.ac?` autocomplete="${o.ac}"`:''} value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
 const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}">${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 /* Forintmező: csak számjegy, ezres tagolás, ± gomb 1000 Ft-onként */
 const MONEY_MAX=9999000,MONEY_STEP=1000;
@@ -98,13 +98,13 @@ if(PROJ_BC)PROJ_BC.onmessage=ev=>{const p=ev.data&&ev.data.p;if(!p||!p.id||!S.pr
   if(typeof tigSyncRows==='function'&&$('tig-rows'))tigSyncRows(p);else if(!$('mform')&&S.projectId!==p.id)render(true);};
 /* „A kapcsolattartó és a cég képviselője ugyanaz”: a képviselő mezői a kapcsolattartóéit másolják (nem írhatók); pipa nélkül kézzel kell kitölteni */
 function repCopy(){const ck=$('m-repSame'),box=document.querySelector('.rep-box');if(!ck||!box)return;const same=ck.checked;box.classList.toggle('rep-same',same);
-  ['m-rep','m-repEmail','m-repPhone'].forEach(id=>{const x=$(id);if(x)x.readOnly=same;});if(!same)return;
-  const g=id=>($(id)||{}).value||'';const r=$('m-rep'),em=$('m-repEmail');if(r)r.value=g('m-contactName');if(em)em.value=g('m-contactEmail');
+  ['m-rep','m-repTitle','m-repEmail','m-repPhone'].forEach(id=>{const x=$(id);if(x)x.readOnly=same;});if(!same)return;
+  const g=id=>($(id)||{}).value||'';const r=$('m-rep'),em=$('m-repEmail');if(r)r.value=g('m-contactName');if(em)em.value=g('m-contactEmail');{const t=$('m-repTitle');if(t)t.value=g('m-contactTitle');}
   const src=document.querySelector('.phone-row[data-ph="n:contactPhone"]'),dst=document.querySelector('.phone-row[data-ph="n:repPhone"]');
   if(src&&dst){const sc=src.querySelector('.ph-cc'),dc=dst.querySelector('.ph-cc');dc.dataset.cc=sc.dataset.cc;dc.innerHTML=sc.innerHTML;dst.querySelector('.ph-num').value=src.querySelector('.ph-num').value;
     const sh=src.querySelector('input[type=hidden]'),dh=dst.querySelector('input[type=hidden]');if(sh&&dh)dh.value=sh.value;}}
-document.addEventListener('change',e=>{if(e.target.id!=='m-repSame')return;if(!e.target.checked){['m-rep','m-repEmail','m-repPhone'].forEach(id=>{const x=$(id);if(x)x.value='';});const h=document.querySelector('.phone-row[data-ph="n:repPhone"] input[type=hidden]');if(h)h.value='';}repCopy();if(!e.target.checked){const r=$('m-rep');if(r)r.focus();}});
-document.addEventListener('input',e=>{if(['m-contactName','m-contactEmail','m-contactPhone'].includes(e.target.id))setTimeout(repCopy,0);});
+document.addEventListener('change',e=>{if(e.target.id!=='m-repSame')return;if(!e.target.checked){['m-rep','m-repTitle','m-repEmail','m-repPhone'].forEach(id=>{const x=$(id);if(x)x.value='';});const h=document.querySelector('.phone-row[data-ph="n:repPhone"] input[type=hidden]');if(h)h.value='';}repCopy();if(!e.target.checked){const r=$('m-rep');if(r)r.focus();}});
+document.addEventListener('input',e=>{if(['m-contactName','m-contactTitle','m-contactEmail','m-contactPhone'].includes(e.target.id))setTimeout(repCopy,0);});
 /* A képviselő neve is a HubSpotban keres (név alapján, üresen a cég kapcsolatai) */
 let HSR_T=0,HSR_SEQ=0;
 async function hsRep(){const box=$('hsRep'),inp=$('m-rep');if(!box||!inp||inp.readOnly)return;const my=++HSR_SEQ,q=inp.value.trim(),client=(($('m-client')||{}).value||'').trim();
@@ -113,11 +113,11 @@ async function hsRep(){const box=$('hsRep'),inp=$('m-rep');if(!box||!inp||inp.re
     $('hsRep').innerHTML=S._hsr.length?S._hsr.slice(0,8).map((c,i)=>`<button type="button" class="hs-item" data-action="hs-rpick" data-i="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<p class="hint">Nincs találat a HubSpotban.</p>';}
   catch(e){if($('hsRep'))$('hsRep').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}}
 document.addEventListener('input',e=>{if(e.target.id==='m-rep'){clearTimeout(HSR_T);HSR_T=setTimeout(hsRep,400);}});
-document.addEventListener('focusin',e=>{if(e.target.id==='m-rep'&&!e.target.readOnly&&!e.target.value.trim())hsRep();});
+
 function knownClients(q){
   const ql=q.toLowerCase(),seen={},out=[];
   (S.clients||[]).forEach(r=>{const c=String(r.name||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
-    seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||'',rep:r.rep||'',repPhone:r.repPhone||'',repEmail:r.repEmail||''});});
+    seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||'',rep:r.rep||'',repPhone:r.repPhone||'',repEmail:r.repEmail||'',repTitle:r.repTitle||'',contactTitle:r.contactTitle||''});});
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
     const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',tax:p.clientTax||'',address:p.clientAddress||''});});
@@ -209,15 +209,15 @@ function penObjectModal(pid,id){
       try{const r=await call('objectPenalty',{projectId:pid,id,text});closeModal();penApply(pid,r.penalties);toast('Kifogás elküldve');}catch(e){handleErr(e);}}});
 }
 function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs nyitott projekt)
-  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120})}${phoneField({name:'contactPhone',label:'Kapcsolattartó telefonszáma',value:edit?edit.contactPhone:''})}${mf('contactEmail','Kapcsolattartó e-mail-címe',{type:'email',full:true,max:160})}<div id="hsInline" class="hs-list full" style="display:none"></div>
+  openModal(edit?'Ügyfél adatai':'Új ügyfél',`<div class="fields">${taxBlock()}${mf('contactName','Kapcsolattartó',{max:120,ac:'off'})}${(()=>{const nm=String((edit&&edit.client)||pre||'').trim().toLowerCase(),cr=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===nm)||{};return mf('contactTitle','Kapcsolattartó titulusa',{max:120,ph:'pl. marketingvezető',ac:'off',v:(edit&&edit.contactTitle)||cr.contactTitle||''});})()}${mf('contactEmail','Kapcsolattartó e-mail-címe',{type:'email',max:160,ac:'off'})}${phoneField({name:'contactPhone',label:'Kapcsolattartó telefonszáma',value:edit?edit.contactPhone:''})}<div id="hsInline" class="hs-list full" style="display:none"></div>
     ${(()=>{const nm=String((edit&&edit.client)||pre||'').trim().toLowerCase(),cr=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===nm)||{},v=k=>(edit&&edit[k])||cr[k]||'';
       const cn=String((edit&&edit.contactName)||cr.contactName||'').trim(),same=!!v('rep')&&!!cn&&v('rep').trim()===cn;
       setTimeout(repCopy,0);
       return `<div class="field full rep-chk"><label><input type="checkbox" name="repSame" id="m-repSame"${same?' checked':''}> A kapcsolattartó és a cég képviselője ugyanaz</label></div>
-      <div class="field full rep-box${same?' rep-same':''}"><div class="fields">${mf('rep','Cég képviselője, aláíró',{max:120,ph:'Név – keresés a HubSpotban',v:v('rep')})}${phoneField({name:'repPhone',label:'Képviselő telefonszáma',value:v('repPhone')})}${mf('repEmail','Képviselő e-mail-címe',{type:'email',full:true,max:160,v:v('repEmail')})}<div id="hsRep" class="hs-list full"></div></div></div>`;})()}</div>`,
+      <div class="field full rep-box${same?' rep-same':''}"><div class="fields">${mf('rep','Cég képviselője, aláíró',{max:120,ph:'Név – keresés a HubSpotban',ac:'off',v:v('rep')})}${mf('repTitle','Képviselő titulusa',{max:120,ph:'pl. ügyvezető',ac:'off',v:v('repTitle')})}<div id="hsRep" class="hs-list full"></div>${mf('repEmail','Képviselő e-mail-címe',{type:'email',max:160,ac:'off',v:v('repEmail')})}${phoneField({name:'repPhone',label:'Képviselő telefonszáma',value:v('repPhone')})}</div></div>`;})()}</div>`,
     {left:reg&&edit&&edit.id?`<button type="button" class="btn danger small" data-action="del-client" data-id="${esc(edit.id)}">Törlés</button>`:'',submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
-      const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',...(!fd.get('repSame')?{rep:String(fd.get('rep')||'').trim(),repPhone:String(fd.get('repPhone')||'').trim(),repEmail:String(fd.get('repEmail')||'').trim()}:{rep:patch.contactName||'',repPhone:patch.contactPhone||'',repEmail:patch.contactEmail||''}),oldName:reg&&edit?edit.client:''};
+      const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',contactTitle:String(fd.get('contactTitle')||'').trim(),...(!fd.get('repSame')?{rep:String(fd.get('rep')||'').trim(),repTitle:String(fd.get('repTitle')||'').trim(),repPhone:String(fd.get('repPhone')||'').trim(),repEmail:String(fd.get('repEmail')||'').trim()}:{rep:patch.contactName||'',repTitle:String(fd.get('contactTitle')||'').trim(),repPhone:patch.contactPhone||'',repEmail:patch.contactEmail||''}),oldName:reg&&edit?edit.client:''};
       if(reg){try{await saveClientRec(rec);closeModal();toast(edit?'Ügyfél mentve':'Ügyfél felvéve');}catch(e){handleErr(e);}return;}
       closeModal();if(S.draft)setDraft(patch);saveClientRec(rec).catch(()=>{});}});   // a projektből felvett ügyfél is bekerül az Ügyfelek közé
   if(pre){const n=$('m-client');if(n)n.value=pre;}
@@ -999,16 +999,16 @@ const ACT={
   'pen-object':b=>penObjectModal(b.dataset.pid,b.dataset.id),
   'pen-open':b=>{const id=b.dataset.pid;guard(()=>openProject(id));},
   'new-client':()=>newClientModal(null,null,true),
-  'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email,rep:c.rep,repPhone:c.repPhone,repEmail:c.repEmail},true);},
+  'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email,rep:c.rep,repPhone:c.repPhone,repEmail:c.repEmail,repTitle:c.repTitle,contactTitle:c.contactTitle},true);},
   'del-client':b=>arm(b,async()=>{try{await call('deleteClient',{id:b.dataset.id});S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
   'hs-open':()=>hubspotModal(),
   'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},
   'hs-ipick':b=>{const it=(S._hsi||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};
-    set('m-contactName',it.name);set('m-contactEmail',it.email);
+    set('m-contactName',it.name);set('m-contactEmail',it.email);if(it.title)set('m-contactTitle',it.title);
     const row=document.querySelector('#modalRoot .phone-row');if(row&&it.phone){const p=phParse(it.phone);row.querySelector('.ph-cc').dataset.cc=p.cc;row.querySelector('.ph-num').value=phJoin(p.cc,p.n).replace(p.cc+' ','');phSync(row,false);}
     if(!$('m-client').value&&it.company)set('m-client',it.company);
     $('hsInline').style.display='none';repCopy();toast('Kapcsolattartó kitöltve a HubSpotból');},
-  'hs-rpick':b=>{const it=(S._hsr||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};set('m-rep',it.name);set('m-repEmail',it.email);
+  'hs-rpick':b=>{const it=(S._hsr||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};set('m-rep',it.name);set('m-repEmail',it.email);set('m-repTitle',it.title);
     const row=document.querySelector('.phone-row[data-ph="n:repPhone"]');if(row){const p=phParse(it.phone||'');row.querySelector('.ph-cc').dataset.cc=p.cc;row.querySelector('.ph-num').value=it.phone?phJoin(p.cc,p.n).replace(p.cc+' ',''):'';phSync(row,false);}
     const box=$('hsRep');if(box)box.innerHTML='';toast('Képviselő kitöltve a HubSpotból');},
   'hs-pick':b=>{const it=(S._hs||[])[Number(b.dataset.i)];if(!it||!S.draft)return;closeModal();setDraft({contactName:it.name,contactPhone:it.phone?phJoin(phParse(it.phone).cc,phParse(it.phone).n):'',contactEmail:it.email});toast('Kapcsolattartó kitöltve a HubSpotból');},
