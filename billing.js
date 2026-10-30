@@ -84,7 +84,8 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   const fin=i.full&&!fx?`<div class="pb-box bs-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`
     :box('fin',`${finT}${tot&&!i.noFin?` <span class="muted">· ${ftFmt(finDue)}</span>`:''}`,
       fx?`${bsSent(finT,fx)}${bsPaidStep(fx)}`:`${finCalc}${tigNeed&&!appr?`<div class="bs-x warn-txt">⏳ ${tg?'A TIG jóváhagyása után':'A TIG kiállítása és jóváhagyása után'} állítható ki.</div>`:billAddBtn(p.id,skipA?'szamla':'vegszamla',finT+' kiállítása',projDone(p)&&(skipA||!!dx))}`,i.noFin&&!fx,!!fx,`Nem kell ${finT.toLowerCase()}?`);
-  return {contract,tig,adv,fin};}
+  const late=(h,x)=>x&&invState(x)==='late'?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // lejárt, kifizetetlen bizonylat: piros kártya
+  return {contract,tig,adv:late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),fin:late(fin,fx)};}
 ACT['bl-cstep']=async btn=>{const pid=btn.dataset.id,st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
   const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);render(true);
   try{const d=await call('billSave',Object.assign({projectId:pid},patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){Object.assign(b,prev);render(true);handleErr(e);}};
