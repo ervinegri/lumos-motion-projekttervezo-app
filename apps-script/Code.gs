@@ -1736,6 +1736,25 @@ function szManual_(u, a) {
   logEvent_(u, 'Számlázás', row.buyer, 'Kézi bizonylat rögzítve: ' + no + (row.issuer === 'ev' ? ' (Egri Ervin E.V.)' : ''));
   return Object.assign(finData_(), { invoice: row });
 }
+/** Több meglévő számla hozzárendelése egyszerre (import): a: {items:[{projectId|incomeId, projectIds, no, kind}]} – kb. 20 mp-ig dolgozik, a többit a felület újra elküldi. */
+function szLinkBatch_(u, a) {
+  const items = (Array.isArray(a && a.items) ? a.items : []).slice(0, 60), started = Date.now(), have = {}, rows = [], done = [], errors = [];
+  readAll_('finInvoice').forEach(x => { have[x.no] = 1; });
+  items.forEach(it => {
+    const no = str_(it && it.no, 60); if (!no) return;
+    if (Date.now() - started > 20000) return;
+    if (have[no]) { done.push(no); return; }
+    try { const tg = szTarget_(it), q = szQuery_(no, false);
+      rows.push({ id: Utilities.getUuid(), no: q.no || no, kind: SZ_KINDS.indexOf(it.kind) >= 0 ? it.kind : /^D/i.test(q.tipus) ? 'dijbekero' : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
+        invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name + ' (import)', checkedAt: now_(), note: 'Importálva', items: '', ref: '',
+        projectIds: tg.projectId ? szExtraProjects_(it, tg.projectId) : '', tigId: '' });
+      have[no] = 1; done.push(no);
+    } catch (e) { errors.push(no + ': ' + e.message); done.push(no); }
+  });
+  if (rows.length) withLock_(() => { const sh = sheetFor_('finInvoice'); rows.forEach(r => putRow_('finInvoice', sh, r, 0)); szApplyPay_([].concat.apply([], rows.map(invTargets_))); dbFlush_(); });
+  if (rows.length) logEvent_(u, 'Számlázás', '', 'Számlák importálva: ' + rows.map(r => r.no).join(', '));
+  return Object.assign(finData_(), { batch: { done: done, linked: rows.map(r => r.no), errors: errors } });
+}
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
   withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
@@ -2877,6 +2896,7 @@ function rpcInner_(token, name, arg) {
     case 'szLink': adminOnly(); return szLink_(u, arg);
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
+    case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);

@@ -334,26 +334,32 @@ let PDFJS=null;
 function pdfLib(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/pdfjs/pdf.min.js';sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';ok(window.pdfjsLib);}catch(e){no(e);}};sc.onerror=()=>{PDFJS=null;no(new Error('A PDF-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));}
 const huDate=s=>{const m=/(\d{4})[.\-\/ ]\s*(\d{1,2})[.\-\/ ]\s*(\d{1,2})/.exec(String(s||''));return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:'';};
 const huNum=s=>{const t=String(s||'').replace(/Ft/i,'').replace(/[\s ]/g,'').replace(',','.');return /^-?\d+(\.\d+)?$/.test(t)?Math.round(Number(t)):null;};
-/* Számlázz.hu-s (és hasonló) számla-PDF szövegéből: szám, típus, kiállító, vevő, dátumok, összegek */
-async function invParsePdf(file){const lib=await pdfLib(),doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
-  const pg=await doc.getPage(1),W=pg.getViewport({scale:1}).width,tc=await pg.getTextContent();
-  const it=tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str.trim(),x:i.transform[4],y:i.transform[5]}));
-  const all=it.map(i=>i.s).join('\n'),find=re=>it.find(i=>re.test(i.s));
-  const right=(lab)=>{const l=find(lab);if(!l)return '';const r=it.filter(i=>Math.abs(i.y-l.y)<4&&i.x>l.x&&i!==l).sort((a,b)=>a.x-b.x);return r.map(i=>i.s).join(' ');};
-  const o={};
-  const no=/Sorsz[aá]m:?\s*([A-Za-z0-9][\w\-\/]*)/.exec(all);o.no=no?no[1]:'';
+/* Számlázz.hu-s (és hasonló) számla-PDF szövegéből: szám, típus, kiállító, vevő, dátumok, összegek (magyar és angol nyelvű számla is) */
+async function pdfItems(buf,worker){const lib=await pdfLib(),doc=await lib.getDocument(Object.assign({data:new Uint8Array(buf),isEvalSupported:false},worker?{worker}:{})).promise;
+  const pg=await doc.getPage(1),W=pg.getViewport({scale:1}).width,tc=await pg.getTextContent();try{doc.destroy();}catch(e){}
+  return {W,it:tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str.trim(),x:i.transform[4],y:i.transform[5]}))};}
+async function invParsePdf(file){const r=await pdfItems(await file.arrayBuffer());return invParseItems(r.it,r.W);}
+const invNum=s=>{let t=String(s||'').replace(/\b(Ft|HUF|USD|EUR)\b/gi,'').replace(/[\s ]/g,'');if(/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t))t=t.replace(/,/g,'');else t=t.replace(',','.');return /^-?\d+(\.\d+)?$/.test(t)?Math.round(Number(t)):null;};
+const invDate=s=>{s=String(s||'');let m=/(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/.exec(s);if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:'';};
+function invParseItems(it,W){const all=it.map(i=>i.s).join('\n'),find=re=>it.find(i=>re.test(i.s));
+  const right=lab=>{const l=find(lab);if(!l)return '';return it.filter(i=>Math.abs(i.y-l.y)<4&&i.x>l.x&&i!==l).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' ');};
+  const o={};const no=/(?:Sorsz[aá]m|Number):?\s*([A-Za-z0-9][\w\-\/]*)/.exec(all);o.no=no?no[1]:'';
   o.issuer=/92286571/.test(all)?'ev':/32701573/.test(all)?'kft':'';
-  const title=(it.find(i=>/^(DÍJBEKÉRŐ|ELŐLEGSZÁMLA|VÉGSZÁMLA|SZÁMLA|ELŐLEG SZÁMLA|PROFORMA)/.test(i.s))||{}).s||'';
-  const body=all.split(/Megnevez[eé]s/)[1]||'';
-  o.kind=/DÍJBEKÉRŐ|PROFORMA/.test(title)?'dijbekero':/ELŐLEG/.test(title)?'eloleg':/VÉGSZÁMLA/.test(title)?'vegszamla':/foglal[oó]|előleg/i.test(body.split(/Összesen/)[0]||'')?'eloleg':'szamla';
-  const v=find(/^VEV[OŐ]:?$/),hd=find(/^Megnevez[eé]s/);
-  if(v){const lines=[...new Set(it.filter(i=>i.x<W*0.45&&i.y<v.y-2&&(!hd||i.y>hd.y+2)).sort((a,b)=>b.y-a.y||a.x-b.x).map(i=>Math.round(i.y)))].map(y=>it.filter(i=>Math.round(i.y)===y&&i.x<W*0.45).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' '));
-    o.buyer=lines[0]||'';const tx=lines.find(l=>/Adósz[aá]m/i.test(l));o.buyerTax=tx?tx.replace(/.*?:\s*/,''):'';}
-  o.date=huDate(right(/^Kiállítás dátuma/i)||right(/^Kelt/i));o.fulfill=huDate(right(/^Teljesítés dátuma/i));o.due=huDate(right(/^Fizetési határidő/i));
-  const sum=it.filter(i=>/^Összesen/.test(i.s)).sort((a,b)=>b.y-a.y)[0];
-  if(sum){const nums=it.filter(i=>Math.abs(i.y-sum.y)<4&&i.x>sum.x).sort((a,b)=>a.x-b.x).map(i=>huNum(i.s)).filter(n=>n!==null);if(nums.length){o.invNet=nums[0];o.invGross=nums[nums.length-1];}}
-  const ft=it.filter(i=>/^[\d\s ]+(,\d+)?\s*Ft$/.test(i.s)).sort((a,b)=>a.y-b.y)[0];if(ft&&!o.invGross)o.invGross=huNum(ft.s);if(!o.invNet)o.invNet=o.invGross;
-  o.paid=/kiegyenlítve|pénzügyileg teljesítve|fizetve/i.test(all);
+  const st=/(\S+)\s+SZTORNÓ SZÁMLÁJA/.exec(all);o.storno=st?st[1]:'';
+  const title=(it.find(i=>/(SZÁMLA|INVOICE|DÍJBEKÉRŐ|PROFORMA)/.test(i.s)&&i.s===i.s.toUpperCase())||{}).s||'';o.title=title;
+  const hd=find(/^(Megnevez[eé]s|Description)$/),tot=it.filter(i=>/^(Összesen|Total):?$/.test(i.s)).sort((a,b)=>b.y-a.y)[0];
+  o.items=hd?it.filter(i=>i.y<hd.y-2&&(!tot||i.y>tot.y+2)&&i.x<W*0.35).sort((a,b)=>b.y-a.y).map(i=>i.s).join(' '):'';
+  const db=/(D-[\w-]+)\s+DÍJBEKÉRŐ ALAPJÁN/.exec(title);o.fromDb=db?db[1]:'';
+  o.kind=o.storno?'storno':/ELŐLEG/.test(title)?'eloleg':/VÉGSZÁMLA/.test(title)?'vegszamla':/(DÍJBEKÉRŐ|PROFORMA)/.test(title)&&!db?'dijbekero':/foglal[oó]|előleg/i.test(o.items)?'eloleg':'szamla';
+  const v=find(/^(VEV[OŐ]|CUSTOMER):?$/);
+  if(v){const ys=[...new Set(it.filter(i=>i.x<W*0.45&&i.y<v.y-2&&(!hd||i.y>hd.y+2)).map(i=>Math.round(i.y)))].sort((a,b)=>b-a);
+    const lines=ys.map(y=>it.filter(i=>Math.round(i.y)===y&&i.x<W*0.45).sort((a,b)=>a.x-b.x).map(i=>i.s).join(' '));
+    o.buyer=(lines[0]||'').replace(/^"+|"+$/g,'').trim();const tx=lines.find(l=>/^(Adósz[aá]m|Tax no)/i.test(l));o.buyerTax=tx?tx.replace(/.*?:\s*/,''):'';}
+  o.date=invDate(right(/^(Kiállítás dátuma|Issue date)/i)||right(/^Kelt/i));o.fulfill=invDate(right(/^(Teljesítés dátuma|Completion date)/i));o.due=invDate(right(/^(Fizetési határidő|Due date)/i));
+  const sumL=it.filter(i=>/^(Összesen|Total):?$/.test(i.s)).sort((a,b)=>b.y-a.y)[0];
+  if(sumL){const nums=it.filter(i=>Math.abs(i.y-sumL.y)<4&&i.x>sumL.x).sort((a,b)=>a.x-b.x).map(i=>invNum(i.s)).filter(n=>n!==null);if(nums.length){o.invNet=nums[0];o.invGross=nums[nums.length-1];}}
+  const ft=it.filter(i=>/^-?[\d\s .,]+\s*(Ft|HUF|USD|EUR)$/.test(i.s)).sort((a,b)=>a.y-b.y)[0];if(ft){const c=/(USD|EUR)/.exec(ft.s);o.currency=c?c[1]:'HUF';if(!o.invGross)o.invGross=invNum(ft.s);}if(!o.invNet)o.invNet=o.invGross;
+  o.paid=/kiegyenlítve|pénzügyileg teljesítve/i.test(all);
   return o;}
 function szManualModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
   openModal('Bizonylat feltöltése – '+t.name,`<div class="fields">

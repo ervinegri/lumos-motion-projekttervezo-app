@@ -102,7 +102,7 @@ function viewBilling(){
   const sz=S.fin.sz||{};
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p></div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
-      <button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
+      <button class="btn outline small" type="button" data-action="imp-open">📥 Számlák importálása</button><button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
       <button class="tile tile-btn${noC?' bad':''}" type="button" data-action="blf" data-v="szerzodes" data-k="c"><div class="tile-n">${noC}</div><div class="tile-l">szerződés hiányzik</div></button>
@@ -345,3 +345,77 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
   try{const d=await call('billSave',{projectId:pid,advancePct:v});if(d&&d.billing)S.fin.billing=d.billing;repaint();toast('Foglaló: '+v+'%');}catch(err){b.advancePct=prev;repaint();handleErr(err);}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.advpct){e.preventDefault();e.target.blur();}});
 document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||!t.dataset.advpct)return;let v=t.value.replace(/\D/g,'').slice(0,3);if(Number(v)>100)v=v.slice(0,2);if(t.value!==v)t.value=v;});   // csak 0–100
+
+/* ===== Régi számlák importálása: a számlázz.hu „csoportos letöltés” ZIP-je (vagy PDF-ek) → javasolt projekt / bevételi sor → jóváhagyás → hozzárendelés =====
+   A PDF-eket a böngésző olvassa (pdf.js), a hozzárendelést a szerver a számlázz.hu-tól lekérve hitelesíti (összeg, kifizetés). */
+let JSZIPP=null;
+const jszipLib=()=>JSZIPP||(JSZIPP=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/jszip.min.js';sc.onload=()=>ok(window.JSZip);sc.onerror=()=>{JSZIPP=null;no(new Error('A ZIP-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));
+const IMP_STOP=new Set(['kft','zrt','bt','nyrt','kkt','ev','e.v','nonprofit','egyesulet','hungaria','hungary','magyar','video','videó','szolgaltatas','forgatas','es','a','az','the','ltd','gmbh','sztori']);
+const impTok=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w.length>=3&&!IMP_STOP.has(w));
+function impName(text,name){const A=impTok(text),B=impTok(name);if(!A.length||!B.length)return 0;
+  const hit=B.filter(b=>A.some(a=>{const n=Math.min(a.length,b.length);return n>=4?a.slice(0,n)===b.slice(0,n):a===b;})).length;return hit/B.length;}
+const impDays=(a,b)=>a&&b?Math.abs((toDate(a)-toDate(b))/864e5):999;
+/* Lehetséges célok: a projektek és a régi (nem az appból jött) bevételi sorok */
+function impTargets(){const T=[];const fromApp=new Set();
+  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{T.push({k:'p',id:p.id,label:`${p.name||'Projekt'} · ${p.client||''}`,name:(p.client||'')+' '+(p.name||''),client:p.client||'',date:pr(p).start,amt:projTotal(p),adv:Math.round(num(p.projectValue)*num(billOf(p.id).advancePct||50)/100)});fromApp.add(p.id);});
+  ((S.fin&&S.fin.income)||[]).forEach(r=>{if(typeof incProj==='function'&&incProj(r))return;const d=/^\d+/.exec(String(r.day||''));const date=r.month?r.month+'-'+String(d?d[0]:'15').padStart(2,'0'):'';
+    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date))return;T.push({k:'i',id:r.id,label:`${r.name} · ${r.month} (régi bevétel)`,name:r.name||'',client:'',date,amt:num(r.amount),adv:0});});
+  return T;}
+function impMatch(o,T){const txt=(o.buyer||'')+' '+(o.items||''),d0=o.fulfill||o.date,net=Math.abs(num(o.invNet)),huf=!o.currency||o.currency==='HUF';
+  const sc=T.map(t=>{const nm=Math.max(impName(txt,t.name),t.client?impName(o.buyer||'',t.client)*1.1:0),dd=impDays(d0,t.date);
+    let am=0;if(huf&&net){if(net===t.amt)am=45;else if(t.adv&&net===t.adv)am=35;else if(t.amt&&Math.abs(net-t.amt)/t.amt<0.02)am=30;}
+    const s=nm*50+am+(dd<=60?25*(1-dd/60):-30);return {t,s,nm,am,dd};}).filter(x=>x.nm>=0.34||x.am>=35).sort((a,b)=>b.s-a.s);
+  const best=sc[0];let multi=null;
+  if(huf&&net&&(!best||best.am<35)){   // havi összesítő számla több projektre (pl. Kulcsár): azonos ügyfél, a teljesítés hónapja / előtte
+    const c=sc.filter(x=>x.nm>=0.5&&x.dd<=62&&x.t.date<=addDays(d0,10)&&x.t.amt>0).slice(0,14).map(x=>x.t);
+    const rec=(i,sum,pick)=>{if(sum===net&&pick.length>1)return pick;if(i>=c.length||sum>net||pick.length>=8)return null;return rec(i+1,sum+c[i].amt,[...pick,c[i]])||rec(i+1,sum,pick);};
+    const m=rec(0,0,[]);if(m&&m.every(x=>x.k===m[0].k))multi=m;}
+  return {cands:sc.slice(0,8),best,multi,conf:multi?80:best?Math.round(best.s):0};}
+async function impRead(files){const out=[],pdfs=[];const st=$('imp-st');const say=t=>{if(st)st.textContent=t;};
+  for(const f of files){if(/\.zip$/i.test(f.name)){say('ZIP kicsomagolása…');const Z=await jszipLib(),z=await Z.loadAsync(f);for(const n of Object.keys(z.files).filter(n=>/\.pdf$/i.test(n)&&!z.files[n].dir))pdfs.push({name:n.split('/').pop(),buf:()=>z.files[n].async('arraybuffer')});}
+    else if(/\.pdf$/i.test(f.name))pdfs.push({name:f.name,buf:()=>f.arrayBuffer()});}
+  const lib=await pdfLib(),nw=Math.min(4,Math.max(1,(navigator.hardwareConcurrency||4)-1)),W=Array.from({length:nw},()=>{try{return new lib.PDFWorker();}catch(e){return null;}});
+  let n=0,k=0;const one=async w=>{while(k<pdfs.length){const f=pdfs[k++];try{const r=await pdfItems(await f.buf(),w);const o=invParseItems(r.it,r.W);o.file=f.name;if(o.no)out.push(o);}catch(e){}say(`Számlák beolvasása… ${++n} / ${pdfs.length}`);}};
+  await Promise.all(W.flatMap(w=>[one(w),one(w)]));W.forEach(w=>{try{w&&w.destroy();}catch(e){}});
+  return out;}
+function impModal(){if(!S.fin||!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az importhoz előbb add meg a számlázz.hu Agent-kulcsot.');return;}
+  openModal('Számlák importálása a számlázz.hu-ból',`<div class="fields"><div class="field full"><label for="m-impf">A számlázz.hu „Csoportos letöltés” ZIP-je (vagy több számla-PDF)</label><input class="inp" id="m-impf" type="file" accept=".zip,.pdf,application/zip,application/pdf" multiple></div></div>
+    <p class="hint" style="margin:0">A számlázz.hu-ban: Számlák → jelöld ki az összeset → Műveletek → Csoportos letöltés. Az app minden számlához javasol egy projektet vagy régi bevételi sort; te jóváhagyod, és csak a bepipáltak kerülnek be. A sztornózott számlákat és a sztornókat kihagyja.</p>
+    <p class="hint" id="imp-st" style="margin:8px 0 0"></p><div id="imp-list"></div>`,{submitLabel:'Importálás',submit:()=>impRun()});
+  const mb=document.querySelector('#mform');if(mb)mb.classList.add('imp-wide');}
+document.addEventListener('change',async e=>{if(e.target.id!=='m-impf')return;const files=[...(e.target.files||[])];if(!files.length)return;
+  let L;try{L=await impRead(files);}catch(err){toast(errText(err),true);return;}
+  const have=new Set(((S.fin&&S.fin.invoices)||[]).map(x=>x.no)),stornoed=new Set(L.filter(o=>o.storno).map(o=>o.storno));
+  const T=impTargets();S._imp=L.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(o=>{const skip=o.storno?'sztornó':stornoed.has(o.no)?'sztornózva':have.has(o.no)?'már az appban':o.issuer==='ev'?'E.V. – kézi rögzítéssel':'';
+    const m=skip?{cands:[],conf:0}:impMatch(o,T);const sel=m.multi?'m:'+m.multi.map(t=>t.k+':'+t.id).join(','):m.best?m.best.t.k+':'+m.best.t.id:'';
+    return Object.assign(o,{skip,m,sel,on:!skip&&!!sel&&m.conf>=60});});
+  impRender();});
+function impRender(){const box=$('imp-list');if(!box||!S._imp)return;const L=S._imp,ok=L.filter(o=>!o.skip),on=ok.filter(o=>o.on).length;
+  const st=$('imp-st');if(st)st.innerHTML=`<b>${L.length}</b> számla beolvasva · <b>${ok.length}</b> importálható · <b>${on}</b> kijelölve${L.length-ok.length?` · ${L.length-ok.length} kihagyva (sztornó / már bent / E.V.)`:''}`;
+  const opt=o=>{const m=o.m,opts=[];if(m.multi)opts.push([`m:${m.multi.map(t=>t.k+':'+t.id).join(',')}`,`🔗 Közös: ${m.multi.map(t=>t.label.split(' · ')[0]).join(' + ')}`]);
+    (m.cands||[]).forEach(c=>opts.push([c.t.k+':'+c.t.id,(c.t.k==='p'?'📁 ':'📒 ')+c.t.label+` · ${ftFmt(c.t.amt)}`]));
+    return `<select class="inp imp-sel" data-imp="${esc(o.no)}"><option value="">— nincs párosítva —</option>${opts.map(([v,l])=>`<option value="${esc(v)}"${v===o.sel?' selected':''}>${esc(l)}</option>`).join('')}</select>`;};
+  box.innerHTML=`<div class="imp-tools"><button class="linkbtn" type="button" data-action="imp-all" data-v="1">Mind ki</button> · <button class="linkbtn" type="button" data-action="imp-all" data-v="0">Egyik sem</button> <label class="imp-show"><input type="checkbox" id="imp-skipshow"${S._impShowSkip?' checked':''}> kihagyottak mutatása</label></div>
+    <div class="sheet-wrap imp-wrap"><table class="sheet imp-tbl"><thead><tr><th></th><th>Számla</th><th>Vevő · tétel</th><th class="r">Nettó</th><th>Típus</th><th>Hozzárendelés</th></tr></thead><tbody>
+    ${L.filter(o=>!o.skip||S._impShowSkip).map(o=>`<tr${o.skip?' class="imp-skip"':''}><td>${o.skip?'':`<input type="checkbox" data-impon="${esc(o.no)}"${o.on?' checked':''} aria-label="Importálás">`}</td>
+      <td><b>${esc(o.no)}</b><div class="bl-meta">${esc((o.date||'').replace(/-/g,'.'))}</div></td><td>${esc(o.buyer||'—')}<div class="bl-meta">${esc((o.items||'').slice(0,70))}</div></td>
+      <td class="r">${o.currency&&o.currency!=='HUF'?esc(o.invNet+' '+o.currency):ftFmt(o.invNet||0)}</td>
+      <td>${o.skip?'':`<select class="inp imp-kind" data-impk="${esc(o.no)}">${['szamla','eloleg','vegszamla','dijbekero'].map(k=>`<option value="${k}"${k===o.kind?' selected':''}>${SZ_KIND[k]}</option>`).join('')}</select>`}</td>
+      <td>${o.skip?`<span class="muted">${esc(o.skip)}</span>`:opt(o)}</td></tr>`).join('')}</tbody></table></div>`;}
+document.addEventListener('change',e=>{const t=e.target;if(!S._imp)return;const f=no=>S._imp.find(o=>o.no===no);
+  if(t.dataset.impon){const o=f(t.dataset.impon);if(o){o.on=t.checked;impRender();}}
+  else if(t.dataset.imp){const o=f(t.dataset.imp);if(o){o.sel=t.value;o.on=!!t.value;impRender();}}
+  else if(t.dataset.impk){const o=f(t.dataset.impk);if(o)o.kind=t.value;}
+  else if(t.id==='imp-skipshow'){S._impShowSkip=t.checked;impRender();}});
+ACT['imp-all']=b=>{(S._imp||[]).forEach(o=>{if(!o.skip)o.on=b.dataset.v==='1'&&!!o.sel;});impRender();};
+ACT['imp-open']=()=>impModal();
+async function impRun(){const L=(S._imp||[]).filter(o=>o.on&&!o.skip&&o.sel);if(!L.length){toast('Nincs kijelölt, párosított számla.',true);return;}
+  const items=L.map(o=>{const parts=o.sel.replace(/^m:/,'').split(','),first=parts[0].split(':'),it={no:o.no,kind:o.kind};
+    if(first[0]==='p'){it.projectId=first[1];it.projectIds=parts.slice(1).map(x=>x.split(':')[1]);}else it.incomeId=first[1];return it;});
+  const btn=document.querySelector('#mform button[type=submit]');if(btn)btn.disabled=true;let left=items.slice(),linked=0,errs=[];
+  try{while(left.length){const st=$('imp-st');if(st)st.innerHTML=`Hozzárendelés a számlázz.hu-tól ellenőrizve… ${items.length-left.length} / ${items.length}`;
+      const d=await call('szLinkBatch',{items:left.slice(0,40)});const b=d.batch||{done:[]};linked+=(b.linked||[]).length;errs.push(...(b.errors||[]));
+      if(!b.done.length)throw new Error('A szerver nem dolgozott fel egy számlát sem.');left=left.filter(x=>!b.done.includes(x.no));finApply(d);}
+    closeModal();S._imp=null;toast(`${linked} számla importálva${errs.length?` · ${errs.length} hiba`:''}`,!!errs.length);
+    if(errs.length)openModal('Import – hibák',`<ul class="imp-err">${errs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`,{cancelLabel:'Bezárás'});}
+  catch(e){handleErr(e);if(btn)btn.disabled=false;}}
