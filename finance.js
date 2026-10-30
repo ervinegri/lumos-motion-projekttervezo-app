@@ -97,7 +97,7 @@ function viewFinance(){
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
     <div class="tiles fin-tiles tiles-3">
-      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ebben a hónapban</span><b>${ftFmt(T('amount'))}</b></div>
+      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ${m.slice(0,4)!==todayISO().slice(0,4)?m.slice(0,4)+'. ':''}${['januárban','februárban','márciusban','áprilisban','májusban','júniusban','júliusban','augusztusban','szeptemberben','októberben','novemberben','decemberben'][Number(m.slice(5,7))-1]}</span><b>${ftFmt(T('amount'))}</b></div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>

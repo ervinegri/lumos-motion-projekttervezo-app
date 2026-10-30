@@ -686,6 +686,14 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .pb-box{position:relative}.pb-box .pb-tick{top:10px;right:10px;transform:none;width:28px;height:28px;font-size:14px}.pb-box .pb-tick:hover{transform:scale(1.12)}
 .pb-box .pb-t{padding-right:34px}.pb-box.skip{background:#f6f8f9;border-style:dashed}.pb-box.skip .pb-t{color:var(--fg-3)}
 button.pb-tick::after{display:none}.pb-pct{font-weight:800;font-size:inherit;text-decoration:underline dotted}
+.pt-row.pt-dim{opacity:.45;cursor:default;filter:grayscale(1)}.pt-row.pt-dim:hover{background:none}
+body.ro .cal-add{display:none}
+.dl-panel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-color:#9bc7ad;background:#f1f8f4}.dl-panel h3{margin:0}
+.tig-row{display:grid;grid-template-columns:22px 130px 1fr 1fr 110px;gap:6px;align-items:center;margin-bottom:6px}.tig-row .inp{padding:7px 9px;font-size:13.5px}.tig-amt{text-align:right}
+@media (max-width:700px){.tig-row{grid-template-columns:22px 1fr 1fr}.tig-row .tig-task,.tig-row .tig-link{grid-column:2/-1}}
+.mbox:has(#tig-rows){max-width:900px;width:calc(100vw - 32px)}
+.tig-sum{margin-top:8px;text-align:right}
+.cal-chip.dim{opacity:.45;filter:grayscale(1);cursor:default}
 </style>
 </head>
 <body>
@@ -706,7 +714,7 @@ button.pb-tick::after{display:none}.pb-pct{font-weight:800;font-size:inherit;tex
       <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
-        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">👁 Ügyvezető</option><option value="editor">👁 Termelési v.</option><option value="crew">👁 Szakember</option></select>
+        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">💼 Ügyvezető</option><option value="editor">⚙️ Termelési v.</option><option value="crew">🔨 Szakember</option></select>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>

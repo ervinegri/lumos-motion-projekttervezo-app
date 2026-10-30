@@ -1700,6 +1700,48 @@ function clientDocs_(a) {
   try { bigPut_('CLIENT_DOCS', js); } catch (e) { }
   return res;
 }
+/* ===== Teljesítésigazolás (TIG) =====
+   Az ügyfél adott havi munkáit összegző PDF a megszokott formában; az ügyfél mappájába kerül: 02 Ügyfelek / <ügyfél> / Teljesítésigazolások / <év>. */
+const TIG_ISSUERS_ = {
+  kft: { name: 'Lumos Motion Kft.', seat: '2040 Budaörs, Szabadság út 137-139', tax: '32701573-2-13', rep: 'Egri Ervin, ügyvezető', code: 'KFT' },
+  ev: { name: 'Egri Ervin E.V.', seat: '1136 Budapest, Tátra utca 20/B 3/5', tax: '92286571-1-41', rep: 'Egri Ervin', code: 'EV' }
+};
+function tigCreate_(u, a) {
+  a = a || {};
+  const h = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA';
+  const client = str_(a.client, 160); if (client.length < 2) throw new Error('Válaszd ki az ügyfelet.');
+  const month = /^\d{4}-\d{2}$/.test(String(a.month || '')) ? String(a.month) : ''; if (!month) throw new Error('Hiányzik a hónap.');
+  const iss = TIG_ISSUERS_[a.issuer === 'ev' ? 'ev' : 'kft'];
+  const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ period: str_(r.period, 60), task: str_(r.task, 300), link: /^https:\/\//i.test(String(r.link || '')) ? str_(r.link, 500) : '', amount: Math.round(Number(r.amount) || 0) })).filter(r => r.task);
+  if (!rows.length) throw new Error('Legalább egy tétel kell.');
+  const total = rows.reduce((s, r) => s + r.amount, 0);
+  const MN = ['Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'];
+  const mLabel = month.slice(0, 4) + ' ' + MN[Number(month.slice(5, 7)) - 1];
+  const kelt = iso_(a.date) || today_();
+  const cSeat = str_(a.clientAddress, 300).replace(/[.;,\s]+$/, ''), cTax = str_(a.clientTax, 20), cRep = str_(a.clientRep, 120);
+  const html = '<html><head><meta charset="utf-8"><style>body{font-family:Georgia,"Times New Roman",serif;font-size:11pt;color:#222;margin:36px 48px}'
+    + '.top{font-size:8pt;color:#777;border-bottom:2px solid #8a1c1c;padding-bottom:4px;margin-bottom:28px}h1{text-align:center;font-size:20pt;margin:0 0 4px}.sub{text-align:center;font-size:10pt;margin-bottom:22px}'
+    + 'p{text-align:justify;line-height:1.55}table{border-collapse:collapse;width:100%;margin:8px 0 18px;font-size:10pt}th,td{border:1px solid #444;padding:5px 7px;vertical-align:middle}th{background:#f2f2f2}td.c{text-align:center}td.r{text-align:right;white-space:nowrap}'
+    + 'a{color:#1a4fa0}.sig{margin-top:56px;width:100%;border:0}.sig td{border:0;width:50%;text-align:center;padding-top:6px;font-size:10pt}.sig .ln{border-top:1px solid #444;width:70%;margin:0 auto 4px}.small{font-size:8pt;color:#555}</style></head><body>'
+    + '<div class="top">' + h(client) + ' – ' + h(iss.name) + ' – Teljesítés igazolás</div>'
+    + '<h1>Teljesítés Igazolás</h1><div class="sub">' + h(client) + ' – ' + h(iss.name) + ' – TIG – ' + h(mLabel) + '</div>'
+    + '<p>E jegyzőkönyv rögzíti, hogy a <b>' + h(client) + '</b> Megrendelő (' + [cSeat ? 'székhely: ' + h(cSeat) : '', cTax ? 'adószám: ' + h(cTax) : ''].filter(String).join('; ') + ') által, <b>' + h(iss.name) + '</b> (székhely: ' + h(iss.seat) + '; adószám: ' + h(iss.tax) + ') szolgáltatási feladatok maradéktalanul teljesültek. A megrendelő a hiánytalan és pontos teljesítést elismeri.</p>'
+    + '<p><b>Elvégzett feladatok:</b></p><table><tr><th>Időszak</th><th>Feladat</th><th>Díjazás</th></tr>'
+    + rows.map(r => '<tr><td class="c">' + h(r.period) + '</td><td class="c">' + h(r.task) + (r.link ? '<br><a href="' + h(r.link) + '">' + h(r.link) + '</a>' : '') + '</td><td class="r">' + ft(r.amount) + '</td></tr>').join('')
+    + '<tr><td></td><td class="r"><b>Díjazás összesen:</b></td><td class="r"><b>' + ft(total) + '</b></td></tr></table>'
+    + '<p>Teljesítéskor: fizetendő, a számla átvételétől számított 8 naptári napon belül.</p><p>Kelt: Budapest, ' + h(kelt.replace(/-/g, '.')) + '</p>'
+    + '<table class="sig"><tr><td><div class="ln"></div>' + h(iss.name) + '<div class="small">Képviseli: ' + h(iss.rep) + '<br><b>Szolgáltató</b></div></td><td><div class="ln"></div>' + h(client) + '<div class="small">' + (cRep ? 'Képviseli: ' + h(cRep) + '<br>' : '') + '<b>Megrendelő</b></div></td></tr></table>'
+    + '</body></html>';
+  const pdf = Utilities.newBlob(html, 'text/html', 'tig.html').getAs('application/pdf');
+  const cf = clientFolder_(client); if (!cf) throw new Error('Még nincs beállítva a főmappa.');
+  const folder = folderPath_(cf, 'Teljesítésigazolások/' + month.slice(0, 4), {});
+  const name = uniqueName_(folder, shortName_(client) + '_TIG_' + month + '_' + iss.code + '.pdf');
+  const f = folder.createFile(pdf.setName(name));
+  try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
+  logEvent_(u, 'Teljesítésigazolás', client, mLabel + ' · ' + rows.length + ' tétel · ' + total + ' Ft');
+  return { url: f.getUrl(), name: name, total: total };
+}
 function fwDelete_(u, a) {
   withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); SpreadsheetApp.flush(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
   return finPart_(['frameworks']);
@@ -2531,6 +2573,7 @@ function rpcInner_(token, name, arg) {
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'clientDocs': adminOnly(); return clientDocs_(arg);
+    case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);

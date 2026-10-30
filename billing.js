@@ -67,7 +67,7 @@ function viewBilling(){
   const sz=S.fin.sz||{};
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p></div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
-      <button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
+      <button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
       <button class="tile tile-btn${noC?' bad':''}" type="button" data-action="blf" data-v="szerzodes" data-k="c"><div class="tile-n">${noC}</div><div class="tile-l">szerződés hiányzik</div></button>
@@ -215,3 +215,43 @@ ACT['pb-skip']=async btn=>{const pid=btn.dataset.id,k=btn.dataset.k,on=btn.getAt
   Object.assign(b,patch);const repaint=()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&p)el.outerHTML=projBillingPanel(p)||'';else render(true);};repaint();
   try{const d=await call('billSave',Object.assign({projectId:pid},k==='fin'?{noFinal:on}:patch));if(d&&d.billing)S.fin.billing=d.billing;repaint();}
   catch(e){Object.assign(b,prev);repaint();handleErr(e);}};
+
+/* ===== Teljesítésigazolás (TIG): az ügyfél adott havi munkái egy dokumentumban (PDF a Drive-ba, az ügyfél mappájába) ===== */
+const TIG_MN=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
+function tigProjects(client,month){const n=s=>String(s||'').trim().toLowerCase();
+  return S.projects.filter(p=>p.status!=='lemondva'&&n(p.client)===n(client)&&pr(p)&&pr(p).start.slice(0,7)===month).sort(byStart);}
+function tigRowsHtml(client,month){const ps=tigProjects(client,month);
+  if(!ps.length)return `<p class="hint">Ebben a hónapban nincs projekt ennél az ügyfélnél. Kézzel is felvehetsz tételt.</p>`+tigRow({},0);
+  return ps.map((p,i)=>{const r=pr(p),per=r.start===r.end?`${TIG_MN[Number(r.start.slice(5,7))-1]} ${Number(r.start.slice(8))}.`:`${TIG_MN[Number(r.start.slice(5,7))-1]} ${Number(r.start.slice(8))}–${Number(r.end.slice(8))}.`;
+    return tigRow({period:per,task:p.name||'',link:/^https:\/\//i.test(p.deliveryLink||'')?p.deliveryLink:'',amount:num(p.projectValue)},i);}).join('');}
+const tigRow=(r,i)=>`<div class="tig-row"><input type="checkbox" class="tig-on" checked aria-label="Bekerül"><input class="inp tig-per" value="${esc(r.period||'')}" placeholder="pl. október 6." aria-label="Időszak"><input class="inp tig-task" value="${esc(r.task||'')}" placeholder="Feladat" aria-label="Feladat"><input class="inp tig-link" value="${esc(r.link||'')}" placeholder="Videó linkje (https://…)" aria-label="Link"><input class="inp tig-amt" value="${esc(moneyFmt(r.amount||''))}" inputmode="numeric" data-money="1" placeholder="0" aria-label="Díjazás (nettó Ft)"></div>`;
+function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&&pre.month)||(todayISO().slice(8)<'15'?prevM:todayISO().slice(0,7));
+  const names=[...new Set(S.projects.filter(p=>p.client&&p.status!=='lemondva').map(p=>p.client.trim()))].sort((a,b)=>a.localeCompare(b,'hu'));
+  const c0=(pre&&pre.client)||'';
+  openModal('Teljesítésigazolás (TIG) kiállítása',`<div class="fields">
+    <div class="field"><label for="m-tigClient">Ügyfél</label><select class="inp" id="m-tigClient" name="client"><option value="">Válassz…</option>${names.map(n=>`<option${n===c0?' selected':''}>${esc(n)}</option>`).join('')}</select></div>
+    ${mf('tigMonth','Hónap',{type:'month',v:m0})}
+    ${ms('tigIssuer','Szolgáltató',[['kft','Lumos Motion Kft.'],['ev','Egri Ervin E.V.']],'kft')}
+    ${mf('tigDate','Kelt',{type:'date',v:todayISO()})}
+    ${mf('tigAddr','Megrendelő székhelye',{full:true,max:300})}${mf('tigTax','Megrendelő adószáma',{max:20})}${mf('tigRep','Megrendelő képviselője (nem kötelező)',{max:120})}
+    <div class="field full"><label>Tételek <span class="muted">– a projekt nettó értéke; a videó linkje a feladat alá kerül (pl. YouTube)</span></label><div id="tig-rows">${c0?tigRowsHtml(c0,m0):'<p class="hint">Válaszd ki az ügyfelet.</p>'}</div>
+      <button class="linkbtn" type="button" data-action="tig-add" style="margin-top:6px">+ Tétel hozzáadása</button><div class="tig-sum" id="tig-sum"></div></div>
+  </div><p class="hint" style="margin:0">A PDF az ügyfél Drive-mappájába kerül (Teljesítésigazolások / év), aláírásra kész.</p>`,{submitLabel:'TIG elkészítése',submit:async fd=>{
+    const client=String(fd.get('client')||''),rows=[...document.querySelectorAll('#tig-rows .tig-row')].filter(r=>r.querySelector('.tig-on').checked).map(r=>({period:r.querySelector('.tig-per').value.trim(),task:r.querySelector('.tig-task').value.trim(),link:r.querySelector('.tig-link').value.trim(),amount:moneyVal(r.querySelector('.tig-amt').value)||0})).filter(r=>r.task);
+    if(!client){toast('Válaszd ki az ügyfelet.',true);return;}if(!rows.length){toast('Legalább egy tétel kell.',true);return;}
+    const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Készül…';}
+    try{const r=await call('tigCreate',{client,month:fd.get('tigMonth'),issuer:fd.get('tigIssuer'),date:fd.get('tigDate'),clientAddress:fd.get('tigAddr'),clientTax:fd.get('tigTax'),clientRep:fd.get('tigRep'),rows});
+      closeModal();S.clDocs=null;S._clDocsForce=true;S._clDocsLoading=false;
+      openModal('TIG elkészült',`<p style="margin:0 0 12px"><b>${esc(r.name)}</b> · ${ftFmt(r.total)} + ÁFA</p><a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">📄 Megnyitás ↗</a>`,{cancelLabel:'Bezárás'});}
+    catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='TIG elkészítése';}}}});
+  setTimeout(()=>{const c=$('m-tigClient'),m=$('m-tigMonth'),box=$('tig-rows');if(c&&c.value&&m&&box&&/^\d{4}-\d{2}$/.test(m.value))box.innerHTML=tigRowsHtml(c.value,m.value);tigFill();},30);}
+function tigFill(){const c=($('m-tigClient')||{}).value;if(!c)return tigSum();const it=knownClients('').find(x=>x.company===c)||{};
+  const a=$('m-tigAddr'),t=$('m-tigTax'),r=$('m-tigRep');if(a&&!a.value)a.value=it.address||'';if(t&&!t.value)t.value=it.tax||'';if(r&&!r.value)r.value=it.name||'';tigSum();}
+function tigSum(){const el=$('tig-sum');if(!el)return;const s=[...document.querySelectorAll('#tig-rows .tig-row')].filter(r=>r.querySelector('.tig-on').checked).reduce((a,r)=>a+(moneyVal(r.querySelector('.tig-amt').value)||0),0);el.innerHTML=`Díjazás összesen: <b>${ftFmt(s)}</b> + ÁFA`;}
+document.addEventListener('change',e=>{const id=e.target.id;if(id==='m-tigClient'||id==='m-tigMonth'){const c=($('m-tigClient')||{}).value,m=($('m-tigMonth')||{}).value,box=$('tig-rows');
+    if(id==='m-tigClient'){['m-tigAddr','m-tigTax','m-tigRep'].forEach(k=>{const x=$(k);if(x)x.value='';});}
+    if(box&&c&&/^\d{4}-\d{2}$/.test(m))box.innerHTML=tigRowsHtml(c,m);tigFill();}
+  if(e.target.classList&&e.target.classList.contains('tig-on'))tigSum();});
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('tig-amt'))tigSum();});
+Object.assign(ACT,{'tig-new':b=>tigModal(b&&b.dataset&&b.dataset.client?{client:b.dataset.client}:null),
+  'tig-add':()=>{const box=$('tig-rows');if(!box)return;const p=box.querySelector('p.hint');if(p&&!box.querySelector('.tig-row'))p.remove();box.insertAdjacentHTML('beforeend',tigRow({},0));tigSum();}});
