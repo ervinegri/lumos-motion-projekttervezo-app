@@ -1047,6 +1047,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
     setDraft(ch);return;}
+  if(t.dataset.leadRemote&&d){setDraft({leadRemote:t.checked});return;}
   if(t.dataset.free&&d&&isAdmin()){setDraft({projectValue:t.checked?0:null});if(!t.checked)setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},0);return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d){if(t.dataset.feeI!==undefined){const f=(d.fees||[])[Number(t.dataset.feeI)];if(f&&isOther(f)&&!(d.fees||[]).some(g=>isOther(g)&&otherEmpty(g))){d.fees=orderFees(d.fees);setTimeout(()=>render(true),0);}}   // kitöltött egyéb sor után új üres sor

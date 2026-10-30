@@ -135,6 +135,9 @@ function needsDelivery(p){
 }
 function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
+/* A helyszínen lévők: a távolról vezető projektvezető (ha nincs más szerepe a projekten) nem ütközik más munkával */
+const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&!(p.crew||[]).some(c=>c.crewId===p.lead));
+function onSiteIds(p){const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);return s;}
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -182,21 +185,21 @@ function gapBetween(p,q){
   const x=timeWin(p),y=timeWin(q);if(!x||!y||(x.s<y.e&&y.s<x.e))return null;
   return x.e<=y.s?{gap:y.s-x.e,first:p,second:q,end:x.e,start:y.s}:{gap:x.s-y.e,first:q,second:p,end:y.e,start:x.s};
 }
-function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&crewIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
+function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&onSiteIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
 const tightText=g=>g.gap<TRAVEL_RED_MIN?`Nincs idő a helyszínváltásra: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`:`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
-function busyFor(personId,p){const r=pr(p);if(!r)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&crewIds(q).has(personId));}
+function busyFor(personId,p){const r=pr(p);if(!r)return [];if(remoteLead(p)&&p.lead===personId)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&onSiteIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
   const T=todayISO(),out=[],live=liveProjects();
   for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
     const a=live[i],b=live[j];if(!clash(a,b))continue;
-    const B=crewIds(b);
-    for(const id of crewIds(a))if(B.has(id)){const c=crewById(id);
+    const B=onSiteIds(b);
+    for(const id of onSiteIds(a))if(B.has(id)){const c=crewById(id);
       out.push({level:'bad',text:`${c?c.name:'Egy munkatárs'} egyszerre két projektre van beosztva (${fmtShort(pr(a).start>pr(b).start?pr(a).start:pr(b).start)}).`,pids:[a.id,b.id]});}
   }
   for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
     const g=gapBetween(live[i],live[j]);if(!g||g.gap>=TRAVEL_BUFFER_MIN)continue;
-    const B=crewIds(live[j]);const names=[...crewIds(live[i])].filter(id=>B.has(id)).map(id=>(crewById(id)||{}).name).filter(Boolean);
+    const B=onSiteIds(live[j]);const names=[...onSiteIds(live[i])].filter(id=>B.has(id)).map(id=>(crewById(id)||{}).name).filter(Boolean);
     if(names.length&&g.gap<TRAVEL_RED_MIN)out.push({level:'bad',text:`${names.join(', ')}: nincs idő a helyszínváltásra ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`,pids:[live[i].id,live[j].id]});
     else if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
