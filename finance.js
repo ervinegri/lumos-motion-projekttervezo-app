@@ -324,11 +324,11 @@ function szInvoiceModal(kind,id,o={}){
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}}});}});
   szTotals();}
 function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
-  openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám',{max:60,ph:'pl. E-LUMOS-2026-123'})}${ms('lkind','Típus',Object.entries(SZ_KIND),type||'szamla')}</div>
+  openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám',{max:60,ph:'pl. LUMOS-2026-75'})}${ms('lkind','Típus',Object.entries(SZ_KIND),type||'szamla')}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
     <p class="hint" style="margin:0">A számlázz.hu-ban már kiállított számlát kapcsolja ehhez: <b>${esc(t.name)}</b>. Az összeg és a kifizetések onnan töltődnek be, és a fizetési állapot magától követi.</p>
     <p class="hint" style="margin:10px 0 0">Más fiókból (pl. <b>Egri Ervin E.V.</b>) vagy kézzel kiállított bizonylat? <button class="linkbtn" type="button" data-action="sz-manual" data-kind="${esc(kind)}" data-id="${esc(id)}" data-type="${esc(type||'szamla')}">✍️ Kézi rögzítés fájlfeltöltéssel</button></p>`,
     {submitLabel:'Hozzárendelés',submit:async fd=>{const no=String(fd.get('no')||'').trim();if(!no){toast('Add meg a számlaszámot.',true);return;}
-      try{const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no,kind:fd.get('lkind')});closeModal();finApply(d);toast('Számla hozzárendelve: '+(d.invoice&&d.invoice.no));}catch(e){handleErr(e);}}});}
+      try{const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no,kind:fd.get('lkind'),projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]});closeModal();finApply(d);toast('Számla hozzárendelve: '+(d.invoice&&d.invoice.no));}catch(e){handleErr(e);}}});}
 /* Kézi bizonylat: nem az összekötött számlázz.hu-fiókból (pl. Egri Ervin E.V.) – csak a PDF-et kell feltölteni, az adatokat az app olvassa ki belőle */
 let PDFJS=null;
 function pdfLib(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/pdfjs/pdf.min.js';sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';ok(window.pdfjsLib);}catch(e){no(e);}};sc.onerror=()=>{PDFJS=null;no(new Error('A PDF-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));}
