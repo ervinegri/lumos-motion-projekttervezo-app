@@ -1664,6 +1664,26 @@ function fwDelete_(u, a) {
   return finPart_(['frameworks']);
 }
 
+/* ===================== DRIVE-ÁTTEKINTÉS (csak olvasás) =====================
+   Mappafa listázása (név, típus, méret, dátum, link) – a szerződések projektekhez párosításához és a mapparendszer áttervezéséhez. */
+function driveScan_(a) {
+  const ids = (Array.isArray(a && a.folderIds) ? a.folderIds : []).map(x => str_(x, 80)).filter(x => /^[\w-]{10,80}$/.test(x)).slice(0, 10);
+  if (!ids.length) throw new Error('Adj meg legalább egy mappát.');
+  const max = Math.min(Math.max(Number(a.maxItems) || 3000, 1), 6000), maxDepth = Math.min(Math.max(Number(a.maxDepth) || 8, 1), 12);
+  const out = [], started = Date.now(); let truncated = false;
+  const fmt = d => d ? Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') : '';
+  const walk = (folder, path, depth) => {
+    if (out.length >= max || Date.now() - started > 300000) { truncated = true; return; }
+    const subs = []; const fit = folder.getFolders();
+    while (fit.hasNext()) { const f = fit.next(); subs.push(f); out.push({ path: path, name: f.getName(), type: 'folder', id: f.getId(), mod: fmt(f.getLastUpdated()), url: f.getUrl() }); }
+    const it = folder.getFiles();
+    while (it.hasNext()) { if (out.length >= max) { truncated = true; break; } const f = it.next(); out.push({ path: path, name: f.getName(), type: f.getMimeType(), id: f.getId(), size: f.getSize(), mod: fmt(f.getLastUpdated()), created: fmt(f.getDateCreated()), url: f.getUrl() }); }
+    if (depth < maxDepth) subs.forEach(f => walk(f, path + '/' + f.getName(), depth + 1));
+  };
+  ids.forEach(id => { const f = DriveApp.getFolderById(id); walk(f, f.getName(), 0); });
+  return { items: out, truncated: truncated };
+}
+
 /* ===================== STÁB ÉS LELTÁR ===================== */
 function saveCrew_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
@@ -2338,7 +2358,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (!READ_ONLY_RPC_[String(name)]) dataBump_();   // módosítás után a betöltési gyorsítótár érvénytelen
@@ -2377,6 +2397,7 @@ function rpcInner_(token, name, arg) {
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
+    case 'driveScan': adminOnly(); return driveScan_(arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
