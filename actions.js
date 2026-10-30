@@ -441,6 +441,11 @@ function siteModal(next,withPen){
       let pens=[];try{pens=penRowsCollect(fd,txt);}catch(e){toast(e.message,true);return;}
       const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);}});
 }
+/* Felugró figyelmeztetés: a helyszíni munka előtt véglegesíteni kell a stábot */
+function crewFinalPopup(d){const ch=crewFinalState(d)==='changed';
+  openModal('👥 Előbb véglegesítsd a stábot',`<p style="margin:0 0 6px">${ch?'A csapat a véglegesítés óta módosult. A helyszíni munka előtt <b>véglegesítsd újra</b> a stábot.':'A helyszíni munka kipipálása előtt <b>véglegesítsd a stábot</b> – így mindenki megkapja a beosztását, és a díjak rögzülnek.'}</p>
+    <div class="btns" style="margin-top:12px"><button class="btn primary" type="button" data-action="goto-crew-final">Ugrás a stáb véglegesítéséhez</button></div>`,{cancelLabel:'Bezárás'});}
+function gotoCrewFinal(){closeModal();FOLD.crew=true;render(true);const cf=$('crew-final');if(cf){const dd=cf.closest('details');if(dd)dd.open=true;cf.scrollIntoView({block:'center',behavior:'smooth'});}}
 /* Utómunka kipipálása: észrevételek és elakadás (díjcsökkentéssel), mint az Átadás ablakban. Az észrevételek az átadásnál is megjelennek. */
 function postModal(next){
   const d=S.draft;if(!d)return;
@@ -772,8 +777,7 @@ const ACT={
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'){
-      FOLD.crew=true;render(true);const cf=$('crew-final');if(cf)cf.scrollIntoView({block:'center',behavior:'smooth'});
-      toast(crewFinalState(d)==='changed'?'A csapat módosult – a helyszíni munka előtt véglegesítsd újra.':'A helyszíni munkára lépés előtt véglegesítsd a csapatot.',true);return;}
+      crewFinalPopup(d);return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
@@ -783,10 +787,12 @@ const ACT={
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
       setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});};
+    if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'){crewFinalPopup(d);return;}   // előbb a stáb véglegesítése
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(apply);return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='utomunka'&&!set.has('helyszin')){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
+  'goto-crew-final':()=>gotoCrewFinal(),
   'proj-rename':()=>{const d=S.draft;if(!d||ro())return;
     openModal('Projekt neve',`<div class="fields">${mf('name','Projekt neve',{full:true,v:d.name||'',max:160})}</div>`,{submitLabel:'Mentés',submit:async(fd,form)=>{
       if(!needName(form,'Add meg a projekt nevét.'))return;const n=String(fd.get('name')||'').trim();closeModal();

@@ -141,7 +141,7 @@ function projBillingPanel(p){
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'✓':''}</button>`;
   const box=(k,title,body,on,lock,tip)=>`<div class="pb-box${on?' skip':''}"><div class="pb-t">${title}</div>${on?'<span class="statuspill p-mute">Nem kell</span>':body}${tick(k,on,lock,tip)}</div>`;
   const contract=i.fw?fwCell(i.fw,'pb-c'):`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
-    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Szerződés feltöltése</button>`}
+    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:''}<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ ${b.contractUrl?'Új szerződés feltöltése':'Szerződés feltöltése'}</button>
     ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}</div>`;
   const adv=(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''))
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI]&&i.steps[i.nextI][0]==='advIssued');
@@ -149,8 +149,8 @@ function projBillingPanel(p){
   const dots=`<div class="bl-dots">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
   return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside"><span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
     <div class="pb-grid">
-      ${box('contract','Szerződés',contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}
-      ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <button class="linkbtn pb-pct" type="button" data-action="bill-edit" data-id="${pid}" data-tip="Foglaló % módosítása">${num(b.advancePct)}%</button> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
+      ${box('contract','Szerződés',i.fw?contract+`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Új szerződés feltöltése</button>`:contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}
+      ${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="number" min="0" max="100" step="5" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
       ${box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?` <span class="muted">${ftFmt(val)} nettó</span>`:''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}
       <div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>
     </div>${b.note?`<div class="pb-foot"><span class="bl-meta">📝 ${esc(b.note)}</span></div>`:''}`);
@@ -255,3 +255,10 @@ document.addEventListener('change',e=>{const id=e.target.id;if(id==='m-tigClient
 document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('tig-amt'))tigSum();});
 Object.assign(ACT,{'tig-new':b=>tigModal(b&&b.dataset&&b.dataset.client?{client:b.dataset.client}:null),
   'tig-add':()=>{const box=$('tig-rows');if(!box)return;const p=box.querySelector('p.hint');if(p&&!box.querySelector('.tig-row'))p.remove();box.insertAdjacentHTML('beforeend',tigRow({},0));tigSum();}});
+
+/* Foglaló % közvetlenül a kártyán (ablak nélkül) */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.advpct||!S.fin||!S.fin.billing)return;
+  const pid=t.dataset.advpct,v=Math.max(0,Math.min(100,Math.round(Number(t.value)||0)));const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
+  const prev=b.advancePct;b.advancePct=v;const repaint=()=>{const p=S.draft||projById(pid);const el=$('proj-bill');if(el&&p)el.outerHTML=projBillingPanel(p)||'';};repaint();
+  try{const d=await call('billSave',{projectId:pid,advancePct:v});if(d&&d.billing)S.fin.billing=d.billing;repaint();toast('Foglaló: '+v+'%');}catch(err){b.advancePct=prev;repaint();handleErr(err);}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.advpct){e.preventDefault();e.target.blur();}});
