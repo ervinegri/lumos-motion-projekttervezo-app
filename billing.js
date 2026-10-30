@@ -264,7 +264,7 @@ function tigRowsHtml(client,month){const ps=tigProjects(client,month);
   if(!ps.length)return `<p class="hint">Ebben a hónapban nincs projekt ennél az ügyfélnél. Kézzel is felvehetsz tételt.</p>`+tigRow({},0);
   return ps.map((p,i)=>{const r=pr(p),per=r.start===r.end?`${TIG_MN[Number(r.start.slice(5,7))-1]} ${Number(r.start.slice(8))}.`:`${TIG_MN[Number(r.start.slice(5,7))-1]} ${Number(r.start.slice(8))}–${Number(r.end.slice(8))}.`;
     return tigRow({period:per,task:p.name||'',link:/^https:\/\//i.test(p.deliveryLink||'')?p.deliveryLink:'',amount:num(p.projectValue),pid:p.id},i);}).join('');}
-const tigRow=(r,i)=>`<div class="tig-row"${r.pid?` data-pid="${esc(r.pid)}"`:''}><input type="checkbox" class="tig-on" checked aria-label="Bekerül"><input class="inp tig-per" value="${esc(r.period||'')}" placeholder="pl. október 6." aria-label="Időszak"><input class="inp tig-task" value="${esc(r.task||'')}" placeholder="Feladat" aria-label="Feladat"><input class="inp tig-link" value="${esc(r.link||'')}" placeholder="Videó linkje (https://…)" aria-label="Link"><input class="inp tig-amt" value="${esc(moneyFmt(r.amount||''))}" inputmode="numeric" data-money="1" placeholder="0" aria-label="Díjazás (nettó Ft)"></div>`;
+const tigRow=(r,i)=>`<div class="tig-row"${r.pid?` data-pid="${esc(r.pid)}"`:''}><input type="checkbox" class="tig-on" checked aria-label="Bekerül"><input class="inp tig-per" value="${esc(r.period||'')}" placeholder="pl. október 6." aria-label="Időszak"><input class="inp tig-task" value="${esc(r.task||'')}" placeholder="Feladat" aria-label="Feladat"><span class="tig-lw"><input class="inp tig-link" value="${esc(r.link||'')}" placeholder="Videó linkje (https://…)" aria-label="Link"><a class="tig-open" href="${esc(/^https:\/\//i.test(r.link||'')?r.link:'#')}" target="_blank" rel="noopener" title="Videó megnyitása"${/^https:\/\//i.test(r.link||'')?'':' hidden'}>↗</a></span><input class="inp tig-amt" value="${esc(moneyFmt(r.amount||''))}" inputmode="numeric" data-money="1" placeholder="0" aria-label="Díjazás (nettó Ft)"></div>`;
 function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&&pre.month)||(todayISO().slice(8)<'15'?prevM:todayISO().slice(0,7));
   const names=[...new Set(S.projects.filter(p=>p.client&&p.status!=='lemondva').map(p=>p.client.trim()))].sort((a,b)=>a.localeCompare(b,'hu'));
   const c0=(pre&&pre.client)||'';
@@ -292,7 +292,8 @@ document.addEventListener('change',e=>{const id=e.target.id;if(id==='m-tigClient
     if(id==='m-tigClient'){['m-tigAddr','m-tigTax','m-tigRep'].forEach(k=>{const x=$(k);if(x)x.value='';});}
     if(box&&c&&/^\d{4}-\d{2}$/.test(m))box.innerHTML=tigRowsHtml(c,m);tigFill();}
   if(e.target.classList&&e.target.classList.contains('tig-on'))tigSum();});
-document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('tig-amt'))tigSum();});
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('tig-amt'))tigSum();
+  if(e.target.classList&&e.target.classList.contains('tig-link')){const a=e.target.parentNode.querySelector('.tig-open'),v=e.target.value.trim(),ok=/^https:\/\/\S+$/i.test(v);if(a){a.hidden=!ok;a.href=ok?v:'#';}}});
 Object.assign(ACT,{'tig-new':b=>tigModal(b&&b.dataset&&b.dataset.client?{client:b.dataset.client}:null),
   'tig-preview':b=>tigPreview(b),
   'tig-add':()=>{const box=$('tig-rows');if(!box)return;const p=box.querySelector('p.hint');if(p&&!box.querySelector('.tig-row'))p.remove();box.insertAdjacentHTML('beforeend',tigRow({},0));tigSum();}});
