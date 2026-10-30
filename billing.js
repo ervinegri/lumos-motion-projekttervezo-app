@@ -65,8 +65,9 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
       ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ ${b.contractUrl?'Új feltöltése':'Feltöltés'}</button>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?');
   // TIG
   const tg=tigList().filter(t=>tigPids(t).includes(p.id)).pop()||null,appr=!!tg&&(tg.status==='jovahagyva'||tg.status==='szamlazva'),r=pr(p);
-  const tig=box('','TIG',tg?`${bsStep(true,'TIG elküldve',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:'')}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}`
-    :`${bsStep(false,'TIG elküldve')}${bsStep(false,'TIG jóváhagyva')}<button class="linkbtn bl-up" type="button" data-action="tig-new" data-client="${esc(p.client||'')}" data-month="${r?r.start.slice(0,7):''}">📝 TIG kiállítása</button>`);
+  const tigNeed=!!tg||b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>String(t.client||'').trim().toLowerCase()===String(p.client||'').trim().toLowerCase()));
+  const tig=box('tig','TIG',tg?`${bsStep(true,'TIG elküldve',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:'')}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}${tg.status==='jovahagyva'?`<button class="btn primary small bl-add" type="button" data-action="tig-invoice" data-id="${esc(tg.id)}">🧾 Számla a TIG alapján</button>`:tg.status==='szamlazva'&&tg.invoiceNo?`<div class="bs-x">Számlázva: ${esc(tg.invoiceNo)}</div>`:''}`
+    :`${bsStep(false,'TIG elküldve')}${bsStep(false,'TIG jóváhagyva')}<button class="linkbtn bl-up" type="button" data-action="tig-new" data-client="${esc(p.client||'')}" data-month="${r?r.start.slice(0,7):''}">📝 TIG kiállítása</button>`,!tigNeed,!!tg,'Nem kell TIG?');
   if(i.free)return {contract,tig,adv:freeBox('Díjbekérő'),fin:freeBox('Végszámla')};
   // Díjbekérő
   const dx=i.db||i.el,advPaid=!!((i.db&&invPaidOk(i.db))||(i.el&&invPaidOk(i.el))),skipA=b.mode==='egyben';
@@ -112,7 +113,7 @@ function viewBilling(){
       <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
       :`<div class="panel">${empty(all.length?'Nincs a szűrésnek megfelelő projekt.':'Még nincs dátummal rendelkező projekt.')}</div>`}
-    ${tigPanel()}${fwPanel()}`;
+    `;
 }
 /* ===== Teljesítésigazolások: kiküldve → jóváhagyva → számla a TIG alapján (közös számla az összes tételre) ===== */
 const TIG_ST={kikuldve:['Jóváhagyásra vár','p-warn'],jovahagyva:['Jóváhagyva','p-info'],szamlazva:['Számlázva','p-ok']};
@@ -270,7 +271,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.d
 /* Projektoldal: a kártyák pipája = „nem kell” (szerződés / díjbekérő / végszámla) – azonnal látszik, a mentés a háttérben fut */
 ACT['pb-skip']=async btn=>{const pid=btn.dataset.id,k=btn.dataset.k,on=btn.getAttribute('aria-pressed')!=='true';if(!S.fin||!S.fin.billing)return;
   const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}const prev=Object.assign({},b);
-  const patch=k==='contract'?{contractStatus:on?'nemkell':''}:k==='adv'?{mode:on?'egyben':'eloleg'}:{noFinal:on?'1':''};
+  const patch=k==='contract'?{contractStatus:on?'nemkell':''}:k==='adv'?{mode:on?'egyben':'eloleg'}:k==='tig'?{tigMode:on?'nemkell':'kell'}:{noFinal:on?'1':''};
   Object.assign(b,patch);const repaint=()=>setTimeout(()=>{const p=S.draft&&S.draft.id===pid?S.draft:projById(pid);const el=$('proj-bill');if(el&&el.isConnected&&p){try{el.outerHTML=projBillingPanel(p)||'';}catch(e){render(true);}}else render(true);},0);repaint();
   try{const d=await call('billSave',Object.assign({projectId:pid},k==='fin'?{noFinal:on}:patch));if(d&&d.billing)S.fin.billing=d.billing;repaint();}
   catch(e){Object.assign(b,prev);repaint();handleErr(e);}};
