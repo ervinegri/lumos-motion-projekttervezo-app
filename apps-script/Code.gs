@@ -1984,7 +1984,7 @@ function tigCreate_(u, a) {
   const f = folder.createFile(pdf.setName(name));
   try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
   const rec = { id: Utilities.getUuid(), client: client, month: month, issuer: a.issuer === 'ev' ? 'ev' : 'kft', projectIds: rows.map(r => r.pid).filter(String).filter((x, i, l) => l.indexOf(x) === i).join(','),
-    rows: JSON.stringify(rows), total: total, url: f.getUrl(), fileName: name, status: 'kikuldve', approvedAt: '', invoiceNo: '', createdAt: now_(), createdBy: u.name, clientAddress: cSeat, clientTax: cTax };
+    rows: JSON.stringify(rows), total: total, url: f.getUrl(), fileName: name, status: 'kiallitva', approvedAt: '', invoiceNo: '', createdAt: now_(), createdBy: u.name, clientAddress: cSeat, clientTax: cTax };
   withLock_(() => { putRow_('finTig', sheetFor_('finTig'), rec, 0); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Teljesítésigazolás', client, mLabel + ' · ' + rows.length + ' tétel · ' + total + ' Ft');
   return Object.assign(finPart_(['tigs']), { url: f.getUrl(), name: name, total: total, tig: rec });
@@ -2000,9 +2000,11 @@ function tigSave_(u, a) {
     if (act === 'delete') { if (r.status === 'szamlazva') throw new Error('Már kiállítottál számlát erre a TIG-re.'); sh.deleteRow(row); }
     else if (act === 'approve') { if (r.status !== 'szamlazva') { r.status = 'jovahagyva'; r.approvedAt = today_(); putRow_('finTig', sh, r, row); } }
     else if (act === 'unapprove') { if (r.status === 'jovahagyva') { r.status = 'kikuldve'; r.approvedAt = ''; putRow_('finTig', sh, r, row); } }
+    else if (act === 'send') { if (r.status === 'kiallitva' || !r.status) { r.status = 'kikuldve'; putRow_('finTig', sh, r, row); } }
+    else if (act === 'unsend') { if (r.status === 'kikuldve') { r.status = 'kiallitva'; putRow_('finTig', sh, r, row); } }
     else throw new Error('Ismeretlen művelet.');
     dataBump_(); dbFlush_();
-    logEvent_(u, 'Teljesítésigazolás', r.client, (act === 'delete' ? 'Törölve (a PDF megmarad): ' : act === 'approve' ? 'Jóváhagyva: ' : 'Jóváhagyás visszavonva: ') + r.month);
+    logEvent_(u, 'Teljesítésigazolás', r.client, (act === 'delete' ? 'Törölve (a PDF megmarad): ' : act === 'approve' ? 'Jóváhagyva: ' : act === 'send' ? 'Elküldve: ' : act === 'unsend' ? 'Elküldés visszavonva: ' : 'Jóváhagyás visszavonva: ') + r.month);
   });
   return finPart_(['tigs']);
 }
