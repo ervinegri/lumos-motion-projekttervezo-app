@@ -262,8 +262,23 @@ function npBuild(fd){
       status:'egyeztetes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
     if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
     {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
+  const tid=g('tplId'),tpl=tid&&projById(tid);
+  if(tpl){const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});
+    p.crew=clone(tpl.crew||[]);p.equipment=clone(tpl.equipment||[]);p.lead=tpl.lead||'';
+    p.fees=clone(tpl.fees||[]).map(f=>{delete f.dayAmounts;return f;});   // a napokra bontott díjak az új dátumhoz nem illenek
+    if(!p.clientTax&&tpl.clientTax){p.clientTax=tpl.clientTax;p.clientAddress=tpl.clientAddress;}}
   return {p,clientNew,g};
 }
+/* Sablonok: a korábbi projektek (névenként a legutóbbi), a lemondottak nélkül */
+const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
+function tplList(){const seen=new Map();S.projects.filter(p=>p.status!=='lemondva'&&p.name).slice().sort((a,b)=>String((pr(b)||{}).start||'').localeCompare(String((pr(a)||{}).start||''))).forEach(p=>{const k=(p.name+'|'+(p.client||'')).toLowerCase();if(!seen.has(k))seen.set(k,p);});
+  return [...seen.values()].sort((a,b)=>String(a.client||'').localeCompare(String(b.client||''),'hu')||a.name.localeCompare(b.name,'hu'));}
+function tplFill(id){const t=projById(id),f=$('mform');if(!t||!f)return;
+  const set=(n,v)=>{const e=f.querySelector('[name='+n+']');if(e)e.value=v||'';};
+  if(t.client){const it=knownClients('').find(c=>c.company===t.client);mcSetClient(it||{isNew:true,company:t.client});}
+  set('name',t.name);set('eventType',t.eventType);set('venue',t.venue);set('contactName',t.contactName);set('contactEmail',t.contactEmail);set('startTime',t.startTime);set('endTime',t.endTime);set('notes',t.notes);
+  const ph=$('m-contactPhone');if(ph){const fld=ph.closest('.field');if(fld)fld.outerHTML=phoneField({name:'contactPhone',value:t.contactPhone||''});}
+  const dt=f.querySelector('[name=date]');if(dt&&!dt.value)setTimeout(()=>dt.focus(),50);}
 /* Piszkozat: csak a név kötelező, a hiányzó adatok a projekt oldalán pótolhatók (piros keret jelzi) */
 async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(form,'A piszkozathoz legalább a projekt nevét add meg.'))return;
   const {p}=npBuild(new FormData(form));if(p.name.length<2){toast('A projekt neve legalább 2 karakter legyen.',true);return;}
@@ -272,7 +287,9 @@ async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(f
   catch(e){btn.disabled=false;btn.textContent='💾 Piszkozat mentése';handleErr(e);}}
 function newProjectModal(day){
   const d0=day||'';
+  const tpls=tplList();
   openModal('Új projekt',`<div class="fields">
+    ${tpls.length?`<div class="field full tpl-field"><label for="m-tpl">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><select class="inp" id="m-tpl" name="tplId"><option value="">— Üres projekt —</option>${tpls.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}${t.client?' · '+esc(t.client):''}${pr(t)?' ('+esc(fmtShort(pr(t).start))+')':''}</option>`).join('')}</select><small class="hint" style="margin:4px 0 0">Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.</small></div>`:''}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
@@ -1157,6 +1174,7 @@ function mcSearch(input){const q=input.value.trim();MC_ITEMS=knownClients(q);MC_
   pickShow(input,MC_ITEMS.map((it,i)=>it.isNew?`<button type="button" class="hs-item hs-new mc-item" data-mc="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
     :`<div class="hs-row"><button type="button" class="hs-item mc-item" data-mc="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button></div>`).join('')+(MC_ITEMS.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));}
 document.addEventListener('focusin',e=>{if(e.target.id==='m-clientQ')mcSearch(e.target);});
+document.addEventListener('change',e=>{if(e.target.id==='m-tpl'&&e.target.value)tplFill(e.target.value);});
 document.addEventListener('input',e=>{if(e.target.id==='m-clientQ'){const s2=$('m-clientSel');if(s2&&s2.value!=='__new')s2.value='';mcSearch(e.target);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.mc-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=MC_ITEMS[Number(it.dataset.mc)];pickClose();if(v)mcSetClient(v);},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-clientQ'){const t=e.target;setTimeout(()=>{if(document.activeElement===t)return;if($('hsBox')&&$('hsBox').querySelector('.mc-item'))pickClose();
