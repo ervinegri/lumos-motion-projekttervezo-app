@@ -217,6 +217,8 @@ function computeIssues(){
     if(n>=7)out.push({level:'bad',text:`${n>=14?'🚨 ':''}A videók ${n} napja leadva, az ügyfél még nem hagyta jóvá.`,pids:[p.id]});}
   for(const p of allProjects().filter(isOpen)){const r=pr(p);if(!r||r.end>=T||!dueDate(p)||p.status==='leadva'||p.status==='jovahagyas')continue;const left=diffDays(T,dueDate(p));   // leadott videóknál nincs lejárt határidő
     if(left<0)out.push({level:'bad',text:`Az átadási határidő ${-left} napja lejárt (${fmtShort(dueDate(p))}).`,pids:[p.id]});}
+  if(isAdmin())for(const p of allProjects().filter(isOpen)){const m=[];if(!(num(p.projectValue)>0))m.push('büdzsé (a projekt értéke)');if(budgetFt(p)==null)m.push('termelői keret');   // csak az ügyvezető látja
+    if(m.length)out.push({level:'warn',text:`💰 Még nincs megadva: ${m.join(' és ')}.`,pids:[p.id]});}
   return out.sort((a,b)=>(a.level==='bad'?0:1)-(b.level==='bad'?0:1));
 }
 
