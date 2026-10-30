@@ -280,12 +280,16 @@ async function importCalEvent(id){
 function needName(form,msg){const el=form.querySelector('[name=name]');if(el.value.trim().length<2){el.focus();el.style.borderColor='var(--bad)';toast(msg||'Add meg a nevet.',true);return false;}return true;}
 $('modalRoot').addEventListener('submit',async e=>{
   e.preventDefault();if(!modalSubmit)return;
-  const form=e.target,btn=form.querySelector('[type=submit]');if(btn){btn.disabled=true;btn.dataset.l=btn.textContent;btn.textContent='Mentés…';}
+  const form=e.target,btn=form.querySelector('[type=submit]');if(btn){btn.dataset.l=btn.textContent;btn.textContent=btn.textContent.replace(/…$/,'')+'…';btn.disabled=true;}
   const k=MD_KEY;
   try{await modalSubmit(new FormData(form),form);if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
   finally{if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').innerHTML)closeModal();});
+/* Folyamatban lévő művelet gombja (pl. „Mentés…”, „Feltöltés…”, „Rögzítés…”): forgó jel + fénycsík, amíg tart */
+const BUSY_SYNC=b=>{if(!b||b.tagName!=='BUTTON')return;const on=b.disabled&&/…\s*$/.test(b.textContent||'');b.classList.toggle('is-busy',on);if(on)b.setAttribute('aria-busy','true');else b.removeAttribute('aria-busy');};
+new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')BUSY_SYNC(m.target);else if(m.type==='characterData')BUSY_SYNC(m.target.parentElement&&m.target.parentElement.closest('button'));else{BUSY_SYNC(m.target.closest&&m.target.closest('button'));}}))
+  .observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled'],childList:true,characterData:true});
 
 /* Új projekt (a Projektek és a Naptár „+ Új bejegyzés” gombja is ezt nyitja): ugyanazok a kötelező adatok, mint az Alapadatoknál.
    A projekt létrehozás után automatikusan bekerül a Google Naptárba is. */
