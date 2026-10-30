@@ -1704,7 +1704,11 @@ function szLink_(u, a) {
     withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, ex.id), r = readRow_('finInvoice', sh, row);
       const ids = String(r.projectIds || '').split(',').filter(String);
       [tg.projectId].concat(szExtraProjects_(a, r.projectId).split(',').filter(String)).forEach(id => { if (id && id !== r.projectId && ids.indexOf(id) < 0) { ids.push(id); added.push(id); } });
-      r.projectIds = ids.join(','); putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_(); Object.assign(ex, r); });
+      r.projectIds = ids.join(',');
+      // ugyanehhez a projekthez újra hozzárendelve, másik helyről (Díjbekérő / Végszámla kártya): a helyét is igazítjuk
+      if (a.slot === 'dijbekero' || a.slot === 'eloleg') { if (r.kind === 'szamla' || r.kind === 'vegszamla') r.kind = 'eloleg'; }
+      else if (a.slot === 'vegszamla' || a.slot === 'szamla') { if (r.kind === 'eloleg') r.kind = 'vegszamla'; }
+      putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_(); Object.assign(ex, r); });
     logEvent_(u, 'Számlázás', ex.buyer, 'Közös számla bővítve: ' + no + (added.length ? ' (+' + added.length + ' projekt)' : ''));
     return Object.assign(finData_(), { invoice: ex, extended: added.length });
   }
