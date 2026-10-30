@@ -247,7 +247,7 @@ async function gs(fn,...args){
   if(!('data' in j))throw new Error('A szerver nem a várt választ adta. Töltsd újra az oldalt, és próbáld újra.');
   return j.data;
 }
-const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync)|tig(Create|Save)|inc\w*|exp\w*|loan\w*)$/;
+const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual)|tig(Create|Save)|inc\w*|exp\w*|loan\w*)$/;
 const call=(name,arg)=>{if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);};   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errText=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
 function handleErr(e){

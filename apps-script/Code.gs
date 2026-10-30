@@ -88,7 +88,7 @@ const TABLES = {
   finInvoice: { tab: 'Számlák', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['no', 'Számlaszám'], ['kind', 'Típus (szamla / dijbekero)'], ['projectId', 'Projekt azonosító'], ['incomeId', 'Bevételi sor azonosító'],
     ['buyer', 'Vevő'], ['date', 'Kelt'], ['due', 'Fizetési határidő'], ['invNet', 'Nettó (Ft)'], ['invGross', 'Bruttó (Ft)'], ['invPaid', 'Kifizetve (Ft)'],
-    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító']] },
+    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító'], ['manual', 'Kézi rögzítés (1)'], ['issuer', 'Kiállító (kft / ev)'], ['fileUrl', 'Bizonylat fájl (link)']] },
   finTig: { tab: 'Teljesítésigazolások', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['month', 'Hónap'], ['issuer', 'Szolgáltató'], ['projectIds', 'Projektek'], ['rows', 'Tételek (JSON)'], ['total', 'Összesen (nettó Ft)'],
     ['url', 'PDF (link)'], ['fileName', 'Fájlnév'], ['status', 'Állapot (kikuldve / jovahagyva / szamlazva)'], ['approvedAt', 'Jóváhagyva'], ['invoiceNo', 'Számlaszám'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['clientAddress', 'Megrendelő címe'], ['clientTax', 'Megrendelő adószáma']] },
@@ -1697,6 +1697,41 @@ function szLink_(u, a) {
   logEvent_(u, 'Számlázás', q.buyer, 'Számla hozzárendelve: ' + q.no);
   return Object.assign(finData_(), { invoice: row });
 }
+/** Kézi bizonylat (pl. az Egri Ervin E.V. által, nem az összekötött számlázz.hu-fiókból kiállított): rögzítés vagy (id-vel) a kifizetés módosítása.
+    a: {projectId|incomeId, projectIds, no, kind, issuer, date, due, invNet, invGross, paid, paidAt, b64, name, mime} */
+function szManual_(u, a) {
+  a = a || {};
+  if (a.id) {
+    withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, str_(a.id, 64)); if (!row) throw new Error('A bizonylat nem található.'); const r = readRow_('finInvoice', sh, row);
+      if (!r.manual) throw new Error('Ez a számla a számlázz.hu-ból frissül.');
+      r.invPaid = a.paid ? r.invGross : 0; r.paidAt = a.paid ? (iso_(a.paidAt) || today_()) : ''; r.checkedAt = now_(); putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_();
+      logEvent_(u, 'Számlázás', r.buyer, 'Kézi bizonylat ' + r.no + (a.paid ? ' kifizetve' : ' – kifizetés visszavonva')); });
+    return finData_();
+  }
+  const tg = szTarget_(a), no = str_(a.no, 60);
+  if (!no) throw new Error('Add meg a bizonylatszámot.');
+  if (readAll_('finInvoice').some(x => x.no === no)) throw new Error('Ez a bizonylatszám már szerepel.');
+  const money = v => Math.round(Number(String(v == null ? '' : v).replace(/\s/g, '').replace(',', '.'))) || 0;
+  const net = money(a.invNet), gross = money(a.invGross) || net;
+  if (!net) throw new Error('Add meg a nettó összeget.');
+  let fileUrl = '';
+  if (a.b64) {
+    const b64 = String(a.b64); if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+    const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/pdf';
+    const p0 = tg.projectId ? readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), tg.projectId)) : null;
+    const cf = p0 && p0.client ? clientFolder_(p0.client) : null, year = String(iso_(a.date) || today_()).slice(0, 4), ext = (/\.[a-z0-9]{2,5}$/i.exec(String(a.name || '')) || ['.pdf'])[0];
+    const folder = cf ? folderPath_(cf, 'Számlák/' + year, {}) : DriveApp.getFolderById(createProjectFolder_(u, { id: tg.projectId }).folderId);
+    const f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, no.replace(/[\\/:*?"<>|]+/g, '-') + ext)));
+    fileUrl = f.getUrl();
+  }
+  const paid = !!a.paid, today = today_();
+  const row = { id: Utilities.getUuid(), no: no, kind: SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : 'szamla', projectId: tg.projectId, incomeId: tg.incomeId, buyer: str_(a.buyer, 200), date: iso_(a.date) || today, due: iso_(a.due) || '',
+    invNet: net, invGross: gross, invPaid: paid ? gross : 0, paidAt: paid ? (iso_(a.paidAt) || today) : '', payMethod: str_(a.payMethod, 40), createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: str_(a.note, 500), items: '', ref: '',
+    projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: '', manual: '1', issuer: a.issuer === 'kft' ? 'kft' : 'ev', fileUrl: fileUrl };
+  withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); dbFlush_(); });
+  logEvent_(u, 'Számlázás', row.buyer, 'Kézi bizonylat rögzítve: ' + no + (row.issuer === 'ev' ? ' (Egri Ervin E.V.)' : ''));
+  return Object.assign(finData_(), { invoice: row });
+}
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
   withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
@@ -1708,7 +1743,7 @@ function szSync_(u, a) {
   szNeedKey_();
   const started = Date.now(), all = readAll_('finInvoice');
   const ids = a && a.id ? [str_(a.id, 64)] : null;
-  const todo = all.filter(x => ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1)
+  const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1))
     .sort((x, y) => String(x.checkedAt).localeCompare(String(y.checkedAt))).slice(0, 25);
   const changed = [], errors = [], created = [];
   todo.forEach(x => {
@@ -2837,6 +2872,7 @@ function rpcInner_(token, name, arg) {
     case 'szInvoice': adminOnly(); return szInvoice_(u, arg);
     case 'szLink': adminOnly(); return szLink_(u, arg);
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
+    case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
