@@ -69,7 +69,7 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   // TIG
   const tg=tigList().filter(t=>tigPids(t).includes(p.id)).pop()||null,appr=!!tg&&(tg.status==='jovahagyva'||tg.status==='szamlazva'),r=pr(p);
   const tigNeed=!!tg||b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>String(t.client||'').trim().toLowerCase()===String(p.client||'').trim().toLowerCase()));
-  const tig=box('tig','TIG',tg?`${bsStep(true,'TIG kiállítva',[tg.createdAt?fmtMD(String(tg.createdAt).slice(0,10)):'',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:''].filter(Boolean).join(' · '))}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}${tg.status==='jovahagyva'?`<button class="btn primary small bl-add" type="button" data-action="tig-invoice" data-id="${esc(tg.id)}">🧾 Számla a TIG alapján</button>`:tg.status==='szamlazva'&&tg.invoiceNo?`<div class="bs-x">Számlázva: ${esc(tg.invoiceNo)}</div>`:''}`
+  const tig=box('tig','TIG',tg?`${bsStep(true,'TIG kiállítva',[tg.createdAt?fmtMD(String(tg.createdAt).slice(0,10)):'',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:'',tg.sentAt?`✉️ elküldve ${fmtMD(String(tg.sentAt).slice(0,10))}`:appr?'':`<button class="linkbtn" type="button" data-action="tig-mail" data-id="${esc(tg.id)}">✉️ Küldés</button>`].filter(Boolean).join(' · '))}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}${tg.status==='jovahagyva'?`<button class="btn primary small bl-add" type="button" data-action="tig-invoice" data-id="${esc(tg.id)}">🧾 Számla a TIG alapján</button>`:tg.status==='szamlazva'&&tg.invoiceNo?`<div class="bs-x">Számlázva: ${esc(tg.invoiceNo)}</div>`:''}`
     :`<button class="btn outline small bl-add" type="button" data-action="tig-new" data-client="${esc(p.client||'')}" data-month="${r?r.start.slice(0,7):''}">📝 TIG kiállítása</button>`,!tigNeed,!!tg,'Nem kell TIG?');
   if(i.free)return {contract,tig,adv:freeBox('Díjbekérő'),fin:freeBox('Végszámla')};
   // Díjbekérő
@@ -147,7 +147,19 @@ function tigInvoice(id){const t=tigList().find(x=>x.id===id);if(!t)return;let ro
   szInvoiceModal('project',ps[0],{type:'szamla',tigId:t.id,projectIds:ps.slice(1),fulfill:last,
     items:rows.map(r=>({name:(r.task+(r.period?' ('+r.period+')':'')).slice(0,300),qty:1,price:num(r.amount),pid:r.pid||''}))});}
 async function tigAct(b,action){if(b)b.disabled=true;try{const d=await call('tigSave',{id:b.dataset.id,action});finApply(d);toast(action==='approve'?'TIG jóváhagyva – kiállíthatod a számlát.':action==='send'?'TIG elküldve – jóváhagyásra vár.':action==='unsend'?'TIG: elküldés visszavonva.':action==='delete'?'TIG törölve a listából.':'Jóváhagyás visszavonva.');}catch(e){handleErr(e);if(b)b.disabled=false;}}
-Object.assign(ACT,{'tig-send':b=>tigAct(b,b.dataset.st),'tig-approve':b=>tigAct(b,'approve'),'tig-unapprove':b=>tigAct(b,'unapprove'),'tig-invoice':b=>tigInvoice(b.dataset.id),
+/* TIG küldése e-mailben: címzett a megrendelő képviselője (és a kapcsolattartó), szöveg szerkeszthető, a PDF csatolva */
+function tigMailModal(id){const t=tigList().find(x=>x.id===id);if(!t){toast('A TIG még nem töltődött be – frissíts.',true);return;}
+  const n=s=>String(s||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>n(x.name)===n(t.client))||{};
+  const to=[c.repEmail,c.contactEmail].filter(Boolean).filter((v,i,l)=>l.indexOf(v)===i);const MN=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
+  const ml=t.month?t.month.slice(0,4)+'. '+MN[Number(t.month.slice(5,7))-1]:'',greet=(c.rep||c.contactName||'').trim().split(/\s+/).slice(-1)[0]||'';
+  const text=`Kedves ${greet||'Partnerünk'}!\n\nMellékelten küldöm a ${ml} havi teljesítésigazolást (${t.client}). Kérlek, nézd át, és ha minden rendben, jelezz vissza, hogy jóváhagyjátok – ezután állítjuk ki a számlát.\n\nKöszönöm!`;
+  openModal('TIG küldése e-mailben',`<div class="fields">${mf('mto','Címzett',{full:true,v:to.join(', '),ph:'nev@ceg.hu',max:300})}${mf('mcc','Másolat (nem kötelező)',{full:true,max:300})}${mf('msubj','Tárgy',{full:true,v:'Teljesítésigazolás – '+t.client+' – '+ml,max:200})}
+    <div class="field full"><label for="m-mtext">Üzenet</label><textarea class="inp" id="m-mtext" name="mtext" rows="7" maxlength="5000">${esc(text)}</textarea></div></div>
+    <p class="hint" style="margin:0">📎 Csatolva: <b>${esc(t.fileName||'TIG.pdf')}</b> · Az aláírásod a levél aljára kerül.</p>`,
+    {submitLabel:'Küldés',submit:async fd=>{const a={id,to:String(fd.get('mto')||'').trim(),cc:String(fd.get('mcc')||'').trim(),subject:String(fd.get('msubj')||'').trim(),text:String(fd.get('mtext')||'')};
+      if(!a.to){toast('Add meg a címzettet.',true);return;}
+      try{const d=await call('tigSend',a);closeModal();finApply(d);toast('TIG elküldve: '+a.to);}catch(e){handleErr(e);}}});}
+Object.assign(ACT,{'tig-mail':b=>tigMailModal(b.dataset.id),'tig-send':b=>tigAct(b,b.dataset.st),'tig-approve':b=>tigAct(b,'approve'),'tig-unapprove':b=>tigAct(b,'unapprove'),'tig-invoice':b=>tigInvoice(b.dataset.id),
   'tig-del':b=>openModal('TIG törlése a listából?','<p style="margin:0">A PDF a Drive-ban megmarad, csak a nyilvántartásból kerül ki.</p>',{submitLabel:'Törlés',submit:async()=>{closeModal();await tigAct(b,'delete');}})});
 
 /* Projekt szerződés- és számlázási beállításai + szerződés feltöltése */
@@ -322,7 +334,7 @@ function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Készül…';}
     try{const r=await call('tigCreate',{client,month:fd.get('tigMonth'),issuer:fd.get('tigIssuer'),date:fd.get('tigDate'),clientAddress:fd.get('tigAddr'),clientTax:fd.get('tigTax'),clientRep:fd.get('tigRep'),rows});
       closeModal();S.clDocs=null;S._clDocsForce=true;S._clDocsLoading=false;
-      finApply(r);openModal('TIG elkészült',`<p style="margin:0 0 12px"><b>${esc(r.name)}</b> · ${ftFmt(r.total)} + ÁFA</p><a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">📄 Megnyitás ↗</a><p class="hint" style="margin:12px 0 0">Ha az ügyfél jóváhagyta, a <b>Teljesítésigazolások</b> listában jelöld (Szerződés és számlázás fül alja), és onnan egy kattintással kiállíthatod a számlát az összes tételre.</p>`,{cancelLabel:'Bezárás'});}
+      finApply(r);openModal('TIG elkészült',`<p style="margin:0 0 12px"><b>${esc(r.name)}</b> · ${ftFmt(r.total)} + ÁFA</p><div class="btns"><button class="btn primary" type="button" data-action="tig-mail" data-id="${esc(r.tig&&r.tig.id||'')}">✉️ Küldés e-mailben</button><a class="btn outline" href="${esc(r.url)}" target="_blank" rel="noopener">📄 Megnyitás ↗</a></div><p class="hint" style="margin:12px 0 0">Ha az ügyfél jóváhagyta, a <b>Teljesítésigazolások</b> listában jelöld (Szerződés és számlázás fül alja), és onnan egy kattintással kiállíthatod a számlát az összes tételre.</p>`,{cancelLabel:'Bezárás'});}
     catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='TIG elkészítése';}}}});
   setTimeout(()=>{const c=$('m-tigClient'),m=$('m-tigMonth'),box=$('tig-rows');if(c&&c.value&&m&&box&&/^\d{4}-\d{2}$/.test(m.value))box.innerHTML=tigRowsHtml(c.value,m.value);tigFill();},30);}
 /* A TIG-en megadott képviselő az ügyfél adataiba is bekerül (ha eltér) */

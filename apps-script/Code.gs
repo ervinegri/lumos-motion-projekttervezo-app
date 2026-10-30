@@ -91,7 +91,7 @@ const TABLES = {
     ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító'], ['manual', 'Kézi rögzítés (1)'], ['issuer', 'Kiállító (kft / ev)'], ['fileUrl', 'Bizonylat fájl (link)']] },
   finTig: { tab: 'Teljesítésigazolások', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['month', 'Hónap'], ['issuer', 'Szolgáltató'], ['projectIds', 'Projektek'], ['rows', 'Tételek (JSON)'], ['total', 'Összesen (nettó Ft)'],
-    ['url', 'PDF (link)'], ['fileName', 'Fájlnév'], ['status', 'Állapot (kikuldve / jovahagyva / szamlazva)'], ['approvedAt', 'Jóváhagyva'], ['invoiceNo', 'Számlaszám'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['clientAddress', 'Megrendelő címe'], ['clientTax', 'Megrendelő adószáma']] },
+    ['url', 'PDF (link)'], ['fileName', 'Fájlnév'], ['status', 'Állapot (kikuldve / jovahagyva / szamlazva)'], ['approvedAt', 'Jóváhagyva'], ['invoiceNo', 'Számlaszám'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['clientAddress', 'Megrendelő címe'], ['clientTax', 'Megrendelő adószáma'], ['fileId', 'Drive-fájl azonosító'], ['sentAt', 'E-mailben elküldve'], ['sentTo', 'Címzett']] },
   finBilling: { tab: 'Szerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
@@ -2085,10 +2085,29 @@ function tigCreate_(u, a) {
   const f = folder.createFile(pdf.setName(name));
   try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
   const rec = { id: Utilities.getUuid(), client: client, month: month, issuer: a.issuer === 'ev' ? 'ev' : 'kft', projectIds: rows.map(r => r.pid).filter(String).filter((x, i, l) => l.indexOf(x) === i).join(','),
-    rows: JSON.stringify(rows), total: total, url: f.getUrl(), fileName: name, status: 'kiallitva', approvedAt: '', invoiceNo: '', createdAt: now_(), createdBy: u.name, clientAddress: cSeat, clientTax: cTax };
+    rows: JSON.stringify(rows), total: total, url: f.getUrl(), fileId: f.getId(), fileName: name, status: 'kiallitva', approvedAt: '', invoiceNo: '', createdAt: now_(), createdBy: u.name, clientAddress: cSeat, clientTax: cTax };
   withLock_(() => { putRow_('finTig', sheetFor_('finTig'), rec, 0); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Teljesítésigazolás', client, mLabel + ' · ' + rows.length + ' tétel · ' + total + ' Ft');
   return Object.assign(finPart_(['tigs']), { url: f.getUrl(), name: name, total: total, tig: rec });
+}
+/** TIG elküldése e-mailben a PDF-fel (a küldő a bejelentkezett felhasználó, ha a címe álnévként be van állítva). a: {id, to, cc, subject, text} */
+function tigSend_(u, a) {
+  a = a || {};
+  const t = readAll_('finTig').find(x => x.id === str_(a.id, 64)); if (!t) throw new Error('A teljesítésigazolás nem található.');
+  const okMail = s => String(s || '').split(/[,;]\s*/).map(x => x.trim()).filter(Boolean);
+  const to = okMail(a.to), cc = okMail(a.cc);
+  if (!to.length) throw new Error('Add meg a címzettet.');
+  if (!to.concat(cc).every(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))) throw new Error('Hibás e-mail-cím.');
+  const fid = t.fileId || ((/\/d\/([\w-]{20,})/.exec(String(t.url || '')) || [])[1]);
+  if (!fid) throw new Error('Nem található a TIG PDF-je a Drive-ban.');
+  const pdf = DriveApp.getFileById(fid).getBlob().setName(t.fileName || 'TIG.pdf');
+  const text = str_(a.text, 5000), sig = signatureFor_(u), esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
+  const opts = mailOptsFor_(u, html); delete opts.__actor; opts.attachments = [pdf]; if (cc.length) opts.cc = cc.join(',');
+  GmailApp.sendEmail(to.join(','), str_(a.subject, 200) || 'Teljesítésigazolás', text + (sig ? '\n\n' + sig.text : ''), opts);
+  withLock_(() => { tigMark_(t.id, Object.assign({ sentAt: now_(), sentTo: to.concat(cc).join(', ') }, t.status === 'kiallitva' ? { status: 'kikuldve' } : {})); dbFlush_(); });
+  logEvent_(u, 'Teljesítésigazolás', t.client, 'E-mailben elküldve: ' + to.join(', '));
+  return finPart_(['tigs']);
 }
 /** TIG állapotának módosítása (zárolás alatt hívandó). */
 function tigMark_(id, patch) { const sh = sheetFor_('finTig'), row = findRow_(sh, id); if (!row) return; const r = readRow_('finTig', sh, row); Object.assign(r, patch); putRow_('finTig', sh, r, row); dataBump_(); }
@@ -2961,6 +2980,7 @@ function rpcInner_(token, name, arg) {
     case 'clientDocs': adminOnly(); return clientDocs_(arg);
     case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
     case 'tigSave': adminOnly(); return tigSave_(u, arg);
+    case 'tigSend': adminOnly(); return tigSend_(u, arg);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
