@@ -354,6 +354,15 @@ const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 /* Ügyvezetőnek: hiányzó büdzsé / termelői keret (nyitott projekteknél) */
 function budgetMissing(p){if(!isAdmin()||!isOpen(p))return '';const m=[];if(p.projectValue==null||p.projectValue==='')m.push('büdzsé');if(budgetFt(p)==null&&!isFree(p))m.push('keret');return m.join(' és ');}
 /* Nem fizetős projekt: a büdzsé 0 Ft (a „Nem fizetős” pipával állítható) */
+/* Extra szolgáltatások: a szerződött érték (projectValue) felett; a végső érték = szerződött + extrák (a termelői keret a szerződöttből számol) */
+const extrasOf=p=>(p&&Array.isArray(p.extras)?p.extras:[]);
+const extrasSum=p=>extrasOf(p).reduce((s,x)=>s+num(x.amount),0);
+const projTotal=p=>num(p&&p.projectValue)+extrasSum(p);
+const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="muted">(szerződött ${ftFmt(num(p.projectValue))} + extra ${ftFmt(extrasSum(p))})</span>`;
+function extrasHtml(p){const l=extrasOf(p),tot=projTotal(p);
+  return `<div class="extras" id="proj-extras"><div class="ex-h"><b>➕ Extra szolgáltatások</b> <span class="muted">– a szerződött összegen felül, nettó; a végszámlára külön tételként kerülnek</span></div>
+    ${l.map((x,i)=>`<div class="ex-row"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="pl. +1 riport videó" maxlength="200" aria-label="Extra szolgáltatás megnevezése"><div class="money"><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button></div>`).join('')}
+    <div class="ex-foot"><button class="linkbtn" type="button" data-action="extra-add">+ Extra szolgáltatás</button>${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
 const isFree=p=>!!p&&p.projectValue!=null&&p.projectValue!==''&&num(p.projectValue)===0;
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);
@@ -367,11 +376,11 @@ function finPanelBody(p){
   const pctV=p.budgetMode==='pct'?(p.budgetVal===''||p.budgetVal==null?'':String(p.budgetVal).replace('.',',')):(k!=null&&val>0?String(Math.round(k/val*1000)/10).replace('.',','):'');
   const ftV=k!=null?moneyFmt(k):'';
   return `<div class="fin-sum">
-      ${adm?`<div class="fin-inputs"><div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – a projekt értéke (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${isFree(p)?'':esc(moneyFmt(p.projectValue))}" placeholder="${isFree(p)?'Nem fizetős projekt':'pl. 969 000'}"${isFree(p)?' disabled':''}><span class="money-unit">Ft</span></div><label class="free-chk"><input type="checkbox" data-free="1"${isFree(p)?' checked':''}${D()}> 🎁 Nem fizetős projekt</label></div>
+      ${adm?`<div class="fin-inputs"><div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – szerződött érték (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${isFree(p)?'':esc(moneyFmt(p.projectValue))}" placeholder="${isFree(p)?'Nem fizetős projekt':'pl. 969 000'}"${isFree(p)?' disabled':''}><span class="money-unit">Ft</span></div><label class="free-chk"><input type="checkbox" data-free="1"${isFree(p)?' checked':''}${D()}> 🎁 Nem fizetős projekt</label></div>
         <div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
         <div class="field fin-budget${budgetFt(p)==null&&!isFree(p)?' missing req':''}"><label for="f-budgetFt">Termelői keret</label>
-          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div>`:''}
+          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div>${isFree(p)?'':extrasHtml(p)}`:''}
     </div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
@@ -386,7 +395,7 @@ function keretRows(p){
 }
 function totalCell(p){const amt=feeSum(p),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
 function finSumHtml(p){
-  const sum=feeSum(p),val=num(p.projectValue),margin=val-sum,adm=isAdmin();
+  const sum=feeSum(p),val=projTotal(p),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
   return `${adm?`<div class="kv"><span>Fedezet</span><b class="${val>0&&margin<0?'bad-txt':''}">${val>0?ftFmt(margin)+' · '+pct(margin):'–'}</b></div>
       <div class="kv"><span>Tényleges költséghányad</span><b>${pct(sum)}</b></div>`:''}`;

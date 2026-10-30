@@ -840,6 +840,8 @@ const ACT={
   tab:b=>guard(()=>{S.finErr='';const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
+  'extra-add':()=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),{id:uuid().slice(0,8),name:'',amount:0}]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
+  'extra-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).slice();l.splice(Number(b.dataset.i),1);setDraft({extras:l});},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
   pf:b=>{S.pf.status=b.dataset.v;render(true);},
@@ -1026,6 +1028,8 @@ function fieldValue(t){
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.crewNote!==undefined&&S.draft&&!ro()){histTyping('note|'+t.dataset.crewNote);const n=Object.assign({},S.draft.crewNotes||{});if(t.value.trim())n[t.dataset.crewNote]=t.value;else delete n[t.dataset.crewNote];S.draft.crewNotes=n;if(!S.dirty){S.dirty=true;renderChrome();}return;}
+  if((t.dataset.extraName!==undefined||t.dataset.extraAmt!==undefined)&&S.draft&&isAdmin()){const l=S.draft.extras=(S.draft.extras||[]).map(x=>Object.assign({},x)),k=Number(t.dataset.extraName??t.dataset.extraAmt);if(l[k]){if(t.dataset.extraName!==undefined)l[k].name=t.value;else l[k].amount=moneyVal(t.value)||0;}
+    if(!S.dirty){S.dirty=true;renderChrome();}const et=$('ex-total');if(et)et.innerHTML=exTotTxt(S.draft);refreshFinSums(S.draft);return;}
   if(S.draft&&!ro()&&(t.dataset.field!==undefined||t.dataset.feeI!==undefined||t.dataset.fin))histTyping((t.dataset.field||'')+'|'+(t.dataset.feeI||'')+'|'+(t.dataset.feeK||'')+'|'+(t.dataset.fin||''));
   if(t.dataset.field!==undefined&&S.draft&&!ro()&&t.tagName!=='SELECT'){S.draft[t.dataset.field]=t.type==='number'?(t.value===''?null:num(t.value)):t.value;if(!S.dirty){S.dirty=true;renderChrome();}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&S.draft&&!ro()){
