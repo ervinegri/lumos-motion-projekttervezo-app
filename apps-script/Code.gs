@@ -93,7 +93,7 @@ const TABLES = {
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
     ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma'],
-    ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)']] },
+    ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)'], ['noFinal', 'Végszámla nem kell (1)']] },
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
     ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
@@ -1593,6 +1593,7 @@ function billSave_(u, a) {
     if (a.contractUrl !== undefined) { const v = str_(a.contractUrl, 500); if (v && !/^https:\/\//.test(v)) throw new Error('A szerződés linkje https:// kezdetű legyen.'); if (v !== r.contractUrl) { r.contractUrl = v; r.contractFileId = ''; r.contractName = v ? (r.contractName && !r.contractFileId ? r.contractName : 'Link') : ''; } }
     if (a.clearFile) { r.contractUrl = ''; r.contractFileId = ''; r.contractName = ''; r.contractAt = ''; r.contractBy = ''; }
     if (a.mode !== undefined) r.mode = a.mode === 'egyben' ? 'egyben' : 'eloleg';
+    if (a.noFinal !== undefined) r.noFinal = a.noFinal ? '1' : '';
     if (a.advancePct !== undefined) { const n = Math.round(Number(a.advancePct)); if (!isFinite(n) || n < 0 || n > 100) throw new Error('A foglaló 0–100% lehet.'); r.advancePct = n; }
     if (a.poNumber !== undefined) r.poNumber = str_(a.poNumber, 80);
     if (a.note !== undefined) r.note = str_(a.note, 1000);
@@ -1797,13 +1798,17 @@ function driveMoveFolder_(u, a) {
   return { id: f.getId(), url: f.getUrl() };
 }
 /* Ügyfél mappája a főmappában (02 Ügyfelek / <ügyfél>): meglévőt keres (név vagy zárójeles név alapján), különben létrehozza. */
+function clNorm_(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\b(kft|bt|zrt|nyrt|kkt|llc|ltd|s l|sl|egyesulet|nonprofit)\b/g, ' ').replace(/\s+/g, ' ').trim(); }
+function clMatch_(company, folder) {   // egyezés vagy szóhatáros előtag (pl. „Bagen” ↔ „Bagen Invest Kft.”); a zárójeles név is számít
+  const w = clNorm_(company); if (!w) return false;
+  return [folder.replace(/\s*\(.*\)\s*$/, ''), (/\(([^)]*)\)/.exec(folder) || [])[1] || ''].map(clNorm_).some(f => f && (f === w || (Math.min(f.length, w.length) >= 4 && ((w + ' ').indexOf(f + ' ') === 0 || (f + ' ').indexOf(w + ' ') === 0))));
+}
 function clientFolder_(client) {
   const root = lumosRoot_(); if (!root) return null;
   const base = folderPath_(root, '02 Ügyfelek', {});
-  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/g, ' ').trim();
-  const want = norm(client), it = base.getFolders();
-  while (it.hasNext()) { const f = it.next(), n = f.getName(), main = norm(n.replace(/\s*\(.*\)\s*$/, '')), par = norm((/\(([^)]*)\)/.exec(n) || [])[1]); if (main === want || par === want) return f; }
-  return base.createFolder(String(client || 'Ügyfél').replace(/[\\/]/g, '-'));
+  const it = base.getFolders(); let best = null;
+  while (it.hasNext()) { const f = it.next(), n = f.getName(); if (clNorm_(n.replace(/\s*\(.*\)\s*$/, '')) === clNorm_(client)) return f; if (!best && clMatch_(client, n)) best = f; }
+  return best || base.createFolder(String(client || 'Ügyfél').replace(/[\\/]/g, '-'));
 }
 function shortName_(s) { return String(s || '').replace(/\s*\(.*\)/, '').replace(/ (Kft|Zrt|Bt|Nyrt|Kkt)\.?$/i, '').replace(/[^\wÀ-ž]+/g, '-').replace(/^-+|-+$/g, ''); }
 

@@ -69,7 +69,7 @@ async function load(quiet,announce,pre){
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty)S.draft=prepDraft(p);}
     if((S.tab==='beallitasok'||S.tab==='penzugy'||S.tab==='szerzodes')&&!isAdmin())S.tab='projektek';
-    if(S.fin&&(S.tab==='penzugy'||S.tab==='szerzodes'))finLoad(true);else S.fin=null;   // a pénzügyi adatok frissítése
+    if(S.fin&&(S.tab==='penzugy'||S.tab==='szerzodes'||S.tab==='ugyfelek'||S.projectId))finLoad(true);else S.fin=null;   // a pénzügyi adatok frissítése
     if((S.tab==='naptar'||S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='projektek';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
     if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));}
@@ -833,13 +833,16 @@ function viewClients(){
 }
 
 /* Ügyfélmappák a Drive-ban (02 Ügyfelek) – név vagy zárójeles név alapján párosítva, mint a háttérben */
-const clNorm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/g,' ').trim();
+const clNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\b(kft|bt|zrt|nyrt|kkt|llc|ltd|s l|sl|egyesulet|nonprofit)\b/g,' ').replace(/\s+/g,' ').trim();
+/* Ügyfél ↔ mappa: egyezés vagy szóhatáros előtag (pl. „Bagen” ↔ „Bagen Invest Kft.”); a zárójeles név is számít */
+const clMatch=(company,folder)=>{const w=clNorm(company);if(!w)return false;return [folder.replace(/\s*\(.*\)\s*$/,''),(/\(([^)]*)\)/.exec(folder)||[])[1]||''].map(clNorm).some(f=>f&&(f===w||(Math.min(f.length,w.length)>=4&&((w+' ').startsWith(f+' ')||(f+' ').startsWith(w+' ')))));};
 function clDocsLoad(force){if(S._clDocsLoading)return;S._clDocsLoading=true;S._clDocsBusy=true;
   call('clientDocs',{force:!!force}).then(r=>{S.clDocs=r.folders||[];S._clDocsAt=r.at||0;
     if(!force&&Date.now()-(r.at||0)>30*60000){S._clDocsLoading=false;clDocsLoad(true);return;}   // régi a tárolt lista → a háttérben frissítjük
     S._clDocsBusy=false;S._clDocsLoading=false;}).catch(()=>{S.clDocs=S.clDocs||[];S._clDocsBusy=false;S._clDocsLoading=false;}).finally(()=>{if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);});}
 function clDir(company){if(!S.clDocs){clDocsLoad(!!S._clDocsForce);S._clDocsForce=false;return null;}
-  const w=clNorm(company);return S.clDocs.find(d=>clNorm(d.name.replace(/\s*\(.*\)\s*$/,''))===w||clNorm((/\(([^)]*)\)/.exec(d.name)||[])[1])===w)||null;}
+  const hits=S.clDocs.filter(d=>clMatch(company,d.name));if(hits.length<2)return hits[0]||null;   // több mappa is tartozhat egy ügyfélhez (pl. márkanév + cégnév)
+  return {name:hits[0].name,url:hits[0].url,docs:[].concat(...hits.map(h=>h.docs||[])).sort((x,y)=>String(y.date).localeCompare(String(x.date)))};}
 /* Ügyfél szerződései: a Drive-mappa Szerződések / Keretszerződés almappái + az appban rögzített linkek (ismétlés nélkül) */
 const driveId=u=>(/[-\w]{25,}/.exec(String(u||''))||[])[0]||u;
 function clDocs(c,ps){const f=fwOfClient(c.company),dir=clDir(c.company),docs=((dir&&dir.docs)||[]).slice(),have=new Set(docs.map(d=>driveId(d.url)));
@@ -848,7 +851,6 @@ function clDocs(c,ps){const f=fwOfClient(c.company),dir=clDir(c.company),docs=((
   return {f,dir,docs};}
 const docLabel=d=>(d.kind==='keret'?'Keretszerződés':'Szerződés')+(/_EV([_.\s]|$)/.test(d.name)?' (E.V.)':'');
 function clContract(c,ps){
-  if(!S.fin)return '<span class="muted">Betöltés…</span>';
   const {f,dir,docs}=clDocs(c,ps),cl=esc(c.company),edit=`<button class="editbtn" type="button" data-action="fw-client" data-client="${cl}" aria-label="Módosítás" data-tip="Szerződés feltöltése / beállítása">✏️</button>`;
   if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}" checked> Nem kell szerződés</label></div>`;
   if(docs.length>1)return `<div class="cl-ctr"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
