@@ -1954,13 +1954,14 @@ function tigCreate_(u, a) {
     + 'a{color:#1a4fa0}.sig{margin-top:56px;width:100%;border:0}.sig td{border:0;width:50%;text-align:center;padding-top:6px;font-size:10pt}.sig .ln{border-top:1px solid #444;width:70%;margin:0 auto 4px}.small{font-size:8pt;color:#555}</style></head><body>'
     + '<div class="top">' + h(client) + ' – ' + h(iss.name) + ' – Teljesítés igazolás</div>'
     + '<h1>Teljesítés Igazolás</h1><div class="sub">' + h(client) + ' – ' + h(iss.name) + ' – TIG – ' + h(mLabel) + '</div>'
-    + '<p>E jegyzőkönyv rögzíti, hogy a <b>' + h(client) + '</b> Megrendelő (' + [cSeat ? 'székhely: ' + h(cSeat) : '', cTax ? 'adószám: ' + h(cTax) : ''].filter(String).join('; ') + ') által, <b>' + h(iss.name) + '</b> (székhely: ' + h(iss.seat) + '; adószám: ' + h(iss.tax) + ') szolgáltatási feladatok maradéktalanul teljesültek. A megrendelő a hiánytalan és pontos teljesítést elismeri.</p>'
+    + '<p>E jegyzőkönyv rögzíti, hogy a <b>' + h(client) + '</b> Megrendelő' + ((cSeat || cTax) ? ' (' + [cSeat ? 'székhely: ' + h(cSeat) : '', cTax ? 'adószám: ' + h(cTax) : ''].filter(String).join('; ') + ')' : '') + ' által, <b>' + h(iss.name) + '</b> (székhely: ' + h(iss.seat) + '; adószám: ' + h(iss.tax) + ') szolgáltatási feladatok maradéktalanul teljesültek. A megrendelő a hiánytalan és pontos teljesítést elismeri.</p>'
     + '<p><b>Elvégzett feladatok:</b></p><table><tr><th>Időszak</th><th>Feladat</th><th>Díjazás</th></tr>'
     + rows.map(r => '<tr><td class="c">' + h(r.period) + '</td><td class="c">' + h(r.task) + (r.link ? '<br><a href="' + h(r.link) + '">' + h(r.link) + '</a>' : '') + '</td><td class="r">' + ft(r.amount) + '</td></tr>').join('')
     + '<tr><td></td><td class="r"><b>Díjazás összesen:</b></td><td class="r"><b>' + ft(total) + '</b></td></tr></table>'
     + '<p>Teljesítéskor: fizetendő, a számla átvételétől számított 8 naptári napon belül.</p><p>Kelt: Budapest, ' + h(kelt.replace(/-/g, '.')) + '</p>'
     + '<table class="sig"><tr><td><div class="ln"></div>' + h(iss.name) + '<div class="small">Képviseli: ' + h(iss.rep) + '<br><b>Szolgáltató</b></div></td><td><div class="ln"></div>' + h(client) + '<div class="small">' + (cRep ? 'Képviseli: ' + h(cRep) + '<br>' : '') + '<b>Megrendelő</b></div></td></tr></table>'
     + '</body></html>';
+  if (a.preview) return { html: html, total: total };   // előnézet: fájl nélkül
   const pdf = Utilities.newBlob(html, 'text/html', 'tig.html').getAs('application/pdf');
   const cf = clientFolder_(client); if (!cf) throw new Error('Még nincs beállítva a főmappa.');
   const folder = folderPath_(cf, 'Teljesítésigazolások/' + month.slice(0, 4), {});
