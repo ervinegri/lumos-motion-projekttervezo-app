@@ -531,6 +531,12 @@ function postModal(next){
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const pid=d.id;closeModal();setDraft({deliveryNotes:notes});if(next)next();penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
+/* Streames projekt lezárása: a közvetítés / felvétel linkje kötelező */
+function streamLinkModal(next){const d=S.draft;if(!d)return;
+  openModal('🔴 A stream videójának linkje',`<div class="fields">${mf('deliveryLink','Videó linkje (pl. YouTube)',{full:true,type:'url',ph:'https://www.youtube.com/live/…',v:d.deliveryLink||''})}</div>
+    <p class="hint" style="margin:0">A projekt streamet kért – a lezáráshoz add meg a közvetítés vagy a felvétel linkjét. A Projektek listában és a TIG-ben is ez jelenik meg.</p>`,
+    {submitLabel:'Lezárás',submit:async fd=>{const l=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(l)){toast('A link https:// kezdetű legyen.',true);return;}
+      closeModal();setDraft({deliveryLink:l});next();}});}
 function deliveryModal(target){
   const d=S.draft,r=pr(d);if(!d)return;const toLead=target==='leadva';
   const its=deliverItems(d),stuck=d.siteOk==='nem';
@@ -885,6 +891,7 @@ const ACT={
     const v=b.dataset.v,go=()=>{
       if(v==='leadva'&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
+      if(v==='atadva'&&S.draft.t_kepkeveres&&!needsDelivery(S.draft)&&!/^https:\/\//i.test(S.draft.deliveryLink||'')){streamLinkModal(go);return;}   // streamnél is kell a videó linkje a lezáráshoz
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva')confetti();};   // lezáráskor ünneplünk (mentés a Mentés gombbal)
