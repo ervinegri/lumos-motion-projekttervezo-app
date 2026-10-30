@@ -78,7 +78,7 @@ function viewBilling(){
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
       <div class="chips">${labels.map(([v,l])=>`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}<span class="c">${sets[v].length}</span></button>`).join('')}</div></div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th class="r">Érték (nettó)</th><th>Szerződés</th><th>Díjbekérő / foglaló</th><th>Végszámla</th><th>Állapot</th><th></th></tr></thead>
-      <tbody>${months.map(g=>`<tr class="pt-month"><td colspan="${cols}">${esc(F_YM.format(toDate(g.m+'-01')))} <span class="muted">${g.arr.length}</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
+      <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
       :`<div class="panel">${empty(all.length?'Nincs a szűrésnek megfelelő projekt.':'Még nincs dátummal rendelkező projekt.')}</div>`}
     ${fwPanel()}`;
