@@ -836,18 +836,26 @@ function viewClients(){
 const clNorm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]+/g,' ').trim();
 function clDir(company){if(!S.clDocs){if(!S._clDocsLoading){S._clDocsLoading=true;call('clientDocs',{force:!!S._clDocsForce}).then(r=>{S.clDocs=r.folders||[];S._clDocsForce=false;}).catch(()=>{S.clDocs=[];}).finally(()=>{S._clDocsLoading=false;if(S.tab==='ugyfelek')render(true);});}return null;}
   const w=clNorm(company);return S.clDocs.find(d=>clNorm(d.name.replace(/\s*\(.*\)\s*$/,''))===w||clNorm((/\(([^)]*)\)/.exec(d.name)||[])[1])===w)||null;}
-/* Ügyfél szerződése: keretszerződés (kattintásra megnyílik) / nem igényel / projektszerződések / feltöltés */
+/* Ügyfél szerződései: a Drive-mappa Szerződések / Keretszerződés almappái + az appban rögzített linkek (ismétlés nélkül) */
+const driveId=u=>(/[-\w]{25,}/.exec(String(u||''))||[])[0]||u;
+function clDocs(c,ps){const f=fwOfClient(c.company),dir=clDir(c.company),docs=((dir&&dir.docs)||[]).slice(),have=new Set(docs.map(d=>driveId(d.url)));
+  const add=(url,name,kind)=>{if(url&&!have.has(driveId(url))){have.add(driveId(url));docs.push({url,name:name||'Szerződés',kind,date:''});}};
+  if(f&&f.url)add(f.url,f.fileName||'Keretszerződés','keret');ps.forEach(p=>{const b=billOf(p.id);add(b.contractUrl,b.contractName||('Szerződés – '+(p.name||'')),'sz');});
+  return {f,dir,docs};}
+const docLabel=d=>(d.kind==='keret'?'Keretszerződés':'Szerződés')+(/_EV([_.\s]|$)/.test(d.name)?' (E.V.)':'');
 function clContract(c,ps){
   if(!S.fin)return '<span class="muted">…</span>';
-  const f=fwOfClient(c.company),cl=esc(c.company),edit=`<button class="editbtn" type="button" data-action="fw-client" data-client="${cl}" aria-label="Módosítás" data-tip="Szerződés módosítása">✏️</button>`;
-  if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><button class="statuspill p-mute" type="button" data-action="fw-client" data-client="${cl}">🚫 Nem igényel</button></div>`;
-  const urls=[...new Set([f&&f.url,...ps.map(p=>billOf(p.id).contractUrl)].filter(Boolean))],dir=clDir(c.company),n=Math.max(urls.length,dir?dir.n:0);
-  if(n>1)return `<div class="cl-ctr">${dir?`<a class="bl-file" href="${esc(dir.url)}" target="_blank" rel="noopener"`:`<button class="bl-file linkbtn" type="button" data-action="cl-folder" data-client="${cl}"`} data-tip="Több szerződés (határozott / határozatlan idejű, Egri Ervin E.V.) – az ügyfél mappáját nyitja meg">📁 ${n} szerződés ↗${dir?'</a>':'</button>'}${edit}</div>`;
-  if(urls.length)return `<div class="cl-ctr"><a class="bl-file" href="${esc(urls[0])}" target="_blank" rel="noopener" data-tip="${f&&f.url?esc(f.fileName||'Keretszerződés')+(f.validTo?' · érvényes: '+esc(f.validTo):''):'Projektszerződés'}">📄 ${f&&f.url?'Keretszerződés':'Szerződés'} ↗</a>${edit}</div>`;
-  if(dir&&dir.n===1)return `<div class="cl-ctr"><a class="bl-file" href="${esc(dir.url)}" target="_blank" rel="noopener" data-tip="Az ügyfél mappája a Drive-ban">📄 Szerződés ↗</a>${edit}</div>`;
-  if(f)return `<div class="cl-ctr"><button class="statuspill p-ok" type="button" data-action="fw-client" data-client="${cl}">🤝 Keretszerződés (fájl nélkül)</button></div>`;
-  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button></div>`;
+  const {f,dir,docs}=clDocs(c,ps),cl=esc(c.company),edit=`<button class="editbtn" type="button" data-action="fw-client" data-client="${cl}" aria-label="Módosítás" data-tip="Szerződés feltöltése / beállítása">✏️</button>`;
+  if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}" checked> Nem kell szerződés</label></div>`;
+  if(docs.length>1)return `<div class="cl-ctr"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
+  if(docs.length)return `<div class="cl-ctr"><a class="bl-file" href="${esc(docs[0].url)}" target="_blank" rel="noopener" data-tip="${esc(docs[0].name)}">📄 ${esc(docLabel(docs[0]))} ↗</a>${edit}</div>`;
+  if(!dir&&!S.clDocs)return '<span class="muted">…</span>';
+  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}"> Nem kell</label></div>`;
 }
+function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{company:name};const ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===name.toLowerCase());
+  const {dir,docs}=clDocs(c,ps);
+  openModal('Szerződések – '+name,`<div class="cl-docs">${docs.map(d=>`<a class="cl-doc" href="${esc(d.url)}" target="_blank" rel="noopener"><span class="cl-doc-k">${d.folder?'🗂️':'📄'} ${esc(docLabel(d))}</span><span class="cl-doc-n">${esc(d.name)}</span><span class="cl-doc-d">${esc(d.date||'')}</span></a>`).join('')}</div>
+    <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}<button class="mini" type="button" data-action="fw-client" data-client="${esc(name)}">⬆️ Új szerződés feltöltése</button></div>`,{cancelLabel:'Bezárás'});}
 
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){

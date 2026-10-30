@@ -1671,15 +1671,26 @@ function clientFolderUrl_(a) {
   const f = clientFolder_(str_(a && a.client, 160)); if (!f) throw new Error('Még nincs beállítva a LUMOS MOTION AUTOMATIZÁLT főmappa.');
   return { url: f.getUrl() };
 }
-/** Ügyfélmappák áttekintése: mappánként a link és a benne lévő szerződésfájlok száma (a _munka piszkozatai nélkül). 10 percig gyorsítótárban. */
+/** Ügyfélmappák áttekintése: mappánként a link és a valódi szerződések listája (csak a Szerződések és Keretszerződés almappákból;
+   a _munka piszkozatai, teljesítésigazolások, számlák, ajánlatok, szereplői nyilatkozatok nem számítanak). Egy évszám nélküli almappa (pl. több oldalas fotózott szerződés) egy szerződésnek számít. 10 percig gyorsítótárban. */
 function clientDocs_(a) {
-  const cache = CacheService.getScriptCache(), key = 'clientDocs_v1';
+  const cache = CacheService.getScriptCache(), key = 'clientDocs_v2';
   if (!(a && a.force)) { const c = cache.get(key); if (c) return JSON.parse(c); }
   const root = lumosRoot_(); if (!root) return { folders: [] };
   const base = findFolder_(root, '02 Ügyfelek'); if (!base) return { folders: [] };
-  const count = (f, depth) => { let n = 0; const fi = f.getFiles(); while (fi.hasNext()) { fi.next(); n++; } if (depth < 4) { const di = f.getFolders(); while (di.hasNext()) { const d = di.next(); if (!/^_munka/i.test(d.getName())) n += count(d, depth + 1); } } return n; };
+  const fmt = d => d ? Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') : '';
+  const walk = (f, kind, out, depth) => {
+    const fi = f.getFiles(); while (fi.hasNext()) { const x = fi.next(); out.push({ name: x.getName(), url: x.getUrl(), kind: kind, date: (/^(\d{4}-\d{2}-\d{2})/.exec(x.getName()) || [])[1] || fmt(x.getDateCreated()) }); }
+    const di = f.getFolders(); while (di.hasNext()) { const d = di.next(), n = d.getName();
+      if (/^_munka/i.test(n)) continue;
+      if (/^\d{4}$/.test(n) && depth < 3) walk(d, kind, out, depth + 1);
+      else out.push({ name: n, url: d.getUrl(), kind: kind, folder: true, date: (/^(\d{4}-\d{2}-\d{2})/.exec(n) || [])[1] || fmt(d.getDateCreated()) }); }
+  };
   const out = [], it = base.getFolders();
-  while (it.hasNext()) { const f = it.next(); out.push({ name: f.getName(), url: f.getUrl(), n: count(f, 0) }); }
+  while (it.hasNext()) { const f = it.next(), docs = [];
+    const sub = f.getFolders(); while (sub.hasNext()) { const d = sub.next(), n = d.getName(); if (/^Szerződések$/i.test(n)) walk(d, 'sz', docs, 0); else if (/^Keretszerződés/i.test(n)) walk(d, 'keret', docs, 0); }
+    docs.sort((x, y) => String(y.date).localeCompare(String(x.date)));
+    out.push({ name: f.getName(), url: f.getUrl(), docs: docs }); }
   const res = { folders: out };
   try { cache.put(key, JSON.stringify(res), 600); } catch (e) { }
   return res;

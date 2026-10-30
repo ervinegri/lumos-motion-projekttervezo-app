@@ -196,8 +196,16 @@ Object.assign(ACT,{
   'fw-new':()=>fwModal(null),
   'cl-folder':async b=>{const w=window.open('about:blank','_blank');   // azonnal nyitjuk (különben a böngésző letiltja), a mappa linkje utána érkezik
     try{const r=await call('clientFolder',{client:b.dataset.client});if(w)w.location.href=r.url;else location.href=r.url;}catch(e){if(w)w.close();handleErr(e);}},
-  'fw-client':b=>{const f=fwOfClient(b.dataset.client);fwModal(f||{client:b.dataset.client});},
+  'cl-docs':b=>clDocsModal(b.dataset.client),
+  'fw-client':b=>{const f=fwOfClient(b.dataset.client);closeModal();fwModal(f||{client:b.dataset.client});},
   'fw-edit':b=>{const f=((S.fin&&S.fin.frameworks)||[]).find(x=>x.id===b.dataset.id);if(f){closeModal();fwModal(f);}},
   'fw-del':b=>{const id=b.dataset.id,f=((S.fin&&S.fin.frameworks)||[]).find(x=>x.id===id);confirmModal('Keretszerződés törlése',`${f?f.client+': ':''}a projektjeinél újra kérni fogjuk a szerződést. A Drive-fájl megmarad.`,'Törlés',()=>finCall('fwDelete',{id},'Törölve'));}
 });
 document.addEventListener('change',e=>{if(e.target.id==='m-fwNone'){const x=document.querySelector('.fw-files');if(x)x.hidden=e.target.checked;}if(e.target.id==='m-asFw'){const x=document.querySelector('.fw-extra');if(x)x.hidden=!e.target.checked;}});
+
+/* Ügyfelek fül: „Nem kell szerződés” pipa – azonnal látszik, a mentés a háttérben fut */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.dataset.clnone===undefined||!S.fin)return;
+  const client=t.dataset.clnone,on=t.checked,list=S.fin.frameworks=(S.fin.frameworks||[]).slice();let f=fwOfClient(client);const prev=f?Object.assign({},f):null;
+  if(f){Object.assign(f,{mode:on?'nemkell':''});}else{f={id:'',client,mode:on?'nemkell':'',url:''};list.push(f);}render(true);
+  try{const d=await call('fwSave',{id:f.id||'',client,mode:on?'nemkell':''});finApply(d);toast(on?client+': nem kell szerződés':client+': szerződés kérve');}
+  catch(err){if(prev)Object.assign(f,prev);else list.splice(list.indexOf(f),1);render(true);handleErr(err);}});
