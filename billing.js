@@ -67,7 +67,7 @@ function viewBilling(){
   const sz=S.fin.sz||{};
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p></div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
-      <button class="btn outline small" type="button" data-action="sz-imp-open">📥 Korábbi számlák importálása</button><button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
+      <button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
       <button class="tile tile-btn${noC?' bad':''}" type="button" data-action="blf" data-v="szerzodes" data-k="c"><div class="tile-n">${noC}</div><div class="tile-l">szerződés hiányzik</div></button>
