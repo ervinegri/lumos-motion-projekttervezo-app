@@ -219,7 +219,7 @@ function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs ny
     {left:reg&&edit&&edit.id?`<button type="button" class="btn danger small" data-action="del-client" data-id="${esc(edit.id)}">Törlés</button>`:'',submitLabel:edit?'Mentés':'Felvétel',submit:async fd=>{const c=String(fd.get('client')||'').trim();if(c.length<2){toast('Add meg az ügyfél nevét.',true);return;}
       const patch={client:c,clientTax:String(fd.get('clientTax')||'').trim(),clientAddress:String(fd.get('clientAddress')||'').trim()};['contactName','contactPhone','contactEmail'].forEach(k=>{const v=String(fd.get(k)||'').trim();if(v||edit)patch[k]=v;});
       const rec={id:(edit&&edit.id)||uuid(),name:c,tax:patch.clientTax,address:patch.clientAddress,contactName:patch.contactName||'',contactPhone:patch.contactPhone||'',contactEmail:patch.contactEmail||'',contactTitle:String(fd.get('contactTitle')||'').trim(),...(fd.get('repKeep')?(()=>{const nm=c.toLowerCase(),cr=(S.clients||[]).find(x=>edit&&edit.id&&x.id===edit.id)||(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===nm)||{};return {rep:cr.rep||'',repTitle:cr.repTitle||'',repPhone:cr.repPhone||'',repEmail:cr.repEmail||''};})():!fd.get('repSame')?{rep:String(fd.get('rep')||'').trim(),repTitle:String(fd.get('repTitle')||'').trim(),repPhone:String(fd.get('repPhone')||'').trim(),repEmail:String(fd.get('repEmail')||'').trim()}:{rep:patch.contactName||'',repTitle:String(fd.get('contactTitle')||'').trim(),repPhone:patch.contactPhone||'',repEmail:patch.contactEmail||''}),oldName:reg&&edit?edit.client:''};
-      if(reg){try{await saveClientRec(rec);closeModal();toast(edit?'Ügyfél mentve':'Ügyfél felvéve');}catch(e){handleErr(e);}return;}
+      if(reg){try{const before=(S.clients||[]).find(x=>x.id===rec.id);const saved=await saveClientRec(rec);entRec('client',(before?'ügyfél módosítása: ':'ügyfél felvétele: ')+saved.name,saved.id,before?clone(before):null,clone(saved));closeModal();toast(edit?'Ügyfél mentve':'Ügyfél felvéve');}catch(e){handleErr(e);}return;}
       closeModal();if(S.draft)setDraft(patch);saveClientRec(rec).catch(()=>{});}});   // a projektből felvett ügyfél is bekerül az Ügyfelek közé
   if(pre){const n=$('m-client');if(n)n.value=pre;}
   if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
@@ -392,7 +392,7 @@ function crewModal(c){
   submit:async(fd,form)=>{
     if(!needName(form))return;
     const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills')};
-    try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
+    try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
 }
@@ -412,7 +412,7 @@ function itemModal(it,after){
   submit:async(fd,form)=>{
     if(!needName(form,'Add meg az eszköz nevét.'))return;
     const data={id:it?it.id:uuid(),baseUpdatedAt:it?it.updatedAt:'',name:fd.get('name').trim(),category:fd.get('category'),qty:fd.get('qty'),condition:fd.get('condition'),value:moneyVal(fd.get('value')),serial:fd.get('serial').trim(),location:String(fd.get('location')||'').trim(),note:fd.get('note').trim()};
-    try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);closeModal();render(true);if(after)after(saved);else toast(it?'Mentve':'Eszköz felvéve');}
+    try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);if(!after)entRec('item',(it?'eszköz módosítása: ':'eszköz felvétele: ')+saved.name,saved.id,it?clone(it):null,clone(saved));closeModal();render(true);if(after)after(saved);else toast(it?'Mentve':'Eszköz felvéve');}
     catch(e){handleErr(e);}
   }});
 }
@@ -652,6 +652,37 @@ function openProject(id){
   closeModal();render(true);scrollTo(0,0);
 }
 /* Visszavonás / mégis (Ctrl/⌘+Z, Ctrl/⌘+Shift+Z vagy Ctrl+Y): a projekt vázlatáról pillanatképeket tartunk. */
+/* ===== Művelet-előzmény a projekten kívül (Ctrl+Z / Ctrl+Shift+Z, ↶ ↷ gombok): bevétel/kiadás/tagi kölcsön, ügyfél, munkatárs, eszköz ===== */
+const OPH={u:[],r:[],busy:false};
+function opRec(label,undo,redo){OPH.u.push({label,undo,redo});if(OPH.u.length>60)OPH.u.shift();OPH.r=[];if(document.querySelector('.undo-bar'))setTimeout(()=>render(true),0);}
+async function opStep(dir){
+  if(OPH.busy)return;const from=dir<0?OPH.u:OPH.r,to=dir<0?OPH.r:OPH.u;
+  if(!from.length){toast(dir<0?'Nincs mit visszavonni.':'Nincs mit újra végrehajtani.');return;}
+  const op=from.pop();OPH.busy=true;
+  try{await (dir<0?op.undo:op.redo)();to.push(op);toast((dir<0?'↶ Visszavonva: ':'↷ Újra: ')+op.label);}
+  catch(e){from.push(op);handleErr(e);}finally{OPH.busy=false;render(true);}
+}
+function undoBar(){return `<div class="undo-bar btns"><button class="btn outline small" type="button" data-action="op-undo" title="Visszavonás (Ctrl+Z)${OPH.u.length?': '+esc(OPH.u[OPH.u.length-1].label):''}" aria-label="Visszavonás"${OPH.u.length?'':' disabled'}>↶</button><button class="btn outline small" type="button" data-action="op-redo" title="Újra (Ctrl+Shift+Z)${OPH.r.length?': '+esc(OPH.r[OPH.r.length-1].label):''}" aria-label="Újra"${OPH.r.length?'':' disabled'}>↷</button></div>`;}
+/* Pénzügyi sorok visszaállítása adott állapotra (null = a sor ne létezzen) */
+async function finRestore(table,ids,states){
+  const ups=states.filter(Boolean).map(clone),dels=ids.filter((id,i)=>!states[i]);
+  finLocal(table,ups);dels.forEach(id=>finLocal(table,[{id}],true));render(true);
+  try{if(ups.length)finApply(await call('finUpsert',{table,rows:ups}));for(const id of dels)finApply(await call('finDelete',{table,id}));}
+  catch(e){finLoad(true);throw e;}
+}
+/* Ügyfél / munkatárs / eszköz visszaállítása */
+const ENT={
+  client:{get:()=>S.clients||[],set:v=>{S.clients=v;},save:'saveClient',del:'deleteClient'},
+  crew:{get:()=>S.crew||[],set:v=>{S.crew=v;},save:'saveCrew',del:'deleteCrew'},
+  item:{get:()=>S.inventory||[],set:v=>{S.inventory=v;},save:'saveItem',del:'deleteItem'}};
+async function entRestore(kind,id,state){
+  const E=ENT[kind],cur=E.get().find(x=>x.id===id);
+  if(!state){if(cur){await call(E.del,{id});E.set(E.get().filter(x=>x.id!==id));}return;}
+  const rec=Object.assign({},clone(state),{baseUpdatedAt:cur?cur.updatedAt:''});
+  if(kind==='client'){rec.oldName=cur?cur.name:'';await saveClientRec(rec);return;}
+  const saved=await call(E.save,rec);E.set(E.get().filter(x=>x.id!==saved.id).concat([saved]));
+}
+function entRec(kind,label,id,before,after){opRec(label,()=>entRestore(kind,id,before),()=>entRestore(kind,id,after));}
 const HIST={u:[],r:[],last:0,key:''};
 function histReset(){HIST.u=[];HIST.r=[];HIST.last=0;HIST.key='';}
 function histPush(){if(!S.draft)return;const s=JSON.stringify(S.draft);if(HIST.u[HIST.u.length-1]===s)return;HIST.u.push(s);if(HIST.u.length>150)HIST.u.shift();HIST.r=[];}
@@ -901,8 +932,8 @@ const ACT={
     if(dis)confirmModal('Letiltás',`${u.name} nem tud többé belépni, és minden eszközön azonnal kilép. Később újra engedélyezheted.`,'Letiltás',()=>{closeModal();go();});else go();},
   'edit-user':b=>{const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(u)userModal(u);},
   'reload-log':async()=>{try{S.log=await call('getLog');render(true);}catch(e){handleErr(e);}},
-  'del-crew':b=>arm(b,async()=>{try{await call('deleteCrew',{id:b.dataset.id});S.crew=S.crew.filter(c=>c.id!==b.dataset.id);closeModal();await load(true);toast('Munkatárs törölve');}catch(e){handleErr(e);}}),
-  'del-item':b=>arm(b,async()=>{try{await call('deleteItem',{id:b.dataset.id});S.inventory=S.inventory.filter(i=>i.id!==b.dataset.id);closeModal();await load(true);toast('Eszköz törölve');}catch(e){handleErr(e);}}),
+  'del-crew':b=>arm(b,async()=>{try{const old=S.crew.find(c=>c.id===b.dataset.id);await call('deleteCrew',{id:b.dataset.id});if(old)entRec('crew','munkatárs törlése: '+old.name,old.id,clone(old),null);S.crew=S.crew.filter(c=>c.id!==b.dataset.id);closeModal();await load(true);toast('Munkatárs törölve');}catch(e){handleErr(e);}}),
+  'del-item':b=>arm(b,async()=>{try{const old=S.inventory.find(i=>i.id===b.dataset.id);await call('deleteItem',{id:b.dataset.id});if(old)entRec('item','eszköz törlése: '+old.name,old.id,clone(old),null);S.inventory=S.inventory.filter(i=>i.id!==b.dataset.id);closeModal();await load(true);toast('Eszköz törölve');}catch(e){handleErr(e);}}),
   'del-user':b=>arm(b,async()=>{try{S.users=await call('deleteUser',{id:b.dataset.id});refreshLog();closeModal();render(true);toast('Felhasználó törölve');}catch(e){handleErr(e);}}),
   'modal-close':()=>closeModal(),
   'modal-bg':()=>{},   // mellékattintásra nem zárul be (a tartalom megmarad)
@@ -986,6 +1017,8 @@ const ACT={
   'eq-open':b=>{FOLD['eq_'+b.dataset.id]=true;render(true);},
   'rent-remove':b=>{const d=S.draft;if(!d)return;setDraft({rentals:(d.rentals||[]).filter(r=>r.id!==b.dataset.id)});},
   'undo':()=>histStep(-1),
+  'op-undo':()=>opStep(-1),
+  'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
   'fee-remove':b=>{const d=S.draft;if(!d)return;const fees=(d.fees||[]).slice();fees.splice(Number(b.dataset.i),1);setDraft({fees});},
@@ -1048,7 +1081,7 @@ const ACT={
   'pen-open':b=>{const id=b.dataset.pid;guard(()=>openProject(id));},
   'new-client':()=>newClientModal(null,null,true),
   'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email,rep:c.rep,repPhone:c.repPhone,repEmail:c.repEmail,repTitle:c.repTitle,contactTitle:c.contactTitle},true);},
-  'del-client':b=>arm(b,async()=>{try{await call('deleteClient',{id:b.dataset.id});S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
+  'del-client':b=>arm(b,async()=>{try{const old=(S.clients||[]).find(c=>c.id===b.dataset.id);await call('deleteClient',{id:b.dataset.id});if(old)entRec('client','ügyfél törlése: '+old.name,old.id,clone(old),null);S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
   'hs-open':()=>hubspotModal(),
   'hs-inline':()=>{const b=$('hsInline');if(!b)return;b.style.display='';hsInline();},
   'hs-ipick':b=>{const it=(S._hsi||[])[Number(b.dataset.i)];if(!it)return;const set=(id,v)=>{const e=$(id);if(e)e.value=v||'';};
@@ -1162,7 +1195,10 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('step-in')){e.preventDefault();e.target.blur();return;}
   if((e.ctrlKey||e.metaKey)&&S.draft&&S.projectId&&S.tab==='projektek'&&!ro()&&!$('modalRoot').innerHTML){const k=e.key.toLowerCase();
     if(k==='z'&&!e.shiftKey){e.preventDefault();histStep(-1);return;}
-    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
+    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}
+  else if((e.ctrlKey||e.metaKey)&&!e.altKey&&!(S.draft&&S.projectId&&S.tab==='projektek')&&!$('modalRoot').innerHTML&&!(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))&&!ro()){const k=e.key.toLowerCase();
+    if(k==='z'&&!e.shiftKey){e.preventDefault();opStep(-1);return;}
+    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
 
 /* ===== Indítás ===== */
 if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}

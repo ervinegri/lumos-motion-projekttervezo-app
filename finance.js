@@ -104,12 +104,11 @@ function viewFinance(){
           <tfoot><tr><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0}</b></td></tr></tfoot></table></div>
         <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-exp-new" data-fund="${fund}">+ Kiadás</button></div></div>`;};
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
-  return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>
-      <div class="btns fin-nav"><button class="btn outline small" type="button" data-action="fin-nav" data-d="-1" aria-label="Előző hónap"${months.indexOf(m)>=months.length-1?' disabled':''}>‹</button><button class="btn outline small fin-nav-m" type="button" data-action="fin-nav" data-d="0" title="Ugrás az aktuális hónapra">${esc(F_YM.format(toDate(m+'-01')))}</button><button class="btn outline small" type="button" data-action="fin-nav" data-d="1" aria-label="Következő hónap"${months.indexOf(m)<=0?' disabled':''}>›</button></div>
+  return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>${undoBar()}
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
     <div class="tiles fin-tiles tiles-3">
-      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel ${m.slice(0,4)!==todayISO().slice(0,4)?m.slice(0,4)+'. ':''}${['januárban','februárban','márciusban','áprilisban','májusban','júniusban','júliusban','augusztusban','szeptemberben','októberben','novemberben','decemberben'][Number(m.slice(5,7))-1]}</span><b>${ftFmt(T('amount'))}</b></div>
+      <div class="tile fin-flow"><div class="btns fin-nav fin-nav-top"><button class="btn outline small" type="button" data-action="fin-nav" data-d="-1" aria-label="Előző hónap"${months.indexOf(m)>=months.length-1?' disabled':''}>‹</button><button class="btn outline small fin-nav-m" type="button" data-action="fin-nav" data-d="0" title="Ugrás az aktuális hónapra">${esc(F_YM.format(toDate(m+'-01')))}</button><button class="btn outline small" type="button" data-action="fin-nav" data-d="1" aria-label="Következő hónap"${months.indexOf(m)<=0?' disabled':''}>›</button></div><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>
@@ -143,7 +142,13 @@ function viewFinance(){
 /* Gyors mentés: a változás azonnal látszik (és a felugró ablak bezárul), a szerver a háttérben ment; hiba esetén újratöltjük */
 const newId=()=>(window.crypto&&crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2,10));
 function finLocal(key,rows,del){if(!S.fin)return;const arr=(S.fin[key]||[]).slice();(rows||[]).forEach(r=>{const i=arr.findIndex(x=>x.id===r.id);if(del){if(i>=0)arr.splice(i,1);}else if(i>=0)arr[i]=Object.assign({},arr[i],r);else arr.push(r);});S.fin[key]=arr;}
-function finSave(name,arg,okMsg,local){if(local)try{local();}catch(e){}closeModal();render(true);
+const FIN_LBL={income:'bevétel',expense:'kiadás',loan:'tagi kölcsön'};
+function finSave(name,arg,okMsg,local){
+  const table=arg&&arg.table,ids=!table?[]:name==='finDelete'?[arg.id]:(arg.rows||[arg.row]).filter(Boolean).map(r=>r.id),snap=()=>ids.map(id=>{const r=((S.fin&&S.fin[table])||[]).find(x=>x.id===id);return r?clone(r):null;});
+  const before=snap();if(local)try{local();}catch(e){}const after=snap();
+  if(ids.length&&(name==='finUpsert'||name==='finDelete')){const one=after.find(Boolean)||before.find(Boolean)||{},nm=one.name||one.note||one.date||'';
+    opRec(`${FIN_LBL[table]||'tétel'} ${name==='finDelete'?'törlése':before.some(Boolean)?'módosítása':'felvétele'}${nm?': '+nm:''}`,()=>finRestore(table,ids,before),()=>finRestore(table,ids,after));}
+  closeModal();render(true);
   call(name,arg).then(d=>{finApply(d);if(okMsg)toast(okMsg);}).catch(e=>{handleErr(e);finLoad(true);});return true;}
 async function finCall(name,arg,okMsg){try{const d=await call(name,arg);finApply(d);if(okMsg)toast(okMsg);return d;}catch(e){handleErr(e);return null;}}
 function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
