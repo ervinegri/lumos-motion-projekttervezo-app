@@ -94,7 +94,8 @@ function viewFinance(){
   const fromApp=!st.appFromMonth||m>=st.appFromMonth;
   const T=k=>sumK(inc,k),planned=T('amount'),recv=inc.reduce((s,r)=>s+finReceived(r),0);
   // fizetési állapot: a Szerződés és számlázás bizonylataiból (csak megjelenítés – a kifizetést ott követjük)
-  const payCell=r=>{const st=finPayOf(r);return `<span class="statuspill pay-pill ${PAY_CLS[st]||''}">${esc(PAY_LABEL[st]||'—')}</span>`;};
+  const payCell=r=>{const st=finPayOf(r),lp=r.kind==='project'?null:incProj(r),pid=r.kind==='project'?r.id:lp&&lp.id,sent=pid?((S.fin&&S.fin.invoices)||[]).some(x=>invPids(x).includes(pid)):invFor('income',r.id).length>0;   // kiküldött számla után piros
+    return `<span class="statuspill pay-pill ${st==='var'?(sent?'p-bad':'p-mute'):PAY_CLS[st]||''}">${esc(PAY_LABEL[st]||'—')}</span>`;};
   const incRows=inc.map(r=>`<tr${r.kind==='project'?'':' class="fin-manual"'}><td class="n">${esc(r.day||'')}</td>
     <td>${r.kind==='project'?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.id)}">${esc(r.name)}</button>`:(()=>{const lp=incProj(r);return `${lp?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(lp.id)}" title="Projekt megnyitása">${esc(r.name)}</button>`:`<button class="linkbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" title="${esc(r.people||'')}">${esc(r.name)}</button>`}${r.legacy?' <span class="muted fin-leg">régi táblázat</span>':''} <button class="editbtn" type="button" data-action="fin-income-edit" data-id="${esc(r.id)}" aria-label="Módosítás" title="Módosítás">✏️</button>`;})()}</td>
     <td>${payCell(r)}</td><td class="r"><b>${moneyFmt(r.amount)||0}</b></td><td class="r">${moneyFmt(r.profit)||0}</td><td class="pc">${pctOf(r.prod,r.amount)}</td><td class="r">${moneyFmt(r.prod)||0}</td><td class="pc">${pctIn(r,'ceo')}</td><td class="r">${moneyFmt(r.ceo)||0}</td><td class="pc">${pctOf(r.rezsi,r.amount)}</td><td class="r${r.rezsi<0?' bad-txt':''}">${r.rezsi<0?'−':''}${moneyFmt(Math.abs(r.rezsi))||0}</td><td class="r">${moneyFmt(r.marketing)||0}</td></tr>`).join('');
@@ -107,12 +108,13 @@ function viewFinance(){
   return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>${undoBar()}
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
-    <div class="tiles fin-tiles tiles-3">
+    <div class="tiles fin-tiles tiles-2">
       <div class="tile fin-flow"><div class="btns fin-nav fin-nav-top"><button class="btn outline small" type="button" data-action="fin-nav" data-d="-1" aria-label="Előző hónap"${months.indexOf(m)>=months.length-1?' disabled':''}>‹</button><button class="btn outline small fin-nav-m" type="button" data-action="fin-nav" data-d="0" title="Ugrás az aktuális hónapra">${esc(F_YM.format(toDate(m+'-01')))}</button><button class="btn outline small" type="button" data-action="fin-nav" data-d="1" aria-label="Következő hónap"${months.indexOf(m)<=0?' disabled':''}>›</button></div><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
-      <div class="tile"><div class="tile-n">${ftFmt(T('profit'))}</div><div class="tile-l">nyereség (${st.profitPct}%)</div></div>
-      <div class="tile${bal.endRezsi<0?' bad':''}"><div class="tile-n">${sFt(bal.endRezsi)}</div><div class="tile-l">elérhető – eszköz, rezsi</div></div>
+      <div class="tile fin-flow fin-split"><div class="flow-row plan"><span>Nyereség (${st.profitPct}%)</span><b>${ftFmt(T('profit'))}</b></div>
+        <div class="flow-row"><span>Munkadíj</span><b>${ftFmt(T('prod'))}</b></div>
+        <div class="flow-row${T('rezsi')<0?' warn':''}"><span>Eszközök, rezsi</span><b>${T('rezsi')<0?'−':''}${ftFmt(Math.abs(T('rezsi')))}</b></div></div>
     </div>
     <div class="panel"><h3>💰 Bevételek <span class="aside">${fromApp?'a projektekből':'a régi táblázatból'}</span></h3>
       <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th><th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="r" colspan="2">Termelés</th><th class="r" colspan="2">Értékesítés</th><th class="r" colspan="2">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
