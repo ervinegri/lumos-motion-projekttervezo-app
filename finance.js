@@ -551,7 +551,7 @@ ACT['inc-rename']=b=>{const id=b.dataset.id,isP=b.dataset.kind==='project',p=isP
 
 /* Számla keresése cégnév szerint (a számlázz.hu-s számlák jegyzékéből; az első keresés feltölti) */
 async function szNameSearch(v,box){const cur=()=>(($('m-no')||{}).value||'').trim();
-  box.innerHTML=`<div class="sz-searching"><span class="sz-radar"></span><span>Keresés cégnév szerint a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`;
+  if(!box.querySelector('.sz-hits'))box.innerHTML=`<div class="sz-searching"><span class="sz-radar"></span><span>Keresés cégnév szerint a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span><br><small class="muted">Az első keresés betölti a számlák listáját – ez fél percig is eltarthat.</small></span></div>`;
   try{const r=await call('szSearch',{q:v,prefix:szPrefix()});if(cur()!==v)return;
     const list=(r.items||[]).map(x=>{const ln=(x.linked||[]).map(id=>(projById(id)||{}).name).filter(Boolean),paid=num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
       return `<button type="button" class="hs-item sz-hit" data-szno="${esc(x.no)}"><span><b>${esc(x.no)}</b> · ${esc(x.buyer||'—')}</span><small>${esc((x.date||'').replace(/-/g,'.'))} · nettó ${ftFmt(num(x.invNet))} · ${paid?'kifizetve':'fizetésre vár'}${ln.length?' · 🔗 '+esc(ln.join(', ')):''}</small></button>`;}).join('');

@@ -358,10 +358,11 @@ console.log('All finance checks passed.');
 test('invoice search by company name: indexes numbers in order, then finds by buyer',()=>{
   run(`var PROPS2={};bigGet_=k=>PROPS2[k]||'';bigPut_=(k,v)=>{PROPS2[k]=v;};szNeedKey_=()=>'k';DB.finInvoice=DB.finInvoice||[];var QN=0;
     var INV={'LUMOS-2026-1':'Kulcsár Akadémia Kft.','LUMOS-2026-2':'Yolongevity Kft.','LUMOS-2026-3':'Kulcsár Akadémia Kft.','LUMOS-2025-1':'Régi Ügyfél Bt.'};
-    szQuery_=no=>{QN++;if(!INV[no])throw new Error('nincs');return {no:no,buyer:INV[no],date:no.indexOf('2026')>0?'2026-10-0'+no.slice(-1):'2025-05-01',invNet:100,invGross:127,invPaid:0};};
+    Utilities.newBlob=(x)=>x;UrlFetchApp={fetchAll:reqs=>reqs.map(r=>{const no=/<szamlaszam>([^<]+)</.exec(r.payload['action-szamla_agent_xml'])[1];QN++;return {getAllHeaders:()=>INV[no]?{}:{szlahu_error_code:'7'},getResponseCode:()=>200,getContentText:()=>no};})};
+    szParseQuery_=(body,no)=>({no:no,buyer:INV[no],date:no.indexOf('2026')>0?'2026-10-0'+no.slice(-1):'2025-05-01',invNet:100,invGross:127,invPaid:0});
     var r1=szSearch_(USER,{q:'kulcsar',prefix:'LUMOS'});var q1=QN;var r2=szSearch_(USER,{q:'yolong',prefix:'LUMOS'});var q2=QN-q1;`);
   assert.deepEqual(json('r1.items.map(x=>x.no)'),['LUMOS-2026-3','LUMOS-2026-1']);
   assert.equal(json('r1.partial'),false);
   assert.deepEqual(json('r2.items.map(x=>x.no)'),['LUMOS-2026-2']);
-  assert.equal(json('q2'),6);   // a második keresés csak az új számlákat próbálja (3-3 hiány évente)
+  assert.equal(json('q2'),40);   // a második keresés csak az új számlák egy-egy 20-as csomagját kérdezi le évente
 });

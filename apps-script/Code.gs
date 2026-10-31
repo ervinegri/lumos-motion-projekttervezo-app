@@ -1589,6 +1589,10 @@ function szQuery_(no, withPdf, order) {
   const key = szNeedKey_();
   const xml = szXmlHead_('xmlszamlaxml', 'agentxml') + szEl_('szamlaagentkulcs', key) + (no ? szEl_('szamlaszam', no) : '') + (!no && order ? szEl_('rendelesSzam', order) : '') + szEl_('pdf', withPdf ? 'true' : 'false') + '</xmlszamlaxml>';
   const r = szPost_('action-szamla_agent_xml', xml);
+  return szParseQuery_(r.body, no, withPdf);
+}
+function szParseQuery_(body, no, withPdf) {
+  const r = { body: body };
   let doc; try { doc = XmlService.parse(r.body).getRootElement(); } catch (e) { throw new Error('A számlázz.hu válasza nem értelmezhető: ' + r.body.slice(0, 200)); }
   if (xmlText_(doc, 'sikeres') === 'false' || xmlText_(doc, 'hibakod')) throw new Error('számlázz.hu: ' + (xmlText_(doc, 'hibauzenet') || xmlText_(doc, 'hibakod')));
   const alap = xmlFindAll_(doc, 'alap')[0] || doc, vevo = xmlFindAll_(doc, 'vevo')[0], tot = xmlFindAll_(doc, 'totalossz')[0];
@@ -1801,14 +1805,22 @@ function szSearch_(u, a) {
   if (idx.p !== prefix) idx = { p: prefix, it: {}, max: {} };
   const started = Date.now(), y0 = Number(today_().slice(0, 4));
   let partial = false, changed = false;
-  [y0, y0 - 1].forEach(y => {
+  const key = szNeedKey_(), B = 20;
+  const req = no => { const payload = {}; payload['action-szamla_agent_xml'] = Utilities.newBlob(szXmlHead_('xmlszamlaxml', 'agentxml') + szEl_('szamlaagentkulcs', key) + szEl_('szamlaszam', no) + szEl_('pdf', 'false') + '</xmlszamlaxml>', 'text/xml', 'request.xml');
+    return { url: SZAMLAZZ_URL, method: 'post', muteHttpExceptions: true, payload: payload }; };
+  [y0, y0 - 1].forEach(y => {   // párhuzamos lekérdezés (20 számla egyszerre)
     let n = (idx.max[y] || 0) + 1, miss = 0;
     while (miss < 3) {
-      if (Date.now() - started > 22000) { partial = true; break; }
-      const no = prefix + '-' + y + '-' + n;
-      try { const r = szQuery_(no, false); idx.it[r.no || no] = [r.buyer, r.date, r.invNet, r.invGross, r.invPaid]; idx.max[y] = n; miss = 0; changed = true; }
-      catch (e) { miss++; }
-      n++;
+      if (Date.now() - started > 20000) { partial = true; break; }
+      const nos = []; for (let i = 0; i < B; i++) nos.push(prefix + '-' + y + '-' + (n + i));
+      let res; try { res = UrlFetchApp.fetchAll(nos.map(req)); } catch (e) { partial = true; break; }
+      for (let i = 0; i < nos.length; i++) {
+        const h = res[i].getAllHeaders ? res[i].getAllHeaders() : res[i].getHeaders(), err = Object.keys(h || {}).some(k => k.toLowerCase() === 'szlahu_error_code');
+        let r = null; if (!err && res[i].getResponseCode() === 200) { try { r = szParseQuery_(res[i].getContentText('UTF-8'), nos[i], false); } catch (e) { r = null; } }
+        if (r) { idx.it[r.no || nos[i]] = [r.buyer, r.date, r.invNet, r.invGross, r.invPaid]; idx.max[y] = n + i; miss = 0; changed = true; }
+        else if (++miss >= 3) break;
+      }
+      n += B;
     }
   });
   if (changed) try { bigPut_('SZ_INDEX', JSON.stringify(idx)); } catch (e) { }
