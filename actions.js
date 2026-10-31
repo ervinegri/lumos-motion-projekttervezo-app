@@ -579,7 +579,7 @@ function streamLinkModal(next){const d=S.draft;if(!d)return;
 function deliveryModal(target){
   const d=S.draft,r=pr(d);if(!d)return;const toLead=target==='leadva';
   const its=deliverItems(d),stuck=d.siteOk==='nem';
-  openModal(toLead?'📦 Videók leadása':'📦 Átadás',`${its.length?`<div class="deliv-list"><div class="sec-lbl" style="margin-top:0">Átadandó anyagok</div>${roList(its)}</div>`:''}
+  openModal(toLead?'✂️ Utómunka kész – videók leadása':'📦 Átadás',`${its.length?`<div class="deliv-list"><div class="sec-lbl" style="margin-top:0">Átadandó anyagok</div>${roList(its)}</div>`:''}
     <div class="fields">
       ${mf('deliveryLink','Átadási link (mappa vagy videók)',{full:true,type:'url',ph:'https://drive.google.com/…',v:d.deliveryLink||''})}${passField(d.deliveryPass)}
       <div class="field"><label>Rendezvény utolsó napja</label><div class="inp ro-inp"><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div></div>
@@ -959,6 +959,7 @@ const ACT={
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
+    {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}}   // csak előre
     const v=b.dataset.v,go=()=>{
       if((v==='leadva'||(v==='jovahagyas'&&!S.draft.deliveryLink))&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // a „Videók leadva” lépés megszűnt: a jóváhagyásra várás előtt kérjük a linket   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
@@ -975,6 +976,7 @@ const ACT={
     go();},
   'site-report':()=>siteModal(null),
   'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
+    if(!on){toast('A kipipált lépés nem vonható vissza.',true);return;}
     const ORD=['tervezes','helyszin','utomunka','jovahagyas'],ix=ORD.indexOf(v);
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
@@ -988,6 +990,7 @@ const ACT={
     if(on&&v==='helyszin'){raw(apply)();return;}
     if(on&&v==='utomunka'&&!set.has('helyszin')){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
     if(on&&v==='jovahagyas'&&!set.has('utomunka')){toast('Előbb az utómunkát pipáld ki.',true);return;}
+    if(on&&v==='utomunka'&&needsDelivery(d)&&videoStagesOn()&&['utomunka','helyszin','tervezes'].includes(d.status||'tervezes')){deliveryModal('leadva');return;}   // egy ablak: utómunka kész + videók leadása (link, elakadás, észrevételek)
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
   'goto-crew-final':()=>gotoCrewFinal(),
