@@ -621,7 +621,7 @@ function orderSummary(p){
   const post=postTasks(p).map(t=>`<li>${esc(t.label)}: <b>${t.n}${t.k==='foto_db'?' db':''}</b>${cutNm(t.k)}</li>`);
   if(p.x_rush)post.push(li('Villámgyors kézbesítés'));if(p.x_nyersTarolas)post.push(li('Nyersanyag tárolása 5 évig'));
   grp('🎬 Utómunka – átadandó anyagok',post);
-  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt Összesítő</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
+  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 function cutTasksBlock(p,cid){
@@ -639,8 +639,9 @@ function viewProject(p){
   // átadandó anyag nélkül nincs utómunka lépés (kivéve, ha a projekt épp abban az állapotban van)
   // a szakember (ha nem vágó) nem látja az utómunkát
   const isCut=!ro()||(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó');
-  const stList=STAGES.map((s,i)=>({s,i})).filter(x=>{if(!POST_STAGES.includes(x.s.id))return true;if(x.s.id!=='utomunka'&&!videoStagesOn()&&status!==x.s.id)return false;return isCut&&(needsDelivery(p)||status===x.s.id);});
-  const doneSet=new Set(String(p.stepsDone||'').split(',').filter(Boolean)),TICKS=['tervezes','helyszin','utomunka'];
+  const stList=STAGES.map((s,i)=>({s,i})).filter(x=>{if(x.s.id==='leadva'&&status!=='leadva')return false;   // a „Videók leadva” lépés megszűnt (az utómunka része)
+    if(!POST_STAGES.includes(x.s.id))return true;if(x.s.id!=='utomunka'&&!videoStagesOn()&&status!==x.s.id)return false;return isCut&&(needsDelivery(p)||status===x.s.id);});
+  const doneSet=new Set(String(p.stepsDone||'').split(',').filter(Boolean)),TICKS=['tervezes','helyszin','utomunka','jovahagyas'];
   const closed=status==='atadva';   // lezárt projekt: a lépések nem módosíthatók
   const stages=stList.map(({s,i},k)=>{const tk=TICKS.includes(s.id),on=doneSet.has(s.id||'')||(closed&&tk);
     return `<div class="stage-w${tk?' has-tick':''}"><button type="button" class="stage${status==='lemondva'?'':i<curIdx?' done':i===curIdx?' cur':''}${on?' ticked':''}" data-action="stage" data-v="${s.id}" aria-pressed="${i===curIdx}"${closed?' disabled':D()}><span class="n">${k+1}. lépés</span><span class="t">${esc(stageLabel(p,s.id))}</span></button>${tk?(ro()||closed?(on?'<span class="stage-tick on" title="Megtörtént">✓</span>':''):`<button type="button" class="stage-tick${on?' on':''}" data-action="step-done" data-v="${s.id}" aria-pressed="${on}" title="${on?'Megtörtént – kattints a visszavonáshoz':'Jelöld, ha ez a lépés megtörtént'}" aria-label="${esc(stageLabel(p,s.id))}: megtörtént">✓</button>`):''}</div>`;}).join('');
@@ -708,7 +709,7 @@ function viewProject(p){
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>`}
         ${(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
-          return `<div class="field full day-cols"><div class="day-col">${fld(p,'date','Első nap',{type:'date'})}${tm('startTime',on?'Érkezés (első nap)':'Érkezés a helyszínre')}${tm('endTime',on?'Távozás kb. (első nap)':'Hozzávetőleges távozási óra')}</div>
+          return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}${tm('startTime',on?'Érkezés (első nap)':'Érkezés a helyszínre')}${tm('endTime',on?'Távozás kb. (első nap)':'Hozzávetőleges távozási óra')}</div>
             <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
             ${on?tm('lastStartTime','Érkezés (utolsó nap)')+tm('lastEndTime','Távozás kb. (utolsó nap)'):''}</div></div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><textarea class="inp" id="f-notes" data-field="notes" placeholder="Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó…"${D()}>${esc(p.notes||'')}</textarea></div>

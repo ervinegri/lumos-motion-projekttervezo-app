@@ -1075,7 +1075,7 @@ function saveProject_(u, a) {
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
     leadvaAt: /^\d{4}-\d{2}-\d{2}$/.test(String(a.leadvaAt || '')) ? String(a.leadvaAt) : '',
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), clientTax: str_(a.clientTax, 20).replace(/[^\d-]/g, ''), clientAddress: str_(a.clientAddress, 300),
-    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryPass: str_(a.deliveryPass, 120), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
+    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryPass: str_(a.deliveryPass, 120), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'jovahagyas'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';
@@ -1741,7 +1741,7 @@ function szManual_(u, a) {
   a = a || {};
   if (a.id) {
     withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, str_(a.id, 64)); if (!row) throw new Error('A bizonylat nem található.'); const r = readRow_('finInvoice', sh, row);
-      if (!r.manual) throw new Error('Ez a számla a számlázz.hu-ból frissül.');
+      if (!r.manual && !a.paid) r.checkedAt = '';   // számlázz.hu-s számla: visszavonásnál a következő frissítés újra lekérdezi
       r.invPaid = a.paid ? r.invGross : 0; r.paidAt = a.paid ? (iso_(a.paidAt) || today_()) : ''; r.checkedAt = now_(); putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_();
       logEvent_(u, 'Számlázás', r.buyer, 'Kézi bizonylat ' + r.no + (a.paid ? ' kifizetve' : ' – kifizetés visszavonva')); });
     return finData_();

@@ -353,7 +353,7 @@ function newProjectModal(day,pre){
     ${mf('contactName','Kapcsolattartó',{max:120})}
     ${phoneField({name:'contactPhone',value:''})}
     ${mf('contactEmail','Kapcsolattartó e-mail',{type:'email',full:true,max:160})}
-    ${mf('date','Első nap',{type:'date',v:d0})}
+    ${mf('date','Dátum',{type:'date',v:d0})}
     <div class="field np-multi"><span class="lbl">&nbsp;</span><button type="button" class="btn outline small" data-action="np-multi">➕ Több nap felvétele</button></div>
     <div class="field np-end" hidden><label for="m-endDate">Utolsó nap</label><div class="np-end-row"><input class="inp" id="m-endDate" name="endDate" type="date"><button type="button" class="x w" data-action="np-multi-off" aria-label="Egy napos" title="Mégis egy napos">×</button></div></div>
     ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
@@ -500,7 +500,7 @@ document.addEventListener('change',e=>{const t=e.target,n=t.dataset&&t.dataset.p
 document.addEventListener('change',e=>{const t=e.target,w=$('penWrap');if(!w)return;
   if(t.name==='siteOk')w.style.display=t.value==='nem'?'':'none';else if(t.id==='m-stuck')w.style.display=t.checked?'':'none';});   // díjcsökkentés csak elakadásnál
 /* egy későbbi lépésre lépve az előtte lévő lépések kipipálódnak */
-function ticksUpTo(d,v){const ORD=['tervezes','helyszin','utomunka'],ids=STAGES.map(s=>s.id),vi=ids.indexOf(v),s2=new Set(String(d.stepsDone||'').split(',').filter(Boolean));
+function ticksUpTo(d,v){const ORD=['tervezes','helyszin','utomunka','jovahagyas'],ids=STAGES.map(s=>s.id),vi=ids.indexOf(v),s2=new Set(String(d.stepsDone||'').split(',').filter(Boolean));
   ORD.forEach(x=>{if(ids.indexOf(x)<vi)s2.add(x);});return ORD.filter(x=>s2.has(x)).join(',');}
 function siteModal(next,withPen){
   const d=S.draft;if(!d)return;
@@ -960,12 +960,12 @@ const ACT={
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
     const v=b.dataset.v,go=()=>{
-      if(v==='leadva'&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
+      if((v==='leadva'||(v==='jovahagyas'&&!S.draft.deliveryLink))&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // a „Videók leadva” lépés megszűnt: a jóváhagyásra várás előtt kérjük a linket   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
       if(v==='atadva'&&S.draft.t_kepkeveres&&!needsDelivery(S.draft)&&!/^https:\/\//i.test(S.draft.deliveryLink||'')){streamLinkModal(go);return;}   // streamnél is kell a videó linkje a lezáráshoz
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
-      if(v==='atadva')confetti();};   // lezáráskor ünneplünk (mentés a Mentés gombbal)
+      if(v==='atadva'){confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}};   // „Kész”: ünneplés és azonnali mentés   // lezáráskor ünneplünk (mentés a Mentés gombbal)
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
@@ -975,7 +975,7 @@ const ACT={
     go();},
   'site-report':()=>siteModal(null),
   'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
-    const ORD=['tervezes','helyszin','utomunka'],ix=ORD.indexOf(v);
+    const ORD=['tervezes','helyszin','utomunka','jovahagyas'],ix=ORD.indexOf(v);
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
       setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});
@@ -987,6 +987,7 @@ const ACT={
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='helyszin'){raw(apply)();return;}
     if(on&&v==='utomunka'&&!set.has('helyszin')){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
+    if(on&&v==='jovahagyas'&&!set.has('utomunka')){toast('Előbb az utómunkát pipáld ki.',true);return;}
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
   'goto-crew-final':()=>gotoCrewFinal(),
@@ -1027,8 +1028,8 @@ const ACT={
   'rent-remove':b=>{const d=S.draft;if(!d)return;setDraft({rentals:(d.rentals||[]).filter(r=>r.id!==b.dataset.id)});},
   'undo':()=>histStep(-1),
   'op-undo':()=>opStep(-1),
-  'np-multi':b=>{const f=b.closest('form')||document;const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(m)m.hidden=true;if(e){e.hidden=false;const i=e.querySelector('input'),d=f.querySelector('[name=date]');if(i){if(d&&d.value)i.min=d.value;i.focus();try{i.showPicker&&i.showPicker();}catch(_){}}}},
-  'np-multi-off':b=>{const f=b.closest('form')||document;const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(e){e.hidden=true;const i=e.querySelector('input');if(i)i.value='';}if(m)m.hidden=false;},
+  'np-multi':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Első nap';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(m)m.hidden=true;if(e){e.hidden=false;const i=e.querySelector('input'),d=f.querySelector('[name=date]');if(i){if(d&&d.value)i.min=d.value;i.focus();try{i.showPicker&&i.showPicker();}catch(_){}}}},
+  'np-multi-off':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Dátum';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(e){e.hidden=true;const i=e.querySelector('input');if(i)i.value='';}if(m)m.hidden=false;},
   'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];et[cid]=cur.includes(k)?cur.filter(x=>x!==k):cur.concat([k]);setDraft({editTasks:et});},
   'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),
@@ -1372,11 +1373,16 @@ function confetti(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matche
   const c=document.createElement('canvas'),x=c.getContext('2d'),W=c.width=innerWidth,H=c.height=innerHeight;
   c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999';document.body.appendChild(c);
   const cols=['#1f5c3f','#2e7d52','#f2c14e','#e4572e','#4a90d9','#b05cc5','#ffffff'],P=[];
-  for(let i=0;i<220;i++){const left=i%2===0;P.push({x:left?-10:W+10,y:H*0.65,vx:(left?1:-1)*(4+Math.random()*9),vy:-(9+Math.random()*12),w:6+Math.random()*6,h:8+Math.random()*10,r:Math.random()*6,vr:(Math.random()-.5)*.35,c:cols[i%cols.length],t:Math.random()*Math.PI*2});}
+  for(let i=0;i<520;i++){const left=i%2===0;P.push({x:left?-10:W+10,y:H*0.65,vx:(left?1:-1)*(4+Math.random()*9),vy:-(9+Math.random()*12),w:6+Math.random()*6,h:8+Math.random()*10,r:Math.random()*6,vr:(Math.random()-.5)*.35,c:cols[i%cols.length],t:Math.random()*Math.PI*2});}
   const t0=performance.now();
   (function f(now){const el=now-t0;x.clearRect(0,0,W,H);
     P.forEach(p=>{p.vy+=0.32;p.vx*=0.985;p.x+=p.vx+Math.sin(p.t+=0.08)*0.8;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-Math.max(0,el-2600)/900);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.t)));x.restore();});
-    if(el<3500)requestAnimationFrame(f);else c.remove();})(t0);}
+    if(el<3500)requestAnimationFrame(f);else c.remove();})(t0);
+  if(!confetti._rain){confetti._rain=1;setTimeout(()=>{confetti._rain=0;confettiRain();},350);}}
+/* második hullám: felülről hulló konfetti */
+function confettiRain(){const c=document.createElement('canvas'),x=c.getContext('2d'),W=c.width=innerWidth,H=c.height=innerHeight;c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999';document.body.appendChild(c);
+  const cols=['#1f5c3f','#2e7d52','#f2c14e','#e4572e','#4a90d9','#b05cc5','#ffffff'],P=[];for(let i=0;i<320;i++)P.push({x:Math.random()*W,y:-20-Math.random()*H*0.8,vx:(Math.random()-.5)*2,vy:2+Math.random()*4,w:5+Math.random()*6,h:8+Math.random()*9,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[i%cols.length],t:Math.random()*6});
+  const t0=performance.now();(function f(now){const el=now-t0;x.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx+Math.sin(p.t+=0.06)*1.2;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-Math.max(0,el-3600)/900);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.t)));x.restore();});if(el<4500)requestAnimationFrame(f);else c.remove();})(t0);}
 
 /* Naptár: üres napra kattintva új projekt (sablonnal is) – a bejegyzésekre kattintva azok nyílnak meg */
 document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar')return;const d=e.target.closest&&e.target.closest('.cal-day');if(!d||e.target.closest('button,a,.cal-chip'))return;
@@ -1429,3 +1435,14 @@ function eqPrevShow(i){const x=(S._eqPrev||[])[i];const box=$('eq-prev');if(!x||
 document.addEventListener('change',e=>{if(e.target.id==='eq-prev-sel')eqPrevShow(Number(e.target.value));});
 /* Keresés folyamatban: forgó jel, pontok és fénycsík (HubSpot, számlázz.hu, …) */
 function searchingHtml(t){return `<div class="sz-searching"><span class="sz-radar"></span><span>${esc(t)}<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`;}
+
+/* Ctrl/⌘/Shift + kattintás vagy középső gomb: a projekt / fül megnyitása új lapon */
+function actHref(el){const a=el&&el.dataset&&el.dataset.action;if(!a)return null;
+  if(a==='open-project'&&el.dataset.id)return '#p='+encodeURIComponent(el.dataset.id);
+  if(a==='tab'&&el.dataset.tab)return '#t='+encodeURIComponent(el.dataset.tab);
+  if(a==='pen-open'&&el.dataset.pid)return '#p='+encodeURIComponent(el.dataset.pid);
+  return null;}
+function openNewTab(e){const el=e.target.closest&&e.target.closest('[data-action]'),h=actHref(el);if(!h)return false;e.preventDefault();e.stopImmediatePropagation();window.open(location.pathname+location.search+h,'_blank','noopener');return true;}
+document.addEventListener('click',e=>{if(e.ctrlKey||e.metaKey||e.shiftKey)openNewTab(e);},true);
+document.addEventListener('auxclick',e=>{if(e.button===1)openNewTab(e);},true);
+document.addEventListener('mousedown',e=>{if(e.button===1&&actHref(e.target.closest&&e.target.closest('[data-action]')))e.preventDefault();},true);   // középső gombnál ne induljon görgetés
