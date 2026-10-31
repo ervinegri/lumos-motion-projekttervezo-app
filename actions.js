@@ -303,6 +303,7 @@ function npBuild(fd){
       contactName:g('contactName'),contactPhone:g('contactPhone'),contactEmail:g('contactEmail'),startTime:time(g('startTime')),endTime:time(g('endTime')),notes:g('notes'),
       status:'tervezes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
     if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
+    if(g('fromIncome')){p.projectValue=num(g('incAmount'))||null;p._noCal=true;}   // régi bevételi sorból: múltbeli projekt, nem kerül a naptárba
     {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
   const tid=g('tplId'),tpl=tid&&projById(tid);
   if(tpl){const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});
@@ -338,13 +339,13 @@ function tplFill(id){const t=projById(id),f=$('mform');if(!t||!f)return;
 async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(form,'A piszkozathoz legalább a projekt nevét add meg.'))return;
   const {p}=npBuild(new FormData(form));if(p.name.length<2){toast('A projekt neve legalább 2 karakter legyen.',true);return;}
   btn.disabled=true;btn.textContent='Mentés…';const k=MD_KEY;
-  try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);MD_KEY='';mdClear(k);closeModal();openProject(saved.id);toast('Piszkozat mentve – a hiányzó adatokat itt pótolhatod');if(saved.date)syncCal(saved.id);S.cal.events={};}
+  try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);MD_KEY='';mdClear(k);closeModal();openProject(saved.id);toast('Piszkozat mentve – a hiányzó adatokat itt pótolhatod');if(saved.date&&!p._noCal)syncCal(saved.id);S.cal.events={};}
   catch(e){btn.disabled=false;btn.textContent='💾 Piszkozat mentése';handleErr(e);}}
-function newProjectModal(day){
-  const d0=day||'';
-  openModal('Új projekt',`<div class="fields">
-    ${tplFieldHtml()}
-    ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160})}
+function newProjectModal(day,pre){
+  const d0=day||(pre&&pre.date)||'';
+  openModal(pre?'Projekt a bevételi sorból':'Új projekt',`<div class="fields">
+    ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1">`:tplFieldHtml()}
+    ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160,v:pre?pre.name:''})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
     <div class="field full" id="m-clientNew" style="display:none"><div class="fields">${taxBlock()}</div></div>
@@ -372,7 +373,7 @@ function newProjectModal(day){
     if(miss.length){const k=miss[0][0],el=form.querySelector('[name='+(fieldOf[k]||k)+']')||(k==='contactPhone'?$('m-contactPhone'):null);
       form.querySelectorAll('.inp').forEach(x=>x.style.borderColor='');miss.forEach(([mk])=>{const e2=form.querySelector('[name='+(fieldOf[mk]||mk)+']');const vis=mk==='contactPhone'?$('m-contactPhone'):e2;if(vis)vis.style.borderColor='var(--bad)';});
       if(el&&el.type!=='hidden')el.focus();toast('Kötelező mező: '+miss.map(x=>x[1]).join(', ')+'.',true);return;}
-    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast('Projekt létrehozva, a naptárba is bekerül');syncCal(saved.id);S.cal.events={};}
+    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));S.projects.push(saved);closeModal();openProject(saved.id);toast(p._noCal?'Projekt létrehozva a bevételi sorból':'Projekt létrehozva, a naptárba is bekerül');if(!p._noCal)syncCal(saved.id);S.cal.events={};}
     catch(e){handleErr(e);}
   }});
 }
