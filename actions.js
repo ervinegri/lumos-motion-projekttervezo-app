@@ -518,9 +518,10 @@ function siteModal(next,withPen){
       const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 /* Felugró figyelmeztetés: a helyszíni munka előtt véglegesíteni kell a stábot */
-function crewFinalPopup(d){const ch=crewFinalState(d)==='changed',none=!crewIds(d).size;
+const finalSkipped=d=>!!(d&&S._finalSkip&&S._finalSkip[d.id]);   // „saját felelősségre” kihagyott véglegesítés (erre a munkamenetre)
+function crewFinalPopup(d,retry){const ch=crewFinalState(d)==='changed',none=!crewIds(d).size;S._finalRetry=retry||null;
   openModal('👥 Előbb véglegesítsd a stábot',`<p style="margin:0">${none?'Ehhez a projekthez még nincs stáb beosztva. Vedd fel a csapatot, majd <b>véglegesítsd</b> – csak utána pipálható ki a helyszíni munka.':ch?'A csapat a véglegesítés óta módosult. A helyszíni munka előtt <b>véglegesítsd újra</b> a stábot.':'A helyszíni munka kipipálása előtt <b>véglegesítsd a stábot</b> – így mindenki megkapja a beosztását, és a díjak rögzülnek.'}</p>`,
-    {cancelLabel:'Bezárás',submitLabel:none?'Ugrás a stábhoz':'Ugrás a stáb véglegesítéséhez',submit:async()=>{closeModal();gotoCrewFinal();}});}
+    {cancelLabel:'Bezárás',left:retry?`<button type="button" class="btn ghost small final-skip" data-action="final-skip" title="A stáb nem kap beosztás-értesítést és naptármeghívót, a díjak nem rögzülnek">⚠️ Kihagyom – saját felelősségre</button>`:'',submitLabel:none?'Ugrás a stábhoz':'Véglegesítem',submit:async()=>{closeModal();gotoCrewFinal();}});}
 function gotoCrewFinal(){FOLD.crew=true;render(true);
   setTimeout(()=>{const cf=$('crew-final'),target=cf||document.querySelector('[data-fold="crew"]');if(!target)return;const dd=target.closest('details')||(target.matches('details')?target:null);if(dd)dd.open=true;
     target.scrollIntoView({block:'center',behavior:'smooth'});target.classList.add('flash');setTimeout(()=>target.classList.remove('flash'),1600);
@@ -967,8 +968,8 @@ const ACT={
       if(v==='atadva')confetti();};   // lezáráskor ünneplünk (mentés a Mentés gombbal)
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
-    if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'){
-      crewFinalPopup(d);return;}
+    if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
+      crewFinalPopup(d,()=>ACT.stage({dataset:{v}}));return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
     go();},
@@ -980,8 +981,8 @@ const ACT={
       setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});
       if(on){const cur=S.draft.status||'tervezes',ids=[...document.querySelectorAll('.stages [data-action="stage"]')].map(x=>x.dataset.v),i=ids.indexOf(v);   // kipipált lépés → a következő lépésre lépünk (ha még ennél tartott vagy korábban)
         const ci=ids.indexOf(cur);if(i>=0&&i+1<ids.length&&ci<=i)setTimeout(()=>ACT.stage({dataset:{v:ids[i+1]}}),0);}};
-    if(on&&v==='tervezes'){if(reqBlock())return;if(crewFinalOn()&&crewFinalState(d)!=='ok'){crewFinalPopup(d);return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
-    if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'){crewFinalPopup(d);return;}   // előbb a stáb véglegesítése
+    if(on&&v==='tervezes'){if(reqBlock())return;if(crewFinalOn()&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
+    if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
     const raw=next=>()=>{const eds=editorsOf(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawMailModal(next);else next();};   // vágói munka: e-mail a vágónak a nyersanyagról
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='helyszin'){raw(apply)();return;}
@@ -989,6 +990,7 @@ const ACT={
     if(on&&v==='utomunka'){postModal(apply);return;}   // az utómunka kipipálásakor: észrevételek és elakadás
     apply();},
   'goto-crew-final':()=>gotoCrewFinal(),
+  'final-skip':()=>{const d=S.draft,r=S._finalRetry;if(!d)return;(S._finalSkip||(S._finalSkip={}))[d.id]=true;S._finalRetry=null;closeModal();toast('Véglegesítés kihagyva – a stáb nem kap értesítést, a díjak nem rögzülnek.',true);if(r)setTimeout(r,0);},
   'proj-rename':()=>{const d=S.draft;if(!d||ro())return;
     openModal('Projekt neve',`<div class="fields">${mf('name','Projekt neve',{full:true,v:d.name||'',max:160})}</div>`,{submitLabel:'Mentés',submit:async(fd,form)=>{
       if(!needName(form,'Add meg a projekt nevét.'))return;const n=String(fd.get('name')||'').trim();closeModal();
