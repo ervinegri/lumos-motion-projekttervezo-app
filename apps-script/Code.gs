@@ -1805,6 +1805,7 @@ function szSearch_(u, a) {
   if (idx.p !== prefix) idx = { p: prefix, it: {}, max: {} };
   const started = Date.now(), y0 = Number(today_().slice(0, 4));
   let partial = false, changed = false;
+  if (a && a.cached) return { index: idx.it, partial: !idx.full, at: idx.at || 0 };   // csak a tárolt jegyzék (azonnal)
   const key = szNeedKey_(), B = 20;
   const req = no => { const payload = {}; payload['action-szamla_agent_xml'] = Utilities.newBlob(szXmlHead_('xmlszamlaxml', 'agentxml') + szEl_('szamlaagentkulcs', key) + szEl_('szamlaszam', no) + szEl_('pdf', 'false') + '</xmlszamlaxml>', 'text/xml', 'request.xml');
     return { url: SZAMLAZZ_URL, method: 'post', muteHttpExceptions: true, payload: payload }; };
@@ -1823,7 +1824,9 @@ function szSearch_(u, a) {
       n += B;
     }
   });
-  if (changed) try { bigPut_('SZ_INDEX', JSON.stringify(idx)); } catch (e) { }
+  idx.full = !partial; idx.at = Date.now();
+  try { bigPut_('SZ_INDEX', JSON.stringify(idx)); } catch (e) { }
+  if (a && a.all) return { index: idx.it, partial: partial, at: idx.at };   // a teljes jegyzék: a kereső a böngészőben szűr (azonnali)
   const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const linked = readAll_('finInvoice'), words = q.split(/\s+/).filter(Boolean);
   const items = Object.keys(idx.it).map(no => { const v = idx.it[no]; return { no: no, buyer: v[0], date: v[1], invNet: v[2], invGross: v[3], invPaid: v[4] }; })

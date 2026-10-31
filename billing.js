@@ -95,6 +95,7 @@ ACT['bl-cstep']=async btn=>{const pid=btn.dataset.id,st=btn.dataset.st;if(!S.fin
   try{const d=await call('billSave',Object.assign({projectId:pid},patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){Object.assign(b,prev);render(true);handleErr(e);}};
 
 function viewBilling(){
+  if(typeof szIdxEnsure==='function')setTimeout(szIdxEnsure,0);   // a számlajegyzék előtöltése a háttérben (gyors cégnév-kereséshez)
   if(!billOn())return `<div class="panel">${empty('Ez a fül a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();
   if(!S.fin.billing)return `<div class="panel">${empty('A Szerződés és számlázás a legújabb háttérkód (Code.gs) bemásolása és új verzióként való telepítése után érhető el.')}</div>`;

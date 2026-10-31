@@ -363,7 +363,7 @@ function szInvoiceModal(kind,id,o={}){
         try{const d=await call('szInvoice',a);closeModal();finApply(d);toast(`${SZ_KIND[a.kind]} kiállítva: ${d.invoice&&d.invoice.no}`);}
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}}});}});
   szTotals();}
-function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
+function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
   openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám vagy cégnév',{full:true,max:60,ph:'pl. LUMOS-2026-75 vagy Kulcsár Akadémia'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
     <div id="sz-peek" class="sz-peek" data-pid="${esc(id)}" data-slot="${esc(type||'')}"></div><p class="hint" style="margin:0">A számlázz.hu-ban már kiállított számlát kapcsolja ehhez: <b>${esc(t.name)}</b>. Az összeg és a kifizetések onnan töltődnek be, és a fizetési állapot magától követi.</p>
     <p class="hint" style="margin:10px 0 0">Más fiókból (pl. <b>Egri Ervin E.V.</b>) vagy kézzel kiállított bizonylat? <button class="linkbtn" type="button" data-action="sz-manual" data-kind="${esc(kind)}" data-id="${esc(id)}" data-type="${esc(type||'szamla')}">✍️ Kézi rögzítés fájlfeltöltéssel</button></p>`,
@@ -442,7 +442,7 @@ document.addEventListener('change',async e=>{if(e.target.id!=='m-mfile')return;c
 const szPrefix=()=>{const c={};((S.fin&&S.fin.invoices)||[]).forEach(x=>{const m=/^([A-Za-z]+)-\d{4}-/.exec(x.no||'');if(m)c[m[1]]=(c[m[1]]||0)+1;});return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||'LUMOS';};
 let SZPK_T=0;
 document.addEventListener('input',e=>{if(e.target.id!=='m-no'||!$('sz-peek'))return;clearTimeout(SZPK_T);const v=e.target.value.trim(),box=$('sz-peek');if(v.length<2){box.innerHTML='';S._szPeek=null;return;}
-  if(!/\d/.test(v)){S._szPeek=null;if(v.length<3){box.innerHTML='';return;}SZPK_T=setTimeout(()=>szNameSearch(v,box),600);return;}   // betűk: keresés cégnév szerint
+  if(!/\d/.test(v)){S._szPeek=null;if(v.length<2){box.innerHTML='';return;}szNameSearch(v,box);return;}   // betűk: keresés cégnév szerint
   SZPK_T=setTimeout(async()=>{box.innerHTML='<div class="sz-searching"><span class="sz-radar"></span><span>Keresés a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>';
     try{const r=await call('szPeek',{no:v,prefix:szPrefix()});if(($('m-no')||{}).value.trim()!==v)return;S._szPeek={q:v,r};
       const ln=(r.linked||[]).map(id=>(projById(id)||{}).name).filter(Boolean);
@@ -552,16 +552,28 @@ ACT['inc-rename']=b=>{const id=b.dataset.id,isP=b.dataset.kind==='project',p=isP
     try{const saved=await call('saveProject',Object.assign(clone(p),{name:n,baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===id);if(k>=0)S.projects[k]=saved;closeModal();render(true);toast('Projekt átnevezve');if(saved.calEventId&&typeof syncCal==='function')syncCal(saved.id);}
     catch(e){handleErr(e);}}});};
 
-/* Számla keresése cégnév szerint (a számlázz.hu-s számlák jegyzékéből; az első keresés feltölti) */
-async function szNameSearch(v,box){const cur=()=>(($('m-no')||{}).value||'').trim();
-  if(!box.querySelector('.sz-hits'))box.innerHTML=`<div class="sz-searching"><span class="sz-radar"></span><span>Keresés cégnév szerint a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span><br><small class="muted">Az első keresés betölti a számlák listáját – ez fél percig is eltarthat.</small></span></div>`;
-  try{const r=await call('szSearch',{q:v,prefix:szPrefix()});if(cur()!==v)return;
-    const list=(r.items||[]).map(x=>{const ln=(x.linked||[]).map(id=>(projById(id)||{}).name).filter(Boolean),paid=num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
-      return `<button type="button" class="hs-item sz-hit" data-szno="${esc(x.no)}"><span><b>${esc(x.no)}</b> · ${esc(x.buyer||'—')}</span><small>${esc((x.date||'').replace(/-/g,'.'))} · nettó ${ftFmt(num(x.invNet))} · ${paid?'kifizetve':'fizetésre vár'}${ln.length?' · 🔗 '+esc(ln.join(', ')):''}</small></button>`;}).join('');
-    box.innerHTML=(list?`<div class="sz-hits">${list}</div>`:(r.partial?'':`<span class="muted">Nincs ilyen vevőjű számla (${num(r.indexed)} számla között kerestem).</span>`))
-      +(r.partial?`<div class="sz-searching"><span class="sz-radar"></span><span>Számlák betöltése a számlázz.hu-ból (eddig ${num(r.indexed)} db) – az első keresés tovább tart<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`:'');
-    if(r.partial)setTimeout(()=>{if(cur()===v)szNameSearch(v,box);},300);}
-  catch(err){if(cur()!==v)return;box.innerHTML=`<span class="bad-txt">${esc(errText(err).replace(/^Hiba:\s*/,''))}</span>`;}}
+/* Számla keresése cégnév szerint: a számlázz.hu-s számlák jegyzéke a böngészőben (azonnali szűrés gépelés közben);
+   a jegyzéket a háttérben frissítjük (az első feltöltés tart tovább, utána csak az új számlák jönnek) */
+const SZI={idx:null,at:0,partial:true,busy:false};
+try{const o=JSON.parse(localStorage.getItem('lumos_szidx_v1')||'null');if(o&&o.idx){SZI.idx=o.idx;SZI.at=o.at||0;SZI.partial=!!o.partial;}}catch(e){}
+function szIdxSave(){try{localStorage.setItem('lumos_szidx_v1',JSON.stringify({idx:SZI.idx,at:SZI.at,partial:SZI.partial}));}catch(e){}}
+function szIdxEnsure(){if(SZI.busy||Date.now()-(SZI.tried||0)<60000&&SZI.idx&&!SZI.partial||Date.now()-(SZI.failAt||0)<60000||!isAdmin()||!(S.fin&&S.fin.sz&&S.fin.sz.hasKey))return;if(SZI.idx&&!SZI.partial&&Date.now()-SZI.at<5*60000)return;szIdxRefresh();}
+async function szIdxRefresh(){if(SZI.busy)return;SZI.busy=true;SZI.tried=Date.now();szHitsRedo();
+  try{if(!SZI.idx){const c=await call('szSearch',{cached:true,prefix:szPrefix()});SZI.idx=c.index||{};SZI.partial=c.partial;SZI.at=c.at||0;szIdxSave();szHitsRedo();}
+    for(let k=0;k<20;k++){const r=await call('szSearch',{all:true,prefix:szPrefix()});SZI.idx=r.index||{};SZI.partial=!!r.partial;SZI.at=r.at||Date.now();szIdxSave();szHitsRedo();if(!SZI.partial)break;}}
+  catch(e){SZI.failAt=Date.now();}finally{SZI.busy=false;szHitsRedo();}}
+function szHitsRedo(){const i=$('m-no'),box=$('sz-peek');if(!i||!box)return;const v=i.value.trim();if(v.length>=3&&!/\d/.test(v))szNameSearch(v,box);}
+function szNameSearch(v,box){szIdxEnsure();
+  const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''),words=norm(v).split(/\s+/).filter(Boolean),all={};
+  Object.entries(SZI.idx||{}).forEach(([no,a])=>{all[no]={no,buyer:a[0],date:a[1],invNet:a[2],invGross:a[3],invPaid:a[4]};});
+  ((S.fin&&S.fin.invoices)||[]).forEach(x=>{if(x.no&&!all[x.no])all[x.no]={no:x.no,buyer:x.buyer,date:x.date,invNet:x.invNet,invGross:x.invGross,invPaid:x.invPaid};});   // a már hozzárendeltek (díjbekérők is)
+  const linkedOf=no=>{const l=((S.fin&&S.fin.invoices)||[]).find(x=>x.no===no);return l?invPids(l).map(id=>(projById(id)||{}).name).filter(Boolean):[];};
+  const hits=Object.values(all).filter(x=>words.every(w=>norm(x.buyer).includes(w)||norm(x.no).includes(w))).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,15);
+  const list=hits.map(x=>{const ln=linkedOf(x.no),paid=num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
+    return `<button type="button" class="hs-item sz-hit" data-szno="${esc(x.no)}"><span><b>${esc(x.no)}</b> · ${esc(x.buyer||'—')}</span><small>${esc((x.date||'').replace(/-/g,'.'))} · nettó ${ftFmt(num(x.invNet))} · ${paid?'kifizetve':'fizetésre vár'}${ln.length?' · 🔗 '+esc(ln.join(', ')):''}</small></button>`;}).join('');
+  const n=Object.keys(SZI.idx||{}).length,loading=SZI.busy&&(SZI.partial||!SZI.idx);
+  box.innerHTML=(list?`<div class="sz-hits">${list}</div>`:(loading?'':`<span class="muted">Nincs ilyen vevőjű számla (${n} számla között kerestem).</span>`))
+    +(loading?`<div class="sz-searching"><span class="sz-radar"></span><span>Számlák betöltése a számlázz.hu-ból${n?` (eddig ${n} db)`:''} – csak az első alkalommal tart tovább<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`:'');}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.sz-hit');if(!b)return;const i=$('m-no');if(!i)return;i.value=b.dataset.szno;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus();});
 
 document.addEventListener('input',e=>{if(e.target.id!=='q-fin')return;S.finQ=e.target.value;const pos=e.target.selectionStart;render(true);const n=$('q-fin');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}});
