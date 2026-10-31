@@ -361,7 +361,7 @@ function szInvoiceModal(kind,id,o={}){
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}}});}});
   szTotals();}
 function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
-  openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám',{full:true,max:60,ph:'pl. LUMOS-2026-75'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
+  openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám vagy cégnév',{full:true,max:60,ph:'pl. LUMOS-2026-75 vagy Kulcsár Akadémia'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
     <div id="sz-peek" class="sz-peek" data-pid="${esc(id)}" data-slot="${esc(type||'')}"></div><p class="hint" style="margin:0">A számlázz.hu-ban már kiállított számlát kapcsolja ehhez: <b>${esc(t.name)}</b>. Az összeg és a kifizetések onnan töltődnek be, és a fizetési állapot magától követi.</p>
     <p class="hint" style="margin:10px 0 0">Más fiókból (pl. <b>Egri Ervin E.V.</b>) vagy kézzel kiállított bizonylat? <button class="linkbtn" type="button" data-action="sz-manual" data-kind="${esc(kind)}" data-id="${esc(id)}" data-type="${esc(type||'szamla')}">✍️ Kézi rögzítés fájlfeltöltéssel</button></p>`,
     {submitLabel:'Hozzárendelés',submit:async fd=>{let no=String(fd.get('no')||'').trim();if(!no){toast('Add meg a számlaszámot.',true);return;}
@@ -439,6 +439,7 @@ document.addEventListener('change',async e=>{if(e.target.id!=='m-mfile')return;c
 const szPrefix=()=>{const c={};((S.fin&&S.fin.invoices)||[]).forEach(x=>{const m=/^([A-Za-z]+)-\d{4}-/.exec(x.no||'');if(m)c[m[1]]=(c[m[1]]||0)+1;});return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||'LUMOS';};
 let SZPK_T=0;
 document.addEventListener('input',e=>{if(e.target.id!=='m-no'||!$('sz-peek'))return;clearTimeout(SZPK_T);const v=e.target.value.trim(),box=$('sz-peek');if(v.length<2){box.innerHTML='';S._szPeek=null;return;}
+  if(!/\d/.test(v)){S._szPeek=null;if(v.length<3){box.innerHTML='';return;}SZPK_T=setTimeout(()=>szNameSearch(v,box),600);return;}   // betűk: keresés cégnév szerint
   SZPK_T=setTimeout(async()=>{box.innerHTML='<div class="sz-searching"><span class="sz-radar"></span><span>Keresés a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>';
     try{const r=await call('szPeek',{no:v,prefix:szPrefix()});if(($('m-no')||{}).value.trim()!==v)return;S._szPeek={q:v,r};
       const ln=(r.linked||[]).map(id=>(projById(id)||{}).name).filter(Boolean);
@@ -547,3 +548,15 @@ ACT['inc-rename']=b=>{const id=b.dataset.id,isP=b.dataset.kind==='project',p=isP
     if(S.draft&&S.draft.id===id){closeModal();setDraft({name:n});setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Átnevezve');return;}
     try{const saved=await call('saveProject',Object.assign(clone(p),{name:n,baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===id);if(k>=0)S.projects[k]=saved;closeModal();render(true);toast('Projekt átnevezve');if(saved.calEventId&&typeof syncCal==='function')syncCal(saved.id);}
     catch(e){handleErr(e);}}});};
+
+/* Számla keresése cégnév szerint (a számlázz.hu-s számlák jegyzékéből; az első keresés feltölti) */
+async function szNameSearch(v,box){const cur=()=>(($('m-no')||{}).value||'').trim();
+  box.innerHTML=`<div class="sz-searching"><span class="sz-radar"></span><span>Keresés cégnév szerint a számlázz.hu-ban<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`;
+  try{const r=await call('szSearch',{q:v,prefix:szPrefix()});if(cur()!==v)return;
+    const list=(r.items||[]).map(x=>{const ln=(x.linked||[]).map(id=>(projById(id)||{}).name).filter(Boolean),paid=num(x.invGross)>0&&num(x.invPaid)>=num(x.invGross)-1;
+      return `<button type="button" class="hs-item sz-hit" data-szno="${esc(x.no)}"><span><b>${esc(x.no)}</b> · ${esc(x.buyer||'—')}</span><small>${esc((x.date||'').replace(/-/g,'.'))} · nettó ${ftFmt(num(x.invNet))} · ${paid?'kifizetve':'fizetésre vár'}${ln.length?' · 🔗 '+esc(ln.join(', ')):''}</small></button>`;}).join('');
+    box.innerHTML=(list?`<div class="sz-hits">${list}</div>`:(r.partial?'':`<span class="muted">Nincs ilyen vevőjű számla (${num(r.indexed)} számla között kerestem).</span>`))
+      +(r.partial?`<div class="sz-searching"><span class="sz-radar"></span><span>Számlák betöltése a számlázz.hu-ból (eddig ${num(r.indexed)} db) – az első keresés tovább tart<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`:'');
+    if(r.partial)setTimeout(()=>{if(cur()===v)szNameSearch(v,box);},300);}
+  catch(err){if(cur()!==v)return;box.innerHTML=`<span class="bad-txt">${esc(errText(err).replace(/^Hiba:\s*/,''))}</span>`;}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.sz-hit');if(!b)return;const i=$('m-no');if(!i)return;i.value=b.dataset.szno;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus();});

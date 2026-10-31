@@ -1790,6 +1790,36 @@ function szLinkBatch_(u, a) {
   return Object.assign(finData_(), { batch: { done: done, linked: rows.map(r => r.no), errors: errors } });
 }
 /** Számla előnézete a hozzárendelés előtt: vevő, kelt, összeg (a számlázz.hu-tól). Rövidített számot is megpróbál (pl. LUMOS-26-75 → LUMOS-2026-75). */
+/** Számla keresése vevő (cégnév) szerint. A számlázz.hu Agent nem listáz, ezért a számlaszámokat sorban lekérdezzük
+    (idei és tavalyi év), és a vevőket egy tárolt jegyzékbe gyűjtjük – csak az első keresés lassú, utána csak az új számlák jönnek.
+    a: {q, prefix} → {items:[{no,buyer,date,invNet,invGross,paid,linked}], partial, indexed} */
+function szSearch_(u, a) {
+  szNeedKey_();
+  const q = String(a && a.q || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const prefix = (str_(a && a.prefix, 20) || 'LUMOS').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  let idx = {}; try { idx = JSON.parse(bigGet_('SZ_INDEX') || '{}'); } catch (e) { idx = {}; }
+  if (idx.p !== prefix) idx = { p: prefix, it: {}, max: {} };
+  const started = Date.now(), y0 = Number(today_().slice(0, 4));
+  let partial = false, changed = false;
+  [y0, y0 - 1].forEach(y => {
+    let n = (idx.max[y] || 0) + 1, miss = 0;
+    while (miss < 3) {
+      if (Date.now() - started > 22000) { partial = true; break; }
+      const no = prefix + '-' + y + '-' + n;
+      try { const r = szQuery_(no, false); idx.it[r.no || no] = [r.buyer, r.date, r.invNet, r.invGross, r.invPaid]; idx.max[y] = n; miss = 0; changed = true; }
+      catch (e) { miss++; }
+      n++;
+    }
+  });
+  if (changed) try { bigPut_('SZ_INDEX', JSON.stringify(idx)); } catch (e) { }
+  const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const linked = readAll_('finInvoice'), words = q.split(/\s+/).filter(Boolean);
+  const items = Object.keys(idx.it).map(no => { const v = idx.it[no]; return { no: no, buyer: v[0], date: v[1], invNet: v[2], invGross: v[3], invPaid: v[4] }; })
+    .filter(x => words.length && words.every(w => norm(x.buyer).indexOf(w) >= 0 || norm(x.no).indexOf(w) >= 0))
+    .sort((x, y) => String(y.date).localeCompare(String(x.date))).slice(0, 15)
+    .map(x => { const l = linked.find(z => z.no === x.no); return Object.assign(x, { linked: l ? invTargets_(l).map(t => t.projectId || t.incomeId) : [] }); });
+  return { items: items, partial: partial, indexed: Object.keys(idx.it).length };
+}
 function szPeek_(u, a) {
   const raw = str_(a && a.no, 60).toUpperCase().replace(/\s+/g, ''), y = today_().slice(0, 4), tries = [raw];
   let m = /^([A-Z]+)-(\d{2})-(\d+)$/.exec(raw); if (m) tries.push(m[1] + '-20' + m[2] + '-' + m[3]);
@@ -3046,6 +3076,7 @@ function rpcInner_(token, name, arg) {
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szPeek': adminOnly(); return szPeek_(u, arg);
+    case 'szSearch': adminOnly(); return szSearch_(u, arg);
     case 'szSetKind': adminOnly(); return szSetKind_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
