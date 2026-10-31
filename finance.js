@@ -51,6 +51,22 @@ function finReceived(r){const ps=finPayOf(r);if(ps==='teljes')return num(r.amoun
   const inv=invFor(r.kind,r.id).filter(x=>num(x.invGross)>0&&!(x.kind==='dijbekero'&&x.ref));
   if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+(invPaidOk(x)?num(x.invGross):num(x.invPaid))*num(x.invNet)/num(x.invGross)*(r.kind==='project'?invShare(x,r.id):1),0)));
   const pct=r.kind==='project'&&typeof billOf==='function'?num(billOf(r.id).advancePct):50;return Math.round(num(r.amount)*(pct||50)/100);}
+/* Duplikált kiadások: ismétlődőre állított tétel mellett ugyanaz (név + alap + összeg) egyszeriként, vagy kétszer fixként.
+   A fix tételt megtartjuk (a legkorábbi kezdettel, a leghosszabb tartammal), a fölösleges sorokat töröljük. */
+function finExpDupes(){const all=((S.fin&&S.fin.expense)||[]),key=e=>String(e.name||'').trim().toLowerCase()+'|'+(e.fund==='marketing'?'m':'r')+'|'+num(e.amount),groups={},upd=[],del=[];
+  all.filter(e=>e.kind==='fix'&&e.from).forEach(e=>{(groups[key(e)]=groups[key(e)]||[]).push(e);});
+  const keep={};Object.entries(groups).forEach(([k,g])=>{g.sort((a,b)=>String(a.from).localeCompare(String(b.from)));const k0=Object.assign({},g[0]);let ch=false;
+    g.slice(1).forEach(x=>{if(k0.to&&x.from>shiftMonth(k0.to,1))return;del.push(x.id);ch=true;if(!x.to||!k0.to)k0.to='';else if(x.to>k0.to)k0.to=x.to;});
+    if(ch&&k0.to!==(g[0].to||''))upd.push(k0);keep[k]=[k0].concat(g.slice(1).filter(x=>!del.includes(x.id)));});
+  all.filter(e=>e.kind!=='fix'&&e.month).forEach(e=>{const g=keep[key(e)];if(g&&g.some(f=>f.from<=e.month&&(!f.to||f.to>=e.month)))del.push(e.id);});
+  return {upd,del};}
+async function finExpDedupe(){if(S._expDedupe||!S.fin||!S.fin.expense)return;const {upd,del}=finExpDupes();if(!upd.length&&!del.length)return;S._expDedupe=true;
+  const before=S.fin.expense.filter(e=>del.includes(e.id)||upd.some(u=>u.id===e.id)).map(clone),ids=before.map(e=>e.id);
+  finLocal('expense',upd);del.forEach(id=>finLocal('expense',[{id}],true));render(true);
+  try{if(upd.length)finApply(await call('finUpsert',{table:'expense',rows:upd}));for(const id of del)finApply(await call('finDelete',{table:'expense',id}));
+    if(typeof opRec==='function')opRec(`duplikált kiadások törlése (${del.length})`,()=>finRestore('expense',ids,before),()=>finRestore('expense',ids,ids.map(id=>{const u=upd.find(x=>x.id===id);return u?clone(u):null;})));
+    toast(`${del.length} duplikált kiadás törölve (az ismétlődő tétel megmaradt) – Ctrl+Z visszahozza`);}
+  catch(e){handleErr(e);finLoad(true);}finally{S._expDedupe=false;render(true);}}
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||a.name.localeCompare(b.name,'hu'));}
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
 const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.round(Number(v)/base*100);return `<span class="pct${x<0?' neg':''}">${x<0?'−':''}${Math.abs(x)}%</span>`;};
@@ -90,6 +106,7 @@ function viewFinance(){
   if(!finOn())return `<div class="panel">${empty('A Bevétel és kiadás a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();
   const months=finMonths(),m=months.includes(S.finMonth)?S.finMonth:todayISO().slice(0,7),st=finSet();S.finMonth=m;
+  if(!S._expDedupe&&(finExpDupes().del.length))setTimeout(finExpDedupe,0);   // ismétlődőre állított tételek duplikátumai
   const inc=finIncomeFor(m),exp=finExpensesFor(m),bal=finBalances(m),rec=finReceivables();
   const fromApp=!st.appFromMonth||m>=st.appFromMonth;
   const T=k=>sumK(inc,k),planned=T('amount'),recv=inc.reduce((s,r)=>s+finReceived(r),0);
@@ -102,7 +119,10 @@ function viewFinance(){
   const expRows=list=>list.map(e=>`<tr><td><button class="linkbtn" type="button" data-action="fin-exp-edit" data-id="${esc(e.id)}">${esc(e.name)}</button></td><td>${e.kind==='fix'?`<span class="statuspill">havi fix</span>`:'<span class="statuspill p-mute">egyszeri</span>'}</td><td class="r"><b>${moneyFmt(e.amount)||0}</b></td></tr>`).join('');
   const expPanel=(fund,icon,title)=>{const l=exp.filter(e=>fund==='marketing'?e.fund==='marketing':e.fund!=='marketing');return `<div class="panel"><h3>${icon} ${title} <span class="aside">${ftFmt(sumK(l,'amount'))}</span></h3>
         <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Tétel</th><th>Típus</th><th class="r">Összeg</th></tr></thead><tbody>${expRows(l)||'<tr><td colspan="3" class="empty-row">Nincs kiadás ebben a hónapban.</td></tr>'}</tbody>
-          <tfoot><tr><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0}</b></td></tr></tfoot></table></div>
+          <tfoot><tr><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0}</b></td></tr>
+          ${(()=>{const mk=fund==='marketing',keret=mk?bal.carryMkt+bal.inMkt:bal.carryRezsi+bal.inRezsi,end=keret-sumK(l,'amount');
+            return `<tr class="fin-keret"><td colspan="2">Havi keret <span class="muted">(az előző hónapok áthozatával: ${sFt(mk?bal.carryMkt:bal.carryRezsi)} + e havi ${sFt(mk?bal.inMkt:bal.inRezsi)})</span></td><td class="r${keret<0?' bad-txt':''}"><b>${sFt(keret)}</b></td></tr>
+            <tr class="fin-end ${end<0?'neg':'pos'}"><td colspan="2"><b>${end<0?'🔻 Mínuszban vagyunk':'✅ Maradék a keretből'}</b></td><td class="r"><b>${end<0?'−'+ftFmt(-end):ftFmt(end)}</b></td></tr>`;})()}</tfoot></table></div>
         <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-exp-new" data-fund="${fund}">+ Kiadás</button></div></div>`;};
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
   return `<div class="page-head"><div class="grow"><h2>Bevétel és kiadás</h2><p class="sub">Havi bevételek felosztással, kiadások, alapok egyenlege · nettó · csak te látod</p></div>${undoBar()}
@@ -168,10 +188,10 @@ function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
     const row=Object.assign({},v,{id:v.id||'',month:v.month||m,name:String(fd.get('name')||'').trim(),day:String(fd.get('day')||'').trim(),payStatus:fd.get('payStatus'),amount,prod,profit,ceo,marketing,rezsi:keepSplit?r.rezsi:amount-profit-ceo-marketing-prod});
     row.id=row.id||newId();finSave('finUpsert',{table:'income',row},'Bevétel mentve',()=>finLocal('income',[row]));}});}
 function finExpenseModal(e){const v=e||{},m=S.finMonth;if(e&&!e.id)e=null;
-  openModal(e?'Kiadás szerkesztése':'Új kiadás',`<div class="fields">
+  openModal((e?'Kiadás szerkesztése':'Új kiadás')+' – '+(v.fund==='marketing'?'marketing':'eszközköltség, rezsi'),`<div class="fields">
     ${mf('name','Megnevezés',{full:true,v:v.name,max:200,ph:'pl. Könyvelő'})}
     ${moneyField('amount','Összeg (nettó)',v.amount,{steps:false})}
-    ${ms('fund','Melyik alapból',[['rezsi','Eszközköltség, rezsi'],['marketing','Marketing költség']],v.fund||'rezsi')}
+    <input type="hidden" name="fund" value="${v.fund==='marketing'?'marketing':'rezsi'}">
     ${ms('kind','Típus',[['egyszeri','Egyszeri (csak ebben a hónapban)'],['fix','Havi fix (minden hónapban, amíg meg nem szünteted)']],v.kind||'egyszeri',{full:true})}
   </div>${e&&e.kind==='fix'?`<p class="hint" style="margin:0">Fix tétel: ${esc(e.from)}${e.to?' – '+esc(e.to):' óta'}. Ha az összeget módosítod, a változás <b>${esc(F_YM.format(toDate(m+'-01')))}</b> hónaptól érvényes, a korábbi hónapok nem változnak.</p>`:''}`,
   {left:e?`<button type="button" class="btn danger small" data-action="fin-exp-del" data-id="${esc(e.id)}">${e.kind==='fix'&&e.from<m?'Megszüntetés ettől a hónaptól':'Törlés'}</button>`:'',submitLabel:'Mentés',submit:async fd=>{
