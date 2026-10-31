@@ -860,7 +860,7 @@ function saveDraft(){
   S.dirty=false;S.saving=(S.saving||0)+1;SAVE_PENDING[d.id]=(SAVE_PENDING[d.id]||0)+1;
   S.cal.events={};S.savedFlash=0;render(true);
   SAVE_Q=SAVE_Q.then(async()=>{
-    const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true});
+    const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true},finalSkipped(d)?{crewFinalSkip:true}:{});   // „saját felelősségre” kihagyott véglegesítés
     try{
       let saved;for(let k=0;;k++){try{saved=await call('saveProject',payload);break;}
         catch(e){if(k<2&&/Zárol|lock/i.test(errText(e))){toast('A szerver épp foglalt (más is ment) – újrapróbálom… ('+(k+1)+'/2)');await new Promise(r=>setTimeout(r,2000*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)
@@ -971,7 +971,7 @@ const ACT={
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
       crewFinalPopup(d,()=>ACT.stage({dataset:{v}}));return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
-    if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&(!d.siteOk||closing)){siteModal(go,closing);return;}   // előbb a helyszíni beszámoló
+    if(closing||(v!=='helyszin'&&d.status!==v&&!d.siteOk)){siteModal(go,closing);return;}   // a helyszíni beszámoló csak a Helyszíni munka kipipálásakor jön fel; a „Kész” lezárásnál a díjcsökkentés miatt   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
   'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);

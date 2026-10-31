@@ -1161,12 +1161,12 @@ function saveProject_(u, a) {
     if (p.budgetRequest == null) p.budgetRequest = '';
     if (p.crewFinal == null) p.crewFinal = '';
     if (p.payStatus == null) p.payStatus = '';
-    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal))
+    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal) && a.crewFinalSkip !== true)
       throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
-    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)
+    if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)   // a beszámoló a helyszíni munka kipipálásakor (a helyszíni munkára lépéskor még nem kell)
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !String(p.deliveryNotes || '').trim())
       throw new Error('Átadás előtt írd be az észrevételeket.');
