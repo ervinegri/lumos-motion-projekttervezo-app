@@ -9,7 +9,8 @@ function mdSave(){if(!MD_KEY)return;const f=$('mform');if(!f)return;const o={};
   try{localStorage.setItem(MD_KEY,JSON.stringify(o));}catch(e){}}
 function mdClear(k){try{localStorage.removeItem(k||MD_KEY);}catch(e){}}
 function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'null');}catch(e){}if(!o)return;const f=$('mform');if(!f||MD_KEY!==key)return;
-  Object.entries(o).forEach(([n,x])=>{const els=[...f.querySelectorAll(`[name="${CSS.escape(n)}"]`)];if(!els.length)return;
+  Object.entries(o).forEach(([n,x])=>{if(/^b(Email2?|Name|Tax|Zip|City|Addr)$/.test(n))return;   // a számla vevőadatai mindig a friss ügyféladatokból jönnek (nem a félbehagyott űrlapból)
+    const els=[...f.querySelectorAll(`[name="${CSS.escape(n)}"]`)];if(!els.length)return;
     els.forEach((el,i)=>{let ch=false;if(el.type==='checkbox'){if(x.c){const v=x.c.includes(el.value);if(el.checked!==v){el.checked=v;ch=true;}}}
       else if(el.type==='radio'){if(x.v!=null&&el.value===x.v&&!el.checked){el.checked=true;ch=true;}}else if(x.v!=null&&el.value!==x.v){el.value=x.v;ch=true;}
       if(ch){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}});});}
