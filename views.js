@@ -208,9 +208,9 @@ function evRow(p,opt={}){
   const r=pr(p),T=todayISO();
   const sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva');
   const days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
-  let side=statusPill(p);
+  const crewPast=ro()&&r&&r.end<T;let side=crewPast?'':statusPill(p);   // szakember: a múltbeli munkánál csak a szerepe látszik
   const di=dueInfo(p);
-  if(di&&r&&(r.end<T||POST_STAGES.includes(p.status)))side+=`<span class="statuspill p-${di.cls}">${di.txt}</span>`;
+  if(!crewPast&&di&&r&&(r.end<T||POST_STAGES.includes(p.status)))side+=`<span class="statuspill p-${di.cls}">${di.txt}</span>`;
   if(ro()){const m=myRole(p);if(m)side+=`<span class="smallnum">Te: ${esc(m)}</span>`;if(p.myFee&&num(p.myFee.amount))side+=`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))}</span>`;}
   else side+=`<span class="smallnum">${crewN(p)} fő · ${eqCount(p)} eszköz</span>`;
   return `<button class="ev" type="button" data-action="open-project" data-id="${esc(p.id)}">${calBlock(r&&r.start)}
@@ -299,8 +299,8 @@ function viewProjects(){
     const extra=ro()?(myRole(p)?`<span class="smallnum">${esc(myRole(p))}</span>`:'')
       :`<span class="smallnum">${nCrew} fő · ${eqCount(p)} eszköz</span>`;
     const dim=crewDim(p);
-    return `<tr class="pt-row pt-${when||'nodate'} pt-sz${sz}${p.status==='lemondva'?' pt-cancel':''}${dim?' pt-dim':''}"${dim?' aria-disabled="true"':` data-action="open-project" data-id="${esc(p.id)}" tabindex="0"`}><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'?DONE_CHECK:''}${crewChip}${rel}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
-      <td class="pt-status"><div class="pt-pills">${statusPill(p)}${due}${vidLink(p,'statuspill p-info pt-video','▶ Leadott videó'+(p.deliveryPass?' 🔒':''),` data-action="ext-link" title="${esc(p.deliveryLink)}"`)}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
+    return `<tr class="pt-row pt-${when||'nodate'} pt-sz${sz}${p.status==='lemondva'?' pt-cancel':''}${dim?' pt-dim':''}"${dim?' aria-disabled="true"':` data-action="open-project" data-id="${esc(p.id)}" tabindex="0"`}><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'&&!(ro()&&when==='past')?DONE_CHECK:''}${crewChip}${rel}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
+      <td class="pt-status"><div class="pt-pills">${ro()&&when==='past'?'':statusPill(p)+due}${vidLink(p,'statuspill p-info pt-video','▶ Leadott videó'+(p.deliveryPass?' 🔒':''),` data-action="ext-link" title="${esc(p.deliveryLink)}"`)}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
   const cols=ro()?3:2;
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
