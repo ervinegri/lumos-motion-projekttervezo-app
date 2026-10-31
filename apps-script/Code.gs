@@ -2139,6 +2139,30 @@ function tigSave_(u, a) {
   });
   return finPart_(['tigs']);
 }
+/** Ügyfél szerződésének törlése: a Drive-fájl a kukába kerül (30 napig visszaállítható), a hivatkozások lekerülnek a projektekről / keretszerződésből.
+    Csak olyan fájl törölhető, amely az ügyfélmappák szerződései között szerepel, vagy az app rögzítette. a: {url} */
+function clientDocDelete_(u, a) {
+  const raw = str_(a && a.url, 500), id = (/[-\w]{25,}/.exec(raw) || [])[0];
+  if (!id) throw new Error('Ismeretlen fájl.');
+  const did = x => (/[-\w]{25,}/.exec(String(x || '')) || [])[0] || '';
+  let known = false, name = '';
+  withLock_(() => {
+    const fsh = sheetFor_('finFramework');
+    readAll_('finFramework').filter(r => r.fileId === id || did(r.url) === id).forEach(r => { known = true; name = name || r.client; const row = findRow_(fsh, r.id); if (row) fsh.deleteRow(row); });
+    const bsh = sheetFor_('finBilling');
+    readAll_('finBilling').filter(r => r.contractFileId === id || did(r.contractUrl) === id).forEach(r => { known = true; const row = findRow_(bsh, r.id); if (!row) return;
+      const x = readRow_('finBilling', bsh, row); Object.assign(x, { contractUrl: '', contractFileId: '', contractName: '', contractAt: '', contractBy: '', updatedAt: now_(), updatedBy: u.name }); putRow_('finBilling', bsh, x, row); });
+    dbFlush_();
+  });
+  if (!known) { const docs = clientDocs_({}); known = (docs.folders || []).some(f => (f.docs || []).some(d => !d.folder && did(d.url) === id)); }
+  if (!known) throw new Error('Ez a fájl nem szerepel az ügyfelek szerződései között.');
+  let trashed = false;
+  try { const f = DriveApp.getFileById(id); name = f.getName(); f.setTrashed(true); trashed = true; } catch (e) { }
+  try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
+  const docs = clientDocs_({ force: true });
+  logEvent_(u, 'Szerződés törölve', name, trashed ? 'A Drive-fájl a kukába került' : 'Csak a hivatkozás került le');
+  return Object.assign(finPart_(['frameworks', 'billing']), { folders: docs.folders, at: docs.at, trashed: trashed });
+}
 function fwDelete_(u, a) {
   withLock_(() => { const sh = sheetFor_('finFramework'), row = findRow_(sh, str_(a && a.id, 64)); if (!row) throw new Error('A keretszerződés nem található.'); const r = readRow_('finFramework', sh, row); sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Keretszerződés törölve', r.client, 'a Drive-fájl megmarad'); });
   return finPart_(['frameworks']);
@@ -3033,6 +3057,7 @@ function rpcInner_(token, name, arg) {
     case 'driveOps': adminOnly(); return driveOps_(u, arg);
     case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
+    case 'clientDocDelete': adminOnly(); return clientDocDelete_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
     case 'dbPing': adminOnly(); return dbPing_();

@@ -63,9 +63,9 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   // Szerződés
   const cs=b.contractStatus||'',sent=cs==='kikuldve'||cs==='alairva',signed=cs==='alairva';
   const cAct=st=>`data-action="bl-cstep" data-id="${pid}" data-st="${st}"`;
-  const contract=i.fw?box('','Szerződés',fwCell(i.fw,'pb-c'))
+  const contract=i.fw?`<div class="cdrop" data-cdrop="${pid}">${box('','Szerződés',fwCell(i.fw,'pb-c')+'<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>')}</div>`
     :(cs==='nemkell'?'':`<div class="cdrop" data-cdrop="${pid}">`)+box('contract','Szerződés',`${bsStep(sent,'Szerződés elküldve','',cAct(sent?'':'kikuldve'))}${bsStep(signed,'Szerződés aláírva',b.signedAt?fmtMD(b.signedAt):'',cAct(signed?'kikuldve':'alairva'))}
-      ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file" title="Vagy húzd ide a fájlt">⬆️ ${b.contractUrl?'Új feltöltése':'Feltöltés'}</button><span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?')+(cs==='nemkell'?'':'</div>');
+      ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}${b.contractUrl?'':'<span class="cdrop-tip">📥 Húzd ide a szerződést</span>'}<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?')+(cs==='nemkell'?'':'</div>');
   // TIG
   const tg=tigList().filter(t=>tigPids(t).includes(p.id)).pop()||null,appr=!!tg&&(tg.status==='jovahagyva'||tg.status==='szamlazva'),r=pr(p);
   const tigNeed=!!tg||b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>String(t.client||'').trim().toLowerCase()===String(p.client||'').trim().toLowerCase()));
@@ -228,13 +228,13 @@ function billBoxes(p){
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'✓':''}</button>`;
   const box=(k,title,body,on,lock,tip)=>`<div class="pb-box${on?' skip':''}"><div class="pb-t">${title}</div>${on?'<span class="statuspill p-mute">Nem kell</span>':body}${tick(k,on,lock,tip)}</div>`;
   const contract=i.fw?fwCell(i.fw,'pb-c'):`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
-    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:''}<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ ${b.contractUrl?'Új szerződés feltöltése':'Szerződés feltöltése'}</button>
+    ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:''}${b.contractUrl?'':'<span class="cdrop-tip">📥 Húzd ide a szerződést</span>'}<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>
     ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}</div>`;
   const adv=(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''))
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI]&&i.steps[i.nextI][0]==='advIssued');
   const fin=i.fin?invLine(i.fin):billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
   const dots=`<div class="bl-dots">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
-  return {i,b,contract:`${box('contract','Szerződés',i.fw?contract+`<button class="linkbtn bl-up" type="button" data-action="bill-edit" data-id="${pid}" data-focus="file">⬆️ Új szerződés feltöltése</button>`:contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}`,adv:`${i.free?`<div class="pb-box skip"><div class="pb-t">Díjbekérő / foglaló</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div><div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div>`:`${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
+  return {i,b,contract:`${skipC?'':`<div class="cdrop" data-cdrop="${pid}">`}${box('contract','Szerződés',i.fw?contract+'<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>':contract,skipC,!!i.fw||b.contractStatus==='alairva'||!!b.contractUrl,'Nem kell szerződés?')}${skipC?'':'</div>'}`,adv:`${i.free?`<div class="pb-box skip"><div class="pb-t">Díjbekérő / foglaló</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div><div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">🎁 Nem fizetős projekt</span></div>`:`${box('adv',`Díjbekérő / foglaló${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,adv,skipA,!!(i.db||i.el),'Nem kell díjbekérő?')}
 ${i.full&&!i.fin?`<div class="pb-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`:box('fin',`${skipA?'Számla':'Végszámla'}${val&&!skipF?(skipA?` <span class="muted">${ftFmt(val)} nettó</span>`:` <span class="muted">${100-num(b.advancePct)}% · ${ftFmt(Math.round(val*(100-num(b.advancePct))/100))} nettó</span>`):''}`,fin,skipF,!!i.fin,skipA?'Nem kell számla?':'Nem kell végszámla?')}`}`,state:`<div class="pb-box"><div class="pb-t">Állapot</div>${dots}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span>${i.openSum?`<div class="bl-meta">kintlévő: <b>${ftFmt(i.openSum)}</b>${i.lateSum?` · <span class="bad-txt">lejárt: ${ftFmt(i.lateSum)}</span>`:''}</div>`:''}</div>`};
 }
 function projBillingPanel(p){
@@ -467,25 +467,37 @@ async function impRun(){const L=(S._imp||[]).filter(o=>o.on&&!o.skip&&o.sel);if(
 /* Szerződés behúzása a Szerződés kártyára: utána rákérdez, keretszerződés vagy projekt alapú */
 const CDROP_OK=/\.(pdf|docx?|jpe?g|png|heic)$/i;
 const hasFiles=e=>!!(e.dataTransfer&&[...(e.dataTransfer.types||[])].includes('Files'));
-document.addEventListener('dragover',e=>{if(!hasFiles(e))return;const z=e.target.closest&&e.target.closest('[data-cdrop]');document.querySelectorAll('.cdrop.over').forEach(x=>{if(x!==z)x.classList.remove('over');});if(!z)return;e.preventDefault();e.dataTransfer.dropEffect='copy';z.classList.add('over');});
-document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.closest('[data-cdrop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('over');});
-document.addEventListener('drop',e=>{if(!hasFiles(e))return;const z=e.target.closest&&e.target.closest('[data-cdrop]');document.querySelectorAll('.cdrop.over').forEach(x=>x.classList.remove('over'));if(!z)return;e.preventDefault();
+document.addEventListener('dragover',e=>{if(!hasFiles(e))return;const z=e.target.closest&&e.target.closest('[data-cdrop],[data-cldrop]');document.querySelectorAll('.over[data-cdrop],.over[data-cldrop]').forEach(x=>{if(x!==z)x.classList.remove('over');});if(!z)return;e.preventDefault();e.dataTransfer.dropEffect='copy';z.classList.add('over');});
+document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.closest('[data-cdrop],[data-cldrop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('over');});
+document.addEventListener('drop',e=>{if(!hasFiles(e))return;const z=e.target.closest&&e.target.closest('[data-cdrop],[data-cldrop]');document.querySelectorAll('.over[data-cdrop],.over[data-cldrop]').forEach(x=>x.classList.remove('over'));if(!z)return;e.preventDefault();
   const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;
   if(!CDROP_OK.test(f.name)){toast('Szerződésként PDF, Word vagy kép tölthető fel.',true);return;}
   if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
-  contractDropModal(z.dataset.cdrop,f);});
+  if(z.dataset.cldrop!==undefined)clientContractDrop(z.dataset.cldrop,f,z);else contractDropModal(z.dataset.cdrop,f);});
 function contractDropModal(pid,file){const p=projById(pid);if(!p)return;const b=billOf(pid);
   openModal('Szerződés feltöltése – '+(p.name||''),`<p class="cd-file">📎 <b>${esc(file.name)}</b> <span class="muted">· ${Math.max(1,Math.round(file.size/1024))} KB</span></p>
     <div class="fields"><div class="field full"><span class="lbl">Milyen szerződés ez?</span><div class="cd-pick">
       <label class="cd-opt"><input type="radio" name="kind" value="projekt" checked><span><b>📄 Projekt alapú</b><small>Csak erre a projektre szól.</small></span></label>
       ${p.client?`<label class="cd-opt"><input type="radio" name="kind" value="keret"><span><b>🤝 Keretszerződés</b><small>${esc(p.client)} további projektjeinél sem kérünk külön szerződést.</small></span></label>`:''}</div></div>
-    ${mf('signedAt','Aláírás dátuma',{type:'date',v:b.signedAt||todayISO()})}
-    <div class="field cd-valid" hidden>${'<label for="m-fwValidTo">Érvényes eddig (üresen: határozatlan)</label><input class="inp" id="m-fwValidTo" name="fwValidTo" type="date">'}</div></div>`,
+    <div class="field full cd-valid" hidden>${'<label for="m-fwValidTo">Érvényes eddig (üresen: határozatlan)</label><input class="inp" id="m-fwValidTo" name="fwValidTo" type="date">'}</div></div>`,
   {submitLabel:'Feltöltés',submit:async fd=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
-    try{const b64=await readB64(file),signedAt=fd.get('signedAt')||'';
-      if(fd.get('kind')==='keret'){await call('fwSave',{client:p.client,signedAt,validTo:fd.get('fwValidTo')||'',b64,name:file.name,mime:file.type||'application/octet-stream'});
+    try{const b64=await readB64(file);
+      if(fd.get('kind')==='keret'){await call('fwSave',{client:p.client,validTo:fd.get('fwValidTo')||'',b64,name:file.name,mime:file.type||'application/octet-stream'});
         const r=await call('billSave',{projectId:pid,contractStatus:''});closeModal();S.clDocs=null;finApply(r);toast('Keretszerződés rögzítve: '+p.client);return;}
       await call('billUpload',{projectId:pid,name:file.name,mime:file.type||'application/octet-stream',b64,contractStatus:'alairva'});
-      const r=await call('billSave',{projectId:pid,contractStatus:'alairva',signedAt});closeModal();finApply(r);toast('Szerződés feltöltve: '+p.name);}
+      const r=await call('billSave',{projectId:pid,contractStatus:'alairva'});closeModal();finApply(r);toast('Szerződés feltöltve: '+p.name);}
     catch(err){handleErr(err);if(btn){btn.disabled=false;btn.textContent='Feltöltés';}}}});}
 document.addEventListener('change',e=>{if(e.target.name==='kind'&&e.target.closest('.cd-pick')){const v=document.querySelector('.cd-valid');if(v)v.hidden=e.target.value!=='keret';}});
+
+/* Ügyfél szerződése: behúzással egyből feltöltjük (az ügyfél Keretszerződés mappájába) */
+async function clientContractDrop(client,file,zone){if(!client)return;
+  if(zone){zone.classList.add('busy');zone.dataset.txt=zone.textContent;}
+  try{const b64=await readB64(file);const d=await call('fwSave',{client,b64,name:file.name,mime:file.type||'application/octet-stream'});finApply(d);
+    S.clDocs=null;S._clDocsForce=true;S._clDocsLoading=false;toast('Szerződés feltöltve: '+client);
+    if($('modalRoot').innerHTML&&document.querySelector('.cl-docs')){closeModal();clDocsReopen(client);}else render(true);}
+  catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}}
+function clDocsReopen(client){const go=()=>{if(S.clDocs){render(true);clDocsModal(client);}else setTimeout(go,400);};clDir(client);go();}
+ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.dataset.client;
+  confirmModal('Szerződés törlése',`A(z) „${name}” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.`,'Törlés',async()=>{
+    try{const d=await call('clientDocDelete',{url});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();closeModal();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');render(true);clDocsModal(client);}
+    catch(e){handleErr(e);}});};

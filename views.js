@@ -925,16 +925,17 @@ function clDocs(c,ps){const f=fwOfClient(c.company),dir=clDir(c.company),docs=((
   return {f,dir,docs};}
 const docLabel=d=>(d.kind==='keret'?'Keretszerződés':'Szerződés')+(/_EV([_.\s]|$)/.test(d.name)?' (E.V.)':'');
 function clContract(c,ps){
-  const {f,dir,docs}=clDocs(c,ps),cl=esc(c.company),edit=`<button class="editbtn" type="button" data-action="fw-client" data-client="${cl}" aria-label="Módosítás" data-tip="Szerződés feltöltése / beállítása">✏️</button>`;
+  const {f,dir,docs}=clDocs(c,ps),cl=esc(c.company),edit='';
   if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}" checked> Nem kell szerződés</label></div>`;
-  if(docs.length>1)return `<div class="cl-ctr"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
-  if(docs.length)return `<div class="cl-ctr"><a class="bl-file" href="${esc(docs[0].url)}" target="_blank" rel="noopener" data-tip="${esc(docs[0].name)}">📄 ${esc(docLabel(docs[0]))} ↗</a>${edit}</div>`;
-  return `<div class="cl-ctr"><button class="btn outline small" type="button" data-action="fw-client" data-client="${cl}">⬆️ Feltöltés</button></div>`;
+  if(docs.length>1)return `<div class="cl-ctr" data-cldrop="${cl}"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
+  if(docs.length)return `<div class="cl-ctr" data-cldrop="${cl}"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}" data-tip="${esc(docs[0].name)}">📄 ${esc(docLabel(docs[0]))}</button></div>`;
+  return `<div class="cl-ctr cl-dropcell" data-cldrop="${cl}"><span class="cdrop-tip">📥 Húzd ide</span><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}"> Nem kell</label></div>`;
 }
 function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{company:name};const ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===name.toLowerCase());
   const {dir,docs}=clDocs(c,ps);
-  openModal('Szerződések – '+name,`<div class="cl-docs">${docs.map(d=>`<a class="cl-doc" href="${esc(d.url)}" target="_blank" rel="noopener"><span class="cl-doc-k">${d.folder?'🗂️':'📄'} ${esc(docLabel(d))}</span><span class="cl-doc-n">${esc(d.name)}</span><span class="cl-doc-d">${esc(d.date||'')}</span></a>`).join('')}</div>
-    <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}<button class="mini" type="button" data-action="fw-client" data-client="${esc(name)}">⬆️ Új szerződés feltöltése</button><button class="mini" type="button" data-action="tig-new" data-client="${esc(name)}">📝 TIG kiállítása</button></div>`,{cancelLabel:'Bezárás'});}
+  openModal('Szerződések – '+name,`<div class="cl-docs">${docs.map(d=>`<div class="cl-doc-row"><a class="cl-doc" href="${esc(d.url)}" target="_blank" rel="noopener"><span class="cl-doc-k">${d.folder?'🗂️':'📄'} ${esc(docLabel(d))}</span><span class="cl-doc-n">${esc(d.name)}</span><span class="cl-doc-d">${esc(d.date||'')}</span></a>${d.folder?'':`<button class="trash" type="button" data-action="cl-doc-del" data-url="${esc(d.url)}" data-name="${esc(d.name)}" data-client="${esc(name)}" aria-label="Szerződés törlése" title="Törlés">🗑️</button>`}</div>`).join('')||'<p class="hint" style="margin:0">Még nincs szerződés.</p>'}</div>
+    <div class="cl-drop" data-cldrop="${esc(name)}">📥 Új szerződés: húzd ide a fájlt<span class="cdrop-hint">Engedd el a feltöltéshez</span></div>
+    <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}<button class="mini" type="button" data-action="tig-new" data-client="${esc(name)}">📝 TIG kiállítása</button></div>`,{cancelLabel:'Bezárás'});}
 
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){
