@@ -135,7 +135,7 @@ test('crew card order is saved, de-duplicated and limited to existing crew',()=>
 
 test('users: no PIN anywhere – new user gets only a Google invite, old PIN hashes are stripped',()=>{
   run(`var INV=[];sendInviteMail_=u=>INV.push(u.email);PROPS['LUMOS_PM_USERS_V1']=JSON.stringify([{id:'old-1',name:'Régi',role:'editor',email:'regi@x.hu',salt:'s',hash:'h',disabled:false}]);
-    var su=saveUser_({name:'Új Kolléga',role:'editor',email:'uj@x.hu',sendInvite:true});`);
+    var su=saveUser_({name:'Új Kolléga',role:'crew',crewId:'bence-123',email:'uj@x.hu',sendInvite:true});`);
   assert.deepEqual(json('INV'),['uj@x.hu']);
   const stored=JSON.parse(run("PROPS['LUMOS_PM_USERS_V1']"));
   assert(stored.every(u=>!('salt' in u)&&!('hash' in u)));
