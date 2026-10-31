@@ -1,6 +1,6 @@
 'use strict';
 /* ===== Konstansok ===== */
-const STAGES=[{id:'egyeztetes',label:'Egyeztetés'},{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Videók jóváhagyásra várnak'},{id:'atadva',label:'Kész'}];
+const STAGES=[{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Videók jóváhagyásra várnak'},{id:'atadva',label:'Kész'}];
 /* Kötelező alapadatok (a jegyzetek kivételével). Mentéskor a felület ellenőrzi. */
 const REQ_FIELDS=[['name','Projekt neve'],['venue','Helyszín'],['client','Ügyfél'],['eventType','Rendezvény típusa'],['contactName','Kapcsolattartó'],['contactPhone','Kapcsolattartó telefonja'],['contactEmail','Kapcsolattartó e-mail-címe'],['date','Első nap'],['endDate','Utolsó nap'],['startTime','Érkezés a helyszínre'],['endTime','Hozzávetőleges távozási óra']];
 function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
@@ -137,7 +137,7 @@ function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
 /* A helyszínen lévők: a távolról vezető projektvezető (ha nincs más szerepe a projekten) nem ütközik más munkával */
 const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&!(p.crew||[]).some(c=>c.crewId===p.lead));
-function onSiteIds(p){const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);return s;}
+function onSiteIds(p){const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);if(!p.editOnsite)[...s].forEach(id=>{if(isPostOnly(p,id))s.delete(id);});return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -187,7 +187,7 @@ function gapBetween(p,q){
 }
 function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&onSiteIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
 const tightText=g=>g.gap<TRAVEL_RED_MIN?`Nincs idő a helyszínváltásra: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`:`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
-function busyFor(personId,p){const r=pr(p);if(!r)return [];if(remoteLead(p)&&p.lead===personId)return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&onSiteIds(q).has(personId));}
+function busyFor(personId,p){const r=pr(p);if(!r)return [];if(remoteLead(p)&&p.lead===personId)return [];if(!p.editOnsite&&isPostOnly(p,personId))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&onSiteIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
   const T=todayISO(),out=[],live=liveProjects();

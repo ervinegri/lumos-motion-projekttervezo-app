@@ -192,7 +192,7 @@ button.stage-tick:hover::after{opacity:1}
 .stage .n{font-size:10px;font-weight:800;color:var(--fg-3);letter-spacing:.08em;text-transform:uppercase}
 .stage .t{font-weight:760;font-size:14px}
 .stage.done{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
-.stage.done .n{color:var(--accent)}
+.stage.done .n{color:var(--accent)}.stage.done.ticked{background:#f1f3f4;border-color:#d5dadd;color:#7a868d}.stage.done.ticked .n{color:#9aa4aa}
 .stage.cur{background:var(--accent);border-color:var(--accent);color:#fff}
 .stage.cur .n{color:#fff;opacity:.8}
 
@@ -702,7 +702,7 @@ button.cl-name{font-weight:750;font-size:inherit;text-align:left;padding:0;displ
 .btn.is-busy::before,button.is-busy::before{content:"";display:inline-block;width:13px;height:13px;margin-right:8px;vertical-align:-2px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:szSpin .7s linear infinite}
 .btn.is-busy::after,button.is-busy::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:szShimmer 1.1s linear infinite;pointer-events:none}
 .btn.outline.is-busy::after{background:linear-gradient(90deg,transparent,rgba(47,138,87,.14),transparent)}
-.bs-in{font-weight:500;font-size:12px;color:var(--fg-2);margin-left:4px}.bs-in.late{color:#b33;font-weight:650}.tig-cl{display:flex;flex-direction:column;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px}.tig-cl>span{font-size:12px;color:var(--fg-2)}.tm-save{display:flex;flex-direction:column;gap:4px;font-size:13.5px}.tm-save label{display:inline-flex;gap:8px;align-items:center;width:auto;cursor:pointer}.sz-searching{display:flex;align-items:center;gap:10px;background:#f4f8f6;border:1px dashed #b9d7c5;border-radius:10px;padding:8px 10px;color:var(--fg-2);overflow:hidden;position:relative}
+.bs-in{font-weight:500;font-size:12px;color:var(--fg-2);margin-left:4px}.bs-in.late{color:#b33;font-weight:650}.done-check{display:inline-grid;place-items:center;width:1.15em;height:1.15em;border-radius:50%;background:#2f8a57;color:#fff;font-size:.7em;font-weight:900;vertical-align:.12em;margin-left:6px}@keyframes calInL{from{opacity:.3;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes calInR{from{opacity:.3;transform:translateX(-28px)}to{opacity:1;transform:none}}.cal-grid.cal-slide-l{animation:calInL .22s ease-out}.cal-grid.cal-slide-r{animation:calInR .22s ease-out}.cal-grid{touch-action:pan-y}.tig-cl{display:flex;flex-direction:column;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px}.tig-cl>span{font-size:12px;color:var(--fg-2)}.tm-save{display:flex;flex-direction:column;gap:4px;font-size:13.5px}.tm-save label{display:inline-flex;gap:8px;align-items:center;width:auto;cursor:pointer}.sz-searching{display:flex;align-items:center;gap:10px;background:#f4f8f6;border:1px dashed #b9d7c5;border-radius:10px;padding:8px 10px;color:var(--fg-2);overflow:hidden;position:relative}
 .sz-searching::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(47,138,87,.12),transparent);animation:szShimmer 1.2s linear infinite}
 @keyframes szShimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 .sz-radar{width:16px;height:16px;border-radius:50%;border:2px solid #2f8a57;border-top-color:transparent;animation:szSpin .7s linear infinite;flex:0 0 16px}

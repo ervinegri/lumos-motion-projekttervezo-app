@@ -64,7 +64,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -109,7 +109,7 @@ const TABLES = {
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] }
 };
 const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing', 'invNet', 'invGross', 'invPaid', 'advancePct']);
-const BOOL_FIELDS = new Set(FLAGS.concat(['legacy', 'leadRemote']));
+const BOOL_FIELDS = new Set(FLAGS.concat(['legacy', 'leadRemote', 'editOnsite']));
 const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
 const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', leadva: 'Videók leadva', jovahagyas: 'Videók jóváhagyásra várnak', atadva: 'Kész', lemondva: 'Lemondva' };
@@ -593,6 +593,7 @@ function projectView_(p, u) {
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
   q.crewDays = parseCrewDays_(q.crewDays);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
+  if (!q.status || q.status === 'egyeztetes') q.status = 'tervezes';   // az „Egyeztetés” lépés megszűnt: a tervezés az első
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; q.extras = parseExtras_(q.extras); } else delete q.extras;
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees);
@@ -1058,10 +1059,10 @@ function saveProject_(u, a) {
     endTime: /^\d{2}:\d{2}$/.test(str_(a.endTime, 5)) ? str_(a.endTime, 5) : '',
     lastStartTime: /^\d{2}:\d{2}$/.test(str_(a.lastStartTime, 5)) ? str_(a.lastStartTime, 5) : '',
     lastEndTime: /^\d{2}:\d{2}$/.test(str_(a.lastEndTime, 5)) ? str_(a.lastEndTime, 5) : '',
-    cancelReason: str_(a.cancelReason, 1000), leadRemote: !!a.leadRemote,
+    cancelReason: str_(a.cancelReason, 1000), leadRemote: !!a.leadRemote, editOnsite: !!a.editOnsite, rawSentAt: /^\d{4}-\d{2}-\d{2}$/.test(String(a.rawSentAt || '')) ? String(a.rawSentAt) : '',
     hours: (function () { const s = /^(\d{2}):(\d{2})$/.exec(str_(a.startTime, 5)), e = /^(\d{2}):(\d{2})$/.exec(str_(a.endTime, 5));   // távozási óra → munkaórák
       if (s && e) { let m = (+e[1] * 60 + +e[2]) - (+s[1] * 60 + +s[2]); if (m <= 0) m += 1440; return Math.min(16, Math.max(1, Math.round(m / 60))); } return int_(a.hours, 1, 16, 8); })(),
-    status: STATUSES.indexOf(a.status) >= 0 ? a.status : 'egyeztetes',
+    status: STATUSES.indexOf(a.status) >= 0 && a.status !== 'egyeztetes' ? a.status : 'tervezes',
     prevStatus: STATUSES.indexOf(a.prevStatus) >= 0 ? a.prevStatus : '',
     lead: str_(a.lead, 64),
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
@@ -2712,6 +2713,53 @@ const SIG_ALIAS_ = { 'zajacz.david@lumosmotion.com': 'david.zajacz@lumosmotion.c
 const signatureFor_ = u => { const m = String((u && u.email) || '').toLowerCase(); return SIGNATURES[m] || SIGNATURES[SIG_ALIAS_[m]] || null; };
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
+/** Nyersanyag feltöltve – e-mail a vágó(k)nak. a: {projectId, crewIds:[], link, text} */
+function rawNotify_(u, a) {
+  a = a || {};
+  const sh = sheetFor_('projects'), row = findRow_(sh, str_(a.projectId, 64)); if (!row) throw new Error('A projekt nem található.');
+  const p = readRow_('projects', sh, row), crew = byId_(readAll_('crew'));
+  const ids = (Array.isArray(a.crewIds) ? a.crewIds : []).map(x => str_(x, 64)), to = ids.map(id => crew[id] && crew[id].email).filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(e || '')));
+  if (!to.length) throw new Error('A kiválasztott vágónak nincs e-mail-címe a Stáb listában.');
+  const link = /^https:\/\//i.test(String(a.link || '')) ? str_(a.link, 500) : '', text = str_(a.text, 5000), sig = signatureFor_(u);
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>' + (sig ? '<br>' + sig.html : '');
+  const opts = mailOptsFor_(u, html); delete opts.__actor;
+  GmailApp.sendEmail(to.join(','), '🎬 Nyersanyag feltöltve – ' + p.name, text + (sig ? '\n\n' + sig.text : ''), opts);
+  logEvent_(u, 'Nyersanyag feltöltve', p.name, 'E-mail a vágónak: ' + to.join(', ') + (link ? ' · ' + link : ''));
+  return { sentTo: to };
+}
+/** A vágó leadja a videókat: link + értesítés az ügyvezetőnek és/vagy a termelési vezetőnek; a projekt „Videók jóváhagyásra várnak” lesz. a: {projectId, link, note, notify:['admin','editor']} */
+function crewDeliver_(u, a) {
+  a = a || {};
+  const pid = str_(a.projectId, 64), link = str_(a.link, 500);
+  if (!/^https:\/\/\S+$/i.test(link)) throw new Error('A videók linkje https:// kezdetű legyen.');
+  const isCutter = readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó');
+  if (u.role !== 'admin' && u.role !== 'editor' && !isCutter) throw new Error('Csak a projekt vágója adhatja le a videókat.');
+  const notify = (Array.isArray(a.notify) ? a.notify : []).filter(x => x === 'admin' || x === 'editor');
+  if (!notify.length) throw new Error('Válaszd ki, kinek menjen értesítés.');
+  let p;
+  withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    p = readRow_('projects', sh, row);
+    if (p.status === 'atadva' || p.status === 'lemondva') throw new Error('A projekt már le van zárva.');
+    p.deliveryLink = link; if (a.note !== undefined) p.deliveryNotes = str_(a.note, 3000);
+    p.status = 'jovahagyas'; p.leadvaAt = p.leadvaAt || today_();
+    const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(',');
+    p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
+    putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
+  });
+  const to = []; try { loadUsers_().forEach(x => { if (!x.disabled && x.email && notify.indexOf(x.role) >= 0 && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
+  if (to.length) {
+    const url = (appUrl_() || FRONTEND_URL) + '#p=' + pid, note = str_(a.note, 3000);
+    const text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + link + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>';
+    const opts = mailOptsFor_(u, html); delete opts.__actor;
+    try { GmailApp.sendEmail(to.join(','), '📤 Videók leadva – ' + p.name, text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
+  }
+  logEvent_(u, 'Videók leadva', p.name, link + (to.length ? ' · értesítve: ' + to.join(', ') : ''));
+  return { project: projectView_(fullProject_(p), u), notified: to };
+}
 /** Meghívó Google-fiókos belépéshez (PIN nélkül). */
 function sendInviteMail_(user) {
   const url = appUrl_() || FRONTEND_URL;
@@ -2985,6 +3033,8 @@ function rpcInner_(token, name, arg) {
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
+    case 'rawNotify': canEdit(); return rawNotify_(u, arg);
+    case 'crewDeliver': return crewDeliver_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
