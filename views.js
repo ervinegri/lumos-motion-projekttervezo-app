@@ -696,7 +696,7 @@ function viewProject(p){
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
   <div class="dfull">
-      ${delivery&&['leadva','jovahagyas','atadva'].includes(status)?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${vidLink(p,'btn primary','⬇️ Videók letöltése ↗')}</div>`:''}
+      ${delivery&&['leadva','jovahagyas','atadva'].includes(status)?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${vidLink(p,'btn primary','▶️ Videók megnyitása ↗')}</div>`:''}
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}

@@ -35,9 +35,14 @@ function finProjectRow(p){const st=finSet(),amount=projTotal(p),prod=Math.round(
   const ceo=Math.round(amount*(cp??st.ceoPct)/100),marketing=Math.round(amount*st.marketingPct/100);
   let profit,rezsi;if(rp!=null){rezsi=Math.round(amount*rp/100);profit=amount-prod-ceo-marketing-rezsi;}else{profit=Math.round(amount*st.profitPct/100);rezsi=amount-profit-ceo-marketing-prod;}
   return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,profit,ceo,marketing,rezsi,ceoOv:cp!=null,rezsiOv:rp!=null};}
+/* Régi táblázat sora ↔ projekt: közös jellemző szó a névben (ügyfél, helyszín is számít), a gyakori szavak nélkül */
+const LEG_STOP=new Set('technikai ugyelet konferencia rendezveny webinar stream short video videok forgatas podcast hibrid masodik eloadas youtube napja workshop kiallitas esemeny budapest hungary kft zrt bt nonprofit egyesulet alapitvany tagozat levelezo akademia gala unnepseg evzaro fesztival expo talalkozo csoportos and the of az es db 2024 2025 2026 2027 ak tal csop ut utca ter krt hotel center etterem kavehaz'.split(' '));
+const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(w=>w.length>=2&&!LEG_STOP.has(w));
+const legHit=(a,b)=>a.some(x=>b.some(y=>x===y||(x.length>=5&&y.startsWith(x))||(y.length>=5&&x.startsWith(y))));
 function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth;
   const fromApp=!appFrom||m>=appFrom;
-  const proj=fromApp?S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&(projTotal(p)||feeSum(p))).map(finProjectRow):[];
+  const legT=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy).map(r=>legTok(r.name));
+  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&(projTotal(p)||feeSum(p))&&(fromApp||!legT.some(l=>legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
   const manual=(fin.income||[]).filter(r=>r.month===m&&(r.legacy?!fromApp:true)).map(r=>Object.assign({kind:'manual'},r,{amount:num(r.amount),prod:num(r.prod),profit:num(r.profit),ceo:num(r.ceo),marketing:num(r.marketing),rezsi:Number(r.rezsi)||0}));
   const dayN=x=>parseInt(x.day,10)||99;
   return proj.concat(manual).sort((a,b)=>dayN(a)-dayN(b)||a.name.localeCompare(b.name,'hu'));}
