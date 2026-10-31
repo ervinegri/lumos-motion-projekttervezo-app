@@ -67,7 +67,7 @@ async function finExpDedupe(){if(S._expDedupe||!S.fin||!S.fin.expense)return;con
     if(typeof opRec==='function')opRec(`duplikált kiadások törlése (${del.length})`,()=>finRestore('expense',ids,before),()=>finRestore('expense',ids,ids.map(id=>{const u=upd.find(x=>x.id===id);return u?clone(u):null;})));
     toast(`${del.length} duplikált kiadás törölve (az ismétlődő tétel megmaradt) – Ctrl+Z visszahozza`);}
   catch(e){handleErr(e);finLoad(true);}finally{S._expDedupe=false;render(true);}}
-function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||a.name.localeCompare(b.name,'hu'));}
+function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||num(b.amount)-num(a.amount)||a.name.localeCompare(b.name,'hu'));}   // fix elöl, összeg szerint csökkenő
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
 const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.round(Number(v)/base*100);return `<span class="pct${x<0?' neg':''}">${x<0?'−':''}${Math.abs(x)}%</span>`;};
 /* Módosítható %: értékesítés és eszköz-rezsi (a termelés % fix, a díjakból jön). Üresre törölve visszaáll az alapértékre. */
@@ -121,7 +121,9 @@ function viewFinance(){
         <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Tétel</th><th>Típus</th><th class="r">Összeg</th></tr></thead><tbody>${expRows(l)||'<tr><td colspan="3" class="empty-row">Nincs kiadás ebben a hónapban.</td></tr>'}</tbody>
           <tfoot><tr><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0}</b></td></tr>
           ${(()=>{const mk=fund==='marketing',keret=mk?bal.carryMkt+bal.inMkt:bal.carryRezsi+bal.inRezsi,end=keret-sumK(l,'amount');
-            return `<tr class="fin-keret"><td colspan="2">Havi keret <span class="muted">(az előző hónapok áthozatával: ${sFt(mk?bal.carryMkt:bal.carryRezsi)} + e havi ${sFt(mk?bal.inMkt:bal.inRezsi)})</span></td><td class="r${keret<0?' bad-txt':''}"><b>${sFt(keret)}</b></td></tr>
+            const inM=mk?bal.inMkt:bal.inRezsi,car=mk?bal.carryMkt:bal.carryRezsi;
+            return `<tr class="fin-keret"><td colspan="2"><b>Havi ${mk?'marketing':'eszköz, rezsi'} keret</b> <span class="muted">(e havi bevételekből)</span></td><td class="r"><b>${sFt(inM)}</b></td></tr>
+            <tr class="fin-keret"><td colspan="2">Áthozat az előző hónapokból</td><td class="r${car<0?' bad-txt':''}">${sFt(car)}</td></tr>
             <tr class="fin-end ${end<0?'neg':'pos'}"><td colspan="2"><b>${end<0?'🔻 Mínuszban vagyunk':'✅ Maradék a keretből'}</b></td><td class="r"><b>${end<0?'−'+ftFmt(-end):ftFmt(end)}</b></td></tr>`;})()}</tfoot></table></div>
         <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-exp-new" data-fund="${fund}">+ Kiadás</button></div></div>`;};
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
@@ -192,7 +194,7 @@ function finExpenseModal(e){const v=e||{},m=S.finMonth;if(e&&!e.id)e=null;
     ${mf('name','Megnevezés',{full:true,v:v.name,max:200,ph:'pl. Könyvelő'})}
     ${moneyField('amount','Összeg (nettó)',v.amount,{steps:false})}
     <input type="hidden" name="fund" value="${v.fund==='marketing'?'marketing':'rezsi'}">
-    ${ms('kind','Típus',[['egyszeri','Egyszeri (csak ebben a hónapban)'],['fix','Havi fix (minden hónapban, amíg meg nem szünteted)']],v.kind||'egyszeri',{full:true})}
+    ${ms('kind','Típus',[['egyszeri','Egyszeri (csak e hónap)'],['fix','Havi fix (ismétlődő)']],v.kind||'egyszeri')}
   </div>${e&&e.kind==='fix'?`<p class="hint" style="margin:0">Fix tétel: ${esc(e.from)}${e.to?' – '+esc(e.to):' óta'}. Ha az összeget módosítod, a változás <b>${esc(F_YM.format(toDate(m+'-01')))}</b> hónaptól érvényes, a korábbi hónapok nem változnak.</p>`:''}`,
   {left:e?`<button type="button" class="btn danger small" data-action="fin-exp-del" data-id="${esc(e.id)}">${e.kind==='fix'&&e.from<m?'Megszüntetés ettől a hónaptól':'Törlés'}</button>`:'',submitLabel:'Mentés',submit:async fd=>{
     const amount=num(moneyVal(fd.get('amount'))),name=String(fd.get('name')||'').trim(),fund=fd.get('fund'),kind=fd.get('kind');if(!amount){toast('Add meg az összeget.',true);return;}
