@@ -334,7 +334,7 @@ function szInvoiceModal(kind,id,o={}){
   openModal((SZ_KIND[type]||'Számla')+' kiállítása – '+t.name,`<div class="fields">
     <div class="field full"><label for="m-issuer">Kiállító</label><select class="inp" id="m-issuer" name="issuer"><option value="kft" selected>Lumos Motion Kft.</option><option value="ev" disabled>Egri Ervin E.V. – még nincs bekötve a számlázz.hu-hoz</option></select></div>
     ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
-    <div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+    ${kind==='project'?`<input type="hidden" id="m-szClient" value="${esc((cls.find(c=>c.name===b.name)||{}).id||'')}">`:`<div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>`}
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
     ${mf('bEmail','E-mail – a cég képviselője (ide megy a számla)',{v:b.email,max:160,type:'email'})}
     ${mf('bEmail2','Második e-mail (pl. pénzügy)',{v:b.email2&&b.email2!==b.email?b.email2:'',max:160,type:'email',ph:'penzugy@ceg.hu'})}
@@ -540,7 +540,7 @@ document.addEventListener('change',e=>{const t=e.target;if(t.closest&&t.closest(
 /* A vevő neve, adószáma és címe az ügyféladatokból (számlázz.hu) jön – nem írható át; csak kézi megadásnál szerkeszthető */
 function szBuyerLock(){const sel=$('m-szClient');if(!sel)return;const lock=!!sel.value&&!!(($('m-bName')||{}).value||'').trim();
   ['m-bName','m-bTax','m-bZip','m-bCity','m-bAddr'].forEach(k=>{const e=$(k);if(e){e.readOnly=lock;e.classList.toggle('ro-inp',lock);}});
-  const h=$('sz-buyer-lock');if(h)h.textContent=lock?'🔒 A vevő adatai az ügyféltörzsből jönnek. Más vevőhöz válaszd a „kézi megadás”-t.':'';}
+  const h=$('sz-buyer-lock');if(h)h.textContent=lock?(sel.type==='hidden'?'🔒 A vevő a projekt ügyfele – az adatai az ügyféltörzsből jönnek. Más vevőhöz a projekt ügyfelét módosítsd.':'🔒 A vevő adatai az ügyféltörzsből jönnek. Más vevőhöz válaszd a „kézi megadás”-t.'):'';}
 
 ACT['inc-to-proj']=b=>{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===b.dataset.id);if(!r)return;const d=parseInt(r.day,10);
   newProjectModal('',{name:r.name,amount:num(r.amount),date:r.month+'-'+String(d>=1&&d<=31?d:1).padStart(2,'0')});};
