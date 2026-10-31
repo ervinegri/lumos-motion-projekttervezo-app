@@ -2593,7 +2593,7 @@ function sendEquipmentList_(u, a) {
   const sentTo = [];
   const mine = cid => p.equipment.filter(x => x.crewId === cid && invMap[x.itemId]).map(x => x.qty + '× ' + invMap[x.itemId].name)
     .concat(rentals.filter(r => r.crewId === cid).map(r => r.name + (r.own ? ' (saját)' : ' (bérelt' + (r.company ? ', ' + r.company : '') + ')')));
-  const sig = signatureFor_(u), pNotes = parseNotes_(p.crewNotes);
+  const sig = signatureFor_(u), pNotes = parseNotes_(p.crewNotes), previews = [];
   recipients.forEach(cid => {
     const c = crewMap[cid];
     const first = String(c.name).trim().split(/\s+/).slice(-1)[0];
@@ -2612,9 +2612,11 @@ function sendEquipmentList_(u, a) {
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
       + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
+    if (a.preview) { previews.push({ id: cid, name: c.name, email: c.email, subject: subject, html: html }); return; }   // előnézet: nem küldjük el
     const opts = mailOptsFor_(u, html);
     if (gmailSend_(c.email, subject, text, opts, 'eqlist')) sentTo.push(c.name);
   });
+  if (a.preview) return { previews: previews };
   const when = now_(), info2 = sentTo.length + ' fő: ' + sentTo.join(', ');
   withLock_(() => {
     const r2 = findRow_(sh, id);

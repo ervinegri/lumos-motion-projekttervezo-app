@@ -108,7 +108,7 @@ document.addEventListener('input',e=>{if(['m-contactName','m-contactTitle','m-co
 /* A képviselő neve is a HubSpotban keres (név alapján, üresen a cég kapcsolatai) */
 let HSR_T=0,HSR_SEQ=0;
 async function hsRep(){const box=$('hsRep'),inp=$('m-rep');if(!box||!inp||inp.readOnly)return;const my=++HSR_SEQ,q=inp.value.trim(),client=(($('m-client')||{}).value||'').trim();
-  if(q.length<2&&client.length<2){box.innerHTML='';return;}box.innerHTML='<p class="hint">Keresés a HubSpotban…</p>';
+  if(q.length<2&&client.length<2){box.innerHTML='';return;}box.innerHTML=searchingHtml('Keresés a HubSpotban');
   try{const r=await call('hubspotContacts',q.length>=2?{q}:{q:'',client});if(my!==HSR_SEQ||!$('hsRep'))return;S._hsr=r||[];
     $('hsRep').innerHTML=S._hsr.length?S._hsr.slice(0,8).map((c,i)=>`<button type="button" class="hs-item" data-action="hs-rpick" data-i="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<p class="hint">Nincs találat a HubSpotban.</p>';}
   catch(e){if($('hsRep'))$('hsRep').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}}
@@ -156,13 +156,13 @@ async function hsInline(){   // az Új ügyfél / Ügyfél adatai ablakban: a be
   const box=$('hsInline');if(!box||box.style.display==='none')return;const my=++HS_SEQ;
   const q=($('m-contactName')||{}).value||'',client=($('m-client')||{}).value||'';
   if(q.trim().length<2&&client.trim().length<2){box.innerHTML='<p class="hint">Írd be a cégnevet vagy a kapcsolattartó nevét, és itt megjelennek a HubSpot-találatok.</p>';return;}
-  box.innerHTML='<p class="hint">Keresés a HubSpotban…</p>';
+  box.innerHTML=searchingHtml('Keresés a HubSpotban');
   try{const r=await call('hubspotContacts',q.trim().length>=2?{q:q.trim()}:{q:'',client:client.trim()});if(my!==HS_SEQ||!$('hsInline'))return;S._hsi=r||[];
     $('hsInline').innerHTML=S._hsi.length?S._hsi.map((c,i)=>`<button type="button" class="hs-item" data-action="hs-ipick" data-i="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):'<p class="hint">Nincs találat a HubSpotban.</p>';}
   catch(e){if($('hsInline'))$('hsInline').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
 async function hsSearch(q){
-  const box=$('hsList');if(!box)return;const my=++HS_SEQ;box.innerHTML='<p class="hint">Keresés…</p>';
+  const box=$('hsList');if(!box)return;const my=++HS_SEQ;box.innerHTML=searchingHtml('Keresés a HubSpotban');
   try{const r=await call('hubspotContacts',{q,client:(S.draft&&S.draft.client)||''});if(my!==HS_SEQ||!$('hsList'))return;S._hs=r||[];
     $('hsList').innerHTML=S._hs.length?S._hs.map((c,i)=>`<button type="button" class="hs-item" data-action="hs-pick" data-i="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join('')
       :`<p class="hint">${q?'Nincs találat.':'Az ügyfél cégéhez nincs kapcsolattartó a HubSpotban – keress név vagy e-mail alapján.'}</p>`;}
@@ -396,7 +396,7 @@ function crewModal(c){
     catch(e){handleErr(e);}
   }});
 }
-function itemModal(it){
+function itemModal(it,after){
   const v=it||{};
   const uses=it?S.projects.filter(p=>eqQty(p,it.id)>0).length:0;
   openModal(it?'Eszköz szerkesztése':'Új eszköz',`<div class="fields">
@@ -412,7 +412,7 @@ function itemModal(it){
   submit:async(fd,form)=>{
     if(!needName(form,'Add meg az eszköz nevét.'))return;
     const data={id:it?it.id:uuid(),baseUpdatedAt:it?it.updatedAt:'',name:fd.get('name').trim(),category:fd.get('category'),qty:fd.get('qty'),condition:fd.get('condition'),value:moneyVal(fd.get('value')),serial:fd.get('serial').trim(),location:String(fd.get('location')||'').trim(),note:fd.get('note').trim()};
-    try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);closeModal();render(true);toast(it?'Mentve':'Eszköz felvéve');}
+    try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);closeModal();render(true);if(after)after(saved);else toast(it?'Mentve':'Eszköz felvéve');}
     catch(e){handleErr(e);}
   }});
 }
@@ -633,8 +633,8 @@ async function sendListModal(only){
     <div class="toggles" style="grid-template-columns:1fr">${rows}</div>
     <div class="field"><label for="m-msg">Üzenet (nem kötelező)</label><textarea class="inp" id="m-msg" name="message" placeholder="pl. Reggel 7-kor találkozunk a raktárnál."></textarea></div>
     ${String(p.techPlan||'').trim()?'<div class="rolepick"><label><input type="checkbox" name="plan" checked> Forgatási és technikai terv csatolása</label></div>':''}
-    ${p.listSentAt?`<p class="hint" style="margin:0">Utoljára kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}`,
-  {submitLabel:'Küldés',submit:async fd=>{
+    ${p.listSentAt?`<p class="hint" style="margin:0">Utoljára kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}<div id="eq-prev"></div>`,
+  {left:`<button type="button" class="btn outline small" data-action="eq-preview">👁 Előnézet</button>`,submitLabel:'Küldés',submit:async fd=>{
     const to=fd.getAll('to');if(!to.length){toast('Válassz ki legalább egy címzettet.',true);return;}
     try{
       await SAVE_Q;   // a még folyamatban lévő mentés előbb érjen be, hogy a friss lista menjen ki
@@ -1151,6 +1151,7 @@ document.addEventListener('change',e=>{
     crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__rent'){const key=t.dataset.eqAuto;t.value='';rentalModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__own'){const key=t.dataset.eqAuto;t.value='';ownGearModal(key);return;}
+  if(t.dataset.eqAuto!==undefined&&d&&t.value==='__new'){const key=t.dataset.eqAuto;t.value='';itemModal(null,saved=>{if(!S.draft)return;const equipment=clone(S.draft.equipment||[]);equipment.push({itemId:saved.id,qty:1,crewId:key});setDraft({equipment});toast('Felvéve a leltárba és hozzárendelve: '+saved.name);});return;}
   if(t.dataset.eqAuto!==undefined&&d){const id=t.value;if(!id)return;const key=t.dataset.eqAuto,equipment=clone(d.equipment||[]);const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);
     if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:id,qty:1,crewId:key});setDraft({equipment});return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}
@@ -1231,7 +1232,7 @@ document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout((
 /* ===== Kapcsolattartó: HubSpot-lenyíló (mint az Ügyfél mezőnél) ===== */
 let CT_T=0,CT_SEQ=0,CT_ITEMS=[];
 async function ctSearch(input){if(!S.draft)return;const q=input.value.trim(),my=++CT_SEQ;
-  pickShow(input,'<div class="hs-empty">Keresés a HubSpotban…</div>');
+  pickShow(input,searchingHtml('Keresés a HubSpotban'));
   try{const r=await call('hubspotContacts',q.length>=2?{q}:{q:'',client:String(S.draft.client||'')});if(my!==CT_SEQ||document.activeElement!==input)return;
     CT_ITEMS=(r||[]).slice(0,12);
     pickShow(input,CT_ITEMS.length?CT_ITEMS.map((c,i)=>`<button type="button" class="ct-item hs-item" data-ct="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone?phJoin(phParse(c.phone).cc,phParse(c.phone).n):'',c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):`<div class="hs-empty">${q.length>=2?'Nincs találat a HubSpotban – a beírt név marad.':'Kezdd el gépelni a nevet…'}</div>`);}
@@ -1302,7 +1303,7 @@ document.addEventListener('focusout',e=>{if(e.target.id==='m-venue')setTimeout((
 /* kapcsolattartó: HubSpot-kereső az ablakban is */
 let MCT_ITEMS=[],MCT_SEQ=0,MCT_T=0;
 async function mctSearch(input){const q=input.value.trim(),my=++MCT_SEQ,client=(($('m-clientSel')||{}).value==='__new'?($('m-client')||{}).value:($('m-clientSel')||{}).value)||'';
-  pickShow(input,'<div class="hs-empty">Keresés a HubSpotban…</div>');
+  pickShow(input,searchingHtml('Keresés a HubSpotban'));
   try{const r=await call('hubspotContacts',q.length>=2?{q}:{q:'',client:String(client)});if(my!==MCT_SEQ||document.activeElement!==input)return;
     MCT_ITEMS=(r||[]).slice(0,12);
     pickShow(input,MCT_ITEMS.length?MCT_ITEMS.map((c,i)=>`<button type="button" class="hs-item mct-item" data-mct="${i}"><b>${esc(c.name)}</b><small>${esc([c.company,c.title,c.phone?phJoin(phParse(c.phone).cc,phParse(c.phone).n):'',c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):`<div class="hs-empty">${q.length>=2?'Nincs találat a HubSpotban – a beírt név marad.':'Kezdd el gépelni a nevet…'}</div>`);}
@@ -1369,3 +1370,14 @@ ACT['cut-deliver']=()=>cutDeliverModal();
 
 ACT['copy-pass']=async b=>{const v=b.dataset.pass||'';try{await navigator.clipboard.writeText(v);}catch(e){const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(e2){}t.remove();}toast('Jelszó a vágólapon');};
 document.addEventListener('mouseover',e=>{const w=e.target.closest&&e.target.closest('.pass-wrap');if(!w)return;const pop=w.querySelector('.pass-pop'),r=w.getBoundingClientRect();if(pop){pop.style.left=Math.max(8,Math.min(r.left,innerWidth-260))+'px';pop.style.top=(r.bottom+48>innerHeight?r.top-44:r.bottom+6)+'px';}});   // a jelszó-buborék a görgethető táblázatból se lógjon ki
+/* Eszközlista: előnézet – pontosan az a levél, amit a kiválasztott címzett kap (a mentett adatokkal) */
+ACT['eq-preview']=async b=>{const f=$('mform'),p=S.draft||projById(S.projectId);if(!f||!p)return;const fd=new FormData(f),to=fd.getAll('to');if(!to.length){toast('Válassz ki legalább egy címzettet.',true);return;}
+  const box=$('eq-prev');if(box)box.innerHTML='<div class="sz-searching"><span class="sz-radar"></span><span>Előnézet készül<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>';
+  try{if(S.dirty&&!ro())saveDraft();await SAVE_Q;
+    const r=await call('sendEquipmentList',{projectId:p.id,recipients:to,message:String(fd.get('message')||'').trim(),includePlan:fd.get('plan')==='on',preview:true});S._eqPrev=r.previews||[];
+    if(!$('eq-prev'))return;$('eq-prev').innerHTML=`<div class="tig-prev-h"><b>Előnézet</b> <span class="muted">– így kapja meg:</span> <select class="inp eq-prev-sel" id="eq-prev-sel" style="width:auto;display:inline-block;padding:5px 8px;font-size:13px">${S._eqPrev.map((x,i)=>`<option value="${i}">${esc(x.name)} · ${esc(x.email)}</option>`).join('')}</select></div><div class="eq-prev-subj"></div><iframe class="tig-frame" title="E-mail előnézet" sandbox></iframe>`;eqPrevShow(0);$('eq-prev').scrollIntoView({behavior:'smooth',block:'start'});}
+  catch(e){if($('eq-prev'))$('eq-prev').innerHTML='';handleErr(e);}};
+function eqPrevShow(i){const x=(S._eqPrev||[])[i];const box=$('eq-prev');if(!x||!box)return;box.querySelector('.eq-prev-subj').innerHTML=`<span class="muted">Tárgy:</span> <b>${esc(x.subject)}</b>`;box.querySelector('iframe').srcdoc='<html><head><meta charset="utf-8"></head><body style="margin:16px">'+x.html+'</body></html>';}
+document.addEventListener('change',e=>{if(e.target.id==='eq-prev-sel')eqPrevShow(Number(e.target.value));});
+/* Keresés folyamatban: forgó jel, pontok és fénycsík (HubSpot, számlázz.hu, …) */
+function searchingHtml(t){return `<div class="sz-searching"><span class="sz-radar"></span><span>${esc(t)}<span class="sz-dots"><i>.</i><i>.</i><i>.</i></span></span></div>`;}
