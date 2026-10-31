@@ -539,7 +539,8 @@ const editorsOf=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(
 function rawMailModal(next){const d=S.draft;if(!d)return;const eds=editorsOf(d),r=pr(d),due=dueDate(d);
   const folder=d.folderId?'https://drive.google.com/drive/folders/'+d.folderId:'';
   const first=eds.length===1?String(eds[0].name).split(' ').slice(-1)[0]:'';
-  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga feltöltve${folder?':\n'+folder:'.'}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}\n\nHa kész, a projektnél a „📤 Videók leadása” gombbal add le.\n\nKöszi!`;
+  const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.label}: ${t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
+  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga feltöltve${folder?':\n'+folder:'.'}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél a „📤 Videók leadása” gombbal add le.\n\nKöszi!`;
   openModal('🎬 Nyersanyag feltöltve – e-mail a vágónak',`<div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>
     ${mf('rawLink','A nyersanyag linkje',{full:true,type:'url',v:folder,ph:'https://drive.google.com/…'})}
     <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="8" maxlength="5000">${esc(text)}</textarea></div></div>`,
@@ -1018,6 +1019,7 @@ const ACT={
   'rent-remove':b=>{const d=S.draft;if(!d)return;setDraft({rentals:(d.rentals||[]).filter(r=>r.id!==b.dataset.id)});},
   'undo':()=>histStep(-1),
   'op-undo':()=>opStep(-1),
+  'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];et[cid]=cur.includes(k)?cur.filter(x=>x!==k):cur.concat([k]);setDraft({editTasks:et});},
   'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},

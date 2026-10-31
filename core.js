@@ -37,8 +37,10 @@ const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
 const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Gimbal / állvány','Akku / powerbank / táp','Adathordozó','Laptop / tablet / telefon','Kocsi / szállítás','Kábel','Egyéb'];
 const CONDITIONS={ok:'Üzemképes',javitas:'Javításra vár',szerviz:'Szervizben',selejt:'Selejtezett'};
 const DELIVERABLES=[
+  {k:'int_sarok',label:'Interjúsarok videók',w:.20,max:15,g:'int'},
+  {k:'interju',label:'Kiállítói videók (imázsfilm)',w:.30,max:8,g:'int'},
+  {k:'int_resztvevo',label:'Résztvevői interjúk',w:.10,max:15,g:'int'},
   {k:'aftermovie',label:'Aftermovie',w:.33,max:3},
-  {k:'interju',label:'Interjúk / kiállítói imázsfilmek',w:.30,max:8},
   {k:'short60',label:'Short videó (40–60 mp)',w:.09,max:15},
   {k:'short30',label:'Short videó (30–40 mp)',w:.08,max:15},
   {k:'short15',label:'Short videó (15–20 mp)',w:.07,max:15}];
@@ -70,6 +72,23 @@ const postN=p=>num(p.er_post_n)||(p.er_post?1:0),fotoN=p=>num(p.x_foto_n)||(p.x_
 function stepPatch(d,k,n){if(k==='er_post_n')return {er_post_n:n,er_post:n>0};if(k==='x_foto_n')return {x_foto_n:n,x_foto:n>0};
   if((k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0)return {[k]:n,er_post:true,er_post_n:Math.max(1,postN(d))};return {[k]:n};}
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
+/* Terepi interjúforgatás (Interjúk / imázsfilmek videózása) */
+const INT_FLAGS=[
+  {k:'i_sarok',label:'Interjúsarok',sub:'Fix beállítás, fény és hang a helyszínen'},
+  {k:'i_stand',label:'Interjúztatás a standnál',sub:'Kiállítók megszólaltatása a saját standjuknál'}];
+/* Vágói munkák: a megrendelt utómunka tételei (kulcs, megnevezés, darab) */
+function postTasks(p){const t=[];if(!p)return t;
+  if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Termek előadásainak utómunkája',n:1});
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>t.push({k:it.k,label:it.label,n:num(p[it.k])}));
+  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)t.push({k:it.k,label:it.label,n});});
+  if(num(p.foto_db)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});
+  return t;}
+const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.parse(o):{};}catch(e){o={};}return o&&typeof o==='object'&&!Array.isArray(o)?o:{};};
+const cutterIds=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];
+/* Ki melyik munkát vágja: ha senkihez nincs semmi rendelve és egy vágó van, minden az övé */
+function taskKeysOf(p,cid){const et=editTasksOf(p),cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
+  if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).map(t=>t.k):[];return (et[cid]||[]).slice();}
+function taskOwners(p,k){return cutterIds(p).filter(id=>taskKeysOf(p,id).includes(k));}
 const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
