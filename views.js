@@ -621,7 +621,7 @@ function orderSummary(p){
   const post=postTasks(p).map(t=>`<li>${esc(t.label)}: <b>${t.n}${t.k==='foto_db'?' db':''}</b>${cutNm(t.k)}</li>`);
   if(p.x_rush)post.push(li('Villámgyors kézbesítés'));if(p.x_nyersTarolas)post.push(li('Nyersanyag tárolása 5 évig'));
   grp('🎬 Utómunka – átadandó anyagok',post);
-  return `<div class="order-sum"><h4 class="sub-h">📋 Összesítő – amit az ügyfél rendelt</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
+  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt Összesítő</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 function cutTasksBlock(p,cid){
@@ -738,8 +738,7 @@ function viewProject(p){
         ${cgrp('c_post_krea','🎞️ Kreatív tartalmak',nPostKreaG,`${dl}${p.x_rush?`<div class="toggles one" style="margin:10px 0">${tg('x_rush')}</div><p class="hint">A villámgyors kézbesítés már nem választható; ha kikapcsolod, eltűnik.</p>`:''}`)}
       </section>
     </div>
-    ${orderSummary(p)}
-  </details>`}
+  </details>${orderSummary(p)}`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
       <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'}</h3></summary>${financePanel(p,true)}</details>`;})()
