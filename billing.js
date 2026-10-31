@@ -98,7 +98,7 @@ function viewBilling(){
   if(!S.fin.billing)return `<div class="panel">${empty('A Szerződés és számlázás a legújabb háttérkód (Code.gs) bemásolása és új verzióként való telepítése után érhető el.')}</div>`;
   const f=S.blf||(S.blf={v:'honap',q:''}),q=f.q.trim().toLowerCase();
   const all=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).map(billInfo);
-  const curM=todayISO().slice(0,7);
+  const curM=f.m||todayISO().slice(0,7);
   const sets={honap:all.filter(i=>pr(i.p).start.slice(0,7)===curM),teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0),lejart:all.filter(i=>i.late.length),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
   const labels=[['honap','📅 '+F_YM.format(toDate(curM+'-01'))],['teendo','Nyitott'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
   let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
@@ -117,7 +117,7 @@ function viewBilling(){
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (${sets.lejart.length} projekt)</div></button>
     </div>
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
-      <div class="chips">${labels.map(([v,l])=>`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}<span class="c">${sets[v].length}</span></button>`).join('')}</div></div>
+      <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}<span class="c">${sets[v].length}</span></button>`;return v==='honap'?`<span class="chip-nav"><button class="chip chip-arr" type="button" data-action="blf-m" data-d="-1" aria-label="Előző hónap">‹</button>${c}<button class="chip chip-arr" type="button" data-action="blf-m" data-d="1" aria-label="Következő hónap">›</button></span>`:c;}).join('')}</div></div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th>Szerződés</th><th>Díjbekérő</th><th>TIG</th><th>Végszámla</th></tr></thead>
       <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
@@ -214,6 +214,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
 
 Object.assign(ACT,{
   'blf':b=>{(S.blf||(S.blf={v:'honap',q:''})).v=b.dataset.v;render(true);},
+  'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
   'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}

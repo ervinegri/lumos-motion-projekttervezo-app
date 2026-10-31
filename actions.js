@@ -669,7 +669,7 @@ async function opStep(dir){
   try{await (dir<0?op.undo:op.redo)();to.push(op);toast((dir<0?'↶ Visszavonva: ':'↷ Újra: ')+op.label);}
   catch(e){from.push(op);handleErr(e);}finally{OPH.busy=false;render(true);}
 }
-function undoBar(){return `<div class="undo-bar btns"><button class="btn outline small" type="button" data-action="op-undo" title="Visszavonás (Ctrl+Z)${OPH.u.length?': '+esc(OPH.u[OPH.u.length-1].label):''}" aria-label="Visszavonás"${OPH.u.length?'':' disabled'}>↶</button><button class="btn outline small" type="button" data-action="op-redo" title="Újra (Ctrl+Shift+Z)${OPH.r.length?': '+esc(OPH.r[OPH.r.length-1].label):''}" aria-label="Újra"${OPH.r.length?'':' disabled'}>↷</button></div>`;}
+function undoBar(){return '';return `<div class="undo-bar btns"><button class="btn outline small" type="button" data-action="op-undo" title="Visszavonás (Ctrl+Z)${OPH.u.length?': '+esc(OPH.u[OPH.u.length-1].label):''}" aria-label="Visszavonás"${OPH.u.length?'':' disabled'}>↶</button><button class="btn outline small" type="button" data-action="op-redo" title="Újra (Ctrl+Shift+Z)${OPH.r.length?': '+esc(OPH.r[OPH.r.length-1].label):''}" aria-label="Újra"${OPH.r.length?'':' disabled'}>↷</button></div>`;}
 /* Pénzügyi sorok visszaállítása adott állapotra (null = a sor ne létezzen) */
 async function finRestore(table,ids,states){
   const ups=states.filter(Boolean).map(clone),dels=ids.filter((id,i)=>!states[i]);
