@@ -15,6 +15,7 @@ function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'
       if(ch){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}});});}
 document.addEventListener('input',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform')){clearTimeout(mdSave._t);mdSave._t=setTimeout(mdSave,300);}});
 document.addEventListener('change',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform'))setTimeout(mdSave,0);});
+document.addEventListener('change',e=>{if(e.target.id==='m-endDate'&&e.target.value){const w=e.target.closest('.np-end');if(w&&w.hidden){w.hidden=false;const m=document.querySelector('.np-multi');if(m)m.hidden=true;}}});   // visszatöltött piszkozatnál is látsszon
 function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel='Mégse'}={}){
   modalSubmit=submit||null;MD_KEY=submit?mdKey(title):'';
   $('modalRoot').innerHTML=`<div class="modal" data-action="modal-bg"><form class="mbox" id="mform" role="dialog" aria-modal="true" aria-label="${esc(title)}" novalidate>
@@ -310,7 +311,7 @@ function npBuild(fd){
     if(!p.clientTax&&tpl.clientTax){p.clientTax=tpl.clientTax;p.clientAddress=tpl.clientAddress;}}
   return {p,clientNew,g};
 }
-function tplFieldHtml(hint){return tplList().length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Keress sablont… (a leggyakoribbak elöl)"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">${hint||'Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.'}</small></div>`:'';}
+function tplFieldHtml(hint){return tplList().length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Kattints, és válassz sablont…"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">${hint||'Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.'}</small></div>`:'';}
 /* Sablonok: a korábbi projektek (névenként a legutóbbi), a lemondottak nélkül */
 const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryPass','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
 function tplList(){const g=new Map();
@@ -318,10 +319,10 @@ function tplList(){const g=new Map();
     if(!e)g.set(k,e={p,n:0,last:''});e.n++;if(st>=e.last){e.last=st;e.p=p;}});   // névenként a legutóbbi projekt a minta, a darabszám a használat
   return [...g.values()].sort((a,b)=>b.n-a.n||String(b.last).localeCompare(String(a.last)));}
 function tplSearch(input){const q=input.value.trim().toLowerCase(),items=tplList().filter(e=>!q||(e.p.name+' '+(e.p.client||'')).toLowerCase().includes(q)).slice(0,14);TPL_ITEMS=items;
-  pickShow(input,items.length?items.map((e,i)=>`<button type="button" class="hs-item tpl-item" data-tpl="${i}"><span class="tpl-n">${esc(e.p.name)}</span><small>${esc(e.p.client||'Nincs ügyfél')}${e.last?' · utoljára '+esc(fmtShort(e.last)):''}</small><span class="tpl-c" title="Ennyiszer volt ilyen projekt">${e.n}×</span></button>`).join(''):'<div class="hs-empty">Nincs ilyen sablon.</div>');}
+  pickShow(input,items.length?items.map((e,i)=>`<button type="button" class="hs-item tpl-item" data-tpl="${i}"><span class="tpl-n">${esc(e.p.name)}</span><small>${esc(e.p.client||'Nincs ügyfél')}${e.last?' · utoljára '+esc(fmtShort(e.last)):''}</small></button>`).join(''):'<div class="hs-empty">Nincs ilyen sablon.</div>');}
 let TPL_ITEMS=[];
 function tplPick(e){const q=$('m-tplQ'),h=$('m-tplId'),x=document.querySelector('.tpl-clear');pickClose();if(!q||!h)return;h.value=e.p.id;q.value=e.p.name+(e.p.client?' · '+e.p.client:'');if(x)x.hidden=false;tplFill(e.p.id);}
-document.addEventListener('focusin',e=>{if(e.target.id==='m-tplQ'){e.target.select();tplSearch(e.target);}});
+document.addEventListener('focusin',e=>{if(e.target.id==='m-tplQ')e.target.select();});   // a lista csak kattintásra / gépelésre nyílik
 document.addEventListener('click',e=>{if(e.target.id==='m-tplQ'&&!$('hsBox'))tplSearch(e.target);});
 document.addEventListener('input',e=>{if(e.target.id==='m-tplQ'){const h=$('m-tplId');if(h)h.value='';tplSearch(e.target);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.tpl-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=TPL_ITEMS[Number(it.dataset.tpl)];if(v)tplPick(v);},true);
@@ -352,7 +353,8 @@ function newProjectModal(day){
     ${phoneField({name:'contactPhone',value:''})}
     ${mf('contactEmail','Kapcsolattartó e-mail',{type:'email',full:true,max:160})}
     ${mf('date','Első nap',{type:'date',v:d0})}
-    ${mf('endDate','Utolsó nap (ha több napos)',{type:'date'})}
+    <div class="field np-multi"><span class="lbl">&nbsp;</span><button type="button" class="btn outline small" data-action="np-multi">➕ Több nap felvétele</button></div>
+    <div class="field np-end" hidden><label for="m-endDate">Utolsó nap</label><div class="np-end-row"><input class="inp" id="m-endDate" name="endDate" type="date"><button type="button" class="x w" data-action="np-multi-off" aria-label="Egy napos" title="Mégis egy napos">×</button></div></div>
     ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
     ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5})}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
@@ -416,19 +418,22 @@ function itemModal(it,after){
     catch(e){handleErr(e);}
   }});
 }
-document.addEventListener('change',e=>{if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
+document.addEventListener('change',e=>{if(e.target.id==='m-role'){const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
   const v=u||{};
   const crewOpts=[['','Válassz a stáblistából…'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
+  const otherEd=(S.users||[]).find(x=>x.role==='editor'&&x.id!==v.id),defRole=USER_ROLES[v.role]?v.role:(otherEd?'crew':'editor');
   openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
     ${ms('crewId','Munkatárs (a stáblistából – ez lesz a megjelenő név)',crewOpts,v.crewId||'',{full:true})}
-    ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),USER_ROLES[v.role]?v.role:'editor')}
+    ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole)}
+    <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label>`}</div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
   submit:async(fd,form)=>{
     const cr=crewById(fd.get('crewId'));
+    if(fd.get('role')==='editor'&&otherEd){toast('Csak egy termelési vezető lehet – előbb töröld '+otherEd.name+' fiókját, vagy állítsd Szakemberre.',true);const w=$('m-edWarn');if(w){w.hidden=false;w.scrollIntoView({block:'nearest'});}return;}
     if(!cr&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából (ha még nincs benne, előbb vedd fel a Stáb fülön).',true);return;}
         const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};
     try{
@@ -1019,6 +1024,8 @@ const ACT={
   'rent-remove':b=>{const d=S.draft;if(!d)return;setDraft({rentals:(d.rentals||[]).filter(r=>r.id!==b.dataset.id)});},
   'undo':()=>histStep(-1),
   'op-undo':()=>opStep(-1),
+  'np-multi':b=>{const f=b.closest('form')||document;const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(m)m.hidden=true;if(e){e.hidden=false;const i=e.querySelector('input'),d=f.querySelector('[name=date]');if(i){if(d&&d.value)i.min=d.value;i.focus();try{i.showPicker&&i.showPicker();}catch(_){}}}},
+  'np-multi-off':b=>{const f=b.closest('form')||document;const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(e){e.hidden=true;const i=e.querySelector('input');if(i)i.value='';}if(m)m.hidden=false;},
   'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];et[cid]=cur.includes(k)?cur.filter(x=>x!==k):cur.concat([k]);setDraft({editTasks:et});},
   'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),

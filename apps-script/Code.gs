@@ -2941,6 +2941,8 @@ function saveUser_(arg) {
     const users = loadUsers_();
     if (users.some(u => u.id !== a.id && String(u.email || '').toLowerCase() === email)) throw new Error('Ezzel az e-mail-címmel már van felhasználó.');
     if (role === 'admin' && users.some(u => u.id !== a.id && u.role === 'admin')) throw new Error('Csak egy ügyvezető lehet. Válassz Termelési vezető vagy Szakember szerepkört.');
+    const otherEd = users.find(u => u.id !== a.id && u.role === 'editor');
+    if (role === 'editor' && otherEd) throw new Error('Csak egy termelési vezető lehet (jelenleg: ' + otherEd.name + '). Előbb töröld őt, vagy állítsd Szakemberre.');
     let u = a.id ? users.find(x => x.id === a.id) : null;
     if (a.id && !u) throw new Error('A felhasználó nem található.');
     if (!u) {
