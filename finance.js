@@ -281,11 +281,13 @@ const INV_CLS={paid:'p-ok',part:'p-info',late:'p-bad',open:'p-warn'};
 const SZ_KIND={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalószámla',vegszamla:'Végszámla'},SZ_KIND_S={dijbekero:'D ',eloleg:'E ',vegszamla:'V '};
 const invChip=x=>{const s=invState(x);return `<button class="statuspill inv-chip ${INV_CLS[s]}" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'Számla')+' · '+(x.buyer||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${SZ_KIND_S[x.kind]||''}${esc(x.no)} ${s==='paid'?'✓':s==='part'?'½':s==='late'?'⚠':'…'}</button>`;};
 const invCell=r=>`<div class="inv-cell">${invFor(r.kind,r.id).map(invChip).join('')}<button class="linkbtn inv-new" type="button" data-action="sz-new" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" title="Számla kiállítása vagy meglévő hozzárendelése">🧾${invFor(r.kind,r.id).length?'':' Számla'}</button></div>`;
+function szRepEmail(cl,p){return (cl&&(cl.repEmail||cl.contactEmail))||(p&&p.contactEmail)||'';}   // a számla a cég képviselőjéhez megy
+function szFinEmail(cl){if(cl&&cl.billEmail)return cl.billEmail;const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');return m?(m[1].split(/[,\s]+/).find(x=>x.includes('@'))||''):'';}
 function szBillingEmail(cl,p){const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');const first=m?m[1].split(/[,\s]+/).find(x=>x.includes('@')):'';return first||(cl&&cl.contactEmail)||(p&&p.contactEmail)||'';}
 function szSplitAddr(a){const m=/^\s*(\d{4})\s+([^,]+),\s*(.+)$/.exec(a||'');return m?{zip:m[1],city:m[2].trim(),address:m[3].trim()}:{zip:'',city:'',address:String(a||'').trim()};}
 function szTargetInfo(kind,id){
   if(kind==='project'){const p=projById(id);if(!p)return null;const cl=(S.clients||[]).find(c=>c.name===p.client)||null,a=szSplitAddr(p.clientAddress||(cl&&cl.address));
-    const r=pr(p);return {kind,id,name:p.name||'Projekt',net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:(r&&(r.end||r.start))||todayISO(),buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szBillingEmail(cl,p)},a)};}
+    const r=pr(p);return {kind,id,name:p.name||'Projekt',net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:(r&&(r.end||r.start))||todayISO(),buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),clientId:cl&&cl.id},a)};}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return null;
   const d=String(parseInt(r.day,10)||1).padStart(2,'0'),f=r.month?r.month+'-'+d:todayISO();
   return {kind:'income',id,name:r.name,net:num(r.amount),fulfill:f,buyer:{name:'',tax:'',email:'',zip:'',city:'',address:''}};}
@@ -334,8 +336,9 @@ function szInvoiceModal(kind,id,o={}){
     ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
     <div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
+    ${mf('bEmail','E-mail – a cég képviselője (ide megy a számla)',{v:b.email,max:160,type:'email'})}
+    ${mf('bEmail2','Második e-mail (pl. pénzügy)',{v:b.email2&&b.email2!==b.email?b.email2:'',max:160,type:'email',ph:'penzugy@ceg.hu'})}
     ${mf('bTax','Adószám (magánszemélynél üres)',{v:b.tax,max:20,ph:'12345678-2-42'})}
-    ${mf('bEmail','E-mail (ide megy a számla)',{v:b.email,max:300,type:'email'})}
     ${mf('bZip','Irányítószám',{v:b.zip,max:10,im:'numeric'})}${mf('bCity','Település',{v:b.city,max:80})}
     ${mf('bAddr','Cím',{full:true,v:b.address,max:200})}
     <small class="hint field full" id="sz-buyer-lock" style="margin:-6px 0 0"></small>
@@ -350,7 +353,7 @@ function szInvoiceModal(kind,id,o={}){
   </div><div id="sz-prev"></div>`,{left:`<button type="button" class="btn outline small" data-action="sz-preview">👁 Előnézet</button><button type="button" class="btn outline small" data-action="sz-link" data-kind="${esc(kind)}" data-id="${esc(id)}">Meglévő számla hozzárendelése</button>`,submitLabel:'Tovább',submit:async fd=>{
     const items=szReadItems(),tot=szTotals();
     const k=fd.get('kind');
-    const a={[kind==='project'?'projectId':'incomeId']:id,kind:k,dijbekeroNo:k==='eloleg'&&dbRow?dbRow.no:'',elolegNo:k==='vegszamla'&&elRow?elRow.no:'',paid:k==='eloleg',buyer:{name:String(fd.get('bName')||'').trim(),tax:String(fd.get('bTax')||'').trim(),email:String(fd.get('bEmail')||'').trim(),
+    const a={[kind==='project'?'projectId':'incomeId']:id,kind:k,dijbekeroNo:k==='eloleg'&&dbRow?dbRow.no:'',elolegNo:k==='vegszamla'&&elRow?elRow.no:'',paid:k==='eloleg',buyer:{name:String(fd.get('bName')||'').trim(),tax:String(fd.get('bTax')||'').trim(),email:[String(fd.get('bEmail')||'').trim(),String(fd.get('bEmail2')||'').trim()].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(','),
       zip:String(fd.get('bZip')||'').trim(),city:String(fd.get('bCity')||'').trim(),address:String(fd.get('bAddr')||'').trim()},items,fulfill:fd.get('fulfill'),due:fd.get('due'),payMethod:fd.get('payMethod'),
       comment:String(fd.get('comment')||'').trim(),eInvoice:!!fd.get('eInvoice'),sendEmail:!!fd.get('sendEmail'),
       projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[],tigId:o.tigId||''};
@@ -360,7 +363,8 @@ function szInvoiceModal(kind,id,o={}){
     openModal('Biztosan kiállítod?',`<p style="margin:0">${SZ_KIND[a.kind]} <b>${esc(a.buyer.name)}</b> részére${a.projectIds.length?` (közös számla, ${a.projectIds.length+1} projekt)`:''}: nettó <b>${ftFmt(tot.net)}</b>, bruttó <b>${ftFmt(tot.gross)}</b>, határidő ${esc(a.due)}.</p>
       <p class="hint" style="margin:8px 0 0">${a.kind==='dijbekero'?'':'A számla a kiállítással bekerül a NAV-hoz, utólag csak sztornózni lehet. '}${a.sendEmail&&a.buyer.email?'A számlázz.hu elküldi e-mailben: '+esc(a.buyer.email)+'.':'E-mailt nem küldünk.'}</p>`,
       {submitLabel:'Kiállítás',submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Kiállítás…';}
-        try{const d=await call('szInvoice',a);closeModal();finApply(d);toast(`${SZ_KIND[a.kind]} kiállítva: ${d.invoice&&d.invoice.no}`);}
+        try{const d=await call('szInvoice',a);closeModal();finApply(d);toast(`${SZ_KIND[a.kind]} kiállítva: ${d.invoice&&d.invoice.no}`);
+          {const e2=String(fd.get('bEmail2')||'').trim().toLowerCase(),cl=(S.clients||[]).find(c=>c.name===a.buyer.name)||(t.buyer.clientId&&(S.clients||[]).find(c=>c.id===t.buyer.clientId));if(cl&&e2!==(cl.billEmail||'')&&typeof saveClientRec==='function')saveClientRec(Object.assign({},cl,{oldName:'',billEmail:e2})).catch(()=>{});}}   /* a pénzügyi e-mail-címet megjegyezzük az ügyfélnél */
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}}});}});
   szTotals();}
 function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
@@ -519,7 +523,7 @@ function szPreview(){const f=$('mform');if(!f||!$('sz-items'))return;const fd=ne
     .tot{margin-left:auto;width:280px}.tot div{display:flex;justify-content:space-between;padding:3px 0}.tot .g{font-size:15px;font-weight:800;border-top:2px solid #333;margin-top:4px;padding-top:6px}.note{margin-top:16px;color:#555;white-space:pre-line}.wm{margin-top:22px;font-size:10.5px;color:#a33;border-top:1px dashed #ccc;padding-top:8px}</style></head><body>
     <h1>${h((SZ_KIND[k]||'Számla').toUpperCase())}</h1><div class="sub">Sorszám: a kiállításkor kapja meg${sh?` · közös számla (${sh+1} projekt)`:''}</div>
     <div class="two"><div><div class="lb">Szállító</div><b>${h(SZ_SELLER.name)}</b><br>${h(SZ_SELLER.addr)}<br>Adószám: ${h(SZ_SELLER.tax)}<br>${h(SZ_SELLER.email)}</div>
-      <div><div class="lb">Vevő</div><b>${h(fd.get('bName'))}</b><br>${h([fd.get('bZip'),fd.get('bCity')].filter(Boolean).join(' '))}${fd.get('bAddr')?', '+h(fd.get('bAddr')):''}${fd.get('bTax')?'<br>Adószám: '+h(fd.get('bTax')):''}${fd.get('bEmail')?'<br>'+h(fd.get('bEmail')):''}</div></div>
+      <div><div class="lb">Vevő</div><b>${h(fd.get('bName'))}</b><br>${h([fd.get('bZip'),fd.get('bCity')].filter(Boolean).join(' '))}${fd.get('bAddr')?', '+h(fd.get('bAddr')):''}${fd.get('bTax')?'<br>Adószám: '+h(fd.get('bTax')):''}${fd.get('bEmail')?'<br>'+h(fd.get('bEmail')):''}${fd.get('bEmail2')?'<br>'+h(fd.get('bEmail2')):''}</div></div>
     <div class="meta"><div>Kelt<b>${d(todayISO())}</b></div><div>Teljesítés<b>${d(fd.get('fulfill'))}</b></div><div>Fizetési határidő<b>${d(fd.get('due'))}</b></div><div>Fizetési mód<b>${h(fd.get('payMethod'))}</b></div></div>
     <table><tr><th>Megnevezés</th><th class="r">Menny.</th><th class="r">Nettó egységár</th><th class="r">Nettó</th><th class="r">ÁFA</th><th class="r">Bruttó</th></tr>
     ${its.map(it=>{const n=Math.round(it.price*it.qty),v=Math.round(n*vr(it.vat)/100);return `<tr><td>${h(it.name)}</td><td class="r">${h(it.qty)} ${h(it.unit)}</td><td class="r">${ft(it.price)}</td><td class="r">${ft(n)}</td><td class="r">${/^\d+$/.test(it.vat)?it.vat+'%':h(it.vat)}</td><td class="r">${ft(n+v)}</td></tr>`;}).join('')}</table>
@@ -531,7 +535,7 @@ ACT['sz-preview']=()=>szPreview();
 document.addEventListener('input',e=>{if($('sz-prev')&&$('sz-prev').innerHTML&&e.target.closest&&e.target.closest('#mform')){clearTimeout(S._szpT);S._szpT=setTimeout(()=>{const y=scrollY,b=$('sz-prev');if(!b)return;const fr=b.querySelector('iframe');szPreview.noScroll=1;szPreview();szPreview.noScroll=0;},500);}});
 document.addEventListener('change',e=>{const t=e.target;if(t.closest&&t.closest('#sz-items'))szTotals();
   if(t.id==='m-szClient'){const c=(S.clients||[]).find(x=>x.id===t.value);if(!c)return;const a=szSplitAddr(c.address);
-    [['m-bName',c.name],['m-bTax',c.tax],['m-bEmail',szBillingEmail(c,null)],['m-bZip',a.zip],['m-bCity',a.city],['m-bAddr',a.address]].forEach(([k,v])=>{if($(k))$(k).value=v||'';});}
+    [['m-bName',c.name],['m-bTax',c.tax],['m-bEmail',szRepEmail(c,null)],['m-bEmail2',szFinEmail(c)],['m-bZip',a.zip],['m-bCity',a.city],['m-bAddr',a.address]].forEach(([k,v])=>{if($(k))$(k).value=v||'';});}
   if(t.id==='m-szClient')szBuyerLock();});
 /* A vevő neve, adószáma és címe az ügyféladatokból (számlázz.hu) jön – nem írható át; csak kézi megadásnál szerkeszthető */
 function szBuyerLock(){const sel=$('m-szClient');if(!sel)return;const lock=!!sel.value&&!!(($('m-bName')||{}).value||'').trim();
