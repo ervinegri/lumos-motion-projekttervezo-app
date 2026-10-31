@@ -1681,6 +1681,7 @@ function szInvoice_(u, a) {
     + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', tg.projectId || tg.incomeId)
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
+    + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
     + '<vevo>' + szEl_('nev', buyer.name) + szEl_('irsz', buyer.zip) + szEl_('telepules', buyer.city) + szEl_('cim', buyer.address)
     + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', sendEmail ? 'true' : 'false')
     + szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '') + '</vevo>'
@@ -2137,7 +2138,7 @@ function tigCreate_(u, a) {
   const pdf = Utilities.newBlob(html, 'text/html', 'tig.html').getAs('application/pdf');
   const cf = clientFolder_(client); if (!cf) throw new Error('Még nincs beállítva a főmappa.');
   const folder = folderPath_(cf, 'Teljesítésigazolások/' + month.slice(0, 4), {});
-  const name = uniqueName_(folder, shortName_(client) + '_TIG_' + month + '_' + iss.code + '.pdf');
+  const name = uniqueName_(folder, shortName_(iss.name).replace(/-E-V$/, '-EV') + '-' + shortName_(client) + '_TIG_' + month + '.pdf');   // pl. Lumos-Motion-Kulcsár-Akadémia_TIG_2026-10.pdf
   const f = folder.createFile(pdf.setName(name));
   try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
   const rec = { id: Utilities.getUuid(), client: client, month: month, issuer: a.issuer === 'ev' ? 'ev' : 'kft', projectIds: rows.map(r => r.pid).filter(String).filter((x, i, l) => l.indexOf(x) === i).join(','),

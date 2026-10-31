@@ -332,7 +332,7 @@ function szInvoiceModal(kind,id,o={}){
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
   setTimeout(szBuyerLock,40);
   openModal((SZ_KIND[type]||'Számla')+' kiállítása – '+t.name,`<div class="fields">
-    <div class="field full"><label for="m-issuer">Kiállító</label><select class="inp" id="m-issuer" name="issuer"><option value="kft" selected>Lumos Motion Kft.</option><option value="ev" disabled>Egri Ervin E.V. – még nincs bekötve a számlázz.hu-hoz</option></select></div>
+    <div class="field"><label for="m-issuer">Kiállító</label><select class="inp" id="m-issuer" name="issuer"><option value="kft" selected>Lumos Motion Kft.</option><option value="ev" disabled>Egri Ervin E.V. (nincs bekötve)</option></select></div>
     ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
     ${kind==='project'?`<input type="hidden" id="m-szClient" value="${esc((cls.find(c=>c.name===b.name)||{}).id||'')}">`:`<div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>`}
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
