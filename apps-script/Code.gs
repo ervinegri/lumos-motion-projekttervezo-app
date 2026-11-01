@@ -3012,7 +3012,7 @@ function inviteMailBuild_(user, actor) {
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;font-size:14px"><p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p>Belépés: nyisd meg a <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a> oldalt, és kattints a <b>„Bejelentkezés Google-fiókkal”</b> gombra.</p>'
     + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><div style="margin-top:18px">' + (sig ? sig.html : '<p>' + MAIL_SIGNATURE_HTML + '</p>') + '</div></div>';
-  return { subject: APP_TITLE + ' – meghívó', text: lines.join('\n'), html: html, from: actor && actor.email ? (actor.name || '') + ' · Lumos Motion <' + actor.email + '>' : 'Lumos Motion <' + MAIL_FROM + '>' };
+  return { subject: APP_TITLE + ' App – meghívó', text: lines.join('\n'), html: html, from: actor && actor.email ? (actor.name || '') + ' · Lumos Motion <' + actor.email + '>' : 'Lumos Motion <' + MAIL_FROM + '>' };
 }
 
 /** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
