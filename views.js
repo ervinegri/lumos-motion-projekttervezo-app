@@ -256,7 +256,7 @@ function payStatementData(month,cid){
     (p.fees||[]).forEach(f=>{
       if(f.kind==='fixed'){if(f.refCrewId===cid&&num(f.amount))rows.push({date:dl(r),name:'Ajánlói jutalék – '+(p.name||''),roles:'',fee:num(f.amount),ded:0});return;}
       if(f.crewId!==cid||!num(f.amount))return;const ded=penDeduct(p,cid,f.amount);
-      rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:'',fee:num(f.amount),ded});   // a szerepeket nem részletezzük
+      rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:String(f.task||(f.roles||[]).join(' + ')||'').split(' + ').join(', '),fee:num(f.amount),ded});
       if(ded)penOf(p,cid,'approved').filter(x=>x.kind!=='damage').forEach(x=>{const k=PEN_KINDS[x.kind]||{},da=f.dayAmounts||{};
         pens.push({project:p.name||'',amount:penAmt(p,x,f.amount),kind:k.label||'Díjcsökkentés',ref:k.ref||'',pct:num(x.pct),
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
