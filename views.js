@@ -188,8 +188,9 @@ const DONE_CHECK=' <span class="done-check" title="Lezárva" aria-label="Lezárv
 /* Figyelmeztetés a listában: a projekt csapata még nincs véglegesítve (vagy véglegesítés óta módosult) */
 function crewFinalWarn(p){if(ro()||!crewFinalOn()||p.status==='atadva'||p.status==='lemondva')return '';const r=pr(p);if(r&&r.end<todayISO())return '';
   const st=crewFinalState(p);if(st==='ok')return '';
-  return st==='changed'?`<span class="statuspill p-warn" data-tip="A csapat a véglegesítés óta módosult – a projekt oldalán véglegesítsd újra, hogy a tagok értesítést kapjanak.">👥 Stáb módosult</span>`
-    :`<span class="statuspill p-warn" data-tip="${crewIds(p).size?'A csapat még nincs véglegesítve – a projekt oldalán véglegesítsd, hogy a tagok bekerüljenek a naptárba és értesítést kapjanak.':'Még nincs stáb beosztva erre a projektre.'}">👥 Stáb nincs véglegesítve</span>`;}
+  const cls=r&&diffDays(todayISO(),r.start)<14?'p-bad':'p-warn';   // 2 héten belüli rendezvénynél piros
+  return st==='changed'?`<span class="statuspill ${cls}" data-tip="A csapat a véglegesítés óta módosult – a projekt oldalán véglegesítsd újra, hogy a tagok értesítést kapjanak.">👥 Stáb módosult</span>`
+    :`<span class="statuspill ${cls}" data-tip="${crewIds(p).size?'A csapat még nincs véglegesítve – a projekt oldalán véglegesítsd, hogy a tagok bekerüljenek a naptárba és értesítést kapjanak.':'Még nincs stáb beosztva erre a projektre.'}">👥 Stáb nincs véglegesítve</span>`;}
 function statusPill(p){const s=p.status||'tervezes';return `<span class="statuspill st-${esc(s)}">${esc(stageLabel(p,s))}</span>${s==='tervezes'&&!ro()&&missingReq(p).length?'<span class="statuspill p-mute" data-tip="Hiányos alapadatok – a projekt oldalán pótolhatók">📝 Piszkozat</span>':''}`;}
 function calBlock(iso){
   if(!validISO(iso))return `<span class="cal none" aria-hidden="true"><span class="cal-m">—</span><span class="cal-d">?</span></span>`;
