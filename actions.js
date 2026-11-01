@@ -600,7 +600,7 @@ function payMailModal(month){
   openModal('📧 Díjösszesítő kiküldése',`${monthSel}${list.length?'':`<div class="panel">${empty('Ebben a hónapban nincs kinek díjösszesítőt küldeni.')}</div>`}<p class="hint" style="margin:0 0 10px">Mindenki csak a saját összesítőjét kapja meg, a saját e-mail-címére, a te aláírásoddal. Az „Előnézet” megmutatja a levelet.</p>
     <div class="pay-mail-list">${list.map(({c,d})=>{const s=sentOf(c.id),mail=String(c.email||'').trim();
       return `<div class="pml-row"><label class="pml-chk"><input type="checkbox" name="pm" value="${esc(c.id)}"${mail&&!s?' checked':''}${mail?'':' disabled'}><span><b>${esc(c.name)}</b><small>${mail?esc(mail):'<span class="bad-txt">nincs e-mail-cím</span>'}</small></span></label>
-        <span class="pml-amt">${ftFmt(d.total)}</span><span class="statuspill p-info" data-pe-tag="${month}|${esc(c.id)}"${S._payEdit&&S._payEdit[month+'|'+c.id]?'':' hidden'}>✏️ szerkesztve</span><span class="pml-st">${s?`<span class="statuspill p-ok" data-tip="${esc('Kiküldve: '+s.sentAt+' · '+s.sentBy+(num(s.amount)!==d.total?'\nAkkor: '+ftFmt(s.amount)+' – azóta változott!':''))}">✓ kiküldve${num(s.amount)!==d.total?' ⚠️':''}</span>`:''}</span>
+        <span class="pml-amt">${ftFmt(d.total)}</span><span class="statuspill p-info" data-pe-tag="${month}|${esc(c.id)}"${S._payEdit&&S._payEdit[month+'|'+c.id]?'':' hidden'}>✏️ szerkesztve</span><span class="pml-st">${s?`<span class="statuspill p-ok pml-sent" role="button" tabindex="0" data-action="pay-sent-view" data-month="${month}" data-cid="${esc(c.id)}" data-tip="${esc('Kiküldve: '+s.sentAt+' · '+s.sentBy+(num(s.amount)!==d.total?'\nAkkor: '+ftFmt(s.amount)+' – azóta változott!':'')+'\nKattints a kiküldött levél megnyitásához.')}">✓ kiküldve${num(s.amount)!==d.total?' ⚠️':''}</span>`:''}</span>
         <button class="linkbtn" type="button" data-action="pay-mail-prev" data-month="${month}" data-cid="${esc(c.id)}">Előnézet</button></div>`;}).join('')}</div>
     <div id="payPrev"></div>`,{submitLabel:'Kiküldés',submit:async fd=>{const sel=fd.getAll('pm');if(!sel.length){toast('Jelölj ki legalább egy munkatársat.',true);return;}
       try{const r=await call('sendPayStatements',{items:sel.map(id=>{const it=payStatementData(month,id),h=S._payEdit&&S._payEdit[month+'|'+id];if(h)it.html=h;return it;})});(r.sent||[]).forEach(x=>{if(S._payEdit)delete S._payEdit[month+'|'+x.crewId];});S.paySent=r.paySent||S.paySent;closeModal();render(true);
@@ -1031,6 +1031,14 @@ const ACT={
       box.querySelector('.inv-prev').appendChild(f);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-prev':b=>payPreview(b.dataset.month,b.dataset.cid,false),
+  'pay-sent-view':async b=>{const box=$('payPrev');if(!box)return;const c=crewById(b.dataset.cid);box.innerHTML='<p class="hint">A kiküldött levél betöltése…</p>';
+    try{const r=await call('paySentHtml',{month:b.dataset.month,crewId:b.dataset.cid});
+      box.innerHTML=`<div class="pe-bar"><div><b>Kiküldött levél – ${esc(c?c.name:'')}</b><small>${esc('Kiküldve: '+r.sentAt+(r.sentBy?' · '+r.sentBy:'')+(r.email?' · '+r.email:''))}${r.subject?' · Tárgy: '+esc(r.subject):''}</small></div></div>`;
+      if(!r.html){box.insertAdjacentHTML('beforeend','<p class="hint">Ennek a levélnek a szövegét még nem mentettük el (a funkció előtt ment ki). Az „Előnézet” a mostani adatokkal mutatja.</p>');return;}
+      const f=document.createElement('iframe');f.className='mail-frame';f.title='Kiküldött díjösszesítő';f.setAttribute('sandbox','allow-same-origin');
+      f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}</style></head><body>'+r.html+'</body></html>';
+      f.addEventListener('load',()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}});box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
+    catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),

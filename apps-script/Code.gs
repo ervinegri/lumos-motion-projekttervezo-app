@@ -103,7 +103,7 @@ const TABLES = {
   payStatus: { tab: 'Számlák és kifizetések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['invoicedAt', 'Számlát kiállította'], ['invoicedBy', 'Rögzítette (számla)'], ['paidAt', 'Számla fizetve'], ['paidBy', 'Rögzítette (fizetés)']] },
   paySent: { tab: 'Díjösszesítők', cols: [
-    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte']] },
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte'], ['subject', 'Tárgy'], ['html', 'A kiküldött levél (HTML)']] },
   payAdjust: { tab: 'Fizetési korrekciók', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['amount', 'Korrekció (nettó Ft, + / −)'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   officeRent: { tab: 'Irodabérlet', cols: [
@@ -521,7 +521,7 @@ function bootstrap_(u) {
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
-    paySent: u.role === 'crew' ? readAll_('paySent').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('paySent'),
+    paySent: paySentList_(u),
     payStatus: u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('payStatus'),
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
@@ -2653,6 +2653,16 @@ function setPayStatus_(u, a) {
     return readAll_('payStatus');
   });
 }
+/* Kiküldött díjösszesítők listája (a levél szövege nélkül – azt külön kérjük le, ha megnyitják) */
+function paySentList_(u) {
+  return readAll_('paySent').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)).map(x => Object.assign({}, x, { html: '', hasHtml: !!x.html }));
+}
+function paySentHtml_(u, a) {
+  const id = str_(a && a.month, 7) + '|' + str_(a && a.crewId, 64), x = readAll_('paySent').find(r => r.id === id);
+  if (!x) throw new Error('Ehhez a hónaphoz még nem ment ki díjösszesítő.');
+  if (u.role === 'crew' && x.crewId !== u.crewId) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  return { html: x.html || '', subject: x.subject || '', sentAt: x.sentAt, sentBy: x.sentBy, email: x.email, amount: x.amount };
+}
 function sendPayStatements_(u, a) {
   const list = (Array.isArray(a && a.items) ? a.items : []).slice(0, 60), sent = [], failed = [];
   if (!mailOn_('payStatement')) throw new Error('Az e-mail-küldés szünetel (Beállítások → E-mail értesítések).');
@@ -2663,12 +2673,12 @@ function sendPayStatements_(u, a) {
       const opts = mailOptsFor_(u, b.html);
       if (!gmailSend_(to, b.subject, b.text, opts, 'payStatement')) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nem ment ki' }); return; }
       withLock_(() => { const sh = sheetFor_('paySent'), id = b.month + '|' + b.c.id, row = findRow_(sh, id);
-        putRow_('paySent', sh, { id: id, month: b.month, crewId: b.c.id, crewName: b.c.name, email: to, amount: b.total, sentAt: now_(), sentBy: u.name }, row); });
+        putRow_('paySent', sh, { id: id, month: b.month, crewId: b.c.id, crewName: b.c.name, email: to, amount: b.total, sentAt: now_(), sentBy: u.name, subject: b.subject, html: b.html.length < 45000 ? b.html : '' }, row); });   // a táblázatcella legfeljebb 50 000 karakter
       sent.push({ crewId: b.c.id, name: b.c.name, email: to });
     } catch (e) { failed.push({ crewId: str_(it && it.crewId, 64), name: '', error: String(e && e.message || e) }); }
   });
   logEvent_(u, 'Díjösszesítő kiküldve', str_(list[0] && list[0].month, 7), sent.map(x => x.name).join(', ') + (failed.length ? ' · hiba: ' + failed.map(x => x.name || x.crewId).join(', ') : ''));
-  return { sent: sent, failed: failed, paySent: readAll_('paySent') };
+  return { sent: sent, failed: failed, paySent: paySentList_(u) };
 }
 /* Fizetési korrekció: havi extra levonás vagy hozzáadás szakemberenként (pl. valaki a saját keretéből kipótolja egy kolléga díját). 0 = törlés. */
 function savePayAdjust_(u, a) {
@@ -3317,6 +3327,7 @@ function rpcInner_(token, name, arg) {
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
     case 'invitePreview': canEdit(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
     case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
+    case 'paySentHtml': return paySentHtml_(u, arg);
     case 'setPayStatus': adminOnly(); return setPayStatus_(u, arg);
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
