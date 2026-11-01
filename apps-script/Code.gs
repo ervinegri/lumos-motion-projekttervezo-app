@@ -64,7 +64,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -561,6 +561,10 @@ function parseFees_(raw) {
     dayAmounts: x && x.dayAmounts && typeof x.dayAmounts === 'object' ? Object.keys(x.dayAmounts).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).slice(0, 31).reduce((o, k) => { o[k] = int_(x.dayAmounts[k], 0, FEE_MAX, 0); return o; }, {}) : undefined
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
 }
+function parseLinks_(raw) {   // további átadási linkek (a fő link mellett legfeljebb 4)
+  let arr = raw; if (typeof raw === 'string') { try { arr = raw ? JSON.parse(raw) : []; } catch (e) { arr = []; } }
+  return Array.isArray(arr) ? arr.map(x => str_(x, 500).trim()).filter(x => /^https:\/\/\S+$/i.test(x)).slice(0, 4) : [];
+}
 function parseCrewDays_(raw) {   // több napos projekt: ki melyik napokon dolgozik ({ crewId: [nap, …] })
   let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : {}; } catch (e) { o = {}; } }
   const out = {}; if (!o || typeof o !== 'object') return out;
@@ -598,6 +602,7 @@ function projectView_(p, u) {
   const notes = parseNotes_(q.crewNotes);
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
   q.crewDays = parseCrewDays_(q.crewDays);
+  q.deliveryLinks = parseLinks_(q.deliveryLinks);
   q.editTasks = parseEditTasks_(q.editTasks);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
   if (!q.status || q.status === 'egyeztetes') q.status = 'tervezes';   // az „Egyeztetés” lépés megszűnt: a tervezés az első
@@ -607,7 +612,7 @@ function projectView_(p, u) {
   else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount, dayAmounts: mine.dayAmounts }; delete q.fees; }   // a szakember csak a saját díját látja
   // díjcsökkentések: vezetők mindet, a szakember csak a saját, jóváhagyott tételeit látja
   const pens = parsePen_(q.penalties);
-  q.penalties = role === 'crew' ? pens.filter(x => x.crewId === u.crewId && x.status === 'approved') : (role === 'admin' || role === 'editor' ? pens : []);
+  q.penalties = role === 'crew' ? pens.filter(x => x.crewId === u.crewId && x.status === 'approved').map(x => Object.assign({}, x, { copyEmail: '' })) : (role === 'admin' || role === 'editor' ? pens : []);
   // termelői keret: az ügyvezető a beállítást (% vagy Ft) látja, a termelési vezető csak a kiszámolt forintösszeget
   const mode = q.budgetMode === 'pct' ? 'pct' : q.budgetMode === 'ft' ? 'ft' : '', bv = Number(q.budgetVal);
   const val = Number(p.quotePrice);
@@ -1149,6 +1154,8 @@ function saveProject_(u, a) {
     if (a.crewNotes !== undefined) p.crewNotes = JSON.stringify(parseNotes_(a.crewNotes));
     if (a.crewDays !== undefined) p.crewDays = JSON.stringify(parseCrewDays_(a.crewDays));
     if (p.crewDays == null) p.crewDays = old ? old.crewDays : '';
+    if (Array.isArray(a.deliveryLinks)) p.deliveryLinks = JSON.stringify(parseLinks_(a.deliveryLinks));
+    if (p.deliveryLinks == null) p.deliveryLinks = old ? old.deliveryLinks : '';
     if (a.editTasks !== undefined) p.editTasks = JSON.stringify(parseEditTasks_(a.editTasks));
     if (p.editTasks == null) p.editTasks = old ? old.editTasks || '' : '';
     if (p.crewNotes == null) p.crewNotes = '';
@@ -1168,8 +1175,6 @@ function saveProject_(u, a) {
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
     if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)   // a beszámoló a helyszíni munka kipipálásakor (a helyszíni munkára lépéskor még nem kell)
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
-    if (p.status === 'atadva' && (!old || old.status !== 'atadva') && needsDelivery_(p) && !String(p.deliveryNotes || '').trim())
-      throw new Error('Átadás előtt írd be az észrevételeket.');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
     const sig = (list, f) => list.map(f).sort().join('|');
@@ -2407,7 +2412,7 @@ function parsePen_(raw) {
   if (!Array.isArray(arr)) return [];
   return arr.filter(x => x && PEN_KINDS_[x.kind]).slice(0, 100).map(x => ({ id: str_(x.id, 40), crewId: str_(x.crewId, 64), kind: x.kind, pct: int_(x.pct, 0, 100, 0), day: /^\d{4}-\d{2}-\d{2}$/.test(String(x.day || '')) ? String(x.day) : '',
     amount: int_(x.amount, 0, FEE_MAX, 0), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), link: str_(x.link, 500),
-    status: ['pending', 'approved', 'rejected'].indexOf(x.status) >= 0 ? x.status : 'pending', by: str_(x.by, 120), at: str_(x.at, 30),
+    status: ['pending', 'approved', 'rejected'].indexOf(x.status) >= 0 ? x.status : 'pending', by: str_(x.by, 120), copyEmail: str_(x.copyEmail, 160), at: str_(x.at, 30),
     decidedBy: str_(x.decidedBy, 120), decidedAt: str_(x.decidedAt, 30), decisionNote: str_(x.decisionNote, 1000),
     objection: x.objection && x.objection.text ? { text: str_(x.objection.text, 3000), at: str_(x.objection.at, 30) } : null }));
 }
@@ -2446,9 +2451,18 @@ function penMailCrew_(u, p, x) {
       'Kategória: ' + k.label + (x.kind === 'damage' ? '' : ' (' + x.pct + '%' + (x.day ? ', a ' + (fmtHuDate_(x.day) || x.day) + ' napi díjból' : '') + ')'), x.kind === 'damage' ? 'Kártérítés összege: ' + amt.toLocaleString('hu-HU') + ' Ft' : 'Levont összeg: ' + amt.toLocaleString('hu-HU') + ' Ft',
       x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, x.link ? '\nBizonyíték: ' + x.link : '', '',
       'Ha nem értesz egyet, a projekt oldalán a „Kifogásolom” gombbal írásban jelezheted: ' + url, '', 'Üdvözlettel:', 'Lumos Motion'].filter((l, i, a) => l !== '' || a[i - 1] !== '');
-    const html = lines.map(l => escapeHtml_(l)).join('<br>');
-    return gmailSend_(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), mailOptsFor_(u, html), 'penalty');
+    const html = lines.map(l => escapeHtml_(l).replace(/\n/g, '<br>')).join('<br>');   // az indoklás tördelése is megmarad
+    const opts = mailOptsFor_(u, html), cc = penCopyList_(u, x, c.email); if (cc.length) opts.cc = cc.join(',');
+    return gmailSend_(c.email, 'Díjcsökkentés – ' + p.name, lines.join('\n'), opts, 'penalty');
   } catch (e) { Logger.log('Díjcsökkentés e-mail hiba: ' + e); return false; }
+}
+/* Díjcsökkentés másolata: ha az ügyvezető küldi, a termelési vezető kapja, és fordítva; kérésre a kiróvó is */
+function penCopyList_(u, x, crewEmail) {
+  const other = u && u.role === 'admin' ? 'editor' : 'admin', out = [];
+  try { loadUsers_().forEach(v => { if (!v.disabled && v.email && v.role === other) out.push(String(v.email).toLowerCase()); }); } catch (e) { }
+  if (x && x.copyEmail) out.push(String(x.copyEmail).toLowerCase());
+  const me = String(crewEmail || '').toLowerCase();
+  return out.filter((m, i) => m && m !== me && out.indexOf(m) === i);
 }
 function penMailAdmins_(u, subject, text) {
   try {
@@ -2467,7 +2481,7 @@ function addPenalty_(u, a) {
   const amount = kind === 'damage' ? int_(a.amount, 0, FEE_MAX, 0) : 0;
   if (kind === 'damage' && !amount) throw new Error('Add meg a kártérítés összegét.');
   const x = { id: Utilities.getUuid().slice(0, 12), crewId: str_(a.crewId, 64), kind: kind, pct: pct, day: kind !== 'damage' && /^\d{4}-\d{2}-\d{2}$/.test(String(a.day || '')) ? String(a.day) : '', amount: amount, caseText: str_(a.caseText, 1500), reason: reason, link: link,
-    status: u.role === 'admin' ? 'approved' : 'pending', by: u.name, at: now_(), decidedBy: u.role === 'admin' ? u.name : '', decidedAt: u.role === 'admin' ? now_() : '', decisionNote: '', objection: null };
+    status: u.role === 'admin' ? 'approved' : 'pending', by: u.name, copyEmail: a.copyMe === true && u.email ? String(u.email) : '', at: now_(), decidedBy: u.role === 'admin' ? u.name : '', decidedAt: u.role === 'admin' ? now_() : '', decisionNote: '', objection: null };
   const r = penMutate_(a.projectId, (list, p) => {
     const on = p.lead === x.crewId || readAll_('crewAssign').some(c => c.projectId === p.id && c.crewId === x.crewId);
     if (!on) throw new Error('Ez a munkatárs nincs beosztva erre a projektre.');
@@ -2823,7 +2837,7 @@ function crewDeliver_(u, a) {
     const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row);
     if (p.status === 'atadva' || p.status === 'lemondva') throw new Error('A projekt már le van zárva.');
-    p.deliveryLink = link; p.deliveryPass = str_(a.pass, 120); if (a.note !== undefined) p.deliveryNotes = str_(a.note, 3000);
+    p.deliveryLink = link; if (Array.isArray(a.links)) p.deliveryLinks = JSON.stringify(parseLinks_(a.links)); p.deliveryPass = str_(a.pass, 120); if (a.note !== undefined) p.deliveryNotes = str_(a.note, 3000);
     p.status = 'jovahagyas'; p.leadvaAt = p.leadvaAt || today_();
     const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(',');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
@@ -2832,7 +2846,7 @@ function crewDeliver_(u, a) {
   const to = []; try { loadUsers_().forEach(x => { if (!x.disabled && x.email && notify.indexOf(x.role) >= 0 && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
     const url = (appUrl_() || FRONTEND_URL) + '#p=' + pid, note = str_(a.note, 3000);
-    const text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + link + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
+    const text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>';
     const opts = mailOptsFor_(u, html); delete opts.__actor;

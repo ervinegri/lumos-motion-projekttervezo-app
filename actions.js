@@ -189,11 +189,12 @@ function penModal(cid){
       <div class="field full"><label for="m-penReason">Írásos indoklás <span class="muted" style="font-weight:600">(3.6. pont – kötelező)</span></label><textarea class="inp" id="m-penReason" name="reason" rows="4" maxlength="3000" placeholder="Mi történt, mikor, milyen következménnyel…"></textarea></div>
       <div class="field full"><label for="m-penLink">Bizonyíték (link, nem kötelező)</label><input class="inp" id="m-penLink" name="link" type="url" placeholder="https://drive.google.com/…"></div>
       <div class="field full"><p class="hint" id="m-penCalc" style="margin:0"></p></div>
+      <div class="field full">${penCopyBox('copyMe')}</div>
     </div>`,{submitLabel:isAdmin()?'Kiróvás':'Javaslat küldése jóváhagyásra',submit:async fd=>{
       const kind=fd.get('kind'),reason=String(fd.get('reason')||'').trim();
       if(reason.length<5){toast('Írd le röviden az indoklást.',true);$('m-penReason').focus();return;}
       if(kind==='damage'&&!moneyVal(fd.get('amount'))){toast('Add meg a kártérítés összegét.',true);return;}
-      try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:fd.getAll('caseText').join('; '),day:kind==='damage'?'':String(fd.get('day')||''),reason,link:String(fd.get('link')||'').trim()});
+      try{const r=await call('addPenalty',{projectId:d.id,crewId:cid,kind,pct:Number(fd.get('pct'))||0,amount:moneyVal(fd.get('amount'))||0,caseText:fd.getAll('caseText').join('; '),day:kind==='damage'?'':String(fd.get('day')||''),reason,link:String(fd.get('link')||'').trim(),copyMe:!!fd.get('copyMe')});
         closeModal();penApply(d.id,r.penalties);toast(isAdmin()?(r.mailed?'Díjcsökkentés kiróva, a szakember e-mailt kapott':S.mailOn===false?'Díjcsökkentés kiróva (az e-mailek szünetelnek, értesítés nem ment ki)':'Díjcsökkentés kiróva (e-mailt nem sikerült küldeni)'):'Elküldve jóváhagyásra az ügyvezetőnek');}
       catch(e){handleErr(e);}}});
   penCalc();
@@ -315,7 +316,7 @@ function npBuild(fd){
 }
 function tplFieldHtml(hint){return tplList().length?`<div class="field full tpl-field"><label for="m-tplQ">📋 Sablon – egy korábbi projekt alapján (nem kötelező)</label><div class="tpl-combo"><input class="inp" id="m-tplQ" type="text" autocomplete="off" placeholder="Kattints, és válassz sablont…"><input type="hidden" name="tplId" id="m-tplId"><button type="button" class="tpl-clear" data-action="tpl-clear" aria-label="Sablon törlése" hidden>×</button></div><small class="hint" style="margin:4px 0 0">${hint||'Átveszi az ügyfelet, helyszínt, kapcsolattartót, időpontokat, a megrendelt tartalmakat, a stábot, az eszközöket és a díjakat – csak a dátumot kell megadnod.'}</small></div>`:'';}
 /* Sablonok: a korábbi projektek (névenként a legutóbbi), a lemondottak nélkül */
-const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryPass','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
+const TPL_SKIP=['id','date','endDate','status','prevStatus','stepsDone','siteOk','siteReport','deliveredAt','dueAt','leadvaAt','deliveryLink','deliveryLinks','deliveryPass','deliveryNotes','calEventId','folderId','createdAt','updatedAt','updatedBy','mutationId','listSentAt','listSentTo','crewFinal','penalties','budgetRequest','payStatus','dueKept','crewDays','lastStartTime','lastEndTime','myFee','duplicateOf','er_post_n','x_foto_n'];
 function tplList(){const g=new Map();
   S.projects.filter(p=>p.status!=='lemondva'&&p.name).forEach(p=>{const k=(p.name.trim()+'|'+(p.client||'').trim()).toLowerCase(),st=String((pr(p)||{}).start||'');let e=g.get(k);
     if(!e)g.set(k,e={p,n:0,last:''});e.n++;if(st>=e.last){e.last=st;e.p=p;}});   // névenként a legutóbbi projekt a minta, a darabszám a használat
@@ -474,7 +475,8 @@ function penCrewOpts(){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.
   return ids.map(id=>{const c=crewById(id);return c?[id,c.name]:null;}).filter(Boolean).sort((a,b)=>a[1].localeCompare(b[1],'hu'));}
 function penBlock(show){if(!canSeeFees())return '';const co=penCrewOpts();if(!co.length)return '';
   return `<div class="field full pen-block" id="penWrap"${show?'':' style="display:none"'}><div class="pen-block-h"><b>🚨 Hiba jelzése díjcsökkentéssel</b> <span class="muted">(nem kötelező – kattints a 🚨 jelre annál, aki hibázott)</span></div>
-    <div class="pen-chips">${co.map(([id,nm])=>`<button class="pen-chip" type="button" data-action="pen-row-add" data-cid="${esc(id)}" title="Díjcsökkentés: ${esc(nm)}"><span>${esc(nm)}</span><span class="pen-btn" aria-hidden="true">🚨</span></button>`).join('')}</div><div id="penRows"></div></div>`;}
+    <div class="pen-chips">${co.map(([id,nm])=>`<button class="pen-chip" type="button" data-action="pen-row-add" data-cid="${esc(id)}" title="Díjcsökkentés: ${esc(nm)}"><span>${esc(nm)}</span><span class="pen-btn" aria-hidden="true">🚨</span></button>`).join('')}</div><div id="penRows"></div>${penCopyBox('penCopy')}</div>`;}
+const penCopyBox=name=>`<label class="toggle pen-copy"><input type="checkbox" name="${name}" value="1"><span class="tl">📧 Másolatot kérek a szakembernek küldött e-mailről</span></label><p class="hint" style="margin:4px 0 0">${isAdmin()?'A termelési vezető':'Az ügyvezető'} mindenképp megkapja a másolatot.</p>`;
 let PEN_ROW_N=0;
 function penRowHtml(){const n=++PEN_ROW_N,co=penCrewOpts();
   return `<div class="pen-rowf" data-penrow="${n}"><div class="pen-rowf-g">
@@ -491,7 +493,7 @@ function penRowsCollect(fd,fallback){
     const reason=String(fd.get('pen_reason_'+n)||'').trim()||String(fallback||'').trim();
     if(reason.length<5)throw new Error('Írj indoklást a díjcsökkentéshez (a szerződés 3.6. pontja szerint kötelező).');
     if(kind==='damage'&&!moneyVal(fd.get('pen_amt_'+n)))throw new Error('Add meg a kártérítés összegét.');
-    out.push({crewId:cid,kind,pct:Number(fd.get('pen_pct_'+n))||0,amount:moneyVal(fd.get('pen_amt_'+n))||0,caseText:fd.getAll('pen_case_'+n).join('; '),reason});}
+    out.push({crewId:cid,kind,pct:Number(fd.get('pen_pct_'+n))||0,amount:moneyVal(fd.get('pen_amt_'+n))||0,caseText:fd.getAll('pen_case_'+n).join('; '),reason,copyMe:!!fd.get('penCopy')});}
   return out;}
 async function penRowsSubmit(pid,list){if(!list.length)return;let last=null,mailed=0;
   for(const x of list){try{const r=await call('addPenalty',Object.assign({projectId:pid},x));last=r.penalties;if(r.mailed)mailed++;}catch(e){toast('Díjcsökkentés: '+errText(e),true);}}
@@ -560,14 +562,23 @@ function rawMailModal(next){const d=S.draft;if(!d)return;const eds=editorsOf(d),
   S._rawNext=next;}
 /* A vágó leadja a videókat: link, megjegyzés, kit értesítsen (ügyvezető / termelési vezető) → „Videók jóváhagyásra várnak” */
 function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
-  openModal('📤 Videók leadása – '+(p.name||''),`<div class="fields">${mf('cdLink','A videók linkje',{full:true,type:'url',v:p.deliveryLink||'',ph:'https://drive.google.com/… vagy YouTube'})}${passField(p.deliveryPass)}
+  openModal('📤 Videók leadása – '+(p.name||''),`<div class="fields">${linksField('cdLink','A videók linkje',p.deliveryLink,p.deliveryLinks,'https://drive.google.com/… vagy YouTube')}${passField(p.deliveryPass)}
     <div class="field full"><label for="m-cdNote">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-cdNote" name="cdNote" rows="3" maxlength="3000">${esc(p.deliveryNotes||'')}</textarea></div>
     <div class="field full"><span class="lbl">Kinek menjen értesítés?</span><div class="rolepick"><label><input type="checkbox" name="notify" value="admin" checked> Ügyvezető</label><label><input type="checkbox" name="notify" value="editor"> Termelési vezető</label></div></div></div>
     <p class="hint" style="margin:0">Leadás után a projekt „Videók jóváhagyásra várnak” állapotba kerül.</p>`,
-    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),note:String(fd.get('cdNote')||'').trim(),notify:fd.getAll('notify'),pass:passVal(fd)};if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
-      if(!/^https:\/\/\S+$/i.test(a.link)){toast('Add meg a videók linkjét (https://…).',true);return;}if(!a.notify.length){toast('Válaszd ki, kinek menjen értesítés.',true);return;}
+    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),links:linksVal(fd,'cdLink'),note:String(fd.get('cdNote')||'').trim(),notify:fd.getAll('notify'),pass:passVal(fd)};if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
+      if(!/^https:\/\/\S+$/i.test(a.link)){toast('Add meg a videók linkjét (https://…).',true);return;}if(linksBad(a.links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(!a.notify.length){toast('Válaszd ki, kinek menjen értesítés.',true);return;}
       try{const r=await call('crewDeliver',a);const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);if(S.projectId===p.id&&r.project){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);S.dirty=false;}
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});}
+/* Több átadási link: alapból 1 mező, „+ Újabb link” gombbal legfeljebb 5 */
+const LINKS_MAX=5;
+function linksField(name,label,first,extra,ph){const ex=(extra||[]).slice(0,LINKS_MAX-1);
+  return `<div class="field full links-field" data-links="${name}"><label for="m-${name}">${label}</label><div class="link-rows">
+    <input class="inp" id="m-${name}" name="${name}" type="url" autocomplete="off" placeholder="${esc(ph||'https://drive.google.com/…')}" value="${esc(first||'')}">
+    ${ex.map(v=>linkRowHtml(name,v)).join('')}</div><button class="linkbtn link-add" type="button" data-action="link-add" data-name="${name}"${ex.length>=LINKS_MAX-1?' hidden':''}>+ Újabb link</button></div>`;}
+const linkRowHtml=(name,v)=>`<div class="link-row"><input class="inp" name="${name}_x" type="url" autocomplete="off" placeholder="https://…" value="${esc(v||'')}" aria-label="További link"><button class="x w" type="button" data-action="link-del" aria-label="Link törlése">×</button></div>`;
+function linksVal(fd,name){return fd.getAll(name+'_x').map(x=>String(x||'').trim()).filter(Boolean);}
+const linksBad=arr=>arr.find(x=>!/^https:\/\/\S+$/i.test(x));
 /* Jelszó a videó linkjéhez (opcionális) */
 const passField=cur=>`<div class="field full pass-field"><label class="pass-chk"><input type="checkbox" name="hasPass" id="m-hasPass"${cur?' checked':''}> 🔒 A videó jelszóval védett</label><input class="inp" name="dPass" id="m-dPass" maxlength="120" autocomplete="off" placeholder="Jelszó" value="${esc(cur||'')}"${cur?'':' hidden'}></div>`;
 const passVal=fd=>fd.get('hasPass')?String(fd.get('dPass')||'').trim():'';
@@ -582,7 +593,7 @@ function deliveryModal(target){
   const its=deliverItems(d),stuck=d.siteOk==='nem';
   openModal(toLead?'✂️ Utómunka kész – videók leadása':'📦 Átadás',`${its.length?`<div class="deliv-list"><div class="sec-lbl" style="margin-top:0">Átadandó anyagok</div>${roList(its)}</div>`:''}
     <div class="fields">
-      ${mf('deliveryLink','Átadási link (mappa vagy videók)',{full:true,type:'url',ph:'https://drive.google.com/…',v:d.deliveryLink||''})}${passField(d.deliveryPass)}
+      ${linksField('deliveryLink','Átadási link (mappa vagy videók)',d.deliveryLink,d.deliveryLinks)}${passField(d.deliveryPass)}
       <div class="field"><label>Rendezvény utolsó napja</label><div class="inp ro-inp"><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div></div>
       <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
       <div class="field full"><label class="toggle"><input type="checkbox" name="dueKept" value="1"${d.dueKept!=='nem'?' checked':''}><span class="tl">⏱️ Sikerült tartani az átadási határidőt</span></label></div>
@@ -590,14 +601,15 @@ function deliveryModal(target){
       ${stuckSummary(d)}
       ${canSeeFees()&&penCrewOpts().length?`<div class="field full"><label class="toggle"><input type="checkbox" id="m-stuck"${stuck?' checked':''}><span class="tl">🚨 Elakadás történt</span></label></div>`:''}
       ${penBlock(stuck)}
-      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
+      <div class="field full"><label for="m-deliveryNotes">Észrevételek <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
     </div>`,{submitLabel:toLead?'Leadva ✓':d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
       const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
-      const notes=String(fd.get('deliveryNotes')||'').trim();if(!notes){toast('Írd be az észrevételeket.',true);const e=$('m-deliveryNotes');if(e)e.focus();return;}
+      const links=linksVal(fd,'deliveryLink');if(linksBad(links)){toast('Minden link https:// kezdetű legyen.',true);return;}
+      const notes=String(fd.get('deliveryNotes')||'').trim();   // az észrevétel nem kötelező
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
       if(fd.get('hasPass')&&!passVal(fd)){toast('Add meg a jelszót.',true);return;}
-      const base={deliveryLink:link,deliveryPass:passVal(fd),deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:''};
+      const base={deliveryLink:link,deliveryLinks:links,deliveryPass:passVal(fd),deliveryNotes:notes,dueKept:fd.get('dueKept')?'igen':'nem',dueAt:validISO(due)&&due!==defaultDue(d)?due:''};
       if(toLead){const st=videoStagesOn()?'jovahagyas':'leadva';setDraft(Object.assign(base,{status:st,leadvaAt:d.leadvaAt||todayISO(),deliveredAt:'',stepsDone:ticksUpTo(S.draft,st)}));setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Videók leadva – jóváhagyásra várnak');return;}   // leadás után: „Videók jóváhagyásra várnak”
       setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
@@ -956,6 +968,10 @@ const ACT={
   'merge-theirs':()=>{if(MERGE_THEIRS){const f=MERGE_THEIRS;MERGE_THEIRS=null;f();}},
   'guard-discard':()=>{const g=GUARD_NEXT;GUARD_NEXT=null;closeModal();discardDraft();if(g)g.fn();},
   'budget-request':()=>budgetRequestModal(),
+  'link-add':b=>{const w=b.closest('.links-field');if(!w)return;const rows=w.querySelector('.link-rows');if(rows.querySelectorAll('input').length>=LINKS_MAX)return;
+    rows.insertAdjacentHTML('beforeend',linkRowHtml(b.dataset.name,''));const ins=rows.querySelectorAll('input');ins[ins.length-1].focus();if(ins.length>=LINKS_MAX)b.hidden=true;},
+  'link-del':b=>{const w=b.closest('.links-field');b.closest('.link-row').remove();if(w){const a=w.querySelector('.link-add');if(a)a.hidden=false;}},
+  'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
@@ -963,7 +979,7 @@ const ACT={
     {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}}   // csak előre
     const v=b.dataset.v,go=()=>{
       if((v==='leadva'||(v==='jovahagyas'&&!S.draft.deliveryLink))&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // a „Videók leadva” lépés megszűnt: a jóváhagyásra várás előtt kérjük a linket   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
-      if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink&&String(S.draft.deliveryNotes||'').trim())){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
+      if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink)){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
       if(v==='atadva'&&S.draft.t_kepkeveres&&!needsDelivery(S.draft)&&!/^https:\/\//i.test(S.draft.deliveryLink||'')){streamLinkModal(go);return;}   // streamnél is kell a videó linkje a lezáráshoz
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
