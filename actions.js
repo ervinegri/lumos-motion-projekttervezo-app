@@ -588,13 +588,16 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
   try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla fizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
   catch(err){t.checked=!on;t.disabled=false;handleErr(err);}});
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
+document.addEventListener('change',e=>{if(e.target.id==='pm-month'){S.payMonth=e.target.value;closeModal();render(true);payMailModal(e.target.value);}});
 function payMailModal(month){
   const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));
   OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
   const list=[...ids].map(id=>({c:crewById(id),d:payStatementData(month,id)})).filter(x=>x.c).sort((a,b)=>b.d.total-a.d.total);
-  if(!list.length){toast('Ebben a hónapban nincs kinek díjösszesítőt küldeni.',true);return;}
+  const mset=new Set([todayISO().slice(0,7),month]);S.projects.forEach(p=>{if(p.status!=='lemondva'&&pr(p)&&(p.fees||[]).some(f=>num(f.amount)))mset.add(pr(p).start.slice(0,7));});(S.payAdjust||[]).forEach(x=>mset.add(String(x.month)));
+  const months=[...mset].filter(m=>/^\d{4}-\d{2}$/.test(m)).sort().reverse();
+  const monthSel=`<div class="pm-top"><select class="inp" id="pm-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===month?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select>${list.length?`<span class="pm-bulk"><button class="linkbtn" type="button" data-action="pm-all" data-on="1">Mindenki kijelölése</button><button class="linkbtn" type="button" data-action="pm-all" data-on="0">Kijelölés törlése</button></span>`:''}</div>`;
   const sentOf=id=>(S.paySent||[]).find(x=>x.crewId===id&&String(x.month)===month);
-  openModal('📧 Díjösszesítő kiküldése – '+F_YM.format(toDate(month+'-01')),`<p class="hint" style="margin:0 0 10px">Mindenki csak a saját összesítőjét kapja meg, a saját e-mail-címére, a te aláírásoddal. Az „Előnézet” megmutatja a levelet.</p>
+  openModal('📧 Díjösszesítő kiküldése',`${monthSel}${list.length?'':`<div class="panel">${empty('Ebben a hónapban nincs kinek díjösszesítőt küldeni.')}</div>`}<p class="hint" style="margin:0 0 10px">Mindenki csak a saját összesítőjét kapja meg, a saját e-mail-címére, a te aláírásoddal. Az „Előnézet” megmutatja a levelet.</p>
     <div class="pay-mail-list">${list.map(({c,d})=>{const s=sentOf(c.id),mail=String(c.email||'').trim();
       return `<div class="pml-row"><label class="pml-chk"><input type="checkbox" name="pm" value="${esc(c.id)}"${mail&&!s?' checked':''}${mail?'':' disabled'}><span><b>${esc(c.name)}</b><small>${mail?esc(mail):'<span class="bad-txt">nincs e-mail-cím</span>'}</small></span></label>
         <span class="pml-amt">${ftFmt(d.total)}</span><span class="statuspill p-info" data-pe-tag="${month}|${esc(c.id)}"${S._payEdit&&S._payEdit[month+'|'+c.id]?'':' hidden'}>✏️ szerkesztve</span><span class="pml-st">${s?`<span class="statuspill p-ok" data-tip="${esc('Kiküldve: '+s.sentAt+' · '+s.sentBy+(num(s.amount)!==d.total?'\nAkkor: '+ftFmt(s.amount)+' – azóta változott!':''))}">✓ kiküldve${num(s.amount)!==d.total?' ⚠️':''}</span>`:''}</span>
@@ -1013,6 +1016,10 @@ const ACT={
       {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-mail':b=>payMailModal(b.dataset.month),
+  'pay-st-bulk':async b=>{const on=!!b.dataset.on,f=b.dataset.f,m=b.dataset.month,st=c=>(S.payStatus||[]).find(x=>x.crewId===c&&String(x.month)===m)||{};
+    const ids=b.dataset.ids.split(',').filter(c=>c&&!!st(c)[f+'At']!==on);if(!ids.length){toast(on?'Már mindenkinél be van pipálva.':'Senkinél nincs bepipálva.');return;}
+    b.disabled=true;try{S.payStatus=await call('setPayStatus',{month:m,crewIds:ids,field:f,on});render(true);toast(`${f==='paid'?'Számla fizetve':'Számlát kiállította'}: ${on?'bepipálva':'visszavonva'} – ${ids.length} fő`);}catch(e){b.disabled=false;handleErr(e);}},
+  'pm-all':b=>{const on=b.dataset.on==='1';document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)').forEach(x=>{x.checked=on;});},
   'invite-prev':async()=>{const box=$('invPrev');if(!box)return;const c=crewById(($('m-crewId')||{}).value),email=(($('m-email')||{}).value||'').trim();
     box.innerHTML='<p class="hint">Előnézet betöltése…</p>';{const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
     try{const r=await call('invitePreview',{name:c?c.name:'',email});

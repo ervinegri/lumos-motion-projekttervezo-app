@@ -2635,6 +2635,11 @@ function payHtmlText_(h) {
 }
 /* Havi állapot szakemberenként: számlát kiállította / számla fizetve (dátummal, ki rögzítette) */
 function setPayStatus_(u, a) {
+  if (a && Array.isArray(a.crewIds)) {   // tömeges pipálás: több szakember egyszerre
+    const ids = a.crewIds.map(x => str_(x, 64)).filter(Boolean).slice(0, 80); let out = null;
+    ids.forEach(id => { out = setPayStatus_(u, { month: a.month, crewId: id, field: a.field, on: a.on }); });
+    return out || readAll_('payStatus');
+  }
   const month = str_(a && a.month, 7), crewId = str_(a && a.crewId, 64), field = String(a && a.field || ''), on = !!(a && a.on);
   if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
   if (field !== 'invoiced' && field !== 'paid') throw new Error('Ismeretlen állapot.');
