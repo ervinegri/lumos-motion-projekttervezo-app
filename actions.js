@@ -390,13 +390,14 @@ function crewModal(c){
     ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
     ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
     ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
+    <div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>
     ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
-    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills')};
+    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam'};
     try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
