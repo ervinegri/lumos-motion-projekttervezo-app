@@ -765,8 +765,13 @@ const prioNum=c=>[1,2,3].includes(Number(c.priority))?Number(c.priority):9;
 function prioBadge(c){const p=prioNum(c);return p<9?`<span class="prio prio-${p}" title="Prioritás: ${p} – ${esc(PRIO_LABEL[p])}">P${p}</span>`:'';}
 /* 3.7. pont: 12 hónapon belül 3 súlyos vagy kritikus hiba → azonnali felmondás joga */
 function penStrikes(cid){const from=addDays(todayISO(),-365);let n=0;S.projects.forEach(p=>(p.penalties||[]).forEach(x=>{if(x.crewId===cid&&x.status==='approved'&&(x.kind==='severe'||x.kind==='critical')&&String(x.decidedAt||x.at).slice(0,10)>=from)n++;}));return n;}
-function penStrikeNote(cid){const n=penStrikes(cid);if(!n)return '';
-  return `<p class="pen-strike${n>=3?' bad':''}">⚠️ ${n} súlyos/kritikus hiba az elmúlt 12 hónapban${n>=3?' – a szerződés 3.7. pontja szerint azonnali hatályú felmondásra van jogotok.':''}</p>`;}
+function penStrikeNote(cid){   // az elmúlt 12 hónap összes jóváhagyott hibája, kategóriánként; a súlyos/kritikus darabszám a 3.7. pont miatt külön
+  const from=addDays(todayISO(),-365),all=[];S.projects.forEach(p=>(p.penalties||[]).forEach(x=>{if(x.crewId===cid&&x.status==='approved'&&String(x.decidedAt||x.at).slice(0,10)>=from)all.push({p,x});}));
+  if(!all.length)return '';const n=penStrikes(cid),by={};all.forEach(({x})=>{by[x.kind]=(by[x.kind]||0)+1;});
+  const ORD=['critical','severe','unfit','prestige','light','damage'],SH={critical:'kritikus',severe:'súlyos',unfit:'alkalmatlan állapot',prestige:'presztízsveszteség',light:'enyhe',damage:'kártérítés'};
+  const parts=ORD.filter(k=>by[k]).map(k=>by[k]+' '+SH[k]);
+  const tip=all.sort((a,b)=>String(b.x.at).localeCompare(String(a.x.at))).map(({p,x})=>`${fmtShort(pr(p)?pr(p).start:String(x.at).slice(0,10))} · ${p.name||''} – ${(PEN_KINDS[x.kind]||{}).label||''}${x.kind==='damage'?' '+ftFmt(x.amount):' '+num(x.pct)+'%'}${x.reason?': '+String(x.reason).replace(/\s+/g,' ').slice(0,90):''}`).join('\n');
+  return `<p class="pen-strike${n>=3?' bad':''}" data-tip="${esc(tip)}" tabindex="0">⚠️ ${all.length} hiba az elmúlt 12 hónapban: ${parts.join(', ')}${n>=3?' – a szerződés 3.7. pontja szerint (3 súlyos/kritikus hiba) azonnali hatályú felmondásra van jogotok.':''}</p>`;}
 function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
   let list=crewSorted();
