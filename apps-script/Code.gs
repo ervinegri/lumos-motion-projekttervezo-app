@@ -2579,7 +2579,7 @@ function payStatementBuild_(u, a) {
   const gap = '<tr><td colspan="2" style="height:12px"></td></tr>';
   let summ = '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + sr('Projektdíjak (' + rows.length + ' projekt)', pm(feeSum))
     + (rent ? sr('Irodabérleti és termelési vezetői díj', pm(rent, true)) : '')
-    + '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap"><b>' + pm(gross) + '</b></td></tr>';
+    + (rent ? '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap"><b>' + pm(gross) + '</b></td></tr>' : '');   // a Díjak összesen csak akkor kell, ha több bevételi sor van (pl. irodabérlet)
   if (dedSum || adj) summ += gap + (dedSum ? sr('Díjcsökkentések (' + pens.length + ' tétel)', pm(-dedSum), RED) : '') + (adj ? sr('± Korrekció (levonás / hozzáadás)', pm(adj, true), adj < 0 ? RED : GRN) : '');
   summ += gap + '<tr><td style="padding:6px 16px 3px 0;border-top:2px solid #1d3a2e"><b>Kifizetendő összesen</b></td><td style="padding-top:6px;border-top:2px solid #1d3a2e;text-align:right;white-space:nowrap;font-size:16px"><b>' + pm(total) + '</b></td></tr></table>';
   const FD = dedSum > 0 || adj < 0;   // levonás nélkül csak a Kifizetendő oszlop látszik
@@ -2608,7 +2608,7 @@ function payStatementBuild_(u, a) {
     + '<p>Ha bármi eltérést találsz, kérlek, <b>' + nextIg(PAY_COMPANY_.replyDay) + '</b> válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.</p>'
     + '<div style="margin-top:18px">' + (sig ? sig.html : MAIL_SIGNATURE_HTML) + '</div></div>';
   const L = ['Kedves ' + first + ',', '', 'Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.', '', 'ÖSSZESÍTÉS',
-    'Projektdíjak (' + rows.length + ' projekt): ' + pm(feeSum)].concat(rent ? ['Irodabérleti és termelési vezetői díj: ' + pm(rent, true)] : [], ['Díjak összesen: ' + pm(gross)],
+    'Projektdíjak (' + rows.length + ' projekt): ' + pm(feeSum)].concat(rent ? ['Irodabérleti és termelési vezetői díj: ' + pm(rent, true)] : [], rent ? ['Díjak összesen: ' + pm(gross)] : [],
     dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + pm(-dedSum)] : [], adj ? ['± Korrekció: ' + pm(adj, true) + (adjNote ? ' – ' + adjNote : '')] : [], ['Kifizetendő összesen: ' + pm(total), '', 'PROJEKTEK'],
     rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + pm(r.fee) + (r.ded ? ' − ' + pm(r.ded) + ' = ' + pm(r.fee - r.ded) : '')),
     pens.length ? ['', 'DÍJCSÖKKENTÉSEK'] : [], pens.map((x, i) => (i + 1) + '. ' + x.project + ' – ' + pm(-x.amount) + '\n   ' + x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.day ? '\n   Érintett: ' + x.day : '') + (x.caseText ? '\n   Eset: ' + x.caseText : '') + '\n   Indoklás: ' + x.reason + (x.by ? '\n   ' + x.by : '')),
