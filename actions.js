@@ -583,6 +583,10 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
   box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
 document.addEventListener('input',e=>{const ed=e.target.closest&&e.target.closest('.mail-edit[data-pe]');if(!ed)return;S._payEdit=S._payEdit||{};S._payEdit[ed.dataset.pe]=ed.innerHTML;payEditMark();});
+/* Termelői fizetések alján: számlát kiállította / számla fizetve pipálása */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.paySt)return;const on=t.checked;t.disabled=true;
+  try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla fizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
+  catch(err){t.checked=!on;t.disabled=false;handleErr(err);}});
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
 function payMailModal(month){
   const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));

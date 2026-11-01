@@ -100,6 +100,8 @@ const TABLES = {
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
     ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
+  payStatus: { tab: 'Számlák és kifizetések', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['invoicedAt', 'Számlát kiállította'], ['invoicedBy', 'Rögzítette (számla)'], ['paidAt', 'Számla fizetve'], ['paidBy', 'Rögzítette (fizetés)']] },
   paySent: { tab: 'Díjösszesítők', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte']] },
   payAdjust: { tab: 'Fizetési korrekciók', cols: [
@@ -519,7 +521,8 @@ function bootstrap_(u) {
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
-    paySent: u.role === 'admin' ? readAll_('paySent') : [],
+    paySent: u.role === 'crew' ? readAll_('paySent').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('paySent'),
+    payStatus: u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('payStatus'),
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
@@ -2629,6 +2632,21 @@ function payHtmlText_(h) {
     .replace(/&nbsp;|\u00a0/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
     .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
+/* Havi állapot szakemberenként: számlát kiállította / számla fizetve (dátummal, ki rögzítette) */
+function setPayStatus_(u, a) {
+  const month = str_(a && a.month, 7), crewId = str_(a && a.crewId, 64), field = String(a && a.field || ''), on = !!(a && a.on);
+  if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
+  if (field !== 'invoiced' && field !== 'paid') throw new Error('Ismeretlen állapot.');
+  const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
+  return withLock_(() => {
+    const sh = sheetFor_('payStatus'), id = month + '|' + crewId, row = findRow_(sh, id);
+    const cur = row ? readRow_('payStatus', sh, row) : { id: id, month: month, crewId: crewId, crewName: c.name, invoicedAt: '', invoicedBy: '', paidAt: '', paidBy: '' };
+    cur.crewName = c.name; cur[field + 'At'] = on ? today_() : ''; cur[field + 'By'] = on ? u.name : '';
+    putRow_('payStatus', sh, cur, row);
+    logEvent_(u, field === 'paid' ? (on ? 'Számla fizetve' : 'Számla fizetve – visszavonva') : (on ? 'Számlát kiállította' : 'Számla kiállítása – visszavonva'), c.name, month);
+    return readAll_('payStatus');
+  });
+}
 function sendPayStatements_(u, a) {
   const list = (Array.isArray(a && a.items) ? a.items : []).slice(0, 60), sent = [], failed = [];
   if (!mailOn_('payStatement')) throw new Error('Az e-mail-küldés szünetel (Beállítások → E-mail értesítések).');
@@ -3293,6 +3311,7 @@ function rpcInner_(token, name, arg) {
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
     case 'invitePreview': canEdit(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
     case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
+    case 'setPayStatus': adminOnly(); return setPayStatus_(u, arg);
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();

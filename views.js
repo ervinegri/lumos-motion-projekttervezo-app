@@ -47,7 +47,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCa
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
     if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
@@ -65,7 +65,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(((S.tab==='penzugy'||S.tab==='szerzodes')&&!isAdmin())||(S.tab==='beallitasok'&&ro()))S.tab='projektek';
@@ -285,6 +285,13 @@ function viewPayouts(){
     return isAdmin()?`<td class="r"><button class="adj-btn" type="button" data-action="pay-adj" data-cid="${esc(c)}" data-month="${sel}"${tip?` data-tip="${tip}"`:' data-tip="Korrekció hozzáadása"'}>${inner}</button></td>`:`<td class="r"${tip?` data-tip="${tip}" tabindex="0"`:''}>${inner}</td>`;};
   const adjRow=adjL.length||(isAdmin()&&!crewMode&&cids.length)?`<tr class="pay-adj"><td>± Korrekció <span class="muted" style="font-weight:500">(levonás / hozzáadás)</span></td>${cids.map(adjCell).join('')}${crewMode?'':`<td class="r"><b>${adjTotal?sgn(adjTotal):'–'}</b></td>`}</tr>`:'';
   const keptRow=keptTotal?`<tr class="pay-left"><td>🚨 Nem kerül kifizetésre</td>${cids.map(c=>`<td class="r">${keptM[c]?moneyFmt(keptM[c]):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':'<td></td>'}</tr>`:'';   // az összesen oszlopba nem kerül
+  const stOf=c=>(S.payStatus||[]).find(x=>x.crewId===c&&String(x.month)===sel)||{},sentOf=c=>(S.paySent||[]).find(x=>x.crewId===c&&String(x.month)===sel);
+  const dshort=d=>/^\d{4}-\d{2}-\d{2}/.test(String(d||''))?fmtShort(String(d).slice(0,10)):'';
+  const stCell=(c,f)=>{if(f==='sent'){const s=sentOf(c);return `<td class="r pay-st">${s?`<span class="ok-txt" data-tip="${esc('Kiküldve: '+s.sentAt+(s.sentBy?' · '+s.sentBy:''))}">✓ ${esc(dshort(s.sentAt))}</span>`:'<span class="muted">–</span>'}</td>`;}
+    const st=stOf(c),on=!!st[f+'At'],tip=on?esc(`${f==='paid'?'Fizetve':'Kiállítva'}: ${st[f+'At']}${st[f+'By']?' · '+st[f+'By']:''}`):'';
+    return `<td class="r pay-st">${isAdmin()&&!crewMode?`<label class="pst-chk${on?' on':''}"${tip?` data-tip="${tip}"`:''}><input type="checkbox" data-pay-st="${f}" data-cid="${esc(c)}" data-month="${sel}"${on?' checked':''}> ${on?esc(dshort(st[f+'At'])):''}</label>`:on?`<span class="ok-txt"${tip?` data-tip="${tip}"`:''}>✓ ${esc(dshort(st[f+'At']))}</span>`:'<span class="muted">–</span>'}</td>`;};
+  const stCount=f=>cids.filter(c=>f==='sent'?!!sentOf(c):!!stOf(c)[f+'At']).length;
+  const statusRows=cids.length?[['sent','📧 Díjösszesítő kiküldve'],['invoiced','🧾 Számlát kiállította'],['paid','✅ Számla fizetve']].map(([f,l],k)=>`<tr class="pay-strow${k===0?' first':''}"><td>${l}</td>${cids.map(c=>stCell(c,f)).join('')}${crewMode?'':`<td class="r"><b>${stCount(f)}/${cids.length}</b></td>`}</tr>`).join(''):'';
   const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':`<td class="r"><b>${moneyFmt(rentTotal)}</b></td>`}</tr>`:'';
   const nameOf=c=>(crewById(c)||{}).name||(crewMode?(S.me.viewAs&&S.me.viewAs.crewName)||S.me.name:'Munkatárs');
   const cell=(r,c)=>{const d=r.ded[c],why=d?esc(`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c)):'';
@@ -294,7 +301,7 @@ function viewPayouts(){
       ${isAdmin()&&!crewMode?`<button class="btn outline small" type="button" data-action="pay-mail" data-month="${sel}">📧 Díjösszesítő kiküldése</button>`:''}<div class="month-nav"><button class="btn outline small mn-arrow" type="button" data-action="pay-step" data-d="1"${months.indexOf(sel)>=months.length-1?' disabled':''} aria-label="Előző hónap" title="Előző hónap">‹</button><select class="inp" id="pay-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select><button class="btn outline small mn-arrow" type="button" data-action="pay-step" data-d="-1"${months.indexOf(sel)<=0?' disabled':''} aria-label="Következő hónap" title="Következő hónap">›</button></div></div>
     ${rows.length||rentOn.length||adjL.length?`<div class="sheet-wrap pay-wrap${crewMode?' pay-center':''}"><table class="sheet pay-sheet">${colW}<thead><tr><th>Projekt neve</th>${cids.map(c=>`<th class="r" title="${esc(nameOf(c))}">${esc(shortName(nameOf(c)))}</th>`).join('')}${crewMode?'':'<th class="r">Projekt összesen</th>'}</tr></thead>
       <tbody>${rows.map(r=>`<tr><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button></td>${cids.map(c=>cell(r,c)).join('')}${crewMode?'':`<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td>`}</tr>`).join('')}${rows.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}${adjRow}</tbody>
-      <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}${crewMode?'':`<td class="r pay-total"><b>${ftFmt(total)}</b></td>`}</tr>${keptRow}</tfoot></table></div>`
+      <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}${crewMode?'':`<td class="r pay-total"><b>${ftFmt(total)}</b></td>`}</tr>${keptRow}${statusRows}</tfoot></table></div>`
       :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}`;
 }
 function pendingBudgetPanel(){
