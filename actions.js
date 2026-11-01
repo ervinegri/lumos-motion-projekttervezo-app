@@ -432,7 +432,7 @@ function userModal(u){
     ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole)}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
-    <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label>`}</div>
+    <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
   submit:async(fd,form)=>{
@@ -1004,6 +1004,11 @@ const ACT={
       {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-mail':b=>payMailModal(b.dataset.month),
+  'invite-prev':async()=>{const box=$('invPrev');if(!box)return;const c=crewById(($('m-crewId')||{}).value),email=(($('m-email')||{}).value||'').trim();
+    box.innerHTML='<p class="hint">Előnézet betöltése…</p>';
+    try{const r=await call('invitePreview',{name:c?c.name:'',email});
+      box.innerHTML=`<div class="inv-prev"><div class="inv-h"><div><span>Feladó:</span> ${esc(r.from)}</div><div><span>Címzett:</span> ${esc(email||'(még nincs megadva)')}</div><div><span>Tárgy:</span> <b>${esc(r.subject)}</b></div></div><div class="inv-b">${r.html}</div></div>`;}
+    catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-prev':b=>payPreview(b.dataset.month,b.dataset.cid,false),
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},

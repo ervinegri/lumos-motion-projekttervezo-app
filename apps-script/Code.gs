@@ -2976,6 +2976,13 @@ function crewDeliver_(u, a) {
 }
 /** Meghívó Google-fiókos belépéshez (PIN nélkül). */
 function sendInviteMail_(user) {
+  const m = inviteMailBuild_(user);
+  const opts = { htmlBody: m.html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
+  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
+  gmailSend_(user.email, m.subject, m.text, opts, 'invite');
+}
+/** A meghívó levél tartalma (a küldés és a Beállítások előnézete is ezt használja). */
+function inviteMailBuild_(user) {
   const url = appUrl_() || FRONTEND_URL;
   const intro = 'Hozzáférést kaptál a ' + APP_TITLE + ' alkalmazáshoz.';
   const lines = ['Kedves ' + user.name + ',', '', intro, '',
@@ -2984,9 +2991,7 @@ function sendInviteMail_(user) {
   const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p>Belépés: nyisd meg a <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a> oldalt, és kattints a <b>„Bejelentkezés Google-fiókkal”</b> gombra.</p>'
     + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  const opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
-  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  gmailSend_(user.email, APP_TITLE + ' – meghívó', lines.join('\n'), opts, 'invite');
+  return { subject: APP_TITLE + ' – meghívó', text: lines.join('\n'), html: html, from: 'Lumos Motion <' + MAIL_FROM + '>' };
 }
 
 /** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
@@ -3270,6 +3275,7 @@ function rpcInner_(token, name, arg) {
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
+    case 'invitePreview': adminOnly(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' });
     case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
