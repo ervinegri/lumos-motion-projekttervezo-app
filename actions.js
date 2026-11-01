@@ -604,7 +604,7 @@ function payMailModal(month){
         <button class="linkbtn" type="button" data-action="pay-mail-prev" data-month="${month}" data-cid="${esc(c.id)}">Előnézet</button></div>`;}).join('')}</div>
     <div id="payPrev"></div>`,{submitLabel:'Kiküldés',submit:async fd=>{const sel=fd.getAll('pm');if(!sel.length){toast('Jelölj ki legalább egy munkatársat.',true);return;}
       try{const r=await call('sendPayStatements',{items:sel.map(id=>{const it=payStatementData(month,id),h=S._payEdit&&S._payEdit[month+'|'+id];if(h)it.html=h;return it;})});(r.sent||[]).forEach(x=>{if(S._payEdit)delete S._payEdit[month+'|'+x.crewId];});S.paySent=r.paySent||S.paySent;closeModal();render(true);
-        toast(`Díjösszesítő kiküldve: ${r.sent.length} fő`+(r.failed.length?` · nem sikerült: ${r.failed.map(x=>x.name||x.crewId).join(', ')}`:''),!!r.failed.length);}catch(e){handleErr(e);}}});
+        toast(`Díjösszesítő kiküldve: ${r.sent.map(x=>x.name).join(', ')||'senkinek'}`+(r.failed.length?` · nem sikerült: ${r.failed.map(x=>x.name||x.crewId).join(', ')}`:''),!!r.failed.length);}catch(e){handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
 /* Több átadási link: alapból 1 mező, „+ Újabb link” gombbal legfeljebb 5 */
 const LINKS_MAX=5;
