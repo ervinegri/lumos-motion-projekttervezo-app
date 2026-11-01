@@ -2580,8 +2580,11 @@ function payStatementBuild_(u, a) {
   summ += gap + '<tr><td style="padding:6px 16px 3px 0;border-top:2px solid #1d3a2e"><b>Kifizetendő összesen</b></td><td style="padding-top:6px;border-top:2px solid #1d3a2e;text-align:right;white-space:nowrap;font-size:16px"><b>' + payMoney_(total) + '</b></td></tr></table>';
   let tr = rows.map(r => '<tr><td style="' + TD + ';white-space:nowrap">' + e(r.date) + '</td><td style="' + TD + '"><b>' + e(r.name) + '</b>' + (r.roles ? '<br><span style="color:#667788;font-size:12px">' + e(r.roles) + '</span>' : '') + '</td><td style="' + NUM + '">' + payMoney_(r.fee) + '</td><td style="' + NUM + ';color:' + (r.ded ? RED : '#999999') + '">' + (r.ded ? payMoney_(-r.ded) : '–') + '</td><td style="' + NUM + '"><b>' + payMoney_(r.fee - r.ded) + '</b></td></tr>').join('');
   if (rent) tr += '<tr><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>🏢 Irodabérleti és termelési vezetői díj</b></td><td style="' + NUM + '">' + payMoney_(rent) + '</td><td style="' + NUM + ';color:#999999">–</td><td style="' + NUM + '"><b>' + payMoney_(rent) + '</b></td></tr>';
-  if (adj) tr += '<tr style="background:#f4f6ff"><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>± Korrekció</b> (levonás / hozzáadás)' + (adjNote ? '<br><span style="color:#667788;font-size:12px">' + e(adjNote) + '</span>' : '') + '</td><td style="' + NUM + '"></td><td style="' + NUM + '"></td><td style="' + NUM + ';color:' + (adj < 0 ? RED : GRN) + '"><b>' + payMoney_(adj, true) + '</b></td></tr>';
-  tr += '<tr style="background:#e8f2ec"><td style="' + TD + '"></td><td style="' + TD + '"><b>Összesen</b></td><td style="' + NUM + '"><b>' + payMoney_(gross) + '</b></td><td style="' + NUM + ';color:' + RED + '"><b>' + (dedSum ? payMoney_(-dedSum) : '–') + '</b></td><td style="' + NUM + '"><b>' + payMoney_(total) + '</b></td></tr>';
+  if (adj) tr += '<tr style="background:#f4f6ff"><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>± Korrekció</b> (' + (adj < 0 ? 'levonás' : 'hozzáadás') + ')' + (adjNote ? '<br><span style="color:#667788;font-size:12px">' + e(adjNote) + '</span>' : '') + '</td>'
+    + (adj > 0 ? '<td style="' + NUM + '">' + payMoney_(adj) + '</td><td style="' + NUM + ';color:#999999">–</td>' : '<td style="' + NUM + ';color:#999999">–</td><td style="' + NUM + ';color:' + RED + '">' + payMoney_(adj) + '</td>')
+    + '<td style="' + NUM + '"><b>' + payMoney_(adj) + '</b></td></tr>';   // levonás a Levonás oszlopba, hozzáadás a Díj oszlopba
+  const tFee = gross + Math.max(0, adj), tDed = dedSum + Math.max(0, -adj);
+  tr += '<tr style="background:#e8f2ec"><td style="' + TD + '"></td><td style="' + TD + '"><b>Összesen</b></td><td style="' + NUM + '"><b>' + payMoney_(tFee) + '</b></td><td style="' + NUM + ';color:' + RED + '"><b>' + (tDed ? payMoney_(-tDed) : '–') + '</b></td><td style="' + NUM + '"><b>' + payMoney_(total) + '</b></td></tr>';
   const table = '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px;font-family:Arial,Helvetica,sans-serif"><tr><th style="' + TH + '">Dátum</th><th style="' + TH + '">Projekt · szereped</th><th style="' + THR + '">Díj</th><th style="' + THR + '">Levonás</th><th style="' + THR + '">Kifizetendő</th></tr>' + tr + '</table>';
   const li = (l, v) => '<tr><td style="padding:3px 10px 3px 0;color:#667788;font-size:13px;white-space:nowrap;vertical-align:top">' + l + '</td><td style="padding:3px 0;font-size:13px">' + v + '</td></tr>';
   const penHtml = pens.map((x, i) => '<div style="border:1px solid #f0d0c8;background:#fff8f6;border-radius:8px;padding:10px 12px;margin:0 0 10px"><div style="font-size:14px;margin-bottom:4px"><b>' + (i + 1) + '. ' + e(x.project) + '</b> <span style="color:' + RED + ';white-space:nowrap"><b>' + payMoney_(-x.amount) + '</b></span></div><table cellpadding="0" cellspacing="0">'
@@ -2593,13 +2596,13 @@ function payStatementBuild_(u, a) {
     .map(r => '<tr><td style="padding:3px 14px 3px 0;color:#667788;white-space:nowrap;vertical-align:top">' + r[0] + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>').join('');
   const sig = signatureFor_(u), url = appUrl_() || FRONTEND_URL;
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;max-width:680px;font-size:14px">'
-    + '<p>Kedves ' + e(first) + ',</p><p>összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.</p>'
+    + '<p>Kedves ' + e(first) + ',</p><p>Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.</p>'
     + H('ÖSSZESÍTÉS') + summ + H('PROJEKTEK') + table + (pens.length ? H('DÍJCSÖKKENTÉSEK RÉSZLETESEN') + penHtml : '') + (adj ? H('± KORREKCIÓ') + adjHtml : '')
     + H('SZÁMLÁZÁS') + '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + inv + '</table>'
     + '<p style="margin-top:20px">A projektjeidet a projekttervező applikációban is megnézheted: <a href="' + url + '">' + e(String(url).replace(/^https:\/\//, '').replace(/\/$/, '')) + '</a></p>'
     + '<p>Ha bármi eltérést találsz, kérlek, <b>' + nextIg(PAY_COMPANY_.replyDay) + '</b> válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.</p>'
     + '<div style="margin-top:18px">' + (sig ? sig.html : MAIL_SIGNATURE_HTML) + '</div></div>';
-  const L = ['Kedves ' + first + ',', '', 'összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.', '', 'ÖSSZESÍTÉS',
+  const L = ['Kedves ' + first + ',', '', 'Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.', '', 'ÖSSZESÍTÉS',
     'Projektdíjak (' + rows.length + ' projekt): ' + payMoney_(feeSum)].concat(rent ? ['Irodabérleti és termelési vezetői díj: ' + payMoney_(rent, true)] : [], ['Díjak összesen: ' + payMoney_(gross)],
     dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + payMoney_(-dedSum)] : [], adj ? ['± Korrekció: ' + payMoney_(adj, true) + (adjNote ? ' – ' + adjNote : '')] : [], ['Kifizetendő összesen: ' + payMoney_(total), '', 'PROJEKTEK'],
     rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + payMoney_(r.fee) + (r.ded ? ' − ' + payMoney_(r.ded) + ' = ' + payMoney_(r.fee - r.ded) : '')),
@@ -2607,7 +2610,23 @@ function payStatementBuild_(u, a) {
     ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + payMoney_(total) + (vat ? ' + ÁFA' : ''), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”',
       'Fizetési határidő: ' + PAY_COMPANY_.payDays + ' nap', 'Beküldési határidő: ' + nextLbl(PAY_COMPANY_.invoiceDay), 'Hová küldd: ' + PAY_COMPANY_.finance, '',
       'A projektjeidet a projekttervező applikációban is megnézheted: ' + url, '', 'Ha bármi eltérést találsz, kérlek, ' + nextIg(PAY_COMPANY_.replyDay) + ' válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.', '', sig ? sig.text : MAIL_SIGNATURE_TEXT]);
+  if (a.html) {   // az ügyvezető az előnézetben átírta a levelet: a módosított változat megy ki (szkriptek, eseménykezelők nélkül)
+    const h = payCleanHtml_(a.html);
+    if (h.replace(/<[^>]*>/g, '').trim().length < 20) throw new Error('A szerkesztett levél üres.');
+    return { c: c, month: month, subject: subject, html: h, text: payHtmlText_(h), total: total, edited: true };
+  }
   return { c: c, month: month, subject: subject, html: html, text: L.join('\n'), total: total };
+}
+function payCleanHtml_(raw) {
+  return String(raw || '').slice(0, 300000)
+    .replace(/<\s*(script|style|iframe|object|embed|form|input|button|textarea|select|link|meta|base)\b[\s\S]*?(<\/\s*\1\s*>|\/?>)/gi, '')
+    .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '').replace(/\scontenteditable\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/(href|src)\s*=\s*("|')\s*(javascript|data|vbscript):[^"']*\2/gi, '$1="#"');
+}
+function payHtmlText_(h) {
+  return String(h).replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|tr|h[1-6]|li)>/gi, '\n').replace(/<\/t[dh]>/gi, '\t').replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;|\u00a0/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 function sendPayStatements_(u, a) {
   const list = (Array.isArray(a && a.items) ? a.items : []).slice(0, 60), sent = [], failed = [];
