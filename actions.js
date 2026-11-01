@@ -971,6 +971,14 @@ const ACT={
   'link-add':b=>{const w=b.closest('.links-field');if(!w)return;const rows=w.querySelector('.link-rows');if(rows.querySelectorAll('input').length>=LINKS_MAX)return;
     rows.insertAdjacentHTML('beforeend',linkRowHtml(b.dataset.name,''));const ins=rows.querySelectorAll('input');ins[ins.length-1].focus();if(ins.length>=LINKS_MAX)b.hidden=true;},
   'link-del':b=>{const w=b.closest('.links-field');b.closest('.link-row').remove();if(w){const a=w.querySelector('.link-add');if(a)a.hidden=false;}},
+  'pay-adj':b=>{const cid=b.dataset.cid,m=b.dataset.month,c=crewById(cid),x=(S.payAdjust||[]).find(y=>y.crewId===cid&&String(y.month)===m),v=x?num(x.amount):0;
+    openModal('± Korrekció – '+(c?c.name:'')+' · '+F_YM.format(toDate(m+'-01')),`<p class="hint" style="margin:0 0 10px">Extra levonás vagy hozzáadás erre a hónapra – például ha valaki a saját keretéből kipótolja egy kolléga díját. A szakember fizetéséhez adódik (levonásnál csökkenti).</p>
+      <div class="fields"><div class="field"><label>Típus</label><div class="rolepick"><label><input type="radio" name="sign" value="-"${v<0?' checked':''}> − Levonás</label><label><input type="radio" name="sign" value="+"${v>=0?' checked':''}> + Hozzáadás</label></div></div>
+      ${moneyField('adjAmt','Összeg (nettó)',v?Math.abs(v):'',{steps:false,ph:'pl. 20 000'})}
+      <div class="field full"><label for="m-adjNote">Megjegyzés (a szakember is látja)</label><input class="inp" id="m-adjNote" name="note" maxlength="300" value="${esc(x?x.note:'')}" placeholder="pl. Major Bence díjának kipótlása a saját keretből"></div>
+      ${x?'<div class="field full"><p class="hint" style="margin:0">Az összeg törléséhez írj 0-t.</p></div>':''}</div>`,
+      {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
+        try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),

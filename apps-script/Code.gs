@@ -100,6 +100,8 @@ const TABLES = {
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
     ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
+  payAdjust: { tab: 'Fizetési korrekciók', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['amount', 'Korrekció (nettó Ft, + / −)'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -515,6 +517,7 @@ function bootstrap_(u) {
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
+    payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
     mailOn: mailOn_(), mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
@@ -2543,6 +2546,22 @@ function objectPenalty_(u, a) {
 /** Ügyfél felvétele/módosítása. Ha a cégnév megváltozik, a projektek „Ügyfél” mezője is átíródik. */
 /* Irodabérlet: szakembertől bérelt iroda havi díja – a Kifizetéseknél a díjához adódik.
    Egy sor = egy szakember egy hónapja; a következő hónapokra a legutóbbi érték érvényes, amíg nem írják át (0 = megszűnt). */
+/* Fizetési korrekció: havi extra levonás vagy hozzáadás szakemberenként (pl. valaki a saját keretéből kipótolja egy kolléga díját). 0 = törlés. */
+function savePayAdjust_(u, a) {
+  const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
+  if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
+  const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
+  const amount = Math.round(Number(String(a.amount == null ? '' : a.amount).replace(/[^\d-]/g, '')) || 0), note = str_(a.note, 300).trim();
+  if (Math.abs(amount) > FEE_MAX) throw new Error('Túl nagy összeg.');
+  if (amount && note.length < 3) throw new Error('Írd be röviden, miért jár a korrekció.');
+  return withLock_(() => {
+    const sh = sheetFor_('payAdjust'), id = crewId + '|' + month, row = findRow_(sh, id);
+    if (!amount) { if (row) sh.deleteRow(row); }
+    else putRow_('payAdjust', sh, { id: id, month: month, crewId: crewId, crewName: c.name, amount: amount, note: note, updatedAt: now_(), updatedBy: u.name }, row);
+    logEvent_(u, 'Fizetési korrekció', c.name, month + ': ' + (amount ? (amount > 0 ? '+' : '') + amount + ' Ft · ' + note : 'törölve'));
+    return readAll_('payAdjust');
+  });
+}
 function saveOfficeRent_(u, a) {
   const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
   if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
@@ -3150,6 +3169,7 @@ function rpcInner_(token, name, arg) {
     case 'movePenaltyDay': adminOnly(); return movePenaltyDay_(u, arg);
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
+    case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz
