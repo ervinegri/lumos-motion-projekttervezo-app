@@ -424,14 +424,14 @@ function itemModal(it,after){
 }
 document.addEventListener('change',e=>{if(e.target.id==='m-role'){const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
-  const v=u||{};
+  const v=u||{};S._invEdit='';
   const crewOpts=[['','Válassz a stáblistából…'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
   const otherEd=(S.users||[]).find(x=>x.role==='editor'&&x.id!==v.id),defRole=USER_ROLES[v.role]?v.role:(otherEd?'crew':'editor');
   openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
     ${ms('crewId','Munkatárs (a stáblistából – ez lesz a megjelenő név)',crewOpts,v.crewId||'',{full:true})}
     ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole)}
+    ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
-    ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,full:true,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
@@ -439,7 +439,7 @@ function userModal(u){
     const cr=crewById(fd.get('crewId'));
     if(fd.get('role')==='editor'&&otherEd){toast('Csak egy termelési vezető lehet – előbb töröld '+otherEd.name+' fiókját, vagy állítsd Szakemberre.',true);const w=$('m-edWarn');if(w){w.hidden=false;w.scrollIntoView({block:'nearest'});}return;}
     if(!cr&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából (ha még nincs benne, előbb vedd fel a Stáb fülön).',true);return;}
-        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};
+        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
     try{
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
@@ -1010,9 +1010,14 @@ const ACT={
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-mail':b=>payMailModal(b.dataset.month),
   'invite-prev':async()=>{const box=$('invPrev');if(!box)return;const c=crewById(($('m-crewId')||{}).value),email=(($('m-email')||{}).value||'').trim();
-    box.innerHTML='<p class="hint">Előnézet betöltése…</p>';
+    box.innerHTML='<p class="hint">Előnézet betöltése…</p>';{const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
     try{const r=await call('invitePreview',{name:c?c.name:'',email});
-      box.innerHTML=`<div class="inv-prev"><div class="inv-h"><div><span>Feladó:</span> ${esc(r.from)}</div><div><span>Címzett:</span> ${esc(email||'(még nincs megadva)')}</div><div><span>Tárgy:</span> <b>${esc(r.subject)}</b></div></div><div class="inv-b">${r.html}</div></div>`;}
+      box.innerHTML=`<div class="inv-prev"><div class="inv-h"><div><span>Feladó:</span> ${esc(r.from)}</div><div><span>Címzett:</span> ${esc(email||'(még nincs megadva)')}</div><div><span>Tárgy:</span> <b>${esc(r.subject)}</b></div><small class="hint">Kattints a levélbe, és írd át, ami kell – ez a változat megy ki. Ha másik munkatársat választasz, nyisd meg újra az előnézetet.</small></div></div>`;
+      S._invEdit='';const f=document.createElement('iframe');f.className='mail-frame';f.style.minHeight='260px';f.title='Meghívó előnézet (szerkeszthető)';
+      f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:14px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+r.html+'</body></html>';
+      const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
+      f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._invEdit=d.body.innerHTML;fit();});});
+      box.querySelector('.inv-prev').appendChild(f);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-prev':b=>payPreview(b.dataset.month,b.dataset.cid,false),
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},

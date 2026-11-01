@@ -2975,23 +2975,26 @@ function crewDeliver_(u, a) {
   return { project: projectView_(fullProject_(p), u), notified: to };
 }
 /** Meghívó Google-fiókos belépéshez (PIN nélkül). */
-function sendInviteMail_(user) {
-  const m = inviteMailBuild_(user);
-  const opts = { htmlBody: m.html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO };
-  try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {}
-  gmailSend_(user.email, m.subject, m.text, opts, 'invite');
+function sendInviteMail_(user, actor, editedHtml) {
+  const m = inviteMailBuild_(user, actor);
+  let html = m.html, text = m.text;
+  if (editedHtml) { const h = payCleanHtml_(editedHtml); if (h.replace(/<[^>]*>/g, '').trim().length >= 20) { html = h; text = payHtmlText_(h); } }   // az előnézetben átírt változat
+  let opts;
+  if (actor && actor.email) opts = mailOptsFor_(actor, html);   // a meghívót küldő ügyvezető nevében, a saját aláírásával
+  else { opts = { htmlBody: html, name: 'Lumos Motion', replyTo: MAIL_REPLY_TO }; try { if (GmailApp.getAliases().indexOf(MAIL_FROM) >= 0) opts.from = MAIL_FROM; } catch (e) {} }
+  gmailSend_(user.email, m.subject, text, opts, 'invite');
 }
 /** A meghívó levél tartalma (a küldés és a Beállítások előnézete is ezt használja). */
-function inviteMailBuild_(user) {
-  const url = appUrl_() || FRONTEND_URL;
+function inviteMailBuild_(user, actor) {
+  const url = appUrl_() || FRONTEND_URL, sig = signatureFor_(actor), first = String(user.name || '').trim().split(/\s+/).slice(-1)[0] || user.name;
   const intro = 'Hozzáférést kaptál a ' + APP_TITLE + ' alkalmazáshoz.';
-  const lines = ['Kedves ' + user.name + ',', '', intro, '',
+  const lines = ['Kedves ' + first + ',', '', intro, '',
     'Belépés: nyisd meg a ' + FRONTEND_LABEL + ' oldalt, és kattints a „Bejelentkezés Google-fiókkal” gombra.',
-    'Ezzel a Google-fiókkal lépj be: ' + user.email, '', MAIL_SIGNATURE_TEXT];
-  const html = '<p>Kedves ' + escapeHtml_(user.name) + ',</p><p>' + escapeHtml_(intro) + '</p>'
+    'Ezzel a Google-fiókkal lépj be: ' + user.email, '', sig ? sig.text : MAIL_SIGNATURE_TEXT];
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;font-size:14px"><p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p>Belépés: nyisd meg a <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a> oldalt, és kattints a <b>„Bejelentkezés Google-fiókkal”</b> gombra.</p>'
-    + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  return { subject: APP_TITLE + ' – meghívó', text: lines.join('\n'), html: html, from: 'Lumos Motion <' + MAIL_FROM + '>' };
+    + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><div style="margin-top:18px">' + (sig ? sig.html : '<p>' + MAIL_SIGNATURE_HTML + '</p>') + '</div></div>';
+  return { subject: APP_TITLE + ' – meghívó', text: lines.join('\n'), html: html, from: actor && actor.email ? (actor.name || '') + ' · Lumos Motion <' + actor.email + '>' : 'Lumos Motion <' + MAIL_FROM + '>' };
 }
 
 /** Gyors letiltás / engedélyezés a felhasználólistából. Letiltáskor minden eszközön azonnal kilépteti. */
@@ -3134,7 +3137,7 @@ function setViewAs_(token, u, arg) {
   return { ok: true };
 }
 
-function saveUser_(arg) {
+function saveUser_(arg, actor) {
   const a = arg && typeof arg === 'object' ? arg : {};
   const name = String(a.name || '').trim().replace(/\s+/g, ' ');
   const role = String(a.role || '');
@@ -3170,7 +3173,7 @@ function saveUser_(arg) {
   });
   let mail = null;
   if (isNew && a.sendInvite !== false && target && target.email) {   // új kolléga: meghívó a Google-fiókos belépéshez
-    try { sendInviteMail_(target); mail = { sent: true, to: target.email, invite: true }; }
+    try { sendInviteMail_(target, actor, a.inviteHtml); mail = { sent: true, to: target.email, invite: true }; }
     catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), invite: true }; }
   }
   return { users: list, mail: mail };
@@ -3275,7 +3278,7 @@ function rpcInner_(token, name, arg) {
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
-    case 'invitePreview': adminOnly(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' });
+    case 'invitePreview': adminOnly(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
     case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
@@ -3284,7 +3287,7 @@ function rpcInner_(token, name, arg) {
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       adminOnly();
-      const res = saveUser_(arg);
+      const res = saveUser_(arg, u);
       const a = arg || {};
       logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? ' · Google-meghívó kiküldve' : ''));
       return res;
