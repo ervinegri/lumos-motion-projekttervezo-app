@@ -2571,7 +2571,7 @@ function payStatementBuild_(u, a) {
   const feeSum = rows.reduce((s, r) => s + r.fee, 0), dedSum = rows.reduce((s, r) => s + r.ded, 0), gross = feeSum + rent, total = gross - dedSum + adj;
   const vat = c.vat === 'afa', first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || c.name, e = escapeHtml_;
   const pm = (v, sg) => payMoney_(v, sg) + (vat ? '\u00a0+\u00a0ÁFA' : '');   // áfakörösnél minden összeg után „+ ÁFA”
-  const subject = 'Díjösszesítő – ' + mLbl + ' · ' + c.name + ' · ' + pm(total);
+  const subject = 'Díjösszesítő – ' + mLbl + ' · ' + c.name;   // összeg nélkül: értesítésben, továbbításkor ne látszódjon
   const RED = '#b4442f', GRN = '#2e7d4f', TD = 'padding:7px 8px;border-bottom:1px solid #e3e8e5;vertical-align:top;font-size:13px', NUM = TD + ';text-align:right;white-space:nowrap';
   const TH = 'padding:8px;background:#1d3a2e;color:#ffffff;font-size:12px;text-align:left', THR = TH + ';text-align:right';
   const H = t => '<h3 style="font-size:13px;letter-spacing:.06em;color:#1d3a2e;margin:22px 0 8px">' + t + '</h3>';
