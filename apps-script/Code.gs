@@ -2579,7 +2579,7 @@ function payStatementBuild_(u, a) {
   const gap = '<tr><td colspan="2" style="height:12px"></td></tr>';
   let summ = '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + sr('Projektdíjak (' + rows.length + ' projekt)', pm(feeSum))
     + (rent ? sr('Irodabérleti és termelési vezetői díj', pm(rent, true)) : '')
-    + '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap"><b>' + pm(gross) + '</b></td></tr>';
+    + '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap;font-size:16px"><b>' + pm(gross) + '</b></td></tr>';
   if (dedSum || adj) summ += gap + (dedSum ? sr('Díjcsökkentések (' + pens.length + ' tétel)', pm(-dedSum), RED) : '') + (adj ? sr('± Korrekció (levonás / hozzáadás)', pm(adj, true), adj < 0 ? RED : GRN) : '');
   summ += gap + '<tr><td style="padding:6px 16px 3px 0;border-top:2px solid #1d3a2e"><b>Kifizetendő összesen</b></td><td style="padding-top:6px;border-top:2px solid #1d3a2e;text-align:right;white-space:nowrap;font-size:16px"><b>' + pm(total) + '</b></td></tr></table>';
   const FD = dedSum > 0 || adj < 0;   // levonás nélkül csak a Kifizetendő oszlop látszik
