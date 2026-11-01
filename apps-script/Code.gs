@@ -3062,6 +3062,12 @@ function revokeSessionsOf_(uid) {
     try { if (JSON.parse(all[k]).uid === uid) props.deleteProperty(k); } catch (e) {}
   });
 }
+/* Napló: az app megnyitása mentett belépéssel is (felhasználónként legfeljebb félóránként egy bejegyzés). */
+function appOpenMark_(u) { try { CacheService.getScriptCache().put('lpm_open_' + u.id, '1', 1800); } catch (e) { } }
+function logAppOpen_(u) {
+  try { const c = CacheService.getScriptCache(), k = 'lpm_open_' + u.id; if (c.get(k)) return; c.put(k, '1', 1800); } catch (e) { }
+  logEvent_(u, 'Belépés (app megnyitva)', '', '');
+}
 function createSession_(u, logAction) {
   const token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
   const exp = Date.now() + (SESSION_DAYS_BY_ROLE[u.role] || 2) * 86400000;
@@ -3069,6 +3075,7 @@ function createSession_(u, logAction) {
   cleanupSessions_(props);
   props.setProperty(SESSION_PREFIX + sha256hex_(token), JSON.stringify({ uid: u.id, exp: exp }));
   logEvent_(u, logAction, '', '');
+  appOpenMark_(u);
   return { token: token, exp: exp, user: publicUser_(u) };
 }
 
@@ -3179,6 +3186,12 @@ function saveUser_(arg, actor) {
   return { users: list, mail: mail };
 }
 
+/* A termelési vezető is kezelheti a hozzáféréseket, de csak a szakemberekét (ügyvezetőt, termelési vezetőt nem hozhat létre és nem módosíthat). */
+function editorUserGuard_(u, newRole, targetId) {
+  if (!u || u.role !== 'editor') return;
+  if (newRole !== undefined && newRole !== 'crew') throw new Error('Termelési vezetőként csak szakember hozzáférését kezelheted.');
+  if (targetId) { const t = loadUsers_().find(x => x.id === String(targetId)); if (t && t.role !== 'crew') throw new Error('Termelési vezetőként csak szakember hozzáférését kezelheted.'); }
+}
 function deleteUser_(arg, self) {
   const id = String(arg && arg.id || '');
   return withLock_(() => {
@@ -3213,7 +3226,7 @@ function rpcInner_(token, name, arg) {
     case 'whoAmI': return publicUser_(u);
     case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
-    case 'bootstrap': return bootstrap_(u);
+    case 'bootstrap': if (arg && arg.open) logAppOpen_(u); return bootstrap_(u);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
@@ -3278,28 +3291,28 @@ function rpcInner_(token, name, arg) {
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
-    case 'invitePreview': adminOnly(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
+    case 'invitePreview': canEdit(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
     case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
-    case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz
+    case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), log: role === 'admin' ? getLog_().slice(0, 150) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
-      adminOnly();
+      canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);
       const res = saveUser_(arg, u);
       const a = arg || {};
       logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? ' · Google-meghívó kiküldve' : ''));
       return res;
     }
     case 'setUserDisabled': {
-      adminOnly();
+      canEdit(); editorUserGuard_(u, undefined, arg && arg.id);
       const res = setUserDisabled_(arg, u);
       logEvent_(u, arg && arg.disabled ? 'Felhasználó letiltva' : 'Felhasználó engedélyezve', res.name, '');
       return res.users;
     }
     case 'deleteUser': {
-      adminOnly();
+      canEdit(); editorUserGuard_(u, undefined, arg && arg.id);
       let who = ''; try { const x = loadUsers_().find(z => z.id === String(arg && arg.id || '')); who = x ? x.name : ''; } catch (e) {}
       const res = deleteUser_(arg, u);
       logEvent_(u, 'Felhasználó törölve', who, '');

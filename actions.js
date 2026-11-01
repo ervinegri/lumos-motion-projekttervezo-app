@@ -426,10 +426,10 @@ document.addEventListener('change',e=>{if(e.target.id==='m-role'){const w=$('m-e
 function userModal(u){
   const v=u||{};S._invEdit='';
   const crewOpts=[['','Válassz a stáblistából…'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
-  const otherEd=(S.users||[]).find(x=>x.role==='editor'&&x.id!==v.id),defRole=USER_ROLES[v.role]?v.role:(otherEd?'crew':'editor');
+  const otherEd=(S.users||[]).find(x=>x.role==='editor'&&x.id!==v.id),defRole=!isAdmin()?'crew':USER_ROLES[v.role]?v.role:(otherEd?'crew':'editor');
   openModal(u?'Felhasználó szerkesztése':'Kolléga felvétele',`<div class="fields">
     ${ms('crewId','Munkatárs (a stáblistából – ez lesz a megjelenő név)',crewOpts,v.crewId||'',{full:true})}
-    ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole)}
+    ${ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>isAdmin()||k==='crew').filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole)}
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,ph:'pl. kollega@lumosmotion.com'})}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
