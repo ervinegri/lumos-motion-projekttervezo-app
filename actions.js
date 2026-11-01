@@ -571,6 +571,21 @@ function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
       if(!/^https:\/\/\S+$/i.test(a.link)){toast('Add meg a videók linkjét (https://…).',true);return;}if(linksBad(a.links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(!a.notify.length){toast('Válaszd ki, kinek menjen értesítés.',true);return;}
       try{const r=await call('crewDeliver',a);const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);if(S.projectId===p.id&&r.project){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);S.dirty=false;}
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});}
+/* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
+function payMailModal(month){
+  const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));
+  OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
+  const list=[...ids].map(id=>({c:crewById(id),d:payStatementData(month,id)})).filter(x=>x.c).sort((a,b)=>b.d.total-a.d.total);
+  if(!list.length){toast('Ebben a hónapban nincs kinek díjösszesítőt küldeni.',true);return;}
+  const sentOf=id=>(S.paySent||[]).find(x=>x.crewId===id&&String(x.month)===month);
+  openModal('📧 Díjösszesítő kiküldése – '+F_YM.format(toDate(month+'-01')),`<p class="hint" style="margin:0 0 10px">Mindenki csak a saját összesítőjét kapja meg, a saját e-mail-címére, a te aláírásoddal. Az „Előnézet” megmutatja a levelet.</p>
+    <div class="pay-mail-list">${list.map(({c,d})=>{const s=sentOf(c.id),mail=String(c.email||'').trim();
+      return `<div class="pml-row"><label class="pml-chk"><input type="checkbox" name="pm" value="${esc(c.id)}"${mail&&!s?' checked':''}${mail?'':' disabled'}><span><b>${esc(c.name)}</b><small>${mail?esc(mail):'<span class="bad-txt">nincs e-mail-cím</span>'}${c.vat==='afa'?' · áfakörös':''}</small></span></label>
+        <span class="pml-amt">${ftFmt(d.total)}</span><span class="pml-st">${s?`<span class="statuspill p-ok" data-tip="${esc('Kiküldve: '+s.sentAt+' · '+s.sentBy+(num(s.amount)!==d.total?'\nAkkor: '+ftFmt(s.amount)+' – azóta változott!':''))}">✓ kiküldve${num(s.amount)!==d.total?' ⚠️':''}</span>`:''}</span>
+        <button class="linkbtn" type="button" data-action="pay-mail-prev" data-month="${month}" data-cid="${esc(c.id)}">Előnézet</button></div>`;}).join('')}</div>
+    <div id="payPrev"></div>`,{submitLabel:'Kiküldés',submit:async fd=>{const sel=fd.getAll('pm');if(!sel.length){toast('Jelölj ki legalább egy munkatársat.',true);return;}
+      try{const r=await call('sendPayStatements',{items:sel.map(id=>payStatementData(month,id))});S.paySent=r.paySent||S.paySent;closeModal();render(true);
+        toast(`Díjösszesítő kiküldve: ${r.sent.length} fő`+(r.failed.length?` · nem sikerült: ${r.failed.map(x=>x.name||x.crewId).join(', ')}`:''),!!r.failed.length);}catch(e){handleErr(e);}}});}
 /* Több átadási link: alapból 1 mező, „+ Újabb link” gombbal legfeljebb 5 */
 const LINKS_MAX=5;
 function linksField(name,label,first,extra,ph){const ex=(extra||[]).slice(0,LINKS_MAX-1);
@@ -980,6 +995,10 @@ const ACT={
       ${x?'<div class="field full"><p class="hint" style="margin:0">Az összeg törléséhez írj 0-t.</p></div>':''}</div>`,
       {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
+  'pay-mail':b=>payMailModal(b.dataset.month),
+  'pay-mail-prev':async b=>{const box=$('payPrev');if(!box)return;box.innerHTML='<p class="hint">Előnézet betöltése…</p>';
+    try{const r=await call('payStatementPreview',payStatementData(b.dataset.month,b.dataset.cid));box.innerHTML='';const f=document.createElement('iframe');f.className='pay-prev-frame';f.setAttribute('sandbox','');f.srcdoc='<!doctype html><meta charset=utf-8><body style="margin:12px">'+r.html;box.appendChild(f);f.scrollIntoView({block:'nearest',behavior:'smooth'});}
+    catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),

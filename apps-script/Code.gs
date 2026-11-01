@@ -100,6 +100,8 @@ const TABLES = {
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
     ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
+  paySent: { tab: 'Díjösszesítők', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte']] },
   payAdjust: { tab: 'Fizetési korrekciók', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['amount', 'Korrekció (nettó Ft, + / −)'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   officeRent: { tab: 'Irodabérlet', cols: [
@@ -517,6 +519,7 @@ function bootstrap_(u) {
   const out = {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
+    paySent: u.role === 'admin' ? readAll_('paySent') : [],
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
@@ -670,10 +673,10 @@ function crewMembers_(p) {
 const MAIL_ON_PROPERTY = 'LUMOS_PM_MAIL_ON';
 /* E-mail értesítések: főkapcsoló + típusonként külön kapcsoló (alapból mind be, ha a főkapcsoló be van kapcsolva) */
 const MAIL_CATS_PROPERTY = 'LUMOS_PM_MAIL_CATS';
-const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite'];
+const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite', 'payStatement'];
 function mailCats_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CATS_PROPERTY) || '{}') || {}; } catch (e) { o = {}; } const out = {}; MAIL_CATS_.forEach(k => { out[k] = o[k] !== false; }); return out; }
 const MAIL_CC_PROPERTY = 'LUMOS_PM_MAIL_CC';
-const MAIL_CC_DEFAULT_ = { assign: [], eqlist: ['actor'], penalty: [], penAdmin: [] };   // másolat (CC): admin = ügyvezetők, editor = termelési vezetők, actor = aki a műveletet végzi
+const MAIL_CC_DEFAULT_ = { assign: [], eqlist: ['actor'], penalty: [], penAdmin: [], payStatement: [] };   // másolat (CC): admin = ügyvezetők, editor = termelési vezetők, actor = aki a műveletet végzi
 function mailCc_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CC_PROPERTY) || '{}') || {}; } catch (e) { o = {}; }
   const out = {}; Object.keys(MAIL_CC_DEFAULT_).forEach(k => { out[k] = Array.isArray(o[k]) ? o[k].filter(x => ['admin', 'editor', 'actor'].indexOf(x) >= 0) : MAIL_CC_DEFAULT_[k].slice(); }); return out; }
 function mailCcList_(cat, actor) {
@@ -2547,6 +2550,82 @@ function objectPenalty_(u, a) {
 /** Ügyfél felvétele/módosítása. Ha a cégnév megváltozik, a projektek „Ügyfél” mezője is átíródik. */
 /* Irodabérlet: szakembertől bérelt iroda havi díja – a Kifizetéseknél a díjához adódik.
    Egy sor = egy szakember egy hónapja; a következő hónapokra a legutóbbi érték érvényes, amíg nem írják át (0 = megszűnt). */
+/* ===== Havi díjösszesítő a szakembereknek =====
+   A felület összeállítja a tételeket (ugyanazzal a számítással, mint a Termelői fizetések táblázat), a háttér formázza és küldi el
+   a szakember nyilvántartott e-mail-címére, az ügyvezető saját aláírásával. */
+const PAY_COMPANY_ = { name: 'Lumos Motion Kft.', tax: '32701573-2-41', seat: '1136 Budapest, Tátra utca 20/B 3. em. 5. ajtó', finance: 'penzugy@lumosmotion.com', payDays: 8, replyDay: 5, invoiceDay: 8, note: 'Videofelvétel-készítés' };
+function payMoney_(v, sign) { const n = Math.round(Number(v) || 0), s = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0Ft'; return (n < 0 ? '−' : sign && n > 0 ? '+' : '') + s; }
+function payStatementBuild_(u, a) {
+  a = a || {};
+  const month = str_(a.month, 7); if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
+  const crewId = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
+  const y = Number(month.slice(0, 4)), m = Number(month.slice(5, 7)), ny = m === 12 ? y + 1 : y, nm = m === 12 ? 1 : m + 1;
+  const mLbl = y + '. ' + HU_MONTHS_[m - 1], nextLbl = d => ny + '. ' + HU_MONTHS_[nm - 1] + ' ' + d + '.', nextIg = d => ny + '. ' + HU_MONTHS_[nm - 1] + ' ' + d + '-ig';
+  const num = v => Math.round(Number(v) || 0);
+  const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ date: str_(r.date, 40), name: str_(r.name, 160), roles: str_(r.roles, 200), fee: num(r.fee), ded: Math.abs(num(r.ded)) }));
+  const pens = (Array.isArray(a.pens) ? a.pens : []).slice(0, 60).map(x => ({ project: str_(x.project, 160), amount: Math.abs(num(x.amount)), kind: str_(x.kind, 120), ref: str_(x.ref, 20), pct: num(x.pct), day: str_(x.day, 120), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), by: str_(x.by, 200) }));
+  const rent = Math.max(0, num(a.rent)), adj = num(a.adj), adjNote = str_(a.adjNote, 300), adjBy = str_(a.adjBy, 200);
+  const feeSum = rows.reduce((s, r) => s + r.fee, 0), dedSum = rows.reduce((s, r) => s + r.ded, 0), gross = feeSum + rent, total = gross - dedSum + adj;
+  const vat = c.vat === 'afa', first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || c.name, e = escapeHtml_;
+  const subject = 'Díjösszesítő – ' + mLbl + ' · ' + c.name + ' · ' + payMoney_(total);
+  const RED = '#b4442f', GRN = '#2e7d4f', TD = 'padding:7px 8px;border-bottom:1px solid #e3e8e5;vertical-align:top;font-size:13px', NUM = TD + ';text-align:right;white-space:nowrap';
+  const TH = 'padding:8px;background:#1d3a2e;color:#ffffff;font-size:12px;text-align:left', THR = TH + ';text-align:right';
+  const H = t => '<h3 style="font-size:13px;letter-spacing:.06em;color:#1d3a2e;margin:22px 0 8px">' + t + '</h3>';
+  const sr = (l, v, col, bold) => '<tr><td style="padding:3px 16px 3px 0">' + (bold ? '<b>' + l + '</b>' : l) + '</td><td style="text-align:right;white-space:nowrap' + (col ? ';color:' + col : '') + '">' + (bold ? '<b>' + v + '</b>' : v) + '</td></tr>';
+  const gap = '<tr><td colspan="2" style="height:12px"></td></tr>';
+  let summ = '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + sr('Projektdíjak (' + rows.length + ' projekt)', payMoney_(feeSum))
+    + (rent ? sr('Irodabérleti és termelési vezetői díj', payMoney_(rent, true)) : '')
+    + '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap"><b>' + payMoney_(gross) + '</b></td></tr>';
+  if (dedSum || adj) summ += gap + (dedSum ? sr('Díjcsökkentések (' + pens.length + ' tétel)', payMoney_(-dedSum), RED) : '') + (adj ? sr('± Korrekció (levonás / hozzáadás)', payMoney_(adj, true), adj < 0 ? RED : GRN) : '');
+  summ += gap + '<tr><td style="padding:6px 16px 3px 0;border-top:2px solid #1d3a2e"><b>Kifizetendő összesen</b></td><td style="padding-top:6px;border-top:2px solid #1d3a2e;text-align:right;white-space:nowrap;font-size:16px"><b>' + payMoney_(total) + '</b></td></tr></table>';
+  let tr = rows.map(r => '<tr><td style="' + TD + ';white-space:nowrap">' + e(r.date) + '</td><td style="' + TD + '"><b>' + e(r.name) + '</b>' + (r.roles ? '<br><span style="color:#667788;font-size:12px">' + e(r.roles) + '</span>' : '') + '</td><td style="' + NUM + '">' + payMoney_(r.fee) + '</td><td style="' + NUM + ';color:' + (r.ded ? RED : '#999999') + '">' + (r.ded ? payMoney_(-r.ded) : '–') + '</td><td style="' + NUM + '"><b>' + payMoney_(r.fee - r.ded) + '</b></td></tr>').join('');
+  if (rent) tr += '<tr><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>🏢 Irodabérleti és termelési vezetői díj</b></td><td style="' + NUM + '">' + payMoney_(rent) + '</td><td style="' + NUM + ';color:#999999">–</td><td style="' + NUM + '"><b>' + payMoney_(rent) + '</b></td></tr>';
+  if (adj) tr += '<tr style="background:#f4f6ff"><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>± Korrekció</b> (levonás / hozzáadás)' + (adjNote ? '<br><span style="color:#667788;font-size:12px">' + e(adjNote) + '</span>' : '') + '</td><td style="' + NUM + '"></td><td style="' + NUM + '"></td><td style="' + NUM + ';color:' + (adj < 0 ? RED : GRN) + '"><b>' + payMoney_(adj, true) + '</b></td></tr>';
+  tr += '<tr style="background:#e8f2ec"><td style="' + TD + '"></td><td style="' + TD + '"><b>Összesen</b></td><td style="' + NUM + '"><b>' + payMoney_(gross) + '</b></td><td style="' + NUM + ';color:' + RED + '"><b>' + (dedSum ? payMoney_(-dedSum) : '–') + '</b></td><td style="' + NUM + '"><b>' + payMoney_(total) + '</b></td></tr>';
+  const table = '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px;font-family:Arial,Helvetica,sans-serif"><tr><th style="' + TH + '">Dátum</th><th style="' + TH + '">Projekt · szereped</th><th style="' + THR + '">Díj</th><th style="' + THR + '">Levonás</th><th style="' + THR + '">Kifizetendő</th></tr>' + tr + '</table>';
+  const li = (l, v) => '<tr><td style="padding:3px 10px 3px 0;color:#667788;font-size:13px;white-space:nowrap;vertical-align:top">' + l + '</td><td style="padding:3px 0;font-size:13px">' + v + '</td></tr>';
+  const penHtml = pens.map((x, i) => '<div style="border:1px solid #f0d0c8;background:#fff8f6;border-radius:8px;padding:10px 12px;margin:0 0 10px"><div style="font-size:14px;margin-bottom:4px"><b>' + (i + 1) + '. ' + e(x.project) + '</b> <span style="color:' + RED + ';white-space:nowrap"><b>' + payMoney_(-x.amount) + '</b></span></div><table cellpadding="0" cellspacing="0">'
+    + li('Kategória', e(x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.ref ? ' (szerződés ' + x.ref + ' pont)' : ''))) + (x.day ? li('Érintett', e(x.day)) : '') + (x.caseText ? li('Eset', e(x.caseText)) : '')
+    + li('Indoklás', e(x.reason).replace(/\n/g, '<br>')) + (x.by ? li('', '<span style="color:#667788">' + e(x.by) + '</span>') : '') + '</table></div>').join('');
+  const adjHtml = adj ? '<div style="border:1px solid #d6dcf5;background:#f6f8ff;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:13px"><div style="font-size:14px;margin-bottom:4px"><b>' + (adj < 0 ? 'Levonás' : 'Hozzáadás') + '</b> <span style="white-space:nowrap;color:' + (adj < 0 ? RED : GRN) + '"><b>' + payMoney_(adj, true) + '</b></span></div>' + (adjNote ? 'Megjegyzés: ' + e(adjNote) + '<br>' : '') + (adjBy ? '<span style="color:#667788">Rögzítette: ' + e(adjBy) + '</span>' : '') + '</div>' : '';
+  const inv = [['Vevő', '<b>' + PAY_COMPANY_.name + '</b>'], ['Adószám', PAY_COMPANY_.tax], ['Székhely', e(PAY_COMPANY_.seat)], ['Összeg', '<b>' + payMoney_(total) + '</b>' + (vat ? ' + ÁFA' : '')],
+    ['Számla megjegyzése', '„' + mLbl + ' – ' + PAY_COMPANY_.note + '”'], ['Fizetési határidő', PAY_COMPANY_.payDays + ' nap'], ['Beküldési határidő', '<b>' + nextLbl(PAY_COMPANY_.invoiceDay) + '</b>'], ['Hová küldd', '<a href="mailto:' + PAY_COMPANY_.finance + '">' + PAY_COMPANY_.finance + '</a>']]
+    .map(r => '<tr><td style="padding:3px 14px 3px 0;color:#667788;white-space:nowrap;vertical-align:top">' + r[0] + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>').join('');
+  const sig = signatureFor_(u), url = appUrl_() || FRONTEND_URL;
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;max-width:680px;font-size:14px">'
+    + '<p>Kedves ' + e(first) + ',</p><p>összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.</p>'
+    + H('ÖSSZESÍTÉS') + summ + H('PROJEKTEK') + table + (pens.length ? H('DÍJCSÖKKENTÉSEK RÉSZLETESEN') + penHtml : '') + (adj ? H('± KORREKCIÓ') + adjHtml : '')
+    + H('SZÁMLÁZÁS') + '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + inv + '</table>'
+    + '<p style="margin-top:20px">A projektjeidet a projekttervező applikációban is megnézheted: <a href="' + url + '">' + e(String(url).replace(/^https:\/\//, '').replace(/\/$/, '')) + '</a></p>'
+    + '<p>Ha bármi eltérést találsz, kérlek, <b>' + nextIg(PAY_COMPANY_.replyDay) + '</b> válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.</p>'
+    + '<div style="margin-top:18px">' + (sig ? sig.html : MAIL_SIGNATURE_HTML) + '</div></div>';
+  const L = ['Kedves ' + first + ',', '', 'összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.', '', 'ÖSSZESÍTÉS',
+    'Projektdíjak (' + rows.length + ' projekt): ' + payMoney_(feeSum)].concat(rent ? ['Irodabérleti és termelési vezetői díj: ' + payMoney_(rent, true)] : [], ['Díjak összesen: ' + payMoney_(gross)],
+    dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + payMoney_(-dedSum)] : [], adj ? ['± Korrekció: ' + payMoney_(adj, true) + (adjNote ? ' – ' + adjNote : '')] : [], ['Kifizetendő összesen: ' + payMoney_(total), '', 'PROJEKTEK'],
+    rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + payMoney_(r.fee) + (r.ded ? ' − ' + payMoney_(r.ded) + ' = ' + payMoney_(r.fee - r.ded) : '')),
+    pens.length ? ['', 'DÍJCSÖKKENTÉSEK'] : [], pens.map((x, i) => (i + 1) + '. ' + x.project + ' – ' + payMoney_(-x.amount) + '\n   ' + x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.day ? '\n   Érintett: ' + x.day : '') + (x.caseText ? '\n   Eset: ' + x.caseText : '') + '\n   Indoklás: ' + x.reason + (x.by ? '\n   ' + x.by : '')),
+    ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + payMoney_(total) + (vat ? ' + ÁFA' : ''), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”',
+      'Fizetési határidő: ' + PAY_COMPANY_.payDays + ' nap', 'Beküldési határidő: ' + nextLbl(PAY_COMPANY_.invoiceDay), 'Hová küldd: ' + PAY_COMPANY_.finance, '',
+      'A projektjeidet a projekttervező applikációban is megnézheted: ' + url, '', 'Ha bármi eltérést találsz, kérlek, ' + nextIg(PAY_COMPANY_.replyDay) + ' válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.', '', sig ? sig.text : MAIL_SIGNATURE_TEXT]);
+  return { c: c, month: month, subject: subject, html: html, text: L.join('\n'), total: total };
+}
+function sendPayStatements_(u, a) {
+  const list = (Array.isArray(a && a.items) ? a.items : []).slice(0, 60), sent = [], failed = [];
+  if (!mailOn_('payStatement')) throw new Error('Az e-mail-küldés szünetel (Beállítások → E-mail értesítések).');
+  list.forEach(it => {
+    try {
+      const b = payStatementBuild_(u, it), to = String(b.c.email || '').trim();
+      if (!to) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nincs e-mail-cím' }); return; }
+      const opts = mailOptsFor_(u, b.html);
+      if (!gmailSend_(to, b.subject, b.text, opts, 'payStatement')) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nem ment ki' }); return; }
+      withLock_(() => { const sh = sheetFor_('paySent'), id = b.month + '|' + b.c.id, row = findRow_(sh, id);
+        putRow_('paySent', sh, { id: id, month: b.month, crewId: b.c.id, crewName: b.c.name, email: to, amount: b.total, sentAt: now_(), sentBy: u.name }, row); });
+      sent.push({ crewId: b.c.id, name: b.c.name, email: to });
+    } catch (e) { failed.push({ crewId: str_(it && it.crewId, 64), name: '', error: String(e && e.message || e) }); }
+  });
+  logEvent_(u, 'Díjösszesítő kiküldve', str_(list[0] && list[0].month, 7), sent.map(x => x.name).join(', ') + (failed.length ? ' · hiba: ' + failed.map(x => x.name || x.crewId).join(', ') : ''));
+  return { sent: sent, failed: failed, paySent: readAll_('paySent') };
+}
 /* Fizetési korrekció: havi extra levonás vagy hozzáadás szakemberenként (pl. valaki a saját keretéből kipótolja egy kolléga díját). 0 = törlés. */
 function savePayAdjust_(u, a) {
   const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
@@ -3171,6 +3250,8 @@ function rpcInner_(token, name, arg) {
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
+    case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
+    case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'settingsData': adminOnly(); return { users: loadUsers_().map(adminListUser_), log: getLog_().slice(0, 150) };   // egy kérésben a Beállítások fülhöz
