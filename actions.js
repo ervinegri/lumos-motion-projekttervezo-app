@@ -573,9 +573,11 @@ function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});}
 /* Díjösszesítő előnézet: szerkeszthető, a módosítás csak annak az egy levélnek szól */
 async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return;const k=month+'|'+cid,c=crewById(cid);S._payEdit=S._payEdit||{};
-  let h=fresh?'':S._payEdit[k];
-  if(!h){box.innerHTML='<p class="hint">Előnézet betöltése…</p>';try{h=(await call('payStatementPreview',payStatementData(month,cid))).html;}catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;return;}}
-  box.innerHTML=`<div class="pe-bar"><div><b>Előnézet – ${esc(c?c.name:'')}</b><small>Kattints a szövegbe, és írd át, ami kell. A módosítás csak ennek a levélnek szól, kiküldésig megmarad.</small></div><button class="btn outline small" type="button" data-action="pay-mail-reset" data-month="${month}" data-cid="${esc(cid)}">↺ Eredeti visszaállítása</button></div>`;
+  let h=fresh?'':S._payEdit[k];S._payHead=S._payHead||{};
+  if(!h||!S._payHead[k]){box.innerHTML='<p class="hint">Előnézet betöltése…</p>';try{const r=await call('payStatementPreview',payStatementData(month,cid));if(!h)h=r.html;S._payHead[k]={subject:r.subject||'',to:r.to||'',from:r.from||''};}catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;return;}}
+  const hd=S._payHead[k]||{};
+  box.innerHTML=`<div class="pe-bar"><div><b>Előnézet – ${esc(c?c.name:'')}</b><small>Kattints a szövegbe, és írd át, ami kell. A módosítás csak ennek a levélnek szól, kiküldésig megmarad.</small></div><button class="btn outline small" type="button" data-action="pay-mail-reset" data-month="${month}" data-cid="${esc(cid)}">↺ Eredeti visszaállítása</button></div>
+    <div class="inv-h pe-head"><div><span>Feladó:</span> ${esc(hd.from||'')}</div><div><span>Címzett:</span> ${esc(hd.to||'(nincs e-mail-cím)')}</div><div><span>Tárgy:</span> <b>${esc(hd.subject||'')}</b></div></div>`;
   const f=document.createElement('iframe');f.className='mail-frame';f.title='Díjösszesítő előnézet (szerkeszthető)';   // külön dokumentum: az app stílusai nem keverednek bele, pont úgy néz ki, mint a levélben
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+h+'</body></html>';
   const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};

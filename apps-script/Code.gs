@@ -3326,7 +3326,7 @@ function rpcInner_(token, name, arg) {
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
     case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
     case 'invitePreview': canEdit(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
-    case 'payStatementPreview': adminOnly(); return { html: payStatementBuild_(u, arg).html };
+    case 'payStatementPreview': adminOnly(); { const b = payStatementBuild_(u, arg); return { html: b.html, subject: b.subject, to: String(b.c.email || ''), from: (u.name || '') + ' · Lumos Motion <' + (u.email || MAIL_FROM) + '>' }; }
     case 'paySentHtml': return paySentHtml_(u, arg);
     case 'setPayStatus': adminOnly(); return setPayStatus_(u, arg);
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
