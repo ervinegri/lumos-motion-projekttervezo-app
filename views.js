@@ -248,11 +248,15 @@ function penReasons(p,cid){return penOf(p,cid,'approved').filter(x=>x.kind!=='da
 function payStatementData(month,cid){
   const rows=[],pens=[],stamp=s=>{const d=String(s||'').slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(d)?d.replace(/-/g,'.')+'.':'';};
   const dl=r=>r.start===r.end?fmtShort(r.start):r.start.slice(0,7)===r.end.slice(0,7)?fmtShort(r.start).replace(/\.$/,'')+'–'+Number(r.end.slice(8))+'.':fmtShort(r.start)+' – '+fmtShort(r.end);
+  const workDays=(p,cid,r)=>{   // csak azok a napok, amelyeken a szakember ténylegesen dolgozott
+    const ds=projDays(p).length>1&&!isPostOnly(p,cid)?crewDaysOf(p,cid).slice().sort():[];if(!ds.length)return dl(r);
+    const runs=[];ds.forEach(d=>{const last=runs[runs.length-1];if(last&&diffDays(last.e,d)===1)last.e=d;else runs.push({s:d,e:d});});
+    return runs.map((x,i)=>{const lbl=dl({start:x.s,end:x.e});return i&&runs[i-1].s.slice(0,7)===x.s.slice(0,7)?lbl.replace(/^\D+\s*/,''):lbl;}).join(', ');};
   S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).sort(byStart).forEach(p=>{const r=pr(p);
     (p.fees||[]).forEach(f=>{
       if(f.kind==='fixed'){if(f.refCrewId===cid&&num(f.amount))rows.push({date:dl(r),name:'Ajánlói jutalék – '+(p.name||''),roles:'',fee:num(f.amount),ded:0});return;}
       if(f.crewId!==cid||!num(f.amount))return;const ded=penDeduct(p,cid,f.amount);
-      rows.push({date:dl(r),name:p.name||'Névtelen projekt',roles:String(f.task||(f.roles||[]).join(' + ')||'').split(' + ').join(', '),fee:num(f.amount),ded});
+      rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:String(f.task||(f.roles||[]).join(' + ')||'').split(' + ').join(', '),fee:num(f.amount),ded});
       if(ded)penOf(p,cid,'approved').filter(x=>x.kind!=='damage').forEach(x=>{const k=PEN_KINDS[x.kind]||{},da=f.dayAmounts||{};
         pens.push({project:p.name||'',amount:penAmt(p,x,f.amount),kind:k.label||'Díjcsökkentés',ref:k.ref||'',pct:num(x.pct),
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
