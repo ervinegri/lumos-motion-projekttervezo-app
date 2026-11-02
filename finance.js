@@ -166,7 +166,8 @@ function viewFinance(){
   const T=k=>sumK(inc,k),planned=T('amount'),recv=inc.reduce((s,r)=>s+finReceived(r),0);
   // fizetési állapot: a Szerződés és számlázás bizonylataiból (csak megjelenítés – a kifizetést ott követjük)
   const payCell=r=>{const st=finPayOf(r),lp=r.kind==='project'?null:incProj(r),pid=r.kind==='project'?r.id:lp&&lp.id,sent=pid?((S.fin&&S.fin.invoices)||[]).some(x=>invPids(x).includes(pid)):invFor('income',r.id).length>0;   // kiküldött számla után piros
-    if(st==='eloleg')return `<span class="statuspill pay-pill p-bad" data-tip="A foglaló be van fizetve, a végszámla még nincs kifizetve">Fizetésre vár</span>`;   // foglaló után a végszámlára vár
+    const finSent=pid?((S.fin&&S.fin.invoices)||[]).some(x=>invPids(x).includes(pid)&&(x.kind==='szamla'||x.kind==='vegszamla'||!x.kind)):invFor('income',r.id).some(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind);   // végszámla kiállítva?
+    if(st==='eloleg'&&finSent)return `<span class="statuspill pay-pill p-bad" data-tip="A foglaló be van fizetve, a végszámla még nincs kifizetve">Fizetésre vár</span>`;   // foglaló után a végszámlára vár
     return `<span class="statuspill pay-pill ${st==='var'?(sent?'p-bad':'p-mute'):PAY_CLS[st]||''}">${esc(PAY_LABEL[st]||'—')}</span>`;};
   const fq=String(S.finQ||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),incCl=r=>{const pp=r.kind==='project'?projById(r.id):incProj(r);return [r.name,pp&&pp.client,pp&&pp.name].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');};
   const incF=fq?inc.filter(r=>fq.split(/\s+/).every(w=>incCl(r).includes(w))):inc,TF=k=>sumK(incF,k);   // cég szerinti szűrés a Bevételek táblában
