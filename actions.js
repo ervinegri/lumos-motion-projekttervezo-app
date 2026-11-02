@@ -390,6 +390,7 @@ function crewModal(c){
     ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
     ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
     ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
+    ${mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'})}
     <div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>
     ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
@@ -397,7 +398,7 @@ function crewModal(c){
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
-    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam'};
+    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam',tax:String(fd.get('tax')||'').trim()};
     try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
@@ -1020,6 +1021,11 @@ const ACT={
       {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-mail':b=>payMailModal(b.dataset.month),
+  'nav-sync':async b=>{b.disabled=true;const t0=b.textContent;b.textContent='⏳ NAV lekérdezés…';
+    try{const r=await call('navSync',{month:b.dataset.month});S.payStatus=r.payStatus||S.payStatus;render(true);
+      const msg=r.found.length?`NAV: ${r.found.length} számla párosítva – ${r.found.map(x=>x.name+(x.match?'':' (⚠️ eltérő összeg)')).join(', ')}`:'NAV: nincs új, párosítható számla.';
+      toast(msg+(r.missingTax&&r.missingTax.length?` · Adószám hiányzik: ${r.missingTax.join(', ')}`:''),!!(r.missingTax&&r.missingTax.length));}
+    catch(e){handleErr(e);b.disabled=false;b.textContent=t0;}},
   'pay-st-bulk':async b=>{const on=!!b.dataset.on,f=b.dataset.f,m=b.dataset.month,st=c=>(S.payStatus||[]).find(x=>x.crewId===c&&String(x.month)===m)||{};
     const ids=b.dataset.ids.split(',').filter(c=>c&&!!st(c)[f+'At']!==on);if(!ids.length){toast(on?'Már mindenkinél be van pipálva.':'Senkinél nincs bepipálva.');return;}
     b.disabled=true;try{S.payStatus=await call('setPayStatus',{month:m,crewIds:ids,field:f,on});render(true);toast(`${f==='paid'?'Számla fizetve':'Számlát kiállította'}: ${on?'bepipálva':'visszavonva'} – ${ids.length} fő`);}catch(e){b.disabled=false;handleErr(e);}},
