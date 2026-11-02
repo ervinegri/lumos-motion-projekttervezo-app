@@ -385,3 +385,8 @@ function monthNav(id,months,sel){const sh=(m,d)=>{const y=Number(m.slice(0,4)),k
 
 function setMonthAll(m){if(!/^\d{4}-\d{2}$/.test(m||''))return;S.payMonth=m;S.finMonth=m;(S.blf||(S.blf={v:'honap',q:''})).m=m;}   // a három pénzügyi nézet közös hónapja
 const PAY_START='2026-10';   // a Termelői fizetések ettől a hónaptól érvényesek az appban
+/* Adószám gépelés közben: 12345678-1-42 formára (csak ha számokból áll – közösségi / külföldi adószámhoz nem nyúl) */
+function fmtTax(v){const d=String(v||'').replace(/\D/g,'').slice(0,11);return d.length>9?d.slice(0,8)+'-'+d.slice(8,9)+'-'+d.slice(9):d.length>8?d.slice(0,8)+'-'+d.slice(8):d;}
+document.addEventListener('input',e=>{const t=e.target;if(!t||t.tagName!=='INPUT'||!/tax/i.test(t.name||t.id||''))return;const v=t.value;if(!/^[\d\s-]*$/.test(v))return;
+  const atEnd=t.selectionStart===v.length,f=fmtTax(v);if(f===v)return;const digitsBefore=v.slice(0,t.selectionStart).replace(/\D/g,'').length;t.value=f;
+  if(!atEnd){let n=0,i=0;while(i<f.length&&n<digitsBefore){if(/\d/.test(f[i]))n++;i++;}try{t.setSelectionRange(i,i);}catch(x){}}},true);
