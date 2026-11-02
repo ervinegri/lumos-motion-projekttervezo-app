@@ -600,7 +600,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
   try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla fizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
   catch(err){t.checked=!on;t.disabled=false;handleErr(err);}});
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
-function pmMasterSync(){const m=$('pm-master');if(!m)return;const all=[...document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)')],on=all.filter(x=>x.checked).length;m.checked=!!all.length&&on===all.length;m.indeterminate=on>0&&on<all.length;}
+function pmMasterSync(){const sb=document.querySelector('#mform button[type=submit]');if(sb&&document.querySelector('#modalRoot .pay-mail-list,#modalRoot #pm-month')){const any=!!document.querySelector('#modalRoot input[name=pm]:checked');sb.disabled=!any;sb.title=any?'':'Jelölj ki legalább egy munkatársat';}const m=$('pm-master');if(!m)return;const all=[...document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)')],on=all.filter(x=>x.checked).length;m.checked=!!all.length&&on===all.length;m.indeterminate=on>0&&on<all.length;}
 document.addEventListener('change',e=>{if(e.target.id==='pm-master'){document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)').forEach(x=>{x.checked=e.target.checked;});pmMasterSync();}else if(e.target.name==='pm')pmMasterSync();});
 document.addEventListener('change',e=>{if(e.target.id==='pm-month'){S.payMonth=e.target.value;closeModal();render(true);payMailModal(e.target.value);}});
 function payMailModal(month){
