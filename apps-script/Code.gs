@@ -2739,24 +2739,55 @@ function sha3_512Hex_(str) {
 function navHex_(bytes) { return bytes.map(b => ((b + 256) % 256).toString(16).padStart(2, '0')).join('').toUpperCase(); }
 function navXmlEsc_(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function navRequest_(cfg, body, page, dir) {
-  const now = new Date(), ts = now.toISOString().replace(/\.\d+Z$/, '.000Z'), sigTs = ts.replace(/[-:T]/g, '').slice(0, 14);
-  const rid = ('LPM' + now.getTime().toString(36) + Math.random().toString(36).slice(2, 10)).toUpperCase().slice(0, 30);
-  const pw = navHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_512, cfg.pass, Utilities.Charset.UTF_8));
-  const sig = sha3_512Hex_(rid + sigTs + cfg.sign);
-  const xml = '<?xml version="1.0" encoding="UTF-8"?><QueryInvoiceDigestRequest xmlns="http://schemas.nav.gov.hu/OSA/3.0/api" xmlns:common="http://schemas.nav.gov.hu/NTCA/1.0/common">'
-    + '<common:header><common:requestId>' + rid + '</common:requestId><common:timestamp>' + ts + '</common:timestamp><common:requestVersion>3.0</common:requestVersion><common:headerVersion>1.0</common:headerVersion></common:header>'
-    + '<common:user><common:login>' + navXmlEsc_(cfg.login) + '</common:login><common:passwordHash cryptoType="SHA-512">' + pw + '</common:passwordHash><common:taxNumber>' + cfg.tax + '</common:taxNumber><common:requestSignature cryptoType="SHA3-512">' + sig + '</common:requestSignature></common:user>'
-    + '<software><softwareId>' + NAV_SOFTWARE_ID_ + '</softwareId><softwareName>Lumos Motion Projekttervezo</softwareName><softwareOperation>LOCAL_SOFTWARE</softwareOperation><softwareMainVersion>1.0</softwareMainVersion><softwareDevName>Lumos Motion Kft.</softwareDevName><softwareDevContact>' + navXmlEsc_(MAIL_REPLY_TO) + '</softwareDevContact><softwareDevCountryCode>HU</softwareDevCountryCode><softwareDevTaxNumber>' + cfg.tax + '</softwareDevTaxNumber></software>'
-    + '<page>' + page + '</page><invoiceDirection>' + dir + '</invoiceDirection>' + body + '</QueryInvoiceDigestRequest>';
-  const res = UrlFetchApp.fetch(NAV_URL_ + '/queryInvoiceDigest', { method: 'post', contentType: 'application/xml', payload: xml, muteHttpExceptions: true, headers: { Accept: 'application/xml' } });
-  const txt = res.getContentText();
+  const txt = navCall_(cfg, 'QueryInvoiceDigest', '<page>' + page + '</page><invoiceDirection>' + dir + '</invoiceDirection>' + body);
   const tag = (src, n) => { const m = new RegExp('<(?:\\w+:)?' + n + '\\b[^>]*>([\\s\\S]*?)</(?:\\w+:)?' + n + '>').exec(src); return m ? m[1].trim() : ''; };
-  if (res.getResponseCode() !== 200 || tag(txt, 'funcCode') === 'ERROR') throw new Error('NAV: ' + (tag(txt, 'message') || tag(txt, 'errorCode') || ('HTTP ' + res.getResponseCode())));
   const items = []; const re = /<(?:\w+:)?invoiceDigest>([\s\S]*?)<\/(?:\w+:)?invoiceDigest>/g; let m;
   while ((m = re.exec(txt))) { const d = m[1];
     items.push({ number: tag(d, 'invoiceNumber'), operation: tag(d, 'invoiceOperation'), issueDate: tag(d, 'invoiceIssueDate'), deliveryDate: tag(d, 'invoiceDeliveryDate'), supplierTax: tag(d, 'supplierTaxNumber'), supplierName: tag(d, 'supplierName'),
       net: Math.round(Number(tag(d, 'invoiceNetAmountHUF') || tag(d, 'invoiceNetAmount')) || 0), vat: Math.round(Number(tag(d, 'invoiceVatAmountHUF') || tag(d, 'invoiceVatAmount')) || 0) }); }
   return { items: items, pages: Number(tag(txt, 'availablePage')) || 1 };
+}
+/** Általános NAV Online Számla v3 hívás (op: pl. QueryInvoiceDigest, QueryInvoiceData); a válasz XML szövege */
+function navCall_(cfg, op, inner) {
+  const now = new Date(), ts = now.toISOString().replace(/\.\d+Z$/, '.000Z'), sigTs = ts.replace(/[-:T]/g, '').slice(0, 14);
+  const rid = ('LPM' + now.getTime().toString(36) + Math.random().toString(36).slice(2, 10)).toUpperCase().slice(0, 30);
+  const pw = navHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_512, cfg.pass, Utilities.Charset.UTF_8));
+  const sig = sha3_512Hex_(rid + sigTs + cfg.sign);
+  const xml = '<?xml version="1.0" encoding="UTF-8"?><' + op + 'Request xmlns="http://schemas.nav.gov.hu/OSA/3.0/api" xmlns:common="http://schemas.nav.gov.hu/NTCA/1.0/common">'
+    + '<common:header><common:requestId>' + rid + '</common:requestId><common:timestamp>' + ts + '</common:timestamp><common:requestVersion>3.0</common:requestVersion><common:headerVersion>1.0</common:headerVersion></common:header>'
+    + '<common:user><common:login>' + navXmlEsc_(cfg.login) + '</common:login><common:passwordHash cryptoType="SHA-512">' + pw + '</common:passwordHash><common:taxNumber>' + cfg.tax + '</common:taxNumber><common:requestSignature cryptoType="SHA3-512">' + sig + '</common:requestSignature></common:user>'
+    + '<software><softwareId>' + NAV_SOFTWARE_ID_ + '</softwareId><softwareName>Lumos Motion Projekttervezo</softwareName><softwareOperation>LOCAL_SOFTWARE</softwareOperation><softwareMainVersion>1.0</softwareMainVersion><softwareDevName>Lumos Motion Kft.</softwareDevName><softwareDevContact>' + navXmlEsc_(MAIL_REPLY_TO) + '</softwareDevContact><softwareDevCountryCode>HU</softwareDevCountryCode><softwareDevTaxNumber>' + cfg.tax + '</softwareDevTaxNumber></software>'
+    + inner + '</' + op + 'Request>';
+  const res = UrlFetchApp.fetch(NAV_URL_ + '/' + op.charAt(0).toLowerCase() + op.slice(1), { method: 'post', contentType: 'application/xml', payload: xml, muteHttpExceptions: true, headers: { Accept: 'application/xml' } });
+  const txt = res.getContentText();
+  const tag = (src, n) => { const m = new RegExp('<(?:\\w+:)?' + n + '\\b[^>]*>([\\s\\S]*?)</(?:\\w+:)?' + n + '>').exec(src); return m ? m[1].trim() : ''; };
+  if (res.getResponseCode() !== 200 || tag(txt, 'funcCode') === 'ERROR') throw new Error('NAV: ' + (tag(txt, 'message') || tag(txt, 'errorCode') || ('HTTP ' + res.getResponseCode())));
+  return txt;
+}
+/** Bejövő számla(ák) tartalma a NAV-ból (a megtekintéshez): eladó, vevő, dátumok, tételek, összesítő */
+function navInvoices_(u, a) {
+  const cfg = navConfig_(); if (!cfg.ok) throw new Error('A NAV-kapcsolat nincs beállítva.');
+  const tax = String(a && a.tax || '').replace(/\D/g, '').slice(0, 8), nos = String(a && a.nos || '').split(/\s*,\s*/).filter(Boolean).slice(0, 6);
+  if (tax.length !== 8 || !nos.length) throw new Error('Hiányzik a számlaszám vagy az adószám.');
+  const tag = (src, n) => { const m = new RegExp('<(?:\\w+:)?' + n + '\\b[^>]*>([\\s\\S]*?)</(?:\\w+:)?' + n + '>').exec(src); return m ? m[1].trim() : ''; };
+  const all = (src, n) => { const out = [], re = new RegExp('<(?:\\w+:)?' + n + '\\b[^>]*>([\\s\\S]*?)</(?:\\w+:)?' + n + '>', 'g'); let m; while ((m = re.exec(src))) out.push(m[1]); return out; };
+  const un = s => String(s || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+  const addr = s => { if (!s) return ''; const p = ['postalCode', 'city'].map(k => tag(s, k)).filter(Boolean).join(' '), rest = tag(s, 'additionalAddressDetail') || [tag(s, 'streetName'), tag(s, 'publicPlaceCategory'), tag(s, 'number'), tag(s, 'building'), tag(s, 'floor'), tag(s, 'door')].filter(Boolean).join(' '); return un([p, rest].filter(Boolean).join(', ')); };
+  const taxStr = s => [tag(s, 'taxpayerId'), tag(s, 'vatCode'), tag(s, 'countyCode')].filter(Boolean).join('-');
+  return nos.map(no => {
+    const txt = navCall_(cfg, 'QueryInvoiceData', '<invoiceNumberQuery><invoiceNumber>' + navXmlEsc_(no) + '</invoiceNumber><invoiceDirection>INBOUND</invoiceDirection><supplierTaxNumber>' + tax + '</supplierTaxNumber></invoiceNumberQuery>');
+    const b64 = tag(txt, 'invoiceData'); if (!b64) return { number: no, error: 'A NAV nem adta vissza a számla adatait.' };
+    let bytes = Utilities.base64Decode(b64);
+    if (tag(txt, 'compressedContentIndicator') === 'true') bytes = Utilities.ungzip(Utilities.newBlob(bytes, 'application/x-gzip')).getBytes();
+    const x = Utilities.newBlob(bytes).getDataAsString('UTF-8');
+    const sup = tag(x, 'supplierInfo'), cus = tag(x, 'customerInfo'), det = tag(x, 'invoiceDetail'), sum = tag(x, 'invoiceSummary');
+    const lines = all(x, 'line').map(l => ({ name: un(tag(l, 'lineDescription')), qty: Number(tag(l, 'quantity')) || 0, unit: un(tag(l, 'unitOfMeasureOwn') || tag(l, 'unitOfMeasure')), price: Number(tag(l, 'unitPrice')) || 0,
+      net: Number(tag(l, 'lineNetAmount')) || 0, vat: tag(l, 'vatPercentage') ? Math.round(Number(tag(l, 'vatPercentage')) * 100) + '%' : (tag(tag(l, 'vatExemption'), 'case') || (tag(l, 'vatOutOfScope') ? 'ÁKK' : '')), gross: Number(tag(l, 'lineGrossAmountNormal') || tag(l, 'lineGrossAmountSimplified')) || 0 }));
+    return { number: tag(x, 'invoiceNumber') || no, issueDate: tag(x, 'invoiceIssueDate'), deliveryDate: tag(det, 'invoiceDeliveryDate'), dueDate: tag(det, 'paymentDate'), payMethod: tag(det, 'paymentMethod'),
+      supplier: { name: un(tag(sup, 'supplierName')), tax: taxStr(tag(sup, 'supplierTaxNumber')), address: addr(tag(sup, 'supplierAddress')), bank: tag(sup, 'supplierBankAccountNumber') },
+      customer: { name: un(tag(cus, 'customerName')), address: addr(tag(cus, 'customerAddress')) },
+      lines: lines, net: Number(tag(sum, 'invoiceNetAmount')) || lines.reduce((s, l) => s + l.net, 0), vat: Number(tag(sum, 'invoiceVatAmount')) || 0, gross: Number(tag(sum, 'invoiceGrossAmount')) || lines.reduce((s, l) => s + (l.gross || l.net), 0) };
+  });
 }
 /** A cég bejövő számlái kiállítási dátum szerint (a NAV egy lekérdezésben legfeljebb 35 napot enged, ezért szakaszokban). */
 function navInbound_(cfg, from, to) {
@@ -3466,6 +3497,7 @@ function rpcInner_(token, name, arg) {
     case 'payStatementPreview': adminOnly(); { const b = payStatementBuild_(u, arg); return { html: b.html, subject: b.subject, to: String(b.c.email || ''), from: (u.name || '') + ' · Lumos Motion <' + (u.email || MAIL_FROM) + '>' }; }
     case 'paySentHtml': return paySentHtml_(u, arg);
     case 'navSync': adminOnly(); { try { installNavTrigger_(); } catch (e) { } return navSync_(u, arg); }
+    case 'navInvoices': adminOnly(); return navInvoices_(u, arg);
     case 'navStatus': adminOnly(); { const c = navConfig_(); return { ok: c.ok, last: PropertiesService.getScriptProperties().getProperty('NAV_LAST_SYNC') || '' }; }
     case 'setPayStatus': adminOnly(); return setPayStatus_(u, arg);
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
