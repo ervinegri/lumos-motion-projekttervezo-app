@@ -580,7 +580,7 @@ ACT['fin-proj-new']=()=>{const m=S.finMonth||todayISO().slice(0,7);guard(()=>new
 
 /* Bevételek ✏️: csak a név módosítása (projektnél a projekt neve, egyéb / régi sornál a sor neve) */
 ACT['inc-rename']=b=>{const id=b.dataset.id,isP=b.dataset.kind==='project',p=isP?projById(id):null,r=isP?null:((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!p&&!r)return;
-  openModal(isP?'Projekt átnevezése':'Bevétel átnevezése',`<div class="fields">${mf('name','Megnevezés',{full:true,v:(p||r).name||'',max:isP?160:200})}</div>`,{submitLabel:'Mentés',submit:async(fd,form)=>{
+  openModal(isP?'Projekt átnevezése':'Bevétel átnevezése',`<div class="fields">${mf('name','Megnevezés',{full:true,v:(p||r).name||'',max:isP?160:200})}</div>`,{left:r?`<button type="button" class="btn danger small" data-action="fin-income-del" data-id="${esc(r.id)}">🗑️ Sor törlése</button>`:'',submitLabel:'Mentés',submit:async(fd,form)=>{
     const n=String(fd.get('name')||'').trim();if(n.length<2){toast('Add meg a nevet (legalább 2 karakter).',true);return;}if(n===(p||r).name){closeModal();return;}
     if(r){const row=Object.assign({},r,{name:n});finSave('finUpsert',{table:'income',row},'Átnevezve',()=>finLocal('income',[row]));return;}
     if(S.draft&&S.draft.id===id){closeModal();setDraft({name:n});setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Átnevezve');return;}
