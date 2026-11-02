@@ -2587,7 +2587,7 @@ function payStatementBuild_(u, a) {
   const num = v => Math.round(Number(v) || 0);
   const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ date: str_(r.date, 40), name: str_(r.name, 160), roles: str_(r.roles, 200), fee: num(r.fee), ded: Math.abs(num(r.ded)) }));
   const pens = (Array.isArray(a.pens) ? a.pens : []).slice(0, 60).map(x => ({ project: str_(x.project, 160), amount: Math.abs(num(x.amount)), kind: str_(x.kind, 120), ref: str_(x.ref, 20), pct: num(x.pct), day: str_(x.day, 120), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), by: str_(x.by, 200) }));
-  const rent = Math.max(0, num(a.rent)), adj = num(a.adj), adjNote = str_(a.adjNote, 300), adjBy = str_(a.adjBy, 200);
+  const rent = Math.max(0, num(a.rent)), adj = num(a.adj), adjNote = str_(a.adjNote, 300), adjBy = str_(a.adjBy, 200), retained = Math.max(0, Math.round(num(a.retained)));   // korábbi hónapokból bennhagyott (még ki nem számlázott) összeg
   const feeSum = rows.reduce((s, r) => s + r.fee, 0), dedSum = rows.reduce((s, r) => s + r.ded, 0), gross = feeSum + rent, total = gross - dedSum + adj;
   const vat = c.vat === 'afa', first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || c.name, e = escapeHtml_;
   const pm = (v, sg) => payMoney_(v, sg) + (vat ? '\u00a0+\u00a0ÁFA' : '');   // áfakörösnél minden összeg után „+ ÁFA”
@@ -2624,6 +2624,7 @@ function payStatementBuild_(u, a) {
     + '<p>Kedves ' + e(first) + ',</p><p>Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.</p>'
     + H('ÖSSZESÍTÉS') + summ + H('PROJEKTEK') + table + (pens.length ? H('DÍJCSÖKKENTÉSEK RÉSZLETESEN') + penHtml : '') + (adj ? H('± KORREKCIÓ') + adjHtml : '')
     + H('SZÁMLÁZÁS') + '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + inv + '</table>'
+    + (retained ? '<p style="margin:12px 0 0;padding:10px 12px;background:#f3f8fc;border:1px solid #d3e3f0;border-radius:8px;font-size:13px">💼 <b>Bennhagyott egyenleged a korábbi hónapokból: ' + pm(retained) + '.</b> Ha szeretnéd, ezt is kiszámlázhatod – akár ezzel a számlával együtt, akár később.</p>' : '')
     + '<p style="margin-top:20px">A projektjeidet a projekttervező applikációban is megnézheted: <a href="' + url + '">' + e(String(url).replace(/^https:\/\//, '').replace(/\/$/, '')) + '</a></p>'
     + '<p>Ha bármi eltérést találsz, kérlek, <b>' + nextIg(PAY_COMPANY_.replyDay) + '</b> válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.</p>'
     + '<div style="margin-top:18px">' + (sig ? sig.html : MAIL_SIGNATURE_HTML) + '</div></div>';
@@ -2633,8 +2634,8 @@ function payStatementBuild_(u, a) {
     rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + pm(r.fee) + (r.ded ? ' − ' + pm(r.ded) + ' = ' + pm(r.fee - r.ded) : '')),
     pens.length ? ['', 'DÍJCSÖKKENTÉSEK'] : [], pens.map((x, i) => (i + 1) + '. ' + x.project + ' – ' + pm(-x.amount) + '\n   ' + x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.day ? '\n   Érintett: ' + x.day : '') + (x.caseText ? '\n   Eset: ' + x.caseText : '') + '\n   Indoklás: ' + x.reason + (x.by ? '\n   ' + x.by : '')),
     ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + pm(total), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”',
-      'Fizetési határidő: ' + PAY_COMPANY_.payDays + ' nap', 'Beküldési határidő: ' + nextLbl(PAY_COMPANY_.invoiceDay), 'Hová küldd: ' + PAY_COMPANY_.finance, '',
-      'A projektjeidet a projekttervező applikációban is megnézheted: ' + url, '', 'Ha bármi eltérést találsz, kérlek, ' + nextIg(PAY_COMPANY_.replyDay) + ' válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.', '', sig ? sig.text : MAIL_SIGNATURE_TEXT]);
+      'Fizetési határidő: ' + PAY_COMPANY_.payDays + ' nap', 'Beküldési határidő: ' + nextLbl(PAY_COMPANY_.invoiceDay), 'Hová küldd: ' + PAY_COMPANY_.finance, ''].concat(retained ? ['Bennhagyott egyenleged a korábbi hónapokból: ' + pm(retained) + '. Ha szeretnéd, ezt is kiszámlázhatod – akár ezzel a számlával együtt, akár később.', ''] : [], [
+      'A projektjeidet a projekttervező applikációban is megnézheted: ' + url, '', 'Ha bármi eltérést találsz, kérlek, ' + nextIg(PAY_COMPANY_.replyDay) + ' válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.', '', sig ? sig.text : MAIL_SIGNATURE_TEXT]));
   if (a.html) {   // az ügyvezető az előnézetben átírta a levelet: a módosított változat megy ki (szkriptek, eseménykezelők nélkül)
     const h = payCleanHtml_(a.html);
     if (h.replace(/<[^>]*>/g, '').trim().length < 20) throw new Error('A szerkesztett levél üres.');
