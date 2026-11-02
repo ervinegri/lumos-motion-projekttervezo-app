@@ -524,6 +524,22 @@ function loadBase_() {
 }
 
 /* Egyszeri: Egri Ervin és László Csanád bérszámfejtett (nem állítanak ki számlát) – Ervin kérése, 2026-11-02 */
+/** Egyszeri: a már véglegesített csapatú, még Tervezés szakaszban lévő projektek átkerülnek a Helyszíni munkára (a szabály 2026-11-02 óta él). */
+function migrateFinalizedOnce_() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('MIG_FINAL_2026_11')) return;
+  withLock_(() => {
+    const sh = sheetFor_('projects');
+    readAll_('projects').forEach(p => {
+      if (!String(p.crewFinal || '').trim() || !(p.status === 'tervezes' || p.status === 'egyeztetes' || !p.status)) return;
+      p.prevStatus = p.status || 'tervezes'; p.status = 'helyszin'; p.updatedAt = now_(); p.updatedBy = 'App (csapat véglegesítve)';
+      putRow_('projects', sh, p, findRow_(sh, p.id));
+      logEvent_({ name: 'App', role: 'admin' }, 'Projekt módosítva', p.name, 'Állapot: Tervezés → Helyszíni munka (a csapat már véglegesítve volt)');
+    });
+    dbFlush_(); dataBump_();
+  });
+  P.setProperty('MIG_FINAL_2026_11', now_());
+}
 function migrateEmployeesOnce_() {
   const P = PropertiesService.getScriptProperties();
   if (P.getProperty('MIG_EMP_2026_11')) return;
@@ -541,6 +557,7 @@ function migrateEmployeesOnce_() {
 function bootstrap_(u) {
   if (u.role === 'sales') return salesBootstrap_(u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
+  try { migrateFinalizedOnce_(); } catch (e) {}
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
