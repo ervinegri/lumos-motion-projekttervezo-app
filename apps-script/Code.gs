@@ -585,8 +585,12 @@ function dealsFor_(u) {
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
-  return { me: publicUser_(u), projects: [], crew: [], inventory: [], clients: (base.clients || []).map(c => ({ id: c.id, name: c.name, contactName: c.contactName, contactEmail: c.contactEmail, contactPhone: c.contactPhone, tax: c.tax, address: c.address })),
-    deals: dealsFor_(u), paySent: [], payStatus: [], payAdjust: [], officeRent: [], links: {}, crewOrder: [], mailOn: mailOn_(),
+  // Kifizetések: a saját díjai (ugyanúgy, mint egy szakembernek) – csak azok a projektek, amelyeken díja van, a szakemberi nézet szűrésével
+  const cu = Object.assign({}, u, { role: 'crew' }), cid = String(u.crewId || '');
+  const projects = cid ? base.projects.filter(p => parseFees_(p.fees).some(f => f.crewId === cid && Number(f.amount) > 0)).map(p => projectView_(p, cu)) : [];
+  const own = k => cid ? readAll_(k).filter(x => x.crewId === cid) : [];
+  return { me: publicUser_(u), projects: projects, crew: [], inventory: [], payStatus: own('payStatus'), payAdjust: own('payAdjust'), paySent: paySentList_(u), clients: (base.clients || []).map(c => ({ id: c.id, name: c.name, contactName: c.contactName, contactEmail: c.contactEmail, contactPhone: c.contactPhone, tax: c.tax, address: c.address })),
+    deals: dealsFor_(u), officeRent: [], links: {}, crewOrder: [], mailOn: mailOn_(),
     capabilities: { deals: true }, serverTime: now_() };
 }
 function dealCan_(u, d) { if (u.role === 'admin') return; if (u.role !== 'sales' || (d && d.ownerId !== u.id)) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.'); }
@@ -2831,12 +2835,12 @@ function setPayStatus_(u, a) {
 /* Kiküldött díjösszesítők listája (a levél szövege nélkül – azt külön kérjük le, ha megnyitják) */
 function paySentList_(u) {
   if (u.role === 'editor') return readAll_('paySent').filter(x => u.crewId && x.crewId === u.crewId).map(x => ({ id: x.id, month: x.month, crewId: x.crewId, amount: x.amount }));   // bennhagyott egyenleghez
-  return readAll_('paySent').filter(x => u.role === 'admin' || (u.role === 'crew' && u.crewId && x.crewId === u.crewId)).map(x => Object.assign({}, x, { html: '', hasHtml: !!x.html }));
+  return readAll_('paySent').filter(x => u.role === 'admin' || ((u.role === 'crew' || u.role === 'sales') && u.crewId && x.crewId === u.crewId)).map(x => Object.assign({}, x, { html: '', hasHtml: !!x.html }));
 }
 function paySentHtml_(u, a) {
   const id = str_(a && a.month, 7) + '|' + str_(a && a.crewId, 64), x = readAll_('paySent').find(r => r.id === id);
   if (!x) throw new Error('Ehhez a hónaphoz még nem ment ki díjösszesítő.');
-  if ((u.role === 'crew' && x.crewId !== u.crewId) || (u.role !== 'crew' && u.role !== 'admin')) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  if (((u.role === 'crew' || u.role === 'sales') && x.crewId !== u.crewId) || (u.role !== 'crew' && u.role !== 'sales' && u.role !== 'admin')) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
   return { html: x.html || '', subject: x.subject || '', sentAt: x.sentAt, sentBy: x.sentBy, email: x.email, amount: x.amount };
 }
 function sendPayStatements_(u, a) {
@@ -3533,7 +3537,7 @@ function authUser_(token) {
   if (!u || u.disabled) throw new Error('AUTH_REQUIRED');
   // Ügyvezetői előnézet: a munkamenet szerepköre átmenetileg termelési vezető vagy szakember, így a háttér pontosan
   // úgy szűr és engedélyez, mint annál a szerepkörnél. Csak ügyvezető kapcsolhatja be, és bármikor visszaállíthatja.
-  if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales') return Object.assign({}, u, { role: 'sales', realRole: 'admin', viewAs: s.viewAs });
+  if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales') return Object.assign({}, u, { role: 'sales', crewId: u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || '', realRole: 'admin', viewAs: s.viewAs });
   if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
     return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : (u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || ''), realRole: 'admin', viewAs: s.viewAs });
   return u;
