@@ -94,7 +94,7 @@ const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
   {k:'t_hang',label:'Hangtechnika',role:'Hangtechnikus'},
   {k:'t_feny',label:'Fénytechnika',role:'Fénytechnikus'}];
-const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Szakember'};
+const USER_ROLES={admin:'Ügyvezető',editor:'Termelési vezető',crew:'Szakember',sales:'Értékesítő'};
 const roleLabel=r=>USER_ROLES[r]||r;
 const TOKEN_KEY='lumos_pm_token_v1';
 
@@ -168,6 +168,7 @@ const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
 const ro=()=>!S.me||S.me.role==='crew';
 const isAdmin=()=>S.me&&S.me.role==='admin';
+const isSales=()=>!!S.me&&S.me.role==='sales';
 const projLocked=()=>!!(S.tab==='projektek'&&S.draft&&S.draft.status==='atadva');   // lezárt projekt: csak a pénzügyek módosíthatók
 const D=()=>ro()||projLocked()?' disabled':'';
 function uuid(){try{if(crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});}

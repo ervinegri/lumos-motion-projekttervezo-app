@@ -107,6 +107,12 @@ const TABLES = {
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte'], ['subject', 'Tárgy'], ['html', 'A kiküldött levél (HTML)']] },
   payAdjust: { tab: 'Fizetési korrekciók', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['amount', 'Korrekció (nettó Ft, + / −)'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
+  deals: { tab: 'Értékesítés', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['title', 'Megnevezés'], ['client', 'Ügyfél'], ['contactName', 'Kapcsolattartó'], ['contactEmail', 'E-mail'], ['contactPhone', 'Telefon'],
+    ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
+    ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
+    ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -533,6 +539,7 @@ function migrateEmployeesOnce_() {
   P.setProperty('MIG_EMP_2026_11', now_());
 }
 function bootstrap_(u) {
+  if (u.role === 'sales') return salesBootstrap_(u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
@@ -562,7 +569,84 @@ function bootstrap_(u) {
     out.inventory = inventory.filter(i => itemIds[i.id]).map(i => ({ id: i.id, name: i.name, category: i.category, serial: i.serial, location: i.location, qty: i.qty, condition: i.condition }));
     delete out.links.sheet;
   }
+  if (u.role === 'admin') out.deals = dealsFor_(u);   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return out;
+}
+
+/* ===================== ÉRTÉKESÍTÉS =====================
+   Lehetőségek (deals) a szerződésig: Új érdeklődő → Ajánlat kiküldve → Tárgyalás → Szerződve / Elveszett.
+   Az ügyvezető mindet látja, az értékesítő csak a sajátjait. Szerződéskor az app projektet hoz létre (Tervezés),
+   az értékesítő ezután csak azt látja, hogy szerződve lett – a projekt részleteit, díjait nem. */
+const DEAL_STAGES = ['uj', 'ajanlat', 'targyalas', 'nyert', 'elveszett'];
+const DEAL_SOURCES = ['Ajánlás', 'Visszatérő ügyfél', 'Weboldal', 'E-mail / telefon', 'Közösségi média', 'Rendezvényen', 'Hideg megkeresés', 'Egyéb'];
+function dealsFor_(u) {
+  const all = readAll_('deals');
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance) }));
+}
+function salesBootstrap_(u) {
+  const base = loadBase_();
+  return { me: publicUser_(u), projects: [], crew: [], inventory: [], clients: (base.clients || []).map(c => ({ id: c.id, name: c.name, contactName: c.contactName, contactEmail: c.contactEmail, contactPhone: c.contactPhone, tax: c.tax, address: c.address })),
+    deals: dealsFor_(u), paySent: [], payStatus: [], payAdjust: [], officeRent: [], links: {}, crewOrder: [], mailOn: mailOn_(),
+    capabilities: { deals: true }, serverTime: now_() };
+}
+function dealCan_(u, d) { if (u.role === 'admin') return; if (u.role !== 'sales' || (d && d.ownerId !== u.id)) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.'); }
+function saveDeal_(u, a) {
+  a = a || {};
+  const id = str_(a.id, 64) || Utilities.getUuid();
+  return withLock_(() => {
+    const sh = sheetFor_('deals'), row = findRow_(sh, id), old = row ? readRow_('deals', sh, row) : null;
+    dealCan_(u, old);
+    if (old && old.stage === 'nyert' && a.stage && a.stage !== 'nyert') throw new Error('Szerződött lehetőséget nem lehet visszaállítani – a projekt már elkészült.');
+    const stage = DEAL_STAGES.indexOf(a.stage) >= 0 && a.stage !== 'nyert' ? a.stage : (old ? old.stage : 'uj');
+    const users = loadUsers_(), owner = u.role === 'admin' && a.ownerId ? users.find(x => x.id === String(a.ownerId) && (x.role === 'sales' || x.role === 'admin')) : null;
+    const num = (v, max) => { if (v === '' || v == null) return ''; const n = Math.round(Number(String(v).replace(/[^\d.-]/g, ''))); return isFinite(n) ? Math.max(0, Math.min(max, n)) : ''; };
+    const d = {
+      id: id, title: str_(a.title, 160), client: str_(a.client, 160), contactName: str_(a.contactName, 120), contactEmail: str_(a.contactEmail, 160), contactPhone: str_(a.contactPhone, 40),
+      eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
+      chance: num(a.chance, 100), source: DEAL_SOURCES.indexOf(a.source) >= 0 ? a.source : '', nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
+      ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 3000),
+      lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '',
+      closedAt: stage === 'elveszett' ? (old && old.stage === 'elveszett' ? old.closedAt : today_()) : (old && old.stage === 'nyert' ? old.closedAt : ''),
+      createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };
+    if (old && old.stage === 'nyert') d.stage = 'nyert';
+    if (d.title.length < 2) throw new Error('Add meg a lehetőség nevét.');
+    if (d.stage === 'elveszett' && d.lostReason.length < 3) throw new Error('Írd be röviden, miért veszett el.');
+    putRow_('deals', sh, d, row || null); dbFlush_();
+    logEvent_(u, old ? (old.stage !== d.stage ? 'Értékesítés: ' + dealStageLbl_(d.stage) : 'Értékesítés módosítva') : 'Értékesítés: új lehetőség', d.title, d.client);
+    return { deals: dealsFor_(u) };
+  });
+}
+function dealStageLbl_(s) { return { uj: 'Új érdeklődő', ajanlat: 'Ajánlat kiküldve', targyalas: 'Tárgyalás', nyert: 'Szerződve', elveszett: 'Elveszett' }[s] || s; }
+function deleteDeal_(u, a) {
+  const id = str_(a && a.id, 64);
+  return withLock_(() => {
+    const sh = sheetFor_('deals'), row = findRow_(sh, id); if (!row) return { deals: dealsFor_(u) };
+    const d = readRow_('deals', sh, row); dealCan_(u, d);
+    if (d.stage === 'nyert') throw new Error('Szerződött lehetőséget nem lehet törölni.');
+    sh.deleteRow(row); dbFlush_(); logEvent_(u, 'Értékesítés: törölve', d.title, d.client);
+    return { deals: dealsFor_(u) };
+  });
+}
+/** Szerződés: projekt jön létre a lehetőség adataiból (Tervezés szakasz), a projekt értéke a megállapodott összeg. */
+function winDeal_(u, a) {
+  a = a || {};
+  const id = str_(a.id, 64), sh = sheetFor_('deals'), row = findRow_(sh, id);
+  if (!row) throw new Error('A lehetőség nem található.');
+  const d = readRow_('deals', sh, row); dealCan_(u, d);
+  if (d.stage === 'nyert' && d.projectId) return { deals: dealsFor_(u), projectId: d.projectId };
+  const value = Math.round(Number(String(a.value == null ? d.value : a.value).replace(/[^\d]/g, '')) || 0), date = iso_(a.eventDate) || iso_(d.eventDate);
+  if (!value) throw new Error('Add meg a megállapodott (szerződött) nettó összeget.');
+  if (!date) throw new Error('Add meg a rendezvény dátumát – ezzel kerül a naptárba.');
+  const pid = Utilities.getUuid();
+  saveProject_({ id: u.id, name: u.name, email: u.email, role: 'admin' }, { id: pid, mutationId: Utilities.getUuid(), name: str_(a.title, 160) || d.title, client: d.client, venue: d.venue, eventType: d.eventType,
+    date: date, contactName: d.contactName, contactEmail: d.contactEmail, contactPhone: d.contactPhone, notes: d.note ? 'Értékesítés (' + d.ownerName + '): ' + d.note : '',
+    status: 'tervezes', crew: [], equipment: [], baseUpdatedAt: '', projectValue: value, deferCal: true });
+  withLock_(() => { const r2 = findRow_(sh, id), q = readRow_('deals', sh, r2);
+    q.stage = 'nyert'; q.projectId = pid; q.value = value; q.eventDate = date; q.wonAt = today_(); q.closedAt = today_(); q.chance = 100; q.updatedAt = now_(); q.updatedBy = u.name;
+    putRow_('deals', sh, q, r2); dbFlush_(); });
+  logEvent_(u, 'Értékesítés: szerződve', d.title, d.client + ' · projekt létrehozva');
+  try { const p = readAll_('projects').find(x => x.id === pid); if (p) syncCalendar_(fullProject_(p)); } catch (e) {}
+  return { deals: dealsFor_(u), projectId: pid };
 }
 
 /* ===================== PÉNZÜGYEK (szerepkör szerint szűrve) =====================
@@ -3186,9 +3270,9 @@ function getLog_() {
 /* ===================== FELHASZNÁLÓK ÉS BELÉPÉS (a Sales App mintájára) ===================== */
 const USERS_PROPERTY = 'LUMOS_PM_USERS_V1';
 const SESSION_PREFIX = 'LUMOS_PM_SESS_';
-const ROLES = ['admin', 'editor', 'crew'];   // Ügyvezető, Termelési vezető, Szakember (csak a saját beosztásait látja, nem szerkeszt)
-const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Szakember' };
-const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30 };
+const ROLES = ['admin', 'editor', 'crew', 'sales'];   // + Értékesítő: csak az Értékesítés fület látja, a saját lehetőségeivel   // Ügyvezető, Termelési vezető, Szakember (csak a saját beosztásait látja, nem szerkeszt)
+const ROLE_NAMES_ = { admin: 'Ügyvezető', editor: 'Termelési vezető', crew: 'Szakember', sales: 'Értékesítő' };
+const SESSION_DAYS_BY_ROLE = { admin: 7, editor: 30, crew: 30, sales: 30 };
 
 function ownerOnly_() {
   let active = '', effective = '';
@@ -3449,6 +3533,7 @@ function authUser_(token) {
   if (!u || u.disabled) throw new Error('AUTH_REQUIRED');
   // Ügyvezetői előnézet: a munkamenet szerepköre átmenetileg termelési vezető vagy szakember, így a háttér pontosan
   // úgy szűr és engedélyez, mint annál a szerepkörnél. Csak ügyvezető kapcsolhatja be, és bármikor visszaállíthatja.
+  if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales') return Object.assign({}, u, { role: 'sales', realRole: 'admin', viewAs: s.viewAs });
   if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
     return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : (u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || ''), realRole: 'admin', viewAs: s.viewAs });
   return u;
@@ -3459,6 +3544,7 @@ function setViewAs_(token, u, arg) {
   const role = String(arg && arg.role || '');
   let view = null;
   if (role === 'editor') view = { role: 'editor' };
+  else if (role === 'sales') view = { role: 'sales' };
   else if (role === 'crew') {
     const cid = str_(arg && arg.crewId, 64), c = readAll_('crew').find(x => x.id === cid);
     if (!c) throw new Error('Válaszd ki, melyik szakember szemével nézed az appot.');
@@ -3479,7 +3565,7 @@ function saveUser_(arg, actor) {
   const crewId = String(a.crewId || '').trim().slice(0, 64);
   const email = String(a.email || '').trim().toLowerCase();
   if (name.length < 2 || name.length > 60) throw new Error('A név 2–60 karakter lehet.');
-  if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető, Termelési vezető vagy Szakember.');
+  if (ROLES.indexOf(role) < 0) throw new Error('Válassz szerepkört: Ügyvezető, Termelési vezető, Szakember vagy Értékesítő.');
   if (role === 'crew' && !crewId) throw new Error('Szakembernél válaszd ki, melyik munkatárs a stáblistában – csak az ő beosztásait fogja látni.');
   if (!email || email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Érvényes e-mail-cím szükséges: ezzel a Google-fiókkal lép be a felhasználó.');
   let target = null, list = null, isNew = false;
@@ -3555,6 +3641,9 @@ function rpcInner_(token, name, arg) {
     case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': if (arg && arg.open) logAppOpen_(u); return bootstrap_(u);
+    case 'saveDeal': if (role !== 'admin' && role !== 'sales') deny(); return saveDeal_(u, arg);
+    case 'deleteDeal': if (role !== 'admin' && role !== 'sales') deny(); return deleteDeal_(u, arg);
+    case 'winDeal': if (role !== 'admin' && role !== 'sales') deny(); return winDeal_(u, arg);
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);

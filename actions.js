@@ -469,9 +469,9 @@ async function switchView(role,crewId){
     S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.cal.events={};
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     await load(false,false,r&&r.boot);
-    S.tab=TABS().some(t=>t.id===keepTab)?keepTab:'projektek';
+    S.tab=TABS().some(t=>t.id===keepTab)?keepTab:TABS()[0].id;
     if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));S.draftBase=clone(S.draft);}
-    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':'Nézet: Szakember');
+    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 function viewAsCrewModal(){
