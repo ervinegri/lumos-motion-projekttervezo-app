@@ -3566,7 +3566,7 @@ function rpcInner_(token, name, arg) {
     case 'movePenaltyDay': adminOnly(); return movePenaltyDay_(u, arg);
     case 'objectPenalty': if (role !== 'crew' || !u.crewId) deny(); return objectPenalty_(u, arg);
     case 'saveOfficeRent': canEdit(); return saveOfficeRent_(u, arg);
-    case 'savePayAdjust': adminOnly(); return savePayAdjust_(u, arg);
+    case 'savePayAdjust': canEdit(); return savePayAdjust_(u, arg);   // a termelési vezető is
     case 'invitePreview': canEdit(); return inviteMailBuild_({ name: str_(arg && arg.name, 60) || 'Kolléga', email: str_(arg && arg.email, 160) || '…' }, u);
     case 'payStatementPreview': adminOnly(); { const b = payStatementBuild_(u, arg); return { html: b.html, subject: b.subject, to: String(b.c.email || ''), from: (u.name || '') + ' · Lumos Motion <' + (u.email || MAIL_FROM) + '>' }; }
     case 'paySentHtml': return paySentHtml_(u, arg);
