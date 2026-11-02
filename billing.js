@@ -88,7 +88,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   if(i.free)return {contract,tig,adv:freeBox('Díjbekérő'),fin:freeBox('Végszámla')};
   // Díjbekérő
   const dx=i.db||i.el,advPaid=!!((i.db&&invPaidOk(i.db))||(i.el&&invPaidOk(i.el))),skipA=b.mode==='egyben';
-  const adv=box('adv',`Díjbekérő${!skipA&&val?` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`:''}`,
+  const adv=box('adv',`Díjbekérő${!skipA&&val?(dx?` <span class="muted" title="A díjbekérő már ki van állítva – a foglaló %-a nem módosítható">${num(b.advancePct)}% · ${ftFmt(num(dx.invNet)||Math.round(val*num(b.advancePct)/100))}</span>`:` <span class="pb-pct"><input class="pb-pct-in" type="text" inputmode="numeric" maxlength="3" value="${num(b.advancePct)}" data-advpct="${pid}" aria-label="Foglaló %">%</span> <span class="muted">· ${ftFmt(Math.round(val*num(b.advancePct)/100))}</span>`):''}`,
     !dx?billAddBtn(p.id,'dijbekero','Díjbekérő kiállítása',!i.closed&&i.steps[i.nextI]&&i.steps[i.nextI][0]==='advIssued')
       :`${bsSent(i.db?'Díjbekérő':'Foglalószámla',i.db||i.el)}${bsPaidStep(i.el&&invPaidOk(i.el)?i.el:i.db||i.el)}${i.el&&i.db?`<div class="bs-x">Foglalószámla: <button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(i.el.id)}">${esc(i.el.no)}</button></div>`:''}${i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''}`,skipA,!!dx,'Nem kell díjbekérő?');
   // Végszámla
