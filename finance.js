@@ -294,7 +294,7 @@ function szItemName(p){const r=pr(p),n=(p&&p.name)||'Projekt';if(!r)return n;con
   return n+' – '+SZ_MN[m]+' '+d1+(r.end&&r.end!==r.start?(m2!==m?'. – '+SZ_MN[m2]+' '+d2:'–'+d2):'')+'.';}
 function szTargetInfo(kind,id){
   if(kind==='project'){const p=projById(id);if(!p)return null;const cl=(S.clients||[]).find(c=>c.name===p.client)||null,a=szSplitAddr(p.clientAddress||(cl&&cl.address));
-    const r=pr(p);return {kind,id,name:p.name||'Projekt',item:szItemName(p),net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:(r&&(r.end||r.start))||todayISO(),buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
+    const r=pr(p);return {kind,id,name:p.name||'Projekt',item:szItemName(p),net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:r?(m=>new Date(Date.UTC(Number(m.slice(0,4)),Number(m.slice(5,7)),0)).toISOString().slice(0,10))((r.end||r.start).slice(0,7)):todayISO(),   /* teljesítés: a tárgyhó utolsó napja */buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return null;
   const d=String(parseInt(r.day,10)||1).padStart(2,'0'),f=r.month?r.month+'-'+d:todayISO();
   return {kind:'income',id,name:r.name,net:num(r.amount),fulfill:f,buyer:{name:'',tax:'',email:'',zip:'',city:'',address:''}};}
@@ -475,7 +475,7 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
     <div><span>${x.manual?'Kiállító':'Utoljára ellenőrizve'}</span><b>${x.manual?(x.issuer==='kft'?'Lumos Motion Kft.':'Egri Ervin E.V.')+' · kézi rögzítés':esc(x.checkedAt||'—')}</b></div></div>`,
   x.manual?{left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Törlés</button>${x.fileUrl?`<a class="btn outline small" href="${esc(x.fileUrl)}" target="_blank" rel="noopener">📄 Bizonylat megnyitása</a>`:''}`,cancelLabel:'Bezárás',
     submitLabel:s==='paid'?'Kifizetés visszavonása':'✅ Kifizetve',submit:()=>ACT['sz-mpaid']({dataset:{id:x.id,paid:s==='paid'?'0':'1'}})}:
-  {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
+  {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>${x.kind!=='dijbekero'?`<button type="button" class="btn outline small" data-action="sz-storno" data-id="${esc(x.id)}">↩️ Sztornó</button>`:''}`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Letöltés…';}
     try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
       const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
@@ -618,3 +618,14 @@ document.addEventListener('input',e=>{if(e.target.id==='m-due')document.querySel
 ACT['fin-mkt-proj']=async btn=>{const pid=btn.dataset.id,on=!!btn.dataset.on;if(!S.fin)return;const arr=S.fin.billing=S.fin.billing||[];let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
   const prev=b.mktProject;b.mktProject=on?'1':'';render(true);
   try{const d=await call('billSave',{projectId:pid,mktProject:on});if(d&&d.billing)S.fin.billing=d.billing;render(true);toast(on?'Áthelyezve a marketing költségek közé':'Visszakerült a bevételek közé');}catch(e){b.mktProject=prev;render(true);handleErr(e);}};
+
+/* Számla sztornózása: csak sztornó, vagy sztornó + új számla az előző adataival */
+ACT['sz-storno']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(!x)return;
+  openModal('↩️ '+x.no+' sztornózása',`<p style="margin:0 0 10px">A számlázz.hu sztornó számlát állít ki a <b>${esc(x.no)}</b> számláról (${esc(x.buyer||'')}, bruttó ${ftFmt(num(x.invGross))}). Ez a NAV-hoz is bekerül, és nem vonható vissza.</p>
+    <div class="rolepick" style="flex-direction:column;align-items:flex-start;gap:8px"><label><input type="radio" name="stm" value="only" checked> <b>Csak sztornózom</b> <span class="muted">– a projekt újra számlázhatóvá válik</span></label><label><input type="radio" name="stm" value="new"> <b>Sztornózom, és újat állítok ki</b> <span class="muted">– az új számla az előző tételeivel nyílik meg, javíthatod</span></label></div>`,
+    {submitLabel:'Sztornózás',submit:async fd=>{const mode=fd.get('stm');const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Sztornózás…';}
+      try{const d=await call('szStorno',{id:x.id});closeModal();finApply(d);toast(`Sztornózva: ${x.no} → sztornó számla: ${d.stornoNo}`);
+        if(mode==='new'&&x.projectId){let items=[];try{items=JSON.parse(x.items||'[]');}catch(e){}const ids=invPids(x);
+          szInvoiceModal('project',x.projectId,{type:x.kind==='vegszamla'?'vegszamla':x.kind==='eloleg'?'eloleg':'szamla',projectIds:ids.filter(id=>id!==x.projectId),tigId:x.tigId||'',items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,price:it.price,vat:it.vat}))});}
+        else if(mode==='new')toast('Az új számlát a bevételi sornál állítsd ki.',true);}
+      catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Sztornózás';}}}});};

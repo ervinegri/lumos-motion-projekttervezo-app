@@ -1574,3 +1574,6 @@ ACT['nav-inv']=async b=>{const w=window.open('about:blank','_blank');const H=h=>
       <table><thead><tr><th>Megnevezés</th><th class="r">Menny.</th><th class="r">Egységár</th><th class="r">Nettó</th><th class="r">ÁFA</th><th class="r">Bruttó</th></tr></thead><tbody>${x.lines.map(l=>`<tr><td>${esc(l.name)}</td><td class="r">${esc(String(l.qty))} ${esc(l.unit||'')}</td><td class="r">${F(l.price)}</td><td class="r">${F(l.net)}</td><td class="r">${esc(l.vat||'')}</td><td class="r">${F(l.gross||l.net)}</td></tr>`).join('')}</tbody></table>
       <div class="tot"><div><span>Nettó</span><b>${F(x.net)}</b></div><div><span>ÁFA</span><b>${F(x.vat)}</b></div><div class="g"><span>Bruttó</span><span>${F(x.gross)}</span></div></div></div>`).join(''));}
   catch(e){if(w)w.close();handleErr(e);}};
+
+ACT['pay-sent-open']=b=>{const c=crewById(b.dataset.cid);openModal('📧 Kiküldött díjösszesítő'+(c?' – '+c.name:''),'<div id="payPrev"></div>',{cancelLabel:'Bezárás'});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');ACT['pay-sent-view'](b);};

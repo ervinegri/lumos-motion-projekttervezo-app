@@ -1886,6 +1886,27 @@ function szSetKind_(u, a) {
     r.kind = kind; putRow_('finInvoice', sh, r, row); szApplyPay_(invTargets_(r)); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, r.no + ' típusa: ' + kind); });
   return finData_();
 }
+/** Számla sztornózása a számlázz.hu-ban (Agent, xmlszamlast); az eredeti kikerül az appból (a projekt újra számlázható). */
+function szStorno_(u, a) {
+  const key = szNeedKey_(), id = str_(a && a.id, 64), all = readAll_('finInvoice'), x = all.find(r => r.id === id);
+  if (!x) throw new Error('A számla nem található.');
+  if (x.manual) throw new Error('Kézzel rögzített bizonylatot a kiállító programjában lehet sztornózni.');
+  if (x.kind === 'dijbekero') throw new Error('A díjbekérő nem számla – nem kell sztornózni, elég törölni a hozzárendelést.');
+  const set = szSettings_(), today = today_();
+  const xml = szXmlHead_('xmlszamlast', 'agentst')
+    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', set.eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
+    + '<fejlec>' + szEl_('szamlaszam', x.no) + szEl_('keltDatum', today) + szEl_('tipus', 'SS') + '</fejlec>'
+    + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'
+    + '<vevo></vevo></xmlszamlast>';
+  const r = szPost_('action-szamla_agent_st', xml);
+  let no = r.dec(r.headers.szlahu_szamlaszam);
+  try { const doc = XmlService.parse(r.body).getRootElement(); if (xmlText_(doc, 'sikeres') === 'false') throw new Error('számlázz.hu hiba (' + xmlText_(doc, 'hibakod') + '): ' + xmlText_(doc, 'hibauzenet')); no = xmlText_(doc, 'szamlaszam') || no; }
+  catch (e) { if (/számlázz\.hu hiba/.test(String(e.message))) throw e; }
+  if (!no) throw new Error('A számlázz.hu nem adott vissza sztornó számlaszámot: ' + String(r.body || '').slice(0, 200));
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (row) sh.deleteRow(row); if (x.tigId) tigMark_(x.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); });
+  logEvent_(u, 'Számlázás', x.buyer, 'Sztornózva: ' + x.no + ' → ' + no);
+  return Object.assign(finData_(), { stornoNo: no, original: x });
+}
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
   withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
@@ -2683,7 +2704,7 @@ function paySentList_(u) {
 function paySentHtml_(u, a) {
   const id = str_(a && a.month, 7) + '|' + str_(a && a.crewId, 64), x = readAll_('paySent').find(r => r.id === id);
   if (!x) throw new Error('Ehhez a hónaphoz még nem ment ki díjösszesítő.');
-  if (u.role === 'crew' && x.crewId !== u.crewId) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  if ((u.role === 'crew' && x.crewId !== u.crewId) || (u.role !== 'crew' && u.role !== 'admin')) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
   return { html: x.html || '', subject: x.subject || '', sentAt: x.sentAt, sentBy: x.sentBy, email: x.email, amount: x.amount };
 }
 function sendPayStatements_(u, a) {
@@ -3447,6 +3468,7 @@ function rpcInner_(token, name, arg) {
     case 'szInvoice': adminOnly(); return szInvoice_(u, arg);
     case 'szLink': adminOnly(); return szLink_(u, arg);
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
+    case 'szStorno': adminOnly(); return szStorno_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szPeek': adminOnly(); return szPeek_(u, arg);
