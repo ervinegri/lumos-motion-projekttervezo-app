@@ -1915,6 +1915,17 @@ function szStorno_(u, a) {
   logEvent_(u, 'Számlázás', x.buyer, 'Sztornózva: ' + x.no + ' → ' + no);
   return Object.assign(finData_(), { stornoNo: no, original: x });
 }
+/** Bizonylat áthelyezése másik projekthez (pl. két projekt számlái fel voltak cserélve). a: {id, projectId} */
+function szMove_(u, a) {
+  const id = str_(a && a.id, 64), pid = str_(a && a.projectId, 64);
+  if (!pid || !findRow_(sheetFor_('projects'), pid)) throw new Error('A cél projekt nem található.');
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row), old = invTargets_(r);
+    r.projectId = pid; r.incomeId = ''; r.projectIds = String(r.projectIds || '').split(',').filter(x => x && x !== pid).join(',');
+    putRow_('finInvoice', sh, r, row); szApplyPay_(old.concat(invTargets_(r))); dbFlush_();
+    const p = readAll_('projects').find(x => x.id === pid);
+    logEvent_(u, 'Számlázás', r.buyer, r.no + ' áthelyezve: ' + (p ? p.name : pid)); });
+  return finData_();
+}
 function szUnlink_(u, a) {
   const id = str_(a && a.id, 64);
   withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (!row) throw new Error('A számla nem található.'); const r = readRow_('finInvoice', sh, row); sh.deleteRow(row); if (r.tigId) tigMark_(r.tigId, { status: 'jovahagyva', invoiceNo: '' }); dbFlush_(); logEvent_(u, 'Számlázás', r.buyer, 'Hozzárendelés törölve: ' + r.no + ' (a számlázz.hu-ban a számla megmarad)'); });
@@ -3553,6 +3564,7 @@ function rpcInner_(token, name, arg) {
     case 'szInvoice': adminOnly(); return szInvoice_(u, arg);
     case 'szLink': adminOnly(); return szLink_(u, arg);
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
+    case 'szMove': adminOnly(); return szMove_(u, arg);
     case 'szStorno': adminOnly(); return szStorno_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
