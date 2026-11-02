@@ -48,8 +48,8 @@ const monthClash=(a,b)=>{const x=monthWords(a),y=monthWords(b);return x.length&&
 const legHit=(a,b)=>a.some(x=>b.some(y=>x===y||(x.length>=5&&y.startsWith(x))||(y.length>=5&&x.startsWith(y))));
 function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth;
   const fromApp=!appFrom||m>=appFrom;
-  const legR=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy),legT=legR.map(r=>legTok(r.name));
-  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&(fromApp||!legT.some((l,k)=>!monthClash(legR[k].name,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
+  const legAll=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy),legR=legAll.filter(r=>!pairSet(r)),legT=legR.map(r=>legTok(r.name)),legPin=new Set(legAll.map(r=>(PAIR_RE.exec(r.note||'')||[])[1]).filter(Boolean));
+  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&!legPin.has(p.id)&&(fromApp||!legT.some((l,k)=>!monthClash(legR[k].name,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
   const manual=(fin.income||[]).filter(r=>r.month===m&&(r.legacy?!fromApp:true)).map(r=>Object.assign({kind:'manual'},r,{amount:num(r.amount),prod:num(r.prod),profit:num(r.profit),ceo:num(r.ceo),marketing:num(r.marketing),rezsi:Number(r.rezsi)||0}));
   // régi sor, amely egyetlen projekthez tartozik: a projekt aktuális adataival (név, összeg, felosztás) jelenik meg – a projektben javított ár itt is látszik
   const lk=manual.map(r=>r.legacy?(incProj(r)||{}).id||'':''),cnt={};lk.forEach(id=>{if(id)cnt[id]=(cnt[id]||0)+1;});
@@ -59,7 +59,10 @@ function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth
   const dayN=x=>parseInt(x.day,10)||99;
   return proj.concat(manual).sort((a,b)=>dayN(a)-dayN(b)||a.name.localeCompare(b.name,'hu'));}
 /* Régi / kézi bevételi sor projektje: az appból frissített sor megjegyzése vagy azonos nevű projekt ugyanabban a hónapban */
-function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
+const PAIR_RE=/\[projekt:([A-Za-z0-9-]{8,64})\]/,NOPAIR_RE=/\[nincs projekt\]/;   // kézzel jóváhagyott párosítás a bevételi sor megjegyzésében
+const pairSet=r=>PAIR_RE.test(r.note||'')||NOPAIR_RE.test(r.note||'');
+function incProj(r){const pm=PAIR_RE.exec(r.note||'');if(pm)return projById(pm[1])||null;if(NOPAIR_RE.test(r.note||''))return null;
+  const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
   const inM=p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===r.month;
   const ex=S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(ex)return ex;
   const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>!monthClash(n,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
@@ -136,6 +139,20 @@ function finDiffRows(m){const proj=S.projects.filter(p=>p.status!=='lemondva'&&p
 ACT['fin-diff']=b=>{const m=b.dataset.m,L=finDiffRows(m),d=L.reduce((s,x)=>s+x.bev-x.bill,0);
   openModal('Eltérés a számlázástól – '+F_YM.format(toDate(m+'-01')),`<p class="hint" style="margin:0 0 10px">Bevétel és kiadás − Szerződés és számlázás = <b>${d>0?'+':''}${sFt(d)}</b>. Tételenként:</p>
     <div class="sheet-wrap"><table class="sheet"><thead><tr><th>Tétel</th><th class="r">Számlázás</th><th class="r">Bevételek</th><th class="r">Eltérés</th></tr></thead><tbody>${L.map(x=>`<tr><td>${x.pid?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(x.pid)}">${esc(x.name)}</button>`:esc(x.name)}<br><small class="muted">${esc(x.why)}</small></td><td class="r">${moneyFmt(x.bill)||'–'}</td><td class="r">${moneyFmt(x.bev)||'–'}</td><td class="r"><b>${x.bev>x.bill?'+':''}${sFt(x.bev-x.bill)}</b></td></tr>`).join('')||'<tr><td colspan="4" class="empty-row">Nincs eltérés.</td></tr>'}</tbody></table></div>`,{cancelLabel:'Bezárás'});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');};
+/* Régi bevételi sorok ↔ projektek: egyszeri, kézi jóváhagyás minden olyan hónapra, amelyben már van projekt */
+function pairRows(){const pm=new Set(S.projects.filter(p=>pr(p)).map(p=>pr(p).start.slice(0,7)));return ((S.fin&&S.fin.income)||[]).filter(r=>r.legacy&&pm.has(r.month)).sort((a,b)=>a.month.localeCompare(b.month)||(parseInt(a.day,10)||0)-(parseInt(b.day,10)||0));}
+function pairTodo(){return pairRows().filter(r=>!pairSet(r));}
+ACT['fin-pair']=()=>{const L=pairRows();if(!L.length){toast('Nincs ellenőrizendő régi sor.');return;}let lastM='';
+  const opts=r=>{const cur=incProj(r),c=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===r.month).sort((a,b)=>pr(a).start.localeCompare(pr(b).start));
+    return `<option value="__none"${pairSet(r)&&!cur?' selected':''}>— nincs hozzá projekt —</option>${c.map(p=>`<option value="${esc(p.id)}"${cur&&cur.id===p.id?' selected':''}>${esc(fmtShort(pr(p).start))} · ${esc(p.name||'')} · ${moneyFmt(projTotal(p))||0} Ft</option>`).join('')}`;};
+  const body=L.map(r=>{const h=r.month!==lastM?`<tr class="pt-month"><td colspan="3"><b>${esc(F_YM.format(toDate(r.month+'-01')))}</b></td></tr>`:'';lastM=r.month;const ok=pairSet(r);
+    return h+`<tr class="${ok?'pair-ok':'pair-q'}"><td class="n">${esc(r.day||'')}</td><td><b>${esc(r.name)}</b><br><small class="muted">${moneyFmt(r.amount)||0} Ft · ${ok?'✓ jóváhagyva':'❓ erősítsd meg'}</small></td><td><select class="inp" data-pair="${esc(r.id)}">${opts(r)}</select></td></tr>`;}).join('');
+  openModal('🔗 Régi bevételi sorok párosítása',`<p class="hint" style="margin:0 0 10px">Minden régi sornál válaszd ki, melyik projekthez tartozik (az app által javasolt van előre kiválasztva), vagy hogy nincs hozzá projekt. Mentés után a párosítás végleges: a projekthez kötött sor a projekt nevével és árával jelenik meg, a „nincs projekt” sor pedig a saját összegével marad. Ha egy munka projektje más hónapban van, a projekt dátumát javítsd.</p>
+    <div class="sheet-wrap"><table class="sheet pair-tbl"><thead><tr><th class="n">Nap</th><th>Régi sor</th><th>Projekt</th></tr></thead><tbody>${body}</tbody></table></div>`,{submitLabel:'Mentés – mindet jóváhagyom',submit:async()=>{
+      const rows=[];document.querySelectorAll('[data-pair]').forEach(s=>{const r=L.find(x=>x.id===s.dataset.pair);if(!r)return;const base=String(r.note||'').replace(PAIR_RE,'').replace(NOPAIR_RE,'').trim(),mk=s.value==='__none'?'[nincs projekt]':'[projekt:'+s.value+']',note=(base?base+' ':'')+mk;if(note!==r.note)rows.push(Object.assign({},r,{note}));});
+      if(!rows.length){closeModal();return;}
+      try{for(let i=0;i<rows.length;i+=20){const d=await call('finUpsert',{table:'income',rows:rows.slice(i,i+20)});finApply(d);}closeModal();toast(rows.length+' sor párosítása mentve');render(true);}catch(e){handleErr(e);}}});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');};
 /* Kintlévőség: minden hónap fizetésre váró / foglalós tétele */
 function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(m=>finIncomeFor(m).forEach(r=>{if(r.payStatus==='var'||r.payStatus==='eloleg'){n++;sum+=r.amount;}}));return {n,sum};}
 
@@ -178,7 +195,7 @@ function viewFinance(){
         <div class="flow-row"><span>Munkadíj</span><b>${ftFmt(T('prod'))}</b></div>
         <div class="flow-row${T('rezsi')<0?' warn':''}"><span>Eszközök, rezsi</span><b>${T('rezsi')<0?'−':''}${ftFmt(Math.abs(T('rezsi')))}</b></div></div>
     </div>
-    <div class="panel"><h3>💰 Bevételek ${fromApp?'<span class="aside">a projektekből</span>':''}</h3>
+    <div class="panel"><h3>💰 Bevételek ${fromApp?'<span class="aside">a projektekből</span>':''}${(()=>{const n=pairTodo().length;return n?` <button class="btn outline small fin-pair-btn" type="button" data-action="fin-pair">🔗 Párosítás ellenőrzése <span class="c">${n}</span></button>`:` <button class="linkbtn fin-pair-ok" type="button" data-action="fin-pair">🔗 Párosítások</button>`;})()}</h3>
       <div class="toolbar fin-q"><input class="inp search" id="q-fin" type="search" placeholder="Szűrés cégre vagy projektre…" value="${esc(S.finQ||'')}" aria-label="Bevételek szűrése cég szerint">${fq?`<span class="muted">${incF.length} / ${inc.length} tétel</span>`:''}</div>
       <div class="sheet-wrap"><table class="sheet fin-tbl fin-inc"><thead><tr><th class="n">Nap</th><th>Megnevezés</th><th>Fizetés</th><th class="r">Díjazás</th><th class="r">Nyereség ${st.profitPct}%</th><th class="r" colspan="2">Termelés</th><th class="r" colspan="2">Értékesítés</th><th class="r" colspan="2">Eszköz, rezsi</th><th class="r">Marketing ${st.marketingPct}%</th></tr></thead>
       <tbody>${incRows||`<tr><td colspan="12" class="empty-row">${fq?'Nincs ilyen cég tétele ebben a hónapban.':'Ebben a hónapban még nincs bevétel.'}${fromApp?' A projektek a projekt értékének megadása után jelennek meg itt.':''}</td></tr>`}</tbody>
