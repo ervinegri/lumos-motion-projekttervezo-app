@@ -7,6 +7,8 @@ function mdSave(){if(!MD_KEY)return;const f=$('mform');if(!f)return;const o={};
   f.querySelectorAll('input[name],textarea[name],select[name]').forEach(el=>{if(el.type==='hidden'||el.type==='password'||el.type==='file')return;const n=el.name;
     if(el.type==='checkbox'){(o[n]=o[n]||{c:[]}).c.push(el.checked?el.value:null);}else if(el.type==='radio'){if(el.checked)o[n]={v:el.value};else if(!o[n])o[n]={v:null};}else if(o[n]&&o[n].a)o[n].a.push(el.value);else o[n]={v:el.value,a:[el.value]};});
   try{localStorage.setItem(MD_KEY,JSON.stringify(o));}catch(e){}}
+function mdSig(){const f=$('mform');if(!f)return '';let h=5381;const str=[...f.querySelectorAll('input[name],textarea[name],select[name]')].map(el=>el.name+'='+(el.type==='checkbox'||el.type==='radio'?(el.checked?1:0):el.value)).join('\u0001');
+  for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return (h>>>0).toString(36);}
 function mdClear(k){try{localStorage.removeItem(k||MD_KEY);}catch(e){}}
 function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'null');}catch(e){}if(!o)return;const f=$('mform');if(!f||MD_KEY!==key)return;
   Object.entries(o).forEach(([n,x])=>{if(/^b(Email2?|Name|Tax|Zip|City|Addr)$/.test(n))return;   // a számla vevőadatai mindig a friss ügyféladatokból jönnek (nem a félbehagyott űrlapból)
@@ -23,6 +25,7 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
     <div class="mhead"><h3>${esc(title)}</h3><button type="button" class="x" data-action="modal-close" aria-label="Bezárás">×</button></div>
     ${body}
     <div class="mfoot">${left?`<span class="left">${left}</span>`:''}<button type="button" class="btn outline" data-action="${submit?'modal-cancel':'modal-close'}">${esc(cancelLabel)}</button>${submit?`<button type="submit" class="btn primary">${esc(submitLabel)}</button>`:''}</div></form></div>`;
+  if(MD_KEY)MD_KEY+='|'+mdSig();   // a piszkozat csak ugyanarra a kiinduló űrlapra töltődik vissza (pl. másik munkatárs szerkesztésekor nem)
   document.documentElement.style.overflow='hidden';
   const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first)first.focus();
   if(MD_KEY){const k=MD_KEY;setTimeout(()=>mdRestore(k),0);}
