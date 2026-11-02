@@ -5,14 +5,14 @@ let modalSubmit=null,MD_KEY='';
 const mdKey=title=>'lpm_md_'+title+'|'+((S.draft&&S.draft.id)||S.tab||'');
 function mdSave(){if(!MD_KEY)return;const f=$('mform');if(!f)return;const o={};
   f.querySelectorAll('input[name],textarea[name],select[name]').forEach(el=>{if(el.type==='hidden'||el.type==='password'||el.type==='file')return;const n=el.name;
-    if(el.type==='checkbox'){(o[n]=o[n]||{c:[]}).c.push(el.checked?el.value:null);}else if(el.type==='radio'){if(el.checked)o[n]={v:el.value};else if(!o[n])o[n]={v:null};}else o[n]={v:el.value};});
+    if(el.type==='checkbox'){(o[n]=o[n]||{c:[]}).c.push(el.checked?el.value:null);}else if(el.type==='radio'){if(el.checked)o[n]={v:el.value};else if(!o[n])o[n]={v:null};}else if(o[n]&&o[n].a)o[n].a.push(el.value);else o[n]={v:el.value,a:[el.value]};});
   try{localStorage.setItem(MD_KEY,JSON.stringify(o));}catch(e){}}
 function mdClear(k){try{localStorage.removeItem(k||MD_KEY);}catch(e){}}
 function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'null');}catch(e){}if(!o)return;const f=$('mform');if(!f||MD_KEY!==key)return;
   Object.entries(o).forEach(([n,x])=>{if(/^b(Email2?|Name|Tax|Zip|City|Addr)$/.test(n))return;   // a számla vevőadatai mindig a friss ügyféladatokból jönnek (nem a félbehagyott űrlapból)
     const els=[...f.querySelectorAll(`[name="${CSS.escape(n)}"]`)];if(!els.length)return;
     els.forEach((el,i)=>{let ch=false;if(el.type==='checkbox'){if(x.c){const v=x.c.includes(el.value);if(el.checked!==v){el.checked=v;ch=true;}}}
-      else if(el.type==='radio'){if(x.v!=null&&el.value===x.v&&!el.checked){el.checked=true;ch=true;}}else if(x.v!=null&&el.value!==x.v){el.value=x.v;ch=true;}
+      else if(el.type==='radio'){if(x.v!=null&&el.value===x.v&&!el.checked){el.checked=true;ch=true;}}else{const v=els.length>1?(x.a?x.a[i]:undefined):x.v;if(v!=null&&el.value!==v){el.value=v;ch=true;}}
       if(ch){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}});});}
 document.addEventListener('input',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform')){clearTimeout(mdSave._t);mdSave._t=setTimeout(mdSave,300);}});
 document.addEventListener('change',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform'))setTimeout(mdSave,0);});
