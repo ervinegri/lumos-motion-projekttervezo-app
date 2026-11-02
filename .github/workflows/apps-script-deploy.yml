@@ -1,0 +1,40 @@
+# Code.gs automatikus frissítése és telepítése (új verzió ugyanazon a webapp-URL-en)
+# Beállítás: Settings → Secrets and variables → Actions
+#   CLASPRC_JSON      – a `clasp login` után létrejött ~/.clasprc.json teljes tartalma (titok)
+#   CLASP_SCRIPT_ID   – az Apps Script projekt azonosítója (Projektbeállítások → Azonosítók → Szkriptazonosító)
+# A webapp telepítésének azonosítója a config.js-ben lévő /macros/s/…/exec URL-ből jön.
+name: Apps Script telepítés
+on:
+  push:
+    branches: [main]
+    paths: ['apps-script/Code.gs']
+  workflow_dispatch:
+concurrency: { group: apps-script-deploy, cancel-in-progress: false }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Beállítások ellenőrzése
+        id: chk
+        env: { RC: '${{ secrets.CLASPRC_JSON }}', SID: '${{ secrets.CLASP_SCRIPT_ID }}' }
+        run: |
+          if [ -z "$RC" ] || [ -z "$SID" ]; then echo "::warning::CLASPRC_JSON / CLASP_SCRIPT_ID nincs beállítva – kihagyva"; echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.skip != '1'
+        with: { node-version: 20 }
+      - name: Feltöltés és telepítés
+        if: steps.chk.outputs.skip != '1'
+        env: { RC: '${{ secrets.CLASPRC_JSON }}', SID: '${{ secrets.CLASP_SCRIPT_ID }}' }
+        run: |
+          set -euo pipefail
+          npm i -g @google/clasp@2.4.2 >/dev/null
+          printf '%s' "$RC" > ~/.clasprc.json
+          DEP=$(grep -o 'macros/s/[A-Za-z0-9_-]*/exec' config.js | sed 's#macros/s/##; s#/exec##')
+          mkdir -p /tmp/gas && cd /tmp/gas
+          printf '{"scriptId":"%s","rootDir":"."}' "$SID" > .clasp.json
+          clasp pull                         # az élő manifest (appsscript.json) megmarad
+          rm -f Code.js Code.gs
+          cp "$GITHUB_WORKSPACE/apps-script/Code.gs" Code.js
+          clasp push -f
+          clasp deploy -i "$DEP" -d "auto $(echo $GITHUB_SHA | cut -c1-7)"
