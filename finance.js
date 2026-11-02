@@ -12,13 +12,17 @@ const signedVal=s=>{const t=String(s||'').replace(/\s/g,'');if(!t)return 0;const
 /* Betöltés / hiba: hibánál nem próbálkozunk újra magától (különben végtelen újratöltés lenne), csak gombra */
 function finLoadingView(){if(S.finErr)return `<div class="panel">${empty('Nem sikerült betölteni: '+esc(S.finErr))}<div class="btns"><button class="btn primary" type="button" data-action="fin-retry">Újrapróbálás</button></div></div>`;
   finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
-async function finLoad(force){if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;const mut0=S._finMut||0;
+const FIN_CACHE_KEY='lumos_pm_fin_v1';   // az ügyvezető saját böngészőjében: frissítéskor azonnal látszik az utolsó állapot, a friss adat a háttérben jön
+function finCacheGet(){try{const c=JSON.parse(localStorage.getItem(FIN_CACHE_KEY)||'null');if(!c||!S.me||S.me.role!=='admin'||c.tk!==String(TOKEN).slice(-16)||Date.now()-c.at>7*864e5)return null;return c.d;}catch(e){return null;}}
+function finCacheSave(d){try{if(S.me&&S.me.role==='admin'&&d)localStorage.setItem(FIN_CACHE_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
+async function finLoad(force){if(!S.fin&&!S._finCacheTried){S._finCacheTried=true;const c=finCacheGet();if(c){S.fin=c;S.finErr='';force=true;setTimeout(()=>{if(S.tab==='penzugy'||S.tab==='szerzodes'||S.tab==='ugyfelek'||S.projectId)render(true);},0);}}
+  if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;const mut0=S._finMut||0;
   try{const d=await call('finData');if((S._finMut||0)!==mut0&&S.fin){S._finLoading=false;setTimeout(()=>finLoad(true),1500);return;}   // közben módosítottál: a régebbi adat ne írja felül
-    S.fin=d;S.finErr='';}catch(e){S.fin=null;S.finErr=errText(e)||'Hiba';handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
+    S.fin=d;S.finErr='';finCacheSave(d);}catch(e){if(!S.fin){S.finErr=errText(e)||'Hiba';}handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
 const FIN_KEYS=['income','expense','loan','settings','invoices','billing','frameworks','tigs','sz'];
-function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});S.fin=Object.assign({},S.fin||{},part);   // a szerver csak a módosult táblát küldi vissza
+function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});S.fin=Object.assign({},S.fin||{},part);finCacheSave(S.fin);   // a szerver csak a módosult táblát küldi vissza
   (d.invoices||[]).forEach(x=>invPids(x).forEach(pid=>{const p=projById(pid);if(p){const st=szPayOf(pid);if(st)p.payStatus=st;}}));render(true);}
 /* Közös számla: a fő projekt + a projectIds-ben felsorolt további projektek; a projekt részaránya a projektértékek arányában */
 const invPids=x=>[x.projectId,...String(x.projectIds||'').split(',')].filter(Boolean);

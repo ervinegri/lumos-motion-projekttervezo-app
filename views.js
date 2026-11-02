@@ -43,7 +43,7 @@ $('refreshBtn').addEventListener('click',()=>load(false,true));
    miközben a háttérben letölti a friss adatot. Kilépéskor és lejárt belépésnél törlődik. */
 const BOOT_KEY='lpm_boot_v1';
 function bootCacheSave(d){try{localStorage.setItem(BOOT_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
-function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);}catch(e){}calCacheClear();}
+function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.removeItem('lumos_pm_fin_v1');}catch(e){}calCacheClear();}
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
@@ -69,7 +69,7 @@ async function load(quiet,announce,pre){
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(((S.tab==='penzugy'||S.tab==='szerzodes')&&!isAdmin())||(S.tab==='beallitasok'&&ro()))S.tab='projektek';
-    if(S.fin&&(S.tab==='penzugy'||S.tab==='szerzodes'||S.tab==='ugyfelek'||S.projectId))finLoad(true);else S.fin=null;   // a pénzügyi adatok frissítése
+    if(S.me&&S.me.role==='admin'&&S.capabilities&&S.capabilities.finance)finLoad(!!S.fin);else{S.fin=null;try{localStorage.removeItem('lumos_pm_fin_v1');}catch(e){}}   // az ügyvezetőnek előre betöltjük (gyorsítótárból azonnal, a friss adat a háttérben)   // a pénzügyi adatok frissítése
     if((S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='projektek';
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
     if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
