@@ -49,7 +49,7 @@ function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extr
   return `<tr${i.closed?' class="bl-closed"':''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
       <div class="bl-meta">${esc(p.client||'—')}</div><div class="bl-val">${val?ftFmt(val)+' <span class="muted">nettó</span>'+(extrasOf(p).length?`<div class="bl-meta">${exBreak(p)}</div>`:''):isFree(p)?'<span class="muted">🎁 nem fizetős</span>':'<span class="muted">nincs érték megadva</span>'}</div>
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
-    <td class="bt-cell">${C.contract}</td><td class="bt-cell">${C.adv}</td>${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
+    ${o.cSpan===0?'':`<td class="bt-cell${o.cSpan>1?' bt-merged':''}"${sp(o.cSpan)}>${C.contract}</td>`}<td class="bt-cell">${C.adv}</td>${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
   arr.forEach(i=>{const k=n(i.p.client)||('#'+i.p.id);if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
@@ -59,7 +59,9 @@ function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},
     const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':'none';};
     let j=0;while(j<g.length){const k0=key(g[j]);let e=j+1;if(k0)while(e<g.length&&key(g[e])===k0)e++;
       const run=g.slice(j,e),finSame=run.length>1&&run.every(i=>fk(i)&&fk(i)===fk(run[0]));
-      run.forEach((i,x)=>out.push({i,o:{tigSpan:run.length===1?1:x?0:run.length,finSpan:!finSame?1:x?0:run.length,group:finSame?run:null}}));j=e;}});
+      run.forEach((i,x)=>out.push({i,o:{cIds:null,tigSpan:run.length===1?1:x?0:run.length,finSpan:!finSame?1:x?0:run.length,group:finSame?run:null}}));j=e;}
+    const cRun=g.filter(i=>!i.free);   // szerződés: az azonos megrendelő projektjei egy cellában (a lépések mindegyikre érvényesek)
+    if(cRun.length>1&&cRun.length===g.length){const rows=out.slice(-g.length);rows.forEach((r,x)=>{r.o.cSpan=x?0:g.length;if(!x)r.o.cIds=g.map(i=>i.p.id);});}});
   return out.map(r=>billRow(r.i,r.o)).join('');}
 /* A táblázat cellái lépésenként: Szerződés (elküldve, aláírva), TIG (elküldve, jóváhagyva), Díjbekérő (elküldve, fizetve), Végszámla (elküldve, fizetve) */
 const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l${/^\d{2}\.\d{2}\.$/.test(String(extra||''))?' inl':''}"><span>${label}</span>${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
@@ -77,7 +79,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   const freeBox=t=>`<div class="pb-box bs-box skip"><div class="pb-t">${t}</div><span class="statuspill p-mute">🎁 Nem fizetős</span></div>`;
   // Szerződés
   const cs=b.contractStatus||'',sent=cs==='kikuldve'||cs==='alairva',signed=cs==='alairva';
-  const cAct=st=>`data-action="bl-cstep" data-id="${pid}" data-st="${st}"`;
+  const cAct=st=>`data-action="bl-cstep" data-id="${pid}"${o.cIds?` data-ids="${esc(o.cIds.join(','))}"`:''} data-st="${st}"`;
   const contract=i.fw?`<div class="cdrop" data-cdrop="${pid}">${box('','Szerződés',fwCell(i.fw,'pb-c')+'<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>')}</div>`
     :(cs==='nemkell'?'':`<div class="cdrop" data-cdrop="${pid}">`)+box('contract','Szerződés',`${bsStep(sent,'Szerződés elküldve','',cAct(sent?'':'kikuldve'))}${bsStep(signed,'Szerződés aláírva',b.signedAt?fmtMD(b.signedAt):'',cAct(signed?'kikuldve':'alairva'))}
       ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}${b.contractUrl?`<button class="linkbtn bl-up bl-new" type="button" data-action="cdrop-pick" data-id="${pid}" title="Vagy húzd ide a fájlt">⬆️ Új feltöltése</button>`:'<span class="cdrop-tip">📥 Húzd ide a szerződést</span>'}<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?')+(cs==='nemkell'?'':'</div>');
@@ -106,9 +108,11 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   const red=(h,on)=>on?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // letelt a hónap, és még nincs kész: piros kártya
   const tigOver=monthOver&&tigNeed&&!appr,finOver=monthOver&&!fx&&!i.noFin&&!i.full&&!i.free&&tot>0;
   return {contract:paid(contract,cDone),tig:red(tig,tigOver),adv:paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(paid(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
-ACT['bl-cstep']=async btn=>{const pid=btn.dataset.id,st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
-  const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);render(true);
-  try{const d=await call('billSave',Object.assign({projectId:pid},patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){Object.assign(b,prev);render(true);handleErr(e);}};
+ACT['bl-cstep']=async btn=>{const st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;
+  const pids=(btn.dataset.ids?btn.dataset.ids.split(','):[btn.dataset.id]).filter(Boolean);   // összevont cella: a megrendelő összes projektjére
+  const undo=[];pids.forEach(pid=>{let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
+    const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);undo.push({pid,b,prev,patch});});render(true);
+  try{let d=null;for(const u of undo)d=await call('billSave',Object.assign({projectId:u.pid},u.patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){undo.forEach(u=>Object.assign(u.b,u.prev));render(true);handleErr(e);}};
 
 function viewBilling(){
   if(typeof szIdxEnsure==='function')setTimeout(szIdxEnsure,0);   // a számlajegyzék előtöltése a háttérben (gyors cégnév-kereséshez)
