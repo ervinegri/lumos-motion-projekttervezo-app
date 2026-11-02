@@ -432,7 +432,7 @@ function itemModal(it,after){
     catch(e){handleErr(e);}
   }});
 }
-document.addEventListener('change',e=>{if(e.target.id==='m-role'){const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
+document.addEventListener('change',e=>{if(e.target.id==='m-role'){const sc=$('m-salesComp');if(sc)sc.hidden=e.target.value!=='sales';const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
   const v=u||{};S._invEdit='';
   const crewOpts=[['','Válassz a stáblistából…'],...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
@@ -441,6 +441,12 @@ function userModal(u){
     ${ms('crewId','Munkatárs (a stáblistából – ez lesz a megjelenő név)',crewOpts,v.crewId||'',{full:true})}
     ${isAdmin()?ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>isAdmin()||k==='crew').filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole):'<input type="hidden" name="role" value="crew">'}
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,ph:'pl. kollega@lumosmotion.com',full:!isAdmin()})}
+    ${isAdmin()?`<div class="field full sales-comp" id="m-salesComp"${defRole==='sales'?'':' hidden'}><span class="lbl">💼 Értékesítő díjazása</span><div class="sc-grid">
+      ${moneyField('salary','Fix fizetés (nettó / hó)',v.salary==null?'':v.salary,{steps:false,ph:'pl. 300 000'})}
+      ${moneyField('commLimit','Jutaléksáv határa (szerződés nettó értéke)',v.commLimit==null?1000000:v.commLimit,{steps:false})}
+      <div class="field"><label for="m-commLow">Jutalék a határ alatt (%)</label><input class="inp" id="m-commLow" name="commLow" type="number" min="0" max="100" step="0.5" value="${v.commLow==null?'':esc(v.commLow)}" placeholder="pl. 20"></div>
+      <div class="field"><label for="m-commHigh">Jutalék a határ felett (%)</label><input class="inp" id="m-commHigh" name="commHigh" type="number" min="0" max="100" step="0.5" value="${v.commHigh==null?'':esc(v.commHigh)}" placeholder="pl. 25"></div></div>
+      <p class="hint" style="margin:4px 0 0">A jutalék szerződésenként jár, a szerződött nettó érték után, a szerződés hónapjában. A fix fizetés minden hónapban hozzáadódik a Kifizetésekhez.</p></div>`:''}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
@@ -449,7 +455,8 @@ function userModal(u){
     const cr=crewById(fd.get('crewId'));
     if(fd.get('role')==='editor'&&otherEd){toast('Csak egy termelési vezető lehet – előbb töröld '+otherEd.name+' fiókját, vagy állítsd Szakemberre.',true);const w=$('m-edWarn');if(w){w.hidden=false;w.scrollIntoView({block:'nearest'});}return;}
     if(!cr&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából (ha még nincs benne, előbb vedd fel a Stáb fülön).',true);return;}
-        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
+        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};
+        if(data.role==='sales'){data.salary=moneyVal(fd.get('salary'));data.commLimit=moneyVal(fd.get('commLimit'))||1000000;data.commLow=fd.get('commLow');data.commHigh=fd.get('commHigh');if(String(data.commLow).trim()===''||String(data.commHigh).trim()===''){toast('Add meg az értékesítő jutalék %-át (a határ alatt és felett).',true);return;}if(data.salary===''){toast('Add meg a fix havi fizetést (ha nincs, írj 0-t).',true);return;}}if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
     try{
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
@@ -610,7 +617,7 @@ document.addEventListener('change',e=>{if(e.target.id==='pm-master'){document.qu
 document.addEventListener('change',e=>{if(e.target.id==='pm-month'){setMonthAll(e.target.value);closeModal();render(true);payMailModal(e.target.value);}});
 function payMailModal(month,only){
   const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));
-  OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
+  OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.salesPeople||[]).forEach(x=>{if(salesPayOf(month,x.crewId))ids.add(x.crewId);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
   const list=[...ids].map(id=>({c:crewById(id),d:payStatementData(month,id)})).filter(x=>x.c&&!isEmployee(x.c)&&(!only||x.c.id===only)).sort((a,b)=>b.d.total-a.d.total);
   const mset=new Set([todayISO().slice(0,7),month]);S.projects.forEach(p=>{if(p.status!=='lemondva'&&pr(p)&&(p.fees||[]).some(f=>num(f.amount)))mset.add(pr(p).start.slice(0,7));});(S.payAdjust||[]).forEach(x=>mset.add(String(x.month)));
   const months=[...mset].filter(m=>/^\d{4}-\d{2}$/.test(m)).sort().reverse();

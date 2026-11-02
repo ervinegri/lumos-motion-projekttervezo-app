@@ -30,7 +30,7 @@ function viewSales(){
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
-      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">szerződve ebben a hónapban · ${wonM.length} db</div></div>
+      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">szerződve ebben a hónapban · ${wonM.length} db${wonM.some(d=>num(d.commAmt))?` · jutalék: <b>${ftFmt(wonM.reduce((s,d)=>s+num(d.commAmt),0))}</b>`:''}</div></div>
       <div class="tile" data-tip="Szerződött / (szerződött + elveszett) lehetőségek"><div class="tile-n">${rate==null?'–':rate+'%'}</div><div class="tile-l">nyerési arány${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
@@ -39,7 +39,7 @@ function viewSales(){
     ${hidden||f.old?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
 }
 function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.includes(d.stage),td=d.nextDate===T;
-  const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
+  const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${num(d.commAmt)?`<div class="dl-comm">💰 Jutalék: <b>${ftFmt(num(d.commAmt))}</b> <span class="muted">(${num(d.commPct)}%)</span></div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
     :(d.nextStep||d.nextDate)?`<div class="dl-next${od?' late':td?' today':''}">➜ ${esc(d.nextStep||'Teendő')}${d.nextDate?` · <b>${od?'lejárt: ':td?'ma':''}${td?'':esc(fmtShort(d.nextDate))}</b>`:''}</div>`:`<div class="dl-next none">➜ nincs következő lépés</div>`;
   return `<article class="dl-card" draggable="${d.stage==='nyert'?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
     <div class="dl-t">${esc(d.title)}</div>${d.client?`<div class="dl-c">${esc(d.client)}</div>`:''}

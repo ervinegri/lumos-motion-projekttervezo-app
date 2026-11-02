@@ -47,7 +47,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.rem
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
     if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
@@ -66,7 +66,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro()&&!isSales())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(!TABS().some(t=>t.id===S.tab))S.tab=TABS()[0].id;   // pl. az értékesítő csak az Értékesítés fület látja
@@ -254,6 +254,11 @@ function retainedBal(cid,month,incl){const items=[];let bal=0;
     const s=(S.paySent||[]).find(y=>y.crewId===cid&&String(y.month)===String(x.month));if(!s)return;
     const due=Math.round(num(s.amount)),inv=x.invoiceNo?Math.round(num(x.invoiceNet)):due,d=due-inv;if(!d)return;bal+=d;items.push({m:String(x.month),due,inv,d});});
   return {bal,items};}
+/* Értékesítő díjazása egy hónapra: fix fizetés + a hónapban szerződött lehetőségek jutaléka (csak az ügyvezető és maga az értékesítő kapja meg az adatot) */
+function salesPayOf(month,cid){const sp=(S.salesPeople||[]).find(x=>x.crewId===cid);if(!sp)return null;
+  const salary=month>=PAY_START&&(!sp.since||month>=sp.since)?num(sp.salary):0;
+  const items=(S.deals||[]).filter(d=>d.stage==='nyert'&&d.ownerId===sp.userId&&String(d.wonAt||'').slice(0,7)===month&&num(d.commAmt));
+  const comm=items.reduce((s,d)=>s+num(d.commAmt),0);return salary||comm?{salary,comm,items,total:salary+comm}:null;}
 function payStatementData(month,cid){
   const rows=[],pens=[],stamp=s=>{const d=String(s||'').slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(d)?d.replace(/-/g,'.')+'.':'';};
   const dl=r=>r.start===r.end?fmtShort(r.start):r.start.slice(0,7)===r.end.slice(0,7)?fmtShort(r.start).replace(/\.$/,'')+'–'+Number(r.end.slice(8))+'.':fmtShort(r.start)+' – '+fmtShort(r.end);
@@ -273,6 +278,8 @@ function payStatementData(month,cid){
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
           by:x.decidedBy&&x.decidedBy!==x.by?`Javasolta: ${x.by}, ${stamp(x.at)} · Jóváhagyta: ${x.decidedBy}`:`Kirótta: ${x.by||''}${stamp(x.at)?', '+stamp(x.at):''}`});});});});
   const cr=crewById(cid),rent=OFFICE_RENT.filter(o=>cr&&o.name===cr.name).reduce((s,o)=>s+o.amount,0);
+  {const sp=salesPayOf(month,cid);if(sp){const mn=F_YM.format(toDate(month+'-01'));if(sp.salary)rows.push({date:mn,name:'Fix fizetés',roles:'Értékesítő',fee:sp.salary,ded:0});
+    sp.items.forEach(d=>rows.push({date:stamp(d.wonAt),name:'Jutalék – '+(d.title||''),roles:`${num(d.commPct)}% · szerződés: ${ftFmt(num(d.value))}`,fee:num(d.commAmt),ded:0}));}}
   const ajs=(S.payAdjust||[]).filter(x=>x.crewId===cid&&String(x.month)===month&&num(x.amount)),adj=ajs.reduce((s,x)=>s+num(x.amount),0);
   const total=rows.reduce((s,r)=>s+r.fee-r.ded,0)+rent+adj;
   return {month,crewId:cid,rows,pens,rent,adj,adjs:ajs.map(x=>({amount:num(x.amount),note:x.note||'',by:[x.updatedBy,stamp(x.updatedAt)].filter(Boolean).join(', ')})),total,retained:Math.max(0,retainedBal(cid,month,false).bal)};}
@@ -286,11 +293,12 @@ function viewPayouts(){
       add(p,cid,f.amount,ref?0:penDeduct(p,cid,f.amount));});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=/^\d{4}-\d{2}$/.test(S.payMonth||'')?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
+  const spOn=(S.salesPeople||[]).filter(x=>!crewMode||x.crewId===myId).map(x=>({cid:x.crewId,p:salesPayOf(sel,x.crewId)})).filter(x=>x.p),sp=c=>{const x=spOn.find(y=>y.cid===c);return x?x.p.total:0;},spTotal=spOn.reduce((s,x)=>s+x.p.total,0);   // értékesítő: fix + jutalék
   const rentOn=OFFICE_RENT.map(r=>({c:(S.crew||[]).find(x=>x.name===r.name),amount:r.amount})).filter(r=>r.c&&(!crewMode||r.c.id===myId)),rent=c=>rentOn.filter(r=>r.c.id===c).reduce((s,r)=>s+r.amount,0);   // fix havi irodabérlet
   const keptM=kept[sel]||{},keptTotal=Object.values(keptM).reduce((s,x)=>s+x,0);
   const adjL=(S.payAdjust||[]).filter(x=>String(x.month)===sel&&num(x.amount)&&(!crewMode||x.crewId===myId)),adjsOf=c=>adjL.filter(x=>x.crewId===c),adj=c=>adjsOf(c).reduce((s,x)=>s+num(x.amount),0),adjTotal=adjL.reduce((s,x)=>s+num(x.amount),0);   // havi korrekció (+/−)
-  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c)+adj(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id),adjL.map(x=>x.crewId)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
-  const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid)+adj(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal+adjTotal;
+  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c)+adj(c)+sp(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id),adjL.map(x=>x.crewId),spOn.map(x=>x.cid)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
+  const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid)+adj(cid)+sp(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal+adjTotal+spTotal;
   const sgn=v=>(v>0?'+':v<0?'−':'')+moneyFmt(Math.abs(v));
   const canAdj=(isAdmin()||S.me.role==='editor')&&!crewMode,sentTo=c=>(S.paySent||[]).some(y=>y.crewId===c&&String(y.month)===sel);
   const adjCell=(c,k)=>{const x=adjsOf(c)[k],v=x?num(x.amount):0,inner=v?`<span class="${v<0?'bad-txt':'ok-txt'}">${sgn(v)}</span>`:'<span class="muted">–</span>',tip=x?esc(`${x.note||''}${x.updatedBy?'\n– '+x.updatedBy+(x.updatedAt?', '+String(x.updatedAt).slice(0,10):''):''}`):'';
@@ -332,14 +340,17 @@ function viewPayouts(){
     return {bal,items};};
   const retB=Object.fromEntries(cids.map(c=>[c,owe(c)])),retTot=cids.reduce((a,c)=>a+retB[c].bal,0);
   const retRow=cids.length?`<tr class="pay-strow pay-ret"><td>💼 Egyenleg <span class="muted" style="font-weight:500">(még kifizetendő)</span></td>${cids.map(c=>{const r=retB[c];if(!isAdmin()&&!crewMode&&c!==S.me.crewId)return '<td class="pay-blank"></td>';return `<td class="r">${r.items.length?`<span tabindex="0" data-tip="${esc(nameOf(c)+' – még kifizetendő: '+ftFmt(r.bal)+'\n'+r.items.map(x=>`${F_YM.format(toDate(x.m+'-01'))}: ${x.sent?'díjösszesítő':'összesen'} ${ftFmt(x.due)}, kifizetve ${ftFmt(x.paid)}${x.due-x.paid?` → ${ftFmt(x.due-x.paid)}`:' ✓'}`).join('\n'))}"><b${r.bal?'':' class="ok-txt"'}>${ftFmt(r.bal)}</b></span>`:'<b class="ok-txt">0 Ft</b>'}</td>`;}).join('')}${noSum?'':isAdmin()?`<td class="r"><b>${ftFmt(retTot)}</b></td>`:'<td class="pay-blank"></td>'}</tr>`:'';
+  const spRow=spOn.length?`<tr class="pay-sales"><td>💼 Értékesítés <span class="muted" style="font-weight:500">(fix fizetés + jutalék)</span></td>${cids.map(c=>{const x=spOn.find(y=>y.cid===c);if(!x)return '<td class="r"><span class="muted">–</span></td>';
+    const tip=[x.p.salary?'Fix fizetés: '+ftFmt(x.p.salary):''].concat(x.p.items.map(d=>`Jutalék ${num(d.commPct)}%: ${d.title} (${ftFmt(num(d.value))}) → ${ftFmt(num(d.commAmt))}`)).filter(Boolean).join('\n');
+    return `<td class="r" data-tip="${esc(tip)}" tabindex="0">${moneyFmt(x.p.total)}</td>`;}).join('')}${noSum?'':`<td class="r"><b>${moneyFmt(spTotal)}</b></td>`}</tr>`:'';
   const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}${noSum?'':`<td class="r"><b>${moneyFmt(rentTotal)}</b></td>`}</tr>`:'';
   const cell=(r,c)=>{const d=r.ded[c],why=d?esc(`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c)):'';
     return `<td class="r${d?' pay-ded':''}"${d?` data-tip="${why}" tabindex="0"`:''}>${r.cells[c]!=null?moneyFmt(r.cells[c])||0:'<span class="muted">–</span>'}${d?`<small class="pay-ded-note">🚨 −${moneyFmt(d)}</small>`:''}</td>`;};
   const colW=`<colgroup><col class="pay-c-proj">${cids.map(()=>'<col class="pay-c-person">').join('')}${noSum?'':'<col class="pay-c-sum">'}</colgroup>`;
   return `<div class="page-head"><div class="grow"><h2>${isAdmin()?'Termelői fizetések':'Kifizetések'}</h2><p class="sub">${crewMode?'Nettó fizetésed tételesen':'Termelői díjak, irodabérleti és termelési vezetői díj hónaponként, díjcsökkentés után · nettó'}</p>${monthNav('pay-month',months,sel)}</div>
       ${isAdmin()&&!crewMode?`<button class="btn outline small" type="button" data-action="nav-sync" data-month="${sel}" data-tip="A bejövő számlák lekérdezése a NAV Online Számla rendszeréből, és párosítás a kiküldött díjösszesítőkhöz (a munkatárs adószáma alapján). Naponta reggel magától is lefut.">🔄 Mindenki számlája a NAV-ból</button><button class="btn outline small" type="button" data-action="pay-mail" data-month="${sel}">📧 Díjösszesítők kiküldése</button>`:''}</div>
-    ${sel<PAY_START?`<div class="panel pay-nodata"><p style="margin:0;font-size:15px">🗂️ <b>Erről a hónapról nincs adat az appban.</b></p><p class="hint" style="margin:6px 0 0">A termelői fizetéseket a projekttervező 2026 októberétől követi – a korábbi hónapok elszámolása az app előtti nyilvántartásban van.</p></div>`:rows.length||rentOn.length||adjL.length?`<div class="sheet-wrap pay-wrap${crewMode?' pay-center':''}"><table class="sheet pay-sheet">${colW}<thead><tr><th>Projekt neve</th>${cids.map(c=>`<th class="r" title="${esc(nameOf(c))}">${esc(shortName(nameOf(c)))}</th>`).join('')}${noSum?'':'<th class="r">Projekt összesen</th>'}</tr></thead>
-      <tbody>${rows.map(r=>`<tr><td>${isSales()?`<b>${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</b>`:`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button>`}</td>${cids.map(c=>cell(r,c)).join('')}${noSum?'':`<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td>`}</tr>`).join('')}${rows.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}${adjRow}</tbody>
+    ${sel<PAY_START?`<div class="panel pay-nodata"><p style="margin:0;font-size:15px">🗂️ <b>Erről a hónapról nincs adat az appban.</b></p><p class="hint" style="margin:6px 0 0">A termelői fizetéseket a projekttervező 2026 októberétől követi – a korábbi hónapok elszámolása az app előtti nyilvántartásban van.</p></div>`:rows.length||rentOn.length||adjL.length||spOn.length?`<div class="sheet-wrap pay-wrap${crewMode?' pay-center':''}"><table class="sheet pay-sheet">${colW}<thead><tr><th>Projekt neve</th>${cids.map(c=>`<th class="r" title="${esc(nameOf(c))}">${esc(shortName(nameOf(c)))}</th>`).join('')}${noSum?'':'<th class="r">Projekt összesen</th>'}</tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${isSales()?`<b>${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</b>`:`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button>`}</td>${cids.map(c=>cell(r,c)).join('')}${noSum?'':`<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td>`}</tr>`).join('')}${rows.length||spOn.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}${spRow}${adjRow}</tbody>
       <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}${noSum?'':`<td class="r pay-total"><b>${ftFmt(total)}</b></td>`}</tr>${isAdmin()||crewMode?statusRows:''}${retRow}</tfoot></table></div>`
       :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}`;
 }
