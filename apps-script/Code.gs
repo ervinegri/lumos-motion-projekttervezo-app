@@ -2908,7 +2908,7 @@ function savePayAdjust_(u, a) {
   if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
   const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
   const amount = Math.round(Number(String(a.amount == null ? '' : a.amount).replace(/[^\d-]/g, '')) || 0), note = str_(a.note, 300).trim();
-  if (u.role !== 'admin' && readAll_('paySent').some(x => x.id === month + '|' + crewId)) { const old = readAll_('payAdjust').find(x => x.crewId === crewId && String(x.month) === month); if (Math.round(Number(old && old.amount) || 0) !== amount) throw new Error('A díjösszesítő már kiment – az összeget csak az ügyvezető módosíthatja (a megjegyzést igen).'); }
+  if (readAll_('paySent').some(x => x.id === month + '|' + crewId)) { const old = readAll_('payAdjust').find(x => x.crewId === crewId && String(x.month) === month); if (Math.round(Number(old && old.amount) || 0) !== amount) throw new Error('A díjösszesítő már kiment – az összeg nem módosítható (a megjegyzés igen).'); }
   if (Math.abs(amount) > FEE_MAX) throw new Error('Túl nagy összeg.');
   if (amount && note.length < 3) throw new Error('Írd be röviden, miért jár a korrekció.');
   return withLock_(() => {
