@@ -42,11 +42,14 @@ function finProjectRow(p){const st=finSet(),amount=projTotal(p),prod=Math.round(
 /* Régi táblázat sora ↔ projekt: közös jellemző szó a névben (ügyfél, helyszín is számít), a gyakori szavak nélkül */
 const LEG_STOP=new Set('technikai ugyelet konferencia rendezveny webinar stream short video videok forgatas podcast hibrid masodik eloadas youtube napja workshop kiallitas esemeny budapest hungary kft zrt bt nonprofit egyesulet alapitvany tagozat levelezo akademia gala unnepseg evzaro fesztival expo talalkozo csoportos and the of az es db 2024 2025 2026 2027 ak tal csop ut utca ter krt hotel center etterem kavehaz'.split(' '));
 const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(w=>w.length>=2&&!LEG_STOP.has(w));
+const HU_MN=['januar','februar','marcius','aprilis','majus','junius','julius','augusztus','szeptember','oktober','november','december'];
+const monthWords=s=>{const t=String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/[^a-z]+/);return HU_MN.filter(m=>t.includes(m));};
+const monthClash=(a,b)=>{const x=monthWords(a),y=monthWords(b);return x.length&&y.length&&!x.some(m=>y.includes(m));};   // pl. „… November” sor ≠ „… Október” projekt
 const legHit=(a,b)=>a.some(x=>b.some(y=>x===y||(x.length>=5&&y.startsWith(x))||(y.length>=5&&x.startsWith(y))));
 function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth;
   const fromApp=!appFrom||m>=appFrom;
-  const legT=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy).map(r=>legTok(r.name));
-  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&(fromApp||!legT.some(l=>legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
+  const legR=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy),legT=legR.map(r=>legTok(r.name));
+  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&(fromApp||!legT.some((l,k)=>!monthClash(legR[k].name,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
   const manual=(fin.income||[]).filter(r=>r.month===m&&(r.legacy?!fromApp:true)).map(r=>Object.assign({kind:'manual'},r,{amount:num(r.amount),prod:num(r.prod),profit:num(r.profit),ceo:num(r.ceo),marketing:num(r.marketing),rezsi:Number(r.rezsi)||0}));
   const dayN=x=>parseInt(x.day,10)||99;
   return proj.concat(manual).sort((a,b)=>dayN(a)-dayN(b)||a.name.localeCompare(b.name,'hu'));}
@@ -54,7 +57,7 @@ function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth
 function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
   const inM=p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===r.month;
   const ex=S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(ex)return ex;
-  const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
+  const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>!monthClash(n,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
   if(hit.length===1)return hit[0];
   if(hit.length>1){const sc=p=>{const pt=legTok([p.name,p.client,p.venue].join(' '));return lt.filter(x=>legHit([x],pt)).length;},v=hit.map(sc),mx=Math.max(...v);if(v.filter(x=>x===mx).length===1)return hit[v.indexOf(mx)];}   // több jelölt: amelyikkel több szó egyezik (pl. „Dalila”)
   const d=parseInt(r.day,10);if(!d||!hit.length)return null;const ds=r.month+'-'+String(d).padStart(2,'0');   // több azonos nevű (pl. Lurdy): a nap dönt
