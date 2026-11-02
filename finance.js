@@ -55,7 +55,10 @@ function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.not
   const inM=p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===r.month;
   const ex=S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(ex)return ex;
   const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
-  return hit.length===1?hit[0]:null;}
+  if(hit.length===1)return hit[0];
+  const d=parseInt(r.day,10);if(!d||!hit.length)return null;const ds=r.month+'-'+String(d).padStart(2,'0');   // több azonos nevű (pl. Lurdy): a nap dönt
+  const byDay=hit.filter(p=>{const x=pr(p);return x.start<=ds&&ds<=(x.end||x.start);});
+  return byDay.length===1?byDay[0]:null;}
 /* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; foglalónál a számlák kifizetett része, ennek hiányában a foglaló %-a */
 /* Fizetési állapot a bizonylatokból (projekt / régi bevételi sor); ha nincs bizonylat, a régi kézi állapot */
 function finPayOf(r){const lp=r.kind==='project'?null:incProj(r),pid=r.kind==='project'?r.id:lp&&lp.id;const st=pid?szPayOf(pid):(()=>{const l=invFor('income',r.id);if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0||invPaidOk(x));return fin.length?(fin.every(invPaidOk)?'teljes':any(fin)||any(adv)?'eloleg':'var'):any(adv)?'eloleg':'var';})();return st||r.payStatus||'';}
