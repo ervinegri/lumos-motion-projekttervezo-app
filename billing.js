@@ -239,7 +239,7 @@ Object.assign(ACT,{
   'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
   'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
-    const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id));   // összevont kártya: egy közös számla, projektenként egy tétellel
+    const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id)).sort((x,y)=>String((pr(projById(x))||{}).start).localeCompare(String((pr(projById(y))||{}).start)));   // időrendben   // összevont kártya: egy közös számla, projektenként egy tétellel
     if(ids.length>1){szInvoiceModal('project',ids[0],{type:b.dataset.type,projectIds:ids.slice(1),items:ids.map(id=>{const p=projById(id);return {name:szItemName(p),qty:1,price:projTotal(p),pid:id};})});return;}
     szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}
