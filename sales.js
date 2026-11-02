@@ -24,7 +24,7 @@ function viewSales(){
   const byStage=s=>L.filter(d=>d.stage===s&&(DEAL_OPEN.includes(s)||recent(d))).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
   const hidden=L.filter(d=>!DEAL_OPEN.includes(d.stage)&&!recent(d)).length;
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
-    <div class="dl-list">${arr.map(dealCard).join('')||`<p class="dl-empty">${s==='uj'?'Húzd ide, vagy vegyél fel új lehetőséget.':'—'}</p>`}</div></section>`;};
+    <div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div>${DEAL_OPEN.includes(s)?`<button class="dl-add" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}</section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
@@ -94,7 +94,7 @@ async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)re
   try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast(dealLbl(stage)+': '+d.title);}catch(e){S.deals=prev;render(true);handleErr(e);}}
 
 Object.assign(ACT,{
-  'deal-new':()=>dealModal(null),
+  'deal-new':b=>dealModal(null,b&&b.dataset.stage?{stage:b.dataset.stage}:null),
   'deal-open':b=>{if(S._dragDeal)return;const d=dealById(b.dataset.id);if(d)dealModal(d);},
   'deal-win':b=>{const d=dealById(b.dataset.id);if(d){closeModal();dealWinModal(d);}},
   'deal-del':b=>{const d=dealById(b.dataset.id);if(!d)return;confirmModal('Lehetőség törlése','Biztosan törlöd: „'+d.title+'”? Ha csak nem jött össze, inkább tedd az Elveszett oszlopba – így a nyerési arány is pontos marad.','Törlés',async()=>{try{const r=await call('deleteDeal',{id:d.id});S.deals=r.deals||S.deals;render(true);toast('Törölve');}catch(e){handleErr(e);}});},
