@@ -135,7 +135,7 @@ function viewBilling(){
   const curM=f.m||todayISO().slice(0,7);
   const sets={honap:all.filter(i=>pr(i.p).start.slice(0,7)===curM),teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0),lejart:all.filter(i=>i.late.length),kiall:all.filter(i=>i.todo),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
   const labels=[['honap','📅 '+F_YM.format(toDate(curM+'-01'))],['teendo','Nyitott'],['kiall','Kiállítandó díjbekérő / végszámla'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
-  let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
+  let list=sets[f.v]||all;if(q)list=list.filter(i=>fold([i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ')).includes(fold(q)));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
   const cols=6,openSum=Math.round(all.reduce((s,i)=>s+i.openNet,0)),lateSum=Math.round(all.reduce((s,i)=>s+i.lateNet,0)),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;

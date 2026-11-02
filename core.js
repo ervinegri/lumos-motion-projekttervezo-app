@@ -137,6 +137,8 @@ const overlap=(a,b)=>a&&b&&a.start<=b.end&&b.start<=a.end;
 function timeWin(p){const m=/^(\d{2}):(\d{2})$/.exec(p.startTime||'');if(!m)return null;const s=+m[1]*60+ +m[2];const x=/^(\d{2}):(\d{2})$/.exec(p.endTime||'');if(x){let e=+x[1]*60+ +x[2];if(e<=s)e+=1440;return {s,e};}return {s,e:s+Math.max(1,num(p.hours)||8)*60};}
 /* Két projekt ütközik-e: átfedő napok, de ugyanazon a napon (mindkettő egynapos) a délelőtti és a délutáni munka nem ütközik. */
 /* Ugyanaz a helyszín: a szakember egy nap több munkát is vállalhat ugyanott – nem ütközés, és helyszínváltás sincs */
+const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');   // ékezet nélküli kereséshez (á=a, ő=o …)
+const fhas=(hay,q)=>fold(hay).includes(fold(q));
 const venueKey=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 function sameVenue(p,q){const a=venueKey(p&&p.venue);return !!a&&a===venueKey(q&&q.venue);}
 function clash(p,q){

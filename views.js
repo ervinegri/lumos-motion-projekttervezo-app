@@ -365,7 +365,7 @@ function viewProjects(){
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'tervezes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
   let list=S.projects.filter(p=>f.status==='mind'||(f.status==='aktiv'?isOpen(p):(p.status||'tervezes')===f.status));
-  if(q)list=list.filter(p=>[p.name,p.client,p.venue,p.eventType,p.contactName].join(' ').toLowerCase().includes(q));
+  if(q)list=list.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q)));
   const closed=p=>p.status==='atadva'||p.status==='lemondva';
   const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // terepi munkára vár (dátum nélküliek a végén)
   const past=list.filter(p=>!closed(p)&&pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));   // lezajlott, utómunkára vár
@@ -855,7 +855,7 @@ function viewCrew(){
   let list=crewSorted();
   if(f.role)list=list.filter(c=>(c.roles||[]).includes(f.role)||(c.skills||[]).includes(f.role));
   if(f.prio)list=list.filter(c=>String(prioNum(c))===f.prio);
-  if(q)list=list.filter(c=>[c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ').toLowerCase().includes(q));
+  if(q)list=list.filter(c=>fold([c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ')).includes(fold(q)));
   const internal=S.crew.filter(c=>(c.type==='Belsős'||isEmployee(c))).length;
   const nextOf=c=>S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);
   const cards=f.view==='list'?'':list.map(c=>{
@@ -957,7 +957,7 @@ function viewInventory(){
   let list=S.inventory.slice();
   if(f.cat)list=list.filter(i=>(i.category||'Egyéb')===f.cat);
   if(f.cond)list=list.filter(i=>(i.condition||'ok')===f.cond);
-  if(q)list=list.filter(i=>[i.name,i.serial,i.category,i.note,i.location].join(' ').toLowerCase().includes(q));
+  if(q)list=list.filter(i=>fold([i.name,i.serial,i.category,i.note,i.location].join(' ')).includes(fold(q)));
   const totalQty=S.inventory.reduce((s,i)=>s+num(i.qty),0);
   const value=S.inventory.reduce((s,i)=>s+num(i.value)*num(i.qty),0);
   const broken=S.inventory.filter(i=>i.condition==='javitas'||i.condition==='szerviz').length;
@@ -983,7 +983,7 @@ function viewInventory(){
 function viewClients(){
   const q=S.clf.q.trim().toLowerCase(),T=todayISO();
   let list=knownClients('');
-  if(q)list=list.filter(c=>[c.company,c.tax,c.address,c.name,c.email,c.phone].join(' ').toLowerCase().includes(q));
+  if(q)list=list.filter(c=>fold([c.company,c.tax,c.address,c.name,c.email,c.phone].join(' ')).includes(fold(q)));
   const projOf=c=>S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===c.company.toLowerCase()).sort((a,b)=>byStart(b,a));
   const adm=isAdmin()&&S.capabilities&&S.capabilities.finance;if(adm&&!S.fin&&!S.finErr)setTimeout(()=>finLoad().then(()=>{if(S.tab==='ugyfelek')render(true);}),0);
   const rows=list.map(c=>{const ps=projOf(c),next=ps.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T).sort(byStart)[0],last=next||ps[0];

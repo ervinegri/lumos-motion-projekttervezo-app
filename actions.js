@@ -126,11 +126,11 @@ async function hsRep(){const box=$('hsRep'),inp=$('m-rep');if(!box||!inp||inp.re
 document.addEventListener('input',e=>{if(e.target.id==='m-rep'){clearTimeout(HSR_T);HSR_T=setTimeout(hsRep,400);}});
 
 function knownClients(q){
-  const ql=q.toLowerCase(),seen={},out=[];
-  (S.clients||[]).forEach(r=>{const c=String(r.name||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
+  const ql=fold(q),seen={},out=[];
+  (S.clients||[]).forEach(r=>{const c=String(r.name||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&fold(c).indexOf(ql)<0))return;
     seen[k]=1;out.push({id:r.id,company:c,name:r.contactName||'',phone:r.contactPhone||'',email:r.contactEmail||'',tax:r.tax||'',address:r.address||'',note:r.note||'',rep:r.rep||'',repPhone:r.repPhone||'',repEmail:r.repEmail||'',repTitle:r.repTitle||'',contactTitle:r.contactTitle||''});});
   S.projects.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).forEach(p=>{
-    const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&k.indexOf(ql)<0))return;
+    const c=String(p.client||'').trim();if(!c)return;const k=c.toLowerCase();if(seen[k]||(ql&&fold(c).indexOf(ql)<0))return;
     seen[k]=1;out.push({company:c,name:p.contactName||'',phone:p.contactPhone||'',email:p.contactEmail||'',tax:p.clientTax||'',address:p.clientAddress||''});});
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
@@ -240,8 +240,8 @@ function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs ny
 function clientSearch(input,all){
   const q=all?'':input.value.trim(),cur=S.draft&&String(S.draft.client||'').trim();
   pickItems=knownClients(q);
-  if(cur&&!pickItems.some(c=>c.company===cur)&&(!q||cur.toLowerCase().includes(q.toLowerCase())))pickItems.unshift({company:cur,name:S.draft.contactName||'',phone:S.draft.contactPhone||'',email:S.draft.contactEmail||'',tax:S.draft.clientTax||'',address:S.draft.clientAddress||''});
-  pickItems.push({isNew:true,company:q});if(cur&&!q)pickItems.push({isNone:true,company:''});
+  if(cur&&!pickItems.some(c=>c.company===cur)&&(!q||fhas(cur,q)))pickItems.unshift({company:cur,name:S.draft.contactName||'',phone:S.draft.contactPhone||'',email:S.draft.contactEmail||'',tax:S.draft.clientTax||'',address:S.draft.clientAddress||''});
+  if(!q||!pickItems.some(c=>fold(c.company).trim()===fold(q).trim()))pickItems.push({isNew:true,company:q});if(cur&&!q)pickItems.push({isNone:true,company:''});
   pickShow(input,pickItems.map((it,i)=>it.isNone?`<button type="button" class="hs-item" data-hs="${i}"><b class="muted">— Nincs ügyfél (mező ürítése)</b></button>`:it.isNew?`<button type="button" class="hs-item hs-new" data-hs="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
     :`<div class="hs-row${it.company===cur?' cur':''}"><button type="button" class="hs-item" data-hs="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button></div>`).join('')+(pickItems.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));
 }
@@ -330,7 +330,7 @@ function tplList(){const g=new Map();
   S.projects.filter(p=>p.status!=='lemondva'&&p.name).forEach(p=>{const k=(p.name.trim()+'|'+(p.client||'').trim()).toLowerCase(),st=String((pr(p)||{}).start||'');let e=g.get(k);
     if(!e)g.set(k,e={p,n:0,last:''});e.n++;if(st>=e.last){e.last=st;e.p=p;}});   // névenként a legutóbbi projekt a minta, a darabszám a használat
   return [...g.values()].sort((a,b)=>b.n-a.n||String(b.last).localeCompare(String(a.last)));}
-function tplSearch(input){const q=input.value.trim().toLowerCase(),items=tplList().filter(e=>!q||(e.p.name+' '+(e.p.client||'')).toLowerCase().includes(q)).slice(0,14);TPL_ITEMS=items;
+function tplSearch(input){const q=input.value.trim().toLowerCase(),items=tplList().filter(e=>!q||fhas(e.p.name+' '+(e.p.client||''),q)).slice(0,14);TPL_ITEMS=items;
   pickShow(input,items.length?items.map((e,i)=>`<button type="button" class="hs-item tpl-item" data-tpl="${i}"><span class="tpl-n">${esc(e.p.name)}</span><small>${esc(e.p.client||'Nincs ügyfél')}${e.last?' · utoljára '+esc(fmtShort(e.last)):''}</small></button>`).join(''):'<div class="hs-empty">Nincs ilyen sablon.</div>');}
 let TPL_ITEMS=[];
 function tplPick(e){const q=$('m-tplQ'),h=$('m-tplId'),x=document.querySelector('.tpl-clear');pickClose();if(!q||!h)return;h.value=e.p.id;q.value=e.p.name+(e.p.client?' · '+e.p.client:'');if(x)x.hidden=false;tplFill(e.p.id);}
@@ -1468,7 +1468,7 @@ function mcSetClient(it){   // ügyfél kiválasztva (ismert ügyfél: a kapcsol
   const set=(id,v)=>{const e2=$(id);if(e2&&v)e2.value=v;};set('m-contactName',it.name);set('m-contactEmail',it.email);
   const ph=$('m-contactPhone');if(ph&&it.phone){const pr2=phParse(it.phone);ph.value=pr2.n;const hid=document.querySelector('#mform input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}
 }
-function mcSearch(input){const q=input.value.trim();MC_ITEMS=knownClients(q);MC_ITEMS.push({isNew:true,company:q});
+function mcSearch(input){const q=input.value.trim();MC_ITEMS=knownClients(q);if(!q||!MC_ITEMS.some(c=>fold(c.company).trim()===fold(q).trim()))MC_ITEMS.push({isNew:true,company:q});
   pickShow(input,MC_ITEMS.map((it,i)=>it.isNew?`<button type="button" class="hs-item hs-new mc-item" data-mc="${i}"><b>+ Új ügyfél felvétele${q?`: „${esc(q)}”`:'…'}</b></button>`
     :`<div class="hs-row"><button type="button" class="hs-item mc-item" data-mc="${i}"><b>${esc(it.company)}</b><small>${esc([it.name,it.phone,it.email].filter(Boolean).join(' · ')||it.address||'nincs kapcsolattartó megadva')}</small></button></div>`).join('')+(MC_ITEMS.length===1&&q?'<div class="hs-empty">Nincs ilyen ügyfél.</div>':''));}
 document.addEventListener('focusin',e=>{if(e.target.id==='m-clientQ')mcSearch(e.target);});
