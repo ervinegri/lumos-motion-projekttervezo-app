@@ -45,17 +45,20 @@ const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 const legHit=(a,b)=>a.some(x=>b.some(y=>x===y||(x.length>=5&&y.startsWith(x))||(y.length>=5&&x.startsWith(y))));
 function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth;
   const fromApp=!appFrom||m>=appFrom;
-  const legP=new Set(fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy).map(r=>(incProj(r)||{}).id).filter(Boolean));   // a régi sorhoz (azonos névvel) kötött projekt nem kerül be külön
-  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&!legP.has(p.id)).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
+  const legT=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy).map(r=>legTok(r.name));
+  const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&(fromApp||!legT.some(l=>legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
   const manual=(fin.income||[]).filter(r=>r.month===m&&(r.legacy?!fromApp:true)).map(r=>Object.assign({kind:'manual'},r,{amount:num(r.amount),prod:num(r.prod),profit:num(r.profit),ceo:num(r.ceo),marketing:num(r.marketing),rezsi:Number(r.rezsi)||0}));
   const dayN=x=>parseInt(x.day,10)||99;
   return proj.concat(manual).sort((a,b)=>dayN(a)-dayN(b)||a.name.localeCompare(b.name,'hu'));}
 /* Régi / kézi bevételi sor projektje: az appból frissített sor megjegyzése vagy azonos nevű projekt ugyanabban a hónapban */
-const projNameKey=s=>String(s||'').normalize('NFC').replace(/[’`´]/g,"'").replace(/\s+/g,' ').trim().toLowerCase();
-function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=projNameKey(m?m[1]:r.name);if(!n)return null;   // csak azonos nevű projekt (a név mindenhol ugyanaz)
-  const hit=S.projects.filter(p=>projNameKey(p.name)===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(hit.length<2)return hit[0]||null;
-  const d=parseInt(r.day,10),ds=d?r.month+'-'+String(d).padStart(2,'0'):'';   // több azonos nevű (pl. Lurdy): a nap dönt
-  const byDay=hit.filter(p=>{const x=pr(p);return ds&&x.start<=ds&&ds<=(x.end||x.start);});
+function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.note||''),n=(m?m[1]:r.name||'').trim();if(!n)return null;
+  const inM=p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===r.month;
+  const ex=S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(ex)return ex;
+  const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
+  if(hit.length===1)return hit[0];
+  if(hit.length>1){const sc=p=>{const pt=legTok([p.name,p.client,p.venue].join(' '));return lt.filter(x=>legHit([x],pt)).length;},v=hit.map(sc),mx=Math.max(...v);if(v.filter(x=>x===mx).length===1)return hit[v.indexOf(mx)];}   // több jelölt: amelyikkel több szó egyezik (pl. „Dalila”)
+  const d=parseInt(r.day,10);if(!d||!hit.length)return null;const ds=r.month+'-'+String(d).padStart(2,'0');   // több azonos nevű (pl. Lurdy): a nap dönt
+  const byDay=hit.filter(p=>{const x=pr(p);return x.start<=ds&&ds<=(x.end||x.start);});
   return byDay.length===1?byDay[0]:null;}
 /* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; foglalónál a számlák kifizetett része, ennek hiányában a foglaló %-a */
 /* Fizetési állapot a bizonylatokból (projekt / régi bevételi sor); ha nincs bizonylat, a régi kézi állapot */
@@ -574,11 +577,8 @@ ACT['fin-proj-new']=()=>{const m=S.finMonth||todayISO().slice(0,7);guard(()=>new
 
 /* Bevételek ✏️: csak a név módosítása (projektnél a projekt neve, egyéb / régi sornál a sor neve) */
 ACT['inc-rename']=b=>{const id=b.dataset.id,isP=b.dataset.kind==='project',p=isP?projById(id):null,r=isP?null:((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!p&&!r)return;
-  openModal(isP?'Projekt átnevezése':'Bevétel szerkesztése',`<div class="fields">${mf('name','Megnevezés',{full:true,v:(p||r).name||'',max:isP?160:200})}${r?(()=>{const lp=incProj(r),cand=S.projects.filter(x=>x.status!=='lemondva'&&pr(x)&&pr(x).start.slice(0,7)===r.month).sort((a,c)=>pr(a).start.localeCompare(pr(c).start));
-      return cand.length?`<div class="field full"><label for="m-incProj">Projekt, amelyhez a sor tartozik</label><select class="inp" id="m-incProj" name="proj"><option value="">${lp?'— nincs —':'— válassz (a sor a projekt nevét és napját kapja) —'}</option>${cand.map(x=>`<option value="${esc(x.id)}"${lp&&lp.id===x.id?' selected':''}>${esc(fmtShort(pr(x).start))} · ${esc(x.name||'')}</option>`).join('')}</select><p class="hint" style="margin:4px 0 0">A sor és a projekt neve így pontosan egyezik, ezért egymáshoz kapcsolódnak.</p></div>`:'';})():''}</div>`,{left:r?`<button type="button" class="btn danger small" data-action="fin-income-del" data-id="${esc(r.id)}">🗑️ Sor törlése</button>`:'',submitLabel:'Mentés',submit:async(fd,form)=>{
-    const n=String(fd.get('name')||'').trim();if(n.length<2){toast('Add meg a nevet (legalább 2 karakter).',true);return;}if(n===(p||r).name&&!(r&&fd.get('proj')&&(incProj(r)||{}).id!==fd.get('proj'))){closeModal();return;}
-    const pj=r&&fd.get('proj')?projById(String(fd.get('proj'))):null;
-    if(r&&pj){const row=Object.assign({},r,{name:pj.name,day:String(Number(pr(pj).start.slice(8)))});finSave('finUpsert',{table:'income',row},'Hozzákapcsolva: '+pj.name,()=>finLocal('income',[row]));return;}
+  openModal(isP?'Projekt átnevezése':'Bevétel átnevezése',`<div class="fields">${mf('name','Megnevezés',{full:true,v:(p||r).name||'',max:isP?160:200})}</div>`,{left:r?`<button type="button" class="btn danger small" data-action="fin-income-del" data-id="${esc(r.id)}">🗑️ Sor törlése</button>`:'',submitLabel:'Mentés',submit:async(fd,form)=>{
+    const n=String(fd.get('name')||'').trim();if(n.length<2){toast('Add meg a nevet (legalább 2 karakter).',true);return;}if(n===(p||r).name){closeModal();return;}
     if(r){const row=Object.assign({},r,{name:n});finSave('finUpsert',{table:'income',row},'Átnevezve',()=>finLocal('income',[row]));return;}
     if(S.draft&&S.draft.id===id){closeModal();setDraft({name:n});setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Átnevezve');return;}
     try{const saved=await call('saveProject',Object.assign(clone(p),{name:n,baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===id);if(k>=0)S.projects[k]=saved;closeModal();render(true);toast('Projekt átnevezve');if(saved.calEventId&&typeof syncCal==='function')syncCal(saved.id);}
@@ -642,4 +642,3 @@ ACT['sz-storno']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.data
           szInvoiceModal('project',x.projectId,{type:x.kind==='vegszamla'?'vegszamla':x.kind==='eloleg'?'eloleg':'szamla',projectIds:ids.filter(id=>id!==x.projectId),tigId:x.tigId||'',items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,price:it.price,vat:it.vat}))});}
         else if(mode==='new')toast('Az új számlát a bevételi sornál állítsd ki.',true);}
       catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Sztornózás';}}}});};
-document.addEventListener('change',e=>{if(e.target&&e.target.id==='m-incProj'){const p=projById(e.target.value),i=$('m-name');if(p&&i)i.value=p.name||'';}});   // a projekt kiválasztásakor a név is átíródik
