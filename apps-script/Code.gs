@@ -1680,6 +1680,13 @@ function szExtraProjects_(a, main) {
   ids.forEach(id => { if (out.indexOf(id) < 0) { if (!findRow_(sh, id)) throw new Error('A közös számla egyik projektje nem található.'); out.push(id); } });
   return out.slice(0, 40).join(',');
 }
+/** Rendelésszám: a projekt azonosítója; ha a projekthez már van számla, sorszámmal (a számlázz.hu nem enged ismétlődő rendelésszámot). A díjbekérő a projekt azonosítóját kapja (a foglalószámla ez alapján található meg). */
+function szOrderNo_(tg, kind) {
+  const base = tg.projectId || tg.incomeId;
+  if (kind === 'dijbekero') return base;
+  const n = readAll_('finInvoice').filter(x => (tg.projectId ? x.projectId === tg.projectId : x.incomeId === tg.incomeId) && x.kind !== 'dijbekero').length;
+  return n ? base + '-' + (n + 1) : base;
+}
 function szTarget_(a) {
   const projectId = str_(a && a.projectId, 64), incomeId = str_(a && a.incomeId, 64);
   if (!projectId && !incomeId) throw new Error('Hiányzik, melyik projekthez vagy bevételhez tartozik a számla.');
@@ -1716,7 +1723,7 @@ function szInvoice_(u, a) {
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
-    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', tg.projectId || tg.incomeId)
+    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
