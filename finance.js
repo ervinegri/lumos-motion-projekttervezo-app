@@ -476,6 +476,14 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
       const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
     catch(e){handleErr(e);}finally{if(btn){btn.disabled=false;btn.textContent='⬇️ PDF';}}}});
   if(x.manual)return;const f=document.querySelector('#mform .mfoot');if(f){const r=document.createElement('button');r.type='button';r.className='btn outline';r.dataset.action='sz-sync-one';r.dataset.id=x.id;r.textContent='🔄 Frissítés';f.insertBefore(r,f.querySelector('button[type=submit]'));}}
+/* Számla megnyitása egy kattintással, új lapon (a PDF); ha nincs fájl (kézi rögzítés fájl nélkül), az adatlap */
+async function szInvOpen(x,btn){
+  if(x.manual){if(x.fileUrl)window.open(x.fileUrl,'_blank','noopener');else szInvModal(x);return;}
+  const w=window.open('about:blank','_blank');if(w)try{w.document.title=x.no||'Számla';w.document.body.innerHTML='<p style="font:16px system-ui;padding:24px">Számla betöltése…</p>';}catch(e){}
+  const old=btn&&btn.textContent;if(btn){btn.classList.add('is-busy');}
+  try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'}));if(w)w.location.href=url;else window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),300000);}
+  catch(e){if(w)w.close();handleErr(e);}finally{if(btn){btn.classList.remove('is-busy');if(old!=null)btn.textContent=old;}}}
 function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?String(window.LUMOS_API_URL||'')+'?ipn='+st.ipnToken:'';
   openModal('Számlázás – számlázz.hu',`${msg?`<p class="hint" style="margin:0 0 12px">${esc(msg)}</p>`:''}<div class="fields">
     <div class="field full"><label for="m-agentKey">Számla Agent-kulcs ${st.hasKey?'<span class="statuspill p-ok">✓ beállítva</span>':'<span class="statuspill p-warn">nincs megadva</span>'}</label>
@@ -501,7 +509,8 @@ async function szSync(silent,id){if(!szOn()||!S.fin.sz.hasKey||S._szSyncing)retu
 Object.assign(ACT,{
   'sz-new':b=>{const k=b.dataset.kind,id=b.dataset.id;if(!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}szInvoiceModal(k,id,{type:k==='project'?billNextType(id):'szamla'});},
   'sz-link':b=>szLinkModal(b.dataset.kind,b.dataset.id,(($('m-kind')||{}).value)||b.dataset.type),
-  'sz-inv':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvModal(x);},
+  'sz-inv-info':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvModal(x);},
+  'sz-inv':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvOpen(x,b);},
   'sz-unlink':b=>{const id=b.dataset.id;confirmModal('Hozzárendelés törlése','A számla az appból kikerül, a számlázz.hu-ban változatlanul megmarad (sztornózni ott tudod).','Törlés',()=>finCall('szUnlink',{id},'Hozzárendelés törölve'));},
   'sz-sync':()=>szSync(false),
   'sz-sync-one':b=>{closeModal();szSync(false,b.dataset.id);},
