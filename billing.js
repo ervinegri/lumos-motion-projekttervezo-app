@@ -54,6 +54,9 @@ function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extr
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
   arr.forEach(i=>{const k=n(i.p.client)||('#'+i.p.id);if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
+  const invs=g=>g.flatMap(i=>(i.finAll||[]).concat(i.db?[i.db]:[],i.el?[i.el]:[])).filter(x=>x&&x.kind!=='storno');
+  const rank=g=>{const L=invs(g),un=L.filter(x=>!invPaidOk(x));if(un.some(x=>invState(x)==='late'))return 0;if(un.length)return 1;return L.length&&g.every(i=>(i.finAll||[]).length||i.full||i.noFin||i.free)?3:2;};   // lejárt kifizetetlen → kifizetetlen → még nincs számla → kifizetve
+  order.sort((a,b)=>rank(by[a])-rank(by[b]));
   const out=[];order.forEach((k,ci)=>{const g=by[k],L=g.length,merge=L>1&&g.every(i=>!i.free);
     const tk=i=>{const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();return tg?'tig:'+tg.id:'none';};
     const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':(i.db||i.el)?'adv:'+i.p.id:'none';};   // foglalós projekt végszámlája külön
