@@ -113,7 +113,7 @@ function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(
 function viewFinance(){
   if(!finOn())return `<div class="panel">${empty('A Bevétel és kiadás a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();
-  const months=finMonths(),m=months.includes(S.finMonth)?S.finMonth:todayISO().slice(0,7),st=finSet();S.finMonth=m;
+  const months=finMonths(),m=/^\d{4}-\d{2}$/.test(S.finMonth||'')?S.finMonth:todayISO().slice(0,7),st=finSet();S.finMonth=m;
   if(!S._expDedupe&&(finExpDupes().del.length))setTimeout(finExpDedupe,0);   // ismétlődőre állított tételek duplikátumai
   const inc=finIncomeFor(m),exp=finExpensesFor(m),bal=finBalances(m),rec=finReceivables();
   const fromApp=!st.appFromMonth||m>=st.appFromMonth;

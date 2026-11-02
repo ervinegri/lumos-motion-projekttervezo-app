@@ -263,7 +263,9 @@ function payStatementData(month,cid){
     (p.fees||[]).forEach(f=>{
       if(f.kind==='fixed'){if(f.refCrewId===cid&&num(f.amount))rows.push({date:dl(r),name:'Ajánlói jutalék – '+(p.name||''),roles:'',fee:num(f.amount),ded:0});return;}
       if(f.crewId!==cid||!num(f.amount))return;const ded=penDeduct(p,cid,f.amount);
-      rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:'',fee:num(f.amount),ded});   // a szerepek nem kerülnek a díjösszesítőbe
+      const rl=[...new Set((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role))],split=isSplitCut(p,f)&&postAmt(f)>0;   // a projektben betöltött szerep(ek)
+      rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:(split?rl.filter(x=>x!=='Vágó'):rl).join(', '),fee:num(f.amount)-(split?postAmt(f):0),ded});
+      if(split)rows.push({date:workDays(p,cid,r),name:p.name||'Névtelen projekt',roles:'Vágás',fee:postAmt(f),ded:0});   // a vágás külön sorban
       if(ded)penOf(p,cid,'approved').filter(x=>x.kind!=='damage').forEach(x=>{const k=PEN_KINDS[x.kind]||{},da=f.dayAmounts||{};
         pens.push({project:p.name||'',amount:penAmt(p,x,f.amount),kind:k.label||'Díjcsökkentés',ref:k.ref||'',pct:num(x.pct),
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
@@ -281,7 +283,7 @@ function viewPayouts(){
     (p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
       add(p,cid,f.amount,ref?0:penDeduct(p,cid,f.amount));});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
-  const sel=months.includes(S.payMonth)?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
+  const sel=/^\d{4}-\d{2}$/.test(S.payMonth||'')?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
   const rentOn=OFFICE_RENT.map(r=>({c:(S.crew||[]).find(x=>x.name===r.name),amount:r.amount})).filter(r=>r.c&&(!crewMode||r.c.id===myId)),rent=c=>rentOn.filter(r=>r.c.id===c).reduce((s,r)=>s+r.amount,0);   // fix havi irodabérlet
   const keptM=kept[sel]||{},keptTotal=Object.values(keptM).reduce((s,x)=>s+x,0);
   const adjL=(S.payAdjust||[]).filter(x=>String(x.month)===sel&&num(x.amount)&&(!crewMode||x.crewId===myId)),adjOf=c=>adjL.find(x=>x.crewId===c),adj=c=>{const x=adjOf(c);return x?num(x.amount):0;},adjTotal=adjL.reduce((s,x)=>s+num(x.amount),0);   // havi korrekció (+/−)
@@ -509,7 +511,12 @@ function financePanel(p,inner){
   const foot=`<tfoot><tr><td></td><td></td><td class="r tf-lbl">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,''))||0}</td></tr>${keretRows(p)}</tfoot>`;
   const postRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&isPostOnly(p,x.f.crewId));
   const hasCutter=(p.crew||[]).some(a=>a.role==='Vágó');   // a vágó a helyszíni stábban is lehet (pl. operatőr + vágó) – ilyenkor a díja a napi táblázatban van
-  const postTbl=()=>!postRows.length&&hasVideoPost(p)&&!hasCutter?`<div class="day-tbl-h">✂️ Utómunka</div>`+tbl(`<tr><td colspan="6" class="empty-row">Van megrendelt utómunka, de még nincs vágó beosztva – a stábnál a Beosztásban válaszd a „Vágó” szerepet.</td></tr>`,'','day-sheet'):postRows.length?`<div class="day-tbl-h">✂️ Utómunka</div>`+tbl(postRows.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${penCellNote(p,x.f)}</td><td>${ro_(esc(gearOf(x.f)||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join(''),`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Utómunka összesen</td><td class="r" data-post-sum="1">${moneyFmt(postRows.reduce((s,x)=>s+num(x.f.amount)-penDeduct(p,x.f.crewId,x.f.amount),0))||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet'):'';
+  const splitRows=fees.map((f,i)=>({f,i})).filter(x=>isSplitCut(p,x.f));   // helyszínen is dolgozó vágó: a vágás külön sorban
+  const postTbl=()=>{const all=postRows.length+splitRows.length;
+    if(!all)return hasVideoPost(p)&&!hasCutter?`<div class="day-tbl-h">✂️ Utómunka</div>`+tbl(`<tr><td colspan="6" class="empty-row">Van megrendelt utómunka, de még nincs vágó beosztva – a stábnál a Beosztásban válaszd a „Vágó” szerepet.</td></tr>`,'','day-sheet'):'';
+    const body=postRows.map((x,n)=>`<tr><td class="n">${n+1}</td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${penCellNote(p,x.f)}</td><td>${ro_(esc(gearOf(x.f)||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`)
+      .concat(splitRows.map((x,n)=>`<tr><td class="n">${postRows.length+n+1}</td><td>${ro_(esc(x.f.name||((crewById(x.f.crewId)||{}).name)||''))}</td><td>${ro_('Vágás')}</td><td>${tin(x.i,'post',x.f.post,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`)).join('');
+    return `<div class="day-tbl-h">✂️ Utómunka</div>`+tbl(body,`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Utómunka összesen</td><td class="r" data-post-sum="1">${moneyFmt(postSumOf(p))||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet');};
   let tables='';
   if(days.length){   // több napos projekt: minden napnak saját táblázata, a végén az egyéb költségek és az összesítő
     const crewF=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
@@ -522,7 +529,7 @@ function financePanel(p,inner){
     tables+=`<div class="day-tbl-h">Egyéb költségek</div>`+tbl(commonRow()+fixedRows,`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Egyéb költségek összesen</td><td class="r" data-other-sum="1">${moneyFmt(otherSumOf(p))||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet')+postTbl()+sumTbl();
   }else{
     if(true){const field=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&!isPostOnly(p,x.f.crewId));
-      const fr=field.map((x,n)=>`<tr data-fee-row="${x.i}"><td class="n"><div class="mv-cell"><span>${n+1}</span>${field.length>1&&!ro()?`<span class="drag-h" data-drag-fee="${x.i}" title="Húzd a sorrend módosításához" aria-label="Sor áthelyezése">⠿</span>`:''}</div></td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc(x.f.task||(x.f.roles||[]).join(' + ')||''))}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}${x.f.crewId?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`;
+      const fr=field.map((x,n)=>`<tr data-fee-row="${x.i}"><td class="n"><div class="mv-cell"><span>${n+1}</span>${field.length>1&&!ro()?`<span class="drag-h" data-drag-fee="${x.i}" title="Húzd a sorrend módosításához" aria-label="Sor áthelyezése">⠿</span>`:''}</div></td><td>${nameCell(x.f,x.i)}</td><td>${ro_(esc((t=>isSplitCut(p,x.f)?t.split(/\s*\+\s*/).filter(z=>z!=='Vágó').join(' + '):t)(x.f.task||(x.f.roles||[]).join(' + ')||'')))}</td><td>${(isSplitCut(p,x.f)?tin(x.i,'onsite',num(x.f.amount)-postAmt(x.f),'0',{money:1}):tin(x.i,'amount',x.f.amount,'0',{money:1}))}${x.f.crewId?penCellNote(p,x.f):''}</td><td>${ro_(esc(gearOf(x.f)||x.f.gear||''))}</td><td>${rentCell(x.f,x.i)}</td></tr>`).join('')||`<tr><td colspan="6" class="empty-row">Ha beosztasz valakit a stábba, automatikusan bekerül ide.</td></tr>`;
       const fixedRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind==='fixed').map(x=>`<tr class="fixed-row"><td class="n"></td><td>${nameCell(x.f,x.i)}</td><td>${ro_('')}</td><td>${tin(x.i,'amount',x.f.amount,'0',{money:1})}</td><td>${ro_('')}</td><td>${ro_('')}</td></tr>`).join('');
       tables=`<div class="day-tbl-h">📍 Helyszíni stáb</div>`+tbl(fr,field.length?`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Helyszíni stáb összesen</td><td class="r" data-field-sum="1">${moneyFmt(fieldSumOf(p))||0}</td><td colspan="2"></td></tr></tfoot>`:'','day-sheet')+`<div class="day-tbl-h">Egyéb költségek</div>`+tbl(commonRow()+fixedRows,`<tfoot><tr class="day-sub"><td></td><td></td><td class="r tf-lbl">Egyéb költségek összesen</td><td class="r" data-other-sum="1">${moneyFmt(otherSumOf(p))||0}</td><td colspan="2"></td></tr></tfoot>`,'day-sheet')+postTbl()+sumTbl();
     }else{
@@ -770,7 +777,7 @@ function viewProject(p){
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
   <div class="dfull">
-      ${delivery&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T)?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${vidLink(p,'btn primary','▶️ Videók megnyitása ↗')}</div>`:''}
+      ${delivery&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T)?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Videók megnyitása ↗')}</div>`:''}
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}

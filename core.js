@@ -350,8 +350,11 @@ function daySumOf(p,dd){const first=projDays(p)[0];
 /* Egyéb költségek összesen: fix sorok (fuvar, étel, egyéb) + közös bérelt eszközök. */
 const otherSumOf=p=>(p.fees||[]).filter(f=>f.kind==='fixed').reduce((s,f)=>s+num(f.amount),0)+rentalSum(p,'');
 /* Helyszíni stáb összesen (egynapos projekt), levonások után */
-const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!isPostOnly(p,f.crewId)).reduce((s,f)=>s+num(f.amount)-(f.crewId?penDeduct(p,f.crewId,f.amount):0),0);
-function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0);}
+const postAmt=f=>num(f&&f.post);   // a helyszíni stábban is dolgozó vágó vágási díja (az amount része)
+const isSplitCut=(p,f)=>!!f&&f.kind!=='fixed'&&!!f.crewId&&!isPostOnly(p,f.crewId)&&(p.crew||[]).some(a=>a.crewId===f.crewId&&a.role==='Vágó');
+const postSumOf=p=>(p.fees||[]).filter(x=>x.kind!=='fixed').reduce((s,x)=>s+(isPostOnly(p,x.crewId)?num(x.amount)-penDeduct(p,x.crewId,x.amount):isSplitCut(p,x)?postAmt(x):0),0);
+const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!isPostOnly(p,f.crewId)).reduce((s,f)=>s+num(f.amount)-postAmt(f)-(f.crewId?penDeduct(p,f.crewId,f.amount):0),0);
+function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0)+postAmt(f);}
 
 /* Utómunka: csak vágóként beosztott munkatárs (nem a projektvezető) – nem napokhoz kötött, külön táblázatba kerül */
 const POST_ROLES=['Vágó'];
@@ -369,5 +372,7 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
   document.addEventListener('focusout',hide);document.addEventListener('scroll',hide,true);})();
 
 /* Egységes hónapválasztó (minden pénzügyi fülön a cím alatt): ‹ [hónap] ›; months: újabb elöl */
-function monthNav(id,months,sel){const ms=months.includes(sel)?months:[sel,...months].sort().reverse(),i=ms.indexOf(sel);
-  return `<div class="mnav-row"><div class="month-nav"><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="1"${i>=ms.length-1?' disabled':''} aria-label="Előző hónap" title="Előző hónap">‹</button><select class="inp mnav-sel" id="${id}" aria-label="Hónap">${ms.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="-1"${i<=0?' disabled':''} aria-label="Következő hónap" title="Következő hónap">›</button></div></div>`;}
+function monthNav(id,months,sel){const sh=(m,d)=>{const y=Number(m.slice(0,4)),k=Number(m.slice(5,7))-1+d;return new Date(Date.UTC(y,k,1)).toISOString().slice(0,7);};
+  const ms=[...new Set(months.concat([sel,sh(sel,-1),sh(sel,1)]))].sort().reverse(),lbl=m=>F_YM.format(toDate(m+'-01'));
+  const chip=(m,cur)=>`<button class="mnav-chip${cur?' on':''}" type="button" data-action="mnav-pick" data-for="${id}" data-m="${m}"${cur?' aria-current="true"':''}>${esc(cur?lbl(m):lbl(m).replace(/^\d{4}\.\s*/,m.slice(0,4)===sel.slice(0,4)?'':'$&'))}</button>`;
+  return `<div class="mnav-row"><div class="month-nav"><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="1" aria-label="Előző hónap" title="Előző hónap">‹</button>${chip(sh(sel,-1))}${chip(sel,true)}${chip(sh(sel,1))}<button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="-1" aria-label="Következő hónap" title="Következő hónap">›</button><select class="mnav-sel" id="${id}" hidden aria-hidden="true">${ms.map(m=>`<option value="${m}"${m===sel?' selected':''}>${m}</option>`).join('')}</select></div></div>`;}

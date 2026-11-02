@@ -85,7 +85,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   // TIG
   const tg=tigList().filter(t=>tigPids(t).includes(p.id)).pop()||null,appr=!!tg&&(tg.status==='jovahagyva'||tg.status==='szamlazva'),r=pr(p);
   const tigNeed=!!tg||b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>String(t.client||'').trim().toLowerCase()===String(p.client||'').trim().toLowerCase()));
-  const tig=box('tig','TIG',tg?`${bsStep(true,'TIG kiállítva',[tg.createdAt?fmtMD(String(tg.createdAt).slice(0,10)):'',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:''].filter(Boolean).join(' · '))}${tg.sentAt?bsStep(true,'TIG elküldve',fmtMD(String(tg.sentAt).slice(0,10))):appr?'':bsStep(false,`TIG elküldése <button class="linkbtn" type="button" data-action="tig-mail" data-id="${esc(tg.id)}">✉️ Küldés</button>`,'')}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}${tg.status==='szamlazva'&&tg.invoiceNo?`<div class="bs-x">Számlázva: ${esc(tg.invoiceNo)}</div>`:''}`
+  const tig=box('tig','TIG',tg?`${bsStep(true,'TIG kiállítva',[tg.createdAt?fmtMD(String(tg.createdAt).slice(0,10)):'',tg.url?`<a class="linkbtn" href="${esc(tg.url)}" target="_blank" rel="noopener">📄 PDF</a>`:''].filter(Boolean).join(' · '))}${tg.sentAt?bsStep(true,'TIG elküldve',fmtMD(String(tg.sentAt).slice(0,10))):appr?'':bsStep(false,`TIG elküldése <button class="linkbtn" type="button" data-action="tig-mail" data-id="${esc(tg.id)}">✉️ Küldés</button>`,'')}${bsStep(appr,appr?'TIG jóváhagyva':'TIG jóváhagyásra vár',appr&&tg.approvedAt?fmtMD(tg.approvedAt):'',tg.status==='szamlazva'?'':`data-action="${appr?'tig-unapprove':'tig-approve'}" data-id="${esc(tg.id)}"`)}${tg.status==='szamlazva'&&tg.invoiceNo?`<div class="bs-x">Számlázva: ${esc(tg.invoiceNo)}</div>`:''}${tigReplyHtml(tg)}`
     :`<button class="btn outline small bl-add" type="button" data-action="tig-new" data-client="${esc(p.client||'')}" data-month="${r?r.start.slice(0,7):''}">📝 TIG kiállítása</button>`,!tigNeed,!!tg,'Nem kell TIG?');
   if(i.free)return {contract,tig,adv:freeBox('Díjbekérő'),fin:freeBox('Végszámla')};
   // Díjbekérő
@@ -113,7 +113,12 @@ ACT['bl-cstep']=async btn=>{const st=btn.dataset.st;if(!S.fin||!S.fin.billing)re
     const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);undo.push({pid,b,prev,patch});});render(true);
   try{let d=null;for(const u of undo)d=await call('billSave',Object.assign({projectId:u.pid},u.patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){undo.forEach(u=>Object.assign(u.b,u.prev));render(true);handleErr(e);}};
 
+function tigRepliesLoad(force){if(!billOn()||(S._tigRep&&!force)||S._tigRepBusy)return;if(!tigList().some(t=>t.status==='kikuldve'))return;S._tigRepBusy=1;
+  call('tigReplies',{}).then(r=>{S._tigRep=r||{};S._tigRepBusy=0;if(Object.keys(S._tigRep).length&&(S.tab==='szerzodes'||S.projectId))render(true);}).catch(()=>{S._tigRepBusy=0;S._tigRep={};});}
+const tigReplyHtml=t=>{const r=S._tigRep&&S._tigRep[t.id];if(!r||t.status!=='kikuldve')return '';
+  return `<div class="tig-reply${r.approve?' ok':''}" data-tip="${esc(r.from+' · '+r.at+'\n'+r.text)}">📩 <b>Válasz érkezett</b> <span class="muted">${esc(r.from)} · ${esc(String(r.at).slice(5,10).replace('-','.'))}.</span><div class="tig-rq">„${esc(r.text.slice(0,140))}${r.text.length>140?'…':''}”</div>${r.approve?`<button class="btn primary small" type="button" data-action="tig-approve" data-id="${esc(t.id)}">✓ Jóváhagyottnak jelölöm</button>`:''}</div>`;};
 function viewBilling(){
+  setTimeout(()=>tigRepliesLoad(),0);
   if(typeof szIdxEnsure==='function')setTimeout(szIdxEnsure,0);   // a számlajegyzék előtöltése a háttérben (gyors cégnév-kereséshez)
   if(!billOn())return `<div class="panel">${empty('Ez a fül a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();

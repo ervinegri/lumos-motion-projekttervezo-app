@@ -772,7 +772,7 @@ function refreshFinSums(p){
   document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
   const f=document.querySelector('[data-field-sum]');if(f)f.textContent=moneyFmt(fieldSumOf(p))||0;
-  const ps=document.querySelector('[data-post-sum]');if(ps)ps.textContent=moneyFmt((p.fees||[]).filter(x=>x.kind!=='fixed'&&isPostOnly(p,x.crewId)).reduce((s,x)=>s+num(x.amount)-penDeduct(p,x.crewId,x.amount),0))||0;
+  const ps=document.querySelector('[data-post-sum]');if(ps)ps.textContent=moneyFmt(postSumOf(p))||0;
 }
 /* Csapat véglegesítése: megerősítés után a tagok a naptárba kerülnek, e-mailt és naptárértesítést kapnak. */
 async function crewFinalizeModal(){
@@ -1066,6 +1066,7 @@ const ACT={
       f.addEventListener('load',()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}});box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},
+  'mnav-pick':b=>{const sel=$(b.dataset.for);if(!sel||sel.value===b.dataset.m)return;sel.value=b.dataset.m;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'mnav':b=>{const sel=$(b.dataset.for);if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;sel.selectedIndex=i;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
@@ -1251,6 +1252,8 @@ document.addEventListener('input',e=>{
 
     else{const fees=S.draft.fees=(S.draft.fees||[]).map(x=>Object.assign({},x)),f=fees[Number(t.dataset.feeI)];if(f){const k=t.dataset.feeK;
       if(k.startsWith('day:')){f.dayAmounts=Object.assign({},f.dayAmounts||{});const v=moneyVal(t.value);if(v==='')delete f.dayAmounts[k.slice(4)];else f.dayAmounts[k.slice(4)]=v;f.amount=feeDaySum(S.draft,f);}
+      else if(k==='onsite'){f.amount=num(moneyVal(t.value))+postAmt(f);}
+      else if(k==='post'){const old=postAmt(f);f.post=moneyVal(t.value);f.amount=f.dayAmounts&&projDays(S.draft).length?feeDaySum(S.draft,f):Math.max(0,num(f.amount)-old)+postAmt(f);}
       else if(k==='amount'||k==='rent')f[k]=moneyVal(t.value);else{f[k]=t.value;if(k==='name'){const c=S.crew.find(x=>x.name===t.value.trim());f.crewId=c?c.id:'';}}}}
     if(!S.dirty){S.dirty=true;renderChrome();}
     refreshFinSums(S.draft);
@@ -1577,3 +1580,11 @@ ACT['nav-inv']=async b=>{const w=window.open('about:blank','_blank');const H=h=>
 
 ACT['pay-sent-open']=b=>{const c=crewById(b.dataset.cid);openModal('📧 Kiküldött díjösszesítő'+(c?' – '+c.name:''),'<div id="payPrev"></div>',{cancelLabel:'Bezárás'});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');ACT['pay-sent-view'](b);};
+
+/* Kész videók linkjei – lezárt projektnél is módosíthatók */
+ACT['dl-edit']=b=>{const p=projById(b.dataset.id)||S.draft;if(!p)return;
+  openModal('🎬 Kész videók linkjei – '+(p.name||''),`<div class="fields">${linksField('deliveryLink','A videók linkje',p.deliveryLink,p.deliveryLinks)}${passField(p.deliveryPass)}</div>`,
+    {submit:async fd=>{const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('A link https:// kezdetű legyen.',true);return;}
+      const links=linksVal(fd,'deliveryLink');if(linksBad(links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(fd.get('hasPass')&&!passVal(fd)){toast('Add meg a jelszót.',true);return;}
+      try{const r=await call('setDeliveryLinks',{projectId:p.id,link,links,pass:passVal(fd)});const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);
+        if(S.projectId===p.id&&r.project&&!S.dirty){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);}closeModal();render(true);toast('Linkek mentve');}catch(e){handleErr(e);}}});};

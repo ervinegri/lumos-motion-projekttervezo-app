@@ -584,7 +584,7 @@ function parseFees_(raw) {
     name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
     roles: Array.isArray(x && x.roles) ? x.roles.map(r => str_(r, 40)).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
     kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), refCrewId: str_(x && x.refCrewId, 64), autoTask: !!(x && x.autoTask),
-    amount: int_(x && x.amount, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0),
+    amount: int_(x && x.amount, 0, FEE_MAX, 0), post: int_(x && x.post, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0),
     dayAmounts: x && x.dayAmounts && typeof x.dayAmounts === 'object' ? Object.keys(x.dayAmounts).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).slice(0, 31).reduce((o, k) => { o[k] = int_(x.dayAmounts[k], 0, FEE_MAX, 0); return o; }, {}) : undefined
   })).filter(x => x.crewId || x.name || x.task || x.gear || x.amount || x.rent);
 }
@@ -2204,6 +2204,27 @@ function tigCreate_(u, a) {
   return Object.assign(finPart_(['tigs']), { url: f.getUrl(), name: name, total: total, tig: rec });
 }
 /** TIG elküldése e-mailben a PDF-fel (a küldő a bejelentkezett felhasználó, ha a címe álnévként be van állítva). a: {id, to, cc, subject, text} */
+/** A kiküldött (jóváhagyásra váró) TIG-ekre érkezett válaszok a Gmailből: ki, mikor, mit írt, és jóváhagyásnak tűnik-e. */
+function tigReplies_(u) {
+  const out = {}, me = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
+  readAll_('finTig').filter(t => t.status === 'kikuldve' && t.sentAt && t.sentTo).slice(0, 15).forEach(t => {
+    const addrs = String(t.sentTo).split(/[,;]\s*/).map(x => x.trim().toLowerCase()).filter(x => /@/.test(x)); if (!addrs.length) return;
+    const d = String(t.sentAt).slice(0, 10).replace(/-/g, '/');
+    let threads = []; try { threads = GmailApp.search('from:(' + addrs.join(' OR ') + ') after:' + d + ' (teljesítésigazolás OR TIG OR jóváhagy)', 0, 8); } catch (e) { return; }
+    let best = null;
+    threads.forEach(th => th.getMessages().forEach(m => {
+      const from = String(m.getFrom() || ''), fe = (/<([^>]+)>/.exec(from) || [, from])[1].trim().toLowerCase();
+      if (fe === me || addrs.indexOf(fe) < 0) return;
+      const dt = m.getDate(); if (Utilities.formatDate(dt, SHEET_TZ, 'yyyy-MM-dd HH:mm:ss') < String(t.sentAt)) return;
+      if (best && best.dt > dt) return;
+      const body = String(m.getPlainBody() || '').split(/\n\s*(?:>|On .+wrote:|.+ ezt írta|-----Original|Feladó:|From:)/)[0].replace(/\s+/g, ' ').trim().slice(0, 300);
+      best = { dt: dt, from: from.replace(/<[^>]+>/, '').replace(/"/g, '').trim() || fe, at: Utilities.formatDate(dt, SHEET_TZ, 'yyyy-MM-dd HH:mm'), text: body,
+        approve: /jóváhagy|rendben|elfogad|egyetért|mehet|oké|\bok\b|aláír|köszön/i.test(body) && !/nem (fogad|hagy)|javít|hibá|módosít/i.test(body) };
+    }));
+    if (best) { delete best.dt; out[t.id] = best; }
+  });
+  return out;
+}
 function tigSend_(u, a) {
   a = a || {};
   const t = readAll_('finTig').find(x => x.id === str_(a.id, 64)); if (!t) throw new Error('A teljesítésigazolás nem található.');
@@ -2640,7 +2661,7 @@ function payStatementBuild_(u, a) {
     + li('Indoklás', e(x.reason).replace(/\n/g, '<br>')) + (x.by ? li('', '<span style="color:#667788">' + e(x.by) + '</span>') : '') + '</table></div>').join('');
   const adjHtml = adj ? '<div style="border:1px solid #d6dcf5;background:#f6f8ff;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:13px"><div style="font-size:14px;margin-bottom:4px"><b>' + (adj < 0 ? 'Levonás' : 'Hozzáadás') + '</b> <span style="white-space:nowrap;color:' + (adj < 0 ? RED : GRN) + '"><b>' + pm(adj, true) + '</b></span></div>' + (adjNote ? 'Megjegyzés: ' + e(adjNote) + '<br>' : '') + (adjBy ? '<span style="color:#667788">Rögzítette: ' + e(adjBy) + '</span>' : '') + '</div>' : '';
   const inv = [['Vevő', '<b>' + PAY_COMPANY_.name + '</b>'], ['Adószám', PAY_COMPANY_.tax], ['Székhely', e(PAY_COMPANY_.seat)], ['Összeg', '<b>' + pm(total) + '</b>'],
-    ['Számla megjegyzése', '„' + mLbl + ' – ' + PAY_COMPANY_.note + '”'], ['Fizetési határidő', PAY_COMPANY_.payDays + ' nap'], ['Beküldési határidő', '<b>' + nextLbl(PAY_COMPANY_.invoiceDay) + '</b>'], ['Hová küldd', '<a href="mailto:' + PAY_COMPANY_.finance + '">' + PAY_COMPANY_.finance + '</a>']]
+    ['Számla megjegyzése', '„' + mLbl + ' – ' + PAY_COMPANY_.note + '”'], ['Teljesítés dátuma', '<b>' + y + '. ' + HU_MONTHS_[m - 1] + ' ' + new Date(Date.UTC(y, m, 0)).getUTCDate() + '.</b>'], ['Fizetési határidő', PAY_COMPANY_.payDays + ' nap'], ['Beküldési határidő', '<b>' + nextLbl(PAY_COMPANY_.invoiceDay) + '</b>'], ['Hová küldd', '<a href="mailto:' + PAY_COMPANY_.finance + '">' + PAY_COMPANY_.finance + '</a>']]
     .map(r => '<tr><td style="padding:3px 14px 3px 0;color:#667788;white-space:nowrap;vertical-align:top">' + r[0] + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>').join('');
   const sig = signatureFor_(u), url = appUrl_() || FRONTEND_URL;
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;max-width:680px;font-size:14px">'
@@ -2656,7 +2677,7 @@ function payStatementBuild_(u, a) {
     dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + pm(-dedSum)] : [], adj ? ['± Korrekció: ' + pm(adj, true) + (adjNote ? ' – ' + adjNote : '')] : [], ['Kifizetendő összesen: ' + pm(total), '', 'PROJEKTEK'],
     rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + pm(r.fee) + (r.ded ? ' − ' + pm(r.ded) + ' = ' + pm(r.fee - r.ded) : '')),
     pens.length ? ['', 'DÍJCSÖKKENTÉSEK'] : [], pens.map((x, i) => (i + 1) + '. ' + x.project + ' – ' + pm(-x.amount) + '\n   ' + x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.day ? '\n   Érintett: ' + x.day : '') + (x.caseText ? '\n   Eset: ' + x.caseText : '') + '\n   Indoklás: ' + x.reason + (x.by ? '\n   ' + x.by : '')),
-    ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + pm(total), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”',
+    ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + pm(total), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”', 'Teljesítés dátuma: ' + y + '. ' + HU_MONTHS_[m - 1] + ' ' + new Date(Date.UTC(y, m, 0)).getUTCDate() + '.',
       'Fizetési határidő: ' + PAY_COMPANY_.payDays + ' nap', 'Beküldési határidő: ' + nextLbl(PAY_COMPANY_.invoiceDay), 'Hová küldd: ' + PAY_COMPANY_.finance, ''].concat(retained ? ['Bennhagyott egyenleged a korábbi hónapokból: ' + pm(retained) + '. Ha szeretnéd, ezt is kiszámlázhatod – akár ezzel a számlával együtt, akár később.', ''] : [], [
       'A projektjeidet a projekttervező applikációban is megnézheted: ' + url, '', 'Ha bármi eltérést találsz, kérlek, ' + nextIg(PAY_COMPANY_.replyDay) + ' válaszolj erre a levélre, hogy a számla kiállítása előtt javíthassuk.', '', sig ? sig.text : MAIL_SIGNATURE_TEXT]));
   if (a.html) {   // az ügyvezető az előnézetben átírta a levelet: a módosított változat megy ki (szkriptek, eseménykezelők nélkül)
@@ -2841,10 +2862,12 @@ function navSync_(u, a) {
       const c = crew[x.crewId]; if (!c || isEmployee_(c)) return;   // alkalmazott: nem számláz
       const st = status.find(s => s.id === m + '|' + x.crewId) || {}; if (st.invoiceNo && !one) return;   // már párosítva (egyéni lekérdezésnél újrapárosít)
       const tax8 = String(c.tax || '').replace(/\D/g, '').slice(0, 8); if (tax8.length !== 8) { missingTax.push(c.name); return; }
-      // a teljesítés dátuma szerinti hónap (projektenként, a hónap közben kiállított számlák is); ha a NAV nem adja meg, a díjösszesítő utáni kiállítás
-      const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && (i.deliveryDate ? String(i.deliveryDate).slice(0, 7) === m : i.issueDate >= String(x.sentAt || from).slice(0, 10) && i.issueDate >= from))
+      // nem nézünk visszamenőleg: csak a hónap utolsó napján vagy a díjösszesítő kiküldése után kiállított számlák számítanak (a hónap eleji számla az előző hónapé)
+      const lastDay = new Date(Date.UTC(Number(m.slice(0, 4)), Number(m.slice(5, 7)), 0)).toISOString().slice(0, 10);
+      const sentD = String(x.sentAt || '').slice(0, 10), thr = sentD && sentD < lastDay ? sentD : lastDay;
+      const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && i.issueDate >= thr)
         .sort((p, q) => p.issueDate.localeCompare(q.issueDate));
-      if (!cand.length) return;
+      if (!cand.length) { if (one && st.invoiceNo) payStatusClear_(m, c); return; }   // egyéni újrapárosítás: a rossz párosítás törlődik
       const exp = Math.round(Number(x.amount) || 0), exact = cand.find(i => i.net === exp), pick = exact ? [exact] : cand;   // több számla (pl. projektenként): együtt
       const net = pick.reduce((s, i) => s + i.net, 0), nos = pick.map(i => i.number).join(', ').slice(0, 300), ok = net === exp;
       pick.forEach(i => { used[i.number + '|' + tax8] = 1; });
@@ -2857,6 +2880,10 @@ function navSync_(u, a) {
   return { found: found, missingTax: missingTax.filter((v, i, arr) => arr.indexOf(v) === i), payStatus: readAll_('payStatus'), at: now_() };
 }
 function addMonths_(ym, n) { const y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)) - 1 + n; return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7); }
+function payStatusClear_(month, c) {   // téves NAV-párosítás törlése
+  withLock_(() => { const sh = sheetFor_('payStatus'), row = findRow_(sh, month + '|' + c.id); if (!row) return; const cur = readRow_('payStatus', sh, row);
+    Object.assign(cur, { invoicedAt: '', invoicedBy: '', invoiceNo: '', invoiceNet: '', invoiceTax: '', invoiceMatch: '' }); putRow_('payStatus', sh, cur, row); });
+}
 function payStatusApply_(u, month, c, patch) {
   withLock_(() => {
     const sh = sheetFor_('payStatus'), id = month + '|' + c.id, row = findRow_(sh, id);
@@ -3168,6 +3195,23 @@ function rawNotify_(u, a) {
   GmailApp.sendEmail(to.join(','), '🎬 Nyersanyag feltöltve – ' + p.name, text + (sig ? '\n\n' + sig.text : ''), opts);
   logEvent_(u, 'Nyersanyag feltöltve', p.name, 'E-mail a vágónak: ' + to.join(', ') + (link ? ' · ' + link : ''));
   return { sentTo: to };
+}
+/** A kész videók linkjeinek módosítása (lezárt projektnél is): ügyvezető / termelési vezető. a: {projectId, link, links, pass} */
+function setDeliveryLinks_(u, a) {
+  a = a || {};
+  if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  const pid = str_(a.projectId, 64), link = str_(a.link, 500);
+  if (!/^https:\/\/\S+$/i.test(link)) throw new Error('A videók linkje https:// kezdetű legyen.');
+  let p;
+  withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    p = readRow_('projects', sh, row);
+    p.deliveryLink = link; if (Array.isArray(a.links)) p.deliveryLinks = JSON.stringify(parseLinks_(a.links)); if (a.pass !== undefined) p.deliveryPass = str_(a.pass, 120);
+    p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
+    putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
+  });
+  logEvent_(u, 'Kész videók linkje módosítva', p.name, link);
+  return { project: projectView_(fullProject_(p), u) };
 }
 /** A vágó leadja a videókat: link + értesítés az ügyvezetőnek és/vagy a termelési vezetőnek; a projekt „Videók jóváhagyásra várnak” lesz. a: {projectId, link, note, notify:['admin','editor']} */
 function crewDeliver_(u, a) {
@@ -3497,11 +3541,13 @@ function rpcInner_(token, name, arg) {
     case 'tigCreate': adminOnly(); return tigCreate_(u, arg);
     case 'tigSave': adminOnly(); return tigSave_(u, arg);
     case 'tigSend': adminOnly(); return tigSend_(u, arg);
+    case 'tigReplies': adminOnly(); return tigReplies_(u);
     case 'requestBudgetChange': canEdit(); return requestBudgetChange_(u, arg);
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
+    case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
