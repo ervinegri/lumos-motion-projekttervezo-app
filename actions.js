@@ -1588,3 +1588,7 @@ ACT['dl-edit']=b=>{const p=projById(b.dataset.id)||S.draft;if(!p)return;
       const links=linksVal(fd,'deliveryLink');if(linksBad(links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(fd.get('hasPass')&&!passVal(fd)){toast('Add meg a jelszót.',true);return;}
       try{const r=await call('setDeliveryLinks',{projectId:p.id,link,links,pass:passVal(fd)});const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);
         if(S.projectId===p.id&&r.project&&!S.dirty){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);}closeModal();render(true);toast('Linkek mentve');}catch(e){handleErr(e);}}});};
+
+ACT['nav-unpair']=b=>{const nm=(crewById(b.dataset.cid)||{}).name||'';
+  confirmModal('Párosítás törlése',`A(z) ${b.dataset.nos} számla nem ${nm} ehavi számlája? A párosítás törlődik, a „Számlát kiállította” újra üres lesz. (A számla a NAV-ban és a számlázóban változatlan.)`,'Törlés',async()=>{
+    try{S.payStatus=await call('setPayStatus',{month:b.dataset.month,crewId:b.dataset.cid,field:'invoiced',on:false});closeModal();render(true);toast(`${nm}: párosítás törölve`);}catch(e){handleErr(e);}});};
