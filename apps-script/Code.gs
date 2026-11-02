@@ -737,9 +737,11 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
     const cur = Calendar.Events.get(CALENDAR_ID, eid);
     const keep = (cur.attendees || []).filter(x => !allCrewEmails[String(x.email || '').toLowerCase()] || want[String(x.email || '').toLowerCase()]);
     const have = {}; keep.forEach(x => { have[String(x.email || '').toLowerCase()] = 1; });
-    emails.forEach(m => { if (!have[m]) keep.push({ email: m }); });
+    const added = emails.filter(m => !have[m]), removed = (cur.attendees || []).length - keep.length + added.length;
+    if (!added.length && !removed) return false;   // nincs változás a vendéglistában: nem frissítünk, így senki nem kap újabb értesítőt
+    added.forEach(m => keep.push({ email: m }));
     Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: mailOn_('calendar') ? 'all' : 'none' });   // kikapcsolt e-mailnél a Google sem értesít
-    return mailOn_('calendar');
+    return mailOn_('calendar') && added.length > 0;
   }
   if (!mailOn_('calendar')) return false;   // speciális szolgáltatás nélkül a vendégek felvétele értesítést küldhet – kikapcsolt e-mailnél kihagyjuk
   const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
