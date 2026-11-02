@@ -385,10 +385,10 @@ function viewProjects(){
   const cols=ro()?3:2;
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
-  // egyetlen lista dátum szerint csökkenő sorrendben; a mai napnál jelölő sor, a jövő / mai / lezajlott sorok eltérő jelöléssel
+  // egyetlen lista dátum szerint csökkenő sorrendben; a jelölő sor a mai (és még tartó) projektek alatt, a jövő / mai / lezajlott sorok eltérő jelöléssel
   const all=list.slice().sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
   let marked=false;const todayRow=`<tr class="pt-today-row"><td colspan="${cols}"><span><b>📍 Ma · ${esc(fmtDay(T))}</b></span></td></tr>`;
-  const body=all.map(p=>{const r=pr(p);let h='';if(!marked&&r&&r.start<=T){marked=true;h=todayRow;}return h+row(p);}).join('')+(marked?'':todayRow);
+  const body=all.map(p=>{const r=pr(p);let h='';if(!marked&&r&&(r.end||r.start)<T){marked=true;h=todayRow;}return h+row(p);}).join('')+(marked?'':todayRow);
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2><p class="sub">${ro()?'Azok a projektek, amelyekre be vagy osztva':'Rendezvények a tervezéstől az átadásig'}</p></div>
       <button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button></div>
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
