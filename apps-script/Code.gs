@@ -3396,7 +3396,7 @@ function authUser_(token) {
   // Ügyvezetői előnézet: a munkamenet szerepköre átmenetileg termelési vezető vagy szakember, így a háttér pontosan
   // úgy szűr és engedélyez, mint annál a szerepkörnél. Csak ügyvezető kapcsolhatja be, és bármikor visszaállíthatja.
   if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
-    return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : '', realRole: 'admin', viewAs: s.viewAs });
+    return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : (u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || ''), realRole: 'admin', viewAs: s.viewAs });
   return u;
 }
 
