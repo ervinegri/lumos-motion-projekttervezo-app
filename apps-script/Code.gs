@@ -2754,7 +2754,7 @@ function navRequest_(cfg, body, page, dir) {
   if (res.getResponseCode() !== 200 || tag(txt, 'funcCode') === 'ERROR') throw new Error('NAV: ' + (tag(txt, 'message') || tag(txt, 'errorCode') || ('HTTP ' + res.getResponseCode())));
   const items = []; const re = /<(?:\w+:)?invoiceDigest>([\s\S]*?)<\/(?:\w+:)?invoiceDigest>/g; let m;
   while ((m = re.exec(txt))) { const d = m[1];
-    items.push({ number: tag(d, 'invoiceNumber'), operation: tag(d, 'invoiceOperation'), issueDate: tag(d, 'invoiceIssueDate'), supplierTax: tag(d, 'supplierTaxNumber'), supplierName: tag(d, 'supplierName'),
+    items.push({ number: tag(d, 'invoiceNumber'), operation: tag(d, 'invoiceOperation'), issueDate: tag(d, 'invoiceIssueDate'), deliveryDate: tag(d, 'invoiceDeliveryDate'), supplierTax: tag(d, 'supplierTaxNumber'), supplierName: tag(d, 'supplierName'),
       net: Math.round(Number(tag(d, 'invoiceNetAmountHUF') || tag(d, 'invoiceNetAmount')) || 0), vat: Math.round(Number(tag(d, 'invoiceVatAmountHUF') || tag(d, 'invoiceVatAmount')) || 0) }); }
   return { items: items, pages: Number(tag(txt, 'availablePage')) || 1 };
 }
@@ -2775,7 +2775,7 @@ function navSync_(u, a) {
   const today = today_(), sent = readAll_('paySent'), crew = byId_(readAll_('crew')), status = readAll_('payStatus');
   const want = str_(a && a.month, 7), months = {};
   sent.forEach(x => { const m = String(x.month); if (!/^\d{4}-\d{2}$/.test(m)) return; if (want ? m === want : m >= addMonths_(today.slice(0, 7), -3)) (months[m] = months[m] || []).push(x); });
-  const used = {}; status.forEach(s => { if (s.invoiceNo) used[String(s.invoiceNo) + '|' + String(s.invoiceTax || '')] = 1; });
+  const used = {}; status.forEach(s => { if (s.invoiceNo) String(s.invoiceNo).split(/\s*,\s*/).forEach(no => { used[no + '|' + String(s.invoiceTax || '')] = 1; }); });
   const found = [], missingTax = [];
   Object.keys(months).sort().forEach(m => {
     const from = m + '-01', endTry = addMonths_(m, 3) + '-01', to = endTry < today ? endTry : today;
@@ -2784,12 +2784,15 @@ function navSync_(u, a) {
       const c = crew[x.crewId]; if (!c || isEmployee_(c)) return;   // alkalmazott: nem számláz
       const st = status.find(s => s.id === m + '|' + x.crewId) || {}; if (st.invoiceNo) return;   // már párosítva
       const tax8 = String(c.tax || '').replace(/\D/g, '').slice(0, 8); if (tax8.length !== 8) { missingTax.push(c.name); return; }
-      const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && i.issueDate >= String(x.sentAt || from).slice(0, 10) && i.issueDate >= from);
+      // a teljesítés dátuma szerinti hónap (projektenként, a hónap közben kiállított számlák is); ha a NAV nem adja meg, a díjösszesítő utáni kiállítás
+      const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && (i.deliveryDate ? String(i.deliveryDate).slice(0, 7) === m : i.issueDate >= String(x.sentAt || from).slice(0, 10) && i.issueDate >= from))
+        .sort((p, q) => p.issueDate.localeCompare(q.issueDate));
       if (!cand.length) return;
-      const exp = Math.round(Number(x.amount) || 0), best = cand.find(i => i.net === exp) || cand.sort((p, q) => p.issueDate.localeCompare(q.issueDate))[0];
-      used[best.number + '|' + tax8] = 1;
-      payStatusApply_(u, m, c, { invoicedAt: best.issueDate, invoicedBy: 'NAV', invoiceNo: best.number, invoiceNet: best.net, invoiceTax: tax8, invoiceMatch: best.net === exp ? 'ok' : 'diff' });
-      found.push({ name: c.name, month: m, number: best.number, net: best.net, expected: exp, match: best.net === exp });
+      const exp = Math.round(Number(x.amount) || 0), one = cand.find(i => i.net === exp), pick = one ? [one] : cand;   // több számla (pl. projektenként): együtt
+      const net = pick.reduce((s, i) => s + i.net, 0), nos = pick.map(i => i.number).join(', ').slice(0, 300), ok = net === exp;
+      pick.forEach(i => { used[i.number + '|' + tax8] = 1; });
+      payStatusApply_(u, m, c, { invoicedAt: pick[pick.length - 1].issueDate, invoicedBy: 'NAV', invoiceNo: nos, invoiceNet: net, invoiceTax: tax8, invoiceMatch: ok ? 'ok' : 'diff' });
+      found.push({ name: c.name, month: m, number: nos, net: net, expected: exp, match: ok });
     });
   });
   PropertiesService.getScriptProperties().setProperty('NAV_LAST_SYNC', now_());
