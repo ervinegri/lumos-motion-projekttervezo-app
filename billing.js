@@ -148,10 +148,10 @@ function viewBilling(){
       <button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
-      <button class="tile tile-btn" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mRev)}</div><div class="tile-l">${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))} havi bevétel (nettó, ${nCl(sets.honap)} ügyfél)</div></button>
-      <button class="tile tile-btn${mPaid?' ok':''}" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(Math.round(mPaid))}</div><div class="tile-l">kifizetve (nettó, ${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))})</div></button>
-      <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség (nettó, ${nCl(sets.kint)} ügyfél)</div></button>
-      <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (nettó, ${nCl(sets.lejart)} ügyfél)</div></button>
+      <button class="tile tile-btn" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mRev)}</div><div class="tile-l">${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))} havi bevétel</div></button>
+      <button class="tile tile-btn${mPaid?' ok':''}" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(Math.round(mPaid))}</div><div class="tile-l">kifizetve</div></button>
+      <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség</div></button>
+      <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt</div></button>
     </div>
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
       <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}${v==='honap'?'':`<span class="c">${sets[v].length}</span>`}</button>`;return c;}).join('')}</div></div>
