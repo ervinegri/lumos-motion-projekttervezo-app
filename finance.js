@@ -121,6 +121,16 @@ function finMonths(){const set=new Set([todayISO().slice(0,7),shiftMonth(todayIS
   (fin.income||[]).forEach(r=>r.month&&set.add(r.month));(fin.expense||[]).forEach(e=>{if(e.month)set.add(e.month);});
   S.projects.forEach(p=>{if(pr(p))set.add(pr(p).start.slice(0,7));});if(finSet().openMonth)set.add(finSet().openMonth);
   const arr=[...set].sort();const first=finSet().openMonth||arr[0],last=arr[arr.length-1],out=[];for(let x=first;x<=last;x=shiftMonth(x,1))out.push(x);return out.reverse();}
+/* Eltérés a Szerződés és számlázás „havi bevétel” csempéjétől: tételenként, miért más a két összeg */
+function finDiffRows(m){const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m),rows=finIncomeFor(m),byP={},extra=[];
+  rows.forEach(r=>{const pid=r.kind==='project'?r.id:(incProj(r)||{}).id;if(pid&&proj.some(p=>p.id===pid)){(byP[pid]=byP[pid]||[]).push(r);}else extra.push(r);});
+  const out=[];proj.forEach(p=>{const bill=projTotal(p),L=byP[p.id]||[],bev=L.reduce((s,r)=>s+num(r.amount),0);if(bev===bill)return;
+    out.push({name:p.name||'Projekt',pid:p.id,bill,bev,why:!L.length?(isMktProj(p.id)?'saját marketing projekt – a Bevételekben nem szerepel':'nincs a Bevételek között (a régi táblázat egy hasonló nevű sora takarja, vagy nincs értéke)'):L.length>1?'több bevételi sor tartozik hozzá ('+L.map(r=>r.name).join(' + ')+')':L.some(r=>r.kind!=='project')?'a régi táblázat sorának összege eltér a projekt értékétől':'eltérő érték'});});
+  extra.forEach(r=>{if(num(r.amount))out.push({name:r.name,bill:0,bev:num(r.amount),why:r.kind==='manual'&&r.legacy?'régi táblázat sora, ebben a hónapban nincs hozzá projekt':'kézi bevétel, nem projekt'});});
+  return out;}
+ACT['fin-diff']=b=>{const m=b.dataset.m,L=finDiffRows(m),d=L.reduce((s,x)=>s+x.bev-x.bill,0);
+  openModal('Eltérés a számlázástól – '+F_YM.format(toDate(m+'-01')),`<p class="hint" style="margin:0 0 10px">Bevétel és kiadás − Szerződés és számlázás = <b>${d>0?'+':''}${sFt(d)}</b>. Tételenként:</p>
+    <div class="sheet-wrap"><table class="sheet"><thead><tr><th>Tétel</th><th class="r">Számlázás</th><th class="r">Bevételek</th><th class="r">Eltérés</th></tr></thead><tbody>${L.map(x=>`<tr><td>${x.pid?`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(x.pid)}">${esc(x.name)}</button>`:esc(x.name)}<br><small class="muted">${esc(x.why)}</small></td><td class="r">${moneyFmt(x.bill)||'–'}</td><td class="r">${moneyFmt(x.bev)||'–'}</td><td class="r"><b>${x.bev>x.bill?'+':''}${sFt(x.bev-x.bill)}</b></td></tr>`).join('')||'<tr><td colspan="4" class="empty-row">Nincs eltérés.</td></tr>'}</tbody></table></div>`,{cancelLabel:'Bezárás'});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');};
 /* Kintlévőség: minden hónap fizetésre váró / foglalós tétele */
 function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(m=>finIncomeFor(m).forEach(r=>{if(r.payStatus==='var'||r.payStatus==='eloleg'){n++;sum+=r.amount;}}));return {n,sum};}
 
@@ -156,7 +166,7 @@ function viewFinance(){
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
     <div class="tiles fin-tiles tiles-2">
-      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>
+      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>${(()=>{const d=finDiffRows(m).reduce((s,x)=>s+x.bev-x.bill,0);return d?`<button type="button" class="linkbtn fin-diff" data-action="fin-diff" data-m="${m}">⚠ ${d>0?'+':''}${sFt(d)} eltérés a számlázástól – mitől?</button>`:'';})()}
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile fin-flow fin-split"><div class="flow-row plan"><span>Nyereség (${st.profitPct}%)</span><b>${ftFmt(T('profit'))}</b></div>
