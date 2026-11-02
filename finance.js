@@ -322,7 +322,8 @@ const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a
   szamla:'Egyetlen számla a teljes (vagy a még nem számlázott) összegről.'};
 /* Közös számla: az ügyfél többi projektje, amelyek ugyanerre a számlára kerülhetnek */
 function szSharedPick(id,sel,fixed){const p=projById(id);if(!p)return '';const n=s=>String(s||'').trim().toLowerCase();
-  const cand=S.projects.filter(x=>x.id!==id&&x.status!=='lemondva'&&n(x.client)===n(p.client)&&pr(x)&&(sel.includes(x.id)||!invFor('project',x.id).some(v=>v.kind==='szamla'||v.kind==='vegszamla'))).sort(byStart).reverse().sort((a,b)=>(sel.includes(b.id)?1:0)-(sel.includes(a.id)?1:0)).slice(0,24);
+  const pm=pr(p)?pr(p).start.slice(0,7):'';   // csak az adott (tárgy)hónap projektjei – a számla egy hónapról szól
+  const cand=S.projects.filter(x=>x.id!==id&&x.status!=='lemondva'&&n(x.client)===n(p.client)&&pr(x)&&(sel.includes(x.id)||pr(x).start.slice(0,7)===pm)&&(sel.includes(x.id)||!invFor('project',x.id).some(v=>v.kind==='szamla'||v.kind==='vegszamla'))).sort(byStart).reverse().sort((a,b)=>(sel.includes(b.id)?1:0)-(sel.includes(a.id)?1:0)).slice(0,24);
   if(!cand.length)return '';
   return `<div class="field full"><span class="lbl">🔗 Közös számla – további projektek ugyanerre a számlára</span><div class="sz-share">${cand.map(x=>`<label><input type="checkbox" data-szshare="${esc(x.id)}"${sel.includes(x.id)?' checked':''}${fixed?' disabled':''}> ${esc(x.name||'Projekt')} <span class="muted">· ${esc(fmtMD(pr(x).start))} · ${ftFmt(num(x.projectValue))}</span></label>`).join('')}</div>
     <small class="hint" style="margin:4px 0 0">${fixed?'A TIG projektjei – a számla mindegyikhez hozzárendelődik.':'A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.'}</small></div>`;}
