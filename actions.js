@@ -600,7 +600,7 @@ document.addEventListener('change',e=>{if(e.target.id==='pm-month'){S.payMonth=e
 function payMailModal(month){
   const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));
   OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
-  const list=[...ids].map(id=>({c:crewById(id),d:payStatementData(month,id)})).filter(x=>x.c).sort((a,b)=>b.d.total-a.d.total);
+  const list=[...ids].map(id=>({c:crewById(id),d:payStatementData(month,id)})).filter(x=>x.c&&!isEmployee(x.c)).sort((a,b)=>b.d.total-a.d.total);
   const mset=new Set([todayISO().slice(0,7),month]);S.projects.forEach(p=>{if(p.status!=='lemondva'&&pr(p)&&(p.fees||[]).some(f=>num(f.amount)))mset.add(pr(p).start.slice(0,7));});(S.payAdjust||[]).forEach(x=>mset.add(String(x.month)));
   const months=[...mset].filter(m=>/^\d{4}-\d{2}$/.test(m)).sort().reverse();
   const monthSel=`<div class="pm-top"><select class="inp" id="pm-month" style="width:auto" aria-label="Hónap">${months.map(m=>`<option value="${m}"${m===month?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select></div>`;

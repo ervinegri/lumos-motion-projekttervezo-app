@@ -287,12 +287,13 @@ function viewPayouts(){
   const keptRow=keptTotal?`<tr class="pay-left"><td>🚨 Nem kerül kifizetésre</td>${cids.map(c=>`<td class="r">${keptM[c]?moneyFmt(keptM[c]):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':'<td></td>'}</tr>`:'';   // az összesen oszlopba nem kerül
   const stOf=c=>(S.payStatus||[]).find(x=>x.crewId===c&&String(x.month)===sel)||{},sentOf=c=>(S.paySent||[]).find(x=>x.crewId===c&&String(x.month)===sel);
   const dshort=d=>/^\d{4}-\d{2}-\d{2}/.test(String(d||''))?fmtShort(String(d).slice(0,10)):'';
-  const stCell=(c,f)=>{if(f==='sent'){const s=sentOf(c);return `<td class="r pay-st">${s?`<span class="ok-txt" data-tip="${esc('Kiküldve: '+s.sentAt+(s.sentBy?' · '+s.sentBy:''))}">✓ ${esc(dshort(s.sentAt))}</span>`:'<span class="muted">–</span>'}</td>`;}
+  const empC=c=>isEmployee(crewById(c));
+  const stCell=(c,f)=>{if(f!=='paid'&&empC(c))return `<td class="r pay-st"><span class="muted" data-tip="Alkalmazott (munkaviszony) – munkabért kap, nem állít ki számlát">bér</span></td>`;if(f==='sent'){const s=sentOf(c);return `<td class="r pay-st">${s?`<span class="ok-txt" data-tip="${esc('Kiküldve: '+s.sentAt+(s.sentBy?' · '+s.sentBy:''))}">✓ ${esc(dshort(s.sentAt))}</span>`:'<span class="muted">–</span>'}</td>`;}
     const st=stOf(c),on=!!st[f+'At'],nav=f==='invoiced'&&st.invoiceNo,diff=nav&&st.invoiceMatch==='diff';
     const tip=on?esc(`${f==='paid'?'Fizetve':'Kiállítva'}: ${st[f+'At']}${st[f+'By']?' · '+st[f+'By']:''}${nav?`\nNAV: ${st.invoiceNo} · nettó ${ftFmt(num(st.invoiceNet))}${diff?' – ⚠️ eltér a díjösszesítőtől':' – egyezik'}`:''}`):'';
     return `<td class="r pay-st">${isAdmin()&&!crewMode?`<label class="pst-chk${on?' on':''}"${tip?` data-tip="${tip}"`:''}><input type="checkbox" data-pay-st="${f}" data-cid="${esc(c)}" data-month="${sel}"${on?' checked':''}> ${on?esc(dshort(st[f+'At'])):''}${nav?` <span class="nav-badge${diff?' diff':''}">${diff?'⚠️ ':''}NAV</span>`:''}</label>`:on?`<span class="ok-txt"${tip?` data-tip="${tip}"`:''}>✓ ${esc(dshort(st[f+'At']))}</span>`:'<span class="muted">–</span>'}</td>`;};
-  const stCount=f=>cids.filter(c=>f==='sent'?!!sentOf(c):!!stOf(c)[f+'At']).length;
-  const statusRows=cids.length?[['sent','📧 Díjösszesítő kiküldve'],['invoiced','🧾 Számlát kiállította'],['paid','✅ Számla fizetve']].map(([f,l],k)=>`<tr class="pay-strow${k===0?' first':''}"><td>${l}</td>${cids.map(c=>stCell(c,f)).join('')}${crewMode?'':`<td class="r"><b>${stCount(f)}/${cids.length}</b></td>`}</tr>`).join(''):'';
+  const stIds=f=>f==='paid'?cids:cids.filter(c=>!empC(c)),stCount=f=>stIds(f).filter(c=>f==='sent'?!!sentOf(c):!!stOf(c)[f+'At']).length;
+  const statusRows=cids.length?[['sent','📧 Díjösszesítő kiküldve'],['invoiced','🧾 Számlát kiállította'],['paid','✅ Kifizetve']].map(([f,l],k)=>`<tr class="pay-strow${k===0?' first':''}"><td>${l}</td>${cids.map(c=>stCell(c,f)).join('')}${crewMode?'':`<td class="r"><b>${stCount(f)}/${stIds(f).length}</b></td>`}</tr>`).join(''):'';
   const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?moneyFmt(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':`<td class="r"><b>${moneyFmt(rentTotal)}</b></td>`}</tr>`:'';
   const nameOf=c=>(crewById(c)||{}).name||(crewMode?(S.me.viewAs&&S.me.viewAs.crewName)||S.me.name:'Munkatárs');
   const cell=(r,c)=>{const d=r.ded[c],why=d?esc(`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c)):'';
@@ -813,7 +814,7 @@ function viewCrew(){
   if(f.role)list=list.filter(c=>(c.roles||[]).includes(f.role)||(c.skills||[]).includes(f.role));
   if(f.prio)list=list.filter(c=>String(prioNum(c))===f.prio);
   if(q)list=list.filter(c=>[c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ').toLowerCase().includes(q));
-  const internal=S.crew.filter(c=>c.type==='Belsős').length;
+  const internal=S.crew.filter(c=>(c.type==='Belsős'||isEmployee(c))).length;
   const nextOf=c=>S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);
   const cards=f.view==='list'?'':list.map(c=>{
     const next=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);

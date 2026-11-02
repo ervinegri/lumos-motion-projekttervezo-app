@@ -36,7 +36,8 @@ const SETUP_USERS = [
 const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva', 'lemondva'];
 const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Podcast', 'Egyéb'];
 const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó', 'Ajánlói jutalék'];
-const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer'];
+const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer', 'Alkalmazott (munkaviszony)'];
+const isEmployee_ = c => /^Alkalmazott/.test(String(c && c.type || ''));   // bejelentett munkaviszony: munkabér, nincs számla / díjösszesítő
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
@@ -2672,6 +2673,7 @@ function sendPayStatements_(u, a) {
   list.forEach(it => {
     try {
       const b = payStatementBuild_(u, it), to = String(b.c.email || '').trim();
+      if (isEmployee_(b.c)) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'alkalmazott – nem kap díjösszesítőt' }); return; }
       if (!to) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nincs e-mail-cím' }); return; }
       const opts = mailOptsFor_(u, b.html);
       if (!gmailSend_(to, b.subject, b.text, opts, 'payStatement')) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nem ment ki' }); return; }
@@ -2762,7 +2764,7 @@ function navSync_(u, a) {
     const from = m + '-01', endTry = addMonths_(m, 3) + '-01', to = endTry < today ? endTry : today;
     const inv = navInbound_(cfg, from, to).filter(x => x.operation !== 'STORNO' && x.operation !== 'MODIFY');
     months[m].forEach(x => {
-      const c = crew[x.crewId]; if (!c) return;
+      const c = crew[x.crewId]; if (!c || isEmployee_(c)) return;   // alkalmazott: nem számláz
       const st = status.find(s => s.id === m + '|' + x.crewId) || {}; if (st.invoiceNo) return;   // már párosítva
       const tax8 = String(c.tax || '').replace(/\D/g, '').slice(0, 8); if (tax8.length !== 8) { missingTax.push(c.name); return; }
       const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && i.issueDate >= String(x.sentAt || from).slice(0, 10) && i.issueDate >= from);
