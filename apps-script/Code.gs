@@ -540,7 +540,7 @@ function bootstrap_(u) {
     me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     paySent: paySentList_(u),
-    payStatus: u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('payStatus'),
+    payStatus: u.role === 'admin' ? readAll_('payStatus') : u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : [],   // a termelési vezető nem látja
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
@@ -2678,7 +2678,7 @@ function setPayStatus_(u, a) {
 }
 /* Kiküldött díjösszesítők listája (a levél szövege nélkül – azt külön kérjük le, ha megnyitják) */
 function paySentList_(u) {
-  return readAll_('paySent').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)).map(x => Object.assign({}, x, { html: '', hasHtml: !!x.html }));
+  return readAll_('paySent').filter(x => u.role === 'admin' || (u.role === 'crew' && u.crewId && x.crewId === u.crewId)).map(x => Object.assign({}, x, { html: '', hasHtml: !!x.html }));
 }
 function paySentHtml_(u, a) {
   const id = str_(a && a.month, 7) + '|' + str_(a && a.crewId, 64), x = readAll_('paySent').find(r => r.id === id);
