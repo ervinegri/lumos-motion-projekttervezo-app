@@ -379,3 +379,5 @@ function monthNav(id,months,sel){const sh=(m,d)=>{const y=Number(m.slice(0,4)),k
 
 /* a felső sáv magassága a ragadós táblázatfejlécekhez */
 (function(){const set=()=>{const t=document.querySelector('.topbar');if(t)document.documentElement.style.setProperty('--topbar-h',t.offsetHeight+'px');};window.addEventListener('resize',set);document.addEventListener('DOMContentLoaded',set);setTimeout(set,500);setTimeout(set,2000);})();
+
+const PAY_START='2026-10';   // a Termelői fizetések ettől a hónaptól érvényesek az appban
