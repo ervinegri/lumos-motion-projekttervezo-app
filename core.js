@@ -380,4 +380,5 @@ function monthNav(id,months,sel){const sh=(m,d)=>{const y=Number(m.slice(0,4)),k
 /* a felső sáv magassága a ragadós táblázatfejlécekhez */
 (function(){const set=()=>{const t=document.querySelector('.topbar');if(t)document.documentElement.style.setProperty('--topbar-h',t.offsetHeight+'px');};window.addEventListener('resize',set);document.addEventListener('DOMContentLoaded',set);setTimeout(set,500);setTimeout(set,2000);})();
 
+function setMonthAll(m){if(!/^\d{4}-\d{2}$/.test(m||''))return;S.payMonth=m;S.finMonth=m;(S.blf||(S.blf={v:'honap',q:''})).m=m;}   // a három pénzügyi nézet közös hónapja
 const PAY_START='2026-10';   // a Termelői fizetések ettől a hónaptól érvényesek az appban

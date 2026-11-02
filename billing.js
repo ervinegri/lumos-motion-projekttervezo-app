@@ -550,4 +550,4 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
       d.querySelector('button').onclick=()=>{try{if(typeof mdSave==='function')mdSave();}catch(e){}location.reload();};document.body.appendChild(d);}}catch(e){}}
   setTimeout(check,4000);setInterval(check,180000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});})();
 
-document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){const f=S.blf||(S.blf={v:'honap',q:''});f.m=e.target.value;f.v='honap';render(true);}});
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){const f=S.blf||(S.blf={v:'honap',q:''});setMonthAll(e.target.value);f.v='honap';render(true);}});

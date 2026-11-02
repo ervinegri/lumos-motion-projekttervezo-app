@@ -607,7 +607,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
 function pmMasterSync(){const sb=document.querySelector('#mform button[type=submit]');if(sb&&document.querySelector('#modalRoot .pay-mail-list,#modalRoot #pm-month')){const any=!!document.querySelector('#modalRoot input[name=pm]:checked');sb.disabled=!any;sb.title=any?'':'Jelölj ki legalább egy munkatársat';}const m=$('pm-master');if(!m)return;const all=[...document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)')],on=all.filter(x=>x.checked).length;m.checked=!!all.length&&on===all.length;m.indeterminate=on>0&&on<all.length;}
 document.addEventListener('change',e=>{if(e.target.id==='pm-master'){document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)').forEach(x=>{x.checked=e.target.checked;});pmMasterSync();}else if(e.target.name==='pm')pmMasterSync();});
-document.addEventListener('change',e=>{if(e.target.id==='pm-month'){S.payMonth=e.target.value;closeModal();render(true);payMailModal(e.target.value);}});
+document.addEventListener('change',e=>{if(e.target.id==='pm-month'){setMonthAll(e.target.value);closeModal();render(true);payMailModal(e.target.value);}});
 function payMailModal(month,only){
   const ids=new Set();S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===month).forEach(p=>(p.fees||[]).forEach(f=>{const id=f.kind==='fixed'?f.refCrewId:f.crewId;if(id&&num(f.amount))ids.add(id);}));
   OFFICE_RENT.forEach(o=>{const c=(S.crew||[]).find(x=>x.name===o.name);if(c)ids.add(c.id);});(S.payAdjust||[]).forEach(x=>{if(String(x.month)===month&&num(x.amount))ids.add(x.crewId);});
@@ -1081,7 +1081,7 @@ const ACT={
   'eqdd-pick':b=>{const sel=$(b.dataset.for);document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());if(!sel)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'mnav-pick':b=>{const sel=$(b.dataset.for);if(!sel||sel.value===b.dataset.m)return;sel.value=b.dataset.m;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'mnav':b=>{const sel=$(b.dataset.for);if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;sel.selectedIndex=i;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
-  'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
+  'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;setMonthAll(sel.options[i].value);render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
@@ -1283,7 +1283,7 @@ document.addEventListener('input',e=>{
   else if(t.id==='q-crew'){S.cf.q=t.value;render(true);}
   else if(t.id==='q-inv'){S.inf.q=t.value;render(true);}
   else if(t.id==='q-cl'){S.clf.q=t.value;render(true);}
-  else if(t.id==='pay-month'){S.payMonth=t.value;render(true);}
+  else if(t.id==='pay-month'){setMonthAll(t.value);render(true);}
   else if(t.id==='add-eq-qty'){S.addEq.qty=t.value;}
 });
 /* telefonmező: országhívószám + szám → egy érték */

@@ -255,7 +255,7 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     row.id=row.id||newId();finSave('finUpsert',{table:'loan',row},'Tétel mentve',()=>finLocal('loan',[row]));}});}
 Object.assign(ACT,{
   'fin-nav':b=>{const d=Number(b.dataset.d),ms=finMonths();let m=S.finMonth||todayISO().slice(0,7);
-    if(!d)m=todayISO().slice(0,7);else{const t=shiftMonth(m,d);if(ms.includes(t))m=t;}S.finMonth=m;render(true);},
+    if(!d)m=todayISO().slice(0,7);else{const t=shiftMonth(m,d);if(ms.includes(t))m=t;}setMonthAll(m);render(true);},
   'fin-settings':()=>finSettingsModal(),
   'fin-retry':()=>{S.finErr='';finLoad(true);render(true);},
   'fin-import':()=>finImport(),
@@ -272,7 +272,7 @@ Object.assign(ACT,{
   'fin-loan-del':b=>{const id=b.dataset.id;confirmModal('Tétel törlése','Biztosan törlöd ezt a tagi kölcsön tételt?','Törlés',()=>finSave('finDelete',{table:'loan',id},'Törölve',()=>finLocal('loan',[{id}],true)));}
 });
 document.addEventListener('change',async e=>{const t=e.target;
-  if(t.id==='fin-month'){S.finMonth=t.value;render(true);return;}
+  if(t.id==='fin-month'){setMonthAll(t.value);render(true);return;}
   if(t.id==='m-kind'&&$('m-bank')){const b=$('m-bank'),cur=b.value;b.innerHTML=bankOpts(t.value);if([...b.options].some(o=>o.value===cur))b.value=cur;return;}   // a bank-lista a típushoz igazodik
   if(t.dataset&&t.dataset.finpay){const id=t.dataset.id,v=t.value;
     if(t.dataset.finpay==='project'){try{await call('finSetPay',{projectId:id,payStatus:v});const p=projById(id);if(p)p.payStatus=v;if(S.draft&&S.draft.id===id)S.draft.payStatus=v;render(true);toast('Fizetési állapot: '+PAY_LABEL[v]);}catch(err){handleErr(err);render(true);}}
