@@ -393,7 +393,7 @@ function szInvoiceModal(kind,id,o={}){
     ${kind==='project'?`<input type="hidden" id="m-szClient" value="${esc((cls.find(c=>c.name===b.name)||{}).id||'')}">`:`<div class="field"><label for="m-szClient">Vevő az ügyfelek közül</label><select class="inp" id="m-szClient"><option value="">— kézi megadás —</option>${cls.map(c=>`<option value="${esc(c.id)}"${c.name===b.name?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>`}
     ${mf('bName','Vevő neve',{full:true,v:b.name,max:200})}
     <div class="field full"><label>E-mail (ide megy a számla)</label><div id="sz-mails">${szMailList(b).map((m,k)=>szMailRow(m,k)).join('')}</div><button type="button" class="linkbtn" data-action="sz-mail-add" style="margin-top:4px">+ További e-mail-cím</button></div>
-    ${mf('bTax','Adószám (magánszemélynél üres)',{v:b.tax,max:20,ph:'12345678-2-42'})}
+    ${mf('bTax','Adószám',{v:b.tax,max:20,ph:'12345678-2-42'})}
     ${mf('bZip','Irányítószám',{v:b.zip,max:10,im:'numeric'})}${mf('bCity','Település',{v:b.city,max:80})}
     ${mf('bAddr','Cím',{full:true,v:b.address,max:200})}
     <small class="hint field full" id="sz-buyer-lock" style="margin:-6px 0 0"></small>
