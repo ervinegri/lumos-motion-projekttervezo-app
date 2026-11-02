@@ -33,6 +33,12 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
 /* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;const f=$('mform');if(!f||!modalSubmit)return;
   const b=f.querySelector('button[type=submit]');if(!b||b.disabled)return;e.preventDefault();if(f.requestSubmit)f.requestSubmit(b);else b.click();});
+/* Megerősítő réteg a nyitott ablak fölött: „← Vissza” visszavisz (a beírt adatok megmaradnak), a fő gomb végrehajt */
+function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!root)return;const old=root.querySelector('.cf-layer');if(old)old.remove();
+  const d=document.createElement('div');d.className='modal cf-layer';
+  d.innerHTML=`<div class="mbox" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="mhead"><h3>${esc(title)}</h3></div>${html}<div class="mfoot"><button type="button" class="btn outline" data-cf="back">← Vissza</button><button type="button" class="btn primary" data-cf="ok">${esc(okLabel)}</button></div></div>`;
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-cf]');if(!b){if(e.target===d)d.remove();return;}e.stopPropagation();if(b.dataset.cf==='back'){d.remove();return;}onOk(b,d);});
+  root.appendChild(d);d.querySelector('[data-cf=ok]').focus();}
 function closeModal(){if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';}
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}"${o.ac?` autocomplete="${o.ac}"`:''} value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
@@ -292,7 +298,7 @@ $('modalRoot').addEventListener('submit',async e=>{
   try{await modalSubmit(new FormData(form),form);if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
   finally{if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalRoot').innerHTML)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('modalRoot').innerHTML)return;const cf=$('modalRoot').querySelector('.cf-layer');if(cf){cf.remove();return;}closeModal();});
 /* Folyamatban lévő művelet gombja (pl. „Mentés…”, „Feltöltés…”, „Rögzítés…”): forgó jel + fénycsík, amíg tart */
 const BUSY_SYNC=b=>{if(!b||b.tagName!=='BUTTON')return;const on=b.disabled&&/…\s*$/.test(b.textContent||'');b.classList.toggle('is-busy',on);if(on)b.setAttribute('aria-busy','true');else b.removeAttribute('aria-busy');};
 if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')BUSY_SYNC(m.target);else if(m.type==='characterData')BUSY_SYNC(m.target.parentElement&&m.target.parentElement.closest('button'));else{BUSY_SYNC(m.target.closest&&m.target.closest('button'));}}))

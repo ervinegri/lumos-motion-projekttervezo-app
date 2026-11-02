@@ -367,12 +367,12 @@ function szInvoiceModal(kind,id,o={}){
     if(a.buyer.name.length<2||!a.buyer.zip||!a.buyer.city||!a.buyer.address){toast('Add meg a vevő nevét és teljes címét.',true);return;}
     if(!items.length||items.some(it=>it.name.length<2||!it.qty)){toast('Minden tételnek legyen megnevezése és mennyisége.',true);return;}
     if(!tot.net){toast('A számla összege 0 Ft.',true);return;}
-    openModal('Biztosan kiállítod?',`<p style="margin:0">${SZ_KIND[a.kind]} <b>${esc(a.buyer.name)}</b> részére${a.projectIds.length?` (közös számla, ${a.projectIds.length+1} projekt)`:''}: nettó <b>${ftFmt(tot.net)}</b>, bruttó <b>${ftFmt(tot.gross)}</b>, határidő ${esc(a.due)}.</p>
+    confirmLayer('Biztosan kiállítod?',`<p style="margin:0">${SZ_KIND[a.kind]} <b>${esc(a.buyer.name)}</b> részére${a.projectIds.length?` (közös számla, ${a.projectIds.length+1} projekt)`:''}: nettó <b>${ftFmt(tot.net)}</b>, bruttó <b>${ftFmt(tot.gross)}</b>, határidő ${esc(a.due)}.</p>
       <p class="hint" style="margin:8px 0 0">${a.kind==='dijbekero'?'':'A számla a kiállítással bekerül a NAV-hoz, utólag csak sztornózni lehet. '}${a.sendEmail&&a.buyer.email?'A számlázz.hu elküldi e-mailben: '+esc(a.buyer.email)+'.':'E-mailt nem küldünk.'}</p>`,
-      {submitLabel:'Kiállítás',submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Kiállítás…';}
+      'Kiállítás',async btn=>{if(btn){btn.disabled=true;btn.textContent='Kiállítás…';}
         try{const d=await call('szInvoice',a);closeModal();finApply(d);toast(`${SZ_KIND[a.kind]} kiállítva: ${d.invoice&&d.invoice.no}`);
           {const e2=a.buyer.email,cl=(S.clients||[]).find(c=>c.name===a.buyer.name)||(t.buyer.clientId&&(S.clients||[]).find(c=>c.id===t.buyer.clientId));if(cl&&e2!==(cl.billEmail||'')&&typeof saveClientRec==='function')saveClientRec(Object.assign({},cl,{oldName:'',billEmail:e2})).catch(()=>{});}}   /* a pénzügyi e-mail-címet megjegyezzük az ügyfélnél */
-        catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}}});}});
+        catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}});}});
   szTotals();}
 function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
   openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám vagy cégnév',{full:true,max:60,ph:'pl. LUMOS-2026-75 vagy Kulcsár Akadémia'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
