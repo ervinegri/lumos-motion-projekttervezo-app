@@ -2837,7 +2837,7 @@ function payStatusApply_(u, month, c, patch) {
     const sh = sheetFor_('payStatus'), id = month + '|' + c.id, row = findRow_(sh, id);
     const cur = row ? readRow_('payStatus', sh, row) : { id: id, month: month, crewId: c.id, crewName: c.name, invoicedAt: '', invoicedBy: '', paidAt: '', paidBy: '' };
     if (cur.invoicedAt && !patch.invoiceNo) return;
-    Object.assign(cur, cur.invoicedAt ? { invoiceNo: patch.invoiceNo, invoiceNet: patch.invoiceNet, invoiceTax: patch.invoiceTax, invoiceMatch: patch.invoiceMatch } : patch);   // kézi pipánál csak a NAV-adatot tesszük mellé
+    Object.assign(cur, cur.invoicedAt ? { invoicedAt: patch.invoicedAt || cur.invoicedAt, invoiceNo: patch.invoiceNo, invoiceNet: patch.invoiceNet, invoiceTax: patch.invoiceTax, invoiceMatch: patch.invoiceMatch } : patch);   // kézi pipánál is a számla kiállítási dátuma kerül be
     putRow_('payStatus', sh, cur, row);
   });
 }
