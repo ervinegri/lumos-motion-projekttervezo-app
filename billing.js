@@ -43,25 +43,22 @@ function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=b
 function invLine(x,label){if(!x)return '';const s=invState(x);
   const st=s==='paid'?`<span class="statuspill p-ok">✅ Fizetve${x.paidAt?' '+fmtMD(x.paidAt):''}</span>`:s==='part'?`<span class="info-txt">Részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">⚠ Lejárt ${fmtMD(x.due)}</span>`:`<span class="bad-txt">Fizetésre vár${x.due?' · '+fmtMD(x.due):''}</span>`;
   return `<div class="bl-doc"><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${label?`<span class="muted">${label}</span> `:''}${esc(x.no)}</button><span class="bl-sub">${ftFmt(num(x.invGross))} · ${st}</span>${invShared(x)?`<span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 közös számla · ${invPids(x).length} projekt</span>`:''}</div>`;}
-const billAddBtn=(pid,type,label,strong)=>`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}" data-type="${type}">+ ${label}</button>`;
+const billAddBtn=(pid,type,label,strong,ids)=>`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}"${ids&&ids.length>1?` data-ids="${esc(ids.join(','))}"`:''} data-type="${type}">+ ${label}</button>`;
 function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extrasSum(p),C=billCells(p,i,o);
   const sp=n=>n>1?` rowspan="${n}"`:'';
-  return `<tr${i.closed?' class="bl-closed"':''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
+  const cls=[i.closed?'bl-closed':'',o.cfirst?'bl-cfirst':'',o.cshade?'bl-cshade':''].filter(Boolean).join(' ');
+  return `<tr${cls?` class="${cls}"`:''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
       <div class="bl-meta">${esc(p.client||'—')}</div><div class="bl-val">${val?ftFmt(val)+' <span class="muted">nettó</span>'+(extrasOf(p).length?`<div class="bl-meta">${exBreak(p)}</div>`:''):isFree(p)?'<span class="muted">🎁 nem fizetős</span>':'<span class="muted">nincs érték megadva</span>'}</div>
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
     ${o.cSpan===0?'':`<td class="bt-cell${o.cSpan>1?' bt-merged':''}"${sp(o.cSpan)}>${C.contract}</td>`}<td class="bt-cell">${C.adv}</td>${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
   arr.forEach(i=>{const k=n(i.p.client)||('#'+i.p.id);if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
-  const out=[];order.forEach(k=>{const g=by[k];
-    const key=i=>{if(i.free)return '';const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();if(tg)return 'tig:'+tg.id;
-      const b=i.b,need=b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>n(t.client)===n(i.p.client)));return need&&g.length>1?'cm':'';};
-    const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':'none';};
-    let j=0;while(j<g.length){const k0=key(g[j]);let e=j+1;if(k0)while(e<g.length&&key(g[e])===k0)e++;
-      const run=g.slice(j,e),finSame=run.length>1&&run.every(i=>fk(i)&&fk(i)===fk(run[0]));
-      run.forEach((i,x)=>out.push({i,o:{cIds:null,tigSpan:run.length===1?1:x?0:run.length,finSpan:!finSame?1:x?0:run.length,group:finSame?run:null}}));j=e;}
-    const cRun=g.filter(i=>!i.free);   // szerződés: az azonos megrendelő projektjei egy cellában (a lépések mindegyikre érvényesek)
-    if(cRun.length>1&&cRun.length===g.length){const rows=out.slice(-g.length);rows.forEach((r,x)=>{r.o.cSpan=x?0:g.length;if(!x)r.o.cIds=g.map(i=>i.p.id);});}});
+  const out=[];order.forEach((k,ci)=>{const g=by[k],L=g.length,merge=L>1&&g.every(i=>!i.free);
+    const tk=i=>{const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();return tg?'tig:'+tg.id:'none';};
+    const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':(i.db||i.el)?'adv:'+i.p.id:'none';};   // foglalós projekt végszámlája külön
+    const tigSame=merge&&g.every(i=>tk(i)===tk(g[0])),finSame=merge&&g.every(i=>fk(i)&&fk(i)===fk(g[0])&&!/^adv:/.test(fk(i)));
+    g.forEach((i,x)=>out.push({i,o:{cfirst:!x&&ci>0,cshade:ci%2===1,cSpan:merge?(x?0:L):1,cIds:merge&&!x?g.map(y=>y.p.id):null,tigSpan:tigSame?(x?0:L):1,finSpan:finSame?(x?0:L):1,group:finSame?g:null}}));});
   return out.map(r=>billRow(r.i,r.o)).join('');}
 /* A táblázat cellái lépésenként: Szerződés (elküldve, aláírva), TIG (elküldve, jóváhagyva), Díjbekérő (elküldve, fizetve), Végszámla (elküldve, fizetve) */
 const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l${/^\d{2}\.\d{2}\.$/.test(String(extra||''))?' inl':''}"><span>${label}</span>${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
@@ -101,13 +98,13 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   const finCalc=!skipA&&!fx&&tot&&(ex||dx)?`<div class="bs-x">${extrasOf(p).length?exBreak(p).replace('szerződött ',''):ftFmt(tot)} − foglaló ${ftFmt(dx?advNet:Math.round(val*num(b.advancePct)/100))}</div>`:'';
   const fin=i.full&&!fx?`<div class="pb-box bs-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`
     :box('fin',`${finT}${tot&&!i.noFin?` <span class="muted">· ${ftFmt(finDue)}</span>`:''}`,
-      fx?`${i.finAll.map((x,k)=>`${k?'<div class="bs-sep"></div>':''}${bsSent(k?'Újabb számla':finT,x)}${bsPaidStep(x)}`).join('')}<button class="linkbtn bl-more" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla" title="Ha az ügyfél utólag újabb terméket rendel ugyanerre a projektre">+ Újabb számla</button>`:`${finCalc}${tigNeed&&!appr?`<div class="bs-x warn-txt">⏳ ${tg?'A TIG jóváhagyása után':'A TIG kiállítása és jóváhagyása után'} állítható ki.</div>`:tg&&tg.status==='jovahagyva'?`<button class="btn primary small bl-add" type="button" data-action="tig-invoice" data-id="${esc(tg.id)}" title="A jóváhagyott TIG tételeivel (az összes érintett projekt)">+ ${finT} kiállítása a TIG alapján</button>`:billAddBtn(p.id,skipA?'szamla':'vegszamla',finT+' kiállítása',projDone(p)&&(skipA||!!dx))}`,i.noFin&&!fx,!!fx,`Nem kell ${finT.toLowerCase()}?`);
+      fx?`${i.finAll.map((x,k)=>`${k?'<div class="bs-sep"></div>':''}${bsSent(k?'Újabb számla':finT,x)}${bsPaidStep(x)}`).join('')}<button class="linkbtn bl-more" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla" title="Ha az ügyfél utólag újabb terméket rendel ugyanerre a projektre">+ Újabb számla</button>`:`${finCalc}${tigNeed&&!appr?`<div class="bs-x warn-txt">⏳ ${tg?'A TIG jóváhagyása után':'A TIG kiállítása és jóváhagyása után'} állítható ki.</div>`:tg&&tg.status==='jovahagyva'?`<button class="btn primary small bl-add" type="button" data-action="tig-invoice" data-id="${esc(tg.id)}" title="A jóváhagyott TIG tételeivel (az összes érintett projekt)">+ ${finT} kiállítása a TIG alapján</button>`:billAddBtn(p.id,skipA?'szamla':'vegszamla',finT+(grp?` kiállítása (${grp.length} projekt)`:' kiállítása'),projDone(p)&&(skipA||!!dx),grp?grp.map(x=>x.p.id):null)}`,i.noFin&&!fx,!!fx,`Nem kell ${finT.toLowerCase()}?`);
   const late=(h,x)=>x&&invState(x)==='late'?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // lejárt, kifizetetlen bizonylat: piros kártya
-  const paid=(h,ok)=>ok?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-paid'):h;   // kifizetve: szürke kártya (a linkek kattinthatók maradnak)
+  const paid=(h,ok)=>ok?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-paid'):h,green=(h,ok)=>ok?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-green'):h;   // kifizetett számla: zöld kártya   // kifizetve: szürke kártya (a linkek kattinthatók maradnak)
   const cDone=!!i.fw||signed;   // aláírt szerződés / keretszerződés: szürke kártya
   const red=(h,on)=>on?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // letelt a hónap, és még nincs kész: piros kártya
   const tigOver=monthOver&&tigNeed&&!appr,finOver=monthOver&&!fx&&!i.noFin&&!i.full&&!i.free&&tot>0;
-  return {contract:paid(contract,cDone),tig:red(tig,tigOver),adv:paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(paid(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
+  return {contract:paid(contract,cDone),tig:red(tig,tigOver),adv:green(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(green(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
 ACT['bl-cstep']=async btn=>{const st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;
   const pids=(btn.dataset.ids?btn.dataset.ids.split(','):[btn.dataset.id]).filter(Boolean);   // összevont cella: a megrendelő összes projektjére
   const undo=[];pids.forEach(pid=>{let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
@@ -239,7 +236,10 @@ Object.assign(ACT,{
   'blf':b=>{(S.blf||(S.blf={v:'honap',q:''})).v=b.dataset.v;render(true);},
   'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
-  'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
+  'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
+    const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id));   // összevont kártya: egy közös számla, projektenként egy tétellel
+    if(ids.length>1){szInvoiceModal('project',ids[0],{type:b.dataset.type,projectIds:ids.slice(1),items:ids.map(id=>{const p=projById(id);return {name:p.name||'Projekt',qty:1,price:projTotal(p),pid:id};})});return;}
+    szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}
 });
 document.addEventListener('input',e=>{if(e.target.id==='q-bill'){(S.blf||(S.blf={v:'honap',q:''})).q=e.target.value;const pos=e.target.selectionStart;render(true);const n=$('q-bill');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}}});
