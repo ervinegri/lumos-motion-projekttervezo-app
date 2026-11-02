@@ -1576,7 +1576,7 @@ function szSettings_() {
   const due = Math.round(Number(s.dueDays));
   return { ipnToken: str_(s.ipnToken, 64), dueDays: isFinite(due) && due >= 0 && due <= 120 ? due : 8, vat: SZ_VATS.indexOf(String(s.vat)) >= 0 ? String(s.vat) : '27',
     unit: str_(s.unit, 20) || 'db', payMethod: SZ_PAYMETHODS.indexOf(s.payMethod) >= 0 ? s.payMethod : 'Átutalás',
-    eInvoice: s.eInv2 === true,   /* alapból papír alapú számla (2026-11: Ervin kérése) */ sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
+    eInvoice: s.eInv2 !== false,   /* alapból e-számla (2026-11-02: Ervin kérése) */ sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
 }
 function szSettingsView_() { const s = szSettings_(); s.hasKey = !!szamlazzKey_(); return s; }
 function szStore_(s) { delete s.hasKey; PropertiesService.getScriptProperties().setProperty(SZ_SETTINGS_PROPERTY, JSON.stringify(s)); }
