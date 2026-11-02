@@ -517,7 +517,23 @@ function loadBase_() {
   return base;
 }
 
+/* Egyszeri: Egri Ervin és László Csanád bérszámfejtett (nem állítanak ki számlát) – Ervin kérése, 2026-11-02 */
+function migrateEmployeesOnce_() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('MIG_EMP_2026_11')) return;
+  withLock_(() => {
+    const sh = sheetFor_('crew');
+    readAll_('crew').forEach(c => {
+      if (!/^(egri ervin|lászló csanád|laszlo csanad)$/i.test(String(c.name || '').trim()) || isEmployee_(c)) return;
+      c.type = CREW_TYPES[3]; c.updatedAt = now_();
+      putRow_('crew', sh, c, findRow_(sh, c.id));
+    });
+    dbFlush_(); dataBump_();
+  });
+  P.setProperty('MIG_EMP_2026_11', now_());
+}
 function bootstrap_(u) {
+  try { migrateEmployeesOnce_(); } catch (e) {}
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
