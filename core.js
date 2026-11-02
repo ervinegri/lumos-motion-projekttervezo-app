@@ -35,7 +35,7 @@ const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszám
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
-const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Gimbal / állvány','Akku / powerbank / táp','Adathordozó','Laptop / tablet / telefon','Kocsi / szállítás','Kábel','Egyéb'];
+const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Gimbal / állvány','Akku / powerbank / táp','Adathordozó','Laptop / tablet / telefon','Monitor / nyomtató','Kocsi / szállítás','Kábel','Egyéb'];
 const CONDITIONS={ok:'Üzemképes',javitas:'Javításra vár',szerviz:'Szervizben',selejt:'Selejtezett'};
 const DELIVERABLES=[
   {k:'int_sarok',label:'Interjúsarok videók',w:.20,max:15,g:'int'},

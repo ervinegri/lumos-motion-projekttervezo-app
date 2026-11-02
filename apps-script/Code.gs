@@ -39,7 +39,7 @@ const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', '
 const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer', 'Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee_ = c => /^(Alkalmazott|Bérszámfejtett)/.test(String(c && c.type || ''));   // bejelentett munkaviszony: munkabér, nincs számla / díjösszesítő
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
-const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
+const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Monitor / nyomtató', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, int_sarok: 15, int_resztvevo: 15, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10, er_summary: 10, er_total_n: 10, er_close_n: 10, er_creative_n: 10, er_post_n: 10, x_foto_n: 10 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny', 't_vizual',
@@ -391,6 +391,7 @@ function fromRow_(t, r) {
     if (k === 'category' && (v === 'Laptop' || v === 'Tablet' || v === 'Telefon')) v = 'Laptop / tablet / telefon';
     o[k] = v;
   });
+  if (o.category === 'Laptop / tablet / telefon' && /asus/i.test(o.name || '') && !/(zenbook|vivobook|rog|tuf|expertbook|proart\s*p16|laptop|notebook|zenfone|tablet|pad)/i.test(o.name || '')) o.category = 'Monitor / nyomtató';   // ASUS monitorok átsorolása (2026-11)
   if (o.roles !== undefined) o.roles = String(o.roles || '').split(',').map(s => s.trim()).filter(Boolean).map(r => r === 'Termelési vezető' ? 'Projektvezető' : r);   // régi elnevezés
   if (o.skills !== undefined) o.skills = String(o.skills || '').split(',').map(s => s.trim()).filter(Boolean);
   return o;
