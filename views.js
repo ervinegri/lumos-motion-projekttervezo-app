@@ -298,7 +298,7 @@ function viewPayouts(){
     const refresh=f==='invoiced'&&adm?`<button class="nav-one" type="button" data-action="nav-sync" data-month="${sel}" data-cid="${esc(c)}" data-tip="Csak az ő számlájának lekérdezése a NAV-ból${nav?' (újrapárosítás)':''}" aria-label="NAV-lekérdezés">🔄</button>`:'';
     const badge=nav?`<div class="pst-sub"><button type="button" class="nav-badge${diff?' diff':''}" data-action="nav-inv" data-nos="${esc(st.invoiceNo)}" data-tax="${esc(st.invoiceTax||'')}" data-tip="${esc(`🧾 ${st.invoiceNo}\nKelt: ${dshort(st.invoicedAt)||st.invoicedAt||'–'} · nettó ${ftFmt(num(st.invoiceNet))}\n${diff?`⚠️ Eltér: ${sx?'díjösszesítő':'fizetendő'} ${ftFmt(due)}`:`✓ Egyezik a ${sx?'díjösszesítővel':'fizetendővel'}`}${sx&&cur!==due?`\nℹ️ Azóta változott: most ${ftFmt(cur)}`:''}\nKattints a megnyitáshoz`)}">${diff?'⚠️ ':''}${esc((()=>{const a=String(st.invoiceNo).split(/\s*,\s*/);return a[0]+(a.length>1?' +'+(a.length-1):'');})())}</button></div>`:'';
     let main;
-    if(on&&(f==='invoiced'||!adm))main=`<span class="pst-sent"${tip?` data-tip="${tip}"`:''}>✓ ${esc(dshort(st[f+'At']))}</span>`;   // kiállított számla: nem vonható vissza
+    if(on)main=`<span class="pst-sent"${tip?` data-tip="${tip}"`:''}>✓ ${esc(dshort(st[f+'At']))}</span>`;   // kiállított számla: nem vonható vissza
     else if(adm)main=`<label class="pst-chk${on?' on':''}"${tip?` data-tip="${tip}"`:''}><input type="checkbox" data-pay-st="${f}" data-cid="${esc(c)}" data-month="${sel}"${on?' checked':''}> ${on?esc(dshort(st[f+'At'])):''}</label>`;
     else main='<span class="muted">–</span>';
     return `<td class="r pay-st"><div class="pst-line">${main}${refresh}</div>${badge}</td>`;};

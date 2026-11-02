@@ -2667,7 +2667,8 @@ function setPayStatus_(u, a) {
   return withLock_(() => {
     const sh = sheetFor_('payStatus'), id = month + '|' + crewId, row = findRow_(sh, id);
     const cur = row ? readRow_('payStatus', sh, row) : { id: id, month: month, crewId: crewId, crewName: c.name, invoicedAt: '', invoicedBy: '', paidAt: '', paidBy: '' };
-    cur.crewName = c.name; cur[field + 'At'] = on ? today_() : ''; cur[field + 'By'] = on ? u.name : '';
+    const dt = /^\d{4}-\d{2}-\d{2}$/.test(String(a && a.date || '')) ? String(a.date) : today_();
+    cur.crewName = c.name; cur[field + 'At'] = on ? dt : ''; cur[field + 'By'] = on ? u.name : '';
     if (field === 'invoiced' && !on) { cur.invoiceNo = ''; cur.invoiceNet = ''; cur.invoiceTax = ''; cur.invoiceMatch = ''; }   // visszavonáskor a NAV-párosítás is törlődik
     putRow_('payStatus', sh, cur, row);
     logEvent_(u, field === 'paid' ? (on ? 'Számla fizetve' : 'Számla fizetve – visszavonva') : (on ? 'Számlát kiállította' : 'Számla kiállítása – visszavonva'), c.name, month);

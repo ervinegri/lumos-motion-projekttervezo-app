@@ -596,7 +596,12 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
 document.addEventListener('input',e=>{const ed=e.target.closest&&e.target.closest('.mail-edit[data-pe]');if(!ed)return;S._payEdit=S._payEdit||{};S._payEdit[ed.dataset.pe]=ed.innerHTML;payEditMark();});
 /* Termelői fizetések alján: számlát kiállította / számla fizetve pipálása */
-document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.paySt)return;const on=t.checked;t.disabled=true;
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.paySt)return;const on=t.checked;
+  if(t.dataset.paySt==='paid'&&on){t.checked=false;const nm=(crewById(t.dataset.cid)||{}).name||'';   // kifizetés: dátum választással (alapból ma), utólag nem vonható vissza
+    openModal('✅ Kifizetve – '+nm,`<div class="fields"><div class="field"><label for="m-paidAt">Kifizetés dátuma</label><input class="inp" id="m-paidAt" name="paidAt" type="date" value="${todayISO()}" max="${todayISO()}" required></div></div><p class="hint" style="margin:6px 0 0">A kifizetés rögzítése után nem vonható vissza.</p>`,
+      {submitLabel:'Kifizetve',submit:async fd=>{const d=String(fd.get('paidAt')||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){toast('Add meg a dátumot.',true);return;}
+        try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:'paid',on:true,date:d});closeModal();render(true);toast(`${nm}: kifizetve (${fmtShort(d)})`);}catch(err){handleErr(err);}}});return;}
+  t.disabled=true;
   try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla fizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
   catch(err){t.checked=!on;t.disabled=false;handleErr(err);}});
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
