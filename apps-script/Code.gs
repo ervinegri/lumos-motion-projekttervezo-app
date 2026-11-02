@@ -1895,11 +1895,12 @@ function szStorno_(u, a) {
   if (x.manual) throw new Error('Kézzel rögzített bizonylatot a kiállító programjában lehet sztornózni.');
   if (x.kind === 'dijbekero') throw new Error('A díjbekérő nem számla – nem kell sztornózni, elég törölni a hozzárendelést.');
   const set = szSettings_(), today = today_();
+  const mails = mailOn_('invoice') ? String(a && a.email || '').split(/[,;]\s*/).map(x => x.trim().toLowerCase()).filter(x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)).join(',') : '';   // a sztornót a vevő e-mailben kapja (ha kéred)
   const xml = szXmlHead_('xmlszamlast', 'agentst')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', set.eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('szamlaszam', x.no) + szEl_('keltDatum', today) + szEl_('tipus', 'SS') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'
-    + '<vevo></vevo></xmlszamlast>';
+    + '<vevo>' + (mails ? szEl_('email', mails) + szEl_('sendEmail', 'true') : szEl_('sendEmail', 'false')) + '</vevo></xmlszamlast>';
   const r = szPost_('action-szamla_agent_st', xml);
   let no = r.dec(r.headers.szlahu_szamlaszam);
   try { const doc = XmlService.parse(r.body).getRootElement(); if (xmlText_(doc, 'sikeres') === 'false') throw new Error('számlázz.hu hiba (' + xmlText_(doc, 'hibakod') + '): ' + xmlText_(doc, 'hibauzenet')); no = xmlText_(doc, 'szamlaszam') || no; }
