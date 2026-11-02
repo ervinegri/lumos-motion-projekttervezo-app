@@ -31,7 +31,7 @@ function billInfo(p){
     nextCls=k==='contract'&&b.contractStatus!=='kikuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     const tg=k==='finIssued'?tigOf(p.id):null;if(tg){next=tg.status==='jovahagyva'?'TIG jóváhagyva – számlázható':tg.status==='kiallitva'?'TIG elküldésre vár':'TIG jóváhagyásra vár';nextCls=tg.status==='jovahagyva'?'p-info':'p-warn';}
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
-  return {p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
+  return {p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),openNet:open.reduce((s,x)=>s+due(x)*invNetR(x),0),lateNet:late.reduce((s,x)=>s+due(x)*invNetR(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
 /* A projekt legutóbbi, még nem számlázott TIG-je */
 const tigList=()=>((S.fin&&S.fin.tigs)||[]);
@@ -52,6 +52,7 @@ function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extr
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
     ${o.cSpan===0?'':`<td class="bt-cell${o.cSpan>1?' bt-merged':''}"${sp(o.cSpan)}>${C.contract}</td>`}${o.aSpan===0?'':`<td class="bt-cell${o.aSpan>1?' bt-merged':''}"${sp(o.aSpan)}>${C.adv}</td>`}${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
+const invNetR=x=>{const g=num(x.invGross),n=num(x.invNet);return g>0&&n>0?n/g:1/1.27;};   // bruttó → nettó arány a bizonylatból
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
   arr.forEach(i=>{const k=n(i.p.client)||('#'+i.p.id);if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
   const invs=g=>g.flatMap(i=>(i.finAll||[]).concat(i.db?[i.db]:[],i.el?[i.el]:[])).filter(x=>x&&x.kind!=='storno');
@@ -137,8 +138,8 @@ function viewBilling(){
   let list=sets[f.v]||all;if(q)list=list.filter(i=>[i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
-  const cols=6,openSum=all.reduce((s,i)=>s+i.openSum,0),lateSum=all.reduce((s,i)=>s+i.lateSum,0),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;
-  const mRev=sets.honap.reduce((s,i)=>s+projTotal(i.p),0),mPaid=sets.honap.reduce((s,i)=>s+i.inv.filter(x=>x.kind!=='storno'&&!(x.kind==='dijbekero'&&(x.ref||i.el))).reduce((a,x)=>a+num(x.invPaid)*invShare(x,i.p.id),0),0);   // a kiválasztott hónap bevétele és befolyt összege
+  const cols=6,openSum=Math.round(all.reduce((s,i)=>s+i.openNet,0)),lateSum=Math.round(all.reduce((s,i)=>s+i.lateNet,0)),todo=all.filter(i=>i.todo).length,noC=sets.szerzodes.length;
+  const mRev=sets.honap.reduce((s,i)=>s+projTotal(i.p),0),mPaid=sets.honap.reduce((s,i)=>s+i.inv.filter(x=>x.kind!=='storno'&&!(x.kind==='dijbekero'&&(x.ref||i.el))).reduce((a,x)=>a+num(x.invPaid)*invShare(x,i.p.id)*invNetR(x),0),0);   // a kiválasztott hónap bevétele és befolyt összege
   const sz=S.fin.sz||{},nCl=l=>new Set(l.map(i=>String(i.p.client||'').trim().toLowerCase()||i.p.id)).size;   // ügyfelek száma
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2><p class="sub">Projektenként: szerződés → díjbekérő → foglaló → végszámla → kifizetés · csak te látod</p>${monthNav('bill-month',[...new Set(all.map(i=>pr(i.p).start.slice(0,7)).concat([todayISO().slice(0,7)]))].sort().reverse(),curM)}</div>
       ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
@@ -146,9 +147,9 @@ function viewBilling(){
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
       <button class="tile tile-btn" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mRev)}</div><div class="tile-l">${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))} havi bevétel (nettó, ${nCl(sets.honap)} ügyfél)</div></button>
-      <button class="tile tile-btn${mPaid?' ok':''}" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mPaid)}</div><div class="tile-l">kifizetve (bruttó, ${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))})</div></button>
-      <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség (bruttó, ${nCl(sets.kint)} ügyfél)</div></button>
-      <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (${nCl(sets.lejart)} ügyfél)</div></button>
+      <button class="tile tile-btn${mPaid?' ok':''}" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(Math.round(mPaid))}</div><div class="tile-l">kifizetve (nettó, ${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))})</div></button>
+      <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség (nettó, ${nCl(sets.kint)} ügyfél)</div></button>
+      <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (nettó, ${nCl(sets.lejart)} ügyfél)</div></button>
     </div>
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
       <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}${v==='honap'?'':`<span class="c">${sets[v].length}</span>`}</button>`;return c;}).join('')}</div></div>
