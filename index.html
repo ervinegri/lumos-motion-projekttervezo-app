@@ -150,10 +150,10 @@ h1,h2,h3{text-wrap:balance}
 
 /* figyelmeztetések */
 .issues{display:flex;flex-direction:column;gap:8px}
-.issue{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:13px;background:var(--warn-soft)}
-.issue.bad{background:var(--bad-soft)}
-.issue .ic{flex:0 0 20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:var(--warn);color:#fff;margin-top:1px}
-.issue.bad .ic{background:var(--bad)}
+.issue{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:13px;background:#fde7b0;border:1px solid #e9b949;color:#4a3300}
+.issue.bad{background:#f8c9c4;border-color:#d9645a;color:#4d0f0a}
+.issue .ic{flex:0 0 20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:#b7791f;color:#fff;margin-top:1px}
+.issue.bad .ic{background:#c0392b}
 .issue-t{min-width:0}
 .issue-links{display:flex;gap:4px 14px;flex-wrap:wrap;margin-top:3px}
 
@@ -689,7 +689,7 @@ tr.pay-left td{background:var(--warn-soft);font-weight:400}
 .pt-flex{display:flex;align-items:center;gap:12px;min-width:0}.pt-flex .ev-main{min-width:0}.pt-flex .ev-title,.pt-flex .ev-sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pt-pills{display:flex;flex-wrap:wrap;gap:6px}.pt-extra{color:var(--fg-3)}.pt-extra .smallnum{display:inline-block;margin-right:6px}
 .pt-group td{background:#eef3f1;font-size:12px;font-weight:780;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2);padding:8px 12px}
-.issues-panel{margin-bottom:14px}
+.issues-panel{margin-bottom:14px}.issues-panel h3{margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline}.issue .linkbtn{color:inherit;text-decoration:underline;text-underline-offset:2px}
 @media (max-width:760px){.proj-table th:nth-child(3),.proj-table td.pt-extra{display:none}.proj-table th:nth-child(2){width:44%}.proj-table td{padding:8px}.pt-flex{gap:8px}}
 .pt-pills .statuspill{white-space:normal;max-width:100%}
 .statuspill.p-alarm{background:#b3261e;color:#fff;border-color:#b3261e;font-weight:800;animation:alarmPulse 1.6s ease-in-out infinite}
