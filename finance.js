@@ -622,7 +622,7 @@ ACT['fin-mkt-proj']=async btn=>{const pid=btn.dataset.id,on=!!btn.dataset.on;if(
 /* Számla sztornózása: csak sztornó, vagy sztornó + új számla az előző adataival */
 ACT['sz-storno']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(!x)return;
   openModal('↩️ '+x.no+' sztornózása',`<p style="margin:0 0 10px">A számlázz.hu sztornó számlát állít ki a <b>${esc(x.no)}</b> számláról (${esc(x.buyer||'')}, bruttó ${ftFmt(num(x.invGross))}). Ez a NAV-hoz is bekerül, és nem vonható vissza.</p>
-    <div class="rolepick" style="flex-direction:column;align-items:flex-start;gap:8px"><label><input type="radio" name="stm" value="only" checked> <b>Csak sztornózom</b> <span class="muted">– a projekt újra számlázhatóvá válik</span></label><label><input type="radio" name="stm" value="new"> <b>Sztornózom, és újat állítok ki</b> <span class="muted">– az új számla az előző tételeivel nyílik meg, javíthatod</span></label></div>`,
+    <div class="rolepick" style="flex-direction:column;align-items:flex-start;gap:8px"><label><input type="radio" name="stm" value="only" checked> <b>Csak sztornózom</b> <span class="muted">– a projekt újra számlázhatóvá válik</span></label><label><input type="radio" name="stm" value="new"> <b>Sztornózom, és újat állítok ki</b></label></div>`,
     {submitLabel:'Sztornózás',submit:async fd=>{const mode=fd.get('stm');const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Sztornózás…';}
       try{const d=await call('szStorno',{id:x.id});closeModal();finApply(d);toast(`Sztornózva: ${x.no} → sztornó számla: ${d.stornoNo}`);
         if(mode==='new'&&x.projectId){let items=[];try{items=JSON.parse(x.items||'[]');}catch(e){}const ids=invPids(x);
