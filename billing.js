@@ -44,11 +44,23 @@ function invLine(x,label){if(!x)return '';const s=invState(x);
   const st=s==='paid'?`<span class="statuspill p-ok">✅ Fizetve${x.paidAt?' '+fmtMD(x.paidAt):''}</span>`:s==='part'?`<span class="info-txt">Részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">⚠ Lejárt ${fmtMD(x.due)}</span>`:`<span class="bad-txt">Fizetésre vár${x.due?' · '+fmtMD(x.due):''}</span>`;
   return `<div class="bl-doc"><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${label?`<span class="muted">${label}</span> `:''}${esc(x.no)}</button><span class="bl-sub">${ftFmt(num(x.invGross))} · ${st}</span>${invShared(x)?`<span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 közös számla · ${invPids(x).length} projekt</span>`:''}</div>`;}
 const billAddBtn=(pid,type,label,strong)=>`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}" data-type="${type}">+ ${label}</button>`;
-function billRow(i){const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extrasSum(p),C=billCells(p,i);
+function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extrasSum(p),C=billCells(p,i,o);
+  const sp=n=>n>1?` rowspan="${n}"`:'';
   return `<tr${i.closed?' class="bl-closed"':''}><td class="n">${r?esc(String(Number(r.start.slice(8)))):''}</td><td><button class="linkbtn bl-name" type="button" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>
       <div class="bl-meta">${esc(p.client||'—')}</div><div class="bl-val">${val?ftFmt(val)+' <span class="muted">nettó</span>'+(extrasOf(p).length?`<div class="bl-meta">${exBreak(p)}</div>`:''):isFree(p)?'<span class="muted">🎁 nem fizetős</span>':'<span class="muted">nincs érték megadva</span>'}</div>
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
-    <td class="bt-cell">${C.contract}</td><td class="bt-cell">${C.adv}</td><td class="bt-cell">${C.tig}</td><td class="bt-cell">${C.fin}</td></tr>`;}
+    <td class="bt-cell">${C.contract}</td><td class="bt-cell">${C.adv}</td>${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
+/* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
+function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
+  arr.forEach(i=>{const k=n(i.p.client)||('#'+i.p.id);if(!by[k]){by[k]=[];order.push(k);}by[k].push(i);});
+  const out=[];order.forEach(k=>{const g=by[k];
+    const key=i=>{if(i.free)return '';const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();if(tg)return 'tig:'+tg.id;
+      const b=i.b,need=b.tigMode==='kell'||(b.tigMode!=='nemkell'&&tigList().some(t=>n(t.client)===n(i.p.client)));return need&&g.length>1?'cm':'';};
+    const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':'none';};
+    let j=0;while(j<g.length){const k0=key(g[j]);let e=j+1;if(k0)while(e<g.length&&key(g[e])===k0)e++;
+      const run=g.slice(j,e),finSame=run.length>1&&run.every(i=>fk(i)&&fk(i)===fk(run[0]));
+      run.forEach((i,x)=>out.push({i,o:{tigSpan:run.length===1?1:x?0:run.length,finSpan:!finSame?1:x?0:run.length,group:finSame?run:null}}));j=e;}});
+  return out.map(r=>billRow(r.i,r.o)).join('');}
 /* A táblázat cellái lépésenként: Szerződés (elküldve, aláírva), TIG (elküldve, jóváhagyva), Díjbekérő (elküldve, fizetve), Végszámla (elküldve, fizetve) */
 const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l${/^\d{2}\.\d{2}\.$/.test(String(extra||''))?' inl':''}"><span>${label}</span>${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
 function bsInv(x){if(!x)return '';const s=invState(x);return `<button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}">${esc(x.no)}</button> · ${ftFmt(num(x.invGross))}${x.manual?` <span class="muted" title="Kézzel rögzített bizonylat – a kifizetést kézzel kell jelölni">✍️ ${x.issuer==='kft'?'Kft.':'E.V.'}</span>`:''}${invShared(x)?` <span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 ${invPids(x).length} projekt</span>`:''}`;}
@@ -58,7 +70,8 @@ const bsSent=(label,x)=>bsStep(true,label+' elküldve',`${x.date?fmtMD(x.date)+'
 const bsPaidStep=x=>{const ok=invPaidOk(x),st=invState(x),d=x.paidAt||x.date;
   if(!ok)return bsStep(false,`${st==='part'?`Részben kifizetve <span class="bs-in">${ftFmt(num(x.invPaid))}</span>`:`Nincs kifizetve${x.due?` <span class="bs-in${st==='late'?' late':''}">· ${st==='late'?'lejárt':'határidő'} ${fmtMD(x.due)}</span>`:''}`}<button class="bs-pay" type="button" data-action="sz-mpaid" data-id="${esc(x.id)}" data-paid="1" title="Kifizetettnek jelölés (mai dátummal)">✓ Kifizetve</button>`,'',`data-action="sz-mpaid" data-id="${esc(x.id)}" data-paid="1"`);
   return bsStep(ok,ok?`Kifizetve${d?` <span class="bs-in">${fmtMD(d)}</span>`:''}`:st==='part'?`Részben kifizetve <span class="bs-in">${ftFmt(num(x.invPaid))}</span>`:`Nincs kifizetve${x.due?` <span class="bs-in${st==='late'?' late':''}">· ${st==='late'?'lejárt':'határidő'} ${fmtMD(x.due)}</span>`:''}`);};
-function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.projectValue),tot=projTotal(p),ex=extrasSum(p);
+function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val=num(p.projectValue),tot=projTotal(p),ex=extrasSum(p);
+  const monthOver=!!pr(p)&&pr(p).start.slice(0,7)<todayISO().slice(0,7);   // a projekt hónapja letelt
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'–':''}</button>`;
   const box=(k,title,body,skip,lock,tip)=>`<div class="pb-box bs-box${skip?' skip':''}"><div class="pb-t">${title}</div>${skip?'<span class="statuspill p-mute">Nem kell</span>':body}${k?tick(k,skip,lock,tip):''}</div>`;
   const freeBox=t=>`<div class="pb-box bs-box skip"><div class="pb-t">${t}</div><span class="statuspill p-mute">🎁 Nem fizetős</span></div>`;
@@ -80,9 +93,9 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
     !dx?billAddBtn(p.id,'dijbekero','Díjbekérő kiállítása',!i.closed&&i.steps[i.nextI]&&i.steps[i.nextI][0]==='advIssued')
       :`${bsSent(i.db?'Díjbekérő':'Foglalószámla',i.db||i.el)}${bsPaidStep(i.el&&invPaidOk(i.el)?i.el:i.db||i.el)}${i.el&&i.db?`<div class="bs-x">Foglalószámla: <button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(i.el.id)}">${esc(i.el.no)}</button></div>`:''}${i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''}`,skipA,!!dx,'Nem kell díjbekérő?');
   // Végszámla
-  const finT=skipA?'Számla':'Végszámla',fx=i.fin;
+  const finT=skipA?'Számla':'Végszámla',fx=i.fin,grp=o.group&&o.group.length>1?o.group:null;
   // végszámla = végső érték (szerződött + extrák) − a ténylegesen kiszámlázott foglaló (ennek hiányában a foglaló %-a a szerződött összegből)
-  const advNet=i.el?num(i.el.invNet):i.db?num(i.db.invNet):0,finDue=skipA?tot:Math.max(0,tot-(dx?advNet:Math.round(val*num(b.advancePct)/100)));
+  const advNet=i.el?num(i.el.invNet):i.db?num(i.db.invNet):0,finDue=grp?grp.reduce((s,x)=>s+projTotal(x.p),0):skipA?tot:Math.max(0,tot-(dx?advNet:Math.round(val*num(b.advancePct)/100)));
   const finCalc=!skipA&&!fx&&tot&&(ex||dx)?`<div class="bs-x">${extrasOf(p).length?exBreak(p).replace('szerződött ',''):ftFmt(tot)} − foglaló ${ftFmt(dx?advNet:Math.round(val*num(b.advancePct)/100))}</div>`:'';
   const fin=i.full&&!fx?`<div class="pb-box bs-box skip"><div class="pb-t">Végszámla</div><span class="statuspill p-mute">Nem kell – 100% foglaló</span></div>`
     :box('fin',`${finT}${tot&&!i.noFin?` <span class="muted">· ${ftFmt(finDue)}</span>`:''}`,
@@ -90,7 +103,9 @@ function billCells(p,i){i=i||billInfo(p);const b=i.b,pid=esc(p.id),val=num(p.pro
   const late=(h,x)=>x&&invState(x)==='late'?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // lejárt, kifizetetlen bizonylat: piros kártya
   const paid=(h,ok)=>ok?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-paid'):h;   // kifizetve: szürke kártya (a linkek kattinthatók maradnak)
   const cDone=!!i.fw||signed;   // aláírt szerződés / keretszerződés: szürke kártya
-  return {contract:paid(contract,cDone),tig,adv:paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:paid(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk))};}
+  const red=(h,on)=>on?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // letelt a hónap, és még nincs kész: piros kártya
+  const tigOver=monthOver&&tigNeed&&!appr,finOver=monthOver&&!fx&&!i.noFin&&!i.full&&!i.free&&tot>0;
+  return {contract:paid(contract,cDone),tig:red(tig,tigOver),adv:paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(paid(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
 ACT['bl-cstep']=async btn=>{const pid=btn.dataset.id,st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
   const prev=Object.assign({},b),patch={contractStatus:st};if(st==='alairva'&&!b.signedAt)patch.signedAt=todayISO();if(st!=='alairva')patch.signedAt='';Object.assign(b,patch);render(true);
   try{const d=await call('billSave',Object.assign({projectId:pid},patch));if(d&&d.billing)S.fin.billing=d.billing;render(true);}catch(e){Object.assign(b,prev);render(true);handleErr(e);}};
@@ -121,9 +136,9 @@ function viewBilling(){
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt (${sets.lejart.length} projekt)</div></button>
     </div>
     <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
-      <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}<span class="c">${sets[v].length}</span></button>`;return v==='honap'?`<span class="chip-nav"><button class="chip chip-arr" type="button" data-action="blf-m" data-d="-1" aria-label="Előző hónap">‹</button>${c}<button class="chip chip-arr" type="button" data-action="blf-m" data-d="1" aria-label="Következő hónap">›</button></span>`:c;}).join('')}</div></div>
+      <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}${v==='honap'?'':`<span class="c">${sets[v].length}</span>`}</button>`;return v==='honap'?`<span class="chip-nav"><button class="chip chip-arr" type="button" data-action="blf-m" data-d="-1" aria-label="Előző hónap">‹</button>${c}<button class="chip chip-arr" type="button" data-action="blf-m" data-d="1" aria-label="Következő hónap">›</button></span>`:c;}).join('')}</div></div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th>Szerződés</th><th>Díjbekérő</th><th>TIG</th><th>Végszámla</th></tr></thead>
-      <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${g.arr.map(billRow).join('')}`).join('')}</tbody></table></div>
+      <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${billMonthRows(g.arr)}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
       :`<div class="panel">${empty(all.length?'Nincs a szűrésnek megfelelő projekt.':'Még nincs dátummal rendelkező projekt.')}</div>`}
     `;
