@@ -2773,22 +2773,23 @@ function navSync_(u, a) {
   const cfg = navConfig_();
   if (!cfg.ok) throw new Error('A NAV-kapcsolat nincs beállítva: add meg a NAV_LOGIN, NAV_PASSWORD és NAV_SIGN_KEY szkripttulajdonságot (Projektbeállítások → Szkripttulajdonságok).');
   const today = today_(), sent = readAll_('paySent'), crew = byId_(readAll_('crew')), status = readAll_('payStatus');
-  const want = str_(a && a.month, 7), months = {};
-  sent.forEach(x => { const m = String(x.month); if (!/^\d{4}-\d{2}$/.test(m)) return; if (want ? m === want : m >= addMonths_(today.slice(0, 7), -3)) (months[m] = months[m] || []).push(x); });
-  const used = {}; status.forEach(s => { if (s.invoiceNo) String(s.invoiceNo).split(/\s*,\s*/).forEach(no => { used[no + '|' + String(s.invoiceTax || '')] = 1; }); });
+  const want = str_(a && a.month, 7), one = str_(a && a.crewId, 64), months = {};   // one: egy munkatárs külön lekérdezése (újrapárosítás)
+  sent.forEach(x => { const m = String(x.month); if (!/^\d{4}-\d{2}$/.test(m) || (one && x.crewId !== one)) return; if (want ? m === want : m >= addMonths_(today.slice(0, 7), -3)) (months[m] = months[m] || []).push(x); });
+  if (one && want && !months[want]) throw new Error('Ehhez a munkatárshoz ebben a hónapban még nem ment ki díjösszesítő – előbb küldd ki, utána párosítható a számla.');
+  const used = {}; status.forEach(s => { if (one && s.id === want + '|' + one) return; if (s.invoiceNo) String(s.invoiceNo).split(/\s*,\s*/).forEach(no => { used[no + '|' + String(s.invoiceTax || '')] = 1; }); });
   const found = [], missingTax = [];
   Object.keys(months).sort().forEach(m => {
     const from = m + '-01', endTry = addMonths_(m, 3) + '-01', to = endTry < today ? endTry : today;
     const inv = navInbound_(cfg, from, to).filter(x => x.operation !== 'STORNO' && x.operation !== 'MODIFY');
     months[m].forEach(x => {
       const c = crew[x.crewId]; if (!c || isEmployee_(c)) return;   // alkalmazott: nem számláz
-      const st = status.find(s => s.id === m + '|' + x.crewId) || {}; if (st.invoiceNo) return;   // már párosítva
+      const st = status.find(s => s.id === m + '|' + x.crewId) || {}; if (st.invoiceNo && !one) return;   // már párosítva (egyéni lekérdezésnél újrapárosít)
       const tax8 = String(c.tax || '').replace(/\D/g, '').slice(0, 8); if (tax8.length !== 8) { missingTax.push(c.name); return; }
       // a teljesítés dátuma szerinti hónap (projektenként, a hónap közben kiállított számlák is); ha a NAV nem adja meg, a díjösszesítő utáni kiállítás
       const cand = inv.filter(i => String(i.supplierTax).slice(0, 8) === tax8 && !used[i.number + '|' + tax8] && (i.deliveryDate ? String(i.deliveryDate).slice(0, 7) === m : i.issueDate >= String(x.sentAt || from).slice(0, 10) && i.issueDate >= from))
         .sort((p, q) => p.issueDate.localeCompare(q.issueDate));
       if (!cand.length) return;
-      const exp = Math.round(Number(x.amount) || 0), one = cand.find(i => i.net === exp), pick = one ? [one] : cand;   // több számla (pl. projektenként): együtt
+      const exp = Math.round(Number(x.amount) || 0), exact = cand.find(i => i.net === exp), pick = exact ? [exact] : cand;   // több számla (pl. projektenként): együtt
       const net = pick.reduce((s, i) => s + i.net, 0), nos = pick.map(i => i.number).join(', ').slice(0, 300), ok = net === exp;
       pick.forEach(i => { used[i.number + '|' + tax8] = 1; });
       payStatusApply_(u, m, c, { invoicedAt: pick[pick.length - 1].issueDate, invoicedBy: 'NAV', invoiceNo: nos, invoiceNet: net, invoiceTax: tax8, invoiceMatch: ok ? 'ok' : 'diff' });

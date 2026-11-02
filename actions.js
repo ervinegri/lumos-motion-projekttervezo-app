@@ -1030,8 +1030,10 @@ const ACT={
       {submitLabel:'Mentés',submit:async fd=>{const a=moneyVal(fd.get('adjAmt'))||0,amount=fd.get('sign')==='-'?-a:a,note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});},
   'pay-mail':b=>payMailModal(b.dataset.month),
-  'nav-sync':async b=>{b.disabled=true;const t0=b.textContent;b.textContent='⏳ NAV lekérdezés…';
-    try{const r=await call('navSync',{month:b.dataset.month});S.payStatus=r.payStatus||S.payStatus;render(true);
+  'nav-sync':async b=>{b.disabled=true;const t0=b.textContent;b.textContent=b.dataset.cid?'⏳':'⏳ NAV lekérdezés…';
+    try{const one=b.dataset.cid||'',r=await call('navSync',{month:b.dataset.month,crewId:one||undefined});S.payStatus=r.payStatus||S.payStatus;render(true);
+      if(one){const nm=(crewById(one)||{}).name||'';const f=r.found[0];
+        toast(r.missingTax&&r.missingTax.length?`${nm}: hiányzik az adószám (Munkatársak → szerkesztés).`:f?`${nm}: ${f.number} · nettó ${ftFmt(f.net)}${f.match?' – egyezik':' – ⚠️ eltér a díjösszesítőtől ('+ftFmt(f.expected)+')'}`:`${nm}: a NAV-ban nincs ehhez a hónaphoz tartozó számlája.`,!f);return;}
       const msg=r.found.length?`NAV: ${r.found.length} számla párosítva – ${r.found.map(x=>x.name+(x.match?'':' (⚠️ eltérő összeg)')).join(', ')}`:'NAV: nincs új, párosítható számla.';
       toast(msg+(r.missingTax&&r.missingTax.length?` · Adószám hiányzik: ${r.missingTax.join(', ')}`:''),!!(r.missingTax&&r.missingTax.length));}
     catch(e){handleErr(e);b.disabled=false;b.textContent=t0;}},
