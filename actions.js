@@ -390,7 +390,7 @@ function crewModal(c){
     <div class="field full"><span class="lbl">Szerepek</span><div class="rolepick">${CREW_ROLES.map(r=>`<label><input type="checkbox" name="roles" value="${esc(r)}"${roles.has(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
     <div class="field full"><span class="lbl">Részletek</span><div class="rolepick">${CREW_SKILLS.map(r=>`<label><input type="checkbox" name="skills" value="${esc(r)}"${(v.skills||[]).includes(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
     ${ms('priority','Prioritás',[['1','1 – elsődleges'],['2','2 – másodlagos'],['3','3 – tartalék']],v.priority!=null?String(v.priority):'',{empty:'Nincs megadva'})}
-    ${ms('type','Jogviszony',CREW_TYPES,v.type||'Belsős')}
+    ${ms('type','Jogviszony',CREW_TYPES,isEmployee(v)?CREW_TYPES[3]:v.type||'Belsős')}
     ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
     ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
     ${mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'})}

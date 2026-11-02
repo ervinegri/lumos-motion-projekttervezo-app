@@ -31,8 +31,8 @@ const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az 
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Podcast','Egyéb'];
 const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Ajánlói jutalék'];
-const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Alkalmazott (munkaviszony)'];
-const isEmployee=c=>/^Alkalmazott/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
+const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
+const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
 const PRIO_LABEL={1:'Elsődleges',2:'Másodlagos',3:'Tartalék'};
 const INV_CATS=['Kamera','Objektív','Hang','Fény','Drón','Képkeverés / stream','GoPro / akciókamera','Gimbal / állvány','Akku / powerbank / táp','Adathordozó','Laptop / tablet / telefon','Kocsi / szállítás','Kábel','Egyéb'];

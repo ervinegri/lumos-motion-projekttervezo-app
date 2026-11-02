@@ -36,8 +36,8 @@ const SETUP_USERS = [
 const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva', 'lemondva'];
 const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Podcast', 'Egyéb'];
 const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó', 'Ajánlói jutalék'];
-const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer', 'Alkalmazott (munkaviszony)'];
-const isEmployee_ = c => /^Alkalmazott/.test(String(c && c.type || ''));   // bejelentett munkaviszony: munkabér, nincs számla / díjösszesítő
+const CREW_TYPES = ['Belsős', 'Állandó külsős', 'Alkalmi freelancer', 'Bérszámfejtett (munkaviszony / megbízás)'];
+const isEmployee_ = c => /^(Alkalmazott|Bérszámfejtett)/.test(String(c && c.type || ''));   // bejelentett munkaviszony: munkabér, nincs számla / díjösszesítő
 const CREW_SKILLS = ['Statív', 'Gimbal', 'Előadásvágás', 'Kreatív vágás', 'Werk', 'Saját kamera', 'Eszközbérlés'];
 const INV_CATS = ['Kamera', 'Objektív', 'Hang', 'Fény', 'Drón', 'Képkeverés / stream', 'GoPro / akciókamera', 'Gimbal / állvány', 'Akku / powerbank / táp', 'Adathordozó', 'Laptop / tablet / telefon', 'Kocsi / szállítás', 'Kábel', 'Egyéb'];
 const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
@@ -2345,7 +2345,7 @@ function saveCrew_(u, a) {
   const c = {
     id: id, name: str_(a.name, 100).replace(/\s+/g, ' '),
     roles: (Array.isArray(a.roles) ? a.roles : []).filter(r => CREW_ROLES.indexOf(r) >= 0),
-    type: CREW_TYPES.indexOf(a.type) >= 0 ? a.type : 'Belsős',
+    type: /^Alkalmazott/.test(String(a.type || '')) ? CREW_TYPES[3] : CREW_TYPES.indexOf(a.type) >= 0 ? a.type : 'Belsős',
     phone: str_(a.phone, 40), email: str_(a.email, 160).toLowerCase(),
     dayRate: (a.dayRate === '' || a.dayRate == null) ? null : int_(a.dayRate, 0, 1e8, null), note: str_(a.note, 500),
     priority: (a.priority === '' || a.priority == null) ? null : int_(a.priority, 1, 3, null), company: str_(a.company, 120),
@@ -2673,7 +2673,7 @@ function sendPayStatements_(u, a) {
   list.forEach(it => {
     try {
       const b = payStatementBuild_(u, it), to = String(b.c.email || '').trim();
-      if (isEmployee_(b.c)) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'alkalmazott – nem kap díjösszesítőt' }); return; }
+      if (isEmployee_(b.c)) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'bérszámfejtett – nem kap díjösszesítőt' }); return; }
       if (!to) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nincs e-mail-cím' }); return; }
       const opts = mailOptsFor_(u, b.html);
       if (!gmailSend_(to, b.subject, b.text, opts, 'payStatement')) { failed.push({ crewId: b.c.id, name: b.c.name, error: 'nem ment ki' }); return; }
