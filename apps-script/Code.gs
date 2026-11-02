@@ -1897,6 +1897,7 @@ function szStorno_(u, a) {
   if (!x) throw new Error('A számla nem található.');
   if (x.manual) throw new Error('Kézzel rögzített bizonylatot a kiállító programjában lehet sztornózni.');
   if (x.kind === 'dijbekero') throw new Error('A díjbekérő nem számla – nem kell sztornózni, elég törölni a hozzárendelést.');
+  if (Number(x.invPaid) > 0) throw new Error('Kifizetett számlát nem lehet sztornózni.');
   const set = szSettings_(), today = today_();
   const mails = mailOn_('invoice') ? String(a && a.email || '').split(/[,;]\s*/).map(x => x.trim().toLowerCase()).filter(x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)).join(',') : '';   // a sztornót a vevő e-mailben kapja (ha kéred)
   const xml = szXmlHead_('xmlszamlast', 'agentst')
