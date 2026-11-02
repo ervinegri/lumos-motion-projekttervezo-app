@@ -56,6 +56,7 @@ function incProj(r){const m=/^Az appból frissítve: (.+?)(?: \| |$)/.exec(r.not
   const ex=S.projects.find(p=>p.name===n&&pr(p)&&pr(p).start.slice(0,7)===r.month);if(ex)return ex;
   const lt=legTok(n),hit=lt.length?S.projects.filter(inM).filter(p=>legHit(legTok([p.name,p.client,p.venue].join(' ')),lt)):[];   // eltérő írásmód: ugyanaz a szóegyezés, ami a régi hónapokban a projektet a régi sorhoz köti
   if(hit.length===1)return hit[0];
+  if(hit.length>1){const sc=p=>{const pt=legTok([p.name,p.client,p.venue].join(' '));return lt.filter(x=>legHit([x],pt)).length;},v=hit.map(sc),mx=Math.max(...v);if(v.filter(x=>x===mx).length===1)return hit[v.indexOf(mx)];}   // több jelölt: amelyikkel több szó egyezik (pl. „Dalila”)
   const d=parseInt(r.day,10);if(!d||!hit.length)return null;const ds=r.month+'-'+String(d).padStart(2,'0');   // több azonos nevű (pl. Lurdy): a nap dönt
   const byDay=hit.filter(p=>{const x=pr(p);return x.start<=ds&&ds<=(x.end||x.start);});
   return byDay.length===1?byDay[0]:null;}
