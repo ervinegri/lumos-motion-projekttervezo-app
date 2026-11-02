@@ -51,6 +51,11 @@ function finIncomeFor(m){const st=finSet(),fin=S.fin||{},appFrom=st.appFromMonth
   const legR=fromApp?[]:(fin.income||[]).filter(r=>r.month===m&&r.legacy),legT=legR.map(r=>legTok(r.name));
   const proj=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&!isMktProj(p.id)&&(projTotal(p)||feeSum(p)||!isFree(p))&&(fromApp||!legT.some((l,k)=>!monthClash(legR[k].name,p.name)&&legHit(legTok([p.name,p.client,p.venue].join(' ')),l)))).map(finProjectRow);   // régi hónapban: az a projekt is, amely nincs a régi táblázatban
   const manual=(fin.income||[]).filter(r=>r.month===m&&(r.legacy?!fromApp:true)).map(r=>Object.assign({kind:'manual'},r,{amount:num(r.amount),prod:num(r.prod),profit:num(r.profit),ceo:num(r.ceo),marketing:num(r.marketing),rezsi:Number(r.rezsi)||0}));
+  // régi sor, amely egyetlen projekthez tartozik: a projekt aktuális adataival (név, összeg, felosztás) jelenik meg – a projektben javított ár itt is látszik
+  const lk=manual.map(r=>r.legacy?(incProj(r)||{}).id||'':''),cnt={};lk.forEach(id=>{if(id)cnt[id]=(cnt[id]||0)+1;});
+  const shown=new Set(proj.map(x=>x.id));
+  manual.forEach((r,k)=>{const id=lk[k];if(!id||cnt[id]!==1||shown.has(id))return;const p=projById(id);if(!p||p.status==='lemondva'||isMktProj(id))return;
+    manual[k]=Object.assign(finProjectRow(p),{payStatus:p.payStatus||r.payStatus||'',legacyId:r.id});shown.add(id);});
   const dayN=x=>parseInt(x.day,10)||99;
   return proj.concat(manual).sort((a,b)=>dayN(a)-dayN(b)||a.name.localeCompare(b.name,'hu'));}
 /* Régi / kézi bevételi sor projektje: az appból frissített sor megjegyzése vagy azonos nevű projekt ugyanabban a hónapban */
