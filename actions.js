@@ -1030,15 +1030,16 @@ const ACT={
   'link-add':b=>{const w=b.closest('.links-field');if(!w)return;const rows=w.querySelector('.link-rows');if(rows.querySelectorAll('input').length>=LINKS_MAX)return;
     rows.insertAdjacentHTML('beforeend',linkRowHtml(b.dataset.name,''));const ins=rows.querySelectorAll('input');ins[ins.length-1].focus();if(ins.length>=LINKS_MAX)b.hidden=true;},
   'link-del':b=>{const w=b.closest('.links-field');b.closest('.link-row').remove();if(w){const a=w.querySelector('.link-add');if(a)a.hidden=false;}},
-  'pay-adj':b=>{const cid=b.dataset.cid,m=b.dataset.month,c=crewById(cid),x=(S.payAdjust||[]).find(y=>y.crewId===cid&&String(y.month)===m),v=x?num(x.amount):0;
-    const noteOnly=(S.paySent||[]).some(y=>y.crewId===cid&&String(y.month)===m);   // kiküldött díjösszesítő után a termelési vezető csak a megjegyzést írhatja át
+  'pay-adj-row':b=>{S.adjNewRow=b.dataset.month;render(true);},
+  'pay-adj':b=>{const cid=b.dataset.cid,m=b.dataset.month,c=crewById(cid),x=b.dataset.id?(S.payAdjust||[]).find(y=>y.id===b.dataset.id):null,v=x?num(x.amount):0;
+    const noteOnly=!!x&&(S.paySent||[]).some(y=>y.crewId===cid&&String(y.month)===m);   // kiküldött díjösszesítő után a termelési vezető csak a megjegyzést írhatja át
     openModal('± Korrekció – '+(c?c.name:'')+' · '+F_YM.format(toDate(m+'-01')),`<p class="hint" style="margin:0 0 10px">Extra levonás vagy hozzáadás erre a hónapra.</p>
       <div class="fields"><div class="field"><label>Típus</label><div class="rolepick"><label><input type="radio" name="sign" value="-"${v<0?' checked':''}> − Levonás</label><label><input type="radio" name="sign" value="+"${v>=0?' checked':''}> + Hozzáadás</label></div></div>
       ${moneyField('adjAmt','Összeg (nettó)',v?Math.abs(v):'',{steps:false,ph:'pl. 20 000'})}
       <div class="field full"><label for="m-adjNote">Megjegyzés</label><input class="inp" id="m-adjNote" name="note" maxlength="300" value="${esc(x?x.note:'')}"></div>
       ${noteOnly?`<div class="field full"><p class="hint" style="margin:0">🔒 A díjösszesítő már kiment – ${isAdmin()?'az összeg már nem módosítható.':'az összeg módosítását jelezd az ügyvezetőnek.'}</p></div>`:x?'<div class="field full"><p class="hint" style="margin:0">Az összeg törléséhez írj 0-t.</p></div>':''}</div>`,
       {submitLabel:'Mentés',submit:async fd=>{const a=noteOnly?Math.abs(v):(moneyVal(fd.get('adjAmt'))||0),amount=noteOnly?v:(fd.get('sign')==='-'?-a:a),note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
-        try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});if(noteOnly)setTimeout(()=>{document.querySelectorAll('#mform [name=sign],#mform [name=adjAmt]').forEach(e=>{e.disabled=true;});},0);},
+        try{S.payAdjust=await call('savePayAdjust',{id:x?x.id:'',crewId:cid,month:m,amount,note});S.adjNewRow='';closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});if(noteOnly)setTimeout(()=>{document.querySelectorAll('#mform [name=sign],#mform [name=adjAmt]').forEach(e=>{e.disabled=true;});},0);},
   'pay-mail':b=>payMailModal(b.dataset.month,b.dataset.cid||''),
   'nav-sync':async b=>{b.disabled=true;const t0=b.textContent;b.textContent=b.dataset.cid?'⏳':'⏳ NAV lekérdezés…';
     try{const one=b.dataset.cid||'',r=await call('navSync',{month:b.dataset.month,crewId:one||undefined});S.payStatus=r.payStatus||S.payStatus;render(true);

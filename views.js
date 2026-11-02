@@ -271,9 +271,9 @@ function payStatementData(month,cid){
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
           by:x.decidedBy&&x.decidedBy!==x.by?`Javasolta: ${x.by}, ${stamp(x.at)} · Jóváhagyta: ${x.decidedBy}`:`Kirótta: ${x.by||''}${stamp(x.at)?', '+stamp(x.at):''}`});});});});
   const cr=crewById(cid),rent=OFFICE_RENT.filter(o=>cr&&o.name===cr.name).reduce((s,o)=>s+o.amount,0);
-  const aj=(S.payAdjust||[]).find(x=>x.crewId===cid&&String(x.month)===month&&num(x.amount));
-  const total=rows.reduce((s,r)=>s+r.fee-r.ded,0)+rent+(aj?num(aj.amount):0);
-  return {month,crewId:cid,rows,pens,rent,adj:aj?num(aj.amount):0,adjNote:aj?aj.note||'':'',adjBy:aj?[aj.updatedBy,stamp(aj.updatedAt)].filter(Boolean).join(', '):'',total,retained:Math.max(0,retainedBal(cid,month,false).bal)};}
+  const ajs=(S.payAdjust||[]).filter(x=>x.crewId===cid&&String(x.month)===month&&num(x.amount)),adj=ajs.reduce((s,x)=>s+num(x.amount),0);
+  const total=rows.reduce((s,r)=>s+r.fee-r.ded,0)+rent+adj;
+  return {month,crewId:cid,rows,pens,rent,adj,adjs:ajs.map(x=>({amount:num(x.amount),note:x.note||'',by:[x.updatedBy,stamp(x.updatedAt)].filter(Boolean).join(', ')})),total,retained:Math.max(0,retainedBal(cid,month,false).bal)};}
 function viewPayouts(){
   const crewMode=ro(),myId=crewMode?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
   const cur=todayISO().slice(0,7),by={},kept={};   // kept: díjcsökkentés miatt nem kerül kifizetésre (hónap → szakember)
@@ -286,13 +286,16 @@ function viewPayouts(){
   const sel=/^\d{4}-\d{2}$/.test(S.payMonth||'')?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>byStart(a.p,b.p));
   const rentOn=OFFICE_RENT.map(r=>({c:(S.crew||[]).find(x=>x.name===r.name),amount:r.amount})).filter(r=>r.c&&(!crewMode||r.c.id===myId)),rent=c=>rentOn.filter(r=>r.c.id===c).reduce((s,r)=>s+r.amount,0);   // fix havi irodabérlet
   const keptM=kept[sel]||{},keptTotal=Object.values(keptM).reduce((s,x)=>s+x,0);
-  const adjL=(S.payAdjust||[]).filter(x=>String(x.month)===sel&&num(x.amount)&&(!crewMode||x.crewId===myId)),adjOf=c=>adjL.find(x=>x.crewId===c),adj=c=>{const x=adjOf(c);return x?num(x.amount):0;},adjTotal=adjL.reduce((s,x)=>s+num(x.amount),0);   // havi korrekció (+/−)
+  const adjL=(S.payAdjust||[]).filter(x=>String(x.month)===sel&&num(x.amount)&&(!crewMode||x.crewId===myId)),adjsOf=c=>adjL.filter(x=>x.crewId===c),adj=c=>adjsOf(c).reduce((s,x)=>s+num(x.amount),0),adjTotal=adjL.reduce((s,x)=>s+num(x.amount),0);   // havi korrekció (+/−)
   const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c)+adj(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id),adjL.map(x=>x.crewId)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
   const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid)+adj(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal+adjTotal;
   const sgn=v=>(v>0?'+':v<0?'−':'')+moneyFmt(Math.abs(v));
-  const adjCell=c=>{const x=adjOf(c),v=x?num(x.amount):0,inner=v?`<span class="${v<0?'bad-txt':'ok-txt'}">${sgn(v)}</span>`:'<span class="muted">–</span>',tip=x?esc(`${x.note||''}${x.updatedBy?'\n– '+x.updatedBy+(x.updatedAt?', '+String(x.updatedAt).slice(0,10):''):''}`):'';
-    return (isAdmin()||S.me.role==='editor')&&!crewMode?`<td class="r"><button class="adj-btn" type="button" data-action="pay-adj" data-cid="${esc(c)}" data-month="${sel}"${tip?` data-tip="${tip}"`:' data-tip="Korrekció hozzáadása"'}>${inner}</button></td>`:`<td class="r"${tip?` data-tip="${tip}" tabindex="0"`:''}>${inner}</td>`;};
-  const adjRow=adjL.length||((isAdmin()||S.me.role==='editor')&&!crewMode&&cids.length)?`<tr class="pay-adj"><td>± Korrekció<br><span class="muted" style="font-weight:500">(levonás / hozzáadás)</span></td>${cids.map(adjCell).join('')}${crewMode?'':`<td class="r"><b>${adjTotal?sgn(adjTotal):'–'}</b></td>`}</tr>`:'';
+  const canAdj=(isAdmin()||S.me.role==='editor')&&!crewMode,sentTo=c=>(S.paySent||[]).some(y=>y.crewId===c&&String(y.month)===sel);
+  const adjCell=(c,k)=>{const x=adjsOf(c)[k],v=x?num(x.amount):0,inner=v?`<span class="${v<0?'bad-txt':'ok-txt'}">${sgn(v)}</span>`:'<span class="muted">–</span>',tip=x?esc(`${x.note||''}${x.updatedBy?'\n– '+x.updatedBy+(x.updatedAt?', '+String(x.updatedAt).slice(0,10):''):''}`):'';
+    return canAdj&&(x||!sentTo(c))?`<td class="r"><button class="adj-btn" type="button" data-action="pay-adj" data-cid="${esc(c)}" data-month="${sel}" data-id="${x?esc(x.id):''}"${tip?` data-tip="${tip}"`:' data-tip="Korrekció hozzáadása"'}>${inner}</button></td>`:`<td class="r"${tip?` data-tip="${tip}" tabindex="0"`:''}>${inner}</td>`;};
+  const adjN=Math.max(0,...cids.map(c=>adjsOf(c).length)),adjRowsN=adjN+(canAdj&&cids.length&&(!adjN||(S.adjNewRow===sel))?1:0);
+  const adjRow=Array.from({length:adjRowsN},(_,k)=>{const rs=cids.reduce((s,c)=>{const x=adjsOf(c)[k];return s+(x?num(x.amount):0);},0);
+    return `<tr class="pay-adj"><td>± Korrekció <span class="muted" style="font-weight:500">(levonás / hozzáadás)</span>${canAdj&&k===adjRowsN-1&&adjN&&S.adjNewRow!==sel?` <button type="button" class="adj-new" data-action="pay-adj-row" data-month="${sel}" data-tip="Új korrekciós sor">＋ új sor</button>`:''}</td>${cids.map(c=>adjCell(c,k)).join('')}${crewMode?'':`<td class="r"><b>${rs?sgn(rs):'–'}</b></td>`}</tr>`;}).join('');
   const keptRow=keptTotal?`<tr class="pay-left"><td>🚨 Nem kerül kifizetésre</td>${cids.map(c=>`<td class="r">${keptM[c]?moneyFmt(keptM[c]):'<span class="muted">–</span>'}</td>`).join('')}${crewMode?'':'<td></td>'}</tr>`:'';   // az összesen oszlopba nem kerül
   const stOf=c=>(S.payStatus||[]).find(x=>x.crewId===c&&String(x.month)===sel)||{},sentOf=c=>(S.paySent||[]).find(x=>x.crewId===c&&String(x.month)===sel);
   const dshort=d=>/^\d{4}-\d{2}-\d{2}/.test(String(d||''))?fmtShort(String(d).slice(0,10)):'';

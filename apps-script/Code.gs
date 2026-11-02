@@ -2635,7 +2635,7 @@ function payStatementBuild_(u, a) {
   const num = v => Math.round(Number(v) || 0);
   const rows = (Array.isArray(a.rows) ? a.rows : []).slice(0, 80).map(r => ({ date: str_(r.date, 40), name: str_(r.name, 160), roles: str_(r.roles, 200), fee: num(r.fee), ded: Math.abs(num(r.ded)) }));
   const pens = (Array.isArray(a.pens) ? a.pens : []).slice(0, 60).map(x => ({ project: str_(x.project, 160), amount: Math.abs(num(x.amount)), kind: str_(x.kind, 120), ref: str_(x.ref, 20), pct: num(x.pct), day: str_(x.day, 120), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), by: str_(x.by, 200) }));
-  const rent = Math.max(0, num(a.rent)), adj = num(a.adj), adjNote = str_(a.adjNote, 300), adjBy = str_(a.adjBy, 200), retained = Math.max(0, Math.round(num(a.retained)));   // korábbi hónapokból bennhagyott (még ki nem számlázott) összeg
+  const rent = Math.max(0, num(a.rent)), adjs = (Array.isArray(a.adjs) ? a.adjs : num(a.adj) ? [{ amount: a.adj, note: a.adjNote, by: a.adjBy }] : []).slice(0, 30).map(x => ({ amount: num(x.amount), note: str_(x.note, 300), by: str_(x.by, 200) })).filter(x => x.amount), adj = adjs.reduce((s, x) => s + x.amount, 0), retained = Math.max(0, Math.round(num(a.retained)));   // korábbi hónapokból bennhagyott (még ki nem számlázott) összeg
   const feeSum = rows.reduce((s, r) => s + r.fee, 0), dedSum = rows.reduce((s, r) => s + r.ded, 0), gross = feeSum + rent, total = gross - dedSum + adj;
   const vat = c.vat === 'afa', first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || c.name, e = escapeHtml_;
   const pm = (v, sg) => payMoney_(v, sg) + (vat ? '\u00a0+\u00a0ÁFA' : '');   // áfakörösnél minden összeg után „+ ÁFA”
@@ -2650,27 +2650,27 @@ function payStatementBuild_(u, a) {
     + (rent ? '<tr><td style="padding:5px 16px 3px 0;border-top:1px solid #dddddd"><b>Díjak összesen</b></td><td style="padding-top:5px;border-top:1px solid #dddddd;text-align:right;white-space:nowrap"><b>' + pm(gross) + '</b></td></tr>' : '');   // a Díjak összesen csak akkor kell, ha több bevételi sor van (pl. irodabérlet)
   if (dedSum || adj) summ += gap + (dedSum ? sr('Díjcsökkentések (' + pens.length + ' tétel)', pm(-dedSum), RED) : '') + (adj ? sr('± Korrekció (levonás / hozzáadás)', pm(adj, true), adj < 0 ? RED : GRN) : '');
   summ += gap + '<tr><td style="padding:6px 16px 3px 0;border-top:2px solid #1d3a2e"><b>Kifizetendő összesen</b></td><td style="padding-top:6px;border-top:2px solid #1d3a2e;text-align:right;white-space:nowrap;font-size:16px"><b>' + pm(total) + '</b></td></tr></table>';
-  const FD = dedSum > 0 || adj < 0;   // levonás nélkül csak a Kifizetendő oszlop látszik
+  const FD = dedSum > 0 || adjs.some(x => x.amount < 0);   // levonás nélkül csak a Kifizetendő oszlop látszik
   let tr = rows.map(r => '<tr><td style="' + TD + ';white-space:nowrap">' + e(r.date) + '</td><td style="' + TD + '"><b>' + e(r.name) + '</b>' + (r.roles ? '<br><span style="color:#667788;font-size:12px">' + e(r.roles) + '</span>' : '') + '</td>' + (FD ? '<td style="' + NUM + '">' + pm(r.fee) + '</td><td style="' + NUM + ';color:' + (r.ded ? RED : '#999999') + '">' + (r.ded ? pm(-r.ded) : '–') + '</td>' : '') + '<td style="' + NUM + '"><b>' + pm(r.fee - r.ded) + '</b></td></tr>').join('');
   if (rent) tr += '<tr><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>🏢 Irodabérleti és termelési vezetői díj</b></td>' + (FD ? '<td style="' + NUM + '">' + pm(rent) + '</td><td style="' + NUM + ';color:#999999">–</td>' : '') + '<td style="' + NUM + '"><b>' + pm(rent) + '</b></td></tr>';
-  if (adj) tr += '<tr style="background:#f4f6ff"><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>± Korrekció</b> (' + (adj < 0 ? 'levonás' : 'hozzáadás') + ')' + (adjNote ? '<br><span style="color:#667788;font-size:12px">' + e(adjNote) + '</span>' : '') + '</td>'
-    + (!FD ? '' : adj > 0 ? '<td style="' + NUM + '">' + pm(adj) + '</td><td style="' + NUM + ';color:#999999">–</td>' : '<td style="' + NUM + ';color:#999999">–</td><td style="' + NUM + ';color:' + RED + '">' + pm(adj) + '</td>')
-    + '<td style="' + NUM + '"><b>' + pm(adj, true) + '</b></td></tr>';   // levonás a Levonás oszlopba, hozzáadás a Díj oszlopba
-  const tFee = gross + Math.max(0, adj), tDed = dedSum + Math.max(0, -adj);
+  adjs.forEach(x => { const v = x.amount; tr += '<tr style="background:#f4f6ff"><td style="' + TD + '">' + HU_MONTHS_[m - 1] + '</td><td style="' + TD + '"><b>± Korrekció</b> (' + (v < 0 ? 'levonás' : 'hozzáadás') + ')' + (x.note ? '<br><span style="color:#667788;font-size:12px">' + e(x.note) + '</span>' : '') + '</td>'
+    + (!FD ? '' : v > 0 ? '<td style="' + NUM + '">' + pm(v) + '</td><td style="' + NUM + ';color:#999999">–</td>' : '<td style="' + NUM + ';color:#999999">–</td><td style="' + NUM + ';color:' + RED + '">' + pm(v) + '</td>')
+    + '<td style="' + NUM + '"><b>' + pm(v, true) + '</b></td></tr>'; });   // levonás a Levonás oszlopba, hozzáadás a Díj oszlopba
+  const tFee = gross + adjs.reduce((s, x) => s + Math.max(0, x.amount), 0), tDed = dedSum + adjs.reduce((s, x) => s + Math.max(0, -x.amount), 0);
   tr += '<tr style="background:#e8f2ec"><td style="' + TD + '"></td><td style="' + TD + '"><b>Összesen</b></td>' + (FD ? '<td style="' + NUM + '"><b>' + pm(tFee) + '</b></td><td style="' + NUM + ';color:' + RED + '"><b>' + (tDed ? pm(-tDed) : '–') + '</b></td>' : '') + '<td style="' + NUM + '"><b>' + pm(total) + '</b></td></tr>';
   const table = '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px;font-family:Arial,Helvetica,sans-serif"><tr><th style="' + TH + '">Dátum</th><th style="' + TH + '">Projekt</th>' + (FD ? '<th style="' + THR + '">Díj</th><th style="' + THR + '">Levonás</th>' : '') + '<th style="' + THR + '">Kifizetendő</th></tr>' + tr + '</table>';
   const li = (l, v) => '<tr><td style="padding:3px 10px 3px 0;color:#667788;font-size:13px;white-space:nowrap;vertical-align:top">' + l + '</td><td style="padding:3px 0;font-size:13px">' + v + '</td></tr>';
   const penHtml = pens.map((x, i) => '<div style="border:1px solid #f0d0c8;background:#fff8f6;border-radius:8px;padding:10px 12px;margin:0 0 10px"><div style="font-size:14px;margin-bottom:4px"><b>' + (i + 1) + '. ' + e(x.project) + '</b> <span style="color:' + RED + ';white-space:nowrap"><b>' + pm(-x.amount) + '</b></span></div><table cellpadding="0" cellspacing="0">'
     + li('Kategória', e(x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.ref ? ' (szerződés ' + x.ref + ' pont)' : ''))) + (x.day ? li('Érintett', e(x.day)) : '') + (x.caseText ? li('Eset', e(x.caseText)) : '')
     + li('Indoklás', e(x.reason).replace(/\n/g, '<br>')) + (x.by ? li('', '<span style="color:#667788">' + e(x.by) + '</span>') : '') + '</table></div>').join('');
-  const adjHtml = adj ? '<div style="border:1px solid #d6dcf5;background:#f6f8ff;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:13px"><div style="font-size:14px;margin-bottom:4px"><b>' + (adj < 0 ? 'Levonás' : 'Hozzáadás') + '</b> <span style="white-space:nowrap;color:' + (adj < 0 ? RED : GRN) + '"><b>' + pm(adj, true) + '</b></span></div>' + (adjNote ? 'Megjegyzés: ' + e(adjNote) + '<br>' : '') + (adjBy ? '<span style="color:#667788">Rögzítette: ' + e(adjBy) + '</span>' : '') + '</div>' : '';
+  const adjHtml = adjs.map(x => '<div style="border:1px solid #d6dcf5;background:#f6f8ff;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:13px"><div style="font-size:14px;margin-bottom:4px"><b>' + (x.amount < 0 ? 'Levonás' : 'Hozzáadás') + '</b> <span style="white-space:nowrap;color:' + (x.amount < 0 ? RED : GRN) + '"><b>' + pm(x.amount, true) + '</b></span></div>' + (x.note ? 'Megjegyzés: ' + e(x.note) + '<br>' : '') + (x.by ? '<span style="color:#667788">Rögzítette: ' + e(x.by) + '</span>' : '') + '</div>').join('');
   const inv = [['Vevő', '<b>' + PAY_COMPANY_.name + '</b>'], ['Adószám', PAY_COMPANY_.tax], ['Székhely', e(PAY_COMPANY_.seat)], ['Összeg', '<b>' + pm(total) + '</b>'],
     ['Számla megjegyzése', '„' + mLbl + ' – ' + PAY_COMPANY_.note + '”'], ['Teljesítés dátuma', '<b>' + y + '. ' + HU_MONTHS_[m - 1] + ' ' + new Date(Date.UTC(y, m, 0)).getUTCDate() + '.</b>'], ['Fizetési határidő', PAY_COMPANY_.payDays + ' nap'], ['Beküldési határidő', '<b>' + nextLbl(PAY_COMPANY_.invoiceDay) + '</b>'], ['Hová küldd', '<a href="mailto:' + PAY_COMPANY_.finance + '">' + PAY_COMPANY_.finance + '</a>']]
     .map(r => '<tr><td style="padding:3px 14px 3px 0;color:#667788;white-space:nowrap;vertical-align:top">' + r[0] + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>').join('');
   const sig = signatureFor_(u), url = appUrl_() || FRONTEND_URL;
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;max-width:680px;font-size:14px">'
     + '<p>Kedves ' + e(first) + ',</p><p>Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.</p>'
-    + H('ÖSSZESÍTÉS') + summ + H('PROJEKTEK') + table + (pens.length ? H('DÍJCSÖKKENTÉSEK RÉSZLETESEN') + penHtml : '') + (adj ? H('± KORREKCIÓ') + adjHtml : '')
+    + H('ÖSSZESÍTÉS') + summ + H('PROJEKTEK') + table + (pens.length ? H('DÍJCSÖKKENTÉSEK RÉSZLETESEN') + penHtml : '') + (adjs.length ? H('± KORREKCIÓ') + adjHtml : '')
     + H('SZÁMLÁZÁS') + '<table cellpadding="0" cellspacing="0" style="font-size:14px">' + inv + '</table>'
     + (retained ? '<p style="margin:12px 0 0;padding:10px 12px;background:#f3f8fc;border:1px solid #d3e3f0;border-radius:8px;font-size:13px">💼 <b>Bennhagyott egyenleged a korábbi hónapokból: ' + pm(retained) + '.</b> Ha szeretnéd, ezt is kiszámlázhatod – akár ezzel a számlával együtt, akár később.</p>' : '')
     + '<p style="margin-top:20px">A projektjeidet a projekttervező applikációban is megnézheted: <a href="' + url + '">' + e(String(url).replace(/^https:\/\//, '').replace(/\/$/, '')) + '</a></p>'
@@ -2678,7 +2678,7 @@ function payStatementBuild_(u, a) {
     + '<div style="margin-top:18px">' + (sig ? sig.html : MAIL_SIGNATURE_HTML) + '</div></div>';
   const L = ['Kedves ' + first + ',', '', 'Összeállítottuk a ' + mLbl + 'i díjösszesítődet. Kérlek, ennek alapján állítsd ki a számlát.', '', 'ÖSSZESÍTÉS',
     'Projektdíjak (' + rows.length + ' projekt): ' + pm(feeSum)].concat(rent ? ['Irodabérleti és termelési vezetői díj: ' + pm(rent, true)] : [], rent ? ['Díjak összesen: ' + pm(gross)] : [],
-    dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + pm(-dedSum)] : [], adj ? ['± Korrekció: ' + pm(adj, true) + (adjNote ? ' – ' + adjNote : '')] : [], ['Kifizetendő összesen: ' + pm(total), '', 'PROJEKTEK'],
+    dedSum ? ['Díjcsökkentések (' + pens.length + ' tétel): ' + pm(-dedSum)] : [], adjs.map(x => '± Korrekció: ' + pm(x.amount, true) + (x.note ? ' – ' + x.note : '')), ['Kifizetendő összesen: ' + pm(total), '', 'PROJEKTEK'],
     rows.map(r => r.date + ' · ' + r.name + (r.roles ? ' (' + r.roles + ')' : '') + ': ' + pm(r.fee) + (r.ded ? ' − ' + pm(r.ded) + ' = ' + pm(r.fee - r.ded) : '')),
     pens.length ? ['', 'DÍJCSÖKKENTÉSEK'] : [], pens.map((x, i) => (i + 1) + '. ' + x.project + ' – ' + pm(-x.amount) + '\n   ' + x.kind + (x.pct ? ', ' + x.pct + '%' : '') + (x.day ? '\n   Érintett: ' + x.day : '') + (x.caseText ? '\n   Eset: ' + x.caseText : '') + '\n   Indoklás: ' + x.reason + (x.by ? '\n   ' + x.by : '')),
     ['', 'SZÁMLÁZÁS', 'Vevő: ' + PAY_COMPANY_.name, 'Adószám: ' + PAY_COMPANY_.tax, 'Székhely: ' + PAY_COMPANY_.seat, 'Összeg: ' + pm(total), 'Számla megjegyzése: „' + mLbl + ' – ' + PAY_COMPANY_.note + '”', 'Teljesítés dátuma: ' + y + '. ' + HU_MONTHS_[m - 1] + ' ' + new Date(Date.UTC(y, m, 0)).getUTCDate() + '.',
@@ -2906,18 +2906,25 @@ function installNavTrigger_() {
 }
 
 /* Fizetési korrekció: havi extra levonás vagy hozzáadás szakemberenként (pl. valaki a saját keretéből kipótolja egy kolléga díját). 0 = törlés. */
-function savePayAdjust_(u, a) {
-  const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7);
+function savePayAdjust_(u, a) {   // havonta szakemberenként több korrekciós sor is lehet (id: crewId|hónap[|xxxx])
+  const crewId = str_(a && a.crewId, 64), month = str_(a && a.month, 7), reqId = str_(a && a.id, 100);
   if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
   const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
   const amount = Math.round(Number(String(a.amount == null ? '' : a.amount).replace(/[^\d-]/g, '')) || 0), note = str_(a.note, 300).trim();
-  if (readAll_('paySent').some(x => x.id === month + '|' + crewId)) { const old = readAll_('payAdjust').find(x => x.crewId === crewId && String(x.month) === month); if (Math.round(Number(old && old.amount) || 0) !== amount) throw new Error('A díjösszesítő már kiment – az összeg nem módosítható (a megjegyzés igen).'); }
+  const old = reqId ? readAll_('payAdjust').find(x => x.id === reqId && x.crewId === crewId && String(x.month) === month) : null;
+  if (reqId && !old) throw new Error('A korrekció nem található – frissítsd az oldalt.');
+  if (readAll_('paySent').some(x => x.id === month + '|' + crewId)) {
+    if (!old) throw new Error('A díjösszesítő már kiment – új korrekció erre a hónapra nem vehető fel.');
+    if (Math.round(Number(old.amount) || 0) !== amount) throw new Error('A díjösszesítő már kiment – az összeg nem módosítható, csak a megjegyzés.');
+  }
   if (Math.abs(amount) > FEE_MAX) throw new Error('Túl nagy összeg.');
   if (amount && note.length < 3) throw new Error('Írd be röviden, miért jár a korrekció.');
+  if (!old && !amount) return readAll_('payAdjust');
   return withLock_(() => {
-    const sh = sheetFor_('payAdjust'), id = crewId + '|' + month, row = findRow_(sh, id);
+    const sh = sheetFor_('payAdjust'), id = old ? old.id : crewId + '|' + month + '|' + Utilities.getUuid().slice(0, 8), row = old ? findRow_(sh, id) : 0;
     if (!amount) { if (row) sh.deleteRow(row); }
-    else putRow_('payAdjust', sh, { id: id, month: month, crewId: crewId, crewName: c.name, amount: amount, note: note, updatedAt: now_(), updatedBy: u.name }, row);
+    else putRow_('payAdjust', sh, { id: id, month: month, crewId: crewId, crewName: c.name, amount: amount, note: note, updatedAt: now_(), updatedBy: u.name }, row || null);
+    dbFlush_();
     logEvent_(u, 'Fizetési korrekció', c.name, month + ': ' + (amount ? (amount > 0 ? '+' : '') + amount + ' Ft · ' + note : 'törölve'));
     return readAll_('payAdjust');
   });
