@@ -782,17 +782,21 @@ async function crewFinalizeModal(){
   if(!validISO(p.date)){toast('Előbb add meg a projekt első napját.',true);return;}
   const roleOf=id=>(id===p.lead?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).join(', ');
   const diff=crewFinalDiff(p),first=crewFinalState(p)==='none';
+  const gearWarn=[...new Set((p.crew||[]).filter(a=>a.role==='Operatőr').map(a=>a.crewId))].map(id=>{const cats=(p.equipment||[]).filter(e=>(e.crewId||'')===id).map(e=>(itemById(e.itemId)||{}).category);
+      const miss=['Kamera','Objektív'].filter(c=>!cats.includes(c));if(!miss.length)return '';const own=rentalsOf(p,id).map(r=>r.name).filter(Boolean);
+      return `<li><b>${esc((crewById(id)||{}).name||'Operatőr')}</b>: nincs ${miss.map(m=>m==='Kamera'?'kamerája':'objektívje').join(' és ')} beosztva${own.length?` <span class="muted">(saját / bérelt: ${esc(own.join(', '))})</span>`:''}</li>`;}).filter(Boolean).join('');
+  const gearBox=gearWarn?`<div class="cf-gear"><b>⚠️ Az operatőrnek nincsenek eszközei</b><ul>${gearWarn}</ul><small>Élesítheted így is, de előtte érdemes hozzárendelni a kamerát és az objektívet.</small></div>`:'';
   const tag=id=>first?'':diff.added.includes(id)?' <span class="cf-tag new">új tag – értesítést kap</span>':diff.changed.includes(id)?' <span class="cf-tag chg">módosult – értesítést kap</span>':' <span class="cf-tag">nem kap újra értesítést</span>';
   const rows=ids.map(id=>{const c=crewById(id)||{},ok=EMAIL_RE.test(c.email||'');return `<li><b>${esc(c.name||'Munkatárs')}</b> <span class="muted">· ${esc(roleOf(id))}</span>${tag(id)}<br><small class="${ok?'muted':'warn-txt'}">${ok?esc(c.email):'nincs e-mail-címe – nem kap értesítést (a Stáb fülön pótolható)'}</small></li>`;}).join('')
     +diff.removed.map(id=>`<li><b>${esc((crewById(id)||{}).name||'Munkatárs')}</b> <span class="cf-tag">levéve – kikerül a naptárbejegyzésből</span></li>`).join('');
-  openModal('Biztosan élesíted a csapatot?',`<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p><ul class="cf-list">${rows}</ul>
+  openModal('Biztosan élesíted a csapatot?',`${gearBox}<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p><ul class="cf-list">${rows}</ul>
     ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async()=>{
     try{const r=await call('finalizeCrew',{projectId:p.id});closeModal();
       const saved=r.project,i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;
-      if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
+      if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.status=saved.status;S.draft.prevStatus=saved.prevStatus;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
       render(true);S.cal.events={};
       const warn=[].concat(r.failed&&r.failed.length?['nem ment ki: '+r.failed.join(', ')]:[],r.noEmail&&r.noEmail.length?['nincs e-mail-címe: '+r.noEmail.join(', ')]:[]);
-      toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length);
+      if(r.stepped)toast('Csapat véglegesítve – a projekt átkerült a Helyszíni munka szakaszba.');setTimeout(()=>toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length),r.stepped?2500:0);
     }catch(e){handleErr(e);}
   }});
 }
@@ -1031,7 +1035,7 @@ const ACT={
     openModal('± Korrekció – '+(c?c.name:'')+' · '+F_YM.format(toDate(m+'-01')),`<p class="hint" style="margin:0 0 10px">Extra levonás vagy hozzáadás erre a hónapra.</p>
       <div class="fields"><div class="field"><label>Típus</label><div class="rolepick"><label><input type="radio" name="sign" value="-"${v<0?' checked':''}> − Levonás</label><label><input type="radio" name="sign" value="+"${v>=0?' checked':''}> + Hozzáadás</label></div></div>
       ${moneyField('adjAmt','Összeg (nettó)',v?Math.abs(v):'',{steps:false,ph:'pl. 20 000'})}
-      <div class="field full"><label for="m-adjNote">Megjegyzés (a szakember is látja)</label><input class="inp" id="m-adjNote" name="note" maxlength="300" value="${esc(x?x.note:'')}" placeholder="pl. Major Bence díjának kipótlása a saját keretből"></div>
+      <div class="field full"><label for="m-adjNote">Megjegyzés</label><input class="inp" id="m-adjNote" name="note" maxlength="300" value="${esc(x?x.note:'')}"></div>
       ${noteOnly?`<div class="field full"><p class="hint" style="margin:0">🔒 A díjösszesítő már kiment – ${isAdmin()?'az összeg már nem módosítható.':'az összeg módosítását jelezd az ügyvezetőnek.'}</p></div>`:x?'<div class="field full"><p class="hint" style="margin:0">Az összeg törléséhez írj 0-t.</p></div>':''}</div>`,
       {submitLabel:'Mentés',submit:async fd=>{const a=noteOnly?Math.abs(v):(moneyVal(fd.get('adjAmt'))||0),amount=noteOnly?v:(fd.get('sign')==='-'?-a:a),note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{crewId:cid,month:m,amount,note});closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});if(noteOnly)setTimeout(()=>{document.querySelectorAll('#mform [name=sign],#mform [name=adjAmt]').forEach(e=>{e.disabled=true;});},0);},
@@ -1067,6 +1071,13 @@ const ACT={
       f.addEventListener('load',()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}});box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},
+  'eqdd':b=>{const wrap=b.parentElement,open=wrap.querySelector('.eqdd-pop');document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());if(open)return;
+    const sel=$(b.dataset.for);if(!sel)return;const id=esc(sel.id);
+    const it=o=>`<button type="button" class="eqdd-it" data-action="eqdd-pick" data-for="${id}" data-v="${esc(o.value)}"${o.disabled?' disabled':''}>${esc(o.textContent)}</button>`;
+    const html=[...sel.querySelectorAll('optgroup')].map(g=>{const os=[...g.querySelectorAll('option')];if(g.label.startsWith('➕'))return `<div class="eqdd-more">${os.map(it).join('')}</div>`;
+      const free=os.filter(o=>!o.disabled).length;return `<details class="eqdd-cat"><summary><span>${esc(g.label)}</span><small>${free}/${os.length} szabad</small></summary>${os.map(it).join('')}</details>`;}).join('');
+    const pop=document.createElement('div');pop.className='eqdd-pop';pop.innerHTML=html||'<p class="hint">Nincs eszköz a leltárban.</p>';wrap.appendChild(pop);},
+  'eqdd-pick':b=>{const sel=$(b.dataset.for);document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());if(!sel)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'mnav-pick':b=>{const sel=$(b.dataset.for);if(!sel||sel.value===b.dataset.m)return;sel.value=b.dataset.m;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'mnav':b=>{const sel=$(b.dataset.for);if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;sel.selectedIndex=i;sel.dispatchEvent(new Event('input',{bubbles:true}));if(sel.isConnected)sel.dispatchEvent(new Event('change',{bubbles:true}));},
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;S.payMonth=sel.options[i].value;render(true);},
@@ -1229,6 +1240,8 @@ const ACT={
     toast(q?'A NAV keresője új lapon nyílt meg, a cégnév a vágólapon van – illeszd be, majd másold vissza az adószámot.':'A NAV keresője új lapon nyílt meg – keresd meg a céget, és másold vissza az adószámot.');const t=$('m-clientTax');if(t)t.focus();},
   'client-edit':()=>editClientModal(),
 };
+document.addEventListener('click',e=>{if(!e.target.closest('.eqdd'))document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.eqdd-pop')){document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());e.stopPropagation();}},true);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const fn=ACT[b.dataset.action];if(fn)fn(b,e);});
 function fieldValue(t){
   const k=t.dataset.field;

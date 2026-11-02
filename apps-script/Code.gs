@@ -787,17 +787,19 @@ function finalizeCrew_(u, a) {
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id];
   const toNotify = valid.filter(m => isNewM(m) || isChanged(m));
   const link = calEventLink_(ev);
-  const sent = [], failed = [], changedNames = [];
+  const sent = [], failed = [], changedNames = []; let stepped = false;
   toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
   const saved = withLock_(() => {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
     q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sigs: sigs });
     if (p.calEventId && !q.calEventId) q.calEventId = p.calEventId;
+    if (!q.status || q.status === 'tervezes' || q.status === 'egyeztetes') { q.prevStatus = q.status || 'tervezes'; q.status = 'helyszin'; stepped = true; }   // véglegesített csapat → Helyszíni munka
+    q.updatedAt = now_(); q.updatedBy = u.name;
     putRow_('projects', sh, q, r2); dbFlush_();
     return q;
   });
-  logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : ''));
-  return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_() };
+  logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : '') + (stepped ? ' · Állapot: Tervezés → Helyszíni munka' : ''));
+  return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_(), stepped: stepped };
 }
 
 /* ===================== BEVÉTEL ÉS KIADÁS (ügyvezetői pénzügyek) ===================== */

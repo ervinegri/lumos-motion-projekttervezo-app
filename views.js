@@ -428,7 +428,8 @@ function eqRowsFor(p,key){
 }
 function eqAddRow(p,key,opts){
   if(ro())return '';
-  return `<div class="eqadd"><select class="inp" id="add-eq-item-${esc(key||'common')}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option>${opts}<optgroup label="➕ Más eszköz"><option value="__new">🆕 Új eszköz felvétele a leltárba…</option><option value="__own">🎒 Saját eszköz…</option><option value="__rent">🏷️ Bérelt eszköz…</option></optgroup></select></div>`;
+  const sid='add-eq-item-'+(key||'common');
+  return `<div class="eqadd eqdd"><button type="button" class="inp eqdd-btn" data-action="eqdd" data-for="${esc(sid)}" aria-haspopup="true">+ Eszköz hozzárendelése…</button><select class="inp" hidden id="${esc(sid)}" data-eq-auto="${esc(key)}" aria-label="Eszköz hozzáadása"><option value="">+ Eszköz hozzárendelése…</option>${opts}<optgroup label="➕ Más eszköz"><option value="__new">🆕 Új eszköz felvétele a leltárba…</option><option value="__own">🎒 Saját eszköz…</option><option value="__rent">🏷️ Bérelt eszköz…</option></optgroup></select></div>`;
 }
 /* ===== Pénzügyek: ügyvezető = projekt értéke + termelői díjak + fedezet; termelési vezető = csak termelői díjak; szakember = semmi.
    (A háttér is így szűr: a projekt értékét csak az ügyvezető, a díjakat a szakember egyáltalán nem kapja meg.) ===== */
