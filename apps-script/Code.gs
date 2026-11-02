@@ -3136,7 +3136,7 @@ function projectHistory_(u, a) {
   let more = false; L.forEach(x => { const m = /(?:Projekt neve|Név): (.+?) → /.exec(x.details); if (m && !names[m[1].trim()]) { names[m[1].trim()] = 1; more = true; } });   // korábbi név
   if (more) L = fetch();
   if (u.role !== 'admin') {   // a termelési vezető nem látja az árakat és a számlázást
-    const hideAct = /számláz|bevétel|keretszerződés|díjbekér/i, hideSeg = /^(Ajánlati ár|Extra szolgáltatások|Projekt értéke)/;
+    const hideAct = /számláz|bevétel|keretszerződés|díjbekér/i, hideSeg = /^(Ajánlati ár|Extra szolgáltatások|Projekt értéke|Termelői keret módja|Termelői keret \(% vagy Ft\)|Fizetési állapot)/;   // a % alapú keretből az ár visszaszámolható lenne
     L = L.filter(x => !hideAct.test(x.action)).map(x => {
       const sep = / → /.test(x.details) ? '; ' : ', ', parts = String(x.details || '').split(sep), keep = parts.filter(s => !hideSeg.test(s.trim()));
       return keep.length === parts.length ? x : Object.assign({}, x, { details: keep.join(sep), _cut: !keep.length });
