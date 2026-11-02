@@ -1581,7 +1581,7 @@ function szSettings_() {
   const due = Math.round(Number(s.dueDays));
   return { ipnToken: str_(s.ipnToken, 64), dueDays: isFinite(due) && due >= 0 && due <= 120 ? due : 8, vat: SZ_VATS.indexOf(String(s.vat)) >= 0 ? String(s.vat) : '27',
     unit: str_(s.unit, 20) || 'db', payMethod: SZ_PAYMETHODS.indexOf(s.payMethod) >= 0 ? s.payMethod : 'Átutalás',
-    eInvoice: s.eInv2 !== false,   /* alapból e-számla (2026-11-02: Ervin kérése) */ sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
+    eInvoice: true,   /* mindig e-számla (2026-11-02: Ervin kérése) */ sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
 }
 function szSettingsView_() { const s = szSettings_(); s.hasKey = !!szamlazzKey_(); return s; }
 function szStore_(s) { delete s.hasKey; PropertiesService.getScriptProperties().setProperty(SZ_SETTINGS_PROPERTY, JSON.stringify(s)); }
@@ -1710,7 +1710,8 @@ function szInvoice_(u, a) {
   if (!items.length) throw new Error('Adj meg legalább egy tételt.');
   const today = today_(), fulfill = iso_(a.fulfill) || today, due = iso_(a.due) || today;
   const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
-  const eInvoice = a.eInvoice === undefined ? set.eInvoice : !!a.eInvoice, sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
+  const eInvoice = true,   // mindig e-számla
+    sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'

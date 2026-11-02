@@ -403,14 +403,14 @@ function szInvoiceModal(kind,id,o={}){
     ${kind==='project'?szSharedPick(id,o.projectIds||[],!!o.tigId):''}
     ${mf('fulfill','Teljesítés dátuma',{type:'date',v:o.fulfill||t.fulfill})}<div class="field"><label for="m-due">Fizetési határidő</label><input class="inp" id="m-due" name="due" type="date" value="${esc(addDays(todayISO(),st.dueDays))}"><div class="due-chips">${[1,5,8,15,30].map(n=>`<button type="button" class="chip due-chip" data-action="sz-due" data-n="${n}" aria-pressed="${n===num(st.dueDays)}">${n} nap</button>`).join('')}</div></div>
     ${ms('payMethod','Fizetési mód',['Átutalás','Készpénz','Bankkártya'],st.payMethod)}
-    <div class="field"><span class="lbl">Küldés</span><div class="rolepick"><label><input type="checkbox" name="eInvoice"${st.eInvoice?' checked':''}> E-számla</label><label><input type="checkbox" name="sendEmail"${st.sendEmail?' checked':''}> E-mailben a vevőnek</label></div></div>
+    <div class="field"><span class="lbl">Küldés</span><div class="rolepick"><label><input type="checkbox" name="sendEmail"${st.sendEmail?' checked':''}> E-mailben a vevőnek</label></div></div>
     <div class="field full"><label for="m-comment">Megjegyzés a számlán</label><textarea class="inp" id="m-comment" name="comment" rows="2" maxlength="1000">${esc(st.comment||'')}</textarea></div>
   </div><div id="sz-prev"></div>`,{left:`<button type="button" class="btn outline small" data-action="sz-preview">👁 Előnézet</button><button type="button" class="btn outline small" data-action="sz-link" data-kind="${esc(kind)}" data-id="${esc(id)}">Meglévő számla hozzárendelése</button>`,submitLabel:'Tovább',submit:async fd=>{
     const items=szReadItems(),tot=szTotals();
     const k=fd.get('kind');
     const a={[kind==='project'?'projectId':'incomeId']:id,kind:k,dijbekeroNo:k==='eloleg'&&dbRow?dbRow.no:'',elolegNo:k==='vegszamla'&&elRow?elRow.no:'',paid:k==='eloleg',buyer:{name:String(fd.get('bName')||'').trim(),tax:String(fd.get('bTax')||'').trim(),email:fd.getAll('bEmail').map(x=>String(x||'').trim().toLowerCase()).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(','),
       zip:String(fd.get('bZip')||'').trim(),city:String(fd.get('bCity')||'').trim(),address:String(fd.get('bAddr')||'').trim()},items,fulfill:fd.get('fulfill'),due:fd.get('due'),payMethod:fd.get('payMethod'),
-      comment:String(fd.get('comment')||'').trim(),eInvoice:!!fd.get('eInvoice'),sendEmail:!!fd.get('sendEmail'),
+      comment:String(fd.get('comment')||'').trim(),eInvoice:true,sendEmail:!!fd.get('sendEmail'),
       projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[],tigId:o.tigId||''};
     if(a.buyer.name.length<2||!a.buyer.zip||!a.buyer.city||!a.buyer.address){toast('Add meg a vevő nevét és teljes címét.',true);return;}
     if(!items.length||items.some(it=>it.name.length<2||!it.qty)){toast('Minden tételnek legyen megnevezése és mennyisége.',true);return;}
@@ -549,10 +549,10 @@ function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?Str
     ${ms('vat','Alapértelmezett ÁFA',SZ_VATS,st.vat||'27')}
     ${mf('unit','Mennyiségi egység',{v:st.unit||'db',max:20})}
     ${ms('payMethod','Fizetési mód',['Átutalás','Készpénz','Bankkártya'],st.payMethod||'Átutalás')}
-    <div class="field full"><div class="rolepick"><label><input type="checkbox" name="eInvoice"${st.eInvoice===true?' checked':''}> E-számla</label><label><input type="checkbox" name="sendEmail"${st.sendEmail!==false?' checked':''}> E-mailben a vevőnek</label></div></div>
+    <div class="field full"><div class="rolepick"><label><input type="checkbox" name="sendEmail"${st.sendEmail!==false?' checked':''}> E-mailben a vevőnek</label></div></div>
     <div class="field full"><label for="m-comment">Alapértelmezett megjegyzés a számlán</label><textarea class="inp" id="m-comment" name="comment" rows="2" maxlength="500">${esc(st.comment||'')}</textarea></div>
   </div>`,{submitLabel:'Mentés',submit:async fd=>{
-    const d={agentKey:String(fd.get('agentKey')||'').trim(),dueDays:Number(fd.get('dueDays')),vat:fd.get('vat'),unit:String(fd.get('unit')||'').trim(),payMethod:fd.get('payMethod'),eInvoice:!!fd.get('eInvoice'),sendEmail:!!fd.get('sendEmail'),comment:String(fd.get('comment')||'').trim()};
+    const d={agentKey:String(fd.get('agentKey')||'').trim(),dueDays:Number(fd.get('dueDays')),vat:fd.get('vat'),unit:String(fd.get('unit')||'').trim(),payMethod:fd.get('payMethod'),eInvoice:true,sendEmail:!!fd.get('sendEmail'),comment:String(fd.get('comment')||'').trim()};
     const r=await finCall('szSettings',d,'Számlázási beállítások mentve');if(r){if(!ipn&&r.sz&&r.sz.ipnToken)szSettingsModal();else closeModal();}}});}
 async function szSync(silent,id){if(!szOn()||!S.fin.sz.hasKey||S._szSyncing)return;S._szSyncing=true;if(!silent)render(true);
   try{const d=await call('szSync',id?{id}:{});finApply(d);const c=(d.synced&&d.synced.changed)||[];
