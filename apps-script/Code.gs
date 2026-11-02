@@ -1236,9 +1236,10 @@ function diffProject_(a, b) {
   Object.keys(labels).forEach(k => {
     if (skip[k]) return;
     const x = a[k] == null ? '' : String(a[k]), y = b[k] == null ? '' : String(b[k]);
-    if (x !== y) changed.push(k === 'status' ? 'Állapot: ' + (STATUS_LABELS[a.status] || a.status) + ' → ' + (STATUS_LABELS[b.status] || b.status) : labels[k]);
+    const short = v => v.length <= 80 && !/^[\[{]/.test(v.trim());   // rövid értéknél a régi → új érték is (a projekt Részletek ablakához)
+    if (x !== y) changed.push(k === 'status' ? 'Állapot: ' + (STATUS_LABELS[a.status] || a.status) + ' → ' + (STATUS_LABELS[b.status] || b.status) : short(x) && short(y) ? labels[k] + ': ' + (x || '–') + ' → ' + (y || '–') : labels[k]);
   });
-  return changed.length ? changed.join(', ') : 'Beosztás módosítva';
+  return changed.length ? changed.join('; ') : 'Beosztás módosítva';
 }
 
 function deleteProject_(u, a) {
@@ -3120,6 +3121,23 @@ function logEvent_(u, action, subject, details) {
     rg.setValues([[now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '') : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 2000))]]);
   } catch (e) { Logger.log('Napló hiba: ' + e); }
 }
+/** Projekt részletei és története: létrehozás, utolsó módosítás, a naplóbejegyzések (átnevezés előtti néven is). */
+function projectHistory_(u, a) {
+  const id = str_(a && a.id, 64), p = readAll_('projects').find(x => x.id === id); if (!p) throw new Error('A projekt nem található.');
+  const names = {}; names[String(p.name || '').trim()] = 1;
+  const fetch = () => {
+    const ns = Object.keys(names).filter(Boolean);
+    if (dbOn_()) { const r = neonSql_([{ query: "SELECT at, who, role, action, subject, details FROM lpm_log WHERE btrim(ltrim(subject, '''')) IN (SELECT jsonb_array_elements_text($1::jsonb)) ORDER BY id DESC LIMIT 400", params: [JSON.stringify(ns)] }])[0];
+      return (r.rows || []).map(x => ({ at: x[0], who: x[1], role: x[2], action: x[3], subject: String(x[4]).replace(/^'/, ''), details: String(x[5]).replace(/^'/, '') })); }
+    const sh = logSheet_(), n = sh.getLastRow(); if (n < 2) return [];
+    return sh.getRange(2, 1, n - 1, LOG_HEADERS.length).getDisplayValues().reverse().map(r => ({ at: r[0], who: r[1], role: r[2], action: r[3], subject: String(r[4]).replace(/^'/, ''), details: String(r[5]).replace(/^'/, '') })).filter(x => names[x.subject.trim()]);
+  };
+  let L = fetch();
+  let more = false; L.forEach(x => { const m = /(?:Projekt neve|Név): (.+?) → /.exec(x.details); if (m && !names[m[1].trim()]) { names[m[1].trim()] = 1; more = true; } });   // korábbi név
+  if (more) L = fetch();
+  const created = L.slice().reverse().find(x => /létrehozva|felvéve/i.test(x.action));
+  return { id: p.id, name: p.name, createdAt: p.createdAt || (created ? created.at : ''), createdBy: created ? created.who : '', updatedAt: p.updatedAt || '', updatedBy: p.updatedBy || '', status: p.status, log: L.slice(0, 300) };
+}
 function getLog_() {
   if (dbOn_()) return dbGetLog_().map(x => Object.assign(x, { subject: String(x.subject).replace(/^'/, ''), details: String(x.details).replace(/^'/, '') }));
   const sh = logSheet_(), n = sh.getLastRow();
@@ -3578,6 +3596,7 @@ function rpcInner_(token, name, arg) {
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
+    case 'projectHistory': canEdit(); return projectHistory_(u, arg);
     case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), log: role === 'admin' ? getLog_().slice(0, 150) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {

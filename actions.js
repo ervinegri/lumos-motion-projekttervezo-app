@@ -1593,3 +1593,12 @@ ACT['dl-edit']=b=>{const p=projById(b.dataset.id)||S.draft;if(!p)return;
 ACT['nav-unpair']=b=>{const nm=(crewById(b.dataset.cid)||{}).name||'';
   confirmModal('Párosítás törlése',`A(z) ${b.dataset.nos} számla nem ${nm} ehavi számlája? A párosítás törlődik, a „Számlát kiállította” újra üres lesz. (A számla a NAV-ban és a számlázóban változatlan.)`,'Törlés',async()=>{
     try{S.payStatus=await call('setPayStatus',{month:b.dataset.month,crewId:b.dataset.cid,field:'invoiced',on:false});closeModal();render(true);toast(`${nm}: párosítás törölve`);}catch(e){handleErr(e);}});};
+
+/* Projekt részletei: létrehozás, módosítások, naplóbejegyzések */
+ACT['proj-history']=async b=>{const p=projById(b.dataset.id)||S.draft;if(!p)return;
+  openModal('ℹ️ Részletek – '+(p.name||''),'<div id="ph-body"><p class="hint">Betöltés…</p></div>',{cancelLabel:'Bezárás'});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');
+  try{const r=await call('projectHistory',{id:p.id});const box=$('ph-body');if(!box)return;const d=s=>String(s||'').replace(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2}).*/,'$1. $2. $3. $4');
+    box.innerHTML=`<div class="sz-info"><div><span>Létrehozta</span><b>${esc(r.createdBy||'–')}</b></div><div><span>Létrehozva</span><b>${esc(d(r.createdAt)||'–')}</b></div><div><span>Utoljára módosította</span><b>${esc(r.updatedBy||'–')}</b></div><div><span>Utoljára módosítva</span><b>${esc(d(r.updatedAt)||'–')}</b></div><div><span>Azonosító</span><b style="font-weight:500;font-size:12px">${esc(r.id)}</b></div></div>
+      <div class="sec-lbl" style="margin:14px 0 6px">Előzmények (${r.log.length})</div>
+      ${r.log.length?`<div class="ph-list">${r.log.map(x=>`<div class="ph-row"><div class="ph-at">${esc(d(x.at))}</div><div class="ph-main"><b>${esc(x.action)}</b> <span class="muted">· ${esc(x.who)}${x.role?' ('+esc(x.role)+')':''}</span>${x.details?`<div class="ph-det">${esc(x.details).replace(/; /g,'<br>')}</div>`:''}</div></div>`).join('')}</div>`:'<p class="hint">Ehhez a projekthez még nincs naplóbejegyzés.</p>'}`;}
+  catch(e){const box=$('ph-body');if(box)box.innerHTML=`<p class="bad-txt">${esc(errText(e))}</p>`;}};
