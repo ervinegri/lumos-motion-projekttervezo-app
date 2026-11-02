@@ -61,7 +61,7 @@ function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},
   const out=[];order.forEach((k,ci)=>{const g=by[k],L=g.length,merge=L>1&&g.every(i=>!i.free);
     const tk=i=>{const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();return tg?'tig:'+tg.id:'none';};
     const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':(i.db||i.el)?'adv:'+i.p.id:'none';};   // foglalós projekt végszámlája külön
-    const tigSame=merge&&g.every(i=>tk(i)===tk(g[0])),finAllInv=merge&&L>1&&g.every(i=>/^inv:/.test(fk(i))),finSame=finAllInv||merge&&g.every(i=>fk(i)&&fk(i)===fk(g[0])&&!/^adv:/.test(fk(i)));   // minden projektnek van számlája: egy kártya, az összes számlával
+    const tigSame=merge&&g.every(i=>tk(i)===tk(g[0])),finAllInv=false,finSame=finAllInv||merge&&g.every(i=>fk(i)&&fk(i)===fk(g[0])&&!/^adv:/.test(fk(i)));   // minden projektnek van számlája: egy kártya, az összes számlával
     const advSame=merge&&g.every(i=>i.b.mode==='egyben');   // díjbekérő: ha egyiknél sem kell, egy kártya
     out.push({head:{name:g[0].p.client||'—',n:L,sum:g.reduce((s,i)=>s+projTotal(i.p),0)}});
     const runSpan=x=>{if(finSame)return x?0:L;const k=fk(g[x]);if(!merge||!/^inv:/.test(k))return 1;if(x&&fk(g[x-1])===k)return 0;let e=x;while(e+1<L&&fk(g[e+1])===k)e++;return e-x+1;};   // ugyanaz a számla egymás alatti projekteknél: egy kártya
