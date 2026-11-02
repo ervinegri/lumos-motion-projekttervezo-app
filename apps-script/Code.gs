@@ -2696,20 +2696,25 @@ function navConfig_() {
 }
 /* SHA3-512 (Keccak, FIPS 202) – a NAV kérés-aláírásához; az Apps Script ezt nem ismeri beépítve */
 function sha3_512Hex_(str) {
-  const M = (1n << 64n) - 1n, rotl = (x, n) => n ? (((x << BigInt(n)) | (x >> BigInt(64 - n))) & M) : x;
-  const RC = ['0x1','0x8082','0x800000000000808a','0x8000000080008000','0x808b','0x80000001','0x8000000080008081','0x8000000000008009','0x8a','0x88','0x80008009','0x8000000a','0x8000808b','0x800000000000008b','0x8000000000008089','0x8000000000008003','0x8000000000008002','0x8000000000000080','0x800a','0x800000008000000a','0x8000000080008081','0x8000000000008080','0x80000001','0x8000000080008008'].map(BigInt);
+  /* 64 bites sávok 32 bites hi/lo párokban (BigInt nélkül – az Apps Script nem engedi a BigInt literálokat) */
+  const RC = [1,0, 32898,0, 32906,2147483648, 2147516416,2147483648, 32907,0, 2147483649,0, 2147516545,2147483648, 32777,2147483648, 138,0, 136,0, 2147516425,0, 2147483658,0, 2147516555,0, 139,2147483648, 32905,2147483648, 32771,2147483648, 32770,2147483648, 128,2147483648, 32778,0, 2147483658,2147483648, 2147516545,2147483648, 32896,2147483648, 2147483649,0, 2147516424,2147483648];
   const R = [0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14];
   const bytes = []; const u = unescape(encodeURIComponent(String(str))); for (let i = 0; i < u.length; i++) bytes.push(u.charCodeAt(i));
   const rate = 72; bytes.push(0x06); while (bytes.length % rate) bytes.push(0); bytes[bytes.length - 1] |= 0x80;
-  const s = new Array(25).fill(0n), B = new Array(25), C = new Array(5);
+  const lo = new Array(25).fill(0), hi = new Array(25).fill(0), Bl = new Array(25), Bh = new Array(25), Cl = new Array(5), Ch = new Array(5);
+  const rot = (l, h, n) => { if (n === 0) return [l, h]; if (n >= 32) { const t = l; l = h; h = t; n -= 32; } if (n === 0) return [l, h];
+    return [((l << n) | (h >>> (32 - n))) >>> 0, ((h << n) | (l >>> (32 - n))) >>> 0]; };
   const f = () => { for (let r = 0; r < 24; r++) {
-    for (let x = 0; x < 5; x++) C[x] = s[x] ^ s[x + 5] ^ s[x + 10] ^ s[x + 15] ^ s[x + 20];
-    for (let x = 0; x < 5; x++) { const D = C[(x + 4) % 5] ^ rotl(C[(x + 1) % 5], 1); for (let y = 0; y < 25; y += 5) s[x + y] ^= D; }
-    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) B[y + 5 * ((2 * x + 3 * y) % 5)] = rotl(s[x + 5 * y], R[x + 5 * y]);
-    for (let y = 0; y < 25; y += 5) for (let x = 0; x < 5; x++) s[x + y] = B[x + y] ^ ((~B[(x + 1) % 5 + y] & M) & B[(x + 2) % 5 + y]);
-    s[0] ^= RC[r]; } };
-  for (let o = 0; o < bytes.length; o += rate) { for (let i = 0; i < rate / 8; i++) { let lane = 0n; for (let b = 7; b >= 0; b--) lane = (lane << 8n) | BigInt(bytes[o + i * 8 + b]); s[i] ^= lane; } f(); }
-  let hex = ''; for (let i = 0; i < 8; i++) { let lane = s[i]; for (let b = 0; b < 8; b++) { hex += Number(lane & 0xffn).toString(16).padStart(2, '0'); lane >>= 8n; } }
+    for (let x = 0; x < 5; x++) { Cl[x] = lo[x] ^ lo[x + 5] ^ lo[x + 10] ^ lo[x + 15] ^ lo[x + 20]; Ch[x] = hi[x] ^ hi[x + 5] ^ hi[x + 10] ^ hi[x + 15] ^ hi[x + 20]; }
+    for (let x = 0; x < 5; x++) { const t = rot(Cl[(x + 1) % 5], Ch[(x + 1) % 5], 1), Dl = Cl[(x + 4) % 5] ^ t[0], Dh = Ch[(x + 4) % 5] ^ t[1];
+      for (let y = 0; y < 25; y += 5) { lo[x + y] ^= Dl; hi[x + y] ^= Dh; } }
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) { const t = rot(lo[x + 5 * y], hi[x + 5 * y], R[x + 5 * y]), k = y + 5 * ((2 * x + 3 * y) % 5); Bl[k] = t[0]; Bh[k] = t[1]; }
+    for (let y = 0; y < 25; y += 5) for (let x = 0; x < 5; x++) { lo[x + y] = Bl[x + y] ^ (~Bl[(x + 1) % 5 + y] & Bl[(x + 2) % 5 + y]); hi[x + y] = Bh[x + y] ^ (~Bh[(x + 1) % 5 + y] & Bh[(x + 2) % 5 + y]); }
+    lo[0] ^= RC[2 * r]; hi[0] ^= RC[2 * r + 1]; } };
+  for (let o = 0; o < bytes.length; o += rate) { for (let i = 0; i < rate / 8; i++) { const q = o + i * 8;
+    lo[i] ^= (bytes[q] | (bytes[q + 1] << 8) | (bytes[q + 2] << 16) | (bytes[q + 3] << 24));
+    hi[i] ^= (bytes[q + 4] | (bytes[q + 5] << 8) | (bytes[q + 6] << 16) | (bytes[q + 7] << 24)); } f(); }
+  let hex = ''; for (let i = 0; i < 8; i++) for (const w of [lo[i], hi[i]]) for (let b = 0; b < 4; b++) hex += ((w >>> (8 * b)) & 255).toString(16).padStart(2, '0');
   return hex.toUpperCase();
 }
 function navHex_(bytes) { return bytes.map(b => ((b + 256) % 256).toString(16).padStart(2, '0')).join('').toUpperCase(); }
