@@ -106,7 +106,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};const b=i.b,pid=esc(p.id),val
   const cDone=!!i.fw||signed;   // aláírt szerződés / keretszerződés: szürke kártya
   const red=(h,on)=>on?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // letelt a hónap, és még nincs kész: piros kártya
   const tigOver=monthOver&&tigNeed&&!appr,finOver=monthOver&&!fx&&!i.noFin&&!i.full&&!i.free&&tot>0;
-  return {contract:paid(contract,cDone),tig:paid(red(tig,tigOver),appr),adv:green(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(green(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
+  return {contract:paid(contract,cDone),tig:paid(red(tig,tigOver),appr),adv:paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),fin:red(green(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver)};}
 ACT['bl-cstep']=async btn=>{const st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;
   const pids=(btn.dataset.ids?btn.dataset.ids.split(','):[btn.dataset.id]).filter(Boolean);   // összevont cella: a megrendelő összes projektjére
   const undo=[];pids.forEach(pid=>{let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
