@@ -288,9 +288,13 @@ function szRepEmail(cl,p){return (cl&&(cl.repEmail||cl.contactEmail))||(p&&p.con
 function szFinEmail(cl){if(cl&&cl.billEmail)return cl.billEmail;const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');return m?(m[1].split(/[,\s]+/).find(x=>x.includes('@'))||''):'';}
 function szBillingEmail(cl,p){const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');const first=m?m[1].split(/[,\s]+/).find(x=>x.includes('@')):'';return first||(cl&&cl.contactEmail)||(p&&p.contactEmail)||'';}
 function szSplitAddr(a){const m=/^\s*(\d{4})\s+([^,]+),\s*(.+)$/.exec(a||'');return m?{zip:m[1],city:m[2].trim(),address:m[3].trim()}:{zip:'',city:'',address:String(a||'').trim()};}
+/* Projekt neve + dátuma a számlatételhez, pl. „PP Konferencia – október 14.” (több nap: „október 14–15.”) */
+const SZ_MN=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
+function szItemName(p){const r=pr(p),n=(p&&p.name)||'Projekt';if(!r)return n;const m=Number(r.start.slice(5,7))-1,d1=Number(r.start.slice(8)),d2=Number(String(r.end||r.start).slice(8)),m2=Number(String(r.end||r.start).slice(5,7))-1;
+  return n+' – '+SZ_MN[m]+' '+d1+(r.end&&r.end!==r.start?(m2!==m?'. – '+SZ_MN[m2]+' '+d2:'–'+d2):'')+'.';}
 function szTargetInfo(kind,id){
   if(kind==='project'){const p=projById(id);if(!p)return null;const cl=(S.clients||[]).find(c=>c.name===p.client)||null,a=szSplitAddr(p.clientAddress||(cl&&cl.address));
-    const r=pr(p);return {kind,id,name:p.name||'Projekt',net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:(r&&(r.end||r.start))||todayISO(),buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
+    const r=pr(p);return {kind,id,name:p.name||'Projekt',item:szItemName(p),net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:(r&&(r.end||r.start))||todayISO(),buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return null;
   const d=String(parseInt(r.day,10)||1).padStart(2,'0'),f=r.month?r.month+'-'+d:todayISO();
   return {kind:'income',id,name:r.name,net:num(r.amount),fulfill:f,buyer:{name:'',tax:'',email:'',zip:'',city:'',address:''}};}
@@ -308,11 +312,11 @@ function szTotals(){const its=szReadItems();let net=0,vat=0;its.forEach(it=>{con
 /* Az egyes bizonylattípusok javasolt tétele (a projekt nettó értékéből, a foglaló %-ából) */
 function szPreset(type,kind,id){const t=szTargetInfo(kind,id);if(!t)return {name:'',price:0};const inv=invFor(kind,id),b=kind==='project'?billOf(id):null,pct=b?num(b.advancePct):50;
   const db=inv.filter(x=>x.kind==='dijbekero').pop();
-  if(type==='dijbekero')return {name:'Foglaló – '+t.name,price:Math.round(t.net*pct/100)};
-  if(type==='eloleg')return {name:'Foglaló – '+t.name,price:db?num(db.invNet):Math.round(t.net*pct/100)};
-  const ex=(t.extras||[]).filter(x=>num(x.amount)>0),split=ex.length?[{name:t.name,qty:1,price:t.base,pid:kind==='project'?id:''},...ex.map(x=>exSign(x)<0?{name:'Kedvezmény: '+(x.name||'jutalék'),qty:1,price:-num(x.amount)}:{name:'Extra: '+(x.name||'szolgáltatás'),qty:1,price:num(x.amount)})]:null;
-  if(type==='vegszamla')return {name:t.name,price:t.net,items:split};
-  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);return {name:t.name,price:Math.max(0,t.net-done),items:done?null:split};}
+  if(type==='dijbekero')return {name:'Foglaló – '+(t.item||t.name),price:Math.round(t.net*pct/100)};
+  if(type==='eloleg')return {name:'Foglaló – '+(t.item||t.name),price:db?num(db.invNet):Math.round(t.net*pct/100)};
+  const ex=(t.extras||[]).filter(x=>num(x.amount)>0),split=ex.length?[{name:t.item||t.name,qty:1,price:t.base,pid:kind==='project'?id:''},...ex.map(x=>exSign(x)<0?{name:'Kedvezmény: '+(x.name||'jutalék'),qty:1,price:-num(x.amount)}:{name:'Extra: '+(x.name||'szolgáltatás'),qty:1,price:num(x.amount)})]:null;
+  if(type==='vegszamla')return {name:t.item||t.name,price:t.net,items:split};
+  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);return {name:t.item||t.name,price:Math.max(0,t.net-done),items:done?null:split};}
 const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a számlázz.hu-ban be van kapcsolva az automatikus számlázás, a kifizetése után magától elkészül a foglalószámla.',
   eloleg:'Foglalószámla a már beérkezett foglalóról – fizetettként kerül kiállításra.',vegszamla:'A végszámla a teljes összegről szól; a számlázz.hu a projekthez tartozó foglalószámlát (rendelésszám alapján) levonja, a vevő csak a különbözetet fizeti.',
   szamla:'Egyetlen számla a teljes (vagy a még nem számlázott) összegről.'};
@@ -324,7 +328,7 @@ function szSharedPick(id,sel,fixed){const p=projById(id);if(!p)return '';const n
     <small class="hint" style="margin:4px 0 0">${fixed?'A TIG projektjei – a számla mindegyikhez hozzárendelődik.':'A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.'}</small></div>`;}
 document.addEventListener('change',e=>{const c=e.target;if(!c.dataset||!c.dataset.szshare)return;const box=$('sz-items');if(!box)return;const pid=c.dataset.szshare,p=projById(pid);
   const ex=box.querySelector(`[data-pid="${CSS.escape(pid)}"]`);
-  if(c.checked&&!ex&&p)box.insertAdjacentHTML('beforeend',szItemRow({name:p.name||'Projekt',qty:1,price:projTotal(p),pid},box.children.length));
+  if(c.checked&&!ex&&p)box.insertAdjacentHTML('beforeend',szItemRow({name:szItemName(p),qty:1,price:projTotal(p),pid},box.children.length));
   if(!c.checked&&ex&&box.children.length>1)ex.remove();szTotals();});
 function szInvoiceModal(kind,id,o={}){
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
