@@ -599,7 +599,13 @@ function szMailList(b){const uniq=a=>a.map(x=>String(x||'').trim().toLowerCase()
   const l=saved.length?saved:uniq([b&&b.email,b&&b.email2]);return l.length?l:[''];}
 const szMailRow=(m,k)=>`<div class="sz-mail-row"><input class="inp" name="bEmail" type="email" maxlength="160" value="${esc(m||'')}" placeholder="${k?'pl. penzugy@ceg.hu':'pl. ugyvezeto@ceg.hu'}" aria-label="E-mail-cím ${k+1}">${k?'<button class="x w" type="button" data-action="sz-mail-del" aria-label="Cím törlése">×</button>':''}</div>`;
 ACT['sz-mail-add']=()=>{const b=$('sz-mails');if(!b)return;const k=b.querySelectorAll('.sz-mail-row').length;b.insertAdjacentHTML('beforeend',szMailRow('',k));const i=b.querySelectorAll('input');i[i.length-1].focus();};
-ACT['sz-mail-del']=b=>{const r=b.closest('.sz-mail-row');if(r)r.remove();};
+ACT['sz-mail-del']=b=>{const r=b.closest('.sz-mail-row');if(r)r.remove();szMailsRemember();};
+/* A számla e-mail-címei azonnal megjegyződnek az ügyfélnél (új cím felvétele / törlése után a következő számlánál már ezek jönnek) */
+function szMailsRemember(){clearTimeout(szMailsRemember._t);szMailsRemember._t=setTimeout(()=>{const box=$('sz-mails'),nm=(($('m-bName')||{}).value||'').trim();if(!box||!nm)return;
+  const list=[...box.querySelectorAll('input[name=bEmail]')].map(i=>i.value.trim().toLowerCase()).filter(v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)).filter((v,i,a)=>a.indexOf(v)===i);if(!list.length)return;
+  const sid=(($('m-szClient')||{}).value||''),cl=(S.clients||[]).find(c=>c.id===sid)||(S.clients||[]).find(c=>String(c.name||'').trim().toLowerCase()===nm.toLowerCase());
+  const v=list.join(',');if(!cl||v===(cl.billEmail||''))return;cl.billEmail=v;saveClientRec(Object.assign({},cl,{oldName:'',billEmail:v})).catch(()=>{});},600);}
+document.addEventListener('change',e=>{if(e.target&&e.target.name==='bEmail'&&e.target.closest('#sz-mails'))szMailsRemember();});
 ACT['sz-due']=b=>{const i=$('m-due');if(!i)return;i.value=addDays(todayISO(),Number(b.dataset.n));document.querySelectorAll('.due-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));i.dispatchEvent(new Event('change',{bubbles:true}));};
 document.addEventListener('input',e=>{if(e.target.id==='m-due')document.querySelectorAll('.due-chip').forEach(x=>x.setAttribute('aria-pressed','false'));});
 
