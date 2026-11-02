@@ -586,7 +586,7 @@ function bootstrap_(u) {
     out.inventory = inventory.filter(i => itemIds[i.id]).map(i => ({ id: i.id, name: i.name, category: i.category, serial: i.serial, location: i.location, qty: i.qty, condition: i.condition }));
     delete out.links.sheet;
   }
-  if (u.role === 'admin') out.deals = dealsFor_(u);   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return out;
 }
 
@@ -596,8 +596,17 @@ function bootstrap_(u) {
    az értékesítő ezután csak azt látja, hogy szerződve lett – a projekt részleteit, díjait nem. */
 const DEAL_STAGES = ['uj', 'ajanlat', 'targyalas', 'nyert', 'elveszett'];
 const DEAL_SOURCES = ['Ajánlás', 'Visszatérő ügyfél', 'Weboldal', 'E-mail / telefon', 'Közösségi média', 'Rendezvényen', 'Hideg megkeresés', 'Egyéb'];
+/** A szerződött lehetőség a projektjével együtt törlődik (ha a projektet kitörölték, a lehetőség is eltűnik). */
+function dealOrphansClean_() {
+  const ids = {}; readAll_('projects').forEach(p => { ids[p.id] = 1; });
+  const sh = sheetFor_('deals'), gone = readAll_('deals').filter(d => d.projectId && !ids[d.projectId]);
+  if (!gone.length) return;
+  gone.forEach(d => { const r = findRow_(sh, d.id); if (r) sh.deleteRow(r); });
+  dbFlush_();
+}
 function dealsFor_(u) {
-  const all = readAll_('deals');
+  const pids = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; });
+  const all = readAll_('deals').filter(d => !d.projectId || pids[d.projectId]);
   return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance) }));
 }
 function salesBootstrap_(u) {
@@ -1362,6 +1371,7 @@ function deleteProject_(u, a) {
     rewriteAssign_('eqAssign', r => r.projectId !== id, []);
     dbFlush_();
     logEvent_(u, 'Projekt törölve', old.name, old.date ? 'Dátum: ' + old.date : '');
+    try { dealOrphansClean_(); } catch (e) {}   // a hozzá tartozó (szerződött) értékesítési lehetőség is eltűnik
     return { deleted: true, id: id };
   });
 }
