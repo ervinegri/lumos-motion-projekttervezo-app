@@ -581,7 +581,7 @@ td .ser{font-size:12px;color:var(--fg-3)}
 .rolepick input{accent-color:var(--accent);margin:0}
 .copybox{min-height:260px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
 .toast{position:fixed;z-index:120;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);border:1px solid #95d7b077;background:#10352e;color:#d5ffed;min-width:240px;max-width:min(580px,90vw);text-align:center;padding:13px 20px;border-radius:12px;box-shadow:0 14px 50px #0007;opacity:0;pointer-events:none;transition:.2s;font-weight:650}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;cursor:pointer}
 .toast.error{background:#47252a;color:#ffe5e1;border-color:#f3a39c77}
 body.has-savebar .toast{bottom:96px}
 .loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px 0;color:var(--fg-3);font-weight:700}

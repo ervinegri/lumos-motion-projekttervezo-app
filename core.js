@@ -280,7 +280,10 @@ function handleErr(e){
   toast(m.replace(/^CONFLICT:\s*/,'')||'Hiba történt. Próbáld újra.',true);return false;
 }
 let toastTimer=0;
-function toast(msg,isErr){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),isErr?5000:2600);}
+function toast(msg,isErr){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.add('show');clearTimeout(toastTimer);
+  const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)
+  const hide=()=>{toastTimer=setTimeout(()=>t.classList.remove('show'),ms);};hide();
+  if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
 
 
 /* ===== Telefonszám országhívószámmal (alapból +36) ===== */
