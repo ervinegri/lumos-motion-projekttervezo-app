@@ -501,7 +501,7 @@ function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?Str
     ${ms('vat','Alapértelmezett ÁFA',SZ_VATS,st.vat||'27')}
     ${mf('unit','Mennyiségi egység',{v:st.unit||'db',max:20})}
     ${ms('payMethod','Fizetési mód',['Átutalás','Készpénz','Bankkártya'],st.payMethod||'Átutalás')}
-    <div class="field full"><div class="rolepick"><label><input type="checkbox" name="eInvoice"${st.eInvoice!==false?' checked':''}> E-számla</label><label><input type="checkbox" name="sendEmail"${st.sendEmail!==false?' checked':''}> E-mailben a vevőnek</label></div></div>
+    <div class="field full"><div class="rolepick"><label><input type="checkbox" name="eInvoice"${st.eInvoice===true?' checked':''}> E-számla</label><label><input type="checkbox" name="sendEmail"${st.sendEmail!==false?' checked':''}> E-mailben a vevőnek</label></div></div>
     <div class="field full"><label for="m-comment">Alapértelmezett megjegyzés a számlán</label><textarea class="inp" id="m-comment" name="comment" rows="2" maxlength="500">${esc(st.comment||'')}</textarea></div>
   </div>`,{submitLabel:'Mentés',submit:async fd=>{
     const d={agentKey:String(fd.get('agentKey')||'').trim(),dueDays:Number(fd.get('dueDays')),vat:fd.get('vat'),unit:String(fd.get('unit')||'').trim(),payMethod:fd.get('payMethod'),eInvoice:!!fd.get('eInvoice'),sendEmail:!!fd.get('sendEmail'),comment:String(fd.get('comment')||'').trim()};

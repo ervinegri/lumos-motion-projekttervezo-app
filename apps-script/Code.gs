@@ -1576,7 +1576,7 @@ function szSettings_() {
   const due = Math.round(Number(s.dueDays));
   return { ipnToken: str_(s.ipnToken, 64), dueDays: isFinite(due) && due >= 0 && due <= 120 ? due : 8, vat: SZ_VATS.indexOf(String(s.vat)) >= 0 ? String(s.vat) : '27',
     unit: str_(s.unit, 20) || 'db', payMethod: SZ_PAYMETHODS.indexOf(s.payMethod) >= 0 ? s.payMethod : 'Átutalás',
-    eInvoice: s.eInvoice !== false, sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
+    eInvoice: s.eInv2 === true,   /* alapból papír alapú számla (2026-11: Ervin kérése) */ sendEmail: s.sendEmail !== false, comment: str_(s.comment, 500), lastSync: str_(s.lastSync, 30) };
 }
 function szSettingsView_() { const s = szSettings_(); s.hasKey = !!szamlazzKey_(); return s; }
 function szStore_(s) { delete s.hasKey; PropertiesService.getScriptProperties().setProperty(SZ_SETTINGS_PROPERTY, JSON.stringify(s)); }
@@ -1593,7 +1593,7 @@ function szSaveSettings_(u, a) {
   if (a.vat !== undefined) { if (SZ_VATS.indexOf(String(a.vat)) < 0) throw new Error('Ismeretlen ÁFA-kulcs.'); s.vat = String(a.vat); }
   if (a.unit !== undefined) s.unit = str_(a.unit, 20) || 'db';
   if (a.payMethod !== undefined) { if (SZ_PAYMETHODS.indexOf(a.payMethod) < 0) throw new Error('Ismeretlen fizetési mód.'); s.payMethod = a.payMethod; }
-  if (a.eInvoice !== undefined) s.eInvoice = !!a.eInvoice;
+  if (a.eInvoice !== undefined) s.eInv2 = !!a.eInvoice;
   if (a.sendEmail !== undefined) s.sendEmail = !!a.sendEmail;
   if (a.comment !== undefined) s.comment = str_(a.comment, 500);
   if (!s.ipnToken || a.newIpnToken) s.ipnToken = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '').slice(0, 8);
