@@ -364,3 +364,7 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
   document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
   document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
   document.addEventListener('focusout',hide);document.addEventListener('scroll',hide,true);})();
+
+/* Egységes hónapválasztó (minden pénzügyi fülön a cím alatt): ‹ [hónap] ›; months: újabb elöl */
+function monthNav(id,months,sel){const ms=months.includes(sel)?months:[sel,...months].sort().reverse(),i=ms.indexOf(sel);
+  return `<div class="mnav-row"><div class="month-nav"><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="1"${i>=ms.length-1?' disabled':''} aria-label="Előző hónap" title="Előző hónap">‹</button><select class="inp mnav-sel" id="${id}" aria-label="Hónap">${ms.map(m=>`<option value="${m}"${m===sel?' selected':''}>${esc(F_YM.format(toDate(m+'-01')))}</option>`).join('')}</select><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="-1"${i<=0?' disabled':''} aria-label="Következő hónap" title="Következő hónap">›</button></div></div>`;}
