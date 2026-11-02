@@ -288,13 +288,13 @@ test('frontend: required basics are checked, notes are optional',()=>{
 test('frontend: payouts mark the penalised item and show the kept amount to leaders',()=>{
   fr(`S.me={role:'admin'};S.crew=[{id:'david-123',name:'Dávid'}];S.payMonth='2026-10';S.projects=[{id:'q',name:'Queens',status:'atadva',date:'2026-10-02',endDate:'2026-10-03',crewDays:{},fees:[{crewId:'david-123',name:'Dávid',amount:120000,dayAmounts:{'2026-10-02':60000,'2026-10-03':60000}}],penalties:[{crewId:'david-123',kind:'severe',pct:50,day:'2026-10-03',status:'approved',reason:'Helyszíni elakadás'}]}];`);
   const html=fr('viewPayouts()');
-  assert.match(html,/Nem kerül kifizetésre/);
+  assert.doesNotMatch(html,/Nem kerül kifizetésre/);   // a sort az ügyvezető kérésére kivettük
   assert.match(html,/30\s?000/);
   assert.match(html,/🚨 −30\s?000/);
   assert.match(html,/data-tip="[^"]*Helyszíni elakadás/);
   assert.doesNotMatch(html,/kezdőnapjuk/);
   fr(`S.me={role:'editor'};`);
-  assert.match(fr('viewPayouts()'),/Nem kerül kifizetésre/);
+  assert.doesNotMatch(fr('viewPayouts()'),/Nem kerül kifizetésre/);
 });
 test('frontend: daily totals include the day-two deduction and match the grand total',()=>{
   fr(`S.me={role:'admin'};var q=S.projects[0];q.fees.push({crewId:'bence-123',name:'Bence',amount:50000,dayAmounts:{'2026-10-02':25000,'2026-10-03':25000}},{kind:'fixed',key:'fuvar',name:'Fuvar',amount:10000});`);
