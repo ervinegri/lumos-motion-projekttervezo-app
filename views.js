@@ -708,6 +708,33 @@ function roContentPanel(p){
   const col=(t,items)=>items.length?`<section class="content-col"><h4 class="sub-h">${t}</h4>${roList(items)}</section>`:'';
   return `<div class="panel content"><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
 }
+/* Tartalmak témánként: minden téma egy kártya – bal oldalt a helyszíni feladat, jobb oldalt a hozzá tartozó utómunka.
+   Csak a kiválasztott tételek látszanak, a többi a „+ hozzáadás” alatt; a csukott kártya fejlécében címkéken az összefoglaló. */
+function topicCards(p,{camRow,dlRow,D}){
+  const tgl=(k,label)=>`<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${esc(label)}</span></label>`;
+  const recCnt=it=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
+    <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;};
+  const cam=c=>({on:!!p[c.k],html:camRow(c),chip:c.label+(camN(p,c.k)>1?' ×'+camN(p,c.k):''),tg:1});
+  const flag=(k,label)=>({on:!!p[k],html:tgl(k,label),chip:label,tg:1});
+  const cnt=it=>({on:num(p[it.k])>(it.min||0),html:recCnt(it),chip:it.label+' '+num(p[it.k])});
+  const dlv=it=>({on:num(p[it.k])>0,html:dlRow(it),chip:it.label+' '+num(p[it.k])});
+  const col=(key,title,items,always)=>{const on=items.filter(x=>x.on||always),rest=always?[]:items.filter(x=>!x.on),wrap=L=>{const t=L.filter(x=>x.tg),o=L.filter(x=>!x.tg);return (t.length?`<div class="toggles one">${t.map(x=>x.html).join('')}</div>`:'')+o.map(x=>x.html).join('');};
+    return `<div class="tc"><div class="tc-h">${title}</div>${on.length?wrap(on):`<p class="tc-none">${items.length?'Nincs kiválasztva':'—'}</p>`}${rest.length&&!ro()?`<details class="tc-more" data-fold="more_${key}"${FOLD['more_'+key]?' open':''}><summary>＋ hozzáadás <span class="muted">(${rest.length})</span></summary>${wrap(rest)}</details>`:''}</div>`;};
+  const card=(key,title,left,right,opts={})=>{const all=left.concat(right||[]).filter(x=>x.on&&x.chip),n=all.length,open=FOLD[key]!=null?FOLD[key]:n>0;
+    return `<details class="tcard" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="tc-chips">${n?all.map(x=>`<span class="tc-chip">${esc(x.chip)}</span>`).join(''):'<span class="muted">nincs kiválasztva</span>'}</span></summary>
+      <div class="tc-body${right?'':' one'}">${opts.pre||''}${col(key+'_l','📍 Helyszínen',left,opts.alwaysL)}${right?col(key+'_r','🎬 Utómunka',right,opts.alwaysR):''}</div></details>`;};
+  const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
+    <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
+  const recL=[{on:num(p.er_rooms)>0,html:rooms,chip:num(p.er_rooms)>1?num(p.er_rooms)+' terem':''}].concat(REC_CAMS.filter(c=>c.k!=='er_creative').map(cam));
+  const recR=REC_COUNTS.filter(it=>it.k!=='er_rooms').map(cnt);
+  const intL=INT_FLAGS.map(c=>flag(c.k,c.label)),intR=DELIVERABLES.filter(it=>it.g==='int').map(dlv);
+  const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>flag(e.k,e.label)));
+  const krR=DELIVERABLES.filter(it=>it.g!=='int').map(dlv).concat(p.x_rush?[flag('x_rush','Villámgyors kézbesítés')]:[]);
+  const foL=[{on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')}],foR=[{on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'}];
+  const teL=TECH.map(t=>flag(t.k,t.label)).concat(REC_LIVE.map(c=>flag(c.k,c.label)));
+  const due=needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
+  return `${due}<div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL,recR)}${card('t_int','🎤 Interjúk / imázsfilmek',intL,intR)}${card('t_krea','🎥 Kreatív videózás',krL,krR)}${card('t_foto','📷 Fotózás',foL,foR,{alwaysL:1,alwaysR:1})}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL,null)}</div>`;
+}
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
 function orderSummary(p){
   const T=[],li=(t,n)=>`<li>${esc(t)}${n!=null?`: <b>${n}</b>`:''}</li>`;
@@ -823,29 +850,7 @@ function viewProject(p){
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech+nIntG)}</h3></summary>
-    <div class="content-grid">
-      <section class="content-col"><h4 class="sub-h">📍 Terepi feladatok</h4>
-        ${cgrp('c_rec','🎙️ Előadásrögzítés',nRecG,`
-        ${(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
-          <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})()}
-        <div class="sec-lbl">Rögzítés eszközei${Math.max(1,num(p.er_rooms)||1)>1?` <span class="muted" style="font-weight:600">· termenként, × ${Math.max(1,num(p.er_rooms)||1)}</span>`:''}</div>
-        <div class="toggles one">${REC_CAMS.filter(c=>c.k!=='er_creative').map(camRow).join('')}</div>
-`)}
-        ${cgrp('c_krea','🎥 Kreatív videózás',nKreaG,`<div class="toggles one">${REC_CAMS.filter(c=>c.k==='er_creative').map(camRow).join('')}${ex}</div>`)}
-        ${cgrp('c_int','🎤 Interjúk / imázsfilmek videózása',nIntG,`<div class="toggles one">${intTg}</div>`)}
-        ${cgrp('c_foto','📷 Fotózás + utómunka',nFotoG,`${stepRow(p,FOTO_COUNT)}${fotoRow(p)}`)}
-        ${cgrp('c_tech','💡 Vizuál-, hang- és fénytechnika',nTechG,`<div class="toggles one">${tech}${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>`)}
-      </section>
-      <section class="content-col"><h4 class="sub-h">🎬 Utómunka</h4>
-        ${needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():''}
-        ${cgrp('c_post_er','🎙️ Előadások',nPostErG,`
-        ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
-          <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
-`)}
-        ${cgrp('c_post_int','🎤 Interjúk',nPostIntG,dlInt)}
-        ${cgrp('c_post_krea','🎞️ Kreatív tartalmak',nPostKreaG,`${dl}${p.x_rush?`<div class="toggles one" style="margin:10px 0">${tg('x_rush')}</div><p class="hint">A villámgyors kézbesítés már nem választható; ha kikapcsolod, eltűnik.</p>`:''}`)}
-      </section>
-    </div>
+    ${topicCards(p,{camRow,dlRow,D})}
   </details>${orderSummary(p)}`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
