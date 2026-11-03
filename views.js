@@ -722,9 +722,10 @@ function orderSummary(p){
   grp('🎤 Interjúk / imázsfilmek videózása',INT_FLAGS.filter(c=>p[c.k]).map(c=>li(c.label)));
   const fo=[];if(fotoN(p)>0)fo.push(li('Fotós a helyszínen',fotoN(p)));grp('📷 Fotózás',fo);
   grp('💡 Vizuál-, hang- és fénytechnika',TECH.filter(t=>p[t.k]).map(t=>li(t.label)).concat(REC_LIVE.filter(c=>p[c.k]).map(c=>li(c.label))));
-  const post=postTasks(p).map(t=>`<li>${esc(t.label)}: <b>${t.n}${t.k==='foto_db'?' db':''}</b>${cutNm(t.k)}</li>`);
-  if(p.x_rush)post.push(li('Villámgyors kézbesítés'));if(p.x_nyersTarolas)post.push(li('Nyersanyag tárolása 5 évig'));
-  grp('🎬 Utómunka – átadandó anyagok',post);
+  const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágó</span>`;};
+  const post=postTasks(p).map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span>${cutOf(t.k)}</div>`);   // táblázatszerűen: darab · anyag · vágó
+  if(p.x_rush)post.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);if(p.x_nyersTarolas)post.push(`<div class="op-row"><span class="op-n">🗄️</span><span class="op-l">Nyersanyag tárolása 5 évig</span></div>`);
+  if(post.length)T.push(`<section class="os-g os-post"><h5>🎬 Utómunka – átadandó anyagok</h5><div class="op-list">${post.join('')}</div></section>`);
   return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
 }
 /* Vágó kártyáján: mely munkákat készíti el */
