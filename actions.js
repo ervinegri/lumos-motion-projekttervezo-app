@@ -482,7 +482,7 @@ function userModal(u){
       render(true);
     }catch(e){handleErr(e);}
   }});
-  comboSelect($('m-crewId'),'Kezdj el gépelni: név…');
+  comboSelect($('m-crewId'),'Kezdj el gépelni: név…',crewSub);
   if(u){const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb){const rb=document.createElement('button');rb.type='button';rb.className='btn primary';rb.textContent='Mentés és meghívó újraküldése';
     rb.addEventListener('click',()=>{const h=$('m-resend');if(h)h.value='1';$('mform').requestSubmit();setTimeout(()=>{if(h)h.value='';},0);});sb.before(rb);}}   // pl. javított e-mail-cím után
 }
@@ -502,11 +502,13 @@ async function switchView(role,crewId){
     render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
+const crewSub=id=>{const c=crewById(id);return c?[(c.roles||[]).join(', '),c.company].filter(Boolean).join(' · '):id==='__new'?'a stáblistára is felkerül':'';};   // a választóban a név alatt
 function viewAsCrewModal(){
   const opts=S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name]);
   if(!opts.length){toast('Nincs még munkatárs a Stáb fülön.',true);renderChrome();return;}
-  openModal('Szakember nézet',`<p class="hint" style="margin:0 0 10px">Válaszd ki, kinek a szemével nézed az appot: csak azokat a projekteket fogod látni, amelyekre ő be van osztva, árak és díjak nélkül.</p><div class="fields">${ms('crewId','Szakember',opts,opts[0][0],{full:true})}</div>`,
-    {submitLabel:'Nézet bekapcsolása',submit:async fd=>{closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
+  openModal('Szakember nézet',`<p class="hint" style="margin:0 0 10px">Válaszd ki, kinek a szemével nézed az appot: csak azokat a projekteket fogod látni, amelyekre ő be van osztva, árak és díjak nélkül.</p><div class="fields">${ms('crewId','Szakember',[['','Válassz…'],...opts],'',{full:true})}</div>`,
+    {submitLabel:'Nézet bekapcsolása',submit:async fd=>{if(!fd.get('crewId')){toast('Válaszd ki a szakembert.',true);return;}closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
+  comboSelect($('m-crewId'),'Kezdj el gépelni: név, szerep…',crewSub);setTimeout(()=>{const i=document.querySelector('.cmb-in');if(i)i.focus();},50);
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
 /* Lezáráskor (Kész / Átadva) díjcsökkentés is kiróható – szakemberenként */
