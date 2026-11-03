@@ -527,8 +527,8 @@ function loadBase_() {
 /** Egyszeri: a közelgő projektek naptárbejegyzéseinek leírása frissül (2026-11-03: az ügyfél neve kikerült). Háttérben, egy perccel a bejelentkezés után fut. */
 function calNoClientOnce_() {
   const P = PropertiesService.getScriptProperties();
-  if (P.getProperty('MIG_CALSTORNO_2026_11')) return;   // 2026-11-03: a lemondott (STORNO) projektek eseményei is kikerülnek a Google Naptárból
-  P.setProperty('MIG_CALSTORNO_2026_11', now_());
+  if (P.getProperty('MIG_CALPHONE_2026_11')) return;   // 2026-11-03: a stáb telefonszáma kikerül (csak a projektvezetőé marad); a lemondott (STORNO) projektek eseményei is kikerülnek a Google Naptárból
+  P.setProperty('MIG_CALPHONE_2026_11', now_());
   try { ScriptApp.newTrigger('calResyncUpcoming').timeBased().after(60 * 1000).create(); } catch (e) {}
 }
 /* Automatikus lépés: a Helyszíni munka szakaszban lévő projekt a forgatás vége után magától Utómunkába kerül
@@ -1489,7 +1489,7 @@ function calPlan_(p) {
   const roles = {};
   if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
   (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });
-  const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));
+  const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (cid === p.lead && crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));   // telefonszám csak a projektvezetőnél
   const eqLines = (p.equipment || []).filter(e => invMap[e.itemId]).map(e => '☐ ' + e.qty + '× ' + invMap[e.itemId].name + (e.crewId && crewMap[e.crewId] ? ' – ' + crewMap[e.crewId].name : ''));
   const lines = [];
   if (p.status) lines.push('Állapot: ' + (STATUS_LABELS[p.status] || p.status));
