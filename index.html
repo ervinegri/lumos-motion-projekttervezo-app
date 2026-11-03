@@ -797,6 +797,7 @@ body .flatpickr-day.prevMonthDay,body .flatpickr-day.nextMonthDay{color:#c3ccd4}
 .site-rep.warn{background:#fff7e6;border-color:#f1d27a}
 .cf-prev{border:1px solid var(--line);border-radius:12px;overflow:hidden}.cf-prev-h{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 12px;background:var(--soft,#f4f6f5)}.cf-prev-h select{max-width:60%;padding:4px 8px;height:auto}.cf-prev-box{padding:10px 12px}.cf-prev-meta{font-size:13px;color:#555;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px}.cf-prev-meta span{color:#888}.cf-prev-frame{background:#fff}
 .sig-box{flex-basis:100%;margin-top:8px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px}.sig-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.sig-h .mini{margin-left:auto}.sig-prev{overflow-x:auto;background:#fff;border-radius:8px;padding:6px}
+.statuspill.st-helyszin.st-wait{background:#eef1f4;color:#5b6773}
 .cut-due{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff7e6;border:1px solid #f1d27a;border-radius:12px;padding:10px 14px;margin:0 0 14px}.cut-due b{font-size:16px}.cut-due .cd-left{margin-left:auto;font-weight:700;color:#8a5a00}.cut-due.late{background:#fdecec;border-color:#e8a29b}.cut-due.late .cd-left{color:#a33}
 .cut-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;align-items:start}@media (max-width:760px){.cut-grid{grid-template-columns:1fr}}
 .dl-add{display:block;width:100%;margin-top:8px;padding:8px;border:1.5px dashed #c3ced8;border-radius:10px;background:transparent;color:#2c6e49;font-weight:700;font-size:13px;cursor:pointer}.dl-add:hover{background:#fff;border-color:#2c6e49}
@@ -922,7 +923,7 @@ tr.drop-above td{box-shadow:inset 0 2px 0 var(--accent)}tr.drop-below td{box-sha
       <h1 class="sr-only" id="pageTitle">Áttekintés</h1>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
-        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">💼 Ügyvezető</option><option value="editor">⚙️ Termelési v.</option><option value="crew">🔨 Szakember</option><option value="crew-other" hidden>↻ Másik szakember…</option><option value="sales">🤝 Értékesítő</option></select>
+        <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">💼 Ügyvezető</option><option value="editor">⚙️ Termelési v.</option><option value="crew">🔨 Szakember</option><option value="crew-other" hidden>↻ Másik szakember…</option><option value="sales">🤝 Értékesítő</option><option value="sales-other" hidden>↻ Másik értékesítő…</option></select>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="refreshBtn" class="btn ghost small hidden" type="button" title="Adatok frissítése">↻ Frissítés</button>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>

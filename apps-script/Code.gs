@@ -627,6 +627,7 @@ function bootstrap_(u) {
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
 function viewAsPick_(out, u) {
   if (u.realRole === 'admin') out.viewAsCrew = readAll_('crew').map(c => ({ id: c.id, name: c.name, roles: c.roles }));
+  if (u.realRole === 'admin' || u.role === 'admin') out.viewAsSales = loadUsers_().filter(x => x.role === 'sales' && !x.disabled).map(x => ({ id: x.id, name: x.name }));
   return out;
 }
 
@@ -3731,6 +3732,10 @@ function authUser_(token) {
   if (!u || u.disabled) throw new Error('AUTH_REQUIRED');
   // Ügyvezetői előnézet: a munkamenet szerepköre átmenetileg termelési vezető vagy szakember, így a háttér pontosan
   // úgy szűr és engedélyez, mint annál a szerepkörnél. Csak ügyvezető kapcsolhatja be, és bármikor visszaállíthatja.
+  if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales' && s.viewAs.userId) {   // egy adott értékesítő szemével: az ő lehetőségei, jutaléka, kifizetései (a naplóban az ügyvezető neve marad)
+    const su = loadUsers_().find(x => x.id === s.viewAs.userId && x.role === 'sales');
+    if (su) return Object.assign({}, u, { id: su.id, role: 'sales', crewId: String(su.crewId || ''), realRole: 'admin', viewAs: s.viewAs });
+  }
   if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales') return Object.assign({}, u, { role: 'sales', crewId: u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || '', realRole: 'admin', viewAs: s.viewAs });
   if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
     return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : (u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || ''), realRole: 'admin', viewAs: s.viewAs });
@@ -3742,7 +3747,11 @@ function setViewAs_(token, u, arg) {
   const role = String(arg && arg.role || '');
   let view = null;
   if (role === 'editor') view = { role: 'editor' };
-  else if (role === 'sales') view = { role: 'sales' };
+  else if (role === 'sales') {
+    const uid = str_(arg && arg.userId, 64), su = uid ? loadUsers_().find(x => x.id === uid && x.role === 'sales') : null;
+    if (uid && !su) throw new Error('Az értékesítő nem található.');
+    view = su ? { role: 'sales', userId: su.id, crewName: su.name } : { role: 'sales' };
+  }
   else if (role === 'crew') {
     const cid = str_(arg && arg.crewId, 64), c = readAll_('crew').find(x => x.id === cid);
     if (!c) throw new Error('Válaszd ki, melyik szakember szemével nézed az appot.');

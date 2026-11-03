@@ -406,7 +406,7 @@ function comboSelect(sel,ph,subOf,opt){opt=opt||{};if(!sel||sel._cmb)return;sel.
   inp.addEventListener('keydown',e=>{if(box.hidden&&(e.key==='ArrowDown'||e.key==='ArrowUp')){draw();e.preventDefault();return;}
     if(e.key==='ArrowDown'){hi=Math.min(L.length-1,hi+1);draw();e.preventDefault();}else if(e.key==='ArrowUp'){hi=Math.max(0,hi-1);draw();e.preventDefault();}
     else if(e.key==='Enter'){if(!box.hidden){e.preventDefault();pick(L[hi]);if(opt.enterSubmit&&sel.value&&sel.form)setTimeout(()=>sel.form.requestSubmit(),0);}}else if(e.key==='Escape'&&!box.hidden){e.stopPropagation();e.preventDefault();box.hidden=true;inp.value=cur();}},true);
-  box.addEventListener('mousedown',e=>{const b=e.target.closest('.cmb-it');if(!b)return;e.preventDefault();pick(L[+b.dataset.i]);});
+  box.addEventListener('mousedown',e=>{const b=e.target.closest('.cmb-it');if(!b)return;e.preventDefault();pick(L[+b.dataset.i]);if(opt.clickSubmit&&sel.value&&sel.form)setTimeout(()=>sel.form.requestSubmit(),0);});   // clickSubmit: kattintásra azonnal el is küldi
   inp.addEventListener('blur',()=>setTimeout(()=>{box.hidden=true;if(inp.value!==cur())inp.value=cur();},120));
   addEventListener('scroll',e=>{if(!box.hidden&&!box.contains(e.target)&&inp.isConnected)draw();},true);}
 /* Szebb dátumválasztó: minden dátummező (type=date) magyar nyelvű naptárat kap. Az eredeti mező (rejtve) kapja az értéket,
