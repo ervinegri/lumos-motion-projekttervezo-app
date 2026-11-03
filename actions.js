@@ -827,7 +827,7 @@ async function crewFinalizeModal(){
   const gearBox=gearWarn?`<div class="cf-gear"><b>⚠️ Az operatőrnek nincsenek eszközei</b><ul>${gearWarn}</ul><small>Élesítheted így is, de előtte érdemes hozzárendelni a kamerát és az objektívet.</small></div>`:'';
   const tag=id=>first?'':diff.added.includes(id)?' <span class="cf-tag new">új tag – értesítést kap</span>':diff.changed.includes(id)?' <span class="cf-tag chg">módosult – értesítést kap</span>':' <span class="cf-tag">nem kap újra értesítést</span>';
   const self=id=>!!(S.me&&S.me.crewId&&S.me.crewId===id);
-  const rows=ids.map(id=>{const c=crewById(id)||{},ok=EMAIL_RE.test(c.email||'');return `<li><b>${esc(c.name||'Munkatárs')}</b> <span class="muted">· ${esc(roleOf(id))}</span>${self(id)?' <span class="cf-tag">te vagy – nem kapsz levelet, csak a naptárba kerülsz</span>':tag(id)}<br><small class="${ok?'muted':'warn-txt'}">${ok?esc(c.email):'nincs e-mail-címe – nem kap értesítést (a Stáb fülön pótolható)'}</small></li>`;}).join('')
+  const rows=ids.map(id=>{const c=crewById(id)||{},ok=EMAIL_RE.test(c.email||'');return `<li data-cfid="${esc(id)}"><b>${esc(c.name||'Munkatárs')}</b> <span class="muted">· ${esc(roleOf(id))}</span>${self(id)?' <span class="cf-tag">te vagy – nem kapsz levelet, csak a naptárba kerülsz</span>':tag(id)}${!self(id)&&ok?`<button type="button" class="cf-open" data-action="cf-open" data-id="${esc(id)}" aria-expanded="false">✉️ Levél <span class="cf-car">▾</span></button>`:''}<br><small class="${ok?'muted':'warn-txt'}">${ok?esc(c.email):'nincs e-mail-címe – nem kap értesítést (a Stáb fülön pótolható)'}</small></li>`;}).join('')
     +diff.removed.map(id=>`<li><b>${esc((crewById(id)||{}).name||'Munkatárs')}</b> <span class="cf-tag">levéve – kikerül a naptárbejegyzésből</span></li>`).join('');
   const cfSubj=(first?'Beosztás: ':'Módosult beosztás: ')+(p.name||'')+' – '+[p.date,p.endDate&&p.endDate>p.date?p.endDate:''].filter(Boolean).map(d=>F_FULL.format(toDate(d))).join(' – '),cfIntro=first?'Véglegesítettük a csapatot, és beosztottunk erre a projektre:':'Módosult a beosztásod ezen a projekten:';
   const cfFirst=String((crewById(ids[0])||{}).name||'Kata').split(/\s+/).pop();
@@ -839,7 +839,8 @@ async function crewFinalizeModal(){
       <div class="field"><label for="m-cfIntro">Bevezető</label><textarea class="inp" id="m-cfIntro" name="cfIntro" rows="1" maxlength="1000">${esc(cfIntro)}</textarea></div>
 
       <div class="field"><label for="m-cfNote">Megjegyzés a csapatnak <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-cfNote" name="cfNote" rows="3" maxlength="3000" placeholder="pl. parkolás a hátsó bejáratnál, dress code: fekete, 7:30-kor rövid eligazítás"></textarea></div>
-      <div class="cf-prev"><div class="cf-prev-h"><b>👁️ Így kapja meg</b><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div></div>`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
+      <p class="hint" id="cfPrevHint" style="margin:0">👁️ A névsorban a <b>✉️ Levél ▾</b> gombra kattintva megnézheted, pontosan milyen levelet kap az illető.</p>
+      <div class="cf-prev" hidden><div class="cf-prev-h"><b>👁️ Így kapja meg</b><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div></div>`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
     const subj=String(fd.get('cfSubj')||'').trim(),intro=String(fd.get('cfIntro')||'').trim(),note=String(fd.get('cfNote')||'').trim();
     const arg={projectId:p.id};if(subj&&subj!==cfSubj)arg.subject=subj;if(intro&&intro!==cfIntro)arg.intro=intro;if(note)arg.note=note;   // ami nem változott, azt a szerver tagonként állítja be (új / módosult beosztás)
     try{const r=await call('finalizeCrew',arg);closeModal();
@@ -1693,7 +1694,7 @@ async function cfPreviewLoad(p,defSubj,defIntro){CF_PREV=[];
   try{CF_PREV=await call('crewFinalPreview',{projectId:p.id})||[];}catch(e){const b=$('cfPrev');if(b)b.innerHTML=`<p class="hint bad-txt" style="margin:0">Az előnézet most nem érhető el: ${esc(errText(e))}</p>`;return;}
   const sel=$('cfPrevWho');if(!sel)return;
   if(!CF_PREV.length){$('cfPrev').innerHTML='<p class="hint" style="margin:0">Senki nem kap levelet (nincs e-mail-cím, vagy nem kell új értesítés).</p>';return;}
-  sel.innerHTML=CF_PREV.map((x,i)=>`<option value="${i}">${esc(x.name)} · ${esc(x.email)}</option>`).join('');sel.hidden=CF_PREV.length<2;
+  sel.innerHTML=CF_PREV.map((x,i)=>`<option value="${i}">${esc(x.name)} · ${esc(x.email)}</option>`).join('');sel.hidden=true;
   cfPreviewRender(defSubj,defIntro);}
 function cfPreviewRender(defSubj,defIntro){const box=$('cfPrev'),sel=$('cfPrevWho');if(!box||!sel||!CF_PREV.length)return;
   const x=CF_PREV[Number(sel.value)||0]||CF_PREV[0],v=id=>String(($(id)||{}).value||'').trim();
@@ -1702,7 +1703,7 @@ function cfPreviewRender(defSubj,defIntro){const box=$('cfPrev'),sel=$('cfPrevWh
   let html=x.html.replace('@@INTRO@@',nl(intro));html=note?html.replace('@@NOTE@@',nl(note)):html.replace(/<p>@@NOTE@@<\/p>/,'');
   box.innerHTML=`<div class="cf-prev-meta"><span>Címzett:</span> <b>${esc(x.name)}</b> &lt;${esc(x.email)}&gt;<br><span>Tárgy:</span> <b>${esc(subj)}</b></div><div class="cf-prev-frame"></div>`;
   const host=box.querySelector('.cf-prev-frame'),sr=host.attachShadow({mode:'open'});   // saját stílus, az app CSS-e nem hat rá (mint egy levelezőben)
-  sr.innerHTML=`<style>:host{display:block}div{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}td p{margin:0}</style><div>${html}</div>`;}
+  sr.innerHTML=`<style>:host{display:block}.m{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}td p{margin:0}</style><div class="m">${html}</div>`;}
 document.addEventListener('input',e=>{if(['m-cfSubj','m-cfIntro','m-cfNote'].includes(e.target.id)){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
 document.addEventListener('change',e=>{if(e.target.id==='cfPrevWho'){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
 
@@ -1712,11 +1713,22 @@ function sigPreviewHtml(f){const e=esc,F='font-family:Arial,Helvetica,sans-serif
   return `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:375px;${F}color:#111"><tr><td colspan="2" style="padding:0 0 5pt;font-size:10pt">Üdvözlettel,</td></tr><tr>${ph?`<td style="width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111"><img alt="" src="${e(f.photo)}" style="display:block;width:108px;height:108px;border-radius:54px;object-fit:cover"></td>`:''}<td style="padding:8px 8px 8px ${ph?'0':'12px'};vertical-align:middle;white-space:nowrap;background:#f2f2f2;${ph?'':'border-left:4px solid #111;'}"><div style="font-size:14pt;font-weight:700;margin:0 0 4pt">${e(f.name)}</div>${f.title?`<div style="font-size:10pt;margin:0 0 4pt">${e(f.title)}</div>`:''}<div style="font-size:10pt;font-weight:700;margin:0 0 4pt">Lumos Motion Kft.</div>${f.phone?`<div style="font-size:10pt;margin:0 0 4pt">Tel.: <a style="color:#1155cc">${e(f.phone)}</a></div>`:''}<div style="font-size:10pt">Email: <a style="color:#1155cc">${e(f.email)}</a></div></td></tr><tr><td colspan="2" style="padding:6pt 0 0"><img alt="Lumos Motion" src="https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png" style="display:block;width:224px;height:23px"></td></tr></table>`;}
 function sigModal(uid){const sg=(S.sigs||{})[uid];if(!sg)return;
   openModal('✍️ E-mail aláírás – '+sg.name,`<div class="fields">
+    <div class="field full"><label for="m-sgName">Név az aláírásban</label><input class="inp" id="m-sgName" name="sgName" maxlength="80" value="${esc(sg.name||'')}" placeholder="pl. Egri Ervin"></div>
     <div class="field"><label for="m-sgTitle">Beosztás</label><input class="inp" id="m-sgTitle" name="sgTitle" maxlength="80" value="${esc(sg.title||'')}" placeholder="pl. Produkciós koordinátor"></div>
     <div class="field"><label for="m-sgPhone">Telefon</label><input class="inp" id="m-sgPhone" name="sgPhone" maxlength="40" value="${esc(sg.phone||'')}" placeholder="+36 20 123 4567"></div>
     <div class="field full"><label for="m-sgPhoto">Fotó linkje <span class="muted">(nem kötelező, https://…)</span></label><input class="inp" id="m-sgPhoto" name="sgPhoto" maxlength="400" value="${esc(sg.photo||'')}" placeholder="https://projekttervezo.lumosmotion.hu/sig/nev.jpg"></div>
-    <div class="field full"><span class="lbl">Előnézet <span class="muted">– a név és az e-mail-cím a felhasználói fiókból jön</span></span><div class="sig-prev" id="sgPrev"></div></div></div>`,
-    {submitLabel:'Mentés',submit:async fd=>{try{S.sigs=await call('saveSignature',{userId:uid,title:String(fd.get('sgTitle')||'').trim(),phone:String(fd.get('sgPhone')||'').trim(),photo:String(fd.get('sgPhoto')||'').trim()});closeModal();render(true);toast('Aláírás mentve – a következő levelektől ezt használja az app');}catch(e){handleErr(e);}}});
-  const upd=()=>sigRender($('sgPrev'),sigPreviewHtml({name:sg.name,email:sg.email,title:($('m-sgTitle')||{}).value,phone:($('m-sgPhone')||{}).value,photo:($('m-sgPhoto')||{}).value}));upd();
-  ['m-sgTitle','m-sgPhone','m-sgPhoto'].forEach(id=>{const x=$(id);if(x)x.addEventListener('input',upd);});}
+    <div class="field full"><span class="lbl">Előnézet <span class="muted">– az e-mail-cím a felhasználói fiókból jön</span></span><div class="sig-prev" id="sgPrev"></div></div></div>`,
+    {submitLabel:'Mentés',submit:async fd=>{try{S.sigs=await call('saveSignature',{userId:uid,name:String(fd.get('sgName')||'').trim(),title:String(fd.get('sgTitle')||'').trim(),phone:String(fd.get('sgPhone')||'').trim(),photo:String(fd.get('sgPhoto')||'').trim()});closeModal();render(true);toast('Aláírás mentve – a következő levelektől ezt használja az app');}catch(e){handleErr(e);}}});
+  const upd=()=>sigRender($('sgPrev'),sigPreviewHtml({name:($('m-sgName')||{}).value||sg.name,email:sg.email,title:($('m-sgTitle')||{}).value,phone:($('m-sgPhone')||{}).value,photo:($('m-sgPhoto')||{}).value}));upd();
+  ['m-sgName','m-sgTitle','m-sgPhone','m-sgPhoto'].forEach(id=>{const x=$(id);if(x)x.addEventListener('input',upd);});}
 if(window.MutationObserver){let sgT=0;new MutationObserver(()=>{if(sgT)return;sgT=requestAnimationFrame(()=>{sgT=0;document.querySelectorAll('[data-sig]').forEach(el=>{if(el.shadowRoot)return;const sg=(S.sigs||{})[el.dataset.sig];if(sg)sigRender(el,sg.html);});});}).observe(document.documentElement,{childList:true,subtree:true});}
+
+/* Élesítés: a névsorban a „✉️ Levél ▾” gomb az illető levelét nyitja ki a neve alatt (újra kattintva bezárja) */
+ACT['cf-open']=b=>{const id=b.dataset.id,box=document.querySelector('#mform .cf-prev'),li=b.closest('li'),sel=$('cfPrevWho');if(!box||!li||!sel)return;
+  const open=li.contains(box)&&!box.hidden;
+  document.querySelectorAll('#mform .cf-open').forEach(x=>{x.setAttribute('aria-expanded','false');x.classList.remove('on');});
+  if(open){box.hidden=true;return;}
+  const i=CF_PREV.findIndex(x=>x.id===id);
+  if(i<0){toast(CF_PREV.length?'Ő most nem kap levelet (nem új tag, és a beosztása sem változott).':'Az előnézet még töltődik – egy pillanat, és próbáld újra.');return;}
+  sel.value=String(i);li.appendChild(box);box.hidden=false;b.setAttribute('aria-expanded','true');b.classList.add('on');
+  const h=$('cfPrevHint');if(h)h.hidden=true;const s=$('m-cfSubj'),it=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,it&&it.defaultValue);};

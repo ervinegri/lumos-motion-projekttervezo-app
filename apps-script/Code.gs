@@ -3477,8 +3477,8 @@ function appUrl_() { return FRONTEND_URL; }
    alatt szerkesztik (beosztás, telefon, fotó). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
 const SIG_PROPERTY = 'LUMOS_PM_SIGS';
 const SIG_DEFAULTS_ = {
-  'david.zajacz@lumosmotion.com': { title: 'Produkciós koordinátor', phone: '+36 20 599 5583', photo: 'https://projekttervezo.lumosmotion.hu/sig/david.jpg' },
-  'ervin.egri@lumosmotion.com': { title: 'Ügyvezető igazgató', phone: '+36 70 617 8235', photo: 'https://projekttervezo.lumosmotion.hu/sig/ervin.jpg' }
+  'david.zajacz@lumosmotion.com': { name: 'Zajácz Dávid', title: 'Produkciós koordinátor', phone: '+36 20 599 5583', photo: 'https://projekttervezo.lumosmotion.hu/sig/david.jpg' },
+  'ervin.egri@lumosmotion.com': { name: 'Egri Ervin', title: 'Ügyvezető igazgató', phone: '+36 70 617 8235', photo: 'https://projekttervezo.lumosmotion.hu/sig/ervin.jpg' }
 };
 const SIG_ALIAS_ = { 'zajacz.david@lumosmotion.com': 'david.zajacz@lumosmotion.com' };   // ugyanaz a postafiók más címmel
 const sigKey_ = e => { const m = String(e || '').trim().toLowerCase(); return SIG_ALIAS_[m] || m; };
@@ -3513,7 +3513,7 @@ function saveSignature_(u, a) {
   if (u.role !== 'admin' && t.id !== u.id) throw new Error('FORBIDDEN: csak a saját aláírásodat módosíthatod.');
   const photo = str_(a.photo, 400);
   if (photo && !/^https:\/\/\S+$/i.test(photo)) throw new Error('A fotó linkje https:// kezdetű legyen (vagy hagyd üresen).');
-  const st = sigStore_(); st[sigKey_(t.email)] = { title: str_(a.title, 80), phone: str_(a.phone, 40), photo: photo };
+  const st = sigStore_(); st[sigKey_(t.email)] = { name: str_(a.name, 80), title: str_(a.title, 80), phone: str_(a.phone, 40), photo: photo };
   PropertiesService.getScriptProperties().setProperty(SIG_PROPERTY, JSON.stringify(st));
   logEvent_(u, 'E-mail aláírás', t.name, 'módosítva');
   return sigList_();
