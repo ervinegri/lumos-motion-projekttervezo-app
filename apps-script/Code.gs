@@ -3472,19 +3472,52 @@ function newUserRecord_(name, role, crewId, email) {
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
-/* Személyes e-mail-aláírások (a küldő e-mail-címe szerint). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
-const SIGNATURES = {
-  'david.zajacz@lumosmotion.com': {
-    html: "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;width:375px;font-family:Arial,Helvetica,sans-serif;color:#111111;\" width=\"375\"><tr><td colspan=\"2\" style=\"padding:0 0 5pt 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:12pt;color:#111111;\">Üdvözlettel,</td></tr><tr><td style=\"width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;\" valign=\"middle\" width=\"116\"><img alt=\"david.jpg\" height=\"108\" src=\"https://projekttervezo.lumosmotion.hu/sig/david.jpg\" style=\"display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;\" width=\"108\"/></td><td style=\"padding:8px 8px 8px 0;vertical-align:middle;white-space:nowrap;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111111;\" valign=\"middle\"><div style=\"font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;\">Zajácz Dávid</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Produkciós koordinátor</div><div style=\"font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;\">Lumos Motion Kft.</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Tel.: <a href=\"tel:+36205995583\" style=\"color:#1155cc;text-decoration:underline;\">+36 20 599 5583</a></div><div style=\"font-size:10pt;line-height:12pt;margin:0;\">Email: <a href=\"mailto:david.zajacz@lumosmotion.com\" style=\"color:#1155cc;text-decoration:underline;font-size:10pt;\">david.zajacz@lumosmotion.com</a></div></td></tr><tr><td colspan=\"2\" style=\"padding:6pt 0 0 0;\"><a href=\"https://lumosmotion.com/\" style=\"text-decoration:none;border:0;\"><img alt=\"lumosmotion.png\" height=\"23\" src=\"https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png\" style=\"display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;\" width=\"224\"/></a></td></tr></table>",
-    text: 'Üdvözlettel,\n\nZajácz Dávid\nProdukciós koordinátor\nLumos Motion Kft.\nTel.: +36 20 599 5583\nEmail: david.zajacz@lumosmotion.com\nhttps://lumosmotion.com/'
-  },
-  'ervin.egri@lumosmotion.com': {
-    html: "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;width:375px;font-family:Arial,Helvetica,sans-serif;color:#111111;\" width=\"375\"><tr><td colspan=\"2\" style=\"padding:0 0 5pt 0;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:12pt;color:#111111;\">Üdvözlettel,</td></tr><tr><td style=\"width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;\" valign=\"middle\" width=\"116\"><img alt=\"ervin.jpg\" height=\"108\" src=\"https://projekttervezo.lumosmotion.hu/sig/ervin.jpg\" style=\"display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;\" width=\"108\"/></td><td style=\"padding:8px 8px 8px 0;vertical-align:middle;white-space:nowrap;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111111;\" valign=\"middle\"><div style=\"font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;\">Egri Ervin</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Ügyvezető igazgató</div><div style=\"font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;\">Lumos Motion Kft.</div><div style=\"font-size:10pt;line-height:12pt;margin:0 0 4pt 0;\">Tel.: <a href=\"tel:+36706178235\" style=\"color:#1155cc;text-decoration:underline;\">+36 70 617 8235</a></div><div style=\"font-size:10pt;line-height:12pt;margin:0;\">Email: <a href=\"mailto:ervin.egri@lumosmotion.com\" style=\"color:#1155cc;text-decoration:underline;font-size:10pt;\">ervin.egri@lumosmotion.com</a></div></td></tr><tr><td colspan=\"2\" style=\"padding:6pt 0 0 0;\"><a href=\"https://lumosmotion.com/\" style=\"text-decoration:none;border:0;\"><img alt=\"lumosmotion.png\" height=\"23\" src=\"https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png\" style=\"display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;\" width=\"224\"/></a></td></tr></table>",
-    text: 'Üdvözlettel,\n\nEgri Ervin\nÜgyvezető igazgató\nLumos Motion Kft.\nTel.: +36 70 617 8235\nEmail: ervin.egri@lumosmotion.com\nhttps://lumosmotion.com/'
-  }
+/* Személyes e-mail-aláírások (a küldő e-mail-címe szerint): az ügyvezető és a termelési vezetők a Beállítások → Hozzáférések
+   alatt szerkesztik (beosztás, telefon, fotó). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
+const SIG_PROPERTY = 'LUMOS_PM_SIGS';
+const SIG_DEFAULTS_ = {
+  'david.zajacz@lumosmotion.com': { title: 'Produkciós koordinátor', phone: '+36 20 599 5583', photo: 'https://projekttervezo.lumosmotion.hu/sig/david.jpg' },
+  'ervin.egri@lumosmotion.com': { title: 'Ügyvezető igazgató', phone: '+36 70 617 8235', photo: 'https://projekttervezo.lumosmotion.hu/sig/ervin.jpg' }
 };
 const SIG_ALIAS_ = { 'zajacz.david@lumosmotion.com': 'david.zajacz@lumosmotion.com' };   // ugyanaz a postafiók más címmel
-const signatureFor_ = u => { const m = String((u && u.email) || '').toLowerCase(); return SIGNATURES[m] || SIGNATURES[SIG_ALIAS_[m]] || null; };
+const sigKey_ = e => { const m = String(e || '').trim().toLowerCase(); return SIG_ALIAS_[m] || m; };
+function sigStore_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty(SIG_PROPERTY) || '{}') || {}; } catch (e) { return {}; } }
+/** Az aláírás adatai egy felhasználóhoz (mentett → alapértelmezett), vagy null, ha nincs beállítva. */
+function sigFields_(user) {
+  if (!user || !user.email) return null;
+  const k = sigKey_(user.email), st = sigStore_()[k], d = SIG_DEFAULTS_[k];
+  if (!st && !d) return null;
+  const f = Object.assign({ title: '', phone: '', photo: '' }, d || {}, st || {});
+  return { name: String(f.name || user.name || ''), email: k, title: String(f.title || ''), phone: String(f.phone || ''), photo: String(f.photo || '') };
+}
+function sigBuild_(f) {
+  const e = escapeHtml_, tel = String(f.phone || '').replace(/[^\d+]/g, ''), F = 'font-family:Arial,Helvetica,sans-serif;';
+  const photo = /^https:\/\//i.test(f.photo) ? '<td style="width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111111;" valign="middle" width="116"><img alt="" height="108" src="' + e(f.photo) + '" style="display:block;width:108px;height:108px;border:0;border-radius:54px;outline:none;text-decoration:none;object-fit:cover;" width="108"/></td>' : '';
+  const html = '<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;width:375px;' + F + 'color:#111111;" width="375"><tr><td colspan="2" style="padding:0 0 5pt 0;' + F + 'font-size:10pt;line-height:12pt;color:#111111;">Üdvözlettel,</td></tr><tr>' + photo
+    + '<td style="padding:8px 8px 8px ' + (photo ? '0' : '12px') + ';vertical-align:middle;white-space:nowrap;background:#f2f2f2;' + (photo ? '' : 'border-left:4px solid #111111;') + F + 'color:#111111;" valign="middle">'
+    + '<div style="font-size:14pt;line-height:16.8pt;font-weight:700;margin:0 0 4pt 0;">' + e(f.name) + '</div>'
+    + (f.title ? '<div style="font-size:10pt;line-height:12pt;margin:0 0 4pt 0;">' + e(f.title) + '</div>' : '')
+    + '<div style="font-size:10pt;line-height:12pt;font-weight:700;margin:0 0 4pt 0;">Lumos Motion Kft.</div>'
+    + (f.phone ? '<div style="font-size:10pt;line-height:12pt;margin:0 0 4pt 0;">Tel.: <a href="tel:' + e(tel) + '" style="color:#1155cc;text-decoration:underline;">' + e(f.phone) + '</a></div>' : '')
+    + '<div style="font-size:10pt;line-height:12pt;margin:0;">Email: <a href="mailto:' + e(f.email) + '" style="color:#1155cc;text-decoration:underline;font-size:10pt;">' + e(f.email) + '</a></div></td></tr>'
+    + '<tr><td colspan="2" style="padding:6pt 0 0 0;"><a href="https://lumosmotion.com/" style="text-decoration:none;border:0;"><img alt="Lumos Motion" height="23" src="https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png" style="display:block;width:224px;height:23px;border:0;outline:none;text-decoration:none;background:#ffffff;" width="224"/></a></td></tr></table>';
+  const text = ['Üdvözlettel,', '', f.name, f.title, 'Lumos Motion Kft.', f.phone ? 'Tel.: ' + f.phone : '', 'Email: ' + f.email, 'https://lumosmotion.com/'].filter((x, i) => i < 2 || x).join('\n');
+  return { html: html, text: text };
+}
+const signatureFor_ = u => { const f = sigFields_(u); return f ? sigBuild_(f) : null; };
+/** Aláírás mentése: az ügyvezető bármelyik vezetőét, a termelési vezető a sajátját. a: {userId, title, phone, photo} */
+function saveSignature_(u, a) {
+  const users = loadUsers_(), t = users.find(x => x.id === String(a && a.userId || ''));
+  if (!t || (t.role !== 'admin' && t.role !== 'editor')) throw new Error('Aláírás csak az ügyvezetőnek és a termelési vezetőknek állítható be.');
+  if (u.role !== 'admin' && t.id !== u.id) throw new Error('FORBIDDEN: csak a saját aláírásodat módosíthatod.');
+  const photo = str_(a.photo, 400);
+  if (photo && !/^https:\/\/\S+$/i.test(photo)) throw new Error('A fotó linkje https:// kezdetű legyen (vagy hagyd üresen).');
+  const st = sigStore_(); st[sigKey_(t.email)] = { title: str_(a.title, 80), phone: str_(a.phone, 40), photo: photo };
+  PropertiesService.getScriptProperties().setProperty(SIG_PROPERTY, JSON.stringify(st));
+  logEvent_(u, 'E-mail aláírás', t.name, 'módosítva');
+  return sigList_();
+}
+function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; o[x.id] = Object.assign({}, f, { html: sigBuild_(f).html, set: !!sigFields_(x) }); }); return o; }
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 /** Nyersanyag feltöltve – e-mail a vágó(k)nak. a: {projectId, crewIds:[], link, text} */
@@ -3819,6 +3852,7 @@ function rpcInner_(token, name, arg) {
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
     case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
+    case 'saveSignature': canEdit(); return saveSignature_(u, arg);
     case 'finData': adminOnly(); return finDataCached_();
     case 'finUpsert': adminOnly(); return finUpsert_(u, arg);
     case 'finDelete': adminOnly(); return finDelete_(u, arg);
@@ -3892,7 +3926,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'projectHistory': canEdit(); return projectHistory_(u, arg);
-    case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), log: role === 'admin' ? getLog_().slice(0, 600) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
+    case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), sigs: sigList_(), log: role === 'admin' ? getLog_().slice(0, 600) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);

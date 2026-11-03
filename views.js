@@ -1091,8 +1091,13 @@ function viewSettings(){
       ${cc[k]?`<div class="mail-cc"><span class="muted">Másolat:</span>${CC.map(([r,rl])=>`<label class="cc-chip${cc[k].includes(r)?' on':''}"><input type="checkbox" data-mailcc="${k}" data-role="${r}"${cc[k].includes(r)?' checked':''}${S.mailOn&&mc[k]!==false?'':' disabled'}> ${rl}</label>`).join('')}</div>`:''}</div>`).join('')}</div></div>`;
   if(Date.now()-(S._settingsAt||0)>30000)setTimeout(loadSettings,0);
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
-  const RO_={admin:0,editor:1,crew:2},users=S.users.slice().sort((a,b)=>(!!a.disabled-!!b.disabled)||((RO_[a.role]??3)-(RO_[b.role]??3))||a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow${u.disabled?' off':''}"><div class="who"><b>${esc(u.name)} <span class="statuspill ${u.disabled?'p-bad':'p-ok'}">${u.disabled?'letiltva':'aktív'}</span>${u.id===S.me.id?' <span class="muted" style="font-weight:600">(te)</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
-    <div class="arow-btns">${!isAdmin()&&u.role!=='crew'?'':`${u.id!==S.me.id?`<button class="mini${u.disabled?'':' warn'}" type="button" data-action="toggle-user" data-id="${esc(u.id)}" data-dis="${u.disabled?'0':'1'}">${u.disabled?'Engedélyezés':'Letiltás'}</button>`:''}<button class="mini" type="button" data-action="edit-user" data-id="${esc(u.id)}">Szerkesztés</button>`}</div></div>`).join('');
+  const UT=[['all','Mind'],['admin','Ügyvezető'],['editor','Termelési vezetők'],['crew','Szakemberek'],['sales','Értékesítők']].filter(([k])=>k==='all'||S.users.some(u=>u.role===k));
+  const ut=UT.some(([k])=>k===S.userTab)?S.userTab:'all',showSig=ut==='admin'||ut==='editor';
+  const userTabs=`<div class="chips log-tabs">${UT.map(([k,l])=>`<button class="chip" type="button" data-action="user-tab" data-v="${k}" aria-pressed="${ut===k}">${l}<span class="c">${k==='all'?S.users.length:S.users.filter(u=>u.role===k).length}</span></button>`).join('')}</div>`;
+  const sigOf=u=>{const sg=(S.sigs||{})[u.id];if(!sg)return '';const can=isAdmin()||u.id===S.me.id;
+    return `<div class="sig-box"><div class="sig-h"><b>✍️ E-mail aláírás</b>${sg.set?'':' <span class="muted">– még nincs beállítva, a levelek „Üdvözlettel, név” zárással mennek</span>'}${can?`<button class="mini" type="button" data-action="sig-edit" data-id="${esc(u.id)}">Szerkesztés</button>`:''}</div>${sg.set?`<div class="sig-prev" data-sig="${esc(u.id)}"></div>`:''}</div>`;};
+  const RO_={admin:0,editor:1,crew:2},users=S.users.filter(u=>!S.userTab||S.userTab==='all'||u.role===S.userTab||!S.users.some(x=>x.role===S.userTab)).slice().sort((a,b)=>(!!a.disabled-!!b.disabled)||((RO_[a.role]??3)-(RO_[b.role]??3))||a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow${u.disabled?' off':''}"><div class="who"><b>${esc(u.name)} <span class="statuspill ${u.disabled?'p-bad':'p-ok'}">${u.disabled?'letiltva':'aktív'}</span>${u.id===S.me.id?' <span class="muted" style="font-weight:600">(te)</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
+    <div class="arow-btns">${!isAdmin()&&u.role!=='crew'?'':`${u.id!==S.me.id?`<button class="mini${u.disabled?'':' warn'}" type="button" data-action="toggle-user" data-id="${esc(u.id)}" data-dis="${u.disabled?'0':'1'}">${u.disabled?'Engedélyezés':'Letiltás'}</button>`:''}<button class="mini" type="button" data-action="edit-user" data-id="${esc(u.id)}">Szerkesztés</button>`}</div>${(S.userTab==='admin'||S.userTab==='editor')&&(u.role==='admin'||u.role==='editor')&&!u.disabled?sigOf(u):''}</div>`).join('');
   const leaders=(S.users||[]).filter(u=>u.role==='admin'||u.role==='editor').sort((a,b)=>(a.role==='admin'?0:1)-(b.role==='admin'?0:1)||a.name.localeCompare(b.name,'hu'));   // fülek: ügyvezető, termelési vezető(k), majd mindenki más
   const lnames=leaders.map(u=>u.name),lt=S.logTab&&(S.logTab==='__other'||lnames.includes(S.logTab))?S.logTab:(lnames[0]||'__other');
   const logSel=S.log.filter(l=>lt==='__other'?!lnames.includes(l.who):l.who===lt);
@@ -1101,26 +1106,21 @@ function viewSettings(){
   if(!isAdmin())return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Hozzáférések</p></div></div>
     <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Szakember felvétele</button></span></h3>
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
-      <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
+      ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Felhasználók, napló és a háttérben futó táblázat</p></div></div>
     ${mailPanel}
-    <div class="panel db-panel"><h3>🗄️ Adatbázis <span class="aside">${S.dbInfo?`<span class="statuspill ${S.dbInfo.mode==='neon'?'p-ok':'p-mute'}">${S.dbInfo.mode==='neon'?'Neon adatbázis':'Google-táblázat'}</span>`:''}</span></h3>
-      <p class="hint" style="margin:6px 0 10px">Az app adatai a gyors Neon adatbázisban vagy a Google-táblázatban lehetnek. Neon módban a táblázat éjszakánként biztonsági másolatot kap, és egy kattintással vissza lehet állni rá.</p>
-      ${S.dbInfo&&S.dbInfo.msg?`<p class="hint" style="margin:0 0 10px">${esc(S.dbInfo.msg)}</p>`:''}
-      <div class="btns"><button class="btn outline small" type="button" data-action="db-ping">🔌 Kapcsolat ellenőrzése</button>
-        ${S.dbInfo&&S.dbInfo.mode==='neon'?`<button class="btn outline small" type="button" data-action="db-backup">💾 Mentés a táblázatba most</button><button class="btn outline small" type="button" data-action="db-mode" data-mode="sheet">↩️ Vissza a Google-táblázatra</button>`:`<button class="btn primary small" type="button" data-action="db-mode" data-mode="neon">🚀 Átköltöztetés a Neon adatbázisba</button>`}</div></div>
-    <div class="btns">${S.links.sheet?`<a class="mini" href="${esc(S.links.sheet)}" target="_blank" rel="noopener">📊 Adatbázis megnyitása (Google Sheet) ↗</a>`:''}${S.links.folder?`<a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a>`:''}</div>
+    ${S.links.folder?`<div class="btns"><a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a></div>`:''}
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
         <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld. Szakember: csak a saját beosztásait látja (helyszín, időpont, stáb, eszközök), szerkeszteni nem tud.</p>
-        <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
+        ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
         ${logTabs}<div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
     </div>`;
 }
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük
   if(S._settingsLoading)return;S._settingsLoading=true;
-  try{const r=await call('settingsData');S.users=r.users||[];S.log=r.log||[];S._settingsAt=Date.now();}
+  try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S._settingsAt=Date.now();}
   catch(e){handleErr(e);S.users=S.users||[];S.log=S.log||[];}
   finally{S._settingsLoading=false;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}
 }

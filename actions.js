@@ -1194,6 +1194,8 @@ const ACT={
   'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft(stepPatch(d,it.k,n));},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'log-tab':b=>{S.logTab=b.dataset.v;render(true);},
+  'user-tab':b=>{S.userTab=b.dataset.v;render(true);},
+  'sig-edit':b=>sigModal(b.dataset.id),
   'view-reset':()=>guard(()=>switchView('admin')),
   'crew-add-focus':()=>{const e=$('add-crew-person');if(!e)return;e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>{e.focus();try{e.showPicker&&e.showPicker();}catch(_){}},350);},
   'lead-remove':()=>{const d=S.draft;if(!d)return;setDraft({lead:''});toast('A projektvezető szerep lekerült – jelölj ki új projektvezetőt.');},
@@ -1696,3 +1698,18 @@ function cfPreviewRender(defSubj,defIntro){const box=$('cfPrev'),sel=$('cfPrevWh
   sr.innerHTML=`<style>:host{display:block}div{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}td p{margin:0}</style><div>${html}</div>`;}
 document.addEventListener('input',e=>{if(['m-cfSubj','m-cfIntro','m-cfNote'].includes(e.target.id)){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
 document.addEventListener('change',e=>{if(e.target.id==='cfPrevWho'){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
+
+/* E-mail aláírás (ügyvezető, termelési vezetők): beosztás, telefon, fotó – élő előnézettel */
+function sigRender(el,html){if(!el)return;const sr=el.shadowRoot||el.attachShadow({mode:'open'});sr.innerHTML=`<style>:host{display:block}a{pointer-events:none}</style>${html}`;}
+function sigPreviewHtml(f){const e=esc,F='font-family:Arial,Helvetica,sans-serif;',ph=/^https:\/\//i.test(f.photo||'');
+  return `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:375px;${F}color:#111"><tr><td colspan="2" style="padding:0 0 5pt;font-size:10pt">Üdvözlettel,</td></tr><tr>${ph?`<td style="width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111"><img alt="" src="${e(f.photo)}" style="display:block;width:108px;height:108px;border-radius:54px;object-fit:cover"></td>`:''}<td style="padding:8px 8px 8px ${ph?'0':'12px'};vertical-align:middle;white-space:nowrap;background:#f2f2f2;${ph?'':'border-left:4px solid #111;'}"><div style="font-size:14pt;font-weight:700;margin:0 0 4pt">${e(f.name)}</div>${f.title?`<div style="font-size:10pt;margin:0 0 4pt">${e(f.title)}</div>`:''}<div style="font-size:10pt;font-weight:700;margin:0 0 4pt">Lumos Motion Kft.</div>${f.phone?`<div style="font-size:10pt;margin:0 0 4pt">Tel.: <a style="color:#1155cc">${e(f.phone)}</a></div>`:''}<div style="font-size:10pt">Email: <a style="color:#1155cc">${e(f.email)}</a></div></td></tr><tr><td colspan="2" style="padding:6pt 0 0"><img alt="Lumos Motion" src="https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png" style="display:block;width:224px;height:23px"></td></tr></table>`;}
+function sigModal(uid){const sg=(S.sigs||{})[uid];if(!sg)return;
+  openModal('✍️ E-mail aláírás – '+sg.name,`<div class="fields">
+    <div class="field"><label for="m-sgTitle">Beosztás</label><input class="inp" id="m-sgTitle" name="sgTitle" maxlength="80" value="${esc(sg.title||'')}" placeholder="pl. Produkciós koordinátor"></div>
+    <div class="field"><label for="m-sgPhone">Telefon</label><input class="inp" id="m-sgPhone" name="sgPhone" maxlength="40" value="${esc(sg.phone||'')}" placeholder="+36 20 123 4567"></div>
+    <div class="field full"><label for="m-sgPhoto">Fotó linkje <span class="muted">(nem kötelező, https://…)</span></label><input class="inp" id="m-sgPhoto" name="sgPhoto" maxlength="400" value="${esc(sg.photo||'')}" placeholder="https://projekttervezo.lumosmotion.hu/sig/nev.jpg"></div>
+    <div class="field full"><span class="lbl">Előnézet <span class="muted">– a név és az e-mail-cím a felhasználói fiókból jön</span></span><div class="sig-prev" id="sgPrev"></div></div></div>`,
+    {submitLabel:'Mentés',submit:async fd=>{try{S.sigs=await call('saveSignature',{userId:uid,title:String(fd.get('sgTitle')||'').trim(),phone:String(fd.get('sgPhone')||'').trim(),photo:String(fd.get('sgPhoto')||'').trim()});closeModal();render(true);toast('Aláírás mentve – a következő levelektől ezt használja az app');}catch(e){handleErr(e);}}});
+  const upd=()=>sigRender($('sgPrev'),sigPreviewHtml({name:sg.name,email:sg.email,title:($('m-sgTitle')||{}).value,phone:($('m-sgPhone')||{}).value,photo:($('m-sgPhoto')||{}).value}));upd();
+  ['m-sgTitle','m-sgPhone','m-sgPhoto'].forEach(id=>{const x=$(id);if(x)x.addEventListener('input',upd);});}
+if(window.MutationObserver){let sgT=0;new MutationObserver(()=>{if(sgT)return;sgT=requestAnimationFrame(()=>{sgT=0;document.querySelectorAll('[data-sig]').forEach(el=>{if(el.shadowRoot)return;const sg=(S.sigs||{})[el.dataset.sig];if(sg)sigRender(el,sg.html);});});}).observe(document.documentElement,{childList:true,subtree:true});}
