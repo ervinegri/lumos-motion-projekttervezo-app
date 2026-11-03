@@ -1823,7 +1823,7 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
 if(window.MutationObserver){let acT=0;new MutationObserver(()=>{if(acT)return;acT=requestAnimationFrame(()=>{acT=0;const el=$('add-crew-person');if(el&&!el._cmb)comboSelect(el,'Kezdj el gépelni a nevet…',id=>{const c=crewById(id);return c?(c.roles||[]).join(', '):'';});});}).observe(document.documentElement,{childList:true,subtree:true});}
 /* A véglegesített csapat módosult: pár másodperc szünet után felugrik az újra-véglegesítő ablak (ki milyen levelet kap) */
 function cfAutoPrompt(p){if(!p||ro())return;const sig=JSON.stringify(crewFinalDiff(p));if(sig===S._cfAutoSig)return;S._cfAutoSig=sig;clearTimeout(S._cfAutoT);
-  S._cfAutoT=setTimeout(()=>{const d=S.draft;if(!d||d.id!==p.id||crewFinalState(d)!=='changed'||postTasks(d).some(t=>!taskOwners(d,t.k).length)||$('modalRoot').innerHTML||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;crewFinalizeModal();},4000);}
+  S._cfAutoT=setTimeout(()=>{const d=S.draft;if(!d||d.id!==p.id||!(S.crewEdit||{})[d.id]||crewFinalState(d)!=='changed'||postTasks(d).some(t=>!taskOwners(d,t.k).length)||$('modalRoot').innerHTML||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;crewFinalizeModal();},4000);}
 
 /* Projekt összesítő: munkatárs hozzárendelése egy munkához → automatikusan bekerül a stábba a szereppel; utómunkánál a vágó kiosztása */
 document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||projLocked())return;
