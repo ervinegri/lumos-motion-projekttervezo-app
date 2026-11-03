@@ -1258,6 +1258,8 @@ const ACT={
   'cal-nav':b=>{const d=Number(b.dataset.d);if(!d){S.cal.month=todayISO().slice(0,7);S.cal.sel=todayISO();}else{const [y,m]=S.cal.month.split('-').map(Number);const n=new Date(Date.UTC(y,m-1+d,1));S.cal.month=n.toISOString().slice(0,7);}render(true);},
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
   'cal-event':b=>calEventModal(b.dataset.id),
+  'cal-vevent':b=>{let ev=null;Object.values(S.cal.ev2||{}).forEach(l=>(l||[]).forEach(x=>{if(x.id===b.dataset.id)ev=x;}));if(!ev)return;
+    openModal('✂️ '+(ev.title||'(nincs cím)'),`<div class="kv">${[['Naptár','Vágói Naptár Lumos Motion'],['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location],['Leírás',ev.description]].filter(x=>x[1]).map(([k,v])=>`<p style="margin:0 0 8px"><span class="muted">${esc(k)}:</span> ${esc(v).replace(/\n/g,'<br>')}</p>`).join('')}</div>`,{cancelLabel:'Bezárás'});},
   'cal-day':b=>{const d=b.dataset.d,its=calItems(S.cal.month).filter(it=>it.date<=d&&it.endDate>=d);openModal(F_FULL.format(toDate(d)),`<div class="cal-daylist">${its.map(it=>calChip(it,d)).join('')}</div>`,{cancelLabel:'Bezárás'});},
   'cal-import':b=>importCalEvent(b.dataset.id),
   'cal-new':b=>{if(!ro())guard(()=>newProjectModal(b.dataset.d||(S.cal.month===todayISO().slice(0,7)?todayISO():S.cal.month+'-01')));},
@@ -1443,7 +1445,7 @@ function calTipHtml(el){
     const rows=[['Ügyfél',p.client],['Időpont',r?fmtRange(p)+(p.startTime?', '+p.startTime+(p.endTime?'–'+p.endTime:''):''):''],['Helyszín',p.venue],['Állapot',STATUS_LABEL[p.status||'egyeztetes']],['Projektvezető',lead&&lead.name],
       ['Stáb',crewIds(p).size?crewIds(p).size+' fő':''],['Átadási határidő',due&&needsDelivery(p)?fmtDay(due)+(di&&p.status!=='atadva'?' · '+di.txt:''):''],['Kapcsolattartó',[p.contactName,p.contactPhone].filter(Boolean).join(', ')]].filter(x=>x[1]);
     return `<b>${esc(p.name||'Névtelen projekt')}</b>${rows.map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}`;}
-  let ev=null;Object.values(S.cal.events||{}).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;}));if(!ev)return '';
+  let ev=null;Object.values(S.cal.events||{}).concat(Object.values(S.cal.ev2||{})).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;}));if(!ev)return '';
   return `<b>${esc(ev.title||'(nincs cím)')}</b>${[['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location]].filter(x=>x[1]).map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}<div class="tip-hint">Jobb klikk: törlés</div>`;
 }
 document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el){const t=$('calTip');if(t&&!e.target.closest('#calTip'))t.remove();return;}
@@ -1761,3 +1763,6 @@ function sigEdInit(u){const ed=$('m-sigEd');if(!ed||!u)return;SIG_ED={dirty:fals
     msg(r.dropped?`Beillesztve – ${r.dropped} beágyazott képet kihagytam (a levelezők nem mutatják). A képek legyenek linkként a dokumentumban.`:'Beillesztett aláírás – mentéskor ez kerül a levelekbe');});
   ed.addEventListener('input',()=>{SIG_ED.dirty=true;SIG_ED.reset=false;});
   const rb=$('m-sigReset');if(rb)rb.addEventListener('click',()=>{ed.innerHTML=sigClean(sg.base||'').html;SIG_ED.dirty=true;SIG_ED.reset=true;msg('Alap aláírás – mentéskor visszaáll');});}
+
+/* Naptár: a Terepi munkák és a Vágói naptár külön ki-be kapcsolható (böngészőnként megjegyezzük) */
+document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.calshow;if(!k)return;S.cal.show[k]=e.target.checked;try{localStorage.setItem('lpm_cal_show',JSON.stringify(S.cal.show));}catch(_){}if(k==='vagoi'&&e.target.checked)loadVagoi(S.cal.month);render(true);});

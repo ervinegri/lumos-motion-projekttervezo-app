@@ -833,7 +833,9 @@ function viewProject(p){
   const folder=ro()?'':p.folderId?`<a class="mini" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:ro()?'':`<button class="mini" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`;
   const histBtn=ro()?'':`<button class="mini" type="button" data-action="proj-history" data-id="${esc(p.id)}">ℹ️ Részletek</button>`;
   const iCut=(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó'),canDeliver=iCut&&['tervezes','helyszin','utomunka','leadva'].includes(p.status||'tervezes')&&needsDelivery(p);
-  const delivery=(canDeliver?`<button class="btn primary small" type="button" data-action="cut-deliver">📤 Videók leadása</button>`:'')+vidLink(p,'mini','Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))+extraLinks(p,'mini');
+  const vl=vidLink(p,'mini','Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':'')),xl=extraLinks(p,'mini');
+  const dlPanel=!!(vl||xl)&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T);   // a Kész videók panel mutatja a linket – fent nem kell még egy gomb
+  const delivery=(canDeliver?`<button class="btn primary small" type="button" data-action="cut-deliver">📤 Videók leadása</button>`:'')+(dlPanel?xl:vl+xl);
   return `<div class="dhead">
     <button class="back" type="button" data-action="back">← ${ro()?'Beosztásaim':'Összes projekt'}</button>
     <div class="dtitle">${calBlock(r&&r.start)}<div class="grow"><h2>${esc(p.name||'Névtelen projekt')}${p.status==='atadva'?DONE_CHECK:''}${ro()?'':' <button class="editbtn title-edit" type="button" data-action="proj-rename" aria-label="Projekt nevének módosítása" data-tip="Név módosítása">✏️</button>'}</h2>
@@ -843,7 +845,7 @@ function viewProject(p){
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
   </div>
   <div class="dfull">
-      ${delivery&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T)?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Videók megnyitása ↗')}</div>`:''}
+      ${dlPanel?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))}</div>`:''}
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
         ${fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}
@@ -944,7 +946,12 @@ function calCacheGet(m){try{const c=JSON.parse(localStorage.getItem(CAL_LS+m)||'
 function calCacheSet(m,ev){try{localStorage.setItem(CAL_LS+m,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),ev}));}catch(e){}}
 function calCacheClear(){try{Object.keys(localStorage).filter(k=>k.indexOf(CAL_LS)===0).forEach(k=>localStorage.removeItem(k));}catch(e){}}
 const shiftMonth=(m,d)=>{const [y,mo]=m.split('-').map(Number);const t=new Date(Date.UTC(y,mo-1+d,1));return t.toISOString().slice(0,7);};
-function loadCalEvents(month){
+function loadVagoi(month){const k='v:'+month;S.cal.at=S.cal.at||{};if(!S.cal.show.vagoi||S.cal.loading[k])return;if(S.cal.ev2[month]&&Date.now()-(S.cal.at[k]||0)<60000)return;
+  if(S.cal.err[k]&&Date.now()-((S.cal.errAt||{})[k]||0)<60000)return;const r=calRange(month);S.cal.loading[k]=true;
+  call('calendarEvents',{from:r.start,to:r.end,cal:'vagoi'}).then(ev=>{S.cal.ev2[month]=ev||[];S.cal.at[k]=Date.now();delete S.cal.err[k];})
+    .catch(e=>{S.cal.err[k]=errText(e);(S.cal.errAt=S.cal.errAt||{})[k]=Date.now();})
+    .finally(()=>{delete S.cal.loading[k];if(S.tab==='naptar'&&!S.projectId&&!$('modalRoot').innerHTML)render(true);});}
+function loadCalEvents(month){loadVagoi(month);
   const r=calRange(month),key=month;S.cal.at=S.cal.at||{};
   if(S.cal.loading[key])return;
   if(!S.cal.events[key]){const c=calCacheGet(month);if(c){S.cal.events[key]=c.ev;S.cal.at[key]=0;}}
@@ -961,6 +968,8 @@ function calItems(month){
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
   S.projects.forEach(p=>{const q=pr(p);if(!q||q.end<r.start||q.start>r.end)return;
     items.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
+  if(S.cal.show.vagoi)(S.cal.ev2[month]||[]).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''}));
+  if(!S.cal.show.terepi)return items.filter(i=>i.kind==='v').sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
     items.push({kind:'g',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''});});
   return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99')||a.title.localeCompare(b.title,'hu'));
@@ -968,8 +977,8 @@ function calItems(month){
 function calChip(it,day){
   const cont=it.date<day;
   const dim=it.kind==='p'&&crewDim(projById(it.id)||{});
-  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}`:'cal-chip g';
-  return `<button type="button" class="${cls}" data-action="${it.kind==='p'?'open-project':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
+  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
+  return `<button type="button" class="${cls}" data-action="${it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();
@@ -986,7 +995,7 @@ function viewCalendar(){
       <div class="btns">${ro()?'':'<button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>'}<button class="btn outline small" type="button" data-action="cal-nav" data-d="-1" aria-label="Előző hónap">‹</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="0">Ma</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="1" aria-label="Következő hónap">›</button>
       ${ro()?'':`<a class="btn ghost small" href="https://calendar.google.com/calendar/u/0/r/month/${r.first.replace(/-/g,'/')}" target="_blank" rel="noopener">Google Naptár ↗</a>`}</div></div>
     ${err?`<div class="banner"><p>A Google Naptár most nem érhető el: ${esc(err)}</p><button class="btn outline small" type="button" data-action="cal-retry">Újra</button></div>`:''}
-    ${ro()?'':'<div class="cal-legend"><span><i class="lg p"></i>Projekt az appban</span><span><i class="lg g"></i>Csak a Google Naptárban – kattints rá, és projektet csinálhatsz belőle</span></div>'}
+    ${ro()?'':`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói naptár</label>${S.cal.err['v:'+m]&&S.cal.show.vagoi?`<span class="bad-txt">A Vágói naptár most nem érhető el: ${esc(S.cal.err['v:'+m])}</span>`:''}<span class="muted"><i class="lg g"></i>Csak a Google Naptárban – kattints rá, és projektet csinálhatsz belőle</span></div>`}
     <div class="cal-wrap"><div class="cal-grid">${WD_SHORT.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${grid}</div></div>
     <div class="cal-agenda">${agenda||empty('Ebben a hónapban nincs esemény.')}</div>`;
 }

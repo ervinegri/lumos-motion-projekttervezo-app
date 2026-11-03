@@ -1462,6 +1462,7 @@ function authorizeGoogleLogin() {
 }
 
 function authorizeCalendar() { Logger.log('Naptár rendben: ' + cal_().getName()); }
+const CAL_VAGOI_ID = 'c_049dca3cc6b78ea7bd304a4cafaab3ca26b504fc3d4e141a3b2d308b14705250@group.calendar.google.com';   // „Vágói Naptár Lumos Motion” (csak olvasás)
 function cal_() { const c = CalendarApp.getCalendarById(CALENDAR_ID); if (!c) throw new Error('A Google Naptár nem érhető el.'); return c; }
 function calEvent_(id) { if (!id) return null; try { return cal_().getEventById(id); } catch (e) { return null; } }
 function calDelete_(id) { try { const ev = calEvent_(id); if (ev) ev.deleteEvent(); } catch (e) { Logger.log('Naptár törlés hiba: ' + e); } }
@@ -1551,10 +1552,13 @@ function calendarEvents_(a) {
   if (!from || !to || to < from) throw new Error('Hibás időszak.');
   const start = calDate_(from), end = new Date(calDate_(to).getTime() + 86400000);
   if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
-  const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + from + '_' + to, hit = cache.get(key);
+  const which = a && a.cal === 'vagoi' ? 'vagoi' : 'terepi';
+  const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + which + '_' + from + '_' + to, hit = cache.get(key);
   if (hit) return JSON.parse(hit);
   const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
-  const out = cal_().getEvents(start, end).map(ev => {
+  const src = which === 'vagoi' ? CalendarApp.getCalendarById(CAL_VAGOI_ID) : cal_();
+  if (!src) throw new Error('A Vágói naptár nem érhető el – ellenőrizd, hogy a szkript fiókja hozzáfér-e.');
+  const out = src.getEvents(start, end).map(ev => {
     const allDay = ev.isAllDayEvent();
     const s = allDay ? ev.getAllDayStartDate() : ev.getStartTime();
     let e2 = allDay ? ev.getAllDayEndDate() : ev.getEndTime();
