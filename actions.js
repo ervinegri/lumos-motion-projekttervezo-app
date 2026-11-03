@@ -1451,7 +1451,8 @@ async function addrSearch(input){const q=input.value.trim();if(q.length<3){pickC
   await Promise.all([osm,g]);}
 document.addEventListener('input',e=>{if(e.target.id==='f-venue'&&!ro()){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.addr-item');if(!it)return;e.preventDefault();e.stopPropagation();const v=ADDR_ITEMS[Number(it.dataset.addr)];pickClose();
-  const mv=$('m-venue');if(mv&&document.activeElement===mv){if(v)mv.value=v;return;}   // új projekt ablak
+  const mv=$('m-venue');if(mv&&document.activeElement===mv){if(v)mv.value=v;return;}
+  const dv=$('m-dVenue');if(dv&&document.activeElement===dv){if(v){dv.value=v;const m=$('dl-map');if(m){m.style.display='';m.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v);}}return;}   // új projekt ablak
   const inp=$('f-venue');if(inp&&v){inp.value=v;setDraft({venue:v});}},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
 
@@ -1524,8 +1525,8 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='m-clientQ'||!$('hsBox'
   else if(e.key==='Enter'&&i>=0){e.preventDefault();e.stopPropagation();const v=MC_ITEMS[Number(its[i].dataset.mc)];pickClose();if(v)mcSetClient(v);}
   else if(e.key==='Escape'||e.key==='Tab')pickClose();},true);
 /* helyszín: címkereső az ablakban is */
-document.addEventListener('input',e=>{if(e.target.id==='m-venue'){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
-document.addEventListener('focusout',e=>{if(e.target.id==='m-venue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
+document.addEventListener('input',e=>{if(e.target.id==='m-venue'||e.target.id==='m-dVenue'){clearTimeout(ADDR_T);const t=e.target;ADDR_T=setTimeout(()=>addrSearch(t),350);}});
+document.addEventListener('focusout',e=>{if(e.target.id==='m-venue'||e.target.id==='m-dVenue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
 /* kapcsolattartó: HubSpot-kereső az ablakban is */
 let MCT_ITEMS=[],MCT_SEQ=0,MCT_T=0;
 async function mctSearch(input){const q=input.value.trim(),my=++MCT_SEQ,client=(($('m-clientSel')||{}).value==='__new'?($('m-client')||{}).value:($('m-clientSel')||{}).value)||'';

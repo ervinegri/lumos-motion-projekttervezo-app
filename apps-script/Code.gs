@@ -3815,7 +3815,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
-    case 'hubspotContacts': canEdit(); return hubspotContactsApi_(arg);
+    case 'hubspotContacts': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactsApi_(arg);   // az értékesítő a lehetőségekhez keres kapcsolattartót
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
     case 'saveCrew': canEdit(); return saveCrew_(u, arg);
     case 'deleteCrew': canEdit(); return deleteCrew_(u, arg);

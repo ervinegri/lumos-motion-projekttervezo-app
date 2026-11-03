@@ -54,10 +54,10 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}
     <div class="field"><label for="m-dClient">Ügyfél</label><input class="inp" id="m-dClient" name="dClient" list="dl-clients" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="cégnév vagy név"><datalist id="dl-clients">${cl.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
     ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—'})}
-    ${mf('dCName','Kapcsolattartó',{v:d.contactName,max:120})}
+    <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span></label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
     ${mf('dCPhone','Telefon',{v:d.contactPhone,max:40})}
-    ${mf('dVenue','Helyszín',{v:d.venue,max:200})}
+    <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
     ${mf('dDate','Rendezvény dátuma',{v:d.eventDate,type:'date'})}
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
     ${won?'':ms('dStage','Szakasz',stOpts,d.stage)}
@@ -114,3 +114,21 @@ document.addEventListener('dragend',e=>{document.querySelectorAll('.dl-card.drag
 document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('.dl-col');if(!col||!S._dragDeal)return;e.preventDefault();document.querySelectorAll('.dl-col.over').forEach(x=>{if(x!==col)x.classList.remove('over');});col.classList.add('over');});
 document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closest('.dl-col');if(!col||!S._dragDeal)return;e.preventDefault();col.classList.remove('over');const id=S._dragDeal;S._dragDeal='';dealMove(id,col.dataset.stage);});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('dl-card')){const d=dealById(e.target.dataset.id);if(d)dealModal(d);}});
+
+/* Lehetőség ablak: kapcsolattartó a HubSpotból (név, e-mail, telefon, és ha üres, az ügyfél cége) */
+let DCT_ITEMS=[],DCT_SEQ=0,DCT_T=0;
+async function dctSearch(input){const q=input.value.trim(),my=++DCT_SEQ,client=(($('m-dClient')||{}).value||'').trim();
+  if(q.length<2&&client.length<2){pickShow(input,'<div class="hs-empty">Kezdd el gépelni a nevet vagy a céget – a HubSpotban keresek.</div>');return;}
+  pickShow(input,searchingHtml('Keresés a HubSpotban'));
+  try{const r=await call('hubspotContacts',q.length>=2?{q}:{q:'',client});if(my!==DCT_SEQ||document.activeElement!==input)return;
+    DCT_ITEMS=(r||[]).slice(0,12);
+    pickShow(input,DCT_ITEMS.length?DCT_ITEMS.map((c,i)=>`<button type="button" class="hs-item dct-item" data-dct="${i}"><b>${esc(c.name||c.email)}</b><small>${esc([c.company,c.title,c.phone,c.email].filter(Boolean).join(' · '))}</small></button>`).join(''):`<div class="hs-empty">${q.length>=2?'Nincs találat a HubSpotban – a beírt név marad.':'Ennél az ügyfélnél nincs kapcsolattartó a HubSpotban.'}</div>`);}
+  catch(e){if(my===DCT_SEQ&&document.activeElement===input)pickShow(input,`<div class="hs-empty bad-txt">${esc(errText(e))}</div>`);}}
+document.addEventListener('focusin',e=>{if(e.target.id==='m-dCName')dctSearch(e.target);});
+document.addEventListener('input',e=>{if(e.target.id==='m-dCName'){clearTimeout(DCT_T);const t=e.target;DCT_T=setTimeout(()=>dctSearch(t),350);}
+  if(e.target.id==='m-dVenue'){const m=$('dl-map'),v=e.target.value.trim();if(m){m.style.display=v?'':'none';m.href=v?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v):'#';}}});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=DCT_ITEMS[Number(it.dataset.dct)];pickClose();if(!c)return;
+  const set=(id,v,force)=>{const x=$(id);if(x&&v&&(force||!x.value.trim()))x.value=v;};
+  set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);set('m-dCPhone',c.phone,true);set('m-dClient',c.company,false);
+  toast('Kapcsolattartó kitöltve a HubSpotból');},true);
+document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
