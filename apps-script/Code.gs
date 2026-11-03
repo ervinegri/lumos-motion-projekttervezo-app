@@ -527,13 +527,13 @@ function loadBase_() {
 /** Egyszeri: a közelgő projektek naptárbejegyzéseinek leírása frissül (2026-11-03: az ügyfél neve kikerült). Háttérben, egy perccel a bejelentkezés után fut. */
 function calNoClientOnce_() {
   const P = PropertiesService.getScriptProperties();
-  if (P.getProperty('MIG_CALNOCLIENT_2026_11')) return;
-  P.setProperty('MIG_CALNOCLIENT_2026_11', now_());
+  if (P.getProperty('MIG_CALSTORNO_2026_11')) return;   // 2026-11-03: a lemondott (STORNO) projektek eseményei is kikerülnek a Google Naptárból
+  P.setProperty('MIG_CALSTORNO_2026_11', now_());
   try { ScriptApp.newTrigger('calResyncUpcoming').timeBased().after(60 * 1000).create(); } catch (e) {}
 }
 function calResyncUpcoming() {
   const today = today_();
-  readAll_('projects').filter(p => p.calEventId && p.status !== 'lemondva' && String(p.endDate || p.date || '') >= today).forEach(p => { try { syncCalendar_(fullProject_(p)); } catch (e) {} });
+  readAll_('projects').filter(p => p.calEventId && (p.status === 'lemondva' || String(p.endDate || p.date || '') >= today)).forEach(p => { try { syncCalendar_(fullProject_(p)); } catch (e) {} });
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'calResyncUpcoming').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} });
 }
 /** Egyszeri: a már véglegesített csapatú, még Tervezés szakaszban lévő projektek átkerülnek a Helyszíni munkára (a szabály 2026-11-02 óta él). */
@@ -1444,8 +1444,9 @@ function syncCalendar_(p) {
   try {
     const hasDate = /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''));
     let ev = calEvent_(p.calEventId);
-    if (!hasDate) { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; } return p; }
-    const title = (p.status === 'lemondva' ? 'STORNO – ' : '') + p.name;
+    // dátum nélküli vagy lemondott (STORNO) projekt: kikerül a Google Naptárból – az app naptárában szürkén, áthúzva marad
+    if (!hasDate || p.status === 'lemondva') { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; calBump_(); } return p; }
+    const title = p.name;
     const multi = p.endDate && p.endDate > p.date;
     const plan = calPlan_(p);
     const lastDay = Utilities.parseDate((multi ? p.endDate : p.date) + ' 12:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
@@ -1458,6 +1459,9 @@ function syncCalendar_(p) {
                   : cal_().createEvent(title, start, end, { description: plan.description, location: p.venue || '' });
       ev.setTag('lumosProjectId', p.id);
       setCalId_(p.id, ev.getId()); p.calEventId = ev.getId();
+      if (String(p.crewFinal || '').trim() && plan.guests.length) {   // visszaállított (pl. korábban lemondott) projekt: a véglegesített csapat újra vendég lesz
+        const all = {}; plan.crewEmails.forEach(m => { all[m] = 1; }); try { calGuestsSet_(ev, plan.guests, all); } catch (e) { Logger.log('Vendéglista hiba: ' + e); }
+      }
     } else {
       if (ev.getTitle() !== title) ev.setTitle(title);
       if (ev.getDescription() !== plan.description) ev.setDescription(plan.description);
