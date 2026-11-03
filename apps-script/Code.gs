@@ -1222,7 +1222,7 @@ function decideBudgetChange_(u, a) {
 /* ===================== PROJEKTEK ===================== */
 /** Extra szolgáltatások (a szerződött összegen felül, nettó): [{id, name, amount}] */
 function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
-  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && x.kind === 'le' ? 'le' : '' })).filter(x => x.name || x.amount); }
+  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov') ? x.kind : '' })).filter(x => x.name || x.amount); }
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64), mutationId = str_(a.mutationId, 64);
@@ -3365,8 +3365,52 @@ function salesComp_(a) {
 function salesCompOf_(u) { return { salary: Number(u.salary) || 0, commLow: Number(u.commLow) || 0, commHigh: u.commHigh == null ? Number(u.commLow) || 0 : Number(u.commHigh) || 0, commLimit: Number(u.commLimit) || 1000000 }; }
 /** Az értékesítők díjazása a Kifizetésekhez: ügyvezetőnek mindenkié, értékesítőnek a sajátja (más szerepkör nem kapja meg). */
 function salesPeople_(u) {
-  return loadUsers_().filter(x => x.role === 'sales' && x.crewId && !x.disabled && (u.role === 'admin' || x.id === u.id))
-    .map(x => Object.assign({ userId: x.id, crewId: String(x.crewId), name: x.name, since: String(x.createdAt || '').slice(0, 7) }, salesCompOf_(x)));
+  const list = loadUsers_().filter(x => x.role === 'sales' && x.crewId && !x.disabled && (u.role === 'admin' || x.id === u.id));
+  if (!list.length) return [];
+  const ctx = salesCommCtx_();
+  return list.map(x => Object.assign({ userId: x.id, crewId: String(x.crewId), name: x.name, since: String(x.createdAt || '').slice(0, 7) }, salesCompOf_(x), { comm: salesCommOf_(x, ctx) }));
+}
+/* Értékesítői jutalék (keretszerződés 3. pont): havonta, a ténylegesen kifizetett nettó ügyfélbevétel után, sávosan
+   (a havi alap határig terjedő része commLow %, a felette lévő része commHigh %). A jutalékalapba nem számít bele
+   a továbbszámlázott költség (a projekt „továbbszámlázott” extrái, arányosan), és a ki nem fizetett számla sem. */
+function salesCommCtx_() {
+  return { deals: readAll_('deals').filter(d => d.stage === 'nyert' && d.projectId), inv: readAll_('finInvoice'), proj: byId_(readAll_('projects')) };
+}
+function salesCommOf_(user, ctx) {
+  const c = salesCompOf_(user), pids = {};
+  ctx.deals.filter(d => d.ownerId === user.id).forEach(d => { pids[d.projectId] = d; });
+  const months = {}, n = v => Number(v) || 0;
+  const share = (x, pid) => {   // közös számlánál a projekt része a szerződött értékek arányában
+    const ids = [String(x.projectId || '')].concat(String(x.projectIds || '').split(',')).filter(String);
+    if (ids.length < 2) return 1;
+    const w = id => { const p = ctx.proj[id]; return p ? Math.max(0, n(p.quotePrice)) : 0; }, tot = ids.reduce((a, id) => a + w(id), 0);
+    return tot > 0 ? w(pid) / tot : 1 / ids.length;
+  };
+  const passRatio = pid => {   // a továbbszámlázott költség aránya a projekt teljes (nettó) értékében
+    const p = ctx.proj[pid]; if (!p) return 0;
+    const ex = parseExtras_(p.extras), tov = ex.filter(e => e.kind === 'tov').reduce((a, e) => a + n(e.amount), 0);
+    const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
+    return total > 0 ? Math.min(1, tov / total) : 0;
+  };
+  Object.keys(pids).forEach(pid => {
+    const p = ctx.proj[pid]; if (!p || p.status === 'lemondva') return;   // lemondott ügylet után nem jár jutalék
+    const L = ctx.inv.filter(x => x.projectId === pid || String(x.projectIds || '').split(',').indexOf(pid) >= 0);
+    const hasAdvInv = L.some(x => x.kind === 'eloleg');
+    L.forEach(x => {
+      if (x.kind === 'dijbekero' && hasAdvInv) return;   // a fizetett díjbekérőből előlegszámla lesz – egyszer számít
+      const manual = x.kind === 'eloleg' && !!x.manual, gross = n(x.invGross), net = n(x.invNet);
+      const paid = manual ? gross : Math.min(gross, n(x.invPaid));
+      if (!(net > 0) || !(paid > 0) || !(gross > 0)) return;
+      const when = String(x.paidAt || (manual ? x.date : '') || '').slice(0, 7); if (!/^\d{4}-\d{2}$/.test(when)) return;
+      const paidNet = Math.round(net * paid / gross * share(x, pid)), base = Math.round(paidNet * (1 - passRatio(pid)));
+      const m = months[when] || (months[when] = { base: 0, amount: 0, items: [] });
+      m.base += base; m.items.push({ projectId: pid, name: String(p.name || ''), invNo: String(x.no || ''), paidAt: String(x.paidAt || x.date || '').slice(0, 10), paidNet: paidNet, base: base });
+    });
+  });
+  Object.keys(months).forEach(k => { const m = months[k], lim = c.commLimit;
+    m.amount = Math.round(Math.min(m.base, lim) * c.commLow / 100 + Math.max(0, m.base - lim) * c.commHigh / 100);
+    m.items.sort((a, b) => a.paidAt < b.paidAt ? -1 : 1); });
+  return months;
 }
 function newUserRecord_(name, role, crewId, email) {
   return { id: Utilities.getUuid(), name: name, role: role, crewId: crewId || '', email: String(email || ''), disabled: false, createdAt: new Date().toISOString() };
