@@ -924,9 +924,9 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
-  const text = ['Kedves ' + first + ','].concat(note ? ['', note] : []).concat(['', intro, ''])   // a megjegyzés rögtön a megszólítás után
+  const text = ['Kedves ' + first + ',', '', intro].concat(note ? ['', note] : []).concat([''])   // megszólítás → bevezető → megjegyzés → beosztás   // a megjegyzés rögtön a megszólítás után
     .concat(rows.map(r => r[0] + ': ' + r[1])).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', sigText]).join('\n');
-  const html = '<p>Kedves ' + escapeHtml_(first) + ',</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
+  const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' + sigHtml;
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);

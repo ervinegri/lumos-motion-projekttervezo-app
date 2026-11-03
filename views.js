@@ -756,7 +756,7 @@ function topicCards(p,{camRow,dlRow,D}){
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
 function orderSummary(p){
   const T=[],li=(t,n)=>`<li>${esc(t)}${n!=null?`: <b>${n}</b>`:''}</li>`;
-  const cutNm=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?` <span class="os-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:` <span class="os-cut none">✂️ nincs vágó kijelölve</span>`;};
+  const cutNm=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?` <span class="os-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:` <span class="os-cut none">✂️ nincs vágó hozzárendelve</span>`;};
   const grp=(t,items)=>{if(items.length)T.push(`<section class="os-g"><h5>${t}</h5><ul>${items.join('')}</ul></section>`);};
   const rooms=num(p.er_rooms),rec=[];if(rooms>0&&REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]))rec.push(li('Rögzített termek',rooms));
   REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).forEach(c=>rec.push(li(c.label+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''))));
@@ -767,7 +767,7 @@ function orderSummary(p){
   grp('🎤 Interjúk / imázsfilmek videózása',INT_FLAGS.filter(c=>p[c.k]).map(c=>li(c.label)));
   const fo=[];if(fotoN(p)>0)fo.push(li('Fotós a helyszínen',fotoN(p)));grp('📷 Fotózás',fo);
   grp('💡 Vizuál-, hang- és fénytechnika',TECH.filter(t=>p[t.k]).map(t=>li(t.label)).concat(REC_LIVE.filter(c=>p[c.k]).map(c=>li(c.label))));
-  const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágó</span>`;};
+  const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágó hozzárendelve</span>`;};
   const post=postTasks(p).map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span>${cutOf(t.k)}</div>`);   // táblázatszerűen: darab · anyag · vágó
   if(p.x_rush)post.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);if(p.x_nyersTarolas)post.push(`<div class="op-row"><span class="op-n">🗄️</span><span class="op-l">Nyersanyag tárolása 5 évig</span></div>`);
   const postHtml=post.length?`<section class="os-g os-post"><h5>🎬 Utómunka – átadandó anyagok</h5><div class="op-list">${post.join('')}</div></section>`:'';
@@ -782,7 +782,7 @@ function cutTasksBlock(p,cid){
   if(ro())return mine.length?`<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák</div><div class="ct-chips">${tasks.filter(t=>mine.includes(t.k)).map(t=>`<span class="day-chip ct-chip on">${esc(t.label)} · ${t.n}</span>`).join('')}</div></div>`:'';
   const free=tasks.filter(t=>!taskOwners(p,t.k).length).length;
   return `<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák${implicit&&mine.length?' <span class="muted">· egy vágó: minden az övé</span>':''}${free?` <span class="ct-free">⚠️ ${free} videó még nincs vágóhoz rendelve</span>`:''}</div><div class="ct-chips">${tasks.map(t=>{const on=mine.includes(t.k),oth=taskOwners(p,t.k).filter(x=>x!==cid),nobody=!on&&!oth.length;
-    return `<button type="button" class="day-chip ct-chip${on?' on':''}${nobody?' free':''}${oth.length?' other':''}" data-action="cut-task" data-cid="${esc(cid)}" data-k="${t.k}" aria-pressed="${on}"${projLocked()?' disabled':''} title="${on?'Ő vágja – kattints, ha mégsem':oth.length?'Most '+esc(oth.map(id=>(crewById(id)||{}).name||'').join(', '))+' vágja – kattints, ha inkább ő':'Még senki nem vágja – kattints, ha ő'}">${on?'✓ ':nobody?'⚠️ ':''}${esc(t.label)} · ${t.n}${oth.length?` <span class="ct-who">→ ${esc(oth.map(id=>String((crewById(id)||{}).name||'').split(' ').pop()).join(', '))}</span>`:''}</button>`;}).join('')}</div></div>`;
+    return `<button type="button" class="day-chip ct-chip${on?' on':''}${nobody?' free':''}${oth.length?' other':''}" data-action="cut-task" data-cid="${esc(cid)}" data-k="${t.k}" aria-pressed="${on}"${projLocked()||oth.length?' disabled':''} title="${on?'Ő vágja – kattints, ha mégsem':oth.length?esc(oth.map(id=>(crewById(id)||{}).name||'').join(', '))+' vágja – ha másnak adnád, előbb nála vedd le':'Még senki nem vágja – kattints, ha ő'}">${on?'✓ ':nobody?'⚠️ ':''}${esc(t.label)} · ${t.n}${oth.length?` <span class="ct-who">→ ${esc(oth.map(id=>String((crewById(id)||{}).name||'').split(' ').pop()).join(', '))}</span>`:''}</button>`;}).join('')}</div></div>`;
 }
 function viewProject(p){
   const c=calc(p),st=staffing(p),iss=computeIssues().filter(i=>i.pids.includes(p.id));
