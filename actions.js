@@ -824,6 +824,9 @@ async function crewFinalizeModal(){
   flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
   const p=projById(d.id)||d,ids=crewIdsNow(p);if(!ids.length){toast('Még nincs beosztva senki.',true);return;}
   if(!validISO(p.date)){toast('Előbb add meg a projekt első napját.',true);return;}
+  {const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);if(free.length){   // minden vágnivaló videónak legyen vágója
+    toast(cutterIds(p).length?`Előbb rendeld vágóhoz az összes videót – még nincs vágója: ${free.map(t=>t.label).join(', ')}.`:'Vágnivaló videók vannak, de nincs vágó beosztva – előbb ossz be vágót, és rendeld hozzá a videókat.',true);
+    const el=document.querySelector('.ct-chip.free')||$('add-crew-role');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});}return;}}
   const roleOf=id=>(id===p.lead?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).join(', ');
   const diff=crewFinalDiff(p),first=crewFinalState(p)==='none';
   const gearWarn=[...new Set((p.crew||[]).filter(a=>a.role==='Operatőr').map(a=>a.crewId))].map(id=>{const cats=(p.equipment||[]).filter(e=>(e.crewId||'')===id).map(e=>(itemById(e.itemId)||{}).category);
@@ -1817,4 +1820,4 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
 if(window.MutationObserver){let acT=0;new MutationObserver(()=>{if(acT)return;acT=requestAnimationFrame(()=>{acT=0;const el=$('add-crew-person');if(el&&!el._cmb)comboSelect(el,'Kezdj el gépelni a nevet…',id=>{const c=crewById(id);return c?(c.roles||[]).join(', '):'';});});}).observe(document.documentElement,{childList:true,subtree:true});}
 /* A véglegesített csapat módosult: pár másodperc szünet után felugrik az újra-véglegesítő ablak (ki milyen levelet kap) */
 function cfAutoPrompt(p){if(!p||ro())return;const sig=JSON.stringify(crewFinalDiff(p));if(sig===S._cfAutoSig)return;S._cfAutoSig=sig;clearTimeout(S._cfAutoT);
-  S._cfAutoT=setTimeout(()=>{const d=S.draft;if(!d||d.id!==p.id||crewFinalState(d)!=='changed'||$('modalRoot').innerHTML||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;crewFinalizeModal();},4000);}
+  S._cfAutoT=setTimeout(()=>{const d=S.draft;if(!d||d.id!==p.id||crewFinalState(d)!=='changed'||postTasks(d).some(t=>!taskOwners(d,t.k).length)||$('modalRoot').innerHTML||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;crewFinalizeModal();},4000);}
