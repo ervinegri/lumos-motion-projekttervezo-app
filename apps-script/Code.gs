@@ -3644,7 +3644,7 @@ function saveUser_(arg, actor) {
     list = users.map(adminListUser_);
   });
   let mail = null;
-  if (isNew && a.sendInvite !== false && target && target.email) {   // új kolléga: meghívó a Google-fiókos belépéshez
+  if (((isNew && a.sendInvite !== false) || (!isNew && a.resendInvite === true)) && target && target.email) {   // új kolléga, vagy újraküldés (pl. javított e-mail-cím)   // új kolléga: meghívó a Google-fiókos belépéshez
     try { sendInviteMail_(target, actor, a.inviteHtml); mail = { sent: true, to: target.email, invite: true }; }
     catch (e) { mail = { sent: false, to: target.email, error: String((e && e.message) || e), invite: true }; }
   }

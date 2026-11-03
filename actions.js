@@ -432,6 +432,7 @@ function itemModal(it,after){
     catch(e){handleErr(e);}
   }});
 }
+document.addEventListener('input',e=>{if(e.target.id==='m-email'){const r=$('m-resend');if(r)r.checked=true;}});   // javított e-mail-címnél a meghívó újra kimegy
 document.addEventListener('change',e=>{if(e.target.id==='m-role'){const sc=$('m-salesComp');if(sc)sc.hidden=e.target.value!=='sales';const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const nf=$('m-newCrewF');if(nf){nf.hidden=e.target.value!=='__new';if(!nf.hidden)setTimeout(()=>$('m-newName').focus(),0);}const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
   const v=u||{};S._invEdit='';
@@ -449,7 +450,7 @@ function userModal(u){
       <div class="field"><label for="m-commHigh">Jutalék a határ felett (%)</label><input class="inp" id="m-commHigh" name="commHigh" type="number" min="0" max="100" step="0.5" value="${v.commHigh==null?'':esc(v.commHigh)}" placeholder="pl. 25"></div></div>
       <p class="hint" style="margin:4px 0 0">A jutalék szerződésenként jár a szerződött nettó érték után (a határ is nettó szerződési érték), a szerződés hónapjában. A fix fizetés minden hónapban hozzáadódik a Kifizetésekhez.</p></div>`:''}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
-    <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
+    <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label><label><input type="checkbox" name="resendInvite" id="m-resend"> Meghívó újraküldése</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
   </div>`,{left:u&&u.id!==S.me.id?`<button type="button" class="btn danger small" data-action="del-user" data-id="${esc(u.id)}">Törlés</button>`:'',
   submit:async(fd,form)=>{
@@ -458,7 +459,7 @@ function userModal(u){
     const isNewCrew=fd.get('crewId')==='__new',newName=String(fd.get('newName')||'').trim().replace(/\s+/g,' ');
     if(isNewCrew&&newName.length<2){toast('Add meg az új kolléga nevét.',true);$('m-newName').focus();return;}
     if(!cr&&!isNewCrew&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából, vagy válaszd az „Új kolléga” lehetőséget.',true);return;}
-        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on'};
+        const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on',resendInvite:!!u&&fd.get('resendInvite')==='on'};
         if(data.role==='sales'){data.salary=moneyVal(fd.get('salary'));data.commLimit=moneyVal(fd.get('commLimit'))||1000000;data.commLow=fd.get('commLow');data.commHigh=fd.get('commHigh');if(String(data.commLow).trim()===''||String(data.commHigh).trim()===''){toast('Add meg az értékesítő jutalék %-át (a határ alatt és felett).',true);return;}if(data.salary===''){toast('Add meg a fix havi fizetést (ha nincs, írj 0-t).',true);return;}}if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
     try{
       if(isNewCrew){const role=data.role,em=data.email;   // új kolléga: a stáblistára is felkerül (értékesítő → Értékesítők, más → Stáb)
@@ -466,7 +467,7 @@ function userModal(u){
         S.crew.push(nc);data.crewId=nc.id;data.name=nc.name;}
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
       const m=res.mail;
-      closeModal();toast(m&&m.sent?'Kolléga felvéve, meghívót küldtünk: '+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),!!(m&&m.invite&&!m.sent));
+      closeModal();toast(m&&m.sent?(u?'Mentve, a meghívót újraküldtük: ':'Kolléga felvéve, meghívót küldtünk: ')+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),!!(m&&m.invite&&!m.sent));
       render(true);
     }catch(e){handleErr(e);}
   }});
