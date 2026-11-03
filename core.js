@@ -96,7 +96,9 @@ const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.p
 const cutterIds=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];
 /* Ki melyik munkát vágja: ha senkihez nincs semmi rendelve és egy vágó van, minden az övé */
 function taskKeysOf(p,cid){const et=editTasksOf(p),cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
-  if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).map(t=>t.k):[];return (et[cid]||[]).slice();}
+  if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).map(t=>t.k):[];
+  const before=cut.slice(0,cut.indexOf(cid));   // egy videót csak egy vágó vághat: ha (régi adatban) többnél is szerepel, az elsőé
+  return (et[cid]||[]).filter(k=>!before.some(o=>(et[o]||[]).includes(k)));}
 function taskOwners(p,k){return cutterIds(p).filter(id=>taskKeysOf(p,id).includes(k));}
 const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
@@ -250,6 +252,8 @@ function computeIssues(){
   }
   if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
     if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
+  if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
+    if(free.length)out.push({level:'warn',text:`✂️ ${free.length} videó még nincs vágóhoz rendelve: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
   if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
   for(const p of allProjects().filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&validISO(p.leadvaAt))){const n=diffDays(p.leadvaAt,T);   // leadott videók: sürgető figyelmeztetés, ha az ügyfél egy hete nem hagyta jóvá

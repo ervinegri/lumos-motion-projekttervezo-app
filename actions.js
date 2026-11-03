@@ -1228,7 +1228,7 @@ const ACT={
   'op-undo':()=>opStep(-1),
   'np-multi':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Első nap';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(m)m.hidden=true;if(e){e.hidden=false;const i=e.querySelector('input'),d=f.querySelector('[name=date]');if(i){if(d&&d.value)i.min=d.value;i.focus();try{i.showPicker&&i.showPicker();}catch(_){}}}},
   'np-multi-off':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Dátum';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(e){e.hidden=true;const i=e.querySelector('input');if(i)i.value='';}if(m)m.hidden=false;},
-  'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];et[cid]=cur.includes(k)?cur.filter(x=>x!==k):cur.concat([k]);setDraft({editTasks:et});},
+  'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];if(cur.includes(k))et[cid]=cur.filter(x=>x!==k);else{Object.keys(et).forEach(id=>{et[id]=(et[id]||[]).filter(x=>x!==k);});et[cid]=cur.concat([k]);}setDraft({editTasks:et});},   // egy videó = egy vágó: aki megkapja, attól a többinél lekerül
   'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
