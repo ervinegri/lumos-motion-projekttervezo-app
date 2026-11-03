@@ -406,3 +406,13 @@ function comboSelect(sel,ph,subOf){if(!sel||sel._cmb)return;sel._cmb=1;const wra
   box.addEventListener('mousedown',e=>{const b=e.target.closest('.cmb-it');if(!b)return;e.preventDefault();pick(L[+b.dataset.i]);});
   inp.addEventListener('blur',()=>setTimeout(()=>{box.hidden=true;if(inp.value!==cur())inp.value=cur();},120));
   addEventListener('scroll',e=>{if(!box.hidden&&!box.contains(e.target)&&inp.isConnected)draw();},true);}
+/* Szebb dátumválasztó: minden dátummező (type=date) magyar nyelvű naptárat kap. Az eredeti mező (rejtve) kapja az értéket,
+   így a meglévő input/change kezelők változatlanul működnek. Újrarajzolás után az új mezőket is átalakítja. */
+function fpLocale(){const hu=flatpickr.l10ns&&flatpickr.l10ns.hu;if(!hu)return 'default';const lc=a=>a.map(x=>x.toLowerCase());   // magyarul kisbetűvel: november, szombat
+  return Object.assign({},hu,{months:{shorthand:lc(hu.months.shorthand),longhand:lc(hu.months.longhand)},weekdays:{shorthand:hu.weekdays.shorthand,longhand:lc(hu.weekdays.longhand)}});}
+function fpEnhance(root){if(!window.flatpickr)return;(root||document).querySelectorAll('input[type=date]:not([data-fp])').forEach(el=>{el.dataset.fp='1';
+  try{const fp=flatpickr(el,{locale:fpLocale(),dateFormat:'Y-m-d',altInput:true,altFormat:'Y. F j., l',disableMobile:true,allowInput:false,
+    minDate:el.min||null,maxDate:el.max||null,clickOpens:!el.disabled,
+    onChange:()=>{el.dispatchEvent(new Event('input',{bubbles:true}));}});   // a change eseményt a flatpickr maga küldi
+    if(fp.altInput){fp.altInput.className=el.className+' fp-alt';fp.altInput.disabled=el.disabled;fp.altInput.placeholder=el.placeholder||'Válassz dátumot…';if(el.id)fp.altInput.setAttribute('aria-label',(document.querySelector('label[for="'+el.id+'"]')||{}).textContent||'Dátum');}}catch(e){}});}
+if(window.MutationObserver){let fpT=0;new MutationObserver(()=>{if(fpT)return;fpT=requestAnimationFrame(()=>{fpT=0;fpEnhance(document);});}).observe(document.documentElement,{childList:true,subtree:true});}

@@ -720,9 +720,8 @@ function topicCards(p,{camRow,dlRow,D}){
   const dlv=it=>({on:num(p[it.k])>0,html:dlRow(it),chip:it.label+' '+num(p[it.k])});
   const col=(key,title,items)=>{const L=items;   // minden lehetőség látszik egy egyszerű listában, állandó sorrendben; a kiválasztott sötét, félkövér
     return `<div class="tc"><div class="tc-h">${title}</div><div class="tc-list">${L.map(x=>x.html).join('')||'<p class="tc-none">—</p>'}</div></div>`;};
-  const card=(key,title,left,right,opts={})=>{const all=left.concat(right||[]).filter(x=>x.on&&x.chip),n=all.length,open=FOLD[key]!=null?FOLD[key]:n>0;
-    return `<details class="tcard" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="tc-chips">${n?all.map(x=>`<span class="tc-chip">${esc(x.chip)}</span>`).join(''):'<span class="muted">nincs kiválasztva</span>'}</span></summary>
-      <div class="tc-body${right?'':' one'}">${opts.pre||''}${col(key+'_l','📍 Helyszínen',left)}${right?col(key+'_r','🎬 Utómunka',right):''}</div></details>`;};
+  const card=(key,title,items)=>{const n=items.filter(x=>x.on).length,open=FOLD[key]!=null?FOLD[key]:n>0;
+    return `<details class="tcard" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span></summary><div class="tc"><div class="tc-list">${items.map(x=>x.html).join('')}</div></div></details>`;};
   const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
     <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
   const recL=[{on:num(p.er_rooms)>0,html:rooms,chip:num(p.er_rooms)>1?num(p.er_rooms)+' terem':''}].concat(REC_CAMS.filter(c=>c.k!=='er_creative').map(cam));
@@ -733,7 +732,8 @@ function topicCards(p,{camRow,dlRow,D}){
   const foL=[{on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')}],foR=[{on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'}];
   const teL=TECH.map(t=>flag(t.k,t.label)).concat(REC_LIVE.map(c=>flag(c.k,c.label)));
   const due=needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
-  return `${due}<div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL,recR)}${card('t_int','🎤 Interjúk / imázsfilmek',intL,intR)}${card('t_krea','🎥 Kreatív videózás',krL,krR)}${card('t_foto','📷 Fotózás',foL,foR,{alwaysL:1,alwaysR:1})}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL,null)}</div>`;
+  return `${due}<div class="tc-cols"><section><h4 class="sub-h">📍 Terepi feladatok</h4><div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL)}${card('t_krea','🎥 Kreatív videózás',krL)}${card('t_int','🎤 Interjúk / imázsfilmek videózása',intL)}${card('t_foto','📷 Fotózás',foL)}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL)}</div></section>
+    <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${card('p_foto','📷 Fotók utómunkája',foR)}</div></section></div>`;   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
 }
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
 function orderSummary(p){
