@@ -718,11 +718,11 @@ function topicCards(p,{camRow,dlRow,D}){
   const flag=(k,label)=>({on:!!p[k],html:tgl(k,label),chip:label,tg:1});
   const cnt=it=>({on:num(p[it.k])>(it.min||0),html:recCnt(it),chip:it.label+' '+num(p[it.k])});
   const dlv=it=>({on:num(p[it.k])>0,html:dlRow(it),chip:it.label+' '+num(p[it.k])});
-  const col=(key,title,items,always)=>{const on=items.filter(x=>x.on||always),rest=always?[]:items.filter(x=>!x.on),wrap=L=>{const t=L.filter(x=>x.tg),o=L.filter(x=>!x.tg);return (t.length?`<div class="toggles one">${t.map(x=>x.html).join('')}</div>`:'')+o.map(x=>x.html).join('');};
-    return `<div class="tc"><div class="tc-h">${title}</div>${on.length?wrap(on):`<p class="tc-none">${items.length?'Nincs kiválasztva':'—'}</p>`}${rest.length&&!ro()?`<details class="tc-more" data-fold="more_${key}"${FOLD['more_'+key]?' open':''}><summary>＋ hozzáadás <span class="muted">(${rest.length})</span></summary>${wrap(rest)}</details>`:''}</div>`;};
+  const col=(key,title,items)=>{const L=items;   // minden lehetőség látszik egy egyszerű listában, állandó sorrendben; a kiválasztott sötét, félkövér
+    return `<div class="tc"><div class="tc-h">${title}</div><div class="tc-list">${L.map(x=>x.html).join('')||'<p class="tc-none">—</p>'}</div></div>`;};
   const card=(key,title,left,right,opts={})=>{const all=left.concat(right||[]).filter(x=>x.on&&x.chip),n=all.length,open=FOLD[key]!=null?FOLD[key]:n>0;
     return `<details class="tcard" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="tc-chips">${n?all.map(x=>`<span class="tc-chip">${esc(x.chip)}</span>`).join(''):'<span class="muted">nincs kiválasztva</span>'}</span></summary>
-      <div class="tc-body${right?'':' one'}">${opts.pre||''}${col(key+'_l','📍 Helyszínen',left,opts.alwaysL)}${right?col(key+'_r','🎬 Utómunka',right,opts.alwaysR):''}</div></details>`;};
+      <div class="tc-body${right?'':' one'}">${opts.pre||''}${col(key+'_l','📍 Helyszínen',left)}${right?col(key+'_r','🎬 Utómunka',right):''}</div></details>`;};
   const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
     <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
   const recL=[{on:num(p.er_rooms)>0,html:rooms,chip:num(p.er_rooms)>1?num(p.er_rooms)+' terem':''}].concat(REC_CAMS.filter(c=>c.k!=='er_creative').map(cam));
