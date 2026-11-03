@@ -392,7 +392,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!t||t.tagName!=='INPUT
   if(!atEnd){let n=0,i=0;while(i<f.length&&n<digitsBefore){if(/\d/.test(f[i]))n++;i++;}try{t.setSelectionRange(i,i);}catch(x){}}},true);
 /* Gépelhető legördülő: a <select> helyén szövegmező, gépelésre szűr (ékezet nélkül is), nyilakkal és Enterrel is választható.
    A <select> megmarad (rejtve), így a meglévő change-kezelők ugyanúgy működnek. */
-function comboSelect(sel,ph,subOf){if(!sel||sel._cmb)return;sel._cmb=1;const wrap=document.createElement('div');wrap.className='cmb';sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);sel.hidden=true;
+function comboSelect(sel,ph,subOf,opt){opt=opt||{};if(!sel||sel._cmb)return;sel._cmb=1;const wrap=document.createElement('div');wrap.className='cmb';sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);sel.hidden=true;
   const inp=document.createElement('input');inp.className='inp cmb-in';inp.type='text';inp.autocomplete='off';inp.placeholder=ph||'Kezdj el gépelni…';const box=document.createElement('div');box.className='cmb-box';box.hidden=true;wrap.prepend(inp);wrap.appendChild(box);
   const opts=()=>[...sel.options].filter(o=>o.value!==''),cur=()=>sel.selectedOptions[0]&&sel.value!==''?sel.selectedOptions[0].textContent:'';inp.value=cur();let hi=0,L=[];
   const draw=()=>{const q=fold(inp.value.trim()),all=opts();L=q&&inp.value!==cur()?all.filter(o=>o.value!=='__new'&&fold(o.textContent).includes(q)).concat(all.filter(o=>o.value==='__new')):all;hi=Math.min(hi,Math.max(0,L.length-1));
@@ -402,7 +402,7 @@ function comboSelect(sel,ph,subOf){if(!sel||sel._cmb)return;sel._cmb=1;const wra
   inp.addEventListener('input',()=>{hi=0;draw();});
   inp.addEventListener('keydown',e=>{if(box.hidden&&(e.key==='ArrowDown'||e.key==='ArrowUp')){draw();e.preventDefault();return;}
     if(e.key==='ArrowDown'){hi=Math.min(L.length-1,hi+1);draw();e.preventDefault();}else if(e.key==='ArrowUp'){hi=Math.max(0,hi-1);draw();e.preventDefault();}
-    else if(e.key==='Enter'){if(!box.hidden){e.preventDefault();pick(L[hi]);}}else if(e.key==='Escape'&&!box.hidden){e.stopPropagation();e.preventDefault();box.hidden=true;inp.value=cur();}},true);
+    else if(e.key==='Enter'){if(!box.hidden){e.preventDefault();pick(L[hi]);if(opt.enterSubmit&&sel.value&&sel.form)setTimeout(()=>sel.form.requestSubmit(),0);}}else if(e.key==='Escape'&&!box.hidden){e.stopPropagation();e.preventDefault();box.hidden=true;inp.value=cur();}},true);
   box.addEventListener('mousedown',e=>{const b=e.target.closest('.cmb-it');if(!b)return;e.preventDefault();pick(L[+b.dataset.i]);});
   inp.addEventListener('blur',()=>setTimeout(()=>{box.hidden=true;if(inp.value!==cur())inp.value=cur();},120));
   addEventListener('scroll',e=>{if(!box.hidden&&!box.contains(e.target)&&inp.isConnected)draw();},true);}
