@@ -389,7 +389,7 @@ function newProjectModal(day,pre){
   }});
 }
 function crewModal(c){
-  const v=c||{},roles=new Set(v.roles||[]);
+  if(c&&c._new)c=Object.assign({},c);const v=c||{},roles=new Set(v.roles||[]);if(c&&c._new)c=null;
   const uses=c?S.projects.filter(p=>crewIds(p).has(c.id)).length:0;
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
     ${mf('name','Név',{full:true,v:v.name,max:100})}
@@ -1010,7 +1010,7 @@ const ACT={
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
   'np-draft':b=>npDraft(b),
-  'new-crew':()=>crewModal(null),
+  'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},

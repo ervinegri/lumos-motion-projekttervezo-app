@@ -99,7 +99,7 @@ document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('tex
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
 /* Pénzügyek: az ügyvezetőnél a Kifizetések, a Szerződés és számlázás és a Bevétel és kiadás egy fül alá kerül (alfülekkel) */
 /* Csoportosított fülek: Források (Stáb + Leltár) és – az ügyvezetőnél – Pénzügyek (Termelői fizetések, Szerződés és számlázás, Bevétel és kiadás) */
-const TAB_GROUPS=[{label:'Források',ids:['stab','leltar'],icons:{stab:'👥 ',leltar:'🎒 '}},{label:'Pénzügyek',ids:['kifizetesek','szerzodes','penzugy'],icons:{kifizetesek:'⚒️ ',szerzodes:'📄 ',penzugy:'📊 '}}];
+const TAB_GROUPS=[{label:'Források',ids:['stab','ertekesitok','leltar'],icons:{stab:'👥 ',ertekesitok:'🤝 ',leltar:'🎒 '}},{label:'Pénzügyek',ids:['kifizetesek','szerzodes','penzugy'],icons:{kifizetesek:'⚒️ ',szerzodes:'📄 ',penzugy:'📊 '}}];
 const FIN_GROUP=TAB_GROUPS[1].ids;
 S.groupSub=S.groupSub||{};
 const groupOf=id=>{const all=TABS();return TAB_GROUPS.find(g=>g.ids.includes(id)&&all.filter(t=>g.ids.includes(t.id)).length>1)||null;};
@@ -110,7 +110,7 @@ function NAV_TABS(){const all=TABS(),out=[],done={};
   return out;}
 function finSubNav(){const g=groupOf(S.tab);if(!g)return '';S.groupSub[g.label]=S.tab;
   return `<nav class="subtabs" aria-label="${esc(g.label)}">${TABS().filter(t=>g.ids.includes(t.id)).sort((a,b)=>g.ids.indexOf(a.id)-g.ids.indexOf(b.id)).map(t=>`<button class="subtab" type="button" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${g.icons[t.id]||''}${t.label}</button>`).join('')}</nav>`;}
-const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):[{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'naptar',label:'Naptár'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]:[{id:'stab',label:'Stáb'},{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):[{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}].concat(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'naptar',label:'Naptár'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]:[{id:'stab',label:'Stáb'}].concat(isAdmin()?[{id:'ertekesitok',label:'Értékesítők'}]:[]).concat([{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}])).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 function renderChrome(){
   {const b=document.querySelector('.proj-save');if(b){const busy=S.saving>0;b.disabled=!S.dirty||busy;b.className='btn '+(S.dirty?'primary':'outline')+' small proj-save';b.textContent=busy?'Mentés…':S.dirty?'💾 Mentés':'✓ Mentve';}}
   const on=!!S.me;
@@ -162,7 +162,7 @@ function render(force){
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
-  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
+  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
   syncHash();
@@ -867,7 +867,8 @@ function penStrikeNote(cid){   // az elmúlt 12 hónap összes jóváhagyott hib
 const isSalesCrew=c=>(S.salesPeople||[]).some(x=>x.crewId===c.id)||((c.roles||[]).includes('Értékesítő')&&(c.roles||[]).every(r=>r==='Értékesítő'||r==='Ajánlói jutalék'));
 function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
-  let list=crewSorted();
+  const salesTab=S.tab==='ertekesitok';   // az ügyvezetőnél külön alfül: Stáb (szakemberek) és Értékesítők
+  const base=crewSorted().filter(c=>!isAdmin()||(salesTab?isSalesCrew(c):!isSalesCrew(c)));let list=base;
   if(f.role)list=list.filter(c=>(c.roles||[]).includes(f.role)||(c.skills||[]).includes(f.role));
   if(f.prio)list=list.filter(c=>String(prioNum(c))===f.prio);
   if(q)list=list.filter(c=>fold([c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ')).includes(fold(q)));
@@ -898,18 +899,16 @@ function viewCrew(){
       <td>${c.email?`<button class="copy mail" style="text-align:left" type="button" data-action="copy" data-text="${esc(c.email)}" title="Másolás">${esc(c.email).replace('@','<wbr>@')}</button>`:'<span class="warn-txt">nincs</span>'}</td>
       <td>${n?`<button class="linkbtn" style="font-size:13px" type="button" data-action="open-project" data-id="${esc(n.id)}">${esc(fmtShort(pr(n).start))} · ${esc(n.name||'Névtelen projekt')}</button>`:'<span class="muted">—</span>'}</td>
       <td class="num"><button class="pc-edit w" type="button" data-action="edit-crew" data-id="${esc(c.id)}" aria-label="${esc(c.name)} szerkesztése" title="Szerkesztés">✎</button></td></tr>`;}).join('');
-  const pc=n=>S.crew.filter(c=>prioNum(c)===n).length;
-  return `<div class="page-head"><div class="grow"><h2>Stáb</h2><p class="sub">${S.crew.length} munkatárs${S.crew.length?` · ${internal} belsős`:''}</p></div>${ro()?'':undoBar()}
-      <button class="btn primary w" type="button" data-action="new-crew">+ Új munkatárs</button></div>
+  const pc=n=>base.filter(c=>prioNum(c)===n).length;
+  return `<div class="page-head"><div class="grow"><h2>${salesTab?'Értékesítők':'Stáb'}</h2><p class="sub">${salesTab?list.length+' értékesítő · fiókot és jutalékot a Beállításokban adhatsz meg':S.crew.length+' munkatárs'+(S.crew.length?` · ${internal} belsős`:'')}</p></div>${ro()?'':undoBar()}
+      <button class="btn primary w" type="button" data-action="new-crew">${salesTab?'+ Új értékesítő':'+ Új munkatárs'}</button></div>
     <div class="toolbar"><input class="inp search" id="q-crew" type="search" placeholder="Keresés név, szerep, vállalkozás szerint" value="${esc(f.q)}" aria-label="Stáb keresése">
       <select class="inp" id="crew-role-filter" style="width:auto" aria-label="Szűrés szerep szerint"><option value="">Minden szerep</option><optgroup label="Szerep">${CREW_ROLES.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup><optgroup label="Részletek">${CREW_SKILLS.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup></select>
       <div class="seg" role="group" aria-label="Nézet"><button type="button" data-action="crew-view" data-v="cards" aria-pressed="${f.view!=='list'}" title="Kártyák">▦ Kártyák</button><button type="button" data-action="crew-view" data-v="list" aria-pressed="${f.view==='list'}" title="Lista">☰ Lista</button></div>
-      <div class="chips">${[['','Mind',S.crew.length],['1','P1',pc(1)],['2','P2',pc(2)],['3','P3',pc(3)]].map(([v,l,n])=>`<button class="chip" type="button" data-action="crew-prio" data-v="${v}" aria-pressed="${(f.prio||'')===v}">${l}<span class="c">${n}</span></button>`).join('')}</div></div>
+      <div class="chips">${[['','Mind',base.length],['1','P1',pc(1)],['2','P2',pc(2)],['3','P3',pc(3)]].map(([v,l,n])=>`<button class="chip" type="button" data-action="crew-prio" data-v="${v}" aria-pressed="${(f.prio||'')===v}">${l}<span class="c">${n}</span></button>`).join('')}</div></div>
     ${(()=>{const block=L=>{const rows=rowsOf(L),cards=cardsOf(L);return rows?`<div class="tbl-wrap"><table class="crew-tbl"><thead><tr><th>Név</th><th>Szerepek</th><th>Jogviszony</th><th>Telefon</th><th>E-mail</th><th>Következő beosztás</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:cards?`<div class="cards">${cards}</div>`:'';};
       if(!list.length)return `<div class="panel">${empty(S.crew.length?'Nincs a szűrésnek megfelelő munkatárs.':'Még nincs munkatárs. Vedd fel a stábot az „Új munkatárs” gombbal.')}</div>`;
-      const sales=isAdmin()?list.filter(isSalesCrew):[],pros=list.filter(c=>!sales.includes(c));   // az ügyvezetőnél külön: szakemberek és értékesítők
-      if(!sales.length)return block(list);
-      return `${pros.length?`<h3 class="crew-sec">🎬 Szakemberek <span class="muted">${pros.length}</span></h3>${block(pros)}`:''}<h3 class="crew-sec">🤝 Értékesítők <span class="muted">${sales.length}</span></h3>${block(sales)}`;})()}`;
+      return block(list);})()}`;
 }
 
 /* ===== Naptár ===== */
