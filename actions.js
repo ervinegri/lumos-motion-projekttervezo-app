@@ -392,10 +392,11 @@ function newProjectModal(day,pre){
 function crewCompanies(){const m=new Map();(S.crew||[]).forEach(c=>{const n=String(c.company||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:c.vat||''});});
   (S.clients||[]).forEach(c=>{const n=String(c.name||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:''});});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,'hu'));}
 /* Több elemet választó legördülő (pipákkal): a jelölőnégyzetek a formban maradnak, csak egy lenyíló panelben */
-function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
+function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field" id="f-${name}"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
   <div class="msel-pop" hidden>${opts.map(o=>`<label><input type="checkbox" name="${name}" value="${esc(o)}"${S2.has(o)?' checked':''}>${esc(o)}</label>`).join('')}</div></div></div>`;}
 function mselSum(a,ph){return a.length?a.map(x=>`<span class="msel-chip">${esc(x)}</span>`).join(''):`<span class="muted">${esc(ph||'Válassz…')}</span>`;}
 function crewModal(c){
+  setTimeout(crewSalesToggle,0);
   if(c&&c._new)c=Object.assign({},c);const v=c||{},roles=new Set(v.roles||[]);if(c&&c._new)c=null;
   const uses=c?S.projects.filter(p=>crewIds(p).has(c.id)).length:0;
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
@@ -406,7 +407,7 @@ function crewModal(c){
     ${ms('type','Jogviszony',CREW_TYPES,isEmployee(v)?CREW_TYPES[3]:v.type||'Belsős')}
     <div class="field"><label for="m-company">Vállalkozás (számlázó cég)</label><div class="tax-row"><input class="inp" id="m-company" name="company" list="dl-crewco" value="${esc(v.company||'')}" placeholder="kezdd el gépelni, vagy keresd adószámmal" autocomplete="off" maxlength="160"><button class="btn outline small" type="button" data-action="crew-co-lookup" title="Cégnév betöltése az adószám alapján (NAV)">🔍</button></div>
       <datalist id="dl-crewco">${crewCompanies().map(x=>`<option value="${esc(x.name)}">${esc(x.tax||'')}</option>`).join('')}</datalist></div>
-    ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
+    <div id="f-dayRate">${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}</div>
     ${mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'})}
     <div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>
     ${phoneField({name:'phone',value:v.phone})}
@@ -1653,5 +1654,7 @@ ACT['proj-history']=async b=>{const p=projById(b.dataset.id)||S.draft;if(!p)retu
       ${r.log.length?`<div class="ph-list">${r.log.map(x=>`<div class="ph-row"><div class="ph-at">${esc(d(x.at))}</div><div class="ph-main"><b>${esc(x.action)}</b> <span class="muted">· ${esc(x.who)}${x.role?' ('+esc(x.role)+')':''}</span>${x.details?`<div class="ph-det">${esc(x.details).replace(/; /g,'<br>')}</div>`:''}</div></div>`).join('')}</div>`:'<p class="hint">Ehhez a projekthez még nincs naplóbejegyzés.</p>'}`;}
   catch(e){const box=$('ph-body');if(box)box.innerHTML=`<p class="bad-txt">${esc(errText(e))}</p>`;}};
 
-document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;const ph=w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…';w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
+const salesOnly=roles=>roles.length>0&&roles.every(r=>r==='Értékesítő'||r==='Ajánlói jutalék');   // csak értékesítői szerep: a gyártási részletek és a napidíj nem kell
+function crewSalesToggle(){const w=document.querySelector('.msel[data-msel=roles]');if(!w)return;const so=salesOnly([...w.querySelectorAll('input:checked')].map(i=>i.value));['f-skills','f-dayRate'].forEach(id=>{const x=$(id);if(x)x.hidden=so;});}
+document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;if(w.dataset.msel==='roles')crewSalesToggle();const ph=w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…';w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
 document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.querySelectorAll('.msel-pop').forEach(x=>{if(!x.hidden){x.hidden=true;x.closest('.msel').classList.remove('open');}});});
