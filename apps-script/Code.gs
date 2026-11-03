@@ -258,7 +258,7 @@ function dbFlush_() {
 }
 /* Napló az adatbázisban (csak hozzáfűzés; a lista az utolsó 300 bejegyzés) */
 function dbLog_(row) { (DB_.pendingLog = DB_.pendingLog || []).push(row.map(x => String(x == null ? '' : x))); }   // a napló a következő mentéssel együtt megy (a kérés végén mindenképp kiírjuk)
-function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, action, subject, details FROM lpm_log ORDER BY id DESC LIMIT 300' }])[0]; return (r.rows || []).map(x => ({ at: x[0], who: x[1], role: x[2], action: x[3], subject: x[4], details: x[5] })); }
+function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, action, subject, details FROM lpm_log ORDER BY id DESC LIMIT 600' }])[0]; return (r.rows || []).map(x => ({ at: x[0], who: x[1], role: x[2], action: x[3], subject: x[4], details: x[5] })); }
 
 /** Kapcsolat-teszt (ügyvezető): elérhető-e az adatbázis, és mennyi idő egy lekérdezés. */
 function dbPing_() {
@@ -3295,7 +3295,7 @@ function getLog_() {
   if (dbOn_()) return dbGetLog_().map(x => Object.assign(x, { subject: String(x.subject).replace(/^'/, ''), details: String(x.details).replace(/^'/, '') }));
   const sh = logSheet_(), n = sh.getLastRow();
   if (n < 2) return [];
-  const from = Math.max(2, n - 299);
+  const from = Math.max(2, n - 599);
   return sh.getRange(from, 1, n - from + 1, LOG_HEADERS.length).getDisplayValues().reverse()
     .map(r => ({ at: r[0], who: r[1], role: r[2], action: r[3], subject: String(r[4]).replace(/^'/, ''), details: String(r[5]).replace(/^'/, '') }));
 }
@@ -3774,7 +3774,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'projectHistory': canEdit(); return projectHistory_(u, arg);
-    case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), log: role === 'admin' ? getLog_().slice(0, 150) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
+    case 'settingsData': canEdit(); return { users: loadUsers_().map(adminListUser_), log: role === 'admin' ? getLog_().slice(0, 600) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);

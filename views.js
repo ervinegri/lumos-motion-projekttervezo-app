@@ -1072,7 +1072,11 @@ function viewSettings(){
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
   const RO_={admin:0,editor:1,crew:2},users=S.users.slice().sort((a,b)=>(!!a.disabled-!!b.disabled)||((RO_[a.role]??3)-(RO_[b.role]??3))||a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow${u.disabled?' off':''}"><div class="who"><b>${esc(u.name)} <span class="statuspill ${u.disabled?'p-bad':'p-ok'}">${u.disabled?'letiltva':'aktív'}</span>${u.id===S.me.id?' <span class="muted" style="font-weight:600">(te)</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
     <div class="arow-btns">${!isAdmin()&&u.role!=='crew'?'':`${u.id!==S.me.id?`<button class="mini${u.disabled?'':' warn'}" type="button" data-action="toggle-user" data-id="${esc(u.id)}" data-dis="${u.disabled?'0':'1'}">${u.disabled?'Engedélyezés':'Letiltás'}</button>`:''}<button class="mini" type="button" data-action="edit-user" data-id="${esc(u.id)}">Szerkesztés</button>`}</div></div>`).join('');
-  const log=S.log.slice(0,150).map(l=>`<div class="logrow"><span class="when">${esc(l.at)}</span><span><b>${esc(l.who)}</b> · ${esc(l.action)}${l.subject?': '+esc(l.subject):''}${l.details?`<br><span class="muted">${esc(l.details)}</span>`:''}</span></div>`).join('');
+  const leaders=(S.users||[]).filter(u=>u.role==='admin'||u.role==='editor').sort((a,b)=>(a.role==='admin'?0:1)-(b.role==='admin'?0:1)||a.name.localeCompare(b.name,'hu'));   // fülek: ügyvezető, termelési vezető(k), majd mindenki más
+  const lnames=leaders.map(u=>u.name),lt=S.logTab&&(S.logTab==='__other'||lnames.includes(S.logTab))?S.logTab:(lnames[0]||'__other');
+  const logSel=S.log.filter(l=>lt==='__other'?!lnames.includes(l.who):l.who===lt);
+  const logTabs=`<div class="chips log-tabs">${leaders.map(u=>`<button class="chip" type="button" data-action="log-tab" data-v="${esc(u.name)}" aria-pressed="${lt===u.name}">${esc(u.name)} <span class="muted">· ${esc(roleLabel(u.role))}</span><span class="c">${S.log.filter(l=>l.who===u.name).length}</span></button>`).join('')}<button class="chip" type="button" data-action="log-tab" data-v="__other" aria-pressed="${lt==='__other'}">Mindenki más<span class="c">${S.log.filter(l=>!lnames.includes(l.who)).length}</span></button></div>`;
+  const log=logSel.slice(0,200).map(l=>`<div class="logrow"><span class="when">${esc(l.at)}</span><span><b>${esc(l.who)}</b> · ${esc(l.action)}${l.subject?': '+esc(l.subject):''}${l.details?`<br><span class="muted">${esc(l.details)}</span>`:''}</span></div>`).join('');
   if(!isAdmin())return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Hozzáférések</p></div></div>
     <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Szakember felvétele</button></span></h3>
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
@@ -1090,7 +1094,7 @@ function viewSettings(){
         <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld. Szakember: csak a saját beosztásait látja (helyszín, időpont, stáb, eszközök), szerkeszteni nem tud.</p>
         <div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
-        <div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
+        ${logTabs}<div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
     </div>`;
 }
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük
