@@ -929,7 +929,6 @@ function syncFeesWithCrew(d){
   const ids=[...crewIds(d)],days=rowDays(d);let fees=(d.fees||[]).map(f=>Object.assign({},f)),added=0;
   const REF='Ajánlói jutalék',rolesOf=id=>{const r=[];if(d.lead===id)r.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id&&a.role!==REF&&!r.includes(a.role))r.push(a.role);});return r.join(' + ');};
   const refIds=[...new Set((d.crew||[]).filter(a=>a.role===REF).map(a=>a.crewId))];   // ajánlói jutalék → külön sor az Egyéb költségek között
-  fees=fees.filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&!refIds.includes(f.refCrewId)));
   refIds.forEach(id=>{const c=crewById(id),nm=(c?c.name:'Szakember')+' ajánlói jutaléka';let f=fees.find(x=>x.kind==='fixed'&&x.key==='ref'&&x.refCrewId===id);if(f)f.name=nm;else fees.push({kind:'fixed',key:'ref',refCrewId:id,name:nm,amount:'',rent:''});});
   const onlyRef=id=>d.lead!==id&&!(d.crew||[]).some(a=>a.crewId===id&&a.role!==REF);
   ids.forEach(id=>{if(onlyRef(id))return;const c=crewById(id);let f=fees.find(x=>x.crewId===id)||fees.find(x=>!x.crewId&&c&&x.name===c.name);
@@ -1831,3 +1830,12 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||p
     if(id){if(!crew.some(a=>a.crewId===id&&a.role==='Vágó'))crew.push({crewId:id,role:'Vágó'});et[id]=(et[id]||[]).concat([k]);}
     const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
     const c=crewById(id);if(id)toast((c?c.name:'')+' vágja – '+(postTasks(d).find(x=>x.k===k)||{}).label);}});
+
+/* Ajánlói jutalék: projektopció – ki kap ajánlói jutalékot (külön sor az Egyéb költségek között) */
+document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSeeFees())return;
+  if(t.dataset&&t.dataset.refToggle!==undefined){if(t.checked){(S.refOn=S.refOn||{})[d.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');if(s)s.focus();},50);}
+    else{const n=(d.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref').length;const off=()=>{if(S.refOn)delete S.refOn[d.id];setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'))});};
+      if(n)confirmModal('Ajánlói jutalék törlése',`${n} ajánlói jutalék sor kikerül a díjtáblázatból. Biztosan?`,'Törlés',async()=>off());else off();render(true);}return;}
+  if(t.id==='ref-add'&&t.value){const id=t.value,c=crewById(id);if((d.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===id)){toast('Neki már van ajánlói jutalék sora.',true);return;}
+    setDraft({fees:(d.fees||[]).concat([{kind:'fixed',key:'ref',refCrewId:id,name:(c?c.name:'Szakember')+' ajánlói jutaléka',amount:'',rent:''}])});toast((c?c.name:'')+' ajánlói jutaléka bekerült az Egyéb költségek közé – add meg az összeget');}});
+ACT['ref-del']=b=>{const d=S.draft;if(!d)return;setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===b.dataset.id))});};

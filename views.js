@@ -572,6 +572,7 @@ function financePanel(p,inner){
     ${finPanelBody(p)}
     ${budgetRequestPanel(p)}
     ${tables}
+    ${refOption(p)}
     ${penPanel(p)}
   </div>`;
 }
@@ -620,6 +621,12 @@ function penPanel(p){
       ${isAdmin()?`<div class="pen-act">${x.status==='pending'?`<button class="btn primary small" type="button" data-action="pen-approve" data-id="${esc(x.id)}">Jóváhagyás</button><button class="btn outline small" type="button" data-action="pen-reject" data-id="${esc(x.id)}">Elutasítás</button>`:''}${penDaySelect(p,x)}<button class="trash" type="button" data-action="pen-del" data-id="${esc(x.id)}" title="Törlés" aria-label="Törlés">🗑️</button></div>`:''}</div>`;}).join('')}</div>`;
 }
 /* Csapat véglegesítése doboz a stáb alatt */
+/* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
+function refOption(p){const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref'),on=refs.length>0||!!(S.refOn||{})[p.id],dis=ro()||projLocked();
+  const opts=(S.crew||[]).filter(c=>!refs.some(f=>f.refCrewId===c.id)).sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  return `<div class="ref-opt"><label class="toggle"><input type="checkbox" data-ref-toggle${on?' checked':''}${dis?' disabled':''}><span class="tl">🤝 Ajánlói jutalékot kell fizetni szakembernek</span></label>
+    ${on?`<div class="ref-list">${refs.map(f=>`<span class="ref-chip">🤝 ${esc((crewById(f.refCrewId)||{}).name||(S.crewNames||{})[f.refCrewId]||f.name)}${num(f.amount)?' · '+ftFmt(num(f.amount)):' · <span class="warn-txt">összeg?</span>'}${dis?'':`<button class="x w" type="button" data-action="ref-del" data-id="${esc(f.refCrewId)}" aria-label="Törlés">×</button>`}</span>`).join('')}
+      ${dis?'':`<select class="inp" id="ref-add" style="width:auto"><option value="">+ szakember kiválasztása…</option>${opts}</select>`}</div><p class="hint" style="margin:4px 0 0">Az összeget az Egyéb költségek között add meg; a jutalék a szakember Kifizetéseiben jelenik meg.</p>`:''}</div>`;}
 function crewFinalBox(p,ids){
   if(!ids.length)return '';
   const st=crewFinalState(p),f=p.crewFinal,freeCut=postTasks(p).filter(t=>!taskOwners(p,t.k).length).length,on=crewFinalOn()&&!freeCut;
