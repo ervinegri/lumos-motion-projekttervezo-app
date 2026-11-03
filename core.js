@@ -25,6 +25,10 @@ function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat(
 function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array.isArray(f.ids))return {added:ids,changed:[],removed:[]};
   const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&f.sigs[id]!==crewSig(p,id)):[];
   return {added,changed,removed};}
+/* Vágónként: mit kell megvágnia (a véglegesítő levélbe) */
+function cutTasksFor(p){const o={},cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
+  cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
+    o[cid]={items,due:due?fmtDay(due):''};});return o;}
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
 function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
 const crewLocked=p=>!ro()&&!!p&&crewFinalState(p)==='ok'&&!(S.crewEdit||{})[p.id];   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók

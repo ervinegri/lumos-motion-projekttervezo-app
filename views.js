@@ -669,7 +669,6 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     ${commonRows||rentalsOf(p,'').length||(!ro()&&ids.length===0)?`<div class="pcrew pcrew-common"${EL?' inert':''}><div class="pcrew-top"><div class="who"><b>Közös eszközök</b><small>Még nincs felelőshöz rendelve</small></div></div><div class="pcrew-eq">${commonRows}${rentalsOf(p,'').map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>${r.own?'Saját eszköz':'Bérelt'}${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('')}${eqAddRow(p,'',opts)}</div></div>`:''}
     ${!S.inventory.length&&!ro()?`<p class="hint">Eszközt a <button class="linkbtn" type="button" data-action="tab" data-tab="leltar">Leltár</button> fülön tudsz felvenni.</p>`:''}
     ${ro()?'':crewFinalBox(p,ids)}
-    ${hasEq||ids.length?`<div class="btns" style="margin-top:12px">${ro()?'':`<button class="btn primary small" type="button" data-action="send-list">✉️ Eszközlista küldése</button>`}<button class="btn outline small" type="button" data-action="copy-pack">📋 Eszközlista másolása</button></div>`:''}
     ${p.listSentAt?`<p class="hint">Eszközlista kiküldve: ${esc(p.listSentAt)} · ${esc(p.listSentTo||'')}</p>`:''}`;
   if(inner)return {body,aside};
   return `<div class="panel"><h3>👥 Stáb és eszközök <span class="aside">${aside}</span></h3>${body}</div>`;
@@ -1098,7 +1097,7 @@ function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
   const MC=[['assign','👥 Beosztás','Szakemberek','A stáb véglegesítésekor (és módosításkor) megkapják a beosztásukat: időpont, helyszín, szerep, stáb.'],
     ['calendar','📅 Naptármeghívó','Meghívott vendégek','A kézzel létrehozott naptárbejegyzések meghívói. A stábtagok a projekt eseményébe külön Google-levél nélkül kerülnek be – őket a beosztásos levél értesíti, benne a naptárlinkkel.'],
-    ['eqlist','🎒 Eszközlista','A kiválasztott stábtagok','Az „Eszközlista küldése” gombbal kiküldött levél: ki mit visz, személyes megjegyzés.'],
+    ['eqlist','🎒 Eszközlista','A kiválasztott stábtagok','Az „Eszközök véglegesítése” után kiküldött levél azoknak, akiknél eszköz van: ki mit visz, személyes megjegyzés.'],
     ['penalty','⚠️ Díjcsökkentés','Az érintett szakember','Jóváhagyott díjcsökkentésről (késés, hiba, kártérítés) értesítés.'],
     ['penAdmin','🔔 Jóváhagyásra váró díjcsökkentés','Ügyvezetők','Ha a termelési vezető díjcsökkentést javasol, az ügyvezető jóváhagyást kér.'],
     ['invoice','🧾 Számla, díjbekérő','Az ügyfél (vevő)','A számlázz.hu e-mailben elküldi a kiállított bizonylatot a vevő e-mail-címére.'],

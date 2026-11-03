@@ -847,7 +847,7 @@ async function crewFinalizeModal(){
     ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}
     <div class="cf-prev" hidden><div class="cf-prev-h"><b>✏️ Az e-mail szerkeszthető</b><button class="linkbtn" type="button" id="cfPrevReset" hidden>↺ Eredeti szöveg</button><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div>`,{submitLabel:'Igen, véglegesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
     const subj=String(fd.get('cfSubj')||'').trim(),note=String(fd.get('cfNote')||'').trim();
-    const arg={projectId:p.id};if(subj&&subj!==cfSubj)arg.subject=subj;if(note)arg.note=note;
+    const arg={projectId:p.id,cutTasks:cutTasksFor(p)};if(subj&&subj!==cfSubj)arg.subject=subj;if(note)arg.note=note;
     const ed=Object.keys(CF_EDIT).filter(k=>CF_EDIT[k]);if(ed.length){arg.custom={};ed.forEach(k=>{arg.custom[k]=CF_EDIT[k];});}   // kézzel átírt levelek: tagonként   // ami nem változott, azt a szerver tagonként állítja be (új / módosult beosztás)
     try{const r=await call('finalizeCrew',arg);closeModal();
       const saved=r.project,i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;
@@ -1265,8 +1265,9 @@ const ACT={
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
     const p=projById(d.id)||d,list=(p.equipment||[]).map(e=>{const it=itemById(e.itemId);return `<li><b>${esc(it?it.name:'Törölt eszköz')}</b>${num(e.qty)>1?' ×'+num(e.qty):''} <span class="muted">· ${esc(e.crewId?((crewById(e.crewId)||{}).name||''):'közös')}</span></li>`;}).join('');
-    confirmLayer('🎒 Eszközök véglegesítése',`<p style="margin:0 0 8px">${list?'Ezek az eszközök mennek a projektre:':'Még nincs eszköz hozzárendelve – így is véglegesíted?'}</p>${list?`<ul class="cf-list">${list}</ul>`:''}<p class="hint" style="margin:8px 0 0">Véglegesítés után az eszközök zárolva lesznek; az „Eszközök módosítása” gombbal bármikor újra szerkeszthetők.</p>`,'Véglegesítés',async(btn,layer)=>{
-      try{const r=await call('finalizeEquipment',{projectId:d.id});const sp=r.project,i=S.projects.findIndex(x=>x.id===sp.id);if(i>=0)S.projects[i]=sp;S.draft=prepDraft(sp);S.draftBase=clone(S.draft);S.dirty=false;if(S.eqEdit)delete S.eqEdit[sp.id];if(layer)layer.remove();render(true);toast('Eszközök véglegesítve');}catch(e){handleErr(e);}});},
+    confirmLayer('🎒 Eszközök véglegesítése',`<p style="margin:0 0 8px">${list?'Ezek az eszközök mennek a projektre:':'Még nincs eszköz hozzárendelve – így is véglegesíted?'}</p>${list?`<ul class="cf-list">${list}</ul>`:''}${(()=>{const me=S.me&&S.me.crewId,h=[...new Set((p.equipment||[]).map(e=>e.crewId).concat((Array.isArray(p.rentals)?p.rentals:[]).map(r=>r.crewId)).filter(x=>x&&x!==me))].map(id=>crewById(id)).filter(c=>c&&EMAIL_RE.test(c.email||''));
+      return h.length&&S.mailOn!==false?`<p style="margin:10px 0 4px"><b>✉️ Eszközlistát kap e-mailben:</b></p><ul class="cf-list">${h.map(c=>`<li><b>${esc(c.name)}</b> <span class="muted">· ${esc(c.email)}</span></li>`).join('')}</ul>`:'';})()}<p class="hint" style="margin:8px 0 0">Véglegesítés után az eszközök zárolva lesznek; az „Eszközök módosítása” gombbal bármikor újra szerkeszthetők.</p>`,'Véglegesítés',async(btn,layer)=>{
+      try{const r=await call('finalizeEquipment',{projectId:d.id,sendList:true});const sp=r.project,i=S.projects.findIndex(x=>x.id===sp.id);if(i>=0)S.projects[i]=sp;S.draft=prepDraft(sp);S.draftBase=clone(S.draft);S.dirty=false;if(S.eqEdit)delete S.eqEdit[sp.id];if(layer)layer.remove();render(true);const ml=r.mail;toast(ml&&ml.error?'Eszközök véglegesítve, de az eszközlista nem ment ki: '+ml.error:'Eszközök véglegesítve'+(ml&&ml.names&&ml.names.length?' – eszközlista kiküldve: '+ml.names.join(', '):''),!!(ml&&ml.error));}catch(e){handleErr(e);}});},
   'cal-nav':b=>{const d=Number(b.dataset.d);if(!d){S.cal.month=todayISO().slice(0,7);S.cal.sel=todayISO();}else{const [y,m]=S.cal.month.split('-').map(Number);const n=new Date(Date.UTC(y,m-1+d,1));S.cal.month=n.toISOString().slice(0,7);}render(true);},
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
   'cal-event':b=>calEventModal(b.dataset.id),
@@ -1710,7 +1711,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.que
 /* Csapat élesítése: a kiküldendő levél teljes előnézete tagonként, élőben frissül a tárgy / bevezető / megjegyzés szerkesztésekor */
 let CF_PREV=[],CF_EDIT={};
 async function cfPreviewLoad(p,defSubj,defIntro){CF_PREV=[];CF_EDIT={};
-  try{CF_PREV=await call('crewFinalPreview',{projectId:p.id})||[];}catch(e){const b=$('cfPrev');if(b)b.innerHTML=`<p class="hint bad-txt" style="margin:0">Az előnézet most nem érhető el: ${esc(errText(e))}</p>`;return;}
+  try{CF_PREV=await call('crewFinalPreview',{projectId:p.id,cutTasks:cutTasksFor(projById(p.id)||p)})||[];}catch(e){const b=$('cfPrev');if(b)b.innerHTML=`<p class="hint bad-txt" style="margin:0">Az előnézet most nem érhető el: ${esc(errText(e))}</p>`;return;}
   const sel=$('cfPrevWho');if(!sel)return;
   if(!CF_PREV.length){$('cfPrev').innerHTML='<p class="hint" style="margin:0">Senki nem kap levelet (nincs e-mail-cím, vagy nem kell új értesítés).</p>';return;}
   sel.innerHTML=CF_PREV.map((x,i)=>`<option value="${i}">${esc(x.name)} · ${esc(x.email)}</option>`).join('');sel.hidden=true;
@@ -1805,7 +1806,7 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
     try{const saved=await call('saveProject',Object.assign(clone(p),{baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0)S.projects[k]=normProj(saved);
       if(S.draft&&S.draft.id===p.id){S.draft=prepDraft(saved);S.draftBase=clone(S.draft);}
       render(true);
-      if(go.notify){try{const r=await call('finalizeCrew',{projectId:p.id,dateMoved:true});const sp=r.project,k2=S.projects.findIndex(x=>x.id===sp.id);if(k2>=0)S.projects[k2]=sp;if(S.draft&&S.draft.id===sp.id&&!S.dirty)S.draft=prepDraft(sp);S.cal.events={};render(true);
+      if(go.notify){try{const r=await call('finalizeCrew',{projectId:p.id,dateMoved:true,cutTasks:cutTasksFor(projById(p.id)||p)});const sp=r.project,k2=S.projects.findIndex(x=>x.id===sp.id);if(k2>=0)S.projects[k2]=sp;if(S.draft&&S.draft.id===sp.id&&!S.dirty)S.draft=prepDraft(sp);S.cal.events={};render(true);
           toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)} – értesítést kapott: ${(r.sent||[]).join(', ')||'senki'}`);}catch(err){handleErr(err);}}
       else{syncCal(p.id);toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)}${fin.length?' – a stáb nem kapott e-mailt':''}`);}}
     catch(err){Object.assign(p,old);render(true);handleErr(err);}

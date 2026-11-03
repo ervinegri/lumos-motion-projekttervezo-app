@@ -920,6 +920,8 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
     ['Érkezés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
     ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
+  const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)
+  if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
   const text = ['Kedves ' + first + ','].concat(note ? ['', note] : []).concat(['', intro, ''])   // a megjegyzés rögtön a megszólítás után
@@ -951,11 +953,12 @@ function crewFinalPreview_(u, a) {
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
   return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email) && !isSelf_(u, m)).map(m => {
     const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== crewSig_(p, m.id);
-    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' }, u);
+    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });
 }
 /** Eszközök véglegesítése (a csapat után): rögzíti, ki mikor véglegesítette, és a beosztás lenyomatát (módosítás felismeréséhez). */
+function cutTasksArg_(a) { const o = {}; const x = a && a.cutTasks; if (x && typeof x === 'object') Object.keys(x).slice(0, 20).forEach(k => { const v = x[k] || {}; o[str_(k, 64)] = { items: (Array.isArray(v.items) ? v.items : []).slice(0, 30).map(i => str_(i, 160)).filter(Boolean), due: str_(v.due, 60) }; }); return o; }
 function finalizeEquipment_(u, a) {
   const pid = str_(a && a.projectId, 64);
   const saved = withLock_(() => {
@@ -966,8 +969,14 @@ function finalizeEquipment_(u, a) {
     q.eqFinal = JSON.stringify({ at: now_(), by: u.name, sig: eq.map(e => e.itemId + '|' + (e.crewId || '') + '|' + (Number(e.qty) || 1)).sort().join(',') });
     q.updatedAt = now_(); q.updatedBy = u.name; putRow_('projects', sh, q, r); dbFlush_(); return q;
   });
+  let mail = null;
+  if (a && a.sendList) {   // eszközlista e-mailben azoknak, akiknél eszköz van (magadnak nem)
+    const fp = fullProject_(saved), holders = {}; (fp.equipment || []).forEach(e => { if (e.crewId) holders[e.crewId] = 1; }); parseRentals_(fp.rentals).forEach(r => { if (r.crewId) holders[r.crewId] = 1; });
+    const rcp = Object.keys(holders).filter(cid => !isSelf_(u, { id: cid, email: (byId_(readAll_('crew'))[cid] || {}).email }));
+    if (rcp.length) { try { mail = sendEquipmentList_(u, { projectId: pid, recipients: rcp, message: '', includePlan: true }); } catch (e) { mail = { error: String(e && e.message || e) }; } }
+  }
   logEvent_(u, 'Eszközök véglegesítve', saved.name, '');
-  return { project: projectView_(fullProject_(saved), u) };
+  return { project: projectView_(fullProject_(saved), u), mail: mail };
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -990,7 +999,8 @@ function finalizeCrew_(u, a) {
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && (moved || (prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id]));
   const toNotify = valid.filter(m => (isNewM(m) || isChanged(m)) && !isSelf_(u, m));   // aki élesít, magának nem küld levelet (a naptárba bekerül)
   const link = calEventLink_(ev);
-  const cm = { subject: str_(a && a.subject, 200).trim() || (a && a.dateMoved ? 'Új időpont: ' + p.name + ' – ' + fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '') : ''), intro: str_(a && a.intro, 1000).trim() || (a && a.dateMoved ? 'Módosult a projekt időpontja – az új beosztásod:' : ''), note: str_(a && a.note, 3000).trim(), custom: {} };
+  const cutTasks = cutTasksArg_(a);
+  const cm = { subject: str_(a && a.subject, 200).trim() || (a && a.dateMoved ? 'Új időpont: ' + p.name + ' – ' + fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '') : ''), intro: str_(a && a.intro, 1000).trim() || (a && a.dateMoved ? 'Módosult a projekt időpontja – az új beosztásod:' : ''), note: str_(a && a.note, 3000).trim(), custom: {}, cutTasks: cutTasks };
   if (a && a.custom && typeof a.custom === 'object') Object.keys(a.custom).slice(0, 60).forEach(k => { const h = sigSanitize_(String(a.custom[k] || ''), 30000); if (h) cm.custom[k] = h; });   // kézzel átírt levelek
   const sent = [], failed = [], changedNames = []; let stepped = false;
   const sentTo = [];
