@@ -244,6 +244,8 @@ function computeIssues(){
     }
     if(it.condition&&it.condition!=='ok'&&users.length)out.push({level:'warn',text:`${it.name} állapota: ${CONDITIONS[it.condition]||it.condition}, de be van osztva.`,pids:users.map(q=>q.id)});
   }
+  if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
+    if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
   if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
   for(const p of allProjects().filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&validISO(p.leadvaAt))){const n=diffDays(p.leadvaAt,T);   // leadott videók: sürgető figyelmeztetés, ha az ügyfél egy hete nem hagyta jóvá

@@ -829,6 +829,7 @@ async function crewFinalizeModal(){
   const gearWarn=[...new Set((p.crew||[]).filter(a=>a.role==='Operatőr').map(a=>a.crewId))].map(id=>{const cats=(p.equipment||[]).filter(e=>(e.crewId||'')===id).map(e=>(itemById(e.itemId)||{}).category);
       const miss=['Kamera','Objektív'].filter(c=>!cats.includes(c));if(!miss.length)return '';const own=rentalsOf(p,id).map(r=>r.name).filter(Boolean);
       return `<li><b>${esc((crewById(id)||{}).name||'Operatőr')}</b>: nincs ${miss.map(m=>m==='Kamera'?'kamerája':'objektívje').join(' és ')} beosztva${own.length?` <span class="muted">(saját / bérelt: ${esc(own.join(', '))})</span>`:''}</li>`;}).filter(Boolean).join('');
+  const noCut=!postTasks(p).length&&(p.crew||[]).some(a=>a.role==='Vágó')?`<div class="cf-gear"><b>✂️ A vágónak nincs vágnivalója</b><small>Vágót osztottál be, de az Utómunkánál nincs kiválasztva semmi. Élesítheted így is, de a levélben nem lesz, mit kell elkészítenie.</small></div>`:'';
   const gearBox=gearWarn?`<div class="cf-gear"><b>⚠️ Az operatőrnek nincsenek eszközei</b><ul>${gearWarn}</ul><small>Élesítheted így is, de előtte érdemes hozzárendelni a kamerát és az objektívet.</small></div>`:'';
   const tag=id=>first?'':diff.added.includes(id)?' <span class="cf-tag new">új tag – értesítést kap</span>':diff.changed.includes(id)?' <span class="cf-tag chg">módosult – értesítést kap</span>':' <span class="cf-tag">nem kap újra értesítést</span>';
   const self=id=>!!(S.me&&S.me.crewId&&S.me.crewId===id);
@@ -837,7 +838,7 @@ async function crewFinalizeModal(){
   const cfSubj=(first?'Beosztás: ':'Módosult beosztás: ')+(p.name||'')+' – '+[p.date,p.endDate&&p.endDate>p.date?p.endDate:''].filter(Boolean).map(d=>F_FULL.format(toDate(d))).join(' – '),cfIntro=first?'Véglegesítettük a csapatot, és beosztottunk erre a projektre:':'Módosult a beosztásod ezen a projekten:';
   const cfFirst=String((crewById(ids[0])||{}).name||'Kata').split(/\s+/).pop();
   setTimeout(()=>cfPreviewLoad(p,cfSubj,cfIntro),0);
-  openModal('Biztosan élesíted a csapatot?',`${gearBox}<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p>
+  openModal('Biztosan élesíted a csapatot?',`${gearBox}${noCut}<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p>
     <div class="cf-mail"><div class="cf-mail-h">✉️ A levél szövege <span class="muted">– minden címzettnek ez megy ki</span></div>
       <div class="field"><label for="m-cfSubj">Tárgy</label><input class="inp" id="m-cfSubj" name="cfSubj" maxlength="200" value="${esc(cfSubj)}"></div>
       <div class="field"><label for="m-cfNote">Megjegyzés a csapatnak <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-cfNote" name="cfNote" rows="3" maxlength="3000" placeholder="pl. parkolás a hátsó bejáratnál, dress code: fekete, 7:30-kor rövid eligazítás"></textarea></div></div>
@@ -1255,6 +1256,7 @@ const ACT={
   'eq-remove':b=>{const equipment=clone(S.draft.equipment||[]);equipment.splice(Number(b.dataset.i),1);setDraft({equipment});},
   'send-list':()=>sendListModal(),
   'crew-finalize':()=>crewFinalizeModal(),
+  'goto-post':()=>{const d=document.querySelector('details.content');if(d)d.open=true;setTimeout(()=>{const h=[...document.querySelectorAll('.content h4.sub-h')].find(x=>/Utómunka/.test(x.textContent))||d;if(h){h.scrollIntoView({behavior:'smooth',block:'center'});const sec=h.closest('section');if(sec){sec.classList.add('flash');setTimeout(()=>sec.classList.remove('flash'),1600);}}},50);},
   'crew-edit':()=>{if(!S.draft)return;(S.crewEdit=S.crewEdit||{})[S.draft.id]=true;render(true);},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}

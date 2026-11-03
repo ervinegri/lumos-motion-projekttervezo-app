@@ -775,7 +775,8 @@ function orderSummary(p){
 /* Vágó kártyáján: mely munkákat készíti el */
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p);if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';
-  if(!tasks.length)return `<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák</div><p class="hint" style="margin:0">Még nincs megrendelt utómunka.</p></div>`;
+  if(!tasks.length){const ri=(p.crew||[]).findIndex(a=>a.crewId===cid&&a.role==='Vágó');
+    return `<div class="cut-tasks cut-none"><div class="ct-h">✂️ Elkészítendő munkák</div><p class="warn-txt" style="margin:0 0 6px"><b>⚠️ Vágó be van osztva, de nincs kiválasztva vágnivaló.</b> Jelöld be fent az Utómunkánál, mit kell elkészíteni – addig nem tudja, min dolgozik, és a leadási határidő sem számolható.</p>${ro()||crewLocked(p)?'':`<div class="btns"><button class="btn primary small" type="button" data-action="goto-post">🎬 Utómunka kiválasztása</button>${ri>=0?`<button class="btn outline small" type="button" data-action="crew-remove" data-i="${ri}">Vágó szerep levétele</button>`:''}</div>`}</div>`;}
   const mine=taskKeysOf(p,cid),implicit=!cutterIds(p).some(id=>Array.isArray(editTasksOf(p)[id]));
   if(ro())return mine.length?`<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák</div><div class="ct-chips">${tasks.filter(t=>mine.includes(t.k)).map(t=>`<span class="day-chip ct-chip on">${esc(t.label)} · ${t.n}</span>`).join('')}</div></div>`:'';
   return `<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák${implicit&&mine.length?' <span class="muted">· egy vágó: minden az övé</span>':''}</div><div class="ct-chips">${tasks.map(t=>{const on=mine.includes(t.k),oth=taskOwners(p,t.k).filter(x=>x!==cid);
