@@ -1259,6 +1259,9 @@ const ACT={
   'send-list':()=>sendListModal(),
   'crew-finalize':()=>crewFinalizeModal(),
   'goto-post':()=>{const d=document.querySelector('details.content');if(d)d.open=true;setTimeout(()=>{const h=[...document.querySelectorAll('.content h4.sub-h')].find(x=>/Utómunka/.test(x.textContent))||d;if(h){h.scrollIntoView({behavior:'smooth',block:'center'});const sec=h.closest('section');if(sec){sec.classList.add('flash');setTimeout(()=>sec.classList.remove('flash'),1600);}}},50);},
+  'make-lead':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const id=b.dataset.id,c=crewById(id),old=d.lead&&crewById(d.lead);
+    const go=()=>{setDraft({lead:id});toast((c?c.name:'')+' lett a projektvezető');};
+    if(old&&old.id!==id)confirmModal('Projektvezető cseréje',`${old.name} helyett ${c?c.name:''} legyen a projektvezető?`,'Igen, csere',async()=>go());else go();},
   'crew-edit':()=>{const d=S.draft;if(!d)return;const n=(d.crewFinal&&d.crewFinal.ids||[]).length;
     openModal('⚠️ Biztosan módosítod a véglegesített csapatot?',`<div class="cf-gear" style="border-color:#e8a29b;background:#fdecec;color:#8e1a1a"><b style="display:block">A csapat már véglegesítve van, ${n} fő értesítést kapott a beosztásáról.</b><small>Utólagos módosításnál a stábnak újra e-mailt kell kapnia, a naptárbejegyzés is változik – ez zavart okozhat, és rontja a tervezés megbízhatóságát. Csak akkor módosíts, ha elkerülhetetlen.</small></div><p class="hint" style="margin:10px 0 0">A módosítás oka bekerül a naplóba.</p><div class="field" style="margin-top:8px"><label for="m-ceWhy">Miért kell módosítani?</label><input class="inp" id="m-ceWhy" name="ceWhy" maxlength="200" placeholder="pl. lebetegedett az operatőr, az ügyfél bővítette a programot"></div>`,
       {submitLabel:'Igen, módosítom',cancelLabel:'Mégse',submit:async fd=>{const why=String(fd.get('ceWhy')||'').trim();if(why.length<3){toast('Írd be röviden, miért kell módosítani.',true);$('m-ceWhy').focus();return;}
