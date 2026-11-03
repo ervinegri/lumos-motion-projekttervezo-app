@@ -95,7 +95,9 @@ function postTasks(p){const t=[];if(!p)return t;
 const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.parse(o):{};}catch(e){o={};}return o&&typeof o==='object'&&!Array.isArray(o)?o:{};};
 const cutterIds=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];
 /* Ki melyik munkát vágja: ha senkihez nincs semmi rendelve és egy vágó van, minden az övé */
-function taskKeysOf(p,cid){const et=editTasksOf(p),cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
+const postKeysOf=l=>(Array.isArray(l)?l:[]).filter(k=>!/^f_/.test(k));   // az f_ kezdetű kulcsok a terepi feladatok kiosztásai (ugyanabban a mezőben)
+function fieldOwners(p,k){const et=editTasksOf(p),on=new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean));return Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('f_'+k));}
+function taskKeysOf(p,cid){const et0=editTasksOf(p),et={};Object.keys(et0).forEach(id=>{if(Array.isArray(et0[id])&&postKeysOf(et0[id]).length)et[id]=postKeysOf(et0[id]);});const cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
   if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).map(t=>t.k):[];
   const before=cut.slice(0,cut.indexOf(cid));   // egy videót csak egy vágó vághat: ha (régi adatban) többnél is szerepel, az elsőé
   return (et[cid]||[]).filter(k=>!before.some(o=>(et[o]||[]).includes(k)));}

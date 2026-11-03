@@ -1231,7 +1231,7 @@ const ACT={
   'op-undo':()=>opStep(-1),
   'np-multi':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Első nap';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(m)m.hidden=true;if(e){e.hidden=false;const i=e.querySelector('input'),d=f.querySelector('[name=date]');if(i){if(d&&d.value)i.min=d.value;i.focus();try{i.showPicker&&i.showPicker();}catch(_){}}}},
   'np-multi-off':b=>{const f=b.closest('form')||document;const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent='Dátum';const m=f.querySelector('.np-multi'),e=f.querySelector('.np-end');if(e){e.hidden=true;const i=e.querySelector('input');if(i)i.value='';}if(m)m.hidden=false;},
-  'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const y0=scrollY;requestAnimationFrame(()=>{scrollTo(0,y0);requestAnimationFrame(()=>scrollTo(0,y0));});const cid=b.dataset.cid,k=b.dataset.k,et={};cutterIds(d).forEach(id=>{et[id]=taskKeysOf(d,id);});const cur=et[cid]||[];if(cur.includes(k))et[cid]=cur.filter(x=>x!==k);else{const o=taskOwners(d,k).filter(x=>x!==cid);if(o.length){toast('Ezt a videót már '+((crewById(o[0])||{}).name||'más')+' vágja – ha másnak adnád, előbb nála vedd le.',true);return;}et[cid]=cur.concat([k]);}setDraft({editTasks:et});},   // egy videó = egy vágó: aki megkapja, attól a többinél lekerül
+  'cut-task':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const y0=scrollY;requestAnimationFrame(()=>{scrollTo(0,y0);requestAnimationFrame(()=>scrollTo(0,y0));});const cid=b.dataset.cid,k=b.dataset.k,et=etWithField(d);const cur=et[cid]||[];if(cur.includes(k))et[cid]=cur.filter(x=>x!==k);else{const o=taskOwners(d,k).filter(x=>x!==cid);if(o.length){toast('Ezt a videót már '+((crewById(o[0])||{}).name||'más')+' vágja – ha másnak adnád, előbb nála vedd le.',true);return;}et[cid]=cur.concat([k]);}setDraft({editTasks:et});},   // egy videó = egy vágó: aki megkapja, attól a többinél lekerül
   'op-redo':()=>opStep(1),
   'redo':()=>histStep(1),
   'fee-add':()=>{const d=S.draft;if(!d)return;FOLD.fin=true;setDraft({fees:(d.fees||[]).concat([{name:'',crewId:'',task:'',gear:'',amount:'',rent:''}])});},
@@ -1830,7 +1830,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||p
   if(t.dataset&&t.dataset.osRole!==undefined){const id=t.value,role=t.dataset.osRole;if(!id)return;const c=crewById(id),crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
     crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role+' – megjelent a Stáb és eszközöknél');return;}
-  if(t.dataset&&t.dataset.osCut){const k=t.dataset.osCut,id=t.value,crew=clone(d.crew||[]),et={};cutterIds(d).forEach(x=>{et[x]=taskKeysOf(d,x).filter(y=>y!==k);});
+  if(t.dataset&&t.dataset.osCut){const k=t.dataset.osCut,id=t.value,crew=clone(d.crew||[]),et=etWithField(d);Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!==k);});
     if(id){if(!crew.some(a=>a.crewId===id&&a.role==='Vágó'))crew.push({crewId:id,role:'Vágó'});et[id]=(et[id]||[]).concat([k]);}
     const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
     const c=crewById(id);if(id)toast((c?c.name:'')+' vágja – '+(postTasks(d).find(x=>x.k===k)||{}).label);}});
@@ -1845,3 +1845,13 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSee
 ACT['ref-del']=b=>{const d=S.draft;if(!d)return;setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===b.dataset.id))});};
 
 document.addEventListener('change',e=>{if(e.target.id!=='lead-pick'||!S.draft||!e.target.value)return;const c=crewById(e.target.value);setDraft({lead:e.target.value});toast((c?c.name:'')+' lett a projektvezető');});
+
+/* editTasks összeállítása: a vágók mostani (akár kimondatlan) utómunkái + a terepi kiosztások (f_ kulcsok) megmaradnak */
+function etWithField(d){const et0=editTasksOf(d),et={};Object.keys(et0).forEach(id=>{const f=(et0[id]||[]).filter(k=>/^f_/.test(k));if(f.length)et[id]=f.slice();});
+  cutterIds(d).forEach(id=>{et[id]=(et[id]||[]).concat(taskKeysOf(d,id));});return et;}
+/* Terepi feladat kiosztása az összesítőben: a munkatárs a szereppel a stábba is bekerül; újra kiválasztva lekerül a feladatról */
+document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset||t.dataset.osField===undefined||!d||ro()||projLocked())return;const k=t.dataset.osField,role=t.dataset.role,id=t.value;if(!id)return;
+  const et=etWithField(d),crew=clone(d.crew||[]),c=crewById(id),has=(et[id]||[]).includes('f_'+k);
+  if(has){et[id]=et[id].filter(x=>x!=='f_'+k);if(!et[id].length)delete et[id];toast((c?c.name:'')+' lekerült erről a feladatról');}
+  else{et[id]=(et[id]||[]).concat(['f_'+k]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});toast((c?c.name:'')+' beosztva: '+(t.dataset.label||role));}
+  const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));});
