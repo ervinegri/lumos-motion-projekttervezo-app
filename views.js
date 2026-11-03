@@ -762,7 +762,7 @@ function topicCards(p,{camRow,dlRow,D}){
     <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${card('p_foto','📷 Fotók utómunkája',foR)}</div></section></div>`;   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
 }
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
-function orderSummary(p){
+function orderSummary(p,bare){
   const T=[],can=!ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.draft.id===p.id;
   const onRole=r=>[...new Set((p.crew||[]).filter(a=>a.role===r).map(a=>a.crewId))];
   const nm=id=>(crewById(id)||{}).name||'?';
@@ -789,8 +789,9 @@ function orderSummary(p){
     return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágóhoz rendelve</span>`;};
   const post=postTasks(p).map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span>${cutOf(t.k)}</div>`);   // darab · anyag · vágó (itt is kiosztható)
   if(p.x_rush)post.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);if(p.x_nyersTarolas)post.push(`<div class="op-row"><span class="op-n">🗄️</span><span class="op-l">Nyersanyag tárolása 5 évig</span></div>`);
-  if(!T.length&&!post.length)return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4><p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p></div>`;
-  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4><div class="os-two"><section class="os-col"><h5 class="os-col-h">📍 Terepi munkák</h5>${T.length?`<div class="os-field">${T.join('')}</div>`:'<p class="hint" style="margin:0">Nincs terepi munka kiválasztva.</p>'}</section>
+  const head=bare?'':'<h4 class="sub-h">📋 Projekt összesítő</h4>';
+  if(!T.length&&!post.length)return `<div class="order-sum${bare?' bare':''}">${head}<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p></div>`;
+  return `<div class="order-sum${bare?' bare':''}">${head}<div class="os-two"><section class="os-col"><h5 class="os-col-h">📍 Terepi munkák</h5>${T.length?`<div class="os-field">${T.join('')}</div>`:'<p class="hint" style="margin:0">Nincs terepi munka kiválasztva.</p>'}</section>
     <section class="os-col"><h5 class="os-col-h">🎬 Utómunka – átadandó anyagok</h5>${post.length?`<div class="op-gh">✂️ Vágás</div><div class="op-list">${post.join('')}</div>`:'<p class="hint" style="margin:0">Nincs utómunka kiválasztva.</p>'}</section></div>${can?'<p class="hint" style="margin:10px 0 0">A kiválasztott munkatársak automatikusan bekerülnek a Stáb és eszközök közé a megfelelő szereppel.</p>':''}</div>`;
 }
 /* Vágó kártyáján: mely munkákat készíti el */
@@ -891,9 +892,10 @@ function viewProject(p){
       </div></details>
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
-  ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}</h3></summary>
-    ${topicCards(p,{camRow,dlRow,D})}
-  </details>${orderSummary(p)}`}
+  ${ro()?roContentPanel(p):(()=>{const nSel=nRec+nKrea+nTech+nIntG+postTasks(p).length,openEd=FOLD.content!=null?FOLD.content:!nSel;   // egy panel: felül az összesítő (kiosztással), alatta a kiválasztás
+    return `<section class="panel content svc"><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}</h3>${nSel?orderSummary(p,true):''}
+    <details class="svc-edit" data-fold="content"${openEd?' open':''}><summary><span>✏️ ${nSel?'Szolgáltatások módosítása':'Szolgáltatások kiválasztása'}</span><span class="muted svc-o">kinyitás ▾</span><span class="muted svc-c">bezárás ▴</span></summary>
+    ${topicCards(p,{camRow,dlRow,D})}</details></section>`;})()}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
       <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'}</h3></summary>${financePanel(p,true)}</details>`;})()
