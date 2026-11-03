@@ -899,10 +899,10 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
     const added = emails.filter(m => !have[m]), removed = (cur.attendees || []).length - keep.length + added.length;
     if (!added.length && !removed) return false;   // nincs változás a vendéglistában: nem frissítünk, így senki nem kap újabb értesítőt
     added.forEach(m => keep.push({ email: m }));
-    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: mailOn_('calendar') ? 'all' : 'none' });   // kikapcsolt e-mailnél a Google sem értesít
-    return mailOn_('calendar') && added.length > 0;
+    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: 'none' });   // a Google nem küld külön meghívólevelet – az értesítés a saját beosztásos levelünk (benne a naptárlinkkel)
+    return false;
   }
-  if (!mailOn_('calendar')) return false;   // speciális szolgáltatás nélkül a vendégek felvétele értesítést küldhet – kikapcsolt e-mailnél kihagyjuk
+  if (!mailOn_('calendar')) return false;   // speciális szolgáltatás nélkül (tartalék): a vendégek felvétele értesítést küldhet – kikapcsolt naptárlevélnél kihagyjuk
   const have = {}; ev.getGuestList().forEach(g => { have[String(g.getEmail()).toLowerCase()] = 1; });
   Object.keys(want).forEach(m => { if (!have[m]) ev.addGuest(m); });
   Object.keys(have).forEach(m => { if (allCrewEmails[m] && !want[m]) ev.removeGuest(m); });

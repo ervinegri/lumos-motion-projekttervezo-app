@@ -1096,7 +1096,7 @@ function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
   const MC=[['assign','👥 Beosztás','Szakemberek','A stáb véglegesítésekor (és módosításkor) megkapják a beosztásukat: időpont, helyszín, szerep, stáb.'],
-    ['calendar','📅 Naptármeghívó','Szakemberek','A Google Naptár meghívót és változásértesítést küld a projekt eseményéről.'],
+    ['calendar','📅 Naptármeghívó','Meghívott vendégek','A kézzel létrehozott naptárbejegyzések meghívói. A stábtagok a projekt eseményébe külön Google-levél nélkül kerülnek be – őket a beosztásos levél értesíti, benne a naptárlinkkel.'],
     ['eqlist','🎒 Eszközlista','A kiválasztott stábtagok','Az „Eszközlista küldése” gombbal kiküldött levél: ki mit visz, személyes megjegyzés.'],
     ['penalty','⚠️ Díjcsökkentés','Az érintett szakember','Jóváhagyott díjcsökkentésről (késés, hiba, kártérítés) értesítés.'],
     ['penAdmin','🔔 Jóváhagyásra váró díjcsökkentés','Ügyvezetők','Ha a termelési vezető díjcsökkentést javasol, az ügyvezető jóváhagyást kér.'],
