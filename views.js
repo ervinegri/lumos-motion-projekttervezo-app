@@ -725,7 +725,7 @@ function roContentPanel(p){
   if(!rec.length&&!krea.length&&!tech.length&&!plan)return '';
   const techHtml=tech.length||plan?`<div class="tech-sec"><h4 class="sub-h">💡 Hang-, fény- és vizuáltechnika</h4>${tech.length?roList(tech):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`:'';
   const col=(t,items)=>items.length?`<section class="content-col"><h4 class="sub-h">${t}</h4>${roList(items)}</section>`:'';
-  return `<div class="panel content"><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
+  return `<div class="panel content"><h3>🧾 Szolgáltatások</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
 }
 /* Tartalmak témánként: minden téma egy kártya – bal oldalt a helyszíni feladat, jobb oldalt a hozzá tartozó utómunka.
    Csak a kiválasztott tételek látszanak, a többi a „+ hozzáadás” alatt; a csukott kártya fejlécében címkéken az összefoglaló. */
@@ -746,7 +746,7 @@ function topicCards(p,{camRow,dlRow,D}){
   const recL=[{on:num(p.er_rooms)>0,html:rooms,chip:num(p.er_rooms)>1?num(p.er_rooms)+' terem':''}].concat(REC_CAMS.filter(c=>c.k!=='er_creative').map(cam));
   const recR=REC_COUNTS.filter(it=>it.k!=='er_rooms').map(cnt);
   const intL=INT_FLAGS.map(c=>flag(c.k,c.label)),intR=DELIVERABLES.filter(it=>it.g==='int').map(dlv);
-  const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>flag(e.k,e.label)));
+  const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>flag(e.k,e.label))).concat(DELIVERABLES.filter(it=>/^short/.test(it.k)).map(dlv));   // short videó készítés a kreatív videózásnál is (ugyanaz az adat, mint az Utómunkánál)
   const krR=DELIVERABLES.filter(it=>it.g!=='int').map(dlv).concat(p.x_rush?[flag('x_rush','Villámgyors kézbesítés')]:[]);
   const foL=[{on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')}],foR=[{on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'}];
   const teL=TECH.map(t=>flag(t.k,t.label)).concat(REC_LIVE.map(c=>flag(c.k,c.label)));
@@ -757,7 +757,7 @@ function topicCards(p,{camRow,dlRow,D}){
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
 function orderSummary(p){
   const T=[],li=(t,n)=>`<li>${esc(t)}${n!=null?`: <b>${n}</b>`:''}</li>`;
-  const cutNm=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?` <span class="os-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:` <span class="os-cut none">✂️ nincs vágó hozzárendelve</span>`;};
+  const cutNm=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?` <span class="os-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:` <span class="os-cut none">✂️ nincs vágóhoz rendelve</span>`;};
   const grp=(t,items)=>{if(items.length)T.push(`<section class="os-g"><h5>${t}</h5><ul>${items.join('')}</ul></section>`);};
   const rooms=num(p.er_rooms),rec=[];if(rooms>0&&REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]))rec.push(li('Rögzített termek',rooms));
   REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).forEach(c=>rec.push(li(c.label+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''))));
@@ -768,7 +768,7 @@ function orderSummary(p){
   grp('🎤 Interjúk / imázsfilmek videózása',INT_FLAGS.filter(c=>p[c.k]).map(c=>li(c.label)));
   const fo=[];if(fotoN(p)>0)fo.push(li('Fotós a helyszínen',fotoN(p)));grp('📷 Fotózás',fo);
   grp('💡 Vizuál-, hang- és fénytechnika',TECH.filter(t=>p[t.k]).map(t=>li(t.label)).concat(REC_LIVE.filter(c=>p[c.k]).map(c=>li(c.label))));
-  const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágó hozzárendelve</span>`;};
+  const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágóhoz rendelve</span>`;};
   const post=postTasks(p).map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span>${cutOf(t.k)}</div>`);   // táblázatszerűen: darab · anyag · vágó
   if(p.x_rush)post.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);if(p.x_nyersTarolas)post.push(`<div class="op-row"><span class="op-n">🗄️</span><span class="op-l">Nyersanyag tárolása 5 évig</span></div>`);
   const postHtml=post.length?`<section class="os-g os-post"><h5>🎬 Utómunka – átadandó anyagok</h5><div class="op-list">${post.join('')}</div></section>`:'';
@@ -872,7 +872,7 @@ function viewProject(p){
       </div></details>
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
-  ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>📽️ Előadásrögzítés, kivetítés és kreatív tartalmak ${foldAside(nRec+nKrea+nTech+nIntG)}</h3></summary>
+  ${ro()?roContentPanel(p):`<details class="panel fold content" data-fold="content"${FOLD.content?' open':''}><summary><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}</h3></summary>
     ${topicCards(p,{camRow,dlRow,D})}
   </details>${orderSummary(p)}`}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
