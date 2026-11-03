@@ -725,8 +725,8 @@ function orderSummary(p){
   const cutOf=k=>{const cut=cutterIds(p);if(!cut.length)return '';const o=taskOwners(p,k);return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágó</span>`;};
   const post=postTasks(p).map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span>${cutOf(t.k)}</div>`);   // táblázatszerűen: darab · anyag · vágó
   if(p.x_rush)post.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);if(p.x_nyersTarolas)post.push(`<div class="op-row"><span class="op-n">🗄️</span><span class="op-l">Nyersanyag tárolása 5 évig</span></div>`);
-  if(post.length)T.push(`<section class="os-g os-post"><h5>🎬 Utómunka – átadandó anyagok</h5><div class="op-list">${post.join('')}</div></section>`);
-  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4>${T.length?`<div class="os-grid">${T.join('')}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;
+  const postHtml=post.length?`<section class="os-g os-post"><h5>🎬 Utómunka – átadandó anyagok</h5><div class="op-list">${post.join('')}</div></section>`:'';
+  return `<div class="order-sum"><h4 class="sub-h">📋 Projekt összesítő</h4>${T.length||postHtml?`<div class="os-wrap${postHtml?' has-post':''}">${T.length?`<div class="os-grid">${T.join('')}</div>`:'<div></div>'}${postHtml}</div>`:'<p class="hint" style="margin:0">Még nincs kiválasztva semmi.</p>'}</div>`;   // az utómunka jobb oldalt
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 function cutTasksBlock(p,cid){
@@ -837,6 +837,7 @@ function viewProject(p){
         ${cgrp('c_tech','💡 Vizuál-, hang- és fénytechnika',nTechG,`<div class="toggles one">${tech}${REC_LIVE.map(c=>`<label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>`).join('')}</div>`)}
       </section>
       <section class="content-col"><h4 class="sub-h">🎬 Utómunka</h4>
+        ${needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():''}
         ${cgrp('c_post_er','🎙️ Előadások',nPostErG,`
         ${REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>{const n=it.k==='er_rooms'?Math.max(1,num(p[it.k])||1):num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
           <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;}).join('')}
