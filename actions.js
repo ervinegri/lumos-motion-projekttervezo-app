@@ -1692,6 +1692,6 @@ function cfPreviewRender(defSubj,defIntro){const box=$('cfPrev'),sel=$('cfPrevWh
   let html=x.html.replace('@@INTRO@@',nl(intro));html=note?html.replace('@@NOTE@@',nl(note)):html.replace(/<p>@@NOTE@@<\/p>/,'');
   box.innerHTML=`<div class="cf-prev-meta"><span>Címzett:</span> <b>${esc(x.name)}</b> &lt;${esc(x.email)}&gt;<br><span>Tárgy:</span> <b>${esc(subj)}</b></div><div class="cf-prev-frame"></div>`;
   const host=box.querySelector('.cf-prev-frame'),sr=host.attachShadow({mode:'open'});   // saját stílus, az app CSS-e nem hat rá (mint egy levelezőben)
-  sr.innerHTML=`<style>:host{display:block}div{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}</style><div>${html}</div>`;}
+  sr.innerHTML=`<style>:host{display:block}div{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}td p{margin:0}</style><div>${html}</div>`;}
 document.addEventListener('input',e=>{if(['m-cfSubj','m-cfIntro','m-cfNote'].includes(e.target.id)){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
 document.addEventListener('change',e=>{if(e.target.id==='cfPrevWho'){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});

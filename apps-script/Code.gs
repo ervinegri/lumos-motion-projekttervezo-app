@@ -910,7 +910,8 @@ function calEventLink_(ev) {   // a naptárbejegyzés megnyitása a Google Napt�
   try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CALENDAR_ID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
   return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CALENDAR_ID).replace(/=+$/, '');
 }
-function crewFinalBuild_(p, m, lead, link, changed, cm) {
+function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
+  const sig = signatureFor_(u), sigText = sig ? sig.text : 'Üdvözlettel,\n' + ((u && u.name) || '') + '\nLumos Motion', sigHtml = sig ? sig.html : '<p>Üdvözlettel,<br>' + escapeHtml_((u && u.name) || '') + '<br>Lumos Motion</p>';   // a szignó azé, aki élesít
   cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
@@ -918,17 +919,17 @@ function crewFinalBuild_(p, m, lead, link, changed, cm) {
     ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
-  const text = ['Szia ' + first + '!', '', intro, '']
-    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(note ? ['', note] : []).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', MAIL_SIGNATURE_TEXT]).join('\n');
-  const html = '<p>Szia ' + escapeHtml_(first) + '!</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
+  const text = ['Kedves ' + first + ',', '', intro, '']
+    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(note ? ['', note] : []).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', sigText]).join('\n');
+  const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
     + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '')
-    + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
+    + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' + sigHtml;
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
   return { subject: subj, text: text, html: html };
 }
 function crewFinalMail_(u, p, m, lead, link, changed, cm) {
-  const b = crewFinalBuild_(p, m, lead, link, changed, cm);
+  const b = crewFinalBuild_(p, m, lead, link, changed, cm, u);
   return gmailSend_(m.email, b.subject, b.text, mailOptsFor_(u, b.html), 'assign');
 }
 /** Az élesítéskor kiküldendő levelek előnézete tagonként (a bevezető és a megjegyzés helyén jelölővel – a felület élőben cseréli). */
@@ -939,7 +940,7 @@ function crewFinalPreview_(u, a) {
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
   return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)).map(m => {
     const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== crewSig_(p, m.id);
-    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' });
+    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });
 }
