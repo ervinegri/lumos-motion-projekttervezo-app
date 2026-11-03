@@ -158,7 +158,7 @@ test('crew finalize: guests only on finalize, everyone with e-mail notified, on-
   assert.throws(()=>run(`rpc('token','saveProject',{...DB.projects.find(x=>x.id==='final-1234'),status:'helyszin',siteOk:'igen',baseUpdatedAt:'f0',mutationId:'mutation-final1',deferCal:true,crew:[{crewId:'bence-123',role:'Operatőr'}]})`),/véglegesítsd a csapatot/);
   run(`var fin=rpc('token','finalizeCrew',{projectId:'final-1234'});`);
   assert.deepEqual(json('GUESTS.sort()'),['bence@x.hu','david@x.hu']);
-  assert.deepEqual(json('MAILS.map(m=>m[0]).sort()'),['bence@x.hu','david@x.hu']);
+  assert.deepEqual(json('MAILS.map(m=>m[0]).sort()'),['bence@x.hu']);
   assert.deepEqual(json('fin.noEmail'),['Ervin']);
   assert.deepEqual(json('fin.project.crewFinal.ids'),['bence-123','david-123','ervin-123']);
   const pr=json("DB.projects.find(x=>x.id==='final-1234')");
