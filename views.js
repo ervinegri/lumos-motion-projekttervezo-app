@@ -429,7 +429,7 @@ function eqNote(e,it,p){
   if(!it)return '';const free=num(it.qty)-usedElsewhere(it.id,p)-(eqQty(p,it.id)-num(e.qty));
   if(num(e.qty)>free)return `<span class="bad-txt">Csak ${Math.max(0,free)} db szabad ezen a napon</span>`;
   if(it.condition&&it.condition!=='ok')return `<span class="warn-txt">${esc(CONDITIONS[it.condition])}</span>`;
-  return `<small>${esc(it.category||'Egyéb')}${it.location?' · '+esc(it.location):''}</small>`;
+  return '';   // kiválasztott eszköznél nem kell a kategória / tárolási hely sor
 }
 const CAT_ICON={'Kamera':'📷','Objektív':'🔭','Hang':'🎤','Fény':'💡','Drón':'🚁','Képkeverés / stream':'🎛️','GoPro / akciókamera':'🎥','Gimbal / állvány':'🎚️','Akku / powerbank / táp':'🔋','Adathordozó':'💾','Laptop / tablet / telefon':'💻','Monitor / nyomtató':'🖥️','Kocsi / szállítás':'🚐','Kábel':'🔌','Egyéb':'📦'};
 const catLbl=c=>(CAT_ICON[c]||'📦')+' '+c;
@@ -688,10 +688,21 @@ function roContentPanel(p){
   // a szakember ezt a részt nem látja – kivéve a vágót, aki a kért vágnivaló anyagokat igen
   const me=S.me&&S.me.crewId,isEditor=me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
   if(!isEditor)return '';
-  const mine=taskKeysOf(p,me),items=postTasks(p).filter(t=>mine.includes(t.k)).map(t=>`${esc(t.label)}: <b>${t.n}${t.k==='foto_db'?' db':''}</b>`);
-  if(items.length&&p.x_rush)items.push('Villámgyors kézbesítés');
-  const due=dueDate(p);
-  return `<div class="panel content"><h3>✂️ Vágnivaló anyagok</h3>${items.length?roList(items):`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt vágnivaló.':'Ehhez a projekthez nincs megrendelt vágnivaló anyag.'}</p>`}${due?`<p class="hint" style="margin:10px 0 0">Átadási határidő: <b>${esc(fmtDay(due))}</b></p>`:''}</div>`;
+  const mine=taskKeysOf(p,me),tasks=postTasks(p).filter(t=>mine.includes(t.k));
+  const rows=tasks.map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span></div>`);
+  if(rows.length&&p.x_rush)rows.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);
+  // terepi felvételek: miből dolgozhat a vágó (kamerák, interjúk, kreatív felvételek, fotó)
+  const field=[];REC_CAMS.forEach(c=>{if(p[c.k])field.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
+  if(num(p.er_rooms)>1)field.unshift(`Rögzített termek: <b>${num(p.er_rooms)}</b>`);
+  INT_FLAGS.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
+  EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas'].includes(e.k)&&p[e.k]).forEach(e=>field.push(esc(e.label)));
+  if(fotoN(p)>0)field.push('Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):''));
+  REC_LIVE.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
+  const due=dueDate(p),di=due?dueInfo(p):null,r=pr(p);
+  const dueHtml=due?`<div class="cut-due${di&&di.cls!=='ok'?' late':''}"><span>📅 Videók leadási határideje</span><b>${esc(fmtDay(due))}</b>${di&&di.txt&&p.status!=='atadva'?`<span class="cd-left">${esc(di.txt)}</span>`:''}</div>`:'';
+  return `<div class="panel content"><h3>✂️ Vágás</h3>${dueHtml}<div class="cut-grid">
+    <section><h4 class="sub-h">📍 Terepi felvételek</h4>${field.length?roList(field):'<p class="hint" style="margin:0">Nincs megadva terepi felvétel.</p>'}${r?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section>
+    <section><h4 class="sub-h">✂️ Vágnivaló anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt vágnivaló.':'Ehhez a projekthez nincs megrendelt vágnivaló anyag.'}</p>`}</section></div></div>`;
 
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});

@@ -47,7 +47,7 @@ const DELIVERABLES=[
   {k:'short15',label:'Short videó (15–20 mp)',w:.07,max:15}];
 const EXTRAS=[
   {k:'x_vago',label:'Vágó a helyszínen',role:'Vágó'},
-  {k:'x_dron',label:'Drónos felvételek + pilóta',role:'Drónpilóta',base:true},
+  {k:'x_dron',label:'Drónos felvételek',role:'Drónpilóta',base:true},
   {k:'x_timelapse',label:'Timelapse (GoPro)',base:true},
   {k:'x_pov',label:'POV felvétel (GoPro)',base:true},
   {k:'x_foto',label:'Fotós a helyszínen',role:'Fotós',base:true},
