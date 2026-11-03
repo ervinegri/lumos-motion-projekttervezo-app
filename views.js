@@ -978,11 +978,17 @@ function calItems(month){
     items.push({kind:'g',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''});});
   return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99')||a.title.localeCompare(b.title,'hu'));
 }
+/* Épp zajló forgatás: ma van, és (ha van megadva) az érkezés és a távozás között vagyunk */
+function calLive(p){if(!p||['atadva','lemondva','utomunka','leadva','jovahagyas'].includes(p.status))return false;const r=pr(p),T=todayISO();if(!r||r.start>T||r.end<T)return false;
+  const now=new Date().toTimeString().slice(0,5),last=r.end===T&&r.end>r.start,st=String((T>r.start&&p.lastStartTime&&last?p.lastStartTime:p.startTime)||''),en=String((last&&p.lastEndTime)||p.endTime||'');
+  return (!/^\d{2}:\d{2}$/.test(st)||now>=st)&&(!/^\d{2}:\d{2}$/.test(en)||now<en);}
 function calChip(it,day){
   const cont=it.date<day;
   const dim=it.kind==='p'&&crewDim(projById(it.id)||{});
-  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
-  return `<button type="button" class="${cls}" data-action="${it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
+  const live=it.kind==='p'&&calLive(projById(it.id));
+  const drag=!ro()&&(it.kind==='g'||(it.kind==='p'&&it.status!=='atadva'));
+  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
+  return `<button type="button" class="${cls}"${drag?` draggable="true" data-drag-day="${day}"`:''} data-action="${it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();

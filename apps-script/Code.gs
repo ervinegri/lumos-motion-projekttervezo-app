@@ -1595,6 +1595,17 @@ function calendarEvents_(a) {
 
 function calBump_() { const c = CacheService.getScriptCache(); c.put('pm_cal_ver', String(Date.now()), 21600); }
 /** Önálló naptárbejegyzés (nem projekt) létrehozása / módosítása az appból. A projektek eseményét az app a projektből frissíti. */
+/** Naptárbejegyzés áthelyezése húzással (csak a dátum tolódik, a leírás, vendégek változatlanok). a: {id, days} */
+function moveCalEvent_(u, a) {
+  const ev = calEvent_(str_(a && a.id, 200)), days = Math.round(Number(a && a.days) || 0);
+  if (!ev) throw new Error('Ez a bejegyzés közben törlődött a naptárból.');
+  if (ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projektet húzd át.');
+  if (!days || Math.abs(days) > 400) return { ok: true };
+  const sh = d => new Date(d.getTime() + days * 86400000);
+  if (ev.isAllDayEvent()) ev.setAllDayDates(sh(ev.getAllDayStartDate()), sh(ev.getAllDayEndDate())); else ev.setTime(sh(ev.getStartTime()), sh(ev.getEndTime()));
+  calBump_(); logEvent_(u, 'Naptár', ev.getTitle(), 'Áthelyezve ' + days + ' nappal');
+  return { ok: true };
+}
 function saveCalEvent_(u, a) {
   a = a || {};
   const title = str_(a.title, 200), date = iso_(a.date);
@@ -3907,6 +3918,7 @@ function rpcInner_(token, name, arg) {
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
+    case 'moveCalEvent': canEdit(); return moveCalEvent_(u, arg);
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);

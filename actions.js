@@ -1772,3 +1772,22 @@ function sigEdInit(u){const ed=$('m-sigEd');if(!ed||!u)return;SIG_ED={dirty:fals
 
 /* Naptár: a Terepi munkák és a Vágói naptár külön ki-be kapcsolható (böngészőnként megjegyezzük) */
 document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.calshow;if(!k)return;S.cal.show[k]=e.target.checked;try{localStorage.setItem('lpm_cal_show',JSON.stringify(S.cal.show));}catch(_){}if(k==='vagoi'&&e.target.checked)loadVagoi(S.cal.month);render(true);});
+
+/* Naptár: projektek és Google-bejegyzések áthúzása másik napra (mint a Google Naptárban) */
+let CAL_DRAG=null;
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.cal-chip[draggable=true]');if(!c)return;CAL_DRAG={kind:c.dataset.kind,id:c.dataset.id,from:c.dataset.dragDay};c.classList.add('dragging');const t=$('calTip');if(t)t.remove();try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',c.dataset.id);}catch(_){}});
+document.addEventListener('dragend',()=>{document.querySelectorAll('.cal-chip.dragging').forEach(x=>x.classList.remove('dragging'));document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));CAL_DRAG=null;});
+document.addEventListener('dragover',e=>{if(!CAL_DRAG)return;const d=e.target.closest&&e.target.closest('.cal-day[data-day]');if(!d)return;e.preventDefault();document.querySelectorAll('.cal-day.drop').forEach(x=>{if(x!==d)x.classList.remove('drop');});d.classList.add('drop');});
+document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.closest&&e.target.closest('.cal-day[data-day]');const g=CAL_DRAG;CAL_DRAG=null;document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));if(!d)return;e.preventDefault();
+  const days=diffDays(g.from,d.dataset.day);if(!days)return;const sh=x=>validISO(x)?addDays(x,days):x;
+  if(g.kind==='p'){const p=projById(g.id);if(!p)return;
+    if(S.dirty&&S.draft&&S.draft.id===p.id){toast('Előbb mentődjenek el a projekt módosításai.',true);return;}
+    const patch={date:sh(p.date),endDate:p.endDate?sh(p.endDate):p.endDate};
+    const cd=p.crewDays&&typeof p.crewDays==='object'?Object.fromEntries(Object.entries(p.crewDays).map(([k,v])=>[k,Array.isArray(v)?v.map(sh):v])):p.crewDays;   // a stáb munkanapjai is tolódnak
+    const old={date:p.date,endDate:p.endDate,crewDays:p.crewDays};Object.assign(p,patch,{crewDays:cd});render(true);
+    try{const saved=await call('saveProject',Object.assign(clone(p),{baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0)S.projects[k]=normProj(saved);
+      if(S.draft&&S.draft.id===p.id){S.draft=prepDraft(saved);S.draftBase=clone(S.draft);}
+      syncCal(p.id);render(true);toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)}${crewFinalState(projById(p.id)||p)==='changed'?' – a csapatot véglegesítsd újra, hogy a stáb értesüljön':''}`);}
+    catch(err){Object.assign(p,old);render(true);handleErr(err);}
+    return;}
+  if(g.kind==='g'){const m=S.cal.month;try{await call('moveCalEvent',{id:g.id,days});S.cal.events={};render(true);toast('Bejegyzés áthelyezve');}catch(err){handleErr(err);}}});
