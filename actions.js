@@ -388,16 +388,24 @@ function newProjectModal(day,pre){
     catch(e){handleErr(e);}
   }});
 }
+/* Ismert vállalkozások a kereséshez: a stáb többi tagjáé és az ügyfeleké (adószámmal, ha van) */
+function crewCompanies(){const m=new Map();(S.crew||[]).forEach(c=>{const n=String(c.company||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:c.vat||''});});
+  (S.clients||[]).forEach(c=>{const n=String(c.name||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:''});});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,'hu'));}
+/* Több elemet választó legördülő (pipákkal): a jelölőnégyzetek a formban maradnak, csak egy lenyíló panelben */
+function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
+  <div class="msel-pop" hidden>${opts.map(o=>`<label><input type="checkbox" name="${name}" value="${esc(o)}"${S2.has(o)?' checked':''}>${esc(o)}</label>`).join('')}</div></div></div>`;}
+function mselSum(a,ph){return a.length?a.map(x=>`<span class="msel-chip">${esc(x)}</span>`).join(''):`<span class="muted">${esc(ph||'Válassz…')}</span>`;}
 function crewModal(c){
   if(c&&c._new)c=Object.assign({},c);const v=c||{},roles=new Set(v.roles||[]);if(c&&c._new)c=null;
   const uses=c?S.projects.filter(p=>crewIds(p).has(c.id)).length:0;
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
     ${mf('name','Név',{full:true,v:v.name,max:100})}
-    <div class="field full"><span class="lbl">Szerepek</span><div class="rolepick">${CREW_ROLES.map(r=>`<label><input type="checkbox" name="roles" value="${esc(r)}"${roles.has(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
-    <div class="field full"><span class="lbl">Részletek</span><div class="rolepick">${CREW_SKILLS.map(r=>`<label><input type="checkbox" name="skills" value="${esc(r)}"${(v.skills||[]).includes(r)?' checked':''}>${esc(r)}</label>`).join('')}</div></div>
+    ${mselField('roles','Szerepek',CREW_ROLES,[...roles],'Válassz szerepet…')}
+    ${mselField('skills','Részletek',CREW_SKILLS,v.skills||[],'Válassz részleteket…')}
     ${ms('priority','Prioritás',[['1','1 – elsődleges'],['2','2 – másodlagos'],['3','3 – tartalék']],v.priority!=null?String(v.priority):'',{empty:'Nincs megadva'})}
     ${ms('type','Jogviszony',CREW_TYPES,isEmployee(v)?CREW_TYPES[3]:v.type||'Belsős')}
-    ${mf('company','Vállalkozás (számlázó cég)',{v:v.company,ph:'pl. Minta Kft., EV'})}
+    <div class="field"><label for="m-company">Vállalkozás (számlázó cég)</label><div class="tax-row"><input class="inp" id="m-company" name="company" list="dl-crewco" value="${esc(v.company||'')}" placeholder="kezdd el gépelni, vagy keresd adószámmal" autocomplete="off" maxlength="160"><button class="btn outline small" type="button" data-action="crew-co-lookup" title="Cégnév betöltése az adószám alapján (NAV)">🔍</button></div>
+      <datalist id="dl-crewco">${crewCompanies().map(x=>`<option value="${esc(x.name)}">${esc(x.tax||'')}</option>`).join('')}</datalist></div>
     ${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}
     ${mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'})}
     <div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>
@@ -432,6 +440,7 @@ function itemModal(it,after){
     catch(e){handleErr(e);}
   }});
 }
+document.addEventListener('change',e=>{if(e.target.id==='m-company'){const k=crewCompanies().find(x=>fold(x.name)===fold(e.target.value.trim()));const t=$('m-tax');if(k&&k.tax&&t&&!t.value){t.value=k.tax;}if(k&&k.vat){const r=document.querySelector('#mform [name=vat][value="'+k.vat+'"]');if(r)r.checked=true;}}});   // ismert vállalkozás: az adószám és az ÁFA is átjön
 document.addEventListener('change',e=>{if(e.target.id==='m-role'){const sc=$('m-salesComp');if(sc)sc.hidden=e.target.value!=='sales';const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const nf=$('m-newCrewF');if(nf){nf.hidden=e.target.value!=='__new';if(!nf.hidden)setTimeout(()=>$('m-newName').focus(),0);}const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
 function userModal(u){
   const v=u||{};S._invEdit='';
@@ -1019,6 +1028,9 @@ const ACT={
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
   'np-draft':b=>npDraft(b),
+  'crew-co-lookup':async b=>{const t=$('m-tax'),co=$('m-company');const v=String((t&&t.value)||'').replace(/\D/g,'');if(v.length<8){toast('Írd be az adószámot (legalább az első 8 számjegyét), és abból betöltöm a cég nevét.',true);if(t)t.focus();return;}
+    b.disabled=true;try{const r=await call('lookupTaxpayer',{tax:v});if(co&&r.name)co.value=r.name;toast('Cégnév betöltve: '+(r.name||''));}catch(e){handleErr(e);}finally{b.disabled=false;}},
+  'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);},
   'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
   'new-item':()=>itemModal(null),
@@ -1638,3 +1650,6 @@ ACT['proj-history']=async b=>{const p=projById(b.dataset.id)||S.draft;if(!p)retu
       <div class="sec-lbl" style="margin:14px 0 6px">Előzmények (${r.log.length})</div>
       ${r.log.length?`<div class="ph-list">${r.log.map(x=>`<div class="ph-row"><div class="ph-at">${esc(d(x.at))}</div><div class="ph-main"><b>${esc(x.action)}</b> <span class="muted">· ${esc(x.who)}${x.role?' ('+esc(x.role)+')':''}</span>${x.details?`<div class="ph-det">${esc(x.details).replace(/; /g,'<br>')}</div>`:''}</div></div>`).join('')}</div>`:'<p class="hint">Ehhez a projekthez még nincs naplóbejegyzés.</p>'}`;}
   catch(e){const box=$('ph-body');if(box)box.innerHTML=`<p class="bad-txt">${esc(errText(e))}</p>`;}};
+
+document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;const ph=w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…';w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
+document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.querySelectorAll('.msel-pop').forEach(x=>{if(!x.hidden){x.hidden=true;x.closest('.msel').classList.remove('open');}});});
