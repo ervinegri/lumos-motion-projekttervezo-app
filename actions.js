@@ -1839,3 +1839,5 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSee
   if(t.id==='ref-add'&&t.value){const id=t.value,c=crewById(id);if((d.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===id)){toast('Neki már van ajánlói jutalék sora.',true);return;}
     setDraft({fees:(d.fees||[]).concat([{kind:'fixed',key:'ref',refCrewId:id,name:(c?c.name:'Szakember')+' ajánlói jutaléka',amount:'',rent:''}])});toast((c?c.name:'')+' ajánlói jutaléka bekerült az Egyéb költségek közé – add meg az összeget');}});
 ACT['ref-del']=b=>{const d=S.draft;if(!d)return;setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===b.dataset.id))});};
+
+document.addEventListener('change',e=>{if(e.target.id!=='lead-pick'||!S.draft||!e.target.value)return;const c=crewById(e.target.value);setDraft({lead:e.target.value});toast((c?c.name:'')+' lett a projektvezető');});
