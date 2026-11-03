@@ -508,7 +508,8 @@ function viewAsCrewModal(){
   if(!opts.length){toast('Nincs még munkatárs a Stáb fülön.',true);renderChrome();return;}
   openModal('Szakember nézet',`<p class="hint" style="margin:0 0 10px">Válaszd ki, kinek a szemével nézed az appot: csak azokat a projekteket fogod látni, amelyekre ő be van osztva, árak és díjak nélkül.</p><div class="fields">${ms('crewId','Szakember',[['','Válassz…'],...opts],'',{full:true})}</div>`,
     {submitLabel:'Nézet bekapcsolása',submit:async fd=>{if(!fd.get('crewId')){toast('Válaszd ki a szakembert.',true);return;}closeModal();await switchView('crew',fd.get('crewId'));},onClose:()=>renderChrome()});
-  comboSelect($('m-crewId'),'Kezdj el gépelni: név, szerep…',crewSub,{enterSubmit:true});   // Enter: kiválasztja és be is kapcsolja a nézetetsetTimeout(()=>{const i=document.querySelector('.cmb-in');if(i)i.focus();},50);
+  comboSelect($('m-crewId'),'Kezdj el gépelni: név, szerep…',crewSub,{enterSubmit:true});   // Enter: kiválasztja és be is kapcsolja a nézetet
+  const fi=()=>{const i=$('modalRoot').querySelector('.cmb-in');if(i)i.focus();};fi();setTimeout(fi,60);
 }
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew')viewAsCrewModal();else switchView(v);});renderChrome();});
 /* Lezáráskor (Kész / Átadva) díjcsökkentés is kiróható – szakemberenként */
