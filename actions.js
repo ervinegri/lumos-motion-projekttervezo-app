@@ -1821,3 +1821,13 @@ if(window.MutationObserver){let acT=0;new MutationObserver(()=>{if(acT)return;ac
 /* A véglegesített csapat módosult: pár másodperc szünet után felugrik az újra-véglegesítő ablak (ki milyen levelet kap) */
 function cfAutoPrompt(p){if(!p||ro())return;const sig=JSON.stringify(crewFinalDiff(p));if(sig===S._cfAutoSig)return;S._cfAutoSig=sig;clearTimeout(S._cfAutoT);
   S._cfAutoT=setTimeout(()=>{const d=S.draft;if(!d||d.id!==p.id||crewFinalState(d)!=='changed'||postTasks(d).some(t=>!taskOwners(d,t.k).length)||$('modalRoot').innerHTML||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;crewFinalizeModal();},4000);}
+
+/* Projekt összesítő: munkatárs hozzárendelése egy munkához → automatikusan bekerül a stábba a szereppel; utómunkánál a vágó kiosztása */
+document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||projLocked())return;
+  if(t.dataset&&t.dataset.osRole!==undefined){const id=t.value,role=t.dataset.osRole;if(!id)return;const c=crewById(id),crew=clone(d.crew||[]);
+    if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
+    crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role+' – megjelent a Stáb és eszközöknél');return;}
+  if(t.dataset&&t.dataset.osCut){const k=t.dataset.osCut,id=t.value,crew=clone(d.crew||[]),et={};cutterIds(d).forEach(x=>{et[x]=taskKeysOf(d,x).filter(y=>y!==k);});
+    if(id){if(!crew.some(a=>a.crewId===id&&a.role==='Vágó'))crew.push({crewId:id,role:'Vágó'});et[id]=(et[id]||[]).concat([k]);}
+    const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
+    const c=crewById(id);if(id)toast((c?c.name:'')+' vágja – '+(postTasks(d).find(x=>x.k===k)||{}).label);}});
