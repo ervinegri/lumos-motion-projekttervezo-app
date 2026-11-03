@@ -1788,12 +1788,12 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
     const rng=(a,b)=>fmtDay(a)+(b&&b>a?' – '+fmtDay(b):''),oldR=rng(p.date,p.endDate),newR=rng(sh(p.date),p.endDate?sh(p.endDate):'');
     const info=!fin.length?'<p class="hint" style="margin:0">A csapat még nincs véglegesítve, ezért <b>senki nem kap értesítést</b>. Az új időpont a véglegesítéskor kerül a stáb levelébe.</p>'
       :`<p style="margin:0 0 6px">📅 A „Terepi Munkák” naptárbejegyzés az új időpontra kerül – a beosztottak naptárában is átkerül.</p>
-        <label class="toggle" style="margin:6px 0"><input type="checkbox" id="mv-notify"${withMail.length&&S.mailOn!==false?' checked':''}${withMail.length&&S.mailOn!==false?'':' disabled'}><span class="tl">✉️ Értesítő e-mail az új időpontról</span></label>
+        ${withMail.length?'<p style="margin:6px 0 4px"><b>✉️ A stáb e-mailben értesítést kap az új időpontról:</b></p>':''}
         ${withMail.length?`<ul class="cf-list" style="margin:4px 0 0">${withMail.map(c=>`<li><b>${esc(c.name)}</b> <span class="muted">· ${esc(c.email)}</span></li>`).join('')}</ul>`:'<p class="hint" style="margin:0">Nincs kinek levelet küldeni (nincs e-mail-cím).</p>'}
         ${rcpt.length>withMail.length?`<p class="hint warn-txt" style="margin:6px 0 0">Nincs e-mail-címe: ${esc(rcpt.filter(c=>!withMail.includes(c)).map(c=>c.name).join(', '))}</p>`:''}
         ${S.mailOn===false?'<p class="hint warn-txt" style="margin:6px 0 0">⏸ Az e-mail értesítések szünetelnek (Beállítások), ezért levél nem megy ki.</p>':''}
         ${me&&fin.includes(me)?'<p class="hint" style="margin:6px 0 0">Te nem kapsz levelet magadtól.</p>':''}`;
-    const go=await new Promise(res=>{openModal('📅 Projekt áthelyezése',`<p style="margin:0 0 10px"><b>${esc(p.name||'')}</b><br>${esc(oldR)} → <b>${esc(newR)}</b></p>${info}`,{submitLabel:'Áthelyezés',cancelLabel:'Mégse',submit:async()=>{const n=$('mv-notify');const v={notify:!!(n&&n.checked)};closeModal();res(v);},onClose:()=>res(null)});});
+    const go=await new Promise(res=>{openModal('📅 Projekt áthelyezése',`<p style="margin:0 0 10px"><b>${esc(p.name||'')}</b><br>${esc(oldR)} → <b>${esc(newR)}</b></p>${info}`,{submitLabel:'Áthelyezés',cancelLabel:'Mégse',submit:async()=>{closeModal();res({notify:fin.length>0});},onClose:()=>res(null)});});
     if(!go)return;
     const patch={date:sh(p.date),endDate:p.endDate?sh(p.endDate):p.endDate};
     const cd=p.crewDays&&typeof p.crewDays==='object'?Object.fromEntries(Object.entries(p.crewDays).map(([k,v])=>[k,Array.isArray(v)?v.map(sh):v])):p.crewDays;   // a stáb munkanapjai is tolódnak
