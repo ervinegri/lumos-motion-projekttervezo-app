@@ -1408,7 +1408,10 @@ document.addEventListener('click',e=>{const day=e.target.closest&&e.target.close
   S.cal.sel=day.dataset.day;document.querySelectorAll('.cal-day.sel').forEach(x=>x.classList.remove('sel'));day.classList.add('sel');});
 function calTipHtml(el){
   const id=el.dataset.tipid;
-  if(el.dataset.kind==='p'){const p=projById(id);if(!p)return '';const r=pr(p),lead=crewById(p.lead),due=dueDate(p),di=dueInfo(p);
+  if(el.dataset.kind==='p'){const p=projById(id);if(!p)return '';
+    {let ge=null;Object.values(S.cal.events||{}).forEach(l=>(l||[]).forEach(x=>{if(!ge&&((p.calEventId&&x.id===p.calEventId)||(x.projectId&&x.projectId===p.id)))ge=x;}));   // a valódi Google Naptár-bejegyzés: amit a stáb is lát
+      if(ge){const desc=String(ge.description||'').replace(/\n*Az appban:[\s\S]*$/,'').trim();
+        return `<b>${esc(ge.title||p.name||'')}</b><div class="tip-src">📅 Google Naptár – így látja mindenki</div>${[['Időpont',fmtShort(ge.date)+(ge.endDate&&ge.endDate!==ge.date?' – '+fmtShort(ge.endDate):'')+(ge.start?', '+ge.start+(ge.end?'–'+ge.end:''):'')],['Helyszín',ge.location],['Vendégek',(ge.guests||[]).length?(ge.guests||[]).length+' fő':'']].filter(x=>x[1]).map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}${desc?`<div class="tip-desc">${esc(desc)}</div>`:''}`;}}const r=pr(p),lead=crewById(p.lead),due=dueDate(p),di=dueInfo(p);
     const rows=[['Ügyfél',p.client],['Időpont',r?fmtRange(p)+(p.startTime?', '+p.startTime+(p.endTime?'–'+p.endTime:''):''):''],['Helyszín',p.venue],['Állapot',STATUS_LABEL[p.status||'egyeztetes']],['Projektvezető',lead&&lead.name],
       ['Stáb',crewIds(p).size?crewIds(p).size+' fő':''],['Átadási határidő',due&&needsDelivery(p)?fmtDay(due)+(di&&p.status!=='atadva'?' · '+di.txt:''):''],['Kapcsolattartó',[p.contactName,p.contactPhone].filter(Boolean).join(', ')]].filter(x=>x[1]);
     return `<b>${esc(p.name||'Névtelen projekt')}</b>${rows.map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}`;}
