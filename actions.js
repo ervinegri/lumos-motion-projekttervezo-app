@@ -845,7 +845,7 @@ async function crewFinalizeModal(){
     <div class="cf-mail-h" style="margin:14px 0 4px">👥 Címzettek <span class="muted">– a <b>✉️ Levél ▾</b> gombbal megnézheted, és kézzel át is írhatod az illető levelét</span></div>
     <ul class="cf-list">${rows}</ul>
     ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}
-    <div class="cf-prev" hidden><div class="cf-prev-h"><b>👁️ Így kapja meg <span class="muted" style="font-weight:500">– kattints a levélbe, és írd át</span></b><button class="linkbtn" type="button" id="cfPrevReset" hidden>↺ Eredeti szöveg</button><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div>`,{submitLabel:'Igen, véglegesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
+    <div class="cf-prev" hidden><div class="cf-prev-h"><b>✏️ Az e-mail szerkeszthető</b><button class="linkbtn" type="button" id="cfPrevReset" hidden>↺ Eredeti szöveg</button><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div>`,{submitLabel:'Igen, véglegesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
     const subj=String(fd.get('cfSubj')||'').trim(),note=String(fd.get('cfNote')||'').trim();
     const arg={projectId:p.id};if(subj&&subj!==cfSubj)arg.subject=subj;if(note)arg.note=note;
     const ed=Object.keys(CF_EDIT).filter(k=>CF_EDIT[k]);if(ed.length){arg.custom={};ed.forEach(k=>{arg.custom[k]=CF_EDIT[k];});}   // kézzel átírt levelek: tagonként   // ami nem változott, azt a szerver tagonként állítja be (új / módosult beosztás)
@@ -854,7 +854,7 @@ async function crewFinalizeModal(){
       if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.status=saved.status;S.draft.prevStatus=saved.prevStatus;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
       if(S.crewEdit)delete S.crewEdit[saved.id];render(true);S.cal.events={};
       const warn=[].concat(r.failed&&r.failed.length?['nem ment ki: '+r.failed.join(', ')]:[],r.noEmail&&r.noEmail.length?['nincs e-mail-címe: '+r.noEmail.join(', ')]:[]);
-      if(r.stepped)toast('Csapat véglegesítve – a projekt átkerült a Helyszíni munka szakaszba.');setTimeout(()=>toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length),r.stepped?2500:0);
+      if(r.stepped)toast('Csapat véglegesítve – a projekt átkerült a Helyszíni munka szakaszba.');setTimeout(()=>toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?'e-mail kiküldve: '+(r.sentTo&&r.sentTo.length?r.sentTo.map(x=>x.name+' ('+x.email+')'):r.sent).join(', '):'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length),r.stepped?2500:0);
     }catch(e){handleErr(e);}
   }});
 }
@@ -1257,7 +1257,11 @@ const ACT={
   'send-list':()=>sendListModal(),
   'crew-finalize':()=>crewFinalizeModal(),
   'goto-post':()=>{const d=document.querySelector('details.content');if(d)d.open=true;setTimeout(()=>{const h=[...document.querySelectorAll('.content h4.sub-h')].find(x=>/Utómunka/.test(x.textContent))||d;if(h){h.scrollIntoView({behavior:'smooth',block:'center'});const sec=h.closest('section');if(sec){sec.classList.add('flash');setTimeout(()=>sec.classList.remove('flash'),1600);}}},50);},
-  'crew-edit':()=>{if(!S.draft)return;(S.crewEdit=S.crewEdit||{})[S.draft.id]=true;render(true);},
+  'crew-edit':()=>{const d=S.draft;if(!d)return;const n=(d.crewFinal&&d.crewFinal.ids||[]).length;
+    openModal('⚠️ Biztosan módosítod a véglegesített csapatot?',`<div class="cf-gear" style="border-color:#e8a29b;background:#fdecec;color:#8e1a1a"><b style="display:block">A csapat már véglegesítve van, ${n} fő értesítést kapott a beosztásáról.</b><small>Utólagos módosításnál a stábnak újra e-mailt kell kapnia, a naptárbejegyzés is változik – ez zavart okozhat, és rontja a tervezés megbízhatóságát. Csak akkor módosíts, ha elkerülhetetlen.</small></div><p class="hint" style="margin:10px 0 0">A módosítás oka bekerül a naplóba.</p><div class="field" style="margin-top:8px"><label for="m-ceWhy">Miért kell módosítani?</label><input class="inp" id="m-ceWhy" name="ceWhy" maxlength="200" placeholder="pl. lebetegedett az operatőr, az ügyfél bővítette a programot"></div>`,
+      {submitLabel:'Igen, módosítom',cancelLabel:'Mégse',submit:async fd=>{const why=String(fd.get('ceWhy')||'').trim();if(why.length<3){toast('Írd be röviden, miért kell módosítani.',true);$('m-ceWhy').focus();return;}
+        closeModal();(S.crewEdit=S.crewEdit||{})[d.id]=true;try{await call('logNote',{action:'Véglegesített csapat módosítása',subject:d.name||'',details:why});}catch(_){}render(true);}});
+    const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb)sb.className='btn alarm';},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
     const p=projById(d.id)||d,list=(p.equipment||[]).map(e=>{const it=itemById(e.itemId);return `<li><b>${esc(it?it.name:'Törölt eszköz')}</b>${num(e.qty)>1?' ×'+num(e.qty):''} <span class="muted">· ${esc(e.crewId?((crewById(e.crewId)||{}).name||''):'közös')}</span></li>`;}).join('');

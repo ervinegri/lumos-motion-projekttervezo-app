@@ -830,7 +830,7 @@ function parseCrewFinal_(raw) {
   let x = raw; if (typeof raw === 'string') { try { x = JSON.parse(raw || 'null'); } catch (e) { return null; } }
   if (!x || !x.at || !Array.isArray(x.ids)) return null;
   const sigs = {}; if (x.sigs && typeof x.sigs === 'object') Object.keys(x.sigs).forEach(k => { sigs[str_(k, 64)] = str_(x.sigs[k], 2000); });
-  return { at: str_(x.at, 30), by: str_(x.by, 120), ids: x.ids.map(i => str_(i, 64)).filter(Boolean), notified: Array.isArray(x.notified) ? x.notified.map(n => str_(n, 120)) : [], sigs: sigs };
+  return { at: str_(x.at, 30), by: str_(x.by, 120), ids: x.ids.map(i => str_(i, 64)).filter(Boolean), notified: Array.isArray(x.notified) ? x.notified.map(n => str_(n, 120)) : [], sentTo: Array.isArray(x.sentTo) ? x.sentTo.slice(0, 60).map(o => ({ name: str_(o && o.name, 120), email: str_(o && o.email, 160) })) : [], sigs: sigs };
 }
 /* Egy tag „lenyomata”: szerepek, eszközök, bérelt/saját eszközök, napok. Ha változik, újra értesítjük.
    Ugyanez a számítás fut a felületen is (core.js: crewSig), hogy a „módosult” jelzés egyezzen. */
@@ -922,11 +922,10 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
     ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
-  const text = ['Kedves ' + first + ',', '', intro, '']
-    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(note ? ['', note] : []).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', sigText]).join('\n');
-  const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
+  const text = ['Kedves ' + first + ','].concat(note ? ['', note] : []).concat(['', intro, ''])   // a megjegyzés rögtön a megszólítás után
+    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', sigText]).join('\n');
+  const html = '<p>Kedves ' + escapeHtml_(first) + ',</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
-    + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '')
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' + sigHtml;
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
   return { subject: subj, text: text, html: html };
@@ -994,10 +993,11 @@ function finalizeCrew_(u, a) {
   const cm = { subject: str_(a && a.subject, 200).trim() || (a && a.dateMoved ? 'Új időpont: ' + p.name + ' – ' + fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '') : ''), intro: str_(a && a.intro, 1000).trim() || (a && a.dateMoved ? 'Módosult a projekt időpontja – az új beosztásod:' : ''), note: str_(a && a.note, 3000).trim(), custom: {} };
   if (a && a.custom && typeof a.custom === 'object') Object.keys(a.custom).slice(0, 60).forEach(k => { const h = sigSanitize_(String(a.custom[k] || ''), 30000); if (h) cm.custom[k] = h; });   // kézzel átírt levelek
   const sent = [], failed = [], changedNames = []; let stepped = false;
-  toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch, cm)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
+  const sentTo = [];
+  toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch, cm)) { sent.push(m.name); sentTo.push({ name: m.name, email: m.email }); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
   const saved = withLock_(() => {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
-    q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sigs: sigs });
+    q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sentTo: sentTo, sigs: sigs });
     if (p.calEventId && !q.calEventId) q.calEventId = p.calEventId;
     if (!q.status || q.status === 'tervezes' || q.status === 'egyeztetes') { q.prevStatus = q.status || 'tervezes'; q.status = 'helyszin'; stepped = true; }   // véglegesített csapat → Helyszíni munka
     q.updatedAt = now_(); q.updatedBy = u.name;
@@ -1005,7 +1005,7 @@ function finalizeCrew_(u, a) {
     return q;
   });
   logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : '') + (stepped ? ' · Állapot: Tervezés → Helyszíni munka' : ''));
-  return { project: projectView_(fullProject_(saved), u), sent: sent, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_(), stepped: stepped };
+  return { project: projectView_(fullProject_(saved), u), sent: sent, sentTo: sentTo, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_(), stepped: stepped };
 }
 
 /* ===================== BEVÉTEL ÉS KIADÁS (ügyvezetői pénzügyek) ===================== */
@@ -3924,6 +3924,7 @@ function rpcInner_(token, name, arg) {
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
     case 'finalizeEquipment': canEdit(); return finalizeEquipment_(u, arg);
+    case 'logNote': canEdit(); logEvent_(u, 'Véglegesített csapat módosítása', str_(arg && arg.subject, 200), str_(arg && arg.details, 300)); return { ok: true };
     case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
     case 'saveSignature': canEdit(); return saveSignature_(u, arg);
     case 'finData': adminOnly(); return finDataCached_();
