@@ -444,10 +444,10 @@ function userModal(u){
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,ph:'pl. kollega@lumosmotion.com',full:!isAdmin()})}
     ${isAdmin()?`<div class="field full sales-comp" id="m-salesComp"${defRole==='sales'?'':' hidden'}><span class="lbl">💼 Értékesítő díjazása</span><div class="sc-grid">
       ${moneyField('salary','Fix fizetés (nettó / hó)',v.salary==null?'':v.salary,{steps:false,ph:'pl. 300 000'})}
-      ${moneyField('commLimit','Jutaléksáv határa (szerződés nettó értéke)',v.commLimit==null?1000000:v.commLimit,{steps:false})}
+      ${moneyField('commLimit','Jutaléksáv határa',v.commLimit==null?1000000:v.commLimit,{steps:false})}
       <div class="field"><label for="m-commLow">Jutalék a határ alatt (%)</label><input class="inp" id="m-commLow" name="commLow" type="number" min="0" max="100" step="0.5" value="${v.commLow==null?'':esc(v.commLow)}" placeholder="pl. 20"></div>
       <div class="field"><label for="m-commHigh">Jutalék a határ felett (%)</label><input class="inp" id="m-commHigh" name="commHigh" type="number" min="0" max="100" step="0.5" value="${v.commHigh==null?'':esc(v.commHigh)}" placeholder="pl. 25"></div></div>
-      <p class="hint" style="margin:4px 0 0">A jutalék szerződésenként jár, a szerződött nettó érték után, a szerződés hónapjában. A fix fizetés minden hónapban hozzáadódik a Kifizetésekhez.</p></div>`:''}
+      <p class="hint" style="margin:4px 0 0">A jutalék szerződésenként jár a szerződött nettó érték után (a határ is nettó szerződési érték), a szerződés hónapjában. A fix fizetés minden hónapban hozzáadódik a Kifizetésekhez.</p></div>`:''}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label>`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
