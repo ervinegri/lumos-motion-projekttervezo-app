@@ -377,7 +377,7 @@ const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!isPostOnly(p,f.cre
 function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0)+postAmt(f);}
 
 /* Utómunka: csak vágóként beosztott munkatárs (nem a projektvezető) – nem napokhoz kötött, külön táblázatba kerül */
-const POST_ROLES=['Vágó'];
+const POST_ROLES=['Vágó','Értékesítő'];
 function isPostOnly(p,cid){if(!cid||p.lead===cid)return false;const r=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return r.length>0&&r.every(x=>POST_ROLES.includes(x));}
 function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips)>0||num(p.er_subs)>0||DELIVERABLES.some(it=>num(p[it.k])>0);}
 

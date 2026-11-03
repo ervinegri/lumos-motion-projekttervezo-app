@@ -922,6 +922,7 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
     ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
   const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)
   if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
+  if (postOnly_(p, m.id)) { const pn = parseNotes_(p.crewNotes)[m.id]; if (pn) rows.push(['Neked szóló megjegyzés', String(pn)]); }   // nem kap eszközlistát: a személyes jegyzet ide kerül
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
   const text = ['Kedves ' + first + ',', '', intro].concat(note ? ['', note] : []).concat([''])   // megszólítás → bevezető → megjegyzés → beosztás   // a megjegyzés rögtön a megszólítás után
@@ -958,6 +959,8 @@ function crewFinalPreview_(u, a) {
   });
 }
 /** Eszközök véglegesítése (a csapat után): rögzíti, ki mikor véglegesítette, és a beosztás lenyomatát (módosítás felismeréséhez). */
+/** Csak utómunkás (vágó, nem helyszíni) vagy értékesítő: nem visz eszközt, nem kap eszközlistát. */
+function postOnly_(p, cid) { if (!cid || p.lead === cid || p.editOnsite === true) return false; const r = (p.crew || []).filter(a => a.crewId === cid).map(a => a.role); return r.length > 0 && r.every(x => x === 'Vágó' || x === 'Értékesítő'); }
 function cutTasksArg_(a) { const o = {}; const x = a && a.cutTasks; if (x && typeof x === 'object') Object.keys(x).slice(0, 20).forEach(k => { const v = x[k] || {}; o[str_(k, 64)] = { items: (Array.isArray(v.items) ? v.items : []).slice(0, 30).map(i => str_(i, 160)).filter(Boolean), due: str_(v.due, 60) }; }); return o; }
 function finalizeEquipment_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -972,7 +975,7 @@ function finalizeEquipment_(u, a) {
   let mail = null;
   if (a && a.sendList) {   // eszközlista e-mailben azoknak, akiknél eszköz van (magadnak nem)
     const fp = fullProject_(saved), holders = {}; (fp.equipment || []).forEach(e => { if (e.crewId) holders[e.crewId] = 1; }); parseRentals_(fp.rentals).forEach(r => { if (r.crewId) holders[r.crewId] = 1; });
-    const rcp = Object.keys(holders).filter(cid => !isSelf_(u, { id: cid, email: (byId_(readAll_('crew'))[cid] || {}).email }));
+    const rcp = Object.keys(holders).filter(cid => !postOnly_(fp, cid)).filter(cid => !isSelf_(u, { id: cid, email: (byId_(readAll_('crew'))[cid] || {}).email }));
     if (rcp.length) { try { mail = sendEquipmentList_(u, { projectId: pid, recipients: rcp, message: '', includePlan: true }); } catch (e) { mail = { error: String(e && e.message || e) }; } }
   }
   logEvent_(u, 'Eszközök véglegesítve', saved.name, '');
