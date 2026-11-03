@@ -823,13 +823,15 @@ async function crewFinalizeModal(){
     +diff.removed.map(id=>`<li><b>${esc((crewById(id)||{}).name||'Munkatárs')}</b> <span class="cf-tag">levéve – kikerül a naptárbejegyzésből</span></li>`).join('');
   const cfSubj=(first?'Beosztás: ':'Módosult beosztás: ')+(p.name||'')+' – '+[p.date,p.endDate&&p.endDate>p.date?p.endDate:''].filter(Boolean).map(d=>F_FULL.format(toDate(d))).join(' – '),cfIntro=first?'Véglegesítettük a csapatot, és beosztottunk erre a projektre:':'Módosult a beosztásod ezen a projekten:';
   const cfFirst=String((crewById(ids[0])||{}).name||'Kata').split(/\s+/).pop();
+  setTimeout(()=>cfPreviewLoad(p,cfSubj,cfIntro),0);
   openModal('Biztosan élesíted a csapatot?',`${gearBox}<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p><ul class="cf-list">${rows}</ul>
     ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}
     <div class="cf-mail"><div class="cf-mail-h">✉️ A levél szövege <span class="muted">– szerkeszthető, minden címzettnek ez megy ki</span></div>
       <div class="field"><label for="m-cfSubj">Tárgy</label><input class="inp" id="m-cfSubj" name="cfSubj" maxlength="200" value="${esc(cfSubj)}"></div>
       <div class="field"><label for="m-cfIntro">Bevezető</label><textarea class="inp" id="m-cfIntro" name="cfIntro" rows="1" maxlength="1000">${esc(cfIntro)}</textarea></div>
-      <div class="cf-auto">A levél így épül fel: <b>Szia ${esc(cfFirst)}!</b> → bevezető → <span class="muted">tagonként automatikusan: időpont (a saját napjai), érkezés, helyszín, szerepe, projektvezető</span> → megjegyzés → naptárlink</div>
-      <div class="field"><label for="m-cfNote">Megjegyzés a csapatnak <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-cfNote" name="cfNote" rows="3" maxlength="3000" placeholder="pl. parkolás a hátsó bejáratnál, dress code: fekete, 7:30-kor rövid eligazítás"></textarea></div></div>`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
+
+      <div class="field"><label for="m-cfNote">Megjegyzés a csapatnak <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-cfNote" name="cfNote" rows="3" maxlength="3000" placeholder="pl. parkolás a hátsó bejáratnál, dress code: fekete, 7:30-kor rövid eligazítás"></textarea></div>
+      <div class="cf-prev"><div class="cf-prev-h"><b>👁️ Így kapja meg</b><select class="inp" id="cfPrevWho" aria-label="Címzett" hidden></select></div><div id="cfPrev" class="cf-prev-box"><p class="hint" style="margin:0">Előnézet betöltése…</p></div></div></div>`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
     const subj=String(fd.get('cfSubj')||'').trim(),intro=String(fd.get('cfIntro')||'').trim(),note=String(fd.get('cfNote')||'').trim();
     const arg={projectId:p.id};if(subj&&subj!==cfSubj)arg.subject=subj;if(intro&&intro!==cfIntro)arg.intro=intro;if(note)arg.note=note;   // ami nem változott, azt a szerver tagonként állítja be (új / módosult beosztás)
     try{const r=await call('finalizeCrew',arg);closeModal();
@@ -1674,3 +1676,22 @@ const salesOnly=roles=>roles.length>0&&roles.every(r=>r==='Értékesítő'||r===
 function crewSalesToggle(){const w=document.querySelector('.msel[data-msel=roles]');if(!w)return;const so=salesOnly([...w.querySelectorAll('input:checked')].map(i=>i.value));['f-skills','f-dayRate'].forEach(id=>{const x=$(id);if(x)x.hidden=so;});}
 document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;if(w.dataset.msel==='roles')crewSalesToggle();const ph=w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…';w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
 document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.querySelectorAll('.msel-pop').forEach(x=>{if(!x.hidden){x.hidden=true;x.closest('.msel').classList.remove('open');}});});
+
+/* Csapat élesítése: a kiküldendő levél teljes előnézete tagonként, élőben frissül a tárgy / bevezető / megjegyzés szerkesztésekor */
+let CF_PREV=[];
+async function cfPreviewLoad(p,defSubj,defIntro){CF_PREV=[];
+  try{CF_PREV=await call('crewFinalPreview',{projectId:p.id})||[];}catch(e){const b=$('cfPrev');if(b)b.innerHTML=`<p class="hint bad-txt" style="margin:0">Az előnézet most nem érhető el: ${esc(errText(e))}</p>`;return;}
+  const sel=$('cfPrevWho');if(!sel)return;
+  if(!CF_PREV.length){$('cfPrev').innerHTML='<p class="hint" style="margin:0">Senki nem kap levelet (nincs e-mail-cím, vagy nem kell új értesítés).</p>';return;}
+  sel.innerHTML=CF_PREV.map((x,i)=>`<option value="${i}">${esc(x.name)} · ${esc(x.email)}</option>`).join('');sel.hidden=CF_PREV.length<2;
+  cfPreviewRender(defSubj,defIntro);}
+function cfPreviewRender(defSubj,defIntro){const box=$('cfPrev'),sel=$('cfPrevWho');if(!box||!sel||!CF_PREV.length)return;
+  const x=CF_PREV[Number(sel.value)||0]||CF_PREV[0],v=id=>String(($(id)||{}).value||'').trim();
+  const subj=v('m-cfSubj')&&v('m-cfSubj')!==defSubj?v('m-cfSubj'):x.subject,intro=v('m-cfIntro')&&v('m-cfIntro')!==defIntro?v('m-cfIntro'):(x.changed?'Módosult a beosztásod ezen a projekten:':defIntro),note=v('m-cfNote');
+  const nl=s=>esc(s).replace(/\n/g,'<br>');
+  let html=x.html.replace('@@INTRO@@',nl(intro));html=note?html.replace('@@NOTE@@',nl(note)):html.replace(/<p>@@NOTE@@<\/p>/,'');
+  box.innerHTML=`<div class="cf-prev-meta"><span>Címzett:</span> <b>${esc(x.name)}</b> &lt;${esc(x.email)}&gt;<br><span>Tárgy:</span> <b>${esc(subj)}</b></div><div class="cf-prev-frame"></div>`;
+  const host=box.querySelector('.cf-prev-frame'),sr=host.attachShadow({mode:'open'});   // saját stílus, az app CSS-e nem hat rá (mint egy levelezőben)
+  sr.innerHTML=`<style>:host{display:block}div{font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;padding:10px 4px}a{color:#1a5fb4;pointer-events:none}p{margin:0 0 10px}table{margin:0 0 10px}td{vertical-align:top}</style><div>${html}</div>`;}
+document.addEventListener('input',e=>{if(['m-cfSubj','m-cfIntro','m-cfNote'].includes(e.target.id)){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});
+document.addEventListener('change',e=>{if(e.target.id==='cfPrevWho'){const s=$('m-cfSubj'),i=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,i&&i.defaultValue);}});

@@ -910,7 +910,7 @@ function calEventLink_(ev) {   // a naptárbejegyzés megnyitása a Google Napt�
   try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CALENDAR_ID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
   return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CALENDAR_ID).replace(/=+$/, '');
 }
-function crewFinalMail_(u, p, m, lead, link, changed, cm) {
+function crewFinalBuild_(p, m, lead, link, changed, cm) {
   cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
@@ -925,7 +925,23 @@ function crewFinalMail_(u, p, m, lead, link, changed, cm) {
     + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '')
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
-  return gmailSend_(m.email, subj, text, mailOptsFor_(u, html), 'assign');
+  return { subject: subj, text: text, html: html };
+}
+function crewFinalMail_(u, p, m, lead, link, changed, cm) {
+  const b = crewFinalBuild_(p, m, lead, link, changed, cm);
+  return gmailSend_(m.email, b.subject, b.text, mailOptsFor_(u, b.html), 'assign');
+}
+/** Az élesítéskor kiküldendő levelek előnézete tagonként (a bevezető és a megjegyzés helyén jelölővel – a felület élőben cseréli). */
+function crewFinalPreview_(u, a) {
+  const pid = str_(a && a.projectId, 64), sh = sheetFor_('projects'), row = findRow_(sh, pid);
+  if (!row) throw new Error('A projekt nem található.');
+  const p = fullProject_(readRow_('projects', sh, row)), members = crewMembers_(p), lead = members.find(m => m.id === p.lead) || null;
+  const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
+  return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)).map(m => {
+    const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== crewSig_(p, m.id);
+    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' });
+    return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
+  });
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -3767,7 +3783,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -3794,6 +3810,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
+    case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
     case 'finData': adminOnly(); return finDataCached_();
     case 'finUpsert': adminOnly(); return finUpsert_(u, arg);
     case 'finDelete': adminOnly(); return finDelete_(u, arg);
