@@ -933,12 +933,19 @@ function crewFinalMail_(u, p, m, lead, link, changed, cm) {
   return gmailSend_(m.email, b.subject, b.text, mailOptsFor_(u, b.html), 'assign');
 }
 /** Az élesítéskor kiküldendő levelek előnézete tagonként (a bevezető és a megjegyzés helyén jelölővel – a felület élőben cseréli). */
+/** A tag maga a műveletet végző felhasználó-e (stábazonosító vagy e-mail-cím szerint, az álnevekkel együtt). */
+function isSelf_(u, m) {
+  if (!u || !m) return false;
+  if (u.crewId && String(u.crewId) === String(m.id)) return true;
+  const n = e => { const x = String(e || '').trim().toLowerCase(); return SIG_ALIAS_[x] || x; };
+  return !!u.email && n(u.email) === n(m.email);
+}
 function crewFinalPreview_(u, a) {
   const pid = str_(a && a.projectId, 64), sh = sheetFor_('projects'), row = findRow_(sh, pid);
   if (!row) throw new Error('A projekt nem található.');
   const p = fullProject_(readRow_('projects', sh, row)), members = crewMembers_(p), lead = members.find(m => m.id === p.lead) || null;
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
-  return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)).map(m => {
+  return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email) && !isSelf_(u, m)).map(m => {
     const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== crewSig_(p, m.id);
     const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
@@ -962,7 +969,7 @@ function finalizeCrew_(u, a) {
   // újraélesítés: csak az új tagok kapnak értesítést, és azok a régiek, akiknek a szerepe, eszközei vagy napjai változtak
   const prev = parseCrewFinal_(p.crewFinal), sigs = {}; members.forEach(m => { sigs[m.id] = crewSig_(p, m.id); });
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id];
-  const toNotify = valid.filter(m => isNewM(m) || isChanged(m));
+  const toNotify = valid.filter(m => (isNewM(m) || isChanged(m)) && !isSelf_(u, m));   // aki élesít, magának nem küld levelet (a naptárba bekerül)
   const link = calEventLink_(ev);
   const cm = { subject: str_(a && a.subject, 200).trim(), intro: str_(a && a.intro, 1000).trim(), note: str_(a && a.note, 3000).trim() };
   const sent = [], failed = [], changedNames = []; let stepped = false;
