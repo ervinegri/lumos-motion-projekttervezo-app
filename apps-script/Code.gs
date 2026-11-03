@@ -3568,6 +3568,7 @@ function setDeliveryLinks_(u, a) {
   withLock_(() => {
     const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row);
+    if (p.status === 'atadva') throw new Error('A projekt már át van adva – a videók linkje nem módosítható (ügyvezetőként a projekt felnyitásával lehet).');
     p.deliveryLink = link; if (Array.isArray(a.links)) p.deliveryLinks = JSON.stringify(parseLinks_(a.links)); if (a.pass !== undefined) p.deliveryPass = str_(a.pass, 120);
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
     putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
