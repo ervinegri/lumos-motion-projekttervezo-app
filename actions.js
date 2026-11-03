@@ -470,6 +470,7 @@ function userModal(u){
       render(true);
     }catch(e){handleErr(e);}
   }});
+  comboSelect($('m-crewId'),'Kezdj el gépelni: név…');
   if(u){const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb){const rb=document.createElement('button');rb.type='button';rb.className='btn primary';rb.textContent='Mentés és meghívó újraküldése';
     rb.addEventListener('click',()=>{const h=$('m-resend');if(h)h.value='1';$('mform').requestSubmit();setTimeout(()=>{if(h)h.value='';},0);});sb.before(rb);}}   // pl. javított e-mail-cím után
 }

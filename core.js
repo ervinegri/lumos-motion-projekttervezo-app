@@ -390,3 +390,18 @@ function fmtTax(v){const d=String(v||'').replace(/\D/g,'').slice(0,11);return d.
 document.addEventListener('input',e=>{const t=e.target;if(!t||t.tagName!=='INPUT'||!/tax/i.test(t.name||t.id||''))return;const v=t.value;if(!/^[\d\s-]*$/.test(v))return;
   const atEnd=t.selectionStart===v.length,f=fmtTax(v);if(f===v)return;const digitsBefore=v.slice(0,t.selectionStart).replace(/\D/g,'').length;t.value=f;
   if(!atEnd){let n=0,i=0;while(i<f.length&&n<digitsBefore){if(/\d/.test(f[i]))n++;i++;}try{t.setSelectionRange(i,i);}catch(x){}}},true);
+/* Gépelhető legördülő: a <select> helyén szövegmező, gépelésre szűr (ékezet nélkül is), nyilakkal és Enterrel is választható.
+   A <select> megmarad (rejtve), így a meglévő change-kezelők ugyanúgy működnek. */
+function comboSelect(sel,ph){if(!sel||sel._cmb)return;sel._cmb=1;const wrap=document.createElement('div');wrap.className='cmb';sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);sel.hidden=true;
+  const inp=document.createElement('input');inp.className='inp cmb-in';inp.type='text';inp.autocomplete='off';inp.placeholder=ph||'Kezdj el gépelni…';const box=document.createElement('div');box.className='cmb-box';box.hidden=true;wrap.prepend(inp);wrap.appendChild(box);
+  const opts=()=>[...sel.options].filter(o=>o.value!==''),cur=()=>sel.selectedOptions[0]&&sel.value!==''?sel.selectedOptions[0].textContent:'';inp.value=cur();let hi=0,L=[];
+  const draw=()=>{const q=fold(inp.value.trim()),all=opts();L=q&&inp.value!==cur()?all.filter(o=>o.value!=='__new'&&fold(o.textContent).includes(q)).concat(all.filter(o=>o.value==='__new')):all;hi=Math.min(hi,Math.max(0,L.length-1));
+    box.innerHTML=L.length?L.map((o,i)=>`<button type="button" class="cmb-it${i===hi?' on':''}${o.value===sel.value?' sel':''}" data-i="${i}">${esc(o.textContent)}</button>`).join(''):'<p class="cmb-none">Nincs találat</p>';box.hidden=false;const a=box.querySelector('.on');if(a)a.scrollIntoView({block:'nearest'});};
+  const pick=o=>{if(!o)return;sel.value=o.value;inp.value=o.textContent;box.hidden=true;sel.dispatchEvent(new Event('change',{bubbles:true}));};
+  inp.addEventListener('focus',()=>{inp.select();hi=Math.max(0,L.indexOf(sel.selectedOptions[0]));draw();});
+  inp.addEventListener('input',()=>{hi=0;draw();});
+  inp.addEventListener('keydown',e=>{if(box.hidden&&(e.key==='ArrowDown'||e.key==='ArrowUp')){draw();e.preventDefault();return;}
+    if(e.key==='ArrowDown'){hi=Math.min(L.length-1,hi+1);draw();e.preventDefault();}else if(e.key==='ArrowUp'){hi=Math.max(0,hi-1);draw();e.preventDefault();}
+    else if(e.key==='Enter'){if(!box.hidden){e.preventDefault();pick(L[hi]);}}else if(e.key==='Escape'&&!box.hidden){e.stopPropagation();e.preventDefault();box.hidden=true;inp.value=cur();}},true);
+  box.addEventListener('mousedown',e=>{const b=e.target.closest('.cmb-it');if(!b)return;e.preventDefault();pick(L[+b.dataset.i]);});
+  inp.addEventListener('blur',()=>setTimeout(()=>{box.hidden=true;if(inp.value!==cur())inp.value=cur();},120));}
