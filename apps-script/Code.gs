@@ -888,18 +888,22 @@ function calEventLink_(ev) {   // a naptárbejegyzés megnyitása a Google Napt�
   try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CALENDAR_ID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
   return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CALENDAR_ID).replace(/=+$/, '');
 }
-function crewFinalMail_(u, p, m, lead, link, changed) {
+function crewFinalMail_(u, p, m, lead, link, changed, cm) {
+  cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
     ['Érkezés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
     ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
-  const intro = changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:';
-  const text = ['Szia ' + String(m.name).split(/\s+/).pop() + '!', '', intro, '']
-    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', MAIL_SIGNATURE_TEXT]).join('\n');
-  const html = '<p>Szia ' + escapeHtml_(String(m.name).split(/\s+/).pop()) + '!</p><p>' + escapeHtml_(intro) + '</p><table cellpadding="4" style="border-collapse:collapse">'
+  const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
+  const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
+  const text = ['Szia ' + first + '!', '', intro, '']
+    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(note ? ['', note] : []).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', MAIL_SIGNATURE_TEXT]).join('\n');
+  const html = '<p>Szia ' + escapeHtml_(first) + '!</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p><table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
+    + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '')
     + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p><p>' + MAIL_SIGNATURE_HTML + '</p>';
-  return gmailSend_(m.email, (changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range, text, mailOptsFor_(u, html), 'assign');
+  const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
+  return gmailSend_(m.email, subj, text, mailOptsFor_(u, html), 'assign');
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -921,8 +925,9 @@ function finalizeCrew_(u, a) {
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id];
   const toNotify = valid.filter(m => isNewM(m) || isChanged(m));
   const link = calEventLink_(ev);
+  const cm = { subject: str_(a && a.subject, 200).trim(), intro: str_(a && a.intro, 1000).trim(), note: str_(a && a.note, 3000).trim() };
   const sent = [], failed = [], changedNames = []; let stepped = false;
-  toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
+  toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch, cm)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
   const saved = withLock_(() => {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
     q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sigs: sigs });

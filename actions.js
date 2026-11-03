@@ -821,9 +821,18 @@ async function crewFinalizeModal(){
   const tag=id=>first?'':diff.added.includes(id)?' <span class="cf-tag new">új tag – értesítést kap</span>':diff.changed.includes(id)?' <span class="cf-tag chg">módosult – értesítést kap</span>':' <span class="cf-tag">nem kap újra értesítést</span>';
   const rows=ids.map(id=>{const c=crewById(id)||{},ok=EMAIL_RE.test(c.email||'');return `<li><b>${esc(c.name||'Munkatárs')}</b> <span class="muted">· ${esc(roleOf(id))}</span>${tag(id)}<br><small class="${ok?'muted':'warn-txt'}">${ok?esc(c.email):'nincs e-mail-címe – nem kap értesítést (a Stáb fülön pótolható)'}</small></li>`;}).join('')
     +diff.removed.map(id=>`<li><b>${esc((crewById(id)||{}).name||'Munkatárs')}</b> <span class="cf-tag">levéve – kikerül a naptárbejegyzésből</span></li>`).join('');
+  const cfSubj=(first?'Beosztás: ':'Módosult beosztás: ')+(p.name||'')+' – '+[p.date,p.endDate&&p.endDate>p.date?p.endDate:''].filter(Boolean).map(d=>F_FULL.format(toDate(d))).join(' – '),cfIntro=first?'Véglegesítettük a csapatot, és beosztottunk erre a projektre:':'Módosult a beosztásod ezen a projekten:';
+  const cfFirst=String((crewById(ids[0])||{}).name||'Kata').split(/\s+/).pop();
   openModal('Biztosan élesíted a csapatot?',`${gearBox}<p style="margin:0 0 10px">${first?'Ezzel a tagokat beteszed a projekt naptárbejegyzésébe. <b>Minden tag e-mailt és naptárbejegyzés-értesítést fog kapni.</b>':'A csapat a legutóbbi élesítés óta módosult. <b>Csak az új tagok, és azok kapnak értesítést, akiknek a szerepe, eszközei vagy napjai változtak.</b>'}</p><ul class="cf-list">${rows}</ul>
-    ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async()=>{
-    try{const r=await call('finalizeCrew',{projectId:p.id});closeModal();
+    ${crewFinalState(p)==='changed'?'<p class="hint" style="margin:8px 0 0">Akit levettél a projektről, az kikerül a naptárbejegyzésből.</p>':''}
+    <div class="cf-mail"><div class="cf-mail-h">✉️ A levél szövege <span class="muted">– szerkeszthető, minden címzettnek ez megy ki</span></div>
+      <div class="field"><label for="m-cfSubj">Tárgy</label><input class="inp" id="m-cfSubj" name="cfSubj" maxlength="200" value="${esc(cfSubj)}"></div>
+      <div class="field"><label for="m-cfIntro">Bevezető</label><textarea class="inp" id="m-cfIntro" name="cfIntro" rows="1" maxlength="1000">${esc(cfIntro)}</textarea></div>
+      <div class="cf-auto">A levél így épül fel: <b>Szia ${esc(cfFirst)}!</b> → bevezető → <span class="muted">tagonként automatikusan: időpont (a saját napjai), érkezés, helyszín, szerepe, projektvezető</span> → megjegyzés → naptárlink</div>
+      <div class="field"><label for="m-cfNote">Megjegyzés a csapatnak <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-cfNote" name="cfNote" rows="3" maxlength="3000" placeholder="pl. parkolás a hátsó bejáratnál, dress code: fekete, 7:30-kor rövid eligazítás"></textarea></div></div>`,{submitLabel:'Igen, élesítem a csapatot',cancelLabel:'Mégsem',submit:async fd=>{
+    const subj=String(fd.get('cfSubj')||'').trim(),intro=String(fd.get('cfIntro')||'').trim(),note=String(fd.get('cfNote')||'').trim();
+    const arg={projectId:p.id};if(subj&&subj!==cfSubj)arg.subject=subj;if(intro&&intro!==cfIntro)arg.intro=intro;if(note)arg.note=note;   // ami nem változott, azt a szerver tagonként állítja be (új / módosult beosztás)
+    try{const r=await call('finalizeCrew',arg);closeModal();
       const saved=r.project,i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;
       if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.status=saved.status;S.draft.prevStatus=saved.prevStatus;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
       render(true);S.cal.events={};
