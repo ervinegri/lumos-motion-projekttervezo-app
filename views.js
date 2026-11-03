@@ -431,7 +431,7 @@ function eqNote(e,it,p){
   if(it.condition&&it.condition!=='ok')return `<span class="warn-txt">${esc(CONDITIONS[it.condition])}</span>`;
   return `<small>${esc(it.category||'Egyéb')}${it.location?' · '+esc(it.location):''}</small>`;
 }
-const CAT_ICON={'Kamera':'📷','Objektív':'🔭','Hang':'🎙️','Fény':'💡','Drón':'🚁','Képkeverés / stream':'🎛️','GoPro / akciókamera':'🎥','Gimbal / állvány':'🎚️','Akku / powerbank / táp':'🔋','Adathordozó':'💾','Laptop / tablet / telefon':'💻','Monitor / nyomtató':'🖥️','Kocsi / szállítás':'🚐','Kábel':'🔌','Egyéb':'📦'};
+const CAT_ICON={'Kamera':'📷','Objektív':'🔭','Hang':'🎤','Fény':'💡','Drón':'🚁','Képkeverés / stream':'🎛️','GoPro / akciókamera':'🎥','Gimbal / állvány':'🎚️','Akku / powerbank / táp':'🔋','Adathordozó':'💾','Laptop / tablet / telefon':'💻','Monitor / nyomtató':'🖥️','Kocsi / szállítás':'🚐','Kábel':'🔌','Egyéb':'📦'};
 const catLbl=c=>(CAT_ICON[c]||'📦')+' '+c;
 function itemOptions(p){
   return INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
