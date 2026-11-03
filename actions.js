@@ -629,13 +629,13 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
   let h=fresh?'':S._payEdit[k];S._payHead=S._payHead||{};
   if(!h||!S._payHead[k]){box.innerHTML='<p class="hint">Előnézet betöltése…</p>';try{const r=await call('payStatementPreview',payStatementData(month,cid));if(!h)h=r.html;S._payHead[k]={subject:r.subject||'',to:r.to||'',from:r.from||''};}catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;return;}}
   const hd=S._payHead[k]||{};
-  box.innerHTML=`<div class="pe-bar"><div><b>Előnézet – ${esc(c?c.name:'')}</b><small>Kattints a szövegbe, és írd át, ami kell. A módosítás csak ennek a levélnek szól, kiküldésig megmarad.</small></div><button class="btn outline small" type="button" data-action="pay-mail-reset" data-month="${month}" data-cid="${esc(cid)}">↺ Eredeti visszaállítása</button></div>
+  box.innerHTML=`<div class="pe-bar"><div><b>Előnézet – ${esc(c?c.name:'')}</b><small>Kattints a szövegbe, és írd át, ami kell. A módosítás csak ennek a levélnek szól, kiküldésig megmarad.</small></div><button class="btn outline small" type="button" id="pe-reset" data-action="pay-mail-reset" data-month="${month}" data-cid="${esc(cid)}"${S._payEdit&&S._payEdit[k]?'':' disabled title="Még nem módosítottad a levelet"'}>↺ Eredeti visszaállítása</button></div>
     <div class="inv-h pe-head"><div><span>Feladó:</span> ${esc(hd.from||'')}</div><div><span>Címzett:</span> ${esc(hd.to||'(nincs e-mail-cím)')}</div><div><span>Tárgy:</span> <b>${esc(hd.subject||'')}</b></div></div>`;
   const f=document.createElement('iframe');f.className='mail-frame';f.title='Díjösszesítő előnézet (szerkeszthető)';   // külön dokumentum: az app stílusai nem keverednek bele, pont úgy néz ki, mint a levélben
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+h+'</body></html>';
   const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
-  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._payEdit=S._payEdit||{};S._payEdit[k]=d.body.innerHTML;payEditMark();fit();});});
-  box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
+  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._payEdit=S._payEdit||{};S._payEdit[k]=d.body.innerHTML;payEditMark();fit();const rb=$('pe-reset');if(rb){rb.disabled=false;rb.title='';}});});
+  box.appendChild(f);if(!payPreview._auto)setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);payPreview._auto=false;}
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
 document.addEventListener('input',e=>{const ed=e.target.closest&&e.target.closest('.mail-edit[data-pe]');if(!ed)return;S._payEdit=S._payEdit||{};S._payEdit[ed.dataset.pe]=ed.innerHTML;payEditMark();});
 /* Termelői fizetések alján: számlát kiállította / számla fizetve pipálása */
@@ -667,7 +667,8 @@ function payMailModal(month,only){
     <div id="payPrev"></div>`,{submitLabel:'Kiküldés',submit:async fd=>{const sel=fd.getAll('pm');if(!sel.length){toast('Jelölj ki legalább egy munkatársat.',true);return;}
       try{const r=await call('sendPayStatements',{items:sel.map(id=>{const it=payStatementData(month,id),h=S._payEdit&&S._payEdit[month+'|'+id];if(h)it.html=h;return it;})});(r.sent||[]).forEach(x=>{if(S._payEdit)delete S._payEdit[month+'|'+x.crewId];});S.paySent=r.paySent||S.paySent;closeModal();render(true);
         toast(`Díjösszesítő kiküldve: ${r.sent.map(x=>x.name).join(', ')||'senkinek'}`+(r.failed.length?` · nem sikerült: ${r.failed.map(x=>x.name||x.crewId).join(', ')}`:''),!!r.failed.length);}catch(e){handleErr(e);}}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');pmMasterSync();}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');pmMasterSync();
+  if(list.length&&(only||list.length===1)){payPreview._auto=true;payPreview(month,(only&&list.find(x=>x.c.id===only)||list[0]).c.id);}}   // egy címzett: az előnézet rögtön megjelenik
 /* Több átadási link: alapból 1 mező, „+ Újabb link” gombbal legfeljebb 5 */
 const LINKS_MAX=5;
 function linksField(name,label,first,extra,ph){const ex=(extra||[]).slice(0,LINKS_MAX-1);
