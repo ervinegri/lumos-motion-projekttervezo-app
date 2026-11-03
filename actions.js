@@ -1782,12 +1782,26 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
   const days=diffDays(g.from,d.dataset.day);if(!days)return;const sh=x=>validISO(x)?addDays(x,days):x;
   if(g.kind==='p'){const p=projById(g.id);if(!p)return;
     if(S.dirty&&S.draft&&S.draft.id===p.id){toast('Előbb mentődjenek el a projekt módosításai.',true);return;}
+    const fin=p.crewFinal&&Array.isArray(p.crewFinal.ids)?p.crewFinal.ids:[],me=S.me&&S.me.crewId,rcpt=fin.map(id=>crewById(id)).filter(c=>c&&c.id!==me),withMail=rcpt.filter(c=>EMAIL_RE.test(c.email||''));
+    const rng=(a,b)=>fmtDay(a)+(b&&b>a?' – '+fmtDay(b):''),oldR=rng(p.date,p.endDate),newR=rng(sh(p.date),p.endDate?sh(p.endDate):'');
+    const info=!fin.length?'<p class="hint" style="margin:0">A csapat még nincs véglegesítve, ezért <b>senki nem kap értesítést</b>. Az új időpont a véglegesítéskor kerül a stáb levelébe.</p>'
+      :`<p style="margin:0 0 6px">📅 A „Terepi Munkák” naptárbejegyzés az új időpontra kerül – a beosztottak naptárában is átkerül.</p>
+        <label class="toggle" style="margin:6px 0"><input type="checkbox" id="mv-notify"${withMail.length&&S.mailOn!==false?' checked':''}${withMail.length&&S.mailOn!==false?'':' disabled'}><span class="tl">✉️ Értesítő e-mail az új időpontról</span></label>
+        ${withMail.length?`<ul class="cf-list" style="margin:4px 0 0">${withMail.map(c=>`<li><b>${esc(c.name)}</b> <span class="muted">· ${esc(c.email)}</span></li>`).join('')}</ul>`:'<p class="hint" style="margin:0">Nincs kinek levelet küldeni (nincs e-mail-cím).</p>'}
+        ${rcpt.length>withMail.length?`<p class="hint warn-txt" style="margin:6px 0 0">Nincs e-mail-címe: ${esc(rcpt.filter(c=>!withMail.includes(c)).map(c=>c.name).join(', '))}</p>`:''}
+        ${S.mailOn===false?'<p class="hint warn-txt" style="margin:6px 0 0">⏸ Az e-mail értesítések szünetelnek (Beállítások), ezért levél nem megy ki.</p>':''}
+        ${me&&fin.includes(me)?'<p class="hint" style="margin:6px 0 0">Te nem kapsz levelet magadtól.</p>':''}`;
+    const go=await new Promise(res=>{openModal('📅 Projekt áthelyezése',`<p style="margin:0 0 10px"><b>${esc(p.name||'')}</b><br>${esc(oldR)} → <b>${esc(newR)}</b></p>${info}`,{submitLabel:'Áthelyezés',cancelLabel:'Mégse',submit:async()=>{const n=$('mv-notify');const v={notify:!!(n&&n.checked)};closeModal();res(v);},onClose:()=>res(null)});});
+    if(!go)return;
     const patch={date:sh(p.date),endDate:p.endDate?sh(p.endDate):p.endDate};
     const cd=p.crewDays&&typeof p.crewDays==='object'?Object.fromEntries(Object.entries(p.crewDays).map(([k,v])=>[k,Array.isArray(v)?v.map(sh):v])):p.crewDays;   // a stáb munkanapjai is tolódnak
     const old={date:p.date,endDate:p.endDate,crewDays:p.crewDays};Object.assign(p,patch,{crewDays:cd});render(true);
     try{const saved=await call('saveProject',Object.assign(clone(p),{baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0)S.projects[k]=normProj(saved);
       if(S.draft&&S.draft.id===p.id){S.draft=prepDraft(saved);S.draftBase=clone(S.draft);}
-      syncCal(p.id);render(true);toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)}${crewFinalState(projById(p.id)||p)==='changed'?' – a csapatot véglegesítsd újra, hogy a stáb értesüljön':''}`);}
+      render(true);
+      if(go.notify){try{const r=await call('finalizeCrew',{projectId:p.id,dateMoved:true});const sp=r.project,k2=S.projects.findIndex(x=>x.id===sp.id);if(k2>=0)S.projects[k2]=sp;if(S.draft&&S.draft.id===sp.id&&!S.dirty)S.draft=prepDraft(sp);S.cal.events={};render(true);
+          toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)} – értesítést kapott: ${(r.sent||[]).join(', ')||'senki'}`);}catch(err){handleErr(err);}}
+      else{syncCal(p.id);toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)}${fin.length?' – a stáb nem kapott e-mailt':''}`);}}
     catch(err){Object.assign(p,old);render(true);handleErr(err);}
     return;}
   if(g.kind==='g'){const m=S.cal.month;try{await call('moveCalEvent',{id:g.id,days});S.cal.events={};render(true);toast('Bejegyzés áthelyezve');}catch(err){handleErr(err);}}});

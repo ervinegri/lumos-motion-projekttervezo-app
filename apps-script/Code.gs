@@ -987,10 +987,11 @@ function finalizeCrew_(u, a) {
   const lead = members.find(m => m.id === p.lead) || null;
   // újraélesítés: csak az új tagok kapnak értesítést, és azok a régiek, akiknek a szerepe, eszközei vagy napjai változtak
   const prev = parseCrewFinal_(p.crewFinal), sigs = {}; members.forEach(m => { sigs[m.id] = crewSig_(p, m.id); });
-  const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id];
+  const moved = !!(a && a.dateMoved);   // a naptárban áthúzott projekt: minden korábbi tag értesítést kap az új időpontról
+  const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && (moved || (prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id]));
   const toNotify = valid.filter(m => (isNewM(m) || isChanged(m)) && !isSelf_(u, m));   // aki élesít, magának nem küld levelet (a naptárba bekerül)
   const link = calEventLink_(ev);
-  const cm = { subject: str_(a && a.subject, 200).trim(), intro: str_(a && a.intro, 1000).trim(), note: str_(a && a.note, 3000).trim(), custom: {} };
+  const cm = { subject: str_(a && a.subject, 200).trim() || (a && a.dateMoved ? 'Új időpont: ' + p.name + ' – ' + fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '') : ''), intro: str_(a && a.intro, 1000).trim() || (a && a.dateMoved ? 'Módosult a projekt időpontja – az új beosztásod:' : ''), note: str_(a && a.note, 3000).trim(), custom: {} };
   if (a && a.custom && typeof a.custom === 'object') Object.keys(a.custom).slice(0, 60).forEach(k => { const h = sigSanitize_(String(a.custom[k] || ''), 30000); if (h) cm.custom[k] = h; });   // kézzel átírt levelek
   const sent = [], failed = [], changedNames = []; let stepped = false;
   toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch, cm)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
