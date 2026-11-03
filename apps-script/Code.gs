@@ -524,6 +524,18 @@ function loadBase_() {
 }
 
 /* Egyszeri: Egri Ervin és László Csanád bérszámfejtett (nem állítanak ki számlát) – Ervin kérése, 2026-11-02 */
+/** Egyszeri: a közelgő projektek naptárbejegyzéseinek leírása frissül (2026-11-03: az ügyfél neve kikerült). Háttérben, egy perccel a bejelentkezés után fut. */
+function calNoClientOnce_() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('MIG_CALNOCLIENT_2026_11')) return;
+  P.setProperty('MIG_CALNOCLIENT_2026_11', now_());
+  try { ScriptApp.newTrigger('calResyncUpcoming').timeBased().after(60 * 1000).create(); } catch (e) {}
+}
+function calResyncUpcoming() {
+  const today = today_();
+  readAll_('projects').filter(p => p.calEventId && p.status !== 'lemondva' && String(p.endDate || p.date || '') >= today).forEach(p => { try { syncCalendar_(fullProject_(p)); } catch (e) {} });
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'calResyncUpcoming').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} });
+}
 /** Egyszeri: a már véglegesített csapatú, még Tervezés szakaszban lévő projektek átkerülnek a Helyszíni munkára (a szabály 2026-11-02 óta él). */
 function migrateFinalizedOnce_() {
   const P = PropertiesService.getScriptProperties();
@@ -558,6 +570,7 @@ function bootstrap_(u) {
   if (u.role === 'sales') return salesBootstrap_(u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
+  try { calNoClientOnce_(); } catch (e) {}
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
@@ -1408,7 +1421,7 @@ function calPlan_(p) {
   if (Number(p.er_summary) > 0) rec.push(p.er_summary + ' rövid összefoglaló videó');
   if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
-  if (p.client) lines.push('Ügyfél: ' + p.client);
+  // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
   if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.endTime ? ' · távozás kb. ' + p.endTime : p.hours ? ' · ' + p.hours + ' óra' : ''));
   if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · távozás kb. ' + p.lastEndTime : ''));
   if (p.lead && crewMap[p.lead]) lines.push('Kapcsolattartó (projektvezető): ' + [crewMap[p.lead].name, crewMap[p.lead].phone].filter(Boolean).join(', '));   // a naptár vendégei a stábtagok: az ügyfél kapcsolattartója nem kerül ide
