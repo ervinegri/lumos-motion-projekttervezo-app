@@ -931,6 +931,8 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
 }
 function crewFinalMail_(u, p, m, lead, link, changed, cm) {
   const b = crewFinalBuild_(p, m, lead, link, changed, cm, u);
+  const ch = cm && cm.custom && cm.custom[m.id];
+  if (ch) { b.html = ch; b.text = plainText_(ch.replace(/<\/td>\s*<td[^>]*>/gi, ': ').replace(/<\/(div|tr|p|table)>/gi, '\n').replace(/<br\s*\/?>/gi, '\n')).replace(/\n{3,}/g, '\n\n').trim(); }
   return gmailSend_(m.email, b.subject, b.text, mailOptsFor_(u, b.html), 'assign');
 }
 /** Az élesítéskor kiküldendő levelek előnézete tagonként (a bevezető és a megjegyzés helyén jelölővel – a felület élőben cseréli). */
@@ -972,7 +974,8 @@ function finalizeCrew_(u, a) {
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id];
   const toNotify = valid.filter(m => (isNewM(m) || isChanged(m)) && !isSelf_(u, m));   // aki élesít, magának nem küld levelet (a naptárba bekerül)
   const link = calEventLink_(ev);
-  const cm = { subject: str_(a && a.subject, 200).trim(), intro: str_(a && a.intro, 1000).trim(), note: str_(a && a.note, 3000).trim() };
+  const cm = { subject: str_(a && a.subject, 200).trim(), intro: str_(a && a.intro, 1000).trim(), note: str_(a && a.note, 3000).trim(), custom: {} };
+  if (a && a.custom && typeof a.custom === 'object') Object.keys(a.custom).slice(0, 60).forEach(k => { const h = sigSanitize_(String(a.custom[k] || ''), 30000); if (h) cm.custom[k] = h; });   // kézzel átírt levelek
   const sent = [], failed = [], changedNames = []; let stepped = false;
   toNotify.forEach(m => { const ch = isChanged(m); try { if (crewFinalMail_(u, p, m, lead, link, ch, cm)) { sent.push(m.name); if (ch) changedNames.push(m.name); } } catch (e) { failed.push(m.name); } });
   const saved = withLock_(() => {
@@ -3508,11 +3511,11 @@ function sigBuild_(f) {
 /* Beillesztett (pl. a szignó-dokumentumból másolt) aláírás: tisztított HTML, felhasználónként külön tulajdonságban */
 const SIG_HTML_PREFIX = 'LUMOS_PM_SIGHTML_';
 function sigCustom_(email) { try { return PropertiesService.getScriptProperties().getProperty(SIG_HTML_PREFIX + sigKey_(email)) || ''; } catch (e) { return ''; } }
-function sigSanitize_(h) {
+function sigSanitize_(h, max) {
   let x = String(h || '');
   x = x.replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style|iframe|object|embed|form|input|button|textarea|select|meta|link|base)[\s\S]*?(<\/\1>|\/?>)/gi, '');
   x = x.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '').replace(/(href|src)\s*=\s*("|')\s*(javascript|data|vbscript):[^"']*\2/gi, '');
-  return x.trim().slice(0, 8500);
+  return x.trim().slice(0, max || 8500);
 }
 const signatureFor_ = u => {
   const c = u && u.email ? sigCustom_(u.email) : '';
