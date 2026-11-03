@@ -65,7 +65,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)'], ['eqFinal', 'Eszközök véglegesítve (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -621,6 +621,7 @@ function bootstrap_(u) {
     out.inventory = inventory.filter(i => itemIds[i.id]).map(i => ({ id: i.id, name: i.name, category: i.category, serial: i.serial, location: i.location, qty: i.qty, condition: i.condition }));
     delete out.links.sheet;
   }
+  if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return viewAsPick_(out, u);
 }
@@ -805,6 +806,7 @@ function projectView_(p, u) {
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
   if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
+  { let ef = null; try { ef = q.eqFinal ? JSON.parse(q.eqFinal) : null; } catch (e) {} q.eqFinal = role === 'admin' || role === 'editor' ? ef : null; }
   if (role === 'crew') { delete q.client; delete q.clientTax; delete q.clientAddress; }   // a szakember nem látja az ügyfelet
   if (role !== 'admin') delete q.payStatus;   // a fizetési állapotot csak az ügyvezető látja
   const request = parseBudgetRequest_(q.budgetRequest);
@@ -953,6 +955,20 @@ function crewFinalPreview_(u, a) {
     const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@' }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });
+}
+/** Eszközök véglegesítése (a csapat után): rögzíti, ki mikor véglegesítette, és a beosztás lenyomatát (módosítás felismeréséhez). */
+function finalizeEquipment_(u, a) {
+  const pid = str_(a && a.projectId, 64);
+  const saved = withLock_(() => {
+    const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.');
+    const q = readRow_('projects', sh, r);
+    if (!parseCrewFinal_(q.crewFinal)) throw new Error('Előbb a csapatot véglegesítsd, utána az eszközöket.');
+    const eq = fullProject_(q).equipment || [];
+    q.eqFinal = JSON.stringify({ at: now_(), by: u.name, sig: eq.map(e => e.itemId + '|' + (e.crewId || '') + '|' + (Number(e.qty) || 1)).sort().join(',') });
+    q.updatedAt = now_(); q.updatedBy = u.name; putRow_('projects', sh, q, r); dbFlush_(); return q;
+  });
+  logEvent_(u, 'Eszközök véglegesítve', saved.name, '');
+  return { project: projectView_(fullProject_(saved), u) };
 }
 function finalizeCrew_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -1351,7 +1367,7 @@ function saveProject_(u, a) {
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.quotePrice = old.quotePrice; p.extras = old.extras; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal; p.payStatus = old.payStatus;
+      p.quotePrice = old.quotePrice; p.extras = old.extras; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal; p.eqFinal = old.eqFinal; p.payStatus = old.payStatus;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');
       const calId = str_(a.calEventId, 200);
@@ -1387,6 +1403,7 @@ function saveProject_(u, a) {
     if (p.fees == null) p.fees = '';
     if (p.budgetRequest == null) p.budgetRequest = '';
     if (p.crewFinal == null) p.crewFinal = '';
+    if (p.eqFinal == null) p.eqFinal = '';
     if (p.payStatus == null) p.payStatus = '';
     if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal) && a.crewFinalSkip !== true)
       throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
@@ -2655,12 +2672,18 @@ function saveCrew_(u, a) {
   });
 }
 
+/* Törölt munkatársak neve (azonosító → név): a régi projektek díjainál és a Kifizetésekben továbbra is a valódi név látszik */
+const CREW_ARCHIVE_PROPERTY = 'LUMOS_PM_CREW_ARCHIVE';
+const CREW_ARCHIVE_SEED_ = { '0d56f79d-1be2-4fdd-82a1-9b20afd66ad6': 'Major Bence' };   // 2026-11-03 előtt törölve (a táblázat mentéséből)
+function crewArchive_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(CREW_ARCHIVE_PROPERTY) || '{}') || {}; } catch (e) {} return Object.assign({}, CREW_ARCHIVE_SEED_, o); }
+function crewArchiveAdd_(id, name) { if (!id || !name) return; try { const P = PropertiesService.getScriptProperties(), o = JSON.parse(P.getProperty(CREW_ARCHIVE_PROPERTY) || '{}') || {}; o[id] = String(name).slice(0, 80); P.setProperty(CREW_ARCHIVE_PROPERTY, JSON.stringify(o)); } catch (e) {} }
 function deleteCrew_(u, a) {
   const id = str_(a && a.id, 64);
   return withLock_(() => {
     const sh = sheetFor_('crew'), row = findRow_(sh, id);
     if (!row) return { deleted: false, id: id };
     const old = readRow_('crew', sh, row);
+    crewArchiveAdd_(old.id, old.name);   // a név megmarad a korábbi díjaknál, kifizetéseknél
     sh.deleteRow(row);
     rewriteAssign_('crewAssign', r => r.crewId !== id, []);
     dbFlush_();
@@ -3887,6 +3910,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteCalEvent': canEdit(); return deleteCalEvent_(u, arg);
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
+    case 'finalizeEquipment': canEdit(); return finalizeEquipment_(u, arg);
     case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
     case 'saveSignature': canEdit(); return saveSignature_(u, arg);
     case 'finData': adminOnly(); return finDataCached_();

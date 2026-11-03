@@ -25,6 +25,10 @@ function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat(
 function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array.isArray(f.ids))return {added:ids,changed:[],removed:[]};
   const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&f.sigs[id]!==crewSig(p,id)):[];
   return {added,changed,removed};}
+const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
+function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
+const crewLocked=p=>!ro()&&!!p&&crewFinalState(p)==='ok'&&!(S.crewEdit||{})[p.id];   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók
+const eqLocked=p=>!ro()&&!!p&&eqFinalState(p)==='ok'&&!(S.eqEdit||{})[p.id];
 function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';const d=crewFinalDiff(p);return d.added.length||d.changed.length||d.removed.length?'changed':'ok';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)

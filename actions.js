@@ -851,7 +851,7 @@ async function crewFinalizeModal(){
     try{const r=await call('finalizeCrew',arg);closeModal();
       const saved=r.project,i=S.projects.findIndex(x=>x.id===saved.id);if(i>=0)S.projects[i]=saved;
       if(S.draft&&S.draft.id===saved.id){if(S.dirty){S.draft.crewFinal=saved.crewFinal;S.draft.calEventId=saved.calEventId;S.draft.status=saved.status;S.draft.prevStatus=saved.prevStatus;S.draft.updatedAt=saved.updatedAt;}else S.draft=prepDraft(saved);}
-      render(true);S.cal.events={};
+      if(S.crewEdit)delete S.crewEdit[saved.id];render(true);S.cal.events={};
       const warn=[].concat(r.failed&&r.failed.length?['nem ment ki: '+r.failed.join(', ')]:[],r.noEmail&&r.noEmail.length?['nincs e-mail-címe: '+r.noEmail.join(', ')]:[]);
       if(r.stepped)toast('Csapat véglegesítve – a projekt átkerült a Helyszíni munka szakaszba.');setTimeout(()=>toast(r.mailPaused?'Csapat véglegesítve. Az e-mailek szünetelnek, értesítés nem ment ki (Beállítások → E-mail értesítések).':`Csapat véglegesítve – ${r.sent.length?r.sent.length+' fő kapott értesítést ('+r.sent.join(', ')+')':'senkinek nem kellett új értesítés'}.${warn.length?' Figyelem: '+warn.join('; '):''}`,!!warn.length),r.stepped?2500:0);
     }catch(e){handleErr(e);}
@@ -1255,6 +1255,12 @@ const ACT={
   'eq-remove':b=>{const equipment=clone(S.draft.equipment||[]);equipment.splice(Number(b.dataset.i),1);setDraft({equipment});},
   'send-list':()=>sendListModal(),
   'crew-finalize':()=>crewFinalizeModal(),
+  'crew-edit':()=>{if(!S.draft)return;(S.crewEdit=S.crewEdit||{})[S.draft.id]=true;render(true);},
+  'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
+  'eq-finalize':async()=>{const d=S.draft;if(!d)return;flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
+    const p=projById(d.id)||d,list=(p.equipment||[]).map(e=>{const it=itemById(e.itemId);return `<li><b>${esc(it?it.name:'Törölt eszköz')}</b>${num(e.qty)>1?' ×'+num(e.qty):''} <span class="muted">· ${esc(e.crewId?((crewById(e.crewId)||{}).name||''):'közös')}</span></li>`;}).join('');
+    confirmLayer('🎒 Eszközök véglegesítése',`<p style="margin:0 0 8px">${list?'Ezek az eszközök mennek a projektre:':'Még nincs eszköz hozzárendelve – így is véglegesíted?'}</p>${list?`<ul class="cf-list">${list}</ul>`:''}<p class="hint" style="margin:8px 0 0">Véglegesítés után az eszközök zárolva lesznek; az „Eszközök módosítása” gombbal bármikor újra szerkeszthetők.</p>`,'Véglegesítés',async(btn,layer)=>{
+      try{const r=await call('finalizeEquipment',{projectId:d.id});const sp=r.project,i=S.projects.findIndex(x=>x.id===sp.id);if(i>=0)S.projects[i]=sp;S.draft=prepDraft(sp);S.draftBase=clone(S.draft);S.dirty=false;if(S.eqEdit)delete S.eqEdit[sp.id];if(layer)layer.remove();render(true);toast('Eszközök véglegesítve');}catch(e){handleErr(e);}});},
   'cal-nav':b=>{const d=Number(b.dataset.d);if(!d){S.cal.month=todayISO().slice(0,7);S.cal.sel=todayISO();}else{const [y,m]=S.cal.month.split('-').map(Number);const n=new Date(Date.UTC(y,m-1+d,1));S.cal.month=n.toISOString().slice(0,7);}render(true);},
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
   'cal-event':b=>calEventModal(b.dataset.id),
