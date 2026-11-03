@@ -3505,12 +3505,31 @@ function sigBuild_(f) {
   const text = ['Üdvözlettel,', '', f.name, f.title, 'Lumos Motion Kft.', f.phone ? 'Tel.: ' + f.phone : '', 'Email: ' + f.email, 'https://lumosmotion.com/'].filter((x, i) => i < 2 || x).join('\n');
   return { html: html, text: text };
 }
-const signatureFor_ = u => { const f = sigFields_(u); return f ? sigBuild_(f) : null; };
+/* Beillesztett (pl. a szignó-dokumentumból másolt) aláírás: tisztított HTML, felhasználónként külön tulajdonságban */
+const SIG_HTML_PREFIX = 'LUMOS_PM_SIGHTML_';
+function sigCustom_(email) { try { return PropertiesService.getScriptProperties().getProperty(SIG_HTML_PREFIX + sigKey_(email)) || ''; } catch (e) { return ''; } }
+function sigSanitize_(h) {
+  let x = String(h || '');
+  x = x.replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style|iframe|object|embed|form|input|button|textarea|select|meta|link|base)[\s\S]*?(<\/\1>|\/?>)/gi, '');
+  x = x.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '').replace(/(href|src)\s*=\s*("|')\s*(javascript|data|vbscript):[^"']*\2/gi, '');
+  return x.trim().slice(0, 8500);
+}
+const signatureFor_ = u => {
+  const c = u && u.email ? sigCustom_(u.email) : '';
+  if (c) return { html: c, text: plainText_(c.replace(/<\/(div|tr|p|table)>/gi, '\n')).replace(/\n{3,}/g, '\n\n').trim() };
+  const f = sigFields_(u); return f ? sigBuild_(f) : null; };
 /** Aláírás mentése: az ügyvezető bármelyik vezetőét, a termelési vezető a sajátját. a: {userId, title, phone, photo} */
 function saveSignature_(u, a) {
   const users = loadUsers_(), t = users.find(x => x.id === String(a && a.userId || ''));
   if (!t || (t.role !== 'admin' && t.role !== 'editor')) throw new Error('Aláírás csak az ügyvezetőnek és a termelési vezetőknek állítható be.');
   if (u.role !== 'admin' && t.id !== u.id) throw new Error('FORBIDDEN: csak a saját aláírásodat módosíthatod.');
+  if (a && a.html !== undefined) {   // beillesztett aláírás (üres: vissza az alap, mezőkből épített aláírásra)
+    const h = sigSanitize_(a.html), P = PropertiesService.getScriptProperties(), k = SIG_HTML_PREFIX + sigKey_(t.email);
+    if (h.length >= 8500) throw new Error('Az aláírás túl hosszú – a képeket linkként (https://…) illeszd be, ne beágyazva.');
+    if (h) P.setProperty(k, h); else P.deleteProperty(k);
+    logEvent_(u, 'E-mail aláírás', t.name, h ? 'beillesztett aláírás mentve' : 'visszaállítva az alapra');
+    return sigList_();
+  }
   const photo = str_(a.photo, 400);
   if (photo && !/^https:\/\/\S+$/i.test(photo)) throw new Error('A fotó linkje https:// kezdetű legyen (vagy hagyd üresen).');
   const st = sigStore_(); st[sigKey_(t.email)] = { name: str_(a.name, 80), title: str_(a.title, 80), phone: str_(a.phone, 40), photo: photo };
@@ -3518,7 +3537,7 @@ function saveSignature_(u, a) {
   logEvent_(u, 'E-mail aláírás', t.name, 'módosítva');
   return sigList_();
 }
-function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; o[x.id] = Object.assign({}, f, { html: sigBuild_(f).html, set: !!sigFields_(x) }); }); return o; }
+function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 /** Nyersanyag feltöltve – e-mail a vágó(k)nak. a: {projectId, crewIds:[], link, text} */

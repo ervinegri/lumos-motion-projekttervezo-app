@@ -460,6 +460,9 @@ function userModal(u){
       <div class="field"><label for="m-commLow">Jutalék a határ alatt (%)</label><input class="inp" id="m-commLow" name="commLow" type="number" min="0" max="100" step="0.5" value="${v.commLow==null?'':esc(v.commLow)}" placeholder="pl. 20"></div>
       <div class="field"><label for="m-commHigh">Jutalék a határ felett (%)</label><input class="inp" id="m-commHigh" name="commHigh" type="number" min="0" max="100" step="0.5" value="${v.commHigh==null?'':esc(v.commHigh)}" placeholder="pl. 25"></div><p class="hint" style="margin:6px 0 0">A jutalék havonta, a <b>ténylegesen kifizetett nettó ügyfélbevétel</b> után jár, sávosan: a havi alap határig terjedő része az alsó, a feletti része a felső %-kal. A továbbszámlázott költségek (projekt → „+ Továbbszámlázott költség”) nem számítanak bele.</p></div>
       <p class="hint" style="margin:4px 0 0">A jutalék szerződésenként jár a szerződött nettó érték után (a határ is nettó szerződési érték), a szerződés hónapjában. A fix fizetés minden hónapban hozzáadódik a Kifizetésekhez.</p></div>`:''}
+    ${u&&(u.role==='admin'||u.role==='editor')&&(S.sigs||{})[u.id]&&(isAdmin()||u.id===S.me.id)?`<div class="field full"><span class="lbl">✍️ E-mail aláírás <span class="muted" style="font-weight:500">– másold ki a szignó-dokumentumból, és illeszd be ide (Cmd+V)</span></span>
+      <div class="sig-ed" id="m-sigEd" contenteditable="true" spellcheck="false" aria-label="E-mail aláírás"></div>
+      <div class="sig-ed-foot"><span class="hint" id="m-sigMsg" style="margin:0">${(S.sigs[u.id]||{}).custom?'Beillesztett aláírás':'Alap aláírás (a Hozzáférések → Szerkesztés mezőiből)'}</span><button class="linkbtn" type="button" id="m-sigReset">↺ Vissza az alap aláírásra</button></div></div>`:''}
     <div class="field full ed-warn" id="m-edWarn"${defRole==='editor'&&otherEd?'':' hidden'}>${otherEd?`⚠️ <b>Már van termelési vezető: ${esc(otherEd.name)}.</b> Egyszerre csak egy termelési vezető lehet – előbb töröld őt (vagy állítsd Szakemberre) a Beállításokban, utána veheted fel az újat.`:''}</div>
     <div class="field full"><div class="rolepick">${u?`<label><input type="checkbox" name="disabled"${v.disabled?' checked':''}> Letiltva (nem tud belépni)</label><input type="hidden" name="resendInvite" id="m-resend" value="">`:`<label><input type="checkbox" name="sendInvite" checked> Meghívó küldése e-mailben</label><button class="btn outline small" type="button" data-action="invite-prev">👁 Előnézet</button>`}</div><div id="invPrev"></div>
       <p class="hint" style="margin:6px 0 0">Belépés csak Google-fiókkal: céges címnél a Lumos Motion Workspace-fiókkal, külsősnél azzal a Google-fiókkal, amelyhez ez az e-mail-cím tartozik.</p></div>
@@ -477,12 +480,14 @@ function userModal(u){
         const nc=await call('saveCrew',{id:uuid(),baseUpdatedAt:'',name:newName,roles:role==='sales'?['Értékesítő']:role==='editor'?['Projektvezető']:[],type:'',dayRate:'',phone:'',email:em,note:'',priority:'',company:'',skills:[],vat:'aam',tax:''});
         S.crew.push(nc);data.crewId=nc.id;data.name=nc.name;}
       const res=await call('saveUser',data);S.users=res.users;refreshLog();
+      if(u&&SIG_ED.dirty){try{S.sigs=await call('saveSignature',{userId:u.id,html:SIG_ED.reset?'':sigClean($('m-sigEd')?$('m-sigEd').innerHTML:'').html});}catch(e2){handleErr(e2);}}
       const m=res.mail;
       closeModal();toast(m&&m.sent?(u?'Mentve, a meghívót újraküldtük: ':'Kolléga felvéve, meghívót küldtünk: ')+m.to:(m&&m.invite?'Kolléga felvéve, de a meghívó nem ment ki: '+(m.error||''):'Mentve'),!!(m&&m.invite&&!m.sent));
       render(true);
     }catch(e){handleErr(e);}
   }});
   comboSelect($('m-crewId'),'Kezdj el gépelni: név…',crewSub);
+  sigEdInit(u);
   if(u){const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb){const rb=document.createElement('button');rb.type='button';rb.className='btn primary';rb.textContent='Mentés és meghívó újraküldése';
     rb.addEventListener('click',()=>{const h=$('m-resend');if(h)h.value='1';$('mform').requestSubmit();setTimeout(()=>{if(h)h.value='';},0);});sb.before(rb);}}   // pl. javított e-mail-cím után
 }
@@ -1713,6 +1718,7 @@ function sigPreviewHtml(f){const e=esc,F='font-family:Arial,Helvetica,sans-serif
   return `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:375px;${F}color:#111"><tr><td colspan="2" style="padding:0 0 5pt;font-size:10pt">Üdvözlettel,</td></tr><tr>${ph?`<td style="width:116px;padding:8px 0 8px 8px;vertical-align:middle;background:#f2f2f2;border-left:4px solid #111"><img alt="" src="${e(f.photo)}" style="display:block;width:108px;height:108px;border-radius:54px;object-fit:cover"></td>`:''}<td style="padding:8px 8px 8px ${ph?'0':'12px'};vertical-align:middle;white-space:nowrap;background:#f2f2f2;${ph?'':'border-left:4px solid #111;'}"><div style="font-size:14pt;font-weight:700;margin:0 0 4pt">${e(f.name)}</div>${f.title?`<div style="font-size:10pt;margin:0 0 4pt">${e(f.title)}</div>`:''}<div style="font-size:10pt;font-weight:700;margin:0 0 4pt">Lumos Motion Kft.</div>${f.phone?`<div style="font-size:10pt;margin:0 0 4pt">Tel.: <a style="color:#1155cc">${e(f.phone)}</a></div>`:''}<div style="font-size:10pt">Email: <a style="color:#1155cc">${e(f.email)}</a></div></td></tr><tr><td colspan="2" style="padding:6pt 0 0"><img alt="Lumos Motion" src="https://projekttervezo.lumosmotion.hu/sig/lumos-motion.png" style="display:block;width:224px;height:23px"></td></tr></table>`;}
 function sigModal(uid){const sg=(S.sigs||{})[uid];if(!sg)return;
   openModal('✍️ E-mail aláírás – '+sg.name,`<div class="fields">
+    ${sg.custom?'<div class="field full"><p class="hint warn-txt" style="margin:0">Most a felhasználónál beillesztett aláírás van érvényben – ezek a mezők csak akkor számítanak, ha ott visszaállítod az alap aláírásra.</p></div>':''}
     <div class="field full"><label for="m-sgName">Név az aláírásban</label><input class="inp" id="m-sgName" name="sgName" maxlength="80" value="${esc(sg.name||'')}" placeholder="pl. Egri Ervin"></div>
     <div class="field"><label for="m-sgTitle">Beosztás</label><input class="inp" id="m-sgTitle" name="sgTitle" maxlength="80" value="${esc(sg.title||'')}" placeholder="pl. Produkciós koordinátor"></div>
     <div class="field"><label for="m-sgPhone">Telefon</label><input class="inp" id="m-sgPhone" name="sgPhone" maxlength="40" value="${esc(sg.phone||'')}" placeholder="+36 20 123 4567"></div>
@@ -1732,3 +1738,22 @@ ACT['cf-open']=b=>{const id=b.dataset.id,box=document.querySelector('#mform .cf-
   if(i<0){toast(CF_PREV.length?'Ő most nem kap levelet (nem új tag, és a beosztása sem változott).':'Az előnézet még töltődik – egy pillanat, és próbáld újra.');return;}
   sel.value=String(i);li.appendChild(box);box.hidden=false;b.setAttribute('aria-expanded','true');b.classList.add('on');
   const h=$('cfPrevHint');if(h)h.hidden=true;const s=$('m-cfSubj'),it=$('m-cfIntro');cfPreviewRender(s&&s.defaultValue,it&&it.defaultValue);};
+
+/* Aláírás beillesztése (pl. Google-dokumentumból): csak biztonságos elemek maradnak; a beágyazott (data:) képeket kihagyjuk, mert a levelezők nem mutatják */
+let SIG_ED={dirty:false,reset:false};
+function sigClean(html){const doc=new DOMParser().parseFromString('<div>'+String(html||'')+'</div>','text/html'),root=doc.body.firstChild;let dropped=0;
+  const OK=new Set(['TABLE','TBODY','THEAD','TR','TD','TH','DIV','SPAN','P','BR','B','STRONG','I','EM','U','A','IMG','FONT','SMALL','SUB','SUP','HR']),ATTR=new Set(['style','href','src','width','height','alt','colspan','rowspan','cellpadding','cellspacing','border','align','valign','bgcolor','color','face','size','target']);
+  const walk=el=>{[...el.children].forEach(c=>{
+    if(!OK.has(c.tagName)){if(['SCRIPT','STYLE','META','LINK','IFRAME','OBJECT','TITLE'].includes(c.tagName)){c.remove();return;}walk(c);c.replaceWith(...c.childNodes);return;}
+    [...c.attributes].forEach(at=>{const n=at.name.toLowerCase(),v=at.value.trim();if(!ATTR.has(n)||((n==='href')&&!/^(https?:|mailto:|tel:)/i.test(v))||(n==='style'&&/expression|url\(\s*['"]?\s*(javascript|data):/i.test(v)))c.removeAttribute(at.name);});
+    if(c.tagName==='IMG'&&!/^https:\/\//i.test(c.getAttribute('src')||'')){dropped++;c.remove();return;}
+    walk(c);});};
+  walk(root);return {html:root.innerHTML.trim(),dropped};}
+function sigEdInit(u){const ed=$('m-sigEd');if(!ed||!u)return;SIG_ED={dirty:false,reset:false};const sg=(S.sigs||{})[u.id]||{};ed.innerHTML=sigClean(sg.html||'').html;
+  const msg=t=>{const m=$('m-sigMsg');if(m)m.textContent=t;};
+  ed.addEventListener('paste',e=>{const cd=e.clipboardData;if(!cd)return;const h=cd.getData('text/html');e.preventDefault();
+    const r=h?sigClean(h):{html:esc(cd.getData('text/plain')||'').replace(/\n/g,'<br>'),dropped:0};
+    document.execCommand('insertHTML',false,r.html);SIG_ED.dirty=true;SIG_ED.reset=false;
+    msg(r.dropped?`Beillesztve – ${r.dropped} beágyazott képet kihagytam (a levelezők nem mutatják). A képek legyenek linkként a dokumentumban.`:'Beillesztett aláírás – mentéskor ez kerül a levelekbe');});
+  ed.addEventListener('input',()=>{SIG_ED.dirty=true;SIG_ED.reset=false;});
+  const rb=$('m-sigReset');if(rb)rb.addEventListener('click',()=>{ed.innerHTML=sigClean(sg.base||'').html;SIG_ED.dirty=true;SIG_ED.reset=true;msg('Alap aláírás – mentéskor visszaáll');});}
