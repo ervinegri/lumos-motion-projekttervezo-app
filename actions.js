@@ -416,7 +416,9 @@ function crewModal(c){
   submit:async(fd,form)=>{
     if(!needName(form))return;
     const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:fd.get('priority'),company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam',tax:String(fd.get('tax')||'').trim()};
-    try{const saved=await call('saveCrew',data);const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
+    try{let saved;try{saved=await call('saveCrew',data);}catch(e1){if(!c||!/CONFLICT/.test(errText(e1)))throw e1;   // közben máshol (pl. másik lapon) mentették: a friss adatra írjuk rá a mostani módosítást
+        const b=await call('bootstrap',{});const fresh=(b.crew||[]).find(x=>x.id===c.id);if(!fresh)throw e1;data.baseUpdatedAt=fresh.updatedAt||'';saved=await call('saveCrew',data);}
+      const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
 }
