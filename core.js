@@ -275,13 +275,16 @@ async function gs(fn,...args){
 }
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDocDelete|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
 const call=(name,arg)=>{if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);};   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
-const errText=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
+const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
+const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}return /^FORBIDDEN/.test(m)?'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.':m;};   // nyers hibakód nem jut a felhasználó elé
 function handleErr(e){
-  const m=errText(e);
+  const m=errRaw(e);
   if(m.indexOf('AUTH_REQUIRED')>=0){try{localStorage.removeItem('lpm_boot_v1');}catch(err){}showLogin('Lépj be újra.');return true;}
-  if(m.indexOf('FORBIDDEN')===0){toast('Ehhez nincs jogosultságod.',true);return true;}
+  if(m.indexOf('FORBIDDEN')===0){forbiddenHeal();toast('Ehhez nincs jogosultságod – frissítettem az adataidat, próbáld újra.',true);return true;}
   toast(m.replace(/^CONFLICT:\s*/,'')||'Hiba történt. Próbáld újra.',true);return false;
 }
+/* Jogosultsági hiba: többnyire elavult munkamenet / nézet (pl. közben megváltozott a szerepkör) – csendben újratöltjük az adatokat (legfeljebb percenként egyszer) */
+let FORB_T=0;function forbiddenHeal(){if(Date.now()-FORB_T<60000)return;FORB_T=Date.now();try{if(typeof load==='function')load(true);}catch(e){}}
 let toastTimer=0;
 function toast(msg,isErr){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.add('show');clearTimeout(toastTimer);
   const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)

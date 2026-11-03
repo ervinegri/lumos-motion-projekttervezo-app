@@ -9,11 +9,14 @@ on:
     branches: [main]
     paths: ['apps-script/Code.gs']
   workflow_dispatch:
-concurrency: { group: apps-script-deploy, cancel-in-progress: false }
+concurrency: { group: apps-script-deploy, cancel-in-progress: true }   # gyors egymásutáni módosításoknál csak az utolsó települ (kevesebb verzió)
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Várakozás (összevonjuk a gyors egymásutáni módosításokat)
+        if: github.event_name == 'push'
+        run: sleep 60
       - uses: actions/checkout@v4
       - name: Beállítások ellenőrzése
         id: chk
@@ -37,4 +40,8 @@ jobs:
           rm -f Code.js Code.gs
           cp "$GITHUB_WORKSPACE/apps-script/Code.gs" Code.js
           clasp push -f
+          N=$(clasp versions 2>/dev/null | grep -cE '^[0-9]+ - ' || true)
+          echo "Verziók száma: $N / 200"
+          if [ "${N:-0}" -ge 199 ]; then echo "::error::Az Apps Script elérte a 200 verziós korlátot – Projekt előzmények → Verziók tömeges törlése"; exit 1; fi
           clasp deploy -i "$DEP" -d "auto $(echo $GITHUB_SHA | cut -c1-7)"
+          [ "${N:-0}" -ge 170 ] && echo "::warning::Apps Script verziók: $((N+1))/200 – hamarosan takarítani kell" || true
