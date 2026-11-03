@@ -567,7 +567,7 @@ function migrateEmployeesOnce_() {
   P.setProperty('MIG_EMP_2026_11', now_());
 }
 function bootstrap_(u) {
-  if (u.role === 'sales') return salesBootstrap_(u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
+  if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
@@ -600,6 +600,11 @@ function bootstrap_(u) {
     delete out.links.sheet;
   }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  return viewAsPick_(out, u);
+}
+/** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
+function viewAsPick_(out, u) {
+  if (u.realRole === 'admin') out.viewAsCrew = readAll_('crew').map(c => ({ id: c.id, name: c.name, roles: c.roles }));
   return out;
 }
 
