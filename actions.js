@@ -1239,7 +1239,9 @@ const ACT={
       try{await SAVE_Q;await call('deleteProject',{id});S.cal.events={};S.projects=S.projects.filter(x=>x.id!==id);S.deals=(S.deals||[]).filter(d=>d.projectId!==id);layer.remove();closeModal();S.projectId=null;S.draft=null;S.dirty=false;render(true);toast('Projekt törölve');}catch(e){btn.disabled=false;btn.textContent='Igen, törlöm';handleErr(e);}});
     const ok=document.querySelector('.cf-layer [data-cf=ok]');if(ok)ok.className='btn danger';},
   'foto-step':b=>{const d=S.draft;if(!d)return;const cur=fotoDb(d),up=Number(b.dataset.d)>0;let n=up?(cur?cur+FOTO_STEP:FOTO_DEF):cur-FOTO_STEP;n=Math.max(0,Math.min(FOTO_MAX,n));setDraft({foto_db:n});},
-  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));setDraft(stepPatch(d,it.k,n));},
+  'rec-step':b=>{const d=S.draft;if(!d)return;const it=REC_COUNTS.concat(CAM_COUNTS,[FOTO_COUNT]).find(x=>x.k===b.dataset.k);if(!it)return;const cur=it.flag?camN(d,it.flag):num(d[it.k]),n=Math.min(it.max,Math.max(it.min,cur+Number(b.dataset.d)));const patch=stepPatch(d,it.k,n);
+    if(it.flag==='er_creative'&&n<cur){const own=slotOwners(d,'er_creative');if(own.length>n){const et=clone(editTasksOf(d)),last=own[own.length-1];if(Array.isArray(et[last]))et[last]=et[last].filter(x=>x!=='f_er_creative');patch.editTasks=et;}}   // a levett kreatív kamera operatőre is lekerül
+    setDraft(patch);},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
   'log-tab':b=>{S.logTab=b.dataset.v;render(true);},
   'user-tab':b=>{S.userTab=b.dataset.v;render(true);},

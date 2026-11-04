@@ -765,12 +765,13 @@ function roContentPanel(p){
 function svcUnlockBtn(p,attr,txt,none){const can=!ro()&&!projLocked()&&!!S.draft&&S.draft.id===p.id&&crewLocked(p);
   return can?`<button type="button" class="op-cut op-unl${none?' none':''}" data-action="svc-unlock" ${attr} data-tip="A csapat véglegesítve van – kattints a módosításhoz">${esc(txt)} ▾</button>`:`<span class="op-cut${none?' none':''}">${esc(txt)}</span>`;}
 function svcCan(p){return !ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.draft.id===p.id;}
-function fieldAsg(p,k,role,label,n){const ids=slotOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
+function fieldAsg(p,k,role,label,n,only){const ids=slotOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="f:${esc(k)}"`,ids.length?'👥 '+ids.map(nm).join(', '):'👥 nincs beosztva',!ids.length);
   const all=(S.crew||[]).slice().sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
   const sel=i=>{const cur=ids[i]||'',free=all.filter(c=>c.id===cur||!ids.includes(c.id)),strict=k==='x_vago'||k==='x_foto',fit=free.filter(c=>(c.roles||[]).includes(role)||(strict&&c.id===cur)),rest=strict?[]:free.filter(c=>!(c.roles||[]).includes(role)),o=c=>`<option value="${esc(c.id)}"${c.id===cur?' selected':''}>${esc(c.name)}</option>`;
     const ph='👥 '+role.toLowerCase()+(/_op$/.test(k)?'':' kiválasztása');
     return `<select class="inp op-cutsel${cur?'':' none'}" data-cmb="${esc(ph)}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${cur?'':' none'}" data-os-slot="${esc(k)}" data-i="${i}" data-role="${esc(role)}" data-label="${esc(label)}" aria-label="${esc(label)}: ${esc(role.toLowerCase())}"><option value=""${cur?' data-keep="1"':''}>${cur?'— senki (levétel) —':esc(ph)}</option>${fit.length?`<optgroup label="${esc(role)}">${fit.map(o).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(o).join('')}</optgroup>`:''}</select>`;};
+  if(only!=null)return sel(only);   // egyetlen választó (pl. a 2. kreatív kamera saját sorában)
   return Array.from({length:slots},(_,i)=>sel(i)).join('');}
 function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_db',rl=FO?['Fotós']:['Vágó'];   // a fotók utómunkáját csak fotós végezheti
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="c:${esc(k)}"`,o.length?(k==='foto_db'?'📷 ':'✂️ ')+o.map(id=>(crewById(id)||{}).name||'?').join(', '):(k==='foto_db'?'📷 nincs fotós':'✂️ nincs vágóhoz rendelve'),!o.length);
@@ -787,7 +788,12 @@ function topicCards(p,{camRow,dlRow,D}){
   const A=(it,asg)=>{if(!it.on||!asg)return it;const a=`<div class="tc-asg">${asg}</div>`,h=it.html,i=h.lastIndexOf('<div class="stepper');   // kiválasztva: név · felelős · darabszám egy sorban
     return Object.assign({},it,{html:i>=0?h.slice(0,i)+a+h.slice(i):`<div class="tc-line">${h}${a}</div>`});};
   const OP='Operatőr',F=(it,k,role,label,n)=>A(it,fieldAsg(p,k,role,label,n)),C=(it,k)=>A(it,cutAsg(p,k));
-  const cam=c=>F({on:!!p[c.k],html:camRow(c),chip:c.label+(camN(p,c.k)>1?' ×'+camN(p,c.k):''),tg:1},c.k,OP,c.label,camN(p,c.k));
+  const cam=c=>{if(c.k==='er_creative'&&p[c.k]&&svcCan(p)){   // kreatív kamera: minden kamera külön sor, saját operatőrrel; „+ kamera” új sort nyit
+      const cc=CAM_COUNTS.find(x=>x.flag===c.k),n=camN(p,c.k),rows=Math.max(n,slotOwners(p,c.k).length),dis=!!D();
+      const html=Array.from({length:rows},(_,i)=>`<div class="tc-line cam-multi">${i===0?tgl(c.k,c.label):`<span class="tl cam-n">${i+1}. ${esc(c.label.toLowerCase())}</span>`}<div class="tc-asg">${fieldAsg(p,c.k,OP,c.label,rows,i)}</div>${i>0&&i===rows-1&&cc&&!dis?`<button class="x w" type="button" data-action="rec-step" data-k="${cc.k}" data-d="-1" title="Kamera levétele" aria-label="Kamera levétele">✕</button>`:''}</div>`).join('')
+        +(cc&&!dis&&n<10?`<button class="btn outline small cam-add" type="button" data-action="rec-step" data-k="${cc.k}" data-d="1">＋ Még egy kreatív kamera</button>`:'');
+      return {on:true,html,chip:c.label+(n>1?' ×'+n:''),tg:1};}
+    return F({on:!!p[c.k],html:camRow(c),chip:c.label+(camN(p,c.k)>1?' ×'+camN(p,c.k):''),tg:1},c.k,OP,c.label,camN(p,c.k));};
   const flag=(k,label,role)=>{const it={on:!!p[k],html:tgl(k,label),chip:label,tg:1};return role?F(it,k,role,label):it;};
   const cnt=it=>({on:num(p[it.k])>(it.min||0),html:recCnt(it),chip:it.label+' '+num(p[it.k])});
   const dlv=it=>({on:num(p[it.k])>0,html:dlRow(it),chip:it.label+' '+num(p[it.k])});
