@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e2b74c04b9",
+"at": "2026-11-04T10:22:14+01:00",
+"msg": "Díjak mindenhol „nettó” jelöléssel: projekt díja, beosztások listája, kifizetések összesen, díjösszesítő levél"
+},
+{
 "id": "36f4cc0005",
 "at": "2026-11-04T10:21:16+01:00",
 "msg": "Vágói nézet: a „nincs kiválasztva vágnivaló” szervezői figyelmeztetés nem látszik a szakembernek"
@@ -194,11 +199,6 @@
 "id": "203f487421",
 "at": "2026-11-04T09:25:12+02:00",
 "msg": "Naptár: a Vágói naptár eseményei is áthúzhatók; a naptárleírásokból csendben (értesítés nélkül) kikerülnek a stáb telefonszámai"
-},
-{
-"id": "b366aa479c",
-"at": "2026-11-04T09:22:33+02:00",
-"msg": "Naptár: Frissítésre és az app fülére visszatérve friss lekérés a Google Naptárból (törölt esemény azonnal eltűnik)"
 }
 ]
 }
