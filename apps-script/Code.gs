@@ -1597,7 +1597,7 @@ function calendarEvents_(a) {
   if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
   const which = a && a.cal === 'vagoi' ? 'vagoi' : 'terepi';
   const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + which + '_' + from + '_' + to, hit = cache.get(key);
-  if (hit) return JSON.parse(hit);
+  if (hit && !(a && a.fresh)) return JSON.parse(hit);   // fresh: Frissítés / visszatérés az app fülére – a Google Naptárban közben törölt esemény se maradjon itt
   const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
   const src = which === 'vagoi' ? CalendarApp.getCalendarById(CAL_VAGOI_ID) : cal_();
   if (!src) throw new Error('A Vágói naptár nem érhető el – ellenőrizd, hogy a szkript fiókja hozzáfér-e.');

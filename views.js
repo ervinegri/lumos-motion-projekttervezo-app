@@ -36,7 +36,7 @@ $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   S.me=null;S.loaded=false;S.projects=[];S.crew=[];S.inventory=[];S.users=null;S.log=null;S.projectId=null;S.draft=null;
   renderChrome();VIEW.innerHTML='';showLogin('Kiléptél.');
 }));
-$('refreshBtn').addEventListener('click',()=>load(false,true));
+$('refreshBtn').addEventListener('click',()=>{calForceFresh();load(false,true);});
 
 /* ===== Betöltés ===== */
 /* Gyors indulás: az utolsó betöltött adatot a böngésző megjegyzi, és frissítéskor azonnal megmutatja,
@@ -992,7 +992,7 @@ function calCacheClear(){try{Object.keys(localStorage).filter(k=>k.indexOf(CAL_L
 const shiftMonth=(m,d)=>{const [y,mo]=m.split('-').map(Number);const t=new Date(Date.UTC(y,mo-1+d,1));return t.toISOString().slice(0,7);};
 function loadVagoi(month){const k='v:'+month;S.cal.at=S.cal.at||{};if(!S.cal.show.vagoi||S.cal.loading[k])return;if(S.cal.ev2[month]&&Date.now()-(S.cal.at[k]||0)<60000)return;
   if(S.cal.err[k]&&Date.now()-((S.cal.errAt||{})[k]||0)<60000)return;const r=calRange(month);S.cal.loading[k]=true;
-  call('calendarEvents',{from:r.start,to:r.end,cal:'vagoi'}).then(ev=>{S.cal.ev2[month]=ev||[];S.cal.at[k]=Date.now();delete S.cal.err[k];})
+  call('calendarEvents',{from:r.start,to:r.end,cal:'vagoi',fresh:!!(S.cal.fresh||{})[k]}).then(ev=>{S.cal.ev2[month]=ev||[];S.cal.at[k]=Date.now();if(S.cal.fresh)delete S.cal.fresh[k];delete S.cal.err[k];})
     .catch(e=>{S.cal.err[k]=errText(e);(S.cal.errAt=S.cal.errAt||{})[k]=Date.now();})
     .finally(()=>{delete S.cal.loading[k];if(S.tab==='naptar'&&!S.projectId&&!$('modalRoot').innerHTML)render(true);});}
 function loadCalEvents(month){loadVagoi(month);
@@ -1002,10 +1002,14 @@ function loadCalEvents(month){loadVagoi(month);
   if(S.cal.events[key]&&Date.now()-(S.cal.at[key]||0)<60000)return;
   if(S.cal.err[key]&&Date.now()-(S.cal.errAt&&S.cal.errAt[key]||0)<60000)return;   // hiba után ne kérdezzük újra azonnal (különben végtelen újrarajzolás)
   S.cal.loading[key]=true;
-  call('calendarEvents',{from:r.start,to:r.end}).then(ev=>{S.cal.events[key]=ev||[];S.cal.at[key]=Date.now();calCacheSet(month,S.cal.events[key]);delete S.cal.err[key];if(S.cal.errAt)delete S.cal.errAt[key];})
+  call('calendarEvents',{from:r.start,to:r.end,fresh:!!(S.cal.fresh||{})[key]}).then(ev=>{S.cal.events[key]=ev||[];S.cal.at[key]=Date.now();if(S.cal.fresh)delete S.cal.fresh[key];calCacheSet(month,S.cal.events[key]);delete S.cal.err[key];if(S.cal.errAt)delete S.cal.errAt[key];})
     .catch(e=>{S.cal.err[key]=errText(e);(S.cal.errAt=S.cal.errAt||{})[key]=Date.now();if(errText(e).indexOf('AUTH_REQUIRED')>=0)handleErr(e);})
     .finally(()=>{delete S.cal.loading[key];if(S.tab==='naptar'&&S.cal.month===month)render(true);});
 }
+/* Friss lekérés a Google Naptárból (a szerver 5 perces gyorsítótára nélkül): Frissítés gombra, és amikor visszatérsz az app fülére
+   – így a Google Naptárban törölt / módosított esemény azonnal eltűnik / frissül itt is. */
+function calForceFresh(){const m=S.cal.month;S.cal.at={};S.cal.fresh={};[m,'v:'+m].forEach(k=>{S.cal.fresh[k]=1;});}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||S.tab!=='naptar'||!TOKEN)return;calForceFresh();loadCalEvents(S.cal.month);});
 function prefetchCal(m){if(ro()||!TOKEN)return;loadCalEvents(m);setTimeout(()=>{if(TOKEN){loadCalEvents(shiftMonth(m,1));loadCalEvents(shiftMonth(m,-1));}},800);}
 function calItems(month){
   const r=calRange(month),items=[];
