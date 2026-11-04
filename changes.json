@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "21d3447b63",
+"at": "2026-11-04T21:10:15+01:00",
+"msg": "Díjtáblázat: az értékesítő a helyszíni stábban (csak a vágó az Utómunkában); eszközlista-levél: a címzett csak a saját eszközeit kapja, a projektvezető a teljes listát"
+},
+{
 "id": "92d9631ace",
 "at": "2026-11-04T21:04:29+01:00",
 "msg": "CLAUDE.md: a TABLES oszlopfejléceit tilos átnevezni"
@@ -149,11 +154,6 @@
 "id": "7910fcddaa",
 "at": "2026-11-04T16:21:23+01:00",
 "msg": "Mentés átmeneti hibánál (pl. épp frissül a háttér) magától újrapróbálkozik; új lehetőségnél nem jöhet létre duplikátum; frissítéskor a nyitott ablak tartalma megmarad"
-},
-{
-"id": "1683cafdb1",
-"at": "2026-11-04T16:05:27+01:00",
-"msg": "Lehetőség jegyzetei: a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek időrendben (csak olvasható)"
 }
 ]
 }
