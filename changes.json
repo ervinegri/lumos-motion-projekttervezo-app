@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c9c6b36866",
+"at": "2026-11-04T17:16:48+01:00",
+"msg": "Sablonból létrehozott projekt: a termelői keret és a projekt értéke is átjön (a termelési vezetőnél is, aki az értéket nem látja)"
+},
+{
 "id": "90b19f10a1",
 "at": "2026-11-04T17:09:28+01:00",
 "msg": "Havi naptár: egérrel húzva és oldalirányú görgetéssel is lapozható, a rács követi a mozdulatot"
@@ -156,13 +161,8 @@
 "msg": "Idővonal: a hónap neve nem vágódik le – görgetéskor a látható rész bal szélén marad"
 },
 {
-"id": "467cdfcfd0",
-"at": "2026-11-04T11:26:46+01:00",
-"msg": "Idővonal: csak a látható időszakba eső sorok látszanak (nincs több üres sor), húzás közben frissül"
-},
-{
-"id": "14a33eeff9",
-"at": "2026-11-04T10:23:14Z",
+"id": "b67f82d622",
+"at": "2026-11-04T10:27:23Z",
 "msg": "Változásnapló frissítése"
 }
 ]
