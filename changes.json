@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "92d9631ace",
+"at": "2026-11-04T21:04:29+01:00",
+"msg": "CLAUDE.md: a TABLES oszlopfejléceit tilos átnevezni"
+},
+{
 "id": "9cab05d3a5",
 "at": "2026-11-04T21:02:13+01:00",
 "msg": "Utómunka: a Nyersanyag átadása külön kártyán"
@@ -149,11 +154,6 @@
 "id": "1683cafdb1",
 "at": "2026-11-04T16:05:27+01:00",
 "msg": "Lehetőség jegyzetei: a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek időrendben (csak olvasható)"
-},
-{
-"id": "8cd1234d77",
-"at": "2026-11-04T16:00:32+01:00",
-"msg": "Menü: Értékesítés a Projektek előtt; Naptár: a nézetváltó és a Ma gomb a hónapválasztó bal oldalán"
 }
 ]
 }
