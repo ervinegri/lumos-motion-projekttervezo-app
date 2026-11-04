@@ -106,7 +106,7 @@ function postTasks(p){const t=[];if(!p)return t;
   if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Termek előadásainak utómunkája',n:1});
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>t.push({k:it.k,label:it.label,n:num(p[it.k])}));
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)t.push({k:it.k,label:it.label,n});});
-  if(num(p.foto_db)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});
+  if(num(p.foto_db)>0&&fotoN(p)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});   // fotózás nélkül nincs fotó-utómunka
   return t;}
 const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.parse(o):{};}catch(e){o={};}return o&&typeof o==='object'&&!Array.isArray(o)?o:{};};
 const cutterIds=p=>{const v=(p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId),et=editTasksOf(p),on=new Set((p&&p.crew||[]).map(a=>a.crewId));   // utómunkások: a vágók, és a fotók utómunkáját kapó fotós
