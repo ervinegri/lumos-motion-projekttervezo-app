@@ -5,40 +5,40 @@
 /* Kipróbálható „letisztult” design (html.th2). Ki-be kapcsolható a fejléc gombjával; a régi kinézet változatlan marad. */
 html.th2{
   --bg:#f6f7f9;--surface:#ffffff;--surface-2:#f6f7f9;--line:#e6e8ec;--line-strong:#d5d9e0;
-  --fg:#0a0d14;--fg-2:#3a4256;--fg-3:#5b6478;--fg-4:#8a92a3;
-  --accent:#0a0d14;--accent-hover:#1c2230;--accent-soft:#eef0f4;--accent-line:#d5d9e0;
+  --fg:#1b2333;--fg-2:#3a4256;--fg-3:#5b6478;--fg-4:#8a92a3;
+  --accent:#2c3a52;--accent-hover:#3a4a66;--accent-soft:#eef0f4;--accent-line:#d5d9e0;
   --ok:#1f6b3e;--ok-soft:#e8f3ec;--warn:#8a5300;--warn-soft:#fdf1de;--bad:#a32121;--bad-soft:#fce8e8;--bad-line:#efc9c9;
   --light:#f5b83d;
   --shadow:none;
   --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 html.th2 h1,html.th2 h2,html.th2 h3,html.th2 .panel-title,html.th2 .topbar-page-title,html.th2 .pc-name{font-family:Manrope,var(--font);letter-spacing:-.01em}
-html.th2 .topbar{background:#0a0d14;border-bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+html.th2 .topbar{background:#26324a;border-bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none}
 html.th2 .brand{filter:invert(1)}
-html.th2 .vert-line{background:#2a3142}
+html.th2 .vert-line{background:#3d4b68}
 html.th2 .app-name,html.th2 .topbar-page-title{color:#fff}
-html.th2 .tab{background:transparent;border-color:transparent;color:#a9b0bf;font-weight:600;border-radius:8px}
-html.th2 .tab:hover{color:#fff;border-color:transparent;background:#161b26}
-html.th2 .tab[aria-selected="true"]{background:#1c2230;border-color:#1c2230;color:#fff;box-shadow:inset 0 -2px 0 var(--light)}
-html.th2 .user-chip{background:#161b26;border-color:#2a3142;color:#d5d9e0}
-html.th2 .header-tools .btn.ghost{color:#a9b0bf;background:transparent;border-color:#2a3142}
+html.th2 .tab{background:transparent;border-color:transparent;color:#c3cad6;font-weight:600;border-radius:8px}
+html.th2 .tab:hover{color:#fff;border-color:transparent;background:#2e3b55}
+html.th2 .tab[aria-selected="true"]{background:#34425e;border-color:#34425e;color:#fff;box-shadow:inset 0 -2px 0 var(--light)}
+html.th2 .user-chip{background:#2e3b55;border-color:#3d4b68;color:#e3e7ee}
+html.th2 .header-tools .btn.ghost{color:#c3cad6;background:transparent;border-color:#3d4b68}
 html.th2 .header-tools .btn.ghost:hover{color:#fff}
-html.th2 .view-as{background:#161b26;color:#d5d9e0;border-color:#2a3142}
+html.th2 .view-as{background:#2e3b55;color:#e3e7ee;border-color:#3d4b68}
 html.th2 .panel{border-radius:16px;border-color:var(--line);box-shadow:none}
 html.th2 .pcrew{border-color:var(--line);border-radius:14px}
-html.th2 .pcrew.is-lead{border-color:#0a0d14}
+html.th2 .pcrew.is-lead{border-color:#2c3a52}
 html.th2 .btn{border-radius:10px;font-weight:600}
-html.th2 .btn.primary{background:#0a0d14;color:#fff}
-html.th2 .btn.primary:hover{background:#1c2230}
+html.th2 .btn.primary{background:#2c3a52;color:#fff}
+html.th2 .btn.primary:hover{background:#3a4a66}
 html.th2 .inp{border-radius:10px;border-color:var(--line-strong)}
 html.th2 .statuspill{font-weight:600}
 html.th2 .stage{border-radius:12px;border-style:dashed;border-color:#c9ced7;background:#fff}
 html.th2 .stage.done{background:#eef0f4;border:1px solid #eef0f4;color:var(--fg-3)}
-html.th2 .stage.cur{background:#0a0d14;border:1px solid #0a0d14;color:#fff;box-shadow:0 0 0 3px var(--light)}
+html.th2 .stage.cur{background:#2c3a52;border:1px solid #2c3a52;color:#fff;box-shadow:0 0 0 3px var(--light)}
 html.th2 .stage.cur .n{color:var(--light);opacity:1}
 html.th2 .stage-tick{border-color:#c9ced7;color:#c9ced7}
 html.th2 .stage-tick.on{background:#d5d9e0;border:0;color:#3a4256}
-html.th2 .lead-badge{background:#0a0d14;color:#fff}
+html.th2 .lead-badge{background:#2c3a52;color:#fff}
 html.th2 .eq-grip{color:#b5bcc8}
 html.th2 .pcrew.eq-drop-hi{outline-color:var(--light);background:#fffaf0}
 html.th2 :focus-visible{outline-color:var(--light)}
