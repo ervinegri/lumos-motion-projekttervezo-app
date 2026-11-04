@@ -157,8 +157,7 @@ function viewBilling(){
       <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség</div></button>
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt</div></button>
     </div>
-    <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">
-      <div class="chips">${labels.map(([v,l])=>{const c=`<button class="chip" type="button" data-action="blf" data-v="${v}" aria-pressed="${f.v===v}">${l}${v==='honap'?'':`<span class="c">${sets[v].length}</span>`}</button>`;return c;}).join('')}</div></div>
+    <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">${f.v!=='honap'?`<button class="linkbtn" type="button" data-action="blf" data-v="honap">✕ ${esc((labels.find(x=>x[0]===f.v)||[,''])[1])} szűrő törlése</button>`:''}</div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th>Szerződés</th><th>Díjbekérő</th><th>TIG</th><th>Végszámla</th></tr></thead>
       <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${billMonthRows(g.arr)}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
@@ -254,7 +253,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
   if(focus==='file'){const f=$('m-cfile');if(f)setTimeout(()=>f.click(),50);}}
 
 Object.assign(ACT,{
-  'blf':b=>{(S.blf||(S.blf={v:'honap',q:''})).v=b.dataset.v;render(true);},
+  'blf':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.v=f.v===b.dataset.v?'honap':b.dataset.v;render(true);},   // a csempe ki-be kapcsolja a szűrőt
   'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
   'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
