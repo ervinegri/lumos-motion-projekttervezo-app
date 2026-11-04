@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0e9e69dbfa",
+"at": "2026-11-04T11:44:36+01:00",
+"msg": "Idővonal: rövidebb színátmenet a forgatás és a vágás között"
+},
+{
 "id": "009820629e",
 "at": "2026-11-04T11:42:37+01:00",
 "msg": "Naptár: a nézetváltó és a Ma gomb balra, a hónapválasztó mellé; a Ma az idővonalon is a mai napra ugrik"
@@ -169,16 +174,6 @@
 "id": "c67a4eea4e",
 "at": "2026-11-04T09:33:35+01:00",
 "msg": "Beállítások: betöltési hiba után ne kérje újra minden kirajzolásnál (végtelen kéréssorozat)"
-},
-{
-"id": "8fa7505c9c",
-"at": "2026-11-04T09:22:09+01:00",
-"msg": "Foglaló % kiállított díjbekérő után a beállítások ablakban sem módosítható; teszt: navigator nélküli környezet"
-},
-{
-"id": "0c956660dd",
-"at": "2026-11-04T10:19:15+02:00",
-"msg": "Fotók utómunkája csak fotósé: a vágó kártyáján nem jelenik meg, régi hozzárendelés sem számít"
 }
 ]
 }
