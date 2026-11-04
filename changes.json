@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "431a68c85a",
+"at": "2026-11-04T15:42:35+01:00",
+"msg": "Lehetőség: a következő lépés és a dátuma kötelező (nyitott lehetőségnél)"
+},
+{
 "id": "7402e5a5a4",
 "at": "2026-11-04T15:33:41+01:00",
 "msg": "Lehetőség: szóba jövő szolgáltatások többes választóval (a kártyán is látszik); az értékesítő-szűrő alapból Mindenki"
@@ -154,11 +159,6 @@
 "id": "c93ab5e400",
 "at": "2026-11-04T10:57:39+01:00",
 "msg": "Idővonal: az egész sor kattintható (kiemeléssel), a lemondott projektek nem látszanak"
-},
-{
-"id": "72ec9ad9d9",
-"at": "2026-11-04T10:53:59+01:00",
-"msg": "Egy kameraszöghöz egy kamera; a Google Naptár stáblistájában a helyszíni vágó külön jelölve"
 }
 ]
 }
