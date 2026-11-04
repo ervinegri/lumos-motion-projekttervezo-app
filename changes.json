@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "467cdfcfd0",
+"at": "2026-11-04T11:26:46+01:00",
+"msg": "Idővonal: csak a látható időszakba eső sorok látszanak (nincs több üres sor), húzás közben frissül"
+},
+{
 "id": "1018c5e87a",
 "at": "2026-11-04T11:22:30+01:00",
 "msg": "Idővonal: három hónap egymás után, egérrel oldalra húzható; a sarokban a látható hónap"
@@ -189,11 +194,6 @@
 "id": "288cc4df5b",
 "at": "2026-11-04T10:09:26+02:00",
 "msg": "Termenként egy operatőr; a fotók utómunkáját csak fotós végezheti"
-},
-{
-"id": "f4821c6d08",
-"at": "2026-11-04T10:08:05+02:00",
-"msg": "Szép, kereshető legördülő a beosztásoknál, vágóknál, ajánlói jutaléknál és az Extrák menüben"
 }
 ]
 }
