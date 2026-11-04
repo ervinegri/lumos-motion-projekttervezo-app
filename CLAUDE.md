@@ -6,3 +6,4 @@
 - Minden díj nettó – a felületen ezt jelezni kell („nettó”).
 - Push előtt mindig `git pull --rebase` (a felhasználó párhuzamosan is fejleszt; a GitHub Action változásnaplót commitol).
 - Teszt: `node tests/finance.test.cjs`.
+- **Code.gs `TABLES` oszlopfejlécei** (pl. `['x_nyersVetel', 'Nyersanyag megvásárlása']`) a munkalap/Neon fejlécével egyeznek, és a háttér ellenőrzi őket: **soha ne nevezd át** (a felületi feliratot a frontendben változtasd), új oszlop csak a lista végére kerülhet.
