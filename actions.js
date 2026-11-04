@@ -51,6 +51,17 @@ const moneyField=(name,label,v,o={})=>`<div class="field"><label for="m-${name}"
 /* a Beállítások naplója a felhasználók mentése után frissül */
 function refreshLog(){if(S.tab!=='beallitasok'||!isAdmin())return;call('getLog').then(l=>{S.log=l;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}).catch(()=>{});}
 function calEventById(id){for(const k in S.cal.events){const e=(S.cal.events[k]||[]).find(x=>x.id===id);if(e)return e;}return null;}
+/* A Vágói naptár bejegyzéséhez tartozó projekt: a megjelölt projekt, vagy név (közös szavak) és időpont alapján a legvalószínűbb */
+function vagoiProjects(ev){const P=(S.projects||[]).filter(p=>p.status!=='lemondva');
+  if(ev.projectId){const p=P.find(x=>x.id===ev.projectId);if(p)return {open:p,list:[]};}
+  const STOP=new Set(['a','az','es','de','2025','2026','2027','videok','video','short','shortok','shortja','aftermovie','vagas','vago','osszefoglalo','kivagasok']);
+  const toks=t=>new Set(fold(t).replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(w=>w.length>1&&!STOP.has(w)));
+  const et=toks(ev.title),ed=ev.endDate||ev.date;
+  const sc=P.map(p=>{const q=pr(p);if(!q)return null;const gap=(toDate(ed)-toDate(q.end))/864e5;if(gap<-10||gap>75)return null;   // a vágás a forgatás körül / után van
+    let n=0;toks(p.name).forEach(w=>{if(et.has(w))n++;});return n?{p,n,gap:Math.abs(gap)}:null;}).filter(Boolean).sort((a,b)=>b.n-a.n||a.gap-b.gap);
+  const best=sc[0],second=sc[1];
+  if(best&&(best.n>=2||(best.n===1&&et.size<=2))&&(!second||second.n<best.n||second.gap>best.gap+7))return {open:best.p,list:[]};
+  return {open:null,list:sc.slice(0,3).map(x=>x.p)};}
 function calEventModal(id){
   const e=calEventById(id);if(!e)return;S._calEv=e;   // az ablak nyitva tartása alatt a naptár frissülhet – megjegyezzük az eseményt
   const when=e.date===e.endDate?F_FULL.format(toDate(e.date)):F_FULL.format(toDate(e.date))+' – '+F_FULL.format(toDate(e.endDate));
@@ -1285,7 +1296,9 @@ const ACT={
   'cal-retry':()=>{delete S.cal.err[S.cal.month];delete S.cal.events[S.cal.month];render(true);},
   'cal-event':b=>calEventModal(b.dataset.id),
   'cal-vevent':b=>{let ev=null;Object.values(S.cal.ev2||{}).forEach(l=>(l||[]).forEach(x=>{if(x.id===b.dataset.id)ev=x;}));if(!ev)return;
-    openModal('✂️ '+(ev.title||'(nincs cím)'),`<div class="kv">${[['Naptár','Vágói Naptár Lumos Motion'],['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location],['Leírás',ev.description]].filter(x=>x[1]).map(([k,v])=>`<p style="margin:0 0 8px"><span class="muted">${esc(k)}:</span> ${esc(v).replace(/\n/g,'<br>')}</p>`).join('')}</div>`,{cancelLabel:'Bezárás'});},
+    const mp=vagoiProjects(ev);if(mp.open){ACT['open-project']({dataset:{id:mp.open.id}});return;}   // a vágói bejegyzés a projektjére visz
+    const sug=mp.list.length?`<p class="muted" style="margin:10px 0 6px">Kapcsolódó projekt:</p>${mp.list.map(p=>`<button type="button" class="btn outline small" style="margin:0 6px 6px 0" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name)}</button>`).join('')}`:'';
+    openModal('✂️ '+(ev.title||'(nincs cím)'),`<div class="kv">${[['Naptár','Vágói Naptár Lumos Motion'],['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location],['Leírás',ev.description]].filter(x=>x[1]).map(([k,v])=>`<p style="margin:0 0 8px"><span class="muted">${esc(k)}:</span> ${esc(v).replace(/\n/g,'<br>')}</p>`).join('')}${sug}</div>`,{cancelLabel:'Bezárás'});},
   'cal-day':b=>{const d=b.dataset.d,its=calItems(S.cal.month).filter(it=>it.date<=d&&it.endDate>=d);openModal(F_FULL.format(toDate(d)),`<div class="cal-daylist">${its.map(it=>calChip(it,d)).join('')}</div>`,{cancelLabel:'Bezárás'});},
   'cal-import':b=>importCalEvent(b.dataset.id),
   'cal-new':b=>{if(!ro())guard(()=>newProjectModal(b.dataset.d||(S.cal.month===todayISO().slice(0,7)?todayISO():S.cal.month+'-01')));},
