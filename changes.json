@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9cab05d3a5",
+"at": "2026-11-04T21:02:13+01:00",
+"msg": "Utómunka: a Nyersanyag átadása külön kártyán"
+},
+{
 "id": "f5e5f4d38b",
 "at": "2026-11-04T21:01:57+01:00",
 "msg": "Javítás: a Projektek munkalap oszlopfejléce marad „Nyersanyag megvásárlása” (a fejléc-ellenőrzés miatt) – a felületen „Nyersanyag átadása”"
@@ -149,11 +154,6 @@
 "id": "8cd1234d77",
 "at": "2026-11-04T16:00:32+01:00",
 "msg": "Menü: Értékesítés a Projektek előtt; Naptár: a nézetváltó és a Ma gomb a hónapválasztó bal oldalán"
-},
-{
-"id": "f4060f2078",
-"at": "2026-11-04T15:58:20+01:00",
-"msg": "Értékesítés: a kapcsolattartóra kattintva megnyílik az adatlapja a HubSpotban (kártyán és a lehetőség ablakában)"
 }
 ]
 }
