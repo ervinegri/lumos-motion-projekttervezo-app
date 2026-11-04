@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "76e1b9e9a3",
+"at": "2026-11-04T17:33:49+01:00",
+"msg": "Idővonal: a videóvágás projekteknél is látszik a vágásra szánt napok száma"
+},
+{
 "id": "69e85cb16a",
 "at": "2026-11-04T17:32:40+01:00",
 "msg": "Idővonal: gombnyomásnál nem villan – a görgetési helyzet még a kirajzolás előtt beáll (függőlegesen is megmarad)"
@@ -151,13 +156,8 @@
 "msg": "Idővonal: a Ma gomb és a megnyitás a mai nappal kezdi a látható részt"
 },
 {
-"id": "5e93ec833c",
-"at": "2026-11-04T11:49:56+01:00",
-"msg": "Idővonal: fix magasság, a sorok benne görgethetők; a hónap alatti összesítő sor törölve"
-},
-{
-"id": "57b5e9b33a",
-"at": "2026-11-04T10:48:36Z",
+"id": "7ef5dff837",
+"at": "2026-11-04T10:50:45Z",
 "msg": "Változásnapló frissítése"
 }
 ]
