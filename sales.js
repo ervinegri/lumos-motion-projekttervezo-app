@@ -74,7 +74,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
-      <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
+      <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><p class="hint" id="m-dHsSt" style="margin:8px 0 0"></p><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
     ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(d.ownerId||S.salesF.owner||(S.me&&S.me.id))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
@@ -90,7 +90,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
       if(!nd.nextDate){toast('Add meg a következő lépés dátumát.',true);if(nn){fp(nn).style.borderColor='var(--bad)';fp(nn).focus();}return;}}
     if(nd.stage==='elveszett'&&nd.lostReason.length<3){toast('Írd be röviden, miért veszett el.',true);$('dl-lostf').hidden=false;$('m-dLost').focus();return;}
     try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;closeModal();render(true);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');if(!isNew)setTimeout(dNotesLoadHs,50);}
 
 function dealWinModal(d){
   openModal('✅ Szerződve – '+d.title,`<p style="margin:0 0 10px">Gratulálok! 🎉 Mentés után a lehetőségből <b>projekt</b> lesz a Tervezés szakaszban, és bekerül a naptárba. A projekt további részleteit (stáb, eszközök, díjak) a csapat kezeli.</p><div class="fields">
@@ -181,8 +181,8 @@ function dNoteAdd(old,nw){nw=String(nw||'').trim();if(!nw)return String(old||'')
 /* A régi, dátum nélküli jegyzet a lehetőség felvételének (ennek híján utolsó módosításának) idejét kapja */
 const dNoteFb=d=>{const t=String((d&&(d.createdAt||d.updatedAt))||'').replace('T',' ');return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(t)?t.slice(0,16):/^\d{4}-\d{2}-\d{2}/.test(t)?t.slice(0,10)+' 00:00':'';};
 function dNoteFix(t,fb,by){if(!fb)return String(t||'');const L=dNotesParse(t);if(!L.some(x=>!x.at))return String(t||'');L.forEach(x=>{if(!x.at){x.at=fb;x.by=x.by||by||'';}});return dNotesJoin(L);}
-function dNotesHtml(t){const L=dNotesParse(t);if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
-  return L.map((x,i)=>`<div class="dn-item"><div class="dn-h"><span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+function dNotesHtml(t,hs){const L=dNotesParse(t).concat((hs||[]).map(x=>({at:x.at,by:x.by,text:x.text,hs:1}))).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
+  return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?'<span class="hs-tag" style="margin:0">HubSpot</span>':''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
 
 /* Kapcsolattartó megnyitása a HubSpotban (kártyán és a lehetőség ablakában) */
 ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
@@ -191,3 +191,11 @@ ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
   const w=window.open('about:blank','_blank');   // azonnal nyitjuk, hogy a böngésző ne tiltsa le
   try{const r=await call('hubspotContactLink',{name,email,company});if(w){w.opener=null;w.location.href=r.url;}else location.href=r.url;if(!r.found)toast('Pontos egyezés nincs – a HubSpot keresőjét nyitottam meg.');}
   catch(err){if(w)w.close();handleErr(err);}};
+
+/* A lehetőség ablakában a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek (csak olvasható, nem mentődnek a lehetőségbe) */
+let DN_HS_SEQ=0;
+async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h)return;const name=String(($('m-dCName')||{}).value||'').trim(),email=String(($('m-dCEmail')||{}).value||'').trim(),company=String(($('m-dClient')||{}).value||'').trim();
+  if(!name&&!email&&!company)return;const my=++DN_HS_SEQ;const st=$('m-dHsSt');if(st)st.textContent='HubSpot-jegyzetek betöltése…';
+  try{const r=await call('hubspotNotes',{name,email,company});if(my!==DN_HS_SEQ||!$('m-dNotes'))return;box.innerHTML=dNotesHtml(dNoteFix(h.value,box.dataset.fb,box.dataset.by),r.notes||[]);
+    if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-jegyzet betöltve`:'A HubSpotban nincs jegyzet ehhez a kapcsolattartóhoz / céghez';}
+  catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}

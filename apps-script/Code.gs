@@ -1861,6 +1861,31 @@ function hubspotContactLinkApi_(arg) {
   return { url: 'https://app.hubspot.com/contacts/' + portal + '/record/0-1/' + hit.id, found: true };
 }
 
+/* HubSpot-jegyzetek a lehetőséghez: a kapcsolattartó (e-mail / név) és a cég jegyzetei, időrendben */
+function hsFindContact_(email, name, company) {
+  let hit = null;
+  if (email) hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], properties: ['email'], limit: 1 }).results) || [])[0] || null;
+  if (!hit && name.length >= 2) hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { query: name, properties: ['email', 'company'], limit: 5 }).results) || []).sort((a, b) => (String((b.properties || {}).company || '').toLowerCase() === company.toLowerCase()) - (String((a.properties || {}).company || '').toLowerCase() === company.toLowerCase()))[0] || null;
+  return hit;
+}
+function hubspotNotesApi_(arg) {
+  const email = str_(arg && arg.email, 160).trim(), name = str_(arg && arg.name, 120).trim(), company = str_(arg && arg.company, 160).trim();
+  const ids = {}, from = [];
+  const c = (email || name) ? hsFindContact_(email, name, company) : null;
+  if (c) from.push(['contacts', c.id]);
+  if (company.length >= 2) { const co = ((hubspot_('post', '/crm/v3/objects/companies/search', { query: company, properties: ['name'], limit: 1 }).results) || [])[0]; if (co) from.push(['companies', co.id]); }
+  from.forEach(([t, id]) => { ((hubspot_('get', '/crm/v4/objects/' + t + '/' + id + '/associations/notes?limit=100').results) || []).forEach(a => { ids[String(a.toObjectId)] = 1; }); });
+  const list = Object.keys(ids).slice(0, 100);
+  if (!list.length) return { notes: [], found: !!c };
+  const res = (hubspot_('post', '/crm/v3/objects/notes/batch/read', { properties: ['hs_note_body', 'hs_timestamp', 'hubspot_owner_id'], inputs: list.map(id => ({ id: id })) }).results) || [];
+  let owners = {};
+  try { ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { owners[String(o.id)] = [o.lastName, o.firstName].filter(Boolean).join(' ') || o.email || ''; }); } catch (e) { owners = {}; }
+  const fmt = v => { const d = new Date(v); return isNaN(d) ? '' : Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd HH:mm'); };
+  const notes = res.map(n => { const p = n.properties || {}; return { id: n.id, at: fmt(p.hs_timestamp || n.createdAt), by: owners[String(p.hubspot_owner_id || '')] || '', text: plainText_(p.hs_note_body || '').trim().slice(0, 4000) }; })
+    .filter(n => n.text).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  return { notes: notes, found: !!c };
+}
+
 /* HubSpot cégek keresése (új lehetőség ügyfele): név, domain, város */
 function hubspotCompaniesApi_(arg) {
   const q = str_(arg && arg.q, 100).trim();
@@ -4064,6 +4089,7 @@ function rpcInner_(token, name, arg) {
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
     case 'hubspotContactLink': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactLinkApi_(arg);
+    case 'hubspotNotes': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotNotesApi_(arg);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotContacts': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactsApi_(arg);   // az értékesítő a lehetőségekhez keres kapcsolattartót
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
