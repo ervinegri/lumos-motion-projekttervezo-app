@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dae66bdce7",
+"at": "2026-11-04T11:58:33+01:00",
+"msg": "Rendezvény típusa: új „Videóvágás” típus"
+},
+{
 "id": "30f4439642",
 "at": "2026-11-04T11:57:07+01:00",
 "msg": "Idővonal: a projektsorok animáltan tűnnek el és jönnek vissza oldalra húzáskor"
@@ -154,11 +159,6 @@
 "id": "e2b74c04b9",
 "at": "2026-11-04T10:22:14+01:00",
 "msg": "Díjak mindenhol „nettó” jelöléssel: projekt díja, beosztások listája, kifizetések összesen, díjösszesítő levél"
-},
-{
-"id": "36f4cc0005",
-"at": "2026-11-04T10:21:16+01:00",
-"msg": "Vágói nézet: a „nincs kiválasztva vágnivaló” szervezői figyelmeztetés nem látszik a szakembernek"
 }
 ]
 }
