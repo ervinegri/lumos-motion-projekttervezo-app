@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "53d93cbc08",
+"at": "2026-11-04T16:55:49+01:00",
+"msg": "Ütközés: a remote projektvezető akkor sem ütközik, ha ugyanott (otthonról) vágó is"
+},
+{
 "id": "7910fcddaa",
 "at": "2026-11-04T16:21:23+01:00",
 "msg": "Mentés átmeneti hibánál (pl. épp frissül a háttér) magától újrapróbálkozik; új lehetőségnél nem jöhet létre duplikátum; frissítéskor a nyitott ablak tartalma megmarad"
@@ -156,13 +161,8 @@
 "msg": "Idővonal: három hónap egymás után, egérrel oldalra húzható; a sarokban a látható hónap"
 },
 {
-"id": "a69a02bb88",
-"at": "2026-11-04T11:17:31+01:00",
-"msg": "Naptár: új hónapválasztó (előző · aktuális · következő); idővonalon egérrel húzható projekt és vágási határidő"
-},
-{
-"id": "ba043bc965",
-"at": "2026-11-04T10:08:43Z",
+"id": "6e41efaadf",
+"at": "2026-11-04T10:18:20Z",
 "msg": "Változásnapló frissítése"
 }
 ]
