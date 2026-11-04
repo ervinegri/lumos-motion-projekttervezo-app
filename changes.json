@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f5e5f4d38b",
+"at": "2026-11-04T21:01:57+01:00",
+"msg": "Javítás: a Projektek munkalap oszlopfejléce marad „Nyersanyag megvásárlása” (a fejléc-ellenőrzés miatt) – a felületen „Nyersanyag átadása”"
+},
+{
 "id": "13cd0f6c9c",
 "at": "2026-11-04T20:59:53+01:00",
 "msg": "Beosztó levél: a projektvezető a saját levelében nem kapja meg a saját nevét és telefonszámát"
@@ -149,11 +154,6 @@
 "id": "f4060f2078",
 "at": "2026-11-04T15:58:20+01:00",
 "msg": "Értékesítés: a kapcsolattartóra kattintva megnyílik az adatlapja a HubSpotban (kártyán és a lehetőség ablakában)"
-},
-{
-"id": "431a68c85a",
-"at": "2026-11-04T15:42:35+01:00",
-"msg": "Lehetőség: a következő lépés és a dátuma kötelező (nyitott lehetőségnél)"
 }
 ]
 }
