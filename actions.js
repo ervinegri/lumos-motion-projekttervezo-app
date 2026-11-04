@@ -1865,3 +1865,8 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
   if(has){et[id]=et[id].filter(x=>x!=='f_'+k);if(!et[id].length)delete et[id];toast((c?c.name:'')+' lekerült erről a feladatról');}
   else{et[id]=(et[id]||[]).concat(['f_'+k]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});toast((c?c.name:'')+' beosztva: '+(t.dataset.label||role));}
   const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));});
+
+/* Stábkártya: a kártya bármely üres részére kattintva is megnyílik a szerkesztés (nem csak a ceruzával) */
+document.addEventListener('click',e=>{const card=e.target.closest('.crew-card[data-crew-card]');if(!card||ro()||e.defaultPrevented)return;
+  if(e.target.closest('button,a,input,select,textarea,label,[data-action]'))return;if(String(window.getSelection&&window.getSelection())!=='')return;   // gomb / másolás / link / kijelölés marad
+  const b=card.querySelector('[data-action="edit-crew"]');if(b)b.click();});
