@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "84855e5571",
+"at": "2026-11-04T23:15:19+01:00",
+"msg": "Új design: nagyobb Összesen és Egyenleg sor a kifizetéseknél"
+},
+{
 "id": "7ab401c3b4",
 "at": "2026-11-04T23:14:49+01:00",
 "msg": "Új design: összesen sor enyhén vastagabb"
@@ -146,13 +151,8 @@
 "msg": "Kreatív kamera: minden további kamera új sorban, saját operatőrrel; naptár leírás: „Projektvezető:” és a kreatív kamera nem az előadásrögzítés alatt"
 },
 {
-"id": "c034534183",
-"at": "2026-11-04T21:13:25+01:00",
-"msg": "Naptár leírás: eszközök munkatársanként csoportosítva, az app linkje nélkül (egyszeri újraszinkron); eszközlista-betöltés animált jelzéssel"
-},
-{
-"id": "e50e12d044",
-"at": "2026-11-04T20:10:25Z",
+"id": "283f328cf4",
+"at": "2026-11-04T20:13:36Z",
 "msg": "Változásnapló frissítése"
 }
 ]
