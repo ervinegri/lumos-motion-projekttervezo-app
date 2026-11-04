@@ -607,7 +607,7 @@ function szBuyerLock(){const sel=$('m-szClient');if(!sel)return;const lock=!!sel
   const h=$('sz-buyer-lock');if(h)h.textContent=lock?(sel.type==='hidden'?'🔒 A vevő a projekt ügyfele – az adatai az ügyféltörzsből jönnek. Más vevőhöz a projekt ügyfelét módosítsd.':'🔒 A vevő adatai az ügyféltörzsből jönnek. Más vevőhöz válaszd a „kézi megadás”-t.'):'';}
 
 ACT['inc-to-proj']=b=>{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===b.dataset.id);if(!r)return;const d=parseInt(r.day,10);
-  newProjectModal('',{name:r.name,amount:num(r.amount),date:r.month+'-'+String(d>=1&&d<=31?d:1).padStart(2,'0')});};
+  newProjectModal('',{incId:r.id,name:r.name,amount:num(r.amount),date:r.month+'-'+String(d>=1&&d<=31?d:1).padStart(2,'0')});};
 
 ACT['fin-proj-new']=()=>{const m=S.finMonth||todayISO().slice(0,7);guard(()=>newProjectModal(m===todayISO().slice(0,7)?todayISO():m+'-01'));};
 
