@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a72f9bac22",
+"at": "2026-11-04T11:00:14+01:00",
+"msg": "Google Naptár leírás: helyszíni vágó jelölve, felbontás és érkezés/távozás nélkül; a közelgő események egyszer újraszinkronizálódnak"
+},
+{
 "id": "c93ab5e400",
 "at": "2026-11-04T10:57:39+01:00",
 "msg": "Idővonal: az egész sor kattintható (kiemeléssel), a lemondott projektek nem látszanak"
@@ -189,16 +194,6 @@
 "id": "21923d90a5",
 "at": "2026-11-04T10:04:06+02:00",
 "msg": "Extrák: egy Hozzáadás menü (extra, kedvezmény, továbbszámlázott, ajánlói jutalék); az ajánlói jutalék az Extrák közé került"
-},
-{
-"id": "4eb1727b2f",
-"at": "2026-11-04T09:59:50+02:00",
-"msg": "Helyszíni vágó személyenként (a jelölő csak az adott vágóra vonatkozik)"
-},
-{
-"id": "715ceb1a4b",
-"at": "2026-11-04T09:57:25+02:00",
-"msg": "Termek: „1. Terem” felirat, név nem kötelező, operatőrök a név után; kattintáskor a kártya nem ugrik el"
 }
 ]
 }
