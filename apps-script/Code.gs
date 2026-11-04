@@ -962,6 +962,19 @@ function crewFinalPreview_(u, a) {
 /** Csak utómunkás (vágó, nem helyszíni) vagy értékesítő: nem visz eszközt, nem kap eszközlistát. */
 function postOnly_(p, cid) { if (!cid || p.lead === cid || p.editOnsite === true) return false; const r = (p.crew || []).filter(a => a.crewId === cid).map(a => a.role); return r.length > 0 && r.every(x => x === 'Vágó' || x === 'Értékesítő'); }
 function cutTasksArg_(a) { const o = {}; const x = a && a.cutTasks; if (x && typeof x === 'object') Object.keys(x).slice(0, 20).forEach(k => { const v = x[k] || {}; o[str_(k, 64)] = { items: (Array.isArray(v.items) ? v.items : []).slice(0, 30).map(i => str_(i, 160)).filter(Boolean), due: str_(v.due, 60) }; }); return o; }
+/** Kik kapnak eszközlistát: akiknél eszköz van (nem csak utómunkás, és nem te magad). */
+function eqRecipients_(u, fp) {
+  const holders = {}; (fp.equipment || []).forEach(e => { if (e.crewId) holders[e.crewId] = 1; }); parseRentals_(fp.rentals).forEach(r => { if (r.crewId) holders[r.crewId] = 1; });
+  const cm = byId_(readAll_('crew'));
+  return Object.keys(holders).filter(cid => !postOnly_(fp, cid)).filter(cid => !isSelf_(u, { id: cid, email: (cm[cid] || {}).email }));
+}
+/** Az eszközök véglegesítésekor kimenő eszközlisták előnézete (semmit nem küld el). */
+function eqListPreview_(u, a) {
+  const pid = str_(a && a.projectId, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.');
+  const rcp = eqRecipients_(u, fullProject_(readRow_('projects', sh, r)));
+  if (!rcp.length || !mailOn_()) return [];
+  try { return sendEquipmentList_(u, { projectId: pid, recipients: rcp, message: '', includePlan: true, preview: true }).previews || []; } catch (e) { return []; }
+}
 function finalizeEquipment_(u, a) {
   const pid = str_(a && a.projectId, 64);
   const saved = withLock_(() => {
@@ -974,8 +987,7 @@ function finalizeEquipment_(u, a) {
   });
   let mail = null;
   if (a && a.sendList) {   // eszközlista e-mailben azoknak, akiknél eszköz van (magadnak nem)
-    const fp = fullProject_(saved), holders = {}; (fp.equipment || []).forEach(e => { if (e.crewId) holders[e.crewId] = 1; }); parseRentals_(fp.rentals).forEach(r => { if (r.crewId) holders[r.crewId] = 1; });
-    const rcp = Object.keys(holders).filter(cid => !postOnly_(fp, cid)).filter(cid => !isSelf_(u, { id: cid, email: (byId_(readAll_('crew'))[cid] || {}).email }));
+    const rcp = eqRecipients_(u, fullProject_(saved));
     if (rcp.length) { try { mail = sendEquipmentList_(u, { projectId: pid, recipients: rcp, message: '', includePlan: true }); } catch (e) { mail = { error: String(e && e.message || e) }; } }
   }
   logEvent_(u, 'Eszközök véglegesítve', saved.name, '');
@@ -3908,7 +3920,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -3937,6 +3949,7 @@ function rpcInner_(token, name, arg) {
     case 'saveCrewOrder': canEdit(); return saveCrewOrder_(u, arg);
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
     case 'finalizeEquipment': canEdit(); return finalizeEquipment_(u, arg);
+    case 'eqListPreview': canEdit(); return eqListPreview_(u, arg);
     case 'logNote': canEdit(); logEvent_(u, 'Véglegesített csapat módosítása', str_(arg && arg.subject, 200), str_(arg && arg.details, 300)); return { ok: true };
     case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
     case 'saveSignature': canEdit(); return saveSignature_(u, arg);
