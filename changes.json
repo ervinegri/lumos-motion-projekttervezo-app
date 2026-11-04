@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5127c69d54",
+"at": "2026-11-04T20:19:39+01:00",
+"msg": "Stáb és Értékesítők: a „Következő beosztás” oszlop és kártyarész törölve"
+},
+{
 "id": "7c2bf518d5",
 "at": "2026-11-04T20:15:53+01:00",
 "msg": "Remote projektvezető: figyelmeztetés, ha helyszíni szerepben (pl. operatőr) is be van osztva – ezért ütközik"
@@ -149,11 +154,6 @@
 "id": "aab7ed5fff",
 "at": "2026-11-04T14:42:59+01:00",
 "msg": "Videóvágás: nincs Terepi feladatok, Helyszíni stáb és Egyéb költségek; a vágó látja, hány nap van hátra a leadásig (lista, projekt, idővonal)"
-},
-{
-"id": "c8d04b53d0",
-"at": "2026-11-04T12:01:56+01:00",
-"msg": "Videóvágás típus: nincs helyszín, dátum és érkezés/távozás – csak leadási határidő; nem kerül a Terepi naptárba, az idővonalon lila vágási sáv; szebb típusválasztó"
 }
 ]
 }
