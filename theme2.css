@@ -309,3 +309,9 @@ html.th2 .month-nav .btn,html.th2 .mnav-row .btn{min-height:40px}
 /* félkövér szövegközben: Montserratnál a 700 kis méretben túl erős */
 html.th2 b,html.th2 strong{font-weight:650}
 html.th2 th{font-weight:600}
+/* szakember-választó pirulák (pl. „drónpilóta kiválasztása”): jól olvasható színek */
+html.th2 .op-cut,html.th2 .op-cutsel,html.th2 input.op-cutsel{background-color:#e8eef3!important;color:#1d2a38!important;border-color:transparent!important;font-weight:600}
+html.th2 .op-cut.none,html.th2 .op-cutsel.none,html.th2 input.op-cutsel.none{background-color:#fff4d9!important;color:#7a4f00!important;border:1px solid #f1d48a!important}
+html.th2 .op-cutsel.none::placeholder,html.th2 input.op-cutsel.none::placeholder{color:#7a4f00;opacity:1}
+html.th2 .op-cutsel::placeholder{color:#1d2a38;opacity:1}
+html.th2 .op-cutsel.add:not(.none){background-color:#fff!important;color:#1d2a38!important;border:1px dashed #c3ceda!important}
