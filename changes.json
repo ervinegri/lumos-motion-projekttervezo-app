@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0c3c2225b5",
+"at": "2026-11-04T22:59:22+01:00",
+"msg": "Új design: visszafogottabb betűsúlyok (a 750–900-as súlyok 600/700, félkövér 650)"
+},
+{
 "id": "59599435d4",
 "at": "2026-11-04T22:57:43+01:00",
 "msg": "Új design: kisebb tárgyhó a hónapválasztóban"
@@ -146,13 +151,8 @@
 "msg": "Csapat-véglegesítés: az eszközök változása nem számít csapatmódosításnak (külön eszközlista-küldés); a visszaállítás csak szerepeket és napokat érint"
 },
 {
-"id": "c460fc8db5",
-"at": "2026-11-04T20:44:25+01:00",
-"msg": "Lépések: a pipás lépéseknél csak a pipára kattintva lép tovább (a kártya nem kattintható)"
-},
-{
-"id": "f249aa4e5d",
-"at": "2026-11-04T19:42:13Z",
+"id": "aba4d10c59",
+"at": "2026-11-04T19:44:36Z",
 "msg": "Változásnapló frissítése"
 }
 ]
