@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9726689871",
+"at": "2026-11-04T21:16:48+01:00",
+"msg": "Kreatív kamera: minden további kamera új sorban, saját operatőrrel; naptár leírás: „Projektvezető:” és a kreatív kamera nem az előadásrögzítés alatt"
+},
+{
 "id": "c034534183",
 "at": "2026-11-04T21:13:25+01:00",
 "msg": "Naptár leírás: eszközök munkatársanként csoportosítva, az app linkje nélkül (egyszeri újraszinkron); eszközlista-betöltés animált jelzéssel"
@@ -149,11 +154,6 @@
 "id": "90b19f10a1",
 "at": "2026-11-04T17:09:28+01:00",
 "msg": "Havi naptár: egérrel húzva és oldalirányú görgetéssel is lapozható, a rács követi a mozdulatot"
-},
-{
-"id": "53d93cbc08",
-"at": "2026-11-04T16:55:49+01:00",
-"msg": "Ütközés: a remote projektvezető akkor sem ütközik, ha ugyanott (otthonról) vágó is"
 }
 ]
 }
