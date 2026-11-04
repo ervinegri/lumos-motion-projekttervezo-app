@@ -1543,7 +1543,11 @@ function calPlan_(p) {
   const etv = parseEditTasks_(p.editTasks), ownV = Object.keys(etv).filter(id => etv[id].indexOf('f_x_vago') >= 0), onsite = cid => ownV.length ? ownV.indexOf(cid) >= 0 : p.editOnsite === true;   // helyszíni vágó személyenként
   (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role === 'Vágó' && onsite(c.crewId) ? 'Helyszíni vágó' : c.role); });
   const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (cid === p.lead && crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));   // telefonszám csak a projektvezetőnél
-  const eqLines = (p.equipment || []).filter(e => invMap[e.itemId]).map(e => '☐ ' + e.qty + '× ' + invMap[e.itemId].name + (e.crewId && crewMap[e.crewId] ? ' – ' + crewMap[e.crewId].name : ''));
+  // eszközök munkatársanként: előbb a név, alatta az eszközei, a csoportok között üres sor
+  const eqBy = {}, eqOrder = [];
+  (p.equipment || []).filter(e => invMap[e.itemId]).forEach(e => { const k = e.crewId && crewMap[e.crewId] ? e.crewId : ''; if (!eqBy[k]) { eqBy[k] = []; eqOrder.push(k); } eqBy[k].push('☐ ' + e.qty + '× ' + invMap[e.itemId].name); });
+  const eqTxt = eqOrder.sort((a, b) => (a === '') - (b === '')).map(k => (k ? crewMap[k].name : 'Közös / még nincs kiosztva') + '\n' + eqBy[k].join('\n')).join('\n\n');
+  const eqLines = eqTxt ? [eqTxt] : [];
   const lines = [];
   if (p.status) lines.push('Állapot: ' + (STATUS_LABELS[p.status] || p.status));
   const rec = Object.keys(REC_LABELS).filter(k => p[k] === true).map(k => REC_LABELS[k] + (Number(p[k + '_n']) > 1 ? ' ×' + p[k + '_n'] : ''));
@@ -1566,7 +1570,7 @@ function calPlan_(p) {
   if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
   if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
   if (p.notes) lines.push('', 'JEGYZETEK', String(p.notes).slice(0, 1000));
-  lines.push('', 'Az appban: ' + FRONTEND_URL + '/#p=' + p.id, '(Ezt az eseményt a Projekttervező frissíti – a módosításokat az appban végezd.)');
+  // az app linkje nem kerül a leírásba: nem minden meghívottnak van hozzáférése
   const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
   const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);
   return { description: lines.join('\n'), guests: guests, crewEmails: crewEmails };
@@ -1619,8 +1623,8 @@ function calQuietPatch_(ev, body, fallback) {
 /** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
     A Naptár első megnyitásakor fut – időzítő nélkül, így biztosan lefut. A vendégek nem kapnak értesítést. */
 function calPhoneFixOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC4_2026_11')) return;   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
-  P.setProperty('MIG_CALDESC4_2026_11', now_());
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC5_2026_11')) return;   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
+  P.setProperty('MIG_CALDESC5_2026_11', now_());   // 2026-11-04 este: eszközök munkatársanként, app-link nélkül
   try { calResyncUpcoming(); } catch (e) { Logger.log('Újraszinkron hiba: ' + e); }
 }
 function setCalId_(id, evId) {
