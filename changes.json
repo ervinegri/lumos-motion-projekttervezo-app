@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4aefb834f8",
+"at": "2026-11-04T22:50:26+01:00",
+"msg": "Frissítés gomb helyett automatikus frissítés: 15 mp-enként olcsó verziófigyelés (dataVer)"
+},
+{
 "id": "89b000aa7b",
 "at": "2026-11-04T22:48:22+01:00",
 "msg": "Új design a weboldal színeiből: márka-átmenet, volfrám kiemelés, Montserrat"
@@ -146,13 +151,8 @@
 "msg": "Kamera- és objektívválasztó: a szenzorméret nem kerül a név után"
 },
 {
-"id": "5127c69d54",
-"at": "2026-11-04T20:19:39+01:00",
-"msg": "Stáb és Értékesítők: a „Következő beosztás” oszlop és kártyarész törölve"
-},
-{
-"id": "861b2206e9",
-"at": "2026-11-04T19:16:03Z",
+"id": "4185e5e04c",
+"at": "2026-11-04T19:19:50Z",
 "msg": "Változásnapló frissítése"
 }
 ]
