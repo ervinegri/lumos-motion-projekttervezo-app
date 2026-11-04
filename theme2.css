@@ -318,3 +318,6 @@ html.th2 .op-cutsel.add:not(.none){background-color:#fff!important;color:#1d2a38
 /* naptár / idővonal: a projekt (helyszíni nap) sávja ne tintakék-fekete legyen, hanem a weboldal pára-kékje */
 html.th2{--cal-p:#4f80a6}
 html.th2 .cal-chip.p{background:var(--cal-p)}
+/* kifizetések táblázat: az összegek jobban látszódjanak */
+html.th2 .pay-sheet td{font-weight:500}
+html.th2 .pay-sheet td.r,html.th2 .pay-sheet td.num,html.th2 .pay-sheet .tnum{font-weight:600;color:var(--fg)}
