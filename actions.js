@@ -19,8 +19,8 @@ function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'
 document.addEventListener('input',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform')){clearTimeout(mdSave._t);mdSave._t=setTimeout(mdSave,300);}});
 document.addEventListener('change',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform'))setTimeout(mdSave,0);});
 document.addEventListener('change',e=>{if(e.target.id==='m-endDate'&&e.target.value){const w=e.target.closest('.np-end');if(w&&w.hidden){w.hidden=false;const m=document.querySelector('.np-multi');if(m)m.hidden=true;}}});   // visszatöltött piszkozatnál is látsszon
-function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel='Mégse'}={}){
-  modalSubmit=submit||null;MD_KEY=submit?mdKey(title):'';
+function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel='Mégse',noDraft=false}={}){
+  modalSubmit=submit||null;MD_KEY=submit&&!noDraft?mdKey(title):'';if(noDraft)try{mdClear(mdKey(title));}catch(e){}   // noDraft: mindig üres űrlap (a félbehagyott nem töltődik vissza)
   $('modalRoot').innerHTML=`<div class="modal" data-action="modal-bg"><form class="mbox" id="mform" role="dialog" aria-modal="true" aria-label="${esc(title)}" novalidate>
     <div class="mhead"><h3>${esc(title)}</h3><button type="button" class="x" data-action="modal-close" aria-label="Bezárás">×</button></div>
     ${body}
@@ -374,7 +374,7 @@ function newProjectModal(day,pre){
     ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
     ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5})}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
-  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
+  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
     const {p,clientNew,g}=npBuild(fd);
     const fieldOf={client:clientNew?'client':'clientQ'};
