@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "999f227ddd",
+"at": "2026-11-04T20:57:07+01:00",
+"msg": "„Nyersanyag átadása” (a „Nyersanyag megvásárlása” helyett): az Utómunkában, beosztás nélkül"
+},
+{
 "id": "522c402885",
 "at": "2026-11-04T20:52:10+01:00",
 "msg": "Ajánlói jutalék: csak az ügyvezető látja, az Extrák és kedvezmények alatt"
@@ -149,11 +154,6 @@
 "id": "7402e5a5a4",
 "at": "2026-11-04T15:33:41+01:00",
 "msg": "Lehetőség: szóba jövő szolgáltatások többes választóval (a kártyán is látszik); az értékesítő-szűrő alapból Mindenki"
-},
-{
-"id": "1d2eef159a",
-"at": "2026-11-04T15:30:26+01:00",
-"msg": "Lehetőség jegyzetei: nem törölhetők, több bejegyzésnél görgethető lista"
 }
 ]
 }
