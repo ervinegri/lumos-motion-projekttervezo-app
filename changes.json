@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dfd55d77f7",
+"at": "2026-11-04T22:54:46+01:00",
+"msg": "Új design: kiegyensúlyozottabb címméretek (oldalcím, összegek, hónapválasztó)"
+},
+{
 "id": "8cb15d29b7",
 "at": "2026-11-04T22:53:05+01:00",
 "msg": "Új design: a menüpontok egy sorban maradnak"
@@ -146,13 +151,8 @@
 "msg": "Aki már nincs a helyszínen (remote, csak vágó, lekerült), annak az eszközei gazdátlanok lesznek; a termek eszközei az operatőrrel együtt mozognak; menüsor kicsit magasabb"
 },
 {
-"id": "9233fbf320",
-"at": "2026-11-04T20:24:54+01:00",
-"msg": "Alacsonyabb menüsor gépen"
-},
-{
-"id": "b8f85f86a8",
-"at": "2026-11-04T19:22:29Z",
+"id": "603671a8ad",
+"at": "2026-11-04T19:25:04Z",
 "msg": "Változásnapló frissítése"
 }
 ]
