@@ -643,9 +643,8 @@ function penPanel(p){
 /* Csapat véglegesítése doboz a stáb alatt */
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
 const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
-function refOption(p,inEx){if(!inEx&&isAdmin()&&!isFree(p))return '';   // az ügyvezetőnél az Extrák között (lent nem)
+function refOption(p,inEx){if(!isAdmin())return '';if(!inEx&&!isFree(p))return '';   // csak az ügyvezető látja: az Extrák és kedvezmények alatt (díjmentes projektnél lent)
   const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref'),on=refOn(p),dis=ro()||projLocked();
-  if(inEx&&!on)return '';
   const opts=(S.crew||[]).filter(c=>!refs.some(f=>f.refCrewId===c.id)).sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
   return `<div class="ref-opt${inEx?' in-ex':''}"><label class="toggle"><input type="checkbox" data-ref-toggle${on?' checked':''}${dis?' disabled':''}><span class="tl">🤝 Ajánlói jutalék szakembernek</span></label>
     ${on?`<div class="ref-list">${refs.map(f=>`<span class="ref-chip">🤝 ${esc((crewById(f.refCrewId)||{}).name||(S.crewNames||{})[f.refCrewId]||f.name)}${num(f.amount)?' · '+ftFmt(num(f.amount)):' · <span class="warn-txt">összeg?</span>'}${dis?'':`<button class="x w" type="button" data-action="ref-del" data-id="${esc(f.refCrewId)}" aria-label="Törlés">×</button>`}</span>`).join('')}
