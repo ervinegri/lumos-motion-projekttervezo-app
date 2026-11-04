@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1018c5e87a",
+"at": "2026-11-04T11:22:30+01:00",
+"msg": "Idővonal: három hónap egymás után, egérrel oldalra húzható; a sarokban a látható hónap"
+},
+{
 "id": "a69a02bb88",
 "at": "2026-11-04T11:17:31+01:00",
 "msg": "Naptár: új hónapválasztó (előző · aktuális · következő); idővonalon egérrel húzható projekt és vágási határidő"
@@ -189,11 +194,6 @@
 "id": "f4821c6d08",
 "at": "2026-11-04T10:08:05+02:00",
 "msg": "Szép, kereshető legördülő a beosztásoknál, vágóknál, ajánlói jutaléknál és az Extrák menüben"
-},
-{
-"id": "4ccb31de6d",
-"at": "2026-11-04T10:05:51+02:00",
-"msg": "Javítás: megjegyzés lezárása"
 }
 ]
 }
