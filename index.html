@@ -967,6 +967,10 @@ a.tab,a.subtab{text-decoration:none;font-family:inherit;display:inline-flex;alig
 .ptbar{position:fixed;left:0;right:0;top:var(--tbh,58px);z-index:19;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);box-shadow:0 8px 18px -14px rgba(15,23,42,.35);transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
 .ptbar.on{opacity:1;transform:none;pointer-events:auto}.ptbar-in{max-width:1500px;margin:auto;padding:8px clamp(16px,3vw,44px);display:flex;align-items:baseline;gap:12px;min-width:0}
 .ptbar b{font-size:18px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.ptbar span{color:var(--fg-2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+/* a már kipipált (inaktív) lépés pipája hoverre nem mozdul */
+span.stage-tick:hover,span.stage-tick.on:hover{transform:translateY(-50%);cursor:default;border-style:solid}
+span.stage-tick:hover::after{opacity:0}
 </style>
 </head>
 <body>
