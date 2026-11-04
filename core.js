@@ -117,7 +117,8 @@ function fieldOwners(p,k){const et=editTasksOf(p),on=new Set([p.lead].concat((p.
 function taskKeysOf(p,cid){const et0=editTasksOf(p),et={};Object.keys(et0).forEach(id=>{if(Array.isArray(et0[id])&&postKeysOf(et0[id]).length)et[id]=postKeysOf(et0[id]);});const cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
   if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).filter(t=>t.k!=='foto_db').map(t=>t.k):[];   // a fotók utómunkája sosem a vágóé
   const before=cut.slice(0,cut.indexOf(cid));   // egy videót csak egy vágó vághat: ha (régi adatban) többnél is szerepel, az elsőé
-  return (et[cid]||[]).filter(k=>!before.some(o=>(et[o]||[]).includes(k)));}
+  const fo=(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Fotós');   // fotók utómunkája csak fotósé
+  return (et[cid]||[]).filter(k=>(k!=='foto_db'||fo)&&!before.some(o=>(et[o]||[]).includes(k)));}
 function taskOwners(p,k){return cutterIds(p).filter(id=>taskKeysOf(p,id).includes(k));}
 const TECH=[
   {k:'t_vizual',label:'Vizuáltechnika',role:'Vizuáltechnikus'},
