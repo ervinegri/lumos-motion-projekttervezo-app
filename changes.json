@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1853d6f63d",
+"at": "2026-11-04T15:25:06+01:00",
+"msg": "Új lehetőség: az ügyfél a HubSpot cégei közül is választható; a régi, dátum nélküli jegyzet a lehetőség felvételének dátumát kapja"
+},
+{
 "id": "ead97a29b2",
 "at": "2026-11-04T15:21:04+01:00",
 "msg": "Értékesítés: a lehetőség jegyzetei dátum és szerző szerint, a legújabb felül (új jegyzet mező + lista, törölhető)"
@@ -154,11 +159,6 @@
 "id": "2b9f78ae35",
 "at": "2026-11-04T10:38:57+01:00",
 "msg": "Naptár buborék: a teljes stáb névvel és feladatokkal (projektvezető, szerepek)"
-},
-{
-"id": "56659d459a",
-"at": "2026-11-04T10:34:08+01:00",
-"msg": "Naptár, vágó szakember: a projektek zölden a saját napjaikon; a vágói leadási határidő külön, lila bejegyzésként"
 }
 ]
 }
