@@ -36,7 +36,7 @@ $('logoutBtn').addEventListener('click',()=>guard(async()=>{
   S.me=null;S.loaded=false;S.projects=[];S.crew=[];S.inventory=[];S.users=null;S.log=null;S.projectId=null;S.draft=null;
   renderChrome();VIEW.innerHTML='';showLogin('Kiléptél.');
 }));
-$('refreshBtn').addEventListener('click',()=>{calForceFresh();load(false,true);});
+
 
 /* ===== Betöltés ===== */
 /* Gyors indulás: az utolsó betöltött adatot a böngésző megjegyzi, és frissítéskor azonnal megmutatja,
@@ -81,7 +81,13 @@ async function load(quiet,announce,pre){
   }catch(e){if(!handleErr(e)&&!S.loaded)VIEW.innerHTML=`<div class="panel">${empty('Nem sikerült betölteni az adatokat: '+esc(errText(e)))}<div class="btns"><button class="btn primary" type="button" data-action="reload">Újrapróbálás</button></div></div>`;}
   finally{if(seq===S.loadSeq)S.loading=false;}
 }
-setInterval(()=>{if(S.loaded&&!S.dirty&&!S.saving&&document.visibilityState==='visible'&&!$('modalRoot').innerHTML&&Date.now()-S.lastLoad>90000)load(true);},15000);
+/* Automatikus frissítés (nincs „Frissítés” gomb): 15 mp-enként egy olcsó verziókérdés; ha valaki közben módosított, csendben újratöltünk.
+   Gépelés, nyitott ablak vagy mentetlen módosítás közben várunk. */
+const idleOk=()=>{const a=document.activeElement;return S.loaded&&!S.dirty&&!S.saving&&!S.loading&&document.visibilityState==='visible'&&!$('modalRoot').innerHTML&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox');};
+let VER_BUSY=false;
+setInterval(async()=>{if(!TOKEN||VER_BUSY||!idleOk())return;VER_BUSY=true;
+  try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&idleOk()){S.dataVer=v;if(S.tab==='naptar')calForceFresh();load(true);}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
+setInterval(()=>{if(idleOk()&&Date.now()-S.lastLoad>300000)load(true);},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
 window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
 
@@ -119,7 +125,7 @@ function renderChrome(){if(S.dirty&&S.saving<=0&&!draftChanged())S.dirty=false;
   const on=!!S.me;
   {let sp=$('savingPill');if(!sp){sp=document.createElement('div');sp.id='savingPill';sp.className='saving-pill';sp.setAttribute('role','status');document.body.appendChild(sp);}
     const busy=on&&S.saving>0;sp.classList.toggle('on',busy);if(busy&&!S._saveT0)S._saveT0=Date.now();if(!busy)S._saveT0=0;const sec=busy?Math.round((Date.now()-S._saveT0)/1000):0;sp.textContent=busy?'⏳ Mentés folyamatban…'+(sec>=6?' ('+sec+' mp – a szerver lassan válaszol)':''):'';if(busy){clearTimeout(S._spT);S._spT=setTimeout(()=>{try{renderChrome();}catch(e){}},1000);}}   // látszik, amíg a háttérben ment
-  ['userChip','refreshBtn','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
+  ['userChip','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
   const realAdmin=on&&(S.me.role==='admin'||S.me.realRole==='admin'),va=on&&S.me.viewAs;
   $('viewAs').classList.toggle('hidden',!realAdmin);$('viewAs').classList.toggle('on',!!va);
   if(realAdmin){const sel=$('viewAs');sel.value=va?va.role:'admin';const co=sel.querySelector('option[value=crew]');const inCrew=!!(va&&va.role==='crew');co.textContent=inCrew?'🔨 Szakember: '+(va.crewName||''):'🔨 Szakember';const oo=sel.querySelector('option[value=crew-other]');if(oo){oo.hidden=!inCrew;oo.disabled=!inCrew;}const so=sel.querySelector('option[value=sales]'),inSales=!!(va&&va.role==='sales'&&va.userId);if(so)so.textContent=inSales?'🤝 Értékesítő: '+(va.crewName||''):'🤝 Értékesítő';const os=sel.querySelector('option[value=sales-other]');if(os){os.hidden=!inSales;os.disabled=!inSales;}}
