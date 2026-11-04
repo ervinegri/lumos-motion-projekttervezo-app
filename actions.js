@@ -976,7 +976,9 @@ function verifySavedFees(d,saved){
   }
 }
 /* Kézi mentés (Mentés gomb, Ctrl+S): előbb a kötelező alapadatok. Az automatikus díjmentést ez nem akadályozza. */
-function saveChecked(){flushSave();}
+/* Mentés előtt a éppen szerkesztett mező (amit még nem hagytál el) is bekerül: a blur kiváltja a változás-eseményt */
+function commitActive(){const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&!ae.classList.contains('cmb-in'))ae.blur();}
+function saveChecked(){commitActive();flushSave();}
 /* Kötelező alapadatok: a hiányzó mezőkre ugrik és szól (a helyszíni munkára lépés előtt kötelező). */
 function reqBlock(){
   const d=S.draft;if(!d||ro())return false;const miss=missingReq(d);if(!miss.length)return false;
@@ -1437,7 +1439,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
     if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}
   else if((e.ctrlKey||e.metaKey)&&!e.altKey&&!(S.draft&&S.projectId&&S.tab==='projektek')&&!$('modalRoot').innerHTML&&!(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))&&!ro()){const k=e.key.toLowerCase();
     if(k==='z'&&!e.shiftKey){e.preventDefault();opStep(-1);return;}
-    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
+    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();commitActive();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
 
 /* ===== Indítás ===== */
 if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}
