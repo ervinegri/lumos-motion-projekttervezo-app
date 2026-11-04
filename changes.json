@@ -1,6 +1,16 @@
 {
 "items": [
 {
+"id": "72ec9ad9d9",
+"at": "2026-11-04T10:53:59+01:00",
+"msg": "Egy kameraszöghöz egy kamera; a Google Naptár stáblistájában a helyszíni vágó külön jelölve"
+},
+{
+"id": "805ed93e93",
+"at": "2026-11-04T10:45:55+01:00",
+"msg": "Naptár: új Idővonal nézet – soronként a projektek, oszloponként a napok, piros függőleges vonal a mai napon"
+},
+{
 "id": "d242a42220",
 "at": "2026-11-04T10:42:34+01:00",
 "msg": "Naptár buborék: a helyszíni vágót így jelöli"
@@ -189,16 +199,6 @@
 "id": "426ed28efb",
 "at": "2026-11-04T09:53:45+02:00",
 "msg": "Előadásrögzítés: alapból egy terem, a további az Új terem gombbal; üres pót-terem nem marad"
-},
-{
-"id": "b4952490f1",
-"at": "2026-11-04T09:48:34+02:00",
-"msg": "Fülek valódi linkként (jobb klikk → új lap); szolgáltatásoknál egy választó = egy ember; fotós kiválasztásakor a fotók utómunkája is az övé"
-},
-{
-"id": "1bb9a51d64",
-"at": "2026-11-04T09:44:29+02:00",
-"msg": "Előadásrögzítés termenként: terem neve, kamerái és operatőrei termenként; új terem hozzáadása"
 }
 ]
 }
