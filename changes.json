@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9233fbf320",
+"at": "2026-11-04T20:24:54+01:00",
+"msg": "Alacsonyabb menüsor gépen"
+},
+{
 "id": "6cc9c3867b",
 "at": "2026-11-04T20:22:21+01:00",
 "msg": "Kamera- és objektívválasztó: a szenzorméret nem kerül a név után"
@@ -149,11 +154,6 @@
 "id": "3040603516",
 "at": "2026-11-04T15:17:42+01:00",
 "msg": "Értékesítés, új lehetőség: az ügyfélmezőben csak a beírt szövegre illeszkedő ügyfelek jönnek fel"
-},
-{
-"id": "460c96d373",
-"at": "2026-11-04T14:49:19+01:00",
-"msg": "Új legördülő: értékesítő-választó, deal tulajdonosa, terem kamerája és objektívje; szabály a CLAUDE.md-ben"
 }
 ]
 }
