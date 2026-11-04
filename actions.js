@@ -1827,6 +1827,13 @@ document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.datase
 
 /* Naptár: projektek és Google-bejegyzések áthúzása másik napra (mint a Google Naptárban) */
 let CAL_DRAG=null;
+/* Idővonal húzása egérrel (oldalra görgetés); a sávok áthúzása és a kattintás megmarad */
+(()=>{let w=null,x0=0,s0=0,moved=false;
+  document.addEventListener('mousedown',e=>{if(e.button!==0)return;const ww=e.target.closest&&e.target.closest('.tl-wrap');if(!ww||e.target.closest('[draggable=true]'))return;w=ww;x0=e.clientX;s0=w.scrollLeft;moved=false;});
+  document.addEventListener('mousemove',e=>{if(!w)return;const dx=e.clientX-x0;if(!moved&&Math.abs(dx)<5)return;if(!moved){moved=true;w.classList.add('panning');const t=$('calTip');if(t)t.remove();}w.scrollLeft=s0-dx;e.preventDefault();});
+  document.addEventListener('mouseup',()=>{if(!w)return;w.classList.remove('panning');if(moved){const m=S.cal.month;S.cal.tlPos={m,x:w.scrollLeft};}w=null;});
+  document.addEventListener('click',e=>{if(moved&&e.target.closest&&e.target.closest('.tl-wrap')){e.stopPropagation();e.preventDefault();moved=false;}},true);   // húzás után ne nyíljon meg a projekt
+  document.addEventListener('scroll',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('tl-wrap')){S.cal.tlPos={m:S.cal.month,x:t.scrollLeft};tlCorner(t);}},true);})();
 /* Idővonal: melyik napra mutat az egér (oszlop a sávon belül) */
 function tlDay(e){const t=e.target.closest&&e.target.closest('.tl-track[data-first]');if(!t)return '';const r=t.getBoundingClientRect(),n=Number(t.dataset.n)||30;
   const i=Math.max(0,Math.min(n-1,Math.floor((e.clientX-r.left)/(r.width/n))));return addDays(t.dataset.first,i);}
