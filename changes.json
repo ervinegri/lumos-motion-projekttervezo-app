@@ -1,6 +1,21 @@
 {
 "items": [
 {
+"id": "2fc5faeb5c",
+"at": "2026-11-04T11:40:06+01:00",
+"msg": "Idővonal: a sávon a végzés ideje; a forgatás vége színátmenettel olvad a vágási sávba"
+},
+{
+"id": "74d1759aad",
+"at": "2026-11-04T11:36:32+01:00",
+"msg": "Idővonal: a sávon az érkezés és a távozás ideje is (pl. 7:30–18)"
+},
+{
+"id": "fb1d3b3995",
+"at": "2026-11-04T11:35:20+01:00",
+"msg": "Idővonal: nagyobb hónapnevek a fejlécben"
+},
+{
 "id": "f114d581e2",
 "at": "2026-11-04T11:34:07+01:00",
 "msg": "Idővonal: oldalra húzásnál nem lép vissza/előre a böngésző; a hónap gombjára kattintva a hónap 1. napjára ugrik"
@@ -169,26 +184,6 @@
 "id": "bf8e679086",
 "at": "2026-11-04T10:18:17+02:00",
 "msg": "Fotók utómunkája csak fotózásnál látszik; a fotózás kikapcsolása nullázza"
-},
-{
-"id": "a3f8a41594",
-"at": "2026-11-04T10:16:53+02:00",
-"msg": "Gyorsbillentyű felirata Macen ⌘S / ⌘Z"
-},
-{
-"id": "ff7a34412d",
-"at": "2026-11-04T10:16:34+02:00",
-"msg": "Szolgáltatások: egyforma sormagasság, a számláló megjelenése nem tolja el a sorokat"
-},
-{
-"id": "52c648faff",
-"at": "2026-11-04T10:14:39+02:00",
-"msg": "Kereshető legördülő: oldalgörgetéskor a lista görgetése megmarad"
-},
-{
-"id": "dfc82b3013",
-"at": "2026-11-04T10:13:48+02:00",
-"msg": "Mentés (⌘S / gomb): az épp szerkesztett mező értéke is bekerül, utána nem marad mentetlen"
 }
 ]
 }
