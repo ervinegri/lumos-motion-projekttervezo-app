@@ -52,3 +52,9 @@ html.th2 .pcrew.eq-drop-hi{outline-color:var(--brand-orange);background:#fff8ef}
 html.th2 :focus-visible{outline-color:var(--brand-orange)}
 .theme-toggle{white-space:nowrap}
 html.th2 .theme-toggle{color:var(--tungsten)!important;border-color:#f1bf5e66!important}
+/* a Montserrat szélesebb: a menüpontok ne törjenek két sorba (különben „elugrik” a menü) */
+@media (min-width:761px){
+  html.th2 .topbar-inner>.tabs{flex-wrap:nowrap;align-items:center;overflow-x:auto;scrollbar-width:none}
+  html.th2 .topbar-inner>.tabs::-webkit-scrollbar{display:none}
+  html.th2 .tab{padding:7px 12px;font-size:13.5px;flex:none}
+}
