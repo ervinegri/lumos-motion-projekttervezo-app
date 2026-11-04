@@ -1067,6 +1067,7 @@ const ACT={
   reload:()=>load(),
   pf:b=>{S.pf.status=b.dataset.v;render(true);},
   'crew-prio':b=>{S.cf.prio=b.dataset.v;render(true);},
+  'cal-mode':b=>{S.cal.mode=b.dataset.v;try{localStorage.setItem('lpm_cal_mode',S.cal.mode);}catch(e){}render(true);},
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
   'np-draft':b=>npDraft(b),

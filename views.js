@@ -1079,6 +1079,27 @@ function calChip(it,day){
   const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
   return `<button type="button" class="${cls}"${drag?` draggable="true" data-drag-day="${day}"`:''} data-action="${it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
+/* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
+function calTimeline(m,items,T){
+  const first=m+'-01',last=addDays(shiftMonth(m,1)+'-01',-1),N=Number(last.slice(8)),days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
+  const rows=items.filter(it=>it.endDate>=first&&it.date<=last);
+  const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
+  const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
+  const bg=days.map(d=>`<i class="${wk(d)?'we':''}"></i>`).join('');
+  const body=rows.map(it=>{const a=it.date<first?first:it.date,b=it.endDate>last?last:it.endDate,c0=Number(a.slice(8)),c1=Number(b.slice(8));
+    const p=it.kind==='p'?projById(it.id):null,sub=p?[p.client,p.venue].filter(Boolean).join(' · '):(it.venue||'');
+    const dim=p&&crewDim(p),live=p&&calLive(p);
+    const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
+    const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
+    return `<div class="tl-row"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
+      <div class="tl-track" style="--n:${N}"><div class="tl-bg">${bg}</div><button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1}" data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button></div></div>`;}).join('');
+  const ti=T.slice(0,7)===m?Number(T.slice(8)):0;
+  if(ti)setTimeout(()=>{const w=document.querySelector('.tl-wrap'),n=w&&w.querySelector('.tl-now');if(w&&n&&w.scrollWidth>w.clientWidth&&!w._sc){w._sc=1;w.scrollLeft=Math.max(0,n.offsetLeft-w.clientWidth/2);}},0);   // telefonon a mai naphoz görget
+  return `<div class="tl-wrap"><div class="tl" style="--n:${N}">
+    <div class="tl-row tl-head"><div class="tl-lbl tl-corner">${rows.length} tétel</div><div class="tl-track">${head}</div></div>
+    ${body||`<div class="tl-empty">${empty('Ebben a hónapban nincs esemény.')}</div>`}
+    ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
+}
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();
   prefetchCal(m);
@@ -1091,12 +1112,12 @@ function viewCalendar(){
     return `<div class="ag-day${d===T?' today':''}"><div class="ag-date">${esc(F_FULL.format(toDate(d)).replace(/^\d{4}\. /,''))}</div>${its.map(it=>calChip(it,d)).join('')}</div>`;}).join('');
   const nP=items.filter(i=>i.kind==='p'&&i.date.slice(0,7)<=m&&i.endDate.slice(0,7)>=m).length,nG=items.filter(i=>i.kind==='g'&&i.date.slice(0,7)<=m&&i.endDate.slice(0,7)>=m).length;
   return `<div class="page-head"><div class="grow"><h2 style="text-transform:capitalize">${esc(F_MONTH.format(toDate(r.first)))}</h2><p class="sub">${ro()?`${nP} beosztásod ebben a hónapban`:`${nP} projekt · ${nG} további esemény a „Terepi Munkák” naptárból${loading?' · betöltés…':''}`}</p></div>
-      <div class="btns">${ro()?'':'<button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>'}<button class="btn outline small" type="button" data-action="cal-nav" data-d="-1" aria-label="Előző hónap">‹</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="0">Ma</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="1" aria-label="Következő hónap">›</button>
+      <div class="btns">${ro()?'':'<button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>'}<div class="seg" role="group" aria-label="Nézet"><button type="button" data-action="cal-mode" data-v="honap" aria-pressed="${S.cal.mode!=='ido'}">▦ Havi</button><button type="button" data-action="cal-mode" data-v="ido" aria-pressed="${S.cal.mode==='ido'}">☰ Idővonal</button></div><button class="btn outline small" type="button" data-action="cal-nav" data-d="-1" aria-label="Előző hónap">‹</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="0">Ma</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="1" aria-label="Következő hónap">›</button>
       ${ro()?'':`<a class="btn ghost small" href="https://calendar.google.com/calendar/u/0/r/month/${r.first.replace(/-/g,'/')}" target="_blank" rel="noopener">Google Naptár ↗</a>`}</div></div>
     ${err?`<div class="banner"><p>A Google Naptár most nem érhető el: ${esc(err)}</p><button class="btn outline small" type="button" data-action="cal-retry">Újra</button></div>`:''}
     ${ro()?(crewIsCutter()?`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói munkák</label><span class="muted">Vágói munkák: a projekt utáni naptól a leadási határidőig, azoknál a projekteknél, ahol vágó vagy</span></div>`:''):`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói naptár</label>${S.cal.err['v:'+m]&&S.cal.show.vagoi?`<span class="bad-txt">A Vágói naptár most nem érhető el: ${esc(S.cal.err['v:'+m])}</span>`:''}<span class="muted"><i class="lg g"></i>Csak a Google Naptárban – kattints rá, és projektet csinálhatsz belőle</span></div>`}
-    <div class="cal-wrap"><div class="cal-grid">${WD_SHORT.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${grid}</div></div>
-    <div class="cal-agenda">${agenda||empty('Ebben a hónapban nincs esemény.')}</div>`;
+    ${S.cal.mode==='ido'?calTimeline(m,items,T):`<div class="cal-wrap"><div class="cal-grid">${WD_SHORT.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${grid}</div></div>
+    <div class="cal-agenda">${agenda||empty('Ebben a hónapban nincs esemény.')}</div>`}`;
 }
 
 /* ===== Leltár ===== */

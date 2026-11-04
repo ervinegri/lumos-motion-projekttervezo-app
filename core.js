@@ -141,7 +141,7 @@ const S={me:null,projects:[],crew:[],inventory:[],links:{},loaded:false,loading:
   tab:'projektek',projectId:null,draft:null,dirty:false,saving:false,
   pf:{status:'mind',q:''},cf:{q:'',role:'',prio:'',view:(()=>{try{return localStorage.getItem('lumos_pm_crewview')||'cards';}catch(e){return 'cards';}})()},inf:{q:'',cat:'',cond:''},clf:{q:''},clients:[],
   addCrew:{person:'',role:''},addEq:{item:'',qty:1},users:null,log:null,lastLoad:0,
-  cal:{month:todayISO().slice(0,7),events:{},ev2:{},loading:{},err:{},show:(()=>{try{return Object.assign({terepi:true,vagoi:true},JSON.parse(localStorage.getItem('lpm_cal_show')||'{}'));}catch(e){return {terepi:true,vagoi:true};}})()}};
+  cal:{month:todayISO().slice(0,7),mode:(()=>{try{return localStorage.getItem('lpm_cal_mode')||'honap';}catch(e){return 'honap';}})(),events:{},ev2:{},loading:{},err:{},show:(()=>{try{return Object.assign({terepi:true,vagoi:true},JSON.parse(localStorage.getItem('lpm_cal_show')||'{}'));}catch(e){return {terepi:true,vagoi:true};}})()}};
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_KEY)||'';}catch(e){}
 
