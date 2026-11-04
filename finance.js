@@ -92,7 +92,7 @@ async function finExpDedupe(){if(S._expDedupe||!S.fin||!S.fin.expense)return;con
   finLocal('expense',upd);del.forEach(id=>finLocal('expense',[{id}],true));render(true);
   try{if(upd.length)finApply(await call('finUpsert',{table:'expense',rows:upd}));for(const id of del)finApply(await call('finDelete',{table:'expense',id}));
     if(typeof opRec==='function')opRec(`duplikált kiadások törlése (${del.length})`,()=>finRestore('expense',ids,before),()=>finRestore('expense',ids,ids.map(id=>{const u=upd.find(x=>x.id===id);return u?clone(u):null;})));
-    toast(`${del.length} duplikált kiadás törölve (az ismétlődő tétel megmaradt) – Ctrl+Z visszahozza`);}
+    toast(`${del.length} duplikált kiadás törölve (az ismétlődő tétel megmaradt) – ${KBD_UNDO} visszahozza`);}
   catch(e){handleErr(e);finLoad(true);}finally{S._expDedupe=false;render(true);}}
 /* Saját marketing projekt (nincs ügyfélbevétel): a termelési költsége a marketing alapból megy, a Marketing költség táblában */
 const isMktProj=pid=>typeof billOf==='function'&&billOf(pid).mktProject==='1';
