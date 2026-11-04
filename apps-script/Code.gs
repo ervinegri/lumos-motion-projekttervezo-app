@@ -1846,6 +1846,14 @@ function hubspotContactsApi_(arg) {
   return out.slice(0, 30);
 }
 
+/* HubSpot cégek keresése (új lehetőség ügyfele): név, domain, város */
+function hubspotCompaniesApi_(arg) {
+  const q = str_(arg && arg.q, 100).trim();
+  if (q.length < 2) return [];
+  const res = (hubspot_('post', '/crm/v3/objects/companies/search', { query: q, properties: ['name', 'domain', 'city', 'address', 'zip', 'phone'], limit: 10 }).results) || [];
+  return res.map(c => { const p = c.properties || {}; return { id: c.id, name: String(p.name || '').trim(), domain: p.domain || '', city: p.city || '', address: [p.zip, p.city, p.address].filter(Boolean).join(' '), phone: p.phone || '' }; }).filter(x => x.name);
+}
+
 function lookupTaxpayerApi_(arg) {
   const digits = String(arg && arg.tax || '').replace(/\D/g, '');
   if (digits.length < 8) throw new Error('Az adószám első 8 számjegye szükséges.');
@@ -4040,6 +4048,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
+    case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotContacts': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactsApi_(arg);   // az értékesítő a lehetőségekhez keres kapcsolattartót
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
     case 'saveCrew': canEdit(); return saveCrew_(u, arg);

@@ -70,13 +70,13 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés</label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
-      <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><div class="dnotes" id="m-dNotes">${dNotesHtml(d.note)}</div></div>
+      <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
     ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(d.ownerId||S.salesF.owner||(S.me&&S.me.id))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>${['uj','ajanlat'].includes(d.stage)?'':`<button type="button" class="btn primary small dl-winbtn" data-action="deal-win" data-id="${esc(d.id)}">✅ Szerződve</button>`}`:'',submitLabel:'Mentés',submit:async fd=>{
     const nd=Object.assign({},d0||{},{id:d.id||'',title:String(fd.get('dTitle')||'').trim(),client:String(fd.get('dClient')||'').trim(),eventType:fd.get('dType')||'',contactName:String(fd.get('dCName')||'').trim(),contactEmail:String(fd.get('dCEmail')||'').trim(),contactPhone:String(fd.get('dCPhone')||'').trim(),
-      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:dNoteAdd(String(fd.get('dNote')||''),String(fd.get('dNoteNew')||''))});
+      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:dNoteAdd(dNoteFix(String(fd.get('dNote')||''),dNoteFb(d),d.ownerName),String(fd.get('dNoteNew')||''))});
     if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
     if(nd.title.length<2){toast('Add meg a lehetőség nevét.',true);$('m-dTitle').focus();return;}
@@ -143,12 +143,17 @@ document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(
 document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.owner=e.target.value;render(true);}});
 
 /* Lehetőség ügyfele: csak a beírt szövegre illeszkedő ügyfelek jönnek fel (a böngésző saját, pontatlan listája helyett) */
-let DC_ITEMS=[];
-function dcSearch(input){const q=input.value.trim();if(!q){DC_ITEMS=[];pickClose();return;}const fq=fold(q);
-  DC_ITEMS=knownClients(q).sort((a,b)=>(fold(a.company).startsWith(fq)?0:1)-(fold(b.company).startsWith(fq)?0:1)).slice(0,8);
-  if(!DC_ITEMS.length||(DC_ITEMS.length===1&&fold(DC_ITEMS[0].company)===fq)){pickClose();return;}
-  pickShow(input,DC_ITEMS.map((it,i)=>`<div class="hs-row"><button type="button" class="hs-item dc-item" data-dc="${i}"><b>${esc(it.company)}</b>${it.name?`<small>${esc(it.name)}</small>`:''}</button></div>`).join(''));}
-function dcPick(i){const v=DC_ITEMS[i],inp=$('m-dClient');pickClose();if(v&&inp){inp.value=v.company;inp.dispatchEvent(new Event('change',{bubbles:true}));}}
+let DC_ITEMS=[],DC_SEQ=0,DC_T=0;
+function dcRender(input,q,hs,loading){const fq=fold(q),loc=knownClients(q).sort((a,b)=>(fold(a.company).startsWith(fq)?0:1)-(fold(b.company).startsWith(fq)?0:1)).slice(0,6).map(c=>({company:c.company,sub:c.name||'',src:'app'}));
+  const have=new Set(loc.map(x=>fold(x.company)));
+  const fromHs=(hs||[]).filter(c=>!have.has(fold(c.name))).map(c=>({company:c.name,sub:[c.domain,c.city].filter(Boolean).join(' · '),src:'hs',address:c.address}));
+  DC_ITEMS=loc.concat(fromHs).slice(0,12);
+  if(!DC_ITEMS.length&&!loading){pickShow(input,'<div class="hs-empty">Nincs ilyen cég az appban és a HubSpotban – a beírt név marad.</div>');return;}
+  pickShow(input,DC_ITEMS.map((it,i)=>`<div class="hs-row"><button type="button" class="hs-item dc-item" data-dc="${i}"><b>${esc(it.company)}${it.src==='hs'?' <span class="hs-tag">HubSpot</span>':''}</b>${it.sub?`<small>${esc(it.sub)}</small>`:''}</button></div>`).join('')+(loading?searchingHtml('Keresés a HubSpotban'):''));}
+function dcSearch(input){const q=input.value.trim();clearTimeout(DC_T);if(q.length<2){DC_ITEMS=[];pickClose();return;}
+  dcRender(input,q,null,true);const my=++DC_SEQ;   // az app ügyfelei azonnal, a HubSpot cégei kis késéssel
+  DC_T=setTimeout(async()=>{let hs=[];try{hs=await call('hubspotCompanies',{q})||[];}catch(e){}if(my!==DC_SEQ||document.activeElement!==input)return;dcRender(input,q,hs,false);},300);}
+function dcPick(i){const v=DC_ITEMS[i],inp=$('m-dClient');pickClose();if(v&&inp){inp.value=v.company;inp.dispatchEvent(new Event('change',{bubbles:true}));const c=$('m-dCName');if(c&&!c.value)setTimeout(()=>c.focus(),30);}}   // ezután a kapcsolattartó mező a cég HubSpot-kapcsolattartóit ajánlja
 document.addEventListener('input',e=>{if(e.target.id==='m-dClient')dcSearch(e.target);});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dc-item');if(!it)return;e.preventDefault();e.stopPropagation();dcPick(Number(it.dataset.dc));},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dClient')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.dc-item'))pickClose();},150);});
@@ -165,6 +170,9 @@ function dNotesParse(t){t=String(t||'').trim();if(!t)return [];const out=[];let 
 const dNotesJoin=L=>L.map(x=>`[${x.at||'Korábbi'}${x.by?' · '+x.by:''}] `+x.text).join('\n');
 function dNoteAdd(old,nw){nw=String(nw||'').trim();if(!nw)return String(old||'').trim();const d=new Date(),p=n=>String(n).padStart(2,'0');
   const at=`${todayISO()} ${p(d.getHours())}:${p(d.getMinutes())}`;return dNotesJoin([{at,by:(S.me&&S.me.name)||'',text:nw}].concat(dNotesParse(old)));}
+/* A régi, dátum nélküli jegyzet a lehetőség felvételének (ennek híján utolsó módosításának) idejét kapja */
+const dNoteFb=d=>{const t=String((d&&(d.createdAt||d.updatedAt))||'').replace('T',' ');return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(t)?t.slice(0,16):/^\d{4}-\d{2}-\d{2}/.test(t)?t.slice(0,10)+' 00:00':'';};
+function dNoteFix(t,fb,by){if(!fb)return String(t||'');const L=dNotesParse(t);if(!L.some(x=>!x.at))return String(t||'');L.forEach(x=>{if(!x.at){x.at=fb;x.by=x.by||by||'';}});return dNotesJoin(L);}
 function dNotesHtml(t){const L=dNotesParse(t);if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
-  return L.map((x,i)=>`<div class="dn-item"><div class="dn-h"><span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+' '+x.at.slice(11)):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}<button type="button" class="x dn-del" data-action="dnote-del" data-i="${i}" title="Jegyzet törlése" aria-label="Jegyzet törlése">✕</button></div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
-ACT['dnote-del']=b=>{const h=$('m-dNote'),box=$('m-dNotes');if(!h||!box)return;const L=dNotesParse(h.value);L.splice(Number(b.dataset.i),1);h.value=dNotesJoin(L);box.innerHTML=dNotesHtml(h.value);};   // mentéskor törlődik
+  return L.map((x,i)=>`<div class="dn-item"><div class="dn-h"><span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}<button type="button" class="x dn-del" data-action="dnote-del" data-i="${i}" title="Jegyzet törlése" aria-label="Jegyzet törlése">✕</button></div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+ACT['dnote-del']=b=>{const h=$('m-dNote'),box=$('m-dNotes');if(!h||!box)return;const L=dNotesParse(dNoteFix(h.value,box.dataset.fb,box.dataset.by));L.splice(Number(b.dataset.i),1);h.value=dNotesJoin(L);box.innerHTML=dNotesHtml(h.value);};   // mentéskor törlődik
