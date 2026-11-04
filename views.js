@@ -1085,7 +1085,8 @@ function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=
   const d=addDays(b.dataset.first,Math.min(n-1,Math.max(0,Math.round(w.scrollLeft/cw)+3)));const t=d.slice(0,4)+'. '+F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();if(b.textContent!==t)b.textContent=t;
   /* csak azok a sorok látszanak, amelyeknek a sávja a látható időszakba esik – így nincs üres sor */
   const v0=Math.floor(w.scrollLeft/cw)+1,v1=Math.ceil((w.scrollLeft+w.clientWidth-lw)/cw);let k=0;
-  w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;if(r.hidden===on)r.hidden=!on;});
+  w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;r.classList.toggle('tl-out',!on);r.toggleAttribute('aria-hidden',!on);});   // animáltan tűnik el / jön vissza
+  const tl0=w.querySelector('.tl.tl-noanim');if(tl0)requestAnimationFrame(()=>requestAnimationFrame(()=>tl0.classList.remove('tl-noanim')));   // első rajzoláskor nincs animáció
   const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';
 const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
@@ -1127,7 +1128,7 @@ function calTimeline(m,items0,T){
     if(c&&c.m===m){w.scrollLeft=c.x;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,target=T.slice(0,7)===m?col(T)-1:col(m+'-01')-1;
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
-  return `<div class="tl-wrap" title=""><div class="tl" style="--n:${N}">
+  return `<div class="tl-wrap" title=""><div class="tl tl-noanim" style="--n:${N}">
     <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
     ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
