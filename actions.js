@@ -1997,3 +1997,11 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
+/* A fejléc magassága (a ragadós projektcímhez), és árnyék, amikor a cím fent ragad */
+(()=>{const setH=()=>{const t=document.querySelector('.topbar');if(t)document.documentElement.style.setProperty('--tbh',t.offsetHeight+'px');};
+  window.addEventListener('resize',setH);setTimeout(setH,0);setInterval(setH,3000);
+  /* görgetéskor a projekt neve fent marad: vékony sáv a fejléc alatt, amikor a cím kicsúszik a képből */
+  const bar=()=>{let b=$('ptbar');if(!b){b=document.createElement('div');b.id='ptbar';b.className='ptbar';b.innerHTML='<div class="ptbar-in"><b></b><span></span></div>';b.querySelector('b').onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(b);}return b;};
+  const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d){if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
+    const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
+  window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
