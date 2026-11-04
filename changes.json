@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2a613fa073",
+"at": "2026-11-04T23:23:01+01:00",
+"msg": "Új design: nincs 700-nál vastagabb betű; kifizetések sorcímkéi 600"
+},
+{
 "id": "62816aa6f8",
 "at": "2026-11-04T23:21:47+01:00",
 "msg": "Kifizetések táblázat: az összegek mellett Ft"
@@ -146,13 +151,8 @@
 "msg": "Értékesítő is kaphat eszközt (pl. tablet); díjtáblázat: a projektvezető mindig elöl"
 },
 {
-"id": "5b19084cf2",
-"at": "2026-11-04T21:27:01+01:00",
-"msg": "Videóvágás: nem jelez hiányzó operatőrt – csak projektvezető és vágó kell"
-},
-{
-"id": "dfc7cc958f",
-"at": "2026-11-04T20:24:56Z",
+"id": "753dfa5c4a",
+"at": "2026-11-04T20:27:12Z",
 "msg": "Változásnapló frissítése"
 }
 ]
