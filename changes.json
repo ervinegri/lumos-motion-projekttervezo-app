@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "89b000aa7b",
+"at": "2026-11-04T22:48:22+01:00",
+"msg": "Új design a weboldal színeiből: márka-átmenet, volfrám kiemelés, Montserrat"
+},
+{
 "id": "9452911d7d",
 "at": "2026-11-04T22:42:48+01:00",
 "msg": "Új design: fekete helyett lágyabb palakék"
@@ -146,13 +151,8 @@
 "msg": "Stáb és Értékesítők: a „Következő beosztás” oszlop és kártyarész törölve"
 },
 {
-"id": "7c2bf518d5",
-"at": "2026-11-04T20:15:53+01:00",
-"msg": "Remote projektvezető: figyelmeztetés, ha helyszíni szerepben (pl. operatőr) is be van osztva – ezért ütközik"
-},
-{
-"id": "a6a4cfa293",
-"at": "2026-11-04T19:13:30Z",
+"id": "861b2206e9",
+"at": "2026-11-04T19:16:03Z",
 "msg": "Változásnapló frissítése"
 }
 ]
