@@ -1493,7 +1493,7 @@ function calTipHtml(el){
       return `<div class="tip-crew"><span>${esc(c?c.name:'Ismeretlen')}</span>${esc(rl.join(', ')||'–')}</div>`;}).join('');   // a teljes stáb, mindenki a feladataival
     return `<b>${esc(p.name||'Névtelen projekt')}</b>${rows.map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}${ids.length?`<div class="tip-sec">👥 Stáb · ${ids.length} fő</div>${crew}`:''}`;}
   let ev=null;Object.values(S.cal.events||{}).concat(Object.values(S.cal.ev2||{})).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;}));if(!ev)return '';
-  return `<b>${esc(ev.title||'(nincs cím)')}</b>${[['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location]].filter(x=>x[1]).map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}<div class="tip-hint">Jobb klikk: törlés</div>`;
+  return `<b>${esc(ev.title||'(nincs cím)')}</b>${[['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location]].filter(x=>x[1]).map(([k,v])=>`<div><span>${esc(k)}</span>${esc(v)}</div>`).join('')}${ro()?"":`<div class="tip-hint">Jobb klikk: törlés</div>`}`;
 }
 document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el){const t=$('calTip');if(t&&!e.target.closest('#calTip'))t.remove();return;}
   if(el._tip)return;document.querySelectorAll('.cal-chip').forEach(x=>x._tip=false);el._tip=true;
@@ -1505,10 +1505,10 @@ document.addEventListener('mouseout',e=>{const el=e.target.closest&&e.target.clo
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
   const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
   m.innerHTML=isP?`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button>`
-    :`<button type="button" data-action="cal-event" data-id="${esc(id)}">Részletek</button><button type="button" class="bad-txt" data-action="cal-ctx-del" data-id="${esc(id)}" data-kind="${esc(el.dataset.kind||'g')}">🗑️ Törlés a naptárból</button>`;
+    :`<button type="button" data-action="${el.dataset.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(id)}">Részletek</button>${ro()?'':`<button type="button" class="bad-txt" data-action="cal-ctx-del" data-id="${esc(id)}" data-kind="${esc(el.dataset.kind||'g')}">🗑️ Törlés a naptárból</button>`}`;
   document.body.appendChild(m);m.style.left=Math.min(e.pageX,scrollX+innerWidth-200)+'px';m.style.top=e.pageY+'px';});
 document.addEventListener('click',e=>{const m=$('calMenu');if(m&&!e.target.closest('#calMenu'))m.remove();else if(m&&e.target.closest('button'))setTimeout(()=>{const x=$('calMenu');if(x)x.remove();},0);},true);
-ACT['cal-ctx-del']=b=>{const id=b.dataset.id,vag=b.dataset.kind==='v';let ev=null;[S.cal.events||{},S.cal.ev2||{}].forEach(o=>Object.values(o).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;})));
+ACT['cal-ctx-del']=b=>{if(ro())return;const id=b.dataset.id,vag=b.dataset.kind==='v';let ev=null;[S.cal.events||{},S.cal.ev2||{}].forEach(o=>Object.values(o).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;})));
   confirmModal('Bejegyzés törlése',`Biztosan törlöd a(z) „${ev?esc(ev.title||''):'bejegyzés'}” bejegyzést a${vag?' Vágói':' Google'} Naptárból?`,'Törlés',async()=>{
     try{await call('deleteCalEvent',vag?{id,cal:'vagoi'}:{id});[S.cal.events||{},S.cal.ev2||{}].forEach(o=>Object.keys(o).forEach(k=>{if(Array.isArray(o[k]))o[k]=o[k].filter(x=>x.id!==id);}));   // azonnal eltűnik
       if(typeof calForceFresh==='function')calForceFresh();S.cal.events={};render(true);toast('Bejegyzés törölve');}catch(e){handleErr(e);}});};
