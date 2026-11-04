@@ -1709,8 +1709,9 @@ function saveCalEvent_(u, a) {
   return { id: ev.getId() };
 }
 function deleteCalEvent_(u, a) {
-  const ev = calEvent_(str_(a && a.id, 200));
-  if (!ev) return { deleted: false };
+  const id = str_(a && a.id, 200), vagoi = a && a.cal === 'vagoi';
+  const ev = vagoi ? (() => { try { return CalendarApp.getCalendarById(CAL_VAGOI_ID).getEventById(id); } catch (e) { return null; } })() : calEvent_(id);   // a Vágói naptár eseményei is törölhetők
+  if (!ev) throw new Error('A bejegyzés nem található a naptárban – lehet, hogy már törölték. Frissítsd a naptárat.');
   if (ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projekt törlésével tűnik el a naptárból.');
   const t = ev.getTitle();
   ev.deleteEvent(); calBump_();
