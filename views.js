@@ -1086,7 +1086,10 @@ function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=
   /* csak azok a sorok látszanak, amelyeknek a sávja a látható időszakba esik – így nincs üres sor */
   const v0=Math.floor(w.scrollLeft/cw)+1,v1=Math.ceil((w.scrollLeft+w.clientWidth-lw)/cw);let k=0;
   w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;if(r.hidden===on)r.hidden=!on;});
-  const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
+  const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';
+  /* a táblázat nem lesz alacsonyabb, ha görgetéskor kevesebb sor látszik: a legnagyobb magasság megmarad (alul üres rács) */
+  const tl=w.querySelector('.tl');if(tl){const f=tl.querySelector('.tl-fill');if(f)f.style.minHeight='0px';tl.style.minHeight='';const h=tl.offsetHeight,key=b.dataset.first;
+    if(!S.cal.tlH||S.cal.tlH.k!==key)S.cal.tlH={k:key,h:0};if(h>S.cal.tlH.h)S.cal.tlH.h=h;tl.style.minHeight=S.cal.tlH.h+'px';}const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
 function calTimeline(m,items0,T){
@@ -1128,7 +1131,7 @@ function calTimeline(m,items0,T){
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
   return `<div class="tl-wrap" title=""><div class="tl" style="--n:${N}">
     <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
-    ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div>
+    ${body}<div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div><div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
 }
 function viewCalendar(){
