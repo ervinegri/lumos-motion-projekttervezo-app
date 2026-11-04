@@ -1547,9 +1547,9 @@ function calPlan_(p) {
     rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (i + 1) + '. Terem' + (r.name ? ' – ' + r.name : '') + ': ' + cs.join(', ')); });
     Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
   }
-  if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
+  if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : ''));   // a felbontás nem kerül a naptárba
   // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
-  if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.endTime ? ' · távozás kb. ' + p.endTime : p.hours ? ' · ' + p.hours + ' óra' : ''));
+  // az érkezés és a távozás az esemény időpontjában szerepel, a leírásba nem kerül külön
   if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · távozás kb. ' + p.lastEndTime : ''));
   if (p.lead && crewMap[p.lead]) lines.push('Kapcsolattartó (projektvezető): ' + [crewMap[p.lead].name, crewMap[p.lead].phone].filter(Boolean).join(', '));   // a naptár vendégei a stábtagok: az ügyfél kapcsolattartója nem kerül ide
   if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
@@ -1608,8 +1608,8 @@ function calQuietPatch_(ev, body, fallback) {
 /** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
     A Naptár első megnyitásakor fut – időzítő nélkül, így biztosan lefut. A vendégek nem kapnak értesítést. */
 function calPhoneFixOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALPHONE3_2026_11')) return;
-  P.setProperty('MIG_CALPHONE3_2026_11', now_());
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC4_2026_11')) return;   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
+  P.setProperty('MIG_CALDESC4_2026_11', now_());
   try { calResyncUpcoming(); } catch (e) { Logger.log('Újraszinkron hiba: ' + e); }
 }
 function setCalId_(id, evId) {
