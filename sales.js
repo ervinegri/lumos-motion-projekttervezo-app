@@ -48,7 +48,7 @@ function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.i
   const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
     :(d.nextStep||d.nextDate)?`<div class="dl-next${od?' late':td?' today':''}">➜ ${esc(d.nextStep||'Teendő')}${d.nextDate?` · <b>${od?'lejárt: ':td?'ma':''}${td?'':esc(fmtShort(d.nextDate))}</b>`:''}</div>`:`<div class="dl-next none">➜ nincs következő lépés</div>`;
   return `<article class="dl-card" draggable="${d.stage==='nyert'?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
-    <div class="dl-t">${esc(d.title)}</div>${d.contactName||d.client?`<div class="dl-c">${esc(d.contactName||d.client)}</div>`:''}
+    <div class="dl-t">${esc(d.title)}</div>${d.contactName?`<div class="dl-c"><button type="button" class="linkbtn dl-hs" data-action="hs-contact" data-name="${esc(d.contactName)}" data-email="${esc(d.contactEmail||'')}" data-company="${esc(d.client||'')}" title="Megnyitás a HubSpotban">${esc(d.contactName)} ↗</button></div>`:d.client?`<div class="dl-c">${esc(d.client)}</div>`:''}
     ${d.services?`<div class="dl-sv">${String(d.services).split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}
     <div class="dl-m"><span>${d.eventDate?'📅 '+esc(fmtShort(d.eventDate)):'<span class="muted">nincs dátum</span>'}</span><b>${dealVal(d)?ftFmt(dealVal(d)):'<span class="muted">?</span>'}</b></div>
     ${foot}${DEAL_OPEN.includes(d.stage)||isAdmin()?`<div class="dl-f">${DEAL_OPEN.includes(d.stage)?`<span class="dl-ch" data-tip="Esély a szerződésre">${dealChance(d)}%</span>`:'<span></span>'}${isAdmin()&&d.ownerName?`<span class="dl-own-n">👤 ${esc(d.ownerName)}</span>`:''}</div>`:''}</article>`;}
@@ -59,7 +59,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}
-    <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span></label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
+    <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span>${d.contactName?` <button type="button" class="linkbtn" data-action="hs-contact" style="font-size:12px;margin-left:6px">↗ Megnyitás a HubSpotban</button>`:''}</label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
     <div class="field"><label for="m-dClient">Cég</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
     ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—',cmb:'Válassz típust…'})}
@@ -183,3 +183,11 @@ const dNoteFb=d=>{const t=String((d&&(d.createdAt||d.updatedAt))||'').replace('T
 function dNoteFix(t,fb,by){if(!fb)return String(t||'');const L=dNotesParse(t);if(!L.some(x=>!x.at))return String(t||'');L.forEach(x=>{if(!x.at){x.at=fb;x.by=x.by||by||'';}});return dNotesJoin(L);}
 function dNotesHtml(t){const L=dNotesParse(t);if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
   return L.map((x,i)=>`<div class="dn-item"><div class="dn-h"><span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+
+/* Kapcsolattartó megnyitása a HubSpotban (kártyán és a lehetőség ablakában) */
+ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
+  const f=b.closest('form'),name=f?String(($('m-dCName')||{}).value||'').trim():b.dataset.name,email=f?String(($('m-dCEmail')||{}).value||'').trim():b.dataset.email,company=f?String(($('m-dClient')||{}).value||'').trim():b.dataset.company;
+  if(!name&&!email){toast('Előbb add meg a kapcsolattartót.',true);return;}
+  const w=window.open('about:blank','_blank');   // azonnal nyitjuk, hogy a böngésző ne tiltsa le
+  try{const r=await call('hubspotContactLink',{name,email,company});if(w){w.opener=null;w.location.href=r.url;}else location.href=r.url;if(!r.found)toast('Pontos egyezés nincs – a HubSpot keresőjét nyitottam meg.');}
+  catch(err){if(w)w.close();handleErr(err);}};

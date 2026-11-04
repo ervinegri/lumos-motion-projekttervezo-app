@@ -1846,6 +1846,21 @@ function hubspotContactsApi_(arg) {
   return out.slice(0, 30);
 }
 
+/* HubSpot-adatlap linkje egy kapcsolattartóhoz (e-mail, ennek híján név alapján) */
+function hubspotContactLinkApi_(arg) {
+  const email = str_(arg && arg.email, 160).trim(), name = str_(arg && arg.name, 120).trim(), company = str_(arg && arg.company, 160).trim();
+  const cache = CacheService.getScriptCache();
+  let portal = cache.get('hs_portal');
+  if (!portal) portal = String(PropertiesService.getScriptProperties().getProperty('HUBSPOT_PORTAL_ID') || '').trim();
+  if (!portal) { try { portal = String((hubspot_('get', '/account-info/v3/details') || {}).portalId || ''); } catch (e) { portal = ''; } if (portal) cache.put('hs_portal', portal, 21600); }
+  if (!portal) throw new Error('A HubSpot-fiók azonosítója nem érhető el – add meg a HUBSPOT_PORTAL_ID szkripttulajdonságot.');
+  let hit = null;
+  if (email) hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], properties: ['email'], limit: 1 }).results) || [])[0] || null;
+  if (!hit && name.length >= 2) hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { query: name, properties: ['email', 'company'], limit: 5 }).results) || []).sort((a, b) => (String((b.properties || {}).company || '').toLowerCase() === company.toLowerCase()) - (String((a.properties || {}).company || '').toLowerCase() === company.toLowerCase()))[0] || null;
+  if (!hit) return { url: 'https://app.hubspot.com/contacts/' + portal + '/objects/0-1/views/all/list?query=' + encodeURIComponent(email || name), found: false };
+  return { url: 'https://app.hubspot.com/contacts/' + portal + '/record/0-1/' + hit.id, found: true };
+}
+
 /* HubSpot cégek keresése (új lehetőség ügyfele): név, domain, város */
 function hubspotCompaniesApi_(arg) {
   const q = str_(arg && arg.q, 100).trim();
@@ -4048,6 +4063,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
+    case 'hubspotContactLink': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactLinkApi_(arg);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotContacts': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactsApi_(arg);   // az értékesítő a lehetőségekhez keres kapcsolattartót
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
