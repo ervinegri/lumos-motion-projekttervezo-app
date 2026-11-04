@@ -1919,7 +1919,8 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
   let extra='';
   const ex=editTasksOf(d);if(k==='x_foto'&&id&&num(d.foto_db)>0&&!Object.keys(ex).some(x=>x!==id&&(ex[x]||[]).includes('foto_db'))&&!(et[id]||[]).includes('foto_db')){   // fotós → a fotók utómunkája is az övé
     Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!=='foto_db');if(!et[x].length)delete et[x];});et[id]=(et[id]||[]).concat(['foto_db']);extra=' + fotók utómunkája';}
-  const c=crewById(id||cur),y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
+  const ch={crew,editTasks:et};if(k==='x_vago'){const any=Object.keys(et).some(x=>(et[x]||[]).includes(K));ch.editOnsite=any;}   /* helyszíni vágó jelölő a kártyán is */
+  const c=crewById(id||cur),y0=scrollY;setDraft(ch);requestAnimationFrame(()=>scrollTo(0,y0));
   toast(id?(c?c.name:'')+' beosztva: '+(t.dataset.label||role)+extra:(c?c.name:'')+' lekerült erről a feladatról');});
 
 /* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
