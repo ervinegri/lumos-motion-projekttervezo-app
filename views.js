@@ -234,7 +234,7 @@ function evRow(p,opt={}){
   const crewPast=ro()&&r&&r.end<T;let side=crewPast?'':statusPill(p);   // szakember: a múltbeli munkánál csak a szerepe látszik
   const di=dueInfo(p);
   if(!crewPast&&di&&r&&(r.end<T||POST_STAGES.includes(p.status)))side+=`<span class="statuspill p-${di.cls}">${di.txt}</span>`;
-  if(ro()){const m=myRole(p);if(m)side+=`<span class="smallnum">Te: ${esc(m)}</span>`;if(!crewPast&&p.myFee&&num(p.myFee.amount))side+=`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))}</span>`;}
+  if(ro()){const m=myRole(p);if(m)side+=`<span class="smallnum">Te: ${esc(m)}</span>`;if(!crewPast&&p.myFee&&num(p.myFee.amount))side+=`<span class="smallnum fee-chip">${(p.penalties||[]).length?penIcon(p):''}${ftFmt(myNet(p))} nettó</span>`;}
   else side+=`<span class="smallnum">${crewN(p)} fő · ${eqCount(p)} eszköz</span>`;
   return `<button class="ev" type="button" data-action="open-project" data-id="${esc(p.id)}">${calBlock(r&&r.start)}
     <span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'?DONE_CHECK:''}</span><span class="ev-sub">${esc(sub)}${days}</span></span>
@@ -365,7 +365,7 @@ function viewPayouts(){
       ${isAdmin()&&!crewMode?`<button class="btn outline small" type="button" data-action="nav-sync" data-month="${sel}" data-tip="A bejövő számlák lekérdezése a NAV Online Számla rendszeréből, és párosítás a kiküldött díjösszesítőkhöz (a munkatárs adószáma alapján). Naponta reggel magától is lefut.">🔄 Mindenki számlája a NAV-ból</button><button class="btn outline small" type="button" data-action="pay-mail" data-month="${sel}">📧 Díjösszesítők kiküldése</button>`:''}</div>
     ${sel<PAY_START?`<div class="panel pay-nodata"><p style="margin:0;font-size:15px">🗂️ <b>Erről a hónapról nincs adat az appban.</b></p><p class="hint" style="margin:6px 0 0">A termelői fizetéseket a projekttervező 2026 októberétől követi – a korábbi hónapok elszámolása az app előtti nyilvántartásban van.</p></div>`:rows.length||rentOn.length||adjL.length||spOn.length?`<div class="sheet-wrap pay-wrap${crewMode?' pay-center':''}"><table class="sheet pay-sheet">${colW}<thead><tr><th>Projekt neve</th>${cids.map(c=>`<th class="r" title="${esc(nameOf(c))}">${esc(shortName(nameOf(c)))}</th>`).join('')}${noSum?'':'<th class="r">Projekt összesen</th>'}</tr></thead>
       <tbody>${rows.map(r=>`<tr><td>${isSales()?`<b>${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</b>`:`<button class="linkbtn" type="button" data-action="open-project" data-id="${esc(r.p.id)}">${esc(fmtShort(pr(r.p).start))} · ${esc(r.p.name||'Névtelen projekt')}</button>`}</td>${cids.map(c=>cell(r,c)).join('')}${noSum?'':`<td class="r"><b>${moneyFmt(rowSum(r))||0}</b></td>`}</tr>`).join('')}${rows.length||spOn.length?'':`<tr><td colspan="${cids.length+2}" class="empty-row">Ebben a hónapban nincs termelői díj.</td></tr>`}${rentRow}${spRow}${adjRow}</tbody>
-      <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))})</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}${noSum?'':`<td class="r pay-total"><b>${ftFmt(total)}</b></td>`}</tr>${isAdmin()||crewMode?statusRows:''}${retRow}</tfoot></table></div>`
+      <tfoot><tr><td><b>Összesen (${esc(F_YM.format(toDate(sel+'-01')))}, nettó)</b></td>${cids.map(c=>`<td class="r"><b>${moneyFmt(colSum(c))||0}</b></td>`).join('')}${noSum?'':`<td class="r pay-total"><b>${ftFmt(total)}</b></td>`}</tr>${isAdmin()||crewMode?statusRows:''}${retRow}</tfoot></table></div>`
       :`<div class="panel">${empty('Ebben a hónapban nincs termelői díj.')}</div>`}`;
 }
 function pendingBudgetPanel(){
@@ -591,11 +591,11 @@ function financePanel(p,inner){
 }
 function myFeePanel(p){
   const cid=S.me&&S.me.crewId,a=num(p.myFee.amount),pens=(p.penalties||[]).filter(x=>x.crewId===cid);
-  if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3><div class="my-fee-amt">${ftFmt(a)}</div></div>`;
+  if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten <span class="muted" style="font-weight:600">· nettó</span></h3><div class="my-fee-amt">${ftFmt(a)} <span class="fee-net">nettó</span></div></div>`;
   const d=penDeduct(p,cid,a),dmg=penDamage(p,cid);
-  return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten</h3>
-    <div class="kv"><span>Eredeti díj</span><b>${ftFmt(a)}</b></div>${d?`<div class="kv"><span>Díjcsökkentés${pens.some(x=>x.day)?'':` (${penPct(p,cid)}%)`}</span><b class="bad-txt">−${ftFmt(d)}</b></div>`:''}
-    <div class="kv"><span>Kifizetendő</span><b class="my-fee-amt">${ftFmt(a-d)}</b></div>${dmg?`<div class="kv"><span>Kártérítési követelés</span><b class="bad-txt">${ftFmt(dmg)}</b></div>`:''}
+  return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten <span class="muted" style="font-weight:600">· nettó</span></h3>
+    <div class="kv"><span>Eredeti díj</span><b>${ftFmt(a)} nettó</b></div>${d?`<div class="kv"><span>Díjcsökkentés${pens.some(x=>x.day)?'':` (${penPct(p,cid)}%)`}</span><b class="bad-txt">−${ftFmt(d)}</b></div>`:''}
+    <div class="kv"><span>Kifizetendő</span><b class="my-fee-amt">${ftFmt(a-d)} <span class="fee-net">nettó</span></b></div>${dmg?`<div class="kv"><span>Kártérítési követelés</span><b class="bad-txt">${ftFmt(dmg)}</b></div>`:''}
     ${pens.map(x=>{const k=PEN_KINDS[x.kind]||{};return `<div class="pen-row approved"><div class="pen-main"><b>${esc(k.label||'')}</b>${x.kind==='damage'?' · '+ftFmt(x.amount):' · '+num(x.pct)+'%'+(x.day?' a '+esc(dayLbl(x.day))+' napi díjból':'')} <span class="muted">(szerződés ${esc(k.ref||'')} pont)</span>
       ${x.caseText?`<div class="pen-case">${esc(x.caseText)}</div>`:''}<div class="pen-reason">${esc(x.reason)}</div>${x.link?`<a class="linkbtn" href="${esc(x.link)}" target="_blank" rel="noopener">Bizonyíték ↗</a>`:''}
       ${x.objection?`<div class="pen-obj"><b>Kifogásod</b> (${esc(x.objection.at)}): ${esc(x.objection.text)}</div>`:`<button class="btn outline small" type="button" data-action="pen-object" data-pid="${esc(p.id)}" data-id="${esc(x.id)}" style="margin-top:8px">Kifogásolom</button>`}</div></div>`;}).join('')}</div>`;
