@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6cc9c3867b",
+"at": "2026-11-04T20:22:21+01:00",
+"msg": "Kamera- és objektívválasztó: a szenzorméret nem kerül a név után"
+},
+{
 "id": "5127c69d54",
 "at": "2026-11-04T20:19:39+01:00",
 "msg": "Stáb és Értékesítők: a „Következő beosztás” oszlop és kártyarész törölve"
@@ -149,11 +154,6 @@
 "id": "460c96d373",
 "at": "2026-11-04T14:49:19+01:00",
 "msg": "Új legördülő: értékesítő-választó, deal tulajdonosa, terem kamerája és objektívje; szabály a CLAUDE.md-ben"
-},
-{
-"id": "aab7ed5fff",
-"at": "2026-11-04T14:42:59+01:00",
-"msg": "Videóvágás: nincs Terepi feladatok, Helyszíni stáb és Egyéb költségek; a vágó látja, hány nap van hátra a leadásig (lista, projekt, idővonal)"
 }
 ]
 }
