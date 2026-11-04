@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e52a76bb95",
+"at": "2026-11-04T23:07:46+01:00",
+"msg": "Kifizetések táblázat lekerekített sarkai; lejárt számla piros háttér"
+},
+{
 "id": "db927a27a6",
 "at": "2026-11-04T23:05:37+01:00",
 "msg": "Új design: vastagabb összegek a kifizetések táblázatban"
@@ -146,13 +151,8 @@
 "msg": "CLAUDE.md: a TABLES oszlopfejléceit tilos átnevezni"
 },
 {
-"id": "9cab05d3a5",
-"at": "2026-11-04T21:02:13+01:00",
-"msg": "Utómunka: a Nyersanyag átadása külön kártyán"
-},
-{
-"id": "71679b25c5",
-"at": "2026-11-04T20:02:07Z",
+"id": "7626ef69b1",
+"at": "2026-11-04T20:02:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
