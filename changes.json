@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f35f021f77",
+"at": "2026-11-04T11:46:36+01:00",
+"msg": "Idővonal: görgetéskor a táblázat magassága nem csökken (alul üres rács marad)"
+},
+{
 "id": "0e9e69dbfa",
 "at": "2026-11-04T11:44:36+01:00",
 "msg": "Idővonal: rövidebb színátmenet a forgatás és a vágás között"
@@ -164,16 +169,6 @@
 "id": "77b6fb506c",
 "at": "2026-11-04T09:43:35+01:00",
 "msg": "Ma sáv: az óra:perc egy sorban, olvashatóan (a belső elem nem örökli a sáv stílusát)"
-},
-{
-"id": "fee3625e30",
-"at": "2026-11-04T09:38:33+01:00",
-"msg": "Termek: kameraszögeknél konkrét kamera választható a leltárból (felkerül az eszközök közé); Értékesítés: nyerési arány kártya törölve, értékesítő-választó (saját is), lehetőség kiosztása értékesítőnek"
-},
-{
-"id": "c67a4eea4e",
-"at": "2026-11-04T09:33:35+01:00",
-"msg": "Beállítások: betöltési hiba után ne kérje újra minden kirajzolásnál (végtelen kéréssorozat)"
 }
 ]
 }
