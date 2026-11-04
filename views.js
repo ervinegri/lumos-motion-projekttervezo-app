@@ -1082,7 +1082,7 @@ function calChip(it,day){
 /* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
 function calTimeline(m,items,T){
   const first=m+'-01',last=addDays(shiftMonth(m,1)+'-01',-1),N=Number(last.slice(8)),days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
-  const rows=items.filter(it=>it.endDate>=first&&it.date<=last);
+  const rows=items.filter(it=>it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
   const bg=days.map(d=>`<i class="${wk(d)?'we':''}"></i>`).join('');
@@ -1092,7 +1092,7 @@ function calTimeline(m,items,T){
     const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
     const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
     return `<div class="tl-row"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
-      <div class="tl-track" style="--n:${N}"><div class="tl-bg">${bg}</div><button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1}" data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button></div></div>`;}).join('');
+      <div class="tl-track" style="--n:${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div><button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1}" data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button></div></div>`;}).join('');
   const ti=T.slice(0,7)===m?Number(T.slice(8)):0;
   if(ti)setTimeout(()=>{const w=document.querySelector('.tl-wrap'),n=w&&w.querySelector('.tl-now');if(w&&n&&w.scrollWidth>w.clientWidth&&!w._sc){w._sc=1;w.scrollLeft=Math.max(0,n.offsetLeft-w.clientWidth/2);}},0);   // telefonon a mai naphoz görget
   return `<div class="tl-wrap"><div class="tl" style="--n:${N}">
