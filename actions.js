@@ -825,7 +825,7 @@ function histReset(){HIST.u=[];HIST.r=[];HIST.last=0;HIST.key='';}
 function histPush(){if(!S.draft)return;const s=JSON.stringify(S.draft);if(HIST.u[HIST.u.length-1]===s)return;HIST.u.push(s);if(HIST.u.length>150)HIST.u.shift();HIST.r=[];}
 function histTyping(key){const now=Date.now();if(now-HIST.last>900||HIST.key!==key)histPush();HIST.last=now;HIST.key=key;}
 function histStep(dir){
-  if(!S.draft||ro())return;const from=dir<0?HIST.u:HIST.r,to=dir<0?HIST.r:HIST.u;if(!from.length){toast(dir<0?'Nincs mit visszavonni.':'Nincs mit újra végrehajtani.');return;}
+  if(!S.draft||ro())return;const from=dir<0?HIST.u:HIST.r,to=dir<0?HIST.r:HIST.u;if(!from.length){if(S.dirty&&!draftChanged()){S.dirty=false;renderChrome();}toast(dir<0?(S.dirty?'Nincs több visszavonható lépés – a mentetlen módosítást a „Mentés” menti, az „Elvetés” eldobja.':'Nincs mit visszavonni.'):'Nincs mit újra végrehajtani.');return;}
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
 /* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
