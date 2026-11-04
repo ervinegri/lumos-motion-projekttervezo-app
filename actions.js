@@ -876,7 +876,7 @@ async function conflictMerge(mine){
   const id=mine.id,base=(S.draftBase&&S.draftBase.id===id)?S.draftBase:null;let srv=null;
   try{const bt=await call('bootstrap');srv=(bt.projects||[]).find(x=>x.id===id)||null;}catch(e){}
   if(!srv){toast('Közben valaki más is módosította ezt a projektet, és nem sikerült betölteni az új változatot. Próbáld újra a mentést.',true);return;}
-  const J=v=>v==null||v===''?'':typeof v==='object'?JSON.stringify(v):String(v),   // null / üres / szám-szöveg különbség nem módosítás
+  const J=v=>v==null||v===''||(Array.isArray(v)&&!v.length)?'':typeof v==='object'?JSON.stringify(v):String(v),   // null / üres / szám-szöveg különbség nem módosítás
     i=S.projects.findIndex(x=>x.id===id);if(i>=0)S.projects[i]=srv;
   const theirs=prepDraft(srv),keys=new Set([...Object.keys(mine),...Object.keys(theirs)].filter(k=>!MERGE_SKIP.has(k)));
   const myChanged=[...keys].filter(k=>base?J(mine[k])!==J(base[k]):J(mine[k])!==J(theirs[k]));
@@ -885,6 +885,7 @@ async function conflictMerge(mine){
   const who=srv.updatedBy||'valaki más';
   const finish=keepMine=>{const m=clone(merged);if(!keepMine)both.forEach(k=>{m[k]=clone(theirs[k]);});
     S.draftBase=clone(theirs);if(S.projectId===id){S.draft=m;S.dirty=true;}render(true);saveDraft();};
+  if(S.me&&srv.updatedBy===S.me.name){finish(true);return;}   /* a saját korábbi (pl. automatikus / másik lapon történt) mentésed: nincs mit kérdezni, a mostani változatod marad */
   if(!both.length){finish(true);toast(`Közben ${who} is módosította a projektet – összefésültük a módosításaitokat és elmentettük.`);return;}
   const lbl=k=>FIELD_LABEL[k]||k;
   openModal('Közben módosult a projekt',`<p style="margin:0 0 8px"><b>${esc(who)}</b> is módosította ezt a projektet, amíg szerkesztetted. A többi módosítást összefésültük, de ezeket mindketten átírtátok:</p>
