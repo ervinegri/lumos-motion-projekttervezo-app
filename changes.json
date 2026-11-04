@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c5dc90ba9e",
+"at": "2026-11-04T22:16:21+01:00",
+"msg": "Csapat módosítása gomb halvány, hoverre teljes"
+},
+{
 "id": "69b98a61b0",
 "at": "2026-11-04T22:02:30+01:00",
 "msg": "Eszközök áthúzása munkatársak között; nincs automatikus lépés Helyszíni munkából Utómunkába"
@@ -146,13 +151,8 @@
 "msg": "Leltár: kamerák és objektívek szenzormérete (Full Frame / Crop); crop objektív nem választható Full Frame vázhoz a termeknél"
 },
 {
-"id": "f213fc1a66",
-"at": "2026-11-04T20:07:03+01:00",
-"msg": "Idővonal: a vágási sáv ugyanolyan magas, mint a többi"
-},
-{
-"id": "dc1b37339e",
-"at": "2026-11-04T16:34:00Z",
+"id": "e418e837b6",
+"at": "2026-11-04T19:07:15Z",
 "msg": "Változásnapló frissítése"
 }
 ]
