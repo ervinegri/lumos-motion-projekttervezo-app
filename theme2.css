@@ -315,3 +315,6 @@ html.th2 .op-cut.none,html.th2 .op-cutsel.none,html.th2 input.op-cutsel.none{bac
 html.th2 .op-cutsel.none::placeholder,html.th2 input.op-cutsel.none::placeholder{color:#7a4f00;opacity:1}
 html.th2 .op-cutsel::placeholder{color:#1d2a38;opacity:1}
 html.th2 .op-cutsel.add:not(.none){background-color:#fff!important;color:#1d2a38!important;border:1px dashed #c3ceda!important}
+/* naptár / idővonal: a projekt (helyszíni nap) sávja ne tintakék-fekete legyen, hanem a weboldal pára-kékje */
+html.th2{--cal-p:#4f80a6}
+html.th2 .cal-chip.p{background:var(--cal-p)}
