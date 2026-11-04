@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "36f4cc0005",
+"at": "2026-11-04T10:21:16+01:00",
+"msg": "Vágói nézet: a „nincs kiválasztva vágnivaló” szervezői figyelmeztetés nem látszik a szakembernek"
+},
+{
 "id": "632c015340",
 "at": "2026-11-04T10:07:53+01:00",
 "msg": "Új projekt: mindig üres űrlappal nyílik (a félbehagyott kitöltés nem töltődik vissza)"
@@ -194,11 +199,6 @@
 "id": "b366aa479c",
 "at": "2026-11-04T09:22:33+02:00",
 "msg": "Naptár: Frissítésre és az app fülére visszatérve friss lekérés a Google Naptárból (törölt esemény azonnal eltűnik)"
-},
-{
-"id": "02ebfb3d81",
-"at": "2026-11-04T09:15:33+02:00",
-"msg": "Stábkártya: a napidíj csak a szerkesztőben látszik"
 }
 ]
 }
