@@ -1215,7 +1215,7 @@ function viewSettings(){
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük
   if(S._settingsLoading)return;S._settingsLoading=true;
   try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S._settingsAt=Date.now();}
-  catch(e){handleErr(e);S.users=S.users||[];S.log=S.log||[];}
+  catch(e){handleErr(e);S.users=S.users||[];S.log=S.log||[];S._settingsAt=Date.now();}   // hiba után se próbálja újra minden kirajzolásnál (30 mp múlva újra)
   finally{S._settingsLoading=false;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}
 }
 
