@@ -764,10 +764,11 @@ function fieldAsg(p,k,role,label,n){const ids=slotOwners(p,k),nm=id=>(crewById(i
     const ph='👥 '+role.toLowerCase()+(/_op$/.test(k)?'':' kiválasztása');
     return `<select class="inp op-cutsel${cur?'':' none'}" data-cmb="${esc(ph)}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${cur?'':' none'}" data-os-slot="${esc(k)}" data-i="${i}" data-role="${esc(role)}" data-label="${esc(label)}" aria-label="${esc(label)}: ${esc(role.toLowerCase())}"><option value=""${cur?' data-keep="1"':''}>${cur?'— senki (levétel) —':esc(ph)}</option>${fit.length?`<optgroup label="${esc(role)}">${fit.map(o).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(o).join('')}</optgroup>`:''}</select>`;};
   return Array.from({length:slots},(_,i)=>sel(i)).join('');}
-function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),rl=k==='foto_db'?['Vágó','Fotós']:['Vágó'];   // a fotók utómunkáját fotós is kaphatja
-  if(!svcCan(p))return svcUnlockBtn(p,`data-pick="c:${esc(k)}"`,o.length?'✂️ '+o.map(id=>(crewById(id)||{}).name||'?').join(', '):'✂️ nincs vágóhoz rendelve',!o.length);
-  const all=(S.crew||[]).filter(c=>(c.roles||[]).some(r=>rl.includes(r))||cutters.includes(c.id)).sort((x,y)=>(k==='foto_db'?((y.roles||[]).includes('Fotós')-(x.roles||[]).includes('Fotós')):0)||prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
-  return `<select class="inp op-cutsel${o.length?'':' none'}" data-cmb="✂️ vágó kiválasztása" data-cmb-sub="crew" data-cmb-cls="op-cutsel${o.length?'':' none'}" data-os-cut="${k}" aria-label="Vágó"><option value="">✂️ vágó kiválasztása</option>${all.map(c=>`<option value="${esc(c.id)}"${o[0]===c.id?' selected':''}>✂️ ${esc(c.name)}</option>`).join('')}</select>`;}
+function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_db',rl=FO?['Fotós']:['Vágó'];   // a fotók utómunkáját csak fotós végezheti
+  if(!svcCan(p))return svcUnlockBtn(p,`data-pick="c:${esc(k)}"`,o.length?(k==='foto_db'?'📷 ':'✂️ ')+o.map(id=>(crewById(id)||{}).name||'?').join(', '):(k==='foto_db'?'📷 nincs fotós':'✂️ nincs vágóhoz rendelve'),!o.length);
+  const all=(S.crew||[]).filter(c=>(c.roles||[]).some(r=>rl.includes(r))||(!FO&&cutters.includes(c.id))||o.includes(c.id)).sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
+  const ic=FO?'📷':'✂️',ph=ic+(FO?' fotós kiválasztása':' vágó kiválasztása');
+  return `<select class="inp op-cutsel${o.length?'':' none'}" data-cmb="${ph}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${o.length?'':' none'}" data-os-cut="${k}" aria-label="${FO?'Fotós':'Vágó'}"><option value="">${ph}</option>${all.map(c=>`<option value="${esc(c.id)}"${o[0]===c.id?' selected':''}>${ic} ${esc(c.name)}</option>`).join('')}</select>`;}
 /* a „Ma” sávon a pontos idő, percenként frissül */
 function nowHM(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 setInterval(()=>document.querySelectorAll('.pt-clock').forEach(e=>{e.textContent=nowHM();}),15000);

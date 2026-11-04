@@ -1848,9 +1848,9 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||p
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
     crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role+' – megjelent a Stáb és eszközöknél');return;}
   if(t.dataset&&t.dataset.osCut){const k=t.dataset.osCut,id=t.value,crew=clone(d.crew||[]),et=etWithField(d);Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!==k);});
-    if(id){const fo=k==='foto_db'&&(crew.some(a=>a.crewId===id&&a.role==='Fotós')||((crewById(id)||{}).roles||[]).includes('Fotós'));if(!crew.some(a=>a.crewId===id&&a.role===(fo?'Fotós':'Vágó')))crew.push({crewId:id,role:fo?'Fotós':'Vágó'});et[id]=(et[id]||[]).concat([k]);}   // fotók utómunkája: a fotós fotósként marad
+    if(id){const fo=k==='foto_db';if(!crew.some(a=>a.crewId===id&&a.role===(fo?'Fotós':'Vágó')))crew.push({crewId:id,role:fo?'Fotós':'Vágó'});et[id]=(et[id]||[]).concat([k]);}   // fotók utómunkája: a fotós fotósként marad
     const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
-    const c=crewById(id);if(id)toast((c?c.name:'')+' vágja – '+(postTasks(d).find(x=>x.k===k)||{}).label);}});
+    const c=crewById(id);if(id)toast((c?c.name:'')+(k==='foto_db'?' készíti – ':' vágja – ')+(postTasks(d).find(x=>x.k===k)||{}).label);}});
 
 /* Ajánlói jutalék: projektopció – ki kap ajánlói jutalékot (külön sor az Egyéb költségek között) */
 document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSeeFees())return;

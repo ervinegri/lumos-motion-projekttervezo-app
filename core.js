@@ -80,7 +80,7 @@ function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Terem';   // név nélkül: „1. Terem”
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
-const roomOps=r=>num(r.er_total)+num(r.er_close)+num(r.er_crowd)||(num(r.er_slides)?1:0);   // ennyi operatőr kell a teremben
+const roomOps=r=>roomCams(r).length?1:0;   // egy operatőr egy termet visz, akárhány kamera van
 /* Egy beosztás-kulcs gazdái; a terem operatőreinél (<teremId>_op) a korábbi kameránkénti és régi (összesített) beosztások is számítanak */
 function slotOwners(p,k){const m=/^(r[a-z0-9]+)_op$/.exec(k);if(!m)return fieldOwners(p,k);
   let ids=fieldOwners(p,k).concat(...ROOM_CAMS.map(c=>fieldOwners(p,m[1]+'_'+c.k)));
@@ -115,7 +115,7 @@ const cutterIds=p=>{const v=(p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>
 const postKeysOf=l=>(Array.isArray(l)?l:[]).filter(k=>!/^f_/.test(k));   // az f_ kezdetű kulcsok a terepi feladatok kiosztásai (ugyanabban a mezőben)
 function fieldOwners(p,k){const et=editTasksOf(p),on=new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean));return Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('f_'+k));}
 function taskKeysOf(p,cid){const et0=editTasksOf(p),et={};Object.keys(et0).forEach(id=>{if(Array.isArray(et0[id])&&postKeysOf(et0[id]).length)et[id]=postKeysOf(et0[id]);});const cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
-  if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).map(t=>t.k):[];
+  if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).filter(t=>t.k!=='foto_db').map(t=>t.k):[];   // a fotók utómunkája sosem a vágóé
   const before=cut.slice(0,cut.indexOf(cid));   // egy videót csak egy vágó vághat: ha (régi adatban) többnél is szerepel, az elsőé
   return (et[cid]||[]).filter(k=>!before.some(o=>(et[o]||[]).includes(k)));}
 function taskOwners(p,k){return cutterIds(p).filter(id=>taskKeysOf(p,id).includes(k));}
