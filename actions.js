@@ -1858,7 +1858,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSee
     else{const n=(d.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref').length;const off=()=>{if(S.refOn)delete S.refOn[d.id];setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'))});};
       if(n)confirmModal('Ajánlói jutalék törlése',`${n} ajánlói jutalék sor kikerül a díjtáblázatból. Biztosan?`,'Törlés',async()=>off());else off();render(true);}return;}
   if(t.id==='ref-add'&&t.value){const id=t.value,c=crewById(id);if((d.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===id)){toast('Neki már van ajánlói jutalék sora.',true);return;}
-    setDraft({fees:(d.fees||[]).concat([{kind:'fixed',key:'ref',refCrewId:id,name:(c?c.name:'Szakember')+' ajánlói jutaléka',amount:'',rent:''}])});toast((c?c.name:'')+' ajánlói jutaléka bekerült az Egyéb költségek közé – add meg az összeget');}});
+    {const F=(d.fees||[]).slice(),row={kind:'fixed',key:'ref',refCrewId:id,name:(c?c.name:'Szakember')+' ajánlói jutaléka',amount:'',rent:''},j=F.findIndex(f=>f.kind==='fixed'&&/^egyeb/.test(f.key||''));if(j>=0)F.splice(j,0,row);else F.push(row);setDraft({fees:F});}   // az „Egyéb tétel” sor marad az utolsótoast((c?c.name:'')+' ajánlói jutaléka bekerült az Egyéb költségek közé – add meg az összeget');}});
 ACT['ref-del']=b=>{const d=S.draft;if(!d)return;setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===b.dataset.id))});};
 
 document.addEventListener('change',e=>{if(e.target.id!=='lead-pick'||!S.draft||!e.target.value)return;const c=crewById(e.target.value);setDraft({lead:e.target.value});toast((c?c.name:'')+' lett a projektvezető');});
