@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "765f597e30",
+"at": "2026-11-04T21:43:46+01:00",
+"msg": "Értékesítő is kaphat eszközt (pl. tablet); díjtáblázat: a projektvezető mindig elöl"
+},
+{
 "id": "5b19084cf2",
 "at": "2026-11-04T21:27:01+01:00",
 "msg": "Videóvágás: nem jelez hiányzó operatőrt – csak projektvezető és vágó kell"
@@ -149,11 +154,6 @@
 "id": "985b65a75d",
 "at": "2026-11-04T17:22:45+01:00",
 "msg": "Sablonból létrehozott projekt: ami a sablonnál nem volt (szerződés, díjbekérő, TIG), az újnál sem kéri"
-},
-{
-"id": "1d7f4c0cfe",
-"at": "2026-11-04T17:21:59+01:00",
-"msg": "Vékonyabb fejléc; görgetéskor a projekt neve egy vékony sávban fent marad"
 }
 ]
 }
