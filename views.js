@@ -486,7 +486,8 @@ const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="m
 function extrasHtml(p){const l=extrasOf(p);
   return `<div class="extras" id="proj-extras"><div class="ex-h"><b>➕ Extrák és kedvezmények</b> <span class="muted">– a szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek</span></div>
     ${l.map((x,i)=>{const le=exSign(x)<0;return `<div class="ex-row${le?' ex-minus':''}"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="${le?'pl. jutalék – kiállítói shortok':x.kind==='tov'?'pl. szállás, utazás, eszközbérlés':'pl. +1 riport videó'}" maxlength="200" aria-label="${le?'Kedvezmény / jutalék':'Extra szolgáltatás'} megnevezése"><div class="money"><span class="ex-sign">${le?'−':'+'}</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button>${x.kind==='tov'?'<span class="ex-tov" title="Az értékesítői jutalék alapjába nem számít bele">továbbszámlázott</span>':''}</div>`;}).join('')}
-    <div class="ex-foot"><button class="linkbtn" type="button" data-action="extra-add">+ Extra szolgáltatás</button><button class="linkbtn ex-minus-btn" type="button" data-action="extra-add" data-le="1">− Kedvezmény / jutalék</button><button class="linkbtn" type="button" data-action="extra-add" data-tov="1" title="Utazás, szállás, parkolás, szállítás, eszközbérlés, helyszín, külső szolgáltató – az értékesítői jutalék alapjába nem számít bele">+ Továbbszámlázott költség</button>${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
+    ${refOption(p,true)}
+    <div class="ex-foot">${ro()||projLocked()?'':`<select class="inp ex-menu" data-ex-menu aria-label="Hozzáadás az extrákhoz"><option value="">＋ Hozzáadás…</option><option value="plus">＋ Extra szolgáltatás</option><option value="le">− Kedvezmény / jutalék</option><option value="tov">＋ Továbbszámlázott költség (utazás, szállás, eszközbérlés…)</option>${refOn(p)?'':'<option value="ref">🤝 Ajánlói jutalék szakembernek</option>'}</select>`}${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
 const isFree=p=>!!p&&p.projectValue!=null&&p.projectValue!==''&&num(p.projectValue)===0;
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);
@@ -632,9 +633,12 @@ function penPanel(p){
 }
 /* Csapat véglegesítése doboz a stáb alatt */
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
-function refOption(p){const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref'),on=refs.length>0||!!(S.refOn||{})[p.id],dis=ro()||projLocked();
+const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
+function refOption(p,inEx){if(!inEx&&isAdmin()&&!isFree(p))return '';   // az ügyvezetőnél az Extrák között (lent nem)
+  const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref'),on=refOn(p),dis=ro()||projLocked();
+  if(inEx&&!on)return '';
   const opts=(S.crew||[]).filter(c=>!refs.some(f=>f.refCrewId===c.id)).sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
-  return `<div class="ref-opt"><label class="toggle"><input type="checkbox" data-ref-toggle${on?' checked':''}${dis?' disabled':''}><span class="tl">🤝 Ajánlói jutalékot kell fizetni szakembernek</span></label>
+  return `<div class="ref-opt${inEx?' in-ex':''}"><label class="toggle"><input type="checkbox" data-ref-toggle${on?' checked':''}${dis?' disabled':''}><span class="tl">🤝 Ajánlói jutalék szakembernek</span></label>
     ${on?`<div class="ref-list">${refs.map(f=>`<span class="ref-chip">🤝 ${esc((crewById(f.refCrewId)||{}).name||(S.crewNames||{})[f.refCrewId]||f.name)}${num(f.amount)?' · '+ftFmt(num(f.amount)):' · <span class="warn-txt">összeg?</span>'}${dis?'':`<button class="x w" type="button" data-action="ref-del" data-id="${esc(f.refCrewId)}" aria-label="Törlés">×</button>`}</span>`).join('')}
       ${dis?'':`<select class="inp" id="ref-add" style="width:auto"><option value="">+ szakember kiválasztása…</option>${opts}</select>`}</div><p class="hint" style="margin:4px 0 0">Az összeget az Egyéb költségek között add meg; a jutalék a szakember Kifizetéseiben jelenik meg.</p>`:''}</div>`;}
 function crewFinalBox(p,ids){

@@ -1920,3 +1920,8 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
     Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!=='foto_db');if(!et[x].length)delete et[x];});et[id]=(et[id]||[]).concat(['foto_db']);extra=' + fotók utómunkája';}
   const c=crewById(id||cur),y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
   toast(id?(c?c.name:'')+' beosztva: '+(t.dataset.label||role)+extra:(c?c.name:'')+' lekerült erről a feladatról');});
+
+/* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
+  if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');if(s){s.focus();try{s.showPicker();}catch(_){}}},50);return;}
+  ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
