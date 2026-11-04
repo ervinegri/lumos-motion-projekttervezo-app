@@ -14,6 +14,126 @@ html.th2{
   --shadow:0 1px 2px rgba(16,25,35,.05);
   --font:Montserrat,"Helvetica Neue",Arial,sans-serif;
 }
+/* GEN-GREENS:START – generálva (greens.py): a régi kinézet beégetett zöldjei kékes-szürkén */
+html.th2 .mini:hover{background:#dfe6ee}
+html.th2 .fold>summary:focus-visible{outline:2px solid var(--accent,#243347)}
+html.th2 .tile-btn:hover{border-color:var(--accent-line,#c3ceda)}
+html.th2 .stage-tick:hover{background:var(--accent-soft,#eaeff4)}
+html.th2 button.stage-tick:not(.on)::after{background:#243347}
+html.th2 .adj-new:hover{background:#eaeff4}
+html.th2 .eqdd-it:hover:not(:disabled){background:#eaeff4}
+html.th2 .sheet th{background:#eaeff4}
+html.th2 .col-grip::after{background:#dfe6ee}
+html.th2 .qtip{background:#243347}
+html.th2 .adj-btn:hover{background:var(--accent-soft,#eaeff4)}
+html.th2 .mail-edit:focus{box-shadow:0 0 0 3px var(--accent-soft,#eaeff4)}
+html.th2 .inv-h{background:#f5f7fa}
+html.th2 .pml-head{background:#f5f7fa}
+html.th2 .pb-box{background:#f5f7fa}
+html.th2 .fin-inc th.pc,html.th2 .fin-inc td.pc{background:#f5f7fa}
+html.th2 .pct-in.ov{background:var(--accent-soft,#eaeff4)}
+html.th2 .bl-closed td{background:#f5f7fa}
+html.th2 .pcrew:not(.pcrew-common){background:linear-gradient(180deg,#eaeff4,#fff 70px)}
+html.th2 .sheet tfoot .keret-tr.left-ok td{background:#eaeff4}
+html.th2 .fin-sheet .sep-row td{background:#eaeff4}
+html.th2 .my-fee{background:#eaeff4}
+html.th2 #view table tbody tr:nth-child(even):not(.sep-row):not(.pt-month):not(.pt-group):not(.grp):not(.bill-month)>td{background:#eaeff4}
+html.th2 #view table tbody tr.zb>td{background:#eaeff4!important}
+html.th2 #view table tbody tr.pt-row:hover>td,html.th2 #view .tbl-wrap tbody tr:not(.grp):hover>td{background:#eaeff4!important}
+html.th2 .toast{background:#243347;color:#eaeff4}
+html.th2 .hs-row.cur{background:#eaeff4}
+html.th2 .hs-edit:hover{background:#f5f7fa}
+html.th2 .deliv-list{background:#f5f7fa}
+html.th2 .pen-ic:hover::after,html.th2 .pen-ic:focus::after{background:#243347}
+html.th2 .cal-day.sel{box-shadow:inset 0 0 0 2px var(--fg,#243347);background:#f5f7fa}
+html.th2 .cal-tip{background:#243347}
+html.th2 .cal-tip div span{color:#c3ceda}
+html.th2 .cal-tip .tip-hint{color:#c3ceda}
+html.th2 .cal-tip .tip-sec{color:#c3ceda}
+html.th2 .cal-tip .tip-crew{color:#dfe6ee}
+html.th2 .cal-menu button:hover{background:#f5f7fa}
+html.th2 .day-chip.on{background:var(--accent-soft,#eaeff4);border-color:var(--accent-line,#c3ceda)}
+html.th2 .day-amt{border-bottom:1px dashed #eaeff4}
+html.th2 .saving-pill{background:#243347}
+html.th2 .addr-item:hover{background:#f5f7fa}
+html.th2 .day-sub td{background:#f5f7fa!important}
+html.th2 .day-tab.on{background:var(--fg,#243347);border-color:var(--fg,#243347)}
+html.th2 .payouts tfoot td{background:#f5f7fa}
+html.th2 .pay-sub td{background:#f5f7fa}
+html.th2 .role-fixed{background:var(--accent-soft,#eaeff4);border-color:var(--accent-line,#c3ceda)}
+html.th2 .pay-sheet tfoot td{background:#eaeff4}
+html.th2 .pcrew-add:hover{background:var(--accent-soft,#eaeff4)}
+html.th2 .site-rep.ok{background:#f5f7fa}
+html.th2 .cal-day.focus{background:#eaeff4}
+html.th2 .pt-row:hover td{background:#f5f7fa}
+html.th2 .pt-group td{background:#eaeff4}
+html.th2 .pt-month td{background:#f5f7fa}
+html.th2 .fin-manual td{background:#f5f7fa}
+html.th2 .cl-doc:hover{background:#f5f7fa;border-color:#c3ceda}
+html.th2 .dl-panel{border-color:#c3ceda;background:#f5f7fa}
+html.th2 .bill-tbl td.bt-merged{border-left:2px solid #dfe6ee;background:#f5f7fa}
+html.th2 .pt-crew.sz2{background:#eaeff4;color:#243347}
+html.th2 .pt-crew.sz3{background:#243347}
+html.th2 .bl-more-card:hover{background:#eaeff4}
+html.th2 .dl-col.over{background:#eaeff4}
+html.th2 .dl-comm{color:#243347}
+html.th2 .cmb-it.on,html.th2 .cmb-it:hover{background:#eaeff4}
+html.th2 .msel-chip{background:#eaeff4;color:#243347}
+html.th2 .msel-pop label:hover{background:#f5f7fa}
+html.th2 .op-cut{background:#eaeff4}
+html.th2 .tc-chip{background:#eaeff4;color:#243347}
+html.th2 body .flatpickr-day:hover{background:#eaeff4;border-color:#eaeff4}
+html.th2 body .flatpickr-day.today:hover{background:#eaeff4}
+html.th2 .cf-open:hover,html.th2 .cf-open.on{background:var(--soft,#eaeff4)}
+html.th2 .cal-tg.on{background:var(--soft,#eaeff4)}
+html.th2 .cal-day.drop{background:#eaeff4}
+html.th2 .os-who{background:#eaeff4}
+html.th2 select.op-cutsel{background-color:#eaeff4}
+html.th2 .op-row.op-role{background:#f5f7fa}
+html.th2 select.op-cutsel.add:not(.none){border:1px dashed #c3ceda}
+html.th2 .svc-edit>summary{background:#f5f7fa}
+html.th2 .op-who{background:#eaeff4}
+html.th2 .bill-tbl tbody tr.pt-month>td{background:var(--soft,#eaeff4)}
+html.th2 #view .bill-tbl tbody tr.bl-chead>td{background:#dfe6ee!important;border-top:10px solid var(--bg,#f5f7fa)!important}
+html.th2 .pay-sheet thead th{background:#243347}
+html.th2 .tig-reply.ok{border-color:#c3ceda;background:#eaeff4}
+html.th2 .mnav-chip.on{background:var(--accent,#243347);border-color:var(--accent,#243347)}
+html.th2 .pb-box.bs-green{background:#eaeff4!important;border:1.5px solid #c3ceda!important}
+html.th2 .pass-pop{background:#243347}
+html.th2 .pt-rel.fut{background:#eaeff4}
+html.th2 #view table tbody tr.pt-row.pt-fut>td:first-child{box-shadow:inset 4px 0 0 #c3ceda}
+html.th2 .sz-searching{background:#f5f7fa;border:1px dashed #c3ceda}
+html.th2 .sz-peek-ok{background:#eaeff4;border:1px solid #dfe6ee}
+html.th2 .tig-row.tig-flash .inp{box-shadow:0 0 0 2px #c3ceda}
+html.th2 .tpl-field{background:#f5f7fa;border:1px solid #dfe6ee}
+html.th2 .tpl-clear{background:#eaeff4}
+html.th2 .tpl-item .tpl-c{background:#eaeff4}
+html.th2 body:not(.ro) .cal-day:hover{background:#f5f7fa}
+html.th2 .cc-chip.on{background:#eaeff4;border-color:#c3ceda}
+html.th2 .crew-fin{border:2px solid #c3ceda}
+html.th2 .bill-month td{background:#eaeff4!important;border-top:2px solid #c3ceda}
+html.th2 .bill-month .bm-name{color:var(--fg-1,#243347)}
+html.th2 .order-sum{background:#f5f7fa}
+html.th2 .os-cut{background:var(--accent-soft,#eaeff4)}
+html.th2 .cdrop.over>.bs-box{background:var(--accent-soft,#eaeff4)!important}
+html.th2 .cd-opt:has(input:checked){background:var(--accent-soft,#eaeff4)}
+html.th2 [data-cldrop].over{background:var(--accent-soft,#eaeff4)}
+html.th2 .fin-mkproj{background:var(--accent-soft,#eaeff4)}
+html.th2 .ex-menu{color:var(--accent,#243347)}
+html.th2 .cmb-in.ex-menu::placeholder{color:var(--accent,#243347)}
+html.th2 .cmb .cmb-in.op-cutsel{background-color:#eaeff4}
+html.th2 .cmb .cmb-in.ex-menu{color:var(--accent,#243347)}
+html.th2 #view table tbody tr.pt-month-sep>td{color:var(--accent,#243347)}
+html.th2 #view table tbody tr.pt-month-sep>td::after{background:var(--accent-line,#c3ceda)}
+html.th2 .upd-done{border:1px solid var(--accent-line,#c3ceda)}
+html.th2 .tl-it:hover .tl-track{background-color:#f5f7fa}
+html.th2 .tl-it .tl-lbl:hover{background-color:#eaeff4}
+html.th2 .tcard.has-sel{border-color:#c3ceda;background:linear-gradient(180deg,#f5f7fa 0,#fff 56px)}
+html.th2 .dl-sv span{background:#eaeff4;color:#243347}
+html.th2 .dn-item{background:#f5f7fa}
+html.th2 .stage.stage-target.drop-hi{background:#eaeff4}
+html.th2 .pcrew.eq-drop-hi{background:#f5f7fa}
+/* GEN-GREENS:END */
 html.th2 body{letter-spacing:-.005em}
 html.th2 h1,html.th2 h2,html.th2 h3{letter-spacing:-.02em}
 /* fejléc: a weboldal sötét üvegsávja, lágyabb tintakékkel */
@@ -66,3 +186,5 @@ html.th2 .tile-l{font-size:13px;font-weight:500}
 html.th2 .mnav-sel{font-size:16px;font-weight:700;min-height:42px;min-width:200px}
 html.th2 .sub{font-size:14px}
 html.th2 .statuspill{font-size:12.5px}
+/* átmenetes gombok: a háttér a keret alá is kerüljön, különben a szélén csík/varrat látszik */
+html.th2 .btn.primary,html.th2 .tab[aria-selected="true"],html.th2 .lead-badge{background-origin:border-box;background-clip:border-box;border-color:transparent;box-shadow:none}
