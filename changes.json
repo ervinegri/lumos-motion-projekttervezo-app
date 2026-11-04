@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "99de5c0048",
+"at": "2026-11-04T15:28:36+01:00",
+"msg": "Lehetőség ablak: „Ügyfél” helyett „Cég”"
+},
+{
 "id": "e5a9c4cd1b",
 "at": "2026-11-04T15:27:10+01:00",
 "msg": "Lehetőség ablak: a Kapcsolattartó/E-mail sor az Ügyfél/Típus sor elé; a típus új legördülővel"
@@ -154,11 +159,6 @@
 "id": "d242a42220",
 "at": "2026-11-04T10:42:34+01:00",
 "msg": "Naptár buborék: a helyszíni vágót így jelöli"
-},
-{
-"id": "fbc9672660",
-"at": "2026-11-04T10:40:30+01:00",
-"msg": "Naptár, vágó: a leadási sáv a projekt utáni naptól a határidő napjáig tart"
 }
 ]
 }
