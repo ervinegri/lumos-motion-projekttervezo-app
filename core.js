@@ -443,3 +443,10 @@ if(window.MutationObserver){let fpT=0;new MutationObserver(()=>{if(fpT)return;fp
   const save=()=>{try{const c=S.crewEdit||{},q=S.eqEdit||{};if(Object.keys(c).length||Object.keys(q).length)localStorage.setItem(K,JSON.stringify({at:Date.now(),crew:c,eq:q}));else localStorage.removeItem(K);}catch(e){}};
   window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save();});
   document.addEventListener('click',()=>setTimeout(save,0),true);})();
+
+/* Adatvédelem: a böngésző automatikus kitöltése / korábbi beírások felajánlása kikapcsolva az egész appban
+   (különben a gépen korábban beírt – akár érzékeny – szövegek a következő felhasználónak is felugranak). */
+(()=>{const off=root=>{(root.querySelectorAll?root.querySelectorAll('input,textarea,form'):[]).forEach(el=>{if(el.getAttribute('autocomplete')!=='off')el.setAttribute('autocomplete','off');});
+    if(root.matches&&root.matches('input,textarea,form')&&root.getAttribute('autocomplete')!=='off')root.setAttribute('autocomplete','off');};
+  const go=()=>{off(document);if(window.MutationObserver)new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)off(n);}))).observe(document.documentElement,{childList:true,subtree:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();
