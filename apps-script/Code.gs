@@ -848,6 +848,7 @@ function parseCrewFinal_(raw) {
 }
 /* Egy tag „lenyomata”: szerepek, eszközök, bérelt/saját eszközök, napok. Ha változik, újra értesítjük.
    Ugyanez a számítás fut a felületen is (core.js: crewSig), hogy a „módosult” jelzés egyezzen. */
+function sigCore_(s) { const a = String(s || '').split('|'); return (a[0] || '') + '|' + (a[3] || ''); }
 function crewSig_(p, cid) {
   const roles = (p.lead === cid ? ['Projektvezető'] : []).concat((p.crew || []).filter(a => a.crewId === cid).map(a => a.role)).sort();
   const eq = (p.equipment || []).filter(e => (e.crewId || '') === cid).map(e => e.itemId + 'x' + (Number(e.qty) || 1)).sort();
@@ -967,7 +968,7 @@ function crewFinalPreview_(u, a) {
   const p = fullProject_(readRow_('projects', sh, row)), members = crewMembers_(p), lead = members.find(m => m.id === p.lead) || null;
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
   return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email) && !isSelf_(u, m)).map(m => {
-    const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== crewSig_(p, m.id);
+    const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && sigCore_(prev.sigs[m.id]) !== sigCore_(crewSig_(p, m.id));   // eszközváltozás nem csapatmódosítás (külön eszközlista)
     const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });

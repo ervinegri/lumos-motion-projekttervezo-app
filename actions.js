@@ -2021,8 +2021,7 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='m-category'){
 
 /* Visszaállítás a kiküldött (véglegesített) állapotra: szerepek, eszközök, munkanapok úgy, ahogy a munkatársak megkapták */
 ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sigs||!Array.isArray(f.ids))return;
-  confirmModal('Visszaállítás a kiküldött állapotra','A stáb szerepei, eszközei és munkanapjai visszaállnak arra, amit a munkatársak a véglegesítéskor megkaptak. Az azóta felvett szakemberek lekerülnek. (Mentés előtt még visszavonható.)','Visszaállítás',()=>{
+  confirmModal('Visszaállítás a kiküldött állapotra','A stáb szerepei és munkanapjai visszaállnak arra, amit a munkatársak a véglegesítéskor megkaptak (az eszközök maradnak – azokat az eszközlistával küldöd). Az azóta felvett szakemberek lekerülnek. (Mentés előtt még visszavonható.)','Visszaállítás',()=>{
     const crew=[],eq=[],days={};let lead='';
-    f.ids.forEach(id=>{const s=crewSigParse(f.sigs[id]);s.roles.forEach(r=>{if(r==='Projektvezető')lead=id;else crew.push({crewId:id,role:r});});s.eq.forEach(e=>eq.push({itemId:e.itemId,qty:e.qty,crewId:id}));if(s.days.length)days[id]=s.days;});
-    const used=new Set(eq.map(e=>e.itemId));(d.equipment||[]).forEach(e=>{if(!e.crewId&&!used.has(e.itemId))eq.push(Object.assign({},e));});   // a gazdátlan eszközök maradnak
-    closeModal();setDraft({lead:lead||d.lead,crew,equipment:eq,crewDays:Object.keys(days).length?days:d.crewDays});toast('Visszaállítva a kiküldött állapotra – mentsd el.');});};
+    f.ids.forEach(id=>{const s=crewSigParse(f.sigs[id]);s.roles.forEach(r=>{if(r==='Projektvezető')lead=id;else crew.push({crewId:id,role:r});});if(s.days.length)days[id]=s.days;});
+    closeModal();setDraft({lead:lead||d.lead,crew,crewDays:Object.keys(days).length?days:d.crewDays});toast('Visszaállítva a kiküldött állapotra – mentsd el.');});};   // az eszközök maradnak (azokat az eszközlista kezeli); a lekerült tagok eszközei gazdátlanok lesznek

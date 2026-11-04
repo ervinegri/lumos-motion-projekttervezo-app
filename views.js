@@ -869,8 +869,7 @@ function crewDiffHtml(p){const f=p.crewFinal;if(!f||!Array.isArray(f.ids))return
   D.changed.forEach(id=>{const a=crewSigParse(f.sigs[id]),b=crewSigParse(crewSig(p,id)),parts=[];
     const rAdd=b.roles.filter(x=>!a.roles.includes(x)),rDel=a.roles.filter(x=>!b.roles.includes(x));if(rAdd.length)parts.push('új szerep: '+rAdd.join(', '));if(rDel.length)parts.push('levett szerep: '+rDel.join(', '));
     const en=e=>(itemById(e.itemId)||{}).name||'eszköz',ak=a.eq.map(e=>e.itemId+'x'+e.qty),bk=b.eq.map(e=>e.itemId+'x'+e.qty);const eAdd=b.eq.filter(e=>!ak.includes(e.itemId+'x'+e.qty)),eDel=a.eq.filter(e=>!bk.includes(e.itemId+'x'+e.qty));
-    if(eAdd.length)parts.push('új eszköz: '+eAdd.map(en).join(', '));if(eDel.length)parts.push('levett eszköz: '+eDel.map(en).join(', '));
-    if(a.days.join()!==b.days.join())parts.push('munkanapok változtak');if(a.rent.join()!==b.rent.join())parts.push('bérelt eszközök változtak');
+    void eAdd;void eDel;if(a.days.join()!==b.days.join())parts.push('munkanapok változtak');   // az eszközök az eszközlistánál
     L.push(`<li>✏️ <b>${esc(nm(id))}</b>: ${esc(parts.join(' · ')||'módosult')}</li>`);});
   return L.length?`<ul class="cf-diff">${L.join('')}</ul>`:'';}
 function viewProject(p){

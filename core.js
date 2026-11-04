@@ -24,8 +24,10 @@ function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat(
   const days=(((p.crewDays||{})[cid])||[]).slice().sort();
   return roles.join('+')+'|'+eq.join(',')+'|'+rent.join(',')+'|'+days.join(',');}
 /* Kik kapnak értesítést újraélesítéskor: új tagok + akiknek a szerepe, eszközei vagy napjai változtak */
+/* A csapat-véglegesítésnél csak a szerep és a munkanapok számítanak – az eszközöket külön, az eszközlistával küldjük */
+const sigCore=s=>{const a=String(s||'').split('|');return (a[0]||'')+'|'+(a[3]||'');};
 function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array.isArray(f.ids))return {added:ids,changed:[],removed:[]};
-  const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&f.sigs[id]!==crewSig(p,id)):[];
+  const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&sigCore(f.sigs[id])!==sigCore(crewSig(p,id))):[];
   return {added,changed,removed};}
 /* Vágónként: mit kell megvágnia (a véglegesítő levélbe) */
 function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
