@@ -71,7 +71,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${won?'':ms('dStage','Szakasz',stOpts,d.stage)}
     ${won?'':`<div class="field"><label for="m-dChance">Esély (%)</label><input class="inp" id="m-dChance" name="dChance" type="number" min="0" max="100" step="5" value="${dealChance(d)}"></div>`}
     ${ms('dSource','Honnan jött?',DEAL_SOURCES,d.source||'',{empty:'—'})}
-    ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés</label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
+    ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
       <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
@@ -84,6 +84,10 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
     if(nd.title.length<2){toast('Add meg a lehetőség nevét.',true);$('m-dTitle').focus();return;}
+    if(!won&&nd.stage!=='elveszett'){const ns=$('m-dNext'),nn=$('m-dNextD');[ns,nn].forEach(x=>{if(x)x.style.borderColor='';});   // a következő lépés és a dátuma kötelező
+      const fp=x=>x&&x._flatpickr&&x._flatpickr.altInput||x;
+      if(!nd.nextStep){toast('Add meg a következő lépést.',true);if(ns){ns.style.borderColor='var(--bad)';ns.focus();}return;}
+      if(!nd.nextDate){toast('Add meg a következő lépés dátumát.',true);if(nn){fp(nn).style.borderColor='var(--bad)';fp(nn).focus();}return;}}
     if(nd.stage==='elveszett'&&nd.lostReason.length<3){toast('Írd be röviden, miért veszett el.',true);$('dl-lostf').hidden=false;$('m-dLost').focus();return;}
     try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;closeModal();render(true);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
