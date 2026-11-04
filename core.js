@@ -63,7 +63,7 @@ const EXTRAS=[
   {k:'x_timelapse',label:'Timelapse (GoPro)',base:true},
   {k:'x_pov',label:'POV felvétel (GoPro)',base:true},
   {k:'x_foto',label:'Fotós a helyszínen',role:'Fotós',base:true},
-  {k:'x_nyersVetel',label:'Nyersanyag megvásárlása',pct:'nyersVetel'},
+  {k:'x_nyersVetel',label:'Nyersanyag átadása',pct:'nyersVetel'},
   {k:'x_nyersTarolas',label:'Nyersanyag tárolása 5 évig',pct:'nyersTarolas'},
   {k:'x_rush',label:'Villámgyors kézbesítés',pct:'rush'}];
 const REC_CAMS=[

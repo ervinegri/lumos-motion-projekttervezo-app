@@ -734,7 +734,7 @@ function roContentPanel(p){
   const field=[];recRoomsOf(p).forEach((r,i)=>{const cs=roomCams(r);if(cs.length)field.push(`<b>${esc(roomName(r,i))}</b>: `+cs.map(c=>esc(c.label)+(num(r[c.k])>1?' ×'+num(r[c.k]):'')).join(', '));});
   if(p.er_creative)field.push('Kreatív kamera'+(camN(p,'er_creative')>1?' ×'+camN(p,'er_creative'):''));
   INT_FLAGS.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
-  EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas'].includes(e.k)&&p[e.k]).forEach(e=>field.push(esc(e.label)));
+  EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas','x_nyersVetel'].includes(e.k)&&p[e.k]).forEach(e=>field.push(esc(e.label)));
   if(fotoN(p)>0)field.push('Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):''));
   REC_LIVE.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
   const due=dueDate(p),di=due?dueInfo(p):null,r=pr(p);
@@ -809,8 +809,8 @@ function topicCards(p,{camRow,dlRow,D}){
   const recL=[{on:RR.some(r=>roomCams(r).length),cnt:RR.reduce((s,r)=>s+roomCams(r).length,0),html:`<div class="rooms">${RR.map(roomBlk).join('')}${dis?'':`<button class="btn outline small room-add" type="button" data-action="room-add">＋ Új terem hozzáadása</button>`}</div>`}];
   const recR=REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>C(cnt(it),it.k));
   const intL=INT_FLAGS.map(c=>flag(c.k,c.label,OP)),intR=DELIVERABLES.filter(it=>it.g==='int').map(it=>C(dlv(it),it.k));
-  const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>flag(e.k,e.label,e.role||OP))).concat(DELIVERABLES.filter(it=>/^short/.test(it.k)).map(it=>F(dlv(it),'rec_'+it.k,OP,it.label+' felvétele')));   // short videó készítés a kreatív videózásnál is (ugyanaz az adat, mint az Utómunkánál)
-  const krR=DELIVERABLES.filter(it=>it.g!=='int').map(it=>C(dlv(it),it.k)).concat(p.x_rush?[flag('x_rush','Villámgyors kézbesítés')]:[]);
+  const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush','x_nyersVetel'].includes(e.k)).map(e=>flag(e.k,e.label,e.role||OP))).concat(DELIVERABLES.filter(it=>/^short/.test(it.k)).map(it=>F(dlv(it),'rec_'+it.k,OP,it.label+' felvétele')));   // short videó készítés a kreatív videózásnál is (ugyanaz az adat, mint az Utómunkánál)
+  const krR=DELIVERABLES.filter(it=>it.g!=='int').map(it=>C(dlv(it),it.k)).concat([flag('x_nyersVetel','Nyersanyag átadása')]).concat(p.x_rush?[flag('x_rush','Villámgyors kézbesítés')]:[]);   // a nyersanyag átadása utómunka, beosztás nélkül
   const foL=[F({on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')},'x_foto','Fotós','Fotós a helyszínen',fotoN(p))],foR=[C({on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'},'foto_db')];
   const teL=TECH.map(t=>flag(t.k,t.label,t.role)).concat(REC_LIVE.map(c=>flag(c.k,c.label,c.role)));
   const due=needsDelivery(p)&&!editOnly(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
@@ -829,7 +829,7 @@ function orderSummary(p,bare){
   const OP='Operatőr',rooms=num(p.er_rooms),rec=[];if(rooms>1&&REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]))rec.push(row(rooms+'×','Rögzített terem'));
   REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).forEach(c=>rec.push(row((CAM_COUNTS.some(x=>x.flag===c.k)?camN(p,c.k):1)+'×',c.label,c.k,OP)));
   const kr=[];if(p.er_creative)kr.push(row(camN(p,'er_creative')+'×','Kreatív kamera','er_creative',OP));
-  EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas'].includes(e.k)&&p[e.k]).forEach(e=>kr.push(row('✓',e.label,e.k,e.role||OP)));
+  EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas','x_nyersVetel'].includes(e.k)&&p[e.k]).forEach(e=>kr.push(row('✓',e.label,e.k,e.role||OP)));
   DELIVERABLES.filter(it=>/^short/.test(it.k)&&num(p[it.k])>0).forEach(it=>kr.push(row(num(p[it.k])+'×',it.label+' felvétele','rec_'+it.k,OP)));
   grp('🎙️ Előadásrögzítés',rec);grp('🎥 Kreatív videózás',kr);
   grp('🎤 Interjúk / imázsfilmek videózása',INT_FLAGS.filter(c=>p[c.k]).map(c=>row('✓',c.label,c.k,OP)));
@@ -893,7 +893,7 @@ function viewProject(p){
   const nKrea=DELIVERABLES.filter(it=>num(p[it.k])>0).length+(fotoDb(p)>0?1:0)+EXTRAS.filter(e=>e.k!=='x_foto'&&p[e.k]).length;
   const nRec=REC_CAMS.filter(c=>p[c.k]).length+REC_LIVE.filter(c=>p[c.k]).length+(p.er_post?1:0);
   const nTech=TECH.filter(t=>p[t.k]).length;
-  const nRecG=REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).length,nKreaG=EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)&&p[e.k]).length+(p.er_creative?1:0),nFotoG=(fotoN(p)>0?1:0)+(fotoDb(p)>0?1:0);
+  const nRecG=REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).length,nKreaG=EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush','x_nyersVetel'].includes(e.k)&&p[e.k]).length+(p.er_creative?1:0),nFotoG=(fotoN(p)>0?1:0)+(fotoDb(p)>0?1:0);
   const nTechG=nTech+REC_LIVE.filter(c=>p[c.k]).length,nPostErG=REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).length,nPostKreaG=DELIVERABLES.filter(it=>it.g!=='int'&&num(p[it.k])>0).length+(p.x_rush?1:0),nPostIntG=DELIVERABLES.filter(it=>it.g==='int'&&num(p[it.k])>0).length,nIntG=INT_FLAGS.filter(c=>p[c.k]).length;
   const camRow=c=>{const cc=CAM_COUNTS.find(x=>x.flag===c.k),n=camN(p,c.k);
           return cc?`<div class="cam-row"><label class="toggle"><input type="checkbox" data-flag="${c.k}"${p[c.k]?' checked':''}${D()}><span class="tl">${c.label}</span></label>${p[c.k]?`<div class="stepper cam-step"><button type="button" data-action="rec-step" data-k="${cc.k}" data-d="-1" aria-label="${cc.label}: kevesebb"${n<=1||D()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" data-step-k="${cc.k}" data-min="1" data-max="10" aria-label="${cc.label} száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${cc.k}" data-d="1" aria-label="${cc.label}: több"${n>=10||D()?' disabled':''}>+</button></div>`:''}</div>`
