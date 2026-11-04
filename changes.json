@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c034534183",
+"at": "2026-11-04T21:13:25+01:00",
+"msg": "Naptár leírás: eszközök munkatársanként csoportosítva, az app linkje nélkül (egyszeri újraszinkron); eszközlista-betöltés animált jelzéssel"
+},
+{
 "id": "21d3447b63",
 "at": "2026-11-04T21:10:15+01:00",
 "msg": "Díjtáblázat: az értékesítő a helyszíni stábban (csak a vágó az Utómunkában); eszközlista-levél: a címzett csak a saját eszközeit kapja, a projektvezető a teljes listát"
@@ -149,11 +154,6 @@
 "id": "53d93cbc08",
 "at": "2026-11-04T16:55:49+01:00",
 "msg": "Ütközés: a remote projektvezető akkor sem ütközik, ha ugyanott (otthonról) vágó is"
-},
-{
-"id": "7910fcddaa",
-"at": "2026-11-04T16:21:23+01:00",
-"msg": "Mentés átmeneti hibánál (pl. épp frissül a háttér) magától újrapróbálkozik; új lehetőségnél nem jöhet létre duplikátum; frissítéskor a nyitott ablak tartalma megmarad"
 }
 ]
 }
