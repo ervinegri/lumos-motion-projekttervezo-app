@@ -879,9 +879,17 @@ async function crewFinalizeModal(){
     }catch(e){handleErr(e);}
   }});
 }
+/* A termek kamerái / objektívei / diákeszközei a terem operatőréhez tartoznak: ha az operatőr változik vagy lekerül, az eszköz vele együtt mozog (operatőr nélkül gazdátlan lesz) */
+function roomEqSync(d){if(!d||!Array.isArray(d.equipment)||!Array.isArray(d.recRooms))return;const own={};
+  recRoomsOf(d).forEach(r=>{const op=(slotOwners(d,r.id+'_op')||[])[0]||'';Object.keys(ROOM_EQ).forEach(k=>{roomEq(r,k).concat(roomLens(r,k)).forEach(id=>{if(id&&!(id in own))own[id]=op;});});});
+  if(!Object.keys(own).length)return;let ch=false;const eq=d.equipment.map(e=>{if(e&&e.itemId in own&&(e.crewId||'')!==own[e.itemId]){ch=true;return Object.assign({},e,{crewId:own[e.itemId]});}return e;});if(ch)d.equipment=eq;}
+/* Aki már nincs a helyszínen (remote vezető, csak vágó / értékesítő, vagy lekerült a projektről), annál nem maradhat eszköz: gazdátlan lesz, a stábnál újra kiosztható */
+function offSiteEqRelease(d){if(!d||!Array.isArray(d.equipment))return;const on=onSiteIds(d),gone=new Set();
+  const eq=d.equipment.map(e=>{if(e&&e.crewId&&!on.has(e.crewId)){gone.add(e.crewId);return Object.assign({},e,{crewId:''});}return e;});
+  if(gone.size){d.equipment=eq;setTimeout(()=>toast(`${[...gone].map(id=>(crewById(id)||{}).name||'Valaki').join(', ')} már nincs a helyszínen – az eszközei gazdátlanok lettek, oszd ki őket újra.`),0);}}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
-  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);S.dirty=true;render(true);autoSave(400);}
+  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);roomEqSync(S.draft);offSiteEqRelease(S.draft);S.dirty=true;render(true);autoSave(400);}
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
