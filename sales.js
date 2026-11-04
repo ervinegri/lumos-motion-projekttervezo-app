@@ -40,7 +40,7 @@ function viewSales(){
         return `<div class="tile${amt?' ok':''}" data-tip="A ténylegesen kifizetett nettó ügyfélbevétel után, sávosan (a továbbszámlázott költségek nélkül)"><div class="tile-n">${ftFmt(amt)}</div><div class="tile-l">jutalék ebben a hónapban · alap: ${ftFmt(base)}</div></div>`;})()}
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
-      ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="">👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
+      ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="dl-board">${DEAL_STAGES.map(col).join('')}</div>
     ${hidden||f.old?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
 }
@@ -49,9 +49,12 @@ function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.i
     :(d.nextStep||d.nextDate)?`<div class="dl-next${od?' late':td?' today':''}">➜ ${esc(d.nextStep||'Teendő')}${d.nextDate?` · <b>${od?'lejárt: ':td?'ma':''}${td?'':esc(fmtShort(d.nextDate))}</b>`:''}</div>`:`<div class="dl-next none">➜ nincs következő lépés</div>`;
   return `<article class="dl-card" draggable="${d.stage==='nyert'?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
     <div class="dl-t">${esc(d.title)}</div>${d.contactName||d.client?`<div class="dl-c">${esc(d.contactName||d.client)}</div>`:''}
+    ${d.services?`<div class="dl-sv">${String(d.services).split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}
     <div class="dl-m"><span>${d.eventDate?'📅 '+esc(fmtShort(d.eventDate)):'<span class="muted">nincs dátum</span>'}</span><b>${dealVal(d)?ftFmt(dealVal(d)):'<span class="muted">?</span>'}</b></div>
     ${foot}${DEAL_OPEN.includes(d.stage)||isAdmin()?`<div class="dl-f">${DEAL_OPEN.includes(d.stage)?`<span class="dl-ch" data-tip="Esély a szerződésre">${dealChance(d)}%</span>`:'<span></span>'}${isAdmin()&&d.ownerName?`<span class="dl-own-n">👤 ${esc(d.ownerName)}</span>`:''}</div>`:''}</article>`;}
 
+/* Új lehetőségnél: milyen szolgáltatások jöhetnek szóba (többet is lehet) */
+const DEAL_SERVICES=['Előadásrögzítés','Élő közvetítés (stream)','Kreatív videózás','Aftermovie / összefoglaló videó','Interjúk / imázsfilm','Short videók','Fotózás','Drónfelvétel','Videóvágás / utómunka','Vizuál-, hang- és fénytechnika','Egyéb'];
 function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||{}),isNew=!d0,won=d.stage==='nyert';
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
@@ -60,6 +63,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
     <div class="field"><label for="m-dClient">Cég</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
     ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—',cmb:'Válassz típust…'})}
+    ${(()=>{const cur=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean);return mselField('dServices','Szóba jövő szolgáltatások',DEAL_SERVICES.concat(cur.filter(x=>!DEAL_SERVICES.includes(x))),cur,'Válaszd ki, mik jöhetnek szóba (többet is lehet)…').replace('<div class="field"','<div class="field full"');})()}
     ${mf('dCPhone','Telefon',{v:d.contactPhone,max:40})}
     <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
     ${mf('dDate','Rendezvény dátuma',{v:d.eventDate,type:'date'})}
@@ -76,7 +80,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>${['uj','ajanlat'].includes(d.stage)?'':`<button type="button" class="btn primary small dl-winbtn" data-action="deal-win" data-id="${esc(d.id)}">✅ Szerződve</button>`}`:'',submitLabel:'Mentés',submit:async fd=>{
     const nd=Object.assign({},d0||{},{id:d.id||'',title:String(fd.get('dTitle')||'').trim(),client:String(fd.get('dClient')||'').trim(),eventType:fd.get('dType')||'',contactName:String(fd.get('dCName')||'').trim(),contactEmail:String(fd.get('dCEmail')||'').trim(),contactPhone:String(fd.get('dCPhone')||'').trim(),
-      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:dNoteAdd(dNoteFix(String(fd.get('dNote')||''),dNoteFb(d),d.ownerName),String(fd.get('dNoteNew')||''))});
+      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',services:fd.getAll('dServices').join(', '),note:dNoteAdd(dNoteFix(String(fd.get('dNote')||''),dNoteFb(d),d.ownerName),String(fd.get('dNoteNew')||''))});
     if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
     if(nd.title.length<2){toast('Add meg a lehetőség nevét.',true);$('m-dTitle').focus();return;}
@@ -140,7 +144,7 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
 
-document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.owner=e.target.value;render(true);}});
+document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.owner=e.target.value==='__all'?'':e.target.value;render(true);}});
 
 /* Lehetőség ügyfele: csak a beírt szövegre illeszkedő ügyfelek jönnek fel (a böngésző saját, pontatlan listája helyett) */
 let DC_ITEMS=[],DC_SEQ=0,DC_T=0;

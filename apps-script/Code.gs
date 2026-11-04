@@ -112,7 +112,7 @@ const TABLES = {
     ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
     ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
     ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
-    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)']] },   // új oszlop mindig a végére
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
@@ -676,7 +676,7 @@ function saveDeal_(u, a) {
       id: id, title: str_(a.title, 160), client: str_(a.client, 160), contactName: str_(a.contactName, 120), contactEmail: str_(a.contactEmail, 160), contactPhone: str_(a.contactPhone, 40),
       eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
       chance: num(a.chance, 100), source: DEAL_SOURCES.indexOf(a.source) >= 0 ? a.source : '', nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
-      ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000),
+      ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000), services: (Array.isArray(a.services) ? a.services : String(a.services || '').split(',')).map(x => str_(x, 60).trim()).filter(Boolean).slice(0, 20).join(', '),
       lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
       closedAt: stage === 'elveszett' ? (old && old.stage === 'elveszett' ? old.closedAt : today_()) : (old && old.stage === 'nyert' ? old.closedAt : ''),
       createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };

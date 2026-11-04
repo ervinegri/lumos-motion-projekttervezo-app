@@ -408,7 +408,7 @@ function newProjectModal(day,pre){
 function crewCompanies(){const m=new Map();(S.crew||[]).forEach(c=>{const n=String(c.company||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:c.vat||''});});
   (S.clients||[]).forEach(c=>{const n=String(c.name||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:''});});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,'hu'));}
 /* Több elemet választó legördülő (pipákkal): a jelölőnégyzetek a formban maradnak, csak egy lenyíló panelben */
-function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field" id="f-${name}"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
+function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field" id="f-${name}"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"${ph?` data-ph="${esc(ph)}"`:''}><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
   <div class="msel-pop" hidden>${opts.map(o=>`<label><input type="checkbox" name="${name}" value="${esc(o)}"${S2.has(o)?' checked':''}>${esc(o)}</label>`).join('')}</div></div></div>`;}
 function mselSum(a,ph){return a.length?a.map(x=>`<span class="msel-chip">${esc(x)}</span>`).join(''):`<span class="muted">${esc(ph||'Válassz…')}</span>`;}
 function crewModal(c){
@@ -1742,7 +1742,7 @@ ACT['proj-history']=async b=>{const p=projById(b.dataset.id)||S.draft;if(!p)retu
 
 const salesOnly=roles=>roles.length>0&&roles.every(r=>r==='Értékesítő'||r==='Ajánlói jutalék');   // csak értékesítői szerep: a gyártási részletek és a napidíj nem kell
 function crewSalesToggle(){const w=document.querySelector('.msel[data-msel=roles]');if(!w)return;const so=salesOnly([...w.querySelectorAll('input:checked')].map(i=>i.value));['f-skills','f-dayRate'].forEach(id=>{const x=$(id);if(x)x.hidden=so;});}
-document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;if(w.dataset.msel==='roles')crewSalesToggle();const ph=w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…';w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
+document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;if(w.dataset.msel==='roles')crewSalesToggle();const ph=w.dataset.ph||(w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…');w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
 document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.querySelectorAll('.msel-pop').forEach(x=>{if(!x.hidden){x.hidden=true;x.closest('.msel').classList.remove('open');}});});
 
 /* Eszközök véglegesítése: ki milyen eszközlistát kap – a „✉️ Levél ▾” gomb kinyitja a teljes levelet */
