@@ -1097,7 +1097,13 @@ function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=
   w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;r.classList.toggle('tl-out',!on);r.toggleAttribute('aria-hidden',!on);});   // animáltan tűnik el / jön vissza
   const tl0=w.querySelector('.tl.tl-noanim');if(tl0)requestAnimationFrame(()=>requestAnimationFrame(()=>tl0.classList.remove('tl-noanim')));   // első rajzoláskor nincs animáció
   const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';
-const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
+const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
+  /* a hónapválasztó követi a görgetést; megállás után a háromhónapos ablak az új hónap köré rendeződik (végtelen görgetés) */
+  const vm=d.slice(0,7),MNf=x=>F_MONTH.format(toDate(x+'-01')).replace(/^\d{4}\.\s*/,'').toLowerCase(),yr=x=>x.slice(0,4)!==vm.slice(0,4)?x.slice(0,4)+'. ':'';
+  const cur=document.querySelector('.cm-cur'),sides=document.querySelectorAll('.cm-side');
+  if(cur){const tt=vm.slice(0,4)+'. '+MNf(vm);if(cur.textContent!==tt){cur.textContent=tt;if(sides[0])sides[0].textContent=yr(shiftMonth(vm,-1))+MNf(shiftMonth(vm,-1));if(sides[1])sides[1].textContent=yr(shiftMonth(vm,1))+MNf(shiftMonth(vm,1));}}
+  clearTimeout(window._tlRc);if(vm!==S.cal.month){const pos=w.scrollLeft/cw,idx=Math.floor(pos);const keep={d:addDays(b.dataset.first,idx),f:pos-idx,t:w.scrollTop};
+    window._tlRc=setTimeout(function go(){if(w.classList.contains('panning')){window._tlRc=setTimeout(go,300);return;}S.cal.month=vm;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},450);}}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
 function calTimeline(m,items0,T){
@@ -1135,6 +1141,7 @@ function calTimeline(m,items0,T){
         return `<button type="button" class="cal-chip p cut tl-bar tl-cut${join?' tl-joined':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="open-project" data-id="${esc(p.id)}" title="✂️ Vágás – leadás: ${esc(fmtDay(c.due))}${cutLeft(p)?' · '+esc(cutLeft(p).txt):''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}✂️${cutLeft(p)&&c.due>=T?' '+esc(cutLeft(p).short):''}${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
   setTimeout(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
+    if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
     if(c&&c.m===m){w.scrollLeft=c.x;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,target=T.slice(0,7)===m?col(T)-1:col(m+'-01')-1;
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
