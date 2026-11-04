@@ -1674,8 +1674,18 @@ document.addEventListener('dragend',()=>{FEE_DRAG=null;document.querySelectorAll
   document.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Date.now()-st>800)return;
     if(Math.abs(dx)>60&&Math.abs(dx)>1.5*Math.abs(dy)){nav(dx<0?1:-1);return;}
     if(Math.abs(dy)>80&&Math.abs(dy)>1.5*Math.abs(dx)){const atTop=scrollY<=2,atBot=innerHeight+scrollY>=document.documentElement.scrollHeight-2;if(dy<0&&atBot)nav(1);else if(dy>0&&atTop)nav(-1);}},{passive:true});
-  let acc=0,lock=0;document.addEventListener('wheel',e=>{if(S.tab!=='naptar'||!(e.target.closest&&e.target.closest('.cal-grid')))return;if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;
-    acc+=e.deltaX;if(Date.now()<lock){acc=0;return;}if(Math.abs(acc)>140){nav(acc>0?1:-1);acc=0;lock=Date.now()+700;}},{passive:true});})();
+  let acc=0,lock=0,wt=0;const gridEl=()=>document.querySelector('.cal-grid');
+  const follow=(g,dx)=>{g.style.transition='none';g.style.transform=`translateX(${Math.max(-160,Math.min(160,-dx))}px)`;g.style.opacity=String(1-Math.min(.35,Math.abs(dx)/600));};
+  const snap=g=>{g.style.transition='transform .18s ease-out,opacity .18s';g.style.transform='';g.style.opacity='';};
+  document.addEventListener('wheel',e=>{if(S.tab!=='naptar'||!(e.target.closest&&e.target.closest('.cal-grid')))return;if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;e.preventDefault();
+    const g=gridEl();if(Date.now()<lock){acc=0;return;}acc+=e.deltaX;if(g)follow(g,acc);clearTimeout(wt);wt=setTimeout(()=>{const g2=gridEl();if(g2)snap(g2);acc=0;},160);   // a rács követi a görgetést, elég nagy mozdulatnál hónapot vált
+    if(Math.abs(acc)>140){const d=acc>0?1:-1;acc=0;lock=Date.now()+650;clearTimeout(wt);nav(d);}},{passive:false});
+  /* egérrel húzva is lapozható (mint az idővonal): a rács követi az egeret, elengedéskor hónapot vált */
+  let dg=null;document.addEventListener('mousedown',e=>{if(e.button!==0||S.tab!=='naptar')return;const g=e.target.closest&&e.target.closest('.cal-grid');if(!g||e.target.closest('[draggable=true],button,a,input'))return;dg={x:e.clientX,g,moved:false};});
+  document.addEventListener('mousemove',e=>{if(!dg)return;const dx=e.clientX-dg.x;if(!dg.moved&&Math.abs(dx)<6)return;if(!dg.moved){dg.moved=true;document.body.classList.add('cal-panning');}e.preventDefault();follow(dg.g,-dx);});
+  document.addEventListener('mouseup',e=>{if(!dg)return;const d=dg;dg=null;document.body.classList.remove('cal-panning');if(!d.moved)return;const dx=e.clientX-d.x;
+    const blk=ev=>{ev.stopPropagation();ev.preventDefault();};document.addEventListener('click',blk,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',blk,true),50);   // húzás után ne jelöljön ki napot
+    if(Math.abs(dx)>Math.max(70,d.g.offsetWidth*.12))nav(dx<0?1:-1);else snap(d.g);});})();
 
 ACT['raw-skip']=()=>{const n=S._rawNext;closeModal();if(n)n();};
 ACT['cut-deliver']=()=>cutDeliverModal();
