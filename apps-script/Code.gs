@@ -1563,7 +1563,7 @@ function syncCalendar_(p) {
       }
     } else {
       if (ev.getTitle() !== title) ev.setTitle(title);
-      if (ev.getDescription() !== plan.description) ev.setDescription(plan.description);
+      if (ev.getDescription() !== plan.description) calQuietPatch_(ev, { description: plan.description }, () => ev.setDescription(plan.description));   // a vendégek nem kapnak levelet a leírás frissítéséről
       if ((ev.getLocation() || '') !== (p.venue || '')) ev.setLocation(p.venue || '');
       if (allDay) { if (!ev.isAllDayEvent() || +ev.getAllDayStartDate() !== +start || +ev.getAllDayEndDate() !== +end) ev.setAllDayDates(start, end); }
       else if (ev.isAllDayEvent() || +ev.getStartTime() !== +start || +ev.getEndTime() !== +end) ev.setTime(start, end);
@@ -1576,6 +1576,18 @@ function syncCalendar_(p) {
     p.calError = 'A naptár frissítése nem sikerült: ' + ((e && e.message) || e);
   }
   return p;
+}
+/** Esemény csendes frissítése: a Google semmilyen értesítőt nem küld a vendégeknek (sendUpdates: none). Speciális szolgáltatás nélkül a tartalék fut. */
+function calQuietPatch_(ev, body, fallback) {
+  if (typeof Calendar !== 'undefined' && Calendar.Events) { try { Calendar.Events.patch(body, CALENDAR_ID, String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' }); return; } catch (e) { Logger.log('Csendes frissítés hiba: ' + e); } }
+  fallback();
+}
+/** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
+    A Naptár első megnyitásakor fut – időzítő nélkül, így biztosan lefut. A vendégek nem kapnak értesítést. */
+function calPhoneFixOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALPHONE3_2026_11')) return;
+  P.setProperty('MIG_CALPHONE3_2026_11', now_());
+  try { calResyncUpcoming(); } catch (e) { Logger.log('Újraszinkron hiba: ' + e); }
 }
 function setCalId_(id, evId) {
   withLock_(() => {
@@ -1596,6 +1608,7 @@ function calendarEvents_(a) {
   const start = calDate_(from), end = new Date(calDate_(to).getTime() + 86400000);
   if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
   const which = a && a.cal === 'vagoi' ? 'vagoi' : 'terepi';
+  if (which === 'terepi') calPhoneFixOnce_();
   const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + which + '_' + from + '_' + to, hit = cache.get(key);
   if (hit && !(a && a.fresh)) return JSON.parse(hit);   // fresh: Frissítés / visszatérés az app fülére – a Google Naptárban közben törölt esemény se maradjon itt
   const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
@@ -1623,13 +1636,14 @@ function calBump_() { const c = CacheService.getScriptCache(); c.put('pm_cal_ver
 /** Önálló naptárbejegyzés (nem projekt) létrehozása / módosítása az appból. A projektek eseményét az app a projektből frissíti. */
 /** Naptárbejegyzés áthelyezése húzással (csak a dátum tolódik, a leírás, vendégek változatlanok). a: {id, days} */
 function moveCalEvent_(u, a) {
-  const ev = calEvent_(str_(a && a.id, 200)), days = Math.round(Number(a && a.days) || 0);
+  const vagoi = a && a.cal === 'vagoi', id = str_(a && a.id, 200);
+  const ev = vagoi ? (() => { try { return CalendarApp.getCalendarById(CAL_VAGOI_ID).getEventById(id); } catch (e) { return null; } })() : calEvent_(id), days = Math.round(Number(a && a.days) || 0);   // a Vágói naptár eseményei is húzhatók
   if (!ev) throw new Error('Ez a bejegyzés közben törlődött a naptárból.');
   if (ev.getTag('lumosProjectId')) throw new Error('Ez egy projekt eseménye – a projektet húzd át.');
   if (!days || Math.abs(days) > 400) return { ok: true };
   const sh = d => new Date(d.getTime() + days * 86400000);
   if (ev.isAllDayEvent()) ev.setAllDayDates(sh(ev.getAllDayStartDate()), sh(ev.getAllDayEndDate())); else ev.setTime(sh(ev.getStartTime()), sh(ev.getEndTime()));
-  calBump_(); logEvent_(u, 'Naptár', ev.getTitle(), 'Áthelyezve ' + days + ' nappal');
+  calBump_(); logEvent_(u, vagoi ? 'Vágói naptár' : 'Naptár', ev.getTitle(), 'Áthelyezve ' + days + ' nappal');
   return { ok: true };
 }
 function saveCalEvent_(u, a) {

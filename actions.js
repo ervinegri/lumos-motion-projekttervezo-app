@@ -1827,7 +1827,10 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
       else{syncCal(p.id);toast(`„${p.name}” áthelyezve: ${fmtDay(patch.date)}${fin.length?' – a stáb nem kapott e-mailt':''}`);}}
     catch(err){Object.assign(p,old);render(true);handleErr(err);}
     return;}
-  if(g.kind==='g'){const m=S.cal.month;try{await call('moveCalEvent',{id:g.id,days});S.cal.events={};render(true);toast('Bejegyzés áthelyezve');}catch(err){handleErr(err);}}});
+  if(g.kind==='g'){const m=S.cal.month;try{await call('moveCalEvent',{id:g.id,days});S.cal.events={};render(true);toast('Bejegyzés áthelyezve');}catch(err){handleErr(err);}}
+  if(g.kind==='v'){const m=S.cal.month,L=S.cal.ev2[m]||[],ev=L.find(x=>x.id===g.id);if(!ev)return;const old={date:ev.date,endDate:ev.endDate};   // Vágói naptár: azonnal átkerül, a háttérben mentődik
+    ev.date=sh(ev.date);if(ev.endDate)ev.endDate=sh(ev.endDate);render(true);
+    try{await call('moveCalEvent',{id:g.id,days,cal:'vagoi'});calForceFresh();loadCalEvents(m);toast(`„${ev.title||'Bejegyzés'}” áthelyezve: ${fmtDay(ev.date)}`);}catch(err){Object.assign(ev,old);render(true);handleErr(err);}}});
 
 /* Szakember hozzáadása: kereshető, csoportosított lista (név + szerepek), a natív legördülő helyett */
 if(window.MutationObserver){let acT=0;new MutationObserver(()=>{if(acT)return;acT=requestAnimationFrame(()=>{acT=0;const el=$('add-crew-person');if(el&&!el._cmb)comboSelect(el,'Kezdj el gépelni a nevet…',id=>{const c=crewById(id);return c?(c.roles||[]).join(', '):'';});});}).observe(document.documentElement,{childList:true,subtree:true});}
