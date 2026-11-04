@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0e917f1b47",
+"at": "2026-11-04T23:03:41+01:00",
+"msg": "Új design: a naptár projekt-sávjai pára-kékek"
+},
+{
 "id": "8733285c1c",
 "at": "2026-11-04T23:02:25+01:00",
 "msg": "Lejárt számla kártyája feltűnőbb: vastag piros keret"
@@ -146,13 +151,8 @@
 "msg": "Beosztó levél: a projektvezető a saját levelében nem kapja meg a saját nevét és telefonszámát"
 },
 {
-"id": "999f227ddd",
-"at": "2026-11-04T20:57:07+01:00",
-"msg": "„Nyersanyag átadása” (a „Nyersanyag megvásárlása” helyett): az Utómunkában, beosztás nélkül"
-},
-{
-"id": "716c0c7b90",
-"at": "2026-11-04T19:52:21Z",
+"id": "c98e01c53b",
+"at": "2026-11-04T19:57:17Z",
 "msg": "Változásnapló frissítése"
 }
 ]
