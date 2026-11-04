@@ -188,3 +188,7 @@ html.th2 .sub{font-size:14px}
 html.th2 .statuspill{font-size:12.5px}
 /* átmenetes gombok: a háttér a keret alá is kerüljön, különben a szélén csík/varrat látszik */
 html.th2 .btn.primary,html.th2 .tab[aria-selected="true"],html.th2 .lead-badge{background-origin:border-box;background-clip:border-box;border-color:transparent;box-shadow:none}
+/* hónapválasztó: a kiválasztott hónap is a többi mérete közelében */
+html.th2 .mnav-chip{font-size:14px;font-weight:600;min-height:40px;padding:6px 14px;border-radius:999px}
+html.th2 .mnav-chip.on{font-size:15px;font-weight:700;padding:6px 18px}
+html.th2 .month-nav .btn,html.th2 .mnav-row .btn{min-height:40px}
