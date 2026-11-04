@@ -1395,9 +1395,10 @@ document.addEventListener('change',e=>{
   if(t.dataset.field!==undefined&&d){const fv=fieldValue(t);if(t.tagName!=='SELECT'&&String(d[t.dataset.field]??'')===String(fv??'')&&!['date','endDate','client'].includes(t.dataset.field)){renderChrome();return;}setDraft({[t.dataset.field]:fv});return;}   // gépelt szövegnél már a draftban van – ne rajzoljuk újra (különben elveszhet a következő kattintás)
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
+    if(k==='x_vago'){Object.assign(ch,onsiteCutCh(d,t.checked));}
     setDraft(ch);return;}
   if(t.dataset.leadRemote&&d){setDraft({leadRemote:t.checked});return;}
-  if(t.dataset.editOnsite&&d){setDraft({editOnsite:t.checked});return;}
+  if(t.dataset.editOnsite&&d){setDraft(Object.assign({x_vago:t.checked},onsiteCutCh(d,t.checked)));return;}
   if(t.dataset.free&&d&&isAdmin()){setDraft({projectValue:t.checked?0:null});if(!t.checked)setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},0);return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d){if(t.dataset.feeI!==undefined){const f=(d.fees||[])[Number(t.dataset.feeI)];if(f&&isOther(f)&&!(d.fees||[]).some(g=>isOther(g)&&otherEmpty(g))){d.fees=orderFees(d.fees);setTimeout(()=>render(true),0);}}   // kitöltött egyéb sor után új üres sor
@@ -1873,3 +1874,12 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 document.addEventListener('click',e=>{const card=e.target.closest('.crew-card[data-crew-card]');if(!card||ro()||e.defaultPrevented)return;
   if(e.target.closest('button,a,input,select,textarea,label,[data-action]'))return;if(String(window.getSelection&&window.getSelection())!=='')return;   // gomb / másolás / link / kijelölés marad
   const b=card.querySelector('[data-action="edit-crew"]');if(b)b.click();});
+
+/* „Vágó a helyszínen” ↔ a vágó kártyáján a „Helyszíni vágó”: egymást kapcsolják. Bekapcsoláskor a már beosztott vágó kapja a helyszíni feladatot
+   (ha még senki), kikapcsoláskor lekerül róla. Véglegesített (zárolt) csapatnál a beosztáshoz nem nyúlunk. */
+function onsiteCutCh(d,on){const ch={editOnsite:on};if(crewLocked(d))return ch;
+  const et=etWithField(d),K='f_x_vago',owners=Object.keys(et).filter(id=>(et[id]||[]).includes(K));
+  if(on){if(owners.length)return ch;const cut=[...new Set((d.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))][0];if(!cut)return ch;
+    et[cut]=(et[cut]||[]).concat([K]);ch.editTasks=et;const c=crewById(cut);setTimeout(()=>toast((c?c.name:'A vágó')+' beosztva: Vágó a helyszínen'),0);}
+  else if(owners.length){owners.forEach(id=>{et[id]=et[id].filter(x=>x!==K);if(!et[id].length)delete et[id];});ch.editTasks=et;}
+  return ch;}
