@@ -1103,7 +1103,8 @@ function calTimeline(m,items0,T){
   rows.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const MN=d=>F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();
-  const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}${d.slice(8)==='01'?' mstart':''}${d.slice(0,7)!==m?' oth':''}">${d.slice(8)==='01'?`<span class="tl-mn">${esc((d.slice(0,4)!==T.slice(0,4)?d.slice(0,4)+'. ':'')+MN(d))}</span>`:''}${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
+  const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}${d.slice(8)==='01'?' mstart':''}${d.slice(0,7)!==m?' oth':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
+  const bands=[pm,m,nm].map(x=>{const a=col(x+'-01'),b=col(addDays(shiftMonth(x,1)+'-01',-1));return `<div class="tl-mband${x===m?' cur':''}" style="grid-column:${a} / ${b+1}"><span>${esc((x.slice(0,4)!==T.slice(0,4)?x.slice(0,4)+'. ':'')+MN(x+'-01'))}</span></div>`;}).join('');   // a hónap neve a látható rész bal szélén marad
   const bg=days.map(d=>`<i class="${wk(d)?'we':''}${d.slice(8)==='01'?' mstart':''}"></i>`).join('');
   const body=rows.map(it=>{const a=it.date<first?first:it.date,b=it.endDate>last?last:it.endDate,c0=col(a),c1=col(b);
     const p=it.kind==='p'?projById(it.id):null,sub=p?[p.client,p.venue].filter(Boolean).join(' · '):(it.venue||'');
@@ -1121,7 +1122,7 @@ function calTimeline(m,items0,T){
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,target=T.slice(0,7)===m?col(T)-3:col(m+'-01')-1;
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
   return `<div class="tl-wrap" title=""><div class="tl" style="--n:${N}">
-    <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track">${head}</div></div>
+    <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
     ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
 }
