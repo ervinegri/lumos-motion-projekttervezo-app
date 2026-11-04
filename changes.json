@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c5d406c29a",
+"at": "2026-11-04T22:56:50+01:00",
+"msg": "Új design: a régi zöld árnyalatok kékes-szürkén (generált felülírás), átmenetes gombok széle javítva"
+},
+{
 "id": "dfd55d77f7",
 "at": "2026-11-04T22:54:46+01:00",
 "msg": "Új design: kiegyensúlyozottabb címméretek (oldalcím, összegek, hónapválasztó)"
@@ -146,13 +151,8 @@
 "msg": "Véglegesített csapat módosult: látszik, mi változott munkatársanként, és egy gombbal visszaállítható a kiküldött állapotra"
 },
 {
-"id": "0381a3dbf7",
-"at": "2026-11-04T20:27:50+01:00",
-"msg": "Aki már nincs a helyszínen (remote, csak vágó, lekerült), annak az eszközei gazdátlanok lesznek; a termek eszközei az operatőrrel együtt mozognak; menüsor kicsit magasabb"
-},
-{
-"id": "603671a8ad",
-"at": "2026-11-04T19:25:04Z",
+"id": "8bab9af18b",
+"at": "2026-11-04T19:27:59Z",
 "msg": "Változásnapló frissítése"
 }
 ]
