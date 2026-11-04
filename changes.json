@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1683cafdb1",
+"at": "2026-11-04T16:05:27+01:00",
+"msg": "Lehetőség jegyzetei: a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek időrendben (csak olvasható)"
+},
+{
 "id": "8cd1234d77",
 "at": "2026-11-04T16:00:32+01:00",
 "msg": "Menü: Értékesítés a Projektek előtt; Naptár: a nézetváltó és a Ma gomb a hónapválasztó bal oldalán"
@@ -156,13 +161,8 @@
 "msg": "Naptár: a Vágói naptár bejegyzésére kattintva a kapcsolódó projekt nyílik meg (név és időpont alapján)"
 },
 {
-"id": "da178c5792",
-"at": "2026-11-04T11:06:19+01:00",
-"msg": "Idővonal: a projekt sorában lila vágási sáv a projekt utáni naptól a leadási határidőig (azonnapi leadásnál alatta)"
-},
-{
-"id": "e54f559085",
-"at": "2026-11-04T10:03:29Z",
+"id": "c82187e0f6",
+"at": "2026-11-04T10:06:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
