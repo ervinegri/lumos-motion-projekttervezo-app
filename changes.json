@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c460fc8db5",
+"at": "2026-11-04T20:44:25+01:00",
+"msg": "Lépések: a pipás lépéseknél csak a pipára kattintva lép tovább (a kártya nem kattintható)"
+},
+{
 "id": "71f187c2e2",
 "at": "2026-11-04T20:42:02+01:00",
 "msg": "Véglegesített csapat módosult: látszik, mi változott munkatársanként, és egy gombbal visszaállítható a kiküldött állapotra"
@@ -149,11 +154,6 @@
 "id": "e5a9c4cd1b",
 "at": "2026-11-04T15:27:10+01:00",
 "msg": "Lehetőség ablak: a Kapcsolattartó/E-mail sor az Ügyfél/Típus sor elé; a típus új legördülővel"
-},
-{
-"id": "1853d6f63d",
-"at": "2026-11-04T15:25:06+01:00",
-"msg": "Új lehetőség: az ügyfél a HubSpot cégei közül is választható; a régi, dátum nélküli jegyzet a lehetőség felvételének dátumát kapja"
 }
 ]
 }
