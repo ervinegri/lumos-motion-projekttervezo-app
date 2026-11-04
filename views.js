@@ -432,7 +432,7 @@ function fld(p,key,label,o={}){
 }
 function selField(p,key,label,opts,o={}){
   const v=p[key]??'';
-  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><select class="inp" id="f-${key}" data-field="${key}"${D()}><option value="">${o.empty||'Válassz…'}</option>${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
+  return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><select class="inp" id="f-${key}" data-field="${key}"${o.cmb?` data-cmb="${esc(o.cmb)}"`:''}${D()}><option value="">${o.empty||'Válassz…'}</option>${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 }
 const FOTO_DEF=150,FOTO_STEP=10,FOTO_MAX=1000;
 const fotoDb=p=>num(p.foto_db);   // fotók utómunkája (db) – a helyszíni fotózás külön pipa a Terepi feladatoknál
@@ -807,7 +807,7 @@ function topicCards(p,{camRow,dlRow,D}){
   const krR=DELIVERABLES.filter(it=>it.g!=='int').map(it=>C(dlv(it),it.k)).concat(p.x_rush?[flag('x_rush','Villámgyors kézbesítés')]:[]);
   const foL=[F({on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')},'x_foto','Fotós','Fotós a helyszínen',fotoN(p))],foR=[C({on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'},'foto_db')];
   const teL=TECH.map(t=>flag(t.k,t.label,t.role)).concat(REC_LIVE.map(c=>flag(c.k,c.label,c.role)));
-  const due=needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
+  const due=needsDelivery(p)&&!editOnly(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
   return `${due}<div class="tc-cols"><section><h4 class="sub-h">📍 Terepi feladatok</h4><div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL)}${card('t_krea','🎥 Kreatív videózás',krL)}${card('t_int','🎤 Interjúk / imázsfilmek videózása',intL)}${card('t_foto','📷 Fotózás',foL)}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL)}</div></section>
     <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${fotoN(p)>0?card('p_foto','📷 Fotók utómunkája',foR):''}</div></section></div>`;   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
 }
@@ -926,15 +926,15 @@ function viewProject(p){
       ${dlPanel?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))}</div>`:''}
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${fld(p,'name','Projekt neve')}
-        ${fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}
+        ${editOnly(p)?'':fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}
         ${ro()?'':`<div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet… (üresen is hagyható)'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>`}
-        ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES)}
+        ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES,{cmb:'Válassz típust…'})}
         ${ro()?'':`<div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
         ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>`}
-        ${(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
+        ${editOnly(p)?`<div class="field">${fld(p,'date','✂️ Leadási határidő',{type:'date'}).replace(/^<div class="field[^"]*">/,'').replace(/<\/div>$/,'')}<span class="hint" style="margin:2px 0 0">Videóvágás: nincs helyszín és érkezés – csak a leadás napja számít.</span></div>`:(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
           return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}${tm('startTime',on?'Érkezés (első nap)':'Érkezés a helyszínre')}${tm('endTime',on?'Távozás kb. (első nap)':'Hozzávetőleges távozási óra')}</div>
             <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
             ${on?tm('lastStartTime','Érkezés (utolsó nap)')+tm('lastEndTime','Távozás kb. (utolsó nap)'):''}</div></div>`;})()}
@@ -1047,7 +1047,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState!==
 function prefetchCal(m){if(ro()||!TOKEN)return;loadCalEvents(m);setTimeout(()=>{if(TOKEN){loadCalEvents(shiftMonth(m,1));loadCalEvents(shiftMonth(m,-1));}},800);}
 /* Szakember: vágóként (is) dolgozik? – akkor a naptárban választhat a terepi és a vágói munkái között */
 const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
-const crewOnSite=(p,me)=>!!me&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
+const crewOnSite=(p,me)=>!!me&&!editOnly(p)&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
 function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewCuts(p,me)));}
 function calItems(month){
   const r=calRange(month),items=[];
@@ -1057,7 +1057,8 @@ function calItems(month){
     if(cutter){const cut=crewCuts(p,me);
       if(cut&&S.cal.show.vagoi){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
         if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:'✂️ Leadás: '+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
-      if(!S.cal.show.terepi)return;}
+      if(!S.cal.show.terepi||editOnly(p))return;}
+    if(editOnly(p)){if(!S.cal.show.vagoi||ro()||!q||q.end<r.start||q.start>r.end)return;pre='✂️ Leadás: ';}   // videóvágás: nem terepi munka, lilán a leadás napján
     if(!q||q.end<r.start||q.start>r.end)return;   // terepen: a projekt a saját napjain, zölden (ahogy a többieknél)
     items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   if(S.cal.show.vagoi)(S.cal.ev2[month]||[]).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''}));
@@ -1099,11 +1100,12 @@ function calTimeline(m,items0,T){
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
   const cutOf=p=>{if(!p||p.status==='lemondva'||!S.cal.show.vagoi||(ro()&&!crewCuts(p,me)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
+    if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
   const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
   const seen=new Set(rows.filter(it=>it.kind==='p').map(it=>it.id));
   S.projects.forEach(p=>{if(seen.has(p.id))return;const c=cutOf(p),q=pr(p);if(!c||c.due<first||c.st>last)return;   // a vágás ide esik, a forgatás korábban volt
-    rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:ro()&&!crewOnSite(p,me)});});
+    rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&!crewOnSite(p,me))});});
   rows.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const MN=d=>F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();
@@ -1115,7 +1117,7 @@ function calTimeline(m,items0,T){
     const dim=p&&crewDim(p),live=p&&calLive(p);
     const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
     const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
-    const showBar=it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(ro()&&!S.cal.show.terepi);
+    const showBar=it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(p&&editOnly(p))&&!(ro()&&!S.cal.show.terepi);
     const cc0=p&&cutOf(p),join=!!(showBar&&cc0&&!cc0.same&&cc0.st>=first&&cc0.st<=last&&it.endDate>=first&&it.endDate<last);   // a forgatás vége és a vágás kezdete egybeolvad
     const FROM={egyeztetes:'#5f7381',helyszin:'var(--warn)',utomunka:'var(--violet)',atadva:'var(--ok)'}[it.status]||'var(--accent)';
     const cc=cc0,spanA=Math.min(c0,cc?col(cc.st<first?first:cc.st):c0),spanB=Math.max(c1,cc?col(cc.due>last?last:cc.due):c1);

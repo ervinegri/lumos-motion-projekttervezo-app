@@ -8,7 +8,9 @@ function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
   if(k==='contactPhone')return v.replace(/\D/g,'').length<8;   // az országhívószám önmagában nem elég
   if(k==='contactEmail')return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   return !v;}
-const missingReq=p=>p?REQ_FIELDS.filter(([k])=>reqEmpty(p,k)):[];
+/* Videóvágás: nem terepi munka – nincs helyszín, érkezés/távozás; a dátum a leadási határidő */
+const editOnly=p=>!!p&&p.eventType==='Videóvágás';
+const missingReq=p=>p?REQ_FIELDS.filter(([k])=>!(editOnly(p)&&['venue','startTime','endTime','endDate'].includes(k))&&reqEmpty(p,k)):[];
 /* Stáb kártyáinak sorrendje: a húzással beállított közös sorrend, utána prioritás és név. */
 function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_crew_order')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
 function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id);return i<0?1e6:i;};
@@ -189,19 +191,19 @@ function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,1);}
 /* Van-e átadandó anyag: kreatív tartalom, fotó, drón/GoPro felvétel, nyersanyag, vagy előadás-utómunka / kivágás / felirat.
    Csak helyszíni munkánál (pl. élő stream, utómunka nélküli rögzítés) nincs átadási határidő. Egyedi határidő mindig számít. */
 function needsDelivery(p){
-  if(!p)return false;if(validISO(p.dueAt))return true;
+  if(!p)return false;if(editOnly(p))return true;if(validISO(p.dueAt))return true;
   if(DELIVERABLES.some(it=>num(p[it.k])>0))return true;
   if(num(p.foto_db)>0||p.x_foto)return true;
   if(['x_dron','x_timelapse','x_pov','x_nyersVetel','er_post'].some(k=>p[k]))return true;
   return num(p.er_clips)>0||num(p.er_subs)>0||num(p.er_summary)>0;
 }
-function dueDate(p){if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
+function dueDate(p){if(editOnly(p))return validISO(p.date)?p.date:null;if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
 /* A helyszínen lévők: a távolról vezető projektvezető (ha nincs más szerepe a projekten) nem ütközik más munkával */
 const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&!(p.crew||[]).some(c=>c.crewId===p.lead));
 /* Helyszíni vágó személyenként: akinél a „Vágó a helyszínen” feladat van (régi adatnál a projekt szintű jelölő) */
 function onsiteCut(p,id){const o=fieldOwners(p,'x_vago');return o.length?o.includes(id):!!p.editOnsite;}
-function onSiteIds(p){const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);[...s].forEach(id=>{if(isPostOnly(p,id)&&!onsiteCut(p,id))s.delete(id);});return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
+function onSiteIds(p){if(editOnly(p))return new Set();const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);[...s].forEach(id=>{if(isPostOnly(p,id)&&!onsiteCut(p,id))s.delete(id);});return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -253,7 +255,7 @@ function gapBetween(p,q){
 }
 function tightFor(personId,p){if(!pr(p))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&!sameVenue(p,q)&&onSiteIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
 const tightText=g=>g.gap<TRAVEL_RED_MIN?`Nincs idő a helyszínváltásra: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`:`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
-function busyFor(personId,p){const r=pr(p);if(!r)return [];if(remoteLead(p)&&p.lead===personId)return [];if(isPostOnly(p,personId)&&!onsiteCut(p,personId))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&!sameVenue(p,q)&&onSiteIds(q).has(personId));}
+function busyFor(personId,p){const r=pr(p);if(!r||editOnly(p))return [];if(remoteLead(p)&&p.lead===personId)return [];if(isPostOnly(p,personId)&&!onsiteCut(p,personId))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&!sameVenue(p,q)&&onSiteIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
 function computeIssues(){
   const T=todayISO(),out=[],live=liveProjects();

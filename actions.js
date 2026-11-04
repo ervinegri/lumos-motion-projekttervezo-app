@@ -42,7 +42,7 @@ function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!roo
 function closeModal(){if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';}
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}"${o.ac?` autocomplete="${o.ac}"`:''} value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
-const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}">${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
+const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}"${o.cmb?` data-cmb="${esc(o.cmb)}"`:''}>${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 /* Forintmező: csak számjegy, ezres tagolás, ± gomb 1000 Ft-onként */
 const MONEY_MAX=999999999,MONEY_STEP=1000;
 const moneyFmt=n=>n==null||n===''?'':String(Math.round(+n)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0');   // mindig ezres tagolás (2 000 is)
@@ -325,6 +325,7 @@ function npBuild(fd){
       contactName:g('contactName'),contactPhone:g('contactPhone'),contactEmail:g('contactEmail'),startTime:time(g('startTime')),endTime:time(g('endTime')),notes:g('notes'),
       status:'tervezes',hours:8,crew:[],equipment:[],baseUpdatedAt:'',mutationId:uuid()};
     if(clientNew){p.clientTax=g('clientTax');p.clientAddress=g('clientAddress');}
+    if(p.eventType==='Videóvágás'){p.venue='';p.endDate='';p.startTime='';p.endTime='';}   // videóvágás: csak a leadás napja
     if(g('fromIncome')){p.projectValue=num(g('incAmount'))||null;p._noCal=true;}   // régi bevételi sorból: múltbeli projekt, nem kerül a naptárba
     {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
   const tid=g('tplId'),tpl=tid&&projById(tid);
@@ -373,17 +374,17 @@ function newProjectModal(day,pre){
     ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1"><input type="hidden" name="incId" value="${esc(pre.incId||'')}">`+tplFieldHtml():tplFieldHtml()}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160,v:pre?pre.name:''})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
-    ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
+    ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…',cmb:'Válassz típust…'})}
     <div class="field full" id="m-clientNew" style="display:none"><div class="fields">${taxBlock()}</div></div>
-    <div class="field full"><label for="m-venue">Helyszín</label><input class="inp" id="m-venue" name="venue" type="text" autocomplete="off" spellcheck="false" maxlength="300" placeholder="Kezdd el gépelni a címet vagy a helyszín nevét…"></div>
+    <div class="field full np-onsite"><label for="m-venue">Helyszín</label><input class="inp" id="m-venue" name="venue" type="text" autocomplete="off" spellcheck="false" maxlength="300" placeholder="Kezdd el gépelni a címet vagy a helyszín nevét…"></div>
     ${mf('contactName','Kapcsolattartó',{max:120})}
     ${phoneField({name:'contactPhone',value:''})}
     ${mf('contactEmail','Kapcsolattartó e-mail',{type:'email',full:true,max:160})}
     ${mf('date','Dátum',{type:'date',v:d0})}
-    <div class="field np-multi"><span class="lbl">&nbsp;</span><button type="button" class="btn outline small" data-action="np-multi">➕ Több nap felvétele</button></div>
+    <div class="field np-multi np-onsite"><span class="lbl">&nbsp;</span><button type="button" class="btn outline small" data-action="np-multi">➕ Több nap felvétele</button></div>
     <div class="field np-end" hidden><label for="m-endDate">Utolsó nap</label><div class="np-end-row"><input class="inp" id="m-endDate" name="endDate" type="date"><button type="button" class="x w" data-action="np-multi-off" aria-label="Egy napos" title="Mégis egy napos">×</button></div></div>
-    ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5})}
-    ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5})}
+    ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
+    ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
   </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
@@ -1415,7 +1416,7 @@ document.addEventListener('change',e=>{
     const it=knownClients('').find(c=>c.company===t.value),set=(id,v)=>{const e2=$(id);if(e2&&!e2.value&&v)e2.value=v;};
     if(it){set('m-contactName',it.name);set('m-contactEmail',it.email);const ph=$('m-contactPhone');if(ph&&!ph.value&&it.phone){const pr2=phParse(it.phone);ph.value=pr2.n;const hid=document.querySelector('input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}}
     return;}
-  if(t.dataset.field!==undefined&&d){const fv=fieldValue(t);if(t.tagName!=='SELECT'&&String(d[t.dataset.field]??'')===String(fv??'')&&!['date','endDate','client'].includes(t.dataset.field)){renderChrome();return;}setDraft({[t.dataset.field]:fv});return;}   // gépelt szövegnél már a draftban van – ne rajzoljuk újra (különben elveszhet a következő kattintás)
+  if(t.dataset.field!==undefined&&d){const fv=fieldValue(t);if(t.tagName!=='SELECT'&&String(d[t.dataset.field]??'')===String(fv??'')&&!['date','endDate','client'].includes(t.dataset.field)){renderChrome();return;}setDraft(Object.assign({[t.dataset.field]:fv},t.dataset.field==='eventType'&&fv==='Videóvágás'?{endDate:''}:{}));return;}   // gépelt szövegnél már a draftban van – ne rajzoljuk újra (különben elveszhet a következő kattintás)
   if(t.dataset.flag&&d){const k=t.dataset.flag,ch={[k]:t.checked};
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
     if(k==='x_vago'){Object.assign(ch,onsiteCutCh(d,t.checked));}
@@ -1829,6 +1830,10 @@ document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.datase
 
 /* Naptár: projektek és Google-bejegyzések áthúzása másik napra (mint a Google Naptárban) */
 let CAL_DRAG=null;
+/* Új projekt: Videóvágásnál nincs helyszín, érkezés/távozás – a dátum a leadási határidő */
+document.addEventListener('change',e=>{const t=e.target;if(!t||t.id!=='m-eventType')return;const f=t.closest('form')||document,ed=t.value==='Videóvágás';
+  f.querySelectorAll('.np-onsite').forEach(x=>{x.hidden=ed;});if(ed){const ne=f.querySelector('.np-end');if(ne)ne.hidden=true;}
+  const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent=ed?'✂️ Leadási határidő':(f.querySelector('.np-end:not([hidden])')?'Első nap':'Dátum');});
 /* Idővonal húzása egérrel (oldalra görgetés); a sávok áthúzása és a kattintás megmarad */
 (()=>{let w=null,x0=0,s0=0,moved=false;
   document.addEventListener('mousedown',e=>{if(e.button!==0)return;const ww=e.target.closest&&e.target.closest('.tl-wrap');if(!ww||e.target.closest('[draggable=true]'))return;w=ww;x0=e.clientX;s0=w.scrollLeft;moved=false;});

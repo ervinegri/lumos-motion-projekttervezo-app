@@ -1567,7 +1567,8 @@ function syncCalendar_(p) {
     const hasDate = /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''));
     let ev = calEvent_(p.calEventId);
     // dátum nélküli vagy lemondott (STORNO) projekt: kikerül a Google Naptárból – az app naptárában szürkén, áthúzva marad
-    if (!hasDate || p.status === 'lemondva') { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; calBump_(); } return p; }
+    // videóvágás: nem terepi munka – nem kerül a „Terepi Munkák” naptárba
+    if (!hasDate || p.status === 'lemondva' || p.eventType === 'Videóvágás') { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; calBump_(); } return p; }
     const title = p.name;
     const multi = p.endDate && p.endDate > p.date;
     const plan = calPlan_(p);
