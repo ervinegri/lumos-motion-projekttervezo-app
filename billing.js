@@ -229,7 +229,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
     ${p.client&&!fw?`<div class="field full"><label class="bl-nocontract fw-chk"><input type="checkbox" name="asFw" id="m-asFw"> Ez keretszerződés – <b>${esc(p.client)}</b> további projektjeinél sem kérünk külön szerződést</label>
       <div class="fw-extra" hidden><div class="fields" style="margin-top:8px">${mf('fwValidTo','Érvényes eddig (üresen: határozatlan)',{type:'date'})}</div></div></div>`:''}
     ${ms('mode','Fizetési konstrukció',[['eloleg','Foglaló + végszámla'],['egyben','Egy számla (foglaló nélkül)']],b.mode||'eloleg')}
-    ${mf('advancePct','Foglaló (%)',{v:b.advancePct??50,im:'numeric'})}
+    ${(()=>{const ii=billInfo(p);return ii.db||ii.el?`<div class="field"><label>Foglaló (%)</label><div class="inp ro-inp" title="A díjbekérő / foglalószámla már ki van állítva – a foglaló nem módosítható">${num(b.advancePct)}% 🔒</div><input type="hidden" name="advancePct" value="${num(b.advancePct)}"></div>`:mf('advancePct','Foglaló (%)',{v:b.advancePct??50,im:'numeric'});})()}
     <div class="field full"><label for="m-note">Megjegyzés (fizetési feltétel, kapcsolattartó a pénzügyön stb.)</label><textarea class="inp" id="m-note" name="note" rows="2" maxlength="1000">${esc(b.note||'')}</textarea></div>
   </div>`,{submitLabel:'Mentés',submit:async fd=>{
     const file=($('m-cfile')||{}).files&&$('m-cfile').files[0];
@@ -417,7 +417,7 @@ Object.assign(ACT,{'tig-new':b=>tigModal(b&&b.dataset&&b.dataset.client?{client:
 
 /* Foglaló % közvetlenül a kártyán (ablak nélkül) */
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.advpct||!S.fin||!S.fin.billing)return;
-  const pid=t.dataset.advpct,v=Math.max(0,Math.min(100,Math.round(Number(t.value)||0)));const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
+  const pid=t.dataset.advpct,v=Math.max(0,Math.min(100,Math.round(Number(t.value)||0)));{const pp=projById(pid),ii=pp&&billInfo(pp);if(ii&&(ii.db||ii.el)){toast('A díjbekérő már ki van állítva – a foglaló nem módosítható.',true);render(true);return;}}const arr=S.fin.billing;let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
   const prev=b.advancePct;b.advancePct=v;const repaint=()=>setTimeout(()=>{const p=S.draft&&S.draft.id===pid?S.draft:projById(pid);const el=$('proj-bill');if(el&&el.isConnected&&p){try{el.outerHTML=projBillingPanel(p)||'';}catch(e){render(true);}}else render(true);},0);repaint();
   try{const d=await call('billSave',{projectId:pid,advancePct:v});if(d&&d.billing)S.fin.billing=d.billing;repaint();toast('Foglaló: '+v+'%');}catch(err){b.advancePct=prev;repaint();handleErr(err);}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.advpct){e.preventDefault();e.target.blur();}});
