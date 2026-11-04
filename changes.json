@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7ab401c3b4",
+"at": "2026-11-04T23:14:49+01:00",
+"msg": "Új design: összesen sor enyhén vastagabb"
+},
+{
 "id": "c9cbcd3308",
 "at": "2026-11-04T23:13:19+01:00",
 "msg": "Szerződés és számlázás: alcím törölve"
@@ -146,13 +151,8 @@
 "msg": "Naptár leírás: eszközök munkatársanként csoportosítva, az app linkje nélkül (egyszeri újraszinkron); eszközlista-betöltés animált jelzéssel"
 },
 {
-"id": "21d3447b63",
-"at": "2026-11-04T21:10:15+01:00",
-"msg": "Díjtáblázat: az értékesítő a helyszíni stábban (csak a vágó az Utómunkában); eszközlista-levél: a címzett csak a saját eszközeit kapja, a projektvezető a teljes listát"
-},
-{
-"id": "a377c6bf2f",
-"at": "2026-11-04T20:04:40Z",
+"id": "e50e12d044",
+"at": "2026-11-04T20:10:25Z",
 "msg": "Változásnapló frissítése"
 }
 ]
