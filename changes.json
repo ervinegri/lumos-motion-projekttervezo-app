@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "115ac8bb0a",
+"at": "2026-11-04T10:31:49+01:00",
+"msg": "Szakember Kifizetések: cím és hónapléptető középre igazítva a táblázat fölé"
+},
+{
 "id": "6e235b2870",
 "at": "2026-11-04T10:30:15+01:00",
 "msg": "Naptár, vágó szakember: Terepi munkák / Vágói munkák kapcsoló (ahol vágóként van beosztva, lilával ✂️); szakembernél nincs Google Naptár-lekérés (nincs hibasáv)"
@@ -194,11 +199,6 @@
 "id": "6cebc1c8ac",
 "at": "2026-11-04T09:33:05+02:00",
 "msg": "Vágó a helyszínen ↔ Helyszíni vágó összekapcsolva; a beosztott vágó automatikusan megkapja"
-},
-{
-"id": "b62e5aa00f",
-"at": "2026-11-04T09:31:47+02:00",
-"msg": "Szolgáltatások: név · beosztott · darabszám egy sorban"
 }
 ]
 }
