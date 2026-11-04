@@ -846,6 +846,7 @@ function orderSummary(p,bare){
 /* Vágó kártyáján: mely munkákat készíti el */
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p).filter(t=>t.k!=='foto_db');if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';   // a fotók utómunkája a vágónál nem választható
+  if(!tasks.length&&ro())return '';   // a szakember (vágó) nézetében nincs szervezői figyelmeztetés
   if(!tasks.length){const ri=(p.crew||[]).findIndex(a=>a.crewId===cid&&a.role==='Vágó');
     return `<div class="cut-tasks cut-none"><div class="ct-h">✂️ Elkészítendő munkák</div><p class="warn-txt" style="margin:0 0 6px"><b>⚠️ Vágó be van osztva, de nincs kiválasztva vágnivaló.</b> Jelöld be fent az Utómunkánál, mit kell elkészíteni – addig nem tudja, min dolgozik, és a leadási határidő sem számolható.</p>${ro()||crewLocked(p)?'':`<div class="btns"><button class="btn primary small" type="button" data-action="goto-post">🎬 Utómunka kiválasztása</button>${ri>=0?`<button class="btn outline small" type="button" data-action="crew-remove" data-i="${ri}">Vágó szerep levétele</button>`:''}</div>`}</div>`;}
   const mine=taskKeysOf(p,cid),implicit=!cutterIds(p).some(id=>Array.isArray(editTasksOf(p)[id]));
