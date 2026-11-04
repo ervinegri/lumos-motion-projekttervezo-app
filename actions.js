@@ -292,7 +292,7 @@ async function importCalEvent(id){
     status:'tervezes',crew,equipment:[],calEventId:e.id,baseUpdatedAt:'',mutationId:uuid(),deferCal:true};   // a naptár frissítése a háttérben – gyorsabb létrehozás
   if(crew.length&&new Set(crew.map(a=>a.crewId)).size===1)p.lead=crew[0].crewId;
   const tid=($('m-tplId')||{}).value,tpl=tid&&projById(tid);
-  if(tpl){const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});   // sablon: a naptáresemény adatai (dátum, idő, helyszín, leírás) elsőbbséget élveznek
+  if(tpl){p.tplFrom=tpl.id;const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});   // sablon: a naptáresemény adatai (dátum, idő, helyszín, leírás) elsőbbséget élveznek
     if(!p.venue)p.venue=tpl.venue||'';if(!p.startTime){p.startTime=tpl.startTime||'';p.endTime=tpl.endTime||'';}
     (tpl.crew||[]).forEach(a=>{if(!p.crew.some(x=>x.crewId===a.crewId&&x.role===a.role))p.crew.push(clone(a));});
     p.equipment=clone(tpl.equipment||[]);p.fees=clone(tpl.fees||[]).map(f=>{delete f.dayAmounts;return f;});if(tpl.lead)p.lead=tpl.lead;

@@ -1427,6 +1427,15 @@ function saveProject_(u, a) {
       p.budgetVal = !p.budgetMode || a.budgetVal === '' || a.budgetVal == null || !isFinite(b) || b < 0 ? ''
         : p.budgetMode === 'pct' ? Math.min(100, Math.round(b * 10) / 10) : Math.min(VALUE_MAX, Math.round(b));
     }
+    /* Sablonból létrehozott új projekt: a termelői keret és a projekt értéke (teljes büdzsé) a sablonból jön – a termelési vezetőnél is, aki az értéket nem látja */
+    if (!old && a.tplFrom && ID_RE.test(String(a.tplFrom)) && (u.role === 'admin' || u.role === 'editor')) {
+      const tsh = sheetFor_('projects'), tr = findRow_(tsh, String(a.tplFrom)), tp = tr ? readRow_('projects', tsh, tr) : null;
+      if (tp) {
+        if (!(u.role === 'admin' && a.projectValue !== undefined && a.projectValue !== null && a.projectValue !== '')) p.quotePrice = tp.quotePrice;
+        if (!(u.role === 'admin' && a.budgetMode)) { p.budgetMode = tp.budgetMode; p.budgetVal = tp.budgetVal; }
+        if (!(u.role === 'admin' && Array.isArray(a.extras))) p.extras = tp.extras;
+      }
+    }
     if (a.crewNotes !== undefined) p.crewNotes = JSON.stringify(parseNotes_(a.crewNotes));
     if (a.crewDays !== undefined) p.crewDays = JSON.stringify(parseCrewDays_(a.crewDays));
     if (p.crewDays == null) p.crewDays = old ? old.crewDays : '';
