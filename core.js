@@ -94,7 +94,7 @@ const REC_COUNTS=[{k:'er_post_n',label:'Termek előadásainak utómunkája',max:
 const FOTO_COUNT={k:'x_foto_n',label:'Fotós a helyszínen',max:10,min:0};
 const postN=p=>num(p.er_post_n)||(p.er_post?1:0),fotoN=p=>num(p.x_foto_n)||(p.x_foto?1:0);   // régi adatnál a pipa = 1
 /* Léptetős tartalommezők: a hozzájuk tartozó pipát is beállítjuk (a régi háttér a pipát menti). */
-function stepPatch(d,k,n){if(k==='er_post_n')return {er_post_n:n,er_post:n>0};if(k==='x_foto_n')return {x_foto_n:n,x_foto:n>0};
+function stepPatch(d,k,n){if(k==='er_post_n')return {er_post_n:n,er_post:n>0};if(k==='x_foto_n')return Object.assign({x_foto_n:n,x_foto:n>0},n>0?{}:{foto_db:0});   // fotózás nélkül nincs fotó-utómunka
   if((k==='er_clips'||k==='er_subs'||k==='er_summary')&&n>0)return {[k]:n,er_post:true,er_post_n:Math.max(1,postN(d))};return {[k]:n};}
 const hasRec=p=>REC_CAMS.some(c=>p[c.k])||REC_LIVE.some(c=>p[c.k]);
 /* Terepi interjúforgatás (Interjúk / imázsfilmek videózása) */

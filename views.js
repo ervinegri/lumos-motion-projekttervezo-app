@@ -806,7 +806,7 @@ function topicCards(p,{camRow,dlRow,D}){
   const teL=TECH.map(t=>flag(t.k,t.label,t.role)).concat(REC_LIVE.map(c=>flag(c.k,c.label,c.role)));
   const due=needsDelivery(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${D()}><span class="hint">${own?'egyedi határidő':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
   return `${due}<div class="tc-cols"><section><h4 class="sub-h">📍 Terepi feladatok</h4><div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL)}${card('t_krea','🎥 Kreatív videózás',krL)}${card('t_int','🎤 Interjúk / imázsfilmek videózása',intL)}${card('t_foto','📷 Fotózás',foL)}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL)}</div></section>
-    <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${card('p_foto','📷 Fotók utómunkája',foR)}</div></section></div>`;   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
+    <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${fotoN(p)>0||fotoDb(p)>0?card('p_foto','📷 Fotók utómunkája',foR):''}</div></section></div>`;   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
 }
 /* Összesítő: mit rendelt az ügyfél (a tartalom-panel alján); az utómunkánál a felelős vágó is */
 function orderSummary(p,bare){
