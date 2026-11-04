@@ -343,7 +343,7 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='m-tplQ')return;if(e.ke
 function tplFill(id){const t=projById(id),f=$('mform');if(!t||!f)return;
   const set=(n,v)=>{const e=f.querySelector('[name='+n+']');if(e)e.value=v||'';};
   if(t.client){const it=knownClients('').find(c=>c.company===t.client);mcSetClient(it||{isNew:true,company:t.client});}
-  set('name',t.name);set('eventType',t.eventType);set('venue',t.venue);set('contactName',t.contactName);set('contactEmail',t.contactEmail);set('startTime',t.startTime);set('endTime',t.endTime);set('notes',t.notes);
+  if(!f.querySelector('[name=fromIncome]'))set('name',t.name);set('eventType',t.eventType);   // bevételi sorból: a név marad (azzal kapcsolódik a sorhoz)set('venue',t.venue);set('contactName',t.contactName);set('contactEmail',t.contactEmail);set('startTime',t.startTime);set('endTime',t.endTime);set('notes',t.notes);
   const ph=$('m-contactPhone');if(ph){const fld=ph.closest('.field');if(fld)fld.outerHTML=phoneField({name:'contactPhone',value:t.contactPhone||''});}
   const dt=f.querySelector('[name=date]');if(dt&&!dt.value)setTimeout(()=>dt.focus(),50);}
 /* Piszkozat: csak a név kötelező, a hiányzó adatok a projekt oldalán pótolhatók (piros keret jelzi) */
@@ -355,7 +355,7 @@ async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(f
 function newProjectModal(day,pre){
   const d0=day||(pre&&pre.date)||'';
   openModal(pre?'Projekt a bevételi sorból':'Új projekt',`<div class="fields">
-    ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1">`:tplFieldHtml()}
+    ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1">`+tplFieldHtml():tplFieldHtml()}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160,v:pre?pre.name:''})}
     <div class="field"><label for="m-clientQ">Ügyfél</label><input class="inp" id="m-clientQ" name="clientQ" type="text" autocomplete="off" placeholder="Keress vagy vegyél fel ügyfelet…"><input type="hidden" name="clientSel" id="m-clientSel"></div>
     ${ms('eventType','Rendezvény típusa',EVENT_TYPES,'',{empty:'Válassz…'})}
