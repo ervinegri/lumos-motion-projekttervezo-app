@@ -1477,7 +1477,7 @@ function saveProject_(u, a) {
       rewriteAssign_('eqAssign', r => r.projectId !== id,
         equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name, crewId: e.crewId, crewName: e.crewId ? crewMap[e.crewId].name : '' })));
     dbFlush_();
-    logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
+    logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p, assignDiff_(oldCrew, crew, oldEq, equipment, crewMap, invMap), crewMap) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
     if (dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
@@ -1488,7 +1488,34 @@ function saveProject_(u, a) {
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
 
-function diffProject_(a, b) {
+/* Stáb- és eszközbeosztás változásai olvasható formában (a Részletek ablak előzményeihez) */
+function assignDiff_(oldCrew, crew, oldEq, eq, crewMap, invMap) {
+  const nm = (id, fb) => (crewMap[id] && crewMap[id].name) || fb || 'ismeretlen';
+  const it = (id, fb) => (invMap[id] && invMap[id].name) || fb || 'ismeretlen eszköz';
+  const out = [];
+  const oc = {}, nc = {};
+  oldCrew.forEach(r => { oc[r.crewId + '|' + r.role] = r; });
+  crew.forEach(c => { nc[c.crewId + '|' + c.role] = c; });
+  const add = [], del = [];
+  Object.keys(nc).forEach(k => { if (!oc[k]) add.push(nm(nc[k].crewId) + ' (' + nc[k].role + ')'); });
+  Object.keys(oc).forEach(k => { if (!nc[k]) del.push(nm(oc[k].crewId, oc[k].crewName) + ' (' + oc[k].role + ')'); });
+  if (add.length) out.push('Stáb hozzáadva: ' + add.join(', '));
+  if (del.length) out.push('Stábból kivéve: ' + del.join(', '));
+  const oe = {}, ne = {};
+  oldEq.forEach(r => { const k = r.itemId + '|' + (r.crewId || ''); oe[k] = { q: Number(r.qty) || 0, n: r.itemName, c: r.crewName }; });
+  eq.forEach(e => { ne[e.itemId + '|' + (e.crewId || '')] = { q: Number(e.qty) || 0 }; });
+  const lbl = (k, o) => { const [iid, cid] = k.split('|'); return it(iid, o && o.n) + (cid ? ' – ' + nm(cid, o && o.c) : ' – közös'); };
+  const ea = [], ed = [], eqc = [];
+  Object.keys(ne).forEach(k => { if (!oe[k]) ea.push(lbl(k) + (ne[k].q > 1 ? ' ×' + ne[k].q : '')); else if (oe[k].q !== ne[k].q) eqc.push(lbl(k, oe[k]) + ': ' + oe[k].q + ' → ' + ne[k].q + ' db'); });
+  Object.keys(oe).forEach(k => { if (!ne[k]) ed.push(lbl(k, oe[k]) + (oe[k].q > 1 ? ' ×' + oe[k].q : '')); });
+  const cap = l => l.length > 12 ? l.slice(0, 12).join(', ') + ' és még ' + (l.length - 12) : l.join(', ');
+  if (ea.length) out.push('Eszköz hozzáadva: ' + cap(ea));
+  if (ed.length) out.push('Eszköz kivéve: ' + cap(ed));
+  if (eqc.length) out.push('Eszköz darabszám: ' + cap(eqc));
+  return out;
+}
+
+function diffProject_(a, b, extra, crewMap) {
   const labels = {};
   TABLES.projects.cols.forEach(c => { labels[c[0]] = c[1]; });
   const skip = { createdAt: 1, updatedAt: 1, updatedBy: 1, mutationId: 1, folderId: 1, prevStatus: 1 };
@@ -1497,8 +1524,10 @@ function diffProject_(a, b) {
     if (skip[k]) return;
     const x = a[k] == null ? '' : String(a[k]), y = b[k] == null ? '' : String(b[k]);
     const short = v => v.length <= 80 && !/^[\[{]/.test(v.trim());   // rövid értéknél a régi → új érték is (a projekt Részletek ablakához)
+    if (x !== y && k === 'lead') { const n = v => v ? ((crewMap && crewMap[v] && crewMap[v].name) || v) : '–'; changed.push('Projektvezető: ' + n(x) + ' → ' + n(y)); return; }
     if (x !== y) changed.push(k === 'status' ? 'Állapot: ' + (STATUS_LABELS[a.status] || a.status) + ' → ' + (STATUS_LABELS[b.status] || b.status) : short(x) && short(y) ? labels[k] + ': ' + (x || '–') + ' → ' + (y || '–') : labels[k]);
   });
+  (extra || []).forEach(x => changed.push(x));
   return changed.length ? changed.join('; ') : 'Beosztás módosítva';
 }
 
