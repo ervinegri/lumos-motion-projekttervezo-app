@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "13cd0f6c9c",
+"at": "2026-11-04T20:59:53+01:00",
+"msg": "Beosztó levél: a projektvezető a saját levelében nem kapja meg a saját nevét és telefonszámát"
+},
+{
 "id": "999f227ddd",
 "at": "2026-11-04T20:57:07+01:00",
 "msg": "„Nyersanyag átadása” (a „Nyersanyag megvásárlása” helyett): az Utómunkában, beosztás nélkül"
@@ -149,11 +154,6 @@
 "id": "431a68c85a",
 "at": "2026-11-04T15:42:35+01:00",
 "msg": "Lehetőség: a következő lépés és a dátuma kötelező (nyitott lehetőségnél)"
-},
-{
-"id": "7402e5a5a4",
-"at": "2026-11-04T15:33:41+01:00",
-"msg": "Lehetőség: szóba jövő szolgáltatások többes választóval (a kártyán is látszik); az értékesítő-szűrő alapból Mindenki"
 }
 ]
 }
