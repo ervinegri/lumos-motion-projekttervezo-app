@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "3226f031e3",
+"at": "2026-11-04T10:05:21+01:00",
+"msg": "„Az app frissült” értesítés: új verzió első betöltésekor a változások listája (changes.json, GitHub Action frissíti)"
+},
+{
 "id": "f5a49c4f12",
 "at": "2026-11-04T10:03:18+01:00",
 "msg": "Sablon: javítva, hogy a helyszín, kapcsolattartó, érkezés/távozás is átjöjjön; bevételi sorból is a sablon neve, a sor neve igazodik; üres kapcsolattartónál az ügyfélé"
@@ -194,11 +199,6 @@
 "id": "e694fcaffa",
 "at": "2026-11-04T09:15:18+02:00",
 "msg": "Stáb: a kártyára kattintva is megnyílik a szerkesztés"
-},
-{
-"id": "8ee4aace6d",
-"at": "2026-11-04T09:03:33+02:00",
-"msg": "Eszközök véglegesítése: a kimenő eszközlisták teljes előnézete címzettenként (✉️ Levél ▾)"
 }
 ]
 }
