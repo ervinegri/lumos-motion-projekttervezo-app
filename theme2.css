@@ -324,10 +324,12 @@ html.th2 .pay-sheet td.r,html.th2 .pay-sheet td.num,html.th2 .pay-sheet .tnum{fo
 /* összesen sor: egy fokkal vastagabb */
 html.th2 tfoot td,html.th2 .pay-sheet tfoot td{font-weight:650}
 /* kifizetések: az Összesen és az Egyenleg sor érezhetően nagyobb */
-html.th2 .pay-sheet tfoot td{font-weight:800}
-html.th2 .pay-sheet tr.pay-ret td{font-weight:800}
+html.th2 .pay-sheet tfoot td{font-weight:700}
+html.th2 .pay-sheet tr.pay-ret td{font-weight:700}
 html.th2 .pay-sheet tr.pay-ret td .muted{font-weight:500}
 /* idővonal: a forgatási nap (kék) lágyan, barna sáv nélkül olvad át a vágásba (lila) */
 html.th2{--violet:#6a5bb3}
 html.th2 .cal-chip.p.st-helyszin,html.th2 .cal-chip.p.st-tervezes{background:var(--cal-p)}
 html.th2 .tl-cut.tl-joined{background:linear-gradient(90deg,var(--cal-p) 0,var(--violet) 40px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,var(--violet) 40px)!important}
+/* sehol ne legyen 700-nál vastagabb betű; a sorcímkék (Díjösszesítő kiküldve, Kifizetve…) 600 */
+html.th2 .pay-sheet tr.pay-strow td:first-child,html.th2 .pay-sheet tr.pay-strow td:first-child b,html.th2 .pay-sheet tfoot td:first-child b,html.th2 .pay-sheet tr.pay-ret td:first-child{font-weight:600}
