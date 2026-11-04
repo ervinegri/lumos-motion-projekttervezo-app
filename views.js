@@ -739,13 +739,16 @@ function roContentPanel(p){
 /* Tartalmak témánként: minden téma egy kártya – bal oldalt a helyszíni feladat, jobb oldalt a hozzá tartozó utómunka.
    Csak a kiválasztott tételek látszanak, a többi a „+ hozzáadás” alatt; a csukott kártya fejlécében címkéken az összefoglaló. */
 /* Felelős választó egy kiválasztott szolgáltatáshoz: terepi feladat → szakember(ek), utómunka → egy vágó. A választott ember a szereppel a stábba is bekerül. */
+/* Zárolt (véglegesített) csapatnál a név / „nincs beosztva” gomb: kattintásra a „Csapat módosítása”, utána rögtön lenyílik a választó */
+function svcUnlockBtn(p,attr,txt,none){const can=!ro()&&!projLocked()&&!!S.draft&&S.draft.id===p.id&&crewLocked(p);
+  return can?`<button type="button" class="op-cut op-unl${none?' none':''}" data-action="svc-unlock" ${attr} data-tip="A csapat véglegesítve van – kattints a módosításhoz">${esc(txt)} ▾</button>`:`<span class="op-cut${none?' none':''}">${esc(txt)}</span>`;}
 function svcCan(p){return !ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.draft.id===p.id;}
 function fieldAsg(p,k,role,label){const ids=fieldOwners(p,k),nm=id=>(crewById(id)||{}).name||'?';
-  if(!svcCan(p))return ids.length?`<span class="op-cut">👥 ${esc(ids.map(nm).join(', '))}</span>`:`<span class="op-cut none">👥 nincs beosztva</span>`;
+  if(!svcCan(p))return svcUnlockBtn(p,`data-pick="f:${esc(k)}"`,ids.length?'👥 '+ids.map(nm).join(', '):'👥 nincs beosztva',!ids.length);
   const all=(S.crew||[]).slice().sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu')),fit=all.filter(c=>(c.roles||[]).includes(role)&&!ids.includes(c.id)),rest=all.filter(c=>!(c.roles||[]).includes(role)&&!ids.includes(c.id));
   return `${ids.map(id=>`<span class="op-who">👥 ${esc(nm(id))}</span>`).join('')}<select class="inp op-cutsel add${ids.length?'':' none'}" data-os-field="${esc(k)}" data-role="${esc(role)}" data-label="${esc(label)}" aria-label="${esc(label)}: szakember"><option value="">${ids.length?'＋ még valaki':'👥 '+esc(role.toLowerCase())+' kiválasztása'}</option>${ids.length?`<optgroup label="Levétel erről a feladatról">${ids.map(id=>`<option value="${esc(id)}">✕ ${esc(nm(id))}</option>`).join('')}</optgroup>`:''}${fit.length?`<optgroup label="${esc(role)}">${fit.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</optgroup>`:''}</select>`;}
 function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p);
-  if(!svcCan(p))return o.length?`<span class="op-cut">✂️ ${esc(o.map(id=>(crewById(id)||{}).name||'?').join(', '))}</span>`:`<span class="op-cut none">✂️ nincs vágóhoz rendelve</span>`;
+  if(!svcCan(p))return svcUnlockBtn(p,`data-pick="c:${esc(k)}"`,o.length?'✂️ '+o.map(id=>(crewById(id)||{}).name||'?').join(', '):'✂️ nincs vágóhoz rendelve',!o.length);
   const all=(S.crew||[]).filter(c=>(c.roles||[]).includes('Vágó')||cutters.includes(c.id)).sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
   return `<select class="inp op-cutsel${o.length?'':' none'}" data-os-cut="${k}" aria-label="Vágó"><option value="">✂️ vágó kiválasztása</option>${all.map(c=>`<option value="${esc(c.id)}"${o[0]===c.id?' selected':''}>✂️ ${esc(c.name)}</option>`).join('')}</select>`;}
 /* a „Ma” sávon a pontos idő, percenként frissül */

@@ -1883,3 +1883,8 @@ function onsiteCutCh(d,on){const ch={editOnsite:on};if(crewLocked(d))return ch;
     et[cut]=(et[cut]||[]).concat([K]);ch.editTasks=et;const c=crewById(cut);setTimeout(()=>toast((c?c.name:'A vágó')+' beosztva: Vágó a helyszínen'),0);}
   else if(owners.length){owners.forEach(id=>{et[id]=et[id].filter(x=>x!==K);if(!et[id].length)delete et[id];});ch.editTasks=et;}
   return ch;}
+
+/* Szolgáltatások: zárolt csapatnál a beosztás gombjára kattintva feloldás (indoklással), majd a választó azonnal lenyílik */
+ACT['svc-unlock']=b=>{const d=S.draft;if(!d)return;const [t,k]=String(b.dataset.pick||'').split(':'),sel=t==='f'?`select[data-os-field="${k}"]`:`select[data-os-cut="${k}"]`;
+  ACT['crew-edit']();let n=0;const iv=setInterval(()=>{n++;if(n>600||!S.draft||S.draft.id!==d.id){clearInterval(iv);return;}if(!(S.crewEdit||{})[d.id])return;clearInterval(iv);
+    requestAnimationFrame(()=>{const s=document.querySelector(sel);if(!s)return;s.scrollIntoView({block:'center'});s.focus();try{s.showPicker();}catch(_){}});},100);};
