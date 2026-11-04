@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "90b19f10a1",
+"at": "2026-11-04T17:09:28+01:00",
+"msg": "Havi naptár: egérrel húzva és oldalirányú görgetéssel is lapozható, a rács követi a mozdulatot"
+},
+{
 "id": "53d93cbc08",
 "at": "2026-11-04T16:55:49+01:00",
 "msg": "Ütközés: a remote projektvezető akkor sem ütközik, ha ugyanott (otthonról) vágó is"
@@ -156,13 +161,8 @@
 "msg": "Idővonal: csak a látható időszakba eső sorok látszanak (nincs több üres sor), húzás közben frissül"
 },
 {
-"id": "1018c5e87a",
-"at": "2026-11-04T11:22:30+01:00",
-"msg": "Idővonal: három hónap egymás után, egérrel oldalra húzható; a sarokban a látható hónap"
-},
-{
-"id": "6e41efaadf",
-"at": "2026-11-04T10:18:20Z",
+"id": "14a33eeff9",
+"at": "2026-11-04T10:23:14Z",
 "msg": "Változásnapló frissítése"
 }
 ]
