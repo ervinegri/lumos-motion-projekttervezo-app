@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2b9f78ae35",
+"at": "2026-11-04T10:38:57+01:00",
+"msg": "Naptár buborék: a teljes stáb névvel és feladatokkal (projektvezető, szerepek)"
+},
+{
 "id": "56659d459a",
 "at": "2026-11-04T10:34:08+01:00",
 "msg": "Naptár, vágó szakember: a projektek zölden a saját napjaikon; a vágói leadási határidő külön, lila bejegyzésként"
@@ -194,11 +199,6 @@
 "id": "feaf56f628",
 "at": "2026-11-04T09:35:30+02:00",
 "msg": "Adatvédelem: böngészős automatikus kitöltés / korábbi beírások felajánlása kikapcsolva az egész appban"
-},
-{
-"id": "f4df23710b",
-"at": "2026-11-04T09:34:09+02:00",
-"msg": "Szolgáltatások: a beosztás gomb középen; zárolt csapatnál kattintásra feloldás és lenyíló lista"
 }
 ]
 }
