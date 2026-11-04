@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1d7f4c0cfe",
+"at": "2026-11-04T17:21:59+01:00",
+"msg": "Vékonyabb fejléc; görgetéskor a projekt neve egy vékony sávban fent marad"
+},
+{
 "id": "52576ef5ba",
 "at": "2026-11-04T17:19:34+01:00",
 "msg": "Mentési sáv: csak valódi (a betöltött állapottól eltérő) módosításnál látszik; érthetőbb üzenet, ha nincs több visszavonható lépés"
@@ -154,11 +159,6 @@
 "id": "fb1d3b3995",
 "at": "2026-11-04T11:35:20+01:00",
 "msg": "Idővonal: nagyobb hónapnevek a fejlécben"
-},
-{
-"id": "f114d581e2",
-"at": "2026-11-04T11:34:07+01:00",
-"msg": "Idővonal: oldalra húzásnál nem lép vissza/előre a böngésző; a hónap gombjára kattintva a hónap 1. napjára ugrik"
 }
 ]
 }
