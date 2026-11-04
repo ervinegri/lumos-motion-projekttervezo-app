@@ -321,3 +321,5 @@ html.th2 .cal-chip.p{background:var(--cal-p)}
 /* kifizetések táblázat: az összegek jobban látszódjanak */
 html.th2 .pay-sheet td{font-weight:500}
 html.th2 .pay-sheet td.r,html.th2 .pay-sheet td.num,html.th2 .pay-sheet .tnum{font-weight:600;color:var(--fg)}
+/* összesen sor: egy fokkal vastagabb */
+html.th2 tfoot td,html.th2 .pay-sheet tfoot td{font-weight:650}
