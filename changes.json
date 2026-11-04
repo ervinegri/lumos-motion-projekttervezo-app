@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "03ad27172c",
+"at": "2026-11-04T23:04:32+01:00",
+"msg": "Kifizetésre váró számla: vastag sárga keret"
+},
+{
 "id": "0e917f1b47",
 "at": "2026-11-04T23:03:41+01:00",
 "msg": "Új design: a naptár projekt-sávjai pára-kékek"
@@ -146,13 +151,8 @@
 "msg": "Javítás: a Projektek munkalap oszlopfejléce marad „Nyersanyag megvásárlása” (a fejléc-ellenőrzés miatt) – a felületen „Nyersanyag átadása”"
 },
 {
-"id": "13cd0f6c9c",
-"at": "2026-11-04T20:59:53+01:00",
-"msg": "Beosztó levél: a projektvezető a saját levelében nem kapja meg a saját nevét és telefonszámát"
-},
-{
-"id": "c98e01c53b",
-"at": "2026-11-04T19:57:17Z",
+"id": "7ce9cac50c",
+"at": "2026-11-04T20:00:03Z",
 "msg": "Változásnapló frissítése"
 }
 ]
