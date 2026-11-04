@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "db927a27a6",
+"at": "2026-11-04T23:05:37+01:00",
+"msg": "Új design: vastagabb összegek a kifizetések táblázatban"
+},
+{
 "id": "03ad27172c",
 "at": "2026-11-04T23:04:32+01:00",
 "msg": "Kifizetésre váró számla: vastag sárga keret"
@@ -146,13 +151,8 @@
 "msg": "Utómunka: a Nyersanyag átadása külön kártyán"
 },
 {
-"id": "f5e5f4d38b",
-"at": "2026-11-04T21:01:57+01:00",
-"msg": "Javítás: a Projektek munkalap oszlopfejléce marad „Nyersanyag megvásárlása” (a fejléc-ellenőrzés miatt) – a felületen „Nyersanyag átadása”"
-},
-{
-"id": "7ce9cac50c",
-"at": "2026-11-04T20:00:03Z",
+"id": "71679b25c5",
+"at": "2026-11-04T20:02:07Z",
 "msg": "Változásnapló frissítése"
 }
 ]
