@@ -10,6 +10,7 @@ function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
   return !v;}
 /* Videóvágás: nem terepi munka – nincs helyszín, érkezés/távozás; a dátum a leadási határidő */
 const editOnly=p=>!!p&&p.eventType==='Videóvágás';
+const projRoles=p=>editOnly(p)?['Projektvezető','Vágó']:CREW_ROLES;   // videóvágásnál csak projektvezető és vágó vehető fel
 const missingReq=p=>p?REQ_FIELDS.filter(([k])=>!(editOnly(p)&&['venue','startTime','endTime','endDate'].includes(k))&&reqEmpty(p,k)):[];
 /* Stáb kártyáinak sorrendje: a húzással beállított közös sorrend, utána prioritás és név. */
 function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_crew_order')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
