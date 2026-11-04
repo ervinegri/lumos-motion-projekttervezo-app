@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2019f4aa36",
+"at": "2026-11-04T20:49:57+01:00",
+"msg": "Csapat-véglegesítés: az eszközök változása nem számít csapatmódosításnak (külön eszközlista-küldés); a visszaállítás csak szerepeket és napokat érint"
+},
+{
 "id": "c460fc8db5",
 "at": "2026-11-04T20:44:25+01:00",
 "msg": "Lépések: a pipás lépéseknél csak a pipára kattintva lép tovább (a kártya nem kattintható)"
@@ -149,11 +154,6 @@
 "id": "99de5c0048",
 "at": "2026-11-04T15:28:36+01:00",
 "msg": "Lehetőség ablak: „Ügyfél” helyett „Cég”"
-},
-{
-"id": "e5a9c4cd1b",
-"at": "2026-11-04T15:27:10+01:00",
-"msg": "Lehetőség ablak: a Kapcsolattartó/E-mail sor az Ügyfél/Típus sor elé; a típus új legördülővel"
 }
 ]
 }
