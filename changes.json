@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "52576ef5ba",
+"at": "2026-11-04T17:19:34+01:00",
+"msg": "Mentési sáv: csak valódi (a betöltött állapottól eltérő) módosításnál látszik; érthetőbb üzenet, ha nincs több visszavonható lépés"
+},
+{
 "id": "c9c6b36866",
 "at": "2026-11-04T17:16:48+01:00",
 "msg": "Sablonból létrehozott projekt: a termelői keret és a projekt értéke is átjön (a termelési vezetőnél is, aki az értéket nem látja)"
@@ -154,16 +159,6 @@
 "id": "f114d581e2",
 "at": "2026-11-04T11:34:07+01:00",
 "msg": "Idővonal: oldalra húzásnál nem lép vissza/előre a böngésző; a hónap gombjára kattintva a hónap 1. napjára ugrik"
-},
-{
-"id": "263782c352",
-"at": "2026-11-04T11:29:43+01:00",
-"msg": "Idővonal: a hónap neve nem vágódik le – görgetéskor a látható rész bal szélén marad"
-},
-{
-"id": "b67f82d622",
-"at": "2026-11-04T10:27:23Z",
-"msg": "Változásnapló frissítése"
 }
 ]
 }
