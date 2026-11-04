@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "bd3046fb4d",
+"at": "2026-11-04T10:26:15+01:00",
+"msg": "Naptár: a Vágói naptár bejegyzései is törölhetők; ha nem található, hibaüzenet (nem csendes kudarc); törléskor azonnal eltűnik"
+},
+{
 "id": "d7427c580f",
 "at": "2026-11-04T10:24:25+01:00",
 "msg": "Termek: terem mindig törölhető (✕); + kamera gomb törölve; kamerához objektív is választható (az eszközök közé is felkerül)"
@@ -194,11 +199,6 @@
 "id": "5cdb8e5eb1",
 "at": "2026-11-04T09:29:28+02:00",
 "msg": "Csapat/eszköz módosítás feloldása oldalfrissítés után is megmarad"
-},
-{
-"id": "32d011665c",
-"at": "2026-11-04T09:27:45+02:00",
-"msg": "Vágó feladatai: darabszám „4 db” formában"
 }
 ]
 }
