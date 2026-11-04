@@ -243,6 +243,7 @@ function staffing(p){
   {const RR=recRoomsOf(p),ops=RR.reduce((s,r)=>s+roomOps(r),0)+camN(p,'er_creative');   // termenként kamerásonként 1 operatőr
     if(ops)need['Operatőr']=Math.max(need['Operatőr']||0,ops);}
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
+  if(editOnly(p)){Object.keys(need).forEach(k=>{if(k!=='Vágó')delete need[k];});need['Vágó']=Math.max(need['Vágó']||0,1);}   // videóvágás: csak vágó (és projektvezető) kell, helyszíni stáb nem
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
   need['Projektvezető']=1;   // projektvezető mindig kell, egyszemélyes stábnál is
