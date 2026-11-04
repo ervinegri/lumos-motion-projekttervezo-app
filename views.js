@@ -414,7 +414,8 @@ function viewProjects(){
   // egyetlen lista dátum szerint csökkenő sorrendben; a jelölő sor a mai (és még tartó) projektek alatt, a jövő / mai / lezajlott sorok eltérő jelöléssel
   const all=list.slice().sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
   let marked=false;const todayRow=`<tr class="pt-today-row"><td colspan="${cols}"><span><b>📍 Ma · ${esc(fmtDay(T))} · <span class="pt-clock">${nowHM()}</span></b></span></td></tr>`;
-  const body=all.map(p=>{const r=pr(p);let h='';if(!marked&&r&&(r.end||r.start)<T){marked=true;h=todayRow;}return h+row(p);}).join('')+(marked?'':todayRow);
+  let lastM=null;const monthRow=m=>`<tr class="pt-month pt-month-sep"><td colspan="${cols}">${m?esc(F_YM.format(toDate(m+'-01'))):'Dátum nélkül'}</td></tr>`;   // hónap-elválasztó
+  const body=all.map(p=>{const r=pr(p),m=r?r.start.slice(0,7):'';let h='';if(m!==lastM){h+=monthRow(m);lastM=m;}if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow);
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2><p class="sub">${ro()?'Azok a projektek, amelyekre be vagy osztva':'Rendezvények a tervezéstől az átadásig'}</p></div>
       ${ro()?'':'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
