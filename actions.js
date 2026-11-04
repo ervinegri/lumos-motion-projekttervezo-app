@@ -2005,3 +2005,5 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
   const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d){if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
     const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
   window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
+
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='cal-cutter'){S.cal.cutter=e.target.value==='__all'?'':e.target.value;render(true);}});
