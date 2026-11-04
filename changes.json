@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "009820629e",
+"at": "2026-11-04T11:42:37+01:00",
+"msg": "Naptár: a nézetváltó és a Ma gomb balra, a hónapválasztó mellé; a Ma az idővonalon is a mai napra ugrik"
+},
+{
 "id": "2fc5faeb5c",
 "at": "2026-11-04T11:40:06+01:00",
 "msg": "Idővonal: a sávon a végzés ideje; a forgatás vége színátmenettel olvad a vágási sávba"
@@ -174,16 +179,6 @@
 "id": "0c956660dd",
 "at": "2026-11-04T10:19:15+02:00",
 "msg": "Fotók utómunkája csak fotósé: a vágó kártyáján nem jelenik meg, régi hozzárendelés sem számít"
-},
-{
-"id": "eefb59d90b",
-"at": "2026-11-04T10:18:41+02:00",
-"msg": "Fotók utómunkája: fotózás nélkül nem látszik és nem számít vágnivalónak"
-},
-{
-"id": "bf8e679086",
-"at": "2026-11-04T10:18:17+02:00",
-"msg": "Fotók utómunkája csak fotózásnál látszik; a fotózás kikapcsolása nullázza"
 }
 ]
 }
