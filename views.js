@@ -176,6 +176,7 @@ function render(force){
   renderChrome();
   if(!S.loaded)return;
   VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
+  {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
   syncHash();
@@ -1140,11 +1141,11 @@ function calTimeline(m,items0,T){
         const a2=c.st<first?first:c.st,b2=c.due>last?last:c.due;
         return `<button type="button" class="cal-chip p cut tl-bar tl-cut${join?' tl-joined':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="open-project" data-id="${esc(p.id)}" title="✂️ Vágás – leadás: ${esc(fmtDay(c.due))}${(()=>{const q=pr(p),n=editOnly(p)||!q?null:diffDays(q.end,c.due);return n!=null&&n>0?' · '+n+' nap a vágásra (a forgatás utáni naptól)':'';})()}${cutLeft(p)?' · '+esc(cutLeft(p).txt):''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}✂️${(()=>{const q=pr(p),n=editOnly(p)||!q?null:diffDays(q.end,c.due);return n!=null&&n>0?' '+n+' nap':'';})()}${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
-  setTimeout(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
+  (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
     if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
-    if(c&&c.m===m){w.scrollLeft=c.x;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
+    if(c&&c.m===m){w.scrollLeft=c.x;if(c.y)w.scrollTop=c.y;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,target=T.slice(0,7)===m?col(T)-1:col(m+'-01')-1;
-    w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
+    w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);});
   return `<div class="tl-wrap" title=""><div class="tl tl-noanim" style="--n:${N}">
     <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
     ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
