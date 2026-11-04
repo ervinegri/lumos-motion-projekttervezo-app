@@ -74,6 +74,15 @@ const REC_LIVE=[
   {k:'t_kepkeveres',label:'Streaming',role:'Képkeverő / streaming'}];
 const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1},{k:'er_creative_n',flag:'er_creative',label:'Kreatív kamerák',max:10,min:1}];   // kameraszög darabszáma
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
+/* Előadásrögzítés termenként: minden teremnek saját neve, kamerái és szakemberei (beosztás kulcsa: <teremId>_<kamera>) */
+const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:10,er_close:10};
+function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms))return p.recRooms;
+  const has=ROOM_CAMS.some(c=>p[c.k]),n=Math.min(10,num(p.er_rooms)||(has?1:0)),out=[];   // régi projekt: a teremszám és a kamerák minden teremre
+  for(let i=0;i<n;i++){const r={id:'r'+(i+1),name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});out.push(r);}return out;}
+const roomName=(r,i)=>String(r&&r.name||'').trim()||'Terem '+(i+1);
+const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
+function roomsPatch(rooms){const ch={recRooms:rooms,er_rooms:rooms.length};
+  ROOM_CAMS.forEach(c=>{const mx=Math.max(0,...rooms.map(r=>num(r[c.k])));ch[c.k]=mx>0;if(ROOM_CNT[c.k])ch[c.k+'_n']=mx>0?mx:1;});return ch;}
 const REC_COUNTS=[{k:'er_post_n',label:'Termek előadásainak utómunkája',max:10,min:0},{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const FOTO_COUNT={k:'x_foto_n',label:'Fotós a helyszínen',max:10,min:0};
 const postN=p=>num(p.er_post_n)||(p.er_post?1:0),fotoN=p=>num(p.x_foto_n)||(p.x_foto?1:0);   // régi adatnál a pipa = 1
@@ -203,7 +212,8 @@ function staffing(p){
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
-  if(REC_CAMS.some(c=>p[c.k]))need['Operatőr']=Math.max(need['Operatőr']||0,rooms,rooms*(camN(p,'er_total')+camN(p,'er_close')+camN(p,'er_creative')));   // termenként kamerásonként 1 operatőr
+  {const RR=recRoomsOf(p),ops=RR.reduce((s,r)=>s+num(r.er_total)+num(r.er_close)+(num(r.er_total)+num(r.er_close)?0:roomCams(r).length?1:0),0)+camN(p,'er_creative');   // termenként kamerásonként 1 operatőr
+    if(ops)need['Operatőr']=Math.max(need['Operatőr']||0,ops);}
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   const have={};if(p.lead)have['Projektvezető']=1;
   (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});

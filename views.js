@@ -709,8 +709,8 @@ function roContentPanel(p){
   const rows=tasks.map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span></div>`);
   if(rows.length&&p.x_rush)rows.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);
   // terepi felvételek: miből dolgozhat a vágó (kamerák, interjúk, kreatív felvételek, fotó)
-  const field=[];REC_CAMS.forEach(c=>{if(p[c.k])field.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
-  if(num(p.er_rooms)>1)field.unshift(`Rögzített termek: <b>${num(p.er_rooms)}</b>`);
+  const field=[];recRoomsOf(p).forEach((r,i)=>{const cs=roomCams(r);if(cs.length)field.push(`<b>${esc(roomName(r,i))}</b>: `+cs.map(c=>esc(c.label)+(num(r[c.k])>1?' ×'+num(r[c.k]):'')).join(', '));});
+  if(p.er_creative)field.push('Kreatív kamera'+(camN(p,'er_creative')>1?' ×'+camN(p,'er_creative'):''));
   INT_FLAGS.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
   EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas'].includes(e.k)&&p[e.k]).forEach(e=>field.push(esc(e.label)));
   if(fotoN(p)>0)field.push('Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):''));
@@ -767,11 +767,18 @@ function topicCards(p,{camRow,dlRow,D}){
   const dlv=it=>({on:num(p[it.k])>0,html:dlRow(it),chip:it.label+' '+num(p[it.k])});
   const col=(key,title,items)=>{const L=items;   // minden lehetőség látszik egy egyszerű listában, állandó sorrendben; a kiválasztott sötét, félkövér
     return `<div class="tc"><div class="tc-h">${title}</div><div class="tc-list">${L.map(x=>x.html).join('')||'<p class="tc-none">—</p>'}</div></div>`;};
-  const card=(key,title,items)=>{const n=items.filter(x=>x.on).length,open=FOLD[key]!=null?FOLD[key]:n>0;
+  const card=(key,title,items)=>{const n=items.reduce((s,x)=>s+(x.on?(x.cnt||1):0),0),open=FOLD[key]!=null?FOLD[key]:n>0;
     return `<details class="tcard" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span></summary><div class="tc"><div class="tc-list">${items.map(x=>x.html).join('')}</div></div></details>`;};
   const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
     <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
-  const recL=[{on:num(p.er_rooms)>0,html:rooms,chip:num(p.er_rooms)>1?num(p.er_rooms)+' terem':''}].concat(REC_CAMS.filter(c=>c.k!=='er_creative').map(cam));
+  // Előadásrögzítés termenként: név, kamerák (darabszámmal), és kameránként a beosztott operatőr
+  const RR=recRoomsOf(p),dis=!!D();
+  const roomBlk=(r,i)=>{const rows=ROOM_CAMS.map(c=>{const n=num(r[c.k]),on=n>0,mx=ROOM_CNT[c.k];
+      const st=on&&mx?`<div class="stepper cam-step"><button type="button" data-action="room-step" data-r="${r.id}" data-k="${c.k}" data-d="-1" aria-label="${c.label}: kevesebb"${n<=1||dis?' disabled':''}>−</button><input class="step-in room-in" type="text" inputmode="numeric" data-room-in="${r.id}" data-k="${c.k}" data-max="${mx}" aria-label="${c.label} száma" value="${n}"${D()}><button type="button" data-action="room-step" data-r="${r.id}" data-k="${c.k}" data-d="1" aria-label="${c.label}: több"${n>=mx||dis?' disabled':''}>+</button></div>`:'';
+      const it={on,html:`<div class="cam-row"><label class="toggle"><input type="checkbox" data-room-cam="${r.id}" data-k="${c.k}"${on?' checked':''}${D()}><span class="tl">${c.label}</span></label>${st}</div>`};
+      return F(it,r.id+'_'+c.k,OP,roomName(r,i)+' – '+c.label).html;}).join('');
+    return `<div class="room-blk"><div class="room-h"><span class="room-ic">🚪</span><input class="inp room-name" type="text" data-room-name="${r.id}" maxlength="60" value="${esc(r.name||'')}" placeholder="Terem ${i+1} neve (pl. Nagyterem)" aria-label="Terem ${i+1} neve"${D()}>${dis?'':`<button class="x" type="button" data-action="room-del" data-r="${r.id}" title="Terem törlése" aria-label="Terem ${i+1} törlése">✕</button>`}</div><div class="tc-list">${rows}</div></div>`;};
+  const recL=[{on:RR.some(r=>roomCams(r).length),cnt:RR.reduce((s,r)=>s+roomCams(r).length,0),html:`<div class="rooms">${RR.map(roomBlk).join('')}${dis?(RR.length?'':'<p class="hint" style="margin:6px 4px">Nincs terem megadva.</p>'):`<button class="btn outline small room-add" type="button" data-action="room-add">＋ ${RR.length?'Új terem hozzáadása':'Terem hozzáadása'}</button>`}</div>`}];
   const recR=REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>C(cnt(it),it.k));
   const intL=INT_FLAGS.map(c=>flag(c.k,c.label,OP)),intR=DELIVERABLES.filter(it=>it.g==='int').map(it=>C(dlv(it),it.k));
   const krL=REC_CAMS.filter(c=>c.k==='er_creative').map(cam).concat(EXTRAS.filter(e=>!['x_nyersTarolas','x_foto','x_rush'].includes(e.k)).map(e=>flag(e.k,e.label,e.role||OP))).concat(DELIVERABLES.filter(it=>/^short/.test(it.k)).map(it=>F(dlv(it),'rec_'+it.k,OP,it.label+' felvétele')));   // short videó készítés a kreatív videózásnál is (ugyanaz az adat, mint az Utómunkánál)

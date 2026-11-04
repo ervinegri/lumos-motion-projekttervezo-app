@@ -65,7 +65,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)'], ['eqFinal', 'Eszközök véglegesítve (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)'], ['eqFinal', 'Eszközök véglegesítve (JSON)'], ['recRooms', 'Előadásrögzítés termei (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -756,6 +756,19 @@ function parseCrewDays_(raw) {   // több napos projekt: ki melyik napokon dolgo
   Object.keys(o).slice(0, 60).forEach(k => { if (Array.isArray(o[k])) out[str_(k, 64)] = o[k].map(d => str_(d, 10)).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0, 31); });
   return out;
 }
+/** Előadásrögzítés termenként: [{ id, name, er_total, er_close (db), er_crowd, er_slides (0/1) }] – üres = régi (összesített) adatok. */
+const ROOM_CAMS_ = { er_total: 10, er_close: 10, er_crowd: 1, er_slides: 1 };
+function parseRooms_(raw) {
+  let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : null; } catch (e) { o = null; } }
+  if (!Array.isArray(o)) return null;
+  const seen = {};
+  return o.slice(0, 10).map(r => { const x = { id: str_(r && r.id, 12), name: str_(r && r.name, 60) }; Object.keys(ROOM_CAMS_).forEach(k => { x[k] = int_(r && r[k], 0, ROOM_CAMS_[k], 0); }); return x; })
+    .filter(x => /^r[a-z0-9]{1,10}$/.test(x.id) && !seen[x.id] && (seen[x.id] = 1));
+}
+function roomsLegacy_(p, rooms) {   // a termekből számolt összesített mezők (naptár, régi nézetek)
+  p.er_rooms = rooms.length;
+  Object.keys(ROOM_CAMS_).forEach(k => { const mx = Math.max.apply(null, [0].concat(rooms.map(r => r[k]))); p[k] = mx > 0; if (ROOM_CAMS_[k] > 1) p[k + '_n'] = mx > 0 ? mx : 0; });
+}
 function parseEditTasks_(raw) {   // vágói feladatok: { crewId: [munka kulcsa, …] }
   let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : {}; } catch (e) { o = {}; } }
   const out = {}; if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
@@ -789,6 +802,7 @@ function projectView_(p, u) {
   q.crewDays = parseCrewDays_(q.crewDays);
   q.deliveryLinks = parseLinks_(q.deliveryLinks);
   q.editTasks = parseEditTasks_(q.editTasks);
+  q.recRooms = parseRooms_(q.recRooms);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
   if (!q.status || q.status === 'egyeztetes') q.status = 'tervezes';   // az „Egyeztetés” lépés megszűnt: a tervezés az első
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; q.extras = parseExtras_(q.extras); } else delete q.extras;
@@ -1420,6 +1434,8 @@ function saveProject_(u, a) {
     if (p.deliveryLinks == null) p.deliveryLinks = old ? old.deliveryLinks : '';
     if (a.editTasks !== undefined) p.editTasks = JSON.stringify(parseEditTasks_(a.editTasks));
     if (p.editTasks == null) p.editTasks = old ? old.editTasks || '' : '';
+    if (Array.isArray(a.recRooms)) { const rr = parseRooms_(a.recRooms); p.recRooms = JSON.stringify(rr); roomsLegacy_(p, rr); }
+    if (p.recRooms == null) p.recRooms = old ? old.recRooms || '' : '';
     if (p.crewNotes == null) p.crewNotes = '';
     if (Array.isArray(a.rentals)) p.rentals = JSON.stringify(parseRentals_(a.rentals));
     if (p.rentals == null) p.rentals = '';
@@ -1524,6 +1540,12 @@ function calPlan_(p) {
   if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
   if (Number(p.er_summary) > 0) rec.push(p.er_summary + ' rövid összefoglaló videó');
   if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
+  const rooms = parseRooms_(p.recRooms), RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése' };
+  if (rooms && rooms.length) {   // termenként: név + kamerák
+    lines.push('Előadásrögzítés termenként:');
+    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); lines.push('• ' + (r.name || 'Terem ' + (i + 1)) + ': ' + (cs.join(', ') || '–')); });
+    Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
+  }
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
   // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
   if (p.startTime) lines.push('Érkezés: ' + p.startTime + (p.endTime ? ' · távozás kb. ' + p.endTime : p.hours ? ' · ' + p.hours + ' óra' : ''));

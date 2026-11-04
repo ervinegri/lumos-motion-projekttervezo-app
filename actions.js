@@ -1888,3 +1888,20 @@ function onsiteCutCh(d,on){const ch={editOnsite:on};if(crewLocked(d))return ch;
 ACT['svc-unlock']=b=>{const d=S.draft;if(!d)return;const [t,k]=String(b.dataset.pick||'').split(':'),sel=t==='f'?`select[data-os-field="${k}"]`:`select[data-os-cut="${k}"]`;
   ACT['crew-edit']();let n=0;const iv=setInterval(()=>{n++;if(n>600||!S.draft||S.draft.id!==d.id){clearInterval(iv);return;}if(!(S.crewEdit||{})[d.id])return;clearInterval(iv);
     requestAnimationFrame(()=>{const s=document.querySelector(sel);if(!s)return;s.scrollIntoView({block:'center'});s.focus();try{s.showPicker();}catch(_){}});},100);};
+
+/* Előadásrögzítés termenként: terem hozzáadása / törlése / átnevezése, kamerák ki-be és darabszám */
+function roomsEdit(fn){const d=S.draft;if(!d||ro()||projLocked())return;const first=!Array.isArray(d.recRooms),rooms=clone(recRoomsOf(d));if(fn(rooms)===false)return;const ch=roomsPatch(rooms);
+  if(first){const et=etWithField(d);let mv=false;Object.keys(et).forEach(id=>{et[id]=et[id].map(k=>{const m=/^f_(er_total|er_close|er_crowd|er_slides)$/.exec(k);if(m&&rooms[0]){mv=true;return 'f_'+rooms[0].id+'_'+m[1];}return k;});});if(mv)ch.editTasks=et;}   // régi beosztás az első teremhez
+  const y0=scrollY;setDraft(ch);requestAnimationFrame(()=>scrollTo(0,y0));}
+const roomId=rooms=>{let id;do{id='r'+Math.random().toString(36).slice(2,8);}while(rooms.some(r=>r.id===id));return id;};
+ACT['room-add']=()=>{roomsEdit(rooms=>{rooms.push({id:roomId(rooms),name:'',er_total:1,er_close:0,er_crowd:0,er_slides:0});});
+  setTimeout(()=>{const L=document.querySelectorAll('.room-name');const x=L[L.length-1];if(x)x.focus();},60);};
+ACT['room-del']=b=>{const d=S.draft;if(!d)return;const rooms=recRoomsOf(d),i=rooms.findIndex(r=>r.id===b.dataset.r);if(i<0)return;const r=rooms[i];
+  const go=()=>roomsEdit(R=>{R.splice(R.findIndex(x=>x.id===r.id),1);const d2=S.draft,et=etWithField(d2);let ch=false;Object.keys(et).forEach(id=>{const n=et[id].filter(k=>k.indexOf('f_'+r.id+'_')!==0);if(n.length!==et[id].length){ch=true;et[id]=n;if(!n.length)delete et[id];}});if(ch)S.draft.editTasks=et;});
+  if(roomCams(r).length)confirmModal('Terem törlése',`Törlöd: <b>${esc(roomName(r,i))}</b>? A kamerái és a beosztott operatőrei is lekerülnek róla.`,'Igen, törlöm',async()=>go());else go();};
+ACT['room-step']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,num(r[k])+Number(b.dataset.d)));});
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
+  if(t.dataset.roomCam){const k=t.dataset.k,rid=t.dataset.roomCam,on=t.checked;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=on?1:0;});
+    if(!on){const d=S.draft,et=etWithField(d),key='f_'+rid+'_'+k;let ch=false;Object.keys(et).forEach(id=>{if(et[id].includes(key)){ch=true;et[id]=et[id].filter(x=>x!==key);if(!et[id].length)delete et[id];}});if(ch)setDraft({editTasks:et});}return;}
+  if(t.dataset.roomIn){const rid=t.dataset.roomIn,k=t.dataset.k;let n=parseInt(String(t.value).replace(/\D/g,''),10);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,isFinite(n)?n:1));});return;}
+  if(t.dataset.roomName){const rid=t.dataset.roomName,v=String(t.value||'').trim().slice(0,60);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r||r.name===v)return false;r.name=v;});}});
