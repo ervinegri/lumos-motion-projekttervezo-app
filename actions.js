@@ -1501,7 +1501,7 @@ document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.cl
   t.style.left=x+'px';t.style.top=(r.bottom+scrollY+6)+'px';});
 document.addEventListener('mouseout',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)){el._tip=false;const t=$('calTip');if(t)t.remove();}});
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
-  const id=el.dataset.tipid,isP=el.dataset.kind==='p';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
+  const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
   m.innerHTML=isP?`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button>`
     :`<button type="button" data-action="cal-event" data-id="${esc(id)}">Részletek</button><button type="button" class="bad-txt" data-action="cal-ctx-del" data-id="${esc(id)}" data-kind="${esc(el.dataset.kind||'g')}">🗑️ Törlés a naptárból</button>`;
   document.body.appendChild(m);m.style.left=Math.min(e.pageX,scrollX+innerWidth-200)+'px';m.style.top=e.pageY+'px';});
@@ -1827,11 +1827,24 @@ document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.datase
 
 /* Naptár: projektek és Google-bejegyzések áthúzása másik napra (mint a Google Naptárban) */
 let CAL_DRAG=null;
-document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.cal-chip[draggable=true]');if(!c)return;CAL_DRAG={kind:c.dataset.kind,id:c.dataset.id,from:c.dataset.dragDay};c.classList.add('dragging');const t=$('calTip');if(t)t.remove();try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',c.dataset.id);}catch(_){}});
-document.addEventListener('dragend',()=>{document.querySelectorAll('.cal-chip.dragging').forEach(x=>x.classList.remove('dragging'));document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));CAL_DRAG=null;});
-document.addEventListener('dragover',e=>{if(!CAL_DRAG)return;const d=e.target.closest&&e.target.closest('.cal-day[data-day]');if(!d)return;e.preventDefault();document.querySelectorAll('.cal-day.drop').forEach(x=>{if(x!==d)x.classList.remove('drop');});d.classList.add('drop');});
-document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.closest&&e.target.closest('.cal-day[data-day]');const g=CAL_DRAG;CAL_DRAG=null;document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));if(!d)return;e.preventDefault();
-  const days=diffDays(g.from,d.dataset.day);if(!days)return;const sh=x=>validISO(x)?addDays(x,days):x;
+/* Idővonal: melyik napra mutat az egér (oszlop a sávon belül) */
+function tlDay(e){const t=e.target.closest&&e.target.closest('.tl-track[data-first]');if(!t)return '';const r=t.getBoundingClientRect(),n=Number(t.dataset.n)||30;
+  const i=Math.max(0,Math.min(n-1,Math.floor((e.clientX-r.left)/(r.width/n))));return addDays(t.dataset.first,i);}
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.cal-chip[draggable=true]');if(!c)return;CAL_DRAG={kind:c.dataset.kind,id:c.dataset.id,from:c.closest('.tl-track')?tlDay(e):c.dataset.dragDay};c.classList.add('dragging');const t=$('calTip');if(t)t.remove();try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',c.dataset.id);}catch(_){}});
+document.addEventListener('dragend',()=>{document.querySelectorAll('.cal-chip.dragging').forEach(x=>x.classList.remove('dragging'));const z=$('tlDrop');if(z)z.remove();document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));CAL_DRAG=null;});
+document.addEventListener('dragover',e=>{if(!CAL_DRAG)return;const tt=e.target.closest&&e.target.closest('.tl-track[data-first]');
+  if(tt){e.preventDefault();const day=tlDay(e),n=Number(tt.dataset.n),i=diffDays(tt.dataset.first,day);let z=$('tlDrop');if(!z){z=document.createElement('div');z.id='tlDrop';z.className='tl-drop';}
+    if(z.parentNode!==tt)tt.appendChild(z);z.style.left=(i*100/n)+'%';z.style.width=(100/n)+'%';return;}   // az idővonalon a célnap kiemelve
+  const d=e.target.closest&&e.target.closest('.cal-day[data-day]');if(!d)return;e.preventDefault();document.querySelectorAll('.cal-day.drop').forEach(x=>{if(x!==d)x.classList.remove('drop');});d.classList.add('drop');});
+document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.closest&&e.target.closest('.cal-day[data-day]'),tday=tlDay(e);const g=CAL_DRAG;CAL_DRAG=null;document.querySelectorAll('.cal-day.drop').forEach(x=>x.classList.remove('drop'));{const z=$('tlDrop');if(z)z.remove();}if(!d&&!tday)return;e.preventDefault();
+  const days=diffDays(g.from,d?d.dataset.day:tday);if(!days)return;const sh=x=>validISO(x)?addDays(x,days):x;
+  if(g.kind==='cut'){const p=projById(g.id),q=pr(p),due=p&&dueDate(p);if(!p||!due)return;   // vágási sáv: a leadási határidő tolódik
+    if(S.dirty&&S.draft&&S.draft.id===p.id){toast('Előbb mentődjenek el a projekt módosításai.',true);return;}
+    let nd=addDays(due,days);if(q&&nd<q.start)nd=q.start;if(nd===due)return;const old=p.dueAt;p.dueAt=nd;render(true);
+    try{const saved=await call('saveProject',Object.assign(clone(p),{baseUpdatedAt:p.updatedAt||'',mutationId:uuid(),deferCal:true}));const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0)S.projects[k]=normProj(saved);
+      if(S.draft&&S.draft.id===p.id){S.draft=prepDraft(saved);S.draftBase=clone(S.draft);}render(true);toast(`„${p.name}” leadási határideje: ${fmtDay(nd)}`);}
+    catch(err){p.dueAt=old;render(true);handleErr(err);}
+    return;}
   if(g.kind==='p'){const p=projById(g.id);if(!p)return;
     if(S.dirty&&S.draft&&S.draft.id===p.id){toast('Előbb mentődjenek el a projekt módosításai.',true);return;}
     const fin=p.crewFinal&&Array.isArray(p.crewFinal.ids)?p.crewFinal.ids:[],me=S.me&&S.me.crewId,rcpt=fin.map(id=>crewById(id)).filter(c=>c&&c.id!==me),withMail=rcpt.filter(c=>EMAIL_RE.test(c.email||''));
