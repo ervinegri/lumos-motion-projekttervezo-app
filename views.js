@@ -630,7 +630,7 @@ function refOption(p){const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key=
 function crewFinalBox(p,ids){
   if(!ids.length)return '';
   const st=crewFinalState(p),f=p.crewFinal,freeCut=postTasks(p).filter(t=>!taskOwners(p,t.k).length).length,on=crewFinalOn()&&!freeCut;
-  if(st==='changed'&&typeof cfAutoPrompt==='function')cfAutoPrompt(p);
+  // a véglegesítő ablak nem ugrik fel magától – csak a „Módosítások véglegesítése” gombra
   const sentL=(f&&(f.sentTo&&f.sentTo.length?f.sentTo:(f.notified||[]).map(n=>({name:n,email:((S.crew||[]).find(c=>c.name===n)||{}).email||''}))))||[];
   const msg=st==='ok'?`<b>✅ Csapat véglegesítve</b><small>${esc(f.at||'')}${f.by?' · '+esc(f.by):''} · a tagok a naptárban vannak${S.mailOn===false?' · <span class="warn-txt">⏸ az e-mail értesítések szünetelnek (Beállítások), ezért e-mailt nem kaptak</span>':''}</small>${S.mailOn===false?'':sentL.length?`<div class="cf-sent">✉️ E-mail kiküldve: ${sentL.map(x=>`<b>${esc(x.name)}</b>${x.email?` <span class="muted">(${esc(x.email)})</span>`:''}`).join(', ')}</div>`:'<div class="cf-sent muted">✉️ Ennél a véglegesítésnél nem kellett új e-mailt küldeni.</div>'}`
     :st==='changed'?`<b>⚠️ A csapat módosult a véglegesítés óta</b><small>Véglegesítsd újra, hogy a naptár és az értesítések az új csapatot kövessék.</small>`
