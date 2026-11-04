@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "addf1333a8",
+"at": "2026-11-04T11:51:34+01:00",
+"msg": "Idővonal: a Ma gomb és a megnyitás a mai nappal kezdi a látható részt"
+},
+{
 "id": "5e93ec833c",
 "at": "2026-11-04T11:49:56+01:00",
 "msg": "Idővonal: fix magasság, a sorok benne görgethetők; a hónap alatti összesítő sor törölve"
@@ -151,14 +156,9 @@
 "msg": "Új projekt: mindig üres űrlappal nyílik (a félbehagyott kitöltés nem töltődik vissza)"
 },
 {
-"id": "3226f031e3",
-"at": "2026-11-04T10:05:21+01:00",
-"msg": "„Az app frissült” értesítés: új verzió első betöltésekor a változások listája (changes.json, GitHub Action frissíti)"
-},
-{
-"id": "f5a49c4f12",
-"at": "2026-11-04T10:03:18+01:00",
-"msg": "Sablon: javítva, hogy a helyszín, kapcsolattartó, érkezés/távozás is átjöjjön; bevételi sorból is a sablon neve, a sor neve igazodik; üres kapcsolattartónál az ügyfélé"
+"id": "c4dbee0a70",
+"at": "2026-11-04T09:05:30Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
