@@ -1082,7 +1082,11 @@ function calChip(it,day){
 /* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
 /* Az idővonal bal felső sarkában a látható rész hónapja */
 function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,n=Number(b.dataset.n),cw=(w.scrollWidth-lw)/n;
-  const d=addDays(b.dataset.first,Math.min(n-1,Math.max(0,Math.round(w.scrollLeft/cw)+3)));const t=d.slice(0,4)+'. '+F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();if(b.textContent!==t)b.textContent=t;}
+  const d=addDays(b.dataset.first,Math.min(n-1,Math.max(0,Math.round(w.scrollLeft/cw)+3)));const t=d.slice(0,4)+'. '+F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();if(b.textContent!==t)b.textContent=t;
+  /* csak azok a sorok látszanak, amelyeknek a sávja a látható időszakba esik – így nincs üres sor */
+  const v0=Math.floor(w.scrollLeft/cw)+1,v1=Math.ceil((w.scrollLeft+w.clientWidth-lw)/cw);let k=0;
+  w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;if(r.hidden===on)r.hidden=!on;});
+  const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
 function calTimeline(m,items0,T){
   /* Három hónap egymás után (előző · aktuális · következő), egérrel oldalra húzható; az aktuális hónap elejére / a mai napra görget */
   const pm=shiftMonth(m,-1),nm=shiftMonth(m,1),first=pm+'-01',last=addDays(shiftMonth(nm,1)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
@@ -1106,7 +1110,8 @@ function calTimeline(m,items0,T){
     const dim=p&&crewDim(p),live=p&&calLive(p);
     const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
     const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
-    return `<div class="tl-row"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
+    const cc=p&&cutOf(p),spanA=Math.min(c0,cc?col(cc.st<first?first:cc.st):c0),spanB=Math.max(c1,cc?col(cc.due>last?last:cc.due):c1);
+    return `<div class="tl-row tl-it" data-a="${spanA}" data-b="${spanB}"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
       <div class="tl-track" data-first="${first}" data-n="${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(ro()&&!S.cal.show.terepi)?`<button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
         const a2=c.st<first?first:c.st,b2=c.due>last?last:c.due;
         return `<button type="button" class="cal-chip p cut tl-bar tl-cut" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="open-project" data-id="${esc(p.id)}" title="✂️ Vágás – leadás: ${esc(fmtDay(c.due))}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}✂️${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
@@ -1116,8 +1121,8 @@ function calTimeline(m,items0,T){
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,target=T.slice(0,7)===m?col(T)-3:col(m+'-01')-1;
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);},0);
   return `<div class="tl-wrap" title=""><div class="tl" style="--n:${N}">
-    <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small>${rows.length} tétel · húzd oldalra ↔</small></div><div class="tl-track">${head}</div></div>
-    ${body||`<div class="tl-empty">${empty('Ebben az időszakban nincs esemény.')}</div>`}
+    <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track">${head}</div></div>
+    ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
 }
 function viewCalendar(){
