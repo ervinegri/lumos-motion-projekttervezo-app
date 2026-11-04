@@ -73,7 +73,7 @@ const TABLES = {
   inventory: { tab: 'Leltár', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['category', 'Kategória'], ['qty', 'Darab'], ['condition', 'Állapot'],
     ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
-    ['location', 'Tárolási hely']] },
+    ['location', 'Tárolási hely'], ['format', 'Szenzorméret (FF / Crop)']] },
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
     ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)'], ['repPhone', 'Képviselő telefonszáma'], ['repEmail', 'Képviselő e-mail-címe'], ['contactTitle', 'Kapcsolattartó titulusa'], ['repTitle', 'Képviselő titulusa'], ['tigMail', 'TIG e-mail sablon (JSON)'], ['billEmail', 'Pénzügyi e-mail (számla másolat)']] },
@@ -2832,7 +2832,7 @@ function saveItem_(u, a) {
   const it = {
     id: id, name: str_(a.name, 160), category: INV_CATS.indexOf(a.category) >= 0 ? a.category : 'Egyéb',
     qty: int_(a.qty, 0, 9999, 1), condition: CONDITIONS.indexOf(a.condition) >= 0 ? a.condition : 'ok',
-    serial: str_(a.serial, 200), location: str_(a.location, 120), value: (a.value === '' || a.value == null) ? null : int_(a.value, 0, 1e9, null), note: str_(a.note, 500)
+    serial: str_(a.serial, 200), location: str_(a.location, 120), format: a.format === 'ff' || a.format === 'crop' ? a.format : '', value: (a.value === '' || a.value == null) ? null : int_(a.value, 0, 1e9, null), note: str_(a.note, 500)
   };
   if (it.name.length < 2) throw new Error('Add meg az eszköz nevét.');
   return withLock_(() => {

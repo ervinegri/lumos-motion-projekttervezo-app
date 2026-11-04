@@ -82,6 +82,10 @@ const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:1,er_
 const ROOM_EQ={er_total:1,er_close:1,er_crowd:1};
 function roomEq(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_eq'])?r[k+'_eq'].slice(0,n):[];while(a.length<n)a.push('');return a;}
 function roomLens(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_lens'])?r[k+'_lens'].slice(0,n):[];while(a.length<n)a.push('');return a;}
+/* Szenzorméret: Full Frame (ff) vagy Crop (APS-C / Super 35). Crop objektív nem való Full Frame vázra. */
+const FMT_LBL={ff:'Full Frame',crop:'Crop'};
+const invFmt=it=>it&&(it.format==='ff'||it.format==='crop')?it.format:'';
+const lensFits=(cam,lens)=>!(invFmt(cam)==='ff'&&invFmt(lens)==='crop');
 const lensItems=()=>(S.inventory||[]).filter(it=>/^Objektív/i.test(it.category||'')&&it.condition!=='selejt').sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
 const camItems=()=>(S.inventory||[]).filter(it=>/^(Kamera|GoPro)/i.test(it.category||'')&&it.condition!=='selejt').sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
 function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};p.recRooms.forEach(r=>Object.keys(ROOM_EQ).forEach(k=>{if(num(r[k])>1)r[k]=1;}));   // régebbi, több kamerás szögeknél is csak egy kamera
