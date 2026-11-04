@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5e93ec833c",
+"at": "2026-11-04T11:49:56+01:00",
+"msg": "Idővonal: fix magasság, a sorok benne görgethetők; a hónap alatti összesítő sor törölve"
+},
+{
 "id": "a857b8d540",
 "at": "2026-11-04T11:48:09+01:00",
 "msg": "Idővonal: az üres cellára kattintva nem nyílik meg a projekt (csak a névre vagy a sávra)"
@@ -154,16 +159,6 @@
 "id": "f5a49c4f12",
 "at": "2026-11-04T10:03:18+01:00",
 "msg": "Sablon: javítva, hogy a helyszín, kapcsolattartó, érkezés/távozás is átjöjjön; bevételi sorból is a sablon neve, a sor neve igazodik; üres kapcsolattartónál az ügyfélé"
-},
-{
-"id": "5a0ae9f5b7",
-"at": "2026-11-04T10:00:26+01:00",
-"msg": "Projekt a bevételi sorból: sablon is választható (a név és az érték a bevételi sorból marad)"
-},
-{
-"id": "051806e16f",
-"at": "2026-11-04T09:59:45+01:00",
-"msg": "Szerződés és számlázás: szűrőgombok sora törölve; a csempék ki-be kapcsolják a szűrőt, aktív szűrőnél törlés link"
 }
 ]
 }
