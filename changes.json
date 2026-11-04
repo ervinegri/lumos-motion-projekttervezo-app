@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8cb15d29b7",
+"at": "2026-11-04T22:53:05+01:00",
+"msg": "Új design: a menüpontok egy sorban maradnak"
+},
+{
 "id": "4aefb834f8",
 "at": "2026-11-04T22:50:26+01:00",
 "msg": "Frissítés gomb helyett automatikus frissítés: 15 mp-enként olcsó verziófigyelés (dataVer)"
@@ -146,13 +151,8 @@
 "msg": "Alacsonyabb menüsor gépen"
 },
 {
-"id": "6cc9c3867b",
-"at": "2026-11-04T20:22:21+01:00",
-"msg": "Kamera- és objektívválasztó: a szenzorméret nem kerül a név után"
-},
-{
-"id": "4185e5e04c",
-"at": "2026-11-04T19:19:50Z",
+"id": "b8f85f86a8",
+"at": "2026-11-04T19:22:29Z",
 "msg": "Változásnapló frissítése"
 }
 ]
