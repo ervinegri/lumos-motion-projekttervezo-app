@@ -1543,7 +1543,7 @@ function calPlan_(p) {
   const rooms = parseRooms_(p.recRooms), RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése' };
   if (rooms && rooms.some(r => Object.keys(RL).some(k => r[k] > 0))) {   // termenként: név + kamerák
     lines.push('Előadásrögzítés termenként:');
-    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (r.name || 'Terem ' + (i + 1)) + ': ' + cs.join(', ')); });
+    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (i + 1) + '. Terem' + (r.name ? ' – ' + r.name : '') + ': ' + cs.join(', ')); });
     Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
   }
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));

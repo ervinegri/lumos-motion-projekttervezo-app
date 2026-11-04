@@ -155,6 +155,15 @@ window.addEventListener('popstate',()=>{if(!S.me||!S.loaded)return;
 window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('lpm_scroll',JSON.stringify({h:location.hash,y:Math.round(scrollY)}));}catch(e){}});
 let scrollRestored=false;
 function restoreScroll(){if(scrollRestored)return;scrollRestored=true;try{const v=JSON.parse(sessionStorage.getItem('lpm_scroll')||'null');if(v&&v.h===location.hash&&v.y>0)requestAnimationFrame(()=>scrollTo(0,v.y));}catch(e){}}
+/* Kattintás után a kattintott rész ne ugorjon el (pl. felül megjelenő / eltűnő „Hiányzó stáb” sáv miatt):
+   az újrarajzolás után a képernyő úgy görgetődik, hogy a kártya ugyanott maradjon. */
+let ANCHOR=null;
+function anchorKey(t){const el=t&&t.closest&&t.closest('[data-fold],section[id],div[id].panel');if(!el||!VIEW.contains(el))return null;
+  return el.dataset.fold?`[data-fold="${el.dataset.fold}"]`:'#'+CSS.escape(el.id);}
+['pointerdown','focusin','change','keydown'].forEach(ev=>document.addEventListener(ev,e=>{const k=anchorKey(e.target);if(!k){if(ev==='pointerdown')ANCHOR=null;return;}const el=VIEW.querySelector(k);if(el)ANCHOR={k,top:el.getBoundingClientRect().top,at:Date.now()};},true));
+['wheel','touchmove'].forEach(ev=>window.addEventListener(ev,()=>{ANCHOR=null;},{passive:true}));
+function anchorFix(){const a=ANCHOR;if(!a||Date.now()-a.at>1500)return;const fix=()=>{if(ANCHOR!==a)return;const el=VIEW.querySelector(a.k);if(!el)return;const d=el.getBoundingClientRect().top-a.top;if(Math.abs(d)>1)scrollBy(0,d);};
+  fix();requestAnimationFrame(()=>{fix();requestAnimationFrame(fix);});setTimeout(fix,60);setTimeout(fix,250);}
 function render(force){
   if(!S.me)return;
   document.body.classList.toggle('proj-locked',projLocked());
@@ -166,6 +175,7 @@ function render(force){
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
   syncHash();
+  anchorFix();
   if(keep){const el=$(keep.id);if(el){el.focus({preventScroll:true});try{if(keep.s!=null&&el.setSelectionRange)el.setSelectionRange(keep.s,keep.e);}catch(e){}}}
 }
 
@@ -743,7 +753,7 @@ function roContentPanel(p){
 function svcUnlockBtn(p,attr,txt,none){const can=!ro()&&!projLocked()&&!!S.draft&&S.draft.id===p.id&&crewLocked(p);
   return can?`<button type="button" class="op-cut op-unl${none?' none':''}" data-action="svc-unlock" ${attr} data-tip="A csapat véglegesítve van – kattints a módosításhoz">${esc(txt)} ▾</button>`:`<span class="op-cut${none?' none':''}">${esc(txt)}</span>`;}
 function svcCan(p){return !ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.draft.id===p.id;}
-function fieldAsg(p,k,role,label,n){const ids=fieldOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
+function fieldAsg(p,k,role,label,n){const ids=slotOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="f:${esc(k)}"`,ids.length?'👥 '+ids.map(nm).join(', '):'👥 nincs beosztva',!ids.length);
   const all=(S.crew||[]).slice().sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
   const sel=i=>{const cur=ids[i]||'',free=all.filter(c=>c.id===cur||!ids.includes(c.id)),fit=free.filter(c=>(c.roles||[]).includes(role)),rest=free.filter(c=>!(c.roles||[]).includes(role)),o=c=>`<option value="${esc(c.id)}"${c.id===cur?' selected':''}>${esc(c.name)}</option>`;
@@ -777,9 +787,9 @@ function topicCards(p,{camRow,dlRow,D}){
   const RR=recRoomsOf(p),dis=!!D();
   const roomBlk=(r,i)=>{const rows=ROOM_CAMS.map(c=>{const n=num(r[c.k]),on=n>0,mx=ROOM_CNT[c.k];
       const st=on&&mx?`<div class="stepper cam-step"><button type="button" data-action="room-step" data-r="${r.id}" data-k="${c.k}" data-d="-1" aria-label="${c.label}: kevesebb"${n<=1||dis?' disabled':''}>−</button><input class="step-in room-in" type="text" inputmode="numeric" data-room-in="${r.id}" data-k="${c.k}" data-max="${mx}" aria-label="${c.label} száma" value="${n}"${D()}><button type="button" data-action="room-step" data-r="${r.id}" data-k="${c.k}" data-d="1" aria-label="${c.label}: több"${n>=mx||dis?' disabled':''}>+</button></div>`:'';
-      const it={on,html:`<div class="cam-row"><label class="toggle"><input type="checkbox" data-room-cam="${r.id}" data-k="${c.k}"${on?' checked':''}${D()}><span class="tl">${c.label}</span></label>${st}</div>`};
-      return F(it,r.id+'_'+c.k,OP,roomName(r,i)+' – '+c.label,n).html;}).join('');
-    return `<div class="room-blk"><div class="room-h"><span class="room-ic">🚪</span><input class="inp room-name" type="text" data-room-name="${r.id}" maxlength="60" value="${esc(r.name||'')}" placeholder="Terem ${i+1} neve (pl. Nagyterem)" aria-label="Terem ${i+1} neve"${D()}>${dis||RR.length<2?'':`<button class="x" type="button" data-action="room-del" data-r="${r.id}" title="Terem törlése" aria-label="Terem ${i+1} törlése">✕</button>`}</div><div class="tc-list">${rows}</div></div>`;};
+      return `<div class="cam-row"><label class="toggle"><input type="checkbox" data-room-cam="${r.id}" data-k="${c.k}"${on?' checked':''}${D()}><span class="tl">${c.label}</span></label>${st}</div>`;}).join('');
+    const ops=roomOps(r),asg=ops?`<div class="room-ops"><span class="room-ops-l">Operatőr${ops>1?'ök ('+ops+')':''}:</span><div class="tc-asg room-asg">${fieldAsg(p,r.id+'_op',OP,roomName(r,i)+' – operatőr',ops)}</div></div>`:'';   // a terem operatőrei a név után (ahány kamera, annyi)
+    return `<div class="room-blk"><div class="room-h"><span class="room-no">${i+1}. Terem</span><input class="inp room-name" type="text" data-room-name="${r.id}" maxlength="60" value="${esc(r.name||'')}" placeholder="Név – nem kötelező (pl. Nagyterem)" aria-label="${i+1}. terem neve"${D()}>${dis||RR.length<2?'':`<button class="x" type="button" data-action="room-del" data-r="${r.id}" title="Terem törlése" aria-label="${i+1}. terem törlése">✕</button>`}</div>${asg}<div class="tc-list">${rows}</div></div>`;};
   const recL=[{on:RR.some(r=>roomCams(r).length),cnt:RR.reduce((s,r)=>s+roomCams(r).length,0),html:`<div class="rooms">${RR.map(roomBlk).join('')}${dis?'':`<button class="btn outline small room-add" type="button" data-action="room-add">＋ Új terem hozzáadása</button>`}</div>`}];
   const recR=REC_COUNTS.filter(it=>it.k!=='er_rooms').map(it=>C(cnt(it),it.k));
   const intL=INT_FLAGS.map(c=>flag(c.k,c.label,OP)),intR=DELIVERABLES.filter(it=>it.g==='int').map(it=>C(dlv(it),it.k));
