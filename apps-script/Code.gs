@@ -762,7 +762,7 @@ function parseRooms_(raw) {
   let o = raw; if (typeof raw === 'string') { try { o = raw ? JSON.parse(raw) : null; } catch (e) { o = null; } }
   if (!Array.isArray(o)) return null;
   const seen = {};
-  return o.slice(0, 10).map(r => { const x = { id: str_(r && r.id, 12), name: str_(r && r.name, 60) }; Object.keys(ROOM_CAMS_).forEach(k => { x[k] = int_(r && r[k], 0, ROOM_CAMS_[k], 0); if (k !== 'er_slides') { const eq = r && r[k + '_eq']; x[k + '_eq'] = Array.isArray(eq) ? eq.slice(0, x[k]).map(v => str_(v, 64)) : []; } }); return x; })   // a terem kamerái (leltári eszközök)
+  return o.slice(0, 10).map(r => { const x = { id: str_(r && r.id, 12), name: str_(r && r.name, 60) }; Object.keys(ROOM_CAMS_).forEach(k => { x[k] = int_(r && r[k], 0, ROOM_CAMS_[k], 0); if (k !== 'er_slides') { const eq = r && r[k + '_eq']; x[k + '_eq'] = Array.isArray(eq) ? eq.slice(0, x[k]).map(v => str_(v, 64)) : []; const ln = r && r[k + '_lens']; x[k + '_lens'] = Array.isArray(ln) ? ln.slice(0, x[k]).map(v => str_(v, 64)) : []; } }); return x; })   // a terem kamerái (leltári eszközök)
     .filter(x => /^r[a-z0-9]{1,10}$/.test(x.id) && !seen[x.id] && (seen[x.id] = 1));
 }
 function roomsLegacy_(p, rooms) {   // a termekből számolt összesített mezők (naptár, régi nézetek)
