@@ -1,0 +1,204 @@
+{
+"items": [
+{
+"id": "f5a49c4f12",
+"at": "2026-11-04T10:03:18+01:00",
+"msg": "Sablon: javítva, hogy a helyszín, kapcsolattartó, érkezés/távozás is átjöjjön; bevételi sorból is a sablon neve, a sor neve igazodik; üres kapcsolattartónál az ügyfélé"
+},
+{
+"id": "5a0ae9f5b7",
+"at": "2026-11-04T10:00:26+01:00",
+"msg": "Projekt a bevételi sorból: sablon is választható (a név és az érték a bevételi sorból marad)"
+},
+{
+"id": "051806e16f",
+"at": "2026-11-04T09:59:45+01:00",
+"msg": "Szerződés és számlázás: szűrőgombok sora törölve; a csempék ki-be kapcsolják a szűrőt, aktív szűrőnél törlés link"
+},
+{
+"id": "6a72f78926",
+"at": "2026-11-04T09:52:06+01:00",
+"msg": "Projektlista: hónap-elválasztó sorok a hónap nevével"
+},
+{
+"id": "77b6fb506c",
+"at": "2026-11-04T09:43:35+01:00",
+"msg": "Ma sáv: az óra:perc egy sorban, olvashatóan (a belső elem nem örökli a sáv stílusát)"
+},
+{
+"id": "fee3625e30",
+"at": "2026-11-04T09:38:33+01:00",
+"msg": "Termek: kameraszögeknél konkrét kamera választható a leltárból (felkerül az eszközök közé); Értékesítés: nyerési arány kártya törölve, értékesítő-választó (saját is), lehetőség kiosztása értékesítőnek"
+},
+{
+"id": "c67a4eea4e",
+"at": "2026-11-04T09:33:35+01:00",
+"msg": "Beállítások: betöltési hiba után ne kérje újra minden kirajzolásnál (végtelen kéréssorozat)"
+},
+{
+"id": "8fa7505c9c",
+"at": "2026-11-04T09:22:09+01:00",
+"msg": "Foglaló % kiállított díjbekérő után a beállítások ablakban sem módosítható; teszt: navigator nélküli környezet"
+},
+{
+"id": "0c956660dd",
+"at": "2026-11-04T10:19:15+02:00",
+"msg": "Fotók utómunkája csak fotósé: a vágó kártyáján nem jelenik meg, régi hozzárendelés sem számít"
+},
+{
+"id": "eefb59d90b",
+"at": "2026-11-04T10:18:41+02:00",
+"msg": "Fotók utómunkája: fotózás nélkül nem látszik és nem számít vágnivalónak"
+},
+{
+"id": "bf8e679086",
+"at": "2026-11-04T10:18:17+02:00",
+"msg": "Fotók utómunkája csak fotózásnál látszik; a fotózás kikapcsolása nullázza"
+},
+{
+"id": "a3f8a41594",
+"at": "2026-11-04T10:16:53+02:00",
+"msg": "Gyorsbillentyű felirata Macen ⌘S / ⌘Z"
+},
+{
+"id": "ff7a34412d",
+"at": "2026-11-04T10:16:34+02:00",
+"msg": "Szolgáltatások: egyforma sormagasság, a számláló megjelenése nem tolja el a sorokat"
+},
+{
+"id": "52c648faff",
+"at": "2026-11-04T10:14:39+02:00",
+"msg": "Kereshető legördülő: oldalgörgetéskor a lista görgetése megmarad"
+},
+{
+"id": "dfc82b3013",
+"at": "2026-11-04T10:13:48+02:00",
+"msg": "Mentés (⌘S / gomb): az épp szerkesztett mező értéke is bekerül, utána nem marad mentetlen"
+},
+{
+"id": "69a6d66c05",
+"at": "2026-11-04T10:12:24+02:00",
+"msg": "Vágó a helyszínen: csak vágó választható; Fotós a helyszínen: csak fotós"
+},
+{
+"id": "3e828030c6",
+"at": "2026-11-04T10:10:33+02:00",
+"msg": "Ütközés: a saját korábbi (másik lapon / automatikus) mentésnél nem kérdez, a mostani változat marad"
+},
+{
+"id": "288cc4df5b",
+"at": "2026-11-04T10:09:26+02:00",
+"msg": "Termenként egy operatőr; a fotók utómunkáját csak fotós végezheti"
+},
+{
+"id": "f4821c6d08",
+"at": "2026-11-04T10:08:05+02:00",
+"msg": "Szép, kereshető legördülő a beosztásoknál, vágóknál, ajánlói jutaléknál és az Extrák menüben"
+},
+{
+"id": "4ccb31de6d",
+"at": "2026-11-04T10:05:51+02:00",
+"msg": "Javítás: megjegyzés lezárása"
+},
+{
+"id": "bcb60e5d4e",
+"at": "2026-11-04T10:05:43+02:00",
+"msg": "Egyéb költségek: az ajánlói jutalék az Egyéb tétel elé kerül, az Egyéb tétel marad az utolsó"
+},
+{
+"id": "eebc3f78f1",
+"at": "2026-11-04T10:05:05+02:00",
+"msg": "Terem: operatőr a névvel egy sorban, rövidebb névmező"
+},
+{
+"id": "21923d90a5",
+"at": "2026-11-04T10:04:06+02:00",
+"msg": "Extrák: egy Hozzáadás menü (extra, kedvezmény, továbbszámlázott, ajánlói jutalék); az ajánlói jutalék az Extrák közé került"
+},
+{
+"id": "4eb1727b2f",
+"at": "2026-11-04T09:59:50+02:00",
+"msg": "Helyszíni vágó személyenként (a jelölő csak az adott vágóra vonatkozik)"
+},
+{
+"id": "715ceb1a4b",
+"at": "2026-11-04T09:57:25+02:00",
+"msg": "Termek: „1. Terem” felirat, név nem kötelező, operatőrök a név után; kattintáskor a kártya nem ugrik el"
+},
+{
+"id": "426ed28efb",
+"at": "2026-11-04T09:53:45+02:00",
+"msg": "Előadásrögzítés: alapból egy terem, a további az Új terem gombbal; üres pót-terem nem marad"
+},
+{
+"id": "b4952490f1",
+"at": "2026-11-04T09:48:34+02:00",
+"msg": "Fülek valódi linkként (jobb klikk → új lap); szolgáltatásoknál egy választó = egy ember; fotós kiválasztásakor a fotók utómunkája is az övé"
+},
+{
+"id": "1bb9a51d64",
+"at": "2026-11-04T09:44:29+02:00",
+"msg": "Előadásrögzítés termenként: terem neve, kamerái és operatőrei termenként; új terem hozzáadása"
+},
+{
+"id": "88a298f636",
+"at": "2026-11-04T09:36:14+02:00",
+"msg": "Csapat véglegesítése: az ablak nem ugrik fel magától"
+},
+{
+"id": "feaf56f628",
+"at": "2026-11-04T09:35:30+02:00",
+"msg": "Adatvédelem: böngészős automatikus kitöltés / korábbi beírások felajánlása kikapcsolva az egész appban"
+},
+{
+"id": "f4df23710b",
+"at": "2026-11-04T09:34:09+02:00",
+"msg": "Szolgáltatások: a beosztás gomb középen; zárolt csapatnál kattintásra feloldás és lenyíló lista"
+},
+{
+"id": "6cebc1c8ac",
+"at": "2026-11-04T09:33:05+02:00",
+"msg": "Vágó a helyszínen ↔ Helyszíni vágó összekapcsolva; a beosztott vágó automatikusan megkapja"
+},
+{
+"id": "b62e5aa00f",
+"at": "2026-11-04T09:31:47+02:00",
+"msg": "Szolgáltatások: név · beosztott · darabszám egy sorban"
+},
+{
+"id": "5cdb8e5eb1",
+"at": "2026-11-04T09:29:28+02:00",
+"msg": "Csapat/eszköz módosítás feloldása oldalfrissítés után is megmarad"
+},
+{
+"id": "32d011665c",
+"at": "2026-11-04T09:27:45+02:00",
+"msg": "Vágó feladatai: darabszám „4 db” formában"
+},
+{
+"id": "203f487421",
+"at": "2026-11-04T09:25:12+02:00",
+"msg": "Naptár: a Vágói naptár eseményei is áthúzhatók; a naptárleírásokból csendben (értesítés nélkül) kikerülnek a stáb telefonszámai"
+},
+{
+"id": "b366aa479c",
+"at": "2026-11-04T09:22:33+02:00",
+"msg": "Naptár: Frissítésre és az app fülére visszatérve friss lekérés a Google Naptárból (törölt esemény azonnal eltűnik)"
+},
+{
+"id": "02ebfb3d81",
+"at": "2026-11-04T09:15:33+02:00",
+"msg": "Stábkártya: a napidíj csak a szerkesztőben látszik"
+},
+{
+"id": "e694fcaffa",
+"at": "2026-11-04T09:15:18+02:00",
+"msg": "Stáb: a kártyára kattintva is megnyílik a szerkesztés"
+},
+{
+"id": "8ee4aace6d",
+"at": "2026-11-04T09:03:33+02:00",
+"msg": "Eszközök véglegesítése: a kimenő eszközlisták teljes előnézete címzettenként (✉️ Levél ▾)"
+}
+]
+}

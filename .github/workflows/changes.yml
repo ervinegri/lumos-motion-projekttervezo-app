@@ -1,0 +1,29 @@
+# Változásnapló az app „Az app frissült” értesítéséhez: minden push után a legutóbbi commitok címéből changes.json készül
+name: Változásnapló
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['changes.json']
+permissions:
+  contents: write
+concurrency: { group: changes-json, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 60 }
+      - name: changes.json frissítése
+        run: |
+          set -euo pipefail
+          git log -40 --no-merges --format='%H%x09%cI%x09%s' -- . ':!changes.json' | python3 -c '
+          import sys,json
+          out=[]
+          for l in sys.stdin:
+              h,d,s=l.rstrip("\n").split("\t",2)
+              if s.startswith("Teszt") or s.startswith("Merge"): continue
+              out.append({"id":h[:10],"at":d,"msg":s})
+          json.dump({"items":out},open("changes.json","w"),ensure_ascii=False,indent=0)'
+          if git diff --quiet -- changes.json; then echo "nincs változás"; exit 0; fi
+          git config user.name "github-actions[bot]"; git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git add changes.json && git commit -qm "Változásnapló frissítése" && git push -q
