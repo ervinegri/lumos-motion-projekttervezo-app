@@ -1087,6 +1087,9 @@ function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=
   const v0=Math.floor(w.scrollLeft/cw)+1,v1=Math.ceil((w.scrollLeft+w.clientWidth-lw)/cw);let k=0;
   w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;if(r.hidden===on)r.hidden=!on;});
   const c=w.querySelector('.tl-cnt');if(c)c.textContent=k+' tétel látszik';const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;}
+/* Idővonal sávjának felirata: érkezés–távozás, tömören (pl. 7:30–18) */
+function tlTimes(it,p){const c=t=>/^\d{2}:\d{2}$/.test(t||'')?String(Number(t.slice(0,2)))+(t.slice(3)==='00'?'':':'+t.slice(3)):'';
+  const st=c(it.time),en=c(p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'');return st&&en?st+'–'+en:st||(en?'–'+en:'');}
 function calTimeline(m,items0,T){
   /* Három hónap egymás után (előző · aktuális · következő), egérrel oldalra húzható; az aktuális hónap elejére / a mai napra görget */
   const pm=shiftMonth(m,-1),nm=shiftMonth(m,1),first=pm+'-01',last=addDays(shiftMonth(nm,1)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
@@ -1113,7 +1116,7 @@ function calTimeline(m,items0,T){
     const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
     const cc=p&&cutOf(p),spanA=Math.min(c0,cc?col(cc.st<first?first:cc.st):c0),spanB=Math.max(c1,cc?col(cc.due>last?last:cc.due):c1);
     return `<div class="tl-row tl-it" data-a="${spanA}" data-b="${spanB}"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
-      <div class="tl-track" data-first="${first}" data-n="${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(ro()&&!S.cal.show.terepi)?`<button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
+      <div class="tl-track" data-first="${first}" data-n="${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(ro()&&!S.cal.show.terepi)?`<button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.date>=first?esc(tlTimes(it,p)):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
         const a2=c.st<first?first:c.st,b2=c.due>last?last:c.due;
         return `<button type="button" class="cal-chip p cut tl-bar tl-cut" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="open-project" data-id="${esc(p.id)}" title="✂️ Vágás – leadás: ${esc(fmtDay(c.due))}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}✂️${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
