@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d242a42220",
+"at": "2026-11-04T10:42:34+01:00",
+"msg": "Naptár buborék: a helyszíni vágót így jelöli"
+},
+{
 "id": "fbc9672660",
 "at": "2026-11-04T10:40:30+01:00",
 "msg": "Naptár, vágó: a leadási sáv a projekt utáni naptól a határidő napjáig tart"
@@ -194,11 +199,6 @@
 "id": "1bb9a51d64",
 "at": "2026-11-04T09:44:29+02:00",
 "msg": "Előadásrögzítés termenként: terem neve, kamerái és operatőrei termenként; új terem hozzáadása"
-},
-{
-"id": "88a298f636",
-"at": "2026-11-04T09:36:14+02:00",
-"msg": "Csapat véglegesítése: az ablak nem ugrik fel magától"
 }
 ]
 }
