@@ -592,7 +592,7 @@ function bootstrap_(u) {
   try { migrateEmployeesOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
-  try { autoAdvance_(); } catch (e) { Logger.log('Automatikus lépés: ' + e); }
+  /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {

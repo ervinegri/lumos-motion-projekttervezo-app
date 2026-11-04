@@ -2037,3 +2037,16 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
     const done=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),TK=['tervezes','helyszin','utomunka','jovahagyas'];
     if(ti===ci+1&&TK.includes(cur)&&!done.has(cur))ACT['step-done']({dataset:{v:cur}});   // a következő lépésre: mintha kipipálnád (a beszámoló, nyersanyag-levél stb. ugyanúgy feljön)
     else ACT.stage({dataset:{v:t.dataset.v}});});})();
+
+/* Eszköz áthúzása egyik munkatárs kártyájáról a másikra (vagy a közös eszközökhöz) */
+(()=>{let from=null;const clr=()=>document.querySelectorAll('.pcrew.eq-drop-hi').forEach(x=>x.classList.remove('eq-drop-hi'));
+  document.addEventListener('dragstart',e=>{const r=e.target.closest&&e.target.closest('.eqrow[data-eq-drag]');if(!r||ro()||!S.draft)return;from=Number(r.dataset.eqDrag);r.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','eq:'+from);}catch(_){}});
+  document.addEventListener('dragend',()=>{document.querySelectorAll('.eqrow.dragging').forEach(x=>x.classList.remove('dragging'));clr();from=null;});
+  const tgt=e=>{if(from==null)return null;const c=e.target.closest&&e.target.closest('.pcrew[data-eq-drop]');if(!c)return null;const eq=(S.draft.equipment||[])[from];if(!eq||(eq.crewId||'')===c.dataset.eqDrop)return null;return c;};
+  document.addEventListener('dragover',e=>{const c=tgt(e);if(!c)return;e.preventDefault();try{e.dataTransfer.dropEffect='move';}catch(_){}if(!c.classList.contains('eq-drop-hi')){clr();c.classList.add('eq-drop-hi');}});
+  document.addEventListener('drop',e=>{const c=tgt(e);clr();if(!c)return;e.preventDefault();const d=S.draft;if(!d||ro()||projLocked()||eqLocked(d))return;
+    const to=c.dataset.eqDrop,equipment=clone(d.equipment||[]),src=equipment[from];if(!src)return;from=null;
+    const j=equipment.findIndex((x,k)=>x.itemId===src.itemId&&(x.crewId||'')===to);
+    if(j>=0){equipment[j].qty=num(equipment[j].qty)+num(src.qty);equipment.splice(equipment.indexOf(src),1);}else src.crewId=to;
+    setDraft({equipment});const it=itemById(src.itemId),who=to?(crewById(to)||{}).name:'a közös eszközökhöz';if(typeof toast==='function')toast(`${it?it.name:'Eszköz'} → ${who}`);});
+})();
