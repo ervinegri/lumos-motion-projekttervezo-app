@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7910fcddaa",
+"at": "2026-11-04T16:21:23+01:00",
+"msg": "Mentés átmeneti hibánál (pl. épp frissül a háttér) magától újrapróbálkozik; új lehetőségnél nem jöhet létre duplikátum; frissítéskor a nyitott ablak tartalma megmarad"
+},
+{
 "id": "1683cafdb1",
 "at": "2026-11-04T16:05:27+01:00",
 "msg": "Lehetőség jegyzetei: a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek időrendben (csak olvasható)"
@@ -156,13 +161,8 @@
 "msg": "Naptár: új hónapválasztó (előző · aktuális · következő); idővonalon egérrel húzható projekt és vágási határidő"
 },
 {
-"id": "24775ac4d3",
-"at": "2026-11-04T11:08:03+01:00",
-"msg": "Naptár: a Vágói naptár bejegyzésére kattintva a kapcsolódó projekt nyílik meg (név és időpont alapján)"
-},
-{
-"id": "c82187e0f6",
-"at": "2026-11-04T10:06:35Z",
+"id": "ba043bc965",
+"at": "2026-11-04T10:08:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
