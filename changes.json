@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7402e5a5a4",
+"at": "2026-11-04T15:33:41+01:00",
+"msg": "Lehetőség: szóba jövő szolgáltatások többes választóval (a kártyán is látszik); az értékesítő-szűrő alapból Mindenki"
+},
+{
 "id": "1d2eef159a",
 "at": "2026-11-04T15:30:26+01:00",
 "msg": "Lehetőség jegyzetei: nem törölhetők, több bejegyzésnél görgethető lista"
@@ -154,11 +159,6 @@
 "id": "72ec9ad9d9",
 "at": "2026-11-04T10:53:59+01:00",
 "msg": "Egy kameraszöghöz egy kamera; a Google Naptár stáblistájában a helyszíni vágó külön jelölve"
-},
-{
-"id": "805ed93e93",
-"at": "2026-11-04T10:45:55+01:00",
-"msg": "Naptár: új Idővonal nézet – soronként a projektek, oszloponként a napok, piros függőleges vonal a mai napon"
 }
 ]
 }
