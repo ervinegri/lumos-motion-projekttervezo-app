@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e5a9c4cd1b",
+"at": "2026-11-04T15:27:10+01:00",
+"msg": "Lehetőség ablak: a Kapcsolattartó/E-mail sor az Ügyfél/Típus sor elé; a típus új legördülővel"
+},
+{
 "id": "1853d6f63d",
 "at": "2026-11-04T15:25:06+01:00",
 "msg": "Új lehetőség: az ügyfél a HubSpot cégei közül is választható; a régi, dátum nélküli jegyzet a lehetőség felvételének dátumát kapja"
@@ -154,11 +159,6 @@
 "id": "fbc9672660",
 "at": "2026-11-04T10:40:30+01:00",
 "msg": "Naptár, vágó: a leadási sáv a projekt utáni naptól a határidő napjáig tart"
-},
-{
-"id": "2b9f78ae35",
-"at": "2026-11-04T10:38:57+01:00",
-"msg": "Naptár buborék: a teljes stáb névvel és feladatokkal (projektvezető, szerepek)"
 }
 ]
 }
