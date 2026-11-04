@@ -1854,7 +1854,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||p
 
 /* Ajánlói jutalék: projektopció – ki kap ajánlói jutalékot (külön sor az Egyéb költségek között) */
 document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||!canSeeFees())return;
-  if(t.dataset&&t.dataset.refToggle!==undefined){if(t.checked){(S.refOn=S.refOn||{})[d.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');if(s)s.focus();},50);}
+  if(t.dataset&&t.dataset.refToggle!==undefined){if(t.checked){(S.refOn=S.refOn||{})[d.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);}
     else{const n=(d.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref').length;const off=()=>{if(S.refOn)delete S.refOn[d.id];setDraft({fees:(d.fees||[]).filter(f=>!(f.kind==='fixed'&&f.key==='ref'))});};
       if(n)confirmModal('Ajánlói jutalék törlése',`${n} ajánlói jutalék sor kikerül a díjtáblázatból. Biztosan?`,'Törlés',async()=>off());else off();render(true);}return;}
   if(t.id==='ref-add'&&t.value){const id=t.value,c=crewById(id);if((d.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref'&&f.refCrewId===id)){toast('Neki már van ajánlói jutalék sora.',true);return;}
@@ -1890,7 +1890,7 @@ function onsiteCutCh(d,on){const ch={editOnsite:on};if(crewLocked(d))return ch;
 /* Szolgáltatások: zárolt csapatnál a beosztás gombjára kattintva feloldás (indoklással), majd a választó azonnal lenyílik */
 ACT['svc-unlock']=b=>{const d=S.draft;if(!d)return;const [t,k]=String(b.dataset.pick||'').split(':'),sel=t==='f'?`select[data-os-field="${k}"]`:`select[data-os-cut="${k}"]`;
   ACT['crew-edit']();let n=0;const iv=setInterval(()=>{n++;if(n>600||!S.draft||S.draft.id!==d.id){clearInterval(iv);return;}if(!(S.crewEdit||{})[d.id])return;clearInterval(iv);
-    requestAnimationFrame(()=>{const s=document.querySelector(sel);if(!s)return;s.scrollIntoView({block:'center'});s.focus();try{s.showPicker();}catch(_){}});},100);};
+    setTimeout(()=>{const s=document.querySelector(sel);if(!s)return;const i=s.parentNode.querySelector('.cmb-in')||s;i.scrollIntoView({block:'center'});i.focus();},80);},100);};
 
 /* Előadásrögzítés termenként: terem hozzáadása / törlése / átnevezése, kamerák ki-be és darabszám */
 function roomsEdit(fn){const d=S.draft;if(!d||ro()||projLocked())return;const first=!Array.isArray(d.recRooms),rooms=clone(recRoomsOf(d));if(fn(rooms)===false)return;const ch=roomsPatch(rooms);
@@ -1923,5 +1923,5 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 
 /* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
-  if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');if(s){s.focus();try{s.showPicker();}catch(_){}}},50);return;}
+  if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
