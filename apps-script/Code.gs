@@ -974,7 +974,7 @@ function crewFinalPreview_(u, a) {
 }
 /** Eszközök véglegesítése (a csapat után): rögzíti, ki mikor véglegesítette, és a beosztás lenyomatát (módosítás felismeréséhez). */
 /** Csak utómunkás (vágó, nem helyszíni) vagy értékesítő: nem visz eszközt, nem kap eszközlistát. */
-function postOnly_(p, cid) { if (!cid || p.lead === cid || p.editOnsite === true) return false; const r = (p.crew || []).filter(a => a.crewId === cid).map(a => a.role); return r.length > 0 && r.every(x => x === 'Vágó' || x === 'Értékesítő'); }
+function postOnly_(p, cid) { if (!cid || p.lead === cid) return false; const et = parseEditTasks_(p.editTasks), own = Object.keys(et).filter(id => et[id].indexOf('f_x_vago') >= 0); if (own.length ? own.indexOf(cid) >= 0 : p.editOnsite === true) return false; /* helyszíni vágó személyenként */ const r = (p.crew || []).filter(a => a.crewId === cid).map(a => a.role); return r.length > 0 && r.every(x => x === 'Vágó' || x === 'Értékesítő'); }
 function cutTasksArg_(a) { const o = {}; const x = a && a.cutTasks; if (x && typeof x === 'object') Object.keys(x).slice(0, 20).forEach(k => { const v = x[k] || {}; o[str_(k, 64)] = { items: (Array.isArray(v.items) ? v.items : []).slice(0, 30).map(i => str_(i, 160)).filter(Boolean), due: str_(v.due, 60) }; }); return o; }
 /** Kik kapnak eszközlistát: akiknél eszköz van (nem csak utómunkás, és nem te magad). */
 function eqRecipients_(u, fp) {

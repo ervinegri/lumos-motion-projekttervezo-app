@@ -1398,7 +1398,10 @@ document.addEventListener('change',e=>{
     if(k==='x_vago'){Object.assign(ch,onsiteCutCh(d,t.checked));}
     setDraft(ch);return;}
   if(t.dataset.leadRemote&&d){setDraft({leadRemote:t.checked});return;}
-  if(t.dataset.editOnsite&&d){setDraft(Object.assign({x_vago:t.checked},onsiteCutCh(d,t.checked)));return;}
+  if(t.dataset.editOnsite&&d){const cid=t.dataset.editOnsite,K='f_x_vago',et=etWithField(d);   // csak ennek a vágónak a jelölője
+    if(!fieldOwners(d,'x_vago').length&&d.editOnsite)cutterIds(d).forEach(id=>{if(id!==cid&&(d.crew||[]).some(a=>a.crewId===id&&a.role==='Vágó'))et[id]=(et[id]||[]).concat([K]);});   // régi (projekt szintű) jelölés → a többiek megtartják
+    et[cid]=(et[cid]||[]).filter(x=>x!==K);if(t.checked)et[cid].push(K);if(!et[cid].length)delete et[cid];
+    const any=Object.keys(et).some(id=>(et[id]||[]).includes(K));setDraft({editTasks:et,x_vago:any,editOnsite:any});return;}
   if(t.dataset.free&&d&&isAdmin()){setDraft({projectValue:t.checked?0:null});if(!t.checked)setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},0);return;}
   if(t.dataset.multi&&d){if(t.checked){d._multi=true;setDraft({endDate:d.endDate||(validISO(d.date)?addDays(d.date,1):'')});setTimeout(()=>{const e=$('f-endDate');if(e)e.focus();},0);}else{d._multi=false;setDraft({endDate:''});}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&d){if(t.dataset.feeI!==undefined){const f=(d.fees||[])[Number(t.dataset.feeI)];if(f&&isOther(f)&&!(d.fees||[]).some(g=>isOther(g)&&otherEmpty(g))){d.fees=orderFees(d.fees);setTimeout(()=>render(true),0);}}   // kitöltött egyéb sor után új üres sor
