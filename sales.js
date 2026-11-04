@@ -11,9 +11,14 @@ const dealVal=d=>Math.max(0,Math.round(+d.value||0));
 const dealChance=d=>d.chance==null||d.chance===''?(DEAL_CHANCE[d.stage]??0):+d.chance;
 S.salesF=S.salesF||{q:'',owner:'',old:false};
 
+/* Értékesítők a szűrőhöz és a kiosztáshoz: az ügyvezető (saját lehetőségei), az értékesítők, és akinek van lehetősége */
+function salesOwners(deals){const m=new Map();if(S.me&&S.me.id)m.set(S.me.id,'⭐ '+(S.me.name||'Én')+' (saját)');
+  (S.salesPeople||[]).forEach(x=>{if(x.userId&&!m.has(x.userId))m.set(x.userId,'👤 '+x.name);});
+  (deals||[]).forEach(d=>{if(d.ownerId&&!m.has(d.ownerId))m.set(d.ownerId,'👤 '+(d.ownerName||'?'));});
+  return [...m.entries()];}
 function viewSales(){
   const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
-  const owners=[...new Map(all.map(d=>[d.ownerId,d.ownerName])).entries()].filter(([id])=>id);
+  const owners=salesOwners(all);
   let L=all.filter(d=>!f.owner||d.ownerId===f.owner);
   if(f.q.trim())L=L.filter(d=>fold([d.title,d.client,d.contactName,d.venue,d.note,d.ownerName].join(' ')).includes(fold(f.q.trim())));
   const open=L.filter(d=>DEAL_OPEN.includes(d.stage)),won=L.filter(d=>d.stage==='nyert'),lost=L.filter(d=>d.stage==='elveszett');
@@ -28,15 +33,14 @@ function viewSales(){
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
-      <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}</div></div>
+      <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
       <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">szerződve ebben a hónapban · ${wonM.length} db</div></div>
       ${(()=>{const m=todayISO().slice(0,7),L=(S.salesPeople||[]).map(x=>(x.comm||{})[m]).filter(Boolean),base=L.reduce((s,x)=>s+num(x.base),0),amt=L.reduce((s,x)=>s+num(x.amount),0);
         return `<div class="tile${amt?' ok':''}" data-tip="A ténylegesen kifizetett nettó ügyfélbevétel után, sávosan (a továbbszámlázott költségek nélkül)"><div class="tile-n">${ftFmt(amt)}</div><div class="tile-l">jutalék ebben a hónapban · alap: ${ftFmt(base)}</div></div>`;})()}
-      <div class="tile" data-tip="Szerződött / (szerződött + elveszett) lehetőségek"><div class="tile-n">${rate==null?'–':rate+'%'}</div><div class="tile-l">nyerési arány${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
-      ${admin&&owners.length>1?`<div class="chips"><button class="chip" type="button" data-action="sales-owner" data-id="" aria-pressed="${!f.owner}">Mindenki</button>${owners.map(([id,n])=>`<button class="chip" type="button" data-action="sales-owner" data-id="${esc(id)}" aria-pressed="${f.owner===id}">${esc(n||'?')}</button>`).join('')}</div>`:''}</div>
+      ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" aria-label="Kinek a lehetőségeit nézed"><option value="">👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="dl-board">${DEAL_STAGES.map(col).join('')}</div>
     ${hidden||f.old?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
 }
@@ -67,10 +71,12 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNote">Jegyzet</label><textarea class="inp" id="m-dNote" name="dNote" rows="3" maxlength="3000" placeholder="igények, egyeztetett részletek, ajánlat verziói…">${esc(d.note||'')}</textarea></div>
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
+    ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(d.ownerId||S.salesF.owner||(S.me&&S.me.id))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>${['uj','ajanlat'].includes(d.stage)?'':`<button type="button" class="btn primary small dl-winbtn" data-action="deal-win" data-id="${esc(d.id)}">✅ Szerződve</button>`}`:'',submitLabel:'Mentés',submit:async fd=>{
     const nd=Object.assign({},d0||{},{id:d.id||'',title:String(fd.get('dTitle')||'').trim(),client:String(fd.get('dClient')||'').trim(),eventType:fd.get('dType')||'',contactName:String(fd.get('dCName')||'').trim(),contactEmail:String(fd.get('dCEmail')||'').trim(),contactPhone:String(fd.get('dCPhone')||'').trim(),
       venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:String(fd.get('dNote')||'').trim()});
+    if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
     if(nd.title.length<2){toast('Add meg a lehetőség nevét.',true);$('m-dTitle').focus();return;}
     if(nd.stage==='elveszett'&&nd.lostReason.length<3){toast('Írd be röviden, miért veszett el.',true);$('dl-lostf').hidden=false;$('m-dLost').focus();return;}
@@ -132,3 +138,5 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
   set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);set('m-dCPhone',c.phone,true);set('m-dClient',c.company,false);
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
+
+document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.owner=e.target.value;render(true);}});

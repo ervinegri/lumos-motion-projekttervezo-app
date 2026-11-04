@@ -1905,10 +1905,15 @@ ACT['room-add']=()=>{roomsEdit(rooms=>{const id=roomId(rooms);(S._roomKeep=S._ro
 ACT['room-del']=b=>{const d=S.draft;if(!d)return;const rooms=recRoomsOf(d),i=rooms.findIndex(r=>r.id===b.dataset.r);if(i<0)return;const r=rooms[i];
   const go=()=>roomsEdit(R=>{R.splice(R.findIndex(x=>x.id===r.id),1);const d2=S.draft,et=etWithField(d2);let ch=false;Object.keys(et).forEach(id=>{const n=et[id].filter(k=>k.indexOf('f_'+r.id+'_')!==0);if(n.length!==et[id].length){ch=true;et[id]=n;if(!n.length)delete et[id];}});if(ch)S.draft.editTasks=et;});
   if(roomCams(r).length)confirmModal('Terem törlése',`Törlöd: <b>${esc(roomName(r,i))}</b>? A kamerái és a beosztott operatőrei is lekerülnek róla.`,'Igen, törlöm',async()=>go());else go();};
+ACT['room-eq-add']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;const eq=roomEq(r,k);if(eq.length>=(ROOM_CNT[k]||1))return false;eq.push('');r[k]=eq.length;r[k+'_eq']=eq;});
+ACT['room-eq-del']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k,i=Number(b.dataset.i);if(!r)return false;const eq=roomEq(r,k);if(eq.length<2)return false;eq.splice(i,1);r[k]=eq.length;r[k+'_eq']=eq;});
 ACT['room-step']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,num(r[k])+Number(b.dataset.d)));});
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
   if(t.dataset.roomCam){const k=t.dataset.k,rid=t.dataset.roomCam,on=t.checked;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=on?1:0;});
     if(!on){const d=S.draft,et=etWithField(d),key='f_'+rid+'_'+k;let ch=false;Object.keys(et).forEach(id=>{if(et[id].includes(key)){ch=true;et[id]=et[id].filter(x=>x!==key);if(!et[id].length)delete et[id];}});if(ch)setDraft({editTasks:et});}return;}
+  if(t.dataset.roomEq){const rid=t.dataset.roomEq,k=t.dataset.k,i=Number(t.dataset.i),id=t.value;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;const eq=roomEq(r,k);eq[i]=id;r[k+'_eq']=eq;});
+    const d=S.draft;if(id&&d&&!(d.equipment||[]).some(e=>e.itemId===id)){const op=(slotOwners(d,rid+'_op')||[])[0]||'';setDraft({equipment:(d.equipment||[]).concat([{itemId:id,qty:1,crewId:op}])});const it=itemById(id);toast((it?it.name:'A kamera')+' bekerült a projekt eszközei közé'+(op?' – '+((crewById(op)||{}).name||'')+' viszi':'')+'.');}   // a kiválasztott kamera az eszközlistára is felkerül
+    return;}
   if(t.dataset.roomIn){const rid=t.dataset.roomIn,k=t.dataset.k;let n=parseInt(String(t.value).replace(/\D/g,''),10);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,isFinite(n)?n:1));});return;}
   if(t.dataset.roomName){const rid=t.dataset.roomName,v=String(t.value||'').trim().slice(0,60);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r||r.name===v)return false;r.name=v;});}});
 

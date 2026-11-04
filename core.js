@@ -76,6 +76,10 @@ const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák'
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 /* Előadásrögzítés termenként: minden teremnek saját neve, kamerái és szakemberei (beosztás kulcsa: <teremId>_<kamera>) */
 const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:10,er_close:10};
+/* Kameraszögeknél a darabszám helyett a konkrét kamerák (leltárból): r[<k>_eq] = [eszközId, …], a hossza a darabszám */
+const ROOM_EQ={er_total:1,er_close:1,er_crowd:1};
+function roomEq(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_eq'])?r[k+'_eq'].slice(0,n):[];while(a.length<n)a.push('');return a;}
+const camItems=()=>(S.inventory||[]).filter(it=>/^(Kamera|GoPro)/i.test(it.category||'')&&it.condition!=='selejt').sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
 function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};return p.recRooms.filter((r,i)=>i===0||keep[r.id]||String(r.name||'').trim()||roomCams(r).length);}   // üres, névtelen pót-terem nem marad meg (csak amit most adtál hozzá)
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Terem';   // név nélkül: „1. Terem”
