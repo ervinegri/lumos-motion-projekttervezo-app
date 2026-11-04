@@ -436,3 +436,10 @@ function fpEnhance(root){if(!window.flatpickr)return;(root||document).querySelec
     onChange:()=>{el.dispatchEvent(new Event('input',{bubbles:true}));}});   // a change eseményt a flatpickr maga küldi
     if(fp.altInput){fp.altInput.className=el.className+' fp-alt';fp.altInput.disabled=el.disabled;fp.altInput.placeholder=el.placeholder||'Válassz dátumot…';if(el.id)fp.altInput.setAttribute('aria-label',(document.querySelector('label[for="'+el.id+'"]')||{}).textContent||'Dátum');}}catch(e){}});}
 if(window.MutationObserver){let fpT=0;new MutationObserver(()=>{if(fpT)return;fpT=requestAnimationFrame(()=>{fpT=0;fpEnhance(document);});}).observe(document.documentElement,{childList:true,subtree:true});}
+
+/* „Csapat módosítása” / „Eszközök módosítása” feloldás: oldalfrissítés után is megmarad (böngészőnként, 3 napig) – amíg újra nem véglegesíted */
+(()=>{const K='lpm_edit_unlock_v1',TTL=3*86400000;
+  try{const o=JSON.parse(localStorage.getItem(K)||'null');if(o&&Date.now()-(o.at||0)<TTL){S.crewEdit=Object.assign({},o.crew||{});S.eqEdit=Object.assign({},o.eq||{});}}catch(e){}
+  const save=()=>{try{const c=S.crewEdit||{},q=S.eqEdit||{};if(Object.keys(c).length||Object.keys(q).length)localStorage.setItem(K,JSON.stringify({at:Date.now(),crew:c,eq:q}));else localStorage.removeItem(K);}catch(e){}};
+  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save();});
+  document.addEventListener('click',()=>setTimeout(save,0),true);})();
