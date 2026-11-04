@@ -1082,7 +1082,15 @@ function calChip(it,day){
 /* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
 function calTimeline(m,items,T){
   const first=m+'-01',last=addDays(shiftMonth(m,1)+'-01',-1),N=Number(last.slice(8)),days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
-  const rows=items.filter(it=>it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
+  /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
+  const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
+  const cutOf=p=>{if(!p||p.status==='lemondva'||!S.cal.show.vagoi||(ro()&&!crewCuts(p,me)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
+    const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
+  const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
+  const seen=new Set(rows.filter(it=>it.kind==='p').map(it=>it.id));
+  S.projects.forEach(p=>{if(seen.has(p.id))return;const c=cutOf(p),q=pr(p);if(!c||c.due<first||c.st>last)return;   // a vágás ebbe a hónapba esik, a forgatás korábban volt
+    rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:ro()&&!crewOnSite(p,me)});});
+  rows.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
   const bg=days.map(d=>`<i class="${wk(d)?'we':''}"></i>`).join('');
@@ -1092,7 +1100,9 @@ function calTimeline(m,items,T){
     const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
     const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
     return `<div class="tl-row"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
-      <div class="tl-track" style="--n:${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div><button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1}" data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button></div></div>`;}).join('');
+      <div class="tl-track" style="--n:${N}" data-action="${act}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(ro()&&!S.cal.show.terepi)?`<button type="button" class="${cls} tl-bar" style="grid-column:${c0} / ${c1+1};grid-row:1" data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.time&&it.date>=first?esc(it.time):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
+        const a2=c.st<first?first:c.st,b2=c.due>last?last:c.due;
+        return `<button type="button" class="cal-chip p cut tl-bar tl-cut" style="grid-column:${Number(a2.slice(8))} / ${Number(b2.slice(8))+1};grid-row:${c.same?2:1}" data-action="open-project" data-id="${esc(p.id)}" title="✂️ Vágás – leadás: ${esc(fmtDay(c.due))}">${c.st<first?'‹ ':''}✂️${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
   const ti=T.slice(0,7)===m?Number(T.slice(8)):0;
   if(ti)setTimeout(()=>{const w=document.querySelector('.tl-wrap'),n=w&&w.querySelector('.tl-now');if(w&&n&&w.scrollWidth>w.clientWidth&&!w._sc){w._sc=1;w.scrollLeft=Math.max(0,n.offsetLeft-w.clientWidth/2);}},0);   // telefonon a mai naphoz görget
   return `<div class="tl-wrap"><div class="tl" style="--n:${N}">
