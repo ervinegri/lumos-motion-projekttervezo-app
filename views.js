@@ -1024,12 +1024,12 @@ function calCacheGet(m){try{const c=JSON.parse(localStorage.getItem(CAL_LS+m)||'
 function calCacheSet(m,ev){try{localStorage.setItem(CAL_LS+m,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),ev}));}catch(e){}}
 function calCacheClear(){try{Object.keys(localStorage).filter(k=>k.indexOf(CAL_LS)===0).forEach(k=>localStorage.removeItem(k));}catch(e){}}
 const shiftMonth=(m,d)=>{const [y,mo]=m.split('-').map(Number);const t=new Date(Date.UTC(y,mo-1+d,1));return t.toISOString().slice(0,7);};
-function loadVagoi(month){const k='v:'+month;S.cal.at=S.cal.at||{};if(!S.cal.show.vagoi||S.cal.loading[k])return;if(S.cal.ev2[month]&&Date.now()-(S.cal.at[k]||0)<60000)return;
+function loadVagoi(month){if(ro())return;const k='v:'+month;S.cal.at=S.cal.at||{};if(!S.cal.show.vagoi||S.cal.loading[k])return;if(S.cal.ev2[month]&&Date.now()-(S.cal.at[k]||0)<60000)return;
   if(S.cal.err[k]&&Date.now()-((S.cal.errAt||{})[k]||0)<60000)return;const r=calRange(month);S.cal.loading[k]=true;
   call('calendarEvents',{from:r.start,to:r.end,cal:'vagoi',fresh:!!(S.cal.fresh||{})[k]}).then(ev=>{S.cal.ev2[month]=ev||[];S.cal.at[k]=Date.now();if(S.cal.fresh)delete S.cal.fresh[k];delete S.cal.err[k];})
     .catch(e=>{S.cal.err[k]=errText(e);(S.cal.errAt=S.cal.errAt||{})[k]=Date.now();})
     .finally(()=>{delete S.cal.loading[k];if(S.tab==='naptar'&&!S.projectId&&!$('modalRoot').innerHTML)render(true);});}
-function loadCalEvents(month){loadVagoi(month);
+function loadCalEvents(month){if(ro())return;loadVagoi(month);   // a szakember csak a saját projektjeit látja (a Google Naptárhoz nincs hozzáférése)
   const r=calRange(month),key=month;S.cal.at=S.cal.at||{};
   if(S.cal.loading[key])return;
   if(!S.cal.events[key]){const c=calCacheGet(month);if(c){S.cal.events[key]=c.ev;S.cal.at[key]=0;}}
@@ -1045,12 +1045,19 @@ function loadCalEvents(month){loadVagoi(month);
 function calForceFresh(){const m=S.cal.month;S.cal.at={};S.cal.fresh={};[m,'v:'+m].forEach(k=>{S.cal.fresh[k]=1;});}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||S.tab!=='naptar'||!TOKEN)return;calForceFresh();loadCalEvents(S.cal.month);});
 function prefetchCal(m){if(ro()||!TOKEN)return;loadCalEvents(m);setTimeout(()=>{if(TOKEN){loadCalEvents(shiftMonth(m,1));loadCalEvents(shiftMonth(m,-1));}},800);}
+/* Szakember: vágóként (is) dolgozik? – akkor a naptárban választhat a terepi és a vágói munkái között */
+const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
+const crewOnSite=(p,me)=>!!me&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
+function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewCuts(p,me)));}
 function calItems(month){
   const r=calRange(month),items=[];
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
+  const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'',cutter=ro()&&crewIsCutter();
   S.projects.forEach(p=>{const q=pr(p);if(!q||q.end<r.start||q.start>r.end)return;
-    items.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
+    let pre='';if(cutter){const cut=crewCuts(p,me),site=crewOnSite(p,me);if(!((S.cal.show.terepi&&site)||(S.cal.show.vagoi&&cut)))return;if(cut&&!site)pre='✂️ ';}   // vágó szakember: terepi és/vagy vágói munkái
+    items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   if(S.cal.show.vagoi)(S.cal.ev2[month]||[]).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''}));
+  if(ro())return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   if(!S.cal.show.terepi)return items.filter(i=>i.kind==='v').sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
     items.push({kind:'g',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''});});
@@ -1065,7 +1072,7 @@ function calChip(it,day){
   const dim=it.kind==='p'&&crewDim(projById(it.id)||{});
   const live=it.kind==='p'&&calLive(projById(it.id));
   const drag=!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'));
-  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
+  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
   return `<button type="button" class="${cls}"${drag?` draggable="true" data-drag-day="${day}"`:''} data-action="${it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
 function viewCalendar(){
@@ -1083,7 +1090,7 @@ function viewCalendar(){
       <div class="btns">${ro()?'':'<button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>'}<button class="btn outline small" type="button" data-action="cal-nav" data-d="-1" aria-label="Előző hónap">‹</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="0">Ma</button><button class="btn outline small" type="button" data-action="cal-nav" data-d="1" aria-label="Következő hónap">›</button>
       ${ro()?'':`<a class="btn ghost small" href="https://calendar.google.com/calendar/u/0/r/month/${r.first.replace(/-/g,'/')}" target="_blank" rel="noopener">Google Naptár ↗</a>`}</div></div>
     ${err?`<div class="banner"><p>A Google Naptár most nem érhető el: ${esc(err)}</p><button class="btn outline small" type="button" data-action="cal-retry">Újra</button></div>`:''}
-    ${ro()?'':`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói naptár</label>${S.cal.err['v:'+m]&&S.cal.show.vagoi?`<span class="bad-txt">A Vágói naptár most nem érhető el: ${esc(S.cal.err['v:'+m])}</span>`:''}<span class="muted"><i class="lg g"></i>Csak a Google Naptárban – kattints rá, és projektet csinálhatsz belőle</span></div>`}
+    ${ro()?(crewIsCutter()?`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói munkák</label><span class="muted">Vágói munka: ahol vágóként vagy beosztva</span></div>`:''):`<div class="cal-legend"><label class="cal-tg${S.cal.show.terepi?' on':''}"><input type="checkbox" data-calshow="terepi"${S.cal.show.terepi?' checked':''}><i class="lg p"></i>📍 Terepi munkák</label><label class="cal-tg${S.cal.show.vagoi?' on':''}"><input type="checkbox" data-calshow="vagoi"${S.cal.show.vagoi?' checked':''}><i class="lg v"></i>✂️ Vágói naptár</label>${S.cal.err['v:'+m]&&S.cal.show.vagoi?`<span class="bad-txt">A Vágói naptár most nem érhető el: ${esc(S.cal.err['v:'+m])}</span>`:''}<span class="muted"><i class="lg g"></i>Csak a Google Naptárban – kattints rá, és projektet csinálhatsz belőle</span></div>`}
     <div class="cal-wrap"><div class="cal-grid">${WD_SHORT.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${grid}</div></div>
     <div class="cal-agenda">${agenda||empty('Ebben a hónapban nincs esemény.')}</div>`;
 }
