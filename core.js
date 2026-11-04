@@ -75,14 +75,15 @@ const REC_LIVE=[
 const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1},{k:'er_creative_n',flag:'er_creative',label:'Kreatív kamerák',max:10,min:1}];   // kameraszög darabszáma
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 /* Előadásrögzítés termenként: minden teremnek saját neve, kamerái és szakemberei (beosztás kulcsa: <teremId>_<kamera>) */
-const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:10,er_close:10};
+const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:1,er_close:1};   // egy kameraszöghöz egy kamera tartozik
 /* Kameraszögeknél a darabszám helyett a konkrét kamerák (leltárból): r[<k>_eq] = [eszközId, …], a hossza a darabszám */
 const ROOM_EQ={er_total:1,er_close:1,er_crowd:1};
 function roomEq(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_eq'])?r[k+'_eq'].slice(0,n):[];while(a.length<n)a.push('');return a;}
 function roomLens(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_lens'])?r[k+'_lens'].slice(0,n):[];while(a.length<n)a.push('');return a;}
 const lensItems=()=>(S.inventory||[]).filter(it=>/^Objektív/i.test(it.category||'')&&it.condition!=='selejt').sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
 const camItems=()=>(S.inventory||[]).filter(it=>/^(Kamera|GoPro)/i.test(it.category||'')&&it.condition!=='selejt').sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
-function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};return p.recRooms.filter((r,i)=>i===0||keep[r.id]||String(r.name||'').trim()||roomCams(r).length);}   // üres, névtelen pót-terem nem marad meg (csak amit most adtál hozzá)
+function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};p.recRooms.forEach(r=>Object.keys(ROOM_EQ).forEach(k=>{if(num(r[k])>1)r[k]=1;}));   // régebbi, több kamerás szögeknél is csak egy kamera
+    return p.recRooms.filter((r,i)=>i===0||keep[r.id]||String(r.name||'').trim()||roomCams(r).length);}   // üres, névtelen pót-terem nem marad meg (csak amit most adtál hozzá)
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Terem';   // név nélkül: „1. Terem”
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);

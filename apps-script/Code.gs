@@ -1530,7 +1530,8 @@ function calPlan_(p) {
   const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
   const roles = {};
   if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
-  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });
+  const etv = parseEditTasks_(p.editTasks), ownV = Object.keys(etv).filter(id => etv[id].indexOf('f_x_vago') >= 0), onsite = cid => ownV.length ? ownV.indexOf(cid) >= 0 : p.editOnsite === true;   // helyszíni vágó személyenként
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role === 'Vágó' && onsite(c.crewId) ? 'Helyszíni vágó' : c.role); });
   const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (cid === p.lead && crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));   // telefonszám csak a projektvezetőnél
   const eqLines = (p.equipment || []).filter(e => invMap[e.itemId]).map(e => '☐ ' + e.qty + '× ' + invMap[e.itemId].name + (e.crewId && crewMap[e.crewId] ? ' – ' + crewMap[e.crewId].name : ''));
   const lines = [];
