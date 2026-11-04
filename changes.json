@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8cd1234d77",
+"at": "2026-11-04T16:00:32+01:00",
+"msg": "Menü: Értékesítés a Projektek előtt; Naptár: a nézetváltó és a Ma gomb a hónapválasztó bal oldalán"
+},
+{
 "id": "f4060f2078",
 "at": "2026-11-04T15:58:20+01:00",
 "msg": "Értékesítés: a kapcsolattartóra kattintva megnyílik az adatlapja a HubSpotban (kártyán és a lehetőség ablakában)"
@@ -156,9 +161,9 @@
 "msg": "Idővonal: a projekt sorában lila vágási sáv a projekt utáni naptól a leadási határidőig (azonnapi leadásnál alatta)"
 },
 {
-"id": "a72f9bac22",
-"at": "2026-11-04T11:00:14+01:00",
-"msg": "Google Naptár leírás: helyszíni vágó jelölve, felbontás és érkezés/távozás nélkül; a közelgő események egyszer újraszinkronizálódnak"
+"id": "e54f559085",
+"at": "2026-11-04T10:03:29Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
