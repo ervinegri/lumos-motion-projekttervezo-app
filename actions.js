@@ -1194,7 +1194,7 @@ const ACT={
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
       crewFinalPopup(d,()=>ACT.stage({dataset:{v}}));return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
-    if(closing||(v!=='helyszin'&&d.status!==v&&!d.siteOk)){siteModal(go,closing);return;}   // a helyszíni beszámoló csak a Helyszíni munka kipipálásakor jön fel; a „Kész” lezárásnál a díjcsökkentés miatt   // előbb a helyszíni beszámoló
+    if(closing||(v!=='helyszin'&&d.status!==v&&!d.siteOk&&!editOnly(d))){siteModal(go,closing);return;}   // a helyszíni beszámoló csak a Helyszíni munka kipipálásakor jön fel; a „Kész” lezárásnál a díjcsökkentés miatt   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
   'step-done':b=>{const d=S.draft;if(!d||ro()||d.status==='atadva')return;const v=b.dataset.v,set=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),on=!set.has(v);
@@ -1203,7 +1203,7 @@ const ACT={
     const apply=()=>{const s2=new Set(String(S.draft.stepsDone||'').split(',').filter(Boolean));
       if(on)ORD.slice(0,ix+1).forEach(x=>s2.add(x));else ORD.slice(ix).forEach(x=>s2.delete(x));   // előtte lévők is kipipálódnak, utána lévők visszavonódnak
       setDraft({stepsDone:ORD.filter(x=>s2.has(x)).join(',')});
-      if(on){const cur=S.draft.status||'tervezes',ids=[...document.querySelectorAll('.stages [data-action="stage"]')].map(x=>x.dataset.v),i=ids.indexOf(v);   // kipipált lépés → a következő lépésre lépünk (ha még ennél tartott vagy korábban)
+      if(on){const cur=S.draft.status||'tervezes',ids=[...document.querySelectorAll('.stages .stage[data-v]')].map(x=>x.dataset.v),i=ids.indexOf(v);   // kipipált lépés → a következő lépésre lépünk (ha még ennél tartott vagy korábban)
         const ci=ids.indexOf(cur);if(i>=0&&i+1<ids.length&&ci<=i)setTimeout(()=>ACT.stage({dataset:{v:ids[i+1]}}),0);}};
     if(on&&v==='tervezes'){if(reqBlock())return;if(crewFinalOn()&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
