@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8f932cc510",
+"at": "2026-11-04T22:00:21+01:00",
+"msg": "Aktuális lépésen ⠿ fogantyú a pipa helyén; kreatív kamera hozzáadása csak véglegesítés előtt"
+},
+{
 "id": "67dd453191",
 "at": "2026-11-04T21:57:56+01:00",
 "msg": "Előzmények: a beosztás-módosítás részletesen (ki került be/ki, milyen eszköz, projektvezető neve)"
@@ -146,13 +151,8 @@
 "msg": "Idővonal: a videóvágás projekteknél is látszik a vágásra szánt napok száma"
 },
 {
-"id": "69e85cb16a",
-"at": "2026-11-04T17:32:40+01:00",
-"msg": "Idővonal: gombnyomásnál nem villan – a görgetési helyzet még a kirajzolás előtt beáll (függőlegesen is megmarad)"
-},
-{
-"id": "53aaeb800e",
-"at": "2026-11-04T16:31:13Z",
+"id": "900edece3f",
+"at": "2026-11-04T16:32:50Z",
 "msg": "Változásnapló frissítése"
 }
 ]
