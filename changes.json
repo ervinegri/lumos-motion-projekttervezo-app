@@ -1,6 +1,16 @@
 {
 "items": [
 {
+"id": "f114d581e2",
+"at": "2026-11-04T11:34:07+01:00",
+"msg": "Idővonal: oldalra húzásnál nem lép vissza/előre a böngésző; a hónap gombjára kattintva a hónap 1. napjára ugrik"
+},
+{
+"id": "263782c352",
+"at": "2026-11-04T11:29:43+01:00",
+"msg": "Idővonal: a hónap neve nem vágódik le – görgetéskor a látható rész bal szélén marad"
+},
+{
 "id": "467cdfcfd0",
 "at": "2026-11-04T11:26:46+01:00",
 "msg": "Idővonal: csak a látható időszakba eső sorok látszanak (nincs több üres sor), húzás közben frissül"
@@ -179,21 +189,6 @@
 "id": "dfc82b3013",
 "at": "2026-11-04T10:13:48+02:00",
 "msg": "Mentés (⌘S / gomb): az épp szerkesztett mező értéke is bekerül, utána nem marad mentetlen"
-},
-{
-"id": "69a6d66c05",
-"at": "2026-11-04T10:12:24+02:00",
-"msg": "Vágó a helyszínen: csak vágó választható; Fotós a helyszínen: csak fotós"
-},
-{
-"id": "3e828030c6",
-"at": "2026-11-04T10:10:33+02:00",
-"msg": "Ütközés: a saját korábbi (másik lapon / automatikus) mentésnél nem kérdez, a mostani változat marad"
-},
-{
-"id": "288cc4df5b",
-"at": "2026-11-04T10:09:26+02:00",
-"msg": "Termenként egy operatőr; a fotók utómunkáját csak fotós végezheti"
 }
 ]
 }
