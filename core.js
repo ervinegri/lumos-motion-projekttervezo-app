@@ -211,7 +211,7 @@ function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].fil
 const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&(p.crew||[]).filter(c=>c.crewId===p.lead).every(c=>POST_ROLES.includes(c.role)&&!(c.role==='Vágó'&&onsiteCut(p,p.lead))));   // remote projektvezető: nincs a helyszínen (legfeljebb otthonról vág) – nem ütközik más projekttel
 /* Helyszíni vágó személyenként: akinél a „Vágó a helyszínen” feladat van (régi adatnál a projekt szintű jelölő) */
 function onsiteCut(p,id){const o=fieldOwners(p,'x_vago');return o.length?o.includes(id):!!p.editOnsite;}
-function onSiteIds(p){if(editOnly(p))return new Set();const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);[...s].forEach(id=>{if(isPostOnly(p,id)&&!onsiteCut(p,id))s.delete(id);});return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
+function onSiteIds(p){if(editOnly(p))return new Set();const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);[...s].forEach(id=>{if(isPostOnly(p,id)&&!onsiteCut(p,id)&&!(feeSales(p,id)&&(p.equipment||[]).some(e=>e.crewId===id)))s.delete(id);});/* eszközzel kiküldött értékesítő a helyszínen van */return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));

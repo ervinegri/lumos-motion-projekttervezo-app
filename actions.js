@@ -885,7 +885,7 @@ function roomEqSync(d){if(!d||!Array.isArray(d.equipment)||!Array.isArray(d.recR
   if(!Object.keys(own).length)return;let ch=false;const eq=d.equipment.map(e=>{if(e&&e.itemId in own&&(e.crewId||'')!==own[e.itemId]){ch=true;return Object.assign({},e,{crewId:own[e.itemId]});}return e;});if(ch)d.equipment=eq;}
 /* Aki már nincs a helyszínen (remote vezető, csak vágó / értékesítő, vagy lekerült a projektről), annál nem maradhat eszköz: gazdátlan lesz, a stábnál újra kiosztható */
 function offSiteEqRelease(d){if(!d||!Array.isArray(d.equipment))return;const on=onSiteIds(d),gone=new Set();
-  const eq=d.equipment.map(e=>{if(e&&e.crewId&&!on.has(e.crewId)){gone.add(e.crewId);return Object.assign({},e,{crewId:''});}return e;});
+  const eq=d.equipment.map(e=>{if(e&&e.crewId&&!on.has(e.crewId)&&!((d.crew||[]).some(a=>a.crewId===e.crewId)&&feeSales(d,e.crewId))){gone.add(e.crewId);return Object.assign({},e,{crewId:''});}return e;});
   if(gone.size){d.equipment=eq;setTimeout(()=>toast(`${[...gone].map(id=>(crewById(id)||{}).name||'Valaki').join(', ')} már nincs a helyszínen – az eszközei gazdátlanok lettek, oszd ki őket újra.`),0);}}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
