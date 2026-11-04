@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "62816aa6f8",
+"at": "2026-11-04T23:21:47+01:00",
+"msg": "Kifizetések táblázat: az összegek mellett Ft"
+},
+{
 "id": "51de7a6f66",
 "at": "2026-11-04T23:20:29+01:00",
 "msg": "Új design: szép átmenet a forgatási nap és a vágás között az idővonalon"
@@ -146,13 +151,8 @@
 "msg": "Videóvágás: nem jelez hiányzó operatőrt – csak projektvezető és vágó kell"
 },
 {
-"id": "af5660ec03",
-"at": "2026-11-04T21:24:47+01:00",
-"msg": "Videóvágás: nincs Helyszíni munka lépés (a Tervezés után az Utómunka jön), nincs helyszíni beszámoló és naptárba kerülés; javítás: a pipás lépés után újra a következő lépésre ugrik"
-},
-{
-"id": "ded984c0d9",
-"at": "2026-11-04T20:23:08Z",
+"id": "dfc7cc958f",
+"at": "2026-11-04T20:24:56Z",
 "msg": "Változásnapló frissítése"
 }
 ]
