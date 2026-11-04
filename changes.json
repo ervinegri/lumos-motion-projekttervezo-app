@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f213fc1a66",
+"at": "2026-11-04T20:07:03+01:00",
+"msg": "Idővonal: a vágási sáv ugyanolyan magas, mint a többi"
+},
+{
 "id": "76e1b9e9a3",
 "at": "2026-11-04T17:33:49+01:00",
 "msg": "Idővonal: a videóvágás projekteknél is látszik a vágásra szánt napok száma"
@@ -151,13 +156,8 @@
 "msg": "Naptár: szakember nem tud bejegyzést törölni (nincs Törlés a jobb klikkes menüben)"
 },
 {
-"id": "addf1333a8",
-"at": "2026-11-04T11:51:34+01:00",
-"msg": "Idővonal: a Ma gomb és a megnyitás a mai nappal kezdi a látható részt"
-},
-{
-"id": "7ef5dff837",
-"at": "2026-11-04T10:50:45Z",
+"id": "775d35fa4e",
+"at": "2026-11-04T10:52:14Z",
 "msg": "Változásnapló frissítése"
 }
 ]
