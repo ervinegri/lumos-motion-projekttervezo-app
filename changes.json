@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "b9c5ae3264",
+"at": "2026-11-04T23:17:12+01:00",
+"msg": "Új design: Összesen és Egyenleg sor nagyobb helyett vastagabb"
+},
+{
 "id": "84855e5571",
 "at": "2026-11-04T23:15:19+01:00",
 "msg": "Új design: nagyobb Összesen és Egyenleg sor a kifizetéseknél"
@@ -146,13 +151,8 @@
 "msg": "Videóvágás projektnél csak projektvezető és vágó vehető fel; az Extrák „+ Hozzáadás…” gombja törölve"
 },
 {
-"id": "9726689871",
-"at": "2026-11-04T21:16:48+01:00",
-"msg": "Kreatív kamera: minden további kamera új sorban, saját operatőrrel; naptár leírás: „Projektvezető:” és a kreatív kamera nem az előadásrögzítés alatt"
-},
-{
-"id": "283f328cf4",
-"at": "2026-11-04T20:13:36Z",
+"id": "75547f64fd",
+"at": "2026-11-04T20:16:59Z",
 "msg": "Változásnapló frissítése"
 }
 ]
