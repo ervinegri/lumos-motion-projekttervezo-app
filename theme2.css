@@ -1,46 +1,54 @@
-@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url(fonts/inter-latin-ext-wght-normal.woff2) format('woff2-variations');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url(fonts/inter-latin-wght-normal.woff2) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:Manrope;font-style:normal;font-display:swap;font-weight:200 800;src:url(fonts/manrope-latin-ext-wght-normal.woff2) format('woff2-variations');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:Manrope;font-style:normal;font-display:swap;font-weight:200 800;src:url(fonts/manrope-latin-wght-normal.woff2) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-/* Kipróbálható „letisztult” design (html.th2). Ki-be kapcsolható a fejléc gombjával; a régi kinézet változatlan marad. */
+/* Kipróbálható új design (html.th2) – a lumosmotion.hu színeiből: tinta #04080f / #101923, világos #f0f4f7,
+   márkaszín: sárga #ffde59 → narancs #ff914d átmenet, volfrám #f1bf5e, pára-kék #78a9c3; betű: Montserrat.
+   Ki-be kapcsolható a fejléc gombjával; a régi kinézet változatlan marad. */
+@font-face{font-family:Montserrat;font-style:normal;font-display:swap;font-weight:100 900;src:url(fonts/montserrat-latin-ext-wght-normal.woff2) format('woff2-variations');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Montserrat;font-style:normal;font-display:swap;font-weight:100 900;src:url(fonts/montserrat-latin-wght-normal.woff2) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 html.th2{
-  --bg:#f6f7f9;--surface:#ffffff;--surface-2:#f6f7f9;--line:#e6e8ec;--line-strong:#d5d9e0;
-  --fg:#1b2333;--fg-2:#3a4256;--fg-3:#5b6478;--fg-4:#8a92a3;
-  --accent:#2c3a52;--accent-hover:#3a4a66;--accent-soft:#eef0f4;--accent-line:#d5d9e0;
-  --ok:#1f6b3e;--ok-soft:#e8f3ec;--warn:#8a5300;--warn-soft:#fdf1de;--bad:#a32121;--bad-soft:#fce8e8;--bad-line:#efc9c9;
-  --light:#f5b83d;
-  --shadow:none;
-  --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --ink:#243347;--ink-2:#30425a;
+  --bg:#f0f4f7;--surface:#ffffff;--surface-2:#f6f8fa;--line:#dde4eb;--line-strong:#ced9e5;
+  --fg:#101923;--fg-2:#36414d;--fg-3:#5e6873;--fg-4:#9099a3;
+  --accent:var(--ink);--accent-hover:var(--ink-2);--accent-soft:#e8eef3;--accent-line:#ced9e5;
+  --ok:#2c7a4b;--ok-soft:#e6f4ea;--warn:#8a5a00;--warn-soft:#fff4d9;--bad:#b23b3b;--bad-soft:#fdeaea;--bad-line:#f1c2c2;
+  --brand-yellow:#ffde59;--brand-orange:#ff914d;--grad-brand:linear-gradient(96deg,#ffde59,#ff914d);
+  --tungsten:#f1bf5e;--tungsten-ink:#1b0f00;--haze:#78a9c3;
+  --shadow:0 1px 2px rgba(16,25,35,.05);
+  --font:Montserrat,"Helvetica Neue",Arial,sans-serif;
 }
-html.th2 h1,html.th2 h2,html.th2 h3,html.th2 .panel-title,html.th2 .topbar-page-title,html.th2 .pc-name{font-family:Manrope,var(--font);letter-spacing:-.01em}
-html.th2 .topbar{background:#26324a;border-bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+html.th2 body{letter-spacing:-.005em}
+html.th2 h1,html.th2 h2,html.th2 h3{letter-spacing:-.02em}
+/* fejléc: a weboldal sötét üvegsávja, lágyabb tintakékkel */
+html.th2 .topbar{background:var(--ink);border-bottom:0;backdrop-filter:none;-webkit-backdrop-filter:none}
 html.th2 .brand{filter:invert(1)}
-html.th2 .vert-line{background:#3d4b68}
-html.th2 .app-name,html.th2 .topbar-page-title{color:#fff}
-html.th2 .tab{background:transparent;border-color:transparent;color:#c3cad6;font-weight:600;border-radius:8px}
-html.th2 .tab:hover{color:#fff;border-color:transparent;background:#2e3b55}
-html.th2 .tab[aria-selected="true"]{background:#34425e;border-color:#34425e;color:#fff;box-shadow:inset 0 -2px 0 var(--light)}
-html.th2 .user-chip{background:#2e3b55;border-color:#3d4b68;color:#e3e7ee}
-html.th2 .header-tools .btn.ghost{color:#c3cad6;background:transparent;border-color:#3d4b68}
-html.th2 .header-tools .btn.ghost:hover{color:#fff}
-html.th2 .view-as{background:#2e3b55;color:#e3e7ee;border-color:#3d4b68}
-html.th2 .panel{border-radius:16px;border-color:var(--line);box-shadow:none}
-html.th2 .pcrew{border-color:var(--line);border-radius:14px}
-html.th2 .pcrew.is-lead{border-color:#2c3a52}
-html.th2 .btn{border-radius:10px;font-weight:600}
-html.th2 .btn.primary{background:#2c3a52;color:#fff}
-html.th2 .btn.primary:hover{background:#3a4a66}
-html.th2 .inp{border-radius:10px;border-color:var(--line-strong)}
+html.th2 .vert-line{background:#3a4a5c}
+html.th2 .app-name,html.th2 .topbar-page-title{color:#f0f4f7}
+html.th2 .tab{background:transparent;border-color:transparent;color:#bac2ca;font-weight:600;border-radius:999px}
+html.th2 .tab:hover{color:#f0f4f7;border-color:transparent;background:#ffffff12}
+html.th2 .tab[aria-selected="true"]{background:var(--grad-brand);border-color:transparent;color:var(--tungsten-ink);font-weight:700}
+html.th2 .user-chip{background:#ffffff12;border-color:#ced9e542;color:#f0f4f7}
+html.th2 .header-tools .btn.ghost{color:#bac2ca;background:transparent;border-color:#ced9e542}
+html.th2 .header-tools .btn.ghost:hover{color:#f0f4f7;border-color:#ced9e580}
+html.th2 .view-as{background:#ffffff12;color:#f0f4f7;border-color:#ced9e542}
+html.th2 .view-as option{color:#101923}
+/* felületek */
+html.th2 .panel{border-radius:12px;border-color:var(--line);box-shadow:var(--shadow)}
+html.th2 .pcrew{border-color:var(--line);border-radius:10px}
+html.th2 .pcrew.is-lead{border-color:var(--tungsten)}
+html.th2 .lead-badge{background:var(--grad-brand);color:var(--tungsten-ink)}
+/* gombok: elsődleges = márka-átmenet, pirula forma (mint a weboldalon az „Ajánlatot kérek”) */
+html.th2 .btn{border-radius:999px;font-weight:600}
+html.th2 .btn.primary{background:var(--grad-brand);color:var(--tungsten-ink);font-weight:700}
+html.th2 .btn.primary:hover{filter:brightness(1.04);background:var(--grad-brand)}
+html.th2 .inp{border-radius:8px;border-color:var(--line-strong)}
 html.th2 .statuspill{font-weight:600}
-html.th2 .stage{border-radius:12px;border-style:dashed;border-color:#c9ced7;background:#fff}
-html.th2 .stage.done{background:#eef0f4;border:1px solid #eef0f4;color:var(--fg-3)}
-html.th2 .stage.cur{background:#2c3a52;border:1px solid #2c3a52;color:#fff;box-shadow:0 0 0 3px var(--light)}
-html.th2 .stage.cur .n{color:var(--light);opacity:1}
-html.th2 .stage-tick{border-color:#c9ced7;color:#c9ced7}
-html.th2 .stage-tick.on{background:#d5d9e0;border:0;color:#3a4256}
-html.th2 .lead-badge{background:#2c3a52;color:#fff}
-html.th2 .eq-grip{color:#b5bcc8}
-html.th2 .pcrew.eq-drop-hi{outline-color:var(--light);background:#fffaf0}
-html.th2 :focus-visible{outline-color:var(--light)}
+/* lépések */
+html.th2 .stage{border-radius:10px;border-style:dashed;border-color:var(--line-strong);background:#fff}
+html.th2 .stage.done{background:var(--accent-soft);border:1px solid var(--accent-soft);color:var(--fg-3)}
+html.th2 .stage.cur{background:var(--ink);border:1px solid var(--ink);color:#f0f4f7;box-shadow:0 0 0 2px var(--tungsten)}
+html.th2 .stage.cur .n{color:var(--tungsten);opacity:1}
+html.th2 .stage-tick{border-color:var(--line-strong);color:var(--line-strong)}
+html.th2 .stage-tick.on{background:var(--accent-line);border:0;color:var(--fg-2)}
+html.th2 .eq-grip{color:var(--fg-4)}
+html.th2 .pcrew.eq-drop-hi{outline-color:var(--brand-orange);background:#fff8ef}
+html.th2 :focus-visible{outline-color:var(--brand-orange)}
 .theme-toggle{white-space:nowrap}
-html.th2 .theme-toggle{color:var(--light)!important;border-color:#4a3a14!important}
+html.th2 .theme-toggle{color:var(--tungsten)!important;border-color:#f1bf5e66!important}
