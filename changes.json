@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c93ab5e400",
+"at": "2026-11-04T10:57:39+01:00",
+"msg": "Idővonal: az egész sor kattintható (kiemeléssel), a lemondott projektek nem látszanak"
+},
+{
 "id": "72ec9ad9d9",
 "at": "2026-11-04T10:53:59+01:00",
 "msg": "Egy kameraszöghöz egy kamera; a Google Naptár stáblistájában a helyszíni vágó külön jelölve"
@@ -194,11 +199,6 @@
 "id": "715ceb1a4b",
 "at": "2026-11-04T09:57:25+02:00",
 "msg": "Termek: „1. Terem” felirat, név nem kötelező, operatőrök a név után; kattintáskor a kártya nem ugrik el"
-},
-{
-"id": "426ed28efb",
-"at": "2026-11-04T09:53:45+02:00",
-"msg": "Előadásrögzítés: alapból egy terem, a további az Új terem gombbal; üres pót-terem nem marad"
 }
 ]
 }
