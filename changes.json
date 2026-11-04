@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d93665b359",
+"at": "2026-11-04T20:09:38+01:00",
+"msg": "Leltár: kamerák és objektívek szenzormérete (Full Frame / Crop); crop objektív nem választható Full Frame vázhoz a termeknél"
+},
+{
 "id": "f213fc1a66",
 "at": "2026-11-04T20:07:03+01:00",
 "msg": "Idővonal: a vágási sáv ugyanolyan magas, mint a többi"
@@ -149,16 +154,6 @@
 "id": "30f4439642",
 "at": "2026-11-04T11:57:07+01:00",
 "msg": "Idővonal: a projektsorok animáltan tűnnek el és jönnek vissza oldalra húzáskor"
-},
-{
-"id": "3aed337731",
-"at": "2026-11-04T11:53:19+01:00",
-"msg": "Naptár: szakember nem tud bejegyzést törölni (nincs Törlés a jobb klikkes menüben)"
-},
-{
-"id": "775d35fa4e",
-"at": "2026-11-04T10:52:14Z",
-"msg": "Változásnapló frissítése"
 }
 ]
 }
