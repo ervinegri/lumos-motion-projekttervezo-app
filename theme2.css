@@ -58,3 +58,11 @@ html.th2 .theme-toggle{color:var(--tungsten)!important;border-color:#f1bf5e66!im
   html.th2 .topbar-inner>.tabs::-webkit-scrollbar{display:none}
   html.th2 .tab{padding:7px 12px;font-size:13.5px;flex:none}
 }
+/* méretarány: a Montserrat nagyban nagyon erős – a címek és nagy számok kisebbek, félkövérek, a kis szövegek egy hajszállal nagyobbak */
+html.th2 .page-head h2,html.th2 .dtitle h2{font-size:clamp(20px,1.9vw,24px);font-weight:700;letter-spacing:-.015em}
+html.th2 h1{font-weight:700}
+html.th2 .tile-n{font-size:clamp(20px,1.7vw,24px);font-weight:700;letter-spacing:-.01em}
+html.th2 .tile-l{font-size:13px;font-weight:500}
+html.th2 .mnav-sel{font-size:16px;font-weight:700;min-height:42px;min-width:200px}
+html.th2 .sub{font-size:14px}
+html.th2 .statuspill{font-size:12.5px}
