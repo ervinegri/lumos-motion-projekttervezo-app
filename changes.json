@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "df6a52f1b6",
+"at": "2026-11-04T23:24:51+01:00",
+"msg": "Díjösszesítő újraküldésénél figyelmeztetés, hogy már ki lett küldve"
+},
+{
 "id": "2a613fa073",
 "at": "2026-11-04T23:23:01+01:00",
 "msg": "Új design: nincs 700-nál vastagabb betű; kifizetések sorcímkéi 600"
@@ -146,13 +151,8 @@
 "msg": "Lépések: a már elhagyott lépés (pl. Tervezés a Helyszíni munkánál) kipipáltnak látszik"
 },
 {
-"id": "765f597e30",
-"at": "2026-11-04T21:43:46+01:00",
-"msg": "Értékesítő is kaphat eszközt (pl. tablet); díjtáblázat: a projektvezető mindig elöl"
-},
-{
-"id": "753dfa5c4a",
-"at": "2026-11-04T20:27:12Z",
+"id": "c5f7cb93b9",
+"at": "2026-11-04T20:43:56Z",
 "msg": "Változásnapló frissítése"
 }
 ]
