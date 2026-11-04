@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e08e5c391b",
+"at": "2026-11-04T17:24:44+01:00",
+"msg": "Naptár: a „Csak a Google Naptárban…” jelmagyarázat törölve"
+},
+{
 "id": "985b65a75d",
 "at": "2026-11-04T17:22:45+01:00",
 "msg": "Sablonból létrehozott projekt: ami a sablonnál nem volt (szerződés, díjbekérő, TIG), az újnál sem kéri"
@@ -149,11 +154,6 @@
 "id": "009820629e",
 "at": "2026-11-04T11:42:37+01:00",
 "msg": "Naptár: a nézetváltó és a Ma gomb balra, a hónapválasztó mellé; a Ma az idővonalon is a mai napra ugrik"
-},
-{
-"id": "2fc5faeb5c",
-"at": "2026-11-04T11:40:06+01:00",
-"msg": "Idővonal: a sávon a végzés ideje; a forgatás vége színátmenettel olvad a vágási sávba"
 }
 ]
 }
