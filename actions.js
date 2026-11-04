@@ -1330,7 +1330,7 @@ const ACT={
 };
 document.addEventListener('click',e=>{if(!e.target.closest('.eqdd'))document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.eqdd-pop')){document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());e.stopPropagation();}},true);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const fn=ACT[b.dataset.action];if(fn)fn(b,e);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const fn=ACT[b.dataset.action];if(fn&&b.tagName==='A'&&b.getAttribute('href'))e.preventDefault();if(fn)fn(b,e);});   // linkként megjelenő gomb (fülek): sima kattintásra az app kezeli, jobb klikkre / új lapra a böngésző
 function fieldValue(t){
   const k=t.dataset.field;
   if(t.type==='number'){if(t.value==='')return k==='hours'?8:null;const n=Math.round(num(t.value));return k==='hours'?Math.min(16,Math.max(1,n)):Math.max(0,n);}
@@ -1845,7 +1845,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!d||ro()||p
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
     crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role+' – megjelent a Stáb és eszközöknél');return;}
   if(t.dataset&&t.dataset.osCut){const k=t.dataset.osCut,id=t.value,crew=clone(d.crew||[]),et=etWithField(d);Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!==k);});
-    if(id){if(!crew.some(a=>a.crewId===id&&a.role==='Vágó'))crew.push({crewId:id,role:'Vágó'});et[id]=(et[id]||[]).concat([k]);}
+    if(id){const fo=k==='foto_db'&&(crew.some(a=>a.crewId===id&&a.role==='Fotós')||((crewById(id)||{}).roles||[]).includes('Fotós'));if(!crew.some(a=>a.crewId===id&&a.role===(fo?'Fotós':'Vágó')))crew.push({crewId:id,role:fo?'Fotós':'Vágó'});et[id]=(et[id]||[]).concat([k]);}   // fotók utómunkája: a fotós fotósként marad
     const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
     const c=crewById(id);if(id)toast((c?c.name:'')+' vágja – '+(postTasks(d).find(x=>x.k===k)||{}).label);}});
 
@@ -1905,3 +1905,15 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
     if(!on){const d=S.draft,et=etWithField(d),key='f_'+rid+'_'+k;let ch=false;Object.keys(et).forEach(id=>{if(et[id].includes(key)){ch=true;et[id]=et[id].filter(x=>x!==key);if(!et[id].length)delete et[id];}});if(ch)setDraft({editTasks:et});}return;}
   if(t.dataset.roomIn){const rid=t.dataset.roomIn,k=t.dataset.k;let n=parseInt(String(t.value).replace(/\D/g,''),10);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,isFinite(n)?n:1));});return;}
   if(t.dataset.roomName){const rid=t.dataset.roomName,v=String(t.value||'').trim().slice(0,60);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r||r.name===v)return false;r.name=v;});}});
+
+/* Szolgáltatások: egy választó = egy ember (annyi választó, ahány ember kell). A fotós kiválasztásakor a fotók utómunkáját is ő kapja (ha még senki). */
+document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset||t.dataset.osSlot===undefined||!d||ro()||projLocked())return;
+  const k=t.dataset.osSlot,i=Number(t.dataset.i)||0,role=t.dataset.role,id=t.value,cur=fieldOwners(d,k)[i]||'';if(id===cur)return;
+  const et=etWithField(d),crew=clone(d.crew||[]),K='f_'+k;
+  if(cur){et[cur]=(et[cur]||[]).filter(x=>x!==K);if(!et[cur].length)delete et[cur];}
+  if(id){et[id]=(et[id]||[]).concat([K]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});}
+  let extra='';
+  const ex=editTasksOf(d);if(k==='x_foto'&&id&&num(d.foto_db)>0&&!Object.keys(ex).some(x=>x!==id&&(ex[x]||[]).includes('foto_db'))&&!(et[id]||[]).includes('foto_db')){   // fotós → a fotók utómunkája is az övé
+    Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!=='foto_db');if(!et[x].length)delete et[x];});et[id]=(et[id]||[]).concat(['foto_db']);extra=' + fotók utómunkája';}
+  const c=crewById(id||cur),y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));
+  toast(id?(c?c.name:'')+' beosztva: '+(t.dataset.label||role)+extra:(c?c.name:'')+' lekerült erről a feladatról');});

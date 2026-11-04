@@ -26,7 +26,7 @@ function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array
   const added=ids.filter(id=>!f.ids.includes(id)),removed=f.ids.filter(id=>!ids.includes(id)),changed=f.sigs?ids.filter(id=>f.ids.includes(id)&&f.sigs[id]!==undefined&&f.sigs[id]!==crewSig(p,id)):[];
   return {added,changed,removed};}
 /* Vágónként: mit kell megvágnia (a véglegesítő levélbe) */
-function cutTasksFor(p){const o={},cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
+function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
   cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
     o[cid]={items,due:due?fmtDay(due):''};});return o;}
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
@@ -102,7 +102,8 @@ function postTasks(p){const t=[];if(!p)return t;
   if(num(p.foto_db)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});
   return t;}
 const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.parse(o):{};}catch(e){o={};}return o&&typeof o==='object'&&!Array.isArray(o)?o:{};};
-const cutterIds=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];
+const cutterIds=p=>{const v=(p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId),et=editTasksOf(p),on=new Set((p&&p.crew||[]).map(a=>a.crewId));   // utómunkások: a vágók, és a fotók utómunkáját kapó fotós
+  return [...new Set(v.concat(Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('foto_db'))))];};
 /* Ki melyik munkát vágja: ha senkihez nincs semmi rendelve és egy vágó van, minden az övé */
 const postKeysOf=l=>(Array.isArray(l)?l:[]).filter(k=>!/^f_/.test(k));   // az f_ kezdetű kulcsok a terepi feladatok kiosztásai (ugyanabban a mezőben)
 function fieldOwners(p,k){const et=editTasksOf(p),on=new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean));return Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('f_'+k));}
