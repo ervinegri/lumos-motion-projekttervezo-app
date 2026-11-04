@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d7427c580f",
+"at": "2026-11-04T10:24:25+01:00",
+"msg": "Termek: terem mindig törölhető (✕); + kamera gomb törölve; kamerához objektív is választható (az eszközök közé is felkerül)"
+},
+{
 "id": "e2b74c04b9",
 "at": "2026-11-04T10:22:14+01:00",
 "msg": "Díjak mindenhol „nettó” jelöléssel: projekt díja, beosztások listája, kifizetések összesen, díjösszesítő levél"
@@ -194,11 +199,6 @@
 "id": "32d011665c",
 "at": "2026-11-04T09:27:45+02:00",
 "msg": "Vágó feladatai: darabszám „4 db” formában"
-},
-{
-"id": "203f487421",
-"at": "2026-11-04T09:25:12+02:00",
-"msg": "Naptár: a Vágói naptár eseményei is áthúzhatók; a naptárleírásokból csendben (értesítés nélkül) kikerülnek a stáb telefonszámai"
 }
 ]
 }
