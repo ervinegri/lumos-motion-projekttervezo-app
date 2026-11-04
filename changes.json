@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9452911d7d",
+"at": "2026-11-04T22:42:48+01:00",
+"msg": "Új design: fekete helyett lágyabb palakék"
+},
+{
 "id": "8ad19ef629",
 "at": "2026-11-04T22:21:37+01:00",
 "msg": "Új design kipróbálása: fejléc gombbal ki-be kapcsolható (theme2.css, saját betűkészletek)"
@@ -146,13 +151,8 @@
 "msg": "Remote projektvezető: figyelmeztetés, ha helyszíni szerepben (pl. operatőr) is be van osztva – ezért ütközik"
 },
 {
-"id": "4196277df1",
-"at": "2026-11-04T20:13:21+01:00",
-"msg": "Előadásrögzítés: a diák rögzítéséhez / kivetítéséhez is választható eszköz; a kiválasztott szolgáltatású kategóriák kiemelve; keskeny nézetben nem csúszik egymásra a kamera és a felirat"
-},
-{
-"id": "c62d9a5d28",
-"at": "2026-11-04T19:09:47Z",
+"id": "a6a4cfa293",
+"at": "2026-11-04T19:13:30Z",
 "msg": "Változásnapló frissítése"
 }
 ]
