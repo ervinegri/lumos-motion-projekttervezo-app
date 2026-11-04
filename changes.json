@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "69e85cb16a",
+"at": "2026-11-04T17:32:40+01:00",
+"msg": "Idővonal: gombnyomásnál nem villan – a görgetési helyzet még a kirajzolás előtt beáll (függőlegesen is megmarad)"
+},
+{
 "id": "209648010b",
 "at": "2026-11-04T17:31:02+01:00",
 "msg": "Idővonal: a vágási sávon a vágásra szánt napok száma (a forgatás utáni naptól a határidőig)"
@@ -151,13 +156,8 @@
 "msg": "Idővonal: fix magasság, a sorok benne görgethetők; a hónap alatti összesítő sor törölve"
 },
 {
-"id": "a857b8d540",
-"at": "2026-11-04T11:48:09+01:00",
-"msg": "Idővonal: az üres cellára kattintva nem nyílik meg a projekt (csak a névre vagy a sávra)"
-},
-{
-"id": "e4da5b5fd8",
-"at": "2026-11-04T10:46:57Z",
+"id": "57b5e9b33a",
+"at": "2026-11-04T10:48:36Z",
 "msg": "Változásnapló frissítése"
 }
 ]
