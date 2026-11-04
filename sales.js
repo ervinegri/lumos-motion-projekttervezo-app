@@ -56,10 +56,10 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}
-    <div class="field"><label for="m-dClient">Ügyfél</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
-    ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—'})}
     <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span></label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
+    <div class="field"><label for="m-dClient">Ügyfél</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
+    ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—',cmb:'Válassz típust…'})}
     ${mf('dCPhone','Telefon',{v:d.contactPhone,max:40})}
     <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
     ${mf('dDate','Rendezvény dátuma',{v:d.eventDate,type:'date'})}
