@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "aab7ed5fff",
+"at": "2026-11-04T14:42:59+01:00",
+"msg": "Videóvágás: nincs Terepi feladatok, Helyszíni stáb és Egyéb költségek; a vágó látja, hány nap van hátra a leadásig (lista, projekt, idővonal)"
+},
+{
 "id": "c8d04b53d0",
 "at": "2026-11-04T12:01:56+01:00",
 "msg": "Videóvágás típus: nincs helyszín, dátum és érkezés/távozás – csak leadási határidő; nem kerül a Terepi naptárba, az idővonalon lila vágási sáv; szebb típusválasztó"
@@ -154,11 +159,6 @@
 "id": "bd3046fb4d",
 "at": "2026-11-04T10:26:15+01:00",
 "msg": "Naptár: a Vágói naptár bejegyzései is törölhetők; ha nem található, hibaüzenet (nem csendes kudarc); törléskor azonnal eltűnik"
-},
-{
-"id": "d7427c580f",
-"at": "2026-11-04T10:24:25+01:00",
-"msg": "Termek: terem mindig törölhető (✕); + kamera gomb törölve; kamerához objektív is választható (az eszközök közé is felkerül)"
 }
 ]
 }
