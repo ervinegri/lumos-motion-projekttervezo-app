@@ -1,6 +1,16 @@
 {
 "items": [
 {
+"id": "30f4439642",
+"at": "2026-11-04T11:57:07+01:00",
+"msg": "Idővonal: a projektsorok animáltan tűnnek el és jönnek vissza oldalra húzáskor"
+},
+{
+"id": "3aed337731",
+"at": "2026-11-04T11:53:19+01:00",
+"msg": "Naptár: szakember nem tud bejegyzést törölni (nincs Törlés a jobb klikkes menüben)"
+},
+{
 "id": "addf1333a8",
 "at": "2026-11-04T11:51:34+01:00",
 "msg": "Idővonal: a Ma gomb és a megnyitás a mai nappal kezdi a látható részt"
@@ -149,16 +159,6 @@
 "id": "36f4cc0005",
 "at": "2026-11-04T10:21:16+01:00",
 "msg": "Vágói nézet: a „nincs kiválasztva vágnivaló” szervezői figyelmeztetés nem látszik a szakembernek"
-},
-{
-"id": "632c015340",
-"at": "2026-11-04T10:07:53+01:00",
-"msg": "Új projekt: mindig üres űrlappal nyílik (a félbehagyott kitöltés nem töltődik vissza)"
-},
-{
-"id": "c4dbee0a70",
-"at": "2026-11-04T09:05:30Z",
-"msg": "Változásnapló frissítése"
 }
 ]
 }
