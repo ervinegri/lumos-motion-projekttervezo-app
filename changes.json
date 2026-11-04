@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ead97a29b2",
+"at": "2026-11-04T15:21:04+01:00",
+"msg": "Értékesítés: a lehetőség jegyzetei dátum és szerző szerint, a legújabb felül (új jegyzet mező + lista, törölhető)"
+},
+{
 "id": "3040603516",
 "at": "2026-11-04T15:17:42+01:00",
 "msg": "Értékesítés, új lehetőség: az ügyfélmezőben csak a beírt szövegre illeszkedő ügyfelek jönnek fel"
@@ -154,11 +159,6 @@
 "id": "56659d459a",
 "at": "2026-11-04T10:34:08+01:00",
 "msg": "Naptár, vágó szakember: a projektek zölden a saját napjaikon; a vágói leadási határidő külön, lila bejegyzésként"
-},
-{
-"id": "115ac8bb0a",
-"at": "2026-11-04T10:31:49+01:00",
-"msg": "Szakember Kifizetések: cím és hónapléptető középre igazítva a táblázat fölé"
 }
 ]
 }
