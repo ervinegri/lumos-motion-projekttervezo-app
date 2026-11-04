@@ -134,6 +134,120 @@ html.th2 .dn-item{background:#f5f7fa}
 html.th2 .stage.stage-target.drop-hi{background:#eaeff4}
 html.th2 .pcrew.eq-drop-hi{background:#f5f7fa}
 /* GEN-GREENS:END */
+/* GEN-WEIGHTS:START – generálva (theme2-weights.py) */
+html.th2 .logo{font-weight:700}
+html.th2 .app-name{font-weight:600}
+html.th2 .topbar-page-title{font-weight:700}
+html.th2 .page-head h2,html.th2 .dtitle h2{font-weight:700}
+html.th2 .btn{font-weight:600}
+html.th2 .mini{font-weight:600}
+html.th2 .panel>h3{font-weight:600}
+html.th2 .fold>summary>h3{font-weight:600}
+html.th2 .sec-lbl{font-weight:600}
+html.th2 .tile-n{font-weight:700}
+html.th2 .tile-x{font-weight:600}
+html.th2 .cal-m{font-weight:600}
+html.th2 .cal-d{font-weight:700}
+html.th2 .ev-title{font-weight:600}
+html.th2 .gh{font-weight:600}
+html.th2 .issue .ic{font-weight:600}
+html.th2 .field>label,html.th2 .lbl{font-weight:600}
+html.th2 .stage-tick{font-weight:600}
+html.th2 .stage .n{font-weight:600}
+html.th2 .stage .t{font-weight:600}
+html.th2 .back{font-weight:600}
+html.th2 .dprice .v{font-weight:700}
+html.th2 .stepper output{font-weight:600}
+html.th2 .stepper .step-in{font-weight:600}
+html.th2 .calc-total{font-weight:600}
+html.th2 .sub-h{font-weight:600}
+html.th2 .fin-fold>summary>h4{font-weight:600}
+html.th2 .sheet th{font-weight:600}
+html.th2 .bl-name{font-weight:600}
+html.th2 .bl-no{font-weight:600}
+html.th2 .pst-chk.on{font-weight:600}
+html.th2 .nav-badge{font-weight:600}
+html.th2 .btn.mn-arrow{font-weight:700}
+html.th2 #pay-month,html.th2 .mnav-sel{font-weight:700}
+html.th2 .pb-t{font-weight:600}
+html.th2 .name-link{font-weight:600}
+html.th2 .lead-badge{font-weight:600}
+html.th2 .fin-sheet .sep-row td{font-weight:600}
+html.th2 .my-fee{font-weight:600}
+html.th2 .my-fee-amt{font-weight:700}
+html.th2 .sheet tfoot td{font-weight:600}
+html.th2 .av{font-weight:600}
+html.th2 .eq-cat{font-weight:600}
+html.th2 .countdown .big{font-weight:700}
+html.th2 .pc-name{font-weight:600}
+html.th2 .prio{font-weight:600}
+html.th2 .cal-wd{font-weight:600}
+html.th2 .cal-dn{font-weight:600}
+html.th2 .ag-date{font-weight:600}
+html.th2 .hs-sec{font-weight:600}
+html.th2 th{font-weight:600}
+html.th2 tr.grp td{font-weight:600}
+html.th2 .mhead h3{font-weight:600}
+html.th2 .day-tbl-h{font-weight:600}
+html.th2 .perfekt{font-weight:600}
+html.th2 .cgroup>summary{font-weight:600}
+html.th2 .pt-group td{font-weight:600}
+html.th2 .statuspill.p-alarm{font-weight:600}
+html.th2 .statuspill.p-bad{font-weight:600}
+html.th2 .pb-pct{font-weight:600}
+html.th2 .pb-pct-in{font-weight:600}
+html.th2 .bs-dot{font-weight:600}
+html.th2 .bl-val{font-weight:600}
+html.th2 button.cl-name{font-weight:600}
+html.th2 .ex-sign{font-weight:600}
+html.th2 tr.pt-sz3 .ev-title{font-weight:600}
+html.th2 .dl-colh{font-weight:600}
+html.th2 .op-n{font-weight:600}
+html.th2 .due-row label{font-weight:600}
+html.th2 .tc-title{font-weight:600}
+html.th2 .tc-h{font-weight:600}
+html.th2 body .flatpickr-current-month{font-weight:600}
+html.th2 body .flatpickr-current-month .flatpickr-monthDropdown-months{font-weight:600}
+html.th2 .cf-mail-h{font-weight:600}
+html.th2 .cmb-grp{font-weight:600}
+html.th2 .ct-chip.free{font-weight:600}
+html.th2 .ct-free{font-weight:600}
+html.th2 .op-gh{font-weight:600}
+html.th2 .svc-edit>summary{font-weight:600}
+html.th2 .dl-t{font-weight:600}
+html.th2 .dl-own{font-weight:600}
+html.th2 .bl-info{font-weight:600}
+html.th2 .bill-tbl tr.bl-chead .bl-cname{font-weight:600}
+html.th2 .pay-sheet thead th{font-weight:600}
+html.th2 .mnav-chip.on{font-weight:700}
+html.th2 .pst-sent{font-weight:600}
+html.th2 .pst-card{font-weight:600}
+html.th2 .pt-today-row td>span{font-weight:600}
+html.th2 .done-check{font-weight:600}
+html.th2 .tig-open{font-weight:600}
+html.th2 .issue-links.issue-first .linkbtn{font-weight:600}
+html.th2 .tpl-item .tpl-c{font-weight:600}
+html.th2 .bill-month .bm-name{font-weight:600}
+html.th2 .ct-h{font-weight:600}
+html.th2 .cdrop.over .cdrop-hint{font-weight:600}
+html.th2 [data-cldrop].over .cdrop-hint{font-weight:600}
+html.th2 .fin-mkproj{font-weight:600}
+html.th2 .chip.chip-arr{font-weight:600}
+html.th2 .linkbtn.bad-link{font-weight:600}
+html.th2 .room-no{font-weight:600}
+html.th2 #view table tbody tr.pt-month-sep>td{font-weight:600}
+html.th2 .cal-mnav .cm-arr{font-weight:700}
+html.th2 .cal-mnav .cm-cur{font-weight:700}
+html.th2 .tcard.has-sel>summary .tc-title{font-weight:600}
+html.th2 .tc-cnt{font-weight:600}
+html.th2 .fmt-tag{font-weight:600}
+html.th2 .req-star{font-weight:600}
+html.th2 .dn-at{font-weight:600}
+html.th2 .tl-mband span{font-weight:600}
+html.th2 .tl-mn{font-weight:600}
+html.th2 .tl-corner .tl-cm{font-weight:600}
+html.th2 .ptbar b{font-weight:600}
+/* GEN-WEIGHTS:END */
 html.th2 body{letter-spacing:-.005em}
 html.th2 h1,html.th2 h2,html.th2 h3{letter-spacing:-.02em}
 /* fejléc: a weboldal sötét üvegsávja, lágyabb tintakékkel */
@@ -192,3 +306,6 @@ html.th2 .btn.primary,html.th2 .tab[aria-selected="true"],html.th2 .lead-badge{b
 html.th2 .mnav-chip{font-size:14px;font-weight:600;min-height:40px;padding:6px 14px;border-radius:999px}
 html.th2 .mnav-chip.on{font-size:15px;font-weight:700;padding:6px 18px}
 html.th2 .month-nav .btn,html.th2 .mnav-row .btn{min-height:40px}
+/* félkövér szövegközben: Montserratnál a 700 kis méretben túl erős */
+html.th2 b,html.th2 strong{font-weight:650}
+html.th2 th{font-weight:600}
