@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a857b8d540",
+"at": "2026-11-04T11:48:09+01:00",
+"msg": "Idővonal: az üres cellára kattintva nem nyílik meg a projekt (csak a névre vagy a sávra)"
+},
+{
 "id": "f35f021f77",
 "at": "2026-11-04T11:46:36+01:00",
 "msg": "Idővonal: görgetéskor a táblázat magassága nem csökken (alul üres rács marad)"
@@ -159,16 +164,6 @@
 "id": "051806e16f",
 "at": "2026-11-04T09:59:45+01:00",
 "msg": "Szerződés és számlázás: szűrőgombok sora törölve; a csempék ki-be kapcsolják a szűrőt, aktív szűrőnél törlés link"
-},
-{
-"id": "6a72f78926",
-"at": "2026-11-04T09:52:06+01:00",
-"msg": "Projektlista: hónap-elválasztó sorok a hónap nevével"
-},
-{
-"id": "77b6fb506c",
-"at": "2026-11-04T09:43:35+01:00",
-"msg": "Ma sáv: az óra:perc egy sorban, olvashatóan (a belső elem nem örökli a sáv stílusát)"
 }
 ]
 }
