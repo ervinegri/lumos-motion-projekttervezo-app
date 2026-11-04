@@ -934,7 +934,7 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
     ['Érkezés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
-    ['Projektvezető', lead ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);
+    ['Projektvezető', lead && lead.id !== m.id ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);   // a projektvezető a saját levelében nem kapja meg a saját nevét / számát
   const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)
   if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
   if (postOnly_(p, m.id)) { const pn = parseNotes_(p.crewNotes)[m.id]; if (pn) rows.push(['Neked szóló megjegyzés', String(pn)]); }   // nem kap eszközlistát: a személyes jegyzet ide kerül
