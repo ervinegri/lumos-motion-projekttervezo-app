@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "460c96d373",
+"at": "2026-11-04T14:49:19+01:00",
+"msg": "Új legördülő: értékesítő-választó, deal tulajdonosa, terem kamerája és objektívje; szabály a CLAUDE.md-ben"
+},
+{
 "id": "aab7ed5fff",
 "at": "2026-11-04T14:42:59+01:00",
 "msg": "Videóvágás: nincs Terepi feladatok, Helyszíni stáb és Egyéb költségek; a vágó látja, hány nap van hátra a leadásig (lista, projekt, idővonal)"
@@ -154,11 +159,6 @@
 "id": "6e235b2870",
 "at": "2026-11-04T10:30:15+01:00",
 "msg": "Naptár, vágó szakember: Terepi munkák / Vágói munkák kapcsoló (ahol vágóként van beosztva, lilával ✂️); szakembernél nincs Google Naptár-lekérés (nincs hibasáv)"
-},
-{
-"id": "bd3046fb4d",
-"at": "2026-11-04T10:26:15+01:00",
-"msg": "Naptár: a Vágói naptár bejegyzései is törölhetők; ha nem található, hibaüzenet (nem csendes kudarc); törléskor azonnal eltűnik"
 }
 ]
 }
