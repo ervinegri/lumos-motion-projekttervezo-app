@@ -2027,3 +2027,13 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
     const crew=[],eq=[],days={};let lead='';
     f.ids.forEach(id=>{const s=crewSigParse(f.sigs[id]);s.roles.forEach(r=>{if(r==='Projektvezető')lead=id;else crew.push({crewId:id,role:r});});if(s.days.length)days[id]=s.days;});
     closeModal();setDraft({lead:lead||d.lead,crew,crewDays:Object.keys(days).length?days:d.crewDays});toast('Visszaállítva a kiküldött állapotra – mentsd el.');});};   // az eszközök maradnak (azokat az eszközlista kezeli); a lekerült tagok eszközei gazdátlanok lesznek
+/* Lépések húzással: az aktuális lépés kártyáját a következő (vagy egy későbbi) lépésre húzva halad a projekt */
+(()=>{let from=null;
+  document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.stage.stage-drag');if(!c)return;from=c.dataset.v;c.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','stage:'+from);}catch(_){}});
+  document.addEventListener('dragend',()=>{from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));});
+  document.addEventListener('dragover',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');document.querySelectorAll('.stage.drop-hi').forEach(x=>{if(x!==t)x.classList.remove('drop-hi');});if(!t)return;e.preventDefault();t.classList.add('drop-hi');});
+  document.addEventListener('drop',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');const cur=from;from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));if(!t)return;e.preventDefault();
+    const d=S.draft;if(!d||ro())return;const ids=[...document.querySelectorAll('.stages .stage[data-v]')].map(x=>x.dataset.v),ci=ids.indexOf(cur),ti=ids.indexOf(t.dataset.v);if(ti<=ci)return;
+    const done=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),TK=['tervezes','helyszin','utomunka','jovahagyas'];
+    if(ti===ci+1&&TK.includes(cur)&&!done.has(cur))ACT['step-done']({dataset:{v:cur}});   // a következő lépésre: mintha kipipálnád (a beszámoló, nyersanyag-levél stb. ugyanúgy feljön)
+    else ACT.stage({dataset:{v:t.dataset.v}});});})();

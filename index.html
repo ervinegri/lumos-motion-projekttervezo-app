@@ -971,6 +971,8 @@ a.tab,a.subtab{text-decoration:none;font-family:inherit;display:inline-flex;alig
 /* a már kipipált (inaktív) lépés pipája hoverre nem mozdul */
 span.stage-tick:hover,span.stage-tick.on:hover{transform:translateY(-50%);cursor:default;border-style:solid}
 span.stage-tick:hover::after{opacity:0}
+
+.stage.stage-drag{cursor:grab;user-select:none}.stage.stage-drag:active{cursor:grabbing}.stage.dragging{opacity:.5}.stage.stage-target.drop-hi{outline:2px dashed var(--accent);outline-offset:2px;background:#eef6f1}.stage-grip{margin-left:6px;opacity:.7;font-size:12px}
 </style>
 </head>
 <body>
