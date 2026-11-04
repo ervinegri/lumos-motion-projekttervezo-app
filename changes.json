@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "32a3c202dc",
+"at": "2026-11-04T21:56:38+01:00",
+"msg": "Lépések áthúzással, Kész pipa; több kreatív kamera véglegesített csapatnál is"
+},
+{
 "id": "4899f9a852",
 "at": "2026-11-04T21:52:12+01:00",
 "msg": "Lépések: a kipipált (inaktív) pipa hoverre nem nagyobbodik"
@@ -146,14 +151,9 @@
 "msg": "Idővonal: a vágási sávon a vágásra szánt napok száma (a forgatás utáni naptól a határidőig)"
 },
 {
-"id": "089016ce6e",
-"at": "2026-11-04T17:27:26+01:00",
-"msg": "Idővonal: a hónapválasztó követi a görgetést, és az idővonal végtelenül görgethető (megálláskor az új hónap köré rendeződik)"
-},
-{
-"id": "3c61906c61",
-"at": "2026-11-04T17:27:26+01:00",
-"msg": "Naptár: vágó szerinti szűrés (Vágói naptár + vágási sávok); idővonal: a mai nap vonala a sávok fölött, a nevek alatt"
+"id": "1c2fbca198",
+"at": "2026-11-04T16:27:36Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
