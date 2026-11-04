@@ -56,7 +56,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}
-    <div class="field"><label for="m-dClient">Ügyfél</label><input class="inp" id="m-dClient" name="dClient" list="dl-clients" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="cégnév vagy név"><datalist id="dl-clients">${cl.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+    <div class="field"><label for="m-dClient">Ügyfél</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
     ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—'})}
     <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span></label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
@@ -140,3 +140,18 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
 
 document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.owner=e.target.value;render(true);}});
+
+/* Lehetőség ügyfele: csak a beírt szövegre illeszkedő ügyfelek jönnek fel (a böngésző saját, pontatlan listája helyett) */
+let DC_ITEMS=[];
+function dcSearch(input){const q=input.value.trim();if(!q){DC_ITEMS=[];pickClose();return;}const fq=fold(q);
+  DC_ITEMS=knownClients(q).sort((a,b)=>(fold(a.company).startsWith(fq)?0:1)-(fold(b.company).startsWith(fq)?0:1)).slice(0,8);
+  if(!DC_ITEMS.length||(DC_ITEMS.length===1&&fold(DC_ITEMS[0].company)===fq)){pickClose();return;}
+  pickShow(input,DC_ITEMS.map((it,i)=>`<div class="hs-row"><button type="button" class="hs-item dc-item" data-dc="${i}"><b>${esc(it.company)}</b>${it.name?`<small>${esc(it.name)}</small>`:''}</button></div>`).join(''));}
+function dcPick(i){const v=DC_ITEMS[i],inp=$('m-dClient');pickClose();if(v&&inp){inp.value=v.company;inp.dispatchEvent(new Event('change',{bubbles:true}));}}
+document.addEventListener('input',e=>{if(e.target.id==='m-dClient')dcSearch(e.target);});
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dc-item');if(!it)return;e.preventDefault();e.stopPropagation();dcPick(Number(it.dataset.dc));},true);
+document.addEventListener('focusout',e=>{if(e.target.id==='m-dClient')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.dc-item'))pickClose();},150);});
+document.addEventListener('keydown',e=>{if(e.target.id!=='m-dClient'||!$('hsBox'))return;const its=[...document.querySelectorAll('.dc-item')];if(!its.length)return;let i=its.findIndex(x=>x.classList.contains('on'));
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(its.length-1,i+1):Math.max(0,i-1);its.forEach((x,j)=>x.classList.toggle('on',j===i));}
+  else if(e.key==='Enter'&&i>=0){e.preventDefault();e.stopPropagation();dcPick(Number(its[i].dataset.dc));}
+  else if(e.key==='Escape'||e.key==='Tab')pickClose();},true);
