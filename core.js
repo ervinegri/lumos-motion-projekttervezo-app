@@ -410,18 +410,21 @@ function penDayDeduct(p,f,dd){if(!f||!f.crewId)return 0;const first=crewDaysOf(p
   return penOf(p,f.crewId,'approved').filter(x=>x.kind!=='damage'&&(x.day?x.day===dd:first)).reduce((s,x)=>s+penAmt(p,x,f.amount),0);}
 /* Napi összesen (levonások után) – a napi táblázat alján, gépelés közben is ugyanezzel számolunk. */
 function daySumOf(p,dd){const first=projDays(p)[0];
-  return (p.fees||[]).filter(g=>g.kind!=='fixed'&&!isPostOnly(p,g.crewId)).reduce((s,g)=>g.crewId?(crewDaysOf(p,g.crewId).includes(dd)?s+num((g.dayAmounts||{})[dd])-penDayDeduct(p,g,dd):s):(dd===first?s+num(g.amount):s),0);}
+  return (p.fees||[]).filter(g=>g.kind!=='fixed'&&!feePost(p,g.crewId)).reduce((s,g)=>g.crewId&&!feeSales(p,g.crewId)?(crewDaysOf(p,g.crewId).includes(dd)?s+num((g.dayAmounts||{})[dd])-penDayDeduct(p,g,dd):s):(dd===first?s+num(g.amount):s),0);}
 /* Egyéb költségek összesen: fix sorok (fuvar, étel, egyéb) + közös bérelt eszközök. */
 const otherSumOf=p=>(p.fees||[]).filter(f=>f.kind==='fixed').reduce((s,f)=>s+num(f.amount),0)+rentalSum(p,'');
 /* Helyszíni stáb összesen (egynapos projekt), levonások után */
 const postAmt=f=>num(f&&f.post);   // a helyszíni stábban is dolgozó vágó vágási díja (az amount része)
 const isSplitCut=(p,f)=>!!f&&f.kind!=='fixed'&&!!f.crewId&&!isPostOnly(p,f.crewId)&&(p.crew||[]).some(a=>a.crewId===f.crewId&&a.role==='Vágó');
-const postSumOf=p=>(p.fees||[]).filter(x=>x.kind!=='fixed').reduce((s,x)=>s+(isPostOnly(p,x.crewId)?num(x.amount)-penDeduct(p,x.crewId,x.amount):isSplitCut(p,x)?postAmt(x):0),0);
-const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!isPostOnly(p,f.crewId)).reduce((s,f)=>s+num(f.amount)-postAmt(f)-(f.crewId?penDeduct(p,f.crewId,f.amount):0),0);
+const postSumOf=p=>(p.fees||[]).filter(x=>x.kind!=='fixed').reduce((s,x)=>s+(feePost(p,x.crewId)?num(x.amount)-penDeduct(p,x.crewId,x.amount):isSplitCut(p,x)?postAmt(x):0),0);
+const fieldSumOf=p=>(p.fees||[]).filter(f=>f.kind!=='fixed'&&!feePost(p,f.crewId)).reduce((s,f)=>s+num(f.amount)-postAmt(f)-(f.crewId?penDeduct(p,f.crewId,f.amount):0),0);
 function feeDaySum(p,f){const ds=crewDaysOf(p,f.crewId),a=f.dayAmounts||{};return ds.reduce((s,d)=>s+num(a[d]),0)+postAmt(f);}
 
 /* Utómunka: csak vágóként beosztott munkatárs (nem a projektvezető) – nem napokhoz kötött, külön táblázatba kerül */
 const POST_ROLES=['Vágó','Értékesítő'];
+/* Díjtáblázat: az értékesítő a helyszíni stábban szerepel (egy összeggel), csak a vágó kerül az Utómunkába */
+const feeSales=(p,cid)=>isPostOnly(p,cid)&&!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó');
+const feePost=(p,cid)=>isPostOnly(p,cid)&&!feeSales(p,cid);
 function isPostOnly(p,cid){if(!cid||p.lead===cid)return false;const r=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return r.length>0&&r.every(x=>POST_ROLES.includes(x));}
 function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips)>0||num(p.er_subs)>0||DELIVERABLES.some(it=>num(p[it.k])>0);}
 

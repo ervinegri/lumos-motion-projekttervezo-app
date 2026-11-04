@@ -1330,7 +1330,7 @@ const ACT={
     const cd=Object.assign({},d.crewDays||{});if(cur.length===all.length)delete cd[cid];else cd[cid]=all.filter(x=>cur.includes(x));
     const fees=(d.fees||[]).map(f=>{if(f.crewId!==cid||!f.dayAmounts)return f;const g=Object.assign({},f);g.amount=cur.reduce((s,x)=>s+num(g.dayAmounts[x]),0);return g;});
     setDraft({crewDays:cd,fees});},
-  'fee-move':b=>{const d=S.draft;if(!d)return;const i=Number(b.dataset.i),st=Number(b.dataset.d),f=(d.fees||[]).slice(),grp=x=>isPostOnly(d,x.crewId);
+  'fee-move':b=>{const d=S.draft;if(!d)return;const i=Number(b.dataset.i),st=Number(b.dataset.d),f=(d.fees||[]).slice(),grp=x=>feePost(d,x.crewId);
     let j=i+st;while(j>=0&&j<f.length&&f[j].kind!=='fixed'&&grp(f[j])!==grp(f[i]))j+=st;   // ugyanabban a táblázatban lévő szomszéddal cserél
     if(j<0||j>=f.length||f[i].kind==='fixed'||f[j].kind==='fixed')return;[f[i],f[j]]=[f[j],f[i]];setDraft({fees:f});},
   'pen-row-add':b=>{const box=$('penRows');if(!box)return;box.insertAdjacentHTML('beforeend',penRowHtml());const row=box.lastElementChild,cs=row.querySelector('select');

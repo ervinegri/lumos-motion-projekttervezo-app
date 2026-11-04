@@ -3411,9 +3411,11 @@ function sendEquipmentList_(u, a) {
   const dateTxt = fmtHuDate_(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const subject = (resend ? 'Frissített eszközlista' : 'Eszközlista') + ' – ' + p.name + (p.date ? ' (' + p.date.replace(/-/g, '.') + '.)' : '');
   const e = escapeHtml_;
-  // eszközök kategóriánként
+  const rentals = parseRentals_(p.rentals);
+  // eszközök kategóriánként – a projektvezető a teljes listát kapja, a többiek csak a sajátjukat
+  const buildEq = only => {
   const byCat = {};
-  p.equipment.forEach(x => { const it = invMap[x.itemId]; if (!it) return; (byCat[it.category] = byCat[it.category] || []).push({ it: it, qty: x.qty, who: x.crewId && crewMap[x.crewId] ? crewMap[x.crewId].name : '' }); });
+  p.equipment.forEach(x => { const it = invMap[x.itemId]; if (!it) return; if (only && x.crewId !== only) return; (byCat[it.category] = byCat[it.category] || []).push({ it: it, qty: x.qty, who: x.crewId && crewMap[x.crewId] ? crewMap[x.crewId].name : '' }); });
   let eqHtml = '', eqTxt = '';
   INV_CATS.concat(Object.keys(byCat).filter(c => INV_CATS.indexOf(c) < 0)).forEach(cat => {
     const items = byCat[cat]; if (!items) return;
@@ -3424,15 +3426,15 @@ function sendEquipmentList_(u, a) {
       eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.who ? ' – ' + x.who : '') + '\n';
     });
   });
-  const rentals = parseRentals_(p.rentals);
-  [['Saját eszközök', rentals.filter(r => r.own)], ['Bérelt eszközök', rentals.filter(r => !r.own)]].forEach(([title, list]) => { if (!list.length) return;
+  [['Saját eszközök', rentals.filter(r => r.own && (!only || r.crewId === only))], ['Bérelt eszközök', rentals.filter(r => !r.own && (!only || r.crewId === only))]].forEach(([title, list]) => { if (!list.length) return;
     eqHtml += '<tr><td colspan="2" style="padding:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f7381">' + title + '</td></tr>';
     eqTxt += '\n' + title.toUpperCase() + '\n';
     list.forEach(r => { const who = r.crewId && crewMap[r.crewId] ? crewMap[r.crewId].name : '';
       eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee">' + e(r.name) + (r.company ? ' <span style="color:#5f7381">(' + e(r.company) + ')</span>' : '') + (who ? ' – ' + e(who) : '') + '</td></tr>';
       eqTxt += '☐ ' + r.name + (r.company ? ' (' + r.company + ')' : '') + (who ? ' – ' + who : '') + '\n'; });
   });
-  if (!eqHtml) { eqHtml = '<tr><td style="color:#5f7381">Ehhez a projekthez még nincs eszköz rendelve.</td></tr>'; eqTxt = '\n(nincs eszköz rendelve)\n'; }
+  if (!eqHtml) { eqHtml = '<tr><td style="color:#5f7381">' + (only ? 'Ehhez a projekthez nálad nincs eszköz.' : 'Ehhez a projekthez még nincs eszköz rendelve.') + '</td></tr>'; eqTxt = '\n(' + (only ? 'nálad nincs eszköz' : 'nincs eszköz rendelve') + ')\n'; }
+  return { html: eqHtml, txt: eqTxt }; };
   const crewRows = Object.keys(onProject).filter(cid => crewMap[cid]).map(cid => ({ c: crewMap[cid], roles: onProject[cid] }));
   const crewHtml = crewRows.map(r => '<tr><td style="padding:4px 12px 4px 0"><b>' + e(r.c.name) + '</b></td><td style="padding:4px 12px 4px 0;color:#5f7381">' + e(r.roles.join(', ')) + '</td><td style="padding:4px 0">' + e(r.c.phone || '') + '</td></tr>').join('');
   const crewTxt = crewRows.map(r => '• ' + r.c.name + ' – ' + r.roles.join(', ') + (r.c.phone ? ' – ' + r.c.phone : '')).join('\n');
@@ -3451,6 +3453,7 @@ function sendEquipmentList_(u, a) {
   recipients.forEach(cid => {
     const c = crewMap[cid];
     const first = String(c.name).trim().split(/\s+/).slice(-1)[0];
+    const isLead = cid === p.lead, EQ = buildEq(isLead ? null : cid);
     const html = '<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#173042;font-size:14px;line-height:1.5;max-width:640px">'
       + '<p>Szia ' + e(first) + '!</p>'
       + (message ? '<p style="white-space:pre-wrap">' + e(message) + '</p>' : '<p>' + (resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:</p>')
@@ -3459,12 +3462,12 @@ function sendEquipmentList_(u, a) {
       + '<p style="margin:10px 0 0">A te szereped: <b>' + e(onProject[cid].join(', ')) + '</b></p>'
       + (mine(cid).length ? '<p style="margin:10px 0 0;padding:10px 12px;background:#e8f2ec;border-radius:10px"><b>Nálad lesz:</b> ' + e(mine(cid).join(', ')) + '</p>' : '')
       + (pNotes[cid] ? '<p style="margin:10px 0 0;padding:10px 12px;background:#fff6e0;border-radius:10px"><b>Neked szóló megjegyzés:</b><br>' + e(pNotes[cid]).replace(/\n/g, '<br>') + '</p>' : '')
-      + '<h3 style="font-size:15px;margin:24px 0 2px">Eszközlista</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + eqHtml + '</table>'
+      + '<h3 style="font-size:15px;margin:24px 0 2px">' + (isLead ? 'Eszközlista (teljes)' : 'A te eszközeid') + '</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + EQ.html + '</table>'
       + '<h3 style="font-size:15px;margin:24px 0 6px">Stáb</h3><table style="border-collapse:collapse;font-size:14px">' + crewHtml + '</table>'
       + planHtml
       + (sig ? '<div style="margin-top:26px">' + sig.html + '</div></div>' : '<p style="margin-top:26px">Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>');
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
-      + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\nESZKÖZLISTA' + eqTxt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
+      + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\n' + (isLead ? 'ESZKÖZLISTA (TELJES)' : 'A TE ESZKÖZEID') + EQ.txt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     if (a.preview) { previews.push({ id: cid, name: c.name, email: c.email, subject: subject, html: html }); return; }   // előnézet: nem küldjük el
     const opts = mailOptsFor_(u, html);
