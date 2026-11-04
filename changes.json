@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "3040603516",
+"at": "2026-11-04T15:17:42+01:00",
+"msg": "Értékesítés, új lehetőség: az ügyfélmezőben csak a beírt szövegre illeszkedő ügyfelek jönnek fel"
+},
+{
 "id": "460c96d373",
 "at": "2026-11-04T14:49:19+01:00",
 "msg": "Új legördülő: értékesítő-választó, deal tulajdonosa, terem kamerája és objektívje; szabály a CLAUDE.md-ben"
@@ -154,11 +159,6 @@
 "id": "115ac8bb0a",
 "at": "2026-11-04T10:31:49+01:00",
 "msg": "Szakember Kifizetések: cím és hónapléptető középre igazítva a táblázat fölé"
-},
-{
-"id": "6e235b2870",
-"at": "2026-11-04T10:30:15+01:00",
-"msg": "Naptár, vágó szakember: Terepi munkák / Vágói munkák kapcsoló (ahol vágóként van beosztva, lilával ✂️); szakembernél nincs Google Naptár-lekérés (nincs hibasáv)"
 }
 ]
 }
