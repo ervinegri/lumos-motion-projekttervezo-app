@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5b19084cf2",
+"at": "2026-11-04T21:27:01+01:00",
+"msg": "Videóvágás: nem jelez hiányzó operatőrt – csak projektvezető és vágó kell"
+},
+{
 "id": "af5660ec03",
 "at": "2026-11-04T21:24:47+01:00",
 "msg": "Videóvágás: nincs Helyszíni munka lépés (a Tervezés után az Utómunka jön), nincs helyszíni beszámoló és naptárba kerülés; javítás: a pipás lépés után újra a következő lépésre ugrik"
@@ -149,11 +154,6 @@
 "id": "1d7f4c0cfe",
 "at": "2026-11-04T17:21:59+01:00",
 "msg": "Vékonyabb fejléc; görgetéskor a projekt neve egy vékony sávban fent marad"
-},
-{
-"id": "52576ef5ba",
-"at": "2026-11-04T17:19:34+01:00",
-"msg": "Mentési sáv: csak valódi (a betöltött állapottól eltérő) módosításnál látszik; érthetőbb üzenet, ha nincs több visszavonható lépés"
 }
 ]
 }
