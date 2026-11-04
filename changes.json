@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "632c015340",
+"at": "2026-11-04T10:07:53+01:00",
+"msg": "Új projekt: mindig üres űrlappal nyílik (a félbehagyott kitöltés nem töltődik vissza)"
+},
+{
 "id": "3226f031e3",
 "at": "2026-11-04T10:05:21+01:00",
 "msg": "„Az app frissült” értesítés: új verzió első betöltésekor a változások listája (changes.json, GitHub Action frissíti)"
@@ -194,11 +199,6 @@
 "id": "02ebfb3d81",
 "at": "2026-11-04T09:15:33+02:00",
 "msg": "Stábkártya: a napidíj csak a szerkesztőben látszik"
-},
-{
-"id": "e694fcaffa",
-"at": "2026-11-04T09:15:18+02:00",
-"msg": "Stáb: a kártyára kattintva is megnyílik a szerkesztés"
 }
 ]
 }
