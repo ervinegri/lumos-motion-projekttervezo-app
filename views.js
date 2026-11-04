@@ -755,7 +755,8 @@ function topicCards(p,{camRow,dlRow,D}){
   const tgl=(k,label)=>`<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${esc(label)}</span></label>`;
   const recCnt=it=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
     <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;};
-  const A=(it,asg)=>it.on&&asg?Object.assign({},it,{html:`<div class="tc-item on">${it.html}<div class="tc-asg">${asg}</div></div>`}):it;   // kiválasztva: alatta a felelős választó
+  const A=(it,asg)=>{if(!it.on||!asg)return it;const a=`<div class="tc-asg">${asg}</div>`,h=it.html,i=h.lastIndexOf('<div class="stepper');   // kiválasztva: név · felelős · darabszám egy sorban
+    return Object.assign({},it,{html:i>=0?h.slice(0,i)+a+h.slice(i):`<div class="tc-line">${h}${a}</div>`});};
   const OP='Operatőr',F=(it,k,role,label)=>A(it,fieldAsg(p,k,role,label)),C=(it,k)=>A(it,cutAsg(p,k));
   const cam=c=>F({on:!!p[c.k],html:camRow(c),chip:c.label+(camN(p,c.k)>1?' ×'+camN(p,c.k):''),tg:1},c.k,OP,c.label);
   const flag=(k,label,role)=>{const it={on:!!p[k],html:tgl(k,label),chip:label,tg:1};return role?F(it,k,role,label):it;};
