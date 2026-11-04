@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "fbc9672660",
+"at": "2026-11-04T10:40:30+01:00",
+"msg": "Naptár, vágó: a leadási sáv a projekt utáni naptól a határidő napjáig tart"
+},
+{
 "id": "2b9f78ae35",
 "at": "2026-11-04T10:38:57+01:00",
 "msg": "Naptár buborék: a teljes stáb névvel és feladatokkal (projektvezető, szerepek)"
@@ -194,11 +199,6 @@
 "id": "88a298f636",
 "at": "2026-11-04T09:36:14+02:00",
 "msg": "Csapat véglegesítése: az ablak nem ugrik fel magától"
-},
-{
-"id": "feaf56f628",
-"at": "2026-11-04T09:35:30+02:00",
-"msg": "Adatvédelem: böngészős automatikus kitöltés / korábbi beírások felajánlása kikapcsolva az egész appban"
 }
 ]
 }
