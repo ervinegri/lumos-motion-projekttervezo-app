@@ -229,7 +229,7 @@ function crewDim(p){if(!ro())return false;const st=p.status||'tervezes';if(st===
   const me=S.me&&S.me.crewId;return !(me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó'));}
 function myRole(p){if(!S.me||!S.me.crewId)return '';const r=[];if(p.lead===S.me.crewId)r.push('projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===S.me.crewId)r.push(a.role.toLowerCase());});return r.join(', ');}
 /* Létszám: a távolról (remote) vezető projektvezető nem számít bele */
-function crewN(p){const ids=crewIds(p);if(remoteLead(p))ids.delete(p.lead);return ids.size;}
+function crewN(p){const ids=crewIds(p);if(p.leadRemote&&p.lead&&!(p.crew||[]).some(c=>c.crewId===p.lead))ids.delete(p.lead);return ids.size;}
 function evRow(p,opt={}){
   const r=pr(p),T=todayISO();
   const sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva');
