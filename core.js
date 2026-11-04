@@ -76,12 +76,11 @@ const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák'
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 /* Előadásrögzítés termenként: minden teremnek saját neve, kamerái és szakemberei (beosztás kulcsa: <teremId>_<kamera>) */
 const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:10,er_close:10};
-function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms))return p.recRooms;
-  const has=ROOM_CAMS.some(c=>p[c.k]),n=Math.min(10,num(p.er_rooms)||(has?1:0)),out=[];   // régi projekt: a teremszám és a kamerák minden teremre
-  for(let i=0;i<n;i++){const r={id:'r'+(i+1),name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});out.push(r);}return out;}
+function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};return p.recRooms.filter((r,i)=>i===0||keep[r.id]||String(r.name||'').trim()||roomCams(r).length);}   // üres, névtelen pót-terem nem marad meg (csak amit most adtál hozzá)
+  const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||'Terem '+(i+1);
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
-function roomsPatch(rooms){const ch={recRooms:rooms,er_rooms:rooms.length};
+function roomsPatch(rooms){const ch={recRooms:rooms,er_rooms:rooms.filter(r=>roomCams(r).length).length};
   ROOM_CAMS.forEach(c=>{const mx=Math.max(0,...rooms.map(r=>num(r[c.k])));ch[c.k]=mx>0;if(ROOM_CNT[c.k])ch[c.k+'_n']=mx>0?mx:1;});return ch;}
 const REC_COUNTS=[{k:'er_post_n',label:'Termek előadásainak utómunkája',max:10,min:0},{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
 const FOTO_COUNT={k:'x_foto_n',label:'Fotós a helyszínen',max:10,min:0};

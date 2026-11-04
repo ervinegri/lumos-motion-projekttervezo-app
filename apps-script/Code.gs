@@ -766,7 +766,7 @@ function parseRooms_(raw) {
     .filter(x => /^r[a-z0-9]{1,10}$/.test(x.id) && !seen[x.id] && (seen[x.id] = 1));
 }
 function roomsLegacy_(p, rooms) {   // a termekből számolt összesített mezők (naptár, régi nézetek)
-  p.er_rooms = rooms.length;
+  p.er_rooms = rooms.filter(r => Object.keys(ROOM_CAMS_).some(k => r[k] > 0)).length;   // csak a kamerás termek számítanak
   Object.keys(ROOM_CAMS_).forEach(k => { const mx = Math.max.apply(null, [0].concat(rooms.map(r => r[k]))); p[k] = mx > 0; if (ROOM_CAMS_[k] > 1) p[k + '_n'] = mx > 0 ? mx : 0; });
 }
 function parseEditTasks_(raw) {   // vágói feladatok: { crewId: [munka kulcsa, …] }
@@ -1541,9 +1541,9 @@ function calPlan_(p) {
   if (Number(p.er_summary) > 0) rec.push(p.er_summary + ' rövid összefoglaló videó');
   if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
   const rooms = parseRooms_(p.recRooms), RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése' };
-  if (rooms && rooms.length) {   // termenként: név + kamerák
+  if (rooms && rooms.some(r => Object.keys(RL).some(k => r[k] > 0))) {   // termenként: név + kamerák
     lines.push('Előadásrögzítés termenként:');
-    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); lines.push('• ' + (r.name || 'Terem ' + (i + 1)) + ': ' + (cs.join(', ') || '–')); });
+    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (r.name || 'Terem ' + (i + 1)) + ': ' + cs.join(', ')); });
     Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
   }
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : '') + (p.er_post ? ' · ' + (p.er_res === '4k' ? '4K' : 'Full HD') : ''));
