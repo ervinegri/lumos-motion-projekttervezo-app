@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d35a360ef5",
+"at": "2026-11-04T23:01:17+01:00",
+"msg": "Új design: olvasható szakember-választó pirulák"
+},
+{
 "id": "0c3c2225b5",
 "at": "2026-11-04T22:59:22+01:00",
 "msg": "Új design: visszafogottabb betűsúlyok (a 750–900-as súlyok 600/700, félkövér 650)"
@@ -146,13 +151,8 @@
 "msg": "Ajánlói jutalék: csak az ügyvezető látja, az Extrák és kedvezmények alatt"
 },
 {
-"id": "2019f4aa36",
-"at": "2026-11-04T20:49:57+01:00",
-"msg": "Csapat-véglegesítés: az eszközök változása nem számít csapatmódosításnak (külön eszközlista-küldés); a visszaállítás csak szerepeket és napokat érint"
-},
-{
-"id": "aba4d10c59",
-"at": "2026-11-04T19:44:36Z",
+"id": "0549cb1801",
+"at": "2026-11-04T19:50:06Z",
 "msg": "Változásnapló frissítése"
 }
 ]
