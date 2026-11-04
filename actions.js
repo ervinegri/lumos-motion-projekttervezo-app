@@ -1581,6 +1581,7 @@ document.addEventListener('change',()=>{if(S.dirty)autoSave(200);});
 document.addEventListener('click',()=>setTimeout(()=>{if(S.dirty)autoSave(300);},0));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushSave();});
 window.addEventListener('pagehide',flushSave);
+window.addEventListener('pagehide',()=>{try{mdSave();}catch(e){}});   // frissítéskor / bezáráskor a nyitott ablak tartalma megmarad (újranyitáskor visszajön)
 
 /* ===== Új projekt ablak: ugyanazok a keresők, mint az Alapadatoknál (ügyfél, helyszín, kapcsolattartó) ===== */
 let MC_ITEMS=[];

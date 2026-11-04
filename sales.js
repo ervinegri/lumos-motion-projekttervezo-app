@@ -55,7 +55,7 @@ function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.i
 
 /* Új lehetőségnél: milyen szolgáltatások jöhetnek szóba (többet is lehet) */
 const DEAL_SERVICES=['Előadásrögzítés','Élő közvetítés (stream)','Kreatív videózás','Aftermovie / összefoglaló videó','Interjúk / imázsfilm','Short videók','Fotózás','Drónfelvétel','Videóvágás / utómunka','Vizuál-, hang- és fénytechnika','Egyéb'];
-function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||{}),isNew=!d0,won=d.stage==='nyert';
+function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||{}),isNew=!d0,won=d.stage==='nyert';if(isNew&&!d.id)d.id=uuid();   // az új lehetőség azonosítója már itt megvan: újrapróbálkozáskor sem jön létre kétszer
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}

@@ -299,7 +299,12 @@ function computeIssues(){
 
 /* ===== Szerverhívások ===== */
 const API_URL=String(window.LUMOS_API_URL||'').trim();
-async function gs(fn,...args){
+/* Átmeneti hiba (pl. épp frissül a háttér, megszakadt a kapcsolat, túlterhelés): a hívás magától újrapróbálkozik, így a mentés nem vész el */
+const GS_TRANSIENT=/Nincs kapcsolat a szerverrel|nem a várt választ|Service (?:invoked too many times|unavailable|Spreadsheets)|Script function not found|timed? ?out|Túl sok|Lock|zárolás|try again|Internal error|Server error|HTTP 5\d\d|Exceeded maximum execution|Address unavailable/i;
+async function gs(fn,...args){const waits=[1500,4000,8000];
+  for(let i=0;;i++){try{return await gsOnce(fn,...args);}
+    catch(e){if(i>=waits.length||!GS_TRANSIENT.test(String((e&&e.message)||e)))throw e;await new Promise(r=>setTimeout(r,waits[i]));}}}
+async function gsOnce(fn,...args){
   if(!API_URL)throw new Error('Az app még nincs összekötve az Apps Script háttérrel.');
   const body=JSON.stringify({fn,args});
   const modes=body.length<6000?['get','post']:['post','post'];
