@@ -676,7 +676,7 @@ function saveDeal_(u, a) {
       id: id, title: str_(a.title, 160), client: str_(a.client, 160), contactName: str_(a.contactName, 120), contactEmail: str_(a.contactEmail, 160), contactPhone: str_(a.contactPhone, 40),
       eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
       chance: num(a.chance, 100), source: DEAL_SOURCES.indexOf(a.source) >= 0 ? a.source : '', nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
-      ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 3000),
+      ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000),
       lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
       closedAt: stage === 'elveszett' ? (old && old.stage === 'elveszett' ? old.closedAt : today_()) : (old && old.stage === 'nyert' ? old.closedAt : ''),
       createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };

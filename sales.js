@@ -69,13 +69,14 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${ms('dSource','Honnan jött?',DEAL_SOURCES,d.source||'',{empty:'—'})}
     ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés</label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
-    <div class="field full"><label for="m-dNote">Jegyzet</label><textarea class="inp" id="m-dNote" name="dNote" rows="3" maxlength="3000" placeholder="igények, egyeztetett részletek, ajánlat verziói…">${esc(d.note||'')}</textarea></div>
+    <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
+      <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><div class="dnotes" id="m-dNotes">${dNotesHtml(d.note)}</div></div>
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
     ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(d.ownerId||S.salesF.owner||(S.me&&S.me.id))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>${['uj','ajanlat'].includes(d.stage)?'':`<button type="button" class="btn primary small dl-winbtn" data-action="deal-win" data-id="${esc(d.id)}">✅ Szerződve</button>`}`:'',submitLabel:'Mentés',submit:async fd=>{
     const nd=Object.assign({},d0||{},{id:d.id||'',title:String(fd.get('dTitle')||'').trim(),client:String(fd.get('dClient')||'').trim(),eventType:fd.get('dType')||'',contactName:String(fd.get('dCName')||'').trim(),contactEmail:String(fd.get('dCEmail')||'').trim(),contactPhone:String(fd.get('dCPhone')||'').trim(),
-      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:String(fd.get('dNote')||'').trim()});
+      venue:String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dDate')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',note:dNoteAdd(String(fd.get('dNote')||''),String(fd.get('dNoteNew')||''))});
     if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
     if(nd.title.length<2){toast('Add meg a lehetőség nevét.',true);$('m-dTitle').focus();return;}
@@ -155,3 +156,15 @@ document.addEventListener('keydown',e=>{if(e.target.id!=='m-dClient'||!$('hsBox'
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();i=e.key==='ArrowDown'?Math.min(its.length-1,i+1):Math.max(0,i-1);its.forEach((x,j)=>x.classList.toggle('on',j===i));}
   else if(e.key==='Enter'&&i>=0){e.preventDefault();e.stopPropagation();dcPick(Number(its[i].dataset.dc));}
   else if(e.key==='Escape'||e.key==='Tab')pickClose();},true);
+
+/* Lehetőség jegyzetei dátum szerint: „[2026-11-04 15:19 · Név] szöveg” bejegyzések, a legújabb felül (egy szövegmezőben tárolva) */
+const DN_RE=/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}|Korábbi)(?: · ([^\]]*))?\] ?/;
+function dNotesParse(t){t=String(t||'').trim();if(!t)return [];const out=[];let cur=null;
+  t.split('\n').forEach(l=>{const m=DN_RE.exec(l);if(m){cur={at:m[1]==='Korábbi'?'':m[1],by:m[2]||'',text:l.slice(m[0].length)};out.push(cur);}else if(cur)cur.text+='\n'+l;else{cur={at:'',by:'',text:l};out.push(cur);}});
+  return out.map(x=>Object.assign(x,{text:x.text.trim()})).filter(x=>x.text);}
+const dNotesJoin=L=>L.map(x=>`[${x.at||'Korábbi'}${x.by?' · '+x.by:''}] `+x.text).join('\n');
+function dNoteAdd(old,nw){nw=String(nw||'').trim();if(!nw)return String(old||'').trim();const d=new Date(),p=n=>String(n).padStart(2,'0');
+  const at=`${todayISO()} ${p(d.getHours())}:${p(d.getMinutes())}`;return dNotesJoin([{at,by:(S.me&&S.me.name)||'',text:nw}].concat(dNotesParse(old)));}
+function dNotesHtml(t){const L=dNotesParse(t);if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
+  return L.map((x,i)=>`<div class="dn-item"><div class="dn-h"><span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+' '+x.at.slice(11)):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}<button type="button" class="x dn-del" data-action="dnote-del" data-i="${i}" title="Jegyzet törlése" aria-label="Jegyzet törlése">✕</button></div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+ACT['dnote-del']=b=>{const h=$('m-dNote'),box=$('m-dNotes');if(!h||!box)return;const L=dNotesParse(h.value);L.splice(Number(b.dataset.i),1);h.value=dNotesJoin(L);box.innerHTML=dNotesHtml(h.value);};   // mentéskor törlődik
