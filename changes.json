@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "59599435d4",
+"at": "2026-11-04T22:57:43+01:00",
+"msg": "Új design: kisebb tárgyhó a hónapválasztóban"
+},
+{
 "id": "c5d406c29a",
 "at": "2026-11-04T22:56:50+01:00",
 "msg": "Új design: a régi zöld árnyalatok kékes-szürkén (generált felülírás), átmenetes gombok széle javítva"
@@ -146,13 +151,8 @@
 "msg": "Lépések: a pipás lépéseknél csak a pipára kattintva lép tovább (a kártya nem kattintható)"
 },
 {
-"id": "71f187c2e2",
-"at": "2026-11-04T20:42:02+01:00",
-"msg": "Véglegesített csapat módosult: látszik, mi változott munkatársanként, és egy gombbal visszaállítható a kiküldött állapotra"
-},
-{
-"id": "8bab9af18b",
-"at": "2026-11-04T19:27:59Z",
+"id": "f249aa4e5d",
+"at": "2026-11-04T19:42:13Z",
 "msg": "Változásnapló frissítése"
 }
 ]
