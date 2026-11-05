@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "739e437106",
+"at": "2026-11-05T09:10:03+01:00",
+"msg": "Videók leadása: címzettek névvel, lenyitható és szerkeszthető e-mail, megjegyzés mező helyett"
+},
+{
 "id": "597fc15ea5",
 "at": "2026-11-05T09:07:51+01:00",
 "msg": "Idővonal: a vágás infója azonnal megjelenik (azonnali súgó)"
@@ -146,13 +151,8 @@
 "msg": "Új design: vastagabb összegek a kifizetések táblázatban"
 },
 {
-"id": "03ad27172c",
-"at": "2026-11-04T23:04:32+01:00",
-"msg": "Kifizetésre váró számla: vastag sárga keret"
-},
-{
-"id": "d98f99ad23",
-"at": "2026-11-04T22:03:53Z",
+"id": "c0d0d95eb9",
+"at": "2026-11-04T22:04:41Z",
 "msg": "Változásnapló frissítése"
 }
 ]
