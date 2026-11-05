@@ -335,3 +335,9 @@ html.th2 .cal-chip.p.cut.tl-cut.tl-joined{background:linear-gradient(90deg,var(-
 html.th2 .pay-sheet tr.pay-strow td:first-child,html.th2 .pay-sheet tr.pay-strow td:first-child b,html.th2 .pay-sheet tfoot td:first-child,html.th2 .pay-sheet tfoot td:first-child b,html.th2 .pay-sheet tr.pay-ret td:first-child,html.th2 .pay-sheet tr.pay-ret td:first-child b{font-weight:650}
 /* kifizetések: a Díjösszesítő / Számla / Kifizetve sorcímkék ugyanakkorák, mint a projektnevek */
 html.th2 .pay-sheet tr.pay-strow td:first-child{font-size:14px}
+/* aktuális lépés: a márka sárga–narancs átmenetével (mint a fő gombok) */
+html.th2 .stage.cur{background:var(--grad-brand);border:1px solid transparent;background-origin:border-box;color:var(--tungsten-ink);box-shadow:none}
+html.th2 .stage.cur .n{color:#5a3a00;opacity:1}
+html.th2 .stage.cur .t{color:var(--tungsten-ink)}
+html.th2 .stage.cur+.stage-tick,html.th2 .stage.cur+.stage-tick.stage-handle{color:var(--tungsten-ink);border-color:rgba(27,15,0,.35)}
+html.th2 .stage.cur+.stage-tick.stage-handle{border:0}

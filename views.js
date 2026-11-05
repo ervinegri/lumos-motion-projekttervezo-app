@@ -947,7 +947,7 @@ function viewProject(p){
   const iCut=(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó'),canDeliver=iCut&&['tervezes','helyszin','utomunka','leadva'].includes(p.status||'tervezes')&&needsDelivery(p);
   const vl=vidLink(p,'mini','Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':'')),xl=extraLinks(p,'mini');
   const dlPanel=!!(vl||xl)&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T);   // a Kész videók panel mutatja a linket – fent nem kell még egy gomb
-  const delivery=(canDeliver?`<button class="btn primary small" type="button" data-action="cut-deliver">📤 Videók leadása</button>`:'')+(dlPanel?xl:vl+xl);
+  const delivery=(dlPanel?xl:vl+xl);
   return `<div class="dhead">
     <button class="back" type="button" data-action="back">← ${ro()?'Beosztásaim':'Összes projekt'}</button>
     <div class="dtitle">${calBlock(r&&r.start)}<div class="grow"><h2>${esc(p.name||'Névtelen projekt')}${p.status==='atadva'?DONE_CHECK:''}${ro()?'':' <button class="editbtn title-edit" type="button" data-action="proj-rename" aria-label="Projekt nevének módosítása" data-tip="Név módosítása">✏️</button>'}</h2>
