@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ec03a7e5e0",
+"at": "2026-11-05T08:39:38+01:00",
+"msg": "Videóvágás projekt a Vágói naptárba kerül (projekt napjától a leadási határidőig), a csapat vendégként"
+},
+{
 "id": "8ccfd20f3f",
 "at": "2026-11-05T08:32:51+01:00",
 "msg": "Videóvágás csapata naptárbejegyzés nélkül is véglegesíthető; kifizetések sorcímkéi nagyobbak"
@@ -146,13 +151,8 @@
 "msg": "Előzmények: a beosztás-módosítás részletesen (ki került be/ki, milyen eszköz, projektvezető neve)"
 },
 {
-"id": "32a3c202dc",
-"at": "2026-11-04T21:56:38+01:00",
-"msg": "Lépések áthúzással, Kész pipa; több kreatív kamera véglegesített csapatnál is"
-},
-{
-"id": "d233b038c8",
-"at": "2026-11-04T20:52:22Z",
+"id": "f96f2b13ab",
+"at": "2026-11-04T20:56:48Z",
 "msg": "Változásnapló frissítése"
 }
 ]
