@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "388ff916f1",
+"at": "2026-11-05T08:55:39+01:00",
+"msg": "Projektvezető jelvény marad sárga"
+},
+{
 "id": "b885ffee34",
 "at": "2026-11-05T08:55:13+01:00",
 "msg": "Videók leadása gomb törölve (áthúzással megy); aktuális lépés márka-átmenettel"
@@ -146,13 +151,8 @@
 "msg": "Frissítés gomb helyett automatikus frissítés: 15 mp-enként olcsó verziófigyelés (dataVer)"
 },
 {
-"id": "89b000aa7b",
-"at": "2026-11-04T22:48:22+01:00",
-"msg": "Új design a weboldal színeiből: márka-átmenet, volfrám kiemelés, Montserrat"
-},
-{
-"id": "9258749baf",
-"at": "2026-11-04T21:42:59Z",
+"id": "85c12194b3",
+"at": "2026-11-04T21:48:33Z",
 "msg": "Változásnapló frissítése"
 }
 ]
