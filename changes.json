@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "989b48131a",
+"at": "2026-11-05T09:13:23+01:00",
+"msg": "Videók leadása: kötelező link, jelszó az Újabb link mellett, Termelési vezető elöl, címzettek biztos betöltése"
+},
+{
 "id": "739e437106",
 "at": "2026-11-05T09:10:03+01:00",
 "msg": "Videók leadása: címzettek névvel, lenyitható és szerkeszthető e-mail, megjegyzés mező helyett"
@@ -146,13 +151,8 @@
 "msg": "Kifizetések táblázat lekerekített sarkai; lejárt számla piros háttér"
 },
 {
-"id": "db927a27a6",
-"at": "2026-11-04T23:05:37+01:00",
-"msg": "Új design: vastagabb összegek a kifizetések táblázatban"
-},
-{
-"id": "c0d0d95eb9",
-"at": "2026-11-04T22:04:41Z",
+"id": "a445337bb6",
+"at": "2026-11-04T22:05:47Z",
 "msg": "Változásnapló frissítése"
 }
 ]
