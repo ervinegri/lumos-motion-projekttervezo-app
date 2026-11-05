@@ -902,7 +902,7 @@ function gmailSend_(to, subject, text, opts, cat) {
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
     const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
-  GmailApp.sendEmail(to, subject, text, opts); return true;
+  GmailApp.sendEmail(to, subj_(subject), text, opts); return true;
 }
 function setMail_(u, a) {
   a = a || {};
@@ -2674,7 +2674,7 @@ function tigSend_(u, a) {
   const text = str_(a.text, 5000), sig = signatureFor_(u), esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor; opts.attachments = [pdf]; if (cc.length) opts.cc = cc.join(',');
-  GmailApp.sendEmail(to.join(','), str_(a.subject, 200) || 'Teljesítésigazolás', text + (sig ? '\n\n' + sig.text : ''), opts);
+  GmailApp.sendEmail(to.join(','), subj_(str_(a.subject, 200) || 'Teljesítésigazolás'), text + (sig ? '\n\n' + sig.text : ''), opts);
   withLock_(() => { tigMark_(t.id, Object.assign({ sentAt: now_(), sentTo: to.concat(cc).join(', ') }, t.status === 'kiallitva' ? { status: 'kikuldve' } : {})); dbFlush_(); });
   logEvent_(u, 'Teljesítésigazolás', t.client, 'E-mailben elküldve: ' + to.join(', '));
   return finPart_(['tigs']);
@@ -3702,6 +3702,8 @@ function newUserRecord_(name, role, crewId, email) {
   return { id: Utilities.getUuid(), name: name, role: role, crewId: crewId || '', email: String(email || ''), disabled: false, createdAt: new Date().toISOString() };
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* E-mail tárgy: a GmailApp a tárgyban az emojikat hibásan kódolja (����) – ezeket kivesszük */
+function subj_(t) { return String(t || '').replace(/[\uD800-\uDFFF]/g, '').replace(/[\u2600-\u27BF\uFE0F\u200D]/g, '').replace(/\s{2,}/g, ' ').trim(); }
 function appUrl_() { return FRONTEND_URL; }
 /* Rövid, olvasható projektlink: …/#p=ecommerce-expo-promo-shortok-d3f68107 (a név + az azonosító első 8 karaktere) */
 function projSlug_(p) { return String((p && p.id) || '').slice(0, 8); }   // rövid projektlink: #p=d3f68107
@@ -3784,7 +3786,7 @@ function rawNotify_(u, a) {
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor;
-  GmailApp.sendEmail(to.join(','), '🎬 Nyersanyag feltöltve – ' + p.name, text + (sig ? '\n\n' + sig.text : ''), opts);
+  GmailApp.sendEmail(to.join(','), subj_('Nyersanyag feltöltve – ' + p.name), text + (sig ? '\n\n' + sig.text : ''), opts);
   logEvent_(u, 'Nyersanyag feltöltve', p.name, 'E-mail a vágónak: ' + to.join(', ') + (link ? ' · ' + link : ''));
   return { sentTo: to };
 }
@@ -3842,7 +3844,7 @@ function crewDeliver_(u, a) {
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
     if (custom) text = plainText_(custom);
     const opts = mailOptsFor_(u, html); delete opts.__actor;
-    try { GmailApp.sendEmail(to.join(','), '📤 ' + (a.single === true ? 'Videó' : 'Videók') + ' leadva – ' + p.name, text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
+    try { GmailApp.sendEmail(to.join(','), subj_((a.single === true ? 'Videó' : 'Videók') + ' leadva – ' + p.name), text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
   }
   logEvent_(u, 'Videók leadva', p.name, link + (to.length ? ' · értesítve: ' + to.join(', ') : ''));
   return { project: projectView_(fullProject_(p), u), notified: to };
