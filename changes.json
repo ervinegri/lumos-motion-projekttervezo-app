@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c1f6f63d8b",
+"at": "2026-11-05T09:37:52+01:00",
+"msg": "Leadás: 'Így néz ki az e-mailed', az előnézet nem szerkeszthető"
+},
+{
 "id": "833c12a2c6",
 "at": "2026-11-05T09:36:23+01:00",
 "msg": "Belépés: a kártya csak a betűk és a Google-gomb betöltése után, lágy beúszással jelenik meg"
@@ -149,11 +154,6 @@
 "id": "8ccfd20f3f",
 "at": "2026-11-05T08:32:51+01:00",
 "msg": "Videóvágás csapata naptárbejegyzés nélkül is véglegesíthető; kifizetések sorcímkéi nagyobbak"
-},
-{
-"id": "1930d177e7",
-"at": "2026-11-04T23:25:44+01:00",
-"msg": "Új design: kifizetések sorcímkéi a projektnevekkel azonos vastagságúak"
 }
 ]
 }
