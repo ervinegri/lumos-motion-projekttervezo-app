@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "3082b4df18",
+"at": "2026-11-05T13:55:17+01:00",
+"msg": "Lehetőség ablak: a Szerződve gomb kikerül (a Szerződve oszlopba húzással megy)"
+},
+{
 "id": "690e997339",
 "at": "2026-11-05T13:54:14+01:00",
 "msg": "Az e-mail-címek nem törnek új sorba (leadás címzettjei, véglegesítési sáv)"
@@ -149,11 +154,6 @@
 "id": "60af718d86",
 "at": "2026-11-05T09:19:07+01:00",
 "msg": "Leadás: pipálható címzettek névvel és e-maillel; inkognitóban nem villan fel a menü; vágás súgója csak a határidő"
-},
-{
-"id": "4c204aee53",
-"at": "2026-11-05T09:16:03+01:00",
-"msg": "Rövid, olvasható projektlinkek (#p=projektnev-xxxxxxxx); a régi linkek is működnek"
 }
 ]
 }
