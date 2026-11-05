@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "071ef01769",
+"at": "2026-11-05T08:51:49+01:00",
+"msg": "A vágó az Utómunkát a Videók jóváhagyásra várnak lépésre húzhatja (leadás ablak)"
+},
+{
 "id": "9c77103fdc",
 "at": "2026-11-05T08:50:34+01:00",
 "msg": "A lépések pipája rámutatva nem világosodik ki (csak jelzés)"
@@ -146,13 +151,8 @@
 "msg": "Új design kipróbálása: fejléc gombbal ki-be kapcsolható (theme2.css, saját betűkészletek)"
 },
 {
-"id": "c5dc90ba9e",
-"at": "2026-11-04T22:16:21+01:00",
-"msg": "Csapat módosítása gomb halvány, hoverre teljes"
-},
-{
-"id": "ceee082fd5",
-"at": "2026-11-04T21:02:39Z",
+"id": "ba490b494b",
+"at": "2026-11-04T21:16:31Z",
 "msg": "Változásnapló frissítése"
 }
 ]
