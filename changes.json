@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "b885ffee34",
+"at": "2026-11-05T08:55:13+01:00",
+"msg": "Videók leadása gomb törölve (áthúzással megy); aktuális lépés márka-átmenettel"
+},
+{
 "id": "a0ee1fea1c",
 "at": "2026-11-05T08:54:19+01:00",
 "msg": "Stáb: a projektvezető kártyája visszafogottabb (nincs sárga keret, nincs Projektvezető gomb)"
@@ -146,13 +151,8 @@
 "msg": "Új design a weboldal színeiből: márka-átmenet, volfrám kiemelés, Montserrat"
 },
 {
-"id": "9452911d7d",
-"at": "2026-11-04T22:42:48+01:00",
-"msg": "Új design: fekete helyett lágyabb palakék"
-},
-{
-"id": "6189cef47c",
-"at": "2026-11-04T21:21:46Z",
+"id": "9258749baf",
+"at": "2026-11-04T21:42:59Z",
 "msg": "Változásnapló frissítése"
 }
 ]
