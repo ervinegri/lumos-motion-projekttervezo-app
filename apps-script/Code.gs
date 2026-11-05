@@ -1601,7 +1601,6 @@ function calPlan_(p) {
   const eqTxt = eqOrder.sort((a, b) => (a === '') - (b === '')).map(k => (k ? crewMap[k].name : 'Közös / még nincs kiosztva') + '\n' + eqBy[k].join('\n')).join('\n\n');
   const eqLines = eqTxt ? [eqTxt] : [];
   const lines = [];
-  if (p.status) lines.push('Állapot: ' + (STATUS_LABELS[p.status] || p.status));
   const rec = Object.keys(REC_LABELS).filter(k => p[k] === true && k !== 'er_creative').map(k => REC_LABELS[k] + (Number(p[k + '_n']) > 1 ? ' ×' + p[k + '_n'] : ''));
   if (Number(p.er_clips) > 0) rec.push(p.er_clips + ' kivágás');
   if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
@@ -1639,13 +1638,15 @@ function syncCalendar_(p) {
     const edit = p.eventType === 'Videóvágás';   // videóvágás: a Vágói naptárba, a projekt napjától a leadási határidőig (egész napos)
     if (ev && evCalId_(ev) !== calIdFor_(p)) { try { ev.deleteEvent(); } catch (e) {} ev = null; setCalId_(p.id, ''); p.calEventId = ''; }   // típusváltás: átkerül a másik naptárba
     const title = p.name;
-    const editEnd = edit && /^\d{4}-\d{2}-\d{2}$/.test(String(p.dueAt || '')) && p.dueAt > p.date ? p.dueAt : '';
+    const editDue = edit && /^\d{4}-\d{2}-\d{2}$/.test(String(p.dueAt || '')) ? p.dueAt : p.date, c0 = String(p.createdAt || '').slice(0, 10);
+    const editStart = edit && /^\d{4}-\d{2}-\d{2}$/.test(c0) && c0 < editDue ? c0 : (edit ? editDue : p.date);   // videóvágás: a felvételtől a leadásig (mint az app idővonalán)
+    const editEnd = edit && editDue > editStart ? editDue : '';
     const multi = edit ? !!editEnd : p.endDate && p.endDate > p.date;
     const plan = calPlan_(p);
     const lastDay = Utilities.parseDate((multi ? (edit ? editEnd : p.endDate) : p.date) + ' 12:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
     const dayAfter = new Date(lastDay.getTime() + 86400000);
     const timed = !edit && p.startTime && !multi;
-    const start = timed ? calDate_(p.date, p.startTime) : calDate_(p.date);
+    const start = timed ? calDate_(p.date, p.startTime) : calDate_(edit ? editStart : p.date);
     const end = timed ? new Date(start.getTime() + (Number(p.hours) || 8) * 3600000) : calDate_(Utilities.formatDate(dayAfter, SHEET_TZ, 'yyyy-MM-dd'));
     const allDay = !timed;
     if (!ev) {
