@@ -70,7 +70,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
     ${won?'':ms('dStage','Szakasz',stOpts,d.stage)}
     ${won?'':`<div class="field"><label for="m-dChance">Esély (%)</label><input class="inp" id="m-dChance" name="dChance" type="number" min="0" max="100" step="5" value="${dealChance(d)}"></div>`}
-    ${ms('dSource','Honnan jött? <span class="muted" style="font-weight:500;font-size:12px">– a HubSpotból, ha ott meg van adva</span>',DEAL_SOURCES,d.source||'',{empty:'—',cmb:'Honnan jött?…'})}
+    ${ms('dSource','Honnan jött? <span class="muted" style="font-weight:500;font-size:12px">– a HubSpotból</span>',DEAL_SOURCES,d.source||'',{empty:'—',cmb:'Honnan jött?…'})}
     ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
@@ -90,7 +90,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
       if(!nd.nextDate){toast('Add meg a következő lépés dátumát.',true);if(nn){fp(nn).style.borderColor='var(--bad)';fp(nn).focus();}return;}}
     if(nd.stage==='elveszett'&&nd.lostReason.length<3){toast('Írd be röviden, miért veszett el.',true);$('dl-lostf').hidden=false;$('m-dLost').focus();return;}
     try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;closeModal();render(true);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');if(!isNew)setTimeout(dNotesLoadHs,50);}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');if(!isNew)setTimeout(dNotesLoadHs,50);dSourceLoad(d.source||'');}
 
 function dealWinModal(d){
   openModal('✅ Szerződve – '+d.title,`<p style="margin:0 0 10px">Gratulálok! 🎉 Mentés után a lehetőségből <b>projekt</b> lesz a Tervezés szakaszban, és bekerül a naptárba. A projekt további részleteit (stáb, eszközök, díjak) a csapat kezeli.</p><div class="fields">
@@ -153,7 +153,12 @@ document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.
 /* Lehetőség ügyfele: csak a beírt szövegre illeszkedő ügyfelek jönnek fel (a böngésző saját, pontatlan listája helyett) */
 let DC_ITEMS=[],DC_SEQ=0,DC_T=0;
 /* „Honnan jött?” kitöltése a CRM-ből (HubSpot eredeti forrás / visszatérő ügyfél) – csak ha még üres */
-function dSourceSet(v){const sel=$('m-dSource');if(!sel||!v||sel.value||!DEAL_SOURCES.includes(v))return;sel.value=v;const inp=sel.parentElement&&sel.parentElement.querySelector('.cmb-in');if(inp)inp.value=v;sel.dispatchEvent(new Event('change',{bubbles:true}));toast('„Honnan jött?” kitöltve: '+v);}
+/* A „Honnan jött?” lehetőségei a HubSpotból (a CRM forrás-mezőjének értékei); hiba esetén marad az alap lista */
+let HS_SRC=null;
+function dSourceApply(cur){const sel=$('m-dSource');if(!sel||!HS_SRC||!HS_SRC.length)return;const L=HS_SRC.slice();if(cur&&!L.includes(cur))L.push(cur);
+  sel.innerHTML='<option value="">—</option>'+L.map(x=>`<option value="${esc(x)}"${x===cur?' selected':''}>${esc(x)}</option>`).join('');const inp=sel.parentElement&&sel.parentElement.querySelector('.cmb-in');if(inp)inp.value=cur||'';}
+function dSourceLoad(cur){if(HS_SRC){dSourceApply(cur);return;}call('hubspotSources').then(r=>{HS_SRC=r&&Array.isArray(r.options)?r.options.map(o=>o.label).filter(Boolean):[];const sel=$('m-dSource');if(sel)dSourceApply(sel.value||cur);}).catch(()=>{HS_SRC=[];});}
+function dSourceSet(v){const sel=$('m-dSource');if(!sel||!v||sel.value||![...sel.options].some(o=>o.value===v))return;sel.value=v;const inp=sel.parentElement&&sel.parentElement.querySelector('.cmb-in');if(inp)inp.value=v;sel.dispatchEvent(new Event('change',{bubbles:true}));toast('„Honnan jött?” kitöltve: '+v);}
 function dcRender(input,q,hs,loading){const fq=fold(q),loc=knownClients(q).sort((a,b)=>(fold(a.company).startsWith(fq)?0:1)-(fold(b.company).startsWith(fq)?0:1)).slice(0,6).map(c=>({company:c.company,sub:c.name||'',src:'app'}));
   const have=new Set(loc.map(x=>fold(x.company)));
   const fromHs=(hs||[]).filter(c=>!have.has(fold(c.name))).map(c=>({company:c.name,sub:[c.domain,c.city].filter(Boolean).join(' · '),src:'hs',address:c.address,source:c.source||'',deals:c.deals||0}));
