@@ -2961,7 +2961,7 @@ function penAmount_(p, x) {
 function penMailCrew_(u, p, x) {
   try {
     const c = readAll_('crew').find(r => r.id === x.crewId); if (!c || !c.email) return false;
-    const k = PEN_KINDS_[x.kind], amt = penAmount_(p, x), url = FRONTEND_URL + '/#p=' + p.id;
+    const k = PEN_KINDS_[x.kind], amt = penAmount_(p, x), url = projLink_(p);
     const lines = ['Kedves ' + c.name + '!', '', 'A(z) „' + p.name + '” projekten (' + (fmtHuDate_(p.date) || p.date || '') + ') a megbízási szerződés minőségi mellékletének ' + k.ref + ' pontja alapján díjcsökkentés történt.', '',
       'Kategória: ' + k.label + (x.kind === 'damage' ? '' : ' (' + x.pct + '%' + (x.day ? ', a ' + (fmtHuDate_(x.day) || x.day) + ' napi díjból' : '') + ')'), x.kind === 'damage' ? 'Kártérítés összege: ' + amt.toLocaleString('hu-HU') + ' Ft' : 'Levont összeg: ' + amt.toLocaleString('hu-HU') + ' Ft',
       x.caseText ? 'Eset: ' + x.caseText : '', '', 'Indoklás:', x.reason, '',
@@ -3006,7 +3006,7 @@ function addPenalty_(u, a) {
   logEvent_(u, 'Díjcsökkentés ' + (x.status === 'approved' ? 'kiróva' : 'javasolva'), r.p.name, crewName + ' · ' + k.label + (pct ? ' ' + pct + '%' : ' ' + amount + ' Ft'));
   let mailed = false;
   if (x.status === 'approved') mailed = penMailCrew_(u, r.p, x);
-  else penMailAdmins_(u, 'Jóváhagyásra vár: díjcsökkentés – ' + r.p.name, u.name + ' díjcsökkentést javasolt.\n\nProjekt: ' + r.p.name + '\nSzakember: ' + crewName + '\nKategória: ' + k.label + (pct ? ' (' + pct + '%)' : ' (' + amount + ' Ft)') + '\nIndoklás: ' + reason + '\n\nJóváhagyás az appban: ' + FRONTEND_URL + '/#p=' + r.p.id);
+  else penMailAdmins_(u, 'Jóváhagyásra vár: díjcsökkentés – ' + r.p.name, u.name + ' díjcsökkentést javasolt.\n\nProjekt: ' + r.p.name + '\nSzakember: ' + crewName + '\nKategória: ' + k.label + (pct ? ' (' + pct + '%)' : ' (' + amount + ' Ft)') + '\nIndoklás: ' + reason + '\n\nJóváhagyás az appban: ' + projLink_(r.p));
   return { penalties: r.list, mailed: mailed };
 }
 function decidePenalty_(u, a) {
@@ -3050,7 +3050,7 @@ function objectPenalty_(u, a) {
     x.objection = { text: text, at: now_() };
   });
   logEvent_(u, 'Díjcsökkentés kifogásolva', r.p.name, text.slice(0, 120));
-  penMailAdmins_(u, 'Kifogás: díjcsökkentés – ' + r.p.name, u.name + ' kifogást nyújtott be.\n\nProjekt: ' + r.p.name + '\nKategória: ' + PEN_KINDS_[x.kind].label + '\n\nKifogás:\n' + text + '\n\nMegnyitás: ' + FRONTEND_URL + '/#p=' + r.p.id);
+  penMailAdmins_(u, 'Kifogás: díjcsökkentés – ' + r.p.name, u.name + ' kifogást nyújtott be.\n\nProjekt: ' + r.p.name + '\nKategória: ' + PEN_KINDS_[x.kind].label + '\n\nKifogás:\n' + text + '\n\nMegnyitás: ' + projLink_(r.p));
   return { penalties: r.list.filter(i => i.crewId === u.crewId && i.status === 'approved') };
 }
 
@@ -3702,6 +3702,9 @@ function newUserRecord_(name, role, crewId, email) {
 }
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
+/* Rövid, olvasható projektlink: …/#p=ecommerce-expo-promo-shortok-d3f68107 (a név + az azonosító első 8 karaktere) */
+function projSlug_(p) { const n = String((p && p.name) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48).replace(/-+$/, ''); return (n ? n + '-' : '') + String((p && p.id) || '').slice(0, 8); }
+function projLink_(p) { return FRONTEND_URL.replace(/\/$/, '') + '/#p=' + projSlug_(p); }
 /* Személyes e-mail-aláírások (a küldő e-mail-címe szerint): az ügyvezető és a termelési vezetők a Beállítások → Hozzáférések
    alatt szerkesztik (beosztás, telefon, fotó). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
 const SIG_PROPERTY = 'LUMOS_PM_SIGS';
@@ -3828,7 +3831,7 @@ function crewDeliver_(u, a) {
   });
   const to = []; try { loadUsers_().forEach(x => { if (!x.disabled && x.email && notify.indexOf(x.role) >= 0 && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
-    const url = (appUrl_() || FRONTEND_URL) + '#p=' + pid, note = str_(a.note, 3000);
+    const url = projLink_(p), note = str_(a.note, 3000);
     let text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const custom = sigSanitize_(String(a.html || ''), 30000);   // a vágó a leadás ablakában átírhatta a levelet

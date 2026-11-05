@@ -185,6 +185,10 @@ function timeWin(p){const m=/^(\d{2}):(\d{2})$/.exec(p.startTime||'');if(!m)retu
 /* Két projekt ütközik-e: átfedő napok, de ugyanazon a napon (mindkettő egynapos) a délelőtti és a délutáni munka nem ütközik. */
 /* Ugyanaz a helyszín: a szakember egy nap több munkát is vállalhat ugyanott – nem ütközés, és helyszínváltás sincs */
 const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');   // ékezet nélküli kereséshez (á=a, ő=o …)
+/* Rövid, olvasható projektlink: #p=ecommerce-expo-promo-shortok-d3f68107 – a régi (teljes azonosítós) linkek is működnek */
+const projSlug=p=>{const n=fold(p&&p.name).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48).replace(/-+$/,'');return (n?n+'-':'')+String((p&&p.id)||'').slice(0,8);};
+const HASH_P=/^#p=([A-Za-z0-9-]{8,120})$/;
+function projFromHash(x){x=String(x||'');if(!x)return null;const p0=(S.projects||[]).find(p=>p.id===x);if(p0)return p0;x=x.toLowerCase();return (S.projects||[]).find(p=>{const k=String(p.id).slice(0,8).toLowerCase();return k.length===8&&(x===k||x.endsWith('-'+k));})||null;}
 const fhas=(hay,q)=>fold(hay).includes(fold(q));
 const venueKey=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 function sameVenue(p,q){const a=venueKey(p&&p.venue);return !!a&&a===venueKey(q&&q.venue);}

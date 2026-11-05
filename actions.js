@@ -657,7 +657,7 @@ function cdPreview(p){const body=$('cdPrevBody'),meta=$('cdPrevMeta'),f=$('mform
   meta.innerHTML=`<div><span>Címzett:</span> ${roles.length?toTxt:'<span class="bad-txt">senki – jelölj ki legalább egyet</span>'}</div><div><span>Feladó:</span> ${esc(who)} · Lumos Motion <span class="muted">(az app címéről; a válasz ${esc(who)} címére megy)</span></div><div><span>Tárgy:</span> <b>📤 Videók leadva – ${esc(p.name||'')}</b></div>`;
   const lines=[esc(who)+' leadta a(z) „'+esc(p.name||'')+'” videóit – jóváhagyásra várnak.','','Videók: '+(links.length?links.map(l=>`<a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('<br>'):'<span class="muted">(még nincs link)</span>')];
   if(pass)lines.push('Jelszó: '+esc(pass));
-  lines.push('','Projekt: <a href="#" onclick="return false">'+esc(location.origin+'/#p='+p.id)+'</a>');
+  lines.push('','Projekt: <a href="#" onclick="return false">'+esc(location.origin+'/#p='+projSlug(p))+'</a>');
   if(!CD_EDITED)body.innerHTML=lines.join('<br>');}
 /* Díjösszesítő előnézet: szerkeszthető, a módosítás csak annak az egy levélnek szól */
 async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return;const k=month+'|'+cid,c=crewById(cid);S._payEdit=S._payEdit||{};
@@ -1736,9 +1736,9 @@ function searchingHtml(t){return `<div class="sz-searching"><span class="sz-rada
 
 /* Ctrl/⌘/Shift + kattintás vagy középső gomb: a projekt / fül megnyitása új lapon */
 function actHref(el){const a=el&&el.dataset&&el.dataset.action;if(!a)return null;
-  if(a==='open-project'&&el.dataset.id)return '#p='+encodeURIComponent(el.dataset.id);
+  if(a==='open-project'&&el.dataset.id)return '#p='+projSlug(projById(el.dataset.id)||{id:el.dataset.id});
   if(a==='tab'&&el.dataset.tab)return '#t='+encodeURIComponent(el.dataset.tab);
-  if(a==='pen-open'&&el.dataset.pid)return '#p='+encodeURIComponent(el.dataset.pid);
+  if(a==='pen-open'&&el.dataset.pid)return '#p='+projSlug(projById(el.dataset.pid)||{id:el.dataset.pid});
   return null;}
 function openNewTab(e){const el=e.target.closest&&e.target.closest('[data-action]'),h=actHref(el);if(!h)return false;e.preventDefault();e.stopImmediatePropagation();window.open(location.pathname+location.search+h,'_blank','noopener');return true;}
 document.addEventListener('click',e=>{if(e.ctrlKey||e.metaKey||e.shiftKey)openNewTab(e);},true);

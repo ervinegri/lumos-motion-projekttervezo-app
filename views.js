@@ -49,8 +49,8 @@ function bootFromCache(){
     if(Date.now()-c.at>7*864e5)return false;
     const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
-    const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');
-    if(hm&&projById(hm[1])){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
+    const hm=HASH_P.exec(location.hash||''),hp=hm&&projFromHash(hm[1]);
+    if(hp){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
     if(!TABS().some(t=>t.id===S.tab))S.tab=TABS()[0].id;
     render(true);restoreScroll();return true;
@@ -73,8 +73,8 @@ async function load(quiet,announce,pre){
     if(((S.tab==='penzugy'||S.tab==='szerzodes')&&!isAdmin())||(S.tab==='beallitasok'&&ro()))S.tab='projektek';
     if(S.me&&S.me.role==='admin'&&S.capabilities&&S.capabilities.finance)finLoad(!!S.fin);else{S.fin=null;try{localStorage.removeItem('lumos_pm_fin_v1');}catch(e){}}   // az ügyvezetőnek előre betöltjük (gyorsítótárból azonnal, a friss adat a háttérben)   // a pénzügyi adatok frissítése
     if((S.tab==='stab'||S.tab==='leltar'||S.tab==='ugyfelek')&&ro())S.tab='projektek';
-    const hm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(location.hash||'');   // projektlink (naptáreseményből vagy frissítés után)
-    if(hm&&!S.dirty&&projById(hm[1])&&S.projectId!==hm[1]){S.tab='projektek';S.projectId=hm[1];S.draft=prepDraft(projById(hm[1]));S.draftBase=clone(S.draft);}
+    const hm=HASH_P.exec(location.hash||''),hp=hm&&projFromHash(hm[1]);   // projektlink (naptáreseményből, levélből vagy frissítés után)
+    if(hp&&!S.dirty&&S.projectId!==hp.id){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
     if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
     render(true);restoreScroll();if(announce)toast('Adatok frissítve');
@@ -150,14 +150,14 @@ function renderChrome(){if(S.dirty&&S.saving<=0&&!draftChanged())S.dirty=false;
 const ZB_SKIP=/(^|\s)(sep-row|pt-month|pt-group|grp|bill-month|pt-today-row)(\s|$)/;
 function zebra(root){(root||document).querySelectorAll('table tbody').forEach(tb=>{let n=0;[...tb.rows].forEach(r=>{if(ZB_SKIP.test(r.className)){n=0;return;}r.classList.toggle('zb',n%2===1);r.classList.toggle('zw',n%2===0);n++;});});}
 /* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
-function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+S.projectId:S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
+function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+projSlug(projById(S.projectId)||{id:S.projectId}):S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
 function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
 /* Böngésző vissza/előre: az előző nézetre (fül vagy projekt) lépünk; a folyamatban lévő módosítás előtte elmentődik. */
 window.addEventListener('popstate',()=>{if(!S.me||!S.loaded)return;
   if(document.querySelector('#modalRoot .mbox')){try{history.pushState(null,'',location.pathname+location.search+wantedHash());}catch(e){}return;}   // nyitott felugró ablak alatt nincs vissza / előre lapozás
   const h=location.hash||'';
-  const go=()=>{const pm=/^#p=([A-Za-z0-9-]{8,64})$/.exec(h),tm=/^#t=([a-z]+)$/.exec(h);
-    if(pm&&projById(pm[1])){S.tab='projektek';S.projectId=pm[1];S.draft=prepDraft(projById(pm[1]));S.draftBase=clone(S.draft);}
+  const go=()=>{const pm=HASH_P.exec(h),tm=/^#t=([a-z]+)$/.exec(h),pp=pm&&projFromHash(pm[1]);
+    if(pp){S.tab='projektek';S.projectId=pp.id;S.draft=prepDraft(pp);S.draftBase=clone(S.draft);}
     else{S.projectId=null;S.draft=null;S.tab=tm&&TABS().some(t=>t.id===tm[1])?tm[1]:'projektek';}
     const was=S._histReady;S._histReady=false;render(true);S._histReady=was;scrollTo(0,0);};
   if(typeof guard==='function')guard(go,()=>{S._histReady=true;syncHash();});else go();});
