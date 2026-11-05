@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "833c12a2c6",
+"at": "2026-11-05T09:36:23+01:00",
+"msg": "Belépés: a kártya csak a betűk és a Google-gomb betöltése után, lágy beúszással jelenik meg"
+},
+{
 "id": "f06906d231",
 "at": "2026-11-05T09:34:14+01:00",
 "msg": "Leadás: X a további linkeken, címzettek betöltése pörgővel"
@@ -149,11 +154,6 @@
 "id": "1930d177e7",
 "at": "2026-11-04T23:25:44+01:00",
 "msg": "Új design: kifizetések sorcímkéi a projektnevekkel azonos vastagságúak"
-},
-{
-"id": "df6a52f1b6",
-"at": "2026-11-04T23:24:51+01:00",
-"msg": "Díjösszesítő újraküldésénél figyelmeztetés, hogy már ki lett küldve"
 }
 ]
 }
