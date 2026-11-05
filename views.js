@@ -1149,7 +1149,8 @@ function calTimeline(m,items0,T){
   const seen=new Set(rows.filter(it=>it.kind==='p').map(it=>it.id));
   S.projects.forEach(p=>{if(seen.has(p.id))return;const c=cutOf(p),q=pr(p);if(!c||c.due<first||c.st>last)return;   // a vágás ide esik, a forgatás korábban volt
     rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&!crewOnSite(p,me))});});
-  rows.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
+  const vis=it=>{const p=it.kind==='p'?projById(it.id):null,c=p&&cutOf(p);return p&&editOnly(p)&&c?c.st:(c&&c.st<it.date?c.st:it.date);};   // a sorrend a sáv látható kezdete szerint (videóvágásnál a vágás eleje)
+  rows.sort((a,b)=>vis(a).localeCompare(vis(b))||(a.time||'99').localeCompare(b.time||'99'));
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const MN=d=>F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();
   const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}${d.slice(8)==='01'?' mstart':''}${d.slice(0,7)!==m?' oth':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
