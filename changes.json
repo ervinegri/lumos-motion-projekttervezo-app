@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "597fc15ea5",
+"at": "2026-11-05T09:07:51+01:00",
+"msg": "Idővonal: a vágás infója azonnal megjelenik (azonnali súgó)"
+},
+{
 "id": "cf7ba88951",
 "at": "2026-11-05T09:05:21+01:00",
 "msg": "Videók leadása: élő előnézet az értesítő e-mailről"
@@ -146,13 +151,8 @@
 "msg": "Kifizetésre váró számla: vastag sárga keret"
 },
 {
-"id": "0e917f1b47",
-"at": "2026-11-04T23:03:41+01:00",
-"msg": "Új design: a naptár projekt-sávjai pára-kékek"
-},
-{
-"id": "6b0c225edf",
-"at": "2026-11-04T22:02:43Z",
+"id": "d98f99ad23",
+"at": "2026-11-04T22:03:53Z",
 "msg": "Változásnapló frissítése"
 }
 ]
