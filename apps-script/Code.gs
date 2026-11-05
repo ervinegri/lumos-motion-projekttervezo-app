@@ -3835,13 +3835,14 @@ function crewDeliver_(u, a) {
   if (to.length) {
     const url = projLink_(p), note = str_(a.note, 3000);
     const first = (w => w.length > 1 ? w[w.length - 1] : String(u.name || ''))(String(u.name || '').trim().split(/\s+/));   // csak a keresztnév: Fodor Kata → Kata
-    let text = first + ' elkészítette a(z) „' + p.name + '” videóit - jóváhagyásra várnak.' + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
+    const one = a.single === true;   // egyetlen videó: egyes szám
+    let text = first + ' elkészítette a(z) „' + p.name + (one ? '” videóját - jóváhagyásra vár.' : '” videóit - jóváhagyásra várnak.') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\n' + (one ? 'Videó: ' : 'Videók: ') + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const custom = sigSanitize_(String(a.html || ''), 30000);   // a vágó a leadás ablakában átírhatta a levelet
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
     if (custom) text = plainText_(custom);
     const opts = mailOptsFor_(u, html); delete opts.__actor;
-    try { GmailApp.sendEmail(to.join(','), '📤 Videók leadva – ' + p.name, text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
+    try { GmailApp.sendEmail(to.join(','), '📤 ' + (a.single === true ? 'Videó' : 'Videók') + ' leadva – ' + p.name, text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
   }
   logEvent_(u, 'Videók leadva', p.name, link + (to.length ? ' · értesítve: ' + to.join(', ') : ''));
   return { project: projectView_(fullProject_(p), u), notified: to };
