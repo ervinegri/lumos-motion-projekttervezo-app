@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9f08cbdfbe",
+"at": "2026-11-05T08:59:33+01:00",
+"msg": "Idővonal: rövidebb átmenet a forgatási nap és a vágás között"
+},
+{
 "id": "bba0a40df8",
 "at": "2026-11-05T08:57:51+01:00",
 "msg": "Idővonal: a vágás sávjára mutatva látszik, milyen videókat kell elkészíteni"
@@ -146,13 +151,8 @@
 "msg": "Új design: a régi zöld árnyalatok kékes-szürkén (generált felülírás), átmenetes gombok széle javítva"
 },
 {
-"id": "dfd55d77f7",
-"at": "2026-11-04T22:54:46+01:00",
-"msg": "Új design: kiegyensúlyozottabb címméretek (oldalcím, összegek, hónapválasztó)"
-},
-{
-"id": "2c2d0d65f7",
-"at": "2026-11-04T21:53:16Z",
+"id": "62556f6b08",
+"at": "2026-11-04T21:54:55Z",
 "msg": "Változásnapló frissítése"
 }
 ]
