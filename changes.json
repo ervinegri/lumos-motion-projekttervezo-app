@@ -1,6 +1,16 @@
 {
 "items": [
 {
+"id": "4c0a668a1a",
+"at": "2026-11-05T09:21:32+01:00",
+"msg": "Idővonal: függőlegesen tovább görget az oldalra (vissza lehet menni az oldal tetejére)"
+},
+{
+"id": "63e4289b1f",
+"at": "2026-11-05T09:21:31+01:00",
+"msg": "Naptárbejegyzés: nincs Állapot sor; videóvágás a felvételtől a határidőig"
+},
+{
 "id": "60af718d86",
 "at": "2026-11-05T09:19:07+01:00",
 "msg": "Leadás: pipálható címzettek névvel és e-maillel; inkognitóban nem villan fel a menü; vágás súgója csak a határidő"
@@ -144,16 +154,6 @@
 "id": "84855e5571",
 "at": "2026-11-04T23:15:19+01:00",
 "msg": "Új design: nagyobb Összesen és Egyenleg sor a kifizetéseknél"
-},
-{
-"id": "7ab401c3b4",
-"at": "2026-11-04T23:14:49+01:00",
-"msg": "Új design: összesen sor enyhén vastagabb"
-},
-{
-"id": "dee53810dc",
-"at": "2026-11-04T22:13:31Z",
-"msg": "Változásnapló frissítése"
 }
 ]
 }
