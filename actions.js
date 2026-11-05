@@ -2034,6 +2034,7 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
   document.addEventListener('dragend',()=>{from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));});
   document.addEventListener('dragover',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');document.querySelectorAll('.stage.drop-hi').forEach(x=>{if(x!==t)x.classList.remove('drop-hi');});if(!t)return;e.preventDefault();t.classList.add('drop-hi');});
   document.addEventListener('drop',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');const cur=from;from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));if(!t)return;e.preventDefault();
+    if(ro()){if(t.dataset.v==='jovahagyas'&&cur==='utomunka')cutDeliverModal();return;}   // vágó: a leadás ablaka (link + értesítés)
     const d=S.draft;if(!d||ro())return;const ids=[...document.querySelectorAll('.stages .stage[data-v]')].map(x=>x.dataset.v),ci=ids.indexOf(cur),ti=ids.indexOf(t.dataset.v);if(ti<=ci)return;
     const done=new Set(String(d.stepsDone||'').split(',').filter(Boolean)),TK=['tervezes','helyszin','utomunka','jovahagyas'];
     if(ti===ci+1&&TK.includes(cur)&&!done.has(cur))ACT['step-done']({dataset:{v:cur}});   // a következő lépésre: mintha kipipálnád (a beszámoló, nyersanyag-levél stb. ugyanúgy feljön)
