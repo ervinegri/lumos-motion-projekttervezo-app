@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5bd7f002f3",
+"at": "2026-11-05T09:41:07+01:00",
+"msg": "Videóvágás: nincs helyszíni beszámoló sáv, és az utómunka helyszíni munka nélkül léptethető"
+},
+{
 "id": "7ea839b648",
 "at": "2026-11-05T09:40:04+01:00",
 "msg": "Belépés után az app betöltés végén lágyan tűnik elő (nincs ugrálás)"
@@ -149,11 +154,6 @@
 "id": "4a61b28c35",
 "at": "2026-11-05T08:49:34+01:00",
 "msg": "Idővonal: a vágás sávján a hátralévő napok a mai naptól; a még le nem forgatott projekt vágása halvány; átmenet javítva"
-},
-{
-"id": "5926f48816",
-"at": "2026-11-05T08:46:44+01:00",
-"msg": "Videóvágás: nincs Helyszíni munka lépés – véglegesítés után rögtön Utómunka; a beragadt projektek átkerülnek"
 }
 ]
 }
