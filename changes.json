@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "bba0a40df8",
+"at": "2026-11-05T08:57:51+01:00",
+"msg": "Idővonal: a vágás sávjára mutatva látszik, milyen videókat kell elkészíteni"
+},
+{
 "id": "5045e4105f",
 "at": "2026-11-05T08:56:33+01:00",
 "msg": "Idővonal: a még le nem forgatott vágás halvány lila, szép átmenettel"
@@ -146,13 +151,8 @@
 "msg": "Új design: kiegyensúlyozottabb címméretek (oldalcím, összegek, hónapválasztó)"
 },
 {
-"id": "8cb15d29b7",
-"at": "2026-11-04T22:53:05+01:00",
-"msg": "Új design: a menüpontok egy sorban maradnak"
-},
-{
-"id": "3863833f39",
-"at": "2026-11-04T21:50:35Z",
+"id": "2c2d0d65f7",
+"at": "2026-11-04T21:53:16Z",
 "msg": "Változásnapló frissítése"
 }
 ]
