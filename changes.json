@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "92113290cd",
+"at": "2026-11-05T09:51:01+01:00",
+"msg": "Leadás: határidő-tartás pipa helyett automatikus; a vágó ablakában is látszanak az átadandó anyagok"
+},
+{
 "id": "b416b9e6c4",
 "at": "2026-11-05T09:49:28+01:00",
 "msg": "Belépés után nem villan fel a menüsáv: az oldal rejtve marad a betöltés végéig"
@@ -149,11 +154,6 @@
 "id": "5045e4105f",
 "at": "2026-11-05T08:56:33+01:00",
 "msg": "Idővonal: a még le nem forgatott vágás halvány lila, szép átmenettel"
-},
-{
-"id": "388ff916f1",
-"at": "2026-11-05T08:55:39+01:00",
-"msg": "Projektvezető jelvény marad sárga"
 }
 ]
 }
