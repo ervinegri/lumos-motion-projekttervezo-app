@@ -11,7 +11,10 @@ function initGoogle(tries){
   if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else{$('loginForm').classList.add('lc-in');loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');}return;}
   gReady=true;
   google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
-  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:280});
+  const gw=Math.max(240,Math.min(400,(($('gBtn').closest('.login-card')||{}).clientWidth||360)-64));
+  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:gw});
+  /* a kártya bármely részére kattintva is indul a Google-belépés (a gombon kívül a Google saját belépőablaka jön fel) */
+  const card=$('gBtn').closest('.login-card');if(card&&!card.dataset.clk){card.dataset.clk='1';card.classList.add('lc-click');card.addEventListener('click',e=>{if(e.target.closest('#gBtn'))return;try{google.accounts.id.prompt();}catch(err){}});}
   loginReveal();
 }
 /* A belépő kártya csak akkor jelenik meg (lágy beúszással), amikor a betűk és a Google-gomb is betöltött – így nem ugrál */
