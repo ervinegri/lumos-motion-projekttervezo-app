@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7cf3a528bb",
+"at": "2026-11-05T11:04:28+01:00",
+"msg": "E-mail tárgyak emoji nélkül (a Gmail hibásan jelenítette meg)"
+},
+{
 "id": "b67d70ae05",
 "at": "2026-11-05T10:06:24+01:00",
 "msg": "Kifizetések: 'Számla fizetve' sor szürke, amíg a számla nincs kiállítva"
@@ -149,11 +154,6 @@
 "id": "cf7ba88951",
 "at": "2026-11-05T09:05:21+01:00",
 "msg": "Videók leadása: élő előnézet az értesítő e-mailről"
-},
-{
-"id": "4a0622d320",
-"at": "2026-11-05T09:03:59+01:00",
-"msg": "Idővonal: a sorok a sáv látható kezdete szerint (videóvágásnál a vágás eleje)"
 }
 ]
 }
