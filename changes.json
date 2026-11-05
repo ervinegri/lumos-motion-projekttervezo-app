@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "229c2bbf18",
+"at": "2026-11-05T09:02:14+01:00",
+"msg": "Csak olvasható nézetben üres jegyzet helyén –; aktuális lépés kék kerettel"
+},
+{
 "id": "0afd748062",
 "at": "2026-11-05T09:01:13+01:00",
 "msg": "Az új design lett az egyetlen kinézet; a váltó gomb kikerült"
@@ -146,13 +151,8 @@
 "msg": "Új design: olvasható szakember-választó pirulák"
 },
 {
-"id": "0c3c2225b5",
-"at": "2026-11-04T22:59:22+01:00",
-"msg": "Új design: visszafogottabb betűsúlyok (a 750–900-as súlyok 600/700, félkövér 650)"
-},
-{
-"id": "c153e646a0",
-"at": "2026-11-04T21:57:53Z",
+"id": "1bed0e24e9",
+"at": "2026-11-04T21:59:32Z",
 "msg": "Változásnapló frissítése"
 }
 ]
