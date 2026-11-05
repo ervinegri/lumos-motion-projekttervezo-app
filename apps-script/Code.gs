@@ -3817,7 +3817,8 @@ function crewDeliver_(u, a) {
   const isCutter = readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó');
   if (u.role !== 'admin' && u.role !== 'editor' && !isCutter) throw new Error('Csak a projekt vágója adhatja le a videókat.');
   const notify = (Array.isArray(a.notify) ? a.notify : []).filter(x => x === 'admin' || x === 'editor');
-  if (!notify.length) throw new Error('Válaszd ki, kinek menjen értesítés.');
+  const pick = Array.isArray(a.emails) ? a.emails.map(x => String(x || '').trim().toLowerCase()).filter(Boolean) : null;   // a leadás ablakában kipipált címzettek
+  if (pick ? !pick.length : !notify.length) throw new Error('Válaszd ki, kinek menjen értesítés.');
   let p;
   withLock_(() => {
     const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
@@ -3829,7 +3830,7 @@ function crewDeliver_(u, a) {
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
     putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
   });
-  const to = []; try { loadUsers_().forEach(x => { if (!x.disabled && x.email && notify.indexOf(x.role) >= 0 && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
+  const to = []; try { loadUsers_().forEach(x => { if (x.disabled || !x.email || (x.role !== 'admin' && x.role !== 'editor')) return; const ok = pick ? pick.indexOf(String(x.email).toLowerCase()) >= 0 : notify.indexOf(x.role) >= 0; if (ok && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
     const url = projLink_(p), note = str_(a.note, 3000);
     let text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
