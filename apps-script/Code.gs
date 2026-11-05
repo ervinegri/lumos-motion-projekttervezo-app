@@ -3834,7 +3834,7 @@ function crewDeliver_(u, a) {
   const to = []; try { loadUsers_().forEach(x => { if (x.disabled || !x.email || (x.role !== 'admin' && x.role !== 'editor')) return; const ok = pick ? pick.indexOf(String(x.email).toLowerCase()) >= 0 : notify.indexOf(x.role) >= 0; if (ok && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
     const url = projLink_(p), note = str_(a.note, 3000);
-    let text = u.name + ' elkészítette a(z) „' + p.name + '” videóit – jóváhagyásra várnak.' + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
+    let text = (note ? 'Megjegyzés: ' + note + '\n\n' : '') + 'Videók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const custom = sigSanitize_(String(a.html || ''), 30000);   // a vágó a leadás ablakában átírhatta a levelet
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
