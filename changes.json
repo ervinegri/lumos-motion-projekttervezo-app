@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c1c1778ff3",
+"at": "2026-11-05T13:59:43+01:00",
+"msg": "Lehetőség jegyzetei: a HubSpot feladatai, e-mailjei, hívásai és megbeszélései is"
+},
+{
 "id": "f7f84aa1ba",
 "at": "2026-11-05T13:58:08+01:00",
 "msg": "Értékesítés kártya: a kapcsolattartó (e-mail) egy sorban, hosszúnál ...-tal"
@@ -146,14 +151,9 @@
 "msg": "Videók leadása: megjegyzés vissza, címzettek alapból nincsenek kipipálva, keresztnévvel; jelszó mező egy sorban"
 },
 {
-"id": "4c0a668a1a",
-"at": "2026-11-05T09:21:32+01:00",
-"msg": "Idővonal: függőlegesen tovább görget az oldalra (vissza lehet menni az oldal tetejére)"
-},
-{
-"id": "63e4289b1f",
-"at": "2026-11-05T09:21:31+01:00",
-"msg": "Naptárbejegyzés: nincs Állapot sor; videóvágás a felvételtől a határidőig"
+"id": "769301b72e",
+"at": "2026-11-05T08:21:46Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
