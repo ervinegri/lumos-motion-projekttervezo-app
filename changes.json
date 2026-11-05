@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4c204aee53",
+"at": "2026-11-05T09:16:03+01:00",
+"msg": "Rövid, olvasható projektlinkek (#p=projektnev-xxxxxxxx); a régi linkek is működnek"
+},
+{
 "id": "989b48131a",
 "at": "2026-11-05T09:13:23+01:00",
 "msg": "Videók leadása: kötelező link, jelszó az Újabb link mellett, Termelési vezető elöl, címzettek biztos betöltése"
@@ -146,13 +151,8 @@
 "msg": "Szerződés és számlázás: alcím törölve"
 },
 {
-"id": "e52a76bb95",
-"at": "2026-11-04T23:07:46+01:00",
-"msg": "Kifizetések táblázat lekerekített sarkai; lejárt számla piros háttér"
-},
-{
-"id": "a445337bb6",
-"at": "2026-11-04T22:05:47Z",
+"id": "3e8d4ec5df",
+"at": "2026-11-04T22:07:57Z",
 "msg": "Változásnapló frissítése"
 }
 ]
