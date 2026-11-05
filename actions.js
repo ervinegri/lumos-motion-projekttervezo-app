@@ -408,8 +408,8 @@ function newProjectModal(day,pre){
 function crewCompanies(){const m=new Map();(S.crew||[]).forEach(c=>{const n=String(c.company||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:c.vat||''});});
   (S.clients||[]).forEach(c=>{const n=String(c.name||'').trim();if(n&&!m.has(fold(n)))m.set(fold(n),{name:n,tax:c.tax||'',vat:''});});return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,'hu'));}
 /* Több elemet választó legördülő (pipákkal): a jelölőnégyzetek a formban maradnak, csak egy lenyíló panelben */
-function mselField(name,label,opts,sel,ph){const S2=new Set(sel||[]);return `<div class="field" id="f-${name}"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"${ph?` data-ph="${esc(ph)}"`:''}><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
-  <div class="msel-pop" hidden>${opts.map(o=>`<label><input type="checkbox" name="${name}" value="${esc(o)}"${S2.has(o)?' checked':''}>${esc(o)}</label>`).join('')}</div></div></div>`;}
+function mselField(name,label,opts,sel,ph,canAdd){const S2=new Set(sel||[]);return `<div class="field" id="f-${name}"><span class="lbl">${esc(label)}</span><div class="msel" data-msel="${name}"${ph?` data-ph="${esc(ph)}"`:''}${canAdd?' data-add="1"':''}><button type="button" class="inp msel-btn" data-action="msel" aria-haspopup="true"><span class="msel-v">${mselSum(opts.filter(o=>S2.has(o)),ph)}</span><span class="msel-car">▾</span></button>
+  <div class="msel-pop" hidden><input class="inp msel-q" type="text" autocomplete="off" placeholder="${canAdd?'Keresés, vagy írj be újat és nyomj Entert…':'Keresés…'}" aria-label="Keresés"><div class="msel-add" hidden></div>${opts.map(o=>`<label><input type="checkbox" name="${name}" value="${esc(o)}"${S2.has(o)?' checked':''}>${esc(o)}</label>`).join('')}</div></div></div>`;}
 function mselSum(a,ph){return a.length?a.map(x=>`<span class="msel-chip">${esc(x)}</span>`).join(''):`<span class="muted">${esc(ph||'Válassz…')}</span>`;}
 function crewModal(c){
   setTimeout(crewSalesToggle,0);
@@ -1115,7 +1115,7 @@ const ACT={
   'np-draft':b=>npDraft(b),
   'crew-co-lookup':async b=>{const t=$('m-tax'),co=$('m-company');const v=String((t&&t.value)||'').replace(/\D/g,'');if(v.length<8){toast('Írd be az adószámot (legalább az első 8 számjegyét), és abból betöltöm a cég nevét.',true);if(t)t.focus();return;}
     b.disabled=true;try{const r=await call('lookupTaxpayer',{tax:v});if(co&&r.name)co.value=r.name;toast('Cégnév betöltve: '+(r.name||''));}catch(e){handleErr(e);}finally{b.disabled=false;}},
-  'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);},
+  'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);if(open){const q=pop.querySelector('.msel-q');if(q){q.value='';pop.querySelectorAll('label').forEach(l=>{l.hidden=false;});const ad=pop.querySelector('.msel-add');if(ad)ad.hidden=true;setTimeout(()=>q.focus(),0);}}},
   'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
   'new-item':()=>itemModal(null),
@@ -2069,4 +2069,19 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
     const j=equipment.findIndex((x,k)=>x.itemId===src.itemId&&(x.crewId||'')===to);
     if(j>=0){equipment[j].qty=num(equipment[j].qty)+num(src.qty);equipment.splice(equipment.indexOf(src),1);}else src.crewId=to;
     setDraft({equipment});const it=itemById(src.itemId),who=to?(crewById(to)||{}).name:'a közös eszközökhöz';if(typeof toast==='function')toast(`${it?it.name:'Eszköz'} → ${who}`);});
+})();
+
+/* Több választós legördülő: gépeléssel szűr, és ahol engedett (data-add), Enterrel új elemet is fel lehet venni */
+(()=>{const lbls=w=>[...w.querySelectorAll('.msel-pop label')];
+  const filt=(w,q)=>{const fq=fold(q.trim());lbls(w).forEach(l=>{l.hidden=!!fq&&!fold(l.textContent).includes(fq);});const ad=w.querySelector('.msel-add');if(!ad)return;
+    const exact=lbls(w).some(l=>fold(l.textContent.trim())===fq);if(w.dataset.add&&fq&&!exact){ad.hidden=false;ad.innerHTML=`<button type="button" class="msel-addbtn">＋ „${esc(q.trim())}” hozzáadása</button>`;}else{ad.hidden=true;ad.innerHTML='';}};
+  const addNew=(w,q)=>{const v=q.trim();if(!v)return;const nm=w.dataset.msel,ex=lbls(w).find(l=>fold(l.textContent.trim())===fold(v));
+    if(ex){const cb=ex.querySelector('input');if(!cb.checked){cb.checked=true;cb.dispatchEvent(new Event('change',{bubbles:true}));}}
+    else{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" name="${esc(nm)}" value="${esc(v)}" checked>${esc(v)}`;w.querySelector('.msel-pop').appendChild(l);l.querySelector('input').dispatchEvent(new Event('change',{bubbles:true}));}
+    const qi=w.querySelector('.msel-q');qi.value='';filt(w,'');qi.focus();};
+  document.addEventListener('input',e=>{if(!e.target.classList||!e.target.classList.contains('msel-q'))return;filt(e.target.closest('.msel'),e.target.value);});
+  document.addEventListener('keydown',e=>{if(!e.target.classList||!e.target.classList.contains('msel-q'))return;const w=e.target.closest('.msel');
+    if(e.key==='Enter'){e.preventDefault();e.stopPropagation();const vis=lbls(w).filter(l=>!l.hidden);if(w.dataset.add)addNew(w,e.target.value);else if(vis.length===1){const cb=vis[0].querySelector('input');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));e.target.value='';filt(w,'');}}
+    else if(e.key==='Escape'){const pop=w.querySelector('.msel-pop');pop.hidden=true;w.classList.remove('open');}},true);
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.msel-addbtn');if(!b)return;e.preventDefault();const w=b.closest('.msel');addNew(w,w.querySelector('.msel-q').value);});
 })();
