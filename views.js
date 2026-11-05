@@ -26,7 +26,7 @@ async function onGoogleCredential(resp){
   try{
     const r=await gs('googleLogin',resp.credential);
     TOKEN=r.token;try{localStorage.setItem(TOKEN_KEY,TOKEN);}catch(err){}
-    $('loginGate').classList.add('hidden');document.documentElement.classList.remove('no-auth');loginMsg('');
+    $('loginGate').classList.add('hidden');document.documentElement.classList.add('booting');document.documentElement.classList.remove('no-auth');loginMsg('');
     await load();
   }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');}
 }
@@ -85,7 +85,7 @@ async function load(quiet,announce,pre){
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
     if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
     render(true);restoreScroll();if(announce)toast('Adatok frissítve');
-  }catch(e){if(!handleErr(e)&&!S.loaded)VIEW.innerHTML=`<div class="panel">${empty('Nem sikerült betölteni az adatokat: '+esc(errText(e)))}<div class="btns"><button class="btn primary" type="button" data-action="reload">Újrapróbálás</button></div></div>`;}
+  }catch(e){appReveal();if(!handleErr(e)&&!S.loaded)VIEW.innerHTML=`<div class="panel">${empty('Nem sikerült betölteni az adatokat: '+esc(errText(e)))}<div class="btns"><button class="btn primary" type="button" data-action="reload">Újrapróbálás</button></div></div>`;}
   finally{if(seq===S.loadSeq)S.loading=false;}
 }
 /* Automatikus frissítés (nincs „Frissítés” gomb): 15 mp-enként egy olcsó verziókérdés; ha valaki közben módosított, csendben újratöltünk.
@@ -181,7 +181,8 @@ function anchorKey(t){const el=t&&t.closest&&t.closest('[data-fold],section[id],
 function anchorFix(){const a=ANCHOR;if(!a||Date.now()-a.at>1500)return;const fix=()=>{if(ANCHOR!==a)return;const el=VIEW.querySelector(a.k);if(!el)return;const d=el.getBoundingClientRect().top-a.top;if(Math.abs(d)>1)scrollBy(0,d);};
   fix();requestAnimationFrame(()=>{fix();requestAnimationFrame(fix);});setTimeout(fix,60);setTimeout(fix,250);}
 const IS_MAC=typeof navigator!=='undefined'&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||''),KBD_SAVE=IS_MAC?'⌘S':'Ctrl+S',KBD_UNDO=IS_MAC?'⌘Z':'Ctrl+Z';   // gyorsbillentyű felirata a géphez igazítva
-function render(force){
+function appReveal(){const h=document.documentElement;if(h.classList.contains('booting'))requestAnimationFrame(()=>h.classList.remove('booting'));}
+function render(force){setTimeout(appReveal,0);
   if(!S.me)return;
   document.body.classList.toggle('proj-locked',projLocked());
   const ae=document.activeElement;
