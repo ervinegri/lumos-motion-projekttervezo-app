@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8ccfd20f3f",
+"at": "2026-11-05T08:32:51+01:00",
+"msg": "Videóvágás csapata naptárbejegyzés nélkül is véglegesíthető; kifizetések sorcímkéi nagyobbak"
+},
+{
 "id": "1930d177e7",
 "at": "2026-11-04T23:25:44+01:00",
 "msg": "Új design: kifizetések sorcímkéi a projektnevekkel azonos vastagságúak"
@@ -146,13 +151,8 @@
 "msg": "Lépések áthúzással, Kész pipa; több kreatív kamera véglegesített csapatnál is"
 },
 {
-"id": "4899f9a852",
-"at": "2026-11-04T21:52:12+01:00",
-"msg": "Lépések: a kipipált (inaktív) pipa hoverre nem nagyobbodik"
-},
-{
-"id": "562380e5d9",
-"at": "2026-11-04T20:48:43Z",
+"id": "d233b038c8",
+"at": "2026-11-04T20:52:22Z",
 "msg": "Változásnapló frissítése"
 }
 ]
