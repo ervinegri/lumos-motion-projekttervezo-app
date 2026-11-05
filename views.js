@@ -995,7 +995,7 @@ function viewProject(p){
     return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
       <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'}</h3></summary>${financePanel(p,true)}</details>`;})()
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
-  ${ro()&&p.myFee&&num(p.myFee.amount)?myFeePanel(p):''}`;
+  ${ro()&&p.myFee&&num(p.myFee.amount)&&(p.penalties||[]).some(x=>x.crewId===(S.me&&S.me.crewId))?myFeePanel(p):''}`;   // a díj a Kifizetések fülön látszik; itt csak díjcsökkentésnél (a kifogás miatt)
 }
 
 /* ===== Stáb ===== */
