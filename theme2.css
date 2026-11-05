@@ -267,7 +267,7 @@ html.th2 .view-as option{color:#101923}
 html.th2 .panel{border-radius:12px;border-color:var(--line);box-shadow:var(--shadow)}
 html.th2 .pcrew{border-color:var(--line);border-radius:10px}
 
-html.th2 .lead-badge{background:#e8eef3;color:var(--fg-2)}
+html.th2 .lead-badge{background:var(--grad-brand);background-origin:border-box;border-color:transparent;color:var(--tungsten-ink)}
 /* gombok: elsődleges = márka-átmenet, pirula forma (mint a weboldalon az „Ajánlatot kérek”) */
 html.th2 .btn{border-radius:999px;font-weight:600}
 html.th2 .btn.primary{background:var(--grad-brand);color:var(--tungsten-ink);font-weight:700}
