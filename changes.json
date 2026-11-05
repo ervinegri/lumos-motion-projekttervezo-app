@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ce27215e2a",
+"at": "2026-11-05T09:56:26+01:00",
+"msg": "Leadás: egy videónál egyes szám; jelszó mező a sorban marad"
+},
+{
 "id": "c1ec6fcc40",
 "at": "2026-11-05T09:53:58+01:00",
 "msg": "Leadási e-mail: 'Kata elkészítette a(z) … videóit - jóváhagyásra várnak.'"
@@ -149,11 +154,6 @@
 "id": "e73776bd20",
 "at": "2026-11-05T09:00:23+01:00",
 "msg": "Új design: keret az aktuális lépés kártyáján"
-},
-{
-"id": "9f08cbdfbe",
-"at": "2026-11-05T08:59:33+01:00",
-"msg": "Idővonal: rövidebb átmenet a forgatási nap és a vágás között"
 }
 ]
 }
