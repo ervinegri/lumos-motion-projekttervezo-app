@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "fd54cc7cf4",
+"at": "2026-11-05T09:26:02+01:00",
+"msg": "Idővonal: a még le nem forgatott projekt vágásán nincs napszám"
+},
+{
 "id": "1643a028b9",
 "at": "2026-11-05T09:24:10+01:00",
 "msg": "Videók leadása: megjegyzés vissza, címzettek alapból nincsenek kipipálva, keresztnévvel; jelszó mező egy sorban"
@@ -149,11 +154,6 @@
 "id": "51de7a6f66",
 "at": "2026-11-04T23:20:29+01:00",
 "msg": "Új design: szép átmenet a forgatási nap és a vágás között az idővonalon"
-},
-{
-"id": "b9c5ae3264",
-"at": "2026-11-04T23:17:12+01:00",
-"msg": "Új design: Összesen és Egyenleg sor nagyobb helyett vastagabb"
 }
 ]
 }
