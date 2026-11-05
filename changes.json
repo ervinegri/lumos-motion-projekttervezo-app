@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "cf7ba88951",
+"at": "2026-11-05T09:05:21+01:00",
+"msg": "Videók leadása: élő előnézet az értesítő e-mailről"
+},
+{
 "id": "4a0622d320",
 "at": "2026-11-05T09:03:59+01:00",
 "msg": "Idővonal: a sorok a sáv látható kezdete szerint (videóvágásnál a vágás eleje)"
@@ -146,13 +151,8 @@
 "msg": "Új design: a naptár projekt-sávjai pára-kékek"
 },
 {
-"id": "8733285c1c",
-"at": "2026-11-04T23:02:25+01:00",
-"msg": "Lejárt számla kártyája feltűnőbb: vastag piros keret"
-},
-{
-"id": "4d7b31e940",
-"at": "2026-11-04T22:01:27Z",
+"id": "6b0c225edf",
+"at": "2026-11-04T22:02:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
