@@ -330,7 +330,7 @@ html.th2 .pay-sheet tr.pay-ret td .muted{font-weight:500}
 /* idővonal: a forgatási nap (kék) lágyan, barna sáv nélkül olvad át a vágásba (lila) */
 html.th2{--violet:#6a5bb3}
 html.th2 .cal-chip.p.st-helyszin,html.th2 .cal-chip.p.st-tervezes{background:var(--cal-p)}
-html.th2 .cal-chip.p.cut.tl-cut.tl-joined{background:linear-gradient(90deg,var(--cal-p) 0,var(--violet) 40px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,var(--violet) 40px)!important}
+html.th2 .cal-chip.p.cut.tl-cut.tl-joined{background:linear-gradient(90deg,var(--cal-p) 0,var(--violet) 10px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,var(--violet) 10px)!important}
 /* sehol ne legyen 700-nál vastagabb betű; a sorcímkék (Díjösszesítő kiküldve, Kifizetve…) 600 */
 html.th2 .pay-sheet tr.pay-strow td:first-child,html.th2 .pay-sheet tr.pay-strow td:first-child b,html.th2 .pay-sheet tfoot td:first-child,html.th2 .pay-sheet tfoot td:first-child b,html.th2 .pay-sheet tr.pay-ret td:first-child,html.th2 .pay-sheet tr.pay-ret td:first-child b{font-weight:650}
 /* kifizetések: a Díjösszesítő / Számla / Kifizetve sorcímkék ugyanakkorák, mint a projektnevek */
@@ -342,4 +342,4 @@ html.th2 .stage.cur .t{color:var(--tungsten-ink)}
 html.th2 .stage.cur+.stage-tick,html.th2 .stage.cur+.stage-tick.stage-handle{color:var(--tungsten-ink);border-color:rgba(27,15,0,.35)}
 html.th2 .stage.cur+.stage-tick.stage-handle{border:0}
 /* még le nem forgatott projekt vágása: halvány lila, a kék forgatási napból lágyan átmenve */
-html.th2 .cal-chip.p.cut.tl-cut.tl-joined.cut-pending{background:linear-gradient(90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 44px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 44px)!important}
+html.th2 .cal-chip.p.cut.tl-cut.tl-joined.cut-pending{background:linear-gradient(90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important}
