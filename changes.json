@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5926f48816",
+"at": "2026-11-05T08:46:44+01:00",
+"msg": "Videóvágás: nincs Helyszíni munka lépés – véglegesítés után rögtön Utómunka; a beragadt projektek átkerülnek"
+},
+{
 "id": "ec03a7e5e0",
 "at": "2026-11-05T08:39:38+01:00",
 "msg": "Videóvágás projekt a Vágói naptárba kerül (projekt napjától a leadási határidőig), a csapat vendégként"
@@ -146,13 +151,8 @@
 "msg": "Aktuális lépésen ⠿ fogantyú a pipa helyén; kreatív kamera hozzáadása csak véglegesítés előtt"
 },
 {
-"id": "67dd453191",
-"at": "2026-11-04T21:57:56+01:00",
-"msg": "Előzmények: a beosztás-módosítás részletesen (ki került be/ki, milyen eszköz, projektvezető neve)"
-},
-{
-"id": "f96f2b13ab",
-"at": "2026-11-04T20:56:48Z",
+"id": "e08ee172b6",
+"at": "2026-11-04T20:58:06Z",
 "msg": "Változásnapló frissítése"
 }
 ]
