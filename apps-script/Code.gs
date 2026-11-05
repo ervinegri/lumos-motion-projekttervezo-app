@@ -941,10 +941,10 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
   const text = ['Kedves ' + first + ',', '', intro].concat(note ? ['', note] : []).concat([''])   // megszólítás → bevezető → megjegyzés → beosztás   // a megjegyzés rögtön a megszólítás után
-    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(['', 'Részletek a naptárbejegyzésben: ' + link, '', sigText]).join('\n');
+    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(link ? ['', 'Részletek a naptárbejegyzésben: ' + link] : []).concat(['', sigText]).join('\n');
   const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<table cellpadding="4" style="border-collapse:collapse">'
     + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
-    + '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' + sigHtml;
+    + (link ? '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' : '') + sigHtml;
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
   return { subject: subj, text: text, html: html };
 }
@@ -969,7 +969,7 @@ function crewFinalPreview_(u, a) {
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
   return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email) && !isSelf_(u, m)).map(m => {
     const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && sigCore_(prev.sigs[m.id]) !== sigCore_(crewSig_(p, m.id));   // eszközváltozás nem csapatmódosítás (külön eszközlista)
-    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
+    const b = crewFinalBuild_(p, m, lead, link || (p.eventType === 'Videóvágás' ? '' : 'https://calendar.google.com/'), changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });
 }
@@ -1018,17 +1018,18 @@ function finalizeCrew_(u, a) {
   const members = crewMembers_(p);
   if (!members.length) throw new Error('Még nincs beosztva senki a projektre.');
   p = syncCalendar_(p);   // az esemény biztosan létezzen
-  const ev = calEvent_(p.calEventId); if (!ev) throw new Error('A naptárbejegyzést nem sikerült létrehozni. Próbáld újra.');
+  const noCal = p.eventType === 'Videóvágás';   // videóvágás: nincs terepi naptárbejegyzés – a csapat naptár nélkül véglegesíthető
+  const ev = noCal ? null : calEvent_(p.calEventId); if (!ev && !noCal) throw new Error('A naptárbejegyzést nem sikerült létrehozni. Próbáld újra.');
   const allCrewEmails = {}; readAll_('crew').forEach(c => { const e = String(c.email || '').trim().toLowerCase(); if (e) allCrewEmails[e] = 1; });
   const valid = members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email));
-  const calNotified = calGuestsSet_(ev, valid.map(m => m.email), allCrewEmails);
+  const calNotified = ev ? calGuestsSet_(ev, valid.map(m => m.email), allCrewEmails) : false;
   const lead = members.find(m => m.id === p.lead) || null;
   // újraélesítés: csak az új tagok kapnak értesítést, és azok a régiek, akiknek a szerepe, eszközei vagy napjai változtak
   const prev = parseCrewFinal_(p.crewFinal), sigs = {}; members.forEach(m => { sigs[m.id] = crewSig_(p, m.id); });
   const moved = !!(a && a.dateMoved);   // a naptárban áthúzott projekt: minden korábbi tag értesítést kap az új időpontról
   const isNewM = m => !prev || prev.ids.indexOf(m.id) < 0, isChanged = m => !isNewM(m) && (moved || (prev.sigs && prev.sigs[m.id] !== undefined && prev.sigs[m.id] !== sigs[m.id]));
   const toNotify = valid.filter(m => (isNewM(m) || isChanged(m)) && !isSelf_(u, m));   // aki élesít, magának nem küld levelet (a naptárba bekerül)
-  const link = calEventLink_(ev);
+  const link = ev ? calEventLink_(ev) : '';
   const cutTasks = cutTasksArg_(a);
   const cm = { subject: str_(a && a.subject, 200).trim() || (a && a.dateMoved ? 'Új időpont: ' + p.name + ' – ' + fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '') : ''), intro: str_(a && a.intro, 1000).trim() || (a && a.dateMoved ? 'Módosult a projekt időpontja – az új beosztásod:' : ''), note: str_(a && a.note, 3000).trim(), custom: {}, cutTasks: cutTasks };
   if (a && a.custom && typeof a.custom === 'object') Object.keys(a.custom).slice(0, 60).forEach(k => { const h = sigSanitize_(String(a.custom[k] || ''), 30000); if (h) cm.custom[k] = h; });   // kézzel átírt levelek
