@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e2d0dd3f17",
+"at": "2026-11-05T17:44:10+01:00",
+"msg": "HubSpot-tevékenységek szerzője: tulajdonos vagy létrehozó felhasználó"
+},
+{
 "id": "c1c1778ff3",
 "at": "2026-11-05T13:59:43+01:00",
 "msg": "Lehetőség jegyzetei: a HubSpot feladatai, e-mailjei, hívásai és megbeszélései is"
@@ -146,13 +151,8 @@
 "msg": "Idővonal: a még le nem forgatott projekt vágásán nincs napszám"
 },
 {
-"id": "1643a028b9",
-"at": "2026-11-05T09:24:10+01:00",
-"msg": "Videók leadása: megjegyzés vissza, címzettek alapból nincsenek kipipálva, keresztnévvel; jelszó mező egy sorban"
-},
-{
-"id": "769301b72e",
-"at": "2026-11-05T08:21:46Z",
+"id": "b20225d319",
+"at": "2026-11-05T08:24:21Z",
 "msg": "Változásnapló frissítése"
 }
 ]
