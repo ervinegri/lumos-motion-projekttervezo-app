@@ -343,3 +343,4 @@ html.th2 .stage.cur+.stage-tick,html.th2 .stage.cur+.stage-tick.stage-handle{col
 html.th2 .stage.cur+.stage-tick.stage-handle{border:0}
 /* még le nem forgatott projekt vágása: halvány lila, a kék forgatási napból lágyan átmenve */
 html.th2 .cal-chip.p.cut.tl-cut.tl-joined.cut-pending{background:linear-gradient(90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important}
+html.th2 .stage.cur{border:2px solid #d9822b;background-origin:padding-box;background-clip:padding-box}
