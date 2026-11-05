@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "70fd8afca2",
+"at": "2026-11-05T09:48:36+01:00",
+"msg": "Belépés: szélesebb Google-gomb, a kártya bárhol kattintható"
+},
+{
 "id": "701034672c",
 "at": "2026-11-05T09:47:29+01:00",
 "msg": "Szakember projektnézet: a díj panel kikerül (csak díjcsökkentésnél marad a kifogás miatt)"
@@ -149,11 +154,6 @@
 "id": "b885ffee34",
 "at": "2026-11-05T08:55:13+01:00",
 "msg": "Videók leadása gomb törölve (áthúzással megy); aktuális lépés márka-átmenettel"
-},
-{
-"id": "a0ee1fea1c",
-"at": "2026-11-05T08:54:19+01:00",
-"msg": "Stáb: a projektvezető kártyája visszafogottabb (nincs sárga keret, nincs Projektvezető gomb)"
 }
 ]
 }
