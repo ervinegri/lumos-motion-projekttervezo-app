@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f955664f21",
+"at": "2026-11-05T09:52:38+01:00",
+"msg": "Leadási e-mail: a bevezető mondat kikerül"
+},
+{
 "id": "92113290cd",
 "at": "2026-11-05T09:51:01+01:00",
 "msg": "Leadás: határidő-tartás pipa helyett automatikus; a vágó ablakában is látszanak az átadandó anyagok"
@@ -149,11 +154,6 @@
 "id": "bba0a40df8",
 "at": "2026-11-05T08:57:51+01:00",
 "msg": "Idővonal: a vágás sávjára mutatva látszik, milyen videókat kell elkészíteni"
-},
-{
-"id": "5045e4105f",
-"at": "2026-11-05T08:56:33+01:00",
-"msg": "Idővonal: a még le nem forgatott vágás halvány lila, szép átmenettel"
 }
 ]
 }
