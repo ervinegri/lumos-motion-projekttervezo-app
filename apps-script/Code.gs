@@ -3803,6 +3803,10 @@ function setDeliveryLinks_(u, a) {
   return { project: projectView_(fullProject_(p), u) };
 }
 /** A vágó leadja a videókat: link + értesítés az ügyvezetőnek és/vagy a termelési vezetőnek; a projekt „Videók jóváhagyásra várnak” lesz. a: {projectId, link, note, notify:['admin','editor']} */
+/** A leadási értesítő lehetséges címzettjei (ügyvezető, termelési vezető) – a vágó a leadás ablakában látja, kik kapják. */
+function deliverRecipients_(u) {
+  return loadUsers_().filter(x => !x.disabled && x.email && (x.role === 'admin' || x.role === 'editor')).map(x => ({ role: x.role, name: x.name || '', email: x.email }));
+}
 function crewDeliver_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), link = str_(a.link, 500);
@@ -3825,9 +3829,11 @@ function crewDeliver_(u, a) {
   const to = []; try { loadUsers_().forEach(x => { if (!x.disabled && x.email && notify.indexOf(x.role) >= 0 && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
     const url = (appUrl_() || FRONTEND_URL) + '#p=' + pid, note = str_(a.note, 3000);
-    const text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
+    let text = u.name + ' leadta a(z) „' + p.name + '” videóit – jóváhagyásra várnak.\n\nVideók: ' + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>';
+    const custom = sigSanitize_(String(a.html || ''), 30000);   // a vágó a leadás ablakában átírhatta a levelet
+    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
+    if (custom) text = plainText_(custom);
     const opts = mailOptsFor_(u, html); delete opts.__actor;
     try { GmailApp.sendEmail(to.join(','), '📤 Videók leadva – ' + p.name, text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
   }
@@ -4082,7 +4088,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -4160,6 +4166,7 @@ function rpcInner_(token, name, arg) {
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
+    case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);

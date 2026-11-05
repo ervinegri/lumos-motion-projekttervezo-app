@@ -634,24 +634,29 @@ function rawMailModal(next){const d=S.draft;if(!d)return;const eds=editorsOf(d),
 /* A vágó leadja a videókat: link, megjegyzés, kit értesítsen (ügyvezető / termelési vezető) → „Videók jóváhagyásra várnak” */
 function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
   openModal('📤 Videók leadása – '+(p.name||''),`<div class="fields">${linksField('cdLink','A videók linkje',p.deliveryLink,p.deliveryLinks,'https://drive.google.com/… vagy YouTube')}${passField(p.deliveryPass)}
-    <div class="field full"><label for="m-cdNote">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-cdNote" name="cdNote" rows="3" maxlength="3000">${esc(p.deliveryNotes||'')}</textarea></div>
     <div class="field full"><span class="lbl">Kinek menjen értesítés?</span><div class="rolepick"><label><input type="checkbox" name="notify" value="admin" checked> Ügyvezető</label><label><input type="checkbox" name="notify" value="editor" checked> Termelési vezető</label></div></div></div>
     <p class="hint" style="margin:0">Leadás után a projekt „Videók jóváhagyásra várnak” állapotba kerül.</p>
-    <div class="cd-prev"><div class="cd-prev-h">✉️ Ezt az e-mailt kapják</div><div class="cd-prev-meta" id="cdPrevMeta"></div><div class="cd-prev-body" id="cdPrevBody"></div></div>`,
-    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),links:linksVal(fd,'cdLink'),note:String(fd.get('cdNote')||'').trim(),notify:fd.getAll('notify'),pass:passVal(fd)};if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
+    <div class="cd-rcpt" id="cdRcpt"><span class="muted">Címzettek betöltése…</span></div>
+    <details class="cd-prev"><summary>✉️ Levél <span class="cf-car">▾</span> <span class="muted">– megnézheted és átírhatod</span></summary><div class="cd-prev-meta" id="cdPrevMeta"></div><div class="cd-prev-tools"><span class="muted">✏️ Az e-mail szerkeszthető</span><button type="button" class="linkbtn" id="cdReset" hidden>↺ Eredeti szöveg</button></div><div class="cd-prev-body" id="cdPrevBody" contenteditable="true" spellcheck="true" aria-label="Az e-mail szövege (szerkeszthető)"></div></details>`,
+    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),links:linksVal(fd,'cdLink'),notify:fd.getAll('notify'),pass:passVal(fd)};if(CD_EDITED){const bx=$('cdPrevBody');if(bx)a.html=bx.innerHTML;}if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
       if(!/^https:\/\/\S+$/i.test(a.link)){toast('Add meg a videók linkjét (https://…).',true);return;}if(linksBad(a.links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(!a.notify.length){toast('Válaszd ki, kinek menjen értesítés.',true);return;}
       try{const r=await call('crewDeliver',a);const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);if(S.projectId===p.id&&r.project){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);S.dirty=false;}
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});
-  cdPreview(p);const f=$('mform');if(f){f.addEventListener('input',()=>cdPreview(p));f.addEventListener('change',()=>cdPreview(p));f.addEventListener('click',()=>setTimeout(()=>cdPreview(p),0));}}
+  CD_EDITED=false;{const bx=$('cdPrevBody'),rs=$('cdReset');if(bx)bx.addEventListener('input',e=>{e.stopPropagation();CD_EDITED=true;if(rs)rs.hidden=false;});if(rs)rs.addEventListener('click',()=>{CD_EDITED=false;rs.hidden=true;cdPreview(p);});}
+  CD_RCPT=null;call('deliverRecipients').then(r=>{CD_RCPT=Array.isArray(r)?r:[];cdPreview(p);}).catch(()=>{CD_RCPT=[];cdPreview(p);});
+  cdPreview(p);const f=$('mform');if(f){f.addEventListener('input',()=>cdPreview(p));f.addEventListener('change',()=>cdPreview(p));f.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#cdPrevBody,summary'))return;setTimeout(()=>cdPreview(p),0);});}}
 /* a leadási értesítő előnézete – ugyanaz a szöveg, amit a háttér kiküld (crewDeliver_) */
+let CD_RCPT=null,CD_EDITED=false;
 function cdPreview(p){const body=$('cdPrevBody'),meta=$('cdPrevMeta'),f=$('mform');if(!body||!f)return;const fd=new FormData(f);
-  const who=(S.me&&S.me.viewAs&&S.me.viewAs.crewName)||(S.me&&S.me.name)||'A vágó',links=[String(fd.get('cdLink')||'').trim()].concat(linksVal(fd,'cdLink')).filter(Boolean),pass=passVal(fd),note=String(fd.get('cdNote')||'').trim();
-  const to=fd.getAll('notify').map(r=>r==='admin'?'Ügyvezető':'Termelési vezető');
-  meta.innerHTML=`<div><span>Címzett:</span> ${to.length?esc(to.join(', ')):'<span class="bad-txt">senki – jelölj ki legalább egyet</span>'}</div><div><span>Tárgy:</span> <b>📤 Videók leadva – ${esc(p.name||'')}</b></div>`;
+  const who=(S.me&&S.me.viewAs&&S.me.viewAs.crewName)||(S.me&&S.me.name)||'A vágó',links=[String(fd.get('cdLink')||'').trim()].concat(linksVal(fd,'cdLink')).filter(Boolean),pass=passVal(fd);
+  const roles=fd.getAll('notify'),RL={admin:'Ügyvezető',editor:'Termelési vezető'};
+  const people=(CD_RCPT||[]).filter(x=>roles.includes(x.role)),toTxt=CD_RCPT&&CD_RCPT.length?people.map(x=>`${esc(x.name)} &lt;${esc(x.email)}&gt;`).join(', '):esc(roles.map(r=>RL[r]).join(', '));
+  const rc=$('cdRcpt');if(rc)rc.innerHTML=CD_RCPT==null?'<span class="muted">Címzettek betöltése…</span>':`<span class="lbl">Címzettek</span><ul class="cd-list">${(CD_RCPT||[]).filter(x=>roles.includes(x.role)).map(x=>`<li><b>${esc(x.name)}</b> <span class="muted">· ${esc(RL[x.role]||'')}</span><br><small class="muted">${esc(x.email)}</small></li>`).join('')||'<li class="bad-txt">Senki nem kap értesítést – jelölj ki legalább egy szerepet.</li>'}</ul>`;
+  meta.innerHTML=`<div><span>Címzett:</span> ${roles.length?toTxt:'<span class="bad-txt">senki – jelölj ki legalább egyet</span>'}</div><div><span>Feladó:</span> ${esc(who)} · Lumos Motion <span class="muted">(az app címéről; a válasz ${esc(who)} címére megy)</span></div><div><span>Tárgy:</span> <b>📤 Videók leadva – ${esc(p.name||'')}</b></div>`;
   const lines=[esc(who)+' leadta a(z) „'+esc(p.name||'')+'” videóit – jóváhagyásra várnak.','','Videók: '+(links.length?links.map(l=>`<a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('<br>'):'<span class="muted">(még nincs link)</span>')];
-  if(pass)lines.push('Jelszó: '+esc(pass));if(note)lines.push('','Megjegyzés: '+esc(note).replace(/\n/g,'<br>'));
+  if(pass)lines.push('Jelszó: '+esc(pass));
   lines.push('','Projekt: <a href="#" onclick="return false">'+esc(location.origin+'/#p='+p.id)+'</a>');
-  body.innerHTML=lines.join('<br>');}
+  if(!CD_EDITED)body.innerHTML=lines.join('<br>');}
 /* Díjösszesítő előnézet: szerkeszthető, a módosítás csak annak az egy levélnek szól */
 async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return;const k=month+'|'+cid,c=crewById(cid);S._payEdit=S._payEdit||{};
   let h=fresh?'':S._payEdit[k];S._payHead=S._payHead||{};
