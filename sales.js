@@ -70,7 +70,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
     ${won?'':ms('dStage','Szakasz',stOpts,d.stage)}
     ${won?'':`<div class="field"><label for="m-dChance">Esély (%)</label><input class="inp" id="m-dChance" name="dChance" type="number" min="0" max="100" step="5" value="${dealChance(d)}"></div>`}
-    ${ms('dSource','Honnan jött?',DEAL_SOURCES,d.source||'',{empty:'—'})}
+    ${ms('dSource','Honnan jött? <span class="muted" style="font-weight:500;font-size:12px">– a HubSpotból, ha ott meg van adva</span>',DEAL_SOURCES,d.source||'',{empty:'—',cmb:'Honnan jött?…'})}
     ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
@@ -144,7 +144,7 @@ document.addEventListener('input',e=>{if(e.target.id==='m-dCName'){clearTimeout(
   if(e.target.id==='m-dVenue'){const m=$('dl-map'),v=e.target.value.trim();if(m){m.style.display=v?'':'none';m.href=v?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v):'#';}}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=DCT_ITEMS[Number(it.dataset.dct)];pickClose();if(!c)return;
   const set=(id,v,force)=>{const x=$(id);if(x&&v&&(force||!x.value.trim()))x.value=v;};
-  set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);set('m-dCPhone',c.phone,true);set('m-dClient',c.company,false);
+  set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);set('m-dCPhone',c.phone,true);set('m-dClient',c.company,false);dSourceSet(c.source);
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
 
@@ -152,16 +152,18 @@ document.addEventListener('change',e=>{if(e.target.id==='sales-owner'){S.salesF.
 
 /* Lehetőség ügyfele: csak a beírt szövegre illeszkedő ügyfelek jönnek fel (a böngésző saját, pontatlan listája helyett) */
 let DC_ITEMS=[],DC_SEQ=0,DC_T=0;
+/* „Honnan jött?” kitöltése a CRM-ből (HubSpot eredeti forrás / visszatérő ügyfél) – csak ha még üres */
+function dSourceSet(v){const sel=$('m-dSource');if(!sel||!v||sel.value||!DEAL_SOURCES.includes(v))return;sel.value=v;const inp=sel.parentElement&&sel.parentElement.querySelector('.cmb-in');if(inp)inp.value=v;sel.dispatchEvent(new Event('change',{bubbles:true}));toast('„Honnan jött?” kitöltve: '+v);}
 function dcRender(input,q,hs,loading){const fq=fold(q),loc=knownClients(q).sort((a,b)=>(fold(a.company).startsWith(fq)?0:1)-(fold(b.company).startsWith(fq)?0:1)).slice(0,6).map(c=>({company:c.company,sub:c.name||'',src:'app'}));
   const have=new Set(loc.map(x=>fold(x.company)));
-  const fromHs=(hs||[]).filter(c=>!have.has(fold(c.name))).map(c=>({company:c.name,sub:[c.domain,c.city].filter(Boolean).join(' · '),src:'hs',address:c.address}));
+  const fromHs=(hs||[]).filter(c=>!have.has(fold(c.name))).map(c=>({company:c.name,sub:[c.domain,c.city].filter(Boolean).join(' · '),src:'hs',address:c.address,source:c.source||'',deals:c.deals||0}));
   DC_ITEMS=loc.concat(fromHs).slice(0,12);
   if(!DC_ITEMS.length&&!loading){pickShow(input,'<div class="hs-empty">Nincs ilyen cég az appban és a HubSpotban – a beírt név marad.</div>');return;}
   pickShow(input,DC_ITEMS.map((it,i)=>`<div class="hs-row"><button type="button" class="hs-item dc-item" data-dc="${i}"><b>${esc(it.company)}${it.src==='hs'?' <span class="hs-tag">HubSpot</span>':''}</b>${it.sub?`<small>${esc(it.sub)}</small>`:''}</button></div>`).join('')+(loading?searchingHtml('Keresés a HubSpotban'):''));}
 function dcSearch(input){const q=input.value.trim();clearTimeout(DC_T);if(q.length<2){DC_ITEMS=[];pickClose();return;}
   dcRender(input,q,null,true);const my=++DC_SEQ;   // az app ügyfelei azonnal, a HubSpot cégei kis késéssel
   DC_T=setTimeout(async()=>{let hs=[];try{hs=await call('hubspotCompanies',{q})||[];}catch(e){}if(my!==DC_SEQ||document.activeElement!==input)return;dcRender(input,q,hs,false);},300);}
-function dcPick(i){const v=DC_ITEMS[i],inp=$('m-dClient');pickClose();if(v&&inp){inp.value=v.company;inp.dispatchEvent(new Event('change',{bubbles:true}));const c=$('m-dCName');if(c&&!c.value)setTimeout(()=>c.focus(),30);}}   // ezután a kapcsolattartó mező a cég HubSpot-kapcsolattartóit ajánlja
+function dcPick(i){const v=DC_ITEMS[i],inp=$('m-dClient');pickClose();if(v&&inp){inp.value=v.company;inp.dispatchEvent(new Event('change',{bubbles:true}));dSourceSet(v.src==='app'||v.deals>0?'Visszatérő ügyfél':v.source);const c=$('m-dCName');if(c&&!c.value)setTimeout(()=>c.focus(),30);}}   // ezután a kapcsolattartó mező a cég HubSpot-kapcsolattartóit ajánlja
 document.addEventListener('input',e=>{if(e.target.id==='m-dClient')dcSearch(e.target);});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dc-item');if(!it)return;e.preventDefault();e.stopPropagation();dcPick(Number(it.dataset.dc));},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dClient')setTimeout(()=>{if(document.activeElement!==e.target&&$('hsBox')&&$('hsBox').querySelector('.dc-item'))pickClose();},150);});

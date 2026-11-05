@@ -1896,11 +1896,13 @@ function hubspot_(method, path, body) {
   if (code >= 300) throw new Error('HubSpot-hiba (HTTP ' + code + ').');
   return JSON.parse(res.getContentText() || '{}');
 }
-const HS_PROPS_ = ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'company', 'jobtitle'];
+const HS_PROPS_ = ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'company', 'jobtitle', 'hs_analytics_source'];
+/* A HubSpot „Eredeti forrás” (hs_analytics_source) értéke a lehetőség „Honnan jött?” listájára fordítva */
+function hsSource_(v) { return ({ ORGANIC_SEARCH: 'Weboldal', PAID_SEARCH: 'Weboldal', DIRECT_TRAFFIC: 'Weboldal', AI_REFERRALS: 'Weboldal', REFERRALS: 'Ajánlás', EMAIL_MARKETING: 'E-mail / telefon', SOCIAL_MEDIA: 'Közösségi média', PAID_SOCIAL: 'Közösségi média', OTHER_CAMPAIGNS: 'Egyéb' })[String(v || '').toUpperCase()] || ''; }
 function hsContact_(c) {
   const p = c.properties || {};
   return { id: c.id, name: [p.lastname, p.firstname].filter(Boolean).join(' ').trim() || p.email || '', email: p.email || '',
-    phone: p.mobilephone || p.phone || '', company: p.company || '', title: p.jobtitle || '' };
+    phone: p.mobilephone || p.phone || '', company: p.company || '', title: p.jobtitle || '', source: hsSource_(p.hs_analytics_source) };
 }
 function hubspotContactsApi_(arg) {
   const q = str_(arg && arg.q, 100).trim(), client = str_(arg && arg.client, 160).trim();
@@ -1963,8 +1965,8 @@ function hubspotNotesApi_(arg) {
 function hubspotCompaniesApi_(arg) {
   const q = str_(arg && arg.q, 100).trim();
   if (q.length < 2) return [];
-  const res = (hubspot_('post', '/crm/v3/objects/companies/search', { query: q, properties: ['name', 'domain', 'city', 'address', 'zip', 'phone'], limit: 10 }).results) || [];
-  return res.map(c => { const p = c.properties || {}; return { id: c.id, name: String(p.name || '').trim(), domain: p.domain || '', city: p.city || '', address: [p.zip, p.city, p.address].filter(Boolean).join(' '), phone: p.phone || '' }; }).filter(x => x.name);
+  const res = (hubspot_('post', '/crm/v3/objects/companies/search', { query: q, properties: ['name', 'domain', 'city', 'address', 'zip', 'phone', 'hs_analytics_source', 'num_associated_deals'], limit: 10 }).results) || [];
+  return res.map(c => { const p = c.properties || {}; return { id: c.id, name: String(p.name || '').trim(), domain: p.domain || '', city: p.city || '', address: [p.zip, p.city, p.address].filter(Boolean).join(' '), phone: p.phone || '', source: hsSource_(p.hs_analytics_source), deals: Number(p.num_associated_deals) || 0 }; }).filter(x => x.name);
 }
 
 function lookupTaxpayerApi_(arg) {
