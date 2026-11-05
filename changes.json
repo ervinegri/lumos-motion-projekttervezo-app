@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a0ee1fea1c",
+"at": "2026-11-05T08:54:19+01:00",
+"msg": "Stáb: a projektvezető kártyája visszafogottabb (nincs sárga keret, nincs Projektvezető gomb)"
+},
+{
 "id": "071ef01769",
 "at": "2026-11-05T08:51:49+01:00",
 "msg": "A vágó az Utómunkát a Videók jóváhagyásra várnak lépésre húzhatja (leadás ablak)"
@@ -146,13 +151,8 @@
 "msg": "Új design: fekete helyett lágyabb palakék"
 },
 {
-"id": "8ad19ef629",
-"at": "2026-11-04T22:21:37+01:00",
-"msg": "Új design kipróbálása: fejléc gombbal ki-be kapcsolható (theme2.css, saját betűkészletek)"
-},
-{
-"id": "ba490b494b",
-"at": "2026-11-04T21:16:31Z",
+"id": "6189cef47c",
+"at": "2026-11-04T21:21:46Z",
 "msg": "Változásnapló frissítése"
 }
 ]
