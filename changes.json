@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e11ad02ccd",
+"at": "2026-11-05T13:40:04+01:00",
+"msg": "Új lehetőség: a Honnan jött? a HubSpot eredeti forrásából (vagy visszatérő ügyfél); új legördülő"
+},
+{
 "id": "7cf3a528bb",
 "at": "2026-11-05T11:04:28+01:00",
 "msg": "E-mail tárgyak emoji nélkül (a Gmail hibásan jelenítette meg)"
@@ -149,11 +154,6 @@
 "id": "597fc15ea5",
 "at": "2026-11-05T09:07:51+01:00",
 "msg": "Idővonal: a vágás infója azonnal megjelenik (azonnali súgó)"
-},
-{
-"id": "cf7ba88951",
-"at": "2026-11-05T09:05:21+01:00",
-"msg": "Videók leadása: élő előnézet az értesítő e-mailről"
 }
 ]
 }
