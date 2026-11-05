@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e73776bd20",
+"at": "2026-11-05T09:00:23+01:00",
+"msg": "Új design: keret az aktuális lépés kártyáján"
+},
+{
 "id": "9f08cbdfbe",
 "at": "2026-11-05T08:59:33+01:00",
 "msg": "Idővonal: rövidebb átmenet a forgatási nap és a vágás között"
@@ -146,13 +151,8 @@
 "msg": "Új design: kisebb tárgyhó a hónapválasztóban"
 },
 {
-"id": "c5d406c29a",
-"at": "2026-11-04T22:56:50+01:00",
-"msg": "Új design: a régi zöld árnyalatok kékes-szürkén (generált felülírás), átmenetes gombok széle javítva"
-},
-{
-"id": "62556f6b08",
-"at": "2026-11-04T21:54:55Z",
+"id": "311edc16c5",
+"at": "2026-11-04T21:57:00Z",
 "msg": "Változásnapló frissítése"
 }
 ]
