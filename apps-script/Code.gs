@@ -3704,7 +3704,7 @@ function newUserRecord_(name, role, crewId, email) {
 function escapeHtml_(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function appUrl_() { return FRONTEND_URL; }
 /* Rövid, olvasható projektlink: …/#p=ecommerce-expo-promo-shortok-d3f68107 (a név + az azonosító első 8 karaktere) */
-function projSlug_(p) { const n = String((p && p.name) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48).replace(/-+$/, ''); return (n ? n + '-' : '') + String((p && p.id) || '').slice(0, 8); }
+function projSlug_(p) { return String((p && p.id) || '').slice(0, 8); }   // rövid projektlink: #p=d3f68107
 function projLink_(p) { return FRONTEND_URL.replace(/\/$/, '') + '/#p=' + projSlug_(p); }
 /* Személyes e-mail-aláírások (a küldő e-mail-címe szerint): az ügyvezető és a termelési vezetők a Beállítások → Hozzáférések
    alatt szerkesztik (beosztás, telefon, fotó). A képek a projekttervezo.lumosmotion.hu/sig/ alól töltődnek. */
