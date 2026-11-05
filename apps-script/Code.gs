@@ -1972,14 +1972,14 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
   if (c) from.push(['contacts', c.id]);
   if (company.length >= 2) { const co = ((hubspot_('post', '/crm/v3/objects/companies/search', { query: company, properties: ['name'], limit: 1 }).results) || [])[0]; if (co) from.push(['companies', co.id]); }
   const TYPES = {
-    notes: { kind: 'Jegyzet', props: ['hs_note_body', 'hs_timestamp', 'hubspot_owner_id'], text: p => plainText_(p.hs_note_body || '') },
-    tasks: { kind: 'Feladat', props: ['hs_task_subject', 'hs_task_body', 'hs_task_status', 'hs_timestamp', 'hubspot_owner_id'], text: p => [(p.hs_task_status === 'COMPLETED' ? '✓ ' : '☐ ') + (p.hs_task_subject || ''), plainText_(p.hs_task_body || '')].filter(x => x.trim()).join('\n') },
-    emails: { kind: 'E-mail', props: ['hs_email_subject', 'hs_email_text', 'hs_email_direction', 'hs_timestamp', 'hubspot_owner_id'], text: p => [(p.hs_email_direction === 'INCOMING_EMAIL' ? '← ' : '→ ') + (p.hs_email_subject || ''), String(p.hs_email_text || '').split(/\n\s*(On .+wrote:|.+ írta:|-----Original|________________)/)[0].trim().slice(0, 1500)].filter(x => x.trim()).join('\n') },
-    calls: { kind: 'Hívás', props: ['hs_call_title', 'hs_call_body', 'hs_timestamp', 'hubspot_owner_id'], text: p => [p.hs_call_title || '', plainText_(p.hs_call_body || '')].filter(x => x.trim()).join('\n') },
-    meetings: { kind: 'Megbeszélés', props: ['hs_meeting_title', 'hs_meeting_body', 'hs_meeting_start_time', 'hs_timestamp', 'hubspot_owner_id'], text: p => [p.hs_meeting_title || '', plainText_(p.hs_meeting_body || '')].filter(x => x.trim()).join('\n') }
+    notes: { kind: 'Jegyzet', props: ['hs_note_body', 'hs_timestamp', 'hubspot_owner_id', 'hs_created_by_user_id'], text: p => plainText_(p.hs_note_body || '') },
+    tasks: { kind: 'Feladat', props: ['hs_task_subject', 'hs_task_body', 'hs_task_status', 'hs_timestamp', 'hubspot_owner_id', 'hs_created_by_user_id'], text: p => [(p.hs_task_status === 'COMPLETED' ? '✓ ' : '☐ ') + (p.hs_task_subject || ''), plainText_(p.hs_task_body || '')].filter(x => x.trim()).join('\n') },
+    emails: { kind: 'E-mail', props: ['hs_email_subject', 'hs_email_text', 'hs_email_direction', 'hs_timestamp', 'hubspot_owner_id', 'hs_created_by_user_id'], text: p => [(p.hs_email_direction === 'INCOMING_EMAIL' ? '← ' : '→ ') + (p.hs_email_subject || ''), String(p.hs_email_text || '').split(/\n\s*(On .+wrote:|.+ írta:|-----Original|________________)/)[0].trim().slice(0, 1500)].filter(x => x.trim()).join('\n') },
+    calls: { kind: 'Hívás', props: ['hs_call_title', 'hs_call_body', 'hs_timestamp', 'hubspot_owner_id', 'hs_created_by_user_id'], text: p => [p.hs_call_title || '', plainText_(p.hs_call_body || '')].filter(x => x.trim()).join('\n') },
+    meetings: { kind: 'Megbeszélés', props: ['hs_meeting_title', 'hs_meeting_body', 'hs_meeting_start_time', 'hs_timestamp', 'hubspot_owner_id', 'hs_created_by_user_id'], text: p => [p.hs_meeting_title || '', plainText_(p.hs_meeting_body || '')].filter(x => x.trim()).join('\n') }
   };
-  let owners = {};
-  try { ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { owners[String(o.id)] = [o.lastName, o.firstName].filter(Boolean).join(' ') || o.email || ''; }); } catch (e) { owners = {}; }
+  let owners = {}, ownErr = '';   // a szerző: tulajdonos (owner) vagy a létrehozó felhasználó; mindkét azonosítóval keresünk
+  try { ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { const n = [o.lastName, o.firstName].filter(Boolean).join(' ') || o.email || ''; owners['o' + o.id] = n; if (o.userId) owners['u' + o.userId] = n; }); } catch (e) { ownErr = String(e.message || e); }
   const fmt = v => { const d = new Date(isNaN(Number(v)) ? v : Number(v)); return isNaN(d) ? '' : Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd HH:mm'); };
   const notes = [];
   Object.keys(TYPES).forEach(t => {
@@ -1987,10 +1987,10 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
     from.forEach(([o, id]) => { try { ((hubspot_('get', '/crm/v4/objects/' + o + '/' + id + '/associations/' + t + '?limit=100').results) || []).forEach(a => { ids[String(a.toObjectId)] = 1; }); } catch (e) {} });
     const list = Object.keys(ids).slice(0, 100); if (!list.length) return;
     let res = []; try { res = (hubspot_('post', '/crm/v3/objects/' + t + '/batch/read', { properties: T.props, inputs: list.map(id => ({ id: id })) }).results) || []; } catch (e) { res = []; }
-    res.forEach(n => { const p = n.properties || {}, txt = T.text(p).trim().slice(0, 4000); if (txt) notes.push({ id: t + ':' + n.id, kind: T.kind, at: fmt(p.hs_meeting_start_time || p.hs_timestamp || n.createdAt), by: owners[String(p.hubspot_owner_id || '')] || '', text: txt }); });
+    res.forEach(n => { const p = n.properties || {}, txt = T.text(p).trim().slice(0, 4000); if (txt) notes.push({ id: t + ':' + n.id, kind: T.kind, at: fmt(p.hs_meeting_start_time || p.hs_timestamp || n.createdAt), by: owners['u' + (p.hs_created_by_user_id || '')] || owners['o' + (p.hubspot_owner_id || '')] || '', text: txt }); });
   });
   notes.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  return { notes: notes, found: !!c };
+  return { notes: notes, found: !!c, ownErr: ownErr };
 }
 
 /* HubSpot cégek keresése (új lehetőség ügyfele): név, domain, város */
