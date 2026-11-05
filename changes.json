@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0afd748062",
+"at": "2026-11-05T09:01:13+01:00",
+"msg": "Az új design lett az egyetlen kinézet; a váltó gomb kikerült"
+},
+{
 "id": "e73776bd20",
 "at": "2026-11-05T09:00:23+01:00",
 "msg": "Új design: keret az aktuális lépés kártyáján"
@@ -146,13 +151,8 @@
 "msg": "Új design: visszafogottabb betűsúlyok (a 750–900-as súlyok 600/700, félkövér 650)"
 },
 {
-"id": "59599435d4",
-"at": "2026-11-04T22:57:43+01:00",
-"msg": "Új design: kisebb tárgyhó a hónapválasztóban"
-},
-{
-"id": "311edc16c5",
-"at": "2026-11-04T21:57:00Z",
+"id": "c153e646a0",
+"at": "2026-11-04T21:57:53Z",
 "msg": "Változásnapló frissítése"
 }
 ]
