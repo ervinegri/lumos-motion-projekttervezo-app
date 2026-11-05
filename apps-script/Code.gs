@@ -558,6 +558,21 @@ function calResyncUpcoming() {
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'calResyncUpcoming').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} });
 }
 /** Egyszeri: a már véglegesített csapatú, még Tervezés szakaszban lévő projektek átkerülnek a Helyszíni munkára (a szabály 2026-11-02 óta él). */
+/* Egyszeri (2026-11-05): a Helyszíni munkában ragadt videóvágás projektek Utómunkába kerülnek */
+function migrateEditOnlyOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_EDITONLY_2026_11')) return;
+  withLock_(() => {
+    const sh = sheetFor_('projects');
+    readAll_('projects').forEach(p => {
+      if (p.eventType !== 'Videóvágás' || p.status !== 'helyszin') return;
+      p.prevStatus = 'tervezes'; p.status = 'utomunka'; p.updatedAt = now_(); p.updatedBy = 'App (videóvágás)';
+      putRow_('projects', sh, p, findRow_(sh, p.id));
+      logEvent_({ name: 'App', role: 'admin' }, 'Projekt módosítva', p.name, 'Állapot: Helyszíni munka → Utómunka (videóvágásnál nincs helyszíni munka)');
+    });
+    dbFlush_(); dataBump_();
+  });
+  P.setProperty('MIG_EDITONLY_2026_11', now_());
+}
 function migrateFinalizedOnce_() {
   const P = PropertiesService.getScriptProperties();
   if (P.getProperty('MIG_FINAL_2026_11')) return;
@@ -591,6 +606,7 @@ function bootstrap_(u) {
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
+  try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
@@ -1040,12 +1056,13 @@ function finalizeCrew_(u, a) {
     const r2 = findRow_(sh, pid), q = readRow_('projects', sh, r2);
     q.crewFinal = JSON.stringify({ at: now_(), by: u.name, ids: members.map(m => m.id).sort(), notified: sent, sentTo: sentTo, sigs: sigs });
     if (p.calEventId && !q.calEventId) q.calEventId = p.calEventId;
-    if (!q.status || q.status === 'tervezes' || q.status === 'egyeztetes') { q.prevStatus = q.status || 'tervezes'; q.status = 'helyszin'; stepped = true; }   // véglegesített csapat → Helyszíni munka
+    if (!q.status || q.status === 'tervezes' || q.status === 'egyeztetes') { q.prevStatus = q.status || 'tervezes'; q.status = q.eventType === 'Videóvágás' ? 'utomunka' : 'helyszin'; stepped = true;   // videóvágás: rögtön Utómunka
+      const sd = String(q.stepsDone || '').split(',').filter(String); if (sd.indexOf('tervezes') < 0) sd.push('tervezes'); q.stepsDone = sd.join(','); }   // véglegesített csapat → Helyszíni munka
     q.updatedAt = now_(); q.updatedBy = u.name;
     putRow_('projects', sh, q, r2); dbFlush_();
     return q;
   });
-  logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : '') + (stepped ? ' · Állapot: Tervezés → Helyszíni munka' : ''));
+  logEvent_(u, 'Csapat véglegesítve', p.name, members.length + ' fő · e-mail: ' + sent.length + (failed.length ? ' · sikertelen: ' + failed.length : '') + (stepped ? ' · Állapot: Tervezés → ' + (p.eventType === 'Videóvágás' ? 'Utómunka' : 'Helyszíni munka') : ''));
   return { project: projectView_(fullProject_(saved), u), sent: sent, sentTo: sentTo, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_(), stepped: stepped };
 }
 
@@ -1463,7 +1480,8 @@ function saveProject_(u, a) {
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
-    if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk)   // a beszámoló a helyszíni munka kipipálásakor (a helyszíni munkára lépéskor még nem kell)
+    if (p.eventType === 'Videóvágás' && p.status === 'helyszin') p.status = 'utomunka';   // videóvágásnál nincs helyszíni munka
+    if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk && p.eventType !== 'Videóvágás')   // a beszámoló a helyszíni munka kipipálásakor (a helyszíni munkára lépéskor még nem kell)
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
