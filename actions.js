@@ -634,10 +634,11 @@ function rawMailModal(next){const d=S.draft;if(!d)return;const eds=editorsOf(d),
 /* A vágó leadja a videókat: link, megjegyzés, kit értesítsen (ügyvezető / termelési vezető) → „Videók jóváhagyásra várnak” */
 function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
   openModal('📤 Videók leadása – '+(p.name||''),`<div class="fields">${linksField('cdLink','A videók linkje <span class="req">*</span>',p.deliveryLink,p.deliveryLinks,'https://drive.google.com/… vagy YouTube')}${passField(p.deliveryPass)}
+    <div class="field full"><label for="m-cdNote">Megjegyzés (nem kötelező)</label><textarea class="inp" id="m-cdNote" name="cdNote" rows="3" maxlength="3000">${esc(p.deliveryNotes||'')}</textarea></div>
 </div>
     <div class="cd-rcpt" id="cdRcpt"><span class="muted">Címzettek betöltése…</span></div>
     <details class="cd-prev"><summary>✉️ Levél <span class="cf-car">▾</span> <span class="muted">– megnézheted és átírhatod</span></summary><div class="cd-prev-meta" id="cdPrevMeta"></div><div class="cd-prev-tools"><span class="muted">✏️ Az e-mail szerkeszthető</span><button type="button" class="linkbtn" id="cdReset" hidden>↺ Eredeti szöveg</button></div><div class="cd-prev-body" id="cdPrevBody" contenteditable="true" spellcheck="true" aria-label="Az e-mail szövege (szerkeszthető)"></div></details>`,
-    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),links:linksVal(fd,'cdLink'),pass:passVal(fd)};if(CD_RCPT&&CD_RCPT.length)a.emails=fd.getAll('cdTo');else a.notify=['admin','editor'];if(CD_EDITED){const bx=$('cdPrevBody');if(bx)a.html=bx.innerHTML;}if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
+    {submitLabel:'Leadás',submit:async fd=>{const a={projectId:p.id,link:String(fd.get('cdLink')||'').trim(),links:linksVal(fd,'cdLink'),note:String(fd.get('cdNote')||'').trim(),pass:passVal(fd)};if(CD_RCPT&&CD_RCPT.length)a.emails=fd.getAll('cdTo');else a.notify=['admin','editor'];if(CD_EDITED){const bx=$('cdPrevBody');if(bx)a.html=bx.innerHTML;}if(fd.get('hasPass')&&!a.pass){toast('Add meg a jelszót.',true);return;}
       if(!/^https:\/\/\S+$/i.test(a.link)){toast('Add meg a videók linkjét (https://…).',true);return;}if(linksBad(a.links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(a.emails&&!a.emails.length){toast('Pipálj ki legalább egy címzettet.',true);return;}
       try{const r=await call('crewDeliver',a);const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);if(S.projectId===p.id&&r.project){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);S.dirty=false;}
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});
@@ -647,14 +648,15 @@ function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
   cdPreview(p);const f=$('mform');if(f){f.addEventListener('input',()=>cdPreview(p));f.addEventListener('change',()=>cdPreview(p));f.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#cdPrevBody,summary'))return;setTimeout(()=>cdPreview(p),0);});}}
 /* a leadási értesítő előnézete – ugyanaz a szöveg, amit a háttér kiküld (crewDeliver_) */
 let CD_RCPT=null,CD_EDITED=false;
+const fnm=n=>{const w=String(n||'').trim().split(/\s+/);return w.length>1?w[w.length-1]:String(n||'');};   // csak a keresztnév (Zajácz Dávid → Dávid)
 function cdPreview(p){const body=$('cdPrevBody'),meta=$('cdPrevMeta'),f=$('mform');if(!body||!f)return;const fd=new FormData(f);
-  const who=(S.me&&S.me.viewAs&&S.me.viewAs.crewName)||(S.me&&S.me.name)||'A vágó',links=[String(fd.get('cdLink')||'').trim()].concat(linksVal(fd,'cdLink')).filter(Boolean),pass=passVal(fd);
+  const who=(S.me&&S.me.viewAs&&S.me.viewAs.crewName)||(S.me&&S.me.name)||'A vágó',links=[String(fd.get('cdLink')||'').trim()].concat(linksVal(fd,'cdLink')).filter(Boolean),pass=passVal(fd),note=String(fd.get('cdNote')||'').trim();
   const ord=x=>x.role==='editor'?0:1,all=(CD_RCPT||[]).slice().sort((x,y)=>ord(x)-ord(y)),rc=$('cdRcpt');
-  if(rc&&!rc.dataset.built&&CD_RCPT!=null){rc.dataset.built='1';rc.innerHTML=`<span class="lbl">Címzettek</span>${all.length?`<div class="cd-list">${all.map(x=>`<label class="cd-to"><input type="checkbox" name="cdTo" value="${esc(x.email)}" checked><span><b>${esc(x.name)}</b><small class="muted">${esc(x.email)}</small></span></label>`).join('')}</div>`:'<p class="muted" style="margin:0">Az ügyvezető és a termelési vezető kapja meg.</p>'}`;}
-  const picked=new Set(fd.getAll('cdTo')),people=all.filter(x=>picked.has(x.email)),toTxt=all.length?(people.length?people.map(x=>`${esc(x.name)} &lt;${esc(x.email)}&gt;`).join(', '):'<span class="bad-txt">senki – pipálj ki legalább egy címzettet</span>'):'ügyvezető, termelési vezető';
+  if(rc&&!rc.dataset.built&&CD_RCPT!=null){rc.dataset.built='1';rc.innerHTML=`<span class="lbl">Címzettek</span>${all.length?`<div class="cd-list">${all.map(x=>`<label class="cd-to"><input type="checkbox" name="cdTo" value="${esc(x.email)}"><span><b>${esc(fnm(x.name))}</b><small class="muted">${esc(x.email)}</small></span></label>`).join('')}</div>`:'<p class="muted" style="margin:0">Az ügyvezető és a termelési vezető kapja meg.</p>'}`;}
+  const picked=new Set(fd.getAll('cdTo')),people=all.filter(x=>picked.has(x.email)),toTxt=all.length?(people.length?people.map(x=>`${esc(fnm(x.name))} &lt;${esc(x.email)}&gt;`).join(', '):'<span class="bad-txt">senki – pipálj ki legalább egy címzettet</span>'):'ügyvezető, termelési vezető';
   meta.innerHTML=`<div><span>Címzett:</span> ${toTxt}</div><div><span>Feladó:</span> ${esc(who)} · Lumos Motion <span class="muted">(az app címéről; a válasz ${esc(who)} címére megy)</span></div><div><span>Tárgy:</span> <b>📤 Videók leadva – ${esc(p.name||'')}</b></div>`;
   const lines=[esc(who)+' leadta a(z) „'+esc(p.name||'')+'” videóit – jóváhagyásra várnak.','','Videók: '+(links.length?links.map(l=>`<a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('<br>'):'<span class="muted">(még nincs link)</span>')];
-  if(pass)lines.push('Jelszó: '+esc(pass));
+  if(pass)lines.push('Jelszó: '+esc(pass));if(note)lines.push('','Megjegyzés: '+esc(note).replace(/\n/g,'<br>'));
   lines.push('','Projekt: <a href="#" onclick="return false">'+esc(location.origin+'/#p='+projSlug(p))+'</a>');
   if(!CD_EDITED)body.innerHTML=lines.join('<br>');}
 /* Díjösszesítő előnézet: szerkeszthető, a módosítás csak annak az egy levélnek szól */
