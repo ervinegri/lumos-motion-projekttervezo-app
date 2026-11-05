@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "701034672c",
+"at": "2026-11-05T09:47:29+01:00",
+"msg": "Szakember projektnézet: a díj panel kikerül (csak díjcsökkentésnél marad a kifogás miatt)"
+},
+{
 "id": "ddfa9d1853",
 "at": "2026-11-05T09:46:29+01:00",
 "msg": "Csapat / eszközök sáv: a gomb a szöveg után"
@@ -149,11 +154,6 @@
 "id": "a0ee1fea1c",
 "at": "2026-11-05T08:54:19+01:00",
 "msg": "Stáb: a projektvezető kártyája visszafogottabb (nincs sárga keret, nincs Projektvezető gomb)"
-},
-{
-"id": "071ef01769",
-"at": "2026-11-05T08:51:49+01:00",
-"msg": "A vágó az Utómunkát a Videók jóváhagyásra várnak lépésre húzhatja (leadás ablak)"
 }
 ]
 }
