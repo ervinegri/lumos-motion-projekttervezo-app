@@ -908,13 +908,13 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
   const want = {}; emails.forEach(m => { want[m] = 1; });
   if (typeof Calendar !== 'undefined' && Calendar.Events) {   // speciális szolgáltatás: a Google értesítést is küld (sendUpdates: all)
     const eid = String(ev.getId()).replace(/@google\.com$/, '');
-    const cur = Calendar.Events.get(CALENDAR_ID, eid);
+    const CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid);
     const keep = (cur.attendees || []).filter(x => !allCrewEmails[String(x.email || '').toLowerCase()] || want[String(x.email || '').toLowerCase()]);
     const have = {}; keep.forEach(x => { have[String(x.email || '').toLowerCase()] = 1; });
     const added = emails.filter(m => !have[m]), removed = (cur.attendees || []).length - keep.length + added.length;
     if (!added.length && !removed) return false;   // nincs változás a vendéglistában: nem frissítünk, így senki nem kap újabb értesítőt
     added.forEach(m => keep.push({ email: m }));
-    Calendar.Events.patch({ attendees: keep }, CALENDAR_ID, eid, { sendUpdates: 'none' });   // a Google nem küld külön meghívólevelet – az értesítés a saját beosztásos levelünk (benne a naptárlinkkel)
+    Calendar.Events.patch({ attendees: keep }, CID, eid, { sendUpdates: 'none' });   // a Google nem küld külön meghívólevelet – az értesítés a saját beosztásos levelünk (benne a naptárlinkkel)
     return false;
   }
   if (!mailOn_('calendar')) return false;   // speciális szolgáltatás nélkül (tartalék): a vendégek felvétele értesítést küldhet – kikapcsolt naptárlevélnél kihagyjuk
@@ -925,8 +925,9 @@ function calGuestsSet_(ev, emails, allCrewEmails) {   // vendéglista beállít�
 }
 function calEventLink_(ev) {   // a naptárbejegyzés megnyitása a Google Naptárban
   const eid = String(ev.getId()).replace(/@google\.com$/, '');
-  try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CALENDAR_ID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
-  return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CALENDAR_ID).replace(/=+$/, '');
+  const CID = evCalId_(ev);
+  try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
+  return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CID).replace(/=+$/, '');
 }
 function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const sig = signatureFor_(u), sigText = sig ? sig.text : 'Üdvözlettel,\n' + ((u && u.name) || '') + '\nLumos Motion', sigHtml = sig ? sig.html : '<p>Üdvözlettel,<br>' + escapeHtml_((u && u.name) || '') + '<br>Lumos Motion</p>';   // a szignó azé, aki élesít
@@ -969,7 +970,7 @@ function crewFinalPreview_(u, a) {
   const prev = parseCrewFinal_(p.crewFinal), link = p.calEventId ? (() => { try { const ev = calEvent_(p.calEventId); return ev ? calEventLink_(ev) : ''; } catch (e) { return ''; } })() : '';
   return members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email) && !isSelf_(u, m)).map(m => {
     const isNew = !prev || prev.ids.indexOf(m.id) < 0, changed = !isNew && prev.sigs && prev.sigs[m.id] !== undefined && sigCore_(prev.sigs[m.id]) !== sigCore_(crewSig_(p, m.id));   // eszközváltozás nem csapatmódosítás (külön eszközlista)
-    const b = crewFinalBuild_(p, m, lead, link || (p.eventType === 'Videóvágás' ? '' : 'https://calendar.google.com/'), changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
+    const b = crewFinalBuild_(p, m, lead, link || 'https://calendar.google.com/', changed, { intro: '@@INTRO@@', note: '@@NOTE@@', cutTasks: cutTasksArg_(a) }, u);
     return { id: m.id, name: m.name, email: m.email, changed: changed, isNew: isNew, subject: b.subject, html: b.html };
   });
 }
@@ -1018,8 +1019,7 @@ function finalizeCrew_(u, a) {
   const members = crewMembers_(p);
   if (!members.length) throw new Error('Még nincs beosztva senki a projektre.');
   p = syncCalendar_(p);   // az esemény biztosan létezzen
-  const noCal = p.eventType === 'Videóvágás';   // videóvágás: nincs terepi naptárbejegyzés – a csapat naptár nélkül véglegesíthető
-  const ev = noCal ? null : calEvent_(p.calEventId); if (!ev && !noCal) throw new Error('A naptárbejegyzést nem sikerült létrehozni. Próbáld újra.');
+  const ev = calEvent_(p.calEventId); if (!ev) throw new Error('A naptárbejegyzést nem sikerült létrehozni. Próbáld újra.' + (p.calError ? ' (' + p.calError + ')' : ''));   // videóvágásnál a Vágói naptár eseménye
   const allCrewEmails = {}; readAll_('crew').forEach(c => { const e = String(c.email || '').trim().toLowerCase(); if (e) allCrewEmails[e] = 1; });
   const valid = members.filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email));
   const calNotified = ev ? calGuestsSet_(ev, valid.map(m => m.email), allCrewEmails) : false;
@@ -1563,7 +1563,11 @@ function authorizeGoogleLogin() {
 function authorizeCalendar() { Logger.log('Naptár rendben: ' + cal_().getName()); }
 const CAL_VAGOI_ID = 'c_049dca3cc6b78ea7bd304a4cafaab3ca26b504fc3d4e141a3b2d308b14705250@group.calendar.google.com';   // „Vágói Naptár Lumos Motion” (csak olvasás)
 function cal_() { const c = CalendarApp.getCalendarById(CALENDAR_ID); if (!c) throw new Error('A Google Naptár nem érhető el.'); return c; }
-function calEvent_(id) { if (!id) return null; try { return cal_().getEventById(id); } catch (e) { return null; } }
+/* Videóvágás projekt: a Vágói naptárba kerül (a terepi naptár a helyszíni munkáké) */
+function calIdFor_(p) { return p && p.eventType === 'Videóvágás' ? CAL_VAGOI_ID : CALENDAR_ID; }
+function calFor_(p) { const c = CalendarApp.getCalendarById(calIdFor_(p)); if (!c) throw new Error('A Google Naptár nem érhető el.'); return c; }
+function evCalId_(ev) { try { return ev.getOriginalCalendarId() || CALENDAR_ID; } catch (e) { return CALENDAR_ID; } }
+function calEvent_(id) { if (!id) return null; try { const ev = cal_().getEventById(id); if (ev) return ev; } catch (e) {} try { const v = CalendarApp.getCalendarById(CAL_VAGOI_ID); return v ? v.getEventById(id) : null; } catch (e) { return null; } }   // terepi, majd vágói naptár
 function calDelete_(id) { try { const ev = calEvent_(id); if (ev) ev.deleteEvent(); } catch (e) { Logger.log('Naptár törlés hiba: ' + e); } }
 function calDate_(iso, hhmm) { const d = Utilities.parseDate(iso + ' ' + (hhmm || '00:00'), SHEET_TZ, 'yyyy-MM-dd HH:mm'); return d; }
 function calPlan_(p) {
@@ -1613,18 +1617,23 @@ function syncCalendar_(p) {
     let ev = calEvent_(p.calEventId);
     // dátum nélküli vagy lemondott (STORNO) projekt: kikerül a Google Naptárból – az app naptárában szürkén, áthúzva marad
     // videóvágás: nem terepi munka – nem kerül a „Terepi Munkák” naptárba
-    if (!hasDate || p.status === 'lemondva' || p.eventType === 'Videóvágás') { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; calBump_(); } return p; }
+    if (!hasDate || p.status === 'lemondva') { if (ev) { ev.deleteEvent(); setCalId_(p.id, ''); p.calEventId = ''; calBump_(); } return p; }
+    const edit = p.eventType === 'Videóvágás';   // videóvágás: a Vágói naptárba, a projekt napjától a leadási határidőig (egész napos)
+    if (ev && evCalId_(ev) !== calIdFor_(p)) { try { ev.deleteEvent(); } catch (e) {} ev = null; setCalId_(p.id, ''); p.calEventId = ''; }   // típusváltás: átkerül a másik naptárba
     const title = p.name;
-    const multi = p.endDate && p.endDate > p.date;
+    const editEnd = edit && /^\d{4}-\d{2}-\d{2}$/.test(String(p.dueAt || '')) && p.dueAt > p.date ? p.dueAt : '';
+    const multi = edit ? !!editEnd : p.endDate && p.endDate > p.date;
     const plan = calPlan_(p);
-    const lastDay = Utilities.parseDate((multi ? p.endDate : p.date) + ' 12:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
+    const lastDay = Utilities.parseDate((multi ? (edit ? editEnd : p.endDate) : p.date) + ' 12:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
     const dayAfter = new Date(lastDay.getTime() + 86400000);
-    const start = p.startTime && !multi ? calDate_(p.date, p.startTime) : calDate_(p.date);
-    const end = p.startTime && !multi ? new Date(start.getTime() + (Number(p.hours) || 8) * 3600000) : calDate_(Utilities.formatDate(dayAfter, SHEET_TZ, 'yyyy-MM-dd'));
-    const allDay = !(p.startTime && !multi);
+    const timed = !edit && p.startTime && !multi;
+    const start = timed ? calDate_(p.date, p.startTime) : calDate_(p.date);
+    const end = timed ? new Date(start.getTime() + (Number(p.hours) || 8) * 3600000) : calDate_(Utilities.formatDate(dayAfter, SHEET_TZ, 'yyyy-MM-dd'));
+    const allDay = !timed;
     if (!ev) {
-      ev = allDay ? cal_().createAllDayEvent(title, start, end, { description: plan.description, location: p.venue || '' })
-                  : cal_().createEvent(title, start, end, { description: plan.description, location: p.venue || '' });
+      const C = calFor_(p), loc = edit ? '' : p.venue || '';
+      ev = allDay ? C.createAllDayEvent(title, start, end, { description: plan.description, location: loc })
+                  : C.createEvent(title, start, end, { description: plan.description, location: loc });
       ev.setTag('lumosProjectId', p.id);
       setCalId_(p.id, ev.getId()); p.calEventId = ev.getId();
       if (String(p.crewFinal || '').trim() && plan.guests.length) {   // visszaállított (pl. korábban lemondott) projekt: a véglegesített csapat újra vendég lesz
@@ -1648,7 +1657,7 @@ function syncCalendar_(p) {
 }
 /** Esemény csendes frissítése: a Google semmilyen értesítőt nem küld a vendégeknek (sendUpdates: none). Speciális szolgáltatás nélkül a tartalék fut. */
 function calQuietPatch_(ev, body, fallback) {
-  if (typeof Calendar !== 'undefined' && Calendar.Events) { try { Calendar.Events.patch(body, CALENDAR_ID, String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' }); return; } catch (e) { Logger.log('Csendes frissítés hiba: ' + e); } }
+  if (typeof Calendar !== 'undefined' && Calendar.Events) { try { Calendar.Events.patch(body, evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' }); return; } catch (e) { Logger.log('Csendes frissítés hiba: ' + e); } }
   fallback();
 }
 /** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
