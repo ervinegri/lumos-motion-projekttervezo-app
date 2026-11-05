@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "fbb411a311",
+"at": "2026-11-05T13:49:35+01:00",
+"msg": "Szóba jövő szolgáltatások: gépeléssel szűr, Enterrel új elem vehető fel"
+},
+{
 "id": "c5b26e546a",
 "at": "2026-11-05T13:44:12+01:00",
 "msg": "Honnan jött?: a lista elemei a HubSpot forrás-mezőjéből"
@@ -149,11 +154,6 @@
 "id": "989b48131a",
 "at": "2026-11-05T09:13:23+01:00",
 "msg": "Videók leadása: kötelező link, jelszó az Újabb link mellett, Termelési vezető elöl, címzettek biztos betöltése"
-},
-{
-"id": "739e437106",
-"at": "2026-11-05T09:10:03+01:00",
-"msg": "Videók leadása: címzettek névvel, lenyitható és szerkeszthető e-mail, megjegyzés mező helyett"
 }
 ]
 }
