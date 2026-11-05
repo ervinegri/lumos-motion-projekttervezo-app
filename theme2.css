@@ -266,8 +266,8 @@ html.th2 .view-as option{color:#101923}
 /* felületek */
 html.th2 .panel{border-radius:12px;border-color:var(--line);box-shadow:var(--shadow)}
 html.th2 .pcrew{border-color:var(--line);border-radius:10px}
-html.th2 .pcrew.is-lead{border-color:var(--tungsten)}
-html.th2 .lead-badge{background:var(--grad-brand);color:var(--tungsten-ink)}
+
+html.th2 .lead-badge{background:#e8eef3;color:var(--fg-2)}
 /* gombok: elsődleges = márka-átmenet, pirula forma (mint a weboldalon az „Ajánlatot kérek”) */
 html.th2 .btn{border-radius:999px;font-weight:600}
 html.th2 .btn.primary{background:var(--grad-brand);color:var(--tungsten-ink);font-weight:700}
@@ -301,7 +301,7 @@ html.th2 .mnav-sel{font-size:16px;font-weight:700;min-height:42px;min-width:200p
 html.th2 .sub{font-size:14px}
 html.th2 .statuspill{font-size:12.5px}
 /* átmenetes gombok: a háttér a keret alá is kerüljön, különben a szélén csík/varrat látszik */
-html.th2 .btn.primary,html.th2 .tab[aria-selected="true"],html.th2 .lead-badge{background-origin:border-box;background-clip:border-box;border-color:transparent;box-shadow:none}
+html.th2 .btn.primary,html.th2 .tab[aria-selected="true"]{background-origin:border-box;background-clip:border-box;border-color:transparent;box-shadow:none}
 /* hónapválasztó: a kiválasztott hónap is a többi mérete közelében */
 html.th2 .mnav-chip{font-size:14px;font-weight:600;min-height:40px;padding:6px 14px;border-radius:999px}
 html.th2 .mnav-chip.on{font-size:15px;font-weight:700;padding:6px 18px}
