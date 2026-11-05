@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "690e997339",
+"at": "2026-11-05T13:54:14+01:00",
+"msg": "Az e-mail-címek nem törnek új sorba (leadás címzettjei, véglegesítési sáv)"
+},
+{
 "id": "fbb411a311",
 "at": "2026-11-05T13:49:35+01:00",
 "msg": "Szóba jövő szolgáltatások: gépeléssel szűr, Enterrel új elem vehető fel"
@@ -149,11 +154,6 @@
 "id": "4c204aee53",
 "at": "2026-11-05T09:16:03+01:00",
 "msg": "Rövid, olvasható projektlinkek (#p=projektnev-xxxxxxxx); a régi linkek is működnek"
-},
-{
-"id": "989b48131a",
-"at": "2026-11-05T09:13:23+01:00",
-"msg": "Videók leadása: kötelező link, jelszó az Újabb link mellett, Termelési vezető elöl, címzettek biztos betöltése"
 }
 ]
 }
