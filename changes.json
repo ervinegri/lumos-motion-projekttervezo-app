@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4a61b28c35",
+"at": "2026-11-05T08:49:34+01:00",
+"msg": "Idővonal: a vágás sávján a hátralévő napok a mai naptól; a még le nem forgatott projekt vágása halvány; átmenet javítva"
+},
+{
 "id": "5926f48816",
 "at": "2026-11-05T08:46:44+01:00",
 "msg": "Videóvágás: nincs Helyszíni munka lépés – véglegesítés után rögtön Utómunka; a beragadt projektek átkerülnek"
@@ -146,13 +151,8 @@
 "msg": "Eszközök áthúzása munkatársak között; nincs automatikus lépés Helyszíni munkából Utómunkába"
 },
 {
-"id": "8f932cc510",
-"at": "2026-11-04T22:00:21+01:00",
-"msg": "Aktuális lépésen ⠿ fogantyú a pipa helyén; kreatív kamera hozzáadása csak véglegesítés előtt"
-},
-{
-"id": "e08ee172b6",
-"at": "2026-11-04T20:58:06Z",
+"id": "d343f9c987",
+"at": "2026-11-04T21:00:30Z",
 "msg": "Változásnapló frissítése"
 }
 ]
