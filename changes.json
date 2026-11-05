@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7ea839b648",
+"at": "2026-11-05T09:40:04+01:00",
+"msg": "Belépés után az app betöltés végén lágyan tűnik elő (nincs ugrálás)"
+},
+{
 "id": "eb1750a78a",
 "at": "2026-11-05T09:38:46+01:00",
 "msg": "Leadás: hiányzó link / címzett piros kerettel jelölve"
@@ -149,11 +154,6 @@
 "id": "5926f48816",
 "at": "2026-11-05T08:46:44+01:00",
 "msg": "Videóvágás: nincs Helyszíni munka lépés – véglegesítés után rögtön Utómunka; a beragadt projektek átkerülnek"
-},
-{
-"id": "ec03a7e5e0",
-"at": "2026-11-05T08:39:38+01:00",
-"msg": "Videóvágás projekt a Vágói naptárba kerül (projekt napjától a leadási határidőig), a csapat vendégként"
 }
 ]
 }
