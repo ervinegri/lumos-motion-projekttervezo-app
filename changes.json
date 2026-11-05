@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6d818f52d5",
+"at": "2026-11-05T23:26:31+01:00",
+"msg": "Logó: LUMOS MOTION egy sorban, alatta a PROJEKTTERVEZŐ"
+},
+{
 "id": "e2d0dd3f17",
 "at": "2026-11-05T17:44:10+01:00",
 "msg": "HubSpot-tevékenységek szerzője: tulajdonos vagy létrehozó felhasználó"
@@ -146,13 +151,8 @@
 "msg": "Projektlink név nélkül: #p=d3f68107"
 },
 {
-"id": "fd54cc7cf4",
-"at": "2026-11-05T09:26:02+01:00",
-"msg": "Idővonal: a még le nem forgatott projekt vágásán nincs napszám"
-},
-{
-"id": "b20225d319",
-"at": "2026-11-05T08:24:21Z",
+"id": "001de3225f",
+"at": "2026-11-05T08:26:12Z",
 "msg": "Változásnapló frissítése"
 }
 ]
