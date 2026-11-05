@@ -188,8 +188,8 @@ function dNoteAdd(old,nw){nw=String(nw||'').trim();if(!nw)return String(old||'')
 /* A régi, dátum nélküli jegyzet a lehetőség felvételének (ennek híján utolsó módosításának) idejét kapja */
 const dNoteFb=d=>{const t=String((d&&(d.createdAt||d.updatedAt))||'').replace('T',' ');return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(t)?t.slice(0,16):/^\d{4}-\d{2}-\d{2}/.test(t)?t.slice(0,10)+' 00:00':'';};
 function dNoteFix(t,fb,by){if(!fb)return String(t||'');const L=dNotesParse(t);if(!L.some(x=>!x.at))return String(t||'');L.forEach(x=>{if(!x.at){x.at=fb;x.by=x.by||by||'';}});return dNotesJoin(L);}
-function dNotesHtml(t,hs){const L=dNotesParse(t).concat((hs||[]).map(x=>({at:x.at,by:x.by,text:x.text,hs:1}))).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
-  return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?'<span class="hs-tag" style="margin:0">HubSpot</span>':''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+function dNotesHtml(t,hs){const L=dNotesParse(t).concat((hs||[]).map(x=>({at:x.at,by:x.by,text:x.text,hs:1,kind:x.kind||''}))).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
+  return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?`<span class="hs-tag" style="margin:0">HubSpot${x.kind&&x.kind!=='Jegyzet'?' · '+esc(x.kind):''}</span>`:''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
 
 /* Kapcsolattartó megnyitása a HubSpotban (kártyán és a lehetőség ablakában) */
 ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
@@ -202,7 +202,7 @@ ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
 /* A lehetőség ablakában a kapcsolattartó és a cég HubSpot-jegyzetei is megjelennek (csak olvasható, nem mentődnek a lehetőségbe) */
 let DN_HS_SEQ=0;
 async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h)return;const name=String(($('m-dCName')||{}).value||'').trim(),email=String(($('m-dCEmail')||{}).value||'').trim(),company=String(($('m-dClient')||{}).value||'').trim();
-  if(!name&&!email&&!company)return;const my=++DN_HS_SEQ;const st=$('m-dHsSt');if(st)st.textContent='HubSpot-jegyzetek betöltése…';
+  if(!name&&!email&&!company)return;const my=++DN_HS_SEQ;const st=$('m-dHsSt');if(st)st.textContent='HubSpot-tevékenységek betöltése…';
   try{const r=await call('hubspotNotes',{name,email,company});if(my!==DN_HS_SEQ||!$('m-dNotes'))return;box.innerHTML=dNotesHtml(dNoteFix(h.value,box.dataset.fb,box.dataset.by),r.notes||[]);
-    if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-jegyzet betöltve`:'A HubSpotban nincs jegyzet ehhez a kapcsolattartóhoz / céghez';}
+    if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-tevékenység betöltve (jegyzetek, feladatok, e-mailek, hívások, megbeszélések)`:'A HubSpotban nincs tevékenység ehhez a kapcsolattartóhoz / céghez';}
   catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}
