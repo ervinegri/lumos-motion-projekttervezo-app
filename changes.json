@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "60af718d86",
+"at": "2026-11-05T09:19:07+01:00",
+"msg": "Leadás: pipálható címzettek névvel és e-maillel; inkognitóban nem villan fel a menü; vágás súgója csak a határidő"
+},
+{
 "id": "4c204aee53",
 "at": "2026-11-05T09:16:03+01:00",
 "msg": "Rövid, olvasható projektlinkek (#p=projektnev-xxxxxxxx); a régi linkek is működnek"
@@ -146,13 +151,8 @@
 "msg": "Új design: összesen sor enyhén vastagabb"
 },
 {
-"id": "c9cbcd3308",
-"at": "2026-11-04T23:13:19+01:00",
-"msg": "Szerződés és számlázás: alcím törölve"
-},
-{
-"id": "3e8d4ec5df",
-"at": "2026-11-04T22:07:57Z",
+"id": "dee53810dc",
+"at": "2026-11-04T22:13:31Z",
 "msg": "Változásnapló frissítése"
 }
 ]
