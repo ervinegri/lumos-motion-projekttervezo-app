@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1643a028b9",
+"at": "2026-11-05T09:24:10+01:00",
+"msg": "Videók leadása: megjegyzés vissza, címzettek alapból nincsenek kipipálva, keresztnévvel; jelszó mező egy sorban"
+},
+{
 "id": "4c0a668a1a",
 "at": "2026-11-05T09:21:32+01:00",
 "msg": "Idővonal: függőlegesen tovább görget az oldalra (vissza lehet menni az oldal tetejére)"
@@ -149,11 +154,6 @@
 "id": "b9c5ae3264",
 "at": "2026-11-04T23:17:12+01:00",
 "msg": "Új design: Összesen és Egyenleg sor nagyobb helyett vastagabb"
-},
-{
-"id": "84855e5571",
-"at": "2026-11-04T23:15:19+01:00",
-"msg": "Új design: nagyobb Összesen és Egyenleg sor a kifizetéseknél"
 }
 ]
 }
