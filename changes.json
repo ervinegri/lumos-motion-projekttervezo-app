@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "bc9a5b62b5",
+"at": "2026-11-05T09:58:34+01:00",
+"msg": "Kifizetések: új sorcímkék (A számla kiállításra vár, Számla fizetve, még fizetendő)"
+},
+{
 "id": "ce27215e2a",
 "at": "2026-11-05T09:56:26+01:00",
 "msg": "Leadás: egy videónál egyes szám; jelszó mező a sorban marad"
@@ -149,11 +154,6 @@
 "id": "0afd748062",
 "at": "2026-11-05T09:01:13+01:00",
 "msg": "Az új design lett az egyetlen kinézet; a váltó gomb kikerült"
-},
-{
-"id": "e73776bd20",
-"at": "2026-11-05T09:00:23+01:00",
-"msg": "Új design: keret az aktuális lépés kártyáján"
 }
 ]
 }
