@@ -341,3 +341,5 @@ html.th2 .stage.cur .n{color:#5a3a00;opacity:1}
 html.th2 .stage.cur .t{color:var(--tungsten-ink)}
 html.th2 .stage.cur+.stage-tick,html.th2 .stage.cur+.stage-tick.stage-handle{color:var(--tungsten-ink);border-color:rgba(27,15,0,.35)}
 html.th2 .stage.cur+.stage-tick.stage-handle{border:0}
+/* még le nem forgatott projekt vágása: halvány lila, a kék forgatási napból lágyan átmenve */
+html.th2 .cal-chip.p.cut.tl-cut.tl-joined.cut-pending{background:linear-gradient(90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 44px)!important;background:linear-gradient(in oklab 90deg,var(--cal-p) 0,color-mix(in srgb,var(--violet) 38%,#fff) 44px)!important}
