@@ -6,13 +6,20 @@ function loginMsg(text,info){const m=$('loginMsg');m.textContent=text||'';m.clas
 const G_CLIENT=String(window.LUMOS_GOOGLE_CLIENT_ID||'').trim();
 let gReady=false;
 function initGoogle(tries){
-  if(!G_CLIENT){loginMsg('A Google-belépés nincs beállítva.');return;}
+  if(!G_CLIENT){$('loginForm').classList.add('lc-in');loginMsg('A Google-belépés nincs beállítva.');return;}
   if(gReady)return;
-  if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');return;}
+  if(!(window.google&&google.accounts&&google.accounts.id)){if((tries||0)<60)setTimeout(()=>initGoogle((tries||0)+1),150);else{$('loginForm').classList.add('lc-in');loginMsg('A Google-belépés nem töltődött be. Frissítsd az oldalt, vagy próbáld másik böngészőből.');}return;}
   gReady=true;
   google.accounts.id.initialize({client_id:G_CLIENT,callback:onGoogleCredential,auto_select:false,cancel_on_tap_outside:true,ux_mode:'popup',itp_support:true});
   google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',logo_alignment:'center',locale:'hu',width:280});
+  loginReveal();
 }
+/* A belépő kártya csak akkor jelenik meg (lágy beúszással), amikor a betűk és a Google-gomb is betöltött – így nem ugrál */
+function loginReveal(){const box=$('gBtn'),card=box&&box.closest('.login-card');if(!card||card.classList.contains('lc-in'))return;
+  let done=false;const show=()=>{if(done)return;done=true;setTimeout(()=>card.classList.add('lc-in'),180);};
+  const fonts=(document.fonts&&document.fonts.ready)||Promise.resolve();
+  const frame=()=>new Promise(res=>{const chk=()=>{const f=box.querySelector('iframe');if(f){f.addEventListener('load',()=>res(),{once:true});setTimeout(res,1200);return true;}return false;};if(chk())return;const mo=new MutationObserver(()=>{if(chk())mo.disconnect();});mo.observe(box,{childList:true,subtree:true});});
+  Promise.all([fonts,frame()]).then(show);setTimeout(show,3000);}
 async function onGoogleCredential(resp){
   if(!resp||!resp.credential){loginMsg('A Google-belépés megszakadt.');return;}
   loginMsg('Belépés…',true);
@@ -24,7 +31,7 @@ async function onGoogleCredential(resp){
   }catch(err){loginMsg(errText(err)||'A belépés sikertelen.');}
 }
 function showLogin(msg){
-  $('loginGate').classList.remove('hidden');document.documentElement.classList.add('no-auth');
+  $('loginGate').classList.remove('hidden');setTimeout(()=>{const c=$('loginForm');if(c)c.classList.add('lc-in');},3500);   // biztonsági háló: a kártya mindenképp megjelenikdocument.documentElement.classList.add('no-auth');
   initGoogle();
   loginMsg(msg||'',!!msg&&/Kiléptél/.test(msg));
 }
