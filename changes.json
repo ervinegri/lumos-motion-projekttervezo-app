@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f7f84aa1ba",
+"at": "2026-11-05T13:58:08+01:00",
+"msg": "Értékesítés kártya: a kapcsolattartó (e-mail) egy sorban, hosszúnál ...-tal"
+},
+{
 "id": "3082b4df18",
 "at": "2026-11-05T13:55:17+01:00",
 "msg": "Lehetőség ablak: a Szerződve gomb kikerül (a Szerződve oszlopba húzással megy)"
@@ -149,11 +154,6 @@
 "id": "63e4289b1f",
 "at": "2026-11-05T09:21:31+01:00",
 "msg": "Naptárbejegyzés: nincs Állapot sor; videóvágás a felvételtől a határidőig"
-},
-{
-"id": "60af718d86",
-"at": "2026-11-05T09:19:07+01:00",
-"msg": "Leadás: pipálható címzettek névvel és e-maillel; inkognitóban nem villan fel a menü; vágás súgója csak a határidő"
 }
 ]
 }
