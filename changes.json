@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c5b26e546a",
+"at": "2026-11-05T13:44:12+01:00",
+"msg": "Honnan jött?: a lista elemei a HubSpot forrás-mezőjéből"
+},
+{
 "id": "e11ad02ccd",
 "at": "2026-11-05T13:40:04+01:00",
 "msg": "Új lehetőség: a Honnan jött? a HubSpot eredeti forrásából (vagy visszatérő ügyfél); új legördülő"
@@ -149,11 +154,6 @@
 "id": "739e437106",
 "at": "2026-11-05T09:10:03+01:00",
 "msg": "Videók leadása: címzettek névvel, lenyitható és szerkeszthető e-mail, megjegyzés mező helyett"
-},
-{
-"id": "597fc15ea5",
-"at": "2026-11-05T09:07:51+01:00",
-"msg": "Idővonal: a vágás infója azonnal megjelenik (azonnali súgó)"
 }
 ]
 }
