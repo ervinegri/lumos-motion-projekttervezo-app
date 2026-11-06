@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0d49ff228e",
+"at": "2026-11-06T22:12:52+01:00",
+"msg": "Idővonal: jóváhagyásra váró vágás a mai napig látszik, nem tűnik el"
+},
+{
 "id": "00a2b598f2",
 "at": "2026-11-06T15:31:37+01:00",
 "msg": "Sales App szinkron: a végleges rendelésekből ügyfél és projekt, a közös adatok visszamennek"
@@ -146,13 +151,8 @@
 "msg": "Átadási link felirat: YouTube, pCloud vagy más"
 },
 {
-"id": "848d1e6a58",
-"at": "2026-11-06T08:30:27+01:00",
-"msg": "Leadás ablak: Észrevételek felirat '(nem kötelező)' nélkül"
-},
-{
-"id": "904aae8aba",
-"at": "2026-11-06T07:29:04Z",
+"id": "c9c64fb5c2",
+"at": "2026-11-06T07:30:37Z",
 "msg": "Változásnapló frissítése"
 }
 ]
