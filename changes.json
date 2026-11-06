@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d3955bd051",
+"at": "2026-11-06T08:47:13+01:00",
+"msg": "Idővonal: jóváhagyásra váró vágás ⏳, kész ✓"
+},
+{
 "id": "0a3758929e",
 "at": "2026-11-06T08:46:21+01:00",
 "msg": "Logó: LUMOS MOTION Medium, PROJEKTTERVEZŐ Bold"
@@ -146,13 +151,8 @@
 "msg": "Honnan jött?: a lista elemei a HubSpot forrás-mezőjéből"
 },
 {
-"id": "e11ad02ccd",
-"at": "2026-11-05T13:40:04+01:00",
-"msg": "Új lehetőség: a Honnan jött? a HubSpot eredeti forrásából (vagy visszatérő ügyfél); új legördülő"
-},
-{
-"id": "9bc2e88e4d",
-"at": "2026-11-05T10:04:45Z",
+"id": "a18f03da95",
+"at": "2026-11-05T12:40:19Z",
 "msg": "Változásnapló frissítése"
 }
 ]
