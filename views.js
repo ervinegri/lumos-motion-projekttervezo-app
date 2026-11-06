@@ -1182,7 +1182,6 @@ function calTimeline(m,items0,T){
   rows.sort((a,b)=>vis(a).localeCompare(vis(b))||(a.time||'99').localeCompare(b.time||'99'));
   /* Jóváhagyásra vár: külön kategória legfelül, lapozástól függetlenül mindig látszik (amíg az ügyfél jóvá nem hagyja) */
   const waitL=S.projects.filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&cutOf(p)).sort((a,b)=>String(a.leadvaAt||'').localeCompare(String(b.leadvaAt||'')));
-  {const W=new Set(waitL.map(p=>p.id));for(let i=rows.length-1;i>=0;i--)if(rows[i].kind==='p'&&W.has(rows[i].id))rows.splice(i,1);}
   let wOpen=true;try{wOpen=localStorage.getItem('lpm_tl_wait')!=='0';}catch(e){}
   const waitRows=waitL.length?`<div class="tl-row tl-sec tl-wsec"><button type="button" class="tl-lbl tl-wtog" data-action="tl-wait-toggle" aria-expanded="${wOpen}"><b>${wOpen?'▾':'▸'} ⏳ Jóváhagyásra vár</b><small>${waitL.length} projekt${wOpen?'':' · elrejtve'}</small></button><div class="tl-track"></div></div>`+(wOpen?'':'<div class="tl-row tl-sec tl-sec2"><div class="tl-lbl"><b>Idővonal</b></div><div class="tl-track"></div></div>')+(!wOpen?'':waitL.map(p=>{
     const ld=String(p.leadvaAt||p.deliveredAt||'').slice(0,10),n=validISO(ld)?diffDays(ld,T):null,cu=(p.crew||[]).filter(x=>x.role==='Vágó'&&!(ro()&&x.crewId===me)&&!(!ro()&&S.cal.cutter&&x.crewId===S.cal.cutter)).map(x=>{const c=crewById(x.crewId);return c?String(c.name).split(' ').slice(-1)[0]:'';}).filter(Boolean);
