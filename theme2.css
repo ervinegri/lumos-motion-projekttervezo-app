@@ -403,3 +403,6 @@ tr.cl-row:hover>td{background:var(--soft,#f4f6f8)}
 .tl-row.tl-sec .tl-lbl.tl-wtog b{letter-spacing:.02em;white-space:nowrap;overflow:visible}
 .tl-row.tl-sec .tl-lbl.tl-wtog{overflow:visible}
 html.th2 .tl-row.tl-sec .tl-lbl.tl-wtog b{text-transform:none!important;letter-spacing:0!important;font-size:13px!important;color:var(--fg)}
+
+/* „Szakember nézet” sárga sáv: a fejléc alatt fent marad, nem lehet felgörgetni alá */
+.view-banner{position:sticky;top:var(--tbh0,58px);z-index:19}

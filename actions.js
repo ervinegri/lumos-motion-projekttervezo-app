@@ -2056,8 +2056,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
 /* A fejléc magassága (a ragadós projektcímhez), és árnyék, amikor a cím fent ragad */
-(()=>{const setH=()=>{const t=document.querySelector('.topbar');if(t)document.documentElement.style.setProperty('--tbh',t.offsetHeight+'px');};
+(()=>{const setH=()=>{const t=document.querySelector('.topbar'),v=$('viewBanner');if(!t)return;const th=t.offsetHeight,vh=v&&!v.classList.contains('hidden')?v.offsetHeight:0;   // a sárga „nézet” sáv is fent marad: a ragadós elemek alatta kezdődnek
+    document.documentElement.style.setProperty('--tbh0',th+'px');document.documentElement.style.setProperty('--tbh',(th+vh)+'px');};
   window.addEventListener('resize',setH);setTimeout(setH,0);setInterval(setH,3000);
+  try{const ro=new ResizeObserver(setH);const t=document.querySelector('.topbar'),v=$('viewBanner');if(t)ro.observe(t);if(v){ro.observe(v);new MutationObserver(setH).observe(v,{attributes:true,attributeFilter:['class']});}}catch(e){}
   /* görgetéskor a projekt neve fent marad: vékony sáv a fejléc alatt, amikor a cím kicsúszik a képből */
   const bar=()=>{let b=$('ptbar');if(!b){b=document.createElement('div');b.id='ptbar';b.className='ptbar';b.innerHTML='<div class="ptbar-in"><b></b><span></span></div>';b.querySelector('b').onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(b);}return b;};
   const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d){if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
