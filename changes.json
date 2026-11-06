@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0a3758929e",
+"at": "2026-11-06T08:46:21+01:00",
+"msg": "Logó: LUMOS MOTION Medium, PROJEKTTERVEZŐ Bold"
+},
+{
 "id": "5c1d56db95",
 "at": "2026-11-06T08:45:25+01:00",
 "msg": "Idővonal: kész vágás csak ✓"
@@ -146,13 +151,8 @@
 "msg": "Új lehetőség: a Honnan jött? a HubSpot eredeti forrásából (vagy visszatérő ügyfél); új legördülő"
 },
 {
-"id": "7cf3a528bb",
-"at": "2026-11-05T11:04:28+01:00",
-"msg": "E-mail tárgyak emoji nélkül (a Gmail hibásan jelenítette meg)"
-},
-{
-"id": "1f1e9757bc",
-"at": "2026-11-05T09:06:34Z",
+"id": "9bc2e88e4d",
+"at": "2026-11-05T10:04:45Z",
 "msg": "Változásnapló frissítése"
 }
 ]
