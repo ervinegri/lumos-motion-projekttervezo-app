@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2c611288eb",
+"at": "2026-11-06T08:55:15+01:00",
+"msg": "Beosztásaim: a szerep alatt a projekt állapota (pl. Elfogadásra vár, Kész)"
+},
+{
 "id": "68641730c1",
 "at": "2026-11-06T08:54:14+01:00",
 "msg": "Havi naptár: függőlegesen nem rugózik és nem lapoz"
@@ -146,13 +151,8 @@
 "msg": "HubSpot-tevékenységek szerzője: tulajdonos vagy létrehozó felhasználó"
 },
 {
-"id": "c1c1778ff3",
-"at": "2026-11-05T13:59:43+01:00",
-"msg": "Lehetőség jegyzetei: a HubSpot feladatai, e-mailjei, hívásai és megbeszélései is"
-},
-{
-"id": "6113ce2b0c",
-"at": "2026-11-05T12:58:18Z",
+"id": "9f395b2130",
+"at": "2026-11-05T12:59:53Z",
 "msg": "Változásnapló frissítése"
 }
 ]
