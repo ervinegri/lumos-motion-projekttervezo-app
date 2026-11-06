@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1aa610f35b",
+"at": "2026-11-06T08:52:55+01:00",
+"msg": "Naptár fejléce: kisebb gombok és hónapválasztó"
+},
+{
 "id": "11a2619045",
 "at": "2026-11-06T08:51:44+01:00",
 "msg": "Idővonal: az élő (piros) forgatási sávon nincs körvonal"
@@ -146,13 +151,8 @@
 "msg": "Értékesítés kártya: a kapcsolattartó (e-mail) egy sorban, hosszúnál ...-tal"
 },
 {
-"id": "3082b4df18",
-"at": "2026-11-05T13:55:17+01:00",
-"msg": "Lehetőség ablak: a Szerződve gomb kikerül (a Szerződve oszlopba húzással megy)"
-},
-{
-"id": "bf7946b210",
-"at": "2026-11-05T12:54:51Z",
+"id": "a390fc8c09",
+"at": "2026-11-05T12:55:27Z",
 "msg": "Változásnapló frissítése"
 }
 ]
