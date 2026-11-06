@@ -1383,6 +1383,7 @@ const ACT={
   'pen-object':b=>penObjectModal(b.dataset.pid,b.dataset.id),
   'pen-open':b=>{const id=b.dataset.pid;guard(()=>openProject(id));},
   'new-client':()=>newClientModal(null,null,true),
+  'tl-wait-toggle':()=>{let o=true;try{o=localStorage.getItem('lpm_tl_wait')!=='0';localStorage.setItem('lpm_tl_wait',o?'0':'1');}catch(e){}const w=document.querySelector('.tl-wrap');if(w&&S.cal.tlPos)S.cal.tlPos.x=w.scrollLeft;render(true);},
   'edit-client':b=>{const c=knownClients('').find(x=>x.company===b.dataset.name);if(!c)return;newClientModal(null,{id:c.id,client:c.company,clientTax:c.tax,clientAddress:c.address,contactName:c.name,contactPhone:c.phone,contactEmail:c.email,rep:c.rep,repPhone:c.repPhone,repEmail:c.repEmail,repTitle:c.repTitle,contactTitle:c.contactTitle},true);},
   'del-client':b=>arm(b,async()=>{try{const old=(S.clients||[]).find(c=>c.id===b.dataset.id);await call('deleteClient',{id:b.dataset.id});if(old)entRec('client','ügyfél törlése: '+old.name,old.id,clone(old),null);S.clients=(S.clients||[]).filter(x=>x.id!==b.dataset.id);closeModal();render(true);toast('Ügyfél törölve a nyilvántartásból');}catch(e){handleErr(e);}}),
   'hs-open':()=>hubspotModal(),
