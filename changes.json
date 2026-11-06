@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dd78abfd56",
+"at": "2026-11-06T08:12:49+01:00",
+"msg": "Nyersanyag-értesítő csak annak a vágónak, akinek más is forgatott; levélszöveg az áthúzásos leadáshoz"
+},
+{
 "id": "752b295833",
 "at": "2026-11-06T08:11:13+01:00",
 "msg": "Logó: a nyíl a teljes szélességet kitölti"
@@ -146,13 +151,8 @@
 "msg": "Belépés: a kártya csak a betűk és a Google-gomb betöltése után, lágy beúszással jelenik meg"
 },
 {
-"id": "f06906d231",
-"at": "2026-11-05T09:34:14+01:00",
-"msg": "Leadás: X a további linkeken, címzettek betöltése pörgővel"
-},
-{
-"id": "33ea660f5a",
-"at": "2026-11-05T08:31:51Z",
+"id": "020fa8e1ed",
+"at": "2026-11-05T08:34:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
