@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "11a2619045",
+"at": "2026-11-06T08:51:44+01:00",
+"msg": "Idővonal: az élő (piros) forgatási sávon nincs körvonal"
+},
+{
 "id": "da230f17ae",
 "at": "2026-11-06T08:50:40+01:00",
 "msg": "Idővonal: az átmenet a forgatási sáv tényleges színéből indul (piros / szürke / kék)"
@@ -146,13 +151,8 @@
 "msg": "Lehetőség ablak: a Szerződve gomb kikerül (a Szerződve oszlopba húzással megy)"
 },
 {
-"id": "690e997339",
-"at": "2026-11-05T13:54:14+01:00",
-"msg": "Az e-mail-címek nem törnek új sorba (leadás címzettjei, véglegesítési sáv)"
-},
-{
-"id": "3961a58763",
-"at": "2026-11-05T12:49:45Z",
+"id": "bf7946b210",
+"at": "2026-11-05T12:54:51Z",
 "msg": "Változásnapló frissítése"
 }
 ]
