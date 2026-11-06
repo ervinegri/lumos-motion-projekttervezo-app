@@ -1127,7 +1127,7 @@ function calItems(month){
     items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   const cutC=!ro()&&S.cal.cutter?crewById(S.cal.cutter):null,cutMail=cutC?String(cutC.email||'').toLowerCase():'',cutNm=cutC?fold(cutC.name):'';
   const vOk=e=>!cutC||(cutMail&&(e.guests||[]).includes(cutMail))||(!!cutNm&&fold((e.title||'')+' '+(e.description||'')).includes(cutNm));   // kiválasztott vágó: csak az ő vágói bejegyzései
-  if(S.cal.show.vagoi)(S.cal.ev2[month]||[]).filter(vOk).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''}));
+  if(S.cal.show.vagoi)(S.cal.ev2[month]||[]).filter(vOk).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)}));
   if(ro())return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   if(!S.cal.show.terepi)return items.filter(i=>i.kind==='v').sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
@@ -1205,7 +1205,7 @@ function calTimeline(m,items0,T){
     const FROM=live?'#d93025':dim?'#c2c3c6':'var(--cal-p)';   // az új designban minden forgatási sáv pára-kék (élő: piros, halvány: szürke) – az átmenet ebből indul   // az átmenet a forgatási sáv tényleges színéből indul (élő: piros, lezajlott/halvány: szürke)
     const cc=cc0,spanA=Math.min(c0,cc?col(cc.st<first?first:cc.st):c0),spanB=Math.max(c1,cc?col(cc.due>last?last:cc.due):c1);
     return `<div class="tl-row tl-it" data-a="${spanA}" data-b="${spanB}"${it.kind==='p'?` data-pid="${esc(it.id)}"`:''}><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
-      <div class="tl-track" data-first="${first}" data-n="${N}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${showBar?`<button type="button" class="${cls} tl-bar${join?' tl-join':''}" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.date>=first?esc(tlTimes(it,p)):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
+      <div class="tl-track" data-first="${first}" data-n="${N}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${showBar?`<button type="button" class="${cls} tl-bar${join?' tl-join':''}" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.date>=first?esc(tlTimes(it,p)):''}${(()=>{const q=it.kind==='v'&&it.lp&&projById(it.lp);return q?(q.status==='atadva'?' ✓':' ⏳'):'';})()}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
         const cdone=['leadva','jovahagyas','atadva'].includes(p.status);   // a vágás kész: ✓
         const ld=String(p.leadvaAt||p.deliveredAt||'').slice(0,10),cEnd=cdone&&validISO(ld)&&ld<c.due?(ld<c.st?c.st:ld):c.due;   // leadás után a további napok eltűnnek (a határidő már nem él)
         const a2=c.st<first?first:c.st,b2=cEnd>last?last:cEnd;
@@ -1223,6 +1223,11 @@ function calTimeline(m,items0,T){
     ${waitRows}${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
 }
+/* Kézzel felvett vágói naptár-esemény (nincs projekt-azonosítója): a cím első szava és a határidő alapján megkeressük a projektjét,
+   hogy a sávon látszódjon, ha a videók jóváhagyásra várnak (⏳) vagy már átadva (✓) */
+function vLinkProj(e){const w=fold(String(e.title||'').trim().split(/\s+/)[0]||'');if(w.length<3)return '';const end=e.endDate||e.date;
+  const c=S.projects.filter(p=>['leadva','jovahagyas','atadva'].includes(p.status)&&fold(String(p.name||'').trim().split(/\s+/)[0]||'')===w).filter(p=>{const d=dueDate(p);return !d||!end||Math.abs(diffDays(d,end))<=21;});
+  return c.length===1?c[0].id:'';}
 function viewCalendar(){
   const m=S.cal.month,r=calRange(m),T=todayISO();
   prefetchCal(m);
