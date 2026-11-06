@@ -1171,8 +1171,7 @@ function calTimeline(m,items0,T){
   const items=[],ik=new Set();[items0,calItems(pm),calItems(nm)].forEach(L=>L.forEach(it=>{const k=it.kind+':'+it.id+(it.cut?':c':'');if(!ik.has(k)){ik.add(k);items.push(it);}}));
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
-  const cutOf=p=>{if(!p||p.status==='lemondva'||!S.cal.show.vagoi||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p);let due=dueDate(p);if(!q||!due)return null;
-    const wait=p.status==='leadva'||p.status==='jovahagyas',T0=todayISO();if(wait&&due<T0)due=T0;   // jóváhagyásra vár: a sáv a mai napig tart, nem tűnik el az idővonalról
+  const cutOf=p=>{if(!p||p.status==='lemondva'||!S.cal.show.vagoi||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
     if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
   const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
@@ -1198,7 +1197,7 @@ function calTimeline(m,items0,T){
     return `<div class="tl-row tl-it" data-a="${spanA}" data-b="${spanB}"><button type="button" class="tl-lbl" data-action="${act}" data-id="${esc(it.id)}"><b>${esc(it.title)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>
       <div class="tl-track" data-first="${first}" data-n="${N}" data-id="${esc(it.id)}"><div class="tl-bg">${bg}</div>${showBar?`<button type="button" class="${cls} tl-bar${join?' tl-join':''}" style="grid-column:${c0} / ${c1+1};grid-row:1"${!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'))?' draggable="true"':''} data-action="${act}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${it.date<first?'‹ ':''}${it.date>=first?esc(tlTimes(it,p)):''}${it.endDate>last?' ›':''}</button>`:''}${(()=>{const c=p&&cutOf(p);if(!c||c.due<first||c.st>last)return '';
         const cdone=['leadva','jovahagyas','atadva'].includes(p.status);   // a vágás kész: ✓
-        const ld=String(p.leadvaAt||p.deliveredAt||'').slice(0,10),cEnd=cdone&&validISO(ld)&&ld<c.due?(ld<c.st?c.st:(p.status!=='atadva'&&ld<todayISO()?(todayISO()<c.due?todayISO():c.due):ld)):c.due;   // leadás után a további napok eltűnnek (a határidő már nem él)
+        const ld=String(p.leadvaAt||p.deliveredAt||'').slice(0,10),cEnd=cdone&&validISO(ld)&&ld<c.due?(ld<c.st?c.st:ld):c.due;   // leadás után a további napok eltűnnek (a határidő már nem él)
         const a2=c.st<first?first:c.st,b2=cEnd>last?last:cEnd;
         if(cEnd<first)return '';
         const pend=!cdone&&!editOnly(p)&&pr(p)&&pr(p).end>=T;   // még nincs leforgatva: a vágó még nem dolgozhat rajta
