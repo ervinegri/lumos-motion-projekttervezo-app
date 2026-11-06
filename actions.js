@@ -27,6 +27,7 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
     <div class="mfoot">${left?`<span class="left">${left}</span>`:''}<button type="button" class="btn outline" data-action="${submit?'modal-cancel':'modal-close'}">${esc(cancelLabel)}</button>${submit?`<button type="submit" class="btn primary">${esc(submitLabel)}</button>`:''}</div></form></div>`;
   if(MD_KEY)MD_KEY+='|'+mdSig();   // a piszkozat csak ugyanarra a kiinduló űrlapra töltődik vissza (pl. másik munkatárs szerkesztésekor nem)
   document.documentElement.style.overflow='hidden';
+  {const lf=$('modalRoot').querySelector('.links-field'),pf=$('modalRoot').querySelector('.pass-field'),ad=lf&&lf.querySelector('.link-add');if(lf&&pf&&ad&&!lf.querySelector('.cd-linkrow')){const row=document.createElement('div');row.className='cd-linkrow';ad.replaceWith(row);row.append(ad,pf);}}   // „+ Újabb link” és a jelszó egy sorban (minden linkes ablakban)
   const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first)first.focus();
   if(MD_KEY){const k=MD_KEY;setTimeout(()=>mdRestore(k),0);}
 }
@@ -649,7 +650,7 @@ function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
       if(!/^https:\/\/\S+$/i.test(a.link)){const li=$('m-cdLink');if(li){li.classList.add('inp-bad');li.focus();}toast('Add meg a videók linkjét (https://…).',true);return;}if(linksBad(a.links)){toast('Minden link https:// kezdetű legyen.',true);return;}if(a.emails&&!a.emails.length){const rc=$('cdRcpt');if(rc){rc.classList.add('rc-bad');rc.scrollIntoView({block:'center',behavior:'smooth'});}toast('Pipálj ki legalább egy címzettet.',true);return;}
       try{const r=await call('crewDeliver',a);const k=S.projects.findIndex(x=>x.id===p.id);if(k>=0&&r.project)S.projects[k]=normProj(r.project);if(S.projectId===p.id&&r.project){S.draft=prepDraft(r.project);S.draftBase=clone(S.draft);S.dirty=false;}
         closeModal();render(true);toast('Videók leadva'+(r.notified&&r.notified.length?' – értesítve: '+r.notified.join(', '):''));}catch(e){handleErr(e);}}});
-  {const lf=document.querySelector('#mform .links-field'),pf=document.querySelector('#mform .pass-field'),ad=lf&&lf.querySelector('.link-add');if(lf&&pf&&ad){const row=document.createElement('div');row.className='cd-linkrow';ad.replaceWith(row);row.append(ad,pf);}}   // „+ Újabb link” és a jelszó egy sorban
+  {}   // „+ Újabb link” és a jelszó egy sorban
   CD_EDITED=false;{const fm=$('mform');if(fm)fm.addEventListener('input',e=>{if(e.target.id==='m-cdLink')e.target.classList.remove('inp-bad');});if(fm)fm.addEventListener('change',e=>{if(e.target.name==='cdTo'){const rc=$('cdRcpt');if(rc)rc.classList.remove('rc-bad');}});}
   CD_RCPT=null;const ld=n=>call('deliverRecipients').then(r=>{const L=Array.isArray(r)?r:[];if(!L.length&&n)return setTimeout(()=>ld(n-1),1500);CD_RCPT=L;cdPreview(p);}).catch(()=>{if(n)return setTimeout(()=>ld(n-1),1500);CD_RCPT=[];cdPreview(p);});ld(2);
   cdPreview(p);const f=$('mform');if(f){f.addEventListener('input',()=>cdPreview(p));f.addEventListener('change',()=>cdPreview(p));f.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#cdPrevBody,summary'))return;setTimeout(()=>cdPreview(p),0);});}}
