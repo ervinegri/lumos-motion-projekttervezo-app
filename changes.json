@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "256ad981ce",
+"at": "2026-11-06T08:28:55+01:00",
+"msg": "Logó: a PROJEKTTERVEZŐ betűmérete a LUMOS MOTION-höz igazítva"
+},
+{
 "id": "8fed2e96c8",
 "at": "2026-11-06T08:27:15+01:00",
 "msg": "Logó: szóköz vissza a LUMOS MOTION-ba"
@@ -146,13 +151,8 @@
 "msg": "Eszközök véglegesítése csak akkor, ha van hozzárendelt eszköz"
 },
 {
-"id": "5bd7f002f3",
-"at": "2026-11-05T09:41:07+01:00",
-"msg": "Videóvágás: nincs helyszíni beszámoló sáv, és az utómunka helyszíni munka nélkül léptethető"
-},
-{
-"id": "34e9a074d5",
-"at": "2026-11-05T08:40:14Z",
+"id": "9a146dba28",
+"at": "2026-11-05T08:41:17Z",
 "msg": "Változásnapló frissítése"
 }
 ]
