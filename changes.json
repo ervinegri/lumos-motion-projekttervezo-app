@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "633f123462",
+"at": "2026-11-06T09:00:41+01:00",
+"msg": "Lezajlott projekt csapata zárolva; mezők vékonyabb betű; idővonal átmenet javítás; vissza gomb a címsorban"
+},
+{
 "id": "2c611288eb",
 "at": "2026-11-06T08:55:15+01:00",
 "msg": "Beosztásaim: a szerep alatt a projekt állapota (pl. Elfogadásra vár, Kész)"
@@ -146,13 +151,8 @@
 "msg": "Logó: LUMOS MOTION egy sorban, alatta a PROJEKTTERVEZŐ"
 },
 {
-"id": "e2d0dd3f17",
-"at": "2026-11-05T17:44:10+01:00",
-"msg": "HubSpot-tevékenységek szerzője: tulajdonos vagy létrehozó felhasználó"
-},
-{
-"id": "9f395b2130",
-"at": "2026-11-05T12:59:53Z",
+"id": "212eff952a",
+"at": "2026-11-05T16:44:22Z",
 "msg": "Változásnapló frissítése"
 }
 ]
