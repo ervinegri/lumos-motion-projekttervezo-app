@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "3dffa5fc6d",
+"at": "2026-11-06T08:09:50+01:00",
+"msg": "Logó: a PROJEKTTERVEZŐ felirat LEMON MILK betűvel"
+},
+{
 "id": "6d818f52d5",
 "at": "2026-11-05T23:26:31+01:00",
 "msg": "Logó: LUMOS MOTION egy sorban, alatta a PROJEKTTERVEZŐ"
@@ -146,13 +151,8 @@
 "msg": "Leadás: megjegyzés a videók előtt, 'elkészítette' szöveg, címzettek egy sorban, teljes szélességű jelszó, hívogató levél-előnézet; le nem forgatott vágáson nincs ikon"
 },
 {
-"id": "305a3ec96d",
-"at": "2026-11-05T09:27:21+01:00",
-"msg": "Projektlink név nélkül: #p=d3f68107"
-},
-{
-"id": "001de3225f",
-"at": "2026-11-05T08:26:12Z",
+"id": "c90dceff63",
+"at": "2026-11-05T08:27:32Z",
 "msg": "Változásnapló frissítése"
 }
 ]
