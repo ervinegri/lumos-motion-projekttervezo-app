@@ -1180,6 +1180,13 @@ function calTimeline(m,items0,T){
     rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&!crewOnSite(p,me))});});
   const vis=it=>{const p=it.kind==='p'?projById(it.id):null,c=p&&cutOf(p);return p&&editOnly(p)&&c?c.st:(c&&c.st<it.date?c.st:it.date);};   // a sorrend a sáv látható kezdete szerint (videóvágásnál a vágás eleje)
   rows.sort((a,b)=>vis(a).localeCompare(vis(b))||(a.time||'99').localeCompare(b.time||'99'));
+  /* Jóváhagyásra vár: külön kategória legfelül, lapozástól függetlenül mindig látszik (amíg az ügyfél jóvá nem hagyja) */
+  const waitL=S.projects.filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&cutOf(p)).sort((a,b)=>String(a.leadvaAt||'').localeCompare(String(b.leadvaAt||'')));
+  {const W=new Set(waitL.map(p=>p.id));for(let i=rows.length-1;i>=0;i--)if(rows[i].kind==='p'&&W.has(rows[i].id))rows.splice(i,1);}
+  const waitRows=waitL.length?`<div class="tl-row tl-sec"><div class="tl-lbl"><b>⏳ Jóváhagyásra vár</b><small>${waitL.length} projekt</small></div><div class="tl-track"></div></div>`+waitL.map(p=>{
+    const ld=String(p.leadvaAt||p.deliveredAt||'').slice(0,10),n=validISO(ld)?diffDays(ld,T):null,cu=(p.crew||[]).filter(x=>x.role==='Vágó').map(x=>{const c=crewById(x.crewId);return c?String(c.name).split(' ').slice(-1)[0]:'';}).filter(Boolean);
+    const sub=[p.client,p.venue].filter(Boolean).join(' · ');
+    return `<div class="tl-row tl-pin"><button type="button" class="tl-lbl" data-action="open-project" data-id="${esc(p.id)}"><b>${esc(p.name||'Névtelen projekt')}</b>${sub?`<small>${esc(sub)}</small>`:''}</button><div class="tl-track"><button type="button" class="tl-pinnote" data-action="open-project" data-id="${esc(p.id)}">${validISO(ld)?`Leadva ${esc(F_SHORT?F_SHORT.format(toDate(ld)):ld)}`:'Leadva'}${n!=null?` · ${n<=0?'ma':n+' napja'} vár jóváhagyásra`:''}${cu.length?` · ✂️ ${esc(cu.join(', '))}`:''}</button></div></div>`;}).join('')+`<div class="tl-row tl-sec tl-sec2"><div class="tl-lbl"><b>Idővonal</b></div><div class="tl-track"></div></div>`:'';
   const wk=d=>{const w=toDate(d).getUTCDay();return w===0||w===6;};
   const MN=d=>F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();
   const head=days.map(d=>`<div class="tl-d${wk(d)?' we':''}${d===T?' today':''}${d.slice(8)==='01'?' mstart':''}${d.slice(0,7)!==m?' oth':''}">${Number(d.slice(8))}<small>${esc(WD_SHORT[(toDate(d).getUTCDay()+6)%7])}</small></div>`).join('');
@@ -1210,7 +1217,7 @@ function calTimeline(m,items0,T){
     w.scrollLeft=Math.max(0,target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);});
   return `<div class="tl-wrap" title=""><div class="tl tl-noanim" style="--n:${N}">
     <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
-    ${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
+    ${waitRows}${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
     ${ti?`<div class="tl-now" style="--i:${ti}" title="Ma"></div>`:''}</div></div>`;
 }
 function viewCalendar(){
