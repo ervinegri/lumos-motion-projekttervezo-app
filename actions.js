@@ -607,7 +607,7 @@ function postModal(next){
       ${stuckSummary(d)}
       ${canSeeFees()&&penCrewOpts().length?`<div class="field full"><label class="toggle"><input type="checkbox" id="m-stuck"><span class="tl">🚨 Elakadás történt</span></label></div>`:''}
       ${penBlock(false)}
-      <div class="field full"><label for="m-deliveryNotes">Észrevételek <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment az utómunka, volt-e csúszás, mire figyeljünk az átadásnál…">${esc(d.deliveryNotes||'')}</textarea></div>
+      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment az utómunka, volt-e csúszás, mire figyeljünk az átadásnál…">${esc(d.deliveryNotes||'')}</textarea></div>
     </div>`,{submitLabel:'Kipipálás ✓',submit:async fd=>{
       const notes=String(fd.get('deliveryNotes')||'').trim();
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
@@ -742,7 +742,7 @@ function deliveryModal(target){
       ${stuckSummary(d)}
       ${canSeeFees()&&penCrewOpts().length?`<div class="field full"><label class="toggle"><input type="checkbox" id="m-stuck"${stuck?' checked':''}><span class="tl">🚨 Elakadás történt</span></label></div>`:''}
       ${penBlock(stuck)}
-      <div class="field full"><label for="m-deliveryNotes">Észrevételek <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
+      <div class="field full"><label for="m-deliveryNotes">Észrevételek</label><textarea class="inp" id="m-deliveryNotes" name="deliveryNotes" rows="4" maxlength="3000" placeholder="Hogy ment a projekt, mire figyeljünk legközelebb, mi maradt nyitva…">${esc(d.deliveryNotes||'')}</textarea></div>
     </div>`,{submitLabel:toLead?'Leadva ✓':d.status==='atadva'?'Mentés':'Átadva ✓',submit:async fd=>{
       const link=String(fd.get('deliveryLink')||'').trim();if(!/^https:\/\/\S+$/i.test(link)){toast('Adj meg egy érvényes átadási linket (https://…).',true);const e=$('m-deliveryLink');if(e)e.focus();return;}
       const links=linksVal(fd,'deliveryLink');if(linksBad(links)){toast('Minden link https:// kezdetű legyen.',true);return;}
