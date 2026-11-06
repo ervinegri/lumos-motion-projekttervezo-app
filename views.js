@@ -999,8 +999,9 @@ function viewProject(p){
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   ${ro()?roContentPanel(p):(()=>{const nSel=nRec+nKrea+nTech+nIntG+postTasks(p).length,openEd=FOLD.content!=null?FOLD.content:!nSel;   // egy panel: felül az összesítő (kiosztással), alatta a kiválasztás
-    return `<section class="panel content svc"><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}</h3><p class="hint" style="margin:-4px 0 12px">Jelöld be, mit kell csinálni – a kiválasztott tétel alatt rögtön kiválaszthatod, ki csinálja. A kiválasztott szakember a szerepével a Stáb és eszközök közé is bekerül.</p>
-    ${topicCards(p,{camRow,dlRow,D})}</section>`;})()}
+    const SL=!ro()&&!projLocked()&&crewLocked(p);   // véglegesített csapatnál a szolgáltatások is zárolva (szürkén), feloldással bővíthetők
+    return `<section class="panel content svc${SL?' svc-locked':''}"><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}${SL?'<button class="btn outline small svc-unlock-btn" type="button" data-action="crew-edit" title="Ha utólag extra szolgáltatást kérnek: feloldja a szolgáltatásokat és a csapatot">🔓 Szolgáltatások módosítása</button>':''}</h3><p class="hint" style="margin:-4px 0 12px">${SL?'A csapat véglegesítve van, ezért a szolgáltatások zárolva vannak. Ha utólag extra szolgáltatást kérnek, a „Szolgáltatások módosítása” gombbal oldhatod fel.':'Jelöld be, mit kell csinálni – a kiválasztott tétel alatt rögtön kiválaszthatod, ki csinálja. A kiválasztott szakember a szerepével a Stáb és eszközök közé is bekerül.'}</p>
+    <div class="svc-body"${SL?' inert':''}>${topicCards(p,{camRow,dlRow,D})}</div></section>`;})()}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
     return `<details class="panel fold crew-fin" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary><div class="crew-body">${ce.body}</div></details>
       <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'}</h3></summary>${financePanel(p,true)}</details>`;})()
