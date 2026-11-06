@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e2de5bb06d",
+"at": "2026-11-06T08:31:59+01:00",
+"msg": "Átadási link felirat: YouTube, pCloud vagy más"
+},
+{
 "id": "848d1e6a58",
 "at": "2026-11-06T08:30:27+01:00",
 "msg": "Leadás ablak: Észrevételek felirat '(nem kötelező)' nélkül"
@@ -146,13 +151,8 @@
 "msg": "Szakember projektnézet: a díj panel kikerül (csak díjcsökkentésnél marad a kifogás miatt)"
 },
 {
-"id": "ddfa9d1853",
-"at": "2026-11-05T09:46:29+01:00",
-"msg": "Csapat / eszközök sáv: a gomb a szöveg után"
-},
-{
-"id": "c24a5b3aba",
-"at": "2026-11-05T08:42:12Z",
+"id": "e0cd72348a",
+"at": "2026-11-05T08:46:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
