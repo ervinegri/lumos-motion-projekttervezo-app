@@ -383,3 +383,7 @@ html.th2 body.has-savebar .content{padding-bottom:110px}
 .cdoc-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.cdoc-add .inp{width:auto;flex:1 1 200px;min-height:38px;padding-block:6px}.cdoc-add #cdoc-date{flex:0 0 160px}
 .cdoc-file{cursor:pointer}
 .cdoc-ic{border:0;background:none;padding:0 2px;cursor:pointer;font-size:14px}
+
+/* Ügyfelek: az egész sor kattintható (nincs külön Szerkesztés gomb) */
+tr.cl-row{cursor:pointer}
+tr.cl-row:hover>td{background:var(--soft,#f4f6f8)}

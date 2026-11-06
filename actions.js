@@ -26,10 +26,11 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
     ${body}
     <div class="mfoot">${left?`<span class="left">${left}</span>`:''}<button type="button" class="btn outline" data-action="${submit?'modal-cancel':'modal-close'}">${esc(cancelLabel)}</button>${submit?`<button type="submit" class="btn primary">${esc(submitLabel)}</button>`:''}</div></form></div>`;
   if(MD_KEY)MD_KEY+='|'+mdSig();   // a piszkozat csak ugyanarra a kiinduló űrlapra töltődik vissza (pl. másik munkatárs szerkesztésekor nem)
+  const mdBase=MD_KEY?MD_KEY.slice(0,MD_KEY.lastIndexOf('|')):'';
   document.documentElement.style.overflow='hidden';
   {const lf=$('modalRoot').querySelector('.links-field'),pf=$('modalRoot').querySelector('.pass-field'),ad=lf&&lf.querySelector('.link-add');if(lf&&pf&&ad&&!lf.querySelector('.cd-linkrow')){const row=document.createElement('div');row.className='cd-linkrow';ad.replaceWith(row);row.append(ad,pf);}}   // „+ Újabb link” és a jelszó egy sorban (minden linkes ablakban)
   const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first)first.focus();
-  if(MD_KEY){const k=MD_KEY;setTimeout(()=>mdRestore(k),0);}
+  if(MD_KEY){const k0=MD_KEY;setTimeout(()=>{if(MD_KEY!==k0)return;MD_KEY=mdBase+'|'+mdSig();mdRestore(MD_KEY);},0);}   // az aláírás a már kitöltött űrlapból készül (sok ablak a megnyitás után tölti be az adatokat) – így egy ügyfél piszkozata nem kerül át egy másikra
 }
 /* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;const f=$('mform');if(!f||!modalSubmit)return;
@@ -1402,7 +1403,7 @@ const ACT={
 };
 document.addEventListener('click',e=>{if(!e.target.closest('.eqdd'))document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.eqdd-pop')){document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());e.stopPropagation();}},true);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled||b.dataset.working)return;const fn=ACT[b.dataset.action];if(fn&&b.tagName==='A'&&b.getAttribute('href'))e.preventDefault();if(fn){const r=fn(b,e);if(r&&typeof r.then==='function')workBtn(b,r);}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled||b.dataset.working)return;if(b.tagName==='TR'){const t=e.target.closest('a,input,label,select,textarea,button,[data-cldrop],.cl-drop,.cl-ctr');if(t&&b.contains(t)&&t!==b)return;const sel=window.getSelection&&String(window.getSelection());if(sel&&sel.trim())return;}const fn=ACT[b.dataset.action];if(fn&&b.tagName==='A'&&b.getAttribute('href'))e.preventDefault();if(fn){const r=fn(b,e);if(r&&typeof r.then==='function')workBtn(b,r);}});
 /* Folyamatban lévő művelet: ha egy gomb mögötti munka nem azonnali, a gomb forog („…”), és fent egy „Dolgozom…” jelzés is látszik */
 let WORK_N=0,WORK_T=0;
 function workPill(){let w=$('workPill');if(!w){w=document.createElement('div');w.id='workPill';w.className='work-pill';w.setAttribute('role','status');w.setAttribute('aria-live','polite');w.innerHTML='<i></i>Dolgozom…';document.body.appendChild(w);}return w;}
