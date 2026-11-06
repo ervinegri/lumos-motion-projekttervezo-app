@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4df17e5758",
+"at": "2026-11-06T08:42:11+01:00",
+"msg": "Szolgáltatások: véglegesített csapatnál szürkén zárolva, Szolgáltatások módosítása gombbal feloldható"
+},
+{
 "id": "cf394a5e35",
 "at": "2026-11-06T08:40:13+01:00",
 "msg": "Logó: PROJEKTTERVEZŐ a LEMON MILK Bold betűvel (mesterséges vastagítás nélkül)"
@@ -146,13 +151,8 @@
 "msg": "Kifizetések: új sorcímkék (A számla kiállításra vár, Számla fizetve, még fizetendő)"
 },
 {
-"id": "ce27215e2a",
-"at": "2026-11-05T09:56:26+01:00",
-"msg": "Leadás: egy videónál egyes szám; jelszó mező a sorban marad"
-},
-{
-"id": "951ddc805f",
-"at": "2026-11-05T08:54:08Z",
+"id": "8792700d15",
+"at": "2026-11-05T08:56:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
