@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a04025bd10",
+"at": "2026-11-06T23:19:45+01:00",
+"msg": "Nézet-sáv fent marad görgetéskor"
+},
+{
 "id": "33beafb53c",
 "at": "2026-11-06T22:55:57+01:00",
 "msg": "Jóváhagyásra vár: a néző vágó nevét nem írja ki"
@@ -149,11 +154,6 @@
 "id": "cf394a5e35",
 "at": "2026-11-06T08:40:13+01:00",
 "msg": "Logó: PROJEKTTERVEZŐ a LEMON MILK Bold betűvel (mesterséges vastagítás nélkül)"
-},
-{
-"id": "210d57ae96",
-"at": "2026-11-06T08:39:03+01:00",
-"msg": "Logó: a PROJEKTTERVEZŐ a LUMOS MOTION végéig ér, a nyíl kilóg"
 }
 ]
 }
