@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e6d9054993",
+"at": "2026-11-06T08:43:20+01:00",
+"msg": "Logó: mindkét sor LEMON MILK Bold betűvel, egyforma szélességben"
+},
+{
 "id": "4df17e5758",
 "at": "2026-11-06T08:42:11+01:00",
 "msg": "Szolgáltatások: véglegesített csapatnál szürkén zárolva, Szolgáltatások módosítása gombbal feloldható"
@@ -146,13 +151,8 @@
 "msg": "Kifizetések: a vágó díja a vágási határidő napjára (hónapjára) számít; csak helyszíni munkánál a projekt napja; kiküldött összesítők nem változnak"
 },
 {
-"id": "bc9a5b62b5",
-"at": "2026-11-05T09:58:34+01:00",
-"msg": "Kifizetések: új sorcímkék (A számla kiállításra vár, Számla fizetve, még fizetendő)"
-},
-{
-"id": "8792700d15",
-"at": "2026-11-05T08:56:35Z",
+"id": "9ae2ccbd1e",
+"at": "2026-11-05T08:58:44Z",
 "msg": "Változásnapló frissítése"
 }
 ]
