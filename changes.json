@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8fed2e96c8",
+"at": "2026-11-06T08:27:15+01:00",
+"msg": "Logó: szóköz vissza a LUMOS MOTION-ba"
+},
+{
 "id": "c41fd7a485",
 "at": "2026-11-06T08:26:16+01:00",
 "msg": "Logó: hosszabb nyíl, a PROJEKTTERVEZŐ akkora, mint a LUMOSMOTION; NAS-feltöltés gomb és mappanév kikerül"
@@ -146,13 +151,8 @@
 "msg": "Videóvágás: nincs helyszíni beszámoló sáv, és az utómunka helyszíni munka nélkül léptethető"
 },
 {
-"id": "7ea839b648",
-"at": "2026-11-05T09:40:04+01:00",
-"msg": "Belépés után az app betöltés végén lágyan tűnik elő (nincs ugrálás)"
-},
-{
-"id": "25d915c1f0",
-"at": "2026-11-05T08:38:55Z",
+"id": "34e9a074d5",
+"at": "2026-11-05T08:40:14Z",
 "msg": "Változásnapló frissítése"
 }
 ]
