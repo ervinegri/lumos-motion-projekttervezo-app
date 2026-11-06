@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c54f38ac10",
+"at": "2026-11-06T22:44:06+01:00",
+"msg": "Kézi vágói naptár-esemény: ⏳/✓ a hozzá tartozó projekt állapota szerint"
+},
+{
 "id": "d7ea3a7078",
 "at": "2026-11-06T22:29:29+01:00",
 "msg": "Jóváhagyásra vár: csak akkor kerül fel, ha a helyén épp nem látszik"
@@ -149,11 +154,6 @@
 "id": "ce2dd7acea",
 "at": "2026-11-06T08:36:01+01:00",
 "msg": "Termek utómunkája: '1 terem előadásainak utómunkája' (egyes szám) minden listában és levélben"
-},
-{
-"id": "0b9955c7cb",
-"at": "2026-11-06T08:34:05+01:00",
-"msg": "Leadás ablak: egynapos rendezvénynél 'Rendezvény napja'"
 }
 ]
 }
