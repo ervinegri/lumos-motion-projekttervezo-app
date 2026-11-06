@@ -735,7 +735,7 @@ function deliveryModal(target){
   const its=deliverItems(d),stuck=d.siteOk==='nem';
   openModal(toLead?'✂️ Utómunka kész – videók leadása':'📦 Átadás',`${its.length?`<div class="deliv-list"><div class="sec-lbl" style="margin-top:0">Átadandó anyagok</div>${roList(its)}</div>`:''}
     <div class="fields">
-      ${linksField('deliveryLink','Átadási link (mappa vagy videók)',d.deliveryLink,d.deliveryLinks)}${passField(d.deliveryPass)}
+      ${linksField('deliveryLink','Átadási link (YouTube, pCloud vagy más)',d.deliveryLink,d.deliveryLinks)}${passField(d.deliveryPass)}
       <div class="field"><label>Rendezvény utolsó napja</label><div class="inp ro-inp"><b>${r?fmtDay(r.end):'Nincs dátum'}</b></div></div>
       <div class="field"><label for="m-dueAt">Átadási határidő</label><input class="inp" id="m-dueAt" name="dueAt" type="date" value="${esc(dueDate(d)||'')}"${r?` min="${esc(r.end)}"`:''}></div>
       ${d.status==='atadva'&&d.deliveredAt?`<div class="field full"><span class="hint" style="margin:0">Átadva: <b class="ok-txt">${fmtDay(d.deliveredAt)}</b></span></div>`:''}
