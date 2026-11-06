@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "cc48b3abf2",
+"at": "2026-11-06T09:01:24+01:00",
+"msg": "Alsó üres sáv: erősebb szelektor"
+},
+{
 "id": "2044e6e168",
 "at": "2026-11-06T09:01:13+01:00",
 "msg": "Kisebb üres sáv az oldal alján"
@@ -146,13 +151,8 @@
 "msg": "Logó: a nyíl a teljes szélességet kitölti"
 },
 {
-"id": "3dffa5fc6d",
-"at": "2026-11-06T08:09:50+01:00",
-"msg": "Logó: a PROJEKTTERVEZŐ felirat LEMON MILK betűvel"
-},
-{
-"id": "9bd45bf506",
-"at": "2026-11-05T22:26:43Z",
+"id": "a411e49c8d",
+"at": "2026-11-06T07:09:58Z",
 "msg": "Változásnapló frissítése"
 }
 ]
