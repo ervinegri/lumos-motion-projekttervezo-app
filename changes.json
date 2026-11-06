@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "848d1e6a58",
+"at": "2026-11-06T08:30:27+01:00",
+"msg": "Leadás ablak: Észrevételek felirat '(nem kötelező)' nélkül"
+},
+{
 "id": "256ad981ce",
 "at": "2026-11-06T08:28:55+01:00",
 "msg": "Logó: a PROJEKTTERVEZŐ betűmérete a LUMOS MOTION-höz igazítva"
@@ -146,13 +151,8 @@
 "msg": "Csapat / eszközök sáv: a gomb a szöveg után"
 },
 {
-"id": "27b500b4a4",
-"at": "2026-11-05T09:42:02+01:00",
-"msg": "Eszközök véglegesítése csak akkor, ha van hozzárendelt eszköz"
-},
-{
-"id": "9a146dba28",
-"at": "2026-11-05T08:41:17Z",
+"id": "c24a5b3aba",
+"at": "2026-11-05T08:42:12Z",
 "msg": "Változásnapló frissítése"
 }
 ]
