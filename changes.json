@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0b9955c7cb",
+"at": "2026-11-06T08:34:05+01:00",
+"msg": "Leadás ablak: egynapos rendezvénynél 'Rendezvény napja'"
+},
+{
 "id": "ddb1315591",
 "at": "2026-11-06T08:33:09+01:00",
 "msg": "Minden linkes ablakban a jelszó pipa az Újabb link sorában"
@@ -146,13 +151,8 @@
 "msg": "Belépés után nem villan fel a menüsáv: az oldal rejtve marad a betöltés végéig"
 },
 {
-"id": "70fd8afca2",
-"at": "2026-11-05T09:48:36+01:00",
-"msg": "Belépés: szélesebb Google-gomb, a kártya bárhol kattintható"
-},
-{
-"id": "c12716b782",
-"at": "2026-11-05T08:47:39Z",
+"id": "c14eacc905",
+"at": "2026-11-05T08:48:56Z",
 "msg": "Változásnapló frissítése"
 }
 ]
