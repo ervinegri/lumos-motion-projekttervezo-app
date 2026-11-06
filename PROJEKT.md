@@ -54,4 +54,8 @@ Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatj
 4. Tesztelés helyben: mockolt Apps Script szolgáltatások (SpreadsheetApp, PropertiesService, GmailApp stb.) + Playwright.
 
 ## Kapcsolódó
-- Sales App: ervinegri/lumos-motion-sales-app, sales.lumosmotion.hu, külön adatbázis és felhasználók; a két app között nincs átjárás.
+- Sales App: ervinegri/lumos-motion-sales-app, sales.lumosmotion.hu, külön felhasználók. Ugyanabban a Neon adatbázisban tárol (ls_sheet / ls_log tábla).
+  **Sales szinkron** (Code.gs `salesSync`, 5 percenként; az első ügyvezetői belépés telepíti, `SALES_SYNC_OFF=1` szkripttulajdonsággal kikapcsolható):
+  a végleges sales-rendelésből ügyfél (adószám szerint) és projekt lesz („sales-<rendelés-azonosító>”, Short videó forgatás); a kétirányú mezők
+  (ügyféladatok, kapcsolattartó, forgatás napja/időpontja, instrukció, lemondás) visszamennek, ütközéskor mezőnként a később módosított nyer.
+  Ár, videószám, név, jegyzet, operatőr csak a Salesből jön. Az utolsó közös állapot: lx_link tábla. Próba: `node tests/sales-sync.test.cjs`.

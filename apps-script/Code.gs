@@ -611,6 +611,7 @@ function bootstrap_(u) {
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
+  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
@@ -4250,6 +4251,7 @@ function rpcInner_(token, name, arg) {
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
     case 'dbPing': adminOnly(); return dbPing_();
+    case 'salesSyncNow': adminOnly(); return salesSync();
     case 'dbMigrate': adminOnly(); return dbMigrate_(u);
     case 'dbSetMode': adminOnly(); return dbSetMode_(u, arg);
     case 'dbBackup': adminOnly(); return dbBackup_();
@@ -4321,4 +4323,215 @@ function rpcInner_(token, name, arg) {
     }
     default: throw new Error('Ismeretlen művelet.');
   }
+}
+/* ===================== SALES APP SZINKRON =====================
+   A Sales App (sales.lumosmotion.hu) ugyanabban a Neon adatbázisban tárolja a rendeléseit (ls_sheet / „Rendelések”).
+   Ötpercenként (salesSync) a végleges rendelésekből Projekttervező-ügyfél és -projekt lesz (rendelésenként egy projekt, „sales-<rendelés>” azonosítóval),
+   az itt módosított közös adatok pedig visszamennek a Sales Appba. Mezőnként a később módosított érték nyer; az utolsó közös állapotot
+   az lx_link tábla tárolja (enélkül nem tudnánk, melyik oldal változott). Ár, videószám, név, jegyzet, operatőr: csak a Salesből jön.
+   A Sales App tábláját verzióellenőrzéssel írjuk (ha közben ott mentettek, nem írjuk felül, a következő futás pótolja). */
+const SALES_TAB = 'Rendelések';
+const SALES_SYS_USER = { id: 'sales-app', name: 'Sales App', role: 'admin', email: '' };
+const SALES_MAX_NEW_PER_RUN = 12;   // egy futás 6 perces korlátja miatt (új projektnél naptárbejegyzés is készül)
+// A Sales App munkalapjának fejlécei (a Sales App Code.gs FIELDS listájával egyezik – ott sem nevezhetők át)
+const SALES_HEAD = { id: 'Azonosító', brand: 'Márka / stand', contact: 'Kapcsolattartó', email: 'Email', phone: 'Telefonszám', company: 'Cégnév', tax: 'Adószám',
+  salesperson: 'Értékesítő', spokenCount: 'Beszédes short db', musicCount: 'Zenés short db', shootAt: 'Forgatás időpontja', note: 'Megjegyzés', status: 'Értékesítési státusz',
+  event: 'Rendezvény', updatedAt: 'Módosítva', shootBy: 'Operatőr', mutationId: 'Utolsó műveletazonosító', filmingDone: 'Forgatás megtörtént', shootAt2: 'Második forgatás időpontja',
+  shootContent: 'Instrukció az operatőrnek', shootContent2: 'Instrukció az operatőrnek – második forgatás', address: 'Számlázási cím',
+  netTotal: 'Nettó végösszeg (Ft)', vatType: 'ÁFA-besorolás', paymentMode: 'Fizetés módja', deliveryDate: 'Vállalt átadás' };
+// kétirányú mezők (a később módosított nyer) és csak a Salesből jövők
+const SYNC_TWO = ['company', 'tax', 'address', 'contact', 'phone', 'email', 'shootDate', 'shootTime', 'shootContent', 'cancelled'];
+const SYNC_ONE = ['pname', 'short60', 'quote', 'notes', 'operator', 'filmingDone'];
+const SYNC_LABEL = { company: 'Cégnév', tax: 'Adószám', address: 'Cím', contact: 'Kapcsolattartó', phone: 'Telefon', email: 'E-mail', shootDate: 'Forgatás napja',
+  shootTime: 'Forgatás időpontja', shootContent: 'Instrukció', cancelled: 'Lemondva', pname: 'Projekt neve', short60: 'Shortok', quote: 'Ajánlati ár', notes: 'Jegyzet', operator: 'Operatőr', filmingDone: 'Forgatás kész' };
+
+const taxDigits_ = v => String(v == null ? '' : v).replace(/\D/g, '').slice(0, 11);
+const taxFmt_ = d => { d = taxDigits_(d); return d.length === 11 ? d.slice(0, 8) + '-' + d.slice(8, 9) + '-' + d.slice(9) : d; };
+const sval_ = v => String(v == null ? '' : v).replace(/^'/, '').trim();
+function salesSchema_() {
+  neonSql_([{ query: 'CREATE TABLE IF NOT EXISTS lx_link (order_id text PRIMARY KEY, project_id text NOT NULL, client_id text, snap jsonb NOT NULL DEFAULT \'{}\'::jsonb, synced_at timestamptz NOT NULL DEFAULT now())' }]);
+}
+/** A Sales App rendelései (fejléc szerint feldolgozva) + a tábla verziója. */
+function salesRead_() {
+  const r = neonSql_([{ query: 'SELECT rows::text, ver::text FROM ls_sheet WHERE tab = $1', params: [SALES_TAB] }])[0];
+  const row = (r.rows || [])[0];
+  if (!row) return { rows: [], ver: -1, head: [], list: [] };
+  const rows = JSON.parse(row[0] || '[]'), head = (rows[0] || []).map(x => String(x || '').trim()), ix = {};
+  Object.keys(SALES_HEAD).forEach(k => { ix[k] = head.indexOf(SALES_HEAD[k]); });
+  if (ix.id < 0) throw new Error('A Sales App táblájában nincs „Azonosító” oszlop.');
+  const list = rows.slice(1).map((r, i) => { const o = { _row: i + 1 }; Object.keys(ix).forEach(k => { o[k] = ix[k] >= 0 ? (r[ix[k]] == null ? '' : r[ix[k]]) : ''; }); return o; }).filter(o => sval_(o.id));
+  return { rows: rows, ver: Number(row[1] || 0), head: head, ix: ix, list: list };
+}
+/** Sales-rendelés → a közös mezők értéke (a Projekttervező formátumában). */
+function salesValues_(o) {
+  const at = sval_(o.shootAt), m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/.exec(at);
+  const n = (Number(o.spokenCount) || 0) + (Number(o.musicCount) || 0);
+  const notes = ['Forrás: Sales App (rendelés: LM-2026-' + sval_(o.id) + ')',
+    'Shortok: ' + (Number(o.spokenCount) || 0) + ' beszédes + ' + (Number(o.musicCount) || 0) + ' zenés, 40–60 mp, 9:16' + (n > 15 ? ' (összesen ' + n + ' db)' : ''),
+    sval_(o.salesperson) ? 'Értékesítő: ' + sval_(o.salesperson) : '', sval_(o.paymentMode) ? 'Fizetés: ' + sval_(o.paymentMode) : '',
+    sval_(o.vatType) ? 'ÁFA: ' + (sval_(o.vatType) === 'AAM' ? 'alanyi adómentes' : '27%') : '', sval_(o.deliveryDate) ? 'Vállalt átadás: ' + sval_(o.deliveryDate) : '',
+    sval_(o.shootAt2) ? '2. forgatás: ' + sval_(o.shootAt2).replace('T', ' ') + (sval_(o.shootContent2) ? ' – ' + sval_(o.shootContent2) : '') : '',
+    sval_(o.note) ? 'Megjegyzés: ' + sval_(o.note) : ''].filter(Boolean).join('\n');
+  const done = o.filmingDone === true || String(o.filmingDone).toLowerCase() === 'true' || String(o.filmingDone) === '1';
+  return { company: sval_(o.company) || sval_(o.brand), tax: taxDigits_(o.tax), address: sval_(o.address), contact: sval_(o.contact), phone: sval_(o.phone), email: sval_(o.email).toLowerCase(),
+    shootDate: m ? m[1] : '', shootTime: m ? m[2] : '', shootContent: sval_(o.shootContent), cancelled: sval_(o.status) === 'lemondva' ? '1' : '',
+    pname: (sval_(o.brand) + (sval_(o.event) ? ' – ' + sval_(o.event) : '')).slice(0, 160), short60: String(Math.min(15, n)), quote: sval_(o.netTotal) ? String(Math.round(Number(sval_(o.netTotal)) || 0)) : '',
+    notes: notes, operator: sval_(o.shootBy), filmingDone: done ? '1' : '' };
+}
+/** Projekttervező oldali értékek (a kétirányú mezőkhöz). */
+function ptValues_(p, c) {
+  return { company: sval_(c ? c.name : p.client), tax: taxDigits_(c ? c.tax : p.clientTax), address: sval_(c ? c.address : p.clientAddress), contact: sval_(p.contactName), phone: sval_(p.contactPhone),
+    email: sval_(p.contactEmail).toLowerCase(), shootDate: sval_(p.date), shootTime: sval_(p.startTime), shootContent: sval_(p.techPlan), cancelled: p.status === 'lemondva' ? '1' : '' };
+}
+function salesLog_(rec, action, details) {
+  try { neonSql_([{ query: 'INSERT INTO ls_log (at, who, role, action, brand, rec_id, details) VALUES ($1,$2,$3,$4,$5,$6,$7)', params: [now_(), 'Projekttervező', 'Szinkron', action, sval_(rec.brand), sval_(rec.id), String(details || '').slice(0, 1500)] }]); } catch (e) { Logger.log('Sales napló: ' + e); }
+}
+
+/** IDŐZÍTETT (5 percenként) és kézzel is futtatható: Sales App ↔ Projekttervező szinkron. */
+function salesSync() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('SALES_SYNC_OFF') === '1') return { off: true };
+  let S;
+  try { salesSchema_(); S = salesRead_(); }
+  catch (e) { if (/does not exist|nem létezik|42P01/i.test(String((e && e.message) || e))) return { waiting: 'A Sales App még nem az adatbázisban tárol (dbMoveToNeon).' }; throw e; }
+  if (!S.list.length) return { orders: 0 };
+  const links = {}; (neonSql_([{ query: 'SELECT order_id, project_id, coalesce(client_id, \'\'), snap::text FROM lx_link' }])[0].rows || []).forEach(r => { links[r[0]] = { projectId: r[1], clientId: r[2], snap: JSON.parse(r[3] || '{}') }; });
+  dataBump_();   // friss adatból dolgozunk
+  const base = loadBase_(), projById = byId_(base.projects), clients = base.clients || [], crew = base.crew || [];
+  const out = { orders: S.list.length, created: 0, updated: 0, pulled: 0, cancelled: 0, errors: [] }, pulls = [];
+  let newCount = 0;
+  const findClient = (v, id) => (id && clients.find(c => c.id === id)) || (v.tax.length >= 8 && clients.find(c => taxDigits_(c.tax).slice(0, 8) === v.tax.slice(0, 8))) || clients.find(c => sval_(c.name).toLowerCase() === v.company.toLowerCase()) || null;
+  const crewByName = nm => { const n = sval_(nm).toLowerCase(); return n ? crew.find(c => sval_(c.name).toLowerCase() === n) : null; };
+
+  S.list.forEach(o => {
+    try {
+      const oid = sval_(o.id), link = links[oid], pid = (link && link.projectId) || ('sales-' + oid).slice(0, 64);
+      const proj = projById[pid] || null, st = sval_(o.status);
+      if (!proj && st !== 'megrendelt') return;                       // piszkozat / ajánlat: még nem projekt
+      if (!proj && newCount >= SALES_MAX_NEW_PER_RUN) return;         // a többi a következő futásban
+      const sv = salesValues_(o), snap = link ? link.snap : null, client = findClient(sv, link && link.clientId);
+      const pv = proj ? ptValues_(proj, client) : null;
+      const sUpd = sval_(o.updatedAt), pUpd = proj ? sval_([proj.updatedAt, client && client.updatedAt].sort().pop()) : '';
+      const push = {}, pull = {}, notesLog = [];
+      SYNC_TWO.forEach(k => {
+        const s = sv[k], p = pv ? pv[k] : undefined, b = snap ? snap[k] : undefined;
+        if (!proj || b === undefined) { push[k] = s; return; }
+        if (s === p) return;
+        if (s !== b && p === b) push[k] = s;
+        else if (p !== b && s === b) pull[k] = p;
+        else { if (pUpd > sUpd) { pull[k] = p; notesLog.push(SYNC_LABEL[k] + ': a Projekttervező újabb értéke maradt („' + p + '” – a Salesben „' + s + '” volt)'); }
+               else { push[k] = s; notesLog.push(SYNC_LABEL[k] + ': a Sales App újabb értéke maradt („' + s + '” – itt „' + p + '” volt)'); } }
+      });
+      SYNC_ONE.forEach(k => { const b = snap ? snap[k] : undefined; if (!proj || b === undefined || sv[k] !== b) push[k] = sv[k]; });
+      if (proj && link && !Object.keys(push).length && !Object.keys(pull).length) return;
+
+      /* 1) Projekttervező: ügyfél + projekt */
+      let clientId = client ? client.id : '';
+      const cKeys = ['company', 'tax', 'address', 'contact', 'phone', 'email'].filter(k => k in push);
+      if (sv.company && (!client || cKeys.some(k => k === 'company' || k === 'tax' || k === 'address'))) {
+        const c0 = client ? Object.assign({}, client) : { id: Utilities.getUuid(), note: 'Forrás: Sales App' };
+        if ('company' in push || !client) c0.name = push.company != null ? push.company : sv.company;
+        if ('tax' in push || !client) c0.tax = taxFmt_(push.tax != null ? push.tax : sv.tax);
+        if ('address' in push || !client) c0.address = push.address != null ? push.address : sv.address;
+        if (!client || !c0.contactName) { c0.contactName = sv.contact; c0.contactPhone = sv.phone; c0.contactEmail = sv.email; }
+        const savedC = saveClient_(SALES_SYS_USER, c0); clientId = (savedC && savedC.id) || c0.id;
+        const ix = clients.findIndex(c => c.id === clientId); const merged = Object.assign({}, c0, savedC || {}, { id: clientId }); if (ix >= 0) clients[ix] = merged; else clients.push(merged);
+      }
+      const want = proj ? Object.assign({}, proj) : { id: pid, eventType: 'Short videó forgatás', status: 'tervezes', crew: [], equipment: [] };
+      ['crewNotes', 'crewDays', 'editTasks'].forEach(k => delete want[k]);   // ezeket a mentés a régiből tartja meg
+      const has = k => !proj || (k in push), v = k => k in push ? push[k] : sv[k];   // csak a változott mezőket írjuk át, a többi marad a projektben
+      if (has('pname')) want.name = v('pname');
+      if (has('company')) want.client = v('company');
+      if (has('tax')) want.clientTax = taxFmt_(v('tax'));
+      if (has('address')) want.clientAddress = v('address');
+      if (has('contact')) want.contactName = v('contact');
+      if (has('phone')) want.contactPhone = v('phone');
+      if (has('email')) want.contactEmail = v('email');
+      if (has('shootDate')) { want.date = v('shootDate'); if (want.endDate && want.endDate < want.date) want.endDate = ''; }
+      if (has('shootTime')) want.startTime = v('shootTime');
+      if (has('shootContent')) want.techPlan = v('shootContent');
+      if (has('short60')) want.short60 = Number(v('short60')) || 0;
+      if ('notes' in push) { const keep = proj ? String(proj.notes || '').split('\n— Projekttervező —\n')[1] : ''; want.notes = push.notes + (keep ? '\n— Projekttervező —\n' + keep : ''); }
+      if ('quote' in push && push.quote !== '') want.projectValue = Number(push.quote);
+      if ('operator' in push) {
+        const cm = crewByName(push.operator), prevOp = snap ? crewByName(snap.operator) : null;
+        let cr = (want.crew || []).filter(x => !(prevOp && x.crewId === prevOp.id && x.role === 'Operatőr'));
+        if (cm && !cr.some(x => x.crewId === cm.id && x.role === 'Operatőr')) cr.push({ crewId: cm.id, role: 'Operatőr' });
+        want.crew = cr;
+        if (push.operator && !cm) notesLog.push('Operatőr („' + push.operator + '”) nem található a Stáb listában, kézzel kell beosztani');
+      }
+      if ('cancelled' in push) { if (push.cancelled === '1' && want.status !== 'lemondva') { want.prevStatus = want.status; want.status = 'lemondva'; want.cancelReason = want.cancelReason || 'A Sales Appban lemondták.'; out.cancelled++; }
+        else if (push.cancelled !== '1' && proj && proj.status === 'lemondva') { want.status = proj.prevStatus && proj.prevStatus !== 'lemondva' ? proj.prevStatus : 'tervezes'; } }
+      if ('filmingDone' in push && push.filmingDone === '1' && ['egyeztetes', 'tervezes', 'helyszin'].indexOf(want.status) >= 0) { want.status = 'utomunka'; want.siteOk = 'igen'; want.crewFinalSkip = true; }
+      const changedPT = !proj || Object.keys(push).length;
+      let savedP = proj;
+      if (changedPT) {
+        want.mutationId = Utilities.getUuid(); want.baseUpdatedAt = proj ? proj.updatedAt : '';
+        if (!proj) want.crewFinalSkip = true;
+        savedP = saveProject_(SALES_SYS_USER, want);
+        if (savedP && savedP.id) projById[savedP.id] = savedP;
+        if (proj) out.updated++; else { out.created++; newCount++; }
+      }
+      /* 2) Az új közös állapot. A visszaírandó (pull) mezők a régi értéken maradnak, amíg a Sales App táblájába ténylegesen be nem kerülnek. */
+      const after = Object.assign({}, sv, pull), snapNow = Object.assign({}, sv);
+      Object.keys(pull).forEach(k => { snapNow[k] = snap && snap[k] !== undefined ? snap[k] : sv[k]; });
+      neonSql_([{ query: 'INSERT INTO lx_link (order_id, project_id, client_id, snap, synced_at) VALUES ($1,$2,$3,$4::jsonb, now()) ON CONFLICT (order_id) DO UPDATE SET project_id = EXCLUDED.project_id, client_id = EXCLUDED.client_id, snap = EXCLUDED.snap, synced_at = now()',
+        params: [oid, (savedP && savedP.id) || pid, clientId || '', JSON.stringify(snapNow)] }]);
+      /* 3) Vissza a Sales Appba (a ciklus után, egy lépésben) */
+      if (Object.keys(pull).length) pulls.push({ o: o, pull: pull, after: after, notes: notesLog.slice() });
+      else if (notesLog.length) salesLog_(o, 'Szinkron', notesLog.join(' · '));
+      if (notesLog.length) logEvent_(SALES_SYS_USER, 'Sales szinkron', want.name, notesLog.join(' · '));
+    } catch (e) { out.errors.push(sval_(o.brand) + ': ' + String((e && e.message) || e)); }
+  });
+
+  /* A Salesben törölt rendelések projektje „Lemondva” lesz (nem töröljük, hogy a rögzített munka megmaradjon) */
+  const ids = {}; S.list.forEach(o => { ids[sval_(o.id)] = 1; });
+  Object.keys(links).forEach(oid => {
+    if (ids[oid] || links[oid].snap.deleted) return;
+    try { const p = projById[links[oid].projectId];
+      if (p && p.status !== 'lemondva') { const w = Object.assign({}, p); ['crewNotes', 'crewDays', 'editTasks'].forEach(k => delete w[k]);
+        w.prevStatus = p.status; w.status = 'lemondva'; w.cancelReason = 'A rendelést a Sales Appban törölték.'; w.mutationId = Utilities.getUuid(); w.baseUpdatedAt = p.updatedAt;
+        saveProject_(SALES_SYS_USER, w); out.cancelled++; }
+      neonSql_([{ query: 'UPDATE lx_link SET snap = snap || \'{"deleted":"1"}\'::jsonb, synced_at = now() WHERE order_id = $1', params: [oid] }]);
+    } catch (e) { out.errors.push('törölt rendelés: ' + String((e && e.message) || e)); }
+  });
+
+  /* Visszaírás a Sales App táblájába – verzióellenőrzéssel, egy lépésben */
+  if (pulls.length) {
+    const fresh = salesRead_(), rows = fresh.rows, ix = fresh.ix, byId = {};
+    fresh.list.forEach(x => { byId[sval_(x.id)] = x; });
+    const put = (r, k, v) => { if (ix[k] >= 0) { while (rows[r].length <= ix[k]) rows[r].push(''); rows[r][ix[k]] = v; } };
+    const done = [];
+    pulls.forEach(x => { const cur = byId[sval_(x.o.id)]; if (!cur) return; const r = cur._row;
+      if (sval_(cur.updatedAt) !== sval_(x.o.updatedAt)) return;   // közben a Salesben mentettek: a következő futás dönt
+      const pl = x.pull;
+      ['company', 'address', 'contact', 'phone', 'email', 'shootContent'].forEach(k => { if (k in pl) put(r, k, pl[k]); });
+      if ('tax' in pl) put(r, 'tax', pl.tax);
+      if ('shootDate' in pl || 'shootTime' in pl) { const sv = salesValues_(cur); put(r, 'shootAt', (('shootDate' in pl) ? pl.shootDate : sv.shootDate) + ' ' + (('shootTime' in pl) ? pl.shootTime : sv.shootTime || '00:00')); }
+      if ('cancelled' in pl) put(r, 'status', pl.cancelled === '1' ? 'lemondva' : 'megrendelt');
+      put(r, 'updatedAt', now_()); put(r, 'mutationId', 'pt-sync-' + Utilities.getUuid());
+      done.push(x); });
+    if (done.length) {
+      const res = neonSql_([{ query: 'UPDATE ls_sheet SET rows = $2::jsonb, ver = ver + 1, updated_at = now() WHERE tab = $1 AND ver = $3::bigint RETURNING ver::text', params: [SALES_TAB, JSON.stringify(rows), String(fresh.ver)] }])[0];
+      if ((res.rows || []).length) { out.pulled = done.length;
+        neonSql_(done.map(x => ({ query: 'UPDATE lx_link SET snap = $2::jsonb, synced_at = now() WHERE order_id = $1', params: [sval_(x.o.id), JSON.stringify(x.after)] })));
+        done.forEach(x => salesLog_(x.o, 'Módosítás a Projekttervezőből', Object.keys(x.pull).map(k => SYNC_LABEL[k] + ': ' + (x.pull[k] || '—')).concat(x.notes).join(' · '))); }
+      else out.errors.push('A Sales App táblája közben módosult – a visszaírás a következő futásban történik.');
+    }
+  }
+  if (out.created || out.updated || out.cancelled) dataBump_();
+  try { if (dbOn_()) dbFlush_(); } catch (e) {}   // a függő naplóbejegyzések
+  if (out.errors.length) Logger.log('Sales szinkron hibák: ' + out.errors.join(' | '));
+  Logger.log('Sales szinkron: ' + JSON.stringify(out));
+  return out;
+}
+/** EGYSZER (szerkesztőből, vagy automatikusan az első ügyvezetői belépéskor): az ötperces szinkron időzítése. */
+function installSalesSync() {
+  if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'salesSync')) ScriptApp.newTrigger('salesSync').timeBased().everyMinutes(5).create();
+  return 'A Sales App szinkron 5 percenként fut.';
+}
+function salesSyncEnsure_() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('SALES_SYNC_INSTALLED')) return;
+  try { installSalesSync(); P.setProperty('SALES_SYNC_INSTALLED', now_()); } catch (e) { Logger.log('Sales szinkron időzítő: ' + e); }
 }
