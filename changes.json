@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "da230f17ae",
+"at": "2026-11-06T08:50:40+01:00",
+"msg": "Idővonal: az átmenet a forgatási sáv tényleges színéből indul (piros / szürke / kék)"
+},
+{
 "id": "d180369d54",
 "at": "2026-11-06T08:49:22+01:00",
 "msg": "Idővonal: leadás után a vágás sávja a leadás napjáig tart"
@@ -146,13 +151,8 @@
 "msg": "Az e-mail-címek nem törnek új sorba (leadás címzettjei, véglegesítési sáv)"
 },
 {
-"id": "fbb411a311",
-"at": "2026-11-05T13:49:35+01:00",
-"msg": "Szóba jövő szolgáltatások: gépeléssel szűr, Enterrel új elem vehető fel"
-},
-{
-"id": "e1e385f638",
-"at": "2026-11-05T12:44:22Z",
+"id": "3961a58763",
+"at": "2026-11-05T12:49:45Z",
 "msg": "Változásnapló frissítése"
 }
 ]
