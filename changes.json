@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dc2acec5ab",
+"at": "2026-11-06T08:24:59+01:00",
+"msg": "Logó: LUMOSMOTION szóköz nélkül"
+},
+{
 "id": "e6788ba52d",
 "at": "2026-11-06T08:20:31+01:00",
 "msg": "Nyersanyag a NAS-ra: egységes mappanév, 'Feltöltve a NAS-ra' gomb, feltöltésre váró lista; a vágó e-mailje link nélkül a NAS-mappával"
@@ -146,13 +151,8 @@
 "msg": "Leadás: hiányzó link / címzett piros kerettel jelölve"
 },
 {
-"id": "c1f6f63d8b",
-"at": "2026-11-05T09:37:52+01:00",
-"msg": "Leadás: 'Így néz ki az e-mailed', az előnézet nem szerkeszthető"
-},
-{
-"id": "96b1cfb894",
-"at": "2026-11-05T08:36:32Z",
+"id": "94df58a512",
+"at": "2026-11-05T08:38:01Z",
 "msg": "Változásnapló frissítése"
 }
 ]
