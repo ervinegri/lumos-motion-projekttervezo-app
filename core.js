@@ -32,7 +32,7 @@ function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array
   return {added,changed,removed};}
 /* Vágónként: mit kell megvágnia (a véglegesítő levélbe) */
 function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
-  cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
+  cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>t.k==='er_post_n'?`${t.n} terem előadásainak utómunkája`:`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
     o[cid]={items,due:due?fmtDay(due):''};});return o;}
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
 function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
