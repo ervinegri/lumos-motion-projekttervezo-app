@@ -364,5 +364,5 @@ html.th2 .crew-final.past{background:var(--soft,#f4f6f8);border-color:var(--line
 .back.back-ic{align-self:center;flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--fg);font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .back.back-ic:hover{background:var(--soft,#f4f6f8);border-color:var(--line-strong,#c9d3cd)}
 /* az oldal alján ne legyen nagy üres sáv – csak ha lent a mentés-sáv látszik, akkor kell hely neki */
-.content{padding-bottom:36px}
-body.has-savebar .content{padding-bottom:110px}
+html.th2 .content{padding-bottom:36px}
+html.th2 body.has-savebar .content{padding-bottom:110px}
