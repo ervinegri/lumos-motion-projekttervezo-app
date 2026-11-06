@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ce2dd7acea",
+"at": "2026-11-06T08:36:01+01:00",
+"msg": "Termek utómunkája: '1 terem előadásainak utómunkája' (egyes szám) minden listában és levélben"
+},
+{
 "id": "0b9955c7cb",
 "at": "2026-11-06T08:34:05+01:00",
 "msg": "Leadás ablak: egynapos rendezvénynél 'Rendezvény napja'"
@@ -146,13 +151,8 @@
 "msg": "Leadás: határidő-tartás pipa helyett automatikus; a vágó ablakában is látszanak az átadandó anyagok"
 },
 {
-"id": "b416b9e6c4",
-"at": "2026-11-05T09:49:28+01:00",
-"msg": "Belépés után nem villan fel a menüsáv: az oldal rejtve marad a betöltés végéig"
-},
-{
-"id": "c14eacc905",
-"at": "2026-11-05T08:48:56Z",
+"id": "8212af4bf4",
+"at": "2026-11-05T08:49:38Z",
 "msg": "Változásnapló frissítése"
 }
 ]
