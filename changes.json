@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "cf394a5e35",
+"at": "2026-11-06T08:40:13+01:00",
+"msg": "Logó: PROJEKTTERVEZŐ a LEMON MILK Bold betűvel (mesterséges vastagítás nélkül)"
+},
+{
 "id": "210d57ae96",
 "at": "2026-11-06T08:39:03+01:00",
 "msg": "Logó: a PROJEKTTERVEZŐ a LUMOS MOTION végéig ér, a nyíl kilóg"
@@ -146,13 +151,8 @@
 "msg": "Leadás: egy videónál egyes szám; jelszó mező a sorban marad"
 },
 {
-"id": "c1ec6fcc40",
-"at": "2026-11-05T09:53:58+01:00",
-"msg": "Leadási e-mail: 'Kata elkészítette a(z) … videóit - jóváhagyásra várnak.'"
-},
-{
-"id": "9dfde738ad",
-"at": "2026-11-05T08:52:50Z",
+"id": "951ddc805f",
+"at": "2026-11-05T08:54:08Z",
 "msg": "Változásnapló frissítése"
 }
 ]
