@@ -618,22 +618,25 @@ function postModal(next){
 const editorsOf=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))].map(id=>crewById(id)).filter(Boolean);
 /* Nyersanyag-értesítő csak annak a vágónak kell, akinek más is forgatott (ha ő maga az egyetlen operatőr / fotós / drónos, nála van az anyag) */
 const RAW_SHOOT=new Set(['Operatőr','Drónpilóta','Fotós']);
+/* A nyersanyag a Synology NAS-ra kerül (Dávid tölti fel); egységes mappanév: ÉÉÉÉ-HH-NN_projekt-neve */
+const nasFolder=p=>{const r=pr(p),n=fold(p&&p.name).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/,'');return (r?r.start+'_':'')+(n||'projekt');};
+const rawShot=p=>!editOnly(p)&&(p.crew||[]).some(a=>RAW_SHOOT.has(a.role));
+/* feltöltésre vár: lezajlott a forgatás, és még nincs jelölve, hogy fent van a NAS-on */
+const rawPending=p=>p&&['helyszin','utomunka'].includes(p.status||'')&&!p.rawSentAt&&rawShot(p)&&pr(p)&&pr(p).start<=todayISO()&&pr(p).start>=addDays(todayISO(),-21)&&needsDelivery(p);   // csak a friss (3 héten belüli) forgatások
 const rawEditors=p=>editorsOf(p).filter(e=>(p.crew||[]).some(a=>RAW_SHOOT.has(a.role)&&a.crewId!==e.id));
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
-function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d);
-  const folder=d.folderId?'https://drive.google.com/drive/folders/'+d.folderId:'';
+function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d),nf=nasFolder(d);
   const first=eds.length===1?String(eds[0].name).split(' ').slice(-1)[0]:'';
   const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.label}: ${t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
-  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga feltöltve${folder?':\n'+folder:'.'}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél húzd át az „Utómunka” lépést a „Videók jóváhagyásra várnak” lépésre, és ott add le a linket.\n\nKöszi!`;
-  openModal('🎬 Nyersanyag feltöltve – e-mail a vágónak',`<div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>
-    ${mf('rawLink','A nyersanyag linkje',{full:true,type:'url',v:folder,ph:'https://drive.google.com/…'})}
-    <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="8" maxlength="5000">${esc(text)}</textarea></div></div>`,
+  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga fent van a NAS-on, ebben a mappában:\n${nf}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél húzd át az „Utómunka” lépést a „Videók jóváhagyásra várnak” lépésre, és ott add le a linket.\n\nKöszi!`;
+  openModal('📦 Nyersanyag a NAS-on – e-mail a vágónak',`<div class="nas-box"><span class="muted">Mappa a NAS-on</span><code id="nasName">${esc(nf)}</code><button type="button" class="btn outline small" data-action="nas-copy" data-v="${esc(nf)}">Másolás</button></div><div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>
+    <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="9" maxlength="5000">${esc(text)}</textarea></div></div>`,
     {left:`<button type="button" class="btn outline small" data-action="raw-skip">Kihagyás – nem küldök</button>`,submitLabel:'Küldés és kipipálás',submit:async fd=>{
-      const ids=fd.getAll('cut'),link=String(fd.get('rawLink')||'').trim();let text=String(fd.get('rawText')||'');
-      if(!ids.length){toast('Válaszd ki a vágót.',true);return;}if(link&&!/^https:\/\//i.test(link)){toast('A link https:// kezdetű legyen.',true);return;}
-      if(folder&&link&&link!==folder)text=text.split(folder).join(link);else if(link&&!text.includes(link))text+='\n\n'+link;
-      try{await call('rawNotify',{projectId:d.id,crewIds:ids,link,text});closeModal();setDraft({rawSentAt:todayISO()});toast('E-mail elküldve a vágónak');next();}catch(e){handleErr(e);}}});
+      const ids=fd.getAll('cut'),text=String(fd.get('rawText')||'');
+      if(!ids.length){toast('Válaszd ki a vágót.',true);return;}
+      try{await call('rawNotify',{projectId:d.id,crewIds:ids,link:'',text});closeModal();setDraft({rawSentAt:todayISO()});toast('E-mail elküldve a vágónak');next();}catch(e){handleErr(e);}}});
   S._rawNext=next;}
+
 /* A vágó leadja a videókat: link, megjegyzés, kit értesítsen (ügyvezető / termelési vezető) → „Videók jóváhagyásra várnak” */
 function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;
   const its0=deliverItems(p);CD_ONE=postTasks(p).filter(t=>t.k!=='foto_db').reduce((x,t)=>x+num(t.n),0)===1;   // egyetlen videó: egyes szám a levélben
@@ -2088,3 +2091,7 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
     else if(e.key==='Escape'){const pop=w.querySelector('.msel-pop');pop.hidden=true;w.classList.remove('open');}},true);
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.msel-addbtn');if(!b)return;e.preventDefault();const w=b.closest('.msel');addNew(w,w.querySelector('.msel-q').value);});
 })();
+
+/* „Feltöltve a NAS-ra”: ha van vágó, akinek kell, jön az értesítő; különben csak kipipálja */
+ACT['raw-upload']=()=>{const d=S.draft;if(!d)return;if(rawEditors(d).length)rawMailModal(()=>{if(typeof saveNow==='function')saveNow();});else{setDraft({rawSentAt:todayISO()});toast('Nyersanyag a NAS-on – kipipálva');if(typeof saveNow==='function')saveNow();}};
+ACT['nas-copy']=b=>{const v=b.dataset.v||'';try{navigator.clipboard.writeText(v);toast('Mappanév kimásolva: '+v);}catch(e){toast(v);}};
