@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "fc09c96955",
+"at": "2026-11-06T10:46:33+01:00",
+"msg": "Munkatársi szerződések: feltöltés, megnyitás, törlés – csak az ügyvezető látja"
+},
+{
 "id": "891e036072",
 "at": "2026-11-06T09:52:48+01:00",
 "msg": "Logó: PROJEKTTERVEZŐ Medium betűvel (nem bold)"
@@ -146,13 +151,8 @@
 "msg": "Logó: szóköz vissza a LUMOS MOTION-ba"
 },
 {
-"id": "c41fd7a485",
-"at": "2026-11-06T08:26:16+01:00",
-"msg": "Logó: hosszabb nyíl, a PROJEKTTERVEZŐ akkora, mint a LUMOSMOTION; NAS-feltöltés gomb és mappanév kikerül"
-},
-{
-"id": "061633b0f3",
-"at": "2026-11-06T07:25:08Z",
+"id": "6332fb0ee7",
+"at": "2026-11-06T07:26:25Z",
 "msg": "Változásnapló frissítése"
 }
 ]
