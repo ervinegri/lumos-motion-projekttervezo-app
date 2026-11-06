@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c41fd7a485",
+"at": "2026-11-06T08:26:16+01:00",
+"msg": "Logó: hosszabb nyíl, a PROJEKTTERVEZŐ akkora, mint a LUMOSMOTION; NAS-feltöltés gomb és mappanév kikerül"
+},
+{
 "id": "dc2acec5ab",
 "at": "2026-11-06T08:24:59+01:00",
 "msg": "Logó: LUMOSMOTION szóköz nélkül"
@@ -146,13 +151,8 @@
 "msg": "Belépés után az app betöltés végén lágyan tűnik elő (nincs ugrálás)"
 },
 {
-"id": "eb1750a78a",
-"at": "2026-11-05T09:38:46+01:00",
-"msg": "Leadás: hiányzó link / címzett piros kerettel jelölve"
-},
-{
-"id": "94df58a512",
-"at": "2026-11-05T08:38:01Z",
+"id": "25d915c1f0",
+"at": "2026-11-05T08:38:55Z",
 "msg": "Változásnapló frissítése"
 }
 ]
