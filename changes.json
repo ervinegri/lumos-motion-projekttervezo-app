@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "44b9e9a1cd",
+"at": "2026-11-06T15:02:58+01:00",
+"msg": "Ablak-piszkozat a kitöltött űrlaphoz kötve (ügyfél adószám nem tűnik el); Ügyfelek: egész sor kattintható"
+},
+{
 "id": "fc09c96955",
 "at": "2026-11-06T10:46:33+01:00",
 "msg": "Munkatársi szerződések: feltöltés, megnyitás, törlés – csak az ügyvezető látja"
@@ -146,13 +151,8 @@
 "msg": "Logó: a PROJEKTTERVEZŐ betűmérete a LUMOS MOTION-höz igazítva"
 },
 {
-"id": "8fed2e96c8",
-"at": "2026-11-06T08:27:15+01:00",
-"msg": "Logó: szóköz vissza a LUMOS MOTION-ba"
-},
-{
-"id": "6332fb0ee7",
-"at": "2026-11-06T07:26:25Z",
+"id": "d183874507",
+"at": "2026-11-06T07:27:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
