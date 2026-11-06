@@ -616,12 +616,15 @@ function postModal(next){
 /* Streames projekt lezárása: a közvetítés / felvétel linkje kötelező */
 /* A projekt vágói (Vágó szereppel) */
 const editorsOf=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))].map(id=>crewById(id)).filter(Boolean);
+/* Nyersanyag-értesítő csak annak a vágónak kell, akinek más is forgatott (ha ő maga az egyetlen operatőr / fotós / drónos, nála van az anyag) */
+const RAW_SHOOT=new Set(['Operatőr','Drónpilóta','Fotós']);
+const rawEditors=p=>editorsOf(p).filter(e=>(p.crew||[]).some(a=>RAW_SHOOT.has(a.role)&&a.crewId!==e.id));
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
-function rawMailModal(next){const d=S.draft;if(!d)return;const eds=editorsOf(d),r=pr(d),due=dueDate(d);
+function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d);
   const folder=d.folderId?'https://drive.google.com/drive/folders/'+d.folderId:'';
   const first=eds.length===1?String(eds[0].name).split(' ').slice(-1)[0]:'';
   const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.label}: ${t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
-  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga feltöltve${folder?':\n'+folder:'.'}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél a „📤 Videók leadása” gombbal add le.\n\nKöszi!`;
+  const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga feltöltve${folder?':\n'+folder:'.'}\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél húzd át az „Utómunka” lépést a „Videók jóváhagyásra várnak” lépésre, és ott add le a linket.\n\nKöszi!`;
   openModal('🎬 Nyersanyag feltöltve – e-mail a vágónak',`<div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>
     ${mf('rawLink','A nyersanyag linkje',{full:true,type:'url',v:folder,ph:'https://drive.google.com/…'})}
     <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="8" maxlength="5000">${esc(text)}</textarea></div></div>`,
@@ -1226,7 +1229,7 @@ const ACT={
         const ci=ids.indexOf(cur);if(i>=0&&i+1<ids.length&&ci<=i)setTimeout(()=>ACT.stage({dataset:{v:ids[i+1]}}),0);}};
     if(on&&v==='tervezes'){if(reqBlock())return;if(crewFinalOn()&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
-    const raw=next=>()=>{const eds=editorsOf(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawMailModal(next);else next();};   // vágói munka: e-mail a vágónak a nyersanyagról
+    const raw=next=>()=>{const eds=rawEditors(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawMailModal(next);else next();};   // vágói munka: e-mail a vágónak a nyersanyagról
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='helyszin'){raw(apply)();return;}
     if(on&&v==='utomunka'&&!set.has('helyszin')&&!editOnly(d)){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
