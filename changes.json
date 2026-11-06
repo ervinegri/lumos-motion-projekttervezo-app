@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2044e6e168",
+"at": "2026-11-06T09:01:13+01:00",
+"msg": "Kisebb üres sáv az oldal alján"
+},
+{
 "id": "633f123462",
 "at": "2026-11-06T09:00:41+01:00",
 "msg": "Lezajlott projekt csapata zárolva; mezők vékonyabb betű; idővonal átmenet javítás; vissza gomb a címsorban"
@@ -146,13 +151,8 @@
 "msg": "Logó: a PROJEKTTERVEZŐ felirat LEMON MILK betűvel"
 },
 {
-"id": "6d818f52d5",
-"at": "2026-11-05T23:26:31+01:00",
-"msg": "Logó: LUMOS MOTION egy sorban, alatta a PROJEKTTERVEZŐ"
-},
-{
-"id": "212eff952a",
-"at": "2026-11-05T16:44:22Z",
+"id": "9bd45bf506",
+"at": "2026-11-05T22:26:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
