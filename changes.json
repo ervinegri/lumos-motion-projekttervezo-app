@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7b2a607117",
+"at": "2026-11-06T08:37:09+01:00",
+"msg": "Logó: vastagabb PROJEKTTERVEZŐ felirat"
+},
+{
 "id": "ce2dd7acea",
 "at": "2026-11-06T08:36:01+01:00",
 "msg": "Termek utómunkája: '1 terem előadásainak utómunkája' (egyes szám) minden listában és levélben"
@@ -146,13 +151,8 @@
 "msg": "Leadási e-mail: a bevezető mondat kikerül"
 },
 {
-"id": "92113290cd",
-"at": "2026-11-05T09:51:01+01:00",
-"msg": "Leadás: határidő-tartás pipa helyett automatikus; a vágó ablakában is látszanak az átadandó anyagok"
-},
-{
-"id": "8212af4bf4",
-"at": "2026-11-05T08:49:38Z",
+"id": "831d1850cc",
+"at": "2026-11-05T08:51:11Z",
 "msg": "Változásnapló frissítése"
 }
 ]
