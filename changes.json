@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d180369d54",
+"at": "2026-11-06T08:49:22+01:00",
+"msg": "Idővonal: leadás után a vágás sávja a leadás napjáig tart"
+},
+{
 "id": "d3955bd051",
 "at": "2026-11-06T08:47:13+01:00",
 "msg": "Idővonal: jóváhagyásra váró vágás ⏳, kész ✓"
@@ -146,13 +151,8 @@
 "msg": "Szóba jövő szolgáltatások: gépeléssel szűr, Enterrel új elem vehető fel"
 },
 {
-"id": "c5b26e546a",
-"at": "2026-11-05T13:44:12+01:00",
-"msg": "Honnan jött?: a lista elemei a HubSpot forrás-mezőjéből"
-},
-{
-"id": "a18f03da95",
-"at": "2026-11-05T12:40:19Z",
+"id": "e1e385f638",
+"at": "2026-11-05T12:44:22Z",
 "msg": "Változásnapló frissítése"
 }
 ]
