@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "373c9e26aa",
+"at": "2026-11-06T22:48:27+01:00",
+"msg": "Jóváhagyásra vár: újra mindig fent, becsukható/kinyitható (megjegyzi)"
+},
+{
 "id": "c54f38ac10",
 "at": "2026-11-06T22:44:06+01:00",
 "msg": "Kézi vágói naptár-esemény: ⏳/✓ a hozzá tartozó projekt állapota szerint"
@@ -149,11 +154,6 @@
 "id": "7b2a607117",
 "at": "2026-11-06T08:37:09+01:00",
 "msg": "Logó: vastagabb PROJEKTTERVEZŐ felirat"
-},
-{
-"id": "ce2dd7acea",
-"at": "2026-11-06T08:36:01+01:00",
-"msg": "Termek utómunkája: '1 terem előadásainak utómunkája' (egyes szám) minden listában és levélben"
 }
 ]
 }
