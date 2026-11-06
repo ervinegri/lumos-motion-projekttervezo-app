@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ddb1315591",
+"at": "2026-11-06T08:33:09+01:00",
+"msg": "Minden linkes ablakban a jelszó pipa az Újabb link sorában"
+},
+{
 "id": "e2de5bb06d",
 "at": "2026-11-06T08:31:59+01:00",
 "msg": "Átadási link felirat: YouTube, pCloud vagy más"
@@ -146,13 +151,8 @@
 "msg": "Belépés: szélesebb Google-gomb, a kártya bárhol kattintható"
 },
 {
-"id": "701034672c",
-"at": "2026-11-05T09:47:29+01:00",
-"msg": "Szakember projektnézet: a díj panel kikerül (csak díjcsökkentésnél marad a kifogás miatt)"
-},
-{
-"id": "e0cd72348a",
-"at": "2026-11-05T08:46:43Z",
+"id": "c12716b782",
+"at": "2026-11-05T08:47:39Z",
 "msg": "Változásnapló frissítése"
 }
 ]
