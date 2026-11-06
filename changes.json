@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "68641730c1",
+"at": "2026-11-06T08:54:14+01:00",
+"msg": "Havi naptár: függőlegesen nem rugózik és nem lapoz"
+},
+{
 "id": "1aa610f35b",
 "at": "2026-11-06T08:52:55+01:00",
 "msg": "Naptár fejléce: kisebb gombok és hónapválasztó"
@@ -146,13 +151,8 @@
 "msg": "Lehetőség jegyzetei: a HubSpot feladatai, e-mailjei, hívásai és megbeszélései is"
 },
 {
-"id": "f7f84aa1ba",
-"at": "2026-11-05T13:58:08+01:00",
-"msg": "Értékesítés kártya: a kapcsolattartó (e-mail) egy sorban, hosszúnál ...-tal"
-},
-{
-"id": "a390fc8c09",
-"at": "2026-11-05T12:55:27Z",
+"id": "6113ce2b0c",
+"at": "2026-11-05T12:58:18Z",
 "msg": "Változásnapló frissítése"
 }
 ]
