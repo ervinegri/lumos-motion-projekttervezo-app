@@ -406,3 +406,5 @@ html.th2 .tl-row.tl-sec .tl-lbl.tl-wtog b{text-transform:none!important;letter-s
 
 /* „Szakember nézet” sárga sáv: a fejléc alatt fent marad, nem lehet felgörgetni alá */
 .view-banner{position:sticky;top:var(--tbh0,58px);z-index:19}
+/* az idővonal magassága a sárga nézet-sávval is beférjen a képernyőre (ne lehessen az oldalt elgörgetni) */
+html.th2 .tl-wrap{height:max(420px,calc(100vh - 250px - (var(--tbh,58px) - var(--tbh0,58px))))}
