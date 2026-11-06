@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "00a2b598f2",
+"at": "2026-11-06T15:31:37+01:00",
+"msg": "Sales App szinkron: a végleges rendelésekből ügyfél és projekt, a közös adatok visszamennek"
+},
+{
 "id": "44b9e9a1cd",
 "at": "2026-11-06T15:02:58+01:00",
 "msg": "Ablak-piszkozat a kitöltött űrlaphoz kötve (ügyfél adószám nem tűnik el); Ügyfelek: egész sor kattintható"
@@ -146,13 +151,8 @@
 "msg": "Leadás ablak: Észrevételek felirat '(nem kötelező)' nélkül"
 },
 {
-"id": "256ad981ce",
-"at": "2026-11-06T08:28:55+01:00",
-"msg": "Logó: a PROJEKTTERVEZŐ betűmérete a LUMOS MOTION-höz igazítva"
-},
-{
-"id": "d183874507",
-"at": "2026-11-06T07:27:24Z",
+"id": "904aae8aba",
+"at": "2026-11-06T07:29:04Z",
 "msg": "Változásnapló frissítése"
 }
 ]
