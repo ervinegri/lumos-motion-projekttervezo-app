@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d6d4c181fc",
+"at": "2026-11-07T00:06:18+01:00",
+"msg": "Kifizetések: Egyenleg = előző hónapok elmaradása, alatta Összesen fizetendő"
+},
+{
 "id": "4122cc9591",
 "at": "2026-11-06T23:24:06+01:00",
 "msg": "Jóváhagyásra váró projektek az idővonalon is a helyükön maradnak"
@@ -149,11 +154,6 @@
 "id": "27bda7efd8",
 "at": "2026-11-06T08:44:34+01:00",
 "msg": "Idővonal: a kész vágások ✓ jelet kapnak"
-},
-{
-"id": "e6d9054993",
-"at": "2026-11-06T08:43:20+01:00",
-"msg": "Logó: mindkét sor LEMON MILK Bold betűvel, egyforma szélességben"
 }
 ]
 }
