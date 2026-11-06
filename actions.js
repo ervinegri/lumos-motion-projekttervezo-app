@@ -384,7 +384,7 @@ function newProjectModal(day,pre){
     ${mf('date','Dátum',{type:'date',v:d0})}
     <div class="field np-multi np-onsite"><span class="lbl">&nbsp;</span><button type="button" class="btn outline small" data-action="np-multi">➕ Több nap felvétele</button></div>
     <div class="field np-end" hidden><label for="m-endDate">Utolsó nap</label><div class="np-end-row"><input class="inp" id="m-endDate" name="endDate" type="date"><button type="button" class="x w" data-action="np-multi-off" aria-label="Egy napos" title="Mégis egy napos">×</button></div></div>
-    ${mf('startTime','Érkezés a helyszínre',{ph:'pl. 10:00',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
+    ${mf('startTime','Kezdés',{ph:'pl. 10:00',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
   </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
@@ -392,7 +392,7 @@ function newProjectModal(day,pre){
     const {p,clientNew,g}=npBuild(fd);
     const fieldOf={client:clientNew?'client':'clientQ'};
     const miss=missingReq(p).filter(([k])=>k!=='endDate');
-    if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Érkezés (óó:pp formában)']);
+    if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Kezdés (óó:pp formában)']);
     if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Távozás (óó:pp formában)']);
     if(p.date&&p.date<todayISO()&&form.dataset.pastOk!==p.date){form.dataset.pastOk=p.date;
       let w=$('m-pastWarn');if(!w){w=document.createElement('div');w.id='m-pastWarn';w.className='past-warn';form.querySelector('.fields').after(w);}
@@ -922,7 +922,7 @@ function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.
 /* Ütközés (valaki más is mentette a projektet): mezőnként összefésüljük – a te módosításaid megmaradnak,
    az ő módosításai is bekerülnek; ha ugyanazt a mezőt módosítottátok, megkérdezzük, melyik maradjon. */
 const MERGE_SKIP=new Set(['updatedAt','updatedBy','mutationId','baseUpdatedAt','createdAt','calEventId','_multi','er_post_n','x_foto_n']);
-const FIELD_LABEL={name:'Projekt neve',client:'Ügyfél',venue:'Helyszín',eventType:'Rendezvény típusa',date:'Első nap',endDate:'Utolsó nap',startTime:'Érkezés',endTime:'Távozás',lastStartTime:'Utolsó nap érkezés',lastEndTime:'Utolsó nap távozás',contactName:'Kapcsolattartó',contactPhone:'Telefon',contactEmail:'E-mail',notes:'Jegyzetek',techPlan:'Technikai terv',crew:'Stáb',equipment:'Eszközök',fees:'Termelői díjak',status:'Állapot',stepsDone:'Lépések',lead:'Projektvezető',projectValue:'Büdzsé',budgetVal:'Termelői keret',budgetMode:'Termelői keret módja',deliveryLink:'Átadási link',deliveryNotes:'Átadási megjegyzés'};
+const FIELD_LABEL={name:'Projekt neve',client:'Ügyfél',venue:'Helyszín',eventType:'Rendezvény típusa',date:'Első nap',endDate:'Utolsó nap',startTime:'Kezdés',endTime:'Távozás',lastStartTime:'Utolsó nap kezdés',lastEndTime:'Utolsó nap távozás',contactName:'Kapcsolattartó',contactPhone:'Telefon',contactEmail:'E-mail',notes:'Jegyzetek',techPlan:'Technikai terv',crew:'Stáb',equipment:'Eszközök',fees:'Termelői díjak',status:'Állapot',stepsDone:'Lépések',lead:'Projektvezető',projectValue:'Büdzsé',budgetVal:'Termelői keret',budgetMode:'Termelői keret módja',deliveryLink:'Átadási link',deliveryNotes:'Átadási megjegyzés'};
 async function conflictMerge(mine){
   const id=mine.id,base=(S.draftBase&&S.draftBase.id===id)?S.draftBase:null;let srv=null;
   try{const bt=await call('bootstrap');srv=(bt.projects||[]).find(x=>x.id===id)||null;}catch(e){}
@@ -1071,7 +1071,7 @@ function saveDraft(){
   return SAVE_Q;
 }
 function personList(p,cid){
-  const c=crewById(cid);const lines=[`Eszközlista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,'',((c&&c.name)||'?').toUpperCase()];
+  const c=crewById(cid);const lines=[`Eszközlista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · kezdés '+p.startTime:''}`,'',((c&&c.name)||'?').toUpperCase()];
   const mine=(p.equipment||[]).filter(e=>e.crewId===cid).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
   rentalsOf(p,cid).forEach(r=>lines.push(`☐ ${r.name} (${r.own?'saját':'bérelt'+(r.company?', '+r.company:'')})`));
   if(!mine.length&&!rentalsOf(p,cid).length)lines.push('(nincs nála eszköz)');
@@ -1079,7 +1079,7 @@ function personList(p,cid){
   return lines.join('\n');
 }
 function packingList(p){
-  const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · érkezés '+p.startTime:''}`,''];
+  const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · kezdés '+p.startTime:''}`,''];
   const eq=(p.equipment||[]).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
   const line=({e,it})=>`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`;
   const people=[...crewIds(p)];

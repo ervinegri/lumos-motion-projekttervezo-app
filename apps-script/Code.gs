@@ -950,7 +950,7 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
-    ['Érkezés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
+    ['Kezdés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
     ['Projektvezető', lead && lead.id !== m.id ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);   // a projektvezető a saját levelében nem kapja meg a saját nevét / számát
   const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)
   if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
@@ -3519,7 +3519,7 @@ function sendEquipmentList_(u, a) {
     eqHtml += '<tr><td colspan="2" style="padding:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f7381">' + e(cat) + '</td></tr>';
     eqTxt += '\n' + cat.toUpperCase() + '\n';
     items.forEach(x => {
-      eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee"><b>' + x.qty + '×</b> ' + e(x.it.name) + (x.it.serial ? ' <span style="color:#5f7381">(' + e(x.it.serial) + ')</span>' : '') + (x.who ? ' <span style="color:#1f5a3d;font-weight:600">– ' + e(x.who) + '</span>' : '') + (x.it.location ? '<br><span style="font-size:12px;color:#5f7381">Hol van: ' + e(x.it.location) + '</span>' : '') + '</td></tr>';
+      eqHtml += '<tr><td style="padding:5px 0;border-top:1px solid #e3e9ee;width:28px;font-size:16px">☐</td><td style="padding:5px 0;border-top:1px solid #e3e9ee"><b>' + x.qty + '×</b> ' + e(x.it.name) + (x.it.serial ? ' <span style="color:#5f7381">(' + e(x.it.serial) + ')</span>' : '') + (x.who ? ' <span style="color:#1f5a3d;font-weight:600">– ' + e(x.who) + '</span>' : '') + '</td></tr>';
       eqTxt += '☐ ' + x.qty + '× ' + x.it.name + (x.it.serial ? ' (' + x.it.serial + ')' : '') + (x.who ? ' – ' + x.who : '') + '\n';
     });
   });
@@ -3539,7 +3539,7 @@ function sendEquipmentList_(u, a) {
   const leadC = p.lead && crewMap[p.lead] ? crewMap[p.lead] : null;
   const contactFor = cid => cid === p.lead ? [p.contactName, p.contactPhone, p.contactEmail].filter(Boolean).join(', ')
     : (leadC ? [leadC.name + ' (projektvezető)', leadC.phone, leadC.email].filter(Boolean).join(', ') : '');
-  const infoOf = cid => [['Időpont', dateTxt], ['Érkezés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', contactFor(cid)]].filter(x => x[1]);
+  const infoOf = cid => [['Időpont', dateTxt], ['Kezdés', p.startTime], ['Helyszín', p.venue], ['Kapcsolattartó', contactFor(cid)]].filter(x => x[1]);
   const infoHtmlOf = cid => infoOf(cid).map(x => '<tr><td style="padding:3px 14px 3px 0;color:#5f7381;white-space:nowrap">' + x[0] + '</td><td style="padding:3px 0"><b>' + e(x[1]) + '</b></td></tr>').join('');
   const planHtml = includePlan && String(p.techPlan || '').trim() ? '<h3 style="font-size:15px;margin:24px 0 6px">Forgatási és technikai terv</h3><div style="white-space:pre-wrap">' + e(p.techPlan) + '</div>' : '';   // csak ha van terv; a jegyzetek nem kerülnek a levélbe
   const planTxt = includePlan && String(p.techPlan || '').trim() ? '\nFORGATÁSI ÉS TECHNIKAI TERV\n' + p.techPlan + '\n' : '';
@@ -3557,14 +3557,13 @@ function sendEquipmentList_(u, a) {
       + '<h2 style="font-size:20px;margin:18px 0 8px">' + e(p.name) + '</h2>'
       + '<table style="border-collapse:collapse;font-size:14px">' + infoHtmlOf(cid) + '</table>'
       + '<p style="margin:10px 0 0">A te szereped: <b>' + e(onProject[cid].join(', ')) + '</b></p>'
-      + (mine(cid).length ? '<p style="margin:10px 0 0;padding:10px 12px;background:#e8f2ec;border-radius:10px"><b>Nálad lesz:</b> ' + e(mine(cid).join(', ')) + '</p>' : '')
       + (pNotes[cid] ? '<p style="margin:10px 0 0;padding:10px 12px;background:#fff6e0;border-radius:10px"><b>Neked szóló megjegyzés:</b><br>' + e(pNotes[cid]).replace(/\n/g, '<br>') + '</p>' : '')
       + '<h3 style="font-size:15px;margin:24px 0 2px">' + (isLead ? 'Eszközlista (teljes)' : 'A te eszközeid') + '</h3><table style="border-collapse:collapse;width:100%;font-size:14px">' + EQ.html + '</table>'
       + '<h3 style="font-size:15px;margin:24px 0 6px">Stáb</h3><table style="border-collapse:collapse;font-size:14px">' + crewHtml + '</table>'
       + planHtml
       + (sig ? '<div style="margin-top:26px">' + sig.html + '</div></div>' : '<p style="margin-top:26px">Üdvözlettel,<br>' + e(u.name) + '<br>Lumos Motion</p></div>');
     const text = 'Szia ' + first + '!\n\n' + (message || ((resend ? 'Frissült' : 'Itt az') + ' eszközlista a következő forgatáshoz:')) + '\n\n' + p.name + '\n'
-      + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (mine(cid).length ? '\nNálad lesz: ' + mine(cid).join(', ') : '') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\n' + (isLead ? 'ESZKÖZLISTA (TELJES)' : 'A TE ESZKÖZEID') + EQ.txt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
+      + infoOf(cid).map(x => x[0] + ': ' + x[1]).join('\n') + '\nA te szereped: ' + onProject[cid].join(', ') + (pNotes[cid] ? '\nNeked szóló megjegyzés: ' + pNotes[cid] : '') + '\n\n' + (isLead ? 'ESZKÖZLISTA (TELJES)' : 'A TE ESZKÖZEID') + EQ.txt + '\nSTÁB\n' + crewTxt + '\n' + planTxt
       + '\n' + (sig ? sig.text : 'Üdvözlettel,\n' + u.name + '\nLumos Motion');
     if (a.preview) { previews.push({ id: cid, name: c.name, email: c.email, subject: subject, html: html }); return; }   // előnézet: nem küldjük el
     const opts = mailOptsFor_(u, html);
