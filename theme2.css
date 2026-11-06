@@ -366,3 +366,9 @@ html.th2 .crew-final.past{background:var(--soft,#f4f6f8);border-color:var(--line
 /* az oldal alján ne legyen nagy üres sáv – csak ha lent a mentés-sáv látszik, akkor kell hely neki */
 html.th2 .content{padding-bottom:36px}
 html.th2 body.has-savebar .content{padding-bottom:110px}
+
+/* „Dolgozom…” jelzés: amíg egy gomb mögötti művelet (véglegesítés, küldés…) fut */
+.work-pill{position:fixed;left:50%;top:calc(var(--tbh,58px) + 12px);transform:translate(-50%,-8px);z-index:130;display:flex;align-items:center;gap:9px;background:#1d2a38;color:#fff;font-size:13.5px;font-weight:600;padding:9px 16px 9px 12px;border-radius:999px;box-shadow:0 8px 24px rgba(16,24,40,.22);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+.work-pill.on{opacity:.96;transform:translate(-50%,0)}
+.work-pill i{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.9);border-top-color:transparent;animation:szSpin .7s linear infinite}
+@media (prefers-reduced-motion:reduce){.work-pill i{animation-duration:2s}}

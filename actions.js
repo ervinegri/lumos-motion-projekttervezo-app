@@ -38,7 +38,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlK
 function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!root)return;const old=root.querySelector('.cf-layer');if(old)old.remove();
   const d=document.createElement('div');d.className='modal cf-layer';
   d.innerHTML=`<div class="mbox" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="mhead"><h3>${esc(title)}</h3></div>${html}<div class="mfoot"><button type="button" class="btn outline" data-cf="back">← Vissza</button><button type="button" class="btn primary" data-cf="ok">${esc(okLabel)}</button></div></div>`;
-  d.addEventListener('click',e=>{const b=e.target.closest('[data-cf]');if(!b){if(e.target===d)d.remove();return;}e.stopPropagation();if(b.dataset.cf==='back'){d.remove();return;}onOk(b,d);});
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-cf]');if(!b){if(e.target===d)d.remove();return;}e.stopPropagation();if(b.dataset.cf==='back'){d.remove();return;}{const r=onOk(b,d);if(r&&typeof r.then==='function')workBtn(b,r);}});
   root.appendChild(d);d.querySelector('[data-cf=ok]').focus();}
 function closeModal(){if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';}
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
@@ -307,12 +307,12 @@ $('modalRoot').addEventListener('submit',async e=>{
   e.preventDefault();if(!modalSubmit)return;
   const form=e.target,btn=form.querySelector('[type=submit]');if(btn){btn.dataset.l=btn.textContent;btn.textContent=btn.textContent.replace(/…$/,'')+'…';btn.disabled=true;}
   const k=MD_KEY;
-  try{await modalSubmit(new FormData(form),form);if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
+  try{await workTrack(modalSubmit(new FormData(form),form));if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
   finally{if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}}
 });
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('modalRoot').innerHTML)return;const cf=$('modalRoot').querySelector('.cf-layer');if(cf){cf.remove();return;}closeModal();});
 /* Folyamatban lévő művelet gombja (pl. „Mentés…”, „Feltöltés…”, „Rögzítés…”): forgó jel + fénycsík, amíg tart */
-const BUSY_SYNC=b=>{if(!b||b.tagName!=='BUTTON')return;const on=b.disabled&&/…\s*$/.test(b.textContent||'');b.classList.toggle('is-busy',on);if(on)b.setAttribute('aria-busy','true');else b.removeAttribute('aria-busy');};
+const BUSY_SYNC=b=>{if(!b||b.tagName!=='BUTTON')return;const on=!!b.dataset.busy||b.disabled&&/…\s*$/.test(b.textContent||'');b.classList.toggle('is-busy',on);if(on)b.setAttribute('aria-busy','true');else b.removeAttribute('aria-busy');};
 if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')BUSY_SYNC(m.target);else if(m.type==='characterData')BUSY_SYNC(m.target.parentElement&&m.target.parentElement.closest('button'));else{BUSY_SYNC(m.target.closest&&m.target.closest('button'));}}))
   .observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled'],childList:true,characterData:true});
 
@@ -1391,7 +1391,15 @@ const ACT={
 };
 document.addEventListener('click',e=>{if(!e.target.closest('.eqdd'))document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.eqdd-pop')){document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());e.stopPropagation();}},true);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const fn=ACT[b.dataset.action];if(fn&&b.tagName==='A'&&b.getAttribute('href'))e.preventDefault();if(fn)fn(b,e);});   // linkként megjelenő gomb (fülek): sima kattintásra az app kezeli, jobb klikkre / új lapra a böngésző
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled||b.dataset.working)return;const fn=ACT[b.dataset.action];if(fn&&b.tagName==='A'&&b.getAttribute('href'))e.preventDefault();if(fn){const r=fn(b,e);if(r&&typeof r.then==='function')workBtn(b,r);}});
+/* Folyamatban lévő művelet: ha egy gomb mögötti munka nem azonnali, a gomb forog („…”), és fent egy „Dolgozom…” jelzés is látszik */
+let WORK_N=0,WORK_T=0;
+function workPill(){let w=$('workPill');if(!w){w=document.createElement('div');w.id='workPill';w.className='work-pill';w.setAttribute('role','status');w.setAttribute('aria-live','polite');w.innerHTML='<i></i>Dolgozom…';document.body.appendChild(w);}return w;}
+function workTrack(pr){WORK_N++;clearTimeout(WORK_T);WORK_T=setTimeout(()=>{if(WORK_N>0)workPill().classList.add('on');},250);
+  const done=()=>{WORK_N=Math.max(0,WORK_N-1);if(!WORK_N){clearTimeout(WORK_T);const w=$('workPill');if(w)w.classList.remove('on');}};Promise.resolve(pr).then(done,done);return pr;}
+function workBtn(b,pr){b.dataset.working='1';let marked=false,txt='';
+  const t=setTimeout(()=>{if(!b.isConnected||b.disabled)return;marked=true;txt=b.textContent;if(txt.trim().length>2&&!/…\s*$/.test(txt)){b.textContent=txt.replace(/\s+$/,'')+'…';}b.dataset.busy='1';b.classList.add('is-busy');b.setAttribute('aria-busy','true');},120);
+  workTrack(pr);const done=()=>{clearTimeout(t);delete b.dataset.working;if(marked&&b.isConnected){delete b.dataset.busy;if(b.textContent===txt.replace(/\s+$/,'')+'…')b.textContent=txt;b.classList.remove('is-busy');b.removeAttribute('aria-busy');}};Promise.resolve(pr).then(done,done);}   // linkként megjelenő gomb (fülek): sima kattintásra az app kezeli, jobb klikkre / új lapra a böngésző
 function fieldValue(t){
   const k=t.dataset.field;
   if(t.type==='number'){if(t.value==='')return k==='hours'?8:null;const n=Math.round(num(t.value));return k==='hours'?Math.min(16,Math.max(1,n)):Math.max(0,n);}
