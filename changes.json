@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e6788ba52d",
+"at": "2026-11-06T08:20:31+01:00",
+"msg": "Nyersanyag a NAS-ra: egységes mappanév, 'Feltöltve a NAS-ra' gomb, feltöltésre váró lista; a vágó e-mailje link nélkül a NAS-mappával"
+},
+{
 "id": "dd78abfd56",
 "at": "2026-11-06T08:12:49+01:00",
 "msg": "Nyersanyag-értesítő csak annak a vágónak, akinek más is forgatott; levélszöveg az áthúzásos leadáshoz"
@@ -146,13 +151,8 @@
 "msg": "Leadás: 'Így néz ki az e-mailed', az előnézet nem szerkeszthető"
 },
 {
-"id": "833c12a2c6",
-"at": "2026-11-05T09:36:23+01:00",
-"msg": "Belépés: a kártya csak a betűk és a Google-gomb betöltése után, lágy beúszással jelenik meg"
-},
-{
-"id": "020fa8e1ed",
-"at": "2026-11-05T08:34:24Z",
+"id": "96b1cfb894",
+"at": "2026-11-05T08:36:32Z",
 "msg": "Változásnapló frissítése"
 }
 ]
