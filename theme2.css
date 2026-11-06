@@ -344,3 +344,9 @@ html.th2 .stage.cur+.stage-tick.stage-handle{border:0}
 /* még le nem forgatott projekt vágása: halvány lila, a kék forgatási napból lágyan átmenve */
 html.th2 .cal-chip.p.cut.tl-cut.tl-joined.cut-pending{background:linear-gradient(90deg,var(--from) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important;background:linear-gradient(in oklab 90deg,var(--from) 0,color-mix(in srgb,var(--violet) 38%,#fff) 10px)!important}
 html.th2 .stage.cur{border:2px solid var(--ink);background-origin:padding-box;background-clip:padding-box}
+/* naptár fejléce: kisebb, a hónapválasztóval egyező méretek */
+html.th2 .cal-mnav .btn{min-height:40px;font-size:14px;font-weight:600;padding:6px 14px;border-radius:999px}
+html.th2 .cal-mnav .cm-arr{min-width:40px;font-size:18px;padding:4px 10px}
+html.th2 .cal-mnav .cm-tools .seg{min-height:40px;border-radius:999px}
+html.th2 .cal-mnav .cm-tools .seg button{padding:0 12px;font-size:13.5px}
+html.th2 .cal-mnav .cm-cur{min-height:40px;font-size:15px;font-weight:700;padding:0 18px;border-radius:999px}
