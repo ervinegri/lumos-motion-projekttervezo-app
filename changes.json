@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6ea6d91f8a",
+"at": "2026-11-06T09:05:53+01:00",
+"msg": "Érkezés → kezdési idő a Videóvágás súgóban"
+},
+{
 "id": "b59041ab43",
 "at": "2026-11-06T09:03:47+01:00",
 "msg": "Eszközlista levél: Hol van és Nálad lesz ki; Érkezés → Kezdés"
@@ -146,13 +151,8 @@
 "msg": "Nyersanyag a NAS-ra: egységes mappanév, 'Feltöltve a NAS-ra' gomb, feltöltésre váró lista; a vágó e-mailje link nélkül a NAS-mappával"
 },
 {
-"id": "dd78abfd56",
-"at": "2026-11-06T08:12:49+01:00",
-"msg": "Nyersanyag-értesítő csak annak a vágónak, akinek más is forgatott; levélszöveg az áthúzásos leadáshoz"
-},
-{
-"id": "966e918ce6",
-"at": "2026-11-06T07:11:24Z",
+"id": "9f7c1244c4",
+"at": "2026-11-06T07:12:58Z",
 "msg": "Változásnapló frissítése"
 }
 ]
