@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "27bda7efd8",
+"at": "2026-11-06T08:44:34+01:00",
+"msg": "Idővonal: a kész vágások ✓ jelet kapnak"
+},
+{
 "id": "e6d9054993",
 "at": "2026-11-06T08:43:20+01:00",
 "msg": "Logó: mindkét sor LEMON MILK Bold betűvel, egyforma szélességben"
@@ -146,13 +151,8 @@
 "msg": "Kifizetések: 'Számla fizetve' sor szürke, amíg a számla nincs kiállítva"
 },
 {
-"id": "1c90f87f79",
-"at": "2026-11-05T10:04:10+01:00",
-"msg": "Kifizetések: a vágó díja a vágási határidő napjára (hónapjára) számít; csak helyszíni munkánál a projekt napja; kiküldött összesítők nem változnak"
-},
-{
-"id": "9ae2ccbd1e",
-"at": "2026-11-05T08:58:44Z",
+"id": "fa158387bc",
+"at": "2026-11-05T09:04:20Z",
 "msg": "Változásnapló frissítése"
 }
 ]
