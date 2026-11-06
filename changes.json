@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "752b295833",
+"at": "2026-11-06T08:11:13+01:00",
+"msg": "Logó: a nyíl a teljes szélességet kitölti"
+},
+{
 "id": "3dffa5fc6d",
 "at": "2026-11-06T08:09:50+01:00",
 "msg": "Logó: a PROJEKTTERVEZŐ felirat LEMON MILK betűvel"
@@ -146,13 +151,8 @@
 "msg": "Leadás: X a további linkeken, címzettek betöltése pörgővel"
 },
 {
-"id": "0e708effd7",
-"at": "2026-11-05T09:31:42+01:00",
-"msg": "Leadás: megjegyzés a videók előtt, 'elkészítette' szöveg, címzettek egy sorban, teljes szélességű jelszó, hívogató levél-előnézet; le nem forgatott vágáson nincs ikon"
-},
-{
-"id": "c90dceff63",
-"at": "2026-11-05T08:27:32Z",
+"id": "33ea660f5a",
+"at": "2026-11-05T08:31:51Z",
 "msg": "Változásnapló frissítése"
 }
 ]
