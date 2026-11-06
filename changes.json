@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "b59041ab43",
+"at": "2026-11-06T09:03:47+01:00",
+"msg": "Eszközlista levél: Hol van és Nálad lesz ki; Érkezés → Kezdés"
+},
+{
 "id": "cc48b3abf2",
 "at": "2026-11-06T09:01:24+01:00",
 "msg": "Alsó üres sáv: erősebb szelektor"
@@ -146,13 +151,8 @@
 "msg": "Nyersanyag-értesítő csak annak a vágónak, akinek más is forgatott; levélszöveg az áthúzásos leadáshoz"
 },
 {
-"id": "752b295833",
-"at": "2026-11-06T08:11:13+01:00",
-"msg": "Logó: a nyíl a teljes szélességet kitölti"
-},
-{
-"id": "a411e49c8d",
-"at": "2026-11-06T07:09:58Z",
+"id": "966e918ce6",
+"at": "2026-11-06T07:11:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
