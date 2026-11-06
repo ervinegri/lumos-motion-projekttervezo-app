@@ -1,6 +1,16 @@
 {
 "items": [
 {
+"id": "c33c361016",
+"at": "2026-11-06T22:26:14+01:00",
+"msg": "Idővonal: Jóváhagyásra vár kategória legfelül, lapozástól függetlenül"
+},
+{
+"id": "1474067564",
+"at": "2026-11-06T22:26:14+01:00",
+"msg": "Visszavonás: jóváhagyásra váró sáv hosszabbítása"
+},
+{
 "id": "0d49ff228e",
 "at": "2026-11-06T22:12:52+01:00",
 "msg": "Idővonal: jóváhagyásra váró vágás a mai napig látszik, nem tűnik el"
@@ -144,16 +154,6 @@
 "id": "ddb1315591",
 "at": "2026-11-06T08:33:09+01:00",
 "msg": "Minden linkes ablakban a jelszó pipa az Újabb link sorában"
-},
-{
-"id": "e2de5bb06d",
-"at": "2026-11-06T08:31:59+01:00",
-"msg": "Átadási link felirat: YouTube, pCloud vagy más"
-},
-{
-"id": "c9c64fb5c2",
-"at": "2026-11-06T07:30:37Z",
-"msg": "Változásnapló frissítése"
 }
 ]
 }
