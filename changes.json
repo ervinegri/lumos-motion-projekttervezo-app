@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ddf7b44ed1",
+"at": "2026-11-06T09:08:43+01:00",
+"msg": "Folyamatjelzés: a gombok forognak és „Dolgozom…” jelzés, amíg a művelet fut"
+},
+{
 "id": "6ea6d91f8a",
 "at": "2026-11-06T09:05:53+01:00",
 "msg": "Érkezés → kezdési idő a Videóvágás súgóban"
@@ -146,13 +151,8 @@
 "msg": "Logó: LUMOSMOTION szóköz nélkül"
 },
 {
-"id": "e6788ba52d",
-"at": "2026-11-06T08:20:31+01:00",
-"msg": "Nyersanyag a NAS-ra: egységes mappanév, 'Feltöltve a NAS-ra' gomb, feltöltésre váró lista; a vágó e-mailje link nélkül a NAS-mappával"
-},
-{
-"id": "9f7c1244c4",
-"at": "2026-11-06T07:12:58Z",
+"id": "2f7c72bd46",
+"at": "2026-11-06T07:20:41Z",
 "msg": "Változásnapló frissítése"
 }
 ]
