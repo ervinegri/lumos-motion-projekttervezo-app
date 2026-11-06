@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "33beafb53c",
+"at": "2026-11-06T22:55:57+01:00",
+"msg": "Jóváhagyásra vár: a néző vágó nevét nem írja ki"
+},
+{
 "id": "373c9e26aa",
 "at": "2026-11-06T22:48:27+01:00",
 "msg": "Jóváhagyásra vár: újra mindig fent, becsukható/kinyitható (megjegyzi)"
@@ -149,11 +154,6 @@
 "id": "210d57ae96",
 "at": "2026-11-06T08:39:03+01:00",
 "msg": "Logó: a PROJEKTTERVEZŐ a LUMOS MOTION végéig ér, a nyíl kilóg"
-},
-{
-"id": "7b2a607117",
-"at": "2026-11-06T08:37:09+01:00",
-"msg": "Logó: vastagabb PROJEKTTERVEZŐ felirat"
 }
 ]
 }
