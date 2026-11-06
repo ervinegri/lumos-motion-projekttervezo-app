@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5c1d56db95",
+"at": "2026-11-06T08:45:25+01:00",
+"msg": "Idővonal: kész vágás csak ✓"
+},
+{
 "id": "27bda7efd8",
 "at": "2026-11-06T08:44:34+01:00",
 "msg": "Idővonal: a kész vágások ✓ jelet kapnak"
@@ -146,13 +151,8 @@
 "msg": "E-mail tárgyak emoji nélkül (a Gmail hibásan jelenítette meg)"
 },
 {
-"id": "b67d70ae05",
-"at": "2026-11-05T10:06:24+01:00",
-"msg": "Kifizetések: 'Számla fizetve' sor szürke, amíg a számla nincs kiállítva"
-},
-{
-"id": "fa158387bc",
-"at": "2026-11-05T09:04:20Z",
+"id": "1f1e9757bc",
+"at": "2026-11-05T09:06:34Z",
 "msg": "Változásnapló frissítése"
 }
 ]
