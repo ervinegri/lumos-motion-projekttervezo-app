@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d7ea3a7078",
+"at": "2026-11-06T22:29:29+01:00",
+"msg": "Jóváhagyásra vár: csak akkor kerül fel, ha a helyén épp nem látszik"
+},
+{
 "id": "c33c361016",
 "at": "2026-11-06T22:26:14+01:00",
 "msg": "Idővonal: Jóváhagyásra vár kategória legfelül, lapozástól függetlenül"
@@ -149,11 +154,6 @@
 "id": "0b9955c7cb",
 "at": "2026-11-06T08:34:05+01:00",
 "msg": "Leadás ablak: egynapos rendezvénynél 'Rendezvény napja'"
-},
-{
-"id": "ddb1315591",
-"at": "2026-11-06T08:33:09+01:00",
-"msg": "Minden linkes ablakban a jelszó pipa az Újabb link sorában"
 }
 ]
 }
