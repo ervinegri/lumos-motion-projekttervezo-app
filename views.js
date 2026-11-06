@@ -57,7 +57,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.rem
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=HASH_P.exec(location.hash||''),hp=hm&&projFromHash(hm[1]);
     if(hp){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
@@ -76,7 +76,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro()&&!isSales())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(!TABS().some(t=>t.id===S.tab))S.tab=TABS()[0].id;   // pl. az értékesítő csak az Értékesítés fület látja
@@ -1023,6 +1023,16 @@ function penStrikeNote(cid){   // az elmúlt 12 hónap összes jóváhagyott hib
   return `<p class="pen-strike${n>=3?' bad':''}" data-tip="${esc(tip)}" tabindex="0">⚠️ ${all.length} hiba az elmúlt 12 hónapban: ${parts.join(', ')}${n>=3?' – a szerződés 3.7. pontja szerint (3 súlyos/kritikus hiba) azonnali hatályú felmondásra van jogotok.':''}</p>`;}
 /* Értékesítő a stábban: akinek értékesítői fiókja van, vagy csak értékesítői (és ajánlói) szerepe */
 const isSalesCrew=c=>(S.salesPeople||[]).some(x=>x.crewId===c.id)||((c.roles||[]).includes('Értékesítő')&&(c.roles||[]).every(r=>r==='Értékesítő'||r==='Ajánlói jutalék'));
+/* Munkatársi szerződés (csak az ügyvezető látja – a háttér másnak nem is küldi el) */
+const crewDocsOf=cid=>isAdmin()?(S.crewDocs||[]).filter(d=>d.crewId===cid).sort((a,b)=>String(b.signedAt||b.createdAt).localeCompare(String(a.signedAt||a.createdAt))):[];
+function crewDocKv(c){if(!isAdmin()||!Array.isArray(S.crewDocs))return '';const L=crewDocsOf(c.id);
+  return `<div class="kv"><span>Szerződés</span>${L.length?`<span class="cdoc-links">${L.map(d=>`<button class="cdoc-open" type="button" data-action="crew-doc-open" data-id="${esc(d.id)}" data-tip="${esc(d.fileName||'')}">📄 ${esc(d.title||'Szerződés')}${d.signedAt?` <span class="muted">(${esc(d.signedAt.replace(/-/g,'.'))}.)</span>`:''}</button>`).join('')}</span>`:`<button class="cdoc-open warn-txt" type="button" data-action="edit-crew" data-id="${esc(c.id)}" data-focus="cdoc">nincs feltöltve</button>`}</div>`;}
+function crewDocIcon(c){if(!isAdmin())return '';const L=crewDocsOf(c.id);return L.length?`<button class="cdoc-ic" type="button" data-action="crew-doc-open" data-id="${esc(L[0].id)}" data-tip="Szerződés: ${esc(L[0].title||'')}" aria-label="${esc(c.name)} szerződése">📄</button>`:'';}
+function crewDocSection(c){if(!isAdmin()||!c)return '';const L=crewDocsOf(c.id);
+  return `<div class="field full cdoc-sec" id="cdoc"><span class="lbl">📄 Szerződések <span class="muted" style="font-weight:500">· csak az ügyvezető látja</span></span>
+    ${L.length?`<div class="cdoc-list">${L.map(d=>`<div class="cdoc-row"><button class="cdoc-open" type="button" data-action="crew-doc-open" data-id="${esc(d.id)}">📄 <b>${esc(d.title||'Szerződés')}</b></button><span class="muted">${d.signedAt?'aláírva '+esc(d.signedAt.replace(/-/g,'.'))+'.':'feltöltve '+esc(String(d.createdAt||'').slice(0,10).replace(/-/g,'.'))+'.'}${d.note?' · '+esc(d.note):''}</span><button class="x" type="button" data-action="crew-doc-del" data-id="${esc(d.id)}" aria-label="Szerződés törlése" data-tip="Törlés">×</button></div>`).join('')}</div>`:'<p class="hint" style="margin:0">Még nincs feltöltött szerződés.</p>'}
+    <div class="cdoc-add"><input class="inp" id="cdoc-title" placeholder="Megnevezés (pl. Megbízási szerződés)" maxlength="120"><input class="inp" id="cdoc-date" type="date" aria-label="Aláírás dátuma" title="Aláírás dátuma"><label class="btn outline small cdoc-file">📎 Fájl kiválasztása<input type="file" id="cdoc-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden></label><button class="btn primary small" type="button" data-action="crew-doc-up" data-id="${esc(c.id)}">Feltöltés</button></div>
+    <small class="muted" id="cdoc-fn"></small></div>`;}
 function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
   const salesTab=S.tab==='ertekesitok';   // az ügyvezetőnél külön alfül: Stáb (szakemberek) és Értékesítők
@@ -1043,13 +1053,13 @@ function viewCrew(){
       ${(c.skills||[]).length?`<div class="skills">${c.skills.map(s=>`<span class="skill">${esc(s)}</span>`).join('')}</div>`:''}
       <div>${c.phone?`<div class="kv"><span>Telefon</span><button class="copy" type="button" data-action="copy" data-text="${esc(c.phone)}" title="Másolás">${esc(c.phone)}</button></div>`:''}
         ${c.email?`<div class="kv"><span>E-mail</span><button class="copy mail" type="button" data-action="copy" data-text="${esc(c.email)}" title="Másolás">${esc(c.email).replace('@','<wbr>@')}</button></div>`:'<div class="kv"><span>E-mail</span><span class="warn-txt">nincs megadva</span></div>'}
-        <div class="kv"><span>ÁFA</span><b>${c.vat==='afa'?'Áfakörös':'Alanyi adómentes'}</b></div>${(()=>{const sp=isAdmin()&&(S.salesPeople||[]).find(x=>x.crewId===c.id);if(!sp)return '';   // értékesítő díjazása (csak az ügyvezető látja)
+        <div class="kv"><span>ÁFA</span><b>${c.vat==='afa'?'Áfakörös':'Alanyi adómentes'}</b></div>${crewDocKv(c)}${(()=>{const sp=isAdmin()&&(S.salesPeople||[]).find(x=>x.crewId===c.id);if(!sp)return '';   // értékesítő díjazása (csak az ügyvezető látja)
         return `<div class="kv"><span>Havi fix</span><b class="tnum">${num(sp.salary)?huf(sp.salary):'nincs'}</b></div><div class="kv"><span>Jutalék</span><b>${num(sp.commLow)}% · ${huf(sp.commLimit)} felett ${num(sp.commHigh)}%</b></div>`;})()}</div>
       ${c.note?`<p class="pc-note">${esc(c.note)}</p>`:''}
       ${penStrikeNote(c.id)}
     </article>`;}).join('');
   const rowsOf=L=>f.view!=='list'?'':L.map(c=>{const n=nextOf(c)[0];
-    return `<tr><td><div class="nm" style="display:flex;gap:6px;align-items:center">${esc(c.name)} ${prioBadge(c)}</div>${c.company?`<div class="ser">${esc(c.company)}</div>`:''}</td>
+    return `<tr><td><div class="nm" style="display:flex;gap:6px;align-items:center">${esc(c.name)} ${prioBadge(c)}${crewDocIcon(c)}</div>${c.company?`<div class="ser">${esc(c.company)}</div>`:''}</td>
       <td>${esc((c.roles||[]).join(', '))||'<span class="muted">—</span>'}${(c.skills||[]).length?`<div class="ser">${esc(c.skills.join(', '))}</div>`:''}</td>
       <td>${esc(c.type||'')}</td>
       <td>${c.phone?`<button class="copy" style="text-align:left;white-space:nowrap" type="button" data-action="copy" data-text="${esc(c.phone)}" title="Másolás">${esc(c.phone)}</button>`:''}</td>

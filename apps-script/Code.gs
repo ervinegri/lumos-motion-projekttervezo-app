@@ -115,6 +115,9 @@ const TABLES = {
     ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
+  crewDocs: { tab: 'Munkatársi szerződések', cols: [
+    ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['title', 'Megnevezés'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
+    ['mime', 'Fájltípus'], ['signedAt', 'Aláírás dátuma'], ['note', 'Megjegyzés'], ['createdAt', 'Feltöltve'], ['createdBy', 'Feltöltötte']] },
   crewAssign: { tab: 'Stábbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
@@ -638,7 +641,7 @@ function bootstrap_(u) {
     delete out.links.sheet;
   }
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
-  if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return viewAsPick_(out, u);
 }
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
@@ -2541,6 +2544,55 @@ function billUpload_(u, a) {
   return finPart_(['billing']);
 }
 
+/* ===================== MUNKATÁRSI SZERZŐDÉSEK (csak az ügyvezető) =====================
+   A fájlok a script tulajdonosának saját Drive-jában, egy nem megosztott mappában vannak (nem a közös Lumos mappában),
+   és csak az alkalmazáson keresztül, ügyvezetői jogosultsággal nyithatók meg. */
+const CREW_DOCS_FOLDER_PROPERTY = 'LUMOS_PM_CREW_DOCS_FOLDER';
+function crewDocsFolder_() {
+  const P = PropertiesService.getScriptProperties(), id = P.getProperty(CREW_DOCS_FOLDER_PROPERTY);
+  if (id) { try { const f = DriveApp.getFolderById(id); if (!f.isTrashed()) return f; } catch (e) { } }
+  const f = DriveApp.getRootFolder().createFolder('Lumos Projekttervező – Munkatársi szerződések (bizalmas)');
+  try { f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (e) { }
+  P.setProperty(CREW_DOCS_FOLDER_PROPERTY, f.getId()); return f;
+}
+function crewDocsList_() { return readAll_('crewDocs').map(d => ({ id: d.id, crewId: String(d.crewId || ''), title: d.title || '', fileName: d.fileName || '', mime: d.mime || '', signedAt: iso_(d.signedAt) || '', note: d.note || '', createdAt: d.createdAt || '', createdBy: d.createdBy || '' })); }
+function crewDocSave_(u, a) {
+  a = a || {};
+  const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid);
+  if (!c) throw new Error('A munkatárs nem található.');
+  if (!a.b64) throw new Error('Válaszd ki a szerződés fájlját.');
+  if (String(a.b64).length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
+  const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf';
+  const ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
+  const folder = childFolder_(crewDocsFolder_(), String(c.name || cid).replace(/[\\/]/g, '-'));
+  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, (iso_(a.signedAt) || today_()) + '_' + shortName_(c.name) + '_szerzodes' + ext));
+  return withLock_(() => {
+    const sh = sheetFor_('crewDocs');
+    const r = { id: Utilities.getUuid(), crewId: cid, crewName: c.name || '', title: str_(a.title, 120) || 'Szerződés', fileName: name, fileId: file.getId(), mime: mime,
+      signedAt: iso_(a.signedAt) || '', note: str_(a.note, 500), createdAt: now_(), createdBy: u.name };
+    putRow_('crewDocs', sh, r, 0); dbFlush_();
+    logEvent_(u, 'Munkatársi szerződés feltöltve', c.name || cid, r.title);
+    return { crewDocs: crewDocsList_() };
+  });
+}
+function crewDocGet_(u, a) {
+  const d = readAll_('crewDocs').find(x => x.id === str_(a && a.id, 64)); if (!d) throw new Error('A szerződés nem található.');
+  const b = DriveApp.getFileById(String(d.fileId)).getBlob();
+  if (b.getBytes().length > 10 * 1024 * 1024) throw new Error('A fájl túl nagy a megnyitáshoz.');
+  return { name: d.fileName || b.getName(), mime: b.getContentType() || d.mime || 'application/pdf', b64: Utilities.base64Encode(b.getBytes()) };
+}
+function crewDocDelete_(u, a) {
+  return withLock_(() => {
+    const sh = sheetFor_('crewDocs'), d = readAll_('crewDocs').find(x => x.id === str_(a && a.id, 64));
+    if (!d) return { crewDocs: crewDocsList_() };
+    try { DriveApp.getFileById(String(d.fileId)).setTrashed(true); } catch (e) { }   // a kukába kerül (30 napig visszaállítható)
+    sh.deleteRow(findRow_(sh, d.id)); dbFlush_();
+    logEvent_(u, 'Munkatársi szerződés törölve', d.crewName || d.crewId, d.title || '');
+    return { crewDocs: crewDocsList_() };
+  });
+}
+
 /* ===================== KERETSZERZŐDÉSEK (ügyfelenként) =====================
    Ha egy ügyféllel keretszerződés van, a projektjeinél nem kell külön szerződés (a lejárati dátumig, ha van). */
 function fwSave_(u, a) {
@@ -4186,6 +4238,9 @@ function rpcInner_(token, name, arg) {
     case 'billSave': adminOnly(); return billSave_(u, arg);
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
+    case 'crewDocSave': adminOnly(); return crewDocSave_(u, arg);
+    case 'crewDocGet': adminOnly(); return crewDocGet_(u, arg);
+    case 'crewDocDelete': adminOnly(); return crewDocDelete_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
     case 'driveScan': adminOnly(); return driveScan_(arg);
     case 'driveOps': adminOnly(); return driveOps_(u, arg);

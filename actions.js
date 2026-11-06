@@ -430,6 +430,7 @@ function crewModal(c){
     ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
+    ${crewDocSection(c)}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
@@ -1124,7 +1125,17 @@ const ACT={
     b.disabled=true;try{const r=await call('lookupTaxpayer',{tax:v});if(co&&r.name)co.value=r.name;toast('Cégnév betöltve: '+(r.name||''));}catch(e){handleErr(e);}finally{b.disabled=false;}},
   'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);if(open){const q=pop.querySelector('.msel-q');if(q){q.value='';pop.querySelectorAll('label').forEach(l=>{l.hidden=false;});const ad=pop.querySelector('.msel-add');if(ad)ad.hidden=true;setTimeout(()=>q.focus(),0);}}},
   'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:null),
-  'edit-crew':b=>{const c=crewById(b.dataset.id);if(c)crewModal(c);},
+  'edit-crew':b=>{const c=crewById(b.dataset.id);if(c){crewModal(c);if(b.dataset.focus)setTimeout(()=>{const x=$(b.dataset.focus);if(x)x.scrollIntoView({block:'center'});},60);}},
+  'crew-doc-up':async b=>{const fi=$('cdoc-file'),file=fi&&fi.files&&fi.files[0];if(!file){toast('Válaszd ki a szerződés fájlját.',true);return;}if(file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+    try{const r=await call('crewDocSave',{crewId:b.dataset.id,title:($('cdoc-title').value||'').trim(),signedAt:$('cdoc-date').value||'',b64:await readB64(file),name:file.name,mime:file.type||'application/octet-stream'});
+      S.crewDocs=r.crewDocs||[];const c=crewById(b.dataset.id),sec=$('cdoc');if(sec&&c){sec.outerHTML=crewDocSection(c);}toast('Szerződés feltöltve');}catch(e){handleErr(e);}},
+  'crew-doc-open':async b=>{const w=window.open('about:blank','_blank');
+    try{const r=await call('crewDocGet',{id:b.dataset.id});const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+      const url=URL.createObjectURL(new Blob([u8],{type:r.mime||'application/pdf'}));
+      if(w&&/pdf|image/.test(r.mime||'')){w.location.href=url;}else{if(w)w.close();const a=document.createElement('a');a.href=url;a.download=r.name||'szerzodes';document.body.appendChild(a);a.click();a.remove();}
+      setTimeout(()=>URL.revokeObjectURL(url),120000);}catch(e){if(w)w.close();handleErr(e);}},
+  'crew-doc-del':b=>{const d=(S.crewDocs||[]).find(x=>x.id===b.dataset.id);if(!d)return;
+    confirmLayer('Szerződés törlése',`<p style="margin:0 16px">Biztosan törlöd: <b>${esc(d.title||'Szerződés')}</b>? A fájl a Drive kukájába kerül (30 napig visszaállítható).</p>`,'Törlés',async()=>{try{const r=await call('crewDocDelete',{id:d.id});S.crewDocs=r.crewDocs||[];const c=crewById(d.crewId),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);const l=$('modalRoot').querySelector('.cf-layer');if(l)l.remove();toast('Szerződés törölve');}catch(e){handleErr(e);}});},
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},
   'new-user':()=>userModal(null),
@@ -2104,3 +2115,4 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
 /* „Feltöltve a NAS-ra”: ha van vágó, akinek kell, jön az értesítő; különben csak kipipálja */
 ACT['raw-upload']=()=>{const d=S.draft;if(!d)return;if(rawEditors(d).length)rawMailModal(()=>{if(typeof saveNow==='function')saveNow();});else{setDraft({rawSentAt:todayISO()});toast('Nyersanyag a NAS-on – kipipálva');if(typeof saveNow==='function')saveNow();}};
 ACT['nas-copy']=b=>{const v=b.dataset.v||'';try{navigator.clipboard.writeText(v);toast('Mappanév kimásolva: '+v);}catch(e){toast(v);}};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='cdoc-file'){const f=e.target.files&&e.target.files[0],o=$('cdoc-fn');if(o)o.textContent=f?'Kiválasztva: '+f.name:'';const t=$('cdoc-title');if(f&&t&&!t.value)t.value='Szerződés';}});
