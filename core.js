@@ -36,8 +36,9 @@ function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;cons
     o[cid]={items,due:due?fmtDay(due):''};});return o;}
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
 function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
-const crewLocked=p=>!ro()&&!!p&&crewFinalState(p)!=='none'&&!(S.crewEdit||{})[p.id];   // véglegesítés után (módosult állapotban is) csak a „Csapat módosítása” után szerkeszthető   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók
-const eqLocked=p=>!ro()&&!!p&&eqFinalState(p)==='ok'&&!(S.eqEdit||{})[p.id];
+const crewPast=p=>!!p&&!editOnly(p)&&!!pr(p)&&pr(p).end<todayISO();   // lezajlott rendezvény: a csapat (és az eszközök) már nem módosíthatók
+const crewLocked=p=>!ro()&&!!p&&(crewPast(p)||crewFinalState(p)!=='none'&&!(S.crewEdit||{})[p.id]);   // véglegesítés után (módosult állapotban is) csak a „Csapat módosítása” után szerkeszthető   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók
+const eqLocked=p=>!ro()&&!!p&&(crewPast(p)||eqFinalState(p)==='ok'&&!(S.eqEdit||{})[p.id]);
 function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';const d=crewFinalDiff(p);return d.added.length||d.changed.length||d.removed.length?'changed':'ok';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
