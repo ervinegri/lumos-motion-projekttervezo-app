@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ed0fc8a4ca",
+"at": "2026-11-09T00:51:47+02:00",
+"msg": "Videó ablak: Hozzászólás gomb a láblécben, a Bezárás mellett"
+},
+{
 "id": "dc78374621",
 "at": "2026-11-09T00:50:42+02:00",
 "msg": "Fizetések: korrekció a díjösszesítő kiküldése után is; szakember nézetben az értékesítői jutalék; feliratok"
@@ -141,13 +146,8 @@
 "msg": "Szervezői jutalék a szerződött érték alatt, új ügyfél felvétele a szervező-választóból, alatta a jutalék levonása utáni összeg"
 },
 {
-"id": "54fc5dd674",
-"at": "2026-11-08T20:19:12+02:00",
-"msg": "Extrák: egységes „＋ Hozzáadás…” menü (szervezői jutalék is), az ajánlói és a szervezői jutalék azonos kinézetű blokkban"
-},
-{
-"id": "832584c482",
-"at": "2026-11-08T18:18:53Z",
+"id": "2ee1c595c4",
+"at": "2026-11-08T18:19:20Z",
 "msg": "Változásnapló frissítése"
 }
 ]
