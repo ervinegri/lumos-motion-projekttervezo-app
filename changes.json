@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7997bc199f",
+"at": "2026-11-09T01:49:16+02:00",
+"msg": "Videó ablak: tűs jelölés (📍 Jelölés gomb / Alt+kattintás) a képkocka egy pontjához; az időkód szélessége nem ugrál"
+},
+{
 "id": "7bb4e44fa5",
 "at": "2026-11-09T01:46:06+02:00",
 "msg": "Videó ablak: Enter billentyű-jelzés és súgó az időkód gombon"
@@ -141,13 +146,8 @@
 "msg": "Fizetések: egy hónapon belül projektenként egy sor (a vágási határidő nem választja külön)"
 },
 {
-"id": "4fc9fb89a0",
-"at": "2026-11-09T00:32:08+02:00",
-"msg": "Fizetések: alcím nélkül"
-},
-{
-"id": "bd37482fd2",
-"at": "2026-11-08T22:24:30Z",
+"id": "e8e99599c7",
+"at": "2026-11-08T22:32:18Z",
 "msg": "Változásnapló frissítése"
 }
 ]
