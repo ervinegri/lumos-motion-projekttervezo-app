@@ -57,6 +57,7 @@ const setSales = (id, h, v, upd) => run(`(() => { const r = NEON.ls.rows.find(x 
 const proj = id => json(`DB.projects.find(p => p.id === 'sales-${id}')`);
 const editProj = (id, changes) => run(`(() => { const p = loadBase_().projects.find(p => p.id === 'sales-${id}'); ['crewNotes','crewDays','editTasks'].forEach(k => delete p[k]);
   return saveProject_({ id: 'u1', name: 'Ervin', role: 'admin' }, Object.assign(p, ${JSON.stringify(changes)}, { mutationId: Utilities.getUuid(), baseUpdatedAt: p.updatedAt, crewFinalSkip: true })); })()`);
+const vidSet = (who, id, a) => json(`(() => { const r = videoSet_(${JSON.stringify(who)}, Object.assign({ projectId: 'sales-${id}' }, ${JSON.stringify(a)})); return { st: r.project.status, v: r.project.videos.map(x => x.st) }; })()`);
 function test(name, fn) { fn(); console.log('PASS', name); }
 
 test('új végleges rendelésből ügyfél és projekt lesz (piszkozatból nem)', () => {
@@ -69,6 +70,8 @@ test('új végleges rendelésből ügyfél és projekt lesz (piszkozatból nem)'
   assert.match(p.notes, /2 beszédes \+ 1 zenés/); assert.doesNotMatch(p.notes, /Fizetés|ÁFA|Értékesítő|LM-2026/);   // a jegyzetet a vágók és operatőrök is látják
   assert.deepEqual(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${A}').map(r => r.crewId)`), ['crew-nora-1', 'crew-nora-1']);   // operatőr + vágó (Nóra); a projektvezetőt (Egri Ervin) a próba stábja nem tartalmazza
   assert.equal(p.venue, 'Europa Event Center, Budapest, Hárshegyi út 5-7, 1021 Hungary'); assert.equal(p.dueAt, '2026-11-22'); assert.equal(p.endTime, '11:20'); assert.equal(p.hours, 1);
+  { const vs = typeof p.videos === 'string' ? JSON.parse(p.videos || '[]') : (p.videos || []);   // videónkénti követés: 3 short, az egyetlen vágó (Nóra) sorai
+    assert.deepEqual(vs.map(v => [v.id, v.editor, v.st]), [['short60-1', 'crew-nora-1', 'vagasra'], ['short60-2', 'crew-nora-1', 'vagasra'], ['short60-3', 'crew-nora-1', 'vagasra']]); }
   { const ex = typeof p.extras === 'string' ? JSON.parse(p.extras || '[]') : (p.extras || []); assert.deepEqual(ex.filter(e => e.kind === 'org').map(e => [e.name, e.amount]), [['Empátia Sztori Nonprofit Kft.', 10000]]); }   // szervezői jutalék
   const c = json(`DB.clients.find(c => c.name === 'Well Aging Kft.')`);
   assert.equal(c.tax, '12345678-2-41'); assert.equal(c.address, '1111 Budapest, Fő u. 1.'); assert.equal(c.contactName, 'Kiss Anna');
@@ -137,5 +140,15 @@ test('A Sales App értékesítője (eltérő írásmóddal is) szerződött lehe
   const d = json(`DB.deals.find(x => x.projectId === 'sales-${C}')`);
   assert.ok(d, 'lehetőség létrejött'); assert.equal(d.ownerId, 'u-flora'); assert.equal(d.stage, 'nyert'); assert.equal(d.source, 'Sales App');
   const n = json('DB.deals.length'); json('salesSync()'); assert.equal(json('DB.deals.length'), n, 'ismételt futás nem duplikál');
+});
+test('videónkénti követés: a vágó leadja mind → jóváhagyásra vár; módosítást kér → visszamegy az utómunkába', () => {
+  editProj(A, { status: 'utomunka', siteOk: 'igen' });
+  const nora = { id: 'x', name: 'Nóra', role: 'crew', crewId: 'crew-nora-1' }, boss = { id: 'u1', name: 'Ervin', role: 'admin' };
+  const ids = JSON.parse(proj(A).videos).map(v => v.id); assert.ok(ids.length >= 2);
+  let r;
+  ids.forEach((id, i) => { r = vidSet(nora, A, { id, st: 'leadva' }); assert.equal(r.st, i < ids.length - 1 ? 'utomunka' : 'jovahagyas'); });
+  assert.throws(() => vidSet(nora, A, { id: ids[0], st: 'jovahagyva' }), /FORBIDDEN/);   // a jóváhagyás nem a vágó dolga
+  r = vidSet(boss, A, { id: ids[1], st: 'modositas' }); assert.equal(r.st, 'utomunka'); assert.equal(r.v[1], 'modositas');
+  assert.throws(() => vidSet({ id: 'y', name: 'Más', role: 'crew', crewId: 'crew-koos-1' }, A, { id: ids[0], st: 'vagas' }), /FORBIDDEN/);
 });
 console.log('Sales szinkron: minden rendben.');

@@ -2085,6 +2085,12 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='org-sel'&&e.t
     if(nc&&S.draft&&S.draft.id===pid){clearInterval(iv);setDraft({extras:(S.draft.extras||[]).map(x=>x.kind==='org'?Object.assign({},x,{clientId:nc.id,name:nc.name}):x)});toast('Szervező: '+nc.name);}
     else if(n>600||(n>10&&!$('mform')))clearInterval(iv);},200);}},true);
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='org-sel'&&S.draft&&isAdmin()){const c=(S.clients||[]).find(x=>x.id===e.target.value);S.draft.extras=(S.draft.extras||[]).map(x=>x.kind==='org'?Object.assign({},x,{clientId:c?c.id:'',name:c?c.name:''}):x);setDraft({extras:S.draft.extras});}});
+document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset||(t.dataset.vidSt===undefined&&t.dataset.vidEd===undefined))return;
+  const pid=S.projectId||(S.draft&&S.draft.id),id=t.dataset.vidSt!==undefined?t.dataset.vidSt:t.dataset.vidEd;if(!pid||!id)return;
+  const a={projectId:pid,id};if(t.dataset.vidSt!==undefined)a.st=t.value;else a.editor=t.value;
+  try{const r=await call('videoSet',a);const pr2=r&&r.project;if(pr2){const k=S.projects.findIndex(x=>x.id===pid);if(k>=0)S.projects[k]=normProj(pr2);   // a szerkesztés alatt lévő űrlapot nem írjuk felül: csak a videók és a lépés frissül
+      [S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid){['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});}});}
+    render(true);toast('Videó frissítve');}catch(err){handleErr(err);render(true);}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='cal-cutter'){S.cal.cutter=e.target.value==='__all'?'':e.target.value;render(true);}});
 
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='m-category'){const f=$('m-fmtF');if(f)f.hidden=!/^(Kamera|Objektív)/i.test(e.target.value);}});

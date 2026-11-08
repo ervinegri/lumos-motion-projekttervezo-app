@@ -65,7 +65,7 @@ const TABLES = {
     ['er_total', 'ER: teljes alakos kamera'], ['er_close', 'ER: közeli kamera'], ['er_crowd', 'ER: közönség kamera'], ['er_slides', 'ER: diák rögzítése'],
     ['er_drone', 'ER: drón'], ['er_stream', 'ER: élő közvetítés / élő vágás'], ['er_post', 'ER: előadások utómunkája'], ['er_res', 'ER: felbontás'],
     ['er_clips', 'ER: kivágások (db)'], ['er_subs', 'ER: feliratozás (db)'], ['er_rooms', 'ER: termek száma'],
-    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)'], ['eqFinal', 'Eszközök véglegesítve (JSON)'], ['recRooms', 'Előadásrögzítés termei (JSON)']] },
+    ['short60', 'Short 40–60 mp (db)'], ['foto_db', 'Fotók (db)'], ['er_zoom', 'ER: közeli vágói belenagyítással'], ['dueAt', 'Átadási határidő (egyedi)'], ['fees', 'Termelői díjak (JSON)'], ['budgetMode', 'Termelői keret módja'], ['budgetVal', 'Termelői keret (% vagy Ft)'], ['crewNotes', 'Személyes jegyzetek (JSON)'], ['rentals', 'Bérelt eszközök (JSON)'], ['deliveryNotes', 'Átadási észrevételek'], ['siteOk', 'Helyszíni munka rendben'], ['siteReport', 'Helyszíni beszámoló'], ['clientTax', 'Ügyfél adószáma'], ['clientAddress', 'Ügyfél székhelye'], ['t_vizual', 'Vizuáltechnika'], ['penalties', 'Díjcsökkentések (JSON)'], ['er_summary', 'ER: összefoglaló videó (db)'], ['stepsDone', 'Kipipált lépések'], ['dueKept', 'Átadási határidő tartva'], ['crewDays', 'Munkanapok (JSON)'], ['endTime', 'Távozás (kb.)'], ['er_total_n', 'ER: teljes alakos kamerák (db)'], ['er_close_n', 'ER: közeli kamerák (db)'], ['er_creative', 'ER: kreatív kamera'], ['er_creative_n', 'ER: kreatív kamerák (db)'], ['budgetRequest', 'Termelői keret jóváhagyása (JSON)'], ['er_post_n', 'ER: utómunkás termek (db)'], ['x_foto_n', 'Fotósok a helyszínen (db)'], ['crewFinal', 'Csapat véglegesítve (JSON)'], ['leadvaAt', 'Videók leadva (dátum)'], ['payStatus', 'Fizetési állapot'], ['lastStartTime', 'Utolsó nap: érkezés'], ['lastEndTime', 'Utolsó nap: távozás (kb.)'], ['cancelReason', 'Lemondás oka'], ['leadRemote', 'Projektvezető távolról'], ['extras', 'Extra szolgáltatások (JSON, nettó)'], ['editOnsite', 'Helyszíni vágó'], ['rawSentAt', 'Nyersanyag e-mail elküldve'], ['deliveryPass', 'Videó jelszava'], ['int_sarok', 'Interjúsarok videók (db)'], ['int_resztvevo', 'Résztvevői interjúk (db)'], ['i_sarok', 'Interjúsarok (forgatás)'], ['i_stand', 'Interjúztatás a standnál'], ['editTasks', 'Vágói feladatok (JSON)'], ['deliveryLinks', 'További átadási linkek (JSON)'], ['eqFinal', 'Eszközök véglegesítve (JSON)'], ['recRooms', 'Előadásrögzítés termei (JSON)'], ['videos', 'Videók követése (JSON)']] },
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -809,6 +809,59 @@ function parseRentals_(raw) {
     .filter(x => x.name);
 }
 let CREW_MAP_CACHE_ = null;
+/* ===================== Videónkénti vágói követés ===================== */
+const VIDEO_KINDS_ = [['int_sarok', 'Interjúsarok videó'], ['interju', 'Kiállítói videó (imázsfilm)'], ['int_resztvevo', 'Résztvevői interjú'], ['aftermovie', 'Aftermovie'],
+  ['short60', 'Short videó (40–60 mp)'], ['short30', 'Short videó (30–40 mp)'], ['short15', 'Short videó (15–20 mp)']];
+const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'modositas'];
+function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
+  return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
+    st: VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30) })).filter(x => x.id); }
+/** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
+    Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
+function videosEnsure_(p, cutters) {
+  const cur = parseVideos_(p.videos), byId = {}; cur.forEach(x => { byId[x.id] = x; });
+  const want = [];
+  VIDEO_KINDS_.forEach(kn => { const n = Math.max(0, Math.min(40, Math.floor(Number(p[kn[0]]) || 0)));
+    for (let i = 1; i <= n; i++) { const id = kn[0] + '-' + i, x = byId[id] || { id: id, k: kn[0], editor: '', st: 'vagasra', at: '' }; x.name = kn[1] + (n > 1 ? ' ' + i : ''); want.push(x); } });
+  const ids = {}; want.forEach(x => { ids[x.id] = 1; });
+  cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.editor)) want.push(x); });   // már dolgozott rajta valaki: nem tűnik el
+  const one = cutters && cutters.length === 1 ? cutters[0] : '';
+  if (one) want.forEach(x => { if (!x.editor) x.editor = one; });
+  return want;
+}
+/** Egy videó állapotának / vágójának módosítása. Vezetők mindent; a vágó csak a saját (vagy gazdátlan) sorainak vágási állapotát. a: {projectId, id, st?, editor?} */
+function videoSet_(u, a) {
+  a = a || {};
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
+  const isCutter = readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó');
+  if (!mgr && !isCutter) throw new Error('FORBIDDEN: Csak a projekt vágója módosíthatja a videók állapotát.');
+  let p, changed = '';
+  withLock_(() => {
+    const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    p = readRow_('projects', sh, row);
+    if (p.status === 'atadva' || p.status === 'lemondva') throw new Error('A projekt már le van zárva.');
+    const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    if (a.editor !== undefined) {
+      if (!mgr) throw new Error('FORBIDDEN: A vágót a projektvezető jelöli ki.');
+      const ed = str_(a.editor, 64); if (ed && !readAll_('crew').some(c => c.id === ed)) throw new Error('Ismeretlen szakember.');
+      v.editor = ed; changed += 'vágó: ' + ed;
+    }
+    if (a.st !== undefined) {
+      if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
+      if (!mgr && (['vagasra', 'vagas', 'ellen', 'leadva'].indexOf(a.st) < 0 || ['jovahagyva', 'modositas'].indexOf(v.st) >= 0 || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
+    }
+    p.videos = JSON.stringify(vids);
+    const allDel = vids.length > 0 && vids.every(x => x.st === 'leadva' || x.st === 'jovahagyva');   // minden videó leadva → a projekt jóváhagyásra vár; ha újra nyitnak egyet, vissza az utómunkába
+    if (p.status === 'utomunka' && allDel) { p.status = 'jovahagyas'; p.leadvaAt = p.leadvaAt || today_();
+      const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(','); }
+    else if ((p.status === 'jovahagyas' || p.status === 'leadva') && vids.length && !allDel) { p.status = 'utomunka'; p.leadvaAt = ''; }
+    p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
+    putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
+  });
+  logEvent_(u, 'Videó állapota', p.name, changed);
+  return { project: projectView_(fullProject_(p), u) };
+}
 function projectView_(p, u) {
   const q = Object.assign({}, p);
   const role = u && u.role;
@@ -821,6 +874,7 @@ function projectView_(p, u) {
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
   q.crewDays = parseCrewDays_(q.crewDays);
   q.deliveryLinks = parseLinks_(q.deliveryLinks);
+  q.videos = parseVideos_(q.videos); if (role === 'crew') q.videos = q.videos.filter(x => u.crewId && x.editor === u.crewId);   // a vágó csak a saját videóit látja
   q.editTasks = parseEditTasks_(q.editTasks);
   q.recRooms = parseRooms_(q.recRooms);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
@@ -1468,6 +1522,11 @@ function saveProject_(u, a) {
     if (p.deliveryLinks == null) p.deliveryLinks = old ? old.deliveryLinks : '';
     if (a.editTasks !== undefined) p.editTasks = JSON.stringify(parseEditTasks_(a.editTasks));
     if (p.editTasks == null) p.editTasks = old ? old.editTasks || '' : '';
+    if (u.role === 'admin' || u.role === 'editor') {   // videósorok a megrendelt darabszámokból; a vágót/állapotot a projektvezető is átállíthatja
+      let vids = parseVideos_(old ? old.videos : '');
+      if (Array.isArray(a.videos)) { const inc = parseVideos_(a.videos), im = {}; inc.forEach(x => { im[x.id] = x; }); vids = vids.map(x => im[x.id] ? Object.assign({}, x, { editor: im[x.id].editor, st: im[x.id].st }) : x); }
+      p.videos = JSON.stringify(videosEnsure_(Object.assign({}, p, { videos: JSON.stringify(vids) }), [...new Set(crewIn.filter(c => c && c.role === 'Vágó').map(c => String(c.crewId || '')))].filter(String)));
+    } else p.videos = old ? old.videos || '' : '';
     if (Array.isArray(a.recRooms)) { const rr = parseRooms_(a.recRooms); p.recRooms = JSON.stringify(rr); roomsLegacy_(p, rr); }
     if (p.recRooms == null) p.recRooms = old ? old.recRooms || '' : '';
     if (p.crewNotes == null) p.crewNotes = '';
@@ -4267,6 +4326,7 @@ function rpcInner_(token, name, arg) {
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
+    case 'videoSet': return videoSet_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
