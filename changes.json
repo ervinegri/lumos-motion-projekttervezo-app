@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c79b5fd76b",
+"at": "2026-11-09T00:42:50+02:00",
+"msg": "Kifizetések: a fiók nélküli értékesítő a saját nézetében is látja a jutalékait"
+},
+{
 "id": "b165d978c3",
 "at": "2026-11-09T00:39:23+02:00",
 "msg": "Videó lejátszó: pCloud nyilvános linkek lejátszása (közvetlen fájlcím a pCloud API-ból)"
@@ -141,13 +146,8 @@
 "msg": "Szervezői jutalék: választható szervező, rendelésenként 10 000 Ft, a termelői alap a levonás utáni összeg"
 },
 {
-"id": "244f641968",
-"at": "2026-11-08T20:14:01+02:00",
-"msg": "Ügyfél adatai: eddigi munkák listája; az ügyvezetőnek projektérték és befolyt nettó összeg"
-},
-{
-"id": "a2d1cbb67a",
-"at": "2026-11-08T18:09:43Z",
+"id": "28dee00571",
+"at": "2026-11-08T18:14:10Z",
 "msg": "Változásnapló frissítése"
 }
 ]
