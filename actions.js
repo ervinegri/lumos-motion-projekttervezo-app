@@ -2309,8 +2309,8 @@ function vidPins(vd){const pl=vd.closest('.vv-player');if(!pl||pl.querySelector(
 function pinsAll(){const L=[],f=curFps();const add=(txt,draft)=>{String(txt||'').replace(TC_RE,(m,a,b,sep,c,x,y)=>{if(x)L.push({t:tcSec(a,b,c,sep),x:+x,y:+y,draft});return m;});};
   document.querySelectorAll('.vv-cm-i').forEach(el=>add(el.dataset.raw));const ta=$('m-vvCm');if(ta)add(ta.value,true);return L;}
 function pinsShow(vd,t){const lay=vd.closest('.vv-player')&&vd.closest('.vv-player').querySelector('.vv-pins');if(!lay)return;const R=vidRect(vd),fc=vd._pinFocus,win=vd.paused?0.5/(vd._fps||25):0.4;
-  const L=pinsAll().filter(p=>Math.abs(p.t-t)<=win);if(fc&&Math.abs(fc.t-t)<0.5/(vd._fps||25)&&!L.some(p=>p.x===fc.x&&p.y===fc.y))L.push(fc);
-  lay.innerHTML=L.map((p,i)=>`<span class="vv-pin${p.draft?' draft':''}${fc&&fc.x===p.x&&fc.y===p.y?' focus':''}" style="left:${R.left+R.w*p.x/100}px;top:${R.top+R.h*p.y/100}px">📍</span>`).join('');}
+  const L=pinsAll().map((p,i)=>Object.assign(p,{n:i+1})).filter(p=>Math.abs(p.t-t)<=win);if(fc&&Math.abs(fc.t-t)<0.5/(vd._fps||25)&&!L.some(p=>p.x===fc.x&&p.y===fc.y))L.push(fc);
+  lay.innerHTML=L.map((p,i)=>`<span class="vv-pin${p.draft?' draft':''}${fc&&fc.x===p.x&&fc.y===p.y?' focus':''}" style="left:${R.left+R.w*p.x/100}px;top:${R.top+R.h*p.y/100}px"><i>${p.n||'•'}</i></span>`).join('');}
 function pinMode(on){window._vvPinMode=!!on;const pl=document.querySelector('.vv-player'),pb=document.querySelector('.vv-pin-btn');if(pl)pl.classList.toggle('pin-mode',!!on);if(pb)pb.classList.toggle('on',!!on);
   if(on){const vd=document.querySelector('.vv-player video');if(vd)vd.pause();toast('📍 Kattints a képen arra a pontra, amire az észrevétel vonatkozik (Esc: mégse)');}}
 ACT['vid-pin']=()=>pinMode(!window._vvPinMode);
