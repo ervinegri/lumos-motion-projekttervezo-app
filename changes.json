@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "182db1d15b",
+"at": "2026-11-09T01:21:00+02:00",
+"msg": "Videó lejátszó: húzással tekerés előre / vissza, időkód-buborékkal"
+},
+{
 "id": "675f62576b",
 "at": "2026-11-09T01:16:19+02:00",
 "msg": "Videó ablak: időkód 0:00:00 (perc:mp:század), link a fejlécben, görgethető szövegmező, függőleges videónál keskeny lejátszó"
@@ -136,13 +141,8 @@
 "msg": "Extrák: értékesítői jutalék (összekötve az Értékesítés füllel: értékesítő és várható jutalék); fizetések súgójában egy tételnél csak a jogcím"
 },
 {
-"id": "bc60800037",
-"at": "2026-11-08T21:43:46+02:00",
-"msg": "Termelői fizetések: az összegre állva látszik a jogcím (szerep / ajánlói jutalék)"
-},
-{
-"id": "8ce0ca6122",
-"at": "2026-11-08T19:42:48Z",
+"id": "35cba6b7ba",
+"at": "2026-11-08T19:43:55Z",
 "msg": "Változásnapló frissítése"
 }
 ]
