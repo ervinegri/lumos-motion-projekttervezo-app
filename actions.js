@@ -2067,6 +2067,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 /* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
+  if(v==='free'){setDraft({projectValue:0});toast('🎁 Nem fizetős projekt');return;}
   if(v==='org'){if(ACT['org-add'])ACT['org-add']();setTimeout(()=>{const s=$('org-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
 /* A fejléc magassága (a ragadós projektcímhez), és árnyék, amikor a cím fent ragad */
@@ -2150,3 +2151,5 @@ ACT['cl-open-proj']=b=>{closeModal();openProject(b.dataset.id);};
 
 /* Szervezői jutalék kikapcsolása a fejléc jelölőjével (ugyanúgy, mint az ajánlói jutaléknál) */
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.orgToggle===undefined||t.checked)return;ACT['extra-del']({dataset:{i:t.dataset.orgToggle}});});
+
+ACT['free-off']=()=>{if(!S.draft||!isAdmin())return;setDraft({projectValue:null});setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},50);};
