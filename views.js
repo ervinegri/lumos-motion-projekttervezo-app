@@ -330,11 +330,12 @@ const ftCell=n=>{const v=moneyFmt(n);return v?v+'\u00a0Ft':v;};   // kifizetése
 function viewPayouts(){
   const crewMode=ro()||isSales(),noSum=crewMode||!isAdmin(),myId=crewMode?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
   const cur=todayISO().slice(0,7),by={},kept={};   // kept: díjcsökkentés miatt nem kerül kifizetésre (hónap → szakember)
-  const add=(p,cid,amount,ded,isRef)=>{const d=isRef?pr(p).start:payDate(p,cid),m=d.slice(0,7),net=num(amount)-ded;if(ded){const k=(kept[m]=kept[m]||{});k[cid]=(k[cid]||0)+ded;}const b=(by[m]=by[m]||{}),key=p.id+'|'+d,row=(b[key]=b[key]||{p,d,cells:{},ded:{}});row.cells[cid]=(row.cells[cid]||0)+net;if(ded)row.ded[cid]=(row.ded[cid]||0)+ded;};
+  const why=(p,cid,f,isRef)=>isRef?'🤝 Ajánlói jutalék':(String(f&&f.task||'').trim()||[...new Set((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role))].join(' + ')||'Díj');   // jogcím: a díjsor feladata (szerep)
+  const add=(p,cid,amount,ded,isRef,lbl)=>{const d=isRef?pr(p).start:payDate(p,cid),m=d.slice(0,7),net=num(amount)-ded;if(ded){const k=(kept[m]=kept[m]||{});k[cid]=(k[cid]||0)+ded;}const b=(by[m]=by[m]||{}),key=p.id+'|'+d,row=(b[key]=b[key]||{p,d,cells:{},ded:{}});row.cells[cid]=(row.cells[cid]||0)+net;if(lbl){const w=(row.why=row.why||{});(w[cid]=w[cid]||[]).push(lbl+': '+moneyFmt(num(amount))+' Ft');}if(ded)row.ded[cid]=(row.ded[cid]||0)+ded;};
   S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{
-    if(crewMode){if(myId&&p.myFee&&num(p.myFee.amount))add(p,myId,p.myFee.amount,penDeduct(p,myId,p.myFee.amount));return;}   // szakember: csak a saját díja
+    if(crewMode){if(myId&&p.myFee&&num(p.myFee.amount))add(p,myId,p.myFee.amount,penDeduct(p,myId,p.myFee.amount),false,why(p,myId,p.myFee,false));return;}   // szakember: csak a saját díja
     (p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
-      add(p,cid,f.amount,ref?0:penDeduct(p,cid,f.amount),!!ref);});});
+      add(p,cid,f.amount,ref?0:penDeduct(p,cid,f.amount),!!ref,why(p,cid,f,!!ref));});});
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=/^\d{4}-\d{2}$/.test(S.payMonth||'')?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>a.d.localeCompare(b.d)||byStart(a.p,b.p));
   const spOn=(S.salesPeople||[]).filter(x=>!crewMode||x.crewId===myId).map(x=>({cid:x.crewId,p:salesPayOf(sel,x.crewId)})).filter(x=>x.p),sp=c=>{const x=spOn.find(y=>y.cid===c);return x?x.p.total:0;},spTotal=spOn.reduce((s,x)=>s+x.p.total,0);   // értékesítő: fix + jutalék
@@ -393,8 +394,8 @@ function viewPayouts(){
     const tip=[x.p.salary?'Fix fizetés: '+ftFmt(x.p.salary):''].concat(x.p.items.map(d=>`${d.name}${d.invNo?' ('+d.invNo+')':''}: kifizetve ${fmtShort(d.paidAt)} · nettó ${ftFmt(d.paidNet)}${d.base!==d.paidNet?' · jutalékalap '+ftFmt(d.base):''}`).concat(x.p.comm?[`Jutalékalap ${ftFmt(x.p.base)} → jutalék ${ftFmt(x.p.comm)} (${commTierTxt(x.p.sp)})`]:[])).filter(Boolean).join('\n');
     return `<td class="r" data-tip="${esc(tip)}" tabindex="0">${ftCell(x.p.total)}</td>`;}).join('')}${noSum?'':`<td class="r"><b>${ftCell(spTotal)}</b></td>`}</tr>`:'';
   const rentRow=rentOn.length?`<tr><td>🏢 Irodabérleti és termelési vezetői díj</td>${cids.map(c=>`<td class="r">${rent(c)?ftCell(rent(c)):'<span class="muted">–</span>'}</td>`).join('')}${noSum?'':`<td class="r"><b>${ftCell(rentTotal)}</b></td>`}</tr>`:'';
-  const cell=(r,c)=>{const d=r.ded[c],why=d?esc(`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c)):'';
-    return `<td class="r${d?' pay-ded':''}"${d?` data-tip="${why}" tabindex="0"`:''}>${r.cells[c]!=null?ftCell(r.cells[c])||0:'<span class="muted">–</span>'}${d?`<small class="pay-ded-note">🚨 −${ftCell(d)}</small>`:''}</td>`;};
+  const cell=(r,c)=>{const d=r.ded[c],jc=(r.why&&r.why[c]||[]).join('\n'),why=esc([jc,d?`Díjcsökkentés: −${moneyFmt(d)} Ft\n`+penReasons(r.p,c):''].filter(Boolean).join('\n'));   // jogcím (szerep) + díjcsökkentés
+    return `<td class="r${d?' pay-ded':''}"${why&&r.cells[c]!=null?` data-tip="${why}" tabindex="0"`:''}>${r.cells[c]!=null?ftCell(r.cells[c])||0:'<span class="muted">–</span>'}${d?`<small class="pay-ded-note">🚨 −${ftCell(d)}</small>`:''}</td>`;};
   const colW=`<colgroup><col class="pay-c-proj">${cids.map(()=>'<col class="pay-c-person">').join('')}${noSum?'':'<col class="pay-c-sum">'}</colgroup>`;
   return `<div class="page-head${crewMode?' pay-head-c':''}"><div class="grow"><h2>${isAdmin()?'Termelői fizetések':'Kifizetések'}</h2><p class="sub">${crewMode?'Nettó fizetésed tételesen':'Termelői díjak, irodabérleti és termelési vezetői díj hónaponként, díjcsökkentés után · nettó'}</p>${monthNav('pay-month',months,sel)}</div>
       ${isAdmin()&&!crewMode?`<button class="btn outline small" type="button" data-action="nav-sync" data-month="${sel}" data-tip="A bejövő számlák lekérdezése a NAV Online Számla rendszeréből, és párosítás a kiküldött díjösszesítőkhöz (a munkatárs adószáma alapján). Naponta reggel magától is lefut.">🔄 Mindenki számlája a NAV-ból</button><button class="btn outline small" type="button" data-action="pay-mail" data-month="${sel}">📧 Díjösszesítők kiküldése</button>`:''}</div>
