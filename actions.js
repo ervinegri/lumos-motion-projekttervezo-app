@@ -2245,7 +2245,7 @@ ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=
   try{const L=bellItems().map(x=>x.key);localStorage.setItem('lpm_bell_read',JSON.stringify([...new Set((JSON.parse(localStorage.getItem('lpm_bell_read')||'[]')).concat(L.filter(k=>k.startsWith(pid+'|'+vid+'|'))))]));bellRender();}catch(e){}
   const stL=(VID_ST.find(x=>x[0]===v.st)||[])[1]||'';
   openModal('🎞️ '+v.name,`<p class="hint vv-meta" style="margin:-4px 0 10px">${esc(p.name||'')} · <span class="statuspill ${VID_CLS[v.st]||''}">${esc(stL)}</span>${v.link?` · <a href="${esc(v.link)}" target="_blank" rel="noopener">↗ Megnyitás új lapon</a>`:''}</p>
-    ${v.link?(emb?`<div class="vv-player">${emb}</div>`:`<div class="vv-noembed">Ez a link nem játszható le itt.</div>`):'<p class="hint">Ehhez a videóhoz még nincs link.</p>'}
+    ${v.link?(emb?`<div class="vv-player">${emb}</div><div class="vv-tcbar" hidden><span id="m-vvTc">0:00:00</span></div>`:`<div class="vv-noembed">Ez a link nem játszható le itt.</div>`):'<p class="hint">Ehhez a videóhoz még nincs link.</p>'}
     <div class="vv-cm" data-pid="${esc(pid)}" data-vid="${esc(vid)}">${vidCmHtml(v)}</div>
     `,
     rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:cli?{submitLabel:'✅ Az ügyfél jóváhagyta',cancelLabel:'Bezárás',noDraft:true,left:`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Az ügyfél módosítást kér</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'jovahagyva');}}:{cancelLabel:'Bezárás'});
@@ -2277,14 +2277,14 @@ function vidFps(vd){if(vd._fpsM)return;vd._fpsM=1;const key='lpm_fps|'+vd.curren
   if(!vd.paused)start();else{const go=()=>{if(!vd.paused||vd._fps)return;probe=true;t0=vd.currentTime;mu=vd.muted;vd.muted=true;vd.play().then(start).catch(()=>{probe=false;vd.muted=mu;vd.addEventListener('play',start,{once:true});});};if(vd.readyState>=2)go();else vd.addEventListener('loadeddata',go,{once:true});}}
 const vidSnap=(vd,t)=>{const f=vd._fps;return f?(Math.round(t*f)+0.001)/f:t;};
 function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-player');if(!pl)return;let st=null,moved=false;vidFps(vd);
-  const tip=document.createElement('div');tip.className='vv-scrub';tip.hidden=true;pl.appendChild(tip);
+  let pend=null;const seek=t=>{if(vd.seeking){pend=t;return;}pend=null;vd.currentTime=t;};vd.addEventListener('seeked',()=>{if(pend!=null&&Math.abs(pend-vd.currentTime)>1e-4){const t=pend;pend=null;vd.currentTime=t;}});   /* egyszerre csak egy ugrás: így minden megjelenített képkocka a valódi helyén van */
   const inCtl=e=>{const r=vd.getBoundingClientRect();return e.clientY>r.bottom-48;};
   vd.addEventListener('pointerdown',e=>{if(e.button!==0||inCtl(e))return;const r=vd.getBoundingClientRect();
     st={x:e.clientX,t:vd.currentTime,w:r.width,play:!vd.paused};moved=false;vd.setPointerCapture(e.pointerId);});
   vd.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x;if(!moved&&Math.abs(dx)<6)return;
-    if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');tip.hidden=false;}
-    const span=Math.min(vd.duration||6,6),t=vidSnap(vd,Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span)));vd.currentTime=t;tip.textContent=(dx<0?'◀ ':'')+tcFmt(t)+(dx>0?' ▶':'');});
-  const end=e=>{if(!st)return;const was=st;st=null;pl.classList.remove('scrubbing');tip.hidden=true;try{vd.releasePointerCapture(e.pointerId);}catch(x){}
+    if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');}
+    const span=Math.min(vd.duration||6,6),t=vidSnap(vd,Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span)));seek(t);});
+  const end=e=>{if(!st)return;const was=st;st=null;pl.classList.remove('scrubbing');try{vd.releasePointerCapture(e.pointerId);}catch(x){}
     if(moved){if(was.play)vd.play().catch(()=>{});}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
   vd.addEventListener('pointerup',end);vd.addEventListener('pointercancel',end);
   vd.addEventListener('click',e=>{if(!inCtl(e)){e.preventDefault();e.stopPropagation();}},true);   /* a böngésző saját kattintás-kezelése helyett a fenti */
@@ -2292,7 +2292,9 @@ function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-p
     const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'))return;e.preventDefault();v.pause();const f=v._fps||25,step=(e.key==='ArrowRight'?1:-1)*(e.shiftKey?10:1)/f;
     v.currentTime=vidSnap(v,Math.max(0,Math.min((v.duration||1e9)-0.01,v.currentTime+step)));},true);}}
 function vidTsTick(){const bt=document.querySelector('.vv-tc-ins');if(!bt)return;const vd=document.querySelector('.vv-player video');if(!vd){setTimeout(()=>{if(document.querySelector('.vv-player video'))vidTsTick();},1500);return;}
-  vidAspect(vd);vidScrub(vd);bt.hidden=false;const upd=()=>{const l=$('m-vvTsL');if(l)l.textContent=tcFmt(vd.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>vd.addEventListener(e,upd));upd();}
+  vidAspect(vd);vidScrub(vd);bt.hidden=false;const bar=document.querySelector('.vv-tcbar');if(bar)bar.hidden=false;const upd=mt=>{const x=tcFmt(typeof mt==='number'?mt:vd.currentTime),l=$('m-vvTsL'),c=$('m-vvTc');if(l)l.textContent=x;if(c)c.textContent=x;};
+  if(vd.requestVideoFrameCallback){const loop=(n,m)=>{if(!vd.isConnected)return;upd(m.mediaTime);vd.requestVideoFrameCallback(loop);};vd.requestVideoFrameCallback(loop);}   /* a ténylegesen megjelenített képkocka ideje */
+  ['timeupdate','seeked','loadedmetadata'].forEach(e=>vd.addEventListener(e,upd));upd();}
 ACT['vid-tc']=()=>{const vd=document.querySelector('.vv-player video'),ta=$('m-vvCm');if(!vd||!ta)return;vd.pause();
   const tc='['+tcFmt(vd.currentTime)+'] ',st=ta.selectionStart??ta.value.length,pre=ta.value.slice(0,st),nl=pre&&!/\n$/.test(pre)?'\n':'';
   ta.value=pre+nl+tc+ta.value.slice(ta.selectionEnd??st);const c=(pre+nl+tc).length;ta.focus();ta.setSelectionRange(c,c);};
