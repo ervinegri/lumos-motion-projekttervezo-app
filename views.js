@@ -547,15 +547,17 @@ function finPanelBody(p){
   const adm=isAdmin(),val=prodBase(p),k=budgetFt(p);
   const pctV=p.budgetMode==='pct'?(p.budgetVal===''||p.budgetVal==null?'':String(p.budgetVal).replace('.',',')):(k!=null&&val>0?String(Math.round(k/val*1000)/10).replace('.',','):'');
   const ftV=k!=null?moneyFmt(k):'';
-  return `<div class="fin-sum">
-      ${adm?`<div class="fin-inputs fin-g${!isFree(p)&&orgOf(p)?' g-org':''}${!isFree(p)&&projDeal(p)?' g-sales':''}"><div class="fin-row1"><div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – szerződött érték (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${isFree(p)?'':esc(moneyFmt(p.projectValue))}" placeholder="${isFree(p)?'Nem fizetős projekt':'pl. 969 000'}"${isFree(p)?' disabled':''}><span class="money-unit">Ft</span></div>${isFree(p)?`<div class="free-on">🎁 Nem fizetős projekt${D()?'':' · <button class="linkbtn" type="button" data-action="free-off">visszavonás</button>'}</div>`:''}</div>
-        ${isFree(p)?'':orgOption(p)}${isFree(p)||ro()||projLocked()?'':`<div class="field fin-exm"><label title="A szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek">➕ Extrák és kedvezmények</label>${extrasMenu(p)}</div>`}</div>
-        <div class="fin-row3">${isFree(p)?'':finNet(p)}${salesCommFields(p)}
-        <div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
+  if(!adm)return `<div class="fin-sum"></div>`;
+  const free=isFree(p),org=!free&&orgOf(p),tov=!free&&extrasRaw(p).some(x=>x&&x.kind==='tov'),two=!!(org||tov);   // két sor csak szervezői jutaléknál / továbbszámlázott költségnél
+  const valF=`<div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – szerződött érték (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${free?'':esc(moneyFmt(p.projectValue))}" placeholder="${free?'Nem fizetős projekt':'pl. 969 000'}"${free?' disabled':''}><span class="money-unit">Ft</span></div>${free?`<div class="free-on">🎁 Nem fizetős projekt${D()?'':' · <button class="linkbtn" type="button" data-action="free-off">visszavonás</button>'}</div>`:''}</div>`;
+  const exm=free||ro()||projLocked()?'':`<div class="field fin-exm"><label title="A szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek">➕ Extrák és kedvezmények</label>${extrasMenu(p)}</div>`;
+  const sc=salesCommFields(p),salesG=sc?`<div class="fin-grp grp-sales"><div class="grp-h">💼 Értékesítés</div><div class="grp-b">${sc}</div></div>`:'';
+  const prodG=`<div class="fin-grp grp-prod"><div class="grp-h">🎬 Termelés</div><div class="grp-b"><div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
-        <div class="field fin-budget${budgetFt(p)==null&&!isFree(p)?' missing req':''}"><label for="f-budgetFt">Termelői keret</label>
-          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>${isFree(p)?'':extrasHtml(p)}`:''}
-    </div>`;
+        <div class="field fin-budget${budgetFt(p)==null&&!free?' missing req':''}"><label for="f-budgetFt">Termelői keret</label>
+          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>`;
+  const rows=two?`<div class="fin-r">${valF}${org?orgOption(p):''}${exm}</div><div class="fin-r">${finNet(p)}${salesG}${prodG}</div>`:`<div class="fin-r">${valF}${salesG}${prodG}${exm}</div>`;
+  return `<div class="fin-sum"><div class="fin-inputs fin-v2${two?' two':''}">${rows}</div>${free?'':extrasHtml(p)}</div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
 const FIN_COLS_DEF=[52,250,220,170,250,150];
@@ -688,7 +690,9 @@ function orgOption(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=e
   return `<div class="field fin-org"><label>🎪 Szervezői jutalék${dis?'':` <button class="x w" type="button" data-action="extra-del" data-i="${i}" title="Szervezői jutalék törlése" aria-label="Szervezői jutalék törlése">✕</button>`}</label>
     <div class="org-line org-g"><select class="inp" id="org-sel" data-cmb="Szervező (kezdj el gépelni)…"${dis?' disabled':''}><option value="">Szervező…</option>${opts}${dis?'':'<option value="__new" data-keep="1">＋ Új ügyfél felvétele…</option>'}</select>
     <div class="money"><span class="ex-sign">−</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Szervezői jutalék nettó összege"${dis?' disabled':''}><span class="money-unit">Ft</span></div></div></div>`;}
-function finNet(p){if(!isAdmin()||!orgFee(p))return '';return `<div class="field fin-net"><label title="Szerződött érték − szervezői jutalék; ebből számolódik a hatékonyság és a termelői keret">Jutalék után (nettó)</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(prodBase(p)))}" readonly tabindex="-1" aria-label="Jutalék levonása utáni összeg"><span class="money-unit">Ft</span></div></div>`;}
+function finNet(p){if(!isAdmin())return '';const of=orgFee(p)||orgOf(p),tv=extrasRaw(p).some(x=>x&&x.kind==='tov');if(!of&&!tv)return '';
+  const lbl=of&&tv?'Levonások után (nettó)':of?'Jutalék után (nettó)':'Továbbszámlázott nélkül',v=of?prodBase(p):salesBase(p),tip=of?'Szerződött érték − szervezői jutalék; ebből számolódik a hatékonyság és a termelői keret':'A végső érték a továbbszámlázott költség nélkül – ebből számolódik az értékesítői jutalék';
+  return `<div class="field fin-net"><label title="${tip}">${lbl}</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(v))}" readonly tabindex="-1" aria-label="${lbl}"><span class="money-unit">Ft</span></div></div>`;}
 /* Értékesítői jutalék: a projekthez tartozó szerződött lehetőség (Értékesítés fül) értékesítője és várható jutaléka */
 const projDeal=p=>(S.deals||[]).find(d=>d.projectId===p.id&&d.stage==='nyert')||null;
 const salesOn=p=>!!projDeal(p)||!!(S.salesOn||{})[p.id];
@@ -699,7 +703,7 @@ function salesCommEst(p,d){if(!d)return null;const base=salesBase(p),man=String(
   const pct=base>=num(sp.commLimit)?num(sp.commHigh):num(sp.commLow);return {amt:Math.round(base*pct/100),pct,base};}
 function salesCommFields(p){const d=projDeal(p);if(!isAdmin()||!d||isFree(p))return '';const e=salesCommEst(p,d)||{amt:0,pct:''},dis=ro()||projLocked()?' disabled':'';
   const tip=`${esc(d.ownerName||'Értékesítő')} jutaléka${e.manual?' (ennél a projektnél kézzel megadva)':' (az értékesítő sávos szabálya szerint)'} – a jutalékalap a továbbszámlázott költség nélküli érték: ${ftFmt(salesBase(p))}. Üresre törölve visszaáll a szabályra.`;
-  return `<div class="field fin-scp"><label title="${tip}">💼 Értékesítői jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>
+  return `<div class="field fin-scp"><label title="${tip}">Jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>
     <div class="field fin-scf"><label title="${tip}">${esc(d.ownerName||'Értékesítő')}</label><div class="money"><input class="inp money-inp" id="f-salesFt" type="text" inputmode="numeric" data-money="big" data-sales-ft value="${esc(moneyFmt(e.amt))}" placeholder="0" aria-label="Értékesítői jutalék összege"${dis}><span class="money-unit">Ft</span></div></div>`;}
 function salesOption(p){if(!isAdmin()||!salesOn(p))return '';const d=projDeal(p),dis=ro()||projLocked(),est=d?salesCommEst(p,d):null;
   const ppl=(S.salesPeople||[]).slice().concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id)).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id})))   // értékesítő felhasználók + „Értékesítő” szerepű munkatársak

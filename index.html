@@ -1047,6 +1047,18 @@ html #view table tbody tr.pt-row.pt-st-atadva>td{background:#f3f5f4!important}
 html #view table tbody tr.pt-row.pt-st-atadva:hover>td{background:#e9eeeb!important}
 #view tr.pt-row.pt-st-atadva .ev-title{font-weight:600;color:#66756f}#view tr.pt-row.pt-st-atadva .ev-sub,#view tr.pt-row.pt-st-atadva .pt-rel{opacity:.7}
 #view tr.pt-row.pt-st-atadva .cal{opacity:.55;filter:grayscale(1)}#view tr.pt-row.pt-st-atadva .pt-crew{opacity:.6}
+/* Pénzügyek v2: büdzsé · értékesítés (kék doboz) · termelés (zöld doboz) · extrák – szervezői jutaléknál / továbbszámlázottnál két sor */
+.fin-inputs.fin-v2{display:flex!important;flex-direction:column;align-items:stretch!important;gap:14px;max-width:none!important}
+.fin-v2 .fin-r{display:flex;flex-wrap:wrap;gap:14px 16px;align-items:flex-end}
+.fin-v2 .fin-val,.fin-v2 .fin-net{flex:0 0 250px;min-width:0;margin:0}
+.fin-v2 .fin-exm{flex:0 0 230px;margin:0}.fin-v2 .fin-exm .cmb,.fin-v2 .fin-exm .cmb-in{width:100%!important}
+.fin-v2 .fin-org{flex:0 1 560px;margin:0;padding:0;border:0;background:none}.fin-v2 .fin-org .org-g{display:grid!important;grid-template-columns:minmax(0,1fr) 170px;gap:12px}
+.fin-grp{border-radius:12px;padding:6px 10px 10px;border:1px solid}.fin-grp .grp-h{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin:0 2px 4px}
+.fin-grp .grp-b{display:flex;gap:10px;align-items:flex-end}.fin-grp .field{margin:0}.fin-grp .field>label{font-size:12.5px!important;white-space:nowrap}
+.grp-sales{background:#eef4fb;border-color:#d4e2f2}.grp-sales .grp-h{color:#2f5f93}
+.grp-prod{background:#eef6f1;border-color:#d2e6da}.grp-prod .grp-h{color:#2c6e49}
+.fin-grp .fin-scp,.fin-grp .fin-eff{width:96px}.fin-grp .fin-scf,.fin-grp .fin-budget{width:170px}
+@media(max-width:600px){.fin-v2 .fin-val,.fin-v2 .fin-net,.fin-v2 .fin-exm,.fin-v2 .fin-org,.fin-grp{flex:1 1 100%}.fin-grp .fin-scf,.fin-grp .fin-budget{flex:1}}
 </style>
 </head>
 <body>

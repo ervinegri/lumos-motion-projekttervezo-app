@@ -869,7 +869,7 @@ function histStep(dir){
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
 /* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
-function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(prodBase(p));}   // jutalék levonása utáni összeg élőben
+function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(orgFee(p)?prodBase(p):salesBase(p));}   // jutalék levonása utáni összeg élőben
 
   document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
