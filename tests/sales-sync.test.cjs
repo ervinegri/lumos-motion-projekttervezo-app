@@ -66,7 +66,7 @@ test('új végleges rendelésből ügyfél és projekt lesz (piszkozatból nem)'
   assert.equal(p.name, 'Well Aging – Vegan Summit 2026'); assert.equal(p.client, 'Well Aging Kft.'); assert.equal(p.eventType, 'Short videó forgatás');
   assert.equal(p.date, '2026-11-15'); assert.equal(p.startTime, '10:20'); assert.equal(p.short60, 3); assert.equal(Number(p.quotePrice), 159300);
   assert.equal(p.status, 'tervezes'); assert.equal(p.techPlan, 'Termékfotó a standnál'); assert.equal(p.clientTax, '12345678-2-41');
-  assert.match(p.notes, /2 beszédes \+ 1 zenés/); assert.match(p.notes, /Fizetés: Átutalás/); assert.match(p.notes, /ÁFA: 27%/);
+  assert.match(p.notes, /2 beszédes \+ 1 zenés/); assert.doesNotMatch(p.notes, /Fizetés|ÁFA|Értékesítő|LM-2026/);   // a jegyzetet a vágók és operatőrök is látják
   assert.deepEqual(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${A}').map(r => r.crewId)`), ['crew-nora-1']);
   const c = json(`DB.clients.find(c => c.name === 'Well Aging Kft.')`);
   assert.equal(c.tax, '12345678-2-41'); assert.equal(c.address, '1111 Budapest, Fő u. 1.'); assert.equal(c.contactName, 'Kiss Anna');
