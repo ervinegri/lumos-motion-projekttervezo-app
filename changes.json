@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4038f52404",
+"at": "2026-11-08T21:46:24+02:00",
+"msg": "Extrák: értékesítői jutalék (összekötve az Értékesítés füllel: értékesítő és várható jutalék); fizetések súgójában egy tételnél csak a jogcím"
+},
+{
 "id": "bc60800037",
 "at": "2026-11-08T21:43:46+02:00",
 "msg": "Termelői fizetések: az összegre állva látszik a jogcím (szerep / ajánlói jutalék)"
@@ -144,11 +149,6 @@
 "id": "fc09c96955",
 "at": "2026-11-06T10:46:33+01:00",
 "msg": "Munkatársi szerződések: feltöltés, megnyitás, törlés – csak az ügyvezető látja"
-},
-{
-"id": "891e036072",
-"at": "2026-11-06T09:52:48+01:00",
-"msg": "Logó: PROJEKTTERVEZŐ Medium betűvel (nem bold)"
 }
 ]
 }
