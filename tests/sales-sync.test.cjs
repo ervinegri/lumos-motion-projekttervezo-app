@@ -129,4 +129,12 @@ test('Salesben törölt rendelés projektje „Lemondva” lesz, nem törlődik'
   assert.equal(proj(A).status, 'lemondva'); assert.match(proj(A).cancelReason, /Sales Appban törölték/);
   assert.equal(json('salesSync()').cancelled, 0);
 });
+test('A Sales App értékesítője (eltérő írásmóddal is) szerződött lehetőséget kap a projekthez – jutalékkal', () => {
+  run(`DB.deals = []; loadUsers_ = () => [{ id: 'u-flora', name: 'Guzslovány Flóra', email: 'flora@x.hu', role: 'sales', commLow: 10, commHigh: 12, commLimit: 1000000, salary: 0 }, { id: 'u1', name: 'Egri Ervin', role: 'admin' }];`);
+  setSales(C, 'Értékesítő', 'Guzsloványi Flóra', '2026-11-06 17:00:00');
+  json('salesSync()');
+  const d = json(`DB.deals.find(x => x.projectId === 'sales-${C}')`);
+  assert.ok(d, 'lehetőség létrejött'); assert.equal(d.ownerId, 'u-flora'); assert.equal(d.stage, 'nyert'); assert.equal(d.source, 'Sales App');
+  const n = json('DB.deals.length'); json('salesSync()'); assert.equal(json('DB.deals.length'), n, 'ismételt futás nem duplikál');
+});
 console.log('Sales szinkron: minden rendben.');

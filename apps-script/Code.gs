@@ -4545,7 +4545,35 @@ function salesSync() {
       catch (e) { out.errors.push('díjbekérő ' + no + ': ' + String((e && e.message) || e)); }
     });
   } catch (e) { out.errors.push('díjbekérők: ' + String((e && e.message) || e)); }
-  if (out.created || out.updated || out.cancelled) dataBump_();
+  /* Értékesítő: a Sales App rendelés „Értékesítő” mezője alapján a projekthez szerződött lehetőség tartozik (értékesítői jutalék, az értékesítő saját lehetőségei).
+     Név (ékezet nélkül is), e-mail vagy felhasználó-azonosító alapján keressük; ha a Salesben az értékesítő változik, itt is átíródik. */
+  try {
+    const users = loadUsers_().filter(x => x.disabled !== true), nk = s => sval_(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+    const findU = nm => { const n = nk(nm); if (!n) return null;
+      let c = users.filter(x => nk(x.name) === n || nk(x.email) === n || nk(x.id) === n);
+      const tm = (a, b) => a === b || (a.length >= 5 && b.length >= 5 && (a.indexOf(b) === 0 || b.indexOf(a) === 0));   // „Guzsloványi” = „Guzslovány”
+      if (!c.length) c = users.filter(x => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); });   // pl. csak „Flóra”, vagy eltérő írásmód
+      const s = c.filter(x => x.role === 'sales'); return s.length === 1 ? s[0] : c.length === 1 ? c[0] : null; };
+    const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {};
+    readAll_('deals').forEach(d => { if (d.projectId) byPid[d.projectId] = d; });
+    S.list.forEach(o => {
+      const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; if (!p || !sval_(o.salesperson)) return;
+      const ow = findU(o.salesperson); if (!ow) { miss[sval_(o.salesperson)] = 1; return; }
+      const ex = byPid[pid]; if (ex && ex.ownerId === ow.id) return;
+      const value = Math.round(Number(p.projectValue) || Number(sval_(o.netTotal)) || 0);
+      const d = ex ? Object.assign({}, ex) : { id: Utilities.getUuid(), title: sval_(p.name), client: sval_(p.client), contactName: sval_(p.contactName), contactEmail: sval_(p.contactEmail), contactPhone: sval_(p.contactPhone),
+        eventType: sval_(p.eventType), venue: sval_(p.venue), eventDate: sval_(p.date), value: value, stage: 'nyert', chance: 100, source: 'Sales App', nextStep: '', nextDate: '', note: '', lostReason: '',
+        projectId: pid, wonAt: today_(), closedAt: today_(), createdAt: now_(), createdBy: SALES_SYS_USER.name, services: '' };
+      d.ownerId = ow.id; d.ownerName = ow.name;
+      if (ow.role === 'sales') { const c = salesCompOf_(ow), pct = value >= c.commLimit ? c.commHigh : c.commLow; d.commPct = pct; d.commAmt = Math.round(value * pct / 100); } else { d.commPct = ''; d.commAmt = ''; }
+      d.updatedAt = now_(); d.updatedBy = SALES_SYS_USER.name;
+      withLock_(() => { const row = ex ? findRow_(dsh, ex.id) : null; putRow_('deals', dsh, d, row || null); });
+      byPid[pid] = d; out.deals = (out.deals || 0) + 1;
+      logEvent_(SALES_SYS_USER, 'Értékesítés: szerződve (Sales App)', d.title, ow.name);
+    });
+    if (Object.keys(miss).length) Logger.log('Sales szinkron – nincs ilyen értékesítő felhasználó: ' + Object.keys(miss).join(', '));
+  } catch (e) { out.errors.push('értékesítő: ' + String((e && e.message) || e)); }
+  if (out.created || out.updated || out.cancelled || out.deals) dataBump_();
   try { if (dbOn_()) dbFlush_(); } catch (e) {}   // a függő naplóbejegyzések
   if (out.errors.length) Logger.log('Sales szinkron hibák: ' + out.errors.join(' | '));
   Logger.log('Sales szinkron: ' + JSON.stringify(out));
