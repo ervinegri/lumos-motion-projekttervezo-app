@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "65e4b41f78",
+"at": "2026-11-09T01:32:25+02:00",
+"msg": "Videó lejátszó: pontos időkód húzáskor (egyszerre egy ugrás, a megjelenített képkocka ideje), időkód a videó alatt középen"
+},
+{
 "id": "529ccda6ef",
 "at": "2026-11-09T01:29:31+02:00",
 "msg": "Videó ablak: időkód perc:mp:képkocka, időkód gomb a Hozzászólások sorában, bezáráskor vissza a videótáblára"
@@ -136,13 +141,8 @@
 "msg": "Új verzió sáv: hoverre megmutatja az újdonságokat"
 },
 {
-"id": "f8fadf2115",
-"at": "2026-11-08T22:09:30+02:00",
-"msg": "Pénzügyek: Értékesítés és Termelés külön dobozban; alapból egy sor, szervezői jutaléknál / továbbszámlázottnál két sor"
-},
-{
-"id": "8048007082",
-"at": "2026-11-08T20:05:35Z",
+"id": "12466a3a9d",
+"at": "2026-11-08T20:09:40Z",
 "msg": "Változásnapló frissítése"
 }
 ]
