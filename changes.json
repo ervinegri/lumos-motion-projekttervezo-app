@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "244f641968",
+"at": "2026-11-08T20:14:01+02:00",
+"msg": "Ügyfél adatai: eddigi munkák listája; az ügyvezetőnek projektérték és befolyt nettó összeg"
+},
+{
 "id": "b92295fe8c",
 "at": "2026-11-08T20:09:34+02:00",
 "msg": "Sales szinkron: a rendelés értékesítője szerződött lehetőséget kap a projekthez (jutalék), eltérő írásmóddal is"
@@ -144,11 +149,6 @@
 "id": "11a2619045",
 "at": "2026-11-06T08:51:44+01:00",
 "msg": "Idővonal: az élő (piros) forgatási sávon nincs körvonal"
-},
-{
-"id": "da230f17ae",
-"at": "2026-11-06T08:50:40+01:00",
-"msg": "Idővonal: az átmenet a forgatási sáv tényleges színéből indul (piros / szürke / kék)"
 }
 ]
 }
