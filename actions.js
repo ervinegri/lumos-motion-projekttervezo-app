@@ -2263,19 +2263,31 @@ function vidCmHtml(v){const L=vidCmItems(v);
   return `<h4 class="vv-cm-h">💬 Hozzászólások${L.length?` <span class="bd-n">${L.length}</span>`:''}</h4><div class="vv-cm-new"><textarea class="inp" id="m-vvCm" rows="3" placeholder="Írd ide az észrevételeidet – akár többet is, mindegyiket új sorba, időkóddal."></textarea><div class="vv-cm-row"><button type="button" class="vv-tc-ins" data-action="vid-tc" hidden>⏱ Időkód beszúrása · <b id="m-vvTsL">0:00:00</b></button><span class="hint vv-cm-hint">Bezáráskor automatikusan mentődik.</span></div></div>
     ${L.length?`<div class="vv-cm-l">${L.map(c=>`<div class="vv-cm-i"><b>${esc(c.by||'')}</b> <span class="muted">· ${esc(String(c.at||'').slice(0,16).replace('T',' '))}${c.tag?' · '+c.tag:''}</span><div>${tcLinks(esc(c.t)).replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`:''}`;}
 function vidAspect(vd){const f=()=>{const pl=vd.closest('.vv-player');if(pl&&vd.videoWidth&&vd.videoHeight>vd.videoWidth){pl.classList.add('vert');pl.style.setProperty('--ar',vd.videoWidth+'/'+vd.videoHeight);}};if(vd.videoWidth)f();else vd.addEventListener('loadedmetadata',f,{once:true});}
-/* Húzással tekerés: a videón nyomva tartott egérrel jobbra = előre, balra = vissza (a lejátszó szélessége ≈ 20 mp, rövidebb videónál a teljes hossz).
-   A kezelősáv (alsó 48 px) érintetlen; egy sima kattintás továbbra is elindít / megállít. */
-function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-player');if(!pl)return;let st=null,moved=false;
+/* Húzással tekerés: a videón nyomva tartott egérrel jobbra = előre, balra = vissza (a lejátszó szélessége ≈ 20 mp, rövidebb videónál a teljes hossz),
+   a mért képkocka-sebességhez igazítva. Rövid kattintás: indít / megállít. ← →: egy képkocka (megállítva). A kezelősáv (alsó 48 px) érintetlen. */
+function vidFps(vd){if(vd._fpsM)return;vd._fpsM=1;const key='lpm_fps|'+vd.currentSrc.split('?')[0].slice(-120);try{const f=Number(localStorage.getItem(key));if(f>0){vd._fps=f;return;}}catch(e){}
+  if(!vd.requestVideoFrameCallback)return;const ts=[];let probe=false,t0=0,mu=false;
+  const done=()=>{const d=ts.slice(1).map((x,i)=>x-ts[i]).filter(x=>x>0.004).sort((x,y)=>x-y);if(d.length>=6){const f=Math.round(1000/(d[d.length>>1]*1000)*100)/100,std=[23.976,24,25,29.97,30,48,50,59.94,60].find(x=>Math.abs(x-f)<0.6);vd._fps=std||f;try{localStorage.setItem(key,String(vd._fps));}catch(e){}}
+    if(probe){vd.pause();vd.currentTime=t0;vd.muted=mu;probe=false;}};
+  const cb=(n,m)=>{ts.push(m.mediaTime);if(ts.length<14&&!vd.paused)vd.requestVideoFrameCallback(cb);else done();};
+  const start=()=>{ts.length=0;vd.requestVideoFrameCallback(cb);};
+  if(!vd.paused)start();else{const go=()=>{if(!vd.paused||vd._fps)return;probe=true;t0=vd.currentTime;mu=vd.muted;vd.muted=true;vd.play().then(start).catch(()=>{probe=false;vd.muted=mu;vd.addEventListener('play',start,{once:true});});};if(vd.readyState>=2)go();else vd.addEventListener('loadeddata',go,{once:true});}}
+const vidSnap=(vd,t)=>{const f=vd._fps;return f?(Math.round(t*f)+0.001)/f:t;};
+function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-player');if(!pl)return;let st=null,moved=false;vidFps(vd);
   const tip=document.createElement('div');tip.className='vv-scrub';tip.hidden=true;pl.appendChild(tip);
-  vd.addEventListener('pointerdown',e=>{if(e.button!==0)return;const r=vd.getBoundingClientRect();if(e.clientY>r.bottom-48)return;
+  const inCtl=e=>{const r=vd.getBoundingClientRect();return e.clientY>r.bottom-48;};
+  vd.addEventListener('pointerdown',e=>{if(e.button!==0||inCtl(e))return;const r=vd.getBoundingClientRect();
     st={x:e.clientX,t:vd.currentTime,w:r.width,play:!vd.paused};moved=false;vd.setPointerCapture(e.pointerId);});
   vd.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x;if(!moved&&Math.abs(dx)<4)return;
     if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');tip.hidden=false;}
-    const span=Math.min(vd.duration||20,20),t=Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span));vd.currentTime=t;tip.textContent=(dx<0?'◀ ':'')+tcFmt(t)+(dx>0?' ▶':'');});
+    const span=Math.min(vd.duration||20,20),t=vidSnap(vd,Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span)));vd.currentTime=t;tip.textContent=(dx<0?'◀ ':'')+tcFmt(t)+(dx>0?' ▶':'');});
   const end=e=>{if(!st)return;const was=st;st=null;pl.classList.remove('scrubbing');tip.hidden=true;try{vd.releasePointerCapture(e.pointerId);}catch(x){}
-    if(moved){vd._noClick=1;setTimeout(()=>{vd._noClick=0;},50);if(was.play)vd.play().catch(()=>{});}};
+    if(moved){if(was.play)vd.play().catch(()=>{});}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
   vd.addEventListener('pointerup',end);vd.addEventListener('pointercancel',end);
-  vd.addEventListener('click',e=>{if(vd._noClick){e.preventDefault();e.stopPropagation();}},true);}
+  vd.addEventListener('click',e=>{if(!inCtl(e)){e.preventDefault();e.stopPropagation();}},true);   /* a böngésző saját kattintás-kezelése helyett a fenti */
+  if(!window._vvKeys){window._vvKeys=1;document.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;const v=document.querySelector('.vv-player video');if(!v||!v.isConnected)return;
+    const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'))return;e.preventDefault();v.pause();const f=v._fps||25,step=(e.key==='ArrowRight'?1:-1)*(e.shiftKey?10:1)/f;
+    v.currentTime=vidSnap(v,Math.max(0,Math.min((v.duration||1e9)-0.01,v.currentTime+step)));},true);}}
 function vidTsTick(){const bt=document.querySelector('.vv-tc-ins');if(!bt)return;const vd=document.querySelector('.vv-player video');if(!vd){setTimeout(()=>{if(document.querySelector('.vv-player video'))vidTsTick();},1500);return;}
   vidAspect(vd);vidScrub(vd);bt.hidden=false;const upd=()=>{const l=$('m-vvTsL');if(l)l.textContent=tcFmt(vd.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>vd.addEventListener(e,upd));upd();}
 ACT['vid-tc']=()=>{const vd=document.querySelector('.vv-player video'),ta=$('m-vvCm');if(!vd||!ta)return;vd.pause();
