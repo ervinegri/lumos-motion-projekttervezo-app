@@ -2259,13 +2259,13 @@ const tcSec=(a,b,c,sep)=>{const t=Number(a)*60+Number(b);if(!c)return t;if(sep==
 const mmss=tcFmt;
 const TC_RE=/\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?(?:\s*@(\d{1,3}(?:\.\d)?),(\d{1,3}(?:\.\d)?))?\]/g;   /* [p:mp:kk] vagy tűvel: [p:mp:kk @x,y] (x,y: a kép %-ában) */
 const tcLinks=h=>h.replace(TC_RE,(m,a,b,sep,c,x,y)=>`<button type="button" class="vv-ts${x?' vv-ts-pin':''}" data-action="vid-seek" data-tc="${a}|${b}|${sep||''}|${c||''}"${x?` data-x="${x}" data-y="${y}"`:''} title="Ugrás ide a videóban">${x?'📍 ':''}${a}:${b}${c?(sep===':'?':':'.')+c:''}</button>`);
-function vidCmItems(v){const L=(v.cm||[]).map(c=>({by:c.by,at:c.at,t:(c.ts!==''&&c.ts!=null?'['+tcFmt(c.ts)+'] ':'')+c.t}));
+function vidCmItems(v){const L=(v.cm||[]).map((c,i)=>({by:c.by,at:c.at,idx:i,t:(c.ts!==''&&c.ts!=null?'['+tcFmt(c.ts)+'] ':'')+c.t}));
   if(v.note)L.push({by:v.rvBy,at:v.rvAt,t:v.note,tag:'🔍 ellenőrzésre küldve'});
   if(v.fb&&!(v.cm||[]).some(c=>String(c.t).replace(/^↩ /,'')===v.fb||v.fb.endsWith(String(c.t).replace(/^↩ /,''))))L.push({by:v.fbBy,at:v.fbAt,t:'↩ '+v.fb});
   return L.sort((x,y)=>String(y.at||'').replace('T',' ').localeCompare(String(x.at||'').replace('T',' ')));}
 function vidCmHtml(v){const L=vidCmItems(v);
   return `<div class="vv-cm-top"><h4 class="vv-cm-h">💬 Hozzászólások${L.length?` <span class="bd-n">${L.length}</span>`:''}</h4><span class="vv-tcw"><button type="button" class="vv-tc-ins" data-action="vid-tc" hidden data-tip="Enter: időkód beszúrása&#10;Gépelés után Enter: vissza a videóhoz&#10;Shift + Enter: új sor&#10;Szóköz: lejátszás / megállítás&#10;← →: egy képkocka (Shift: 10)">⏱ Időkód beszúrása · <b id="m-vvTsL">0:00:00</b> <kbd class="vv-kbd">Enter</kbd></button><button type="button" class="vv-tc-ins vv-pin-btn" data-action="vid-pin" hidden data-tip="Kattints, majd a képen arra a pontra, amire az észrevétel vonatkozik.&#10;Ctrl + kattintás a képen: ugyanez gomb nélkül&#10;Esc: mégse">📍 Jelölés</button></span></div><div class="vv-cm-new"><textarea class="inp" id="m-vvCm" rows="3" placeholder="Írd ide az észrevételeidet – akár többet is, mindegyiket új sorba, időkóddal."></textarea></div>
-    ${L.length?`<div class="vv-cm-l">${L.map(c=>`<div class="vv-cm-i" data-raw="${esc(c.t)}"><b>${esc(c.by||'')}</b> <span class="muted">· ${esc(String(c.at||'').slice(0,16).replace('T',' '))}${c.tag?' · '+c.tag:''}</span><div>${tcLinks(esc(c.t)).replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`:''}`;}
+    ${L.length?`<div class="vv-cm-l">${L.map(c=>`<div class="vv-cm-i" data-raw="${esc(c.t)}" data-by="${esc(c.by||'')}"><b>${esc(c.by||'')}</b> <span class="muted">· ${esc(String(c.at||'').slice(0,16).replace('T',' '))}${c.tag?' · '+c.tag:''}</span>${c.idx!=null&&(isAdmin()||(S.me&&c.by===S.me.name))?`<button type="button" class="vv-cm-del" data-action="vid-cm-del" data-idx="${c.idx}" data-at="${esc(c.at||'')}" title="Hozzászólás törlése">🗑</button>`:''}<div>${tcLinks(esc(c.t)).replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`:''}`;}
 function vidAspect(vd){const f=()=>{const pl=vd.closest('.vv-player');if(pl&&vd.videoWidth&&vd.videoHeight>vd.videoWidth){pl.classList.add('vert');pl.style.setProperty('--ar',vd.videoWidth+'/'+vd.videoHeight);}};if(vd.videoWidth)f();else vd.addEventListener('loadedmetadata',f,{once:true});}
 /* Húzással tekerés: a videón nyomva tartott egérrel jobbra = előre, balra = vissza (a lejátszó szélessége ≈ 6 mp),
    a mért képkocka-sebességhez igazítva. Rövid kattintás: indít / megállít. ← →: egy képkocka (megállítva). A kezelősáv (alsó 48 px) érintetlen. */
@@ -2306,11 +2306,13 @@ function vidTsTick(){const bt=document.querySelector('.vv-tc-ins');if(!bt)return
 function vidRect(vd){const r=vd.getBoundingClientRect(),vw=vd.videoWidth||16,vh=vd.videoHeight||9,s=Math.min(r.width/vw,r.height/vh),w=vw*s,h=vh*s;return {left:(r.width-w)/2,top:(r.height-h)/2,w,h,r};}
 function vidPins(vd){const pl=vd.closest('.vv-player');if(!pl||pl.querySelector('.vv-pins'))return;const d=document.createElement('div');d.className='vv-pins';pl.appendChild(d);
   ['seeked','pause','play','loadedmetadata'].forEach(ev=>vd.addEventListener(ev,()=>pinsShow(vd,vd.currentTime)));window.addEventListener('resize',()=>pinsShow(vd,vd.currentTime));}
-function pinsAll(){const L=[],f=curFps();const add=(txt,draft)=>{String(txt||'').replace(TC_RE,(m,a,b,sep,c,x,y)=>{if(x)L.push({t:tcSec(a,b,c,sep),x:+x,y:+y,draft});return m;});};
-  document.querySelectorAll('.vv-cm-i').forEach(el=>add(el.dataset.raw));const ta=$('m-vvCm');if(ta)add(ta.value,true);return L;}
-function pinsShow(vd,t){const lay=vd.closest('.vv-player')&&vd.closest('.vv-player').querySelector('.vv-pins');if(!lay)return;const R=vidRect(vd),fc=vd._pinFocus,win=vd.paused?0.5/(vd._fps||25):0.4;
-  const L=pinsAll().map((p,i)=>Object.assign(p,{n:i+1})).filter(p=>Math.abs(p.t-t)<=win);if(fc&&Math.abs(fc.t-t)<0.5/(vd._fps||25)&&!L.some(p=>p.x===fc.x&&p.y===fc.y))L.push(fc);
-  lay.innerHTML=L.map((p,i)=>`<span class="vv-pin${p.draft?' draft':''}${fc&&fc.x===p.x&&fc.y===p.y?' focus':''}" style="left:${R.left+R.w*p.x/100}px;top:${R.top+R.h*p.y/100}px"><i>${p.n||'•'}</i></span>`).join('');}
+function pinsAll(){const L=[];const add=(txt,draft,by)=>{String(txt||'').split('\n').forEach(line=>{line.replace(TC_RE,(m,a,b,sep,c,x,y,off)=>{if(x){const note=line.slice(off+m.length).split(/\[\d{1,3}:\d{2}/)[0].replace(/^[\s↩]+/,'').trim();
+      L.push({t:tcSec(a,b,c,sep),x:+x,y:+y,draft,note,by});}return m;});});};
+  document.querySelectorAll('.vv-cm-i').forEach(el=>add(el.dataset.raw,false,el.dataset.by));const ta=$('m-vvCm');if(ta)add(ta.value,true,'');return L;}
+function pinsShow(vd,t){const lay=vd.closest('.vv-player')&&vd.closest('.vv-player').querySelector('.vv-pins');if(!lay)return;const R=vidRect(vd),fc=vd._pinFocus,f=vd._fps||25,win=0.5;   /* a jelölt képkocka ±0,5 mp-es környezetében látszik (megállítva és lejátszás közben is) */
+  const L=pinsAll().map((p,i)=>Object.assign(p,{n:i+1})).filter(p=>Math.abs(p.t-t)<=win);if(fc&&Math.abs(fc.t-t)<1.01/f&&!L.some(p=>p.x===fc.x&&p.y===fc.y))L.push(fc);
+  const html=L.map(p=>`<span class="vv-pin${p.draft?' draft':''}${fc&&fc.x===p.x&&fc.y===p.y?' focus':''}" style="left:${R.left+R.w*p.x/100}px;top:${R.top+R.h*p.y/100}px" data-tip="${esc((p.by?p.by+': ':p.draft?'(még nincs elküldve) ':'')+(p.note||'—'))}"><i>${p.n||'•'}</i></span>`).join('');
+  if(lay._h!==html){lay._h=html;lay.innerHTML=html;}}   /* csak változáskor rajzolunk újra (különben a hover-súgó villogna) */
 function pinMode(on){window._vvPinMode=!!on;const pl=document.querySelector('.vv-player'),pb=document.querySelector('.vv-pin-btn');if(pl)pl.classList.toggle('pin-mode',!!on);if(pb)pb.classList.toggle('on',!!on);
   if(on){const vd=document.querySelector('.vv-player video');if(vd)vd.pause();toast('📍 Kattints a képen arra a pontra, amire az észrevétel vonatkozik (Esc: mégse)');}}
 ACT['vid-pin']=()=>pinMode(!window._vvPinMode);
@@ -2318,7 +2320,7 @@ ACT['vid-pin']=()=>pinMode(!window._vvPinMode);
 function taHl(){const ta=$('m-vvCm');if(!ta)return;let hl=ta.parentElement.querySelector('.vv-hl');
   if(!hl){hl=document.createElement('div');hl.className='vv-hl';hl.setAttribute('aria-hidden','true');ta.parentElement.insertBefore(hl,ta);
     const cs=getComputedStyle(ta);['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','boxSizing','textIndent'].forEach(k=>{hl.style[k]=cs[k];});
-    ta.addEventListener('input',taHl);ta.addEventListener('scroll',()=>{hl.scrollTop=ta.scrollTop;});new ResizeObserver(()=>{hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';}).observe(ta);}
+    ta.addEventListener('input',()=>{taHl();const v=document.querySelector('.vv-player video');if(v)pinsShow(v,v.currentTime);});ta.addEventListener('scroll',()=>{hl.scrollTop=ta.scrollTop;});new ResizeObserver(()=>{hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';}).observe(ta);}
   hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';
   hl.innerHTML=esc(ta.value).replace(TC_RE,(m,a,b,sep,c,x,y)=>`<mark data-tc="${a}|${b}|${sep||''}|${c||''}"${x?` data-x="${x}" data-y="${y}"`:''}>${m}</mark>`)+'\n';hl.scrollTop=ta.scrollTop;}
 const taHit=e=>{const ta=$('m-vvCm'),hl=ta&&ta.parentElement.querySelector('.vv-hl');if(!hl)return null;for(const mk of hl.querySelectorAll('mark'))for(const r of mk.getClientRects())if(e.clientX>=r.left-2&&e.clientX<=r.right+2&&e.clientY>=r.top-1&&e.clientY<=r.bottom+1)return mk;return null;};
@@ -2333,6 +2335,12 @@ ACT['vid-tc']=pin=>{const vd=document.querySelector('.vv-player video'),ta=$('m-
   const tc='['+tcFmt(vd.currentTime)+(pin?' @'+pin.x+','+pin.y:'')+'] ',st=ta.selectionStart??ta.value.length,pre=ta.value.slice(0,st),nl=pre&&!/\n$/.test(pre)?'\n':'';
   ta.value=pre+nl+tc+ta.value.slice(ta.selectionEnd??st);taHl();const c=(pre+nl+tc).length;ta.focus();ta.setSelectionRange(c,c);};
 ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}const q=String(b.dataset.tc||'').split('|');vd.pause();vd.currentTime=b.dataset.tc?vidSnap(vd,tcSec(q[0],q[1],q[3],q[2])):Number(b.dataset.ts)||0;vd._pinFocus=b.dataset.x?{x:+b.dataset.x,y:+b.dataset.y,t:vd.currentTime}:null;};
+ACT['vid-cm-del']=async b=>{const box=document.querySelector('.vv-cm');if(!box)return;const it=b.closest('.vv-cm-i');if(it.dataset.confirm!=='1'){it.dataset.confirm='1';b.textContent='Biztos? 🗑';b.classList.add('sure');setTimeout(()=>{if(it.isConnected){it.dataset.confirm='';b.textContent='🗑';b.classList.remove('sure');}},3500);return;}
+  const pid=box.dataset.pid,vid=box.dataset.vid;b.disabled=true;
+  try{const r=await call('videoCommentDel',{projectId:pid,id:vid,idx:Number(b.dataset.idx),at:b.dataset.at});const pr2=r&&r.project;
+    if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
+    const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid),ta=$('m-vvCm'),keep=ta?ta.value:'';if(v&&box.isConnected){box.innerHTML=vidCmHtml(v);const t2=$('m-vvCm');if(t2){t2.value=keep;}vidTsTick();}
+    toast('🗑 Hozzászólás törölve');try{bdApply(pid);bdRefresh();}catch(e){}}catch(e){b.disabled=false;handleErr(e);}};
 async function vidFlush(pid,vid){const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t)return;ta.value='';taHl();
   try{const r=await call('videoComment',{projectId:pid,id:vid,text:t,ts:''});const pr2=r&&r.project;
     if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
