@@ -192,7 +192,13 @@ const HASH_P=/^#p=([A-Za-z0-9-]{8,120})$/;
 function projFromHash(x){x=String(x||'');if(!x)return null;const p0=(S.projects||[]).find(p=>p.id===x);if(p0)return p0;x=x.toLowerCase();return (S.projects||[]).find(p=>{const k=String(p.id).slice(0,8).toLowerCase();return k.length===8&&(x===k||x.endsWith('-'+k));})||null;}
 const fhas=(hay,q)=>fold(hay).includes(fold(q));
 const venueKey=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-function sameVenue(p,q){const a=venueKey(p&&p.venue);return !!a&&a===venueKey(q&&q.venue);}
+/* Ugyanaz a helyszín, akkor is, ha másképp van beírva (pl. „Europa Event Center, Hárshegyi út 5-7, 1021” = „Europa Congress Center, Hárshegyi út, 1021 Budapest”):
+   egyező szöveg, vagy egyező irányítószám + utcanév, vagy egyező első tag (helyszín neve) */
+function venueSig(v){const k=venueKey(v),zip=(k.match(/\b(\d{4})\b/)||[])[1]||'',st=(k.match(/([a-z]+)\s+(?:ut|utca|u|krt|korut|ter|sor|fasor|setany|rakpart)\b/)||[])[1]||'',first=venueKey(String(v||'').split(',')[0]);return {k,zip,st,first};}
+const evKey=p=>{const n=String(p&&p.name||''),i=n.lastIndexOf(' – ');return venueKey(i>=0?n.slice(i+3):n);};   // „Synlab – Vegan Summit 2026” → „vegan summit 2026”
+function sameVenue(p,q){const e1=evKey(p),e2=evKey(q);if(e1.length>=6&&e1===e2&&(String(p.name).includes(' – ')||String(q.name).includes(' – ')))return true;   // ugyanannak a rendezvénynek a videói
+  const a=venueSig(p&&p.venue),b=venueSig(q&&q.venue);if(!a.k||!b.k)return false;if(a.k===b.k)return true;
+  if(a.zip&&a.zip===b.zip&&a.st&&a.st===b.st)return true;return a.first.length>=6&&a.first===b.first;}
 function clash(p,q){
   if(!p||!q)return false;if(p.id&&p.id===q.id)return true;
   const a=pr(p),b=pr(q);if(!overlap(a,b))return false;
