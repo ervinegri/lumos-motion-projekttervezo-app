@@ -2252,10 +2252,10 @@ ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=
   const mb=document.querySelector('#mform');if(mb&&v.link)mb.classList.add('m-video');{const yf=document.querySelector('.vv-player iframe[data-vert="1"]');if(yf){yf.parentElement.classList.add('vert');yf.parentElement.style.setProperty('--ar','9/16');}}{const mt=document.querySelector('.vv-meta'),h=document.querySelector('#mform .mhead h3');if(mt&&h){mt.removeAttribute('style');h.classList.add('vv-h');h.appendChild(mt);}}pcloudLoad();vidTsTick();window.MODAL_BEFORE_CLOSE=()=>{vidFlush(pid,vid);return fromLane?()=>ACT['bd-lane']({dataset:{id:pid}}):null;};{const a=document.activeElement;if(a&&a.id==='m-vvCm')a.blur();}};
 /* Hozzászólások a videóhoz: egy szövegmező, benne tetszőleges számú időkóddal ([perc:mp.ezred]) – az időkódra kattintva a lejátszó odaugrik.
    A hozzászólás bezáráskor (vagy jóváhagyáskor) mentődik; visszadobáskor a szöveg a visszadobás indoka. Legfrissebb felül. */
-/* Időkód: perc:mp:képkocka – a képkocka-sebességet a lejátszó méri (amíg nincs mérve: 25). */
+/* Időkód: perc:mp:képkocka (01-től) – a képkocka-sebességet a lejátszó méri (amíg nincs mérve: 25). */
 const curFps=()=>{const v=document.querySelector('.vv-player video');return (v&&v._fps)||25;};
-const tcFmt=s=>{const f=curFps(),fi=Math.round(f),n=Math.max(0,Math.round((Number(s)||0)*f+1e-6)),t=Math.floor(n/fi);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')+':'+String(n%fi).padStart(2,'0');};
-const tcSec=(a,b,c,sep)=>{const t=Number(a)*60+Number(b);if(!c)return t;if(sep===':'){const f=curFps(),fi=Math.round(f);return (t*fi+Number(c))/f;}return t+Number(c.padEnd(3,'0'))/1000;};
+const tcFmt=s=>{const f=curFps(),fi=Math.round(f),n=Math.max(0,Math.round((Number(s)||0)*f+1e-6)),t=Math.floor(n/fi);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')+':'+String(n%fi+1).padStart(2,'0');};   /* a képkocka 01-től számozva (25 fps-nél 01–25) */
+const tcSec=(a,b,c,sep)=>{const t=Number(a)*60+Number(b);if(!c)return t;if(sep===':'){const f=curFps(),fi=Math.round(f);return (t*fi+Math.max(0,Number(c)-1))/f;}return t+Number(c.padEnd(3,'0'))/1000;};
 const mmss=tcFmt;
 const tcLinks=h=>h.replace(/\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?\]/g,(m,a,b,sep,c)=>`<button type="button" class="vv-ts" data-action="vid-seek" data-tc="${a}|${b}|${sep||''}|${c||''}" title="Ugrás ide a videóban">${a}:${b}${c?(sep===':'?':':'.')+c:''}</button>`);
 function vidCmItems(v){const L=(v.cm||[]).map(c=>({by:c.by,at:c.at,t:(c.ts!==''&&c.ts!=null?'['+tcFmt(c.ts)+'] ':'')+c.t}));
