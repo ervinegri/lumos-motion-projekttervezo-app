@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "14dfa30fc3",
+"at": "2026-11-08T20:21:04+01:00",
+"msg": "Pénzügyek: 3 soros elrendezés (büdzsé / szervezői jutalék / levonás utáni összeg + hatékonyság + termelői keret)"
+},
+{
 "id": "5c10d37573",
 "at": "2026-11-08T19:44:41+01:00",
 "msg": "PROJEKT.md: szervezői jutalék, videónkénti követés, sales alapértékek"
@@ -144,11 +149,6 @@
 "id": "b59041ab43",
 "at": "2026-11-06T09:03:47+01:00",
 "msg": "Eszközlista levél: Hol van és Nálad lesz ki; Érkezés → Kezdés"
-},
-{
-"id": "cc48b3abf2",
-"at": "2026-11-06T09:01:24+01:00",
-"msg": "Alsó üres sáv: erősebb szelektor"
 }
 ]
 }
