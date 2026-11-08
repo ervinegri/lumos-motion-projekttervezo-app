@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "420ee57e3c",
+"at": "2026-11-09T01:40:28+02:00",
+"msg": "Videó ablak: időkód gomb a Hozzászólások sorában; a képkocka-számláló egyetlen forrásból, nem ugrál"
+},
+{
 "id": "2703f270e0",
 "at": "2026-11-09T01:38:17+02:00",
 "msg": "Időkód: a képkocka 01-től számozva (25 fps-nél 01–25)"
@@ -136,13 +141,8 @@
 "msg": "Vágás: gyors húzásnál nem pattannak vissza a kártyák; belső ellenőrzésre küldés (Ervin/Dávid, videólink, megjegyzés, e-mail); 🔔 értesítések felugró jelzéssel; régi aktív projektek is kapnak videósorokat; idővonal: jóváhagyásra váró sárga, kész szürke"
 },
 {
-"id": "c27c569a5c",
-"at": "2026-11-08T22:26:15+02:00",
-"msg": "Vágás: sávos tábla (projekt soronként a határidő szerint, visszaszámlálóval); idővonal: a vágássávon a videók állapota színesen + x/y, kattintásra a projekt videótáblája"
-},
-{
-"id": "8ae17a8773",
-"at": "2026-11-08T20:14:47Z",
+"id": "171aeb9e7a",
+"at": "2026-11-08T20:26:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
