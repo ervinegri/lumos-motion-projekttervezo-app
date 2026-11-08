@@ -97,7 +97,7 @@ const idleOk=()=>{const a=document.activeElement;return S.loaded&&!S.dirty&&!S.s
 let VER_BUSY=false;
 setInterval(async()=>{if(!TOKEN||VER_BUSY||!idleOk())return;VER_BUSY=true;
   try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&idleOk()){S.dataVer=v;if(S.tab==='naptar')calForceFresh();load(true);}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
-setInterval(()=>{if(idleOk()&&Date.now()-S.lastLoad>300000)load(true);},30000);
+setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
 window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
 
@@ -818,7 +818,7 @@ function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S
   const canMove=(c,to)=>{if(c.p.status==='atadva')return false;if(mgr)return true;return ['vagasra','vagas','ellen','leadva'].includes(to)&&c.v.st!=='jovahagyva';};
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:'leadva'})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
-    return `<div class="bd-card st-${esc(c.v.st)}"${drag?' draggable="true"':''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.name)}</div>
+    return `<div class="bd-card st-${esc(c.v.st)}"${drag?' draggable="true"':''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.name)}</div>${c.v.link&&(c.v.st==='ellen'||c.v.st==='leadva'||c.v.st==='modositas')?`<a class="bd-link" href="${esc(c.v.link)}" target="_blank" rel="noopener" title="${esc((c.v.rvBy?c.v.rvBy+' → ':'')+(c.v.note||''))}">▶ videó</a>`:''}
       ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((crewById(c.ow)||{}).name||'— nincs vágó —')}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
   const lanes=[...byP.values()].sort((a,b)=>String(dueDate(a.p)||'9999').localeCompare(String(dueDate(b.p)||'9999')));
@@ -1306,7 +1306,7 @@ function calTimeline(m,items0,T){
         if(cEnd<first)return '';
         const pend=!cdone&&!editOnly(p)&&pr(p)&&pr(p).end>=T;   // még nincs leforgatva: a vágó még nem dolgozhat rajta
         const vp=vidProg(p);
-        return `<button type="button" class="cal-chip p cut tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend?` · ${vp.done}/${vp.tot}`:''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;})()}</div></div>`;}).join('');
+        return `<button type="button" class="cal-chip p cut st-${esc(p.status||'')} tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend?` · ${vp.done}/${vp.tot}`:''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
     if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép

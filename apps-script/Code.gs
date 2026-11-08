@@ -611,6 +611,7 @@ function bootstrap_(u) {
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
+  try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
   try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
@@ -848,7 +849,8 @@ const VIDEO_KINDS_ = [['int_sarok', 'Interjúsarok videó'], ['interju', 'Kiáll
 const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'modositas'];
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
-    st: VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30) })).filter(x => x.id); }
+    st: VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
+    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30) })).filter(x => x.id); }   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
 function videosEnsure_(p, cutters) {
@@ -863,6 +865,40 @@ function videosEnsure_(p, cutters) {
   return want;
 }
 /** Egy videó állapotának / vágójának módosítása. Vezetők mindent; a vágó csak a saját (vagy gazdátlan) sorainak vágási állapotát. a: {projectId, id, st?, editor?} */
+/** Videósorok a régebbi (a videókövetés előtt mentett) aktív projekteknek is: a megrendelt darabszámokból; a vágó a vágói feladatkiosztásból (vagy az egyetlen vágó). */
+function videosBackfill_() {
+  const sh = sheetFor_('projects'), ca = readAll_('crewAssign');
+  readAll_('projects').forEach(p => {
+    if (p.status === 'atadva' || p.status === 'lemondva' || parseVideos_(p.videos).length) return;
+    if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0)) return;
+    const cutters = [...new Set(ca.filter(r => r.projectId === p.id && r.role === 'Vágó').map(r => String(r.crewId || '')))].filter(String);
+    const vids = videosEnsure_(p, cutters), et = parseEditTasks_(p.editTasks);
+    vids.forEach(x => { if (!x.editor) { const o = Object.keys(et).find(id => (et[id] || []).indexOf(x.k) >= 0); if (o) x.editor = o; } });
+    if (!vids.length) return;
+    withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r); if (parseVideos_(q.videos).length) return; q.videos = JSON.stringify(vids); putRow_('projects', sh, q, r); });
+  });
+  dbFlush_();
+}
+/** Belső ellenőrzésre küldés: a videó „Belső ellenőrzés” állapotba kerül, a link és a megjegyzés mentődik, a kiválasztott vezető e-mailt kap. */
+const REVIEWERS_ = { ervin: 'ervin.egri@lumosmotion.com', david: 'david.zajacz@lumosmotion.com' };
+function videoReview_(u, a) {
+  a = a || {};
+  const to = REVIEWERS_[String(a.to || '')]; if (!to) throw new Error('Válaszd ki, ki kapja az értesítést.');
+  const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
+  const note = str_(a.note, 1000).trim();
+  const res = videoSet_(u, { projectId: a.projectId, id: a.id, st: 'ellen' });
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40); let p, v;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
+    if (v) { v.link = link; v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
+    p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop();
+  const url = appUrl_() + '#p=' + pid;
+  const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + '\n\nVideó: ' + link + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + url + '\n\nA Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.';
+  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>🎞️ <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
+  let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
+  logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
+  return { project: projectView_(fullProject_(p), u), mail: mail };
+}
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
@@ -4385,6 +4421,7 @@ function rpcInner_(token, name, arg) {
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
+    case 'videoReview': return videoReview_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);

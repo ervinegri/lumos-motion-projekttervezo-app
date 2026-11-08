@@ -1084,6 +1084,20 @@ html #view table tbody tr.pt-row.pt-st-atadva:hover>td{background:#e9eeeb!import
 /* idővonal: videók állapota a vágássáv alján */
 .tl-cut{position:relative;overflow:hidden}.tl-prog{position:absolute;left:0;right:0;bottom:0;height:4px;display:flex;opacity:.95}.tl-prog i{display:block;height:100%}
 .vp-jovahagyva{background:#1f7a4a}.vp-leadva{background:#4cc38a}.vp-ellen{background:#f2b705}.vp-vagas{background:#c9b6ff}.vp-vagasra{background:rgba(255,255,255,.55)}.vp-modositas{background:#ff5b4f}
+/* idővonal: jóváhagyásra váró (leadott) projekt sárga, a kész (átadott) szürke – a forgatás és a vágás sávja is */
+html body .tl-row .cal-chip.p.tl-bar.st-leadva,html body .tl-row .cal-chip.p.tl-bar.st-jovahagyas{background:#f6c768!important;color:#6b4200!important;border-color:#e9b44c!important}
+html body .tl-row .cal-chip.p.tl-bar.st-atadva{background:#c9cfd5!important;color:#55616a!important;border-color:#bcc3ca!important}
+html body .tl-row .tl-prog{display:none}html body .tl-row .tl-cut:not(.st-atadva):not(.st-leadva):not(.st-jovahagyas) .tl-prog{display:flex}
+/* Értesítések (csengő): belső ellenőrzésre váró videók */
+.bell-w{position:relative;display:inline-flex}.bell{position:relative;border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:999px;width:36px;height:34px;font-size:16px;cursor:pointer}.bell:hover{background:rgba(255,255,255,.18)}
+.bell-dot{position:absolute;top:3px;right:4px;min-width:16px;height:16px;border-radius:999px;background:#e5372b;color:#fff;font:800 10px/16px inherit;font-style:normal;padding:0 4px;box-shadow:0 0 0 2px #1d2b3a}
+.bell-pop{position:absolute;right:0;top:42px;width:min(380px,92vw);max-height:70vh;overflow:auto;background:#fff;color:var(--fg,#173042);border-radius:14px;box-shadow:0 12px 40px rgba(10,25,40,.25);padding:8px;z-index:60}
+.bell-pop h4{margin:6px 8px 8px;font-size:13px}.bell-it{display:block;width:100%;text-align:left;border:0;background:none;border-radius:10px;padding:9px 10px;cursor:pointer;font:inherit;color:inherit}.bell-it:hover{background:#f1f4f7}
+.bell-it b{display:block;font-size:13px}.bell-it small{display:block;color:#56656f;font-size:12px;margin-top:2px}.bell-it .me{color:#b45309;font-weight:800}
+.bell-toast{position:fixed;top:68px;right:16px;z-index:70;background:#1d2b3a;color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 12px 40px rgba(10,25,40,.3);max-width:340px;cursor:pointer;animation:btIn .25s ease}
+.bell-toast b{display:block;margin-bottom:2px}@keyframes btIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+.rv-pick{display:flex;gap:10px;flex-wrap:wrap}.rv-pick label{flex:1 1 140px;border:1px solid #d6dee5;border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;font-weight:700}.rv-pick input:checked+span{color:#1f5a3d}.rv-pick label:has(input:checked){border-color:#2c6e49;background:#eef6f1}
+.bd-link{font-size:12px;font-weight:700;color:#2f5f93;text-decoration:none}.bd-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -1105,6 +1119,7 @@ html #view table tbody tr.pt-row.pt-st-atadva:hover>td{background:#e9eeeb!import
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
         <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">💼 Ügyvezető</option><option value="editor">⚙️ Termelési v.</option><option value="crew">🔨 Szakember</option><option value="crew-other" hidden>↻ Másik szakember…</option><option value="sales">🤝 Értékesítő</option><option value="sales-other" hidden>↻ Másik értékesítő…</option></select>
+        <span class="bell-w hidden" id="bellW"><button id="bellBtn" class="bell" type="button" aria-label="Értesítések" data-action="bell"><span aria-hidden="true">🔔</span><i class="bell-dot" hidden></i></button><div class="bell-pop" id="bellPop" hidden></div></span>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>
       </div>
