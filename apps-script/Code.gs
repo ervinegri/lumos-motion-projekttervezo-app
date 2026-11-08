@@ -852,7 +852,8 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
-    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
+    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30),
+    cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
 function videosEnsure_(p, cutters) {
@@ -908,6 +909,26 @@ function videoReview_(u, a) {
   let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
   logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
   return { project: projectView_(fullProject_(p), u), mail: mail };
+}
+/** Hozzászólás egy videóhoz (vezető vagy a projekt vágója); ts: másodperc a videóban, ha a lejátszóból időponthoz kötötték. A vágó e-mailt kap, ha más írt; ha ő írt, az ellenőrző. */
+function videoComment_(u, a) {
+  a = a || {};
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', t = str_(a.text, 1000).trim();
+  if (t.length < 1) throw new Error('Írj valamit a hozzászólásba.');
+  if (!mgr && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó')) throw new Error('FORBIDDEN: Csak a vezetők és a projekt vágója szólhat hozzá.');
+  const ts = a.ts !== '' && a.ts != null && isFinite(Number(a.ts)) ? Math.max(0, Math.round(Number(a.ts))) : '';
+  let p, v;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: t, ts: ts }]).slice(-100);
+    p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  try { const c = v.editor ? readAll_('crew').find(x => x.id === v.editor) : null, own = c && u.crewId && c.id === u.crewId;
+    const to = own ? String(v.rvTo || '').trim() : c ? String(c.email || '').trim() : '';
+    if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid, tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';
+      gmailSend_(to, 'Hozzászólás: ' + v.name + ' – ' + p.name, u.name + ' hozzászólt: ' + v.name + ' – ' + p.name + '\n\n' + tl.trim() + (tl ? ' ' : '') + t + '\n\n' + url,
+        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(t).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
+  logEvent_(u, 'Videó hozzászólás', p.name, v.name);
+  return { project: projectView_(fullProject_(p), u) };
 }
 let FB_MAIL_ = null;
 function videoSet_(u, a) {
@@ -4440,6 +4461,7 @@ function rpcInner_(token, name, arg) {
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
     case 'videoReview': return videoReview_(u, arg);
+    case 'videoComment': return videoComment_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
