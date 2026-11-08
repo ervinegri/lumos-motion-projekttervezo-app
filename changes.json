@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9aaf45d169",
+"at": "2026-11-08T19:02:24+01:00",
+"msg": "Sales szinkron: helyszín, 7 napos határidő, alap projektvezető/vágó, várható távozás"
+},
+{
 "id": "672f735748",
 "at": "2026-11-08T20:01:30+02:00",
 "msg": "Ütközés: ugyanazon a helyszínen (eltérő írásmóddal is) vagy ugyanannak a rendezvénynek a videóinál nem ütközés"
@@ -144,11 +149,6 @@
 "id": "d180369d54",
 "at": "2026-11-06T08:49:22+01:00",
 "msg": "Idővonal: leadás után a vágás sávja a leadás napjáig tart"
-},
-{
-"id": "d3955bd051",
-"at": "2026-11-06T08:47:13+01:00",
-"msg": "Idővonal: jóváhagyásra váró vágás ⏳, kész ✓"
 }
 ]
 }
