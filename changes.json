@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d1dbacc4de",
+"at": "2026-11-09T00:34:38+02:00",
+"msg": "Hatékonyság gépelés közben is a szervezői jutalék utáni összegből számol"
+},
+{
 "id": "6672245486",
 "at": "2026-11-09T00:33:06+02:00",
 "msg": "Fizetések: egy hónapon belül projektenként egy sor (a vágási határidő nem választja külön)"
@@ -141,13 +146,8 @@
 "msg": "Sales szinkron: a rendelés értékesítője szerződött lehetőséget kap a projekthez (jutalék), eltérő írásmóddal is"
 },
 {
-"id": "9aaf45d169",
-"at": "2026-11-08T19:02:24+01:00",
-"msg": "Sales szinkron: helyszín, 7 napos határidő, alap projektvezető/vágó, várható távozás"
-},
-{
-"id": "edf856dc43",
-"at": "2026-11-08T18:01:39Z",
+"id": "3e532fb064",
+"at": "2026-11-08T18:02:32Z",
 "msg": "Változásnapló frissítése"
 }
 ]
