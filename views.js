@@ -545,10 +545,12 @@ function finPanelBody(p){
   const ftV=k!=null?moneyFmt(k):'';
   return `<div class="fin-sum">
       ${adm?`<div class="fin-inputs"><div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – szerződött érték (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${isFree(p)?'':esc(moneyFmt(p.projectValue))}" placeholder="${isFree(p)?'Nem fizetős projekt':'pl. 969 000'}"${isFree(p)?' disabled':''}><span class="money-unit">Ft</span></div><label class="free-chk"><input type="checkbox" data-free="1"${isFree(p)?' checked':''}${D()}> 🎁 Nem fizetős projekt</label></div>
+        ${isFree(p)?'':orgOption(p)}
+        <div class="fin-row3">${isFree(p)?'':finNet(p)}
         <div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
         <div class="field fin-budget${budgetFt(p)==null&&!isFree(p)?' missing req':''}"><label for="f-budgetFt">Termelői keret</label>
-          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div>${isFree(p)?'':orgOption(p)}</div>${isFree(p)?'':extrasHtml(p)}`:''}
+          <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>${isFree(p)?'':extrasHtml(p)}`:''}
     </div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
@@ -682,7 +684,8 @@ function orgOption(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=e
   return `<div class="fin-org"><div class="fin-org-h"><span>🎪 Szervezői jutalék</span>${dis?'':`<button class="x w" type="button" data-action="extra-del" data-i="${i}" title="Szervezői jutalék törlése" aria-label="Szervezői jutalék törlése">✕</button>`}</div>
     <div class="org-line"><select class="inp" id="org-sel" data-cmb="Szervező kiválasztása (kezdj el gépelni)…"${dis?' disabled':''}><option value="">Szervező kiválasztása…</option>${opts}${dis?'':'<option value="__new" data-keep="1">＋ Új ügyfél felvétele…</option>'}</select>
     <div class="money"><span class="ex-sign">−</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Szervezői jutalék nettó összege"${dis?' disabled':''}><span class="money-unit">Ft</span></div></div>
-    <div class="field fin-net"><label>Jutalék levonása utáni összeg (nettó)</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(prodBase(p)))}" readonly tabindex="-1" aria-label="Jutalék levonása utáni összeg"><span class="money-unit">Ft</span></div><small class="hint">Ebből számolódik a hatékonyság és a termelői keret. Nem szerepel a számlán.</small></div></div>`;}
+</div>`;}
+function finNet(p){if(!isAdmin()||!orgFee(p))return '';return `<div class="field fin-net"><label>Jutalék levonása utáni összeg (nettó)</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(prodBase(p)))}" readonly tabindex="-1" aria-label="Jutalék levonása utáni összeg"><span class="money-unit">Ft</span></div></div>`;}
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
 const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
 function refOption(p,inEx){if(!isAdmin())return '';if(!inEx&&!isFree(p))return '';   // csak az ügyvezető látja: az Extrák és kedvezmények alatt (díjmentes projektnél lent)
