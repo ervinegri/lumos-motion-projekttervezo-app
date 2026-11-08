@@ -57,7 +57,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.rem
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.mySales=d.mySales||[];S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=HASH_P.exec(location.hash||''),hp=hm&&projFromHash(hm[1]);
     if(hp){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
@@ -76,7 +76,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro()&&!isSales())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(!TABS().some(t=>t.id===S.tab))S.tab=TABS()[0].id;   // pl. az értékesítő csak az Értékesítés fület látja
@@ -340,6 +340,7 @@ function viewPayouts(){
     (p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
       add(p,cid,f.amount,ref?0:penDeduct(p,cid,f.amount),!!ref,why(p,cid,f,!!ref));});});
   if(!crewMode)crewSalesComm().forEach(x=>add(x.p,x.cid,x.amt,0,true,'💼 Értékesítői jutalék'));   // projektenkénti értékesítői jutalék
+  if(crewMode&&myId)(S.mySales||[]).forEach(x=>{const p=projById(x.projectId)||{id:x.projectId,name:x.name,date:x.date,endDate:x.endDate,status:'tervezes',crew:[],fees:[]};if(pr(p))add(p,myId,x.amount,0,true,'💼 Értékesítői jutalék');});   // a szakember saját értékesítői jutalékai
   const months=Object.keys(by).concat([cur]).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
   const sel=/^\d{4}-\d{2}$/.test(S.payMonth||'')?S.payMonth:(by[cur]?cur:months[0]||cur),rows=Object.values(by[sel]||{}).sort((a,b)=>a.d.localeCompare(b.d)||byStart(a.p,b.p));
   const spOn=(S.salesPeople||[]).filter(x=>!crewMode||x.crewId===myId).map(x=>({cid:x.crewId,p:salesPayOf(sel,x.crewId)})).filter(x=>x.p),sp=c=>{const x=spOn.find(y=>y.cid===c);return x?x.p.total:0;},spTotal=spOn.reduce((s,x)=>s+x.p.total,0);   // értékesítő: fix + jutalék

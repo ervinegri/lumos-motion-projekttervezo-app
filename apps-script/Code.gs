@@ -635,6 +635,7 @@ function bootstrap_(u) {
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
     out.projects = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
+    out.mySales = mySalesComm_(cid);   // a saját értékesítői jutalékai (csak az összeg – ár, % nem)
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
     const onIds = {}, itemIds = {};
     out.projects.forEach(p => { if (p.lead) onIds[p.lead] = 1; p.crew.forEach(a => { onIds[a.crewId] = 1; }); p.equipment.forEach(e => { itemIds[e.itemId] = 1; }); });
@@ -867,6 +868,14 @@ function videosEnsure_(p, cutters) {
 }
 /** Egy videó állapotának / vágójának módosítása. Vezetők mindent; a vágó csak a saját (vagy gazdátlan) sorainak vágási állapotát. a: {projectId, id, st?, editor?} */
 /** Videósorok a régebbi (a videókövetés előtt mentett) aktív projekteknek is: a megrendelt darabszámokból; a vágó a vágói feladatkiosztásból (vagy az egyetlen vágó). */
+/** Fiók nélküli értékesítő (munkatárs) jutalékai projektenként: kézi összeg, vagy kézi % × termelői alap. A szakember csak az összeget kapja meg. */
+function mySalesComm_(cid) {
+  if (!cid) return [];
+  const pm = byId_(readAll_('projects'));
+  return readAll_('deals').filter(d => d.stage === 'nyert' && d.ownerId === 'crew:' + cid).map(d => { const p = pm[d.projectId]; if (!p || p.status === 'lemondva') return null;
+    const mp = String(d.commManual == null ? '' : d.commManual).trim(), amt = /^ft:/.test(mp) ? Number(mp.slice(3)) || 0 : mp !== '' && !isNaN(Number(mp)) ? Math.round(prodBase_(p) * Number(mp) / 100) : 0;
+    return amt > 0 ? { projectId: p.id, name: sval_(p.name), date: sval_(p.date), endDate: sval_(p.endDate), amount: amt } : null; }).filter(Boolean);
+}
 function videosBackfill_() {
   const sh = sheetFor_('projects'), ca = readAll_('crewAssign');
   readAll_('projects').forEach(p => {
