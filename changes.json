@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "340c24ac5e",
+"at": "2026-11-09T01:37:55+02:00",
+"msg": "Videó ablak: szóközzel indít/megállít, bezáráskor villanás nélkül vissza a videótáblára"
+},
+{
 "id": "208d226805",
 "at": "2026-11-09T01:36:42+02:00",
 "msg": "Videó ablak: az időkód gomb a videó alatt középen (a külön kijelző helyett)"
@@ -136,13 +141,8 @@
 "msg": "Értékesítői jutalék: a beírt Ft pontosan megmarad, a % gépelés közben frissül; alapja a szervezői jutalék és a továbbszámlázott után; a mező neve a levont tételek szerint; egy értékesítő egyszer a listában"
 },
 {
-"id": "bd6e3b4690",
-"at": "2026-11-08T22:11:48+02:00",
-"msg": "Vágás fül: Trello-szerű tábla a videókhoz (húzással / → gombbal léptethető); a módosítást kért videót a vágó újra felveheti"
-},
-{
-"id": "15eacf64a0",
-"at": "2026-11-08T20:10:03Z",
+"id": "c0329f51cc",
+"at": "2026-11-08T20:11:58Z",
 "msg": "Változásnapló frissítése"
 }
 ]
