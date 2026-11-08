@@ -690,14 +690,16 @@ function orgOption(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=e
   return `<div class="field fin-org"><label>🎪 Szervezői jutalék${dis?'':` <button class="x w" type="button" data-action="extra-del" data-i="${i}" title="Szervezői jutalék törlése" aria-label="Szervezői jutalék törlése">✕</button>`}</label>
     <div class="org-line org-g"><select class="inp" id="org-sel" data-cmb="Szervező (kezdj el gépelni)…"${dis?' disabled':''}><option value="">Szervező…</option>${opts}${dis?'':'<option value="__new" data-keep="1">＋ Új ügyfél felvétele…</option>'}</select>
     <div class="money"><span class="ex-sign">−</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Szervezői jutalék nettó összege"${dis?' disabled':''}><span class="money-unit">Ft</span></div></div></div>`;}
-function finNet(p){if(!isAdmin())return '';const of=orgFee(p)||orgOf(p),tv=extrasRaw(p).some(x=>x&&x.kind==='tov');if(!of&&!tv)return '';
-  const lbl=of&&tv?'Levonások után (nettó)':of?'Jutalék után (nettó)':'Továbbszámlázott nélkül',v=of?prodBase(p):salesBase(p),tip=of?'Szerződött érték − szervezői jutalék; ebből számolódik a hatékonyság és a termelői keret':'A végső érték a továbbszámlázott költség nélkül – ebből számolódik az értékesítői jutalék';
-  return `<div class="field fin-net"><label title="${tip}">${lbl}</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(v))}" readonly tabindex="-1" aria-label="${lbl}"><span class="money-unit">Ft</span></div></div>`;}
+function finNet(p){if(!isAdmin())return '';const of=orgOf(p),tvs=extrasRaw(p).filter(x=>x&&x.kind==='tov');if(!of&&!tvs.length)return '';
+  const names=(of?['szervezői jutalék']:[]).concat(tvs.map(x=>String(x.name||'').trim()||'továbbszámlázott költség')),lbl=(names.length>2?names.slice(0,-1).join(', ')+' és '+names[names.length-1]:names.join(' és '))+' után';
+  const L=lbl.charAt(0).toUpperCase()+lbl.slice(1),tip='Végső érték − szervezői jutalék − továbbszámlázott költség (nettó). Ebből számolódik az értékesítői jutalék.';
+  return `<div class="field fin-net"><label title="${esc(tip)}">${esc(L)}</label><div class="money"><input class="inp money-inp" type="text" value="${esc(moneyFmt(salesBase(p)))}" readonly tabindex="-1" aria-label="${esc(L)}"><span class="money-unit">Ft</span></div></div>`;}
 /* Értékesítői jutalék: a projekthez tartozó szerződött lehetőség (Értékesítés fül) értékesítője és várható jutaléka */
 const projDeal=p=>(S.deals||[]).find(d=>d.projectId===p.id&&d.stage==='nyert')||null;
 const salesOn=p=>!!projDeal(p)||!!(S.salesOn||{})[p.id];
-const salesBase=p=>Math.max(0,projTotal(p)-extrasOf(p).filter(e=>e.kind==='tov').reduce((s,e)=>s+num(e.amount),0));   // jutalékalap: a továbbszámlázott költség nélkül
+const salesBase=p=>Math.max(0,projTotal(p)-orgFee(p)-extrasOf(p).filter(e=>e.kind==='tov').reduce((s,e)=>s+num(e.amount),0));   // jutalékalap: a szervezői jutalék és a továbbszámlázott költség után   // jutalékalap: a továbbszámlázott költség nélkül
 function salesCommEst(p,d){if(!d)return null;const base=salesBase(p),man=String(d.commManual==null?'':d.commManual).trim();
+  if(/^ft:/.test(man)){const a=num(man.slice(3));return {amt:a,pct:base>0?Math.round(a/base*10000)/100:0,base,manual:true};}   // kézzel megadott összeg
   if(man!==''&&!isNaN(Number(man)))return {amt:Math.round(base*Number(man)/100),pct:Number(man),base,manual:true};
   const sp=(S.salesPeople||[]).find(x=>x.userId===d.ownerId);if(!sp)return num(d.commAmt)?{amt:num(d.commAmt),pct:d.commPct,base}:null;
   const pct=base>=num(sp.commLimit)?num(sp.commHigh):num(sp.commLow);return {amt:Math.round(base*pct/100),pct,base};}
@@ -706,7 +708,8 @@ function salesCommFields(p){const d=projDeal(p);if(!isAdmin()||!d||isFree(p))ret
   return `<div class="field fin-scp"><label title="${tip}">Jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>
     <div class="field fin-scf"><label title="${tip}">${esc(d.ownerName||'Értékesítő')}</label><div class="money"><input class="inp money-inp" id="f-salesFt" type="text" inputmode="numeric" data-money="big" data-sales-ft value="${esc(moneyFmt(e.amt))}" placeholder="0" aria-label="Értékesítői jutalék összege"${dis}><span class="money-unit">Ft</span></div></div>`;}
 function salesOption(p){if(!isAdmin()||!salesOn(p))return '';const d=projDeal(p),dis=ro()||projLocked(),est=d?salesCommEst(p,d):null;
-  const ppl=(S.salesPeople||[]).slice().concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id)).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id})))   // értékesítő felhasználók + „Értékesítő” szerepű munkatársak
+  const nmK=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const ppl=(S.salesPeople||[]).filter((x,i,a)=>a.findIndex(y=>nmK(y.name)===nmK(x.name))===i).concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id||nmK(x.name)===nmK(c.name))).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id})))   // névre is szűrve: egy ember egyszer   // értékesítő felhasználók + „Értékesítő” szerepű munkatársak
     .sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
   const opts=ppl.map(x=>`<option value="${esc(x.userId)}"${d&&d.ownerId===x.userId?' selected':''}>${esc(x.name)}</option>`).join('')+(d&&d.ownerId&&!ppl.some(x=>x.userId===d.ownerId)?`<option value="${esc(d.ownerId)}" selected>${esc(d.ownerName||'Értékesítő')}</option>`:'');
   return `<div class="ref-opt in-ex sales-opt"><label class="toggle"><input type="checkbox" data-sales-toggle checked${dis?' disabled':''}><span class="tl">💼 Értékesítői jutalék</span></label>

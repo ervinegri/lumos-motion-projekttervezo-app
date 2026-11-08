@@ -869,7 +869,7 @@ function histStep(dir){
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
 /* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
-function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(orgFee(p)?prodBase(p):salesBase(p));}   // jutalék levonása utáni összeg élőben
+function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(salesBase(p));const d=p&&projDeal(p),e=d&&salesCommEst(p,d),sp=$('f-salesPct'),sf=$('f-salesFt');if(e&&sp&&sf&&document.activeElement!==sp&&document.activeElement!==sf){sp.value=String(e.pct).replace('.',',');sf.value=moneyFmt(e.amt);}}   // jutalék levonása utáni összeg élőben
 
   document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
@@ -2163,12 +2163,15 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='sales-sel'&&isAdmin()){projSalesSet(t.value);return;}
   if(t.dataset&&t.dataset.salesToggle!==undefined&&!t.checked&&isAdmin()){const p=S.draft||projById(S.projectId);if(p&&projDeal(p))projSalesSet('');else{if(S.salesOn&&p)delete S.salesOn[p.id];render(true);}}});
 
-/* Értékesítői jutalék kézzel: % vagy Ft (a Ft-ból %-ot számolunk); üres = az értékesítő sávos szabálya */
+/* Értékesítői jutalék kézzel: % vagy Ft (a beírt Ft pontosan megmarad); üres = az értékesítő sávos szabálya. Gépelés közben a másik mező azonnal frissül. */
+document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined))return;const p=S.draft||projById(S.projectId);if(!p)return;const b=salesBase(p);
+  if(t.dataset.salesPct!==undefined){const n=parseFloat(String(t.value).replace(/[^\d,.]/g,'').replace(',','.')),o=$('f-salesFt');if(o)o.value=isFinite(n)?moneyFmt(Math.round(b*n/100)):'';}
+  else{const ft=Number(String(t.value).replace(/\D/g,'')),o=$('f-salesPct');if(o)o.value=b>0&&String(t.value).trim()?String(Math.round(ft/b*10000)/100).replace('.',','):'';}});
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined)||!isAdmin())return;const p=S.draft||projById(S.projectId);if(!p)return;
-  let pct='';const raw=String(t.value||'').trim();
-  if(raw!==''){if(t.dataset.salesPct!==undefined)pct=String(Math.round(parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'))*100)/100);else{const ft=Number(raw.replace(/\D/g,'')),b=salesBase(p);pct=b>0?String(Math.round(ft/b*10000)/100):'';}}
-  if(pct==='NaN'){toast('Érvénytelen érték.',true);return;}
-  try{const r=await call('projSalesComm',{projectId:p.id,pct});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(pct===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék: '+pct.replace('.',',')+'%');}catch(err){handleErr(err);}});
+  let val='';const raw=String(t.value||'').trim();
+  if(raw!==''){if(t.dataset.salesPct!==undefined){const n=parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'));if(!isFinite(n)){toast('Érvénytelen érték.',true);return;}val=String(Math.round(n*100)/100);}else val='ft:'+Number(raw.replace(/\D/g,''));}
+  const d=projDeal(p);if(d)d.commManual=val;   // azonnal (a mentés a háttérben)
+  try{const r=await call('projSalesComm',{projectId:p.id,pct:val});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(val===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék mentve');}catch(err){handleErr(err);render(true);}});
 
 /* Vágás tábla: áthúzás / → gomb → a videó állapota (videoSet) */
 async function bdMove(pid,vid,st){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;const old=v.st;v.st=st;render(true);

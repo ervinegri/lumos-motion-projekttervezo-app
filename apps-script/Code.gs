@@ -3861,8 +3861,10 @@ function salesCommOf_(user, ctx) {
     const p = ctx.proj[pid]; if (!p) return 0;
     const ex = parseExtras_(p.extras), tov = ex.filter(e => e.kind === 'tov').reduce((a, e) => a + n(e.amount), 0);
     const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
-    return total > 0 ? Math.min(1, tov / total) : 0;
+    const org = ex.filter(e => e.kind === 'org').reduce((a, e) => a + n(e.amount), 0);   // a szervezői jutalék sem része a jutalékalapnak
+    return total > 0 ? Math.min(1, (tov + org) / total) : 0;
   };
+  const projBase = pid => { const p = ctx.proj[pid]; if (!p) return 0; const ex = parseExtras_(p.extras); const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0); return Math.max(0, total * (1 - passRatio(pid))); };
   Object.keys(pids).forEach(pid => {
     const p = ctx.proj[pid]; if (!p || p.status === 'lemondva') return;   // lemondott ügylet után nem jár jutalék
     const L = ctx.inv.filter(x => x.projectId === pid || String(x.projectIds || '').split(',').indexOf(pid) >= 0);
@@ -3876,7 +3878,8 @@ function salesCommOf_(user, ctx) {
       const paidNet = Math.round(net * paid / gross * share(x, pid)), base = Math.round(paidNet * (1 - passRatio(pid)));
       const m = months[when] || (months[when] = { base: 0, amount: 0, items: [], manBase: 0, manAmt: 0 });
       const mp = String(pids[pid].commManual == null ? '' : pids[pid].commManual).trim();   // a projektnél kézzel megadott jutalék % (nem sávos)
-      if (mp !== '' && !isNaN(Number(mp))) { m.manBase += base; m.manAmt += base * Number(mp) / 100; }
+      if (/^ft:/.test(mp)) { const pb = projBase(pid); m.manBase += base; m.manAmt += pb > 0 ? Number(mp.slice(3)) * Math.min(1, base / pb) : 0; }   // kézi összeg: a befolyt rész arányában
+      else if (mp !== '' && !isNaN(Number(mp))) { m.manBase += base; m.manAmt += base * Number(mp) / 100; }
       m.base += base; m.items.push({ projectId: pid, name: String(p.name || ''), invNo: String(x.no || ''), paidAt: String(x.paidAt || x.date || '').slice(0, 10), paidNet: paidNet, base: base });
     });
   });
@@ -4309,9 +4312,11 @@ function rpcInner_(token, name, arg) {
     case 'winDeal': if (role !== 'admin' && role !== 'sales') deny(); return winDeal_(u, arg);
     case 'projSalesComm': {   // a projekt értékesítői jutaléka kézzel (%); üres = az értékesítő sávos szabálya
       adminOnly(); const pid = str_(arg && arg.projectId, 64), raw = String(arg && arg.pct == null ? '' : arg.pct).replace(',', '.').trim();
-      const pct = raw === '' ? '' : Math.max(0, Math.min(100, Math.round(Number(raw) * 100) / 100)); if (raw !== '' && isNaN(Number(raw))) throw new Error('Érvénytelen százalék.');
+      const ft = /^ft:/.test(raw) ? Math.max(0, Math.min(VALUE_MAX, Math.round(Number(raw.slice(3)) || 0))) : null;   // kézzel megadott forintösszeg (pontosan)
+      if (ft == null && raw !== '' && isNaN(Number(raw))) throw new Error('Érvénytelen százalék.');
+      const pct = ft != null ? 'ft:' + ft : raw === '' ? '' : Math.max(0, Math.min(100, Math.round(Number(raw) * 100) / 100));
       withLock_(() => { const sh = sheetFor_('deals'), d = readAll_('deals').find(x => x.projectId === pid && x.stage === 'nyert'); if (!d) throw new Error('A projekthez nincs értékesítő.');
-        const r = findRow_(sh, d.id), q = readRow_('deals', sh, r); q.commManual = pct === '' ? '' : String(pct); if (pct !== '') q.commPct = pct; q.updatedAt = now_(); q.updatedBy = u.name; putRow_('deals', sh, q, r); }); dbFlush_();
+        const r = findRow_(sh, d.id), q = readRow_('deals', sh, r); q.commManual = pct === '' ? '' : String(pct); if (pct !== '' && ft == null) q.commPct = pct; if (ft != null) q.commAmt = ft; q.updatedAt = now_(); q.updatedBy = u.name; putRow_('deals', sh, q, r); }); dbFlush_();
       return { deals: dealsFor_(u), salesPeople: salesPeople_(u) };
     }
     case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
