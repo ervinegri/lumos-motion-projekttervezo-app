@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7cd8851b86",
+"at": "2026-11-08T22:14:38+02:00",
+"msg": "Értékesítői jutalék: a beírt Ft pontosan megmarad, a % gépelés közben frissül; alapja a szervezői jutalék és a továbbszámlázott után; a mező neve a levont tételek szerint; egy értékesítő egyszer a listában"
+},
+{
 "id": "bd6e3b4690",
 "at": "2026-11-08T22:11:48+02:00",
 "msg": "Vágás fül: Trello-szerű tábla a videókhoz (húzással / → gombbal léptethető); a módosítást kért videót a vágó újra felveheti"
@@ -141,13 +146,8 @@
 "msg": "Nézet-sáv fent marad görgetéskor"
 },
 {
-"id": "33beafb53c",
-"at": "2026-11-06T22:55:57+01:00",
-"msg": "Jóváhagyásra vár: a néző vágó nevét nem írja ki"
-},
-{
-"id": "81b523c0f4",
-"at": "2026-11-06T21:48:35Z",
+"id": "ef1f69ea93",
+"at": "2026-11-06T21:56:07Z",
 "msg": "Változásnapló frissítése"
 }
 ]
