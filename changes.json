@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c5f53f41c0",
+"at": "2026-11-09T00:56:41+02:00",
+"msg": "Videó ablak: ügyfél-jóváhagyás gombjai; pCloud hivatkozó nélkül (Invalid link referer)"
+},
+{
 "id": "ed0fc8a4ca",
 "at": "2026-11-09T00:51:47+02:00",
 "msg": "Videó ablak: Hozzászólás gomb a láblécben, a Bezárás mellett"
@@ -141,13 +146,8 @@
 "msg": "Videónkénti vágói követés: videósorok darabszámokból, vágó és állapot videónként, a projekt lépése automatikus"
 },
 {
-"id": "af44665fd0",
-"at": "2026-11-08T20:38:34+02:00",
-"msg": "Szervezői jutalék a szerződött érték alatt, új ügyfél felvétele a szervező-választóból, alatta a jutalék levonása utáni összeg"
-},
-{
-"id": "2ee1c595c4",
-"at": "2026-11-08T18:19:20Z",
+"id": "7d8bd7b504",
+"at": "2026-11-08T18:38:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
