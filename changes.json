@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "bd6e3b4690",
+"at": "2026-11-08T22:11:48+02:00",
+"msg": "Vágás fül: Trello-szerű tábla a videókhoz (húzással / → gombbal léptethető); a módosítást kért videót a vágó újra felveheti"
+},
+{
 "id": "5f3cb55777",
 "at": "2026-11-08T22:09:52+02:00",
 "msg": "Új verzió sáv: hoverre megmutatja az újdonságokat"
@@ -141,13 +146,8 @@
 "msg": "Jóváhagyásra vár: a néző vágó nevét nem írja ki"
 },
 {
-"id": "373c9e26aa",
-"at": "2026-11-06T22:48:27+01:00",
-"msg": "Jóváhagyásra vár: újra mindig fent, becsukható/kinyitható (megjegyzi)"
-},
-{
-"id": "928baec55c",
-"at": "2026-11-06T21:44:15Z",
+"id": "81b523c0f4",
+"at": "2026-11-06T21:48:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
