@@ -710,6 +710,16 @@ function saveDeal_(u, a) {
 }
 /** A projekt értékesítője: szerződött („nyert”) lehetőség a projekthez az értékesítővel (jutalék, az értékesítő saját lehetőségei).
     Ha már van a projekthez lehetőség, csak az értékesítőt írja át; owner = null → a csak így létrehozott lehetőséget törli. */
+/** Értékesítő a projekthez: értékesítő felhasználó, vagy (ha nincs fiókja) az „Értékesítő” szerepű munkatárs („crew:<id>”). */
+function salesOwnerOf_(oid) {
+  oid = String(oid || ''); if (!oid) return null;
+  const users = loadUsers_().filter(x => x.disabled !== true);
+  if (oid.indexOf('crew:') === 0) {
+    const cid = oid.slice(5), c = readAll_('crew').find(x => x.id === cid); if (!c) return null;
+    return users.find(x => x.role === 'sales' && x.crewId === cid) || { id: 'crew:' + cid, name: sval_(c.name), role: 'crew', crewId: cid };
+  }
+  return users.find(x => x.id === oid) || null;
+}
 function projSalesSet_(by, pid, owner, srcLabel) {
   const dsh = sheetFor_('deals'), ex = readAll_('deals').find(d => d.projectId === pid) || null;
   if (!owner) {
@@ -3822,6 +3832,11 @@ function salesCompOf_(u) { return { salary: Number(u.salary) || 0, commLow: Numb
 /** Az értékesítők díjazása a Kifizetésekhez: ügyvezetőnek mindenkié, értékesítőnek a sajátja (más szerepkör nem kapja meg). */
 function salesPeople_(u) {
   const list = loadUsers_().filter(x => x.role === 'sales' && x.crewId && !x.disabled && (u.role === 'admin' || x.id === u.id));
+  if (u.role === 'admin') {   // fiók nélküli értékesítő (munkatárs): csak a projektenként kézzel megadott jutalék % számít
+    const cm = byId_(readAll_('crew')), seen = {};
+    readAll_('deals').forEach(d => { const o = String(d.ownerId || ''); if (d.stage !== 'nyert' || o.indexOf('crew:') !== 0 || seen[o]) return; seen[o] = 1;
+      const cid = o.slice(5), c = cm[cid]; if (c && !list.some(x => x.crewId === cid)) list.push({ id: o, name: sval_(c.name), role: 'crew', crewId: cid, salary: 0, commLow: 0, commHigh: 0, commLimit: VALUE_MAX }); });
+  }
   if (!list.length) return [];
   const ctx = salesCommCtx_();
   return list.map(x => Object.assign({ userId: x.id, crewId: String(x.crewId), name: x.name, since: String(x.createdAt || '').slice(0, 7) }, salesCompOf_(x), { comm: salesCommOf_(x, ctx) }));
@@ -4301,7 +4316,7 @@ function rpcInner_(token, name, arg) {
     }
     case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
       adminOnly(); const pid = str_(arg && arg.projectId, 64), oid = str_(arg && arg.ownerId, 64);
-      const owner = oid ? loadUsers_().find(x => x.id === oid && x.disabled !== true) : null; if (oid && !owner) throw new Error('Az értékesítő nem található.');
+      const owner = oid ? salesOwnerOf_(oid) : null; if (oid && !owner) throw new Error('Az értékesítő nem található.');
       projSalesSet_(u, pid, owner, 'Projekttervező'); return { deals: dealsFor_(u), salesPeople: salesPeople_(u) };
     }
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
@@ -4658,7 +4673,9 @@ function salesSync() {
       let c = users.filter(x => nk(x.name) === n || nk(x.email) === n || nk(x.id) === n);
       const tm = (a, b) => a === b || (a.length >= 5 && b.length >= 5 && (a.indexOf(b) === 0 || b.indexOf(a) === 0));   // „Guzsloványi” = „Guzslovány”
       if (!c.length) c = users.filter(x => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); });   // pl. csak „Flóra”, vagy eltérő írásmód
-      const s = c.filter(x => x.role === 'sales'); return s.length === 1 ? s[0] : c.length === 1 ? c[0] : null; };
+      const s = c.filter(x => x.role === 'sales'); if (s.length === 1) return s[0]; if (c.length === 1) return c[0];
+      const cr = (readAll_('crew') || []).filter(x => String(x.roles || '').indexOf('Értékesítő') >= 0 && (() => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); })());   // fiók nélküli értékesítő munkatárs
+      return cr.length === 1 ? salesOwnerOf_('crew:' + cr[0].id) : null; };
     const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {};
     readAll_('deals').forEach(d => { if (d.projectId) byPid[d.projectId] = d; });
     S.list.forEach(o => {
