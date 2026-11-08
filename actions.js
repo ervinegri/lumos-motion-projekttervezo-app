@@ -869,7 +869,8 @@ function histStep(dir){
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
 /* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
-function refreshFinSums(p){
+function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(prodBase(p));}   // jutalék levonása utáni összeg élőben
+
   document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
   const f=document.querySelector('[data-field-sum]');if(f)f.textContent=moneyFmt(fieldSumOf(p))||0;
@@ -2079,6 +2080,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
     const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
   window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
 
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='org-sel'&&e.target.value==='__new'&&S.draft&&isAdmin()){e.stopImmediatePropagation();e.target.value='';   // új szervező: felvétel az Ügyfelek közé, majd kiválasztjuk
+  const before=new Set((S.clients||[]).map(c=>c.id)),pid=S.draft.id;newClientModal(null,null,true);let n=0;const iv=setInterval(()=>{n++;const nc=(S.clients||[]).find(c=>!before.has(c.id));
+    if(nc&&S.draft&&S.draft.id===pid){clearInterval(iv);setDraft({extras:(S.draft.extras||[]).map(x=>x.kind==='org'?Object.assign({},x,{clientId:nc.id,name:nc.name}):x)});toast('Szervező: '+nc.name);}
+    else if(n>600||(n>10&&!$('mform')))clearInterval(iv);},200);}},true);
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='org-sel'&&S.draft&&isAdmin()){const c=(S.clients||[]).find(x=>x.id===e.target.value);S.draft.extras=(S.draft.extras||[]).map(x=>x.kind==='org'?Object.assign({},x,{clientId:c?c.id:'',name:c?c.name:''}):x);setDraft({extras:S.draft.extras});}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='cal-cutter'){S.cal.cutter=e.target.value==='__all'?'':e.target.value;render(true);}});
 
