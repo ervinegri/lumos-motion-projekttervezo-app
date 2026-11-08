@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "403226e311",
+"at": "2026-11-08T21:42:39+02:00",
+"msg": "Pénzügyek: két rendezett sor (büdzsé · szervezői jutalék · Extrák menü / jutalék után · hatékonyság · termelői keret)"
+},
+{
 "id": "c223656a7c",
 "at": "2026-11-08T21:37:47+02:00",
 "msg": "Pénzügyek: szervezői jutalék a büdzsé sorában; Nem fizetős projekt az Extrák menüjében (visszavonás a büdzsénél)"
@@ -144,11 +149,6 @@
 "id": "ddf7b44ed1",
 "at": "2026-11-06T09:08:43+01:00",
 "msg": "Folyamatjelzés: a gombok forognak és „Dolgozom…” jelzés, amíg a művelet fut"
-},
-{
-"id": "6ea6d91f8a",
-"at": "2026-11-06T09:05:53+01:00",
-"msg": "Érkezés → kezdési idő a Videóvágás súgóban"
 }
 ]
 }
