@@ -2288,8 +2288,11 @@ function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-p
     if(moved){if(was.play)vd.play().catch(()=>{});}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
   vd.addEventListener('pointerup',end);vd.addEventListener('pointercancel',end);
   vd.addEventListener('click',e=>{if(!inCtl(e)){e.preventDefault();e.stopPropagation();}},true);   /* a böngésző saját kattintás-kezelése helyett a fenti */
-  if(!window._vvKeys){window._vvKeys=1;document.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'&&e.key!==' ')return;const v=document.querySelector('.vv-player video');if(!v||!v.isConnected)return;
-    const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'))return;e.preventDefault();e.stopPropagation();
+  if(!window._vvKeys){window._vvKeys=1;document.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'&&e.key!==' '&&e.key!=='Enter')return;const v=document.querySelector('.vv-player video');if(!v||!v.isConnected)return;
+    const a=document.activeElement;
+    if(e.key==='Enter'){if(e.isComposing)return;if(a&&a.id==='m-vvCm'){if(e.shiftKey)return;e.preventDefault();e.stopPropagation();a.blur();return;}   /* gépelés közben Enter: vissza a videóhoz (Shift+Enter: új sor) */
+      if(a&&a!==document.body&&a!==v&&a.id!=='mform'&&a.tagName!=='VIDEO')return;e.preventDefault();e.stopPropagation();ACT['vid-tc']();return;}   /* videó módban Enter: időkód beszúrása */
+    if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'))return;e.preventDefault();e.stopPropagation();
     if(e.key===' '){if(e.repeat)return;if(v.paused)v.play().catch(()=>{});else v.pause();return;}v.pause();const f=v._fps||25,step=(e.key==='ArrowRight'?1:-1)*(e.shiftKey?10:1)/f;
     v.currentTime=vidSnap(v,Math.max(0,Math.min((v.duration||1e9)-0.01,v.currentTime+step)));},true);}}
 function vidTsTick(){const bt=document.querySelector('.vv-tc-ins');if(!bt)return;const vd=document.querySelector('.vv-player video');if(!vd){setTimeout(()=>{if(document.querySelector('.vv-player video'))vidTsTick();},1500);return;}
