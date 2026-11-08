@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5c10d37573",
+"at": "2026-11-08T19:44:41+01:00",
+"msg": "PROJEKT.md: szervezői jutalék, videónkénti követés, sales alapértékek"
+},
+{
 "id": "fce5a42110",
 "at": "2026-11-08T19:39:29+01:00",
 "msg": "Videónkénti vágói követés: videósorok darabszámokból, vágó és állapot videónként, a projekt lépése automatikus"
@@ -144,11 +149,6 @@
 "id": "cc48b3abf2",
 "at": "2026-11-06T09:01:24+01:00",
 "msg": "Alsó üres sáv: erősebb szelektor"
-},
-{
-"id": "2044e6e168",
-"at": "2026-11-06T09:01:13+01:00",
-"msg": "Kisebb üres sáv az oldal alján"
 }
 ]
 }
