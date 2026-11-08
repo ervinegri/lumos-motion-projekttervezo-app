@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ada5b728a9",
+"at": "2026-11-08T22:05:25+02:00",
+"msg": "Értékesítő: fiók nélküli „Értékesítő” szerepű munkatárs is választható (és a Sales szinkron is felismeri); jutaléka a projektenként megadott % szerint"
+},
+{
 "id": "35c329858d",
 "at": "2026-11-08T22:03:08+02:00",
 "msg": "Projektlista: aktív utómunka lila kiemeléssel, kész projekt halványan; stábkártyán nincs ÁFA-sor"
@@ -141,14 +146,9 @@
 "msg": "Jóváhagyásra vár: csak akkor kerül fel, ha a helyén épp nem látszik"
 },
 {
-"id": "c33c361016",
-"at": "2026-11-06T22:26:14+01:00",
-"msg": "Idővonal: Jóváhagyásra vár kategória legfelül, lapozástól függetlenül"
-},
-{
-"id": "1474067564",
-"at": "2026-11-06T22:26:14+01:00",
-"msg": "Visszavonás: jóváhagyásra váró sáv hosszabbítása"
+"id": "3e8a9e9252",
+"at": "2026-11-06T21:26:23Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
