@@ -812,19 +812,33 @@ function boardCards(){const me=boardMe(),f=S.boardCut||'';const out=[];
   S.projects.forEach(p=>{if(p.status==='lemondva'||p.status==='atadva'||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
   return out;}
 const boardForMe=()=>{const me=boardMe();return !!me&&S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===me));};
-function viewCutBoard(){const me=boardMe(),mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),cards=boardCards();
-  const cutters=mgr?(S.crew||[]).filter(c=>S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===c.id))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu')):[];
+/* Sávos tábla: soronként egy projekt (határidő szerint, mint az idővonalon), oszloponként a vágás állapotai */
+function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),T=todayISO();
+  const showMod=cards.some(c=>c.v.st==='modositas'),COLS=BOARD_COLS.filter(([k])=>k!=='modositas'||showMod);
   const canMove=(c,to)=>{if(c.p.status==='atadva')return false;if(mgr)return true;return ['vagasra','vagas','ellen','leadva'].includes(to)&&c.v.st!=='jovahagyva';};
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:'leadva'})[st]||'';
-  const card=c=>{const di=dueInfo(c.p),nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
-    return `<div class="bd-card st-${esc(c.v.st)}"${drag?` draggable="true"`:''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}">
-      <div class="bd-t">🎞️ ${esc(c.v.name)}</div><button type="button" class="linkbtn bd-p" data-action="open-project" data-id="${esc(c.p.id)}">${esc(c.p.name||'Névtelen projekt')}</button>
-      <div class="bd-m">${di?`<span class="statuspill p-${di.cls}">${esc(di.txt)}</span>`:''}${mgr?`<span class="bd-who">${esc((crewById(c.ow)||{}).name||'— nincs vágó —')}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div></div>`;};
-  const cols=BOARD_COLS.filter(([k])=>k!=='modositas'||cards.some(c=>c.v.st==='modositas')).map(([k,l])=>{const L=cards.filter(c=>c.v.st===k).sort((a,b)=>String(dueDate(a.p)||'9').localeCompare(String(dueDate(b.p)||'9')));
-    return `<div class="bd-col c-${k}" data-bd-col="${k}"><div class="bd-h">${l} <span class="bd-n">${L.length}</span></div><div class="bd-list">${L.map(card).join('')||'<div class="bd-empty">—</div>'}</div></div>`;}).join('');
+  const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
+    return `<div class="bd-card st-${esc(c.v.st)}"${drag?' draggable="true"':''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.name)}</div>
+      ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((crewById(c.ow)||{}).name||'— nincs vágó —')}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
+  const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
+  const lanes=[...byP.values()].sort((a,b)=>String(dueDate(a.p)||'9999').localeCompare(String(dueDate(b.p)||'9999')));
+  const lane=({p,L})=>{const due=dueDate(p),di=dueInfo(p),done=L.filter(c=>c.v.st==='leadva'||c.v.st==='jovahagyva').length;
+    const q=pr(p),st=q?addDays(q.end,1):T,tot=due&&validISO(st)?Math.max(1,diffDays(st,due)+1):0,left=due?diffDays(T,due):null,pct=tot?Math.max(0,Math.min(100,Math.round((1-Math.max(0,left)/tot)*100))):0;
+    const tone=left==null?'':left<0?'bad':left<=1?'bad':left<=3?'warn':'ok';
+    return `<div class="bl-row" data-bl-pid="${esc(p.id)}"><div class="bl-lbl">${opt.noLink?`<b>${esc(p.name||'Névtelen projekt')}</b>`:`<button type="button" class="linkbtn bl-nm" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>`}
+        <div class="bl-sub">${di?`<span class="statuspill p-${di.cls}">${esc(di.txt)}</span>`:''}<span class="bl-cnt">${done}/${L.length} leadva</span></div>${tot?`<div class="bl-clock ${tone}" title="Határidő: ${esc(fmtDay(due))}"><i style="width:${pct}%"></i></div>`:''}</div>
+      ${COLS.map(([k])=>`<div class="bl-cell c-${k}" data-bd-col="${k}" data-bd-lane="${esc(p.id)}">${L.filter(c=>c.v.st===k).map(card).join('')}</div>`).join('')}</div>`;};
+  return `<div class="bl" style="--bl-n:${COLS.length}"><div class="bl-row bl-head"><div class="bl-lbl"></div>${COLS.map(([k,l])=>`<div class="bl-h c-${k}">${l} <span class="bd-n">${cards.filter(c=>c.v.st===k).length}</span></div>`).join('')}</div>${lanes.map(lane).join('')}</div>`;}
+function viewCutBoard(){const me=boardMe(),mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),cards=boardCards();
+  const cutters=mgr?(S.crew||[]).filter(c=>S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===c.id))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu')):[];
   const filt=mgr?`<select class="inp" id="bd-cut" style="width:auto" data-cmb="Vágó szerint…"><option value="__all"${S.boardCut?'':' selected'}>Minden vágó</option>${cutters.map(c=>`<option value="${esc(c.id)}"${S.boardCut===c.id?' selected':''}>${esc(c.name)}</option>`).join('')}</select>`:'';
-  return `<div class="page-head"><div class="grow"><h2>Vágás</h2><p class="sub">${me?'A saját videóid':'Videók állapot szerint'} · húzd át a kártyát a következő oszlopba, vagy nyomd meg a → gombot</p></div>${filt}</div>
-    ${cards.length?`<div class="bd">${cols}</div>`:`<div class="panel">${empty(me?'Most nincs vágandó videód.':'Nincs vágás alatt lévő videó.')}</div>`}`;}
+  return `<div class="page-head"><div class="grow"><h2>Vágás</h2><p class="sub">${me?'A saját videóid':'Videók állapot szerint'}, projektenként a határidő sorrendjében · húzd át a kártyát a projekt sorában, vagy nyomd meg a → gombot</p></div>${filt}</div>
+    ${cards.length?boardLanes(cards):`<div class="panel">${empty(me?'Most nincs vágandó videód.':'Nincs vágás alatt lévő videó.')}</div>`}`;}
+/* Idővonal: a vágássáv alján a videók állapota színes szakaszokban */
+const VPROG_ORDER=['jovahagyva','leadva','ellen','vagas','vagasra','modositas'];
+function vidProg(p){const vs=(Array.isArray(p.videos)?p.videos:[]).filter(v=>!ro()||vidOwner(p,v)===boardMe());if(!vs.length)return null;
+  const n=k=>vs.filter(v=>v.st===k).length,segs=VPROG_ORDER.map(k=>[k,n(k)]).filter(x=>x[1]);
+  return {done:n('leadva')+n('jovahagyva'),tot:vs.length,html:`<span class="tl-prog">${segs.map(([k,c])=>`<i class="vp-${k}" style="flex:${c}"></i>`).join('')}</span>`,tip:'\n🎞️ '+VID_ST.filter(([k])=>n(k)).map(([k,l])=>l+': '+n(k)).join(' · ')};}
 function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.length)return '';
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=S.me&&S.me.crewId,lock=projLocked()||p.status==='atadva'||p.status==='lemondva';
   const done=vs.filter(v=>v.st==='leadva'||v.st==='jovahagyva').length,appr=vs.filter(v=>v.st==='jovahagyva').length;
@@ -1291,7 +1305,8 @@ function calTimeline(m,items0,T){
         const a2=c.st<first?first:c.st,b2=cEnd>last?last:cEnd;
         if(cEnd<first)return '';
         const pend=!cdone&&!editOnly(p)&&pr(p)&&pr(p).end>=T;   // még nincs leforgatva: a vágó még nem dolgozhat rajta
-        return `<button type="button" class="cal-chip p cut tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="open-project" data-id="${esc(p.id)}" data-tip="${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${c.due>last?' ›':''}</button>`;})()}</div></div>`;}).join('');
+        const vp=vidProg(p);
+        return `<button type="button" class="cal-chip p cut tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend?` · ${vp.done}/${vp.tot}`:''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
     if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
