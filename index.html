@@ -1098,6 +1098,17 @@ html body .tl-row .tl-prog{display:none}html body .tl-row .tl-cut:not(.st-atadva
 .bell-toast b{display:block;margin-bottom:2px}@keyframes btIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
 .rv-pick{display:flex;gap:10px;flex-wrap:wrap}.rv-pick label{flex:1 1 140px;border:1px solid #d6dee5;border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;font-weight:700}.rv-pick input:checked+span{color:#1f5a3d}.rv-pick label:has(input:checked){border-color:#2c6e49;background:#eef6f1}
 .bd-link{font-size:12px;font-weight:700;color:#2f5f93;text-decoration:none}.bd-link:hover{text-decoration:underline}
+.bell{display:inline-flex;align-items:center;justify-content:center}.bell svg{display:block}
+.bell-dot{top:5px!important;right:6px!important;min-width:9px!important;width:9px;height:9px!important;padding:0!important;font-size:0!important;box-shadow:0 0 0 2px #1d2b3a!important}
+.bell-toast{display:flex;gap:12px;align-items:flex-start;background:#fff!important;color:#173042!important;border-radius:14px;padding:12px 14px 12px 12px!important;border:1px solid #e3e8ee;box-shadow:0 18px 50px rgba(10,25,40,.22)!important;width:330px;transition:opacity .3s,transform .3s}
+.bell-toast.out{opacity:0;transform:translateY(-6px)}.bt-ic{flex:none;width:34px;height:34px;border-radius:10px;background:#fff4e0;color:#b45309;display:flex;align-items:center;justify-content:center}
+.bt-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.bt-tx b{font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:#b45309;margin:0!important}.bt-tx span{font-weight:700;font-size:14px}.bt-tx small{color:#66737d;font-size:12px}
+.bt-x{border:0;background:none;font-size:18px;color:#8a96a0;cursor:pointer;line-height:1;padding:0 2px}
+.bell-pop h4{display:flex;align-items:center;gap:6px}
+.m-video{max-width:min(980px,96vw)!important;width:min(980px,96vw)!important}.vv-player{position:relative;aspect-ratio:16/9;background:#0e1620;border-radius:12px;overflow:hidden}.vv-player iframe,.vv-player video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vv-noembed{padding:18px;border-radius:12px;background:#f1f4f7;color:#56656f}.vv-msg{margin-top:12px;padding:10px 12px;border-radius:12px;background:#f4f7fb;border-left:4px solid #7aa2d8}.vv-msg div{margin-top:4px;white-space:normal}.vv-fb{background:#fff4f2;border-left-color:#d93025}
+.bd-card[data-action=vid-view]{cursor:pointer}.bd-card[data-action=vid-view][draggable=true]{cursor:grab}
+.bl-cell{max-height:460px;overflow-y:auto;overscroll-behavior:contain}.bd-modal .bl-cell{max-height:42vh}.bd-modal .bl-lbl{align-self:start}.bl-cell::-webkit-scrollbar{width:6px}.bl-cell::-webkit-scrollbar-thumb{background:#c7d0d8;border-radius:9px}
 </style>
 </head>
 <body>
@@ -1119,7 +1130,7 @@ html body .tl-row .tl-prog{display:none}html body .tl-row .tl-cut:not(.st-atadva
       <nav class="tabs" id="tabs" role="tablist" aria-label="Nézetek"></nav>
       <div class="header-tools">
         <select id="viewAs" class="view-as hidden" aria-label="Nézet: így látja az appot"><option value="admin">💼 Ügyvezető</option><option value="editor">⚙️ Termelési v.</option><option value="crew">🔨 Szakember</option><option value="crew-other" hidden>↻ Másik szakember…</option><option value="sales">🤝 Értékesítő</option><option value="sales-other" hidden>↻ Másik értékesítő…</option></select>
-        <span class="bell-w hidden" id="bellW"><button id="bellBtn" class="bell" type="button" aria-label="Értesítések" data-action="bell"><span aria-hidden="true">🔔</span><i class="bell-dot" hidden></i></button><div class="bell-pop" id="bellPop" hidden></div></span>
+        <span class="bell-w hidden" id="bellW"><button id="bellBtn" class="bell" type="button" aria-label="Értesítések" data-action="bell"><span aria-hidden="true"></span><i class="bell-dot" hidden></i></button><div class="bell-pop" id="bellPop" hidden></div></span>
         <span id="userChip" class="user-chip hidden"></span>
         <button id="logoutBtn" class="btn ghost small hidden" type="button">Kilépés</button>
       </div>

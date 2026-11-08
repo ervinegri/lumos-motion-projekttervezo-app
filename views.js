@@ -802,10 +802,10 @@ function deliverItems(p){
   return items;
 }
 /* Videónkénti vágói követés: a megrendelt darabszámokból sorok (háttér hozza létre); a vezető a vágót és az állapotot, a vágó a saját videóinak vágási állapotát állítja */
-const VID_ST=[['vagasra','Vágásra vár'],['vagas','Vágás alatt'],['ellen','Belső ellenőrzés'],['leadva','Leadva'],['jovahagyva','Jóváhagyva'],['modositas','Módosítást kér']];
+const VID_ST=[['vagasra','Utómunkára vár'],['vagas','Utómunka alatt'],['ellen','Belső ellenőrzés'],['leadva','Ügyfél jóváhagyására vár'],['jovahagyva','Jóváhagyva'],['modositas','Módosítást kér']];
 const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jovahagyva:'p-ok',modositas:'p-bad'};
 /* ===== Vágás – Trello-szerű tábla: videónként egy kártya, oszloponként az állapotok; húzással (vagy a → gombbal) léptethető ===== */
-const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Vágásra vár'],['vagas','✂️ Vágás alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Leadva'],['jovahagyva','✅ Jóváhagyva']];
+const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Utómunkára vár'],['vagas','✂️ Utómunka alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Ügyfél jóváhagyására vár'],['jovahagyva','✅ Jóváhagyva']];
 const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 const vidOwner=(p,v)=>v.editor||(()=>{const c=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);return c.length===1?c[0]:'';})();   // egy vágónál a gazdátlan videó az övé
 function boardCards(){const me=boardMe(),f=S.boardCut||'';const out=[];
@@ -815,10 +815,10 @@ const boardForMe=()=>{const me=boardMe();return !!me&&S.projects.some(p=>Array.i
 /* Sávos tábla: soronként egy projekt (határidő szerint, mint az idővonalon), oszloponként a vágás állapotai */
 function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),T=todayISO();
   const showMod=cards.some(c=>c.v.st==='modositas'),COLS=BOARD_COLS.filter(([k])=>k!=='modositas'||showMod);
-  const canMove=(c,to)=>{if(c.p.status==='atadva')return false;if(mgr)return true;return ['vagasra','vagas','ellen','leadva'].includes(to)&&c.v.st!=='jovahagyva';};
-  const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:'leadva'})[st]||'';
+  const canMove=(c,to)=>{if(c.p.status==='atadva')return false;if(mgr)return true;return ['vagasra','vagas','ellen'].includes(to)&&!['jovahagyva','leadva'].includes(c.v.st)&&!(c.v.st==='ellen'&&to!=='ellen');};   // a vágó az ügyfél-jóváhagyás / jóváhagyva oszlopba nem húzhat
+  const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:mgr?'leadva':''})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
-    return `<div class="bd-card st-${esc(c.v.st)}"${drag?' draggable="true"':''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.name)}</div>${c.v.link&&(c.v.st==='ellen'||c.v.st==='leadva'||c.v.st==='modositas')?`<a class="bd-link" href="${esc(c.v.link)}" target="_blank" rel="noopener" title="${esc((c.v.rvBy?c.v.rvBy+' → ':'')+(c.v.note||''))}">▶ videó</a>`:''}
+    return `<div class="bd-card st-${esc(c.v.st)}${c.v.link?' has-link':''}"${drag?' draggable="true"':''}${c.v.link||c.v.st==='ellen'?` data-action="vid-view" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" title="Kattints a videó megnézéséhez"`:''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.name)}</div>${c.v.link?`<span class="bd-link">▶ videó${c.v.st==='modositas'&&c.v.fb?' · 💬 visszajelzés':''}</span>`:''}
       ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((crewById(c.ow)||{}).name||'— nincs vágó —')}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
   const lanes=[...byP.values()].sort((a,b)=>String(dueDate(a.p)||'9999').localeCompare(String(dueDate(b.p)||'9999')));

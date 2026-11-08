@@ -850,7 +850,8 @@ const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'mod
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
-    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30) })).filter(x => x.id); }   // rv*: belső ellenőrzésre küldés
+    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
+    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
 function videosEnsure_(p, cutters) {
@@ -899,6 +900,7 @@ function videoReview_(u, a) {
   logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
   return { project: projectView_(fullProject_(p), u), mail: mail };
 }
+let FB_MAIL_ = null;
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
@@ -917,7 +919,8 @@ function videoSet_(u, a) {
     }
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
-      if (!mgr && (['vagasra', 'vagas', 'ellen', 'leadva'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (!mgr && (['vagasra', 'vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (mgr && a.st === 'modositas' && a.fb !== undefined) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);
@@ -929,6 +932,10 @@ function videoSet_(u, a) {
     putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
   });
   logEvent_(u, 'Videó állapota', p.name, changed);
+  if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
+    if (em) { const url = appUrl_() + '#p=' + pid, first = String(c.name || '').split(' ').pop();
+      gmailSend_(em, 'Módosítást kér: ' + fm.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér: ' + fm.v.name + ' – ' + p.name + (fm.v.fb ? '\n\n' + fm.v.fb : '') + '\n\n' + url,
+        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(fm.v.fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
   return { project: projectView_(fullProject_(p), u) };
 }
 function projectView_(p, u) {
