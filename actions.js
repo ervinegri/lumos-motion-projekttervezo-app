@@ -2238,6 +2238,7 @@ function vidEmbed(u){u=String(u||'').trim();let m;
   if((m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/.exec(u)))return `<iframe src="https://www.youtube.com/embed/${m[1]}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   if((m=/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/.exec(u)))return `<iframe src="https://player.vimeo.com/video/${m[1]}${m[2]?'?h='+m[2]:''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u))return `<video src="${esc(u)}" controls playsinline></video>`;
+  if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u)))return `<div class="vv-pc" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span> pCloud videó betöltése…</div>`;   // pCloud: a közvetlen fájlcímet a pCloud API adja
   return '';}
 ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),rev=mgr&&v.st==='ellen'&&p.status!=='atadva',emb=vidEmbed(v.link);
@@ -2249,6 +2250,11 @@ ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=
     ${v.fb?`<div class="vv-msg vv-fb"><b>↩ ${esc(v.fbBy||'Visszajelzés')}</b>${v.fbAt?` <span class="muted">· ${esc(String(v.fbAt).slice(0,16))}</span>`:''}<div>${esc(v.fb).replace(/\n/g,'<br>')}</div></div>`:''}
     ${rev?`<div class="field full" style="margin-top:12px"><label for="m-vvFb">Visszajelzés a vágónak <span class="muted">(visszadobáskor kötelező)</span></label><textarea class="inp" id="m-vvFb" name="fb" rows="3"></textarea></div>`:''}`,
     rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:{cancelLabel:'Bezárás'});
-  const mb=document.querySelector('#mform');if(mb&&v.link)mb.classList.add('m-video');};
+  const mb=document.querySelector('#mform');if(mb&&v.link)mb.classList.add('m-video');pcloudLoad();};
+/* pCloud nyilvános link → közvetlen videócím (getpublinkdownload), és lejátszás a saját lejátszóban */
+async function pcloudLoad(){const el=document.querySelector('.vv-pc[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];
+  for(const h of hosts){try{const r=await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0`);const j=await r.json();
+      if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){if(!el.isConnected)return;el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" controls playsinline autoplay></video>`;return;}}catch(e){}}
+  if(el.isConnected)el.outerHTML='<div class="vv-noembed">A pCloud linket nem sikerült itt lejátszani (lehet, hogy a megosztás mappára mutat, vagy a pCloud nem engedi) – nyisd meg új lapon.</div>';}
 ACT['vid-reject']=b=>{const fb=String(($('m-vvFb')||{}).value||'').trim();if(fb.length<3){toast('Írd le röviden, mit kell javítani.',true);const t=$('m-vvFb');if(t)t.focus();return;}
   const pid=b.dataset.pid,vid=b.dataset.vid;closeModal();bdMove(pid,vid,'modositas',null,fb);};
