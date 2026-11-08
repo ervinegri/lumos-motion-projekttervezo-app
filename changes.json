@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9760262f93",
+"at": "2026-11-08T19:18:44+01:00",
+"msg": "Szervezői jutalék sor elrendezése"
+},
+{
 "id": "d8f2e85494",
 "at": "2026-11-08T19:14:53+01:00",
 "msg": "Szervezői jutalék: választható szervező, rendelésenként 10 000 Ft, a termelői alap a levonás utáni összeg"
@@ -144,11 +149,6 @@
 "id": "68641730c1",
 "at": "2026-11-06T08:54:14+01:00",
 "msg": "Havi naptár: függőlegesen nem rugózik és nem lapoz"
-},
-{
-"id": "1aa610f35b",
-"at": "2026-11-06T08:52:55+01:00",
-"msg": "Naptár fejléce: kisebb gombok és hónapválasztó"
 }
 ]
 }
