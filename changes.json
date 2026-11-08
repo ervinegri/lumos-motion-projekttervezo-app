@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "cae513dfeb",
+"at": "2026-11-09T01:51:40+02:00",
+"msg": "Videó ablak: tű Ctrl + kattintással, súgó soronként, a szövegmezőben az időkódra kattintva odaugrik"
+},
+{
 "id": "7997bc199f",
 "at": "2026-11-09T01:49:16+02:00",
 "msg": "Videó ablak: tűs jelölés (📍 Jelölés gomb / Alt+kattintás) a képkocka egy pontjához; az időkód szélessége nem ugrál"
@@ -141,13 +146,8 @@
 "msg": "Hatékonyság gépelés közben is a szervezői jutalék utáni összegből számol"
 },
 {
-"id": "6672245486",
-"at": "2026-11-09T00:33:06+02:00",
-"msg": "Fizetések: egy hónapon belül projektenként egy sor (a vágási határidő nem választja külön)"
-},
-{
-"id": "e8e99599c7",
-"at": "2026-11-08T22:32:18Z",
+"id": "cd0a111265",
+"at": "2026-11-08T22:33:15Z",
 "msg": "Változásnapló frissítése"
 }
 ]
