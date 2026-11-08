@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "675f62576b",
+"at": "2026-11-09T01:16:19+02:00",
+"msg": "Videó ablak: időkód 0:00:00 (perc:mp:század), link a fejlécben, görgethető szövegmező, függőleges videónál keskeny lejátszó"
+},
+{
 "id": "d6c486c36d",
 "at": "2026-11-09T01:10:19+02:00",
 "msg": "Videók: visszadobás → Utómunka alatt; több időkód egy hozzászólásban (ezredmásodperc); mentés bezáráskor; az ellenőrzési megjegyzés a listában"
@@ -136,13 +141,8 @@
 "msg": "Termelői fizetések: az összegre állva látszik a jogcím (szerep / ajánlói jutalék)"
 },
 {
-"id": "403226e311",
-"at": "2026-11-08T21:42:39+02:00",
-"msg": "Pénzügyek: két rendezett sor (büdzsé · szervezői jutalék · Extrák menü / jutalék után · hatékonyság · termelői keret)"
-},
-{
-"id": "2f22393a96",
-"at": "2026-11-08T19:37:57Z",
+"id": "8ce0ca6122",
+"at": "2026-11-08T19:42:48Z",
 "msg": "Változásnapló frissítése"
 }
 ]
