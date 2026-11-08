@@ -4349,6 +4349,7 @@ const taxDigits_ = v => String(v == null ? '' : v).replace(/\D/g, '').slice(0, 1
 const taxFmt_ = d => { d = taxDigits_(d); return d.length === 11 ? d.slice(0, 8) + '-' + d.slice(8, 9) + '-' + d.slice(9) : d; };
 const sval_ = v => String(v == null ? '' : v).replace(/^'/, '').trim();
 function salesSchema_() {
+  neonSql_([{ query: 'CREATE TABLE IF NOT EXISTS ls_proforma (order_id text PRIMARY KEY, number text NOT NULL, at timestamptz NOT NULL DEFAULT now())' }]);
   neonSql_([{ query: 'CREATE TABLE IF NOT EXISTS lx_link (order_id text PRIMARY KEY, project_id text NOT NULL, client_id text, snap jsonb NOT NULL DEFAULT \'{}\'::jsonb, synced_at timestamptz NOT NULL DEFAULT now())' }]);
 }
 /** A Sales App rendelései (fejléc szerint feldolgozva) + a tábla verziója. */
@@ -4366,12 +4367,11 @@ function salesRead_() {
 function salesValues_(o) {
   const at = sval_(o.shootAt), m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/.exec(at);
   const n = (Number(o.spokenCount) || 0) + (Number(o.musicCount) || 0);
-  const notes = ['Forrás: Sales App (rendelés: LM-2026-' + sval_(o.id) + ')',
+  // A Jegyzet a vágók és operatőrök számára is látszik: csak a munkához szükséges adat kerülhet bele (nincs ár, ÁFA, fizetési mód, értékesítő, szabad szöveges kereskedelmi megjegyzés).
+  const notes = ['Forrás: Sales App',
     'Shortok: ' + (Number(o.spokenCount) || 0) + ' beszédes + ' + (Number(o.musicCount) || 0) + ' zenés, 40–60 mp, 9:16' + (n > 15 ? ' (összesen ' + n + ' db)' : ''),
-    sval_(o.salesperson) ? 'Értékesítő: ' + sval_(o.salesperson) : '', sval_(o.paymentMode) ? 'Fizetés: ' + sval_(o.paymentMode) : '',
-    sval_(o.vatType) ? 'ÁFA: ' + (sval_(o.vatType) === 'AAM' ? 'alanyi adómentes' : '27%') : '', sval_(o.deliveryDate) ? 'Vállalt átadás: ' + sval_(o.deliveryDate) : '',
-    sval_(o.shootAt2) ? '2. forgatás: ' + sval_(o.shootAt2).replace('T', ' ') + (sval_(o.shootContent2) ? ' – ' + sval_(o.shootContent2) : '') : '',
-    sval_(o.note) ? 'Megjegyzés: ' + sval_(o.note) : ''].filter(Boolean).join('\n');
+    sval_(o.deliveryDate) ? 'Vállalt átadás: ' + sval_(o.deliveryDate) : '',
+    sval_(o.shootAt2) ? '2. forgatás: ' + sval_(o.shootAt2).replace('T', ' ') + (sval_(o.shootContent2) ? ' – ' + sval_(o.shootContent2) : '') : ''].filter(Boolean).join('\n');
   const done = o.filmingDone === true || String(o.filmingDone).toLowerCase() === 'true' || String(o.filmingDone) === '1';
   return { company: sval_(o.company) || sval_(o.brand), tax: taxDigits_(o.tax), address: sval_(o.address), contact: sval_(o.contact), phone: sval_(o.phone), email: sval_(o.email).toLowerCase(),
     shootDate: m ? m[1] : '', shootTime: m ? m[2] : '', shootContent: sval_(o.shootContent), cancelled: sval_(o.status) === 'lemondva' ? '1' : '',
@@ -4519,6 +4519,15 @@ function salesSync() {
       else out.errors.push('A Sales App táblája közben módosult – a visszaírás a következő futásban történik.');
     }
   }
+  /* A Salesben kiállított díjbekérők hozzárendelése a projekthez (Szerződés és számlázás → Díjbekérő) */
+  try {
+    const have = {}; readAll_('finInvoice').forEach(x => { have[x.no] = 1; });
+    (neonSql_([{ query: 'SELECT order_id, number FROM ls_proforma' }])[0].rows || []).forEach(r => {
+      const oid = r[0], no = r[1]; if (!no || have[no]) return;
+      try { szLink_(SALES_SYS_USER, { projectId: (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), no: no, kind: 'dijbekero', slot: 'dijbekero' }); out.proformas = (out.proformas || 0) + 1; }
+      catch (e) { out.errors.push('díjbekérő ' + no + ': ' + String((e && e.message) || e)); }
+    });
+  } catch (e) { out.errors.push('díjbekérők: ' + String((e && e.message) || e)); }
   if (out.created || out.updated || out.cancelled) dataBump_();
   try { if (dbOn_()) dbFlush_(); } catch (e) {}   // a függő naplóbejegyzések
   if (out.errors.length) Logger.log('Sales szinkron hibák: ' + out.errors.join(' | '));
