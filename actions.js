@@ -2067,6 +2067,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 /* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
+  if(v==='sales'){(S.salesOn=S.salesOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('sales-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   if(v==='free'){setDraft({projectValue:0});toast('🎁 Nem fizetős projekt');return;}
   if(v==='org'){if(ACT['org-add'])ACT['org-add']();setTimeout(()=>{const s=$('org-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
@@ -2153,3 +2154,11 @@ ACT['cl-open-proj']=b=>{closeModal();openProject(b.dataset.id);};
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.orgToggle===undefined||t.checked)return;ACT['extra-del']({dataset:{i:t.dataset.orgToggle}});});
 
 ACT['free-off']=()=>{if(!S.draft||!isAdmin())return;setDraft({projectValue:null});setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},50);};
+
+/* Értékesítői jutalék: az értékesítő kiválasztása / levétele (az Értékesítés fül szerződött lehetősége) */
+async function projSalesSet(ownerId){const p=S.draft||projById(S.projectId);if(!p)return;
+  try{const r=await call('projSales',{projectId:p.id,ownerId:ownerId||''});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;if(!ownerId&&S.salesOn)delete S.salesOn[p.id];render(true);
+    toast(ownerId?'Értékesítő: '+(((S.salesPeople||[]).find(x=>x.userId===ownerId)||{}).name||''):'Értékesítői jutalék levéve');}catch(e){handleErr(e);render(true);}}
+document.addEventListener('change',e=>{const t=e.target;if(!t)return;
+  if(t.id==='sales-sel'&&isAdmin()){projSalesSet(t.value);return;}
+  if(t.dataset&&t.dataset.salesToggle!==undefined&&!t.checked&&isAdmin()){const p=S.draft||projById(S.projectId);if(p&&projDeal(p))projSalesSet('');else{if(S.salesOn&&p)delete S.salesOn[p.id];render(true);}}});

@@ -708,6 +708,29 @@ function saveDeal_(u, a) {
     return { deals: dealsFor_(u) };
   });
 }
+/** A projekt értékesítője: szerződött („nyert”) lehetőség a projekthez az értékesítővel (jutalék, az értékesítő saját lehetőségei).
+    Ha már van a projekthez lehetőség, csak az értékesítőt írja át; owner = null → a csak így létrehozott lehetőséget törli. */
+function projSalesSet_(by, pid, owner, srcLabel) {
+  const dsh = sheetFor_('deals'), ex = readAll_('deals').find(d => d.projectId === pid) || null;
+  if (!owner) {
+    if (!ex) return null;
+    if (ex.source !== 'Projekttervező' && ex.source !== 'Sales App') throw new Error('Ez a lehetőség az Értékesítés fülön jött létre – ott módosítsd.');
+    withLock_(() => { const r = findRow_(dsh, ex.id); if (r) dsh.deleteRow(r); }); dbFlush_();
+    logEvent_(by, 'Értékesítés: értékesítő levéve', ex.title, ex.ownerName || ''); return null;
+  }
+  if (ex && ex.ownerId === owner.id) return ex;
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) throw new Error('A projekt nem található.');
+  const value = Math.round(Number(p.projectValue) || 0);
+  const d = ex ? Object.assign({}, ex) : { id: Utilities.getUuid(), title: sval_(p.name), client: sval_(p.client), contactName: sval_(p.contactName), contactEmail: sval_(p.contactEmail), contactPhone: sval_(p.contactPhone),
+    eventType: sval_(p.eventType), venue: sval_(p.venue), eventDate: sval_(p.date), value: value, stage: 'nyert', chance: 100, source: srcLabel || 'Projekttervező', nextStep: '', nextDate: '', note: '', lostReason: '',
+    projectId: pid, wonAt: today_(), closedAt: today_(), createdAt: now_(), createdBy: by.name, services: '' };
+  d.ownerId = owner.id; d.ownerName = owner.name;
+  if (owner.role === 'sales') { const c = salesCompOf_(owner), v = Number(d.value) || value, pct = v >= c.commLimit ? c.commHigh : c.commLow; d.commPct = pct; d.commAmt = Math.round(v * pct / 100); } else { d.commPct = ''; d.commAmt = ''; }
+  d.updatedAt = now_(); d.updatedBy = by.name;
+  withLock_(() => { const row = ex ? findRow_(dsh, ex.id) : null; putRow_('deals', dsh, d, row || null); }); dbFlush_();
+  logEvent_(by, 'Értékesítés: értékesítő a projekten', d.title, owner.name);
+  return d;
+}
 function dealStageLbl_(s) { return { uj: 'Új érdeklődő', ajanlat: 'Ajánlat kiküldve', targyalas: 'Tárgyalás', nyert: 'Szerződve', elveszett: 'Elveszett' }[s] || s; }
 function deleteDeal_(u, a) {
   const id = str_(a && a.id, 64);
@@ -4266,6 +4289,11 @@ function rpcInner_(token, name, arg) {
     case 'saveDeal': if (role !== 'admin' && role !== 'sales') deny(); return saveDeal_(u, arg);
     case 'deleteDeal': if (role !== 'admin' && role !== 'sales') deny(); return deleteDeal_(u, arg);
     case 'winDeal': if (role !== 'admin' && role !== 'sales') deny(); return winDeal_(u, arg);
+    case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
+      adminOnly(); const pid = str_(arg && arg.projectId, 64), oid = str_(arg && arg.ownerId, 64);
+      const owner = oid ? loadUsers_().find(x => x.id === oid && x.disabled !== true) : null; if (oid && !owner) throw new Error('Az értékesítő nem található.');
+      projSalesSet_(u, pid, owner, 'Projekttervező'); return { deals: dealsFor_(u), salesPeople: salesPeople_(u) };
+    }
     case 'calendarEvents': canEdit(); return calendarEvents_(arg);
     case 'syncCalendar': { canEdit(); const pid = str_(arg && arg.id, 64), sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return { calEventId: '' }; const q = syncCalendar_(fullProject_(readRow_('projects', sh, r))); return { calEventId: q.calEventId || '', calError: q.calError || '' }; }
     case 'saveCalEvent': canEdit(); return saveCalEvent_(u, arg);
