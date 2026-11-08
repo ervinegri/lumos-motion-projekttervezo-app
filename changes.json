@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a3072eb6f1",
+"at": "2026-11-09T01:41:59+02:00",
+"msg": "Videó ablak: időkód gomb a Hozzászólások sorában, a videó alatt középen"
+},
+{
 "id": "420ee57e3c",
 "at": "2026-11-09T01:40:28+02:00",
 "msg": "Videó ablak: időkód gomb a Hozzászólások sorában; a képkocka-számláló egyetlen forrásból, nem ugrál"
@@ -136,13 +141,8 @@
 "msg": "Vágás: Utómunkára vár / Utómunka alatt / Ügyfél jóváhagyására vár; ellenőrzésnél lejátszó + jóváhagyás / visszadobás indokkal (a vágó e-mailt kap); a vágó nem húzhat ügyfél-jóváhagyásra; csengő: lapos ikon, elolvasáskor eltűnő pötty, szebb értesítés; Ki ellenőrizze? (Dávid, Ervin); a táblák görgethetők, alacsonyabbak"
 },
 {
-"id": "a18d8c5d9f",
-"at": "2026-11-08T22:38:16+02:00",
-"msg": "Vágás: gyors húzásnál nem pattannak vissza a kártyák; belső ellenőrzésre küldés (Ervin/Dávid, videólink, megjegyzés, e-mail); 🔔 értesítések felugró jelzéssel; régi aktív projektek is kapnak videósorokat; idővonal: jóváhagyásra váró sárga, kész szürke"
-},
-{
-"id": "171aeb9e7a",
-"at": "2026-11-08T20:26:24Z",
+"id": "b4b5c22519",
+"at": "2026-11-08T20:38:26Z",
 "msg": "Változásnapló frissítése"
 }
 ]
