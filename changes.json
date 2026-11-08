@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e4f6152be6",
+"at": "2026-11-09T01:24:52+02:00",
+"msg": "Videó ablak: időkód gomb a szövegmezőben, mentési felirat törölve"
+},
+{
 "id": "8481920cd7",
 "at": "2026-11-09T01:24:15+02:00",
 "msg": "Videó lejátszó: rövid kattintás indít/megállít, képkockához igazított tekerés (mért fps), ← → képkocka-léptetés, időkód-buborék alul"
@@ -136,13 +141,8 @@
 "msg": "Értékesítői jutalék mezők (% és Ft) a termelői keret mellett; kézi % a projekten, a havi jutalék is ezzel számol"
 },
 {
-"id": "60107e8209",
-"at": "2026-11-08T21:48:52+02:00",
-"msg": "Pénzügyek: termelői keret a hatékonyság mellett, a szervező neve egyvonalban a kettővel"
-},
-{
-"id": "b71caf8be5",
-"at": "2026-11-08T19:47:28Z",
+"id": "1f57d296a6",
+"at": "2026-11-08T19:49:02Z",
 "msg": "Változásnapló frissítése"
 }
 ]
