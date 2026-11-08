@@ -1033,6 +1033,11 @@ html:has(.cal-grid){overscroll-behavior-y:none}.cal-grid{overscroll-behavior:non
 .fin-g .org-g{display:grid!important;grid-template-columns:minmax(0,1fr) 160px;gap:16px}.fin-g .org-g .cmb,.fin-g .org-g .money{min-width:0;flex:none!important;width:auto}
 @media(max-width:900px){.fin-inputs.fin-g{grid-template-columns:1fr 1fr!important}.fin-g>*>*,.fin-g .fin-val,.fin-g .fin-org,.fin-g .fin-exm,.fin-g .fin-net,.fin-g .fin-eff,.fin-g .fin-budget{grid-column:auto!important;grid-row:auto!important}.fin-g .fin-org{grid-column:1/-1!important}}
 @media(max-width:560px){.fin-inputs.fin-g{grid-template-columns:1fr!important}}
+.fin-inputs.fin-g.g-sales{grid-template-columns:minmax(0,250px) minmax(0,100px) minmax(0,170px) minmax(0,100px) minmax(0,190px) minmax(0,240px)!important}
+.fin-g.g-sales .fin-scp{grid-column:2;grid-row:2}.fin-g.g-sales .fin-scf{grid-column:3;grid-row:2}.fin-g.g-sales .fin-eff{grid-column:4}.fin-g.g-sales .fin-budget{grid-column:5}
+.fin-g.g-sales .fin-org{grid-column:2/6}.fin-g.g-sales .fin-exm{grid-column:6}.fin-g.g-sales .org-g{grid-template-columns:minmax(0,1fr) 190px}
+.fin-g .fin-scp,.fin-g .fin-scf{min-width:0}
+@media(max-width:900px){.fin-g.g-sales .fin-scp,.fin-g.g-sales .fin-scf{grid-column:auto!important;grid-row:auto!important}}
 </style>
 </head>
 <body>

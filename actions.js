@@ -2162,3 +2162,10 @@ async function projSalesSet(ownerId){const p=S.draft||projById(S.projectId);if(!
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='sales-sel'&&isAdmin()){projSalesSet(t.value);return;}
   if(t.dataset&&t.dataset.salesToggle!==undefined&&!t.checked&&isAdmin()){const p=S.draft||projById(S.projectId);if(p&&projDeal(p))projSalesSet('');else{if(S.salesOn&&p)delete S.salesOn[p.id];render(true);}}});
+
+/* Értékesítői jutalék kézzel: % vagy Ft (a Ft-ból %-ot számolunk); üres = az értékesítő sávos szabálya */
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined)||!isAdmin())return;const p=S.draft||projById(S.projectId);if(!p)return;
+  let pct='';const raw=String(t.value||'').trim();
+  if(raw!==''){if(t.dataset.salesPct!==undefined)pct=String(Math.round(parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'))*100)/100);else{const ft=Number(raw.replace(/\D/g,'')),b=salesBase(p);pct=b>0?String(Math.round(ft/b*10000)/100):'';}}
+  if(pct==='NaN'){toast('Érvénytelen érték.',true);return;}
+  try{const r=await call('projSalesComm',{projectId:p.id,pct});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(pct===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék: '+pct.replace('.',',')+'%');}catch(err){handleErr(err);}});

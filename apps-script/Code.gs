@@ -112,7 +112,7 @@ const TABLES = {
     ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
     ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
     ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
-    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások']] },   // új oszlop mindig a végére
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewDocs: { tab: 'Munkatársi szerződések', cols: [
@@ -3859,12 +3859,15 @@ function salesCommOf_(user, ctx) {
       if (!(net > 0) || !(paid > 0) || !(gross > 0)) return;
       const when = String(x.paidAt || (manual ? x.date : '') || '').slice(0, 7); if (!/^\d{4}-\d{2}$/.test(when)) return;
       const paidNet = Math.round(net * paid / gross * share(x, pid)), base = Math.round(paidNet * (1 - passRatio(pid)));
-      const m = months[when] || (months[when] = { base: 0, amount: 0, items: [] });
+      const m = months[when] || (months[when] = { base: 0, amount: 0, items: [], manBase: 0, manAmt: 0 });
+      const mp = String(pids[pid].commManual == null ? '' : pids[pid].commManual).trim();   // a projektnél kézzel megadott jutalék % (nem sávos)
+      if (mp !== '' && !isNaN(Number(mp))) { m.manBase += base; m.manAmt += base * Number(mp) / 100; }
       m.base += base; m.items.push({ projectId: pid, name: String(p.name || ''), invNo: String(x.no || ''), paidAt: String(x.paidAt || x.date || '').slice(0, 10), paidNet: paidNet, base: base });
     });
   });
   Object.keys(months).forEach(k => { const m = months[k], lim = c.commLimit;
-    m.amount = Math.round(Math.min(m.base, lim) * c.commLow / 100 + Math.max(0, m.base - lim) * c.commHigh / 100);
+    const ab = m.base - (m.manBase || 0);   // a sávos rész csak a kézi % nélküli projektekből
+    m.amount = Math.round(Math.min(ab, lim) * c.commLow / 100 + Math.max(0, ab - lim) * c.commHigh / 100 + (m.manAmt || 0)); delete m.manBase; delete m.manAmt;
     m.items.sort((a, b) => a.paidAt < b.paidAt ? -1 : 1); });
   return months;
 }
@@ -4289,6 +4292,13 @@ function rpcInner_(token, name, arg) {
     case 'saveDeal': if (role !== 'admin' && role !== 'sales') deny(); return saveDeal_(u, arg);
     case 'deleteDeal': if (role !== 'admin' && role !== 'sales') deny(); return deleteDeal_(u, arg);
     case 'winDeal': if (role !== 'admin' && role !== 'sales') deny(); return winDeal_(u, arg);
+    case 'projSalesComm': {   // a projekt értékesítői jutaléka kézzel (%); üres = az értékesítő sávos szabálya
+      adminOnly(); const pid = str_(arg && arg.projectId, 64), raw = String(arg && arg.pct == null ? '' : arg.pct).replace(',', '.').trim();
+      const pct = raw === '' ? '' : Math.max(0, Math.min(100, Math.round(Number(raw) * 100) / 100)); if (raw !== '' && isNaN(Number(raw))) throw new Error('Érvénytelen százalék.');
+      withLock_(() => { const sh = sheetFor_('deals'), d = readAll_('deals').find(x => x.projectId === pid && x.stage === 'nyert'); if (!d) throw new Error('A projekthez nincs értékesítő.');
+        const r = findRow_(sh, d.id), q = readRow_('deals', sh, r); q.commManual = pct === '' ? '' : String(pct); if (pct !== '') q.commPct = pct; q.updatedAt = now_(); q.updatedBy = u.name; putRow_('deals', sh, q, r); }); dbFlush_();
+      return { deals: dealsFor_(u), salesPeople: salesPeople_(u) };
+    }
     case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
       adminOnly(); const pid = str_(arg && arg.projectId, 64), oid = str_(arg && arg.ownerId, 64);
       const owner = oid ? loadUsers_().find(x => x.id === oid && x.disabled !== true) : null; if (oid && !owner) throw new Error('Az értékesítő nem található.');
