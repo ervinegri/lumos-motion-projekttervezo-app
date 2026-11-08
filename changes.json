@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c223656a7c",
+"at": "2026-11-08T21:37:47+02:00",
+"msg": "Pénzügyek: szervezői jutalék a büdzsé sorában; Nem fizetős projekt az Extrák menüjében (visszavonás a büdzsénél)"
+},
+{
 "id": "14dfa30fc3",
 "at": "2026-11-08T20:21:04+01:00",
 "msg": "Pénzügyek: 3 soros elrendezés (büdzsé / szervezői jutalék / levonás utáni összeg + hatékonyság + termelői keret)"
@@ -144,11 +149,6 @@
 "id": "6ea6d91f8a",
 "at": "2026-11-06T09:05:53+01:00",
 "msg": "Érkezés → kezdési idő a Videóvágás súgóban"
-},
-{
-"id": "b59041ab43",
-"at": "2026-11-06T09:03:47+01:00",
-"msg": "Eszközlista levél: Hol van és Nálad lesz ki; Érkezés → Kezdés"
 }
 ]
 }
