@@ -881,7 +881,7 @@ function videoSet_(u, a) {
     }
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
-      if (!mgr && (['vagasra', 'vagas', 'ellen', 'leadva'].indexOf(a.st) < 0 || ['jovahagyva', 'modositas'].indexOf(v.st) >= 0 || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (!mgr && (['vagasra', 'vagas', 'ellen', 'leadva'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);

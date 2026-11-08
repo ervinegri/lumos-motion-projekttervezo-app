@@ -2169,3 +2169,14 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
   if(raw!==''){if(t.dataset.salesPct!==undefined)pct=String(Math.round(parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'))*100)/100);else{const ft=Number(raw.replace(/\D/g,'')),b=salesBase(p);pct=b>0?String(Math.round(ft/b*10000)/100):'';}}
   if(pct==='NaN'){toast('Érvénytelen érték.',true);return;}
   try{const r=await call('projSalesComm',{projectId:p.id,pct});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(pct===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék: '+pct.replace('.',',')+'%');}catch(err){handleErr(err);}});
+
+/* Vágás tábla: áthúzás / → gomb → a videó állapota (videoSet) */
+async function bdMove(pid,vid,st){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;const old=v.st;v.st=st;render(true);
+  try{const r=await call('videoSet',{projectId:pid,id:vid,st});const pr2=r&&r.project;if(pr2){const k=S.projects.findIndex(x=>x.id===pid);if(k>=0)S.projects[k]=normProj(pr2);}render(true);toast('🎞️ '+v.name+': '+((BOARD_COLS.find(x=>x[0]===st)||[])[1]||st));}
+  catch(e){v.st=old;render(true);handleErr(e);}}
+ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');document.body.classList.add('bd-dragging');});
+document.addEventListener('dragend',e=>{document.querySelectorAll('.bd-card.dragging').forEach(x=>x.classList.remove('dragging'));document.querySelectorAll('.bd-col.over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('bd-dragging');});
+document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col||!document.body.classList.contains('bd-dragging'))return;e.preventDefault();document.querySelectorAll('.bd-col.over').forEach(x=>{if(x!==col)x.classList.remove('over');});col.classList.add('over');});
+document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col)return;const d=String(e.dataTransfer.getData('text/plain')||'').split('|');if(d[0]!=='bd')return;e.preventDefault();col.classList.remove('over');bdMove(d[1],d[2],col.dataset.bdCol);});
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='bd-cut'){S.boardCut=e.target.value==='__all'?'':e.target.value;render(true);}});

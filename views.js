@@ -126,7 +126,7 @@ function NAV_TABS(){const all=TABS(),out=[],done={};
   return out;}
 function finSubNav(){const g=groupOf(S.tab);if(!g)return '';S.groupSub[g.label]=S.tab;
   return `<nav class="subtabs" aria-label="${esc(g.label)}">${TABS().filter(t=>g.ids.includes(t.id)).sort((a,b)=>g.ids.indexOf(a.id)-g.ids.indexOf(b.id)).map(t=>`<a class="subtab" href="#t=${esc(t.id)}" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${g.icons[t.id]||''}${t.label}</a>`).join('')}</nav>`;}
-const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat([{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}]).concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'naptar',label:'Naptár'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]:[{id:'stab',label:'Stáb'}].concat(isAdmin()?[{id:'ertekesitok',label:'Értékesítők'}]:[]).concat([{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}])).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat([{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}]).concat(ro()?[]:[{id:'naptar',label:'Naptár'},{id:'vagas',label:'Vágás'}]).concat(ro()?[{id:'naptar',label:'Naptár'}].concat(boardForMe()?[{id:'vagas',label:'Vágás'}]:[]).concat([{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}]):[{id:'stab',label:'Stáb'}].concat(isAdmin()?[{id:'ertekesitok',label:'Értékesítők'}]:[]).concat([{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Termelői fizetések':'Kifizetések'}])).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:[]);
 /* Valódi módosítás van-e: a vázlat eltér-e a betöltött állapottól (ha mindent visszacsináltál, nincs mit menteni) */
 function stableJ(v){if(Array.isArray(v))return '['+v.map(stableJ).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).filter(k=>k[0]!=='_'&&v[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stableJ(v[k])).join(',')+'}';return JSON.stringify(v===undefined?null:v);}
 function draftChanged(){if(!S.draft||!S.draftBase||S.draft.id!==S.draftBase.id)return true;try{return stableJ(S.draft)!==stableJ(S.draftBase);}catch(e){return true;}}
@@ -192,7 +192,7 @@ function render(force){setTimeout(appReveal,0);
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
-  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
+  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
   {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
@@ -801,6 +801,27 @@ function deliverItems(p){
 /* Videónkénti vágói követés: a megrendelt darabszámokból sorok (háttér hozza létre); a vezető a vágót és az állapotot, a vágó a saját videóinak vágási állapotát állítja */
 const VID_ST=[['vagasra','Vágásra vár'],['vagas','Vágás alatt'],['ellen','Belső ellenőrzés'],['leadva','Leadva'],['jovahagyva','Jóváhagyva'],['modositas','Módosítást kér']];
 const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jovahagyva:'p-ok',modositas:'p-bad'};
+/* ===== Vágás – Trello-szerű tábla: videónként egy kártya, oszloponként az állapotok; húzással (vagy a → gombbal) léptethető ===== */
+const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Vágásra vár'],['vagas','✂️ Vágás alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Leadva'],['jovahagyva','✅ Jóváhagyva']];
+const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
+const vidOwner=(p,v)=>v.editor||(()=>{const c=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);return c.length===1?c[0]:'';})();   // egy vágónál a gazdátlan videó az övé
+function boardCards(){const me=boardMe(),f=S.boardCut||'';const out=[];
+  S.projects.forEach(p=>{if(p.status==='lemondva'||p.status==='atadva'||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
+  return out;}
+const boardForMe=()=>{const me=boardMe();return !!me&&S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===me));};
+function viewCutBoard(){const me=boardMe(),mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),cards=boardCards();
+  const cutters=mgr?(S.crew||[]).filter(c=>S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===c.id))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu')):[];
+  const canMove=(c,to)=>{if(c.p.status==='atadva')return false;if(mgr)return true;return ['vagasra','vagas','ellen','leadva'].includes(to)&&c.v.st!=='jovahagyva';};
+  const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:'leadva'})[st]||'';
+  const card=c=>{const di=dueInfo(c.p),nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
+    return `<div class="bd-card st-${esc(c.v.st)}"${drag?` draggable="true"`:''} data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}">
+      <div class="bd-t">🎞️ ${esc(c.v.name)}</div><button type="button" class="linkbtn bd-p" data-action="open-project" data-id="${esc(c.p.id)}">${esc(c.p.name||'Névtelen projekt')}</button>
+      <div class="bd-m">${di?`<span class="statuspill p-${di.cls}">${esc(di.txt)}</span>`:''}${mgr?`<span class="bd-who">${esc((crewById(c.ow)||{}).name||'— nincs vágó —')}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div></div>`;};
+  const cols=BOARD_COLS.filter(([k])=>k!=='modositas'||cards.some(c=>c.v.st==='modositas')).map(([k,l])=>{const L=cards.filter(c=>c.v.st===k).sort((a,b)=>String(dueDate(a.p)||'9').localeCompare(String(dueDate(b.p)||'9')));
+    return `<div class="bd-col c-${k}" data-bd-col="${k}"><div class="bd-h">${l} <span class="bd-n">${L.length}</span></div><div class="bd-list">${L.map(card).join('')||'<div class="bd-empty">—</div>'}</div></div>`;}).join('');
+  const filt=mgr?`<select class="inp" id="bd-cut" style="width:auto" data-cmb="Vágó szerint…"><option value="__all"${S.boardCut?'':' selected'}>Minden vágó</option>${cutters.map(c=>`<option value="${esc(c.id)}"${S.boardCut===c.id?' selected':''}>${esc(c.name)}</option>`).join('')}</select>`:'';
+  return `<div class="page-head"><div class="grow"><h2>Vágás</h2><p class="sub">${me?'A saját videóid':'Videók állapot szerint'} · húzd át a kártyát a következő oszlopba, vagy nyomd meg a → gombot</p></div>${filt}</div>
+    ${cards.length?`<div class="bd">${cols}</div>`:`<div class="panel">${empty(me?'Most nincs vágandó videód.':'Nincs vágás alatt lévő videó.')}</div>`}`;}
 function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.length)return '';
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=S.me&&S.me.crewId,lock=projLocked()||p.status==='atadva'||p.status==='lemondva';
   const done=vs.filter(v=>v.st==='leadva'||v.st==='jovahagyva').length,appr=vs.filter(v=>v.st==='jovahagyva').length;

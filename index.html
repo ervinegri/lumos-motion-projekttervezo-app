@@ -1059,6 +1059,17 @@ html #view table tbody tr.pt-row.pt-st-atadva:hover>td{background:#e9eeeb!import
 .grp-prod{background:#eef6f1;border-color:#d2e6da}.grp-prod .grp-h{color:#2c6e49}
 .fin-grp .fin-scp,.fin-grp .fin-eff{width:96px}.fin-grp .fin-scf,.fin-grp .fin-budget{width:170px}
 @media(max-width:600px){.fin-v2 .fin-val,.fin-v2 .fin-net,.fin-v2 .fin-exm,.fin-v2 .fin-org,.fin-grp{flex:1 1 100%}.fin-grp .fin-scf,.fin-grp .fin-budget{flex:1}}
+/* Vágás tábla (Trello-szerű) */
+.bd{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.bd-col{background:#e6ebf1;border-radius:14px;padding:10px;min-height:120px;transition:background .15s,box-shadow .15s}.bd-col.over{background:#e6eefb;box-shadow:inset 0 0 0 2px #7aa2d8}
+.bd-h{font-weight:800;font-size:13px;margin:2px 4px 10px;display:flex;align-items:center;gap:6px}.bd-n{background:#fff;border-radius:999px;padding:1px 8px;font-size:11.5px;color:#56656f}
+.bd-list{display:flex;flex-direction:column;gap:8px}.bd-empty{color:#a0aab2;text-align:center;padding:10px 0}
+.bd-card{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 1px 3px rgba(20,40,60,.1);border-left:4px solid #c7d0d8}.bd-card[draggable=true]{cursor:grab}.bd-card.dragging{opacity:.45}
+.bd-card.st-vagas{border-left-color:var(--violet,#7e57c2)}.bd-card.st-ellen{border-left-color:#e0a100}.bd-card.st-leadva{border-left-color:#3aa76d}.bd-card.st-jovahagyva{border-left-color:#2c6e49;opacity:.75}.bd-card.st-modositas{border-left-color:#d93025}
+.bd-t{font-weight:800;font-size:13.5px}.bd-p{font-size:12.5px;color:#56656f;text-align:left;padding:0;margin-top:2px}
+.bd-m{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}.bd-who{font-size:11.5px;color:#56656f;background:#f1f4f7;border-radius:999px;padding:2px 8px}
+.bd-next{margin-left:auto;border:0;background:#eef2f6;border-radius:8px;width:30px;height:26px;font-weight:800;cursor:pointer}.bd-next:hover{background:#dfe7f0}
+.c-modositas .bd-h{color:#d93025}
 </style>
 </head>
 <body>
