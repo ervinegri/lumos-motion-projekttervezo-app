@@ -1038,6 +1038,15 @@ html:has(.cal-grid){overscroll-behavior-y:none}.cal-grid{overscroll-behavior:non
 .fin-g.g-sales .fin-org{grid-column:2/6}.fin-g.g-sales .fin-exm{grid-column:6}.fin-g.g-sales .org-g{grid-template-columns:minmax(0,1fr) 190px}
 .fin-g .fin-scp,.fin-g .fin-scf{min-width:0}
 @media(max-width:900px){.fin-g.g-sales .fin-scp,.fin-g.g-sales .fin-scf{grid-column:auto!important;grid-row:auto!important}}
+/* projektlista: az aktív utómunka kiemelt (lila sáv bal oldalt, enyhe lila háttér), a kész / átadott halványabb, visszafogott */
+html #view table tbody tr.pt-row.pt-st-utomunka>td{background:color-mix(in srgb,var(--violet,#7e57c2) 7%,#fff)!important}
+html #view table tbody tr.pt-row.pt-st-utomunka>td:first-child{box-shadow:inset 4px 0 0 var(--violet,#7e57c2)!important}
+html #view table tbody tr.pt-row.pt-st-utomunka:hover>td{background:color-mix(in srgb,var(--violet,#7e57c2) 12%,#fff)!important}
+html #view table tbody tr.pt-row.pt-st-leadva>td:first-child,html #view table tbody tr.pt-row.pt-st-jovahagyas>td:first-child{box-shadow:inset 4px 0 0 #e0a100!important}
+html #view table tbody tr.pt-row.pt-st-atadva>td{background:#f3f5f4!important}
+html #view table tbody tr.pt-row.pt-st-atadva:hover>td{background:#e9eeeb!important}
+#view tr.pt-row.pt-st-atadva .ev-title{font-weight:600;color:#66756f}#view tr.pt-row.pt-st-atadva .ev-sub,#view tr.pt-row.pt-st-atadva .pt-rel{opacity:.7}
+#view tr.pt-row.pt-st-atadva .cal{opacity:.55;filter:grayscale(1)}#view tr.pt-row.pt-st-atadva .pt-crew{opacity:.6}
 </style>
 </head>
 <body>
