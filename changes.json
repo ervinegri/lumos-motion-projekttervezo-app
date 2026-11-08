@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6672245486",
+"at": "2026-11-09T00:33:06+02:00",
+"msg": "Fizetések: egy hónapon belül projektenként egy sor (a vágási határidő nem választja külön)"
+},
+{
 "id": "4fc9fb89a0",
 "at": "2026-11-09T00:32:08+02:00",
 "msg": "Fizetések: alcím nélkül"
@@ -141,13 +146,8 @@
 "msg": "Sales szinkron: helyszín, 7 napos határidő, alap projektvezető/vágó, várható távozás"
 },
 {
-"id": "672f735748",
-"at": "2026-11-08T20:01:30+02:00",
-"msg": "Ütközés: ugyanazon a helyszínen (eltérő írásmóddal is) vagy ugyanannak a rendezvénynek a videóinál nem ütközés"
-},
-{
-"id": "453563f15a",
-"at": "2026-11-08T17:47:15Z",
+"id": "edf856dc43",
+"at": "2026-11-08T18:01:39Z",
 "msg": "Változásnapló frissítése"
 }
 ]
