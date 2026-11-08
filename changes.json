@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4a61063ce7",
+"at": "2026-11-09T01:59:44+02:00",
+"msg": "Videó ablak: függőleges videónál a hozzászólások jobb oldalt; Ctrl/Cmd nyomva: célkereszt; a még el nem küldött jelölő húzható"
+},
+{
 "id": "26b87a8408",
 "at": "2026-11-09T01:57:05+02:00",
 "msg": "Videó ablak: a jelölők megállítva is látszanak, hoverre a hozzászólás szövege; saját hozzászólás törlése"
@@ -141,13 +146,8 @@
 "msg": "Fizetések: korrekció a díjösszesítő kiküldése után is; szakember nézetben az értékesítői jutalék; feliratok"
 },
 {
-"id": "0295daa52b",
-"at": "2026-11-09T00:48:01+02:00",
-"msg": "Videók: hozzászólások (időbélyeggel), pCloud/Drive/YouTube lejátszás engedélyezése a CSP-ben, pCloud mappa-megosztás"
-},
-{
-"id": "45bab0b2b8",
-"at": "2026-11-08T22:42:59Z",
+"id": "e5cf3538f9",
+"at": "2026-11-08T22:48:11Z",
 "msg": "Változásnapló frissítése"
 }
 ]
