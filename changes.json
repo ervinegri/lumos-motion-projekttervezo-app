@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "208d226805",
+"at": "2026-11-09T01:36:42+02:00",
+"msg": "Videó ablak: az időkód gomb a videó alatt középen (a külön kijelző helyett)"
+},
+{
 "id": "65e4b41f78",
 "at": "2026-11-09T01:32:25+02:00",
 "msg": "Videó lejátszó: pontos időkód húzáskor (egyszerre egy ugrás, a megjelenített képkocka ideje), időkód a videó alatt középen"
@@ -136,13 +141,8 @@
 "msg": "Vágás fül: Trello-szerű tábla a videókhoz (húzással / → gombbal léptethető); a módosítást kért videót a vágó újra felveheti"
 },
 {
-"id": "5f3cb55777",
-"at": "2026-11-08T22:09:52+02:00",
-"msg": "Új verzió sáv: hoverre megmutatja az újdonságokat"
-},
-{
-"id": "12466a3a9d",
-"at": "2026-11-08T20:09:40Z",
+"id": "15eacf64a0",
+"at": "2026-11-08T20:10:03Z",
 "msg": "Változásnapló frissítése"
 }
 ]
