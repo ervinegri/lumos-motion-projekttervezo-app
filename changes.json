@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "35c329858d",
+"at": "2026-11-08T22:03:08+02:00",
+"msg": "Projektlista: aktív utómunka lila kiemeléssel, kész projekt halványan; stábkártyán nincs ÁFA-sor"
+},
+{
 "id": "44c0428d52",
 "at": "2026-11-08T21:59:32+02:00",
 "msg": "Értékesítői jutalék mezők (% és Ft) a termelői keret mellett; kézi % a projekten, a havi jutalék is ezzel számol"
@@ -144,11 +149,6 @@
 "id": "1474067564",
 "at": "2026-11-06T22:26:14+01:00",
 "msg": "Visszavonás: jóváhagyásra váró sáv hosszabbítása"
-},
-{
-"id": "0d49ff228e",
-"at": "2026-11-06T22:12:52+01:00",
-"msg": "Idővonal: jóváhagyásra váró vágás a mai napig látszik, nem tűnik el"
 }
 ]
 }
