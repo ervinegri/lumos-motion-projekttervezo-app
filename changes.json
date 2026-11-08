@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2bb0b4ea88",
+"at": "2026-11-08T21:47:19+02:00",
+"msg": "Idővonal: hoverre a forgatás és a vágás sávja együtt világosodik (folytonos átmenet)"
+},
+{
 "id": "4038f52404",
 "at": "2026-11-08T21:46:24+02:00",
 "msg": "Extrák: értékesítői jutalék (összekötve az Értékesítés füllel: értékesítő és várható jutalék); fizetések súgójában egy tételnél csak a jogcím"
@@ -144,11 +149,6 @@
 "id": "44b9e9a1cd",
 "at": "2026-11-06T15:02:58+01:00",
 "msg": "Ablak-piszkozat a kitöltött űrlaphoz kötve (ügyfél adószám nem tűnik el); Ügyfelek: egész sor kattintható"
-},
-{
-"id": "fc09c96955",
-"at": "2026-11-06T10:46:33+01:00",
-"msg": "Munkatársi szerződések: feltöltés, megnyitás, törlés – csak az ügyvezető látja"
 }
 ]
 }
