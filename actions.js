@@ -2066,6 +2066,7 @@ document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset|
 /* Extrák: egy „＋ Hozzáadás…” menüből (extra, kedvezmény, továbbszámlázott költség, ajánlói jutalék) */
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.exMenu===undefined)return;const v=t.value;t.value='';if(!v||!S.draft)return;
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
+  if(v==='org'){if(ACT['org-add'])ACT['org-add']();setTimeout(()=>{const s=$('org-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
 /* A fejléc magassága (a ragadós projektcímhez), és árnyék, amikor a cím fent ragad */
 (()=>{const setH=()=>{const t=document.querySelector('.topbar'),v=$('viewBanner');if(!t)return;const th=t.offsetHeight,vh=v&&!v.classList.contains('hidden')?v.offsetHeight:0;   // a sárga „nézet” sáv is fent marad: a ragadós elemek alatta kezdődnek
@@ -2135,3 +2136,6 @@ ACT['nas-copy']=b=>{const v=b.dataset.v||'';try{navigator.clipboard.writeText(v)
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='cdoc-file'){const f=e.target.files&&e.target.files[0],o=$('cdoc-fn');if(o)o.textContent=f?'Kiválasztva: '+f.name:'';const t=$('cdoc-title');if(f&&t&&!t.value)t.value='Szerződés';}});
 
 ACT['cl-open-proj']=b=>{closeModal();openProject(b.dataset.id);};
+
+/* Szervezői jutalék kikapcsolása a fejléc jelölőjével (ugyanúgy, mint az ajánlói jutaléknál) */
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.orgToggle===undefined||t.checked)return;ACT['extra-del']({dataset:{i:t.dataset.orgToggle}});});
