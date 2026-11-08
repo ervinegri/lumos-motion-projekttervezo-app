@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "529ccda6ef",
+"at": "2026-11-09T01:29:31+02:00",
+"msg": "Videó ablak: időkód perc:mp:képkocka, időkód gomb a Hozzászólások sorában, bezáráskor vissza a videótáblára"
+},
+{
 "id": "c6315c26d7",
 "at": "2026-11-09T01:26:20+02:00",
 "msg": "Videó ablak: időkód gomb a lejátszó alatt"
@@ -136,13 +141,8 @@
 "msg": "Pénzügyek: Értékesítés és Termelés külön dobozban; alapból egy sor, szervezői jutaléknál / továbbszámlázottnál két sor"
 },
 {
-"id": "ada5b728a9",
-"at": "2026-11-08T22:05:25+02:00",
-"msg": "Értékesítő: fiók nélküli „Értékesítő” szerepű munkatárs is választható (és a Sales szinkron is felismeri); jutaléka a projektenként megadott % szerint"
-},
-{
-"id": "68c267c396",
-"at": "2026-11-08T20:03:17Z",
+"id": "8048007082",
+"at": "2026-11-08T20:05:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
