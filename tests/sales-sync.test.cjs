@@ -151,7 +151,7 @@ test('videónkénti követés: a vágó leadja mind → jóváhagyásra vár; m�
   assert.throws(() => vidSet(nora, A, { id: ids[0], st: 'leadva' }), /FORBIDDEN/);   // ügyfél-jóváhagyásra csak a vezető teheti
   ids.forEach((id, i) => { vidSet(nora, A, { id, st: 'ellen' }); r = vidSet(boss, A, { id, st: 'leadva' }); assert.equal(r.st, i < ids.length - 1 ? 'utomunka' : 'jovahagyas'); });
   assert.throws(() => vidSet(nora, A, { id: ids[0], st: 'jovahagyva' }), /FORBIDDEN/);   // a jóváhagyás nem a vágó dolga
-  r = vidSet(boss, A, { id: ids[1], st: 'modositas' }); assert.equal(r.st, 'utomunka'); assert.equal(r.v[1], 'modositas');
+  r = vidSet(boss, A, { id: ids[1], st: 'modositas' }); assert.equal(r.st, 'utomunka'); assert.equal(r.v[1], 'vagas');   // a „módosítást kér” visszakerül az utómunka alatt oszlopba
   assert.throws(() => vidSet({ id: 'y', name: 'Más', role: 'crew', crewId: 'crew-koos-1' }, A, { id: ids[0], st: 'vagas' }), /FORBIDDEN/);
 });
 test('A Sales App megrendelőlapja (PDF) a projekt Szerződés részébe kerül', () => {
