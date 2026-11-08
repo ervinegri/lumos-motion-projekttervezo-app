@@ -701,7 +701,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
       {submitLabel:'Kifizetve',submit:async fd=>{const d=String(fd.get('paidAt')||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){toast('Add meg a dátumot.',true);return;}
         try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:'paid',on:true,date:d});closeModal();render(true);toast(`${nm}: kifizetve (${fmtShort(d)})`);}catch(err){handleErr(err);}}});return;}
   t.disabled=true;
-  try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla fizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
+  try{S.payStatus=await call('setPayStatus',{month:t.dataset.month,crewId:t.dataset.cid,field:t.dataset.paySt,on});render(true);toast(t.dataset.paySt==='paid'?(on?'Számla kifizetve':'Fizetés visszavonva'):(on?'Számla kiállítva':'Számla kiállítása visszavonva'));}
   catch(err){t.checked=!on;t.disabled=false;handleErr(err);}});
 /* Havi díjösszesítő kiküldése a szakembereknek (ügyvezető) */
 function pmMasterSync(){const sb=document.querySelector('#mform button[type=submit]');if(sb&&document.querySelector('#modalRoot .pay-mail-list,#modalRoot #pm-month')){const any=!!document.querySelector('#modalRoot input[name=pm]:checked');sb.disabled=!any;sb.title=any?'':'Jelölj ki legalább egy munkatársat';}const m=$('pm-master');if(!m)return;const all=[...document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)')],on=all.filter(x=>x.checked).length;m.checked=!!all.length&&on===all.length;m.indeterminate=on>0&&on<all.length;}
@@ -2269,7 +2269,7 @@ ACT['vid-cm']=async b=>{const box=b.closest('.vv-cm'),ta=$('m-vvCm'),t=String(ta
 /* pCloud nyilvános link → közvetlen videócím (getpublinkdownload), és lejátszás a saját lejátszóban */
 async function pcloudLoad(){const el=document.querySelector('.vv-pc[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];let why='';
   const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
-  for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`)).json();if(!sj||sj.result!==0){why=sj&&sj.error||why;continue;}
+  for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`)).json();if(!sj||sj.result!==0){why=why||(sj&&sj.error)||'';console.warn('pCloud',h,code,sj);continue;}
       const f=vidOf(sj.metadata);if(!f){why='a megosztásban nincs videófájl';break;}
       const j=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`)).json();
       if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){if(!el.isConnected)return;el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" controls playsinline autoplay></video>`;vidTsTick();return;}why=j&&j.error||why;}catch(e){why=why||'a pCloud nem érhető el';}}
