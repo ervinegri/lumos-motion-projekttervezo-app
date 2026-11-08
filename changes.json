@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "757a620f09",
+"at": "2026-11-09T01:44:26+02:00",
+"msg": "Videó ablak: Enter = időkód beszúrása, gépelés közben Enter = vissza a videóhoz"
+},
+{
 "id": "375eb3d2c2",
 "at": "2026-11-09T01:43:25+02:00",
 "msg": "Videó ablak: kisebb távolság a videó és az időkód sor között"
@@ -136,13 +141,8 @@
 "msg": "Fizetések: alcím nélkül"
 },
 {
-"id": "9f46794198",
-"at": "2026-11-09T00:22:11+02:00",
-"msg": "Fizetések (átnevezve): fiók nélküli értékesítő jutaléka projektenként; Vágás fül megszűnt (videótábla az Utómunka lépésről és az idővonalról); projekt Videók: állapot nélkül; naptár: Idővonal az alap, elöl; idővonal: kész szürke / jóváhagyásra váró sárga javítva; mozgatáskor nincs értesítés; e-mailben nincs fura jel; Sales projektek: megrendelőlap a Szerződéshez; termelői alap = végső érték − szervezői jutalék − továbbszámlázott"
-},
-{
-"id": "9bf669adb5",
-"at": "2026-11-08T20:54:33Z",
+"id": "7d3ed7efc3",
+"at": "2026-11-08T22:22:20Z",
 "msg": "Változásnapló frissítése"
 }
 ]
