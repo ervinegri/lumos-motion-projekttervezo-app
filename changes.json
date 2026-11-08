@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "af44665fd0",
+"at": "2026-11-08T20:38:34+02:00",
+"msg": "Szervezői jutalék a szerződött érték alatt, új ügyfél felvétele a szervező-választóból, alatta a jutalék levonása utáni összeg"
+},
+{
 "id": "54fc5dd674",
 "at": "2026-11-08T20:19:12+02:00",
 "msg": "Extrák: egységes „＋ Hozzáadás…” menü (szervezői jutalék is), az ajánlói és a szervezői jutalék azonos kinézetű blokkban"
@@ -144,11 +149,6 @@
 "id": "633f123462",
 "at": "2026-11-06T09:00:41+01:00",
 "msg": "Lezajlott projekt csapata zárolva; mezők vékonyabb betű; idővonal átmenet javítás; vissza gomb a címsorban"
-},
-{
-"id": "2c611288eb",
-"at": "2026-11-06T08:55:15+01:00",
-"msg": "Beosztásaim: a szerep alatt a projekt állapota (pl. Elfogadásra vár, Kész)"
 }
 ]
 }
