@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "daf8ad03b4",
+"at": "2026-11-08T18:46:10+01:00",
+"msg": "Sales szinkron: jegyzetben nincs érzékeny adat; Sales díjbekérők automatikus hozzárendelése"
+},
+{
 "id": "d6d4c181fc",
 "at": "2026-11-07T00:06:18+01:00",
 "msg": "Kifizetések: Egyenleg = előző hónapok elmaradása, alatta Összesen fizetendő"
@@ -144,16 +149,6 @@
 "id": "0a3758929e",
 "at": "2026-11-06T08:46:21+01:00",
 "msg": "Logó: LUMOS MOTION Medium, PROJEKTTERVEZŐ Bold"
-},
-{
-"id": "5c1d56db95",
-"at": "2026-11-06T08:45:25+01:00",
-"msg": "Idővonal: kész vágás csak ✓"
-},
-{
-"id": "27bda7efd8",
-"at": "2026-11-06T08:44:34+01:00",
-"msg": "Idővonal: a kész vágások ✓ jelet kapnak"
 }
 ]
 }
