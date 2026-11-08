@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2703f270e0",
+"at": "2026-11-09T01:38:17+02:00",
+"msg": "Időkód: a képkocka 01-től számozva (25 fps-nél 01–25)"
+},
+{
 "id": "340c24ac5e",
 "at": "2026-11-09T01:37:55+02:00",
 "msg": "Videó ablak: szóközzel indít/megállít, bezáráskor villanás nélkül vissza a videótáblára"
@@ -136,13 +141,8 @@
 "msg": "Vágás: sávos tábla (projekt soronként a határidő szerint, visszaszámlálóval); idővonal: a vágássávon a videók állapota színesen + x/y, kattintásra a projekt videótáblája"
 },
 {
-"id": "7cd8851b86",
-"at": "2026-11-08T22:14:38+02:00",
-"msg": "Értékesítői jutalék: a beírt Ft pontosan megmarad, a % gépelés közben frissül; alapja a szervezői jutalék és a továbbszámlázott után; a mező neve a levont tételek szerint; egy értékesítő egyszer a listában"
-},
-{
-"id": "c0329f51cc",
-"at": "2026-11-08T20:11:58Z",
+"id": "8ae17a8773",
+"at": "2026-11-08T20:14:47Z",
 "msg": "Változásnapló frissítése"
 }
 ]
