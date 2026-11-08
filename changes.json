@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7bb4e44fa5",
+"at": "2026-11-09T01:46:06+02:00",
+"msg": "Videó ablak: Enter billentyű-jelzés és súgó az időkód gombon"
+},
+{
 "id": "757a620f09",
 "at": "2026-11-09T01:44:26+02:00",
 "msg": "Videó ablak: Enter = időkód beszúrása, gépelés közben Enter = vissza a videóhoz"
@@ -141,8 +146,8 @@
 "msg": "Fizetések: alcím nélkül"
 },
 {
-"id": "7d3ed7efc3",
-"at": "2026-11-08T22:22:20Z",
+"id": "bd37482fd2",
+"at": "2026-11-08T22:24:30Z",
 "msg": "Változásnapló frissítése"
 }
 ]
