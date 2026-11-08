@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "73d28f38e9",
+"at": "2026-11-09T01:00:32+02:00",
+"msg": "Videó ablak: egy szövegmező (a visszadobás indoka is innen), legfrissebb hozzászólás felül"
+},
+{
 "id": "86891b6e58",
 "at": "2026-11-09T00:57:22+02:00",
 "msg": "Kifizetések: a szakember saját nézetében név nélkül a díjösszesítő sor"
@@ -141,13 +146,8 @@
 "msg": "Pénzügyek: 3 soros elrendezés (büdzsé / szervezői jutalék / levonás utáni összeg + hatékonyság + termelői keret)"
 },
 {
-"id": "5c10d37573",
-"at": "2026-11-08T19:44:41+01:00",
-"msg": "PROJEKT.md: szervezői jutalék, videónkénti követés, sales alapértékek"
-},
-{
-"id": "012bf04f61",
-"at": "2026-11-08T18:39:39Z",
+"id": "98776b74dd",
+"at": "2026-11-08T18:44:50Z",
 "msg": "Változásnapló frissítése"
 }
 ]
