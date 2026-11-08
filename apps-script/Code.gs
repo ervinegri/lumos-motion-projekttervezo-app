@@ -950,7 +950,7 @@ function videoSet_(u, a) {
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
       if (!mgr && (['vagasra', 'vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
-      if (mgr && a.st === 'modositas' && a.fb !== undefined) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
+      if (mgr && a.st === 'modositas' && a.fb !== undefined) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); { const m = /^\[(\d+):(\d\d)\]\s*/.exec(v.fb); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + (m ? v.fb.slice(m[0].length) : v.fb), ts: m ? Number(m[1]) * 60 + Number(m[2]) : '' }]).slice(-100); } FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);
