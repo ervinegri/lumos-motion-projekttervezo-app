@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4fc9fb89a0",
+"at": "2026-11-09T00:32:08+02:00",
+"msg": "Fizetések: alcím nélkül"
+},
+{
 "id": "9f46794198",
 "at": "2026-11-09T00:22:11+02:00",
 "msg": "Fizetések (átnevezve): fiók nélküli értékesítő jutaléka projektenként; Vágás fül megszűnt (videótábla az Utómunka lépésről és az idővonalról); projekt Videók: állapot nélkül; naptár: Idővonal az alap, elöl; idővonal: kész szürke / jóváhagyásra váró sárga javítva; mozgatáskor nincs értesítés; e-mailben nincs fura jel; Sales projektek: megrendelőlap a Szerződéshez; termelői alap = végső érték − szervezői jutalék − továbbszámlázott"
@@ -139,6 +144,11 @@
 "id": "672f735748",
 "at": "2026-11-08T20:01:30+02:00",
 "msg": "Ütközés: ugyanazon a helyszínen (eltérő írásmóddal is) vagy ugyanannak a rendezvénynek a videóinál nem ütközés"
+},
+{
+"id": "453563f15a",
+"at": "2026-11-08T17:47:15Z",
+"msg": "Változásnapló frissítése"
 }
 ]
 }
