@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "86891b6e58",
+"at": "2026-11-09T00:57:22+02:00",
+"msg": "Kifizetések: a szakember saját nézetében név nélkül a díjösszesítő sor"
+},
+{
 "id": "c5f53f41c0",
 "at": "2026-11-09T00:56:41+02:00",
 "msg": "Videó ablak: ügyfél-jóváhagyás gombjai; pCloud hivatkozó nélkül (Invalid link referer)"
@@ -141,13 +146,8 @@
 "msg": "PROJEKT.md: szervezői jutalék, videónkénti követés, sales alapértékek"
 },
 {
-"id": "fce5a42110",
-"at": "2026-11-08T19:39:29+01:00",
-"msg": "Videónkénti vágói követés: videósorok darabszámokból, vágó és állapot videónként, a projekt lépése automatikus"
-},
-{
-"id": "7d8bd7b504",
-"at": "2026-11-08T18:38:43Z",
+"id": "012bf04f61",
+"at": "2026-11-08T18:39:39Z",
 "msg": "Változásnapló frissítése"
 }
 ]
