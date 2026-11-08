@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "8481920cd7",
+"at": "2026-11-09T01:24:15+02:00",
+"msg": "Videó lejátszó: rövid kattintás indít/megállít, képkockához igazított tekerés (mért fps), ← → képkocka-léptetés, időkód-buborék alul"
+},
+{
 "id": "b2635c7ccd",
 "at": "2026-11-09T01:21:52+02:00",
 "msg": "Videó ablak: projekt, állapot és link a címsorban"
@@ -136,13 +141,8 @@
 "msg": "Pénzügyek: termelői keret a hatékonyság mellett, a szervező neve egyvonalban a kettővel"
 },
 {
-"id": "2bb0b4ea88",
-"at": "2026-11-08T21:47:19+02:00",
-"msg": "Idővonal: hoverre a forgatás és a vágás sávja együtt világosodik (folytonos átmenet)"
-},
-{
-"id": "03a0867f02",
-"at": "2026-11-08T19:46:33Z",
+"id": "b71caf8be5",
+"at": "2026-11-08T19:47:28Z",
 "msg": "Változásnapló frissítése"
 }
 ]
