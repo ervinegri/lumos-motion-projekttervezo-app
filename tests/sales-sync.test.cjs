@@ -67,7 +67,8 @@ test('új végleges rendelésből ügyfél és projekt lesz (piszkozatból nem)'
   assert.equal(p.date, '2026-11-15'); assert.equal(p.startTime, '10:20'); assert.equal(p.short60, 3); assert.equal(Number(p.quotePrice), 159300);
   assert.equal(p.status, 'tervezes'); assert.equal(p.techPlan, 'Termékfotó a standnál'); assert.equal(p.clientTax, '12345678-2-41');
   assert.match(p.notes, /2 beszédes \+ 1 zenés/); assert.doesNotMatch(p.notes, /Fizetés|ÁFA|Értékesítő|LM-2026/);   // a jegyzetet a vágók és operatőrök is látják
-  assert.deepEqual(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${A}').map(r => r.crewId)`), ['crew-nora-1']);
+  assert.deepEqual(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${A}').map(r => r.crewId)`), ['crew-nora-1', 'crew-nora-1']);   // operatőr + vágó (Nóra); a projektvezetőt (Egri Ervin) a próba stábja nem tartalmazza
+  assert.equal(p.venue, 'Europa Event Center, Budapest, Hárshegyi út 5-7, 1021 Hungary'); assert.equal(p.dueAt, '2026-11-22'); assert.equal(p.endTime, '11:20'); assert.equal(p.hours, 1);
   const c = json(`DB.clients.find(c => c.name === 'Well Aging Kft.')`);
   assert.equal(c.tax, '12345678-2-41'); assert.equal(c.address, '1111 Budapest, Fő u. 1.'); assert.equal(c.contactName, 'Kiss Anna');
   assert.equal(proj(B), undefined);

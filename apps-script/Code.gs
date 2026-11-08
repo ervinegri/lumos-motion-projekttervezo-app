@@ -4338,12 +4338,18 @@ const SALES_HEAD = { id: 'Azonosító', brand: 'Márka / stand', contact: 'Kapcs
   salesperson: 'Értékesítő', spokenCount: 'Beszédes short db', musicCount: 'Zenés short db', shootAt: 'Forgatás időpontja', note: 'Megjegyzés', status: 'Értékesítési státusz',
   event: 'Rendezvény', updatedAt: 'Módosítva', shootBy: 'Operatőr', mutationId: 'Utolsó műveletazonosító', filmingDone: 'Forgatás megtörtént', shootAt2: 'Második forgatás időpontja',
   shootContent: 'Instrukció az operatőrnek', shootContent2: 'Instrukció az operatőrnek – második forgatás', address: 'Számlázási cím',
-  netTotal: 'Nettó végösszeg (Ft)', vatType: 'ÁFA-besorolás', paymentMode: 'Fizetés módja', deliveryDate: 'Vállalt átadás' };
+  netTotal: 'Nettó végösszeg (Ft)', vatType: 'ÁFA-besorolás', paymentMode: 'Fizetés módja', deliveryDate: 'Vállalt átadás', venue: 'Helyszín' };
 // kétirányú mezők (a később módosított nyer) és csak a Salesből jövők
+/* Új sales-projekt alapbeállításai (Szkript-tulajdonságokkal felülírhatók: SALES_LEAD, SALES_EDITOR, SALES_DUE_DAYS, SALES_SHOOT_HOURS) */
+const SALES_DEFAULT_VENUE = 'Europa Event Center, Budapest, Hárshegyi út 5-7, 1021 Hungary';
+const SALES_LEAD_NAME = 'Egri Ervin', SALES_EDITOR_NAME = 'Marosvölgyi Nóra', SALES_DUE_DAYS = 7, SALES_SHOOT_HOURS = 1;
+const salesCfg_ = (k, d) => { try { const v = PropertiesService.getScriptProperties().getProperty(k); return v == null || v === '' ? d : v; } catch (e) { return d; } };
+const isoAdd_ = (iso, n) => /^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? new Date(Date.parse(iso + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10) : '';
+const timeAdd_ = (t, h) => { const m = /^(\d{2}):(\d{2})$/.exec(t || ''); return m ? String((Number(m[1]) + h) % 24).padStart(2, '0') + ':' + m[2] : ''; };
 const SYNC_TWO = ['company', 'tax', 'address', 'contact', 'phone', 'email', 'shootDate', 'shootTime', 'shootContent', 'cancelled'];
-const SYNC_ONE = ['pname', 'short60', 'quote', 'notes', 'operator', 'filmingDone'];
+const SYNC_ONE = ['pname', 'short60', 'quote', 'notes', 'operator', 'filmingDone', 'venue'];
 const SYNC_LABEL = { company: 'Cégnév', tax: 'Adószám', address: 'Cím', contact: 'Kapcsolattartó', phone: 'Telefon', email: 'E-mail', shootDate: 'Forgatás napja',
-  shootTime: 'Forgatás időpontja', shootContent: 'Instrukció', cancelled: 'Lemondva', pname: 'Projekt neve', short60: 'Shortok', quote: 'Ajánlati ár', notes: 'Jegyzet', operator: 'Operatőr', filmingDone: 'Forgatás kész' };
+  shootTime: 'Forgatás időpontja', shootContent: 'Instrukció', cancelled: 'Lemondva', pname: 'Projekt neve', short60: 'Shortok', quote: 'Ajánlati ár', notes: 'Jegyzet', operator: 'Operatőr', filmingDone: 'Forgatás kész', venue: 'Helyszín' };
 
 const taxDigits_ = v => String(v == null ? '' : v).replace(/\D/g, '').slice(0, 11);
 const taxFmt_ = d => { d = taxDigits_(d); return d.length === 11 ? d.slice(0, 8) + '-' + d.slice(8, 9) + '-' + d.slice(9) : d; };
@@ -4376,7 +4382,7 @@ function salesValues_(o) {
   return { company: sval_(o.company) || sval_(o.brand), tax: taxDigits_(o.tax), address: sval_(o.address), contact: sval_(o.contact), phone: sval_(o.phone), email: sval_(o.email).toLowerCase(),
     shootDate: m ? m[1] : '', shootTime: m ? m[2] : '', shootContent: sval_(o.shootContent), cancelled: sval_(o.status) === 'lemondva' ? '1' : '',
     pname: (sval_(o.brand) + (sval_(o.event) ? ' – ' + sval_(o.event) : '')).slice(0, 160), short60: String(Math.min(15, n)), quote: sval_(o.netTotal) ? String(Math.round(Number(sval_(o.netTotal)) || 0)) : '',
-    notes: notes, operator: sval_(o.shootBy), filmingDone: done ? '1' : '' };
+    venue: sval_(o.venue) || SALES_DEFAULT_VENUE, notes: notes, operator: sval_(o.shootBy), filmingDone: done ? '1' : '' };
 }
 /** Projekttervező oldali értékek (a kétirányú mezőkhöz). */
 function ptValues_(p, c) {
@@ -4450,6 +4456,12 @@ function salesSync() {
       if (has('shootDate')) { want.date = v('shootDate'); if (want.endDate && want.endDate < want.date) want.endDate = ''; }
       if (has('shootTime')) want.startTime = v('shootTime');
       if (has('shootContent')) want.techPlan = v('shootContent');
+      if (has('venue') && v('venue')) want.venue = v('venue');
+      { const days = Number(salesCfg_('SALES_DUE_DAYS', SALES_DUE_DAYS)), hrs = Number(salesCfg_('SALES_SHOOT_HOURS', SALES_SHOOT_HOURS));
+        if (!proj) { want.dueAt = isoAdd_(sv.shootDate, days); want.endTime = timeAdd_(sv.shootTime, hrs); want.hours = hrs; }   // leadási határidő: a forgatástól N nap; a várható távozás a kezdés + N óra (kézzel átírható)
+        else {   // dátum/idő változásakor csak az automatikusan számolt értéket igazítjuk (a kézzel átírtat nem)
+          if ('shootDate' in push && proj.dueAt && proj.dueAt === isoAdd_(snap && snap.shootDate, days)) want.dueAt = isoAdd_(sv.shootDate, days);
+          if ('shootTime' in push && proj.endTime && proj.endTime === timeAdd_(snap && snap.shootTime, hrs)) want.endTime = timeAdd_(sv.shootTime, hrs); } }
       if (has('short60')) want.short60 = Number(v('short60')) || 0;
       if ('notes' in push) { const keep = proj ? String(proj.notes || '').split('\n— Projekttervező —\n')[1] : ''; want.notes = push.notes + (keep ? '\n— Projekttervező —\n' + keep : ''); }
       if ('quote' in push && push.quote !== '') want.projectValue = Number(push.quote);
@@ -4457,6 +4469,11 @@ function salesSync() {
         const cm = crewByName(push.operator), prevOp = snap ? crewByName(snap.operator) : null;
         let cr = (want.crew || []).filter(x => !(prevOp && x.crewId === prevOp.id && x.role === 'Operatőr'));
         if (cm && !cr.some(x => x.crewId === cm.id && x.role === 'Operatőr')) cr.push({ crewId: cm.id, role: 'Operatőr' });
+        if (!proj) {   // alapbeosztás új projektnél: projektvezető + vágó (a csapat véglegesítéséig senkinek nem megy értesítés)
+          const ld = crewByName(salesCfg_('SALES_LEAD', SALES_LEAD_NAME)), ed = crewByName(salesCfg_('SALES_EDITOR', SALES_EDITOR_NAME));
+          if (ld) { want.lead = ld.id; if (!cr.some(x => x.crewId === ld.id && x.role === 'Projektvezető')) cr.push({ crewId: ld.id, role: 'Projektvezető' }); }
+          if (ed && !cr.some(x => x.crewId === ed.id && x.role === 'Vágó')) cr.push({ crewId: ed.id, role: 'Vágó' });
+        }
         want.crew = cr;
         if (push.operator && !cm) notesLog.push('Operatőr („' + push.operator + '”) nem található a Stáb listában, kézzel kell beosztani');
       }
