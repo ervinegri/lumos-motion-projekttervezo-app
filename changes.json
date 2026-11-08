@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "515fe35d51",
+"at": "2026-11-09T01:54:58+02:00",
+"msg": "Videó ablak: a szövegmezőben az időkódok kiemelve és kattinthatók"
+},
+{
 "id": "ecf269627a",
 "at": "2026-11-09T01:53:47+02:00",
 "msg": "Videó ablak: jól látható, számozott, pulzáló tű"
@@ -141,13 +146,8 @@
 "msg": "Kifizetések: a fiók nélküli értékesítő a saját nézetében is látja a jutalékait"
 },
 {
-"id": "b165d978c3",
-"at": "2026-11-09T00:39:23+02:00",
-"msg": "Videó lejátszó: pCloud nyilvános linkek lejátszása (közvetlen fájlcím a pCloud API-ból)"
-},
-{
-"id": "b700830093",
-"at": "2026-11-08T22:34:48Z",
+"id": "283c87b612",
+"at": "2026-11-08T22:39:33Z",
 "msg": "Változásnapló frissítése"
 }
 ]
