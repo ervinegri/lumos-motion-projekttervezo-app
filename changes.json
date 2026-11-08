@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "5f3cb55777",
+"at": "2026-11-08T22:09:52+02:00",
+"msg": "Új verzió sáv: hoverre megmutatja az újdonságokat"
+},
+{
 "id": "f8fadf2115",
 "at": "2026-11-08T22:09:30+02:00",
 "msg": "Pénzügyek: Értékesítés és Termelés külön dobozban; alapból egy sor, szervezői jutaléknál / továbbszámlázottnál két sor"
@@ -141,13 +146,8 @@
 "msg": "Jóváhagyásra vár: újra mindig fent, becsukható/kinyitható (megjegyzi)"
 },
 {
-"id": "c54f38ac10",
-"at": "2026-11-06T22:44:06+01:00",
-"msg": "Kézi vágói naptár-esemény: ⏳/✓ a hozzá tartozó projekt állapota szerint"
-},
-{
-"id": "a2677c2c0f",
-"at": "2026-11-06T21:29:39Z",
+"id": "928baec55c",
+"at": "2026-11-06T21:44:15Z",
 "msg": "Változásnapló frissítése"
 }
 ]
