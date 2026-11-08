@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a18d8c5d9f",
+"at": "2026-11-08T22:38:16+02:00",
+"msg": "Vágás: gyors húzásnál nem pattannak vissza a kártyák; belső ellenőrzésre küldés (Ervin/Dávid, videólink, megjegyzés, e-mail); 🔔 értesítések felugró jelzéssel; régi aktív projektek is kapnak videósorokat; idővonal: jóváhagyásra váró sárga, kész szürke"
+},
+{
 "id": "c27c569a5c",
 "at": "2026-11-08T22:26:15+02:00",
 "msg": "Vágás: sávos tábla (projekt soronként a határidő szerint, visszaszámlálóval); idővonal: a vágássávon a videók állapota színesen + x/y, kattintásra a projekt videótáblája"
@@ -141,13 +146,8 @@
 "msg": "Jóváhagyásra váró projektek az idővonalon is a helyükön maradnak"
 },
 {
-"id": "e7ef06be01",
-"at": "2026-11-06T23:22:01+01:00",
-"msg": "Idővonal magassága a nézet-sávval együtt is befér"
-},
-{
-"id": "a2e9d54780",
-"at": "2026-11-06T22:19:54Z",
+"id": "d5c4a6cace",
+"at": "2026-11-06T22:22:10Z",
 "msg": "Változásnapló frissítése"
 }
 ]
