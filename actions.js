@@ -2263,7 +2263,7 @@ function vidCmHtml(v){const L=vidCmItems(v);
   return `<h4 class="vv-cm-h">💬 Hozzászólások${L.length?` <span class="bd-n">${L.length}</span>`:''}</h4><div class="vv-cm-new"><textarea class="inp" id="m-vvCm" rows="3" placeholder="Írd ide az észrevételeidet – akár többet is, mindegyiket új sorba, időkóddal."></textarea><button type="button" class="vv-tc-ins" data-action="vid-tc" hidden>⏱ Időkód beszúrása · <b id="m-vvTsL">0:00:00</b></button></div>
     ${L.length?`<div class="vv-cm-l">${L.map(c=>`<div class="vv-cm-i"><b>${esc(c.by||'')}</b> <span class="muted">· ${esc(String(c.at||'').slice(0,16).replace('T',' '))}${c.tag?' · '+c.tag:''}</span><div>${tcLinks(esc(c.t)).replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`:''}`;}
 function vidAspect(vd){const f=()=>{const pl=vd.closest('.vv-player');if(pl&&vd.videoWidth&&vd.videoHeight>vd.videoWidth){pl.classList.add('vert');pl.style.setProperty('--ar',vd.videoWidth+'/'+vd.videoHeight);}};if(vd.videoWidth)f();else vd.addEventListener('loadedmetadata',f,{once:true});}
-/* Húzással tekerés: a videón nyomva tartott egérrel jobbra = előre, balra = vissza (a lejátszó szélessége ≈ 20 mp, rövidebb videónál a teljes hossz),
+/* Húzással tekerés: a videón nyomva tartott egérrel jobbra = előre, balra = vissza (a lejátszó szélessége ≈ 6 mp),
    a mért képkocka-sebességhez igazítva. Rövid kattintás: indít / megállít. ← →: egy képkocka (megállítva). A kezelősáv (alsó 48 px) érintetlen. */
 function vidFps(vd){if(vd._fpsM)return;vd._fpsM=1;const key='lpm_fps|'+vd.currentSrc.split('?')[0].slice(-120);try{const f=Number(localStorage.getItem(key));if(f>0){vd._fps=f;return;}}catch(e){}
   if(!vd.requestVideoFrameCallback)return;const ts=[];let probe=false,t0=0,mu=false;
@@ -2278,9 +2278,9 @@ function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-p
   const inCtl=e=>{const r=vd.getBoundingClientRect();return e.clientY>r.bottom-48;};
   vd.addEventListener('pointerdown',e=>{if(e.button!==0||inCtl(e))return;const r=vd.getBoundingClientRect();
     st={x:e.clientX,t:vd.currentTime,w:r.width,play:!vd.paused};moved=false;vd.setPointerCapture(e.pointerId);});
-  vd.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x;if(!moved&&Math.abs(dx)<4)return;
+  vd.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x;if(!moved&&Math.abs(dx)<6)return;
     if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');tip.hidden=false;}
-    const span=Math.min(vd.duration||20,20),t=vidSnap(vd,Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span)));vd.currentTime=t;tip.textContent=(dx<0?'◀ ':'')+tcFmt(t)+(dx>0?' ▶':'');});
+    const span=Math.min(vd.duration||6,6),t=vidSnap(vd,Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+dx/st.w*span)));vd.currentTime=t;tip.textContent=(dx<0?'◀ ':'')+tcFmt(t)+(dx>0?' ▶':'');});
   const end=e=>{if(!st)return;const was=st;st=null;pl.classList.remove('scrubbing');tip.hidden=true;try{vd.releasePointerCapture(e.pointerId);}catch(x){}
     if(moved){if(was.play)vd.play().catch(()=>{});}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
   vd.addEventListener('pointerup',end);vd.addEventListener('pointercancel',end);
