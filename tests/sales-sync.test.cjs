@@ -2,7 +2,9 @@
 // Futtatás: node tests/sales-sync.test.cjs
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict'), crypto = require('node:crypto'), path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const ctx = vm.createContext({ console, Utilities: { getUuid: () => crypto.randomUUID() }, SpreadsheetApp: { flush() {} }, Logger: { log() {} },
+const PDFS = [];   // a Sales App „Rendelések” mappájának megrendelőlapjai
+const DriveApp = { getFolderById: () => ({ getFoldersByName: () => { let done = false; return { hasNext: () => !done, next: () => { done = true; let i = 0; return { getFiles: () => ({ hasNext: () => i < PDFS.length, next: () => PDFS[i++] }) }; } }; } }) };
+const ctx = vm.createContext({ console, DriveApp, Utilities: { getUuid: () => crypto.randomUUID() }, SpreadsheetApp: { flush() {} }, Logger: { log() {} },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => null, setProperty() {} }) } });
 vm.runInContext(fs.readFileSync(path.join(root, 'apps-script/Code.gs'), 'utf8'), ctx);
 vm.runInContext(`
@@ -146,9 +148,17 @@ test('videónkénti követés: a vágó leadja mind → jóváhagyásra vár; m�
   const nora = { id: 'x', name: 'Nóra', role: 'crew', crewId: 'crew-nora-1' }, boss = { id: 'u1', name: 'Ervin', role: 'admin' };
   const ids = JSON.parse(proj(A).videos).map(v => v.id); assert.ok(ids.length >= 2);
   let r;
-  ids.forEach((id, i) => { r = vidSet(nora, A, { id, st: 'leadva' }); assert.equal(r.st, i < ids.length - 1 ? 'utomunka' : 'jovahagyas'); });
+  assert.throws(() => vidSet(nora, A, { id: ids[0], st: 'leadva' }), /FORBIDDEN/);   // ügyfél-jóváhagyásra csak a vezető teheti
+  ids.forEach((id, i) => { vidSet(nora, A, { id, st: 'ellen' }); r = vidSet(boss, A, { id, st: 'leadva' }); assert.equal(r.st, i < ids.length - 1 ? 'utomunka' : 'jovahagyas'); });
   assert.throws(() => vidSet(nora, A, { id: ids[0], st: 'jovahagyva' }), /FORBIDDEN/);   // a jóváhagyás nem a vágó dolga
   r = vidSet(boss, A, { id: ids[1], st: 'modositas' }); assert.equal(r.st, 'utomunka'); assert.equal(r.v[1], 'modositas');
   assert.throws(() => vidSet({ id: 'y', name: 'Más', role: 'crew', crewId: 'crew-koos-1' }, A, { id: ids[0], st: 'vagas' }), /FORBIDDEN/);
+});
+test('A Sales App megrendelőlapja (PDF) a projekt Szerződés részébe kerül', () => {
+  run(`DB.finBilling = DB.finBilling || [];`);
+  PDFS.push({ getName: () => 'Lumos Motion - Green Bar Kft. - 2026-11-06.pdf', isTrashed: () => false, getDateCreated: () => new Date('2026-11-06'), getUrl: () => 'https://drive.google.com/file/d/PDF1/view', getId: () => 'PDF1' });
+  json('salesSync()');
+  const b = json(`DB.finBilling.find(x => x.projectId === 'sales-${C}')`);
+  assert.ok(b, 'számlázási sor'); assert.equal(b.contractFileId, 'PDF1'); assert.match(b.contractName, /Megrendelőlap/);
 });
 console.log('Sales szinkron: minden rendben.');
