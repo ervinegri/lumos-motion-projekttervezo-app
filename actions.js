@@ -2241,7 +2241,7 @@ function vidEmbed(u){u=String(u||'').trim();let m;
   if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u)))return `<div class="vv-pc" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span> pCloud videó betöltése…</div>`;   // pCloud: a közvetlen fájlcímet a pCloud API adja
   return '';}
 ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;
-  const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),rev=mgr&&v.st==='ellen'&&p.status!=='atadva',emb=vidEmbed(v.link);
+  const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),rev=mgr&&v.st==='ellen'&&p.status!=='atadva',cli=mgr&&v.st==='leadva'&&p.status!=='atadva',emb=vidEmbed(v.link);
   try{const L=bellItems().map(x=>x.key);localStorage.setItem('lpm_bell_read',JSON.stringify([...new Set((JSON.parse(localStorage.getItem('lpm_bell_read')||'[]')).concat(L.filter(k=>k.startsWith(pid+'|'+vid+'|'))))]));bellRender();}catch(e){}
   const stL=(VID_ST.find(x=>x[0]===v.st)||[])[1]||'';
   openModal('🎞️ '+v.name,`<p class="hint" style="margin:-4px 0 10px">${esc(p.name||'')} · <span class="statuspill ${VID_CLS[v.st]||''}">${esc(stL)}</span></p>
@@ -2249,8 +2249,8 @@ ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=
     ${v.rvBy||v.note?`<div class="vv-msg"><b>${esc(v.rvBy||'')}</b>${v.rvAt?` <span class="muted">· ${esc(String(v.rvAt).slice(0,16))}</span>`:''}${v.note?`<div>${esc(v.note).replace(/\n/g,'<br>')}</div>`:''}</div>`:''}
     ${v.fb?`<div class="vv-msg vv-fb"><b>↩ ${esc(v.fbBy||'Visszajelzés')}</b>${v.fbAt?` <span class="muted">· ${esc(String(v.fbAt).slice(0,16))}</span>`:''}<div>${esc(v.fb).replace(/\n/g,'<br>')}</div></div>`:''}
     <div class="vv-cm" data-pid="${esc(pid)}" data-vid="${esc(vid)}">${vidCmHtml(v)}</div>
-    ${rev?`<div class="field full" style="margin-top:12px"><label for="m-vvFb">Visszajelzés a vágónak <span class="muted">(visszadobáskor kötelező)</span></label><textarea class="inp" id="m-vvFb" name="fb" rows="3"></textarea></div>`:''}`,
-    rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:CMB_BTN+`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:{cancelLabel:'Bezárás',left:CMB_BTN});
+    ${rev||cli?`<div class="field full" style="margin-top:12px"><label for="m-vvFb">${cli?'Az ügyfél módosítási kérései':'Visszajelzés a vágónak'} <span class="muted">(${cli?'módosításkéréskor':'visszadobáskor'} kötelező)</span></label><textarea class="inp" id="m-vvFb" name="fb" rows="3"></textarea></div>`:''}`,
+    rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:CMB_BTN+`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:cli?{submitLabel:'✅ Az ügyfél jóváhagyta',cancelLabel:'Bezárás',noDraft:true,left:CMB_BTN+`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Az ügyfél módosítást kér</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'jovahagyva');}}:{cancelLabel:'Bezárás',left:CMB_BTN});
   const mb=document.querySelector('#mform');if(mb&&v.link)mb.classList.add('m-video');pcloudLoad();vidTsTick();};
 /* Hozzászólások a videóhoz: lista (időbélyegre kattintva a lejátszó odaugrik) + új hozzászólás, a lejátszó aktuális időpontjához köthetően */
 const CMB_BTN='<button type="button" class="btn" data-action="vid-cm">💬 Hozzászólás</button> ';
@@ -2270,10 +2270,10 @@ ACT['vid-cm']=async b=>{const box=document.querySelector('.vv-cm');if(!box)retur
 /* pCloud nyilvános link → közvetlen videócím (getpublinkdownload), és lejátszás a saját lejátszóban */
 async function pcloudLoad(){const el=document.querySelector('.vv-pc[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];let why='';
   const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
-  for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`)).json();if(!sj||sj.result!==0){why=why||(sj&&sj.error)||'';console.warn('pCloud',h,code,sj);continue;}
+  for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`,{referrerPolicy:'no-referrer'})).json();if(!sj||sj.result!==0){why=why||(sj&&sj.error)||'';console.warn('pCloud',h,code,sj);continue;}
       const f=vidOf(sj.metadata);if(!f){why='a megosztásban nincs videófájl';break;}
-      const j=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`)).json();
-      if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){if(!el.isConnected)return;el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" controls playsinline autoplay></video>`;vidTsTick();return;}why=j&&j.error||why;}catch(e){why=why||'a pCloud nem érhető el';}}
+      const j=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`,{referrerPolicy:'no-referrer'})).json();
+      if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){if(!el.isConnected)return;el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" referrerpolicy="no-referrer" controls playsinline autoplay></video>`;vidTsTick();return;}why=j&&j.error||why;}catch(e){why=why||'a pCloud nem érhető el';}}
   const pl=el.closest('.vv-player')||el;if(pl.isConnected)pl.outerHTML=`<div class="vv-noembed">A pCloud videót nem sikerült itt lejátszani${why?` (${esc(why)})`:''} – nyisd meg új lapon.</div>`;}
 ACT['vid-reject']=b=>{const fb=String(($('m-vvFb')||{}).value||'').trim();if(fb.length<3){toast('Írd le röviden, mit kell javítani.',true);const t=$('m-vvFb');if(t)t.focus();return;}
   const pid=b.dataset.pid,vid=b.dataset.vid;closeModal();bdMove(pid,vid,'modositas',null,fb);};
