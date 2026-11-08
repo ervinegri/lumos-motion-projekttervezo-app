@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "26b87a8408",
+"at": "2026-11-09T01:57:05+02:00",
+"msg": "Videó ablak: a jelölők megállítva is látszanak, hoverre a hozzászólás szövege; saját hozzászólás törlése"
+},
+{
 "id": "515fe35d51",
 "at": "2026-11-09T01:54:58+02:00",
 "msg": "Videó ablak: a szövegmezőben az időkódok kiemelve és kattinthatók"
@@ -141,13 +146,8 @@
 "msg": "Videók: hozzászólások (időbélyeggel), pCloud/Drive/YouTube lejátszás engedélyezése a CSP-ben, pCloud mappa-megosztás"
 },
 {
-"id": "c79b5fd76b",
-"at": "2026-11-09T00:42:50+02:00",
-"msg": "Kifizetések: a fiók nélküli értékesítő a saját nézetében is látja a jutalékait"
-},
-{
-"id": "283c87b612",
-"at": "2026-11-08T22:39:33Z",
+"id": "45bab0b2b8",
+"at": "2026-11-08T22:42:59Z",
 "msg": "Változásnapló frissítése"
 }
 ]
