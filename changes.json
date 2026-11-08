@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "fce5a42110",
+"at": "2026-11-08T19:39:29+01:00",
+"msg": "Videónkénti vágói követés: videósorok darabszámokból, vágó és állapot videónként, a projekt lépése automatikus"
+},
+{
 "id": "af44665fd0",
 "at": "2026-11-08T20:38:34+02:00",
 "msg": "Szervezői jutalék a szerződött érték alatt, új ügyfél felvétele a szervező-választóból, alatta a jutalék levonása utáni összeg"
@@ -144,11 +149,6 @@
 "id": "2044e6e168",
 "at": "2026-11-06T09:01:13+01:00",
 "msg": "Kisebb üres sáv az oldal alján"
-},
-{
-"id": "633f123462",
-"at": "2026-11-06T09:00:41+01:00",
-"msg": "Lezajlott projekt csapata zárolva; mezők vékonyabb betű; idővonal átmenet javítás; vissza gomb a címsorban"
 }
 ]
 }
