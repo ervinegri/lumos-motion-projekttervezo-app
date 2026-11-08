@@ -1025,6 +1025,14 @@ html:has(.cal-grid){overscroll-behavior-y:none}.cal-grid{overscroll-behavior:non
 .sales-opt .org-line .cmb{flex:0 1 300px}.sales-est{font-size:14px}
 /* idővonal: a forgatás és a vágás sávja együtt világosodik hoverre, így az átmenet folytonos marad */
 .tl-row .tl-bar:hover,.tl-row .cal-chip.tl-bar:hover,.tl-row .cal-chip.p.cut.cut-pending.tl-bar:hover{filter:none}.tl-row.tl-it:hover .tl-bar,.tl-row.tl-pin:hover .tl-bar,.tl-row.tl-it:hover .tl-bar.cal-chip.p.cut.cut-pending.tl-cut,.tl-row.tl-pin:hover .tl-bar.cal-chip.p.cut.cut-pending.tl-cut{filter:brightness(1.1)}
+/* Pénzügyek rácsa: 1. oszlop büdzsé / jutalék után · 2–3. oszlop szervező neve (= hatékonyság + termelői keret) · 4. jutalék összege · 5. Extrák */
+.fin-inputs.fin-g{display:grid!important;grid-template-columns:minmax(0,260px) minmax(0,150px) minmax(0,230px) minmax(0,160px) minmax(0,250px)!important;gap:14px 16px!important;align-items:end}
+.fin-g .fin-row1,.fin-g .fin-row3{display:contents!important}
+.fin-g .fin-val{grid-column:1;grid-row:1}.fin-g .fin-org{grid-column:2/5;grid-row:1}.fin-g .fin-exm{grid-column:2/4;grid-row:1}.fin-g.g-org .fin-exm{grid-column:5}
+.fin-g .fin-net{grid-column:1;grid-row:2}.fin-g .fin-eff{grid-column:2;grid-row:2;max-width:none!important}.fin-g .fin-budget{grid-column:3;grid-row:2}
+.fin-g .org-g{display:grid!important;grid-template-columns:minmax(0,1fr) 160px;gap:16px}.fin-g .org-g .cmb,.fin-g .org-g .money{min-width:0;flex:none!important;width:auto}
+@media(max-width:900px){.fin-inputs.fin-g{grid-template-columns:1fr 1fr!important}.fin-g>*>*,.fin-g .fin-val,.fin-g .fin-org,.fin-g .fin-exm,.fin-g .fin-net,.fin-g .fin-eff,.fin-g .fin-budget{grid-column:auto!important;grid-row:auto!important}.fin-g .fin-org{grid-column:1/-1!important}}
+@media(max-width:560px){.fin-inputs.fin-g{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
