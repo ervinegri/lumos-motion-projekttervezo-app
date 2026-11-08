@@ -24,6 +24,7 @@ vm.runInContext(`
     p = p || [];
     if (/^CREATE TABLE/.test(q)) return { rows: [] };
     if (/^SELECT rows::text, ver::text FROM ls_sheet/.test(q)) { const r = NEON.ls ? { rows: [[JSON.stringify(NEON.ls.rows), String(NEON.ls.ver)]] } : { rows: [] }; if (NEON.afterRead) { const f = NEON.afterRead; NEON.afterRead = null; f(); } return r; }
+    if (/FROM ls_proforma/.test(q)) return { rows: NEON.proformas || [] };
     if (/^SELECT order_id/.test(q)) return { rows: Object.keys(NEON.links).map(k => [k, NEON.links[k].project_id, NEON.links[k].client_id, JSON.stringify(NEON.links[k].snap)]) };
     if (/^INSERT INTO lx_link/.test(q)) { NEON.links[p[0]] = { project_id: p[1], client_id: p[2], snap: JSON.parse(p[3]) }; return { rows: [] }; }
     if (/^UPDATE lx_link SET snap = snap \\|\\|/.test(q)) { NEON.links[p[0]].snap.deleted = '1'; return { rows: [] }; }
