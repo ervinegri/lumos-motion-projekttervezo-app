@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9911574af6",
+"at": "2026-11-08T22:54:23+02:00",
+"msg": "Vágás: Utómunkára vár / Utómunka alatt / Ügyfél jóváhagyására vár; ellenőrzésnél lejátszó + jóváhagyás / visszadobás indokkal (a vágó e-mailt kap); a vágó nem húzhat ügyfél-jóváhagyásra; csengő: lapos ikon, elolvasáskor eltűnő pötty, szebb értesítés; Ki ellenőrizze? (Dávid, Ervin); a táblák görgethetők, alacsonyabbak"
+},
+{
 "id": "a18d8c5d9f",
 "at": "2026-11-08T22:38:16+02:00",
 "msg": "Vágás: gyors húzásnál nem pattannak vissza a kártyák; belső ellenőrzésre küldés (Ervin/Dávid, videólink, megjegyzés, e-mail); 🔔 értesítések felugró jelzéssel; régi aktív projektek is kapnak videósorokat; idővonal: jóváhagyásra váró sárga, kész szürke"
@@ -141,13 +146,8 @@
 "msg": "Kifizetések: Egyenleg = előző hónapok elmaradása, alatta Összesen fizetendő"
 },
 {
-"id": "4122cc9591",
-"at": "2026-11-06T23:24:06+01:00",
-"msg": "Jóváhagyásra váró projektek az idővonalon is a helyükön maradnak"
-},
-{
-"id": "d5c4a6cace",
-"at": "2026-11-06T22:22:10Z",
+"id": "8234f58020",
+"at": "2026-11-06T22:24:15Z",
 "msg": "Változásnapló frissítése"
 }
 ]
