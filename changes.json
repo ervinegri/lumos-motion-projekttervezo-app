@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "375eb3d2c2",
+"at": "2026-11-09T01:43:25+02:00",
+"msg": "Videó ablak: kisebb távolság a videó és az időkód sor között"
+},
+{
 "id": "a3072eb6f1",
 "at": "2026-11-09T01:41:59+02:00",
 "msg": "Videó ablak: időkód gomb a Hozzászólások sorában, a videó alatt középen"
@@ -136,13 +141,8 @@
 "msg": "Fizetések (átnevezve): fiók nélküli értékesítő jutaléka projektenként; Vágás fül megszűnt (videótábla az Utómunka lépésről és az idővonalról); projekt Videók: állapot nélkül; naptár: Idővonal az alap, elöl; idővonal: kész szürke / jóváhagyásra váró sárga javítva; mozgatáskor nincs értesítés; e-mailben nincs fura jel; Sales projektek: megrendelőlap a Szerződéshez; termelői alap = végső érték − szervezői jutalék − továbbszámlázott"
 },
 {
-"id": "9911574af6",
-"at": "2026-11-08T22:54:23+02:00",
-"msg": "Vágás: Utómunkára vár / Utómunka alatt / Ügyfél jóváhagyására vár; ellenőrzésnél lejátszó + jóváhagyás / visszadobás indokkal (a vágó e-mailt kap); a vágó nem húzhat ügyfél-jóváhagyásra; csengő: lapos ikon, elolvasáskor eltűnő pötty, szebb értesítés; Ki ellenőrizze? (Dávid, Ervin); a táblák görgethetők, alacsonyabbak"
-},
-{
-"id": "b4b5c22519",
-"at": "2026-11-08T20:38:26Z",
+"id": "9bf669adb5",
+"at": "2026-11-08T20:54:33Z",
 "msg": "Változásnapló frissítése"
 }
 ]
