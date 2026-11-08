@@ -513,7 +513,12 @@ const canSeeFees=()=>!!S.me&&(S.me.role==='admin'||S.me.role==='editor');
 function budgetMissing(p){if(!isAdmin()||!isOpen(p))return '';const m=[];if(p.projectValue==null||p.projectValue==='')m.push('büdzsé');if(budgetFt(p)==null&&!isFree(p))m.push('keret');return m.join(' és ');}
 /* Nem fizetős projekt: a büdzsé 0 Ft (a „Nem fizetős” pipával állítható) */
 /* Extra szolgáltatások: a szerződött érték (projectValue) felett; a végső érték = szerződött + extrák (a termelői keret a szerződöttből számol) */
-const extrasOf=p=>(p&&Array.isArray(p.extras)?p.extras:[]);
+const extrasRaw=p=>(p&&Array.isArray(p.extras)?p.extras:[]);   // minden sor, a szervezői jutalékkal együtt
+const extrasOf=p=>extrasRaw(p).filter(x=>x&&x.kind!=='org');   // a számlán szereplő extrák (a szervezői jutalék nem)
+/* Szervezői jutalék: rendezvényszervezőnek fizetett összeg; nem része a számlának, a termelői alapot csökkenti (a termelői % a levonás utáni összegből számolódik) */
+const orgOf=p=>extrasRaw(p).find(x=>x&&x.kind==='org')||null;
+const orgFee=p=>extrasRaw(p).filter(x=>x&&x.kind==='org').reduce((s,x)=>s+num(x.amount),0);
+const prodBase=p=>Math.max(0,num(p&&p.projectValue)-orgFee(p));
 const exSign=x=>x&&x.kind==='le'?-1:1;   // le = kedvezmény / jutalék (a végszámlából levonva)
 const extrasPlus=p=>extrasOf(p).filter(x=>exSign(x)>0).reduce((s,x)=>s+num(x.amount),0);
 const extrasMinus=p=>extrasOf(p).filter(x=>exSign(x)<0).reduce((s,x)=>s+num(x.amount),0);
@@ -521,21 +526,22 @@ const extrasSum=p=>extrasPlus(p)-extrasMinus(p);
 const exBreak=p=>`szerződött ${ftFmt(num(p.projectValue))}${extrasPlus(p)?' + extra '+ftFmt(extrasPlus(p)):''}${extrasMinus(p)?' − kedvezmény '+ftFmt(extrasMinus(p)):''}`;
 const projTotal=p=>num(p&&p.projectValue)+extrasSum(p);
 const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="muted">(${exBreak(p)})</span>`;
-function extrasHtml(p){const l=extrasOf(p);
+function extrasHtml(p){const l=extrasRaw(p);
   return `<div class="extras" id="proj-extras"><div class="ex-h"><b>➕ Extrák és kedvezmények</b> <span class="muted">– a szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek</span></div>
-    ${l.map((x,i)=>{const le=exSign(x)<0;return `<div class="ex-row${le?' ex-minus':''}"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="${le?'pl. jutalék – kiállítói shortok':x.kind==='tov'?'pl. szállás, utazás, eszközbérlés':'pl. +1 riport videó'}" maxlength="200" aria-label="${le?'Kedvezmény / jutalék':'Extra szolgáltatás'} megnevezése"><div class="money"><span class="ex-sign">${le?'−':'+'}</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button>${x.kind==='tov'?'<span class="ex-tov" title="Az értékesítői jutalék alapjába nem számít bele">továbbszámlázott</span>':''}</div>`;}).join('')}
+    ${l.map((x,i)=>{if(x.kind==='org')return '';const le=exSign(x)<0;return `<div class="ex-row${le?' ex-minus':''}"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="${le?'pl. jutalék – kiállítói shortok':x.kind==='tov'?'pl. szállás, utazás, eszközbérlés':'pl. +1 riport videó'}" maxlength="200" aria-label="${le?'Kedvezmény / jutalék':'Extra szolgáltatás'} megnevezése"><div class="money"><span class="ex-sign">${le?'−':'+'}</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Nettó összeg"><span class="money-unit">Ft</span></div><button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button>${x.kind==='tov'?'<span class="ex-tov" title="Az értékesítői jutalék alapjába nem számít bele">továbbszámlázott</span>':''}</div>`;}).join('')}
     ${refOption(p,true)}
-    <div class="ex-foot">${l.length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
+    ${orgOption(p)}
+    <div class="ex-foot">${extrasOf(p).length?`<span class="ex-tot" id="ex-total">${exTotTxt(p)}</span>`:''}</div></div>`;}
 const isFree=p=>!!p&&p.projectValue!=null&&p.projectValue!==''&&num(p.projectValue)===0;
 function budgetFt(p){
   if(!isAdmin())return p.budgetFt==null?null:num(p.budgetFt);
   const v=p.budgetVal;if(v===''||v==null||!p.budgetMode)return null;
-  if(p.budgetMode==='pct'){if(p.projectValue==null||p.projectValue==='')return null;return Math.round(num(p.projectValue)*num(v)/100);}   // 0 Ft-os projektnél a keret is 0
+  if(p.budgetMode==='pct'){if(p.projectValue==null||p.projectValue==='')return null;return Math.round(prodBase(p)*num(v)/100);}   // 0 Ft-os projektnél a keret is 0
   return num(v);
 }
 const pctFmt=x=>(Math.round(x*10)/10).toLocaleString('hu-HU')+'%';
 function finPanelBody(p){
-  const adm=isAdmin(),val=num(p.projectValue),k=budgetFt(p);
+  const adm=isAdmin(),val=prodBase(p),k=budgetFt(p);
   const pctV=p.budgetMode==='pct'?(p.budgetVal===''||p.budgetVal==null?'':String(p.budgetVal).replace('.',',')):(k!=null&&val>0?String(Math.round(k/val*1000)/10).replace('.',','):'');
   const ftV=k!=null?moneyFmt(k):'';
   return `<div class="fin-sum">
@@ -551,12 +557,12 @@ const FIN_COLS_DEF=[52,250,220,170,250,150];
 function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_cols5')||'null');}catch(e){}return Array.isArray(w)&&w.length===FIN_COLS_DEF.length?w:FIN_COLS_DEF.slice();}
 /* Termelői keret és maradék a táblázat „Összesen” sora alatt, a Díj oszlopban (mint az Excelben). */
 function keretRows(p){
-  const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=num(p.projectValue);
+  const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=prodBase(p);
   const pct=isAdmin()&&k!=null?(p.budgetMode==='pct'?pctFmt(num(p.budgetVal)):val>0?pctFmt(k/val*100):''):'';
   return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td></td><td class="r tf-lbl fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':Math.round(left)===0?'<b class="perfekt">Pontos 🎯</b>':(left<0?'−':'')+(moneyFmt(Math.abs(left))||0)}</td><td colspan="2"></td></tr>
         <tr class="keret-tr"><td></td><td></td><td class="r tf-lbl">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="2"></td></tr>`;
 }
-function totalCell(p){const amt=feeSum(p),val=num(p.projectValue);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
+function totalCell(p){const amt=feeSum(p),val=prodBase(p);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
 function finSumHtml(p){
   const sum=feeSum(p),val=projTotal(p),margin=val-sum,adm=isAdmin();
   const pct=x=>val>0?pctFmt(x/val*100):'–';
@@ -564,7 +570,7 @@ function finSumHtml(p){
       <div class="kv"><span>Tényleges költséghányad</span><b>${pct(sum)}</b></div>`:''}`;
 }
 function finAside(p){
-  const sum=feeSum(p),val=num(p.projectValue),k=budgetFt(p),parts=[];
+  const sum=feeSum(p),val=prodBase(p),k=budgetFt(p),parts=[];
   if(sum)parts.push('díjak '+ftFmt(sum));
   if(k!=null)parts.push((sum>k?'⚠️ keret ':'keret ')+ftFmt(k));
   return parts.join(' · ')||'nincs kitöltve';
@@ -670,6 +676,15 @@ function penPanel(p){
       ${isAdmin()?`<div class="pen-act">${x.status==='pending'?`<button class="btn primary small" type="button" data-action="pen-approve" data-id="${esc(x.id)}">Jóváhagyás</button><button class="btn outline small" type="button" data-action="pen-reject" data-id="${esc(x.id)}">Elutasítás</button>`:''}${penDaySelect(p,x)}<button class="trash" type="button" data-action="pen-del" data-id="${esc(x.id)}" title="Törlés" aria-label="Törlés">🗑️</button></div>`:''}</div>`;}).join('')}</div>`;
 }
 /* Csapat véglegesítése doboz a stáb alatt */
+/* Szervezői jutalék: a rendezvényszervezőnek (ügyfél a listából) fizetett összeg; csak az ügyvezető látja */
+function orgOption(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=extrasRaw(p),i=raw.findIndex(x=>x&&x.kind==='org'),x=i>=0?raw[i]:null;
+  if(!x)return dis?'':`<div class="ref-opt in-ex org-opt"><button class="btn outline small" type="button" data-action="org-add">🎪 Szervezői jutalék hozzáadása</button></div>`;
+  const opts=(S.clients||[]).slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'hu')).map(c=>`<option value="${esc(c.id)}"${c.id===x.clientId?' selected':''}>${esc(c.name||'')}</option>`).join('');
+  return `<div class="ref-opt in-ex org-opt"><div class="ex-row ex-minus"><span class="tl">🎪 Szervezői jutalék</span>
+    <select class="inp" id="org-sel" data-cmb="Szervező kiválasztása (kezdj el gépelni)…"${dis?' disabled':''}><option value="">Szervező kiválasztása…</option>${opts}</select>
+    <div class="money"><span class="ex-sign">−</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Szervezői jutalék nettó összege"${dis?' disabled':''}><span class="money-unit">Ft</span></div>
+    ${dis?'':`<button class="trash" type="button" data-action="extra-del" data-i="${i}" aria-label="Törlés">🗑️</button>`}</div>
+    <p class="hint" style="margin:4px 0 0">Nem szerepel a számlán. A termelői keret és a százalékok a büdzsé és a jutalék különbözetéből számolódnak: <b>${ftFmt(prodBase(p))}</b>.</p></div>`;}
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
 const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
 function refOption(p,inEx){if(!isAdmin())return '';if(!inEx&&!isFree(p))return '';   // csak az ügyvezető látja: az Extrák és kedvezmények alatt (díjmentes projektnél lent)

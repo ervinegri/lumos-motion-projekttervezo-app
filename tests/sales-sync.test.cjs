@@ -6,7 +6,7 @@ const ctx = vm.createContext({ console, Utilities: { getUuid: () => crypto.rando
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => null, setProperty() {} }) } });
 vm.runInContext(fs.readFileSync(path.join(root, 'apps-script/Code.gs'), 'utf8'), ctx);
 vm.runInContext(`
-  var DB = { projects: [], crew: [{ id: 'crew-nora-1', name: 'Marosvölgyi Nóra' }, { id: 'crew-koos-1', name: 'Koós Nándor' }], inventory: [], clients: [], crewAssign: [], eqAssign: [] }, LOG = [], T = 0;
+  var DB = { projects: [{ id: 'host-1', name: 'Vegan Summit 2026', client: 'Empátia Sztori Nonprofit Kft.', status: 'tervezes', date: '2026-11-07', crew: [], equipment: [], updatedAt: '2026-11-01 10:00:00' }], crew: [{ id: 'crew-nora-1', name: 'Marosvölgyi Nóra' }, { id: 'crew-koos-1', name: 'Koós Nándor' }], inventory: [], clients: [], crewAssign: [], eqAssign: [] }, LOG = [], T = 0;
   var NEON = { ls: null, links: {}, slog: [], afterRead: null };
   readAll_ = key => (DB[key] || []).map(x => Object.assign({}, x));
   sheetFor_ = key => ({ key });
@@ -69,6 +69,7 @@ test('új végleges rendelésből ügyfél és projekt lesz (piszkozatból nem)'
   assert.match(p.notes, /2 beszédes \+ 1 zenés/); assert.doesNotMatch(p.notes, /Fizetés|ÁFA|Értékesítő|LM-2026/);   // a jegyzetet a vágók és operatőrök is látják
   assert.deepEqual(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${A}').map(r => r.crewId)`), ['crew-nora-1', 'crew-nora-1']);   // operatőr + vágó (Nóra); a projektvezetőt (Egri Ervin) a próba stábja nem tartalmazza
   assert.equal(p.venue, 'Europa Event Center, Budapest, Hárshegyi út 5-7, 1021 Hungary'); assert.equal(p.dueAt, '2026-11-22'); assert.equal(p.endTime, '11:20'); assert.equal(p.hours, 1);
+  { const ex = typeof p.extras === 'string' ? JSON.parse(p.extras || '[]') : (p.extras || []); assert.deepEqual(ex.filter(e => e.kind === 'org').map(e => [e.name, e.amount]), [['Empátia Sztori Nonprofit Kft.', 10000]]); }   // szervezői jutalék
   const c = json(`DB.clients.find(c => c.name === 'Well Aging Kft.')`);
   assert.equal(c.tax, '12345678-2-41'); assert.equal(c.address, '1111 Budapest, Fő u. 1.'); assert.equal(c.contactName, 'Kiss Anna');
   assert.equal(proj(B), undefined);

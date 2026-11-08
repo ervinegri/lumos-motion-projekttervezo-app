@@ -836,7 +836,7 @@ function projectView_(p, u) {
   const mode = q.budgetMode === 'pct' ? 'pct' : q.budgetMode === 'ft' ? 'ft' : '', bv = Number(q.budgetVal);
   const val = Number(p.quotePrice);
   const budgetFt = !mode || q.budgetVal === '' || q.budgetVal == null || !isFinite(bv) ? null
-    : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(val * bv / 100) : null) : Math.round(bv);
+    : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(Math.max(0, val - orgFee_(p)) * bv / 100) : null) : Math.round(bv);
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
   if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
@@ -1311,7 +1311,7 @@ function parseBudgetRequest_(raw) {
 function effectiveBudget_(p) {
   if (p.budgetVal === '' || p.budgetVal == null) return null;
   if (p.budgetMode === 'ft') return Number(p.budgetVal);
-  if (p.budgetMode === 'pct' && Number(p.quotePrice) > 0) return Math.round(Number(p.quotePrice) * Number(p.budgetVal) / 100);
+  if (p.budgetMode === 'pct' && Number(p.quotePrice) > 0) return Math.round(Math.max(0, Number(p.quotePrice) - orgFee_(p)) * Number(p.budgetVal) / 100);
   return null;
 }
 function budgetMutate_(u, a, fn) {
@@ -1356,7 +1356,9 @@ function decideBudgetChange_(u, a) {
 /* ===================== PROJEKTEK ===================== */
 /** Extra szolgáltatások (a szerződött összegen felül, nettó): [{id, name, amount}] */
 function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
-  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov') ? x.kind : '' })).filter(x => x.name || x.amount); }
+  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov' || x.kind === 'org') ? x.kind : '', clientId: x && x.kind === 'org' ? str_(x.clientId, 64) : '' })).filter(x => x.name || x.amount || x.kind === 'org'); }
+/** Szervezői jutalék összege (nem a számla része: a termelői alapot csökkenti). */
+const orgFee_ = p => parseExtras_(p.extras).filter(e => e.kind === 'org').reduce((a, e) => a + Number(e.amount || 0), 0);
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64), mutationId = str_(a.mutationId, 64);
@@ -3761,7 +3763,7 @@ function salesCommOf_(user, ctx) {
   const passRatio = pid => {   // a továbbszámlázott költség aránya a projekt teljes (nettó) értékében
     const p = ctx.proj[pid]; if (!p) return 0;
     const ex = parseExtras_(p.extras), tov = ex.filter(e => e.kind === 'tov').reduce((a, e) => a + n(e.amount), 0);
-    const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
+    const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
     return total > 0 ? Math.min(1, tov / total) : 0;
   };
   Object.keys(pids).forEach(pid => {
@@ -4458,6 +4460,11 @@ function salesSync() {
       if (has('shootContent')) want.techPlan = v('shootContent');
       if (has('venue') && v('venue')) want.venue = v('venue');
       { const days = Number(salesCfg_('SALES_DUE_DAYS', SALES_DUE_DAYS)), hrs = Number(salesCfg_('SALES_SHOOT_HOURS', SALES_SHOOT_HOURS));
+        if (!proj) {   // szervezői jutalék: a rendezvény szervezője a hozzá tartozó (nem sales) projekt ügyfele; rendelésenként SALES_ORG_FEE (alap 10 000 Ft)
+          const evn = sval_(o.event).toLowerCase(), host = evn && (base.projects || []).find(x => !/^sales-/.test(x.id) && x.client && String(x.name || '').toLowerCase().indexOf(evn) >= 0);
+          const fee = Number(salesCfg_('SALES_ORG_FEE', 10000));
+          if (host && fee > 0) { const oc = clients.find(c => sval_(c.name) === sval_(host.client)); want.extras = (want.extras || []).concat([{ id: Utilities.getUuid().slice(0, 8), name: sval_(host.client), amount: fee, kind: 'org', clientId: oc ? oc.id : '' }]); }
+        }
         if (!proj) { want.dueAt = isoAdd_(sv.shootDate, days); want.endTime = timeAdd_(sv.shootTime, hrs); want.hours = hrs; }   // leadási határidő: a forgatástól N nap; a várható távozás a kezdés + N óra (kézzel átírható)
         else {   // dátum/idő változásakor csak az automatikusan számolt értéket igazítjuk (a kézzel átírtat nem)
           if ('shootDate' in push && proj.dueAt && proj.dueAt === isoAdd_(snap && snap.shootDate, days)) want.dueAt = isoAdd_(sv.shootDate, days);

@@ -1122,6 +1122,7 @@ const ACT={
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
   'extra-add':b=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),Object.assign({id:uuid().slice(0,8),name:'',amount:0},b&&b.dataset&&b.dataset.le?{kind:'le'}:b&&b.dataset&&b.dataset.tov?{kind:'tov'}:{})]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
+  'org-add':()=>{if(!S.draft||!isAdmin()||orgOf(S.draft))return;setDraft({extras:[...(S.draft.extras||[]),{id:uuid().slice(0,8),name:'',amount:10000,kind:'org',clientId:''}]});},
   'extra-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).slice();l.splice(Number(b.dataset.i),1);setDraft({extras:l});},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;render(true);scrollTo(0,0);}),
   reload:()=>load(),
@@ -2077,6 +2078,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
     const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
   window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
 
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='org-sel'&&S.draft&&isAdmin()){const c=(S.clients||[]).find(x=>x.id===e.target.value);S.draft.extras=(S.draft.extras||[]).map(x=>x.kind==='org'?Object.assign({},x,{clientId:c?c.id:'',name:c?c.name:''}):x);setDraft({extras:S.draft.extras});}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='cal-cutter'){S.cal.cutter=e.target.value==='__all'?'':e.target.value;render(true);}});
 
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='m-category'){const f=$('m-fmtF');if(f)f.hidden=!/^(Kamera|Objektív)/i.test(e.target.value);}});
