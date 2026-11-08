@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "54fc5dd674",
+"at": "2026-11-08T20:19:12+02:00",
+"msg": "Extrák: egységes „＋ Hozzáadás…” menü (szervezői jutalék is), az ajánlói és a szervezői jutalék azonos kinézetű blokkban"
+},
+{
 "id": "9760262f93",
 "at": "2026-11-08T19:18:44+01:00",
 "msg": "Szervezői jutalék sor elrendezése"
@@ -144,11 +149,6 @@
 "id": "2c611288eb",
 "at": "2026-11-06T08:55:15+01:00",
 "msg": "Beosztásaim: a szerep alatt a projekt állapota (pl. Elfogadásra vár, Kész)"
-},
-{
-"id": "68641730c1",
-"at": "2026-11-06T08:54:14+01:00",
-"msg": "Havi naptár: függőlegesen nem rugózik és nem lapoz"
 }
 ]
 }
