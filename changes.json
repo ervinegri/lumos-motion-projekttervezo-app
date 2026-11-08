@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9f46794198",
+"at": "2026-11-09T00:22:11+02:00",
+"msg": "Fizetések (átnevezve): fiók nélküli értékesítő jutaléka projektenként; Vágás fül megszűnt (videótábla az Utómunka lépésről és az idővonalról); projekt Videók: állapot nélkül; naptár: Idővonal az alap, elöl; idővonal: kész szürke / jóváhagyásra váró sárga javítva; mozgatáskor nincs értesítés; e-mailben nincs fura jel; Sales projektek: megrendelőlap a Szerződéshez; termelői alap = végső érték − szervezői jutalék − továbbszámlázott"
+},
+{
 "id": "9911574af6",
 "at": "2026-11-08T22:54:23+02:00",
 "msg": "Vágás: Utómunkára vár / Utómunka alatt / Ügyfél jóváhagyására vár; ellenőrzésnél lejátszó + jóváhagyás / visszadobás indokkal (a vágó e-mailt kap); a vágó nem húzhat ügyfél-jóváhagyásra; csengő: lapos ikon, elolvasáskor eltűnő pötty, szebb értesítés; Ki ellenőrizze? (Dávid, Ervin); a táblák görgethetők, alacsonyabbak"
@@ -141,13 +146,8 @@
 "msg": "Sales szinkron: jegyzetben nincs érzékeny adat; Sales díjbekérők automatikus hozzárendelése"
 },
 {
-"id": "d6d4c181fc",
-"at": "2026-11-07T00:06:18+01:00",
-"msg": "Kifizetések: Egyenleg = előző hónapok elmaradása, alatta Összesen fizetendő"
-},
-{
-"id": "8234f58020",
-"at": "2026-11-06T22:24:15Z",
+"id": "3f49ad127c",
+"at": "2026-11-06T23:06:28Z",
 "msg": "Változásnapló frissítése"
 }
 ]
