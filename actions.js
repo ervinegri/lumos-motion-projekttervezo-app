@@ -869,7 +869,8 @@ function histStep(dir){
   to.push(JSON.stringify(S.draft));S.draft=JSON.parse(from.pop());S.dirty=true;HIST.key='';try{document.activeElement&&document.activeElement.blur();}catch(e){}render(true);
 }
 /* A részösszegek frissítése gépelés közben (újrarajzolás nélkül). */
-function refreshFinSums(p){{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(salesBase(p));const d=p&&projDeal(p),e=d&&salesCommEst(p,d),sp=$('f-salesPct'),sf=$('f-salesFt');if(e&&sp&&sf&&document.activeElement!==sp&&document.activeElement!==sf){sp.value=String(e.pct).replace('.',',');sf.value=moneyFmt(e.amt);}}   // jutalék levonása utáni összeg élőben
+function refreshFinSums(p){{const b=p?prodBase(p):0,ep=$('f-budgetPct'),ef=$('f-budgetFt'),ae=document.activeElement;if(p&&ep&&ef){if(p.budgetMode==='ft'&&ae!==ep)ep.value=b>0&&p.budgetVal!==''?String(Math.round(num(p.budgetVal)/b*1000)/10).replace('.',','):'';else if(p.budgetMode==='pct'&&ae!==ef)ef.value=b>0&&p.budgetVal!==''?moneyFmt(Math.round(b*num(p.budgetVal)/100)):'';}}   /* hatékonyság ↔ keret a „…után” összegből */
+{const fn=document.querySelector('.fin-net input');if(fn&&p)fn.value=moneyFmt(salesBase(p));const d=p&&projDeal(p),e=d&&salesCommEst(p,d),sp=$('f-salesPct'),sf=$('f-salesFt');if(e&&sp&&sf&&document.activeElement!==sp&&document.activeElement!==sf){sp.value=String(e.pct).replace('.',',');sf.value=moneyFmt(e.amt);}}   // jutalék levonása utáni összeg élőben
 
   document.querySelectorAll('[data-day-sum]').forEach(el=>{el.textContent=moneyFmt(daySumOf(p,el.dataset.daySum))||0;});
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
@@ -1439,11 +1440,11 @@ document.addEventListener('input',e=>{
   if(S.draft&&!ro()&&(t.dataset.field!==undefined||t.dataset.feeI!==undefined||t.dataset.fin))histTyping((t.dataset.field||'')+'|'+(t.dataset.feeI||'')+'|'+(t.dataset.feeK||'')+'|'+(t.dataset.fin||''));
   if(t.dataset.field!==undefined&&S.draft&&!ro()&&t.tagName!=='SELECT'){S.draft[t.dataset.field]=t.type==='number'?(t.value===''?null:num(t.value)):t.value;if(!S.dirty){S.dirty=true;renderChrome();}return;}
   if((t.dataset.feeI!==undefined||t.dataset.fin)&&S.draft&&!ro()){
-    const val=num(S.draft.projectValue);
+    const val=prodBase(S.draft);   /* hatékonyság / keret: a szervezői jutalék (és a továbbszámlázott) utáni összegből */
     if(t.dataset.fin==='budgetPct'){let v=String(t.value).replace(/[^\d,.]/g,'').replace('.',',');if(t.value!==v)t.value=v;const n=parseFloat(v.replace(',','.'));
       S.draft.budgetMode=v===''?'':'pct';S.draft.budgetVal=v===''||!isFinite(n)?'':Math.min(100,n);const o=$('f-budgetFt');if(o)o.value=S.draft.budgetVal!==''&&val>0?moneyFmt(Math.round(val*S.draft.budgetVal/100)):'';}
     else if(t.dataset.fin==='budgetFt'){const dg=String(t.value).replace(/\D/g,'');S.draft.budgetMode=dg===''?'':'ft';S.draft.budgetVal=dg===''?'':Math.min(9999999999,Number(dg));const o=$('f-budgetPct');if(o)o.value=dg!==''&&val>0?String(Math.round(S.draft.budgetVal/val*1000)/10).replace('.',','):'';}
-    else if(t.dataset.fin==='projectValue'){const dg=String(t.value).replace(/\D/g,'');S.draft.projectValue=dg===''||Number(dg)===0?null:Math.min(9999999999,Number(dg));const nv=num(S.draft.projectValue);   // 0 Ft helyett a „Nem fizetős” pipa
+    else if(t.dataset.fin==='projectValue'){const dg=String(t.value).replace(/\D/g,'');S.draft.projectValue=dg===''||Number(dg)===0?null:Math.min(9999999999,Number(dg));const nv=prodBase(S.draft);   // 0 Ft helyett a „Nem fizetős” pipa
 
       if(S.draft.budgetMode==='pct'){const o=$('f-budgetFt');if(o)o.value=nv>0&&S.draft.budgetVal!==''?moneyFmt(Math.round(nv*S.draft.budgetVal/100)):'';}else if(S.draft.budgetMode==='ft'){const o=$('f-budgetPct');if(o)o.value=nv>0?String(Math.round(num(S.draft.budgetVal)/nv*1000)/10).replace('.',','):'';}}
 
