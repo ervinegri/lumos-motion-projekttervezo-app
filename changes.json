@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "15a63b6c18",
+"at": "2026-11-09T01:25:34+02:00",
+"msg": "Videó lejátszó: finomabb húzásos tekerés (a szélesség ≈ 6 mp)"
+},
+{
 "id": "e4f6152be6",
 "at": "2026-11-09T01:24:52+02:00",
 "msg": "Videó ablak: időkód gomb a szövegmezőben, mentési felirat törölve"
@@ -136,13 +141,8 @@
 "msg": "Projektlista: aktív utómunka lila kiemeléssel, kész projekt halványan; stábkártyán nincs ÁFA-sor"
 },
 {
-"id": "44c0428d52",
-"at": "2026-11-08T21:59:32+02:00",
-"msg": "Értékesítői jutalék mezők (% és Ft) a termelői keret mellett; kézi % a projekten, a havi jutalék is ezzel számol"
-},
-{
-"id": "1f57d296a6",
-"at": "2026-11-08T19:49:02Z",
+"id": "c5b7d67809",
+"at": "2026-11-08T19:59:42Z",
 "msg": "Változásnapló frissítése"
 }
 ]
