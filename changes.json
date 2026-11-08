@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ecf269627a",
+"at": "2026-11-09T01:53:47+02:00",
+"msg": "Videó ablak: jól látható, számozott, pulzáló tű"
+},
+{
 "id": "cae513dfeb",
 "at": "2026-11-09T01:51:40+02:00",
 "msg": "Videó ablak: tű Ctrl + kattintással, súgó soronként, a szövegmezőben az időkódra kattintva odaugrik"
@@ -141,13 +146,8 @@
 "msg": "Videó lejátszó: pCloud nyilvános linkek lejátszása (közvetlen fájlcím a pCloud API-ból)"
 },
 {
-"id": "d1dbacc4de",
-"at": "2026-11-09T00:34:38+02:00",
-"msg": "Hatékonyság gépelés közben is a szervezői jutalék utáni összegből számol"
-},
-{
-"id": "cd0a111265",
-"at": "2026-11-08T22:33:15Z",
+"id": "b700830093",
+"at": "2026-11-08T22:34:48Z",
 "msg": "Változásnapló frissítése"
 }
 ]
