@@ -2298,7 +2298,7 @@ function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;const pl=vd.closest('.vv-p
     if(e.key===' '){if(e.repeat)return;if(v.paused)v.play().catch(()=>{});else v.pause();return;}v.pause();const f=v._fps||25,step=(e.key==='ArrowRight'?1:-1)*(e.shiftKey?10:1)/f;
     v.currentTime=vidSnap(v,Math.max(0,Math.min((v.duration||1e9)-0.01,v.currentTime+step)));},true);}}
 function vidTsTick(){const bt=document.querySelector('.vv-tc-ins');if(!bt)return;const vd=document.querySelector('.vv-player video');if(!vd){setTimeout(()=>{if(document.querySelector('.vv-player video'))vidTsTick();},1500);return;}
-  vidAspect(vd);vidScrub(vd);vidPins(vd);bt.hidden=false;{const pb=document.querySelector('.vv-pin-btn');if(pb)pb.hidden=false;}const upd=mt=>{const x=tcFmt(typeof mt==='number'?mt:vd.currentTime),l=$('m-vvTsL'),c=$('m-vvTc');if(l)l.textContent=x;if(c)c.textContent=x;};
+  vidAspect(vd);vidScrub(vd);vidPins(vd);taHl();bt.hidden=false;{const pb=document.querySelector('.vv-pin-btn');if(pb)pb.hidden=false;}const upd=mt=>{const x=tcFmt(typeof mt==='number'?mt:vd.currentTime),l=$('m-vvTsL'),c=$('m-vvTc');if(l)l.textContent=x;if(c)c.textContent=x;};
   if(vd.requestVideoFrameCallback){const loop=(n,m)=>{if(!vd.isConnected)return;upd(m.mediaTime);pinsShow(vd,m.mediaTime);vd.requestVideoFrameCallback(loop);};vd.requestVideoFrameCallback(loop);}   /* a ténylegesen megjelenített képkocka ideje */
   (vd.requestVideoFrameCallback?['loadedmetadata']:['timeupdate','seeked','loadedmetadata']).forEach(e=>vd.addEventListener(e,upd));   /* egyetlen forrás: a megjelenített képkocka (különben a két érték váltogatna) */upd();}
 /* Tűs jelölés (gomb vagy Ctrl + kattintás): a megállított kép egy pontjához kötött észrevétel. A tű a hozzászólásban [p:mp:kk @x,y] alakban él (x,y: a kép %-ában),
@@ -2314,18 +2314,26 @@ function pinsShow(vd,t){const lay=vd.closest('.vv-player')&&vd.closest('.vv-play
 function pinMode(on){window._vvPinMode=!!on;const pl=document.querySelector('.vv-player'),pb=document.querySelector('.vv-pin-btn');if(pl)pl.classList.toggle('pin-mode',!!on);if(pb)pb.classList.toggle('on',!!on);
   if(on){const vd=document.querySelector('.vv-player video');if(vd)vd.pause();toast('📍 Kattints a képen arra a pontra, amire az észrevétel vonatkozik (Esc: mégse)');}}
 ACT['vid-pin']=()=>pinMode(!window._vvPinMode);
-/* A szövegmezőben az időkódra (vagy a sorára) kattintva a lejátszó odaugrik, tűnél a tű is megjelenik */
-document.addEventListener('click',e=>{const ta=e.target;if(!ta||ta.id!=='m-vvCm')return;const vd=document.querySelector('.vv-player video');if(!vd)return;
-  const pos=ta.selectionStart,v=ta.value,ls=v.lastIndexOf('\n',pos-1)+1,le=(v.indexOf('\n',pos)+1||v.length+1)-1,line=v.slice(ls,le);let hit=null,first=null;
-  line.replace(TC_RE,(m,a,b,sep,c,x,y,off)=>{const o={a,b,sep,c,x,y};if(!first)first=o;if(pos>=ls+off&&pos<=ls+off+m.length)hit=o;return m;});const o=hit||first;if(!o)return;
-  vd.pause();vd.currentTime=vidSnap(vd,tcSec(o.a,o.b,o.c,o.sep));vd._pinFocus=o.x?{x:+o.x,y:+o.y,t:vd.currentTime}:null;});
+/* A szövegmezőben az időkódok kiemelve (a mező mögötti tükörrétegen) és kattinthatók: a lejátszó odaugrik, tűnél a tű is megjelenik */
+function taHl(){const ta=$('m-vvCm');if(!ta)return;let hl=ta.parentElement.querySelector('.vv-hl');
+  if(!hl){hl=document.createElement('div');hl.className='vv-hl';hl.setAttribute('aria-hidden','true');ta.parentElement.insertBefore(hl,ta);
+    const cs=getComputedStyle(ta);['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','boxSizing','textIndent'].forEach(k=>{hl.style[k]=cs[k];});
+    ta.addEventListener('input',taHl);ta.addEventListener('scroll',()=>{hl.scrollTop=ta.scrollTop;});new ResizeObserver(()=>{hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';}).observe(ta);}
+  hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';
+  hl.innerHTML=esc(ta.value).replace(TC_RE,(m,a,b,sep,c,x,y)=>`<mark data-tc="${a}|${b}|${sep||''}|${c||''}"${x?` data-x="${x}" data-y="${y}"`:''}>${m}</mark>`)+'\n';hl.scrollTop=ta.scrollTop;}
+const taHit=e=>{const ta=$('m-vvCm'),hl=ta&&ta.parentElement.querySelector('.vv-hl');if(!hl)return null;for(const mk of hl.querySelectorAll('mark'))for(const r of mk.getClientRects())if(e.clientX>=r.left-2&&e.clientX<=r.right+2&&e.clientY>=r.top-1&&e.clientY<=r.bottom+1)return mk;return null;};
+document.addEventListener('mousemove',e=>{if(!e.target||e.target.id!=='m-vvCm')return;e.target.style.cursor=taHit(e)?'pointer':'';});
+document.addEventListener('click',e=>{const ta=e.target;if(!ta||ta.id!=='m-vvCm')return;const vd=document.querySelector('.vv-player video'),mk=taHit(e);if(!vd||!mk)return;
+  const q=mk.dataset.tc.split('|');vd.pause();vd.currentTime=vidSnap(vd,tcSec(q[0],q[1],q[3],q[2]));vd._pinFocus=mk.dataset.x?{x:+mk.dataset.x,y:+mk.dataset.y,t:vd.currentTime}:null;
+  hlFocus(mk);});
+function hlFocus(mk){mk.parentElement.querySelectorAll('mark.on').forEach(x=>x.classList.remove('on'));mk.classList.add('on');}
 function pinPlace(vd,e){const R=vidRect(vd),x=(e.clientX-R.r.left-R.left)/R.w*100,y=(e.clientY-R.r.top-R.top)/R.h*100;pinMode(false);if(x<0||x>100||y<0||y>100)return;vd.pause();
   ACT['vid-tc']({x:Math.round(x*10)/10,y:Math.round(y*10)/10});pinsShow(vd,vd.currentTime);}
 ACT['vid-tc']=pin=>{const vd=document.querySelector('.vv-player video'),ta=$('m-vvCm');if(!vd||!ta)return;vd.pause();pin=pin&&pin.x!=null?pin:null;
   const tc='['+tcFmt(vd.currentTime)+(pin?' @'+pin.x+','+pin.y:'')+'] ',st=ta.selectionStart??ta.value.length,pre=ta.value.slice(0,st),nl=pre&&!/\n$/.test(pre)?'\n':'';
-  ta.value=pre+nl+tc+ta.value.slice(ta.selectionEnd??st);const c=(pre+nl+tc).length;ta.focus();ta.setSelectionRange(c,c);};
+  ta.value=pre+nl+tc+ta.value.slice(ta.selectionEnd??st);taHl();const c=(pre+nl+tc).length;ta.focus();ta.setSelectionRange(c,c);};
 ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}const q=String(b.dataset.tc||'').split('|');vd.pause();vd.currentTime=b.dataset.tc?vidSnap(vd,tcSec(q[0],q[1],q[3],q[2])):Number(b.dataset.ts)||0;vd._pinFocus=b.dataset.x?{x:+b.dataset.x,y:+b.dataset.y,t:vd.currentTime}:null;};
-async function vidFlush(pid,vid){const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t)return;ta.value='';
+async function vidFlush(pid,vid){const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t)return;ta.value='';taHl();
   try{const r=await call('videoComment',{projectId:pid,id:vid,text:t,ts:''});const pr2=r&&r.project;
     if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
     toast('💬 Hozzászólás elmentve');try{bdApply(pid);bdRefresh();}catch(e){}}catch(e){handleErr(e);}}
