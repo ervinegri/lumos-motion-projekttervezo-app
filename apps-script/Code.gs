@@ -894,8 +894,8 @@ function videoReview_(u, a) {
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop();
   const url = appUrl_() + '#p=' + pid;
-  const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + '\n\nVideó: ' + link + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + url + '\n\nA Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.';
-  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>🎞️ <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
+  const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + '\n\nVideó: ' + link + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + url + '\n\nA projekt videótáblájában megnézheted, jóváhagyhatod vagy visszadobhatod.';
+  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>Videó: <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
   let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
   logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
   return { project: projectView_(fullProject_(p), u), mail: mail };
@@ -966,7 +966,7 @@ function projectView_(p, u) {
   const mode = q.budgetMode === 'pct' ? 'pct' : q.budgetMode === 'ft' ? 'ft' : '', bv = Number(q.budgetVal);
   const val = Number(p.quotePrice);
   const budgetFt = !mode || q.budgetVal === '' || q.budgetVal == null || !isFinite(bv) ? null
-    : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(Math.max(0, val - orgFee_(p)) * bv / 100) : null) : Math.round(bv);
+    : mode === 'pct' ? (isFinite(val) && val > 0 ? Math.round(prodBase_(p) * bv / 100) : null) : Math.round(bv);
   if (role === 'admin') { q.budgetMode = mode; q.budgetVal = mode && isFinite(bv) && q.budgetVal !== '' ? bv : null; q.budgetFt = budgetFt; }
   else { delete q.budgetMode; delete q.budgetVal; if (role === 'editor') q.budgetFt = budgetFt; }
   if (role === 'admin' || role === 'editor') q.crewFinal = parseCrewFinal_(q.crewFinal); else delete q.crewFinal;
@@ -1441,7 +1441,7 @@ function parseBudgetRequest_(raw) {
 function effectiveBudget_(p) {
   if (p.budgetVal === '' || p.budgetVal == null) return null;
   if (p.budgetMode === 'ft') return Number(p.budgetVal);
-  if (p.budgetMode === 'pct' && Number(p.quotePrice) > 0) return Math.round(Math.max(0, Number(p.quotePrice) - orgFee_(p)) * Number(p.budgetVal) / 100);
+  if (p.budgetMode === 'pct' && Number(p.quotePrice) > 0) return Math.round(prodBase_(p) * Number(p.budgetVal) / 100);
   return null;
 }
 function budgetMutate_(u, a, fn) {
@@ -1488,6 +1488,8 @@ function decideBudgetChange_(u, a) {
 function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov' || x.kind === 'org') ? x.kind : '', clientId: x && x.kind === 'org' ? str_(x.clientId, 64) : '' })).filter(x => x.name || x.amount || x.kind === 'org'); }
 /** Szervezői jutalék összege (nem a számla része: a termelői alapot csökkenti). */
+/** Termelői alap (hatékonyság / termelői keret): végső érték (szerződött + extrák − kedvezmények) − szervezői jutalék − továbbszámlázott költség */
+const prodBase_ = p => { const ex = parseExtras_(p.extras), n = v => Number(v) || 0; return Math.max(0, n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'tov' ? 0 : e.kind === 'org' || e.kind === 'le' ? -1 : 1) * n(e.amount), 0)); };
 const orgFee_ = p => parseExtras_(p.extras).filter(e => e.kind === 'org').reduce((a, e) => a + Number(e.amount || 0), 0);
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
@@ -4495,6 +4497,7 @@ function rpcInner_(token, name, arg) {
    az lx_link tábla tárolja (enélkül nem tudnánk, melyik oldal változott). Ár, videószám, név, jegyzet, operatőr: csak a Salesből jön.
    A Sales App tábláját verzióellenőrzéssel írjuk (ha közben ott mentettek, nem írjuk felül, a következő futás pótolja). */
 const SALES_TAB = 'Rendelések';
+const SALES_ORDERS_PARENT = '1fOHaFkVjOJTfROWWJYfUSrkK_ojDzFH1';   // a Sales App „Vegan Summit” mappája (benne a „Rendelések” a megrendelőlap PDF-ekkel)
 const SALES_SYS_USER = { id: 'sales-app', name: 'Sales App', role: 'admin', email: '' };
 const SALES_MAX_NEW_PER_RUN = 12;   // egy futás 6 perces korlátja miatt (új projektnél naptárbejegyzés is készül)
 // A Sales App munkalapjának fejlécei (a Sales App Code.gs FIELDS listájával egyezik – ott sem nevezhetők át)
@@ -4714,6 +4717,24 @@ function salesSync() {
       catch (e) { out.errors.push('díjbekérő ' + no + ': ' + String((e && e.message) || e)); }
     });
   } catch (e) { out.errors.push('díjbekérők: ' + String((e && e.message) || e)); }
+  /* Megrendelőlap: a Sales App a rendelés PDF-jét a Drive „Vegan Summit / Rendelések” mappájába menti („Lumos Motion - <Cégnév> - <dátum>.pdf”) –
+     a projekt Szerződés részébe kerül (ha ott még nincs dokumentum). */
+  try {
+    const bills = readAll_('finBilling'), hasDoc = {}; bills.forEach(b => { if (b.contractUrl || b.contractFileId) hasDoc[b.projectId] = 1; });
+    const need = S.list.map(o => ({ o, pid: (links[sval_(o.id)] && links[sval_(o.id)].projectId) || ('sales-' + sval_(o.id)).slice(0, 64) })).filter(x => projById[x.pid] && !hasDoc[x.pid] && sval_(x.o.status) !== 'piszkozat');
+    if (need.length) {
+      const it = DriveApp.getFolderById(SALES_ORDERS_PARENT).getFoldersByName('Rendelések'), files = [];
+      if (it.hasNext()) { const fi = it.next().getFiles(); while (fi.hasNext()) { const f = fi.next(); if (/\.pdf$/i.test(f.getName()) && !f.isTrashed()) files.push({ f, n: f.getName(), t: f.getDateCreated().getTime() }); } }
+      const nk = s => sval_(s).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+      need.forEach(x => { const base = nk(sval_(x.o.company) || sval_(x.o.brand)); if (!base) return;
+        const hit = files.filter(y => y.n.toLowerCase().indexOf('lumos motion - ' + base + ' - ') === 0).sort((a, b) => b.t - a.t)[0]; if (!hit) return;
+        withLock_(() => { const b = billRow_(x.pid), r = b.r; if (r.contractUrl || r.contractFileId) return;
+          Object.assign(r, { contractUrl: hit.f.getUrl(), contractName: 'Megrendelőlap – ' + hit.n, contractFileId: hit.f.getId(), contractAt: now_(), contractBy: SALES_SYS_USER.name, contractStatus: r.contractStatus || 'alairva', updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
+          putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id) || null); });
+        out.orderForms = (out.orderForms || 0) + 1; });
+      if (out.orderForms) dbFlush_();
+    }
+  } catch (e) { out.errors.push('megrendelőlap: ' + String((e && e.message) || e)); }
   /* Értékesítő: a Sales App rendelés „Értékesítő” mezője alapján a projekthez szerződött lehetőség tartozik (értékesítői jutalék, az értékesítő saját lehetőségei).
      Név (ékezet nélkül is), e-mail vagy felhasználó-azonosító alapján keressük; ha a Salesben az értékesítő változik, itt is átíródik. */
   try {

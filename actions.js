@@ -1131,7 +1131,7 @@ const ACT={
   'crew-prio':b=>{S.cf.prio=b.dataset.v;render(true);},
   'cal-first':()=>{if(S.cal.mode!=='ido')return;const w=document.querySelector('.tl-wrap'),b=w&&w.querySelector('.tl-cm');if(!b)return;   // az idővonalon a kiválasztott hónap 1. napjára ugrik
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/Number(b.dataset.n);w.scrollTo({left:Math.max(0,diffDays(b.dataset.first,S.cal.month+'-01')*cw),behavior:'smooth'});},
-  'cal-mode':b=>{S.cal.mode=b.dataset.v;try{localStorage.setItem('lpm_cal_mode',S.cal.mode);}catch(e){}render(true);},
+  'cal-mode':b=>{S.cal.mode=b.dataset.v;try{localStorage.setItem('lpm_cal_mode2',S.cal.mode);}catch(e){}render(true);},
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},
   'np-draft':b=>npDraft(b),
@@ -2185,7 +2185,7 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
   BD_Q=BD_Q.then(async()=>{try{const r=extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{}));const pr2=r&&r.project;
       if(BD_PEND[k]===tok)delete BD_PEND[k];
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
-      bdApply(pid);bdRefresh();toast(extra?(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)'):'🎞️ '+v.name+': '+((BOARD_COLS.find(x=>x[0]===st)||[])[1]||st));}
+      bdApply(pid);bdRefresh();if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
     catch(e){if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
 function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
