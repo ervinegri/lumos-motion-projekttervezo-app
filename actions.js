@@ -2250,22 +2250,23 @@ ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=
     ${v.fb?`<div class="vv-msg vv-fb"><b>↩ ${esc(v.fbBy||'Visszajelzés')}</b>${v.fbAt?` <span class="muted">· ${esc(String(v.fbAt).slice(0,16))}</span>`:''}<div>${esc(v.fb).replace(/\n/g,'<br>')}</div></div>`:''}
     <div class="vv-cm" data-pid="${esc(pid)}" data-vid="${esc(vid)}">${vidCmHtml(v)}</div>
     ${rev?`<div class="field full" style="margin-top:12px"><label for="m-vvFb">Visszajelzés a vágónak <span class="muted">(visszadobáskor kötelező)</span></label><textarea class="inp" id="m-vvFb" name="fb" rows="3"></textarea></div>`:''}`,
-    rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:{cancelLabel:'Bezárás'});
+    rev?{submitLabel:'✅ Jóváhagyás – mehet az ügyfélnek',cancelLabel:'Bezárás',noDraft:true,left:CMB_BTN+`<button type="button" class="btn danger" data-action="vid-reject" data-pid="${esc(pid)}" data-vid="${esc(vid)}">↩ Visszadobás</button>`,submit:async()=>{closeModal();bdMove(pid,vid,'leadva');}}:{cancelLabel:'Bezárás',left:CMB_BTN});
   const mb=document.querySelector('#mform');if(mb&&v.link)mb.classList.add('m-video');pcloudLoad();vidTsTick();};
 /* Hozzászólások a videóhoz: lista (időbélyegre kattintva a lejátszó odaugrik) + új hozzászólás, a lejátszó aktuális időpontjához köthetően */
+const CMB_BTN='<button type="button" class="btn" data-action="vid-cm">💬 Hozzászólás</button> ';
 const mmss=s=>{s=Math.max(0,Math.round(Number(s)||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 function vidCmHtml(v){const L=v.cm||[];
   return `<h4 class="vv-cm-h">💬 Hozzászólások${L.length?` <span class="bd-n">${L.length}</span>`:''}</h4>${L.length?`<div class="vv-cm-l">${L.map(c=>`<div class="vv-cm-i"><b>${esc(c.by||'')}</b> <span class="muted">· ${esc(String(c.at||'').slice(0,16).replace('T',' '))}</span><div>${c.ts!==''&&c.ts!=null?`<button type="button" class="vv-ts" data-action="vid-seek" data-ts="${Number(c.ts)}" title="Ugrás ide a videóban">${mmss(c.ts)}</button> `:''}${esc(c.t).replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`:''}
-    <div class="vv-cm-new"><textarea class="inp" id="m-vvCm" rows="2" placeholder="Írd ide a hozzászólásod…"></textarea><div class="vv-cm-row"><label class="vv-cm-ts" hidden><input type="checkbox" id="m-vvTs" checked> <span>a videó <b id="m-vvTsL">0:00</b> pontjához</span></label><button type="button" class="btn" data-action="vid-cm">Hozzászólás</button></div></div>`;}
+    <div class="vv-cm-new"><textarea class="inp" id="m-vvCm" rows="2" placeholder="Írd ide a hozzászólásod…"></textarea><div class="vv-cm-row"><label class="vv-cm-ts" hidden><input type="checkbox" id="m-vvTs" checked> <span>a videó <b id="m-vvTsL">0:00</b> pontjához</span></label></div></div>`;}
 function vidTsTick(){const lab=document.querySelector('.vv-cm-ts');if(!lab)return;const vd=document.querySelector('.vv-player video');if(!vd){setTimeout(()=>{if(document.querySelector('.vv-player video'))vidTsTick();},1500);return;}
   lab.hidden=false;const upd=()=>{const l=$('m-vvTsL');if(l)l.textContent=mmss(vd.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>vd.addEventListener(e,upd));upd();}
 ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}vd.currentTime=Number(b.dataset.ts)||0;vd.play&&vd.play().catch(()=>{});};
-ACT['vid-cm']=async b=>{const box=b.closest('.vv-cm'),ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t){if(ta)ta.focus();return;}
+ACT['vid-cm']=async b=>{const box=document.querySelector('.vv-cm');if(!box)return;const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t){if(ta)ta.focus();return;}
   const pid=box.dataset.pid,vid=box.dataset.vid,vd=document.querySelector('.vv-player video'),tsOn=vd&&$('m-vvTs')&&$('m-vvTs').checked&&!document.querySelector('.vv-cm-ts').hidden;
   b.disabled=true;try{const r=await call('videoComment',{projectId:pid,id:vid,text:t,ts:tsOn?Math.round(vd.currentTime):''});const pr2=r&&r.project;
     if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
     const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(v&&box.isConnected){box.innerHTML=vidCmHtml(v);vidTsTick();const l=box.querySelector('.vv-cm-l');if(l)l.scrollTop=l.scrollHeight;}
-    toast('💬 Hozzászólás elmentve');try{render(true);}catch(e){}}catch(e){b.disabled=false;handleErr(e);}};
+    b.disabled=false;toast('💬 Hozzászólás elmentve');try{render(true);}catch(e){}}catch(e){b.disabled=false;handleErr(e);}};
 /* pCloud nyilvános link → közvetlen videócím (getpublinkdownload), és lejátszás a saját lejátszóban */
 async function pcloudLoad(){const el=document.querySelector('.vv-pc[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];let why='';
   const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
