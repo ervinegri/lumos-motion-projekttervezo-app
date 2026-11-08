@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "b165d978c3",
+"at": "2026-11-09T00:39:23+02:00",
+"msg": "Videó lejátszó: pCloud nyilvános linkek lejátszása (közvetlen fájlcím a pCloud API-ból)"
+},
+{
 "id": "d1dbacc4de",
 "at": "2026-11-09T00:34:38+02:00",
 "msg": "Hatékonyság gépelés közben is a szervezői jutalék utáni összegből számol"
@@ -141,13 +146,8 @@
 "msg": "Ügyfél adatai: eddigi munkák listája; az ügyvezetőnek projektérték és befolyt nettó összeg"
 },
 {
-"id": "b92295fe8c",
-"at": "2026-11-08T20:09:34+02:00",
-"msg": "Sales szinkron: a rendelés értékesítője szerződött lehetőséget kap a projekthez (jutalék), eltérő írásmóddal is"
-},
-{
-"id": "3e532fb064",
-"at": "2026-11-08T18:02:32Z",
+"id": "a2d1cbb67a",
+"at": "2026-11-08T18:09:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
