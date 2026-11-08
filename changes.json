@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "b92295fe8c",
+"at": "2026-11-08T20:09:34+02:00",
+"msg": "Sales szinkron: a rendelés értékesítője szerződött lehetőséget kap a projekthez (jutalék), eltérő írásmóddal is"
+},
+{
 "id": "9aaf45d169",
 "at": "2026-11-08T19:02:24+01:00",
 "msg": "Sales szinkron: helyszín, 7 napos határidő, alap projektvezető/vágó, várható távozás"
@@ -144,11 +149,6 @@
 "id": "da230f17ae",
 "at": "2026-11-06T08:50:40+01:00",
 "msg": "Idővonal: az átmenet a forgatási sáv tényleges színéből indul (piros / szürke / kék)"
-},
-{
-"id": "d180369d54",
-"at": "2026-11-06T08:49:22+01:00",
-"msg": "Idővonal: leadás után a vágás sávja a leadás napjáig tart"
 }
 ]
 }
