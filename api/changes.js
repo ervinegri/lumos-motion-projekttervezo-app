@@ -142,13 +142,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél tárgya: „Elkészült: {videó} – {projekt}”, ügyfelenként megjegyezve"
 },
 {
-"id": "95a88bb3c5",
-"at": "2026-11-09T05:38:33+02:00",
-"msg": "Ügyfél-levél: helyes névelő (a / az) a(z) helyett, nagybetűs kezdés, görgethető szövegmező"
-},
-{
-"id": "4c527e6369",
-"at": "2026-11-09T03:36:19Z",
+"id": "38d7633846",
+"at": "2026-11-09T03:38:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
