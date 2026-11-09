@@ -1143,7 +1143,7 @@ function crewDocKv(c){if(!isAdmin()||!Array.isArray(S.crewDocs))return '';const 
 function crewDocIcon(c){if(!isAdmin())return '';const L=crewDocsOf(c.id);return L.length?`<button class="cdoc-ic" type="button" data-action="crew-doc-open" data-id="${esc(L[0].id)}" data-tip="Szerződés: ${esc(L[0].title||'')}" aria-label="${esc(c.name)} szerződése">📄</button>`:'';}
 /* Naponta egyszer, a háttérben: a külsősök egyértelműen aláírt szerződései (fájlnévben „aláírt” + szerződés) bekerülnek a Gmailből */
 /* Belépéskor egyszer a háttérben: Sales App szinkron (új megrendelések, értékesítő a csapatban) – ha változott valami, frissül a nézet */
-function salesSyncBg(){if(!isAdmin()||S._ssBg)return;S._ssBg=1;setTimeout(async()=>{try{const r=await call('salesSyncNow');if(r&&(r.created||r.updated||r.deals||r.sellers||r.cancelled))load(true);}catch(e){}},6000);}
+function salesSyncBg(){if(!isAdmin()||S._ssBg)return;S._ssBg=1;setTimeout(async()=>{try{const r=await call('salesSyncNow');if(r&&(r.created||r.updated||r.deals||r.sellers||r.cancelled||r.orderForms||r.proformas))load(true);}catch(e){}},6000);}
 function crewDocsAutoBg(){if(!isAdmin()||S._cdAuto)return;S._cdAuto=1;const k='lpm_cdauto',d=todayISO();let last='';try{last=localStorage.getItem(k)||'';}catch(e){}if(last===d)return;
   setTimeout(async()=>{try{const r=await call('crewDocsImport',{strict:true});try{localStorage.setItem(k,d);}catch(e){}const L=r.plan||[];if(r.crewDocs)S.crewDocs=r.crewDocs;
     if(L.length){toast('📥 '+L.length+' aláírt szerződés bekerült a Gmailből: '+L.map(x=>x.crew+' – '+x.title).join(', '));if(!$('modalRoot').innerHTML)render(true);}}catch(e){S._cdAuto=0;}},4000);}

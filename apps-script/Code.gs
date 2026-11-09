@@ -4981,8 +4981,10 @@ function salesSync() {
       const net = Number(sval_(o.netTotal)) || 0, disc = units >= (Number(salesCfg_('SALES_DISC_MIN', '3')) || 3) || (net > 0 && units > 0 && net < units * unitNet - 1);
       const autoComm = units > 0 && rate > 0 ? 'ft:' + units * Math.round(rate * (disc && salesCfg_('SALES_SCOMM_DISC', '') === '1' ? 90 : 100) / 100) : '';
       const ex = byPid[pid];
+      const oldAuto = [10000, 9000, Math.round(rate * 0.9), rate].map(x => 'ft:' + units * x);   /* korábbi automatikus értékek (10 000 / kedvezményes) – ezeket is átírjuk */
+      const isAuto = q => { const m = sval_(q.commManual); return !m || (q.commAuto && m === sval_(q.commAuto)) || oldAuto.indexOf(m) >= 0; };
       if (ex && ex.ownerId === ow.id) {
-        if (autoComm && (!sval_(ex.commManual) || (ex.commAuto && sval_(ex.commManual) === sval_(ex.commAuto))) && sval_(ex.commManual) !== autoComm) {
+        if (autoComm && isAuto(ex) && sval_(ex.commManual) !== autoComm) {
           const q = Object.assign({}, ex, { commManual: autoComm, commAuto: autoComm, updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
           withLock_(() => putRow_('deals', dsh, q, findRow_(dsh, ex.id))); byPid[pid] = q; out.deals = (out.deals || 0) + 1;
         }
@@ -4993,7 +4995,7 @@ function salesSync() {
         eventType: sval_(p.eventType), venue: sval_(p.venue), eventDate: sval_(p.date), value: value, stage: 'nyert', chance: 100, source: 'Sales App', nextStep: '', nextDate: '', note: '', lostReason: '',
         projectId: pid, wonAt: today_(), closedAt: today_(), createdAt: now_(), createdBy: SALES_SYS_USER.name, services: '' };
       d.ownerId = ow.id; d.ownerName = ow.name;
-      if (autoComm && (!sval_(d.commManual) || (d.commAuto && sval_(d.commManual) === sval_(d.commAuto)))) { d.commManual = autoComm; d.commAuto = autoComm; }
+      if (autoComm && isAuto(d)) { d.commManual = autoComm; d.commAuto = autoComm; }
       if (ow.role === 'sales') { const c = salesCompOf_(ow), pct = value >= c.commLimit ? c.commHigh : c.commLow; d.commPct = pct; d.commAmt = Math.round(value * pct / 100); } else { d.commPct = ''; d.commAmt = ''; }
       d.updatedAt = now_(); d.updatedBy = SALES_SYS_USER.name;
       withLock_(() => { const row = ex ? findRow_(dsh, ex.id) : null; putRow_('deals', dsh, d, row || null); });
