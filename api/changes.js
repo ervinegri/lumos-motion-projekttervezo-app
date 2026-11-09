@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a9f61aef62",
+"at": "2026-11-09T17:28:01+02:00",
+"msg": "Továbbszámlázott mező rendezése; csatolmányok az Új projekt ablakban"
+},
+{
 "id": "68e83a3c72",
 "at": "2026-11-09T17:19:45+02:00",
 "msg": "Továbbszámlázott költség a nettó szerződött érték része: levonva (…után mező), felirat: Nettó szerződött érték"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Belépéskor háttérben Sales App szinkron (értékesítő a csapatba)"
 },
 {
-"id": "98069c5ee3",
-"at": "2026-11-09T13:24:14+02:00",
-"msg": "Naptár: azonos napi forgatás + vágás egy ferdén kettéosztott sávban"
-},
-{
-"id": "c069d1b772",
-"at": "2026-11-09T11:22:54Z",
+"id": "01721ee25d",
+"at": "2026-11-09T11:24:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
