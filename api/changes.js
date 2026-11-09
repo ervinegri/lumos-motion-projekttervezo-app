@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6db0e565d9",
+"at": "2026-11-09T14:27:27+02:00",
+"msg": "Naptár buboréka: a telefonszám nem esik szét (iOS automatikus linkek kikapcsolva)"
+},
+{
 "id": "af3c43b8b0",
 "at": "2026-11-09T14:26:59+02:00",
 "msg": "Projektek: az állapotszűrő sor kikerült, minden projekt látszik"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Munkatárs: értékesítői jutalék a szerkesztőben; az űrlap legördülői kereshetők"
 },
 {
-"id": "f7b65c21c0",
-"at": "2026-11-09T11:52:17+02:00",
-"msg": "Másolás: normál mutató kurzor"
-},
-{
-"id": "b09494307a",
-"at": "2026-11-09T09:36:38Z",
+"id": "20f984239e",
+"at": "2026-11-09T09:52:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
