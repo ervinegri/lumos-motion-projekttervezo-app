@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3dfa77fa14",
+"at": "2026-11-09T17:13:59+02:00",
+"msg": "Továbbszámlázott költség a szervezői jutalékhoz hasonló mezőként, csatolmánnyal (feltöltés/behúzás a projekt Drive-mappájába)"
+},
+{
 "id": "aebd2791c9",
 "at": "2026-11-09T17:12:48+02:00",
 "msg": "Videótábla: frissítéskor nem vész el az áthúzás (megőrzi és újraküldi a mentést, figyelmeztet mentés közben)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Sales App projektek: az értékesítő (Flóra) Értékesítő szerepben a csapatba kerül; nem kap beosztásos levelet/meghívót"
 },
 {
-"id": "de93265d97",
-"at": "2026-11-09T13:17:56+02:00",
-"msg": "Sales App projektek értékesítője alapból Flóra; a projektvezető ne látsszon Értékesítőként"
-},
-{
-"id": "5ca8a8e23c",
-"at": "2026-11-09T11:13:40Z",
+"id": "5d7465e913",
+"at": "2026-11-09T11:18:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
