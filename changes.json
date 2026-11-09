@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dbcee3ce7f",
+"at": "2026-11-09T13:42:43+02:00",
+"msg": "Pénzügy táblázat: az értékesítő nem kerül a termelői díjak közé"
+},
+{
 "id": "7241883e2e",
 "at": "2026-11-09T13:41:06+02:00",
 "msg": "Pénzügy táblázat: az értékesítő sorában a jutalék összege"
@@ -141,13 +146,8 @@
 "msg": "Naptár: teljes magasság, egysoros szűrők és továbbgörgethető idővonal"
 },
 {
-"id": "2770e9c0d5",
-"at": "2026-11-09T03:34:44+02:00",
-"msg": "Naptár: faltól falig érő idővonal"
-},
-{
-"id": "eef622a5a8",
-"at": "2026-11-09T01:20:35Z",
+"id": "eee0b84bba",
+"at": "2026-11-09T01:34:52Z",
 "msg": "Változásnapló frissítése"
 }
 ]
