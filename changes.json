@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2770e9c0d5",
+"at": "2026-11-09T03:34:44+02:00",
+"msg": "Naptár: faltól falig érő idővonal"
+},
+{
 "id": "dd3c1827c1",
 "at": "2026-11-09T03:20:26+02:00",
 "msg": "Naptár: a szűrők a nézetválasztó fölött; Utómunka lépés: a részletek gomb a cím mellett (alacsonyabb kártya)"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: a szövegmezőben az időkódok kiemelve és kattinthatók"
 },
 {
-"id": "ecf269627a",
-"at": "2026-11-09T01:53:47+02:00",
-"msg": "Videó ablak: jól látható, számozott, pulzáló tű"
-},
-{
-"id": "cbe1e962af",
-"at": "2026-11-08T23:51:48Z",
+"id": "edb5415809",
+"at": "2026-11-08T23:53:55Z",
 "msg": "Változásnapló frissítése"
 }
 ]
