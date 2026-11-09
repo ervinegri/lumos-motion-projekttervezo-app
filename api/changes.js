@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4cf397bf9",
+"at": "2026-11-09T20:52:39+02:00",
+"msg": "Szerződés és számlázás: eltérő szerződésű (pl. két megrendelőlapos) projektek külön szerződés-cellában"
+},
+{
 "id": "b867017856",
 "at": "2026-11-09T20:50:26+02:00",
 "msg": "HubSpot kapcsolattartó: ha a Cég mező üres, a hozzá kapcsolt HubSpot-cég neve is betöltődik"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Naptár buboréka: a telefonszám nem esik szét (iOS automatikus linkek kikapcsolva)"
 },
 {
-"id": "af3c43b8b0",
-"at": "2026-11-09T14:26:59+02:00",
-"msg": "Projektek: az állapotszűrő sor kikerült, minden projekt látszik"
-},
-{
-"id": "909ddc5d6d",
-"at": "2026-11-09T12:19:49Z",
+"id": "c8d9055f06",
+"at": "2026-11-09T12:27:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
