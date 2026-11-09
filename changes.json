@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "53d58faf58",
+"at": "2026-11-09T03:40:58+02:00",
+"msg": "Naptár: teljes magasság, egysoros szűrők és továbbgörgethető idővonal"
+},
+{
 "id": "2770e9c0d5",
 "at": "2026-11-09T03:34:44+02:00",
 "msg": "Naptár: faltól falig érő idővonal"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: a jelölők megállítva is látszanak, hoverre a hozzászólás szövege; saját hozzászólás törlése"
 },
 {
-"id": "515fe35d51",
-"at": "2026-11-09T01:54:58+02:00",
-"msg": "Videó ablak: a szövegmezőben az időkódok kiemelve és kattinthatók"
-},
-{
-"id": "edb5415809",
-"at": "2026-11-08T23:53:55Z",
+"id": "63f2dd1cc4",
+"at": "2026-11-08T23:55:07Z",
 "msg": "Változásnapló frissítése"
 }
 ]
