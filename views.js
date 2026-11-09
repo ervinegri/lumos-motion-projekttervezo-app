@@ -322,10 +322,10 @@ function payStatementData(month,cid){
         pens.push({project:p.name||'',amount:penAmt(p,x,f.amount),kind:k.label||'Díjcsökkentés',ref:k.ref||'',pct:num(x.pct),
           day:x.day?`a ${x.day.slice(5).replace('-','.')}-i${projDays(p).indexOf(x.day)>=0?` (${projDays(p).indexOf(x.day)+1}. nap)`:''} napi díjad, ${ftFmt(num(da[x.day]))}`:'',caseText:x.caseText||'',reason:x.reason||'',
           by:x.decidedBy&&x.decidedBy!==x.by?`Javasolta: ${x.by}, ${stamp(x.at)} · Jóváhagyta: ${x.decidedBy}`:`Kirótta: ${x.by||''}${stamp(x.at)?', '+stamp(x.at):''}`});});});});
-  crewSalesComm().filter(x=>x.cid===cid&&pr(x.p).start.slice(0,7)===month).forEach(x=>rows.push({date:fmtShort(pr(x.p).start),name:'Értékesítői jutalék – '+(x.p.name||''),roles:'Értékesítő',fee:x.amt,ded:0}));
+  crewSalesComm().filter(x=>x.cid===cid&&pr(x.p).start.slice(0,7)===month).forEach(x=>rows.push({date:fmtShort(pr(x.p).start),name:'Értékesítői jutalék – '+(x.p.name||''),roles:'Értékesítő',fee:x.amt,ded:0,kind:'sales'}));
   const cr=crewById(cid),rent=OFFICE_RENT.filter(o=>cr&&o.name===cr.name).reduce((s,o)=>s+o.amount,0);
-  {const sp=salesPayOf(month,cid);if(sp){const mn=F_YM.format(toDate(month+'-01'));if(sp.salary)rows.push({date:mn,name:'Fix fizetés',roles:'Értékesítő',fee:sp.salary,ded:0});
-    if(sp.comm)rows.push({date:mn,name:'Értékesítési jutalék',roles:`jutalékalap ${ftFmt(sp.base)} (kifizetett nettó bevétel: ${sp.items.map(d=>d.name).filter((x,i,a)=>a.indexOf(x)===i).join(', ')}) · ${commTierTxt(sp.sp)}`,fee:sp.comm,ded:0});}}
+  {const sp=salesPayOf(month,cid);if(sp){const mn=F_YM.format(toDate(month+'-01'));if(sp.salary)rows.push({date:mn,name:'Fix fizetés',roles:'Értékesítő',fee:sp.salary,ded:0,kind:'salary'});
+    if(sp.comm)rows.push({date:mn,name:'Értékesítési jutalék',roles:`jutalékalap ${ftFmt(sp.base)} (kifizetett nettó bevétel: ${sp.items.map(d=>d.name).filter((x,i,a)=>a.indexOf(x)===i).join(', ')}) · ${commTierTxt(sp.sp)}`,fee:sp.comm,ded:0,kind:'sales'});}}
   const ajs=(S.payAdjust||[]).filter(x=>x.crewId===cid&&String(x.month)===month&&num(x.amount)),adj=ajs.reduce((s,x)=>s+num(x.amount),0);
   const total=rows.reduce((s,r)=>s+r.fee-r.ded,0)+rent+adj;
   return {month,crewId:cid,rows,pens,rent,adj,adjs:ajs.map(x=>({amount:num(x.amount),note:x.note||'',by:[x.updatedBy,stamp(x.updatedAt)].filter(Boolean).join(', ')})),total,retained:Math.max(0,retainedBal(cid,month,false).bal)};}
