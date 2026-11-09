@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7b3d20e334",
+"at": "2026-11-09T02:40:53+02:00",
+"msg": "Videó ablak: Enter új sor, Cmd/Ctrl+Enter folytatja a videót; gépelés a videónál a hozzászólásba megy; az üres időkód sort a jelölés lecseréli; mentett hozzászólás azonnal látszik"
+},
+{
 "id": "a256d32815",
 "at": "2026-11-09T02:39:33+02:00",
 "msg": "Videó ablak: frissítés után a videótábla / videó biztosan visszajön; nyomva tartott Enter csak egy időkód; ↑↓ az időkódokra ugrik; a következő időkód nem vágódik le; azonnali törlés"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód gomb a lejátszó alatt"
 },
 {
-"id": "15a63b6c18",
-"at": "2026-11-09T01:25:34+02:00",
-"msg": "Videó lejátszó: finomabb húzásos tekerés (a szélesség ≈ 6 mp)"
-},
-{
-"id": "c87ad0d4c6",
-"at": "2026-11-08T23:25:01Z",
+"id": "841465c744",
+"at": "2026-11-08T23:25:42Z",
 "msg": "Változásnapló frissítése"
 }
 ]
