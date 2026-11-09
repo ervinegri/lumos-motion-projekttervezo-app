@@ -433,4 +433,4 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
 .page-head.ph-sub .mnav-chip:not(.on){display:none}
 .page-head.ph-sub .mnav-row{margin:0}
 .pay-sheet tbody td:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pay-sheet tbody td:first-child .linkbtn,.pay-sheet tbody td:first-child>b{display:inline;white-space:nowrap}
+.pay-sheet tbody td:first-child .linkbtn,.pay-sheet tbody td:first-child>b{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
