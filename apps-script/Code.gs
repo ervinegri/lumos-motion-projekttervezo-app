@@ -626,7 +626,7 @@ function bootstrap_(u) {
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    mailOn: mailOn_(), clientMailLive: PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1', mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
+    mailOn: mailOn_(), clientMailLive: clientMailLive_(), mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
     capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
@@ -965,9 +965,9 @@ function videoClient_(u, a) {
   videoSet_(u, { projectId: pid, id: vid, st: 'leadva' });
   let p, v;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
-    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: (PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1' ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
+    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-  const live = PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1', sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
+  const live = clientMailLive_(), sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
   if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
   const tk = d => FRONTEND_URL + '/jovahagyas.html?t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to })) + '&d=' + d;
   const okUrl = tk('ok'), chUrl = tk('mod');
@@ -982,6 +982,8 @@ function videoClient_(u, a) {
   return { project: projectView_(fullProject_(p), u), mail: mail, test: !live };
 }
 /* Az ügyfél jóváhagyó oldala (jovahagyas.html): aláírt, 60 napig érvényes kulcs – bejelentkezés nélkül csak ezt az egy videót látja és döntheti el. */
+/** Ügyfél-levelek élesen mennek (Ervin, 2026-11-09). Tesztüzem visszakapcsolása: Script Property LUMOS_CLIENT_MAIL_LIVE = '0' */
+function clientMailLive_() { return PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') !== '0'; }
 function clientSecret_() { const P = PropertiesService.getScriptProperties(); let k = P.getProperty('LUMOS_CLIENT_SECRET'); if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); P.setProperty('LUMOS_CLIENT_SECRET', k); } return k; }
 function clientToken_(o) { o.x = Date.now() + 60 * 864e5; const b = Utilities.base64EncodeWebSafe(JSON.stringify(o)).replace(/=+$/, ''), sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(b, clientSecret_())).replace(/=+$/, ''); return b + '.' + sg; }
 function clientTokenRead_(t) { const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t || '')); if (!m) throw new Error('Érvénytelen link.');

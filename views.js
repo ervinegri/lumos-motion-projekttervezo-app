@@ -350,7 +350,8 @@ function viewPayouts(){
   const rentOn=OFFICE_RENT.map(r=>({c:(S.crew||[]).find(x=>x.name===r.name),amount:r.amount})).filter(r=>r.c&&(!crewMode||r.c.id===myId)),rent=c=>rentOn.filter(r=>r.c.id===c).reduce((s,r)=>s+r.amount,0);   // fix havi irodabérlet
   const keptM=kept[sel]||{},keptTotal=Object.values(keptM).reduce((s,x)=>s+x,0);
   const adjL=(S.payAdjust||[]).filter(x=>String(x.month)===sel&&num(x.amount)&&(!crewMode||x.crewId===myId)),adjsOf=c=>adjL.filter(x=>x.crewId===c),adj=c=>adjsOf(c).reduce((s,x)=>s+num(x.amount),0),adjTotal=adjL.reduce((s,x)=>s+num(x.amount),0);   // havi korrekció (+/−)
-  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c)+adj(c)+sp(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id),adjL.map(x=>x.crewId),spOn.map(x=>x.cid)))].sort((a,b)=>tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend
+  const sellerC=new Set(spOn.map(x=>x.cid).concat(crewMode?[]:crewSalesComm().map(x=>x.cid)));
+  const tot_=c=>rows.reduce((s,r)=>s+num(r.cells[c]),0)+rent(c)+adj(c)+sp(c),cids=crewMode?[myId]:[...new Set(rows.flatMap(r=>Object.keys(r.cells)).concat(rentOn.map(r=>r.c.id),adjL.map(x=>x.crewId),spOn.map(x=>x.cid)))].sort((a,b)=>(sellerC.has(a)-sellerC.has(b))||tot_(b)-tot_(a)||((crewById(a)||{}).name||'').localeCompare((crewById(b)||{}).name||'','hu'));   // a havi összeg szerint csökkenő sorrend, az értékesítők a végén
   const colSum=cid=>rows.reduce((s,r)=>s+(r.cells[cid]||0),0)+rent(cid)+adj(cid)+sp(cid),rowSum=r=>Object.values(r.cells).reduce((s,x)=>s+x,0),rentTotal=rentOn.reduce((s,r)=>s+r.amount,0),total=rows.reduce((s,r)=>s+rowSum(r),0)+rentTotal+adjTotal+spTotal;
   const sgn=v=>(v>0?'+':v<0?'−':'')+ftCell(Math.abs(v));
   const canAdj=(isAdmin()||S.me.role==='editor')&&!crewMode,sentTo=c=>(S.paySent||[]).some(y=>y.crewId===c&&String(y.month)===sel);
