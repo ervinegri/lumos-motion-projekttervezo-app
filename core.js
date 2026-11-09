@@ -304,7 +304,7 @@ function computeIssues(){
   }
   if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
     if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
-  if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
+  if(!ro())for(const p of live){if(diffDays(T,pr(p).start)>=30||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
     if(free.length)out.push({level:'warn',text:`✂️ ${free.length} videó még nincs vágóhoz rendelve: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
   if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
