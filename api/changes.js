@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "11fc0f7593",
+"at": "2026-11-09T20:46:28+02:00",
+"msg": "Bevételek: százalékmezők visszavonása (⌘/Ctrl + Z, Esc)"
+},
+{
 "id": "3c0ed6eec4",
 "at": "2026-11-09T20:44:56+02:00",
 "msg": "Bevételek: a „nincs érték” jelölés lekerült, elég a Marketing projekt gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil nézet újraépítve: kompakt fejléc, görgethető fülek/gombok/lépések, projektfejléc, teljes képernyős ablakok, görgethető táblázatok"
 },
 {
-"id": "3a1f1792c7",
-"at": "2026-11-09T14:13:14+02:00",
-"msg": "Változásnapló csak belépett ügyvezetőnek (védett Vercel-függvény + admin végpont); fejlesztői fájlok nem kerülnek ki a weboldalra"
-},
-{
-"id": "b0f59a728a",
-"at": "2026-11-09T12:09:55Z",
+"id": "a5c28107a2",
+"at": "2026-11-09T12:13:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
