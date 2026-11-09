@@ -614,7 +614,8 @@ function bootstrap_(u) {
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
   try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
-  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}
+  try { if (u && u.role === 'admin') crewDocsAutoSchedule_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
@@ -646,7 +647,7 @@ function bootstrap_(u) {
     delete out.links.sheet;
   }
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
-  if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return viewAsPick_(out, u);
 }
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
@@ -2817,12 +2818,23 @@ function crewDocSave_(u, a) {
     return { crewDocs: crewDocsList_() };
   });
 }
-/** Naponta egyszer: a külsősök egyértelműen aláírt szerződései (a fájlnévben „aláírt” + szerződés) automatikusan bekerülnek */
+/** Naponta egyszer: a külsősök egyértelműen aláírt szerződései (a fájlnévben „aláírt” + szerződés) automatikusan bekerülnek.
+    A bejelentkezés után egy háttérfeladat futtatja; az eredmény a következő betöltéskor az ügyvezetőnek üzenetként jelenik meg. */
 function crewDocsAuto_() {
   const P = PropertiesService.getScriptProperties(), d = today_();
-  if (P.getProperty('CREWDOCS_AUTO_AT') === d) return;
-  P.setProperty('CREWDOCS_AUTO_AT', d);
-  crewDocsImport_({ id: 'gmail-auto', name: 'Gmail-begyűjtés', role: 'admin', email: '' }, { strict: true });
+  if (P.getProperty('CREWDOCS_AUTO2_AT') === d) return;
+  P.setProperty('CREWDOCS_AUTO2_AT', d);
+  try {
+    const r = crewDocsImport_({ id: 'gmail-auto', name: 'Gmail-begyűjtés', role: 'admin', email: '' }, { strict: true });
+    P.setProperty('CREWDOCS_AUTO2_RES', JSON.stringify({ at: now_(), n: r.plan.length, list: r.plan.map(x => x.crew + ' – ' + x.title).slice(0, 20) }));
+  } catch (e) { P.setProperty('CREWDOCS_AUTO2_RES', JSON.stringify({ at: now_(), err: String((e && e.message) || e).slice(0, 300) })); P.deleteProperty('CREWDOCS_AUTO2_AT'); }
+}
+function crewDocsAutoRun() { ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'crewDocsAutoRun').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} }); crewDocsAuto_(); }
+function crewDocsAutoSchedule_() {
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('CREWDOCS_AUTO2_AT') === today_()) return;
+  if (ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'crewDocsAutoRun')) return;
+  ScriptApp.newTrigger('crewDocsAutoRun').timeBased().after(20 * 1000).create();
 }
 /** Aláírt munkatársi szerződések begyűjtése a Gmailből (külsősök, akiknek még nincs feltöltött szerződésük). a: {dry, crewIds?} */
 function crewDocsImport_(u, a) {
@@ -4714,7 +4726,6 @@ function salesLog_(rec, action, details) {
 /** IDŐZÍTETT (5 percenként) és kézzel is futtatható: Sales App ↔ Projekttervező szinkron. */
 function salesSync() {
   const P = PropertiesService.getScriptProperties();
-  try { crewDocsAuto_(); } catch (e) { Logger.log('Szerződés-begyűjtés: ' + e); }
   if (P.getProperty('SALES_SYNC_OFF') === '1') return { off: true };
   let S;
   try { salesSchema_(); S = salesRead_(); }
