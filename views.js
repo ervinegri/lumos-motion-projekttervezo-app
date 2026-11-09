@@ -1473,10 +1473,19 @@ function viewSettings(){
     return `<div class="sig-box"><div class="sig-h"><b>✍️ E-mail aláírás</b>${sg.set?'':' <span class="muted">– még nincs beállítva, a levelek „Üdvözlettel, név” zárással mennek</span>'}${can?`<button class="mini" type="button" data-action="sig-edit" data-id="${esc(u.id)}">Szerkesztés</button>`:''}</div>${sg.set?`<div class="sig-prev" data-sig="${esc(u.id)}"></div>`:''}</div>`;};
   const RO_={admin:0,editor:1,crew:2},users=S.users.filter(u=>isAdmin()||u.role==='crew'||u.id===S.me.id).filter(u=>!S.userTab||S.userTab==='all'||u.role===S.userTab||!S.users.some(x=>x.role===S.userTab)).slice().sort((a,b)=>(!!a.disabled-!!b.disabled)||((RO_[a.role]??3)-(RO_[b.role]??3))||a.name.localeCompare(b.name,'hu')).map(u=>`<div class="arow${u.disabled?' off':''}"><div class="who"><b>${esc(u.name)} <span class="statuspill ${u.disabled?'p-bad':'p-ok'}">${u.disabled?'letiltva':'aktív'}</span>${u.id===S.me.id?' <span class="muted" style="font-weight:600">(te)</span>':''}</b><small>${esc(roleLabel(u.role))}${u.crewId?' · stáb: '+esc(crewName(u.crewId)||'törölt munkatárs'):''}${u.email?' · '+esc(u.email):''}</small></div>
     <div class="arow-btns">${!isAdmin()&&u.role!=='crew'?'':`${u.id!==S.me.id?`<button class="mini${u.disabled?'':' warn'}" type="button" data-action="toggle-user" data-id="${esc(u.id)}" data-dis="${u.disabled?'0':'1'}">${u.disabled?'Engedélyezés':'Letiltás'}</button>`:''}<button class="mini" type="button" data-action="edit-user" data-id="${esc(u.id)}">Szerkesztés</button>`}</div>${(S.userTab==='admin'||S.userTab==='editor')&&(u.role==='admin'||u.role==='editor')&&!u.disabled?sigOf(u):''}</div>`).join('');
-  const leaders=(S.users||[]).filter(u=>u.role==='admin'||u.role==='editor').sort((a,b)=>(a.role==='admin'?0:1)-(b.role==='admin'?0:1)||a.name.localeCompare(b.name,'hu'));   // fülek: ügyvezető, termelési vezető(k), majd mindenki más
-  const lnames=leaders.map(u=>u.name),lt=S.logTab&&(S.logTab==='__other'||lnames.includes(S.logTab))?S.logTab:(lnames[0]||'__other');
-  const logSel=S.log.filter(l=>lt==='__other'?!lnames.includes(l.who):l.who===lt);
-  const logTabs=`<div class="chips log-tabs">${leaders.map(u=>`<button class="chip" type="button" data-action="log-tab" data-v="${esc(u.name)}" aria-pressed="${lt===u.name}">${esc(u.name)} <span class="muted">· ${esc(roleLabel(u.role))}</span><span class="c">${S.log.filter(l=>l.who===u.name).length}</span></button>`).join('')}<button class="chip" type="button" data-action="log-tab" data-v="__other" aria-pressed="${lt==='__other'}">Mindenki más<span class="c">${S.log.filter(l=>!lnames.includes(l.who)).length}</span></button></div>`;
+  const logActors=new Map(S.users.filter(u=>u.name).map(u=>[u.name,{name:u.name,role:u.role,count:0}]));
+  for(const l of S.log){
+    if(!l.who)continue;
+    if(!logActors.has(l.who))logActors.set(l.who,{name:l.who,role:l.role,count:0});
+    logActors.get(l.who).count++;
+  }
+  const actors=[...logActors.values()].sort((a,b)=>(RO_[a.role]??3)-(RO_[b.role]??3)||a.name.localeCompare(b.name,'hu'));
+  const logUser=S.logTab??(actors.find(u=>u.role==='admin'||u.role==='editor')?.name||'__all');
+  const lt=logActors.has(logUser)?logUser:'__all';
+  const logSel=lt==='__all'?S.log:S.log.filter(l=>l.who===lt);
+  const logFilter=`<div class="log-tabs"><select class="inp" id="log-user" data-cmb="Felhasználó keresése…" aria-label="Napló szűrése felhasználó szerint">
+    <option value="__all"${lt==='__all'?' selected':''}>Összes felhasználó (${S.log.length})</option>
+    ${actors.map(u=>`<option value="${esc(u.name)}"${lt===u.name?' selected':''}>${esc(u.name)}${u.role?' · '+esc(roleLabel(u.role)):''} (${u.count})</option>`).join('')}</select></div>`;
   const log=logSel.slice(0,200).map(l=>`<div class="logrow"><span class="when">${esc(l.at)}</span><span><b>${esc(l.who)}</b> · ${esc(l.action)}${l.subject?': '+esc(l.subject):''}${l.details?`<br><span class="muted">${esc(l.details)}</span>`:''}</span></div>`).join('');
   if(!isAdmin())return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Hozzáférések</p></div></div>
     <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Szakember felvétele</button></span></h3>
@@ -1490,7 +1499,7 @@ function viewSettings(){
         <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Letiltáskor a kolléga minden eszközön azonnal kilép. Ügyvezető: mindent lát és kezel, a Beállításokat is. Termelési vezető: projekteket, stábot és leltárt szerkeszt, eszközlistát küld. Szakember: csak a saját beosztásait látja (helyszín, időpont, stáb, eszközök), szerkeszteni nem tud.</p>
         ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>
       <div class="panel"><h3>🧾 Napló <span class="aside"><button class="btn ghost small" type="button" data-action="reload-log">↻</button></span></h3>
-        ${logTabs}<div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
+        ${logFilter}<div class="log-scroll">${log||empty('Még nincs bejegyzés.')}</div></div>
     </div>`;
 }
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük

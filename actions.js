@@ -1295,7 +1295,6 @@ const ACT={
     if(it.flag==='er_creative'&&n<cur){const own=slotOwners(d,'er_creative');if(own.length>n){const et=clone(editTasksOf(d)),last=own[own.length-1];if(Array.isArray(et[last]))et[last]=et[last].filter(x=>x!=='f_er_creative');patch.editTasks=et;}}   // a levett kreatív kamera operatőre is lekerül
     setDraft(patch);},
   dlv:b=>{const d=S.draft;if(!d)return;const it=DELIVERABLES.find(x=>x.k===b.dataset.k);setDraft({[it.k]:Math.min(it.max,Math.max(0,num(d[it.k])+Number(b.dataset.d)))});},
-  'log-tab':b=>{S.logTab=b.dataset.v;render(true);},
   'user-tab':b=>{S.userTab=b.dataset.v;render(true);},
   'sig-edit':b=>sigModal(b.dataset.id),
   'view-reset':()=>guard(()=>switchView('admin')),
@@ -1482,6 +1481,7 @@ document.addEventListener('change',e=>{
   const t=e.target,d=S.draft;
   {const r=t.closest&&t.closest('.phone-row');if(r){if(t.tagName==='SELECT')try{t.blur();}catch(_){}phSync(r,true);return;}}
   if(t.tagName==='SELECT'&&t.id!=='viewAs')try{t.blur();}catch(_){}   // tableten (iPad) a kiválasztás után zárjuk be a listát
+  if(t.id==='log-user'){S.logTab=t.value;render(true);return;}
   if(t.dataset.clientSel&&d){if(t.value==='__new'){t.value=d.client||'';newClientModal();return;}
     const it=knownClients('').find(c=>c.company===t.value),patch={client:t.value,clientTax:it?it.tax:'',clientAddress:it?it.address:''};if(it&&(it.name||it.phone||it.email)){patch.contactName=it.name;patch.contactPhone=it.phone;patch.contactEmail=it.email;}setDraft(patch);return;}
   if(t.id==='m-clientSel'){const n=$('m-clientNew');if(n){const on=t.value==='__new';n.style.display=on?'':'none';if(on)$('m-clientTax').focus();}
