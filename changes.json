@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "bce770dce5",
+"at": "2026-11-09T05:39:28+02:00",
+"msg": "Ügyfél-levél tárgya: „Elkészült: {videó} – {projekt}”, ügyfelenként megjegyezve"
+},
+{
 "id": "95a88bb3c5",
 "at": "2026-11-09T05:38:33+02:00",
 "msg": "Ügyfél-levél: helyes névelő (a / az) a(z) helyett, nagybetűs kezdés, görgethető szövegmező"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód egy lépésben törölhető (Backspace/Delete); az élő időkód nem ugrál"
 },
 {
-"id": "38018261a9",
-"at": "2026-11-09T02:21:40+02:00",
-"msg": "Videó ablak: lejátszás közben szóköz megállít, beszúrja az időkódot, és lehet írni"
-},
-{
-"id": "cc668a0986",
-"at": "2026-11-09T00:19:47Z",
+"id": "611e4f047e",
+"at": "2026-11-09T00:21:49Z",
 "msg": "Változásnapló frissítése"
 }
 ]
