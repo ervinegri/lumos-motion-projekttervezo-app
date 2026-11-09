@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "1b3986882d",
+"at": "2026-11-09T05:36:09+02:00",
+"msg": "Ügyfél-levél: TESZTÜZEM (a levél a küldőhöz megy, nem az ügyfélhez); Jóváhagyom / Módosítást kérek gomb a levélben (jovahagyas.html); a sablon oszlopa a lista végére került"
+},
+{
 "id": "e47b3971f5",
 "at": "2026-11-09T05:31:10+02:00",
 "msg": "Ügyfél-levél: tegező, szerkeszthető, aláírással; a kiküldött szöveg sablonként megmarad az ügyfélnél; a projektoldalról kikerült a Videók szekció"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: frissítés után visszajön; hosszú szóköz = 2× sebesség; Enter után a következő időkód látszik; élő időkód az üres mezőben; kuka a videó alatt; Bezárás · Visszadobás sorrend; az ellenőrzési megjegyzés nem törölhető"
 },
 {
-"id": "393f5ad557",
-"at": "2026-11-09T02:11:37+02:00",
-"msg": "Videó ablak: nincs narancs fókuszkeret az ablakon"
-},
-{
-"id": "6a95d0b317",
-"at": "2026-11-09T00:09:58Z",
+"id": "58c0e7cd7c",
+"at": "2026-11-09T00:11:47Z",
 "msg": "Változásnapló frissítése"
 }
 ]
