@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7309560bc9",
+"at": "2026-11-09T14:09:45+02:00",
+"msg": "Új verzió sáv: az újdonságok listája csak az ügyvezetőnek"
+},
+{
 "id": "44c718d669",
 "at": "2026-11-09T14:07:06+02:00",
 "msg": "Lezárt projekt (átadva, ill. szakembernél a lezajlott munka): minden szürke"
@@ -141,13 +146,8 @@
 "msg": "Ügyfél-levél: TESZTÜZEM (a levél a küldőhöz megy, nem az ügyfélhez); Jóváhagyom / Módosítást kérek gomb a levélben (jovahagyas.html); a sablon oszlopa a lista végére került"
 },
 {
-"id": "e47b3971f5",
-"at": "2026-11-09T05:31:10+02:00",
-"msg": "Ügyfél-levél: tegező, szerkeszthető, aláírással; a kiküldött szöveg sablonként megmarad az ügyfélnél; a projektoldalról kikerült a Videók szekció"
-},
-{
-"id": "9518e5a3e1",
-"at": "2026-11-09T03:24:13Z",
+"id": "df3296e02c",
+"at": "2026-11-09T03:31:19Z",
 "msg": "Változásnapló frissítése"
 }
 ]
