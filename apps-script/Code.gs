@@ -1590,7 +1590,7 @@ function decideBudgetChange_(u, a) {
 /* ===================== PROJEKTEK ===================== */
 /** Extra szolgáltatások (a szerződött összegen felül, nettó): [{id, name, amount}] */
 function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
-  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov' || x.kind === 'org') ? x.kind : '', clientId: x && x.kind === 'org' ? str_(x.clientId, 64) : '' })).filter(x => x.name || x.amount || x.kind === 'org'); }
+  return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov' || x.kind === 'org') ? x.kind : '', clientId: x && x.kind === 'org' ? str_(x.clientId, 64) : '', fileUrl: x && /^https:\/\//.test(String(x.fileUrl || '')) ? str_(x.fileUrl, 300) : '', fileName: str_(x && x.fileName, 150) })).filter(x => x.name || x.amount || x.kind === 'org'); }
 /** Szervezői jutalék összege (nem a számla része: a termelői alapot csökkenti). */
 /** Termelői alap (hatékonyság / termelői keret): végső érték (szerződött + extrák − kedvezmények) − szervezői jutalék − továbbszámlázott költség */
 const prodBase_ = p => { const ex = parseExtras_(p.extras), n = v => Number(v) || 0; return Math.max(0, n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'tov' ? 0 : e.kind === 'org' || e.kind === 'le' ? -1 : 1) * n(e.amount), 0)); };
@@ -2764,6 +2764,17 @@ function billSave_(u, a) {
   return finPart_(['billing']);
 }
 /** Szerződés feltöltése a projekt Drive-mappájába (a mappát szükség esetén létrehozza). a: {projectId, name, mime, b64, contractStatus} */
+/** Extra tétel (pl. továbbszámlázott költség) csatolmánya: a projekt Drive-mappájának „Továbbszámlázott” almappájába */
+function extraFileUpload_(u, a) {
+  const pid = str_(a && a.projectId, 64), name = (str_(a && a.name, 150).replace(/[\\/]/g, '-') || 'csatolmany.pdf'), b64 = String(a && a.b64 || '');
+  if (!b64) throw new Error('Nincs feltöltendő fájl.');
+  if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
+  const root = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId), folder = folderPath_(root, 'Továbbszámlázott', {});
+  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, name)));
+  logEvent_(u, 'Csatolmány feltöltve (extra tétel)', name, pid);
+  return { url: file.getUrl(), name: name };
+}
 function billUpload_(u, a) {
   const pid = str_(a && a.projectId, 64);
   const name = str_(a && a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf', b64 = String(a && a.b64 || '');
@@ -4564,11 +4575,13 @@ function rpcInner_(token, name, arg) {
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
+    case 'extraFileUpload': adminOnly(); return extraFileUpload_(u, arg);
+    case 'mySignature': { const sg = signatureFor_(u); return { html: sg ? sg.html : '' }; }   // a saját e-mail aláírás előnézete (pl. az ügyfélnek küldött levél alatt)
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'crewDocSave': adminOnly(); return crewDocSave_(u, arg);
     case 'crewDocGet': adminOnly(); return crewDocGet_(u, arg);
     case 'changesList': {   // az app változásnaplója – nem nyilvános, csak az ügyvezető kapja meg
-      adminOnly(); const c = CacheService.getScriptCache(), hit = c.get('pm_changes'); if (hit) return JSON.parse(hit);
+      if (role !== 'admin' && u.realRole !== 'admin') deny(); const c = CacheService.getScriptCache(), hit = c.get('pm_changes');   // előnézetben (szakember/értékesítő nézet) is az ügyvezetőé if (hit) return JSON.parse(hit);
       const r = UrlFetchApp.fetch(FRONTEND_URL.replace(/\/$/, '') + '/api/changes', { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
       if (r.getResponseCode() !== 200) return { items: [] };
       const out = { items: ((JSON.parse(r.getContentText()) || {}).items || []).slice(0, 40) }; try { c.put('pm_changes', JSON.stringify(out), 120); } catch (e) {} return out;

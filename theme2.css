@@ -529,3 +529,10 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
   html body .page-head.pay-head-c .month-nav .btn,html body .page-head.pay-head-c .mnav-chip{font-size:13.5px;padding:6px 10px;min-height:34px}
   html body .page-head.pay-head-c .mn-arrow{width:34px;min-width:34px;padding:0}
 }
+
+.cl-sig-wrap{margin-top:8px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.cl-btns-prev{display:flex;gap:8px;margin-bottom:10px}
+.cl-bp{display:inline-block;padding:7px 14px;border-radius:8px;font-weight:700;font-size:13px;color:#fff}
+.cl-bp.ok{background:#2e7d4f}.cl-bp.mod{background:#b26a00}
+.cl-sig{font-size:13px;line-height:1.45;overflow:hidden}
+.cl-sig img{max-width:100%;height:auto}
