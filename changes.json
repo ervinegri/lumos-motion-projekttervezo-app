@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "54524d8ffa",
+"at": "2026-11-09T12:04:44+02:00",
+"msg": "Források: altabok és fejléc egy sorban; leltár szűrők kereshetők"
+},
+{
 "id": "13cc088dbc",
 "at": "2026-11-09T12:03:12+02:00",
 "msg": "Munkatársi szerződés: behúzás vagy kiválasztás után azonnal feltöltődik, a kártya frissül"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: Shift + húzás 10× gyorsabb tekerés; Shift + szóköz nyomva visszafelé 2×"
 },
 {
-"id": "7abe4136e0",
-"at": "2026-11-09T02:56:53+02:00",
-"msg": "Hozzászólás törlése: gyors egymás utáni törlésnél sem jönnek vissza (sorban, időbélyeg alapján)"
-},
-{
-"id": "83b6443ebb",
-"at": "2026-11-09T00:55:49Z",
+"id": "d2536812b6",
+"at": "2026-11-09T00:57:02Z",
 "msg": "Változásnapló frissítése"
 }
 ]
