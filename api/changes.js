@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6b856a258b",
+"at": "2026-11-09T21:43:09+02:00",
+"msg": "Beosztás: a kreatív kamerához kijelölt operatőr kártyájára „Kreatív operatőr” kerül (statív / interjúsarok hasonlóan)"
+},
+{
 "id": "4eca959bdb",
 "at": "2026-11-09T21:35:30+02:00",
 "msg": "Legördülő: beágyazott operatőr-altípusok (az Operatőrre kattintva nyílnak); számolásnál is ezres tagolás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél neve a hozzászólásoknál: csak keresztnév, e-mail cím nélkül"
 },
 {
-"id": "d60a5212ab",
-"at": "2026-11-09T17:29:45+02:00",
-"msg": "Ügyfél-jóváhagyó oldal: beágyazott lejátszó és észrevételek időkóddal (a belső nézet mintájára)"
-},
-{
-"id": "9c77935f3a",
-"at": "2026-11-09T15:28:13Z",
+"id": "cbf2b66afd",
+"at": "2026-11-09T15:29:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
