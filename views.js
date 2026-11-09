@@ -1301,7 +1301,7 @@ function calTimeline(m,items0,T,ahead){
   const cutOf=p=>{if(!p||p.status==='lemondva'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
     if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
-  const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva'));   // a lemondott projekt itt nem látszik
+  const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva')&&!(!ro()&&S.cal.cutter&&it.kind!=='v'&&(it.kind!=='p'||!crewCuts(projById(it.id)||{},S.cal.cutter))));   // a lemondott projekt itt nem látszik; vágó kiválasztásakor csak az ő vágói munkái
   const seen=new Set(rows.filter(it=>it.kind==='p').map(it=>it.id));
   S.projects.forEach(p=>{if(seen.has(p.id))return;const c=cutOf(p),q=pr(p);if(!c||c.due<first||c.st>last)return;   // a vágás ide esik, a forgatás korábban volt
     rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&!crewOnSite(p,me))});});
