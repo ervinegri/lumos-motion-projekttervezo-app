@@ -555,7 +555,8 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
     if(s!==base){shown=true;const d=document.createElement('div');d.className='upd-bar';d.innerHTML='🔄 Elérhető az app új verziója. <button type="button" class="btn primary small">Frissítés most</button>';
       d.querySelector('button').onclick=()=>{try{if(typeof mdSave==='function')mdSave();}catch(e){}location.reload();};document.body.appendChild(d);
       /* hoverre: mik az újdonságok (changes.json – a GitHub automatikusan frissíti) */
-      const tipUp=async()=>{try{const r=await fetch('changes.json',{cache:'no-store'});const it=(((await r.json())||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);
+      const tipUp=async()=>{if(typeof isAdmin!=='function'||!isAdmin()){d.removeAttribute('data-tip');return;}   /* az újdonságok listáját csak az ügyvezető látja */
+        try{const r=await fetch('changes.json',{cache:'no-store'});const it=(((await r.json())||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);
         d.setAttribute('data-tip',it.length?'Újdonságok:\n'+it.map(x=>'• '+String(x.msg||'').split('\n')[0].slice(0,140)).join('\n'):'Kisebb javítások');d.setAttribute('tabindex','0');}catch(e){}};
       tipUp();d.addEventListener('mouseenter',tipUp);}}catch(e){}}
   setTimeout(check,4000);setInterval(check,180000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});})();
