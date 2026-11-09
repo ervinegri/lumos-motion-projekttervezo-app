@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f2a24a3f84",
+"at": "2026-11-09T22:26:05+02:00",
+"msg": "Vízjel a jóváhagyó lejátszón: projektenként pipálható, Sales App projektnél alapból be, teljes kifizetés után lekerül"
+},
+{
 "id": "6b856a258b",
 "at": "2026-11-09T21:43:09+02:00",
 "msg": "Beosztás: a kreatív kamerához kijelölt operatőr kártyájára „Kreatív operatőr” kerül (statív / interjúsarok hasonlóan)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lumos Motion Jóváhagyás logó a jóváhagyó oldalon"
 },
 {
-"id": "0080d147ed",
-"at": "2026-11-09T17:38:39+02:00",
-"msg": "Ügyfél neve a hozzászólásoknál: csak keresztnév, e-mail cím nélkül"
-},
-{
-"id": "cbf2b66afd",
-"at": "2026-11-09T15:29:55Z",
+"id": "6676f82217",
+"at": "2026-11-09T15:38:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
