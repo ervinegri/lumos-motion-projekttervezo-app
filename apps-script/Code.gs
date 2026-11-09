@@ -4911,8 +4911,8 @@ function salesSync() {
     const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {};
     readAll_('deals').forEach(d => { if (d.projectId) byPid[d.projectId] = d; });
     S.list.forEach(o => {
-      const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; if (!p || !sval_(o.salesperson)) return;
-      const ow = findU(o.salesperson); if (!ow) { miss[sval_(o.salesperson)] = 1; return; }
+      const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; const spName = sval_(o.salesperson) || salesCfg_('SALES_SELLER', 'Guzsloványi Flóra'); if (!p || !spName) return;   /* a Sales App megrendeléseit alapból Flóra értékesíti (Ervin, 2026-11-09) */
+      const ow = findU(spName); if (!ow) { miss[spName] = 1; return; }
       const ex = byPid[pid]; if (ex && ex.ownerId === ow.id) return;
       const value = Math.round(Number(p.projectValue) || Number(sval_(o.netTotal)) || 0);
       const d = ex ? Object.assign({}, ex) : { id: Utilities.getUuid(), title: sval_(p.name), client: sval_(p.client), contactName: sval_(p.contactName), contactEmail: sval_(p.contactEmail), contactPhone: sval_(p.contactPhone),
