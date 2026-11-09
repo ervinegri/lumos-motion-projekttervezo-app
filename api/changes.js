@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "af3c43b8b0",
+"at": "2026-11-09T14:26:59+02:00",
+"msg": "Projektek: az állapotszűrő sor kikerült, minden projekt látszik"
+},
+{
 "id": "6c5f55f7e3",
 "at": "2026-11-09T14:19:37+02:00",
 "msg": "Mobil nézet újraépítve: kompakt fejléc, görgethető fülek/gombok/lépések, projektfejléc, teljes képernyős ablakok, görgethető táblázatok"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Másolás: normál mutató kurzor"
 },
 {
-"id": "ef8c1140a3",
-"at": "2026-11-09T11:36:26+02:00",
-"msg": "Videótábla: ellenőrzés/ügyfél ablak alatt is látszik, címsor egy vonalban; telefon/e-mail másolás hover"
-},
-{
-"id": "cd3a5c7e62",
-"at": "2026-11-09T03:39:38Z",
+"id": "b09494307a",
+"at": "2026-11-09T09:36:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
