@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d27d8cbc7a",
+"at": "2026-11-09T13:30:27+02:00",
+"msg": "Belépéskor háttérben Sales App szinkron (értékesítő a csapatba)"
+},
+{
 "id": "98069c5ee3",
 "at": "2026-11-09T13:24:14+02:00",
 "msg": "Naptár: azonos napi forgatás + vágás egy ferdén kettéosztott sávban"
@@ -146,13 +151,8 @@
 "msg": "Videótábla: több videó kijelölése (⌘/Ctrl/Shift + kattintás) és átnézése egymás után; oszloponként ▶ Átnézés; ‹ › a videóablakban, jóváhagyás után a következő; Mind jóváhagyása"
 },
 {
-"id": "80c43aa506",
-"at": "2026-11-09T03:13:34+02:00",
-"msg": "Naptár / idővonal: a képernyő aljáig ér"
-},
-{
-"id": "bf5836c2c7",
-"at": "2026-11-09T01:10:56Z",
+"id": "b0c2f628d2",
+"at": "2026-11-09T01:13:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
