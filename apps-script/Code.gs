@@ -2761,7 +2761,7 @@ function billSave_(u, a) {
     if (a.clearFile) { r.contractUrl = ''; r.contractFileId = ''; r.contractName = ''; r.contractAt = ''; r.contractBy = ''; }
     if (a.mode !== undefined) r.mode = a.mode === 'egyben' ? 'egyben' : 'eloleg';
     if (a.noFinal !== undefined) r.noFinal = a.noFinal ? '1' : '';
-    if (a.mktProject !== undefined) r.mktProject = a.mktProject ? '1' : '';   // saját marketing projekt: a termelési költség a marketing alapból megy
+    if (a.mktProject !== undefined) r.mktProject = a.mktProject === '0' ? '0' : a.mktProject && a.mktProject !== '' ? '1' : '';   // '0': kifejezetten nem marketing (az érték nélküli projekt is a bevételek közt marad)   // saját marketing projekt: a termelési költség a marketing alapból megy
     if (a.tigMode !== undefined) r.tigMode = a.tigMode === 'kell' || a.tigMode === 'nemkell' ? a.tigMode : '';
     if (a.advancePct !== undefined) { const n = Math.round(Number(a.advancePct)); if (!isFinite(n) || n < 0 || n > 100) throw new Error('A foglaló 0–100% lehet.'); r.advancePct = n; }
     if (a.poNumber !== undefined) r.poNumber = str_(a.poNumber, 80);

@@ -546,3 +546,12 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .money:has(input[readonly]){background:#f1f5f3}.money input[readonly]{background:transparent}
 .missing .money{border-color:var(--bad-line);background:var(--bad-soft)}.missing .money .inp{background:transparent;border-color:transparent}
 .np-drop{margin-top:4px;padding:12px}.np-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.np-file{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;max-width:100%}.np-file .x{width:18px;height:18px;padding:0;font-size:11px}
+/* Kiadás-táblázatok (eszköz-rezsi, marketing): egységes rácsos táblázat, a láb is soronként elválasztva */
+.fin-exp{table-layout:fixed}.fin-exp th:nth-child(2),.fin-exp td:nth-child(2){width:120px}.fin-exp th:nth-child(3),.fin-exp td:nth-child(3){width:150px}
+.fin-exp td,.fin-exp th{border-right:1px solid #d5dde3}.fin-exp td:last-child,.fin-exp th:last-child{border-right:0}
+.fin-exp tbody td{border-bottom:1px solid #e3e8ec;vertical-align:middle}
+.fin-exp tfoot td{border-top:1px solid #d5dde3!important;background:#f6f8f9;font-weight:500}
+.fin-exp tfoot tr.fin-sum-tr td{border-top:2px solid #7f948a!important;background:#eef2f4;font-weight:700}
+.fin-exp tfoot tr.fin-keret td{background:#fff}
+.fin-exp tfoot tr.fin-end td{font-weight:700}
+.fin-exp tfoot td:last-child{box-shadow:inset 1px 0 0 #d5dde3}

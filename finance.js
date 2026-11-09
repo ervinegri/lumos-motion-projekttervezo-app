@@ -98,7 +98,8 @@ async function finExpDedupe(){if(S._expDedupe||!S.fin||!S.fin.expense)return;con
     toast(`${del.length} duplikált kiadás törölve (az ismétlődő tétel megmaradt) – ${KBD_UNDO} visszahozza`);}
   catch(e){handleErr(e);finLoad(true);}finally{S._expDedupe=false;render(true);}}
 /* Saját marketing projekt (nincs ügyfélbevétel): a termelési költsége a marketing alapból megy, a Marketing költség táblában */
-const isMktProj=pid=>typeof billOf==='function'&&billOf(pid).mktProject==='1';
+/* Saját marketing projekt: kézzel jelölve, vagy magától, ha nincs értéke, de van termelési költsége (pl. Bussiness Bash). A „vissza a bevételek közé” ('0') felülírja. */
+const isMktProj=pid=>{if(typeof billOf!=='function')return false;const m=String(billOf(pid).mktProject||'');if(m==='1')return true;if(m==='0')return false;const p=projById(pid);return !!p&&!projTotal(p)&&feeSum(p)>0;};
 function finMktProjects(m){return S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).start.slice(0,7)===m&&isMktProj(p.id)).map(p=>({id:'proj:'+p.id,pid:p.id,kind:'proj',fund:'marketing',name:p.name||'Névtelen projekt',amount:Math.round(feeSum(p))}));}
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).concat(finMktProjects(m)).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||num(b.amount)-num(a.amount)||a.name.localeCompare(b.name,'hu'));}   // fix elöl, összeg szerint csökkenő
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
@@ -190,8 +191,8 @@ function viewFinance(){
     <td>${payCell(r)}</td><td class="r"><b>${moneyFmt(r.amount)||0}</b></td><td class="r">${moneyFmt(r.profit)||0}</td><td class="pc">${pctOf(r.prod,r.amount)}</td><td class="r"${r.tov?` data-tip="ebből továbbszámlázott: ${esc(ftFmt(r.tov))}"`:''}>${moneyFmt(r.prod)||0}${r.tov?' <small class="muted">🔁</small>':''}</td><td class="pc">${pctIn(r,'ceo')}</td><td class="r">${moneyFmt(r.ceo)||0}</td><td class="pc">${pctOf(r.rezsi,r.amount)}</td><td class="r${r.rezsi<0?' bad-txt':''}">${r.rezsi<0?'−':''}${moneyFmt(Math.abs(r.rezsi))||0}</td><td class="r${r.marketing<0?' bad-txt':''}">${r.marketing<0?'−':''}${moneyFmt(Math.abs(r.marketing))||0}</td></tr>`).join('');
   const expRows=list=>list.map(e=>e.kind==='proj'?`<tr class="fin-mktproj"><td><button class="linkbtn" type="button" data-action="open-project" data-id="${esc(e.pid)}">🎬 ${esc(e.name)}</button> <button class="editbtn" type="button" data-action="fin-mkt-proj" data-id="${esc(e.pid)}" data-on="" data-tip="Vissza a bevételek közé">↩︎</button></td><td><span class="statuspill p-info" data-tip="Saját marketing projekt: a termelési költsége (szakemberek díja) a marketing alapból megy">projekt</span></td><td class="r"><b>${moneyFmt(e.amount)||0}</b></td></tr>`:`<tr><td><button class="linkbtn" type="button" data-action="fin-exp-edit" data-id="${esc(e.id)}">${esc(e.name)}</button></td><td>${e.kind==='fix'?`<span class="statuspill">havi fix</span>`:'<span class="statuspill p-mute">egyszeri</span>'}</td><td class="r"><b>${moneyFmt(e.amount)||0}</b></td></tr>`).join('');
   const expPanel=(fund,icon,title)=>{const l=exp.filter(e=>fund==='marketing'?e.fund==='marketing':e.fund!=='marketing');return `<div class="panel"><h3>${icon} ${title} <span class="aside">${ftFmt(sumK(l,'amount'))}</span></h3>
-        <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Tétel</th><th>Típus</th><th class="r">Összeg</th></tr></thead><tbody>${expRows(l)||'<tr><td colspan="3" class="empty-row">Nincs kiadás ebben a hónapban.</td></tr>'}</tbody>
-          <tfoot><tr><td><b>Összesen</b></td><td></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0}</b></td></tr>
+        <div class="sheet-wrap"><table class="sheet fin-tbl fin-exp"><thead><tr><th>Tétel</th><th>Típus</th><th class="r">Összeg</th></tr></thead><tbody>${expRows(l)||'<tr><td colspan="3" class="empty-row">Nincs kiadás ebben a hónapban.</td></tr>'}</tbody>
+          <tfoot><tr class="fin-sum-tr"><td colspan="2"><b>Összesen</b></td><td class="r"><b>${moneyFmt(sumK(l,'amount'))||0} Ft</b></td></tr>
           ${(()=>{const mk=fund==='marketing',keret=mk?bal.carryMkt+bal.inMkt:bal.carryRezsi+bal.inRezsi,end=keret-sumK(l,'amount');
             const inM=mk?bal.inMkt:bal.inRezsi,car=mk?bal.carryMkt:bal.carryRezsi;
             return `<tr class="fin-keret"><td colspan="2"><b>Havi ${mk?'marketing':'eszköz, rezsi'} keret</b> <span class="muted">(e havi bevételekből)</span></td><td class="r"><b>${sFt(inM)}</b></td></tr>
@@ -678,8 +679,8 @@ document.addEventListener('input',e=>{if(e.target.id==='m-due')document.querySel
 
 /* Saját marketing projekt be/ki */
 ACT['fin-mkt-proj']=async btn=>{const pid=btn.dataset.id,on=!!btn.dataset.on;if(!S.fin)return;const arr=S.fin.billing=S.fin.billing||[];let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
-  const prev=b.mktProject;b.mktProject=on?'1':'';render(true);
-  try{const d=await call('billSave',{projectId:pid,mktProject:on});if(d&&d.billing)S.fin.billing=d.billing;render(true);toast(on?'Áthelyezve a marketing költségek közé':'Visszakerült a bevételek közé');}catch(e){b.mktProject=prev;render(true);handleErr(e);}};
+  const prev=b.mktProject;b.mktProject=on?'1':'0';render(true);
+  try{const d=await call('billSave',{projectId:pid,mktProject:on?'1':'0'});if(d&&d.billing)S.fin.billing=d.billing;render(true);toast(on?'Áthelyezve a marketing költségek közé':'Visszakerült a bevételek közé');}catch(e){b.mktProject=prev;render(true);handleErr(e);}};
 
 /* Számla sztornózása: csak sztornó, vagy sztornó + új számla az előző adataival */
 ACT['sz-move']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(!x)return;const cur=projById(x.projectId),cl=fold((cur&&cur.client)||x.buyer||'').trim();
