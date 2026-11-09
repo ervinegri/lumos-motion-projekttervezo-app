@@ -2243,9 +2243,9 @@ window.addEventListener('beforeunload',e=>{if(Object.keys(BD_PEND||{}).length){e
 async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;
   if(st==='ellen'&&!extra){reviewModal(pid,vid);return;}
   if(st==='leadva'&&!extra){clientModal(pid,vid);return;}   /* az ügyfélhez kerül: ki kapja az e-mailt (vagy e-mail nélkül) */
-  if(extra&&extra.noMail)extra=null;   // belső ellenőrzés: kinek, link, megjegyzés
-  const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;bdRefresh();if(!extra)bdKeep(k,{pid,vid,st,fb:fb||'',at:Date.now()});
-  BD_Q=BD_Q.then(async()=>{try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{}));const pr2=r&&r.project;
+  let nmLink='';if(extra&&extra.noMail){nmLink=extra.link||'';extra=null;}   // belső ellenőrzés: kinek, link, megjegyzés
+  const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;if(nmLink)v.link=nmLink;bdRefresh();if(!extra)bdKeep(k,{pid,vid,st,fb:fb||'',at:Date.now()});
+  BD_Q=BD_Q.then(async()=>{try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{},nmLink?{link:nmLink}:{}));const pr2=r&&r.project;
       if(BD_PEND[k]===tok)delete BD_PEND[k];bdKeep(k,null);
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.test?'🧪 TESZT: a levél neked ment ki, nem az ügyfélnek':r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
@@ -2256,7 +2256,8 @@ function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=Strin
   add(p.contactName,p.contactEmail,'a projekt kapcsolattartója');const cn=String(p.client||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn);
   if(c){add(c.contactName,c.contactEmail,'kapcsolattartó');add(c.rep,c.repEmail,'képviselő');}
   (S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
-ACT['cl-nomail']=b=>{closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true});clAfter();};
+ACT['cl-nomail']=b=>{const li=$('m-clLink'),link=String(li&&li.value||'').trim();if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…) – e-mail nélküli áthelyezésnél is kell.',true);if(li){li.focus();li.style.borderColor='var(--bad)';}return;}
+  closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true,link});clAfter();};
 function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
 /* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
 const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}\n\nKöszönöm!';
