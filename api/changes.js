@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b867017856",
+"at": "2026-11-09T20:50:26+02:00",
+"msg": "HubSpot kapcsolattartó: ha a Cég mező üres, a hozzá kapcsolt HubSpot-cég neve is betöltődik"
+},
+{
 "id": "6d8bcd523e",
 "at": "2026-11-09T20:48:15+02:00",
 "msg": "Érték nélküli projektek (pl. Bussiness Bash) magától a Marketing költségbe; kiadás-táblázatok rácsos kinézete"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Projektek: az állapotszűrő sor kikerült, minden projekt látszik"
 },
 {
-"id": "6c5f55f7e3",
-"at": "2026-11-09T14:19:37+02:00",
-"msg": "Mobil nézet újraépítve: kompakt fejléc, görgethető fülek/gombok/lépések, projektfejléc, teljes képernyős ablakok, görgethető táblázatok"
-},
-{
-"id": "6c5d9614a9",
-"at": "2026-11-09T12:15:13Z",
+"id": "909ddc5d6d",
+"at": "2026-11-09T12:19:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
