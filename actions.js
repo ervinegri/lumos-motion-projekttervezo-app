@@ -1142,9 +1142,7 @@ const ACT={
   'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);if(open){const q=pop.querySelector('.msel-q');if(q){q.value='';pop.querySelectorAll('label').forEach(l=>{l.hidden=false;});const ad=pop.querySelector('.msel-add');if(ad)ad.hidden=true;setTimeout(()=>q.focus(),0);}}},
   'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c){crewModal(c);if(b.dataset.focus)setTimeout(()=>{const x=$(b.dataset.focus);if(x)x.scrollIntoView({block:'center'});},60);}},
-  'crew-doc-up':async b=>{const fi=$('cdoc-file'),file=fi&&fi.files&&fi.files[0];if(!file){toast('Válaszd ki a szerződés fájlját.',true);return;}if(file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
-    try{const r=await call('crewDocSave',{crewId:b.dataset.id,title:($('cdoc-title').value||'').trim(),signedAt:$('cdoc-date').value||'',b64:await readB64(file),name:file.name,mime:file.type||'application/octet-stream'});
-      S.crewDocs=r.crewDocs||[];const c=crewById(b.dataset.id),sec=$('cdoc');if(sec&&c){sec.outerHTML=crewDocSection(c);}toast('Szerződés feltöltve');}catch(e){handleErr(e);}},
+  'crew-doc-up':b=>{const fi=$('cdoc-file');if(fi)fi.click();},
   'crew-doc-open':async b=>{const w=window.open('about:blank','_blank');
     try{const r=await call('crewDocGet',{id:b.dataset.id});const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
       const url=URL.createObjectURL(new Blob([u8],{type:r.mime||'application/pdf'}));
@@ -2158,7 +2156,21 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
 /* „Feltöltve a NAS-ra”: ha van vágó, akinek kell, jön az értesítő; különben csak kipipálja */
 ACT['raw-upload']=()=>{const d=S.draft;if(!d)return;if(rawEditors(d).length)rawMailModal(()=>{if(typeof saveNow==='function')saveNow();});else{setDraft({rawSentAt:todayISO()});toast('Nyersanyag a NAS-on – kipipálva');if(typeof saveNow==='function')saveNow();}};
 ACT['nas-copy']=b=>{const v=b.dataset.v||'';try{navigator.clipboard.writeText(v);toast('Mappanév kimásolva: '+v);}catch(e){toast(v);}};
-document.addEventListener('change',e=>{if(e.target&&e.target.id==='cdoc-file'){const f=e.target.files&&e.target.files[0],o=$('cdoc-fn');if(o)o.textContent=f?'Kiválasztva: '+f.name:'';const t=$('cdoc-title');if(f&&t&&!t.value)t.value='Szerződés';}});
+/* Munkatársi szerződés feltöltése: kiválasztás vagy behúzás után azonnal (több fájl is mehet egyszerre) */
+const cdocTitle=n=>/m[oó]dos[ií]t/i.test(n)?'Szerződésmódosítás':/mell[eé]klet/i.test(n)?'Szerződés melléklet':/keret/i.test(n)?'Keretszerződés':/megb[ií]z/i.test(n)?'Megbízási szerződés':/v[aá]llalk/i.test(n)?'Vállalkozási szerződés':'Szerződés';
+async function crewDocUpload(cid,files){files=[...(files||[])].filter(Boolean);if(!files.length)return;const zone=document.querySelector('.cdoc-drop'),fn=$('cdoc-fn');
+  const big=files.find(f=>f.size>10*1024*1024);if(big){toast(big.name+': a fájl legfeljebb 10 MB lehet.',true);return;}
+  if(zone)zone.classList.add('busy');let ok=0;
+  try{for(const f of files){if(fn)fn.textContent='⏳ Feltöltés: '+f.name+(files.length>1?` (${ok+1}/${files.length})`:'')+'…';
+      const tt=($('cdoc-title')||{}).value||'';const r=await call('crewDocSave',{crewId:cid,title:(files.length===1&&tt.trim())||cdocTitle(f.name),signedAt:($('cdoc-date')||{}).value||'',b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});
+      S.crewDocs=r.crewDocs||S.crewDocs;ok++;}
+    const c=crewById(cid),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);render(true);toast(ok>1?ok+' szerződés feltöltve':'Szerződés feltöltve');}
+  catch(e){handleErr(e);if(fn)fn.textContent=ok?ok+' fájl feltöltve, a többi nem sikerült.':'A feltöltés nem sikerült – próbáld újra.';const c=crewById(cid);if(ok&&c){const sec=$('cdoc');if(sec)sec.outerHTML=crewDocSection(c);render(true);}}
+  finally{const z=document.querySelector('.cdoc-drop');if(z)z.classList.remove('busy');}}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='cdoc-file'){const fs=e.target.files;crewDocUpload(e.target.dataset.id,fs);}});
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{const z=e.target.closest&&e.target.closest('#mform')&&document.querySelector('.cdoc-drop');if(!z||!e.dataTransfer||![...e.dataTransfer.types].includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect='copy';z.classList.add('over');}));
+document.addEventListener('dragleave',e=>{const z=document.querySelector('.cdoc-drop');if(z&&(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('#mform')))z.classList.remove('over');});
+document.addEventListener('drop',e=>{const z=document.querySelector('.cdoc-drop');if(!z||!e.target.closest||!e.target.closest('#mform')||!e.dataTransfer||!e.dataTransfer.files.length)return;e.preventDefault();z.classList.remove('over');crewDocUpload(z.dataset.id,e.dataTransfer.files);});
 
 ACT['cl-open-proj']=b=>{closeModal();openProject(b.dataset.id);};
 

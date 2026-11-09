@@ -415,3 +415,9 @@ html.th2 .tl-row.tl-sec .tl-lbl.tl-wtog b{text-transform:none!important;letter-s
 /* Kifizetések: az előző hónapok elmaradása, alatta a mindösszesen fizetendő */
 .pay-sheet tr.pay-alltot td{border-top:2px solid var(--line-strong,#c9d3cd)}
 .pay-sheet tr.pay-alltot td b{font-size:1.04em}
+
+.cdoc-drop{display:flex;flex-direction:column;align-items:center;gap:3px;padding:16px 12px;margin-top:8px;border:2px dashed var(--line);border-radius:12px;background:var(--surface-2,#f6f8f9);cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
+.cdoc-drop:hover{border-color:var(--accent)}
+.cdoc-drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,#fff)}
+.cdoc-drop.busy{opacity:.7;pointer-events:none}
+.cdoc-drop-t{font-size:14px}
