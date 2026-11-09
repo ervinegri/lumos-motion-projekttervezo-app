@@ -14,8 +14,7 @@
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:Montserrat,system-ui,sans-serif;padding:28px 16px}
 .card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 20px 50px rgba(16,25,35,.08);width:min(1180px,100%);margin:0 auto;padding:24px 26px 26px}
 .head{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:18px}
-.logo{font:900 18px/.9 Arial,Helvetica,sans-serif;letter-spacing:-1px;flex:none}
-.logo span{display:inline-block;background:#000;color:#fff;padding:2px 6px;margin-top:3px}
+.logo{height:52px;width:auto;flex:none;display:block}
 .ttl{min-width:0;flex:1}
 h1{font-size:20px;margin:0 0 2px;line-height:1.25}
 .sub{color:var(--mut);margin:0;font-size:14px}
@@ -51,7 +50,7 @@ button:disabled{opacity:.6;cursor:default}
 </head>
 <body>
 <main class="card">
-  <div class="head"><div class="logo">LUMOS MOTION<br><span>VIDEÓ JÓVÁHAGYÁS</span></div>
+  <div class="head"><img class="logo" src="logo-jovahagyas.png" width="1241" height="373" alt="Lumos Motion Jóváhagyás">
     <div class="ttl" id="ttl" hidden><h1 id="video"></h1><p class="sub"><span id="project"></span><span id="newTab" hidden> · <a id="watch2" href="#" target="_blank" rel="noopener">↗ Megnyitás új lapon</a></span></p></div></div>
   <p id="load">Betöltés…</p>
   <section id="main" class="body" hidden>
