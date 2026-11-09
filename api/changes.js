@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "22582cc41e",
+"at": "2026-11-09T21:30:44+02:00",
+"msg": "Összeg-mezők: számolás is beírható (+ − × ÷), Enterre / kilépéskor kiszámolódik"
+},
+{
 "id": "b6f1c808e5",
 "at": "2026-11-09T21:22:01+02:00",
 "msg": "Bevételek: a szervezői jutalék az Értékesítés oszlopba kerül, nem a Termelésbe"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Továbbszámlázott költség a nettó szerződött érték része: levonva (…után mező), felirat: Nettó szerződött érték"
 },
 {
-"id": "129470d207",
-"at": "2026-11-09T17:16:52+02:00",
-"msg": "Ügyfél-levél: egyetlen gomb a jóváhagyó oldalra (ott a videó és a döntés), a levélben nincs külön Jóváhagyom/Módosítás gomb"
-},
-{
-"id": "4a5dfdeeee",
-"at": "2026-11-09T15:14:10Z",
+"id": "c4516ae291",
+"at": "2026-11-09T15:17:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
