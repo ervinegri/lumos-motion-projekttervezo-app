@@ -44,7 +44,7 @@ function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!roo
 function closeModal(){{const mu=document.getElementById('modalUnder');if(mu)mu.innerHTML='';}let after=null;if(window.MODAL_BEFORE_CLOSE){const f=window.MODAL_BEFORE_CLOSE;window.MODAL_BEFORE_CLOSE=null;try{after=f();}catch(e){}}if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';if(typeof after==='function')try{after();}catch(e){}}   /* after: ugyanabban a lépésben nyíló következő ablak (nincs villanás) */
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}"${o.ac?` autocomplete="${o.ac}"`:''} value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
-const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}"${o.cmb?` data-cmb="${esc(o.cmb)}"`:''}>${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
+const ms=(name,label,opts,v,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><select class="inp" id="m-${name}" name="${name}"${o.cmb===false?'':` data-cmb="${esc(o.cmb||'Válassz…')}"`}>${o.empty!=null?`<option value="">${o.empty}</option>`:''}${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 /* Forintmező: csak számjegy, ezres tagolás, ± gomb 1000 Ft-onként */
 const MONEY_MAX=999999999,MONEY_STEP=1000;
 const moneyFmt=n=>n==null||n===''?'':String(Math.round(+n)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0');   // mindig ezres tagolás (2 000 is)
@@ -442,6 +442,7 @@ function crewModal(c){
     ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
+    ${isAdmin()&&c&&(c.roles||[]).includes('Értékesítő')?(()=>{const sp=(S.salesPeople||[]).find(x=>x.crewId===c.id);return `<div class="field full"><span class="lbl">💼 Értékesítői jutalék</span><div class="t-row" style="gap:10px;align-items:center">${sp?`<span>${esc(commTierTxt(sp))}${num(sp.salary)?' · fix '+huf(sp.salary)+' (nettó)':''}</span>`:'<span class="muted">Még nincs értékesítői belépése – a jutalékot a belépéssel együtt állítod be.</span>'}<button type="button" class="mini" data-action="crew-comm" data-id="${esc(c.id)}">${sp?'Jutalék módosítása':'Értékesítői belépés + jutalék'}</button></div></div>`;})():''}
     ${crewDocSection(c)}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
@@ -1154,6 +1155,8 @@ const ACT={
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},
   'new-user':()=>userModal(null),
+  'crew-comm':async b=>{const cid=b.dataset.id;if(!S.users)await loadSettings();const u=(S.users||[]).find(x=>x.crewId===cid);if(u){userModal(u);return;}
+    userModal(null);const set=(id,v)=>{const e=$(id);if(e){e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));const ci=e.parentElement&&e.parentElement.querySelector('input.cmb-in,input');if(ci&&e.selectedOptions[0]&&ci!==e)ci.value=e.selectedOptions[0].textContent;}};set('m-crewId',cid);set('m-role','sales');},
   'toggle-user':async b=>{const dis=b.dataset.dis==='1';const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(!u)return;
     const go=async()=>{try{S.users=await call('setUserDisabled',{id:u.id,disabled:dis});refreshLog();render(true);toast(dis?u.name+' letiltva – nem tud belépni':u.name+' újra beléphet');}catch(e){handleErr(e);}};
     if(dis)confirmModal('Letiltás',`${u.name} nem tud többé belépni, és minden eszközön azonnal kilép. Később újra engedélyezheted.`,'Letiltás',()=>{closeModal();go();});else go();},
