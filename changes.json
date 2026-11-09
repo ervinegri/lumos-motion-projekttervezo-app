@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9d2b1b085f",
+"at": "2026-11-09T13:13:28+02:00",
+"msg": "Szerződés-begyűjtés: naponta egyszer a háttérben az app indulásakor"
+},
+{
 "id": "eebcc1f00e",
 "at": "2026-11-09T12:45:07+02:00",
 "msg": "Szerződés-begyűjtés: bejelentkezés után háttérfeladat, eredmény üzenetben"
@@ -146,13 +151,8 @@
 "msg": "Videótábla ablak: határidő és leadott darabszám a címsorban, a projektnév nem ismétlődik, szélesebb oszlopok"
 },
 {
-"id": "e27bffb597",
-"at": "2026-11-09T03:03:41+02:00",
-"msg": "Videótábla ablak: a projekt kártyája a fejléc sorában"
-},
-{
-"id": "d2b63fb7a5",
-"at": "2026-11-09T01:01:45Z",
+"id": "312979c405",
+"at": "2026-11-09T01:03:49Z",
 "msg": "Változásnapló frissítése"
 }
 ]
