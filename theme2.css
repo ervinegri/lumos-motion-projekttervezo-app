@@ -91,7 +91,6 @@ html.th2 .tc-chip{background:#eaeff4;color:#243347}
 html.th2 body .flatpickr-day:hover{background:#eaeff4;border-color:#eaeff4}
 html.th2 body .flatpickr-day.today:hover{background:#eaeff4}
 html.th2 .cf-open:hover,html.th2 .cf-open.on{background:var(--soft,#eaeff4)}
-html.th2 .cal-tg.on{background:var(--soft,#eaeff4)}
 html.th2 .cal-day.drop{background:#eaeff4}
 html.th2 .os-who{background:#eaeff4}
 html.th2 select.op-cutsel{background-color:#eaeff4}

@@ -1908,9 +1908,6 @@ function sigEdInit(u){const ed=$('m-sigEd');if(!ed||!u)return;SIG_ED={dirty:fals
   ed.addEventListener('input',()=>{SIG_ED.dirty=true;SIG_ED.reset=false;});
   const rb=$('m-sigReset');if(rb)rb.addEventListener('click',()=>{ed.innerHTML=sigClean(sg.base||'').html;SIG_ED.dirty=true;SIG_ED.reset=true;msg('Alap aláírás – mentéskor visszaáll');});}
 
-/* Naptár: a Terepi munkák és a Vágói naptár külön ki-be kapcsolható (böngészőnként megjegyezzük) */
-document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.calshow;if(!k)return;S.cal.show[k]=e.target.checked;try{localStorage.setItem('lpm_cal_show',JSON.stringify(S.cal.show));}catch(_){}if(k==='vagoi'&&e.target.checked)loadVagoi(S.cal.month);render(true);});
-
 /* Naptár: projektek és Google-bejegyzések áthúzása másik napra (mint a Google Naptárban) */
 let CAL_DRAG=null;
 /* Új projekt: Videóvágásnál nincs helyszín, érkezés/távozás – a dátum a leadási határidő */
