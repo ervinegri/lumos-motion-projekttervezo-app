@@ -2188,9 +2188,6 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
     catch(e){if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
-/* Közvetlenül az ügyfélnek (a belső ellenőrzés kihagyásával): címzett = a projekt kapcsolattartója, link, megjegyzés; lenyitható a kiküldendő e-mail */
-function clientMailText(p,v,link,note){const first=String(p.contactName||'').trim().split(/\s+/).pop()||'';
-  return `Kedves ${first||'Ügyfelünk'}!\n\nElkészült a(z) „${v.name}” videó (${p.name||''}). Kérjük, tekintse meg, és jelezze, ha jóváhagyja, vagy ha módosítást kér.\n\nVideó: ${link||'…'}${note?`\n\n${note}`:''}\n\nÜdvözlettel:\n${(S.me&&S.me.name)||''}\nLumos Motion`;}
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
 function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').trim(),email,tag});};
   add(p.contactName,p.contactEmail,'a projekt kapcsolattartója');const cn=String(p.client||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn);
@@ -2198,18 +2195,29 @@ function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=Strin
   (S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
 ACT['cl-nomail']=b=>{closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true});clAfter();};
 function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
+/* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
+const CL_TPL_DEF='Kedves {nev},\n\nelkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}\n\nKöszönöm!';
+const clClient=p=>{const cn=String(p.client||'').trim().toLowerCase();return (S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn)||null;};
+const clFill=(t,o)=>String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}');
 function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=!!document.querySelector('#modalRoot .bd-modal');window._clLane=lane?pid:'';
+  const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
+  let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
+  const body=clFill((cl&&cl.vidMail)||lt||CL_TPL_DEF,o);
   openModal('📤 Küldés az ügyfélnek jóváhagyásra',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>
-    <div class="field full"><label>Kinek küldjük? <span class="muted">(több is választható)</span></label><div class="cl-pick">${clientContacts(p).map((c,i)=>`<label class="cl-opt"><input type="checkbox" name="toPick" value="${esc(c.email)}"${i===0?' checked':''}> <span><b>${esc(c.name||c.email)}</b>${c.name?` <small>${esc(c.email)}</small>`:''}${c.tag?` <small class="muted">· ${esc(c.tag)}</small>`:''}</span></label>`).join('')||'<p class="hint" style="margin:0">Ehhez az ügyfélhez nincs elmentett e-mail cím – add meg alább.</p>'}</div>
+    <div class="field full"><label>Kinek küldjük? <span class="muted">(több is választható)</span></label><div class="cl-pick">${CC.map((c,i)=>`<label class="cl-opt"><input type="checkbox" name="toPick" value="${esc(c.email)}"${i===0?' checked':''}> <span><b>${esc(c.name||c.email)}</b>${c.name?` <small>${esc(c.email)}</small>`:''}${c.tag?` <small class="muted">· ${esc(c.tag)}</small>`:''}</span></label>`).join('')||'<p class="hint" style="margin:0">Ehhez az ügyfélhez nincs elmentett e-mail cím – add meg alább.</p>'}</div>
       <input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px"></div>
     <div class="field full"><label for="m-clLink">A videó linkje</label><input class="inp" id="m-clLink" name="link" type="url" value="${esc(v.link||'')}" required></div>
-    <div class="field full"><label for="m-clNote">Megjegyzés az ügyfélnek <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-clNote" name="note" rows="3"></textarea></div>
-    <details class="vv-cdet"><summary>A kiküldendő e-mail tartalma</summary><div class="vv-cprev" id="m-clPrev"></div></details>`,
-    {submitLabel:'📧 Küldés az ügyfélnek',left:`<button type="button" class="btn outline" data-action="cl-nomail" data-pid="${esc(pid)}" data-vid="${esc(vid)}" title="Az ügyfél jóváhagyására vár oszlopba kerül, de e-mail nem megy ki">Áthelyezés e-mail nélkül</button>`,submit:async fd=>{const to=[...fd.getAll('toPick'),String(fd.get('to')||'').trim()].filter(Boolean).join(', '),link=String(fd.get('link')||'').trim(),note=String(fd.get('note')||'').trim();
+    <div class="field full"><label for="m-clSubj">Tárgy</label><input class="inp" id="m-clSubj" name="subject" value="${esc('Jóváhagyásra: '+v.name+' – '+(p.name||''))}"></div>
+    <div class="field full"><label for="m-clBody">A levél</label><textarea class="inp" id="m-clBody" name="body" rows="9" style="min-height:200px">${esc(body)}</textarea>
+      <p class="hint" style="margin:6px 0 0">A végére automatikusan az aláírásod kerül. Amit itt átírsz (pl. a megszólítást), legközelebb ennél az ügyfélnél már így jön fel.</p></div>`,
+    {submitLabel:'📧 Küldés az ügyfélnek',left:`<button type="button" class="btn outline" data-action="cl-nomail" data-pid="${esc(pid)}" data-vid="${esc(vid)}" title="Az ügyfél jóváhagyására vár oszlopba kerül, de e-mail nem megy ki">Áthelyezés e-mail nélkül</button>`,submit:async fd=>{
+      const to=[...fd.getAll('toPick'),String(fd.get('to')||'').trim()].filter(Boolean).join(', '),link=String(fd.get('link')||'').trim(),text=String(fd.get('body')||'').trim(),subject=String(fd.get('subject')||'').trim();
       if(!to||!to.split(/\s*,\s*/).every(x=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))){toast('Válassz címzettet, vagy adj meg érvényes e-mail címet.',true);return;}if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…).',true);return;}
-      closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note,text:clientMailText(p,v,link,note)}});clAfter();}});
-  const upd=()=>{const pv=$('m-clPrev');if(pv)pv.textContent=clientMailText(p,v,(($('m-clLink')||{}).value||'').trim(),(($('m-clNote')||{}).value||'').trim());};
-  ['m-clLink','m-clNote'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',upd);});upd();setTimeout(()=>{const i=$(clientContacts(p).length?'m-clLink':'m-clTo');if(i)i.focus();},60);}
+      if(text.length<5){toast('Írd meg a levelet.',true);return;}
+      const esc2=x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');let tpl=text;[[link,'{link}'],[v.name,'{video}'],[p.name||'','{projekt}']].forEach(([val,ph])=>{if(val)tpl=tpl.replace(new RegExp(esc2(val),'g'),ph);});
+      if(cl)cl.vidMail=tpl;try{localStorage.setItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase(),tpl);}catch(e){}closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note:'',text,subject,tpl}});clAfter();}});
+  let lastLink=v.link||'';const li=$('m-clLink'),bd=$('m-clBody');if(li&&bd)li.addEventListener('input',()=>{const nl=li.value.trim();if(lastLink&&bd.value.includes(lastLink))bd.value=bd.value.split(lastLink).join(nl);else if(!lastLink&&bd.value.includes('{link}'))bd.value=bd.value.split('{link}').join(nl);lastLink=nl;});
+  setTimeout(()=>{const i=$(v.link?'m-clBody':'m-clLink');if(i)i.focus();},60);}
 function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
   openModal('🔍 Belső ellenőrzésre küldés',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>
     <div class="field full"><label>Ki ellenőrizze? (e-mailt kap)</label><div class="rv-pick"><label><input type="radio" name="to" value="david"${last==='david'?' checked':''}> <span>Zajácz Dávid</span></label><label><input type="radio" name="to" value="ervin"${last==='ervin'?' checked':''}> <span>Egri Ervin</span></label></div></div>

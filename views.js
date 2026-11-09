@@ -1102,7 +1102,7 @@ function viewProject(p){
       </div></details>
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
-  ${ro()?'':videosPanel(p)}
+  
   ${ro()?roContentPanel(p):(()=>{const nSel=nRec+nKrea+nTech+nIntG+postTasks(p).length,openEd=FOLD.content!=null?FOLD.content:!nSel;   // egy panel: felül az összesítő (kiosztással), alatta a kiválasztás
     const SL=!ro()&&!projLocked()&&crewLocked(p),SP=crewPast(p);   // véglegesített csapatnál a szolgáltatások is zárolva (szürkén), feloldással bővíthetők
     return `<section class="panel content svc${SL?' svc-locked':''}"><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}${SL&&!SP?'<button class="btn outline small svc-unlock-btn" type="button" data-action="crew-edit" title="Ha utólag extra szolgáltatást kérnek: feloldja a szolgáltatásokat és a csapatot">🔓 Szolgáltatások módosítása</button>':''}</h3><p class="hint" style="margin:-4px 0 12px">${SL&&SP?'A rendezvény már lezajlott, ezért a szolgáltatások és a csapat nem módosíthatók.':SL?'A csapat véglegesítve van, ezért a szolgáltatások zárolva vannak. Ha utólag extra szolgáltatást kérnek, a „Szolgáltatások módosítása” gombbal oldhatod fel.':'Jelöld be, mit kell csinálni – a kiválasztott tétel alatt rögtön kiválaszthatod, ki csinálja. A kiválasztott szakember a szerepével a Stáb és eszközök közé is bekerül.'}</p>
