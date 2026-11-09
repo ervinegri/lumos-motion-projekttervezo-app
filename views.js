@@ -435,7 +435,7 @@ function viewProjects(){
   if(S.projectId&&S.draft)return viewProject(S.draft);
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'tervezes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
-  let list=S.projects.filter(p=>f.status==='mind'||(f.status==='aktiv'?isOpen(p):(p.status||'tervezes')===f.status));
+  let list=S.projects.slice();   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
   if(q)list=list.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q)));
   const closed=p=>p.status==='atadva'||p.status==='lemondva';
   const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // terepi munkára vár (dátum nélküliek a végén)
@@ -466,7 +466,7 @@ function viewProjects(){
     ${ro()||!issues.length?'':`<div class="panel issues-panel"><h3>⚠️ Figyelmeztetések <span class="aside">${issues.length} db</span></h3><div class="issues">${issues.map(i=>issueRow(i)).join('')}</div></div>`}
     ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
     <div class="toolbar"><input class="inp search" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">
-      <div class="chips">${filters.map(([v,l,c])=>`<button class="chip" type="button" data-action="pf" data-v="${v}" aria-pressed="${f.status===v}">${l}<span class="c">${c}</span></button>`).join('')}</div></div>
+</div>
     ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>Projekt</th><th>Státusz</th>${ro()?'<th>Szereped</th>':''}</tr></thead><tbody>${body}</tbody></table></div>`
       :`<div class="panel">${empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':ro()?'Még nem vagy beosztva egy projektre sem.':'Még nincs projekt. Hozd létre az elsőt az „Új projekt” gombbal.')}</div>`}`;
 }
