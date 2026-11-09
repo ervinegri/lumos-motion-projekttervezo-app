@@ -45,12 +45,18 @@ button:disabled{opacity:.6;cursor:default}
 .err{color:#b3261e;font-weight:600;margin:0}
 .body.vside{grid-template-columns:minmax(0,1fr) 380px}
 @media(max-width:860px){.head{flex-direction:column;align-items:flex-start;gap:12px}h1{font-size:18px}.body,.body.vside{grid-template-columns:1fr}.player.vert{max-height:70vh}body{padding:12px 10px}.card{padding:16px 14px}}
+#intro{position:fixed;inset:0;z-index:50;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .45s ease,visibility .45s}
+#intro img{width:min(560px,78vw);height:auto;clip-path:inset(0 100% 0 0);animation:lmIn 1s cubic-bezier(.65,0,.25,1) .15s forwards}
+#intro.out{opacity:0;visibility:hidden}
+@keyframes lmIn{to{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){#intro img{animation:none;clip-path:none}}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
+<div id="intro" aria-hidden="true"><img src="logo-jovahagyas.png" width="1316" height="373" alt=""></div>
 <main class="card">
-  <div class="head"><img class="logo" src="logo-jovahagyas.png" width="1241" height="373" alt="Lumos Motion Jóváhagyás">
+  <div class="head"><img class="logo" src="logo-jovahagyas.png" width="1316" height="373" alt="Lumos Motion Jóváhagyás">
     <div class="ttl" id="ttl" hidden><h1 id="video"></h1><p class="sub"><span id="project"></span><span id="newTab" hidden> · <a id="watch2" href="#" target="_blank" rel="noopener">↗ Megnyitás új lapon</a></span></p></div></div>
   <p id="load">Betöltés…</p>
   <section id="main" class="body" hidden>
