@@ -557,3 +557,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .fin-exp tfoot td:last-child{box-shadow:inset 1px 0 0 #d5dde3}
 .tile-search{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}.tile-search .search{width:100%;max-width:none;height:48px!important;min-height:0!important;flex:none}
 .pct-lock{display:inline-block;min-width:42px;text-align:right;font-size:12px;font-weight:600;color:var(--fg-2);cursor:help}
+.cl-prev-box{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin-top:6px}.cl-prev-box .pe-head{margin:0;border-radius:0;border:0;border-bottom:1px solid var(--line)}.cl-prev-box .mail-frame{border:0;width:100%;display:block;min-height:220px}
