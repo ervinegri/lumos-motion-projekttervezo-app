@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "acd6bfb082",
+"at": "2026-11-09T21:05:07+02:00",
+"msg": "Bevételek: a százalékok a továbbszámlázott költség és a szervezői jutalék levonása után számolódnak"
+},
+{
 "id": "61879b92ae",
 "at": "2026-11-09T21:01:56+02:00",
 "msg": "Bevételek: értékesítő hozta projektnél az Értékesítés a jutaléka, a % nem írható át"
@@ -150,16 +155,6 @@ const ITEMS = [
 "id": "18eb6ec303",
 "at": "2026-11-09T17:02:35+02:00",
 "msg": "Fizetések: értékesítők a táblázat végén; ügyfél-levelek tesztüzeme kikapcsolva"
-},
-{
-"id": "f2a6c48fa9",
-"at": "2026-11-09T17:02:01+02:00",
-"msg": "Kifizetések (szakember): cím és hónapváltó egy sorban"
-},
-{
-"id": "423fb8db8b",
-"at": "2026-11-09T12:29:02Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
