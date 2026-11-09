@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d820a98ad3",
+"at": "2026-11-09T21:18:24+02:00",
+"msg": "Ügyfélnek küldés: a díjösszesítőhöz hasonló, szerkeszthető levélelőnézet (fejléc, gomb, aláírás)"
+},
+{
 "id": "917b8a684e",
 "at": "2026-11-09T21:12:24+02:00",
 "msg": "Bevételek: az értékesítői jutalék díjsorként sem kerül a Termelésbe"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: frissítéskor nem vész el az áthúzás (megőrzi és újraküldi a mentést, figyelmeztet mentés közben)"
 },
 {
-"id": "d5fd0f779e",
-"at": "2026-11-09T17:10:31+02:00",
-"msg": "Ügyfél-levél ablak: a saját aláírás és a két gomb előnézete; app-újdonságok előnézeti nézetben is az ügyvezetőnek; extra tétel csatolmány feltöltés (háttér)"
-},
-{
-"id": "49512e5d59",
-"at": "2026-11-09T15:08:08Z",
+"id": "bc6e41d272",
+"at": "2026-11-09T15:10:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
