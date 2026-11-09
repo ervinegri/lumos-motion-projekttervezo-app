@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4f668b70f4",
+"at": "2026-11-09T21:09:20+02:00",
+"msg": "Bevételek: a továbbszámlázott / szervezői jutalék jelzése a Díjazás cellán"
+},
+{
 "id": "885da44dd5",
 "at": "2026-11-09T21:06:13+02:00",
 "msg": "Sales jutalék: a régi automatikus (10 000 / kedvezményes) értékek is átíródnak 5 000 Ft/shortra; szinkron után frissül a nézet"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "3b67c045d9",
 "at": "2026-11-09T17:07:00+02:00",
 "msg": "Ügyfél adatlap: szerződések listája az ügyvezetőnek"
-},
-{
-"id": "0cab09fb4a",
-"at": "2026-11-09T17:05:15+02:00",
-"msg": "Díjösszesítő: áfakörös szakembernél ÁFA (27%) és bruttó végösszeg"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
