@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "eebcc1f00e",
+"at": "2026-11-09T12:45:07+02:00",
+"msg": "Szerződés-begyűjtés: bejelentkezés után háttérfeladat, eredmény üzenetben"
+},
+{
 "id": "c92273fee3",
 "at": "2026-11-09T12:36:43+02:00",
 "msg": "Aláírt munkatársi szerződések napi automatikus begyűjtése a Gmailből"
@@ -146,13 +151,8 @@
 "msg": "Videótábla ablak: a projekt kártyája a fejléc sorában"
 },
 {
-"id": "dacdf7e7c8",
-"at": "2026-11-09T03:01:34+02:00",
-"msg": "Videó lejátszó: nyomva tartott szóköz közben a Shift visszafelé vált (elengedve újra előre 2×)"
-},
-{
-"id": "229bf08718",
-"at": "2026-11-09T00:59:45Z",
+"id": "d2b63fb7a5",
+"at": "2026-11-09T01:01:45Z",
 "msg": "Változásnapló frissítése"
 }
 ]
