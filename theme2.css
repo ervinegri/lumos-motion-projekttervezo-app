@@ -421,3 +421,8 @@ html.th2 .tl-row.tl-sec .tl-lbl.tl-wtog b{text-transform:none!important;letter-s
 .cdoc-drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,#fff)}
 .cdoc-drop.busy{opacity:.7;pointer-events:none}
 .cdoc-drop-t{font-size:14px}
+
+.page-head.ph-sub{align-items:center;flex-wrap:wrap;gap:10px 16px}
+.page-head.ph-sub .subtabs{margin:0;flex:none}
+.page-head.ph-sub h2{display:none}
+.page-head.ph-sub .grow .sub{margin:0}
