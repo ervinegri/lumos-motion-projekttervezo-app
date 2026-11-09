@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dce075b0a3",
+"at": "2026-11-09T03:09:41+02:00",
+"msg": "Videó ablak: fekvő videónál a Hozzászólások felirat nem csúszik a videó alá"
+},
+{
 "id": "d48a26cea1",
 "at": "2026-11-09T03:07:13+02:00",
 "msg": "Videótábla: Inter betű lágyabb vastagságokkal; a határidő-sáv a címsorban az X-ig ér, vastagabb"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: Enter = időkód beszúrása, gépelés közben Enter = vissza a videóhoz"
 },
 {
-"id": "375eb3d2c2",
-"at": "2026-11-09T01:43:25+02:00",
-"msg": "Videó ablak: kisebb távolság a videó és az időkód sor között"
-},
-{
-"id": "79c0c80a25",
-"at": "2026-11-08T23:42:09Z",
+"id": "01a48175fa",
+"at": "2026-11-08T23:43:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
