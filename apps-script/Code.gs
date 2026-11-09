@@ -938,9 +938,16 @@ function videoCommentDel_(u, a) {
   let p;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    const kind = str_(a.kind, 10);
+    if (kind === 'fb' || kind === 'note') {   // a régi visszadobási indok / az ellenőrzésre küldés megjegyzése
+      const by = kind === 'fb' ? v.fbBy : v.rvBy, w = kind === 'fb' ? v.fbAt : v.rvAt;
+      if (by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.'); if (String(w || '') !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
+      if (kind === 'fb') v.fb = ''; else v.note = '';
+    } else {
     const c = (v.cm || [])[idx]; if (!c || c.at !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
     if (c.by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.');
-    v.cm.splice(idx, 1); p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+    v.cm.splice(idx, 1);
+    } p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Videó hozzászólás törölve', p.name, vid);
   return { project: projectView_(fullProject_(p), u) };
 }
