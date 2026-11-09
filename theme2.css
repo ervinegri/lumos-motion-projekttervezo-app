@@ -509,3 +509,6 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
   html body .page-head.ph-sub>.btn,html body .page-head.ph-sub>div>.btn{font-size:12.5px;padding:6px 11px;min-height:32px}
   input.inp,select.inp,textarea.inp,.cmb-in{font-size:16px}   /* iOS: ne nagyítson rá a mezőre */
 }
+
+.cal-tip .tv{font-style:normal;min-width:0;flex:1 1 auto}
+.cal-tip .tv a{color:inherit}
