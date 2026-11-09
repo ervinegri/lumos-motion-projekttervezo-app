@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ce91301c18",
+"at": "2026-11-09T02:19:39+02:00",
+"msg": "Videó ablak: frissítés után visszajön; hosszú szóköz = 2× sebesség; Enter után a következő időkód látszik; élő időkód az üres mezőben; kuka a videó alatt; Bezárás · Visszadobás sorrend; az ellenőrzési megjegyzés nem törölhető"
+},
+{
 "id": "393f5ad557",
 "at": "2026-11-09T02:11:37+02:00",
 "msg": "Videó ablak: nincs narancs fókuszkeret az ablakon"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: húzással tekerés előre / vissza, időkód-buborékkal"
 },
 {
-"id": "675f62576b",
-"at": "2026-11-09T01:16:19+02:00",
-"msg": "Videó ablak: időkód 0:00:00 (perc:mp:század), link a fejlécben, görgethető szövegmező, függőleges videónál keskeny lejátszó"
-},
-{
-"id": "30bd7d97ec",
-"at": "2026-11-08T23:12:18Z",
+"id": "90144e5740",
+"at": "2026-11-08T23:16:29Z",
 "msg": "Változásnapló frissítése"
 }
 ]
