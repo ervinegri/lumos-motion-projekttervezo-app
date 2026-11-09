@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f5593900b2",
+"at": "2026-11-09T20:37:30+02:00",
+"msg": "Lehetőség ablak: telefonszám a megszokott formázott mezőben (+36 20 329 8550)"
+},
+{
 "id": "25146a33e1",
 "at": "2026-11-09T20:33:24+02:00",
 "msg": "Ügyfél jóváhagyására: e-mail nélküli áthelyezésnél is kötelező a videó linkje"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: fejlécben minden név E. Ervin formában"
 },
 {
-"id": "0d7385e670",
-"at": "2026-11-09T13:59:54+02:00",
-"msg": "Fizetések: projektnév végén …"
-},
-{
-"id": "5a95aad6b8",
-"at": "2026-11-09T11:58:07Z",
+"id": "b6977cc78c",
+"at": "2026-11-09T12:00:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
