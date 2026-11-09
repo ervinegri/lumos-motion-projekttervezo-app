@@ -4976,10 +4976,10 @@ function salesSync() {
       const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; const spName = sval_(o.salesperson) || salesCfg_('SALES_SELLER', 'Guzsloványi Flóra'); if (!p || !spName) return;   /* a Sales App megrendeléseit alapból Flóra értékesíti (Ervin, 2026-11-09) */
       const ow = findU(spName); if (!ow) { miss[spName] = 1; return; }
       if (ow.crewId) sellerOf[pid] = { crewId: ow.crewId, name: sval_(p.name) };   /* az értékesítő a csapatban is szerepel (Értékesítő szerep) */
-      /* jutalék: videónként SALES_SCOMM Ft (alapból 5 000), a kedvezmény nem csökkenti (SALES_SCOMM_DISC=1 esetén kedvezményes rendelésnél 10%-kal kevesebb) */
+      /* jutalék: videónként SALES_SCOMM Ft (alapból 5 000), kedvezményes rendelésnél (3 videótól vagy egyedi kedvezmény) 10%-kal kevesebb (SALES_SCOMM_DISC=0: nincs csökkentés) */
       const units = (Number(sval_(o.spokenCount)) || 0) + (Number(sval_(o.musicCount)) || 0), rate = Number(salesCfg_('SALES_SCOMM', '5000')) || 0, unitNet = Number(salesCfg_('SALES_UNIT', '59000')) || 59000;
       const net = Number(sval_(o.netTotal)) || 0, disc = units >= (Number(salesCfg_('SALES_DISC_MIN', '3')) || 3) || (net > 0 && units > 0 && net < units * unitNet - 1);
-      const autoComm = units > 0 && rate > 0 ? 'ft:' + units * Math.round(rate * (disc && salesCfg_('SALES_SCOMM_DISC', '') === '1' ? 90 : 100) / 100) : '';
+      const autoComm = units > 0 && rate > 0 ? 'ft:' + units * Math.round(rate * (disc && salesCfg_('SALES_SCOMM_DISC', '1') !== '0' ? 90 : 100) / 100) : '';
       const ex = byPid[pid];
       const oldAuto = [10000, 9000, Math.round(rate * 0.9), rate].map(x => 'ft:' + units * x);   /* korábbi automatikus értékek (10 000 / kedvezményes) – ezeket is átírjuk */
       const isAuto = q => { const m = sval_(q.commManual); return !m || (q.commAuto && m === sval_(q.commAuto)) || oldAuto.indexOf(m) >= 0; };
