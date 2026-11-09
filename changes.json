@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "854b432aea",
+"at": "2026-11-09T05:21:00+02:00",
+"msg": "Átadandó anyagok: a drónos, timelapse és POV felvétel nem szerepel (csak nyersanyag az utómunkához)"
+},
+{
 "id": "4898c7ed92",
 "at": "2026-11-09T05:19:59+02:00",
 "msg": "Naptár: kisebb hézag a menü, az eszközsor és az idővonal között"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: üres hozzászólás mezőbe kattintva az aktuális időkód már ott van"
 },
 {
-"id": "6cc6d3a6c9",
-"at": "2026-11-09T02:07:18+02:00",
-"msg": "Videó ablak: jelölő törlése kukába húzással; gombsor: Visszadobás · Bezárás · Időkód · Jelölés · Jóváhagyás"
-},
-{
-"id": "cde61518e3",
-"at": "2026-11-09T00:05:06Z",
+"id": "a32300fd6f",
+"at": "2026-11-09T00:07:27Z",
 "msg": "Változásnapló frissítése"
 }
 ]
