@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0743008ec6",
+"at": "2026-11-09T20:42:23+02:00",
+"msg": "Sales értékesítői jutalék: 5 000 Ft / short, kedvezménytől függetlenül"
+},
+{
 "id": "95797a355a",
 "at": "2026-11-09T20:40:42+02:00",
 "msg": "Bevételek: az Értékesítés oszlop az értékesítő jutaléka, ha a projektet értékesítő hozta"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lezárt projekt (átadva, ill. szakembernél a lezajlott munka): minden szürke"
 },
 {
-"id": "677e2bd076",
-"at": "2026-11-09T14:01:49+02:00",
-"msg": "Naptár: szakember nézetben csak a saját vágói bejegyzései látszanak"
-},
-{
-"id": "65213c2a46",
-"at": "2026-11-09T12:01:01Z",
+"id": "7f53067a5c",
+"at": "2026-11-09T12:01:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
