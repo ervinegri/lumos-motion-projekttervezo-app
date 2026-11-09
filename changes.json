@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dccd67d958",
+"at": "2026-11-09T11:56:25+02:00",
+"msg": "Munkatársi szerződések begyűjtése a Gmailből (admin)"
+},
+{
 "id": "9928256fe1",
 "at": "2026-11-09T11:55:48+02:00",
 "msg": "Munkatárs: értékesítői jutalék a szerkesztőben; az űrlap legördülői kereshetők"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: teljes súgó az időkód gombon (videó, hozzászólás, jelölés)"
 },
 {
-"id": "7b3d20e334",
-"at": "2026-11-09T02:40:53+02:00",
-"msg": "Videó ablak: Enter új sor, Cmd/Ctrl+Enter folytatja a videót; gépelés a videónál a hozzászólásba megy; az üres időkód sort a jelölés lecseréli; mentett hozzászólás azonnal látszik"
-},
-{
-"id": "10976bb79d",
-"at": "2026-11-09T00:39:43Z",
+"id": "5f56f0718f",
+"at": "2026-11-09T00:41:03Z",
 "msg": "Változásnapló frissítése"
 }
 ]
