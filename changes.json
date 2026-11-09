@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4898c7ed92",
+"at": "2026-11-09T05:19:59+02:00",
+"msg": "Naptár: kisebb hézag a menü, az eszközsor és az idővonal között"
+},
+{
 "id": "2670765fdd",
 "at": "2026-11-09T05:17:43+02:00",
 "msg": "Videók: közvetlen küldés az ügyfélnek (kapcsolattartó e-mail, lenyitható levél); videó átnevezése; az oszlop videói lapozhatók; a tábla a videóablak alatt marad; nagyításnál is elfér; idővonal: csak a projektnév, sűrűbb sorok; e-mailben nincs emoji; szerep-szűrő kereshető"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: jelölő törlése kukába húzással; gombsor: Visszadobás · Bezárás · Időkód · Jelölés · Jóváhagyás"
 },
 {
-"id": "4e1761d04e",
-"at": "2026-11-09T02:04:57+02:00",
-"msg": "Videó ablak: időkód és jelölés gomb a láblécben, gépelés után Enter folytatja a videót, szóköz az idősáv után is"
-},
-{
-"id": "07b3507761",
-"at": "2026-11-09T00:03:10Z",
+"id": "cde61518e3",
+"at": "2026-11-09T00:05:06Z",
 "msg": "Változásnapló frissítése"
 }
 ]
