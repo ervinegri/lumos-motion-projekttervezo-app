@@ -766,18 +766,27 @@ function winDeal_(u, a) {
   if (d.stage === 'nyert' && d.projectId) return { deals: dealsFor_(u), projectId: d.projectId };
   const value = Math.round(Number(String(a.value == null ? d.value : a.value).replace(/[^\d]/g, '')) || 0), date = iso_(a.eventDate) || iso_(d.eventDate);
   if (!value) throw new Error('Add meg a megállapodott (szerződött) nettó összeget.');
-  if (!date) throw new Error('Add meg a rendezvény dátumát – ezzel kerül a naptárba.');
-  const pid = Utilities.getUuid();
-  saveProject_({ id: u.id, name: u.name, email: u.email, role: 'admin' }, { id: pid, mutationId: Utilities.getUuid(), name: str_(a.title, 160) || d.title, client: d.client, venue: d.venue, eventType: d.eventType,
+  const linkId = str_(a.projectId, 64);
+  if (linkId) {   // meglévő projekthez kapcsolás (a projektet már létrehozták a projekttervezőben)
+    if (u.role !== 'admin') throw new Error('FORBIDDEN: Meglévő projekthez csak az ügyvezető kapcsolhat.');
+    if (readAll_('deals').some(x => x.id !== id && x.projectId === linkId)) throw new Error('Ehhez a projekthez már tartozik egy szerződött lehetőség.');
+    withLock_(() => { const psh = sheetFor_('projects'), pr = findRow_(psh, linkId); if (!pr) throw new Error('A projekt nem található.');
+      const p = readRow_('projects', psh, pr); if (p.quotePrice === '' || p.quotePrice == null) { p.quotePrice = value; putRow_('projects', psh, p, pr); } });
+  }
+  const linkP = linkId ? readAll_('projects').find(x => x.id === linkId) : null;
+  const pdate = date || (linkP && iso_(linkP.date));
+  if (!pdate) throw new Error('Add meg a rendezvény dátumát – ezzel kerül a naptárba.');
+  const pid = linkId || Utilities.getUuid();
+  if (!linkId) saveProject_({ id: u.id, name: u.name, email: u.email, role: 'admin' }, { id: pid, mutationId: Utilities.getUuid(), name: str_(a.title, 160) || d.title, client: d.client, venue: d.venue, eventType: d.eventType,
     date: date, contactName: d.contactName, contactEmail: d.contactEmail, contactPhone: d.contactPhone, notes: d.note ? 'Értékesítés (' + d.ownerName + '): ' + d.note : '',
     status: 'tervezes', crew: [], equipment: [], baseUpdatedAt: '', projectValue: value, deferCal: true });
   withLock_(() => { const r2 = findRow_(sh, id), q = readRow_('deals', sh, r2);
     const ow = loadUsers_().find(x => x.id === q.ownerId);
     if (ow && ow.role === 'sales') { const c = salesCompOf_(ow), pct = value >= c.commLimit ? c.commHigh : c.commLow; q.commPct = pct; q.commAmt = Math.round(value * pct / 100); } else { q.commPct = ''; q.commAmt = ''; }   // jutalék a szerződéskori beállítás szerint
-    q.stage = 'nyert'; q.projectId = pid; q.value = value; q.eventDate = date; q.wonAt = today_(); q.closedAt = today_(); q.chance = 100; q.updatedAt = now_(); q.updatedBy = u.name;
+    q.stage = 'nyert'; q.projectId = pid; q.value = value; q.eventDate = date || pdate; q.wonAt = today_(); q.closedAt = today_(); q.chance = 100; q.updatedAt = now_(); q.updatedBy = u.name; if (!q.eventDate) q.eventDate = pdate;
     putRow_('deals', sh, q, r2); dbFlush_(); });
-  logEvent_(u, 'Értékesítés: szerződve', d.title, d.client + ' · projekt létrehozva');
-  try { const p = readAll_('projects').find(x => x.id === pid); if (p) syncCalendar_(fullProject_(p)); } catch (e) {}
+  logEvent_(u, 'Értékesítés: szerződve', d.title, d.client + (linkId ? ' · meglévő projekthez kapcsolva' : ' · projekt létrehozva'));
+  if (!linkId) try { const p = readAll_('projects').find(x => x.id === pid); if (p) syncCalendar_(fullProject_(p)); } catch (e) {}
   return { deals: dealsFor_(u), projectId: pid };
 }
 

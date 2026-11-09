@@ -93,14 +93,25 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');if(!isNew)setTimeout(dNotesLoadHs,50);dSourceLoad(d.source||'');}
 
 function dealWinModal(d){
-  openModal('✅ Szerződve – '+d.title,`<p style="margin:0 0 10px">Gratulálok! 🎉 Mentés után a lehetőségből <b>projekt</b> lesz a Tervezés szakaszban, és bekerül a naptárba. A projekt további részleteit (stáb, eszközök, díjak) a csapat kezeli.</p><div class="fields">
-    ${mf('wTitle','Projekt neve',{v:d.title,full:true,max:160})}
+  /* Ha a projekt már létezik a projekttervezőben, a lehetőség ahhoz kapcsolható (nem jön létre másodpéldány) */
+  const linked=new Set((S.deals||[]).filter(x=>x.id!==d.id&&x.projectId).map(x=>x.projectId));
+  const cand=isAdmin()?(S.projects||[]).filter(p=>p.status!=='lemondva'&&!linked.has(p.id)):[];
+  const nf=x=>fold(String(x||'')).replace(/[^a-z0-9]+/g,' ').trim(),dn=nf(d.title),dc=nf(d.client);
+  const score=p=>{let s=0;const pn=nf(p.name);if(dn&&pn&&(pn===dn||pn.includes(dn)||dn.includes(pn)))s+=3;if(dc&&nf(p.client)&&(nf(p.client).includes(dc)||dc.includes(nf(p.client))))s+=2;if(d.eventDate&&p.date===d.eventDate)s+=2;if(d.contactEmail&&String(p.contactEmail||'').toLowerCase()===String(d.contactEmail).toLowerCase())s+=2;return s;};
+  const best=cand.map(p=>({p,s:score(p)})).filter(x=>x.s>=3).sort((a,b)=>b.s-a.s)[0];
+  const opts=cand.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).map(p=>`<option value="${esc(p.id)}"${best&&best.p.id===p.id?' selected':''}>${esc(p.name)}${p.date?' · '+esc(fmtShort(p.date)):''}${p.client?' · '+esc(p.client):''}</option>`).join('');
+  const linkF=cand.length?`<div class="field full"><label for="m-wProj">Projekt</label><select class="inp" id="m-wProj" name="wProj" data-cmb="Új projekt létrehozása…"><option value="">➕ Új projekt létrehozása</option>${opts}</select><small class="hint" style="margin:4px 0 0">Ha már létrehoztad a projektet, válaszd ki – a lehetőség ahhoz kapcsolódik, nem jön létre új projekt.</small></div>`:'';
+  openModal('✅ Szerződve – '+d.title,`<p style="margin:0 0 10px">Gratulálok! 🎉 Mentés után a lehetőségből <b>projekt</b> lesz a Tervezés szakaszban (vagy egy meglévő projekthez kapcsolódik).</p><div class="fields">
+    ${linkF}
+    ${mf('wTitle','Projekt neve',{v:d.title,full:true,max:160}).replace('<div class="field','<div class="field w-new')}
     ${moneyField('wValue','Szerződött összeg (nettó)',dealVal(d)||'',{steps:false})}
-    ${mf('wDate','Rendezvény (első) napja',{v:d.eventDate,type:'date'})}</div>`,{submitLabel:'✅ Szerződve – projekt létrehozása',submit:async fd=>{
-    const value=moneyVal(fd.get('wValue')),date=fd.get('wDate')||'',title=String(fd.get('wTitle')||'').trim();
-    if(!value){toast('Add meg a szerződött összeget.',true);return;}if(!date){toast('Add meg a rendezvény napját.',true);return;}
-    try{const r=await call('winDeal',{id:d.id,value,eventDate:date,title});S.deals=r.deals||S.deals;closeModal();render(true);toast('Szerződve – a projekt elkészült (Tervezés).');
-      if(isAdmin()&&typeof load==='function')setTimeout(()=>{try{load(true);}catch(x){}},300);}catch(e){handleErr(e);}}});}
+    ${mf('wDate','Rendezvény (első) napja',{v:d.eventDate,type:'date'}).replace('<div class="field','<div class="field w-new')}</div>`,{submitLabel:'✅ Szerződve',submit:async fd=>{
+    const value=moneyVal(fd.get('wValue')),date=fd.get('wDate')||'',title=String(fd.get('wTitle')||'').trim(),pid=String(fd.get('wProj')||'');
+    if(!value){toast('Add meg a szerződött összeget.',true);return;}if(!pid&&!date){toast('Add meg a rendezvény napját.',true);return;}
+    try{const r=await call('winDeal',{id:d.id,value,eventDate:date,title,projectId:pid});S.deals=r.deals||S.deals;closeModal();render(true);toast(pid?'Szerződve – a lehetőség a meglévő projekthez kapcsolódik.':'Szerződve – a projekt elkészült (Tervezés).');
+      if(isAdmin()&&typeof load==='function')setTimeout(()=>{try{load(true);}catch(x){}},300);}catch(e){handleErr(e);}}});
+  const sync=()=>{const sel=$('m-wProj'),on=!!(sel&&sel.value);document.querySelectorAll('#mform .w-new').forEach(x=>x.hidden=on);};sync();
+  const sel=$('m-wProj');if(sel)sel.addEventListener('change',sync);}
 
 async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)return;
   if(d.stage==='nyert'){toast('Szerződött lehetőséget nem lehet visszahúzni.',true);return;}
