@@ -970,12 +970,12 @@ function videoClient_(u, a) {
   const live = clientMailLive_(), sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
   if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
   const tk = d => FRONTEND_URL + '/jovahagyas.html?t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to })) + '&d=' + d;
-  const okUrl = tk('ok'), chUrl = tk('mod');
-  text = text + '\n\nJóváhagyom: ' + okUrl + '\nMódosítást kérek: ' + chUrl;
-  const btns = '<p style="margin:18px 0 6px"><a href="' + escapeHtml_(okUrl) + '" style="display:inline-block;background:#1e8e4e;color:#fff;text-decoration:none;font-weight:bold;padding:10px 18px;border-radius:8px;margin-right:8px">Jóváhagyom</a><a href="' + escapeHtml_(chUrl) + '" style="display:inline-block;background:#ffffff;color:#b3261e;text-decoration:none;font-weight:bold;padding:9px 17px;border-radius:8px;border:1px solid #e3b4b0">Módosítást kérek</a></p>';
-  const sig = signatureFor_(u), html = text.split(/\n/).map(l => escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
+  const pageUrl = tk('').replace(/&d=$/, '');   // egyetlen link: a jóváhagyó oldal (ott nézi meg a videót, és ott dönt)
+  text = text.split(link).join(pageUrl); if (text.indexOf(pageUrl) < 0) text = text + '\n\n' + pageUrl;
+  const btn = '<a href="' + escapeHtml_(pageUrl) + '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;font-weight:bold;padding:11px 20px;border-radius:9px">▶ Videó megnézése és jóváhagyása</a>';
+  const sig = signatureFor_(u), html = text.split(/\n/).map(l => l.trim() === pageUrl ? btn : escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
   const subj = (live ? '' : '[TESZT – valójában neki: ' + to + '] ') + (str_(a.subject, 200).trim() || ('Elkészült: ' + (v ? v.name : 'videó') + ' – ' + p.name));
-  let mail = false; try { mail = gmailSend_(sendTo, subj, text + (sig ? '\n\n' + sig.text : ''), { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html.replace(/<br>Jóváhagyom: [\s\S]*$/, '') + btns + '</div>' + (sig ? '<br>' + sig.html : ''), name: u.name || 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
+  let mail = false; try { mail = gmailSend_(sendTo, subj, text + (sig ? '\n\n' + sig.text : ''), { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html + '</div>' + (sig ? '<br>' + sig.html : ''), name: u.name || 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
   const tpl = str_(a.tpl, 4000).trim();   // a kiküldött levél sablonként megmarad az ügyfélnél ({video}, {projekt}, {link} helyőrzőkkel)
   if (tpl) { try { const cn = String(p.client || '').trim().toLowerCase(), csh = sheetFor_('clients'); withLock_(() => { const c = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === cn); if (!c) return; const r = findRow_(csh, c.id); if (!r) return; const q = readRow_('clients', csh, r); q.vidMail = tpl; q.updatedAt = now_(); putRow_('clients', csh, q, r); dbFlush_(); }); } catch (e) { Logger.log('Sablon mentése: ' + e); } }
   logEvent_(u, 'Videó ügyfélnek elküldve', p.name, (v ? v.name : '') + ' → ' + to);
