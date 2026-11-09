@@ -434,3 +434,6 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
 .page-head.ph-sub .mnav-row{margin:0}
 .pay-sheet tbody td:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pay-sheet tbody td:first-child .linkbtn,.pay-sheet tbody td:first-child>b{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+
+#view.proj-done .panel,#view.proj-done .pcrew-person,#view.proj-done .crew-final{filter:grayscale(1);opacity:.72}
+#view.proj-done .panel:hover{opacity:.85}
