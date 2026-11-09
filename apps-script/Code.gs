@@ -614,8 +614,7 @@ function bootstrap_(u) {
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
   try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
-  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}
-  try { if (u && u.role === 'admin') crewDocsAutoSchedule_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
