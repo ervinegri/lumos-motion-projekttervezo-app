@@ -2179,7 +2179,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
 /* Gyors egymás utáni húzásnál: a kérések sorban mennek, és a válasz nem írja felül a még függő (későbbi) helyi módosításokat */
 let BD_Q=Promise.resolve();const BD_PEND={};
 function bdApply(pid){const p=projById(pid);if(!p||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const k=pid+'|'+v.id;if(BD_PEND[k])v.st=BD_PEND[k].st;});}
-function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb)mb.innerHTML=laneModalBody(mb.dataset.pid);}
+function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb){mb.innerHTML=laneModalBody(mb.dataset.pid);const hl=mb.querySelector('.bl-hl'),tt=document.querySelector('#mform .bl-ttl');if(hl&&tt)tt.innerHTML=hl.innerHTML;}}
 async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;
   if(st==='ellen'&&!extra){reviewModal(pid,vid);return;}   // belső ellenőrzés: kinek, link, megjegyzés
   const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;bdRefresh();
@@ -2202,7 +2202,8 @@ ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
 /* Idővonal vágássáv → a projekt videóinak táblája (ugyanúgy húzható) */
 function laneModalBody(pid){const cards=boardCards().filter(c=>c.p.id===pid);return cards.length?boardLanes(cards,{noLink:true,single:true}):'<p class="hint">Ennek a projektnek nincs videója.</p>';}
 ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal('🎞️ '+(p.name||'Videók'),`<div class="bd-modal" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div>`,{submitLabel:'Projekt megnyitása',submit:async()=>{closeModal();openProject(p.id);},cancelLabel:'Bezárás'});try{sessionStorage.setItem('lpm_lane_open',p.id);}catch(e){}window.MODAL_BEFORE_CLOSE=()=>{try{sessionStorage.removeItem('lpm_lane_open');}catch(e){}};   /* frissítés után a videótábla is visszajön */
-  const mb=document.querySelector('#mform .mbox,#mform');if(mb)mb.classList.add('m-wide');};
+  const mb=document.querySelector('#mform .mbox,#mform');if(mb)mb.classList.add('m-wide');
+  {const hl=document.querySelector('.bd-modal .bl-hl'),h=document.querySelector('#mform .mhead h3');if(hl&&h){const w=document.createElement('span');w.className='bl-ttl';w.innerHTML=hl.innerHTML;h.appendChild(w);h.classList.add('bl-h3');}}};   /* a határidő és a leadott darabszám a címsorba kerül */
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');document.body.classList.add('bd-dragging');});
 document.addEventListener('dragend',e=>{document.querySelectorAll('.bd-card.dragging').forEach(x=>x.classList.remove('dragging'));document.querySelectorAll('[data-bd-col].over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('bd-dragging');});
 document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col||!document.body.classList.contains('bd-dragging'))return;e.preventDefault();document.querySelectorAll('[data-bd-col].over').forEach(x=>{if(x!==col)x.classList.remove('over');});col.classList.add('over');});
