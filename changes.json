@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e39767e10f",
+"at": "2026-11-09T03:05:50+02:00",
+"msg": "Videótábla ablak: határidő és leadott darabszám a címsorban, a projektnév nem ismétlődik, szélesebb oszlopok"
+},
+{
 "id": "e27bffb597",
 "at": "2026-11-09T03:03:41+02:00",
 "msg": "Videótábla ablak: a projekt kártyája a fejléc sorában"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód gomb a Hozzászólások sorában, a videó alatt középen"
 },
 {
-"id": "420ee57e3c",
-"at": "2026-11-09T01:40:28+02:00",
-"msg": "Videó ablak: időkód gomb a Hozzászólások sorában; a képkocka-számláló egyetlen forrásból, nem ugrál"
-},
-{
-"id": "b86f950e45",
-"at": "2026-11-08T23:38:26Z",
+"id": "b23deb1cc9",
+"at": "2026-11-08T23:40:36Z",
 "msg": "Változásnapló frissítése"
 }
 ]
