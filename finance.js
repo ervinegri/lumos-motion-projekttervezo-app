@@ -34,7 +34,10 @@ const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>invPids(x).i
 const finSet=()=>(S.fin&&S.fin.settings)||{profitPct:30,ceoPct:5,marketingPct:5,openMonth:'',openRezsi:0,openMarketing:0,appFromMonth:''};
 /* Egy projekt felosztása */
 const ovPct=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
-function finProjectRow(p){const st=finSet(),amount=projTotal(p),fees=Math.round(feeSum(p));
+/* Értékesítői jutalék díjsorként (az értékesítő szerepű munkatárs díja, vagy „értékesít…/jutalék” feladat): nem termelési költség */
+function finSalesFees(p){const only=cid=>{const rs=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return rs.length>0&&rs.every(r=>r==='Értékesítő');};
+  return (p.fees||[]).filter(f=>f.crewId&&f.kind!=='fixed'&&(only(f.crewId)||/értékesít|jutalék/i.test(String(f.task||'')))).reduce((a,f)=>a+num(f.amount),0);}
+function finProjectRow(p){const st=finSet(),amount=projTotal(p),fees=Math.round(feeSum(p)-finSalesFees(p));
   const tov=Math.round((typeof extrasRaw==='function'?extrasRaw(p):[]).filter(x=>x&&x.kind==='tov').reduce((a,x)=>a+num(x.amount),0)),org=Math.round(typeof orgFee==='function'?num(orgFee(p)):0),base=Math.max(0,amount-tov-org),prod=fees+tov+org;   // szervezői jutalék is átfolyó költség   // továbbszámlázott: átfolyó költség – a Termelésbe kerül, a százalékok nélküle számolódnak
   const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);   // projektenként egyedi értékesítés / eszköz-rezsi %
   const dl=typeof projDeal==='function'?projDeal(p):null,de=dl&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;   // értékesítő hozta: az ő jutaléka az értékesítés
