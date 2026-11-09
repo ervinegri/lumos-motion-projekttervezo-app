@@ -280,7 +280,7 @@ const myNet=p=>{const a=num(p.myFee&&p.myFee.amount),cid=S.me&&S.me.crewId;retur
 /* Kifizetések havonta: ki melyik projekten mennyit kap (díjcsökkentés után), és a hónap összesen – visszamenőleg is */
 /* Kifizetések fül: soronként a projektek, oszloponként a szakemberek (díjcsökkentés után), alul a total – hónaponként, visszamenőleg is */
 /* Rövid név a fix szélességű oszlophoz: ha nem fér ki, a vezetéknév(ek) kezdőbetűje + utónév (pl. „G. Flóra”). */
-function shortName(n){n=String(n||'').trim();if(n.length<=13)return n;const w=n.split(/\s+/);if(w.length<2)return n.slice(0,12)+'…';const s=w.slice(0,-1).map(x=>x[0]+'.').join(' ')+' '+w[w.length-1];return s.length<=16?s:s.slice(0,15)+'…';}
+function shortName(n){n=String(n||'').trim();const w=n.split(/\s+/);if(w.length<2)return n.length<=13?n:n.slice(0,12)+'…';   /* mindig „E. Ervin” formában */const s=w.slice(0,-1).map(x=>x[0]+'.').join(' ')+' '+w[w.length-1];return s.length<=16?s:s.slice(0,15)+'…';}
 /* Levonások indoka (a cellára vagy a szirénára mutatva látszik) */
 function penReasons(p,cid){return penOf(p,cid,'approved').filter(x=>x.kind!=='damage').map(x=>`${(PEN_KINDS[x.kind]||{}).label||'Díjcsökkentés'} ${num(x.pct)}%${x.day?' ('+dayLbl(x.day)+')':''}: ${x.reason||''}${x.caseText?' – '+x.caseText:''}`).join('\n');}
 /* Havi díjösszesítő adatai egy szakembernek – ugyanaz a számítás, mint a Termelői fizetések táblázatban */
