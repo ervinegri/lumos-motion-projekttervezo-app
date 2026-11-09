@@ -301,11 +301,8 @@ function salesPayOf(month,cid){const sp=(S.salesPeople||[]).find(x=>x.crewId===c
   const m=(sp.comm||{})[month]||{base:0,amount:0,items:[]},items=m.items||[],comm=num(m.amount);   // havi, sávos jutalék a kifizetett nettó bevételből (szerver számolja)
   return salary||comm?{salary,comm,base:num(m.base),items,sp,total:salary+comm}:null;}
 const commTierTxt=s=>`${num(s.commLow)}% ${ftFmt(num(s.commLimit))}-ig, felette ${num(s.commHigh)}%`;
-/* Mikorra számít a szakember díja: a vágónál (ha van vágnivalója a projekten) a vágási határidő napjára – akkor a helyszíni munkája is ide számít;
-   csak helyszíni munkánál (helyszíni vágó is) a projekt napjára. A már kiküldött díjösszesítők nem változnak: ha az eredeti vagy a cél hónap már ki van küldve, marad a projekt napja. */
-function payDate(p,cid){const st=pr(p).start;if(!cid||!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó')||!taskKeysOf(p,cid).length)return st;
-  const due=dueDate(p);if(!validISO(due)||due<=st)return st;const sent=m=>(S.paySent||[]).some(x=>x.crewId===cid&&String(x.month)===m);
-  if(due.slice(0,7)!==st.slice(0,7)&&(sent(st.slice(0,7))||sent(due.slice(0,7))))return st;return due;}
+/* Mikorra számít a szakember díja: mindig a projekt (első) napjára – a vágó díja sem válik le külön vágási határidőre */
+function payDate(p,cid){return pr(p).start;}
 const payMonth=(p,cid)=>payDate(p,cid).slice(0,7);
 function payStatementData(month,cid){
   const rows=[],pens=[],stamp=s=>{const d=String(s||'').slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(d)?d.replace(/-/g,'.')+'.':'';};

@@ -4703,7 +4703,7 @@ const SALES_HEAD = { id: 'Azonosító', brand: 'Márka / stand', contact: 'Kapcs
   salesperson: 'Értékesítő', spokenCount: 'Beszédes short db', musicCount: 'Zenés short db', shootAt: 'Forgatás időpontja', note: 'Megjegyzés', status: 'Értékesítési státusz',
   event: 'Rendezvény', updatedAt: 'Módosítva', shootBy: 'Operatőr', mutationId: 'Utolsó műveletazonosító', filmingDone: 'Forgatás megtörtént', shootAt2: 'Második forgatás időpontja',
   shootContent: 'Instrukció az operatőrnek', shootContent2: 'Instrukció az operatőrnek – második forgatás', address: 'Számlázási cím',
-  netTotal: 'Nettó végösszeg (Ft)', vatType: 'ÁFA-besorolás', paymentMode: 'Fizetés módja', deliveryDate: 'Vállalt átadás', venue: 'Helyszín' };
+  recordedAt: 'Rögzítve', netTotal: 'Nettó végösszeg (Ft)', vatType: 'ÁFA-besorolás', paymentMode: 'Fizetés módja', deliveryDate: 'Vállalt átadás', venue: 'Helyszín' };
 // kétirányú mezők (a később módosított nyer) és csak a Salesből jövők
 /* Új sales-projekt alapbeállításai (Szkript-tulajdonságokkal felülírhatók: SALES_LEAD, SALES_EDITOR, SALES_DUE_DAYS, SALES_SHOOT_HOURS) */
 const SALES_DEFAULT_VENUE = 'Europa Event Center, Budapest, Hárshegyi út 5-7, 1021 Hungary';
@@ -4918,18 +4918,32 @@ function salesSync() {
   /* Megrendelőlap: a Sales App a rendelés PDF-jét a Drive „Vegan Summit / Rendelések” mappájába menti („Lumos Motion - <Cégnév> - <dátum>.pdf”) –
      a projekt Szerződés részébe kerül (ha ott még nincs dokumentum). */
   try {
-    const bills = readAll_('finBilling'), hasDoc = {}; bills.forEach(b => { if (b.contractUrl || b.contractFileId) hasDoc[b.projectId] = 1; });
-    const need = S.list.map(o => ({ o, pid: (links[sval_(o.id)] && links[sval_(o.id)].projectId) || ('sales-' + sval_(o.id)).slice(0, 64) })).filter(x => projById[x.pid] && !hasDoc[x.pid] && sval_(x.o.status) !== 'piszkozat');
+    /* Egy ügyfélnek több rendelése is lehet: a cég rendeléseit a rögzítés ideje szerint sorba állítjuk, és mindegyikhez a saját PDF-je tartozik
+       (a rögzítése után, de a cég következő rendelése előtt készült legutóbbi). A Sales App által korábban rosszul hozzárendelt fájl kicserélődik. */
+    const bills = readAll_('finBilling'), billOf = {}; bills.forEach(b => { billOf[b.projectId] = b; });
+    const pidOf = o => (links[sval_(o.id)] && links[sval_(o.id)].projectId) || ('sales-' + sval_(o.id)).slice(0, 64);
+    const ok = S.list.filter(o => projById[pidOf(o)] && sval_(o.status) !== 'piszkozat');
+    const need = ok.filter(o => { const b = billOf[pidOf(o)]; return !b || !(b.contractUrl || b.contractFileId) || b.contractBy === SALES_SYS_USER.name; });
     if (need.length) {
       const it = DriveApp.getFolderById(SALES_ORDERS_PARENT).getFoldersByName('Rendelések'), files = [];
       if (it.hasNext()) { const fi = it.next().getFiles(); while (fi.hasNext()) { const f = fi.next(); if (/\.pdf$/i.test(f.getName()) && !f.isTrashed()) files.push({ f, n: f.getName(), t: f.getDateCreated().getTime() }); } }
       const nk = s => sval_(s).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
-      need.forEach(x => { const base = nk(sval_(x.o.company) || sval_(x.o.brand)); if (!base) return;
-        const hit = files.filter(y => y.n.toLowerCase().indexOf('lumos motion - ' + base + ' - ') === 0).sort((a, b) => b.t - a.t)[0]; if (!hit) return;
-        withLock_(() => { const b = billRow_(x.pid), r = b.r; if (r.contractUrl || r.contractFileId) return;
+      const tOf = o => { const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(sval_(o.recordedAt)); if (!m) return 0;
+        const d = new Date(m[1] + 'T' + m[2] + ':' + m[3] + ':' + (m[4] || '00') + 'Z').getTime(); const off = Number(Utilities.formatDate(new Date(d), SHEET_TZ, 'Z').replace(/^([+-])(\d\d)(\d\d)$/, (x, sg, h, mm) => (sg === '-' ? -1 : 1) * (Number(h) * 60 + Number(mm)))); return d - off * 60000; };
+      const groups = {}; ok.forEach(o => { const k = nk(sval_(o.company) || sval_(o.brand)); if (k) (groups[k] = groups[k] || []).push(o); });
+      const want = {};
+      Object.keys(groups).forEach(k => { const os = groups[k].slice().sort((a, b) => tOf(a) - tOf(b) || String(a.id).localeCompare(String(b.id)));
+        const fs = files.filter(y => y.n.toLowerCase().indexOf('lumos motion - ' + k + ' - ') === 0).sort((a, b) => a.t - b.t); if (!fs.length) return;
+        os.forEach((o, i) => { const from = tOf(o) - 15 * 60000, to = i + 1 < os.length ? tOf(os[i + 1]) : Infinity;
+          let c = fs.filter(y => (!tOf(o) || y.t >= from) && y.t < to);
+          if (!c.length && os.length === 1) c = fs;
+          if (c.length) want[pidOf(o)] = c[c.length - 1]; }); });
+      need.forEach(o => { const pid = pidOf(o), hit = want[pid]; if (!hit) return;
+        withLock_(() => { const b = billRow_(pid), r = b.r;
+          if ((r.contractUrl || r.contractFileId) && r.contractBy !== SALES_SYS_USER.name) return;
+          if (r.contractFileId === hit.f.getId()) return;
           Object.assign(r, { contractUrl: hit.f.getUrl(), contractName: 'Megrendelőlap – ' + hit.n, contractFileId: hit.f.getId(), contractAt: now_(), contractBy: SALES_SYS_USER.name, contractStatus: r.contractStatus || 'alairva', updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
-          putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id) || null); });
-        out.orderForms = (out.orderForms || 0) + 1; });
+          putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id) || null); out.orderForms = (out.orderForms || 0) + 1; }); });
       if (out.orderForms) dbFlush_();
     }
   } catch (e) { out.errors.push('megrendelőlap: ' + String((e && e.message) || e)); }
