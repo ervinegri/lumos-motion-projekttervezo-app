@@ -4946,7 +4946,7 @@ function salesSync() {
       const want = {};
       Object.keys(groups).forEach(k => { const os = groups[k].slice().sort((a, b) => tOf(a) - tOf(b) || String(a.id).localeCompare(String(b.id)));
         const fs = files.filter(y => y.n.toLowerCase().indexOf('lumos motion - ' + k + ' - ') === 0).sort((a, b) => a.t - b.t); if (!fs.length) return;
-        os.forEach((o, i) => { const from = tOf(o) - 15 * 60000, to = i + 1 < os.length ? tOf(os[i + 1]) : Infinity;
+        os.forEach((o, i) => { const from = tOf(o) - 15 * 60000, to = i + 1 < os.length && tOf(os[i + 1]) ? tOf(os[i + 1]) - 3 * 60000 : Infinity;   /* a következő rendelés PDF-je a rögzítésével szinte egy időben készül */
           let c = fs.filter(y => (!tOf(o) || y.t >= from) && y.t < to);
           if (!c.length && os.length === 1) c = fs;
           if (c.length) want[pidOf(o)] = c[c.length - 1]; }); });
@@ -4954,7 +4954,7 @@ function salesSync() {
         withLock_(() => { const b = billRow_(pid), r = b.r;
           if ((r.contractUrl || r.contractFileId) && r.contractBy !== SALES_SYS_USER.name) return;
           if (r.contractFileId === hit.f.getId()) return;
-          Object.assign(r, { contractUrl: hit.f.getUrl(), contractName: 'Megrendelőlap – ' + hit.n, contractFileId: hit.f.getId(), contractAt: now_(), contractBy: SALES_SYS_USER.name, contractStatus: r.contractStatus || 'alairva', updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
+          Object.assign(r, { contractUrl: hit.f.getUrl(), contractName: 'Megrendelőlap – ' + hit.n, contractFileId: hit.f.getId(), contractAt: now_(), contractBy: SALES_SYS_USER.name, contractStatus: r.contractStatus && r.contractStatus !== 'nemkell' ? r.contractStatus : 'alairva', updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
           putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id) || null); out.orderForms = (out.orderForms || 0) + 1; }); });
       if (out.orderForms) dbFlush_();
     }

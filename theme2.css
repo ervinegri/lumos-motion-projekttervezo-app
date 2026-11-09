@@ -555,3 +555,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .fin-exp tfoot tr.fin-keret td{background:#fff}
 .fin-exp tfoot tr.fin-end td{font-weight:700}
 .fin-exp tfoot td:last-child{box-shadow:inset 1px 0 0 #d5dde3}
+.tile-search{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}.tile-search .search{width:100%;max-width:none;height:48px!important;min-height:0!important;flex:none}

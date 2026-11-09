@@ -154,11 +154,10 @@ function viewBilling(){
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
       <button class="tile tile-btn" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mRev)}</div><div class="tile-l">${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))} havi bevétel</div></button>
-      <button class="tile tile-btn${mPaid?' ok':''}" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(Math.round(mPaid))}</div><div class="tile-l">kifizetve</div></button>
       <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség</div></button>
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt</div></button>
+      <div class="tile-search"><input class="inp search" id="q-bill" type="search" placeholder="🔍 Projekt, ügyfél, számlaszám…" value="${esc(f.q)}" aria-label="Keresés">${f.v!=='honap'?`<button class="linkbtn" type="button" data-action="blf" data-v="honap">✕ ${esc((labels.find(x=>x[0]===f.v)||[,''])[1])} szűrő törlése</button>`:''}</div>
     </div>
-    <div class="toolbar"><input class="inp search" id="q-bill" type="search" placeholder="Keresés projekt, ügyfél, számlaszám szerint" value="${esc(f.q)}" aria-label="Keresés">${f.v!=='honap'?`<button class="linkbtn" type="button" data-action="blf" data-v="honap">✕ ${esc((labels.find(x=>x[0]===f.v)||[,''])[1])} szűrő törlése</button>`:''}</div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th>Szerződés</th><th>Díjbekérő</th><th>TIG</th><th>Végszámla</th></tr></thead>
       <tbody>${months.map(g=>`<tr class="pt-month bill-month"><td colspan="${cols}"><span class="bm-name">${esc(F_YM.format(toDate(g.m+'-01')))}</span> <span class="muted">· ${g.arr.length} projekt</span></td></tr>${billMonthRows(g.arr)}`).join('')}</tbody></table></div>
       <p class="hint">Díjbekérő → (kifizetés után foglalószámla) → végszámla, amelyből a számlázz.hu levonja a foglalót. A kifizetéseket a számlázz.hu értesítése alapján az app magától jelöli. Projektenként „Egy számla” konstrukció is választható (✏️).</p>`
