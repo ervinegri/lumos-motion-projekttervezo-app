@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "57e8363431",
+"at": "2026-11-09T20:58:23+02:00",
+"msg": "Szerződés és számlázás: „kifizetve” csempe le, a kereső a csempék sorába; megrendelőlap-párosítás pontosítása"
+},
+{
 "id": "f4cf397bf9",
 "at": "2026-11-09T20:52:39+02:00",
 "msg": "Szerződés és számlázás: eltérő szerződésű (pl. két megrendelőlapos) projektek külön szerződés-cellában"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Mobil: hónapváltó nem lóg ki, a Kifizetések táblázat kifér (összegek látszanak)"
 },
 {
-"id": "6db0e565d9",
-"at": "2026-11-09T14:27:27+02:00",
-"msg": "Naptár buboréka: a telefonszám nem esik szét (iOS automatikus linkek kikapcsolva)"
-},
-{
-"id": "c8d9055f06",
-"at": "2026-11-09T12:27:10Z",
+"id": "c9600e67a7",
+"at": "2026-11-09T12:27:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
