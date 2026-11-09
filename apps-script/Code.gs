@@ -2827,7 +2827,7 @@ function crewDocsImport_(u, a) {
   const plan = [];
   crew.forEach(c => {
     const em = String(c.email).trim().toLowerCase();
-    let threads = []; try { threads = GmailApp.search('{from:' + em + ' to:' + em + '} has:attachment filename:pdf', 0, 30); } catch (e) { return; }
+    let threads = []; try { threads = GmailApp.search('{from:' + em + ' to:' + em + '} has:attachment filename:pdf', 0, 15); } catch (e) { return; }
     const cands = [];
     threads.forEach(t => {
       const subjOk = KW.test(t.getFirstMessageSubject() || '');
@@ -2847,7 +2847,7 @@ function crewDocsImport_(u, a) {
     /* fajtánként (megnevezés) a legfrissebb aláírt példány */
     const best = {};
     cands.sort((x, y) => y.ts - x.ts).forEach(x => { const k = titleOf(x.name); if (!best[k]) best[k] = x; });
-    Object.keys(best).forEach(k => { const x = best[k]; plan.push({ crewId: c.id, crew: c.name, title: k, name: x.name, date: x.date, kb: Math.round(x.size / 1024), byCrew: x.byCrew, _x: x }); });
+    Object.keys(best).forEach(k => { const x = best[k]; if (a.only && a.only.indexOf(c.id + '|' + k) < 0) return; plan.push({ crewId: c.id, crew: c.name, title: k, name: x.name, date: x.date, kb: Math.round(x.size / 1024), byCrew: x.byCrew, _x: x }); });
   });
   if (!a.dry) plan.forEach(p => {
     const b = p._x.at.copyBlob();

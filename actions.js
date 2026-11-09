@@ -1155,6 +1155,16 @@ const ACT={
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},
   'new-user':()=>userModal(null),
+  'crew-docs-gmail':async b=>{if(b.disabled)return;const t0=b.textContent;b.disabled=true;b.textContent='⏳ Keresés a levelek között…';
+    try{const r=await call('crewDocsImport',{dry:true});const L=r.plan||[];
+      const sk=(r.skipped||[]).length?`<p class="hint" style="margin:10px 16px 0">Nem találtam aláírt szerződést: ${esc(r.skipped.join(', '))}</p>`:'';
+      if(!L.length){openModal('📥 Szerződések a Gmailből',`<p style="margin:0 0 6px">Nincs új, aláírt szerződés a levelek között azoknál, akiknél még nincs feltöltve.</p>${sk}`,{cancelLabel:'Bezárás'});return;}
+      openModal('📥 Szerződések a Gmailből',`<p style="margin:0 0 10px">Ezeket találtam – pipáld ki, amelyeket feltöltsek (bizalmas mappába kerülnek, csak te látod):</p>
+        <div class="alist">${L.map((x,i)=>`<label class="toggle" style="display:flex;gap:10px;align-items:flex-start;margin:6px 0"><input type="checkbox" name="pick" value="${i}" checked><span class="tl"><b>${esc(x.crew)}</b> – ${esc(x.title)} <span class="muted">· ${esc(x.date.replace(/-/g,'.'))}. · ${esc(x.name)} (${x.kb} KB)${x.byCrew?' · tőle érkezett':''}</span></span></label>`).join('')}</div>${sk}`,
+        {submitLabel:'Feltöltés',submit:async fd=>{const pick=fd.getAll('pick').map(Number);if(!pick.length){toast('Nincs kijelölve semmi.',true);return;}
+          const ids=[...new Set(pick.map(i=>L[i].crewId))];const want=new Set(pick.map(i=>L[i].crewId+'|'+L[i].title));
+          try{const r2=await call('crewDocsImport',{crewIds:ids,only:[...want]});S.crewDocs=r2.crewDocs||S.crewDocs;closeModal();render(true);toast((r2.plan||[]).length+' szerződés feltöltve');}catch(e){handleErr(e);}}});}
+    catch(e){handleErr(e);}finally{b.disabled=false;b.textContent=t0;}},
   'crew-comm':async b=>{const cid=b.dataset.id;if(!S.users)await loadSettings();const u=(S.users||[]).find(x=>x.crewId===cid);if(u){userModal(u);return;}
     userModal(null);const set=(id,v)=>{const e=$(id);if(e){e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));const ci=e.parentElement&&e.parentElement.querySelector('input.cmb-in,input');if(ci&&e.selectedOptions[0]&&ci!==e)ci.value=e.selectedOptions[0].textContent;}};set('m-crewId',cid);set('m-role','sales');},
   'toggle-user':async b=>{const dis=b.dataset.dis==='1';const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(!u)return;
