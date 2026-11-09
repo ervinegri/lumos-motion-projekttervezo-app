@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6c5f55f7e3",
+"at": "2026-11-09T14:19:37+02:00",
+"msg": "Mobil nézet újraépítve: kompakt fejléc, görgethető fülek/gombok/lépések, projektfejléc, teljes képernyős ablakok, görgethető táblázatok"
+},
+{
 "id": "3a1f1792c7",
 "at": "2026-11-09T14:13:14+02:00",
 "msg": "Változásnapló csak belépett ügyvezetőnek (védett Vercel-függvény + admin végpont); fejlesztői fájlok nem kerülnek ki a weboldalra"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Videótábla: ellenőrzés/ügyfél ablak alatt is látszik, címsor egy vonalban; telefon/e-mail másolás hover"
 },
 {
-"id": "bce770dce5",
-"at": "2026-11-09T05:39:28+02:00",
-"msg": "Ügyfél-levél tárgya: „Elkészült: {videó} – {projekt}”, ügyfelenként megjegyezve"
-},
-{
-"id": "38d7633846",
-"at": "2026-11-09T03:38:42Z",
+"id": "cd3a5c7e62",
+"at": "2026-11-09T03:39:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
