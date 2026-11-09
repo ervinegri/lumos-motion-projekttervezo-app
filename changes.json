@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9cbd26976a",
+"at": "2026-11-09T03:10:47+02:00",
+"msg": "Videótábla ablak: kitölti a képernyőt (szélesség és magasság)"
+},
+{
 "id": "dce075b0a3",
 "at": "2026-11-09T03:09:41+02:00",
 "msg": "Videó ablak: fekvő videónál a Hozzászólások felirat nem csúszik a videó alá"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: Enter billentyű-jelzés és súgó az időkód gombon"
 },
 {
-"id": "757a620f09",
-"at": "2026-11-09T01:44:26+02:00",
-"msg": "Videó ablak: Enter = időkód beszúrása, gépelés közben Enter = vissza a videóhoz"
-},
-{
-"id": "01a48175fa",
-"at": "2026-11-08T23:43:35Z",
+"id": "a64f74e59c",
+"at": "2026-11-08T23:44:34Z",
 "msg": "Változásnapló frissítése"
 }
 ]
