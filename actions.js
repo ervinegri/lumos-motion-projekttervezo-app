@@ -330,6 +330,18 @@ if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>
 
 /* Új projekt (a Projektek és a Naptár „+ Új bejegyzés” gombja is ezt nyitja): ugyanazok a kötelező adatok, mint az Alapadatoknál.
    A projekt létrehozás után automatikusan bekerül a Google Naptárba is. */
+/* Új projekt: csatolmányok (pl. árajánlat, megrendelő, beszállítói számla) – létrehozás után a projekt Drive-mappájába („Csatolmányok”) kerülnek */
+let NP_FILES=[];
+const npFilesField=()=>`<div class="field full"><span class="lbl">📎 Csatolmányok (nem kötelező)</span><label class="cdoc-drop np-drop" data-np-drop><input type="file" id="m-npFiles" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden><b>Húzd ide a fájlokat, vagy kattints</b><small class="muted">pl. árajánlat, megrendelő, beszállítói számla – a projekt Drive-mappájába kerülnek (max. 10 MB/fájl)</small></label><div class="np-files" id="m-npList"></div></div>`;
+function npFilesAdd(list){[...(list||[])].forEach(f=>{if(f.size>10*1024*1024){toast(f.name+': legfeljebb 10 MB lehet.',true);return;}if(!NP_FILES.some(x=>x.name===f.name&&x.size===f.size))NP_FILES.push(f);});npFilesShow();}
+function npFilesShow(){const el=$('m-npList');if(el)el.innerHTML=NP_FILES.map((f,i)=>`<span class="np-file">📄 ${esc(f.name)} <button type="button" class="x w" data-action="np-file-del" data-i="${i}" aria-label="Eltávolítás">✕</button></span>`).join('');}
+async function npFilesUpload(pid){const l=NP_FILES;NP_FILES=[];if(!l.length||!pid)return;let ok=0;
+  for(const f of l){try{await call('extraFileUpload',{projectId:pid,folder:'Csatolmányok',b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});ok++;}catch(e){toast(f.name+': a feltöltés nem sikerült.',true);}}
+  if(ok)toast(ok+' csatolmány feltöltve a projekt Drive-mappájába („Csatolmányok”)');}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='m-npFiles'){npFilesAdd(e.target.files);e.target.value='';}});
+document.addEventListener('dragover',e=>{const z=e.target.closest&&e.target.closest('[data-np-drop]');if(z&&e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){e.preventDefault();z.classList.add('over');}});
+document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.closest('[data-np-drop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('over');});
+document.addEventListener('drop',e=>{const z=e.target.closest&&e.target.closest('[data-np-drop]');if(!z||!e.dataTransfer||!e.dataTransfer.files.length)return;e.preventDefault();z.classList.remove('over');npFilesAdd(e.dataTransfer.files);});
 /* Új projekt adatai az űrlapból (létrehozáshoz és piszkozathoz) */
 function npBuild(fd){
   const g=k=>String(fd.get(k)||'').trim(),time=v=>/^([01]?\d|2[0-3])[:.]?([0-5]\d)$/.test(v)?v.replace(/^(\d{1,2})[:.]?(\d{2})$/,(m,h,mm)=>h.padStart(2,'0')+':'+mm):'';
@@ -376,12 +388,12 @@ function tplFill(id){let t=projById(id);const f=$('mform');if(!t||!f)return;
 async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(form,'A piszkozathoz legalább a projekt nevét add meg.'))return;
   const {p}=npBuild(new FormData(form));if(p.name.length<2){toast('A projekt neve legalább 2 karakter legyen.',true);return;}
   btn.disabled=true;btn.textContent='Mentés…';const k=MD_KEY;
-  try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));incLinkAfter(form,saved);if(p.tplFrom&&typeof tplBillCopy==='function')tplBillCopy(p.tplFrom,saved.id);S.projects.push(saved);MD_KEY='';mdClear(k);closeModal();openProject(saved.id);toast('Piszkozat mentve – a hiányzó adatokat itt pótolhatod');if(saved.date&&!p._noCal)syncCal(saved.id);S.cal.events={};}
+  try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));incLinkAfter(form,saved);npFilesUpload(saved.id);if(p.tplFrom&&typeof tplBillCopy==='function')tplBillCopy(p.tplFrom,saved.id);S.projects.push(saved);MD_KEY='';mdClear(k);closeModal();openProject(saved.id);toast('Piszkozat mentve – a hiányzó adatokat itt pótolhatod');if(saved.date&&!p._noCal)syncCal(saved.id);S.cal.events={};}
   catch(e){btn.disabled=false;btn.textContent='💾 Piszkozat mentése';handleErr(e);}}
 /* Bevételi sorból készült projekt: ha a neve más lett (pl. sablonból), a sor nevét is átírjuk, hogy kapcsolódjanak */
 function incLinkAfter(form,saved){try{const id=form&&form.querySelector('[name=incId]')&&form.querySelector('[name=incId]').value;if(!id||!saved)return;
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r||r.name===saved.name)return;const row=Object.assign({},r,{name:saved.name});finLocal('income',[row]);call('finUpsert',{table:'income',row}).then(d=>finApply(d)).catch(handleErr);}catch(e){}}
-function newProjectModal(day,pre){
+function newProjectModal(day,pre){NP_FILES=[];
   const d0=day||(pre&&pre.date)||'';
   openModal(pre?'Projekt a bevételi sorból':'Új projekt',`<div class="fields">
     ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1"><input type="hidden" name="incId" value="${esc(pre.incId||'')}">`+tplFieldHtml():tplFieldHtml()}
@@ -399,6 +411,7 @@ function newProjectModal(day,pre){
     ${mf('startTime','Kezdés',{ph:'pl. 10:00',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     ${mf('endTime','Hozzávetőleges távozási óra',{ph:'pl. 18:30',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
+    ${isAdmin()?npFilesField():''}
   </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
     const {p,clientNew,g}=npBuild(fd);
@@ -413,7 +426,7 @@ function newProjectModal(day,pre){
     if(miss.length){const k=miss[0][0],el=form.querySelector('[name='+(fieldOf[k]||k)+']')||(k==='contactPhone'?$('m-contactPhone'):null);
       form.querySelectorAll('.inp').forEach(x=>x.style.borderColor='');miss.forEach(([mk])=>{const e2=form.querySelector('[name='+(fieldOf[mk]||mk)+']');const vis=mk==='contactPhone'?$('m-contactPhone'):e2;if(vis)vis.style.borderColor='var(--bad)';});
       if(el&&el.type!=='hidden')el.focus();toast('Kötelező mező: '+miss.map(x=>x[1]).join(', ')+'.',true);return;}
-    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));incLinkAfter(form,saved);if(p.tplFrom&&typeof tplBillCopy==='function')tplBillCopy(p.tplFrom,saved.id);S.projects.push(saved);closeModal();openProject(saved.id);toast(p._noCal?'Projekt létrehozva a bevételi sorból':'Projekt létrehozva, a naptárba is bekerül');if(!p._noCal)syncCal(saved.id);S.cal.events={};}
+    try{const saved=await call('saveProject',Object.assign(p,{deferCal:true}));incLinkAfter(form,saved);npFilesUpload(saved.id);if(p.tplFrom&&typeof tplBillCopy==='function')tplBillCopy(p.tplFrom,saved.id);S.projects.push(saved);closeModal();openProject(saved.id);toast(p._noCal?'Projekt létrehozva a bevételi sorból':'Projekt létrehozva, a naptárba is bekerül');if(!p._noCal)syncCal(saved.id);S.cal.events={};}
     catch(e){handleErr(e);}
   }});
 }
@@ -1124,6 +1137,7 @@ const ACT={
   tab:b=>guard(()=>{S.finErr='';const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
+  'np-file-del':b=>{NP_FILES.splice(Number(b.dataset.i),1);npFilesShow();},
   'extra-file-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).map(x=>Object.assign({},x)),i=Number(b.dataset.i);if(!l[i])return;l[i].fileUrl='';l[i].fileName='';setDraft({extras:l});render(true);toast('Csatolmány levéve (a fájl a Drive-ban megmarad)');},
   'extra-add':b=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),Object.assign({id:uuid().slice(0,8),name:'',amount:0},b&&b.dataset&&b.dataset.le?{kind:'le'}:b&&b.dataset&&b.dataset.tov?{kind:'tov'}:{})]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
   'org-add':()=>{if(!S.draft||!isAdmin()||orgOf(S.draft))return;setDraft({extras:[...(S.draft.extras||[]),{id:uuid().slice(0,8),name:'',amount:10000,kind:'org',clientId:''}]});},

@@ -2770,9 +2770,9 @@ function extraFileUpload_(u, a) {
   if (!b64) throw new Error('Nincs feltöltendő fájl.');
   if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
   const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
-  const root = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId), folder = folderPath_(root, 'Továbbszámlázott', {});
+  const root = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId), folder = folderPath_(root, a.folder === 'Csatolmányok' ? 'Csatolmányok' : 'Továbbszámlázott', {});
   const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, name)));
-  logEvent_(u, 'Csatolmány feltöltve (extra tétel)', name, pid);
+  logEvent_(u, a.folder === 'Csatolmányok' ? 'Csatolmány feltöltve (új projekt)' : 'Csatolmány feltöltve (extra tétel)', name, pid);
   return { url: file.getUrl(), name: name };
 }
 function billUpload_(u, a) {

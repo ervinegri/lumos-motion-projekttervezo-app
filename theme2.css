@@ -537,8 +537,12 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .cl-sig{font-size:13px;line-height:1.45;overflow:hidden}
 .cl-sig img{max-width:100%;height:auto}
 
-.fin-tov .tov-file{margin-top:4px;font-size:12.5px;display:flex;align-items:center;gap:4px}
-.fin-tov .tov-file-up{cursor:pointer;color:var(--accent);font-weight:600}
-.fin-tov .tov-file-up:hover{text-decoration:underline}
-.fin-tov .tov-file-l{color:var(--ink);font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fin-tov.over{outline:2px dashed var(--accent);outline-offset:4px;border-radius:10px}
+.fin-tov .money{position:relative}
+.fin-tov .ex-sign{position:absolute;left:12px;top:50%;transform:translateY(-50%);margin:0;color:#a33;font-weight:700;z-index:1;pointer-events:none}
+.fin-tov .money-inp{padding-left:28px}
+.fin-tov label .tov-file-l{text-decoration:none;font-size:14px;line-height:1}
+.fin-tov>label{display:flex;align-items:center;gap:8px;min-height:22px}
+.fin-tov>label .x{width:20px;height:20px;padding:0;font-size:13px;line-height:1;display:inline-grid;place-items:center}
+.money:has(input[readonly]){background:#f1f5f3}.money input[readonly]{background:transparent}
+.missing .money{border-color:var(--bad-line);background:var(--bad-soft)}.missing .money .inp{background:transparent;border-color:transparent}
+.np-drop{margin-top:4px;padding:12px}.np-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.np-file{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;max-width:100%}.np-file .x{width:18px;height:18px;padding:0;font-size:11px}
