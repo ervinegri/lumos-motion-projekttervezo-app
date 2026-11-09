@@ -1618,6 +1618,11 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
   const inp=$('f-venue');if(inp&&v){inp.value=v;setDraft({venue:v});}},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='f-venue')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.addr-item'))pickClose();},150);});
 
+/* Telefonmező kitöltése az ablakban (országkód + szám, a rejtett mezővel együtt); üres értékkel törli */
+function mPhoneSet(id,phone){const ph=$(id);if(!ph)return;const row=ph.closest('.phone-row'),pr2=phParse(phone||'');
+  if(row&&row.querySelector('.ph-cc')){row.querySelector('.ph-cc').dataset.cc=pr2.cc;}ph.value=phone?phJoin(pr2.cc,pr2.n).replace(pr2.cc+' ',''):'';
+  if(row&&typeof phSync==='function'){try{phSync(row,false);}catch(e){}}
+  const hid=row&&row.querySelector('input[type=hidden]');if(hid)hid.value=phone?phJoin(pr2.cc,pr2.n):'';ph.dispatchEvent(new Event('input',{bubbles:true}));}
 /* ===== Kapcsolattartó: HubSpot-lenyíló (mint az Ügyfél mezőnél) ===== */
 let CT_T=0,CT_SEQ=0,CT_ITEMS=[];
 async function ctSearch(input){if(!S.draft)return;const q=input.value.trim(),my=++CT_SEQ;
@@ -1630,7 +1635,7 @@ document.addEventListener('focusin',e=>{if(e.target.id==='f-contactName'&&!ro()&
 document.addEventListener('input',e=>{if(e.target.id==='f-contactName'&&!ro()){clearTimeout(CT_T);const t=e.target;CT_T=setTimeout(()=>ctSearch(t),350);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.ct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=CT_ITEMS[Number(it.dataset.ct)];pickClose();if(!c||!S.draft)return;
   const ph=c.phone?phJoin(phParse(c.phone).cc,phParse(c.phone).n):'';const inp=$('f-contactName');if(inp)inp.value=c.name||'';
-  setDraft({contactName:c.name||'',contactPhone:ph||S.draft.contactPhone||'',contactEmail:c.email||S.draft.contactEmail||''});render(true);toast('Kapcsolattartó kitöltve a HubSpotból');},true);
+  setDraft({contactName:c.name||'',contactPhone:ph,contactEmail:c.email||''});render(true);toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='f-contactName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.ct-item,.hs-empty'))pickClose();},150);});
 
 /* Időpont gépelése: „1000” → „10:00”, „930” → „09:30” (minden böngészőben ugyanúgy) */
@@ -1701,8 +1706,8 @@ async function mctSearch(input){const q=input.value.trim(),my=++MCT_SEQ,client=(
 document.addEventListener('focusin',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ'))mctSearch(e.target);});
 document.addEventListener('input',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ')){clearTimeout(MCT_T);const t=e.target;MCT_T=setTimeout(()=>mctSearch(t),350);}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.mct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=MCT_ITEMS[Number(it.dataset.mct)];pickClose();if(!c)return;
-  const set=(id,v)=>{const e2=$(id);if(e2&&v)e2.value=v;};set('m-contactName',c.name);set('m-contactEmail',c.email);
-  const ph=$('m-contactPhone');if(ph&&c.phone){const pr2=phParse(c.phone);ph.value=pr2.n;const hid=document.querySelector('#mform input[type=hidden][name=contactPhone]');if(hid)hid.value=phJoin(pr2.cc,pr2.n);}
+  const set=(id,v)=>{const e2=$(id);if(e2)e2.value=v||'';};set('m-contactName',c.name);set('m-contactEmail',c.email);   /* a választott kapcsolattartó minden adata cserélődik (a régi telefonszám nem marad bent) */
+  mPhoneSet('m-contactPhone',c.phone||'');
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-contactName'&&$('m-clientQ'))setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.mct-item,.hs-empty'))pickClose();},150);});
 document.addEventListener('scroll',e=>{if($('hsBox')&&e.target&&e.target.classList&&e.target.classList.contains('modal'))pickClose();},true);
