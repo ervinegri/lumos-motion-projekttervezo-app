@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6d8bcd523e",
+"at": "2026-11-09T20:48:15+02:00",
+"msg": "Érték nélküli projektek (pl. Bussiness Bash) magától a Marketing költségbe; kiadás-táblázatok rácsos kinézete"
+},
+{
 "id": "11fc0f7593",
 "at": "2026-11-09T20:46:28+02:00",
 "msg": "Bevételek: százalékmezők visszavonása (⌘/Ctrl + Z, Esc)"
@@ -152,8 +157,8 @@ const ITEMS = [
 "msg": "Mobil nézet újraépítve: kompakt fejléc, görgethető fülek/gombok/lépések, projektfejléc, teljes képernyős ablakok, görgethető táblázatok"
 },
 {
-"id": "a5c28107a2",
-"at": "2026-11-09T12:13:24Z",
+"id": "6c5d9614a9",
+"at": "2026-11-09T12:15:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
