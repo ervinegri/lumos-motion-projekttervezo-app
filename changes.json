@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9928256fe1",
+"at": "2026-11-09T11:55:48+02:00",
+"msg": "Munkatárs: értékesítői jutalék a szerkesztőben; az űrlap legördülői kereshetők"
+},
+{
 "id": "f7b65c21c0",
 "at": "2026-11-09T11:52:17+02:00",
 "msg": "Másolás: normál mutató kurzor"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: Enter új sor, Cmd/Ctrl+Enter folytatja a videót; gépelés a videónál a hozzászólásba megy; az üres időkód sort a jelölés lecseréli; mentett hozzászólás azonnal látszik"
 },
 {
-"id": "a256d32815",
-"at": "2026-11-09T02:39:33+02:00",
-"msg": "Videó ablak: frissítés után a videótábla / videó biztosan visszajön; nyomva tartott Enter csak egy időkód; ↑↓ az időkódokra ugrik; a következő időkód nem vágódik le; azonnali törlés"
-},
-{
-"id": "050a496375",
-"at": "2026-11-09T00:24:13Z",
+"id": "10976bb79d",
+"at": "2026-11-09T00:39:43Z",
 "msg": "Változásnapló frissítése"
 }
 ]
