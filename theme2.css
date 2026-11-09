@@ -428,3 +428,7 @@ html.th2 .tl-row.tl-sec .tl-lbl.tl-wtog b{text-transform:none!important;letter-s
 .page-head.ph-sub .grow .sub{margin:0}
 
 html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .tl-track .cal-chip.p.tl-bar.tl-split{background:linear-gradient(118deg,var(--from) 0 52%,var(--cutc) 52% 100%)!important;border-color:transparent!important}
+.page-head.ph-sub .grow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px}
+.page-head.ph-sub .grow>*{margin:0}
+.page-head.ph-sub .mnav-chip:not(.on){display:none}
+.page-head.ph-sub .mnav-row{margin:0}
