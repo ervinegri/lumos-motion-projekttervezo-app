@@ -2200,7 +2200,7 @@ function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
   setTimeout(()=>{const i=$('m-rvLink');if(i)i.focus();},60);}
 ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
 /* Idővonal vágássáv → a projekt videóinak táblája (ugyanúgy húzható) */
-function laneModalBody(pid){const cards=boardCards().filter(c=>c.p.id===pid);return cards.length?boardLanes(cards,{noLink:true}):'<p class="hint">Ennek a projektnek nincs videója.</p>';}
+function laneModalBody(pid){const cards=boardCards().filter(c=>c.p.id===pid);return cards.length?boardLanes(cards,{noLink:true,single:true}):'<p class="hint">Ennek a projektnek nincs videója.</p>';}
 ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal('🎞️ '+(p.name||'Videók'),`<div class="bd-modal" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div>`,{submitLabel:'Projekt megnyitása',submit:async()=>{closeModal();openProject(p.id);},cancelLabel:'Bezárás'});try{sessionStorage.setItem('lpm_lane_open',p.id);}catch(e){}window.MODAL_BEFORE_CLOSE=()=>{try{sessionStorage.removeItem('lpm_lane_open');}catch(e){}};   /* frissítés után a videótábla is visszajön */
   const mb=document.querySelector('#mform .mbox,#mform');if(mb)mb.classList.add('m-wide');};
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');document.body.classList.add('bd-dragging');});
