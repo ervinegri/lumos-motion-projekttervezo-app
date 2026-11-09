@@ -931,7 +931,7 @@ function videoComment_(u, a) {
   logEvent_(u, 'Videó hozzászólás', p.name, v.name);
   return { project: projectView_(fullProject_(p), u) };
 }
-/** Hozzászólás törlése: a saját (vagy ügyvezetőként bármelyik). a: {projectId, id, idx, at} – az at a véletlen rossz törlés ellen. */
+/** Hozzászólás törlése: mindenki csak a sajátját. a: {projectId, id, idx, at} – az at a véletlen rossz törlés ellen. */
 function videoCommentDel_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), idx = Math.floor(Number(a.idx)), at = str_(a.at, 30);
@@ -939,7 +939,7 @@ function videoCommentDel_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const c = (v.cm || [])[idx]; if (!c || c.at !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
-    if (u.role !== 'admin' && c.by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.');
+    if (c.by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.');
     v.cm.splice(idx, 1); p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Videó hozzászólás törölve', p.name, vid);
   return { project: projectView_(fullProject_(p), u) };
