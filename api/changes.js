@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19490c371b",
+"at": "2026-11-09T18:31:34+02:00",
+"msg": "Értékesítés: szerződött lehetőség meglévő projekthez kapcsolható (nem jön létre másodpéldány)"
+},
+{
 "id": "c85655d004",
 "at": "2026-11-09T18:14:07+02:00",
 "msg": "Jóváhagyó oldal: nyitó animáció a logóval; logó két sora egyforma betűvastagságú"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: altabok, hónapváltó és gombok egy sorban"
 },
 {
-"id": "a8242e916f",
-"at": "2026-11-09T13:52:25+02:00",
-"msg": "Értékesítői jutalék a Fizetésekben akkor is, ha az értékesítőnek szakember-fiókja van"
-},
-{
-"id": "21b775be86",
-"at": "2026-11-09T11:48:03Z",
+"id": "e46e053b72",
+"at": "2026-11-09T11:52:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
