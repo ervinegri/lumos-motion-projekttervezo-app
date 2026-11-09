@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e47b3971f5",
+"at": "2026-11-09T05:31:10+02:00",
+"msg": "Ügyfél-levél: tegező, szerkeszthető, aláírással; a kiküldött szöveg sablonként megmarad az ügyfélnél; a projektoldalról kikerült a Videók szekció"
+},
+{
 "id": "7feb99d5a8",
 "at": "2026-11-09T05:24:03+02:00",
 "msg": "Ügyfélnek küldés: a belső ellenőrzésből húzva és jóváhagyáskor is; címzettek választhatók (projekt, ügyfél-adatlap, korábbi projektek), több is; áthelyezés e-mail nélkül; utána vissza a táblára"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: nincs narancs fókuszkeret az ablakon"
 },
 {
-"id": "2dd52ff3bd",
-"at": "2026-11-09T02:09:49+02:00",
-"msg": "Videó ablak: a régi visszadobási indok és az ellenőrzési megjegyzés is törölhető (sajátként); Visszadobás · Bezárás a Jóváhagyás mellé"
-},
-{
-"id": "e04560b539",
-"at": "2026-11-09T00:08:22Z",
+"id": "6a95d0b317",
+"at": "2026-11-09T00:09:58Z",
 "msg": "Változásnapló frissítése"
 }
 ]
