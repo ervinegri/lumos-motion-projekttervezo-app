@@ -2817,6 +2817,44 @@ function crewDocSave_(u, a) {
     return { crewDocs: crewDocsList_() };
   });
 }
+/** Aláírt munkatársi szerződések begyűjtése a Gmailből (külsősök, akiknek még nincs feltöltött szerződésük). a: {dry, crewIds?} */
+function crewDocsImport_(u, a) {
+  a = a || {};
+  const have = {}; readAll_('crewDocs').forEach(d => { have[d.crewId] = 1; });
+  const crew = readAll_('crew').filter(c => c.email && c.type !== 'Belsős' && !have[c.id] && (!a.crewIds || a.crewIds.indexOf(c.id) >= 0));
+  const KW = /szerz|megb[ií]z|keret|contract|v[aá]llalk/i, SIGNED = /al[aá][ií]rt|signed|alairva|aláírva/i, DRAFT = /tervezet|draft|minta/i;
+  const titleOf = n => /m[oó]dos[ií]t/i.test(n) ? 'Szerződésmódosítás' : /mell[eé]klet/i.test(n) ? 'Szerződés melléklet' : /keret/i.test(n) ? 'Keretszerződés' : /megb[ií]z/i.test(n) ? 'Megbízási szerződés' : /v[aá]llalk/i.test(n) ? 'Vállalkozási szerződés' : 'Szerződés';
+  const plan = [];
+  crew.forEach(c => {
+    const em = String(c.email).trim().toLowerCase();
+    let threads = []; try { threads = GmailApp.search('{from:' + em + ' to:' + em + '} has:attachment filename:pdf', 0, 30); } catch (e) { return; }
+    const cands = [];
+    threads.forEach(t => {
+      const subjOk = KW.test(t.getFirstMessageSubject() || '');
+      t.getMessages().forEach(m => {
+        const from = String(m.getFrom() || '').toLowerCase(), byCrew = from.indexOf(em) >= 0, body = subjOk;
+        m.getAttachments({ includeInlineImages: false }).forEach(at => {
+          const n = at.getName() || '', isPdf = /\.pdf$/i.test(n) || at.getContentType() === 'application/pdf';
+          if (!isPdf) return;
+          const signedName = SIGNED.test(n), kwName = KW.test(n);
+          if (/sz[aá]mla|invoice|igazol|teljes[ií]t/i.test(n)) return;
+          if (!(signedName && (kwName || body)) && !(byCrew && (kwName || body) && !DRAFT.test(n))) return;
+          if (DRAFT.test(n) && !signedName) return;
+          cands.push({ at: at, name: n, size: at.getSize(), date: Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd'), ts: m.getDate().getTime(), byCrew: byCrew, signedName: signedName });
+        });
+      });
+    });
+    /* fajtánként (megnevezés) a legfrissebb aláírt példány */
+    const best = {};
+    cands.sort((x, y) => y.ts - x.ts).forEach(x => { const k = titleOf(x.name); if (!best[k]) best[k] = x; });
+    Object.keys(best).forEach(k => { const x = best[k]; plan.push({ crewId: c.id, crew: c.name, title: k, name: x.name, date: x.date, kb: Math.round(x.size / 1024), byCrew: x.byCrew, _x: x }); });
+  });
+  if (!a.dry) plan.forEach(p => {
+    const b = p._x.at.copyBlob();
+    crewDocSave_(u, { crewId: p.crewId, title: p.title, signedAt: p.date, name: p.name, mime: 'application/pdf', b64: Utilities.base64Encode(b.getBytes()), note: 'Gmailből begyűjtve' });
+  });
+  return { plan: plan.map(p => { const o = Object.assign({}, p); delete o._x; return o; }), skipped: readAll_('crew').filter(c => c.type !== 'Belsős' && c.email && !have[c.id] && !plan.some(p => p.crewId === c.id)).map(c => c.name), crewDocs: a.dry ? undefined : crewDocsList_() };
+}
 function crewDocGet_(u, a) {
   const d = readAll_('crewDocs').find(x => x.id === str_(a && a.id, 64)); if (!d) throw new Error('A szerződés nem található.');
   const b = DriveApp.getFileById(String(d.fileId)).getBlob();
@@ -4506,6 +4544,7 @@ function rpcInner_(token, name, arg) {
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'crewDocSave': adminOnly(); return crewDocSave_(u, arg);
     case 'crewDocGet': adminOnly(); return crewDocGet_(u, arg);
+    case 'crewDocsImport': adminOnly(); return crewDocsImport_(u, arg);
     case 'crewDocDelete': adminOnly(); return crewDocDelete_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
     case 'driveScan': adminOnly(); return driveScan_(arg);
