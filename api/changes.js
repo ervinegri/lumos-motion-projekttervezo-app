@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "917b8a684e",
+"at": "2026-11-09T21:12:24+02:00",
+"msg": "Bevételek: az értékesítői jutalék díjsorként sem kerül a Termelésbe"
+},
+{
 "id": "ee50745dca",
 "at": "2026-11-09T21:10:25+02:00",
 "msg": "Sales jutalék: kedvezményes rendelésnél ismét 10%-kal kevesebb (5 000 / 4 500 Ft short)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél ablak: a saját aláírás és a két gomb előnézete; app-újdonságok előnézeti nézetben is az ügyvezetőnek; extra tétel csatolmány feltöltés (háttér)"
 },
 {
-"id": "a1d8a32930",
-"at": "2026-11-09T17:08:00+02:00",
-"msg": "HubSpot kapcsolattartó választáskor a telefonszám és az e-mail is cserélődik"
-},
-{
-"id": "7dad0efe4c",
-"at": "2026-11-09T15:07:10Z",
+"id": "49512e5d59",
+"at": "2026-11-09T15:08:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
