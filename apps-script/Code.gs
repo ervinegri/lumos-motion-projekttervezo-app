@@ -1110,7 +1110,7 @@ function crewSig_(p, cid) {
 function crewMembers_(p) {
   const crewMap = byId_(readAll_('crew')), roles = {};
   if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
-  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId] && c.role !== 'Értékesítő') (roles[c.crewId] = roles[c.crewId] || []).push(c.role); });   /* az értékesítő nem kap beosztásos levelet / naptármeghívót */
   const days = parseCrewDays_(p.crewDays);
   return Object.keys(roles).map(id => ({ id: id, name: crewMap[id].name, phone: crewMap[id].phone || '', email: String(crewMap[id].email || '').trim().toLowerCase(), roles: roles[id], days: days[id] || [] }));
 }
@@ -1837,7 +1837,7 @@ function calPlan_(p) {
   const roles = {};
   if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
   const etv = parseEditTasks_(p.editTasks), ownV = Object.keys(etv).filter(id => etv[id].indexOf('f_x_vago') >= 0), onsite = cid => ownV.length ? ownV.indexOf(cid) >= 0 : p.editOnsite === true;   // helyszíni vágó személyenként
-  (p.crew || []).forEach(c => { if (crewMap[c.crewId]) (roles[c.crewId] = roles[c.crewId] || []).push(c.role === 'Vágó' && onsite(c.crewId) ? 'Helyszíni vágó' : c.role); });
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId] && c.role !== 'Értékesítő') (roles[c.crewId] = roles[c.crewId] || []).push(c.role === 'Vágó' && onsite(c.crewId) ? 'Helyszíni vágó' : c.role); });
   const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (cid === p.lead && crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));   // telefonszám csak a projektvezetőnél
   // eszközök munkatársanként: előbb a név, alatta az eszközei, a csoportok között üres sor
   const eqBy = {}, eqOrder = [];
@@ -4908,11 +4908,12 @@ function salesSync() {
       const s = c.filter(x => x.role === 'sales'); if (s.length === 1) return s[0]; if (c.length === 1) return c[0];
       const cr = (readAll_('crew') || []).filter(x => String(x.roles || '').indexOf('Értékesítő') >= 0 && (() => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); })());   // fiók nélküli értékesítő munkatárs
       return cr.length === 1 ? salesOwnerOf_('crew:' + cr[0].id) : null; };
-    const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {};
+    const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {}, sellerOf = {};
     readAll_('deals').forEach(d => { if (d.projectId) byPid[d.projectId] = d; });
     S.list.forEach(o => {
       const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; const spName = sval_(o.salesperson) || salesCfg_('SALES_SELLER', 'Guzsloványi Flóra'); if (!p || !spName) return;   /* a Sales App megrendeléseit alapból Flóra értékesíti (Ervin, 2026-11-09) */
       const ow = findU(spName); if (!ow) { miss[spName] = 1; return; }
+      if (ow.crewId) sellerOf[pid] = { crewId: ow.crewId, name: sval_(p.name) };   /* az értékesítő a csapatban is szerepel (Értékesítő szerep) */
       const ex = byPid[pid]; if (ex && ex.ownerId === ow.id) return;
       const value = Math.round(Number(p.projectValue) || Number(sval_(o.netTotal)) || 0);
       const d = ex ? Object.assign({}, ex) : { id: Utilities.getUuid(), title: sval_(p.name), client: sval_(p.client), contactName: sval_(p.contactName), contactEmail: sval_(p.contactEmail), contactPhone: sval_(p.contactPhone),
@@ -4925,6 +4926,11 @@ function salesSync() {
       byPid[pid] = d; out.deals = (out.deals || 0) + 1;
       logEvent_(SALES_SYS_USER, 'Értékesítés: szerződve (Sales App)', d.title, ow.name);
     });
+    const ca = readAll_('crewAssign'), cmap = byId_(readAll_('crew'));
+    const bad = r => sellerOf[r.projectId] && r.role === 'Értékesítő' && r.crewId !== sellerOf[r.projectId].crewId;
+    const add = Object.keys(sellerOf).filter(pid => cmap[sellerOf[pid].crewId] && !ca.some(r => r.projectId === pid && r.role === 'Értékesítő' && r.crewId === sellerOf[pid].crewId))
+      .map(pid => ({ projectId: pid, crewId: sellerOf[pid].crewId, role: 'Értékesítő', projectName: sellerOf[pid].name, crewName: cmap[sellerOf[pid].crewId].name }));
+    if (add.length || ca.some(bad)) { withLock_(() => rewriteAssign_('crewAssign', r => !bad(r), add)); out.sellers = add.length; dataBump_(); }
     if (Object.keys(miss).length) Logger.log('Sales szinkron – nincs ilyen értékesítő felhasználó: ' + Object.keys(miss).join(', '));
   } catch (e) { out.errors.push('értékesítő: ' + String((e && e.message) || e)); }
   if (out.created || out.updated || out.cancelled || out.deals) dataBump_();
