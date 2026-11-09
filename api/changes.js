@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68e83a3c72",
+"at": "2026-11-09T17:19:45+02:00",
+"msg": "Továbbszámlázott költség a nettó szerződött érték része: levonva (…után mező), felirat: Nettó szerződött érték"
+},
+{
 "id": "129470d207",
 "at": "2026-11-09T17:16:52+02:00",
 "msg": "Ügyfél-levél: egyetlen gomb a jóváhagyó oldalra (ott a videó és a döntés), a levélben nincs külön Jóváhagyom/Módosítás gomb"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Naptár: azonos napi forgatás + vágás egy ferdén kettéosztott sávban"
 },
 {
-"id": "6cf2d09380",
-"at": "2026-11-09T13:22:45+02:00",
-"msg": "Fizetések: a vágás ugyanabban a hónapban a projekt forgatási napjánál marad"
-},
-{
-"id": "9a0b90fdef",
-"at": "2026-11-09T11:20:38Z",
+"id": "c069d1b772",
+"at": "2026-11-09T11:22:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
