@@ -2341,6 +2341,9 @@ function taHl(){const ta=$('m-vvCm');if(!ta)return;let hl=ta.parentElement.query
     ta.addEventListener('input',()=>{taHl();const v=document.querySelector('.vv-player video');if(v)pinsShow(v,v.currentTime);});ta.addEventListener('scroll',()=>{hl.scrollTop=ta.scrollTop;});new ResizeObserver(()=>{hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';}).observe(ta);}
   hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';
   hl.innerHTML=esc(ta.value).replace(TC_RE,(m,a,b,sep,c,x,y)=>`<mark data-tc="${a}|${b}|${sep||''}|${c||''}"${x?` data-x="${x}" data-y="${y}"`:''}>${m}</mark>`)+'\n';hl.scrollTop=ta.scrollTop;}
+/* Üres mezőbe kattintva az aktuális időkód már ott van (a videó megáll) */
+document.addEventListener('focusin',e=>{const ta=e.target;if(!ta||ta.id!=='m-vvCm'||ta.value.trim())return;const vd=document.querySelector('.vv-player video');if(!vd||!vd.isConnected||!vd.readyState)return;
+  vd.pause();ta.value='['+tcFmt(vd.currentTime)+'] ';taHl();setTimeout(()=>{const n=ta.value.length;ta.setSelectionRange(n,n);},0);});
 const taHit=e=>{const ta=$('m-vvCm'),hl=ta&&ta.parentElement.querySelector('.vv-hl');if(!hl)return null;for(const mk of hl.querySelectorAll('mark'))for(const r of mk.getClientRects())if(e.clientX>=r.left-2&&e.clientX<=r.right+2&&e.clientY>=r.top-1&&e.clientY<=r.bottom+1)return mk;return null;};
 document.addEventListener('mousemove',e=>{if(!e.target||e.target.id!=='m-vvCm')return;e.target.style.cursor=taHit(e)?'pointer':'';});
 document.addEventListener('click',e=>{const ta=e.target;if(!ta||ta.id!=='m-vvCm')return;const vd=document.querySelector('.vv-player video'),mk=taHit(e);if(!vd||!mk)return;
