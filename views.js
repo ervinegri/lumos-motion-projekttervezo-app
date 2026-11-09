@@ -524,7 +524,7 @@ function budgetMissing(p){if(!isAdmin()||!isOpen(p))return '';const m=[];if(p.pr
 /* Nem fizetős projekt: a büdzsé 0 Ft (a „Nem fizetős” pipával állítható) */
 /* Extra szolgáltatások: a szerződött érték (projectValue) felett; a végső érték = szerződött + extrák (a termelői keret a szerződöttből számol) */
 const extrasRaw=p=>(p&&Array.isArray(p.extras)?p.extras:[]);   // minden sor, a szervezői jutalékkal együtt
-const extrasOf=p=>extrasRaw(p).filter(x=>x&&x.kind!=='org');   // a számlán szereplő extrák (a szervezői jutalék nem)
+const extrasOf=p=>extrasRaw(p).filter(x=>x&&x.kind!=='org'&&x.kind!=='tov');   // a számlán külön szereplő extrák (a szervezői jutalék nem; a továbbszámlázott költség a szerződött érték része)
 /* Szervezői jutalék: rendezvényszervezőnek fizetett összeg; nem része a számlának, a termelői alapot csökkenti (a termelői % a levonás utáni összegből számolódik) */
 const orgOf=p=>extrasRaw(p).find(x=>x&&x.kind==='org')||null;
 const orgFee=p=>extrasRaw(p).filter(x=>x&&x.kind==='org').reduce((s,x)=>s+num(x.amount),0);
@@ -543,7 +543,7 @@ function tovFields(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=e
     const file=x.fileUrl?`<a class="tov-file-l" href="${esc(x.fileUrl)}" target="_blank" rel="noopener" title="${esc(x.fileName||'Csatolmány')}">📎 ${esc(x.fileName||'Csatolmány')}</a>${dis?'':` <button class="linkbtn tov-file-x" type="button" data-action="extra-file-del" data-i="${i}" title="Csatolmány levétele">✕</button>`}`:(dis?'':`<label class="tov-file-up" title="Csatolmány (pl. a beszállító számlája) – húzd ide vagy kattints">📎 Csatolmány<input type="file" data-extra-file="${i}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden></label>`);
     return `<div class="field fin-org fin-tov" data-extra-drop="${i}"><label>🔁 Továbbszámlázott${dis?'':` <button class="x w" type="button" data-action="extra-del" data-i="${i}" title="Tétel törlése" aria-label="Tétel törlése">✕</button>`}</label>
       <div class="org-line org-g"><input class="inp" data-extra-name="${i}" value="${esc(x.name||'')}" placeholder="pl. szállás, eszközbérlés" maxlength="200" aria-label="Továbbszámlázott költség megnevezése"${dis?' disabled':''}>
-      <div class="money"><span class="ex-sign">+</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Továbbszámlázott költség nettó összege"${dis?' disabled':''}><span class="money-unit">Ft</span></div></div>
+      <div class="money"><span class="ex-sign">−</span><input class="inp money-inp" data-extra-amt="${i}" data-money="big" inputmode="numeric" value="${esc(moneyFmt(x.amount||''))}" placeholder="0" aria-label="Továbbszámlázott költség nettó összege (a szerződött értékből levonva)"${dis?' disabled':''}><span class="money-unit">Ft</span></div></div>
       <div class="tov-file">${file}</div></div>`;}).join('');}
 function extrasHtml(p){const l=extrasRaw(p);if(!l.some(x=>x&&x.kind!=='org'&&x.kind!=='tov')&&!refOn(p)&&!salesOn(p))return '';   // üres: nincs külön blokk (a menü a büdzsé sorában)
 
@@ -566,7 +566,7 @@ function finPanelBody(p){
   const ftV=k!=null?moneyFmt(k):'';
   if(!adm)return `<div class="fin-sum"></div>`;
   const free=isFree(p),org=!free&&orgOf(p),tov=!free&&extrasRaw(p).some(x=>x&&x.kind==='tov'),two=!!(org||tov);   // két sor csak szervezői jutaléknál / továbbszámlázott költségnél
-  const valF=`<div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Büdzsé – szerződött érték (nettó)</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${free?'':esc(moneyFmt(p.projectValue))}" placeholder="${free?'Nem fizetős projekt':'pl. 969 000'}"${free?' disabled':''}><span class="money-unit">Ft</span></div>${free?`<div class="free-on">🎁 Nem fizetős projekt${D()?'':' · <button class="linkbtn" type="button" data-action="free-off">visszavonás</button>'}</div>`:''}</div>`;
+  const valF=`<div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Nettó szerződött érték</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${free?'':esc(moneyFmt(p.projectValue))}" placeholder="${free?'Nem fizetős projekt':'pl. 969 000'}"${free?' disabled':''}><span class="money-unit">Ft</span></div>${free?`<div class="free-on">🎁 Nem fizetős projekt${D()?'':' · <button class="linkbtn" type="button" data-action="free-off">visszavonás</button>'}</div>`:''}</div>`;
   const exm=free||ro()||projLocked()?'':`<div class="field fin-exm"><label title="A szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek">➕ Extrák és kedvezmények</label>${extrasMenu(p)}</div>`;
   const sc=salesCommFields(p),salesG=sc?`<div class="fin-grp grp-sales"><div class="grp-h">💼 Értékesítés</div><div class="grp-b">${sc}</div></div>`:'';
   const prodG=`<div class="fin-grp grp-prod"><div class="grp-h">🎬 Termelés</div><div class="grp-b"><div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
@@ -714,7 +714,7 @@ function finNet(p){if(!isAdmin())return '';const of=orgOf(p),tvs=extrasRaw(p).fi
 /* Értékesítői jutalék: a projekthez tartozó szerződött lehetőség (Értékesítés fül) értékesítője és várható jutaléka */
 const projDeal=p=>(S.deals||[]).find(d=>d.projectId===p.id&&d.stage==='nyert')||null;
 const salesOn=p=>!!projDeal(p)||!!(S.salesOn||{})[p.id];
-const salesBase=p=>Math.max(0,projTotal(p)-orgFee(p)-extrasOf(p).filter(e=>e.kind==='tov').reduce((s,e)=>s+num(e.amount),0));   // jutalékalap: a szervezői jutalék és a továbbszámlázott költség után   // jutalékalap: a továbbszámlázott költség nélkül
+const salesBase=p=>Math.max(0,projTotal(p)-orgFee(p)-extrasRaw(p).filter(e=>e&&e.kind==='tov').reduce((s,e)=>s+num(e.amount),0));   // jutalékalap: a szervezői jutalék és a továbbszámlázott költség után   // jutalékalap: a továbbszámlázott költség nélkül
 function salesCommEst(p,d){if(!d)return null;const base=salesBase(p),man=String(d.commManual==null?'':d.commManual).trim();
   if(/^ft:/.test(man)){const a=num(man.slice(3));return {amt:a,pct:base>0?Math.round(a/base*10000)/100:0,base,manual:true};}   // kézzel megadott összeg
   if(man!==''&&!isNaN(Number(man)))return {amt:Math.round(base*Number(man)/100),pct:Number(man),base,manual:true};

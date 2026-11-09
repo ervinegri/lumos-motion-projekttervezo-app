@@ -1593,7 +1593,7 @@ function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 30).map(x => ({ id: str_(x && x.id, 40) || Utilities.getUuid().slice(0, 8), name: str_(x && x.name, 200), amount: int_(x && x.amount, 0, VALUE_MAX, 0), kind: x && (x.kind === 'le' || x.kind === 'tov' || x.kind === 'org') ? x.kind : '', clientId: x && x.kind === 'org' ? str_(x.clientId, 64) : '', fileUrl: x && /^https:\/\//.test(String(x.fileUrl || '')) ? str_(x.fileUrl, 300) : '', fileName: str_(x && x.fileName, 150) })).filter(x => x.name || x.amount || x.kind === 'org'); }
 /** Szervezői jutalék összege (nem a számla része: a termelői alapot csökkenti). */
 /** Termelői alap (hatékonyság / termelői keret): végső érték (szerződött + extrák − kedvezmények) − szervezői jutalék − továbbszámlázott költség */
-const prodBase_ = p => { const ex = parseExtras_(p.extras), n = v => Number(v) || 0; return Math.max(0, n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'tov' ? 0 : e.kind === 'org' || e.kind === 'le' ? -1 : 1) * n(e.amount), 0)); };
+const prodBase_ = p => { const ex = parseExtras_(p.extras), n = v => Number(v) || 0; return Math.max(0, n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' || e.kind === 'le' || e.kind === 'tov' ? -1 : 1) * n(e.amount), 0)); };   // a továbbszámlázott költség a szerződött érték része: levonjuk
 const orgFee_ = p => parseExtras_(p.extras).filter(e => e.kind === 'org').reduce((a, e) => a + Number(e.amount || 0), 0);
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
@@ -4078,11 +4078,11 @@ function salesCommOf_(user, ctx) {
   const passRatio = pid => {   // a továbbszámlázott költség aránya a projekt teljes (nettó) értékében
     const p = ctx.proj[pid]; if (!p) return 0;
     const ex = parseExtras_(p.extras), tov = ex.filter(e => e.kind === 'tov').reduce((a, e) => a + n(e.amount), 0);
-    const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
+    const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' || e.kind === 'tov' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0);
     const org = ex.filter(e => e.kind === 'org').reduce((a, e) => a + n(e.amount), 0);   // a szervezői jutalék sem része a jutalékalapnak
     return total > 0 ? Math.min(1, (tov + org) / total) : 0;
   };
-  const projBase = pid => { const p = ctx.proj[pid]; if (!p) return 0; const ex = parseExtras_(p.extras); const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0); return Math.max(0, total * (1 - passRatio(pid))); };
+  const projBase = pid => { const p = ctx.proj[pid]; if (!p) return 0; const ex = parseExtras_(p.extras); const total = n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' || e.kind === 'tov' ? 0 : e.kind === 'le' ? -1 : 1) * n(e.amount), 0); return Math.max(0, total * (1 - passRatio(pid))); };
   Object.keys(pids).forEach(pid => {
     const p = ctx.proj[pid]; if (!p || p.status === 'lemondva') return;   // lemondott ügylet után nem jár jutalék
     const L = ctx.inv.filter(x => x.projectId === pid || String(x.projectIds || '').split(',').indexOf(pid) >= 0);
