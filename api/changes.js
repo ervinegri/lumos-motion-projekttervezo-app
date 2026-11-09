@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c85655d004",
+"at": "2026-11-09T18:14:07+02:00",
+"msg": "Jóváhagyó oldal: nyitó animáció a logóval; logó két sora egyforma betűvastagságú"
+},
+{
 "id": "588ed5872a",
 "at": "2026-11-09T17:56:45+02:00",
 "msg": "Jóváhagyás logó: zöld pipa"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítői jutalék a Fizetésekben akkor is, ha az értékesítőnek szakember-fiókja van"
 },
 {
-"id": "2a2ff8bfe2",
-"at": "2026-11-09T13:47:54+02:00",
-"msg": "Sales App jutalék: videónként 10 000 Ft, kedvezményesnél 10%-kal kevesebb – a Fizetésekben az értékesítő oszlopában"
-},
-{
-"id": "8a160b7315",
-"at": "2026-11-09T11:42:52Z",
+"id": "21b775be86",
+"at": "2026-11-09T11:48:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
