@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d60a5212ab",
+"at": "2026-11-09T17:29:45+02:00",
+"msg": "Ügyfél-jóváhagyó oldal: beágyazott lejátszó és észrevételek időkóddal (a belső nézet mintájára)"
+},
+{
 "id": "a9f61aef62",
 "at": "2026-11-09T17:28:01+02:00",
 "msg": "Továbbszámlázott mező rendezése; csatolmányok az Új projekt ablakban"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Pénzügy táblázat: az értékesítő sorában a jutalék összege"
 },
 {
-"id": "d27d8cbc7a",
-"at": "2026-11-09T13:30:27+02:00",
-"msg": "Belépéskor háttérben Sales App szinkron (értékesítő a csapatba)"
-},
-{
-"id": "01721ee25d",
-"at": "2026-11-09T11:24:23Z",
+"id": "130d8af55f",
+"at": "2026-11-09T11:30:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
