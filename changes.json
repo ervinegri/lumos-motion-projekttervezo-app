@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7abe4136e0",
+"at": "2026-11-09T02:56:53+02:00",
+"msg": "Hozzászólás törlése: gyors egymás utáni törlésnél sem jönnek vissza (sorban, időbélyeg alapján)"
+},
+{
 "id": "aeacf32d2e",
 "at": "2026-11-09T02:55:40+02:00",
 "msg": "Videó ablak: a kukába húzott jelölő azonnal eltűnik a képről"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: az időkód gomb a videó alatt középen (a külön kijelző helyett)"
 },
 {
-"id": "65e4b41f78",
-"at": "2026-11-09T01:32:25+02:00",
-"msg": "Videó lejátszó: pontos időkód húzáskor (egyszerre egy ugrás, a megjelenített képkocka ideje), időkód a videó alatt középen"
-},
-{
-"id": "7412a03e1c",
-"at": "2026-11-08T23:29:40Z",
+"id": "632fb8052c",
+"at": "2026-11-08T23:32:34Z",
 "msg": "Változásnapló frissítése"
 }
 ]
