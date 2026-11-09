@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7241883e2e",
+"at": "2026-11-09T13:41:06+02:00",
+"msg": "Pénzügy táblázat: az értékesítő sorában a jutalék összege"
+},
+{
 "id": "d27d8cbc7a",
 "at": "2026-11-09T13:30:27+02:00",
 "msg": "Belépéskor háttérben Sales App szinkron (értékesítő a csapatba)"
@@ -141,13 +146,8 @@
 "msg": "Naptár: faltól falig érő idővonal"
 },
 {
-"id": "dd3c1827c1",
-"at": "2026-11-09T03:20:26+02:00",
-"msg": "Naptár: a szűrők a nézetválasztó fölött; Utómunka lépés: a részletek gomb a cím mellett (alacsonyabb kártya)"
-},
-{
-"id": "48c916740e",
-"at": "2026-11-09T01:18:54Z",
+"id": "eef622a5a8",
+"at": "2026-11-09T01:20:35Z",
 "msg": "Változásnapló frissítése"
 }
 ]
