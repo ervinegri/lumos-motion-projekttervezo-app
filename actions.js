@@ -996,10 +996,10 @@ function orderFees(fees){
 function syncFeesWithCrew(d){
   if(!canSeeFees())return;
   const ids=[...crewIds(d)],days=rowDays(d);let fees=(d.fees||[]).map(f=>Object.assign({},f)),added=0;
-  const REF='Ajánlói jutalék',rolesOf=id=>{const r=[];if(d.lead===id)r.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id&&a.role!==REF&&!r.includes(a.role))r.push(a.role);});return r.join(' + ');};
+  const REF='Ajánlói jutalék',rolesOf=id=>{const r=[];if(d.lead===id)r.push('Projektvezető');(d.crew||[]).forEach(a=>{if(a.crewId===id&&a.role!==REF&&a.role!=='Értékesítő'&&!r.includes(a.role))r.push(a.role);});return r.join(' + ');};
   const refIds=[...new Set((d.crew||[]).filter(a=>a.role===REF).map(a=>a.crewId))];   // ajánlói jutalék → külön sor az Egyéb költségek között
   refIds.forEach(id=>{const c=crewById(id),nm=(c?c.name:'Szakember')+' ajánlói jutaléka';let f=fees.find(x=>x.kind==='fixed'&&x.key==='ref'&&x.refCrewId===id);if(f)f.name=nm;else fees.push({kind:'fixed',key:'ref',refCrewId:id,name:nm,amount:'',rent:''});});
-  const onlyRef=id=>d.lead!==id&&!(d.crew||[]).some(a=>a.crewId===id&&a.role!==REF);
+  const onlyRef=id=>d.lead!==id&&!(d.crew||[]).some(a=>a.crewId===id&&a.role!==REF&&a.role!=='Értékesítő');   /* az értékesítő nem termelői díj: nem kerül a táblázatba (a jutaléka fent, az Értékesítés részben) */
   ids.forEach(id=>{if(onlyRef(id))return;const c=crewById(id);let f=fees.find(x=>x.crewId===id)||fees.find(x=>!x.crewId&&c&&x.name===c.name);
     if(!f){const post=isPostOnly(d,id),myDays=days>1&&!post?crewDaysOf(d,id):[];const nf={name:c?c.name:'',crewId:id,task:rolesOf(id),autoTask:true,amount:c&&num(c.dayRate)&&!post?num(c.dayRate)*(days>1?myDays.length:1):'',rent:''};
       if(days>1&&!post&&c&&num(c.dayRate)){nf.dayAmounts={};myDays.forEach(x=>nf.dayAmounts[x]=num(c.dayRate));}
