@@ -44,7 +44,8 @@ const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lép
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Videóvágás','Podcast','Egyéb'];
-const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
+const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
+const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
@@ -256,7 +257,7 @@ function staffing(p){
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   if(editOnly(p)){Object.keys(need).forEach(k=>{if(k!=='Vágó')delete need[k];});need['Vágó']=Math.max(need['Vágó']||0,1);}   // videóvágás: csak vágó (és projektvezető) kell, helyszíni stáb nem
   const have={};if(p.lead)have['Projektvezető']=1;
-  (p.crew||[]).forEach(a=>{have[a.role]=(have[a.role]||0)+1;});
+  (p.crew||[]).forEach(a=>{const r=OP_SUB.includes(a.role)?'Operatőr':a.role;have[r]=(have[r]||0)+1;});   // az operatőr-altípusok is operatőrnek számítanak
   need['Projektvezető']=1;   // projektvezető mindig kell, egyszemélyes stábnál is
   const order=['Projektvezető'].concat(Object.keys(need).filter(r=>r!=='Projektvezető'));
   return order.filter(r=>r in need&&need[r]>0).map(r=>({role:r,need:need[r],have:have[r]||0}));
