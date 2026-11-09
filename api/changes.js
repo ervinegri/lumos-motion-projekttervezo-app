@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4eca959bdb",
+"at": "2026-11-09T21:35:30+02:00",
+"msg": "Legördülő: beágyazott operatőr-altípusok (az Operatőrre kattintva nyílnak); számolásnál is ezres tagolás"
+},
+{
 "id": "d4cea0eadd",
 "at": "2026-11-09T21:32:46+02:00",
 "msg": "Stáb: szerepválasztó a saját legördülővel; új operatőr-altípusok (Kreatív, Statív, Interjúsarok)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-jóváhagyó oldal: beágyazott lejátszó és észrevételek időkóddal (a belső nézet mintájára)"
 },
 {
-"id": "a9f61aef62",
-"at": "2026-11-09T17:28:01+02:00",
-"msg": "Továbbszámlázott mező rendezése; csatolmányok az Új projekt ablakban"
-},
-{
-"id": "337ef59068",
-"at": "2026-11-09T15:19:56Z",
+"id": "9c77935f3a",
+"at": "2026-11-09T15:28:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
