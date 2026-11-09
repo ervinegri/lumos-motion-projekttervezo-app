@@ -945,9 +945,9 @@ function videoCommentDel_(u, a) {
       if (by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.'); if (String(w || '') !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
       if (kind === 'fb') v.fb = ''; else v.note = '';
     } else {
-    const c = (v.cm || [])[idx]; if (!c || c.at !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
-    if (c.by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.');
-    v.cm.splice(idx, 1);
+    let k = (v.cm || [])[idx] && v.cm[idx].at === at && v.cm[idx].by === u.name ? idx : (v.cm || []).findIndex(c => c.at === at && c.by === u.name);   // az időbélyeg + szerző azonosít (a sorszám közben elcsúszhat)
+    if (k < 0) { if ((v.cm || []).some(c => c.at === at)) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.'); k = -1; }
+    if (k >= 0) v.cm.splice(k, 1);   // ha már nincs meg (pl. kétszer küldött törlés), nincs teendő
     } p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Videó hozzászólás törölve', p.name, vid);
   return { project: projectView_(fullProject_(p), u) };
