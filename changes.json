@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a256d32815",
+"at": "2026-11-09T02:39:33+02:00",
+"msg": "Videó ablak: frissítés után a videótábla / videó biztosan visszajön; nyomva tartott Enter csak egy időkód; ↑↓ az időkódokra ugrik; a következő időkód nem vágódik le; azonnali törlés"
+},
+{
 "id": "9fb06705b8",
 "at": "2026-11-09T02:24:05+02:00",
 "msg": "Videó ablak: a szóköz csak indít/megállít (nem szúr be időkódot); frissítés utáni visszanyitás várakozással (adatok / másik ablak)"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: finomabb húzásos tekerés (a szélesség ≈ 6 mp)"
 },
 {
-"id": "e4f6152be6",
-"at": "2026-11-09T01:24:52+02:00",
-"msg": "Videó ablak: időkód gomb a szövegmezőben, mentési felirat törölve"
-},
-{
-"id": "f0695d0e95",
-"at": "2026-11-08T23:24:23Z",
+"id": "c87ad0d4c6",
+"at": "2026-11-08T23:25:01Z",
 "msg": "Változásnapló frissítése"
 }
 ]
