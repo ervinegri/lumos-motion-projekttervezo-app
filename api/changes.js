@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b6f1c808e5",
+"at": "2026-11-09T21:22:01+02:00",
+"msg": "Bevételek: a szervezői jutalék az Értékesítés oszlopba kerül, nem a Termelésbe"
+},
+{
 "id": "9582343ad3",
 "at": "2026-11-09T21:19:12+02:00",
 "msg": "Díjösszesítő értékesítőnek: fix fizetés és jutalék külön, „Tételek”, számlamegjegyzés: Értékesítési tevékenység"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél: egyetlen gomb a jóváhagyó oldalra (ott a videó és a döntés), a levélben nincs külön Jóváhagyom/Módosítás gomb"
 },
 {
-"id": "3dfa77fa14",
-"at": "2026-11-09T17:13:59+02:00",
-"msg": "Továbbszámlázott költség a szervezői jutalékhoz hasonló mezőként, csatolmánnyal (feltöltés/behúzás a projekt Drive-mappájába)"
-},
-{
-"id": "6b259cc52d",
-"at": "2026-11-09T15:13:01Z",
+"id": "4a5dfdeeee",
+"at": "2026-11-09T15:14:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
