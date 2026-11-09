@@ -64,7 +64,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     <div class="field"><label for="m-dClient">Cég</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
     ${ms('dType','Rendezvény típusa',EVENT_TYPES,d.eventType||'',{empty:'—',cmb:'Válassz típust…'})}
     ${(()=>{const cur=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean);return mselField('dServices','Szóba jövő szolgáltatások',DEAL_SERVICES.concat(cur.filter(x=>!DEAL_SERVICES.includes(x))),cur,'Válaszd ki, mik jöhetnek szóba (többet is lehet)…',true).replace('<div class="field"','<div class="field full"');})()}
-    ${mf('dCPhone','Telefon',{v:d.contactPhone,max:40})}
+    ${phoneField({name:'dCPhone',value:d.contactPhone||''})}
     <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
     ${mf('dDate','Rendezvény dátuma',{v:d.eventDate,type:'date'})}
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
@@ -133,7 +133,7 @@ Object.assign(ACT,{
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='q-sales'){S.salesF.q=e.target.value;const pos=e.target.selectionStart;render(true);const i=$('q-sales');if(i){i.focus();try{i.setSelectionRange(pos,pos);}catch(x){}}}});
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='m-dStage'){const lf=$('dl-lostf');if(lf)lf.hidden=t.value!=='elveszett';const ch=$('m-dChance');if(ch&&DEAL_CHANCE[t.value]!=null)ch.value=DEAL_CHANCE[t.value];if(t.value==='elveszett'&&ch)ch.value=0;}
-  if(t.id==='m-dClient'){const c=knownClients('').find(x=>fold(x.company)===fold(t.value.trim()));if(c){[['m-dCName',c.name],['m-dCEmail',c.email],['m-dCPhone',c.phone]].forEach(([id,v])=>{const el=$(id);if(el&&!el.value&&v)el.value=v;});}}});
+  if(t.id==='m-dClient'){const c=knownClients('').find(x=>fold(x.company)===fold(t.value.trim()));if(c){[['m-dCName',c.name],['m-dCEmail',c.email]].forEach(([id,v])=>{const el=$(id);if(el&&!el.value&&v)el.value=v;});{const ph=$('m-dCPhone');if(ph&&!ph.value&&c.phone)mPhoneSet('m-dCPhone',c.phone);}}}});
 /* Húzd és ejtsd: a kártya a másik oszlopba kerül (Szerződve: projekt létrehozása, Elveszett: ok megadása) */
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');if(!c)return;S._dragDeal=c.dataset.deal;c.classList.add('drag');try{e.dataTransfer.setData('text/plain',c.dataset.deal);e.dataTransfer.effectAllowed='move';}catch(x){}});
 document.addEventListener('dragend',e=>{document.querySelectorAll('.dl-card.drag').forEach(x=>x.classList.remove('drag'));document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));setTimeout(()=>{S._dragDeal='';},50);});
@@ -155,7 +155,7 @@ document.addEventListener('input',e=>{if(e.target.id==='m-dCName'){clearTimeout(
   if(e.target.id==='m-dVenue'){const m=$('dl-map'),v=e.target.value.trim();if(m){m.style.display=v?'':'none';m.href=v?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v):'#';}}});
 document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.dct-item');if(!it)return;e.preventDefault();e.stopPropagation();const c=DCT_ITEMS[Number(it.dataset.dct)];pickClose();if(!c)return;
   const set=(id,v,force)=>{const x=$(id);if(x&&v&&(force||!x.value.trim()))x.value=v;};
-  set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);set('m-dCPhone',c.phone,true);set('m-dClient',c.company,false);dSourceSet(c.source);
+  set('m-dCName',c.name,true);set('m-dCEmail',c.email,true);if(c.phone)mPhoneSet('m-dCPhone',c.phone);set('m-dClient',c.company,false);dSourceSet(c.source);
   toast('Kapcsolattartó kitöltve a HubSpotból');},true);
 document.addEventListener('focusout',e=>{if(e.target.id==='m-dCName')setTimeout(()=>{if((!document.activeElement||document.activeElement.id!==e.target.id)&&$('hsBox')&&$('hsBox').querySelector('.dct-item,.hs-empty'))pickClose();},150);});
 
