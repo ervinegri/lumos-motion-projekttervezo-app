@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3c0ed6eec4",
+"at": "2026-11-09T20:44:56+02:00",
+"msg": "Bevételek: a „nincs érték” jelölés lekerült, elég a Marketing projekt gomb"
+},
+{
 "id": "8a1a18b4ea",
 "at": "2026-11-09T20:44:40+02:00",
 "msg": "Bevételek: továbbszámlázott költség a Termelésbe, a százalékok nélküle; érték nélküli projekt költsége a marketingből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Változásnapló csak belépett ügyvezetőnek (védett Vercel-függvény + admin végpont); fejlesztői fájlok nem kerülnek ki a weboldalra"
 },
 {
-"id": "7309560bc9",
-"at": "2026-11-09T14:09:45+02:00",
-"msg": "Új verzió sáv: az újdonságok listája csak az ügyvezetőnek"
-},
-{
-"id": "355ca64da7",
-"at": "2026-11-09T12:07:16Z",
+"id": "b0f59a728a",
+"at": "2026-11-09T12:09:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
