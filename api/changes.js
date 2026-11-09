@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0649bb1ac4",
+"at": "2026-11-09T14:28:52+02:00",
+"msg": "Mobil: hónapváltó nem lóg ki, a Kifizetések táblázat kifér (összegek látszanak)"
+},
+{
 "id": "6db0e565d9",
 "at": "2026-11-09T14:27:27+02:00",
 "msg": "Naptár buboréka: a telefonszám nem esik szét (iOS automatikus linkek kikapcsolva)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Munkatársi szerződések begyűjtése a Gmailből (admin)"
 },
 {
-"id": "9928256fe1",
-"at": "2026-11-09T11:55:48+02:00",
-"msg": "Munkatárs: értékesítői jutalék a szerkesztőben; az űrlap legördülői kereshetők"
-},
-{
-"id": "20f984239e",
-"at": "2026-11-09T09:52:27Z",
+"id": "a3d00c0a93",
+"at": "2026-11-09T09:55:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
