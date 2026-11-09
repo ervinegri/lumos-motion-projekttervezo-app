@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "66a0fc741e",
+"at": "2026-11-09T14:00:50+02:00",
+"msg": "Fizetések: fejlécben minden név E. Ervin formában"
+},
+{
 "id": "0d7385e670",
 "at": "2026-11-09T13:59:54+02:00",
 "msg": "Fizetések: projektnév végén …"
@@ -141,13 +146,8 @@
 "msg": "Átadandó anyagok: a drónos, timelapse és POV felvétel nem szerepel (csak nyersanyag az utómunkához)"
 },
 {
-"id": "4898c7ed92",
-"at": "2026-11-09T05:19:59+02:00",
-"msg": "Naptár: kisebb hézag a menü, az eszközsor és az idővonal között"
-},
-{
-"id": "fdea3ee78f",
-"at": "2026-11-09T03:17:53Z",
+"id": "d9f9ca9fc6",
+"at": "2026-11-09T03:20:08Z",
 "msg": "Változásnapló frissítése"
 }
 ]
