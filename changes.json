@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "80c43aa506",
+"at": "2026-11-09T03:13:34+02:00",
+"msg": "Naptár / idővonal: a képernyő aljáig ér"
+},
+{
 "id": "9cbd26976a",
 "at": "2026-11-09T03:10:47+02:00",
 "msg": "Videótábla ablak: kitölti a képernyőt (szélesség és magasság)"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: tűs jelölés (📍 Jelölés gomb / Alt+kattintás) a képkocka egy pontjához; az időkód szélessége nem ugrál"
 },
 {
-"id": "7bb4e44fa5",
-"at": "2026-11-09T01:46:06+02:00",
-"msg": "Videó ablak: Enter billentyű-jelzés és súgó az időkód gombon"
-},
-{
-"id": "a64f74e59c",
-"at": "2026-11-08T23:44:34Z",
+"id": "6f1050d7be",
+"at": "2026-11-08T23:46:15Z",
 "msg": "Változásnapló frissítése"
 }
 ]
