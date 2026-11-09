@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aebd2791c9",
+"at": "2026-11-09T17:12:48+02:00",
+"msg": "Videótábla: frissítéskor nem vész el az áthúzás (megőrzi és újraküldi a mentést, figyelmeztet mentés közben)"
+},
+{
 "id": "d5fd0f779e",
 "at": "2026-11-09T17:10:31+02:00",
 "msg": "Ügyfél-levél ablak: a saját aláírás és a két gomb előnézete; app-újdonságok előnézeti nézetben is az ügyvezetőnek; extra tétel csatolmány feltöltés (háttér)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Sales App projektek értékesítője alapból Flóra; a projektvezető ne látsszon Értékesítőként"
 },
 {
-"id": "9d2b1b085f",
-"at": "2026-11-09T13:13:28+02:00",
-"msg": "Szerződés-begyűjtés: naponta egyszer a háttérben az app indulásakor"
-},
-{
-"id": "77521635af",
-"at": "2026-11-09T10:45:17Z",
+"id": "5ca8a8e23c",
+"at": "2026-11-09T11:13:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
