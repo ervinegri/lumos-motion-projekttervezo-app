@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "aeacf32d2e",
+"at": "2026-11-09T02:55:40+02:00",
+"msg": "Videó ablak: a kukába húzott jelölő azonnal eltűnik a képről"
+},
+{
 "id": "4d59787376",
 "at": "2026-11-09T02:45:09+02:00",
 "msg": "Videó ablak: teljes súgó az időkód gombon (videó, hozzászólás, jelölés)"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: pontos időkód húzáskor (egyszerre egy ugrás, a megjelenített képkocka ideje), időkód a videó alatt középen"
 },
 {
-"id": "529ccda6ef",
-"at": "2026-11-09T01:29:31+02:00",
-"msg": "Videó ablak: időkód perc:mp:képkocka, időkód gomb a Hozzászólások sorában, bezáráskor vissza a videótáblára"
-},
-{
-"id": "d98e1c6111",
-"at": "2026-11-08T23:26:29Z",
+"id": "7412a03e1c",
+"at": "2026-11-08T23:29:40Z",
 "msg": "Változásnapló frissítése"
 }
 ]
