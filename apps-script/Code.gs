@@ -76,7 +76,7 @@ const TABLES = {
     ['location', 'Tárolási hely'], ['format', 'Szenzorméret (FF / Crop)']] },
   clients: { tab: 'Ügyfelek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Cégnév'], ['tax', 'Adószám'], ['address', 'Székhely'], ['contactName', 'Kapcsolattartó'],
-    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)'], ['repPhone', 'Képviselő telefonszáma'], ['repEmail', 'Képviselő e-mail-címe'], ['contactTitle', 'Kapcsolattartó titulusa'], ['repTitle', 'Képviselő titulusa'], ['tigMail', 'TIG e-mail sablon (JSON)'], ['vidMail', 'Videó jóváhagyás e-mail sablon'], ['billEmail', 'Pénzügyi e-mail (számla másolat)']] },
+    ['contactPhone', 'Telefon'], ['contactEmail', 'E-mail'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'], ['rep', 'Cég képviselője (aláíró)'], ['repPhone', 'Képviselő telefonszáma'], ['repEmail', 'Képviselő e-mail-címe'], ['contactTitle', 'Kapcsolattartó titulusa'], ['repTitle', 'Képviselő titulusa'], ['tigMail', 'TIG e-mail sablon (JSON)'], ['billEmail', 'Pénzügyi e-mail (számla másolat)'], ['vidMail', 'Videó jóváhagyás e-mail sablon']] },
   finIncome: { tab: 'Bevételek', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['day', 'Nap'], ['name', 'Megnevezés'], ['payStatus', 'Fizetési állapot'], ['amount', 'Díjazás (nettó Ft)'],
     ['prod', 'Termelési költség (Ft)'], ['profit', 'Nyereség (Ft)'], ['ceo', 'Ügyvezető (Ft)'], ['rezsi', 'Eszköz, rezsi (Ft)'], ['marketing', 'Marketing (Ft)'],
@@ -152,6 +152,8 @@ function api_(raw) {
     let data;
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
+    else if (fn === 'clientInfo') data = clientInfo_(args[0]);   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
+    else if (fn === 'clientDecide') data = clientDecide_(args[0], args[1], args[2]);
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
     if (DB_) dbFlush_();
@@ -624,7 +626,7 @@ function bootstrap_(u) {
     payAdjust: readAll_('payAdjust').filter(x => u.role !== 'crew' || (u.crewId && x.crewId === u.crewId)),   // a szakember csak a saját korrekcióit látja
     links: { folder: 'https://drive.google.com/drive/folders/' + PROJECTS_FOLDER_ID, sheet: 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit' },
     crewOrder: crewOrder_(),
-    mailOn: mailOn_(), mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
+    mailOn: mailOn_(), clientMailLive: PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1', mailCats: u.role === 'admin' ? mailCats_() : undefined, mailCc: u.role === 'admin' ? mailCc_() : undefined,
     capabilities: { budgetApproval: true, financeAutosave: true, videoStages: true, crewOrder: true, penaltyDay: true, contentCounts: true, crewFinalize: true, finance: true },
     serverTime: now_()
   };
@@ -958,18 +960,45 @@ function videoClient_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: Az ügyfélnek a projektvezető küldheti el.');
   const tos = str_(a.to, 600).split(/\s*,\s*/).map(x => x.trim()).filter(Boolean).slice(0, 8), to = tos.join(', '); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');   // több címzett is lehet
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
-  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 1500).trim(), text = str_(a.text, 4000).trim();
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 1500).trim(); let text = str_(a.text, 4000).trim();
   videoSet_(u, { projectId: pid, id: vid, st: 'leadva' });
   let p, v;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
-    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: 'Ügyfélnek elküldve (' + to + ')' + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
+    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: (PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1' ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  const live = PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') === '1', sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
+  if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
+  const tk = d => FRONTEND_URL + '/jovahagyas.html?t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to })) + '&d=' + d;
+  const okUrl = tk('ok'), chUrl = tk('mod');
+  text = text + '\n\nJóváhagyom: ' + okUrl + '\nMódosítást kérek: ' + chUrl;
+  const btns = '<p style="margin:18px 0 6px"><a href="' + escapeHtml_(okUrl) + '" style="display:inline-block;background:#1e8e4e;color:#fff;text-decoration:none;font-weight:bold;padding:10px 18px;border-radius:8px;margin-right:8px">Jóváhagyom</a><a href="' + escapeHtml_(chUrl) + '" style="display:inline-block;background:#ffffff;color:#b3261e;text-decoration:none;font-weight:bold;padding:9px 17px;border-radius:8px;border:1px solid #e3b4b0">Módosítást kérek</a></p>';
   const sig = signatureFor_(u), html = text.split(/\n/).map(l => escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
-  let mail = false; try { mail = gmailSend_(to, str_(a.subject, 200).trim() || ('Jóváhagyásra: ' + (v ? v.name : 'videó') + ' – ' + p.name), text + (sig ? '\n\n' + sig.text : ''), { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html + '</div>' + (sig ? '<br>' + sig.html : ''), name: u.name || 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
+  const subj = (live ? '' : '[TESZT – valójában neki: ' + to + '] ') + (str_(a.subject, 200).trim() || ('Jóváhagyásra: ' + (v ? v.name : 'videó') + ' – ' + p.name));
+  let mail = false; try { mail = gmailSend_(sendTo, subj, text + (sig ? '\n\n' + sig.text : ''), { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html.replace(/<br>Jóváhagyom: [\s\S]*$/, '') + btns + '</div>' + (sig ? '<br>' + sig.html : ''), name: u.name || 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
   const tpl = str_(a.tpl, 4000).trim();   // a kiküldött levél sablonként megmarad az ügyfélnél ({video}, {projekt}, {link} helyőrzőkkel)
   if (tpl) { try { const cn = String(p.client || '').trim().toLowerCase(), csh = sheetFor_('clients'); withLock_(() => { const c = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === cn); if (!c) return; const r = findRow_(csh, c.id); if (!r) return; const q = readRow_('clients', csh, r); q.vidMail = tpl; q.updatedAt = now_(); putRow_('clients', csh, q, r); dbFlush_(); }); } catch (e) { Logger.log('Sablon mentése: ' + e); } }
   logEvent_(u, 'Videó ügyfélnek elküldve', p.name, (v ? v.name : '') + ' → ' + to);
-  return { project: projectView_(fullProject_(p), u), mail: mail };
+  return { project: projectView_(fullProject_(p), u), mail: mail, test: !live };
+}
+/* Az ügyfél jóváhagyó oldala (jovahagyas.html): aláírt, 60 napig érvényes kulcs – bejelentkezés nélkül csak ezt az egy videót látja és döntheti el. */
+function clientSecret_() { const P = PropertiesService.getScriptProperties(); let k = P.getProperty('LUMOS_CLIENT_SECRET'); if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); P.setProperty('LUMOS_CLIENT_SECRET', k); } return k; }
+function clientToken_(o) { o.x = Date.now() + 60 * 864e5; const b = Utilities.base64EncodeWebSafe(JSON.stringify(o)).replace(/=+$/, ''), sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(b, clientSecret_())).replace(/=+$/, ''); return b + '.' + sg; }
+function clientTokenRead_(t) { const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t || '')); if (!m) throw new Error('Érvénytelen link.');
+  const sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(m[1], clientSecret_())).replace(/=+$/, ''); if (sg !== m[2]) throw new Error('Érvénytelen link.');
+  const o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(m[1] + '==='.slice((m[1].length + 3) % 4))).getDataAsString()); if (!o || !o.p || !o.v) throw new Error('Érvénytelen link.'); if (o.x && Date.now() > o.x) throw new Error('A link lejárt – kérj újat.'); return o; }
+function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
+function clientInfo_(t) { const o = clientTokenRead_(t), r = clientVideo_(o);
+  return { project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
+function clientDecide_(t, d, fb) {
+  const o = clientTokenRead_(t), r = clientVideo_(o); fb = str_(fb, 1500).trim();
+  if (r.v.st !== 'leadva') return clientInfo_(t);   // már döntöttek (vagy visszakerült az utómunkába)
+  const who = { id: 'client', name: 'Ügyfél (' + String(o.c || '').split(',')[0] + ')', email: '', role: 'editor', crewId: '' };
+  if (d === 'ok') videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
+  else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
+  else throw new Error('Ismeretlen döntés.');
+  try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p;
+      gmailSend_(o.s, subj, subj + (fb ? '\n\n' + fb : '') + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p>' + (fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
+  return clientInfo_(t);
 }
 let FB_MAIL_ = null;
 function videoSet_(u, a) {
