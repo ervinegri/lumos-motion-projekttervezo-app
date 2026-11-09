@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7e5a684374",
+"at": "2026-11-09T02:59:35+02:00",
+"msg": "Videó lejátszó: Shift + húzás 10× gyorsabb tekerés; Shift + szóköz nyomva visszafelé 2×"
+},
+{
 "id": "7abe4136e0",
 "at": "2026-11-09T02:56:53+02:00",
 "msg": "Hozzászólás törlése: gyors egymás utáni törlésnél sem jönnek vissza (sorban, időbélyeg alapján)"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: szóközzel indít/megállít, bezáráskor villanás nélkül vissza a videótáblára"
 },
 {
-"id": "208d226805",
-"at": "2026-11-09T01:36:42+02:00",
-"msg": "Videó ablak: az időkód gomb a videó alatt középen (a külön kijelző helyett)"
-},
-{
-"id": "632fb8052c",
-"at": "2026-11-08T23:32:34Z",
+"id": "f0691d5b69",
+"at": "2026-11-08T23:36:51Z",
 "msg": "Változásnapló frissítése"
 }
 ]
