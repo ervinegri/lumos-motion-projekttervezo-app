@@ -2082,10 +2082,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
 
 /* Szolgáltatások: egy választó = egy ember (annyi választó, ahány ember kell). A fotós kiválasztásakor a fotók utómunkáját is ő kapja (ha még senki). */
 document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset||t.dataset.osSlot===undefined||!d||ro()||projLocked())return;
-  const k=t.dataset.osSlot,i=Number(t.dataset.i)||0,role=t.dataset.role,id=t.value,cur=slotOwners(d,k)[i]||'';if(id===cur)return;
+  const k=t.dataset.osSlot,i=Number(t.dataset.i)||0,role=opRoleFor(t.dataset.osSlot,t.dataset.role),id=t.value,cur=slotOwners(d,k)[i]||'';if(id===cur)return;
   const et=etWithField(d),crew=clone(d.crew||[]),K='f_'+k,KS=slotKeys(d,k);
   if(cur){et[cur]=(et[cur]||[]).filter(x=>!KS.includes(x));if(!et[cur].length)delete et[cur];}
-  if(id){et[id]=(et[id]||[]).concat([K]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});}
+  if(id){et[id]=(et[id]||[]).concat([K]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role)){const gi=role!=='Operatőr'&&OP_SUB.includes(role)?crew.findIndex(a=>a.crewId===id&&a.role==='Operatőr'):-1;if(gi>=0)crew[gi]={crewId:id,role};else crew.push({crewId:id,role});}}   /* a sima „Operatőr” szerep a konkrét típusra cserélődik */
   let extra='';
   const ex=editTasksOf(d);if(k==='x_foto'&&id&&num(d.foto_db)>0&&!Object.keys(ex).some(x=>x!==id&&(ex[x]||[]).includes('foto_db'))&&!(et[id]||[]).includes('foto_db')){   // fotós → a fotók utómunkája is az övé
     Object.keys(et).forEach(x=>{et[x]=et[x].filter(y=>y!=='foto_db');if(!et[x].length)delete et[x];});et[id]=(et[id]||[]).concat(['foto_db']);extra=' + fotók utómunkája';}

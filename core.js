@@ -45,6 +45,8 @@ const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az 
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Videóvágás','Podcast','Egyéb'];
 const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
+/* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
+const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k))return 'Interjúsarok operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)$/.test(k))return 'Statív operatőr';return role;};
 const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
