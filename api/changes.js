@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0080d147ed",
+"at": "2026-11-09T17:38:39+02:00",
+"msg": "Ügyfél neve a hozzászólásoknál: csak keresztnév, e-mail cím nélkül"
+},
+{
 "id": "d60a5212ab",
 "at": "2026-11-09T17:29:45+02:00",
 "msg": "Ügyfél-jóváhagyó oldal: beágyazott lejátszó és észrevételek időkóddal (a belső nézet mintájára)"
@@ -147,8 +152,8 @@ const ITEMS = [
 "msg": "Pénzügy táblázat: az értékesítő sorában a jutalék összege"
 },
 {
-"id": "130d8af55f",
-"at": "2026-11-09T11:30:37Z",
+"id": "8f07457885",
+"at": "2026-11-09T11:31:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
