@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "d48a26cea1",
+"at": "2026-11-09T03:07:13+02:00",
+"msg": "Videótábla: Inter betű lágyabb vastagságokkal; a határidő-sáv a címsorban az X-ig ér, vastagabb"
+},
+{
 "id": "e39767e10f",
 "at": "2026-11-09T03:05:50+02:00",
 "msg": "Videótábla ablak: határidő és leadott darabszám a címsorban, a projektnév nem ismétlődik, szélesebb oszlopok"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: kisebb távolság a videó és az időkód sor között"
 },
 {
-"id": "a3072eb6f1",
-"at": "2026-11-09T01:41:59+02:00",
-"msg": "Videó ablak: időkód gomb a Hozzászólások sorában, a videó alatt középen"
-},
-{
-"id": "b23deb1cc9",
-"at": "2026-11-08T23:40:36Z",
+"id": "79c0c80a25",
+"at": "2026-11-08T23:42:09Z",
 "msg": "Változásnapló frissítése"
 }
 ]
