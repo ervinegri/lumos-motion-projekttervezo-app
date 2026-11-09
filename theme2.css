@@ -490,6 +490,7 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
   html body .tbl-wrap,html body .sheet-wrap,html body .pay-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;max-width:100%}
   html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line)}
   html body .pay-sheet .pay-c-proj{width:168px}
+  html body .pay-wrap{width:100%}html body .pay-wrap .pay-sheet{width:100%}
   html body .pay-wrap .pay-sheet thead th,html body .sheet-wrap .sheet thead th{position:static!important;top:auto!important}
   /* Ablakok: teljes képernyő */
   html body .modal{padding:0;align-items:stretch}
@@ -507,6 +508,8 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
   html body .page-head.ph-sub{gap:8px}
   html body .page-head.ph-sub .subtabs{width:100%}
   html body .page-head.ph-sub>.btn,html body .page-head.ph-sub>div>.btn{font-size:12.5px;padding:6px 11px;min-height:32px}
+  html body .mnav-chip:not(.on){display:none}   /* hónapváltó: csak az aktuális hónap a nyilakkal */
+  html body .mnav-row,html body .month-nav{max-width:100%;flex-wrap:nowrap}
   input.inp,select.inp,textarea.inp,.cmb-in{font-size:16px}   /* iOS: ne nagyítson rá a mezőre */
 }
 
