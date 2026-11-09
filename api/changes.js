@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5fd0f779e",
+"at": "2026-11-09T17:10:31+02:00",
+"msg": "Ügyfél-levél ablak: a saját aláírás és a két gomb előnézete; app-újdonságok előnézeti nézetben is az ügyvezetőnek; extra tétel csatolmány feltöltés (háttér)"
+},
+{
 "id": "a1d8a32930",
 "at": "2026-11-09T17:08:00+02:00",
 "msg": "HubSpot kapcsolattartó választáskor a telefonszám és az e-mail is cserélődik"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Szerződés-begyűjtés: naponta egyszer a háttérben az app indulásakor"
 },
 {
-"id": "eebcc1f00e",
-"at": "2026-11-09T12:45:07+02:00",
-"msg": "Szerződés-begyűjtés: bejelentkezés után háttérfeladat, eredmény üzenetben"
-},
-{
-"id": "e19c8c0eef",
-"at": "2026-11-09T10:36:54Z",
+"id": "77521635af",
+"at": "2026-11-09T10:45:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
