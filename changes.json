@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "4e1761d04e",
+"at": "2026-11-09T02:04:57+02:00",
+"msg": "Videó ablak: időkód és jelölés gomb a láblécben, gépelés után Enter folytatja a videót, szóköz az idősáv után is"
+},
+{
 "id": "9a63b07b0e",
 "at": "2026-11-09T02:03:01+02:00",
 "msg": "Videó ablak: szóköz akkor is működik, ha a kezelősáv kapta a fókuszt; időkódra kattintva a kurzor mögé ugrik"
@@ -141,13 +146,8 @@
 "msg": "Kifizetések: a szakember saját nézetében név nélkül a díjösszesítő sor"
 },
 {
-"id": "c5f53f41c0",
-"at": "2026-11-09T00:56:41+02:00",
-"msg": "Videó ablak: ügyfél-jóváhagyás gombjai; pCloud hivatkozó nélkül (Invalid link referer)"
-},
-{
-"id": "7a5b7398ec",
-"at": "2026-11-08T22:51:57Z",
+"id": "830d0f61a9",
+"at": "2026-11-08T22:56:49Z",
 "msg": "Változásnapló frissítése"
 }
 ]
