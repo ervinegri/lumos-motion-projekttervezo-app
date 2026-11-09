@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dacdf7e7c8",
+"at": "2026-11-09T03:01:34+02:00",
+"msg": "Videó lejátszó: nyomva tartott szóköz közben a Shift visszafelé vált (elengedve újra előre 2×)"
+},
+{
 "id": "7e5a684374",
 "at": "2026-11-09T02:59:35+02:00",
 "msg": "Videó lejátszó: Shift + húzás 10× gyorsabb tekerés; Shift + szóköz nyomva visszafelé 2×"
@@ -146,13 +151,8 @@
 "msg": "Időkód: a képkocka 01-től számozva (25 fps-nél 01–25)"
 },
 {
-"id": "340c24ac5e",
-"at": "2026-11-09T01:37:55+02:00",
-"msg": "Videó ablak: szóközzel indít/megállít, bezáráskor villanás nélkül vissza a videótáblára"
-},
-{
-"id": "f0691d5b69",
-"at": "2026-11-08T23:36:51Z",
+"id": "2d569edbdb",
+"at": "2026-11-08T23:38:04Z",
 "msg": "Változásnapló frissítése"
 }
 ]
