@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9582343ad3",
+"at": "2026-11-09T21:19:12+02:00",
+"msg": "Díjösszesítő értékesítőnek: fix fizetés és jutalék külön, „Tételek”, számlamegjegyzés: Értékesítési tevékenység"
+},
+{
 "id": "d820a98ad3",
 "at": "2026-11-09T21:18:24+02:00",
 "msg": "Ügyfélnek küldés: a díjösszesítőhöz hasonló, szerkeszthető levélelőnézet (fejléc, gomb, aláírás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Továbbszámlázott költség a szervezői jutalékhoz hasonló mezőként, csatolmánnyal (feltöltés/behúzás a projekt Drive-mappájába)"
 },
 {
-"id": "aebd2791c9",
-"at": "2026-11-09T17:12:48+02:00",
-"msg": "Videótábla: frissítéskor nem vész el az áthúzás (megőrzi és újraküldi a mentést, figyelmeztet mentés közben)"
-},
-{
-"id": "bc6e41d272",
-"at": "2026-11-09T15:10:42Z",
+"id": "6b259cc52d",
+"at": "2026-11-09T15:13:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
