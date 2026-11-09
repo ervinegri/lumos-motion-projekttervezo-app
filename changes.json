@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "391c8e0c81",
+"at": "2026-11-09T03:48:10+02:00",
+"msg": "Naptár: mindkét munkatípus látható, egysoros gombok és erősebb ma-jelölés"
+},
+{
 "id": "4fd3def932",
 "at": "2026-11-09T03:44:15+02:00",
 "msg": "Vágói figyelmeztetés csak a rendezvény előtti 29 naptól"
@@ -146,13 +151,8 @@
 "msg": "Hozzászólás törlése: mindenki csak a sajátját (az ügyvezető sem a másét)"
 },
 {
-"id": "4a61063ce7",
-"at": "2026-11-09T01:59:44+02:00",
-"msg": "Videó ablak: függőleges videónál a hozzászólások jobb oldalt; Ctrl/Cmd nyomva: célkereszt; a még el nem küldött jelölő húzható"
-},
-{
-"id": "81ac2e4f74",
-"at": "2026-11-08T23:57:15Z",
+"id": "9627705f21",
+"at": "2026-11-08T23:59:53Z",
 "msg": "Változásnapló frissítése"
 }
 ]
