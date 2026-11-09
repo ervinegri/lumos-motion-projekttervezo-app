@@ -956,7 +956,7 @@ function videoCommentDel_(u, a) {
 function videoClient_(u, a) {
   a = a || {};
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: Az ügyfélnek a projektvezető küldheti el.');
-  const to = str_(a.to, 160).trim(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw new Error('Adj meg érvényes e-mail címet.');
+  const tos = str_(a.to, 600).split(/\s*,\s*/).map(x => x.trim()).filter(Boolean).slice(0, 8), to = tos.join(', '); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');   // több címzett is lehet
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 1500).trim(), text = str_(a.text, 4000).trim();
   videoSet_(u, { projectId: pid, id: vid, st: 'leadva' });
