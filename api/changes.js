@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "95797a355a",
+"at": "2026-11-09T20:40:42+02:00",
+"msg": "Bevételek: az Értékesítés oszlop az értékesítő jutaléka, ha a projektet értékesítő hozta"
+},
+{
 "id": "f5593900b2",
 "at": "2026-11-09T20:37:30+02:00",
 "msg": "Lehetőség ablak: telefonszám a megszokott formázott mezőben (+36 20 329 8550)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: szakember nézetben csak a saját vágói bejegyzései látszanak"
 },
 {
-"id": "66a0fc741e",
-"at": "2026-11-09T14:00:50+02:00",
-"msg": "Fizetések: fejlécben minden név E. Ervin formában"
-},
-{
-"id": "b6977cc78c",
-"at": "2026-11-09T12:00:04Z",
+"id": "65213c2a46",
+"at": "2026-11-09T12:01:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
