@@ -213,6 +213,8 @@ function markReq(){
 /* Átadandó anyag nélküli projektnél az utolsó lépés neve „Kész” (nincs mit átadni). */
 const siteWaiting=p=>{const r=pr(p);return !!r&&(p.status||'')==='helyszin'&&todayISO()<r.start;};   // véglegesített csapat, de a forgatás napja még nem jött el
 const stageLabel=(p,id)=>id==='helyszin'&&siteWaiting(p)?'Helyszíni munkára vár':STATUS_LABEL[id]||id;
+function tlFit(w){w=w||document.querySelector('.tl-wrap');if(!w)return;const top=w.getBoundingClientRect().top+scrollY;w.style.height=Math.max(420,innerHeight-top-14)+'px';}   /* az idővonal a képernyő aljáig ér */
+window.addEventListener('resize',()=>tlFit());
 const normProj=p=>{if(p&&(!p.status||p.status==='egyeztetes'))p.status='tervezes';return p;};   // az „Egyeztetés” lépés megszűnt
 /* Videó link jelszóval: ráhúzva megjelenik a jelszó, egy kattintással másolható */
 function vidLink(p,cls,label,extra){if(!/^https:\/\//i.test(p.deliveryLink||''))return '';const a=`<a class="${cls}" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener"${extra||''}>${label}</a>`;
@@ -1315,6 +1317,7 @@ function calTimeline(m,items0,T){
         const vp=vidProg(p);
         return `<button type="button" class="cal-chip p cut st-${esc(p.status||'')} tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend?` · ${vp.done}/${vp.tot}`:''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
+  (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(w)tlFit(w);});   /* az idővonal a képernyő aljáig ér */
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
     if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
     if(c&&c.m===m){w.scrollLeft=c.x;if(c.y)w.scrollTop=c.y;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
