@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ee50745dca",
+"at": "2026-11-09T21:10:25+02:00",
+"msg": "Sales jutalék: kedvezményes rendelésnél ismét 10%-kal kevesebb (5 000 / 4 500 Ft short)"
+},
+{
 "id": "4f668b70f4",
 "at": "2026-11-09T21:09:20+02:00",
 "msg": "Bevételek: a továbbszámlázott / szervezői jutalék jelzése a Díjazás cellán"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "HubSpot kapcsolattartó választáskor a telefonszám és az e-mail is cserélődik"
 },
 {
-"id": "7536bf81a4",
-"at": "2026-11-09T17:07:00+02:00",
-"msg": "Naptár: vágó kiválasztásakor csak az ő vágói munkái látszanak"
-},
-{
-"id": "3b67c045d9",
-"at": "2026-11-09T17:07:00+02:00",
-"msg": "Ügyfél adatlap: szerződések listája az ügyvezetőnek"
+"id": "7dad0efe4c",
+"at": "2026-11-09T15:07:10Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
