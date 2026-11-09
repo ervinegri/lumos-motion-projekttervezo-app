@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0cab09fb4a",
+"at": "2026-11-09T17:05:15+02:00",
+"msg": "Díjösszesítő: áfakörös szakembernél ÁFA (27%) és bruttó végösszeg"
+},
+{
 "id": "18eb6ec303",
 "at": "2026-11-09T17:02:35+02:00",
 "msg": "Fizetések: értékesítők a táblázat végén; ügyfél-levelek tesztüzeme kikapcsolva"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "13cc088dbc",
 "at": "2026-11-09T12:03:12+02:00",
 "msg": "Munkatársi szerződés: behúzás vagy kiválasztás után azonnal feltöltődik, a kártya frissül"
-},
-{
-"id": "877aef0d09",
-"at": "2026-11-09T11:59:02+02:00",
-"msg": "Stáb: Szerződések a Gmailből gomb (előnézet, kijelölés, feltöltés)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
