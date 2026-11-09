@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "44c718d669",
+"at": "2026-11-09T14:07:06+02:00",
+"msg": "Lezárt projekt (átadva, ill. szakembernél a lezajlott munka): minden szürke"
+},
+{
 "id": "677e2bd076",
 "at": "2026-11-09T14:01:49+02:00",
 "msg": "Naptár: szakember nézetben csak a saját vágói bejegyzései látszanak"
@@ -141,13 +146,8 @@
 "msg": "Ügyfél-levél: tegező, szerkeszthető, aláírással; a kiküldött szöveg sablonként megmarad az ügyfélnél; a projektoldalról kikerült a Videók szekció"
 },
 {
-"id": "7feb99d5a8",
-"at": "2026-11-09T05:24:03+02:00",
-"msg": "Ügyfélnek küldés: a belső ellenőrzésből húzva és jóváhagyáskor is; címzettek választhatók (projekt, ügyfél-adatlap, korábbi projektek), több is; áthelyezés e-mail nélkül; utána vissza a táblára"
-},
-{
-"id": "1524453449",
-"at": "2026-11-09T03:21:09Z",
+"id": "9518e5a3e1",
+"at": "2026-11-09T03:24:13Z",
 "msg": "Változásnapló frissítése"
 }
 ]
