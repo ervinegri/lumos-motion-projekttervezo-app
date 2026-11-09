@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2670765fdd",
+"at": "2026-11-09T05:17:43+02:00",
+"msg": "Videók: közvetlen küldés az ügyfélnek (kapcsolattartó e-mail, lenyitható levél); videó átnevezése; az oszlop videói lapozhatók; a tábla a videóablak alatt marad; nagyításnál is elfér; idővonal: csak a projektnév, sűrűbb sorok; e-mailben nincs emoji; szerep-szűrő kereshető"
+},
+{
 "id": "03fc573312",
 "at": "2026-11-09T03:50:08+02:00",
 "msg": "Beállítások: kereshető felhasználóválasztó a naplóhoz"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód és jelölés gomb a láblécben, gépelés után Enter folytatja a videót, szóköz az idősáv után is"
 },
 {
-"id": "9a63b07b0e",
-"at": "2026-11-09T02:03:01+02:00",
-"msg": "Videó ablak: szóköz akkor is működik, ha a kezelősáv kapta a fókuszt; időkódra kattintva a kurzor mögé ugrik"
-},
-{
-"id": "7d770bb40c",
-"at": "2026-11-09T00:00:16Z",
+"id": "07b3507761",
+"at": "2026-11-09T00:03:10Z",
 "msg": "Változásnapló frissítése"
 }
 ]
