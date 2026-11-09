@@ -992,10 +992,14 @@ function clientTokenRead_(t) { const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t ||
 function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
 function clientInfo_(t) { const o = clientTokenRead_(t), r = clientVideo_(o);
   return { project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
+/* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
+function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
+  if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return cn.split(/\s+/).pop();
+  const lp = em.split('@')[0].split(/[._-]/)[0]; return lp ? lp.charAt(0).toUpperCase() + lp.slice(1) : 'Ügyfél'; }
 function clientDecide_(t, d, fb) {
   const o = clientTokenRead_(t), r = clientVideo_(o); fb = str_(fb, 1500).trim();
   if (r.v.st !== 'leadva') return clientInfo_(t);   // már döntöttek (vagy visszakerült az utómunkába)
-  const who = { id: 'client', name: 'Ügyfél (' + String(o.c || '').split(',')[0] + ')', email: '', role: 'editor', crewId: '' };
+  const who = { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' };
   if (d === 'ok') videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
