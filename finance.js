@@ -36,9 +36,10 @@ const finSet=()=>(S.fin&&S.fin.settings)||{profitPct:30,ceoPct:5,marketingPct:5,
 const ovPct=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
 function finProjectRow(p){const st=finSet(),amount=projTotal(p),prod=Math.round(feeSum(p));
   const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);   // projektenként egyedi értékesítés / eszköz-rezsi %
-  const ceo=Math.round(amount*(cp??st.ceoPct)/100),marketing=Math.round(amount*st.marketingPct/100);
+  const dl=cp==null&&typeof projDeal==='function'?projDeal(p):null,de=dl&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;   // értékesítő hozta: az ő jutaléka az értékesítés
+  const ceo=de&&de.amt>0?Math.round(de.amt):Math.round(amount*(cp??st.ceoPct)/100),marketing=Math.round(amount*st.marketingPct/100);
   let profit,rezsi;if(rp!=null){rezsi=Math.round(amount*rp/100);profit=amount-prod-ceo-marketing-rezsi;}else{profit=Math.round(amount*st.profitPct/100);rezsi=amount-profit-ceo-marketing-prod;}
-  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,profit,ceo,marketing,rezsi,ceoOv:cp!=null,rezsiOv:rp!=null};}
+  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,profit,ceo,marketing,rezsi,ceoOv:cp!=null,rezsiOv:rp!=null,ceoBy:de&&de.amt>0?(dl.ownerName||'értékesítő'):''};}
 /* Régi táblázat sora ↔ projekt: közös jellemző szó a névben (ügyfél, helyszín is számít), a gyakori szavak nélkül */
 const LEG_STOP=new Set('technikai ugyelet konferencia rendezveny webinar stream short video videok forgatas podcast hibrid masodik eloadas youtube napja workshop kiallitas esemeny budapest hungary kft zrt bt nonprofit egyesulet alapitvany tagozat levelezo akademia gala unnepseg evzaro fesztival expo talalkozo csoportos and the of az es db 2024 2025 2026 2027 ak tal csop ut utca ter krt hotel center etterem kavehaz'.split(' '));
 const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(w=>w.length>=2&&!LEG_STOP.has(w));
@@ -103,7 +104,7 @@ const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.roun
 /* Módosítható %: értékesítés és eszköz-rezsi (a termelés % fix, a díjakból jön). Üresre törölve visszaáll az alapértékre. */
 const pctNum=(v,base)=>{base=Number(base)||0;return base?Math.round(Number(v)/base*1000)/10:0;};
 function pctIn(r,k){const v=pctNum(r[k],r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv;
-  return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
+  return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'&&r.ceoBy?esc(r.ceoBy)+' értékesítői jutaléka (a projekt Pénzügyek részéből) – átírhatod':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
 async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
   const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
   if(kind==='project'){const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v;finSave('billSave',{projectId:id,[f]:val},'Mentve',()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
