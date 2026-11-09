@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "ef8c1140a3",
+"at": "2026-11-09T11:36:26+02:00",
+"msg": "Videótábla: ellenőrzés/ügyfél ablak alatt is látszik, címsor egy vonalban; telefon/e-mail másolás hover"
+},
+{
 "id": "bce770dce5",
 "at": "2026-11-09T05:39:28+02:00",
 "msg": "Ügyfél-levél tárgya: „Elkészült: {videó} – {projekt}”, ügyfelenként megjegyezve"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: a szóköz csak indít/megállít (nem szúr be időkódot); frissítés utáni visszanyitás várakozással (adatok / másik ablak)"
 },
 {
-"id": "2465dff0b9",
-"at": "2026-11-09T02:22:18+02:00",
-"msg": "Videó ablak: időkód egy lépésben törölhető (Backspace/Delete); az élő időkód nem ugrál"
-},
-{
-"id": "611e4f047e",
-"at": "2026-11-09T00:21:49Z",
+"id": "bafedf0a08",
+"at": "2026-11-09T00:22:29Z",
 "msg": "Változásnapló frissítése"
 }
 ]
