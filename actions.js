@@ -1108,7 +1108,7 @@ function packingList(p){
 }
 async function copyText(t,label){
   try{await navigator.clipboard.writeText(t);toast(label||'Vágólapra másolva');}
-  catch(e){openModal('Másold ki',`<textarea class="inp copybox" id="copybox" readonly>${esc(t)}</textarea>`,{cancelLabel:'Bezárás'});const el=$('copybox');if(el){el.focus();el.select();}}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(e2){}ta.remove();if(ok){toast(label||'Vágólapra másolva');return;}openModal('Másold ki',`<textarea class="inp copybox" id="copybox" readonly>${esc(t)}</textarea>`,{cancelLabel:'Bezárás'});const el=$('copybox');if(el){el.focus();el.select();}}
 }
 function arm(b,fn){
   if(b.dataset.armed){fn();return;}
@@ -1374,7 +1374,7 @@ const ACT={
   'make-folder':async b=>{const d=S.draft;if(!d)return;b.disabled=true;b.textContent='Mappa létrehozása…';
     try{const r=await call('createProjectFolder',{id:d.id});const p=projById(d.id);if(p)p.folderId=r.folderId;d.folderId=r.folderId;render(true);if($('modalRoot').innerHTML)ACT['proj-manage']();toast(r.existed?'A mappa már létezett':'Projektmappa létrehozva');}
     catch(e){handleErr(e);b.disabled=false;b.textContent='📁 Projektmappa létrehozása';}},
-  copy:b=>copyText(b.dataset.text),
+  copy:b=>{copyText(b.dataset.text);b.classList.add('copied');clearTimeout(b._ct);b._ct=setTimeout(()=>b.classList.remove('copied'),1400);},
   'tax-lookup':()=>taxLookup(),
   'pen-new':b=>penModal(b.dataset.cid),
   'proj-unlock':()=>{const d=S.draft;if(!d||!isAdmin())return;closeModal();setDraft({status:needsDelivery(d)?'utomunka':'helyszin',deliveredAt:''});toast('Projekt felnyitva – a lépések újra módosíthatók');},
@@ -2204,7 +2204,7 @@ const huArt=w=>{const x=String(w||'').replace(/^[\s„"'(«»]+/,'');if(!x)retur
   if(/\d/.test(c)){const n=(x.match(/^\d+/)||[''])[0];return c==='5'||(c==='1'&&n.length%3===1)?'az':'a';}return 'a';};
 const fixArt=t=>String(t||'').replace(/\b([Aa])\(z\)(\s+)(\S+)/g,(m,a,sp,w)=>{const r=huArt(w);return (a==='A'?r[0].toUpperCase()+r.slice(1):r)+sp+w;});
 const clFill=(t,o)=>fixArt(String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}'));
-function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=!!document.querySelector('#modalRoot .bd-modal');window._clLane=lane?pid:'';
+function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=laneToUnder();window._clLane='';
   const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
   let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
   const body=clFill((cl&&cl.vidMail)||lt||CL_TPL_DEF,o);
@@ -2222,8 +2222,9 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
       const esc2=x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');let tpl=text;[[link,'{link}'],[v.name,'{video}'],[p.name||'','{projekt}']].forEach(([val,ph])=>{if(val)tpl=tpl.replace(new RegExp(esc2(val),'g'),ph);});tpl=tpl.replace(/\b([Aa])z?(\s+[„"]?\{(?:video|projekt)\})/g,'$1(z)$2');   /* a névelő a következő videónál újra igazodik */
       if(cl)cl.vidMail=tpl;try{localStorage.setItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase(),tpl);let st=subject;if(v.name)st=st.split(v.name).join('{video}');if(p.name)st=st.split(p.name).join('{projekt}');localStorage.setItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase(),st);}catch(e){}closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note:'',text,subject,tpl}});clAfter();}});
   let lastLink=v.link||'';const li=$('m-clLink'),bd=$('m-clBody');if(li&&bd)li.addEventListener('input',()=>{const nl=li.value.trim();if(lastLink&&bd.value.includes(lastLink))bd.value=bd.value.split(lastLink).join(nl);else if(!lastLink&&bd.value.includes('{link}'))bd.value=bd.value.split('{link}').join(nl);lastLink=nl;});
+  if(lane)window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['bd-lane']({dataset:{id:lane}});};
   setTimeout(()=>{const i=$(v.link?'m-clBody':'m-clLink');if(i)i.focus();},60);}
-function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
+function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=laneToUnder();let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
   openModal('🔍 Belső ellenőrzésre küldés',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>
     <div class="field full"><label>Ki ellenőrizze? (e-mailt kap)</label><div class="rv-pick"><label><input type="radio" name="to" value="david"${last==='david'?' checked':''}> <span>Zajácz Dávid</span></label><label><input type="radio" name="to" value="ervin"${last==='ervin'?' checked':''}> <span>Egri Ervin</span></label></div></div>
     <div class="field full"><label for="m-rvLink">A videó linkje</label><input class="inp" id="m-rvLink" name="link" type="url" value="${esc(v.link||'')}" required></div>
@@ -2231,6 +2232,7 @@ function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
     {submitLabel:'📧 Küldés ellenőrzésre',submit:async fd=>{const to=String(fd.get('to')||''),link=String(fd.get('link')||'').trim(),note=String(fd.get('note')||'').trim();
       if(!to){toast('Válaszd ki, ki nézze át.',true);return;}if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…).',true);return;}
       try{localStorage.setItem('lpm_rv_to',to);}catch(e){}closeModal();bdMove(pid,vid,'ellen',{to,link,note});}});
+  if(lane)window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['bd-lane']({dataset:{id:lane}});};   /* bezárás / küldés után vissza a videótáblára */
   setTimeout(()=>{const i=$('m-rvLink');if(i)i.focus();},60);}
 ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
 /* Idővonal vágássáv → a projekt videóinak táblája (ugyanúgy húzható) */
@@ -2276,7 +2278,7 @@ function vidEmbed(u){u=String(u||'').trim();let m;
   if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u)))return `<div class="vv-pc" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span> pCloud videó betöltése…</div>`;   // pCloud: a közvetlen fájlcímet a pCloud API adja
   return '';}
 ACT['vid-view']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid,p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const fromLane=!!document.querySelector('#modalRoot .bd-modal')||b.dataset.lane==='1';
-  {const lm=document.querySelector('#modalRoot .bd-modal');if(lm){let mu=$('modalUnder');if(!mu){mu=document.createElement('div');mu.id='modalUnder';document.body.insertBefore(mu,$('modalRoot'));}const m=lm.closest('.modal');if(m){mu.innerHTML=m.outerHTML;mu.querySelectorAll('[id]').forEach(x=>x.id=x.id+'-u');}}}   /* a videótábla a videóablak alatt látszik marad */
+  laneToUnder();   /* a videótábla a videóablak alatt látszik marad */
   if(b.dataset.list!=='1'){window._vvList=null;if(b.classList&&b.classList.contains('bd-card')){const cell=b.closest('.bl-cell'),L=cell?[...cell.querySelectorAll('.bd-card')].map(c=>({pid:c.dataset.bdPid,vid:c.dataset.bdVid})):[];if(L.length>1)window._vvList={items:L,i:0,lane:fromLane};}}   /* a kártya oszlopának összes videója lapozható */const VL=window._vvList,li=VL?VL.items.findIndex(x=>x.pid===pid&&x.vid===vid):-1;if(VL&&li>=0)VL.i=li;   /* több videó egymás után (a táblán kijelölve) */
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),rev=mgr&&v.st==='ellen'&&p.status!=='atadva',cli=mgr&&v.st==='leadva'&&p.status!=='atadva',emb=vidEmbed(v.link);
   try{const L=bellItems().map(x=>x.key);localStorage.setItem('lpm_bell_read',JSON.stringify([...new Set((JSON.parse(localStorage.getItem('lpm_bell_read')||'[]')).concat(L.filter(k=>k.startsWith(pid+'|'+vid+'|'))))]));bellRender();}catch(e){}
@@ -2425,6 +2427,9 @@ document.addEventListener('keydown',e=>{if(e.key.length!==1||e.key===' '||e.meta
   const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable))return;
   ta.setSelectionRange(ta.value.length,ta.value.length);if(ta.value.trim()){ACT['vid-tc']();}else ta.focus();},true);
 ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}const q=String(b.dataset.tc||'').split('|');vd.pause();vd.currentTime=b.dataset.tc?vidSnap(vd,tcSec(q[0],q[1],q[3],q[2])):Number(b.dataset.ts)||0;vd._pinFocus=b.dataset.x?{x:+b.dataset.x,y:+b.dataset.y,t:vd.currentTime}:null;};
+/* A videótábla ablakának másolata a következő ablak alá kerül (halványan látszik); visszaadja a projekt azonosítóját, ha volt tábla */
+function laneToUnder(){const lm=document.querySelector('#modalRoot .bd-modal');if(!lm)return '';let mu=$('modalUnder');if(!mu){mu=document.createElement('div');mu.id='modalUnder';document.body.insertBefore(mu,$('modalRoot'));}
+  const m=lm.closest('.modal');if(m){mu.innerHTML=m.outerHTML;mu.querySelectorAll('[id]').forEach(x=>x.id=x.id+'-u');}return lm.dataset.pid||'';}
 /* Kijelölt videók egymás után: ‹ › a címsorban, jóváhagyás / visszadobás után a következő jön; „Mind jóváhagyása” egyszerre */
 function vvGo(i){const VL=window._vvList;if(!VL||i<0||i>=VL.items.length)return false;const box=document.querySelector('.vv-cm');if(box){const f=window.MODAL_BEFORE_CLOSE;window.MODAL_BEFORE_CLOSE=null;vidFlush(box.dataset.pid,box.dataset.vid);}
   const x=VL.items[i];ACT['vid-view']({dataset:{pid:x.pid,vid:x.vid,list:'1',lane:VL.lane?'1':''}});return true;}

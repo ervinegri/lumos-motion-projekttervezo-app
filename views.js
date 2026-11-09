@@ -1156,8 +1156,8 @@ function viewCrew(){
         <button class="pc-edit w" type="button" data-action="edit-crew" data-id="${esc(c.id)}" aria-label="${esc(c.name)} szerkesztése" title="Szerkesztés">✎</button></div>
       <div class="roles">${(c.roles||[]).map(r=>`<span class="statuspill">${esc(r)}</span>`).join('')||'<span class="muted" style="font-size:13px">Nincs szerep megadva</span>'}</div>
       ${(c.skills||[]).length?`<div class="skills">${c.skills.map(s=>`<span class="skill">${esc(s)}</span>`).join('')}</div>`:''}
-      <div>${c.phone?`<div class="kv"><span>Telefon</span><button class="copy" type="button" data-action="copy" data-text="${esc(c.phone)}" title="Másolás">${esc(c.phone)}</button></div>`:''}
-        ${c.email?`<div class="kv"><span>E-mail</span><button class="copy mail" type="button" data-action="copy" data-text="${esc(c.email)}" title="Másolás">${esc(c.email).replace('@','<wbr>@')}</button></div>`:'<div class="kv"><span>E-mail</span><span class="warn-txt">nincs megadva</span></div>'}
+      <div>${c.phone?`<div class="kv"><span>Telefon</span><button class="copy" type="button" data-action="copy" data-text="${esc(c.phone)}">${esc(c.phone)}</button></div>`:''}
+        ${c.email?`<div class="kv"><span>E-mail</span><button class="copy mail" type="button" data-action="copy" data-text="${esc(c.email)}">${esc(c.email).replace('@','<wbr>@')}</button></div>`:'<div class="kv"><span>E-mail</span><span class="warn-txt">nincs megadva</span></div>'}
         ${crewDocKv(c)}${(()=>{const sp=isAdmin()&&(S.salesPeople||[]).find(x=>x.crewId===c.id);if(!sp)return '';   // értékesítő díjazása (csak az ügyvezető látja)
         return `<div class="kv"><span>Havi fix</span><b class="tnum">${num(sp.salary)?huf(sp.salary):'nincs'}</b></div><div class="kv"><span>Jutalék</span><b>${num(sp.commLow)}% · ${huf(sp.commLimit)} felett ${num(sp.commHigh)}%</b></div>`;})()}</div>
       ${c.note?`<p class="pc-note">${esc(c.note)}</p>`:''}
@@ -1167,8 +1167,8 @@ function viewCrew(){
     return `<tr><td><div class="nm" style="display:flex;gap:6px;align-items:center">${esc(c.name)} ${prioBadge(c)}${crewDocIcon(c)}</div>${c.company?`<div class="ser">${esc(c.company)}</div>`:''}</td>
       <td>${esc((c.roles||[]).join(', '))||'<span class="muted">—</span>'}${(c.skills||[]).length?`<div class="ser">${esc(c.skills.join(', '))}</div>`:''}</td>
       <td>${esc(c.type||'')}</td>
-      <td>${c.phone?`<button class="copy" style="text-align:left;white-space:nowrap" type="button" data-action="copy" data-text="${esc(c.phone)}" title="Másolás">${esc(c.phone)}</button>`:''}</td>
-      <td>${c.email?`<button class="copy mail" style="text-align:left" type="button" data-action="copy" data-text="${esc(c.email)}" title="Másolás">${esc(c.email).replace('@','<wbr>@')}</button>`:'<span class="warn-txt">nincs</span>'}</td>
+      <td>${c.phone?`<button class="copy" style="text-align:left;white-space:nowrap" type="button" data-action="copy" data-text="${esc(c.phone)}">${esc(c.phone)}</button>`:''}</td>
+      <td>${c.email?`<button class="copy mail" style="text-align:left" type="button" data-action="copy" data-text="${esc(c.email)}">${esc(c.email).replace('@','<wbr>@')}</button>`:'<span class="warn-txt">nincs</span>'}</td>
       <td class="num"><button class="pc-edit w" type="button" data-action="edit-crew" data-id="${esc(c.id)}" aria-label="${esc(c.name)} szerkesztése" title="Szerkesztés">✎</button></td></tr>`;}).join('');
   const pc=n=>base.filter(c=>prioNum(c)===n).length;
   return `<div class="page-head"><div class="grow"><h2>${salesTab?'Értékesítők':'Stáb'}</h2><p class="sub">${salesTab?list.length+' értékesítő · fiókot és jutalékot a Beállításokban adhatsz meg':S.crew.length+' munkatárs'+(S.crew.length?` · ${internal} belsős`:'')}</p></div>${ro()?'':undoBar()}
