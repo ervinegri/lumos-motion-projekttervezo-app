@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a8242e916f",
+"at": "2026-11-09T13:52:25+02:00",
+"msg": "Értékesítői jutalék a Fizetésekben akkor is, ha az értékesítőnek szakember-fiókja van"
+},
+{
 "id": "2a2ff8bfe2",
 "at": "2026-11-09T13:47:54+02:00",
 "msg": "Sales App jutalék: videónként 10 000 Ft, kedvezményesnél 10%-kal kevesebb – a Fizetésekben az értékesítő oszlopában"
@@ -141,13 +146,8 @@
 "msg": "Naptár: mindkét munkatípus látható, egysoros gombok és erősebb ma-jelölés"
 },
 {
-"id": "4fd3def932",
-"at": "2026-11-09T03:44:15+02:00",
-"msg": "Vágói figyelmeztetés csak a rendezvény előtti 29 naptól"
-},
-{
-"id": "7c4925ae55",
-"at": "2026-11-09T01:41:12Z",
+"id": "d1b69b0ac2",
+"at": "2026-11-09T01:44:24Z",
 "msg": "Változásnapló frissítése"
 }
 ]
