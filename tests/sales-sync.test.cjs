@@ -143,6 +143,14 @@ test('A Sales App értékesítője (eltérő írásmóddal is) szerződött lehe
   assert.ok(d, 'lehetőség létrejött'); assert.equal(d.ownerId, 'u-flora'); assert.equal(d.stage, 'nyert'); assert.equal(d.source, 'Sales App');
   const n = json('DB.deals.length'); json('salesSync()'); assert.equal(json('DB.deals.length'), n, 'ismételt futás nem duplikál');
 });
+test('Az értékesítő Értékesítő szerepben a csapatba kerül (megrendelésen nincs értékesítő → alapból Flóra)', () => {
+  run(`DB.crew.push({ id: 'crew-flora', name: 'Guzsloványi Flóra', roles: 'Értékesítő, Operatőr' }); loadUsers_ = () => [{ id: 'u1', name: 'Egri Ervin', role: 'admin' }];`);
+  setSales(C, 'Értékesítő', '', '2026-11-06 18:00:00');
+  json('salesSync()');
+  const sel = json(`DB.crewAssign.filter(r => r.projectId === 'sales-${C}' && r.role === 'Értékesítő').map(r => r.crewId)`);
+  assert.deepEqual(sel, ['crew-flora']);
+  json('salesSync()'); assert.equal(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${C}' && r.role === 'Értékesítő').length`), 1, 'nem duplikál');
+});
 test('videónkénti követés: a vágó leadja mind → jóváhagyásra vár; módosítást kér → visszamegy az utómunkába', () => {
   editProj(A, { status: 'utomunka', siteOk: 'igen' });
   const nora = { id: 'x', name: 'Nóra', role: 'crew', crewId: 'crew-nora-1' }, boss = { id: 'u1', name: 'Ervin', role: 'admin' };
