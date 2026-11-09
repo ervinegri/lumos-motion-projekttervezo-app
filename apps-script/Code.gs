@@ -939,6 +939,7 @@ function videoCommentDel_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const kind = str_(a.kind, 10);
+    if (kind === 'note') throw new Error('Az ellenőrzésre küldés megjegyzése nem törölhető.');
     if (kind === 'fb' || kind === 'note') {   // a régi visszadobási indok / az ellenőrzésre küldés megjegyzése
       const by = kind === 'fb' ? v.fbBy : v.rvBy, w = kind === 'fb' ? v.fbAt : v.rvAt;
       if (by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.'); if (String(w || '') !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
