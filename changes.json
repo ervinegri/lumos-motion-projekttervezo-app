@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "dd3c1827c1",
+"at": "2026-11-09T03:20:26+02:00",
+"msg": "Naptár: a szűrők a nézetválasztó fölött; Utómunka lépés: a részletek gomb a cím mellett (alacsonyabb kártya)"
+},
+{
 "id": "04f7315865",
 "at": "2026-11-09T03:18:44+02:00",
 "msg": "Videótábla: több videó kijelölése (⌘/Ctrl/Shift + kattintás) és átnézése egymás után; oszloponként ▶ Átnézés; ‹ › a videóablakban, jóváhagyás után a következő; Mind jóváhagyása"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: jól látható, számozott, pulzáló tű"
 },
 {
-"id": "cae513dfeb",
-"at": "2026-11-09T01:51:40+02:00",
-"msg": "Videó ablak: tű Ctrl + kattintással, súgó soronként, a szövegmezőben az időkódra kattintva odaugrik"
-},
-{
-"id": "f6b6fc189a",
-"at": "2026-11-08T23:49:25Z",
+"id": "cbe1e962af",
+"at": "2026-11-08T23:51:48Z",
 "msg": "Változásnapló frissítése"
 }
 ]
