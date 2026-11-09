@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61879b92ae",
+"at": "2026-11-09T21:01:56+02:00",
+"msg": "Bevételek: értékesítő hozta projektnél az Értékesítés a jutaléka, a % nem írható át"
+},
+{
 "id": "57e8363431",
 "at": "2026-11-09T20:58:23+02:00",
 "msg": "Szerződés és számlázás: „kifizetve” csempe le, a kereső a csempék sorába; megrendelőlap-párosítás pontosítása"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Kifizetések (szakember): cím és hónapváltó egy sorban"
 },
 {
-"id": "0649bb1ac4",
-"at": "2026-11-09T14:28:52+02:00",
-"msg": "Mobil: hónapváltó nem lóg ki, a Kifizetések táblázat kifér (összegek látszanak)"
-},
-{
-"id": "c9600e67a7",
-"at": "2026-11-09T12:27:36Z",
+"id": "423fb8db8b",
+"at": "2026-11-09T12:29:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
