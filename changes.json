@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "38018261a9",
+"at": "2026-11-09T02:21:40+02:00",
+"msg": "Videó ablak: lejátszás közben szóköz megállít, beszúrja az időkódot, és lehet írni"
+},
+{
 "id": "ce91301c18",
 "at": "2026-11-09T02:19:39+02:00",
 "msg": "Videó ablak: frissítés után visszajön; hosszú szóköz = 2× sebesség; Enter után a következő időkód látszik; élő időkód az üres mezőben; kuka a videó alatt; Bezárás · Visszadobás sorrend; az ellenőrzési megjegyzés nem törölhető"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: projekt, állapot és link a címsorban"
 },
 {
-"id": "182db1d15b",
-"at": "2026-11-09T01:21:00+02:00",
-"msg": "Videó lejátszó: húzással tekerés előre / vissza, időkód-buborékkal"
-},
-{
-"id": "90144e5740",
-"at": "2026-11-08T23:16:29Z",
+"id": "e685e686c6",
+"at": "2026-11-08T23:21:08Z",
 "msg": "Változásnapló frissítése"
 }
 ]
