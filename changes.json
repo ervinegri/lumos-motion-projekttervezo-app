@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "2465dff0b9",
+"at": "2026-11-09T02:22:18+02:00",
+"msg": "Videó ablak: időkód egy lépésben törölhető (Backspace/Delete); az élő időkód nem ugrál"
+},
+{
 "id": "38018261a9",
 "at": "2026-11-09T02:21:40+02:00",
 "msg": "Videó ablak: lejátszás közben szóköz megállít, beszúrja az időkódot, és lehet írni"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: rövid kattintás indít/megállít, képkockához igazított tekerés (mért fps), ← → képkocka-léptetés, időkód-buborék alul"
 },
 {
-"id": "b2635c7ccd",
-"at": "2026-11-09T01:21:52+02:00",
-"msg": "Videó ablak: projekt, állapot és link a címsorban"
-},
-{
-"id": "e685e686c6",
-"at": "2026-11-08T23:21:08Z",
+"id": "ff4de5ca86",
+"at": "2026-11-08T23:22:01Z",
 "msg": "Változásnapló frissítése"
 }
 ]
