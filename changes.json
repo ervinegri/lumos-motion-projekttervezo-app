@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "0d7385e670",
+"at": "2026-11-09T13:59:54+02:00",
+"msg": "Fizetések: projektnév végén …"
+},
+{
 "id": "e968ee0ef6",
 "at": "2026-11-09T13:57:58+02:00",
 "msg": "Fizetések: hosszú projektnév egy sorban, …-tal"
@@ -141,13 +146,8 @@
 "msg": "Naptár: kisebb hézag a menü, az eszközsor és az idővonal között"
 },
 {
-"id": "2670765fdd",
-"at": "2026-11-09T05:17:43+02:00",
-"msg": "Videók: közvetlen küldés az ügyfélnek (kapcsolattartó e-mail, lenyitható levél); videó átnevezése; az oszlop videói lapozhatók; a tábla a videóablak alatt marad; nagyításnál is elfér; idővonal: csak a projektnév, sűrűbb sorok; e-mailben nincs emoji; szerep-szűrő kereshető"
-},
-{
-"id": "a0bf7e2c78",
-"at": "2026-11-09T01:50:27Z",
+"id": "fdea3ee78f",
+"at": "2026-11-09T03:17:53Z",
 "msg": "Változásnapló frissítése"
 }
 ]
