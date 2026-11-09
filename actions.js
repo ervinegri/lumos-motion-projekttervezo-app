@@ -2275,6 +2275,7 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
   openModal('📤 Küldés az ügyfélnek jóváhagyásra',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>${S.clientMailLive?'':'<div class="banner warn" style="margin:0 0 12px"><p>🧪 <b>Tesztüzem:</b> a levél nem az ügyfélnek, hanem <b>neked</b> megy ki (a tárgyban látod, kinek szólna). Élesítés: szólj.</p></div>'}
     <div class="field full"><label>Kinek küldjük? <span class="muted">(több is választható)</span></label><div class="cl-pick">${CC.map((c,i)=>`<label class="cl-opt"><input type="checkbox" name="toPick" value="${esc(c.email)}"${i===0?' checked':''}> <span><b>${esc(c.name||c.email)}</b>${c.name?` <small>${esc(c.email)}</small>`:''}${c.tag?` <small class="muted">· ${esc(c.tag)}</small>`:''}</span></label>`).join('')||'<p class="hint" style="margin:0">Ehhez az ügyfélhez nincs elmentett e-mail cím – add meg alább.</p>'}</div>
       <input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px"></div>
+    ${isAdmin()?wmFieldHtml(p):''}
     <div class="field full"><label for="m-clLink">A videó linkje</label><input class="inp" id="m-clLink" name="link" type="url" value="${esc(v.link||'')}" required></div>
     <div class="field full"><label for="m-clSubj">Tárgy</label><input class="inp" id="m-clSubj" name="subject" value="${esc(clSubj(p,v))}"></div>
     <div class="field full"><span class="lbl">A levél előnézete <span class="muted" style="font-weight:500">– kattints a szövegbe, és írd át, ami kell</span></span><textarea id="m-clBody" name="body" hidden>${esc(body)}</textarea>
@@ -2291,6 +2292,14 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
   const fm=$('mform');if(fm){fm.addEventListener('input',e=>{if(e.target.id==='m-clSubj'||e.target.id==='m-clTo')clHead();});fm.addEventListener('change',e=>{if(e.target.name==='toPick')clHead();});}
   (S._mySig!=null?Promise.resolve(S._mySig):call('mySignature').then(r=>(S._mySig=(r&&r.html)||'')).catch(()=>(S._mySig=''))).then(()=>clPrev(false));clHead();
   setTimeout(()=>{const i=$(v.link?'m-clSubj':'m-clLink');if(i)i.focus();},60);}
+/* Vízjel a jóváhagyó lejátszón (projektenként): pipával; Sales App projektnél alapból be; teljes kifizetés után magától lekerül */
+const wmSales=p=>String(p.id||'').indexOf('sales-')===0||/Forrás: Sales App/.test(String(p.notes||''));
+const wmSet=p=>{const w=String((billOf(p.id)||{}).watermark||'');return w==='1'||(w!=='0'&&wmSales(p));};
+function wmFieldHtml(p){const on=wmSet(p),paid=p.payStatus==='teljes';
+  return `<div class="field full wm-field"><label class="chk"><input type="checkbox" data-wm-pid="${esc(p.id)}"${on?' checked':''}> 💧 <b>Vízjel a videón</b> <span class="muted">– amíg nincs kifizetve${wmSales(p)?' (Sales App projekt: alapból bekapcsolva)':''}</span></label>${on&&paid?'<small class="hint" style="margin:2px 0 0 26px;display:block">✅ Kifizetve – az ügyfél már vízjel nélkül látja.</small>':''}</div>`;}
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.dataset.wmPid===undefined||!isAdmin())return;const pid=t.dataset.wmPid,v=t.checked?'1':'0';
+  try{const d=await call('billSave',{projectId:pid,watermark:v});if(d&&d.billing&&S.fin)S.fin.billing=d.billing;else if(S.fin){const arr=S.fin.billing=S.fin.billing||[];let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid),{projectId:pid});arr.push(b);}b.watermark=v;}
+    toast(t.checked?'💧 Vízjel bekapcsolva – kifizetésig rajta marad':'Vízjel kikapcsolva');}catch(err){t.checked=!t.checked;handleErr(err);}});
 /* Ügyfél-levél előnézete (mint a díjösszesítőnél): fejléc + szerkeszthető levélszöveg + aláírás. A szöveg a rejtett „body” mezőbe kerül vissza. */
 function clHead(){const h=$('cl-head');if(!h)return;const fm=$('mform');const to=[...fm.querySelectorAll('[name=toPick]:checked')].map(x=>x.value).concat([String(($('m-clTo')||{}).value||'').trim()]).filter(Boolean).join(', ');
   h.innerHTML=`<div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(to||'(válassz címzettet)')}</div><div><span>Tárgy:</span> <b>${esc(String(($('m-clSubj')||{}).value||''))}</b></div>`;}

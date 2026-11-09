@@ -97,7 +97,7 @@ const TABLES = {
     ['id', 'Azonosító (ne módosítsd)'], ['projectId', 'Projekt azonosító'], ['contractStatus', 'Szerződés állapota'], ['contractUrl', 'Szerződés (link)'], ['contractName', 'Szerződés fájlneve'],
     ['contractFileId', 'Drive-fájl azonosító'], ['contractAt', 'Feltöltve'], ['contractBy', 'Feltöltötte'], ['mode', 'Konstrukció (eloleg / egyben)'], ['advancePct', 'Foglaló (%)'],
     ['poNumber', 'Megrendelésszám / PO'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['signedAt', 'Aláírás dátuma'],
-    ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)'], ['noFinal', 'Végszámla nem kell (1)'], ['tigMode', 'TIG (kell / nemkell / üres = ügyfél szerint)'], ['mktProject', 'Saját marketing projekt (1)']] },
+    ['ceoPct', 'Értékesítés % (egyedi)'], ['rezsiPct', 'Eszköz, rezsi % (egyedi)'], ['noFinal', 'Végszámla nem kell (1)'], ['tigMode', 'TIG (kell / nemkell / üres = ügyfél szerint)'], ['mktProject', 'Saját marketing projekt (1)'], ['watermark', 'Vízjel a videókon (1 / 0 / üres = Sales App szerint)']] },
   finFramework: { tab: 'Keretszerződések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['url', 'Szerződés (link)'], ['fileName', 'Fájlnév'], ['fileId', 'Drive-fájl azonosító'],
     ['signedAt', 'Aláírás dátuma'], ['validTo', 'Érvényes eddig'], ['note', 'Megjegyzés'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['mode', 'Típus (üres = keretszerződés, nemkell = nem igényel)']] },
@@ -999,8 +999,12 @@ function clientTokenRead_(t) { const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t ||
   const sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(m[1], clientSecret_())).replace(/=+$/, ''); if (sg !== m[2]) throw new Error('Érvénytelen link.');
   const o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(m[1] + '==='.slice((m[1].length + 3) % 4))).getDataAsString()); if (!o || !o.p || !o.v) throw new Error('Érvénytelen link.'); if (o.x && Date.now() > o.x) throw new Error('A link lejárt – kérj újat.'); return o; }
 function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
-function clientInfo_(t) { const o = clientTokenRead_(t), r = clientVideo_(o);
-  return { project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
+/* Vízjel a jóváhagyó lejátszón: pipával kérhető; a Sales Appból jött projekteknél alapból be van kapcsolva; kifizetés (teljes) után lekerül */
+function wmActive_(p) { const b = readAll_('finBilling').find(x => x.projectId === p.id), w = String((b && b.watermark) || '');
+  const sales = String(p.id || '').indexOf('sales-') === 0 || /Forrás: Sales App/.test(String(p.notes || ''));
+  return (w === '1' || (w !== '0' && sales)) && p.payStatus !== 'teljes'; }
+function clientInfo_(t) { const o = clientTokenRead_(t), r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
+  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
   if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return cn.split(/\s+/).pop();
@@ -2772,6 +2776,7 @@ function billSave_(u, a) {
     if (a.clearFile) { r.contractUrl = ''; r.contractFileId = ''; r.contractName = ''; r.contractAt = ''; r.contractBy = ''; }
     if (a.mode !== undefined) r.mode = a.mode === 'egyben' ? 'egyben' : 'eloleg';
     if (a.noFinal !== undefined) r.noFinal = a.noFinal ? '1' : '';
+    if (a.watermark !== undefined) r.watermark = a.watermark === '1' || a.watermark === true ? '1' : a.watermark === '0' || a.watermark === false ? '0' : '';   // vízjel az ügyfél jóváhagyó lejátszóján
     if (a.mktProject !== undefined) r.mktProject = a.mktProject === '0' ? '0' : a.mktProject && a.mktProject !== '' ? '1' : '';   // '0': kifejezetten nem marketing (az érték nélküli projekt is a bevételek közt marad)   // saját marketing projekt: a termelési költség a marketing alapból megy
     if (a.tigMode !== undefined) r.tigMode = a.tigMode === 'kell' || a.tigMode === 'nemkell' ? a.tigMode : '';
     if (a.advancePct !== undefined) { const n = Math.round(Number(a.advancePct)); if (!isFinite(n) || n < 0 || n > 100) throw new Error('A foglaló 0–100% lehet.'); r.advancePct = n; }
