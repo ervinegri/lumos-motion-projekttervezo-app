@@ -2201,6 +2201,17 @@ function hubspotContactsApi_(arg) {
       if (ids.length) add((hubspot_('post', '/crm/v3/objects/contacts/batch/read', { properties: HS_PROPS_.concat(hsSrcName_('contacts')), inputs: ids.map(id => ({ id: id })) }).results) || []);
     });
   }
+  /* ha a kapcsolattartónál nincs kitöltve a „Cég” mező, a hozzá kapcsolt HubSpot-cég neve */
+  try {
+    const miss = out.slice(0, 30).filter(x => !x.company);
+    if (miss.length) {
+      const as = (hubspot_('post', '/crm/v4/associations/contacts/companies/batch/read', { inputs: miss.map(x => ({ id: String(x.id) })) }).results) || [], co = {};
+      as.forEach(r => { const t = (r.to || [])[0]; if (t) co[String(r.from && r.from.id)] = String(t.toObjectId); });
+      const cids = Object.keys(co).map(k => co[k]).filter((v, i, a) => a.indexOf(v) === i);
+      if (cids.length) { const nm = {}; ((hubspot_('post', '/crm/v3/objects/companies/batch/read', { properties: ['name'], inputs: cids.map(id => ({ id: id })) }).results) || []).forEach(c => { nm[String(c.id)] = (c.properties || {}).name || ''; });
+        miss.forEach(x => { const n = nm[co[String(x.id)]]; if (n) x.company = n; }); }
+    }
+  } catch (e) { Logger.log('HubSpot cég: ' + e); }
   return out.slice(0, 30);
 }
 
