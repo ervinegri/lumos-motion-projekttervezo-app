@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "a5e8386976",
+"at": "2026-11-09T02:08:13+02:00",
+"msg": "Videó ablak: üres hozzászólás mezőbe kattintva az aktuális időkód már ott van"
+},
+{
 "id": "6cc6d3a6c9",
 "at": "2026-11-09T02:07:18+02:00",
 "msg": "Videó ablak: jelölő törlése kukába húzással; gombsor: Visszadobás · Bezárás · Időkód · Jelölés · Jóváhagyás"
@@ -141,13 +146,8 @@
 "msg": "Videók: visszadobás → Utómunka alatt; több időkód egy hozzászólásban (ezredmásodperc); mentés bezáráskor; az ellenőrzési megjegyzés a listában"
 },
 {
-"id": "73d28f38e9",
-"at": "2026-11-09T01:00:32+02:00",
-"msg": "Videó ablak: egy szövegmező (a visszadobás indoka is innen), legfrissebb hozzászólás felül"
-},
-{
-"id": "15319ed8cb",
-"at": "2026-11-08T22:57:31Z",
+"id": "d97495bb26",
+"at": "2026-11-08T23:00:42Z",
 "msg": "Változásnapló frissítése"
 }
 ]
