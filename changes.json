@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "de93265d97",
+"at": "2026-11-09T13:17:56+02:00",
+"msg": "Sales App projektek értékesítője alapból Flóra; a projektvezető ne látsszon Értékesítőként"
+},
+{
 "id": "9d2b1b085f",
 "at": "2026-11-09T13:13:28+02:00",
 "msg": "Szerződés-begyűjtés: naponta egyszer a háttérben az app indulásakor"
@@ -146,13 +151,8 @@
 "msg": "Videótábla: Inter betű lágyabb vastagságokkal; a határidő-sáv a címsorban az X-ig ér, vastagabb"
 },
 {
-"id": "e39767e10f",
-"at": "2026-11-09T03:05:50+02:00",
-"msg": "Videótábla ablak: határidő és leadott darabszám a címsorban, a projektnév nem ismétlődik, szélesebb oszlopok"
-},
-{
-"id": "312979c405",
-"at": "2026-11-09T01:03:49Z",
+"id": "7d8fd5dd8c",
+"at": "2026-11-09T01:05:59Z",
 "msg": "Változásnapló frissítése"
 }
 ]
