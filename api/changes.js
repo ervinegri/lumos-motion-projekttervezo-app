@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d4cea0eadd",
+"at": "2026-11-09T21:32:46+02:00",
+"msg": "Stáb: szerepválasztó a saját legördülővel; új operatőr-altípusok (Kreatív, Statív, Interjúsarok)"
+},
+{
 "id": "22582cc41e",
 "at": "2026-11-09T21:30:44+02:00",
 "msg": "Összeg-mezők: számolás is beírható (+ − × ÷), Enterre / kilépéskor kiszámolódik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Továbbszámlázott mező rendezése; csatolmányok az Új projekt ablakban"
 },
 {
-"id": "68e83a3c72",
-"at": "2026-11-09T17:19:45+02:00",
-"msg": "Továbbszámlázott költség a nettó szerződött érték része: levonva (…után mező), felirat: Nettó szerződött érték"
-},
-{
-"id": "c4516ae291",
-"at": "2026-11-09T15:17:02Z",
+"id": "337ef59068",
+"at": "2026-11-09T15:19:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
