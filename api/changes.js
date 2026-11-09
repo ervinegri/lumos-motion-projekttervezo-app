@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "95444cdb15",
+"at": "2026-11-09T17:55:33+02:00",
+"msg": "Lumos Motion Jóváhagyás logó a jóváhagyó oldalon"
+},
+{
 "id": "0080d147ed",
 "at": "2026-11-09T17:38:39+02:00",
 "msg": "Ügyfél neve a hozzászólásoknál: csak keresztnév, e-mail cím nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügy táblázat: az értékesítő nem kerül a termelői díjak közé"
 },
 {
-"id": "7241883e2e",
-"at": "2026-11-09T13:41:06+02:00",
-"msg": "Pénzügy táblázat: az értékesítő sorában a jutalék összege"
-},
-{
-"id": "8f07457885",
-"at": "2026-11-09T11:31:05Z",
+"id": "9276f46e8f",
+"at": "2026-11-09T11:41:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
