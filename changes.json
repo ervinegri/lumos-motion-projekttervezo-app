@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6cf2d09380",
+"at": "2026-11-09T13:22:45+02:00",
+"msg": "Fizetések: a vágás ugyanabban a hónapban a projekt forgatási napjánál marad"
+},
+{
 "id": "8ddf89f757",
 "at": "2026-11-09T13:20:30+02:00",
 "msg": "Sales App projektek: az értékesítő (Flóra) Értékesítő szerepben a csapatba kerül; nem kap beosztásos levelet/meghívót"
@@ -146,13 +151,8 @@
 "msg": "Videótábla ablak: kitölti a képernyőt (szélesség és magasság)"
 },
 {
-"id": "dce075b0a3",
-"at": "2026-11-09T03:09:41+02:00",
-"msg": "Videó ablak: fekvő videónál a Hozzászólások felirat nem csúszik a videó alá"
-},
-{
-"id": "d9d4068123",
-"at": "2026-11-09T01:07:24Z",
+"id": "6e818c9f9c",
+"at": "2026-11-09T01:09:50Z",
 "msg": "Változásnapló frissítése"
 }
 ]
