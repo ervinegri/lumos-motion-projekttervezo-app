@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "254b4acdd8",
+"at": "2026-11-09T20:28:20+02:00",
+"msg": "Kifizetések: a vágó díja is a projekt hónapjára számít; Sales megrendelőlapok rendelésenként (egy ügyfél több rendelése)"
+},
+{
 "id": "19490c371b",
 "at": "2026-11-09T18:31:34+02:00",
 "msg": "Értékesítés: szerződött lehetőség meglévő projekthez kapcsolható (nem jön létre másodpéldány)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: hosszú projektnév egy sorban, …-tal"
 },
 {
-"id": "7522a749d7",
-"at": "2026-11-09T13:55:14+02:00",
-"msg": "Pénzügyek: altabok, hónapváltó és gombok egy sorban"
-},
-{
-"id": "e46e053b72",
-"at": "2026-11-09T11:52:36Z",
+"id": "9160089431",
+"at": "2026-11-09T11:55:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
