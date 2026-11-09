@@ -554,21 +554,21 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
   async function check(){if(shown||document.hidden||location.protocol==='file:')return;try{const s=await sig();if(!s.replace(/\|/g,''))return;if(base===null){base=s;return;}
     if(s!==base){shown=true;const d=document.createElement('div');d.className='upd-bar';d.innerHTML='🔄 Elérhető az app új verziója. <button type="button" class="btn primary small">Frissítés most</button>';
       d.querySelector('button').onclick=()=>{try{if(typeof mdSave==='function')mdSave();}catch(e){}location.reload();};document.body.appendChild(d);
-      /* hoverre: mik az újdonságok (changes.json – a GitHub automatikusan frissíti) */
+      /* hoverre: mik az újdonságok – csak az ügyvezetőnek, a háttéren keresztül (a lista nem nyilvános) */
       const tipUp=async()=>{if(typeof isAdmin!=='function'||!isAdmin()){d.removeAttribute('data-tip');return;}   /* az újdonságok listáját csak az ügyvezető látja */
-        try{const r=await fetch('changes.json',{cache:'no-store'});const it=(((await r.json())||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);
+        try{const it=(((await call('changesList'))||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);
         d.setAttribute('data-tip',it.length?'Újdonságok:\n'+it.map(x=>'• '+String(x.msg||'').split('\n')[0].slice(0,140)).join('\n'):'Kisebb javítások');d.setAttribute('tabindex','0');}catch(e){}};
       tipUp();d.addEventListener('mouseenter',tipUp);}}catch(e){}}
   setTimeout(check,4000);setInterval(check,180000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});})();
 
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){const f=S.blf||(S.blf={v:'honap',q:''});setMonthAll(e.target.value);f.v='honap';render(true);}});
 
-/* „Az app frissült” értesítés: új verzió első betöltésekor megmutatjuk, mi változott (changes.json – a GitHub automatikusan frissíti) */
+/* „Az app frissült” értesítés: új verzió első betöltésekor megmutatjuk, mi változott – csak az ügyvezetőnek (a változásnapló nem nyilvános) */
 (function(){const K='lpm_seen_ver';
-  async function run(){try{if(!S.me){setTimeout(run,1500);return;}const r=await fetch('changes.json',{cache:'no-store'});if(!r.ok)return;const items=((await r.json()).items)||[];if(!items.length)return;
+  async function run(){try{if(!S.me){setTimeout(run,1500);return;}if(!isAdmin())return;const items=(((await call('changesList'))||{}).items)||[];if(!items.length)return;
     let seen=null;try{seen=localStorage.getItem(K);localStorage.setItem(K,items[0].id);}catch(e){return;}
     if(!seen||seen===items[0].id)return;   // első látogatás vagy nincs újdonság
-    const i=items.findIndex(x=>x.id===seen),news=(i<0?items.slice(0,6):items.slice(0,i)).slice(0,10),staff=!ro();
+    const i=items.findIndex(x=>x.id===seen),news=(i<0?items.slice(0,6):items.slice(0,i)).slice(0,10),staff=true;
     const d=document.createElement('div');d.className='upd-done';d.setAttribute('role','status');
     d.innerHTML=`<div class="ud-h"><b>✅ Az app frissült</b><button type="button" class="x" aria-label="Bezárás">✕</button></div>`+(staff&&news.length?`<ul>${news.map(x=>`<li>${esc(x.msg)}</li>`).join('')}</ul>`:'<p>Az új változat már be van töltve.</p>');
     d.querySelector('.x').onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{if(d.isConnected&&!d.matches(':hover')){d.classList.add('ud-fade');setTimeout(()=>d.remove(),900);}},20000);}catch(e){}}

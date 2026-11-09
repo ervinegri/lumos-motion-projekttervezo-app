@@ -4564,6 +4564,12 @@ function rpcInner_(token, name, arg) {
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'crewDocSave': adminOnly(); return crewDocSave_(u, arg);
     case 'crewDocGet': adminOnly(); return crewDocGet_(u, arg);
+    case 'changesList': {   // az app változásnaplója – nem nyilvános, csak az ügyvezető kapja meg
+      adminOnly(); const c = CacheService.getScriptCache(), hit = c.get('pm_changes'); if (hit) return JSON.parse(hit);
+      const r = UrlFetchApp.fetch(FRONTEND_URL.replace(/\/$/, '') + '/api/changes', { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
+      if (r.getResponseCode() !== 200) return { items: [] };
+      const out = { items: ((JSON.parse(r.getContentText()) || {}).items || []).slice(0, 40) }; try { c.put('pm_changes', JSON.stringify(out), 120); } catch (e) {} return out;
+    }
     case 'crewDocsImport': adminOnly(); return crewDocsImport_(u, arg);
     case 'crewDocDelete': adminOnly(); return crewDocDelete_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
