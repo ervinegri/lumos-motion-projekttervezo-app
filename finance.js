@@ -37,11 +37,11 @@ const ovPct=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
 function finProjectRow(p){const st=finSet(),amount=projTotal(p),fees=Math.round(feeSum(p));
   const tov=Math.round((typeof extrasRaw==='function'?extrasRaw(p):[]).filter(x=>x&&x.kind==='tov').reduce((a,x)=>a+num(x.amount),0)),base=Math.max(0,amount-tov),prod=fees+tov;   // továbbszámlázott: átfolyó költség – a Termelésbe kerül, a százalékok nélküle számolódnak
   const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);   // projektenként egyedi értékesítés / eszköz-rezsi %
-  const dl=cp==null&&typeof projDeal==='function'?projDeal(p):null,de=dl&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;   // értékesítő hozta: az ő jutaléka az értékesítés
+  const dl=typeof projDeal==='function'?projDeal(p):null,de=dl&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;   // értékesítő hozta: az ő jutaléka az értékesítés
   let ceo=de&&de.amt>0?Math.round(de.amt):Math.round(base*(cp??st.ceoPct)/100),marketing=Math.round(base*st.marketingPct/100);
   let profit,rezsi;if(rp!=null){rezsi=Math.round(base*rp/100);profit=amount-prod-ceo-marketing-rezsi;}else{profit=Math.round(base*st.profitPct/100);rezsi=amount-profit-ceo-marketing-prod;}
   if(!amount){profit=0;ceo=0;rezsi=0;marketing=-prod;}   // érték nélküli (ingyenes) projekt: a költsége a marketingből megy, nem az eszköz-rezsiből
-  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,tov,profit,ceo,marketing,rezsi,ceoOv:cp!=null,rezsiOv:rp!=null,ceoBy:de&&de.amt>0?(dl.ownerName||'értékesítő'):''};}
+  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,prod,tov,profit,ceo,marketing,rezsi,ceoOv:cp!=null&&!(de&&de.amt>0),rezsiOv:rp!=null,ceoBy:de&&de.amt>0?(dl.ownerName||'értékesítő'):''};}
 /* Régi táblázat sora ↔ projekt: közös jellemző szó a névben (ügyfél, helyszín is számít), a gyakori szavak nélkül */
 const LEG_STOP=new Set('technikai ugyelet konferencia rendezveny webinar stream short video videok forgatas podcast hibrid masodik eloadas youtube napja workshop kiallitas esemeny budapest hungary kft zrt bt nonprofit egyesulet alapitvany tagozat levelezo akademia gala unnepseg evzaro fesztival expo talalkozo csoportos and the of az es db 2024 2025 2026 2027 ak tal csop ut utca ter krt hotel center etterem kavehaz'.split(' '));
 const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(w=>w.length>=2&&!LEG_STOP.has(w));
@@ -107,6 +107,7 @@ const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.roun
 /* Módosítható %: értékesítés és eszköz-rezsi (a termelés % fix, a díjakból jön). Üresre törölve visszaáll az alapértékre. */
 const pctNum=(v,base)=>{base=Number(base)||0;return base?Math.round(Number(v)/base*1000)/10:0;};
 function pctIn(r,k){const v=pctNum(r[k],r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv;
+  if(k==='ceo'&&r.ceoBy)return `<span class="pct-lock" data-tip="${esc(r.ceoBy)} értékesítői jutaléka – a projekt Pénzügyek részében állítható">${String(v).replace('.',',')}</span>`;   // értékesítő hozta: a jutaléka, itt nem írható át
   return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'&&r.ceoBy?esc(r.ceoBy)+' értékesítői jutaléka (a projekt Pénzügyek részéből) – átírhatod':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
 async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
   const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
