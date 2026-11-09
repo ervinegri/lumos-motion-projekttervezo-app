@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "6cc6d3a6c9",
+"at": "2026-11-09T02:07:18+02:00",
+"msg": "Videó ablak: jelölő törlése kukába húzással; gombsor: Visszadobás · Bezárás · Időkód · Jelölés · Jóváhagyás"
+},
+{
 "id": "4e1761d04e",
 "at": "2026-11-09T02:04:57+02:00",
 "msg": "Videó ablak: időkód és jelölés gomb a láblécben, gépelés után Enter folytatja a videót, szóköz az idősáv után is"
@@ -141,13 +146,8 @@
 "msg": "Videó ablak: egy szövegmező (a visszadobás indoka is innen), legfrissebb hozzászólás felül"
 },
 {
-"id": "86891b6e58",
-"at": "2026-11-09T00:57:22+02:00",
-"msg": "Kifizetések: a szakember saját nézetében név nélkül a díjösszesítő sor"
-},
-{
-"id": "830d0f61a9",
-"at": "2026-11-08T22:56:49Z",
+"id": "15319ed8cb",
+"at": "2026-11-08T22:57:31Z",
 "msg": "Változásnapló frissítése"
 }
 ]
