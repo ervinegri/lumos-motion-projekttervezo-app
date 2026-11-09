@@ -2817,6 +2817,13 @@ function crewDocSave_(u, a) {
     return { crewDocs: crewDocsList_() };
   });
 }
+/** Naponta egyszer: a külsősök egyértelműen aláírt szerződései (a fájlnévben „aláírt” + szerződés) automatikusan bekerülnek */
+function crewDocsAuto_() {
+  const P = PropertiesService.getScriptProperties(), d = today_();
+  if (P.getProperty('CREWDOCS_AUTO_AT') === d) return;
+  P.setProperty('CREWDOCS_AUTO_AT', d);
+  crewDocsImport_({ id: 'gmail-auto', name: 'Gmail-begyűjtés', role: 'admin', email: '' }, { strict: true });
+}
 /** Aláírt munkatársi szerződések begyűjtése a Gmailből (külsősök, akiknek még nincs feltöltött szerződésük). a: {dry, crewIds?} */
 function crewDocsImport_(u, a) {
   a = a || {};
@@ -2840,6 +2847,7 @@ function crewDocsImport_(u, a) {
           if (/sz[aá]mla|invoice|igazol|teljes[ií]t/i.test(n)) return;
           if (!(signedName && (kwName || body)) && !(byCrew && (kwName || body) && !DRAFT.test(n))) return;
           if (DRAFT.test(n) && !signedName) return;
+          if (a.strict && !(signedName && kwName)) return;
           cands.push({ at: at, name: n, size: at.getSize(), date: Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd'), ts: m.getDate().getTime(), byCrew: byCrew, signedName: signedName });
         });
       });
@@ -4706,6 +4714,7 @@ function salesLog_(rec, action, details) {
 /** IDŐZÍTETT (5 percenként) és kézzel is futtatható: Sales App ↔ Projekttervező szinkron. */
 function salesSync() {
   const P = PropertiesService.getScriptProperties();
+  try { crewDocsAuto_(); } catch (e) { Logger.log('Szerződés-begyűjtés: ' + e); }
   if (P.getProperty('SALES_SYNC_OFF') === '1') return { off: true };
   let S;
   try { salesSchema_(); S = salesRead_(); }
