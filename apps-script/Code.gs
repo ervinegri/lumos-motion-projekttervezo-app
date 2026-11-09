@@ -852,7 +852,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
-    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30),
+    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), cn: x && x.cn ? 1 : 0,
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
@@ -860,7 +860,7 @@ function videosEnsure_(p, cutters) {
   const cur = parseVideos_(p.videos), byId = {}; cur.forEach(x => { byId[x.id] = x; });
   const want = [];
   VIDEO_KINDS_.forEach(kn => { const n = Math.max(0, Math.min(40, Math.floor(Number(p[kn[0]]) || 0)));
-    for (let i = 1; i <= n; i++) { const id = kn[0] + '-' + i, x = byId[id] || { id: id, k: kn[0], editor: '', st: 'vagasra', at: '' }; x.name = kn[1] + (n > 1 ? ' ' + i : ''); want.push(x); } });
+    for (let i = 1; i <= n; i++) { const id = kn[0] + '-' + i, x = byId[id] || { id: id, k: kn[0], editor: '', st: 'vagasra', at: '' }; if (!x.cn) x.name = kn[1] + (n > 1 ? ' ' + i : ''); /* átnevezett videó neve megmarad */ want.push(x); } });
   const ids = {}; want.forEach(x => { ids[x.id] = 1; });
   cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.editor)) want.push(x); });   // már dolgozott rajta valaki: nem tűnik el
   const one = cutters && cutters.length === 1 ? cutters[0] : '';
@@ -911,7 +911,7 @@ function videoReview_(u, a) {
   return { project: projectView_(fullProject_(p), u), mail: mail };
 }
 /** Hozzászólás egy videóhoz (vezető vagy a projekt vágója); ts: másodperc a videóban, ha a lejátszóból időponthoz kötötték. A vágó e-mailt kap, ha más írt; ha ő írt, az ellenőrző. */
-const pinStrip_ = t => String(t || '').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' 📍]');   // a tű koordinátái az e-mailben nem kellenek
+const pinStrip_ = t => String(t || '').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' – jelölés]');   // az e-mailben nincs emoji (a levelezők elrontják)   // a tű koordinátái az e-mailben nem kellenek
 function videoComment_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', t = str_(a.text, 1000).trim();
@@ -952,6 +952,23 @@ function videoCommentDel_(u, a) {
   logEvent_(u, 'Videó hozzászólás törölve', p.name, vid);
   return { project: projectView_(fullProject_(p), u) };
 }
+/** Küldés az ügyfélnek jóváhagyásra: a videó „Ügyfél jóváhagyására vár” állapotba kerül, a kapcsolattartó e-mailt kap a linkkel (és a megjegyzéssel). a: {projectId, id, to, link, note, text} */
+function videoClient_(u, a) {
+  a = a || {};
+  if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: Az ügyfélnek a projektvezető küldheti el.');
+  const to = str_(a.to, 160).trim(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw new Error('Adj meg érvényes e-mail címet.');
+  const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 1500).trim(), text = str_(a.text, 4000).trim();
+  videoSet_(u, { projectId: pid, id: vid, st: 'leadva' });
+  let p, v;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
+    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: 'Ügyfélnek elküldve (' + to + ')' + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
+    p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  const html = text.split(/\n/).map(l => escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
+  let mail = false; try { mail = gmailSend_(to, 'Jóváhagyásra: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html + '</div>', name: 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
+  logEvent_(u, 'Videó ügyfélnek elküldve', p.name, (v ? v.name : '') + ' → ' + to);
+  return { project: projectView_(fullProject_(p), u), mail: mail };
+}
 let FB_MAIL_ = null;
 function videoSet_(u, a) {
   a = a || {};
@@ -969,6 +986,7 @@ function videoSet_(u, a) {
       const ed = str_(a.editor, 64); if (ed && !readAll_('crew').some(c => c.id === ed)) throw new Error('Ismeretlen szakember.');
       v.editor = ed; changed += 'vágó: ' + ed;
     }
+    if (a.name !== undefined) { if (!mgr) throw new Error('FORBIDDEN: A videó nevét a projektvezető módosíthatja.'); const nm = str_(a.name, 120).trim(); if (!nm) throw new Error('Adj nevet a videónak.'); v.name = nm; v.cn = 1; changed += (changed ? ', ' : '') + 'név: ' + nm; }
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
       if (!mgr && (['vagasra', 'vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
@@ -4483,6 +4501,7 @@ function rpcInner_(token, name, arg) {
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
     case 'videoReview': return videoReview_(u, arg);
+    case 'videoClient': return videoClient_(u, arg);
     case 'videoComment': return videoComment_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
