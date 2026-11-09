@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "f7b65c21c0",
+"at": "2026-11-09T11:52:17+02:00",
+"msg": "Másolás: normál mutató kurzor"
+},
+{
 "id": "ef8c1140a3",
 "at": "2026-11-09T11:36:26+02:00",
 "msg": "Videótábla: ellenőrzés/ügyfél ablak alatt is látszik, címsor egy vonalban; telefon/e-mail másolás hover"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: frissítés után a videótábla / videó biztosan visszajön; nyomva tartott Enter csak egy időkód; ↑↓ az időkódokra ugrik; a következő időkód nem vágódik le; azonnali törlés"
 },
 {
-"id": "9fb06705b8",
-"at": "2026-11-09T02:24:05+02:00",
-"msg": "Videó ablak: a szóköz csak indít/megállít (nem szúr be időkódot); frissítés utáni visszanyitás várakozással (adatok / másik ablak)"
-},
-{
-"id": "bafedf0a08",
-"at": "2026-11-09T00:22:29Z",
+"id": "050a496375",
+"at": "2026-11-09T00:24:13Z",
 "msg": "Változásnapló frissítése"
 }
 ]
