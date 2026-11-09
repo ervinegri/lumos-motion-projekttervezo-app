@@ -109,12 +109,23 @@ function pctIn(r,k){const v=pctNum(r[k],r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv
   return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'&&r.ceoBy?esc(r.ceoBy)+' értékesítői jutaléka (a projekt Pénzügyek részéből) – átírhatod':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
 async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
   const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
-  if(kind==='project'){const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v;finSave('billSave',{projectId:id,[f]:val},'Mentve',()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
+  const undoMsg='Mentve – visszavonás: '+(/Mac/.test(navigator.platform)?'⌘':'Ctrl')+' + Z';
+  if(kind==='project'){const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v,prev=(billOf(id)||{})[f];FIN_UNDO.push({kind,id,f,prev:prev==null?'':prev});finSave('billSave',{projectId:id,[f]:val},undoMsg,()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return;const st=finSet(),amount=num(r.amount),prod=num(r.prod),mk=num(r.marketing);
   let ceo=num(r.ceo),profit=num(r.profit),rezsi=Number(r.rezsi)||0;
   if(k==='ceo'){ceo=Math.round(amount*(v??st.ceoPct)/100);rezsi=amount-prod-profit-ceo-mk;}   // értékesítés változott: a maradék (eszköz-rezsi) igazodik
   else{rezsi=v==null?amount-prod-Math.round(amount*st.profitPct/100)-ceo-mk:Math.round(amount*v/100);profit=amount-prod-ceo-mk-rezsi;}   // eszköz-rezsi változott: a nyereség igazodik
-  const row=Object.assign({},r,{ceo,profit,rezsi});finSave('finUpsert',{table:'income',row},'Mentve',()=>finLocal('income',[row]));}
+  const row=Object.assign({},r,{ceo,profit,rezsi});FIN_UNDO.push({kind,row:Object.assign({},r)});finSave('finUpsert',{table:'income',row},undoMsg,()=>finLocal('income',[row]));}
+/* Visszavonás (⌘/Ctrl + Z) a százalékmezőkön: Esc szerkesztés közben az eredeti értéket adja vissza; mentés után a legutóbbi módosítást vonja vissza */
+const FIN_UNDO=[];
+function finUndo(){const u=FIN_UNDO.pop();if(!u){toast('Nincs visszavonható módosítás.');return;}
+  if(u.kind==='project'){finSave('billSave',{projectId:u.id,[u.f]:u.prev},'Visszavonva',()=>{const b=billOf(u.id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:u.id,[u.f]:u.prev})]);});}
+  else finSave('finUpsert',{table:'income',row:u.row},'Visszavonva',()=>finLocal('income',[u.row]));}
+document.addEventListener('focusin',e=>{const t=e.target;if(t.dataset&&t.dataset.finpct)t.dataset.orig=t.value;});
+document.addEventListener('keydown',e=>{const t=e.target,inPct=t&&t.dataset&&t.dataset.finpct;
+  if(inPct&&e.key==='Escape'){e.preventDefault();t.value=t.dataset.orig||t.value;t.blur();return;}
+  if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&(e.key==='z'||e.key==='Z')){if(inPct&&t.value!==t.dataset.orig)return;   /* szerkesztés közben a böngésző saját visszavonása */
+    const ed=t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));if((ed&&!inPct)||!document.querySelector('.fin-inc')||!FIN_UNDO.length)return;e.preventDefault();if(inPct)t.blur();finUndo();}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.finpct)finSetPct(t);});
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.finpct){e.preventDefault();t.blur();}});
 const sumK=(arr,k)=>arr.reduce((s,x)=>s+(Number(x[k])||0),0);
