@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "25146a33e1",
+"at": "2026-11-09T20:33:24+02:00",
+"msg": "Ügyfél jóváhagyására: e-mail nélküli áthelyezésnél is kötelező a videó linkje"
+},
+{
 "id": "254b4acdd8",
 "at": "2026-11-09T20:28:20+02:00",
 "msg": "Kifizetések: a vágó díja is a projekt hónapjára számít; Sales megrendelőlapok rendelésenként (egy ügyfél több rendelése)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: projektnév végén …"
 },
 {
-"id": "e968ee0ef6",
-"at": "2026-11-09T13:57:58+02:00",
-"msg": "Fizetések: hosszú projektnév egy sorban, …-tal"
-},
-{
-"id": "9160089431",
-"at": "2026-11-09T11:55:24Z",
+"id": "5a95aad6b8",
+"at": "2026-11-09T11:58:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
