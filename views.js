@@ -797,13 +797,14 @@ function roTechPanel(p){
   return `<div class="panel"><h3>💡 Hang-, fény- és vizuáltechnika</h3>${items.length?roList(items):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`;
 }
 /* a projekten kért videós / átadandó szolgáltatások (Átadás ablak, vágó nézete) */
+/* Átadandó anyagok: a drónos, timelapse és POV felvétel nem önálló átadandó – csak nyersanyag az utómunkázott videókhoz */
 function deliverItems(p){
   const items=[];
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)items.push(`${esc(it.label)}: <b>${n}</b>`);});
   if(p.er_post&&!num(p.er_post_n))items.push('<b>1</b> terem előadásainak utómunkája');
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>items.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> terem előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
   if(num(p.foto_db)>0)items.push(`Fotók utómunkája: <b>${num(p.foto_db)}</b> db`);
-  ['x_dron','x_timelapse','x_pov','x_nyersVetel','x_nyersTarolas','x_rush'].forEach(k=>{const e=EXTRAS.find(x=>x.k===k);if(e&&p[k])items.push(esc(e.label));});
+  ['x_nyersVetel','x_nyersTarolas','x_rush'].forEach(k=>{const e=EXTRAS.find(x=>x.k===k);if(e&&p[k])items.push(esc(e.label));});
   return items;
 }
 /* Videónkénti vágói követés: a megrendelt darabszámokból sorok (háttér hozza létre); a vezető a vágót és az állapotot, a vágó a saját videóinak vágási állapotát állítja */
