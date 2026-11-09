@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "129470d207",
+"at": "2026-11-09T17:16:52+02:00",
+"msg": "Ügyfél-levél: egyetlen gomb a jóváhagyó oldalra (ott a videó és a döntés), a levélben nincs külön Jóváhagyom/Módosítás gomb"
+},
+{
 "id": "3dfa77fa14",
 "at": "2026-11-09T17:13:59+02:00",
 "msg": "Továbbszámlázott költség a szervezői jutalékhoz hasonló mezőként, csatolmánnyal (feltöltés/behúzás a projekt Drive-mappájába)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fizetések: a vágás ugyanabban a hónapban a projekt forgatási napjánál marad"
 },
 {
-"id": "8ddf89f757",
-"at": "2026-11-09T13:20:30+02:00",
-"msg": "Sales App projektek: az értékesítő (Flóra) Értékesítő szerepben a csapatba kerül; nem kap beosztásos levelet/meghívót"
-},
-{
-"id": "5d7465e913",
-"at": "2026-11-09T11:18:06Z",
+"id": "9a0b90fdef",
+"at": "2026-11-09T11:20:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
