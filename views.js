@@ -293,7 +293,8 @@ function retainedBal(cid,month,incl){const items=[];let bal=0;
   return {bal,items};}
 /* Értékesítő díjazása egy hónapra: fix fizetés + a hónapban szerződött lehetőségek jutaléka (csak az ügyvezető és maga az értékesítő kapja meg az adatot) */
 /* Fiók nélküli értékesítő (munkatárs): a jutaléka projektenként, a projekt hónapjában – úgy, mint egy díj */
-const crewSalesComm=()=>(S.deals||[]).filter(d=>d.stage==='nyert'&&String(d.ownerId||'').indexOf('crew:')===0).map(d=>{const p=projById(d.projectId);if(!p||p.status==='lemondva'||!pr(p))return null;const e=salesCommEst(p,d);return e&&e.amt?{p,cid:String(d.ownerId).slice(5),amt:e.amt}:null;}).filter(Boolean);
+const dealCrewId=d=>String(d.ownerId||'').indexOf('crew:')===0?String(d.ownerId).slice(5):(d.ownerCrewId||'');
+const crewSalesComm=()=>(S.deals||[]).filter(d=>d.stage==='nyert'&&dealCrewId(d)).map(d=>{const p=projById(d.projectId);if(!p||p.status==='lemondva'||!pr(p))return null;const e=salesCommEst(p,d);return e&&e.amt?{p,cid:dealCrewId(d),amt:e.amt}:null;}).filter(Boolean);
 function salesPayOf(month,cid){const sp=(S.salesPeople||[]).find(x=>x.crewId===cid&&String(x.userId||'').indexOf('crew:')!==0);if(!sp)return null;
   const salary=month>=PAY_START&&(!sp.since||month>=sp.since)?num(sp.salary):0;
   const m=(sp.comm||{})[month]||{base:0,amount:0,items:[]},items=m.items||[],comm=num(m.amount);   // havi, sávos jutalék a kifizetett nettó bevételből (szerver számolja)

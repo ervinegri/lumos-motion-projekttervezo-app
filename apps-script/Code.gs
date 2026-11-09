@@ -673,7 +673,8 @@ function dealOrphansClean_() {
 function dealsFor_(u) {
   const pids = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; });
   const all = readAll_('deals').filter(d => !d.projectId || pids[d.projectId]);
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  const uc = {}; if (u.role === 'admin') loadUsers_().forEach(x => { uc[x.id] = { crewId: x.crewId || '', sales: x.role === 'sales' }; });
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
@@ -4905,7 +4906,7 @@ function salesSync() {
       let c = users.filter(x => nk(x.name) === n || nk(x.email) === n || nk(x.id) === n);
       const tm = (a, b) => a === b || (a.length >= 5 && b.length >= 5 && (a.indexOf(b) === 0 || b.indexOf(a) === 0));   // „Guzsloványi” = „Guzslovány”
       if (!c.length) c = users.filter(x => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); });   // pl. csak „Flóra”, vagy eltérő írásmód
-      const s = c.filter(x => x.role === 'sales'); if (s.length === 1) return s[0]; if (c.length === 1) return c[0];
+      const s = c.filter(x => x.role === 'sales'); if (s.length === 1) return s[0]; if (c.length === 1) return c[0].crewId && c[0].role !== 'sales' ? (salesOwnerOf_('crew:' + c[0].crewId) || c[0]) : c[0];   /* fiókkal rendelkező, de nem értékesítő munkatárs: projektenkénti jutalék (crew:) */
       const cr = (readAll_('crew') || []).filter(x => String(x.roles || '').indexOf('Értékesítő') >= 0 && (() => { const t = nk(x.name).split(' '); return n.split(' ').every(w => t.some(z => tm(w, z))); })());   // fiók nélküli értékesítő munkatárs
       return cr.length === 1 ? salesOwnerOf_('crew:' + cr[0].id) : null; };
     const dsh = sheetFor_('deals'), byPid = {}, projs = byId_(readAll_('projects')), miss = {}, sellerOf = {};
