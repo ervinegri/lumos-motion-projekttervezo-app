@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a1d8a32930",
+"at": "2026-11-09T17:08:00+02:00",
+"msg": "HubSpot kapcsolattartó választáskor a telefonszám és az e-mail is cserélődik"
+},
+{
 "id": "7536bf81a4",
 "at": "2026-11-09T17:07:00+02:00",
 "msg": "Naptár: vágó kiválasztásakor csak az ő vágói munkái látszanak"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Szerződés-begyűjtés: bejelentkezés után háttérfeladat, eredmény üzenetben"
 },
 {
-"id": "c92273fee3",
-"at": "2026-11-09T12:36:43+02:00",
-"msg": "Aláírt munkatársi szerződések napi automatikus begyűjtése a Gmailből"
-},
-{
-"id": "20a2955500",
-"at": "2026-11-09T10:04:53Z",
+"id": "e19c8c0eef",
+"at": "2026-11-09T10:36:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
