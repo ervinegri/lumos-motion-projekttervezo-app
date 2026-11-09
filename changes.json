@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9fb06705b8",
+"at": "2026-11-09T02:24:05+02:00",
+"msg": "Videó ablak: a szóköz csak indít/megállít (nem szúr be időkódot); frissítés utáni visszanyitás várakozással (adatok / másik ablak)"
+},
+{
 "id": "2465dff0b9",
 "at": "2026-11-09T02:22:18+02:00",
 "msg": "Videó ablak: időkód egy lépésben törölhető (Backspace/Delete); az élő időkód nem ugrál"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód gomb a szövegmezőben, mentési felirat törölve"
 },
 {
-"id": "8481920cd7",
-"at": "2026-11-09T01:24:15+02:00",
-"msg": "Videó lejátszó: rövid kattintás indít/megállít, képkockához igazított tekerés (mért fps), ← → képkocka-léptetés, időkód-buborék alul"
-},
-{
-"id": "ff4de5ca86",
-"at": "2026-11-08T23:22:01Z",
+"id": "f0695d0e95",
+"at": "2026-11-08T23:24:23Z",
 "msg": "Változásnapló frissítése"
 }
 ]
