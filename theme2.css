@@ -515,3 +515,17 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
 
 .cal-tip .tv{font-style:normal;min-width:0;flex:1 1 auto}
 .cal-tip .tv a{color:inherit}
+
+/* Szakember Kifizetések: cím és hónapváltó egy sorban */
+html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.page-head.pay-head-c .ph-ttl{min-width:0;text-align:left}
+.page-head.pay-head-c .ph-ttl h2,.page-head.pay-head-c .ph-ttl .sub{margin:0;text-align:left}
+.page-head.pay-head-c .mnav-row,.page-head.pay-head-c .month-nav{margin:0}
+@media (max-width:700px){
+  html body .page-head.pay-head-c .grow{flex-wrap:nowrap}
+  html body .page-head.pay-head-c .ph-ttl h2{font-size:18px}
+  html body .page-head.pay-head-c .ph-ttl .sub{display:none}
+  html body .page-head.pay-head-c .month-nav{gap:4px}
+  html body .page-head.pay-head-c .month-nav .btn,html body .page-head.pay-head-c .mnav-chip{font-size:13.5px;padding:6px 10px;min-height:34px}
+  html body .page-head.pay-head-c .mn-arrow{width:34px;min-width:34px;padding:0}
+}
