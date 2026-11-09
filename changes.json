@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e968ee0ef6",
+"at": "2026-11-09T13:57:58+02:00",
+"msg": "Fizetések: hosszú projektnév egy sorban, …-tal"
+},
+{
 "id": "7522a749d7",
 "at": "2026-11-09T13:55:14+02:00",
 "msg": "Pénzügyek: altabok, hónapváltó és gombok egy sorban"
@@ -141,13 +146,8 @@
 "msg": "Videók: közvetlen küldés az ügyfélnek (kapcsolattartó e-mail, lenyitható levél); videó átnevezése; az oszlop videói lapozhatók; a tábla a videóablak alatt marad; nagyításnál is elfér; idővonal: csak a projektnév, sűrűbb sorok; e-mailben nincs emoji; szerep-szűrő kereshető"
 },
 {
-"id": "03fc573312",
-"at": "2026-11-09T03:50:08+02:00",
-"msg": "Beállítások: kereshető felhasználóválasztó a naplóhoz"
-},
-{
-"id": "929352273d",
-"at": "2026-11-09T01:48:26Z",
+"id": "a0bf7e2c78",
+"at": "2026-11-09T01:50:27Z",
 "msg": "Változásnapló frissítése"
 }
 ]
