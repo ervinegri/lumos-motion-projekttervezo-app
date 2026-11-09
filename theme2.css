@@ -437,3 +437,75 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split,html body.th2 .tl-row .t
 
 #view.proj-done .panel,#view.proj-done .pcrew-person,#view.proj-done .crew-final{filter:grayscale(1);opacity:.72}
 #view.proj-done .panel:hover{opacity:.85}
+
+/* ===================== MOBIL (≤700px) – újraépítve 2026-11-09 ===================== */
+@media (max-width:700px){
+  /* Fejléc: 1. sor logó + eszközök, 2. sor görgethető fülek */
+  html body .topbar-inner{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'logo tools' 'tabs tabs';gap:8px 8px;padding:8px 12px 6px;min-height:0}
+  html body .identity{min-width:0}
+  html body .identity .brand{height:26px;width:auto;max-width:100%;display:block}
+  html body .header-tools{gap:6px;flex-wrap:nowrap;min-width:0}
+  html body .header-tools .view-as{max-width:118px;font-size:12px;padding:5px 22px 5px 8px;min-height:30px;text-overflow:ellipsis}
+  html body .header-tools .user-chip{display:none}
+  html body #logoutBtn{font-size:12px;padding:5px 10px;min-height:30px}
+  html body .bell{width:30px;height:30px}
+  html body .topbar-inner>.tabs{gap:2px;margin:0 -12px;padding:0 12px 2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  html body .topbar-inner>.tabs .tab,html body .topbar-inner>.tabs a,html body .topbar-inner>.tabs button{font-size:14px;padding:7px 12px;min-height:34px;white-space:nowrap;flex:none}
+  html body .view-banner{font-size:12px;padding:6px 12px;gap:8px;flex-wrap:wrap;justify-content:center}
+  html body .view-banner .btn{font-size:12px;padding:4px 10px;min-height:28px}
+
+  /* Tartalom */
+  html body main.content,html body #view{padding:12px 12px 90px;gap:12px}
+  html body .panel{padding:14px 14px;border-radius:14px}
+  html body .page-head{gap:10px;flex-wrap:wrap}
+  html body .page-head h2{font-size:21px}
+  html body .page-head .btn{font-size:13px}
+
+  /* Projekt fejléc: vissza + dátum + cím egy blokkban */
+  html body .dhead{gap:10px}
+  html body .dtitle{display:grid;grid-template-columns:36px 46px minmax(0,1fr);align-items:center;gap:8px 10px}
+  html body .dtitle .back-ic{width:36px;height:36px;min-height:36px;padding:0;font-size:17px;align-self:start}
+  html body .dtitle .cal{width:46px;min-width:46px;padding:4px 0;border-radius:10px;align-self:start}
+  html body .dtitle .cal .cal-m{font-size:10px}html body .dtitle .cal .cal-d{font-size:19px;line-height:1.05}html body .dtitle .cal .cal-w{font-size:10px}
+  html body .dtitle .grow{min-width:0}
+  html body .dtitle h2{font-size:19px;line-height:1.2;word-break:break-word}
+  html body .dtitle .sub{font-size:12.5px;line-height:1.4;margin-top:3px}
+  html body .dtitle .title-edit{font-size:14px;padding:2px 4px}
+  /* Műveletgombok: egy görgethető sor */
+  html body .dhead>.btns{flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 -12px;padding:2px 12px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  html body .dhead>.btns::-webkit-scrollbar{display:none}
+  html body .dhead>.btns>*{flex:none;white-space:nowrap;font-size:12.5px;min-height:32px;padding:6px 11px}
+  html body .dhead>.btns .hint{display:none}
+  /* Lépések: kompakt, vízszintesen görgethető sor */
+  html body .stages{display:flex;overflow-x:auto;gap:6px;margin:0;padding:2px 0 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+  html body .stages::-webkit-scrollbar{display:none}
+  html body .stages .stage-w{flex:0 0 auto;min-width:132px;max-width:170px;scroll-snap-align:start}
+  html body .stages .stage-w:last-child:nth-child(odd){grid-column:auto}
+  html body .stages .stage{min-height:0;height:100%;padding:8px 10px;border-radius:12px}
+  html body .stages .stage small,html body .stages .stage .st-n{font-size:9.5px}
+  html body .stages .stage b,html body .stages .stage .st-l{font-size:13px;line-height:1.25}
+  html body .stages .stage-tick{width:20px;height:20px;font-size:11px}
+
+  /* Táblázatok: vízszintesen görgethetők, nem nyomódnak össze */
+  html body .tbl-wrap,html body .sheet-wrap,html body .pay-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;max-width:100%}
+  html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line)}
+  html body .pay-sheet .pay-c-proj{width:168px}
+  html body .pay-wrap .pay-sheet thead th,html body .sheet-wrap .sheet thead th{position:static!important;top:auto!important}
+  /* Ablakok: teljes képernyő */
+  html body .modal{padding:0;align-items:stretch}
+  html body .modal .mbox{width:100%;max-width:100%;min-height:100%;max-height:100%;border-radius:0;margin:0}
+  html body .mfoot{position:sticky;bottom:0;background:inherit;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  html body .mfoot{display:flex;flex-wrap:wrap;gap:8px;justify-content:stretch}
+  html body .mfoot>*{flex:1 1 auto}
+  html body .mfoot .btn{min-height:42px}
+  html body .fields{grid-template-columns:1fr}
+  html body .field.full{grid-column:auto}
+  /* Altabok (Források, Pénzügyek): görgethető sor, a gombok kompaktan */
+  html body .subtabs{max-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  html body .subtabs::-webkit-scrollbar{display:none}
+  html body .subtabs .subtab{flex:none;white-space:nowrap;font-size:13px;padding:7px 11px}
+  html body .page-head.ph-sub{gap:8px}
+  html body .page-head.ph-sub .subtabs{width:100%}
+  html body .page-head.ph-sub>.btn,html body .page-head.ph-sub>div>.btn{font-size:12.5px;padding:6px 11px;min-height:32px}
+  input.inp,select.inp,textarea.inp,.cmb-in{font-size:16px}   /* iOS: ne nagyítson rá a mezőre */
+}
