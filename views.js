@@ -312,7 +312,7 @@ function payStatementData(month,cid){
     const ds=projDays(p).length>1&&!isPostOnly(p,cid)?crewDaysOf(p,cid).slice().sort():[];if(!ds.length)return dl(r);
     const runs=[];ds.forEach(d=>{const last=runs[runs.length-1];if(last&&diffDays(last.e,d)===1)last.e=d;else runs.push({s:d,e:d});});
     return runs.map((x,i)=>{const lbl=dl({start:x.s,end:x.e});return i&&runs[i-1].s.slice(0,7)===x.s.slice(0,7)?lbl.replace(/^\D+\s*/,''):lbl;}).join(', ');};
-  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&(pr(p).start.slice(0,7)===month||payMonth(p,cid)===month)).sort(byStart).forEach(p=>{const r=pr(p),pd=payDate(p,cid),mine=pd.slice(0,7)===month,refOk=pr(p).start.slice(0,7)===month,dTxt=pd!==r.start?fmtShort(pd)+' (vágási határidő)':null;
+  S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&(pr(p).start.slice(0,7)===month||payMonth(p,cid)===month)).sort(byStart).forEach(p=>{const r=pr(p),pd=payDate(p,cid),mine=pd.slice(0,7)===month,refOk=pr(p).start.slice(0,7)===month,dTxt=pd.slice(0,7)!==r.start.slice(0,7)?fmtShort(pd)+' (vágási határidő)':null;
     (p.fees||[]).forEach(f=>{
       if(f.kind==='fixed'){if(f.refCrewId===cid&&num(f.amount)&&refOk)rows.push({date:dl(r),name:'Ajánlói jutalék – '+(p.name||''),roles:'',fee:num(f.amount),ded:0});return;}
       if(f.crewId!==cid||!num(f.amount)||!mine)return;const ded=penDeduct(p,cid,f.amount);
@@ -335,7 +335,7 @@ function viewPayouts(){
   const crewMode=ro()||isSales(),noSum=crewMode||!isAdmin(),myId=crewMode?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
   const cur=todayISO().slice(0,7),by={},kept={};   // kept: díjcsökkentés miatt nem kerül kifizetésre (hónap → szakember)
   const why=(p,cid,f,isRef)=>isRef?'🤝 Ajánlói jutalék':(String(f&&f.task||'').trim()||[...new Set((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role))].join(' + ')||'Díj');   // jogcím: a díjsor feladata (szerep)
-  const add=(p,cid,amount,ded,isRef,lbl)=>{const d=isRef?pr(p).start:payDate(p,cid),m=d.slice(0,7),net=num(amount)-ded;if(ded){const k=(kept[m]=kept[m]||{});k[cid]=(k[cid]||0)+ded;}const b=(by[m]=by[m]||{}),key=p.id,row=(b[key]=b[key]||{p,d,cells:{},ded:{}});if(d<row.d)row.d=d;/* egy hónapon belül projektenként egy sor */row.cells[cid]=(row.cells[cid]||0)+net;if(lbl){const w=(row.why=row.why||{});(w[cid]=w[cid]||[]).push({l:lbl,a:num(amount)});}if(ded)row.ded[cid]=(row.ded[cid]||0)+ded;};
+  const add=(p,cid,amount,ded,isRef,lbl)=>{const d=isRef?pr(p).start:payDate(p,cid),m=d.slice(0,7),net=num(amount)-ded;if(ded){const k=(kept[m]=kept[m]||{});k[cid]=(k[cid]||0)+ded;}const dS=pr(p).start.slice(0,7)===m?pr(p).start:d;/* ugyanabban a hónapban a projekt a forgatás napjánál marad, a vágás nem válik külön */const b=(by[m]=by[m]||{}),key=p.id,row=(b[key]=b[key]||{p,d:dS,cells:{},ded:{}});if(dS<row.d)row.d=dS;/* egy hónapon belül projektenként egy sor */row.cells[cid]=(row.cells[cid]||0)+net;if(lbl){const w=(row.why=row.why||{});(w[cid]=w[cid]||[]).push({l:lbl,a:num(amount)});}if(ded)row.ded[cid]=(row.ded[cid]||0)+ded;};
   S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).forEach(p=>{
     if(crewMode){if(myId&&p.myFee&&num(p.myFee.amount))add(p,myId,p.myFee.amount,penDeduct(p,myId,p.myFee.amount),false,why(p,myId,p.myFee,false));return;}   // szakember: csak a saját díja
     (p.fees||[]).forEach(f=>{const ref=f.kind==='fixed'&&f.refCrewId,cid=ref?f.refCrewId:f.kind==='fixed'?'':f.crewId;if(!cid||!num(f.amount))return;   // az ajánlói jutalék is a szakembernek jár
