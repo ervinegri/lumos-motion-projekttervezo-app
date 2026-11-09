@@ -1124,6 +1124,7 @@ const ACT={
   tab:b=>guard(()=>{S.finErr='';const fp=b.dataset.focus&&S.draft&&pr(S.draft);S.cal.focus=fp||null;if(fp)S.cal.month=fp.start.slice(0,7);S.tab=b.dataset.tab;S.projectId=null;S.draft=null;closeModal();render(true);scrollTo(0,0);}),
   home:(b,e)=>{if(e)e.preventDefault();if(!S.me)return;guard(()=>{S.tab='projektek';S.projectId=null;S.draft=null;render(true);scrollTo(0,0);});},
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
+  'extra-file-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).map(x=>Object.assign({},x)),i=Number(b.dataset.i);if(!l[i])return;l[i].fileUrl='';l[i].fileName='';setDraft({extras:l});render(true);toast('Csatolmány levéve (a fájl a Drive-ban megmarad)');},
   'extra-add':b=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),Object.assign({id:uuid().slice(0,8),name:'',amount:0},b&&b.dataset&&b.dataset.le?{kind:'le'}:b&&b.dataset&&b.dataset.tov?{kind:'tov'}:{})]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
   'org-add':()=>{if(!S.draft||!isAdmin()||orgOf(S.draft))return;setDraft({extras:[...(S.draft.extras||[]),{id:uuid().slice(0,8),name:'',amount:10000,kind:'org',clientId:''}]});},
   'extra-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).slice();l.splice(Number(b.dataset.i),1);setDraft({extras:l});},
@@ -2207,6 +2208,16 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
 let BD_Q=Promise.resolve();const BD_PEND={};
 function bdApply(pid){const p=projById(pid);if(!p||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const k=pid+'|'+v.id;if(BD_PEND[k])v.st=BD_PEND[k].st;});}
 function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb){mb.innerHTML=laneModalBody(mb.dataset.pid);const hl=mb.querySelector('.bl-hl'),tt=document.querySelector('#mform .bl-ttl');if(hl&&tt)tt.innerHTML=hl.innerHTML;}try{bdSelBar();}catch(e){}}
+/* Továbbszámlázott tétel csatolmánya: kiválasztás vagy behúzás után azonnal feltöltődik a projekt Drive-mappájába */
+async function extraFileUp(i,f){if(!f||!S.draft||!isAdmin())return;if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+  const box=document.querySelector(`[data-extra-drop="${i}"] .tov-file`);if(box)box.innerHTML='<span class="muted">⏳ Feltöltés…</span>';
+  try{const r=await call('extraFileUpload',{projectId:S.draft.id,b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});
+    const l=(S.draft.extras||[]).map(x=>Object.assign({},x));if(l[i]){l[i].fileUrl=r.url;l[i].fileName=r.name;setDraft({extras:l});}render(true);toast('Csatolmány feltöltve');}
+  catch(e){handleErr(e);render(true);}}
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.extraFile!==undefined)extraFileUp(Number(t.dataset.extraFile),t.files&&t.files[0]);});
+document.addEventListener('dragover',e=>{const z=e.target.closest&&e.target.closest('[data-extra-drop]');if(z&&e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){e.preventDefault();z.classList.add('over');}});
+document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.closest('[data-extra-drop]');if(z&&!z.contains(e.relatedTarget))z.classList.remove('over');});
+document.addEventListener('drop',e=>{const z=e.target.closest&&e.target.closest('[data-extra-drop]');if(!z||!e.dataTransfer||!e.dataTransfer.files.length)return;e.preventDefault();z.classList.remove('over');extraFileUp(Number(z.dataset.extraDrop),e.dataTransfer.files[0]);});
 /* Áthúzás mentése frissítés/bezárás ellen: a még el nem mentett mozgatás a böngészőben megmarad, és betöltéskor újraküldjük */
 function bdKeep(k,v){try{const m=JSON.parse(localStorage.getItem('lpm_bd_pend')||'{}');if(v)m[k]=v;else delete m[k];localStorage.setItem('lpm_bd_pend',JSON.stringify(m));}catch(e){}}
 function bdResume(){let m={};try{m=JSON.parse(localStorage.getItem('lpm_bd_pend')||'{}');}catch(e){}

@@ -536,3 +536,9 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .cl-bp.ok{background:#2e7d4f}.cl-bp.mod{background:#b26a00}
 .cl-sig{font-size:13px;line-height:1.45;overflow:hidden}
 .cl-sig img{max-width:100%;height:auto}
+
+.fin-tov .tov-file{margin-top:4px;font-size:12.5px;display:flex;align-items:center;gap:4px}
+.fin-tov .tov-file-up{cursor:pointer;color:var(--accent);font-weight:600}
+.fin-tov .tov-file-up:hover{text-decoration:underline}
+.fin-tov .tov-file-l{color:var(--ink);font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fin-tov.over{outline:2px dashed var(--accent);outline-offset:4px;border-radius:10px}
