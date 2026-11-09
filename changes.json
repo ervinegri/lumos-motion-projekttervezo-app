@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "04f7315865",
+"at": "2026-11-09T03:18:44+02:00",
+"msg": "Videótábla: több videó kijelölése (⌘/Ctrl/Shift + kattintás) és átnézése egymás után; oszloponként ▶ Átnézés; ‹ › a videóablakban, jóváhagyás után a következő; Mind jóváhagyása"
+},
+{
 "id": "80c43aa506",
 "at": "2026-11-09T03:13:34+02:00",
 "msg": "Naptár / idővonal: a képernyő aljáig ér"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: tű Ctrl + kattintással, súgó soronként, a szövegmezőben az időkódra kattintva odaugrik"
 },
 {
-"id": "7997bc199f",
-"at": "2026-11-09T01:49:16+02:00",
-"msg": "Videó ablak: tűs jelölés (📍 Jelölés gomb / Alt+kattintás) a képkocka egy pontjához; az időkód szélessége nem ugrál"
-},
-{
-"id": "6f1050d7be",
-"at": "2026-11-08T23:46:15Z",
+"id": "f6b6fc189a",
+"at": "2026-11-08T23:49:25Z",
 "msg": "Változásnapló frissítése"
 }
 ]
