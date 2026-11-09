@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7536bf81a4",
+"at": "2026-11-09T17:07:00+02:00",
+"msg": "Naptár: vágó kiválasztásakor csak az ő vágói munkái látszanak"
+},
+{
+"id": "3b67c045d9",
+"at": "2026-11-09T17:07:00+02:00",
+"msg": "Ügyfél adatlap: szerződések listája az ügyvezetőnek"
+},
+{
 "id": "0cab09fb4a",
 "at": "2026-11-09T17:05:15+02:00",
 "msg": "Díjösszesítő: áfakörös szakembernél ÁFA (27%) és bruttó végösszeg"
@@ -137,14 +147,9 @@ const ITEMS = [
 "msg": "Aláírt munkatársi szerződések napi automatikus begyűjtése a Gmailből"
 },
 {
-"id": "54524d8ffa",
-"at": "2026-11-09T12:04:44+02:00",
-"msg": "Források: altabok és fejléc egy sorban; leltár szűrők kereshetők"
-},
-{
-"id": "13cc088dbc",
-"at": "2026-11-09T12:03:12+02:00",
-"msg": "Munkatársi szerződés: behúzás vagy kiválasztás után azonnal feltöltődik, a kártya frissül"
+"id": "20a2955500",
+"at": "2026-11-09T10:04:53Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
