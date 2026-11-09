@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "13cc088dbc",
+"at": "2026-11-09T12:03:12+02:00",
+"msg": "Munkatársi szerződés: behúzás vagy kiválasztás után azonnal feltöltődik, a kártya frissül"
+},
+{
 "id": "877aef0d09",
 "at": "2026-11-09T11:59:02+02:00",
 "msg": "Stáb: Szerződések a Gmailből gomb (előnézet, kijelölés, feltöltés)"
@@ -146,13 +151,8 @@
 "msg": "Hozzászólás törlése: gyors egymás utáni törlésnél sem jönnek vissza (sorban, időbélyeg alapján)"
 },
 {
-"id": "aeacf32d2e",
-"at": "2026-11-09T02:55:40+02:00",
-"msg": "Videó ablak: a kukába húzott jelölő azonnal eltűnik a képről"
-},
-{
-"id": "af3ff93336",
-"at": "2026-11-09T00:45:18Z",
+"id": "83b6443ebb",
+"at": "2026-11-09T00:55:49Z",
 "msg": "Változásnapló frissítése"
 }
 ]
