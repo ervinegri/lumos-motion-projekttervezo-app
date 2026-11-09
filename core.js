@@ -514,3 +514,17 @@ if(window.MutationObserver){let fpT=0;new MutationObserver(()=>{if(fpT)return;fp
     if(root.matches&&root.matches('input,textarea,form')&&root.getAttribute('autocomplete')!=='off')root.setAttribute('autocomplete','off');};
   const go=()=>{off(document);if(window.MutationObserver)new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)off(n);}))).observe(document.documentElement,{childList:true,subtree:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();
+/* Összeg-mezők: számolás is beírható (pl. 150 000 + 56 100, 3 * 59 000, 412 200 / 2). Gépelés közben a kifejezés érintetlen marad,
+   Enterre vagy a mezőből kilépve kiszámolódik, és onnan a mező a szokásos módon (formázva, mentve) frissül. */
+const MONEY_EXPR_SEL='[data-money],.money-inp:not([data-fin="budgetPct"]):not([data-sales-pct]),[data-extra-amt],[data-sales-ft]';
+const moneyExprHas=v=>/[\d)]\s*[+\-−*×xX÷/:(]/.test(String(v||'').replace(/^\s*[-−]/,''))||/^\s*\(/.test(String(v||''));
+function moneyExprEval(v){let s=String(v||'').replace(/[\s  ]/g,'').replace(/[−–]/g,'-').replace(/[×xX]/g,'*').replace(/[÷:]/g,'/').replace(/Ft$/i,'').replace(/(\d),(\d)/g,'$1.$2');
+  if(!/^[\d.+\-*/()]+$/.test(s))return null;try{const r=Function('"use strict";return ('+s+')')();return isFinite(r)?Math.round(r):null;}catch(e){return null;}}
+function moneyExprApply(t){if(!t||!t.dataset||t.dataset.mexpr!=='1')return;delete t.dataset.mexpr;t.classList.remove('mexpr');const r=moneyExprEval(t.value);
+  if(r==null){toast('A számolást nem értem – pl. 150000+56100, 3*59000, 120000/2',true);t.value='';}else t.value=String(Math.max(0,r));
+  t.dispatchEvent(new Event('input',{bubbles:true}));t.dispatchEvent(new Event('change',{bubbles:true}));}
+document.addEventListener('input',e=>{const t=e.target;if(!t||!t.matches||!t.matches(MONEY_EXPR_SEL))return;
+  if(moneyExprHas(t.value)){t.dataset.mexpr='1';t.classList.add('mexpr');t.title='Enter: kiszámolás';e.stopImmediatePropagation();}else if(t.dataset.mexpr==='1'){delete t.dataset.mexpr;t.classList.remove('mexpr');}},true);
+document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t&&t.dataset&&t.dataset.mexpr==='1'){e.preventDefault();e.stopImmediatePropagation();moneyExprApply(t);}},true);
+document.addEventListener('blur',e=>{moneyExprApply(e.target);},true);
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.mexpr==='1'){e.stopImmediatePropagation();moneyExprApply(t);}},true);
