@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "7feb99d5a8",
+"at": "2026-11-09T05:24:03+02:00",
+"msg": "Ügyfélnek küldés: a belső ellenőrzésből húzva és jóváhagyáskor is; címzettek választhatók (projekt, ügyfél-adatlap, korábbi projektek), több is; áthelyezés e-mail nélkül; utána vissza a táblára"
+},
+{
 "id": "854b432aea",
 "at": "2026-11-09T05:21:00+02:00",
 "msg": "Átadandó anyagok: a drónos, timelapse és POV felvétel nem szerepel (csak nyersanyag az utómunkához)"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: a régi visszadobási indok és az ellenőrzési megjegyzés is törölhető (sajátként); Visszadobás · Bezárás a Jóváhagyás mellé"
 },
 {
-"id": "a5e8386976",
-"at": "2026-11-09T02:08:13+02:00",
-"msg": "Videó ablak: üres hozzászólás mezőbe kattintva az aktuális időkód már ott van"
-},
-{
-"id": "a32300fd6f",
-"at": "2026-11-09T00:07:27Z",
+"id": "e04560b539",
+"at": "2026-11-09T00:08:22Z",
 "msg": "Változásnapló frissítése"
 }
 ]
