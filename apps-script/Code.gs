@@ -112,7 +112,7 @@ const TABLES = {
     ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
     ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
     ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
-    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)']] },   // új oszlop mindig a végére
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)'], ['commAuto', 'Jutalék automatikusan (Sales App)']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewDocs: { tab: 'Munkatársi szerződések', cols: [
@@ -4914,12 +4914,24 @@ function salesSync() {
       const oid = sval_(o.id), pid = (links[oid] && links[oid].projectId) || ('sales-' + oid).slice(0, 64), p = projs[pid]; const spName = sval_(o.salesperson) || salesCfg_('SALES_SELLER', 'Guzsloványi Flóra'); if (!p || !spName) return;   /* a Sales App megrendeléseit alapból Flóra értékesíti (Ervin, 2026-11-09) */
       const ow = findU(spName); if (!ow) { miss[spName] = 1; return; }
       if (ow.crewId) sellerOf[pid] = { crewId: ow.crewId, name: sval_(p.name) };   /* az értékesítő a csapatban is szerepel (Értékesítő szerep) */
-      const ex = byPid[pid]; if (ex && ex.ownerId === ow.id) return;
+      /* jutalék a Sales App szabálya szerint: videónként SALES_SCOMM Ft (alapból 10 000), kedvezményes megrendelésnél (3 videótól vagy egyedi kedvezmény) 10%-kal kevesebb */
+      const units = (Number(sval_(o.spokenCount)) || 0) + (Number(sval_(o.musicCount)) || 0), rate = Number(salesCfg_('SALES_SCOMM', '10000')) || 0, unitNet = Number(salesCfg_('SALES_UNIT', '59000')) || 59000;
+      const net = Number(sval_(o.netTotal)) || 0, disc = units >= (Number(salesCfg_('SALES_DISC_MIN', '3')) || 3) || (net > 0 && units > 0 && net < units * unitNet - 1);
+      const autoComm = units > 0 && rate > 0 ? 'ft:' + units * Math.round(rate * (disc ? 90 : 100) / 100) : '';
+      const ex = byPid[pid];
+      if (ex && ex.ownerId === ow.id) {
+        if (autoComm && (!sval_(ex.commManual) || (ex.commAuto && sval_(ex.commManual) === sval_(ex.commAuto))) && sval_(ex.commManual) !== autoComm) {
+          const q = Object.assign({}, ex, { commManual: autoComm, commAuto: autoComm, updatedAt: now_(), updatedBy: SALES_SYS_USER.name });
+          withLock_(() => putRow_('deals', dsh, q, findRow_(dsh, ex.id))); byPid[pid] = q; out.deals = (out.deals || 0) + 1;
+        }
+        return;
+      }
       const value = Math.round(Number(p.projectValue) || Number(sval_(o.netTotal)) || 0);
       const d = ex ? Object.assign({}, ex) : { id: Utilities.getUuid(), title: sval_(p.name), client: sval_(p.client), contactName: sval_(p.contactName), contactEmail: sval_(p.contactEmail), contactPhone: sval_(p.contactPhone),
         eventType: sval_(p.eventType), venue: sval_(p.venue), eventDate: sval_(p.date), value: value, stage: 'nyert', chance: 100, source: 'Sales App', nextStep: '', nextDate: '', note: '', lostReason: '',
         projectId: pid, wonAt: today_(), closedAt: today_(), createdAt: now_(), createdBy: SALES_SYS_USER.name, services: '' };
       d.ownerId = ow.id; d.ownerName = ow.name;
+      if (autoComm && (!sval_(d.commManual) || (d.commAuto && sval_(d.commManual) === sval_(d.commAuto)))) { d.commManual = autoComm; d.commAuto = autoComm; }
       if (ow.role === 'sales') { const c = salesCompOf_(ow), pct = value >= c.commLimit ? c.commHigh : c.commLow; d.commPct = pct; d.commAmt = Math.round(value * pct / 100); } else { d.commPct = ''; d.commAmt = ''; }
       d.updatedAt = now_(); d.updatedBy = SALES_SYS_USER.name;
       withLock_(() => { const row = ex ? findRow_(dsh, ex.id) : null; putRow_('deals', dsh, d, row || null); });

@@ -150,6 +150,9 @@ test('Az értékesítő Értékesítő szerepben a csapatba kerül (megrendelés
   const sel = json(`DB.crewAssign.filter(r => r.projectId === 'sales-${C}' && r.role === 'Értékesítő').map(r => r.crewId)`);
   assert.deepEqual(sel, ['crew-flora']);
   json('salesSync()'); assert.equal(json(`DB.crewAssign.filter(r => r.projectId === 'sales-${C}' && r.role === 'Értékesítő').length`), 1, 'nem duplikál');
+  const d = json(`DB.deals.find(x => x.projectId === 'sales-${C}')`); assert.equal(d.ownerId, 'crew:crew-flora');
+  console.log('   jutalék:', d.commManual);
+  assert.match(String(d.commManual), /^ft:\d+$/);
 });
 test('videónkénti követés: a vágó leadja mind → jóváhagyásra vár; módosítást kér → visszamegy az utómunkába', () => {
   editProj(A, { status: 'utomunka', siteOk: 'igen' });
