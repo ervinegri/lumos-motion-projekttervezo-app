@@ -2207,16 +2207,24 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
 let BD_Q=Promise.resolve();const BD_PEND={};
 function bdApply(pid){const p=projById(pid);if(!p||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const k=pid+'|'+v.id;if(BD_PEND[k])v.st=BD_PEND[k].st;});}
 function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb){mb.innerHTML=laneModalBody(mb.dataset.pid);const hl=mb.querySelector('.bl-hl'),tt=document.querySelector('#mform .bl-ttl');if(hl&&tt)tt.innerHTML=hl.innerHTML;}try{bdSelBar();}catch(e){}}
+/* Áthúzás mentése frissítés/bezárás ellen: a még el nem mentett mozgatás a böngészőben megmarad, és betöltéskor újraküldjük */
+function bdKeep(k,v){try{const m=JSON.parse(localStorage.getItem('lpm_bd_pend')||'{}');if(v)m[k]=v;else delete m[k];localStorage.setItem('lpm_bd_pend',JSON.stringify(m));}catch(e){}}
+function bdResume(){let m={};try{m=JSON.parse(localStorage.getItem('lpm_bd_pend')||'{}');}catch(e){}
+  Object.entries(m).forEach(([k,x])=>{if(!x||Date.now()-x.at>30*60*1000){bdKeep(k,null);return;}const p=projById(x.pid),v=p&&(p.videos||[]).find(y=>y.id===x.vid);if(!v){bdKeep(k,null);return;}
+    if(v.st===x.st){bdKeep(k,null);return;}const old=v.st;v.st=x.st;
+    BD_Q=BD_Q.then(async()=>{try{const r=await call('videoSet',Object.assign({projectId:x.pid,id:x.vid,st:x.st},x.fb?{fb:x.fb}:{}));bdKeep(k,null);const pr2=r&&r.project;if(pr2){const i=S.projects.findIndex(z=>z.id===x.pid);if(i>=0)S.projects[i]=normProj(pr2);}if(typeof bdRefresh==='function')bdRefresh();}
+      catch(e){bdKeep(k,null);const q=projById(x.pid),w=q&&(q.videos||[]).find(z=>z.id===x.vid);if(w)w.st=old;if(typeof bdRefresh==='function')bdRefresh();}});});}
+window.addEventListener('beforeunload',e=>{if(Object.keys(BD_PEND||{}).length){e.preventDefault();e.returnValue='';}});   /* még mentés alatt álló áthúzásnál figyelmeztet */
 async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;
   if(st==='ellen'&&!extra){reviewModal(pid,vid);return;}
   if(st==='leadva'&&!extra){clientModal(pid,vid);return;}   /* az ügyfélhez kerül: ki kapja az e-mailt (vagy e-mail nélkül) */
   if(extra&&extra.noMail)extra=null;   // belső ellenőrzés: kinek, link, megjegyzés
-  const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;bdRefresh();
+  const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;bdRefresh();if(!extra)bdKeep(k,{pid,vid,st,fb:fb||'',at:Date.now()});
   BD_Q=BD_Q.then(async()=>{try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{}));const pr2=r&&r.project;
-      if(BD_PEND[k]===tok)delete BD_PEND[k];
+      if(BD_PEND[k]===tok)delete BD_PEND[k];bdKeep(k,null);
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.test?'🧪 TESZT: a levél neked ment ki, nem az ügyfélnek':r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
-    catch(e){if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}
+    catch(e){bdKeep(k,null);if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
 function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').trim(),email,tag});};
