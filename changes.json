@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "c92273fee3",
+"at": "2026-11-09T12:36:43+02:00",
+"msg": "Aláírt munkatársi szerződések napi automatikus begyűjtése a Gmailből"
+},
+{
 "id": "54524d8ffa",
 "at": "2026-11-09T12:04:44+02:00",
 "msg": "Források: altabok és fejléc egy sorban; leltár szűrők kereshetők"
@@ -146,13 +151,8 @@
 "msg": "Videó lejátszó: nyomva tartott szóköz közben a Shift visszafelé vált (elengedve újra előre 2×)"
 },
 {
-"id": "7e5a684374",
-"at": "2026-11-09T02:59:35+02:00",
-"msg": "Videó lejátszó: Shift + húzás 10× gyorsabb tekerés; Shift + szóköz nyomva visszafelé 2×"
-},
-{
-"id": "d2536812b6",
-"at": "2026-11-09T00:57:02Z",
+"id": "229bf08718",
+"at": "2026-11-09T00:59:45Z",
 "msg": "Változásnapló frissítése"
 }
 ]
