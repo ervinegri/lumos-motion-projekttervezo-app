@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "e27bffb597",
+"at": "2026-11-09T03:03:41+02:00",
+"msg": "Videótábla ablak: a projekt kártyája a fejléc sorában"
+},
+{
 "id": "dacdf7e7c8",
 "at": "2026-11-09T03:01:34+02:00",
 "msg": "Videó lejátszó: nyomva tartott szóköz közben a Shift visszafelé vált (elengedve újra előre 2×)"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: időkód gomb a Hozzászólások sorában; a képkocka-számláló egyetlen forrásból, nem ugrál"
 },
 {
-"id": "2703f270e0",
-"at": "2026-11-09T01:38:17+02:00",
-"msg": "Időkód: a képkocka 01-től számozva (25 fps-nél 01–25)"
-},
-{
-"id": "2d569edbdb",
-"at": "2026-11-08T23:38:04Z",
+"id": "b86f950e45",
+"at": "2026-11-08T23:38:26Z",
 "msg": "Változásnapló frissítése"
 }
 ]
