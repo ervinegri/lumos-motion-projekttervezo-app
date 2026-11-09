@@ -304,7 +304,7 @@ test('frontend: daily totals include the day-two deduction and match the grand t
   assert.equal(fr("daySumOf(q,'2026-10-02')+daySumOf(q,'2026-10-03')+otherSumOf(q)"),fr('feeSum(q)'));
 });
 test('frontend: long names are shortened to fit the fixed payout column',()=>{
-  assert.equal(fr("shortName('Gál Flóra')"),'Gál Flóra');
+  assert.equal(fr("shortName('Gál Flóra')"),'G. Flóra');   // mindig „E. Ervin” forma (Ervin kérése, 2026-11-09)
   assert.equal(fr("shortName('Gáspár-Kovács Flóra')"),'G. Flóra');
   assert.equal(fr("shortName('Nagy Kis Bernadett')"),'N. K. Bernadett');
 });
