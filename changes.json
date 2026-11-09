@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "03fc573312",
+"at": "2026-11-09T03:50:08+02:00",
+"msg": "Beállítások: kereshető felhasználóválasztó a naplóhoz"
+},
+{
 "id": "391c8e0c81",
 "at": "2026-11-09T03:48:10+02:00",
 "msg": "Naptár: mindkét munkatípus látható, egysoros gombok és erősebb ma-jelölés"
@@ -146,13 +151,8 @@
 "msg": "Videó ablak: szóköz akkor is működik, ha a kezelősáv kapta a fókuszt; időkódra kattintva a kurzor mögé ugrik"
 },
 {
-"id": "0c6d4cd64b",
-"at": "2026-11-09T02:00:07+02:00",
-"msg": "Hozzászólás törlése: mindenki csak a sajátját (az ügyvezető sem a másét)"
-},
-{
-"id": "9627705f21",
-"at": "2026-11-08T23:59:53Z",
+"id": "7d770bb40c",
+"at": "2026-11-09T00:00:16Z",
 "msg": "Változásnapló frissítése"
 }
 ]
