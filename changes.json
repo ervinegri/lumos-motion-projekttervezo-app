@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "677e2bd076",
+"at": "2026-11-09T14:01:49+02:00",
+"msg": "Naptár: szakember nézetben csak a saját vágói bejegyzései látszanak"
+},
+{
 "id": "66a0fc741e",
 "at": "2026-11-09T14:00:50+02:00",
 "msg": "Fizetések: fejlécben minden név E. Ervin formában"
@@ -141,13 +146,8 @@
 "msg": "Ügyfélnek küldés: a belső ellenőrzésből húzva és jóváhagyáskor is; címzettek választhatók (projekt, ügyfél-adatlap, korábbi projektek), több is; áthelyezés e-mail nélkül; utána vissza a táblára"
 },
 {
-"id": "854b432aea",
-"at": "2026-11-09T05:21:00+02:00",
-"msg": "Átadandó anyagok: a drónos, timelapse és POV felvétel nem szerepel (csak nyersanyag az utómunkához)"
-},
-{
-"id": "d9f9ca9fc6",
-"at": "2026-11-09T03:20:08Z",
+"id": "1524453449",
+"at": "2026-11-09T03:21:09Z",
 "msg": "Változásnapló frissítése"
 }
 ]
