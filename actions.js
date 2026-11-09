@@ -2196,9 +2196,13 @@ function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=Strin
 ACT['cl-nomail']=b=>{closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true});clAfter();};
 function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
 /* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
-const CL_TPL_DEF='Kedves {nev},\n\nelkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}\n\nKöszönöm!';
+const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}\n\nKöszönöm!';
 const clClient=p=>{const cn=String(p.client||'').trim().toLowerCase();return (S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn)||null;};
-const clFill=(t,o)=>String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}');
+/* Névelő: „a” vagy „az” a következő szó kiejtése szerint (magánhangzó, illetve 1, 5, 50… → „az”) */
+const huArt=w=>{const x=String(w||'').replace(/^[\s„"'(«»]+/,'');if(!x)return 'a';const c=x[0].toLowerCase();if('aáeéiíoóöőuúüű'.includes(c))return 'az';
+  if(/\d/.test(c)){const n=(x.match(/^\d+/)||[''])[0];return c==='5'||(c==='1'&&n.length%3===1)?'az':'a';}return 'a';};
+const fixArt=t=>String(t||'').replace(/\b([Aa])\(z\)(\s+)(\S+)/g,(m,a,sp,w)=>{const r=huArt(w);return (a==='A'?r[0].toUpperCase()+r.slice(1):r)+sp+w;});
+const clFill=(t,o)=>fixArt(String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}'));
 function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=!!document.querySelector('#modalRoot .bd-modal');window._clLane=lane?pid:'';
   const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
   let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
@@ -2214,7 +2218,7 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
       const to=[...fd.getAll('toPick'),String(fd.get('to')||'').trim()].filter(Boolean).join(', '),link=String(fd.get('link')||'').trim(),text=String(fd.get('body')||'').trim(),subject=String(fd.get('subject')||'').trim();
       if(!to||!to.split(/\s*,\s*/).every(x=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))){toast('Válassz címzettet, vagy adj meg érvényes e-mail címet.',true);return;}if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…).',true);return;}
       if(text.length<5){toast('Írd meg a levelet.',true);return;}
-      const esc2=x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');let tpl=text;[[link,'{link}'],[v.name,'{video}'],[p.name||'','{projekt}']].forEach(([val,ph])=>{if(val)tpl=tpl.replace(new RegExp(esc2(val),'g'),ph);});
+      const esc2=x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');let tpl=text;[[link,'{link}'],[v.name,'{video}'],[p.name||'','{projekt}']].forEach(([val,ph])=>{if(val)tpl=tpl.replace(new RegExp(esc2(val),'g'),ph);});tpl=tpl.replace(/\b([Aa])z?(\s+[„"]?\{(?:video|projekt)\})/g,'$1(z)$2');   /* a névelő a következő videónál újra igazodik */
       if(cl)cl.vidMail=tpl;try{localStorage.setItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase(),tpl);}catch(e){}closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note:'',text,subject,tpl}});clAfter();}});
   let lastLink=v.link||'';const li=$('m-clLink'),bd=$('m-clBody');if(li&&bd)li.addEventListener('input',()=>{const nl=li.value.trim();if(lastLink&&bd.value.includes(lastLink))bd.value=bd.value.split(lastLink).join(nl);else if(!lastLink&&bd.value.includes('{link}'))bd.value=bd.value.split('{link}').join(nl);lastLink=nl;});
   setTimeout(()=>{const i=$(v.link?'m-clBody':'m-clLink');if(i)i.focus();},60);}
