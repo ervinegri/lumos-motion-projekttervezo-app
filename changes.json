@@ -1,6 +1,11 @@
 {
 "items": [
 {
+"id": "9a63b07b0e",
+"at": "2026-11-09T02:03:01+02:00",
+"msg": "Videó ablak: szóköz akkor is működik, ha a kezelősáv kapta a fókuszt; időkódra kattintva a kurzor mögé ugrik"
+},
+{
 "id": "0c6d4cd64b",
 "at": "2026-11-09T02:00:07+02:00",
 "msg": "Hozzászólás törlése: mindenki csak a sajátját (az ügyvezető sem a másét)"
@@ -141,13 +146,8 @@
 "msg": "Videó ablak: ügyfél-jóváhagyás gombjai; pCloud hivatkozó nélkül (Invalid link referer)"
 },
 {
-"id": "ed0fc8a4ca",
-"at": "2026-11-09T00:51:47+02:00",
-"msg": "Videó ablak: Hozzászólás gomb a láblécben, a Bezárás mellett"
-},
-{
-"id": "2faebe7c86",
-"at": "2026-11-08T22:50:51Z",
+"id": "7a5b7398ec",
+"at": "2026-11-08T22:51:57Z",
 "msg": "Változásnapló frissítése"
 }
 ]
