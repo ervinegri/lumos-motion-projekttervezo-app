@@ -564,3 +564,10 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .bell-toast.bt-pay .bt-ic{font-size:18px}#bellPop h4+h4,#bellPop .bell-it+h4,#bellPop p+h4{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 .bs-box:has([data-action="sz-inv"]){cursor:pointer}.bs-box:has([data-action="sz-inv"]):hover{box-shadow:0 0 0 2px rgba(31,90,61,.15)}
 .spin.sm{display:inline-block;width:12px;height:12px;border-width:2px;vertical-align:-2px;margin-right:4px}
+/* Fizetési határidő gyorsgombjai: egy sorban, szegmentált vezérlő */
+.due-chips{display:flex!important;flex-wrap:nowrap!important;gap:0!important;margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;width:100%}
+.due-chips .due-chip{flex:1 1 0;min-width:0;margin:0!important;border:0!important;border-radius:0!important;border-right:1px solid var(--line)!important;padding:7px 0!important;font-size:12.5px;font-weight:600;background:#fff;color:var(--fg-2);box-shadow:none!important;outline:none!important;white-space:nowrap;text-align:center;justify-content:center}
+.due-chips .due-chip:last-child{border-right:0!important}
+.due-chips .due-chip:hover{background:#f3f6f8;color:var(--ink)}
+.due-chips .due-chip[aria-pressed="true"]{background:var(--ink,#101923)!important;color:#fff!important}
+.due-chips .due-chip:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)!important}
