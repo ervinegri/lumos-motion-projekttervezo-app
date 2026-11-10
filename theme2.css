@@ -618,3 +618,5 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .ark-tabs button.on{background:var(--grad-brand,linear-gradient(96deg,#ffde59,#ff914d));color:#1b0f00}
 .ark-tabs button:not(.on):hover{color:var(--fg,#101923);background:var(--bg,#f0f4f7)}
 #modalRoot .mbox.mbox-ark .mfoot{gap:8px;justify-content:flex-end}#modalRoot .mbox.mbox-ark .mfoot .left{display:flex;gap:8px;margin:0 0 0 auto;order:0}
+.ark-total{display:inline-flex;align-items:baseline;gap:6px;margin-right:10px;font-size:15px;font-weight:600;color:var(--fg-2,#36414d);white-space:nowrap}.ark-total b{font-size:20px;font-weight:800;color:var(--fg,#101923);font-variant-numeric:tabular-nums}
+#modalRoot .mbox.mbox-ark .mfoot .left{align-items:center}
