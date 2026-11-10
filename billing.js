@@ -573,7 +573,7 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){
     const i=items.findIndex(x=>x.id===seen),news=(i<0?items.slice(0,6):items.slice(0,i)).slice(0,10),staff=true;
     const d=document.createElement('div');d.className='upd-done';d.setAttribute('role','status');
     d.innerHTML=`<div class="ud-h"><b>✅ Az app frissült</b><button type="button" class="x" aria-label="Bezárás">✕</button></div>`+(staff&&news.length?`<ul>${news.map(x=>`<li>${esc(x.msg)}</li>`).join('')}</ul>`:'<p>Az új változat már be van töltve.</p>');
-    d.querySelector('.x').onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{if(d.isConnected&&!d.matches(':hover')){d.classList.add('ud-fade');setTimeout(()=>d.remove(),900);}},20000);}catch(e){}}
+    d.querySelector('.x').onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{if(d.isConnected&&!d.matches(':hover')){d.classList.add('ud-fade');setTimeout(()=>d.remove(),900);}},40000);}catch(e){}}
   setTimeout(run,1500);})();
 
 /* Sablonból létrehozott projekt: ami a sablonnál nem volt (szerződés, díjbekérő, TIG), az újnál sem kérjük */
