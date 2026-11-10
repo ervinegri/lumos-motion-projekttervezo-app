@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f2d84f5dbc",
+"at": "2026-11-11T00:24:57+01:00",
+"msg": "Ügyfélnek küldés saját projektnél: csak projektvezető vagy ügyvezető címzett"
+},
+{
 "id": "ea90b45c17",
 "at": "2026-11-11T00:23:23+01:00",
 "msg": "Videókártya: megnyitás-jelzés külön sorban"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Levél-előnézetek: linkre kattintva a keret nem navigál (CSP-tiltás helyett); a saját e-mail-cím a felhasználói adatokban (feladó, csengő)"
 },
 {
-"id": "db8a016b42",
-"at": "2026-11-10T14:31:58+02:00",
-"msg": "Videónéző: időkódra kattintva indul a lejátszás, válasz időkódos észrevételre, bezáráskor a videótábla megmarad"
-},
-{
-"id": "801e9bbc2d",
-"at": "2026-11-10T14:26:49+02:00",
-"msg": "Videó-hozzászólás: pipa az időkódok előtt – a vágó kipipálja, amit már javított"
+"id": "fdd82b9059",
+"at": "2026-11-10T12:32:08Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
