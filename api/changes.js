@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "460834a4b3",
+"at": "2026-11-10T10:11:57+02:00",
+"msg": "Kifizetések: látható lekérdezés (pörgő jelző), a kifizetett díjbekérőből készült foglalószámla is bekerül"
+},
+{
 "id": "ceec810fb0",
 "at": "2026-11-10T10:10:52+02:00",
 "msg": "Szerződés és számlázás: a bizonylat-kártya üres részére kattintva is megnyílik a bizonylat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehetőség ablak: telefonszám a megszokott formázott mezőben (+36 20 329 8550)"
 },
 {
-"id": "25146a33e1",
-"at": "2026-11-09T20:33:24+02:00",
-"msg": "Ügyfél jóváhagyására: e-mail nélküli áthelyezésnél is kötelező a videó linkje"
-},
-{
-"id": "0ebb16dc9b",
-"at": "2026-11-09T18:31:55Z",
+"id": "8a512e0191",
+"at": "2026-11-09T18:33:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
