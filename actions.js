@@ -2278,7 +2278,7 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
     catch(e){bdKeep(k,null);if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
-function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').trim(),email,tag});};
+function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').replace(/\s*\([^)]*\)/g,'').trim(),email,tag});};
   const cn0=String(p.client||'').trim();
   if(!cn0){   // ügyfél nélküli (saját) projekt: csak a projektvezetőnek vagy az ügyvezetőnek küldhető
     const ld=crewById(p.lead);if(ld)add(ld.name,ld.email,'projektvezető');
@@ -2299,8 +2299,8 @@ const huArt=w=>{const x=String(w||'').replace(/^[\s„"'(«»]+/,'');if(!x)retur
   if(/\d/.test(c)){const n=(x.match(/^\d+/)||[''])[0];return c==='5'||(c==='1'&&n.length%3===1)?'az':'a';}return 'a';};
 const fixArt=t=>String(t||'').replace(/\b([Aa])\(z\)(\s+)(\S+)/g,(m,a,sp,w)=>{const r=huArt(w);return (a==='A'?r[0].toUpperCase()+r.slice(1):r)+sp+w;});
 const clFill=(t,o)=>fixArt(String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}'));
-function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=laneToUnder();window._clLane='';
-  const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
+function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;if(!(isAdmin()||(S.me&&S.me.role==='editor'))||ro()){toast('Az ügyfélnek csak az ügyvezető vagy a termelési vezető küldheti el a videót.',true);return;}const lane=laneToUnder();window._clLane='';
+  const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').replace(/\([^)]*\)/g,'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
   let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
   const body=clFill(String((cl&&cl.vidMail)||lt||CL_TPL_DEF).replace(/\n+\s*Köszönöm!?\s*$/,''),o);   // a szignó előtt nem kell „Köszönöm!” (a korábban mentett mintákból is lekerül)
   openModal('📤 Küldés az ügyfélnek jóváhagyásra',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>${S.clientMailLive?'':'<div class="banner warn" style="margin:0 0 12px"><p>🧪 <b>Tesztüzem:</b> a levél nem az ügyfélnek, hanem <b>neked</b> megy ki (a tárgyban látod, kinek szólna). Élesítés: szólj.</p></div>'}
@@ -2334,7 +2334,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.d
 /* Ügyfél-levél előnézete (mint a díjösszesítőnél): fejléc + szerkeszthető levélszöveg + aláírás. A szöveg a rejtett „body” mezőbe kerül vissza. */
 function clHead(){const h=$('cl-head');if(!h)return;const fm=$('mform');const to=[...fm.querySelectorAll('[name=toPick]:checked')].map(x=>x.value).concat([String(($('m-clTo')||{}).value||'').trim()]).filter(Boolean).join(', ');
   h.innerHTML=`<div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(to||'(válassz címzettet)')}</div><div><span>Tárgy:</span> <b>${esc(String(($('m-clSubj')||{}).value||''))}</b></div>`;}
-const CL_BTN='<a data-vbtn="1" contenteditable="false" href="#" onclick="return false" style="display:inline-block;background:#111;color:#fff;text-decoration:none;font-weight:bold;padding:11px 20px;border-radius:9px;cursor:default">▶ Videó megnézése és jóváhagyása</a>';
+const CL_BTN='<a data-vbtn="1" contenteditable="false" href="#" onclick="return false" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;font-family:Montserrat,Arial,sans-serif;font-weight:600;font-size:15px;line-height:1;padding:14px 23px 14px 17px;border-radius:10px;border:1px solid #3b4a5c;border-left:4px solid #f7b23b;cursor:default"><span style="color:#f7b23b">▶</span>&nbsp;&nbsp;Videó megnézése és jóváhagyása</a>';   // ugyanaz, mint a kiküldött levélben (Lumos tinta + fénycsík)
 /* Az előnézetben a linkre / gombra kattintás ne navigáljon: a keret különben a saját oldalunkat töltené be, amit a CSP letilt („This content is blocked”) */
 const noNav=d=>d.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href]');if(a)e.preventDefault();},true);
 function clPrev(onlyBody){const box=$('cl-prev'),bd=$('m-clBody');if(!box||!bd)return;const link=String(($('m-clLink')||{}).value||'').trim();
