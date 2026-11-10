@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f873ca1f3e",
+"at": "2026-11-11T00:07:03+01:00",
+"msg": "Ügyfél jóváhagyó oldal: a videó a nyitókép után magától indul (szükség esetén némítva, hang gombbal)"
+},
+{
 "id": "188c31de56",
 "at": "2026-11-11T00:04:43+01:00",
 "msg": "pCloud lejátszó: 9 mp-es időkorlát hibaüzenettel, a felső ablak videóját tölti be"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember hozzáadása: alapból a hiányzó szerep a beosztás, kereshető legördülővel"
 },
 {
-"id": "fd49de5c05",
-"at": "2026-11-10T13:55:27+02:00",
-"msg": "Szövegmezők: a kézzel nagyobbra húzott méret gépeléskor / törléskor megmarad"
-},
-{
-"id": "37864ecd16",
-"at": "2026-11-10T11:51:47Z",
+"id": "6081b5f469",
+"at": "2026-11-10T11:55:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
