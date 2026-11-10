@@ -545,16 +545,22 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
   {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>${x.kind!=='dijbekero'&&!x.manual&&!(num(x.invPaid)>0)&&!invPaidOk(x)?`<button type="button" class="btn outline small" data-action="sz-storno" data-id="${esc(x.id)}">↩️ Sztornó</button>`:''}`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Letöltés…';}
     try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
-      const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+      const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=szFileName(x);document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
     catch(e){handleErr(e);}finally{if(btn){btn.disabled=false;btn.textContent='⬇️ PDF';}}}});
   if(x.manual)return;const f=document.querySelector('#mform .mfoot');if(f){const r=document.createElement('button');r.type='button';r.className='btn outline';r.dataset.action='sz-sync-one';r.dataset.id=x.id;r.textContent='🔄 Frissítés';f.insertBefore(r,f.querySelector('button[type=submit]'));}}
 /* Számla megnyitása egy kattintással, új lapon (a PDF); ha nincs fájl (kézi rögzítés fájl nélkül), az adatlap */
+/* Egységes fájlnév minden bizonylattípusnál: „Lumos Motion – <Típus> <Számlaszám> – <Vevő>.pdf” */
+const SZ_KIND_NAME={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalószámla',vegszamla:'Végszámla',storno:'Sztornó számla'};
+function szFileName(x){const pc=(typeof projById==='function'&&x.projectId&&projById(x.projectId)||{}).client,buyer=String(pc||x.buyer||'').replace(/\s+(korlátolt felelősségű társaság|zártkörűen működő részvénytársaság|kft\.?|zrt\.?|bt\.?)$/i,'').trim(),t=SZ_KIND_NAME[x.kind]||'Számla';
+  return ('Lumos Motion – '+t+' '+(x.no||'')+(buyer?' – '+buyer:'')).replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().slice(0,150)+'.pdf';}
 async function szInvOpen(x,btn){
   if(x.manual){if(x.fileUrl)window.open(x.fileUrl,'_blank','noopener');else szInvModal(x);return;}
   const w=window.open('about:blank','_blank');if(w)try{w.document.title=x.no||'Számla';w.document.body.innerHTML='<p style="font:16px system-ui;padding:24px">Számla betöltése…</p>';}catch(e){}
   const old=btn&&btn.textContent;if(btn){btn.classList.add('is-busy');}
   try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
-    const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'}));if(w)w.location.href=url;else window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),300000);}
+    const fn=szFileName(x),url=URL.createObjectURL(new File([arr],fn,{type:'application/pdf'}));
+    if(w){try{w.document.open();w.document.write('<!doctype html><html lang="hu"><head><meta charset="utf-8"><title>'+esc(fn)+'</title><style>html,body{margin:0;height:100%;background:#323639;font:14px system-ui,sans-serif}.bar{height:44px;display:flex;align-items:center;gap:12px;padding:0 14px;background:#202124;color:#eee}.bar b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}.bar a{color:#fff;background:#1f5a3d;padding:7px 14px;border-radius:8px;text-decoration:none;font-weight:600}iframe{border:0;width:100%;height:calc(100% - 44px);display:block}</style></head><body><div class="bar"><b>📄 '+esc(fn)+'</b><a href="'+url+'" download="'+esc(fn)+'">⬇ Letöltés</a></div><iframe src="'+url+'" title="'+esc(fn)+'"></iframe></body></html>');w.document.close();}catch(_){w.location.href=url;}}
+    else{const a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();a.remove();}setTimeout(()=>URL.revokeObjectURL(url),600000);}
   catch(e){if(w)w.close();handleErr(e);}finally{if(btn){btn.classList.remove('is-busy');if(old!=null)btn.textContent=old;}}}
 function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?String(window.LUMOS_API_URL||'')+'?ipn='+st.ipnToken:'';
   openModal('Számlázás – számlázz.hu',`${msg?`<p class="hint" style="margin:0 0 12px">${esc(msg)}</p>`:''}<div class="fields">
