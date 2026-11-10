@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "610e133e9a",
+"at": "2026-11-11T00:37:28+01:00",
+"msg": "Videótábla ablak: film emoji ki, cím és határidő egy vonalban"
+},
+{
 "id": "c6fc9d02ee",
 "at": "2026-11-11T00:36:59+01:00",
 "msg": "Videótábla: tovább-nyíl le a kártyákról"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyitott videótábla is frissül, ha közben változás jön (pl. ügyfél-jóváhagyás)"
 },
 {
-"id": "e2ee986314",
-"at": "2026-11-10T14:56:42+02:00",
-"msg": "Jóváhagyó oldal: a nyitókép a videó betöltéséig marad, lágy áttűnéssel; rákérdez, ha a videó nincs végignézve"
-},
-{
-"id": "065fb56850",
-"at": "2026-11-10T12:55:33Z",
+"id": "c63080ccfc",
+"at": "2026-11-10T12:56:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
