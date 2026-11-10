@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3bbb508d40",
+"at": "2026-11-10T14:06:11+02:00",
+"msg": "Terem helyett Helyszín a feliratokban és levelekben; a beosztó levélben minden kamera / eszköz külön sorban"
+},
+{
 "id": "1073dcdf6d",
 "at": "2026-11-10T14:02:52+02:00",
 "msg": "Szakember hozzáadása: alapból a hiányzó szerep a beosztás, kereshető legördülővel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Frissítés-értesítő kétszer tovább látszik; kifizetés-értesítő csak ✕-re tűnik el"
 },
 {
-"id": "8e1dc252c5",
-"at": "2026-11-10T10:57:37+02:00",
-"msg": "Vercel: a változásnapló-commit nem indít külön buildet (költségcsökkentés)"
-},
-{
-"id": "751d3a7bd4",
-"at": "2026-11-10T08:56:36Z",
+"id": "3fc975d471",
+"at": "2026-11-10T08:57:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
