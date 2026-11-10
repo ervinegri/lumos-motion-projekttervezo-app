@@ -1123,8 +1123,8 @@ function viewProject(p){
 }
 
 /* ===== Stáb ===== */
-const prioNum=c=>[1,2,3].includes(Number(c.priority))?Number(c.priority):9;
-function prioBadge(c){const p=prioNum(c);return p<9?`<span class="prio prio-${p}" title="Prioritás: ${p} – ${esc(PRIO_LABEL[p])}">P${p}</span>`:'';}
+const prioNum=c=>9;   // a P1–P3 prioritás megszűnt (Ervin, 2026-11-10): a sorrend a húzással beállított sorrend, majd név
+function prioBadge(c){return '';}
 /* 3.7. pont: 12 hónapon belül 3 súlyos vagy kritikus hiba → azonnali felmondás joga */
 function penStrikes(cid){const from=addDays(todayISO(),-365);let n=0;S.projects.forEach(p=>(p.penalties||[]).forEach(x=>{if(x.crewId===cid&&x.status==='approved'&&(x.kind==='severe'||x.kind==='critical')&&String(x.decidedAt||x.at).slice(0,10)>=from)n++;}));return n;}
 function penStrikeNote(cid){   // az elmúlt 12 hónap összes jóváhagyott hibája, kategóriánként; a súlyos/kritikus darabszám a 3.7. pont miatt külön
@@ -1157,7 +1157,6 @@ function viewCrew(){
   const salesTab=S.tab==='ertekesitok';   // az ügyvezetőnél külön alfül: Stáb (szakemberek) és Értékesítők
   const base=crewSorted().filter(c=>!isAdmin()||(salesTab?isSalesCrew(c):!isSalesCrew(c)));let list=base;
   if(f.role)list=list.filter(c=>(c.roles||[]).includes(f.role)||(c.skills||[]).includes(f.role));
-  if(f.prio)list=list.filter(c=>String(prioNum(c))===f.prio);
   if(q)list=list.filter(c=>fold([c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ')).includes(fold(q)));
   const internal=S.crew.filter(c=>(c.type==='Belsős'||isEmployee(c))).length;
   const nextOf=c=>S.projects.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T&&crewIds(p).has(c.id)).sort(byStart);
@@ -1191,7 +1190,7 @@ function viewCrew(){
     <div class="toolbar"><input class="inp search" id="q-crew" type="search" placeholder="Keresés név, szerep, vállalkozás szerint" value="${esc(f.q)}" aria-label="Stáb keresése">
       <select class="inp" id="crew-role-filter" style="width:auto" aria-label="Szűrés szerep szerint" data-cmb="Szerep szerint…"><option value="" data-keep="1">Minden szerep</option><optgroup label="Szerep">${CREW_ROLES.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup><optgroup label="Részletek">${CREW_SKILLS.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup></select>
       <div class="seg" role="group" aria-label="Nézet"><button type="button" data-action="crew-view" data-v="cards" aria-pressed="${f.view!=='list'}" title="Kártyák">▦ Kártyák</button><button type="button" data-action="crew-view" data-v="list" aria-pressed="${f.view==='list'}" title="Lista">☰ Lista</button></div>
-      <div class="chips">${[['','Mind',base.length],['1','P1',pc(1)],['2','P2',pc(2)],['3','P3',pc(3)]].map(([v,l,n])=>`<button class="chip" type="button" data-action="crew-prio" data-v="${v}" aria-pressed="${(f.prio||'')===v}">${l}<span class="c">${n}</span></button>`).join('')}</div></div>
+</div>
     ${(()=>{const block=L=>{const rows=rowsOf(L),cards=cardsOf(L);return rows?`<div class="tbl-wrap"><table class="crew-tbl"><thead><tr><th>Név</th><th>Szerepek</th><th>Jogviszony</th><th>Telefon</th><th>E-mail</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:cards?`<div class="cards">${cards}</div>`:'';};
       if(!list.length)return `<div class="panel">${empty(S.crew.length?'Nincs a szűrésnek megfelelő munkatárs.':'Még nincs munkatárs. Vedd fel a stábot az „Új munkatárs” gombbal.')}</div>`;
       return block(list);})()}`;
