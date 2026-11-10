@@ -294,6 +294,8 @@ function computeIssues(){
     if(names.length&&g.gap<TRAVEL_RED_MIN)out.push({level:'bad',text:`${names.join(', ')}: nincs idő a helyszínváltásra ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`,pids:[live[i].id,live[j].id]});
     else if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
+  /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
+  live.forEach(p=>{if(postN(p)>0&&!hasRec(p))out.push({level:'warn',text:`${p.name||'Névtelen projekt'}: az előadások utómunkája ki van választva, de az előadásrögzítés nincs. Jelöld be a Terepi feladatok → Előadásrögzítés résznél a kamerákat (vagy vedd ki az utómunkát, ha nem mi rögzítünk).`,pids:[p.id]});});
   const seen=new Set();
   for(const it of S.inventory){
     const users=live.filter(p=>eqQty(p,it.id)>0);
