@@ -626,3 +626,8 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .ark-total b{color:#fff;font-size:22px;letter-spacing:-.01em;text-transform:none;background:linear-gradient(96deg,#ffde59,#ff914d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .ark-total.flash{animation:arkFlash .5s ease}
 @keyframes arkFlash{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+/* árkalkulátor: az ablak mindig belefér a képernyőbe (nagyításnál is), a kalkulátor a maradék helyet tölti ki, a gombsor nem vágódik le */
+#modalRoot .mbox.mbox-ark{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);height:calc(100dvh - 24px);overflow:hidden;margin:12px auto}
+#modalRoot .mbox.mbox-ark .ark-frame{flex:1 1 auto;min-height:0;height:auto!important}
+#modalRoot .mbox.mbox-ark .mhead,#modalRoot .mbox.mbox-ark .mfoot{flex:none}
+#modalRoot .mbox.mbox-ark .mfoot{position:static;flex-wrap:wrap;row-gap:8px}
