@@ -621,3 +621,8 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .ark-total{display:inline-flex;align-items:baseline;gap:6px;margin-right:10px;font-size:15px;font-weight:600;color:var(--fg-2,#36414d);white-space:nowrap}.ark-total b{font-size:20px;font-weight:800;color:var(--fg,#101923);font-variant-numeric:tabular-nums}
 #modalRoot .mbox.mbox-ark .mfoot .left{align-items:center}
 .btn.btn-ark{background:var(--ink,#243347);color:#fff;border:1px solid var(--ink,#243347)}.btn.btn-ark:hover{background:var(--ink-2,#30425a);border-color:var(--ink-2,#30425a)}
+/* árkalkulátor végösszeg: hangsúlyos „címke” a gombsorban, változáskor felvillan */
+.ark-total{background:var(--ink,#243347);color:#cfd9e3;padding:8px 18px 8px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(16,25,35,.18);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;gap:10px;margin-right:14px}
+.ark-total b{color:#fff;font-size:22px;letter-spacing:-.01em;text-transform:none;background:linear-gradient(96deg,#ffde59,#ff914d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ark-total.flash{animation:arkFlash .5s ease}
+@keyframes arkFlash{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
