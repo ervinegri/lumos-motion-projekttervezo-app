@@ -89,7 +89,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};if(o.finAllG){const seen={},u
   const cs=b.contractStatus||'',sent=cs==='kikuldve'||cs==='alairva',signed=cs==='alairva';
   const cAct=st=>`data-action="bl-cstep" data-id="${pid}"${o.cIds?` data-ids="${esc(o.cIds.join(','))}"`:''} data-st="${st}"`;
   const contract=i.fw?`<div class="cdrop" data-cdrop="${pid}">${box('','Szerződés',fwCell(i.fw,'pb-c')+'<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>')}</div>`
-    :(cs==='nemkell'?'':`<div class="cdrop" data-cdrop="${pid}">`)+box('contract','Szerződés',`${bsStep(sent,'Szerződés elküldve','',cAct(sent?'':'kikuldve'))}${bsStep(signed,'Szerződés aláírva',b.signedAt?fmtMD(b.signedAt):'',cAct(signed?'kikuldve':'alairva'))}
+    :(cs==='nemkell'?'':`<div class="cdrop" data-cdrop="${pid}">`)+box('contract','Szerződés',`${bsStep(sent,'Szerződés elküldve','',sent?'':cAct('kikuldve'))}${bsStep(signed,'Szerződés aláírva',b.signedAt?fmtMD(b.signedAt):'',signed?'':cAct('alairva'))}
       ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener" title="${esc(b.contractName||'Szerződés')}">📎 ${esc((b.contractName||'Megnyitás').replace(/\.[a-z0-9]{2,4}$/i,'').slice(0,26))}</a>`:''}${b.contractUrl?`<button class="linkbtn bl-up bl-new" type="button" data-action="cdrop-pick" data-id="${pid}" title="Vagy húzd ide a fájlt">⬆️ Új feltöltése</button>`:'<span class="cdrop-tip">📥 Húzd ide a szerződést</span>'}<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>`,cs==='nemkell',signed||!!b.contractUrl,'Nem kell szerződés?')+(cs==='nemkell'?'':'</div>');
   // TIG
   const tg=tigList().filter(t=>tigPids(t).includes(p.id)).pop()||null,appr=!!tg&&(tg.status==='jovahagyva'||tg.status==='szamlazva'),r=pr(p);
