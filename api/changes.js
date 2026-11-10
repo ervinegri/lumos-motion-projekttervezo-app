@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "161d458e1f",
+"at": "2026-11-10T14:54:09+02:00",
+"msg": "Jóváhagyó oldal telefonon: nagyobb álló videó, a gombok szövege nem jelölhető ki"
+},
+{
 "id": "8bb0c0df62",
 "at": "2026-11-10T14:51:14+02:00",
 "msg": "Jóváhagyó oldal: Enter a videón is időkódot szúr be (nem folytatja a lejátszást)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "MA jelölő a felső kártyához simul"
 },
 {
-"id": "6806e89f4e",
-"at": "2026-11-10T11:40:38+02:00",
-"msg": "Kompaktabb MA jelölő a mai projektek keretén"
-},
-{
-"id": "8eff0d0330",
-"at": "2026-11-10T09:38:12Z",
+"id": "c1aee0d461",
+"at": "2026-11-10T09:40:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
