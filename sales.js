@@ -31,7 +31,7 @@ function viewSales(){
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
     <div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div>${DEAL_OPEN.includes(s)?`<button class="dl-add" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}</section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
-      <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor: rendezvényvideó és előadásrögzítés">🧮 Árkalkulátor</button>
+      <button class="btn btn-ark" type="button" data-action="ark-open" title="Árkalkulátor: rendezvényvideó és előadásrögzítés">🧮 Árkalkulátor</button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
