@@ -31,6 +31,7 @@ function viewSales(){
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
     <div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div>${DEAL_OPEN.includes(s)?`<button class="dl-add" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}</section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
+      <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor: rendezvényvideó és előadásrögzítés">🧮 Árkalkulátor</button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
@@ -217,3 +218,7 @@ async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h
   try{const r=await call('hubspotNotes',{name,email,company});if(my!==DN_HS_SEQ||!$('m-dNotes'))return;box.innerHTML=dNotesHtml(dNoteFix(h.value,box.dataset.fb,box.dataset.by),r.notes||[]);
     if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-tevékenység betöltve (jegyzetek, feladatok, e-mailek, hívások, megbeszélések)`:'A HubSpotban nincs tevékenység ehhez a kapcsolattartóhoz / céghez';}
   catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}
+
+/* Árkalkulátor (kalkulator.lumosmotion.hu) az Értékesítés fülön: nagy ablakban, a két kalkulátor között a saját fülein lehet váltani */
+ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" src="https://kalkulator.lumosmotion.hu/rendezvenyvideok" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true,left:'<a class="btn outline" href="https://kalkulator.lumosmotion.hu/" target="_blank" rel="noopener">↗ Megnyitás új lapon</a>'});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-ark');};
