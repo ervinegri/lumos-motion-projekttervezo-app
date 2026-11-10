@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "549fd337ea",
+"at": "2026-11-10T10:25:27+02:00",
+"msg": "Számla ablak: a napok gombjai a látható fizetési határidőt is frissítik"
+},
+{
 "id": "9bb36064dc",
 "at": "2026-11-10T10:22:12+02:00",
 "msg": "Foglalószámla keresése: a Sales App rendelésszámával (LM-<év>-<azonosító>); kifizetés után csak 3 napig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sales értékesítői jutalék: 5 000 Ft / short, kedvezménytől függetlenül"
 },
 {
-"id": "95797a355a",
-"at": "2026-11-09T20:40:42+02:00",
-"msg": "Bevételek: az Értékesítés oszlop az értékesítő jutaléka, ha a projektet értékesítő hozta"
-},
-{
-"id": "d04c3477fd",
-"at": "2026-11-09T18:37:42Z",
+"id": "f8eeb36c10",
+"at": "2026-11-09T18:40:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
