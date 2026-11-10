@@ -928,7 +928,8 @@ function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_d
 function ptFrames(){document.querySelectorAll('.pt-tf-ov').forEach(e=>e.remove());let pill=true;
   document.querySelectorAll('#view tr.pt-tf-first').forEach(a=>{const tb=a.closest('table'),w=tb&&tb.parentElement;if(!w)return;let b=a;while(b&&!b.classList.contains('pt-tf-last')){b=b.nextElementSibling;}if(!b)b=a;
     w.classList.add('pt-has-tf');const wr=w.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),tr=tb.getBoundingClientRect();
-    const o=document.createElement('div');o.className='pt-tf-ov';o.style.cssText=`left:${tr.left-wr.left+w.scrollLeft}px;top:${ra.top-wr.top+w.scrollTop}px;width:${tr.width}px;height:${rb.bottom-ra.top}px`;
+    const c0=a.cells[0].getBoundingClientRect(),c1=a.cells[a.cells.length-1].getBoundingClientRect();   // a keret pontosan a sorok cellái köré kerül
+    const o=document.createElement('div');o.className='pt-tf-ov';o.style.cssText=`left:${c0.left-wr.left+w.scrollLeft}px;top:${ra.top-wr.top+w.scrollTop}px;width:${c1.right-c0.left}px;height:${rb.bottom-ra.top}px`;
     if(pill){pill=false;o.innerHTML=`<span class="pt-tf-pill">📍 Ma · ${esc(fmtDay(todayISO()))} · <span class="pt-clock">${nowHM()}</span></span>`;}w.appendChild(o);});}
 window.addEventListener('resize',()=>{clearTimeout(window._ptfT);window._ptfT=setTimeout(()=>{if(document.querySelector('#view tr.pt-tf-first'))ptFrames();},120);});
 /* a „Ma” sávon a pontos idő, percenként frissül */
