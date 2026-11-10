@@ -2340,7 +2340,7 @@ function bellItems(){if(ro()||isSales()||!(isAdmin()||(S.me&&S.me.role==='editor
   S.projects.forEach(p=>{if(p.status==='lemondva'||p.status==='atadva')return;(p.videos||[]).forEach(v=>{if(v.st==='ellen')out.push({p,v,key:p.id+'|'+v.id+'|'+(v.rvAt||'')});});});
   return out.sort((a,b)=>String(b.v.rvAt||'').localeCompare(String(a.v.rvAt||'')));}
 /* 💰 Beérkezett kifizetések (csak ügyvezető): az elmúlt 14 nap kifizetett / részben kifizetett számlái és díjbekérői */
-function bellPays(){if(isAdmin()&&S.capabilities&&S.capabilities.finance&&!S._finLoading&&!S.finErr&&typeof finLoad==='function'&&(!S.fin||Date.now()-(S._payBellAt||0)>10*60000)){S._payBellAt=Date.now();try{finLoad(!!S.fin);}catch(e){}}   /* a kifizetések frissen: 10 percenként újratölti a pénzügyi adatot */
+function bellPays(){if(isAdmin()&&S.capabilities&&S.capabilities.finance&&!S._finLoading&&!S.finErr&&typeof finLoad==='function'&&(!S._payBellAt||Date.now()-(S._payBellAt||0)>10*60000)){S._payBellAt=Date.now();try{if(S.fin&&S.fin.sz&&S.fin.sz.hasKey&&typeof szSync==='function')szSync(true);else finLoad(!!S.fin).then(()=>{if(S.fin&&S.fin.sz&&S.fin.sz.hasKey&&typeof szSync==='function')szSync(true);});}catch(e){}}   /* a kifizetések frissen: betöltéskor és 10 percenként lekérdezi a számlázz.hu-t */
   if(!isAdmin()||!S.fin)return [];const lim=new Date(Date.now()-14*864e5).toISOString().slice(0,10);
   return (S.fin.invoices||[]).filter(x=>x&&x.kind!=='storno'&&num(x.invPaid)>0&&String(x.paidAt||'').slice(0,10)>=lim).map(x=>{const p=projById(x.projectId);return {x,p,key:'pay|'+x.id+'|'+num(x.invPaid)};})
     .sort((a,b)=>String(b.x.paidAt||'').localeCompare(String(a.x.paidAt||'')));}
