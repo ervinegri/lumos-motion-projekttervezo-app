@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e06bda0b6d",
+"at": "2026-11-10T10:41:51+02:00",
+"msg": "Csengő: egy befizetés csak egyszer (díjbekérő + foglalószámla összevonva), rövid ügyfélnév"
+},
+{
 "id": "9b23b32579",
 "at": "2026-11-10T10:37:20+02:00",
 "msg": "Szerződés és számlázás: lezárt projekt kártyái szürkén; a megtörtént elküldve/aláírva lépés nem vehető vissza"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés és számlázás: eltérő szerződésű (pl. két megrendelőlapos) projektek külön szerződés-cellában"
 },
 {
-"id": "b867017856",
-"at": "2026-11-09T20:50:26+02:00",
-"msg": "HubSpot kapcsolattartó: ha a Cég mező üres, a hozzá kapcsolt HubSpot-cég neve is betöltődik"
-},
-{
-"id": "5a10a3e610",
-"at": "2026-11-09T18:48:25Z",
+"id": "adbfb5503f",
+"at": "2026-11-09T18:50:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
