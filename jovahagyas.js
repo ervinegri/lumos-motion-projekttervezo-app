@@ -44,7 +44,7 @@
     $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';};
   if(!t){err('Hiányzó vagy hibás link.');return;}
   api('clientInfo',[t]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
-  const go=(dec,fb,btn)=>{$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'']).then(show).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
+  const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'']).then(show).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
   $('bOk').onclick=e=>{if($('fb').value.trim().length>=3&&!confirm('Írtál észrevételt. Biztosan jóváhagyod a videót módosítás nélkül?'))return;go('ok','',e.currentTarget);};
   $('bSend').onclick=e=>{const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
