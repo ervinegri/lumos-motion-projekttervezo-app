@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4bd2d3883",
+"at": "2026-11-10T14:13:49+02:00",
+"msg": "Videó-hozzászólás: az időkód oda kerül, ahol a kurzor utoljára állt, nem a szöveg végére"
+},
+{
 "id": "3bbb508d40",
 "at": "2026-11-10T14:06:11+02:00",
 "msg": "Terem helyett Helyszín a feliratokban és levelekben; a beosztó levélben minden kamera / eszköz külön sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Díjbekérő hivatkozás a foglaló-kártyán: csak szöveg (ugyanazt a számlát nyitotta)"
 },
 {
-"id": "4e56deccf9",
-"at": "2026-11-10T10:58:19+02:00",
-"msg": "Frissítés-értesítő kétszer tovább látszik; kifizetés-értesítő csak ✕-re tűnik el"
-},
-{
-"id": "3fc975d471",
-"at": "2026-11-10T08:57:47Z",
+"id": "8b3783bbc1",
+"at": "2026-11-10T08:58:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
