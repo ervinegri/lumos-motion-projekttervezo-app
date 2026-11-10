@@ -540,7 +540,7 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
     <div><span>Kifizetve</span><b class="${s==='paid'?'ok-txt':''}">${ftFmt(p)}${x.paidAt?' · '+esc(x.paidAt):''}</b></div>
     <div><span>Hova tartozik</span><b><select class="inp" id="m-invslot" data-invid="${esc(x.id)}" style="max-width:220px;padding:5px 8px;font-size:13px">${[['dijbekero','Díjbekérő'],['eloleg','Foglalószámla (díjbekérő helyén)'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']].map(([k,l])=>`<option value="${k}"${k===x.kind?' selected':''}>${l}</option>`).join('')}</select></b></div>
     <div><span>Állapot</span><b><span class="statuspill ${INV_CLS[s]}">${{paid:'Kifizetve',part:'Részben fizetve',late:'Lejárt, nincs kifizetve',open:'Fizetésre vár'}[s]}</span></b></div>
-    <div><span>${x.manual?'Kiállító':'Utoljára ellenőrizve'}</span><b>${x.manual?(x.issuer==='kft'?'Lumos Motion Kft.':'Egri Ervin E.V.')+' · kézi rögzítés':esc(x.checkedAt||'—')}</b></div></div>`,
+    <div><span>${x.manual?'Kiállító':'Utoljára ellenőrizve'}</span><b>${x.manual?(x.issuer==='ev'?'Egri Ervin E.V.':'Lumos Motion Kft.')+(x.createdBy==='számlázz.hu'?' · a számlázz.hu számlájából':' · kézi rögzítés'):esc(x.checkedAt||'—')}</b></div></div>`,
   x.manual?{left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Törlés</button>${x.fileUrl?`<a class="btn outline small" href="${esc(x.fileUrl)}" target="_blank" rel="noopener">📄 Bizonylat megnyitása</a>`:''}`,cancelLabel:'Bezárás',
     submitLabel:s==='paid'?'Kifizetés visszavonása':'✅ Kifizetve',submit:()=>ACT['sz-mpaid']({dataset:{id:x.id,paid:s==='paid'?'0':'1'}})}:
   {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>${x.kind!=='dijbekero'&&!x.manual&&!(num(x.invPaid)>0)&&!invPaidOk(x)?`<button type="button" class="btn outline small" data-action="sz-storno" data-id="${esc(x.id)}">↩️ Sztornó</button>`:''}`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
@@ -555,6 +555,7 @@ const SZ_KIND_NAME={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalósz
 function szFileName(x){const pc=(typeof projById==='function'&&x.projectId&&projById(x.projectId)||{}).client,buyer=String(pc||x.buyer||'').replace(/\s+(korlátolt felelősségű társaság|zártkörűen működő részvénytársaság|kft\.?|zrt\.?|bt\.?)$/i,'').trim(),t=SZ_KIND_NAME[x.kind]||'Számla';
   return ('Lumos Motion – '+t+' '+(x.no||'')+(buyer?' – '+buyer:'')).replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().slice(0,150)+'.pdf';}
 async function szInvOpen(x,btn){
+  if(x.manual&&x.kind==='dijbekero'&&x.ref){const r=((S.fin&&S.fin.invoices)||[]).find(y=>y.no===x.ref);if(r){szInvOpen(r,btn);return;}}   /* a számlázz.hu már nem adja vissza a kifizetett díjbekérőt: a belőle készült számla nyílik */
   if(x.manual){if(x.fileUrl)window.open(x.fileUrl,'_blank','noopener');else szInvModal(x);return;}
   const w=window.open('about:blank','_blank');if(w)try{w.document.title=x.no||'Számla';w.document.body.innerHTML='<p style="font:16px system-ui;padding:24px">Számla betöltése…</p>';}catch(e){}
   const old=btn&&btn.textContent;if(btn){btn.classList.add('is-busy');}

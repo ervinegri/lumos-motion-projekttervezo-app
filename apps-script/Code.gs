@@ -2687,7 +2687,7 @@ function szSync_(u, a) {
       if (x.kind === 'eloleg' && q.no) { x.advType = q.advReal ? 'elolegszamla' : 'szamla';
         if (q.fromDijbekero && !x.ref) x.ref = q.fromDijbekero;
         if (q.fromDijbekero && !all.some(y => y.no === q.fromDijbekero) && !created.some(y => y.no === q.fromDijbekero)) { const r0 = { id: Utilities.getUuid(), no: q.fromDijbekero, kind: 'dijbekero', projectId: x.projectId, incomeId: x.incomeId, buyer: x.buyer || q.buyer, date: '', due: '', invNet: q.invNet || x.invNet, invGross: q.invGross || x.invGross,
-            invPaid: q.invGross || x.invGross, paidAt: q.paidAt || x.paidAt, payMethod: q.payMethod || '', createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A ' + x.no + ' számlából (a díjbekérő alapján készült)', items: '', ref: x.no, projectIds: x.projectIds || '', manual: '1', advType: '' };
+            invPaid: q.invGross || x.invGross, paidAt: q.paidAt || x.paidAt, payMethod: q.payMethod || '', createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A ' + x.no + ' számlából (a díjbekérő alapján készült)', items: '', ref: x.no, projectIds: x.projectIds || '', manual: '1', advType: '', issuer: x.issuer || 'kft' };
           created.push(r0); all.push(r0); } }   // a díjbekérő is bekerül (kifizetettként, a számlázz.hu már nem adja vissza)
       const was = Number(x.invPaid) || 0;
       Object.assign(x, { invPaid: q.invPaid, paidAt: q.paidAt || x.paidAt, invGross: q.invGross || x.invGross, invNet: q.invNet || x.invNet, due: q.due || x.due, checkedAt: now_() });
