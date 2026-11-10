@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "df7c5bfa2e",
+"at": "2026-11-10T14:55:23+02:00",
+"msg": "Jóváhagyó oldal: döntéskor a videó megáll"
+},
+{
 "id": "161d458e1f",
 "at": "2026-11-10T14:54:09+02:00",
 "msg": "Jóváhagyó oldal telefonon: nagyobb álló videó, a gombok szövege nem jelölhető ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai keret: az oszlopválasztó nem töri meg a piros vonalat"
 },
 {
-"id": "5731fe1ab3",
-"at": "2026-11-10T12:26:42+02:00",
-"msg": "MA jelölő a felső kártyához simul"
-},
-{
-"id": "c1aee0d461",
-"at": "2026-11-10T09:40:51Z",
+"id": "cdc3023d0f",
+"at": "2026-11-10T10:26:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
