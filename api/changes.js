@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8e1dc252c5",
+"at": "2026-11-10T10:57:37+02:00",
+"msg": "Vercel: a változásnapló-commit nem indít külön buildet (költségcsökkentés)"
+},
+{
 "id": "f896de4bda",
 "at": "2026-11-10T10:56:25+02:00",
 "msg": "Kifizetett (behozott) díjbekérőre kattintva a belőle készült számla nyílik meg; kiállító: Lumos Motion Kft."
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sales jutalék: a régi automatikus (10 000 / kedvezményes) értékek is átíródnak 5 000 Ft/shortra; szinkron után frissül a nézet"
 },
 {
-"id": "acd6bfb082",
-"at": "2026-11-09T21:05:07+02:00",
-"msg": "Bevételek: a százalékok a továbbszámlázott költség és a szervezői jutalék levonása után számolódnak"
-},
-{
-"id": "07c03aadd3",
-"at": "2026-11-09T19:02:07Z",
+"id": "1744f9ed73",
+"at": "2026-11-09T19:05:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
