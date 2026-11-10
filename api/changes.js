@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a47bfd29ab",
+"at": "2026-11-10T15:20:37+02:00",
+"msg": "Árkalkulátor ablak: Megnyitás új lapon gomb nélkül"
+},
+{
 "id": "8f12a7cb31",
 "at": "2026-11-10T15:16:37+02:00",
 "msg": "Értékesítés: Árkalkulátor gomb (kalkulator.lumosmotion.hu nagy ablakban), az Új lehetőség mellett balra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai keret: pontosan a cellák köré igazítva, kerek cellasarkok"
 },
 {
-"id": "315a9125c1",
-"at": "2026-11-10T12:50:57+02:00",
-"msg": "Szerepek legördülő: teljes szélességű kereső, megnyitáskor a lista tetejéről indul"
-},
-{
-"id": "37e6668eaa",
-"at": "2026-11-10T10:49:15Z",
+"id": "2345bbd47f",
+"at": "2026-11-10T10:51:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
