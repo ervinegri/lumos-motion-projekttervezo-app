@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9a91a8900b",
+"at": "2026-11-10T13:44:32+02:00",
+"msg": "Közeli kamera: szerény + gomb a sorban, külön sor nélkül"
+},
+{
 "id": "b0fb7c2feb",
 "at": "2026-11-10T13:40:15+02:00",
 "msg": "Előadásrögzítés: több közeli kamera termenként, mindegyik saját sorban, saját operatőrrel és eszközzel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Csengő: egy befizetés csak egyszer (díjbekérő + foglalószámla összevonva), rövid ügyfélnév"
 },
 {
-"id": "9b23b32579",
-"at": "2026-11-10T10:37:20+02:00",
-"msg": "Szerződés és számlázás: lezárt projekt kártyái szürkén; a megtörtént elküldve/aláírva lépés nem vehető vissza"
-},
-{
-"id": "6abf0c41b7",
-"at": "2026-11-10T08:35:58Z",
+"id": "35394dd0bd",
+"at": "2026-11-10T08:37:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
