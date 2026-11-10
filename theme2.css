@@ -644,3 +644,12 @@ html.th2 .mbox:has(.bd-modal) .bd-modal{flex:0 1 auto;max-height:calc(100vh - 20
 .bd-seen{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:600;color:#8a5300;background:#fdf1de;border-radius:999px;padding:2px 8px}
 .bd-seen.on{color:#1f6b3e;background:#e8f3ec}
 .bd-seen{display:table;margin:5px 0 4px}
+/* videótábla: az ügyféloldali oszlopok (jóváhagyásra vár, jóváhagyva) külön sávként – térköz, szaggatott elválasztó és saját színezés */
+.bl-row>.c-leadva{margin-left:18px;position:relative}
+.bl-row>.c-leadva::before{content:"";position:absolute;left:-14px;top:2px;bottom:2px;border-left:2px dashed #c9d2db}
+.bl-cell.c-leadva{background:#fbf5e8}
+.bl-cell.c-jovahagyva{background:#ecf6ef}
+html.th2 .bl-h.c-leadva{background:#f6e9c9;color:#7a5200}
+html.th2 .bl-h.c-jovahagyva{background:#d7ecdd;color:#1f6b3e}
+.bl-cell.c-leadva.over{background:#f6ebcf;box-shadow:inset 0 0 0 2px #e0b04a}
+.bl-cell.c-jovahagyva.over{background:#dcefe2;box-shadow:inset 0 0 0 2px #5fae7c}
