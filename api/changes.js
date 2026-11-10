@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "27e1a07c77",
+"at": "2026-11-10T10:05:43+02:00",
+"msg": "Kifizetések: a számlázz.hu lekérdezése betöltéskor és 10 percenként magától (ügyvezető)"
+},
+{
 "id": "f87e2aa2c1",
 "at": "2026-11-10T10:03:36+02:00",
 "msg": "Források: a P1–P3 prioritás megszűnt (szűrő, jelvény, adatlap mező, sorrend)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: szerződött lehetőség meglévő projekthez kapcsolható (nem jön létre másodpéldány)"
 },
 {
-"id": "c85655d004",
-"at": "2026-11-09T18:14:07+02:00",
-"msg": "Jóváhagyó oldal: nyitó animáció a logóval; logó két sora egyforma betűvastagságú"
-},
-{
-"id": "0abf996c8e",
-"at": "2026-11-09T15:56:54Z",
+"id": "4f7e21bdad",
+"at": "2026-11-09T16:14:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
