@@ -2666,7 +2666,8 @@ function szSync_(u, a) {
   szNeedKey_();
   const started = Date.now(), all = readAll_('finInvoice');
   const ids = a && a.id ? [str_(a.id, 64)] : null;
-  const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1))
+  const noAdv = x => x.kind === 'dijbekero' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no) && String(x.checkedAt || '') < new Date(Date.now() - 3 * 3600e3).toISOString();   // kifizetett díjbekérő, amelyhez még nincs foglalószámla (3 óránként újra megnézzük)
+  const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1 || noAdv(x)))
     .sort((x, y) => String(x.checkedAt).localeCompare(String(y.checkedAt))).slice(0, 25);
   const changed = [], errors = [], created = [];
   todo.forEach(x => {
@@ -2675,16 +2676,12 @@ function szSync_(u, a) {
       try { q = szQuery_(x.no, false); }
       catch (e0) {   // a kifizetett díjbekérőt a számlázz.hu automatikus számlázáskor törli – ilyenkor a rendelésszám alapján a foglalószámlát kapjuk
         if (x.kind !== 'dijbekero') throw e0;
-        /* rendelésszám: a projekt azonosítója – a Sales App díjbekérőinél a Sales-rendelés azonosítója (sales-<id>, vagy az lx_link párosítás) */
-        const pid0 = x.projectId || x.incomeId, cands = [pid0];
-        if (/^sales-/.test(String(pid0))) cands.push(String(pid0).slice(6));
-        try { (neonSql_([{ query: 'SELECT order_id FROM lx_link WHERE project_id = $1', params: [String(pid0)] }])[0].rows || []).forEach(r => cands.push(r[0])); } catch (eL) { }
-        let o = null;
-        for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1))) { o = t; break; } } catch (eQ) { } }
+        const o = szAdvFor_(x);
         if (!o) throw new Error('a díjbekérő a számlázz.hu-ban már nem található (valószínűleg kifizették, és a foglalószámla még nem párosítható) – jelöld kézzel fizetettnek');
         szAddAdvance_(all, x, o, created);
         q = { invPaid: Number(x.invGross) || o.invGross, paidAt: o.paidAt || o.date, invGross: x.invGross, invNet: x.invNet, due: x.due };
       }
+      if (x.kind === 'dijbekero' && (Number(q.invPaid) || 0) >= (Number(q.invGross || x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no)) { try { const o2 = szAdvFor_(x); if (o2 && o2.kind !== 'dijbekero') szAddAdvance_(all, x, o2, created); } catch (eA) { } }   // a kifizetett díjbekérőből készült foglalószámla is bekerül
       const was = Number(x.invPaid) || 0;
       Object.assign(x, { invPaid: q.invPaid, paidAt: q.paidAt || x.paidAt, invGross: q.invGross || x.invGross, invNet: q.invNet || x.invNet, due: q.due || x.due, checkedAt: now_() });
       x._dirty = true; if (q.invPaid !== was) changed.push(x);
@@ -2698,8 +2695,16 @@ function szSync_(u, a) {
     const s = szSettings_(); s.lastSync = now_(); szStore_(s);
     dbFlush_();
   });
-  if (changed.length) logEvent_(u, 'Számlázás', '', 'Kifizetés frissítve: ' + changed.map(x => x.no).join(', '));
-  return Object.assign(finData_(), { synced: { checked: todo.length, changed: changed.map(x => ({ no: x.no, buyer: x.buyer, paid: x.invPaid, gross: x.invGross })), errors: errors } });
+  if (changed.length || created.length) logEvent_(u, 'Számlázás', '', [changed.length ? 'Kifizetés frissítve: ' + changed.map(x => x.no).join(', ') : '', created.length ? 'Foglalószámla behozva: ' + created.map(x => x.no).join(', ') : ''].filter(String).join(' · '));
+  return Object.assign(finData_(), { synced: { checked: todo.length, changed: changed.map(x => ({ no: x.no, buyer: x.buyer, paid: x.invPaid, gross: x.invGross })), created: created.map(x => ({ no: x.no, ref: x.ref })), errors: errors } });
+}
+/** A díjbekérőből készült foglalószámla a számlázz.hu-ban, rendelésszám alapján: a projekt azonosítója, a Sales App díjbekérőinél a Sales-rendelés azonosítója (sales-<id>, vagy az lx_link párosítás). */
+function szAdvFor_(x) {
+  const pid0 = x.projectId || x.incomeId, cands = [pid0];
+  if (/^sales-/.test(String(pid0))) cands.push(String(pid0).slice(6));
+  try { (neonSql_([{ query: 'SELECT order_id FROM lx_link WHERE project_id = $1', params: [String(pid0)] }])[0].rows || []).forEach(r => cands.push(r[0])); } catch (eL) { }
+  for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1))) return t; } catch (eQ) { } }
+  return null;
 }
 /** Díjbekérőből (automatikusan) készült foglalószámla felvétele, ha még nincs nálunk. */
 function szAddAdvance_(all, db, q, out) {

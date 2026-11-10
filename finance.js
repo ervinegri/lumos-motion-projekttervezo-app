@@ -573,11 +573,11 @@ function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?Str
   </div>`,{submitLabel:'Mentés',submit:async fd=>{
     const d={agentKey:String(fd.get('agentKey')||'').trim(),dueDays:Number(fd.get('dueDays')),vat:fd.get('vat'),unit:String(fd.get('unit')||'').trim(),payMethod:fd.get('payMethod'),eInvoice:true,sendEmail:!!fd.get('sendEmail'),comment:String(fd.get('comment')||'').trim()};
     const r=await finCall('szSettings',d,'Számlázási beállítások mentve');if(r){if(!ipn&&r.sz&&r.sz.ipnToken)szSettingsModal();else closeModal();}}});}
-async function szSync(silent,id){if(!szOn()||!S.fin.sz.hasKey||S._szSyncing)return;S._szSyncing=true;if(!silent)render(true);
+async function szSync(silent,id){if(!szOn()||!S.fin.sz.hasKey)return;if(S._szSyncing){if(!silent){S._szLoud=true;render(true);toast('A kifizetések lekérdezése folyamatban…');}return;}S._szSyncing=true;S._szLoud=!silent;if(S.tab==='szerzodes'||S.tab==='penzugy')render(true);
   try{const d=await call('szSync',id?{id}:{});finApply(d);const c=(d.synced&&d.synced.changed)||[];
-    if(c.length)toast('Új kifizetés: '+c.map(x=>x.no+(x.buyer?' ('+x.buyer+')':'')).join(', '));else if(!silent)toast('A kifizetések naprakészek.');
-    if(!silent&&d.synced&&d.synced.errors&&d.synced.errors.length)toast(d.synced.errors[0],true);}
-  catch(e){if(!silent)handleErr(e);}finally{S._szSyncing=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);}}
+    const nw=(d.synced&&d.synced.created)||[];if(c.length||nw.length)toast([c.length?'Új kifizetés: '+c.map(x=>x.no+(x.buyer?' ('+x.buyer+')':'')).join(', '):'',nw.length?'Foglalószámla behozva: '+nw.map(x=>x.no+(x.ref?' ('+x.ref+' alapján)':'')).join(', '):''].filter(Boolean).join(' · '));else if(S._szLoud)toast('A kifizetések naprakészek – nincs új befizetés.');
+    if(S._szLoud&&d.synced&&d.synced.errors&&d.synced.errors.length)toast(d.synced.errors[0],true);}
+  catch(e){if(S._szLoud)handleErr(e);}finally{S._szSyncing=false;S._szLoud=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);}}
 Object.assign(ACT,{
   'sz-new':b=>{const k=b.dataset.kind,id=b.dataset.id;if(!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}szInvoiceModal(k,id,{type:k==='project'?billNextType(id):'szamla'});},
   'sz-link':b=>szLinkModal(b.dataset.kind,b.dataset.id,(($('m-kind')||{}).value)||b.dataset.type),
