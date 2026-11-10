@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c6fc9d02ee",
+"at": "2026-11-11T00:36:59+01:00",
+"msg": "Videótábla: tovább-nyíl le a kártyákról"
+},
+{
 "id": "916e46fcf2",
 "at": "2026-11-11T00:36:27+01:00",
 "msg": "Videótábla: ügyféloldali oszlopok vizuálisan különválasztva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a nyitókép a videó betöltéséig marad, lágy áttűnéssel; rákérdez, ha a videó nincs végignézve"
 },
 {
-"id": "df7c5bfa2e",
-"at": "2026-11-10T14:55:23+02:00",
-"msg": "Jóváhagyó oldal: döntéskor a videó megáll"
-},
-{
-"id": "82962b6d58",
-"at": "2026-11-10T12:54:20Z",
+"id": "065fb56850",
+"at": "2026-11-10T12:55:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
