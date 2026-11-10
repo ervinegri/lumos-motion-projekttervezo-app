@@ -2450,9 +2450,10 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset|
 const cliBy=(by,p)=>{const m=/^Ügyfél \(([^)]*@[^)]*)\)$/.exec(String(by||''));if(!m)return by;const em=m[1].trim().toLowerCase(),cn=String(p&&p.contactName||'').trim();
   if(cn&&String(p.contactEmail||'').trim().toLowerCase()===em)return cn.split(/\s+/).pop();const lp=em.split('@')[0].split(/[._-]/)[0];return lp?lp[0].toUpperCase()+lp.slice(1):'Ügyfél';};
 function vidCmItems(v){const P=(S.projects||[]).find(p=>(p.videos||[]).includes(v));v=Object.assign({},v,{fbBy:cliBy(v.fbBy,P),rvBy:cliBy(v.rvBy,P),cm:(v.cm||[]).map(c=>Object.assign({},c,{by:cliBy(c.by,P)}))});const L=(v.cm||[]).map((c,i)=>({by:c.by,at:c.at,idx:i,t:(c.ts!==''&&c.ts!=null?'['+tcFmt(c.ts)+'] ':'')+c.t}));
-  if(v.note)L.push({by:v.rvBy,at:v.rvAt,t:v.note,tag:'🔍 ellenőrzésre küldve',kind:'note'});
+  const nrm=t=>String(t||'').replace(/^\[[\d:]+\]\s*/,'').replace(/\s+/g,' ').trim();
+  if(v.note&&!(v.cm||[]).some(c=>nrm(c.t)===nrm(v.note)))L.push({by:v.rvBy,at:v.rvAt,t:v.note,tag:'🔍 ellenőrzésre küldve',kind:'note'});   // ha ugyanez hozzászólásként is megvan, ne jelenjen meg kétszer
   if(v.fb&&!(v.cm||[]).some(c=>String(c.t).replace(/^↩ /,'')===v.fb||v.fb.endsWith(String(c.t).replace(/^↩ /,''))))L.push({by:v.fbBy,at:v.fbAt,t:'↩ '+v.fb,kind:'fb'});
-  const D=S._cmDel||{};return L.filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>String(y.at||'').replace('T',' ').localeCompare(String(x.at||'').replace('T',' ')));}
+  const D=S._cmDel||{},seen={};return L.filter(c=>{const k=(c.by||'')+'|'+String(c.at||'').slice(0,16)+'|'+nrm(c.t);if(seen[k])return false;seen[k]=1;return true;}).filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>String(y.at||'').replace('T',' ').localeCompare(String(x.at||'').replace('T',' ')));}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
 function vidCmBody(v,c,reps){let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v),me=S.me&&S.me.name;
   return String(c.t||'').split('\n').map(line=>{const h=tcLinks(esc(line));if(h.indexOf('class="vv-ts')<0)return esc(line)+'<br>';let first='';
