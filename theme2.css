@@ -579,11 +579,12 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .bs-box .bs-ref{cursor:default}
 
 /* mai projektek: piros keret, a tetején a „MA · …” jelölő */
-#view .pt-today-row.pt-tframe td{position:relative}
-#view .pt-today-row.pt-tframe td::before{content:"";position:absolute;left:0;right:0;top:50%;bottom:0;border:3px solid #d63c2f;border-bottom:0;border-radius:14px 14px 0 0;pointer-events:none}
+#view .pt-today-row.pt-tframe td{position:relative;padding:4px 0 3px!important}
+#view .pt-today-row.pt-tframe td::before{content:"";position:absolute;left:0;right:0;top:13px;bottom:0;border:3px solid #d63c2f;border-bottom:0;border-radius:14px 14px 0 0;pointer-events:none}
 #view .pt-today-row.pt-tframe td>span{position:relative;z-index:1}
 #view .pt-today-row.pt-tframe td>span::after{visibility:hidden}
-#view .pt-today-row.pt-tframe td>span{margin:10px 0 0!important;padding-bottom:10px}
+#view .pt-today-row.pt-tframe td>span{margin:0!important;padding-bottom:0;font-size:12px}
+#view .pt-today-row.pt-tframe td>span>b{padding:3px 11px;box-shadow:0 1px 4px rgba(214,60,47,.3)}
 #view .pt-today-row.pt-tframe td>span::before{width:14px;align-self:center;visibility:hidden}
 #view .pt-today-row.pt-tframe td>span::after{align-self:center}
 #view table tbody tr.pt-row.pt-tf>td:first-child{box-shadow:inset 3px 0 0 #d63c2f!important}
