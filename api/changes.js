@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5731fe1ab3",
+"at": "2026-11-10T12:26:42+02:00",
+"msg": "MA jelölő a felső kártyához simul"
+},
+{
 "id": "6806e89f4e",
 "at": "2026-11-10T11:40:38+02:00",
 "msg": "Kompaktabb MA jelölő a mai projektek keretén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beosztás: a kreatív kamerához kijelölt operatőr kártyájára „Kreatív operatőr” kerül (statív / interjúsarok hasonlóan)"
 },
 {
-"id": "4eca959bdb",
-"at": "2026-11-09T21:35:30+02:00",
-"msg": "Legördülő: beágyazott operatőr-altípusok (az Operatőrre kattintva nyílnak); számolásnál is ezres tagolás"
-},
-{
-"id": "9a7c148c90",
-"at": "2026-11-09T19:32:57Z",
+"id": "aae1484a6a",
+"at": "2026-11-09T19:35:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
