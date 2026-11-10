@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2c6dc7374a",
+"at": "2026-11-11T00:12:18+01:00",
+"msg": "Ügyfél-link megnyitásának jelzése a videókártyán; új Lumos gomb a jóváhagyó levélben"
+},
+{
 "id": "f873ca1f3e",
 "at": "2026-11-11T00:07:03+01:00",
 "msg": "Ügyfél jóváhagyó oldal: a videó a nyitókép után magától indul (szükség esetén némítva, hang gombbal)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Terem helyett Helyszín a feliratokban és levelekben; a beosztó levélben minden kamera / eszköz külön sorban"
 },
 {
-"id": "1073dcdf6d",
-"at": "2026-11-10T14:02:52+02:00",
-"msg": "Szakember hozzáadása: alapból a hiányzó szerep a beosztás, kereshető legördülővel"
-},
-{
-"id": "6081b5f469",
-"at": "2026-11-10T11:55:36Z",
+"id": "e91b6928c6",
+"at": "2026-11-10T12:03:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
