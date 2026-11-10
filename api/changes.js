@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c254dab57b",
+"at": "2026-11-10T10:32:32+02:00",
+"msg": "Bizonylatok: egységes fájlnév (Lumos Motion – Típus Számlaszám – Ügyfél.pdf), megnyitás névvel és Letöltés gombbal"
+},
+{
 "id": "c2c3ab5b4d",
 "at": "2026-11-10T10:28:40+02:00",
 "msg": "Számla ablak: fizetési határidő gyorsgombjai egy sorban, szegmentált vezérlőként"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: százalékmezők visszavonása (⌘/Ctrl + Z, Esc)"
 },
 {
-"id": "3c0ed6eec4",
-"at": "2026-11-09T20:44:56+02:00",
-"msg": "Bevételek: a „nincs érték” jelölés lekerült, elég a Marketing projekt gomb"
-},
-{
-"id": "05bae53a68",
-"at": "2026-11-09T18:44:51Z",
+"id": "aefb620104",
+"at": "2026-11-09T18:45:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
