@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ce8fcff8cd",
+"at": "2026-11-11T00:52:34+01:00",
+"msg": "Jelölés mód: kék keret, sötétítés és felirat a lejátszón, gomb felirata vált"
+},
+{
 "id": "856348dcb5",
 "at": "2026-11-11T00:50:24+01:00",
 "msg": "Filmszalag emoji ki az átnevezésnél is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: a végösszeg a gombsorban, az Eredmény beküldése mellett"
 },
 {
-"id": "7526544bfc",
-"at": "2026-11-10T15:29:32+02:00",
-"msg": "Árkalkulátor: a gombok jobbra, a Bezárás mellé"
-},
-{
-"id": "2be941c067",
-"at": "2026-11-10T13:27:45Z",
+"id": "4e051d709b",
+"at": "2026-11-10T13:29:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
