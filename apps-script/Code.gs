@@ -2704,9 +2704,12 @@ function szAdvFor_(x) {
   if (/^sales-/.test(String(pid0))) cands.push(String(pid0).slice(6));
   try { (neonSql_([{ query: 'SELECT order_id FROM lx_link WHERE project_id = $1', params: [String(pid0)] }])[0].rows || []).forEach(r => cands.push(r[0])); } catch (eL) { }
   { const yrs = [String(x.date || '').slice(0, 4), String(new Date().getFullYear())].filter(y => /^\d{4}$/.test(y)); cands.slice().forEach(c => { if (c && !/^LM-/.test(c) && !/^sales-/.test(c)) yrs.forEach(y => cands.push('LM-' + y + '-' + c)); }); }   // a Sales App rendelésszáma: LM-<év>-<rendelés-azonosító>
-  for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1))) return t; } catch (eQ) { } }
+  for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1 && szSameBuyer_(t.buyer, x.buyer)))) return t; } catch (eQ) { } }
   return null;
 }
+/** Ugyanaz a vevő-e (ékezet, kis-nagybetű, cégforma nélkül): a foglalószámla csak ugyanannak a vevőnek a díjbekérőjéhez párosítható */
+function szSameBuyer_(a, b) { const n = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\b(kft|zrt|bt|nyrt|kkt|korlatolt felelossegu tarsasag|zartkoruen mukodo reszvenytarsasag)\b\.?/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const x = n(a), y = n(b); return !!x && !!y && (x === y || x.indexOf(y) >= 0 || y.indexOf(x) >= 0); }
 /** Díjbekérőből (automatikusan) készült foglalószámla felvétele, ha még nincs nálunk. */
 function szAddAdvance_(all, db, q, out) {
   if (!q || !q.no || all.some(x => x.no === q.no) || out.some(x => x.no === q.no)) return;
