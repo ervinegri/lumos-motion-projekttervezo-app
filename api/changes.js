@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "856348dcb5",
+"at": "2026-11-11T00:50:24+01:00",
+"msg": "Filmszalag emoji ki az átnevezésnél is"
+},
+{
 "id": "77e5ddb343",
 "at": "2026-11-11T00:49:56+01:00",
 "msg": "Videó: ügyfél jóváhagyására várónál nincs hozzászólás; dupla visszadobás-komment javítás; filmszalag emoji ki a címekből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: a gombok jobbra, a Bezárás mellé"
 },
 {
-"id": "a5c2aade44",
-"at": "2026-11-10T15:27:34+02:00",
-"msg": "Árkalkulátor: Visszaállítás és Eredmény beküldése a Bezárás mellett, egy sorban"
-},
-{
-"id": "f31f182571",
-"at": "2026-11-10T13:27:09Z",
+"id": "2be941c067",
+"at": "2026-11-10T13:27:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
