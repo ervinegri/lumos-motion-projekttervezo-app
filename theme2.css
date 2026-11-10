@@ -635,3 +635,7 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 /* videótábla ablak: nagy monitoron se legyen óriási – legfeljebb 1360 px széles, és csak olyan magas, amilyen a tartalom */
 html.th2 .mbox.m-wide:has(.bd-modal){width:min(96vw,1360px)!important;max-width:min(96vw,1360px)!important;height:auto!important;max-height:calc(100vh - 48px);margin-block:auto}
 html.th2 .mbox:has(.bd-modal) .bd-modal{flex:0 1 auto;max-height:calc(100vh - 200px);overflow:auto}
+
+/* havi naptár: „Vágói határidők” pipa */
+.cal-tog{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cal-tog input{width:16px;height:16px;accent-color:var(--violet,#7c5cc4);margin:0}
