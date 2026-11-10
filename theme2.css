@@ -643,3 +643,4 @@ html.th2 .mbox:has(.bd-modal) .bd-modal{flex:0 1 auto;max-height:calc(100vh - 20
 /* videókártya: megnyitotta-e az ügyfél */
 .bd-seen{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:600;color:#8a5300;background:#fdf1de;border-radius:999px;padding:2px 8px}
 .bd-seen.on{color:#1f6b3e;background:#e8f3ec}
+.bd-seen{display:table;margin:5px 0 4px}
