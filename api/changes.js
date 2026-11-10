@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eda7a12ee1",
+"at": "2026-11-10T13:51:37+02:00",
+"msg": "Előadásrögzítés: Helyszín elnevezés, a + egyszerűen új közeli kamera sort ad, helyszínenként egy operatőr"
+},
+{
 "id": "1b2391f0e2",
 "at": "2026-11-10T13:45:49+02:00",
 "msg": "Kameraszög pipája kivehető: az automatikus kitöltés csak operatőr- vagy kameraváltozáskor jelöl be új szöget"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlázás: díjbekérő alapján készült sima (előleg-)számla felismerése; a maradékról sima számla, nem végszámla; a díjbekérő is bekerül"
 },
 {
-"id": "f90a6b991c",
-"at": "2026-11-10T10:45:15+02:00",
-"msg": "Végszámla előnézet: a foglalószámla levonása és a valódi fizetendő összeg; figyelmeztetés, ha nincs foglalószámla"
-},
-{
-"id": "791e20981b",
-"at": "2026-11-10T08:42:00Z",
+"id": "65f72c93f5",
+"at": "2026-11-10T08:45:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
