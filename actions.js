@@ -2527,7 +2527,7 @@ document.addEventListener('pointerdown',e=>{const pin=e.target.closest&&e.target
     taHl();const lay=pin.parentElement;if(lay)lay._h=null;pinsShow(vd,vd.currentTime);};
   pin.addEventListener('pointermove',mv);pin.addEventListener('pointerup',up);pin.addEventListener('pointercancel',up);},true);
 function pinMode(on){window._vvPinMode=!!on;const pl=document.querySelector('.vv-player'),pb=document.querySelector('.vv-pin-btn');if(pl)pl.classList.toggle('pin-mode',!!on);if(pb)pb.classList.toggle('on',!!on);
-  if(on){const vd=document.querySelector('.vv-player video');if(vd)vd.pause();toast('📍 Kattints a képen arra a pontra, amire az észrevétel vonatkozik (Esc: mégse)');}}
+  if(on){const vd=document.querySelector('.vv-player video');if(vd)vd.pause();}if(pb)pb.textContent=on?'✕ Jelölés vége':'📍 Jelölés';}
 ACT['vid-pin']=()=>pinMode(!window._vvPinMode);
 /* Visszafelé 2× (Shift + szóköz): a böngésző nem tud visszafelé lejátszani, ezért képkockánként lépünk hátra */
 function vvRev(sp,v,on){const pl=v.closest('.vv-player');if(on){if(sp.rev)return;clearTimeout(sp.t);sp.rev=true;sp.fast=true;v.playbackRate=1;v.pause();if(pl){pl.classList.remove('ff');pl.classList.add('rw');}let last=performance.now(),tg=v.currentTime;

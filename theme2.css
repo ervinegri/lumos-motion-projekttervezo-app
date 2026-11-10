@@ -671,3 +671,10 @@ html.th2 .bl-h3,html.th2 .bl-ttl,html.th2 .bl-ttl .bl-sub{align-items:center}
 /* ügyfél jóváhagyására vár: a vágónak nincs hozzászólás-mező → az időkód / jelölés gombok sem kellenek */
 #mform:has(.vv-cm-lock) .vv-tcw,#mform:has(.vv-cm-lock) .vv-pin-btn{display:none!important}
 .vv-cm-lock{margin:4px 0 10px;padding:9px 12px;border-radius:10px;background:#fbf5e8;color:#7a5200;font-weight:600}
+/* Jelölés mód: jól látható állapot – kék keret a lejátszó körül, enyhe sötétítés és felirat a kép tetején */
+.vv-player.pin-mode{position:relative;box-shadow:0 0 0 3px #2f6fdf,0 0 0 8px rgba(47,111,223,.22);border-radius:14px;animation:pinPulse 1.6s ease-in-out infinite}
+.vv-player.pin-mode::before{content:"";position:absolute;inset:0;background:rgba(10,20,40,.18);pointer-events:none;z-index:3;border-radius:inherit}
+.vv-player.pin-mode::after{content:"📍 Jelölés: kattints a képen arra a pontra, amire az észrevétel vonatkozik  ·  Esc: mégse";position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:4;pointer-events:none;background:#2f6fdf;color:#fff;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.28);white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
+@keyframes pinPulse{0%,100%{box-shadow:0 0 0 3px #2f6fdf,0 0 0 8px rgba(47,111,223,.22)}50%{box-shadow:0 0 0 3px #2f6fdf,0 0 0 12px rgba(47,111,223,.08)}}
+@media (prefers-reduced-motion:reduce){.vv-player.pin-mode{animation:none}}
+.vv-pin-btn.on{box-shadow:0 0 0 3px rgba(47,111,223,.25)}
