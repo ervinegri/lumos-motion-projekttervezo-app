@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6d9328abf1",
+"at": "2026-11-10T13:13:03+02:00",
+"msg": "Figyelmeztetés: előadások utómunkája rögzítés nélkül"
+},
+{
 "id": "b3d51e06cd",
 "at": "2026-11-10T13:10:23+02:00",
 "msg": "Kifizetés-értesítés: a projektek külön sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla ablak: fizetési határidő gyorsgombjai egy sorban, szegmentált vezérlőként"
 },
 {
-"id": "48aeae1566",
-"at": "2026-11-10T10:26:25+02:00",
-"msg": "Foglalószámla párosítás: csak ugyanannak a vevőnek a számlája (összeg + vevő egyezés)"
-},
-{
-"id": "70bd221219",
-"at": "2026-11-10T08:25:36Z",
+"id": "a443cb9788",
+"at": "2026-11-10T08:26:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
