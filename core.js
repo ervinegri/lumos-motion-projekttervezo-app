@@ -84,7 +84,7 @@ const REC_LIVE=[
 const CAM_COUNTS=[{k:'er_total_n',flag:'er_total',label:'Teljes alakos kamerák',max:10,min:1},{k:'er_close_n',flag:'er_close',label:'Közeli kamerák',max:10,min:1},{k:'er_creative_n',flag:'er_creative',label:'Kreatív kamerák',max:10,min:1}];   // kameraszög darabszáma
 const camN=(p,flag)=>p[flag]?Math.max(1,num(p[flag+'_n'])||1):0;
 /* Előadásrögzítés termenként: minden teremnek saját neve, kamerái és szakemberei (beosztás kulcsa: <teremId>_<kamera>) */
-const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:1,er_close:4};   // közeliből több is lehet: a 2.-tól mindegyiknek saját operatőre van (<teremId>_er_close_<n>)   // egy kameraszöghöz egy kamera tartozik
+const ROOM_CAMS=REC_CAMS.filter(c=>c.k!=='er_creative'),ROOM_CNT={er_total:1,er_close:4};   // közeliből több kamera is lehet ugyanazzal az operatőrrel   // egy kameraszöghöz egy kamera tartozik
 /* Kameraszögeknél a darabszám helyett a konkrét kamerák (leltárból): r[<k>_eq] = [eszközId, …], a hossza a darabszám */
 const ROOM_EQ={er_total:1,er_close:1,er_crowd:1,er_slides:1};   // a diák rögzítéséhez / kivetítéséhez is eszköz kell (képkeverő, laptop, monitor)
 function roomEq(r,k){const n=num(r&&r[k]),a=Array.isArray(r&&r[k+'_eq'])?r[k+'_eq'].slice(0,n):[];while(a.length<n)a.push('');return a;}
@@ -99,10 +99,10 @@ const camItems=()=>(S.inventory||[]).filter(it=>/^(Kamera|GoPro)/i.test(it.categ
 function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.length){const keep=S._roomKeep||{};p.recRooms.forEach(r=>Object.keys(ROOM_EQ).forEach(k=>{if(num(r[k])>(ROOM_CNT[k]||1))r[k]=ROOM_CNT[k]||1;}));   // régebbi, több kamerás szögeknél is csak egy kamera
     return p.recRooms.filter((r,i)=>i===0||keep[r.id]||String(r.name||'').trim()||roomCams(r).length);}   // üres, névtelen pót-terem nem marad meg (csak amit most adtál hozzá)
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
-const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Terem';   // név nélkül: „1. Terem”
+const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Helyszín';   // név nélkül: „1. Helyszín”
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 const roomOps=r=>roomCams(r).length?1:0;
-const camOwner=(p,rid,k,j)=>(j>0&&k==='er_close'&&(slotOwners(p,rid+'_er_close_'+(j+1))||[])[0])||(slotOwners(p,rid+'_op')||[])[0]||'';   // a kamera gazdája: a 2.+ közelinél a saját operatőre, egyébként a terem operatőre   // egy operatőr egy termet visz, akárhány kamera van
+const camOwner=(p,rid,k,j)=>(slotOwners(p,rid+'_op')||[])[0]||'';   // a kamera gazdája: a 2.+ közelinél a saját operatőre, egyébként a terem operatőre   // egy operatőr egy termet visz, akárhány kamera van
 /* Egy beosztás-kulcs gazdái; a terem operatőreinél (<teremId>_op) a korábbi kameránkénti és régi (összesített) beosztások is számítanak */
 function slotOwners(p,k){const m=/^(r[a-z0-9]+)_op$/.exec(k);if(!m)return fieldOwners(p,k);
   let ids=fieldOwners(p,k).concat(...ROOM_CAMS.map(c=>fieldOwners(p,m[1]+'_'+c.k)));
@@ -255,7 +255,7 @@ function staffing(p){
   TECH.forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,1);});
   const rooms=Math.max(1,num(p.er_rooms)||1);
   REC_CAMS.concat(REC_LIVE).forEach(t=>{if(t.role&&p[t.k])need[t.role]=Math.max(need[t.role]||0,rooms);});
-  {const RR=recRoomsOf(p),ops=RR.reduce((s,r)=>s+roomOps(r)+Math.max(0,num(r.er_close)-1),0)+camN(p,'er_creative');   // a további közeli kamerák saját operatőrrel   // termenként kamerásonként 1 operatőr
+  {const RR=recRoomsOf(p),ops=RR.reduce((s,r)=>s+roomOps(r),0)+camN(p,'er_creative');   // helyszínenként egy operatőr, akárhány kamera   // termenként kamerásonként 1 operatőr
     if(ops)need['Operatőr']=Math.max(need['Operatőr']||0,ops);}
   if(hasVideoPost(p))need['Vágó']=Math.max(need['Vágó']||0,1);   // bármilyen videós utómunkához vágó kell
   if(editOnly(p)){Object.keys(need).forEach(k=>{if(k!=='Vágó')delete need[k];});need['Vágó']=Math.max(need['Vágó']||0,1);}   // videóvágás: csak vágó (és projektvezető) kell, helyszíni stáb nem

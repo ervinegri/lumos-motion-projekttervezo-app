@@ -2083,7 +2083,7 @@ ACT['room-add']=()=>{roomsEdit(rooms=>{const id=roomId(rooms);(S._roomKeep=S._ro
   setTimeout(()=>{const L=document.querySelectorAll('.room-name');const x=L[L.length-1];if(x)x.focus();},60);};
 ACT['room-del']=b=>{const d=S.draft;if(!d)return;const rooms=recRoomsOf(d),i=rooms.findIndex(r=>r.id===b.dataset.r);if(i<0)return;const r=rooms[i];
   const go=()=>roomsEdit(R=>{R.splice(R.findIndex(x=>x.id===r.id),1);const d2=S.draft,et=etWithField(d2);let ch=false;Object.keys(et).forEach(id=>{const n=et[id].filter(k=>k.indexOf('f_'+r.id+'_')!==0);if(n.length!==et[id].length){ch=true;et[id]=n;if(!n.length)delete et[id];}});if(ch)S.draft.editTasks=et;});
-  if(roomCams(r).length)confirmModal('Terem törlése',`Törlöd: <b>${esc(roomName(r,i))}</b>? A kamerái és a beosztott operatőrei is lekerülnek róla.`,'Igen, törlöm',async()=>go());else go();};
+  if(roomCams(r).length)confirmModal('Helyszín törlése',`Törlöd: <b>${esc(roomName(r,i))}</b>? A kamerái és a beosztott operatőrei is lekerülnek róla.`,'Igen, törlöm',async()=>go());else go();};
 ACT['room-eq-add']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;const eq=roomEq(r,k);if(eq.length>=(ROOM_CNT[k]||1))return false;eq.push('');r[k]=eq.length;r[k+'_eq']=eq;});
 ACT['room-eq-del']=b=>{const rid=b.dataset.r,k=b.dataset.k,i=Number(b.dataset.i),d=S.draft;
   if(k==='er_close'&&d){const r0=recRoomsOf(d).find(x=>x.id===rid),n=r0?roomEq(r0,k).length:0;if(n>1){const et=etWithField(d);   // a levett közeli kamera operatőre lekerül, a későbbiek egy hellyel feljebb lépnek

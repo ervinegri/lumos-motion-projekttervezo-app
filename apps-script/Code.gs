@@ -1215,13 +1215,12 @@ function siteTasks_(p, cid) {
     Object.keys(RL).forEach(k => {
       const n = Number(r[k]) || 0, eq = Array.isArray(r[k + '_eq']) ? r[k + '_eq'] : [], ln = Array.isArray(r[k + '_lens']) ? r[k + '_lens'] : [];
       for (let j = 0; j < n; j++) {
-        const own = j > 0 && k === 'er_close' ? mine.indexOf('f_' + r.id + '_er_close_' + (j + 1)) >= 0 : isOp;   // a 2.+ közeli kamerának saját operatőre van
-        if (!own) continue;
+        if (!isOp) continue;   // a helyszín összes kamerája a helyszín operatőréé
         const dev = [inv[eq[j]], inv[ln[j]]].filter(Boolean).join(' + ');
         cs.push(RL[k] + (dev ? ' (' + dev + ')' : ''));
       }
     });
-    if (cs.length) recs.push((rooms.length > 1 || r.name ? (i + 1) + '. terem' + (r.name ? ' – ' + r.name : '') + ': ' : '') + cs.join(', '));
+    if (cs.length) recs.push((rooms.length > 1 || r.name ? (i + 1) + '. helyszín' + (r.name ? ' – ' + r.name : '') + ': ' : '') + cs.join(', '));
   });
   if (recs.length) out.push(['Előadásrögzítés', recs.join('\n')]);
   if (mine.indexOf('f_er_creative') >= 0 && p.er_creative === true) out.push(['Kreatív videózás', 'kreatív kamera']);
