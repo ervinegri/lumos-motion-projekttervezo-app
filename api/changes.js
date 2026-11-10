@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7a140a7668",
+"at": "2026-11-11T00:29:55+01:00",
+"msg": "Videólink csak Utómunka alatt állapotban (vagy belső ellenőrzésre küldéskor) adható meg"
+},
+{
 "id": "35a474b4d7",
 "at": "2026-11-11T00:27:05+01:00",
 "msg": "Videótábla: vágó csak Utómunka alatt / Belső ellenőrzés oszlopba húzhat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél: a „Köszönöm!” nem kerül a szignó elé"
 },
 {
-"id": "0917875430",
-"at": "2026-11-10T14:42:39+02:00",
-"msg": "Ügyfélnek küldés: egy fölösleges lezáró div miatt a gombsor kiesett az ablakból – javítva"
-},
-{
-"id": "ec94939946",
-"at": "2026-11-10T12:36:05Z",
+"id": "de2bbae930",
+"at": "2026-11-10T12:42:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
