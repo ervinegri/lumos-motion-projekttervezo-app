@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4e56deccf9",
+"at": "2026-11-10T10:58:19+02:00",
+"msg": "Frissítés-értesítő kétszer tovább látszik; kifizetés-értesítő csak ✕-re tűnik el"
+},
+{
 "id": "8e1dc252c5",
 "at": "2026-11-10T10:57:37+02:00",
 "msg": "Vercel: a változásnapló-commit nem indít külön buildet (költségcsökkentés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: a továbbszámlázott / szervezői jutalék jelzése a Díjazás cellán"
 },
 {
-"id": "885da44dd5",
-"at": "2026-11-09T21:06:13+02:00",
-"msg": "Sales jutalék: a régi automatikus (10 000 / kedvezményes) értékek is átíródnak 5 000 Ft/shortra; szinkron után frissül a nézet"
-},
-{
-"id": "1744f9ed73",
-"at": "2026-11-09T19:05:18Z",
+"id": "499658b5e1",
+"at": "2026-11-09T19:06:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
