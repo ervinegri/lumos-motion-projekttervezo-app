@@ -587,3 +587,10 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .msel-pop input.msel-q{width:100%;height:auto;min-height:40px;box-sizing:border-box;accent-color:auto}
 /* a keret alatti cellák sarkai is kerekek, a bal oldali színcsík nem lóg ki */
 #view table tbody tr.pt-row.pt-tf>td{box-shadow:none!important}
+/* további közeli kamerák: saját sor, saját operatőr és eszköz */
+.room-blk .tc-list>.cam-row.cam-extra{align-items:flex-start;padding-top:8px;padding-bottom:8px}
+.cam-extra-h{flex:1;min-width:150px;display:flex;flex-direction:column;gap:6px;padding-left:30px}
+.cam-extra-h .cam-n{font-weight:700;color:var(--fg,#16212b);font-size:14px}
+.cam-extra-h .room-asg{display:flex;align-items:center;gap:6px;justify-content:flex-start;flex:none}
+.cam-plus-row{padding:6px 0 8px;border-bottom:1px solid #eef2f5}.cam-plus-row .cam-add{margin:0 0 0 30px}
+.cam-extra .room-eq{flex-direction:column;align-items:flex-end;position:relative;padding-right:22px}.cam-extra .room-eq>.x{position:absolute;right:-4px;top:4px}

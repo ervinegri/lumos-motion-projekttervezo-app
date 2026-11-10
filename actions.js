@@ -935,8 +935,8 @@ async function crewFinalizeModal(){
 }
 /* A termek kamerái / objektívei / diákeszközei a terem operatőréhez tartoznak: ha az operatőr változik vagy lekerül, az eszköz vele együtt mozog (operatőr nélkül gazdátlan lesz) */
 function roomEqSync(d){if(!d||!Array.isArray(d.equipment)||!Array.isArray(d.recRooms))return;const own={};
-  recRoomsOf(d).forEach(r=>{const op=(slotOwners(d,r.id+'_op')||[])[0]||'';Object.keys(ROOM_EQ).forEach(k=>{roomEq(r,k).concat(roomLens(r,k)).forEach(id=>{if(id&&!(id in own))own[id]=op;});});});
-  if(!Object.keys(own).length)return;let ch=false;const eq=d.equipment.map(e=>{if(e&&e.itemId in own&&(e.crewId||'')!==own[e.itemId]){ch=true;return Object.assign({},e,{crewId:own[e.itemId]});}return e;});if(ch)d.equipment=eq;}
+  recRoomsOf(d).forEach(r=>{Object.keys(ROOM_EQ).forEach(k=>{const E=roomEq(r,k),L=roomLens(r,k);E.forEach((id,j)=>{const op=camOwner(d,r.id,k,j);[id,L[j]].forEach(x=>{if(x)(own[x]=own[x]||new Set()).add(op);});});});});
+  if(!Object.keys(own).length)return;let ch=false;const eq=d.equipment.map(e=>{const w=e&&own[e.itemId];if(w&&w.size===1&&!w.has(e.crewId||'')){ch=true;return Object.assign({},e,{crewId:[...w][0]});}return e;});if(ch)d.equipment=eq;}   // ugyanabból a típusból több darab: mindenki a sajátját viszi
 /* A terem operatőrének a Stáb és eszközök résznél kiosztott kamerái (és objektívei) automatikusan bekerülnek a terem kameraszögeihez:
    előbb a bejelölt, de üres szögek kapnak kamerát, a maradék kamerák a következő szögeket (teljes alakos → közeli → közönség) jelölik be. */
 function roomOpEqFill(d){if(!d||ro()||!Array.isArray(d.equipment)||!d.equipment.length)return false;const R=recRoomsOf(d);if(!R.some(r=>roomCams(r).length))return false;
@@ -2083,16 +2083,19 @@ ACT['room-del']=b=>{const d=S.draft;if(!d)return;const rooms=recRoomsOf(d),i=roo
   const go=()=>roomsEdit(R=>{R.splice(R.findIndex(x=>x.id===r.id),1);const d2=S.draft,et=etWithField(d2);let ch=false;Object.keys(et).forEach(id=>{const n=et[id].filter(k=>k.indexOf('f_'+r.id+'_')!==0);if(n.length!==et[id].length){ch=true;et[id]=n;if(!n.length)delete et[id];}});if(ch)S.draft.editTasks=et;});
   if(roomCams(r).length)confirmModal('Terem törlése',`Törlöd: <b>${esc(roomName(r,i))}</b>? A kamerái és a beosztott operatőrei is lekerülnek róla.`,'Igen, törlöm',async()=>go());else go();};
 ACT['room-eq-add']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;const eq=roomEq(r,k);if(eq.length>=(ROOM_CNT[k]||1))return false;eq.push('');r[k]=eq.length;r[k+'_eq']=eq;});
-ACT['room-eq-del']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k,i=Number(b.dataset.i);if(!r)return false;const eq=roomEq(r,k),l=roomLens(r,k);if(eq.length<2)return false;eq.splice(i,1);l.splice(i,1);r[k]=eq.length;r[k+'_eq']=eq;r[k+'_lens']=l;});
+ACT['room-eq-del']=b=>{const rid=b.dataset.r,k=b.dataset.k,i=Number(b.dataset.i),d=S.draft;
+  if(k==='er_close'&&d){const r0=recRoomsOf(d).find(x=>x.id===rid),n=r0?roomEq(r0,k).length:0;if(n>1){const et=etWithField(d);   // a levett közeli kamera operatőre lekerül, a későbbiek egy hellyel feljebb lépnek
+    Object.keys(et).forEach(id=>{et[id]=et[id].map(x=>{const m=new RegExp('^f_'+rid+'_er_close_(\\d+)$').exec(x);if(!m)return x;const j=Number(m[1])-1;return j===i?'':j>i?'f_'+rid+'_er_close_'+j:x;}).filter(Boolean);if(!et[id].length)delete et[id];});setDraft({editTasks:et});}}
+  roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;const eq=roomEq(r,k),l=roomLens(r,k);if(eq.length<2)return false;eq.splice(i,1);l.splice(i,1);r[k]=eq.length;r[k+'_eq']=eq;r[k+'_lens']=l;});};
 ACT['room-step']=b=>roomsEdit(rooms=>{const r=rooms.find(x=>x.id===b.dataset.r),k=b.dataset.k;if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,num(r[k])+Number(b.dataset.d)));});
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
   if(t.dataset.roomCam){const k=t.dataset.k,rid=t.dataset.roomCam,on=t.checked;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=on?1:0;});
     if(!on){const d=S.draft,et=etWithField(d),key='f_'+rid+'_'+k;let ch=false;Object.keys(et).forEach(id=>{if(et[id].includes(key)){ch=true;et[id]=et[id].filter(x=>x!==key);if(!et[id].length)delete et[id];}});if(ch)setDraft({editTasks:et});}return;}
   if(t.dataset.roomLens){const rid=t.dataset.roomLens,k=t.dataset.k,i=Number(t.dataset.i),id=t.value;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;const l=roomLens(r,k);l[i]=id;r[k+'_lens']=l;});
-    const d=S.draft;if(id&&d&&!(d.equipment||[]).some(e=>e.itemId===id)){const op=(slotOwners(d,rid+'_op')||[])[0]||'';setDraft({equipment:(d.equipment||[]).concat([{itemId:id,qty:1,crewId:op}])});const it=itemById(id);toast((it?it.name:'Az objektív')+' bekerült a projekt eszközei közé.');}
+    const d=S.draft;if(id&&d&&!(d.equipment||[]).some(e=>e.itemId===id&&(e.crewId||'')===camOwner(d,rid,k,i))){const op=camOwner(d,rid,k,i);setDraft({equipment:(d.equipment||[]).concat([{itemId:id,qty:1,crewId:op}])});const it=itemById(id);toast((it?it.name:'Az objektív')+' bekerült a projekt eszközei közé.');}
     return;}
   if(t.dataset.roomEq){const rid=t.dataset.roomEq,k=t.dataset.k,i=Number(t.dataset.i),id=t.value;roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;const eq=roomEq(r,k);eq[i]=id;r[k+'_eq']=eq;});
-    const d=S.draft;if(id&&d&&!(d.equipment||[]).some(e=>e.itemId===id)){const op=(slotOwners(d,rid+'_op')||[])[0]||'';setDraft({equipment:(d.equipment||[]).concat([{itemId:id,qty:1,crewId:op}])});const it=itemById(id);toast((it?it.name:'A kamera')+' bekerült a projekt eszközei közé'+(op?' – '+((crewById(op)||{}).name||'')+' viszi':'')+'.');}   // a kiválasztott kamera az eszközlistára is felkerül
+    const d=S.draft;if(id&&d&&!(d.equipment||[]).some(e=>e.itemId===id&&(e.crewId||'')===camOwner(d,rid,k,i))){const op=camOwner(d,rid,k,i);setDraft({equipment:(d.equipment||[]).concat([{itemId:id,qty:1,crewId:op}])});const it=itemById(id);toast((it?it.name:'A kamera')+' bekerült a projekt eszközei közé'+(op?' – '+((crewById(op)||{}).name||'')+' viszi':'')+'.');}   // a kiválasztott kamera az eszközlistára is felkerül
     return;}
   if(t.dataset.roomIn){const rid=t.dataset.roomIn,k=t.dataset.k;let n=parseInt(String(t.value).replace(/\D/g,''),10);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r)return false;r[k]=Math.max(1,Math.min(ROOM_CNT[k]||1,isFinite(n)?n:1));});return;}
   if(t.dataset.roomName){const rid=t.dataset.roomName,v=String(t.value||'').trim().slice(0,60);roomsEdit(rooms=>{const r=rooms.find(x=>x.id===rid);if(!r||r.name===v)return false;r.name=v;});}});

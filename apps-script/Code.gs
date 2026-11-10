@@ -1210,11 +1210,16 @@ function siteTasks_(p, cid) {
   const rooms = parseRooms_(p.recRooms) || [], recs = [];
   rooms.forEach((r, i) => {
     const legacy = i === 0 && Object.keys(RL).some(k => mine.indexOf('f_' + k) >= 0);
-    if (mine.indexOf('f_' + r.id + '_op') < 0 && !legacy && !Object.keys(RL).some(k => mine.indexOf('f_' + r.id + '_' + k) >= 0)) return;
-    const cs = Object.keys(RL).filter(k => Number(r[k]) > 0).map(k => {
-      const eq = (Array.isArray(r[k + '_eq']) ? r[k + '_eq'] : []).map(id => inv[id]).filter(Boolean), ln = (Array.isArray(r[k + '_lens']) ? r[k + '_lens'] : []).map(id => inv[id]).filter(Boolean);
-      const dev = eq.map((x, j) => x + (ln[j] ? ' + ' + ln[j] : '')).join(', ');
-      return RL[k] + (dev ? ' (' + dev + ')' : '');
+    const isOp = mine.indexOf('f_' + r.id + '_op') >= 0 || legacy || Object.keys(RL).some(k => mine.indexOf('f_' + r.id + '_' + k) >= 0);
+    const cs = [];
+    Object.keys(RL).forEach(k => {
+      const n = Number(r[k]) || 0, eq = Array.isArray(r[k + '_eq']) ? r[k + '_eq'] : [], ln = Array.isArray(r[k + '_lens']) ? r[k + '_lens'] : [];
+      for (let j = 0; j < n; j++) {
+        const own = j > 0 && k === 'er_close' ? mine.indexOf('f_' + r.id + '_er_close_' + (j + 1)) >= 0 : isOp;   // a 2.+ közeli kamerának saját operatőre van
+        if (!own) continue;
+        const dev = [inv[eq[j]], inv[ln[j]]].filter(Boolean).join(' + ');
+        cs.push(RL[k] + (dev ? ' (' + dev + ')' : ''));
+      }
     });
     if (cs.length) recs.push((rooms.length > 1 || r.name ? (i + 1) + '. terem' + (r.name ? ' – ' + r.name : '') + ': ' : '') + cs.join(', '));
   });
