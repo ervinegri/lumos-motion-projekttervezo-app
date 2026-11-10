@@ -95,8 +95,10 @@ async function load(quiet,announce,pre){
    Gépelés, nyitott ablak vagy mentetlen módosítás közben várunk. */
 const idleOk=()=>{const a=document.activeElement;return S.loaded&&!S.dirty&&!S.saving&&!S.loading&&document.visibilityState==='visible'&&!$('modalRoot').innerHTML&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox');};
 let VER_BUSY=false;
-setInterval(async()=>{if(!TOKEN||VER_BUSY||!idleOk())return;VER_BUSY=true;
-  try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&idleOk()){S.dataVer=v;if(S.tab==='naptar')calForceFresh();load(true);}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
+/* a videótábla (csak az van nyitva, nincs benne űrlap / videónéző) frissülhet: pl. az ügyfél közben jóváhagyott */
+const boardIdle=()=>{const a=document.activeElement,mr=$('modalRoot');return S.loaded&&!S.dirty&&!S.saving&&!S.loading&&document.visibilityState==='visible'&&!!(mr&&mr.querySelector('.bd-modal'))&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox')&&!document.querySelector('#modalRoot .vv-cm, #modalRoot .cf-layer');};
+setInterval(async()=>{if(!TOKEN||VER_BUSY||!(idleOk()||boardIdle()))return;VER_BUSY=true;
+  try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&(idleOk()||boardIdle())){S.dataVer=v;if(S.tab==='naptar')calForceFresh();const bd=boardIdle();await load(true);if(bd&&boardIdle()&&typeof bdRefresh==='function')bdRefresh();}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
 setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
 window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
