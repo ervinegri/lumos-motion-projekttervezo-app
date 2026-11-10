@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c877793ec6",
+"at": "2026-11-11T00:34:47+01:00",
+"msg": "Videótábla: tiltott oszlop nem világosodik ki húzáskor, és nem lehet beledobni"
+},
+{
 "id": "af665392a6",
 "at": "2026-11-11T00:32:18+01:00",
 "msg": "Ügyfélnek küldés: csak vezető nyithatja; megszólítás zárójeles megjegyzés nélkül; új gomb az előnézetben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal telefonon: nagyobb álló videó, a gombok szövege nem jelölhető ki"
 },
 {
-"id": "8bb0c0df62",
-"at": "2026-11-10T14:51:14+02:00",
-"msg": "Jóváhagyó oldal: Enter a videón is időkódot szúr be (nem folytatja a lejátszást)"
-},
-{
-"id": "b95feb1637",
-"at": "2026-11-10T12:44:07Z",
+"id": "cf4d409a60",
+"at": "2026-11-10T12:51:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
