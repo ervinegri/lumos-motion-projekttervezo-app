@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f1824900ad",
+"at": "2026-11-10T12:54:47+02:00",
+"msg": "Mai keret a táblázat faláig ér"
+},
+{
 "id": "4088de7b21",
 "at": "2026-11-10T12:53:22+02:00",
 "msg": "Mai keret: pontosan a cellák köré igazítva, kerek cellasarkok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés és számlázás: a bizonylat-kártya üres részére kattintva is megnyílik a bizonylat"
 },
 {
-"id": "31fdab550a",
-"at": "2026-11-10T10:07:11+02:00",
-"msg": "Kifizetések: a Sales App díjbekérőit a rendelésszám (Sales-rendelés azonosító) alapján is megtalálja kifizetés után"
-},
-{
-"id": "99102d9863",
-"at": "2026-11-10T08:05:54Z",
+"id": "efb7201ebc",
+"at": "2026-11-10T08:07:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
