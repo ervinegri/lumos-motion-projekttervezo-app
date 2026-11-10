@@ -2453,7 +2453,7 @@ function vidCmItems(v){const P=(S.projects||[]).find(p=>(p.videos||[]).includes(
   const nrm=t=>String(t||'').replace(/^\[[\d:]+\]\s*/,'').replace(/\s+/g,' ').trim();
   if(v.note&&!(v.cm||[]).some(c=>nrm(c.t)===nrm(v.note)))L.push({by:v.rvBy,at:v.rvAt,t:v.note,tag:'🔍 ellenőrzésre küldve',kind:'note'});   // ha ugyanez hozzászólásként is megvan, ne jelenjen meg kétszer
   if(v.fb&&!(v.cm||[]).some(c=>String(c.t).replace(/^↩ /,'')===v.fb||v.fb.endsWith(String(c.t).replace(/^↩ /,''))))L.push({by:v.fbBy,at:v.fbAt,t:'↩ '+v.fb,kind:'fb'});
-  const D=S._cmDel||{},seen={};return L.filter(c=>{const k=(c.by||'')+'|'+String(c.at||'').slice(0,16)+'|'+nrm(c.t);if(seen[k])return false;seen[k]=1;return true;}).filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>cmTk(y.at)-cmTk(x.at));}
+  const D=S._cmDel||{},seen={};return L.filter(c=>{const k=(c.by||'')+'|'+String(c.at||'').replace('T',' ').slice(0,16)+'|'+nrm(String(c.t||'').replace(/^↩\s*/,''));if(seen[k])return false;seen[k]=1;return true;}).filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>cmTk(y.at)-cmTk(x.at));}
 /* hozzászólás ideje → időbélyeg (bármilyen formátumból: ISO, „2026-11-10 13:20”, „2026. 11. 10. 13:20”) – a legfrissebb legyen felül */
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
