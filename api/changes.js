@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "abc20f3190",
+"at": "2026-11-10T11:08:41+02:00",
+"msg": "Számla: a teljesítés dátuma alapból a rendezvény (utolsó) napja"
+},
+{
 "id": "d6a7aa383f",
 "at": "2026-11-10T11:06:34+02:00",
 "msg": "Díjbekérő megnyitása: ha a számlázz.hu már nem adja vissza, a kiállításkori e-mail-mellékletből; csak az app előtti díjbekérő nem kattintható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: a szervezői jutalék az Értékesítés oszlopba kerül, nem a Termelésbe"
 },
 {
-"id": "9582343ad3",
-"at": "2026-11-09T21:19:12+02:00",
-"msg": "Díjösszesítő értékesítőnek: fix fizetés és jutalék külön, „Tételek”, számlamegjegyzés: Értékesítési tevékenység"
-},
-{
-"id": "4826d67b74",
-"at": "2026-11-09T19:18:34Z",
+"id": "36f4a4732c",
+"at": "2026-11-09T19:19:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
