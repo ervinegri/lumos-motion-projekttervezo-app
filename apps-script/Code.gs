@@ -865,6 +865,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
     fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), cn: x && x.cn ? 1 : 0,
+    dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
@@ -962,6 +963,20 @@ function videoCommentDel_(u, a) {
     if (k >= 0) v.cm.splice(k, 1);   // ha már nincs meg (pl. kétszer küldött törlés), nincs teendő
     } p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   logEvent_(u, 'Videó hozzászólás törölve', p.name, vid);
+  return { project: projectView_(fullProject_(p), u) };
+}
+/** Időkódos észrevétel kipipálása (elvégezve): a vezető vagy a videó vágója. a: {projectId, id, key, on} */
+function videoCmDone_(u, a) {
+  a = a || {};
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), key = str_(a.key, 60), on = a.on === true || a.on === 'true';
+  if (!key) throw new Error('Hiányzik az észrevétel azonosítója.');
+  let p;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    const mgr = u.role === 'admin' || u.role === 'editor';
+    if (!mgr && !(v.editor && v.editor === u.crewId)) throw new Error('FORBIDDEN: Az észrevételeket a vezető vagy a videó vágója pipálhatja ki.');
+    const d = (v.dn || []).filter(k => k !== key); if (on) d.push(key); v.dn = d.slice(-300);
+    p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   return { project: projectView_(fullProject_(p), u) };
 }
 /** Küldés az ügyfélnek jóváhagyásra: a videó „Ügyfél jóváhagyására vár” állapotba kerül, a kapcsolattartó e-mailt kap a linkkel (és a megjegyzéssel). a: {projectId, id, to, link, note, text} */
@@ -4728,6 +4743,7 @@ function rpcInner_(token, name, arg) {
     case 'videoClient': return videoClient_(u, arg);
     case 'videoComment': return videoComment_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);
+    case 'videoCmDone': return videoCmDone_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
