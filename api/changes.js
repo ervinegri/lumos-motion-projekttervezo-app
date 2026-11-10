@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bc2831fbd4",
+"at": "2026-11-11T00:21:10+01:00",
+"msg": "Ügyfélnek küldés: ügyfél nélküli projektnél nem gyűjti be más projektek kapcsolattartóit"
+},
+{
 "id": "c1437abd5f",
 "at": "2026-11-11T00:19:04+01:00",
 "msg": "Vágó nézet: az ügyfél e-mail címe nem látszik a hozzászólásokban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videónéző: link cseréje (vezető vagy a videó vágója), forgalmi limites pCloud-linknél közvetlen gomb"
 },
 {
-"id": "b4bd2d3883",
-"at": "2026-11-10T14:13:49+02:00",
-"msg": "Videó-hozzászólás: az időkód oda kerül, ahol a kurzor utoljára állt, nem a szöveg végére"
-},
-{
-"id": "aba9c3b91a",
-"at": "2026-11-10T12:06:22Z",
+"id": "f3c4130113",
+"at": "2026-11-10T12:14:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
