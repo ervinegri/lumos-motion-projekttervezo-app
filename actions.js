@@ -2279,6 +2279,11 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
 function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').trim(),email,tag});};
+  const cn0=String(p.client||'').trim();
+  if(!cn0){   // ügyfél nélküli (saját) projekt: csak a projektvezetőnek vagy az ügyvezetőnek küldhető
+    const ld=crewById(p.lead);if(ld)add(ld.name,ld.email,'projektvezető');
+    (S.users||[]).filter(x=>x.role==='admin'&&!x.disabled).forEach(x=>add(x.name,x.email,'ügyvezető'));if(isAdmin()&&S.me)add(S.me.name,S.me.email,'ügyvezető');
+    return L;}
   add(p.contactName,p.contactEmail,'a projekt kapcsolattartója');const cn=String(p.client||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn);
   if(c&&cn){add(c.contactName,c.contactEmail,'kapcsolattartó');add(c.rep,c.repEmail,'képviselő');}
   if(cn)(S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
@@ -2300,7 +2305,7 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
   const body=clFill(String((cl&&cl.vidMail)||lt||CL_TPL_DEF).replace(/\n+\s*Köszönöm!?\s*$/,''),o);   // a szignó előtt nem kell „Köszönöm!” (a korábban mentett mintákból is lekerül)
   openModal('📤 Küldés az ügyfélnek jóváhagyásra',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>${S.clientMailLive?'':'<div class="banner warn" style="margin:0 0 12px"><p>🧪 <b>Tesztüzem:</b> a levél nem az ügyfélnek, hanem <b>neked</b> megy ki (a tárgyban látod, kinek szólna). Élesítés: szólj.</p></div>'}
     <div class="field full"><label>Kinek küldjük? <span class="muted">(több is választható)</span></label><div class="cl-pick">${CC.map((c,i)=>`<label class="cl-opt"><input type="checkbox" name="toPick" value="${esc(c.email)}"${i===0?' checked':''}> <span><b>${esc(c.name||c.email)}</b>${c.name?` <small>${esc(c.email)}</small>`:''}${c.tag?` <small class="muted">· ${esc(c.tag)}</small>`:''}</span></label>`).join('')||'<p class="hint" style="margin:0">Ehhez az ügyfélhez nincs elmentett e-mail cím – add meg alább.</p>'}</div>
-      <input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px"></div>
+      ${String(p.client||'').trim()?'<input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px">':'<p class="hint" style="margin:6px 0 0">Saját projekt (nincs ügyfél): csak a projektvezetőnek vagy az ügyvezetőnek küldhető.</p>'}</div>
     ${isAdmin()?wmFieldHtml(p):''}
     <div class="field full"><label for="m-clLink">A videó linkje</label><input class="inp" id="m-clLink" name="link" type="url" value="${esc(v.link||'')}" required></div>
     <div class="field full"><label for="m-clSubj">Tárgy</label><input class="inp" id="m-clSubj" name="subject" value="${esc(clSubj(p,v))}"></div>
