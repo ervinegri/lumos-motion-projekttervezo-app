@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a5c2aade44",
+"at": "2026-11-10T15:27:34+02:00",
+"msg": "Árkalkulátor: Visszaállítás és Eredmény beküldése a Bezárás mellett, egy sorban"
+},
+{
 "id": "4c6328ac34",
 "at": "2026-11-10T15:27:00+02:00",
 "msg": "Árkalkulátor: a két opció a címsorban, fehér háttér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai keret: a sarkok kitöltve"
 },
 {
-"id": "f1824900ad",
-"at": "2026-11-10T12:54:47+02:00",
-"msg": "Mai keret a táblázat faláig ér"
-},
-{
-"id": "504a504339",
-"at": "2026-11-10T10:53:32Z",
+"id": "5bc208c49b",
+"at": "2026-11-10T10:54:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
