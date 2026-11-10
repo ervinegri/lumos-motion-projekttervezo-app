@@ -578,28 +578,8 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .bl-closed .bs-box:hover{opacity:.85;filter:none}
 .bs-box .bs-ref{cursor:default}
 
-/* mai projektek: piros keret, a tetején a „MA · …” jelölő */
-#view .pt-today-row.pt-tframe td{position:relative;padding:0 0 3px!important}
-#view .pt-today-row.pt-tframe td::before{content:"";position:absolute;left:0;right:0;top:9px;bottom:0;border:3px solid #d63c2f;border-bottom:0;border-radius:14px 14px 0 0;pointer-events:none}
-#view .pt-today-row.pt-tframe td>span{position:relative;z-index:1}
-#view .pt-today-row.pt-tframe td>span::after{visibility:hidden}
-#view .pt-today-row.pt-tframe td>span{margin:0!important;padding-bottom:0;font-size:12px}
-#view .pt-today-row.pt-tframe td>span>b{padding:3px 11px;box-shadow:0 1px 4px rgba(214,60,47,.3)}
-#view .pt-today-row.pt-tframe td>span::before{width:14px;align-self:center;visibility:hidden}
-#view .pt-today-row.pt-tframe td>span::after{align-self:center}
-#view table tbody tr.pt-row.pt-tf>td:first-child{box-shadow:inset 3px 0 0 #d63c2f!important}
-#view table tbody tr.pt-row.pt-tf>td:last-child{box-shadow:inset -3px 0 0 #d63c2f!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:first-child{box-shadow:inset 3px 0 0 #d63c2f,inset 0 -3px 0 #d63c2f!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:last-child{box-shadow:inset -3px 0 0 #d63c2f,inset 0 -3px 0 #d63c2f!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td{box-shadow:inset 0 -3px 0 #d63c2f}
-#view table tbody tr.pt-row.pt-tf.pt-tf-top>td{border-top:3px solid #d63c2f!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:first-child{border-bottom-left-radius:14px}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:last-child{border-bottom-right-radius:14px}
-#view table tbody tr.pt-row.pt-tf.pt-tf-top>td:first-child{border-top-left-radius:14px}
-#view table tbody tr.pt-row.pt-tf.pt-tf-top>td:last-child{border-top-right-radius:14px}
-/* a keretben az oszlopválasztó ne törje meg a piros vonalat: keret alatti árnyékként rajzoljuk */
-#view table tbody tr.pt-row.pt-tf>td:first-child{border-right:0!important}#view table tbody tr.pt-row.pt-tf>td:not(:first-child){border-left:0!important}
-#view table tbody tr.pt-row.pt-tf>td:not(:first-child){box-shadow:inset 2px 0 0 #a9bbb1!important}
-#view table tbody tr.pt-row.pt-tf>td:last-child{box-shadow:inset -3px 0 0 #d63c2f,inset 2px 0 0 #a9bbb1!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:not(:first-child){box-shadow:inset 0 -3px 0 #d63c2f,inset 2px 0 0 #a9bbb1!important}
-#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:last-child{box-shadow:inset -3px 0 0 #d63c2f,inset 0 -3px 0 #d63c2f,inset 2px 0 0 #a9bbb1!important}
+/* mai projektek: a táblázat változatlan, a keret rárajzolt réteg (ptFrames), a tetején a „MA · …” jelölő */
+#view .pt-has-tf{position:relative}
+.pt-tf-ov{position:absolute;border:3px solid #d63c2f;border-radius:14px;pointer-events:none;z-index:4;box-sizing:border-box}
+.pt-tf-ov .pt-tf-pill{position:absolute;left:14px;top:-12px;background:#d63c2f;color:#fff;font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:3px 11px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(214,60,47,.3);line-height:1.35}
+.pt-tf-ov .pt-tf-pill .pt-clock{color:#fff;opacity:.9;font-variant-numeric:tabular-nums}

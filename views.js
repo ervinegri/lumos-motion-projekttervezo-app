@@ -460,9 +460,10 @@ function viewProjects(){
   // a mai projektek piros keretben, a keret tetején a „MA · …” jelölővel
   const isTd=p=>{const r=pr(p);return !!r&&r.start<=T&&r.end>=T;};
   const body=all.map((p,i)=>{const r=pr(p),m=r?r.start.slice(0,7):'';let h='';if(m!==lastM){h+=monthRow(m);lastM=m;}
-    if(isTd(p)){const first=!(i>0&&isTd(all[i-1])&&!h),last=!(all[i+1]&&isTd(all[i+1])&&(pr(all[i+1]).start.slice(0,7)===m)),cls=' pt-tf'+(last?' pt-tf-last':'');let rh=row(p).replace('class="pt-row ','class="pt-row'+cls+' ');
-      if(first){if(!marked){marked=true;rh=todayRow.replace('class="pt-today-row"','class="pt-today-row pt-tframe"')+rh;}else rh=rh.replace(' pt-tf',' pt-tf pt-tf-top');}return h+rh;}
+    if(isTd(p)){const first=!(i>0&&isTd(all[i-1])&&!h),last=!(all[i+1]&&isTd(all[i+1])&&(pr(all[i+1]).start.slice(0,7)===m));marked=true;
+      return h+row(p).replace('class="pt-row ','class="pt-row pt-tf'+(first?' pt-tf-first':'')+(last?' pt-tf-last':'')+' ');}
     if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow);
+  (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
   return `<div class="page-head"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2><p class="sub">${ro()?'Azok a projektek, amelyekre be vagy osztva':'Rendezvények a tervezéstől az átadásig'}</p></div>
       ${ro()?'':'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
@@ -923,6 +924,13 @@ function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_d
   const all=(S.crew||[]).filter(c=>(c.roles||[]).some(r=>rl.includes(r))||(!FO&&cutters.includes(c.id))||o.includes(c.id)).sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
   const ic=FO?'📷':'✂️',ph=ic+(FO?' fotós kiválasztása':' vágó kiválasztása');
   return `<select class="inp op-cutsel${o.length?'':' none'}" data-cmb="${ph}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${o.length?'':' none'}" data-os-cut="${k}" aria-label="${FO?'Fotós':'Vágó'}"><option value="">${ph}</option>${all.map(c=>`<option value="${esc(c.id)}"${o[0]===c.id?' selected':''}>${ic} ${esc(c.name)}</option>`).join('')}</select>`;}
+/* mai projektek kerete: a táblázat fölé rajzolt réteg, így a táblázat elrendezése nem változik */
+function ptFrames(){document.querySelectorAll('.pt-tf-ov').forEach(e=>e.remove());let pill=true;
+  document.querySelectorAll('#view tr.pt-tf-first').forEach(a=>{const tb=a.closest('table'),w=tb&&tb.parentElement;if(!w)return;let b=a;while(b&&!b.classList.contains('pt-tf-last')){b=b.nextElementSibling;}if(!b)b=a;
+    w.classList.add('pt-has-tf');const wr=w.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),tr=tb.getBoundingClientRect();
+    const o=document.createElement('div');o.className='pt-tf-ov';o.style.cssText=`left:${tr.left-wr.left+w.scrollLeft}px;top:${ra.top-wr.top+w.scrollTop}px;width:${tr.width}px;height:${rb.bottom-ra.top}px`;
+    if(pill){pill=false;o.innerHTML=`<span class="pt-tf-pill">📍 Ma · ${esc(fmtDay(todayISO()))} · <span class="pt-clock">${nowHM()}</span></span>`;}w.appendChild(o);});}
+window.addEventListener('resize',()=>{clearTimeout(window._ptfT);window._ptfT=setTimeout(()=>{if(document.querySelector('#view tr.pt-tf-first'))ptFrames();},120);});
 /* a „Ma” sávon a pontos idő, percenként frissül */
 function nowHM(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 setInterval(()=>document.querySelectorAll('.pt-clock').forEach(e=>{e.textContent=nowHM();}),15000);
