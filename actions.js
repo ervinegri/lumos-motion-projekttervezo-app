@@ -1162,8 +1162,12 @@ const ACT={
       const url=URL.createObjectURL(new Blob([u8],{type:r.mime||'application/pdf'}));
       if(w&&/pdf|image/.test(r.mime||'')){w.location.href=url;}else{if(w)w.close();const a=document.createElement('a');a.href=url;a.download=r.name||'szerzodes';document.body.appendChild(a);a.click();a.remove();}
       setTimeout(()=>URL.revokeObjectURL(url),120000);}catch(e){if(w)w.close();handleErr(e);}},
+  'crew-doc-ren':b=>{const d=(S.crewDocs||[]).find(x=>x.id===b.dataset.id);if(!d)return;
+    confirmLayer('Dokumentum átnevezése',`<div style="margin:0 16px"><input class="inp" id="cdoc-ren" maxlength="120" value="${esc(d.title||'')}" autocomplete="off" aria-label="Új név"></div>`,'Mentés',async()=>{const v=(($('cdoc-ren')||{}).value||'').trim();if(!v)return;
+      try{const r=await call('crewDocRename',{id:d.id,title:v});S.crewDocs=r.crewDocs||[];const c=crewById(d.crewId),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);const l=$('modalRoot').querySelector('.cf-layer');if(l)l.remove();toast('Átnevezve');}catch(e){handleErr(e);}});
+    setTimeout(()=>{const i=$('cdoc-ren');if(i){i.focus();i.select();i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const ok=document.querySelector('.cf-layer [data-cf=ok]');if(ok)ok.click();}});}},30);},
   'crew-doc-del':b=>{const d=(S.crewDocs||[]).find(x=>x.id===b.dataset.id);if(!d)return;
-    confirmLayer('Szerződés törlése',`<p style="margin:0 16px">Biztosan törlöd: <b>${esc(d.title||'Szerződés')}</b>? A fájl a Drive kukájába kerül (30 napig visszaállítható).</p>`,'Törlés',async()=>{try{const r=await call('crewDocDelete',{id:d.id});S.crewDocs=r.crewDocs||[];const c=crewById(d.crewId),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);const l=$('modalRoot').querySelector('.cf-layer');if(l)l.remove();toast('Szerződés törölve');}catch(e){handleErr(e);}});},
+    confirmLayer('Dokumentum törlése',`<p style="margin:0 16px">Biztosan törlöd: <b>${esc(d.title||'Szerződés')}</b>? A fájl a Drive kukájába kerül (30 napig visszaállítható).</p>`,'Törlés',async()=>{try{const r=await call('crewDocDelete',{id:d.id});S.crewDocs=r.crewDocs||[];const c=crewById(d.crewId),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);const l=$('modalRoot').querySelector('.cf-layer');if(l)l.remove();toast('Dokumentum törölve');}catch(e){handleErr(e);}});},
   'new-item':()=>itemModal(null),
   'edit-item':b=>{const i=itemById(b.dataset.id);if(i)itemModal(i);},
   'new-user':()=>userModal(null),
@@ -2176,7 +2180,11 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
 ACT['raw-upload']=()=>{const d=S.draft;if(!d)return;if(rawEditors(d).length)rawMailModal(()=>{if(typeof saveNow==='function')saveNow();});else{setDraft({rawSentAt:todayISO()});toast('Nyersanyag a NAS-on – kipipálva');if(typeof saveNow==='function')saveNow();}};
 ACT['nas-copy']=b=>{const v=b.dataset.v||'';try{navigator.clipboard.writeText(v);toast('Mappanév kimásolva: '+v);}catch(e){toast(v);}};
 /* Munkatársi szerződés feltöltése: kiválasztás vagy behúzás után azonnal (több fájl is mehet egyszerre) */
-const cdocTitle=n=>/m[oó]dos[ií]t/i.test(n)?'Szerződésmódosítás':/mell[eé]klet/i.test(n)?'Szerződés melléklet':/keret/i.test(n)?'Keretszerződés':/megb[ií]z/i.test(n)?'Megbízási szerződés':/v[aá]llalk/i.test(n)?'Vállalkozási szerződés':'Szerződés';
+// a megnevezés a fájlnévből: ismert iratok (szerződések, egyéni vállalkozói igazolás, kamarai igazolás…), egyébként a fájlnév maga
+const cdocTitle=n=>{n=String(n||'');const b=n.replace(/\.[a-z0-9]{2,5}$/i,'');
+  return /m[oó]dos[ií]t/i.test(b)?'Szerződésmódosítás':/mell[eé]klet/i.test(b)?'Szerződés melléklet':/keret/i.test(b)?'Keretszerződés':/megb[ií]z/i.test(b)?'Megbízási szerződés':/v[aá]llalkoz[aá]si/i.test(b)?'Vállalkozási szerződés':
+    /(^|[^a-z])(evb|evny|uevb)([^a-z]|$)|egy[eé]ni.?v[aá]llalkoz/i.test(b)?'Egyéni vállalkozói igazolás':/kamar/i.test(b)?'Kamarai igazolás':/szerz/i.test(b)?'Szerződés':
+    /nda|titoktart/i.test(b)?'Titoktartási nyilatkozat':(b.replace(/[_]+/g,' ').replace(/\s+/g,' ').trim()||'Dokumentum');};
 async function crewDocUpload(cid,files){files=[...(files||[])].filter(Boolean);if(!files.length)return;const zone=document.querySelector('.cdoc-drop'),fn=$('cdoc-fn');
   const big=files.find(f=>f.size>10*1024*1024);if(big){toast(big.name+': a fájl legfeljebb 10 MB lehet.',true);return;}
   if(zone)zone.classList.add('busy');let ok=0;

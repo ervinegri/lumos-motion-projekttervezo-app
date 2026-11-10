@@ -2880,7 +2880,7 @@ function crewDocSave_(u, a) {
   const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf';
   const ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
   const folder = childFolder_(crewDocsFolder_(), String(c.name || cid).replace(/[\\/]/g, '-'));
-  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, (iso_(a.signedAt) || today_()) + '_' + shortName_(c.name) + '_szerzodes' + ext));
+  const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(String(a.b64)), mime, (iso_(a.signedAt) || today_()) + '_' + shortName_(c.name) + '_' + (String(a.title || 'szerzodes').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'dokumentum') + ext));
   return withLock_(() => {
     const sh = sheetFor_('crewDocs');
     const r = { id: Utilities.getUuid(), crewId: cid, crewName: c.name || '', title: str_(a.title, 120) || 'Szerződés', fileName: name, fileId: file.getId(), mime: mime,
@@ -2912,7 +2912,10 @@ function crewDocsAutoSchedule_() {
 function crewDocsImport_(u, a) {
   a = a || {};
   const have = {}; readAll_('crewDocs').forEach(d => { have[d.crewId] = 1; });
-  const crew = readAll_('crew').filter(c => c.email && c.type !== 'Belsős' && !have[c.id] && (!a.crewIds || a.crewIds.indexOf(c.id) >= 0));
+  /* a postafiók gazdájának saját címével nem keresünk: arra a teljes levelezése illeszkedne (így került pl. a MŰSZOL keretszerződése Egri Ervinhez) */
+  let me = ''; try { me = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (e) { }
+  const own = em => { em = String(em || '').trim().toLowerCase(); return !!em && em === me; };
+  const crew = readAll_('crew').filter(c => c.email && !own(c.email) && c.type !== 'Belsős' && !have[c.id] && (!a.crewIds || a.crewIds.indexOf(c.id) >= 0));
   const KW = /szerz|megb[ií]z|keret|contract|v[aá]llalk/i, SIGNED = /al[aá][ií]rt|signed|alairva|aláírva/i, DRAFT = /tervezet|draft|minta/i;
   const titleOf = n => /m[oó]dos[ií]t/i.test(n) ? 'Szerződésmódosítás' : /mell[eé]klet/i.test(n) ? 'Szerződés melléklet' : /keret/i.test(n) ? 'Keretszerződés' : /megb[ií]z/i.test(n) ? 'Megbízási szerződés' : /v[aá]llalk/i.test(n) ? 'Vállalkozási szerződés' : 'Szerződés';
   const plan = [];
@@ -2952,6 +2955,18 @@ function crewDocGet_(u, a) {
   const b = DriveApp.getFileById(String(d.fileId)).getBlob();
   if (b.getBytes().length > 10 * 1024 * 1024) throw new Error('A fájl túl nagy a megnyitáshoz.');
   return { name: d.fileName || b.getName(), mime: b.getContentType() || d.mime || 'application/pdf', b64: Utilities.base64Encode(b.getBytes()) };
+}
+function crewDocRename_(u, a) {
+  const title = str_(a && a.title, 120).replace(/\s+/g, ' ').trim();
+  if (!title) throw new Error('Add meg a dokumentum nevét.');
+  return withLock_(() => {
+    const sh = sheetFor_('crewDocs'), d = readAll_('crewDocs').find(x => x.id === str_(a && a.id, 64));
+    if (!d) throw new Error('A dokumentum nem található.');
+    const old = d.title || '';
+    d.title = title; putRow_('crewDocs', sh, d, findRow_(sh, d.id)); dbFlush_();
+    logEvent_(u, 'Munkatársi dokumentum átnevezve', d.crewName || d.crewId, old + ' → ' + title);
+    return { crewDocs: crewDocsList_() };
+  });
 }
 function crewDocDelete_(u, a) {
   return withLock_(() => {
@@ -4652,6 +4667,7 @@ function rpcInner_(token, name, arg) {
     }
     case 'crewDocsImport': adminOnly(); return crewDocsImport_(u, arg);
     case 'crewDocDelete': adminOnly(); return crewDocDelete_(u, arg);
+    case 'crewDocRename': adminOnly(); return crewDocRename_(u, arg);
     case 'setMail': adminOnly(); return setMail_(u, arg);
     case 'driveScan': adminOnly(); return driveScan_(arg);
     case 'driveOps': adminOnly(); return driveOps_(u, arg);
