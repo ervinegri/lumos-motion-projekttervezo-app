@@ -2675,8 +2675,13 @@ function szSync_(u, a) {
       try { q = szQuery_(x.no, false); }
       catch (e0) {   // a kifizetett díjbekérőt a számlázz.hu automatikus számlázáskor törli – ilyenkor a rendelésszám alapján a foglalószámlát kapjuk
         if (x.kind !== 'dijbekero') throw e0;
-        const o = szQuery_('', false, x.projectId || x.incomeId);
-        if (o.fromDijbekero !== x.no) throw e0;
+        /* rendelésszám: a projekt azonosítója – a Sales App díjbekérőinél a Sales-rendelés azonosítója (sales-<id>, vagy az lx_link párosítás) */
+        const pid0 = x.projectId || x.incomeId, cands = [pid0];
+        if (/^sales-/.test(String(pid0))) cands.push(String(pid0).slice(6));
+        try { (neonSql_([{ query: 'SELECT order_id FROM lx_link WHERE project_id = $1', params: [String(pid0)] }])[0].rows || []).forEach(r => cands.push(r[0])); } catch (eL) { }
+        let o = null;
+        for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1))) { o = t; break; } } catch (eQ) { } }
+        if (!o) throw new Error('a díjbekérő a számlázz.hu-ban már nem található (valószínűleg kifizették, és a foglalószámla még nem párosítható) – jelöld kézzel fizetettnek');
         szAddAdvance_(all, x, o, created);
         q = { invPaid: Number(x.invGross) || o.invGross, paidAt: o.paidAt || o.date, invGross: x.invGross, invNet: x.invNet, due: x.due };
       }
