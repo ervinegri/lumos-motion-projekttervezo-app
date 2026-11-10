@@ -1062,6 +1062,7 @@ function videoSet_(u, a) {
     if (a.name !== undefined) { if (!mgr) throw new Error('FORBIDDEN: A videó nevét a projektvezető módosíthatja.'); const nm = str_(a.name, 120).trim(); if (!nm) throw new Error('Adj nevet a videónak.'); v.name = nm; v.cn = 1; changed += (changed ? ', ' : '') + 'név: ' + nm; }
     if (a.link !== undefined && a.st === undefined) {   // új link (pl. lejárt / forgalmi limites pCloud-link helyett): a vezető vagy a videó vágója
       if (!mgr && !(v.editor && v.editor === u.crewId)) throw new Error('FORBIDDEN: A linket a vezető vagy a videó vágója cserélheti.');
+      if (v.st !== 'vagas') throw new Error('Linket csak „Utómunka alatt” állapotban lehet beilleszteni (vagy belső ellenőrzésre küldéskor).');
       const ln = String(a.link || '').trim(); if (!/^https?:\/\/\S+$/i.test(ln)) throw new Error('Illeszd be a videó linkjét (https://…).');
       v.link = str_(ln, 500); changed += (changed ? ', ' : '') + 'új link';
     }
