@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c1437abd5f",
+"at": "2026-11-11T00:19:04+01:00",
+"msg": "Vágó nézet: az ügyfél e-mail címe nem látszik a hozzászólásokban"
+},
+{
 "id": "2c6dc7374a",
 "at": "2026-11-11T00:12:18+01:00",
 "msg": "Ügyfél-link megnyitásának jelzése a videókártyán; új Lumos gomb a jóváhagyó levélben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-hozzászólás: az időkód oda kerül, ahol a kurzor utoljára állt, nem a szöveg végére"
 },
 {
-"id": "3bbb508d40",
-"at": "2026-11-10T14:06:11+02:00",
-"msg": "Terem helyett Helyszín a feliratokban és levelekben; a beosztó levélben minden kamera / eszköz külön sorban"
-},
-{
-"id": "e91b6928c6",
-"at": "2026-11-10T12:03:03Z",
+"id": "aba9c3b91a",
+"at": "2026-11-10T12:06:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
