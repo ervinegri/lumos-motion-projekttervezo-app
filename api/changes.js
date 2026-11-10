@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9b23b32579",
+"at": "2026-11-10T10:37:20+02:00",
+"msg": "Szerződés és számlázás: lezárt projekt kártyái szürkén; a megtörtént elküldve/aláírva lépés nem vehető vissza"
+},
+{
 "id": "374cb9fdb5",
 "at": "2026-11-10T10:35:47+02:00",
 "msg": "Szerződés és számlázás: kifizetés után a foglalószámla kerül előre, a díjbekérő halvány hivatkozás; díjbekérő nélküli foglalószámlánál „Foglalószámla” cím"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "HubSpot kapcsolattartó: ha a Cég mező üres, a hozzá kapcsolt HubSpot-cég neve is betöltődik"
 },
 {
-"id": "6d8bcd523e",
-"at": "2026-11-09T20:48:15+02:00",
-"msg": "Érték nélküli projektek (pl. Bussiness Bash) magától a Marketing költségbe; kiadás-táblázatok rácsos kinézete"
-},
-{
-"id": "ef1162b0b7",
-"at": "2026-11-09T18:46:39Z",
+"id": "5a10a3e610",
+"at": "2026-11-09T18:48:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
