@@ -2727,9 +2727,17 @@ function szAddAdvance_(all, db, q, out) {
 function szPdf_(u, a) {
   const r = readAll_('finInvoice').find(x => x.id === str_(a && a.id, 64));
   if (!r) throw new Error('A számla nem található.');
-  const q = szQuery_(r.no, true);
-  if (!q.pdf) throw new Error('A számlázz.hu nem adta vissza a PDF-et.');
-  return { name: r.no.replace(/[^\w.-]+/g, '_') + '.pdf', b64: q.pdf };
+  let q = null, err = null;
+  try { q = szQuery_(r.no, true); } catch (e) { err = e; }
+  if (q && q.pdf) return { name: r.no.replace(/[^\w.-]+/g, '_') + '.pdf', b64: q.pdf };
+  /* a kifizetett díjbekérőt a számlázz.hu már nem adja vissza: a kiállításkor kapott másolatot keressük a levelek között (Sales App / számlázz.hu e-mail melléklete) */
+  if (r.kind === 'dijbekero') { try {
+    const th = GmailApp.search('"' + r.no + '" has:attachment filename:pdf', 0, 10);
+    for (const t of th) for (const m of t.getMessages()) for (const at of m.getAttachments()) {
+      const n = String(at.getName() || ''); if (/\.pdf$/i.test(n) && n.replace(/[^A-Za-z0-9]/g, '').toUpperCase().indexOf(r.no.replace(/[^A-Za-z0-9]/g, '').toUpperCase()) >= 0) return { name: r.no.replace(/[^\w.-]+/g, '_') + '.pdf', b64: Utilities.base64Encode(at.getBytes()) }; }
+  } catch (eG) { Logger.log('Díjbekérő PDF a levelekből: ' + eG); } }
+  if (err) throw err;
+  throw new Error('A számlázz.hu nem adta vissza a PDF-et.');
 }
 
 /** A számlázz.hu IPN-értesítése (a beállításokban megadott URL: …/exec?ipn=<titkos kulcs>).
