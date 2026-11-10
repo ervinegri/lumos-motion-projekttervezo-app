@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "48aeae1566",
+"at": "2026-11-10T10:26:25+02:00",
+"msg": "Foglalószámla párosítás: csak ugyanannak a vevőnek a számlája (összeg + vevő egyezés)"
+},
+{
 "id": "549fd337ea",
 "at": "2026-11-10T10:25:27+02:00",
 "msg": "Számla ablak: a napok gombjai a látható fizetési határidőt is frissítik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: továbbszámlázott költség a Termelésbe, a százalékok nélküle; érték nélküli projekt költsége a marketingből"
 },
 {
-"id": "0743008ec6",
-"at": "2026-11-09T20:42:23+02:00",
-"msg": "Sales értékesítői jutalék: 5 000 Ft / short, kedvezménytől függetlenül"
-},
-{
-"id": "f8eeb36c10",
-"at": "2026-11-09T18:40:53Z",
+"id": "716dc98e67",
+"at": "2026-11-09T18:42:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
