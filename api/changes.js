@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5aeb7a784a",
+"at": "2026-11-10T14:35:54+02:00",
+"msg": "Levél-előnézetek: linkre kattintva a keret nem navigál (CSP-tiltás helyett); a saját e-mail-cím a felhasználói adatokban (feladó, csengő)"
+},
+{
 "id": "db8a016b42",
 "at": "2026-11-10T14:31:58+02:00",
 "msg": "Videónéző: időkódra kattintva indul a lejátszás, válasz időkódos észrevételre, bezáráskor a videótábla megmarad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla: a teljesítés dátuma alapból a rendezvény (utolsó) napja"
 },
 {
-"id": "d6a7aa383f",
-"at": "2026-11-10T11:06:34+02:00",
-"msg": "Díjbekérő megnyitása: ha a számlázz.hu már nem adja vissza, a kiállításkori e-mail-mellékletből; csak az app előtti díjbekérő nem kattintható"
-},
-{
-"id": "d3eac177a5",
-"at": "2026-11-10T09:04:07Z",
+"id": "c6b64199fe",
+"at": "2026-11-10T09:06:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
