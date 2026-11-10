@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5bce6a6448",
+"at": "2026-11-10T14:43:57+02:00",
+"msg": "Ügyfél-levél: a „Köszönöm!” nem kerül a szignó elé"
+},
+{
 "id": "0917875430",
 "at": "2026-11-10T14:42:39+02:00",
 "msg": "Ügyfélnek küldés: egy fölösleges lezáró div miatt a gombsor kiesett az ablakból – javítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai projektek kerete lekerekített sarkokkal"
 },
 {
-"id": "612a0a015a",
-"at": "2026-11-10T11:35:02+02:00",
-"msg": "Mai projektek piros keretben, a keret tetején a MA jelölővel"
-},
-{
-"id": "01e119021b",
-"at": "2026-11-10T09:08:52Z",
+"id": "217096a14c",
+"at": "2026-11-10T09:35:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
