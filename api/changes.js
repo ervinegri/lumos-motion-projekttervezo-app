@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed7d862a33",
+"at": "2026-11-10T10:03:09+02:00",
+"msg": "Értesítések: beérkezett kifizetések a csengőben (ügyvezető); Szerződés és számlázás: kereső bal oldalt"
+},
+{
 "id": "f2a24a3f84",
 "at": "2026-11-09T22:26:05+02:00",
 "msg": "Vízjel a jóváhagyó lejátszón: projektenként pipálható, Sales App projektnél alapból be, teljes kifizetés után lekerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyás logó: zöld pipa"
 },
 {
-"id": "95444cdb15",
-"at": "2026-11-09T17:55:33+02:00",
-"msg": "Lumos Motion Jóváhagyás logó a jóváhagyó oldalon"
-},
-{
-"id": "6676f82217",
-"at": "2026-11-09T15:38:50Z",
+"id": "880ab76483",
+"at": "2026-11-09T15:55:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
