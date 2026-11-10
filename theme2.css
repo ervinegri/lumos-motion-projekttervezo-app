@@ -617,4 +617,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .ark-tabs button{border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:var(--fg-3,#5e6873);padding:7px 14px;border-radius:9px;cursor:pointer}
 .ark-tabs button.on{background:var(--grad-brand,linear-gradient(96deg,#ffde59,#ff914d));color:#1b0f00}
 .ark-tabs button:not(.on):hover{color:var(--fg,#101923);background:var(--bg,#f0f4f7)}
-#modalRoot .mbox.mbox-ark .mfoot{gap:8px}#modalRoot .mbox.mbox-ark .mfoot .left{display:flex;gap:8px;margin-right:auto}
+#modalRoot .mbox.mbox-ark .mfoot{gap:8px;justify-content:flex-end}#modalRoot .mbox.mbox-ark .mfoot .left{display:flex;gap:8px;margin:0 0 0 auto;order:0}
