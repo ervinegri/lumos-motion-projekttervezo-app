@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1073dcdf6d",
+"at": "2026-11-10T14:02:52+02:00",
+"msg": "Szakember hozzáadása: alapból a hiányzó szerep a beosztás, kereshető legördülővel"
+},
+{
 "id": "fd49de5c05",
 "at": "2026-11-10T13:55:27+02:00",
 "msg": "Szövegmezők: a kézzel nagyobbra húzott méret gépeléskor / törléskor megmarad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vercel: a változásnapló-commit nem indít külön buildet (költségcsökkentés)"
 },
 {
-"id": "f896de4bda",
-"at": "2026-11-10T10:56:25+02:00",
-"msg": "Kifizetett (behozott) díjbekérőre kattintva a belőle készült számla nyílik meg; kiállító: Lumos Motion Kft."
-},
-{
-"id": "2549e11fb6",
-"at": "2026-11-10T08:52:39Z",
+"id": "751d3a7bd4",
+"at": "2026-11-10T08:56:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
