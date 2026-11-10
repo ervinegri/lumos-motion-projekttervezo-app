@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "70fd6e26df",
+"at": "2026-11-10T13:04:54+02:00",
+"msg": "Munkatársi dokumentumok: átnevezés, értelmes megnevezés a fájlnévből (EV-igazolás, kamarai igazolás), Gmail-begyűjtés nem keres a saját postafiók címével"
+},
+{
 "id": "1de05be3d3",
 "at": "2026-11-10T12:59:16+02:00",
 "msg": "Mai keret: a sarkok kitöltve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Foglalószámla keresése: a Sales App rendelésszámával (LM-<év>-<azonosító>); kifizetés után csak 3 napig"
 },
 {
-"id": "460834a4b3",
-"at": "2026-11-10T10:11:57+02:00",
-"msg": "Kifizetések: látható lekérdezés (pörgő jelző), a kifizetett díjbekérőből készült foglalószámla is bekerül"
-},
-{
-"id": "d0977e5254",
-"at": "2026-11-10T08:11:03Z",
+"id": "8f2a1f268c",
+"at": "2026-11-10T08:12:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
