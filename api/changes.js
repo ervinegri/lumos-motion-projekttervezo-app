@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "77e5ddb343",
+"at": "2026-11-11T00:49:56+01:00",
+"msg": "Videó: ügyfél jóváhagyására várónál nincs hozzászólás; dupla visszadobás-komment javítás; filmszalag emoji ki a címekből"
+},
+{
 "id": "7f84630176",
 "at": "2026-11-11T00:43:44+01:00",
 "msg": "Hozzászólás-duplikáció (visszadobás) javítás; szebb pipa-négyzet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: Visszaállítás és Eredmény beküldése a Bezárás mellett, egy sorban"
 },
 {
-"id": "4c6328ac34",
-"at": "2026-11-10T15:27:00+02:00",
-"msg": "Árkalkulátor: a két opció a címsorban, fehér háttér"
-},
-{
-"id": "a6f25f17a6",
-"at": "2026-11-10T13:20:50Z",
+"id": "f31f182571",
+"at": "2026-11-10T13:27:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
