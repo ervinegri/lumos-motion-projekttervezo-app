@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7f84630176",
+"at": "2026-11-11T00:43:44+01:00",
+"msg": "Hozzászólás-duplikáció (visszadobás) javítás; szebb pipa-négyzet"
+},
+{
 "id": "7cb31b1dd6",
 "at": "2026-11-11T00:41:11+01:00",
 "msg": "Videó hozzászólások: biztos időrendi (legfrissebb felül) sorrend bármilyen dátumformátumnál"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: a két opció a címsorban, fehér háttér"
 },
 {
-"id": "a47bfd29ab",
-"at": "2026-11-10T15:20:37+02:00",
-"msg": "Árkalkulátor ablak: Megnyitás új lapon gomb nélkül"
-},
-{
-"id": "42366cdb8b",
-"at": "2026-11-10T13:16:49Z",
+"id": "a6f25f17a6",
+"at": "2026-11-10T13:20:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
