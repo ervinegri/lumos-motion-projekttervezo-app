@@ -587,7 +587,3 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .msel-pop input.msel-q{width:100%;height:auto;min-height:40px;box-sizing:border-box;accent-color:auto}
 /* a keret alatti cellák sarkai is kerekek, a bal oldali színcsík nem lóg ki */
 #view table tbody tr.pt-row.pt-tf>td{box-shadow:none!important}
-#view table tbody tr.pt-tf-first>td:first-child{border-top-left-radius:14px}
-#view table tbody tr.pt-tf-first>td:last-child{border-top-right-radius:14px}
-#view table tbody tr.pt-tf-last>td:first-child{border-bottom-left-radius:14px}
-#view table tbody tr.pt-tf-last>td:last-child{border-bottom-right-radius:14px}
