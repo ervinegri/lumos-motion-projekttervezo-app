@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f896de4bda",
+"at": "2026-11-10T10:56:25+02:00",
+"msg": "Kifizetett (behozott) díjbekérőre kattintva a belőle készült számla nyílik meg; kiállító: Lumos Motion Kft."
+},
+{
 "id": "2574b4c336",
 "at": "2026-11-10T10:52:28+02:00",
 "msg": "Számlázás: díjbekérő alapján készült sima (előleg-)számla felismerése; a maradékról sima számla, nem végszámla; a díjbekérő is bekerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: a százalékok a továbbszámlázott költség és a szervezői jutalék levonása után számolódnak"
 },
 {
-"id": "61879b92ae",
-"at": "2026-11-09T21:01:56+02:00",
-"msg": "Bevételek: értékesítő hozta projektnél az Értékesítés a jutaléka, a % nem írható át"
-},
-{
-"id": "74daf05c9c",
-"at": "2026-11-09T18:58:34Z",
+"id": "07c03aadd3",
+"at": "2026-11-09T19:02:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
