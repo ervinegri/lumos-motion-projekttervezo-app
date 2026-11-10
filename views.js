@@ -818,8 +818,8 @@ function roTechPanel(p){
 function deliverItems(p){
   const items=[];
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)items.push(`${esc(it.label)}: <b>${n}</b>`);});
-  if(p.er_post&&!num(p.er_post_n))items.push('<b>1</b> terem előadásainak utómunkája');
-  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>items.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> terem előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
+  if(p.er_post&&!num(p.er_post_n))items.push('<b>1</b> helyszín előadásainak utómunkája');
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>items.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> helyszín előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
   if(num(p.foto_db)>0)items.push(`Fotók utómunkája: <b>${num(p.foto_db)}</b> db`);
   ['x_nyersVetel','x_nyersTarolas','x_rush'].forEach(k=>{const e=EXTRAS.find(x=>x.k===k);if(e&&p[k])items.push(esc(e.label));});
   return items;
@@ -895,9 +895,9 @@ function roContentPanel(p){
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
   REC_LIVE.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
-  if(p.er_post&&!num(p.er_post_n))rec.push('<b>1</b> terem előadásainak utómunkája');
-  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> terem előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
-  if(rec.length&&rooms>1)rec.unshift(`Rögzített termek száma: <b>${rooms}</b>`);
+  if(p.er_post&&!num(p.er_post_n))rec.push('<b>1</b> helyszín előadásainak utómunkája');
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> helyszín előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
+  if(rec.length&&rooms>1)rec.unshift(`Rögzített helyszínek száma: <b>${rooms}</b>`);
   const krea=[];
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)krea.push(`${esc(it.label)}: <b>${n}</b>`);if(it.k==='aftermovie'&&fotoDb(p)>0)krea.push(`Fotók utómunkája: <b>${fotoDb(p)} db</b>`);});
   EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas'&&p[e.k]).forEach(e=>krea.push(esc(e.label)));
@@ -957,8 +957,8 @@ function topicCards(p,{camRow,dlRow,D}){
     return `<div class="tc"><div class="tc-h">${title}</div><div class="tc-list">${L.map(x=>x.html).join('')||'<p class="tc-none">—</p>'}</div></div>`;};
   const card=(key,title,items)=>{const n=items.reduce((s,x)=>s+(x.on?(x.cnt||1):0),0),open=FOLD[key]!=null?FOLD[key]:n>0;
     return `<details class="tcard${n?' has-sel':''}" data-fold="${key}"${open?' open':''}><summary><span class="tc-title">${title}</span><span class="aside">${n?`<span class="tc-cnt">✓ ${n} kiválasztva</span>`:'nincs kiválasztva'}</span></summary><div class="tc"><div class="tc-list">${items.map(x=>x.html).join('')}</div></div></details>`;};
-  const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített termek száma</div></div>
-    <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Termek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Termek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Termek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
+  const rooms=(()=>{const n=num(p.er_rooms);return `<div class="dl rooms-row"><div><div class="dl-name">Rögzített helyszínek száma</div></div>
+    <div class="stepper"><button type="button" data-action="rec-step" data-k="er_rooms" data-d="-1" aria-label="Helyszínek: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="er_rooms" data-min="0" data-max="10" aria-label="Helyszínek száma" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="er_rooms" data-d="1" aria-label="Helyszínek: több"${n>=10||ro()?' disabled':''}>+</button></div></div>`;})();
   // Előadásrögzítés termenként: név, kamerák (darabszámmal), és kameránként a beosztott operatőr
   const RR=recRoomsOf(p),dis=!!D();
   const roomBlk=(r,i)=>{const rows=ROOM_CAMS.map(c=>{const n=num(r[c.k]),on=n>0,mx=ROOM_CNT[c.k];
@@ -990,7 +990,7 @@ function orderSummary(p,bare){
   const row=(n,label,k,role)=>{const ids=k?fieldOwners(p,k):[];const tg=!k?'':can?fpick(k,role,label,ids):ids.length?`<span class="op-cut">👥 ${esc(ids.map(nm).join(', '))}</span>`:`<span class="op-cut none">👥 nincs beosztva</span>`;
     return `<div class="op-row"><span class="op-n">${n}</span><span class="op-l">${esc(label)}${ids.length?`<span class="op-names">👥 ${esc(ids.map(nm).join(', '))}</span>`:''}</span>${tg}</div>`;};   // minden terepi feladatnak saját felelőse
   const grp=(t,rows)=>{if(rows.length)T.push(`<div class="op-gh">${t}</div><div class="op-list">${rows.join('')}</div>`);};
-  const OP='Operatőr',rooms=num(p.er_rooms),rec=[];if(rooms>1&&REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]))rec.push(row(rooms+'×','Rögzített terem'));
+  const OP='Operatőr',rooms=num(p.er_rooms),rec=[];if(rooms>1&&REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]))rec.push(row(rooms+'×','Rögzített helyszín'));
   REC_CAMS.filter(c=>c.k!=='er_creative'&&p[c.k]).forEach(c=>rec.push(row((CAM_COUNTS.some(x=>x.flag===c.k)?camN(p,c.k):1)+'×',c.label,c.k,OP)));
   const kr=[];if(p.er_creative)kr.push(row(camN(p,'er_creative')+'×','Kreatív kamera','er_creative',OP));
   EXTRAS.filter(e=>!['x_foto','x_rush','x_nyersTarolas','x_nyersVetel'].includes(e.k)&&p[e.k]).forEach(e=>kr.push(row('✓',e.label,e.k,e.role||OP)));
@@ -1017,7 +1017,7 @@ function orderSummary(p,bare){
 /* a vágás sávjára mutatva: milyen videókat kell elkészíteni (a vágó csak a sajátjait látja) */
 function cutWhat(p){const me=ro()&&S.me&&S.me.crewId,ts=postTasks(p).filter(t=>t.k!=='foto_db'||!me).filter(t=>!me||taskKeysOf(p,me).includes(t.k));if(!ts.length)return '';
   const multi=cutterIds(p).length>1&&!me,nm=id=>(crewById(id)||{}).name||'';
-  return '🎬 Elkészítendő videók:\n'+ts.map(t=>'• '+(t.k==='er_post_n'?t.n+' terem előadásainak utómunkája':t.label+' · '+t.n+' db')+(multi&&taskOwners(p,t.k).length?' ('+taskOwners(p,t.k).map(nm).join(', ')+')':'')).join('\n')+'\n\n';}
+  return '🎬 Elkészítendő videók:\n'+ts.map(t=>'• '+(t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.label+' · '+t.n+' db')+(multi&&taskOwners(p,t.k).length?' ('+taskOwners(p,t.k).map(nm).join(', ')+')':'')).join('\n')+'\n\n';}
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p).filter(t=>t.k!=='foto_db');if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';   // a fotók utómunkája a vágónál nem választható
   if(!tasks.length&&ro())return '';   // a szakember (vágó) nézetében nincs szervezői figyelmeztetés

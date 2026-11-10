@@ -32,7 +32,7 @@ function crewFinalDiff(p){const f=p&&p.crewFinal,ids=crewIdsNow(p);if(!f||!Array
   return {added,changed,removed};}
 /* Vágónként: mit kell megvágnia (a véglegesítő levélbe) */
 function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;const all=postTasks(p),due=typeof dueDate==='function'?dueDate(p):null;
-  cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>t.k==='er_post_n'?`${t.n} terem előadásainak utómunkája`:`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
+  cut.forEach(cid=>{const mine=typeof taskKeysOf==='function'?taskKeysOf(p,cid):all.map(t=>t.k),items=all.filter(t=>mine.includes(t.k)).map(t=>t.k==='er_post_n'?`${t.n} helyszín előadásainak utómunkája`:`${t.n}${t.k==='foto_db'?' db':'×'} ${t.label}`);if(items.length&&p.x_rush)items.push('villámgyors kézbesítés');
     o[cid]={items,due:due?fmtDay(due):''};});return o;}
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
 function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
@@ -112,7 +112,7 @@ function slotKeys(p,k){const m=/^(r[a-z0-9]+)_op$/.exec(k);if(!m)return ['f_'+k]
   return ['f_'+k].concat(ROOM_CAMS.map(c=>'f_'+m[1]+'_'+c.k),first?ROOM_CAMS.map(c=>'f_'+c.k):[]);}
 function roomsPatch(rooms){const ch={recRooms:rooms,er_rooms:rooms.filter(r=>roomCams(r).length).length};
   ROOM_CAMS.forEach(c=>{const mx=Math.max(0,...rooms.map(r=>num(r[c.k])));ch[c.k]=mx>0;if(ROOM_CNT[c.k])ch[c.k+'_n']=mx>0?mx:1;});return ch;}
-const REC_COUNTS=[{k:'er_post_n',label:'Termek előadásainak utómunkája',max:10,min:0},{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített termek száma',max:10,min:0}];
+const REC_COUNTS=[{k:'er_post_n',label:'Helyszínek előadásainak utómunkája',max:10,min:0},{k:'er_summary',label:'Rövid összefoglaló videó az előadás anyagából',max:10,min:0},{k:'er_clips',label:'Kivágások (40–60 mp short videók)',max:20,min:0},{k:'er_subs',label:'Feliratozás (videónként)',max:10,min:0},{k:'er_rooms',label:'Rögzített helyszínek száma',max:10,min:0}];
 const FOTO_COUNT={k:'x_foto_n',label:'Fotós a helyszínen',max:10,min:0};
 const postN=p=>num(p.er_post_n)||(p.er_post?1:0),fotoN=p=>num(p.x_foto_n)||(p.x_foto?1:0);   // régi adatnál a pipa = 1
 /* Léptetős tartalommezők: a hozzájuk tartozó pipát is beállítjuk (a régi háttér a pipát menti). */
@@ -125,7 +125,7 @@ const INT_FLAGS=[
   {k:'i_stand',label:'Interjúztatás a standnál',sub:'Kiállítók megszólaltatása a saját standjuknál'}];
 /* Vágói munkák: a megrendelt utómunka tételei (kulcs, megnevezés, darab) */
 function postTasks(p){const t=[];if(!p)return t;
-  if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Termek előadásainak utómunkája',n:1});
+  if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Helyszínek előadásainak utómunkája',n:1});
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>t.push({k:it.k,label:it.label,n:num(p[it.k])}));
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)t.push({k:it.k,label:it.label,n});});
   if(num(p.foto_db)>0&&fotoN(p)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});   // fotózás nélkül nincs fotó-utómunka

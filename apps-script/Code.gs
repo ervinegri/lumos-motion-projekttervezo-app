@@ -44,7 +44,7 @@ const CONDITIONS = ['ok', 'javitas', 'szerviz', 'selejt'];
 const COUNTS = { aftermovie: 3, interju: 8, int_sarok: 15, int_resztvevo: 15, short60: 15, short30: 15, short15: 15, er_clips: 20, er_subs: 10, er_summary: 10, er_total_n: 10, er_close_n: 10, er_creative_n: 10, er_post_n: 10, x_foto_n: 10 };
 const FLAGS = ['x_vago', 'x_dron', 'x_timelapse', 'x_pov', 'x_foto', 'x_nyersVetel', 'x_nyersTarolas', 'x_rush', 't_eloadas', 't_kepkeveres', 't_hang', 't_feny', 't_vizual',
   'er_total', 'er_close', 'er_crowd', 'er_slides', 'er_drone', 'er_stream', 'er_post', 'er_zoom', 'er_creative', 'i_sarok', 'i_stand'];
-const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_creative: 'Kreatív kamera', er_zoom: 'Közeli (vágói belenagyítással)', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése / kivetítése', er_stream: 'Élő kivetítés LED falra vagy projektorra', t_kepkeveres: 'Streaming', er_post: 'Termek előadásainak utómunkája' };
+const REC_LABELS = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_creative: 'Kreatív kamera', er_zoom: 'Közeli (vágói belenagyítással)', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése / kivetítése', er_stream: 'Élő kivetítés LED falra vagy projektorra', t_kepkeveres: 'Streaming', er_post: 'Helyszínek előadásainak utómunkája' };
 
 /** Munkalapok és oszlopok. Az oszlopok sorrendjét és nevét ne módosítsd a táblázatban;
  *  új oszlop csak a sor végére kerülhet (a program maga írja be a fejlécet). */
@@ -1220,9 +1220,9 @@ function siteTasks_(p, cid) {
         cs.push(RL[k] + (dev ? ' (' + dev + ')' : ''));
       }
     });
-    if (cs.length) recs.push((rooms.length > 1 || r.name ? (i + 1) + '. helyszín' + (r.name ? ' – ' + r.name : '') + ': ' : '') + cs.join(', '));
+    if (cs.length) { if (rooms.length > 1 || r.name) recs.push((i + 1) + '. helyszín' + (r.name ? ' – ' + r.name : '') + ':'); cs.forEach(x => recs.push(x)); }
   });
-  if (recs.length) out.push(['Előadásrögzítés', recs.join('\n')]);
+  if (recs.length) out.push(['Előadásrögzítés', recs.join('\n')]);   // minden kamera / eszköz külön sorban
   if (mine.indexOf('f_er_creative') >= 0 && p.er_creative === true) out.push(['Kreatív videózás', 'kreatív kamera']);
   if (mine.indexOf('f_x_foto') >= 0 && p.x_foto === true) out.push(['Fotózás', Number(p.foto_db) > 0 ? p.foto_db + ' db fotó' : 'rendezvényfotózás']);
   return out;
@@ -1900,12 +1900,12 @@ function calPlan_(p) {
   if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
   const rooms = parseRooms_(p.recRooms), RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése' };
   if (rooms && rooms.some(r => Object.keys(RL).some(k => r[k] > 0))) {   // termenként: név + kamerák
-    lines.push('Előadásrögzítés termenként:');
-    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (i + 1) + '. Terem' + (r.name ? ' – ' + r.name : '') + ': ' + cs.join(', ')); });
+    lines.push('Előadásrögzítés helyszínenként:');
+    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (i + 1) + '. helyszín' + (r.name ? ' – ' + r.name : '') + ': ' + cs.join(', ')); });
     Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
   }
   if (p.er_creative === true) lines.push('Kreatív videózás: ' + (Number(p.er_creative_n) > 1 ? p.er_creative_n + ' kreatív kamera' : 'kreatív kamera'));   // nem előadásrögzítés
-  if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' terem' : ''));   // a felbontás nem kerül a naptárba
+  if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' helyszín' : ''));   // a felbontás nem kerül a naptárba
   // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
   // az érkezés és a távozás az esemény időpontjában szerepel, a leírásba nem kerül külön
   if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · távozás kb. ' + p.lastEndTime : ''));
