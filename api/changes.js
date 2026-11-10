@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b3d51e06cd",
+"at": "2026-11-10T13:10:23+02:00",
+"msg": "Kifizetés-értesítés: a projektek külön sorban"
+},
+{
 "id": "63303f9c1e",
 "at": "2026-11-10T13:09:24+02:00",
 "msg": "Kifizetés-értesítés: közös számlánál minden projekt neve látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Foglalószámla párosítás: csak ugyanannak a vevőnek a számlája (összeg + vevő egyezés)"
 },
 {
-"id": "549fd337ea",
-"at": "2026-11-10T10:25:27+02:00",
-"msg": "Számla ablak: a napok gombjai a látható fizetési határidőt is frissítik"
-},
-{
-"id": "e87f931e42",
-"at": "2026-11-10T08:22:23Z",
+"id": "70bd221219",
+"at": "2026-11-10T08:25:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
