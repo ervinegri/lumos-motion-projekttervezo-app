@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2574b4c336",
+"at": "2026-11-10T10:52:28+02:00",
+"msg": "Számlázás: díjbekérő alapján készült sima (előleg-)számla felismerése; a maradékról sima számla, nem végszámla; a díjbekérő is bekerül"
+},
+{
 "id": "f90a6b991c",
 "at": "2026-11-10T10:45:15+02:00",
 "msg": "Végszámla előnézet: a foglalószámla levonása és a valódi fizetendő összeg; figyelmeztetés, ha nincs foglalószámla"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: értékesítő hozta projektnél az Értékesítés a jutaléka, a % nem írható át"
 },
 {
-"id": "57e8363431",
-"at": "2026-11-09T20:58:23+02:00",
-"msg": "Szerződés és számlázás: „kifizetve” csempe le, a kereső a csempék sorába; megrendelőlap-párosítás pontosítása"
-},
-{
-"id": "b44da97ed7",
-"at": "2026-11-09T18:52:48Z",
+"id": "74daf05c9c",
+"at": "2026-11-09T18:58:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
