@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4235c86a4",
+"at": "2026-11-10T14:23:47+02:00",
+"msg": "Videónéző: link cseréje (vezető vagy a videó vágója), forgalmi limites pCloud-linknél közvetlen gomb"
+},
+{
 "id": "b4bd2d3883",
 "at": "2026-11-10T14:13:49+02:00",
 "msg": "Videó-hozzászólás: az időkód oda kerül, ahol a kurzor utoljára állt, nem a szöveg végére"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "A „díjbekérő: …” sorra kattintva nem nyílik meg a számla"
 },
 {
-"id": "d63b5a92df",
-"at": "2026-11-10T10:58:35+02:00",
-"msg": "Díjbekérő hivatkozás a foglaló-kártyán: csak szöveg (ugyanazt a számlát nyitotta)"
-},
-{
-"id": "8b3783bbc1",
-"at": "2026-11-10T08:58:29Z",
+"id": "d76a3e1622",
+"at": "2026-11-10T08:58:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
