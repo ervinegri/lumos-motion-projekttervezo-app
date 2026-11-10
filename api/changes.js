@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d63b5a92df",
+"at": "2026-11-10T10:58:35+02:00",
+"msg": "Díjbekérő hivatkozás a foglaló-kártyán: csak szöveg (ugyanazt a számlát nyitotta)"
+},
+{
 "id": "4e56deccf9",
 "at": "2026-11-10T10:58:19+02:00",
 "msg": "Frissítés-értesítő kétszer tovább látszik; kifizetés-értesítő csak ✕-re tűnik el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sales jutalék: kedvezményes rendelésnél ismét 10%-kal kevesebb (5 000 / 4 500 Ft short)"
 },
 {
-"id": "4f668b70f4",
-"at": "2026-11-09T21:09:20+02:00",
-"msg": "Bevételek: a továbbszámlázott / szervezői jutalék jelzése a Díjazás cellán"
-},
-{
-"id": "499658b5e1",
-"at": "2026-11-09T19:06:26Z",
+"id": "e01adc7569",
+"at": "2026-11-09T19:09:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
