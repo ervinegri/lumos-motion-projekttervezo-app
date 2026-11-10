@@ -361,7 +361,7 @@ function szItemName(p){const r=pr(p),n=(p&&p.name)||'Projekt';if(!r)return n;con
   return n+' – '+SZ_MN[m]+' '+d1+(r.end&&r.end!==r.start?(m2!==m?'. – '+SZ_MN[m2]+' '+d2:'–'+d2):'')+'.';}
 function szTargetInfo(kind,id){
   if(kind==='project'){const p=projById(id);if(!p)return null;const cl=(S.clients||[]).find(c=>c.name===p.client)||null,a=szSplitAddr(p.clientAddress||(cl&&cl.address));
-    const r=pr(p);return {kind,id,name:p.name||'Projekt',item:szItemName(p),net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:r?(m=>new Date(Date.UTC(Number(m.slice(0,4)),Number(m.slice(5,7)),0)).toISOString().slice(0,10))((r.end||r.start).slice(0,7)):todayISO(),   /* teljesítés: a tárgyhó utolsó napja */buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
+    const r=pr(p);return {kind,id,name:p.name||'Projekt',item:szItemName(p),net:projTotal(p),base:num(p.projectValue),extras:extrasOf(p),fulfill:r?(r.end||r.start):todayISO(),   /* teljesítés = a rendezvény (utolsó) napja (Ervin, 2026-11-10) */buyer:Object.assign({name:p.client||'',tax:p.clientTax||(cl&&cl.tax)||'',email:szRepEmail(cl,p),email2:szFinEmail(cl),saved:cl&&cl.billEmail,clientId:cl&&cl.id},a)};}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return null;
   const d=String(parseInt(r.day,10)||1).padStart(2,'0'),f=r.month?r.month+'-'+d:todayISO();
   return {kind:'income',id,name:r.name,net:num(r.amount),fulfill:f,buyer:{name:'',tax:'',email:'',zip:'',city:'',address:''}};}
