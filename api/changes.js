@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f90a6b991c",
+"at": "2026-11-10T10:45:15+02:00",
+"msg": "Végszámla előnézet: a foglalószámla levonása és a valódi fizetendő összeg; figyelmeztetés, ha nincs foglalószámla"
+},
+{
 "id": "e06bda0b6d",
 "at": "2026-11-10T10:41:51+02:00",
 "msg": "Csengő: egy befizetés csak egyszer (díjbekérő + foglalószámla összevonva), rövid ügyfélnév"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés és számlázás: „kifizetve” csempe le, a kereső a csempék sorába; megrendelőlap-párosítás pontosítása"
 },
 {
-"id": "f4cf397bf9",
-"at": "2026-11-09T20:52:39+02:00",
-"msg": "Szerződés és számlázás: eltérő szerződésű (pl. két megrendelőlapos) projektek külön szerződés-cellában"
-},
-{
-"id": "adbfb5503f",
-"at": "2026-11-09T18:50:35Z",
+"id": "b44da97ed7",
+"at": "2026-11-09T18:52:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
