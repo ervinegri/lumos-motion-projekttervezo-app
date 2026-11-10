@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0c28878df3",
+"at": "2026-11-10T11:01:16+02:00",
+"msg": "A „díjbekérő: …” sorra kattintva nem nyílik meg a számla"
+},
+{
 "id": "d63b5a92df",
 "at": "2026-11-10T10:58:35+02:00",
 "msg": "Díjbekérő hivatkozás a foglaló-kártyán: csak szöveg (ugyanazt a számlát nyitotta)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: az értékesítői jutalék díjsorként sem kerül a Termelésbe"
 },
 {
-"id": "ee50745dca",
-"at": "2026-11-09T21:10:25+02:00",
-"msg": "Sales jutalék: kedvezményes rendelésnél ismét 10%-kal kevesebb (5 000 / 4 500 Ft short)"
-},
-{
-"id": "e01adc7569",
-"at": "2026-11-09T19:09:32Z",
+"id": "6b651daf7f",
+"at": "2026-11-09T19:10:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
