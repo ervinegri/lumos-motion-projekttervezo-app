@@ -2666,7 +2666,7 @@ function szSync_(u, a) {
   szNeedKey_();
   const started = Date.now(), all = readAll_('finInvoice');
   const ids = a && a.id ? [str_(a.id, 64)] : null;
-  const noAdv = x => x.kind === 'dijbekero' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no) && String(x.checkedAt || '') < new Date(Date.now() - 3 * 3600e3).toISOString();   // kifizetett díjbekérő, amelyhez még nincs foglalószámla (3 óránként újra megnézzük)
+  const noAdv = x => x.kind === 'dijbekero' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no) && String(x.checkedAt || '') < new Date(Date.now() - 3 * 3600e3).toISOString() && (!x.paidAt || String(x.paidAt).slice(0, 10) >= new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10));   // csak a kifizetés utáni 3 napban   // kifizetett díjbekérő, amelyhez még nincs foglalószámla (3 óránként újra megnézzük)
   const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1 || noAdv(x)))
     .sort((x, y) => String(x.checkedAt).localeCompare(String(y.checkedAt))).slice(0, 25);
   const changed = [], errors = [], created = [];
@@ -2703,6 +2703,7 @@ function szAdvFor_(x) {
   const pid0 = x.projectId || x.incomeId, cands = [pid0];
   if (/^sales-/.test(String(pid0))) cands.push(String(pid0).slice(6));
   try { (neonSql_([{ query: 'SELECT order_id FROM lx_link WHERE project_id = $1', params: [String(pid0)] }])[0].rows || []).forEach(r => cands.push(r[0])); } catch (eL) { }
+  { const yrs = [String(x.date || '').slice(0, 4), String(new Date().getFullYear())].filter(y => /^\d{4}$/.test(y)); cands.slice().forEach(c => { if (c && !/^LM-/.test(c) && !/^sales-/.test(c)) yrs.forEach(y => cands.push('LM-' + y + '-' + c)); }); }   // a Sales App rendelésszáma: LM-<év>-<rendelés-azonosító>
   for (const c of cands.filter((v, i, a) => v && a.indexOf(v) === i)) { try { const t = szQuery_('', false, c); if (t && (t.fromDijbekero === x.no || (t.kind !== 'dijbekero' && Math.abs((Number(t.invGross) || 0) - (Number(x.invGross) || 0)) <= 1))) return t; } catch (eQ) { } }
   return null;
 }
