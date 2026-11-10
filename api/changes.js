@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9bb36064dc",
+"at": "2026-11-10T10:22:12+02:00",
+"msg": "Foglalószámla keresése: a Sales App rendelésszámával (LM-<év>-<azonosító>); kifizetés után csak 3 napig"
+},
+{
 "id": "460834a4b3",
 "at": "2026-11-10T10:11:57+02:00",
 "msg": "Kifizetések: látható lekérdezés (pörgő jelző), a kifizetett díjbekérőből készült foglalószámla is bekerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: az Értékesítés oszlop az értékesítő jutaléka, ha a projektet értékesítő hozta"
 },
 {
-"id": "f5593900b2",
-"at": "2026-11-09T20:37:30+02:00",
-"msg": "Lehetőség ablak: telefonszám a megszokott formázott mezőben (+36 20 329 8550)"
-},
-{
-"id": "8a512e0191",
-"at": "2026-11-09T18:33:35Z",
+"id": "d04c3477fd",
+"at": "2026-11-09T18:37:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
