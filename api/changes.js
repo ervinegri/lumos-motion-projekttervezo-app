@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "516a427723",
+"at": "2026-11-10T15:14:50+02:00",
+"msg": "Nyitott videótábla is frissül, ha közben változás jön (pl. ügyfél-jóváhagyás)"
+},
+{
 "id": "e2ee986314",
 "at": "2026-11-10T14:56:42+02:00",
 "msg": "Jóváhagyó oldal: a nyitókép a videó betöltéséig marad, lágy áttűnéssel; rákérdez, ha a videó nincs végignézve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai projektek kerete rárajzolt rétegként, a táblázat elrendezése változatlan"
 },
 {
-"id": "3ee9f9b430",
-"at": "2026-11-10T12:46:43+02:00",
-"msg": "Idővonal: a mai nap előtt 5 nap is látszik megnyitáskor"
-},
-{
-"id": "5b64cedb8e",
-"at": "2026-11-10T10:45:40Z",
+"id": "aa66b69b0c",
+"at": "2026-11-10T10:46:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
