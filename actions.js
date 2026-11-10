@@ -2280,8 +2280,8 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
 function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').trim(),email,tag});};
   add(p.contactName,p.contactEmail,'a projekt kapcsolattartója');const cn=String(p.client||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn);
-  if(c){add(c.contactName,c.contactEmail,'kapcsolattartó');add(c.rep,c.repEmail,'képviselő');}
-  (S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
+  if(c&&cn){add(c.contactName,c.contactEmail,'kapcsolattartó');add(c.rep,c.repEmail,'képviselő');}
+  if(cn)(S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
 ACT['cl-nomail']=b=>{const li=$('m-clLink'),link=String(li&&li.value||'').trim();if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…) – e-mail nélküli áthelyezésnél is kell.',true);if(li){li.focus();li.style.borderColor='var(--bad)';}return;}
   closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true,link});clAfter();};
 function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
