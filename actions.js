@@ -937,13 +937,27 @@ async function crewFinalizeModal(){
 function roomEqSync(d){if(!d||!Array.isArray(d.equipment)||!Array.isArray(d.recRooms))return;const own={};
   recRoomsOf(d).forEach(r=>{const op=(slotOwners(d,r.id+'_op')||[])[0]||'';Object.keys(ROOM_EQ).forEach(k=>{roomEq(r,k).concat(roomLens(r,k)).forEach(id=>{if(id&&!(id in own))own[id]=op;});});});
   if(!Object.keys(own).length)return;let ch=false;const eq=d.equipment.map(e=>{if(e&&e.itemId in own&&(e.crewId||'')!==own[e.itemId]){ch=true;return Object.assign({},e,{crewId:own[e.itemId]});}return e;});if(ch)d.equipment=eq;}
+/* A terem operatőrének a Stáb és eszközök résznél kiosztott kamerái (és objektívei) automatikusan bekerülnek a terem kameraszögeihez:
+   előbb a bejelölt, de üres szögek kapnak kamerát, a maradék kamerák a következő szögeket (teljes alakos → közeli → közönség) jelölik be. */
+function roomOpEqFill(d){if(!d||ro()||!Array.isArray(d.equipment)||!d.equipment.length)return false;const R=recRoomsOf(d);if(!R.some(r=>roomCams(r).length))return false;
+  const CAM=new Set(camItems().map(x=>x.id)),LENS=new Set(lensItems().map(x=>x.id)),inv=id=>(S.inventory||[]).find(x=>x.id===id);
+  const rooms=clone(R),used=new Set();rooms.forEach(r=>ROOM_CAMS.forEach(c=>{roomEq(r,c.k).concat(roomLens(r,c.k)).forEach(id=>{if(id)used.add(id);});}));
+  const ANG=['er_total','er_close','er_crowd'];let ch=false;
+  rooms.forEach(r=>{if(!roomCams(r).length)return;const op=(slotOwners(d,r.id+'_op')||[])[0];if(!op)return;
+    const mine=pred=>d.equipment.filter(e=>e&&e.crewId===op&&pred(e.itemId)).flatMap(e=>Array(Math.max(1,num(e.qty)||1)).fill(e.itemId));
+    const take=(arr,ok)=>{const i=arr.findIndex(id=>!used.has(id)&&(!ok||ok(id)));if(i<0)return '';const id=arr[i];arr.splice(i,1);used.add(id);return id;};
+    const cams=mine(id=>CAM.has(id)),lenses=mine(id=>LENS.has(id));if(!cams.length)return;
+    ANG.forEach(k=>{if(num(r[k])>0){const eq=roomEq(r,k);if(!eq[0]){const id=take(cams);if(id){eq[0]=id;r[k+'_eq']=eq;ch=true;}}}});
+    ANG.forEach(k=>{if(num(r[k])>0)return;const id=take(cams);if(id){r[k]=1;r[k+'_eq']=[id];ch=true;}});
+    ANG.forEach(k=>{if(!(num(r[k])>0))return;const eq=roomEq(r,k),ln=roomLens(r,k);if(eq[0]&&!ln[0]){const cam=inv(eq[0]),id=take(lenses,l=>lensFits(cam,inv(l)));if(id){ln[0]=id;r[k+'_lens']=ln;ch=true;}}});});
+  if(ch)Object.assign(d,roomsPatch(rooms));return ch;}
 /* Aki már nincs a helyszínen (remote vezető, csak vágó / értékesítő, vagy lekerült a projektről), annál nem maradhat eszköz: gazdátlan lesz, a stábnál újra kiosztható */
 function offSiteEqRelease(d){if(!d||!Array.isArray(d.equipment))return;const on=onSiteIds(d),gone=new Set();
   const eq=d.equipment.map(e=>{if(e&&e.crewId&&!on.has(e.crewId)&&!((d.crew||[]).some(a=>a.crewId===e.crewId)&&feeSales(d,e.crewId))){gone.add(e.crewId);return Object.assign({},e,{crewId:''});}return e;});
   if(gone.size){d.equipment=eq;setTimeout(()=>toast(`${[...gone].map(id=>(crewById(id)||{}).name||'Valaki').join(', ')} már nincs a helyszínen – az eszközei gazdátlanok lettek, oszd ki őket újra.`),0);}}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
-  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);roomEqSync(S.draft);offSiteEqRelease(S.draft);S.dirty=true;render(true);autoSave(400);}
+  if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);roomEqSync(S.draft);offSiteEqRelease(S.draft);if(!projLocked())roomOpEqFill(S.draft);S.dirty=true;render(true);autoSave(400);}
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
 /* Projekt megnyitásakor a már beosztott emberek sora is bekerül a díjtáblázatba (mentés csak a következő módosítással). */
@@ -973,7 +987,7 @@ async function conflictMerge(mine){
   MERGE_THEIRS=()=>{closeModal();finish(false);};
 }
 let MERGE_THEIRS=null;
-function prepDraft(p){const d=clone(p);d.er_post_n=postN(d);d.x_foto_n=fotoN(d);if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
+function prepDraft(p){const d=clone(p);d.er_post_n=postN(d);d.x_foto_n=fotoN(d);try{if(d.status!=='atadva'&&roomOpEqFill(d))setTimeout(()=>{if(S.draft&&S.draft.id===d.id){S.dirty=true;autoSave(400);}},0);}catch(e){}if(!d.lead){const ids=[...new Set((d.crew||[]).map(a=>a.crewId))];if(ids.length===1)d.lead=ids[0];}try{syncFeesWithCrew(d);}catch(e){}return d;}
 function budgetApply(saved){
   const i=S.projects.findIndex(p=>p.id===saved.id);if(i>=0)S.projects[i]=saved;
   if(S.projectId===saved.id){if(S.dirty){for(const k of ['budgetRequest','budgetMode','budgetVal','budgetFt','updatedAt'])S.draft[k]=saved[k];}else S.draft=prepDraft(saved);}render(true);
