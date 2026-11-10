@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1de05be3d3",
+"at": "2026-11-10T12:59:16+02:00",
+"msg": "Mai keret: a sarkok kitöltve"
+},
+{
 "id": "f1824900ad",
 "at": "2026-11-10T12:54:47+02:00",
 "msg": "Mai keret a táblázat faláig ér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: látható lekérdezés (pörgő jelző), a kifizetett díjbekérőből készült foglalószámla is bekerül"
 },
 {
-"id": "ceec810fb0",
-"at": "2026-11-10T10:10:52+02:00",
-"msg": "Szerződés és számlázás: a bizonylat-kártya üres részére kattintva is megnyílik a bizonylat"
-},
-{
-"id": "efb7201ebc",
-"at": "2026-11-10T08:07:21Z",
+"id": "d0977e5254",
+"at": "2026-11-10T08:11:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
