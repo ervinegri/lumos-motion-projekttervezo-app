@@ -219,6 +219,9 @@ async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h
     if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-tevékenység betöltve (jegyzetek, feladatok, e-mailek, hívások, megbeszélések)`:'A HubSpotban nincs tevékenység ehhez a kapcsolattartóhoz / céghez';}
   catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}
 
-/* Árkalkulátor (kalkulator.lumosmotion.hu) az Értékesítés fülön: nagy ablakban, a két kalkulátor között a saját fülein lehet váltani */
-ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" src="https://kalkulator.lumosmotion.hu/rendezvenyvideok" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-ark');};
+/* Árkalkulátor (kalkulator.lumosmotion.hu) az Értékesítés fülön: nagy ablakban; a két kalkulátor választója a címsorban, az „Árkalkulátor” szó mellett */
+const ARK_URL='https://kalkulator.lumosmotion.hu/';
+ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" id="ark-frame" src="${ARK_URL}rendezvenyvideok?embed=1" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-ark');
+  const h=document.querySelector('#modalRoot .mhead h3');if(h)h.insertAdjacentHTML('afterend','<div class="ark-tabs" role="tablist"><button type="button" class="on" data-action="ark-tab" data-p="rendezvenyvideok" role="tab" aria-selected="true">🎉 Rendezvény videó</button><button type="button" data-action="ark-tab" data-p="eloadas-rogzites" role="tab" aria-selected="false">🎤 Előadás rögzítés</button></div>');};
+ACT['ark-tab']=b=>{const f=$('ark-frame');if(!f)return;f.src=ARK_URL+b.dataset.p+'?embed=1';document.querySelectorAll('.ark-tabs button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});};

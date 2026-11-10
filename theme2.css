@@ -611,4 +611,9 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 
 /* árkalkulátor ablak */
 #modalRoot .mbox.mbox-ark{width:min(1240px,100%);max-width:min(1240px,100%)}
-.ark-frame{display:block;width:100%;height:min(78vh,1100px);border:0;border-radius:12px;background:#fff}
+.ark-frame{display:block;width:100%;height:min(80vh,1100px);border:0;background:#fff}
+#modalRoot .mbox.mbox-ark .mhead{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.ark-tabs{display:inline-flex;gap:4px;background:#fff;border:1px solid var(--line,#dde4eb);padding:4px;border-radius:12px}
+.ark-tabs button{border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:var(--fg-3,#5e6873);padding:7px 14px;border-radius:9px;cursor:pointer}
+.ark-tabs button.on{background:var(--grad-brand,linear-gradient(96deg,#ffde59,#ff914d));color:#1b0f00}
+.ark-tabs button:not(.on):hover{color:var(--fg,#101923);background:var(--bg,#f0f4f7)}
