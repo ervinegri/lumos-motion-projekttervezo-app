@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0917875430",
+"at": "2026-11-10T14:42:39+02:00",
+"msg": "Ügyfélnek küldés: egy fölösleges lezáró div miatt a gombsor kiesett az ablakból – javítva"
+},
+{
 "id": "5aeb7a784a",
 "at": "2026-11-10T14:35:54+02:00",
 "msg": "Levél-előnézetek: linkre kattintva a keret nem navigál (CSP-tiltás helyett); a saját e-mail-cím a felhasználói adatokban (feladó, csengő)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai projektek piros keretben, a keret tetején a MA jelölővel"
 },
 {
-"id": "abc20f3190",
-"at": "2026-11-10T11:08:41+02:00",
-"msg": "Számla: a teljesítés dátuma alapból a rendezvény (utolsó) napja"
-},
-{
-"id": "c6b64199fe",
-"at": "2026-11-10T09:06:46Z",
+"id": "01e119021b",
+"at": "2026-11-10T09:08:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
