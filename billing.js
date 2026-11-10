@@ -585,5 +585,5 @@ async function tplBillCopy(tplId,newPid){try{if(!billOn()||!S.fin||!S.fin.billin
   if(!tigList().some(t=>tigPids(t).includes(tplId)))a.tigMode='nemkell';
   if(Object.keys(a).length<2)return;const d=await call('billSave',a);if(d&&d.billing){S.fin.billing=d.billing;render(true);}}catch(e){console.warn('Sablon számlázási beállításai:',e);}}
 /* Bizonylat-kártya: az üres részére kattintva is megnyílik a bizonylat (díjbekérő, számla PDF) */
-document.addEventListener('click',e=>{const box=e.target.closest&&e.target.closest('.bs-box');if(!box||e.target.closest('button,a,input,label,select,textarea,.cmb'))return;
+document.addEventListener('click',e=>{const box=e.target.closest&&e.target.closest('.bs-box');if(!box||e.target.closest('button,a,input,label,select,textarea,.cmb,.bs-ref'))return;
   const b=box.querySelector('[data-action="sz-inv"]');if(b)b.click();});

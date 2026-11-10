@@ -576,3 +576,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .bl-closed .bs-box,.bl-closed .bl-meta,.bl-closed .bl-val{opacity:.55;filter:grayscale(1)}
 .bl-closed .bl-name{color:var(--fg-3)!important}
 .bl-closed .bs-box:hover{opacity:.85;filter:none}
+.bs-box .bs-ref{cursor:default}
