@@ -667,3 +667,7 @@ html.th2 .bl-h3,html.th2 .bl-ttl,html.th2 .bl-ttl .bl-sub{align-items:center}
 .vv-done input:not(:disabled):hover{border-color:#2e9e62;box-shadow:0 0 0 3px rgba(46,158,98,.15)}
 .vv-done input:focus-visible{outline:2px solid #2e9e62;outline-offset:2px}
 .vv-done input:disabled:not(:checked){background:#f1f3f5}
+
+/* ügyfél jóváhagyására vár: a vágónak nincs hozzászólás-mező → az időkód / jelölés gombok sem kellenek */
+#mform:has(.vv-cm-lock) .vv-tcw,#mform:has(.vv-cm-lock) .vv-pin-btn{display:none!important}
+.vv-cm-lock{margin:4px 0 10px;padding:9px 12px;border-radius:10px;background:#fbf5e8;color:#7a5200;font-weight:600}
