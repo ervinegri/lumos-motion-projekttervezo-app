@@ -220,5 +220,5 @@ async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h
   catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}
 
 /* Árkalkulátor (kalkulator.lumosmotion.hu) az Értékesítés fülön: nagy ablakban, a két kalkulátor között a saját fülein lehet váltani */
-ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" src="https://kalkulator.lumosmotion.hu/rendezvenyvideok" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true,left:'<a class="btn outline" href="https://kalkulator.lumosmotion.hu/" target="_blank" rel="noopener">↗ Megnyitás új lapon</a>'});
+ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" src="https://kalkulator.lumosmotion.hu/rendezvenyvideok" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-ark');};
