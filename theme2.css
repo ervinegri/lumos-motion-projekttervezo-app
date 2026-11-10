@@ -655,3 +655,6 @@ html.th2 .bl-h.c-jovahagyva{background:#d7ecdd;color:#1f6b3e}
 .bl-cell.c-jovahagyva.over{background:#dcefe2;box-shadow:inset 0 0 0 2px #5fae7c}
 /* videótábla kártyák: a → (tovább) nyíl nem kell – húzással mozgatható */
 .bd-card .bd-next{display:none!important}
+
+/* videótábla ablak címsora: a projekt neve és a „7 nap az átadásig” egy vonalban */
+html.th2 .bl-h3,html.th2 .bl-ttl,html.th2 .bl-ttl .bl-sub{align-items:center}
