@@ -110,7 +110,10 @@ const stepRow=(p,it)=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' o
 const cgrp=(key,title,n,body)=>`<details class="cgroup" data-fold="${key}"${(FOLD[key]!=null?FOLD[key]:n>0)?' open':''}><summary><span class="cg-t">${title}</span><span class="aside">${n?n+' kiválasztva':''}</span></summary><div class="cg-b">${body}</div></details>`;
 const foldAside=n=>`<span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span>`;
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold)FOLD[d.dataset.fold]=d.open;if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
-function autoGrow(t){if(!t)return;const min=t.classList.contains('pcrew-note')?58:110;t.style.height='auto';t.style.height=Math.max(min,t.scrollHeight+2)+'px';}
+function autoGrow(t){if(!t)return;const min=Math.max(t.classList.contains('pcrew-note')?58:110,num(t.dataset.userH));t.style.height='auto';const h=Math.max(min,t.scrollHeight+2);t.style.height=h+'px';t.dataset.autoH=h;}
+/* kézzel nagyobbra húzott szövegmező: az automatikus méretezés ennél kisebbre már nem húzza vissza (pl. törléskor) */
+(()=>{let rt=null,h0=0;document.addEventListener('pointerdown',e=>{const t=e.target;if(t&&t.matches&&t.matches('textarea.inp')){rt=t;h0=t.offsetHeight;}else rt=null;},true);
+  document.addEventListener('pointerup',()=>{if(!rt)return;const t=rt,h=t.offsetHeight;rt=null;if(Math.abs(h-h0)>3){t.dataset.userH=h;t.dataset.autoH=h;t.style.height=h+'px';}},true);})();
 document.addEventListener('input',e=>{if(e.target.matches&&e.target.matches('textarea.inp'))autoGrow(e.target);});
 window.addEventListener('resize',()=>VIEW.querySelectorAll('textarea.inp').forEach(autoGrow));
 /* Pénzügyek: az ügyvezetőnél a Kifizetések, a Szerződés és számlázás és a Bevétel és kiadás egy fül alá kerül (alfülekkel) */
