@@ -653,3 +653,5 @@ html.th2 .bl-h.c-leadva{background:#f6e9c9;color:#7a5200}
 html.th2 .bl-h.c-jovahagyva{background:#d7ecdd;color:#1f6b3e}
 .bl-cell.c-leadva.over{background:#f6ebcf;box-shadow:inset 0 0 0 2px #e0b04a}
 .bl-cell.c-jovahagyva.over{background:#dcefe2;box-shadow:inset 0 0 0 2px #5fae7c}
+/* videótábla kártyák: a → (tovább) nyíl nem kell – húzással mozgatható */
+.bd-card .bd-next{display:none!important}
