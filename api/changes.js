@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "35a474b4d7",
+"at": "2026-11-11T00:27:05+01:00",
+"msg": "Videótábla: vágó csak Utómunka alatt / Belső ellenőrzés oszlopba húzhat"
+},
+{
 "id": "f2d84f5dbc",
 "at": "2026-11-11T00:24:57+01:00",
 "msg": "Ügyfélnek küldés saját projektnél: csak projektvezető vagy ügyvezető címzett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélnek küldés: egy fölösleges lezáró div miatt a gombsor kiesett az ablakból – javítva"
 },
 {
-"id": "5aeb7a784a",
-"at": "2026-11-10T14:35:54+02:00",
-"msg": "Levél-előnézetek: linkre kattintva a keret nem navigál (CSP-tiltás helyett); a saját e-mail-cím a felhasználói adatokban (feladó, csengő)"
-},
-{
-"id": "fdd82b9059",
-"at": "2026-11-10T12:32:08Z",
+"id": "ec94939946",
+"at": "2026-11-10T12:36:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
