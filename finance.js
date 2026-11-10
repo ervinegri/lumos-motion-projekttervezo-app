@@ -678,7 +678,7 @@ function szMailsRemember(){clearTimeout(szMailsRemember._t);szMailsRemember._t=s
   const sid=(($('m-szClient')||{}).value||''),cl=(S.clients||[]).find(c=>c.id===sid)||(S.clients||[]).find(c=>String(c.name||'').trim().toLowerCase()===nm.toLowerCase());
   const v=list.join(',');if(!cl||v===(cl.billEmail||''))return;cl.billEmail=v;saveClientRec(Object.assign({},cl,{oldName:'',billEmail:v})).catch(()=>{});},600);}
 document.addEventListener('change',e=>{if(e.target&&e.target.name==='bEmail'&&e.target.closest('#sz-mails'))szMailsRemember();});
-ACT['sz-due']=b=>{const i=$('m-due');if(!i)return;i.value=addDays(todayISO(),Number(b.dataset.n));document.querySelectorAll('.due-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));i.dispatchEvent(new Event('change',{bubbles:true}));};
+ACT['sz-due']=b=>{const i=$('m-due');if(!i)return;const v=addDays(todayISO(),Number(b.dataset.n));if(i._flatpickr)i._flatpickr.setDate(v,false);i.value=v;   /* a szép dátummező (flatpickr) is frissüljön */document.querySelectorAll('.due-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));i.dispatchEvent(new Event('change',{bubbles:true}));};
 document.addEventListener('input',e=>{if(e.target.id==='m-due')document.querySelectorAll('.due-chip').forEach(x=>x.setAttribute('aria-pressed','false'));});
 
 /* Saját marketing projekt be/ki */
