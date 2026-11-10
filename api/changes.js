@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "612a0a015a",
+"at": "2026-11-10T11:35:02+02:00",
+"msg": "Mai projektek piros keretben, a keret tetején a MA jelölővel"
+},
+{
 "id": "abc20f3190",
 "at": "2026-11-10T11:08:41+02:00",
 "msg": "Számla: a teljesítés dátuma alapból a rendezvény (utolsó) napja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Összeg-mezők: számolás is beírható (+ − × ÷), Enterre / kilépéskor kiszámolódik"
 },
 {
-"id": "b6f1c808e5",
-"at": "2026-11-09T21:22:01+02:00",
-"msg": "Bevételek: a szervezői jutalék az Értékesítés oszlopba kerül, nem a Termelésbe"
-},
-{
-"id": "36f4a4732c",
-"at": "2026-11-09T19:19:22Z",
+"id": "c5e26a331d",
+"at": "2026-11-09T19:22:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
