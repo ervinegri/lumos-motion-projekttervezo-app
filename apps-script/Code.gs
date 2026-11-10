@@ -89,7 +89,7 @@ const TABLES = {
   finInvoice: { tab: 'Számlák', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['no', 'Számlaszám'], ['kind', 'Típus (szamla / dijbekero)'], ['projectId', 'Projekt azonosító'], ['incomeId', 'Bevételi sor azonosító'],
     ['buyer', 'Vevő'], ['date', 'Kelt'], ['due', 'Fizetési határidő'], ['invNet', 'Nettó (Ft)'], ['invGross', 'Bruttó (Ft)'], ['invPaid', 'Kifizetve (Ft)'],
-    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító'], ['manual', 'Kézi rögzítés (1)'], ['issuer', 'Kiállító (kft / ev)'], ['fileUrl', 'Bizonylat fájl (link)']] },
+    ['paidAt', 'Kifizetés dátuma'], ['payMethod', 'Fizetési mód'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['checkedAt', 'Utoljára ellenőrizve'], ['note', 'Megjegyzés'], ['items', 'Tételek (JSON)'], ['ref', 'Kapcsolódó bizonylat'], ['projectIds', 'További projektek (közös számla)'], ['tigId', 'TIG azonosító'], ['manual', 'Kézi rögzítés (1)'], ['issuer', 'Kiállító (kft / ev)'], ['fileUrl', 'Bizonylat fájl (link)'], ['advType', 'Előleg típusa (elolegszamla = levonható előlegszámla / szamla = díjbekérő alapján sima számla)']] },
   finTig: { tab: 'Teljesítésigazolások', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['client', 'Ügyfél'], ['month', 'Hónap'], ['issuer', 'Szolgáltató'], ['projectIds', 'Projektek'], ['rows', 'Tételek (JSON)'], ['total', 'Összesen (nettó Ft)'],
     ['url', 'PDF (link)'], ['fileName', 'Fájlnév'], ['status', 'Állapot (kikuldve / jovahagyva / szamlazva)'], ['approvedAt', 'Jóváhagyva'], ['invoiceNo', 'Számlaszám'], ['createdAt', 'Rögzítve'], ['createdBy', 'Rögzítette'], ['clientAddress', 'Megrendelő címe'], ['clientTax', 'Megrendelő adószáma'], ['fileId', 'Drive-fájl azonosító'], ['sentAt', 'E-mailben elküldve'], ['sentTo', 'Címzett']] },
@@ -2361,6 +2361,7 @@ function szParseQuery_(body, no, withPdf) {
   const out = { no: xmlText_(alap, 'szamlaszam') || no, tipus: xmlText_(alap, 'tipus'), date: xmlText_(alap, 'kelt').slice(0, 10), due: xmlText_(alap, 'fizh').slice(0, 10),
     payMethod: xmlText_(alap, 'fizmod'), buyer: vevo ? xmlText_(vevo, 'nev') : '', invNet: tot ? nr(xmlText_(tot, 'netto')) : 0, invGross: tot ? nr(xmlText_(tot, 'brutto')) : 0,
     invPaid: paid, paidAt: paidAt, fromDijbekero: xmlText_(alap, 'hivdijbekszam') };
+  out.advReal = /^(true|1|igen)$/i.test(xmlText_(alap, 'elolegszamla'));   // valódi (végszámlán levonható) előlegszámla – a „SZÁMLA A … DÍJBEKÉRŐ ALAPJÁN” sima számla
   // típus felismerése: a számlázz.hu jelzői, a sorszám, végül a tételek szövege (foglaló / előleg / végszámla)
   const flag = t => /^(true|1|igen)$/i.test(xmlText_(alap, t)), names = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).join(' ') + ' ' + xmlText_(alap, 'megjegyzes');
   out.kind = flag('dijbekero') || /^D-/i.test(out.no) || /^D/i.test(out.tipus) ? 'dijbekero' : flag('elolegszamla') || /^E/i.test(out.tipus) ? 'eloleg' : flag('vegszamla') ? 'vegszamla'
@@ -2464,7 +2465,7 @@ function szInvoice_(u, a) {
     const k = xmlText_(doc, 'kintlevoseg'); if (k !== '') open = Number(k); url = r.dec(xmlText_(doc, 'vevoifiokurl')) || url;
   } catch (e) { if (/számlázz\.hu hiba/.test(String(e.message))) throw e; }
   if (!no) throw new Error('A számlázz.hu nem adott vissza számlaszámot: ' + r.body.slice(0, 200));
-  const row = { id: Utilities.getUuid(), no: no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: buyer.name, date: today, due: due,
+  const row = { id: Utilities.getUuid(), no: no, kind: kind, advType: kind === 'eloleg' ? 'elolegszamla' : '', projectId: tg.projectId, incomeId: tg.incomeId, buyer: buyer.name, date: today, due: due,
     invNet: Math.round(net) || items.reduce((s, x) => s + x.net, 0), invGross: Math.round(gross) || items.reduce((s, x) => s + x.gross, 0), invPaid: 0, paidAt: '', payMethod: payMethod,
     createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: url ? 'Vevői fiók: ' + url : '',
     items: JSON.stringify(items.map(x => ({ name: x.name, qty: x.qty, unit: x.unit, price: x.price, vat: x.vat }))), ref: dijbekeroNo || elolegNo,
@@ -2500,7 +2501,7 @@ function szLink_(u, a) {
   const advSlot = a.slot === 'dijbekero' || a.slot === 'eloleg';
   if (kind === 'szamla' && advSlot) kind = 'eloleg';   // a Díjbekérő helyére tett rendes számla = előre kiállított (foglaló)számla
   if (kind === 'szamla' && !advSlot && tg.projectId && readAll_('finInvoice').some(x => invHasProj_(x, tg.projectId) && (x.kind === 'eloleg' || x.kind === 'dijbekero'))) kind = 'vegszamla';   // foglaló után a sima számla a végszámla
-  const row = { id: Utilities.getUuid(), no: q.no, kind: kind, projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
+  const row = { id: Utilities.getUuid(), no: q.no, kind: kind, advType: kind === 'eloleg' ? (q.advReal ? 'elolegszamla' : 'szamla') : '', ref: kind === 'eloleg' && q.fromDijbekero ? q.fromDijbekero : '', projectId: tg.projectId, incomeId: tg.incomeId, buyer: q.buyer, date: q.date, due: q.due,
     invNet: q.invNet, invGross: q.invGross, invPaid: q.invPaid, paidAt: q.paidAt, payMethod: q.payMethod, createdAt: now_(), createdBy: u.name, checkedAt: now_(), note: '',
     projectIds: tg.projectId ? szExtraProjects_(a, tg.projectId) : '', tigId: str_(a && a.tigId, 64) };
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: row.no }); dbFlush_(); });
@@ -2667,7 +2668,8 @@ function szSync_(u, a) {
   const started = Date.now(), all = readAll_('finInvoice');
   const ids = a && a.id ? [str_(a.id, 64)] : null;
   const noAdv = x => x.kind === 'dijbekero' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no) && String(x.checkedAt || '') < new Date(Date.now() - 3 * 3600e3).toISOString() && (!x.paidAt || String(x.paidAt).slice(0, 10) >= new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10));   // csak a kifizetés utáni 3 napban   // kifizetett díjbekérő, amelyhez még nincs foglalószámla (3 óránként újra megnézzük)
-  const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1 || noAdv(x)))
+  const advUnk = x => x.kind === 'eloleg' && !x.advType;   // régi foglalószámla: egyszer lekérdezzük, valódi előlegszámla-e, és ha díjbekérő alapján készült, a díjbekérő is bekerül
+  const todo = all.filter(x => !x.manual && (ids ? ids.indexOf(x.id) >= 0 : (Number(x.invPaid) || 0) < (Number(x.invGross) || 0) - 1 || noAdv(x) || advUnk(x)))
     .sort((x, y) => String(x.checkedAt).localeCompare(String(y.checkedAt))).slice(0, 25);
   const changed = [], errors = [], created = [];
   todo.forEach(x => {
@@ -2682,6 +2684,11 @@ function szSync_(u, a) {
         q = { invPaid: Number(x.invGross) || o.invGross, paidAt: o.paidAt || o.date, invGross: x.invGross, invNet: x.invNet, due: x.due };
       }
       if (x.kind === 'dijbekero' && (Number(q.invPaid) || 0) >= (Number(q.invGross || x.invGross) || 0) - 1 && !all.some(y => y.ref === x.no)) { try { const o2 = szAdvFor_(x); if (o2 && o2.kind !== 'dijbekero') szAddAdvance_(all, x, o2, created); } catch (eA) { } }   // a kifizetett díjbekérőből készült foglalószámla is bekerül
+      if (x.kind === 'eloleg' && q.no) { x.advType = q.advReal ? 'elolegszamla' : 'szamla';
+        if (q.fromDijbekero && !x.ref) x.ref = q.fromDijbekero;
+        if (q.fromDijbekero && !all.some(y => y.no === q.fromDijbekero) && !created.some(y => y.no === q.fromDijbekero)) { const r0 = { id: Utilities.getUuid(), no: q.fromDijbekero, kind: 'dijbekero', projectId: x.projectId, incomeId: x.incomeId, buyer: x.buyer || q.buyer, date: '', due: '', invNet: q.invNet || x.invNet, invGross: q.invGross || x.invGross,
+            invPaid: q.invGross || x.invGross, paidAt: q.paidAt || x.paidAt, payMethod: q.payMethod || '', createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A ' + x.no + ' számlából (a díjbekérő alapján készült)', items: '', ref: x.no, projectIds: x.projectIds || '', manual: '1', advType: '' };
+          created.push(r0); all.push(r0); } }   // a díjbekérő is bekerül (kifizetettként, a számlázz.hu már nem adja vissza)
       const was = Number(x.invPaid) || 0;
       Object.assign(x, { invPaid: q.invPaid, paidAt: q.paidAt || x.paidAt, invGross: q.invGross || x.invGross, invNet: q.invNet || x.invNet, due: q.due || x.due, checkedAt: now_() });
       x._dirty = true; if (q.invPaid !== was) changed.push(x);
@@ -2714,7 +2721,7 @@ function szSameBuyer_(a, b) { const n = v => String(v || '').toLowerCase().norma
 function szAddAdvance_(all, db, q, out) {
   if (!q || !q.no || all.some(x => x.no === q.no) || out.some(x => x.no === q.no)) return;
   const r = { id: Utilities.getUuid(), no: q.no, kind: 'eloleg', projectId: db.projectId, incomeId: db.incomeId, buyer: q.buyer || db.buyer, date: q.date, due: q.due, invNet: q.invNet, invGross: q.invGross,
-    invPaid: q.invPaid || q.invGross, paidAt: q.paidAt || q.date, payMethod: q.payMethod, createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A díjbekérő kifizetése után automatikusan', items: '', ref: db.no, projectIds: db.projectIds || '' };
+    invPaid: q.invPaid || q.invGross, paidAt: q.paidAt || q.date, payMethod: q.payMethod, createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A díjbekérő kifizetése után automatikusan', items: '', ref: db.no, projectIds: db.projectIds || '', advType: q.advReal ? 'elolegszamla' : 'szamla' };
   out.push(r); all.push(r);
 }
 function szPdf_(u, a) {

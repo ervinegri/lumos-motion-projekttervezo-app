@@ -383,7 +383,8 @@ function szPreset(type,kind,id){const t=szTargetInfo(kind,id);if(!t)return {name
   if(type==='eloleg')return {name:'Foglaló – '+(t.item||t.name),price:db?num(db.invNet):Math.round(t.net*pct/100)};
   const ex=(t.extras||[]).filter(x=>num(x.amount)>0),split=ex.length?[{name:t.item||t.name,qty:1,price:t.base,pid:kind==='project'?id:''},...ex.map(x=>exSign(x)<0?{name:'Kedvezmény: '+(x.name||'jutalék'),qty:1,price:-num(x.amount)}:{name:'Extra: '+(x.name||'szolgáltatás'),qty:1,price:num(x.amount)})]:null;
   if(type==='vegszamla')return {name:t.item||t.name,price:t.net,items:split};
-  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);return {name:t.item||t.name,price:Math.max(0,t.net-done),items:done?null:split};}
+  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||(x.kind==='eloleg'&&x.advType==='szamla')).reduce((s,x)=>s+num(x.invNet),0);   /* a díjbekérő alapján kiállított (sima) előleg-számla is már kiszámlázott rész */
+  return {name:(t.item||t.name)+(done?' – fennmaradó rész':''),price:Math.max(0,t.net-done),items:done?null:split};}
 const SZ_HINT={dijbekero:'A díjbekérő nem számla, nem kerül a NAV-hoz. Ha a számlázz.hu-ban be van kapcsolva az automatikus számlázás, a kifizetése után magától elkészül a foglalószámla.',
   eloleg:'Foglalószámla a már beérkezett foglalóról – fizetettként kerül kiállításra.',vegszamla:'A végszámla a teljes összegről szól; a számlázz.hu a projekthez tartozó foglalószámlát (rendelésszám alapján) levonja, a vevő csak a különbözetet fizeti.',
   szamla:'Egyetlen számla a teljes (vagy a még nem számlázott) összegről.'};
@@ -402,8 +403,8 @@ function szInvoiceModal(kind,id,o={}){
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
   const type=o.type||'szamla',pre=szPreset(type,kind,id),inv=invFor(kind,id);
-  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);
-  const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg').pop();S._szElRow=elRow||null;
+  const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||(x.kind==='eloleg'&&x.advType==='szamla')).reduce((s,x)=>s+num(x.invNet),0);
+  const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg'&&x.advType!=='szamla').pop();S._szElRow=elRow||null;   /* csak a valódi előlegszámla vonható le a végszámlán */
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
   setTimeout(szBuyerLock,40);
   openModal((SZ_KIND[type]||'Számla')+' kiállítása – '+t.name,`<div class="fields">

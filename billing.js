@@ -38,7 +38,7 @@ const tigList=()=>((S.fin&&S.fin.tigs)||[]);
 const tigPids=t=>String(t.projectIds||'').split(',').filter(Boolean);
 const tigOf=pid=>tigList().filter(t=>t.status!=='szamlazva'&&tigPids(t).includes(pid)).pop()||null;
 /* A következő kiállítandó bizonylat típusa */
-function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=billInfo(p);if(i.b.mode==='egyben')return 'szamla';if(!i.db&&!i.el)return 'dijbekero';if(i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref)return 'eloleg';return 'vegszamla';}
+function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=billInfo(p);if(i.b.mode==='egyben')return 'szamla';if(!i.db&&!i.el)return 'dijbekero';if(i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref)return 'eloleg';return i.el&&i.el.advType==='szamla'?'szamla':'vegszamla';}   /* díjbekérő alapján készült sima számla után a maradékról sima számla (nincs mit levonni) */
 
 function invLine(x,label){if(!x)return '';const s=invState(x);
   const st=s==='paid'?`<span class="statuspill p-ok">✅ Fizetve${x.paidAt?' '+fmtMD(x.paidAt):''}</span>`:s==='part'?`<span class="info-txt">Részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">⚠ Lejárt ${fmtMD(x.due)}</span>`:`<span class="bad-txt">Fizetésre vár${x.due?' · '+fmtMD(x.due):''}</span>`;
@@ -105,7 +105,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};if(o.finAllG){const seen={},u
       :elFirst?`${bsSent('Foglalószámla',i.el).replace('Foglalószámla elküldve','Foglalószámla kiállítva')}${bsPaidStep(i.el)}<div class="bs-x bs-ref">díjbekérő: <button class="bl-no" type="button" data-action="sz-inv-db" data-id="${esc(i.db.id)}">${esc(i.db.no)}</button>${i.db.date?' ('+fmtMD(i.db.date)+')':''}</div>`
       :`${bsSent(i.db?'Díjbekérő':'Foglalószámla',i.db||i.el)}${bsPaidStep(i.el&&invPaidOk(i.el)?i.el:i.db||i.el)}${i.el&&i.db?`<div class="bs-x">Foglalószámla: <button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(i.el.id)}">${esc(i.el.no)}</button></div>`:''}${i.db&&invPaidOk(i.db)&&!i.el&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''}`,skipA,!!dx,'Nem kell díjbekérő?');
   // Végszámla
-  const finT=skipA?'Számla':'Végszámla',fx=i.fin,grp=o.group&&o.group.length>1?o.group:null;
+  const finT=skipA||(i.el&&i.el.advType==='szamla')?'Számla':'Végszámla',fx=i.fin,grp=o.group&&o.group.length>1?o.group:null;
   // végszámla = végső érték (szerződött + extrák) − a ténylegesen kiszámlázott foglaló (ennek hiányában a foglaló %-a a szerződött összegből)
   const advNet=i.el?num(i.el.invNet):i.db?num(i.db.invNet):0,finDue=grp?grp.reduce((s,x)=>s+projTotal(x.p),0):skipA?tot:Math.max(0,tot-(dx?advNet:Math.round(val*num(b.advancePct)/100)));
   const finCalc=!skipA&&!fx&&tot&&(ex||dx)?`<div class="bs-x">${extrasOf(p).length?exBreak(p).replace('szerződött ',''):ftFmt(tot)} − foglaló ${ftFmt(dx?advNet:Math.round(val*num(b.advancePct)/100))}</div>`:'';
