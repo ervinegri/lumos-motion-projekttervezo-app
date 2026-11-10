@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "63146f7830",
+"at": "2026-11-10T15:33:03+02:00",
+"msg": "Árkalkulátor gomb: sötét tintaszín"
+},
+{
 "id": "c1b6604b2d",
 "at": "2026-11-10T15:31:52+02:00",
 "msg": "Árkalkulátor: a végösszeg a gombsorban, az Eredmény beküldése mellett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetés-értesítés: a projektek külön sorban"
 },
 {
-"id": "63303f9c1e",
-"at": "2026-11-10T13:09:24+02:00",
-"msg": "Kifizetés-értesítés: közös számlánál minden projekt neve látszik"
-},
-{
-"id": "d1c244ff8b",
-"at": "2026-11-10T11:05:04Z",
+"id": "22ca2597fd",
+"at": "2026-11-10T11:09:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
