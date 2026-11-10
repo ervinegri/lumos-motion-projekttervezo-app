@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e66912649c",
+"at": "2026-11-11T00:55:41+01:00",
+"msg": "Értékesítés: Díjbekérő kifizetve oszlop (kifizetett díjbekérő / számla alapján magától)"
+},
+{
 "id": "6e80dfc72e",
 "at": "2026-11-11T00:53:46+01:00",
 "msg": "Ügyfél jóváhagyására vár: hozzászólás-mező mindenkinél eltűnik, a módosítási kérés külön ablakban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor végösszeg: látványosabb címke"
 },
 {
-"id": "63146f7830",
-"at": "2026-11-10T15:33:03+02:00",
-"msg": "Árkalkulátor gomb: sötét tintaszín"
-},
-{
-"id": "0ea1206aef",
-"at": "2026-11-10T13:32:05Z",
+"id": "07fa79f31b",
+"at": "2026-11-10T13:33:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
