@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7526544bfc",
+"at": "2026-11-10T15:29:32+02:00",
+"msg": "Árkalkulátor: a gombok jobbra, a Bezárás mellé"
+},
+{
 "id": "a5c2aade44",
 "at": "2026-11-10T15:27:34+02:00",
 "msg": "Árkalkulátor: Visszaállítás és Eredmény beküldése a Bezárás mellett, egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatársi dokumentumok: átnevezés, értelmes megnevezés a fájlnévből (EV-igazolás, kamarai igazolás), Gmail-begyűjtés nem keres a saját postafiók címével"
 },
 {
-"id": "1de05be3d3",
-"at": "2026-11-10T12:59:16+02:00",
-"msg": "Mai keret: a sarkok kitöltve"
-},
-{
-"id": "5bc208c49b",
-"at": "2026-11-10T10:54:57Z",
+"id": "0a1716abcf",
+"at": "2026-11-10T10:59:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
