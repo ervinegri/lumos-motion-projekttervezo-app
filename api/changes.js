@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bf227cfc2f",
+"at": "2026-11-10T11:38:03+02:00",
+"msg": "Mai projektek kerete lekerekített sarkokkal"
+},
+{
 "id": "612a0a015a",
 "at": "2026-11-10T11:35:02+02:00",
 "msg": "Mai projektek piros keretben, a keret tetején a MA jelölővel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: szerepválasztó a saját legördülővel; új operatőr-altípusok (Kreatív, Statív, Interjúsarok)"
 },
 {
-"id": "22582cc41e",
-"at": "2026-11-09T21:30:44+02:00",
-"msg": "Összeg-mezők: számolás is beírható (+ − × ÷), Enterre / kilépéskor kiszámolódik"
-},
-{
-"id": "c5e26a331d",
-"at": "2026-11-09T19:22:11Z",
+"id": "ad7262b8d6",
+"at": "2026-11-09T19:30:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
