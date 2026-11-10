@@ -152,7 +152,7 @@ function api_(raw) {
     let data;
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
-    else if (fn === 'clientInfo') data = clientInfo_(args[0]);   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
+    else if (fn === 'clientInfo') data = clientInfo_(args[0], args[1] !== 'preview');   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') data = clientDecide_(args[0], args[1], args[2]);
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
@@ -864,7 +864,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
-    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), cn: x && x.cn ? 1 : 0,
+    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
@@ -989,14 +989,14 @@ function videoClient_(u, a) {
   videoSet_(u, { projectId: pid, id: vid, st: 'leadva' });
   let p, v;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
-    if (v) { v.link = link; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
+    if (v) { v.link = link; v.seenAt = ''; v.seenLast = ''; v.seenN = 0; v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const live = clientMailLive_(), sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
   if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
   const tk = d => FRONTEND_URL + '/jovahagyas.html?t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to })) + '&d=' + d;
   const pageUrl = tk('').replace(/&d=$/, '');   // egyetlen link: a jóváhagyó oldal (ott nézi meg a videót, és ott dönt)
   text = text.split(link).join(pageUrl); if (text.indexOf(pageUrl) < 0) text = text + '\n\n' + pageUrl;
-  const btn = '<a href="' + escapeHtml_(pageUrl) + '" style="display:inline-block;background:#111;color:#fff;text-decoration:none;font-weight:bold;padding:11px 20px;border-radius:9px">▶ Videó megnézése és jóváhagyása</a>';
+  const btn = '<a href="' + escapeHtml_(pageUrl) + '" style="display:inline-block;background:#1d2a38;color:#ffffff;text-decoration:none;font-family:Montserrat,Arial,sans-serif;font-weight:600;font-size:15px;line-height:1;padding:14px 23px 14px 17px;border-radius:10px;border:1px solid #3b4a5c;border-left:4px solid #f7b23b"><span style="color:#f7b23b">&#9654;</span>&nbsp;&nbsp;Videó megnézése és jóváhagyása</a>';   // Lumos tinta + fénycsík (a vékony keret sötét módban is kirajzolja a gombot)
   const sig = signatureFor_(u), html = text.split(/\n/).map(l => l.trim() === pageUrl ? btn : escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
   const subj = (live ? '' : '[TESZT – valójában neki: ' + to + '] ') + (str_(a.subject, 200).trim() || ('Elkészült: ' + (v ? v.name : 'videó') + ' – ' + p.name));
   let mail = false; try { mail = gmailSend_(sendTo, subj, text + (sig ? '\n\n' + sig.text : ''), { htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + html + '</div>' + (sig ? '<br>' + sig.html : ''), name: u.name || 'Lumos Motion' }); } catch (e) { Logger.log('Ügyfél e-mail hiba: ' + e); }
@@ -1018,7 +1018,14 @@ function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p
 function wmActive_(p) { const b = readAll_('finBilling').find(x => x.projectId === p.id), w = String((b && b.watermark) || '');
   const sales = String(p.id || '').indexOf('sales-') === 0 || /Forrás: Sales App/.test(String(p.notes || ''));
   return (w === '1' || (w !== '0' && sales)) && p.payStatus !== 'teljes'; }
-function clientInfo_(t) { const o = clientTokenRead_(t), r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
+/* Megnyitotta-e az ügyfél: a jóváhagyó oldal betöltésekor (amíg jóváhagyásra vár) feljegyezzük – első és utolsó megnyitás, darabszám */
+function clientSeen_(o) {
+  try { withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v);
+    if (!v || v.st !== 'leadva') return; const t = now_(), first = !v.seenAt; v.seenAt = v.seenAt || t; v.seenLast = t; v.seenN = (Number(v.seenN) || 0) + 1;
+    if (first) v.cm = (v.cm || []).concat([{ by: clientFirst_(p, String(o.c || '').split(',')[0]), at: t, t: '👁️ Megnyitotta a jóváhagyó oldalt', ts: '' }]).slice(-100);
+    p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); } catch (e) { Logger.log('clientSeen_: ' + e); }
+}
+function clientInfo_(t, seen) { const o = clientTokenRead_(t); if (seen) clientSeen_(o); const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
   return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
