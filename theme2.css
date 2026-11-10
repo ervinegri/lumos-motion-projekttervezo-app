@@ -583,3 +583,5 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .pt-tf-ov{position:absolute;border:3px solid #d63c2f;border-radius:14px;pointer-events:none;z-index:4;box-sizing:border-box}
 .pt-tf-ov .pt-tf-pill{position:absolute;left:14px;top:-12px;background:#d63c2f;color:#fff;font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:3px 11px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(214,60,47,.3);line-height:1.35}
 .pt-tf-ov .pt-tf-pill .pt-clock{color:#fff;opacity:.9;font-variant-numeric:tabular-nums}
+/* több elemet választó legördülő: a kereső teljes szélességű (a pipák 16 px-es szabálya ne vonatkozzon rá) */
+.msel-pop input.msel-q{width:100%;height:auto;min-height:40px;box-sizing:border-box;accent-color:auto}
