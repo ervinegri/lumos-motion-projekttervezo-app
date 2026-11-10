@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1b2391f0e2",
+"at": "2026-11-10T13:45:49+02:00",
+"msg": "Kameraszög pipája kivehető: az automatikus kitöltés csak operatőr- vagy kameraváltozáskor jelöl be új szöget"
+},
+{
 "id": "9a91a8900b",
 "at": "2026-11-10T13:44:32+02:00",
 "msg": "Közeli kamera: szerény + gomb a sorban, külön sor nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Végszámla előnézet: a foglalószámla levonása és a valódi fizetendő összeg; figyelmeztetés, ha nincs foglalószámla"
 },
 {
-"id": "e06bda0b6d",
-"at": "2026-11-10T10:41:51+02:00",
-"msg": "Csengő: egy befizetés csak egyszer (díjbekérő + foglalószámla összevonva), rövid ügyfélnév"
-},
-{
-"id": "35394dd0bd",
-"at": "2026-11-10T08:37:30Z",
+"id": "791e20981b",
+"at": "2026-11-10T08:42:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
