@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "faa1b6cb8b",
+"at": "2026-11-10T15:37:37+02:00",
+"msg": "Árkalkulátor ablak: pontos magasság a képernyőhöz"
+},
+{
 "id": "3e58923f9d",
 "at": "2026-11-10T15:37:00+02:00",
 "msg": "Árkalkulátor ablak: nagyításnál sem vágódik le a gombsor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előadásrögzítés: több közeli kamera termenként, mindegyik saját sorban, saját operatőrrel és eszközzel"
 },
 {
-"id": "696acc0a4e",
-"at": "2026-11-10T13:24:53+02:00",
-"msg": "Beosztó levél: helyszíni feladat (terem, kameraszög, eszköz), a vágnivaló tételei külön sorban"
-},
-{
-"id": "25b0b5be35",
-"at": "2026-11-10T11:16:34Z",
+"id": "423ccdfba5",
+"at": "2026-11-10T11:25:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
