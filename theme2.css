@@ -571,3 +571,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .due-chips .due-chip:hover{background:#f3f6f8;color:var(--ink)}
 .due-chips .due-chip[aria-pressed="true"]{background:var(--ink,#101923)!important;color:#fff!important}
 .due-chips .due-chip:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)!important}
+.bs-ref{opacity:.7;font-size:12px;margin-top:4px}.bs-ref .bl-no{font-weight:500}
