@@ -631,3 +631,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 #modalRoot .mbox.mbox-ark .ark-frame{flex:1 1 auto;min-height:0;height:auto!important}
 #modalRoot .mbox.mbox-ark .mhead,#modalRoot .mbox.mbox-ark .mfoot{flex:none}
 #modalRoot .mbox.mbox-ark .mfoot{position:static;flex-wrap:wrap;row-gap:8px}
+.ark-total.flash{animation:none}.ark-total b{display:inline-block;min-width:9.5ch;text-align:right;font-variant-numeric:tabular-nums}
