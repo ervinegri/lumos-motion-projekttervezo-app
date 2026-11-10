@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8f12a7cb31",
+"at": "2026-11-10T15:16:37+02:00",
+"msg": "Értékesítés: Árkalkulátor gomb (kalkulator.lumosmotion.hu nagy ablakban), az Új lehetőség mellett balra"
+},
+{
 "id": "516a427723",
 "at": "2026-11-10T15:14:50+02:00",
 "msg": "Nyitott videótábla is frissül, ha közben változás jön (pl. ügyfél-jóváhagyás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerepek legördülő: teljes szélességű kereső, megnyitáskor a lista tetejéről indul"
 },
 {
-"id": "3c50616412",
-"at": "2026-11-10T12:49:05+02:00",
-"msg": "Mai projektek kerete rárajzolt rétegként, a táblázat elrendezése változatlan"
-},
-{
-"id": "aa66b69b0c",
-"at": "2026-11-10T10:46:55Z",
+"id": "37e6668eaa",
+"at": "2026-11-10T10:49:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
