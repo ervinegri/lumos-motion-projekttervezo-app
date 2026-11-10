@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "31fdab550a",
+"at": "2026-11-10T10:07:11+02:00",
+"msg": "Kifizetések: a Sales App díjbekérőit a rendelésszám (Sales-rendelés azonosító) alapján is megtalálja kifizetés után"
+},
+{
 "id": "27e1a07c77",
 "at": "2026-11-10T10:05:43+02:00",
 "msg": "Kifizetések: a számlázz.hu lekérdezése betöltéskor és 10 percenként magától (ügyvezető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a vágó díja is a projekt hónapjára számít; Sales megrendelőlapok rendelésenként (egy ügyfél több rendelése)"
 },
 {
-"id": "19490c371b",
-"at": "2026-11-09T18:31:34+02:00",
-"msg": "Értékesítés: szerződött lehetőség meglévő projekthez kapcsolható (nem jön létre másodpéldány)"
-},
-{
-"id": "4f7e21bdad",
-"at": "2026-11-09T16:14:18Z",
+"id": "a7bf556853",
+"at": "2026-11-09T16:31:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
