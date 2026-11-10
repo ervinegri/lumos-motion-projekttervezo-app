@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "374cb9fdb5",
+"at": "2026-11-10T10:35:47+02:00",
+"msg": "Szerződés és számlázás: kifizetés után a foglalószámla kerül előre, a díjbekérő halvány hivatkozás; díjbekérő nélküli foglalószámlánál „Foglalószámla” cím"
+},
+{
 "id": "c254dab57b",
 "at": "2026-11-10T10:32:32+02:00",
 "msg": "Bizonylatok: egységes fájlnév (Lumos Motion – Típus Számlaszám – Ügyfél.pdf), megnyitás névvel és Letöltés gombbal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Érték nélküli projektek (pl. Bussiness Bash) magától a Marketing költségbe; kiadás-táblázatok rácsos kinézete"
 },
 {
-"id": "11fc0f7593",
-"at": "2026-11-09T20:46:28+02:00",
-"msg": "Bevételek: százalékmezők visszavonása (⌘/Ctrl + Z, Esc)"
-},
-{
-"id": "aefb620104",
-"at": "2026-11-09T18:45:06Z",
+"id": "ef1162b0b7",
+"at": "2026-11-09T18:46:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
