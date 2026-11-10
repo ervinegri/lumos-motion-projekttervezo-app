@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c2c3ab5b4d",
+"at": "2026-11-10T10:28:40+02:00",
+"msg": "Számla ablak: fizetési határidő gyorsgombjai egy sorban, szegmentált vezérlőként"
+},
+{
 "id": "48aeae1566",
 "at": "2026-11-10T10:26:25+02:00",
 "msg": "Foglalószámla párosítás: csak ugyanannak a vevőnek a számlája (összeg + vevő egyezés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: a „nincs érték” jelölés lekerült, elég a Marketing projekt gomb"
 },
 {
-"id": "8a1a18b4ea",
-"at": "2026-11-09T20:44:40+02:00",
-"msg": "Bevételek: továbbszámlázott költség a Termelésbe, a százalékok nélküle; érték nélküli projekt költsége a marketingből"
-},
-{
-"id": "716dc98e67",
-"at": "2026-11-09T18:42:33Z",
+"id": "05bae53a68",
+"at": "2026-11-09T18:44:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
