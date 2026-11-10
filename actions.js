@@ -2286,7 +2286,7 @@ ACT['cl-nomail']=b=>{const li=$('m-clLink'),link=String(li&&li.value||'').trim()
   closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true,link});clAfter();};
 function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
 /* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
-const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}\n\nKöszönöm!';
+const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}';
 const clSubj=(p,v)=>{let t='';try{t=localStorage.getItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}return String(t||'Elkészült: {video} – {projekt}').replace(/\{video\}/g,v.name).replace(/\{projekt\}/g,p.name||'');};   /* a tárgy szerkezete is megmarad ügyfelenként */
 const clClient=p=>{const cn=String(p.client||'').trim().toLowerCase();return (S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn)||null;};
 /* Névelő: „a” vagy „az” a következő szó kiejtése szerint (magánhangzó, illetve 1, 5, 50… → „az”) */
@@ -2297,7 +2297,7 @@ const clFill=(t,o)=>fixArt(String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/
 function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=laneToUnder();window._clLane='';
   const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
   let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
-  const body=clFill((cl&&cl.vidMail)||lt||CL_TPL_DEF,o);
+  const body=clFill(String((cl&&cl.vidMail)||lt||CL_TPL_DEF).replace(/\n+\s*Köszönöm!?\s*$/,''),o);   // a szignó előtt nem kell „Köszönöm!” (a korábban mentett mintákból is lekerül)
   openModal('📤 Küldés az ügyfélnek jóváhagyásra',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>${S.clientMailLive?'':'<div class="banner warn" style="margin:0 0 12px"><p>🧪 <b>Tesztüzem:</b> a levél nem az ügyfélnek, hanem <b>neked</b> megy ki (a tárgyban látod, kinek szólna). Élesítés: szólj.</p></div>'}
     <div class="field full"><label>Kinek küldjük? <span class="muted">(több is választható)</span></label><div class="cl-pick">${CC.map((c,i)=>`<label class="cl-opt"><input type="checkbox" name="toPick" value="${esc(c.email)}"${i===0?' checked':''}> <span><b>${esc(c.name||c.email)}</b>${c.name?` <small>${esc(c.email)}</small>`:''}${c.tag?` <small class="muted">· ${esc(c.tag)}</small>`:''}</span></label>`).join('')||'<p class="hint" style="margin:0">Ehhez az ügyfélhez nincs elmentett e-mail cím – add meg alább.</p>'}</div>
       <input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px"></div>
