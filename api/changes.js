@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "af665392a6",
+"at": "2026-11-11T00:32:18+01:00",
+"msg": "Ügyfélnek küldés: csak vezető nyithatja; megszólítás zárójeles megjegyzés nélkül; új gomb az előnézetben"
+},
+{
 "id": "7a140a7668",
 "at": "2026-11-11T00:29:55+01:00",
 "msg": "Videólink csak Utómunka alatt állapotban (vagy belső ellenőrzésre küldéskor) adható meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: Enter a videón is időkódot szúr be (nem folytatja a lejátszást)"
 },
 {
-"id": "5bce6a6448",
-"at": "2026-11-10T14:43:57+02:00",
-"msg": "Ügyfél-levél: a „Köszönöm!” nem kerül a szignó elé"
-},
-{
-"id": "de2bbae930",
-"at": "2026-11-10T12:42:50Z",
+"id": "b95feb1637",
+"at": "2026-11-10T12:44:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
