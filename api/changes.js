@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cc3cc7dfaa",
+"at": "2026-11-11T00:03:56+01:00",
+"msg": "Havi naptár: Vágói határidők pipa (leadási határidők ki-be)"
+},
+{
 "id": "ac87587699",
 "at": "2026-11-10T23:51:59+01:00",
 "msg": "Videótábla ablak kisebb nagy monitoron"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előadásrögzítés: Helyszín elnevezés, a + egyszerűen új közeli kamera sort ad, helyszínenként egy operatőr"
 },
 {
-"id": "1b2391f0e2",
-"at": "2026-11-10T13:45:49+02:00",
-"msg": "Kameraszög pipája kivehető: az automatikus kitöltés csak operatőr- vagy kameraváltozáskor jelöl be új szöget"
-},
-{
-"id": "a61a8afb1b",
-"at": "2026-11-10T11:44:41Z",
+"id": "4c1cf39e7d",
+"at": "2026-11-10T11:45:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
