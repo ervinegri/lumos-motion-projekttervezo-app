@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ceec810fb0",
+"at": "2026-11-10T10:10:52+02:00",
+"msg": "Szerződés és számlázás: a bizonylat-kártya üres részére kattintva is megnyílik a bizonylat"
+},
+{
 "id": "31fdab550a",
 "at": "2026-11-10T10:07:11+02:00",
 "msg": "Kifizetések: a Sales App díjbekérőit a rendelésszám (Sales-rendelés azonosító) alapján is megtalálja kifizetés után"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél jóváhagyására: e-mail nélküli áthelyezésnél is kötelező a videó linkje"
 },
 {
-"id": "254b4acdd8",
-"at": "2026-11-09T20:28:20+02:00",
-"msg": "Kifizetések: a vágó díja is a projekt hónapjára számít; Sales megrendelőlapok rendelésenként (egy ügyfél több rendelése)"
-},
-{
-"id": "a7bf556853",
-"at": "2026-11-09T16:31:44Z",
+"id": "0ebb16dc9b",
+"at": "2026-11-09T18:31:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
