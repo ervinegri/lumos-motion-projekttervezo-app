@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "93d10ad203",
+"at": "2026-11-10T11:03:57+02:00",
+"msg": "Számla ablak: ha a foglaló sima számlán ment ki, végszámla helyett magától Számla a fennmaradó részről"
+},
+{
 "id": "0c28878df3",
 "at": "2026-11-10T11:01:16+02:00",
 "msg": "A „díjbekérő: …” sorra kattintva nem nyílik meg a számla"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélnek küldés: a díjösszesítőhöz hasonló, szerkeszthető levélelőnézet (fejléc, gomb, aláírás)"
 },
 {
-"id": "917b8a684e",
-"at": "2026-11-09T21:12:24+02:00",
-"msg": "Bevételek: az értékesítői jutalék díjsorként sem kerül a Termelésbe"
-},
-{
-"id": "6b651daf7f",
-"at": "2026-11-09T19:10:35Z",
+"id": "3edf5e788d",
+"at": "2026-11-09T19:12:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
