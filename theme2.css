@@ -562,3 +562,4 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .cmb-it.cmb-child{padding-left:30px}.cmb-it.cmb-child b{font-weight:600}.cmb-it.cmb-child::before{content:'↳';position:absolute;left:12px;color:var(--fg-3)}.cmb-it{position:relative}
 .cmb-it.cmb-par{display:flex;align-items:center}.cmb-it .cmb-caret{margin-left:auto;color:var(--fg-3);font-size:12px;padding-left:10px}
 .bell-toast.bt-pay .bt-ic{font-size:18px}#bellPop h4+h4,#bellPop .bell-it+h4,#bellPop p+h4{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.bs-box:has([data-action="sz-inv"]){cursor:pointer}.bs-box:has([data-action="sz-inv"]):hover{box-shadow:0 0 0 2px rgba(31,90,61,.15)}
