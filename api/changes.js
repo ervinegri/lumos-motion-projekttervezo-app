@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e2ee986314",
+"at": "2026-11-10T14:56:42+02:00",
+"msg": "Jóváhagyó oldal: a nyitókép a videó betöltéséig marad, lágy áttűnéssel; rákérdez, ha a videó nincs végignézve"
+},
+{
 "id": "df7c5bfa2e",
 "at": "2026-11-10T14:55:23+02:00",
 "msg": "Jóváhagyó oldal: döntéskor a videó megáll"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a mai nap előtt 5 nap is látszik megnyitáskor"
 },
 {
-"id": "77c5cf2c8e",
-"at": "2026-11-10T12:45:29+02:00",
-"msg": "Mai keret: az oszlopválasztó nem töri meg a piros vonalat"
-},
-{
-"id": "cdc3023d0f",
-"at": "2026-11-10T10:26:51Z",
+"id": "5b64cedb8e",
+"at": "2026-11-10T10:45:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
