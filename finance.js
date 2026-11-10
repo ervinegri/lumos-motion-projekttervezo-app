@@ -403,7 +403,7 @@ function szInvoiceModal(kind,id,o={}){
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
   const type=o.type||'szamla',pre=szPreset(type,kind,id),inv=invFor(kind,id);
   const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla').reduce((s,x)=>s+num(x.invNet),0);
-  const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg').pop();
+  const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg').pop();S._szElRow=elRow||null;
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
   setTimeout(szBuyerLock,40);
   openModal((SZ_KIND[type]||'Számla')+' kiállítása – '+t.name,`<div class="fields">
@@ -617,8 +617,11 @@ function szPreview(){const f=$('mform');if(!f||!$('sz-items'))return;const fd=ne
     <div class="meta"><div>Kelt<b>${d(todayISO())}</b></div><div>Teljesítés<b>${d(fd.get('fulfill'))}</b></div><div>Fizetési határidő<b>${d(fd.get('due'))}</b></div><div>Fizetési mód<b>${h(fd.get('payMethod'))}</b></div></div>
     <table><tr><th>Megnevezés</th><th class="r">Menny.</th><th class="r">Nettó egységár</th><th class="r">Nettó</th><th class="r">ÁFA</th><th class="r">Bruttó</th></tr>
     ${its.map(it=>{const n=Math.round(it.price*it.qty),v=Math.round(n*vr(it.vat)/100);return `<tr><td>${h(it.name)}</td><td class="r">${h(it.qty)} ${h(it.unit)}</td><td class="r">${ft(it.price)}</td><td class="r">${ft(n)}</td><td class="r">${/^\d+$/.test(it.vat)?it.vat+'%':h(it.vat)}</td><td class="r">${ft(n+v)}</td></tr>`;}).join('')}</table>
-    <div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div class="g"><span>Fizetendő</span><span>${ft(tot.gross)}</span></div></div>
-    ${k==='vegszamla'?'<div class="note">A végszámlából a számlázz.hu levonja a már kifizetett foglalót – a vevő a különbözetet fizeti.</div>':''}${k==='dijbekero'?'<div class="note">A díjbekérő nem számla; a kifizetés után foglalószámla készül róla.</div>':''}
+    ${(()=>{const el=k==='vegszamla'?S._szElRow:null;if(!el)return `<div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div class="g"><span>Fizetendő</span><span>${ft(tot.gross)}</span></div></div>${k==='vegszamla'?'<div class="note" style="color:#a33"><b>⚠ Ennél a projektnél nincs foglalószámla az appban</b> – a végszámla a teljes összegről szól, a vevő a teljes összeget fizeti. Ha volt foglaló, előbb hozd be (🔄 Kifizetések / „+ Foglalószámla”).</div>':''}`;
+      const eg=num(el.invGross),en=num(el.invNet)||Math.round(eg/1.27),pay=tot.gross-eg;
+      return `<div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div><span>Bruttó összesen</span><b>${ft(tot.gross)}</b></div>
+        <div style="color:#2e6b48"><span>Levonva: foglalószámla ${h(el.no)}</span><b>−${ft(eg)}</b></div><div style="font-size:11px;color:#777"><span>(ebből nettó ${ft(en)}, ÁFA ${ft(eg-en)})</span><span></span></div>
+        <div class="g"><span>Fizetendő</span><span>${ft(pay)}</span></div></div><div class="note">A számlázz.hu a végszámlán levonja a ${h(el.no)} foglalószámlát (${ft(eg)}) – a vevő csak a különbözetet, ${ft(pay)}-ot fizeti. A pontos megjelenést a számlázz.hu adja.</div>`;})()}${k==='dijbekero'?'<div class="note">A díjbekérő nem számla; a kifizetés után foglalószámla készül róla.</div>':''}
     ${fd.get('comment')?`<div class="note">${h(fd.get('comment'))}</div>`:''}<div class="wm">ELŐNÉZET – a végleges, sorszámozott bizonylatot a számlázz.hu állítja ki.</div></body></html>`;
   const box=$('sz-prev');if(box){box.innerHTML='<div class="tig-prev-h"><b>Előnézet</b> <span class="muted">– így kerül ki; ha minden rendben, „Tovább”</span></div><iframe class="tig-frame" title="Bizonylat előnézete" sandbox></iframe>';box.querySelector('iframe').srcdoc=html;if(!szPreview.noScroll)box.scrollIntoView({behavior:'smooth',block:'start'});}}
 ACT['sz-preview']=()=>szPreview();
