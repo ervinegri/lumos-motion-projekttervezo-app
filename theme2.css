@@ -678,3 +678,8 @@ html.th2 .bl-h3,html.th2 .bl-ttl,html.th2 .bl-ttl .bl-sub{align-items:center}
 @keyframes pinPulse{0%,100%{box-shadow:0 0 0 3px #2f6fdf,0 0 0 8px rgba(47,111,223,.22)}50%{box-shadow:0 0 0 3px #2f6fdf,0 0 0 12px rgba(47,111,223,.08)}}
 @media (prefers-reduced-motion:reduce){.vv-player.pin-mode{animation:none}}
 .vv-pin-btn.on{box-shadow:0 0 0 3px rgba(47,111,223,.25)}
+/* Értékesítés: 6 oszlop (új: „Díjbekérő kifizetve”) */
+html.th2 .dl-board{grid-template-columns:repeat(6,minmax(200px,1fr))}
+html.th2 .dl-fizetve .dl-colh{color:#1f6b3e}
+.dl-paid{color:#1f6b3e}
+@media (max-width:760px){html.th2 .dl-board{grid-template-columns:repeat(6,82%)}}

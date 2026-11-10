@@ -674,7 +674,9 @@ function dealsFor_(u) {
   const pids = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; });
   const all = readAll_('deals').filter(d => !d.projectId || pids[d.projectId]);
   const uc = {}; if (u.role === 'admin') loadUsers_().forEach(x => { uc[x.id] = { crewId: x.crewId || '', sales: x.role === 'sales' }; });
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  const adv = {}; try { readAll_('finInvoice').forEach(x => { const g = Number(x.invGross) || 0; if (!g || (Number(x.invPaid) || 0) < g - 1) return;   // kifizetett bizonylat (díjbekérő / foglaló / számla) → a lehetőség a „Díjbekérő kifizetve” oszlopba kerül
+    [x.projectId].concat(String(x.projectIds || '').split(',')).map(v => String(v).trim()).filter(Boolean).forEach(pid => { const d = String(x.paidAt || x.date || '').slice(0, 10) || 'x'; if (!adv[pid] || d < adv[pid]) adv[pid] = d; }); }); } catch (e) { }
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
