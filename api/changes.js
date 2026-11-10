@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fd49de5c05",
+"at": "2026-11-10T13:55:27+02:00",
+"msg": "Szövegmezők: a kézzel nagyobbra húzott méret gépeléskor / törléskor megmarad"
+},
+{
 "id": "eda7a12ee1",
 "at": "2026-11-10T13:51:37+02:00",
 "msg": "Előadásrögzítés: Helyszín elnevezés, a + egyszerűen új közeli kamera sort ad, helyszínenként egy operatőr"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetett (behozott) díjbekérőre kattintva a belőle készült számla nyílik meg; kiállító: Lumos Motion Kft."
 },
 {
-"id": "2574b4c336",
-"at": "2026-11-10T10:52:28+02:00",
-"msg": "Számlázás: díjbekérő alapján készült sima (előleg-)számla felismerése; a maradékról sima számla, nem végszámla; a díjbekérő is bekerül"
-},
-{
-"id": "65f72c93f5",
-"at": "2026-11-10T08:45:25Z",
+"id": "2549e11fb6",
+"at": "2026-11-10T08:52:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
