@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3c50616412",
+"at": "2026-11-10T12:49:05+02:00",
+"msg": "Mai projektek kerete rárajzolt rétegként, a táblázat elrendezése változatlan"
+},
+{
 "id": "3ee9f9b430",
 "at": "2026-11-10T12:46:43+02:00",
 "msg": "Idővonal: a mai nap előtt 5 nap is látszik megnyitáskor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Források: a P1–P3 prioritás megszűnt (szűrő, jelvény, adatlap mező, sorrend)"
 },
 {
-"id": "ed7d862a33",
-"at": "2026-11-10T10:03:09+02:00",
-"msg": "Értesítések: beérkezett kifizetések a csengőben (ügyvezető); Szerződés és számlázás: kereső bal oldalt"
-},
-{
-"id": "12ca22c4a9",
-"at": "2026-11-09T20:26:16Z",
+"id": "99528b35a0",
+"at": "2026-11-10T08:03:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
