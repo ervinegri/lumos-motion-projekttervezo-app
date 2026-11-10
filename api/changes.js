@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ee9f9b430",
+"at": "2026-11-10T12:46:43+02:00",
+"msg": "Idővonal: a mai nap előtt 5 nap is látszik megnyitáskor"
+},
+{
 "id": "77c5cf2c8e",
 "at": "2026-11-10T12:45:29+02:00",
 "msg": "Mai keret: az oszlopválasztó nem töri meg a piros vonalat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értesítések: beérkezett kifizetések a csengőben (ügyvezető); Szerződés és számlázás: kereső bal oldalt"
 },
 {
-"id": "f2a24a3f84",
-"at": "2026-11-09T22:26:05+02:00",
-"msg": "Vízjel a jóváhagyó lejátszón: projektenként pipálható, Sales App projektnél alapból be, teljes kifizetés után lekerül"
-},
-{
-"id": "3b28083dcf",
-"at": "2026-11-09T19:43:21Z",
+"id": "12ca22c4a9",
+"at": "2026-11-09T20:26:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
