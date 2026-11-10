@@ -4158,7 +4158,7 @@ function saveUsers_(users) {
   PropertiesService.getScriptProperties().setProperty(USERS_PROPERTY, json);
 }
 function publicUser_(u) {
-  const o = { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || '') };
+  const o = { id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || '') };   // a saját címe (levél-előnézet feladója, csengő)
   if (u.realRole) { o.realRole = u.realRole; o.viewAs = u.viewAs; }
   return o;
 }

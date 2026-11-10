@@ -703,7 +703,7 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
   const f=document.createElement('iframe');f.className='mail-frame';f.title='Díjösszesítő előnézet (szerkeszthető)';   // külön dokumentum: az app stílusai nem keverednek bele, pont úgy néz ki, mint a levélben
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+h+'</body></html>';
   const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
-  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._payEdit=S._payEdit||{};S._payEdit[k]=d.body.innerHTML;payEditMark();fit();const rb=$('pe-reset');if(rb){rb.disabled=false;rb.title='';}});});
+  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._payEdit=S._payEdit||{};S._payEdit[k]=d.body.innerHTML;payEditMark();fit();const rb=$('pe-reset');if(rb){rb.disabled=false;rb.title='';}});});
   box.appendChild(f);if(!payPreview._auto)setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);payPreview._auto=false;}
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
 document.addEventListener('input',e=>{const ed=e.target.closest&&e.target.closest('.mail-edit[data-pe]');if(!ed)return;S._payEdit=S._payEdit||{};S._payEdit[ed.dataset.pe]=ed.innerHTML;payEditMark();});
@@ -1251,7 +1251,7 @@ const ACT={
       S._invEdit='';const f=document.createElement('iframe');f.className='mail-frame';f.style.minHeight='260px';f.title='Meghívó előnézet (szerkeszthető)';
       f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:14px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+r.html+'</body></html>';
       const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
-      f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._invEdit=d.body.innerHTML;fit();});});
+      f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._invEdit=d.body.innerHTML;fit();});});
       box.querySelector('.inv-prev').appendChild(f);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-prev':b=>payPreview(b.dataset.month,b.dataset.cid,false),
@@ -2330,13 +2330,15 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.d
 function clHead(){const h=$('cl-head');if(!h)return;const fm=$('mform');const to=[...fm.querySelectorAll('[name=toPick]:checked')].map(x=>x.value).concat([String(($('m-clTo')||{}).value||'').trim()]).filter(Boolean).join(', ');
   h.innerHTML=`<div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(to||'(válassz címzettet)')}</div><div><span>Tárgy:</span> <b>${esc(String(($('m-clSubj')||{}).value||''))}</b></div>`;}
 const CL_BTN='<a data-vbtn="1" contenteditable="false" href="#" onclick="return false" style="display:inline-block;background:#111;color:#fff;text-decoration:none;font-weight:bold;padding:11px 20px;border-radius:9px;cursor:default">▶ Videó megnézése és jóváhagyása</a>';
+/* Az előnézetben a linkre / gombra kattintás ne navigáljon: a keret különben a saját oldalunkat töltené be, amit a CSP letilt („This content is blocked”) */
+const noNav=d=>d.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href]');if(a)e.preventDefault();},true);
 function clPrev(onlyBody){const box=$('cl-prev'),bd=$('m-clBody');if(!box||!bd)return;const link=String(($('m-clLink')||{}).value||'').trim();
   const lines=bd.value.split('\n');let has=false;const html=lines.map(l=>{if(link&&l.trim()===link){has=true;return CL_BTN;}return esc(l).replace(/(https?:\/\/\S+)/g,'<a href="#" onclick="return false">$1</a>');}).join('<br>')+(has||!link?'':'<br><br>'+CL_BTN);
   const old=box.querySelector('iframe');if(onlyBody&&old&&old.contentDocument&&old.contentDocument.getElementById('ed')){old.contentDocument.getElementById('ed').innerHTML=html;return;}
   box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='Ügyfél-levél előnézet (szerkeszthető)';
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124}#ed:focus{outline:none}#ed{min-height:80px}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'')+'</div></body></html>';
   const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
-  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;fit();setTimeout(fit,400);const ed=d.getElementById('ed');
+  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,400);const ed=d.getElementById('ed');
     ed.addEventListener('input',()=>{const c=ed.cloneNode(true),ln=String(($('m-clLink')||{}).value||'').trim();c.querySelectorAll('[data-vbtn]').forEach(x=>x.replaceWith(d.createTextNode(ln)));c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(d.createTextNode('\n'));});
       bd.value=c.textContent.replace(/ /g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
   box.appendChild(f);}
