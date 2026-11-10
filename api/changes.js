@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7cb31b1dd6",
+"at": "2026-11-11T00:41:11+01:00",
+"msg": "Videó hozzászólások: biztos időrendi (legfrissebb felül) sorrend bármilyen dátumformátumnál"
+},
+{
 "id": "c2358dec02",
 "at": "2026-11-11T00:40:21+01:00",
 "msg": "Videó hozzászólások: azonos komment nem jelenik meg kétszer"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor ablak: Megnyitás új lapon gomb nélkül"
 },
 {
-"id": "8f12a7cb31",
-"at": "2026-11-10T15:16:37+02:00",
-"msg": "Értékesítés: Árkalkulátor gomb (kalkulator.lumosmotion.hu nagy ablakban), az Új lehetőség mellett balra"
-},
-{
-"id": "b154496307",
-"at": "2026-11-10T13:15:04Z",
+"id": "42366cdb8b",
+"at": "2026-11-10T13:16:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
