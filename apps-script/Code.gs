@@ -1201,6 +1201,28 @@ function calEventLink_(ev) {   // a naptárbejegyzés megnyitása a Google Napt�
   try { if (typeof Calendar !== 'undefined' && Calendar.Events) { const x = Calendar.Events.get(CID, eid); if (x && x.htmlLink) return x.htmlLink; } } catch (e) {}
   return 'https://calendar.google.com/calendar/event?eid=' + Utilities.base64EncodeWebSafe(eid + ' ' + CID).replace(/=+$/, '');
 }
+/** A szakember helyszíni feladatai a beosztó levélbe: előadásrögzítés termenként (kameraszög + kamera / objektív), kreatív kamera, fotózás. */
+function siteTasks_(p, cid) {
+  const et = parseEditTasks_(p.editTasks), mine = et[cid] || [], out = [];
+  if (!mine.length) return out;
+  let inv = {}; try { readAll_('inventory').forEach(x => { inv[x.id] = x.name; }); } catch (e) { }
+  const RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése / kivetítése' };
+  const rooms = parseRooms_(p.recRooms) || [], recs = [];
+  rooms.forEach((r, i) => {
+    const legacy = i === 0 && Object.keys(RL).some(k => mine.indexOf('f_' + k) >= 0);
+    if (mine.indexOf('f_' + r.id + '_op') < 0 && !legacy && !Object.keys(RL).some(k => mine.indexOf('f_' + r.id + '_' + k) >= 0)) return;
+    const cs = Object.keys(RL).filter(k => Number(r[k]) > 0).map(k => {
+      const eq = (Array.isArray(r[k + '_eq']) ? r[k + '_eq'] : []).map(id => inv[id]).filter(Boolean), ln = (Array.isArray(r[k + '_lens']) ? r[k + '_lens'] : []).map(id => inv[id]).filter(Boolean);
+      const dev = eq.map((x, j) => x + (ln[j] ? ' + ' + ln[j] : '')).join(', ');
+      return RL[k] + (dev ? ' (' + dev + ')' : '');
+    });
+    if (cs.length) recs.push((rooms.length > 1 || r.name ? (i + 1) + '. terem' + (r.name ? ' – ' + r.name : '') + ': ' : '') + cs.join(', '));
+  });
+  if (recs.length) out.push(['Előadásrögzítés', recs.join('\n')]);
+  if (mine.indexOf('f_er_creative') >= 0 && p.er_creative === true) out.push(['Kreatív videózás', 'kreatív kamera']);
+  if (mine.indexOf('f_x_foto') >= 0 && p.x_foto === true) out.push(['Fotózás', Number(p.foto_db) > 0 ? p.foto_db + ' db fotó' : 'rendezvényfotózás']);
+  return out;
+}
 function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const sig = signatureFor_(u), sigText = sig ? sig.text : 'Üdvözlettel,\n' + ((u && u.name) || '') + '\nLumos Motion', sigHtml = sig ? sig.html : '<p>Üdvözlettel,<br>' + escapeHtml_((u && u.name) || '') + '<br>Lumos Motion</p>';   // a szignó azé, aki élesít
   cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
@@ -1208,15 +1230,16 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
     ['Kezdés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
     ['Projektvezető', lead && lead.id !== m.id ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);   // a projektvezető a saját levelében nem kapja meg a saját nevét / számát
+  siteTasks_(p, m.id).forEach(t => rows.push(t));   // helyszíni feladat: melyik teremben, milyen kameraszöggel, milyen eszközzel
   const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)
-  if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join(', ')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
+  if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join('\n')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
   if (postOnly_(p, m.id)) { const pn = parseNotes_(p.crewNotes)[m.id]; if (pn) rows.push(['Neked szóló megjegyzés', String(pn)]); }   // nem kap eszközlistát: a személyes jegyzet ide kerül
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
   const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
   const text = ['Kedves ' + first + ',', '', intro].concat(note ? ['', note] : []).concat([''])   // megszólítás → bevezető → megjegyzés → beosztás   // a megjegyzés rögtön a megszólítás után
-    .concat(rows.map(r => r[0] + ': ' + r[1])).concat(link ? ['', 'Részletek a naptárbejegyzésben: ' + link] : []).concat(['', sigText]).join('\n');
+    .concat(rows.map(r => /\n/.test(String(r[1])) ? r[0] + ':\n  • ' + String(r[1]).replace(/\n/g, '\n  • ') : r[0] + ': ' + r[1])).concat(link ? ['', 'Részletek a naptárbejegyzésben: ' + link] : []).concat(['', sigText]).join('\n');
   const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<table cellpadding="4" style="border-collapse:collapse">'
-    + rows.map(r => '<tr><td style="color:#555">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]) + '</b></td></tr>').join('') + '</table>'
+    + rows.map(r => '<tr><td style="color:#555;vertical-align:top">' + escapeHtml_(r[0]) + '</td><td><b>' + escapeHtml_(r[1]).replace(/\n/g, '<br>') + '</b></td></tr>').join('') + '</table>'   // több tétel: soronként
     + (link ? '<p><a href="' + link + '">Részletek a naptárbejegyzésben</a></p>' : '') + sigHtml;
   const subj = cm.subject || ((changed ? 'Módosult beosztás: ' : 'Beosztás: ') + p.name + ' – ' + range);
   return { subject: subj, text: text, html: html };
