@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac87587699",
+"at": "2026-11-10T23:51:59+01:00",
+"msg": "Videótábla ablak kisebb nagy monitoron"
+},
+{
 "id": "9fc915a9b0",
 "at": "2026-11-10T15:58:20+02:00",
 "msg": "Árkalkulátor végösszeg: nem ugrál (animáció nélkül, fix szélességű szám)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kameraszög pipája kivehető: az automatikus kitöltés csak operatőr- vagy kameraváltozáskor jelöl be új szöget"
 },
 {
-"id": "9a91a8900b",
-"at": "2026-11-10T13:44:32+02:00",
-"msg": "Közeli kamera: szerény + gomb a sorban, külön sor nélkül"
-},
-{
-"id": "b9e7ef6361",
-"at": "2026-11-10T11:40:24Z",
+"id": "a61a8afb1b",
+"at": "2026-11-10T11:44:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
