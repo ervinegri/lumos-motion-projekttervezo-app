@@ -402,7 +402,9 @@ document.addEventListener('change',e=>{const c=e.target;if(!c.dataset||!c.datase
 function szInvoiceModal(kind,id,o={}){
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
-  const type=o.type||'szamla',pre=szPreset(type,kind,id),inv=invFor(kind,id);
+  const inv0=invFor(kind,id),simpleAdv=inv0.some(x=>x.kind==='eloleg'&&x.advType==='szamla')&&!inv0.some(x=>x.kind==='eloleg'&&x.advType!=='szamla');
+  const type=o.type==='vegszamla'&&simpleAdv?'szamla':(o.type||'szamla'),pre=szPreset(type,kind,id),inv=inv0;   /* a foglaló sima számlán ment ki: a maradékról sima számla, nem végszámla */
+  S._szSimpleAdv=simpleAdv?inv0.filter(x=>x.kind==='eloleg').pop():null;
   const done=inv.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||(x.kind==='eloleg'&&x.advType==='szamla')).reduce((s,x)=>s+num(x.invNet),0);
   const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg'&&x.advType!=='szamla').pop();S._szElRow=elRow||null;   /* csak a valódi előlegszámla vonható le a végszámlán */
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
@@ -619,7 +621,7 @@ function szPreview(){const f=$('mform');if(!f||!$('sz-items'))return;const fd=ne
     <div class="meta"><div>Kelt<b>${d(todayISO())}</b></div><div>Teljesítés<b>${d(fd.get('fulfill'))}</b></div><div>Fizetési határidő<b>${d(fd.get('due'))}</b></div><div>Fizetési mód<b>${h(fd.get('payMethod'))}</b></div></div>
     <table><tr><th>Megnevezés</th><th class="r">Menny.</th><th class="r">Nettó egységár</th><th class="r">Nettó</th><th class="r">ÁFA</th><th class="r">Bruttó</th></tr>
     ${its.map(it=>{const n=Math.round(it.price*it.qty),v=Math.round(n*vr(it.vat)/100);return `<tr><td>${h(it.name)}</td><td class="r">${h(it.qty)} ${h(it.unit)}</td><td class="r">${ft(it.price)}</td><td class="r">${ft(n)}</td><td class="r">${/^\d+$/.test(it.vat)?it.vat+'%':h(it.vat)}</td><td class="r">${ft(n+v)}</td></tr>`;}).join('')}</table>
-    ${(()=>{const el=k==='vegszamla'?S._szElRow:null;if(!el)return `<div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div class="g"><span>Fizetendő</span><span>${ft(tot.gross)}</span></div></div>${k==='vegszamla'?'<div class="note" style="color:#a33"><b>⚠ Ennél a projektnél nincs foglalószámla az appban</b> – a végszámla a teljes összegről szól, a vevő a teljes összeget fizeti. Ha volt foglaló, előbb hozd be (🔄 Kifizetések / „+ Foglalószámla”).</div>':''}`;
+    ${(()=>{const el=k==='vegszamla'?S._szElRow:null;if(!el)return `<div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div class="g"><span>Fizetendő</span><span>${ft(tot.gross)}</span></div></div>${k==='vegszamla'&&S._szSimpleAdv?`<div class="note" style="color:#a33"><b>⚠ A foglaló sima számlán ment ki (${h(S._szSimpleAdv.no)})</b> – azt a végszámla nem tudja levonni. Típusnak válaszd a „Számla” lehetőséget, és csak a fennmaradó részt számlázd ki.</div>`:k==='vegszamla'?'<div class="note" style="color:#a33"><b>⚠ Ennél a projektnél nincs foglalószámla az appban</b> – a végszámla a teljes összegről szól, a vevő a teljes összeget fizeti. Ha volt foglaló, előbb hozd be (🔄 Kifizetések / „+ Foglalószámla”).</div>':''}`;
       const eg=num(el.invGross),en=num(el.invNet)||Math.round(eg/1.27),pay=tot.gross-eg;
       return `<div class="tot"><div><span>Nettó összesen</span><b>${ft(tot.net)}</b></div><div><span>ÁFA</span><b>${ft(tot.vat)}</b></div><div><span>Bruttó összesen</span><b>${ft(tot.gross)}</b></div>
         <div style="color:#2e6b48"><span>Levonva: foglalószámla ${h(el.no)}</span><b>−${ft(eg)}</b></div><div style="font-size:11px;color:#777"><span>(ebből nettó ${ft(en)}, ÁFA ${ft(eg-en)})</span><span></span></div>
