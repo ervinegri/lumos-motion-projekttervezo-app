@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6806e89f4e",
+"at": "2026-11-10T11:40:38+02:00",
+"msg": "Kompaktabb MA jelölő a mai projektek keretén"
+},
+{
 "id": "bf227cfc2f",
 "at": "2026-11-10T11:38:03+02:00",
 "msg": "Mai projektek kerete lekerekített sarkokkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Legördülő: beágyazott operatőr-altípusok (az Operatőrre kattintva nyílnak); számolásnál is ezres tagolás"
 },
 {
-"id": "d4cea0eadd",
-"at": "2026-11-09T21:32:46+02:00",
-"msg": "Stáb: szerepválasztó a saját legördülővel; új operatőr-altípusok (Kreatív, Statív, Interjúsarok)"
-},
-{
-"id": "ad7262b8d6",
-"at": "2026-11-09T19:30:54Z",
+"id": "9a7c148c90",
+"at": "2026-11-09T19:32:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
