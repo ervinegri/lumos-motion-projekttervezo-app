@@ -579,9 +579,12 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 .bs-box .bs-ref{cursor:default}
 
 /* mai projektek: piros keret, a tetején a „MA · …” jelölő */
-#view .pt-today-row.pt-tframe td{background:linear-gradient(#d63c2f,#d63c2f) left bottom/3px 50% no-repeat,linear-gradient(#d63c2f,#d63c2f) right bottom/3px 50% no-repeat!important}
+#view .pt-today-row.pt-tframe td{position:relative}
+#view .pt-today-row.pt-tframe td::before{content:"";position:absolute;left:0;right:0;top:50%;bottom:0;border:3px solid #d63c2f;border-bottom:0;border-radius:14px 14px 0 0;pointer-events:none}
+#view .pt-today-row.pt-tframe td>span{position:relative;z-index:1}
+#view .pt-today-row.pt-tframe td>span::after{visibility:hidden}
 #view .pt-today-row.pt-tframe td>span{margin:10px 0 0!important;padding-bottom:10px}
-#view .pt-today-row.pt-tframe td>span::before{width:14px;align-self:center}
+#view .pt-today-row.pt-tframe td>span::before{width:14px;align-self:center;visibility:hidden}
 #view .pt-today-row.pt-tframe td>span::after{align-self:center}
 #view table tbody tr.pt-row.pt-tf>td:first-child{box-shadow:inset 3px 0 0 #d63c2f!important}
 #view table tbody tr.pt-row.pt-tf>td:last-child{box-shadow:inset -3px 0 0 #d63c2f!important}
@@ -589,3 +592,7 @@ html body .page-head.pay-head-c .grow{flex:1 1 auto;display:flex;flex-direction:
 #view table tbody tr.pt-row.pt-tf.pt-tf-last>td:last-child{box-shadow:inset -3px 0 0 #d63c2f,inset 0 -3px 0 #d63c2f!important}
 #view table tbody tr.pt-row.pt-tf.pt-tf-last>td{box-shadow:inset 0 -3px 0 #d63c2f}
 #view table tbody tr.pt-row.pt-tf.pt-tf-top>td{border-top:3px solid #d63c2f!important}
+#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:first-child{border-bottom-left-radius:14px}
+#view table tbody tr.pt-row.pt-tf.pt-tf-last>td:last-child{border-bottom-right-radius:14px}
+#view table tbody tr.pt-row.pt-tf.pt-tf-top>td:first-child{border-top-left-radius:14px}
+#view table tbody tr.pt-row.pt-tf.pt-tf-top>td:last-child{border-top-right-radius:14px}
