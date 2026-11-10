@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8ba3537492",
+"at": "2026-11-10T13:16:22+02:00",
+"msg": "Előadásrögzítés: a terem operatőrének kiosztott kamerái és objektívei automatikusan a kameraszögekhez kerülnek"
+},
+{
 "id": "6d9328abf1",
 "at": "2026-11-10T13:13:03+02:00",
 "msg": "Figyelmeztetés: előadások utómunkája rögzítés nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bizonylatok: egységes fájlnév (Lumos Motion – Típus Számlaszám – Ügyfél.pdf), megnyitás névvel és Letöltés gombbal"
 },
 {
-"id": "c2c3ab5b4d",
-"at": "2026-11-10T10:28:40+02:00",
-"msg": "Számla ablak: fizetési határidő gyorsgombjai egy sorban, szegmentált vezérlőként"
-},
-{
-"id": "a443cb9788",
-"at": "2026-11-10T08:26:35Z",
+"id": "32e5289eed",
+"at": "2026-11-10T08:28:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
