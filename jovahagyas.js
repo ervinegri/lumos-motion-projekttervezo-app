@@ -4,7 +4,14 @@
   const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||'',d=q.get('d')||'';
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const api=(fn,args)=>fetch(window.LUMOS_API_URL+'?p='+encodeURIComponent(JSON.stringify({fn,args}))).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
-  const T0=Date.now(),introOut=()=>setTimeout(()=>{const i=$('intro');if(i)i.classList.add('out');},Math.max(0,1700-(Date.now()-T0)));
+  const T0=Date.now();let introDone=false;const introOut=()=>{if(introDone)return;introDone=true;setTimeout(()=>{const i=$('intro');if(i)i.classList.add('out');document.body.classList.add('ready');},Math.max(0,1700-(Date.now()-T0)));};
+  /* a nyitókép addig marad, amíg minden betöltött (adatok + a videó első képkockája / a beágyazott lejátszó), utána lágyan átúszik; legfeljebb 8 mp-ig vár */
+  const introWhenReady=()=>{setTimeout(introOut,8000);const pl=$('player');if(!pl){introOut();return;}
+    const hook=()=>{const v=pl.querySelector('video'),f=pl.querySelector('iframe');
+      if(v){if(v.readyState>=2)introOut();else{['loadeddata','error'].forEach(e=>v.addEventListener(e,introOut,{once:true}));}return true;}
+      if(f){f.addEventListener('load',introOut,{once:true});return true;}
+      if(!pl.querySelector('[data-pc-code]')){introOut();return true;}return false;};
+    if(!hook()){const mo=new MutationObserver(()=>{if(hook())mo.disconnect();});mo.observe(pl,{childList:true,subtree:true});}};
   const err=m=>{introOut();$('load').hidden=true;$('err').hidden=false;$('err').textContent=m;};
   const tcFmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
   function embed(u){u=String(u||'').trim();let m;
@@ -35,17 +42,20 @@
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
     ta.value=pre+nl+s+ta.value.slice(b);const c=(pre+nl+s).length;ta.focus();ta.setSelectionRange(c,c);}
   let shown=false;
-  const show=i=>{introOut();$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
+  const show=i=>{$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
     if(i.link&&!i.wm){$('watch2').href=i.link;$('newTab').hidden=false;}else $('newTab').hidden=true;
     if(!shown){shown=true;const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}
       if(i.wm)wmAdd(i.wmName);
-      if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();}
+      if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();
     $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';};
   if(!t){err('Hiányzó vagy hibás link.');return;}
   api('clientInfo',[t]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
   const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'']).then(show).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
-  $('bOk').onclick=e=>{if($('fb').value.trim().length>=3&&!confirm('Írtál észrevételt. Biztosan jóváhagyod a videót módosítás nélkül?'))return;go('ok','',e.currentTarget);};
+  /* mennyit nézett meg a videóból (a ténylegesen lejátszott szakaszok összege) */
+  const watched=()=>{const v=vd();if(!v||!isFinite(v.duration)||!v.duration)return 1;let s=0;for(let k=0;k<v.played.length;k++)s+=v.played.end(k)-v.played.start(k);return s/v.duration;};
+  $('bOk').onclick=e=>{if($('fb').value.trim().length>=3&&!confirm('Írtál észrevételt. Biztosan jóváhagyod a videót módosítás nélkül?'))return;
+    if(watched()<0.8&&!confirm('Még nem nézted végig a videót. Biztosan jóváhagyod?'))return;go('ok','',e.currentTarget);};
   $('bSend').onclick=e=>{const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
   $('fb').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.metaKey&&!e.ctrlKey&&vd()){e.preventDefault();insTc();}});
