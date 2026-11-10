@@ -1067,7 +1067,7 @@ function videoSet_(u, a) {
     }
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
-      if (!mgr && (['vagasra', 'vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (!mgr && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) v.link = str_(String(a.link).trim(), 500);   // e-mail nélküli áthelyezésnél is a videó linkje
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
