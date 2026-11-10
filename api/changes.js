@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "77c5cf2c8e",
+"at": "2026-11-10T12:45:29+02:00",
+"msg": "Mai keret: az oszlopválasztó nem töri meg a piros vonalat"
+},
+{
 "id": "5731fe1ab3",
 "at": "2026-11-10T12:26:42+02:00",
 "msg": "MA jelölő a felső kártyához simul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vízjel a jóváhagyó lejátszón: projektenként pipálható, Sales App projektnél alapból be, teljes kifizetés után lekerül"
 },
 {
-"id": "6b856a258b",
-"at": "2026-11-09T21:43:09+02:00",
-"msg": "Beosztás: a kreatív kamerához kijelölt operatőr kártyájára „Kreatív operatőr” kerül (statív / interjúsarok hasonlóan)"
-},
-{
-"id": "aae1484a6a",
-"at": "2026-11-09T19:35:41Z",
+"id": "3b28083dcf",
+"at": "2026-11-09T19:43:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
