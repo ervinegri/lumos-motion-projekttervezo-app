@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "25df7e875e",
+"at": "2026-11-10T15:33:57+02:00",
+"msg": "Árkalkulátor végösszeg felirat"
+},
+{
 "id": "b6d490e769",
 "at": "2026-11-10T15:33:32+02:00",
 "msg": "Árkalkulátor végösszeg: látványosabb címke"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előadásrögzítés: a terem operatőrének kiosztott kamerái és objektívei automatikusan a kameraszögekhez kerülnek"
 },
 {
-"id": "6d9328abf1",
-"at": "2026-11-10T13:13:03+02:00",
-"msg": "Figyelmeztetés: előadások utómunkája rögzítés nélkül"
-},
-{
-"id": "3066761e1f",
-"at": "2026-11-10T11:10:32Z",
+"id": "2a37619e5f",
+"at": "2026-11-10T11:13:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
