@@ -559,7 +559,11 @@ document.addEventListener('change',e=>{if(e.target.name==='mode'&&e.target.close
 /* Ügyfél szerződése: behúzással egyből feltöltjük (az ügyfél Keretszerződés mappájába) */
 async function clientContractDrop(client,file,zone){if(!client)return;
   {const c=knownClients('').find(x=>x.company===client)||{company:client},ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===client.toLowerCase()),ex=(clDocs(c,ps).docs||[]).filter(d=>!d.folder&&d.url);
-   if(ex.length)return clientContractChoose(client,file,ex,zone&&zone.dataset.inline?zone:null);}   /* van már szerződés: rákérdezünk, felülírja-e vagy újként kerüljön be */
+   if(ex.length&&!(zone&&zone.dataset.inline))return clientContractChoose(client,file,ex,null);
+   if(ex.length){/* az adatlapon: kérdés nélkül, új szerződésként (a meglévők megmaradnak, a 🗑️-val törölhetők) */
+     if(zone)zone.classList.add('busy');try{const b64=await readB64(file);const d=await call('clientDocUpload',{client,b64,name:file.name,mime:file.type||'application/octet-stream',kind:ex.some(x=>x.kind==='keret')?'egyeb':'keret'});
+       finApply(d);S.clDocs=d.folders||S.clDocs;S._clDocsAt=d.at||Date.now();toast('Szerződés feltöltve: '+client);const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}
+     catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}return;}}   /* van már szerződés: rákérdezünk, felülírja-e vagy újként kerüljön be */
   if(zone){zone.classList.add('busy');zone.dataset.txt=zone.textContent;}
   try{const b64=await readB64(file);const d=await call('fwSave',{client,b64,name:file.name,mime:file.type||'application/octet-stream'});finApply(d);
     S.clDocs=null;S._clDocsForce=true;S._clDocsLoading=false;toast('Szerződés feltöltve: '+client);

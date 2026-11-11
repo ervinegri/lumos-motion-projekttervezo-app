@@ -734,3 +734,4 @@ html.th2 .vv-cm button.vv-play:hover:not(:disabled){background:#d2e1fa;border-co
 html.th2 .vv-cm button.vv-play.on,html.th2 .vv-cm button.vv-play.on:hover:not(:disabled){background:#1f5fc9;color:#fff;border-left-color:#1f5fc9}
 html.th2 .vv-cm button.vv-ts:has(+.vv-play),html.th2 .vv-cm button.vv-play{line-height:18px;height:18px;padding-top:0;padding-bottom:0;vertical-align:middle;box-sizing:border-box}
 .cl-docs-drop.over{outline:2px dashed var(--accent,#2e9e62);outline-offset:6px;border-radius:10px;background:rgba(46,158,98,.05)}.cl-drop-hint{margin:8px 0 0;font-size:12.5px}
+.cl-docs-drop.busy{opacity:.55;pointer-events:none}.cl-docs-drop.busy h4::after{content:" · feltöltés…";font-weight:500;color:#7a8590}
