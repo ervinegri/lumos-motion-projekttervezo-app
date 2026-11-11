@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "64db5c6197",
+"at": "2026-11-11T09:42:44+01:00",
+"msg": "Jóváhagyó oldal: nagy Lejátszás gomb – egy kattintással hanggal indul"
+},
+{
 "id": "7545167f41",
 "at": "2026-11-11T09:41:28+01:00",
 "msg": "Jóváhagyó oldal: lejátszó menü (letöltés, sebesség, PiP) ki, külön Letöltés gomb, vastag lejátszósáv nagy fogantyúval"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vágó nézet: az ügyfél e-mail címe nem látszik a hozzászólásokban"
 },
 {
-"id": "2c6dc7374a",
-"at": "2026-11-11T00:12:18+01:00",
-"msg": "Ügyfél-link megnyitásának jelzése a videókártyán; új Lumos gomb a jóváhagyó levélben"
-},
-{
-"id": "8a92f39291",
-"at": "2026-11-10T23:07:10Z",
+"id": "7ed54f2710",
+"at": "2026-11-10T23:12:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
