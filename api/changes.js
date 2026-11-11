@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c46a7a28fc",
+"at": "2026-11-11T17:52:04+01:00",
+"msg": "Ügyfél jóváhagyó link: rövid URL (/v/<kód>)"
+},
+{
 "id": "8b8bdd7d6c",
 "at": "2026-11-11T17:47:02+01:00",
 "msg": "Jóváhagyó oldal: álló videónál szélesebb panel; módosítás közben ismét rejtve a Jóváhagyom"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatlap: látható szerződés-feltöltő mező (behúzás vagy tallózás)"
 },
 {
-"id": "ff4ec99025",
-"at": "2026-11-11T14:58:50+01:00",
-"msg": "Ügyfél adatlap: szerződés behúzása kérdés nélkül, új szerződésként"
-},
-{
-"id": "ff5be41f09",
-"at": "2026-11-11T13:56:36Z",
+"id": "ca7a93bb97",
+"at": "2026-11-11T13:59:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
