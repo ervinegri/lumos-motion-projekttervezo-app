@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6838676f95",
+"at": "2026-11-11T10:28:23+01:00",
+"msg": "Jóváhagyó oldal: szóköz hosszan nyomva 2× sebesség"
+},
+{
 "id": "51fbfb2d3e",
 "at": "2026-11-11T10:27:45+01:00",
 "msg": "Jóváhagyó oldal: előbb a logó tűnik el, utána jön elő az oldal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés kártya: szolgáltatások nem jelennek meg"
 },
 {
-"id": "6804da7436",
-"at": "2026-11-11T08:45:16+01:00",
-"msg": "Értékesítés: oszlop neve Díjbekérő fizetve"
-},
-{
-"id": "9f00d17446",
-"at": "2026-11-11T00:02:12Z",
+"id": "75b85d428b",
+"at": "2026-11-11T07:45:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
