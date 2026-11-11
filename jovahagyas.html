@@ -168,6 +168,9 @@ html,body{overflow-x:clip}
 @media (min-width:861px){#main.vside .varr-host{position:relative}#main.vside .varr{display:flex;position:absolute;top:50%;margin-top:-26px;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:#fff;color:#1d2a38;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(16,25,35,.08);z-index:6}
   #main.vside .varr.prev{left:-72px}#main.vside .varr.next{right:-72px}#main.vside .varr:hover:not(:disabled){background:#f3f6f9}#main.vside .varr:disabled{opacity:.25;cursor:default}
   #main.vside:has(.varr) .side{margin-left:84px!important;width:calc(100% - 84px)!important;min-width:0}}   /* a videó két oldalán nyilak (a panel arrébb kerül, hogy ne takarja) */
+.vdl-w{background:none!important;border:0!important;padding:0!important}.vdl-list{display:flex;flex-direction:column;gap:4px;margin-top:8px;text-align:left}.vdl-i{font-size:13px;font-weight:600;color:#1d2a38;text-decoration:none;padding:6px 10px;border-radius:8px;background:#f3f6f9}.vdl-i:hover{background:#e8eef3}.vdl-i.off{color:#8a96a3;font-weight:400}
+.vn-dots{flex-wrap:nowrap;gap:6px}.vn-d{flex:0 1 26px;min-width:20px}.vn-dots.many{flex-wrap:wrap}   /* a számok egy sorban maradnak (sok videónál törhet) */
+@media (max-width:860px){.player.vert,.body.vside .player.vert{width:calc(100% + 28px)!important;height:auto!important;max-height:none!important;margin:0 -14px!important;border-radius:0!important}}   /* telefonon a videó teljes szélességű */
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 </head>
