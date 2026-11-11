@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d51c0ad9c2",
+"at": "2026-11-11T17:57:51+01:00",
+"msg": "Jóváhagyó oldal: a panel a videó aljához igazodik, a két gomb egymás mellett"
+},
+{
 "id": "aae8a1c6b5",
 "at": "2026-11-11T17:56:03+01:00",
 "msg": "Jóváhagyó oldal: cím és projektsor egy sorban álló videónál is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés törlése: azonnal eltűnik, a Drive-törlés a háttérben fut; gyorsabb ellenőrzés"
 },
 {
-"id": "d23fe4f719",
-"at": "2026-11-11T15:05:01+01:00",
-"msg": "Ügyfél adatlap: szerződést csak a feltöltő mezőre lehet húzni"
-},
-{
-"id": "987ad88812",
-"at": "2026-11-11T14:02:20Z",
+"id": "b7c316418f",
+"at": "2026-11-11T14:05:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
