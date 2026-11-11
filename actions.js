@@ -2707,12 +2707,12 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='m-vvCm')vvSave
 setInterval(()=>{const v=document.querySelector('.vv-player video');if(v&&v.isConnected&&v.readyState)vvSave({t:v.currentTime});},1000);
 function vvRestore(){if(S._vvRestored)return;   /* a betöltés korán (még a fájl végrehajtása közben) is hívhatja: itt nem használunk később definiált konstanst */
   let o=null,lane='';try{o=JSON.parse(sessionStorage.getItem('lpm_vv_open')||'null');lane=sessionStorage.getItem('lpm_lane_open')||'';}catch(e){}
-  try{const hv=JSON.parse(sessionStorage.getItem('lpm_hash_vid')||'null');if(hv&&hv.pid){sessionStorage.removeItem('lpm_hash_vid');const p0=projFromHash(hv.pid);o={pid:p0?p0.id:hv.pid,vid:hv.vid};lane='';}}catch(e){}   /* levélből érkező videólink */
+  let fromMail=false;try{const hv=JSON.parse(localStorage.getItem('lpm_hash_vid')||sessionStorage.getItem('lpm_hash_vid')||'null');if(hv&&hv.pid&&(!hv.t||Date.now()-hv.t<15*60000)){localStorage.removeItem('lpm_hash_vid');sessionStorage.removeItem('lpm_hash_vid');const p0=projFromHash(hv.pid);o={pid:p0?p0.id:hv.pid,vid:hv.vid,raw:hv.pid};lane='';fromMail=true;try{sessionStorage.removeItem('lpm_modal_open');}catch(e){}S._mrDone=true;}}catch(e){}   /* levélből érkező videólink */
   if((!o||!o.pid)&&lane){S._vvRestored=true;let n=0;const tl=()=>{if(document.querySelector('.bd-modal'))return;if(!projById(lane)||$('mform')){if(++n<40)setTimeout(tl,300);return;}ACT['bd-lane']({dataset:{id:lane}});};setTimeout(tl,50);return;}
   if(!o||!o.pid){S._vvRestored=true;return;}
   S._vvRestored=true;let n=0;
-  const tryOpen=()=>{const p=projById(o.pid);if(document.querySelector('.vv-cm'))return;   /* már nyitva */
-    if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||$('mform')||!S.loaded&&!S.projects.length){if(++n<40)setTimeout(tryOpen,300);return;}   /* várunk az adatokra / egy másik ablak bezárására (max. 12 mp) */
+  const tryOpen=()=>{if(o.raw&&!projById(o.pid)){const p1=projFromHash(o.raw);if(p1)o.pid=p1.id;}const p=projById(o.pid);if(document.querySelector('.vv-cm'))return;   /* már nyitva */
+    if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||$('mform')||!S.loaded&&!S.projects.length){if(++n<(fromMail?300:40))setTimeout(tryOpen,300);return;}   /* várunk az adatokra (levélből: bejelentkezés miatt akár 90 mp) / egy másik ablak bezárására (max. 12 mp) */
     if(o.lane)ACT['bd-lane']({dataset:{id:o.pid}});ACT['vid-view']({dataset:{pid:o.pid,vid:o.vid}});
     const ta=$('m-vvCm');if(ta&&o.draft){ta.value=o.draft;taHl();}vvSave({draft:o.draft||'',t:o.t||0});
     if(o.t){const go=()=>{const v=document.querySelector('.vv-player video');if(!v){if((go.n=(go.n||0)+1)<40)setTimeout(go,250);return;}const set=()=>{v.pause();v.currentTime=o.t;};if(v.readyState)set();else v.addEventListener('loadedmetadata',set,{once:true});};go();}};

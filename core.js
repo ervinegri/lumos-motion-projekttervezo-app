@@ -193,7 +193,7 @@ const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u03
 /* Rövid, olvasható projektlink: #p=ecommerce-expo-promo-shortok-d3f68107 – a régi (teljes azonosítós) linkek is működnek */
 const projSlug=p=>String((p&&p.id)||'').slice(0,8);   // rövid projektlink: #p=d3f68107 (a régi, hosszabb linkek is működnek)
 const HASH_P=/^#p=([A-Za-z0-9-]{8,120})$/;
-{const m=/^#p=([A-Za-z0-9-]{8,120})&v=([A-Za-z0-9_-]{1,64})$/.exec(location.hash||'');if(m){try{sessionStorage.setItem('lpm_hash_vid',JSON.stringify({pid:m[1],vid:m[2]}));history.replaceState(null,'',location.pathname+location.search+'#p='+m[1]);}catch(e){}}}   /* levélből: #p=projekt&v=videó → a projekt, és rajta a videó a hozzászólásokkal */
+{const m=/^#p=([A-Za-z0-9-]{8,120})&v=([A-Za-z0-9_-]{1,64})$/.exec(location.hash||'');if(m){try{const j=JSON.stringify({pid:m[1],vid:m[2],t:Date.now()});localStorage.setItem('lpm_hash_vid',j);sessionStorage.setItem('lpm_hash_vid',j);history.replaceState(null,'',location.pathname+location.search+'#p='+m[1]);}catch(e){}}}   /* levélből: #p=projekt&v=videó → a projekt, és rajta a videó a hozzászólásokkal */
 function projFromHash(x){x=String(x||'');if(!x)return null;const p0=(S.projects||[]).find(p=>p.id===x);if(p0)return p0;x=x.toLowerCase();return (S.projects||[]).find(p=>{const k=String(p.id).slice(0,8).toLowerCase();return k.length===8&&(x===k||x.endsWith('-'+k));})||null;}
 const fhas=(hay,q)=>fold(hay).includes(fold(q));
 const venueKey=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
