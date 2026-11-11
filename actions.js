@@ -2290,8 +2290,8 @@ function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=Strin
   if(c&&cn){add(c.contactName,c.contactEmail,'kapcsolattartó');add(c.rep,c.repEmail,'képviselő');}
   if(cn)(S.projects||[]).filter(q=>q.id!==p.id&&String(q.client||'').trim().toLowerCase()===cn).forEach(q=>add(q.contactName,q.contactEmail,'korábbi projekt'));return L;}
 ACT['cl-nomail']=b=>{const li=$('m-clLink'),link=String(li&&li.value||'').trim();if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…) – e-mail nélküli áthelyezésnél is kell.',true);if(li){li.focus();li.style.borderColor='var(--bad)';}return;}
-  closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true,link});clAfter();};
-function clAfter(){const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
+  closeModal();bdMove(b.dataset.pid,b.dataset.vid,'leadva',{noMail:true,link});clAfter(b.dataset.pid,b.dataset.vid);};
+function clAfter(pid,vid){if(bdGroupNext(pid,vid))return;const lp=window._clLane;window._clLane='';if(window._vvList&&vvNext())return;window._vvList=null;if(lp&&!$('mform'))ACT['bd-lane']({dataset:{id:lp}});}   /* utána: a következő kijelölt videó, vagy vissza a videótáblára */
 /* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
 const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {projekt} projekthez. Nézd meg, kérlek, és jelezd, ha jóváhagyod, vagy ha módosítást szeretnél.\n\n{link}';
 const clSubj=(p,v)=>{let t='';try{t=localStorage.getItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}return String(t||'Elkészült: {video} – {projekt}').replace(/\{video\}/g,v.name).replace(/\{projekt\}/g,p.name||'');};   /* a tárgy szerkezete is megmarad ügyfelenként */
@@ -2319,7 +2319,7 @@ function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
       if(!to||!to.split(/\s*,\s*/).every(x=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))){toast('Válassz címzettet, vagy adj meg érvényes e-mail címet.',true);return;}if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…).',true);return;}
       if(text.length<5){toast('Írd meg a levelet.',true);return;}
       const esc2=x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');let tpl=text;[[link,'{link}'],[v.name,'{video}'],[p.name||'','{projekt}']].forEach(([val,ph])=>{if(val)tpl=tpl.replace(new RegExp(esc2(val),'g'),ph);});tpl=tpl.replace(/\b([Aa])z?(\s+[„"]?\{(?:video|projekt)\})/g,'$1(z)$2');   /* a névelő a következő videónál újra igazodik */
-      if(cl)cl.vidMail=tpl;try{localStorage.setItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase(),tpl);let st=subject;if(v.name)st=st.split(v.name).join('{video}');if(p.name)st=st.split(p.name).join('{projekt}');localStorage.setItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase(),st);}catch(e){}closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note:'',text,subject,tpl}});clAfter();}});
+      if(cl)cl.vidMail=tpl;try{localStorage.setItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase(),tpl);let st=subject;if(v.name)st=st.split(v.name).join('{video}');if(p.name)st=st.split(p.name).join('{projekt}');localStorage.setItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase(),st);}catch(e){}closeModal();bdMove(pid,vid,'leadva',{client:{to,link,note:'',text,subject,tpl}});clAfter(pid,vid);}});
   let lastLink=v.link||'';const li=$('m-clLink'),bd=$('m-clBody');if(li&&bd)li.addEventListener('input',()=>{const nl=li.value.trim();if(lastLink&&bd.value.includes(lastLink))bd.value=bd.value.split(lastLink).join(nl);else if(!lastLink&&bd.value.includes('{link}'))bd.value=bd.value.split('{link}').join(nl);lastLink=nl;clPrev(true);});
   if(lane)window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['bd-lane']({dataset:{id:lane}});};
   const fm=$('mform');if(fm){fm.addEventListener('input',e=>{if(e.target.id==='m-clSubj'||e.target.id==='m-clTo')clHead();});fm.addEventListener('change',e=>{if(e.target.name==='toPick')clHead();});}
@@ -2356,7 +2356,7 @@ function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
     <div class="field full"><label for="m-rvNote">Megjegyzés <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-rvNote" name="note" rows="3">${esc(v.note||'')}</textarea></div>`,
     {submitLabel:'📧 Küldés ellenőrzésre',submit:async fd=>{const to=String(fd.get('to')||''),link=String(fd.get('link')||'').trim(),note=String(fd.get('note')||'').trim();
       if(!to){toast('Válaszd ki, ki nézze át.',true);return;}if(!/^https?:\/\/\S+$/i.test(link)){toast('Illeszd be a videó linkjét (https://…).',true);return;}
-      try{localStorage.setItem('lpm_rv_to',to);}catch(e){}closeModal();bdMove(pid,vid,'ellen',{to,link,note});}});
+      try{localStorage.setItem('lpm_rv_to',to);}catch(e){}closeModal();bdMove(pid,vid,'ellen',{to,link,note});bdGroupNext(pid,vid);}});
   if(lane)window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['bd-lane']({dataset:{id:lane}});};   /* bezárás / küldés után vissza a videótáblára */
   setTimeout(()=>{const i=$('m-rvLink');if(i)i.focus();},60);}
 ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
@@ -2369,10 +2369,19 @@ ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name
 let BD_DRAG=null;
 function bdCanTo(pid,vid,to){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||p.status==='atadva')return false;if(!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')))return true;
   return ['vagas','ellen'].includes(to)&&!['jovahagyva','leadva'].includes(v.st)&&!(v.st==='ellen'&&to!=='ellen');}
-document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;BD_DRAG={pid:c.dataset.bdPid,vid:c.dataset.bdVid};e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');document.body.classList.add('bd-dragging');});
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;BD_DRAG={pid:c.dataset.bdPid,vid:c.dataset.bdVid};e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');if(c.classList.contains('sel'))document.querySelectorAll('.bd-card.sel').forEach(x=>x.classList.add('dragging'));document.body.classList.add('bd-dragging');});
 document.addEventListener('dragend',e=>{BD_DRAG=null;document.querySelectorAll('.bd-card.dragging').forEach(x=>x.classList.remove('dragging'));document.querySelectorAll('[data-bd-col].over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('bd-dragging');});
 document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col||!document.body.classList.contains('bd-dragging'))return;if(BD_DRAG&&(!bdCanTo(BD_DRAG.pid,BD_DRAG.vid,col.dataset.bdCol)||(col.dataset.bdLane&&col.dataset.bdLane!==BD_DRAG.pid))){document.querySelectorAll('[data-bd-col].over').forEach(x=>x.classList.remove('over'));return;}e.preventDefault();document.querySelectorAll('[data-bd-col].over').forEach(x=>{if(x!==col)x.classList.remove('over');});col.classList.add('over');});
-document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col)return;const d=String(e.dataTransfer.getData('text/plain')||'').split('|');if(d[0]!=='bd')return;e.preventDefault();col.classList.remove('over');if(col.dataset.bdLane&&col.dataset.bdLane!==d[1]){toast('A videó csak a saját projektje sorában mozgatható.',true);return;}if(!bdCanTo(d[1],d[2],col.dataset.bdCol))return;bdMove(d[1],d[2],col.dataset.bdCol);});
+/* csoportos húzás: ha a húzott kártya ki van jelölve, az összes kijelölt videó átkerül (amelyik oda mehet) */
+let BD_GRP=null;   /* e-mailes oszlopnál (belső ellenőrzés / ügyfél) a kijelöltek ablakai egymás után jönnek */
+function bdGroupNext(pid,vid){const g=BD_GRP;if(!g||g.cur!==pid+'|'+vid)return false;const n=g.items.shift();if(!n){BD_GRP=null;return false;}g.cur=n.pid+'|'+n.vid;setTimeout(()=>bdMove(n.pid,n.vid,g.st),300);return true;}
+document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closest('[data-bd-col]');if(!col)return;const d=String(e.dataTransfer.getData('text/plain')||'').split('|');if(d[0]!=='bd')return;e.preventDefault();col.classList.remove('over');if(col.dataset.bdLane&&col.dataset.bdLane!==d[1]){toast('A videó csak a saját projektje sorában mozgatható.',true);return;}if(!bdCanTo(d[1],d[2],col.dataset.bdCol))return;
+  const st=col.dataset.bdCol,k0=d[1]+'|'+d[2],sel=(S._bdSel||[]).slice();
+  if(sel.length>1&&sel.includes(k0)){const items=[{pid:d[1],vid:d[2]}].concat(sel.filter(k=>k!==k0).map(k=>{const [pid,vid]=k.split('|');return {pid,vid};})).filter(x=>{const q=projById(x.pid),w=q&&(q.videos||[]).find(y=>y.id===x.vid);return w&&w.st!==st&&(!col.dataset.bdLane||col.dataset.bdLane===x.pid)&&bdCanTo(x.pid,x.vid,st);});
+    S._bdSel=[];bdSelBar();if(!items.length)return;
+    if(st==='ellen'||st==='leadva'){const f=items.shift();BD_GRP=items.length?{st,items,cur:f.pid+'|'+f.vid}:null;bdMove(f.pid,f.vid,st);return;}
+    items.forEach(x=>bdMove(x.pid,x.vid,st));if(items.length>1)toast(items.length+' videó áthelyezve');return;}
+  BD_GRP=null;bdMove(d[1],d[2],st);});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='bd-cut'){S.boardCut=e.target.value==='__all'?'':e.target.value;render(true);}});
 
 /* 🔔 Értesítések: belső ellenőrzésre váró videók (ügyvezető / termelési vezető). Új tételnél felugró értesítés a jobb felső sarokban. */
