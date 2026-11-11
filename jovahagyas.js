@@ -76,12 +76,14 @@
   let shown=false;
   /* több videó egy linken: fülek a videók között (állapottal), váltáskor újratölt a kiválasztott videóval */
   const stIc={ok:'✓',mod:'↩',wait:''};
+  const goV=id=>{const u=new URLSearchParams(location.search);u.set('v',id);location.search=u.toString();};
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
-    if(!w){w=document.createElement('nav');w.id='vtabs';w.className='vtabs';const m=$('main');m.parentNode.insertBefore(w,m);}
-    w.innerHTML=i.items.map((x,k)=>`<button type="button" class="vtab${x.id===i.cur?' on':''} st-${x.state}" data-v="${esc(x.id)}"><span class="vt-n">${k+1}</span>${esc(x.name)}${stIc[x.state]?`<span class="vt-s">${stIc[x.state]}</span>`:''}</button>`).join('');
-    w.onclick=e=>{const b=e.target.closest('[data-v]');if(!b||b.dataset.v===CUR)return;const u=new URLSearchParams(location.search);u.set('v',b.dataset.v);location.search=u.toString();};
-    const nx=i.items.find(x=>x.state==='wait'&&x.id!==i.cur);document.querySelectorAll('.vnext').forEach(x=>x.remove());
-    if(nx&&i.state!=='wait'){['doneOk','doneMod'].forEach(id=>{const el=$(id);if(!el||el.hidden)return;const b=document.createElement('button');b.type='button';b.className='vnext ok';b.textContent='Következő videó: '+nx.name+' ›';b.onclick=()=>{const u=new URLSearchParams(location.search);u.set('v',nx.id);location.search=u.toString();};el.after(b);});}}
+    if(!w){w=document.createElement('div');w.id='vtabs';w.className='vnav';const side=document.querySelector('.side');side.insertBefore(w,side.firstChild);}
+    const k=i.items.findIndex(x=>x.id===i.cur),pv=i.items[k-1],nx=i.items[k+1],dn=i.items.filter(x=>x.state!=='wait').length;
+    w.innerHTML=`<button type="button" class="vn-b" data-v="${pv?esc(pv.id):''}"${pv?'':' disabled'} aria-label="Előző videó">‹</button><div class="vn-mid"><b>${k+1}. videó a ${i.items.length}-ből</b><span class="vn-dots">${i.items.map(x=>`<span class="vn-d st-${x.state}${x.id===i.cur?' on':''}" data-v="${esc(x.id)}" title="${esc(x.name)}${x.state==='ok'?' – jóváhagyva':x.state==='mod'?' – módosítást kértél':''}"></span>`).join('')}</span><small>${dn} / ${i.items.length} elbírálva</small></div><button type="button" class="vn-b" data-v="${nx?esc(nx.id):''}"${nx?'':' disabled'} aria-label="Következő videó">›</button>`;
+    w.onclick=e=>{const b=e.target.closest('[data-v]');if(!b||!b.dataset.v||b.dataset.v===CUR)return;goV(b.dataset.v);};
+    const nw=i.items.find(x=>x.state==='wait'&&x.id!==i.cur);document.querySelectorAll('.vnext').forEach(x=>x.remove());
+    if(nw&&i.state!=='wait'){['doneOk','doneMod'].forEach(id=>{const el=$(id);if(!el||el.hidden)return;const b=document.createElement('button');b.type='button';b.className='vnext ok';b.textContent='Következő videó: '+nw.name+' ›';b.onclick=()=>goV(nw.id);el.after(b);});}}
   const show=i=>{if(i.preview&&!document.getElementById('pvBan')){const bn=document.createElement('div');bn.id='pvBan';bn.className='pvban';bn.textContent='👁 Előnézet – így látja az ügyfél. Itt a gombok nem küldenek semmit, és ez a megnyitás nem számít bele.';document.body.prepend(bn);}$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
     $('newTab').hidden=true;   /* nincs „Megnyitás új lapon” */
     if(!shown){shown=true;const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
@@ -92,7 +94,7 @@
   if(!t){err('Hiányzó vagy hibás link.');return;}
   if(CUR){introDone=true;const it=$('intro');if(it)it.remove();document.body.classList.add('ready');}   /* videóváltás: nincs újra nyitókép */
   api('clientInfo',[t,CUR?'preview':'',CUR]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
-  const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'',CUR]).then(show).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
+  const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'',CUR]).then(i=>{show(i);const nw=i.items&&i.items.find(x=>x.state==='wait'&&x.id!==i.cur);if(nw&&dec==='ok')setTimeout(()=>{const n=$('note');if(n&&(document.activeElement===n||n.value.trim()))return;goV(nw.id);},2200);}).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
   /* mennyit nézett meg a videóból (a ténylegesen lejátszott szakaszok összege) */
   const watched=()=>{const v=vd();if(!v||!isFinite(v.duration)||!v.duration)return 1;let s=0;for(let k=0;k<v.played.length;k++)s+=v.played.end(k)-v.played.start(k);return s/v.duration;};
   /* megerősítés a panelen (a böngésző saját felugró ablaka helyett) */
