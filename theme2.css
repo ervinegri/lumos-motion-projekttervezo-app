@@ -752,3 +752,5 @@ html.th2 .cl-doc .cl-doc-n{font-size:13.5px;color:var(--fg,#1d2a38);font-weight:
 .bd-ghost{position:fixed;top:-1000px;left:-1000px;height:90px;pointer-events:none;z-index:-1}
 .bd-ghost-c{position:absolute;inset:0 0 auto 0;height:60px;box-sizing:border-box;background:#fff;border:1px solid #d6dde2;border-left:3px solid #9aa6b2;border-radius:10px;padding:10px 12px;font:600 13px Montserrat,system-ui,sans-serif;color:#1d2a38;box-shadow:0 6px 16px rgba(20,35,45,.18)}
 .bd-ghost-n{position:absolute;right:-6px;top:-8px;background:#1f5fc9;color:#fff;font:700 12px Montserrat,system-ui,sans-serif;padding:3px 8px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+html.th2 .mhead>.vv-nav{margin-left:auto;flex:none;order:2}html.th2 .mhead>h3.vv-h{order:1;flex:1 1 0;min-width:0}html.th2 .mhead>.x{order:3}
+html.th2 .mhead>.vv-nav>b{min-width:3.4em;text-align:center;font-variant-numeric:tabular-nums}
