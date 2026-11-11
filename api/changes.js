@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9bb022c93a",
+"at": "2026-11-11T16:01:54+01:00",
+"msg": "Ügyfél-levél gomb: LEVÉL ÉRKEZETT felirat törölve"
+},
+{
 "id": "e7f57b34ff",
 "at": "2026-11-11T16:00:03+01:00",
 "msg": "Megnyitás-jelzés (látta-e az ügyfél) csak a vezetőknek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólás: stabil hover az időkódon és a ▶ gombon"
 },
 {
-"id": "8130ec4f84",
-"at": "2026-11-11T11:51:26+01:00",
-"msg": "Videó: keret a ▶ gombon"
-},
-{
-"id": "71970c5fc4",
-"at": "2026-11-11T10:50:46Z",
+"id": "99f3accccc",
+"at": "2026-11-11T10:51:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
