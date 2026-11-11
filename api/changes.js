@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "366140c92e",
+"at": "2026-11-11T10:23:42+01:00",
+"msg": "Jóváhagyó oldal: a kártya függőlegesen a képernyő közepén"
+},
+{
 "id": "a0bb7af977",
 "at": "2026-11-11T10:21:50+01:00",
 "msg": "Jóváhagyó oldal: magyar idézőjel a súgóban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hozzászólás-duplikáció (visszadobás) javítás; szebb pipa-négyzet"
 },
 {
-"id": "7cb31b1dd6",
-"at": "2026-11-11T00:41:11+01:00",
-"msg": "Videó hozzászólások: biztos időrendi (legfrissebb felül) sorrend bármilyen dátumformátumnál"
-},
-{
-"id": "247723fd43",
-"at": "2026-11-10T23:40:34Z",
+"id": "cc34db5017",
+"at": "2026-11-10T23:41:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
