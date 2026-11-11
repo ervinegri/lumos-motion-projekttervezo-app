@@ -113,6 +113,12 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 html,body{min-height:100%}
 body{min-height:100vh;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center}
 body>.card{flex:none}
+.vtabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.vtab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font:600 13px Montserrat,system-ui,sans-serif;color:#1d2a38;cursor:pointer}
+.vtab:hover{background:#f3f6f9}.vtab.on{border-color:#1d2a38;box-shadow:0 0 0 1px #1d2a38}
+.vt-n{width:22px;height:22px;border-radius:50%;background:#e8edf2;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px}
+.vtab.on .vt-n{background:#1d2a38;color:#fff}.vt-s{font-weight:800}.vtab.st-ok .vt-s{color:#2e9e62}.vtab.st-mod .vt-s{color:#b3261e}
+.vnext{width:100%;margin-top:10px}
 .pvban{background:#1d2a38;color:#fff;font:600 13px Montserrat,system-ui,sans-serif;text-align:center;padding:9px 12px;position:sticky;top:0;z-index:50}
 /* teljes képernyős elrendezés (nem lebegő „buborék”) */
 @media (min-width:861px){
