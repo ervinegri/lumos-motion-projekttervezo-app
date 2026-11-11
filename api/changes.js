@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e581a6fa6a",
+"at": "2026-11-11T18:30:18+01:00",
+"msg": "Csoportos belső ellenőrzésre küldés: egy ablak, egy közös levél"
+},
+{
 "id": "2c2287182b",
 "at": "2026-11-11T18:29:00+01:00",
 "msg": "Videótábla: átnézés csak a belső ellenőrzéstől"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Megnyitás-jelzés (látta-e az ügyfél) csak a vezetőknek"
 },
 {
-"id": "8277b5a0d3",
-"at": "2026-11-11T15:59:08+01:00",
-"msg": "Jóváhagyó oldal: vízjeles videónál nincs Letöltés gomb"
-},
-{
-"id": "bbaa515a53",
-"at": "2026-11-11T14:55:58Z",
+"id": "ba1dd70e8b",
+"at": "2026-11-11T14:59:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
