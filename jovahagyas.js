@@ -88,6 +88,4 @@
   $('bSend').onclick=e=>{const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
-  document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.metaKey||e.ctrlKey||e.altKey||e.isComposing||!vd()||$('fb').disabled||$('bTc').hidden)return;const a=document.activeElement;
-    if(a&&(a.id==='fb'||a.tagName==='INPUT'||a.tagName==='TEXTAREA'||(a.tagName==='BUTTON'&&a.id!=='bTc')||a.tagName==='A'))return;e.preventDefault();e.stopPropagation();insTc();},true);
 })();
