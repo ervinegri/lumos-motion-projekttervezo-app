@@ -2450,7 +2450,7 @@ const VV_TCW='<span class="vv-tcw"><button type="button" class="vv-tc-ins" data-
 const TC_RE=/\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?(?:\s*@(\d{1,3}(?:\.\d)?),(\d{1,3}(?:\.\d)?))?\]/g;   /* [p:mp:kk] vagy tűvel: [p:mp:kk @x,y] (x,y: a kép %-ában) */
 const tcLinks=h=>h.replace(TC_RE,(m,a,b,sep,c,x,y)=>`<button type="button" class="vv-ts${x?' vv-ts-pin':''}" data-action="vid-seek" data-tc="${a}|${b}|${sep||''}|${c||''}"${x?` data-x="${x}" data-y="${y}"`:''} title="Ugrás ide a videóban">${x?'📍 ':''}${a}:${b}${c?(sep===':'?':':'.')+c:''}</button><button type="button" class="vv-play" data-action="vid-play" data-tc="${a}|${b}|${sep||''}|${c||''}" title="Lejátszás innen">▶</button>`);
 /* Időkód előtt pipa: a vágó (vagy a vezető) kipipálja, amit már javított – a kulcs: <hozzászólás ideje>#<sorszám> */
-const tcCanDone=v=>!!(S.me&&(!ro()||(S.me.crewId&&S.me.crewId===v.editor)));
+const tcCanDone=v=>!!(S.me&&S.me.crewId&&v.editor&&S.me.crewId===v.editor);   /* csak a javításon dolgozó vágó pipálhat */
 const tcDone=(v,c,h)=>{let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v);return h.replace(/<button type="button" class="vv-ts/g,()=>{const k=String(c.at||'')+'#'+(n++),on=dn.has(k);
   return `<label class="vv-done${on?' on':''}" title="${on?'Elvégezve – kattints a visszavonáshoz':'Pipáld ki, ha elvégezted'}"><input type="checkbox" data-vv-done="${esc(k)}"${on?' checked':''}${can?'':' disabled'}></label><button type="button" class="vv-ts${on?' done':''}`;});};
 document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset||t.dataset.vvDone===undefined)return;const box=document.querySelector('.vv-cm');if(!box)return;

@@ -3263,6 +3263,43 @@ function tigSave_(u, a) {
 }
 /** Ügyfél szerződésének törlése: a Drive-fájl a kukába kerül (30 napig visszaállítható), a hivatkozások lekerülnek a projektekről / keretszerződésből.
     Csak olyan fájl törölhető, amely az ügyfélmappák szerződései között szerepel, vagy az app rögzítette. a: {url} */
+/** Ügyfélszerződés feltöltése a választott módon: keretszerződésként (fwSave_) vagy egyéb szerződésként (02 Ügyfelek / <ügyfél> / Szerződések / <év>).
+ *  replace: egy meglévő szerződés (Drive-fájl) helyett – a rá mutató hivatkozások az újra állnak át, a régi fájl a Drive kukába kerül. */
+function clientDocUpload_(u, a) {
+  a = a || {};
+  const client = str_(a.client, 160).replace(/\s+/g, ' '); if (client.length < 2) throw new Error('Hiányzik az ügyfél neve.');
+  const b64 = String(a.b64 || ''); if (!b64) throw new Error('Nincs feltöltendő fájl.'); if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  const did = x => (/[-\w]{25,}/.exec(String(x || '')) || [])[0] || '', rep = did(a.replace);
+  if (rep) { const fw = readAll_('finFramework').some(r => r.fileId === rep || did(r.url) === rep), bl = readAll_('finBilling').some(r => r.contractFileId === rep || did(r.contractUrl) === rep);
+    if (!fw && !bl && !(clientDocs_({}).folders || []).some(f => (f.docs || []).some(d => !d.folder && did(d.url) === rep))) throw new Error('A lecserélendő fájl nem szerepel az ügyfél szerződései között.'); }
+  let newId = '', newUrl = '';
+  const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf';
+  if (a.kind === 'keret') {
+    fwSave_(u, { client: client, b64: b64, name: name, mime: a.mime });
+    const r = readAll_('finFramework').find(x => String(x.client).trim().toLowerCase() === client.toLowerCase()); newId = r ? r.fileId : ''; newUrl = r ? r.url : '';
+  } else {
+    const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream', ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
+    const cf = clientFolder_(client); if (!cf) throw new Error('Az ügyfél mappája nem található.');
+    const folder = folderPath_(cf, 'Szerződések/' + today_().slice(0, 4), {});
+    const f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, today_() + '_' + shortName_(client) + '_szerzodes_KFT' + ext)));
+    newId = f.getId(); newUrl = f.getUrl();
+  }
+  let trashed = false;
+  if (rep && newId && rep !== newId) {
+    withLock_(() => {
+      const fsh = sheetFor_('finFramework');
+      readAll_('finFramework').filter(r => r.fileId === rep || did(r.url) === rep).forEach(r => { const row = findRow_(fsh, r.id); if (!row) return; const x = readRow_('finFramework', fsh, row); Object.assign(x, { url: newUrl, fileId: newId, fileName: name }); putRow_('finFramework', fsh, x, row); });
+      const bsh = sheetFor_('finBilling');
+      readAll_('finBilling').filter(r => r.contractFileId === rep || did(r.contractUrl) === rep).forEach(r => { const row = findRow_(bsh, r.id); if (!row) return; const x = readRow_('finBilling', bsh, row); Object.assign(x, { contractUrl: newUrl, contractFileId: newId, contractName: name, contractAt: now_(), contractBy: u.name, updatedAt: now_(), updatedBy: u.name }); putRow_('finBilling', bsh, x, row); });
+      dbFlush_();
+    });
+    try { DriveApp.getFileById(rep).setTrashed(true); trashed = true; } catch (e) { }
+  }
+  try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
+  const docs = clientDocs_({ force: true });
+  logEvent_(u, 'Szerződés feltöltve', client, (a.kind === 'keret' ? 'keretszerződés' : 'szerződés') + (rep ? ' – a korábbi helyett' + (trashed ? ' (a régi a Drive kukába került)' : '') : ''));
+  return Object.assign(finPart_(['frameworks', 'billing']), { folders: docs.folders, at: docs.at, replaced: !!rep, trashed: trashed });
+}
 function clientDocDelete_(u, a) {
   const raw = str_(a && a.url, 500), id = (/[-\w]{25,}/.exec(raw) || [])[0];
   if (!id) throw new Error('Ismeretlen fájl.');
@@ -4766,6 +4803,7 @@ function rpcInner_(token, name, arg) {
     case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'clientDocDelete': adminOnly(); return clientDocDelete_(u, arg);
+    case 'clientDocUpload': adminOnly(); return clientDocUpload_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
     case 'dbPing': adminOnly(); return dbPing_();
