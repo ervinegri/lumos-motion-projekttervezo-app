@@ -7,9 +7,9 @@
   const T0=Date.now();let introDone=false;const introOut=()=>{if(introDone)return;introDone=true;setTimeout(()=>{const i=$('intro');if(i)i.classList.add('out');document.body.classList.add('ready');setTimeout(autoPlay,350);},Math.max(0,1700-(Date.now()-T0)));};
   /* a nyitókép eltűnése után a videó magától indul (ha a böngésző hanggal nem engedi, némítva indul, és megjelenik egy „hang bekapcsolása” gomb) */
   let played=false;const autoPlay=()=>{if(played)return;const pl=$('player');if(!pl)return;const v=pl.querySelector('video');
-    if(v){played=true;const on=()=>{if(!v.muted)return;const b=document.createElement('button');b.type='button';b.className='unmute';b.textContent='🔊 Kattints a hanghoz';const un=()=>{v.muted=false;b.remove();if(v.paused)v.play().catch(()=>{});['pointerdown','keydown','touchstart'].forEach(t=>document.removeEventListener(t,un,true));};b.onclick=un;pl.appendChild(b);v.addEventListener('volumechange',()=>{if(!v.muted)b.remove();});
-        ['pointerdown','keydown','touchstart'].forEach(t=>document.addEventListener(t,un,true));};   // a böngésző hang nélkül indítja – az első kattintásra / billentyűre / érintésre (bárhol az oldalon) bekapcsol a hang
-      const go=()=>v.play().catch(()=>{v.muted=true;return v.play().then(on).catch(()=>{});});if(v.readyState>=2)go();else v.addEventListener('canplay',go,{once:true});return;}
+    if(v){played=true;   // nagy ▶ Lejátszás gomb a videón: egy kattintás, és rögtön hanggal indul (kattintás nélkül a böngésző csak némítva engedné)
+      if(!v.paused)return;const b=document.createElement('button');b.type='button';b.className='bigplay';b.setAttribute('aria-label','Videó lejátszása');b.innerHTML='<span class="bp-i">▶</span><span class="bp-t">Lejátszás</span>';
+      const go=()=>{v.muted=false;v.play().catch(()=>{});b.remove();};b.onclick=go;pl.appendChild(b);v.addEventListener('play',()=>b.remove(),{once:true});return;}
     const f=pl.querySelector('iframe');if(!f)return;played=true;const src=f.getAttribute('src')||'';
     if(/youtube\.com\/embed/.test(src))f.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
     else if(/player\.vimeo\.com/.test(src))f.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');};
