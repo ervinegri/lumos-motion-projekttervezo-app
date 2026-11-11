@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f7b66927e9",
+"at": "2026-11-11T19:54:04+01:00",
+"msg": "Vágó: appon belüli értesítés (csengő), ha a videója továbbment az ügyfélnek vagy jóváhagyták"
+},
+{
 "id": "e00ae51f7f",
 "at": "2026-11-11T19:45:55+01:00",
 "msg": "Jóváhagyó: üzenet csak a Jóváhagyom után, döntéskor eltűnik a Tetszik a videó? cím; minden videó előtöltése; belső: M = némítás"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "3e4ca1ee4e",
 "at": "2026-11-11T18:24:53+01:00",
 "msg": "Videó ablak: lapozáskor az előző tájolással indul (nincs fekvő fekete villanás)"
-},
-{
-"id": "1a6b4b65cf",
-"at": "2026-11-11T18:22:17+01:00",
-"msg": "Videó ablak: vágás alatt (linkkel) nincs hozzászólás-mező"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
