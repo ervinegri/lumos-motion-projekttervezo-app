@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1f19b08a25",
+"at": "2026-11-11T15:55:38+01:00",
+"msg": "Levél-előnézetek: gépeléskor nem nő a fehér rész az alján"
+},
+{
 "id": "d5964b4c95",
 "at": "2026-11-11T15:54:40+01:00",
 "msg": "Nem módosítható pipák halványítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: ▶ gomb az időkód mögött (lejátszás / megállítás), az időkód csak odaugrik"
 },
 {
-"id": "a7bd4def88",
-"at": "2026-11-11T11:46:00+01:00",
-"msg": "Videó: ugyanarra az időkódra újra kattintva a lejátszás megáll"
-},
-{
-"id": "46297e34e4",
-"at": "2026-11-11T10:44:48Z",
+"id": "a1dbe7635a",
+"at": "2026-11-11T10:46:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
