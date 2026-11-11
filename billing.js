@@ -565,6 +565,9 @@ async function clientContractDrop(client,file,zone){if(!client)return;
   catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}}
 function clDocsReopen(client){const go=()=>{if(S.clDocs){render(true);clDocsModal(client);}else setTimeout(go,400);};clDir(client);go();}
 ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.dataset.client;
+  if(b.dataset.inline){confirmLayer('Szerződés törlése',`<p style="margin:0 0 4px">A(z) „<b>${esc(name)}</b>” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.</p>`,'Törlés',async(bt,layer)=>{
+    try{const d=await call('clientDocDelete',{url});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();layer.remove();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}
+    catch(e){handleErr(e);}});return;}   /* az ügyfél szerkesztő ablakában: a szerkesztés nem vész el */
   confirmModal('Szerződés törlése',`A(z) „${name}” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.`,'Törlés',async()=>{
     try{const d=await call('clientDocDelete',{url});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();closeModal();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');render(true);clDocsModal(client);}
     catch(e){handleErr(e);}});};
