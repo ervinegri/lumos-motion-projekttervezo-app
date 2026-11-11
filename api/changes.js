@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a0bb7af977",
+"at": "2026-11-11T10:21:50+01:00",
+"msg": "Jóváhagyó oldal: magyar idézőjel a súgóban"
+},
+{
 "id": "1154e0da3e",
 "at": "2026-11-11T10:19:16+01:00",
 "msg": "Jóváhagyó oldal: fejléc sor egy vonalban; súgószöveg pontosítva, mintaszöveg ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: biztos időrendi (legfrissebb felül) sorrend bármilyen dátumformátumnál"
 },
 {
-"id": "c2358dec02",
-"at": "2026-11-11T00:40:21+01:00",
-"msg": "Videó hozzászólások: azonos komment nem jelenik meg kétszer"
-},
-{
-"id": "34395ad2bd",
-"at": "2026-11-10T23:37:37Z",
+"id": "247723fd43",
+"at": "2026-11-10T23:40:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
