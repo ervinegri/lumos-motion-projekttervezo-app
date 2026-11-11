@@ -44,7 +44,7 @@
   const noEmbed=(u,why)=>`<div class="noembed">${why?esc(why)+'<br>':''}A videó itt nem játszható le.${u?`<a href="${esc(u)}" target="_blank" rel="noopener">▶ Videó megnyitása</a>`:''}</div>`;
   /* külön „Letöltés” gomb (a lejátszó saját menüjéből a letöltés ki van véve) */
   let noDl=false;   /* vízjeles (még nem kifizetett) videó: nincs letöltés */
-  function dlSet(u){const a=document.getElementById('dl'),w=document.getElementById('dlWrap');if(!a||!u||noDl)return;a.href=u;a.setAttribute('download','');if(w)w.hidden=false;}
+  function dlSet(u,page){const a=document.getElementById('dl'),w=document.getElementById('dlWrap');if(!a||!u||noDl)return;a.href=u;if(page){a.removeAttribute('download');a.target='_blank';}else{a.setAttribute('download','');a.removeAttribute('target');}if(w)w.hidden=false;}
   async function pcloud(link){const el=document.querySelector('[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];
     const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
     for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`,{referrerPolicy:'no-referrer'})).json();if(!sj||sj.result!==0)continue;
@@ -93,7 +93,7 @@
   let LAST=null;const PVST={};   /* előnézet: a kipróbált döntések megmaradnak videóváltáskor is (csak ebben a lapban) */
   const show=i=>{if(i.preview){if(i.items)i=Object.assign({},i,{items:i.items.map(x=>PVST[x.id]?Object.assign({},x,{state:PVST[x.id]}):x)});if(PVST[i.cur||CUR])i=Object.assign({},i,{state:PVST[i.cur||CUR]});}LAST=i;if(i.preview&&!document.getElementById('pvBan')){const bn=document.createElement('div');bn.id='pvBan';bn.className='pvban';bn.textContent='👁 Előnézet – így látja az ügyfél. A gombok kipróbálhatók, de nem küldenek semmit, és ez a megnyitás nem számít bele.';document.body.prepend(bn);}$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;{const tt=$('ttl'),pl=$('player');if(tt&&pl&&tt.nextElementSibling!==pl)pl.parentElement.insertBefore(tt,pl);}   /* a cím a videó fölött */$('video').textContent=i.video;$('project').textContent=i.project;
     $('newTab').hidden=true;   /* nincs „Megnyitás új lapon” */
-    if(!shown){shown=true;const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
+    if(!shown){shown=true;if(i.link&&/pcloud\.link|drive\.google\.com/i.test(i.link))dlSet(i.link,true);   /* azonnal van letöltés (a pCloud / Drive oldalára), a közvetlen fájl-link később felülírja */const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}
       if(i.wm)wmAdd(i.wmName);
       if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();
