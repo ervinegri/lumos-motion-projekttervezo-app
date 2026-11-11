@@ -746,3 +746,4 @@ html.th2 .vv-cm button.vv-ts:has(+.vv-play),html.th2 .vv-cm button.vv-play{line-
 html.th2 .vv-cm button.vv-ts{font-variant-numeric:tabular-nums;min-width:56px;text-align:center;position:relative}
 html.th2 .vv-cm button.vv-ts.vv-ts-pin::after{content:"";position:absolute;top:-3px;left:-3px;width:7px;height:7px;border-radius:50%;background:#e8590c;border:1.5px solid #fff}
 html.th2 .vv-cm button.vv-ts.done+.vv-play{opacity:.55}
+html.th2 .vv-done:has(input:disabled){opacity:.5;cursor:default;filter:saturate(.6)}html.th2 .vv-done:has(input:disabled) input{cursor:default}
