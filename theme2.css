@@ -748,3 +748,7 @@ html.th2 .vv-cm button.vv-ts.vv-ts-pin::after{content:"";position:absolute;top:-
 html.th2 .vv-cm button.vv-ts.done+.vv-play{opacity:.55}
 html.th2 .vv-done:has(input:disabled){opacity:.5;cursor:default;filter:saturate(.6)}html.th2 .vv-done:has(input:disabled) input{cursor:default}
 html.th2 .cl-doc .cl-doc-n{font-size:13.5px;color:var(--fg,#1d2a38);font-weight:550;flex:1 1 auto;min-width:0}html.th2 .cl-doc .cl-doc-k{flex:0 0 auto}
+/* csoportos húzás: „kártyapakli” a kurzor alatt */
+.bd-ghost{position:fixed;top:-1000px;left:-1000px;height:90px;pointer-events:none;z-index:-1}
+.bd-ghost-c{position:absolute;inset:0 0 auto 0;height:60px;box-sizing:border-box;background:#fff;border:1px solid #d6dde2;border-left:3px solid #9aa6b2;border-radius:10px;padding:10px 12px;font:600 13px Montserrat,system-ui,sans-serif;color:#1d2a38;box-shadow:0 6px 16px rgba(20,35,45,.18)}
+.bd-ghost-n{position:absolute;right:-6px;top:-8px;background:#1f5fc9;color:#fff;font:700 12px Montserrat,system-ui,sans-serif;padding:3px 8px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
