@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4025c4e975",
+"at": "2026-11-11T23:18:32+01:00",
+"msg": "Videótábla: a kártyán nincs „Kattints…” buborék"
+},
+{
 "id": "7f5c600c1c",
 "at": "2026-11-11T23:16:45+01:00",
 "msg": "Videóablak: jóváhagyás időpontja; időkód-magyarázat ki"
@@ -195,11 +200,6 @@ const ITEMS = [
 "id": "c6c05644a9",
 "at": "2026-11-11T21:17:19+01:00",
 "msg": "Jóváhagyó oldal: gombok kattinthatók a következő videónál, nincs jobb klikkes menü a videón, semleges Következő videó gomb, zöld betöltősáv, stabil panelmagasság a letöltés gombbal"
-},
-{
-"id": "6d933e96f3",
-"at": "2026-11-11T21:13:06+01:00",
-"msg": "Jóváhagyó oldal: letöltés csak a jóváhagyott videónál"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
