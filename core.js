@@ -1,6 +1,6 @@
 'use strict';
 /* ===== Konstansok ===== */
-const STAGES=[{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Videók jóváhagyásra várnak'},{id:'atadva',label:'Kész'}];
+const STAGES=[{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Jóváhagyásra vár'},{id:'atadva',label:'Kész'}];
 /* Kötelező alapadatok (a jegyzetek kivételével). Mentéskor a felület ellenőrzi. */
 const REQ_FIELDS=[['name','Projekt neve'],['venue','Helyszín'],['client','Ügyfél'],['eventType','Rendezvény típusa'],['contactName','Kapcsolattartó'],['contactPhone','Kapcsolattartó telefonja'],['contactEmail','Kapcsolattartó e-mail-címe'],['date','Első nap'],['endDate','Utolsó nap'],['startTime','Kezdés'],['endTime','Hozzávetőleges távozási óra']];
 function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
@@ -42,7 +42,7 @@ const eqLocked=p=>!ro()&&!!p&&(crewPast(p)||eqFinalState(p)==='ok'&&!(S.eqEdit||
 function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';const d=crewFinalDiff(p);return d.added.length||d.changed.length||d.removed.length?'changed':'ok';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
-const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Videók jóváhagyásra várnak',atadva:'Kész',lemondva:'Lemondva'};
+const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Jóváhagyásra vár',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Videóvágás','Podcast','Egyéb'];
 const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
 /* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
