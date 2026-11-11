@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b6d729b95",
+"at": "2026-11-11T09:47:43+01:00",
+"msg": "Jóváhagyó oldal: logóanimáció eredeti tempóban, de legfeljebb 2,5 mp várakozás a videóra"
+},
+{
 "id": "1c83ce0311",
 "at": "2026-11-11T09:45:49+01:00",
 "msg": "Jóváhagyó oldal: időkód perc:mp:képkocka formátumban, kattintható; rövidebb, középre igazított nyitó logó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: egyforma magas kártyák"
 },
 {
-"id": "bc2831fbd4",
-"at": "2026-11-11T00:21:10+01:00",
-"msg": "Ügyfélnek küldés: ügyfél nélküli projektnél nem gyűjti be más projektek kapcsolattartóit"
-},
-{
-"id": "e2e4a4a98f",
-"at": "2026-11-10T23:19:13Z",
+"id": "83126ce1b0",
+"at": "2026-11-10T23:21:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
