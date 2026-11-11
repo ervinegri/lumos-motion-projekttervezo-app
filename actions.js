@@ -41,6 +41,8 @@ function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!roo
   d.innerHTML=`<div class="mbox" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="mhead"><h3>${esc(title)}</h3></div>${html}<div class="mfoot"><button type="button" class="btn outline" data-cf="back">← Vissza</button><button type="button" class="btn primary" data-cf="ok">${esc(okLabel)}</button></div></div>`;
   d.addEventListener('click',e=>{const b=e.target.closest('[data-cf]');if(!b){if(e.target===d)d.remove();return;}e.stopPropagation();if(b.dataset.cf==='back'){d.remove();return;}{const r=onOk(b,d);if(r&&typeof r.then==='function')workBtn(b,r);}});
   root.appendChild(d);d.querySelector('[data-cf=ok]').focus();}
+/* iframe tartalmának magassága: a body valós magassága + margók (a documentElement.scrollHeight a keretnél sosem kisebb, így minden gépeléskor nőne) */
+function ifrH(f){const d=f.contentDocument,b=d&&d.body;if(!b)return 0;const cs=d.defaultView.getComputedStyle(b);return Math.ceil(b.getBoundingClientRect().height+(parseFloat(cs.marginTop)||0)+(parseFloat(cs.marginBottom)||0))+2;}
 function closeModal(){{const mu=document.getElementById('modalUnder');if(mu)mu.innerHTML='';}let after=null;if(window.MODAL_BEFORE_CLOSE){const f=window.MODAL_BEFORE_CLOSE;window.MODAL_BEFORE_CLOSE=null;try{after=f();}catch(e){}}if(MD_KEY&&$('mform'))mdSave();$('modalRoot').innerHTML='';modalSubmit=null;MD_KEY='';document.documentElement.style.overflow='';if(typeof after==='function')try{after();}catch(e){}}   /* after: ugyanabban a lépésben nyíló következő ablak (nincs villanás) */
 function confirmModal(title,text,okLabel,onOk){openModal(title,`<p style="margin:0">${esc(text)}</p>`,{submitLabel:okLabel,submit:async()=>{closeModal();await onOk();}});}
 const mf=(name,label,o={})=>`<div class="field${o.full?' full':''}"><label for="m-${name}">${label}</label><input class="inp" id="m-${name}" name="${name}" type="${o.type||'text'}"${o.ac?` autocomplete="${o.ac}"`:''} value="${esc(o.v??'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.min!=null?` min="${o.min}"`:''}${o.im?` inputmode="${o.im}"`:''}${o.max?` maxlength="${o.max}"`:''}></div>`;
@@ -702,7 +704,7 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
     <div class="inv-h pe-head"><div><span>Feladó:</span> ${esc(hd.from||'')}</div><div><span>Címzett:</span> ${esc(hd.to||'(nincs e-mail-cím)')}</div><div><span>Tárgy:</span> <b>${esc(hd.subject||'')}</b></div></div>`;
   const f=document.createElement('iframe');f.className='mail-frame';f.title='Díjösszesítő előnézet (szerkeszthető)';   // külön dokumentum: az app stílusai nem keverednek bele, pont úgy néz ki, mint a levélben
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+h+'</body></html>';
-  const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
+  const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
   f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._payEdit=S._payEdit||{};S._payEdit[k]=d.body.innerHTML;payEditMark();fit();const rb=$('pe-reset');if(rb){rb.disabled=false;rb.title='';}});});
   box.appendChild(f);if(!payPreview._auto)setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);payPreview._auto=false;}
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
@@ -1250,7 +1252,7 @@ const ACT={
       box.innerHTML=`<div class="inv-prev"><div class="inv-h"><div><span>Feladó:</span> ${esc(r.from)}</div><div><span>Címzett:</span> ${esc(email||'(még nincs megadva)')}</div><div><span>Tárgy:</span> <b>${esc(r.subject)}</b></div><small class="hint">Kattints a levélbe, és írd át, ami kell – ez a változat megy ki. Ha másik munkatársat választasz, nyisd meg újra az előnézetet.</small></div></div>`;
       S._invEdit='';const f=document.createElement('iframe');f.className='mail-frame';f.style.minHeight='260px';f.title='Meghívó előnézet (szerkeszthető)';
       f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:14px;background:#fff}body:focus{outline:none}</style></head><body contenteditable="true" spellcheck="true">'+r.html+'</body></html>';
-      const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
+      const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
       f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,300);d.addEventListener('input',()=>{S._invEdit=d.body.innerHTML;fit();});});
       box.querySelector('.inv-prev').appendChild(f);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
@@ -1261,7 +1263,7 @@ const ACT={
       if(!r.html){box.insertAdjacentHTML('beforeend','<p class="hint">Ennek a levélnek a szövegét még nem mentettük el (a funkció előtt ment ki). Az „Előnézet” a mostani adatokkal mutatja.</p>');return;}
       const f=document.createElement('iframe');f.className='mail-frame';f.title='Kiküldött díjösszesítő';f.setAttribute('sandbox','allow-same-origin');
       f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff}</style></head><body>'+r.html+'</body></html>';
-      f.addEventListener('load',()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}});box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
+      f.addEventListener('load',()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}});box.appendChild(f);setTimeout(()=>f.scrollIntoView({block:'start',behavior:'smooth'}),50);}
     catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}},
   'pay-mail-reset':b=>{const k=b.dataset.month+'|'+b.dataset.cid;if(S._payEdit)delete S._payEdit[k];payEditMark();payPreview(b.dataset.month,b.dataset.cid,true);},
   'eqdd':b=>{const wrap=b.parentElement,open=wrap.querySelector('.eqdd-pop');document.querySelectorAll('.eqdd-pop').forEach(x=>x.remove());if(open)return;
@@ -2344,7 +2346,7 @@ function clPrev(onlyBody){const box=$('cl-prev'),bd=$('m-clBody');if(!box||!bd)r
   const old=box.querySelector('iframe');if(onlyBody&&old&&old.contentDocument&&old.contentDocument.getElementById('ed')){old.contentDocument.getElementById('ed').innerHTML=html;return;}
   box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='Ügyfél-levél előnézet (szerkeszthető)';
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124}#ed:focus{outline:none}#ed{min-height:80px}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'')+'</div></body></html>';
-  const fit=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+4)+'px';}catch(_){}};
+  const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
   f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,400);const ed=d.getElementById('ed');
     ed.addEventListener('input',()=>{const c=ed.cloneNode(true),ln=String(($('m-clLink')||{}).value||'').trim();c.querySelectorAll('[data-vbtn]').forEach(x=>x.replaceWith(d.createTextNode(ln)));c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(d.createTextNode('\n'));});
       bd.value=c.textContent.replace(/ /g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
