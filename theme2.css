@@ -689,3 +689,11 @@ html.th2 .dl-fizetve .dl-colh{color:#1f6b3e}
 .lmbtn:hover{background:#efe3c6!important;border-color:#d4b97c!important;box-shadow:0 4px 12px rgba(29,42,56,.16)}
 .lmbtn:active{background:#e6d4ab!important;box-shadow:inset 0 2px 5px rgba(29,42,56,.18)}
 .lmbtn .lmstamp{transition:transform .2s}.lmbtn:hover .lmstamp{transform:rotate(-8deg) scale(1.06)}.lmbtn:active .lmstamp{transform:rotate(-8deg) scale(.96)}
+
+/* telefonszám másolása: kis gomb a mező jobb szélén (a mező közben szerkeszthető) */
+.phone-row{position:relative}
+.phone-row .ph-num{padding-right:40px}
+.ph-copy{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#8a92a3;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.ph-copy:hover{background:#eef1f4;color:var(--fg)}
+.ph-copy.ok{color:#1f6b3e;background:#e8f3ec}
+.phone-row:has(.ph-num:placeholder-shown) .ph-copy{display:none}
