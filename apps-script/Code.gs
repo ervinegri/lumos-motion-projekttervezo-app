@@ -3325,6 +3325,7 @@ function clientDocDelete_(u, a) {
       const x = readRow_('finBilling', bsh, row); Object.assign(x, { contractUrl: '', contractFileId: '', contractName: '', contractAt: '', contractBy: '', updatedAt: now_(), updatedBy: u.name }); putRow_('finBilling', bsh, x, row); });
     dbFlush_();
   });
+  if (!known && a && a.client) { const cf = clientFolder_(str_(a.client, 160)); known = !!cf && clientDocsOf_(cf).some(d => !d.folder && did(d.url) === id); }   // gyors: csak az ügyfél saját mappája
   if (!known) { const docs = clientDocs_({}); known = (docs.folders || []).some(f => (f.docs || []).some(d => !d.folder && did(d.url) === id)); }
   if (!known) throw new Error('Ez a fájl nem szerepel az ügyfelek szerződései között.');
   let trashed = false;
