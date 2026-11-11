@@ -2,164 +2,199 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8d69fd1829",
+"at": "2026-11-11T22:18:24+01:00",
+"msg": "Ügyfélnek küldés: tárgy „Elkészültek: N db videó – …”"
+},
+{
+"id": "dcdadee9c3",
+"at": "2026-11-11T22:07:38+01:00",
+"msg": "Jóváhagyó oldal: rövidebb letöltési tipp"
+},
+{
+"id": "67d9fa6da4",
+"at": "2026-11-11T22:05:15+01:00",
+"msg": "Jóváhagyó oldal: a panel újra közvetlenül a videó mellett, alul; a jobb nyíl a panel fölött"
+},
+{
+"id": "af501435a3",
+"at": "2026-11-11T22:03:58+01:00",
+"msg": "Naptár: a vágói határidőknél csak ✂️ + a projekt neve (a „Leadás:” szó nélkül)"
+},
+{
+"id": "d608bd67ac",
+"at": "2026-11-11T22:03:21+01:00",
+"msg": "Jóváhagyó oldal: gépen a panel a videó melletti nyíl alatt kezdődik (felülre igazítva, üres sáv nélkül)"
+},
+{
+"id": "1b0e2818c5",
+"at": "2026-11-11T21:58:00+01:00",
+"msg": "Jóváhagyó oldal: a letöltés lista nem pipál (a böngésző nem jelzi a mentést), csak jelzi, hogy elindult"
+},
+{
+"id": "7b945309bd",
+"at": "2026-11-11T21:56:11+01:00",
+"msg": "Jóváhagyó oldal: letöltött videók pipája a listában"
+},
+{
+"id": "b9e2c9c3d4",
+"at": "2026-11-11T21:53:56+01:00",
+"msg": "Jóváhagyó oldal: a jóváhagyott videók letöltése gépen ténylegesen elindul (rejtett keret helyett közvetlen letöltés)"
+},
+{
+"id": "2e68b5c5a9",
+"at": "2026-11-11T21:50:10+01:00",
+"msg": "Jóváhagyó oldal: visszajelzés a jóváhagyott videók letöltésénél"
+},
+{
+"id": "cda081c0ed",
+"at": "2026-11-11T21:48:05+01:00",
+"msg": "Jóváhagyó oldal: a listából letöltés nem nyit új (fekete) lapot"
+},
+{
+"id": "e7c9a7abd1",
+"at": "2026-11-11T21:47:55+01:00",
+"msg": "Jóváhagyó oldal telefonon: jóváhagyott videók letöltése listából, egyenként"
+},
+{
+"id": "7c2639de36",
+"at": "2026-11-11T21:45:18+01:00",
+"msg": "Jóváhagyó oldal telefonon: videó pontosan középen"
+},
+{
+"id": "443def6dff",
+"at": "2026-11-11T21:44:03+01:00",
+"msg": "Jóváhagyó oldal: előnézeti sáv ki; telefonon a logó és a teljes videó egy képernyőn, váltáskor a lap tetejére"
+},
+{
+"id": "c0b380336d",
+"at": "2026-11-11T21:42:54+01:00",
+"msg": "Jóváhagyó oldal telefonon: videó középre igazítva, nyitókép legkésőbb 12 mp után eltűnik"
+},
+{
+"id": "0b5eeb77d4",
+"at": "2026-11-11T21:40:19+01:00",
+"msg": "Jóváhagyó oldal telefonon: videóváltáskor a videó teljes egészében látszik (nem vág le alul)"
+},
+{
+"id": "23d627b8d5",
+"at": "2026-11-11T21:38:33+01:00",
+"msg": "Jóváhagyó oldal: több videónál letöltés csak a végén (jóváhagyott videók egyben), telefonon teljes szélességű videó, számok egy sorban"
+},
+{
+"id": "7b13292b24",
+"at": "2026-11-11T21:36:12+01:00",
+"msg": "Jóváhagyó oldal: nyilak a videó két oldalán (gépen), telefonon első képkocka és keret nélküli oldal"
+},
+{
+"id": "62c244c1cb",
+"at": "2026-11-11T21:34:13+01:00",
+"msg": "Jóváhagyó oldal: telefonon nem vár a videó betöltésére a nyitókép (max. 1,5 s), gépen max. 4 s"
+},
+{
+"id": "f49b0054c7",
+"at": "2026-11-11T21:32:39+01:00",
+"msg": "Jóváhagyó oldal telefonon: a szövegmezőbe koppintás nem nagyít rá (16px), nincs oldalirányú elcsúszás"
+},
+{
+"id": "7b31125085",
+"at": "2026-11-11T21:30:26+01:00",
+"msg": "Jóváhagyó oldal telefonon: cím a videó alatt, videóváltáskor felgörget"
+},
+{
+"id": "68b23a1200",
+"at": "2026-11-11T21:29:12+01:00",
+"msg": "Jóváhagyó oldal telefonon: saját vezérlés (koppintás = lejátszás/megállítás, teljes képernyő gomb), nincs sötét réteg a videón"
+},
+{
+"id": "61fabdb5f3",
+"at": "2026-11-11T21:27:31+01:00",
+"msg": "Jóváhagyó oldal: minden videó elbírálva – csak az összegzés látszik"
+},
+{
+"id": "af75d7c4af",
+"at": "2026-11-11T21:23:59+01:00",
+"msg": "Jóváhagyó oldal: összegzés, ha minden videó elbírálva; középre igazított nyilak"
+},
+{
+"id": "8e4633225c",
+"at": "2026-11-11T21:20:50+01:00",
+"msg": "Jóváhagyó oldal: nincs görgetés előnézetben sem, álló videónál a cím a panel tetején (nagyobb videó)"
+},
+{
+"id": "3aceaf9f1e",
+"at": "2026-11-11T21:18:21+01:00",
+"msg": "Jóváhagyó oldal: zöld lejátszás gomb"
+},
+{
+"id": "c6c05644a9",
+"at": "2026-11-11T21:17:19+01:00",
+"msg": "Jóváhagyó oldal: gombok kattinthatók a következő videónál, nincs jobb klikkes menü a videón, semleges Következő videó gomb, zöld betöltősáv, stabil panelmagasság a letöltés gombbal"
+},
+{
+"id": "6d933e96f3",
+"at": "2026-11-11T21:13:06+01:00",
+"msg": "Jóváhagyó oldal: letöltés csak a jóváhagyott videónál"
+},
+{
+"id": "5725937752",
+"at": "2026-11-11T21:12:25+01:00",
+"msg": "Jóváhagyó oldal: szóköz a videón / gombon állva is lejátszás–megállítás"
+},
+{
+"id": "57c3b69968",
+"at": "2026-11-11T21:09:16+01:00",
+"msg": "Jóváhagyó oldal: a számsor nem ugrál (stabil panelmagasság), a színek nem tűnnek el váltáskor, megerősítéskor nincs üzenetmező (a szöveg elmegy)"
+},
+{
+"id": "5ef123b6d9",
+"at": "2026-11-11T21:06:53+01:00",
+"msg": "Jóváhagyó oldal: a többi videó teljesen előtöltődik, időkód időrendben, F = teljes képernyő, növő üzenetmező, előnézeti döntések megmaradnak; videóablak: F = teljes képernyő"
+},
+{
+"id": "dc64513e1a",
+"at": "2026-11-11T21:02:10+01:00",
+"msg": "Csengő: kifizetések és ellenőrzések egy időrendi listában; Vágói határidők pipa a vágói naptár bejegyzéseit is elrejti"
+},
+{
+"id": "2ab1bf5bee",
+"at": "2026-11-11T21:01:24+01:00",
+"msg": "Árkalkulátor: ügyvezetői árszerkesztő (⚙️ Árak) + nyilvános arkPrices végpont"
+},
+{
+"id": "cae85b852a",
+"at": "2026-11-11T20:51:11+01:00",
+"msg": "Árkalkulátor: nincs külső görgetés"
+},
+{
+"id": "6f02fe628a",
+"at": "2026-11-11T20:48:13+01:00",
+"msg": "Számlakártya: Opciók gomb a jobb felső sarokban"
+},
+{
+"id": "6afc3b864c",
+"at": "2026-11-11T20:46:52+01:00",
+"msg": "Szerződés kártya: látványos zöld, ha van keretszerződés / aláírt szerződés"
+},
+{
+"id": "678d44e787",
+"at": "2026-11-11T20:46:23+01:00",
+"msg": "Táblázat-mód: a táblák gyorsítótárból (verziószámmal), zárolás alatt közvetlen olvasás"
+},
+{
+"id": "5e88c83fb5",
+"at": "2026-11-11T20:43:59+01:00",
+"msg": "Értékesítés: sárga kártya, ha az ügyletből már van projekt"
+},
+{
+"id": "e81df89976",
+"at": "2026-11-11T20:39:51+01:00",
+"msg": "Kifizetések: hónapválasztó a táblázat fölött középen (szakember); hangsúlyosabb Összesen sor"
+},
+{
 "id": "0725d4557d",
 "at": "2026-11-11T20:38:38+01:00",
 "msg": "Beosztásaim: a kereső egy sorban a címmel"
-},
-{
-"id": "3707986978",
-"at": "2026-11-11T20:37:53+01:00",
-"msg": "Beosztásaim: kereső felirata ügyfél nélkül"
-},
-{
-"id": "4e95308c3c",
-"at": "2026-11-11T20:37:41+01:00",
-"msg": "Beosztásaim: csak az aktív beosztások (jövőbeli, zajló, vagy vágás/jóváhagyás alatt, ha ő a vágó)"
-},
-{
-"id": "88ff50dd95",
-"at": "2026-11-11T20:35:44+01:00",
-"msg": "Vágó nézet: Jóváhagyásra vár (rövidebb)"
-},
-{
-"id": "6cfd4e4b68",
-"at": "2026-11-11T20:35:17+01:00",
-"msg": "Naptár: szakember nézetben nincs Google Naptár-hibaüzenet"
-},
-{
-"id": "edabf27274",
-"at": "2026-11-11T20:33:20+01:00",
-"msg": "Vágó nézet: az ügyfél említése nélkül (Továbbküldve jóváhagyásra / Jóváhagyásra vár)"
-},
-{
-"id": "091744d1f5",
-"at": "2026-11-11T20:26:38+01:00",
-"msg": "Neon: adatforgalom-takarékos betöltés (verzió-ellenőrzés + gyorsítótár, csak a megváltozott táblák jönnek le)"
-},
-{
-"id": "115c5b4785",
-"at": "2026-11-11T20:20:41+01:00",
-"msg": "Vágónak szóló jóváhagyás-levél: a munkádat; dátum nélkül"
-},
-{
-"id": "7b70509a8c",
-"at": "2026-11-11T20:06:25+01:00",
-"msg": "Vágónak szóló jóváhagyás-levél: dőlt lábléc"
-},
-{
-"id": "b112ff5033",
-"at": "2026-11-11T20:04:40+01:00",
-"msg": "Vágónak szóló értesítések: az ügyfél említése nélkül"
-},
-{
-"id": "4114cff1ac",
-"at": "2026-11-11T19:59:51+01:00",
-"msg": "Vágónak szóló jóváhagyás-levél: a jóváhagyó neve nélkül"
-},
-{
-"id": "a6336051c5",
-"at": "2026-11-11T19:56:27+01:00",
-"msg": "Ügyfél-jóváhagyás: e-mail a videó vágójának (üzenet és link nélkül)"
-},
-{
-"id": "f7b66927e9",
-"at": "2026-11-11T19:54:04+01:00",
-"msg": "Vágó: appon belüli értesítés (csengő), ha a videója továbbment az ügyfélnek vagy jóváhagyták"
-},
-{
-"id": "e00ae51f7f",
-"at": "2026-11-11T19:45:55+01:00",
-"msg": "Jóváhagyó: üzenet csak a Jóváhagyom után, döntéskor eltűnik a Tetszik a videó? cím; minden videó előtöltése; belső: M = némítás"
-},
-{
-"id": "2b802da48f",
-"at": "2026-11-11T19:25:23+01:00",
-"msg": "Hozzászólás: időrendi időkód-beszúrás, Enter után megy tovább a videó, húzás után megáll; jóváhagyó: üzenet a gombok alatt, semleges Következő videó gomb"
-},
-{
-"id": "853dff78ca",
-"at": "2026-11-11T19:10:00+01:00",
-"msg": "Jóváhagyó oldal: a többi videó előtöltése, azonnali váltás"
-},
-{
-"id": "eb2534b155",
-"at": "2026-11-11T19:07:15+01:00",
-"msg": "Jóváhagyó oldal: üzenet a jóváhagyással együtt (előtte), utána már nem"
-},
-{
-"id": "2d7a0b8f87",
-"at": "2026-11-11T19:04:41+01:00",
-"msg": "Helyes rag: 8-ból / 3-ból / 10-ből; hónapnév -tól/-től"
-},
-{
-"id": "7d8851f35b",
-"at": "2026-11-11T19:03:59+01:00",
-"msg": "Jóváhagyó oldal: a Letöltés gomb videóváltás után is azonnal megjelenik"
-},
-{
-"id": "bd1c98717d",
-"at": "2026-11-11T19:01:27+01:00",
-"msg": "Jóváhagyó előnézet: a kipróbált döntések videóváltáskor is látszanak"
-},
-{
-"id": "113803062f",
-"at": "2026-11-11T19:00:47+01:00",
-"msg": "Jóváhagyó oldal: kevesebb üres hely felül, nagyobb álló videó"
-},
-{
-"id": "5fab3d04f5",
-"at": "2026-11-11T19:00:04+01:00",
-"msg": "Jóváhagyó oldal: a módosítás-mező legfeljebb a videó magasságáig nő, utána görget"
-},
-{
-"id": "177270d8b3",
-"at": "2026-11-11T18:59:17+01:00",
-"msg": "Jóváhagyó oldal: a cím a videó fölött; Videó letöltése gomb a panelben"
-},
-{
-"id": "30d8a2b4c3",
-"at": "2026-11-11T18:58:01+01:00",
-"msg": "Jóváhagyó oldal: videóváltáskor a szám, a cím és a panel azonnal vált"
-},
-{
-"id": "0e25889e2d",
-"at": "2026-11-11T18:56:48+01:00",
-"msg": "Jóváhagyó oldal: Szeretnél üzenni valamit?"
-},
-{
-"id": "173b32672b",
-"at": "2026-11-11T18:56:04+01:00",
-"msg": "Jóváhagyó oldal: nagyobb, számozott videó-pöttyök"
-},
-{
-"id": "57dbcde340",
-"at": "2026-11-11T18:55:17+01:00",
-"msg": "Jóváhagyó oldal: betöltéskor mindig a nyitó logó (nem a Betöltés… felirat)"
-},
-{
-"id": "5f548e40e8",
-"at": "2026-11-11T18:54:12+01:00",
-"msg": "Jóváhagyó oldal: videóváltáskor nem ugrik el az elrendezés"
-},
-{
-"id": "353773c825",
-"at": "2026-11-11T18:52:57+01:00",
-"msg": "Jóváhagyó oldal: videóváltás újratöltés nélkül (csak a lejátszó és a panel cserélődik)"
-},
-{
-"id": "d902bf3983",
-"at": "2026-11-11T18:51:46+01:00",
-"msg": "Jóváhagyó előnézet: a gombok kipróbálhatók (látszik a jóváhagyás utáni üzenet lehetőség), de nem küldenek semmit"
-},
-{
-"id": "77348a3cb2",
-"at": "2026-11-11T18:49:48+01:00",
-"msg": "Ügyfél-link: projekttervezo.lumosmotion.hu/<kód> (a /v/ nélkül)"
-},
-{
-"id": "6b7d2ad156",
-"at": "2026-11-11T17:49:29Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
