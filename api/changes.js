@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e17e787652",
+"at": "2026-11-11T10:03:27+01:00",
+"msg": "Telefonszám mező keskenyebb"
+},
+{
 "id": "57b34bccfb",
 "at": "2026-11-11T10:02:22+01:00",
 "msg": "Jóváhagyó oldal: módosítás-kérés módban nincs Jóváhagyom gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: ügyféloldali oszlopok vizuálisan különválasztva"
 },
 {
-"id": "c877793ec6",
-"at": "2026-11-11T00:34:47+01:00",
-"msg": "Videótábla: tiltott oszlop nem világosodik ki húzáskor, és nem lehet beledobni"
-},
-{
-"id": "fe285a9297",
-"at": "2026-11-10T23:32:28Z",
+"id": "d43d021150",
+"at": "2026-11-10T23:34:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
