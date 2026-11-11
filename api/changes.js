@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "63c038d6cc",
+"at": "2026-11-11T18:32:40+01:00",
+"msg": "Levélből nyitott videó: bejelentkezés után is megnyílik (telefonon is)"
+},
+{
 "id": "e581a6fa6a",
 "at": "2026-11-11T18:30:18+01:00",
 "msg": "Csoportos belső ellenőrzésre küldés: egy ablak, egy közös levél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél gomb: LEVÉL ÉRKEZETT felirat törölve"
 },
 {
-"id": "e7f57b34ff",
-"at": "2026-11-11T16:00:03+01:00",
-"msg": "Megnyitás-jelzés (látta-e az ügyfél) csak a vezetőknek"
-},
-{
-"id": "ba1dd70e8b",
-"at": "2026-11-11T14:59:17Z",
+"id": "8dff8d4d2b",
+"at": "2026-11-11T15:00:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
