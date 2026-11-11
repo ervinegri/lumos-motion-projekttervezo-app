@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aac1c67c8e",
+"at": "2026-11-11T11:50:38+01:00",
+"msg": "Videó hozzászólások: magyarázat a kattintható időkódokról, válaszok elkülönítve"
+},
+{
 "id": "fd111deeca",
 "at": "2026-11-11T11:48:55+01:00",
 "msg": "Videó hozzászólások: javítás alatt nincs felső mező, a hozzászólás sarkában ↩ Válasz"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: magyar idézőjel a súgóban"
 },
 {
-"id": "1154e0da3e",
-"at": "2026-11-11T10:19:16+01:00",
-"msg": "Jóváhagyó oldal: fejléc sor egy vonalban; súgószöveg pontosítva, mintaszöveg ki"
-},
-{
-"id": "08ff3a2e18",
-"at": "2026-11-11T09:15:50Z",
+"id": "e3d7efd7b8",
+"at": "2026-11-11T09:19:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
