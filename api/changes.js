@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "85cfe7870d",
+"at": "2026-11-11T23:00:17+01:00",
+"msg": "Vágási sáv buboréka: projekt névvel kezd, a videók állapota soronként"
+},
+{
 "id": "7a284c038d",
 "at": "2026-11-11T22:58:49+01:00",
 "msg": "Videóablak: rövidebb zárolási felirat"
@@ -190,11 +195,6 @@ const ITEMS = [
 "id": "678d44e787",
 "at": "2026-11-11T20:46:23+01:00",
 "msg": "Táblázat-mód: a táblák gyorsítótárból (verziószámmal), zárolás alatt közvetlen olvasás"
-},
-{
-"id": "5e88c83fb5",
-"at": "2026-11-11T20:43:59+01:00",
-"msg": "Értékesítés: sárga kártya, ha az ügyletből már van projekt"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
