@@ -792,3 +792,8 @@ html.th2 .cdrop.ctr-ok .pb-t{color:#1e7a46}
 html.th2 .cdrop.ctr-ok .pb-t::after{content:" ✓";font-weight:800}
 html.th2 .cdrop.ctr-ok .pb-c .statuspill{font-size:14px;padding:7px 14px;font-weight:700;background:#2e9e62;color:#fff;border-color:#2e9e62}
 html.th2 .cdrop.ctr-ok .pb-c a.statuspill:hover{background:#26874f}
+/* számlakártya: Opciók gomb a jobb felső sarokban */
+html.th2 .bs-box{position:relative}
+html.th2 .bs-box .bs-optbtn{position:absolute;top:8px;right:10px;margin:0;padding:2px 8px;font-size:11.5px}
+html.th2 .bs-box:has(.pb-tick) .bs-optbtn{right:42px}
+html.th2 .bs-box:has(.bs-optbtn) .pb-t{padding-right:84px}
