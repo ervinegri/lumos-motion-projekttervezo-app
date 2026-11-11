@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d56316152a",
+"at": "2026-11-11T15:29:59+01:00",
+"msg": "Időkód pipák: ki és mikor pipálta (a pipa fölé víve látszik)"
+},
+{
 "id": "ef02c9e3d4",
 "at": "2026-11-11T15:28:32+01:00",
 "msg": "Jelölt időkód: kék háttér marad, csak a narancs pötty jelzi"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: böngészős felugró ablakok helyett megerősítés a panelen"
 },
 {
-"id": "47c32cb390",
-"at": "2026-11-11T10:41:01+01:00",
-"msg": "Jóváhagyó oldal: Megnyitás új lapon link eltávolítva"
-},
-{
-"id": "319533584b",
-"at": "2026-11-11T09:39:21Z",
+"id": "2cfe97a2df",
+"at": "2026-11-11T09:41:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
