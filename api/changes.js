@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a1fb57cbac",
+"at": "2026-11-11T18:44:19+01:00",
+"msg": "Több videó egy levélben az ügyfélnek: közös jóváhagyó oldal fülekkel, videónkénti döntés; a módosítás mezője a sorokkal nő"
+},
+{
 "id": "8195547feb",
 "at": "2026-11-11T18:39:01+01:00",
 "msg": "Ügyfél-levél előnézet: a Videó megtekintése gomb kipróbálható (megnyitásnak nem számít, dönteni nem lehet)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "5e12ddf95c",
 "at": "2026-11-11T16:07:42+01:00",
 "msg": "Szerződéslista: típus-felirat helyett több látszik a fájlnévből"
-},
-{
-"id": "dc881a8f1f",
-"at": "2026-11-11T16:07:24+01:00",
-"msg": "Szerződések ablak: bezáráskor vissza az ügyfél adatlapjára"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
