@@ -73,7 +73,7 @@
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
     ta.value=pre+nl+s+ta.value.slice(b);const c=(pre+nl+s).length;ta.focus();ta.setSelectionRange(c,c);taHl();}
   let shown=false;
-  const show=i=>{$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
+  const show=i=>{if(i.preview&&!document.getElementById('pvBan')){const bn=document.createElement('div');bn.id='pvBan';bn.className='pvban';bn.textContent='👁 Előnézet – így látja az ügyfél. Itt a gombok nem küldenek semmit, és ez a megnyitás nem számít bele.';document.body.prepend(bn);}$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
     $('newTab').hidden=true;   /* nincs „Megnyitás új lapon” */
     if(!shown){shown=true;const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}

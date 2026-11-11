@@ -1060,13 +1060,22 @@ function clientSeen_(o) {
     if (first) v.cm = (v.cm || []).concat([{ by: clientFirst_(p, String(o.c || '').split(',')[0]), at: t, t: '👁️ Megnyitotta a jóváhagyó oldalt', ts: '' }]).slice(-100);
     p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); } catch (e) { Logger.log('clientSeen_: ' + e); }
 }
-function clientInfo_(t, seen) { const o = clientTokenRead_(t); if (seen) clientSeen_(o); const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
+function clientInfo_(t, seen) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o); const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
+  if (o.pv) return { preview: true, wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: o.l || r.v.link, state: 'wait' };   // belső előnézet: nem számít megnyitásnak, döntés nincs
   return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
+/** Belső előnézet a küldő ablakból: ugyanaz az oldal, amit az ügyfél kap – megnyitásnak nem számít, dönteni nem lehet. */
+function clientPreview_(u, a) {
+  if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN');
+  const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), l = str_(a && a.link, 500).trim();
+  clientVideo_({ p: pid, v: vid });
+  return { url: FRONTEND_URL + '/jovahagyas.html?pv=1&t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: '', pv: 1, l: /^https?:\/\/\S+$/i.test(l) ? l : '' })) };
+}
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
   if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return cn.split(/\s+/).pop();
   const lp = em.split('@')[0].split(/[._-]/)[0]; return lp ? lp.charAt(0).toUpperCase() + lp.slice(1) : 'Ügyfél'; }
 function clientDecide_(t, d, fb) {
+  if (clientTokenRead_(t).pv) throw new Error('Ez csak előnézet – itt a gombok nem küldenek semmit.');
   const o = clientTokenRead_(t), r = clientVideo_(o); fb = str_(fb, 1500).trim();
   if (d === 'note') {   // jóváhagyás után az ügyfél még üzenhet (nem kötelező)
     if (r.v.st !== 'jovahagyva') throw new Error('Üzenetet a jóváhagyás után tudsz küldeni.'); if (fb.length < 2) throw new Error('Írd be az üzenetedet.');
@@ -4842,6 +4851,7 @@ function rpcInner_(token, name, arg) {
     case 'driveMoveFolder': adminOnly(); return driveMoveFolder_(u, arg);
     case 'fwDelete': adminOnly(); return fwDelete_(u, arg);
     case 'clientDocDelete': adminOnly(); return clientDocDelete_(u, arg);
+    case 'clientPreview': return clientPreview_(u, arg);
     case 'clientDocUpload': adminOnly(); return clientDocUpload_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);

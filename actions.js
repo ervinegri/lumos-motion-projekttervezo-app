@@ -2314,7 +2314,7 @@ const huArt=w=>{const x=String(w||'').replace(/^[\s„"'(«»]+/,'');if(!x)retur
   if(/\d/.test(c)){const n=(x.match(/^\d+/)||[''])[0];return c==='5'||(c==='1'&&n.length%3===1)?'az':'a';}return 'a';};
 const fixArt=t=>String(t||'').replace(/\b([Aa])\(z\)(\s+)(\S+)/g,(m,a,sp,w)=>{const r=huArt(w);return (a==='A'?r[0].toUpperCase()+r.slice(1):r)+sp+w;});
 const clFill=(t,o)=>fixArt(String(t||'').replace(/\{nev\}/g,o.nev||'').replace(/\{video\}/g,o.video||'').replace(/\{projekt\}/g,o.projekt||'').replace(/\{link\}/g,o.link||'{link}'));
-function clientModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;if(!(isAdmin()||(S.me&&S.me.role==='editor'))||ro()){toast('Az ügyfélnek csak az ügyvezető vagy a termelési vezető küldheti el a videót.',true);return;}const lane=laneToUnder();window._clLane='';
+function clientModal(pid,vid){window._clPid=pid;window._clVid=vid;const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;if(!(isAdmin()||(S.me&&S.me.role==='editor'))||ro()){toast('Az ügyfélnek csak az ügyvezető vagy a termelési vezető küldheti el a videót.',true);return;}const lane=laneToUnder();window._clLane='';
   const CC=clientContacts(p),cl=clClient(p),first=String((CC[0]&&CC[0].name)||p.contactName||'').replace(/\([^)]*\)/g,'').trim().split(/\s+/).pop()||'',o={nev:first,video:v.name,projekt:p.name||'',link:v.link||''};
   let lt='';try{lt=localStorage.getItem('lpm_vidtpl|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}
   const body=clFill(String((cl&&cl.vidMail)||lt||CL_TPL_DEF).replace(/\n+\s*Köszönöm!?\s*$/,''),o);   // a szignó előtt nem kell „Köszönöm!” (a korábban mentett mintákból is lekerül)
@@ -2358,7 +2358,8 @@ function clPrev(onlyBody){const box=$('cl-prev'),bd=$('m-clBody');if(!box||!bd)r
   box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='Ügyfél-levél előnézet (szerkeszthető)';
   f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124}#ed:focus{outline:none}#ed{min-height:80px}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'')+'</div></body></html>';
   const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
-  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,400);const ed=d.getElementById('ed');
+  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;noNav(d);fit();setTimeout(fit,400);const ed=d.getElementById('ed');d.addEventListener('click',e=>{const vb=e.target&&e.target.closest&&e.target.closest('[data-vbtn]');if(!vb)return;e.preventDefault();e.stopPropagation();   /* a gomb kipróbálható: az ügyfél oldalának előnézete (nem számít megnyitásnak) */
+    const fm=document.querySelector('#mform [data-cl-pid]')||{},pid=window._clPid,vid=window._clVid,w=window.open('about:blank','_blank');call('clientPreview',{projectId:pid,id:vid,link:String(($('m-clLink')||{}).value||'').trim()}).then(r=>{if(w)w.location=r.url;else location.href=r.url;}).catch(err=>{if(w)w.close();handleErr(err);});},true);
     ed.addEventListener('input',()=>{const c=ed.cloneNode(true),ln=String(($('m-clLink')||{}).value||'').trim();c.querySelectorAll('[data-vbtn]').forEach(x=>x.replaceWith(d.createTextNode(ln)));c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(d.createTextNode('\n'));});
       bd.value=c.textContent.replace(/ /g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
   box.appendChild(f);}
