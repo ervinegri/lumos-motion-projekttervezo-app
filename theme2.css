@@ -711,3 +711,6 @@ html.th2 .bs-optbtn:hover{background:#f3f6f8;color:var(--fg,#1d2a38)!important}
 .bs-menu{position:absolute;z-index:1200;min-width:190px;background:#fff;border:1px solid #dfe4e7;border-radius:10px;box-shadow:0 10px 30px rgba(20,35,45,.18);padding:5px;display:flex;flex-direction:column}
 .bs-menu button{border:0;background:transparent;text-align:left;font:inherit;font-size:13.5px;font-weight:600;padding:8px 10px;border-radius:7px;cursor:pointer;color:#1d2a38}
 .bs-menu button:hover{background:#f1f4f6}.bs-menu button.bad{color:#a33}.bs-menu button.bad:hover{background:#fbeeee}
+/* ▶ az időkód mögött */
+.vv-play{border:0;background:transparent;color:#1f5fc9;font:inherit;font-size:11px;line-height:1;width:20px;height:20px;border-radius:50%;padding:0;margin:0 4px 0 2px;cursor:pointer;vertical-align:middle;opacity:.7;transition:background .12s,opacity .12s}
+.vv-play:hover{background:#e3ecfb;opacity:1}.vv-play.on{background:#1f5fc9;color:#fff;opacity:1}
