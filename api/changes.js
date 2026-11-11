@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5964b4c95",
+"at": "2026-11-11T15:54:40+01:00",
+"msg": "Nem módosítható pipák halványítva"
+},
+{
 "id": "8c353cb805",
 "at": "2026-11-11T15:52:57+01:00",
 "msg": "Leadás után a vágó nem szólhat hozzá, nem válaszolhat és nem pipálhat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: ugyanarra az időkódra újra kattintva a lejátszás megáll"
 },
 {
-"id": "d922fca128",
-"at": "2026-11-11T11:44:38+01:00",
-"msg": "Videó ablak: javítás alatt általános válasz mező (automatikus időkód nélkül); Megnyitás új lapon eltávolítva"
-},
-{
-"id": "7ff85736c1",
-"at": "2026-11-11T10:42:27Z",
+"id": "46297e34e4",
+"at": "2026-11-11T10:44:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
