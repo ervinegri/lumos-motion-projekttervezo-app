@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "47c32cb390",
+"at": "2026-11-11T10:41:01+01:00",
+"msg": "Jóváhagyó oldal: Megnyitás új lapon link eltávolítva"
+},
+{
 "id": "66373b7bf2",
 "at": "2026-11-11T10:39:12+01:00",
 "msg": "Jóváhagyó oldal: enyhe hover a Módosítást kérek gombon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: lejátszó menü (letöltés, sebesség, PiP) ki, külön Letöltés gomb, vastag lejátszósáv nagy fogantyúval"
 },
 {
-"id": "1f5723d569",
-"at": "2026-11-11T09:39:20+01:00",
-"msg": "Jóváhagyó oldal: hang az első kattintásra bárhol, feltűnőbb hang-gomb a videó közepén"
-},
-{
-"id": "bccb79170b",
-"at": "2026-11-11T08:38:14Z",
+"id": "c3ab316ff3",
+"at": "2026-11-11T08:39:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
