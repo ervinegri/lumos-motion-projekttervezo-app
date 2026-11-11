@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a2674d95a2",
+"at": "2026-11-11T10:33:54+01:00",
+"msg": "Jóváhagyó oldal: jóváhagyás után az ügyfél még üzenhet (nem kötelező)"
+},
+{
 "id": "8f317d9593",
 "at": "2026-11-11T10:30:41+01:00",
 "msg": "Jóváhagyó oldal: visszafogottabb fókusz-keret a szövegmezőn"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó levél: Lumos postabélyegzős gomb (kopott pecsét), hover és kattintás effekttel"
 },
 {
-"id": "8235d2b98a",
-"at": "2026-11-11T09:14:58+01:00",
-"msg": "Videótábla: oszlop neve Jóváhagyásra vár"
-},
-{
-"id": "e62d0e8c18",
-"at": "2026-11-11T07:46:34Z",
+"id": "42f87173ae",
+"at": "2026-11-11T08:15:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
