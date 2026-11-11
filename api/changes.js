@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bb778f8122",
+"at": "2026-11-11T14:54:11+01:00",
+"msg": "Ügyfél adatlap: szerződés törölhető (🗑️) a Szerződések listában"
+},
+{
 "id": "892bf278fe",
 "at": "2026-11-11T14:51:10+01:00",
 "msg": "Ügyfélszerződés: felülírás vagy új szerződés választható; időkód pipát csak a javító vágó jelölhet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: nyitó logó legfeljebb 7 mp"
 },
 {
-"id": "2b383d06ee",
-"at": "2026-11-11T10:26:32+01:00",
-"msg": "Jóváhagyó oldal: szóközzel indítható / megállítható a videó"
-},
-{
-"id": "4c5d30f4ae",
-"at": "2026-11-11T09:26:22Z",
+"id": "ec6d8ac211",
+"at": "2026-11-11T09:26:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
