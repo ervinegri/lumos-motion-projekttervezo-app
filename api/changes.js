@@ -2,6 +2,21 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd1c98717d",
+"at": "2026-11-11T19:01:27+01:00",
+"msg": "Jóváhagyó előnézet: a kipróbált döntések videóváltáskor is látszanak"
+},
+{
+"id": "113803062f",
+"at": "2026-11-11T19:00:47+01:00",
+"msg": "Jóváhagyó oldal: kevesebb üres hely felül, nagyobb álló videó"
+},
+{
+"id": "5fab3d04f5",
+"at": "2026-11-11T19:00:04+01:00",
+"msg": "Jóváhagyó oldal: a módosítás-mező legfeljebb a videó magasságáig nő, utána görget"
+},
+{
 "id": "177270d8b3",
 "at": "2026-11-11T18:59:17+01:00",
 "msg": "Jóváhagyó oldal: a cím a videó fölött; Videó letöltése gomb a panelben"
@@ -145,16 +160,6 @@ const ITEMS = [
 "id": "195b52c2cf",
 "at": "2026-11-11T18:10:49+01:00",
 "msg": "Jóváhagyva: link nélkül rákérdez a linkre; hiányzó link pótolható; az ügyvezető visszavonhatja a jóváhagyást"
-},
-{
-"id": "a6af8e2782",
-"at": "2026-11-11T18:05:48+01:00",
-"msg": "Jóváhagyó oldal: a panel közvetlenül az álló videó mellett"
-},
-{
-"id": "b70b68fa34",
-"at": "2026-11-11T18:04:39+01:00",
-"msg": "Jóváhagyó oldal: Elküldöm a módosítást gombfelirat"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
