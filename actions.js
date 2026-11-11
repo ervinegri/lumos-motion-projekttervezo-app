@@ -2362,6 +2362,19 @@ function clPrev(onlyBody){const box=$('cl-prev'),bd=$('m-clBody');if(!box||!bd)r
     ed.addEventListener('input',()=>{const c=ed.cloneNode(true),ln=String(($('m-clLink')||{}).value||'').trim();c.querySelectorAll('[data-vbtn]').forEach(x=>x.replaceWith(d.createTextNode(ln)));c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(d.createTextNode('\n'));});
       bd.value=c.textContent.replace(/ /g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
   box.appendChild(f);}
+function reviewBatchModal(items){let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
+  const rows=items.map((x,i)=>{const p=projById(x.pid),v=p&&(p.videos||[]).find(y=>y.id===x.vid);return v?`<div class="field full"><label for="m-rbL${i}">${esc(v.name)}</label><input class="inp" id="m-rbL${i}" name="link${i}" type="url" value="${esc(v.link||'')}" placeholder="A videó linkje (https://…)" required></div>`:'';}).join('');
+  openModal('🔍 Belső ellenőrzésre küldés – '+items.length+' videó',`<p class="hint" style="margin:0 0 12px">Egyszerre küldöd ellenőrzésre – az ellenőrző egyetlen e-mailt kap az összes videóval.</p>
+    <div class="field full"><label>Ki ellenőrizze? (e-mailt kap)</label><div class="rv-pick"><label><input type="radio" name="to" value="david"${last==='david'?' checked':''}> <span>Zajácz Dávid</span></label><label><input type="radio" name="to" value="ervin"${last==='ervin'?' checked':''}> <span>Egri Ervin</span></label></div></div>
+    <div class="rb-links">${rows}</div>
+    <div class="field full"><label for="m-rbNote">Megjegyzés <span class="muted">(nem kötelező)</span></label><textarea class="inp" id="m-rbNote" name="note" rows="3"></textarea></div>`,
+  {submitLabel:'📧 Küldés ellenőrzésre',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'');if(!to){toast('Válaszd ki, ki ellenőrizze.',true);return;}
+    const list=items.map((x,i)=>({projectId:x.pid,id:x.vid,link:String(fd.get('link'+i)||'').trim()}));if(list.some(x=>!/^https?:\/\/\S+$/i.test(x.link))){toast('Minden videóhoz illeszd be a linket (https://…).',true);return;}
+    const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
+    try{localStorage.setItem('lpm_rv_to',to);}catch(e){}
+    try{const r=await call('videoReviewBatch',{to,note:String(fd.get('note')||'').trim(),items:list});(r.projects||[]).forEach(pr2=>{const i=S.projects.findIndex(x=>x.id===pr2.id);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pr2.id)['videos','status','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});});
+      closeModal();bdRefresh();toast(r.mail?'📧 '+r.n+' videó elküldve ellenőrzésre (egy levélben)':r.n+' videó belső ellenőrzésre jelölve (e-mail most nem ment ki)');}
+    catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='📧 Küldés ellenőrzésre';}}}});}
 function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;const lane=laneToUnder();let last='';try{last=localStorage.getItem('lpm_rv_to')||'';}catch(e){}
   openModal('🔍 Belső ellenőrzésre küldés',`<p class="hint" style="margin:0 0 12px"><b>${esc(v.name)}</b> – ${esc(p.name||'')}</p>
     <div class="field full"><label>Ki ellenőrizze? (e-mailt kap)</label><div class="rv-pick"><label><input type="radio" name="to" value="david"${last==='david'?' checked':''}> <span>Zajácz Dávid</span></label><label><input type="radio" name="to" value="ervin"${last==='ervin'?' checked':''}> <span>Egri Ervin</span></label></div></div>
@@ -2395,6 +2408,7 @@ document.addEventListener('drop',e=>{const col=e.target.closest&&e.target.closes
   const st=col.dataset.bdCol,k0=d[1]+'|'+d[2],sel=(S._bdSel||[]).slice();
   if(sel.length>1&&sel.includes(k0)){const items=[{pid:d[1],vid:d[2]}].concat(sel.filter(k=>k!==k0).map(k=>{const [pid,vid]=k.split('|');return {pid,vid};})).filter(x=>{const q=projById(x.pid),w=q&&(q.videos||[]).find(y=>y.id===x.vid);return w&&w.st!==st&&(!col.dataset.bdLane||col.dataset.bdLane===x.pid)&&bdCanTo(x.pid,x.vid,st);});
     S._bdSel=[];bdSelBar();if(!items.length)return;
+    if(st==='ellen'&&items.length>1){reviewBatchModal(items);return;}   /* több videó: egy ablak, egy közös levél */
     if(st==='ellen'||st==='leadva'){const f=items.shift();BD_GRP=items.length?{st,items,cur:f.pid+'|'+f.vid}:null;bdMove(f.pid,f.vid,st);return;}
     items.forEach(x=>bdMove(x.pid,x.vid,st));if(items.length>1)toast(items.length+' videó áthelyezve');return;}
   BD_GRP=null;bdMove(d[1],d[2],st);});

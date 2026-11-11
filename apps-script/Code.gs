@@ -924,9 +924,23 @@ function videoReview_(u, a) {
   const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
   const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + '\n\nVideó: ' + link + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + url + '\n\nA projekt videótáblájában megnézheted, jóváhagyhatod vagy visszadobhatod.';
   const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>Videó: <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
+  if (a.noMail) return { project: projectView_(fullProject_(p), u), mail: false, name: v ? v.name : 'videó', pname: p.name, pid: pid, vid: vid, link: link };   // csoportos küldés: egy közös levél megy
   let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
   logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
   return { project: projectView_(fullProject_(p), u), mail: mail };
+}
+/** Több videó egyszerre belső ellenőrzésre – egyetlen e-mail az ellenőrzőnek. a: {to, note, items:[{projectId, id, link}]} */
+function videoReviewBatch_(u, a) {
+  a = a || {}; const to = REVIEWERS_[String(a.to || '')]; if (!to) throw new Error('Válaszd ki, ki kapja az értesítést.');
+  const items = (Array.isArray(a.items) ? a.items : []).slice(0, 40); if (!items.length) throw new Error('Nincs kiválasztott videó.');
+  items.forEach(x => { if (!/^https?:\/\/\S+$/i.test(String(x && x.link || '').trim())) throw new Error('Minden videóhoz illeszd be a linket (https://…).'); });
+  const note = str_(a.note, 1000).trim(), done = [], projects = {};
+  items.forEach(x => { const r = videoReview_(u, { to: a.to, note: note, projectId: x.projectId, id: x.id, link: x.link, noMail: true }); done.push(r); projects[r.pid] = r.project; });
+  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop(), pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
+  const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldött ' + done.length + ' videót – ' + pn + ':\n\n' + done.map(r => '• ' + r.name + ': ' + r.link).join('\n') + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + appUrl_() + '#p=' + done[0].pid + '\n\nA projekt videótáblájában megnézheted, jóváhagyhatod vagy visszadobhatod őket.';
+  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldött <b>' + done.length + ' videót</b> – ' + escapeHtml_(pn) + ':</p><ul>' + done.map(r => '<li><a href="' + escapeHtml_(appUrl_() + '#p=' + r.pid + '&v=' + encodeURIComponent(r.vid)) + '">' + escapeHtml_(r.name) + '</a></li>').join('') + '</ul>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(appUrl_() + '#p=' + done[0].pid) + '">A projekt megnyitása</a></p>';
+  let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + done.length + ' videó – ' + pn, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
+  return { projects: Object.keys(projects).map(k => projects[k]), mail: mail, n: done.length };
 }
 /** Hozzászólás egy videóhoz (vezető vagy a projekt vágója); ts: másodperc a videóban, ha a lejátszóból időponthoz kötötték. A vágó e-mailt kap, ha más írt; ha ő írt, az ellenőrző. */
 const pinStrip_ = t => String(t || '').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' – jelölés]');   // az e-mailben nincs emoji (a levelezők elrontják)   // a tű koordinátái az e-mailben nem kellenek
@@ -4848,6 +4862,7 @@ function rpcInner_(token, name, arg) {
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
     case 'videoReview': return videoReview_(u, arg);
+    case 'videoReviewBatch': return videoReviewBatch_(u, arg);
     case 'videoClient': return videoClient_(u, arg);
     case 'videoComment': return videoComment_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);
