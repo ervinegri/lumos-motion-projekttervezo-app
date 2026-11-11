@@ -2,7 +2,7 @@
    Lehetőségek a szerződésig: Új érdeklődő → Ajánlat kiküldve → Tárgyalás → Szerződve / Elveszett.
    Az ügyvezető mindet látja (és szűrhet értékesítőre), az értékesítő csak a sajátjait. Szerződéskor projekt jön létre
    (Tervezés szakasz) – az értékesítő ezután csak azt látja, hogy szerződve lett, a projekt részleteit és a díjakat nem. */
-const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküldve','📨'],['targyalas','Tárgyalás','🤝'],['nyert','Szerződve','✅'],['fizetve','Fizetve / rendezve','💰'],['elveszett','Elveszett','✕']];   // „Díjbekérő kifizetve”: szerződött lehetőség, amelynek projektjéhez kifizetett díjbekérő / számla tartozik (magától kerül ide)
+const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküldve','📨'],['targyalas','Tárgyalás','🤝'],['nyert','Szerződve','✅'],['fizetve','Díjbekérő fizetve','💰'],['elveszett','Elveszett','✕']];   // „Díjbekérő kifizetve”: szerződött lehetőség, amelynek projektjéhez kifizetett díjbekérő / számla tartozik (magától kerül ide)
 const DEAL_OPEN=['uj','ajanlat','targyalas'],DEAL_CHANCE={uj:10,ajanlat:30,targyalas:60};
 const DEAL_SOURCES=['Ajánlás','Visszatérő ügyfél','Weboldal','E-mail / telefon','Közösségi média','Rendezvényen','Hideg megkeresés','Egyéb'];
 const dealLbl=s=>(DEAL_STAGES.find(x=>x[0]===s)||[,s])[1];
