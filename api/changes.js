@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d922fca128",
+"at": "2026-11-11T11:44:38+01:00",
+"msg": "Videó ablak: javítás alatt általános válasz mező (automatikus időkód nélkül); Megnyitás új lapon eltávolítva"
+},
+{
 "id": "ec0ddf9e9f",
 "at": "2026-11-11T11:42:16+01:00",
 "msg": "Videós e-mailek: a link egyenesen a videót nyitja meg a hozzászólásokkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefonszám mező keskenyebb"
 },
 {
-"id": "57b34bccfb",
-"at": "2026-11-11T10:02:22+01:00",
-"msg": "Jóváhagyó oldal: módosítás-kérés módban nincs Jóváhagyom gomb"
-},
-{
-"id": "f760b49a9d",
-"at": "2026-11-11T09:01:21Z",
+"id": "5ffb5f1c76",
+"at": "2026-11-11T09:02:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
