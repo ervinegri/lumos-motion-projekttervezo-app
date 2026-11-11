@@ -1,7 +1,7 @@
 /* Az ügyfél jóváhagyó oldala (a belső ellenőrző nézet mintájára): beágyazott lejátszó, mellette az észrevételek időkóddal,
    jóváhagyás vagy módosítási kérés. A döntés csak gombnyomásra történik (a levelezők előre megnyithatják a linket). */
 (function(){
-  const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||(/^\/v\/([A-Za-z0-9]{6,16})\/?$/.exec(location.pathname)||[])[1]||'',d=q.get('d')||'';
+  const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||(/^\/(?:v\/)?([A-Za-z0-9]{6,16})\/?$/.exec(location.pathname)||[])[1]||'',d=q.get('d')||'';
   let CUR=q.get('v')||'';   /* több videó egy linken: a kiválasztott videó */
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const api=(fn,args)=>fetch(window.LUMOS_API_URL+'?p='+encodeURIComponent(JSON.stringify({fn,args}))).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
