@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2c0df5faf8",
+"at": "2026-11-11T10:27:00+01:00",
+"msg": "Jóváhagyó oldal: nyitó logó legfeljebb 7 mp"
+},
+{
 "id": "2b383d06ee",
 "at": "2026-11-11T10:26:32+01:00",
 "msg": "Jóváhagyó oldal: szóközzel indítható / megállítható a videó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: TIG-es / keretszerződéses ügyfél szerződéskor a Fizetve / rendezve oszlopba kerül"
 },
 {
-"id": "e66912649c",
-"at": "2026-11-11T00:55:41+01:00",
-"msg": "Értékesítés: Díjbekérő kifizetve oszlop (kifizetett díjbekérő / számla alapján magától)"
-},
-{
-"id": "01a3dc76db",
-"at": "2026-11-10T23:53:56Z",
+"id": "789d2ecb84",
+"at": "2026-11-10T23:55:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
