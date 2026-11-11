@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "188e610ce1",
+"at": "2026-11-11T10:25:36+01:00",
+"msg": "Jóváhagyó oldal: Tetszik a videó?"
+},
+{
 "id": "05059c7f5a",
 "at": "2026-11-11T10:24:51+01:00",
 "msg": "Jóváhagyó oldal: fekvő videónál cím és alsor egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jelölés mód: kék keret, sötétítés és felirat a lejátszón, gomb felirata vált"
 },
 {
-"id": "856348dcb5",
-"at": "2026-11-11T00:50:24+01:00",
-"msg": "Filmszalag emoji ki az átnevezésnél is"
-},
-{
-"id": "9f7931cd21",
-"at": "2026-11-10T23:50:07Z",
+"id": "320df569b0",
+"at": "2026-11-10T23:50:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
