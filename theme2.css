@@ -735,3 +735,8 @@ html.th2 .vv-cm button.vv-play.on,html.th2 .vv-cm button.vv-play.on:hover:not(:d
 html.th2 .vv-cm button.vv-ts:has(+.vv-play),html.th2 .vv-cm button.vv-play{line-height:18px;height:18px;padding-top:0;padding-bottom:0;vertical-align:middle;box-sizing:border-box}
 .cl-docs-drop.over{outline:2px dashed var(--accent,#2e9e62);outline-offset:6px;border-radius:10px;background:rgba(46,158,98,.05)}.cl-drop-hint{margin:8px 0 0;font-size:12.5px}
 .cl-docs-drop.busy{opacity:.55;pointer-events:none}.cl-docs-drop.busy h4::after{content:" · feltöltés…";font-weight:500;color:#7a8590}
+/* ügyfél adatlap: látható feltöltő mező */
+.cl-drop-box{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin-top:10px;padding:14px 16px;border:2px dashed #c9d3dc;border-radius:12px;background:#fafcfd;color:#1d2a38;text-align:left;cursor:pointer;font:inherit;transition:border-color .15s,background .15s}
+.cl-drop-box:hover,.cl-docs-drop.over .cl-drop-box{border-color:var(--accent,#2e9e62);background:rgba(46,158,98,.06)}
+.cl-drop-box .cl-drop-ic{font-size:22px}.cl-drop-box b{display:block;font-size:14px}.cl-drop-box small{display:block;color:#6b7785;font-size:12.5px;margin-top:2px}
+.cl-docs-drop.over{outline:0;background:transparent}

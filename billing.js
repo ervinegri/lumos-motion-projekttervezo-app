@@ -571,6 +571,8 @@ async function clientContractDrop(client,file,zone){if(!client)return;
     else if($('modalRoot').innerHTML&&document.querySelector('.cl-docs')){closeModal();clDocsReopen(client);}else render(true);}
   catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}}
 function clDocsReopen(client){const go=()=>{if(S.clDocs){render(true);clDocsModal(client);}else setTimeout(go,400);};clDir(client);go();}
+ACT['cl-doc-pick']=b=>{const z=b.closest('[data-cldrop]'),i=document.createElement('input');i.type='file';i.accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.heic';
+  i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(!CDROP_OK.test(f.name)){toast('Szerződésként PDF, Word vagy kép tölthető fel.',true);return;}if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}clientContractDrop(b.dataset.client,f,z);};i.click();};
 ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.dataset.client;
   if(b.dataset.inline){confirmLayer('Szerződés törlése',`<p style="margin:0 0 4px">A(z) „<b>${esc(name)}</b>” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.</p>`,'Törlés',async(bt,layer)=>{
     try{const d=await call('clientDocDelete',{url,client});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();layer.remove();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}
