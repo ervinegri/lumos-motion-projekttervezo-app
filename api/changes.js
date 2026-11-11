@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8130ec4f84",
+"at": "2026-11-11T11:51:26+01:00",
+"msg": "Videó: keret a ▶ gombon"
+},
+{
 "id": "aac1c67c8e",
 "at": "2026-11-11T11:50:38+01:00",
 "msg": "Videó hozzászólások: magyarázat a kattintható időkódokról, válaszok elkülönítve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a kártya függőlegesen a képernyő közepén"
 },
 {
-"id": "a0bb7af977",
-"at": "2026-11-11T10:21:50+01:00",
-"msg": "Jóváhagyó oldal: magyar idézőjel a súgóban"
-},
-{
-"id": "e3d7efd7b8",
-"at": "2026-11-11T09:19:26Z",
+"id": "b0bf57e3c7",
+"at": "2026-11-11T09:21:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
