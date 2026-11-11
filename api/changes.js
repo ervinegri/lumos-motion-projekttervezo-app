@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6cfd4e4b68",
+"at": "2026-11-11T20:35:17+01:00",
+"msg": "Naptár: szakember nézetben nincs Google Naptár-hibaüzenet"
+},
+{
 "id": "edabf27274",
 "at": "2026-11-11T20:33:20+01:00",
 "msg": "Vágó nézet: az ügyfél említése nélkül (Továbbküldve jóváhagyásra / Jóváhagyásra vár)"
@@ -152,14 +157,9 @@ const ITEMS = [
 "msg": "Ügyfél-levél előnézet: a Videó megtekintése gomb kipróbálható (megnyitásnak nem számít, dönteni nem lehet)"
 },
 {
-"id": "67a4c5b7d3",
-"at": "2026-11-11T18:38:12+01:00",
-"msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
-},
-{
-"id": "1219f35000",
-"at": "2026-11-11T18:36:17+01:00",
-"msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
+"id": "55e6aaa28b",
+"at": "2026-11-11T17:38:23Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
