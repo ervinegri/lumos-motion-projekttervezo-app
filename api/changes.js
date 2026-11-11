@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "95266a9d45",
+"at": "2026-11-11T11:23:21+01:00",
+"msg": "Számlakártyák: Opciók menü (jelölés fizetettnek, sztornó) a közvetlen gombok helyett"
+},
+{
 "id": "46e632ddff",
 "at": "2026-11-11T11:17:28+01:00",
 "msg": "Bizonylat hozzárendelése: Mégse után vissza a számla kiállításához"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: javítás – a pCloud / YouTube link nem került a közvetlen videó ágba"
 },
 {
-"id": "7c16a43bac",
-"at": "2026-11-11T09:49:28+01:00",
-"msg": "Jóváhagyó oldal: Enter sehol nem szúr be időkódot"
-},
-{
-"id": "b5c4e79558",
-"at": "2026-11-11T08:49:03Z",
+"id": "c940cdf416",
+"at": "2026-11-11T08:49:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
