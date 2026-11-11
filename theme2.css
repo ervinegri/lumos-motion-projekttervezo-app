@@ -697,3 +697,6 @@ html.th2 .dl-fizetve .dl-colh{color:#1f6b3e}
 .ph-copy:hover{background:#eef1f4;color:var(--fg)}
 .ph-copy.ok{color:#1f6b3e;background:#e8f3ec}
 .phone-row:has(.ph-num:placeholder-shown) .ph-copy{display:none}
+/* telefonszám mező: csak olyan széles, amilyen egy telefonszám (a másolás gomb így közvetlenül a szám mellett van) */
+html.th2 .phone-row{width:fit-content;max-width:100%}
+html.th2 .phone-row .ph-num{flex:0 1 210px;width:210px}
