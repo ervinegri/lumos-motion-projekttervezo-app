@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "88ff50dd95",
+"at": "2026-11-11T20:35:44+01:00",
+"msg": "Vágó nézet: Jóváhagyásra vár (rövidebb)"
+},
+{
 "id": "6cfd4e4b68",
 "at": "2026-11-11T20:35:17+01:00",
 "msg": "Naptár: szakember nézetben nincs Google Naptár-hibaüzenet"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Több videó egy levélben az ügyfélnek: közös jóváhagyó oldal fülekkel, videónkénti döntés; a módosítás mezője a sorokkal nő"
 },
 {
-"id": "8195547feb",
-"at": "2026-11-11T18:39:01+01:00",
-"msg": "Ügyfél-levél előnézet: a Videó megtekintése gomb kipróbálható (megnyitásnak nem számít, dönteni nem lehet)"
-},
-{
-"id": "55e6aaa28b",
-"at": "2026-11-11T17:38:23Z",
+"id": "1e8b2f67f9",
+"at": "2026-11-11T17:39:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
