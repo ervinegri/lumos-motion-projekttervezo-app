@@ -754,3 +754,9 @@ html.th2 .cl-doc .cl-doc-n{font-size:13.5px;color:var(--fg,#1d2a38);font-weight:
 .bd-ghost-n{position:absolute;right:-6px;top:-8px;background:#1f5fc9;color:#fff;font:700 12px Montserrat,system-ui,sans-serif;padding:3px 8px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 html.th2 .mhead>.vv-nav{margin-left:auto;flex:none;order:2}html.th2 .mhead>h3.vv-h{order:1;flex:1 1 0;min-width:0}html.th2 .mhead>.x{order:3}
 html.th2 .mhead>.vv-nav>b{min-width:3.4em;text-align:center;font-variant-numeric:tabular-nums}
+/* oszlopfejléc: kis, egyforma ikongombok (▶ átnézés, ☑ mind) */
+html.th2 .bl-h{white-space:nowrap}
+html.th2 .bl-h .bl-play{width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1;flex:none}
+html.th2 .bl-h .bl-play+.bl-play{margin-left:2px}
+html.th2 .bl-h .bl-selall{font-size:13px}
+html.th2 .bl-h .bl-play:hover{background:#e3ecfb}
