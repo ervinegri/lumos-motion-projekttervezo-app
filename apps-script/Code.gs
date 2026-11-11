@@ -1008,8 +1008,7 @@ function videoClient_(u, a) {
   const btn = '<a class="lmbtn" href="' + escapeHtml_(pageUrl) + '" style="display:inline-block;background:#f6efe1;border:1px solid #e3d3b0;border-radius:10px;padding:6px 22px 6px 10px;text-decoration:none;color:#1d2a38;font-family:Montserrat,Arial,sans-serif;line-height:1.2">'
     + '<img class="lmstamp" src="' + FRONTEND_URL + '/mail/stamp.png" width="48" height="48" alt="Lumos Motion" style="vertical-align:middle;border:0;display:inline-block">'
     + '<span style="display:inline-block;vertical-align:middle;border-left:1px solid #e3d3b0;padding-left:14px;margin-left:12px">'
-    + '<span style="display:block;font-size:10px;letter-spacing:2px;color:#7a5a1f;font-weight:600">&#9993; LEVÉL ÉRKEZETT</span>'
-    + '<span style="display:block;font-size:15px;font-weight:600;color:#1d2a38;padding-top:3px">Videó megtekintése &#9654;</span></span></a>';   // Lumos postabélyegzős „levél” gomb (a pecsét kép: /mail/stamp.png)
+    + '<span style="display:block;font-size:15px;font-weight:600;color:#1d2a38">Videó megtekintése &#9654;</span></span></a>';   // Lumos postabélyegzős „levél” gomb (a pecsét kép: /mail/stamp.png)
   const btnCss = '<style>.lmbtn:hover{background:#efe3c6!important;border-color:#d4b97c!important;box-shadow:0 4px 12px rgba(29,42,56,.16)}.lmbtn:active{background:#e6d4ab!important;box-shadow:inset 0 2px 5px rgba(29,42,56,.18)}.lmbtn .lmstamp{transition:transform .2s}.lmbtn:hover .lmstamp{transform:rotate(-8deg) scale(1.06)}.lmbtn:active .lmstamp{transform:rotate(-8deg) scale(.96)}</style>';
   const sig = signatureFor_(u), html = text.split(/\n/).map(l => l.trim() === pageUrl ? btn : escapeHtml_(l).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>')).join('<br>');
   const subj = (live ? '' : '[TESZT – valójában neki: ' + to + '] ') + (str_(a.subject, 200).trim() || ('Elkészült: ' + (v ? v.name : 'videó') + ' – ' + p.name));
