@@ -760,3 +760,25 @@ html.th2 .bl-h .bl-play{width:24px;height:24px;padding:0;display:inline-flex;ali
 html.th2 .bl-h .bl-play+.bl-play{margin-left:2px}
 html.th2 .bl-h .bl-selall{font-size:13px}
 html.th2 .bl-h .bl-play:hover{background:#e3ecfb}
+/* ===== Videó ablak telefonon: tiszta, teljes képernyős elrendezés (mint az ügyfél jóváhagyó oldala) ===== */
+@media (max-width:700px){
+  .modal:has(#mform.m-video){padding:0;align-items:stretch}
+  #mform.m-video{width:100%;max-width:none;min-height:100dvh;border-radius:0;border:0;box-shadow:none;padding:14px 14px calc(14px + env(safe-area-inset-bottom));gap:12px;margin:0}
+  #mform.m-video .mhead{gap:8px 10px;align-items:flex-start}
+  html.th2 #mform.m-video .mhead>h3.vv-h{flex:1 1 100%;order:1;font-size:17px;line-height:1.25}
+  #mform.m-video .mhead h3 .vv-title{display:inline}
+  #mform.m-video .vv-meta{display:block;margin-top:4px;font-size:12.5px}
+  html.th2 #mform.m-video .mhead>.vv-nav{order:2;margin-left:0;flex-wrap:wrap;gap:6px}
+  html.th2 #mform.m-video .mhead>.x{order:0;position:absolute;right:12px;top:12px}
+  #mform.m-video .vv-nav .vv-all{font-size:12px;padding:4px 10px}
+  #mform.m-video .vv-body,#mform.m-video .vv-body.side{display:block}
+  #mform.m-video .vv-player{width:100%;border-radius:12px}
+  #mform.m-video .vv-player.vert{height:auto;width:min(100%,calc(66dvh * 9 / 16));max-width:100%;margin:0 auto}
+  #mform.m-video .vv-body.side .vv-cm{max-height:none;margin-top:12px!important}
+  #mform.m-video .mfoot{position:sticky;bottom:0;background:#fff;padding-top:10px;margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #mform.m-video .mfoot>*{width:100%;min-width:0}
+  #mform.m-video .mfoot .vv-tcw{grid-column:1/-1}
+  #mform.m-video .mfoot .vv-tcw kbd{display:none}
+  #mform.m-video .mfoot button[type=submit]{grid-column:1/-1;order:3}
+  #mform.m-video .mfoot .btn{padding:11px 12px;font-size:15px}
+}
