@@ -1482,7 +1482,7 @@ function clContract(c,ps){
   if(f&&f.mode==='nemkell')return `<div class="cl-ctr"><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}" checked> Nem kell szerződés</label></div>`;
   if(docs.length>1)return `<div class="cl-ctr" data-cldrop="${cl}"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}">📑 ${docs.length} szerződés</button>${edit}</div>`;
   if(docs.length)return `<div class="cl-ctr" data-cldrop="${cl}"><button class="bl-file linkbtn" type="button" data-action="cl-docs" data-client="${cl}" data-tip="${esc(docs[0].name)}">📄 ${esc(docLabel(docs[0]))}</button></div>`;
-  return `<div class="cl-ctr cl-dropcell" data-cldrop="${cl}"><span class="cdrop-tip">📥 Húzd ide</span><label class="bl-nocontract"><input type="checkbox" data-clnone="${cl}"> Nem kell</label></div>`;
+  return `<div class="cl-ctr cl-dropcell" data-cldrop="${cl}"><span class="cdrop-tip">📥 Húzd ide</span></div>`;
 }
 /* Ügyfél adatlapja (csak ügyvezető): a szerződései */
 function clientDocsHtml(name){if(!name)return '';const c=knownClients('').find(x=>x.company===name)||{company:name};const ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===String(name).toLowerCase());
