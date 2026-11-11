@@ -828,3 +828,8 @@ html body .tl-row .tl-track .tl-bar:has(.tl-ok){padding-left:2px!important;paddi
 html body .stage .t-row .stage-board{font-size:12px;font-weight:600;padding:5px 12px;background:#101923;color:#fff;gap:6px;box-shadow:0 2px 8px rgba(16,25,35,.25);cursor:pointer;transition:transform .12s,box-shadow .12s}
 html body .stage .t-row .stage-board b{font-weight:800;color:#ffde59}
 html body .stage .t-row .stage-board:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,25,35,.32)}
+/* szakember nézet: a projekt fejlécében a gombok (pl. 📅 Naptárban) a cím mellett, nem külön sorban */
+.dhead.dhead-inline{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:center}
+.dhead.dhead-inline>*:not(.dtitle):not(.btns){grid-column:1/-1}
+.dhead.dhead-inline>.btns{margin:0;justify-content:flex-end}
+.dhead.dhead-inline>.btns:empty{display:none}
