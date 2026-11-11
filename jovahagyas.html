@@ -163,6 +163,11 @@ body>.card>.body{flex:1;align-content:start;align-items:end}
 .player.tctl.tpaused:not(:has(.bigplay))::after{content:'';position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;z-index:3;pointer-events:none;background:rgba(14,22,32,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='%23fff'/%3E%3C/svg%3E") 56% 50%/30px no-repeat}
 @media (hover:none){textarea,input,select{font-size:16px!important}}   /* iPhone: 16px alatt a mezőbe koppintáskor ránagyít, és szétesik az oldal */
 html,body{overflow-x:clip}
+@media (max-width:860px){body{padding:0!important;background:#fff!important}body>.card,.card{border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important;max-width:none!important;width:100%!important;padding:14px 14px 20px!important}.pvban{margin:0!important;border-radius:0!important}}   /* telefonon nincs keret / buborék az oldal körül */
+.varr{display:none}
+@media (min-width:861px){#main.vside .varr-host{position:relative}#main.vside .varr{display:flex;position:absolute;top:50%;margin-top:-26px;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:#fff;color:#1d2a38;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(16,25,35,.08);z-index:6}
+  #main.vside .varr.prev{left:-72px}#main.vside .varr.next{right:-72px}#main.vside .varr:hover:not(:disabled){background:#f3f6f9}#main.vside .varr:disabled{opacity:.25;cursor:default}
+  #main.vside:has(.varr) .side{margin-left:84px!important;width:calc(100% - 84px)!important;min-width:0}}   /* a videó két oldalán nyilak (a panel arrébb kerül, hogy ne takarja) */
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 </head>

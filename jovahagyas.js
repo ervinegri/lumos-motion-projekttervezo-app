@@ -40,7 +40,7 @@
     if((m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{10,})/.exec(u)))return `<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     if((m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/.exec(u)))return `<iframe data-vert="${/shorts\//.test(u)?1:''}" src="https://www.youtube.com/embed/${m[1]}?enablejsapi=1&playsinline=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
     if((m=/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/.exec(u)))return `<iframe src="https://player.vimeo.com/video/${m[1]}${m[2]?'?h='+m[2]:''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-    if(/^https:\/\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)){dlSet(u);return `<video src="${esc(BLOB[u]||u)}" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;}
+    if(/^https:\/\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)){dlSet(u);return `<video src="${esc(ff(BLOB[u]||u))}" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;}
     if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u))&&PCV[u]){if(PCV[u].dl)setTimeout(()=>dlSet(PCV[u].dl),0);return vTag(PCV[u].src);}
     if(m)return `<div class="noembed" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span>Videó betöltése…</div>`;
     return '';}
@@ -58,7 +58,8 @@
         const f=vidOf(sj.metadata);if(!f)break;const fid=f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:'';
         const [j,jd]=await Promise.all([0,1].map(fd=>fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=${fd}${fid}`,{referrerPolicy:'no-referrer'}).then(r=>r.json()).catch(()=>null)));
         if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path)return PCV[link]={src:'https://'+j.hosts[0]+j.path,dl:jd&&jd.result===0&&jd.hosts&&jd.hosts.length?'https://'+jd.hosts[0]+jd.path:''};}catch(e){}}PC[link]=null;return null;})();}
-  const vTag=src=>`<video src="${esc(BLOB[src]||src)}" referrerpolicy="no-referrer" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline preload="auto"></video>`;
+  const ff=u=>/#/.test(u)?u:u+'#t=0.001';   /* iPhone: így a lejátszás előtt is megjelenik az első képkocka */
+  const vTag=src=>`<video src="${esc(ff(BLOB[src]||src))}" referrerpolicy="no-referrer" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline preload="auto"></video>`;
   async function pcloud(link){const el=document.querySelector('[data-pc-code]');if(!el)return;const r=await pcResolve(link);if(!el.isConnected)return;
     if(r){el.outerHTML=vTag(r.src);videoReady();if(r.dl)dlSet(r.dl);return;}el.outerHTML=noEmbed(link);}
   /* előtöltés: a többi videó adatai és fájl-linkje a háttérben, a szomszédos videók eleje a böngésző gyorsítótárába */
@@ -129,6 +130,10 @@
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
     if(!w){w=document.createElement('div');w.id='vtabs';w.className='vnav';const side=document.querySelector('.side');{const tt=$('ttl');if(tt&&tt.parentElement===side)tt.after(w);else side.insertBefore(w,side.firstChild);}}
     const k=i.items.findIndex(x=>x.id===i.cur),pv=i.items[k-1],nx=i.items[k+1],dn=i.items.filter(x=>x.state!=='wait').length;
+    {/* gépen a videó két oldalán is van előző / következő nyíl */const pw=$('player')&&$('player').parentElement;if(pw){pw.classList.add('varr-host');
+      const mk=(cls,it,lbl,d)=>{let b=pw.querySelector('.varr.'+cls);if(!b){b=document.createElement('button');b.type='button';b.className='varr '+cls;b.setAttribute('aria-label',lbl);b.innerHTML=`<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;b.onclick=()=>{if(b.dataset.v)goV(b.dataset.v);};pw.appendChild(b);}
+        b.dataset.v=it?it.id:'';b.disabled=!it;b.title=it?it.name:'';};
+      mk('prev',pv,'Előző videó','M15 5l-7 7 7 7');mk('next',nx,'Következő videó','M9 5l7 7-7 7');}}
     w.innerHTML=`<button type="button" class="vn-b" data-v="${pv?esc(pv.id):''}"${pv?'':' disabled'} aria-label="Előző videó"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="vn-mid"><b>${k+1}. videó a ${i.items.length}${huBol(i.items.length)}</b><span class="vn-dots">${i.items.map((x,n)=>`<span class="vn-d st-${x.state}${x.id===i.cur?' on':''}" data-v="${esc(x.id)}" title="${esc(x.name)}${x.state==='ok'?' – jóváhagyva':x.state==='mod'?' – módosítást kértél':''}">${n+1}</span>`).join('')}</span>${dn===i.items.length?`<small class="vn-all">✓ Mind a ${i.items.length} videót elbíráltad</small>`:`<small>${dn} / ${i.items.length} elbírálva</small>`}</div><button type="button" class="vn-b" data-v="${nx?esc(nx.id):''}"${nx?'':' disabled'} aria-label="Következő videó"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
     w.onclick=e=>{const b=e.target.closest('[data-v]');if(!b||!b.dataset.v||b.dataset.v===CUR)return;goV(b.dataset.v);};
     const nw=i.items.find(x=>x.state==='wait'&&x.id!==i.cur);document.querySelectorAll('.vnext').forEach(x=>x.remove());
