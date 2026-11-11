@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2b383d06ee",
+"at": "2026-11-11T10:26:32+01:00",
+"msg": "Jóváhagyó oldal: szóközzel indítható / megállítható a videó"
+},
+{
 "id": "7d20e30183",
 "at": "2026-11-11T10:26:09+01:00",
 "msg": "Jóváhagyó oldal: a nyitó logó a videó betöltéséhez igazodik (gyorsan eltűnik, ha gyors; kivárja, ha lassú)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: Díjbekérő kifizetve oszlop (kifizetett díjbekérő / számla alapján magától)"
 },
 {
-"id": "6e80dfc72e",
-"at": "2026-11-11T00:53:46+01:00",
-"msg": "Ügyfél jóváhagyására vár: hozzászólás-mező mindenkinél eltűnik, a módosítási kérés külön ablakban"
-},
-{
-"id": "b1e6d5c60c",
-"at": "2026-11-10T23:52:43Z",
+"id": "01a3dc76db",
+"at": "2026-11-10T23:53:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
