@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "892bf278fe",
+"at": "2026-11-11T14:51:10+01:00",
+"msg": "Ügyfélszerződés: felülírás vagy új szerződés választható; időkód pipát csak a javító vágó jelölhet"
+},
+{
 "id": "42d6531703",
 "at": "2026-11-11T11:59:37+01:00",
 "msg": "Videó: a ▶ magyarázata frissítve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: szóközzel indítható / megállítható a videó"
 },
 {
-"id": "7d20e30183",
-"at": "2026-11-11T10:26:09+01:00",
-"msg": "Jóváhagyó oldal: a nyitó logó a videó betöltéséhez igazodik (gyorsan eltűnik, ha gyors; kivárja, ha lassú)"
-},
-{
-"id": "79ebf7e5c7",
-"at": "2026-11-11T09:25:46Z",
+"id": "4c5d30f4ae",
+"at": "2026-11-11T09:26:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
