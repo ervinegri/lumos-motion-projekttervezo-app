@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "46e632ddff",
+"at": "2026-11-11T11:17:28+01:00",
+"msg": "Bizonylat hozzárendelése: Mégse után vissza a számla kiállításához"
+},
+{
 "id": "7b093e93bc",
 "at": "2026-11-11T11:11:56+01:00",
 "msg": "Díjbekérő sztornó: törlés a számlázz.hu-ban és az appból"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: Enter sehol nem szúr be időkódot"
 },
 {
-"id": "8fc5c29bf5",
-"at": "2026-11-11T09:48:55+01:00",
-"msg": "Jóváhagyó oldal: Enter nem szúr be időkódot (csak a gomb); biztosabb Lejátszás gomb"
-},
-{
-"id": "da4536ac24",
-"at": "2026-11-11T08:47:52Z",
+"id": "b5c4e79558",
+"at": "2026-11-11T08:49:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
