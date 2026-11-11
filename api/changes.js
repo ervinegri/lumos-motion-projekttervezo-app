@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "93268b8aad",
+"at": "2026-11-11T11:47:34+01:00",
+"msg": "Videó: ▶ gomb az időkód mögött (lejátszás / megállítás), az időkód csak odaugrik"
+},
+{
 "id": "a7bd4def88",
 "at": "2026-11-11T11:46:00+01:00",
 "msg": "Videó: ugyanarra az időkódra újra kattintva a lejátszás megáll"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: időkód nem kötelező, szabad szöveges módosítás-kérés"
 },
 {
-"id": "d175d5927d",
-"at": "2026-11-11T10:03:44+01:00",
-"msg": "E-mail mezők: másolás gomb"
-},
-{
-"id": "071712e0b1",
-"at": "2026-11-11T09:03:37Z",
+"id": "5f3ec378ca",
+"at": "2026-11-11T09:03:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
