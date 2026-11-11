@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "be1c7b8be2",
+"at": "2026-11-11T18:03:26+01:00",
+"msg": "Jóváhagyó oldal: álló videó az oldal közepén"
+},
+{
 "id": "cf47f8fce0",
 "at": "2026-11-11T18:01:56+01:00",
 "msg": "Jóváhagyó oldal: teljes képernyős elrendezés (nem lebegő kártya)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jelölt időkód: kék háttér marad, csak a narancs pötty jelzi"
 },
 {
-"id": "6c0d299772",
-"at": "2026-11-11T15:27:21+01:00",
-"msg": "Időkódok egységes szélességben; a jelölt időkód narancs árnyalattal, emoji nélkül"
-},
-{
-"id": "47790cfe4a",
-"at": "2026-11-11T14:06:14Z",
+"id": "9474ad9f30",
+"at": "2026-11-11T14:27:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
