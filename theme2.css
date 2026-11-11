@@ -762,9 +762,9 @@ html.th2 .bl-h .bl-selall{font-size:13px}
 html.th2 .bl-h .bl-play:hover{background:#e3ecfb}
 /* ===== Videó ablak telefonon: tiszta, teljes képernyős elrendezés (mint az ügyfél jóváhagyó oldala) ===== */
 @media (max-width:700px){
-  .modal:has(#mform.m-video){padding:0;align-items:stretch}
-  #mform.m-video{width:100%;max-width:none;min-height:100dvh;border-radius:0;border:0;box-shadow:none;padding:14px 14px calc(14px + env(safe-area-inset-bottom));gap:12px;margin:0}
-  #mform.m-video .mhead{gap:8px 10px;align-items:flex-start}
+  .modal:has(#mform.m-video){padding:0;align-items:flex-start}
+  #mform.m-video{width:100%;max-width:none;max-height:none!important;height:auto!important;overflow:visible!important;min-height:100dvh;border-radius:0;border:0;box-shadow:none;padding:14px 14px calc(14px + env(safe-area-inset-bottom));gap:12px;margin:0}
+  #mform.m-video .mhead{gap:8px 10px;align-items:flex-start;flex-wrap:wrap!important;position:relative;padding-right:36px}
   html.th2 #mform.m-video .mhead>h3.vv-h{flex:1 1 100%;order:1;font-size:17px;line-height:1.25}
   #mform.m-video .mhead h3 .vv-title{display:inline}
   #mform.m-video .vv-meta{display:block;margin-top:4px;font-size:12.5px}
