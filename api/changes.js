@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e93f328990",
+"at": "2026-11-11T15:36:57+01:00",
+"msg": "Javítás elküldése: tipp sor törölve"
+},
+{
 "id": "1d57fcd16b",
 "at": "2026-11-11T15:36:14+01:00",
 "msg": "Javítás elküldése: figyelmeztetés szövege"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-hozzászólás: időkód beszúrásakor a mező nem ugrik a lista aljára"
 },
 {
-"id": "95266a9d45",
-"at": "2026-11-11T11:23:21+01:00",
-"msg": "Számlakártyák: Opciók menü (jelölés fizetettnek, sztornó) a közvetlen gombok helyett"
-},
-{
-"id": "b52846c1eb",
-"at": "2026-11-11T10:17:38Z",
+"id": "f9a384ca93",
+"at": "2026-11-11T10:23:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
