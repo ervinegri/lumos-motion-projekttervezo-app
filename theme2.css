@@ -719,5 +719,6 @@ html.th2 .bs-optbtn:hover{background:#f3f6f8;color:var(--fg,#1d2a38)!important}
 .vv-grep-btn{position:absolute;top:8px;right:10px;border:1px solid #d6dde2;background:#fff;color:var(--fg-2,#5b6670);font:inherit;font-size:12px;font-weight:650;padding:3px 9px;border-radius:7px;cursor:pointer}
 .vv-grep-btn:hover{background:#f1f4f6;color:var(--fg,#1d2a38)}
 .vv-cm-l>.vv-cm-i:has(.vv-grep-btn)>.vv-cm-del{margin-right:78px}
-.vv-greps{margin-top:8px}
-.vv-cm-i>.vv-rep-in{margin-top:8px;width:100%}
+.vv-reps.vv-greps{margin:12px 0 2px;border-left:0;border-top:1px dashed #d6dde2;padding:8px 0 0}.vv-greps .vv-rep{font-size:14px}
+.vv-cm-i>.vv-rep-in{margin:8px 0 0;width:100%;box-sizing:border-box;display:block}
+.vv-cm-howto{margin:0 0 10px;font-size:12.5px}
