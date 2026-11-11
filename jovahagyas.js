@@ -92,8 +92,13 @@
   $('bModX').onclick=()=>{modOpen(false);if($('err2'))$('err2').hidden=true;};
   $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
-  /* Szóköz: lejátszás / megállítás (ha nem a szövegmezőbe ír) – az első lenyomás hanggal indítja */
-  document.addEventListener('keydown',e=>{if(e.code!=='Space'&&e.key!==' ')return;const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable||a.tagName==='BUTTON'||a.tagName==='A'))return;const v=vd();if(!v)return;e.preventDefault();
-    const bp=document.querySelector('.bigplay');if(bp){bp.click();return;}if(v.paused){v.muted=false;v.play().catch(()=>{});}else v.pause();});
+  /* Szóköz: rövid lenyomás = lejátszás / megállítás (az első hanggal indít); hosszan nyomva = 2× sebesség, amíg nyomod (mint a YouTube-on) */
+  {let hold=0,fast=false,down=false;const typing=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable||a.tagName==='BUTTON'||a.tagName==='A');};
+    const badge=on=>{const pl=$('player');if(!pl)return;let b=pl.querySelector('.spd');if(!b){b=document.createElement('div');b.className='spd';b.textContent='2× ▸▸';pl.appendChild(b);}b.classList.toggle('on',on);};
+    document.addEventListener('keydown',e=>{if((e.code!=='Space'&&e.key!==' ')||typing())return;const v=vd();if(!v)return;e.preventDefault();if(e.repeat||down)return;down=true;fast=false;
+      hold=setTimeout(()=>{fast=true;const bp=document.querySelector('.bigplay');if(bp)bp.click();else if(v.paused){v.muted=false;v.play().catch(()=>{});}v.playbackRate=2;badge(true);},350);});
+    document.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();
+      if(fast){v.playbackRate=1;badge(false);fast=false;return;}const bp=document.querySelector('.bigplay');if(bp){bp.click();return;}if(v.paused){v.muted=false;v.play().catch(()=>{});}else v.pause();});
+    window.addEventListener('blur',()=>{if(fast){const v=vd();if(v)v.playbackRate=1;badge(false);fast=false;}down=false;clearTimeout(hold);});}
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
 })();
