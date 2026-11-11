@@ -170,7 +170,7 @@ html,body{overflow-x:clip}
   #main.vside:has(.varr) .side{margin-left:84px!important;width:calc(100% - 84px)!important;min-width:0}}   /* a videó két oldalán nyilak (a panel arrébb kerül, hogy ne takarja) */
 .vdl-w{background:none!important;border:0!important;padding:0!important}.vdl-list{display:flex;flex-direction:column;gap:4px;margin-top:8px;text-align:left}.vdl-i{font-size:13px;font-weight:600;color:#1d2a38;text-decoration:none;padding:6px 10px;border-radius:8px;background:#f3f6f9}.vdl-i:hover{background:#e8eef3}.vdl-i.off{color:#8a96a3;font-weight:400}
 .vn-dots{flex-wrap:nowrap;gap:6px}.vn-d{flex:0 1 26px;min-width:20px}.vn-dots.many{flex-wrap:wrap}   /* a számok egy sorban maradnak (sok videónál törhet) */
-@media (max-width:860px){.player.vert,.body.vside .player.vert{--pw:min(100vw,calc((100svh - 130px) * var(--ar,9/16)));width:var(--pw)!important;height:auto!important;max-height:none!important;margin:0 0 0 calc((100% - var(--pw)) / 2)!important;border-radius:0!important}}   /* telefonon a videó teljes szélességű */
+@media (max-width:860px){.player.vert,.body.vside .player.vert{--pw:min(100vw,calc((100svh - 130px) * var(--ar,9/16)));width:var(--pw)!important;height:auto!important;max-height:none!important;margin:0 0 0 calc((100vw - var(--pw)) / 2 - 14px)!important;border-radius:0!important}.body,.body.vside{grid-template-columns:minmax(0,1fr)!important}}   /* telefonon a videó teljes szélességű */
 .pvban{display:none!important}   /* az előnézeti sáv nem látszik (az előnézet gombjai továbbra sem küldenek semmit) */
 @media (max-width:860px){.card>.head{margin-bottom:10px}.card>.head .logo{height:52px;width:auto}}
 </style>
