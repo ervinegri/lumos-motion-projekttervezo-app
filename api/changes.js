@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef02c9e3d4",
+"at": "2026-11-11T15:28:32+01:00",
+"msg": "Jelölt időkód: kék háttér marad, csak a narancs pötty jelzi"
+},
+{
 "id": "6c0d299772",
 "at": "2026-11-11T15:27:21+01:00",
 "msg": "Időkódok egységes szélességben; a jelölt időkód narancs árnyalattal, emoji nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: Megnyitás új lapon link eltávolítva"
 },
 {
-"id": "66373b7bf2",
-"at": "2026-11-11T10:39:12+01:00",
-"msg": "Jóváhagyó oldal: enyhe hover a Módosítást kérek gombon"
-},
-{
-"id": "8a901f8865",
-"at": "2026-11-11T09:38:31Z",
+"id": "319533584b",
+"at": "2026-11-11T09:39:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
