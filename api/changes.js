@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d6b11ca23f",
+"at": "2026-11-11T18:27:09+01:00",
+"msg": "Videótábla fejléc: kompakt ikongombok (▶, ☑)"
+},
+{
 "id": "3d9e048d07",
 "at": "2026-11-11T18:25:17+01:00",
 "msg": "Videótábla: oszloponként Mind kijelölése gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Levél-előnézetek: gépeléskor nem nő a fehér rész az alján"
 },
 {
-"id": "d5964b4c95",
-"at": "2026-11-11T15:54:40+01:00",
-"msg": "Nem módosítható pipák halványítva"
-},
-{
-"id": "aaef2c645a",
-"at": "2026-11-11T14:53:28Z",
+"id": "358b5e00b8",
+"at": "2026-11-11T14:54:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
