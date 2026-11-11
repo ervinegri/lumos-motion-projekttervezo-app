@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "796570f155",
+"at": "2026-11-11T23:44:12+01:00",
+"msg": "Videóablak: „A videó jóváhagyásra vár.” felirat"
+},
+{
 "id": "250876cf42",
 "at": "2026-11-11T23:23:40+01:00",
 "msg": "Naptár: a vágószűrő a csak vágásos projektekre is vonatkozik"
@@ -195,11 +200,6 @@ const ITEMS = [
 "id": "61fabdb5f3",
 "at": "2026-11-11T21:27:31+01:00",
 "msg": "Jóváhagyó oldal: minden videó elbírálva – csak az összegzés látszik"
-},
-{
-"id": "af75d7c4af",
-"at": "2026-11-11T21:23:59+01:00",
-"msg": "Jóváhagyó oldal: összegzés, ha minden videó elbírálva; középre igazított nyilak"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
