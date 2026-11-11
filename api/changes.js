@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3707986978",
+"at": "2026-11-11T20:37:53+01:00",
+"msg": "Beosztásaim: kereső felirata ügyfél nélkül"
+},
+{
 "id": "4e95308c3c",
 "at": "2026-11-11T20:37:41+01:00",
 "msg": "Beosztásaim: csak az aktív beosztások (jövőbeli, zajló, vagy vágás/jóváhagyás alatt, ha ő a vágó)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: videólapozó a panel tetején (pöttyökkel); előnézet rövid linkkel"
 },
 {
-"id": "b0ce48d2e3",
-"at": "2026-11-11T18:47:30+01:00",
-"msg": "Több videós ügyfél-levél: videók listája külön sorokban, Videók megtekintése gomb"
-},
-{
-"id": "db1d5c0733",
-"at": "2026-11-11T17:44:29Z",
+"id": "211325d62d",
+"at": "2026-11-11T17:47:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
