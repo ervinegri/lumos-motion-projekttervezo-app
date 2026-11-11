@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2c2287182b",
+"at": "2026-11-11T18:29:00+01:00",
+"msg": "Videótábla: átnézés csak a belső ellenőrzéstől"
+},
+{
 "id": "2a2297fe97",
 "at": "2026-11-11T18:28:26+01:00",
 "msg": "Átnézés nézet: a videó rögtön elindul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: vízjeles videónál nincs Letöltés gomb"
 },
 {
-"id": "0f762383fd",
-"at": "2026-11-11T15:55:49+01:00",
-"msg": "Levél-előnézet magasság: margók pontosan"
-},
-{
-"id": "f292bb5785",
-"at": "2026-11-11T14:55:47Z",
+"id": "bbaa515a53",
+"at": "2026-11-11T14:55:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
