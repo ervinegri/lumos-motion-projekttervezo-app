@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff4ec99025",
+"at": "2026-11-11T14:58:50+01:00",
+"msg": "Ügyfél adatlap: szerződés behúzása kérdés nélkül, új szerződésként"
+},
+{
 "id": "ef7b26efce",
 "at": "2026-11-11T14:56:25+01:00",
 "msg": "Ügyfél adatlap: szerződés behúzással feltölthető; szerződéstörlés/feltöltés gyors (csak az adott ügyfél mappáját olvassa újra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: szóköz hosszan nyomva 2× sebesség"
 },
 {
-"id": "51fbfb2d3e",
-"at": "2026-11-11T10:27:45+01:00",
-"msg": "Jóváhagyó oldal: előbb a logó tűnik el, utána jön elő az oldal"
-},
-{
-"id": "34feebcb0c",
-"at": "2026-11-11T09:27:09Z",
+"id": "d869885eb6",
+"at": "2026-11-11T09:27:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
