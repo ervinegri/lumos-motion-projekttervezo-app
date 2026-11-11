@@ -132,6 +132,9 @@ body>.card{flex:none}
 .dlwrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .dl-big{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid #c9d3dc;background:#fff;color:#1d2a38;font:700 14.5px Montserrat,system-ui,sans-serif;text-decoration:none;transition:background .15s,border-color .15s}
 .dl-big:hover{background:#f3f6f9;border-color:#9aa6b2}   /* álló videónál a cím nem szélesíti a videó oszlopát */
+.okmsg{margin:0 0 8px}.okmsg-t{border:0;background:none;padding:2px 0;font:600 13px Montserrat,system-ui,sans-serif;color:#2e6f4a;cursor:pointer}.okmsg-t span{font-weight:400;color:#6b7785}.okmsg-t:hover{text-decoration:underline}
+.okmsg textarea{width:100%;box-sizing:border-box;margin-top:6px;resize:vertical;min-height:64px}
+.modbox.open~.okmsg,#ask:has(.modbox.open) .okmsg{display:none}
 .pvban{background:#1d2a38;color:#fff;font:600 13px Montserrat,system-ui,sans-serif;text-align:center;padding:9px 12px;position:sticky;top:0;z-index:50}
 /* teljes képernyős elrendezés (nem lebegő „buborék”) */
 @media (min-width:861px){
@@ -170,10 +173,11 @@ body>.card>.body{flex:1;align-content:start;align-items:end}
           <textarea id="fb" placeholder=""></textarea>
         </div></div>
         <div class="cfm" id="cfm" hidden><p class="cfm-t" id="cfmT"></p><p class="cfm-s" id="cfmS"></p><div class="cfm-b"><button type="button" class="ok" id="cfmYes">✓ Igen, jóváhagyom</button><button type="button" class="cfm-no" id="cfmNo"></button></div></div>
+        <div class="okmsg" id="okMsg"><button type="button" class="okmsg-t" id="okMsgT">💬 Üzenet a jóváhagyáshoz <span>(nem kötelező)</span></button><textarea id="okNote" rows="3" maxlength="1500" hidden placeholder="Pl. köszönjük, szuper lett!"></textarea></div>
         <div class="row"><button type="button" class="ok" id="bOk">✓ Jóváhagyom</button><button type="button" class="mod" id="bSend">↩ Módosítást kérek</button><button type="button" class="modx" id="bModX" hidden>Mégse</button></div>
       </div>
       <div id="doneOk" hidden><p class="done">Köszönjük! A videót jóváhagytad.</p>
-        <div class="note" id="noteBox"><label for="note">Szeretnél üzenni valamit?</label><textarea id="note" rows="3" maxlength="1500"></textarea><p class="err" id="err3" hidden></p><button type="button" class="nsend" id="bNote">Üzenet küldése</button></div>
+        <div class="note" id="noteBox" hidden><label for="note">Szeretnél üzenni valamit?</label><textarea id="note" rows="3" maxlength="1500"></textarea><p class="err" id="err3" hidden></p><button type="button" class="nsend" id="bNote">Üzenet küldése</button></div>
         <p class="nok" id="noteOk" hidden>✓ Az üzenetedet elküldtük.</p></div>
       <p class="done m" id="doneMod" hidden>Köszönjük! Megkaptuk a módosítási kérésedet, hamarosan jelentkezünk.</p>
       <p class="err" id="err2" hidden></p>

@@ -82,7 +82,7 @@
   const goV=id=>{if(!id||id===CUR)return;const u=new URLSearchParams(location.search);u.set('v',id);try{history.replaceState(null,'',location.pathname+'?'+u.toString());}catch(e){}
     {const v=vd();if(v)v.pause();}const pl=$('player');pl.style.minHeight=pl.getBoundingClientRect().height+'px';pl.innerHTML='<div class="noembed"><span class="spin"></span>Videó betöltése…</div>';pl.classList.remove('has-sbar');   /* a méret és tájolás megmarad a betöltésig (nem ugrik el az oldal) */
     shown=false;played=true;CUR=id;window._vSwitch=true;{const dw=$('dlWrap');if(dw)dw.hidden=true;}const fb=$('fb');if(fb){fb.value='';fb.style.height='';}try{modOpen(false);}catch(e){}['err2','err3'].forEach(k=>{const e=$(k);if(e)e.hidden=true;});
-    const nb=$('noteBox'),no=$('noteOk'),nt=$('note');if(nb)nb.hidden=false;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
+    const nb=$('noteBox'),no=$('noteOk'),nt=$('note');{const on=$('okNote');if(on){on.value='';on.hidden=true;}}if(nb)nb.hidden=true;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
     if(LAST&&LAST.items){const it=LAST.items.find(x=>x.id===id);if(it){const L2=Object.assign({},LAST,{cur:id,state:it.state,video:it.name});LAST=L2;$('video').textContent=it.name;$('ask').hidden=it.state!=='wait';$('doneOk').hidden=it.state!=='ok';$('doneMod').hidden=it.state!=='mod';tabs(L2);}}   /* azonnal vált a kijelölés és a cím, a videó utána tölt be */
     api('clientInfo',[t,'preview',id]).then(i=>{const keep=document.querySelector('#main.vside');show(i);if(!document.querySelector('#player.vert')&&keep&&!document.querySelector('#player iframe[data-vert="1"]')){/* a tájolást a betöltött videó állítja be */}}).catch(e=>err(e.message));};
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
@@ -109,9 +109,10 @@
   const cfm=(title,sub,no)=>new Promise(res=>{$('cfmT').textContent=title;$('cfmS').textContent=sub;$('cfmNo').textContent=no;$('cfm').hidden=false;$('ask').classList.add('cfm-on');
     const done=v=>{$('cfm').hidden=true;$('ask').classList.remove('cfm-on');$('cfmYes').onclick=$('cfmNo').onclick=null;res(v);};$('cfmYes').onclick=()=>done(true);$('cfmNo').onclick=()=>done(false);});
   $('bOk').onclick=async e=>{const btn=e.currentTarget;
-    if($('fb').value.trim().length>=3&&!(await cfm('Írtál észrevételt.','Biztosan jóváhagyod a videót módosítás nélkül?','Mégse')))return;
+    if($('fb').value.trim().length>=3&&$('modBox').classList.contains('open')&&!(await cfm('Írtál észrevételt.','Biztosan jóváhagyod a videót módosítás nélkül?','Mégse')))return;
     if(watched()<0.8&&!(await cfm('Még nem nézted végig a videót.','Biztosan jóváhagyod így?','Inkább végignézem'))){const bp=document.querySelector('.bigplay'),v=vd();if(bp)bp.click();else if(v){v.muted=false;v.play().catch(()=>{});}return;}
-    go('ok','',btn);};
+    go('ok',($('okNote').value||'').trim(),btn);};
+  $('okMsgT').onclick=()=>{const n=$('okNote');n.hidden=!n.hidden;if(!n.hidden)n.focus();};
   /* „Módosítást kérek”: első kattintásra lenyílik a szövegmező (időkóddal), második kattintásra elküldi */
   const modOpen=on=>{const b=$('modBox');b.classList.toggle('open',on);$('bSend').textContent=on?'↩ Elküldöm a módosítást':'↩ Módosítást kérek';$('bModX').hidden=!on;$('askHint').hidden=on;
     if(on){const v=vd();setTimeout(()=>{$('fb').focus();},150);}};

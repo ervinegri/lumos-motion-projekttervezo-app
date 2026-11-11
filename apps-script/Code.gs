@@ -1091,7 +1091,7 @@ function clientDecide_(t, d, fb, vid) {
   const o = clientTokenRead_(t); if (o.vs && o.vs.length > 1) { vid = str_(vid, 40); if (o.vs.indexOf(vid) < 0) throw new Error('Válaszd ki a videót.'); o.v = vid; }   // közös link: a kiválasztott videóról dönt
   const r = clientVideo_(o); fb = str_(fb, 1500).trim();
   if (d === 'note') {   // jóváhagyás után az ügyfél még üzenhet (nem kötelező)
-    if (r.v.st !== 'jovahagyva') throw new Error('Üzenetet a jóváhagyás után tudsz küldeni.'); if (fb.length < 2) throw new Error('Írd be az üzenetedet.');
+    throw new Error('Üzenetet a jóváhagyással együtt tudsz küldeni.'); if (fb.length < 2) throw new Error('Írd be az üzenetedet.');
     const nm = clientFirst_(r.p, String(o.c || '').split(',')[0]);
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: nm, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
@@ -1101,7 +1101,9 @@ function clientDecide_(t, d, fb, vid) {
   }
   if (r.v.st !== 'leadva') return clientInfo_(t, false, o.v);   // már döntöttek (vagy visszakerült az utómunkába)
   const who = { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' };
-  if (d === 'ok') videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
+  if (d === 'ok') { videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
+    if (fb) withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
+      v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); }   // jóváhagyáshoz írt üzenet
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
   try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
