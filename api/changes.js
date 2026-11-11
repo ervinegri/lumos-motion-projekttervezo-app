@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "51fbfb2d3e",
+"at": "2026-11-11T10:27:45+01:00",
+"msg": "Jóváhagyó oldal: előbb a logó tűnik el, utána jön elő az oldal"
+},
+{
 "id": "2c0df5faf8",
 "at": "2026-11-11T10:27:00+01:00",
 "msg": "Jóváhagyó oldal: nyitó logó legfeljebb 7 mp"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: oszlop neve Díjbekérő fizetve"
 },
 {
-"id": "32b67c2772",
-"at": "2026-11-11T01:02:00+01:00",
-"msg": "Értékesítés: TIG-es / keretszerződéses ügyfél szerződéskor a Fizetve / rendezve oszlopba kerül"
-},
-{
-"id": "789d2ecb84",
-"at": "2026-11-10T23:55:50Z",
+"id": "9f00d17446",
+"at": "2026-11-11T00:02:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
