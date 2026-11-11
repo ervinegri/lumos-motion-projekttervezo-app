@@ -62,6 +62,7 @@
     const fill=b.querySelector('.sfill'),head=b.querySelector('.shead'),buf=b.querySelector('.sbuf'),tr=b.querySelector('.strack');
     const upd=()=>{const d=v.duration||0,p=d?Math.min(1,v.currentTime/d):0;fill.style.width=(p*100)+'%';head.style.left=(p*100)+'%';try{if(d&&v.buffered.length)buf.style.width=(v.buffered.end(v.buffered.length-1)/d*100)+'%';}catch(e){}};
     ['timeupdate','loadedmetadata','progress','seeked'].forEach(t=>v.addEventListener(t,upd));(function loop(){if(!v.paused)upd();requestAnimationFrame(loop);})();
+    {let t=0;pl.addEventListener('mousemove',()=>{pl.classList.add('mv');clearTimeout(t);t=setTimeout(()=>pl.classList.remove('mv'),2500);});}   /* a teljes képernyős lejátszóban egérmozgásra előjön a csúszka */
     let drag=false;const seek=e=>{const r=tr.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(v.duration)v.currentTime=x*v.duration;upd();};
     b.addEventListener('pointerdown',e=>{drag=true;b.classList.add('drag');b.setPointerCapture(e.pointerId);seek(e);e.stopPropagation();});
     b.addEventListener('pointermove',e=>{if(drag)seek(e);});['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{drag=false;b.classList.remove('drag');}));upd();}
@@ -85,7 +86,11 @@
   const watched=()=>{const v=vd();if(!v||!isFinite(v.duration)||!v.duration)return 1;let s=0;for(let k=0;k<v.played.length;k++)s+=v.played.end(k)-v.played.start(k);return s/v.duration;};
   $('bOk').onclick=e=>{if($('fb').value.trim().length>=3&&!confirm('Írtál észrevételt. Biztosan jóváhagyod a videót módosítás nélkül?'))return;
     if(watched()<0.8&&!confirm('Még nem nézted végig a videót. Biztosan jóváhagyod?'))return;go('ok','',e.currentTarget);};
-  $('bSend').onclick=e=>{const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
+  /* „Módosítást kérek”: első kattintásra lenyílik a szövegmező (időkóddal), második kattintásra elküldi */
+  const modOpen=on=>{const b=$('modBox');b.classList.toggle('open',on);$('bSend').textContent=on?'↩ Módosítás elküldése':'↩ Módosítást kérek';$('bModX').hidden=!on;$('askHint').hidden=on;
+    if(on){const v=vd();if(v&&!v.paused)v.pause();setTimeout(()=>{const ta=$('fb');if(!ta.value.trim()&&v)insTc();else ta.focus();},150);}};
+  $('bModX').onclick=()=>{modOpen(false);if($('err2'))$('err2').hidden=true;};
+  $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
 })();
