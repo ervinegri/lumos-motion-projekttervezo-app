@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68f14347fe",
+"at": "2026-11-11T08:46:26+01:00",
+"msg": "Értékesítés kártya: szolgáltatások nem jelennek meg"
+},
+{
 "id": "6804da7436",
 "at": "2026-11-11T08:45:16+01:00",
 "msg": "Értékesítés: oszlop neve Díjbekérő fizetve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor ablak: pontos magasság a képernyőhöz"
 },
 {
-"id": "3e58923f9d",
-"at": "2026-11-10T15:37:00+02:00",
-"msg": "Árkalkulátor ablak: nagyításnál sem vágódik le a gombsor"
-},
-{
-"id": "1eaacdc428",
-"at": "2026-11-10T13:34:08Z",
+"id": "acdf2619dd",
+"at": "2026-11-10T13:37:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
