@@ -827,13 +827,13 @@ function deliverItems(p){
   return items;
 }
 /* Videónkénti vágói követés: a megrendelt darabszámokból sorok (háttér hozza létre); a vezető a vágót és az állapotot, a vágó a saját videóinak vágási állapotát állítja */
-const VID_ST=[['vagasra','Utómunkára vár'],['vagas','Utómunka alatt'],['ellen','Belső ellenőrzés'],['leadva','Ügyfél jóváhagyására vár'],['jovahagyva','Jóváhagyva'],['modositas','Módosítást kér']];
+const VID_ST=[['vagasra','Utómunkára vár'],['vagas','Utómunka alatt'],['ellen','Belső ellenőrzés'],['leadva','Jóváhagyásra vár'],['jovahagyva','Jóváhagyva'],['modositas','Módosítást kér']];
 const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jovahagyva:'p-ok',modositas:'p-bad'};
 /* ===== Vágás – Trello-szerű tábla: videónként egy kártya, oszloponként az állapotok; húzással (vagy a → gombbal) léptethető ===== */
 /* Ügyfél jóváhagyására vár: megnyitotta-e már a levélben kapott linket */
 function seenPill(v){if(!v||v.st!=='leadva'||!(v.cm||[]).some(x=>/Ügyfélnek elküldve/.test(x.t||'')))return '';const f=x=>String(x||'').slice(0,16).replace('T',' ').replace(/^\d{4}-(\d\d)-(\d\d)/,(m,a,b)=>a+'.'+b+'.');
   return v.seenAt?`<span class="bd-seen on" data-tip="${esc('Az ügyfél megnyitotta a jóváhagyó oldalt\nElőször: '+f(v.seenAt)+(v.seenN>1?'\nUtoljára: '+f(v.seenLast)+' · összesen '+v.seenN+'×':''))}">👁️ Megnyitotta · ${esc(f(v.seenAt))}</span>`:`<span class="bd-seen" data-tip="Az ügyfél még nem nyitotta meg a levélben kapott linket">✉️ Még nem nyitotta meg</span>`;}
-const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Utómunkára vár'],['vagas','✂️ Utómunka alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Ügyfél jóváhagyására vár'],['jovahagyva','✅ Jóváhagyva']];
+const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Utómunkára vár'],['vagas','✂️ Utómunka alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Jóváhagyásra vár'],['jovahagyva','✅ Jóváhagyva']];
 const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 const vidOwner=(p,v)=>v.editor||(()=>{const c=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);return c.length===1?c[0]:'';})();   // egy vágónál a gazdátlan videó az övé
 function boardCards(){const me=boardMe(),f=S.boardCut||'';const out=[];
