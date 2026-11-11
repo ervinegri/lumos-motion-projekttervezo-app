@@ -111,7 +111,7 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 .dl-btn{display:inline-flex;align-items:center;line-height:1.2;padding:3px 10px!important;margin-left:2px}
 /* a kártya a képernyő közepén (ott, ahol a nyitó logó volt) */
 html,body{min-height:100%}
-body{min-height:100vh;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center}
+body{min-height:100vh;min-height:calc(100dvh - var(--pvb,0px));box-sizing:border-box;display:flex;flex-direction:column;justify-content:center}
 body>.card{flex:none}
 .vtabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .vtab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font:600 13px Montserrat,system-ui,sans-serif;color:#1d2a38;cursor:pointer}
@@ -127,8 +127,8 @@ body>.card{flex:none}
 .vn-d{width:26px;height:26px;border-radius:50%;background:#e3e8ed;color:#4a5866;font:700 12px/26px Montserrat,system-ui,sans-serif;text-align:center;cursor:pointer;transition:background .15s}.vn-d:hover{background:#d3dae1}.vn-d.st-ok{background:#2e9e62;color:#fff}.vn-d.st-mod{background:#d9534f;color:#fff}.vn-d.on{box-shadow:0 0 0 2px #fff,0 0 0 4px #1d2a38}
 .body>div>.ttl{display:block;margin:0 0 10px}.body>div>.ttl h1{font-size:20px;margin:0 0 4px}.body>div>.ttl .sub{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 .body.vside>div>.ttl{width:0;min-width:100%}
-@media (min-width:1100px){body:has(#main.vside)>.card>.head{position:absolute;left:32px;top:16px;margin:0}   /* álló videónál a logó a bal felső sarokban, nem foglal külön sort */
-.card:has(#main.vside) .body.vside .player.vert{height:calc(100dvh - 120px)}}
+@media (min-width:1100px){body:has(#main.vside)>.card>.head{position:absolute;left:32px;top:calc(16px + var(--pvb,0px));margin:0}   /* álló videónál a logó a bal felső sarokban, nem foglal külön sort */
+.card:has(#main.vside) .body.vside .player.vert{height:calc(100dvh - 44px - var(--pvb,0px))}}
 .dlwrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .dl-big{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid #c9d3dc;background:#fff;color:#1d2a38;font:700 14.5px Montserrat,system-ui,sans-serif;text-decoration:none;transition:background .15s,border-color .15s}
 .dl-big:hover{background:#f3f6f9;border-color:#9aa6b2}   /* álló videónál a cím nem szélesíti a videó oszlopát */
@@ -142,19 +142,20 @@ body>.card{flex:none}
 /* teljes képernyős elrendezés (nem lebegő „buborék”) */
 @media (min-width:861px){
 body{padding:0;background:#fff;justify-content:flex-start}
-body>.card{width:100%;max-width:none;min-height:100vh;min-height:100dvh;box-sizing:border-box;border:0;border-radius:0;box-shadow:none;padding:16px 32px 20px;display:flex;flex-direction:column}
+body>.card{width:100%;max-width:none;min-height:100vh;min-height:calc(100dvh - var(--pvb,0px));box-sizing:border-box;border:0;border-radius:0;box-shadow:none;padding:16px 32px 20px;display:flex;flex-direction:column}
 body>.card>.body{flex:1;align-content:start;align-items:end}
-.player:not(.vert){width:100%;max-width:calc((100dvh - 190px) * 16 / 9);margin:0 auto}
-.player.vert{max-height:calc(100dvh - 150px)}
+.player:not(.vert){width:100%;max-width:calc((100dvh - 190px - var(--pvb,0px)) * 16 / 9);margin:0 auto}
+.player.vert{max-height:calc(100dvh - 150px - var(--pvb,0px))}
 .body,.body.vside{grid-template-columns:minmax(0,1fr) 420px}
 .body.vside{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}   /* álló videó: a videó az oldal közepén */
 .body.vside>div:first-child{grid-column:2}
 .body.vside>.side{grid-column:3;justify-self:start;width:100%;max-width:420px;box-sizing:border-box;margin-left:8px}   /* közvetlenül a videó mellett */
-.body.vside .player.vert{height:calc(100dvh - 190px);max-height:none;width:auto}
+.body.vside .player.vert{height:calc(100dvh - 120px - var(--pvb,0px));max-height:none;width:auto}
 }
 /* fekvő videónál a cím és az alatta lévő sor egy vonalban */
 @media (min-width:760px){.ttl{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px}.ttl h1{margin:0}}
 .spd{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;background:rgba(14,22,32,.75);color:#fff;font-weight:700;font-size:14px;padding:7px 14px;border-radius:999px;opacity:0;transition:opacity .15s;pointer-events:none}.spd.on{opacity:1}
+.side>.ttl.in-side{display:block;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line);text-align:center}.side>.ttl.in-side h1{font-size:20px;margin:0 0 4px}.side>.ttl.in-side .sub{display:flex;justify-content:center;flex-wrap:wrap;gap:4px}   /* álló videónál a cím a panel tetején */
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 </head>
