@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "173b32672b",
+"at": "2026-11-11T18:56:04+01:00",
+"msg": "Jóváhagyó oldal: nagyobb, számozott videó-pöttyök"
+},
+{
 "id": "57dbcde340",
 "at": "2026-11-11T18:55:17+01:00",
 "msg": "Jóváhagyó oldal: betöltéskor mindig a nyitó logó (nem a Betöltés… felirat)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "d51c0ad9c2",
 "at": "2026-11-11T17:57:51+01:00",
 "msg": "Jóváhagyó oldal: a panel a videó aljához igazodik, a két gomb egymás mellett"
-},
-{
-"id": "aae8a1c6b5",
-"at": "2026-11-11T17:56:03+01:00",
-"msg": "Jóváhagyó oldal: cím és projektsor egy sorban álló videónál is"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
