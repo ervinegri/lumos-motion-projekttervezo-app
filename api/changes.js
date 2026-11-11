@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5f5cc294e8",
+"at": "2026-11-11T10:15:41+01:00",
+"msg": "Jóváhagyó oldal: időkód nem kötelező, szabad szöveges módosítás-kérés"
+},
+{
 "id": "d175d5927d",
 "at": "2026-11-11T10:03:44+01:00",
 "msg": "E-mail mezők: másolás gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla ablak: film emoji ki, cím és határidő egy vonalban"
 },
 {
-"id": "c6fc9d02ee",
-"at": "2026-11-11T00:36:59+01:00",
-"msg": "Videótábla: tovább-nyíl le a kártyákról"
-},
-{
-"id": "846e831ba5",
-"at": "2026-11-10T23:36:38Z",
+"id": "fb3523d499",
+"at": "2026-11-10T23:37:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
