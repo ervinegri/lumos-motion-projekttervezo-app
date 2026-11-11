@@ -58,7 +58,7 @@
     w.innerHTML='<div class="wm-tile">'+Array.from({length:60},(_,k)=>'<span>'+esc(t[k%t.length])+'</span>').join('')+'</div>';pl.appendChild(w);
     pl.addEventListener('contextmenu',e=>e.preventDefault());const fix=()=>{const v=vd();if(v){v.setAttribute('controlsList','nodownload nofullscreen noplaybackrate');v.setAttribute('disablePictureInPicture','');}};fix();new MutationObserver(fix).observe(pl,{childList:true,subtree:true});
     const fb=document.createElement('button');fb.type='button';fb.className='wm-fs';fb.title='Teljes képernyő';fb.textContent='⛶';fb.onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else if(pl.requestFullscreen)pl.requestFullscreen();else{const v=vd();if(v&&v.webkitEnterFullscreen)v.webkitEnterFullscreen();}};pl.appendChild(fb);   /* saját teljes képernyő: a lejátszó egésze (a vízjellel együtt) */
-    const n=document.createElement('p');n.className='wm-note';n.textContent='A videón a vízjel a kifizetés után eltűnik – a végleges, vízjel nélküli változatot a kiegyenlítés után kapod meg.';const a=$('ask');if(a)a.parentNode.insertBefore(n,a);}
+    if(document.querySelector('.wm-note'))return;const n=document.createElement('p');n.className='wm-note';n.textContent='A videón a vízjel a kifizetés után eltűnik – a végleges, vízjel nélküli változatot a kiegyenlítés után kapod meg.';const a=$('ask');if(a)a.parentNode.insertBefore(n,a);}
   /* vastagabb lejátszósáv nagy fogantyúval (a böngésző saját, vékony sávja helyett) */
   function seekBar(v){const pl=$('player');if(!pl||pl.querySelector('.sbar'))return;const b=document.createElement('div');b.className='sbar';b.innerHTML='<div class="strack"><div class="sbuf"></div><div class="sfill"></div><div class="shead"></div></div>';pl.appendChild(b);pl.classList.add('has-sbar');
     const fill=b.querySelector('.sfill'),head=b.querySelector('.shead'),buf=b.querySelector('.sbuf'),tr=b.querySelector('.strack');
@@ -68,15 +68,20 @@
     let drag=false;const seek=e=>{const r=tr.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(v.duration)v.currentTime=x*v.duration;upd();};
     b.addEventListener('pointerdown',e=>{drag=true;b.classList.add('drag');b.setPointerCapture(e.pointerId);seek(e);e.stopPropagation();});
     b.addEventListener('pointermove',e=>{if(drag)seek(e);});['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{drag=false;b.classList.remove('drag');}));upd();}
-  function videoReady(){const v=vd();if(!v)return;taHl();seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Írd le, hogy mit változtatnál. Ha egy konkrét pillanatra gondolsz, megállíthatod ott a videót, és az „Időkód beszúrása” gombbal az időpontot is beteheted.';
+  function videoReady(){const v=vd();if(!v)return;if(window._vSwitch){window._vSwitch=false;v.play().catch(()=>{});}taHl();seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Írd le, hogy mit változtatnál. Ha egy konkrét pillanatra gondolsz, megállíthatod ott a videót, és az „Időkód beszúrása” gombbal az időpontot is beteheted.';
     const upd=()=>{$('tcNow').textContent=tcFmt(v.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>v.addEventListener(e,upd));
-    const asp=()=>{if(v.videoWidth&&v.videoHeight>v.videoWidth){const p=$('player');p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
+    const asp=()=>{const p=$('player');if(v.videoWidth&&v.videoHeight>v.videoWidth){p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}else if(v.videoWidth){p.classList.remove('vert');$('main').classList.remove('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
     ta.value=pre+nl+s+ta.value.slice(b);const c=(pre+nl+s).length;ta.focus();ta.setSelectionRange(c,c);taHl();}
   let shown=false;
   /* több videó egy linken: fülek a videók között (állapottal), váltáskor újratölt a kiválasztott videóval */
   const stIc={ok:'✓',mod:'↩',wait:''};
-  const goV=id=>{const u=new URLSearchParams(location.search);u.set('v',id);location.search=u.toString();};
+  /* videóváltás az oldal újratöltése nélkül: csak a lejátszó és a panel cserélődik */
+  const goV=id=>{if(!id||id===CUR)return;const u=new URLSearchParams(location.search);u.set('v',id);try{history.replaceState(null,'',location.pathname+'?'+u.toString());}catch(e){}
+    {const v=vd();if(v)v.pause();}const pl=$('player');pl.innerHTML='<div class="noembed"><span class="spin"></span>Videó betöltése…</div>';pl.classList.remove('vert','has-sbar');pl.style.removeProperty('--ar');
+    shown=false;played=true;CUR=id;window._vSwitch=true;const fb=$('fb');if(fb){fb.value='';fb.style.height='';}try{modOpen(false);}catch(e){}['err2','err3'].forEach(k=>{const e=$(k);if(e)e.hidden=true;});
+    const nb=$('noteBox'),no=$('noteOk'),nt=$('note');if(nb)nb.hidden=false;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
+    api('clientInfo',[t,'preview',id]).then(i=>{const keep=document.querySelector('#main.vside');show(i);if(!document.querySelector('#player.vert')&&keep&&!document.querySelector('#player iframe[data-vert="1"]')){/* a tájolást a betöltött videó állítja be */}}).catch(e=>err(e.message));};
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
     if(!w){w=document.createElement('div');w.id='vtabs';w.className='vnav';const side=document.querySelector('.side');side.insertBefore(w,side.firstChild);}
     const k=i.items.findIndex(x=>x.id===i.cur),pv=i.items[k-1],nx=i.items[k+1],dn=i.items.filter(x=>x.state!=='wait').length;
