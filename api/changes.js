@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6af8e2782",
+"at": "2026-11-11T18:05:48+01:00",
+"msg": "Jóváhagyó oldal: a panel közvetlenül az álló videó mellett"
+},
+{
 "id": "b70b68fa34",
 "at": "2026-11-11T18:04:39+01:00",
 "msg": "Jóváhagyó oldal: Elküldöm a módosítást gombfelirat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó ablak: visszadobott videónál „Javítás alatt”; Link cseréje eltávolítva"
 },
 {
-"id": "d56316152a",
-"at": "2026-11-11T15:29:59+01:00",
-"msg": "Időkód pipák: ki és mikor pipálta (a pipa fölé víve látszik)"
-},
-{
-"id": "e39219a4da",
-"at": "2026-11-11T14:28:43Z",
+"id": "5dd6fd2849",
+"at": "2026-11-11T14:30:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
