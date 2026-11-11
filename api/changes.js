@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "67c9a3f7f6",
+"at": "2026-11-11T16:11:31+01:00",
+"msg": "Az egész appban: frissítés után a nyitott ablak visszanyílik"
+},
+{
 "id": "5e12ddf95c",
 "at": "2026-11-11T16:07:42+01:00",
 "msg": "Szerződéslista: típus-felirat helyett több látszik a fájlnévből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélszerződés: felülírás vagy új szerződés választható; időkód pipát csak a javító vágó jelölhet"
 },
 {
-"id": "42d6531703",
-"at": "2026-11-11T11:59:37+01:00",
-"msg": "Videó: a ▶ magyarázata frissítve"
-},
-{
-"id": "898fbfcdd6",
-"at": "2026-11-11T10:59:30Z",
+"id": "e383b38a03",
+"at": "2026-11-11T10:59:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
