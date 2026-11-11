@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1f5723d569",
+"at": "2026-11-11T09:39:20+01:00",
+"msg": "Jóváhagyó oldal: hang az első kattintásra bárhol, feltűnőbb hang-gomb a videó közepén"
+},
+{
 "id": "9affa43685",
 "at": "2026-11-11T09:38:05+01:00",
 "msg": "Videókártya: buborékszöveg többes számban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél jóváhagyó oldal: a videó a nyitókép után magától indul (szükség esetén némítva, hang gombbal)"
 },
 {
-"id": "188c31de56",
-"at": "2026-11-11T00:04:43+01:00",
-"msg": "pCloud lejátszó: 9 mp-es időkorlát hibaüzenettel, a felső ablak videóját tölti be"
-},
-{
-"id": "d3a3189c84",
-"at": "2026-11-10T23:04:04Z",
+"id": "93219058f9",
+"at": "2026-11-10T23:04:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
