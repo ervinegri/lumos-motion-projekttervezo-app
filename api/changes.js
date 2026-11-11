@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66373b7bf2",
+"at": "2026-11-11T10:39:12+01:00",
+"msg": "Jóváhagyó oldal: enyhe hover a Módosítást kérek gombon"
+},
+{
 "id": "78cc6dd455",
 "at": "2026-11-11T10:38:22+01:00",
 "msg": "Jóváhagyó oldal: a töltés-csík a bal szélről indul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: hang az első kattintásra bárhol, feltűnőbb hang-gomb a videó közepén"
 },
 {
-"id": "9affa43685",
-"at": "2026-11-11T09:38:05+01:00",
-"msg": "Videókártya: buborékszöveg többes számban"
-},
-{
-"id": "d30c8f2266",
-"at": "2026-11-11T08:38:02Z",
+"id": "bccb79170b",
+"at": "2026-11-11T08:38:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
