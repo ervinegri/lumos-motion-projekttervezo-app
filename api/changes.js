@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1c83ce0311",
+"at": "2026-11-11T09:45:49+01:00",
+"msg": "Jóváhagyó oldal: időkód perc:mp:képkocka formátumban, kattintható; rövidebb, középre igazított nyitó logó"
+},
+{
 "id": "64db5c6197",
 "at": "2026-11-11T09:42:44+01:00",
 "msg": "Jóváhagyó oldal: nagy Lejátszás gomb – egy kattintással hanggal indul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélnek küldés: ügyfél nélküli projektnél nem gyűjti be más projektek kapcsolattartóit"
 },
 {
-"id": "c1437abd5f",
-"at": "2026-11-11T00:19:04+01:00",
-"msg": "Vágó nézet: az ügyfél e-mail címe nem látszik a hozzászólásokban"
-},
-{
-"id": "7ed54f2710",
-"at": "2026-11-10T23:12:27Z",
+"id": "e2e4a4a98f",
+"at": "2026-11-10T23:19:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
