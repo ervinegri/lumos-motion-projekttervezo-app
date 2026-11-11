@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "130f537c07",
+"at": "2026-11-11T10:59:05+01:00",
+"msg": "Videótábla: kijelölt videók csoportos húzása"
+},
+{
 "id": "9fd6d0dcd5",
 "at": "2026-11-11T10:49:50+01:00",
 "msg": "Ügyfelek: Nem kell (szerződés) jelölő eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: logóanimáció eredeti tempóban, de legfeljebb 2,5 mp várakozás a videóra"
 },
 {
-"id": "1c83ce0311",
-"at": "2026-11-11T09:45:49+01:00",
-"msg": "Jóváhagyó oldal: időkód perc:mp:képkocka formátumban, kattintható; rövidebb, középre igazított nyitó logó"
-},
-{
-"id": "ddad129593",
-"at": "2026-11-11T08:42:53Z",
+"id": "ceb259312e",
+"at": "2026-11-11T08:45:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
