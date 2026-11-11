@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4e95308c3c",
+"at": "2026-11-11T20:37:41+01:00",
+"msg": "Beosztásaim: csak az aktív beosztások (jövőbeli, zajló, vagy vágás/jóváhagyás alatt, ha ő a vágó)"
+},
+{
 "id": "88ff50dd95",
 "at": "2026-11-11T20:35:44+01:00",
 "msg": "Vágó nézet: Jóváhagyásra vár (rövidebb)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "Több videós ügyfél-levél: videók listája külön sorokban, Videók megtekintése gomb"
 },
 {
-"id": "a1fb57cbac",
-"at": "2026-11-11T18:44:19+01:00",
-"msg": "Több videó egy levélben az ügyfélnek: közös jóváhagyó oldal fülekkel, videónkénti döntés; a módosítás mezője a sorokkal nő"
-},
-{
-"id": "1e8b2f67f9",
-"at": "2026-11-11T17:39:11Z",
+"id": "db1d5c0733",
+"at": "2026-11-11T17:44:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
