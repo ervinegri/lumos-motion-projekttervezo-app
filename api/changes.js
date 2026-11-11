@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d3b6e0cfa6",
+"at": "2026-11-11T15:34:25+01:00",
+"msg": "Videó ablak: a vágónak „Elkészítettem a javítást” gomb → javított link → belső ellenőrzés"
+},
+{
 "id": "190baf196d",
 "at": "2026-11-11T15:31:15+01:00",
 "msg": "Videó ablak: visszadobott videónál „Javítás alatt”; Link cseréje eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: kijelölt videók csoportos húzása"
 },
 {
-"id": "9fd6d0dcd5",
-"at": "2026-11-11T10:49:50+01:00",
-"msg": "Ügyfelek: Nem kell (szerződés) jelölő eltávolítva"
-},
-{
-"id": "fff7687ce1",
-"at": "2026-11-11T09:44:24Z",
+"id": "decf8a6ae8",
+"at": "2026-11-11T09:50:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
