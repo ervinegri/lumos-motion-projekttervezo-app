@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "32b67c2772",
+"at": "2026-11-11T01:02:00+01:00",
+"msg": "Értékesítés: TIG-es / keretszerződéses ügyfél szerződéskor a Fizetve / rendezve oszlopba kerül"
+},
+{
 "id": "e66912649c",
 "at": "2026-11-11T00:55:41+01:00",
 "msg": "Értékesítés: Díjbekérő kifizetve oszlop (kifizetett díjbekérő / számla alapján magától)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor végösszeg felirat"
 },
 {
-"id": "b6d490e769",
-"at": "2026-11-10T15:33:32+02:00",
-"msg": "Árkalkulátor végösszeg: látványosabb címke"
-},
-{
-"id": "07fa79f31b",
-"at": "2026-11-10T13:33:13Z",
+"id": "5b03567ae0",
+"at": "2026-11-10T13:33:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
