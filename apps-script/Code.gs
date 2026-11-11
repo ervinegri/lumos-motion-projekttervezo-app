@@ -3115,24 +3115,37 @@ function clientFolderUrl_(a) {
 /* Nagy JSON tartós tárolása a Script-tulajdonságokban, darabolva (egy érték max. 9 KB) */
 function bigPut_(key, str) { const P = PropertiesService.getScriptProperties(), n = Math.ceil(str.length / 8000), o = {}; for (let i = 0; i < n; i++) o[key + '_' + i] = str.slice(i * 8000, (i + 1) * 8000); o[key + '_n'] = String(n); P.setProperties(o); }
 function bigGet_(key) { const P = PropertiesService.getScriptProperties(), n = Number(P.getProperty(key + '_n') || 0); if (!n) return ''; let s = ''; for (let i = 0; i < n; i++) s += P.getProperty(key + '_' + i) || ''; return s; }
-function clientDocs_(a) {
-  const cache = CacheService.getScriptCache(), key = 'clientDocs_v2';
-  if (!(a && a.force)) { const c = cache.get(key) || bigGet_('CLIENT_DOCS'); if (c) { try { return JSON.parse(c); } catch (e) { } } }
-  const root = lumosRoot_(); if (!root) return { folders: [] };
-  const base = findFolder_(root, '02 Ügyfelek'); if (!base) return { folders: [] };
+/** Egy ügyfélmappa szerződései (Szerződések és Keretszerződés almappák). */
+function clientDocsOf_(f) {
   const fmt = d => d ? Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') : '';
   const walk = (f, kind, out, depth) => {
-    const fi = f.getFiles(); while (fi.hasNext()) { const x = fi.next(); out.push({ name: x.getName(), url: x.getUrl(), kind: kind, date: (/^(\d{4}-\d{2}-\d{2})/.exec(x.getName()) || [])[1] || fmt(x.getDateCreated()) }); }
+    const fi = f.getFiles(); while (fi.hasNext()) { const x = fi.next(); if (x.isTrashed && x.isTrashed()) continue; out.push({ name: x.getName(), url: x.getUrl(), kind: kind, date: (/^(\d{4}-\d{2}-\d{2})/.exec(x.getName()) || [])[1] || fmt(x.getDateCreated()) }); }
     const di = f.getFolders(); while (di.hasNext()) { const d = di.next(), n = d.getName();
       if (/^_munka/i.test(n)) continue;
       if (/^\d{4}$/.test(n) && depth < 3) walk(d, kind, out, depth + 1);
       else out.push({ name: n, url: d.getUrl(), kind: kind, folder: true, date: (/^(\d{4}-\d{2}-\d{2})/.exec(n) || [])[1] || fmt(d.getDateCreated()) }); }
   };
+  const docs = [], sub = f.getFolders();
+  while (sub.hasNext()) { const d = sub.next(), n = d.getName(); if (/^Szerződések$/i.test(n)) walk(d, 'sz', docs, 0); else if (/^Keretszerződés/i.test(n)) walk(d, 'keret', docs, 0); }
+  docs.sort((x, y) => String(y.date).localeCompare(String(x.date)));
+  return docs;
+}
+/** Gyors frissítés: csak az adott ügyfél mappáját olvassa újra, a többi a gyorsítótárból jön (a teljes bejárás lassú). */
+function clientDocsRefresh_(client) {
+  const res = clientDocs_({}), cf = client ? clientFolder_(client) : null;
+  if (!cf) return res;
+  const ent = { name: cf.getName(), url: cf.getUrl(), docs: clientDocsOf_(cf) }, i = (res.folders || []).findIndex(x => x.url === ent.url || x.name === ent.name);
+  res.folders = res.folders || []; if (i >= 0) res.folders[i] = ent; else res.folders.push(ent); res.at = Date.now();
+  const js = JSON.stringify(res); try { CacheService.getScriptCache().put('clientDocs_v2', js, 21600); } catch (e) { } try { bigPut_('CLIENT_DOCS', js); } catch (e) { }
+  return res;
+}
+function clientDocs_(a) {
+  const cache = CacheService.getScriptCache(), key = 'clientDocs_v2';
+  if (!(a && a.force)) { const c = cache.get(key) || bigGet_('CLIENT_DOCS'); if (c) { try { return JSON.parse(c); } catch (e) { } } }
+  const root = lumosRoot_(); if (!root) return { folders: [] };
+  const base = findFolder_(root, '02 Ügyfelek'); if (!base) return { folders: [] };
   const out = [], it = base.getFolders();
-  while (it.hasNext()) { const f = it.next(), docs = [];
-    const sub = f.getFolders(); while (sub.hasNext()) { const d = sub.next(), n = d.getName(); if (/^Szerződések$/i.test(n)) walk(d, 'sz', docs, 0); else if (/^Keretszerződés/i.test(n)) walk(d, 'keret', docs, 0); }
-    docs.sort((x, y) => String(y.date).localeCompare(String(x.date)));
-    out.push({ name: f.getName(), url: f.getUrl(), docs: docs }); }
+  while (it.hasNext()) { const f = it.next(); out.push({ name: f.getName(), url: f.getUrl(), docs: clientDocsOf_(f) }); }
   const res = { folders: out, at: Date.now() }, js = JSON.stringify(res);
   try { cache.put(key, js, 21600); } catch (e) { }
   try { bigPut_('CLIENT_DOCS', js); } catch (e) { }
@@ -3295,8 +3308,7 @@ function clientDocUpload_(u, a) {
     });
     try { DriveApp.getFileById(rep).setTrashed(true); trashed = true; } catch (e) { }
   }
-  try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
-  const docs = clientDocs_({ force: true });
+  const docs = clientDocsRefresh_(client);
   logEvent_(u, 'Szerződés feltöltve', client, (a.kind === 'keret' ? 'keretszerződés' : 'szerződés') + (rep ? ' – a korábbi helyett' + (trashed ? ' (a régi a Drive kukába került)' : '') : ''));
   return Object.assign(finPart_(['frameworks', 'billing']), { folders: docs.folders, at: docs.at, replaced: !!rep, trashed: trashed });
 }
@@ -3317,8 +3329,7 @@ function clientDocDelete_(u, a) {
   if (!known) throw new Error('Ez a fájl nem szerepel az ügyfelek szerződései között.');
   let trashed = false;
   try { const f = DriveApp.getFileById(id); name = f.getName(); f.setTrashed(true); trashed = true; } catch (e) { }
-  try { CacheService.getScriptCache().remove('clientDocs_v2'); } catch (e) { }
-  const docs = clientDocs_({ force: true });
+  const docs = a && a.client ? clientDocsRefresh_(str_(a.client, 160)) : clientDocs_({});
   logEvent_(u, 'Szerződés törölve', name, trashed ? 'A Drive-fájl a kukába került' : 'Csak a hivatkozás került le');
   return Object.assign(finPart_(['frameworks', 'billing']), { folders: docs.folders, at: docs.at, trashed: trashed });
 }

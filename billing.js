@@ -539,37 +539,40 @@ function contractDropModal(pid,file){const p=projById(pid);if(!p)return;const b=
     catch(err){handleErr(err);if(btn){btn.disabled=false;btn.textContent='Feltöltés';}}}});}
 document.addEventListener('change',e=>{if(e.target.name==='kind'&&e.target.closest('.cd-pick')){const v=document.querySelector('.cd-valid');if(v)v.hidden=e.target.value!=='keret';}});
 
-function clientContractChoose(client,file,ex){const back=!!document.querySelector('.cl-docs');
+function clientContractChoose(client,file,ex,inl){const back=!inl&&!!document.querySelector('.cl-docs');
   const opt=(d,i)=>`<label class="cd-opt"><input type="radio" name="mode" value="rep:${i}"${i===0?' checked':''}><span><b>🔁 Felülírja: ${esc(docLabel(d))}</b><small>${esc(d.name)}${d.date?' · '+esc(d.date):''} – a régi fájl a Drive kukába kerül</small></span></label>`;
-  openModal('Szerződés feltöltése – '+client,`<p class="cd-file">📎 <b>${esc(file.name)}</b> <span class="muted">· ${Math.max(1,Math.round(file.size/1024))} KB</span></p>
+  const html=`<p class="cd-file">📎 <b>${esc(file.name)}</b> <span class="muted">· ${Math.max(1,Math.round(file.size/1024))} KB</span></p>
     <div class="fields"><div class="field full"><span class="lbl">Ennél az ügyfélnél már van szerződés. Mi legyen az újjal?</span><div class="cd-pick">${ex.map(opt).join('')}
       <label class="cd-opt"><input type="radio" name="mode" value="new"><span><b>➕ Új, külön szerződésként</b><small>A meglévő is megmarad (pl. egy másik, vagy még nem mindkét fél által aláírt példány).</small></span></label></div></div>
     <div class="field full cd-newkind" hidden><span class="lbl">Milyen szerződés?</span><div class="cd-pick">
       <label class="cd-opt"><input type="radio" name="nkind" value="keret" checked><span><b>🤝 Keretszerződés</b><small>Ez lesz az ügyfél érvényes keretszerződése.</small></span></label>
-      <label class="cd-opt"><input type="radio" name="nkind" value="egyeb"><span><b>📄 Egyéb szerződés</b><small>Csak az ügyfél szerződései közé kerül.</small></span></label></div></div></div>`,
-  {submitLabel:'Feltöltés',submit:async fd=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
+      <label class="cd-opt"><input type="radio" name="nkind" value="egyeb"><span><b>📄 Egyéb szerződés</b><small>Csak az ügyfél szerződései közé kerül.</small></span></label></div></div></div>`;
+  const run=async(fd,btn,done)=>{if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
     const m=String(fd.get('mode')||'new'),rd=m.startsWith('rep:')?ex[+m.slice(4)]:null,kind=rd?(rd.kind==='keret'?'keret':'egyeb'):(fd.get('nkind')==='egyeb'?'egyeb':'keret');
     try{const b64=await readB64(file);const d=await call('clientDocUpload',{client,b64,name:file.name,mime:file.type||'application/octet-stream',kind,replace:rd?rd.url:''});
-      finApply(d);S.clDocs=d.folders||null;S._clDocsAt=d.at||Date.now();closeModal();toast(rd?'Szerződés lecserélve: '+client:'Új szerződés feltöltve: '+client);if(back)clDocsReopen(client);else render(true);}
-    catch(err){handleErr(err);if(btn){btn.disabled=false;btn.textContent='Feltöltés';}}}});}
+      finApply(d);S.clDocs=d.folders||null;S._clDocsAt=d.at||Date.now();toast(rd?'Szerződés lecserélve: '+client:'Új szerződés feltöltve: '+client);done();}
+    catch(err){handleErr(err);if(btn){btn.disabled=false;btn.textContent='Feltöltés';}}};
+  if(inl){confirmLayer('Szerződés feltöltése – '+client,`<form class="cf-form">${html}</form>`,'Feltöltés',(bt,layer)=>run(new FormData(layer.querySelector('.cf-form')),null,()=>{layer.remove();const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}));return;}   /* az ügyfél adatlapján: rétegként, az adatlap nyitva marad */
+  openModal('Szerződés feltöltése – '+client,html,{submitLabel:'Feltöltés',submit:fd=>run(fd,document.querySelector('#mform button[type=submit]'),()=>{closeModal();if(back)clDocsReopen(client);else render(true);})});}
 document.addEventListener('change',e=>{if(e.target.name==='mode'&&e.target.closest('.cd-pick')){const k=document.querySelector('.cd-newkind');if(k)k.hidden=e.target.value!=='new';}});
 
 /* Ügyfél szerződése: behúzással egyből feltöltjük (az ügyfél Keretszerződés mappájába) */
 async function clientContractDrop(client,file,zone){if(!client)return;
   {const c=knownClients('').find(x=>x.company===client)||{company:client},ps=S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===client.toLowerCase()),ex=(clDocs(c,ps).docs||[]).filter(d=>!d.folder&&d.url);
-   if(ex.length)return clientContractChoose(client,file,ex);}   /* van már szerződés: rákérdezünk, felülírja-e vagy újként kerüljön be */
+   if(ex.length)return clientContractChoose(client,file,ex,zone&&zone.dataset.inline?zone:null);}   /* van már szerződés: rákérdezünk, felülírja-e vagy újként kerüljön be */
   if(zone){zone.classList.add('busy');zone.dataset.txt=zone.textContent;}
   try{const b64=await readB64(file);const d=await call('fwSave',{client,b64,name:file.name,mime:file.type||'application/octet-stream'});finApply(d);
     S.clDocs=null;S._clDocsForce=true;S._clDocsLoading=false;toast('Szerződés feltöltve: '+client);
-    if($('modalRoot').innerHTML&&document.querySelector('.cl-docs')){closeModal();clDocsReopen(client);}else render(true);}
+    if(zone&&zone.dataset.inline){S.clDocs=d.folders||S.clDocs;const go=()=>{const sec=$('cl-docs-sec');if(!sec)return;if(S.clDocs)sec.outerHTML=clientDocsHtml(client);else setTimeout(go,500);};clDocsLoad(true);go();}
+    else if($('modalRoot').innerHTML&&document.querySelector('.cl-docs')){closeModal();clDocsReopen(client);}else render(true);}
   catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}}
 function clDocsReopen(client){const go=()=>{if(S.clDocs){render(true);clDocsModal(client);}else setTimeout(go,400);};clDir(client);go();}
 ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.dataset.client;
   if(b.dataset.inline){confirmLayer('Szerződés törlése',`<p style="margin:0 0 4px">A(z) „<b>${esc(name)}</b>” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.</p>`,'Törlés',async(bt,layer)=>{
-    try{const d=await call('clientDocDelete',{url});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();layer.remove();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}
+    try{const d=await call('clientDocDelete',{url,client});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();layer.remove();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');const sec=$('cl-docs-sec');if(sec)sec.outerHTML=clientDocsHtml(client);}
     catch(e){handleErr(e);}});return;}   /* az ügyfél szerkesztő ablakában: a szerkesztés nem vész el */
   confirmModal('Szerződés törlése',`A(z) „${name}” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.`,'Törlés',async()=>{
-    try{const d=await call('clientDocDelete',{url});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();closeModal();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');render(true);clDocsModal(client);}
+    try{const d=await call('clientDocDelete',{url,client});finApply(d);S.clDocs=d.folders||[];S._clDocsAt=d.at||Date.now();closeModal();toast(d.trashed?'Szerződés törölve (Drive kuka)':'Szerződés leválasztva');render(true);clDocsModal(client);}
     catch(e){handleErr(e);}});};
 
 ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i.type='file';i.accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.heic';
