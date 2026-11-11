@@ -158,10 +158,12 @@
     const badge=on=>{const pl=$('player');if(!pl)return;let b=pl.querySelector('.spd');if(!b){b=document.createElement('div');b.className='spd';b.textContent='2× ▸▸';pl.appendChild(b);}b.classList.toggle('on',on);};
     document.addEventListener('keydown',e=>{if((e.key!=='f'&&e.key!=='F')||e.metaKey||e.ctrlKey||e.altKey||typing())return;const pl=$('player');if(!pl||!vd())return;e.preventDefault();   /* F: teljes képernyő ki / be */
       if(document.fullscreenElement)document.exitFullscreen();else if(pl.requestFullscreen)pl.requestFullscreen();else{const v=vd();if(v&&v.webkitEnterFullscreen)v.webkitEnterFullscreen();}});
-    document.addEventListener('keydown',e=>{if((e.code!=='Space'&&e.key!==' ')||typing())return;const v=vd();if(!v)return;e.preventDefault();if(e.repeat||down)return;down=true;fast=false;
-      hold=setTimeout(()=>{fast=true;const bp=document.querySelector('.bigplay');if(bp)bp.click();else if(v.paused){v.muted=false;v.play().catch(()=>{});}v.playbackRate=2;badge(true);},350);});
-    document.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();
-      if(fast){v.playbackRate=1;badge(false);fast=false;return;}const bp=document.querySelector('.bigplay');if(bp){bp.click();return;}if(v.paused){v.muted=false;v.play().catch(()=>{});}else v.pause();});
+    const typ2=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable);};   /* szóköz: gombon / a videón állva is lejátszás–megállítás (a böngésző saját kezelése nélkül, különben kétszer váltana) */
+    window.addEventListener('keypress',e=>{if((e.code==='Space'||e.key===' ')&&!typ2()&&vd()){e.preventDefault();e.stopPropagation();}},true);
+    window.addEventListener('keydown',e=>{if((e.code!=='Space'&&e.key!==' ')||typ2())return;const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();if(e.repeat||down)return;down=true;fast=false;
+      hold=setTimeout(()=>{fast=true;const bp=document.querySelector('.bigplay');if(bp)bp.click();else if(v.paused){v.muted=false;v.play().catch(()=>{});}v.playbackRate=2;badge(true);},350);},true);
+    window.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();
+      if(fast){v.playbackRate=1;badge(false);fast=false;return;}const bp=document.querySelector('.bigplay');if(bp){bp.click();return;}if(v.paused){v.muted=false;v.play().catch(()=>{});}else v.pause();},true);
     window.addEventListener('blur',()=>{if(fast){const v=vd();if(v)v.playbackRate=1;badge(false);fast=false;}down=false;clearTimeout(hold);});}
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
 })();
