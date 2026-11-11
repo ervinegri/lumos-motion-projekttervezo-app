@@ -77,6 +77,8 @@
   /* több videó egy linken: fülek a videók között (állapottal), váltáskor újratölt a kiválasztott videóval */
   const stIc={ok:'✓',mod:'↩',wait:''};
   /* videóváltás az oldal újratöltése nélkül: csak a lejátszó és a panel cserélődik */
+  /* -ból/-ből a szám kiejtése szerint (3-ból, 8-ból, 6-ból, 10-ből, 20-ból…) */
+  const huBol=n=>{n=Math.abs(Math.round(n));const back='-ból',front='-ből';if(n===0)return '-ból';if(n%10)return [0,0,0,1,0,0,1,0,1,0][n%10]?back:front;if(n%100)return [0,0,1,1,0,0,1,0,1,0][(n%100)/10]?back:front;if(n%1000)return back;return n%1e6?front:back;};
   const goV=id=>{if(!id||id===CUR)return;const u=new URLSearchParams(location.search);u.set('v',id);try{history.replaceState(null,'',location.pathname+'?'+u.toString());}catch(e){}
     {const v=vd();if(v)v.pause();}const pl=$('player');pl.style.minHeight=pl.getBoundingClientRect().height+'px';pl.innerHTML='<div class="noembed"><span class="spin"></span>Videó betöltése…</div>';pl.classList.remove('has-sbar');   /* a méret és tájolás megmarad a betöltésig (nem ugrik el az oldal) */
     shown=false;played=true;CUR=id;window._vSwitch=true;{const dw=$('dlWrap');if(dw)dw.hidden=true;}const fb=$('fb');if(fb){fb.value='';fb.style.height='';}try{modOpen(false);}catch(e){}['err2','err3'].forEach(k=>{const e=$(k);if(e)e.hidden=true;});
@@ -86,7 +88,7 @@
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
     if(!w){w=document.createElement('div');w.id='vtabs';w.className='vnav';const side=document.querySelector('.side');side.insertBefore(w,side.firstChild);}
     const k=i.items.findIndex(x=>x.id===i.cur),pv=i.items[k-1],nx=i.items[k+1],dn=i.items.filter(x=>x.state!=='wait').length;
-    w.innerHTML=`<button type="button" class="vn-b" data-v="${pv?esc(pv.id):''}"${pv?'':' disabled'} aria-label="Előző videó">‹</button><div class="vn-mid"><b>${k+1}. videó a ${i.items.length}-ből</b><span class="vn-dots">${i.items.map((x,n)=>`<span class="vn-d st-${x.state}${x.id===i.cur?' on':''}" data-v="${esc(x.id)}" title="${esc(x.name)}${x.state==='ok'?' – jóváhagyva':x.state==='mod'?' – módosítást kértél':''}">${n+1}</span>`).join('')}</span><small>${dn} / ${i.items.length} elbírálva</small></div><button type="button" class="vn-b" data-v="${nx?esc(nx.id):''}"${nx?'':' disabled'} aria-label="Következő videó">›</button>`;
+    w.innerHTML=`<button type="button" class="vn-b" data-v="${pv?esc(pv.id):''}"${pv?'':' disabled'} aria-label="Előző videó">‹</button><div class="vn-mid"><b>${k+1}. videó a ${i.items.length}${huBol(i.items.length)}</b><span class="vn-dots">${i.items.map((x,n)=>`<span class="vn-d st-${x.state}${x.id===i.cur?' on':''}" data-v="${esc(x.id)}" title="${esc(x.name)}${x.state==='ok'?' – jóváhagyva':x.state==='mod'?' – módosítást kértél':''}">${n+1}</span>`).join('')}</span><small>${dn} / ${i.items.length} elbírálva</small></div><button type="button" class="vn-b" data-v="${nx?esc(nx.id):''}"${nx?'':' disabled'} aria-label="Következő videó">›</button>`;
     w.onclick=e=>{const b=e.target.closest('[data-v]');if(!b||!b.dataset.v||b.dataset.v===CUR)return;goV(b.dataset.v);};
     const nw=i.items.find(x=>x.state==='wait'&&x.id!==i.cur);document.querySelectorAll('.vnext').forEach(x=>x.remove());
     if(nw&&i.state!=='wait'){['doneOk','doneMod'].forEach(id=>{const el=$(id);if(!el||el.hidden)return;const b=document.createElement('button');b.type='button';b.className='vnext ok';b.textContent='Következő videó: '+nw.name+' ›';b.onclick=()=>goV(nw.id);el.after(b);});}}

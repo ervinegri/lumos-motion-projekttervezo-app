@@ -328,7 +328,7 @@ Object.assign(ACT,{
   'fin-exp-new':b=>finExpenseModal(b&&b.dataset.fund?{fund:b.dataset.fund}:null),
   'fin-exp-edit':b=>{const e=((S.fin&&S.fin.expense)||[]).find(x=>x.id===b.dataset.id);if(e)finExpenseModal(e);},
   'fin-exp-del':b=>{const e=((S.fin&&S.fin.expense)||[]).find(x=>x.id===b.dataset.id);if(!e)return;const m=S.finMonth;
-    if(e.kind==='fix'&&e.from<m){confirmModal('Fix kiadás megszüntetése',`A(z) „${e.name}” ${F_YM.format(toDate(m+'-01'))}-tól már nem jelenik meg; a korábbi hónapokban megmarad.`,'Megszüntetés',()=>{const row=Object.assign({},e,{to:shiftMonth(m,-1)});finSave('finUpsert',{table:'expense',row},'Megszüntetve',()=>finLocal('expense',[row]));});}
+    if(e.kind==='fix'&&e.from<m){confirmModal('Fix kiadás megszüntetése',`A(z) „${e.name}” ${F_YM.format(toDate(m+'-01'))}${/(szeptember|október|november|december)$/.test(F_YM.format(toDate(m+'-01')))?'től':'tól'} már nem jelenik meg; a korábbi hónapokban megmarad.`,'Megszüntetés',()=>{const row=Object.assign({},e,{to:shiftMonth(m,-1)});finSave('finUpsert',{table:'expense',row},'Megszüntetve',()=>finLocal('expense',[row]));});}
     else confirmModal('Kiadás törlése','Biztosan törlöd ezt a kiadást?','Törlés',()=>finSave('finDelete',{table:'expense',id:e.id},'Törölve',()=>finLocal('expense',[{id:e.id}],true)));},
   'fin-loan-new':()=>finLoanModal(null),
   'fin-loan-edit':b=>{const l=((S.fin&&S.fin.loan)||[]).find(x=>x.id===b.dataset.id);if(l)finLoanModal(l);},
