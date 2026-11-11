@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5e12ddf95c",
+"at": "2026-11-11T16:07:42+01:00",
+"msg": "Szerződéslista: típus-felirat helyett több látszik a fájlnévből"
+},
+{
 "id": "dc881a8f1f",
 "at": "2026-11-11T16:07:24+01:00",
 "msg": "Szerződések ablak: bezáráskor vissza az ügyfél adatlapjára"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: a ▶ magyarázata frissítve"
 },
 {
-"id": "3bbd4cb7c3",
-"at": "2026-11-11T11:59:20+01:00",
-"msg": "Videó: a ▶ legfeljebb 2 mp-et játszik le, vagy a következő időkódig"
-},
-{
-"id": "761982aea6",
-"at": "2026-11-11T10:55:56Z",
+"id": "898fbfcdd6",
+"at": "2026-11-11T10:59:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
