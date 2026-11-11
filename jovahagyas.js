@@ -26,16 +26,18 @@
     if((m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{10,})/.exec(u)))return `<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     if((m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/.exec(u)))return `<iframe data-vert="${/shorts\//.test(u)?1:''}" src="https://www.youtube.com/embed/${m[1]}?enablejsapi=1&playsinline=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
     if((m=/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/.exec(u)))return `<iframe src="https://player.vimeo.com/video/${m[1]}${m[2]?'?h='+m[2]:''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-    if(/^https:\/\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(u))return `<video src="${esc(u)}" controls playsinline></video>`;
+    if(/^https:\/\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(u))dlSet(u);return `<video src="${esc(u)}" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;
     if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u)))return `<div class="noembed" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span>Videó betöltése…</div>`;
     return '';}
   const noEmbed=(u,why)=>`<div class="noembed">${why?esc(why)+'<br>':''}A videó itt nem játszható le.${u?`<a href="${esc(u)}" target="_blank" rel="noopener">▶ Videó megnyitása</a>`:''}</div>`;
+  /* külön „Letöltés” gomb (a lejátszó saját menüjéből a letöltés ki van véve) */
+  function dlSet(u){const a=document.getElementById('dl'),w=document.getElementById('dlWrap');if(!a||!u)return;a.href=u;a.setAttribute('download','');if(w)w.hidden=false;}
   async function pcloud(link){const el=document.querySelector('[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];
     const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
     for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`,{referrerPolicy:'no-referrer'})).json();if(!sj||sj.result!==0)continue;
         const f=vidOf(sj.metadata);if(!f)break;
         const j=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`,{referrerPolicy:'no-referrer'})).json();
-        if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" referrerpolicy="no-referrer" controls playsinline></video>`;videoReady();return;}}catch(e){}}
+        if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" referrerpolicy="no-referrer" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;videoReady();try{const jd=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=1${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`,{referrerPolicy:'no-referrer'})).json();if(jd&&jd.result===0&&jd.hosts&&jd.hosts.length)dlSet('https://'+jd.hosts[0]+jd.path);}catch(e){}return;}}catch(e){}}
     el.outerHTML=noEmbed(link);}
   const vd=()=>document.querySelector('#player video');
   /* Vízjel (amíg nincs kifizetve): áttetsző felirat a lejátszó fölött, letöltés gomb nélkül */
@@ -44,7 +46,15 @@
     pl.addEventListener('contextmenu',e=>e.preventDefault());const fix=()=>{const v=vd();if(v){v.setAttribute('controlsList','nodownload nofullscreen noplaybackrate');v.setAttribute('disablePictureInPicture','');}};fix();new MutationObserver(fix).observe(pl,{childList:true,subtree:true});
     const fb=document.createElement('button');fb.type='button';fb.className='wm-fs';fb.title='Teljes képernyő';fb.textContent='⛶';fb.onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else if(pl.requestFullscreen)pl.requestFullscreen();else{const v=vd();if(v&&v.webkitEnterFullscreen)v.webkitEnterFullscreen();}};pl.appendChild(fb);   /* saját teljes képernyő: a lejátszó egésze (a vízjellel együtt) */
     const n=document.createElement('p');n.className='wm-note';n.textContent='A videón a vízjel a kifizetés után eltűnik – a végleges, vízjel nélküli változatot a kiegyenlítés után kapod meg.';const a=$('ask');if(a)a.parentNode.insertBefore(n,a);}
-  function videoReady(){const v=vd();if(!v)return;if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomj Entert (vagy a gombot): az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
+  /* vastagabb lejátszósáv nagy fogantyúval (a böngésző saját, vékony sávja helyett) */
+  function seekBar(v){const pl=$('player');if(!pl||pl.querySelector('.sbar'))return;const b=document.createElement('div');b.className='sbar';b.innerHTML='<div class="strack"><div class="sbuf"></div><div class="sfill"></div><div class="shead"></div></div>';pl.appendChild(b);pl.classList.add('has-sbar');
+    const fill=b.querySelector('.sfill'),head=b.querySelector('.shead'),buf=b.querySelector('.sbuf'),tr=b.querySelector('.strack');
+    const upd=()=>{const d=v.duration||0,p=d?Math.min(1,v.currentTime/d):0;fill.style.width=(p*100)+'%';head.style.left=(p*100)+'%';try{if(d&&v.buffered.length)buf.style.width=(v.buffered.end(v.buffered.length-1)/d*100)+'%';}catch(e){}};
+    ['timeupdate','loadedmetadata','progress','seeked'].forEach(t=>v.addEventListener(t,upd));(function loop(){if(!v.paused)upd();requestAnimationFrame(loop);})();
+    let drag=false;const seek=e=>{const r=tr.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(v.duration)v.currentTime=x*v.duration;upd();};
+    b.addEventListener('pointerdown',e=>{drag=true;b.classList.add('drag');b.setPointerCapture(e.pointerId);seek(e);e.stopPropagation();});
+    b.addEventListener('pointermove',e=>{if(drag)seek(e);});['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{drag=false;b.classList.remove('drag');}));upd();}
+  function videoReady(){const v=vd();if(!v)return;seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomj Entert (vagy a gombot): az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
     const upd=()=>{$('tcNow').textContent=tcFmt(v.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>v.addEventListener(e,upd));
     const asp=()=>{if(v.videoWidth&&v.videoHeight>v.videoWidth){const p=$('player');p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
