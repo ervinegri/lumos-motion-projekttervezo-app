@@ -123,7 +123,7 @@ body>.card>.body{flex:1;align-content:center;align-items:end}
 .body,.body.vside{grid-template-columns:minmax(0,1fr) 420px}
 .body.vside{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}   /* álló videó: a videó az oldal közepén */
 .body.vside>div:first-child{grid-column:2}
-.body.vside>.side{grid-column:3;justify-self:end;width:100%;max-width:420px;box-sizing:border-box}
+.body.vside>.side{grid-column:3;justify-self:start;width:100%;max-width:420px;box-sizing:border-box;margin-left:8px}   /* közvetlenül a videó mellett */
 .body.vside .player.vert{height:calc(100dvh - 150px);max-height:none;width:auto}
 }
 /* fekvő videónál a cím és az alatta lévő sor egy vonalban */
