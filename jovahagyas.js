@@ -63,7 +63,7 @@
   function prefetch(i){if(!i||!i.items||i.items.length<2||prefetch.done)return;prefetch.done=true;const k0=i.items.findIndex(x=>x.id===i.cur);
     const order=i.items.map((x,k)=>({x,d:Math.min(Math.abs(k-k0),Math.abs(k-k0+i.items.length))})).sort((a,b)=>a.d-b.d).map(o=>o.x).filter(x=>x.id!==i.cur);
     (async()=>{for(const x of order){try{const inf=INFO[x.id]||(INFO[x.id]=await api('clientInfo',[t,'preview',x.id]));const r=inf.link?await pcResolve(inf.link):null;const src=r?r.src:(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(inf.link||'')?inf.link:'');
-        const k=i.items.findIndex(y=>y.id===x.id),kc=i.items.findIndex(y=>y.id===CUR);if(src&&Math.abs(k-kc)<=2)warm(src);}catch(e){}}})();}
+        const k=i.items.findIndex(y=>y.id===x.id),kc=i.items.findIndex(y=>y.id===CUR);if(src)warm(src);   /* az összes videó előtöltődik */}catch(e){}}})();}
   const vd=()=>document.querySelector('#player video');
   /* Vízjel (amíg nincs kifizetve): áttetsző felirat a lejátszó fölött, letöltés gomb nélkül */
   function wmAdd(name){noDl=true;{const w=document.getElementById('dlWrap'),a=document.getElementById('dl');if(w)w.hidden=true;if(a){a.removeAttribute('href');a.removeAttribute('download');}}const pl=$('player');const t=['LUMOS MOTION','JÓVÁHAGYÁSRA – NEM VÉGLEGES'].concat(name?[name]:[]);const w=document.createElement('div');w.className='wm';
@@ -94,7 +94,7 @@
   const goV=id=>{if(!id||id===CUR)return;const u=new URLSearchParams(location.search);u.set('v',id);try{history.replaceState(null,'',location.pathname+'?'+u.toString());}catch(e){}
     {const v=vd();if(v)v.pause();}const pl=$('player');pl.style.minHeight=pl.getBoundingClientRect().height+'px';pl.innerHTML='<div class="noembed"><span class="spin"></span>Videó betöltése…</div>';pl.classList.remove('has-sbar');   /* a méret és tájolás megmarad a betöltésig (nem ugrik el az oldal) */
     shown=false;played=true;CUR=id;window._vSwitch=true;{const dw=$('dlWrap');if(dw)dw.hidden=true;}const fb=$('fb');if(fb){fb.value='';fb.style.height='';}try{modOpen(false);}catch(e){}['err2','err3'].forEach(k=>{const e=$(k);if(e)e.hidden=true;});
-    const nb=$('noteBox'),no=$('noteOk'),nt=$('note');{const on=$('okNote');if(on){on.value='';on.hidden=true;}}if(nb)nb.hidden=true;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
+    const nb=$('noteBox'),no=$('noteOk'),nt=$('note');{const on=$('okNote');if(on)on.value='';try{okOpen(false);}catch(e){}}if(nb)nb.hidden=true;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
     if(LAST&&LAST.items){const it=LAST.items.find(x=>x.id===id);if(it){const L2=Object.assign({},LAST,{cur:id,state:it.state,video:it.name});LAST=L2;$('video').textContent=it.name;$('ask').hidden=it.state!=='wait';$('doneOk').hidden=it.state!=='ok';$('doneMod').hidden=it.state!=='mod';tabs(L2);}}   /* azonnal vált a kijelölés és a cím, a videó utána tölt be */
     if(INFO[id]){show(Object.assign({},INFO[id],{items:LAST&&LAST.items||INFO[id].items,cur:id}));api('clientInfo',[t,'preview',id]).then(i=>{INFO[id]=i;if(CUR===id&&LAST){LAST.items=i.items;tabs(Object.assign({},LAST,{items:i.items}));}}).catch(()=>{});return;}   /* előtöltve: azonnal */
     api('clientInfo',[t,'preview',id]).then(i=>{INFO[id]=i;const keep=document.querySelector('#main.vside');show(i);if(!document.querySelector('#player.vert')&&keep&&!document.querySelector('#player iframe[data-vert="1"]')){/* a tájolást a betöltött videó állítja be */}}).catch(e=>err(e.message));};
@@ -121,15 +121,17 @@
   /* megerősítés a panelen (a böngésző saját felugró ablaka helyett) */
   const cfm=(title,sub,no)=>new Promise(res=>{$('cfmT').textContent=title;$('cfmS').textContent=sub;$('cfmNo').textContent=no;$('cfm').hidden=false;$('ask').classList.add('cfm-on');
     const done=v=>{$('cfm').hidden=true;$('ask').classList.remove('cfm-on');$('cfmYes').onclick=$('cfmNo').onclick=null;res(v);};$('cfmYes').onclick=()=>done(true);$('cfmNo').onclick=()=>done(false);});
-  $('bOk').onclick=async e=>{const btn=e.currentTarget;
+  /* „Jóváhagyom”: első kattintásra lenyílik az (opcionális) üzenet, a második kattintás véglegesít */
+  const okOpen=on=>{$('okMsg').hidden=!on;$('ask').classList.toggle('ok-open',on);$('bOk').textContent=on?'✓ Jóváhagyás elküldése':'✓ Jóváhagyom';$('bModX').hidden=!on&&!$('modBox').classList.contains('open');if(on)setTimeout(()=>$('okNote').focus(),120);};
+  $('bOk').onclick=async e=>{const btn=e.currentTarget;if(!$('ask').classList.contains('ok-open')&&!$('modBox').classList.contains('open')){okOpen(true);return;}
     if($('fb').value.trim().length>=3&&$('modBox').classList.contains('open')&&!(await cfm('Írtál észrevételt.','Biztosan jóváhagyod a videót módosítás nélkül?','Mégse')))return;
     if(watched()<0.8&&!(await cfm('Még nem nézted végig a videót.','Biztosan jóváhagyod így?','Inkább végignézem'))){const bp=document.querySelector('.bigplay'),v=vd();if(bp)bp.click();else if(v){v.muted=false;v.play().catch(()=>{});}return;}
     go('ok',($('okNote').value||'').trim(),btn);};
-  $('okMsgT').onclick=()=>{const n=$('okNote');n.hidden=!n.hidden;if(!n.hidden)n.focus();};
+
   /* „Módosítást kérek”: első kattintásra lenyílik a szövegmező (időkóddal), második kattintásra elküldi */
   const modOpen=on=>{const b=$('modBox');b.classList.toggle('open',on);$('bSend').textContent=on?'↩ Elküldöm a módosítást':'↩ Módosítást kérek';$('bModX').hidden=!on;$('askHint').hidden=on;
     if(on){const v=vd();setTimeout(()=>{$('fb').focus();},150);}};
-  $('bModX').onclick=()=>{modOpen(false);if($('err2'))$('err2').hidden=true;};
+  $('bModX').onclick=()=>{okOpen(false);modOpen(false);if($('err2'))$('err2').hidden=true;};
   $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bNote').onclick=e=>{const n=$('note').value.trim(),b=e.currentTarget;if(n.length<2){$('err3').hidden=false;$('err3').textContent='Írd be az üzenetedet.';$('note').focus();return;}
     $('err3').hidden=true;if(LAST&&LAST.preview){$('noteBox').hidden=true;$('noteOk').hidden=false;return;}b.disabled=true;b.textContent='Küldés…';api('clientDecide',[t,'note',n,CUR]).then(()=>{$('noteBox').hidden=true;$('noteOk').hidden=false;}).catch(x=>{b.disabled=false;b.textContent='Üzenet küldése';$('err3').hidden=false;$('err3').textContent=x.message;});};

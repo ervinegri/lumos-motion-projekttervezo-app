@@ -2642,6 +2642,8 @@ ACT['vid-tc']=pin=>{const vd=document.querySelector('.vv-player video'),ta=$('m-
   const pre=v0.slice(0,st),nl=pre&&!/\n$/.test(pre)?'\n':'';
   const rest=v0.slice(ta.selectionEnd??st),nl2=rest&&!/^\n/.test(rest)?'\n':'';   // a kurzor utáni szöveg a saját sorában marad
   ta.value=pre+nl+tc+nl2+rest;taHl();const c=(pre+nl+tc).length;ta.focus({preventScroll:true});ta.setSelectionRange(c,c);keep();vvCaretSave(ta);};
+/* M: némítás / hang vissza a videó ablakban (ha nem gépelsz) */
+document.addEventListener('keydown',e=>{if((e.key!=='m'&&e.key!=='M')||e.metaKey||e.ctrlKey||e.altKey)return;const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable))return;const v=document.querySelector('.vv-player video');if(!v||!v.isConnected)return;e.preventDefault();e.stopImmediatePropagation();v.muted=!v.muted;toast(v.muted?'🔇 Némítva':'🔊 Hang bekapcsolva');},true);
 /* Megállított (vagy futó) videónál elkezdesz gépelni: a betű már a hozzászólásba megy, az aktuális időkód mögé */
 document.addEventListener('keydown',e=>{if(e.key.length!==1||e.key===' '||e.metaKey||e.ctrlKey||e.altKey||e.isComposing)return;const v=document.querySelector('.vv-player video'),ta=$('m-vvCm');if(!v||!v.isConnected||!ta)return;
   const a=document.activeElement;if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable))return;
