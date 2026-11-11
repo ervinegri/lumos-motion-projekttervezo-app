@@ -2452,9 +2452,10 @@ const tcLinks=h=>h.replace(TC_RE,(m,a,b,sep,c,x,y)=>`<button type="button" class
 /* Időkód előtt pipa: a vágó (vagy a vezető) kipipálja, amit már javított – a kulcs: <hozzászólás ideje>#<sorszám> */
 const tcCanDone=v=>!!(S.me&&S.me.crewId&&v.editor&&S.me.crewId===v.editor);   /* csak a javításon dolgozó vágó pipálhat */
 const tcDone=(v,c,h)=>{let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v);return h.replace(/<button type="button" class="vv-ts/g,()=>{const k=String(c.at||'')+'#'+(n++),on=dn.has(k);
-  return `<label class="vv-done${on?' on':''}" title="${on?'Elvégezve – kattints a visszavonáshoz':'Pipáld ki, ha elvégezted'}"><input type="checkbox" data-vv-done="${esc(k)}"${on?' checked':''}${can?'':' disabled'}></label><button type="button" class="vv-ts${on?' done':''}`;});};
+  const w=on&&v.dnBy&&v.dnBy[k],who=w?`Kipipálta: ${w.by}${w.at?' · '+String(w.at).slice(5,16).replace('T',' ').replace('-','.'):''}`:'';
+  return `<label class="vv-done${on?' on':''}" title="${on?(who?who+(can?' – kattints a visszavonáshoz':''):'Elvégezve'+(can?' – kattints a visszavonáshoz':'')):'Pipáld ki, ha elvégezted'}"><input type="checkbox" data-vv-done="${esc(k)}"${on?' checked':''}${can?'':' disabled'}></label><button type="button" class="vv-ts${on?' done':''}`;});};
 document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset||t.dataset.vvDone===undefined)return;const box=document.querySelector('.vv-cm');if(!box)return;
-  const pid=box.dataset.pid,vid=box.dataset.vid,key=t.dataset.vvDone,on=t.checked,l=t.closest('.vv-done'),b=l&&l.nextElementSibling;if(l)l.classList.toggle('on',on);if(b)b.classList.toggle('done',on);
+  const pid=box.dataset.pid,vid=box.dataset.vid,key=t.dataset.vvDone,on=t.checked,l=t.closest('.vv-done'),b=l&&l.nextElementSibling;if(l){l.classList.toggle('on',on);l.title=on?'Kipipálta: '+((S.me&&S.me.name)||'')+' · most – kattints a visszavonáshoz':'Pipáld ki, ha elvégezted';}if(b)b.classList.toggle('done',on);
   try{const r=await call('videoCmDone',{projectId:pid,id:vid,key,on});const pr2=r&&r.project;if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}try{bdRefresh();}catch(x){}}
   catch(err){t.checked=!on;if(l)l.classList.toggle('on',!on);if(b)b.classList.toggle('done',!on);handleErr(err);}});
 /* Régi ügyfél-bejegyzések („Ügyfél (e-mail)”): csak a keresztnév látszik */
