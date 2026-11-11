@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||'',d=q.get('d')||'';
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const api=(fn,args)=>fetch(window.LUMOS_API_URL+'?p='+encodeURIComponent(JSON.stringify({fn,args}))).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
-  const T0=Date.now();let introDone=false;const introOut=()=>{if(introDone)return;introDone=true;setTimeout(()=>{const i=$('intro');if(i)i.classList.add('out');document.body.classList.add('ready');setTimeout(autoPlay,350);},Math.max(0,1700-(Date.now()-T0)));};
+  const T0=Date.now();let introDone=false;const introOut=()=>{if(introDone)return;introDone=true;setTimeout(()=>{const i=$('intro');if(i)i.classList.add('out');document.body.classList.add('ready');setTimeout(autoPlay,350);},Math.max(0,850-(Date.now()-T0)));};
   /* a nyitókép eltűnése után a videó magától indul (ha a böngésző hanggal nem engedi, némítva indul, és megjelenik egy „hang bekapcsolása” gomb) */
   let played=false;const autoPlay=()=>{if(played)return;const pl=$('player');if(!pl)return;const v=pl.querySelector('video');
     if(v){played=true;   // nagy ▶ Lejátszás gomb a videón: egy kattintás, és rögtön hanggal indul (kattintás nélkül a böngésző csak némítva engedné)
@@ -14,14 +14,25 @@
     if(/youtube\.com\/embed/.test(src))f.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
     else if(/player\.vimeo\.com/.test(src))f.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');};
   /* a nyitókép addig marad, amíg minden betöltött (adatok + a videó első képkockája / a beágyazott lejátszó), utána lágyan átúszik; legfeljebb 8 mp-ig vár */
-  const introWhenReady=()=>{setTimeout(introOut,8000);const pl=$('player');if(!pl){introOut();return;}
+  const introWhenReady=()=>{setTimeout(introOut,4000);const pl=$('player');if(!pl){introOut();return;}
     const hook=()=>{const v=pl.querySelector('video'),f=pl.querySelector('iframe');
       if(v){if(v.readyState>=2)introOut();else{['loadeddata','error'].forEach(e=>v.addEventListener(e,introOut,{once:true}));}return true;}
       if(f){f.addEventListener('load',introOut,{once:true});return true;}
       if(!pl.querySelector('[data-pc-code]')){introOut();return true;}return false;};
     if(!hook()){const mo=new MutationObserver(()=>{if(hook())mo.disconnect();});mo.observe(pl,{childList:true,subtree:true});}};
   const err=m=>{introOut();$('load').hidden=true;$('err').hidden=false;$('err').textContent=m;};
-  const tcFmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+  const FPS=25,tcFmt=s=>{const n=Math.max(0,Math.floor((Number(s)||0)*FPS+0.01)),t=Math.floor(n/FPS);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')+':'+String(n%FPS+1).padStart(2,'0');};   // ugyanaz a formátum, mint a vágónál: perc:mp:képkocka (01–25)
+  const TC_RE=/\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?\]/g,tcSec=(a,b,c,sep)=>{const t=Number(a)*60+Number(b);if(!c)return t;if(sep===':')return (t*FPS+Math.max(0,Number(c)-1))/FPS;return t+Number(String(c).padEnd(3,'0'))/1000;};
+  /* időkódok kiemelése a szövegmezőben (kék címke), és kattintásra a videó oda ugrik */
+  function taHl(){const ta=$('fb');if(!ta)return;let hl=ta.parentElement.querySelector('.tc-hl');
+    if(!hl){const w=document.createElement('div');w.className='tc-wrap';ta.parentElement.insertBefore(w,ta);w.appendChild(ta);hl=document.createElement('div');hl.className='tc-hl';hl.setAttribute('aria-hidden','true');w.insertBefore(hl,ta);
+      const cs=getComputedStyle(ta);['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','boxSizing'].forEach(k=>{hl.style[k]=cs[k];});
+      ta.addEventListener('input',taHl);ta.addEventListener('scroll',()=>{hl.scrollTop=ta.scrollTop;});new ResizeObserver(()=>{hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';}).observe(ta);
+      const hit=e=>{for(const mk of hl.querySelectorAll('mark'))for(const r of mk.getClientRects())if(e.clientX>=r.left-2&&e.clientX<=r.right+2&&e.clientY>=r.top-1&&e.clientY<=r.bottom+1)return mk;return null;};
+      ta.addEventListener('mousemove',e=>{ta.style.cursor=hit(e)?'pointer':'';});
+      ta.addEventListener('click',e=>{const mk=hit(e),v=vd();if(!mk||!v)return;const q=mk.dataset.tc.split('|');v.pause();v.currentTime=tcSec(q[0],q[1],q[3],q[2]);hl.querySelectorAll('mark.on').forEach(x=>x.classList.remove('on'));mk.classList.add('on');});}
+    hl.style.width=ta.offsetWidth+'px';hl.style.height=ta.offsetHeight+'px';
+    hl.innerHTML=esc(ta.value).replace(TC_RE,(m,a,b,sep,c)=>`<mark data-tc="${a}|${b}|${sep||''}|${c||''}">${m}</mark>`)+'\n';hl.scrollTop=ta.scrollTop;}
   function embed(u){u=String(u||'').trim();let m;
     if((m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{10,})/.exec(u)))return `<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     if((m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/.exec(u)))return `<iframe data-vert="${/shorts\//.test(u)?1:''}" src="https://www.youtube.com/embed/${m[1]}?enablejsapi=1&playsinline=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
@@ -54,11 +65,11 @@
     let drag=false;const seek=e=>{const r=tr.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(v.duration)v.currentTime=x*v.duration;upd();};
     b.addEventListener('pointerdown',e=>{drag=true;b.classList.add('drag');b.setPointerCapture(e.pointerId);seek(e);e.stopPropagation();});
     b.addEventListener('pointermove',e=>{if(drag)seek(e);});['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{drag=false;b.classList.remove('drag');}));upd();}
-  function videoReady(){const v=vd();if(!v)return;seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomj Entert (vagy a gombot): az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
+  function videoReady(){const v=vd();if(!v)return;taHl();seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomj Entert (vagy a gombot): az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
     const upd=()=>{$('tcNow').textContent=tcFmt(v.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>v.addEventListener(e,upd));
     const asp=()=>{if(v.videoWidth&&v.videoHeight>v.videoWidth){const p=$('player');p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
-    ta.value=pre+nl+s+ta.value.slice(b);const c=(pre+nl+s).length;ta.focus();ta.setSelectionRange(c,c);}
+    ta.value=pre+nl+s+ta.value.slice(b);const c=(pre+nl+s).length;ta.focus();ta.setSelectionRange(c,c);taHl();}
   let shown=false;
   const show=i=>{$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;$('video').textContent=i.video;$('project').textContent=i.project;
     if(i.link&&!i.wm){$('watch2').href=i.link;$('newTab').hidden=false;}else $('newTab').hidden=true;
