@@ -817,3 +817,6 @@ html.th2 .bs-box:has(.bs-optbtn) .pb-t{padding-right:84px}
 .arkp-in .inp{width:118px;text-align:right;padding:7px 10px}.arkp-in .inp.err{border-color:#ef4444;background:#fef2f2}
 .arkp-in em{font-style:normal;font-size:12px;color:var(--fg-3,#5e6873);min-width:40px}
 .arkp-foot{position:sticky;bottom:0;display:flex;justify-content:flex-end;padding:12px 0 2px;background:linear-gradient(transparent,#fff 30%)}
+/* csengő: vegyes, időrendi lista – a tétel fajtája kis címkén */
+#bellPop .bell-k{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:6px;padding:1px 6px;margin-bottom:3px}
+#bellPop .bell-k.pay{background:#e8f6ee;color:#17803d}#bellPop .bell-k.rv{background:#fff4e5;color:#b45309}

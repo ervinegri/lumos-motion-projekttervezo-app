@@ -1282,13 +1282,14 @@ function calItems(month){
       if(editOnly(p))return;}
     if(!ro()&&!editOnly(p)&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewCuts(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
       if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:'✂️ Leadás: '+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
-    if(editOnly(p)){if(ro()||!q||q.end<r.start||q.start>r.end)return;pre='✂️ Leadás: ';}   // videóvágás: nem terepi munka, lilán a leadás napján
+    if(editOnly(p)){if(ro()||(S.cal.mode!=='ido'&&!calCutDue())||!q||q.end<r.start||q.start>r.end)return;pre='✂️ Leadás: ';}   // a „Vágói határidők” pipa ezt is elrejti   // videóvágás: nem terepi munka, lilán a leadás napján
     if(!q||q.end<r.start||q.start>r.end)return;   // terepen: a projekt a saját napjain, zölden (ahogy a többieknél)
     items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   const cutC=!ro()&&S.cal.cutter?crewById(S.cal.cutter):null,cutMail=cutC?String(cutC.email||'').toLowerCase():'',cutNm=cutC?fold(cutC.name):'';
   const vOk=e=>!cutC||(cutMail&&(e.guests||[]).includes(cutMail))||(!!cutNm&&fold((e.title||'')+' '+(e.description||'')).includes(cutNm));   // kiválasztott vágó: csak az ő vágói bejegyzései
   const myMail=me?String((crewById(me)||{}).email||'').toLowerCase():'';   /* szakember nézetben csak a saját vágói bejegyzései (ahol ő a vendég) */
-  (S.cal.ev2[month]||[]).filter(vOk).filter(e=>!ro()||(!!myMail&&(e.guests||[]).includes(myMail))).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)}));
+  (ro()||S.cal.mode==='ido'||calCutDue()?(S.cal.ev2[month]||[]):[]).filter(vOk)   /* a vágói naptár bejegyzései is a „Vágói határidők” pipához tartoznak */
+    .filter(e=>!ro()||(!!myMail&&(e.guests||[]).includes(myMail))).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)}));
   if(ro())return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
     items.push({kind:'g',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''});});
