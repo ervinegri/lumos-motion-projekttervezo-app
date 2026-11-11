@@ -1018,7 +1018,7 @@ function videoCmDone_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const mgr = u.role === 'admin' || u.role === 'editor';
-    if (!mgr && !(v.editor && v.editor === u.crewId)) throw new Error('FORBIDDEN: Az észrevételeket a vezető vagy a videó vágója pipálhatja ki.');
+    if (u.role === 'admin' || !(v.editor && v.editor === u.crewId)) throw new Error('FORBIDDEN: Az észrevételeket csak a videó vágója pipálhatja ki.');
     if (!mgr && v.st !== 'vagas') throw new Error('A videó már le van adva – a pipákat most nem lehet módosítani.');
     const d = (v.dn || []).filter(k => k !== key); if (on) d.push(key); v.dn = d.slice(-300);
     v.dnBy = v.dnBy || {}; if (on) v.dnBy[key] = { by: u.name, at: now_() }; else delete v.dnBy[key];
