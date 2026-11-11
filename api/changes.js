@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5c5aa2d33d",
+"at": "2026-11-11T17:53:58+01:00",
+"msg": "Jóváhagyó oldal: zöld idősáv"
+},
+{
 "id": "c46a7a28fc",
 "at": "2026-11-11T17:52:04+01:00",
 "msg": "Ügyfél jóváhagyó link: rövid URL (/v/<kód>)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződések ablak: TIG kiállítása gomb eltávolítva"
 },
 {
-"id": "8ad8f3bd7a",
-"at": "2026-11-11T15:01:50+01:00",
-"msg": "Ügyfél adatlap: látható szerződés-feltöltő mező (behúzás vagy tallózás)"
-},
-{
-"id": "ca7a93bb97",
-"at": "2026-11-11T13:59:00Z",
+"id": "028dd2e8da",
+"at": "2026-11-11T14:02:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
