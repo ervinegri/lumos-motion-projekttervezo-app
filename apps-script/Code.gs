@@ -891,7 +891,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
-    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
+    fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
@@ -1173,6 +1173,7 @@ function videoSet_(u, a) {
       if (!mgr && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) v.link = str_(String(a.link).trim(), 500);   // e-mail nélküli áthelyezésnél is a videó linkje
+      if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);
