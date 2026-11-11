@@ -1405,7 +1405,7 @@ function viewCalendar(){
       ${readOnly?'':`<div class="btns"><button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>
         <a class="btn ghost small" href="https://calendar.google.com/calendar/u/0/r/month/${r.first.replace(/-/g,'/')}" target="_blank" rel="noopener">Google Naptár ↗</a></div>`}</div>
     ${cutterError?`<div class="bad-txt">A Vágói naptár most nem érhető el: ${esc(cutterError)}</div>`:''}
-    ${err?`<div class="banner"><p>A Google Naptár most nem érhető el: ${esc(err)}</p><button class="btn outline small" type="button" data-action="cal-retry">Újra</button></div>`:''}
+    ${err&&!ro()?`<div class="banner"><p>A Google Naptár most nem érhető el: ${esc(err)}</p><button class="btn outline small" type="button" data-action="cal-retry">Újra</button></div>`:''}
     ${S.cal.mode==='ido'?calTimeline(m,items,T,ahead):`<div class="cal-wrap"><div class="cal-grid">${WD_SHORT.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${grid}</div></div>
     <div class="cal-agenda">${agenda||empty('Ebben a hónapban nincs esemény.')}</div>`}`;
 }
