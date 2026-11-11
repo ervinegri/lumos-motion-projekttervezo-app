@@ -47,5 +47,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/v/:code",
+      "destination": "/jovahagyas.html"
+    }
   ]
 }

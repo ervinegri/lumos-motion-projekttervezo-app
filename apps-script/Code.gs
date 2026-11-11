@@ -1002,8 +1002,7 @@ function videoClient_(u, a) {
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const live = clientMailLive_(), sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
   if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
-  const tk = d => FRONTEND_URL + '/jovahagyas.html?t=' + encodeURIComponent(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to })) + '&d=' + d;
-  const pageUrl = tk('').replace(/&d=$/, '');   // egyetlen link: a jóváhagyó oldal (ott nézi meg a videót, és ott dönt)
+  const pageUrl = FRONTEND_URL + '/v/' + clientShort_(clientToken_({ p: pid, v: vid, s: String(u.email || ''), c: to }));   // rövid link: /v/<kód> → jóváhagyó oldal   // egyetlen link: a jóváhagyó oldal (ott nézi meg a videót, és ott dönt)
   text = text.split(link).join(pageUrl); if (text.indexOf(pageUrl) < 0) text = text + '\n\n' + pageUrl;
   const btn = '<a class="lmbtn" href="' + escapeHtml_(pageUrl) + '" style="display:inline-block;background:#f6efe1;border:1px solid #e3d3b0;border-radius:10px;padding:6px 22px 6px 10px;text-decoration:none;color:#1d2a38;font-family:Montserrat,Arial,sans-serif;line-height:1.2">'
     + '<img class="lmstamp" src="' + FRONTEND_URL + '/mail/stamp.png" width="48" height="48" alt="Lumos Motion" style="vertical-align:middle;border:0;display:inline-block">'
@@ -1023,7 +1022,16 @@ function videoClient_(u, a) {
 function clientMailLive_() { return PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') !== '0'; }
 function clientSecret_() { const P = PropertiesService.getScriptProperties(); let k = P.getProperty('LUMOS_CLIENT_SECRET'); if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); P.setProperty('LUMOS_CLIENT_SECRET', k); } return k; }
 function clientToken_(o) { o.x = Date.now() + 60 * 864e5; const b = Utilities.base64EncodeWebSafe(JSON.stringify(o)).replace(/=+$/, ''), sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(b, clientSecret_())).replace(/=+$/, ''); return b + '.' + sg; }
-function clientTokenRead_(t) { const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t || '')); if (!m) throw new Error('Érvénytelen link.');
+/** Rövid kód a hosszú, aláírt kulcshoz (Script Properties: CS_<kód>); a 60 napnál régebbieket kitakarítja. */
+function clientShort_(tok) {
+  const pr = PropertiesService.getScriptProperties(), abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let code = ''; for (let k = 0; k < 20; k++) { code = ''; const r = Utilities.getUuid().replace(/-/g, ''); for (let i = 0; i < 10; i++) code += abc[parseInt(r.substr(i * 3, 3), 16) % abc.length]; if (!pr.getProperty('CS_' + code)) break; }
+  pr.setProperty('CS_' + code, tok);
+  try { const all = pr.getProperties(), now = Date.now(); Object.keys(all).forEach(k => { if (k.indexOf('CS_') !== 0) return; try { const o = clientTokenRead_(all[k]); if (!o) pr.deleteProperty(k); } catch (e) { if (/lejárt/.test(String(e.message))) pr.deleteProperty(k); } }); } catch (e) { }
+  return code;
+}
+function clientTokenRead_(t) { if (/^[A-Za-z0-9]{6,16}$/.test(String(t || ''))) { t = PropertiesService.getScriptProperties().getProperty('CS_' + t); if (!t) throw new Error('Érvénytelen link.'); }   // rövid link kódja
+  const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t || '')); if (!m) throw new Error('Érvénytelen link.');
   const sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(m[1], clientSecret_())).replace(/=+$/, ''); if (sg !== m[2]) throw new Error('Érvénytelen link.');
   const o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(m[1] + '==='.slice((m[1].length + 3) % 4))).getDataAsString()); if (!o || !o.p || !o.v) throw new Error('Érvénytelen link.'); if (o.x && Date.now() > o.x) throw new Error('A link lejárt – kérj újat.'); return o; }
 function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }

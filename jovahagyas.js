@@ -1,7 +1,7 @@
 /* Az ügyfél jóváhagyó oldala (a belső ellenőrző nézet mintájára): beágyazott lejátszó, mellette az észrevételek időkóddal,
    jóváhagyás vagy módosítási kérés. A döntés csak gombnyomásra történik (a levelezők előre megnyithatják a linket). */
 (function(){
-  const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||'',d=q.get('d')||'';
+  const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),t=q.get('t')||(/^\/v\/([A-Za-z0-9]{6,16})\/?$/.exec(location.pathname)||[])[1]||'',d=q.get('d')||'';
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const api=(fn,args)=>fetch(window.LUMOS_API_URL+'?p='+encodeURIComponent(JSON.stringify({fn,args}))).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
   const T0=Date.now();let introDone=false;const introOut=()=>{if(introDone)return;introDone=true;setTimeout(()=>{const i=$('intro');if(i)i.classList.add('lgo');setTimeout(()=>{if(i)i.classList.add('out');document.body.classList.add('ready');setTimeout(autoPlay,350);},380);},Math.max(0,700-(Date.now()-T0)));};
