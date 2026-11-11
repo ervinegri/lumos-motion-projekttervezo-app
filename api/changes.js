@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "78cc6dd455",
+"at": "2026-11-11T10:38:22+01:00",
+"msg": "Jóváhagyó oldal: a töltés-csík a bal szélről indul"
+},
+{
 "id": "2eb7a85591",
 "at": "2026-11-11T10:34:27+01:00",
 "msg": "Jóváhagyó oldal: töltés-csík a nyitó logó alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videókártya: buborékszöveg többes számban"
 },
 {
-"id": "5b3780099f",
-"at": "2026-11-11T09:37:53+01:00",
-"msg": "Videókártya: Még nem nyitották meg / Megnyitották"
-},
-{
-"id": "0cdb3c994a",
-"at": "2026-11-11T08:29:38Z",
+"id": "d30c8f2266",
+"at": "2026-11-11T08:38:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
