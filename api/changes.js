@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "77348a3cb2",
+"at": "2026-11-11T18:49:48+01:00",
+"msg": "Ügyfél-link: projekttervezo.lumosmotion.hu/<kód> (a /v/ nélkül)"
+},
+{
 "id": "c0024b4221",
 "at": "2026-11-11T18:49:18+01:00",
 "msg": "Jóváhagyó oldal: videólapozó a panel tetején (pöttyökkel); előnézet rövid linkkel"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "9baed79508",
 "at": "2026-11-11T17:46:13+01:00",
 "msg": "Jóváhagyó oldal: magyarázó mondat törölve"
-},
-{
-"id": "10b4c5d19a",
-"at": "2026-11-11T17:05:07+01:00",
-"msg": "Videótábla: a jóváhagyott videók nem húzhatók ki a Jóváhagyva oszlopból"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
