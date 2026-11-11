@@ -727,3 +727,9 @@ html.th2 .vv-cm button.vv-ts,html.th2 .vv-cm button.vv-ts:hover:not(:disabled){t
 html.th2 .vv-cm button.vv-ts{background:#e3ecfb}html.th2 .vv-cm button.vv-ts:hover:not(:disabled){background:#d2e1fa}
 html.th2 .vv-cm button.vv-play:hover:not(:disabled){background:#e3ecfb;color:#1f5fc9;border-color:#1f5fc9;transform:none}
 html.th2 .vv-cm button.vv-play.on,html.th2 .vv-cm button.vv-play.on:hover:not(:disabled){background:#1f5fc9;color:#fff}
+/* ▶ összeolvad az időkóddal: egy kék „pirula”, középen halvány elválasztó */
+html.th2 .vv-cm button.vv-ts:has(+.vv-play){border-radius:6px 0 0 6px;padding-right:5px}
+html.th2 .vv-cm button.vv-play{border:0;border-left:1px solid #c5d6f3;border-radius:0 6px 6px 0;background:#e3ecfb;color:#1f5fc9;width:auto;height:auto;padding:1px 6px 1px 5px;margin:0 6px 0 0;font-size:9px;line-height:inherit;vertical-align:baseline;align-self:auto}
+html.th2 .vv-cm button.vv-play:hover:not(:disabled){background:#d2e1fa;border-color:#c5d6f3;color:#1f5fc9}
+html.th2 .vv-cm button.vv-play.on,html.th2 .vv-cm button.vv-play.on:hover:not(:disabled){background:#1f5fc9;color:#fff;border-left-color:#1f5fc9}
+html.th2 .vv-cm button.vv-ts:has(+.vv-play),html.th2 .vv-cm button.vv-play{line-height:18px;height:18px;padding-top:0;padding-bottom:0;vertical-align:middle;box-sizing:border-box}
