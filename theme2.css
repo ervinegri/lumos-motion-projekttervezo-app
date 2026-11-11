@@ -700,3 +700,8 @@ html.th2 .dl-fizetve .dl-colh{color:#1f6b3e}
 /* telefonszám mező: csak olyan széles, amilyen egy telefonszám (a másolás gomb így közvetlenül a szám mellett van) */
 html.th2 .phone-row{width:fit-content;max-width:100%}
 html.th2 .phone-row .ph-num{flex:0 1 210px;width:210px}
+
+/* e-mail mező másolás gombja */
+.cp-wrap{position:relative;display:block;width:100%}
+.cp-wrap>.inp{padding-right:40px;width:100%}
+.cp-wrap:has(input:placeholder-shown) .em-copy{display:none}
