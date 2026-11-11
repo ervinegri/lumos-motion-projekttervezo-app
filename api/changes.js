@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5caab6d942",
+"at": "2026-11-11T11:54:13+01:00",
+"msg": "Videó hozzászólás: stabil hover az időkódon és a ▶ gombon"
+},
+{
 "id": "8130ec4f84",
 "at": "2026-11-11T11:51:26+01:00",
 "msg": "Videó: keret a ▶ gombon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: zöld Jóváhagyom gomb"
 },
 {
-"id": "366140c92e",
-"at": "2026-11-11T10:23:42+01:00",
-"msg": "Jóváhagyó oldal: a kártya függőlegesen a képernyő közepén"
-},
-{
-"id": "b0bf57e3c7",
-"at": "2026-11-11T09:21:59Z",
+"id": "5f0443d365",
+"at": "2026-11-11T09:23:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
