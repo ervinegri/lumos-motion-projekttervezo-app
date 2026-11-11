@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "67a4c5b7d3",
+"at": "2026-11-11T18:38:12+01:00",
+"msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
+},
+{
+"id": "1219f35000",
+"at": "2026-11-11T18:36:17+01:00",
+"msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
+},
+{
 "id": "63c038d6cc",
 "at": "2026-11-11T18:32:40+01:00",
 "msg": "Levélből nyitott videó: bejelentkezés után is megnyílik (telefonon is)"
@@ -145,16 +155,6 @@ const ITEMS = [
 "id": "0894043a55",
 "at": "2026-11-11T16:06:11+01:00",
 "msg": "Ügyfél adatlap: Kezelés / feltöltés helyett Ügyfél mappája link"
-},
-{
-"id": "9bb022c93a",
-"at": "2026-11-11T16:01:54+01:00",
-"msg": "Ügyfél-levél gomb: LEVÉL ÉRKEZETT felirat törölve"
-},
-{
-"id": "8dff8d4d2b",
-"at": "2026-11-11T15:00:15Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
