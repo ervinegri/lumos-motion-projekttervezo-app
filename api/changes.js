@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d23fe4f719",
+"at": "2026-11-11T15:05:01+01:00",
+"msg": "Ügyfél adatlap: szerződést csak a feltöltő mezőre lehet húzni"
+},
+{
 "id": "b0dff3b279",
 "at": "2026-11-11T15:02:10+01:00",
 "msg": "Szerződések ablak: TIG kiállítása gomb eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: töltés-csík a nyitó logó alatt"
 },
 {
-"id": "a2674d95a2",
-"at": "2026-11-11T10:33:54+01:00",
-"msg": "Jóváhagyó oldal: jóváhagyás után az ügyfél még üzenhet (nem kötelező)"
-},
-{
-"id": "bd95b2b9ee",
-"at": "2026-11-11T09:30:50Z",
+"id": "e8d2792f61",
+"at": "2026-11-11T09:34:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
