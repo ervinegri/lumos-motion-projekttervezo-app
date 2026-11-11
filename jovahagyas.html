@@ -45,10 +45,10 @@ button:disabled{opacity:.6;cursor:default}
 .err{color:#b3261e;font-weight:600;margin:0}
 .body.vside{grid-template-columns:minmax(0,1fr) 380px}
 @media(max-width:860px){.head{flex-direction:column;align-items:flex-start;gap:12px}h1{font-size:18px}.body,.body.vside{grid-template-columns:1fr}.player.vert{max-height:86vh;max-height:86svh}body{padding:12px 10px}.card{padding:16px 14px}}
-#intro{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;margin:0;padding:0;z-index:50;background:#fff;display:grid;place-items:center;transition:opacity .8s ease,visibility .8s}
+#intro{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;margin:0;padding:0;z-index:50;background:#fff;display:grid;place-items:center;transition:opacity .5s ease,visibility .5s}
 #intro img{display:block;margin:0;width:min(340px,62vw);height:auto;clip-path:inset(0 100% 0 0);animation:lmIn .65s cubic-bezier(.65,0,.25,1) .05s forwards}
 #intro.out{opacity:0;visibility:hidden}
-#intro.out img{transform:scale(1.04);transition:transform .8s ease}
+#intro img{transition:opacity .35s ease,transform .35s ease}#intro.lgo img{opacity:0;transform:scale(.97)}
 @keyframes lmIn{to{clip-path:inset(0 0 0 0)}}
 button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}   /* a gombok szövege ne legyen kijelölhető (telefonon hosszú érintésre) */
 @media(prefers-reduced-motion:reduce){#intro img{animation:none;clip-path:none}}
