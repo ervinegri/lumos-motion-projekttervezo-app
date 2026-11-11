@@ -41,6 +41,11 @@ button:disabled{opacity:.6;cursor:default}
 .ok{background:#2e9e62;color:#fff;transition:background .15s,box-shadow .15s}.ok:hover{background:#26874f;box-shadow:0 4px 12px rgba(46,158,98,.25)}.ok:active{background:#1f7444}
 .mod{background:#fff;color:#b3261e;border-color:#e3b4b0}
 .done{padding:14px;border-radius:12px;background:#eaf7ef;color:#1e7a46;font-weight:600;margin:0}
+.note{margin-top:14px}.note label{display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:#1d2a38}.note label span{font-weight:400;color:#6b7785}
+.note .err{margin-top:6px;font-size:13px}
+.note textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:72px}
+.nsend{margin-top:8px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid #c9d3dc;background:#fff;color:#1d2a38;font-weight:600;cursor:pointer}.nsend:hover{background:#f3f6f9}.nsend:disabled{opacity:.6;cursor:default}
+.nok{margin:12px 0 0;color:#1e7a46;font-weight:600;font-size:14px}
 .done.m{background:#fff4f2;color:#b3261e}
 .err{color:#b3261e;font-weight:600;margin:0}
 .body.vside{grid-template-columns:minmax(0,1fr) 380px}
@@ -123,7 +128,9 @@ body>.card{flex:none}
         </div></div>
         <div class="row"><button type="button" class="ok" id="bOk">✓ Jóváhagyom</button><button type="button" class="mod" id="bSend">↩ Módosítást kérek</button><button type="button" class="modx" id="bModX" hidden>Mégse</button></div>
       </div>
-      <p class="done" id="doneOk" hidden>Köszönjük! A videót jóváhagytad.</p>
+      <div id="doneOk" hidden><p class="done">Köszönjük! A videót jóváhagytad.</p>
+        <div class="note" id="noteBox"><label for="note">Szeretnél még üzenni valamit? <span>(nem kötelező)</span></label><textarea id="note" rows="3" maxlength="1500"></textarea><p class="err" id="err3" hidden></p><button type="button" class="nsend" id="bNote">Üzenet küldése</button></div>
+        <p class="nok" id="noteOk" hidden>✓ Az üzenetedet elküldtük.</p></div>
       <p class="done m" id="doneMod" hidden>Köszönjük! Megkaptuk a módosítási kérésedet, hamarosan jelentkezünk.</p>
       <p class="err" id="err2" hidden></p>
     </aside>

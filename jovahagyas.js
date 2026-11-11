@@ -91,6 +91,8 @@
     if(on){const v=vd();setTimeout(()=>{$('fb').focus();},150);}};
   $('bModX').onclick=()=>{modOpen(false);if($('err2'))$('err2').hidden=true;};
   $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
+  $('bNote').onclick=e=>{const n=$('note').value.trim(),b=e.currentTarget;if(n.length<2){$('err3').hidden=false;$('err3').textContent='Írd be az üzenetedet.';$('note').focus();return;}
+    $('err3').hidden=true;b.disabled=true;b.textContent='Küldés…';api('clientDecide',[t,'note',n]).then(()=>{$('noteBox').hidden=true;$('noteOk').hidden=false;}).catch(x=>{b.disabled=false;b.textContent='Üzenet küldése';$('err3').hidden=false;$('err3').textContent=x.message;});};
   $('bTc').onclick=insTc;
   /* Szóköz: rövid lenyomás = lejátszás / megállítás (az első hanggal indít); hosszan nyomva = 2× sebesség, amíg nyomod (mint a YouTube-on) */
   {let hold=0,fast=false,down=false;const typing=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable||a.tagName==='BUTTON'||a.tagName==='A');};
