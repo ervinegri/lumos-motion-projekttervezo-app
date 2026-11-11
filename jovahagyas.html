@@ -113,6 +113,15 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 html,body{min-height:100%}
 body{min-height:100vh;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center}
 body>.card{flex:none}
+/* teljes képernyős elrendezés (nem lebegő „buborék”) */
+@media (min-width:861px){
+body{padding:0;background:#fff;justify-content:flex-start}
+body>.card{width:100%;max-width:none;min-height:100vh;min-height:100dvh;box-sizing:border-box;border:0;border-radius:0;box-shadow:none;padding:22px 32px 26px;display:flex;flex-direction:column}
+body>.card>.body{flex:1;align-content:center;align-items:end}
+.player:not(.vert){width:100%;max-width:calc((100dvh - 150px) * 16 / 9);margin:0 auto}
+.player.vert{max-height:calc(100dvh - 150px)}
+.body,.body.vside{grid-template-columns:minmax(0,1fr) 420px}
+}
 /* fekvő videónál a cím és az alatta lévő sor egy vonalban */
 @media (min-width:760px){.ttl{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px}.ttl h1{margin:0}}
 .spd{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;background:rgba(14,22,32,.75);color:#fff;font-weight:700;font-size:14px;padding:7px 14px;border-radius:999px;opacity:0;transition:opacity .15s;pointer-events:none}.spd.on{opacity:1}
