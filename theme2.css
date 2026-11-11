@@ -742,3 +742,9 @@ html.th2 .vv-cm button.vv-ts:has(+.vv-play),html.th2 .vv-cm button.vv-play{line-
 .cl-docs-drop.over{outline:0;background:transparent}
 .cl-drop-box.over{border-color:var(--accent,#2e9e62);background:rgba(46,158,98,.08)}
 .cl-drop-box.busy{opacity:.6;pointer-events:none}.cl-drop-box.busy b::after{content:" – feltöltés…";font-weight:500;color:#7a8590}
+/* időkódok egységes szélességben; a jelölt (📍) időkód ugyanakkora, csak narancs árnyalatú, a sarkában kis pöttyel */
+html.th2 .vv-cm button.vv-ts{font-variant-numeric:tabular-nums;min-width:56px;text-align:center;position:relative}
+html.th2 .vv-cm button.vv-ts.vv-ts-pin,html.th2 .vv-cm button.vv-ts.vv-ts-pin+.vv-play{background:#fdeee0;color:#b5530f}
+html.th2 .vv-cm button.vv-ts.vv-ts-pin+.vv-play{border-left-color:#f3cfac}
+html.th2 .vv-cm button.vv-ts.vv-ts-pin:hover:not(:disabled){background:#fbe0c6;color:#b5530f}
+html.th2 .vv-cm button.vv-ts.vv-ts-pin::after{content:"";position:absolute;top:-3px;left:-3px;width:7px;height:7px;border-radius:50%;background:#e8590c;border:1.5px solid #fff}
