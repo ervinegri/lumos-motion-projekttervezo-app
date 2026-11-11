@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e392cfeb31",
+"at": "2026-11-11T23:13:56+01:00",
+"msg": "Videótábla: utómunkára váró / vágás alatti videóknál nincs Átnézés egymás után"
+},
+{
 "id": "df092f67d8",
 "at": "2026-11-11T23:13:33+01:00",
 "msg": "Videóablak: egy kártyára kattintva nincs lapozó (1/6), csak kijelölt videóknál"
