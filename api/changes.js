@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7545167f41",
+"at": "2026-11-11T09:41:28+01:00",
+"msg": "Jóváhagyó oldal: lejátszó menü (letöltés, sebesség, PiP) ki, külön Letöltés gomb, vastag lejátszósáv nagy fogantyúval"
+},
+{
 "id": "1f5723d569",
 "at": "2026-11-11T09:39:20+01:00",
 "msg": "Jóváhagyó oldal: hang az első kattintásra bárhol, feltűnőbb hang-gomb a videó közepén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-link megnyitásának jelzése a videókártyán; új Lumos gomb a jóváhagyó levélben"
 },
 {
-"id": "f873ca1f3e",
-"at": "2026-11-11T00:07:03+01:00",
-"msg": "Ügyfél jóváhagyó oldal: a videó a nyitókép után magától indul (szükség esetén némítva, hang gombbal)"
-},
-{
-"id": "93219058f9",
-"at": "2026-11-10T23:04:53Z",
+"id": "8a92f39291",
+"at": "2026-11-10T23:07:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
