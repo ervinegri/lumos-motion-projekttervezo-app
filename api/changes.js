@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5d267b933",
+"at": "2026-11-11T18:17:33+01:00",
+"msg": "Videó ablak: link nélkül a mező a vágónak szóló kérésekre hív"
+},
+{
 "id": "e1585e57b7",
 "at": "2026-11-11T18:15:18+01:00",
 "msg": "Videó ablak: Link beillesztése csak belső ellenőrzésre küldéskor; csoportos húzásnál látszik a darabszám"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Belső ellenőrzésre küldés: Mégse után vissza a videóhoz"
 },
 {
-"id": "d1d2d434ee",
-"at": "2026-11-11T15:34:44+01:00",
-"msg": "Elkészítettem a javítást: figyelmeztet, ha maradt kipipálatlan észrevétel"
-},
-{
-"id": "282ebf92a4",
-"at": "2026-11-11T14:34:39Z",
+"id": "75a763e966",
+"at": "2026-11-11T14:34:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
