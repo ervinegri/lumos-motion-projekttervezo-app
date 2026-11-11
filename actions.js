@@ -2325,7 +2325,7 @@ function clientModal(pid,vid,multi){window._clPid=pid;window._clVid=vid;const p=
       ${String(p.client||'').trim()?'<input class="inp" id="m-clTo" name="to" type="email" placeholder="Másik e-mail cím (nem kötelező)" style="margin-top:8px">':'<p class="hint" style="margin:6px 0 0">Saját projekt (nincs ügyfél): csak a projektvezetőnek vagy az ügyvezetőnek küldhető.</p>'}</div>
     ${isAdmin()?wmFieldHtml(p):''}
     <div class="field full"${MV?' hidden':''}><label for="m-clLink">A videó linkje</label><input class="inp" id="m-clLink" name="link" type="url" value="${esc(v.link||'')}" required></div>
-    <div class="field full"><label for="m-clSubj">Tárgy</label><input class="inp" id="m-clSubj" name="subject" value="${esc(MV?'Elkészültek: '+MV.length+' videó – '+(p.name||''):clSubj(p,v))}"></div>
+    <div class="field full"><label for="m-clSubj">Tárgy</label><input class="inp" id="m-clSubj" name="subject" value="${esc(MV?'Elkészültek: '+MV.length+' db videó – '+(p.name||''):clSubj(p,v))}"></div>
     <div class="field full"><span class="lbl">A levél előnézete <span class="muted" style="font-weight:500">– kattints a szövegbe, és írd át, ami kell</span></span><textarea id="m-clBody" name="body" hidden>${esc(body)}</textarea>
       <div class="cl-prev-box"><div class="inv-h pe-head" id="cl-head"></div><div id="cl-prev"><p class="hint" style="padding:12px">Előnézet betöltése…</p></div></div>
       <p class="hint" style="margin:6px 0 0">A „▶ Videó megnézése és jóváhagyása” gomb a jóváhagyó oldalra visz: ott nézi meg az ügyfél a videót, és ott hagyja jóvá vagy kér módosítást. Amit itt átírsz (pl. a megszólítást), legközelebb ennél az ügyfélnél már így jön fel.</p></div>`,
