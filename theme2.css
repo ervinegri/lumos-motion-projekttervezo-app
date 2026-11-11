@@ -683,3 +683,9 @@ html.th2 .dl-board{grid-template-columns:repeat(6,minmax(200px,1fr))}
 html.th2 .dl-fizetve .dl-colh{color:#1f6b3e}
 .dl-paid{color:#1f6b3e}
 @media (max-width:760px){html.th2 .dl-board{grid-template-columns:repeat(6,82%)}}
+
+/* jóváhagyó levél gombja (előnézet) – hover / kattintás effekt, mint a levélben */
+.lmbtn{transition:background .15s,border-color .15s,box-shadow .15s}
+.lmbtn:hover{background:#efe3c6!important;border-color:#d4b97c!important;box-shadow:0 4px 12px rgba(29,42,56,.16)}
+.lmbtn:active{background:#e6d4ab!important;box-shadow:inset 0 2px 5px rgba(29,42,56,.18)}
+.lmbtn .lmstamp{transition:transform .2s}.lmbtn:hover .lmstamp{transform:rotate(-8deg) scale(1.06)}.lmbtn:active .lmstamp{transform:rotate(-8deg) scale(.96)}
