@@ -1170,7 +1170,7 @@ function videoSet_(u, a) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
       if (v.st === 'jovahagyva' && a.st !== 'jovahagyva' && u.role !== 'admin') throw new Error('A jóváhagyott videót csak az ügyvezető veheti vissza.');
       if (a.st === 'jovahagyva' && !v.link && !(a.link && /^https?:\/\/\S+$/i.test(String(a.link).trim()))) throw new Error('Jóváhagyottnak csak linkkel jelölhető a videó.');
-      if (!mgr && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (!mgr && !(a.st === 'vagasra' && v.st === 'vagas' && (!v.editor || v.editor === u.crewId)) && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); FB_MAIL_ = { v: v, by: u.name }; }   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) v.link = str_(String(a.link).trim(), 500);   // e-mail nélküli áthelyezésnél is a videó linkje
       if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)

@@ -2397,6 +2397,7 @@ ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name
 /* húzás közben csak az engedélyezett oszlop világosodik ki (a vágó csak „Utómunka alatt” / „Belső ellenőrzés” oszlopba tehet) */
 let BD_DRAG=null;
 function bdCanTo(pid,vid,to){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||p.status==='atadva'||v.st==='jovahagyva')return false;if(!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')))return true;
+  if(to==='vagasra')return v.st==='vagas';   /* a vágó a véletlenül elkezdett videót visszateheti az „Utómunkára vár” oszlopba */
   return ['vagas','ellen'].includes(to)&&!['jovahagyva','leadva'].includes(v.st)&&!(v.st==='ellen'&&to!=='ellen');}
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;BD_DRAG={pid:c.dataset.bdPid,vid:c.dataset.bdVid};e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');if(c.classList.contains('sel')){const all=document.querySelectorAll('.bd-card.sel');all.forEach(x=>x.classList.add('dragging'));
     if(all.length>1){/* húzáskor látszódjon, hogy mind megy: egymásra rakott kártyák + darabszám */const g=document.createElement('div');g.className='bd-ghost';const r=c.getBoundingClientRect();g.style.width=r.width+'px';
