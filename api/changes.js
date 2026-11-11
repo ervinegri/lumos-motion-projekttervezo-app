@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1d57fcd16b",
+"at": "2026-11-11T15:36:14+01:00",
+"msg": "Javítás elküldése: figyelmeztetés szövege"
+},
+{
 "id": "63c240957c",
 "at": "2026-11-11T15:35:35+01:00",
 "msg": "Belső ellenőrzésre küldés: Mégse után vissza a videóhoz"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlakártyák: Opciók menü (jelölés fizetettnek, sztornó) a közvetlen gombok helyett"
 },
 {
-"id": "46e632ddff",
-"at": "2026-11-11T11:17:28+01:00",
-"msg": "Bizonylat hozzárendelése: Mégse után vissza a számla kiállításához"
-},
-{
-"id": "03972b0c00",
-"at": "2026-11-11T10:12:07Z",
+"id": "b52846c1eb",
+"at": "2026-11-11T10:17:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
