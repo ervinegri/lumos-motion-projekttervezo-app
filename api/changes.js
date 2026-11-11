@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9baed79508",
+"at": "2026-11-11T17:46:13+01:00",
+"msg": "Jóváhagyó oldal: magyarázó mondat törölve"
+},
+{
 "id": "10b4c5d19a",
 "at": "2026-11-11T17:05:07+01:00",
 "msg": "Videótábla: a jóváhagyott videók nem húzhatók ki a Jóváhagyva oszlopból"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatlap: szerződés behúzással feltölthető; szerződéstörlés/feltöltés gyors (csak az adott ügyfél mappáját olvassa újra)"
 },
 {
-"id": "bb778f8122",
-"at": "2026-11-11T14:54:11+01:00",
-"msg": "Ügyfél adatlap: szerződés törölhető (🗑️) a Szerződések listában"
-},
-{
-"id": "abbbbc2f3e",
-"at": "2026-11-11T13:51:20Z",
+"id": "3720184034",
+"at": "2026-11-11T13:54:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
