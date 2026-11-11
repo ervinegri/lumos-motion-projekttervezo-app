@@ -60,7 +60,8 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 .wm-fs{position:absolute;left:12px;top:12px;z-index:4;width:36px;height:36px;border-radius:9px;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:18px;cursor:pointer;padding:0}
 .wm-note{font-size:12.5px;color:#8a5a00;background:#fff6e0;border:1px solid #f1d9a6;border-radius:10px;padding:8px 10px;margin:0 0 10px}
 [hidden]{display:none!important}
-.unmute{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;background:rgba(14,22,32,.85);color:#fff;font-family:inherit;font-size:14px;font-weight:600;line-height:1;padding:11px 18px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.3)}.unmute:hover{background:#0e1620}
+.unmute{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:16px!important;padding:14px 22px!important;animation:unm 1.6s ease-in-out infinite;z-index:5;border:0;border-radius:999px;background:rgba(14,22,32,.85);color:#fff;font-family:inherit;font-size:14px;font-weight:600;line-height:1;padding:11px 18px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.3)}.unmute:hover{background:#0e1620}
+@keyframes unm{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.3),0 0 0 0 rgba(255,255,255,.35)}50%{box-shadow:0 6px 20px rgba(0,0,0,.3),0 0 0 10px rgba(255,255,255,0)}}
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 </head>
