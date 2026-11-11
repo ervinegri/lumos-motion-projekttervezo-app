@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1154e0da3e",
+"at": "2026-11-11T10:19:16+01:00",
+"msg": "Jóváhagyó oldal: fejléc sor egy vonalban; súgószöveg pontosítva, mintaszöveg ki"
+},
+{
 "id": "5f5cc294e8",
 "at": "2026-11-11T10:15:41+01:00",
 "msg": "Jóváhagyó oldal: időkód nem kötelező, szabad szöveges módosítás-kérés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: azonos komment nem jelenik meg kétszer"
 },
 {
-"id": "610e133e9a",
-"at": "2026-11-11T00:37:28+01:00",
-"msg": "Videótábla ablak: film emoji ki, cím és határidő egy vonalban"
-},
-{
-"id": "fb3523d499",
-"at": "2026-11-10T23:37:09Z",
+"id": "34395ad2bd",
+"at": "2026-11-10T23:37:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
