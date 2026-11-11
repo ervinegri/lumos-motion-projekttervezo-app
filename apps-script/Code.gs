@@ -264,7 +264,7 @@ function dbLoad_(force) {
 }
 /** A módosított munkalapok visszaírása egy tranzakcióban. Munkalap-módban a Google-táblázat flush-a. */
 function dbFlush_() {
-  if (!dbOn_()) { SpreadsheetApp.flush(); return; }
+  if (!dbOn_()) { SpreadsheetApp.flush(); scBump_(); return; }
   const dirty = Object.keys(DB_.sheets).map(k => DB_.sheets[k]).filter(s => s.dirty), logs = DB_.pendingLog || [];
   if (!dirty.length && !logs.length) return;
   DB_.pendingLog = [];
@@ -430,7 +430,17 @@ function toRow_(t, o) {
   });
 }
 
+/* Táblázat-módban (Google Sheets) az olvasás lassú: a táblák tartalma a gyorsítótárba kerül, és egy közös verziószám
+   jelzi, ha bárki írt (minden mentés / zárolt művelet után új verzió). Zárolás alatt mindig közvetlenül a táblázatból olvasunk. */
+const SC_ = { lock: 0, ver: '', memo: {} };
+function scVer_() { if (SC_.ver) return SC_.ver; try { const C = CacheService.getScriptCache(); let v = C.get('scver'); if (!v) { v = String(Date.now()); C.put('scver', v, 21600); } return SC_.ver = v; } catch (e) { return ''; } }
+function scBump_() { SC_.memo = {}; SC_.ver = ''; try { CacheService.getScriptCache().put('scver', String(Date.now()) + Math.random().toString(36).slice(2, 6), 21600); } catch (e) { } }
 function readAll_(key) {
+  if (!dbOn_() && !SC_.lock) { if (SC_.memo[key]) return JSON.parse(SC_.memo[key]); const v = scVer_(); if (v) { const c = tabCacheGet_('S' + key, v); if (c != null) { SC_.memo[key] = c; return JSON.parse(c); } }
+    const out = readAllRaw_(key), js = JSON.stringify(out); SC_.memo[key] = js; if (v) tabCachePut_('S' + key, v, js); return JSON.parse(js); }
+  return readAllRaw_(key);
+}
+function readAllRaw_(key) {
   const t = TABLES[key], sh = sheetFor_(key), n = sh.getLastRow();
   if (n < 2) return [];
   return sh.getRange(2, 1, n - 1, t.cols.length).getValues()
@@ -488,11 +498,12 @@ function int_(v, min, max, def) {
 function withLock_(fn) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
+  SC_.lock++;
   try {
     if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
     const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
     try { const r = fn(); dbFlush_(); return r; } catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; }); throw e; } finally { if (outer) DB_.inLock = false; }
-  } finally { lock.releaseLock(); }
+  } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); lock.releaseLock(); }
 }
 
 /* ===================== ADATOK BETÖLTÉSE ===================== */
