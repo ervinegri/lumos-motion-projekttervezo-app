@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a6b4b65cf",
+"at": "2026-11-11T18:22:17+01:00",
+"msg": "Videó ablak: vágás alatt (linkkel) nincs hozzászólás-mező"
+},
+{
 "id": "302c16163c",
 "at": "2026-11-11T18:20:55+01:00",
 "msg": "Videó ablak: Utómunka alatt a link cserélhető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Elvégzett időkód: a ▶ csak halványul"
 },
 {
-"id": "c1d127400f",
-"at": "2026-11-11T15:38:34+01:00",
-"msg": "Elvégzett időkód: a ▶ is áthúzva, halványítva"
-},
-{
-"id": "6b4092ce3e",
-"at": "2026-11-11T14:37:06Z",
+"id": "7c80921eda",
+"at": "2026-11-11T14:38:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
