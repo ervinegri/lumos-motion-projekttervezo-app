@@ -152,7 +152,7 @@ function api_(raw) {
     let data;
     if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
-    else if (fn === 'clientInfo') data = clientInfo_(args[0], args[1] !== 'preview', args[2]);   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
+    else if (fn === 'clientInfo') data = clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') data = clientDecide_(args[0], args[1], args[2], args[3]);
     else if (fn === 'arkPrices') data = arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
@@ -1085,6 +1085,8 @@ function clientSeen_(o) {
       if (first) v.cm = (v.cm || []).concat([{ by: clientFirst_(p, String(o.c || '').split(',')[0]), at: t, t: '👁️ Megnyitotta a jóváhagyó oldalt', ts: '' }]).slice(-100); });
     if (!ch) return; p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); } catch (e) { Logger.log('clientSeen_: ' + e); }
 }
+/** Érvényes Projekttervező-munkamenet (a csapat tagja nyitja meg az ügyfél linkjét ugyanabban a böngészőben). */
+function staffTok_(tok) { if (!tok) return false; try { authUser_(tok); return true; } catch (e) { return false; } }
 function clientInfo_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';
   if (o.vs && o.vs.length > 1) {   // több videó egy linken: a kiválasztott (vagy az első még döntésre váró) videó + a lista
