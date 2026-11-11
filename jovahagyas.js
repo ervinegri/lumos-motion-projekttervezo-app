@@ -16,9 +16,10 @@
     if(/youtube\.com\/embed/.test(src))f.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
     else if(/player\.vimeo\.com/.test(src))f.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');};
   /* a nyitókép addig marad, amíg minden betöltött (adatok + a videó első képkockája / a beágyazott lejátszó), utána lágyan átúszik; legfeljebb 8 mp-ig vár */
-  const introWhenReady=()=>{setTimeout(introOut,7000);const pl=$('player');if(!pl){introOut();return;}
+  /* telefonon a böngésző koppintás előtt nem tölti be a videót (nincs „loadeddata”), ezért ott a lejátszó megjelenésekor azonnal indul az oldal */
+  const introWhenReady=()=>{const mob=matchMedia('(hover: none)').matches;setTimeout(introOut,mob?1500:4000);const pl=$('player');if(!pl){introOut();return;}
     const hook=()=>{const v=pl.querySelector('video'),f=pl.querySelector('iframe');
-      if(v){if(v.readyState>=2)introOut();else{['loadeddata','error'].forEach(e=>v.addEventListener(e,introOut,{once:true}));}return true;}
+      if(v){if(mob||v.readyState>=2)introOut();else{['loadeddata','error'].forEach(e=>v.addEventListener(e,introOut,{once:true}));}return true;}
       if(f){f.addEventListener('load',introOut,{once:true});return true;}
       if(!pl.querySelector('[data-pc-code]')){introOut();return true;}return false;};
     if(!hook()){const mo=new MutationObserver(()=>{if(hook())mo.disconnect();});mo.observe(pl,{childList:true,subtree:true});}};
