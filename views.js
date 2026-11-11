@@ -831,7 +831,7 @@ const VID_ST=[['vagasra','Utómunkára vár'],['vagas','Utómunka alatt'],['elle
 const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jovahagyva:'p-ok',modositas:'p-bad'};
 /* ===== Vágás – Trello-szerű tábla: videónként egy kártya, oszloponként az állapotok; húzással (vagy a → gombbal) léptethető ===== */
 /* Ügyfél jóváhagyására vár: megnyitotta-e már a levélben kapott linket */
-function seenPill(v){if(!v||v.st!=='leadva'||!(v.cm||[]).some(x=>/Ügyfélnek elküldve/.test(x.t||'')))return '';const f=x=>String(x||'').slice(0,16).replace('T',' ').replace(/^\d{4}-(\d\d)-(\d\d)/,(m,a,b)=>a+'.'+b+'.');
+function seenPill(v){if(!v||v.st!=='leadva'||ro()||!(isAdmin()||(S.me&&S.me.role==='editor'))||!(v.cm||[]).some(x=>/Ügyfélnek elküldve/.test(x.t||'')))return '';const f=x=>String(x||'').slice(0,16).replace('T',' ').replace(/^\d{4}-(\d\d)-(\d\d)/,(m,a,b)=>a+'.'+b+'.');
   return v.seenAt?`<span class="bd-seen on" data-tip="${esc('A jóváhagyó oldalt megnyitották\nElőször: '+f(v.seenAt)+(v.seenN>1?'\nUtoljára: '+f(v.seenLast)+' · összesen '+v.seenN+'×':''))}">👁️ Megnyitották · ${esc(f(v.seenAt))}</span>`:`<span class="bd-seen" data-tip="A levélben kapott linket még nem nyitották meg">✉️ Még nem nyitották meg</span>`;}
 const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Utómunkára vár'],['vagas','✂️ Utómunka alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Jóváhagyásra vár'],['jovahagyva','✅ Jóváhagyva']];
 const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
