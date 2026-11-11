@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "42d6531703",
+"at": "2026-11-11T11:59:37+01:00",
+"msg": "Videó: a ▶ magyarázata frissítve"
+},
+{
 "id": "3bbd4cb7c3",
 "at": "2026-11-11T11:59:20+01:00",
 "msg": "Videó: a ▶ legfeljebb 2 mp-et játszik le, vagy a következő időkódig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a nyitó logó a videó betöltéséhez igazodik (gyorsan eltűnik, ha gyors; kivárja, ha lassú)"
 },
 {
-"id": "188e610ce1",
-"at": "2026-11-11T10:25:36+01:00",
-"msg": "Jóváhagyó oldal: Tetszik a videó?"
-},
-{
-"id": "41b173e02e",
-"at": "2026-11-11T09:25:01Z",
+"id": "79ebf7e5c7",
+"at": "2026-11-11T09:25:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
