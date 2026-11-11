@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8f317d9593",
+"at": "2026-11-11T10:30:41+01:00",
+"msg": "Jóváhagyó oldal: visszafogottabb fókusz-keret a szövegmezőn"
+},
+{
 "id": "6838676f95",
 "at": "2026-11-11T10:28:23+01:00",
 "msg": "Jóváhagyó oldal: szóköz hosszan nyomva 2× sebesség"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: oszlop neve Jóváhagyásra vár"
 },
 {
-"id": "68f14347fe",
-"at": "2026-11-11T08:46:26+01:00",
-"msg": "Értékesítés kártya: szolgáltatások nem jelennek meg"
-},
-{
-"id": "75b85d428b",
-"at": "2026-11-11T07:45:27Z",
+"id": "e62d0e8c18",
+"at": "2026-11-11T07:46:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
