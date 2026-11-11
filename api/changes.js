@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f76c82e811",
+"at": "2026-11-11T23:50:35+01:00",
+"msg": "Projekt lépései: pipa csak a teljesült lépésen, üres karika nélkül"
+},
+{
 "id": "c41b4e8f50",
 "at": "2026-11-11T23:49:20+01:00",
 "msg": "Projekt lépései: Jóváhagyásra vár lépés ki; videós utómunka itt nem húzható (a videótáblán halad)"
@@ -190,16 +195,6 @@ const ITEMS = [
 "id": "62c244c1cb",
 "at": "2026-11-11T21:34:13+01:00",
 "msg": "Jóváhagyó oldal: telefonon nem vár a videó betöltésére a nyitókép (max. 1,5 s), gépen max. 4 s"
-},
-{
-"id": "f49b0054c7",
-"at": "2026-11-11T21:32:39+01:00",
-"msg": "Jóváhagyó oldal telefonon: a szövegmezőbe koppintás nem nagyít rá (16px), nincs oldalirányú elcsúszás"
-},
-{
-"id": "7b31125085",
-"at": "2026-11-11T21:30:26+01:00",
-"msg": "Jóváhagyó oldal telefonon: cím a videó alatt, videóváltáskor felgörget"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
