@@ -118,7 +118,7 @@ body>.card{flex:none}
 .vtab:hover{background:#f3f6f9}.vtab.on{border-color:#1d2a38;box-shadow:0 0 0 1px #1d2a38}
 .vt-n{width:22px;height:22px;border-radius:50%;background:#e8edf2;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px}
 .vtab.on .vt-n{background:#1d2a38;color:#fff}.vt-s{font-weight:800}.vtab.st-ok .vt-s{color:#2e9e62}.vtab.st-mod .vt-s{color:#b3261e}
-.vnext{width:100%;margin-top:10px}
+.vnext{width:100%;margin-top:10px}.vnext.ok{background:#fff;color:#1d2a38;border:1px solid #c9d3dc}.vnext.ok:hover{background:#f3f6f9;box-shadow:none}
 .vnav{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0 0 14px;border-bottom:1px solid var(--line)}
 .vn-b{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:22px;line-height:1;color:#1d2a38;cursor:pointer;padding:0}
 .vn-b:hover:not(:disabled){background:#f3f6f9}.vn-b:disabled{opacity:.3;cursor:default}
@@ -132,7 +132,7 @@ body>.card{flex:none}
 .dlwrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .dl-big{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid #c9d3dc;background:#fff;color:#1d2a38;font:700 14.5px Montserrat,system-ui,sans-serif;text-decoration:none;transition:background .15s,border-color .15s}
 .dl-big:hover{background:#f3f6f9;border-color:#9aa6b2}   /* álló videónál a cím nem szélesíti a videó oszlopát */
-.okmsg{margin:0 0 8px}.okmsg-t{border:0;background:none;padding:2px 0;font:600 13px Montserrat,system-ui,sans-serif;color:#2e6f4a;cursor:pointer}.okmsg-t span{font-weight:400;color:#6b7785}.okmsg-t:hover{text-decoration:underline}
+.okmsg{margin:10px 0 0}.okmsg-t{border:0;background:none;padding:2px 0;font:600 13px Montserrat,system-ui,sans-serif;color:#2e6f4a;cursor:pointer}.okmsg-t span{font-weight:400;color:#6b7785}.okmsg-t:hover{text-decoration:underline}
 .okmsg textarea{width:100%;box-sizing:border-box;margin-top:6px;resize:vertical;min-height:64px}
 .modbox.open~.okmsg,#ask:has(.modbox.open) .okmsg{display:none}
 .pvban{background:#1d2a38;color:#fff;font:600 13px Montserrat,system-ui,sans-serif;text-align:center;padding:9px 12px;position:sticky;top:0;z-index:50}
@@ -173,8 +173,8 @@ body>.card>.body{flex:1;align-content:start;align-items:end}
           <textarea id="fb" placeholder=""></textarea>
         </div></div>
         <div class="cfm" id="cfm" hidden><p class="cfm-t" id="cfmT"></p><p class="cfm-s" id="cfmS"></p><div class="cfm-b"><button type="button" class="ok" id="cfmYes">✓ Igen, jóváhagyom</button><button type="button" class="cfm-no" id="cfmNo"></button></div></div>
-        <div class="okmsg" id="okMsg"><button type="button" class="okmsg-t" id="okMsgT">💬 Üzenet a jóváhagyáshoz <span>(nem kötelező)</span></button><textarea id="okNote" rows="3" maxlength="1500" hidden placeholder="Pl. köszönjük, szuper lett!"></textarea></div>
         <div class="row"><button type="button" class="ok" id="bOk">✓ Jóváhagyom</button><button type="button" class="mod" id="bSend">↩ Módosítást kérek</button><button type="button" class="modx" id="bModX" hidden>Mégse</button></div>
+        <div class="okmsg" id="okMsg"><button type="button" class="okmsg-t" id="okMsgT">💬 Üzenet a jóváhagyáshoz <span>(nem kötelező)</span></button><textarea id="okNote" rows="3" maxlength="1500" hidden></textarea></div>
       </div>
       <div id="doneOk" hidden><p class="done">Köszönjük! A videót jóváhagytad.</p>
         <div class="note" id="noteBox" hidden><label for="note">Szeretnél üzenni valamit?</label><textarea id="note" rows="3" maxlength="1500"></textarea><p class="err" id="err3" hidden></p><button type="button" class="nsend" id="bNote">Üzenet küldése</button></div>

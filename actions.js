@@ -2540,13 +2540,13 @@ const pl=vd.closest('.vv-player');if(!pl)return;let st=null,moved=false;vidFps(v
     if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');}
     const span=Math.min(vd.duration||6,6),inc=(e.clientX-st.lx)/st.w*span*(e.shiftKey?10:1);st.lx=e.clientX;st.t=Math.max(0,Math.min((vd.duration||1e9)-0.01,st.t+inc));seek(vidSnap(vd,st.t));});   /* Shift-tel 10× gyorsabb */
   const end=e=>{if(!st)return;const was=st;st=null;pl.classList.remove('scrubbing');try{vd.releasePointerCapture(e.pointerId);}catch(x){}
-    if(moved){if(was.play)vd.play().catch(()=>{});}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
+    if(moved){/* húzás után megáll a videó (nem indul tovább) */}else if(e.type==='pointerup'){if(vd.paused)vd.play().catch(()=>{});else vd.pause();}};
   vd.addEventListener('contextmenu',e=>{if(e.ctrlKey)e.preventDefault();});   /* Macen a Ctrl + kattintás helyi menüt nyitna */
   vd.addEventListener('pointerup',end);vd.addEventListener('pointercancel',end);
   vd.addEventListener('click',e=>{if(!inCtl(e)){e.preventDefault();e.stopPropagation();}},true);   /* a böngésző saját kattintás-kezelése helyett a fenti */
   if(!window._vvKeys){window._vvKeys=1;document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&(e.key==='ArrowLeft'||e.key==='ArrowRight')&&window._vvList&&document.querySelector('.vv-cm')){const a=document.activeElement;if(!(a&&a.tagName==='TEXTAREA')){e.preventDefault();e.stopPropagation();vvGo(window._vvList.i+(e.key==='ArrowRight'?1:-1));return;}}if(e.key==='Escape'&&window._vvPinMode){e.preventDefault();e.stopPropagation();pinMode(false);return;}if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'&&e.key!==' '&&e.key!=='Enter')return;const v=document.querySelector('.vv-player video');if(!v||!v.isConnected)return;
     const a=document.activeElement;
-    if(e.key==='Enter'){if(e.isComposing)return;if(e.repeat){e.preventDefault();e.stopPropagation();return;}   /* nyomva tartott Enter: csak egy időkód */if(a&&a.id==='m-vvCm'){if(!(e.metaKey||e.ctrlKey))return;e.preventDefault();e.stopPropagation();a.blur();const f=$('mform');if(f){if(!f.hasAttribute('tabindex'))f.tabIndex=-1;f.focus({preventScroll:true});}v.play().catch(()=>{});return;}   /* gépelés közben Cmd/Ctrl + Enter: vissza a videóhoz, és megy tovább (sima Enter: új sor) */
+    if(e.key==='Enter'){if(e.isComposing)return;if(e.repeat){e.preventDefault();e.stopPropagation();return;}   /* nyomva tartott Enter: csak egy időkód */if(a&&a.id==='m-vvCm'){if(!(e.metaKey||e.ctrlKey)){if(!e.shiftKey&&v.paused)v.play().catch(()=>{});return;}   /* gépelés közben Enter: új sor, és a videó megy tovább */e.preventDefault();e.stopPropagation();a.blur();const f=$('mform');if(f){if(!f.hasAttribute('tabindex'))f.tabIndex=-1;f.focus({preventScroll:true});}v.play().catch(()=>{});return;}   /* gépelés közben Cmd/Ctrl + Enter: vissza a videóhoz, és megy tovább (sima Enter: új sor) */
       if(a&&a!==document.body&&a!==v&&a.id!=='mform'&&a.tagName!=='VIDEO')return;e.preventDefault();e.stopPropagation();ACT['vid-tc']();return;}   /* videó módban Enter: időkód beszúrása */
     if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'))return;e.preventDefault();e.stopPropagation();
     if(e.key===' '){if(e.repeat||window._vvSp)return;if(e.shiftKey){const sp=window._vvSp={was:v.paused,fast:true};vvRev(sp,v,true);return;}   /* Shift + szóköz nyomva: visszafelé 2× */
@@ -2635,6 +2635,10 @@ ACT['vid-tc']=pin=>{const vd=document.querySelector('.vv-player video'),ta=$('m-
   const tc='['+tcFmt(vd.currentTime)+(pin?' @'+pin.x+','+pin.y:'')+'] ',v0=ta.value,st=ta.selectionStart??v0.length,ls=v0.lastIndexOf('\n',st-1)+1,le=(v0.indexOf('\n',st)+1||v0.length+1)-1,line=v0.slice(ls,le);
   TC_RE.lastIndex=0;const bare=line.trim()&&!line.replace(TC_RE,'').trim();TC_RE.lastIndex=0;   /* a kurzor sorában csak egy szöveg nélküli időkód van: azt cseréljük, nem kezdünk új sort */
   if(bare){ta.value=v0.slice(0,ls)+tc+v0.slice(le);taHl();const c=ls+tc.length;ta.focus({preventScroll:true});ta.setSelectionRange(c,c);keep();vvCaretSave(ta);return;}
+  {/* időrendi sorrend: az új időkódos sor a meglévők közé kerül, a helyére */const L=v0.split('\n'),re=/^\s*\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?/,sec=x=>{const m=re.exec(x);return m?tcSec(m[1],m[2],m[4],m[3]):null;},now=vd.currentTime;
+    if(L.some(x=>sec(x)!=null)){let at=-1,off=0;for(let k=0;k<L.length;k++){const q=sec(L[k]);if(q!=null&&q>now+0.001){at=k;break;}}
+      if(at>=0){for(let k=0;k<at;k++)off+=L[k].length+1;const nv=v0.slice(0,off)+tc+'\n'+v0.slice(off);ta.value=nv;taHl();const c=off+tc.length;ta.focus({preventScroll:true});ta.setSelectionRange(c,c);ta.scrollTop=Math.max(0,ta.scrollTop);vvCaretSave(ta);return;}
+      const tail=v0.replace(/\s+$/,'');ta.value=tail+(tail?'\n':'')+tc;taHl();const c=ta.value.length;ta.focus({preventScroll:true});ta.setSelectionRange(c,c);keep();vvCaretSave(ta);return;}}
   const pre=v0.slice(0,st),nl=pre&&!/\n$/.test(pre)?'\n':'';
   const rest=v0.slice(ta.selectionEnd??st),nl2=rest&&!/^\n/.test(rest)?'\n':'';   // a kurzor utáni szöveg a saját sorában marad
   ta.value=pre+nl+tc+nl2+rest;taHl();const c=(pre+nl+tc).length;ta.focus({preventScroll:true});ta.setSelectionRange(c,c);keep();vvCaretSave(ta);};
