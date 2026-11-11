@@ -786,3 +786,9 @@ html.th2 .page-head .head-search{width:min(340px,100%);margin:0 0 0 auto;align-s
 .pay-cbox{width:max-content;max-width:100%;margin:0 auto}.pay-cbox>.mnav-row,.pay-cbox>.month-nav{display:flex;justify-content:center;margin:0 0 14px!important}.pay-cbox .pay-center{margin:0}
 html.th2 .pay-sheet tr.pay-totrow>td{font-size:15.5px;font-weight:800;background:#e2e8ee;border-top:2px solid #9aa6b2;padding-top:12px;padding-bottom:12px}html.th2 .pay-sheet tr.pay-totrow>td b{font-weight:800}
 html.th2 .dl-card.dl-proj{background:#fff6dc;border-color:#f0d58c}html.th2 .dl-card.dl-proj:hover{background:#fff1c9}
+/* aláírt / keretszerződéses szerződés: látványos zöld doboz */
+html.th2 .cdrop.ctr-ok .bs-box{background:#e9f7ee;border:1.5px solid #8fd0a8;border-style:solid}
+html.th2 .cdrop.ctr-ok .pb-t{color:#1e7a46}
+html.th2 .cdrop.ctr-ok .pb-t::after{content:" ✓";font-weight:800}
+html.th2 .cdrop.ctr-ok .pb-c .statuspill{font-size:14px;padding:7px 14px;font-weight:700;background:#2e9e62;color:#fff;border-color:#2e9e62}
+html.th2 .cdrop.ctr-ok .pb-c a.statuspill:hover{background:#26874f}
