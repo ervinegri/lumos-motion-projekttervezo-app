@@ -9,7 +9,7 @@
   let played=false;const autoPlay=()=>{if(played)return;const pl=$('player');if(!pl)return;const v=pl.querySelector('video');
     if(v){played=true;   // nagy ▶ Lejátszás gomb a videón: egy kattintás, és rögtön hanggal indul (kattintás nélkül a böngésző csak némítva engedné)
       if(!v.paused)return;const b=document.createElement('button');b.type='button';b.className='bigplay';b.setAttribute('aria-label','Videó lejátszása');b.innerHTML='<span class="bp-i">▶</span><span class="bp-t">Lejátszás</span>';
-      const go=()=>{v.muted=false;v.play().catch(()=>{});b.remove();};b.onclick=go;pl.appendChild(b);v.addEventListener('play',()=>b.remove(),{once:true});return;}
+      const go=e=>{if(e){e.preventDefault();e.stopPropagation();}v.muted=false;if(!v.readyState)try{v.load();}catch(x){}const p=v.play();b.remove();if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(()=>{});});};/* ha a hangos indítást mégsem engedi, némítva indul */b.onclick=go;pl.appendChild(b);v.addEventListener('play',()=>b.remove(),{once:true});return;}
     const f=pl.querySelector('iframe');if(!f)return;played=true;const src=f.getAttribute('src')||'';
     if(/youtube\.com\/embed/.test(src))f.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
     else if(/player\.vimeo\.com/.test(src))f.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');};
@@ -65,7 +65,7 @@
     let drag=false;const seek=e=>{const r=tr.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(v.duration)v.currentTime=x*v.duration;upd();};
     b.addEventListener('pointerdown',e=>{drag=true;b.classList.add('drag');b.setPointerCapture(e.pointerId);seek(e);e.stopPropagation();});
     b.addEventListener('pointermove',e=>{if(drag)seek(e);});['pointerup','pointercancel'].forEach(t=>b.addEventListener(t,()=>{drag=false;b.classList.remove('drag');}));upd();}
-  function videoReady(){const v=vd();if(!v)return;taHl();seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomj Entert (vagy a gombot): az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
+  function videoReady(){const v=vd();if(!v)return;taHl();seekBar(v);if(introDone&&document.body.classList.contains('ready'))setTimeout(autoPlay,200);$('bTc').hidden=false;$('tcHint').textContent='Állítsd meg a videót ott, ahol módosítást kérsz, és nyomd meg az „Időkód beszúrása” gombot: az időkód bekerül a szövegbe, utána írd mögé az észrevételed.';
     const upd=()=>{$('tcNow').textContent=tcFmt(v.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>v.addEventListener(e,upd));
     const asp=()=>{if(v.videoWidth&&v.videoHeight>v.videoWidth){const p=$('player');p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ',a=ta.selectionStart,b=ta.selectionEnd,pre=ta.value.slice(0,a),nl=pre&&!pre.endsWith('\n')?'\n':'';
@@ -87,7 +87,6 @@
     if(watched()<0.8&&!confirm('Még nem nézted végig a videót. Biztosan jóváhagyod?'))return;go('ok','',e.currentTarget);};
   $('bSend').onclick=e=>{const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
   $('bTc').onclick=insTc;
-  $('fb').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.metaKey&&!e.ctrlKey&&vd()){e.preventDefault();insTc();}});
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
   document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.metaKey||e.ctrlKey||e.altKey||e.isComposing||!vd()||$('fb').disabled||$('bTc').hidden)return;const a=document.activeElement;
     if(a&&(a.id==='fb'||a.tagName==='INPUT'||a.tagName==='TEXTAREA'||(a.tagName==='BUTTON'&&a.id!=='bTc')||a.tagName==='A'))return;e.preventDefault();e.stopPropagation();insTc();},true);
