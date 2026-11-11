@@ -1494,7 +1494,7 @@ function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{
   const {dir,docs}=clDocs(c,ps);
   openModal('Szerződések – '+name,`<div class="cl-docs">${docs.map(d=>`<div class="cl-doc-row"><a class="cl-doc" href="${esc(d.url)}" target="_blank" rel="noopener"><span class="cl-doc-k">${d.folder?'🗂️':'📄'} ${esc(docLabel(d))}</span><span class="cl-doc-n">${esc(d.name)}</span><span class="cl-doc-d">${esc(d.date||'')}</span></a>${d.folder?'':`<button class="trash" type="button" data-action="cl-doc-del" data-url="${esc(d.url)}" data-name="${esc(d.name)}" data-client="${esc(name)}" aria-label="Szerződés törlése" title="Törlés">🗑️</button>`}</div>`).join('')||'<p class="hint" style="margin:0">Még nincs szerződés.</p>'}</div>
     <div class="cl-drop" data-cldrop="${esc(name)}">📥 Új szerződés: húzd ide a fájlt<span class="cdrop-hint">Engedd el a feltöltéshez</span></div>
-    <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}<button class="mini" type="button" data-action="tig-new" data-client="${esc(name)}">📝 TIG kiállítása</button></div>`,{cancelLabel:'Bezárás'});}
+    <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}</div>`,{cancelLabel:'Bezárás'});}
 
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){
