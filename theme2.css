@@ -823,3 +823,4 @@ html.th2 .bs-box:has(.bs-optbtn) .pb-t{padding-right:84px}
 /* idővonal: a lezárt munkák sávján mindig látszik a pipa (egynapos, keskeny sávon is) */
 .tl-bar .tl-ok{flex:none;margin-left:3px;font-weight:800;font-size:10px}
 html body .tl-row .tl-track .tl-bar:has(.tl-ok){padding-left:2px!important;padding-right:2px!important;letter-spacing:-.25px;white-space:nowrap}
+.vv-cm-lock.vv-start{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.vv-cm-lock.vv-start .btn{flex:none}
