@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "09766b0de7",
+"at": "2026-11-11T09:58:55+01:00",
+"msg": "Jóváhagyó oldal: a módosítás-mező csak a Módosítást kérek gombra nyílik le; kisebb logó; csúszka teljes képernyőn is"
+},
+{
 "id": "51bccde7c3",
 "at": "2026-11-11T09:54:22+01:00",
 "msg": "Jóváhagyó oldal: javítás – a pCloud / YouTube link nem került a közvetlen videó ágba"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videólink csak Utómunka alatt állapotban (vagy belső ellenőrzésre küldéskor) adható meg"
 },
 {
-"id": "35a474b4d7",
-"at": "2026-11-11T00:27:05+01:00",
-"msg": "Videótábla: vágó csak Utómunka alatt / Belső ellenőrzés oszlopba húzhat"
-},
-{
-"id": "eba9b5753b",
-"at": "2026-11-10T23:25:07Z",
+"id": "c6df357f4c",
+"at": "2026-11-10T23:27:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
