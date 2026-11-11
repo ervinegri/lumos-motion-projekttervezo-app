@@ -820,3 +820,6 @@ html.th2 .bs-box:has(.bs-optbtn) .pb-t{padding-right:84px}
 /* csengő: vegyes, időrendi lista – a tétel fajtája kis címkén */
 #bellPop .bell-k{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:6px;padding:1px 6px;margin-bottom:3px}
 #bellPop .bell-k.pay{background:#e8f6ee;color:#17803d}#bellPop .bell-k.rv{background:#fff4e5;color:#b45309}
+/* idővonal: a lezárt munkák sávján mindig látszik a pipa (egynapos, keskeny sávon is) */
+.tl-bar .tl-ok{flex:none;margin-left:3px;font-weight:800;font-size:10px}
+html body .tl-row .tl-track .tl-bar:has(.tl-ok){padding-left:2px!important;padding-right:2px!important;letter-spacing:-.25px;white-space:nowrap}
