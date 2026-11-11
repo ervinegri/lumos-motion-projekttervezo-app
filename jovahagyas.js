@@ -84,8 +84,13 @@
   const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;api('clientDecide',[t,dec,fb||'']).then(show).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
   /* mennyit nézett meg a videóból (a ténylegesen lejátszott szakaszok összege) */
   const watched=()=>{const v=vd();if(!v||!isFinite(v.duration)||!v.duration)return 1;let s=0;for(let k=0;k<v.played.length;k++)s+=v.played.end(k)-v.played.start(k);return s/v.duration;};
-  $('bOk').onclick=e=>{if($('fb').value.trim().length>=3&&!confirm('Írtál észrevételt. Biztosan jóváhagyod a videót módosítás nélkül?'))return;
-    if(watched()<0.8&&!confirm('Még nem nézted végig a videót. Biztosan jóváhagyod?'))return;go('ok','',e.currentTarget);};
+  /* megerősítés a panelen (a böngésző saját felugró ablaka helyett) */
+  const cfm=(title,sub,no)=>new Promise(res=>{$('cfmT').textContent=title;$('cfmS').textContent=sub;$('cfmNo').textContent=no;$('cfm').hidden=false;$('ask').classList.add('cfm-on');
+    const done=v=>{$('cfm').hidden=true;$('ask').classList.remove('cfm-on');$('cfmYes').onclick=$('cfmNo').onclick=null;res(v);};$('cfmYes').onclick=()=>done(true);$('cfmNo').onclick=()=>done(false);});
+  $('bOk').onclick=async e=>{const btn=e.currentTarget;
+    if($('fb').value.trim().length>=3&&!(await cfm('Írtál észrevételt.','Biztosan jóváhagyod a videót módosítás nélkül?','Mégse')))return;
+    if(watched()<0.8&&!(await cfm('Még nem nézted végig a videót.','Biztosan jóváhagyod így?','Inkább végignézem'))){const bp=document.querySelector('.bigplay'),v=vd();if(bp)bp.click();else if(v){v.muted=false;v.play().catch(()=>{});}return;}
+    go('ok','',btn);};
   /* „Módosítást kérek”: első kattintásra lenyílik a szövegmező (időkóddal), második kattintásra elküldi */
   const modOpen=on=>{const b=$('modBox');b.classList.toggle('open',on);$('bSend').textContent=on?'↩ Módosítás elküldése':'↩ Módosítást kérek';$('bModX').hidden=!on;$('askHint').hidden=on;
     if(on){const v=vd();setTimeout(()=>{$('fb').focus();},150);}};

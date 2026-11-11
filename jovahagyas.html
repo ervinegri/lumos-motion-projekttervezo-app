@@ -46,6 +46,9 @@ button:disabled{opacity:.6;cursor:default}
 .note textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:72px}
 .nsend{margin-top:8px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid #c9d3dc;background:#fff;color:#1d2a38;font-weight:600;cursor:pointer}.nsend:hover{background:#f3f6f9}.nsend:disabled{opacity:.6;cursor:default}
 .nok{margin:12px 0 0;color:#1e7a46;font-weight:600;font-size:14px}
+.cfm{padding:14px;border-radius:12px;background:#fffaf0;border:1px solid #f1dfb8;margin-top:4px}.cfm-t{margin:0 0 4px;font-weight:700;color:#1d2a38;font-size:15px}.cfm-s{margin:0 0 12px;color:#5b6773;font-size:14px}
+.cfm-b{display:flex;flex-direction:column;gap:8px}.cfm-b button{width:100%}.cfm-no{background:#fff;color:#1d2a38;border:1px solid #c9d3dc;transition:background .15s}.cfm-no:hover{background:#f3f6f9}
+#ask.cfm-on .row,#ask.cfm-on #askHint,#ask.cfm-on .modbox{display:none!important}
 .done.m{background:#fff4f2;color:#b3261e}
 .err{color:#b3261e;font-weight:600;margin:0}
 .body.vside{grid-template-columns:minmax(0,1fr) 380px}
@@ -131,6 +134,7 @@ body>.card{flex:none}
           <button type="button" class="tc" id="bTc" hidden title="Az aktuális időpont beszúrása">⏱ Időkód beszúrása · <b id="tcNow">0:00</b></button>
           <textarea id="fb" placeholder=""></textarea>
         </div></div>
+        <div class="cfm" id="cfm" hidden><p class="cfm-t" id="cfmT"></p><p class="cfm-s" id="cfmS"></p><div class="cfm-b"><button type="button" class="ok" id="cfmYes">✓ Igen, jóváhagyom</button><button type="button" class="cfm-no" id="cfmNo"></button></div></div>
         <div class="row"><button type="button" class="ok" id="bOk">✓ Jóváhagyom</button><button type="button" class="mod" id="bSend">↩ Módosítást kérek</button><button type="button" class="modx" id="bModX" hidden>Mégse</button></div>
       </div>
       <div id="doneOk" hidden><p class="done">Köszönjük! A videót jóváhagytad.</p>
