@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "92e22887df",
+"at": "2026-11-11T23:53:27+01:00",
+"msg": "Lépéskártya: csak a jóváhagyott videókat számolja"
+},
+{
 "id": "0050b9cd14",
 "at": "2026-11-11T23:53:14+01:00",
 "msg": "Szakember nézet: a projekt fejlécében a Naptárban gomb a cím mellett, nem külön sorban"
@@ -175,16 +180,6 @@ const ITEMS = [
 "id": "7c2639de36",
 "at": "2026-11-11T21:45:18+01:00",
 "msg": "Jóváhagyó oldal telefonon: videó pontosan középen"
-},
-{
-"id": "443def6dff",
-"at": "2026-11-11T21:44:03+01:00",
-"msg": "Jóváhagyó oldal: előnézeti sáv ki; telefonon a logó és a teljes videó egy képernyőn, váltáskor a lap tetejére"
-},
-{
-"id": "c0b380336d",
-"at": "2026-11-11T21:42:54+01:00",
-"msg": "Jóváhagyó oldal telefonon: videó középre igazítva, nyitókép legkésőbb 12 mp után eltűnik"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
