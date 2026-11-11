@@ -782,3 +782,4 @@ html.th2 .bl-h .bl-play:hover{background:#e3ecfb}
   #mform.m-video .mfoot button[type=submit]{grid-column:1/-1;order:3}
   #mform.m-video .mfoot .btn{padding:11px 12px;font-size:15px}
 }
+html.th2 .page-head .head-search{width:min(340px,100%);margin:0 0 0 auto;align-self:center}@media(max-width:640px){html.th2 .page-head .head-search{width:100%;margin-top:10px}}
