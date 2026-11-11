@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "edabf27274",
+"at": "2026-11-11T20:33:20+01:00",
+"msg": "Vágó nézet: az ügyfél említése nélkül (Továbbküldve jóváhagyásra / Jóváhagyásra vár)"
+},
+{
 "id": "091744d1f5",
 "at": "2026-11-11T20:26:38+01:00",
 "msg": "Neon: adatforgalom-takarékos betöltés (verzió-ellenőrzés + gyorsítótár, csak a megváltozott táblák jönnek le)"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "1219f35000",
 "at": "2026-11-11T18:36:17+01:00",
 "msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
-},
-{
-"id": "63c038d6cc",
-"at": "2026-11-11T18:32:40+01:00",
-"msg": "Levélből nyitott videó: bejelentkezés után is megnyílik (telefonon is)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
