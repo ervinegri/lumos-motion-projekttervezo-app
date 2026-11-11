@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c0024b4221",
+"at": "2026-11-11T18:49:18+01:00",
+"msg": "Jóváhagyó oldal: videólapozó a panel tetején (pöttyökkel); előnézet rövid linkkel"
+},
+{
 "id": "b0ce48d2e3",
 "at": "2026-11-11T18:47:30+01:00",
 "msg": "Több videós ügyfél-levél: videók listája külön sorokban, Videók megtekintése gomb"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "10b4c5d19a",
 "at": "2026-11-11T17:05:07+01:00",
 "msg": "Videótábla: a jóváhagyott videók nem húzhatók ki a Jóváhagyva oszlopból"
-},
-{
-"id": "67c9a3f7f6",
-"at": "2026-11-11T16:11:31+01:00",
-"msg": "Az egész appban: frissítés után a nyitott ablak visszanyílik"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
