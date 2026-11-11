@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f790bece25",
+"at": "2026-11-11T23:46:34+01:00",
+"msg": "Időkódos pipák: az ügyvezető nem pipálhat, csak a videó vágója"
+},
+{
 "id": "796570f155",
 "at": "2026-11-11T23:44:12+01:00",
 "msg": "Videóablak: „A videó jóváhagyásra vár.” felirat"
@@ -195,11 +200,6 @@ const ITEMS = [
 "id": "68b23a1200",
 "at": "2026-11-11T21:29:12+01:00",
 "msg": "Jóváhagyó oldal telefonon: saját vezérlés (koppintás = lejátszás/megállítás, teljes képernyő gomb), nincs sötét réteg a videón"
-},
-{
-"id": "61fabdb5f3",
-"at": "2026-11-11T21:27:31+01:00",
-"msg": "Jóváhagyó oldal: minden videó elbírálva – csak az összegzés látszik"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
