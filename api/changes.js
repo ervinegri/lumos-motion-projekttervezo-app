@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d121590792",
+"at": "2026-11-11T23:12:25+01:00",
+"msg": "Videóablak (vágó): Elkezdem a vágást gomb ki, csak a tájékoztató szöveg"
+},
+{
 "id": "d2c26afec9",
 "at": "2026-11-11T23:11:13+01:00",
 "msg": "Videóablak (vágó): Utómunkára vár állapotban „Elkezdem a vágást” gomb a hozzászólás-zárolás helyett"
@@ -190,11 +195,6 @@ const ITEMS = [
 "id": "5ef123b6d9",
 "at": "2026-11-11T21:06:53+01:00",
 "msg": "Jóváhagyó oldal: a többi videó teljesen előtöltődik, időkód időrendben, F = teljes képernyő, növő üzenetmező, előnézeti döntések megmaradnak; videóablak: F = teljes képernyő"
-},
-{
-"id": "dc64513e1a",
-"at": "2026-11-11T21:02:10+01:00",
-"msg": "Csengő: kifizetések és ellenőrzések egy időrendi listában; Vágói határidők pipa a vágói naptár bejegyzéseit is elrejti"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
