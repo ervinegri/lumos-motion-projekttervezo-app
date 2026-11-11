@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d175d5927d",
+"at": "2026-11-11T10:03:44+01:00",
+"msg": "E-mail mezők: másolás gomb"
+},
+{
 "id": "e17e787652",
 "at": "2026-11-11T10:03:27+01:00",
 "msg": "Telefonszám mező keskenyebb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: tovább-nyíl le a kártyákról"
 },
 {
-"id": "916e46fcf2",
-"at": "2026-11-11T00:36:27+01:00",
-"msg": "Videótábla: ügyféloldali oszlopok vizuálisan különválasztva"
-},
-{
-"id": "d43d021150",
-"at": "2026-11-10T23:34:56Z",
+"id": "846e831ba5",
+"at": "2026-11-10T23:36:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
