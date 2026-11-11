@@ -2719,6 +2719,23 @@ function szStorno_(u, a) {
   logEvent_(u, 'Számlázás', x.buyer, 'Sztornózva: ' + x.no + ' → ' + no);
   return Object.assign(finData_(), { stornoNo: no, original: x });
 }
+/** Díjbekérő „sztornó”: a számlázz.hu-ban törli a díjbekérőt (Agent, xmlszamladbkdel), és kikerül az appból (a projekthez újra kiállítható). */
+function szDbkDelete_(u, a) {
+  const id = str_(a && a.id, 64), all = readAll_('finInvoice'), x = all.find(r => r.id === id);
+  if (!x) throw new Error('A díjbekérő nem található.');
+  if (x.kind !== 'dijbekero') throw new Error('Ez nem díjbekérő.');
+  if (Number(x.invPaid) > 0) throw new Error('Kifizetett díjbekérőt nem lehet sztornózni.');
+  if (all.some(y => y.ref && y.ref === x.no)) throw new Error('Ehhez a díjbekérőhöz már foglalószámla készült.');
+  if (!x.manual) {
+    const key = szNeedKey_(), xml = szXmlHead_('xmlszamladbkdel', 'dijbekerodel') + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + '</beallitasok><fejlec>' + szEl_('szamlaszam', x.no) + '</fejlec></xmlszamladbkdel>';
+    let r; try { r = szPost_('action-szamla_agent_dijbekero_torlese', xml); } catch (e) { if (!/\(335\)/.test(String(e.message))) throw e; }   // 335: már nincs ilyen díjbekérő → az appból is törölhető
+    if (r) { try { const doc = XmlService.parse(r.body).getRootElement(); if (xmlText_(doc, 'sikeres') === 'false' && xmlText_(doc, 'hibakod') !== '335') throw new Error('számlázz.hu hiba (' + xmlText_(doc, 'hibakod') + '): ' + xmlText_(doc, 'hibauzenet')); }
+      catch (e) { if (/számlázz\.hu hiba/.test(String(e.message))) throw e; } }
+  }
+  withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, id); if (row) sh.deleteRow(row); dbFlush_(); });
+  logEvent_(u, 'Számlázás', x.buyer, 'Díjbekérő sztornózva (törölve): ' + x.no);
+  return Object.assign(finData_(), { deletedNo: x.no });
+}
 /** Bizonylat áthelyezése másik projekthez (pl. két projekt számlái fel voltak cserélve). a: {id, projectId} */
 function szMove_(u, a) {
   const id = str_(a && a.id, 64), pid = str_(a && a.projectId, 64);
@@ -4719,6 +4736,7 @@ function rpcInner_(token, name, arg) {
     case 'szUnlink': adminOnly(); return szUnlink_(u, arg);
     case 'szMove': adminOnly(); return szMove_(u, arg);
     case 'szStorno': adminOnly(); return szStorno_(u, arg);
+    case 'szDbkDelete': adminOnly(); return szDbkDelete_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szPeek': adminOnly(); return szPeek_(u, arg);
