@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "05059c7f5a",
+"at": "2026-11-11T10:24:51+01:00",
+"msg": "Jóváhagyó oldal: fekvő videónál cím és alsor egy sorban"
+},
+{
 "id": "1ee843436c",
 "at": "2026-11-11T10:24:14+01:00",
 "msg": "Jóváhagyó oldal: zöld Jóváhagyom gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Filmszalag emoji ki az átnevezésnél is"
 },
 {
-"id": "77e5ddb343",
-"at": "2026-11-11T00:49:56+01:00",
-"msg": "Videó: ügyfél jóváhagyására várónál nincs hozzászólás; dupla visszadobás-komment javítás; filmszalag emoji ki a címekből"
-},
-{
-"id": "88b740e9ea",
-"at": "2026-11-10T23:43:53Z",
+"id": "9f7931cd21",
+"at": "2026-11-10T23:50:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
