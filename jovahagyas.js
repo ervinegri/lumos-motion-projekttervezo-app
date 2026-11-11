@@ -98,7 +98,6 @@
       if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();
     $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';if(i.cur)CUR=i.cur;tabs(i);};
   if(!t){err('Hiányzó vagy hibás link.');return;}
-  if(CUR){introDone=true;const it=$('intro');if(it)it.remove();document.body.classList.add('ready');}   /* videóváltás: nincs újra nyitókép */
   api('clientInfo',[t,CUR?'preview':'',CUR]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
   const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;if(LAST&&LAST.preview){/* előnézet: csak megmutatja, mi jönne (nem küld semmit) */const st=dec==='ok'?'ok':'mod';btn.disabled=false;show(Object.assign({},LAST,{state:st,items:LAST.items&&LAST.items.map(x=>x.id===CUR?Object.assign({},x,{state:st}):x)}));return;}api('clientDecide',[t,dec,fb||'',CUR]).then(i=>{show(i);const nw=i.items&&i.items.find(x=>x.state==='wait'&&x.id!==i.cur);if(nw&&dec==='ok')setTimeout(()=>{const n=$('note');if(n&&(document.activeElement===n||n.value.trim()))return;goV(nw.id);},2200);}).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
   /* mennyit nézett meg a videóból (a ténylegesen lejátszott szakaszok összege) */
