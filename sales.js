@@ -224,8 +224,40 @@ async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h
 const ARK_URL='https://kalkulator.lumosmotion.hu/';
 ACT['ark-open']=()=>{openModal('🧮 Árkalkulátor',`<iframe class="ark-frame" id="ark-frame" src="${ARK_URL}rendezvenyvideok?embed=1" title="Lumos Motion árkalkulátor" loading="eager"></iframe>`,{cancelLabel:'Bezárás',noDraft:true,left:'<span class="ark-total" id="ark-total" hidden>Összesen <b></b></span><button type="button" class="btn outline" data-action="ark-msg" data-m="reset">Visszaállítás</button><button type="button" class="btn primary" data-action="ark-msg" data-m="send">💾 Eredmény beküldése</button>'});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-ark');
-  const h=document.querySelector('#modalRoot .mhead h3');if(h)h.insertAdjacentHTML('afterend','<div class="ark-tabs" role="tablist"><button type="button" class="on" data-action="ark-tab" data-p="rendezvenyvideok" role="tab" aria-selected="true">🎉 Rendezvény videó</button><button type="button" data-action="ark-tab" data-p="eloadas-rogzites" role="tab" aria-selected="false">🎤 Előadás rögzítés</button></div>');};
+  const h=document.querySelector('#modalRoot .mhead h3');if(h)h.insertAdjacentHTML('afterend','<div class="ark-tabs" role="tablist"><button type="button" class="on" data-action="ark-tab" data-p="rendezvenyvideok" role="tab" aria-selected="true">🎉 Rendezvény videó</button><button type="button" data-action="ark-tab" data-p="eloadas-rogzites" role="tab" aria-selected="false">🎤 Előadás rögzítés</button>'+(isAdmin()?'<button type="button" data-action="ark-admin" role="tab" aria-selected="false" title="Ügyvezetői nézet: a kalkulátorok árainak szerkesztése">⚙️ Árak</button>':'')+'</div>');};
 /* a kalkulátor elküldi a végösszeget: a gombsorban látszik */
 window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmotion.hu')return;const d=e.data||{};if(typeof d.arkTotal!=='string')return;const el=$('ark-total');if(!el)return;const m=/^(.*?Ft)\s*(.*)$/.exec(d.arkTotal);el.querySelector('b').textContent=m?m[1]:d.arkTotal;el.hidden=false;el.lastChild&&el.lastChild.nodeType===3&&el.lastChild.remove();el.insertAdjacentText('beforeend',m&&m[2]?' '+m[2]:'');});
 ACT['ark-msg']=b=>{const f=$('ark-frame');if(f&&f.contentWindow)f.contentWindow.postMessage({ark:b.dataset.m},'https://kalkulator.lumosmotion.hu');};   // a kalkulátor saját gombjait indítja
-ACT['ark-tab']=b=>{const f=$('ark-frame');if(!f)return;f.src=ARK_URL+b.dataset.p+'?embed=1';document.querySelectorAll('.ark-tabs button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});};
+/* ügyvezetői nézet: a két kalkulátor árai (a kalkulátor-oldalak a háttérből töltik be; üres mező = alapár) */
+const ARK_FIELDS={
+  r:{t:'🎉 Rendezvény videó',g:[['Operatőri munka',[['hour','Operatőr óradíja','Ft/óra',9900],['equip','Eszköztár operatőrönként','Ft/fő',39000],['deliv','Kiszállás','Ft',19000]]],
+    ['Helyszíni extrák',[['i4','Vágó a helyszínre jön','Ft',89000],['i5','Drónos felvételek + drónpilóta','Ft',119000],['i6','Timelapse videó GoProval','Ft',79000],['i7','POV felvétel GoProval','Ft',79000],['i10','Profi fotók','Ft',219000]]],
+    ['Utómunka (darabár)',[['i0','Aftermovie','Ft/db',189000],['i1','Interjúk / kiállítói imázsfilmek','Ft/db',109000],['i3','Short videók (30–40 mp)','Ft/db',39000],['i2','Short videók (15–20 mp)','Ft/db',29000]]],
+    ['Százalékos tételek',[['buy','Nyersanyag megvásárlása','%',30],['keep','Nyersanyag tárolása 5 évig','%',25],['rush','Villámgyors kézbesítés (felár)','%',30]]]]},
+  e:{t:'🎤 Előadás rögzítés',g:[['Operatőri munka',[['hour','Operatőr óradíja','Ft/óra',9900],['deliv','Kiszállás','Ft',19000]]],
+    ['Rögzítés eszközei',[['i3','Teljes alakos kameraszög','Ft',39000],['i4','Közeli kameraszög','Ft',39000],['i5','Közönségkamera','Ft',39000],['i6','Diák rögzítése','Ft',39000],['i7','Drónos felvételek + pilóta','Ft',99000],['i12','Élő közvetítés (alapár)','Ft',189000],['streamx','Élő közvetítés: további eszközönként','Ft',19000]]],
+    ['Utómunka',[['edit','Előadások utómunkája: vágói óradíj','Ft/óra',9900],['i2','Kivágások (40–60 mp short)','Ft/db',29000],['i1','Feliratozás','Ft/db',49000]]],
+    ['Százalékos tételek',[['buy','Nyersanyag megvásárlása','%',30],['keep','Nyersanyag tárolása 5 évig','%',25],['rush','Villámgyors kézbesítés (felár)','%',30]]]]}
+};
+const arkNum=v=>String(v).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+function arkAdminHTML(o){
+  const col=pg=>{const F=ARK_FIELDS[pg],cur=(o&&o[pg])||{};
+    return `<section class="arkp-col"><h4>${F.t}</h4>${F.g.map(([gt,rows])=>`<div class="arkp-grp"><div class="arkp-gt">${esc(gt)}</div>${rows.map(([k,l,u,d])=>`<label class="arkp-row"><span>${esc(l)}</span><span class="arkp-in"><input class="inp" inputmode="decimal" data-pg="${pg}" data-k="${k}" value="${cur[k]!=null?esc(String(cur[k])):''}" placeholder="${esc(arkNum(d))}"><em>${esc(u)}</em></span></label>`).join('')}</div>`).join('')}</section>`;};
+  return `<div class="arkp"><p class="hint arkp-hint">Minden ár nettó. Az üres mező az alapárat (szürkén látszik) használja. Mentés után a kalkulátorok – a weboldalon is – az új árakkal számolnak.${o&&o.updatedAt?` <span class="arkp-upd">Utoljára módosította: ${esc(o.updatedBy||'')} · ${esc(String(o.updatedAt).slice(0,16).replace(/-/g,'.'))}</span>`:''}</p><div class="arkp-cols">${col('r')}${col('e')}</div><div class="arkp-foot"><button type="button" class="btn primary" data-action="ark-save">💾 Árak mentése</button></div></div>`;
+}
+ACT['ark-admin']=async b=>{
+  document.querySelectorAll('.ark-tabs button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('ark-adm');
+  let box=$('ark-admin');const f=$('ark-frame');
+  if(!box){f.insertAdjacentHTML('afterend','<div id="ark-admin" class="ark-admin"><p class="hint">Betöltés…</p></div>');box=$('ark-admin');}
+  try{box.innerHTML=arkAdminHTML(await call('arkPricesGet'));}catch(e){box.innerHTML='';handleErr(e);}
+};
+ACT['ark-save']=async b=>{
+  const o={r:{},e:{}};let bad=null;
+  document.querySelectorAll('#ark-admin input[data-k]').forEach(i=>{const v=i.value.replace(/\s/g,'').replace(',','.');i.classList.remove('err');if(v==='')return;if(!/^\d+(\.\d+)?$/.test(v)){i.classList.add('err');bad=bad||i;return;}o[i.dataset.pg][i.dataset.k]=v;});
+  if(bad){bad.focus();return toast('Csak számot adj meg (pl. 39000).',true);}
+  b.disabled=true;try{const r=await call('arkPricesSet',o);$('ark-admin').innerHTML=arkAdminHTML(r);toast('Árak mentve – a kalkulátorok már ezekkel számolnak.');
+    const f=$('ark-frame');if(f&&f.contentWindow)f.contentWindow.postMessage({arkPrices:r},'https://kalkulator.lumosmotion.hu');}
+  catch(e){handleErr(e);}finally{b.disabled=false;}
+};
+ACT['ark-tab']=b=>{const f=$('ark-frame');if(!f)return;const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.remove('ark-adm');f.src=ARK_URL+b.dataset.p+'?embed=1';document.querySelectorAll('.ark-tabs button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});};

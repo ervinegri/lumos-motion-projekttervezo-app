@@ -154,6 +154,7 @@ function api_(raw) {
     else if (fn === 'googleLogin') data = googleLogin(args[0]);
     else if (fn === 'clientInfo') data = clientInfo_(args[0], args[1] !== 'preview', args[2]);   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') data = clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'arkPrices') data = arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
     out = { ok: true, data: data === undefined ? null : data };
     if (DB_) dbFlush_();
@@ -4805,7 +4806,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { arkPricesGet: 1, arkPricesSet: 1, hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -4820,6 +4821,8 @@ function rpcInner_(token, name, arg) {
   const adminOnly = () => { if (role !== 'admin') deny(); };
   switch (String(name)) {
     case 'whoAmI': return publicUser_(u);
+    case 'arkPricesGet': adminOnly(); return arkPrices_();
+    case 'arkPricesSet': adminOnly(); return arkPricesSet_(u, arg);
     case 'dataVer': return { v: dataVer_() };   // olcsó változásfigyelés: a kliens ebből tudja, hogy frissítsen-e
     case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
@@ -5304,4 +5307,36 @@ function salesSyncEnsure_() {
   const P = PropertiesService.getScriptProperties();
   if (P.getProperty('SALES_SYNC_INSTALLED')) return;
   try { installSalesSync(); P.setProperty('SALES_SYNC_INSTALLED', now_()); } catch (e) { Logger.log('Sales szinkron időzítő: ' + e); }
+}
+
+/* ===================== ÁRKALKULÁTOR ÁRAI =====================
+   Az ügyvezető a Projekttervezőben (Értékesítés → Árkalkulátor → ⚙️ Árak) szerkeszti; a kalkulátor-oldalak nyilvánosan olvassák.
+   Csak az alapártól eltérő / megadott értékek tárolódnak: { r: {kulcs: szám}, e: {kulcs: szám} }. */
+const ARK_PRICES_PROPERTY = 'ARK_PRICES';
+const ARK_KEYS_ = {
+  r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'buy', 'keep', 'rush'],
+  e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'buy', 'keep', 'rush']
+};
+function arkPrices_() {
+  let o = {};
+  try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(ARK_PRICES_PROPERTY) || '{}') || {}; } catch (e) { o = {}; }
+  return { r: o.r || {}, e: o.e || {}, updatedAt: o.updatedAt || '', updatedBy: o.updatedBy || '' };
+}
+function arkPricesSet_(u, arg) {
+  const out = { r: {}, e: {} };
+  ['r', 'e'].forEach(pg => {
+    const src = (arg && arg[pg]) || {};
+    ARK_KEYS_[pg].forEach(k => {
+      if (src[k] === '' || src[k] == null) return;
+      const v = Number(String(src[k]).replace(/\s/g, '').replace(',', '.'));
+      if (!isFinite(v) || v < 0) throw new Error('Érvénytelen ár: ' + k);
+      const pct = k === 'buy' || k === 'keep' || k === 'rush';
+      if (pct && v > 500) throw new Error('A százalék legfeljebb 500 lehet.');
+      if (!pct && v > 100000000) throw new Error('Túl nagy ár.');
+      out[pg][k] = pct ? Math.round(v * 100) / 100 : Math.round(v);
+    });
+  });
+  out.updatedAt = now_(); out.updatedBy = u.name;
+  PropertiesService.getScriptProperties().setProperty(ARK_PRICES_PROPERTY, JSON.stringify(out));
+  return arkPrices_();
 }

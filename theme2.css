@@ -803,3 +803,17 @@ html.th2 .bs-box:has(.bs-optbtn) .pb-t{padding-right:84px}
 #modalRoot .mbox.mbox-ark .ark-frame{height:auto;flex:1 1 auto;min-height:0}
 #modalRoot .mbox.mbox-ark>*:has(>.ark-frame){flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
 #modalRoot .mbox.mbox-ark{height:calc(100dvh - 24px)}
+/* Árkalkulátor – ügyvezetői árszerkesztő (⚙️ Árak) */
+#modalRoot .mbox.mbox-ark.ark-adm .ark-frame,#modalRoot .mbox.mbox-ark.ark-adm .mfoot .left{display:none}
+#modalRoot .mbox.mbox-ark:not(.ark-adm) .ark-admin{display:none}
+.ark-admin{flex:1 1 auto;min-height:0;overflow:auto;padding:4px 2px 0}
+.arkp-hint{margin:0 0 14px}.arkp-upd{display:block;margin-top:4px;color:var(--fg-3,#5e6873)}
+.arkp-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px}
+.arkp-col{border:1px solid var(--line,#dde4eb);border-radius:14px;padding:16px 18px;background:#fff}
+.arkp-col h4{margin:0 0 10px;font-size:17px;font-weight:800}
+.arkp-grp{margin-top:12px}.arkp-gt{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3,#5e6873);margin-bottom:6px}
+.arkp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #f0f4f7;font-size:14px}
+.arkp-in{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.arkp-in .inp{width:118px;text-align:right;padding:7px 10px}.arkp-in .inp.err{border-color:#ef4444;background:#fef2f2}
+.arkp-in em{font-style:normal;font-size:12px;color:var(--fg-3,#5e6873);min-width:40px}
+.arkp-foot{position:sticky;bottom:0;display:flex;justify-content:flex-end;padding:12px 0 2px;background:linear-gradient(transparent,#fff 30%)}
