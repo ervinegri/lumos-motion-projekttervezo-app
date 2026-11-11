@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6c0d299772",
+"at": "2026-11-11T15:27:21+01:00",
+"msg": "Időkódok egységes szélességben; a jelölt időkód narancs árnyalattal, emoji nélkül"
+},
+{
 "id": "2804ca93ac",
 "at": "2026-11-11T15:06:05+01:00",
 "msg": "Szerződés törlése: azonnal eltűnik, a Drive-törlés a háttérben fut; gyorsabb ellenőrzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: enyhe hover a Módosítást kérek gombon"
 },
 {
-"id": "78cc6dd455",
-"at": "2026-11-11T10:38:22+01:00",
-"msg": "Jóváhagyó oldal: a töltés-csík a bal szélről indul"
-},
-{
-"id": "690579769b",
-"at": "2026-11-11T09:34:37Z",
+"id": "8a901f8865",
+"at": "2026-11-11T09:38:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
