@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b093e93bc",
+"at": "2026-11-11T11:11:56+01:00",
+"msg": "Díjbekérő sztornó: törlés a számlázz.hu-ban és az appból"
+},
+{
 "id": "130f537c07",
 "at": "2026-11-11T10:59:05+01:00",
 "msg": "Videótábla: kijelölt videók csoportos húzása"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: Enter nem szúr be időkódot (csak a gomb); biztosabb Lejátszás gomb"
 },
 {
-"id": "7b6d729b95",
-"at": "2026-11-11T09:47:43+01:00",
-"msg": "Jóváhagyó oldal: logóanimáció eredeti tempóban, de legfeljebb 2,5 mp várakozás a videóra"
-},
-{
-"id": "ceb259312e",
-"at": "2026-11-11T08:45:59Z",
+"id": "da4536ac24",
+"at": "2026-11-11T08:47:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
