@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8195547feb",
+"at": "2026-11-11T18:39:01+01:00",
+"msg": "Ügyfél-levél előnézet: a Videó megtekintése gomb kipróbálható (megnyitásnak nem számít, dönteni nem lehet)"
+},
+{
 "id": "67a4c5b7d3",
 "at": "2026-11-11T18:38:12+01:00",
 "msg": "Videó ablak telefonon: teljes képernyős, rendezett elrendezés"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "dc881a8f1f",
 "at": "2026-11-11T16:07:24+01:00",
 "msg": "Szerződések ablak: bezáráskor vissza az ügyfél adatlapjára"
-},
-{
-"id": "0894043a55",
-"at": "2026-11-11T16:06:11+01:00",
-"msg": "Ügyfél adatlap: Kezelés / feltöltés helyett Ügyfél mappája link"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
