@@ -444,13 +444,14 @@ function szInvoiceModal(kind,id,o={}){
           {const e2=a.buyer.email,cl=(S.clients||[]).find(c=>c.name===a.buyer.name)||(t.buyer.clientId&&(S.clients||[]).find(c=>c.id===t.buyer.clientId));if(cl&&e2!==(cl.billEmail||'')&&typeof saveClientRec==='function')saveClientRec(Object.assign({},cl,{oldName:'',billEmail:e2})).catch(()=>{});}}   /* a pénzügyi e-mail-címet megjegyezzük az ügyfélnél */
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}});}});
   szTotals();}
-function szLinkModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
+function szLinkModal(kind,id,type,back){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
   openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám vagy cégnév',{full:true,max:60,ph:'pl. LUMOS-2026-75 vagy Kulcsár Akadémia'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
     <div id="sz-peek" class="sz-peek" data-pid="${esc(id)}" data-slot="${esc(type||'')}"></div><p class="hint" style="margin:0">A számlázz.hu-ban már kiállított számlát kapcsolja ehhez: <b>${esc(t.name)}</b>. Az összeg és a kifizetések onnan töltődnek be, és a fizetési állapot magától követi.</p>
     <p class="hint" style="margin:10px 0 0">Más fiókból (pl. <b>Egri Ervin E.V.</b>) vagy kézzel kiállított bizonylat? <button class="linkbtn" type="button" data-action="sz-manual" data-kind="${esc(kind)}" data-id="${esc(id)}" data-type="${esc(type||'szamla')}">✍️ Kézi rögzítés fájlfeltöltéssel</button></p>`,
     {submitLabel:'Hozzárendelés',submit:async fd=>{let no=String(fd.get('no')||'').trim();if(!no){toast('Add meg a számlaszámot.',true);return;}
       if(S._szPeek&&S._szPeek.q===no&&S._szPeek.r)no=S._szPeek.r.no;
-      try{const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no,slot:type||'',projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]});closeModal();finApply(d);toast(d.extended!==undefined?'Közös számla: '+(d.invoice&&d.invoice.no)+' most már ehhez a projekthez is tartozik':'Számla hozzárendelve: '+(d.invoice&&d.invoice.no));}catch(e){handleErr(e);}}});}
+      try{const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no,slot:type||'',projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]});back=false;closeModal();finApply(d);toast(d.extended!==undefined?'Közös számla: '+(d.invoice&&d.invoice.no)+' most már ehhez a projekthez is tartozik':'Számla hozzárendelve: '+(d.invoice&&d.invoice.no));}catch(e){handleErr(e);}}});
+  if(back)window.MODAL_BEFORE_CLOSE=()=>{const f=$('mform');if(!back||!f||f.getAttribute('aria-label')!=='Meglévő bizonylat hozzárendelése')return null;return ()=>{if(!$('mform'))szInvoiceModal(kind,id,{type});};};}   /* Mégse / ×: vissza a számla kiállításához */
 /* Kézi bizonylat: nem az összekötött számlázz.hu-fiókból (pl. Egri Ervin E.V.) – csak a PDF-et kell feltölteni, az adatokat az app olvassa ki belőle */
 let PDFJS=null;
 function pdfLib(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/pdfjs/pdf.min.js';sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';ok(window.pdfjsLib);}catch(e){no(e);}};sc.onerror=()=>{PDFJS=null;no(new Error('A PDF-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));}
@@ -590,7 +591,7 @@ async function szSync(silent,id){if(!szOn()||!S.fin.sz.hasKey)return;if(S._szSyn
   catch(e){if(S._szLoud)handleErr(e);}finally{S._szSyncing=false;S._szLoud=false;if(S.tab==='penzugy'||S.tab==='szerzodes')render(true);}}
 Object.assign(ACT,{
   'sz-new':b=>{const k=b.dataset.kind,id=b.dataset.id;if(!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}szInvoiceModal(k,id,{type:k==='project'?billNextType(id):'szamla'});},
-  'sz-link':b=>szLinkModal(b.dataset.kind,b.dataset.id,(($('m-kind')||{}).value)||b.dataset.type),
+  'sz-link':b=>szLinkModal(b.dataset.kind,b.dataset.id,(($('m-kind')||{}).value)||b.dataset.type,!!$('m-kind')),
   'sz-inv-info':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvModal(x);},
   'sz-inv-db':b=>ACT['sz-inv'](b),   /* díjbekérő hivatkozás (a kártya üres részére kattintva nem ez, hanem a foglalószámla nyílik) */
   'sz-inv':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvOpen(x,b);},
