@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9fd6d0dcd5",
+"at": "2026-11-11T10:49:50+01:00",
+"msg": "Ügyfelek: Nem kell (szerződés) jelölő eltávolítva"
+},
+{
 "id": "af8d94edb8",
 "at": "2026-11-11T10:44:14+01:00",
 "msg": "Jóváhagyó oldal: böngészős felugró ablakok helyett megerősítés a panelen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: időkód perc:mp:képkocka formátumban, kattintható; rövidebb, középre igazított nyitó logó"
 },
 {
-"id": "64db5c6197",
-"at": "2026-11-11T09:42:44+01:00",
-"msg": "Jóváhagyó oldal: nagy Lejátszás gomb – egy kattintással hanggal indul"
-},
-{
-"id": "ba40a9c691",
-"at": "2026-11-11T08:41:36Z",
+"id": "ddad129593",
+"at": "2026-11-11T08:42:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
