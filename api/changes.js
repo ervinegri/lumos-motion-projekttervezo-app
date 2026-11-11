@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b3780099f",
+"at": "2026-11-11T09:37:53+01:00",
+"msg": "Videókártya: Még nem nyitották meg / Megnyitották"
+},
+{
 "id": "f70f962161",
 "at": "2026-11-11T09:29:28+01:00",
 "msg": "Jóváhagyó levél: Lumos postabélyegzős gomb (kopott pecsét), hover és kattintás effekttel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Havi naptár: Vágói határidők pipa (leadási határidők ki-be)"
 },
 {
-"id": "ac87587699",
-"at": "2026-11-10T23:51:59+01:00",
-"msg": "Videótábla ablak kisebb nagy monitoron"
-},
-{
-"id": "05d7b0036e",
-"at": "2026-11-10T13:58:31Z",
+"id": "3a0f046aa4",
+"at": "2026-11-10T22:52:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
