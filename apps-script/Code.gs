@@ -241,9 +241,20 @@ const NSS_ = {
   getUrl: function () { return 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit'; }
 };
 /** Betöltés (vagy frissítés zárolás után): a meglévő munkalap-objektumokat helyben frissítjük, hogy a korábban átadott hivatkozások is friss adatot lássanak. */
+/* Adatforgalom-takarékos betöltés: a Neonból csak a táblák verziószámát kérjük le (pár bájt), a tartalmat a Google
+   gyorsítótárából vesszük, ha ugyanaz a verzió már ott van; csak a megváltozott táblák jönnek le az adatbázisból. */
+const TABC_ = 'nt2_', TABC_CH_ = 30000;
+function tabCacheGet_(tab, ver) { try { const C = CacheService.getScriptCache(), k = TABC_ + tab + '_' + ver, n = Number(C.get(k + '_n') || 0); if (!n) return null;
+  const keys = []; for (let i = 0; i < n; i++) keys.push(k + '_' + i); const m = C.getAll(keys); let str = ''; for (let i = 0; i < n; i++) { const x = m[k + '_' + i]; if (x == null) return null; str += x; } return str; } catch (e) { return null; } }
+function tabCachePut_(tab, ver, str) { try { const C = CacheService.getScriptCache(), k = TABC_ + tab + '_' + ver, n = Math.ceil(str.length / TABC_CH_) || 1, o = {};
+  for (let i = 0; i < n; i++) o[k + '_' + i] = str.slice(i * TABC_CH_, (i + 1) * TABC_CH_); o[k + '_n'] = String(n); C.putAll(o, 21600); } catch (e) { } }
 function dbLoad_(force) {
   if (DB_.loaded && !force) return;
-  const r = neonSql_([{ query: 'SELECT tab, rows::text FROM lpm_sheet' }])[0];
+  const vers = (neonSql_([{ query: 'SELECT tab, ver::text FROM lpm_sheet' }])[0].rows || []), have = {}, need = [];
+  vers.forEach(x => { const str = tabCacheGet_(x[0], x[1]); if (str != null) have[x[0]] = str; else need.push(x[0]); });
+  const rows0 = vers.filter(x => have[x[0]] != null).map(x => [x[0], have[x[0]]]);
+  if (need.length) (neonSql_([{ query: 'SELECT tab, ver::text, rows::text FROM lpm_sheet WHERE tab = ANY(string_to_array($1, chr(31)))', params: [need.join(String.fromCharCode(31))] }])[0].rows || []).forEach(x => { tabCachePut_(x[0], x[1], x[2] || '[]'); rows0.push([x[0], x[2]]); });
+  const r = { rows: rows0 };
   const seen = {};
   (r.rows || []).forEach(row => { const tab = row[0], rows = JSON.parse(row[1] || '[]'); seen[tab] = 1;
     if (DB_.sheets[tab]) { const s = DB_.sheets[tab]; s.v = rows; s.cols = rows.reduce((m, x) => Math.max(m, x.length), 0); s.dirty = false; s.isNew = false; }
@@ -258,7 +269,7 @@ function dbFlush_() {
   if (!dirty.length && !logs.length) return;
   DB_.pendingLog = [];
   neonSql_(logs.map(r => ({ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) VALUES ($1,$2,$3,$4,$5,$6)', params: r })).concat(dirty.map(s => { const n = s.getLastRow(), rows = s.v.slice(0, n).map(r => (r || []).slice(0, Math.max(s.cols, 1)).map(x => x === undefined || x === null ? '' : x));
-    return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now()', params: [s.tab, JSON.stringify(rows)] }; })));
+    s._json = JSON.stringify(rows); return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now() RETURNING tab, ver::text', params: [s.tab, s._json] }; }))).forEach(res => { try { const x = res && res.rows && res.rows[0]; if (!x) return; const s = DB_.sheets[x[0]]; if (s && s._json) tabCachePut_(x[0], x[1], s._json); } catch (e) { } });   // a most írt tábla rögtön a gyorsítótárba (a következő olvasás nem tölti le)
   dirty.forEach(s => { s.dirty = false; s.isNew = false; });
 }
 /* Napló az adatbázisban (csak hozzáfűzés; a lista az utolsó 300 bejegyzés) */
