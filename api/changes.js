@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1ee843436c",
+"at": "2026-11-11T10:24:14+01:00",
+"msg": "Jóváhagyó oldal: zöld Jóváhagyom gomb"
+},
+{
 "id": "366140c92e",
 "at": "2026-11-11T10:23:42+01:00",
 "msg": "Jóváhagyó oldal: a kártya függőlegesen a képernyő közepén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: ügyfél jóváhagyására várónál nincs hozzászólás; dupla visszadobás-komment javítás; filmszalag emoji ki a címekből"
 },
 {
-"id": "7f84630176",
-"at": "2026-11-11T00:43:44+01:00",
-"msg": "Hozzászólás-duplikáció (visszadobás) javítás; szebb pipa-négyzet"
-},
-{
-"id": "cc34db5017",
-"at": "2026-11-10T23:41:21Z",
+"id": "88b740e9ea",
+"at": "2026-11-10T23:43:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
