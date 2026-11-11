@@ -97,7 +97,7 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 .modbox.open{grid-template-rows:1fr;opacity:1}
 .modin{overflow:hidden;min-height:0}
 .modbox.open .modin{padding-bottom:4px}
-#askHint{margin-bottom:12px}
+#askHint{margin-bottom:12px}#askHint:empty{display:none}
 .modbox.open+.row #bOk{display:none!important}
 .modx{border:0;background:transparent;color:#5b6478;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:6px}
 .modx{order:4}
@@ -128,7 +128,7 @@ body>.card{flex:none}
     <aside class="side">
       <div id="ask">
         <h2>💬 Tetszik a videó?</h2>
-        <p class="hint" id="askHint">Ha minden rendben, hagyd jóvá. Ha valamin változtatnál, kattints a „Módosítást kérek” gombra.</p>
+        <p class="hint" id="askHint"></p>
         <div class="modbox" id="modBox"><div class="modin">
           <p class="hint" id="tcHint">Írd le, hogy mit változtatnál.</p>
           <button type="button" class="tc" id="bTc" hidden title="Az aktuális időpont beszúrása">⏱ Időkód beszúrása · <b id="tcNow">0:00</b></button>
