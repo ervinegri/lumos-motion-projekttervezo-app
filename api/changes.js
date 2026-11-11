@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0f762383fd",
+"at": "2026-11-11T15:55:49+01:00",
+"msg": "Levél-előnézet magasság: margók pontosan"
+},
+{
 "id": "1f19b08a25",
 "at": "2026-11-11T15:55:38+01:00",
 "msg": "Levél-előnézetek: gépeléskor nem nő a fehér rész az alján"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: javítás alatt nincs felső mező, a hozzászólás sarkában ↩ Válasz"
 },
 {
-"id": "93268b8aad",
-"at": "2026-11-11T11:47:34+01:00",
-"msg": "Videó: ▶ gomb az időkód mögött (lejátszás / megállítás), az időkód csak odaugrik"
-},
-{
-"id": "a1dbe7635a",
-"at": "2026-11-11T10:46:10Z",
+"id": "47e9d8cda1",
+"at": "2026-11-11T10:47:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
