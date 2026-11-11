@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "65bbae8fd1",
+"at": "2026-11-11T23:51:53+01:00",
+"msg": "Lépéskártya: feltűnőbb Részletek gomb (videótábla)"
+},
+{
 "id": "f76c82e811",
 "at": "2026-11-11T23:50:35+01:00",
 "msg": "Projekt lépései: pipa csak a teljesült lépésen, üres karika nélkül"
@@ -185,16 +190,6 @@ const ITEMS = [
 "id": "23d627b8d5",
 "at": "2026-11-11T21:38:33+01:00",
 "msg": "Jóváhagyó oldal: több videónál letöltés csak a végén (jóváhagyott videók egyben), telefonon teljes szélességű videó, számok egy sorban"
-},
-{
-"id": "7b13292b24",
-"at": "2026-11-11T21:36:12+01:00",
-"msg": "Jóváhagyó oldal: nyilak a videó két oldalán (gépen), telefonon első képkocka és keret nélküli oldal"
-},
-{
-"id": "62c244c1cb",
-"at": "2026-11-11T21:34:13+01:00",
-"msg": "Jóváhagyó oldal: telefonon nem vár a videó betöltésére a nyitókép (max. 1,5 s), gépen max. 4 s"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
