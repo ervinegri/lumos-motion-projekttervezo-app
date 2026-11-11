@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8ad8f3bd7a",
+"at": "2026-11-11T15:01:50+01:00",
+"msg": "Ügyfél adatlap: látható szerződés-feltöltő mező (behúzás vagy tallózás)"
+},
+{
 "id": "ff4ec99025",
 "at": "2026-11-11T14:58:50+01:00",
 "msg": "Ügyfél adatlap: szerződés behúzása kérdés nélkül, új szerződésként"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: visszafogottabb fókusz-keret a szövegmezőn"
 },
 {
-"id": "6838676f95",
-"at": "2026-11-11T10:28:23+01:00",
-"msg": "Jóváhagyó oldal: szóköz hosszan nyomva 2× sebesség"
-},
-{
-"id": "d869885eb6",
-"at": "2026-11-11T09:27:54Z",
+"id": "4ee23cd16c",
+"at": "2026-11-11T09:28:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
