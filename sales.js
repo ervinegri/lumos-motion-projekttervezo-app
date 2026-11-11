@@ -2,7 +2,7 @@
    Lehetőségek a szerződésig: Új érdeklődő → Ajánlat kiküldve → Tárgyalás → Szerződve / Elveszett.
    Az ügyvezető mindet látja (és szűrhet értékesítőre), az értékesítő csak a sajátjait. Szerződéskor projekt jön létre
    (Tervezés szakasz) – az értékesítő ezután csak azt látja, hogy szerződve lett, a projekt részleteit és a díjakat nem. */
-const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküldve','📨'],['targyalas','Tárgyalás','🤝'],['nyert','Szerződve','✅'],['fizetve','Díjbekérő kifizetve','💰'],['elveszett','Elveszett','✕']];   // „Díjbekérő kifizetve”: szerződött lehetőség, amelynek projektjéhez kifizetett díjbekérő / számla tartozik (magától kerül ide)
+const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküldve','📨'],['targyalas','Tárgyalás','🤝'],['nyert','Szerződve','✅'],['fizetve','Fizetve / rendezve','💰'],['elveszett','Elveszett','✕']];   // „Díjbekérő kifizetve”: szerződött lehetőség, amelynek projektjéhez kifizetett díjbekérő / számla tartozik (magától kerül ide)
 const DEAL_OPEN=['uj','ajanlat','targyalas'],DEAL_CHANCE={uj:10,ajanlat:30,targyalas:60};
 const DEAL_SOURCES=['Ajánlás','Visszatérő ügyfél','Weboldal','E-mail / telefon','Közösségi média','Rendezvényen','Hideg megkeresés','Egyéb'];
 const dealLbl=s=>(DEAL_STAGES.find(x=>x[0]===s)||[,s])[1];
@@ -26,7 +26,7 @@ function viewSales(){
   const m=T.slice(0,7),wonM=won.filter(d=>String(d.wonAt||'').slice(0,7)===m),rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
   const late=open.filter(d=>d.nextDate&&d.nextDate<T).length,noNext=open.filter(d=>!d.nextStep&&!d.nextDate).length;
   const cutoff=new Date(Date.now()-60*864e5).toISOString().slice(0,10),recent=d=>f.old||String(d.closedAt||d.wonAt||d.updatedAt||'').slice(0,10)>=cutoff;
-  const stOf=d=>d.stage==='nyert'&&d.advPaidAt?'fizetve':d.stage;
+  const stOf=d=>d.stage==='nyert'&&(d.advPaidAt||d.noAdv)?'fizetve':d.stage;
   const byStage=s=>L.filter(d=>stOf(d)===s&&(DEAL_OPEN.includes(s)||recent(d))).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
   const hidden=L.filter(d=>!DEAL_OPEN.includes(d.stage)&&!recent(d)).length;
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'||s==='fizetve'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
@@ -47,7 +47,7 @@ function viewSales(){
     ${hidden||f.old?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
 }
 function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.includes(d.stage),td=d.nextDate===T;
-  const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${d.advPaidAt?`<div class="dl-won dl-paid">💰 Díjbekérő kifizetve${/^\d{4}-\d\d-\d\d$/.test(d.advPaidAt)?' · '+esc(fmtShort(d.advPaidAt)):''}</div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
+  const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${!d.advPaidAt&&d.noAdv?`<div class="dl-won dl-paid">📄 ${d.noAdv==='keret'?'Keretszerződés':'TIG-gel számlázzuk'} – nem kell díjbekérő</div>`:''}${d.advPaidAt?`<div class="dl-won dl-paid">💰 Díjbekérő kifizetve${/^\d{4}-\d\d-\d\d$/.test(d.advPaidAt)?' · '+esc(fmtShort(d.advPaidAt)):''}</div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
     :(d.nextStep||d.nextDate)?`<div class="dl-next${od?' late':td?' today':''}">➜ ${esc(d.nextStep||'Teendő')}${d.nextDate?` · <b>${od?'lejárt: ':td?'ma':''}${td?'':esc(fmtShort(d.nextDate))}</b>`:''}</div>`:`<div class="dl-next none">➜ nincs következő lépés</div>`;
   return `<article class="dl-card" draggable="${d.stage==='nyert'?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
     <div class="dl-t">${esc(d.title)}</div>${d.contactName?`<div class="dl-c"><button type="button" class="linkbtn dl-hs" data-action="hs-contact" data-name="${esc(d.contactName)}" data-email="${esc(d.contactEmail||'')}" data-company="${esc(d.client||'')}" title="${esc(d.contactName)} – megnyitás a HubSpotban">${esc(d.contactName)} ↗</button></div>`:d.client?`<div class="dl-c">${esc(d.client)}</div>`:''}
@@ -116,7 +116,7 @@ function dealWinModal(d){
   const sel=$('m-wProj');if(sel)sel.addEventListener('change',sync);}
 
 async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)return;
-  if(stage==='fizetve'){toast('Ide magától kerül a lehetőség, amikor a projekt díjbekérőjét (vagy számláját) kifizették.',true);return;}
+  if(stage==='fizetve'){toast('Ide magától kerül a lehetőség: ha a díjbekérőt (vagy számlát) kifizették, vagy ha az ügyfelet TIG-gel / keretszerződéssel számlázzuk.',true);return;}
   if(d.stage==='nyert'){toast('Szerződött lehetőséget nem lehet visszahúzni.',true);return;}
   if(stage==='nyert'){dealWinModal(d);return;}
   if(stage==='elveszett'){dealModal(d,{stage:'elveszett'});setTimeout(()=>{const x=$('m-dLost');if(x)x.focus();},50);return;}
