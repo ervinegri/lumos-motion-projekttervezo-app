@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "57b34bccfb",
+"at": "2026-11-11T10:02:22+01:00",
+"msg": "Jóváhagyó oldal: módosítás-kérés módban nincs Jóváhagyom gomb"
+},
+{
 "id": "2fc31f1a16",
 "at": "2026-11-11T10:01:11+01:00",
 "msg": "Telefonszám másolása gomb a mezőben; jóváhagyó oldal: kisebb nyitó logó, fejléc logó vissza"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: tiltott oszlop nem világosodik ki húzáskor, és nem lehet beledobni"
 },
 {
-"id": "af665392a6",
-"at": "2026-11-11T00:32:18+01:00",
-"msg": "Ügyfélnek küldés: csak vezető nyithatja; megszólítás zárójeles megjegyzés nélkül; új gomb az előnézetben"
-},
-{
-"id": "e3a8ea6a6b",
-"at": "2026-11-10T23:30:04Z",
+"id": "fe285a9297",
+"at": "2026-11-10T23:32:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
