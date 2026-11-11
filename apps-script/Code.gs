@@ -920,9 +920,9 @@ function videoReview_(u, a) {
     if (v) { v.link = link; v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop();
-  const url = appUrl_() + '#p=' + pid;
+  const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
   const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + '\n\nVideó: ' + link + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + url + '\n\nA projekt videótáblájában megnézheted, jóváhagyhatod vagy visszadobhatod.';
-  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>Videó: <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
+  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p><p>Videó: <a href="' + escapeHtml_(link) + '">' + escapeHtml_(link) + '</a></p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a> – a Vágás fülön jóváhagyhatod, vagy módosítást kérhetsz.</p>';
   let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
   logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
   return { project: projectView_(fullProject_(p), u), mail: mail };
@@ -943,9 +943,9 @@ function videoComment_(u, a) {
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   try { const c = v.editor ? readAll_('crew').find(x => x.id === v.editor) : null, own = c && u.crewId && c.id === u.crewId;
     const to = own ? String(v.rvTo || '').trim() : c ? String(c.email || '').trim() : '';
-    if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid, tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';
+    if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';
       gmailSend_(to, 'Hozzászólás: ' + v.name + ' – ' + p.name, u.name + ' hozzászólt: ' + v.name + ' – ' + p.name + '\n\n' + tl.trim() + (tl ? ' ' : '') + pinStrip_(t) + '\n\n' + url,
-        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
+        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
   logEvent_(u, 'Videó hozzászólás', p.name, v.name);
   return { project: projectView_(fullProject_(p), u) };
 }
@@ -1048,8 +1048,8 @@ function clientDecide_(t, d, fb) {
     const nm = clientFirst_(r.p, String(o.c || '').split(',')[0]);
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: nm, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-    try { if (o.s) { const subj = 'Üzenet az ügyféltől (jóváhagyás után): ' + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p;
-        gmailSend_(o.s, subj, subj + '\n\n' + fb + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p><p style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-üzenet értesítés: ' + e); }
+    try { if (o.s) { const subj = 'Üzenet az ügyféltől (jóváhagyás után): ' + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
+        gmailSend_(o.s, subj, subj + '\n\n' + fb + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p><p style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-üzenet értesítés: ' + e); }
     return Object.assign(clientInfo_(t), { noted: true });
   }
   if (r.v.st !== 'leadva') return clientInfo_(t);   // már döntöttek (vagy visszakerült az utómunkába)
@@ -1057,8 +1057,8 @@ function clientDecide_(t, d, fb) {
   if (d === 'ok') videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
-  try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p;
-      gmailSend_(o.s, subj, subj + (fb ? '\n\n' + fb : '') + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p>' + (fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
+  try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
+      gmailSend_(o.s, subj, subj + (fb ? '\n\n' + fb : '') + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p>' + (fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
   return clientInfo_(t);
 }
 let FB_MAIL_ = null;
@@ -1102,9 +1102,9 @@ function videoSet_(u, a) {
   });
   logEvent_(u, 'Videó állapota', p.name, changed);
   if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
-    if (em) { const url = appUrl_() + '#p=' + pid, first = String(c.name || '').split(' ').pop();
+    if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = String(c.name || '').split(' ').pop();
       gmailSend_(em, 'Módosítást kér: ' + fm.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér: ' + fm.v.name + ' – ' + p.name + (fm.v.fb ? '\n\n' + pinStrip_(fm.v.fb) : '') + '\n\n' + url,
-        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
+        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
   return { project: projectView_(fullProject_(p), u) };
 }
 function projectView_(p, u) {

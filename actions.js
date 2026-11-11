@@ -2661,6 +2661,7 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='m-vvCm')vvSave
 setInterval(()=>{const v=document.querySelector('.vv-player video');if(v&&v.isConnected&&v.readyState)vvSave({t:v.currentTime});},1000);
 function vvRestore(){if(S._vvRestored)return;   /* a betöltés korán (még a fájl végrehajtása közben) is hívhatja: itt nem használunk később definiált konstanst */
   let o=null,lane='';try{o=JSON.parse(sessionStorage.getItem('lpm_vv_open')||'null');lane=sessionStorage.getItem('lpm_lane_open')||'';}catch(e){}
+  try{const hv=JSON.parse(sessionStorage.getItem('lpm_hash_vid')||'null');if(hv&&hv.pid){sessionStorage.removeItem('lpm_hash_vid');const p0=projFromHash(hv.pid);o={pid:p0?p0.id:hv.pid,vid:hv.vid};lane='';}}catch(e){}   /* levélből érkező videólink */
   if((!o||!o.pid)&&lane){S._vvRestored=true;let n=0;const tl=()=>{if(document.querySelector('.bd-modal'))return;if(!projById(lane)||$('mform')){if(++n<40)setTimeout(tl,300);return;}ACT['bd-lane']({dataset:{id:lane}});};setTimeout(tl,50);return;}
   if(!o||!o.pid){S._vvRestored=true;return;}
   S._vvRestored=true;let n=0;
