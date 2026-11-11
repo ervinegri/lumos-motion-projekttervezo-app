@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b725fb66e3",
+"at": "2026-11-11T15:39:19+01:00",
+"msg": "Elvégzett időkód: a ▶ csak halványul"
+},
+{
 "id": "c1d127400f",
 "at": "2026-11-11T15:38:34+01:00",
 "msg": "Elvégzett időkód: a ▶ is áthúzva, halványítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videós e-mailek: a link egyenesen a videót nyitja meg a hozzászólásokkal"
 },
 {
-"id": "a466e0bf78",
-"at": "2026-11-11T11:32:18+01:00",
-"msg": "Videó-hozzászólás: az időkód-kiemelés görgetősávnál is egyben marad a szöveggel"
-},
-{
-"id": "0874000abb",
-"at": "2026-11-11T10:31:21Z",
+"id": "5b88ee8d56",
+"at": "2026-11-11T10:32:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
