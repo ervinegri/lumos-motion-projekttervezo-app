@@ -161,6 +161,8 @@ body>.card>.body{flex:1;align-content:start;align-items:end}
 .player.tctl::before{content:'';position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(transparent,rgba(0,0,0,.32));pointer-events:none;z-index:3;border-radius:0 0 inherit inherit}
 .player.tctl .tfs{position:absolute;right:10px;bottom:34px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(14,22,32,.45);display:flex;align-items:center;justify-content:center;padding:0}
 .player.tctl.tpaused:not(:has(.bigplay))::after{content:'';position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;z-index:3;pointer-events:none;background:rgba(14,22,32,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='%23fff'/%3E%3C/svg%3E") 56% 50%/30px no-repeat}
+@media (hover:none){textarea,input,select{font-size:16px!important}}   /* iPhone: 16px alatt a mezőbe koppintáskor ránagyít, és szétesik az oldal */
+html,body{overflow-x:clip}
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 </head>
