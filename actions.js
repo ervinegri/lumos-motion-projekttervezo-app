@@ -2688,14 +2688,15 @@ ACT['vv-all']=()=>{const VL=window._vvList;if(!VL)return;const box=document.quer
 S._bdSel=S._bdSel||[];
 function bdSelBar(){let bar=$('bdSelBar');const n=S._bdSel.length;if(!n){if(bar)bar.remove();document.querySelectorAll('.bd-card.sel').forEach(c=>c.classList.remove('sel'));return;}
   if(!bar){bar=document.createElement('div');bar.id='bdSelBar';bar.className='bd-selbar';document.body.appendChild(bar);}
-  bar.innerHTML=`<b>${n} videó kijelölve</b><button type="button" class="btn primary" data-action="bd-sel-play">▶ Átnézés egymás után</button><button type="button" class="btn outline" data-action="bd-sel-clear">Kijelölés törlése</button>`;
+  const canRv=S._bdSel.some(k=>{const [pid,vid]=k.split('|'),p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);return v&&v.link&&v.st!=='vagasra'&&v.st!=='vagas';});   /* utómunkára váró / vágás alatti videót nincs mit átnézni */
+  bar.innerHTML=`<b>${n} videó kijelölve</b>${canRv?'<button type="button" class="btn primary" data-action="bd-sel-play">▶ Átnézés egymás után</button>':''}<button type="button" class="btn outline" data-action="bd-sel-clear">Kijelölés törlése</button>`;
   document.querySelectorAll('.bd-card').forEach(c=>c.classList.toggle('sel',S._bdSel.includes(c.dataset.bdPid+'|'+c.dataset.bdVid)));}
 document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.bd-card');if(!c||!(e.metaKey||e.ctrlKey||e.shiftKey)||e.target.closest('button'))return;e.preventDefault();e.stopPropagation();
   const k=c.dataset.bdPid+'|'+c.dataset.bdVid,i=S._bdSel.indexOf(k);if(i>=0)S._bdSel.splice(i,1);else S._bdSel.push(k);bdSelBar();},true);
 ACT['bd-sel-clear']=()=>{S._bdSel=[];bdSelBar();};
 ACT['bd-col-sel']=b=>{const root=b.closest('.bd-modal')||b.closest('.bl')||document,keys=[...root.querySelectorAll('.bd-card')].filter(c=>{const p=projById(c.dataset.bdPid),v=p&&(p.videos||[]).find(x=>x.id===c.dataset.bdVid);return v&&v.st===b.dataset.col;}).map(c=>c.dataset.bdPid+'|'+c.dataset.bdVid);
   const all=keys.length&&keys.every(k=>S._bdSel.includes(k));S._bdSel=all?S._bdSel.filter(k=>!keys.includes(k)):[...new Set(S._bdSel.concat(keys))];bdSelBar();};   /* újra megnyomva: kijelölés törlése */
-ACT['bd-sel-play']=()=>{const items=S._bdSel.map(k=>{const [pid,vid]=k.split('|');return {pid,vid};}).filter(x=>{const q=projById(x.pid);return q&&(q.videos||[]).some(y=>y.id===x.vid);});if(!items.length)return;
+ACT['bd-sel-play']=()=>{const items=S._bdSel.map(k=>{const [pid,vid]=k.split('|');return {pid,vid};}).filter(x=>{const q=projById(x.pid);return q&&(q.videos||[]).some(y=>y.id===x.vid&&y.link&&y.st!=='vagasra'&&y.st!=='vagas');});if(!items.length)return;
   window._vvList={items,i:0,lane:!!document.querySelector('#modalRoot .bd-modal')};S._bdSel=[];bdSelBar();ACT['vid-view']({dataset:{pid:items[0].pid,vid:items[0].vid,list:'1'}});};
 ACT['bd-col-play']=b=>{const col=b.dataset.col,pid=b.dataset.pid||'';const items=[...document.querySelectorAll(`.bl-cell[data-bd-col="${col}"] .bd-card`)].filter(c=>!pid||c.dataset.bdPid===pid).map(c=>({pid:c.dataset.bdPid,vid:c.dataset.bdVid}));if(!items.length)return;
   window._vvList={items,i:0,lane:!!document.querySelector('#modalRoot .bd-modal')};ACT['vid-view']({dataset:{pid:items[0].pid,vid:items[0].vid,list:'1'}});};
