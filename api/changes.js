@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4a12d67af",
+"at": "2026-11-11T11:31:12+01:00",
+"msg": "Videó-hozzászólás: időkód beszúrásakor a mező nem ugrik a lista aljára"
+},
+{
 "id": "95266a9d45",
 "at": "2026-11-11T11:23:21+01:00",
 "msg": "Számlakártyák: Opciók menü (jelölés fizetettnek, sztornó) a közvetlen gombok helyett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a módosítás-mező csak a Módosítást kérek gombra nyílik le; kisebb logó; csúszka teljes képernyőn is"
 },
 {
-"id": "51bccde7c3",
-"at": "2026-11-11T09:54:22+01:00",
-"msg": "Jóváhagyó oldal: javítás – a pCloud / YouTube link nem került a közvetlen videó ágba"
-},
-{
-"id": "c940cdf416",
-"at": "2026-11-11T08:49:37Z",
+"id": "89216e9c3d",
+"at": "2026-11-11T08:54:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
