@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d1d2d434ee",
+"at": "2026-11-11T15:34:44+01:00",
+"msg": "Elkészítettem a javítást: figyelmeztet, ha maradt kipipálatlan észrevétel"
+},
+{
 "id": "d3b6e0cfa6",
 "at": "2026-11-11T15:34:25+01:00",
 "msg": "Videó ablak: a vágónak „Elkészítettem a javítást” gomb → javított link → belső ellenőrzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Díjbekérő sztornó: törlés a számlázz.hu-ban és az appból"
 },
 {
-"id": "130f537c07",
-"at": "2026-11-11T10:59:05+01:00",
-"msg": "Videótábla: kijelölt videók csoportos húzása"
-},
-{
-"id": "decf8a6ae8",
-"at": "2026-11-11T09:50:00Z",
+"id": "9166aa1146",
+"at": "2026-11-11T09:59:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
