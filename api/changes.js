@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9affa43685",
+"at": "2026-11-11T09:38:05+01:00",
+"msg": "Videókártya: buborékszöveg többes számban"
+},
+{
 "id": "5b3780099f",
 "at": "2026-11-11T09:37:53+01:00",
 "msg": "Videókártya: Még nem nyitották meg / Megnyitották"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud lejátszó: 9 mp-es időkorlát hibaüzenettel, a felső ablak videóját tölti be"
 },
 {
-"id": "cc3cc7dfaa",
-"at": "2026-11-11T00:03:56+01:00",
-"msg": "Havi naptár: Vágói határidők pipa (leadási határidők ki-be)"
-},
-{
-"id": "3a0f046aa4",
-"at": "2026-11-10T22:52:10Z",
+"id": "d3a3189c84",
+"at": "2026-11-10T23:04:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
