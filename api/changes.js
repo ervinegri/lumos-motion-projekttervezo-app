@@ -2,26 +2,6 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
-"id": "6afc3b864c",
-"at": "2026-11-11T20:46:52+01:00",
-"msg": "Szerződés kártya: látványos zöld, ha van keretszerződés / aláírt szerződés"
-},
-{
-"id": "678d44e787",
-"at": "2026-11-11T20:46:23+01:00",
-"msg": "Táblázat-mód: a táblák gyorsítótárból (verziószámmal), zárolás alatt közvetlen olvasás"
-},
-{
-"id": "5e88c83fb5",
-"at": "2026-11-11T20:43:59+01:00",
-"msg": "Értékesítés: sárga kártya, ha az ügyletből már van projekt"
-},
-{
-"id": "e81df89976",
-"at": "2026-11-11T20:39:51+01:00",
-"msg": "Kifizetések: hónapválasztó a táblázat fölött középen (szakember); hangsúlyosabb Összesen sor"
-},
-{
 "id": "0725d4557d",
 "at": "2026-11-11T20:38:38+01:00",
 "msg": "Beosztásaim: a kereső egy sorban a címmel"
@@ -160,6 +140,26 @@ const ITEMS = [
 "id": "5f548e40e8",
 "at": "2026-11-11T18:54:12+01:00",
 "msg": "Jóváhagyó oldal: videóváltáskor nem ugrik el az elrendezés"
+},
+{
+"id": "353773c825",
+"at": "2026-11-11T18:52:57+01:00",
+"msg": "Jóváhagyó oldal: videóváltás újratöltés nélkül (csak a lejátszó és a panel cserélődik)"
+},
+{
+"id": "d902bf3983",
+"at": "2026-11-11T18:51:46+01:00",
+"msg": "Jóváhagyó előnézet: a gombok kipróbálhatók (látszik a jóváhagyás utáni üzenet lehetőség), de nem küldenek semmit"
+},
+{
+"id": "77348a3cb2",
+"at": "2026-11-11T18:49:48+01:00",
+"msg": "Ügyfél-link: projekttervezo.lumosmotion.hu/<kód> (a /v/ nélkül)"
+},
+{
+"id": "6b7d2ad156",
+"at": "2026-11-11T17:49:29Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
