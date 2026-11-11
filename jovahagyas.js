@@ -39,19 +39,31 @@
     if((m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/.exec(u)))return `<iframe data-vert="${/shorts\//.test(u)?1:''}" src="https://www.youtube.com/embed/${m[1]}?enablejsapi=1&playsinline=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
     if((m=/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/.exec(u)))return `<iframe src="https://player.vimeo.com/video/${m[1]}${m[2]?'?h='+m[2]:''}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
     if(/^https:\/\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)){dlSet(u);return `<video src="${esc(u)}" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;}
-    if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u)))return `<div class="noembed" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span>Videó betöltése…</div>`;
+    if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u))&&PCV[u]){if(PCV[u].dl)setTimeout(()=>dlSet(PCV[u].dl),0);return vTag(PCV[u].src);}
+    if(m)return `<div class="noembed" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span>Videó betöltése…</div>`;
     return '';}
   const noEmbed=(u,why)=>`<div class="noembed">${why?esc(why)+'<br>':''}A videó itt nem játszható le.${u?`<a href="${esc(u)}" target="_blank" rel="noopener">▶ Videó megnyitása</a>`:''}</div>`;
   /* külön „Letöltés” gomb (a lejátszó saját menüjéből a letöltés ki van véve) */
   let noDl=false;   /* vízjeles (még nem kifizetett) videó: nincs letöltés */
   function dlSet(u,page){const a=document.getElementById('dl'),w=document.getElementById('dlWrap');if(!a||!u||noDl)return;a.href=u;if(page){a.removeAttribute('download');a.target='_blank';}else{a.setAttribute('download','');a.removeAttribute('target');}if(w)w.hidden=false;}
-  async function pcloud(link){const el=document.querySelector('[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];
-    const vidOf=m=>{if(!m)return null;if(!m.isfolder)return m;const L=[];(function w(c){(c||[]).forEach(x=>{if(x.isfolder)w(x.contents);else if(/^video\//.test(x.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(x.name||''))L.push(x);});})(m.contents);return L[0]||null;};
-    for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`,{referrerPolicy:'no-referrer'})).json();if(!sj||sj.result!==0)continue;
-        const f=vidOf(sj.metadata);if(!f)break;
-        const j=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=0${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`,{referrerPolicy:'no-referrer'})).json();
-        if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path){el.outerHTML=`<video src="https://${j.hosts[0]}${j.path}" referrerpolicy="no-referrer" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline></video>`;videoReady();try{const jd=await (await fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=1${f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:''}`,{referrerPolicy:'no-referrer'})).json();if(jd&&jd.result===0&&jd.hosts&&jd.hosts.length)dlSet('https://'+jd.hosts[0]+jd.path);}catch(e){}return;}}catch(e){}}
-    el.outerHTML=noEmbed(link);}
+  /* pCloud közvetlen fájl-link (gyorsítótárazva: a következő videók előre feloldhatók) */
+  const PC={},PCV={};
+  function pcResolve(link){if(PC[link])return PC[link];const m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(String(link||''));if(!m)return Promise.resolve(null);const code=m[2],hosts=m[1]?['eapi','api']:['api','eapi'];
+    const vidOf=x=>{if(!x)return null;if(!x.isfolder)return x;const L=[];(function w(c){(c||[]).forEach(y=>{if(y.isfolder)w(y.contents);else if(/^video\//.test(y.contenttype||'')||/\.(mp4|mov|m4v|webm)$/i.test(y.name||''))L.push(y);});})(x.contents);return L[0]||null;};
+    return PC[link]=(async()=>{for(const h of hosts){try{const sj=await (await fetch(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(code)}`,{referrerPolicy:'no-referrer'})).json();if(!sj||sj.result!==0)continue;
+        const f=vidOf(sj.metadata);if(!f)break;const fid=f.fileid&&sj.metadata.isfolder?'&fileid='+f.fileid:'';
+        const [j,jd]=await Promise.all([0,1].map(fd=>fetch(`https://${h}.pcloud.com/getpublinkdownload?code=${encodeURIComponent(code)}&forcedownload=${fd}${fid}`,{referrerPolicy:'no-referrer'}).then(r=>r.json()).catch(()=>null)));
+        if(j&&j.result===0&&j.hosts&&j.hosts.length&&j.path)return PCV[link]={src:'https://'+j.hosts[0]+j.path,dl:jd&&jd.result===0&&jd.hosts&&jd.hosts.length?'https://'+jd.hosts[0]+jd.path:''};}catch(e){}}PC[link]=null;return null;})();}
+  const vTag=src=>`<video src="${esc(src)}" referrerpolicy="no-referrer" controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableremoteplayback oncontextmenu="return false" playsinline preload="auto"></video>`;
+  async function pcloud(link){const el=document.querySelector('[data-pc-code]');if(!el)return;const r=await pcResolve(link);if(!el.isConnected)return;
+    if(r){el.outerHTML=vTag(r.src);videoReady();if(r.dl)dlSet(r.dl);return;}el.outerHTML=noEmbed(link);}
+  /* előtöltés: a többi videó adatai és fájl-linkje a háttérben, a szomszédos videók eleje a böngésző gyorsítótárába */
+  const INFO={},WARM={};
+  function warm(src){if(!src||WARM[src])return;const v=document.createElement('video');v.preload='auto';v.muted=true;v.src=src;v.setAttribute('referrerpolicy','no-referrer');v.style.display='none';document.body.appendChild(v);WARM[src]=v;}
+  function prefetch(i){if(!i||!i.items||i.items.length<2||prefetch.done)return;prefetch.done=true;const k0=i.items.findIndex(x=>x.id===i.cur);
+    const order=i.items.map((x,k)=>({x,d:Math.min(Math.abs(k-k0),Math.abs(k-k0+i.items.length))})).sort((a,b)=>a.d-b.d).map(o=>o.x).filter(x=>x.id!==i.cur);
+    (async()=>{for(const x of order){try{const inf=INFO[x.id]||(INFO[x.id]=await api('clientInfo',[t,'preview',x.id]));const r=inf.link?await pcResolve(inf.link):null;const src=r?r.src:(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(inf.link||'')?inf.link:'');
+        const k=i.items.findIndex(y=>y.id===x.id),kc=i.items.findIndex(y=>y.id===CUR);if(src&&Math.abs(k-kc)<=2)warm(src);}catch(e){}}})();}
   const vd=()=>document.querySelector('#player video');
   /* Vízjel (amíg nincs kifizetve): áttetsző felirat a lejátszó fölött, letöltés gomb nélkül */
   function wmAdd(name){noDl=true;{const w=document.getElementById('dlWrap'),a=document.getElementById('dl');if(w)w.hidden=true;if(a){a.removeAttribute('href');a.removeAttribute('download');}}const pl=$('player');const t=['LUMOS MOTION','JÓVÁHAGYÁSRA – NEM VÉGLEGES'].concat(name?[name]:[]);const w=document.createElement('div');w.className='wm';
@@ -84,7 +96,8 @@
     shown=false;played=true;CUR=id;window._vSwitch=true;{const dw=$('dlWrap');if(dw)dw.hidden=true;}const fb=$('fb');if(fb){fb.value='';fb.style.height='';}try{modOpen(false);}catch(e){}['err2','err3'].forEach(k=>{const e=$(k);if(e)e.hidden=true;});
     const nb=$('noteBox'),no=$('noteOk'),nt=$('note');{const on=$('okNote');if(on){on.value='';on.hidden=true;}}if(nb)nb.hidden=true;if(no)no.hidden=true;if(nt)nt.value='';const bn=$('bNote');if(bn){bn.disabled=false;bn.textContent='Üzenet küldése';}
     if(LAST&&LAST.items){const it=LAST.items.find(x=>x.id===id);if(it){const L2=Object.assign({},LAST,{cur:id,state:it.state,video:it.name});LAST=L2;$('video').textContent=it.name;$('ask').hidden=it.state!=='wait';$('doneOk').hidden=it.state!=='ok';$('doneMod').hidden=it.state!=='mod';tabs(L2);}}   /* azonnal vált a kijelölés és a cím, a videó utána tölt be */
-    api('clientInfo',[t,'preview',id]).then(i=>{const keep=document.querySelector('#main.vside');show(i);if(!document.querySelector('#player.vert')&&keep&&!document.querySelector('#player iframe[data-vert="1"]')){/* a tájolást a betöltött videó állítja be */}}).catch(e=>err(e.message));};
+    if(INFO[id]){show(Object.assign({},INFO[id],{items:LAST&&LAST.items||INFO[id].items,cur:id}));api('clientInfo',[t,'preview',id]).then(i=>{INFO[id]=i;if(CUR===id&&LAST){LAST.items=i.items;tabs(Object.assign({},LAST,{items:i.items}));}}).catch(()=>{});return;}   /* előtöltve: azonnal */
+    api('clientInfo',[t,'preview',id]).then(i=>{INFO[id]=i;const keep=document.querySelector('#main.vside');show(i);if(!document.querySelector('#player.vert')&&keep&&!document.querySelector('#player iframe[data-vert="1"]')){/* a tájolást a betöltött videó állítja be */}}).catch(e=>err(e.message));};
   function tabs(i){let w=$('vtabs');if(!i.items||i.items.length<2){if(w)w.remove();return;}
     if(!w){w=document.createElement('div');w.id='vtabs';w.className='vnav';const side=document.querySelector('.side');side.insertBefore(w,side.firstChild);}
     const k=i.items.findIndex(x=>x.id===i.cur),pv=i.items[k-1],nx=i.items[k+1],dn=i.items.filter(x=>x.state!=='wait').length;
@@ -99,7 +112,7 @@
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}
       if(i.wm)wmAdd(i.wmName);
       if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();
-    $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';if(i.cur)CUR=i.cur;tabs(i);};
+    $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';if(i.cur)CUR=i.cur;tabs(i);if(i.cur)INFO[i.cur]=i;setTimeout(()=>prefetch(i),1500);};
   if(!t){err('Hiányzó vagy hibás link.');return;}
   api('clientInfo',[t,CUR?'preview':'',CUR]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
   const go=(dec,fb,btn)=>{{const v=vd();if(v)v.pause();}   /* döntéskor (jóváhagyás / módosítás kérése) a videó megáll */$('err2').hidden=true;btn.disabled=true;if(LAST&&LAST.preview){/* előnézet: csak megmutatja, mi jönne (nem küld semmit) */const st=dec==='ok'?'ok':'mod';PVST[CUR]=st;btn.disabled=false;show(Object.assign({},LAST,{state:st,items:LAST.items&&LAST.items.map(x=>x.id===CUR?Object.assign({},x,{state:st}):x)}));return;}api('clientDecide',[t,dec,fb||'',CUR]).then(i=>{show(i);const nw=i.items&&i.items.find(x=>x.state==='wait'&&x.id!==i.cur);if(nw&&dec==='ok')setTimeout(()=>{const n=$('note');if(n&&(document.activeElement===n||n.value.trim()))return;goV(nw.id);},2200);}).catch(e=>{btn.disabled=false;$('err2').hidden=false;$('err2').textContent=e.message;});};
