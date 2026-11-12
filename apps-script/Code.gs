@@ -1341,6 +1341,7 @@ function myNotify_(u, a) {
   if (!u.crewId) throw new Error('Ehhez a fiókhoz nem tartozik szakember a stáblistában.');
   const key = a && a.key; if (key != null && NOTIFY_KEYS_.indexOf(key) < 0) throw new Error('Ismeretlen értesítéstípus.');
   let out;
+  if (key != null && u.realRole) throw new Error('Szakember nézetben csak megnézni lehet – a beállítást a szakember maga módosíthatja.');
   if (key == null) { out = crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)); return { notify: out }; }
   withLock_(() => { const sh = sheetFor_('crew'), row = findRow_(sh, u.crewId); if (!row) throw new Error('A szakember nem található.'); const c = readRow_('crew', sh, row);
     const n = crewNotifyOf_(c); n[key] = !!a.on; const st = {}; NOTIFY_KEYS_.forEach(k => { if (n[k] === false) st[k] = false; }); c.notify = JSON.stringify(st); putRow_('crew', sh, c, row); dbFlush_(); out = n; });
