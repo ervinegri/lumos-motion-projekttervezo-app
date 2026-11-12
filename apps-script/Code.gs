@@ -4363,12 +4363,12 @@ function logSheet_() {
   return (SHEET_MEMO_.__log = sh);
 }
 function logEvent_(u, action, subject, details) {
-  if (dbOn_()) { try { dbLog_([now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '') : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 3000))]); } catch (e) { Logger.log('Napló hiba: ' + e); } return; }
+  if (dbOn_()) { try { dbLog_([now_(), u ? u.name : '', u ? (u.id === 'client' ? 'Ügyfél' : (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '')) : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 3000))]); } catch (e) { Logger.log('Napló hiba: ' + e); } return; }
   try {
     const sh = logSheet_();
     const rg = sh.getRange(sh.getLastRow() + 1, 1, 1, LOG_HEADERS.length);
     rg.setNumberFormat('@');
-    rg.setValues([[now_(), u ? u.name : '', u ? (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '') : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 2000))]]);
+    rg.setValues([[now_(), u ? u.name : '', u ? (u.id === 'client' ? 'Ügyfél' : (ROLE_NAMES_[u.role] || u.role) + (u.realRole ? ' (ügyvezetői előnézet)' : '')) : '', action, cell_(subject || ''), cell_(String(details || '').slice(0, 2000))]]);
   } catch (e) { Logger.log('Napló hiba: ' + e); }
 }
 /** Projekt részletei és története: létrehozás, utolsó módosítás, a naplóbejegyzések (átnevezés előtti néven is). */
@@ -4395,7 +4395,9 @@ function projectHistory_(u, a) {
   const created = L.slice().reverse().find(x => /létrehozva|felvéve/i.test(x.action));
   return { id: p.id, name: p.name, createdAt: p.createdAt || (created ? created.at : ''), createdBy: created ? created.who : '', updatedAt: p.updatedAt || '', updatedBy: p.updatedBy || '', status: p.status, log: L.slice(0, 300) };
 }
-function getLog_() {
+function getLog_() { const rows = getLogRaw_(), nm = {}; try { loadUsers_().forEach(x => { nm[String(x.name || '').trim()] = 1; }); } catch (e) { }
+  return rows.map(x => (x.role === ROLE_NAMES_.editor && x.who && !nm[String(x.who).trim()]) ? Object.assign(x, { role: 'Ügyfél' }) : x); }   // a jóváhagyó oldalról döntő ügyfél korábban „termelési vezetőként” került a naplóba
+function getLogRaw_() {
   if (dbOn_()) return dbGetLog_().map(x => Object.assign(x, { subject: String(x.subject).replace(/^'/, ''), details: String(x.details).replace(/^'/, '') }));
   const sh = logSheet_(), n = sh.getLastRow();
   if (n < 2) return [];
