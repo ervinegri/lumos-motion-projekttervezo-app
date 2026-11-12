@@ -975,3 +975,8 @@ html body .ct-tpls[data-g]{display:grid!important;grid-template-columns:1fr!impo
 .ct-page{position:relative;width:min(100%,794px);background:#fff;box-shadow:0 2px 12px rgba(20,30,45,.12);display:block;box-sizing:border-box}
 .ct-page img{display:block;width:100%;height:auto}
 .ct-pn{position:absolute;right:10px;bottom:6px;font-size:11px;color:#8a95a1}
+
+/* szerződés: nyersanyag díjválasztó sorok */
+.ct-raw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.ct-raw-row>.cmb,.ct-raw-row>select{flex:1 1 260px}
+.ct-raw-pct,.ct-raw-fix{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px}.ct-raw-pct[hidden],.ct-raw-fix[hidden]{display:none!important}
+.ct-raw-lbl{font-size:13px;color:var(--muted,#6b7680);margin-right:6px;white-space:nowrap}

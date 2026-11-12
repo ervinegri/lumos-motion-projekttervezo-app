@@ -13,7 +13,7 @@ const ctToday=()=>{const d=new Date();return d.getFullYear()+'. '+String(d.getMo
 const ctFt=n=>String(Math.round(num(n))).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 const ctDay=iso=>{if(!validISO(iso))return '';const d=toDate(iso);return iso.replace(/-/g,'. ')+'., '+F_WD_LONG(d);};
 function F_WD_LONG(d){return ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'][d.getUTCDay()];}
-function ctNew(){S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:'',c_tax:'',c_phone:'',c_email:'',c_rep:'',sig_name:'',sig_rep:'',date:ctToday(),pid:'',fee:'',locs:[{place:'',date:''}],svcs:[{name:'',qty:'1',ext:''}]};ctStep1();}
+function ctNew(){S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:'',c_tax:'',c_phone:'',c_email:'',c_rep:'',sig_name:'',sig_rep:'',date:ctToday(),pid:'',fee:'',locs:[{place:'',date:''}],svcs:[{name:'',qty:'1',ext:''}],rb_mode:'pct',rb_pct:'10',rb_min:'40000',rb_amt:'',rk_mode:'pct',rk_pct:'10',rk_min:'40000',rk_amt:'',rk_years:'5'};ctStep1();}
 /* 1. lépés: sablon */
 /* 1. lépés: két döntés – melyik cég nevében (Lumos Motion Kft. / Egri Ervin E.V.), és milyen szerződés (Megbízási / Keretszerződés) */
 function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_')[0]:'',kind=c._picked?(cur.hat?'hatarozott':'keret'):'';   // első megnyitáskor nincs előválasztás
@@ -31,7 +31,7 @@ document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-g="kind"] .ct-tpl');if(!l||!S.ct)return;const f=document.querySelector('input[name="ct_firm"]:checked'),k=l.querySelector('input');if(!f||!k)return;
   S.ct.tpl=f.value+'_'+k.value;S.ct._picked=true;setTimeout(ctStep2,120);});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
-function ctRead(fd){const c=S.ct;['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
+function ctRead(fd){const c=S.ct;['rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
   if(fd.has('loc_place_0')){c.locs=[];for(let i=0;fd.has('loc_place_'+i);i++)c.locs.push({place:String(fd.get('loc_place_'+i)||'').trim(),date:String(fd.get('loc_date_'+i)||'').trim()});}
   if(fd.has('svc_name_0')){c.svcs=[];for(let i=0;fd.has('svc_name_'+i);i++)c.svcs.push({name:String(fd.get('svc_name_'+i)||'').trim(),qty:String(fd.get('svc_qty_'+i)||'').trim(),ext:String(fd.get('svc_ext_'+i)||'').trim()});}}
@@ -56,6 +56,10 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
     <div class="field full"><label>Helyszín és dátum</label><div class="ct-rows">${c.locs.map((l,i)=>`<div class="ct-row ct-row2"><input class="inp" name="loc_place_${i}" value="${esc(l.place)}" placeholder="Helyszín"><input class="inp" name="loc_date_${i}" value="${esc(l.date)}" placeholder="Dátum, pl. 2026. 11. 07., szombat">${c.locs.length>1?`<button type="button" class="mini ct-del" data-action="ct-row-del" data-t="locs" data-i="${i}" aria-label="Sor törlése">✕</button>`:''}</div>`).join('')}</div><button type="button" class="linkbtn" data-action="ct-row-add" data-t="locs">+ Helyszín</button></div>
     <div class="field full"><label>Szolgáltatások</label><div class="ct-rows"><div class="ct-row ct-row3 ct-hd"><span>Megnevezés</span><span>Darab</span><span>Terjedelem</span></div>${c.svcs.map((s,i)=>`<div class="ct-row ct-row3"><input class="inp" name="svc_name_${i}" value="${esc(s.name)}" placeholder="pl. Aftermovie"><input class="inp" name="svc_qty_${i}" value="${esc(s.qty)}" inputmode="numeric"><input class="inp" name="svc_ext_${i}" value="${esc(s.ext)}" placeholder="pl. 1–1,5 perc">${c.svcs.length>1?`<button type="button" class="mini ct-del" data-action="ct-row-del" data-t="svcs" data-i="${i}" aria-label="Sor törlése">✕</button>`:''}</div>`).join('')}</div><button type="button" class="linkbtn" data-action="ct-row-add" data-t="svcs">+ Szolgáltatás</button></div>
     <div class="field"><label for="ct-fee">Díj összesen (nettó)</label><div class="money"><input class="inp money-inp" id="ct-fee" name="fee" value="${esc(c.fee?ctFt(c.fee):'')}" inputmode="numeric" data-money="big"><span class="money-unit">Ft</span></div>${tp.vat?`<span class="hint" id="ct-half">Foglaló és végszámla: 2 × ${ctFt(half)} Ft + ÁFA</span>`:'<span class="hint">Alanyi adómentes – ÁFA nélkül</span>'}</div>`:''}
+    <h4 class="sub-h full" style="margin:10px 0 0">Nyersanyag (opcionális szolgáltatások)</h4>
+    ${ctRawRow('rb','Nyersanyag átadása','Mennyiért adjuk át a teljes nyersanyagot?')}
+    ${ctRawRow('rk','Archiválás a NAS rendszerünkön','Mennyiért őrizzük meg a nyersanyagot?')}
+    <div class="field"><label for="ct-rk_years">Archiválás időtartama</label><div class="money"><input class="inp" id="ct-rk_years" name="rk_years" value="${esc(c.rk_years||'5')}" inputmode="numeric" style="max-width:90px"><span class="money-unit">év</span></div></div>
     <h4 class="sub-h full" style="margin:10px 0 0">Aláírás</h4>
     ${f('sig_name','Aláíró cég (Megrendelő)')}${f('sig_rep','Képviseli (aláírás alatt)')}${f('date','Kelt (dátum)',{ph:'2026. 11. 12.'})}</div>`,
     {submitLabel:'Minta megtekintése →',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="1">← Vissza</button>`,submit:fd=>{ctRead(fd);const c2=S.ct;
@@ -84,7 +88,7 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
     x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:l.date})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
-  x=fill(x,{c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
+  x=fill(x,{raw_buy:ctRawText('rb',tp),raw_keep:ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
   if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
@@ -171,3 +175,21 @@ Object.assign(ACT,{
 });
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.id==='ctm-body'&&S.ct&&S.ct.mail)S.ct.mail.body=t.innerText.replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'');});
 document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('#ctm-body');if(!t)return;e.preventDefault();document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain'));});
+
+/* Nyersanyag-átadás és NAS-archiválás díja a szerződésben: %-os (minimummal) / fix összeg / e-mailben egyeztetett */
+const CT_RAW_MODES=[['pct','A projekt nettó díjának %-a, minimummal'],['fix','Fix összeg'],['mail','Projektenként, e-mailben egyeztetve']];
+function ctRawRow(p,label,hint){const c=S.ct,m=c[p+'_mode']||'pct',vat=ctTplOf(c.tpl).vat;
+  return `<div class="field full ct-raw" data-raw="${p}"><label for="ct-${p}_mode">${label}</label><div class="ct-raw-row">
+    <select class="inp" id="ct-${p}_mode" name="${p}_mode" data-cmb="${esc(hint)}">${CT_RAW_MODES.map(([v,t])=>`<option value="${v}"${m===v?' selected':''}>${t}</option>`).join('')}</select>
+    <span class="ct-raw-pct"${m==='pct'?'':' hidden'}><span class="money"><input class="inp" name="${p}_pct" value="${esc(c[p+'_pct']||'')}" inputmode="decimal" style="max-width:80px"><span class="money-unit">%</span></span>
+      <span class="money"><span class="ct-raw-lbl">de legalább</span><input class="inp money-inp" name="${p}_min" value="${esc(c[p+'_min']?ctFt(c[p+'_min']):'')}" inputmode="numeric" data-money="1" placeholder="0" style="max-width:130px"><span class="money-unit">Ft${vat?' + ÁFA':''}</span></span></span>
+    <span class="ct-raw-fix"${m==='fix'?'':' hidden'}><span class="money"><input class="inp money-inp" name="${p}_amt" value="${esc(c[p+'_amt']?ctFt(c[p+'_amt']):'')}" inputmode="numeric" data-money="1" placeholder="0" style="max-width:150px"><span class="money-unit">Ft${vat?' + ÁFA':''}</span></span></span>
+    </div></div>`;}
+document.addEventListener('change',e=>{const t=e.target;if(!t||!/^(rb|rk)_mode$/.test(t.name||''))return;const w=t.closest('.ct-raw');if(!w)return;
+  w.querySelector('.ct-raw-pct').hidden=t.value!=='pct';w.querySelector('.ct-raw-fix').hidden=t.value!=='fix';});
+const CT_NUMW=['nulla','egy','kettő','három','négy','öt','hat','hét','nyolc','kilenc','tíz','tizenegy','tizenkettő','tizenhárom','tizennégy','tizenöt'];
+function ctRawText(p,tp){const c=S.ct,m=c[p+'_mode']||'pct',v=tp.vat?' + ÁFA':'',n=x=>num(String(x||'').replace(/[^\d]/g,'')),pc=String(c[p+'_pct']||'10').replace('.',','),mn=n(c[p+'_min']),am=n(c[p+'_amt']);
+  const price=m==='mail'?'a Felek által projektenként e-mailben egyeztetett díj ellenében':m==='fix'?`${ctFt(am)} Ft${v} díj ellenében`:`a projekt nettó díjának ${pc}%-a${mn?`, de legalább ${ctFt(mn)} Ft${v}`:v} díj ellenében`;
+  if(p==='rb')return `A Megrendelő kérésére a Szolgáltató a projekt során keletkezett teljes nyersanyagállományt ${price} átadja a Megrendelő részére.`;
+  const y=Math.max(1,Math.min(15,Math.round(n(c.rk_years)||5)));
+  return `A teljes nyersanyagállományt a Szolgáltató saját NAS rendszerén ${y} (${CT_NUMW[y]}) évig archiválja, ${price}.`;}
