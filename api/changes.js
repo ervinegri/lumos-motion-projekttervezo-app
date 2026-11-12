@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fea7d2fef6",
+"at": "2026-11-12T22:59:27+01:00",
+"msg": "Naptár újraszinkron: időzítő-jogosultság nélkül is hibátlanul lefut"
+},
+{
 "id": "afb11c9122",
 "at": "2026-11-12T22:56:27+01:00",
 "msg": "Naptár: azonnali újraszinkron (ügyvezető), és a Naptár megnyitásakor egyszer újra lefut – a jegyzetek kikerülnek a leírásból"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a projekt jegyzetei nem kerülnek a naptárbejegyzésbe"
 },
 {
-"id": "777747d680",
-"at": "2026-11-12T20:54:48+01:00",
-"msg": "Új szerződés: a cégválasztásnál nincs ÁFA-megjegyzés"
-},
-{
-"id": "0f11accd2b",
-"at": "2026-11-12T19:52:51Z",
+"id": "412b10a0d9",
+"at": "2026-11-12T19:54:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
