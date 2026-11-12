@@ -2,6 +2,26 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61cd8503f9",
+"at": "2026-11-12T15:15:57+01:00",
+"msg": "Lezajlott rendezvénynél is módosítható a leadási határidő"
+},
+{
+"id": "97afca9d38",
+"at": "2026-11-12T15:15:12+01:00",
+"msg": "Lezárt projektnél is módosítható a leadási határidő"
+},
+{
+"id": "6030d873fd",
+"at": "2026-11-12T15:13:57+01:00",
+"msg": "Videó verziók: a folytatódó beszélgetés a jelenlegi verziónál marad"
+},
+{
+"id": "def6c6a3ed",
+"at": "2026-11-12T15:13:10+01:00",
+"msg": "Videó verziók: új link = új verzió, a korábbi verzió hozzászólásai külön, összecsukva"
+},
+{
 "id": "e8ff4ff437",
 "at": "2026-11-12T15:10:40+01:00",
 "msg": "Videó hozzászólások: válaszolni minden állapotban lehet (vezetők és a vágó)"
@@ -140,21 +160,6 @@ const ITEMS = [
 "id": "478bc4e124",
 "at": "2026-11-12T12:02:31+01:00",
 "msg": "Szakember Beállítások: díjcsökkentés kivéve, eszközlista leírás"
-},
-{
-"id": "4d5f885331",
-"at": "2026-11-12T12:00:37+01:00",
-"msg": "Szakember Beállítások: előnézetként szakember nézetben is látszik"
-},
-{
-"id": "844e0a489b",
-"at": "2026-11-12T11:57:58+01:00",
-"msg": "Kifizetések: a számla kiállítása szürke, amíg a díjösszesítő nincs kiküldve"
-},
-{
-"id": "da86b055eb",
-"at": "2026-11-12T10:56:32Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
