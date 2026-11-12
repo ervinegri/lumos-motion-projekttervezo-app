@@ -841,4 +841,4 @@ html body .stage .t-row button.stage-site:hover{filter:brightness(.96)}
 html body .stage .t-row .t{white-space:nowrap}
 @media (min-width:761px){#mform.m-video .mfoot .vv-tcw{width:var(--vvw,auto);display:flex;justify-content:center;gap:8px;flex:none}}
 /* idővonal: minden videó jóváhagyva – zöld sáv */
-html body .tl-bar.tl-cut.cut-ok{background:#d9f0e2!important;color:#1f6b40!important;border-color:#a9d9bb!important}
+html.th2 body .cal-chip.p.cut.tl-bar.tl-cut.cut-ok,html.th2 body .cal-chip.p.cut.tl-bar.tl-cut.tl-joined.cut-ok,html body .tl-bar.tl-cut.cut-ok{background:#cdeedd!important;color:#1f6b40!important;border-color:#8fd0aa!important;opacity:1!important}
