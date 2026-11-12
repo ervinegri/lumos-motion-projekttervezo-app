@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "38eefc3ec1",
+"at": "2026-11-12T21:12:07+01:00",
+"msg": "Szerződés PDF: helyes számozás, logó az első oldalon, saját oldaltördelés"
+},
+{
 "id": "67c405988e",
 "at": "2026-11-12T21:08:11+01:00",
 "msg": "Szerződés PDF: nem üres (belső dobozból készül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: kedvezmény pipálható (alapból ki), a kalkulátoros tételek neve részletek nélkül"
 },
 {
-"id": "d61bf50e69",
-"at": "2026-11-12T17:06:21+01:00",
-"msg": "Árajánlat: új lapon nem üres a PDF, kedvezmény max. 20%, általánosnál a fájlnévben sincs rendezvény, a kalkulátoros tételek számok nélkül (darab a mennyiségbe), valódi feladó az előnézetben"
-},
-{
-"id": "1646904d91",
-"at": "2026-11-12T16:03:38Z",
+"id": "a4775c43f4",
+"at": "2026-11-12T16:06:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
