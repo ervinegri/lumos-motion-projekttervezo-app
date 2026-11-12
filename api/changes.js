@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "44b2eb1989",
+"at": "2026-11-12T16:54:38+01:00",
+"msg": "Árajánlat: rendezvényre szóló vagy általános, mennyiségi kedvezmény, egyoldalas PDF, megnyitás új lapon, 15 nap érvényesség; árkalkulátor: Short videó fül, km-alapú kiszállás árai"
+},
+{
 "id": "56edd41eca",
 "at": "2026-11-12T16:43:42+01:00",
 "msg": "Értékesítés: árajánlat az árkalkulátorral indul (tételek átvétele), feltűnőbb gomb; értékesítő szűrésnél csak az ő jutaléka"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "f5f3fd83c7",
 "at": "2026-11-12T14:28:05+01:00",
 "msg": "Videó ablak: a lejátszósáv újra húzható egérrel"
-},
-{
-"id": "b7d11d7b04",
-"at": "2026-11-12T14:25:52+01:00",
-"msg": "Megnyitották: hónap névvel (Nov. 12.)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
