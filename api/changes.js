@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "413536ff7f",
+"at": "2026-11-12T17:50:41+01:00",
+"msg": "Árajánlat előnézet: a tárgy nem szerkeszthető (a szerkesztőben módosítható)"
+},
+{
 "id": "e27128e013",
 "at": "2026-11-12T17:49:01+01:00",
 "msg": "Árajánlat előnézet: az aláírás nem nyúlik ki teljes szélességre"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetés után lekerülő vízjel: értesítő e-mail az ügyfélnek (egyszer); napi tartalék kifizetés-ellenőrzés"
 },
 {
-"id": "e3da8879fa",
-"at": "2026-11-12T15:32:45+01:00",
-"msg": "Jóváhagyó oldal (vízjeles): a letiltott natív teljes képernyő gomb helyett saját gomb jobb fent"
-},
-{
-"id": "b7f64afc4f",
-"at": "2026-11-12T14:19:01Z",
+"id": "afdc4410d5",
+"at": "2026-11-12T14:32:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
