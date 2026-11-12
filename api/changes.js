@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d8f01ad175",
+"at": "2026-11-12T11:06:50+01:00",
+"msg": "Rendezvény típusa: Interjú"
+},
+{
 "id": "0e8f7f549d",
 "at": "2026-11-12T10:14:24+01:00",
 "msg": "Jóváhagyó oldal: figyelmeztetés kilépéskor félbehagyott átnézésnél / el nem küldött szövegnél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt lépései: Jóváhagyásra vár lépés ki; videós utómunka itt nem húzható (a videótáblán halad)"
 },
 {
-"id": "f790bece25",
-"at": "2026-11-11T23:46:34+01:00",
-"msg": "Időkódos pipák: az ügyvezető nem pipálhat, csak a videó vágója"
-},
-{
-"id": "6045ad7ec1",
-"at": "2026-11-11T22:44:22Z",
+"id": "9380ee3842",
+"at": "2026-11-11T22:46:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
