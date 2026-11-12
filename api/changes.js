@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5c01a1b7b",
+"at": "2026-11-12T22:25:14+01:00",
+"msg": "Szerződéssablonok: az aláírásos rész (Kelt, aláírási vonalak, nevek) nem törik szét két oldalra"
+},
+{
 "id": "432f2db463",
 "at": "2026-11-12T22:22:50+01:00",
 "msg": "Keretszerződés: a díjmódosítási értesítés mondata törölve; átadás választható – kifizetés után, vagy vízjellel (a vízjel a kifizetés után kerül le)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: a lábléc nem lóg rá az aláírásra"
 },
 {
-"id": "32c4a11725",
-"at": "2026-11-12T17:52:25+01:00",
-"msg": "Árajánlat PDF: széles képernyőn sem üres (a rögzített ablakszélesség kivéve)"
-},
-{
-"id": "3e01152c67",
-"at": "2026-11-12T16:51:13Z",
+"id": "7b5b067d6f",
+"at": "2026-11-12T16:52:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
