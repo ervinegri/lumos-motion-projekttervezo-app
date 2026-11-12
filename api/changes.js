@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "478bc4e124",
+"at": "2026-11-12T12:02:31+01:00",
+"msg": "Szakember Beállítások: díjcsökkentés kivéve, eszközlista leírás"
+},
+{
 "id": "4d5f885331",
 "at": "2026-11-12T12:00:37+01:00",
 "msg": "Szakember Beállítások: előnézetként szakember nézetben is látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetés: a projekt értéke a quotePrice mezőből"
 },
 {
-"id": "6c485ad67e",
-"at": "2026-11-12T09:28:18+01:00",
-"msg": "Időkódos és leadott videók hozzászólásai nem törölhetők; a teljes összeget fedező foglaló után kifizetett (vízjel le)"
-},
-{
-"id": "e376f85a9c",
-"at": "2026-11-12T08:22:57Z",
+"id": "55ace51746",
+"at": "2026-11-12T08:28:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
