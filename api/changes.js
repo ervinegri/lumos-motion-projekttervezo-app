@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b7d11d7b04",
+"at": "2026-11-12T14:25:52+01:00",
+"msg": "Megnyitották: hónap névvel (Nov. 12.)"
+},
+{
 "id": "ed63d84ead",
 "at": "2026-11-12T14:21:51+01:00",
 "msg": "Értékesítői jutalék: egy név egyszer, azonnali kiválasztás, a beírt % nem ugrik vissza"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: figyelmeztetés kilépéskor félbehagyott átnézésnél / el nem küldött szövegnél"
 },
 {
-"id": "4347b1bcbf",
-"at": "2026-11-12T10:07:45+01:00",
-"msg": "Ügyfél visszaigazoló összefoglaló e-mail, ha minden videóról döntött"
-},
-{
-"id": "9ccb00c0bf",
-"at": "2026-11-12T09:04:29Z",
+"id": "9e6bd7c8f5",
+"at": "2026-11-12T09:07:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
