@@ -4570,7 +4570,8 @@ function projLink_(p) { return FRONTEND_URL.replace(/\/$/, '') + '/#p=' + projSl
 const SIG_PROPERTY = 'LUMOS_PM_SIGS';
 const SIG_DEFAULTS_ = {
   'david.zajacz@lumosmotion.com': { name: 'Zajácz Dávid', title: 'Produkciós koordinátor', phone: '+36 20 599 5583', photo: 'https://projekttervezo.lumosmotion.hu/sig/david.jpg' },
-  'ervin.egri@lumosmotion.com': { name: 'Egri Ervin', title: 'Ügyvezető igazgató', phone: '+36 70 617 8235', photo: 'https://projekttervezo.lumosmotion.hu/sig/ervin.jpg' }
+  'ervin.egri@lumosmotion.com': { name: 'Egri Ervin', title: 'Ügyvezető igazgató', phone: '+36 70 617 8235', photo: 'https://projekttervezo.lumosmotion.hu/sig/ervin.jpg' },
+  'peter.farkas@lumosmotion.com': { name: 'Farkas Péter Ervin', title: 'Üzletfejlesztési menedzser', phone: '+36 20 454 1242', photo: 'https://projekttervezo.lumosmotion.hu/sig/peter.jpg' }
 };
 const SIG_ALIAS_ = { 'zajacz.david@lumosmotion.com': 'david.zajacz@lumosmotion.com' };   // ugyanaz a postafiók más címmel
 const sigKey_ = e => { const m = String(e || '').trim().toLowerCase(); return SIG_ALIAS_[m] || m; };
