@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "432f2db463",
+"at": "2026-11-12T22:22:50+01:00",
+"msg": "Keretszerződés: a díjmódosítási értesítés mondata törölve; átadás választható – kifizetés után, vagy vízjellel (a vízjel a kifizetés után kerül le)"
+},
+{
 "id": "eb12e0d843",
 "at": "2026-11-12T22:16:38+01:00",
 "msg": "Szerződéssablonok: szélesebb technikai specifikáció táblázat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: széles képernyőn sem üres (a rögzített ablakszélesség kivéve)"
 },
 {
-"id": "f4190b5e2f",
-"at": "2026-11-12T17:51:03+01:00",
-"msg": "Árajánlat: rövidebb alapszöveg"
-},
-{
-"id": "6d7ee0f8b4",
-"at": "2026-11-12T16:50:51Z",
+"id": "3e01152c67",
+"at": "2026-11-12T16:51:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
