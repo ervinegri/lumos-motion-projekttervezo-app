@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3c3148b321",
+"at": "2026-11-12T15:05:59+01:00",
+"msg": "Ügyfél e-mail: a lejátszás gomb CSS-sel rajzolva (nem sárga emoji)"
+},
+{
 "id": "57bfa63eb2",
 "at": "2026-11-12T15:03:52+01:00",
 "msg": "Jóváhagyó oldal: vízjel szöveg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Határidő szöveg: minden videó jóváhagyva / részleges jóváhagyás"
 },
 {
-"id": "31c207648f",
-"at": "2026-11-12T11:53:44+01:00",
-"msg": "Szakember Beállítások (e-mail és app értesítések); a vágó naptárából eltűnik a már jóváhagyott vágás"
-},
-{
-"id": "cbac1e01db",
-"at": "2026-11-12T10:51:09Z",
+"id": "a3ece22ac2",
+"at": "2026-11-12T10:53:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
