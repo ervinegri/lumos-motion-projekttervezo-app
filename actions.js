@@ -2784,3 +2784,19 @@ function vvFitTcw(){const f=document.getElementById('mform'),pl=document.querySe
 /* szakember: saját értesítési beállítás kapcsolója */
 document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.notify)return;const k=t.dataset.notify,on=t.checked;S.myNotify=Object.assign({},S.myNotify||{},{[k]:on});
   try{const r=await call('myNotify',{key:k,on});if(r&&r.notify)S.myNotify=r.notify;toast(on?'Bekapcsolva':'Kikapcsolva');bellRender();}catch(err){S.myNotify[k]=!on;t.checked=!on;handleErr(err);}});
+
+/* 📇 Kapcsolattartó névjegye (vCard) – QR-kód a telefon kamerájához, vagy .vcf letöltés / megosztás */
+function vcfText(o){const esc2=t=>String(t||'').replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\n/g,'\\n');const nm=String(o.name||'').trim(),parts=nm.split(/\s+/),fam=parts.length>1?parts[0]:'',giv=parts.length>1?parts.slice(1).join(' '):nm;
+  return ['BEGIN:VCARD','VERSION:3.0','N:'+esc2(fam)+';'+esc2(giv)+';;;','FN:'+esc2(nm||o.org||'Kapcsolattartó')].concat(o.org?['ORG:'+esc2(o.org)]:[]).concat(o.tel?['TEL;TYPE=CELL:'+String(o.tel).replace(/[^\d+]/g,'')]:[]).concat(o.email?['EMAIL;TYPE=INTERNET:'+o.email]:[]).concat(o.note?['NOTE:'+esc2(o.note)]:[]).concat(['END:VCARD']).join('\r\n');}
+function loadQr(){return window.qrcode?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='/vendor/qrcode.js';s.onload=ok;s.onerror=()=>no(new Error('A QR-kód nem tölthető be.'));document.head.appendChild(s);});}
+ACT.vcf=async()=>{const d=S.draft||{};const tel=(()=>{const el=document.querySelector('[data-ph="k:contactPhone"]');if(el){const cc=(el.querySelector('.ph-cc')||{}).dataset,n=(el.querySelector('input')||{}).value;if(n)return ((cc&&cc.cc)||'+36')+String(n).replace(/\s/g,'');}return d.contactPhone||'';})();
+  const o={name:($('f-contactName')||{}).value||d.contactName||'',tel,email:($('f-contactEmail')||{}).value||d.contactEmail||'',org:d.client||'',note:d.name?'Projekt: '+d.name:''};
+  if(!o.name&&!o.tel&&!o.email){toast('Előbb add meg a kapcsolattartó adatait.',true);return;}
+  const v=vcfText(o);let img='';try{await loadQr();qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const q=qrcode(0,'M');q.addData(v,'Byte');q.make();img=q.createDataURL(6,8);}catch(e){}
+  const fn=(o.name||'nevjegy').replace(/[^\wÀ-ž ]+/g,'').trim().replace(/\s+/g,'_')+'.vcf';
+  openModal('📇 Névjegy a telefonra',`<div class="vcf-box">${img?`<img class="vcf-qr" src="${img}" alt="QR-kód: ${esc(o.name)} névjegye"><p class="hint">Olvasd be a telefon kamerájával, majd koppints a „Kapcsolat hozzáadása” gombra.</p>`:''}
+    <div class="vcf-card"><b>${esc(o.name||'—')}</b>${o.org?`<span>${esc(o.org)}</span>`:''}${o.tel?`<span>📞 ${esc(o.tel)}</span>`:''}${o.email?`<span>✉️ ${esc(o.email)}</span>`:''}</div>
+    <div class="btns" style="justify-content:center"><button class="btn outline small" type="button" id="vcfDl">⬇ .vcf letöltése</button>${navigator.canShare?'<button class="btn outline small" type="button" id="vcfSh">📤 Megosztás</button>':''}</div></div>`,{noDraft:true,cancelLabel:'Bezárás'});
+  const blob=new Blob([v],{type:'text/vcard'});
+  const dl=$('vcfDl');if(dl)dl.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);};
+  const sh=$('vcfSh');if(sh)sh.onclick=async()=>{try{const f=new File([blob],fn,{type:'text/vcard'});if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title:o.name});else dl.click();}catch(e){}};};

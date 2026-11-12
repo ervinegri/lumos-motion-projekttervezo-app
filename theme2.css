@@ -868,3 +868,6 @@ html body .mrow .cc-chip.on{background:#eaf7ef;border-color:#a9d9bb;color:#1f6b4
 html body .mp-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));column-gap:28px}html body .mp-group h4{grid-column:1/-1;margin-bottom:4px}html body .mp-group .mrow{border-top:1px solid var(--line,#e6e9ee)}
 html body .stage .t-row .stage-board{white-space:nowrap;padding:4px 10px}
 html body .vv-meta .vv-proj{font:inherit;font-weight:600;color:#2f5f9e;text-decoration:none}html body .vv-meta .vv-proj:hover{text-decoration:underline}
+
+html body .vcf-row{margin-top:-6px}html body .vcf-box{text-align:center}html body .vcf-qr{width:240px;height:240px;image-rendering:pixelated;border-radius:10px;border:1px solid var(--line,#e6e9ee);padding:8px;background:#fff}
+html body .vcf-box .hint{margin:8px auto 14px;max-width:340px}html body .vcf-card{display:inline-flex;flex-direction:column;gap:3px;text-align:left;background:#f5f7fa;border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
