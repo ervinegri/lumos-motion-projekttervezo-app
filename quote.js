@@ -46,7 +46,7 @@ function qEdit(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{};
 function qTotUi(){const tt=$('q-tot');if(tt)tt.textContent=qFt(qTotal())+' Ft';const dl=$('q-discl');if(dl){dl.hidden=!qDiscPct();const dv=$('q-discv');if(dv)dv.textContent=qFt(qDisc());dl.firstChild.textContent=qFt(qGross())+' Ft − ';}}
 document.addEventListener('input',e=>{const t=e.target;if(!t||!S.q||!t.name||!/^(qi_(qty|price)_|q_disc$)/.test(t.name))return;const f=$('mform');if(!f)return;qRead(new FormData(f));
   if(t.name!=='q_disc'){const i=Number(t.name.split('_').pop()),it=S.q.items[i],row=t.closest('.q-row'),sm=row&&row.querySelector('.q-sum');if(sm&&it)sm.textContent=qFt(qNum(it.qty||1)*qNum(it.price))+' Ft';}qTotUi();});
-document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_ev'||!S.q)return;const f=$('mform');if(f)qRead(new FormData(f));const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},ev=t.value==='1',old=qAuto(d,q.ev),nw=qAuto(d,ev);
+document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_ev'||!S.q)return;const prev=S.q.ev,f=$('mform');if(f)qRead(new FormData(f));const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},ev=t.value==='1',old=qAuto(d,prev),nw=qAuto(d,ev);
   if(q.subject===old.subject)q.subject=nw.subject;if(q.body===old.body)q.body=nw.body;q.ev=ev;   // csak a saját (nem átírt) alapszöveget cseréljük
   const sj=$('q-subject'),bd=$('q-body');if(sj)sj.value=q.subject;if(bd)bd.value=q.body;document.querySelectorAll('.q-evsel label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('q-price')){const n=qNum(t.value);t.value=n?qFt(n):'';}});
