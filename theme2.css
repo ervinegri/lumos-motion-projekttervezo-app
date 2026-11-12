@@ -839,3 +839,4 @@ html body .stage .t-row span.stage-site{cursor:default}
 html body .stage .t-row .stage-site.ok{background:#e3f4ea;color:#1f7a47}html body .stage .t-row .stage-site.bad{background:#fde4e1;color:#b2392c}
 html body .stage .t-row button.stage-site:hover{filter:brightness(.96)}
 html body .stage .t-row .t{white-space:nowrap}
+@media (min-width:761px){#mform.m-video .mfoot .vv-tcw{width:var(--vvw,auto);display:flex;justify-content:center;gap:8px;flex:none}}
