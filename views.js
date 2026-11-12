@@ -1547,7 +1547,7 @@ function viewSettings(){
   if(Date.now()-(S._settingsAt||0)>30000)setTimeout(loadSettings,0);
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
   const UT=[['all','Mind'],['admin','Ügyvezető'],['editor','Termelési vezetők'],['crew','Szakemberek'],['sales','Értékesítők']].filter(([k])=>k==='all'||S.users.some(u=>u.role===k));
-  const ut=UT.some(([k])=>k===S.userTab)?S.userTab:'all',showSig=ut==='admin'||ut==='editor';
+  const ut=UT.some(([k])=>k===S.userTab)?S.userTab:'all',showSig=ut==='admin'||ut==='editor'||ut==='sales';
   const userTabs=`<div class="chips log-tabs">${UT.map(([k,l])=>`<button class="chip" type="button" data-action="user-tab" data-v="${k}" aria-pressed="${ut===k}">${l}<span class="c">${k==='all'?S.users.length:S.users.filter(u=>u.role===k).length}</span></button>`).join('')}</div>`;
   const sigOf=u=>{const sg=(S.sigs||{})[u.id];if(!sg)return '';const can=isAdmin()||u.id===S.me.id;
     return `<div class="sig-box"><div class="sig-h"><b>✍️ E-mail aláírás</b>${sg.set?'':' <span class="muted">– még nincs beállítva, a levelek „Üdvözlettel, név” zárással mennek</span>'}${can?`<button class="mini" type="button" data-action="sig-edit" data-id="${esc(u.id)}">Szerkesztés</button>`:''}</div>${sg.set?`<div class="sig-prev" data-sig="${esc(u.id)}"></div>`:''}</div>`;};
