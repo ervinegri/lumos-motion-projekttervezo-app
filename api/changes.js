@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "28b3b5fe77",
+"at": "2026-11-12T11:41:25+01:00",
+"msg": "Videó hozzászólások: látszik az ügyfél jóváhagyása; tagi kölcsön bank felirat egyértelműbb"
+},
+{
 "id": "3a648f4f23",
 "at": "2026-11-12T11:39:11+01:00",
 "msg": "Ügyfél módosításkérés: a vágó is megkapja az új stílusú levelet (ügyfél említése nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lépéskártya: csak a jóváhagyott videókat számolja"
 },
 {
-"id": "0050b9cd14",
-"at": "2026-11-11T23:53:14+01:00",
-"msg": "Szakember nézet: a projekt fejlécében a Naptárban gomb a cím mellett, nem külön sorban"
-},
-{
-"id": "31b1c77270",
-"at": "2026-11-11T22:52:06Z",
+"id": "3d8fbba1f7",
+"at": "2026-11-11T22:53:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
