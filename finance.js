@@ -311,7 +311,7 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     ${ms('kind','Típus',[['be','Kölcsön a cégnek'],['vissza','Cég visszafizeti']],k)}
     ${mf('date','Dátum',{type:'date',v:v.date||todayISO()})}
     ${moneyField('amount','Összeg',v.amount??null,{steps:false})}
-    <div class="field"><label for="m-bank">Bank</label><select class="inp" id="m-bank" name="bank">${bk?bankOpts(k).replace(`value="${bk}"`,`value="${bk}" selected`):bankOpts(k)}</select></div>
+    <div class="field"><label for="m-bank" id="m-bankL">${k==='vissza'?'Melyik számláról fizeti vissza':'Melyik számlára érkezett'}</label><select class="inp" id="m-bank" name="bank">${bk?bankOpts(k).replace(`value="${bk}"`,`value="${bk}" selected`):bankOpts(k)}</select></div>
     ${mf('note','Megjegyzés',{full:true,max:300,v:v.note||''})}</div>`,{left:l?`<button type="button" class="btn danger small" data-action="fin-loan-del" data-id="${esc(l.id)}">Törlés</button>`:'',submitLabel:'Mentés',submit:async fd=>{
     const row={id:v.id||'',kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),bank:String(fd.get('bank')||''),note:String(fd.get('note')||'').trim()};
     if(!row.amount){toast('Add meg az összeget.',true);return;}
@@ -336,7 +336,7 @@ Object.assign(ACT,{
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='fin-month'){setMonthAll(t.value);render(true);return;}
-  if(t.id==='m-kind'&&$('m-bank')){const b=$('m-bank'),cur=b.value;b.innerHTML=bankOpts(t.value);if([...b.options].some(o=>o.value===cur))b.value=cur;return;}   // a bank-lista a típushoz igazodik
+  if(t.id==='m-kind'&&$('m-bank')){const L=$('m-bankL');if(L)L.textContent=t.value==='vissza'?'Melyik számláról fizeti vissza':'Melyik számlára érkezett';const b=$('m-bank'),cur=b.value;b.innerHTML=bankOpts(t.value);if([...b.options].some(o=>o.value===cur))b.value=cur;return;}   // a bank-lista a típushoz igazodik
   if(t.dataset&&t.dataset.finpay){const id=t.dataset.id,v=t.value;
     if(t.dataset.finpay==='project'){try{await call('finSetPay',{projectId:id,payStatus:v});const p=projById(id);if(p)p.payStatus=v;if(S.draft&&S.draft.id===id)S.draft.payStatus=v;render(true);toast('Fizetési állapot: '+PAY_LABEL[v]);}catch(err){handleErr(err);render(true);}}
     else{const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(r){const row=Object.assign({},r,{payStatus:v});finSave('finUpsert',{table:'income',row},'Fizetési állapot: '+PAY_LABEL[v],()=>finLocal('income',[row]));}}}
