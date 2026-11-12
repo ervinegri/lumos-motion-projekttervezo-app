@@ -16,8 +16,8 @@ const FIN_CACHE_KEY='lumos_pm_fin_v1';   // az ügyvezető saját böngészőjé
 function finCacheGet(){try{const c=JSON.parse(localStorage.getItem(FIN_CACHE_KEY)||'null');if(!c||!S.me||S.me.role!=='admin'||c.tk!==String(TOKEN).slice(-16)||Date.now()-c.at>7*864e5)return null;return c.d;}catch(e){return null;}}
 function finCacheSave(d){try{if(S.me&&S.me.role==='admin'&&d)localStorage.setItem(FIN_CACHE_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
 async function finLoad(force){if(!S.fin&&!S._finCacheTried){S._finCacheTried=true;const c=finCacheGet();if(c){S.fin=c;S.finErr='';force=true;setTimeout(()=>{if(S.tab==='penzugy'||S.tab==='szerzodes'||S.tab==='ugyfelek'||S.projectId)render(true);},0);}}
-  if(S.fin&&!force)return;if(S._finLoading)return;S._finLoading=true;const mut0=S._finMut||0;
-  try{const d=await call('finData');if((S._finMut||0)!==mut0&&S.fin){S._finLoading=false;setTimeout(()=>finLoad(true),1500);return;}   // közben módosítottál: a régebbi adat ne írja felül
+  if(S.fin&&!force)return;if(S._finLoading)return;if(S.fin&&(S._finLive||0)>0){setTimeout(()=>finLoad(true),1500);return;}S._finLoading=true;const mut0=S._finMut||0;
+  try{const d=await call('finData');if(((S._finMut||0)!==mut0||(S._finLive||0)>0)&&S.fin){S._finLoading=false;setTimeout(()=>finLoad(true),1500);return;}   // közben módosítottál: a régebbi adat ne írja felül
     S.fin=d;S.finErr='';finCacheSave(d);}catch(e){if(!S.fin){S.finErr=errText(e)||'Hiba';}handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket

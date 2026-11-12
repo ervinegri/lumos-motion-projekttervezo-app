@@ -71,8 +71,9 @@ async function load(quiet,announce,pre){
   if(!quiet&&!S.loaded)VIEW.innerHTML='<div class="loading"><span class="spin"></span>Betöltés…</div>';
   try{
     if(!pre&&S.saving)await SAVE_Q;   // ne töltsük be a régi állapotot, amíg mentés fut
-    const d=pre||await call('bootstrap',S._opened?undefined:{open:true});S._opened=true;   // az első betöltés a naplóba is bekerül (belépés)
+    const m0=S._mut||0;const d=pre||await call('bootstrap',S._opened?undefined:{open:true});S._opened=true;   // az első betöltés a naplóba is bekerül (belépés)
     if(seq!==S.loadSeq)return;   // közben újabb betöltés indult (pl. nézetváltás) – ezt eldobjuk
+    if(!pre&&S.loaded&&((S._mut||0)!==m0||(S._mutLive||0)>0)){setTimeout(()=>load(true),1500);return;}   // közben mentés futott: a régebbi adatot eldobjuk, kicsit később újratöltünk
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro()&&!isSales())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése

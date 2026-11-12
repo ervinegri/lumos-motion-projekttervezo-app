@@ -353,7 +353,9 @@ async function gsOnce(fn,...args){
   return j.data;
 }
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDoc(Delete|Upload)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
-const call=(name,arg)=>{if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);};   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
+const READ_RE=/^(bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
+const call=(name,arg)=>{const fm=FIN_MUT_RE.test(name),wm=fm||!READ_RE.test(name);if(fm){S._finMut=(S._finMut||0)+1;S._finLive=(S._finLive||0)+1;}if(wm){S._mut=(S._mut||0)+1;S._mutLive=(S._mutLive||0)+1;}
+  const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg);if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(done,done);}return pr;};   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
 const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}return /^FORBIDDEN/.test(m)?'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.':m;};   // nyers hibakód nem jut a felhasználó elé
 function handleErr(e){
