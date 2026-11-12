@@ -239,7 +239,7 @@ const ARK_FIELDS={
     ['Utómunka',[['edit','Előadások utómunkája: vágói óradíj','Ft/óra',9900],['i2','Kivágások (40–60 mp short)','Ft/db',29000],['i1','Feliratozás','Ft/db',49000]]],
     ['Nyersanyag és felár',[['buyb','Nyersanyag megvásárlása: alapdíj','Ft',40000],['buyp','Nyersanyag megvásárlása: a megrendelés %-a, ha több (kiszállás nélkül)','%',10],['keepb','Nyersanyag tárolása 5 évig: alapdíj','Ft',40000],['keepp','Nyersanyag tárolása: a megrendelés %-a, ha több (0 = csak alapdíj)','%',0],['rush','Villámgyors kézbesítés (felár)','%',30]]]]},
   s:{t:'📱 Short videó',g:[['Utómunka (darabár)',[['edit','Vágói munka','Ft/db',29000],['script','Forgatókönyvírás','Ft/db',9000]]],
-    ['Operatőri munka',[['hour','Operatőr óradíja','Ft/óra',9900],['cine','Mozikamera + stabilizátor + fények','Ft/fő',39000],['drone','Drón','Ft',29000],['deliv','Kiszállás alapdíja (Budapesten / zónán belül)','Ft',19000],['perkm','Kiszállás a zónán túl (oda-vissza számolva)','Ft/km',75],['zone','Alapdíjas zóna Budapesttől','km',10]]]]}
+    ['Operatőri munka',[['hour','Operatőr óradíja','Ft/óra',9900],['labmin','Operatőri munkadíj alapdíja (operatőrönként)','Ft',19000],['cine','Mozikamera + stabilizátor + fények','Ft/fő',39000],['drone','Drón','Ft',29000],['deliv','Kiszállás alapdíja (Budapesten / zónán belül)','Ft',19000],['perkm','Kiszállás a zónán túl (oda-vissza számolva)','Ft/km',75],['zone','Alapdíjas zóna Budapesttől','km',10]]]]}
 };
 const arkNum=v=>String(v).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 function arkAdminHTML(o){

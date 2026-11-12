@@ -5578,7 +5578,7 @@ const ARK_PRICES_PROPERTY = 'ARK_PRICES';
 const ARK_KEYS_ = {
   r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'perkm', 'zone', 'buyb', 'buyp', 'keepb', 'keepp', 'rush'],
   e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'perkm', 'zone', 'buyb', 'buyp', 'keepb', 'keepp', 'rush'],
-  s: ['edit', 'script', 'cine', 'drone', 'hour', 'deliv', 'perkm', 'zone']   // Short videó kalkulátor
+  s: ['edit', 'script', 'cine', 'drone', 'hour', 'labmin', 'deliv', 'perkm', 'zone']   // Short videó kalkulátor
 };
 function arkPrices_() {
   let o = {};
