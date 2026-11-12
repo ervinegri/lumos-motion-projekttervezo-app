@@ -75,7 +75,7 @@ Object.assign(ACT,{
     const q=S.q;if(!q)return;if(q._pdf){window.open(toUrl(q._pdf),'_blank');return;}
     b.disabled=true;const t=b.textContent;b.textContent='PDF készül…';try{const b64=await qPdfCached();const w=window.open(toUrl(b64),'_blank');if(!w)toast('A böngésző letiltotta az új lapot – kattints újra.',true);}catch(e){handleErr(e);}finally{b.disabled=false;b.textContent=t;}}
 });
-const qFileName=()=>{const d=(S.deals||[]).find(x=>x.id===S.q.dealId)||{};return 'Arajanlat_'+String(d.client||(S.q.ev?d.title:'')||'Lumos_Motion').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'').slice(0,50)+'_'+S.q.no+'.pdf';};
+const qFileName=()=>{const d=(S.deals||[]).find(x=>x.id===S.q.dealId)||{};return 'Arajanlat_'+String((S.q.rc&&S.q.rc.name)||d.client||(S.q.ev?d.title:'')||'Lumos_Motion').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'').slice(0,50)+'_'+S.q.no+'.pdf';};
 /* az ajánlat A4-es oldala (a PDF és az előnézet ugyanez) */
 function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=q.sig||{},gross=qGross(),dp=qDiscPct(),disc=qDisc(),tot=qTotal(),vat=Math.round(tot*Q_VAT/100),now=new Date(),until=new Date(Date.now()+Math.max(1,qNum(q.valid)||15)*864e5);
   const row=(it,i)=>`<tr><td>${i+1}.</td><td>${esc(it.name)}</td><td class="r">${esc(it.qty||'1')}</td><td class="r">${qFt(it.price)} Ft</td><td class="r"><b>${qFt(qNum(it.qty||1)*qNum(it.price))} Ft</b></td></tr>`;
