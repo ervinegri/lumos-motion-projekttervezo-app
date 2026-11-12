@@ -1286,6 +1286,7 @@ function calItems(month){
       if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:'✂️ '+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
     if(editOnly(p)){if(ro()||(S.cal.mode!=='ido'&&!calCutDue())||(S.cal.cutter&&!crewCuts(p,S.cal.cutter))||!q||q.end<r.start||q.start>r.end)return;pre='✂️ ';}   // a „Vágói határidők” pipa ezt is elrejti   // videóvágás: nem terepi munka, lilán a leadás napján
     if(onlyCut)return;   // csak a vágói munkák
+    if(calKind()==='site'&&!crewOnSite(p,me))return;   // terepi szűrő: csak a saját helyszíni munkák
     if(!q||q.end<r.start||q.start>r.end)return;   // terepen: a projekt a saját napjain, zölden (ahogy a többieknél)
     items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   const cutC=!ro()&&S.cal.cutter?crewById(S.cal.cutter):null,cutMail=cutC?String(cutC.email||'').toLowerCase():'',cutNm=cutC?fold(cutC.name):'';
