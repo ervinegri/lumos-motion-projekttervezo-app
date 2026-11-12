@@ -4731,6 +4731,21 @@ function dealQuoteSend_(u, a) {
   try { deals = dealsFor_(u); } catch (e) { }
   return { ok: true, test: !live, deals: deals };
 }
+/** A kitöltött szerződés (docx) PDF-be alakítása a Google-lel (ideiglenes Google-dokumentum → PDF export → törlés). a: {docx: base64} */
+function contractPdf_(u, a) {
+  const b64 = String((a && a.docx) || ''); if (!b64 || b64.length > 15 * 1024 * 1024) throw new Error('Hiányzik a szerződés fájlja.');
+  const tok = ScriptApp.getOAuthToken(), auth = { Authorization: 'Bearer ' + tok }, bd = 'lm' + Utilities.getUuid().replace(/-/g, '');
+  const meta = { name: 'Lumos_szerzodes_ideiglenes_' + Date.now(), mimeType: 'application/vnd.google-apps.document' };
+  const payload = '--' + bd + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(meta) + '\r\n--' + bd +
+    '\r\nContent-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\nContent-Transfer-Encoding: base64\r\n\r\n' + b64 + '\r\n--' + bd + '--';
+  const up = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'post', contentType: 'multipart/related; boundary=' + bd, payload: payload, headers: auth, muteHttpExceptions: true });
+  const id = (JSON.parse(up.getContentText() || '{}') || {}).id; if (up.getResponseCode() >= 300 || !id) throw new Error('A PDF nem készült el (feltöltés): ' + up.getContentText().slice(0, 200));
+  try {
+    const ex = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + id + '/export?mimeType=application/pdf', { headers: auth, muteHttpExceptions: true });
+    if (ex.getResponseCode() !== 200) throw new Error('A PDF nem készült el (export): ' + ex.getContentText().slice(0, 200));
+    return { pdf: Utilities.base64Encode(ex.getContent()) };
+  } finally { try { UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + id, { method: 'delete', headers: auth, muteHttpExceptions: true }); } catch (e) { } }
+}
 /* ===================== SZERZŐDÉS KÜLDÉSE AZ ÜGYFÉLNEK (Új szerződés, 3. lépés) ===================== */
 function contractSender_(u) {
   const owner = loadUsers_().find(x => x.id === u.id) || u;
@@ -5178,6 +5193,7 @@ function rpcInner_(token, name, arg) {
     case 'clientPreview': return clientPreview_(u, arg);
     case 'clientDocUpload': adminOnly(); return clientDocUpload_(u, arg);
     case 'contractSig': adminOnly(); return contractSig_(u);
+    case 'contractPdf': adminOnly(); return contractPdf_(u, arg);
     case 'contractSend': adminOnly(); return contractSend_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
