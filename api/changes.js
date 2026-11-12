@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6c485ad67e",
+"at": "2026-11-12T09:28:18+01:00",
+"msg": "Időkódos és leadott videók hozzászólásai nem törölhetők; a teljes összeget fedező foglaló után kifizetett (vízjel le)"
+},
+{
 "id": "6f4d9c310d",
 "at": "2026-11-12T09:22:49+01:00",
 "msg": "Ügyfél levél gomb: szöveg és lejátszás ikon táblázattal egy vonalban (minden levelezőben)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vágási sáv buboréka: projekt névvel kezd, a videók állapota soronként"
 },
 {
-"id": "7a284c038d",
-"at": "2026-11-11T22:58:49+01:00",
-"msg": "Videóablak: rövidebb zárolási felirat"
-},
-{
-"id": "7446213f3c",
-"at": "2026-11-11T21:56:51Z",
+"id": "2ff6331656",
+"at": "2026-11-11T21:58:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
