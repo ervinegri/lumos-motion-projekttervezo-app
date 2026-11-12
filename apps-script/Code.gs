@@ -1349,7 +1349,7 @@ function myNotify_(u, a) {
 }
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {}; const actor = opts.__actor; delete opts.__actor;
-  { const nk = opts.__nk || ({ assign: 1, eqlist: 1, penalty: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
+  { const nk = opts.__nk || ({ assign: 1, eqlist: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
     const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
