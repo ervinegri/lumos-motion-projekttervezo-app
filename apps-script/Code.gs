@@ -504,8 +504,8 @@ function withLock_(fn) {
     if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
     const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
     try { const r = fn(); dbFlush_(); return r; } catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; }); throw e; } finally { if (outer) DB_.inLock = false; }
-  } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); if (!SC_.lock) lock.releaseLock(); }
-  if (!SC_.lock && WM_PAID_.length) wmPaidMailFlush_();   // a zár után: vízjel-levél (ha kifizetés miatt lekerült)
+  } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); if (!SC_.lock) lock.releaseLock();
+    if (!SC_.lock && WM_PAID_.length) try { wmPaidMailFlush_(); } catch (e) { Logger.log('Vízjel-levél: ' + e); } }   // a zár után: vízjel-levél (ha kifizetés miatt lekerült)
 }
 
 /* ===================== ADATOK BETÖLTÉSE ===================== */
@@ -5067,6 +5067,7 @@ function rpcInner_(token, name, arg) {
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'videoCmDone': return videoCmDone_(u, arg);
     case 'myNotify': return myNotify_(u, arg);
+    case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid) }; }
     case 'contractTpl': adminOnly(); { const k = String(arg && arg.k || ''); if (!/^(lumos|egri)_(hatarozott|keret)$/.test(k) || typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.'); return { zip: CONTRACT_TPL_[k], img: CONTRACT_TPL_.img }; }
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
