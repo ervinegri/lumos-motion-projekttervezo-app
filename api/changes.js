@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5ff349fb85",
+"at": "2026-11-12T17:00:12+01:00",
+"msg": "Árkalkulátor ablak: Bezárás balra, a többi jobbra"
+},
+{
 "id": "eff2c2dd9d",
 "at": "2026-11-12T16:59:58+01:00",
 "msg": "Árkalkulátor árai: nyersanyag alapdíj + százalék"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "781421bcd8",
 "at": "2026-11-12T14:34:57+01:00",
 "msg": "Videós projekt: a Jóváhagyásra vár lépés nem látszik, az Utómunka marad kiemelve (húzható a Készre)"
-},
-{
-"id": "ffd5d5d9d9",
-"at": "2026-11-12T14:32:09+01:00",
-"msg": "Napló: a jóváhagyó oldalon döntő ügyfél „Ügyfél” szerepként látszik"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
