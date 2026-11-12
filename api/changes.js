@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19b031358f",
+"at": "2026-11-12T21:31:41+01:00",
+"msg": "Új szerződés: a minta maga a PDF (oldalanként); a táblázatok nem lógnak ki a lapról"
+},
+{
 "id": "38eefc3ec1",
 "at": "2026-11-12T21:12:07+01:00",
 "msg": "Szerződés PDF: helyes számozás, logó az első oldalon, saját oldaltördelés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Péter aláírása: fotó, beosztás, telefon"
 },
 {
-"id": "89be61045e",
-"at": "2026-11-12T17:08:16+01:00",
-"msg": "Árajánlat: kedvezmény pipálható (alapból ki), a kalkulátoros tételek neve részletek nélkül"
-},
-{
-"id": "a4775c43f4",
-"at": "2026-11-12T16:06:32Z",
+"id": "adb7150021",
+"at": "2026-11-12T16:08:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
