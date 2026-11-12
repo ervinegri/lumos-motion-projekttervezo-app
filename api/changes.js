@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a81599a549",
+"at": "2026-11-12T13:59:23+01:00",
+"msg": "Kapcsolattartó névjegy a telefonra: QR-kód, .vcf letöltés / megosztás"
+},
+{
 "id": "3e2b85188c",
 "at": "2026-11-12T13:55:27+01:00",
 "msg": "Videó ablak: a projekt neve megnyitja a projektet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Terepi szűrő a havi nézetben is"
 },
 {
-"id": "e6e2c29eec",
-"at": "2026-11-12T09:52:31+01:00",
-"msg": "Terepi szűrő: csak a saját helyszíni munkák"
-},
-{
-"id": "bd44570952",
-"at": "2026-11-12T08:49:30Z",
+"id": "4259b35778",
+"at": "2026-11-12T08:52:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
