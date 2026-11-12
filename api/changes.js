@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "09102c05c5",
+"at": "2026-11-12T22:09:21+01:00",
+"msg": "Szerződés: nyersanyag díjválasztó elrendezése"
+},
+{
 "id": "356bc69a39",
 "at": "2026-11-12T22:07:07+01:00",
 "msg": "Szerződés: új Lumos keretszerződés-sablon (Ervin javított változata); nyersanyag-átadás és NAS-archiválás díja választható (%+minimum / fix / e-mailben egyeztetett), minden sablonban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: a fájlnév a megadott címzett cégből"
 },
 {
-"id": "1c5e7a721f",
-"at": "2026-11-12T17:40:50+01:00",
-"msg": "Árajánlat: az „Ajánlatot kapja” blokk (cég, kapcsolattartó, cím, e-mail) szerkeszthető"
-},
-{
-"id": "3a98329c4f",
-"at": "2026-11-12T16:40:13Z",
+"id": "b9f22e587b",
+"at": "2026-11-12T16:40:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
