@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2e1f971717",
+"at": "2026-11-12T22:01:21+01:00",
+"msg": "Új szerződés: rövidebb gombfeliratok, a mentés gomb nem csúszik új sorba"
+},
+{
 "id": "ed42286a24",
 "at": "2026-11-12T21:49:52+01:00",
 "msg": "Szerződés: a PDF-et a Google készíti a Word-fájlból (a minta is ez); a sablonokban a felek táblázatai egymás mellett, nem lebegő táblázattal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat előnézet: a levél szövege és tárgya közvetlenül szerkeszthető"
 },
 {
-"id": "bd267bc2ae",
-"at": "2026-11-12T17:28:39+01:00",
-"msg": "Árajánlat: több opció egy PDF-ben (pl. 1 / 3 / 5 short), opciónként tételek és összesítő, kalkulátorból az aktív opcióba"
-},
-{
-"id": "db0c9d233b",
-"at": "2026-11-12T16:16:23Z",
+"id": "b97615f94a",
+"at": "2026-11-12T16:28:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
