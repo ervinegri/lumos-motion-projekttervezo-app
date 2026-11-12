@@ -931,3 +931,7 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 .q-disc .chip{border:1px solid var(--line,#dde4eb);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.q-disc .chip:hover{background:#f6f8fa}
 .qp-sum .qp-disc b,.qp-sum .qp-disc span{color:#b45309}
 .qp-sum{width:360px}
+/* árkalkulátor ablak: a Bezárás bal szélen, minden más (összesen + gombok) jobbra */
+#modalRoot .mbox.mbox-ark .mfoot{justify-content:flex-start}
+#modalRoot .mbox.mbox-ark .mfoot>*{order:0}
+#modalRoot .mbox.mbox-ark .mfoot>.left{order:1;margin-left:auto!important}
