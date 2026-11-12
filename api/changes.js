@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "551d247e8b",
+"at": "2026-11-12T21:04:23+01:00",
+"msg": "Új szerződés: a cég- és típusválasztó gombok egymás alatt"
+},
+{
 "id": "24c6e1c321",
 "at": "2026-11-12T21:01:50+01:00",
 "msg": "Új szerződés: visszalépés után is tovább visz a típusra kattintás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor ablak: Bezárás balra, a többi jobbra"
 },
 {
-"id": "eff2c2dd9d",
-"at": "2026-11-12T16:59:58+01:00",
-"msg": "Árkalkulátor árai: nyersanyag alapdíj + százalék"
-},
-{
-"id": "e06232638d",
-"at": "2026-11-12T15:57:10Z",
+"id": "5b63d8394e",
+"at": "2026-11-12T16:00:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
