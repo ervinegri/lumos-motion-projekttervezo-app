@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9be7dcdd99",
+"at": "2026-11-12T14:31:30+01:00",
+"msg": "Napló: felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
+},
+{
 "id": "f5f3fd83c7",
 "at": "2026-11-12T14:28:05+01:00",
 "msg": "Videó ablak: a lejátszósáv újra húzható egérrel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Résztvevői interjúk → Interjú (felirat)"
 },
 {
-"id": "d8f01ad175",
-"at": "2026-11-12T11:06:50+01:00",
-"msg": "Rendezvény típusa: Interjú"
-},
-{
-"id": "995b44caeb",
-"at": "2026-11-12T09:14:33Z",
+"id": "d291434242",
+"at": "2026-11-12T10:07:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
