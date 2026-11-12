@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "afb11c9122",
+"at": "2026-11-12T22:56:27+01:00",
+"msg": "Naptár: azonnali újraszinkron (ügyvezető), és a Naptár megnyitásakor egyszer újra lefut – a jegyzetek kikerülnek a leírásból"
+},
+{
 "id": "8ddc054762",
 "at": "2026-11-12T22:46:24+01:00",
 "msg": "Szerződéssablonok: a felek adatai soronként egy vonalban (közös táblázat); a dátum a Kelt sorban, az aláírásos blokk egyben marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a cégválasztásnál nincs ÁFA-megjegyzés"
 },
 {
-"id": "fe48f0fad7",
-"at": "2026-11-12T20:52:39+01:00",
-"msg": "Új szerződés: két egyszerű döntés – cég (Lumos Motion / Egri Ervin E.V.), majd típus (Megbízási / Keretszerződés)"
-},
-{
-"id": "f85948e68e",
-"at": "2026-11-12T17:21:00Z",
+"id": "0f11accd2b",
+"at": "2026-11-12T19:52:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
