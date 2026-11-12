@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c995c326ce",
+"at": "2026-11-12T09:38:28+01:00",
+"msg": "Jóváhagyott vágási sáv: zöld felülírja a sárga jóváhagyásra vár színt"
+},
+{
 "id": "aba7f7805d",
 "at": "2026-11-12T09:35:08+01:00",
 "msg": "Jóváhagyott vágási sáv zöld háttér (specifikusabb szabály)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak (vágó): Utómunkára vár állapotban „Elkezdem a vágást” gomb a hozzászólás-zárolás helyett"
 },
 {
-"id": "b2a3ef3b20",
-"at": "2026-11-11T23:08:31+01:00",
-"msg": "Videóablak: helyes zárolási szöveg a még el nem kezdett videóknál"
-},
-{
-"id": "0be9734b8f",
-"at": "2026-11-11T22:07:53Z",
+"id": "2ea02065f0",
+"at": "2026-11-11T22:08:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
