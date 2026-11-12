@@ -857,10 +857,12 @@ html body .mail-panel2 .mp-head{display:flex;align-items:flex-start;gap:16px;mar
 html body .mp-master{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line,#e2e6eb);background:#fff;border-radius:999px;padding:6px 8px 6px 14px;font:inherit;font-weight:700;font-size:13px;color:#b3261e;cursor:pointer;flex:none}
 html body .mp-master.on{color:#1f6b40}html body .mp-sw{position:relative;width:42px;height:24px;border-radius:999px;background:#d93025;transition:background .15s}html body .mp-master.on .mp-sw{background:#2e9e62}
 html body .mp-sw i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}html body .mp-master.on .mp-sw i{transform:translateX(18px)}
-html body .mp-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px 22px;margin-top:14px}html body .mp-groups.dis{opacity:.55}
+html body .mp-groups{display:flex;flex-direction:column;gap:18px;margin-top:14px}html body .mp-groups.dis{opacity:.55}
 html body .mp-group h4{margin:0 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#6b7680)}
 html body .mrow{padding:12px 0;border-top:1px solid var(--line,#e6e9ee)}html body .mp-group h4+.mrow{border-top:0}
 html body .mrow-main{display:flex;align-items:center;gap:16px;cursor:pointer}html body .mrow.off .ntf-tx b{color:var(--muted,#6b7680)}
 html body .mrow-to{font-size:12px;color:#4a5866;margin-top:2px}html body .mrow .mail-cc{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
 html body .mrow .mail-cc .muted{font-size:12px;margin-right:2px}html body .mrow .cc-chip{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line,#e2e6eb);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 html body .mrow .cc-chip.on{background:#eaf7ef;border-color:#a9d9bb;color:#1f6b40;font-weight:600}html body .mrow .cc-chip input{width:13px;height:13px;margin:0}
+
+html body .mp-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));column-gap:28px}html body .mp-group h4{grid-column:1/-1;margin-bottom:4px}html body .mp-group .mrow{border-top:1px solid var(--line,#e6e9ee)}
