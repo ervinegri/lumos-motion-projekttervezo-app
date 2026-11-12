@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ffd5d5d9d9",
+"at": "2026-11-12T14:32:09+01:00",
+"msg": "Napló: a jóváhagyó oldalon döntő ügyfél „Ügyfél” szerepként látszik"
+},
+{
 "id": "9be7dcdd99",
 "at": "2026-11-12T14:31:30+01:00",
 "msg": "Napló: felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új projektnél nincs automatikus másnapi vágási határidő"
 },
 {
-"id": "a322d19b1e",
-"at": "2026-11-12T11:13:15+01:00",
-"msg": "Résztvevői interjúk → Interjú (felirat)"
-},
-{
-"id": "d291434242",
-"at": "2026-11-12T10:07:00Z",
+"id": "1a32618a12",
+"at": "2026-11-12T10:13:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
