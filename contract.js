@@ -92,11 +92,11 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (bekezdés, táblázatsor nem törik ketté) */
-async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';document.body.appendChild(host);
-  try{await window.docx.renderAsync(blob,host,host,{useBase64URL:true,inWrapper:false,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
+async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;background:#fff"></div>';document.body.appendChild(host);const box=host.firstElementChild;   // a rögzített (fixed) gazdát nem adjuk át a PDF-készítőnek, csak a belső dobozt
+  try{await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:false,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
     host.querySelectorAll('section.docx').forEach(x=>{x.style.paddingTop='0';x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
     await Promise.all([...host.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})));if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-    const uri=await lib().set({margin:[14,0,14,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css'],avoid:['p','tr','li','img','h1','h2','h3']}}).from(host).outputPdf('datauristring');
+    const uri=await lib().set({margin:[14,0,14,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css'],avoid:['p','tr','li','img','h1','h2','h3']}}).from(box).outputPdf('datauristring');
     return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
 async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;
