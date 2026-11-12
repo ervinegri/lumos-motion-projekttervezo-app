@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0b4ec6e324",
+"at": "2026-11-12T12:08:05+01:00",
+"msg": "Értékesítő Beállítások: kifizetés / átadás e-mail, kifizetés a csengőben"
+},
+{
 "id": "ff738c91d4",
 "at": "2026-11-12T12:04:59+01:00",
 "msg": "Beállítások: Új hozzászólás a videódhoz"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyott vágási sáv: zöld felülírja a sárga jóváhagyásra vár színt"
 },
 {
-"id": "aba7f7805d",
-"at": "2026-11-12T09:35:08+01:00",
-"msg": "Jóváhagyott vágási sáv zöld háttér (specifikusabb szabály)"
-},
-{
-"id": "897d5ce903",
-"at": "2026-11-12T08:33:00Z",
+"id": "f28bc88122",
+"at": "2026-11-12T08:35:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
