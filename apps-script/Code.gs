@@ -4639,7 +4639,7 @@ function dealQuoteSender_(u, a) {
   return { d: d, owner: owner, f: f, sig: sig };
 }
 /** Az ajánlat előnézetéhez: ki küldi, és milyen aláírással. */
-function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html }; }
+function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html, from: (function () { const o = mailOptsFor_(r.owner, ''); return o.from || Session.getEffectiveUser().getEmail() || ''; })() }; }   // from: a tényleges feladó (álnév, ha be van állítva)
 /** a: {dealId, to, cc, subject, body, pdf (base64), fileName, total} */
 function dealQuoteSend_(u, a) {
   a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
