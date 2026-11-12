@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd267bc2ae",
+"at": "2026-11-12T17:28:39+01:00",
+"msg": "Árajánlat: több opció egy PDF-ben (pl. 1 / 3 / 5 short), opciónként tételek és összesítő, kalkulátorból az aktív opcióba"
+},
+{
 "id": "76a22b8122",
 "at": "2026-11-12T17:16:06+01:00",
 "msg": "Küldés a kollégák saját címéről: Google Workspace domainszintű megbízás (szolgáltatásfiók, Gmail API), automatikus visszaesés a központi fiókra; ügyvezetői beállító panel teszttel"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "e8ff4ff437",
 "at": "2026-11-12T15:10:40+01:00",
 "msg": "Videó hozzászólások: válaszolni minden állapotban lehet (vezetők és a vágó)"
-},
-{
-"id": "d921488541",
-"at": "2026-11-12T15:08:11+01:00",
-"msg": "Beállítások: eszközlista leírás"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
