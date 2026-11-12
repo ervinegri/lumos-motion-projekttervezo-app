@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b3e96639b",
+"at": "2026-11-12T22:41:03+01:00",
+"msg": "Szerződéssablonok: a felek táblázatai egyforma sorközzel és oszlopszélességgel"
+},
+{
 "id": "6f49fcf7dc",
 "at": "2026-11-12T22:38:21+01:00",
 "msg": "Szerződéssablonok: a felek adatai egységes rácsban (feliratok, két egyforma táblázat, szerepek egy vonalban)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Küldés a kollégák címéről: a panel gombjai működnek (kezelők az ACT létrejötte után)"
 },
 {
-"id": "d4cba3940a",
-"at": "2026-11-12T17:58:25+01:00",
-"msg": "Árak: Short videó operatőri alapdíj szerkeszthető"
-},
-{
-"id": "a0504bce35",
-"at": "2026-11-12T16:57:31Z",
+"id": "1c20879a0d",
+"at": "2026-11-12T16:58:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
