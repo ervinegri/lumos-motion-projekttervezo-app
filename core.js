@@ -211,6 +211,7 @@ function clash(p,q){
   return true;
 }
 const byStart=(a,b)=>(pr(a)?.start||'9999').localeCompare(pr(b)?.start||'9999');
+function noDefDue(p){const c=String(p&&p.createdAt||'');return !c||c.slice(0,10)>='2026-11-12';}   // az ennél újabb projekteknél nincs automatikus (másnapi) vágási határidő – kézzel kell megadni
 function defaultDue(p){const r=pr(p);if(!r)return null;return addDays(r.end,1);}   // alapból a forgatás utáni nap
 /* Van-e átadandó anyag: kreatív tartalom, fotó, drón/GoPro felvétel, nyersanyag, vagy előadás-utómunka / kivágás / felirat.
    Csak helyszíni munkánál (pl. élő stream, utómunka nélküli rögzítés) nincs átadási határidő. Egyedi határidő mindig számít. */
@@ -221,7 +222,7 @@ function needsDelivery(p){
   if(['x_dron','x_timelapse','x_pov','x_nyersVetel','er_post'].some(k=>p[k]))return true;
   return num(p.er_clips)>0||num(p.er_subs)>0||num(p.er_summary)>0;
 }
-function dueDate(p){if(editOnly(p))return validISO(p.date)?p.date:null;if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
+function dueDate(p){if(editOnly(p))return validISO(p.date)?p.date:null;if(validISO(p.dueAt))return p.dueAt;return needsDelivery(p)&&!noDefDue(p)?defaultDue(p):null;}   // egyedi határidő felülírja az alapértelmezettet
 function crewIds(p){return new Set([p.lead,...(p.crew||[]).map(c=>c.crewId)].filter(Boolean));}
 /* A helyszínen lévők: a távolról vezető projektvezető (ha nincs más szerepe a projekten) nem ütközik más munkával */
 const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&(p.crew||[]).filter(c=>c.crewId===p.lead).every(c=>POST_ROLES.includes(c.role)&&!(c.role==='Vágó'&&onsiteCut(p,p.lead))));   // remote projektvezető: nincs a helyszínen (legfeljebb otthonról vág) – nem ütközik más projekttel

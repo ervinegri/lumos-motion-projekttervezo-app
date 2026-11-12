@@ -787,7 +787,7 @@ function deliveryModal(target){
       let pens=[];try{pens=penRowsCollect(fd,notes);}catch(e){toast(e.message,true);return;}
       const due=String(fd.get('dueAt')||'');closeModal();penRowsSubmit(d.id,pens);
       if(fd.get('hasPass')&&!passVal(fd)){toast('Add meg a jelszót.',true);return;}
-      const base={deliveryLink:link,deliveryLinks:links,deliveryPass:passVal(fd),deliveryNotes:notes,dueKept:validISO(due)&&todayISO()>due?'nem':'igen',dueAt:validISO(due)&&due!==defaultDue(d)?due:''};
+      const base={deliveryLink:link,deliveryLinks:links,deliveryPass:passVal(fd),deliveryNotes:notes,dueKept:validISO(due)&&todayISO()>due?'nem':'igen',dueAt:validISO(due)&&(noDefDue(d)||due!==defaultDue(d))?due:''};
       if(toLead){const st=videoStagesOn()?'jovahagyas':'leadva';setDraft(Object.assign(base,{status:st,leadvaAt:d.leadvaAt||todayISO(),deliveredAt:'',stepsDone:ticksUpTo(S.draft,st)}));setTimeout(()=>{if(S.dirty)saveDraft();},0);toast('Videók leadva – jóváhagyásra várnak');return;}   // leadás után: „Videók jóváhagyásra várnak”
       setDraft(Object.assign(base,{status:'atadva',deliveredAt:d.deliveredAt||todayISO(),stepsDone:ticksUpTo(S.draft,'atadva')}));confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
   const e=$('m-deliveryLink');if(e&&!e.value)setTimeout(()=>e.focus(),50);
