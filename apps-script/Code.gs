@@ -2307,8 +2307,8 @@ function calQuietPatch_(ev, body, fallback) {
 /** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
     A Naptár első megnyitásakor fut – időzítő nélkül, így biztosan lefut. A vendégek nem kapnak értesítést. */
 function calPhoneFixOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC6_2026_11')) return;   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
-  P.setProperty('MIG_CALDESC6_2026_11', now_());   // 2026-11-04 este: eszközök munkatársanként, app-link nélkül
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC7_2026_11_12')) return;   // 2026-11-12: a jegyzetek kikerülnek   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
+  P.setProperty('MIG_CALDESC7_2026_11_12', now_());   // 2026-11-04 este: eszközök munkatársanként, app-link nélkül
   try { calResyncUpcoming(); } catch (e) { Logger.log('Újraszinkron hiba: ' + e); }
 }
 function setCalId_(id, evId) {
@@ -5193,6 +5193,7 @@ function rpcInner_(token, name, arg) {
     case 'clientPreview': return clientPreview_(u, arg);
     case 'clientDocUpload': adminOnly(); return clientDocUpload_(u, arg);
     case 'contractSig': adminOnly(); return contractSig_(u);
+    case 'calResyncNow': adminOnly(); { const t0 = Date.now(); calResyncUpcoming(); logEvent_(u, 'Naptár újraszinkron', '', 'közelgő események leírása'); return { ok: true, ms: Date.now() - t0 }; }
     case 'contractPdf': adminOnly(); return contractPdf_(u, arg);
     case 'contractSend': adminOnly(); return contractSend_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
