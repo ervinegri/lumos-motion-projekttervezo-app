@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e3da8879fa",
+"at": "2026-11-12T15:32:45+01:00",
+"msg": "Jóváhagyó oldal (vízjeles): a letiltott natív teljes képernyő gomb helyett saját gomb jobb fent"
+},
+{
 "id": "f682a0b488",
 "at": "2026-11-12T15:18:48+01:00",
 "msg": "Jóváhagyó oldal: a vízjel teljes képernyőn is csak a képet fedi, sűrűn kitöltve"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "80cbb12782",
 "at": "2026-11-12T12:04:44+01:00",
 "msg": "Beállítások: Módosítást kértek a videódra"
-},
-{
-"id": "683817990f",
-"at": "2026-11-12T12:04:27+01:00",
-"msg": "Szakember Beállítások: középre igazítva"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
