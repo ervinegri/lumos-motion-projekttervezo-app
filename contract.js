@@ -109,7 +109,11 @@ function ctTidy(box){const hy=document.createElement('style');hy.textContent='se
   t.style.float='none';t.style.marginLeft='0';t.style.marginRight='0';t.style.width='100%';t.style.tableLayout='fixed';if(cols.length===2&&sum>0){cols[0].style.width='30%';cols[1].style.width='70%';}else if(sum>0)cols.forEach((c,i)=>{c.style.width=(ws[i]/sum*100)+'%';});   // a két oszlopos (adat)táblázatok egyforma oszlopokkal
   t.querySelectorAll('td,th').forEach(td=>{td.style.wordBreak='break-word';});});}
 /* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (ami elfér egy oldalon, nem vágódik ketté) */
-async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;background:#fff"></div>';document.body.appendChild(host);const box=host.firstElementChild;   // a rögzített (fixed) gazdát nem adjuk át a PDF-készítőnek, csak a belső dobozt
+/* a PDF-et a Google készíti a kitöltött Word-fájlból (ugyanúgy néz ki, mint Wordből exportálva); ha nem sikerül, tartalékként a böngésző rajzolja */
+async function ctPdf(blob){try{const docx=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
+    const r=await call('contractPdf',{docx});if(r&&r.pdf)return r.pdf;}catch(e){console.warn('Google PDF nem sikerült, tartalék:',e);}
+  return ctPdfLocal(blob);}
+async function ctPdfLocal(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;background:#fff"></div>';document.body.appendChild(host);const box=host.firstElementChild;   // a rögzített (fixed) gazdát nem adjuk át a PDF-készítőnek, csak a belső dobozt
   try{await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
     box.querySelectorAll('.docx-wrapper').forEach(w=>{w.style.background='#fff';w.style.padding='0';w.style.display='block';});
     box.querySelectorAll('section.docx').forEach(x=>{x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
@@ -132,7 +136,9 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c.
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
   try{const r=await ctBuild(),b64=c._pdf||await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
-    const bin=atob(b64),pages=[];let k=0;while((k=bin.indexOf('\xFF\xD8',k))>=0){const e=bin.indexOf('\xFF\xD9',k);if(e<0)break;pages.push('data:image/jpeg;base64,'+btoa(bin.slice(k,e+2)));k=e+2;}
+    const lib=await pdfLib(),bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+    const doc=await lib.getDocument({data:u8,isEvalSupported:false}).promise,pages=[];
+    for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i),vp=pg.getViewport({scale:1.6}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;pages.push(cv.toDataURL('image/jpeg',.88));}
     box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;}
   catch(e){if(box)box.innerHTML=`<p class="bad-txt">A minta nem készíthető el: ${esc(errText(e))}</p>`;}}
 
