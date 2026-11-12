@@ -23,9 +23,11 @@ function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_
     <div id="ct-kind"${firm?'':' hidden'}><p class="hint" style="margin:16px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
       ${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}</div></div>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
-      c.tpl=f+'_'+k;c._picked=true;ctStep2();}});}
+      c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
+  const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;}   // nincs Tovább gomb: a típusra kattintva lép tovább
 document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm'||t.name==='ct_kind')&&t.closest('.ct-tpls')){t.closest('.ct-tpls').querySelectorAll('.ct-tpl').forEach(l=>l.classList.toggle('on',l.contains(t)));
-  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}}}});
+  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}}
+  if(t.name==='ct_kind'&&S.ct){const f=document.querySelector('input[name="ct_firm"]:checked');if(f){S.ct.tpl=f.value+'_'+t.value;S.ct._picked=true;setTimeout(ctStep2,120);}}}});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
 function ctRead(fd){const c=S.ct;['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
