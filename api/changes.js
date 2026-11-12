@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5712b24eaf",
+"at": "2026-11-12T09:32:50+01:00",
+"msg": "Vágói jóváhagyó e-mail: emoji törölve, munka csak egyszer"
+},
+{
 "id": "b6c538c7c6",
 "at": "2026-11-12T09:30:33+01:00",
 "msg": "Idővonal: minden videó jóváhagyva → zöld „Jóváhagyva” sáv, kikerül a Jóváhagyásra vár részből; jóváhagyás e-mail zöld kiemelés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vágási buborék: előbb a darabszám, utána a videó neve"
 },
 {
-"id": "6149a52057",
-"at": "2026-11-11T23:03:35+01:00",
-"msg": "Idővonal: minden lezárt munka sávján pipa, egynapos sávon is"
-},
-{
-"id": "c73cfdae7c",
-"at": "2026-11-11T22:01:55Z",
+"id": "2e96d43dcf",
+"at": "2026-11-11T22:03:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
