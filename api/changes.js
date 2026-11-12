@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "78858164f2",
+"at": "2026-11-12T11:36:43+01:00",
+"msg": "Új projektnél nincs automatikus másnapi vágási határidő"
+},
+{
 "id": "a322d19b1e",
 "at": "2026-11-12T11:13:15+01:00",
 "msg": "Résztvevői interjúk → Interjú (felirat)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lépéskártya: feltűnőbb Részletek gomb (videótábla)"
 },
 {
-"id": "f76c82e811",
-"at": "2026-11-11T23:50:35+01:00",
-"msg": "Projekt lépései: pipa csak a teljesült lépésen, üres karika nélkül"
-},
-{
-"id": "31dd9a96de",
-"at": "2026-11-11T22:49:30Z",
+"id": "ab11e9b6f8",
+"at": "2026-11-11T22:50:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
