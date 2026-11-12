@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2ae9893d1f",
+"at": "2026-11-12T18:20:51+01:00",
+"msg": "Értékesítés: másodlagos e-mail-cím a lehetőségnél (új oszlop a végén); az árajánlatnál alapból másolatba kerül"
+},
+{
 "id": "e098e3ea39",
 "at": "2026-11-12T18:15:15+01:00",
 "msg": "Napló: a felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások: értékesítők e-mail aláírása is szerkeszthető"
 },
 {
-"id": "7ca49a6129",
-"at": "2026-11-12T16:33:50+01:00",
-"msg": "Árajánlat PDF: tábla szélesség"
-},
-{
-"id": "732b3eabf0",
-"at": "2026-11-12T15:33:03Z",
+"id": "b09b537e1b",
+"at": "2026-11-12T15:33:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
