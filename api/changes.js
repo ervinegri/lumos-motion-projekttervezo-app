@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fe126cba40",
+"at": "2026-11-12T22:31:49+01:00",
+"msg": "Szerződéssablonok: a specifikáció táblázat a margón belül; kisebb logó"
+},
+{
 "id": "d5c01a1b7b",
 "at": "2026-11-12T22:25:14+01:00",
 "msg": "Szerződéssablonok: az aláírásos rész (Kelt, aláírási vonalak, nevek) nem törik szét két oldalra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: ami nem fér el, új oldalra kerül (az opciók egészben), oldalszámmal; előnézetben külön lapok"
 },
 {
-"id": "d8706cc137",
-"at": "2026-11-12T17:56:03+01:00",
-"msg": "Árajánlat PDF: a lábléc nem lóg rá az aláírásra"
-},
-{
-"id": "7b5b067d6f",
-"at": "2026-11-12T16:52:34Z",
+"id": "1b95952429",
+"at": "2026-11-12T16:56:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
