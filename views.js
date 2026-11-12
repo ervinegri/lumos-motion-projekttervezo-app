@@ -857,8 +857,9 @@ function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
   const lanes=[...byP.values()].sort((a,b)=>String(dueDate(a.p)||'9999').localeCompare(String(dueDate(b.p)||'9999')));
   const lane=({p,L})=>{const due=dueDate(p),di=dueInfo(p),done=L.filter(c=>c.v.st==='leadva'||c.v.st==='jovahagyva').length;
-    const q=pr(p),st=q?addDays(q.end,1):T,tot=due&&validISO(st)?Math.max(1,diffDays(st,due)+1):0,left=due?diffDays(T,due):null,pct=tot?Math.max(0,Math.min(100,Math.round((1-Math.max(0,left)/tot)*100))):0;
-    const tone=left==null?'':left<0?'bad':left<=1?'bad':left<=3?'warn':'ok';
+    const q=pr(p),st=q?addDays(q.end,1):T,tot=due&&validISO(st)?Math.max(1,diffDays(st,due)+1):0,left=due?diffDays(T,due):null;let pct=tot?Math.max(0,Math.min(100,Math.round((1-Math.max(0,left)/tot)*100))):0;
+    let tone=left==null?'':left<0?'bad':left<=1?'bad':left<=3?'warn':'ok';
+    if(L.length&&done===L.length){pct=100;tone='ok';}   // minden videó leadva: a sáv végigér és zöld
     const lbl=`${opt.noLink?`<b>${esc(p.name||'Névtelen projekt')}</b>`:`<button type="button" class="linkbtn bl-nm" data-action="open-project" data-id="${esc(p.id)}">${esc(p.name||'Névtelen projekt')}</button>`}
         <div class="bl-sub">${di?`<span class="statuspill p-${di.cls}">${esc(di.txt)}</span>`:''}<span class="bl-cnt">${done}/${L.length} leadva</span></div>${tot?`<div class="bl-clock ${tone}" title="Határidő: ${esc(fmtDay(due))}"><i style="width:${pct}%"></i></div>`:''}`;if(opt.single)opt.headLbl=`<div class="bl-sub">${di?`<span class="statuspill p-${di.cls}">${esc(di.txt)}</span>`:''}<span class="bl-cnt">${done}/${L.length} leadva</span></div>${tot?`<div class="bl-clock ${tone}" title="Határidő: ${esc(fmtDay(due))}"><i style="width:${pct}%"></i></div>`:''}`;
     return `<div class="bl-row" data-bl-pid="${esc(p.id)}"><div class="bl-lbl${opt.single?' bl-empty':''}">${opt.single?'':lbl}</div>
