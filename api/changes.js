@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "24c6e1c321",
+"at": "2026-11-12T21:01:50+01:00",
+"msg": "Új szerződés: visszalépés után is tovább visz a típusra kattintás"
+},
+{
 "id": "2607db9f47",
 "at": "2026-11-12T21:01:36+01:00",
 "msg": "Új szerződés: a típusra kattintva azonnal tovább lép (nincs Tovább gomb)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor árai: nyersanyag alapdíj + százalék"
 },
 {
-"id": "a560274579",
-"at": "2026-11-12T16:57:00+01:00",
-"msg": "Árajánlat: az általános/rendezvényes váltás a tárgyat és a levelet is átírja"
-},
-{
-"id": "2d238f40ea",
-"at": "2026-11-12T15:54:48Z",
+"id": "e06232638d",
+"at": "2026-11-12T15:57:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
