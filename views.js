@@ -1518,9 +1518,9 @@ function viewMyNotify(){const n=S.myNotify||{},cut=crewIsCutter(),pv=!!S.me.view
   const EM=[['assign','👥 Beosztás','Ha beosztanak egy projektre, vagy módosul a beosztásod.'],['eqlist','🎒 Eszközlista','Milyen eszközt kell vinned a forgatásra.']]
     .concat(cut?[['vidOk','✅ Videó jóváhagyva','Ha jóváhagyták az általad vágott videót.'],['vidMod','✎ Módosítást kértek','Ha módosítást kértek az általad vágott videón.'],['vidCm','💬 Hozzászólás','Ha valaki hozzászól az általad vágott videóhoz.']]:[]);
   const AP=[['appSent','📤 Továbbküldve jóváhagyásra','A csengőben látszik, ha a videódat továbbküldték jóváhagyásra.'],['appOk','✅ Jóváhagyva','A csengőben látszik, ha a videódat jóváhagyták.'],['appToast','🔔 Felugró értesítés','Új értesítésnél felugró ablak a jobb felső sarokban.']];
-  return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Itt állíthatod be, miről kapj értesítést.</p></div></div>${pv?'<div class="banner"><p>👁 Előnézet – így látja a szakember. A kapcsolókat csak ő állíthatja át a saját fiókjában.</p></div>':''}
+  return `<div class="ntf-page"><div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Itt állíthatod be, miről kapj értesítést.</p></div></div>${pv?'<div class="banner"><p>👁 Előnézet – így látja a szakember. A kapcsolókat csak ő állíthatja át a saját fiókjában.</p></div>':''}
     <div class="panel ntf-panel"><h3>📧 E-mail értesítések</h3>${EM.map(row).join('')}<p class="hint">A díjösszesítő és a belépési meghívó mindig megérkezik.</p></div>
-    ${cut?`<div class="panel ntf-panel"><h3>🔔 Értesítések az appban</h3>${AP.map(row).join('')}</div>`:''}`;}
+    ${cut?`<div class="panel ntf-panel"><h3>🔔 Értesítések az appban</h3>${AP.map(row).join('')}</div>`:''}</div>`;}
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
