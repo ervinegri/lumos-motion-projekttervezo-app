@@ -94,7 +94,8 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-  const nm=(tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+String(c.c_name||'ugyfel').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')+'.docx';
+  const slug=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
+  const nm=(tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
