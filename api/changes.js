@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "99848b9506",
+"at": "2026-11-12T12:37:03+01:00",
+"msg": "Szakaszkártya: a videók gomb keskeny kártyán sem lóg ki"
+},
+{
 "id": "ee5474ab84",
 "at": "2026-11-12T12:36:18+01:00",
 "msg": "Szakaszkártya: a videók gomb a cím alá törik, nem lóg ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: jóváhagyott sáv gradienssel; részleges jóváhagyás ✅ x/y"
 },
 {
-"id": "71239a4e1b",
-"at": "2026-11-12T09:44:15+01:00",
-"msg": "Ügyfél-döntés értesítés: a vágói jóváhagyó e-mail stílusában"
-},
-{
-"id": "64690be7ef",
-"at": "2026-11-12T08:43:30Z",
+"id": "d368d487a0",
+"at": "2026-11-12T08:44:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
