@@ -263,3 +263,8 @@ ACT['ark-save']=async b=>{
   catch(e){handleErr(e);}finally{b.disabled=false;}
 };
 ACT['ark-tab']=b=>{const f=$('ark-frame');if(!f)return;const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.remove('ark-adm');f.src=ARK_URL+b.dataset.p+'?embed=1';document.querySelectorAll('.ark-tabs button').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false');});};
+
+/* Küldés a kollégák saját címéről – a Beállítások panel gombjai (az ACT objektum az actions.js-ben jön létre, ezért itt) */
+ACT['dwd-save']=async b=>{const t=$('dwd-json');const v=t?t.value.trim():'';if(!v)return toast('Másold be a JSON-kulcsot.',true);b.disabled=true;try{S.dwd=await call('dwdSet',{json:v});toast('Kulcs mentve – most teszteld a kapcsolatot.');render(true);}catch(e){handleErr(e);}finally{b.disabled=false;}};
+ACT['dwd-clear']=async()=>{if(!confirm('Kikapcsolod? A levelek ezután ismét a központi fiókról mennek.'))return;try{S.dwd=await call('dwdSet',{clear:true});render(true);toast('Kikapcsolva.');}catch(e){handleErr(e);}};
+ACT['dwd-test']=async b=>{const m=($('dwd-mail')||{}).value||'';b.disabled=true;try{const r=await call('dwdTest',{email:m});toast('✅ Működik: az app küldhet '+r.email+' nevében.');}catch(e){handleErr(e);}finally{b.disabled=false;}};
