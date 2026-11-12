@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aed39d3f58",
+"at": "2026-11-12T08:54:45+01:00",
+"msg": "Videóablak: a szövegmezőben az Enter nem indítja el a videót"
+},
+{
 "id": "2f61f81196",
 "at": "2026-11-12T08:45:11+01:00",
 "msg": "Számlázás: a lekérdezés gomb nem szélesedik ki (nem csúszik szét a fejléc)"
@@ -160,16 +165,6 @@ const ITEMS = [
 "id": "1b0e2818c5",
 "at": "2026-11-11T21:58:00+01:00",
 "msg": "Jóváhagyó oldal: a letöltés lista nem pipál (a böngésző nem jelzi a mentést), csak jelzi, hogy elindult"
-},
-{
-"id": "7b945309bd",
-"at": "2026-11-11T21:56:11+01:00",
-"msg": "Jóváhagyó oldal: letöltött videók pipája a listában"
-},
-{
-"id": "b9e2c9c3d4",
-"at": "2026-11-11T21:53:56+01:00",
-"msg": "Jóváhagyó oldal: a jóváhagyott videók letöltése gépen ténylegesen elindul (rejtett keret helyett közvetlen letöltés)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
