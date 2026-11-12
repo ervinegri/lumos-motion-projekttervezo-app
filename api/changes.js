@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a8ea0f2f63",
+"at": "2026-11-12T09:22:08+01:00",
+"msg": "Belső ellenőrzés e-mail: videólink és magyarázó mondat ki, dőlt lábléc"
+},
+{
 "id": "819c9773ee",
 "at": "2026-11-12T09:19:57+01:00",
 "msg": "Ügyfél levél: a Videó megtekintése gombon rajzolt lejátszás ikon (emoji helyett)"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Jóváhagyó link: bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának"
 },
 {
-"id": "8d69fd1829",
-"at": "2026-11-11T22:18:24+01:00",
-"msg": "Ügyfélnek küldés: tárgy „Elkészültek: N db videó – …”"
-},
-{
-"id": "dcdadee9c3",
-"at": "2026-11-11T22:07:38+01:00",
-"msg": "Jóváhagyó oldal: rövidebb letöltési tipp"
+"id": "9663fe8669",
+"at": "2026-11-11T21:41:38Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
