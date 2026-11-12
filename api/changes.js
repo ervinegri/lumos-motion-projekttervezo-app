@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "844e0a489b",
+"at": "2026-11-12T11:57:58+01:00",
+"msg": "Kifizetések: a számla kiállítása szürke, amíg a díjösszesítő nincs kiküldve"
+},
+{
 "id": "03bab8e6cc",
 "at": "2026-11-12T11:56:24+01:00",
 "msg": "Vágó: az idővonalon megmarad a jóváhagyott vágás, csak a havi nézetből tűnik el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél levél gomb: szöveg és lejátszás ikon táblázattal egy vonalban (minden levelezőben)"
 },
 {
-"id": "a8ea0f2f63",
-"at": "2026-11-12T09:22:08+01:00",
-"msg": "Belső ellenőrzés e-mail: videólink és magyarázó mondat ki, dőlt lábléc"
-},
-{
-"id": "153ba8e974",
-"at": "2026-11-12T08:20:07Z",
+"id": "c0dfb8fbf6",
+"at": "2026-11-12T08:22:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
