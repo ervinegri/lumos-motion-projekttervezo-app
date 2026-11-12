@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eff2c2dd9d",
+"at": "2026-11-12T16:59:58+01:00",
+"msg": "Árkalkulátor árai: nyersanyag alapdíj + százalék"
+},
+{
 "id": "a560274579",
 "at": "2026-11-12T16:57:00+01:00",
 "msg": "Árajánlat: az általános/rendezvényes váltás a tárgyat és a levelet is átírja"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "ffd5d5d9d9",
 "at": "2026-11-12T14:32:09+01:00",
 "msg": "Napló: a jóváhagyó oldalon döntő ügyfél „Ügyfél” szerepként látszik"
-},
-{
-"id": "9be7dcdd99",
-"at": "2026-11-12T14:31:30+01:00",
-"msg": "Napló: felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
