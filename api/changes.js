@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a1224c7bfc",
+"at": "2026-11-12T14:44:07+01:00",
+"msg": "Új szerződés: díj a projekt értékéből"
+},
+{
 "id": "b42622d7f2",
 "at": "2026-11-12T14:41:43+01:00",
 "msg": "Új szerződés varázsló: 4 sablon, ügyfél/projekt adatok, minta előnézet, letöltés / mentés az ügyfél mappájába"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tagi kölcsön: honnan / hova számla (bank2)"
 },
 {
-"id": "28b3b5fe77",
-"at": "2026-11-12T11:41:25+01:00",
-"msg": "Videó hozzászólások: látszik az ügyfél jóváhagyása; tagi kölcsön bank felirat egyértelműbb"
-},
-{
-"id": "51d1a1b95d",
-"at": "2026-11-12T10:39:20Z",
+"id": "39cc7c27fb",
+"at": "2026-11-12T10:41:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
