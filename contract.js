@@ -31,7 +31,7 @@ function ctFillProject(pid){const c=S.ct,p=projById(pid);if(!p)return;c.pid=pid;
   c.locs=[{place:String(p.venue||'').trim(),date:q?(q.start===q.end?ctDay(q.start):ctDay(q.start)+' – '+ctDay(q.end)):''}];
   const sv=DELIVERABLES.filter(it=>num(p[it.k])>0).map(it=>({name:it.label,qty:String(num(p[it.k])),ext:''}));
   EXTRAS.filter(x=>p[x.k]&&!x.pct).forEach(x=>sv.push({name:x.label,qty:'1',ext:''}));if(p.x_nyersVetel)sv.push({name:'Nyersanyag átadása',qty:'1',ext:''});
-  if(sv.length)c.svcs=sv;if(num(p.quotePrice))c.fee=String(Math.round(num(p.quotePrice)));if(!c.client&&p.client){ctFillClient(p.client);}}
+  if(sv.length)c.svcs=sv;{const v=num(p.projectValue)||num(p.quotePrice);if(v)c.fee=String(Math.round(v));}if(!c.client&&p.client){ctFillClient(p.client);}}
 function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="field${o.full?' full':''}"><label for="ct-${k}">${l}</label><input class="inp" id="ct-${k}" name="${k}" value="${esc(c[k]||'')}"${o.ph?` placeholder="${esc(o.ph)}"`:''}${o.im?` inputmode="${o.im}"`:''}></div>`;
   const cls=(S.clients||[]).slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
   const prj=tp.hat?S.projects.filter(p=>p.status!=='lemondva'&&(!c.client||!p.client||p.client===c.client)).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,60):[];
