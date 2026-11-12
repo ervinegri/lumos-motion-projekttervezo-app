@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e8f7f549d",
+"at": "2026-11-12T10:14:24+01:00",
+"msg": "Jóváhagyó oldal: figyelmeztetés kilépéskor félbehagyott átnézésnél / el nem küldött szövegnél"
+},
+{
 "id": "4347b1bcbf",
 "at": "2026-11-12T10:07:45+01:00",
 "msg": "Ügyfél visszaigazoló összefoglaló e-mail, ha minden videóról döntött"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Időkódos pipák: az ügyvezető nem pipálhat, csak a videó vágója"
 },
 {
-"id": "796570f155",
-"at": "2026-11-11T23:44:12+01:00",
-"msg": "Videóablak: „A videó jóváhagyásra vár.” felirat"
-},
-{
-"id": "e48c8e1707",
-"at": "2026-11-11T22:23:49Z",
+"id": "6045ad7ec1",
+"at": "2026-11-11T22:44:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
