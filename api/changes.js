@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2607db9f47",
+"at": "2026-11-12T21:01:36+01:00",
+"msg": "Új szerződés: a típusra kattintva azonnal tovább lép (nincs Tovább gomb)"
+},
+{
 "id": "8afbf301dc",
 "at": "2026-11-12T20:57:37+01:00",
 "msg": "Új szerződés: a típusválasztás a cég kiválasztása után jelenik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: az általános/rendezvényes váltás a tárgyat és a levelet is átírja"
 },
 {
-"id": "44b2eb1989",
-"at": "2026-11-12T16:54:38+01:00",
-"msg": "Árajánlat: rendezvényre szóló vagy általános, mennyiségi kedvezmény, egyoldalas PDF, megnyitás új lapon, 15 nap érvényesség; árkalkulátor: Short videó fül, km-alapú kiszállás árai"
-},
-{
-"id": "f98fcaa993",
-"at": "2026-11-12T15:43:52Z",
+"id": "2d238f40ea",
+"at": "2026-11-12T15:54:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
