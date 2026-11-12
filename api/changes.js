@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3e2b85188c",
+"at": "2026-11-12T13:55:27+01:00",
+"msg": "Videó ablak: a projekt neve megnyitja a projektet"
+},
+{
 "id": "045f6bfb8e",
 "at": "2026-11-12T13:00:02+01:00",
 "msg": "Videótábla: minden videó leadva → a határidő-sáv végigér és zöld"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Terepi szűrő: csak a saját helyszíni munkák"
 },
 {
-"id": "07240269f6",
-"at": "2026-11-12T09:49:21+01:00",
-"msg": "Ügyfél-döntés e-mail: jóváhagyta a munkádat"
-},
-{
-"id": "9217ea7eed",
-"at": "2026-11-12T08:48:53Z",
+"id": "bd44570952",
+"at": "2026-11-12T08:49:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
