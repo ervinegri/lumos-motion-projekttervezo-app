@@ -953,3 +953,5 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 .q-mbody:hover{background:#f6f8fa}.q-mbody:focus{background:#fff;box-shadow:0 0 0 2px #ced9e5}
 .q-subj-ed{font:inherit;font-weight:700;border:1px solid transparent;border-radius:6px;padding:2px 6px;margin-left:-6px;background:transparent;width:calc(100% - 70px);color:inherit}
 .q-subj-ed:hover{background:#fff;border-color:#dde4eb}.q-subj-ed:focus{outline:none;background:#fff;border-color:#243347}
+
+.q-rc{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:640px){.q-rc{grid-template-columns:1fr}}
