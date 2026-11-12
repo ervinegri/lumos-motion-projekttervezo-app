@@ -2550,7 +2550,7 @@ function szApplyPay_(targets) {
     const li = inv.filter(x => t.projectId ? invHasProj_(x, t.projectId) : x.incomeId === t.incomeId);
     let st = szPayStatusFor_(li);
     if (st === 'eloleg' && t.projectId) {   // a foglaló/előleg a teljes összeget fedezi (pl. 100%-os foglaló) → kifizetve
-      try { const pr = readAll_('projects').find(x => x.id === t.projectId), val = Number(pr && pr.projectValue) || 0;
+      try { const pr = readAll_('projects').find(x => x.id === t.projectId), val = Number(pr && pr.quotePrice) || 0;
         const paid = li.reduce((s2, x) => s2 + (x.kind === 'eloleg' && x.manual ? (Number(x.invGross) || 0) : (Number(x.invPaid) || 0)), 0);
         if (val > 0 && paid >= Math.round(val * 1.27) - 5) st = 'teljes'; } catch (e) {}
     }
