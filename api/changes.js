@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "57bfa63eb2",
+"at": "2026-11-12T15:03:52+01:00",
+"msg": "Jóváhagyó oldal: vízjel szöveg"
+},
+{
 "id": "3536a140ec",
 "at": "2026-11-12T15:01:30+01:00",
 "msg": "Ügyfélnek küldés: a linkmezőbe gépelés nem írja szét a levél szövegét"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember Beállítások (e-mail és app értesítések); a vágó naptárából eltűnik a már jóváhagyott vágás"
 },
 {
-"id": "1a4c36f74d",
-"at": "2026-11-12T11:50:56+01:00",
-"msg": "Háttér-szinkronok ne tartsák vissza a betöltést"
-},
-{
-"id": "2279c64590",
-"at": "2026-11-12T10:49:54Z",
+"id": "cbac1e01db",
+"at": "2026-11-12T10:51:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
