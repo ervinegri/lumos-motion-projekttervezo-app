@@ -26,8 +26,10 @@ function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
   const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;}   // nincs Tovább gomb: a típusra kattintva lép tovább
 document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm'||t.name==='ct_kind')&&t.closest('.ct-tpls')){t.closest('.ct-tpls').querySelectorAll('.ct-tpl').forEach(l=>l.classList.toggle('on',l.contains(t)));
-  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}}
-  if(t.name==='ct_kind'&&S.ct){const f=document.querySelector('input[name="ct_firm"]:checked');if(f){S.ct.tpl=f.value+'_'+t.value;S.ct._picked=true;setTimeout(ctStep2,120);}}}});
+  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}}}});
+/* a típusra kattintás (akkor is, ha már ki volt jelölve – pl. visszalépés után) azonnal a 2. lépésre visz */
+document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-g="kind"] .ct-tpl');if(!l||!S.ct)return;const f=document.querySelector('input[name="ct_firm"]:checked'),k=l.querySelector('input');if(!f||!k)return;
+  S.ct.tpl=f.value+'_'+k.value;S.ct._picked=true;setTimeout(ctStep2,120);});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
 function ctRead(fd){const c=S.ct;['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
