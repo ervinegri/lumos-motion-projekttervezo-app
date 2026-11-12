@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b6c538c7c6",
+"at": "2026-11-12T09:30:33+01:00",
+"msg": "Idővonal: minden videó jóváhagyva → zöld „Jóváhagyva” sáv, kikerül a Jóváhagyásra vár részből; jóváhagyás e-mail zöld kiemelés"
+},
+{
 "id": "4aa4ea35bd",
 "at": "2026-11-12T09:28:37+01:00",
 "msg": "Fizetés: a projekt értéke a quotePrice mezőből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: minden lezárt munka sávján pipa, egynapos sávon is"
 },
 {
-"id": "588510efde",
-"at": "2026-11-11T23:01:45+01:00",
-"msg": "Állapot felirat: „Jóváhagyásra vár”"
-},
-{
-"id": "7290289134",
-"at": "2026-11-11T22:00:27Z",
+"id": "c73cfdae7c",
+"at": "2026-11-11T22:01:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
