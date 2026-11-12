@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4aa4ea35bd",
+"at": "2026-11-12T09:28:37+01:00",
+"msg": "Fizetés: a projekt értéke a quotePrice mezőből"
+},
+{
 "id": "6c485ad67e",
 "at": "2026-11-12T09:28:18+01:00",
 "msg": "Időkódos és leadott videók hozzászólásai nem törölhetők; a teljes összeget fedező foglaló után kifizetett (vízjel le)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Állapot felirat: „Jóváhagyásra vár”"
 },
 {
-"id": "85cfe7870d",
-"at": "2026-11-11T23:00:17+01:00",
-"msg": "Vágási sáv buboréka: projekt névvel kezd, a videók állapota soronként"
-},
-{
-"id": "2ff6331656",
-"at": "2026-11-11T21:58:58Z",
+"id": "7290289134",
+"at": "2026-11-11T22:00:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
