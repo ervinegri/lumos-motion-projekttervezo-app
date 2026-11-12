@@ -14,9 +14,14 @@ function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).fi
 function qRead(fd){const q=S.q;['to','cc','subject','valid','note','body'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});
   if(fd.has('qi_name_0')){q.items=[];for(let i=0;fd.has('qi_name_'+i);i++)q.items.push({name:String(fd.get('qi_name_'+i)||'').trim(),qty:String(fd.get('qi_qty_'+i)||'').trim(),price:String(fd.get('qi_price_'+i)||'').replace(/\s/g,'')});}}
 const qTotal=()=>S.q.items.reduce((a,it)=>a+qNum(it.qty||1)*qNum(it.price),0);
-ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;
-  if(!S.q||S.q.dealId!==d.id)qInit(d);qEdit();
-  if(!S.q.sig)try{S.q.sig=await call('dealQuoteSig',{dealId:d.id});}catch(e){handleErr(e);}};
+/* az árajánlat az árkalkulátorral indul: a kiszámolt tételek kerülnek az ajánlatba (vagy kihagyható) */
+ACT['deal-quote']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;if(!S.q||S.q.dealId!==d.id)qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
+async function qSig(id){if(S.q&&S.q.sig)return;try{const s=await call('dealQuoteSig',{dealId:id});if(S.q&&S.q.dealId===id){S.q.sig=s;const h=document.querySelector('#q-body+.hint');if(h)h.textContent='Alá automatikusan bekerül '+s.name+' aláírása, a PDF pedig mellékletként megy.';}}catch(e){handleErr(e);}}
+ACT['q-skip']=b=>{window._arkQuoteDeal='';qEdit();};
+window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmotion.hu')return;const x=(e.data||{}).arkQuoteData;if(!x||!S.q||!window._arkQuoteDeal)return;window._arkQuoteDeal='';
+  const rooms=Math.max(1,num(x.rooms)||1),items=(x.rows||[]).filter(r=>num(r.amount)>0).map(r=>({name:r.name+(r.qty&&r.qty!=='1 db'&&r.qty!=='1 fő'?' ('+r.qty+')':'')+(r.detail?' – '+r.detail:''),qty:String(rooms),price:String(Math.round(num(r.amount)))}));
+  if(!items.length){toast('A kalkulátorban nincs kiválasztott tétel.',true);window._arkQuoteDeal=S.q.dealId;return;}
+  S.q.items=items;if(rooms>1)S.q.note=(S.q.note?S.q.note+'\n':'')+'A tételek termenként értendők ('+rooms+' terem).';qEdit();});
 function qEdit(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{};
   openModal('📄 Árajánlat – '+(d.title||''),`<div class="fields">
     <div class="field"><label for="q-to">Címzett</label><input class="inp" id="q-to" name="q_to" type="email" value="${esc(q.to)}" placeholder="ugyfel@ceg.hu"></div>

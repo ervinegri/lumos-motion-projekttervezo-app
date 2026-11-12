@@ -914,3 +914,5 @@ html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflo
 .qp-sig{margin-top:34px;display:flex;flex-direction:column;gap:1px;font-size:13px}.qp-sig b{font-size:15px;margin-top:6px}
 .qp-foot{position:absolute;left:60px;right:60px;bottom:40px;font-size:10.5px;color:#7b8794;border-top:1px solid #e3e8ee;padding-top:8px}
 html body .qp .qp-tbl{min-width:0!important;width:100%!important;max-width:100%!important}
+
+html body .btn.q-cta{background:#1d2a38;color:#fff;border:0;font-weight:700;box-shadow:0 4px 12px rgba(29,42,56,.28)}html body .btn.q-cta:hover{background:#0f1822;transform:translateY(-1px)}
