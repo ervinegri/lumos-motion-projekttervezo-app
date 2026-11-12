@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a53d2471ba",
+"at": "2026-11-12T16:36:03+01:00",
+"msg": "Kifizetés-szinkron: ugyanaz a bizonylat ne kerüljön be kétszer, a meglévő másodpéldány törlődik"
+},
+{
 "id": "820667b2a4",
 "at": "2026-11-12T16:34:36+01:00",
 "msg": "Beállítások: értékesítők e-mail aláírása is szerkeszthető"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "a81599a549",
 "at": "2026-11-12T13:59:23+01:00",
 "msg": "Kapcsolattartó névjegy a telefonra: QR-kód, .vcf letöltés / megosztás"
-},
-{
-"id": "3e2b85188c",
-"at": "2026-11-12T13:55:27+01:00",
-"msg": "Videó ablak: a projekt neve megnyitja a projektet"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
