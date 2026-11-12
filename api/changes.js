@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8ddc054762",
+"at": "2026-11-12T22:46:24+01:00",
+"msg": "Szerződéssablonok: a felek adatai soronként egy vonalban (közös táblázat); a dátum a Kelt sorban, az aláírásos blokk egyben marad"
+},
+{
 "id": "5b6e541646",
 "at": "2026-11-12T22:44:48+01:00",
 "msg": "Szerződés fájlneve: típus_ügyfél_szolgáltató (pl. Keretszerzodes_Empatia_..._Lumos_Motion_Kft.pdf)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: két egyszerű döntés – cég (Lumos Motion / Egri Ervin E.V.), majd típus (Megbízási / Keretszerződés)"
 },
 {
-"id": "2ae9893d1f",
-"at": "2026-11-12T18:20:51+01:00",
-"msg": "Értékesítés: másodlagos e-mail-cím a lehetőségnél (új oszlop a végén); az árajánlatnál alapból másolatba kerül"
-},
-{
-"id": "edc50695ea",
-"at": "2026-11-12T17:15:26Z",
+"id": "f85948e68e",
+"at": "2026-11-12T17:21:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
