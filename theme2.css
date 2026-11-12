@@ -980,3 +980,4 @@ html body .ct-tpls[data-g]{display:grid!important;grid-template-columns:1fr!impo
 .ct-raw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.ct-raw-row>.cmb,.ct-raw-row>select{flex:1 1 260px}
 .ct-raw-pct,.ct-raw-fix{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px}.ct-raw-pct[hidden],.ct-raw-fix[hidden]{display:none!important}
 .ct-raw-lbl{font-size:13px;color:var(--muted,#6b7680);margin-right:6px;white-space:nowrap}
+html body .fields>h4.sub-h.full{grid-column:1/-1}   /* a szakaszcímek (pl. Nyersanyag, Aláírás) teljes sorban */
