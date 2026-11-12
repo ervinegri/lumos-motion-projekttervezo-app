@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "67c405988e",
+"at": "2026-11-12T21:08:11+01:00",
+"msg": "Szerződés PDF: nem üres (belső dobozból készül)"
+},
+{
 "id": "3f397ff545",
 "at": "2026-11-12T21:07:24+01:00",
 "msg": "Új szerződés: az ügyfél mappájába PDF kerül; PDF-letöltés gomb, a .docx letöltés megmarad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: új lapon nem üres a PDF, kedvezmény max. 20%, általánosnál a fájlnévben sincs rendezvény, a kalkulátoros tételek számok nélkül (darab a mennyiségbe), valódi feladó az előnézetben"
 },
 {
-"id": "f820d5ca33",
-"at": "2026-11-12T17:03:29+01:00",
-"msg": "Árajánlat PDF: kéttagú (LUMOS / MOTION) logó"
-},
-{
-"id": "6a208dc3f3",
-"at": "2026-11-12T16:00:21Z",
+"id": "1646904d91",
+"at": "2026-11-12T16:03:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
