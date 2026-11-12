@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ccc71e789b",
+"at": "2026-11-12T16:39:49+01:00",
+"msg": "Hosszú ablak: a cím és a gombsor rögzített, csak a tartalom görget"
+},
+{
 "id": "d964b84e4d",
 "at": "2026-11-12T16:38:51+01:00",
 "msg": "Videó ablak: javítás alatt a vezető is írhat a vágónak (mit kell javítani)"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "ed63d84ead",
 "at": "2026-11-12T14:21:51+01:00",
 "msg": "Értékesítői jutalék: egy név egyszer, azonnali kiválasztás, a beírt % nem ugrik vissza"
-},
-{
-"id": "65d7f9f8e2",
-"at": "2026-11-12T14:00:06+01:00",
-"msg": "Névjegy: magyar névsorrend"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
