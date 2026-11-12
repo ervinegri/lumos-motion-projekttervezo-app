@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "777747d680",
+"at": "2026-11-12T20:54:48+01:00",
+"msg": "Új szerződés: a cégválasztásnál nincs ÁFA-megjegyzés"
+},
+{
 "id": "fe48f0fad7",
 "at": "2026-11-12T20:52:39+01:00",
 "msg": "Új szerződés: két egyszerű döntés – cég (Lumos Motion / Egri Ervin E.V.), majd típus (Megbízási / Keretszerződés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó ablak: javítás alatt a vezető is írhat a vágónak (mit kell javítani)"
 },
 {
-"id": "a53d2471ba",
-"at": "2026-11-12T16:36:03+01:00",
-"msg": "Kifizetés-szinkron: ugyanaz a bizonylat ne kerüljön be kétszer, a meglévő másodpéldány törlődik"
-},
-{
-"id": "6ec55a7458",
-"at": "2026-11-12T15:34:45Z",
+"id": "16ffdedd49",
+"at": "2026-11-12T15:36:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
