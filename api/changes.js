@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb12e0d843",
+"at": "2026-11-12T22:16:38+01:00",
+"msg": "Szerződéssablonok: szélesebb technikai specifikáció táblázat"
+},
+{
 "id": "81105c7a1a",
 "at": "2026-11-12T22:13:36+01:00",
 "msg": "Szerződéssablonok: a technikai specifikáció első oszlopa szélesebb (nem törik a kettőspont)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: rövidebb alapszöveg"
 },
 {
-"id": "413536ff7f",
-"at": "2026-11-12T17:50:41+01:00",
-"msg": "Árajánlat előnézet: a tárgy nem szerkeszthető (a szerkesztőben módosítható)"
-},
-{
-"id": "614b12497f",
-"at": "2026-11-12T16:49:11Z",
+"id": "6d7ee0f8b4",
+"at": "2026-11-12T16:50:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
