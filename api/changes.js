@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6cf2f38ede",
+"at": "2026-11-12T10:04:20+01:00",
+"msg": "Naptár szűrő: Terepi → Helyszíni"
+},
+{
 "id": "3c43236e4c",
 "at": "2026-11-12T09:53:00+01:00",
 "msg": "Terepi szűrő a havi nézetben is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a vágószűrő a csak vágásos projektekre is vonatkozik"
 },
 {
-"id": "2425de4180",
-"at": "2026-11-11T23:20:02+01:00",
-"msg": "Idővonal, Jóváhagyásra vár sáv: kattintásra a videótábla nyílik"
-},
-{
-"id": "5d439aa0eb",
-"at": "2026-11-11T22:19:13Z",
+"id": "340a550009",
+"at": "2026-11-11T22:20:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
