@@ -3012,7 +3012,10 @@ function szSync_(u, a) {
   withLock_(() => {
     const sh = sheetFor_('finInvoice');
     todo.filter(x => x._dirty).forEach(x => { const row = findRow_(sh, x.id); if (row) { delete x._dirty; putRow_('finInvoice', sh, x, row); } });
-    created.forEach(x => putRow_('finInvoice', sh, x, 0));
+    const have = {}; readAll_('finInvoice').forEach(x => { if (x.no) have[x.kind + '|' + x.no] = 1; });
+    created.forEach(x => { if (x.no && have[x.kind + '|' + x.no]) return; have[x.kind + '|' + x.no] = 1; putRow_('finInvoice', sh, x, 0); });   // két egyszerre futó lekérdezés se hozza be kétszer
+    { const seen = {}, dup = []; readAll_('finInvoice').forEach(x => { if (!x.no || x.manual) return; const k = x.kind + '|' + x.no; if (seen[k]) dup.push(x.id); else seen[k] = 1; });   // korábban kétszer bekerült bizonylat: a másodpéldány törlődik
+      dup.forEach(id => { const row = findRow_(sh, id); if (row) sh.deleteRow(row); }); }
     szApplyPay_([].concat.apply([], todo.map(invTargets_)));
     const s = szSettings_(); s.lastSync = now_(); szStore_(s);
     dbFlush_();
