@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed63d84ead",
+"at": "2026-11-12T14:21:51+01:00",
+"msg": "Értékesítői jutalék: egy név egyszer, azonnali kiválasztás, a beírt % nem ugrik vissza"
+},
+{
 "id": "65d7f9f8e2",
 "at": "2026-11-12T14:00:06+01:00",
 "msg": "Névjegy: magyar névsorrend"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél visszaigazoló összefoglaló e-mail, ha minden videóról döntött"
 },
 {
-"id": "6cf2f38ede",
-"at": "2026-11-12T10:04:20+01:00",
-"msg": "Naptár szűrő: Terepi → Helyszíni"
-},
-{
-"id": "81a3e43080",
-"at": "2026-11-12T08:53:08Z",
+"id": "9ccb00c0bf",
+"at": "2026-11-12T09:04:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
