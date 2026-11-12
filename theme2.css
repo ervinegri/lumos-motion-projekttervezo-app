@@ -936,3 +936,5 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 #modalRoot .mbox.mbox-ark .mfoot>*{order:0}
 #modalRoot .mbox.mbox-ark .mfoot>.left{order:1;margin-left:auto!important}
 .qp .qp-logo{height:58px!important;width:auto!important}   /* kéttagú (LUMOS / MOTION) logó az ajánlaton */
+
+.q-disc-on{display:inline-flex!important;align-items:center;gap:8px;cursor:pointer;font-weight:700}.q-disc-on input{width:18px;height:18px;accent-color:#243347;margin:0}.q-disc[hidden],.q-disc-h[hidden]{display:none!important}.q-from-note{color:var(--muted,#6b7680)}
