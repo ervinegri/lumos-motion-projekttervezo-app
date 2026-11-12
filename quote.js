@@ -95,7 +95,7 @@ async function qPdf(){const lib=await h2pLib(),host=document.createElement('div'
   try{const box=host.firstElementChild,pg=box.firstElementChild;pg.style.minHeight=Q_PH+'px';const im=pg.querySelector('img');if(im&&!im.complete)await new Promise(r=>{im.onload=im.onerror=r;});if(document.fonts&&document.fonts.ready)await document.fonts.ready;
     const h=pg.scrollHeight;if(h>Q_PH){const k=Q_PH/h;pg.style.width=(794/k)+'px';pg.style.minHeight=(Q_PH/k)+'px';pg.style.transformOrigin='0 0';pg.style.transform='scale('+k+')';}
     else pg.style.height=Q_PH+'px';
-    const uri=await lib().set({margin:0,filename:qFileName(),image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true,width:794,height:Q_PH,windowWidth:794},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:[]}}).from(box).outputPdf('datauristring');return String(uri).split(',')[1]||'';}
+    const uri=await lib().set({margin:0,filename:qFileName(),image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(box).outputPdf('datauristring');return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
 function qPdfCached(){const q=S.q;if(q._pdf)return Promise.resolve(q._pdf);if(!q._pdfP)q._pdfP=qPdf().then(b=>{if(S.q===q)q._pdf=b;return b;}).finally(()=>{q._pdfP=null;});return q._pdfP;}
 function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
