@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4190b5e2f",
+"at": "2026-11-12T17:51:03+01:00",
+"msg": "Árajánlat: rövidebb alapszöveg"
+},
+{
 "id": "413536ff7f",
 "at": "2026-11-12T17:50:41+01:00",
 "msg": "Árajánlat előnézet: a tárgy nem szerkeszthető (a szerkesztőben módosítható)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-jóváhagyás értesítő: a vágó munkáját hagyták jóvá"
 },
 {
-"id": "d148488798",
-"at": "2026-11-12T15:42:55+01:00",
-"msg": "Kifizetés után lekerülő vízjel: értesítő e-mail az ügyfélnek (egyszer); napi tartalék kifizetés-ellenőrzés"
-},
-{
-"id": "afdc4410d5",
-"at": "2026-11-12T14:32:55Z",
+"id": "0ed300582c",
+"at": "2026-11-12T14:43:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
