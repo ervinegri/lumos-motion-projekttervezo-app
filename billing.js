@@ -155,7 +155,7 @@ function viewBilling(){
   const mRev=sets.honap.reduce((s,i)=>s+projTotal(i.p),0),mPaid=sets.honap.reduce((s,i)=>s+i.inv.filter(x=>x.kind!=='storno'&&!(x.kind==='dijbekero'&&(x.ref||i.el))).reduce((a,x)=>a+num(x.invPaid)*invShare(x,i.p.id)*invNetR(x),0),0);   // a kiválasztott hónap bevétele és befolyt összege
   const sz=S.fin.sz||{},nCl=l=>new Set(l.map(i=>String(i.p.client||'').trim().toLowerCase()||i.p.id)).size;   // ügyfelek száma
   return `<div class="page-head"><div class="grow"><h2>Szerződés és számlázás</h2>${monthNav('bill-month',[...new Set(all.map(i=>pr(i.p).start.slice(0,7)).concat([todayISO().slice(0,7)]))].sort().reverse(),curM)}</div>
-      ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'<span class="spin sm"></span> Lekérdezés a számlázz.hu-ból…':'🔄 Kifizetések'}</button>`:''}
+      ${sz.hasKey?`<button class="btn outline small" type="button" data-action="sz-sync"${S._szSyncing?' disabled':''} title="${S._szSyncing?'Lekérdezés a számlázz.hu-ból…':esc(sz.lastSync?'Utoljára: '+sz.lastSync:'')}">${S._szSyncing?'<span class="spin sm"></span> Kifizetések…':'🔄 Kifizetések'}</button>`:''}
       <button class="btn outline small" type="button" data-action="tig-new">📝 TIG kiállítása</button><button class="btn outline small" type="button" data-action="sz-settings">🧾 Számlázás beállításai</button></div>
     ${sz.hasKey?'':`<div class="banner"><p>A számlák kiállításához és a kifizetések követéséhez add meg a számlázz.hu Agent-kulcsot a <b>Számlázás beállításai</b> gombbal.</p></div>`}
     <div class="tiles fin-tiles">
