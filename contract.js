@@ -124,14 +124,44 @@ async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document
     const uri=await lib().set({margin:[M,0,M,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:[]}}).from(box).outputPdf('datauristring');
     return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
-async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;c._pdf=null;
+async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c._pdf=null;
   openModal('📝 Új szerződés – 3/3: minta',`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)} · ${esc(c.c_name)} – így fog kinézni. Ha valami nem stimmel, menj vissza és javítsd.</p><div class="ct-prev" id="ctPrev"><div class="loading"><span class="spin"></span>Minta készítése…</div></div>`,
-    {submitLabel:'💾 Mentés az ügyfél mappájába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl">⬇ Letöltés (.docx)</button><button type="button" class="btn outline" data-action="ct-pdf">⬇ Letöltés (.pdf)</button>`,
+    {submitLabel:'💾 Mentés az ügyfél mappájába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl">⬇ Letöltés (.docx)</button><button type="button" class="btn outline" data-action="ct-pdf">⬇ Letöltés (.pdf)</button><button type="button" class="btn outline" data-action="ct-send">📨 Küldés</button>`,
      submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
        const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat?'egyeb':'keret'});
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
-  try{const r=await ctBuild(),b64=await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
+  try{const r=await ctBuild(),b64=c._pdf||await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
     const bin=atob(b64),pages=[];let k=0;while((k=bin.indexOf('\xFF\xD8',k))>=0){const e=bin.indexOf('\xFF\xD9',k);if(e<0)break;pages.push('data:image/jpeg;base64,'+btoa(bin.slice(k,e+2)));k=e+2;}
     box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;}
   catch(e){if(box)box.innerHTML=`<p class="bad-txt">A minta nem készíthető el: ${esc(errText(e))}</p>`;}}
+
+/* 📨 Küldés: a szerződés PDF-je e-mailben az ügyfélnek – előtte a levél előnézete (a szöveg szerkeszthető), kérésre mentés az ügyfél mappájába is */
+const ctFirst=x=>{const n=String(x||'').split(',')[0].trim().split(/\s+/);return n.length>1?n[n.length-1]:n[0]||'';};
+async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
+  if(!c.mail)c.mail={to:c.c_email||'',cc:'',subject:tp.t+' – '+(c.c_name||''),save:true,
+    body:`Kedves ${ctFirst(c.c_rep)||'Ügyfelünk'}!\n\nCsatolva küldöm a ${tp.t.toLowerCase()} tervezetét. Kérlek, nézd át, és ha mindent rendben találsz, küldd vissza aláírva.\n\nHa bármi kérdés felmerül, szívesen segítek.`};
+  if(!c.sig)try{c.sig=await call('contractSig',{});}catch(e){c.sig={};}
+  const m=c.mail,sg=c.sig||{},fname=(await ctBuild()).name.replace(/\.docx$/i,'')+'.pdf';c._fname=fname;
+  openModal('📨 Szerződés küldése',`<div class="fgrid"><div class="field"><label for="ctm-to">Címzett</label><input class="inp" id="ctm-to" name="ctm_to" value="${esc(m.to)}" placeholder="ugyfel@ceg.hu"></div>
+    <div class="field"><label for="ctm-cc">Másolat (nem kötelező)</label><input class="inp" id="ctm-cc" name="ctm_cc" value="${esc(m.cc)}"></div>
+    <div class="field full"><label for="ctm-subj">Tárgy</label><input class="inp" id="ctm-subj" name="ctm_subj" value="${esc(m.subject)}"></div></div>
+    <div class="q-mail" style="margin-top:6px"><div class="q-mh"><div><span>Feladó:</span> ${esc(sg.name||'')} · Lumos Motion &lt;${esc(sg.from||sg.email||'')}&gt;</div><div><span>Melléklet:</span> 📎 ${esc(fname)}</div></div>
+      <div class="q-mb"><div id="ctm-body" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(m.body).replace(/\n/g,'<br>')}</div><br>${sg.sigHtml||''}</div></div>
+    <label class="q-disc-on" style="margin-top:12px"><input type="checkbox" name="ctm_save"${m.save?' checked':''}> 💾 Mentés az ügyfél mappájába is (PDF)</label>`,
+    {submitLabel:'📨 Küldés',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-send-back">← Vissza a mintához</button>`,
+     submit:async fd=>{m.to=String(fd.get('ctm_to')||'').trim();m.cc=String(fd.get('ctm_cc')||'').trim();m.subject=String(fd.get('ctm_subj')||'').trim();m.save=fd.has('ctm_save');
+       if(!/@/.test(m.to)){toast('Add meg a címzett e-mail-címét.',true);return;}
+       if(!confirm('Elküldöd a szerződést ide: '+m.to+'?'))return;
+       const b64=c._pdf||await ctPdf((await ctBuild()).blob);
+       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat?'egyeb':'keret'});
+       closeModal();toast(r.test?'Teszt üzemmód: a levél hozzád ment ki.':'✅ Szerződés elküldve: '+m.to+(m.save&&r.saved&&!r.saved.error?' · mentve az ügyfél mappájába':''));
+       if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved&&typeof billApply==='function')try{billApply(r.saved);}catch(e){}
+       S.ct=null;render(true);}});
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');}
+Object.assign(ACT,{
+  'ct-send':async b=>{if(!S.ct)return;b.disabled=true;try{if(!S.ct._pdf)S.ct._pdf=await ctPdf((await ctBuild()).blob);await ctSendPrev();}catch(e){handleErr(e);b.disabled=false;}},
+  'ct-send-back':()=>{if(S.ct)ctStep3(true);},
+});
+document.addEventListener('input',e=>{const t=e.target;if(t&&t.id==='ctm-body'&&S.ct&&S.ct.mail)S.ct.mail.body=t.innerText.replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'');});
+document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('#ctm-body');if(!t)return;e.preventDefault();document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain'));});

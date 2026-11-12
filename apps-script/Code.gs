@@ -4731,6 +4731,31 @@ function dealQuoteSend_(u, a) {
   try { deals = dealsFor_(u); } catch (e) { }
   return { ok: true, test: !live, deals: deals };
 }
+/* ===================== SZERZŐDÉS KÜLDÉSE AZ ÜGYFÉLNEK (Új szerződés, 3. lépés) ===================== */
+function contractSender_(u) {
+  const owner = loadUsers_().find(x => x.id === u.id) || u;
+  const f = sigFields_(owner) || { name: owner.name || '', email: sigKey_(owner.email || ''), title: '', phone: '', photo: '' };
+  const c = sigCustom_(owner.email || ''), sig = c ? { html: c, text: plainText_(c.replace(/<\/(div|tr|p|table)>/gi, '\n')).replace(/\n{3,}/g, '\n\n').trim() } : sigBuild_(f);
+  return { owner: owner, f: f, sig: sig };
+}
+function contractSig_(u) { const r = contractSender_(u), o = mailOptsFor_(r.owner, ''); return { name: r.f.name || r.owner.name, email: r.owner.email || '', sigHtml: r.sig.html, from: o.__dwd || o.from || Session.getEffectiveUser().getEmail() || '' }; }
+/** a: {client, to, cc, subject, body, pdf (base64), fileName, save, kind} – a szerződés PDF-je mellékletként; kérésre az ügyfél mappájába is mentjük */
+function contractSend_(u, a) {
+  a = a || {}; const r = contractSender_(u);
+  const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
+  const b64 = String(a.pdf || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik a szerződés PDF-je.');
+  const client = str_(a.client, 160).trim(), subj = str_(a.subject, 200).trim() || ('Szerződés – ' + client), body = str_(a.body, 6000);
+  const fname = str_(a.fileName, 120).replace(/[\\/:*?"<>|]+/g, '-') || 'Szerzodes.pdf';
+  const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r.sig.html;
+  const opts = mailOptsFor_(r.owner, html); opts.attachments = [Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', fname)];
+  if (a.cc && /@/.test(String(a.cc))) opts.cc = str_(a.cc, 300);
+  const live = clientMailLive_(), to = live ? tos.join(', ') : String(u.email || '');
+  const ok = gmailSend_(to, (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + subj, body + '\n\n' + r.sig.text, opts);
+  if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
+  logEvent_(u, 'Szerződés elküldve', client, tos.join(', '));
+  let saved = null; if (a.save && client) { try { saved = clientDocUpload_(u, { client: client, b64: b64, name: fname, mime: 'application/pdf', kind: a.kind === 'keret' ? 'keret' : 'egyeb' }); } catch (e) { saved = { error: String(e && e.message || e) }; } }
+  return { ok: true, test: !live, saved: saved };
+}
 function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor' || x.role === 'sales') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
@@ -5152,6 +5177,8 @@ function rpcInner_(token, name, arg) {
     case 'clientDocDelete': adminOnly(); return clientDocDelete_(u, arg);
     case 'clientPreview': return clientPreview_(u, arg);
     case 'clientDocUpload': adminOnly(); return clientDocUpload_(u, arg);
+    case 'contractSig': adminOnly(); return contractSig_(u);
+    case 'contractSend': adminOnly(); return contractSend_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
     case 'dbPing': adminOnly(); return dbPing_();
