@@ -98,8 +98,8 @@ async function qPdf(){const lib=await h2pLib(),host=document.createElement('div'
   finally{host.remove();}}
 function qPdfCached(){const q=S.q;if(q._pdf)return Promise.resolve(q._pdf);if(!q._pdfP)q._pdfP=qPdf().then(b=>{if(S.q===q)q._pdf=b;return b;}).finally(()=>{q._pdfP=null;});return q._pdfP;}
 function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
-  openModal('📄 Árajánlat – előnézet',`<div class="q-prev"><div class="q-mail"><div class="q-mh"><div><span>Feladó:</span> ${esc((s.name||'')+' · Lumos Motion')} &lt;${esc(s.from||s.email||'')}&gt;${s.from&&s.email&&s.from.toLowerCase()!==s.email.toLowerCase()?` <small class="q-from-note">(a válaszok ${esc(s.email)} címre mennek – a saját címéről küldéshez „Küldés másként” álnév kell)</small>`:''}</div><div><span>Címzett:</span> ${esc(q.to)}${q.cc?' · Másolat: '+esc(q.cc):''}</div><div><span>Tárgy:</span> <b>${esc(q.subject)}</b></div><div><span>Melléklet:</span> 📎 ${esc(qFileName())}</div></div>
-      <div class="q-mb">${esc(q.body).replace(/\n/g,'<br>')}<br><br>${s.sigHtml||''}</div></div>
+  openModal('📄 Árajánlat – előnézet',`<div class="q-prev"><div class="q-mail"><div class="q-mh"><div><span>Feladó:</span> ${esc((s.name||'')+' · Lumos Motion')} &lt;${esc(s.from||s.email||'')}&gt;${s.from&&s.email&&s.from.toLowerCase()!==s.email.toLowerCase()?` <small class="q-from-note">(a válaszok ${esc(s.email)} címre mennek – a saját címéről küldéshez „Küldés másként” álnév kell)</small>`:''}</div><div><span>Címzett:</span> ${esc(q.to)}${q.cc?' · Másolat: '+esc(q.cc):''}</div><div><span>Tárgy:</span> <input class="q-subj-ed" id="q-subj-ed" value="${esc(q.subject)}" aria-label="Tárgy"></div><div><span>Melléklet:</span> 📎 ${esc(qFileName())}</div></div>
+      <div class="q-mb"><div id="q-mbody" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(q.body).replace(/\n/g,'<br>')}</div><br>${s.sigHtml||''}</div></div>
     <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPageHtml()}</div></div></div>`,
     {submitLabel:'📨 Küldés',noDraft:true,left:`<button type="button" class="btn ghost" data-action="q-edit">← Szerkesztés</button>`,
      submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
@@ -108,3 +108,8 @@ function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');
   const fit=()=>{const w=document.querySelector('.q-pdf-page'),pg=w&&w.querySelector('.qp');if(pg)pg.style.zoom=String(Math.min(1,(w.clientWidth-24)/794));};requestAnimationFrame(fit);setTimeout(fit,300);setTimeout(()=>{if(S.q===q)qPdfCached().catch(()=>{});},400);}   /* a PDF-oldal kicsinyítve, teljes szélességben látszik */
+/* az előnézetben a levél szövege és tárgya is szerkeszthető – így megy ki */
+document.addEventListener('input',e=>{const t=e.target;if(!S.q||!t)return;
+  if(t.id==='q-mbody')S.q.body=t.innerText.replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'');
+  else if(t.id==='q-subj-ed')S.q.subject=t.value;});
+document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('#q-mbody');if(!t)return;e.preventDefault();const x=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,x);});

@@ -949,3 +949,7 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 .q-otitle{margin-bottom:10px}.q-otitle label{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
 .qp-opt{border:1px solid #e3e8ee;border-radius:10px;padding:10px 14px 12px;margin-bottom:12px;page-break-inside:avoid}.qp-opt .qp-tbl{margin-bottom:8px}
 .qp-opt-h{font-size:14px;margin-bottom:6px;color:#1d2a38}.qp-opt-h b{font-weight:800}
+.q-mbody{outline:none;border-radius:8px;padding:6px 8px;margin:-6px -8px;transition:background .15s,box-shadow .15s;cursor:text;white-space:normal}
+.q-mbody:hover{background:#f6f8fa}.q-mbody:focus{background:#fff;box-shadow:0 0 0 2px #ced9e5}
+.q-subj-ed{font:inherit;font-weight:700;border:1px solid transparent;border-radius:6px;padding:2px 6px;margin-left:-6px;background:transparent;width:calc(100% - 70px);color:inherit}
+.q-subj-ed:hover{background:#fff;border-color:#dde4eb}.q-subj-ed:focus{outline:none;background:#fff;border-color:#243347}
