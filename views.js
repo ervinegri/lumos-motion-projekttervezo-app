@@ -1572,7 +1572,7 @@ function viewSettings(){
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
       ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Felhasználók, napló és a háttérben futó táblázat</p></div></div>
-    ${mailPanel}
+    ${mailPanel}${dwdPanel()}
     ${S.links.folder?`<div class="btns"><a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a></div>`:''}
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
@@ -1584,8 +1584,17 @@ function viewSettings(){
 }
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük
   if(S._settingsLoading)return;S._settingsLoading=true;
-  try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S._settingsAt=Date.now();}
+  try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S.dwd=r.dwd||null;S._settingsAt=Date.now();}
   catch(e){handleErr(e);S.users=S.users||[];S.log=S.log||[];S._settingsAt=Date.now();}   // hiba után se próbálja újra minden kirajzolásnál (30 mp múlva újra)
   finally{S._settingsLoading=false;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}
 }
 
+
+/* Küldés a kollégák saját címéről (Google Workspace domainszintű megbízás) – ügyvezetői panel */
+function dwdPanel(){if(!isAdmin()||!S.dwd)return '';const d=S.dwd;
+  return `<div class="panel dwd-panel"><div class="mp-head"><div class="grow"><h3>📨 Küldés a kollégák saját címéről</h3><p class="hint">${d.on?`Bekapcsolva – a kollégák (pl. az értékesítők) ajánlatai és levelei a <b>saját postafiókjukból</b> mennek ki, és az ő Elküldött mappájukban is ott lesznek. Szolgáltatásfiók: <code>${esc(d.clientEmail)}</code>${d.clientId?` · ügyfél-azonosító: <code>${esc(d.clientId)}</code>`:''}`:'Kikapcsolva – a levelek a központi fiókról mennek, a kolléga nevével és válaszcímével. A bekapcsoláshoz egy Google Cloud szolgáltatásfiók kulcsa és a Workspace admin engedélye kell (lásd a lépéseket).'}</p></div></div>
+    <div class="dwd-body">${d.on?`<div class="btns"><input class="inp" id="dwd-mail" type="email" placeholder="peter.farkas@lumosmotion.com" value="peter.farkas@lumosmotion.com" style="max-width:300px"><button type="button" class="btn outline small" data-action="dwd-test">🔎 Kapcsolat tesztelése (levelet nem küld)</button><button type="button" class="btn ghost small" data-action="dwd-clear">Kikapcsolás</button></div><p class="hint">Engedélyezendő jogosultság a Workspace adminban: <code>${esc(d.scope)}</code></p>`
+      :`<label class="hint" for="dwd-json" style="display:block;margin:4px 0">A szolgáltatásfiók letöltött JSON-kulcsfájljának teljes tartalma (nem jelenik meg újra, biztonságosan tároljuk):</label><textarea class="inp" id="dwd-json" rows="4" placeholder='{"type": "service_account", ...}' spellcheck="false" autocomplete="off" style="font-family:monospace;font-size:12px"></textarea><div class="btns" style="margin-top:8px"><button type="button" class="btn primary small" data-action="dwd-save">💾 Kulcs mentése</button></div>`}</div></div>`;}
+ACT['dwd-save']=async b=>{const t=$('dwd-json');const v=t?t.value.trim():'';if(!v)return toast('Másold be a JSON-kulcsot.',true);b.disabled=true;try{S.dwd=await call('dwdSet',{json:v});toast('Kulcs mentve – most teszteld a kapcsolatot.');render(true);}catch(e){handleErr(e);}finally{b.disabled=false;}};
+ACT['dwd-clear']=async()=>{if(!confirm('Kikapcsolod? A levelek ezután ismét a központi fiókról mennek.'))return;try{S.dwd=await call('dwdSet',{clear:true});render(true);toast('Kikapcsolva.');}catch(e){handleErr(e);}};
+ACT['dwd-test']=async b=>{const m=($('dwd-mail')||{}).value||'';b.disabled=true;try{const r=await call('dwdTest',{email:m});toast('✅ Működik: az app küldhet '+r.email+' nevében.');}catch(e){handleErr(e);}finally{b.disabled=false;}};

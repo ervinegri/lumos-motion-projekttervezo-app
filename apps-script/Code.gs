@@ -1415,7 +1415,76 @@ function gmailSend_(to, subject, text, opts, cat) {
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
     const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
+  const dwd = opts.__dwd; delete opts.__dwd;
+  if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subj_(subject), text, opts); return true; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
   GmailApp.sendEmail(to, subj_(subject), text, opts); return true;
+}
+
+/* ===================== KÜLDÉS A KOLLÉGA SAJÁT CÍMÉRŐL (Google Workspace domainszintű megbízás) =====================
+   Egy szolgáltatásfiók (JSON-kulcs a Beállításokban) a Workspace adminban engedélyezett gmail.send jogosultsággal
+   a kolléga nevében, az ő postafiókjából küld (az Elküldött mappájában is ott lesz). Ha nincs beállítva vagy hibázik,
+   a levél a megszokott módon, a központi fiókról megy (a kolléga nevével, válaszcímével). */
+const DWD_PROPERTY = 'LUMOS_DWD_SA';
+const DWD_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
+function dwdKey_() { try { const o = JSON.parse(PropertiesService.getScriptProperties().getProperty(DWD_PROPERTY) || 'null'); return o && o.client_email && o.private_key ? o : null; } catch (e) { return null; } }
+function dwdOn_() { return !!dwdKey_(); }
+function dwdDomainOk_(email) { const d = String(email || '').toLowerCase().split('@')[1] || ''; return !!d && d === String(Session.getEffectiveUser().getEmail() || '').toLowerCase().split('@')[1]; }
+const b64url_ = bytes => Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, '');
+function dwdToken_(email) {
+  const k = dwdKey_(); if (!k) throw new Error('Nincs beállítva szolgáltatásfiók.');
+  const ck = 'dwd_' + Utilities.base64EncodeWebSafe(email).slice(0, 200), c = CacheService.getScriptCache(), hit = c.get(ck); if (hit) return hit;
+  const now = Math.floor(Date.now() / 1000);
+  const head = b64url_(Utilities.newBlob(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).getBytes());
+  const body = b64url_(Utilities.newBlob(JSON.stringify({ iss: k.client_email, scope: DWD_SCOPE, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600, sub: email })).getBytes());
+  const sig = b64url_(Utilities.computeRsaSha256Signature(head + '.' + body, k.private_key));
+  const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/token', { method: 'post', muteHttpExceptions: true, payload: { grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: head + '.' + body + '.' + sig } });
+  const j = JSON.parse(r.getContentText() || '{}');
+  if (r.getResponseCode() !== 200 || !j.access_token) throw new Error(dwdErr_(j));
+  c.put(ck, j.access_token, 3000); return j.access_token;
+}
+function dwdErr_(j) {
+  const e = String((j && (j.error_description || j.error)) || 'ismeretlen hiba');
+  if (/unauthorized_client|not authorized/i.test(e)) return 'A Workspace adminban még nincs engedélyezve (Domainszintű delegálás: ügyfél-azonosító + ' + DWD_SCOPE + ').';
+  if (/invalid_grant/i.test(e)) return 'A Google elutasította (' + e + ') – létező lumosmotion.com-os címről küldünk? Pontos a szerver órája / a kulcs érvényes?';
+  return e;
+}
+const mimeWord_ = t => /^[\x20-\x7e]*$/.test(t) ? t : '=?UTF-8?B?' + Utilities.base64Encode(Utilities.newBlob(String(t)).getBytes()) + '?=';
+const mimeB64_ = bytes => Utilities.base64Encode(bytes).replace(/.{76}/g, '$&\r\n');
+function dwdSend_(from, to, subject, text, opts) {
+  const tok = dwdToken_(from), bd = 'lm' + Utilities.getUuid().replace(/-/g, ''), alt = 'la' + Utilities.getUuid().replace(/-/g, '');
+  const name = opts.name ? '"' + mimeWord_(String(opts.name).replace(/"/g, '')) + '" ' : '';
+  const H = ['From: ' + name + '<' + from + '>', 'To: ' + to];
+  if (opts.cc) H.push('Cc: ' + opts.cc); if (opts.bcc) H.push('Bcc: ' + opts.bcc);
+  if (opts.replyTo && String(opts.replyTo).toLowerCase() !== from.toLowerCase()) H.push('Reply-To: ' + opts.replyTo);
+  H.push('Subject: ' + mimeWord_(subject), 'MIME-Version: 1.0', 'Content-Type: multipart/mixed; boundary="' + bd + '"');
+  const P = [H.join('\r\n'), '', '--' + bd, 'Content-Type: multipart/alternative; boundary="' + alt + '"', '',
+    '--' + alt, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', mimeB64_(Utilities.newBlob(String(text || '')).getBytes())];
+  if (opts.htmlBody) P.push('--' + alt, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', mimeB64_(Utilities.newBlob(String(opts.htmlBody)).getBytes()));
+  P.push('--' + alt + '--');
+  (opts.attachments || []).forEach(b => { const n = mimeWord_(b.getName() || 'melleklet');
+    P.push('--' + bd, 'Content-Type: ' + (b.getContentType() || 'application/octet-stream') + '; name="' + n + '"', 'Content-Disposition: attachment; filename="' + n + '"', 'Content-Transfer-Encoding: base64', '', mimeB64_(b.getBytes())); });
+  P.push('--' + bd + '--', '');
+  const r = UrlFetchApp.fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + tok }, payload: JSON.stringify({ raw: b64url_(Utilities.newBlob(P.join('\r\n')).getBytes()) }) });
+  if (r.getResponseCode() >= 300) throw new Error('Gmail API ' + r.getResponseCode() + ': ' + r.getContentText().slice(0, 300));
+  return true;
+}
+/** Beállítások: állapot / kulcs mentése / teszt (csak az ügyvezető). A kulcsot soha nem adjuk vissza. */
+function dwdStatus_() { const k = dwdKey_(); return { on: !!k, clientEmail: k ? k.client_email : '', clientId: k ? String(k.client_id || '') : '', scope: DWD_SCOPE }; }
+function dwdSet_(u, a) {
+  a = a || {};
+  if (a.clear) { PropertiesService.getScriptProperties().deleteProperty(DWD_PROPERTY); logEvent_(u, 'Küldés a kollégák címéről', '', 'kikapcsolva'); return dwdStatus_(); }
+  let o; try { o = JSON.parse(String(a.json || '')); } catch (e) { throw new Error('Ez nem érvényes JSON – a szolgáltatásfiók letöltött kulcsfájljának teljes tartalmát másold be.'); }
+  if (!o || o.type !== 'service_account' || !o.client_email || !/BEGIN PRIVATE KEY/.test(o.private_key || '')) throw new Error('Ez nem szolgáltatásfiók-kulcs (type: service_account, client_email, private_key kell).');
+  PropertiesService.getScriptProperties().setProperty(DWD_PROPERTY, JSON.stringify({ type: o.type, client_email: o.client_email, client_id: o.client_id || '', private_key: o.private_key }));
+  logEvent_(u, 'Küldés a kollégák címéről', o.client_email, 'kulcs mentve'); return dwdStatus_();
+}
+/** a: {email} – csak tokent kér a kolléga nevében (levelet nem küld) */
+function dwdTest_(u, a) {
+  const email = String((a && a.email) || u.email || '').trim().toLowerCase();
+  if (!dwdDomainOk_(email)) throw new Error('Csak a saját domain (lumosmotion.com) címeivel működik.');
+  CacheService.getScriptCache().remove('dwd_' + Utilities.base64EncodeWebSafe(email).slice(0, 200));
+  dwdToken_(email); return { ok: true, email: email };
 }
 function setMail_(u, a) {
   a = a || {};
@@ -4290,7 +4359,7 @@ function mailOptsFor_(u, html) {
   const opts = { htmlBody: html, name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: (u && u.email) || MAIL_REPLY_TO, __actor: (u && u.email) || '' };
   try {   // a küldő a művelet végzője (pl. a termelési vezető), ha a címe „Küldés másként” álnévként be van állítva a telepítő Gmail-fiókjában
     const al = GmailApp.getAliases().map(x => String(x).toLowerCase()), me = String(u && u.email || '').toLowerCase();
-    if (me && al.indexOf(me) >= 0) opts.from = me; else if (al.indexOf(String(MAIL_FROM).toLowerCase()) >= 0) opts.from = MAIL_FROM;
+    if (me && al.indexOf(me) >= 0) opts.from = me; else { if (me && dwdOn_() && dwdDomainOk_(me)) opts.__dwd = me; if (al.indexOf(String(MAIL_FROM).toLowerCase()) >= 0) opts.from = MAIL_FROM; }   // álnév híján: domainszintű megbízással a kolléga saját postafiókjából
   } catch (e) {}
   return opts;
 }
@@ -4640,7 +4709,7 @@ function dealQuoteSender_(u, a) {
   return { d: d, owner: owner, f: f, sig: sig };
 }
 /** Az ajánlat előnézetéhez: ki küldi, és milyen aláírással. */
-function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html, from: (function () { const o = mailOptsFor_(r.owner, ''); return o.from || Session.getEffectiveUser().getEmail() || ''; })() }; }   // from: a tényleges feladó (álnév, ha be van állítva)
+function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html, from: (function () { const o = mailOptsFor_(r.owner, ''); return o.__dwd || o.from || Session.getEffectiveUser().getEmail() || ''; })() }; }   // from: a tényleges feladó (álnév, ha be van állítva)
 /** a: {dealId, to, cc, subject, body, pdf (base64), fileName, total} */
 function dealQuoteSend_(u, a) {
   a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
@@ -5003,6 +5072,8 @@ function rpcInner_(token, name, arg) {
     case 'whoAmI': return publicUser_(u);
     case 'arkPricesGet': adminOnly(); return arkPrices_();
     case 'arkPricesSet': adminOnly(); return arkPricesSet_(u, arg);
+    case 'dwdSet': adminOnly(); return dwdSet_(u, arg);
+    case 'dwdTest': adminOnly(); return dwdTest_(u, arg);
     case 'dataVer': return { v: dataVer_() };   // olcsó változásfigyelés: a kliens ebből tudja, hogy frissítsen-e
     case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
@@ -5143,7 +5214,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'projectHistory': canEdit(); return projectHistory_(u, arg);
-    case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [] };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
+    case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [], dwd: role === 'admin' ? dwdStatus_() : null };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);
