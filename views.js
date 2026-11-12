@@ -1534,12 +1534,12 @@ function viewSettings(){
     ['invite','✉️ Meghívó','Az új kolléga','Belépési meghívó, amikor új felhasználót veszel fel.'],
     ['payStatement','💰 Díjösszesítő','Az érintett szakember','A havi díjösszesítő a Fizetések oldal „Díjösszesítő kiküldése” gombjával: tételek, levonások, számlázási adatok.']],mc=S.mailCats||{},cc=S.mailCc||{};
   const CC=[['actor','aki küldi'],['editor','termelési vezetők'],['admin','ügyvezetők']];
-  const mailPanel=S.mailOn===undefined?'':`<div class="panel mail-panel${S.mailOn?'':' off'}"><h3>📧 E-mail értesítések <span class="aside"><span class="statuspill ${S.mailOn?'p-ok':'p-bad'}">${S.mailOn?'Bekapcsolva':'Szünetel – senki nem kap e-mailt'}</span></span></h3>
-    <p class="hint" style="margin:6px 0 10px">A főkapcsolóval minden e-mail egyszerre szüneteltethető. Bekapcsolt állapotban típusonként is választhatsz.</p>
-    <button class="btn ${S.mailOn?'outline':'primary'} small" type="button" data-action="mail-toggle">${S.mailOn?'⏸ Minden e-mail szüneteltetése':'▶️ E-mailek bekapcsolása'}</button>
-    <div class="mail-cats${S.mailOn?'':' dis'}">${MC.map(([k,l,to,d])=>`<div class="mail-cat${mc[k]===false?' off':''}"><label class="mail-cat-h"><input type="checkbox" data-mailcat="${k}"${mc[k]!==false?' checked':''}${S.mailOn?'':' disabled'}><b>${l}</b></label>
-      <div class="mail-to"><span class="muted">Címzett:</span> <b>${to}</b></div><small>${d}</small>
-      ${cc[k]?`<div class="mail-cc"><span class="muted">Másolat:</span>${CC.map(([r,rl])=>`<label class="cc-chip${cc[k].includes(r)?' on':''}"><input type="checkbox" data-mailcc="${k}" data-role="${r}"${cc[k].includes(r)?' checked':''}${S.mailOn&&mc[k]!==false?'':' disabled'}> ${rl}</label>`).join('')}</div>`:''}</div>`).join('')}</div></div>`;
+  const MG=[['👷 Szakembereknek',['assign','eqlist','penalty','payStatement']],['🤝 Ügyfeleknek és vendégeknek',['invoice','calendar']],['💼 Belső',['penAdmin','invite']]],MCo=Object.fromEntries(MC.map(x=>[x[0],x]));
+  const mRow=k=>{const [,l,to,d]=MCo[k],on=mc[k]!==false,dis=!S.mailOn;return `<div class="mrow${on?'':' off'}"><label class="mrow-main"><span class="ntf-tx"><b>${l}</b><small>${d}</small><span class="mrow-to">Címzett: ${to}</span></span><span class="ntf-sw"><input type="checkbox" data-mailcat="${k}"${on?' checked':''}${dis?' disabled':''}><i></i></span></label>
+      ${cc[k]?`<div class="mail-cc"><span class="muted">Másolatot kap:</span>${CC.map(([r,rl])=>`<label class="cc-chip${cc[k].includes(r)?' on':''}"><input type="checkbox" data-mailcc="${k}" data-role="${r}"${cc[k].includes(r)?' checked':''}${S.mailOn&&on?'':' disabled'}> ${rl}</label>`).join('')}</div>`:''}</div>`;};
+  const mailPanel=S.mailOn===undefined?'':`<div class="panel mail-panel2${S.mailOn?'':' off'}"><div class="mp-head"><div class="grow"><h3>📧 E-mail értesítések</h3><p class="hint">${S.mailOn?'Az app leveleket küld. Típusonként is kikapcsolhatod őket, és beállíthatod, ki kapjon másolatot.':'Szünetel – most senki nem kap e-mailt az apptól.'}</p></div>
+      <button type="button" class="mp-master${S.mailOn?' on':''}" data-action="mail-toggle" aria-pressed="${!!S.mailOn}"><span class="mp-lbl">${S.mailOn?'Bekapcsolva':'Szünetel'}</span><span class="mp-sw"><i></i></span></button></div>
+    <div class="mp-groups${S.mailOn?'':' dis'}">${MG.map(([g,ks])=>`<section class="mp-group"><h4>${g}</h4>${ks.filter(k=>MCo[k]).map(mRow).join('')}</section>`).join('')}</div></div>`;
   if(Date.now()-(S._settingsAt||0)>30000)setTimeout(loadSettings,0);
   const crewName=id=>{const c=crewById(id);return c?c.name:'';};
   const UT=[['all','Mind'],['admin','Ügyvezető'],['editor','Termelési vezetők'],['crew','Szakemberek'],['sales','Értékesítők']].filter(([k])=>k==='all'||S.users.some(u=>u.role===k));
