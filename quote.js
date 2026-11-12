@@ -66,4 +66,5 @@ function qPreview(){const q=S.q,s=q.sig||{};
        try{const pdf=await qPdf();const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:qTotal()});
          if(r&&r.deals)S.deals=r.deals;closeModal();S.q=null;render(true);toast(r&&r.test?'TESZT: az ajánlat csak neked ment ki':'Árajánlat elküldve: '+q.to);}
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');
+  const fit=()=>{const w=document.querySelector('.q-pdf-page'),pg=w&&w.querySelector('.qp');if(pg)pg.style.zoom=String(Math.min(1,(w.clientWidth-24)/794));};requestAnimationFrame(fit);setTimeout(fit,300);}   /* a PDF-oldal kicsinyítve, teljes szélességben látszik */

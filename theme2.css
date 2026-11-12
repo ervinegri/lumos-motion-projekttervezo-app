@@ -900,7 +900,7 @@ html body .q-foot{display:flex;justify-content:space-between;align-items:center;
 html body .mbox-q{width:min(1180px,96vw)!important;max-width:min(1180px,96vw)!important}html body .q-prev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}@media (max-width:900px){html body .q-prev{grid-template-columns:1fr}}
 html body .q-mail{border:1px solid var(--line,#e2e6eb);border-radius:12px;overflow:hidden;background:#fff}html body .q-mh{background:#f5f7fa;padding:10px 14px;font-size:13px;display:flex;flex-direction:column;gap:3px}html body .q-mh span{color:var(--muted,#6b7680);display:inline-block;min-width:70px}
 html body .q-mb{padding:14px;font:14px/1.55 Arial,sans-serif;color:#202124;overflow:auto}html body .q-pdf-h{font-size:12.5px;font-weight:700;color:var(--muted,#6b7680);margin-bottom:6px}
-html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflow:auto;max-height:70vh}html body .q-pdf-page .qp{transform-origin:top left;zoom:.62;box-shadow:0 2px 10px rgba(16,25,35,.15)}
+html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflow:auto;max-height:70vh}html body .q-pdf-page .qp{box-shadow:0 2px 10px rgba(16,25,35,.15)}
 .qp{width:794px;min-height:1123px;box-sizing:border-box;background:#fff;color:#1d2a38;font:13px/1.5 Montserrat,Arial,sans-serif;padding:56px 60px;position:relative}
 .qp-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1d2a38;padding-bottom:18px;margin-bottom:22px}.qp-logo{width:250px;height:auto;margin-top:6px}
 .qp-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;color:#4a5866}.qp-meta b{font-size:26px;letter-spacing:.08em;color:#1d2a38}
