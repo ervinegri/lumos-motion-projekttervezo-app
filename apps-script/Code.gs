@@ -5504,17 +5504,18 @@ function salesSyncEnsure_() {
    Csak az alapártól eltérő / megadott értékek tárolódnak: { r: {kulcs: szám}, e: {kulcs: szám} }. */
 const ARK_PRICES_PROPERTY = 'ARK_PRICES';
 const ARK_KEYS_ = {
-  r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'buy', 'keep', 'rush'],
-  e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'buy', 'keep', 'rush']
+  r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'perkm', 'zone', 'buy', 'keep', 'rush'],
+  e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'perkm', 'zone', 'buy', 'keep', 'rush'],
+  s: ['edit', 'script', 'cine', 'drone', 'hour', 'deliv', 'perkm', 'zone']   // Short videó kalkulátor
 };
 function arkPrices_() {
   let o = {};
   try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(ARK_PRICES_PROPERTY) || '{}') || {}; } catch (e) { o = {}; }
-  return { r: o.r || {}, e: o.e || {}, updatedAt: o.updatedAt || '', updatedBy: o.updatedBy || '' };
+  return { r: o.r || {}, e: o.e || {}, s: o.s || {}, updatedAt: o.updatedAt || '', updatedBy: o.updatedBy || '' };
 }
 function arkPricesSet_(u, arg) {
-  const out = { r: {}, e: {} };
-  ['r', 'e'].forEach(pg => {
+  const out = { r: {}, e: {}, s: {} };
+  ['r', 'e', 's'].forEach(pg => {
     const src = (arg && arg[pg]) || {};
     ARK_KEYS_[pg].forEach(k => {
       if (src[k] === '' || src[k] == null) return;

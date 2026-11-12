@@ -916,3 +916,18 @@ html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflo
 html body .qp .qp-tbl{min-width:0!important;width:100%!important;max-width:100%!important}
 
 html body .btn.q-cta{background:#1d2a38;color:#fff;border:0;font-weight:700;box-shadow:0 4px 12px rgba(29,42,56,.28)}html body .btn.q-cta:hover{background:#0f1822;transform:translateY(-1px)}
+
+/* árajánlat: rendezvényre szóló / általános választó; a PDF fejléce a „Megnyitás új lapon” gombbal */
+.q-evsel{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.q-evsel label{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;border:1px solid var(--line,#dde4eb);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:700;font-size:14px;background:#fff;margin:0}
+.q-evsel label small{flex-basis:100%;font-weight:500;font-size:12px;color:var(--muted,#6b7680);padding-left:24px}
+.q-evsel label.on{border-color:#243347;background:#f6f8fa;box-shadow:0 0 0 2px #e8eef3}
+.q-evsel input{accent-color:#243347;margin:0}
+html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+@media (max-width:640px){.q-evsel{grid-template-columns:1fr}}
+
+.q-disc{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.q-disc>.inp{flex:1 1 220px}
+.q-disc-p{display:inline-flex;align-items:center;gap:6px}.q-disc-p .inp{width:84px;text-align:right}.q-disc-p em{font-style:normal;font-weight:700;color:var(--muted,#6b7680)}
+.q-disc .chip{border:1px solid var(--line,#dde4eb);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.q-disc .chip:hover{background:#f6f8fa}
+.qp-sum .qp-disc b,.qp-sum .qp-disc span{color:#b45309}
+.qp-sum{width:360px}
