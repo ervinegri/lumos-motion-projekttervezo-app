@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "07240269f6",
+"at": "2026-11-12T09:49:21+01:00",
+"msg": "Ügyfél-döntés e-mail: jóváhagyta a munkádat"
+},
+{
 "id": "813854c1ac",
 "at": "2026-11-12T09:48:44+01:00",
 "msg": "Szakember naptár: Minden / Terepi / Vágói munkák szűrő; ügyfél-döntés e-mailből a gomb törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: a kártyán nincs „Kattints…” buborék"
 },
 {
-"id": "7f5c600c1c",
-"at": "2026-11-11T23:16:45+01:00",
-"msg": "Videóablak: jóváhagyás időpontja; időkód-magyarázat ki"
-},
-{
-"id": "a6de0595e9",
-"at": "2026-11-11T22:14:36Z",
+"id": "41268cb3e3",
+"at": "2026-11-11T22:16:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
