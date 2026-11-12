@@ -955,3 +955,6 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 .q-subj-ed:hover{background:#fff;border-color:#dde4eb}.q-subj-ed:focus{outline:none;background:#fff;border-color:#243347}
 
 .q-rc{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media (max-width:640px){.q-rc{grid-template-columns:1fr}}
+/* a levél-előnézetben az aláírás táblázata a saját (375 px) szélességén marad, ahogy a levélben is */
+html body .q-mb table{width:auto!important;min-width:0!important;font-size:inherit}
+html body .q-mb table[width="375"]{width:375px!important;max-width:100%!important}
