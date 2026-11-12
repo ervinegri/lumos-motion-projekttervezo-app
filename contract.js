@@ -68,6 +68,8 @@ Object.assign(ACT,{
   'ct-back':b=>{const f=$('mform');if(f&&S.ct.step!==3)ctRead(new FormData(f));b.dataset.s==='1'?ctStep1():ctStep2();},
   'ct-row-add':b=>{const f=$('mform');if(f)ctRead(new FormData(f));const k=b.dataset.t;S.ct[k].push(k==='locs'?{place:'',date:''}:{name:'',qty:'1',ext:''});ctStep2();},
   'ct-row-del':b=>{const f=$('mform');if(f)ctRead(new FormData(f));S.ct[b.dataset.t].splice(Number(b.dataset.i),1);ctStep2();},
+  'ct-pdf':async b=>{b.disabled=true;const t=b.textContent;b.textContent='PDF készül…';try{const r=await ctBuild(),b64=await ctPdf(r.blob),bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));a.download=r.name.replace(/\.docx$/i,'')+'.pdf';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}catch(e){handleErr(e);}finally{b.disabled=false;b.textContent=t;}},
   'ct-dl':async()=>{try{const r=await ctBuild();const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}catch(e){handleErr(e);}}
 });
 /* a docx kitöltése: {mező} helyőrzők; a helyszín- és szolgáltatássor annyiszor ismétlődik, ahány tétel van */
@@ -89,11 +91,19 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   const nm=(tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+String(c.c_name||'ugyfel').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')+'.docx';
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
+/* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (bekezdés, táblázatsor nem törik ketté) */
+async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';document.body.appendChild(host);
+  try{await window.docx.renderAsync(blob,host,host,{useBase64URL:true,inWrapper:false,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
+    host.querySelectorAll('section.docx').forEach(x=>{x.style.paddingTop='0';x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
+    await Promise.all([...host.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})));if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const uri=await lib().set({margin:[14,0,14,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css'],avoid:['p','tr','li','img','h1','h2','h3']}}).from(host).outputPdf('datauristring');
+    return String(uri).split(',')[1]||'';}
+  finally{host.remove();}}
 async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;
   openModal('📝 Új szerződés – 3/3: minta',`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)} · ${esc(c.c_name)} – így fog kinézni. Ha valami nem stimmel, menj vissza és javítsd.</p><div class="ct-prev" id="ctPrev"><div class="loading"><span class="spin"></span>Minta készítése…</div></div>`,
-    {submitLabel:'💾 Mentés az ügyfél mappájába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl">⬇ Letöltés (.docx)</button>`,
-     submit:async()=>{const r=await ctBuild();const b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(r.blob);});
-       const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:r.name,mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',kind:tp.hat?'egyeb':'keret'});
+    {submitLabel:'💾 Mentés az ügyfél mappájába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl">⬇ Letöltés (.docx)</button><button type="button" class="btn outline" data-action="ct-pdf">⬇ Letöltés (.pdf)</button>`,
+     submit:async()=>{const r=await ctBuild();const b64=await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
+       const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat?'egyeb':'keret'});
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
   try{const r=await ctBuild();if(!$('ctPrev'))return;box.innerHTML='';await window.docx.renderAsync(r.blob,box,null,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:true});}
