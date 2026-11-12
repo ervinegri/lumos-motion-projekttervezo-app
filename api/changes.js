@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "781421bcd8",
+"at": "2026-11-12T14:34:57+01:00",
+"msg": "Videós projekt: a Jóváhagyásra vár lépés nem látszik, az Utómunka marad kiemelve (húzható a Készre)"
+},
+{
 "id": "ffd5d5d9d9",
 "at": "2026-11-12T14:32:09+01:00",
 "msg": "Napló: a jóváhagyó oldalon döntő ügyfél „Ügyfél” szerepként látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél módosításkérés: a vágó is megkapja az új stílusú levelet (ügyfél említése nélkül)"
 },
 {
-"id": "78858164f2",
-"at": "2026-11-12T11:36:43+01:00",
-"msg": "Új projektnél nincs automatikus másnapi vágási határidő"
-},
-{
-"id": "1a32618a12",
-"at": "2026-11-12T10:13:26Z",
+"id": "588c86142f",
+"at": "2026-11-12T10:36:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
