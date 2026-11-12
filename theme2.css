@@ -967,3 +967,5 @@ html body .q-mb table[width="375"]{width:375px!important;max-width:100%!importan
 html body .q-pdf-page .qp{min-height:1120px}html body .q-pdf-page .qp+.qp{margin-top:16px}
 .qp .qp-foot{display:flex;justify-content:space-between;gap:12px}.qp-pn{white-space:nowrap;font-weight:600}
 .qp-cont{padding-top:48px}
+/* új szerződés 1. lépés: a választógombok egymás alatt */
+html body .ct-tpls[data-g]{display:grid!important;grid-template-columns:1fr!important;gap:8px}
