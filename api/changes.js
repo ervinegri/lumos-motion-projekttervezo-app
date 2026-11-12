@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a4c36f74d",
+"at": "2026-11-12T11:50:56+01:00",
+"msg": "Háttér-szinkronok ne tartsák vissza a betöltést"
+},
+{
 "id": "7aa2f33ea5",
 "at": "2026-11-12T11:49:44+01:00",
 "msg": "Mentés után ne villanjon vissza a régi adat: a mentés közben indult betöltést eldobjuk"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: a szövegmezőben az Enter nem indítja el a videót"
 },
 {
-"id": "2f61f81196",
-"at": "2026-11-12T08:45:11+01:00",
-"msg": "Számlázás: a lekérdezés gomb nem szélesedik ki (nem csúszik szét a fejléc)"
-},
-{
-"id": "9acc8a13cc",
-"at": "2026-11-11T22:54:59Z",
+"id": "d8b27c9371",
+"at": "2026-11-12T07:45:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
