@@ -57,7 +57,7 @@ const CONDITIONS={ok:'Üzemképes',javitas:'Javításra vár',szerviz:'Szervizbe
 const DELIVERABLES=[
   {k:'int_sarok',label:'Interjúsarok videók',w:.20,max:15,g:'int'},
   {k:'interju',label:'Kiállítói videók (imázsfilm)',w:.30,max:8,g:'int'},
-  {k:'int_resztvevo',label:'Résztvevői interjúk',w:.10,max:15,g:'int'},
+  {k:'int_resztvevo',label:'Interjú',w:.10,max:15,g:'int'},
   {k:'aftermovie',label:'Aftermovie',w:.33,max:3},
   {k:'short60',label:'Short videó (40–60 mp)',w:.09,max:15},
   {k:'short30',label:'Short videó (30–40 mp)',w:.08,max:15},
