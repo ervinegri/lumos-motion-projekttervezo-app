@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d61bf50e69",
+"at": "2026-11-12T17:06:21+01:00",
+"msg": "Árajánlat: új lapon nem üres a PDF, kedvezmény max. 20%, általánosnál a fájlnévben sincs rendezvény, a kalkulátoros tételek számok nélkül (darab a mennyiségbe), valódi feladó az előnézetben"
+},
+{
 "id": "f820d5ca33",
 "at": "2026-11-12T17:03:29+01:00",
 "msg": "Árajánlat PDF: kéttagú (LUMOS / MOTION) logó"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "a1224c7bfc",
 "at": "2026-11-12T14:44:07+01:00",
 "msg": "Új szerződés: díj a projekt értékéből"
-},
-{
-"id": "b42622d7f2",
-"at": "2026-11-12T14:41:43+01:00",
-"msg": "Új szerződés varázsló: 4 sablon, ügyfél/projekt adatok, minta előnézet, letöltés / mentés az ügyfél mappájába"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
