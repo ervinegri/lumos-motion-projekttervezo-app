@@ -504,7 +504,8 @@ function withLock_(fn) {
     if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
     const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
     try { const r = fn(); dbFlush_(); return r; } catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; }); throw e; } finally { if (outer) DB_.inLock = false; }
-  } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); lock.releaseLock(); }
+  } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); if (!SC_.lock) lock.releaseLock(); }
+  if (!SC_.lock && WM_PAID_.length) wmPaidMailFlush_();   // a zár után: vízjel-levél (ha kifizetés miatt lekerült)
 }
 
 /* ===================== ADATOK BETÖLTÉSE ===================== */
@@ -637,7 +638,7 @@ function bootstrap_(u) {
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
   try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
-  try { if (u && u.role === 'admin') salesSyncEnsure_(); } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+  try { if (u && u.role === 'admin') { salesSyncEnsure_(); szDailyEnsure_(); } } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
@@ -1080,6 +1081,33 @@ function clientTokenRead_(t) { if (/^[A-Za-z0-9]{6,16}$/.test(String(t || ''))) 
   const o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(m[1] + '==='.slice((m[1].length + 3) % 4))).getDataAsString()); if (!o || !o.p || !o.v) throw new Error('Érvénytelen link.'); if (o.x && Date.now() > o.x) throw new Error('A link lejárt – kérj újat.'); return o; }
 function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
 /* Vízjel a jóváhagyó lejátszón: pipával kérhető; a Sales Appból jött projekteknél alapból be van kapcsolva; kifizetés (teljes) után lekerül */
+let WM_PAID_ = [];
+/** Kifizetés után lekerült a vízjel: az ügyfél (akinek a jóváhagyó linket küldtük) egyszer e-mailt kap a végleges videók linkjével. */
+function wmPaidMailFlush_() {
+  const ids = WM_PAID_.filter((x, i, a) => a.indexOf(x) === i); WM_PAID_ = [];
+  ids.forEach(pid => { try { wmPaidMail_(pid); } catch (e) { Logger.log('Vízjel-levél: ' + e); } });
+}
+function wmPaidMail_(pid) {
+  const P = PropertiesService.getScriptProperties(), key = 'WMPAID_' + pid; if (P.getProperty(key)) return;
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
+  const vids = parseVideos_(p.videos).filter(v => v.link && (v.st === 'leadva' || v.st === 'jovahagyva')); if (!vids.length) return;
+  let to = '', by = '';
+  vids.forEach(v => (v.cm || []).forEach(c => { const m = /^Ügyfélnek elküldve \(([^)]+)\)/.exec(String(c.t || '')); if (m && String(c.at) >= String((to && to.at) || '')) { to = { list: m[1], at: c.at }; by = c.by; } }));
+  const tos = (to ? to.list : String(p.contactEmail || '')).split(/\s*,\s*/).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)); if (!tos.length) return;
+  const users = loadUsers_(), sender = users.find(x => x.name === by && x.email) || users.find(x => x.role === 'admin' && x.email && !x.disabled) || { name: 'Lumos Motion', email: '' };
+  const ids = vids.map(v => v.id), url = FRONTEND_URL + '/' + clientShort_(clientToken_(Object.assign({ p: pid, v: ids[0], s: String(sender.email || ''), c: tos.join(', ') }, ids.length > 1 ? { vs: ids } : {})));
+  const fn = clientFirst_(p, tos[0]), multi = ids.length > 1, live = clientMailLive_();
+  const btn = '<a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#f6efe1;border:1px solid #e3d3b0;border-radius:10px;padding:6px 22px 6px 10px;text-decoration:none;color:#1d2a38;font-family:Montserrat,Arial,sans-serif;line-height:1.2"><img src="' + FRONTEND_URL + '/mail/stamp.png" width="48" height="48" alt="Lumos Motion" style="vertical-align:middle;border:0;display:inline-block"><span style="display:inline-block;vertical-align:middle;border-left:1px solid #e3d3b0;padding-left:14px;margin-left:12px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="display:inline-table;border-collapse:collapse;vertical-align:middle"><tr><td style="vertical-align:middle;font-size:15px;font-weight:600;color:#1d2a38;line-height:26px;white-space:nowrap">' + (multi ? 'Végleges videók' : 'Végleges videó') + '</td><td style="vertical-align:middle;padding-left:12px;line-height:0;font-size:0"><span style="display:inline-block;padding:7px 7px 7px 10px;border-radius:50%;background:#1d2a38;line-height:0;font-size:0"><span style="display:block;width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #ffffff"></span></span></td></tr></table></span></a>';
+  const lines = ['Kedves ' + fn + '!', '', 'Köszönjük a kiegyenlítést! ' + (multi ? 'A videókról' : 'A videóról') + ' levettük a vízjelet – a végleges ' + (multi ? 'változatokat' : 'változatot') + ' itt nézheted meg és töltheted le:'];
+  const sig = signatureFor_(sender), html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + lines.map(escapeHtml_).join('<br>') + '<br><br>' + btn + '</div>' + (sig ? '<br>' + sig.html : '<p>Üdvözlettel,<br>' + escapeHtml_(sender.name) + '<br>Lumos Motion</p>');
+  const subj = (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + 'Elkészült a végleges ' + (multi ? 'videók' : 'videó') + ' – ' + sval_(p.name);
+  const sendTo = live ? tos.join(', ') : String(sender.email || ''); if (!sendTo) return;
+  const opts = { htmlBody: html, name: sender.name || 'Lumos Motion' }; if (sender.email) opts.replyTo = sender.email;
+  if (gmailSend_(sendTo, subj, lines.join('\n') + '\n\n' + url + '\n\n' + (sig ? sig.text : 'Üdvözlettel,\n' + sender.name + '\nLumos Motion'), opts)) {
+    P.setProperty(key, now_());
+    try { withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row), vv = parseVideos_(q.videos); vv.filter(v => ids.indexOf(v.id) >= 0).forEach(v => { v.cm = (v.cm || []).concat([{ by: 'Lumos Motion', at: now_(), t: (live ? '💧 Vízjel levéve – értesítő elküldve (' : 'TESZT: vízjel-értesítő csak neked ment ki (') + tos.join(', ') + ')', ts: '' }]).slice(-100); }); q.videos = JSON.stringify(vv); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); }); } catch (e) { }
+  }
+}
 function wmActive_(p) { const b = readAll_('finBilling').find(x => x.projectId === p.id), w = String((b && b.watermark) || '');
   const sales = String(p.id || '').indexOf('sales-') === 0 || /Forrás: Sales App/.test(String(p.notes || ''));
   return (w === '1' || (w !== '0' && sales)) && p.payStatus !== 'teljes'; }
@@ -1670,11 +1698,14 @@ function finDelete_(u, a) {
 /* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
 function finSetPay_(u, a) {
   const st = PAY_STATUSES.indexOf(a && a.payStatus) >= 0 ? a.payStatus : '';
-  return withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); dbFlush_(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
+  const out = withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); dbFlush_(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
+  return out;
 }
 function writeProjectPay_(projectId, st) {
   const sh = sheetFor_('projects'), row = findRow_(sh, projectId);
   if (!row) throw new Error('A projekt nem található.');
+  let wasPaid = false, wmWas = false; try { const old = readRow_('projects', sh, row); wasPaid = String(old.payStatus || '') === 'teljes'; wmWas = !wasPaid && wmActive_(old); } catch (e) { }
+  if (st === 'teljes' && !wasPaid && wmWas) WM_PAID_.push(projectId);   // a vízjel most kerül le → az ügyfél e-mailt kap (a zár után)
   const col = TABLES.projects.cols.findIndex(c => c[0] === 'payStatus') + 1;
   sh.getRange(row, col).setNumberFormat('@').setValue(st);
 }
@@ -5414,6 +5445,12 @@ function salesSync() {
 function installSalesSync() {
   if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'salesSync')) ScriptApp.newTrigger('salesSync').timeBased().everyMinutes(5).create();
   return 'A Sales App szinkron 5 percenként fut.';
+}
+/** Tartalék: naponta egyszer (reggel) a kifizetések lekérdezése a számlázz.hu-tól – ha egy IPN-értesítés elmaradna. */
+function szDailySync() { try { if (!szamlazzKey_()) return; szSync_({ id: 'sz-auto', name: 'számlázz.hu (napi ellenőrzés)', role: 'admin', email: '' }, {}); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés: ' + e); } try { if (DB_) dbFlush_(); } catch (e) { } }
+function szDailyEnsure_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
+  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
 function salesSyncEnsure_() {
   const P = PropertiesService.getScriptProperties();
