@@ -884,3 +884,7 @@ html body .ct-prev .docx-wrapper{background:transparent!important;padding:10px!i
 
 html body .rt-notes{min-height:120px;max-height:70vh;overflow:auto;white-space:normal;line-height:1.5;cursor:text;height:auto}html body .rt-notes:empty::before{content:attr(data-ph);color:#9aa4ae}
 html body .rt-notes ul,html body .rt-notes ol{margin:4px 0 4px 22px;padding:0}html body .rt-notes a{color:#2f5f9e;text-decoration:underline}html body .rt-notes[contenteditable=false]{background:#f5f7fa}
+
+html body .vv-ver{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;background:#202a36;color:#fff;vertical-align:middle}
+html body .vv-old{margin-top:10px;border-top:1px dashed var(--line,#dfe4ea);padding-top:8px}html body .vv-old>summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted,#6b7680);padding:4px 0;list-style-position:inside}
+html body .vv-old .vv-cm-l{opacity:.72;margin-top:6px}
