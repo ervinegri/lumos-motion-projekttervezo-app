@@ -43,7 +43,7 @@ function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))r
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Jóváhagyásra vár',atadva:'Kész',lemondva:'Lemondva'};
-const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Videóvágás','Podcast','Egyéb'];
+const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Videóvágás','Podcast','Interjú','Egyéb'];
 const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
 /* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
 const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k))return 'Interjúsarok operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)(_\d+)?$/.test(k))return 'Statív operatőr';return role;};
