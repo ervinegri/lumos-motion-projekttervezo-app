@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3a648f4f23",
+"at": "2026-11-12T11:39:11+01:00",
+"msg": "Ügyfél módosításkérés: a vágó is megkapja az új stílusú levelet (ügyfél említése nélkül)"
+},
+{
 "id": "78858164f2",
 "at": "2026-11-12T11:36:43+01:00",
 "msg": "Új projektnél nincs automatikus másnapi vágási határidő"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a projekt fejlécében a Naptárban gomb a cím mellett, nem külön sorban"
 },
 {
-"id": "65bbae8fd1",
-"at": "2026-11-11T23:51:53+01:00",
-"msg": "Lépéskártya: feltűnőbb Részletek gomb (videótábla)"
-},
-{
-"id": "ab11e9b6f8",
-"at": "2026-11-11T22:50:44Z",
+"id": "31b1c77270",
+"at": "2026-11-11T22:52:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
