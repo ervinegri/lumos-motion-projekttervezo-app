@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01937ec8cf",
+"at": "2026-11-12T22:09:49+01:00",
+"msg": "Szerződés űrlap: a szakaszcímek teljes szélességben"
+},
+{
 "id": "09102c05c5",
 "at": "2026-11-12T22:09:21+01:00",
 "msg": "Szerződés: nyersanyag díjválasztó elrendezése"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat előnézet: az aláírás nem nyúlik ki teljes szélességre"
 },
 {
-"id": "1707cc3caa",
-"at": "2026-11-12T17:41:08+01:00",
-"msg": "Árajánlat: a fájlnév a megadott címzett cégből"
-},
-{
-"id": "b9f22e587b",
-"at": "2026-11-12T16:40:59Z",
+"id": "0247919c9f",
+"at": "2026-11-12T16:41:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
