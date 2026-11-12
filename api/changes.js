@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d8706cc137",
+"at": "2026-11-12T17:56:03+01:00",
+"msg": "Árajánlat PDF: a lábléc nem lóg rá az aláírásra"
+},
+{
 "id": "32c4a11725",
 "at": "2026-11-12T17:52:25+01:00",
 "msg": "Árajánlat PDF: széles képernyőn sem üres (a rögzített ablakszélesség kivéve)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat készítő a lehetőségből (előnézet, PDF, értékesítő aláírásával); görgethető ablak látható gombsorral; vízjel-levél hibaok visszajelzés"
 },
 {
-"id": "955cb0c1ee",
-"at": "2026-11-12T16:22:54+01:00",
-"msg": "Vízjel-levél: javítás (a zár utáni küldés nem futott le); kézi küldés RPC"
-},
-{
-"id": "c20a586004",
-"at": "2026-11-12T15:03:56Z",
+"id": "1c10c18a9b",
+"at": "2026-11-12T15:23:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
