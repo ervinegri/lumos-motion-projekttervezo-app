@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed42286a24",
+"at": "2026-11-12T21:49:52+01:00",
+"msg": "Szerződés: a PDF-et a Google készíti a Word-fájlból (a minta is ez); a sablonokban a felek táblázatai egymás mellett, nem lebegő táblázattal"
+},
+{
 "id": "effe022b3e",
 "at": "2026-11-12T21:45:23+01:00",
 "msg": "Szerződés PDF a Google-lel (docx → PDF export, ideiglenes fájl törlődik)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: több opció egy PDF-ben (pl. 1 / 3 / 5 short), opciónként tételek és összesítő, kalkulátorból az aktív opcióba"
 },
 {
-"id": "76a22b8122",
-"at": "2026-11-12T17:16:06+01:00",
-"msg": "Küldés a kollégák saját címéről: Google Workspace domainszintű megbízás (szolgáltatásfiók, Gmail API), automatikus visszaesés a központi fiókra; ügyvezetői beállító panel teszttel"
-},
-{
-"id": "66e8faf70c",
-"at": "2026-11-12T16:13:38Z",
+"id": "db0c9d233b",
+"at": "2026-11-12T16:16:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
