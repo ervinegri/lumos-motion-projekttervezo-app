@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8afbf301dc",
+"at": "2026-11-12T20:57:37+01:00",
+"msg": "Új szerződés: a típusválasztás a cég kiválasztása után jelenik meg"
+},
+{
 "id": "236a745d31",
 "at": "2026-11-12T20:55:27+01:00",
 "msg": "Naptár: a közelgő események leírása egyszer újraszinkronizálódik (jegyzetek nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: rendezvényre szóló vagy általános, mennyiségi kedvezmény, egyoldalas PDF, megnyitás új lapon, 15 nap érvényesség; árkalkulátor: Short videó fül, km-alapú kiszállás árai"
 },
 {
-"id": "56edd41eca",
-"at": "2026-11-12T16:43:42+01:00",
-"msg": "Értékesítés: árajánlat az árkalkulátorral indul (tételek átvétele), feltűnőbb gomb; értékesítő szűrésnél csak az ő jutaléka"
-},
-{
-"id": "ed2e0ede22",
-"at": "2026-11-12T15:39:58Z",
+"id": "f98fcaa993",
+"at": "2026-11-12T15:43:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
