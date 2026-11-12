@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c4c3ac34c8",
+"at": "2026-11-12T09:07:39+01:00",
+"msg": "Videóablak: az időkód / jelölés gombok a videó alatt középen"
+},
+{
 "id": "aed39d3f58",
 "at": "2026-11-12T08:54:45+01:00",
 "msg": "Videóablak: a szövegmezőben az Enter nem indítja el a videót"
@@ -155,16 +160,6 @@ const ITEMS = [
 "id": "af501435a3",
 "at": "2026-11-11T22:03:58+01:00",
 "msg": "Naptár: a vágói határidőknél csak ✂️ + a projekt neve (a „Leadás:” szó nélkül)"
-},
-{
-"id": "d608bd67ac",
-"at": "2026-11-11T22:03:21+01:00",
-"msg": "Jóváhagyó oldal: gépen a panel a videó melletti nyíl alatt kezdődik (felülre igazítva, üres sáv nélkül)"
-},
-{
-"id": "1b0e2818c5",
-"at": "2026-11-11T21:58:00+01:00",
-"msg": "Jóváhagyó oldal: a letöltés lista nem pipál (a böngésző nem jelzi a mentést), csak jelzi, hogy elindult"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
