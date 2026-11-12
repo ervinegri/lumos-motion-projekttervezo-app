@@ -709,7 +709,7 @@ function salesBootstrap_(u) {
   const cu = Object.assign({}, u, { role: 'crew' }), cid = String(u.crewId || '');
   const projects = cid ? base.projects.filter(p => parseFees_(p.fees).some(f => f.crewId === cid && Number(f.amount) > 0)).map(p => projectView_(p, cu)) : [];
   const own = k => cid ? readAll_(k).filter(x => x.crewId === cid) : [];
-  return { me: publicUser_(u), projects: projects, crew: [], inventory: [], payStatus: own('payStatus'), payAdjust: own('payAdjust'), paySent: paySentList_(u), clients: (base.clients || []).map(c => ({ id: c.id, name: c.name, contactName: c.contactName, contactEmail: c.contactEmail, contactPhone: c.contactPhone, tax: c.tax, address: c.address })),
+  return { me: publicUser_(u), myNotify: (() => { try { return salesNotifyOf_(loadUsers_().find(x => x.id === u.id)); } catch (e) { return null; } })(), projects: projects, crew: [], inventory: [], payStatus: own('payStatus'), payAdjust: own('payAdjust'), paySent: paySentList_(u), clients: (base.clients || []).map(c => ({ id: c.id, name: c.name, contactName: c.contactName, contactEmail: c.contactEmail, contactPhone: c.contactPhone, tax: c.tax, address: c.address })),
     deals: dealsFor_(u), salesPeople: salesPeople_(u), officeRent: [], links: {}, crewOrder: [], mailOn: mailOn_(),
     capabilities: { deals: true }, serverTime: now_() };
 }
@@ -1334,10 +1334,17 @@ function mailCcList_(cat, actor) {
 function mailOn_(cat) { try { if (PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) !== '1') return false; return !cat || mailCats_()[cat] !== false; } catch (e) { return false; } }
 /* A szakember saját értesítési beállításai (Stáb lap „notify” oszlop, JSON): e-mail és appon belüli értesítések típusonként ki-be kapcsolhatók. */
 const NOTIFY_KEYS_ = ['assign', 'eqlist', 'penalty', 'vidOk', 'vidMod', 'vidCm', 'appSent', 'appOk', 'appToast'];
+const SALES_NOTIFY_KEYS_ = ['salePay', 'saleDone', 'appPay', 'appToast'];   // értékesítő: kifizetés érkezett, projekt átadva (e-mail), kifizetés a csengőben, felugró értesítés
+function salesNotifyOf_(us) { const n = (us && us.notify) || {}; const o = {}; SALES_NOTIFY_KEYS_.forEach(k => { o[k] = n[k] !== false; }); return o; }
 function crewNotifyOf_(c) { let n = {}; try { n = JSON.parse(String((c && c.notify) || '{}')) || {}; } catch (e) { n = {}; } const o = {}; NOTIFY_KEYS_.forEach(k => { o[k] = n[k] !== false; }); return o; }
 function crewNotifyOk_(to, key) { try { const em = String(to || '').trim().toLowerCase(); if (!em || em.indexOf(',') >= 0) return true; const c = readAll_('crew').find(x => String(x.email || '').trim().toLowerCase() === em); return !c || crewNotifyOf_(c)[key] !== false; } catch (e) { return true; } }
 /** Saját értesítési beállítások lekérése / módosítása (a bejelentkezett szakember). a: {key, on} – kulcs nélkül csak lekérés. */
 function myNotify_(u, a) {
+  if (u.role === 'sales') { const key = a && a.key; if (key != null && SALES_NOTIFY_KEYS_.indexOf(key) < 0) throw new Error('Ismeretlen értesítéstípus.');
+    if (key == null) return { notify: salesNotifyOf_(loadUsers_().find(x => x.id === u.id)) };
+    if (u.realRole) throw new Error('Értékesítő nézetben csak megnézni lehet – a beállítást az értékesítő maga módosíthatja.');
+    let out; withLock_(() => { const us = loadUsers_(), me = us.find(x => x.id === u.id); if (!me) throw new Error('A felhasználó nem található.'); const n = salesNotifyOf_(me); n[key] = !!a.on; const st = {}; SALES_NOTIFY_KEYS_.forEach(k => { if (n[k] === false) st[k] = false; }); me.notify = st; saveUsers_(us); out = n; });
+    return { notify: out }; }
   if (!u.crewId) throw new Error('Ehhez a fiókhoz nem tartozik szakember a stáblistában.');
   const key = a && a.key; if (key != null && NOTIFY_KEYS_.indexOf(key) < 0) throw new Error('Ismeretlen értesítéstípus.');
   let out;
@@ -1347,6 +1354,23 @@ function myNotify_(u, a) {
     const n = crewNotifyOf_(c); n[key] = !!a.on; const st = {}; NOTIFY_KEYS_.forEach(k => { if (n[k] === false) st[k] = false; }); c.notify = JSON.stringify(st); putRow_('crew', sh, c, row); dbFlush_(); out = n; });
   return { notify: out };
 }
+/** Értékesítő értesítése a saját (megnyert) lehetőségéhez tartozó projektről: kifizetés érkezett / átadva. */
+function salesNotify_(pid, kind, st) {
+  try {
+    const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
+    const owners = readAll_('deals').filter(d => d.projectId === pid && d.stage === 'nyert').map(d => String(d.ownerId || '')).filter((x, i, a) => x && a.indexOf(x) === i);
+    if (!owners.length) return; const us = loadUsers_();
+    owners.forEach(oid => { const su = us.find(x => x.id === oid && x.role === 'sales' && !x.disabled); const em = su && String(su.email || '').trim(); if (!em || !/@/.test(em)) return;
+      const nk = kind === 'pay' ? 'salePay' : 'saleDone'; if (salesNotifyOf_(su)[nk] === false) return;
+      const fn = String(su.name || '').trim().split(/\s+/).pop(), pn = sval_(p.name), cl = sval_(p.client);
+      const head = kind === 'pay' ? (st === 'teljes' ? 'Jó hír: az ügyfeled <b>kifizette</b> a teljes összeget.' : 'Jó hír: az ügyfeled <b>kifizette</b> az előleget / díjbekérőt.') : 'A projekted <b>elkészült és átadtuk</b> az ügyfélnek.';
+      const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px">' + head + '</p>'
+        + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">' + (kind === 'pay' ? '💰 ' : '✓ ') + escapeHtml_(pn) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(cl) + '</div></td></tr></table>'
+        + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Projekttervező küldte.</p></div>';
+      gmailSend_(em, (kind === 'pay' ? 'Kifizetés érkezett: ' : 'Átadva: ') + pn, 'Kedves ' + (fn || 'Kolléga') + '!\n\n' + head.replace(/<\/?b>/g, '') + '\n\n' + pn + (cl ? ' – ' + cl : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' }); });
+  } catch (e) { Logger.log('Értékesítő értesítés: ' + e); }
+}
+let SALES_DONE_ = null;
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {}; const actor = opts.__actor; delete opts.__actor;
   { const nk = opts.__nk || ({ assign: 1, eqlist: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
@@ -1973,6 +1997,7 @@ function saveProject_(u, a) {
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
+    if (p.status === 'atadva' && old && old.status !== 'atadva') SALES_DONE_ = id;
     const sig = (list, f) => list.map(f).sort().join('|');
     const renamed = !old || old.name !== p.name;
     const oldCrew = old ? readAll_('crewAssign').filter(r => r.projectId === id) : [];
@@ -1991,6 +2016,7 @@ function saveProject_(u, a) {
     return out;
   });
   if (logArgs) logEvent_(u, logArgs[0], logArgs[1], logArgs[2]);
+  if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }   // az értékesítő értesül az átadásról
   if (a.deferCal === true || saved.duplicateOf) return saved;   // az új felület külön kérésben frissíti a naptárat, így a mentés gyors
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
@@ -2618,7 +2644,9 @@ function szApplyPay_(targets) {
         if (val > 0 && paid >= Math.round(val * 1.27) - 5) st = 'teljes'; } catch (e) {}
     }
     if (!st) return;
-    if (t.projectId) { try { writeProjectPay_(t.projectId, st); } catch (e) {} }
+    if (t.projectId) { let was = ''; try { const pp = readAll_('projects').find(x => x.id === t.projectId); was = String((pp && pp.payStatus) || ''); } catch (e) {}
+      try { writeProjectPay_(t.projectId, st); } catch (e) {}
+      if (st !== was && (st === 'teljes' || (st === 'eloleg' && was !== 'teljes'))) salesNotify_(t.projectId, 'pay', st); }
     else { const sh = sheetFor_('finIncome'), row = findRow_(sh, t.incomeId); if (row) { const r = readRow_('finIncome', sh, row); if (r.payStatus !== st) { r.payStatus = st; putRow_('finIncome', sh, r, row); } } }
   });
   dataBump_();
