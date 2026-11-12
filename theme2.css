@@ -866,3 +866,4 @@ html body .mrow .mail-cc .muted{font-size:12px;margin-right:2px}html body .mrow 
 html body .mrow .cc-chip.on{background:#eaf7ef;border-color:#a9d9bb;color:#1f6b40;font-weight:600}html body .mrow .cc-chip input{width:13px;height:13px;margin:0}
 
 html body .mp-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));column-gap:28px}html body .mp-group h4{grid-column:1/-1;margin-bottom:4px}html body .mp-group .mrow{border-top:1px solid var(--line,#e6e9ee)}
+html body .stage .t-row:has(.stage-board){flex-wrap:wrap;row-gap:6px}html body .stage-w.has-tick .stage .t-row:has(.stage-board){padding-right:26px}
