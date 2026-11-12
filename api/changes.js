@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e8ff4ff437",
+"at": "2026-11-12T15:10:40+01:00",
+"msg": "Videó hozzászólások: válaszolni minden állapotban lehet (vezetők és a vágó)"
+},
+{
 "id": "d921488541",
 "at": "2026-11-12T15:08:11+01:00",
 "msg": "Beállítások: eszközlista leírás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a számla kiállítása szürke, amíg a díjösszesítő nincs kiküldve"
 },
 {
-"id": "03bab8e6cc",
-"at": "2026-11-12T11:56:24+01:00",
-"msg": "Vágó: az idővonalon megmarad a jóváhagyott vágás, csak a havi nézetből tűnik el"
-},
-{
-"id": "d2c28d82e0",
-"at": "2026-11-12T10:56:03Z",
+"id": "da86b055eb",
+"at": "2026-11-12T10:56:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
