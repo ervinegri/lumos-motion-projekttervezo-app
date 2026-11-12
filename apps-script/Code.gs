@@ -2246,7 +2246,7 @@ function calPlan_(p) {
   if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
   if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
   if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
-  if (p.notes) lines.push('', 'JEGYZETEK', notesText_(p.notes).slice(0, 1000));
+  // a projekt jegyzetei nem kerülnek a naptárba (belső / ügyféllevelezésből bemásolt tartalom)
   // az app linkje nem kerül a leírásba: nem minden meghívottnak van hozzáférése
   const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
   const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);
