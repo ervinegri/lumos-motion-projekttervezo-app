@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f6e751bd1f",
+"at": "2026-11-12T14:56:00+01:00",
+"msg": "Jegyzetek: formázott szöveg (beillesztéskor megmarad a félkövér, dőlt, felsorolás, link)"
+},
+{
 "id": "a1224c7bfc",
 "at": "2026-11-12T14:44:07+01:00",
 "msg": "Új szerződés: díj a projekt értékéből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mentés után ne villanjon vissza a régi adat: a mentés közben indult betöltést eldobjuk"
 },
 {
-"id": "6255e796f3",
-"at": "2026-11-12T11:45:28+01:00",
-"msg": "Tagi kölcsön: honnan / hova számla (bank2)"
-},
-{
-"id": "39cc7c27fb",
-"at": "2026-11-12T10:41:34Z",
+"id": "f2fc1257be",
+"at": "2026-11-12T10:45:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
