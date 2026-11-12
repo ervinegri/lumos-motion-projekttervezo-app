@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e27128e013",
+"at": "2026-11-12T17:49:01+01:00",
+"msg": "Árajánlat előnézet: az aláírás nem nyúlik ki teljes szélességre"
+},
+{
 "id": "1707cc3caa",
 "at": "2026-11-12T17:41:08+01:00",
 "msg": "Árajánlat: a fájlnév a megadott címzett cégből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal (vízjeles): a letiltott natív teljes képernyő gomb helyett saját gomb jobb fent"
 },
 {
-"id": "f682a0b488",
-"at": "2026-11-12T15:18:48+01:00",
-"msg": "Jóváhagyó oldal: a vízjel teljes képernyőn is csak a képet fedi, sűrűn kitöltve"
-},
-{
-"id": "a621ac0c1d",
-"at": "2026-11-12T14:17:07Z",
+"id": "b7f64afc4f",
+"at": "2026-11-12T14:19:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
