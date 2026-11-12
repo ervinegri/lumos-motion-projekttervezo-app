@@ -1147,7 +1147,39 @@ function clientDecide_(t, d, fb, vid) {
         + (fb ? '<div style="font-size:14px;color:#202124;margin-top:10px;padding-top:10px;border-top:1px solid ' + (ok ? '#cfe9d9' : '#f3d0cb') + '"><span style="font-size:12px;color:#6b7680">Az ügyfél üzenete:</span><br>' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</div>' : '') + '</td></tr></table>'
         + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Projekttervező küldte.</p></div>';
       gmailSend_(o.s, subj, 'Kedves ' + (sfn || 'Kolléga') + '!\n\n' + (ok ? 'Jó hír: az ügyfél jóváhagyta a munkádat: ' : 'Az ügyfél módosítást kér a videón: ') + r.v.name + ' – ' + r.p.name + '.' + (fb ? '\n\nAz ügyfél üzenete:\n' + fb : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
+  clientSummary_(o, t);   // ha minden videóról döntött: visszaigazoló összefoglaló az ügyfélnek
   return clientInfo_(t, false, o.v);
+}
+/** Visszaigazolás az ügyfélnek: amikor a linken szereplő összes videóról döntött, egy összefoglaló levél megy (jóváhagyott/módosítandó videók, a saját üzeneteivel). */
+function clientSummary_(o, t) {
+  try {
+    const p = readAll_('projects').find(x => x.id === o.p); if (!p) return;
+    const all = parseVideos_(p.videos), ids = o.vs && o.vs.length > 1 ? o.vs : [o.v], vs = ids.map(id => all.find(x => x.id === id)).filter(Boolean);
+    if (!vs.length || vs.some(v => v.st === 'leadva')) return;   // még van döntésre váró videó
+    const tos = String(o.c || '').split(/\s*,\s*/).filter(x => /@/.test(x)); if (!tos.length) return;
+    const nm = clientFirst_(p, tos[0]);
+    const rows = vs.map(v => { const ok = v.st === 'jovahagyva'; let msg = '';
+      if (ok) { const c = (v.cm || []).filter(x => x.by === nm && /^💬 /.test(String(x.t || '')) && (!v.okAt || String(x.at) >= String(v.okAt))).pop(); msg = c ? String(c.t).replace(/^💬 /, '') : ''; }
+      else if (v.fbBy === nm) msg = String(v.fb || ''); else return null;   // nem az ügyfél döntött róla
+      return { v: v, ok: ok, msg: pinStrip_(msg).trim() }; }).filter(Boolean);
+    if (!rows.length) return;
+    const nOk = rows.filter(r => r.ok).length, nMod = rows.length - nOk, multi = rows.length > 1;
+    const code = /^[A-Za-z0-9]{6,16}$/.test(String(t || '')) ? String(t) : clientShort_(String(t)), url = FRONTEND_URL + '/' + code;
+    const sum = [nOk ? (multi ? nOk + ' videót' : 'a videót') + ' jóváhagytál' : '', nMod ? (multi ? nMod + ' videóhoz' : 'a videóhoz') + ' módosítást kértél' : ''].filter(Boolean).join(', ');
+    const next = nMod ? 'A kért módosításokon dolgozunk, és szólunk, amint elkészültek.' : 'Köszönjük a jóváhagyást!';
+    const box = r => '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 10px;width:100%;max-width:560px"><tr><td style="background:' + (r.ok ? '#eaf7ef;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + ';padding:12px 16px;border-radius:0 8px 8px 0">'
+      + '<div style="font-size:15px;font-weight:bold;color:' + (r.ok ? '#1e7a46' : '#b3261e') + '">' + (r.ok ? '✓ ' : '✎ ') + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + (r.ok ? 'Jóváhagyva' : 'Módosítást kértél') + '</div>'
+      + (r.msg ? '<div style="font-size:14px;color:#202124;margin-top:10px;padding-top:10px;border-top:1px solid ' + (r.ok ? '#cfe9d9' : '#f3d0cb') + '"><span style="font-size:12px;color:#6b7680">Az üzeneted:</span><br>' + escapeHtml_(r.msg).replace(/\n/g, '<br>') + '</div>' : '') + '</td></tr></table>';
+    const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(nm) + '!</p><p style="margin:0 0 14px">Köszönjük a visszajelzésedet, rögzítettük: ' + escapeHtml_(sum) + '.</p>'
+      + '<p style="margin:0 0 10px;font-weight:bold">' + escapeHtml_(sval_(p.name)) + '</p>' + rows.map(box).join('')
+      + '<p style="margin:16px 0 14px">' + escapeHtml_(next) + '</p><p style="margin:0 0 14px">A videókat és a döntéseidet itt bármikor visszanézheted: <a href="' + escapeHtml_(url) + '">jóváhagyó oldal</a></p>'
+      + '<p style="margin:0 0 0">Ha kérdésed van, egyszerűen válaszolj erre a levélre.</p><p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt a visszaigazolást a Lumos Motion Projekttervező küldte.</p></div>';
+    const text = 'Kedves ' + nm + '!\n\nKöszönjük a visszajelzésedet, rögzítettük: ' + sum + '.\n\n' + sval_(p.name) + '\n' + rows.map(r => '\n' + (r.ok ? '✓ ' : '✎ ') + r.v.name + ' – ' + (r.ok ? 'jóváhagyva' : 'módosítást kértél') + (r.msg ? '\nAz üzeneted: ' + r.msg : '')).join('\n') + '\n\n' + next + '\n\nA jóváhagyó oldal: ' + url + '\n\nHa kérdésed van, egyszerűen válaszolj erre a levélre.';
+    const live = clientMailLive_(), to = live ? tos.join(', ') : String(o.s || ''); if (!to) return;
+    const subj = (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + 'Visszaigazolás: ' + sval_(p.name) + (multi ? ' – ' + rows.length + ' videó' : ' – ' + rows[0].v.name);
+    const opts = { htmlBody: html, name: 'Lumos Motion' }; if (o.s && /@/.test(o.s)) opts.replyTo = o.s;
+    gmailSend_(to, subj, text, opts);
+  } catch (e) { Logger.log('Ügyfél visszaigazolás: ' + e); }
 }
 let FB_MAIL_ = null;
 function videoSet_(u, a) {
