@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b6e541646",
+"at": "2026-11-12T22:44:48+01:00",
+"msg": "Szerződés fájlneve: típus_ügyfél_szolgáltató (pl. Keretszerzodes_Empatia_..._Lumos_Motion_Kft.pdf)"
+},
+{
 "id": "87a780be45",
 "at": "2026-11-12T22:42:59+01:00",
 "msg": "Szerződéssablonok: több hely az aláírásnak (kb. 2,3 cm a vonalak fölött)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: másodlagos e-mail-cím a lehetőségnél (új oszlop a végén); az árajánlatnál alapból másolatba kerül"
 },
 {
-"id": "e098e3ea39",
-"at": "2026-11-12T18:15:15+01:00",
-"msg": "Napló: a felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
-},
-{
-"id": "60fa39922f",
-"at": "2026-11-12T17:14:42Z",
+"id": "edc50695ea",
+"at": "2026-11-12T17:15:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
