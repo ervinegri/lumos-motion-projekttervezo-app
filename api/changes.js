@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "93e182be2c",
+"at": "2026-11-12T21:37:18+01:00",
+"msg": "Szerződés PDF: nincs levágott szóvég (elválasztás ki), a felek táblázatai egyforma oszlopokkal"
+},
+{
 "id": "19b031358f",
 "at": "2026-11-12T21:31:41+01:00",
 "msg": "Új szerződés: a minta maga a PDF (oldalanként); a táblázatok nem lógnak ki a lapról"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: a hivatalos kétsoros logó"
 },
 {
-"id": "486fe7e65c",
-"at": "2026-11-12T17:11:15+01:00",
-"msg": "Péter aláírása: fotó, beosztás, telefon"
-},
-{
-"id": "adb7150021",
-"at": "2026-11-12T16:08:27Z",
+"id": "d0771397e1",
+"at": "2026-11-12T16:11:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
