@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4ff86da16f",
+"at": "2026-11-12T18:14:31+01:00",
+"msg": "Küldés a kollégák címéről: a panel gombjai működnek (kezelők az ACT létrejötte után)"
+},
+{
 "id": "d4cba3940a",
 "at": "2026-11-12T17:58:25+01:00",
 "msg": "Árak: Short videó operatőri alapdíj szerkeszthető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: a tételtábla nem lóg ki"
 },
 {
-"id": "56c6dd0fc3",
-"at": "2026-11-12T16:32:11+01:00",
-"msg": "Árajánlat előnézet: a PDF-oldal a szélességhez igazítva"
-},
-{
-"id": "f5039a67e5",
-"at": "2026-11-12T15:31:18Z",
+"id": "1c3c9156bc",
+"at": "2026-11-12T15:32:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
