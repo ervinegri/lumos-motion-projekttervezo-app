@@ -14,7 +14,7 @@ function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).fi
 function qSetOpt(i){const q=S.q;q.oi=Math.max(0,Math.min(q.opts.length-1,i));q.items=q.opts[q.oi].items;}
 /* konkrét rendezvényre szóló vagy általános ajánlat: a tárgy és a levél alapszövege ehhez igazodik */
 function qAuto(d,ev){return {subject:ev&&d.title?'Árajánlat – '+d.title:'Árajánlat – Lumos Motion',
-  body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&d.title?' a(z) „'+d.title+'” rendezvényhez':''}. Ha bármi kérdés felmerül, vagy módosítanátok rajta, szívesen segítek.`};}
+  body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&d.title?' a(z) „'+d.title+'” rendezvényhez':''}. Ha bármi kérdés felmerül, szívesen segítek.`};}
 function qRead(fd){const q=S.q;if(!q.rc)q.rc={name:'',person:'',addr:'',email:''};['name','person','addr','email'].forEach(k=>{if(fd.has('qrc_'+k))q.rc[k]=String(fd.get('qrc_'+k)||'').trim();});if(fd.has('q_ev'))q.ev=fd.get('q_ev')==='1';if($('q-discOn'))q.discOn=fd.has('q_discOn');['to','cc','subject','valid','note','body','disc','discLbl'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});
   if(fd.has('q_otitle'))q.opts[q.oi].title=String(fd.get('q_otitle')||'').trim();
   if(fd.has('qi_name_0')){q.items=[];q.opts[q.oi].items=q.items;for(let i=0;fd.has('qi_name_'+i);i++)q.items.push({name:String(fd.get('qi_name_'+i)||'').trim(),qty:String(fd.get('qi_qty_'+i)||'').trim(),price:String(fd.get('qi_price_'+i)||'').replace(/\s/g,'')});}}
