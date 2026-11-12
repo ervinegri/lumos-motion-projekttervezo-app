@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4347b1bcbf",
+"at": "2026-11-12T10:07:45+01:00",
+"msg": "Ügyfél visszaigazoló összefoglaló e-mail, ha minden videóról döntött"
+},
+{
 "id": "6cf2f38ede",
 "at": "2026-11-12T10:04:20+01:00",
 "msg": "Naptár szűrő: Terepi → Helyszíni"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: „A videó jóváhagyásra vár.” felirat"
 },
 {
-"id": "250876cf42",
-"at": "2026-11-11T23:23:40+01:00",
-"msg": "Naptár: a vágószűrő a csak vágásos projektekre is vonatkozik"
-},
-{
-"id": "340a550009",
-"at": "2026-11-11T22:20:11Z",
+"id": "e48c8e1707",
+"at": "2026-11-11T22:23:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
