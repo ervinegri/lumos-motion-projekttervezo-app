@@ -871,3 +871,13 @@ html body .vv-meta .vv-proj{font:inherit;font-weight:600;color:#2f5f9e;text-deco
 
 html body .vcf-row{margin-top:-6px}html body .vcf-box{text-align:center}html body .vcf-qr{width:240px;height:240px;image-rendering:pixelated;border-radius:10px;border:1px solid var(--line,#e6e9ee);padding:8px;background:#fff}
 html body .vcf-box .hint{margin:8px auto 14px;max-width:340px}html body .vcf-card{display:inline-flex;flex-direction:column;gap:3px;text-align:left;background:#f5f7fa;border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
+
+html body .ct-tpls{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media (max-width:600px){html body .ct-tpls{grid-template-columns:1fr}}
+html body .ct-tpl{display:flex;flex-direction:column;gap:3px;border:1.5px solid var(--line,#e2e6eb);border-radius:12px;padding:12px 14px;cursor:pointer;background:#fff;position:relative}
+html body .ct-tpl input{position:absolute;opacity:0;pointer-events:none}html body .ct-tpl.on{border-color:#2e9e62;background:#f1faf4;box-shadow:0 0 0 3px rgba(46,158,98,.12)}
+html body .ct-tpl .ct-firm{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted,#6b7680)}html body .ct-tpl b{font-size:15px}html body .ct-tpl small{color:var(--muted,#6b7680);font-size:12.5px;line-height:1.35}
+html body .ct-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}html body .ct-row{display:grid;gap:6px;align-items:center}
+html body .ct-row2{grid-template-columns:1fr 1fr auto}html body .ct-row3{grid-template-columns:2fr 70px 1.3fr auto}html body .ct-row.ct-hd{font-size:12px;color:var(--muted,#6b7680);font-weight:600}
+html body .ct-row .ct-del{width:28px;height:28px;padding:0}
+html body #mform.ct-wide{max-width:min(980px,96vw)!important;width:min(980px,96vw)}html body .ct-prev{max-height:66vh;overflow:auto;background:#e9edf2;border-radius:10px;padding:10px}
+html body .ct-prev .docx-wrapper{background:transparent!important;padding:10px!important}html body .ct-prev .docx-wrapper>section.docx{box-shadow:0 2px 10px rgba(16,25,35,.15)!important;margin-bottom:14px!important}

@@ -7,7 +7,7 @@ name: Apps Script telepítés
 on:
   push:
     branches: [main]
-    paths: ['apps-script/Code.gs']
+    paths: ['apps-script/Code.gs', 'apps-script/Templates.gs']
   workflow_dispatch:
 concurrency: { group: apps-script-deploy, cancel-in-progress: true }   # gyors egymásutáni módosításoknál csak az utolsó települ (kevesebb verzió)
 jobs:
@@ -37,8 +37,9 @@ jobs:
           mkdir -p /tmp/gas && cd /tmp/gas
           printf '{"scriptId":"%s","rootDir":"."}' "$SID" > .clasp.json
           clasp pull                         # az élő manifest (appsscript.json) megmarad
-          rm -f Code.js Code.gs
+          rm -f Code.js Code.gs Templates.js Templates.gs
           cp "$GITHUB_WORKSPACE/apps-script/Code.gs" Code.js
+          cp "$GITHUB_WORKSPACE/apps-script/Templates.gs" Templates.js   # szerződéssablonok
           clasp push -f
           N=$(clasp versions 2>/dev/null | grep -cE '^[0-9]+ - ' || true)
           echo "Verziók száma: $N / 200"

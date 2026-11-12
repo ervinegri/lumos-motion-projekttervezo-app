@@ -1473,7 +1473,7 @@ function viewClients(){
       ${adm?`<td>${clContract(c,ps)}</td>`:''}</tr>`;}).join('');
   const all=knownClients('').length;
   return `<div class="page-head"><div class="grow"><h2>Ügyfelek</h2><p class="sub">${all} ügyfél${adm&&S._clDocsBusy?' · <span class="spin" style="width:11px;height:11px;vertical-align:-1px"></span> szerződések keresése a Drive-ban…':''}</p></div>${ro()?'':undoBar()}
-      <button class="btn primary w" type="button" data-action="new-client">+ Új ügyfél</button></div>
+      ${isAdmin()?'<button class="btn outline w" type="button" data-action="new-contract">📝 Új szerződés</button>':''}<button class="btn primary w" type="button" data-action="new-client">+ Új ügyfél</button></div>
     <div class="toolbar"><input class="inp search" id="q-cl" type="search" placeholder="Keresés cégnév, adószám, kapcsolattartó vagy e-mail szerint" value="${esc(S.clf.q)}" aria-label="Ügyfelek keresése"></div>
     ${rows?`<div class="tbl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th class="cl-ph">Telefon</th><th>E-mail</th>${adm?'<th>Szerződés</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
 }
