@@ -5504,8 +5504,8 @@ function salesSyncEnsure_() {
    Csak az alapártól eltérő / megadott értékek tárolódnak: { r: {kulcs: szám}, e: {kulcs: szám} }. */
 const ARK_PRICES_PROPERTY = 'ARK_PRICES';
 const ARK_KEYS_ = {
-  r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'perkm', 'zone', 'buy', 'keep', 'rush'],
-  e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'perkm', 'zone', 'buy', 'keep', 'rush'],
+  r: ['i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i10', 'hour', 'equip', 'deliv', 'perkm', 'zone', 'buyb', 'buyp', 'keepb', 'keepp', 'rush'],
+  e: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12', 'streamx', 'hour', 'edit', 'deliv', 'perkm', 'zone', 'buyb', 'buyp', 'keepb', 'keepp', 'rush'],
   s: ['edit', 'script', 'cine', 'drone', 'hour', 'deliv', 'perkm', 'zone']   // Short videó kalkulátor
 };
 function arkPrices_() {
@@ -5521,7 +5521,7 @@ function arkPricesSet_(u, arg) {
       if (src[k] === '' || src[k] == null) return;
       const v = Number(String(src[k]).replace(/\s/g, '').replace(',', '.'));
       if (!isFinite(v) || v < 0) throw new Error('Érvénytelen ár: ' + k);
-      const pct = k === 'buy' || k === 'keep' || k === 'rush';
+      const pct = k === 'buyp' || k === 'keepp' || k === 'rush';
       if (pct && v > 500) throw new Error('A százalék legfeljebb 500 lehet.');
       if (!pct && v > 100000000) throw new Error('Túl nagy ár.');
       out[pg][k] = pct ? Math.round(v * 100) / 100 : Math.round(v);
