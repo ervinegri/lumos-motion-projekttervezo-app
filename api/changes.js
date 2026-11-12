@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1707cc3caa",
+"at": "2026-11-12T17:41:08+01:00",
+"msg": "Árajánlat: a fájlnév a megadott címzett cégből"
+},
+{
 "id": "1c5e7a721f",
 "at": "2026-11-12T17:40:50+01:00",
 "msg": "Árajánlat: az „Ajánlatot kapja” blokk (cég, kapcsolattartó, cím, e-mail) szerkeszthető"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a vízjel teljes képernyőn is csak a képet fedi, sűrűn kitöltve"
 },
 {
-"id": "61cd8503f9",
-"at": "2026-11-12T15:15:57+01:00",
-"msg": "Lezajlott rendezvénynél is módosítható a leadási határidő"
-},
-{
-"id": "97afca9d38",
-"at": "2026-11-12T15:15:12+01:00",
-"msg": "Lezárt projektnél is módosítható a leadási határidő"
+"id": "a621ac0c1d",
+"at": "2026-11-12T14:17:07Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
