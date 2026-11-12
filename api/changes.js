@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f49fcf7dc",
+"at": "2026-11-12T22:38:21+01:00",
+"msg": "Szerződéssablonok: a felek adatai egységes rácsban (feliratok, két egyforma táblázat, szerepek egy vonalban)"
+},
+{
 "id": "fe126cba40",
 "at": "2026-11-12T22:31:49+01:00",
 "msg": "Szerződéssablonok: a specifikáció táblázat a margón belül; kisebb logó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árak: Short videó operatőri alapdíj szerkeszthető"
 },
 {
-"id": "d87670cb2b",
-"at": "2026-11-12T17:57:21+01:00",
-"msg": "Árajánlat PDF: ami nem fér el, új oldalra kerül (az opciók egészben), oldalszámmal; előnézetben külön lapok"
-},
-{
-"id": "1b95952429",
-"at": "2026-11-12T16:56:19Z",
+"id": "a0504bce35",
+"at": "2026-11-12T16:57:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
