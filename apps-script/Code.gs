@@ -69,7 +69,7 @@ const TABLES = {
   crew: { tab: 'Stáb', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Név'], ['roles', 'Szerepek'], ['type', 'Jogviszony'], ['phone', 'Telefon'],
     ['email', 'E-mail'], ['dayRate', 'Napidíj (nettó Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
-    ['priority', 'Prioritás (1–3)'], ['company', 'Vállalkozás'], ['skills', 'Részletek'], ['vat', 'ÁFA (aam = alanyi adómentes, afa = áfakörös)'], ['tax', 'Adószám']] },
+    ['priority', 'Prioritás (1–3)'], ['company', 'Vállalkozás'], ['skills', 'Részletek'], ['vat', 'ÁFA (aam = alanyi adómentes, afa = áfakörös)'], ['tax', 'Adószám'], ['notify', 'Értesítési beállítások (JSON)']] },
   inventory: { tab: 'Leltár', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['name', 'Megnevezés'], ['category', 'Kategória'], ['qty', 'Darab'], ['condition', 'Állapot'],
     ['serial', 'Azonosító / sorozatszám'], ['value', 'Beszerzési érték / db (Ft)'], ['note', 'Megjegyzés'], ['createdAt', 'Létrehozva'], ['updatedAt', 'Módosítva'],
@@ -642,7 +642,7 @@ function bootstrap_(u) {
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
   const out = {
-    me: publicUser_(u), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
+    me: publicUser_(u), myNotify: (() => { try { return u.crewId ? crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)) : null; } catch (e) { return null; } })(), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     paySent: paySentList_(u),
     payStatus: u.role === 'admin' ? readAll_('payStatus') : u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId).map(x => ({ id: x.id, month: x.month, crewId: x.crewId, invoicedAt: x.invoicedAt ? '1' : '', paidAt: x.paidAt ? '1' : '', invoiceNo: x.invoiceNo ? '1' : '', invoiceNet: x.invoiceNo ? x.invoiceNet : '' })),   // a termelési vezető csak a bennhagyott egyenleghez szükséges adatot kapja
@@ -984,7 +984,7 @@ function videoComment_(u, a) {
     const to = own ? String(v.rvTo || '').trim() : c ? String(c.email || '').trim() : '';
     if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';
       gmailSend_(to, 'Hozzászólás: ' + v.name + ' – ' + p.name, u.name + ' hozzászólt: ' + v.name + ' – ' + p.name + '\n\n' + tl.trim() + (tl ? ' ' : '') + pinStrip_(t) + '\n\n' + url,
-        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
+        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidCm' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
   logEvent_(u, 'Videó hozzászólás', p.name, v.name);
   return { project: projectView_(fullProject_(p), u) };
 }
@@ -1141,7 +1141,7 @@ function clientDecide_(t, d, fb, vid) {
         const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px">Jó hír: a videót <b>jóváhagyták</b>.</p>'
           + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">✓ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div></td></tr></table>'
           + '<p style="margin:0 0 18px">Köszönjük a munkádat!</p><p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Projekttervező küldte.</p></div>';
-        gmailSend_(em, subj, 'Kedves ' + (fn || 'Kolléga') + '!\n\nJó hír: a videót jóváhagyták: ' + r.v.name + ' – ' + r.p.name + '.\n\nKöszönjük a munkádat!', { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágó értesítés (jóváhagyás): ' + e); } }
+        gmailSend_(em, subj, 'Kedves ' + (fn || 'Kolléga') + '!\n\nJó hír: a videót jóváhagyták: ' + r.v.name + ' – ' + r.p.name + '.\n\nKöszönjük a munkádat!', { htmlBody: html, name: 'Lumos Motion Projekttervező', __nk: 'vidOk' }); } } catch (e) { Logger.log('Vágó értesítés (jóváhagyás): ' + e); } }
   try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
       const ok = d === 'ok', sc = (() => { try { return readAll_('crew').find(x => String(x.email || '').trim().toLowerCase() === String(o.s).trim().toLowerCase()); } catch (e) { return null; } })(), sfn = sc ? String(sc.name || '').trim().split(/\s+/).pop() : '';
       const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(sfn || 'Kolléga') + '!</p><p style="margin:0 0 14px">' + (ok ? 'Jó hír: az ügyfél <b>jóváhagyta</b> a munkádat.' : 'Az ügyfél <b>módosítást kér</b> a videón.') + '</p>'
@@ -1155,7 +1155,7 @@ function clientDecide_(t, d, fb, vid) {
             + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#fff4f2;border-left:4px solid #d93025;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#b3261e">✎ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div>'
             + (fbc ? '<div style="font-size:14px;color:#202124;margin-top:10px;padding-top:10px;border-top:1px solid #f3d0cb"><span style="font-size:12px;color:#6b7680">A kért módosítás:</span><br>' + escapeHtml_(fbc).replace(/\n/g, '<br>') + '</div>' : '') + '</td></tr></table>'
             + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Projekttervező küldte.</p></div>';
-          gmailSend_(em, 'Módosítást kértek: ' + r.v.name + ' – ' + r.p.name, 'Kedves ' + (fn || 'Kolléga') + '!\n\nMódosítást kértek a videón: ' + r.v.name + ' – ' + r.p.name + '.' + (fbc ? '\n\nA kért módosítás:\n' + fbc : ''), { htmlBody: h2, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágó értesítés (módosítás): ' + e); } } } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
+          gmailSend_(em, 'Módosítást kértek: ' + r.v.name + ' – ' + r.p.name, 'Kedves ' + (fn || 'Kolléga') + '!\n\nMódosítást kértek a videón: ' + r.v.name + ' – ' + r.p.name + '.' + (fbc ? '\n\nA kért módosítás:\n' + fbc : ''), { htmlBody: h2, name: 'Lumos Motion Projekttervező', __nk: 'vidMod' }); } } catch (e) { Logger.log('Vágó értesítés (módosítás): ' + e); } } } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
   clientSummary_(o, t);   // ha minden videóról döntött: visszaigazoló összefoglaló az ügyfélnek
   return clientInfo_(t, false, o.v);
 }
@@ -1236,7 +1236,7 @@ function videoSet_(u, a) {
   if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
     if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = String(c.name || '').split(' ').pop();
       gmailSend_(em, 'Módosítást kér: ' + fm.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér: ' + fm.v.name + ' – ' + p.name + (fm.v.fb ? '\n\n' + pinStrip_(fm.v.fb) : '') + '\n\n' + url,
-        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
+        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidMod' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
   return { project: projectView_(fullProject_(p), u) };
 }
 function projectView_(p, u) {
@@ -1332,8 +1332,23 @@ function mailCcList_(cat, actor) {
   return out.filter((m, i) => out.indexOf(m) === i);
 }
 function mailOn_(cat) { try { if (PropertiesService.getScriptProperties().getProperty(MAIL_ON_PROPERTY) !== '1') return false; return !cat || mailCats_()[cat] !== false; } catch (e) { return false; } }
+/* A szakember saját értesítési beállításai (Stáb lap „notify” oszlop, JSON): e-mail és appon belüli értesítések típusonként ki-be kapcsolhatók. */
+const NOTIFY_KEYS_ = ['assign', 'eqlist', 'penalty', 'vidOk', 'vidMod', 'vidCm', 'appSent', 'appOk', 'appToast'];
+function crewNotifyOf_(c) { let n = {}; try { n = JSON.parse(String((c && c.notify) || '{}')) || {}; } catch (e) { n = {}; } const o = {}; NOTIFY_KEYS_.forEach(k => { o[k] = n[k] !== false; }); return o; }
+function crewNotifyOk_(to, key) { try { const em = String(to || '').trim().toLowerCase(); if (!em || em.indexOf(',') >= 0) return true; const c = readAll_('crew').find(x => String(x.email || '').trim().toLowerCase() === em); return !c || crewNotifyOf_(c)[key] !== false; } catch (e) { return true; } }
+/** Saját értesítési beállítások lekérése / módosítása (a bejelentkezett szakember). a: {key, on} – kulcs nélkül csak lekérés. */
+function myNotify_(u, a) {
+  if (!u.crewId) throw new Error('Ehhez a fiókhoz nem tartozik szakember a stáblistában.');
+  const key = a && a.key; if (key != null && NOTIFY_KEYS_.indexOf(key) < 0) throw new Error('Ismeretlen értesítéstípus.');
+  let out;
+  if (key == null) { out = crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)); return { notify: out }; }
+  withLock_(() => { const sh = sheetFor_('crew'), row = findRow_(sh, u.crewId); if (!row) throw new Error('A szakember nem található.'); const c = readRow_('crew', sh, row);
+    const n = crewNotifyOf_(c); n[key] = !!a.on; const st = {}; NOTIFY_KEYS_.forEach(k => { if (n[k] === false) st[k] = false; }); c.notify = JSON.stringify(st); putRow_('crew', sh, c, row); dbFlush_(); out = n; });
+  return { notify: out };
+}
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {}; const actor = opts.__actor; delete opts.__actor;
+  { const nk = opts.__nk || ({ assign: 1, eqlist: 1, penalty: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
     const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
@@ -4982,6 +4997,7 @@ function rpcInner_(token, name, arg) {
     case 'videoComment': return videoComment_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'videoCmDone': return videoCmDone_(u, arg);
+    case 'myNotify': return myNotify_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);

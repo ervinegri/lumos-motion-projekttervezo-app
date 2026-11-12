@@ -57,7 +57,7 @@ function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.rem
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
     if(Date.now()-c.at>7*864e5)return false;
-    const d=c.d;S.mySales=d.mySales||[];S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.clientMailLive=!!d.clientMailLive;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];crewDocsAutoBg();S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
+    const d=c.d;S.mySales=d.mySales||[];S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.clientMailLive=!!d.clientMailLive;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.myNotify=d.myNotify||null;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];crewDocsAutoBg();S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=0;
     document.body.classList.toggle('ro',ro());
     const hm=HASH_P.exec(location.hash||''),hp=hm&&projFromHash(hm[1]);
     if(hp){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
@@ -77,7 +77,7 @@ async function load(quiet,announce,pre){
     bootCacheSave(d);
     setTimeout(()=>{try{if(S.me&&!ro()&&!isSales())prefetchCal(S.cal.month);}catch(e){}},1200);
     setTimeout(()=>{try{if(S.me&&isAdmin()&&S.users===null)loadSettings();}catch(e){}},2500);   // Beállítások előtöltése
-    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.clientMailLive=!!d.clientMailLive;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];crewDocsAutoBg();salesSyncBg();setTimeout(()=>{try{bdResume();}catch(e){}},0);if(d.crewDocsAuto){const a=d.crewDocsAuto;setTimeout(()=>toast(a.err?'Szerződés-begyűjtés a Gmailből nem sikerült: '+a.err:a.n?'📥 '+a.n+' aláírt szerződés bekerült a Gmailből: '+a.list.join(', '):'📥 Gmail-ellenőrzés: nincs új aláírt szerződés.',!!a.err),1500);}S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
+    S.capabilities=d.capabilities||{};S.mailOn=d.mailOn;S.clientMailLive=!!d.clientMailLive;S.mailCats=d.mailCats||S.mailCats;S.mailCc=d.mailCc||S.mailCc;S.crewOrder=Array.isArray(d.crewOrder)?d.crewOrder:crewOrderLocal();S.me=d.me;S.myNotify=d.myNotify||null;S.mySales=d.mySales||[];S.deals=d.deals||[];S.salesPeople=d.salesPeople||[];S.crewDocs=d.crewDocs||[];crewDocsAutoBg();salesSyncBg();setTimeout(()=>{try{bdResume();}catch(e){}},0);if(d.crewDocsAuto){const a=d.crewDocsAuto;setTimeout(()=>toast(a.err?'Szerződés-begyűjtés a Gmailből nem sikerült: '+a.err:a.n?'📥 '+a.n+' aláírt szerződés bekerült a Gmailből: '+a.list.join(', '):'📥 Gmail-ellenőrzés: nincs új aláírt szerződés.',!!a.err),1500);}S.viewAsCrew=d.viewAsCrew||[];S.viewAsSales=d.viewAsSales||[];S.crewNames=d.crewNames||{};S.projects=(d.projects||[]).map(normProj);S.crew=d.crew||[];S.inventory=d.inventory||[];S.payAdjust=d.payAdjust||[];S.paySent=d.paySent||[];S.payStatus=d.payStatus||[];S.clients=d.clients||[];S.links=d.links||{};S.loaded=true;S.lastLoad=Date.now();
     document.body.classList.toggle('ro',ro());
     if(S.projectId){const p=projById(S.projectId);if(!p&&!S.dirty){S.projectId=null;S.draft=null;}else if(p&&!S.dirty){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}}
     if(!TABS().some(t=>t.id===S.tab))S.tab=TABS()[0].id;   // pl. az értékesítő csak az Értékesítés fület látja
@@ -132,7 +132,7 @@ function NAV_TABS(){const all=TABS(),out=[],done={};
   return out;}
 function finSubNav(){const g=groupOf(S.tab);if(!g)return '';S.groupSub[g.label]=S.tab;
   return `<nav class="subtabs" aria-label="${esc(g.label)}">${TABS().filter(t=>g.ids.includes(t.id)).sort((a,b)=>g.ids.indexOf(a.id)-g.ids.indexOf(b.id)).map(t=>`<a class="subtab" href="#t=${esc(t.id)}" data-action="tab" data-tab="${t.id}" aria-current="${S.tab===t.id?'page':'false'}">${g.icons[t.id]||''}${t.label}</a>`).join('')}</nav>`;}
-const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat([{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}]).concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'naptar',label:'Naptár'}].concat([{id:'kifizetesek',label:isAdmin()?'Fizetések':'Kifizetések'}]):[{id:'stab',label:'Stáb'}].concat(isAdmin()?[{id:'ertekesitok',label:'Értékesítők'}]:[]).concat([{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Fizetések':'Kifizetések'}])).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:[]);
+const TABS=()=>isSales()?[{id:'ertekesites',label:'Értékesítés'}].concat(S.me.crewId?[{id:'kifizetesek',label:'Kifizetések'}]:[]):(isAdmin()?[{id:'ertekesites',label:'Értékesítés'}]:[]).concat([{id:'projektek',label:ro()?'Beosztásaim':'Projektek'}]).concat(ro()?[]:[{id:'naptar',label:'Naptár'}]).concat(ro()?[{id:'naptar',label:'Naptár'}].concat([{id:'kifizetesek',label:isAdmin()?'Fizetések':'Kifizetések'}]):[{id:'stab',label:'Stáb'}].concat(isAdmin()?[{id:'ertekesitok',label:'Értékesítők'}]:[]).concat([{id:'leltar',label:'Leltár'},{id:'ugyfelek',label:'Ügyfelek'},{id:'kifizetesek',label:isAdmin()?'Fizetések':'Kifizetések'}])).concat(isAdmin()&&S.capabilities&&S.capabilities.finance?[{id:'penzugy',label:'Bevétel és kiadás'},{id:'szerzodes',label:'Szerződés és számlázás'}]:[]).concat(!ro()?[{id:'beallitasok',label:'Beállítások'}]:S.myNotify&&!S.me.viewAs?[{id:'ertesitesek',label:'Beállítások'}]:[]);
 /* Valódi módosítás van-e: a vázlat eltér-e a betöltött állapottól (ha mindent visszacsináltál, nincs mit menteni) */
 function stableJ(v){if(Array.isArray(v))return '['+v.map(stableJ).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).filter(k=>k[0]!=='_'&&v[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stableJ(v[k])).join(',')+'}';return JSON.stringify(v===undefined?null:v);}
 function draftChanged(){if(!S.draft||!S.draftBase||S.draft.id!==S.draftBase.id)return true;try{return stableJ(S.draft)!==stableJ(S.draftBase);}catch(e){return true;}}
@@ -198,7 +198,7 @@ function render(force){setTimeout(appReveal,0);
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
-  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertekesites'?viewSales():viewProjects());
+  VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertesitesek'?viewMyNotify():S.tab==='ertekesites'?viewSales():viewProjects());
   {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
@@ -1273,13 +1273,14 @@ const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vág�
 const crewOnSite=(p,me)=>!!me&&!editOnly(p)&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
 function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewCuts(p,me)));}
 function calCutDue(){try{return localStorage.getItem('lpm_cal_cutdue')!=='0';}catch(e){return true;}}
+function cutOkMine(p,me){const own=(p.videos||[]).filter(v=>vidOwner(p,v)===me);return own.length>0&&own.every(v=>v.st==='jovahagyva');}   // a vágó minden videóját jóváhagyták: nála már nem kell látszania
 function calKind(){return ro()&&crewIsCutter()?(S.cal.kind||''):'';}   // szakember (vágó is): '' mind, 'site' terepi, 'cut' vágói munkák
 function calItems(month){
   const r=calRange(month),items=[];
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'',cutter=ro()&&crewIsCutter()&&calKind()!=='site',onlyCut=calKind()==='cut';
   S.projects.forEach(p=>{const q=pr(p);let pre='';
-    if(cutter){const cut=crewCuts(p,me);
+    if(cutter){const cut=crewCuts(p,me)&&!cutOkMine(p,me);
       if(cut){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
         if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:'✂️ '+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
       if(editOnly(p))return;}
@@ -1337,7 +1338,7 @@ function calTimeline(m,items0,T,ahead){
   const items=[],ik=new Set();months.forEach(month=>(month===m?items0:calItems(month)).forEach(it=>{const k=it.kind+':'+it.id+(it.cut?':c':'');if(!ik.has(k)){ik.add(k);items.push(it);}}));
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
-  const cutOf=p=>{if(!p||p.status==='lemondva'||calKind()==='site'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
+  const cutOf=p=>{if(!p||p.status==='lemondva'||calKind()==='site'||(ro()&&(!crewCuts(p,me)||cutOkMine(p,me)))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
     if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
   const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva')&&!(!ro()&&S.cal.cutter&&it.kind!=='v'&&(it.kind!=='p'||!crewCuts(projById(it.id)||{},S.cal.cutter))));   // a lemondott projekt itt nem látszik; vágó kiválasztásakor csak az ő vágói munkái
@@ -1510,6 +1511,15 @@ function clDocsModal(name){const c=knownClients('').find(x=>x.company===name)||{
     <div class="btns" style="margin-top:12px">${dir?`<a class="mini" href="${esc(dir.url)}" target="_blank" rel="noopener">📁 Ügyfél mappája ↗</a>`:''}</div>`,{cancelLabel:'Bezárás'});
   if(S.tab==='ugyfelek'&&ACT['edit-client'])window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['edit-client']({dataset:{name}});};}   /* bezáráskor vissza az ügyfél adatlapjára */
 
+/* ===== Szakember: saját értesítési beállítások ===== */
+function viewMyNotify(){const n=S.myNotify||{},cut=crewIsCutter();
+  const row=([k,l,d])=>`<label class="ntf-row"><span class="ntf-tx"><b>${l}</b><small>${d}</small></span><span class="ntf-sw"><input type="checkbox" data-notify="${k}"${n[k]!==false?' checked':''}><i></i></span></label>`;
+  const EM=[['assign','👥 Beosztás','Ha beosztanak egy projektre, vagy módosul a beosztásod.'],['eqlist','🎒 Eszközlista','Ki milyen eszközt visz a forgatásra.'],['penalty','⚠️ Díjcsökkentés','Ha jóváhagyott díjcsökkentés érint.']]
+    .concat(cut?[['vidOk','✅ Videó jóváhagyva','Ha jóváhagyták az általad vágott videót.'],['vidMod','✎ Módosítást kértek','Ha módosítást kértek az általad vágott videón.'],['vidCm','💬 Hozzászólás','Ha valaki hozzászól az általad vágott videóhoz.']]:[]);
+  const AP=[['appSent','📤 Továbbküldve jóváhagyásra','A csengőben látszik, ha a videódat továbbküldték jóváhagyásra.'],['appOk','✅ Jóváhagyva','A csengőben látszik, ha a videódat jóváhagyták.'],['appToast','🔔 Felugró értesítés','Új értesítésnél felugró ablak a jobb felső sarokban.']];
+  return `<div class="page-head"><div class="grow"><h2>Beállítások</h2><p class="sub">Itt állíthatod be, miről kapj értesítést.</p></div></div>
+    <div class="panel ntf-panel"><h3>📧 E-mail értesítések</h3>${EM.map(row).join('')}<p class="hint">A díjösszesítő és a belépési meghívó mindig megérkezik.</p></div>
+    ${cut?`<div class="panel ntf-panel"><h3>🔔 Értesítések az appban</h3>${AP.map(row).join('')}</div>`:''}`;}
 /* ===== Beállítások (admin) ===== */
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}

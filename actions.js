@@ -2423,11 +2423,11 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='bd-cut'){S.bo
 /* 🔔 Értesítések: belső ellenőrzésre váró videók (ügyvezető / termelési vezető). Új tételnél felugró értesítés a jobb felső sarokban. */
 /* a vágó csengője: a saját videóinak útja (továbbküldve az ügyfélnek / jóváhagyva) – csak az appban, e-mail nélkül */
 const crewBell=()=>!!(S.me&&S.me.role==='crew'&&S.me.crewId&&!S.me.viewAs);
-function crewBellItems(){const out=[],me=S.me.crewId,lim=new Date(Date.now()-21*864e5).toISOString().slice(0,10);
+function crewBellItems(){const NF=S.myNotify||{},out=[],me=S.me.crewId,lim=new Date(Date.now()-21*864e5).toISOString().slice(0,10);
   S.projects.forEach(p=>{if(p.status==='lemondva')return;(p.videos||[]).forEach(v=>{if(v.editor!==me)return;
     const sent=[...(v.cm||[])].reverse().find(c=>/^(Ügyfélnek elküldve|TESZT: az ügyfélnek|Továbbküldve jóváhagyásra)/.test(c.t||''));
-    if(v.st==='leadva'&&sent&&String(sent.at).slice(0,10)>=lim)out.push({p,v,kind:'sent',at:sent.at,by:sent.by,key:'cs|'+p.id+'|'+v.id+'|'+sent.at});
-    if(v.st==='jovahagyva'){const ok=[...(v.cm||[])].reverse().find(c=>/jóváhagy/i.test(c.t||''));const at=(ok&&ok.at)||v.at||'';if(String(at).slice(0,10)>=lim)out.push({p,v,kind:'ok',at,by:'',key:'co|'+p.id+'|'+v.id});}});});
+    if(NF.appSent!==false&&v.st==='leadva'&&sent&&String(sent.at).slice(0,10)>=lim)out.push({p,v,kind:'sent',at:sent.at,by:sent.by,key:'cs|'+p.id+'|'+v.id+'|'+sent.at});
+    if(NF.appOk!==false&&v.st==='jovahagyva'){const ok=[...(v.cm||[])].reverse().find(c=>/jóváhagy/i.test(c.t||''));const at=(ok&&ok.at)||v.at||'';if(String(at).slice(0,10)>=lim)out.push({p,v,kind:'ok',at,by:'',key:'co|'+p.id+'|'+v.id});}});});
   return out.sort((a,b)=>String(b.at).localeCompare(String(a.at)));}
 function bellItems(){if(crewBell())return crewBellItems();if(ro()||isSales()||!(isAdmin()||(S.me&&S.me.role==='editor')))return [];const out=[];
   S.projects.forEach(p=>{if(p.status==='lemondva'||p.status==='atadva')return;(p.videos||[]).forEach(v=>{if(v.st==='ellen')out.push({p,v,key:p.id+'|'+v.id+'|'+(v.rvAt||'')});});});
@@ -2443,7 +2443,7 @@ function bellRender(){const w=$('bellW');if(!w)return;const L=bellItems(),on=cre
   const PY=bellPays(),unread=L.concat(PY).filter(x=>!read.includes(x.key)).length;dot.hidden=!unread;dot.textContent=unread>9?'9+':String(unread||'');   // megnyitás (elolvasás) után eltűnik
   let seen=[];try{seen=JSON.parse(localStorage.getItem('lpm_bell_seen')||'[]');}catch(e){}
   const fresh=L.filter(x=>!seen.includes(x.key)&&(x.kind||x.v.rvBy!==(S.me&&S.me.name)));   // a saját küldésedről nem kapsz felugró értesítést
-  if(fresh.length&&S._bellInit){const x=fresh[0],t=document.createElement('div');t.className='bell-toast';
+  if(fresh.length&&S._bellInit&&!(crewBell()&&S.myNotify&&S.myNotify.appToast===false)){const x=fresh[0],t=document.createElement('div');t.className='bell-toast';
     t.innerHTML=`<span class="bt-ic">${BELL_SVG}</span><span class="bt-tx"><b>${x.kind==='sent'?'📤 Továbbküldve jóváhagyásra':x.kind==='ok'?'✅ Jóváhagyva':'Ellenőrzésre vár'}</b><span>${esc(x.v.name)}</span><small>${esc(x.p.name||'')}${x.kind?(x.by?' · '+esc(x.by):''):(x.v.rvBy?' · '+esc(x.v.rvBy):'')+(String(x.v.rvTo||'').toLowerCase()===myMail?' · neked':'')}</small></span><button type="button" class="bt-x" aria-label="Bezárás">×</button>`;
     t.onclick=e=>{t.remove();if(e.target.closest('.bt-x'))return;ACT['vid-view']({dataset:{pid:x.p.id,vid:x.v.id}});};document.body.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300);},9000);}
   {const fp=PY.filter(x=>!seen.includes(x.key));if(fp.length&&S._bellInit&&!fresh.length){const x=fp[0],t=document.createElement('div');t.className='bell-toast bt-pay';
@@ -2778,3 +2778,7 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='cal-cutdue'){
 /* videóablak: az alsó „Időkód beszúrása” / „Jelölés” gombok a videó alatt, középen (a videó szélességéhez igazítva) */
 function vvFitTcw(){const f=document.getElementById('mform'),pl=document.querySelector('#mform .vv-player');if(!f||!pl)return;const set=()=>f.style.setProperty('--vvw',pl.offsetWidth+'px');set();if(window.ResizeObserver&&!pl._tcwRo){pl._tcwRo=new ResizeObserver(set);pl._tcwRo.observe(pl);}}
 {const _vv0=ACT['vid-view'];ACT['vid-view']=b=>{const r=_vv0(b);requestAnimationFrame(vvFitTcw);setTimeout(vvFitTcw,400);return r;};}
+
+/* szakember: saját értesítési beállítás kapcsolója */
+document.addEventListener('change',async e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.notify)return;const k=t.dataset.notify,on=t.checked;S.myNotify=Object.assign({},S.myNotify||{},{[k]:on});
+  try{const r=await call('myNotify',{key:k,on});if(r&&r.notify)S.myNotify=r.notify;toast(on?'Bekapcsolva':'Kikapcsolva');bellRender();}catch(err){S.myNotify[k]=!on;t.checked=!on;handleErr(err);}});
