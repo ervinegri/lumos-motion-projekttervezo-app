@@ -92,11 +92,32 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (bekezdés, táblázatsor nem törik ketté) */
+/* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
+function ctFixCounters(root){const C={},roman=(n,up)=>{const m=[[1000,'m'],[900,'cm'],[500,'d'],[400,'cd'],[100,'c'],[90,'xc'],[50,'l'],[40,'xl'],[10,'x'],[9,'ix'],[5,'v'],[4,'iv'],[1,'i']];let s='';m.forEach(([v,r])=>{while(n>=v){s+=r;n-=v;}});return up?s.toUpperCase():s;};
+  const fmt=(n,st)=>st==='lower-alpha'||st==='lower-latin'?String.fromCharCode(96+((n-1)%26+1)):st==='upper-alpha'||st==='upper-latin'?String.fromCharCode(64+((n-1)%26+1)):st==='lower-roman'?roman(n):st==='upper-roman'?roman(n,true):st==='decimal-leading-zero'?String(n).padStart(2,'0'):String(n);
+  const parse=v=>{const out=[];if(!v||v==='none')return out;const re=/(-?[A-Za-z_][\w-]*)(?:\s+(-?\d+))?/g;let m;while((m=re.exec(v)))out.push([m[1],m[2]==null?null:+m[2]]);return out;};
+  const apply=cs=>{parse(cs.counterReset).forEach(([n,v])=>{C[n]=v==null?0:v;});parse(cs.counterSet).forEach(([n,v])=>{C[n]=v==null?0:v;});parse(cs.counterIncrement).forEach(([n,v])=>{C[n]=(C[n]||0)+(v==null?1:v);});};
+  const unesc=x=>x.replace(/\\([0-9a-fA-F]{1,6})\s?/g,(a,h)=>String.fromCodePoint(parseInt(h,16))).replace(/\\(.)/g,'$1');
+  const cssStr=x=>'"'+x.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\t/g,'  ').replace(/\n/g,' ')+'"';
+  let css='',i=0;
+  root.querySelectorAll('*').forEach(el=>{apply(getComputedStyle(el));const b=getComputedStyle(el,'::before');apply(b);const ct=b.content;if(!ct||ct.indexOf('counter')<0)return;
+    const txt=ct.replace(/"((?:[^"\\]|\\.)*)"|counters?\(([\w-]+)(?:,\s*"[^"]*")?(?:,\s*([\w-]+))?\)|\s+/g,(all,str,name,st)=>str!=null?unesc(str):name?fmt(C[name]||0,st||'decimal'):'');
+    const id='cn'+(i++);el.setAttribute('data-cn',id);css+=`[data-cn="${id}"]::before{content:${cssStr(txt)}!important;counter-increment:none!important;counter-reset:none!important;counter-set:none!important}`;});
+  const st=document.createElement('style');st.textContent=css;root.appendChild(st);}
+/* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (ami elfér egy oldalon, nem vágódik ketté) */
 async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;background:#fff"></div>';document.body.appendChild(host);const box=host.firstElementChild;   // a rögzített (fixed) gazdát nem adjuk át a PDF-készítőnek, csak a belső dobozt
-  try{await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:false,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
-    host.querySelectorAll('section.docx').forEach(x=>{x.style.paddingTop='0';x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
+  try{await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
+    box.querySelectorAll('.docx-wrapper').forEach(w=>{w.style.background='#fff';w.style.padding='0';w.style.display='block';});
+    box.querySelectorAll('section.docx').forEach(x=>{x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
+    ctFixCounters(box);
     await Promise.all([...host.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})));if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-    const uri=await lib().set({margin:[14,0,14,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css'],avoid:['p','tr','li','img','h1','h2','h3']}}).from(box).outputPdf('datauristring');
+    const M=12,pageH=794*(297-2*M)/210,top0=box.getBoundingClientRect().top,sec=box.querySelector('section.docx');
+    const els=sec?[...sec.children].flatMap(c=>c.tagName==='ARTICLE'?[...c.children]:[c]):[];let ps=0;
+    els.forEach(el=>{const r=el.getBoundingClientRect(),t=r.top-top0,b=r.bottom-top0;if(b-ps<=pageH+1)return;
+      if(r.height<=pageH&&t>ps+1){const sp=document.createElement('div');sp.style.cssText='height:'+(ps+pageH-t)+'px';el.parentNode.insertBefore(sp,el);
+        const t2=el.getBoundingClientRect().top-top0,over=t2-(ps+pageH);if(over>0)sp.style.height=Math.max(0,parseFloat(sp.style.height)-over)+'px';ps+=pageH;}
+      else{while(b-ps>pageH)ps+=pageH;}});
+    const uri=await lib().set({margin:[M,0,M,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:[]}}).from(box).outputPdf('datauristring');
     return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
 async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;
