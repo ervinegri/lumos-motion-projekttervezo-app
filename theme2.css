@@ -911,3 +911,4 @@ html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflo
 .qp-note{margin-top:22px;padding:12px 14px;border-left:4px solid #1d2a38;background:#f5f7fa;font-size:12.5px}
 .qp-sig{margin-top:34px;display:flex;flex-direction:column;gap:1px;font-size:13px}.qp-sig b{font-size:15px;margin-top:6px}
 .qp-foot{position:absolute;left:60px;right:60px;bottom:40px;font-size:10.5px;color:#7b8794;border-top:1px solid #e3e8ee;padding-top:8px}
+html body .qp .qp-tbl{min-width:0!important;width:100%!important;max-width:100%!important}
