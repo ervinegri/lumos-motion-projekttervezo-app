@@ -997,6 +997,8 @@ function videoCommentDel_(u, a) {
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const kind = str_(a.kind, 10);
     if (kind === 'note') throw new Error('Az ellenőrzésre küldés megjegyzése nem törölhető.');
+    if (v.st === 'leadva' || v.st === 'jovahagyva') throw new Error('A leadott videó hozzászólásai már nem törölhetők.');
+    { const c0 = (v.cm || []).find(c => c.at === at); if (c0 && /\[\d{1,3}:\d{2}/.test(String(c0.t || ''))) throw new Error('Az időkódos észrevétel nem törölhető (a vágó ez alapján dolgozik).'); }
     if (kind === 'fb' || kind === 'note') {   // a régi visszadobási indok / az ellenőrzésre küldés megjegyzése
       const by = kind === 'fb' ? v.fbBy : v.rvBy, w = kind === 'fb' ? v.fbAt : v.rvAt;
       if (by !== u.name) throw new Error('FORBIDDEN: Csak a saját hozzászólásodat törölheted.'); if (String(w || '') !== at) throw new Error('A hozzászólás közben megváltozott – frissíts, és próbáld újra.');
@@ -2545,7 +2547,13 @@ function szApplyPay_(targets) {
   const seen = {};
   targets.forEach(t => {
     const key = (t.projectId ? 'p:' + t.projectId : 'i:' + t.incomeId); if (!t.projectId && !t.incomeId || seen[key]) return; seen[key] = 1;
-    const st = szPayStatusFor_(inv.filter(x => t.projectId ? invHasProj_(x, t.projectId) : x.incomeId === t.incomeId));
+    const li = inv.filter(x => t.projectId ? invHasProj_(x, t.projectId) : x.incomeId === t.incomeId);
+    let st = szPayStatusFor_(li);
+    if (st === 'eloleg' && t.projectId) {   // a foglaló/előleg a teljes összeget fedezi (pl. 100%-os foglaló) → kifizetve
+      try { const pr = readAll_('projects').find(x => x.id === t.projectId), val = Number(pr && pr.projectValue) || 0;
+        const paid = li.reduce((s2, x) => s2 + (x.kind === 'eloleg' && x.manual ? (Number(x.invGross) || 0) : (Number(x.invPaid) || 0)), 0);
+        if (val > 0 && paid >= Math.round(val * 1.27) - 5) st = 'teljes'; } catch (e) {}
+    }
     if (!st) return;
     if (t.projectId) { try { writeProjectPay_(t.projectId, st); } catch (e) {} }
     else { const sh = sheetFor_('finIncome'), row = findRow_(sh, t.incomeId); if (row) { const r = readRow_('finIncome', sh, row); if (r.payStatus !== st) { r.payStatus = st; putRow_('finIncome', sh, r, row); } } }
