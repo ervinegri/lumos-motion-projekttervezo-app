@@ -958,3 +958,7 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 /* a levél-előnézetben az aláírás táblázata a saját (375 px) szélességén marad, ahogy a levélben is */
 html body .q-mb table{width:auto!important;min-width:0!important;font-size:inherit}
 html body .q-mb table[width="375"]{width:375px!important;max-width:100%!important}
+/* árajánlat-lap: a lábléc a tartalom alatt (nem rá), az oldal alján; ha nem fér el, a PDF arányosan kicsinyít */
+.qp{display:flex;flex-direction:column}
+.qp .qp-foot{position:static!important;left:auto;right:auto;bottom:auto;margin-top:auto;padding-top:8px}
+.qp .qp-sig{margin-bottom:22px}
