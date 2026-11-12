@@ -2804,3 +2804,9 @@ ACT.vcf=async()=>{const d=S.draft||{};const tel=(()=>{const el=document.querySel
   const blob=new Blob([v],{type:'text/vcard'});
   const dl=$('vcfDl');if(dl)dl.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);};
   const sh=$('vcfSh');if(sh)sh.onclick=async()=>{try{const f=new File([blob],fn,{type:'text/vcard'});if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title:o.name});else dl.click();}catch(e){}};};
+
+/* formázott jegyzet: gépelés / beillesztés */
+document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.rt||!S.draft||ro())return;histTyping('rt|'+t.dataset.rt);S.draft[t.dataset.rt]=rtClean(t.innerHTML);if(!S.dirty){S.dirty=true;renderChrome();}},true);
+document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-rt]');if(!t||t.getAttribute('contenteditable')!=='true')return;const cd=e.clipboardData;if(!cd)return;e.preventDefault();
+  const h=cd.getData('text/html'),tx=cd.getData('text/plain');const ins=h?rtClean(h):esc(tx).replace(/\r?\n/g,'<br>');document.execCommand('insertHTML',false,ins);});
+document.addEventListener('keydown',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-rt]');if(!t||!(e.metaKey||e.ctrlKey))return;const k=e.key.toLowerCase();if(k==='b'||k==='i'||k==='u'){e.preventDefault();document.execCommand(k==='b'?'bold':k==='i'?'italic':'underline');}});

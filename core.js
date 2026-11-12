@@ -543,3 +543,19 @@ document.addEventListener('input',e=>{const t=e.target;if(!t||!t.matches||!t.mat
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t&&t.dataset&&t.dataset.mexpr==='1'){e.preventDefault();e.stopImmediatePropagation();moneyExprApply(t);}},true);
 document.addEventListener('blur',e=>{moneyExprApply(e.target);},true);
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.mexpr==='1'){e.stopImmediatePropagation();moneyExprApply(t);}},true);
+
+/* Formázott jegyzet: beillesztéskor a félkövér, dőlt, aláhúzott, felsorolás, címsor és link megmarad – minden más (stílus, betűtípus, szín) kimarad.
+   A régi, sima szöveges jegyzet sortörésekkel jelenik meg. Megjelenítéskor is tisztítjuk (más felhasználó beírt HTML-je nem futhat). */
+const RT_HTML_RE=/<\/?(p|div|br|b|strong|i|em|u|ul|ol|li|a|h[1-6])\b/i;
+function rtClean(html){const doc=new DOMParser().parseFromString('<div>'+String(html||'')+'</div>','text/html'),out=document.createElement('div');
+  const walk=(n,to)=>{n.childNodes.forEach(c=>{if(c.nodeType===3){to.appendChild(document.createTextNode(c.nodeValue.replace(/\u00a0/g,' ')));return;}if(c.nodeType!==1)return;
+    const tg=c.tagName,st=(c.getAttribute('style')||'').toLowerCase();if(/^(SCRIPT|STYLE|META|LINK|TITLE|HEAD|O:P|XML)$/.test(tg))return;
+    let el=null;if(tg==='BR'){to.appendChild(document.createElement('br'));return;}
+    if(/^(B|STRONG)$/.test(tg)&&!/font-weight:\s*(normal|[1-5]00)/.test(st))el=document.createElement('b');else if(/^(I|EM)$/.test(tg))el=document.createElement('i');else if(tg==='U')el=document.createElement('u');
+    else if(tg==='UL'||tg==='OL'||tg==='LI')el=document.createElement(tg.toLowerCase());else if(/^H[1-6]$/.test(tg)){el=document.createElement('div');const b=document.createElement('b');el.appendChild(b);walk(c,b);to.appendChild(el);return;}
+    else if(tg==='P'||tg==='DIV'||tg==='TR'||tg==='BLOCKQUOTE')el=document.createElement('div');
+    else if(tg==='A'){const h=c.getAttribute('href')||'';if(/^(https?:|mailto:|tel:)/i.test(h)){el=document.createElement('a');el.href=h;el.target='_blank';el.rel='noopener';}}
+    if(!el&&/font-weight:\s*(bold|[6-9]00)/.test(st))el=document.createElement('b');if(!el&&/font-style:\s*italic/.test(st))el=document.createElement('i');
+    if(el){walk(c,el);to.appendChild(el);}else walk(c,to);});};
+  walk(doc.body.firstChild||doc.body,out);let h=out.innerHTML.replace(/(<div><\/div>)+$/,'').replace(/^(\s|<br>)+|(\s|<br>)+$/g,'');return h;}
+function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.test(s)?rtClean(s):esc(s).replace(/\n/g,'<br>');}

@@ -1371,6 +1371,8 @@ function salesNotify_(pid, kind, st) {
   } catch (e) { Logger.log('Értékesítő értesítés: ' + e); }
 }
 let SALES_DONE_ = null;
+/** Formázott (HTML) jegyzet → sima szöveg (naptár, levél). */
+function notesText_(s) { s = String(s || ''); if (!/<\/?(p|div|br|b|strong|i|em|u|ul|ol|li|a|h[1-6])\b/i.test(s)) return s; return s.replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/(p|div|li|h[1-6])>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim(); }
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {}; const actor = opts.__actor; delete opts.__actor;
   { const nk = opts.__nk || ({ assign: 1, eqlist: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
@@ -1882,7 +1884,7 @@ function saveProject_(u, a) {
     quotePrice: null,   // a projekt értékét csak az ügyvezető állíthatja (lent), máskor a régi marad
     leadvaAt: /^\d{4}-\d{2}-\d{2}$/.test(String(a.leadvaAt || '')) ? String(a.leadvaAt) : '',
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), clientTax: str_(a.clientTax, 20).replace(/[^\d-]/g, ''), clientAddress: str_(a.clientAddress, 300),
-    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 5000), deliveryLink: str_(a.deliveryLink, 500), deliveryPass: str_(a.deliveryPass, 120), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'jovahagyas'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
+    techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 20000), deliveryLink: str_(a.deliveryLink, 500), deliveryPass: str_(a.deliveryPass, 120), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'jovahagyas'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';
@@ -2135,7 +2137,7 @@ function calPlan_(p) {
   if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
   if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
   if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
-  if (p.notes) lines.push('', 'JEGYZETEK', String(p.notes).slice(0, 1000));
+  if (p.notes) lines.push('', 'JEGYZETEK', notesText_(p.notes).slice(0, 1000));
   // az app linkje nem kerül a leírásba: nem minden meghívottnak van hozzáférése
   const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
   const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);

@@ -881,3 +881,6 @@ html body .ct-row2{grid-template-columns:1fr 1fr auto}html body .ct-row3{grid-te
 html body .ct-row .ct-del{width:28px;height:28px;padding:0}
 html body #mform.ct-wide{max-width:min(980px,96vw)!important;width:min(980px,96vw)}html body .ct-prev{max-height:66vh;overflow:auto;background:#e9edf2;border-radius:10px;padding:10px}
 html body .ct-prev .docx-wrapper{background:transparent!important;padding:10px!important}html body .ct-prev .docx-wrapper>section.docx{box-shadow:0 2px 10px rgba(16,25,35,.15)!important;margin-bottom:14px!important}
+
+html body .rt-notes{min-height:120px;max-height:70vh;overflow:auto;white-space:normal;line-height:1.5;cursor:text;height:auto}html body .rt-notes:empty::before{content:attr(data-ph);color:#9aa4ae}
+html body .rt-notes ul,html body .rt-notes ol{margin:4px 0 4px 22px;padding:0}html body .rt-notes a{color:#2f5f9e;text-decoration:underline}html body .rt-notes[contenteditable=false]{background:#f5f7fa}
