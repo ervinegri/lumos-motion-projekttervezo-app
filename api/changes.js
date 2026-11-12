@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b42622d7f2",
+"at": "2026-11-12T14:41:43+01:00",
+"msg": "Új szerződés varázsló: 4 sablon, ügyfél/projekt adatok, minta előnézet, letöltés / mentés az ügyfél mappájába"
+},
+{
 "id": "781421bcd8",
 "at": "2026-11-12T14:34:57+01:00",
 "msg": "Videós projekt: a Jóváhagyásra vár lépés nem látszik, az Utómunka marad kiemelve (húzható a Készre)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: látszik az ügyfél jóváhagyása; tagi kölcsön bank felirat egyértelműbb"
 },
 {
-"id": "3a648f4f23",
-"at": "2026-11-12T11:39:11+01:00",
-"msg": "Ügyfél módosításkérés: a vágó is megkapja az új stílusú levelet (ügyfél említése nélkül)"
-},
-{
-"id": "588c86142f",
-"at": "2026-11-12T10:36:55Z",
+"id": "51d1a1b95d",
+"at": "2026-11-12T10:39:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
