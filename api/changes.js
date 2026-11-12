@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "80cbb12782",
+"at": "2026-11-12T12:04:44+01:00",
+"msg": "Beállítások: Módosítást kértek a videódra"
+},
+{
 "id": "683817990f",
 "at": "2026-11-12T12:04:27+01:00",
 "msg": "Szakember Beállítások: középre igazítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vágói jóváhagyó e-mail: emoji törölve, munka csak egyszer"
 },
 {
-"id": "b6c538c7c6",
-"at": "2026-11-12T09:30:33+01:00",
-"msg": "Idővonal: minden videó jóváhagyva → zöld „Jóváhagyva” sáv, kikerül a Jóváhagyásra vár részből; jóváhagyás e-mail zöld kiemelés"
-},
-{
-"id": "9194b351aa",
-"at": "2026-11-12T08:28:47Z",
+"id": "e0c37ae7b1",
+"at": "2026-11-12T08:30:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
