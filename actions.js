@@ -2239,9 +2239,11 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
 ACT['free-off']=()=>{if(!S.draft||!isAdmin())return;setDraft({projectValue:null});setTimeout(()=>{const e=$('f-projectValue');if(e)e.focus();},50);};
 
 /* Értékesítői jutalék: az értékesítő kiválasztása / levétele (az Értékesítés fül szerződött lehetősége) */
+function commPendApply(){const P=S._commPend||{};Object.keys(P).forEach(pid=>{const d=(S.deals||[]).find(x=>x.projectId===pid&&x.stage==='nyert');if(d)d.commManual=P[pid];});}   /* a még mentés alatt álló jutalék % ne vesszen el egy közben érkező válasz miatt */
 async function projSalesSet(ownerId){const p=S.draft||projById(S.projectId);if(!p)return;
-  try{const r=await call('projSales',{projectId:p.id,ownerId:ownerId||''});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;if(!ownerId&&S.salesOn)delete S.salesOn[p.id];render(true);
-    toast(ownerId?'Értékesítő: '+(((S.salesPeople||[]).find(x=>x.userId===ownerId)||{}).name||''):'Értékesítői jutalék levéve');}catch(e){handleErr(e);render(true);}}
+  {const d=typeof projDeal==='function'?projDeal(p):null,sp=(S.salesPeople||[]).find(x=>x.userId===ownerId)||{},nm=sp.name||(((S.crew||[]).find(c=>'crew:'+c.id===ownerId))||{}).name||'';   // azonnal látszik, a szerver a háttérben ment
+    if(d&&ownerId){d.ownerId=ownerId;d.ownerName=nm;render(true);}toast(ownerId?'Értékesítő: '+nm:'Értékesítői jutalék levéve');}
+  try{const r=await call('projSales',{projectId:p.id,ownerId:ownerId||''});if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;if(!ownerId&&S.salesOn)delete S.salesOn[p.id];render(true);}catch(e){handleErr(e);render(true);}}
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='sales-sel'&&isAdmin()){projSalesSet(t.value);return;}
   if(t.dataset&&t.dataset.salesToggle!==undefined&&!t.checked&&isAdmin()){const p=S.draft||projById(S.projectId);if(p&&projDeal(p))projSalesSet('');else{if(S.salesOn&&p)delete S.salesOn[p.id];render(true);}}});
@@ -2254,7 +2256,8 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
   let val='';const raw=String(t.value||'').trim();
   if(raw!==''){if(t.dataset.salesPct!==undefined){const n=parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'));if(!isFinite(n)){toast('Érvénytelen érték.',true);return;}val=String(Math.round(n*100)/100);}else val='ft:'+Number(raw.replace(/\D/g,''));}
   const d=projDeal(p);if(d)d.commManual=val;   // azonnal (a mentés a háttérben)
-  try{const r=await call('projSalesComm',{projectId:p.id,pct:val});if(r.deals)S.deals=r.deals;if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(val===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék mentve');}catch(err){handleErr(err);render(true);}});
+  S._commPend=S._commPend||{};S._commPend[p.id]=val;const tk=S._commTk=(S._commTk||0)+1;
+  try{const r=await call('projSalesComm',{projectId:p.id,pct:val});if(tk===S._commTk)delete S._commPend[p.id];if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(val===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék mentve');}catch(err){handleErr(err);render(true);}});
 
 /* Vágás tábla: áthúzás / → gomb → a videó állapota (videoSet) */
 /* Gyors egymás utáni húzásnál: a kérések sorban mennek, és a válasz nem írja felül a még függő (későbbi) helyi módosításokat */
