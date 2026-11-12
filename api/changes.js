@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "85e76d347c",
+"at": "2026-11-12T16:32:53+01:00",
+"msg": "Árajánlat PDF: a tételtábla nem lóg ki"
+},
+{
 "id": "56c6dd0fc3",
 "at": "2026-11-12T16:32:11+01:00",
 "msg": "Árajánlat előnézet: a PDF-oldal a szélességhez igazítva"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "1e2cc4401e",
 "at": "2026-11-12T12:37:51+01:00",
 "msg": "Szakaszkártya: kompakt videó gomb (🎬 x/y ✅ ›), eredeti kártyamagasság"
-},
-{
-"id": "99848b9506",
-"at": "2026-11-12T12:37:03+01:00",
-"msg": "Szakaszkártya: a videók gomb keskeny kártyán sem lóg ki"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
