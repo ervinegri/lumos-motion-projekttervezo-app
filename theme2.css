@@ -962,3 +962,8 @@ html body .q-mb table[width="375"]{width:375px!important;max-width:100%!importan
 .qp{display:flex;flex-direction:column}
 .qp .qp-foot{position:static!important;left:auto;right:auto;bottom:auto;margin-top:auto;padding-top:8px}
 .qp .qp-sig{margin-bottom:22px}
+
+/* több oldalas ajánlat: oldalak külön lapként; oldalszám a láblécben */
+html body .q-pdf-page .qp{min-height:1120px}html body .q-pdf-page .qp+.qp{margin-top:16px}
+.qp .qp-foot{display:flex;justify-content:space-between;gap:12px}.qp-pn{white-space:nowrap;font-weight:600}
+.qp-cont{padding-top:48px}

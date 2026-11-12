@@ -91,24 +91,35 @@ function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=
     <div class="qp-foot">Az árak nettó árak, az ÁFA mértéke ${Q_VAT}%. Az ajánlat a kelte után ${esc(String(Math.max(1,qNum(q.valid)||15)))} napig érvényes.</div></div>`;}
 /* mindig egyetlen A4-es oldal: a lap pontosan oldalméretű; ha a tartalom hosszabb, arányosan kicsinyítjük, hogy elférjen */
 const Q_PH=1120;
-async function qPdf(){const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;height:'+Q_PH+'px;overflow:hidden;position:relative;background:#fff">'+qPageHtml()+'</div>';document.body.appendChild(host);
-  try{const box=host.firstElementChild,pg=box.firstElementChild;pg.style.minHeight=Q_PH+'px';const im=pg.querySelector('img');if(im&&!im.complete)await new Promise(r=>{im.onload=im.onerror=r;});if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-    const h=pg.scrollHeight;if(h>Q_PH){const k=Q_PH/h;pg.style.width=(794/k)+'px';pg.style.minHeight=(Q_PH/k)+'px';pg.style.transformOrigin='0 0';pg.style.transform='scale('+k+')';}
-    else pg.style.height=Q_PH+'px';
-    const uri=await lib().set({margin:0,filename:qFileName(),image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(box).outputPdf('datauristring');return String(uri).split(',')[1]||'';}
+/* oldalakra bontás: a blokkok (fejléc, felek, opciók, megjegyzés, aláírás) egészben kerülnek egy-egy A4-es oldalra; ami nem fér el, új oldalra megy */
+function qPages(){const m=document.createElement('div');m.style.cssText='position:fixed;left:-10000px;top:0;width:794px;visibility:hidden;pointer-events:none';m.innerHTML=qPageHtml();document.body.appendChild(m);
+  try{const pg=m.firstElementChild;pg.style.minHeight='0';const kids=[...pg.children],foot=kids.pop(),cs=getComputedStyle(pg),padT=parseFloat(cs.paddingTop)||0,padB=parseFloat(cs.paddingBottom)||0;
+    const tops=kids.map(k=>k.getBoundingClientRect().top),ft=foot.getBoundingClientRect(),hs=kids.map((k,i)=>(i<kids.length-1?tops[i+1]:ft.top)-tops[i]);
+    const cap=Q_PH-padT-padB-ft.height-24,pages=[];let cur=[],used=0;
+    kids.forEach((k,i)=>{if(cur.length&&used+hs[i]>cap){pages.push(cur);cur=[];used=0;}cur.push(k.outerHTML);used+=hs[i];});pages.push(cur);
+    return pages.map((p,i)=>`<div class="qp${i?' qp-cont':''}">${p.join('')}<div class="qp-foot"><span>${foot.innerHTML}</span>${pages.length>1?`<span class="qp-pn">${i+1}/${pages.length}. oldal</span>`:''}</div></div>`);}
+  finally{m.remove();}}
+async function qPdf(){const lib=await h2pLib(),pages=qPages(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';
+  host.innerHTML=pages.map(h=>'<div style="width:794px;height:'+Q_PH+'px;overflow:hidden;position:relative;background:#fff">'+h+'</div>').join('');document.body.appendChild(host);
+  try{const boxes=[...host.children];await Promise.all([...host.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})));if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    boxes.forEach(box=>{const pg=box.firstElementChild;pg.style.minHeight=Q_PH+'px';const h=pg.scrollHeight;   // egy blokk önmagában sem fér el egy oldalra: arányosan kicsinyítjük
+      if(h>Q_PH){const k=Q_PH/h;pg.style.width=(794/k)+'px';pg.style.minHeight=(Q_PH/k)+'px';pg.style.transformOrigin='0 0';pg.style.transform='scale('+k+')';}else pg.style.height=Q_PH+'px';});
+    let w=lib().set({margin:0,filename:qFileName(),image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(boxes[0]).toPdf();
+    for(let i=1;i<boxes.length;i++){const b=boxes[i];w=w.get('pdf').then(p=>{p.addPage();}).from(b).toContainer().toCanvas().toPdf();}
+    const uri=await w.outputPdf('datauristring');return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
 function qPdfCached(){const q=S.q;if(q._pdf)return Promise.resolve(q._pdf);if(!q._pdfP)q._pdfP=qPdf().then(b=>{if(S.q===q)q._pdf=b;return b;}).finally(()=>{q._pdfP=null;});return q._pdfP;}
 function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
   openModal('📄 Árajánlat – előnézet',`<div class="q-prev"><div class="q-mail"><div class="q-mh"><div><span>Feladó:</span> ${esc((s.name||'')+' · Lumos Motion')} &lt;${esc(s.from||s.email||'')}&gt;${s.from&&s.email&&s.from.toLowerCase()!==s.email.toLowerCase()?` <small class="q-from-note">(a válaszok ${esc(s.email)} címre mennek – a saját címéről küldéshez „Küldés másként” álnév kell)</small>`:''}</div><div><span>Címzett:</span> ${esc(q.to)}${q.cc?' · Másolat: '+esc(q.cc):''}</div><div><span>Tárgy:</span> <b>${esc(q.subject)}</b></div><div><span>Melléklet:</span> 📎 ${esc(qFileName())}</div></div>
       <div class="q-mb"><div id="q-mbody" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(q.body).replace(/\n/g,'<br>')}</div><br>${s.sigHtml||''}</div></div>
-    <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPageHtml()}</div></div></div>`,
+    <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPages().join('')}</div></div></div>`,
     {submitLabel:'📨 Küldés',noDraft:true,left:`<button type="button" class="btn ghost" data-action="q-edit">← Szerkesztés</button>`,
      submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
        try{const pdf=await qPdfCached();const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:q.opts.length>1?0:qTotal(),opts:q.opts.length});
          if(r&&r.deals)S.deals=r.deals;closeModal();S.q=null;render(true);toast(r&&r.test?'TESZT: az ajánlat csak neked ment ki':'Árajánlat elküldve: '+q.to);}
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');
-  const fit=()=>{const w=document.querySelector('.q-pdf-page'),pg=w&&w.querySelector('.qp');if(pg)pg.style.zoom=String(Math.min(1,(w.clientWidth-24)/794));};requestAnimationFrame(fit);setTimeout(fit,300);setTimeout(()=>{if(S.q===q)qPdfCached().catch(()=>{});},400);}   /* a PDF-oldal kicsinyítve, teljes szélességben látszik */
+  const fit=()=>{const w=document.querySelector('.q-pdf-page');if(!w)return;const z=String(Math.min(1,(w.clientWidth-24)/794));w.querySelectorAll('.qp').forEach(pg=>{pg.style.zoom=z;});};requestAnimationFrame(fit);setTimeout(fit,300);setTimeout(()=>{if(S.q===q)qPdfCached().catch(()=>{});},400);}   /* a PDF-oldal kicsinyítve, teljes szélességben látszik */
 /* az előnézetben a levél szövege és tárgya is szerkeszthető – így megy ki */
 document.addEventListener('input',e=>{const t=e.target;if(!S.q||!t)return;
   if(t.id==='q-mbody')S.q.body=t.innerText.replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'');
