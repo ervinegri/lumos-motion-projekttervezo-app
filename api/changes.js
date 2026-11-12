@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "683817990f",
+"at": "2026-11-12T12:04:27+01:00",
+"msg": "Szakember Beállítások: középre igazítva"
+},
+{
 "id": "478bc4e124",
 "at": "2026-11-12T12:02:31+01:00",
 "msg": "Szakember Beállítások: díjcsökkentés kivéve, eszközlista leírás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: minden videó jóváhagyva → zöld „Jóváhagyva” sáv, kikerül a Jóváhagyásra vár részből; jóváhagyás e-mail zöld kiemelés"
 },
 {
-"id": "4aa4ea35bd",
-"at": "2026-11-12T09:28:37+01:00",
-"msg": "Fizetés: a projekt értéke a quotePrice mezőből"
-},
-{
-"id": "55ace51746",
-"at": "2026-11-12T08:28:28Z",
+"id": "9194b351aa",
+"at": "2026-11-12T08:28:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
