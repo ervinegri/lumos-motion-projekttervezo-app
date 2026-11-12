@@ -1141,7 +1141,7 @@ function clientDecide_(t, d, fb, vid) {
           + '<p style="margin:0 0 18px">Köszönjük a munkádat!</p><p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Projekttervező küldte.</p></div>';
         gmailSend_(em, subj, 'Kedves ' + (fn || 'Kolléga') + '!\n\nJó hír: a munkádat jóváhagyták: ' + r.v.name + ' – ' + r.p.name + '.\n\nKöszönjük a munkádat!', { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágó értesítés (jóváhagyás): ' + e); } }
   try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
-      gmailSend_(o.s, subj, subj + (fb ? '\n\n' + fb : '') + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p>' + (fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
+      gmailSend_(o.s, subj, subj + (fb ? '\n\n' + fb : '') + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p>' + (fb ? '<p style="padding:10px 12px;background:' + (d === 'ok' ? '#eef7f1;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + '">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-döntés értesítés: ' + e); }
   return clientInfo_(t, false, o.v);
 }
 let FB_MAIL_ = null;
