@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aba7f7805d",
+"at": "2026-11-12T09:35:08+01:00",
+"msg": "Jóváhagyott vágási sáv zöld háttér (specifikusabb szabály)"
+},
+{
 "id": "5712b24eaf",
 "at": "2026-11-12T09:32:50+01:00",
 "msg": "Vágói jóváhagyó e-mail: emoji törölve, munka csak egyszer"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: helyes zárolási szöveg a még el nem kezdett videóknál"
 },
 {
-"id": "cfd5a76773",
-"at": "2026-11-11T23:07:43+01:00",
-"msg": "Vágási buborék: előbb a darabszám, utána a videó neve"
-},
-{
-"id": "2e96d43dcf",
-"at": "2026-11-11T22:03:45Z",
+"id": "0be9734b8f",
+"at": "2026-11-11T22:07:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
