@@ -888,3 +888,26 @@ html body .rt-notes ul,html body .rt-notes ol{margin:4px 0 4px 22px;padding:0}ht
 html body .vv-ver{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;background:#202a36;color:#fff;vertical-align:middle}
 html body .vv-old{margin-top:10px;border-top:1px dashed var(--line,#dfe4ea);padding-top:8px}html body .vv-old>summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted,#6b7680);padding:4px 0;list-style-position:inside}
 html body .vv-old .vv-cm-l{opacity:.72;margin-top:6px}
+
+/* hosszú ablak: a tartalom görget, a gombsor mindig látszik */
+@media (min-width:601px){html body #modalRoot .mbox.mbox-scroll{max-height:calc(100vh - 40px);overflow:auto;padding-bottom:0}
+html body #modalRoot .mbox.mbox-scroll .mfoot{position:sticky;bottom:0;background:#fff;margin:0 -22px;padding:12px 22px 16px;border-top:1px solid var(--line,#e6e9ee);z-index:6;box-shadow:0 -8px 16px -12px rgba(16,25,35,.18)}}
+html body .mfoot .left{display:flex;gap:8px;flex-wrap:wrap;margin-right:auto}
+html body .q-items{display:flex;flex-direction:column;gap:6px}html body .q-row{display:grid;grid-template-columns:2.4fr 70px 1.2fr 1fr 30px;gap:6px;align-items:center}
+html body .q-row.q-hd{font-size:12px;font-weight:600;color:var(--muted,#6b7680)}html body .q-sum{text-align:right;font-weight:700;font-size:13.5px;white-space:nowrap}html body .q-price{text-align:right}
+html body .q-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}html body .q-tot{font-size:13.5px}
+@media (max-width:600px){html body .q-row{grid-template-columns:1fr 60px 1fr 30px}html body .q-row .q-sum,html body .q-row.q-hd span:nth-child(4){display:none}}
+html body .mbox-q{width:min(1180px,96vw)!important;max-width:min(1180px,96vw)!important}html body .q-prev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}@media (max-width:900px){html body .q-prev{grid-template-columns:1fr}}
+html body .q-mail{border:1px solid var(--line,#e2e6eb);border-radius:12px;overflow:hidden;background:#fff}html body .q-mh{background:#f5f7fa;padding:10px 14px;font-size:13px;display:flex;flex-direction:column;gap:3px}html body .q-mh span{color:var(--muted,#6b7680);display:inline-block;min-width:70px}
+html body .q-mb{padding:14px;font:14px/1.55 Arial,sans-serif;color:#202124;overflow:auto}html body .q-pdf-h{font-size:12.5px;font-weight:700;color:var(--muted,#6b7680);margin-bottom:6px}
+html body .q-pdf-page{background:#e9edf2;border-radius:12px;padding:12px;overflow:auto;max-height:70vh}html body .q-pdf-page .qp{transform-origin:top left;zoom:.62;box-shadow:0 2px 10px rgba(16,25,35,.15)}
+.qp{width:794px;min-height:1123px;box-sizing:border-box;background:#fff;color:#1d2a38;font:13px/1.5 Montserrat,Arial,sans-serif;padding:56px 60px;position:relative}
+.qp-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1d2a38;padding-bottom:18px;margin-bottom:22px}.qp-logo{width:250px;height:auto;margin-top:6px}
+.qp-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;color:#4a5866}.qp-meta b{font-size:26px;letter-spacing:.08em;color:#1d2a38}
+.qp-parties{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:18px}.qp-parties>div,.qp-ev{display:flex;flex-direction:column;gap:1px}.qp small{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7b8794}.qp-parties b,.qp-ev b{font-size:15px}
+.qp-ev{background:#f6efe1;border-radius:10px;padding:10px 14px;margin-bottom:20px}
+.qp-tbl{width:100%;border-collapse:collapse;margin-bottom:14px}.qp-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#7b8794;text-align:left;border-bottom:2px solid #1d2a38;padding:8px 6px}.qp-tbl td{padding:9px 6px;border-bottom:1px solid #e3e8ee;vertical-align:top}.qp .r{text-align:right;white-space:nowrap}
+.qp-sum{margin-left:auto;width:320px;display:flex;flex-direction:column;gap:4px}.qp-sum>div{display:flex;justify-content:space-between}.qp-gross{border-top:2px solid #1d2a38;padding-top:6px;margin-top:2px;font-size:15px}
+.qp-note{margin-top:22px;padding:12px 14px;border-left:4px solid #1d2a38;background:#f5f7fa;font-size:12.5px}
+.qp-sig{margin-top:34px;display:flex;flex-direction:column;gap:1px;font-size:13px}.qp-sig b{font-size:15px;margin-top:6px}
+.qp-foot{position:absolute;left:60px;right:60px;bottom:40px;font-size:10.5px;color:#7b8794;border-top:1px solid #e3e8ee;padding-top:8px}

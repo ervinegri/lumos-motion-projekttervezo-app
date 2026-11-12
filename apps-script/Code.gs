@@ -1088,12 +1088,12 @@ function wmPaidMailFlush_() {
   ids.forEach(pid => { try { wmPaidMail_(pid); } catch (e) { Logger.log('Vízjel-levél: ' + e); } });
 }
 function wmPaidMail_(pid) {
-  const P = PropertiesService.getScriptProperties(), key = 'WMPAID_' + pid; if (P.getProperty(key)) return;
-  const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
-  const vids = parseVideos_(p.videos).filter(v => v.link && (v.st === 'leadva' || v.st === 'jovahagyva')); if (!vids.length) return;
+  const P = PropertiesService.getScriptProperties(), key = 'WMPAID_' + pid; if (P.getProperty(key)) return 'már elküldve';
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) return 'nincs projekt';
+  const vids = parseVideos_(p.videos).filter(v => v.link && (v.st === 'leadva' || v.st === 'jovahagyva')); if (!vids.length) return 'nincs leadott videó linkkel';
   let to = '', by = '';
   vids.forEach(v => (v.cm || []).forEach(c => { const m = /^Ügyfélnek elküldve \(([^)]+)\)/.exec(String(c.t || '')); if (m && String(c.at) >= String((to && to.at) || '')) { to = { list: m[1], at: c.at }; by = c.by; } }));
-  const tos = (to ? to.list : String(p.contactEmail || '')).split(/\s*,\s*/).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)); if (!tos.length) return;
+  const tos = (to ? to.list : String(p.contactEmail || '')).split(/\s*,\s*/).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)); if (!tos.length) return 'nincs címzett';
   const users = loadUsers_(), sender = users.find(x => x.name === by && x.email) || users.find(x => x.role === 'admin' && x.email && !x.disabled) || { name: 'Lumos Motion', email: '' };
   const ids = vids.map(v => v.id), url = FRONTEND_URL + '/' + clientShort_(clientToken_(Object.assign({ p: pid, v: ids[0], s: String(sender.email || ''), c: tos.join(', ') }, ids.length > 1 ? { vs: ids } : {})));
   const fn = clientFirst_(p, tos[0]), multi = ids.length > 1, live = clientMailLive_();
@@ -1101,12 +1101,15 @@ function wmPaidMail_(pid) {
   const lines = ['Kedves ' + fn + '!', '', 'Köszönjük a kiegyenlítést! ' + (multi ? 'A videókról' : 'A videóról') + ' levettük a vízjelet – a végleges ' + (multi ? 'változatokat' : 'változatot') + ' itt nézheted meg és töltheted le:'];
   const sig = signatureFor_(sender), html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + lines.map(escapeHtml_).join('<br>') + '<br><br>' + btn + '</div>' + (sig ? '<br>' + sig.html : '<p>Üdvözlettel,<br>' + escapeHtml_(sender.name) + '<br>Lumos Motion</p>');
   const subj = (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + 'Elkészült a végleges ' + (multi ? 'videók' : 'videó') + ' – ' + sval_(p.name);
-  const sendTo = live ? tos.join(', ') : String(sender.email || ''); if (!sendTo) return;
+  const sendTo = live ? tos.join(', ') : String(sender.email || ''); if (!sendTo) return 'nincs küldő cím';
   const opts = { htmlBody: html, name: sender.name || 'Lumos Motion' }; if (sender.email) opts.replyTo = sender.email;
-  if (gmailSend_(sendTo, subj, lines.join('\n') + '\n\n' + url + '\n\n' + (sig ? sig.text : 'Üdvözlettel,\n' + sender.name + '\nLumos Motion'), opts)) {
+  const sent = gmailSend_(sendTo, subj, lines.join('\n') + '\n\n' + url + '\n\n' + (sig ? sig.text : 'Üdvözlettel,\n' + sender.name + '\nLumos Motion'), opts);
+  if (!sent) return 'a levél nem ment ki (e-mailek szünetelnek?)';
+  {
     P.setProperty(key, now_());
     try { withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row), vv = parseVideos_(q.videos); vv.filter(v => ids.indexOf(v.id) >= 0).forEach(v => { v.cm = (v.cm || []).concat([{ by: 'Lumos Motion', at: now_(), t: (live ? '💧 Vízjel levéve – értesítő elküldve (' : 'TESZT: vízjel-értesítő csak neked ment ki (') + tos.join(', ') + ')', ts: '' }]).slice(-100); }); q.videos = JSON.stringify(vv); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); }); } catch (e) { }
   }
+  return 'ok';
 }
 function wmActive_(p) { const b = readAll_('finBilling').find(x => x.projectId === p.id), w = String((b && b.watermark) || '');
   const sales = String(p.id || '').indexOf('sales-') === 0 || /Forrás: Sales App/.test(String(p.notes || ''));
@@ -4607,7 +4610,7 @@ const signatureFor_ = u => {
 /** Aláírás mentése: az ügyvezető bármelyik vezetőét, a termelési vezető a sajátját. a: {userId, title, phone, photo} */
 function saveSignature_(u, a) {
   const users = loadUsers_(), t = users.find(x => x.id === String(a && a.userId || ''));
-  if (!t || (t.role !== 'admin' && t.role !== 'editor')) throw new Error('Aláírás csak az ügyvezetőnek és a termelési vezetőknek állítható be.');
+  if (!t || (t.role !== 'admin' && t.role !== 'editor' && t.role !== 'sales')) throw new Error('Aláírás csak az ügyvezetőnek és a termelési vezetőknek állítható be.');
   if (u.role !== 'admin' && t.id !== u.id) throw new Error('FORBIDDEN: csak a saját aláírásodat módosíthatod.');
   if (a && a.html !== undefined) {   // beillesztett aláírás (üres: vissza az alap, mezőkből épített aláírásra)
     const h = sigSanitize_(a.html), P = PropertiesService.getScriptProperties(), k = SIG_HTML_PREFIX + sigKey_(t.email);
@@ -4623,7 +4626,38 @@ function saveSignature_(u, a) {
   logEvent_(u, 'E-mail aláírás', t.name, 'módosítva');
   return sigList_();
 }
-function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
+/* 📄 Árajánlat a lehetőségből: az értékesítő (a lehetőség gazdája) a saját nevével, címével és aláírásával küldi; a PDF a böngészőben készül. */
+function dealQuoteSender_(u, a) {
+  const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
+  if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőségedhez küldhetsz ajánlatot.');
+  const us = loadUsers_(), owner = us.find(x => x.id === d.ownerId && x.email && !x.disabled) || us.find(x => x.id === u.id) || u;
+  const f = sigFields_(owner) || { name: owner.name || '', email: sigKey_(owner.email || ''), title: owner.role === 'sales' ? 'Értékesítő' : '', phone: '', photo: '' };
+  const c = sigCustom_(owner.email || ''), sig = c ? { html: c, text: plainText_(c.replace(/<\/(div|tr|p|table)>/gi, '\n')).replace(/\n{3,}/g, '\n\n').trim() } : sigBuild_(f);
+  return { d: d, owner: owner, f: f, sig: sig };
+}
+/** Az ajánlat előnézetéhez: ki küldi, és milyen aláírással. */
+function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html }; }
+/** a: {dealId, to, cc, subject, body, pdf (base64), fileName, total} */
+function dealQuoteSend_(u, a) {
+  a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
+  const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
+  const b64 = String(a.pdf || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik az ajánlat PDF-je.');
+  const subj = str_(a.subject, 200).trim() || ('Árajánlat – ' + d.title), body = str_(a.body, 6000);
+  const fname = str_(a.fileName, 120).replace(/[\\/:*?"<>|]+/g, '-') || 'Arajanlat.pdf';
+  const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r.sig.html;
+  const opts = mailOptsFor_(r.owner, html); opts.attachments = [Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', fname)];
+  if (a.cc && /@/.test(String(a.cc))) opts.cc = str_(a.cc, 300);
+  const live = clientMailLive_(), to = live ? tos.join(', ') : String(u.email || r.owner.email || '');
+  const ok = gmailSend_(to, (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + subj, body + '\n\n' + r.sig.text, opts);
+  if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
+  let deals; withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row);
+    const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] 📄 Árajánlat elküldve (' + tos.join(', ') + ')' + (Number(a.total) ? ' – ' + String(Math.round(Number(a.total))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA' : '');
+    x.note = line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : ''); if (x.stage === 'uj') x.stage = 'ajanlat'; x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
+  logEvent_(u, 'Árajánlat elküldve', d.title, tos.join(', '));
+  try { deals = dealsFor_(u); } catch (e) { }
+  return { ok: true, test: !live, deals: deals };
+}
+function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor' || x.role === 'sales') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 /** Nyersanyag feltöltve – e-mail a vágó(k)nak. a: {projectId, crewIds:[], link, text} */
@@ -5067,7 +5101,9 @@ function rpcInner_(token, name, arg) {
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'videoCmDone': return videoCmDone_(u, arg);
     case 'myNotify': return myNotify_(u, arg);
-    case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid) }; }
+    case 'dealQuoteSend': return dealQuoteSend_(u, arg);
+    case 'dealQuoteSig': return dealQuoteSig_(u, arg);
+    case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); const why = wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid), why: why }; }
     case 'contractTpl': adminOnly(); { const k = String(arg && arg.k || ''); if (!/^(lumos|egri)_(hatarozott|keret)$/.test(k) || typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.'); return { zip: CONTRACT_TPL_[k], img: CONTRACT_TPL_.img }; }
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
