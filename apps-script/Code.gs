@@ -556,8 +556,8 @@ function loadBase_() {
 /** Egyszeri: a közelgő projektek naptárbejegyzéseinek leírása frissül (2026-11-03: az ügyfél neve kikerült). Háttérben, egy perccel a bejelentkezés után fut. */
 function calNoClientOnce_() {
   const P = PropertiesService.getScriptProperties();
-  if (P.getProperty('MIG_CALPHONE_2026_11')) return;   // 2026-11-03: a stáb telefonszáma kikerül (csak a projektvezetőé marad); a lemondott (STORNO) projektek eseményei is kikerülnek a Google Naptárból
-  P.setProperty('MIG_CALPHONE_2026_11', now_());
+  if (P.getProperty('MIG_CALNOTES_2026_11_12')) return;   // 2026-11-12: a projekt jegyzetei kikerülnek a naptárbejegyzésekből   // 2026-11-03: a stáb telefonszáma kikerül (csak a projektvezetőé marad); a lemondott (STORNO) projektek eseményei is kikerülnek a Google Naptárból
+  P.setProperty('MIG_CALNOTES_2026_11_12', now_());
   try { ScriptApp.newTrigger('calResyncUpcoming').timeBased().after(60 * 1000).create(); } catch (e) {}
 }
 /* Automatikus lépés: a Helyszíni munka szakaszban lévő projekt a forgatás vége után magától Utómunkába kerül
