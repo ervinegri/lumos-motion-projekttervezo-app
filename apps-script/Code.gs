@@ -584,7 +584,7 @@ function autoAdvance_() {
 function calResyncUpcoming() {
   const today = today_();
   readAll_('projects').filter(p => p.calEventId && (p.status === 'lemondva' || String(p.endDate || p.date || '') >= today)).forEach(p => { try { syncCalendar_(fullProject_(p)); } catch (e) {} });
-  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'calResyncUpcoming').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} });
+  try { ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'calResyncUpcoming').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} }); } catch (e) {}   // időzítő-jogosultság nélkül is lefut
 }
 /** Egyszeri: a már véglegesített csapatú, még Tervezés szakaszban lévő projektek átkerülnek a Helyszíni munkára (a szabály 2026-11-02 óta él). */
 /* Egyszeri (2026-11-05): a Helyszíni munkában ragadt videóvágás projektek Utómunkába kerülnek */
