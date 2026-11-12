@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4d5f885331",
+"at": "2026-11-12T12:00:37+01:00",
+"msg": "Szakember Beállítások: előnézetként szakember nézetben is látszik"
+},
+{
 "id": "844e0a489b",
 "at": "2026-11-12T11:57:58+01:00",
 "msg": "Kifizetések: a számla kiállítása szürke, amíg a díjösszesítő nincs kiküldve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Időkódos és leadott videók hozzászólásai nem törölhetők; a teljes összeget fedező foglaló után kifizetett (vízjel le)"
 },
 {
-"id": "6f4d9c310d",
-"at": "2026-11-12T09:22:49+01:00",
-"msg": "Ügyfél levél gomb: szöveg és lejátszás ikon táblázattal egy vonalban (minden levelezőben)"
-},
-{
-"id": "c0dfb8fbf6",
-"at": "2026-11-12T08:22:18Z",
+"id": "e376f85a9c",
+"at": "2026-11-12T08:22:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
