@@ -68,7 +68,7 @@ Object.assign(ACT,{
   'ct-back':b=>{const f=$('mform');if(f&&S.ct.step!==3)ctRead(new FormData(f));b.dataset.s==='1'?ctStep1():ctStep2();},
   'ct-row-add':b=>{const f=$('mform');if(f)ctRead(new FormData(f));const k=b.dataset.t;S.ct[k].push(k==='locs'?{place:'',date:''}:{name:'',qty:'1',ext:''});ctStep2();},
   'ct-row-del':b=>{const f=$('mform');if(f)ctRead(new FormData(f));S.ct[b.dataset.t].splice(Number(b.dataset.i),1);ctStep2();},
-  'ct-pdf':async b=>{b.disabled=true;const t=b.textContent;b.textContent='PDF készül…';try{const r=await ctBuild(),b64=await ctPdf(r.blob),bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+  'ct-pdf':async b=>{b.disabled=true;const t=b.textContent;b.textContent='PDF készül…';try{const r=await ctBuild(),b64=(S.ct&&S.ct._pdf)||await ctPdf(r.blob),bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));a.download=r.name.replace(/\.docx$/i,'')+'.pdf';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}catch(e){handleErr(e);}finally{b.disabled=false;b.textContent=t;}},
   'ct-dl':async()=>{try{const r=await ctBuild();const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}catch(e){handleErr(e);}}
 });
@@ -91,7 +91,6 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   const nm=(tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+String(c.c_name||'ugyfel').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')+'.docx';
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
-/* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (bekezdés, táblázatsor nem törik ketté) */
 /* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
 function ctFixCounters(root){const C={},roman=(n,up)=>{const m=[[1000,'m'],[900,'cm'],[500,'d'],[400,'cd'],[100,'c'],[90,'xc'],[50,'l'],[40,'xl'],[10,'x'],[9,'ix'],[5,'v'],[4,'iv'],[1,'i']];let s='';m.forEach(([v,r])=>{while(n>=v){s+=r;n-=v;}});return up?s.toUpperCase():s;};
   const fmt=(n,st)=>st==='lower-alpha'||st==='lower-latin'?String.fromCharCode(96+((n-1)%26+1)):st==='upper-alpha'||st==='upper-latin'?String.fromCharCode(64+((n-1)%26+1)):st==='lower-roman'?roman(n):st==='upper-roman'?roman(n,true):st==='decimal-leading-zero'?String(n).padStart(2,'0'):String(n);
@@ -104,12 +103,15 @@ function ctFixCounters(root){const C={},roman=(n,up)=>{const m=[[1000,'m'],[900,
     const txt=ct.replace(/"((?:[^"\\]|\\.)*)"|counters?\(([\w-]+)(?:,\s*"[^"]*")?(?:,\s*([\w-]+))?\)|\s+/g,(all,str,name,st)=>str!=null?unesc(str):name?fmt(C[name]||0,st||'decimal'):'');
     const id='cn'+(i++);el.setAttribute('data-cn',id);css+=`[data-cn="${id}"]::before{content:${cssStr(txt)}!important;counter-increment:none!important;counter-reset:none!important;counter-set:none!important}`;});
   const st=document.createElement('style');st.textContent=css;root.appendChild(st);}
+/* a szerződés táblázatai a lapon belül maradnak (az app általános min. 780 px-es táblázatszélessége és a Word lebegő táblázatai széthúznák) */
+function ctTidy(box){box.querySelectorAll('section.docx table').forEach(t=>{t.style.minWidth='0';if(t.closest('td'))return;const cols=[...t.querySelectorAll(':scope > colgroup > col')],ws=cols.map(c=>parseFloat(c.style.width)||0),sum=ws.reduce((a,b)=>a+b,0);
+  t.style.float='none';t.style.marginLeft='0';t.style.marginRight='0';t.style.width='100%';t.style.tableLayout='fixed';if(sum>0)cols.forEach((c,i)=>{c.style.width=(ws[i]/sum*100)+'%';});t.querySelectorAll('td,th').forEach(td=>{td.style.wordBreak='break-word';});});}
 /* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (ami elfér egy oldalon, nem vágódik ketté) */
 async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';host.innerHTML='<div style="width:794px;background:#fff"></div>';document.body.appendChild(host);const box=host.firstElementChild;   // a rögzített (fixed) gazdát nem adjuk át a PDF-készítőnek, csak a belső dobozt
   try{await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
     box.querySelectorAll('.docx-wrapper').forEach(w=>{w.style.background='#fff';w.style.padding='0';w.style.display='block';});
     box.querySelectorAll('section.docx').forEach(x=>{x.style.paddingBottom='0';x.style.minHeight='0';x.style.boxShadow='none';x.style.margin='0';x.style.background='#fff';});
-    ctFixCounters(box);
+    ctTidy(box);ctFixCounters(box);
     await Promise.all([...host.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})));if(document.fonts&&document.fonts.ready)await document.fonts.ready;
     const M=12,pageH=794*(297-2*M)/210,top0=box.getBoundingClientRect().top,sec=box.querySelector('section.docx');
     const els=sec?[...sec.children].flatMap(c=>c.tagName==='ARTICLE'?[...c.children]:[c]):[];let ps=0;
@@ -120,12 +122,14 @@ async function ctPdf(blob){await ctLibs();const lib=await h2pLib(),host=document
     const uri=await lib().set({margin:[M,0,M,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:[]}}).from(box).outputPdf('datauristring');
     return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
-async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;
+async function ctStep3(){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;c._pdf=null;
   openModal('📝 Új szerződés – 3/3: minta',`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)} · ${esc(c.c_name)} – így fog kinézni. Ha valami nem stimmel, menj vissza és javítsd.</p><div class="ct-prev" id="ctPrev"><div class="loading"><span class="spin"></span>Minta készítése…</div></div>`,
     {submitLabel:'💾 Mentés az ügyfél mappájába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl">⬇ Letöltés (.docx)</button><button type="button" class="btn outline" data-action="ct-pdf">⬇ Letöltés (.pdf)</button>`,
-     submit:async()=>{const r=await ctBuild();const b64=await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
+     submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
        const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat?'egyeb':'keret'});
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
-  try{const r=await ctBuild();if(!$('ctPrev'))return;box.innerHTML='';await window.docx.renderAsync(r.blob,box,null,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:true});}
+  try{const r=await ctBuild(),b64=await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
+    const bin=atob(b64),pages=[];let k=0;while((k=bin.indexOf('\xFF\xD8',k))>=0){const e=bin.indexOf('\xFF\xD9',k);if(e<0)break;pages.push('data:image/jpeg;base64,'+btoa(bin.slice(k,e+2)));k=e+2;}
+    box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;}
   catch(e){if(box)box.innerHTML=`<p class="bad-txt">A minta nem készíthető el: ${esc(errText(e))}</p>`;}}

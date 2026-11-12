@@ -969,3 +969,9 @@ html body .q-pdf-page .qp{min-height:1120px}html body .q-pdf-page .qp+.qp{margin
 .qp-cont{padding-top:48px}
 /* új szerződés 1. lépés: a választógombok egymás alatt */
 html body .ct-tpls[data-g]{display:grid!important;grid-template-columns:1fr!important;gap:8px}
+
+/* szerződés minta: a kész PDF oldalai (fehér A4 lapok) */
+.ct-pages{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ct-page{position:relative;width:min(100%,794px);aspect-ratio:210/297;background:#fff;box-shadow:0 2px 12px rgba(20,30,45,.12);display:flex;flex-direction:column;justify-content:flex-start;padding-top:5.714%;box-sizing:border-box}
+.ct-page img{display:block;width:100%;height:auto}
+.ct-pn{position:absolute;right:10px;bottom:6px;font-size:11px;color:#8a95a1}
