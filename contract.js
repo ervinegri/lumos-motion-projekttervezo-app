@@ -59,7 +59,7 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
     <h4 class="sub-h full" style="margin:10px 0 0">Nyersanyag (opcionális szolgáltatások)</h4>
     ${ctRawRow('rb','Nyersanyag átadása','Mennyiért adjuk át a teljes nyersanyagot?')}
     ${ctRawRow('rk','Archiválás a NAS rendszerünkön','Mennyiért őrizzük meg a nyersanyagot?')}
-    <div class="field"><label for="ct-rk_years">Archiválás időtartama</label><div class="money"><input class="inp" id="ct-rk_years" name="rk_years" value="${esc(c.rk_years||'5')}" inputmode="numeric" style="max-width:90px"><span class="money-unit">év</span></div></div>
+    <div class="field full"><label for="ct-rk_years">Archiválás időtartama</label><div class="money"><input class="inp" id="ct-rk_years" name="rk_years" value="${esc(c.rk_years||'5')}" inputmode="numeric" style="max-width:90px"><span class="money-unit">év</span></div></div>
     <h4 class="sub-h full" style="margin:10px 0 0">Aláírás</h4>
     ${f('sig_name','Aláíró cég (Megrendelő)')}${f('sig_rep','Képviseli (aláírás alatt)')}${f('date','Kelt (dátum)',{ph:'2026. 11. 12.'})}</div>`,
     {submitLabel:'Minta megtekintése →',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="1">← Vissza</button>`,submit:fd=>{ctRead(fd);const c2=S.ct;
@@ -182,7 +182,7 @@ function ctRawRow(p,label,hint){const c=S.ct,m=c[p+'_mode']||'pct',vat=ctTplOf(c
   return `<div class="field full ct-raw" data-raw="${p}"><label for="ct-${p}_mode">${label}</label><div class="ct-raw-row">
     <select class="inp" id="ct-${p}_mode" name="${p}_mode" data-cmb="${esc(hint)}">${CT_RAW_MODES.map(([v,t])=>`<option value="${v}"${m===v?' selected':''}>${t}</option>`).join('')}</select>
     <span class="ct-raw-pct"${m==='pct'?'':' hidden'}><span class="money"><input class="inp" name="${p}_pct" value="${esc(c[p+'_pct']||'')}" inputmode="decimal" style="max-width:80px"><span class="money-unit">%</span></span>
-      <span class="money"><span class="ct-raw-lbl">de legalább</span><input class="inp money-inp" name="${p}_min" value="${esc(c[p+'_min']?ctFt(c[p+'_min']):'')}" inputmode="numeric" data-money="1" placeholder="0" style="max-width:130px"><span class="money-unit">Ft${vat?' + ÁFA':''}</span></span></span>
+      <span class="ct-raw-lbl">de legalább</span><span class="money"><input class="inp money-inp" name="${p}_min" value="${esc(c[p+'_min']?ctFt(c[p+'_min']):'')}" inputmode="numeric" data-money="1" placeholder="0" style="max-width:130px"><span class="money-unit">Ft${vat?' + ÁFA':''}</span></span></span>
     <span class="ct-raw-fix"${m==='fix'?'':' hidden'}><span class="money"><input class="inp money-inp" name="${p}_amt" value="${esc(c[p+'_amt']?ctFt(c[p+'_amt']):'')}" inputmode="numeric" data-money="1" placeholder="0" style="max-width:150px"><span class="money-unit">Ft${vat?' + ÁFA':''}</span></span></span>
     </div></div>`;}
 document.addEventListener('change',e=>{const t=e.target;if(!t||!/^(rb|rk)_mode$/.test(t.name||''))return;const w=t.closest('.ct-raw');if(!w)return;
