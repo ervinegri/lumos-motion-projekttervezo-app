@@ -935,3 +935,4 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 #modalRoot .mbox.mbox-ark .mfoot{justify-content:flex-start}
 #modalRoot .mbox.mbox-ark .mfoot>*{order:0}
 #modalRoot .mbox.mbox-ark .mfoot>.left{order:1;margin-left:auto!important}
+.qp .qp-logo{height:58px!important;width:auto!important}   /* kéttagú (LUMOS / MOTION) logó az ajánlaton */
