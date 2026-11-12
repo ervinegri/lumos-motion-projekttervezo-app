@@ -9,7 +9,7 @@ function qFirst(n){const p=String(n||'').trim().split(/\s+/);return p.length>1?p
 function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean),v=num(d.value);
   const items=sv.length?sv.map((x,i)=>({name:x,qty:'1',price:sv.length===1&&v?String(v):''})):[{name:d.title||'Videós szolgáltatás',qty:'1',price:v?String(v):''}];
   const no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();
-  const ev=!!d.title,a=qAuto(d,ev);S.q={dealId:d.id,to:d.contactEmail||'',cc:'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'15',note:'',no,ev,body:a.body,sig:null};}
+  const ev=!!d.title,a=qAuto(d,ev);S.q={dealId:d.id,to:d.contactEmail||'',cc:d.contactEmail2||'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'15',note:'',no,ev,body:a.body,sig:null};}
 /* több opció (pl. 1 / 3 / 5 short): S.q.opts = [{title, items}], az aktív opció tételei = S.q.items */
 function qSetOpt(i){const q=S.q;q.oi=Math.max(0,Math.min(q.opts.length-1,i));q.items=q.opts[q.oi].items;}
 /* konkrét rendezvényre szóló vagy általános ajánlat: a tárgy és a levél alapszövege ehhez igazodik */
