@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f4d9c310d",
+"at": "2026-11-12T09:22:49+01:00",
+"msg": "Ügyfél levél gomb: szöveg és lejátszás ikon táblázattal egy vonalban (minden levelezőben)"
+},
+{
 "id": "a8ea0f2f63",
 "at": "2026-11-12T09:22:08+01:00",
 "msg": "Belső ellenőrzés e-mail: videólink és magyarázó mondat ki, dőlt lábléc"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: rövidebb zárolási felirat"
 },
 {
-"id": "97785c0223",
-"at": "2026-11-11T22:56:40+01:00",
-"msg": "Jóváhagyó link: bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának"
-},
-{
-"id": "9663fe8669",
-"at": "2026-11-11T21:41:38Z",
+"id": "7446213f3c",
+"at": "2026-11-11T21:56:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
