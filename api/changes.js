@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f682a0b488",
+"at": "2026-11-12T15:18:48+01:00",
+"msg": "Jóváhagyó oldal: a vízjel teljes képernyőn is csak a képet fedi, sűrűn kitöltve"
+},
+{
 "id": "61cd8503f9",
 "at": "2026-11-12T15:15:57+01:00",
 "msg": "Lezajlott rendezvénynél is módosítható a leadási határidő"
@@ -155,11 +160,6 @@ const ITEMS = [
 "id": "683817990f",
 "at": "2026-11-12T12:04:27+01:00",
 "msg": "Szakember Beállítások: középre igazítva"
-},
-{
-"id": "478bc4e124",
-"at": "2026-11-12T12:02:31+01:00",
-"msg": "Szakember Beállítások: díjcsökkentés kivéve, eszközlista leírás"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
