@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6255e796f3",
+"at": "2026-11-12T11:45:28+01:00",
+"msg": "Tagi kölcsön: honnan / hova számla (bank2)"
+},
+{
 "id": "28b3b5fe77",
 "at": "2026-11-12T11:41:25+01:00",
 "msg": "Videó hozzászólások: látszik az ügyfél jóváhagyása; tagi kölcsön bank felirat egyértelműbb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni munka beszámoló a lépéskártyán (külön sáv helyett)"
 },
 {
-"id": "92e22887df",
-"at": "2026-11-11T23:53:27+01:00",
-"msg": "Lépéskártya: csak a jóváhagyott videókat számolja"
-},
-{
-"id": "3d8fbba1f7",
-"at": "2026-11-11T22:53:24Z",
+"id": "3a26c2b37c",
+"at": "2026-11-11T22:53:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
