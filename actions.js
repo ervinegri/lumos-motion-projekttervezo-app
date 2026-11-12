@@ -2283,6 +2283,9 @@ function bdResume(){let m={};try{m=JSON.parse(localStorage.getItem('lpm_bd_pend'
       catch(e){bdKeep(k,null);const q=projById(x.pid),w=q&&(q.videos||[]).find(z=>z.id===x.vid);if(w)w.st=old;if(typeof bdRefresh==='function')bdRefresh();}});});}
 window.addEventListener('beforeunload',e=>{if(Object.keys(BD_PEND||{}).length){e.preventDefault();e.returnValue='';}});   /* még mentés alatt álló áthúzásnál figyelmeztet */
 async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||v.st===st)return;
+  if(v.st==='leadva'&&(st==='vagas'||st==='modositas'||st==='vagasra')&&fb===undefined&&!extra&&!ro()){   /* jóváhagyásra várból vissza: az ügyfél más úton (telefon, e-mail) kért módosítást – beírható, mintha a jóváhagyó oldalon írta volna */
+    confirmLayer('↩ Az ügyfél módosítást kér','<div style="margin:0 16px"><p class="hint" style="margin:0 0 8px">Írd le, mit kér az ügyfél (akár időkóddal, pl. [0:12]) – a vágó ezt kapja meg. Ha nem írsz semmit, megjegyzés nélkül kerül vissza.</p><textarea class="inp" id="m-cliFb2" rows="5" style="width:100%"></textarea></div>','Visszaküldés a vágónak',(bb,d)=>{const t=String(($('m-cliFb2')||{}).value||'').trim();if(d&&d.remove)d.remove();bdMove(pid,vid,st,null,t);});
+    setTimeout(()=>{const x=$('m-cliFb2');if(x)x.focus();},50);return;}
   if(st==='ellen'&&!extra){reviewModal(pid,vid);return;}
   if(st==='leadva'&&!extra){clientModal(pid,vid);return;}   /* az ügyfélhez kerül: ki kapja az e-mailt (vagy e-mail nélkül) */
   if(st==='jovahagyva'&&!v.link&&!extra){   /* link nélkül nem lehet jóváhagyott */
