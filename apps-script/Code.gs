@@ -4724,7 +4724,7 @@ function dealQuoteSend_(u, a) {
   const ok = gmailSend_(to, (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + subj, body + '\n\n' + r.sig.text, opts);
   if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
   let deals; withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row);
-    const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] 📄 Árajánlat elküldve (' + tos.join(', ') + ')' + (Number(a.total) ? ' – ' + String(Math.round(Number(a.total))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA' : '');
+    const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] 📄 Árajánlat elküldve (' + tos.join(', ') + ')' + (Number(a.total) ? ' – ' + String(Math.round(Number(a.total))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA' : '') + (Number(a.opts) > 1 ? ' – ' + Number(a.opts) + ' opcióval' : '');
     x.note = line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : ''); if (x.stage === 'uj') x.stage = 'ajanlat'; x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
   logEvent_(u, 'Árajánlat elküldve', d.title, tos.join(', '));
   try { deals = dealsFor_(u); } catch (e) { }

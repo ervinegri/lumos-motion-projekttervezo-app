@@ -940,3 +940,12 @@ html body .q-pdf-h{display:flex;align-items:center;justify-content:space-between
 .q-disc-on{display:inline-flex!important;align-items:center;gap:8px;cursor:pointer;font-weight:700}.q-disc-on input{width:18px;height:18px;accent-color:#243347;margin:0}.q-disc[hidden],.q-disc-h[hidden]{display:none!important}.q-from-note{color:var(--muted,#6b7680)}
 
 .dwd-panel{margin-bottom:16px}.dwd-panel code{font-size:12px;background:#f0f4f7;padding:1px 5px;border-radius:5px;word-break:break-all}.dwd-body{padding:4px 0 2px}
+
+/* árajánlat: több opció */
+.q-opts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}.q-opts-l{font-size:13px;font-weight:700;color:var(--muted,#6b7680);margin-right:2px}
+.q-opts .chip{border:1px solid var(--line,#dde4eb);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
+.q-opts .chip small{font-weight:600;color:var(--muted,#6b7680);font-size:11.5px}.q-opts .chip.on{background:#243347;color:#fff;border-color:#243347}.q-opts .chip.on small{color:#c9d2db}
+.q-opts .q-opt-add{border-style:dashed}.q-opt-del{margin-left:auto;font-size:13px}
+.q-otitle{margin-bottom:10px}.q-otitle label{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
+.qp-opt{border:1px solid #e3e8ee;border-radius:10px;padding:10px 14px 12px;margin-bottom:12px;page-break-inside:avoid}.qp-opt .qp-tbl{margin-bottom:8px}
+.qp-opt-h{font-size:14px;margin-bottom:6px;color:#1d2a38}.qp-opt-h b{font-weight:800}
