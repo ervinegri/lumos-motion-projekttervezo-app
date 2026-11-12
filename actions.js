@@ -1173,6 +1173,7 @@ const ACT={
   'crew-prio':b=>{S.cf.prio=b.dataset.v;render(true);},
   'cal-first':()=>{if(S.cal.mode!=='ido')return;const w=document.querySelector('.tl-wrap'),b=w&&w.querySelector('.tl-cm');if(!b)return;   // az idővonalon a kiválasztott hónap 1. napjára ugrik
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/Number(b.dataset.n);w.scrollTo({left:Math.max(0,diffDays(b.dataset.first,S.cal.month+'-01')*cw),behavior:'smooth'});},
+  'cal-kind':b=>{S.cal.kind=b.dataset.v||'';try{localStorage.setItem('lpm_cal_kind',S.cal.kind);}catch(e){}render(true);},
   'cal-mode':b=>{S.cal.mode=b.dataset.v;try{localStorage.setItem('lpm_cal_mode2',S.cal.mode);}catch(e){}render(true);},
   'crew-view':b=>{S.cf.view=b.dataset.v;try{localStorage.setItem('lumos_pm_crewview',S.cf.view);}catch(e){}render(true);},
   'new-project':()=>{if(!ro())guard(newProjectModal);},

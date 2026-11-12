@@ -157,7 +157,7 @@ const S={me:null,projects:[],crew:[],inventory:[],links:{},loaded:false,loading:
   tab:'projektek',projectId:null,draft:null,dirty:false,saving:false,
   pf:{status:'mind',q:''},cf:{q:'',role:'',prio:'',view:(()=>{try{return localStorage.getItem('lumos_pm_crewview')||'cards';}catch(e){return 'cards';}})()},inf:{q:'',cat:'',cond:''},clf:{q:''},clients:[],
   addCrew:{person:'',role:''},addEq:{item:'',qty:1},users:null,log:null,lastLoad:0,
-  cal:{month:todayISO().slice(0,7),mode:(()=>{try{return localStorage.getItem('lpm_cal_mode2')||'ido';}catch(e){return 'ido';}})(),events:{},ev2:{},loading:{},err:{}}};
+  cal:{month:todayISO().slice(0,7),mode:(()=>{try{return localStorage.getItem('lpm_cal_mode2')||'ido';}catch(e){return 'ido';}})(),kind:(()=>{try{return localStorage.getItem('lpm_cal_kind')||'';}catch(e){return '';}})(),events:{},ev2:{},loading:{},err:{}}};
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_KEY)||'';}catch(e){}
 

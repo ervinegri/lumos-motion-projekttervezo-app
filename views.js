@@ -1272,10 +1272,11 @@ const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vág�
 const crewOnSite=(p,me)=>!!me&&!editOnly(p)&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
 function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewCuts(p,me)));}
 function calCutDue(){try{return localStorage.getItem('lpm_cal_cutdue')!=='0';}catch(e){return true;}}
+function calKind(){return ro()&&crewIsCutter()?(S.cal.kind||''):'';}   // szakember (vágó is): '' mind, 'site' terepi, 'cut' vágói munkák
 function calItems(month){
   const r=calRange(month),items=[];
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
-  const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'',cutter=ro()&&crewIsCutter();
+  const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'',cutter=ro()&&crewIsCutter()&&calKind()!=='site',onlyCut=calKind()==='cut';
   S.projects.forEach(p=>{const q=pr(p);let pre='';
     if(cutter){const cut=crewCuts(p,me);
       if(cut){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
@@ -1284,12 +1285,13 @@ function calItems(month){
     if(!ro()&&!editOnly(p)&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewCuts(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
       if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:'✂️ '+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
     if(editOnly(p)){if(ro()||(S.cal.mode!=='ido'&&!calCutDue())||(S.cal.cutter&&!crewCuts(p,S.cal.cutter))||!q||q.end<r.start||q.start>r.end)return;pre='✂️ ';}   // a „Vágói határidők” pipa ezt is elrejti   // videóvágás: nem terepi munka, lilán a leadás napján
+    if(onlyCut)return;   // csak a vágói munkák
     if(!q||q.end<r.start||q.start>r.end)return;   // terepen: a projekt a saját napjain, zölden (ahogy a többieknél)
     items.push({kind:'p',cut:pre!=='',id:p.id,title:pre+(p.name||'Névtelen projekt'),date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||''});});
   const cutC=!ro()&&S.cal.cutter?crewById(S.cal.cutter):null,cutMail=cutC?String(cutC.email||'').toLowerCase():'',cutNm=cutC?fold(cutC.name):'';
   const vOk=e=>!cutC||(cutMail&&(e.guests||[]).includes(cutMail))||(!!cutNm&&fold((e.title||'')+' '+(e.description||'')).includes(cutNm));   // kiválasztott vágó: csak az ő vágói bejegyzései
   const myMail=me?String((crewById(me)||{}).email||'').toLowerCase():'';   /* szakember nézetben csak a saját vágói bejegyzései (ahol ő a vendég) */
-  (ro()||S.cal.mode==='ido'||calCutDue()?(S.cal.ev2[month]||[]):[]).filter(vOk)   /* a vágói naptár bejegyzései is a „Vágói határidők” pipához tartoznak */
+  ((ro()&&calKind()!=='site')||(!ro()&&(S.cal.mode==='ido'||calCutDue()))?(S.cal.ev2[month]||[]):[]).filter(vOk)   /* a vágói naptár bejegyzései is a „Vágói határidők” pipához tartoznak */
     .filter(e=>!ro()||(!!myMail&&(e.guests||[]).includes(myMail))).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)}));
   if(ro())return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
@@ -1333,13 +1335,13 @@ function calTimeline(m,items0,T,ahead){
   const items=[],ik=new Set();months.forEach(month=>(month===m?items0:calItems(month)).forEach(it=>{const k=it.kind+':'+it.id+(it.cut?':c':'');if(!ik.has(k)){ik.add(k);items.push(it);}}));
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
-  const cutOf=p=>{if(!p||p.status==='lemondva'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
+  const cutOf=p=>{if(!p||p.status==='lemondva'||calKind()==='site'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
     if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
   const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva')&&!(!ro()&&S.cal.cutter&&it.kind!=='v'&&(it.kind!=='p'||!crewCuts(projById(it.id)||{},S.cal.cutter))));   // a lemondott projekt itt nem látszik; vágó kiválasztásakor csak az ő vágói munkái
   const seen=new Set(rows.filter(it=>it.kind==='p').map(it=>it.id));
   S.projects.forEach(p=>{if(seen.has(p.id))return;const c=cutOf(p),q=pr(p);if(!c||c.due<first||c.st>last)return;   // a vágás ide esik, a forgatás korábban volt
-    rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&!crewOnSite(p,me))});});
+    rows.push({kind:'p',id:p.id,title:p.name||'Névtelen projekt',date:q.start,endDate:q.end,time:p.startTime||'',status:p.status||'tervezes',venue:p.venue||'',cutOnly:editOnly(p)||(ro()&&(!crewOnSite(p,me)||calKind()==='cut'))});});
   const vis=it=>{const p=it.kind==='p'?projById(it.id):null,c=p&&cutOf(p);return p&&editOnly(p)&&c?c.st:(c&&c.st<it.date?c.st:it.date);};   // a sorrend a sáv látható kezdete szerint (videóvágásnál a vágás eleje)
   rows.sort((a,b)=>vis(a).localeCompare(vis(b))||(a.time||'99').localeCompare(b.time||'99'));
   /* Jóváhagyásra vár: külön kategória legfelül, lapozástól függetlenül mindig látszik (amíg az ügyfél jóvá nem hagyja) */
@@ -1407,6 +1409,7 @@ function viewCalendar(){
   const cutterError=readOnly?'':S.cal.err['v:'+m];
   return `<div class="page-head cal-toolbar">${(()=>{const mn=x=>F_MONTH.format(toDate(x+'-01')).replace(/^\d{4}\.\s*/,'').toLowerCase(),pm=shiftMonth(m,-1),nm=shiftMonth(m,1),yr=(x)=>x.slice(0,4)!==m.slice(0,4)?x.slice(0,4)+'. ':'';
       return `<div class="cal-mnav" role="group" aria-label="Hónap választása"><span class="cm-tools"><div class="seg" role="group" aria-label="Nézet"><button type="button" data-action="cal-mode" data-v="ido" aria-pressed="${S.cal.mode==='ido'}">☰ Idővonal</button><button type="button" data-action="cal-mode" data-v="honap" aria-pressed="${S.cal.mode!=='ido'}">▦ Havi</button></div><button class="btn outline cm-today" type="button" data-action="cal-nav" data-d="0" title="Ugrás a mai napra">Ma</button></span><button class="btn outline cm-arr" type="button" data-action="cal-nav" data-d="-1" aria-label="Előző hónap">‹</button><button class="btn outline cm-side" type="button" data-action="cal-nav" data-d="-1">${esc(yr(pm)+mn(pm))}</button><h2 class="cm-cur-h"><button type="button" class="cm-cur" data-action="cal-first" title="${S.cal.mode==='ido'?'Ugrás a hónap első napjára':'Ugrás a mai hónapra'}">${esc(m.slice(0,4)+'. '+mn(m))}</button></h2><button class="btn outline cm-side" type="button" data-action="cal-nav" data-d="1">${esc(yr(nm)+mn(nm))}</button><button class="btn outline cm-arr" type="button" data-action="cal-nav" data-d="1" aria-label="Következő hónap">›</button></div>`;})()}
+      ${readOnly&&crewIsCutter()?`<div class="seg cal-kind" role="group" aria-label="Munkák szűrése">${[['','Minden munka'],['site','📍 Terepi'],['cut','✂️ Vágói']].map(([k,l])=>`<button type="button" data-action="cal-kind" data-v="${k}" aria-pressed="${calKind()===k}">${l}</button>`).join('')}</div>`:''}
       ${!readOnly&&S.cal.mode!=='ido'?`<label class="cal-tog"><input type="checkbox" id="cal-cutdue"${calCutDue()?' checked':''}> ✂️ Vágói határidők</label>`:''}
       ${cutters.length?`<span class="cal-cutsel"><select class="inp" id="cal-cutter" data-cmb="Vágó kiválasztása…" aria-label="Melyik vágó munkáit mutassa"><option value="__all"${S.cal.cutter?'':' selected'}>✂️ Minden vágó</option>${cutters.map(c=>`<option value="${esc(c.id)}"${S.cal.cutter===c.id?' selected':''}>${esc(c.name)}</option>`).join('')}</select></span>`:''}
       ${readOnly?'':`<div class="btns"><button class="btn primary small" type="button" data-action="cal-new">+ Új projekt</button>
