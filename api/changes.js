@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e098e3ea39",
+"at": "2026-11-12T18:15:15+01:00",
+"msg": "Napló: a felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
+},
+{
 "id": "4ff86da16f",
 "at": "2026-11-12T18:14:31+01:00",
 "msg": "Küldés a kollégák címéről: a panel gombjai működnek (kezelők az ACT létrejötte után)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: tábla szélesség"
 },
 {
-"id": "85e76d347c",
-"at": "2026-11-12T16:32:53+01:00",
-"msg": "Árajánlat PDF: a tételtábla nem lóg ki"
-},
-{
-"id": "1c3c9156bc",
-"at": "2026-11-12T15:32:21Z",
+"id": "732b3eabf0",
+"at": "2026-11-12T15:33:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
