@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "87a780be45",
+"at": "2026-11-12T22:42:59+01:00",
+"msg": "Szerződéssablonok: több hely az aláírásnak (kb. 2,3 cm a vonalak fölött)"
+},
+{
 "id": "7b3e96639b",
 "at": "2026-11-12T22:41:03+01:00",
 "msg": "Szerződéssablonok: a felek táblázatai egyforma sorközzel és oszlopszélességgel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Napló: a felhasználók a legutóbbi belépés szerint csökkenő sorrendben"
 },
 {
-"id": "4ff86da16f",
-"at": "2026-11-12T18:14:31+01:00",
-"msg": "Küldés a kollégák címéről: a panel gombjai működnek (kezelők az ACT létrejötte után)"
-},
-{
-"id": "1c20879a0d",
-"at": "2026-11-12T16:58:34Z",
+"id": "60fa39922f",
+"at": "2026-11-12T17:14:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
