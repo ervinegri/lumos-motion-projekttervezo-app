@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "236a745d31",
+"at": "2026-11-12T20:55:27+01:00",
+"msg": "Naptár: a közelgő események leírása egyszer újraszinkronizálódik (jegyzetek nélkül)"
+},
+{
 "id": "5500d57ac3",
 "at": "2026-11-12T20:55:10+01:00",
 "msg": "Naptár: a projekt jegyzetei nem kerülnek a naptárbejegyzésbe"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: árajánlat az árkalkulátorral indul (tételek átvétele), feltűnőbb gomb; értékesítő szűrésnél csak az ő jutaléka"
 },
 {
-"id": "ccc71e789b",
-"at": "2026-11-12T16:39:49+01:00",
-"msg": "Hosszú ablak: a cím és a gombsor rögzített, csak a tartalom görget"
-},
-{
-"id": "07f42bf0f1",
-"at": "2026-11-12T15:39:03Z",
+"id": "ed2e0ede22",
+"at": "2026-11-12T15:39:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
