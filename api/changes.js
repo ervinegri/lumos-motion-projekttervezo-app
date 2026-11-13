@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f39e4d1465",
+"at": "2026-11-13T18:36:20+01:00",
+"msg": "Levélből nyitott videó a friss adatokkal; nyitott videóablak frissül; mobilon a lépések 2 oszlopban"
+},
+{
 "id": "ef1666f22c",
 "at": "2026-11-13T18:34:20+01:00",
 "msg": "Szerződés és számlázás: fekvő telefonon görgetés nélkül, álló telefonon projektenkénti kártyák"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: lapozó nyilak az opciók között; fotó nélkül „Kreatív videózás”"
 },
 {
-"id": "cf24de9769",
-"at": "2026-11-13T16:28:23+01:00",
-"msg": "Árajánlat: gombsor visszaállítva (felesleges záró elem)"
-},
-{
-"id": "faab037591",
-"at": "2026-11-13T15:27:56Z",
+"id": "558bba38b9",
+"at": "2026-11-13T15:28:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
