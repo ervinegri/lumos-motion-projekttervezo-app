@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bbedce8c2e",
+"at": "2026-11-13T16:15:12+01:00",
+"msg": "Árajánlat: Opció másolása és Új kategória gomb"
+},
+{
 "id": "68cf5777f4",
 "at": "2026-11-13T16:12:22+01:00",
 "msg": "Árkalkulátor: nagyobb csúszkagomb, az Összesen akkora, mint a gombok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videónézet: verzióváltó (v1…vN) – a régi verzió videója és hozzászólásai"
 },
 {
-"id": "594767c47f",
-"at": "2026-11-13T13:28:22+01:00",
-"msg": "Ügyfélküldés: kifizetett projektnél nincs vízjel-mező"
-},
-{
-"id": "6e3e7c1a03",
-"at": "2026-11-13T12:27:16Z",
+"id": "f9981ff297",
+"at": "2026-11-13T12:28:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
