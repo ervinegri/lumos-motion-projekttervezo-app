@@ -1610,3 +1610,9 @@ html body .bill-tbl tbody tr{width:auto!important;box-sizing:border-box;max-widt
 html body .cal-wrap{border:0!important;border-radius:0!important;box-shadow:none!important;width:100vw!important;max-width:100vw!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;box-sizing:border-box;overflow:hidden}
 html body .cal-wrap .cal-grid,html body .cal-wrap .cal-wd{border-radius:0!important;border-left:0!important;border-right:0!important}
 }
+/* telefon: vélemény írásakor (billentyűzet nyitva) a videó kicsi lesz, hogy a szövegmező látszódjon */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player,html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player video,html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player iframe{max-height:24vh!important;height:auto}
+html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player{aspect-ratio:auto!important;overflow:hidden}
+html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player video,html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player iframe{width:100%;object-fit:contain}
+}
