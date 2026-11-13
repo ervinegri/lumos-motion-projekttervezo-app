@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "80c42872a8",
+"at": "2026-11-13T22:10:11+01:00",
+"msg": "Érintőképernyő: súgó csak hosszú érintésre; menüfülsor lágy átmenettel a szélén, az aktív fül teljesen látszik"
+},
+{
 "id": "92398a3d4e",
 "at": "2026-11-13T22:08:01+01:00",
 "msg": "Mobil: Bevétel és kiadás táblázatai keret nélkül a képernyő széléig, Kilépés ikon igazítva, Ügyfelek sorai egyszínűek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: széles táblázatok a saját keretükben görgethetők"
 },
 {
-"id": "d4dc4a1709",
-"at": "2026-11-13T18:32:20+01:00",
-"msg": "Érintőképernyőn az ablak megnyitásakor nem ugrik fel a billentyűzet"
-},
-{
-"id": "f9b9e597ee",
-"at": "2026-11-13T17:31:49Z",
+"id": "c705ccda14",
+"at": "2026-11-13T17:32:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
