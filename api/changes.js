@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "34beb19c85",
+"at": "2026-11-13T21:46:48+01:00",
+"msg": "Mobil: frissítés-sáv széles + lehúzással eltüntethető, NAV/Kiküldés rövid felirat egy sorban, díjösszesítő-lista sorai nem fednek"
+},
+{
 "id": "1ea946bb10",
 "at": "2026-11-13T21:41:27+01:00",
 "msg": "Bevétel és kiadás: alcím törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Short videó: operatőri alapdíj 40 000 Ft"
 },
 {
-"id": "f34743513b",
-"at": "2026-11-13T17:29:49+01:00",
-"msg": "Értékesítés: Árkalkulátor gomb a fejlécben"
-},
-{
-"id": "586b2bb6e9",
-"at": "2026-11-13T16:17:04Z",
+"id": "79eff9a360",
+"at": "2026-11-13T16:29:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
