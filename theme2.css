@@ -1063,3 +1063,5 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .q-ccw{position:relative;display:block}.q-ccw+.q-ccw{margin-top:6px}.q-ccw .q-ccin{padding-right:36px}.q-ccw .q-ccin+.q-ccin{margin-top:0}.q-ccdel{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:#9aa4ae;font-size:13px;cursor:pointer;padding:5px 7px;border-radius:6px}.q-ccdel:hover{color:#b42318;background:#fdecec}
 .q-ccw{display:flex;align-items:center;gap:4px}.q-ccw .q-ccin{flex:1;padding-right:12px}.q-ccdel{position:static;transform:none;flex:0 0 auto}
 .qp-tbl tfoot .qp-final td{font-size:13px;color:#36414d}.q-sumg .q-s-fin span{font-size:13.5px!important;color:#36414d!important}
+.q-cclbl{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.q-cclbl .q-ccadd{margin:0;font-size:12.5px;padding:0}
+.q-cclbl .q-ccadd{text-decoration:none}
