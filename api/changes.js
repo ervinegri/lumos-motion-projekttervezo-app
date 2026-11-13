@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1ea946bb10",
+"at": "2026-11-13T21:41:27+01:00",
+"msg": "Bevétel és kiadás: alcím törölve"
+},
+{
 "id": "3e2bc1b52b",
 "at": "2026-11-13T21:40:53+01:00",
 "msg": "Fizetések mobilon: a hónaplapozó és a gombok újra látszanak (az alfülek saját sorban)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: Árkalkulátor gomb a fejlécben"
 },
 {
-"id": "9003d2868a",
-"at": "2026-11-13T17:16:53+01:00",
-"msg": "Árajánlat: rövid leírás a tételek alatt (terjedelem, fotószám, óraszám, létszám)"
-},
-{
-"id": "311c58c034",
-"at": "2026-11-13T16:15:19Z",
+"id": "586b2bb6e9",
+"at": "2026-11-13T16:17:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
