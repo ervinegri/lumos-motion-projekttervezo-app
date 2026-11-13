@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "699b44384b",
+"at": "2026-11-13T09:04:02+01:00",
+"msg": "Utómunka-instrukciók a projekten: vezető írja, az utómunkás hozzászól és kipipálja (videótábla + projektoldal)"
+},
+{
 "id": "27e969676c",
 "at": "2026-11-13T08:58:46+01:00",
 "msg": "E-mailek: egységes dőlt lábléc az automatikus értesítéseken"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés mentésekor a szerkeszthető .docx is az ügyfél mappájába kerül (a PDF mellé)"
 },
 {
-"id": "fea7d2fef6",
-"at": "2026-11-12T22:59:27+01:00",
-"msg": "Naptár újraszinkron: időzítő-jogosultság nélkül is hibátlanul lefut"
-},
-{
-"id": "fcd4572524",
-"at": "2026-11-12T21:56:37Z",
+"id": "575f58a966",
+"at": "2026-11-12T21:59:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
