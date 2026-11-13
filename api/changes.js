@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c5a3d88cfa",
+"at": "2026-11-13T08:52:49+01:00",
+"msg": "Naptárszűrő: Vágói helyett Utómunka"
+},
+{
 "id": "6c45708b70",
 "at": "2026-11-13T08:45:43+01:00",
 "msg": "Projektoldal: kódmegjegyzés kilógott a felületre – törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: a felek adatai soronként egy vonalban (közös táblázat); a dátum a Kelt sorban, az aláírásos blokk egyben marad"
 },
 {
-"id": "5b6e541646",
-"at": "2026-11-12T22:44:48+01:00",
-"msg": "Szerződés fájlneve: típus_ügyfél_szolgáltató (pl. Keretszerzodes_Empatia_..._Lumos_Motion_Kft.pdf)"
-},
-{
-"id": "1e3ffae4e2",
-"at": "2026-11-12T21:43:08Z",
+"id": "5cdc296810",
+"at": "2026-11-12T21:44:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
