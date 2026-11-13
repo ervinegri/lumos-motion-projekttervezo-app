@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "594767c47f",
+"at": "2026-11-13T13:28:22+01:00",
+"msg": "Ügyfélküldés: kifizetett projektnél nincs vízjel-mező"
+},
+{
 "id": "db66dc3c8b",
 "at": "2026-11-13T13:27:07+01:00",
 "msg": "Ügyfélküldés: a mentett mintában ragadt videónév javítva; kifizetett projektnél nincs bepipálva a vízjel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlatörténet: app-számlák tételnevei"
 },
 {
-"id": "40065638f2",
-"at": "2026-11-13T08:11:33+01:00",
-"msg": "Számlatörténet: tételnevek, év a dátumban"
-},
-{
-"id": "1b45904df9",
-"at": "2026-11-13T07:08:03Z",
+"id": "f6d1c37424",
+"at": "2026-11-13T07:11:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
