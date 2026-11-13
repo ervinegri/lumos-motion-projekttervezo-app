@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cf24de9769",
+"at": "2026-11-13T16:28:23+01:00",
+"msg": "Árajánlat: gombsor visszaállítva (felesleges záró elem)"
+},
+{
 "id": "9075961710",
 "at": "2026-11-13T16:27:46+01:00",
 "msg": "Árajánlat: Tárgy és Érvényesség egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vágóválasztó: rámutatásra lenyílik a vágók listája"
 },
 {
-"id": "8184a0d71a",
-"at": "2026-11-13T13:46:12+01:00",
-"msg": "Utómunka-kártya: a számláló fekete háttér nélkül"
-},
-{
-"id": "314cc3d53b",
-"at": "2026-11-13T12:44:28Z",
+"id": "f4b6ad63a6",
+"at": "2026-11-13T12:46:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
