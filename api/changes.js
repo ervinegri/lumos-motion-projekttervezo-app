@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ff7da3dc2",
+"at": "2026-11-13T22:42:42+01:00",
+"msg": "Álló telefon: havi naptár keret nélkül, faltól falig"
+},
+{
 "id": "5dde09ffb5",
 "at": "2026-11-13T22:41:51+01:00",
 "msg": "Mobil: az oldal sehol nem húzható oldalra (a kilógó tartalmat az oldal levágja), számlázási kártyák nem szélesebbek a képernyőnél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Fizetések: a táblázat alja is elérhető (alacsonyabb keret, a görgetés továbbmegy az oldalra)"
 },
 {
-"id": "6afa9c8c8d",
-"at": "2026-11-13T22:00:49+01:00",
-"msg": "Mobil számlázás: több számla kártyái nem csúsznak egymásra"
-},
-{
-"id": "b300d32847",
-"at": "2026-11-13T21:00:13Z",
+"id": "d249124156",
+"at": "2026-11-13T21:00:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
