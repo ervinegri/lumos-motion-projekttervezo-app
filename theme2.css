@@ -1591,3 +1591,9 @@ html body .page-head .subtabs .subtab{padding:4px 9px!important;min-height:30px}
 html body .page-head .btn.small,html body .page-head .month-nav .btn,html body .page-head .mnav-chip{min-height:30px!important}
 }
 @media (orientation:landscape) and (max-height:560px){html body .page-head.pay-head>.subtabs,html body .page-head.bill-head>.subtabs{flex:0 0 auto!important;overflow:visible!important}html body .page-head.pay-head .subtabs .subtab,html body .page-head.bill-head .subtabs .subtab{padding:4px 8px!important}}
+/* Szerződés és számlázás (táblázatos nézet): erős elválasztó vonal a projektek között, a dobozokból semmi nem lóg ki */
+@media (min-width:701px){
+html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month)>td{border-bottom:2px solid #b9c6d3!important}
+html body .bill-tbl .bt-cell .pb-box{overflow:hidden;min-width:0}
+html body .bill-tbl .bt-cell .pb-box .statuspill,html body .bill-tbl .bt-cell .pb-box a,html body .bill-tbl .bt-cell .pb-box .btn{max-width:100%;white-space:normal;box-sizing:border-box;overflow-wrap:anywhere}
+}
