@@ -110,7 +110,8 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
   try{const ro=new ResizeObserver(setH);const t=document.querySelector('.topbar'),v=$('viewBanner');if(t)ro.observe(t);if(v){ro.observe(v);new MutationObserver(setH).observe(v,{attributes:true,attributeFilter:['class']});}}catch(e){}
   /* görgetéskor a projekt neve fent marad: vékony sáv a fejléc alatt, amikor a cím kicsúszik a képből */
   const bar=()=>{let b=$('ptbar');if(!b){b=document.createElement('div');b.id='ptbar';b.className='ptbar';b.innerHTML='<div class="ptbar-in"><b></b><span></span></div>';b.querySelector('b').onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(b);}return b;};
-  const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d){if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
+  const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d||ro()){   // szakember nézetben nincs ragadós címsáv: a cím a többi tartalommal görgetődik
+if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
     const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
   window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
 
