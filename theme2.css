@@ -1430,3 +1430,6 @@ html body #view .cl-wrap table tbody tr.cl-row:nth-child(odd){background:#fff!im
 .dl-hbtns .btn{min-height:42px;font-size:14px;font-weight:650;padding:8px 16px;box-sizing:border-box;border-width:1px!important;line-height:1.2}
 @media (min-width:701px){html body .page-head:has(.dl-hbtns){flex-wrap:nowrap!important;gap:12px!important}html body .page-head:has(.dl-hbtns)>.grow{flex:1 1 auto!important;min-width:0}html body .page-head:has(.dl-hbtns) .dl-hbtns{width:auto!important;margin-bottom:0!important;flex:0 0 auto}}
 .dl-hbtns .btn{gap:6px!important}.dl-hbtns .btn .dl-lg,.dl-hbtns .btn .dl-sm{margin-left:-6px}.dl-hbtns .btn[data-action="ark-open"] .dl-lg,.dl-hbtns .btn[data-action="ark-open"] .dl-sm{margin-left:0}
+/* a menüfülsor a szerepkör-választóig ér (a halványodó szél közvetlenül mellette) */
+@media (orientation:landscape) and (max-height:560px){html body .topbar-inner{column-gap:6px!important}html body .tabs{margin-right:0!important;padding-right:0!important}}
+@media (max-width:700px){html body .tabs{margin-right:-16px!important}}

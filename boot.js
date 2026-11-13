@@ -54,4 +54,5 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
   const edge=()=>{const ov=t.scrollWidth>t.clientWidth+2;t.classList.toggle('fl',ov&&t.scrollLeft>4);t.classList.toggle('fr',ov&&t.scrollLeft<t.scrollWidth-t.clientWidth-4);};
   const fix=()=>{if(mq.matches){const a=t.querySelector('.tab[aria-selected="true"]');if(a){const tr=t.getBoundingClientRect(),ar=a.getBoundingClientRect(),pad=28;if(ar.left<tr.left+pad)t.scrollLeft-=tr.left+pad-ar.left;else if(ar.right>tr.right-pad)t.scrollLeft+=ar.right-(tr.right-pad);}}edge();};
   t.addEventListener('scroll',edge,{passive:true});
+  setTimeout(fix,0);setTimeout(fix,600);addEventListener('load',()=>setTimeout(fix,100));if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(fix,50));
   new MutationObserver(()=>requestAnimationFrame(fix)).observe(t,{childList:true});mq.addEventListener&&mq.addEventListener('change',()=>setTimeout(fix,250));addEventListener('resize',()=>setTimeout(fix,250));})();
