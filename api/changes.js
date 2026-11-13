@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "22c04a257f",
+"at": "2026-11-13T08:15:13+01:00",
+"msg": "Számlatörténet: app-számlák tételnevei"
+},
+{
 "id": "40065638f2",
 "at": "2026-11-13T08:11:33+01:00",
 "msg": "Számlatörténet: tételnevek, év a dátumban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: szélesebb technikai specifikáció táblázat"
 },
 {
-"id": "81105c7a1a",
-"at": "2026-11-12T22:13:36+01:00",
-"msg": "Szerződéssablonok: a technikai specifikáció első oszlopa szélesebb (nem törik a kettőspont)"
-},
-{
-"id": "fd878b59b9",
-"at": "2026-11-12T21:09:57Z",
+"id": "0353b683a7",
+"at": "2026-11-12T21:13:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
