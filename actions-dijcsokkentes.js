@@ -126,6 +126,7 @@ $('modalRoot').addEventListener('submit',async e=>{
   const form=e.target,btn=form.querySelector('[type=submit]');if(btn){btn.dataset.l=btn.textContent;btn.textContent=btn.textContent.replace(/…$/,'')+'…';btn.disabled=true;}
   const k=MD_KEY;
   try{await workTrack(modalSubmit(new FormData(form),form));if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
+  catch(err){console.error(err);try{handleErr(err);}catch(_){toast('Hiba történt: '+((err&&err.message)||err),true);}}   // váratlan hiba se maradjon néma
   finally{if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}}
 });
 document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('modalRoot').innerHTML)return;const cf=$('modalRoot').querySelector('.cf-layer');if(cf){cf.remove();return;}closeModal();});
