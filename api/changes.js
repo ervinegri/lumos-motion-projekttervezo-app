@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f40871a303",
+"at": "2026-11-13T16:22:51+01:00",
+"msg": "Árajánlat: bruttó oszlop a szerkesztőben, Vissza gomb az előnézetben, teljes ár kiemelve"
+},
+{
 "id": "8978033764",
 "at": "2026-11-13T16:20:02+01:00",
 "msg": "Árajánlat PDF: bruttó oszlop tételenként; teljes ár, kedvezmény, kedvezményes ár"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: az Utómunka lépés kártyája kattintható – a videótábla nyílik"
 },
 {
-"id": "f378aa28ef",
-"at": "2026-11-13T13:32:21+01:00",
-"msg": "Verzióváltó: a visszadobás indoka a régi verziónál"
-},
-{
-"id": "4da7ffa68d",
-"at": "2026-11-13T12:31:40Z",
+"id": "b689277fd9",
+"at": "2026-11-13T12:32:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
