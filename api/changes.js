@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "84acb504fb",
+"at": "2026-11-13T07:13:28+01:00",
+"msg": "Kiállítói szerződés: short helyett videó"
+},
+{
 "id": "9a59753ec8",
 "at": "2026-11-13T07:11:11+01:00",
 "msg": "Szerződés-állapot lehetőségeknél oszlop nélkül; 4.2 pont egyszerűsítve; mező-magyarázat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés PDF: helyes számozás, logó az első oldalon, saját oldaltördelés"
 },
 {
-"id": "67c405988e",
-"at": "2026-11-12T21:08:11+01:00",
-"msg": "Szerződés PDF: nem üres (belső dobozból készül)"
-},
-{
-"id": "0fff30848f",
-"at": "2026-11-12T20:07:34Z",
+"id": "cb0bdb046e",
+"at": "2026-11-12T20:08:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
