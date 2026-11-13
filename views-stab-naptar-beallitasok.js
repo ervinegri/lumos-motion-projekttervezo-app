@@ -110,6 +110,9 @@ function loadCalEvents(month){if(ro())return;loadVagoi(month);   // a szakember 
 /* Friss lekérés a Google Naptárból (a szerver 5 perces gyorsítótára nélkül): Frissítés gombra, és amikor visszatérsz az app fülére
    – így a Google Naptárban törölt / módosított esemény azonnal eltűnik / frissül itt is. */
 function calForceFresh(){const m=S.cal.month;S.cal.at={};S.cal.fresh={};[m,'v:'+m].forEach(k=>{S.cal.fresh[k]=1;});}
+/* ha az app (pl. mobilon a háttérben) átaludt egy napot: a naptár a mai napra ugrik */
+let CAL_DAY=todayISO();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;const t=todayISO();if(t===CAL_DAY)return;const was=CAL_DAY;CAL_DAY=t;if(S.cal&&(!S.cal.month||S.cal.month===was.slice(0,7))){S.cal.month=t.slice(0,7);if(!S.cal.sel||S.cal.sel===was)S.cal.sel=t;}if(S.cal)S.cal.tlPos=null;if(S.tab==='naptar')render(true);});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||S.tab!=='naptar'||!TOKEN)return;calForceFresh();loadCalEvents(S.cal.month);});
 function prefetchCal(m,ahead){if(ro()||!TOKEN)return;loadCalEvents(m);setTimeout(()=>{
   if(!TOKEN)return;
@@ -231,10 +234,10 @@ function calTimeline(m,items0,T,ahead){
         return `<button type="button" class="cal-chip p cut st-${esc(p.status||'')} tl-bar tl-cut${join?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}${cdone&&vp&&vp.ok===vp.tot?' cut-ok':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${c.same?2:1}${join?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(p.name||'Névtelen projekt')}\n\n${esc(cutWhat(p))}✂️ Vágási határidő: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\n\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${cdone?(p.status==='atadva'?'✓':vp&&vp.ok===vp.tot?'✅ Jóváhagyva':'⏳'):pend?'':'✂️'}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend&&!(cdone&&vp.ok===vp.tot)?(cdone?` · ✅ ${vp.ok}/${vp.tot}`:` · ${vp.done}/${vp.tot}`):''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
-    if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
-    if(c&&c.m===m){w.scrollLeft=c.x;if(c.y)w.scrollTop=c.y;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
+    if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft,d:todayISO()};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
+    if(c&&c.m===m&&c.d===T){w.scrollLeft=c.x;if(c.y)w.scrollTop=c.y;tlCorner(w);return;}   // újrarajzoláskor ott marad, ahol voltál
     const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw=(w.scrollWidth-lw)/N,isNow=T.slice(0,7)===m,target=isNow?col(T)-1:col(m+'-01')-1;   // a mai nap piros vonala középen
-    w.scrollLeft=Math.max(0,isNow?(target+0.5)*cw-(w.clientWidth-lw)/2:target*cw);S.cal.tlPos={m,x:w.scrollLeft};tlCorner(w);});
+    w.scrollLeft=Math.max(0,isNow?(target+0.5)*cw-(w.clientWidth-lw)/2:target*cw);S.cal.tlPos={m,x:w.scrollLeft,d:todayISO()};tlCorner(w);});
   return `<div class="tl-wrap" data-ahead="${ahead}"><div class="tl tl-noanim" style="--n:${N};--dw:${TL_DAY_WIDTH}px">
     <div class="tl-row tl-head"><div class="tl-lbl tl-corner"><b class="tl-cm" data-first="${first}" data-n="${N}"></b><small><span class="tl-cnt">${rows.length} tétel</span> · húzd oldalra ↔</small></div><div class="tl-track tl-htrack">${bands}${head}</div></div>
     ${waitRows}${body}<div class="tl-empty tl-none"${rows.length?' hidden':''}>${empty('Ebben az időszakban nincs esemény – húzd oldalra az idővonalat.')}</div><div class="tl-row tl-fill" aria-hidden="true"><div class="tl-lbl"></div><div class="tl-track"><div class="tl-bg">${bg}</div></div></div>
