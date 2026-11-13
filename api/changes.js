@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "58832c2b7f",
+"at": "2026-11-13T15:27:34+01:00",
+"msg": "Árajánlat küldése: alapból nincs kiválasztott lehetőség"
+},
+{
 "id": "84c5a4ccfe",
 "at": "2026-11-13T15:26:13+01:00",
 "msg": "Árajánlat küldése: kereshető legördülő a nyitott lehetőségekből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-instrukciók: betöltésjelző szövegként"
 },
 {
-"id": "e7f3fcf93f",
-"at": "2026-11-13T09:19:38+01:00",
-"msg": "Ügyfél-visszaigazolás: érthető, nyelvtanilag helyes mondat"
-},
-{
-"id": "9f15d9e940",
-"at": "2026-11-13T08:18:13Z",
+"id": "b48e447d71",
+"at": "2026-11-13T08:19:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
