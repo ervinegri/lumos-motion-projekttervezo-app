@@ -1098,3 +1098,5 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .dl-hbtns{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
 @media (max-width:700px){.dl-hbtns{width:100%}.dl-hbtns .btn{flex:1 1 auto;padding-left:10px!important;padding-right:10px!important;font-size:13.5px!important;white-space:nowrap;min-width:0}.dl-hbtns .dl-lg{display:none}}
 .dl-sm{display:none}@media (max-width:700px){.dl-hbtns .dl-sm{display:inline}.dl-hbtns{margin-bottom:12px}}
+.topbar{transition:transform .22s ease}.topbar.tb-hide{transform:translateY(-100%)}
+.dl-hbtns .btn{gap:0}
