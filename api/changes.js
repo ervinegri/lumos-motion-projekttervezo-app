@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ca72f02ed5",
+"at": "2026-11-13T22:22:25+01:00",
+"msg": "Fekvő telefon: Projektek táblázat Státusz oszlopa keskenyebb"
+},
+{
 "id": "d40b96ebfa",
 "at": "2026-11-13T22:21:42+01:00",
 "msg": "Mobil árajánlat-előnézet: tördelés javítva, semmi nem lóg ki, a PDF-oldal kicsinyítve fér el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltó: Másik szakember/értékesítő a sárga sávban; nem ugrik vissza Ügyvezetőre; szélesebb címke mobilon"
 },
 {
-"id": "99868b2b9f",
-"at": "2026-11-13T21:15:29+01:00",
-"msg": "Mobil havi naptár: többnapos elemek folytatása vékony csík; az oldal nem lóg ki oldalra"
-},
-{
-"id": "00aa090a5f",
-"at": "2026-11-13T19:42:55Z",
+"id": "f0d4eea591",
+"at": "2026-11-13T20:15:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
