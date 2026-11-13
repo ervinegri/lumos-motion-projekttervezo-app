@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b09674a5ba",
+"at": "2026-11-13T23:01:38+01:00",
+"msg": "Videó áthelyezése közben a lehúzásos frissítés vár, az oldal bezárása figyelmeztet"
+},
+{
 "id": "a7e4483f37",
 "at": "2026-11-13T22:55:35+01:00",
 "msg": "Videótábla: az áthelyezett videó nem ugrik vissza a régi oszlopba egy közben beérkező régebbi adatfrissítés miatt; érintéses húzás-utánzat eltávolítva (az iPhone natívan támogatja)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Menüfülsor: a halványodó szél betöltéskor is látszik, a fülsor a szerepkör-választóig ér"
 },
 {
-"id": "d7d0662605",
-"at": "2026-11-13T22:12:13+01:00",
-"msg": "Értékesítés fejléc: alcím törölve, cím és gombok egy sorban, egyforma gombok"
-},
-{
-"id": "0cb304775a",
-"at": "2026-11-13T21:10:20Z",
+"id": "3f1128ca69",
+"at": "2026-11-13T21:12:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
