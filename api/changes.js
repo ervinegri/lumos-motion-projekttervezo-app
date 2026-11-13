@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1d93615cc5",
+"at": "2026-11-13T17:55:25+01:00",
+"msg": "Videótábla mobilon: az oszlopfejlécek nem csúsznak egymásba"
+},
+{
 "id": "8a05032b14",
 "at": "2026-11-13T17:50:25+01:00",
 "msg": "Naptár: napváltás után (mobilon háttérből visszatérve) a mai napra ugrik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: kalkulátoronként külön opció, több másolat-címzett, PDF-név: rendezvény/cég + Lumos Motion"
 },
 {
-"id": "fbdc10ecd5",
-"at": "2026-11-13T15:48:03+01:00",
-"msg": "Árajánlat: több kalkulátorból gyűjthető tételek, vissza a kalkulátorhoz; a/az névelő; nettó kiemelve, egyszerűbb összesítő; levélszöveg csak az előnézetben; frissítésjelző javítva"
-},
-{
-"id": "656eeef099",
-"at": "2026-11-13T14:43:58Z",
+"id": "75a4cfe18a",
+"at": "2026-11-13T14:48:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
