@@ -141,6 +141,7 @@ const ACT={
       if(S.draft.status===v)return;
       setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva'){confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}};   // „Kész”: ünneplés és azonnali mentés   // lezáráskor ünneplünk (mentés a Mentés gombbal)
+    if([...POST_STAGES,'atadva'].includes(v)&&siteFuture(d)){toast(siteFutureMsg(d),true);return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&d.status!==v&&reqBlock())return;
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
@@ -160,6 +161,7 @@ const ACT={
     if(on&&v==='tervezes'){if(reqBlock())return;if(crewFinalOn()&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
     const raw=next=>()=>{const eds=rawEditors(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawMailModal(next);else next();};   // vágói munka: e-mail a vágónak a nyersanyagról
+    if(on&&(v==='helyszin'||v==='utomunka')&&siteFuture(d)){toast(siteFutureMsg(d),true);return;}
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='helyszin'){raw(apply)();return;}
     if(on&&v==='utomunka'&&!set.has('helyszin')&&!editOnly(d)){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
@@ -435,3 +437,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
   else if((e.ctrlKey||e.metaKey)&&!e.altKey&&!(S.draft&&S.projectId&&S.tab==='projektek')&&!$('modalRoot').innerHTML&&!(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))&&!ro()){const k=e.key.toLowerCase();
     if(k==='z'&&!e.shiftKey){e.preventDefault();opStep(-1);return;}
     if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();commitActive();if(S.dirty)saveChecked();else toast('Nincs mentetlen módosítás');}});
+
+/* A helyszíni munka napja még nem jött el: addig nem lehet utómunkára (vagy tovább) lépni */
+function siteFuture(d){return !!d&&!editOnly(d)&&validISO(d.date)&&d.date>todayISO()&&['','egyeztetes','tervezes','helyszin'].includes(d.status||'');}
+function siteFutureMsg(d){return `A helyszíni munka napja (${fmtShort(d.date)}) még nem jött el – a projekt csak utána léphet utómunkára.`;}
