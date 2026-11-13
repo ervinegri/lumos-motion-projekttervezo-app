@@ -35,6 +35,7 @@ function viewSales(){
     ${DEAL_OPEN.includes(s)?`<button class="dl-add dl-add-top" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}<div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div></section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
       <button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat küldése</button>
+      <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor (árajánlat nélkül)">🧮 Árkalkulátor</button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
