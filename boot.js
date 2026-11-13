@@ -32,7 +32,7 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
   document.addEventListener('click',e=>{const chip=e.target.closest&&e.target.closest('#userChip');const pop=document.getElementById('ucPop');
     if(pop&&!e.target.closest('#ucPop')){close();if(chip)return;}
     if(!chip)return;e.preventDefault();const r=chip.getBoundingClientRect(),p=document.createElement('div');p.id='ucPop';p.className='uc-pop';const st=SETTINGS_TAB();
-    p.innerHTML=(st?'<button type="button" class="uc-it" data-uc="set">⚙️ Beállítások</button>':'')+'<button type="button" class="uc-it" data-uc="out">⎋ Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
+    p.innerHTML=(st?'<button type="button" class="uc-it" data-uc="set">⚙️ Beállítások</button>':'')+'<button type="button" class="uc-it" data-uc="out">🚪 Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
     p.addEventListener('click',ev=>{const b=ev.target.closest('[data-uc]');if(!b)return;close();if(b.dataset.uc==='set'){ACT.tab({dataset:{tab:SETTINGS_TAB()}});}else{const lb=document.getElementById('logoutBtn');if(lb)lb.click();}});});
   window.addEventListener('scroll',close,{passive:true});})();
 
@@ -41,7 +41,7 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
   const sync=()=>{const keep=sel.value;sel.querySelectorAll('optgroup.va-acc').forEach(x=>x.remove());sel.querySelectorAll('option[value="__logout"],option[value="__settings"]').forEach(x=>x.remove());
     let rg=sel.querySelector('optgroup.va-roles');if(mq.matches&&!rg){rg=document.createElement('optgroup');rg.className='va-roles';rg.label='Szerepkör (nézet)';[...sel.children].filter(x=>x.tagName==='OPTION').forEach(o=>rg.appendChild(o));sel.appendChild(rg);}
     else if(!mq.matches&&rg){[...rg.children].forEach(o=>sel.insertBefore(o,rg));rg.remove();}
-    if(mq.matches){const g=document.createElement('optgroup');g.className='va-acc';g.label='Fiók';if(SETTINGS_TAB()){const so=document.createElement('option');so.value='__settings';so.textContent='⚙️ Beállítások';g.appendChild(so);}const o=document.createElement('option');o.value='__logout';o.textContent='⎋ Kilépés';g.appendChild(o);sel.appendChild(g);}if(keep&&keep!=='__logout'&&keep!=='__settings')sel.value=keep;document.documentElement.classList.toggle('va-logout',mq.matches);};
+    if(mq.matches){const g=document.createElement('optgroup');g.className='va-acc';g.label='Fiók';if(SETTINGS_TAB()){const so=document.createElement('option');so.value='__settings';so.textContent='⚙️ Beállítások';g.appendChild(so);}const o=document.createElement('option');o.value='__logout';o.textContent='🚪 Kilépés';g.appendChild(o);sel.appendChild(g);}if(keep&&keep!=='__logout'&&keep!=='__settings')sel.value=keep;document.documentElement.classList.toggle('va-logout',mq.matches);};
   sync();if(mq.addEventListener)mq.addEventListener('change',sync);
   sel.addEventListener('focus',()=>{prev=sel.value;sync();});sel.addEventListener('pointerdown',()=>{prev=sel.value;sync();});
   document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value==='__settings'){e.stopImmediatePropagation();sel.value=prev;ACT.tab({dataset:{tab:SETTINGS_TAB()}});return;}if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();

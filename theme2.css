@@ -1407,3 +1407,16 @@ html body .bill-tbl tbody tr:not(.bl-chead):not(.pt-month).bs-paid,html body .bi
 html body .bill-tbl tbody tr.bl-chead+tr:not(.bl-chead){margin-top:6px}
 }
 @media (max-width:700px){html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month){background:#e8eef5!important}html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month)>td{background:transparent!important}}
+/* álló telefon, Bevétel és kiadás: a táblázatos dobozok keret nélkül, a képernyő széléig; a cellák között nincs függőleges vonal */
+@media (max-width:700px){
+html body #view .panel:has(.fin-tbl){border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;margin-left:-12px!important;margin-right:-12px!important;padding:10px 0!important}
+html body #view .panel:has(.fin-tbl)>:not(.sheet-wrap){margin-left:12px!important;margin-right:12px!important;max-width:calc(100% - 24px)!important;box-sizing:border-box}
+html body #view .panel:has(.fin-tbl) .sheet-wrap{margin-left:0!important;margin-right:0!important;width:100%!important}
+html body #view .fin-tbl,html body #view .fin-tbl th,html body #view .fin-tbl td{border-left:0!important;border-right:0!important}
+html body #view .fin-tbl{border:0!important;border-radius:0!important}
+}
+@media (max-width:700px) and (orientation:portrait){
+html.th2 body #view .cl-wrap table tbody tr.cl-row:nth-child(n)>td,html body #view .cl-wrap table tbody tr.cl-row:nth-child(n)>td{background:transparent!important}
+html body #view .cl-wrap table tbody tr.cl-row:nth-child(even){background:#f1f4f8!important}
+html body #view .cl-wrap table tbody tr.cl-row:nth-child(odd){background:#fff!important}
+}
