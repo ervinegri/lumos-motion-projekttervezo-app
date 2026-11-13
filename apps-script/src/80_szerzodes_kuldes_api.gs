@@ -92,7 +92,7 @@ function crewDeliver_(u, a) {
     const url = projLink_(p), note = str_(a.note, 3000);
     const first = huFirst_(u.name) || String(u.name || '');   // csak a keresztnév: Fodor Kata → Kata
     const one = a.single === true;   // egyetlen videó: egyes szám
-    let text = first + ' elkészítette a(z) „' + p.name + (one ? '” videóját - jóváhagyásra vár.' : '” videóit - jóváhagyásra várnak.') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\n' + (one ? 'Videó: ' : 'Videók: ') + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
+    let text = first + ' elkészítette ' + huArt_(p.name) + ' „' + p.name + (one ? '” videóját - jóváhagyásra vár.' : '” videóit - jóváhagyásra várnak.') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\n' + (one ? 'Videó: ' : 'Videók: ') + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const custom = sigSanitize_(String(a.html || ''), 30000);   // a vágó a leadás ablakában átírhatta a levelet
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
@@ -552,4 +552,14 @@ function rpcInner_(token, name, arg) {
     }
     default: throw new Error('Ismeretlen művelet.');
   }
+}
+
+/** magyar névelő: a / az (magánhangzó vagy 1, 5 kezdetű szám előtt az) */
+function huArt_(w) {
+  var x = String(w || '').replace(/^[\s„"'(«»]+/, '');
+  if (!x) return 'a';
+  var c = x[0].toLowerCase();
+  if ('aáeéiíoóöőuúüű'.indexOf(c) >= 0) return 'az';
+  if (/\d/.test(c)) { var n = (x.match(/^\d+/) || [''])[0]; return c === '5' || (c === '1' && n.length % 3 === 1) ? 'az' : 'a'; }
+  return 'a';
 }

@@ -46,7 +46,7 @@ document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.
   document.body.appendChild(m);m.style.left=Math.min(e.pageX,scrollX+innerWidth-200)+'px';m.style.top=e.pageY+'px';});
 document.addEventListener('click',e=>{const m=$('calMenu');if(m&&!e.target.closest('#calMenu'))m.remove();else if(m&&e.target.closest('button'))setTimeout(()=>{const x=$('calMenu');if(x)x.remove();},0);},true);
 ACT['cal-ctx-del']=b=>{if(ro())return;const id=b.dataset.id,vag=b.dataset.kind==='v';let ev=null;[S.cal.events||{},S.cal.ev2||{}].forEach(o=>Object.values(o).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;})));
-  confirmModal('Bejegyzés törlése',`Biztosan törlöd a(z) „${ev?esc(ev.title||''):'bejegyzés'}” bejegyzést a${vag?' Vágói':' Google'} Naptárból?`,'Törlés',async()=>{
+  confirmModal('Bejegyzés törlése',`Biztosan törlöd ${huArt(ev&&ev.title)} „${ev?esc(ev.title||''):'bejegyzés'}” bejegyzést a${vag?' Vágói':' Google'} Naptárból?`,'Törlés',async()=>{
     try{await call('deleteCalEvent',vag?{id,cal:'vagoi'}:{id});[S.cal.events||{},S.cal.ev2||{}].forEach(o=>Object.keys(o).forEach(k=>{if(Array.isArray(o[k]))o[k]=o[k].filter(x=>x.id!==id);}));   // azonnal eltűnik
       if(typeof calForceFresh==='function')calForceFresh();S.cal.events={};render(true);toast('Bejegyzés törölve');}catch(e){handleErr(e);}});};
 
