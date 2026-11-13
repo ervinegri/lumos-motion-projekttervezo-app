@@ -1059,3 +1059,4 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .q-sumg .q-s-fin{border-top:1px solid #c5ced8}.q-sumg .q-s-fin span{font-size:12.5px;color:#4b5563!important;font-weight:600!important}
 @media (max-width:600px){html body .q-pdfl .q-row{grid-template-columns:20px 1fr 50px 1fr 26px}html body .q-pdfl .q-row .q-sumb,html body .q-pdfl .q-row.q-hd .q-bh{display:none}}
 .nw{white-space:nowrap}.q-sumg .q-srow span:nth-child(2),.qp-tbl tfoot td[colspan]{font-variant-numeric:normal!important;font-feature-settings:normal!important}
+.q-nav{width:30px;height:30px;border-radius:999px;border:1px solid var(--line,#dde4eb);background:#fff;font-size:18px;line-height:1;cursor:pointer;color:#1d2a38;display:inline-flex;align-items:center;justify-content:center;padding:0 0 2px}.q-nav:hover:not(:disabled){background:var(--bg,#f0f4f7)}.q-nav:disabled{opacity:.35;cursor:default}
