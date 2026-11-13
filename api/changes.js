@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "328361f662",
+"at": "2026-11-13T22:32:13+01:00",
+"msg": "Fekvő telefon: Szerződés és számlázás fejléce egy sorban, tömörebb csempék és táblázat"
+},
+{
 "id": "b14448a2b7",
 "at": "2026-11-13T22:30:06+01:00",
 "msg": "Fekvő telefon: Fizetések táblázat nem vágódik le alul, tömörebb sorok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevétel és kiadás: alcím törölve"
 },
 {
-"id": "3e2bc1b52b",
-"at": "2026-11-13T21:40:53+01:00",
-"msg": "Fizetések mobilon: a hónaplapozó és a gombok újra látszanak (az alfülek saját sorban)"
-},
-{
-"id": "4c530c672b",
-"at": "2026-11-13T20:38:40Z",
+"id": "d45a085787",
+"at": "2026-11-13T20:41:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
