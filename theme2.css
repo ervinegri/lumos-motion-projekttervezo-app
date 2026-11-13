@@ -1249,3 +1249,22 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
  html body .panel{padding:12px!important;border-radius:12px!important;box-shadow:none!important}
  html body .panel h3,html body .panel .ph-h{font-size:16px!important}
  html body .inp.search,html body input[type=search].inp{min-height:38px;font-size:14px}}
+@media (max-width:700px){
+ html body main.content,html body #view{padding-bottom:16px}
+ html body.has-savebar main.content,html body.has-savebar #view{padding-bottom:110px}
+ /* a széles táblázatok a képernyő széléig érnek */
+ html body .sheet-wrap,html body .tbl-wrap,html body .pay-wrap{margin-left:-12px!important;margin-right:-12px!important;width:calc(100% + 24px)!important;max-width:none!important}
+ html body .sheet-wrap td:first-child,html body .sheet-wrap th:first-child,html body .tbl-wrap td:first-child,html body .tbl-wrap th:first-child{padding-left:12px!important}
+ /* Fizetések: a hónaplapozó és a két gomb egy sorban */
+ html body .page-head.pay-head{flex-wrap:nowrap!important}
+ html body .page-head.pay-head .grow{flex:1 1 auto!important;min-width:0}
+ html body .page-head.pay-head .month-nav .btn{padding:0 8px!important}
+ html body .page-head.pay-head .month-nav .mnav-chip,html body .page-head.pay-head .month-nav .btn:not(:first-child):not(:last-child){font-size:13px!important}
+ html body .page-head.pay-head>div:not(.grow){flex:none;gap:4px}
+ html body .page-head.pay-head .btn.small{padding:5px 8px!important}}
+@media (max-width:700px){html body .page-head.pay-head .ph-ttl{display:none}
+ html body .page-head.pay-head>div:not(.grow) .btn.small{min-width:38px;padding:5px 9px!important;font-size:15px!important}
+ html body .page-head.pay-head .month-nav .mn-arrow{min-width:32px;padding:0 6px!important}
+ html body .sheet-wrap .sheet,html body .pay-wrap .pay-sheet,html body .sheet-wrap table,html body .tbl-wrap table{border-radius:0!important}
+ html body .sheet thead th:first-child,html body .sheet thead th:last-child,html body .sheet tbody tr:last-child td{border-radius:0!important}}
+@media (max-width:700px){html body .page-head.pay-head{align-items:center!important}html body .page-head.pay-head .mnav-row,html body .page-head.pay-head .month-nav{margin:0!important}}
