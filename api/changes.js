@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef1666f22c",
+"at": "2026-11-13T18:34:20+01:00",
+"msg": "Szerződés és számlázás: fekvő telefonon görgetés nélkül, álló telefonon projektenkénti kártyák"
+},
+{
 "id": "b21a68f059",
 "at": "2026-11-13T18:33:09+01:00",
 "msg": "Fekvő telefon: a kifizetési táblában az első oszlop rögzítve"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Árajánlat: gombsor visszaállítva (felesleges záró elem)"
 },
 {
-"id": "9075961710",
-"at": "2026-11-13T16:27:46+01:00",
-"msg": "Árajánlat: Tárgy és Érvényesség egy sorban"
-},
-{
-"id": "6d7ac93e5a",
-"at": "2026-11-13T16:27:01+01:00",
-"msg": "Árajánlat: (27% ÁFA) egy sorban, a kedvezmény-százalék rendes számjegyekkel"
+"id": "faab037591",
+"at": "2026-11-13T15:27:56Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
