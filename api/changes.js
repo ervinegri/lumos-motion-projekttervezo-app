@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "84c5a4ccfe",
+"at": "2026-11-13T15:26:13+01:00",
+"msg": "Árajánlat küldése: kereshető legördülő a nyitott lehetőségekből"
+},
+{
 "id": "13faad2027",
 "at": "2026-11-13T15:24:26+01:00",
 "msg": "Árbeállítás: short videó hosszak 40–60 és 20–40 mp"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-visszaigazolás: érthető, nyelvtanilag helyes mondat"
 },
 {
-"id": "6604394b4d",
-"at": "2026-11-13T09:18:03+01:00",
-"msg": "E-mail lábléc: új szöveg"
-},
-{
-"id": "93acf6a7a7",
-"at": "2026-11-13T08:12:43Z",
+"id": "9f15d9e940",
+"at": "2026-11-13T08:18:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
