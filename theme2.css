@@ -1438,3 +1438,28 @@ html body #view .cl-wrap table tbody tr.cl-row:nth-child(odd){background:#fff!im
 html body .bl-single .bl-row{grid-template-columns:repeat(var(--bl-n),minmax(230px,1fr))!important;min-width:calc(var(--bl-n) * 240px)!important}
 }
 @media (max-width:700px){html body .page-head.cl-head{flex-wrap:nowrap!important;gap:6px!important}html body .page-head.cl-head>.grow{min-width:0;flex:1 1 auto}html body .page-head.cl-head .btn{padding:5px 9px!important;font-size:13px!important;gap:3px!important;flex:0 0 auto;white-space:nowrap}html body .page-head.cl-head h2{font-size:19px!important}}
+/* telefon: a Bevételek táblázat úgy működik, mint a Fizetések – sötét, rögzített fejléc, rögzített nap+név oszlop, egysoros sorok, saját keretben görgethető */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .sheet-wrap:has(.fin-inc){overflow:auto!important;max-height:calc(100dvh - 190px);-webkit-overflow-scrolling:touch}
+html body .fin-inc{border-collapse:separate!important;border-spacing:0;width:max-content!important;min-width:100%!important}
+html body .fin-inc th,html body .fin-inc td{white-space:nowrap!important}
+html body .fin-inc thead th{position:sticky!important;top:0!important;z-index:3;background:#243347!important;color:#fff!important;font-weight:650;font-size:12px!important;padding:9px 8px!important;border:0!important}
+html body .fin-inc thead th:nth-child(-n+2){z-index:5}
+html body .fin-inc tbody td:nth-child(-n+2),html body .fin-inc thead th:nth-child(-n+2),html body .fin-inc tfoot td:first-child{position:sticky}
+html body .fin-inc tbody td:first-child,html body .fin-inc thead th:first-child,html body .fin-inc tfoot td:first-child{left:0;width:30px;min-width:30px;max-width:30px;padding-left:10px!important;padding-right:4px!important}
+html body .fin-inc tbody td:nth-child(2),html body .fin-inc thead th:nth-child(2){left:44px;max-width:165px;min-width:120px;overflow:hidden;text-overflow:ellipsis;box-shadow:1px 0 0 var(--line,#dde4eb)}
+html body .fin-inc tbody td:nth-child(-n+2){z-index:2;background:#fff}
+html body #view .fin-inc tbody tr:nth-child(even) td:nth-child(-n+2){background:#eaeff4}
+html body .fin-inc tbody td:nth-child(2)>*{display:inline!important;white-space:nowrap!important}
+html body .fin-inc tbody td:nth-child(2) br{display:none}
+html body .fin-inc tbody td{padding-top:8px!important;padding-bottom:8px!important}
+html body .fin-inc tfoot td{position:sticky;bottom:0;z-index:2;background:#eef2f6}
+}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .sheet-wrap .sheet.fin-inc thead th{position:sticky!important;top:0!important}
+html body .sheet-wrap .sheet.fin-inc thead th:nth-child(-n+2){left:auto}
+html body .sheet-wrap .sheet.fin-inc thead th:first-child{left:0!important}
+html body .sheet-wrap .sheet.fin-inc tbody td:first-child,html body .sheet-wrap .sheet.fin-inc thead th:first-child{box-sizing:border-box;width:36px!important;min-width:36px!important;max-width:36px!important;padding-left:8px!important;padding-right:2px!important}
+html body .sheet-wrap .sheet.fin-inc tbody td:nth-child(2),html body .sheet-wrap .sheet.fin-inc thead th:nth-child(2){left:36px!important;max-width:none;min-width:0}
+html body .fin-inc tbody td:nth-child(2) .linkbtn{display:inline-block!important;max-width:150px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+}
