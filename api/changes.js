@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b14448a2b7",
+"at": "2026-11-13T22:30:06+01:00",
+"msg": "Fekvő telefon: Fizetések táblázat nem vágódik le alul, tömörebb sorok"
+},
+{
 "id": "b08d825039",
 "at": "2026-11-13T22:28:30+01:00",
 "msg": "Fekvő telefon: Pénzügyek fejléce egy sorban (rövid alfülnevek, NAV, Díjösszesítő)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések mobilon: a hónaplapozó és a gombok újra látszanak (az alfülek saját sorban)"
 },
 {
-"id": "6f2ec4acfa",
-"at": "2026-11-13T21:38:31+01:00",
-"msg": "Kifizetési tábla mobilon: a fejléc első cellája is rögzített"
-},
-{
-"id": "82caf21003",
-"at": "2026-11-13T20:35:47Z",
+"id": "4c530c672b",
+"at": "2026-11-13T20:38:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
