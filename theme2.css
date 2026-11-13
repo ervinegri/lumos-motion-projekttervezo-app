@@ -1009,3 +1009,6 @@ html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw 
   #mform.m-video .vv-player.vert{width:min(100%,calc(54dvh * 9 / 16))}
   #mform.m-video .vv-cm{scroll-margin-top:12px}
 }
+.vv-vers{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}.vv-verb{border:0;cursor:pointer;font:inherit;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;background:#e7ebf0;color:#3c4a57}.vv-verb.on{background:#1f2933;color:#fff}.vv-verb:not(.on):hover{background:#d6dde5}
+.vv-oldv{background:#fff4d6;border:1px solid #f0d99a;border-radius:10px;padding:8px 12px;font-size:13px;margin:0 0 8px}
+#mform.vv-oldver #m-vvCm,#mform.vv-oldver .vv-hl,#mform.vv-oldver .vv-tc-ins,#mform.vv-oldver .vv-pin-btn,#mform.vv-oldver .vv-grep-btn,#mform.vv-oldver .vv-cm-howto,#mform.vv-oldver .mfoot .btn.primary,#mform.vv-oldver .mfoot .btn.danger{display:none!important}#mform.vv-oldver input[data-vv-done]{pointer-events:none}
