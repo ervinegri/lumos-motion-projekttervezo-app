@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f43069a02e",
+"at": "2026-11-13T22:48:07+01:00",
+"msg": "Álló telefon: nagyobb videó a jóváhagyó ablakban (íráskor kicsi)"
+},
+{
 "id": "8aac03955c",
 "at": "2026-11-13T22:47:45+01:00",
 "msg": "Telefon: vélemény írásakor a videó kicsi lesz és a szövegmező a billentyűzet fölé gördül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: Bevétel és kiadás táblázatai keret nélkül a képernyő széléig, Kilépés ikon igazítva, Ügyfelek sorai egyszínűek"
 },
 {
-"id": "e107be2924",
-"at": "2026-11-13T22:06:37+01:00",
-"msg": "Mobil számlázás: minden projekt külön színezett kártyán"
-},
-{
-"id": "f2a61c9ed9",
-"at": "2026-11-13T21:04:56Z",
+"id": "248b9c7641",
+"at": "2026-11-13T21:06:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
