@@ -326,8 +326,7 @@ function szDailyEnsure_() {
 }
 function salesSyncEnsure_() {
   const P = PropertiesService.getScriptProperties();
-  if (P.getProperty('SALES_SYNC_INSTALLED')) return;
-  try { installSalesSync(); P.setProperty('SALES_SYNC_INSTALLED', now_()); } catch (e) { Logger.log('Sales szinkron időzítő: ' + e); }
+  P.setProperty('SALES_SYNC_INSTALLED', P.getProperty('SALES_SYNC_INSTALLED') || now_());   // nincs ötperces időzítő: a Sales App ritkán változik, az ügyvezetői belépés futtatja a szinkront (salesSyncNow)
 }
 
 /* ===================== ÁRKALKULÁTOR ÁRAI =====================
@@ -370,11 +369,16 @@ function setupTriggers() {
   const P = PropertiesService.getScriptProperties(), out = [];
   const ensure = (fn, mk) => { try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === fn)) { mk(); out.push(fn + ': telepítve'); } else out.push(fn + ': már fut'); } catch (e) { out.push(fn + ': HIBA – ' + e); } };
   ensure('szDailySync', () => ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create());
-  ensure('salesSync', () => ScriptApp.newTrigger('salesSync').timeBased().everyMinutes(5).create());
   if (navConfig_().ok) ensure('navDailySync', () => ScriptApp.newTrigger('navDailySync').timeBased().atHour(7).everyDays(1).inTimezone(SHEET_TZ).create());
   if (P.getProperty(DB_MODE_PROPERTY) === 'neon') ensure('dbNightlyBackup', () => ScriptApp.newTrigger('dbNightlyBackup').timeBased().atHour(2).everyDays(1).inTimezone(SHEET_TZ).create());
   P.setProperty('SZ_DAILY_INSTALLED', now_()); P.setProperty('SALES_SYNC_INSTALLED', now_());
   Logger.log(out.join('\n')); return out;
+}
+/** Egy időzítő törlése (ügyvezetői RPC) – csak a felsoroltak. a: {fn} */
+function triggerDelete_(a) {
+  const fn = String(a && a.fn || ''); if (['salesSync'].indexOf(fn) < 0) throw new Error('Ez az időzítő nem törölhető innen.');
+  let n = 0; ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === fn).forEach(t => { ScriptApp.deleteTrigger(t); n++; });
+  return Object.assign(triggerStatus_(), { deleted: n });
 }
 /** Az időzítők állapota (ügyvezetői RPC): fut-e a napi számlázz.hu-ellenőrzés stb. */
 function triggerStatus_() {

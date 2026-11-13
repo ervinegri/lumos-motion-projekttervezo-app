@@ -452,6 +452,7 @@ function rpcInner_(token, name, arg) {
     case 'contractPdf': adminOnly(); return contractPdf_(u, arg);
     case 'contractSend': adminOnly(); return contractSend_(u, arg);
     case 'triggerStatus': adminOnly(); return triggerStatus_();
+    case 'triggerDelete': adminOnly(); return triggerDelete_(arg);
     case 'ctStatus': if (role !== 'admin' && role !== 'sales') deny(); if (role !== 'admin' && arg && arg.projectId && !arg.dealId) deny(); return ctStatusSet_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
