@@ -125,3 +125,12 @@ document.addEventListener('input',e=>{const t=e.target;if(!S.q||!t)return;
   if(t.id==='q-mbody')S.q.body=t.innerText.replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').replace(/\s+$/,'');
   else if(t.id==='q-subj-ed')S.q.subject=t.value;});
 document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('#q-mbody');if(!t)return;e.preventDefault();const x=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,x);});
+
+/* Frissítés (pl. Cmd+Shift+R) után a nyitott árajánlat visszajön: kilépéskor elmentjük az állapotát, betöltéskor újranyitjuk */
+const Q_KEY='lpm_q_state';
+window.addEventListener('pagehide',()=>{try{const q=S.q,ed=document.getElementById('q-to'),pv=document.getElementById('q-mbody');if(!q||(!ed&&!pv)){sessionStorage.removeItem(Q_KEY);return;}
+  const f=$('mform');if(ed&&f){try{qRead(new FormData(f));}catch(e){}}if(pv){q.body=pv.innerText.replace(/\n{3,}/g,'\n\n').trim();}
+  const st=Object.assign({},q);delete st._pdf;delete st._pdfP;sessionStorage.setItem(Q_KEY,JSON.stringify({q:st,stage:pv?'preview':'edit',at:Date.now()}));}catch(e){}});
+function qRestore(){if(S._qRestored)return;S._qRestored=true;let o=null;try{o=JSON.parse(sessionStorage.getItem(Q_KEY)||'null');sessionStorage.removeItem(Q_KEY);}catch(e){}
+  if(!o||!o.q||Date.now()-o.at>3600000)return;S._mrDone=true;try{mrClear();}catch(e){}let n=0;const go=()=>{if(!(S.deals||[]).some(d=>d.id===o.q.dealId)||$('mform')){if(++n<40)setTimeout(go,300);return;}
+    S.q=o.q;qSig(o.q.dealId);if(o.stage==='preview')qPreview();else qEdit();};setTimeout(go,200);}
