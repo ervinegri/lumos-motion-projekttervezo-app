@@ -1605,3 +1605,8 @@ html body .page{overflow-x:clip!important;max-width:100vw}
 html,html body{overscroll-behavior-x:none}
 html body .bill-tbl tbody tr{width:auto!important;box-sizing:border-box;max-width:calc(100vw - 16px)}
 }
+/* álló telefon: a havi naptár keret nélkül, a képernyő széléig */
+@media (max-width:700px){
+html body .cal-wrap{border:0!important;border-radius:0!important;box-shadow:none!important;width:100vw!important;max-width:100vw!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;box-sizing:border-box;overflow:hidden}
+html body .cal-wrap .cal-grid,html body .cal-wrap .cal-wd{border-radius:0!important;border-left:0!important;border-right:0!important}
+}
