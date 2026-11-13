@@ -1022,3 +1022,4 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .qp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;max-height:62vh;overflow-y:auto;padding:2px}.qp-grid .dl-card{cursor:pointer}
 .cmb:has(#m-qpDeal) .cmb-it{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block!important}
 .cmb:has(#m-qpDeal) .cmb-it *{white-space:nowrap!important}
+.dl-add.dl-add-top{margin:0 0 8px}

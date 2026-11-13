@@ -32,7 +32,7 @@ function viewSales(){
   const byStage=s=>L.filter(d=>stOf(d)===s&&(DEAL_OPEN.includes(s)||recent(d))).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
   const hidden=L.filter(d=>!DEAL_OPEN.includes(d.stage)&&!recent(d)).length;
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'||s==='fizetve'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
-    <div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div>${DEAL_OPEN.includes(s)?`<button class="dl-add" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}</section>`;};
+    ${DEAL_OPEN.includes(s)?`<button class="dl-add dl-add-top" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}<div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div></section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
       <button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat küldése</button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
