@@ -223,6 +223,9 @@ const siteWaiting=p=>{const r=pr(p);return !!r&&(p.status||'')==='helyszin'&&tod
 const stageLabel=(p,id)=>id==='helyszin'&&siteWaiting(p)?'Helyszíni munkára vár':STATUS_LABEL[id]||id;
 const normProj=p=>{if(p&&(!p.status||p.status==='egyeztetes'))p.status='tervezes';return p;};   // az „Egyeztetés” lépés megszűnt
 /* Videó link jelszóval: ráhúzva megjelenik a jelszó, egy kattintással másolható */
+/* Nincs közös leadási link: a leadott / jóváhagyott videók saját linkjei (egy videónál közvetlenül, többnél egyenként) */
+function vidLinksOf(p){const l=(p.videos||[]).filter(v=>/^https:\/\//i.test(v.link||'')&&['leadva','jovahagyva'].includes(v.st));if(!l.length)return '';
+  return l.map((v,i)=>`<a class="statuspill p-info pt-video" href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(v.name||'Videó')}">▶ ${l.length===1?'Leadott videó':esc(v.name&&l.filter(x=>x.name===v.name).length===1?v.name:(i+1)+'. videó')}</a>`).join('');}
 function vidLink(p,cls,label,extra){if(!/^https:\/\//i.test(p.deliveryLink||''))return '';const a=`<a class="${cls}" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener"${extra||''}>${label}</a>`;
   return p.deliveryPass?`<span class="pass-wrap">${a}<span class="pass-pop" role="tooltip">🔑 Jelszó: <code>${esc(p.deliveryPass)}</code><button type="button" class="pass-copy" data-action="copy-pass" data-pass="${esc(p.deliveryPass)}">Másolás</button></span></span>`:a;}
 function extraLinks(p,cls){const l=(Array.isArray(p.deliveryLinks)?p.deliveryLinks:[]).filter(x=>/^https:\/\//i.test(x));
@@ -246,7 +249,7 @@ function calBlock(iso){
 function dueInfo(p){
   const due=dueDate(p);if(!due||!isOpen(p))return null;
   if(p.status==='leadva'||p.status==='jovahagyas'){const n=validISO(p.leadvaAt)?diffDays(p.leadvaAt,todayISO()):null;   // a videók már leadva: nem az átadási határidőt mutatjuk
-    const vs=p.videos||[],okN=vs.filter(v=>v.st==='jovahagyva').length;if(vs.length&&okN===vs.length)return {due,left:null,lead:0,cls:'ok',txt:'✅ Minden videó jóváhagyva'};   // az ügyfél már mindent jóváhagyott
+    const vs=p.videos||[],okN=vs.filter(v=>v.st==='jovahagyva').length;if(vs.length&&okN===vs.length)return {due,left:null,lead:0,cls:'ok',txt:vs.length===1?'✅ Videó jóváhagyva':'✅ Videók jóváhagyva'};   // az ügyfél már mindent jóváhagyott
     if(n==null)return null;if(okN)return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:`${n>=7?'🚨 ':''}${n} napja leadva – ${okN}/${vs.length} jóváhagyva`};
     return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:n<=0?'Ma leadva – jóváhagyásra vár':`${n>=7?'🚨 ':''}${n} napja leadva – nincs jóváhagyás`};}
   const left=diffDays(todayISO(),due);
@@ -466,7 +469,7 @@ function viewProjects(){
       :`<span class="smallnum">${nCrew} fő · ${eqCount(p)} eszköz</span>`;
     const dim=crewDim(p);
     return `<tr class="pt-row pt-st-${esc(p.status||'tervezes')} pt-${when||'nodate'} pt-sz${sz}${p.status==='lemondva'?' pt-cancel':''}${dim?' pt-dim':''}" data-action="open-project" data-id="${esc(p.id)}" tabindex="0"><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'&&!(ro()&&when==='past')?DONE_CHECK:''}${ro()&&when==='past'?'':crewChip}${rel}${when==='past'?'':tm}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
-      <td class="pt-status"><div class="pt-pills">${ro()&&crewCuts(p,(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId)&&cutLeft(p)?`<span class="statuspill p-${cutLeft(p).cls}">✂️ ${esc(cutLeft(p).txt)}</span>`:''}${ro()&&when==='past'?'':statusPill(p)+crewFinalWarn(p)+due+vidLink(p,'statuspill p-info pt-video','▶ Leadott videó'+(p.deliveryPass?' 🔒':''),` data-action="ext-link" title="${esc(p.deliveryLink)}"`)}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
+      <td class="pt-status"><div class="pt-pills">${ro()&&crewCuts(p,(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId)&&cutLeft(p)?`<span class="statuspill p-${cutLeft(p).cls}">✂️ ${esc(cutLeft(p).txt)}</span>`:''}${ro()&&when==='past'?'':statusPill(p)+crewFinalWarn(p)+due+(vidLink(p,'statuspill p-info pt-video','▶ Leadott videó'+(p.deliveryPass?' 🔒':''),` data-action="ext-link" title="${esc(p.deliveryLink)}"`)||vidLinksOf(p))}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
   const cols=ro()?3:2;
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
