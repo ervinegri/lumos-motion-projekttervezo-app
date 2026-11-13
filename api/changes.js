@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "90a24bb8f2",
+"at": "2026-11-13T18:32:59+01:00",
+"msg": "Fekvő telefon: széles táblázatok a saját keretükben görgethetők"
+},
+{
 "id": "d4dc4a1709",
 "at": "2026-11-13T18:32:20+01:00",
 "msg": "Érintőképernyőn az ablak megnyitásakor nem ugrik fel a billentyűzet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: (27% ÁFA) egy sorban, a kedvezmény-százalék rendes számjegyekkel"
 },
 {
-"id": "d2347edbd1",
-"at": "2026-11-13T16:26:00+01:00",
-"msg": "Árajánlat: a tételek a PDF táblázatával azonos kinézetűek; előnézet: Mégse · Vissza · Küldés"
-},
-{
-"id": "b382650ebf",
-"at": "2026-11-13T15:23:01Z",
+"id": "931d05ba9d",
+"at": "2026-11-13T15:26:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
