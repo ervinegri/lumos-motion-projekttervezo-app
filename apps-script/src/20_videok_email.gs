@@ -572,6 +572,9 @@ function gmailSend_(to, subject, text, opts, cat) {
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
     const uniq = cc.filter((m, k) => cc.indexOf(m) === k); if (uniq.length) opts.cc = uniq.join(','); else delete opts.cc; }
+  // a GmailApp a 4 bájtos karaktereket (emojik, pl. 😔) hibásan kódolja (������): a HTML-ben számkóddal (&#x1F614;) adjuk át, a szöveges változatból kivesszük
+  if (opts.htmlBody) opts.htmlBody = String(opts.htmlBody).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, c => '&#x' + c.codePointAt(0).toString(16).toUpperCase() + ';').replace(/[\uD800-\uDFFF]/g, '');
+  text = String(text || '').replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').replace(/[\uD800-\uDFFF]/g, '');
   const dwd = opts.__dwd; delete opts.__dwd;
   if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subj_(subject), text, opts); return true; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
   GmailApp.sendEmail(to, subj_(subject), text, opts); return true;
