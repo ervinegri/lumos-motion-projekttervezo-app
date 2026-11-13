@@ -829,12 +829,13 @@ function pnCan_(u, pid, write) {
 }
 function postNotes_(u, a) { const pid = str_(a && a.projectId, 64); pnCan_(u, pid); return { notes: pnLoad_(pid) }; }
 function postNoteAct_(u, a) {
-  a = a || {}; const pid = str_(a.projectId, 64), act = String(a.act || ''), t = str_(a.text, act === 'add' ? 2000 : 1000).trim();
+  a = a || {}; const pid = str_(a.projectId, 64), act = String(a.act || ''), t = str_(a.text, act === 'add' ? 12000 : 1000).trim();
+  const plain = v => String(v || '').replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h\d)>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim();   // a formázott instrukció az e-mailben szövegként
   const x = pnCan_(u, pid, act === 'add' || act === 'del' ? 'lead' : 'any');
   let note = null;
   withLock_(() => {
     const l = pnLoad_(pid);
-    if (act === 'add') { if (t.length < 2) throw new Error('Írd be az instrukciót.'); note = { id: Utilities.getUuid().slice(0, 8), at: now_(), by: u.name, t: t, done: null, cm: [] }; l.unshift(note); }
+    if (act === 'add') { if (plain(t).length < 2) throw new Error('Írd be az instrukciót.'); note = { id: Utilities.getUuid().slice(0, 8), at: now_(), by: u.name, t: t, done: null, cm: [] }; l.unshift(note); }
     else { note = l.find(n => n.id === str_(a.id, 20)); if (!note) throw new Error('A bejegyzés nem található.');
       if (act === 'comment') { if (t.length < 1) throw new Error('Írj valamit.'); note.cm = (note.cm || []).concat([{ at: now_(), by: u.name, t: t }]).slice(-30); }
       else if (act === 'done') note.done = a.done ? { by: u.name, at: now_() } : null;
@@ -850,9 +851,9 @@ function postNoteAct_(u, a) {
     if (act === 'comment') { const names = [note.by].concat((note.cm || []).map(c => c.by)); const users = loadUsers_(); to = names.map(n => { const us = users.find(z => z.name === n), cr = readAll_('crew').find(c => c.name === n); return String((us && us.email) || (cr && cr.email) || '').trim(); }); }
     to = to.filter((m, i) => m && /@/.test(m) && m.toLowerCase() !== me && to.indexOf(m) === i);
     if (to.length) {
-      const head = act === 'add' ? u.name + ' új utómunka-instrukciót írt' : u.name + ' hozzászólt egy utómunka-instrukcióhoz', body = act === 'add' ? t : t + '\n\n(Az instrukció: ' + note.t + ')';
+      const head = act === 'add' ? u.name + ' új utómunka-instrukciót írt' : u.name + ' hozzászólt egy utómunka-instrukcióhoz', tt = act === 'add' ? plain(t) : t, nt = plain(note.t), body = act === 'add' ? tt : tt + '\n\n(Az instrukció: ' + nt + ')';
       gmailSend_(to.join(','), (act === 'add' ? 'Utómunka-instrukció: ' : 'Hozzászólás az instrukcióhoz: ') + pn, head + ' – ' + pn + '\n\n' + body + '\n\n' + url,
-        { htmlBody: '<p><b>' + escapeHtml_(head) + '</b> – ' + escapeHtml_(pn) + '</p><p style="padding:10px 12px;background:#fff7e0;border-left:4px solid #e0a800">' + escapeHtml_(t).replace(/\n/g, '<br>') + '</p>' + (act === 'comment' ? '<p style="color:#666;font-size:13px">Az instrukció: ' + escapeHtml_(note.t).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' });
+        { htmlBody: '<p><b>' + escapeHtml_(head) + '</b> – ' + escapeHtml_(pn) + '</p><p style="padding:10px 12px;background:#fff7e0;border-left:4px solid #e0a800">' + escapeHtml_(tt).replace(/\n/g, '<br>') + '</p>' + (act === 'comment' ? '<p style="color:#666;font-size:13px">Az instrukció: ' + escapeHtml_(nt).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' });
     }
   } catch (e) { Logger.log('Instrukció e-mail: ' + e); }
   logEvent_(u, 'Utómunka-instrukció', x.p.name, { add: 'új', comment: 'hozzászólás', done: a.done ? 'kész' : 'visszavonva', del: 'törölve' }[act] || act);
