@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0ef7fa08b8",
+"at": "2026-11-13T06:51:49+01:00",
+"msg": "Új szerződés: alacsonyabb választógombok, a Keretszerződés elöl"
+},
+{
 "id": "914fde2f3b",
 "at": "2026-11-13T06:51:32+01:00",
 "msg": "Videók: újbóli leadáskor / új verziónál a korábbi „Megnyitották” jelzés nem számít"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a típusra kattintva azonnal tovább lép (nincs Tovább gomb)"
 },
 {
-"id": "8afbf301dc",
-"at": "2026-11-12T20:57:37+01:00",
-"msg": "Új szerződés: a típusválasztás a cég kiválasztása után jelenik meg"
-},
-{
-"id": "5524ef052c",
-"at": "2026-11-12T19:55:35Z",
+"id": "fdbcb069e0",
+"at": "2026-11-12T19:57:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
