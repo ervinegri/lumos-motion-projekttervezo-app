@@ -1380,3 +1380,9 @@ html body .cl-wrap tr.cl-row{background:#fff}html body .cl-wrap tr.cl-row:nth-ch
 html body .cl-wrap tr.cl-row>td.cl-ctr{flex:0 1 auto}
 }
 @media (max-width:700px){html body .page-head.pay-head>.btn.small{font-size:12.5px!important;padding:5px 6px!important;gap:2px!important}}
+/* mobil: Fizetések táblázat – lefelé görgetéskor a nevek (fejléc) fent maradnak: a táblázat saját keretében görög mindkét irányba */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .pay-wrap{overflow:auto!important;max-height:calc(100dvh - 70px);overscroll-behavior:contain}
+html body .pay-wrap .pay-sheet thead th{position:sticky!important;top:0!important;z-index:3!important}
+html body .pay-wrap .pay-sheet thead th:first-child{left:0!important;z-index:6!important}
+}
