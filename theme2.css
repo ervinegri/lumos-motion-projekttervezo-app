@@ -1125,3 +1125,4 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
   html body .tbl-wrap,html body .sheet-wrap,html body .pay-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;max-width:100%}
   html body .pay-wrap .pay-sheet thead th,html body .sheet-wrap .sheet thead th{position:static!important;top:auto!important}
   html,body{overflow-x:hidden}}
+@media (orientation:landscape) and (max-height:560px){html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line)}}
