@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1399a129ae",
+"at": "2026-11-13T21:48:21+01:00",
+"msg": "Fekvő mobil: névjelvény (pozíció) helyett a nézetváltó Fiók menüje, fülsor kifér, aktív fül mindig látszik"
+},
+{
 "id": "34beb19c85",
 "at": "2026-11-13T21:46:48+01:00",
 "msg": "Mobil: frissítés-sáv széles + lehúzással eltüntethető, NAV/Kiküldés rövid felirat egy sorban, díjösszesítő-lista sorai nem fednek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: napváltás után (mobilon háttérből visszatérve) a mai napra ugrik"
 },
 {
-"id": "7f0f21430d",
-"at": "2026-11-13T17:31:15+01:00",
-"msg": "Short videó: operatőri alapdíj 40 000 Ft"
-},
-{
-"id": "79eff9a360",
-"at": "2026-11-13T16:29:59Z",
+"id": "0df3790d3f",
+"at": "2026-11-13T16:31:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
