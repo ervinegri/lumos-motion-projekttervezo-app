@@ -53,3 +53,8 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
 (()=>{const t=document.getElementById('tabs');if(!t||!window.MutationObserver)return;const mq=matchMedia('(orientation:landscape) and (max-height:560px),(max-width:700px)');
   const fix=()=>{if(!mq.matches)return;const a=t.querySelector('.tab[aria-selected="true"]');if(!a)return;const l=a.offsetLeft-t.offsetLeft,r=l+a.offsetWidth;if(l<t.scrollLeft+4)t.scrollLeft=Math.max(0,l-8);else if(r>t.scrollLeft+t.clientWidth-4)t.scrollLeft=r-t.clientWidth+8;};
   new MutationObserver(()=>requestAnimationFrame(fix)).observe(t,{childList:true});mq.addEventListener&&mq.addEventListener('change',()=>setTimeout(fix,250));addEventListener('resize',()=>setTimeout(fix,250));})();
+/* Idővonal, álló mobil: ha a projekt neve nem fér a sávba, a sáv mellett jelenik meg */
+(()=>{const v=document.getElementById('view');if(!v||!window.MutationObserver)return;const mq=matchMedia('(max-width:700px) and (orientation:portrait)');let q=false;
+  const fit=()=>{q=false;v.querySelectorAll('.tl-bar.tl-ovf').forEach(b=>b.classList.remove('tl-ovf'));if(!mq.matches)return;
+    v.querySelectorAll('.tl-bar').forEach(b=>{const n=b.querySelector('.tl-nm');if(n&&b.scrollWidth>b.clientWidth+2)b.classList.add('tl-ovf');});};
+  new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(fit);}}).observe(v,{childList:true,subtree:true});mq.addEventListener&&mq.addEventListener('change',fit);})();
