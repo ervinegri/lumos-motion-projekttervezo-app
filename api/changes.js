@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "27cee7d0a3",
+"at": "2026-11-13T16:05:04+01:00",
+"msg": "Árajánlat: több opciónál kötelező az opció neve"
+},
+{
 "id": "13d9ec5eaa",
 "at": "2026-11-13T16:00:50+01:00",
 "msg": "Előadás rögzítés: drón kivéve; szekciókeretek eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Belső ellenőrzés: több ellenőrző is kijelölhető (mindenki saját levelet kap)"
 },
 {
-"id": "442165ee18",
-"at": "2026-11-13T12:13:36+01:00",
-"msg": "Számlázás: ügyfélcsoportban is megjelenik a díjbekérő nélküli számla gombja"
-},
-{
-"id": "a136300df6",
-"at": "2026-11-13T10:48:56Z",
+"id": "cfc6f9fb26",
+"at": "2026-11-13T11:13:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
