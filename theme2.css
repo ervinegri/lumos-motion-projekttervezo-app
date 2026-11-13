@@ -1396,3 +1396,5 @@ html body .tl-track:has(.tl-cut .tl-nm) .tl-bar:not(.tl-cut) .tl-nm{display:none
 html body .tl-row .tl-pinnote .tl-nm{font-weight:600;margin-right:6px}
 html body .tl-row .tl-track .tl-bar .tl-ok{display:inline}
 }
+/* álló telefon, Szerződés és számlázás: több számla esetén a kártyák ne csússzanak egymásra (ne töltse ki a cella magasságát) */
+@media (max-width:700px){html body .bill-tbl .bt-cell .pb-box{height:auto!important}html body .bill-tbl .bt-cell .pb-stack{height:auto!important}}
