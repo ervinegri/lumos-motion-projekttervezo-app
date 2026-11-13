@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b9e0dea3aa",
+"at": "2026-11-13T07:04:20+01:00",
+"msg": "Szerződés-állapot (kiküldve/visszaküldve/aláírva) projekten és sales-ben; cégválasztó elrejtése; időzítők telepítése"
+},
+{
 "id": "4c41cb75f7",
 "at": "2026-11-13T06:58:53+01:00",
 "msg": "Szerződés: harmadik típus (kiállítói short megbízás) opciókkal; keskenyebb 1. lépés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a cég- és típusválasztó gombok egymás alatt"
 },
 {
-"id": "24c6e1c321",
-"at": "2026-11-12T21:01:50+01:00",
-"msg": "Új szerződés: visszalépés után is tovább visz a típusra kattintás"
-},
-{
-"id": "b7df64d033",
-"at": "2026-11-12T20:01:46Z",
+"id": "d2329715df",
+"at": "2026-11-12T20:02:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
