@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a3d9f9091f",
+"at": "2026-11-13T22:33:14+01:00",
+"msg": "Mobil Fizetések: a táblázat alja elérhető fekvőben, tömörebb állapotsorok"
+},
+{
 "id": "328361f662",
 "at": "2026-11-13T22:32:13+01:00",
 "msg": "Fekvő telefon: Szerződés és számlázás fejléce egy sorban, tömörebb csempék és táblázat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: frissítés-sáv széles + lehúzással eltüntethető, NAV/Kiküldés rövid felirat egy sorban, díjösszesítő-lista sorai nem fednek"
 },
 {
-"id": "1ea946bb10",
-"at": "2026-11-13T21:41:27+01:00",
-"msg": "Bevétel és kiadás: alcím törölve"
-},
-{
-"id": "d45a085787",
-"at": "2026-11-13T20:41:05Z",
+"id": "e155b33f44",
+"at": "2026-11-13T20:41:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
