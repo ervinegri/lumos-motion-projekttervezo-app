@@ -1068,7 +1068,7 @@ function clientInvoices_(a) {
   Object.keys(h.inv).forEach(no => { const v = h.inv[no]; if (!mine(v[1], v[2])) return; const ax = byNo[no];
     items.push({ no: no, date: v[0], net: Number(v[4]) || 0, gross: Number(v[5]) || 0, kind: v[7], projects: projOf(ax), what: v[6] }); });
   app.forEach(x => { if (h.inv[x.no] || x.kind === 'dijbekero' || x.kind === 'storno') return; if (!mine(x.buyer, '') && !invTargets_(x).some(t => pc[t.projectId] === name.toLowerCase())) return;
-    items.push({ no: x.no, date: x.date, net: Number(x.invNet) || 0, gross: Number(x.invGross) || 0, kind: x.kind, projects: projOf(x), what: x.items || '' }); });
+    items.push({ no: x.no, date: x.date, net: Number(x.invNet) || 0, gross: Number(x.invGross) || 0, kind: x.kind, projects: projOf(x), what: (() => { try { const l = JSON.parse(x.items || '[]'); return Array.isArray(l) ? l.map(i => i && i.name).filter(Boolean).join(' · ') : String(x.items || ''); } catch (e) { return String(x.items || ''); } })() }); });
   items.sort((x, y) => String(y.date).localeCompare(String(x.date)));
   return { items: items, total: items.reduce((s2, x) => s2 + x.net, 0), at: h.at || '', full: !!h.full };
 }
