@@ -49,3 +49,7 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
 /* Nézetváltó: nincs külön „Másik szakember / értékesítő…” sor – másikat a sárga sáv „↻ Másik …” gombjával lehet választani */
 (()=>{const sel=document.getElementById('viewAs');if(!sel)return;sel.querySelectorAll('option[value="crew-other"],option[value="sales-other"]').forEach(o=>o.remove());})();
 ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCrewModal();};
+/* fekvő telefon: a kiválasztott menüfül mindig teljesen látszódjon (a fülsor oldalra görgethető) */
+(()=>{const t=document.getElementById('tabs');if(!t||!window.MutationObserver)return;const mq=matchMedia('(orientation:landscape) and (max-height:560px),(max-width:700px)');
+  const fix=()=>{if(!mq.matches)return;const a=t.querySelector('.tab[aria-selected="true"]');if(!a)return;const l=a.offsetLeft-t.offsetLeft,r=l+a.offsetWidth;if(l<t.scrollLeft+4)t.scrollLeft=Math.max(0,l-8);else if(r>t.scrollLeft+t.clientWidth-4)t.scrollLeft=r-t.clientWidth+8;};
+  new MutationObserver(()=>requestAnimationFrame(fix)).observe(t,{childList:true});mq.addEventListener&&mq.addEventListener('change',()=>setTimeout(fix,250));addEventListener('resize',()=>setTimeout(fix,250));})();
