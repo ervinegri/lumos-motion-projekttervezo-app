@@ -1347,6 +1347,7 @@ html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.
 .tl-nm{display:none}
 @media (max-width:700px) and (orientation:portrait){
 html body .tl-wrap,html body .tl-wrap .tl{--lw:0px!important}
+html body .tl-wrap .tl{--dw:60px!important}
 html body .tl-row{grid-template-columns:0 1fr!important}
 html body .tl-row:not(.tl-sec) .tl-lbl{visibility:hidden;padding:0!important;border:0!important;min-width:0!important;width:0!important;overflow:hidden}
 html body .tl-row.tl-sec .tl-lbl{width:0!important;min-width:0!important;padding:0!important;overflow:visible!important;border:0!important;background:transparent!important;box-shadow:none!important}
@@ -1355,10 +1356,7 @@ html body .tl-row.tl-sec .tl-lbl{flex-direction:row!important;align-items:center
 html body .tl-nm{display:inline;font-weight:800;margin-right:6px;white-space:nowrap}
 html body .tl-bar,html body .tl-pinnote{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-content:flex-start!important;text-align:left}
 }
-@media (max-width:700px) and (orientation:portrait){
-html body .tl-bar.tl-ovf{overflow:visible!important;position:relative;z-index:4}
-html body .tl-bar.tl-ovf .tl-nm{position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);color:var(--fg,#101923)!important;-webkit-text-fill-color:currentColor;background:rgba(255,255,255,.88);padding:1px 5px;border-radius:5px;z-index:4;pointer-events:none;font-size:12px}
-}
+
 /* álló mobil: Ügyfelek táblázat egy oszlopban, tömören */
 @media (max-width:700px) and (orientation:portrait){
 html body .cl-wrap{overflow-x:visible!important}
@@ -1389,4 +1387,12 @@ html body .pay-wrap .pay-sheet thead th:first-child{left:0!important;z-index:6!i
 @media (max-width:700px){
 html body .page-head.pay-head .month-nav .mn-arrow{min-width:40px!important;padding:0 6px!important;font-size:18px!important}
 html body .page-head.pay-head .mnav-chip.on{font-size:13px!important;padding:6px 6px!important}
+}
+/* Idővonal, álló telefon: vastagabb sávok, a név vékonyabb betűvel a sávon belül (két sor: név + adatok) */
+@media (max-width:700px) and (orientation:portrait){
+html body .tl-row .tl-track .tl-bar{min-height:40px!important;display:block!important;text-align:left!important;padding:4px 7px!important;line-height:1.2!important;font-size:10.5px!important;font-weight:600!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+html body .tl-row .tl-track .tl-bar .tl-nm{display:block!important;font-weight:600!important;font-size:12px!important;margin:0 0 1px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .tl-track:has(.tl-cut .tl-nm) .tl-bar:not(.tl-cut) .tl-nm{display:none!important}
+html body .tl-row .tl-pinnote .tl-nm{font-weight:600;margin-right:6px}
+html body .tl-row .tl-track .tl-bar .tl-ok{display:inline}
 }
