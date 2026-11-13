@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fbdc10ecd5",
+"at": "2026-11-13T15:48:03+01:00",
+"msg": "Árajánlat: több kalkulátorból gyűjthető tételek, vissza a kalkulátorhoz; a/az névelő; nettó kiemelve, egyszerűbb összesítő; levélszöveg csak az előnézetben; frissítésjelző javítva"
+},
+{
 "id": "0f6c1ba6fc",
 "at": "2026-11-13T15:43:49+01:00",
 "msg": "Árajánlat küldése: új érdeklődő felvétele gomb a lista alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó: kérdés törölve; belépési hibaüzenet rövidebb; mobil videónézet: a gombsor nem takar"
 },
 {
-"id": "b5c1ce3a1b",
-"at": "2026-11-13T10:25:02+01:00",
-"msg": "Fizetések: a munkatárs neve a fejlécben a profilt nyitja"
-},
-{
-"id": "e56ab949de",
-"at": "2026-11-13T08:29:27Z",
+"id": "61838116fe",
+"at": "2026-11-13T09:25:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
