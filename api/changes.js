@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b9e425c84c",
+"at": "2026-11-13T22:36:16+01:00",
+"msg": "Számlázás táblázat: erős vonal a projektek között, a dobozokból nem lóg ki semmi"
+},
+{
 "id": "1c5144a36d",
 "at": "2026-11-13T22:35:25+01:00",
 "msg": "Fekvő telefon: sokkal kisebb hézag a menüsáv, a fejléc és a táblázat között"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló mobil: Projektek táblázat egy oszlopban, a státusz-jelzések a projekt neve alatt"
 },
 {
-"id": "63949177c3",
-"at": "2026-11-13T21:49:37+01:00",
-"msg": "Mobil árkalkulátor ablak: tömör fejléc (rövid fülnevek, × egy sorban), Bezárás gomb nélkül, gombsor két sorban"
-},
-{
-"id": "2b8543afe5",
-"at": "2026-11-13T20:48:30Z",
+"id": "22a67a21f8",
+"at": "2026-11-13T20:49:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
