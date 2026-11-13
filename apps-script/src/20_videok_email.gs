@@ -15,7 +15,7 @@ function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link &&
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
-    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 120), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
+    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 300), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
     fb: str_(x && x.fb, 1000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), vers: (Array.isArray(x && x.vers) ? x.vers : []).slice(-30).map(r => ({ at: str_(r && r.at, 30), link: str_(r && r.link, 500) })).filter(r => r.at), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
@@ -65,9 +65,11 @@ function videosBackfill_() {
 }
 /** Belső ellenőrzésre küldés: a videó „Belső ellenőrzés” állapotba kerül, a link és a megjegyzés mentődik, a kiválasztott vezető e-mailt kap. */
 const REVIEWERS_ = { ervin: 'ervin.egri@lumosmotion.com', david: 'david.zajacz@lumosmotion.com' };
+/** Az ellenőrzők (egy vagy több): a: 'david' | 'david,ervin' | ['david','ervin'] → e-mail-címek */
+const rvList_ = a => (Array.isArray(a) ? a : String(a || '').split(',')).map(k => REVIEWERS_[String(k).trim()]).filter((m, i, arr) => m && arr.indexOf(m) === i);
 function videoReview_(u, a) {
   a = a || {};
-  const to = REVIEWERS_[String(a.to || '')]; if (!to) throw new Error('Válaszd ki, ki kapja az értesítést.');
+  const tos = rvList_(a.to), to = tos.join(','); if (!tos.length) throw new Error('Válaszd ki, ki kapja az értesítést.');
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
   const note = str_(a.note, 1000).trim();
   const res = videoSet_(u, { projectId: a.projectId, id: a.id, st: 'ellen' });
@@ -75,26 +77,29 @@ function videoReview_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
     if (v) { vidSetLink_(v, link); v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = huFirst_(String(rv.name || ''));
   const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
-  const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA videó megnyitása: ' + url + '\n\nEzt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
-  const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p><p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p>';
+  const mk = em => { const first = huFirst_(String((SIG_DEFAULTS_[em] || {}).name || ''));
+    const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA videó megnyitása: ' + url + '\n\nEzt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
+    const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p><p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p>';
+    return { text: text, html: html }; };
   if (a.noMail) return { project: projectView_(fullProject_(p), u), mail: false, name: v ? v.name : 'videó', pname: p.name, pid: pid, vid: vid, link: link };   // csoportos küldés: egy közös levél megy
-  let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
-  logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + (rv.name || to));
+  let mail = false; tos.forEach(em => { const m = mk(em); try { if (gmailSend_(em, 'Belső ellenőrzésre vár: ' + (v ? v.name : 'videó') + ' – ' + p.name, m.text, { htmlBody: m.html, name: 'Lumos Motion Projekttervező' })) mail = true; } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); } });
+  logEvent_(u, 'Videó belső ellenőrzésre', p.name, (v ? v.name : '') + ' → ' + tos.map(em => (SIG_DEFAULTS_[em] || {}).name || em).join(', '));
   return { project: projectView_(fullProject_(p), u), mail: mail };
 }
 /** Több videó egyszerre belső ellenőrzésre – egyetlen e-mail az ellenőrzőnek. a: {to, note, items:[{projectId, id, link}]} */
 function videoReviewBatch_(u, a) {
-  a = a || {}; const to = REVIEWERS_[String(a.to || '')]; if (!to) throw new Error('Válaszd ki, ki kapja az értesítést.');
+  a = a || {}; const tos = rvList_(a.to); if (!tos.length) throw new Error('Válaszd ki, ki kapja az értesítést.');
   const items = (Array.isArray(a.items) ? a.items : []).slice(0, 40); if (!items.length) throw new Error('Nincs kiválasztott videó.');
   items.forEach(x => { if (!/^https?:\/\/\S+$/i.test(String(x && x.link || '').trim())) throw new Error('Minden videóhoz illeszd be a linket (https://…).'); });
   const note = str_(a.note, 1000).trim(), done = [], projects = {};
   items.forEach(x => { const r = videoReview_(u, { to: a.to, note: note, projectId: x.projectId, id: x.id, link: x.link, noMail: true }); done.push(r); projects[r.pid] = r.project; });
-  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = huFirst_(String(rv.name || '')), pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
+  const pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
+  let mail = false;
+  tos.forEach(to => { const first = huFirst_(String((SIG_DEFAULTS_[to] || {}).name || ''));
   const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldött ' + done.length + ' videót – ' + pn + ':\n\n' + done.map(r => '• ' + r.name).join('\n') + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + appUrl_() + '#p=' + done[0].pid + '\n\nEzt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
   const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldött <b>' + done.length + ' videót</b> – ' + escapeHtml_(pn) + ':</p><ul>' + done.map(r => '<li><a href="' + escapeHtml_(appUrl_() + '#p=' + r.pid + '&v=' + encodeURIComponent(r.vid)) + '">' + escapeHtml_(r.name) + '</a></li>').join('') + '</ul>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(appUrl_() + '#p=' + done[0].pid) + '">A projekt megnyitása</a></p><p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p>';
-  let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + done.length + ' videó – ' + pn, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
+  try { if (gmailSend_(to, 'Belső ellenőrzésre vár: ' + done.length + ' videó – ' + pn, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' })) mail = true; } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); } });
   return { projects: Object.keys(projects).map(k => projects[k]), mail: mail, n: done.length };
 }
 /** Hozzászólás egy videóhoz (vezető vagy a projekt vágója); ts: másodperc a videóban, ha a lejátszóból időponthoz kötötték. A vágó e-mailt kap, ha más írt; ha ő írt, az ellenőrző. */
