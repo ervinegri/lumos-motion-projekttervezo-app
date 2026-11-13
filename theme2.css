@@ -1165,3 +1165,7 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
 @media (max-width:700px){html body .proj-sub{display:none}
  html body #modalRoot .modal{padding:0!important;align-items:stretch!important;background:var(--bg,#f0f4f7)!important}
  html body #modalRoot .modal .mbox{width:100%!important;max-width:100%!important;min-height:100%!important;max-height:100%!important;height:100%!important;border-radius:0!important;margin:0!important;box-shadow:none!important}}
+/* projekt címe álló telefonon egy sorban (ha hosszú, a végén …) */
+@media (max-width:700px){html body .dtitle h2{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;word-break:normal;font-size:17px}html body .dtitle h2 .pname~*{margin-left:0!important}
+ html body .dtitle h2>:first-child,html body .dtitle h2 .pname{min-width:0;overflow:hidden;text-overflow:ellipsis}
+ html body .dtitle .grow,html body .dtitle>div{min-width:0}}
