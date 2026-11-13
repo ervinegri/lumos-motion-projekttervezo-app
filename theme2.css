@@ -1111,3 +1111,6 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 @media (orientation:landscape) and (max-height:560px){html body .header-tools .user-chip:not(.hidden){display:inline-flex!important;max-width:200px}}
 @media (max-width:760px){html body .cal-grid{touch-action:pan-y pinch-zoom!important}html:has(.cal-grid){overscroll-behavior-y:auto!important}}
 @media (orientation:landscape) and (max-height:560px){html body #userChip{padding-right:14px!important;overflow:visible}}
+html.va-logout .header-tools:has(#viewAs:not(.hidden)) #logoutBtn{display:none!important}
+html.va-logout .header-tools:has(#viewAs:not(.hidden)) #userChip::after{content:''}
+.cmb-in[readonly]{-webkit-user-select:none;user-select:none}

@@ -34,3 +34,10 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
     p.innerHTML='<button type="button" class="btn ghost small" data-uc="out">Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
     p.querySelector('[data-uc="out"]').addEventListener('click',()=>{close();const lb=document.getElementById('logoutBtn');if(lb)lb.click();});});
   window.addEventListener('scroll',close,{passive:true});})();
+
+/* Mobilon (álló és fekvő nézetben) a Kilépés a nézetváltó („💼 Ügyvezető”) listájában van: érintésre a lista végén jelenik meg */
+(()=>{const sel=document.getElementById('viewAs');if(!sel||!window.matchMedia)return;const mq=matchMedia('(max-width:760px),(orientation:landscape) and (max-height:560px)');let prev=sel.value;
+  const sync=()=>{let o=sel.querySelector('option[value="__logout"]');if(mq.matches&&!o){o=document.createElement('option');o.value='__logout';o.textContent='⎋ Kilépés';sel.appendChild(o);}else if(!mq.matches&&o)o.remove();document.documentElement.classList.toggle('va-logout',mq.matches);};
+  sync();if(mq.addEventListener)mq.addEventListener('change',sync);
+  sel.addEventListener('focus',()=>{prev=sel.value;sync();});sel.addEventListener('pointerdown',()=>{prev=sel.value;sync();});
+  document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();
