@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6afa9c8c8d",
+"at": "2026-11-13T22:00:49+01:00",
+"msg": "Mobil számlázás: több számla kártyái nem csúsznak egymásra"
+},
+{
 "id": "1ca9544490",
 "at": "2026-11-13T21:59:57+01:00",
 "msg": "Idővonal álló telefonon: vastagabb sávok, a név vékonyabb betűvel a sávon belül, szélesebb napok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő mobil: egysoros felső sáv, Kilépés a névjelvény mögött; mobil havi naptár görgethető"
 },
 {
-"id": "63cdff7e44",
-"at": "2026-11-13T18:19:31+01:00",
-"msg": "Fekvő mobilnézet: görgetéskor eltűnik a felső sáv"
-},
-{
-"id": "16a1bb0099",
-"at": "2026-11-13T17:10:50Z",
+"id": "07da972654",
+"at": "2026-11-13T17:19:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
