@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68cf5777f4",
+"at": "2026-11-13T16:12:22+01:00",
+"msg": "Árkalkulátor: nagyobb csúszkagomb, az Összesen akkora, mint a gombok"
+},
+{
 "id": "a120b69c85",
 "at": "2026-11-13T16:07:50+01:00",
 "msg": "Árkalkulátor: megjegyzi az állapotot és a fület, komolyabb megjelenés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélküldés: kifizetett projektnél nincs vízjel-mező"
 },
 {
-"id": "db66dc3c8b",
-"at": "2026-11-13T13:27:07+01:00",
-"msg": "Ügyfélküldés: a mentett mintában ragadt videónév javítva; kifizetett projektnél nincs bepipálva a vízjel"
-},
-{
-"id": "6817d20ace",
-"at": "2026-11-13T11:29:39Z",
+"id": "6e3e7c1a03",
+"at": "2026-11-13T12:27:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
