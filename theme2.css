@@ -1386,3 +1386,7 @@ html body .pay-wrap{overflow:auto!important;max-height:calc(100dvh - 70px);overs
 html body .pay-wrap .pay-sheet thead th{position:sticky!important;top:0!important;z-index:3!important}
 html body .pay-wrap .pay-sheet thead th:first-child{left:0!important;z-index:6!important}
 }
+@media (max-width:700px){
+html body .page-head.pay-head .month-nav .mn-arrow{min-width:40px!important;padding:0 6px!important;font-size:18px!important}
+html body .page-head.pay-head .mnav-chip.on{font-size:13px!important;padding:6px 6px!important}
+}
