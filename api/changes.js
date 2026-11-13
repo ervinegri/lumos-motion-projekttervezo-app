@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a95fa863a4",
+"at": "2026-11-13T08:38:24+01:00",
+"msg": "Fotógaléria jóváhagyandó elemként; csak helyszíni technikánál a rendezvény után rögtön Kész"
+},
+{
 "id": "d4ea5d2248",
 "at": "2026-11-13T08:30:45+01:00",
 "msg": "Projektlista: videónkénti leadott linkek, Videó(k) jóváhagyva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: a felek adatai egységes rácsban (feliratok, két egyforma táblázat, szerepek egy vonalban)"
 },
 {
-"id": "fe126cba40",
-"at": "2026-11-12T22:31:49+01:00",
-"msg": "Szerződéssablonok: a specifikáció táblázat a margón belül; kisebb logó"
-},
-{
-"id": "7a71e7505a",
-"at": "2026-11-12T21:25:24Z",
+"id": "a899b7aea0",
+"at": "2026-11-12T21:31:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
