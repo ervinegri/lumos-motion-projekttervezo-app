@@ -1079,3 +1079,4 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 @media (max-width:700px){.bl-h{flex-wrap:wrap;row-gap:4px}.bl-h .bl-ht{flex:1 1 100%;white-space:normal}}
 .ptr{position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translate(-50%,-60px);z-index:5000;display:flex;align-items:center;gap:8px;background:#fff;color:#1d2a38;border-radius:999px;padding:8px 14px;font:600 13px/1.2 Montserrat,system-ui,sans-serif;box-shadow:0 6px 20px rgba(16,25,35,.18);opacity:0;pointer-events:none;transition:opacity .15s}
 .ptr.on{opacity:1}.ptr .ptr-i{display:inline-block;transition:transform .15s;font-size:15px}.ptr.armed .ptr-i{transform:rotate(180deg)}.ptr.busy .ptr-i{animation:ptrspin .8s linear infinite}.ptr.busy .ptr-i::before{content:''}@keyframes ptrspin{to{transform:rotate(360deg)}}
+@media (max-width:700px){html body .sheet-wrap.proj-wrap{border:0!important;border-radius:0!important;box-shadow:none!important}}
