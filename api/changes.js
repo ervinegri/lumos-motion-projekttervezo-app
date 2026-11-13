@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b5c1ce3a1b",
+"at": "2026-11-13T10:25:02+01:00",
+"msg": "Fizetések: a munkatárs neve a fejlécben a profilt nyitja"
+},
+{
 "id": "c813f38cb9",
 "at": "2026-11-13T09:29:18+01:00",
 "msg": "Jóváhagyó oldal: Videó linkjének másolása (a videó saját linkje; vízjeles videónál nincs)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla díjbekérő nélkül: teljes összeg a gombon"
 },
 {
-"id": "dbf4c17dc3",
-"at": "2026-11-13T07:47:02+01:00",
-"msg": "Számlázás: a rendezvény napjától díjbekérő helyett számla is; halványabb keretszerződés-gomb"
-},
-{
-"id": "fda67fb416",
-"at": "2026-11-13T06:42:48Z",
+"id": "dfab1c4e0b",
+"at": "2026-11-13T06:47:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
