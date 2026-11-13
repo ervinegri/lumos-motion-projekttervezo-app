@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1334f7b72b",
+"at": "2026-11-13T22:23:59+01:00",
+"msg": "Fekvő telefon: naptár eszköztára egy sorban, oldalsó hónapok nélkül"
+},
+{
 "id": "ca72f02ed5",
 "at": "2026-11-13T22:22:25+01:00",
 "msg": "Fekvő telefon: Projektek táblázat Státusz oszlopa keskenyebb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: tömör naptárfejléc, Leltár, Ügyfelek és Fizetések; táblázatok keret nélkül"
 },
 {
-"id": "86f05e699d",
-"at": "2026-11-13T21:25:45+01:00",
-"msg": "Nézetváltó: Másik szakember/értékesítő a sárga sávban; nem ugrik vissza Ügyvezetőre; szélesebb címke mobilon"
-},
-{
-"id": "f0d4eea591",
-"at": "2026-11-13T20:15:39Z",
+"id": "06185a718b",
+"at": "2026-11-13T20:25:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
