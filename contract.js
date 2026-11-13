@@ -19,27 +19,27 @@ function ctNew(){S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:
 /* 1. lépés: két döntés – melyik cég nevében (Lumos Motion Kft. / Egri Ervin E.V.), és milyen szerződés (Megbízási / Keretszerződés) */
 function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_')[0]:'',kind=c._picked?(cur.sh?'shortok':cur.hat?'hatarozott':'keret'):'';   // első megnyitáskor nincs előválasztás
   const opt=(name,v,on,t,d)=>`<label class="ct-tpl${on?' on':''}"><input type="radio" name="${name}" value="${v}"${on?' checked':''}><b>${t}</b>${d?`<small>${d}</small>`:''}</label>`;
-  openModal('📝 Új szerződés – 1/3: sablon',`<p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
-      ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div>
-    <div id="ct-kind"${firm?'':' hidden'}><p class="hint" style="margin:16px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
+  openModal('📝 Új szerződés – 1/3: sablon',`<div id="ct-firmbox"${firm?' hidden':''}><p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
+      ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div></div>
+    <div id="ct-kind"${firm?'':' hidden'}><p class="ct-firmsel"><span id="ct-firmname">${firm==='egri'?'Egri Ervin E.V.':'Lumos Motion Kft.'}</span> <button type="button" class="linkbtn" data-ct-chfirm="1">módosítás</button></p><p class="hint" style="margin:10px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
       ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói short megbízás','Rendezvényszervezővel: short videók a kiállítóknak, jutalékkal.')}</span></div></div>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
   const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('ct-narrow');}   // nincs Tovább gomb: a típusra kattintva lép tovább
 document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm'||t.name==='ct_kind')&&t.closest('.ct-tpls')){t.closest('.ct-tpls').querySelectorAll('.ct-tpl').forEach(l=>l.classList.toggle('on',l.contains(t)));
-  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}const so=document.querySelector('.ct-sh-opt');if(so)so.hidden=t.value!=='lumos';}}});
+  if(t.name==='ct_firm'){const k=$('ct-kind'),fb=$('ct-firmbox'),fn=$('ct-firmname');if(fb)fb.hidden=true;if(fn)fn.textContent=t.value==='egri'?'Egri Ervin E.V.':'Lumos Motion Kft.';if(k)k.hidden=false;const so=document.querySelector('.ct-sh-opt');if(so)so.hidden=t.value!=='lumos';}}});
 /* a típusra kattintás (akkor is, ha már ki volt jelölve – pl. visszalépés után) azonnal a 2. lépésre visz */
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-g="kind"] .ct-tpl');if(!l||!S.ct)return;const f=document.querySelector('input[name="ct_firm"]:checked'),k=l.querySelector('input');if(!f||!k)return;
   S.ct.tpl=f.value+'_'+k.value;S.ct._picked=true;setTimeout(ctStep2,120);});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
-function ctRead(fd){const c=S.ct;if(fd.has('sh_form')){c.sh_base=fd.has('sh_base');c.sh_kf=fd.has('sh_kf');c.sh_promo=fd.has('sh_promo');}['ev_name','ev_date','ev_place','sh_price','sh_comm','sh_settle','dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
+function ctRead(fd){const c=S.ct;if(fd.has('sh_form')){c.sh_base=fd.has('sh_base');c.sh_kf=fd.has('sh_kf');c.sh_promo=fd.has('sh_promo');}['dealId','ev_name','ev_date','ev_place','sh_price','sh_comm','sh_settle','dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
   if(fd.has('loc_place_0')){c.locs=[];for(let i=0;fd.has('loc_place_'+i);i++)c.locs.push({place:String(fd.get('loc_place_'+i)||'').trim(),date:String(fd.get('loc_date_'+i)||'').trim()});}
   if(fd.has('svc_name_0')){c.svcs=[];for(let i=0;fd.has('svc_name_'+i);i++)c.svcs.push({name:String(fd.get('svc_name_'+i)||'').trim(),qty:String(fd.get('svc_qty_'+i)||'').trim(),ext:String(fd.get('svc_ext_'+i)||'').trim()});}}
 function ctFillClient(name){const c=S.ct,cl=(S.clients||[]).find(x=>x.name===name);if(!cl)return;c.client=name;
   const rep=[cl.rep||cl.contactName,cl.repTitle||(cl.rep?'':cl.contactTitle)].filter(Boolean).join(', ');
-  Object.assign(c,{c_name:cl.name||'',c_addr:cl.address||'',c_tax:cl.tax||'',c_phone:cl.repPhone||cl.contactPhone||'',c_email:cl.repEmail||cl.contactEmail||'',c_rep:rep,sig_name:cl.name||'',sig_rep:rep});}
-function ctFillProject(pid){const c=S.ct,p=projById(pid);if(!p)return;c.pid=pid;const q=pr(p);
+  Object.assign(c,{c_name:cl.name||'',c_addr:cl.address||'',c_tax:cl.tax||'',c_phone:cl.repPhone||cl.contactPhone||'',c_email:cl.repEmail||cl.contactEmail||'',c_rep:rep,sig_name:cl.name||'',sig_rep:rep});if(!c.dealId){const d=ctDealsOpen().find(x=>String(x.client||'').trim().toLowerCase()===name.trim().toLowerCase());if(d)c.dealId=d.id;}}
+function ctFillProject(pid){const c=S.ct,p=projById(pid);if(!p)return;c.pid=pid;{const d=(S.deals||[]).find(x=>x.projectId===pid);if(d)c.dealId=d.id;}const q=pr(p);
   c.locs=[{place:String(p.venue||'').trim(),date:q?(q.start===q.end?ctDay(q.start):ctDay(q.start)+' – '+ctDay(q.end)):''}];
   const sv=DELIVERABLES.filter(it=>num(p[it.k])>0).map(it=>({name:it.label,qty:String(num(p[it.k])),ext:''}));
   EXTRAS.filter(x=>p[x.k]&&!x.pct).forEach(x=>sv.push({name:x.label,qty:'1',ext:''}));if(p.x_nyersVetel)sv.push({name:'Nyersanyag átadása',qty:'1',ext:''});
@@ -50,6 +50,7 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
   const fee=num(c.fee),half=Math.round(fee/2);
   openModal(`📝 Új szerződés – 2/3: adatok`,`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)}</p>
     <div class="fields"><div class="field full"><label for="ct-cl">Ügyfél a listából</label><select class="inp" id="ct-cl" data-cmb="Ügyfél kiválasztása (kitölti az adatokat)…"><option value="">– kézzel töltöm ki –</option>${cls.map(x=>`<option value="${esc(x.name)}"${c.client===x.name?' selected':''}>${esc(x.name)}</option>`).join('')}</select></div>
+    ${ctDealField()}
     <h4 class="sub-h full" style="margin:6px 0 0">Megrendelő</h4>
     ${f('c_name','Név',{full:true})}${f('c_addr','Cím',{full:true})}${f('c_tax','Adószám')}${f('c_phone','Telefonszám')}${f('c_email','E-mail cím')}${f('c_rep','Képviseli',{ph:'Név, titulus'})}
     ${tp.hat?`<h4 class="sub-h full" style="margin:10px 0 0">Projekt</h4>
@@ -173,8 +174,9 @@ async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
        if(!/@/.test(m.to)){toast('Add meg a címzett e-mail-címét.',true);return;}
        if(!confirm('Elküldöd a szerződést ide: '+m.to+'?'))return;
        const b64=c._pdf||await ctPdf((await ctBuild()).blob);
-       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat||tp.sh?'egyeb':'keret',docx:m.save?await ctB64((await ctBuild()).blob):''});
+       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat||tp.sh?'egyeb':'keret',dealId:c.dealId||'',projectId:tp.hat?c.pid||'':'',docx:m.save?await ctB64((await ctBuild()).blob):''});
        closeModal();toast(r.test?'Teszt üzemmód: a levél hozzád ment ki.':'✅ Szerződés elküldve: '+m.to+(m.save&&r.saved&&!r.saved.error?' · mentve az ügyfél mappájába':''));
+       if(r.status){if(r.status.deals)S.deals=r.status.deals;if(r.status.billing&&S.fin)S.fin.billing=r.status.billing;try{render(true);}catch(e){}}
        if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved&&typeof billApply==='function')try{billApply(r.saved);}catch(e){}
        S.ct=null;render(true);}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');}
@@ -243,3 +245,10 @@ function ctShTokens(){const c=S.ct,ev=String(c.ev_name||'').trim()||'…',art=x=
     p24:c.sh_base?'2.4. A kiegészítő forgatások elsődleges feltétele, hogy az alapmegbízásban vállalt videós anyagok minősége, forgatása és teljesítési ütemezése teljes körűen biztosított legyen.':D,
     p31:`3.1. A kiállítók felé alkalmazott ár ${ctFt(price)} Ft + ÁFA / megrendelt short videó. Ebből a Lumos Motion szolgáltatási díja ${ctFt(Math.max(0,price-comm))} Ft + ÁFA / videó, a Megrendelő javára járó jutalék ${ctFt(comm)} Ft + ÁFA / videó.`,
     p33};}
+
+document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('[data-ct-chfirm]'))return;const fb=$('ct-firmbox'),k=$('ct-kind');if(fb)fb.hidden=false;if(k)k.hidden=true;});
+
+/* Kapcsolódó értékesítési lehetőség: kiküldéskor a lehetőségen (és a projekten) „Szerződés kiküldve” lesz */
+const ctDealsOpen=()=>(S.deals||[]).filter(d=>d.stage!=='elveszett').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+function ctDealField(){const ds=ctDealsOpen(),c=S.ct;if(!ds.length)return '';
+  return `<div class="field full"><label for="ct-deal">Értékesítési lehetőség <span class="muted" style="font-weight:500;font-size:12px">– kiküldéskor itt jelöljük: szerződés kiküldve</span></label><select class="inp" id="ct-deal" name="dealId" data-cmb="Lehetőség kiválasztása…"><option value="">– nincs –</option>${ds.map(d=>`<option value="${esc(d.id)}"${c.dealId===d.id?' selected':''}>${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' · '+esc(d.client):''}</option>`).join('')}</select></div>`;}

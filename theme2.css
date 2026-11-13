@@ -988,3 +988,6 @@ html body .ct-tpls[data-g] .ct-tpl b{font-size:14.5px}html body .ct-tpls[data-g]
 /* új szerződés 1. lépés: keskenyebb ablak, rövidebb gombok */
 html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw - 32px)!important}
 .ct-sh-opt{display:contents}.ct-sh-opt[hidden]{display:none!important}
+.ct-firmsel{margin:-4px 0 0;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}.ct-firmsel .linkbtn{font-size:12.5px;font-weight:500}
+.bs-back{font-size:12px;color:var(--info,#2563eb);margin:2px 0}.bs-back .linkbtn,.bs-backbtn{font-size:11.5px}.bs-backbtn{display:block;margin:1px 0 2px}
+.dl-ct{font-size:11.5px;font-weight:600;margin:4px 0 0;padding:2px 7px;border-radius:6px;display:inline-block;background:var(--warn-bg,#fff4dc);color:var(--warn,#9a6200)}.dl-ct-alairva{background:var(--ok-bg,#e3f6e8);color:var(--ok,#17803d)}.dl-ct-visszakuldve{background:var(--info-bg,#e6efff);color:var(--info,#2552c4)}.dl-ct-nemkell{display:none}

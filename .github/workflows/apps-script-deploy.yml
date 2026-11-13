@@ -37,6 +37,7 @@ jobs:
           mkdir -p /tmp/gas && cd /tmp/gas
           printf '{"scriptId":"%s","rootDir":"."}' "$SID" > .clasp.json
           clasp pull                         # az élő manifest (appsscript.json) megmarad
+          node -e "const m=require('./appsscript.json');console.log('Manifest oauthScopes:',JSON.stringify(m.oauthScopes||'(automatikus)'))" || true
           rm -f Code.js Code.gs Templates.js Templates.gs
           cp "$GITHUB_WORKSPACE/apps-script/Code.gs" Code.js
           cp "$GITHUB_WORKSPACE/apps-script/Templates.gs" Templates.js   # szerződéssablonok

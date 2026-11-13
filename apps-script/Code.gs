@@ -112,7 +112,7 @@ const TABLES = {
     ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
     ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
     ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
-    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)'], ['commAuto', 'Jutalék automatikusan (Sales App)'], ['contactEmail2', 'Másodlagos e-mail']] },   // új oszlop mindig a végére
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)'], ['commAuto', 'Jutalék automatikusan (Sales App)'], ['contactEmail2', 'Másodlagos e-mail'], ['ctStatus', 'Szerződés állapota'], ['ctAt', 'Szerződés állapota óta']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewDocs: { tab: 'Munkatársi szerződések', cols: [
@@ -700,9 +700,10 @@ function dealsFor_(u) {
   const uc = {}; if (u.role === 'admin') loadUsers_().forEach(x => { uc[x.id] = { crewId: x.crewId || '', sales: x.role === 'sales' }; });
   const adv = {}; try { readAll_('finInvoice').forEach(x => { const g = Number(x.invGross) || 0; if (!g || (Number(x.invPaid) || 0) < g - 1) return;   // kifizetett bizonylat (díjbekérő / foglaló / számla) → a lehetőség a „Díjbekérő kifizetve” oszlopba kerül
     [x.projectId].concat(String(x.projectIds || '').split(',')).map(v => String(v).trim()).filter(Boolean).forEach(pid => { const d = String(x.paidAt || x.date || '').slice(0, 10) || 'x'; if (!adv[pid] || d < adv[pid]) adv[pid] = d; }); }); } catch (e) { }
+  const bst = {}; try { readAll_('finBilling').forEach(b => { if (b.contractStatus) bst[b.projectId] = b.contractStatus; }); } catch (e) { }
   const ck = v => String(v || '').trim().toLowerCase(), tigC = {};   // visszatérő, TIG-gel (teljesítésigazolással) számlázott ügyfél vagy keretszerződés: nem kap díjbekérőt
   try { readAll_('finTig').forEach(x => { if (ck(x.client)) tigC[ck(x.client)] = 'tig'; }); readAll_('finFramework').forEach(x => { if (ck(x.client) && String(x.mode || '') !== 'nemkell') tigC[ck(x.client)] = 'keret'; }); } catch (e) { }
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (d.ctStatus || ''), advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
@@ -730,7 +731,7 @@ function saveDeal_(u, a) {
       eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
       chance: num(a.chance, 100), source: str_(a.source, 80).trim(), nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
       ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000), services: (Array.isArray(a.services) ? a.services : String(a.services || '').split(',')).map(x => str_(x, 60).trim()).filter(Boolean).slice(0, 20).join(', '),
-      lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
+      lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', ctStatus: old ? old.ctStatus || '' : '', ctAt: old ? old.ctAt || '' : '', commManual: old ? old.commManual : '', commAuto: old ? old.commAuto : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
       closedAt: stage === 'elveszett' ? (old && old.stage === 'elveszett' ? old.closedAt : today_()) : (old && old.stage === 'nyert' ? old.closedAt : ''),
       createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };
     if (old && old.stage === 'nyert') d.stage = 'nyert';
@@ -3178,11 +3179,25 @@ function szIpn_(e) {
 }
 
 /* ===================== SZERZŐDÉS ÉS SZÁMLÁZÁS (projektenkénti adatok) ===================== */
-const BILL_CONTRACT = ['', 'kikuldve', 'alairva', 'nemkell'];
+const BILL_CONTRACT = ['', 'kikuldve', 'alairva', 'nemkell', 'visszakuldve'];
+const CT_STATUS = ['', 'kikuldve', 'visszakuldve', 'alairva'];
 function billRow_(projectId) {
   const sh = sheetFor_('finBilling'), all = readAll_('finBilling'), r = all.find(x => x.projectId === projectId);
   return { sh: sh, r: r || { id: Utilities.getUuid(), projectId: projectId, contractStatus: '', contractUrl: '', contractName: '', contractFileId: '', contractAt: '', contractBy: '',
     mode: 'eloleg', advancePct: 50, poNumber: '', note: '', updatedAt: '', updatedBy: '', signedAt: '', ceoPct: '', rezsiPct: '' } };
+}
+/** Szerződés állapota (kiküldve / visszaküldve / aláírva): a projekten (Szerződések lap) és az értékesítési lehetőségen.
+ *  a: {projectId?, dealId?, status}. A lehetőség projektje is frissül; a projekt állapota a hozzá kapcsolt lehetőségen is látszik. */
+function ctStatusSet_(u, a) {
+  a = a || {}; const st = String(a.status || ''); if (CT_STATUS.indexOf(st) < 0) throw new Error('Ismeretlen szerződés-állapot.');
+  let pid = str_(a.projectId, 64), did = str_(a.dealId, 64), title = '';
+  withLock_(() => {
+    if (did) { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (row) { const d = readRow_('deals', sh, row); dealCan_(u, d); title = d.title; d.ctStatus = st; d.ctAt = st ? today_() : ''; d.updatedAt = now_(); d.updatedBy = u.name; putRow_('deals', sh, d, row); if (!pid && d.projectId) pid = d.projectId; } }
+    if (pid && ID_RE.test(pid) && findRow_(sheetFor_('projects'), pid)) { const b = billRow_(pid), r = b.r; r.contractStatus = st; if (st === 'alairva' && !r.signedAt) r.signedAt = today_(); if (st !== 'alairva') r.signedAt = ''; r.updatedAt = now_(); r.updatedBy = u.name; putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id)); }
+    dbFlush_();
+  });
+  logEvent_(u, 'Szerződés állapota', title || pid || '', ({ '': 'törölve', kikuldve: 'kiküldve', visszakuldve: 'visszaküldve módosításra', alairva: 'aláírva' })[st]);
+  return Object.assign(finPart_(['billing']), u.role === 'admin' || u.role === 'sales' ? { deals: dealsFor_(u) } : {});
 }
 function billSave_(u, a) {
   const pid = str_(a && a.projectId, 64);
@@ -4776,10 +4791,11 @@ function contractSend_(u, a) {
   const ok = gmailSend_(to, (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + subj, body + '\n\n' + r.sig.text, opts);
   if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
   logEvent_(u, 'Szerződés elküldve', client, tos.join(', '));
+  let status = null; if (live && (a.dealId || a.projectId)) { try { status = ctStatusSet_(u, { dealId: a.dealId, projectId: a.projectId, status: 'kikuldve' }); } catch (e) { Logger.log('Szerződés-állapot: ' + e); } }
   let saved = null; if (a.save && client) { try { saved = clientDocUpload_(u, { client: client, b64: b64, name: fname, mime: 'application/pdf', kind: a.kind === 'keret' ? 'keret' : 'egyeb' });
     if (a.docx) { try { clientDocUpload_(u, { client: client, b64: String(a.docx), name: fname.replace(/\.pdf$/i, '') + '.docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', plain: true }); } catch (e) { Logger.log('docx mentés: ' + e); } }
   } catch (e) { saved = { error: String(e && e.message || e) }; } }
-  return { ok: true, test: !live, saved: saved };
+  return { ok: true, test: !live, saved: saved, status: status };
 }
 function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor' || x.role === 'sales') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
@@ -5206,6 +5222,8 @@ function rpcInner_(token, name, arg) {
     case 'calResyncNow': adminOnly(); { const t0 = Date.now(); calResyncUpcoming(); logEvent_(u, 'Naptár újraszinkron', '', 'közelgő események leírása'); return { ok: true, ms: Date.now() - t0 }; }
     case 'contractPdf': adminOnly(); return contractPdf_(u, arg);
     case 'contractSend': adminOnly(); return contractSend_(u, arg);
+    case 'triggerStatus': adminOnly(); return triggerStatus_();
+    case 'ctStatus': if (role !== 'admin' && role !== 'sales') deny(); if (role !== 'admin' && arg && arg.projectId && !arg.dealId) deny(); return ctStatusSet_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);
     case 'dbPing': adminOnly(); return dbPing_();
@@ -5657,4 +5675,22 @@ function arkPricesSet_(u, arg) {
   out.updatedAt = now_(); out.updatedBy = u.name;
   PropertiesService.getScriptProperties().setProperty(ARK_PRICES_PROPERTY, JSON.stringify(out));
   return arkPrices_();
+}
+
+/** EGYSZER, A SZERKESZTŐBŐL FUTTATVA (▶ Futtatás → engedélyezés): az időzített feladatok telepítése és állapota.
+ *  Az engedélyezési ablak ekkor kéri az időzítőkhöz szükséges jogosultságot (script.scriptapp). Többször is futtatható. */
+function setupTriggers() {
+  const P = PropertiesService.getScriptProperties(), out = [];
+  const ensure = (fn, mk) => { try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === fn)) { mk(); out.push(fn + ': telepítve'); } else out.push(fn + ': már fut'); } catch (e) { out.push(fn + ': HIBA – ' + e); } };
+  ensure('szDailySync', () => ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create());
+  ensure('salesSync', () => ScriptApp.newTrigger('salesSync').timeBased().everyMinutes(5).create());
+  if (navConfig_().ok) ensure('navDailySync', () => ScriptApp.newTrigger('navDailySync').timeBased().atHour(7).everyDays(1).inTimezone(SHEET_TZ).create());
+  if (P.getProperty(DB_MODE_PROPERTY) === 'neon') ensure('dbNightlyBackup', () => ScriptApp.newTrigger('dbNightlyBackup').timeBased().atHour(2).everyDays(1).inTimezone(SHEET_TZ).create());
+  P.setProperty('SZ_DAILY_INSTALLED', now_()); P.setProperty('SALES_SYNC_INSTALLED', now_());
+  Logger.log(out.join('\n')); return out;
+}
+/** Az időzítők állapota (ügyvezetői RPC): fut-e a napi számlázz.hu-ellenőrzés stb. */
+function triggerStatus_() {
+  try { return { ok: true, triggers: ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction()) }; }
+  catch (e) { return { ok: false, error: String(e && e.message || e) }; }
 }
