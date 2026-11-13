@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db864ef925",
+"at": "2026-11-13T16:30:40+01:00",
+"msg": "Árajánlat: a másolat-címzettek egyenként törölhetők"
+},
+{
 "id": "2f5b1ccbd7",
 "at": "2026-11-13T16:29:58+01:00",
 "msg": "Árajánlat: lapozó nyilak az opciók között; fotó nélkül „Kreatív videózás”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-dátumkorlát: a Sales App forgatás-megtörtént jelzése kivétel (teszt javítva)"
 },
 {
-"id": "47bd10324a",
-"at": "2026-11-13T14:23:56+01:00",
-"msg": "Vágói értesítés: átment a belső ellenőrzésen / kézi jóváhagyás"
-},
-{
-"id": "18b4f72b99",
-"at": "2026-11-13T13:19:53Z",
+"id": "ac177b6a3a",
+"at": "2026-11-13T13:24:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
