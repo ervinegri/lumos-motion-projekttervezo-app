@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d4ea5d2248",
+"at": "2026-11-13T08:30:45+01:00",
+"msg": "Projektlista: videónkénti leadott linkek, Videó(k) jóváhagyva"
+},
+{
 "id": "53b0d08134",
 "at": "2026-11-13T08:25:41+01:00",
 "msg": "Lemondott projekt sávja: magyarázó mondat törölve, dupla pont javítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: a specifikáció táblázat a margón belül; kisebb logó"
 },
 {
-"id": "d5c01a1b7b",
-"at": "2026-11-12T22:25:14+01:00",
-"msg": "Szerződéssablonok: az aláírásos rész (Kelt, aláírási vonalak, nevek) nem törik szét két oldalra"
-},
-{
-"id": "323c728746",
-"at": "2026-11-12T21:23:00Z",
+"id": "7a71e7505a",
+"at": "2026-11-12T21:25:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
