@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5bc12b37d",
+"at": "2026-11-13T09:20:07+01:00",
+"msg": "Utómunka-instrukciók: betöltésjelző szövegként"
+},
+{
 "id": "e7f3fcf93f",
 "at": "2026-11-13T09:19:38+01:00",
 "msg": "Ügyfél-visszaigazolás: érthető, nyelvtanilag helyes mondat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés-állapot lehetőségeknél oszlop nélkül; 4.2 pont egyszerűsítve; mező-magyarázat"
 },
 {
-"id": "2bbbe1a318",
-"at": "2026-11-13T07:08:53+01:00",
-"msg": "Javítás: Értékesítés lap oszlopai visszaállítva; sablonok a Drive-ban; short szerződés aláírás egy oldalon"
-},
-{
-"id": "a56163924b",
-"at": "2026-11-13T06:04:29Z",
+"id": "8bf9f61817",
+"at": "2026-11-13T06:09:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
