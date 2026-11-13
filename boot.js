@@ -56,3 +56,8 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
   t.addEventListener('scroll',edge,{passive:true});
   setTimeout(fix,0);setTimeout(fix,600);addEventListener('load',()=>setTimeout(fix,100));if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(fix,50));
   new MutationObserver(()=>requestAnimationFrame(fix)).observe(t,{childList:true});mq.addEventListener&&mq.addEventListener('change',()=>setTimeout(fix,250));addEventListener('resize',()=>setTimeout(fix,250));})();
+/* telefon: a görgethető táblázatkeretek (Fizetések, Bevételek) pontosan a képernyő aljáig érnek – így a táblázat minden sora elérhető a saját keretében, és nem kell az oldalt is görgetni */
+(()=>{const v=document.getElementById('view');if(!v||!window.matchMedia)return;const mq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');let q=false;
+  const fit=()=>{q=false;const ws=v.querySelectorAll('.pay-wrap,.sheet-wrap:has(.fin-inc)');ws.forEach(w=>{if(!mq.matches){w.style.removeProperty('max-height');return;}
+    const top=w.getBoundingClientRect().top+scrollY,vh=(window.visualViewport&&visualViewport.height)||innerHeight;const h=Math.max(220,Math.round(vh-top-6));w.style.setProperty('max-height',h+'px','important');});};
+  const sch=()=>{if(!q){q=true;requestAnimationFrame(fit);}};new MutationObserver(sch).observe(v,{childList:true,subtree:true});addEventListener('resize',()=>setTimeout(fit,120));addEventListener('orientationchange',()=>setTimeout(fit,300));setTimeout(fit,500);})();
