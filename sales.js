@@ -94,7 +94,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
       if(!nd.nextStep){toast('Add meg a következő lépést.',true);if(ns){ns.style.borderColor='var(--bad)';ns.focus();}return;}
       if(!nd.nextDate){toast('Add meg a következő lépés dátumát.',true);if(nn){fp(nn).style.borderColor='var(--bad)';fp(nn).focus();}return;}}
     if(nd.stage==='elveszett'&&nd.lostReason.length<3){toast('Írd be röviden, miért veszett el.',true);$('dl-lostf').hidden=false;$('m-dLost').focus();return;}
-    try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;const ct=fd.get('dCt');if(!isNew&&ct!==null&&ct!==(d.ctStatus||'')){const r2=await call('ctStatus',{dealId:d.id,status:ct});if(r2.deals)S.deals=r2.deals;if(r2.billing&&S.fin)S.fin.billing=r2.billing;}closeModal();render(true);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
+    try{const before=new Set((S.deals||[]).map(x=>x.id));const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;if(isNew&&S._qAfterNew){S._qAfterNew=false;const nw=(S.deals||[]).find(x=>!before.has(x.id));if(nw)setTimeout(()=>ACT['deal-quote']({dataset:{id:nw.id}}),50);}const ct=fd.get('dCt');if(!isNew&&ct!==null&&ct!==(d.ctStatus||'')){const r2=await call('ctStatus',{dealId:d.id,status:ct});if(r2.deals)S.deals=r2.deals;if(r2.billing&&S.fin)S.fin.billing=r2.billing;}closeModal();render(true);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(!isNew)setTimeout(dNotesLoadHs,50);dSourceLoad(d.source||'');}
 
 function dealWinModal(d){
@@ -129,7 +129,7 @@ async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)re
   try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast(dealLbl(stage)+': '+d.title);}catch(e){S.deals=prev;render(true);handleErr(e);}}
 
 Object.assign(ACT,{
-  'deal-new':b=>dealModal(null,b&&b.dataset.stage?{stage:b.dataset.stage}:null),
+  'deal-new':b=>(S._qAfterNew=false,dealModal(null,b&&b.dataset.stage?{stage:b.dataset.stage}:null)),
   'deal-open':b=>{if(S._dragDeal)return;const d=dealById(b.dataset.id);if(d)dealModal(d);},
   'deal-win':b=>{const d=dealById(b.dataset.id);if(d){closeModal();dealWinModal(d);}},
   'deal-del':b=>{const d=dealById(b.dataset.id);if(!d)return;confirmModal('Lehetőség törlése','Biztosan törlöd: „'+d.title+'”? Ha csak nem jött össze, inkább tedd az Elveszett oszlopba – így a nyerési arány is pontos marad.','Törlés',async()=>{try{const r=await call('deleteDeal',{id:d.id});S.deals=r.deals||S.deals;render(true);toast('Törölve');}catch(e){handleErr(e);}});},
@@ -276,8 +276,7 @@ ACT['dwd-test']=async b=>{const m=($('dwd-mail')||{}).value||'';b.disabled=true;
 
 /* Árajánlat küldése: előbb kiválasztod a lehetőséget (kártyák), utána nyílik az árajánlat */
 ACT['quote-pick']=()=>{const L=(S.deals||[]).filter(d=>DEAL_OPEN.includes(d.stage)&&(isAdmin()||(S.me&&d.ownerId===S.me.id))).sort((a,b)=>DEAL_OPEN.indexOf(a.stage)-DEAL_OPEN.indexOf(b.stage)||String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
-  if(!L.length){openModal('📄 Árajánlat küldése','<p class="hint" style="margin:0">Nincs nyitott lehetőség. Előbb vegyél fel egyet a „+ Új lehetőség” gombbal.</p>',{cancelLabel:'Bezárás',noDraft:true});const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;return;}
   const st=k=>(DEAL_STAGES.find(x=>x[0]===k)||[])[2]+' '+dealLbl(k);
-  openModal('📄 Árajánlat küldése',`<div class="field full"><label for="m-qpDeal">Melyik lehetőséghez?</label><select class="inp" id="m-qpDeal" name="deal" data-cmb="Lehetőség keresése…"><option value="" selected></option>${L.map(d=>`<option value="${esc(d.id)}">${esc(st(d.stage))} · ${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' – '+esc(d.client):''}</option>`).join('')}</select><span class="hint">Új érdeklődő, Ajánlat kiküldve és Tárgyalás állapotú lehetőségek.</span></div>`,
-    {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const id=String(fd.get('deal')||'');if(!id){toast('Válaszd ki a lehetőséget.',true);return;}closeModal();setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);}});};
+  openModal('📄 Árajánlat küldése',`<div class="field full"><label for="m-qpDeal">Melyik lehetőséghez?</label><select class="inp" id="m-qpDeal" name="deal" data-cmb="Válaszd ki a lehetőséget…" data-cmb-ro="1"><option value="" selected></option><option value="__new">＋ Új érdeklődő felvétele</option>${L.map(d=>`<option value="${esc(d.id)}">${esc(st(d.stage))} · ${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' – '+esc(d.client):''}</option>`).join('')}</select><span class="hint">Új érdeklődő, Ajánlat kiküldve és Tárgyalás állapotú lehetőségek.</span></div>`,
+    {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const id=String(fd.get('deal')||'');if(!id){toast('Válaszd ki a lehetőséget.',true);return;}closeModal();if(id==='__new'){S._qAfterNew=true;setTimeout(()=>dealModal(null,{stage:'uj'}),0);return;}setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);}});};
 ACT['quote-for']=b=>{const id=b.dataset.id;closeModal();setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);};
