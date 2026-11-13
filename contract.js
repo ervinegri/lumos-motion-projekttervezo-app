@@ -4,7 +4,8 @@ const CT_TPL=[
   {k:'lumos_hatarozott',firm:'Lumos Motion Kft.',t:'Megbízási szerződés',d:'Egy projektre: helyszín, időpont, szolgáltatások, foglaló + végszámla (ÁFA-val).',hat:true,vat:true},
   {k:'lumos_keret',firm:'Lumos Motion Kft.',t:'Keretszerződés',d:'Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.',hat:false,vat:true},
   {k:'egri_hatarozott',firm:'Egri Ervin E.V.',t:'Megbízási szerződés',d:'Egy projektre, alanyi adómentesen (ÁFA nélkül).',hat:true,vat:false},
-  {k:'egri_keret',firm:'Egri Ervin E.V.',t:'Kizárólagos keretmegállapodás',d:'Visszatérő ügyfélnek, alanyi adómentesen.',hat:false,vat:false}];
+  {k:'egri_keret',firm:'Egri Ervin E.V.',t:'Kizárólagos keretmegállapodás',d:'Visszatérő ügyfélnek, alanyi adómentesen.',hat:false,vat:false},
+  {k:'lumos_shortok',firm:'Lumos Motion Kft.',t:'Kiállítói short megbízás',d:'Rendezvényszervezővel: a kiállítóknak short videókat adunk el, a szervező jutalékot kap.',hat:false,vat:true,sh:true}];
 const ctTplOf=k=>CT_TPL.find(x=>x.k===k)||CT_TPL[0];
 const CT_CACHE={};
 const ctScript=src=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('Nem tölthető be: '+src));document.head.appendChild(s);});
@@ -16,22 +17,22 @@ function F_WD_LONG(d){return ['vasárnap','hétfő','kedd','szerda','csütörtö
 function ctNew(){S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:'',c_tax:'',c_phone:'',c_email:'',c_rep:'',sig_name:'',sig_rep:'',date:ctToday(),pid:'',fee:'',locs:[{place:'',date:''}],svcs:[{name:'',qty:'1',ext:''}],rb_mode:'pct',rb_pct:'10',rb_min:'40000',rb_amt:'',rk_mode:'pct',rk_pct:'10',rk_min:'40000',rk_amt:'',rk_years:'5',dlv:'final'};ctStep1();}
 /* 1. lépés: sablon */
 /* 1. lépés: két döntés – melyik cég nevében (Lumos Motion Kft. / Egri Ervin E.V.), és milyen szerződés (Megbízási / Keretszerződés) */
-function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_')[0]:'',kind=c._picked?(cur.hat?'hatarozott':'keret'):'';   // első megnyitáskor nincs előválasztás
+function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_')[0]:'',kind=c._picked?(cur.sh?'shortok':cur.hat?'hatarozott':'keret'):'';   // első megnyitáskor nincs előválasztás
   const opt=(name,v,on,t,d)=>`<label class="ct-tpl${on?' on':''}"><input type="radio" name="${name}" value="${v}"${on?' checked':''}><b>${t}</b>${d?`<small>${d}</small>`:''}</label>`;
   openModal('📝 Új szerződés – 1/3: sablon',`<p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
       ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div>
     <div id="ct-kind"${firm?'':' hidden'}><p class="hint" style="margin:16px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
-      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}</div></div>`,
+      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói short megbízás','Rendezvényszervezővel: short videók a kiállítóknak, jutalékkal.')}</span></div></div>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
-  const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;}   // nincs Tovább gomb: a típusra kattintva lép tovább
+  const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('ct-narrow');}   // nincs Tovább gomb: a típusra kattintva lép tovább
 document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm'||t.name==='ct_kind')&&t.closest('.ct-tpls')){t.closest('.ct-tpls').querySelectorAll('.ct-tpl').forEach(l=>l.classList.toggle('on',l.contains(t)));
-  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}}}});
+  if(t.name==='ct_firm'){const k=$('ct-kind');if(k&&k.hidden){k.hidden=false;k.scrollIntoView({block:'nearest',behavior:'smooth'});}const so=document.querySelector('.ct-sh-opt');if(so)so.hidden=t.value!=='lumos';}}});
 /* a típusra kattintás (akkor is, ha már ki volt jelölve – pl. visszalépés után) azonnal a 2. lépésre visz */
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-g="kind"] .ct-tpl');if(!l||!S.ct)return;const f=document.querySelector('input[name="ct_firm"]:checked'),k=l.querySelector('input');if(!f||!k)return;
   S.ct.tpl=f.value+'_'+k.value;S.ct._picked=true;setTimeout(ctStep2,120);});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
-function ctRead(fd){const c=S.ct;['dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
+function ctRead(fd){const c=S.ct;if(fd.has('sh_form')){c.sh_base=fd.has('sh_base');c.sh_kf=fd.has('sh_kf');c.sh_promo=fd.has('sh_promo');}['ev_name','ev_date','ev_place','sh_price','sh_comm','sh_settle','dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
   if(fd.has('loc_place_0')){c.locs=[];for(let i=0;fd.has('loc_place_'+i);i++)c.locs.push({place:String(fd.get('loc_place_'+i)||'').trim(),date:String(fd.get('loc_date_'+i)||'').trim()});}
   if(fd.has('svc_name_0')){c.svcs=[];for(let i=0;fd.has('svc_name_'+i);i++)c.svcs.push({name:String(fd.get('svc_name_'+i)||'').trim(),qty:String(fd.get('svc_qty_'+i)||'').trim(),ext:String(fd.get('svc_ext_'+i)||'').trim()});}}
@@ -56,12 +57,13 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
     <div class="field full"><label>Helyszín és dátum</label><div class="ct-rows">${c.locs.map((l,i)=>`<div class="ct-row ct-row2"><input class="inp" name="loc_place_${i}" value="${esc(l.place)}" placeholder="Helyszín"><input class="inp" name="loc_date_${i}" value="${esc(l.date)}" placeholder="Dátum, pl. 2026. 11. 07., szombat">${c.locs.length>1?`<button type="button" class="mini ct-del" data-action="ct-row-del" data-t="locs" data-i="${i}" aria-label="Sor törlése">✕</button>`:''}</div>`).join('')}</div><button type="button" class="linkbtn" data-action="ct-row-add" data-t="locs">+ Helyszín</button></div>
     <div class="field full"><label>Szolgáltatások</label><div class="ct-rows"><div class="ct-row ct-row3 ct-hd"><span>Megnevezés</span><span>Darab</span><span>Terjedelem</span></div>${c.svcs.map((s,i)=>`<div class="ct-row ct-row3"><input class="inp" name="svc_name_${i}" value="${esc(s.name)}" placeholder="pl. Aftermovie"><input class="inp" name="svc_qty_${i}" value="${esc(s.qty)}" inputmode="numeric"><input class="inp" name="svc_ext_${i}" value="${esc(s.ext)}" placeholder="pl. 1–1,5 perc">${c.svcs.length>1?`<button type="button" class="mini ct-del" data-action="ct-row-del" data-t="svcs" data-i="${i}" aria-label="Sor törlése">✕</button>`:''}</div>`).join('')}</div><button type="button" class="linkbtn" data-action="ct-row-add" data-t="svcs">+ Szolgáltatás</button></div>
     <div class="field"><label for="ct-fee">Díj összesen (nettó)</label><div class="money"><input class="inp money-inp" id="ct-fee" name="fee" value="${esc(c.fee?ctFt(c.fee):'')}" inputmode="numeric" data-money="big"><span class="money-unit">Ft</span></div>${tp.vat?`<span class="hint" id="ct-half">Foglaló és végszámla: 2 × ${ctFt(half)} Ft + ÁFA</span>`:'<span class="hint">Alanyi adómentes – ÁFA nélkül</span>'}</div>`:''}
-    ${tp.hat?'':`<h4 class="sub-h full" style="margin:10px 0 0">Az elkészült anyag átadása</h4>
+    ${tp.sh?ctShFields():''}
+    ${tp.hat||tp.sh?'':`<h4 class="sub-h full" style="margin:10px 0 0">Az elkészült anyag átadása</h4>
     <div class="field full"><label for="ct-dlv">Mikor kapja meg a Megrendelő a kész anyagot?</label><select class="inp" id="ct-dlv" name="dlv" data-cmb="Válassz…">${CT_DLV.map(([v,t])=>`<option value="${v}"${(c.dlv||'final')===v?' selected':''}>${t}</option>`).join('')}</select></div>`}
-    <h4 class="sub-h full" style="margin:10px 0 0">Nyersanyag (opcionális szolgáltatások)</h4>
+    ${tp.sh?'':`<h4 class="sub-h full" style="margin:10px 0 0">Nyersanyag (opcionális szolgáltatások)</h4>
     ${ctRawRow('rb','Nyersanyag átadása','Mennyiért adjuk át a teljes nyersanyagot?')}
     ${ctRawRow('rk','Archiválás a NAS rendszerünkön','Mennyiért őrizzük meg a nyersanyagot?')}
-    <div class="field full"><label for="ct-rk_years">Archiválás időtartama</label><div class="money"><input class="inp" id="ct-rk_years" name="rk_years" value="${esc(c.rk_years||'5')}" inputmode="numeric" style="max-width:90px"><span class="money-unit">év</span></div></div>
+    <div class="field full"><label for="ct-rk_years">Archiválás időtartama</label><div class="money"><input class="inp" id="ct-rk_years" name="rk_years" value="${esc(c.rk_years||'5')}" inputmode="numeric" style="max-width:90px"><span class="money-unit">év</span></div></div>`}
     <h4 class="sub-h full" style="margin:10px 0 0">Aláírás</h4>
     ${f('sig_name','Aláíró cég (Megrendelő)')}${f('sig_rep','Képviseli (aláírás alatt)')}${f('date','Kelt (dátum)',{ph:'2026. 11. 12.'})}</div>`,
     {submitLabel:'Minta megtekintése →',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="1">← Vissza</button>`,submit:fd=>{ctRead(fd);const c2=S.ct;
@@ -90,12 +92,14 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
     x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:l.date})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
+  if(tp.sh)x=fill(x,ctShTokens());
+  x=x.replace(/<w:p[ >](?:(?!<w:p[ >])[\s\S])*?@@DEL@@(?:(?!<w:p[ >])[\s\S])*?<\/w:p>/g,'');   // kihagyott (opcionális) bekezdések
   x=fill(x,{deliv:ctDlvText(tp),raw_buy:ctRawText('rb',tp),raw_keep:ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
   if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const slug=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
-  const nm=(tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
+  const nm=(tp.sh?'Megbizasi_szerzodes_kiallitoi_shortok':tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
@@ -140,7 +144,7 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c.
   openModal('📝 Új szerződés – 3/3: minta',`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)} · ${esc(c.c_name)} – így fog kinézni. Ha valami nem stimmel, menj vissza és javítsd.</p><div class="ct-prev" id="ctPrev"><div class="loading"><span class="spin"></span>Minta készítése…</div></div>`,
     {submitLabel:'💾 Mentés a mappába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl" title="Letöltés Word-fájlként">⬇ .docx</button><button type="button" class="btn outline" data-action="ct-pdf" title="Letöltés PDF-ként">⬇ .pdf</button><button type="button" class="btn outline" data-action="ct-send">📨 Küldés</button>`,
      submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
-       const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat?'egyeb':'keret'});
+       const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat||tp.sh?'egyeb':'keret'});
        try{await call('clientDocUpload',{client:c.client||c.c_name,b64:await ctB64(r.blob),name:pdfName.replace(/\.pdf$/i,'')+'.docx',mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',plain:true});}catch(e){toast('A .docx változat mentése nem sikerült: '+(e.message||e),true);}   // a szerkeszthető változat is a mappába kerül
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
@@ -169,7 +173,7 @@ async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
        if(!/@/.test(m.to)){toast('Add meg a címzett e-mail-címét.',true);return;}
        if(!confirm('Elküldöd a szerződést ide: '+m.to+'?'))return;
        const b64=c._pdf||await ctPdf((await ctBuild()).blob);
-       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat?'egyeb':'keret',docx:m.save?await ctB64((await ctBuild()).blob):''});
+       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat||tp.sh?'egyeb':'keret',docx:m.save?await ctB64((await ctBuild()).blob):''});
        closeModal();toast(r.test?'Teszt üzemmód: a levél hozzád ment ki.':'✅ Szerződés elküldve: '+m.to+(m.save&&r.saved&&!r.saved.error?' · mentve az ügyfél mappájába':''));
        if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved&&typeof billApply==='function')try{billApply(r.saved);}catch(e){}
        S.ct=null;render(true);}});
@@ -204,3 +208,38 @@ const CT_DLV=[['final','A végszámla kifizetése után adjuk át'],['wm','Vízj
 function ctDlvText(tp){const c=S.ct,what=tp.vat?'videóanyagok utómunkázott változatát':'utómunkázott videós és fotós tartalmakat',paid='a vállalkozói díj teljes összegének a Szolgáltató bankszámláján történő jóváírását követően';
   return c.dlv==='wm'?`A Szolgáltató a projekt keretében elkészített ${what} vízjellel ellátva adja át a Megrendelő részére; a vízjelet ${paid} eltávolítja, és a vízjel nélküli végleges változatot a Megrendelő rendelkezésére bocsátja.`
     :`A projekt keretében elkészített ${tp.vat?'videóanyagok utómunkázott változatának':'utómunkázott videós és fotós tartalmak'} átadására ${paid} kerül sor.`;}
+
+/* Kiállítói short megbízás (Lumos): rendezvény, ár / jutalék, opcionális pontok */
+const CT_SH_SETTLE=[['choose','A Felek később írásban választanak (jóváírás vagy shortok)'],['credit','Jóváírás az alapmegbízás végszámlájával szemben'],['shorts','Shortok készítése a Megrendelőnek'],['invoice','Kifizetés a Megrendelő számlája alapján']];
+function ctShFields(){const c=S.ct;if(c.sh_base===undefined){Object.assign(c,{sh_base:true,sh_kf:true,sh_promo:true,sh_price:'59000',sh_comm:'10000',sh_settle:'choose'});}
+  const fv=k=>esc(c[k]||''),mon=k=>esc(c[k]?ctFt(c[k]):''),cb=(k,l)=>`<label class="q-disc-on" style="margin:2px 0"><input type="checkbox" name="${k}"${c[k]?' checked':''}> ${l}</label>`;
+  const lfee=Math.max(0,num(String(c.sh_price||'').replace(/\D/g,''))-num(String(c.sh_comm||'').replace(/\D/g,'')));
+  return `<input type="hidden" name="sh_form" value="1"><h4 class="sub-h full" style="margin:10px 0 0">Rendezvény</h4>
+    <div class="field full"><label for="ct-ev_name">Rendezvény neve</label><input class="inp" id="ct-ev_name" name="ev_name" value="${fv('ev_name')}" placeholder="pl. Vegan Summit 2026"></div>
+    <div class="field"><label for="ct-ev_date">Dátum</label><input class="inp" type="date" id="ct-ev_date" name="ev_date" value="${fv('ev_date')}"></div>
+    <div class="field"><label for="ct-ev_place">Helyszín (így kerül a mondatba)</label><input class="inp" id="ct-ev_place" name="ev_place" value="${fv('ev_place')}" placeholder="a budapesti Europa Event Centerben"></div>
+    <h4 class="sub-h full" style="margin:10px 0 0">Ár és jutalék (videónként)</h4>
+    <div class="field"><label for="ct-sh_price">Ár a kiállítóknak</label><div class="money"><input class="inp money-inp" id="ct-sh_price" name="sh_price" value="${mon('sh_price')}" inputmode="numeric" data-money="1"><span class="money-unit">Ft + ÁFA</span></div></div>
+    <div class="field"><label for="ct-sh_comm">Szervező jutaléka</label><div class="money"><input class="inp money-inp" id="ct-sh_comm" name="sh_comm" value="${mon('sh_comm')}" inputmode="numeric" data-money="1"><span class="money-unit">Ft + ÁFA</span></div><span class="hint" id="ct-sh-lfee">Lumos díja: ${ctFt(lfee)} Ft + ÁFA / videó</span></div>
+    <div class="field full"><label for="ct-sh_settle">A jutalék elszámolása</label><select class="inp" id="ct-sh_settle" name="sh_settle" data-cmb="Válassz…">${CT_SH_SETTLE.map(([v,t])=>`<option value="${v}"${(c.sh_settle||'choose')===v?' selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="field full"><label>Opcionális pontok</label>${cb('sh_base','Van alapmegbízás erre a rendezvényre (a videós alapszolgáltatásokra külön szerződés)')}${cb('sh_promo','A szervező a kiállítói körlevelekben megemlíti a lehetőséget')}${cb('sh_kf','Említés: a jövőbeli együttműködést keretszerződés rendezi')}</div>`;}
+document.addEventListener('input',e=>{const t=e.target;if(!t||!/^sh_(price|comm)$/.test(t.name||''))return;const f=$('mform'),h=$('ct-sh-lfee');if(!f||!h)return;const n=k=>num(String(f.querySelector(`[name="${k}"]`).value||'').replace(/\D/g,''));h.textContent='Lumos díja: '+ctFt(Math.max(0,n('sh_price')-n('sh_comm')))+' Ft + ÁFA / videó';});
+const CT_DAYSUF=['','jén','án','án','én','én','án','én','án','én','én','én','én','án','én','én','án','én','án','én','án','én','én','án','én','én','án','én','án','én','án','én'];
+const CT_MONTHS=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
+function ctShTokens(){const c=S.ct,ev=String(c.ev_name||'').trim()||'…',art=x=>/^[aáeéiíoóöőuúüűAÁEÉIÍOÓÖŐUÚÜŰ]/.test(x)?'az':'a',A=art(ev),D='@@DEL@@';
+  const iso=String(c.ev_date||''),m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso),when=m?`${m[1]}. ${CT_MONTHS[+m[2]-1]} ${+m[3]}-${CT_DAYSUF[+m[3]]}`:'…';
+  const n=k=>num(String(c[k]||'').replace(/\D/g,'')),price=n('sh_price'),comm=n('sh_comm');
+  const st=c.sh_settle||'choose';
+  const p33=st==='credit'&&c.sh_base?'3.3. A Megrendelői jutalékot a Szolgáltató az alapmegbízás végszámlájával szemben, jóváírásként érvényesíti.'
+    :st==='shorts'?'3.3. A Megrendelői jutalék ellenértékeként a Szolgáltató a Megrendelő számára short videókat készít, külön írásos specifikáció alapján.'
+    :st==='invoice'?'3.3. A Megrendelői jutalékot a Szolgáltató a végleges elszámolást követően, a Megrendelő által kiállított számla alapján, 15 naptári napon belül banki átutalással fizeti meg.'
+    :`3.3. A Megrendelői jutalék elszámolásának módját a Felek írásban választják ki: (a) ${c.sh_base?'jóváírás az alapmegbízás végszámlájával szemben':'kifizetés a Megrendelő által kiállított számla alapján, banki átutalással'}; vagy (b) a Megrendelő számára készülő short videók megrendelése, külön írásos specifikációval.`;
+  return {ev_name:ev,ev_when:when,ev_place:String(c.ev_place||'').trim()||'…',
+    p12:`1.2. Jelen megállapodás ${A} ${ev} rendezvényhez kapcsolódó egyszeri megbízás.`+(c.sh_kf?' A Felek a jövőbeli együttműködés feltételeit külön keretszerződésben tervezik rendezni.':''),
+    p13:c.sh_base?`1.3. A Felek között korábban megkötött, ${A} ${ev} alap videós szolgáltatásait tartalmazó megbízási szerződés teljesítése és ellenértéke változatlan. Jelen megállapodás kizárólag a kiegészítő, kiállítók által külön megrendelt short videókra vonatkozik.`:D,
+    p21:c.sh_base?'2.1. A Szolgáltató az alapmegbízásban vállalt feladatokat az eredeti stábbal, az ott rögzített tartalommal és feltételekkel teljesíti. A kiállítói short videókhoz saját költségére további operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.'
+      :'2.1. A Szolgáltató a kiállítói short videókhoz saját költségére operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.',
+    p22:'2.2. A kiegészítő szolgáltatás a Megrendelő számára sem külön személyzeti, technikai vagy szervezési díjjal, sem további kötelező szervezési feladattal nem jár.'+(c.sh_promo?' A Megrendelő a lehetőséget a kiállítóknak szóló általános tájékoztató körlevelekben megemlíti.':''),
+    p24:c.sh_base?'2.4. A kiegészítő forgatások elsődleges feltétele, hogy az alapmegbízásban vállalt videós anyagok minősége, forgatása és teljesítési ütemezése teljes körűen biztosított legyen.':D,
+    p31:`3.1. A kiállítók felé alkalmazott ár ${ctFt(price)} Ft + ÁFA / megrendelt short videó. Ebből a Lumos Motion szolgáltatási díja ${ctFt(Math.max(0,price-comm))} Ft + ÁFA / videó, a Megrendelő javára járó jutalék ${ctFt(comm)} Ft + ÁFA / videó.`,
+    p33};}

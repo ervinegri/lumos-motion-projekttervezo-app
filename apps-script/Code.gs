@@ -5234,7 +5234,7 @@ function rpcInner_(token, name, arg) {
     case 'dealQuoteSend': return dealQuoteSend_(u, arg);
     case 'dealQuoteSig': return dealQuoteSig_(u, arg);
     case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); const why = wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid), why: why }; }
-    case 'contractTpl': adminOnly(); { const k = String(arg && arg.k || ''); if (!/^(lumos|egri)_(hatarozott|keret)$/.test(k) || typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.'); return { zip: CONTRACT_TPL_[k], img: CONTRACT_TPL_.img }; }
+    case 'contractTpl': adminOnly(); { const k = String(arg && arg.k || ''); if (!/^((lumos|egri)_(hatarozott|keret)|lumos_shortok)$/.test(k) || typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.'); return { zip: CONTRACT_TPL_[k], img: CONTRACT_TPL_.img }; }
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);

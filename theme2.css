@@ -984,3 +984,7 @@ html body .fields>h4.sub-h.full{grid-column:1/-1}   /* a szakaszcímek (pl. Nyer
 /* új szerződés 1. lépés: alacsonyabb választógombok */
 html body .ct-tpls[data-g] .ct-tpl{padding:8px 14px!important;min-height:0!important;gap:2px!important}
 html body .ct-tpls[data-g] .ct-tpl b{font-size:14.5px}html body .ct-tpls[data-g] .ct-tpl small{font-size:12px;margin-top:1px}
+
+/* új szerződés 1. lépés: keskenyebb ablak, rövidebb gombok */
+html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw - 32px)!important}
+.ct-sh-opt{display:contents}.ct-sh-opt[hidden]{display:none!important}
