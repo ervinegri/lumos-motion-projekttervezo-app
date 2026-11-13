@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e1bc46dc7f",
+"at": "2026-11-13T09:08:28+01:00",
+"msg": "Videó-hozzászólás válasz: többsoros mező, Enter új sor, Ctrl/Cmd+Enter vagy Küldés gomb"
+},
+{
 "id": "699b44384b",
 "at": "2026-11-13T09:04:02+01:00",
 "msg": "Utómunka-instrukciók a projekten: vezető írja, az utómunkás hozzászól és kipipálja (videótábla + projektoldal)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videók: újbóli leadáskor / új verziónál a korábbi „Megnyitották” jelzés nem számít"
 },
 {
-"id": "e0f74f97b0",
-"at": "2026-11-13T06:47:53+01:00",
-"msg": "Szerződés mentésekor a szerkeszthető .docx is az ügyfél mappájába kerül (a PDF mellé)"
-},
-{
-"id": "575f58a966",
-"at": "2026-11-12T21:59:42Z",
+"id": "32cd4b45e0",
+"at": "2026-11-13T05:48:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
