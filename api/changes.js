@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9d65601e15",
+"at": "2026-11-13T07:48:26+01:00",
+"msg": "Számla díjbekérő nélkül: teljes összeg a gombon"
+},
+{
 "id": "dbf4c17dc3",
 "at": "2026-11-13T07:47:02+01:00",
 "msg": "Számlázás: a rendezvény napjától díjbekérő helyett számla is; halványabb keretszerződés-gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés: a PDF-et a Google készíti a Word-fájlból (a minta is ez); a sablonokban a felek táblázatai egymás mellett, nem lebegő táblázattal"
 },
 {
-"id": "effe022b3e",
-"at": "2026-11-12T21:45:23+01:00",
-"msg": "Szerződés PDF a Google-lel (docx → PDF export, ideiglenes fájl törlődik)"
-},
-{
-"id": "a391b2c12f",
-"at": "2026-11-12T20:39:37Z",
+"id": "202227ab44",
+"at": "2026-11-12T20:45:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
