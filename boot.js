@@ -7,7 +7,7 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
   const ind=document.createElement('div');ind.className='ptr';ind.setAttribute('aria-hidden','true');ind.innerHTML='<span class="ptr-i">↓</span><span class="ptr-t">Húzd le a frissítéshez</span>';document.body.appendChild(ind);
   const txt=t=>{ind.querySelector('.ptr-t').textContent=t;};
   const reset=()=>{y0=null;armed=false;if(busy)return;ind.classList.remove('on','armed');ind.style.transform='';};
-  const blocked=t=>{if(window.scrollY>0)return true;const mr=document.getElementById('modalRoot');if(mr&&mr.innerHTML&&!(window.matchMedia&&matchMedia('(max-width:760px)').matches))return true;   // mobilon a (teljes képernyős) ablakban is lehet lehúzással frissíteni; frissítés után az ablak visszajön
+  const blocked=t=>{if(window.BD_BUSY>0){try{toast('Még folyamatban a videó áthelyezése / levele – egy pillanat, utána frissíthetsz.');}catch(_){}return true;}if(window.scrollY>0)return true;const mr=document.getElementById('modalRoot');if(mr&&mr.innerHTML&&!(window.matchMedia&&matchMedia('(max-width:760px)').matches))return true;   // mobilon a (teljes képernyős) ablakban is lehet lehúzással frissíteni; frissítés után az ablak visszajön
   for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;}return false;};
   document.addEventListener('touchstart',e=>{if(busy||e.touches.length!==1||blocked(e.target)){y0=null;return;}y0=e.touches[0].clientY;x0=e.touches[0].clientX;},{passive:true});
   document.addEventListener('touchmove',e=>{if(y0==null||busy)return;const dy=e.touches[0].clientY-y0,dx=e.touches[0].clientX-x0;
