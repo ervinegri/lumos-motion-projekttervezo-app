@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "45abfa4e7e",
+"at": "2026-11-13T22:20:03+01:00",
+"msg": "Mobil: az oldal ismét görgethető lefelé (overflow-x: clip a hidden helyett, nem lesz külön görgetőkeret a body)"
+},
+{
 "id": "eb3766696d",
 "at": "2026-11-13T22:18:33+01:00",
 "msg": "Ügyfelek: Ajánlat gomb eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "E-mailek: az emojik nem esnek szét (HTML számkóddal mennek)"
 },
 {
-"id": "c89c59eb00",
-"at": "2026-11-13T18:49:37+01:00",
-"msg": "Nézetváltó: nincs külön Másik szakember / értékesítő sor, a ↻ jelű sorral lehet másikat választani"
-},
-{
-"id": "c0d47a3602",
-"at": "2026-11-13T17:45:10Z",
+"id": "32670e6e99",
+"at": "2026-11-13T17:49:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
