@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8a05032b14",
+"at": "2026-11-13T17:50:25+01:00",
+"msg": "Naptár: napváltás után (mobilon háttérből visszatérve) a mai napra ugrik"
+},
+{
 "id": "7f0f21430d",
 "at": "2026-11-13T17:31:15+01:00",
 "msg": "Short videó: operatőri alapdíj 40 000 Ft"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: több kalkulátorból gyűjthető tételek, vissza a kalkulátorhoz; a/az névelő; nettó kiemelve, egyszerűbb összesítő; levélszöveg csak az előnézetben; frissítésjelző javítva"
 },
 {
-"id": "0f6c1ba6fc",
-"at": "2026-11-13T15:43:49+01:00",
-"msg": "Árajánlat küldése: új érdeklődő felvétele gomb a lista alatt"
-},
-{
-"id": "c66c5a9abf",
-"at": "2026-11-13T14:42:00Z",
+"id": "656eeef099",
+"at": "2026-11-13T14:43:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
