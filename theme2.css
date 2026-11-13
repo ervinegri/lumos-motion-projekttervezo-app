@@ -1616,3 +1616,11 @@ html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player,html body #modalRoot .m
 html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player{aspect-ratio:auto!important;overflow:hidden}
 html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player video,html body #modalRoot .mbox:has(#m-vvCm:focus) .vv-player iframe{width:100%;object-fit:contain}
 }
+/* álló telefon: nagyobb videó (álló videó a teljes szélességben); íráskor kicsi */
+@media (max-width:700px) and (orientation:portrait){
+html body #mform.m-video .vv-player.vert{width:min(100%,calc(80dvh * 9 / 16))!important}
+html body #mform.m-video .mbox,html body #mform.m-video{padding-left:10px!important;padding-right:10px!important}
+}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body #modalRoot #mform.m-video:has(#m-vvCm:focus) .vv-player.vert{width:calc(24vh * 9 / 16)!important}
+}
