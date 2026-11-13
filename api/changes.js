@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e2b84cc064",
+"at": "2026-11-13T21:50:27+01:00",
+"msg": "Álló mobil: Projektek táblázat egy oszlopban, a státusz-jelzések a projekt neve alatt"
+},
+{
 "id": "63949177c3",
 "at": "2026-11-13T21:49:37+01:00",
 "msg": "Mobil árkalkulátor ablak: tömör fejléc (rövid fülnevek, × egy sorban), Bezárás gomb nélkül, gombsor két sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: lehúzással frissítés"
 },
 {
-"id": "1d93615cc5",
-"at": "2026-11-13T17:55:25+01:00",
-"msg": "Videótábla mobilon: az oszlopfejlécek nem csúsznak egymásba"
-},
-{
-"id": "e0d3af6bc6",
-"at": "2026-11-13T16:50:41Z",
+"id": "8c74ef31aa",
+"at": "2026-11-13T16:55:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
