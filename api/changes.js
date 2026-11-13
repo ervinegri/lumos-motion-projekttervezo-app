@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1ca9544490",
+"at": "2026-11-13T21:59:57+01:00",
+"msg": "Idővonal álló telefonon: vastagabb sávok, a név vékonyabb betűvel a sávon belül, szélesebb napok"
+},
+{
 "id": "ff26cff377",
 "at": "2026-11-13T21:57:15+01:00",
 "msg": "Mobil Fizetések: szélesebb hónapléptető nyilak"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő mobilnézet: görgetéskor eltűnik a felső sáv"
 },
 {
-"id": "ff02439b74",
-"at": "2026-11-13T18:10:40+01:00",
-"msg": "Mobil: Google Naptár-szerű havi rács a kiválasztott nap eseményeivel; Értékesítés gombjai egy sorban"
-},
-{
-"id": "fb020b7868",
-"at": "2026-11-13T17:08:26Z",
+"id": "16a1bb0099",
+"at": "2026-11-13T17:10:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
