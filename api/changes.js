@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19722e0838",
+"at": "2026-11-13T13:34:20+01:00",
+"msg": "Projekt: az Utómunka lépés kártyája kattintható – a videótábla nyílik"
+},
+{
 "id": "f378aa28ef",
 "at": "2026-11-13T13:32:21+01:00",
 "msg": "Verzióváltó: a visszadobás indoka a régi verziónál"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fotógaléria jóváhagyandó elemként; csak helyszíni technikánál a rendezvény után rögtön Kész"
 },
 {
-"id": "d4ea5d2248",
-"at": "2026-11-13T08:30:45+01:00",
-"msg": "Projektlista: videónkénti leadott linkek, Videó(k) jóváhagyva"
-},
-{
-"id": "7e2a35db08",
-"at": "2026-11-13T07:25:50Z",
+"id": "a002d80155",
+"at": "2026-11-13T07:30:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
