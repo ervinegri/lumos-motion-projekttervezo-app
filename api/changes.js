@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a9c3b6e71e",
+"at": "2026-11-13T21:31:51+01:00",
+"msg": "Mobil: egységes tömör megjelenés az egész appban (keret nélküli táblázatok, kisebb fejlécek, csempék, gombok)"
+},
+{
 "id": "6822384b63",
 "at": "2026-11-13T21:30:47+01:00",
 "msg": "Mobil: tömör naptárfejléc, Leltár, Ügyfelek és Fizetések; táblázatok keret nélkül"
@@ -147,9 +152,9 @@ const ITEMS = [
 "msg": "Árajánlat PDF: 20%-kal kisebb logó"
 },
 {
-"id": "a04f317d41",
-"at": "2026-11-13T17:02:18+01:00",
-"msg": "Árajánlat küldése: a lehetőség-lista kereshető (gépelhető)"
+"id": "b82d84aae2",
+"at": "2026-11-13T16:02:50Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
