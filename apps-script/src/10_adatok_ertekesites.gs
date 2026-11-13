@@ -227,6 +227,7 @@ function saveDeal_(u, a) {
       createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };
     if (old && old.stage === 'nyert') d.stage = 'nyert';
     if (d.title.length < 2) throw new Error('Add meg a lehetőség nevét.');
+    if (['uj', 'ajanlat', 'targyalas'].indexOf(d.stage) >= 0 && (!d.nextStep || !d.nextDate)) throw new Error(!d.nextStep ? 'Add meg a következő lépést.' : 'Add meg a következő lépés dátumát.');   // nyitott lehetőségnél a következő lépés és a dátuma kötelező
     if (d.contactEmail2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.contactEmail2)) throw new Error('A másodlagos e-mail-cím érvénytelen.');
     if (d.stage === 'elveszett' && d.lostReason.length < 3) throw new Error('Írd be röviden, miért veszett el.');
     putRow_('deals', sh, d, row || null); dbFlush_();

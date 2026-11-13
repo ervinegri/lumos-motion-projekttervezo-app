@@ -75,7 +75,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${won?'':ms('dStage','Szakasz',stOpts,d.stage)}
     ${won?'':`<div class="field"><label for="m-dChance">Esély (%)</label><input class="inp" id="m-dChance" name="dChance" type="number" min="0" max="100" step="5" value="${dealChance(d)}"></div>`}
     ${ms('dSource','Honnan jött? <span class="muted" style="font-weight:500;font-size:12px">– a HubSpotból</span>',DEAL_SOURCES,d.source||'',{empty:'—',cmb:'Honnan jött?…'})}
-    ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor"></div></div>`}
+    ${won?'':`<div class="field full dl-nextf"><label for="m-dNext">Következő lépés és dátuma <span class="req-star">*</span></label><div class="dl-nextrow"><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" aria-label="Mikor (kötelező)" placeholder="Dátum *" required></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért veszett el?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
       <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><p class="hint" id="m-dHsSt" style="margin:8px 0 0"></p><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
@@ -122,6 +122,7 @@ async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)re
   if(stage==='fizetve'){toast('Ide magától kerül a lehetőség: ha a díjbekérőt (vagy számlát) kifizették, vagy ha az ügyfelet TIG-gel / keretszerződéssel számlázzuk.',true);return;}
   if(d.stage==='nyert'){toast('Szerződött lehetőséget nem lehet visszahúzni.',true);return;}
   if(stage==='nyert'){dealWinModal(d);return;}
+  if(DEAL_OPEN.includes(stage)&&(!d.nextStep||!d.nextDate)){toast('Előbb add meg a következő lépést és a dátumát.',true);dealModal(d);return;}   // a következő lépés és a dátuma kötelező
   if(stage==='elveszett'){dealModal(d,{stage:'elveszett'});setTimeout(()=>{const x=$('m-dLost');if(x)x.focus();},50);return;}
   const nd=Object.assign({},d,{stage});if(d.chance==null||d.chance===''||+d.chance===DEAL_CHANCE[d.stage])nd.chance=DEAL_CHANCE[stage];
   const prev=S.deals;S.deals=S.deals.map(x=>x.id===id?nd:x);render(true);
