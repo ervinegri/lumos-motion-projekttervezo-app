@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0631d23171",
+"at": "2026-11-13T22:17:51+01:00",
+"msg": "Mobil: a táblázatok nem húzhatók el oldalra a szélükön túl"
+},
+{
 "id": "e622160bd1",
 "at": "2026-11-13T22:17:37+01:00",
 "msg": "Mobil Bevételek táblázat a Fizetésekhez hasonlóan: sötét rögzített fejléc, rögzített nap+név oszlop, egysoros sorok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: nézetváltóban külön Szerepkör és Fiók csoport; projektcím egy sorban"
 },
 {
-"id": "8cc9fc5568",
-"at": "2026-11-13T18:40:17+01:00",
-"msg": "Mobil: az ablakok teljes oldalként, bennük is lehúzással frissítés; projektcím alatti részletek elrejtve"
-},
-{
-"id": "b244aec334",
-"at": "2026-11-13T17:38:14Z",
+"id": "13ba6c1a9e",
+"at": "2026-11-13T17:40:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
