@@ -507,7 +507,7 @@ function vvRestore(){if(S._vvRestored)return;   /* a betöltés korán (még a f
   if(!o||!o.pid){S._vvRestored=true;return;}
   S._vvRestored=true;let n=0;
   const tryOpen=()=>{if(o.raw&&!projById(o.pid)){const p1=projFromHash(o.raw);if(p1)o.pid=p1.id;}const p=projById(o.pid);if(document.querySelector('.vv-cm'))return;   /* már nyitva */
-    if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||$('mform')||!S.loaded&&!S.projects.length){if(++n<(fromMail?300:40))setTimeout(tryOpen,300);return;}   /* várunk az adatokra (levélből: bejelentkezés miatt akár 90 mp) / egy másik ablak bezárására (max. 12 mp) */
+    if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||$('mform')||!S.loaded&&!S.projects.length||(fromMail&&!S._fresh)){if(++n<(fromMail?300:40))setTimeout(tryOpen,300);return;}   /* várunk az adatokra (levélből: bejelentkezés miatt akár 90 mp) / egy másik ablak bezárására (max. 12 mp) */
     if(o.lane)ACT['bd-lane']({dataset:{id:o.pid}});ACT['vid-view']({dataset:{pid:o.pid,vid:o.vid}});
     const ta=$('m-vvCm');if(ta&&o.draft){ta.value=o.draft;taHl();}vvSave({draft:o.draft||'',t:o.t||0});
     if(o.t){const go=()=>{const v=document.querySelector('.vv-player video');if(!v){if((go.n=(go.n||0)+1)<40)setTimeout(go,250);return;}const set=()=>{v.pause();v.currentTime=o.t;};if(v.readyState)set();else v.addEventListener('loadedmetadata',set,{once:true});};go();}};
@@ -616,3 +616,8 @@ function vvPendCheck(){const pd=S._vvPend;if(!pd)return;if(Date.now()>pd.until){
     if(o.raw&&!projById(o.pid)){const p1=projFromHash(o.raw);if(p1)o.pid=p1.id;}const p=projById(o.pid);
     if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||($('mform')&&!document.querySelector('.vv-cm'))){if(++n<60)setTimeout(go,500);return;}
     ACT['vid-view']({dataset:{pid:o.pid,vid:o.vid}});S._vvPend=null;};setTimeout(go,300);}
+
+/* friss betöltés után: ha egy videó ablaka nyitva van, és a videó állapota / linkje közben megváltozott (pl. gyorsítótárból nyílt meg), újrarajzoljuk */
+function vvRefreshOpen(){const b=document.querySelector('.vv-cm');if(!b)return;const p=projById(b.dataset.pid),v=p&&(p.videos||[]).find(x=>x.id===b.dataset.vid);if(!v)return;
+  const sig=[v.st,v.link||'',(v.links||[]).length,(v.comments||[]).length].join('|');if(b.dataset.sig===undefined||b.dataset.sig===sig){b.dataset.sig=sig;return;}
+  const ta=$('m-vvCm'),dr=ta?ta.value:'';ACT['vid-view']({dataset:{pid:b.dataset.pid,vid:b.dataset.vid}});const t2=$('m-vvCm');if(t2&&dr){t2.value=dr;}}

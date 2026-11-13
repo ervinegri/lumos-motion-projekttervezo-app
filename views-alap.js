@@ -88,7 +88,7 @@ async function load(quiet,announce,pre){
     if(hp&&!S.dirty&&S.projectId!==hp.id){S.tab='projektek';S.projectId=hp.id;S.draft=prepDraft(hp);S.draftBase=clone(S.draft);}
     const ht=/^#t=([a-z]+)$/.exec(location.hash||'');   // fül frissítés után
     if(ht&&!S.projectId&&TABS().some(t=>t.id===ht[1]))S.tab=ht[1];
-    render(true);restoreScroll();try{vvRestore();}catch(e){}try{qRestore();}catch(e){}try{modalRestore();}catch(e){}try{vvPendCheck();}catch(e){}if(announce)toast('Adatok frissítve');
+    S._fresh=true;    render(true);restoreScroll();try{vvRestore();}catch(e){}try{qRestore();}catch(e){}try{modalRestore();}catch(e){}try{vvPendCheck();}catch(e){}try{vvRefreshOpen();}catch(e){}if(announce)toast('Adatok frissítve');
   }catch(e){appReveal();if(!handleErr(e)&&!S.loaded)VIEW.innerHTML=`<div class="panel">${empty('Nem sikerült betölteni az adatokat: '+esc(errText(e)))}<div class="btns"><button class="btn primary" type="button" data-action="reload">Újrapróbálás</button></div></div>`;}
   finally{if(seq===S.loadSeq)S.loading=false;}
 }

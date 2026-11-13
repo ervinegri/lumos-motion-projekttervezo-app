@@ -1155,3 +1155,10 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
   html body .bill-tbl tbody tr.bl-chead>td,html body .bill-tbl tbody tr.pt-month>td{display:block;white-space:normal}
   html body .bill-tbl .pb-box{min-height:0!important}
   html body .sheet-wrap:has(.bill-tbl){overflow-x:visible!important}}
+/* projekt lépései álló telefonon: 2 oszlopos rács, nem lóg ki, a sorok tördelődnek */
+@media (max-width:700px){
+  html body .stages{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding:0}
+  html body .stages .stage-w{min-width:0!important;max-width:none!important}
+  html body .stages .stage .t-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;min-width:0}
+  html body .stages .stage .t{white-space:normal;min-width:0}
+  html body .stages .stage .stage-site{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
