@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dbf4c17dc3",
+"at": "2026-11-13T07:47:02+01:00",
+"msg": "Számlázás: a rendezvény napjától díjbekérő helyett számla is; halványabb keretszerződés-gomb"
+},
+{
 "id": "36fbef5bbc",
 "at": "2026-11-13T07:42:39+01:00",
 "msg": "Sales szinkron: ötperces időzítő megszűnik (belépéskor fut)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés PDF a Google-lel (docx → PDF export, ideiglenes fájl törlődik)"
 },
 {
-"id": "2b6890e8c0",
-"at": "2026-11-12T21:39:27+01:00",
-"msg": "Új szerződés: Küldés gomb – e-mail előnézet szerkeszthető szöveggel, aláírással, PDF melléklettel; kérésre mentés az ügyfél mappájába"
-},
-{
-"id": "d64b0d24ad",
-"at": "2026-11-12T20:37:27Z",
+"id": "a391b2c12f",
+"at": "2026-11-12T20:39:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
