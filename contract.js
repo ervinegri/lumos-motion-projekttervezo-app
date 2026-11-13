@@ -116,6 +116,7 @@ function ctTidy(box){const hy=document.createElement('style');hy.textContent='se
   t.style.float='none';t.style.marginLeft='0';t.style.marginRight='0';t.style.width='100%';t.style.tableLayout='fixed';if(cols.length===2&&sum>0){cols[0].style.width='30%';cols[1].style.width='70%';}else if(sum>0)cols.forEach((c,i)=>{c.style.width=(ws[i]/sum*100)+'%';});   // a két oszlopos (adat)táblázatok egyforma oszlopokkal
   t.querySelectorAll('td,th').forEach(td=>{td.style.wordBreak='break-word';});});}
 /* a kitöltött szerződés PDF-ben: a docx megjelenítve, majd A4-es oldalakra tördelve (ami elfér egy oldalon, nem vágódik ketté) */
+const ctB64=blob=>new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
 /* a PDF-et a Google készíti a kitöltött Word-fájlból (ugyanúgy néz ki, mint Wordből exportálva); ha nem sikerül, tartalékként a böngésző rajzolja */
 async function ctPdf(blob){try{const docx=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
     const r=await call('contractPdf',{docx});if(r&&r.pdf)return r.pdf;}catch(e){console.warn('Google PDF nem sikerült, tartalék:',e);}
@@ -140,6 +141,7 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c.
     {submitLabel:'💾 Mentés a mappába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl" title="Letöltés Word-fájlként">⬇ .docx</button><button type="button" class="btn outline" data-action="ct-pdf" title="Letöltés PDF-ként">⬇ .pdf</button><button type="button" class="btn outline" data-action="ct-send">📨 Küldés</button>`,
      submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
        const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat?'egyeb':'keret'});
+       try{await call('clientDocUpload',{client:c.client||c.c_name,b64:await ctB64(r.blob),name:pdfName.replace(/\.pdf$/i,'')+'.docx',mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',plain:true});}catch(e){toast('A .docx változat mentése nem sikerült: '+(e.message||e),true);}   // a szerkeszthető változat is a mappába kerül
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
   try{const r=await ctBuild(),b64=c._pdf||await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
@@ -161,13 +163,13 @@ async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
     <div class="field full"><label for="ctm-subj">Tárgy</label><input class="inp" id="ctm-subj" name="ctm_subj" value="${esc(m.subject)}"></div></div>
     <div class="q-mail" style="margin-top:6px"><div class="q-mh"><div><span>Feladó:</span> ${esc(sg.name||'')} · Lumos Motion &lt;${esc(sg.from||sg.email||'')}&gt;</div><div><span>Melléklet:</span> 📎 ${esc(fname)}</div></div>
       <div class="q-mb"><div id="ctm-body" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(m.body).replace(/\n/g,'<br>')}</div><br>${sg.sigHtml||''}</div></div>
-    <label class="q-disc-on" style="margin-top:12px"><input type="checkbox" name="ctm_save"${m.save?' checked':''}> 💾 Mentés az ügyfél mappájába is (PDF)</label>`,
+    <label class="q-disc-on" style="margin-top:12px"><input type="checkbox" name="ctm_save"${m.save?' checked':''}> 💾 Mentés az ügyfél mappájába is (PDF + szerkeszthető .docx)</label>`,
     {submitLabel:'📨 Küldés',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-send-back">← Vissza a mintához</button>`,
      submit:async fd=>{m.to=String(fd.get('ctm_to')||'').trim();m.cc=String(fd.get('ctm_cc')||'').trim();m.subject=String(fd.get('ctm_subj')||'').trim();m.save=fd.has('ctm_save');
        if(!/@/.test(m.to)){toast('Add meg a címzett e-mail-címét.',true);return;}
        if(!confirm('Elküldöd a szerződést ide: '+m.to+'?'))return;
        const b64=c._pdf||await ctPdf((await ctBuild()).blob);
-       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat?'egyeb':'keret'});
+       const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat?'egyeb':'keret',docx:m.save?await ctB64((await ctBuild()).blob):''});
        closeModal();toast(r.test?'Teszt üzemmód: a levél hozzád ment ki.':'✅ Szerződés elküldve: '+m.to+(m.save&&r.saved&&!r.saved.error?' · mentve az ügyfél mappájába':''));
        if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved&&typeof billApply==='function')try{billApply(r.saved);}catch(e){}
        S.ct=null;render(true);}});

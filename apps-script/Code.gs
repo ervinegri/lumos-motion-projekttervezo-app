@@ -3584,6 +3584,13 @@ function clientDocUpload_(u, a) {
     if (!fw && !bl && !(clientDocs_({}).folders || []).some(f => (f.docs || []).some(d => !d.folder && did(d.url) === rep))) throw new Error('A lecserélendő fájl nem szerepel az ügyfél szerződései között.'); }
   let newId = '', newUrl = '';
   const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf';
+  if (a.plain) {   // kísérőfájl (pl. a szerződés szerkeszthető .docx változata): csak a mappába kerül, nyilvántartás nélkül, a megadott néven
+    const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
+    const cf = clientFolder_(client); if (!cf) throw new Error('Az ügyfél mappája nem található.');
+    const folder = folderPath_(cf, 'Szerződések/' + today_().slice(0, 4), {});
+    const f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, name)));
+    return { ok: true, url: f.getUrl(), id: f.getId(), name: f.getName() };
+  }
   if (a.kind === 'keret') {
     fwSave_(u, { client: client, b64: b64, name: name, mime: a.mime });
     const r = readAll_('finFramework').find(x => String(x.client).trim().toLowerCase() === client.toLowerCase()); newId = r ? r.fileId : ''; newUrl = r ? r.url : '';
@@ -4768,7 +4775,9 @@ function contractSend_(u, a) {
   const ok = gmailSend_(to, (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + subj, body + '\n\n' + r.sig.text, opts);
   if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
   logEvent_(u, 'Szerződés elküldve', client, tos.join(', '));
-  let saved = null; if (a.save && client) { try { saved = clientDocUpload_(u, { client: client, b64: b64, name: fname, mime: 'application/pdf', kind: a.kind === 'keret' ? 'keret' : 'egyeb' }); } catch (e) { saved = { error: String(e && e.message || e) }; } }
+  let saved = null; if (a.save && client) { try { saved = clientDocUpload_(u, { client: client, b64: b64, name: fname, mime: 'application/pdf', kind: a.kind === 'keret' ? 'keret' : 'egyeb' });
+    if (a.docx) { try { clientDocUpload_(u, { client: client, b64: String(a.docx), name: fname.replace(/\.pdf$/i, '') + '.docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', plain: true }); } catch (e) { Logger.log('docx mentés: ' + e); } }
+  } catch (e) { saved = { error: String(e && e.message || e) }; } }
   return { ok: true, test: !live, saved: saved };
 }
 function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor' || x.role === 'sales') && !x.disabled).forEach(x => { const f = sigFields_(x) || { name: x.name, email: sigKey_(x.email), title: '', phone: '', photo: '' }; const c = sigCustom_(x.email); o[x.id] = Object.assign({}, f, { html: c || sigBuild_(f).html, base: sigBuild_(f).html, custom: !!c, set: !!c || !!sigFields_(x) }); }); return o; }
