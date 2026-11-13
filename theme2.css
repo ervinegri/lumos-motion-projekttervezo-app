@@ -1072,3 +1072,5 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .qp-sig{margin-top:auto!important;margin-bottom:18px}.qp-foot{margin-top:0!important;font-size:13.5px!important}
 .qp-logo{height:46px!important}
 .qp-dates{display:grid!important;grid-template-columns:auto auto;column-gap:6px;justify-content:end;text-align:left}.qp-dates i{font-style:normal}.qp-dates i:nth-child(odd){text-align:right}
+.q-namew{display:flex;flex-direction:column;min-width:0}.q-pdfl .q-row .inp.q-desc{min-height:26px;font-size:12px;color:#6b7684;padding-top:0;padding-bottom:2px}.qp-desc{display:block;font-size:11px;color:#6b7684;margin-top:1px;line-height:1.35}
+.qp .qp-tbl small.qp-desc{text-transform:none!important;letter-spacing:0!important;font-weight:400!important;font-size:11px!important;color:#6b7684!important}
