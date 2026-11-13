@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fdc7e4bfc6",
+"at": "2026-11-13T11:47:45+01:00",
+"msg": "Jóváhagyó: kérdés törölve; belépési hibaüzenet rövidebb; mobil videónézet: a gombsor nem takar"
+},
+{
 "id": "b5c1ce3a1b",
 "at": "2026-11-13T10:25:02+01:00",
 "msg": "Fizetések: a munkatárs neve a fejlécben a profilt nyitja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés: táblázatokban balra igazítás (nincs széthúzott név)"
 },
 {
-"id": "9d65601e15",
-"at": "2026-11-13T07:48:26+01:00",
-"msg": "Számla díjbekérő nélkül: teljes összeg a gombon"
-},
-{
-"id": "dfab1c4e0b",
-"at": "2026-11-13T06:47:12Z",
+"id": "9060ad60cb",
+"at": "2026-11-13T06:48:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
