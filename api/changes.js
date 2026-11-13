@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "840a053f0e",
+"at": "2026-11-13T08:55:18+01:00",
+"msg": "Utómunkára lépés csak a helyszíni munka napjától (felület és háttér)"
+},
+{
 "id": "c5a3d88cfa",
 "at": "2026-11-13T08:52:49+01:00",
 "msg": "Naptárszűrő: Vágói helyett Utómunka"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: azonnali újraszinkron (ügyvezető), és a Naptár megnyitásakor egyszer újra lefut – a jegyzetek kikerülnek a leírásból"
 },
 {
-"id": "8ddc054762",
-"at": "2026-11-12T22:46:24+01:00",
-"msg": "Szerződéssablonok: a felek adatai soronként egy vonalban (közös táblázat); a dátum a Kelt sorban, az aláírásos blokk egyben marad"
-},
-{
-"id": "5cdc296810",
-"at": "2026-11-12T21:44:57Z",
+"id": "dfdcda903d",
+"at": "2026-11-12T21:46:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
