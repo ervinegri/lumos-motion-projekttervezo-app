@@ -1323,3 +1323,23 @@ html body #modalRoot .mbox.mbox-ark .mfoot .left .btn{min-height:40px!important;
 html body #modalRoot .mbox.mbox-ark .mfoot .left .btn[data-m="reset"]{font-size:18px!important;padding:0 12px!important}
 html body #modalRoot .mbox.mbox-ark .mfoot .left .btn.primary,html body #modalRoot .mbox.mbox-ark .mfoot .left .btn.ghost{flex:1 1 100%}
 }
+/* álló mobil: a Projektek táblázat egyetlen oszlop – a státusz-jelzések a projekt neve alatt */
+@media (max-width:700px) and (orientation:portrait){
+html body .proj-wrap{overflow-x:visible!important}
+html body .proj-table{display:block;width:100%!important;min-width:0!important;table-layout:auto}
+html body .proj-table thead{display:none}
+html body .proj-table tbody{display:block}
+html body .proj-table tr{display:block;width:100%}
+html body .proj-table td{display:block;width:auto!important;max-width:none!important;border-left:0!important;border-right:0!important}
+html body .proj-table tr.pt-row>td.pt-proj{border-bottom:0!important;padding-bottom:4px!important}
+html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.pt-extra{padding-top:0!important;padding-bottom:10px!important}
+html body .proj-table tr.pt-row>td.pt-status:has(.pt-pills:empty){display:none}
+html body .proj-table .pt-pills{display:flex;flex-wrap:wrap;gap:4px 6px;justify-content:flex-start}
+html body .proj-table .pt-pills .statuspill{white-space:nowrap}
+html body .proj-table tr.pt-row{border-bottom:1px solid var(--line,#dde4eb)}
+}
+@media (max-width:700px) and (orientation:portrait){
+html body .proj-table .pt-pills{flex-direction:row!important;align-items:center!important}
+html body .proj-table .pt-pills>*{display:inline-flex!important;width:auto!important;margin:0!important}
+html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.pt-extra{padding-left:72px!important}
+}
