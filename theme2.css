@@ -1173,3 +1173,57 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
 @media (max-width:760px){html body .cal-day .cal-chip.cont{font-size:0!important;height:5px;min-height:0;padding:0!important;border-radius:2px;margin:1px 0}
  html,body{overflow-x:hidden;max-width:100%}}
 @media (max-width:700px){html body .header-tools .view-as{max-width:calc(100vw - 210px)!important}}
+/* naptár fejléce álló telefonon: nézet + Ma + hónap egy sorban, a szűrők és gombok kompaktan egy másik sorban */
+@media (max-width:700px){
+ html body #view:has(.cal-toolbar){padding-top:8px;gap:8px}
+ html body .cal-toolbar{display:flex;flex-wrap:wrap;gap:6px!important;align-items:center}
+ html body .cal-toolbar .cal-mnav{flex:1 1 100%;flex-wrap:nowrap;gap:4px;margin:0}
+ html body .cal-toolbar .cm-lbl{display:none}
+ html body .cal-toolbar .cal-mnav .cm-tools{display:flex;gap:4px;flex:none}
+ html body .cal-toolbar .cal-mnav .seg button{padding:0 9px;min-height:34px;font-size:15px}
+ html body .cal-toolbar .cal-mnav .btn{min-height:34px!important;padding:0 9px!important;font-size:13px!important;border-radius:10px}
+ html body .cal-toolbar .cal-mnav .cm-arr{min-width:32px!important;font-size:18px!important;padding:0 6px!important}
+ html body .cal-toolbar .cal-mnav .cm-side{display:none!important}
+ html body .cal-toolbar .cm-cur-h{flex:1 1 auto;min-width:0;margin:0}
+ html body .cal-toolbar .cm-cur{width:100%;min-height:34px;font-size:14px!important;padding:0 8px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ html body .cal-toolbar .cal-tog{font-size:12.5px;padding:5px 9px;min-height:32px}
+ html body .cal-toolbar .cal-cutsel{flex:1 1 120px;min-width:0}
+ html body .cal-toolbar .cal-cutsel .inp,html body .cal-toolbar .cal-cutsel .cmb-in{min-height:32px;font-size:13px;padding-top:4px;padding-bottom:4px}
+ html body .cal-toolbar>.btns{margin-left:auto;display:flex;gap:4px}
+ html body .cal-toolbar>.btns .btn{min-height:32px;padding:0 10px;font-size:13px}
+ html body .cal-toolbar .cal-kind button{font-size:12.5px;padding:5px 8px}
+ html.th2 .content{padding-bottom:16px}html.th2 body.has-savebar .content{padding-bottom:110px}}
+@media (max-width:700px){html body .cal-toolbar .cal-mnav .cm-tools{flex:0 0 auto!important;width:auto!important;margin:0!important}html body .cal-toolbar .cm-cur-h{flex:1 1 0!important;min-width:0!important}}
+/* Leltár és Ügyfelek álló telefonon: tömör fejléc, szűrők egy sorban, sűrűbb táblázat */
+@media (max-width:700px){
+ html body .inv-head,html body .cl-head{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-bottom:6px}
+ html body .inv-head .grow,html body .cl-head .grow{flex:1 1 140px;min-width:0}
+ html body .inv-head h2,html body .cl-head h2{font-size:20px!important}
+ html body .inv-head .sub,html body .cl-head .sub{font-size:12.5px;line-height:1.35;margin-top:2px}
+ html body .inv-head>.btn,html body .cl-head>.btn{min-height:34px;padding:0 12px!important;font-size:13px!important;flex:none}
+ html body .mlg{display:none}
+ html body .inv-tb,html body .cl-tb{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important;margin-bottom:8px}
+ html body .inv-tb .search,html body .cl-tb .search{grid-column:1/-1;min-height:38px;font-size:14px}
+ html body .inv-tb .cmb,html body .inv-tb .inp:not(.search),html body .inv-tb .cmb-in{min-height:36px;font-size:13.5px;width:100%;max-width:none}
+ html body .inv-wrap td,html body .cl-wrap td{padding:7px 8px!important;font-size:13.5px}
+ html body .inv-wrap th,html body .cl-wrap th{padding:6px 8px!important;font-size:11.5px}
+ html body .inv-wrap tr.cat td,html body .inv-wrap .grp td,html body .inv-wrap td[colspan]{font-size:12px!important;padding:6px 8px!important;letter-spacing:.05em}
+ html body .inv-wrap .pill,html body .inv-wrap .badge{font-size:11.5px;padding:2px 8px}
+ html body .cl-wrap td .muted,html body .cl-wrap td small{font-size:12px}}
+.mlg{display:inline}
+.msm{display:none}
+@media (max-width:700px){html body .msm{display:inline}
+ html body .inv-wrap th:nth-child(4),html body .inv-wrap td:nth-child(4):not([colspan]),html body .inv-wrap th:nth-child(5),html body .inv-wrap td:nth-child(5){display:none}
+ html body .inv-wrap td.num .btn{font-size:12px;padding:4px 8px;min-height:28px}
+ html body .inv-wrap,html body .cl-wrap{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent}
+ /* Pénzügyek – Fizetések: tömör fejléc, a táblázat keret nélkül */
+ html body .pay-wrap{border:0!important;border-radius:0!important;box-shadow:none!important}
+ html body .page-head.pay-head-c{gap:6px!important;margin-bottom:6px}
+ html body .page-head.pay-head-c .btn{font-size:12.5px!important;padding:5px 10px!important;min-height:32px!important}}
+@media (max-width:700px){html body .page-head.pay-head{display:flex!important;flex-wrap:wrap;gap:6px!important;align-items:center;margin-bottom:6px}
+ html body .page-head.pay-head .grow{flex:1 1 100%;min-width:0}
+ html body .page-head.pay-head .ph-ttl h2{font-size:20px!important}
+ html body .page-head.pay-head .month-nav{gap:4px;flex-wrap:nowrap}
+ html body .page-head.pay-head .month-nav .btn{min-height:34px!important;padding:0 10px!important;font-size:13.5px!important}
+ html body .page-head.pay-head>.btns,html body .page-head.pay-head>div:not(.grow){display:flex;flex-wrap:nowrap;gap:6px}
+ html body .page-head.pay-head .btn.small{font-size:12.5px!important;padding:5px 10px!important;min-height:32px!important;white-space:nowrap}}
