@@ -1570,3 +1570,13 @@ html body .pay-sheet .pst-card{padding:3px 7px!important}
 html body .pay-sheet .pst-line{min-height:0!important}
 html body .pay-sheet .pst-chk input{width:16px;height:16px}
 }
+/* fekvő telefon: Bevétel és kiadás – tömör összesítő dobozok */
+@media (orientation:landscape) and (max-height:560px){
+html body #view:has(.fin-head) .fin-tiles{gap:8px!important;margin-bottom:8px!important}
+html body #view:has(.fin-head) .fin-flow{padding:6px 12px!important}
+html body #view:has(.fin-head) .fin-flow .flow-row{padding:5px 0!important;font-size:13px!important}
+html body #view:has(.fin-head) .fin-flow .flow-row b{font-size:15px!important}
+html body #view:has(.fin-head) .panel{padding:8px 12px!important}
+html body #view:has(.fin-head) .panel h3{font-size:15px!important;margin:0 0 6px!important}
+html body .fin-tbl td{padding-top:5px!important;padding-bottom:5px!important;font-size:13px!important}
+}
