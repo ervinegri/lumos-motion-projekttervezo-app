@@ -1070,3 +1070,4 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .dl-nextrow .dl-nc>label{font-size:14px!important;font-weight:700!important;color:var(--fg);min-height:22px;display:flex;align-items:center;gap:6px;margin:0}.dl-nextrow .dl-nc .inp,.dl-nextrow .dl-nc .fp-alt{flex:none!important;width:100%}
 .qp-tbl td,.qp-tbl tfoot td{font-variant-numeric:normal!important;font-feature-settings:normal!important}
 .qp-sig{margin-top:auto!important;margin-bottom:18px}.qp-foot{margin-top:0!important;font-size:13.5px!important}
+.qp-logo{height:46px!important}
