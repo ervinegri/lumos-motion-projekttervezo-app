@@ -94,7 +94,7 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
     x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:l.date})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
-  if(tp.sh){x=fill(x,ctShTokens());if(/^[aáeéiíoóöőuúüű]/i.test(String(S.ct.ev_name||'').trim()))x=x.replace(/(közzétételekor )a( ?<\/w:t>)/,'$1az$2');}
+  if(tp.sh)x=fill(x,ctShTokens());
   x=x.replace(/<w:p[ >](?:(?!<w:p[ >])[\s\S])*?@@DEL@@(?:(?!<w:p[ >])[\s\S])*?<\/w:p>/g,'');   // kihagyott (opcionális) bekezdések
   x=fill(x,{deliv:ctDlvText(tp),raw_buy:ctRawText('rb',tp),raw_keep:ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
   if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
@@ -252,7 +252,7 @@ document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('[
 /* Kapcsolódó értékesítési lehetőség: kiküldéskor a lehetőségen (és a projekten) „Szerződés kiküldve” lesz */
 const ctDealsOpen=()=>(S.deals||[]).filter(d=>d.stage!=='elveszett').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
 function ctDealField(){const ds=ctDealsOpen(),c=S.ct;if(!ds.length)return '';
-  return `<div class="field full"><label for="ct-deal">Értékesítési lehetőség <span class="muted" style="font-weight:500;font-size:12px">– kiküldéskor itt jelöljük: szerződés kiküldve</span></label><select class="inp" id="ct-deal" name="dealId" data-cmb="Lehetőség kiválasztása…"><option value="">– nincs –</option>${ds.map(d=>`<option value="${esc(d.id)}"${c.dealId===d.id?' selected':''}>${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' · '+esc(d.client):''}</option>`).join('')}</select></div>`;}
+  return `<div class="field full"><label for="ct-deal">Melyik ajánlathoz / lehetőséghez tartozik? <span class="muted" style="font-weight:500;font-size:12px">(nem kötelező)</span></label><select class="inp" id="ct-deal" name="dealId" data-cmb="Lehetőség kiválasztása…"><option value="">– nincs –</option>${ds.map(d=>`<option value="${esc(d.id)}"${c.dealId===d.id?' selected':''}>${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' · '+esc(d.client):''}</option>`).join('')}</select><span class="hint">Ha kiválasztod, a kiküldés után az Értékesítés táblán (és a projekten) látszik: „Szerződés kiküldve”, majd jelölheted, ha visszaküldték vagy aláírták.</span></div>`;}
 
 /* Word-ben szerkesztett sablon: a {mező} jelölőket a Word több részre bonthatja (helyesírás, formázás) – ezeket egybe kell fűzni */
 function ctJoinTokens(x){return x.replace(/\{((?:[A-Za-z0-9_]|<(?!\/?w:p[ >])[^>]+>)+)\}/g,(m,inner)=>/</.test(inner)?'{'+inner.replace(/<[^>]+>/g,'')+'}':m);}

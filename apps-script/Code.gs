@@ -700,10 +700,10 @@ function dealsFor_(u) {
   const uc = {}; if (u.role === 'admin') loadUsers_().forEach(x => { uc[x.id] = { crewId: x.crewId || '', sales: x.role === 'sales' }; });
   const adv = {}; try { readAll_('finInvoice').forEach(x => { const g = Number(x.invGross) || 0; if (!g || (Number(x.invPaid) || 0) < g - 1) return;   // kifizetett bizonylat (díjbekérő / foglaló / számla) → a lehetőség a „Díjbekérő kifizetve” oszlopba kerül
     [x.projectId].concat(String(x.projectIds || '').split(',')).map(v => String(v).trim()).filter(Boolean).forEach(pid => { const d = String(x.paidAt || x.date || '').slice(0, 10) || 'x'; if (!adv[pid] || d < adv[pid]) adv[pid] = d; }); }); } catch (e) { }
-  const bst = {}; try { readAll_('finBilling').forEach(b => { if (b.contractStatus) bst[b.projectId] = b.contractStatus; }); } catch (e) { }
+  const dct = dealCtMap_(), bst = {}; try { readAll_('finBilling').forEach(b => { if (b.contractStatus) bst[b.projectId] = b.contractStatus; }); } catch (e) { }
   const ck = v => String(v || '').trim().toLowerCase(), tigC = {};   // visszatérő, TIG-gel (teljesítésigazolással) számlázott ügyfél vagy keretszerződés: nem kap díjbekérőt
   try { readAll_('finTig').forEach(x => { if (ck(x.client)) tigC[ck(x.client)] = 'tig'; }); readAll_('finFramework').forEach(x => { if (ck(x.client) && String(x.mode || '') !== 'nemkell') tigC[ck(x.client)] = 'keret'; }); } catch (e) { }
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (d.ctStatus || ''), advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (dct[d.id] ? dct[d.id].s : ''), ctAt: dct[d.id] ? dct[d.id].at : '', advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
@@ -731,7 +731,7 @@ function saveDeal_(u, a) {
       eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
       chance: num(a.chance, 100), source: str_(a.source, 80).trim(), nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
       ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000), services: (Array.isArray(a.services) ? a.services : String(a.services || '').split(',')).map(x => str_(x, 60).trim()).filter(Boolean).slice(0, 20).join(', '),
-      lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', ctStatus: old ? old.ctStatus || '' : '', ctAt: old ? old.ctAt || '' : '', commManual: old ? old.commManual : '', commAuto: old ? old.commAuto : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
+      lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', commManual: old ? old.commManual : '', commAuto: old ? old.commAuto : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',
       closedAt: stage === 'elveszett' ? (old && old.stage === 'elveszett' ? old.closedAt : today_()) : (old && old.stage === 'nyert' ? old.closedAt : ''),
       createdAt: old ? old.createdAt : now_(), createdBy: old ? old.createdBy : u.name, updatedAt: now_(), updatedBy: u.name };
     if (old && old.stage === 'nyert') d.stage = 'nyert';
@@ -3181,6 +3181,9 @@ function szIpn_(e) {
 /* ===================== SZERZŐDÉS ÉS SZÁMLÁZÁS (projektenkénti adatok) ===================== */
 const BILL_CONTRACT = ['', 'kikuldve', 'alairva', 'nemkell', 'visszakuldve'];
 const CT_STATUS = ['', 'kikuldve', 'visszakuldve', 'alairva'];
+/* A még projekt nélküli lehetőségek szerződés-állapota (a munkalap oszlopai érintetlenek): {dealId: {s, at}} a Script Properties-ben */
+function dealCtMap_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('DEAL_CT') || '{}'); } catch (e) { return {}; } }
+function dealCtPut_(id, st) { const m = dealCtMap_(); if (st) m[id] = { s: st, at: today_() }; else delete m[id]; PropertiesService.getScriptProperties().setProperty('DEAL_CT', JSON.stringify(m)); }
 function billRow_(projectId) {
   const sh = sheetFor_('finBilling'), all = readAll_('finBilling'), r = all.find(x => x.projectId === projectId);
   return { sh: sh, r: r || { id: Utilities.getUuid(), projectId: projectId, contractStatus: '', contractUrl: '', contractName: '', contractFileId: '', contractAt: '', contractBy: '',
@@ -3192,7 +3195,7 @@ function ctStatusSet_(u, a) {
   a = a || {}; const st = String(a.status || ''); if (CT_STATUS.indexOf(st) < 0) throw new Error('Ismeretlen szerződés-állapot.');
   let pid = str_(a.projectId, 64), did = str_(a.dealId, 64), title = '';
   withLock_(() => {
-    if (did) { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (row) { const d = readRow_('deals', sh, row); dealCan_(u, d); title = d.title; d.ctStatus = st; d.ctAt = st ? today_() : ''; d.updatedAt = now_(); d.updatedBy = u.name; putRow_('deals', sh, d, row); if (!pid && d.projectId) pid = d.projectId; } }
+    if (did) { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (row) { const d = readRow_('deals', sh, row); dealCan_(u, d); title = d.title; dealCtPut_(did, st); if (!pid && d.projectId) pid = d.projectId; } }
     if (pid && ID_RE.test(pid) && findRow_(sheetFor_('projects'), pid)) { const b = billRow_(pid), r = b.r; r.contractStatus = st; if (st === 'alairva' && !r.signedAt) r.signedAt = today_(); if (st !== 'alairva') r.signedAt = ''; r.updatedAt = now_(); r.updatedBy = u.name; putRow_('finBilling', b.sh, r, findRow_(b.sh, r.id)); }
     dbFlush_();
   });
