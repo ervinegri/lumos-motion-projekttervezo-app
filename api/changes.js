@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8aac03955c",
+"at": "2026-11-13T22:47:45+01:00",
+"msg": "Telefon: vélemény írásakor a videó kicsi lesz és a szövegmező a billentyűzet fölé gördül"
+},
+{
 "id": "3ff7da3dc2",
 "at": "2026-11-13T22:42:42+01:00",
 "msg": "Álló telefon: havi naptár keret nélkül, faltól falig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil számlázás: minden projekt külön színezett kártyán"
 },
 {
-"id": "d67cbd8a00",
-"at": "2026-11-13T22:04:48+01:00",
-"msg": "Mobil Fizetések: a táblázat alja is elérhető (alacsonyabb keret, a görgetés továbbmegy az oldalra)"
-},
-{
-"id": "d249124156",
-"at": "2026-11-13T21:00:59Z",
+"id": "f2a61c9ed9",
+"at": "2026-11-13T21:04:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
