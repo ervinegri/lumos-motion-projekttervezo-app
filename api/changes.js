@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "63cdff7e44",
+"at": "2026-11-13T18:19:31+01:00",
+"msg": "Fekvő mobilnézet: görgetéskor eltűnik a felső sáv"
+},
+{
 "id": "ff02439b74",
 "at": "2026-11-13T18:10:40+01:00",
 "msg": "Mobil: Google Naptár-szerű havi rács a kiválasztott nap eseményeivel; Értékesítés gombjai egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: Opció másolása és Új kategória gomb"
 },
 {
-"id": "68cf5777f4",
-"at": "2026-11-13T16:12:22+01:00",
-"msg": "Árkalkulátor: nagyobb csúszkagomb, az Összesen akkora, mint a gombok"
-},
-{
-"id": "c9d481e00e",
-"at": "2026-11-13T15:08:01Z",
+"id": "9194894dc9",
+"at": "2026-11-13T15:12:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
