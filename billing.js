@@ -594,6 +594,10 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
   async function check(){if(shown||document.hidden||location.protocol==='file:')return;try{const s=await sig();if(!s.replace(/\|/g,''))return;if(base===null){base=s;return;}
     if(s!==base){shown=true;const d=document.createElement('div');d.className='upd-bar';d.innerHTML='🔄 Elérhető az app új verziója. <button type="button" class="btn primary small">Frissítés most</button>';
       d.querySelector('button').onclick=()=>{try{if(typeof mdSave==='function')mdSave();}catch(e){}location.reload();};document.body.appendChild(d);
+      /* lefelé húzással eltüntethető (mobil) */
+      let y0=null,dy=0;d.addEventListener('touchstart',e=>{if(e.target.closest('button'))return;y0=e.touches[0].clientY;dy=0;d.style.transition='none';e.stopPropagation();},{passive:true});
+      d.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);d.style.translate=`0 ${dy}px`;d.style.opacity=String(Math.max(.2,1-dy/120));e.stopPropagation();},{passive:true});
+      d.addEventListener('touchend',()=>{if(y0===null)return;y0=null;d.style.transition='translate .2s,opacity .2s';if(dy>40){d.style.translate='0 160%';d.style.opacity='0';setTimeout(()=>d.remove(),220);}else{d.style.translate='';d.style.opacity='';}});
       /* hoverre: mik az újdonságok – csak az ügyvezetőnek, a háttéren keresztül (a lista nem nyilvános) */
       const tipUp=async()=>{if(!S.me||!(S.me.role==='admin'||S.me.realRole==='admin')){d.removeAttribute('data-tip');return;}   /* az újdonságok listáját csak az ügyvezető látja */
         try{const it=(((await call('changesList'))||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);

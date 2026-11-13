@@ -51,7 +51,7 @@ const ACT={
         {submitLabel:'Feltöltés',submit:async fd=>{const pick=fd.getAll('pick').map(Number);if(!pick.length){toast('Nincs kijelölve semmi.',true);return;}
           const ids=[...new Set(pick.map(i=>L[i].crewId))];const want=new Set(pick.map(i=>L[i].crewId+'|'+L[i].title));
           try{const r2=await call('crewDocsImport',{crewIds:ids,only:[...want]});S.crewDocs=r2.crewDocs||S.crewDocs;closeModal();render(true);toast((r2.plan||[]).length+' szerződés feltöltve');}catch(e){handleErr(e);}}});}
-    catch(e){handleErr(e);}finally{b.disabled=false;b.textContent=t0;}},
+    catch(e){handleErr(e);}finally{b.disabled=false;b.innerHTML=t0;}},
   'crew-comm':async b=>{const cid=b.dataset.id;if(!S.users)await loadSettings();const u=(S.users||[]).find(x=>x.crewId===cid);if(u){userModal(u);return;}
     userModal(null);const set=(id,v)=>{const e=$(id);if(e){e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));const ci=e.parentElement&&e.parentElement.querySelector('input.cmb-in,input');if(ci&&e.selectedOptions[0]&&ci!==e)ci.value=e.selectedOptions[0].textContent;}};set('m-crewId',cid);set('m-role','sales');},
   'toggle-user':async b=>{const dis=b.dataset.dis==='1';const u=(S.users||[]).find(x=>x.id===b.dataset.id);if(!u)return;
@@ -88,7 +88,7 @@ const ACT={
       {submitLabel:'Mentés',submit:async fd=>{const a=noteOnly?Math.abs(v):(moneyVal(fd.get('adjAmt'))||0),amount=noteOnly?v:(fd.get('sign')==='-'?-a:a),note=String(fd.get('note')||'').trim();if(a&&note.length<3){toast('Írd be röviden, miért jár a korrekció.',true);$('m-adjNote').focus();return;}
         try{S.payAdjust=await call('savePayAdjust',{id:x?x.id:'',crewId:cid,month:m,amount,note});S.adjNewRow='';closeModal();render(true);toast(amount?'Korrekció mentve':'Korrekció törölve');}catch(e){handleErr(e);}}});if(noteOnly)setTimeout(()=>{document.querySelectorAll('#mform [name=sign],#mform [name=adjAmt]').forEach(e=>{e.disabled=true;});},0);},
   'pay-mail':b=>payMailModal(b.dataset.month,b.dataset.cid||''),
-  'nav-sync':async b=>{b.disabled=true;const t0=b.textContent;b.textContent=b.dataset.cid?'⏳':'⏳ NAV lekérdezés…';
+  'nav-sync':async b=>{b.disabled=true;const t0=b.innerHTML;b.innerHTML=b.dataset.cid?'⏳':'⏳<span class="mlg"> NAV lekérdezés…</span><span class="msm"> NAV…</span>';
     try{const one=b.dataset.cid||'',r=await call('navSync',{month:b.dataset.month,crewId:one||undefined});S.payStatus=r.payStatus||S.payStatus;render(true);
       if(one){const nm=(crewById(one)||{}).name||'';const f=r.found[0];
         toast(r.missingTax&&r.missingTax.length?`${nm}: hiányzik az adószám (Munkatársak → szerkesztés).`:f?`${nm}: ${f.number} · nettó ${ftFmt(f.net)}${f.match?' – egyezik':' – ⚠️ eltér a díjösszesítőtől ('+ftFmt(f.expected)+')'}`:`${nm}: a NAV-ban nincs ehhez a hónaphoz tartozó számlája.`,!f);return;}

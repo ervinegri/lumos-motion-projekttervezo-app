@@ -1274,3 +1274,29 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
  html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{z-index:3!important}
  html body .pay-sheet thead th{z-index:2}}
 @media (max-width:700px){html body .page-head.pay-head.ph-sub{flex-wrap:wrap!important}html body .page-head.ph-sub>.subtabs{flex:1 1 100%!important;max-width:100%}}
+/* mobil: frissítés-sáv szélesebb, egy sorban; díjösszesítő-lista sorai két sorban */
+@media (max-width:700px){
+html body .upd-bar{left:8px;right:8px;width:auto;transform:none;bottom:max(10px,env(safe-area-inset-bottom));justify-content:space-between;gap:8px;padding:9px 9px 9px 12px;font-size:13px;white-space:nowrap;touch-action:none}
+html body .upd-bar .btn{flex:0 0 auto;white-space:nowrap}
+html body .pml-row{flex-wrap:wrap;row-gap:4px;padding:8px 10px}
+html body .pml-row .pml-chk{flex:1 1 100%}
+html body .pml-row .pml-chk>span{min-width:0;display:flex;flex-direction:column}
+html body .pml-row .pml-chk small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .pml-row:not(.pml-head) .pml-amt{margin-left:30px}
+html body .pml-row .pml-st{min-width:0;margin-left:auto}
+}
+@media (max-width:700px){
+html body .page-head.pay-head{column-gap:6px!important}
+html body .page-head.pay-head>.grow{flex:1 1 auto!important;min-width:0!important}
+html body .page-head.pay-head>div:not(.grow){flex:0 0 auto!important;gap:4px!important;margin-left:auto}
+html body .page-head.pay-head>div:not(.grow) .btn.small{gap:3px!important;padding:5px 7px!important;font-size:13px!important;min-width:0}
+html body .page-head.pay-head .mnav-chip.on{font-size:15px!important;padding:6px 10px!important}
+html body .page-head.pay-head .month-nav .mn-arrow{min-width:28px!important;padding:0 4px!important}
+}
+@media (max-width:700px){
+html body .page-head.pay-head>.grow{flex:1 1 0!important;min-width:0!important;margin:0!important}
+html body .page-head.pay-head>.btn.small{flex:0 0 auto;gap:3px!important;padding:5px 7px!important;font-size:13px!important;min-width:0!important;margin:0!important}
+html body .page-head.pay-head .mnav-chip.on{font-size:13.5px!important;padding:6px 7px!important}
+html body .page-head.pay-head .month-nav .mn-arrow{min-width:26px!important;padding:0 3px!important}
+html body .page-head.pay-head .month-nav{gap:3px!important}
+}
