@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cdc6c7601d",
+"at": "2026-11-13T18:06:17+01:00",
+"msg": "Mobil: lehúzással frissítés"
+},
+{
 "id": "1d93615cc5",
 "at": "2026-11-13T17:55:25+01:00",
 "msg": "Videótábla mobilon: az oszlopfejlécek nem csúsznak egymásba"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előadás rögzítés: drón kivéve; szekciókeretek eltávolítva"
 },
 {
-"id": "f12d5d5115",
-"at": "2026-11-13T15:51:20+01:00",
-"msg": "Árajánlat: kalkulátoronként külön opció, több másolat-címzett, PDF-név: rendezvény/cég + Lumos Motion"
-},
-{
-"id": "75a4cfe18a",
-"at": "2026-11-13T14:48:13Z",
+"id": "fc7745b9ba",
+"at": "2026-11-13T14:51:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
