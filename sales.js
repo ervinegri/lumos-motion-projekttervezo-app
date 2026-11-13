@@ -34,9 +34,9 @@ function viewSales(){
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'||s==='fizetve'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
     ${DEAL_OPEN.includes(s)?`<button class="dl-add dl-add-top" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}<div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div></section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
-      <button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat küldése</button>
-      <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor (árajánlat nélkül)">🧮 Árkalkulátor</button>
-      <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
+      <div class="dl-hbtns"><button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat<span class="dl-lg"> küldése</span></button>
+      <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor (árajánlat nélkül)">🧮 <span class="dl-lg">Árkalkulátor</span><span class="dl-sm">Kalkulátor</span></button>
+      <button class="btn primary" type="button" data-action="deal-new">+ Új<span class="dl-lg"> lehetőség</span></button></div></div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>

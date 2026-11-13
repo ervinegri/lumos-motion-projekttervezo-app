@@ -257,8 +257,9 @@ function viewCalendar(){
   const onDay=d=>items.filter(it=>it.date<=d&&it.endDate>=d);
   const grid=days.map(d=>{const its=onDay(d),out=d.slice(0,7)!==m;
     return `<div class="cal-day${out?' out':''}${d===T?' today':''}${S.cal.sel===d?' sel':''}${S.cal.focus&&d>=S.cal.focus.start&&d<=S.cal.focus.end&&!out?' focus':''}" data-day="${d}"><div class="cal-dh"><span class="cal-dn">${Number(d.slice(8))}</span>${ro()?'':`<button type="button" class="cal-add" data-action="cal-new" data-d="${d}" aria-label="Új bejegyzés: ${esc(d)}" title="Új bejegyzés erre a napra">+</button>`}</div>${its.slice(0,4).map(it=>calChip(it,d)).join('')}${its.length>4?`<button type="button" class="cal-more" data-action="cal-day" data-d="${d}">+${its.length-4} további</button>`:''}</div>`;}).join('');
-  const agenda=days.filter(d=>d.slice(0,7)===m).map(d=>{const its=onDay(d);if(!its.length)return '';
-    return `<div class="ag-day${d===T?' today':''}"><div class="ag-date">${esc(F_FULL.format(toDate(d)).replace(/^\d{4}\. /,''))}</div>${its.map(it=>calChip(it,d)).join('')}</div>`;}).join('');
+  const selD=S.cal.sel&&S.cal.sel.slice(0,7)===m?S.cal.sel:(T.slice(0,7)===m?T:m+'-01');   // mobilon (havi rács alatt) a kiválasztott nap eseményei látszanak
+  const agenda=days.filter(d=>d.slice(0,7)===m).map(d=>{const its=onDay(d);if(!its.length&&d!==selD)return '';
+    return `<div class="ag-day${d===T?' today':''}${d===selD?' on':''}${its.length?'':' ag-none'}" data-agd="${d}"><div class="ag-date">${esc(F_FULL.format(toDate(d)).replace(/^\d{4}\. /,''))}</div>${its.length?its.map(it=>calChip(it,d)).join(''):`<p class="hint ag-nohint">Ezen a napon nincs esemény.</p>`}${ro()?'':`<button type="button" class="btn outline small ag-new" data-action="cal-new" data-d="${d}">＋ Új projekt erre a napra</button>`}</div>`;}).join('');
   const nP=items.filter(i=>i.kind==='p'&&i.date.slice(0,7)<=m&&i.endDate.slice(0,7)>=m).length,nG=items.filter(i=>i.kind==='g'&&i.date.slice(0,7)<=m&&i.endDate.slice(0,7)>=m).length;
   const readOnly=ro(),cutters=readOnly?[]:S.crew.filter(c=>(c.roles||[]).includes('Vágó')).sort((a,b)=>a.name.localeCompare(b.name,'hu'));
   const cutterError=readOnly?'':S.cal.err['v:'+m];

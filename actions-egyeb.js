@@ -16,8 +16,9 @@ document.addEventListener('pointerdown',e=>{
 document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols5');}catch(err){}render(true);});
 
 /* ===== Naptár: nap kijelölése, buborék a projektekről, jobb klikkes törlés ===== */
-document.addEventListener('click',e=>{const day=e.target.closest&&e.target.closest('.cal-day');if(!day||e.target.closest('button'))return;
-  S.cal.sel=day.dataset.day;document.querySelectorAll('.cal-day.sel').forEach(x=>x.classList.remove('sel'));day.classList.add('sel');});
+const CAL_MOB=()=>window.matchMedia&&matchMedia('(max-width:760px)').matches;   // mobilon a havi rács alatt a kiválasztott nap listája
+document.addEventListener('click',e=>{const day=e.target.closest&&e.target.closest('.cal-day');if(!day)return;if(e.target.closest('button')&&!CAL_MOB())return;if(CAL_MOB()){e.preventDefault();e.stopPropagation();}
+  S.cal.sel=day.dataset.day;if(CAL_MOB()){const d=day.dataset.day;let hit=false;document.querySelectorAll('.cal-agenda .ag-day').forEach(x=>{const on=x.dataset.agd===d;x.classList.toggle('on',on);hit=hit||on;});if(!hit&&d.slice(0,7)===S.cal.month){render(true);return;}if(d.slice(0,7)!==S.cal.month){S.cal.month=d.slice(0,7);render(true);return;}}document.querySelectorAll('.cal-day.sel').forEach(x=>x.classList.remove('sel'));day.classList.add('sel');});
 function calTipHtml(el){
   const id=el.dataset.tipid;
   if(el.dataset.kind==='p'){const p=projById(id);if(!p)return '';
@@ -184,7 +185,7 @@ function confettiRain(){const c=document.createElement('canvas'),x=c.getContext(
   const t0=performance.now();(function f(now){const el=now-t0;x.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx+Math.sin(p.t+=0.06)*1.2;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.globalAlpha=Math.max(0,1-Math.max(0,el-3600)/900);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.t)));x.restore();});if(el<4500)requestAnimationFrame(f);else c.remove();})(t0);}
 
 /* Naptár: üres napra kattintva új projekt (sablonnal is) – a bejegyzésekre kattintva azok nyílnak meg */
-document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar')return;const d=e.target.closest&&e.target.closest('.cal-day');if(!d||e.target.closest('button,a,.cal-chip'))return;
+document.addEventListener('click',e=>{if(ro()||S.tab!=='naptar'||CAL_MOB())return;const d=e.target.closest&&e.target.closest('.cal-day');if(!d||e.target.closest('button,a,.cal-chip'))return;
   const day=d.dataset.day;if(day)guard(()=>newProjectModal(day));});
 
 /* E-mail értesítések típusonként (Beállítások) */
