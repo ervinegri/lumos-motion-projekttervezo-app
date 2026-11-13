@@ -1268,3 +1268,8 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
  html body .sheet-wrap .sheet,html body .pay-wrap .pay-sheet,html body .sheet-wrap table,html body .tbl-wrap table{border-radius:0!important}
  html body .sheet thead th:first-child,html body .sheet thead th:last-child,html body .sheet tbody tr:last-child td{border-radius:0!important}}
 @media (max-width:700px){html body .page-head.pay-head{align-items:center!important}html body .page-head.pay-head .mnav-row,html body .page-head.pay-head .month-nav{margin:0!important}}
+/* kifizetési tábla telefonon: a fejléc első cellája is rögzített, így az oszlopnevek nem csúsznak a projekt/dátum oszlop alá */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+ html body .pay-sheet thead th:first-child{position:sticky!important;left:0;z-index:4!important}
+ html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{z-index:3!important}
+ html body .pay-sheet thead th{z-index:2}}
