@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "921e51168e",
+"at": "2026-11-13T18:31:33+01:00",
+"msg": "Beállítások a névjelvény menüjében (mobilon a nézetváltóban), fülként nem kell"
+},
+{
 "id": "c0ec032775",
 "at": "2026-11-13T18:24:51+01:00",
 "msg": "Mobil: Kilépés a nézetváltó listájában; rövid legördülők érintésre billentyűzet és kijelölés nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: bruttó oszlop a szerkesztőben, Vissza gomb az előnézetben, teljes ár kiemelve"
 },
 {
-"id": "8978033764",
-"at": "2026-11-13T16:20:02+01:00",
-"msg": "Árajánlat PDF: bruttó oszlop tételenként; teljes ár, kedvezmény, kedvezményes ár"
-},
-{
-"id": "5f8660bdf9",
-"at": "2026-11-13T15:16:42Z",
+"id": "5fd1e6f2cf",
+"at": "2026-11-13T15:20:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
