@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a906b49d48",
+"at": "2026-11-13T18:08:16+01:00",
+"msg": "Értesítések mobilon: a panel a képernyőn belül marad"
+},
+{
 "id": "01bd8bc4b6",
 "at": "2026-11-13T18:07:42+01:00",
 "msg": "Projektlista mobilon keret nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: megjegyzi az állapotot és a fület, komolyabb megjelenés"
 },
 {
-"id": "27cee7d0a3",
-"at": "2026-11-13T16:05:04+01:00",
-"msg": "Árajánlat: több opciónál kötelező az opció neve"
-},
-{
-"id": "c48884ce98",
-"at": "2026-11-13T15:01:01Z",
+"id": "a5ec0fbfc0",
+"at": "2026-11-13T15:05:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
