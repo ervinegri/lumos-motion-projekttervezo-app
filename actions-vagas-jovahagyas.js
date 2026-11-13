@@ -502,7 +502,7 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='m-vvCm')vvSave
 setInterval(()=>{const v=document.querySelector('.vv-player video');if(v&&v.isConnected&&v.readyState)vvSave({t:v.currentTime});},1000);
 function vvRestore(){if(S._vvRestored)return;   /* a betöltés korán (még a fájl végrehajtása közben) is hívhatja: itt nem használunk később definiált konstanst */
   let o=null,lane='';try{o=JSON.parse(sessionStorage.getItem('lpm_vv_open')||'null');lane=sessionStorage.getItem('lpm_lane_open')||'';}catch(e){}
-  let fromMail=false;try{const hv=JSON.parse(localStorage.getItem('lpm_hash_vid')||sessionStorage.getItem('lpm_hash_vid')||'null');if(hv&&hv.pid&&(!hv.t||Date.now()-hv.t<15*60000)){localStorage.removeItem('lpm_hash_vid');sessionStorage.removeItem('lpm_hash_vid');const p0=projFromHash(hv.pid);o={pid:p0?p0.id:hv.pid,vid:hv.vid,raw:hv.pid};lane='';fromMail=true;try{sessionStorage.removeItem('lpm_modal_open');}catch(e){}S._mrDone=true;}}catch(e){}   /* levélből érkező videólink */
+  let fromMail=false;try{const hv=JSON.parse(localStorage.getItem('lpm_hash_vid')||sessionStorage.getItem('lpm_hash_vid')||'null');if(hv&&hv.pid&&(!hv.t||Date.now()-hv.t<15*60000)){localStorage.removeItem('lpm_hash_vid');sessionStorage.removeItem('lpm_hash_vid');const p0=projFromHash(hv.pid);o={pid:p0?p0.id:hv.pid,vid:hv.vid,raw:hv.pid};lane='';fromMail=true;S._vvPend={o:Object.assign({},o),until:Date.now()+120000};try{sessionStorage.removeItem('lpm_modal_open');}catch(e){}S._mrDone=true;}}catch(e){}   /* levélből érkező videólink */
   if((!o||!o.pid)&&lane){S._vvRestored=true;let n=0;const tl=()=>{if(document.querySelector('.bd-modal'))return;if(!projById(lane)||$('mform')){if(++n<40)setTimeout(tl,300);return;}ACT['bd-lane']({dataset:{id:lane}});};setTimeout(tl,50);return;}
   if(!o||!o.pid){S._vvRestored=true;return;}
   S._vvRestored=true;let n=0;
@@ -609,3 +609,10 @@ ACT['vv-ver']=b=>{const box=document.querySelector('.vv-cm');if(!box)return;cons
     pcloudLoad();vidTsTick();const seek=()=>{const nv=document.querySelector('.vv-player video');if(!nv){if((seek.n=(seek.n||0)+1)<40)setTimeout(seek,250);return;}const set=()=>{try{nv.currentTime=Math.min(t,(nv.duration||t)-0.05);}catch(e){}};if(nv.readyState)set();else nv.addEventListener('loadedmetadata',set,{once:true});};if(t)seek();}   /* ugyanott folytatja – a két verzió könnyen összevethető */
   const ta=$('m-vvCm'),keep=ta?ta.value:'';box.innerHTML=vidCmHtml(v);const t2=$('m-vvCm');if(t2&&keep){t2.value=keep;taHl();}
   const mf=document.querySelector('#mform');if(mf)mf.classList.toggle('vv-oldver',k<n);};
+
+/* Levélből érkező videólink: ha a friss adatok betöltése (újrarajzolás) közben a videóablak bezárult vagy még nem nyílt meg, újranyitjuk */
+function vvPendCheck(){const pd=S._vvPend;if(!pd)return;if(Date.now()>pd.until){S._vvPend=null;return;}const o=pd.o;let n=0;
+  const go=()=>{if(!S._vvPend)return;const box=document.querySelector('.vv-cm');if(box&&box.dataset.vid===o.vid){S._vvPend=null;return;}
+    if(o.raw&&!projById(o.pid)){const p1=projFromHash(o.raw);if(p1)o.pid=p1.id;}const p=projById(o.pid);
+    if(!p||!(p.videos||[]).some(x=>x.id===o.vid)||($('mform')&&!document.querySelector('.vv-cm'))){if(++n<60)setTimeout(go,500);return;}
+    ACT['vid-view']({dataset:{pid:o.pid,vid:o.vid}});S._vvPend=null;};setTimeout(go,300);}
