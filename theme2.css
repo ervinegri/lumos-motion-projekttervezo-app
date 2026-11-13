@@ -1273,3 +1273,4 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
  html body .pay-sheet thead th:first-child{position:sticky!important;left:0;z-index:4!important}
  html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{z-index:3!important}
  html body .pay-sheet thead th{z-index:2}}
+@media (max-width:700px){html body .page-head.pay-head.ph-sub{flex-wrap:wrap!important}html body .page-head.ph-sub>.subtabs{flex:1 1 100%!important;max-width:100%}}
