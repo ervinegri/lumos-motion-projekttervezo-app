@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3a410d495a",
+"at": "2026-11-13T15:17:46+01:00",
+"msg": "Értékesítés: Árkalkulátor helyett Árajánlat küldése – előbb a lehetőség kiválasztása kártyákból"
+},
+{
 "id": "ba332acf9d",
 "at": "2026-11-13T14:56:27+01:00",
 "msg": "Levélből érkező videólink: a friss betöltés után is megnyílik a videó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Megszólítás: első keresztnév (magyar névsorrend) mindenhol; újraküldéskor nem ugrál a megnyitás-jelzés"
 },
 {
-"id": "e1bc46dc7f",
-"at": "2026-11-13T09:08:28+01:00",
-"msg": "Videó-hozzászólás válasz: többsoros mező, Enter új sor, Ctrl/Cmd+Enter vagy Küldés gomb"
-},
-{
-"id": "9e4dd96b7d",
-"at": "2026-11-13T08:04:11Z",
+"id": "65fda7b079",
+"at": "2026-11-13T08:08:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
