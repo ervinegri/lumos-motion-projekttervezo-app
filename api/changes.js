@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6111cc6073",
+"at": "2026-11-13T09:11:15+01:00",
+"msg": "Megszólítás: első keresztnév (magyar névsorrend) mindenhol; újraküldéskor nem ugrál a megnyitás-jelzés"
+},
+{
 "id": "e1bc46dc7f",
 "at": "2026-11-13T09:08:28+01:00",
 "msg": "Videó-hozzászólás válasz: többsoros mező, Enter új sor, Ctrl/Cmd+Enter vagy Küldés gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: alacsonyabb választógombok, a Keretszerződés elöl"
 },
 {
-"id": "914fde2f3b",
-"at": "2026-11-13T06:51:32+01:00",
-"msg": "Videók: újbóli leadáskor / új verziónál a korábbi „Megnyitották” jelzés nem számít"
-},
-{
-"id": "32cd4b45e0",
-"at": "2026-11-13T05:48:04Z",
+"id": "68d3a64932",
+"at": "2026-11-13T05:51:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
