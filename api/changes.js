@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a958711f48",
+"at": "2026-11-13T07:22:31+01:00",
+"msg": "Kód modulokra bontva: háttér apps-script/src/NN_*.gs, felület views-*/actions-* + boot.js"
+},
+{
 "id": "84acb504fb",
 "at": "2026-11-13T07:13:28+01:00",
 "msg": "Kiállítói szerződés: short helyett videó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a minta maga a PDF (oldalanként); a táblázatok nem lógnak ki a lapról"
 },
 {
-"id": "38eefc3ec1",
-"at": "2026-11-12T21:12:07+01:00",
-"msg": "Szerződés PDF: helyes számozás, logó az első oldalon, saját oldaltördelés"
-},
-{
-"id": "cb0bdb046e",
-"at": "2026-11-12T20:08:22Z",
+"id": "c85ea3b13b",
+"at": "2026-11-12T20:12:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
