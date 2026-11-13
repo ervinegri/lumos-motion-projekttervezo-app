@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "92398a3d4e",
+"at": "2026-11-13T22:08:01+01:00",
+"msg": "Mobil: Bevétel és kiadás táblázatai keret nélkül a képernyő széléig, Kilépés ikon igazítva, Ügyfelek sorai egyszínűek"
+},
+{
 "id": "e107be2924",
 "at": "2026-11-13T22:06:37+01:00",
 "msg": "Mobil számlázás: minden projekt külön színezett kártyán"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Érintőképernyőn az ablak megnyitásakor nem ugrik fel a billentyűzet"
 },
 {
-"id": "921e51168e",
-"at": "2026-11-13T18:31:33+01:00",
-"msg": "Beállítások a névjelvény menüjében (mobilon a nézetváltóban), fülként nem kell"
-},
-{
-"id": "6d052fec60",
-"at": "2026-11-13T17:25:00Z",
+"id": "f9b9e597ee",
+"at": "2026-11-13T17:31:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
