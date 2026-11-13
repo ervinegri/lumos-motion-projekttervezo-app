@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "846cc0d0bc",
+"at": "2026-11-13T22:40:21+01:00",
+"msg": "Mobil: elforgatás után a táblázatkeret magassága újraszámolódik (álló nézetben nem marad alacsony)"
+},
+{
 "id": "656c12f621",
 "at": "2026-11-13T22:40:04+01:00",
 "msg": "Mobil Fizetések: az alsó összesítő sorok számai nem csúsznak át a név-oszlopon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal álló telefonon: vastagabb sávok, a név vékonyabb betűvel a sávon belül, szélesebb napok"
 },
 {
-"id": "ff26cff377",
-"at": "2026-11-13T21:57:15+01:00",
-"msg": "Mobil Fizetések: szélesebb hónapléptető nyilak"
-},
-{
-"id": "f1c8b8798c",
-"at": "2026-11-13T20:56:39Z",
+"id": "25881c7e6c",
+"at": "2026-11-13T20:57:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
