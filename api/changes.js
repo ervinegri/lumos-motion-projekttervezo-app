@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8184a0d71a",
+"at": "2026-11-13T13:46:12+01:00",
+"msg": "Utómunka-kártya: a számláló fekete háttér nélkül"
+},
+{
 "id": "d80b79adb0",
 "at": "2026-11-13T13:44:17+01:00",
 "msg": "Utómunka-kártya: nincs emelkedés rámutatáskor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektoldal: kódmegjegyzés kilógott a felületre – törölve"
 },
 {
-"id": "ff97f40056",
-"at": "2026-11-13T08:42:40+01:00",
-"msg": "Termelési vezető: szakember nézet; szakember nézetben nincs Státusz oszlop"
-},
-{
-"id": "cd327dd90a",
-"at": "2026-11-13T07:39:57Z",
+"id": "54149a7bcb",
+"at": "2026-11-13T07:42:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
