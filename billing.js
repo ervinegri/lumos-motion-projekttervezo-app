@@ -587,7 +587,7 @@ ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.datas
 ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i.type='file';i.accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.heic';
   i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}contractDropModal(pid,f);};i.click();};
 /* Új verzió figyelése: ha közben frissült az app (új telepítés), egy sáv jelzi, egy kattintással betölthető */
-(function(){const files=['core.js','views.js','actions.js','finance.js','billing.js','sales.js','index.html'];let base=null,shown=false;const T0=Date.now()-60000;   // a betöltött változat ideje (≈) – az ennél újabb változások az újak
+(function(){const files=[...document.querySelectorAll('script[src]')].map(x=>x.getAttribute('src')).filter(x=>x&&!/^(https?:)?\/\//.test(x)&&!/^vendor\//.test(x)).concat('index.html');   // az összes saját szkript (a felület több fájlban van)let base=null,shown=false;const T0=Date.now()-60000;   // a betöltött változat ideje (≈) – az ennél újabb változások az újak
   async function sig(){const r=await Promise.all(files.map(f=>fetch(f,{method:'HEAD',cache:'no-store'}).then(x=>x.headers.get('etag')||x.headers.get('last-modified')||'').catch(()=>'')));return r.join('|');}
   async function check(){if(shown||document.hidden||location.protocol==='file:')return;try{const s=await sig();if(!s.replace(/\|/g,''))return;if(base===null){base=s;return;}
     if(s!==base){shown=true;const d=document.createElement('div');d.className='upd-bar';d.innerHTML='🔄 Elérhető az app új verziója. <button type="button" class="btn primary small">Frissítés most</button>';

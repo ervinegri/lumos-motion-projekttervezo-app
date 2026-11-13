@@ -1,4 +1,4 @@
-# Code.gs automatikus frissítése és telepítése (új verzió ugyanazon a webapp-URL-en)
+# A háttérkód (apps-script/src/*.gs) automatikus frissítése és telepítése (új verzió ugyanazon a webapp-URL-en)
 # Beállítás: Settings → Secrets and variables → Actions
 #   CLASPRC_JSON      – a `clasp login` után létrejött ~/.clasprc.json teljes tartalma (titok)
 #   CLASP_SCRIPT_ID   – az Apps Script projekt azonosítója (Projektbeállítások → Azonosítók → Szkriptazonosító)
@@ -7,7 +7,7 @@ name: Apps Script telepítés
 on:
   push:
     branches: [main]
-    paths: ['apps-script/Code.gs', 'apps-script/Templates.gs']
+    paths: ['apps-script/src/**', 'apps-script/Templates.gs']
   workflow_dispatch:
 concurrency: { group: apps-script-deploy, cancel-in-progress: true }   # gyors egymásutáni módosításoknál csak az utolsó települ (kevesebb verzió)
 jobs:
@@ -38,8 +38,11 @@ jobs:
           printf '{"scriptId":"%s","rootDir":"."}' "$SID" > .clasp.json
           clasp pull                         # az élő manifest (appsscript.json) megmarad
           node -e "const m=require('./appsscript.json');console.log('Manifest oauthScopes:',JSON.stringify(m.oauthScopes||'(automatikus)'))" || true
-          rm -f Code.js Code.gs Templates.js Templates.gs
-          cp "$GITHUB_WORKSPACE/apps-script/Code.gs" Code.js
+          rm -f Code.js Code.gs Templates.js Templates.gs ./[0-9][0-9]_*.js   # a régi egyfájlos kód (Code.js) helyére a modulok kerülnek; más fájlhoz nem nyúlunk
+          ORDER='"appsscript.json"'
+          for f in "$GITHUB_WORKSPACE"/apps-script/src/*.gs; do n=$(basename "$f" .gs); cp "$f" "$n.js"; ORDER="$ORDER,\"$n.js\""; done   # betöltési sorrend: a fájlnév eleji szám
+          printf '{"scriptId":"%s","rootDir":".","filePushOrder":[%s,"Templates.js"]}' "$SID" "$ORDER" > .clasp.json
+          ls -1 *.js
           cp "$GITHUB_WORKSPACE/apps-script/Templates.gs" Templates.js   # szerződéssablonok
           clasp push -f
           N=$(clasp versions 2>/dev/null | grep -cE '^[0-9]+ - ' || true)

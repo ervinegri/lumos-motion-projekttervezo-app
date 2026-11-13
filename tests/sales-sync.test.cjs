@@ -6,7 +6,7 @@ const PDFS = [];   // a Sales App „Rendelések” mappájának megrendelőlapj
 const DriveApp = { getFolderById: () => ({ getFoldersByName: () => { let done = false; return { hasNext: () => !done, next: () => { done = true; let i = 0; return { getFiles: () => ({ hasNext: () => i < PDFS.length, next: () => PDFS[i++] }) }; } }; } }) };
 const ctx = vm.createContext({ console, DriveApp, Utilities: { getUuid: () => crypto.randomUUID() }, SpreadsheetApp: { flush() {} }, Logger: { log() {} },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => null, setProperty() {} }) } });
-vm.runInContext(fs.readFileSync(path.join(root, 'apps-script/Code.gs'), 'utf8'), ctx);
+vm.runInContext(fs.readdirSync(path.join(root, 'apps-script/src')).filter(f => f.endsWith('.gs')).sort().map(f => fs.readFileSync(path.join(root, 'apps-script/src', f), 'utf8')).join('\n'), ctx);
 vm.runInContext(`
   var DB = { projects: [{ id: 'host-1', name: 'Vegan Summit 2026', client: 'Empátia Sztori Nonprofit Kft.', status: 'tervezes', date: '2026-11-07', crew: [], equipment: [], updatedAt: '2026-11-01 10:00:00' }], crew: [{ id: 'crew-nora-1', name: 'Marosvölgyi Nóra' }, { id: 'crew-koos-1', name: 'Koós Nándor' }], inventory: [], clients: [], crewAssign: [], eqAssign: [] }, LOG = [], T = 0;
   var NEON = { ls: null, links: {}, slog: [], afterRead: null };

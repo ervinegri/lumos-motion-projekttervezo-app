@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const ctx = vm.createContext({console, Utilities:{getUuid:()=>crypto.randomUUID(),base64EncodeWebSafe:x=>Buffer.from(x).toString('base64')}, SpreadsheetApp:{flush(){}}, Logger:{log(){}}});
-vm.runInContext(fs.readFileSync(path.join(root,'apps-script/Code.gs'),'utf8'),ctx);
+vm.runInContext(fs.readdirSync(path.join(root,'apps-script/src')).filter(f=>f.endsWith('.gs')).sort().map(f=>fs.readFileSync(path.join(root,'apps-script/src',f),'utf8')).join('\n'),ctx);
 vm.runInContext(`
   var DB={projects:[],crew:[],inventory:[],crewAssign:[],eqAssign:[]}, USER={role:'editor',name:'Dávid',crewId:'david-123'}, LOG=[], tick=0;
   readAll_=key=>DB[key]||[];
@@ -247,7 +247,7 @@ test('finance: legacy sheet import (two header rows, status column, expenses, ca
   const st=json('finSettings_()');assert.equal(st.openMonth,'2025-04');assert.equal(st.appFromMonth,'2026-11');
 });
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
-for(const f of ['core.js','views.js','actions.js','finance.js']){
+for(const f of ['core.js','views-alap.js','views-penzugy-vagas.js','views-stab-naptar-beallitasok.js','actions-ablakok.js','actions-dijcsokkentes.js','actions-projekt.js','actions-esemenyek.js','actions-egyeb.js','actions-projekt-stab.js','actions-vagas-jovahagyas.js','finance.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
   source=source.replace("if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}",'');
   vm.runInContext(source,front,{filename:f});

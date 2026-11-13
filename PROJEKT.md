@@ -21,9 +21,9 @@ A lumosmotion.hu DNS-e a Vercelen van. A főoldal (lumos-motion projekt), a sale
 - `index.html` – HTML + CSS (a Sales App színei, belépő a Sales App mintájára)
 - `config.js` – `window.LUMOS_API_URL`
 - `core.js` – konstansok, állapot, segédfüggvények, létszámigény, `gs()` hívás (GET `?p=` 6000 karakterig, utána POST)
-- `views.js` – belépés, nézetek (Áttekintés, Projektek, Stáb, Leltár, Beállítások)
-- `actions.js` – ablakok, események, mentés
-- `apps-script/Code.gs`, `apps-script/appsscript.json` – a háttér másolata (a Vercel nem tölti fel, `.vercelignore`)
+- `views-*.js` – belépés, nézetek (Áttekintés, Projektek, Stáb, Leltár, Beállítások), témánként külön fájlban
+- `actions-*.js` – ablakok, események, mentés (témánként); `boot.js` – indítás
+- `apps-script/src/*.gs` (modulok, a szám a sorrend), `apps-script/Templates.gs`, `apps-script/appsscript.json` – a háttér másolata (a Vercel nem tölti fel, `.vercelignore`)
 
 Háttér: Apps Script webalkalmazás, a tulajdonos nevében fut, bárki hívhatja (a jogosultságot a token és a szerepkör adja). Felhasználók és munkamenetek a Script Propertiesben (token SHA-256), ütközésvédelem (`baseUpdatedAt`), ismétlésvédelem (`mutationId`), képletbeszúrás ellen `'` előtag. Időzóna: Europe/Budapest.
 
