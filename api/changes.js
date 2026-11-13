@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c89c59eb00",
+"at": "2026-11-13T18:49:37+01:00",
+"msg": "Nézetváltó: nincs külön Másik szakember / értékesítő sor, a ↻ jelű sorral lehet másikat választani"
+},
+{
 "id": "7d32129056",
 "at": "2026-11-13T18:44:59+01:00",
 "msg": "Mobil: nézetváltóban külön Szerepkör és Fiók csoport; projektcím egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: Újabb másolat a mező címsorában"
 },
 {
-"id": "96a5009842",
-"at": "2026-11-13T16:32:31+01:00",
-"msg": "Árajánlat: a PDF-en mindig a címzett e-mail-címe szerepel (külön mező kivéve)"
-},
-{
-"id": "64d7221b28",
-"at": "2026-11-13T15:31:21Z",
+"id": "9f3e7a39c2",
+"at": "2026-11-13T15:32:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
