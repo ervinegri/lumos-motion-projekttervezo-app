@@ -5,7 +5,7 @@ const CT_TPL=[
   {k:'lumos_keret',firm:'Lumos Motion Kft.',t:'Keretszerződés',d:'Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.',hat:false,vat:true},
   {k:'egri_hatarozott',firm:'Egri Ervin E.V.',t:'Megbízási szerződés',d:'Egy projektre, alanyi adómentesen (ÁFA nélkül).',hat:true,vat:false},
   {k:'egri_keret',firm:'Egri Ervin E.V.',t:'Kizárólagos keretmegállapodás',d:'Visszatérő ügyfélnek, alanyi adómentesen.',hat:false,vat:false},
-  {k:'lumos_shortok',firm:'Lumos Motion Kft.',t:'Kiállítói short megbízás',d:'Rendezvényszervezővel: a kiállítóknak short videókat adunk el, a szervező jutalékot kap.',hat:false,vat:true,sh:true}];
+  {k:'lumos_shortok',firm:'Lumos Motion Kft.',t:'Kiállítói videós megbízás',d:'Rendezvényszervezővel: a kiállítóknak videókat adunk el, a szervező jutalékot kap.',hat:false,vat:true,sh:true}];
 const ctTplOf=k=>CT_TPL.find(x=>x.k===k)||CT_TPL[0];
 const CT_CACHE={};
 const ctScript=src=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('Nem tölthető be: '+src));document.head.appendChild(s);});
@@ -22,7 +22,7 @@ function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_
   openModal('📝 Új szerződés – 1/3: sablon',`<div id="ct-firmbox"${firm?' hidden':''}><p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
       ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div></div>
     <div id="ct-kind"${firm?'':' hidden'}><p class="ct-firmsel"><span id="ct-firmname">${firm==='egri'?'Egri Ervin E.V.':'Lumos Motion Kft.'}</span> <button type="button" class="linkbtn" data-ct-chfirm="1">módosítás</button></p><p class="hint" style="margin:10px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
-      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói short megbízás','Rendezvényszervezővel: short videók a kiállítóknak, jutalékkal.')}</span></div></div>
+      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói videós megbízás','Rendezvényszervezővel: videók a kiállítóknak, jutalékkal.')}</span></div></div>
     <p class="ct-tpledit"><button type="button" class="linkbtn" data-action="ct-tpls">✏️ Sablonok szerkesztése Wordben (Drive)</button></p>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
@@ -101,7 +101,7 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const slug=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
-  const nm=(tp.sh?'Megbizasi_szerzodes_kiallitoi_shortok':tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
+  const nm=(tp.sh?'Megbizasi_szerzodes_kiallitoi_videok':tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
@@ -212,8 +212,8 @@ function ctDlvText(tp){const c=S.ct,what=tp.vat?'videóanyagok utómunkázott v�
   return c.dlv==='wm'?`A Szolgáltató a projekt keretében elkészített ${what} vízjellel ellátva adja át a Megrendelő részére; a vízjelet ${paid} eltávolítja, és a vízjel nélküli végleges változatot a Megrendelő rendelkezésére bocsátja.`
     :`A projekt keretében elkészített ${tp.vat?'videóanyagok utómunkázott változatának':'utómunkázott videós és fotós tartalmak'} átadására ${paid} kerül sor.`;}
 
-/* Kiállítói short megbízás (Lumos): rendezvény, ár / jutalék, opcionális pontok */
-const CT_SH_SETTLE=[['choose','A Felek később írásban választanak (jóváírás vagy shortok)'],['credit','Jóváírás az alapmegbízás végszámlájával szemben'],['shorts','Shortok készítése a Megrendelőnek'],['invoice','Kifizetés a Megrendelő számlája alapján']];
+/* Kiállítói videós megbízás (Lumos): rendezvény, ár / jutalék, opcionális pontok */
+const CT_SH_SETTLE=[['choose','A Felek később írásban választanak (jóváírás vagy videók)'],['credit','Jóváírás az alapmegbízás végszámlájával szemben'],['shorts','Videók készítése a Megrendelőnek'],['invoice','Kifizetés a Megrendelő számlája alapján']];
 function ctShFields(){const c=S.ct;if(c.sh_base===undefined){Object.assign(c,{sh_base:true,sh_kf:true,sh_promo:true,sh_price:'59000',sh_comm:'10000',sh_settle:'choose'});}
   const fv=k=>esc(c[k]||''),mon=k=>esc(c[k]?ctFt(c[k]):''),cb=(k,l)=>`<label class="q-disc-on" style="margin:2px 0"><input type="checkbox" name="${k}"${c[k]?' checked':''}> ${l}</label>`;
   const lfee=Math.max(0,num(String(c.sh_price||'').replace(/\D/g,''))-num(String(c.sh_comm||'').replace(/\D/g,'')));
@@ -234,17 +234,17 @@ function ctShTokens(){const c=S.ct,ev=String(c.ev_name||'').trim()||'…',art=x=
   const n=k=>num(String(c[k]||'').replace(/\D/g,'')),price=n('sh_price'),comm=n('sh_comm');
   const st=c.sh_settle||'choose';
   const p33=st==='credit'&&c.sh_base?'3.3. A Megrendelői jutalékot a Szolgáltató az alapmegbízás végszámlájával szemben, jóváírásként érvényesíti.'
-    :st==='shorts'?'3.3. A Megrendelői jutalék ellenértékeként a Szolgáltató a Megrendelő számára short videókat készít, külön írásos specifikáció alapján.'
+    :st==='shorts'?'3.3. A Megrendelői jutalék ellenértékeként a Szolgáltató a Megrendelő számára videókat készít, külön írásos specifikáció alapján.'
     :st==='invoice'?'3.3. A Megrendelői jutalékot a Szolgáltató a végleges elszámolást követően, a Megrendelő által kiállított számla alapján, 15 naptári napon belül banki átutalással fizeti meg.'
-    :`3.3. A Megrendelői jutalék elszámolásának módját a Felek írásban választják ki: (a) ${c.sh_base?'jóváírás az alapmegbízás végszámlájával szemben':'kifizetés a Megrendelő által kiállított számla alapján, banki átutalással'}; vagy (b) a Megrendelő számára készülő short videók megrendelése, külön írásos specifikációval.`;
+    :`3.3. A Megrendelői jutalék elszámolásának módját a Felek írásban választják ki: (a) ${c.sh_base?'jóváírás az alapmegbízás végszámlájával szemben':'kifizetés a Megrendelő által kiállított számla alapján, banki átutalással'}; vagy (b) a Megrendelő számára készülő videók megrendelése, külön írásos specifikációval.`;
   return {ev_name:ev,ev_when:when,ev_place:String(c.ev_place||'').trim()||'…',
     p12:`1.2. Jelen megállapodás ${A} ${ev} rendezvényhez kapcsolódó egyszeri megbízás.`+(c.sh_kf?' A Felek a jövőbeli együttműködés feltételeit külön keretszerződésben tervezik rendezni.':''),
-    p13:c.sh_base?`1.3. A Felek között korábban megkötött, ${A} ${ev} alap videós szolgáltatásait tartalmazó megbízási szerződés teljesítése és ellenértéke változatlan. Jelen megállapodás kizárólag a kiegészítő, kiállítók által külön megrendelt short videókra vonatkozik.`:D,
-    p21:c.sh_base?'2.1. A Szolgáltató az alapmegbízásban vállalt feladatokat az eredeti stábbal, az ott rögzített tartalommal és feltételekkel teljesíti. A kiállítói short videókhoz saját költségére további operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.'
-      :'2.1. A Szolgáltató a kiállítói short videókhoz saját költségére operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.',
+    p13:c.sh_base?`1.3. A Felek között korábban megkötött, ${A} ${ev} alap videós szolgáltatásait tartalmazó megbízási szerződés teljesítése és ellenértéke változatlan. Jelen megállapodás kizárólag a kiegészítő, kiállítók által külön megrendelt videókra vonatkozik.`:D,
+    p21:c.sh_base?'2.1. A Szolgáltató az alapmegbízásban vállalt feladatokat az eredeti stábbal, az ott rögzített tartalommal és feltételekkel teljesíti. A kiállítói videókhoz saját költségére további operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.'
+      :'2.1. A Szolgáltató a kiállítói videókhoz saját költségére operatőrt biztosít, és gondoskodik az értékesítésről, a forgatásról, az utómunkáról és az átadásról.',
     p22:'2.2. A kiegészítő szolgáltatás a Megrendelő számára sem külön személyzeti, technikai vagy szervezési díjjal, sem további kötelező szervezési feladattal nem jár.'+(c.sh_promo?' A Megrendelő a lehetőséget a kiállítóknak szóló általános tájékoztató körlevelekben megemlíti.':''),
     p24:c.sh_base?'2.4. A kiegészítő forgatások elsődleges feltétele, hogy az alapmegbízásban vállalt videós anyagok minősége, forgatása és teljesítési ütemezése teljes körűen biztosított legyen.':D,
-    p31:`3.1. A kiállítók felé alkalmazott ár ${ctFt(price)} Ft + ÁFA / megrendelt short videó. Ebből a Lumos Motion szolgáltatási díja ${ctFt(Math.max(0,price-comm))} Ft + ÁFA / videó, a Megrendelő javára járó jutalék ${ctFt(comm)} Ft + ÁFA / videó.`,
+    p31:`3.1. A kiállítók felé alkalmazott ár ${ctFt(price)} Ft + ÁFA / megrendelt videó. Ebből a Lumos Motion szolgáltatási díja ${ctFt(Math.max(0,price-comm))} Ft + ÁFA / videó, a Megrendelő javára járó jutalék ${ctFt(comm)} Ft + ÁFA / videó.`,
     p33};}
 
 document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('[data-ct-chfirm]'))return;const fb=$('ct-firmbox'),k=$('ct-kind');if(fb)fb.hidden=false;if(k)k.hidden=true;});
