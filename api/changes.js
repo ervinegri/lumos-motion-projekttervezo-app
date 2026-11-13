@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1fb07faabc",
+"at": "2026-11-13T21:55:49+01:00",
+"msg": "Álló mobil: idővonal névoszlop nélkül (név a sávban vagy mellette), Ügyfelek egy oszlopban, Fizetések: Díjösszesítő felirat"
+},
+{
 "id": "e2b84cc064",
 "at": "2026-11-13T21:50:27+01:00",
 "msg": "Álló mobil: Projektek táblázat egy oszlopban, a státusz-jelzések a projekt neve alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista mobilon keret nélkül"
 },
 {
-"id": "cdc6c7601d",
-"at": "2026-11-13T18:06:17+01:00",
-"msg": "Mobil: lehúzással frissítés"
-},
-{
-"id": "8c74ef31aa",
-"at": "2026-11-13T16:55:35Z",
+"id": "950ffc88d1",
+"at": "2026-11-13T17:06:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
