@@ -482,6 +482,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!t||t.tagName!=='INPUT
    A <select> megmarad (rejtve), így a meglévő change-kezelők ugyanúgy működnek. */
 function comboSelect(sel,ph,subOf,opt){opt=opt||{};if(!sel||sel._cmb)return;sel._cmb=1;const wrap=document.createElement('div');wrap.className='cmb';sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);sel.hidden=true;
   const inp=document.createElement('input');inp.className='inp cmb-in';inp.type='text';inp.autocomplete='off';inp.placeholder=ph||'Kezdj el gépelni…';const box=document.createElement('div');box.className='cmb-box';box.hidden=true;wrap.prepend(inp);wrap.appendChild(box);
+  if(sel.dataset.cmbHover){let hov=0;wrap.addEventListener('mouseenter',()=>{if(document.activeElement!==inp){hov=1;inp.focus({preventScroll:true});}});wrap.addEventListener('mouseleave',()=>{if(hov&&document.activeElement===inp)inp.blur();hov=0;});inp.addEventListener('keydown',()=>{hov=0;});}   // rámutatásra lenyílik (pl. vágóválasztó)
   const opts=()=>[...sel.options].filter(o=>o.value!==''||o.dataset.keep),cur=()=>sel.selectedOptions[0]&&sel.value!==''?sel.selectedOptions[0].textContent:'';inp.value=cur();let hi=0,L=[];
   /* beágyazott tételek: data-parent="X" opciók csak X-re kattintva nyílnak le (X ezután újabb kattintással választható) */
   let exp=!!(sel.selectedOptions[0]&&sel.selectedOptions[0].dataset.parent);const kidsOf=o=>[...sel.options].some(x=>x.dataset.parent===o.value);
