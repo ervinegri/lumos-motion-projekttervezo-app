@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e622160bd1",
+"at": "2026-11-13T22:17:37+01:00",
+"msg": "Mobil Bevételek táblázat a Fizetésekhez hasonlóan: sötét rögzített fejléc, rögzített nap+név oszlop, egysoros sorok"
+},
+{
 "id": "73dfa1e70e",
 "at": "2026-11-13T22:16:22+01:00",
 "msg": "Ügyfelek: Árajánlat küldése gomb a fejlécben (mobilon: Ajánlat), a gombok egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: az ablakok teljes oldalként, bennük is lehúzással frissítés; projektcím alatti részletek elrejtve"
 },
 {
-"id": "0759770b98",
-"at": "2026-11-13T18:38:05+01:00",
-"msg": "Projekt mentése nem írja vissza a videók állapotát (régi projektlap felülírta a vágó beküldését)"
-},
-{
-"id": "b11aff84eb",
-"at": "2026-11-13T17:36:32Z",
+"id": "b244aec334",
+"at": "2026-11-13T17:38:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
