@@ -2,6 +2,8 @@
 /* Vágás tábla: áthúzás / → gomb → a videó állapota (videoSet) */
 /* Gyors egymás utáni húzásnál: a kérések sorban mennek, és a válasz nem írja felül a még függő (későbbi) helyi módosításokat */
 let BD_Q=Promise.resolve();const BD_PEND={};
+/* a sikeres áthelyezés 2 percig erősebb, mint egy közben (régebbi adattal) beérkező frissítés – így nem ugrik vissza a kártya a régi oszlopába */
+const BD_DONE={};function bdRecent(){const now=Date.now();Object.keys(BD_DONE).forEach(k=>{const d=BD_DONE[k];if(now-d.at>120000){delete BD_DONE[k];return;}const [pid,vid]=k.split('|'),p=(S.projects||[]).find(x=>x.id===pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(v&&v.st!==d.st)v.st=d.st;});}
 function bdApply(pid){const p=projById(pid);if(!p||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const k=pid+'|'+v.id;if(BD_PEND[k])v.st=BD_PEND[k].st;});}
 function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb){mb.innerHTML=laneModalBody(mb.dataset.pid);const hl=mb.querySelector('.bl-hl'),tt=document.querySelector('#mform .bl-ttl');if(hl&&tt)tt.innerHTML=hl.innerHTML;}try{bdSelBar();}catch(e){}}
 /* Továbbszámlázott tétel csatolmánya: kiválasztás vagy behúzás után azonnal feltöltődik a projekt Drive-mappájába */
@@ -34,7 +36,7 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
   let nmLink='';if(extra&&extra.noMail){nmLink=extra.link||'';extra=null;}   // belső ellenőrzés: kinek, link, megjegyzés
   const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;if(nmLink)v.link=nmLink;if(extra&&extra.client){v.seenAt='';v.seenLast='';v.seenN=0;}   /* újraküldés: azonnal „Még nem nyitották meg” (nem ugrál) */bdRefresh();if(!extra)bdKeep(k,{pid,vid,st,fb:fb||'',at:Date.now()});
   BD_Q=BD_Q.then(async()=>{try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{},nmLink?{link:nmLink}:{}));const pr2=r&&r.project;
-      if(BD_PEND[k]===tok)delete BD_PEND[k];bdKeep(k,null);
+      if(BD_PEND[k]===tok)delete BD_PEND[k];bdKeep(k,null);BD_DONE[k]={st,at:Date.now()};
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.test?'🧪 TESZT: a levél neked ment ki, nem az ügyfélnek':r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
     catch(e){bdKeep(k,null);if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}});}

@@ -65,24 +65,3 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
 (()=>{if(!window.matchMedia||!matchMedia('(pointer:coarse)').matches)return;
   document.addEventListener('focusin',e=>{const t=e.target;if(!t||t.id!=='m-vvCm')return;const go=()=>{try{t.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){t.scrollIntoView();}};setTimeout(go,120);setTimeout(go,450);});
   if(window.visualViewport)visualViewport.addEventListener('resize',()=>{const a=document.activeElement;if(a&&a.id==='m-vvCm')setTimeout(()=>a.scrollIntoView({block:'center'}),50);});})();
-/* érintőképernyő: a vágási tábla kártyái hosszan nyomva megfoghatók és másik oszlopba húzhatók (az iPhone nem támogatja a sima húzást) */
-(()=>{if(!window.matchMedia||!matchMedia('(pointer:coarse)').matches)return;let st=null,tm=null,ghost=null,over=null,raf=0;
-  const colAt=(x,y)=>{if(ghost)ghost.style.display='none';const el=document.elementFromPoint(x,y);if(ghost)ghost.style.display='';return el&&el.closest&&el.closest('[data-bd-col]');};
-  const clear=()=>{clearTimeout(tm);tm=null;if(ghost)ghost.remove();ghost=null;if(st&&st.card)st.card.classList.remove('dragging');document.querySelectorAll('[data-bd-col].over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('bd-dragging');cancelAnimationFrame(raf);st=null;over=null;};
-  const scroller=el=>{let n=el;while(n&&n!==document.body){const cs=getComputedStyle(n);if(/(auto|scroll)/.test(cs.overflowX)&&n.scrollWidth>n.clientWidth+2)return n;n=n.parentElement;}return null;};
-  document.addEventListener('touchstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c||e.touches.length!==1)return;const t=e.touches[0];
-    st={card:c,pid:c.dataset.bdPid,vid:c.dataset.bdVid,x:t.clientX,y:t.clientY,on:false,sc:scroller(c)};
-    tm=setTimeout(()=>{if(!st)return;st.on=true;try{navigator.vibrate&&navigator.vibrate(15);}catch(_){}const r=c.getBoundingClientRect();ghost=c.cloneNode(true);ghost.classList.add('bd-touch-ghost');
-      Object.assign(ghost.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',zIndex:99999,pointerEvents:'none',opacity:'.92',transform:'rotate(2deg) scale(1.03)',boxShadow:'0 12px 30px rgba(0,0,0,.25)'});
-      st.dx=st.x-r.left;st.dy=st.y-r.top;document.body.appendChild(ghost);c.classList.add('dragging');document.body.classList.add('bd-dragging');},380);},{passive:true});
-  document.addEventListener('touchmove',e=>{if(!st)return;const t=e.touches[0];if(!st.on){if(Math.hypot(t.clientX-st.x,t.clientY-st.y)>10){clearTimeout(tm);st=null;}return;}
-    e.preventDefault();st.lx=t.clientX;st.ly=t.clientY;ghost.style.left=(t.clientX-st.dx)+'px';ghost.style.top=(t.clientY-st.dy)+'px';
-    const col=colAt(t.clientX,t.clientY);const ok=col&&bdCanTo(st.pid,st.vid,col.dataset.bdCol)&&(!col.dataset.bdLane||col.dataset.bdLane===st.pid);
-    if(over&&over!==col)over.classList.remove('over');over=ok?col:null;if(over)over.classList.add('over');
-    cancelAnimationFrame(raf);const sc=st.sc;if(sc){const r=sc.getBoundingClientRect(),edge=40;const v=t.clientX<r.left+edge?-12:t.clientX>r.right-edge?12:0;if(v){const step=()=>{if(!st||!st.on)return;sc.scrollLeft+=v;raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}}},{passive:false});
-  const end=e=>{if(!st)return;clearTimeout(tm);if(!st.on){st=null;return;}if(e.cancelable)e.preventDefault();const s=st,col=over;clear();
-    if(!col)return;if(col.dataset.bdLane&&col.dataset.bdLane!==s.pid){toast('A videó csak a saját projektje sorában mozgatható.',true);return;}
-    const to=col.dataset.bdCol,p=projById(s.pid),v=p&&(p.videos||[]).find(x=>x.id===s.vid);if(!v||v.st===to)return;if(typeof BD_GRP!=='undefined')BD_GRP=null;bdMove(s.pid,s.vid,to);};
-  document.addEventListener('touchend',end,{passive:false});document.addEventListener('touchcancel',()=>clear());
-  document.addEventListener('click',e=>{if(document.body.classList.contains('bd-dragging')){e.preventDefault();e.stopPropagation();}},true);
-  document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.bd-card[draggable]'))e.preventDefault();},true);})();
