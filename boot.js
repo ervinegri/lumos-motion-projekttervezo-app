@@ -51,5 +51,7 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
 ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCrewModal();};
 /* fekvő telefon: a kiválasztott menüfül mindig teljesen látszódjon (a fülsor oldalra görgethető) */
 (()=>{const t=document.getElementById('tabs');if(!t||!window.MutationObserver)return;const mq=matchMedia('(orientation:landscape) and (max-height:560px),(max-width:700px)');
-  const fix=()=>{if(!mq.matches)return;const a=t.querySelector('.tab[aria-selected="true"]');if(!a)return;const l=a.offsetLeft-t.offsetLeft,r=l+a.offsetWidth;if(l<t.scrollLeft+4)t.scrollLeft=Math.max(0,l-8);else if(r>t.scrollLeft+t.clientWidth-4)t.scrollLeft=r-t.clientWidth+8;};
+  const edge=()=>{const ov=t.scrollWidth>t.clientWidth+2;t.classList.toggle('fl',ov&&t.scrollLeft>4);t.classList.toggle('fr',ov&&t.scrollLeft<t.scrollWidth-t.clientWidth-4);};
+  const fix=()=>{if(mq.matches){const a=t.querySelector('.tab[aria-selected="true"]');if(a){const tr=t.getBoundingClientRect(),ar=a.getBoundingClientRect(),pad=28;if(ar.left<tr.left+pad)t.scrollLeft-=tr.left+pad-ar.left;else if(ar.right>tr.right-pad)t.scrollLeft+=ar.right-(tr.right-pad);}}edge();};
+  t.addEventListener('scroll',edge,{passive:true});
   new MutationObserver(()=>requestAnimationFrame(fix)).observe(t,{childList:true});mq.addEventListener&&mq.addEventListener('change',()=>setTimeout(fix,250));addEventListener('resize',()=>setTimeout(fix,250));})();

@@ -458,8 +458,16 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
     tip.textContent=t;tip.style.display='block';const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;
     let x=r.left+r.width/2-w/2;x=Math.max(8,Math.min(x,innerWidth-w-8));let y=r.top-h-8;if(y<8)y=r.bottom+8;tip.style.left=x+'px';tip.style.top=y+'px';};
   const hide=()=>{cur=null;if(tip)tip.style.display='none';};
-  document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
-  document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
+  /* érintőképernyőn a súgó csak hosszú érintésre jön fel (sima koppintás = a szokásos művelet) */
+  let lastTouch=0,lpT=null,lpShown=false,sx=0,sy=0;const recentTouch=()=>Date.now()-lastTouch<900;
+  document.addEventListener('touchstart',e=>{lastTouch=Date.now();clearTimeout(lpT);lpShown=false;if(cur)hide();const el=e.target.closest&&e.target.closest('[data-tip]');if(!el)return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;
+    lpT=setTimeout(()=>{lpShown=true;show(el);},480);},{passive:true,capture:true});
+  document.addEventListener('touchmove',e=>{const t=e.touches[0];if(t&&Math.hypot(t.clientX-sx,t.clientY-sy)>10)clearTimeout(lpT);},{passive:true,capture:true});
+  document.addEventListener('touchend',e=>{lastTouch=Date.now();clearTimeout(lpT);if(lpShown&&e.cancelable)e.preventDefault();},{capture:true});   /* hosszú érintés után ne nyíljon meg az elem */
+  document.addEventListener('click',e=>{if(lpShown&&Date.now()-lastTouch<700){e.preventDefault();e.stopPropagation();lpShown=false;}},true);
+  document.addEventListener('contextmenu',e=>{if(lpShown||(recentTouch()&&e.target.closest&&e.target.closest('[data-tip]')))e.preventDefault();},true);
+  document.addEventListener('mouseover',e=>{if(recentTouch()&&!lpShown)return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
+  document.addEventListener('focusin',e=>{if(recentTouch())return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
   document.addEventListener('focusout',hide);document.addEventListener('scroll',hide,true);})();
 
 /* Egységes hónapválasztó (minden pénzügyi fülön a cím alatt): ‹ [hónap] ›; months: újabb elöl */
