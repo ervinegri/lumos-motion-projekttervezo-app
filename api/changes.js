@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b21a68f059",
+"at": "2026-11-13T18:33:09+01:00",
+"msg": "Fekvő telefon: a kifizetési táblában az első oszlop rögzítve"
+},
+{
 "id": "90a24bb8f2",
 "at": "2026-11-13T18:32:59+01:00",
 "msg": "Fekvő telefon: széles táblázatok a saját keretükben görgethetők"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "6d7ac93e5a",
 "at": "2026-11-13T16:27:01+01:00",
 "msg": "Árajánlat: (27% ÁFA) egy sorban, a kedvezmény-százalék rendes számjegyekkel"
-},
-{
-"id": "931d05ba9d",
-"at": "2026-11-13T15:26:09Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
