@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb2a9eea1b",
+"at": "2026-11-13T11:48:47+01:00",
+"msg": "Videónézet telefonon: koppintásra elindul a lejátszás (a saját kattintáskezelő nem állítja meg)"
+},
+{
 "id": "fdc7e4bfc6",
 "at": "2026-11-13T11:47:45+01:00",
 "msg": "Jóváhagyó: kérdés törölve; belépési hibaüzenet rövidebb; mobil videónézet: a gombsor nem takar"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatlapja: Új szerződés létrehozása gomb"
 },
 {
-"id": "b3b8ab85e4",
-"at": "2026-11-13T07:57:58+01:00",
-"msg": "Szerződés: táblázatokban balra igazítás (nincs széthúzott név)"
-},
-{
-"id": "9060ad60cb",
-"at": "2026-11-13T06:48:35Z",
+"id": "aa18cdb9fc",
+"at": "2026-11-13T06:58:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
