@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b3b8ab85e4",
+"at": "2026-11-13T07:57:58+01:00",
+"msg": "Szerződés: táblázatokban balra igazítás (nincs széthúzott név)"
+},
+{
 "id": "9d65601e15",
 "at": "2026-11-13T07:48:26+01:00",
 "msg": "Számla díjbekérő nélkül: teljes összeg a gombon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: rövidebb gombfeliratok, a mentés gomb nem csúszik új sorba"
 },
 {
-"id": "ed42286a24",
-"at": "2026-11-12T21:49:52+01:00",
-"msg": "Szerződés: a PDF-et a Google készíti a Word-fájlból (a minta is ez); a sablonokban a felek táblázatai egymás mellett, nem lebegő táblázattal"
-},
-{
-"id": "202227ab44",
-"at": "2026-11-12T20:45:34Z",
+"id": "315a4b7f83",
+"at": "2026-11-12T20:50:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
