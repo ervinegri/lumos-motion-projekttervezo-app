@@ -69,6 +69,8 @@ function szParseQuery_(body, no, withPdf) {
   const out = { no: xmlText_(alap, 'szamlaszam') || no, tipus: xmlText_(alap, 'tipus'), date: xmlText_(alap, 'kelt').slice(0, 10), due: xmlText_(alap, 'fizh').slice(0, 10),
     payMethod: xmlText_(alap, 'fizmod'), buyer: vevo ? xmlText_(vevo, 'nev') : '', invNet: tot ? nr(xmlText_(tot, 'netto')) : 0, invGross: tot ? nr(xmlText_(tot, 'brutto')) : 0,
     invPaid: paid, paidAt: paidAt, fromDijbekero: xmlText_(alap, 'hivdijbekszam') };
+  if (vevo) { out.buyerTax = xmlText_(vevo, 'adoszam'); out.buyerAddr = [xmlText_(vevo, 'irsz'), xmlText_(vevo, 'telepules')].filter(Boolean).join(' ') + (xmlText_(vevo, 'cim') ? ', ' + xmlText_(vevo, 'cim') : ''); out.buyerEmail = xmlText_(vevo, 'email'); }
+  out.itemNames = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).filter(Boolean);
   out.advReal = /^(true|1|igen)$/i.test(xmlText_(alap, 'elolegszamla'));   // valódi (végszámlán levonható) előlegszámla – a „SZÁMLA A … DÍJBEKÉRŐ ALAPJÁN” sima számla
   // típus felismerése: a számlázz.hu jelzői, a sorszám, végül a tételek szövege (foglaló / előleg / végszámla)
   const flag = t => /^(true|1|igen)$/i.test(xmlText_(alap, t)), names = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).join(' ') + ' ' + xmlText_(alap, 'megjegyzes');
@@ -1008,3 +1010,65 @@ function fwDelete_(u, a) {
   return finPart_(['frameworks']);
 }
 
+
+
+/* ===== Számlatörténet ügyfelenként: az összes számla a számlázz.hu-ból (sorszám szerint végigkérdezve, darabokban) =====
+ * Tárolás: bigPut_('SZ_HIST') = { inv: {sorszám: [kelt, vevő, adószám, cím, nettó, bruttó, tételek, típus, e-mail]}, pos: {"LUMOS-2025": {n, done}} } */
+const SZ_HIST_PREFIXES_ = ['LUMOS', 'E-LUMOS'], SZ_HIST_FROM_ = 2021;
+function szHistLoad_() { try { const h = JSON.parse(bigGet_('SZ_HIST') || '{}'); h.inv = h.inv || {}; h.pos = h.pos || {}; return h; } catch (e) { return { inv: {}, pos: {} }; } }
+function szHistScan_(u, a) {
+  const key = szNeedKey_(), h = szHistLoad_(), started = Date.now(), y0 = Number(today_().slice(0, 4)), B = 20;
+  if (a && a.reset) { h.inv = {}; h.pos = {}; }
+  const req = no => { const payload = {}; payload['action-szamla_agent_xml'] = Utilities.newBlob(szXmlHead_('xmlszamlaxml', 'agentxml') + szEl_('szamlaagentkulcs', key) + szEl_('szamlaszam', no) + szEl_('pdf', 'false') + '</xmlszamlaxml>', 'text/xml', 'request.xml');
+    return { url: SZAMLAZZ_URL, method: 'post', muteHttpExceptions: true, payload: payload }; };
+  let partial = false;
+  outer: for (const pf of SZ_HIST_PREFIXES_) for (let y = y0; y >= SZ_HIST_FROM_; y--) {
+    const k = pf + '-' + y, st = h.pos[k] || (h.pos[k] = { n: 1, done: false, found: 0 });
+    if (st.done && y < y0) continue;   // a folyó év mindig újra megnézi a végét (új számlák)
+    let miss = 0; st.done = false;
+    while (true) {
+      if (Date.now() - started > 22000) { partial = true; break outer; }
+      const nos = []; for (let i = 0; i < B; i++) nos.push(k + '-' + (st.n + i));
+      let res; try { res = UrlFetchApp.fetchAll(nos.map(req)); } catch (e) { partial = true; break outer; }
+      let last = -1;
+      for (let i = 0; i < nos.length; i++) {
+        const hd = res[i].getAllHeaders ? res[i].getAllHeaders() : res[i].getHeaders(), err = Object.keys(hd || {}).some(x => x.toLowerCase() === 'szlahu_error_code');
+        let r = null; if (!err && res[i].getResponseCode() === 200) { try { r = szParseQuery_(res[i].getContentText('UTF-8'), nos[i], false); } catch (e) { r = null; } }
+        if (r) { h.inv[r.no || nos[i]] = [r.date, r.buyer, r.buyerTax || '', r.buyerAddr || '', r.invNet, r.invGross, (r.itemNames || []).join(' · ').slice(0, 300), r.kind, r.buyerEmail || '']; st.found++; last = i; miss = 0; }
+        else miss++;
+      }
+      if (last >= 0) st.n += last + 1; else st.n += 0;
+      if (last < 0 || miss >= 3) { st.done = true; break; }   // 3 egymás utáni hiány (vagy egy üres köteg): vége a sorozatnak
+    }
+  }
+  h.at = now_(); h.full = !partial;
+  bigPut_('SZ_HIST', JSON.stringify(h));
+  return { partial: partial, count: Object.keys(h.inv).length, pos: h.pos };
+}
+const clNorm2_ = v => String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/["'„”.,]/g, ' ').replace(/\b(kft|zrt|bt|nyrt|kht|nonprofit|egyesulet|alapitvany|ev)\b/g, ' ').replace(/\s+/g, ' ').trim();
+const tax8_ = v => String(v || '').replace(/\D/g, '').slice(0, 8);
+/** A számlatörténet vevői, a hozzájuk tartozó ügyféllel (adószám, majd név szerint). */
+function szHistBuyers_() {
+  const h = szHistLoad_(), cls = readAll_('clients'), out = {};
+  Object.keys(h.inv).forEach(no => { const v = h.inv[no], key = tax8_(v[2]) || 'n:' + clNorm2_(v[1]);
+    const o = out[key] || (out[key] = { name: v[1], tax: v[2], addr: v[3], email: v[8] || '', count: 0, net: 0, last: '' });
+    o.count++; o.net += Number(v[4]) || 0; if (v[0] > o.last) { o.last = v[0]; o.name = v[1]; o.addr = v[3] || o.addr; o.tax = v[2] || o.tax; } });
+  return Object.keys(out).map(k => { const o = out[k], c = cls.find(x => (tax8_(o.tax) && tax8_(x.tax) === tax8_(o.tax)) || clNorm2_(x.name) === clNorm2_(o.name)); return Object.assign(o, { clientId: c ? c.id : '', client: c ? c.name : '' }); })
+    .sort((x, y) => y.net - x.net);
+}
+/** Egy ügyfél számlái (számlázz.hu-történet + az appban rögzítettek, pl. E.V.), projekttel vagy a tételek nevével. a: {name} */
+function clientInvoices_(a) {
+  const name = str_(a && a.name, 160).trim(); if (!name) return { items: [] };
+  const c = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === name.toLowerCase()) || { name: name, tax: '' };
+  const t8 = tax8_(c.tax), nn = clNorm2_(c.name), mine = (buyer, tax) => (t8 && tax8_(tax) === t8) || clNorm2_(buyer) === nn;
+  const h = szHistLoad_(), app = readAll_('finInvoice'), byNo = {}; app.forEach(x => { byNo[x.no] = x; });
+  const pn = {}, pc = {}; readAll_('projects').forEach(p => { pn[p.id] = p.name; pc[p.id] = String(p.client || '').trim().toLowerCase(); });
+  const projOf = x => x ? invTargets_(x).map(t => pn[t.projectId]).filter(Boolean) : [];
+  const items = [];
+  Object.keys(h.inv).forEach(no => { const v = h.inv[no]; if (!mine(v[1], v[2])) return; const ax = byNo[no];
+    items.push({ no: no, date: v[0], net: Number(v[4]) || 0, gross: Number(v[5]) || 0, kind: v[7], projects: projOf(ax), what: v[6] }); });
+  app.forEach(x => { if (h.inv[x.no] || x.kind === 'dijbekero' || x.kind === 'storno') return; if (!mine(x.buyer, '') && !invTargets_(x).some(t => pc[t.projectId] === name.toLowerCase())) return;
+    items.push({ no: x.no, date: x.date, net: Number(x.invNet) || 0, gross: Number(x.invGross) || 0, kind: x.kind, projects: projOf(x), what: x.items || '' }); });
+  items.sort((x, y) => String(y.date).localeCompare(String(x.date)));
+  return { items: items, total: items.reduce((s2, x) => s2 + x.net, 0), at: h.at || '', full: !!h.full };
+}

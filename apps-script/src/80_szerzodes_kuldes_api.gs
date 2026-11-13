@@ -351,7 +351,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { contractTpl: 1, ctTplList: 1, arkPricesGet: 1, arkPricesSet: 1, hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { szHistBuyers: 1, clientInvoices: 1, contractTpl: 1, ctTplList: 1, arkPricesGet: 1, arkPricesSet: 1, hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -453,6 +453,9 @@ function rpcInner_(token, name, arg) {
     case 'contractSend': adminOnly(); return contractSend_(u, arg);
     case 'triggerStatus': adminOnly(); return triggerStatus_();
     case 'triggerDelete': adminOnly(); return triggerDelete_(arg);
+    case 'szHistScan': adminOnly(); return szHistScan_(u, arg);
+    case 'szHistBuyers': adminOnly(); return szHistBuyers_();
+    case 'clientInvoices': adminOnly(); return clientInvoices_(arg);
     case 'ctStatus': if (role !== 'admin' && role !== 'sales') deny(); if (role !== 'admin' && arg && arg.projectId && !arg.dealId) deny(); return ctStatusSet_(u, arg);
     case 'clientFolder': adminOnly(); return clientFolderUrl_(arg);
     case 'geoSearch': return geoSearch_(arg);

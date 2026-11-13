@@ -272,3 +272,17 @@ ACT['ct-tpls']=async()=>{let L;try{L=await call('ctTplList');}catch(e){handleErr
 
 /* Ügyfél adatlapjáról: új szerződés, az ügyfél adataival kitöltve */
 ACT['ct-new-client']=b=>{if(!isAdmin())return;const n=b.dataset.client||'';ctNew();if(n){ctFillClient(n);if(!S.ct.client)Object.assign(S.ct,{client:n,c_name:n,sig_name:n});}};
+
+/* Ügyfél adatlapja: a neki kiállított számlák (számlázz.hu-történet + az appban rögzítettek), projekttel vagy a tétel nevével */
+S._clInv=S._clInv||{};
+const CL_INV_KIND={eloleg:'foglaló',vegszamla:'végszámla',szamla:'számla'};
+function clInvHtml(name){const d=S._clInv[name];
+  if(!d){setTimeout(async()=>{try{S._clInv[name]=await call('clientInvoices',{name});}catch(e){S._clInv[name]={err:errText(e),items:[]};}const b=$('cl-inv');if(b)b.outerHTML=clInvHtml(name);},0);
+    return `<div class="cl-work" id="cl-inv"><h4>🧾 Számlázva</h4><p class="hint" style="margin:0"><span class="spin" style="width:10px;height:10px"></span> Számlák betöltése…</p></div>`;}
+  if(d.err)return `<div class="cl-work" id="cl-inv"><h4>🧾 Számlázva</h4><p class="hint" style="margin:0">${esc(d.err)}</p></div>`;
+  if(!d.items.length)return `<div class="cl-work" id="cl-inv"><h4>🧾 Számlázva</h4><p class="hint" style="margin:0">Ennek az ügyfélnek még nem állítottunk ki számlát${d.at?'':' (a számlázz.hu-s számlák még nincsenek betöltve)'}.</p></div>`;
+  const rows=d.items.map(x=>`<tr${x.net<0?' class="muted"':''}><td class="nowrap">${esc(fmtShort(x.date))}</td><td class="nowrap">${esc(x.no)}${CL_INV_KIND[x.kind]&&x.kind!=='szamla'?` <span class="muted">· ${CL_INV_KIND[x.kind]}</span>`:''}</td><td>${x.projects&&x.projects.length?esc(x.projects.join(', ')):`<span class="muted">${esc(x.what||'–')}</span>`}</td><td class="num">${ftFmt(x.net)}</td></tr>`).join('');
+  const yrs={};d.items.forEach(x=>{const y=String(x.date).slice(0,4);yrs[y]=(yrs[y]||0)+x.net;});
+  return `<div class="cl-work" id="cl-inv"><h4>🧾 Számlázva <span class="muted">· ${d.items.length} számla · összesen ${ftFmt(d.total)} nettó</span></h4>
+    <p class="hint" style="margin:0 0 6px">${Object.keys(yrs).sort().reverse().map(y=>`${y}: <b>${ftFmt(yrs[y])}</b>`).join(' · ')}</p>
+    <div class="tbl-wrap"><table class="cl-work-t"><thead><tr><th>Dátum</th><th>Sorszám</th><th>Projekt / tétel</th><th class="num">Nettó</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
