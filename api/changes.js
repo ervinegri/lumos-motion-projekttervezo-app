@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b6a36bad05",
+"at": "2026-11-13T14:19:44+01:00",
+"msg": "Vágóválasztó: rámutatásra lenyílik a vágók listája"
+},
+{
 "id": "8184a0d71a",
 "at": "2026-11-13T13:46:12+01:00",
 "msg": "Utómunka-kártya: a számláló fekete háttér nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptárszűrő: Vágói helyett Utómunka"
 },
 {
-"id": "6c45708b70",
-"at": "2026-11-13T08:45:43+01:00",
-"msg": "Projektoldal: kódmegjegyzés kilógott a felületre – törölve"
-},
-{
-"id": "54149a7bcb",
-"at": "2026-11-13T07:42:49Z",
+"id": "a588e458ec",
+"at": "2026-11-13T07:45:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
