@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01bd8bc4b6",
+"at": "2026-11-13T18:07:42+01:00",
+"msg": "Projektlista mobilon keret nélkül"
+},
+{
 "id": "cdc6c7601d",
 "at": "2026-11-13T18:06:17+01:00",
 "msg": "Mobil: lehúzással frissítés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: több opciónál kötelező az opció neve"
 },
 {
-"id": "13d9ec5eaa",
-"at": "2026-11-13T16:00:50+01:00",
-"msg": "Előadás rögzítés: drón kivéve; szekciókeretek eltávolítva"
-},
-{
-"id": "fc7745b9ba",
-"at": "2026-11-13T14:51:30Z",
+"id": "c48884ce98",
+"at": "2026-11-13T15:01:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
