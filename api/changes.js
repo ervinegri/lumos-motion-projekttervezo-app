@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "86f05e699d",
+"at": "2026-11-13T21:25:45+01:00",
+"msg": "Nézetváltó: Másik szakember/értékesítő a sárga sávban; nem ugrik vissza Ügyvezetőre; szélesebb címke mobilon"
+},
+{
 "id": "99868b2b9f",
 "at": "2026-11-13T21:15:29+01:00",
 "msg": "Mobil havi naptár: többnapos elemek folytatása vékony csík; az oldal nem lóg ki oldalra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: összeg-tördelés, adószám a cím előtt, weboldal ki, szignó a bal alsó sarokban, nagyobb érvényességi sor; az ablakok váratlan hibája kiíródik"
 },
 {
-"id": "6e1321e2e3",
-"at": "2026-11-13T16:47:27+01:00",
-"msg": "Lehetőség: Következő lépés és Mikor? külön felirattal"
-},
-{
-"id": "cf8c457162",
-"at": "2026-11-13T15:43:18Z",
+"id": "0305625370",
+"at": "2026-11-13T15:47:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
