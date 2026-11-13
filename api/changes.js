@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f34743513b",
+"at": "2026-11-13T17:29:49+01:00",
+"msg": "Értékesítés: Árkalkulátor gomb a fejlécben"
+},
+{
 "id": "9003d2868a",
 "at": "2026-11-13T17:16:53+01:00",
 "msg": "Árajánlat: rövid leírás a tételek alatt (terjedelem, fotószám, óraszám, létszám)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Operatőri munkadíj alapdíja a rendezvény és előadás kalkulátorban is; fények kivéve"
 },
 {
-"id": "8691ca426d",
-"at": "2026-11-13T15:36:34+01:00",
-"msg": "Árajánlat: frissítés után a nyitott ajánlat (szerkesztő vagy előnézet) a beírt adatokkal visszajön"
-},
-{
-"id": "d82ffe4fc7",
-"at": "2026-11-13T14:31:45Z",
+"id": "abff143c21",
+"at": "2026-11-13T14:36:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
