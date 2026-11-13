@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "df01e04659",
+"at": "2026-11-13T18:23:53+01:00",
+"msg": "Fekvő mobil: egysoros felső sáv, Kilépés a névjelvény mögött; mobil havi naptár görgethető"
+},
+{
 "id": "63cdff7e44",
 "at": "2026-11-13T18:19:31+01:00",
 "msg": "Fekvő mobilnézet: görgetéskor eltűnik a felső sáv"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: nettó és bruttó két oszlopban, a forint nem törik"
 },
 {
-"id": "bbedce8c2e",
-"at": "2026-11-13T16:15:12+01:00",
-"msg": "Árajánlat: Opció másolása és Új kategória gomb"
-},
-{
-"id": "9194894dc9",
-"at": "2026-11-13T15:12:32Z",
+"id": "303fd94e8a",
+"at": "2026-11-13T15:15:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
