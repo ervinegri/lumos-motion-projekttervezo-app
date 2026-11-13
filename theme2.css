@@ -1506,3 +1506,4 @@ html body .pay-wrap .pay-sheet{border-radius:0!important;width:100%}
 html body .pay-sheet thead th:first-child,html body .pay-sheet thead th:last-child{border-radius:0!important}
 html body .pay-sheet td:first-child,html body .pay-sheet th:first-child{padding-left:max(14px,env(safe-area-inset-left))!important}
 }
+@media (orientation:landscape) and (max-height:560px){html body .cal-toolbar>.btns .cm-lbl{display:inline!important}html body .cal-toolbar>.btns .btn{white-space:nowrap}}
