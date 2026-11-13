@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7f0f21430d",
+"at": "2026-11-13T17:31:15+01:00",
+"msg": "Short videó: operatőri alapdíj 40 000 Ft"
+},
+{
 "id": "f34743513b",
 "at": "2026-11-13T17:29:49+01:00",
 "msg": "Értékesítés: Árkalkulátor gomb a fejlécben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat küldése: új érdeklődő felvétele gomb a lista alatt"
 },
 {
-"id": "d719f71db6",
-"at": "2026-11-13T15:41:49+01:00",
-"msg": "Operatőri munkadíj alapdíja a rendezvény és előadás kalkulátorban is; fények kivéve"
-},
-{
-"id": "abff143c21",
-"at": "2026-11-13T14:36:44Z",
+"id": "c66c5a9abf",
+"at": "2026-11-13T14:42:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
