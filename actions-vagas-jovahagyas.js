@@ -567,17 +567,19 @@ document.addEventListener('keydown',e=>{const t=e.target&&e.target.closest&&e.ta
 /* ===== Utómunka-instrukciók: a projekt összes videójára / fotójára vonatkozó megjegyzések; a vezető írja, az utómunkás hozzászólhat és kipipálhatja ===== */
 S._pn=S._pn||{};
 const pnLead=()=>!ro()&&(isAdmin()||(S.me&&S.me.role==='editor'));
-function pnFill(pid){document.querySelectorAll(`.pn-box[data-pn="${CSS.escape(pid)}"]`).forEach(b=>{b.innerHTML=pnInner(pid);});}
+function pnFill(pid){document.querySelectorAll(`.pn-box[data-pn="${CSS.escape(pid)}"]`).forEach(b=>{b.innerHTML=pnInner(pid);b.hidden=!pnShow(pid);});}
+S._pnOpen=S._pnOpen||{};const pnShow=pid=>{const d=S._pn[pid]||{};return pnLead()||!!(d.notes&&d.notes.length)||!!d.err;};
 function pnBox(pid){if(!S._pn[pid]){S._pn[pid]={loading:1,notes:[]};call('postNotes',{projectId:pid}).then(r=>{S._pn[pid]={notes:r.notes||[]};pnFill(pid);}).catch(e=>{S._pn[pid]={notes:[],err:errText(e)};pnFill(pid);});}
-  return `<div class="pn-box" data-pn="${esc(pid)}">${pnInner(pid)}</div>`;}
+  return `<details class="pn-box" data-pn="${esc(pid)}"${S._pnOpen[pid]?' open':''}${pnShow(pid)?'':' hidden'}>${pnInner(pid)}</details>`;}   // alapból becsukva: csak a fejléc (darabszám) látszik
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('pn-box'))S._pnOpen[d.dataset.pn]=d.open;},true);
 function pnInner(pid){const d=S._pn[pid]||{notes:[]},L=d.notes||[],lead=pnLead(),fd=s=>esc(String(s||'').slice(0,16).replace('T',' ').replace(/^(\d{4})-(\d\d)-(\d\d)/,'$2.$3.'));
-  if(d.err)return `<div class="pn-h">📝 Utómunka-instrukciók</div><p class="hint" style="margin:0">${esc(d.err)}</p>`;
-  if(!L.length&&!lead)return d.loading?'':'';
+  if(d.err)return `<summary class="pn-h">📝 Utómunka-instrukciók</summary><p class="hint" style="margin:0">${esc(d.err)}</p>`;
+  const openN=L.filter(n=>!n.done).length;
   const items=L.map(n=>`<div class="pn-item${n.done?' done':''}" data-id="${esc(n.id)}"><div class="pn-meta"><b>${esc(n.by)}</b> · ${fd(n.at)}${n.done?` <span class="pn-ok">✓ kész – ${esc(n.done.by)}</span>`:''}<span class="pn-acts"><button type="button" class="linkbtn" data-action="pn-done" data-pid="${esc(pid)}" data-id="${esc(n.id)}" data-on="${n.done?'':'1'}">${n.done?'↺ Visszavonás':'✓ Kész'}</button>${lead?` <button type="button" class="linkbtn danger" data-action="pn-del" data-pid="${esc(pid)}" data-id="${esc(n.id)}" title="Törlés">✕</button>`:''}</span></div>
       <div class="pn-t">${notesHtml(n.t)}</div>
       ${(n.cm||[]).map(c=>`<div class="pn-cm"><b>${esc(c.by)}</b> <span class="muted">${fd(c.at)}</span> ${esc(c.t).replace(/\n/g,'<br>')}</div>`).join('')}
       <div class="pn-reply"><textarea class="inp" rows="1" maxlength="1000" placeholder="Hozzászólás… (Enter: új sor · Ctrl/⌘+Enter: küldés)" data-pn-cm="${esc(n.id)}"></textarea><button type="button" class="btn outline small" data-action="pn-cm" data-pid="${esc(pid)}" data-id="${esc(n.id)}">Küldés</button></div></div>`).join('');
-  return `<div class="pn-h">📝 Utómunka-instrukciók</div>
+  return `<summary class="pn-h">📝 Utómunka-instrukciók ${d.loading?'<span class="muted">…</span>':L.length?`<span class="pn-cnt">${L.length} bejegyzés${openN?` · <b>${openN} nyitott</b>`:' · mind kész'}</span>`:'<span class="muted">· még nincs</span>'}</summary>
     ${lead?`<div class="pn-new"><div class="inp rt-notes pn-ed" contenteditable="true" role="textbox" aria-multiline="true" data-ph="pl. Minden shortba kerüljön felirat, a logó a jobb felső sarokba, zene: a megbeszélt lista… (beillesztéskor a formázás megmarad)" data-pn-new="${esc(pid)}"></div><div class="pn-new-row"><label class="q-disc-on"><input type="checkbox" data-pn-notify="${esc(pid)}" checked> E-mail az utómunkásoknak</label><button type="button" class="btn primary small" data-action="pn-add" data-pid="${esc(pid)}">Hozzáadás</button></div></div>`:''}
     ${items||(d.loading?'<p class="hint" style="margin:0">Instrukciók betöltése…</p>':'<p class="hint" style="margin:0">Még nincs instrukció.</p>')}`;}
 async function pnAct(pid,arg,btn){if(btn)btn.disabled=true;try{const r=await call('postNoteAct',Object.assign({projectId:pid},arg));S._pn[pid]={notes:r.notes||[]};pnFill(pid);}catch(e){handleErr(e);if(btn)btn.disabled=false;}}
