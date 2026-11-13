@@ -34,7 +34,7 @@ function viewSales(){
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'||s==='fizetve'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
     <div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div>${DEAL_OPEN.includes(s)?`<button class="dl-add" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}</section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2><p class="sub">Lehetőségek a szerződésig · húzd a kártyát a következő oszlopba${admin?'':' · csak a saját lehetőségeidet látod'}</p></div>
-      <button class="btn btn-ark" type="button" data-action="ark-open" title="Árkalkulátor: rendezvényvideó és előadásrögzítés">🧮 Árkalkulátor</button>
+      <button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat küldése</button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új lehetőség</button></div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
@@ -272,3 +272,10 @@ ACT['ark-tab']=b=>{const f=$('ark-frame');if(!f)return;const mb=document.querySe
 ACT['dwd-save']=async b=>{const t=$('dwd-json');const v=t?t.value.trim():'';if(!v)return toast('Másold be a JSON-kulcsot.',true);b.disabled=true;try{S.dwd=await call('dwdSet',{json:v});toast('Kulcs mentve – most teszteld a kapcsolatot.');render(true);}catch(e){handleErr(e);}finally{b.disabled=false;}};
 ACT['dwd-clear']=async()=>{if(!confirm('Kikapcsolod? A levelek ezután ismét a központi fiókról mennek.'))return;try{S.dwd=await call('dwdSet',{clear:true});render(true);toast('Kikapcsolva.');}catch(e){handleErr(e);}};
 ACT['dwd-test']=async b=>{const m=($('dwd-mail')||{}).value||'';b.disabled=true;try{const r=await call('dwdTest',{email:m});toast('✅ Működik: az app küldhet '+r.email+' nevében.');}catch(e){handleErr(e);}finally{b.disabled=false;}};
+
+/* Árajánlat küldése: előbb kiválasztod a lehetőséget (kártyák), utána nyílik az árajánlat */
+ACT['quote-pick']=()=>{const T=todayISO(),L=(S.deals||[]).filter(d=>DEAL_OPEN.includes(d.stage)&&(isAdmin()||(S.me&&d.ownerId===S.me.id))).sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+  openModal('📄 Árajánlat küldése – melyik lehetőséghez?',L.length?`<p class="hint" style="margin:-4px 0 12px">Kattints arra a lehetőségre, amelyhez az árajánlatot készíted.</p><div class="qp-grid">${L.map(d=>dealCard(d).replace(/data-action="deal-open"/,'data-action="quote-for"').replace(/draggable="(true|false)"/,'draggable="false"')).join('')}</div>`
+    :'<p class="hint" style="margin:0">Nincs nyitott lehetőség. Előbb vegyél fel egyet a „+ Új lehetőség” gombbal.</p>',{cancelLabel:'Mégse',noDraft:true});
+  const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;const mb=document.querySelector('#mform');if(mb)mb.classList.add('m-wide');};
+ACT['quote-for']=b=>{const id=b.dataset.id;closeModal();setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);};
