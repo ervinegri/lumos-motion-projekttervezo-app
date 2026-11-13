@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff02439b74",
+"at": "2026-11-13T18:10:40+01:00",
+"msg": "Mobil: Google Naptár-szerű havi rács a kiválasztott nap eseményeivel; Értékesítés gombjai egy sorban"
+},
+{
 "id": "a906b49d48",
 "at": "2026-11-13T18:08:16+01:00",
 "msg": "Értesítések mobilon: a panel a képernyőn belül marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árkalkulátor: nagyobb csúszkagomb, az Összesen akkora, mint a gombok"
 },
 {
-"id": "a120b69c85",
-"at": "2026-11-13T16:07:50+01:00",
-"msg": "Árkalkulátor: megjegyzi az állapotot és a fület, komolyabb megjelenés"
-},
-{
-"id": "a5ec0fbfc0",
-"at": "2026-11-13T15:05:13Z",
+"id": "c9d481e00e",
+"at": "2026-11-13T15:08:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
