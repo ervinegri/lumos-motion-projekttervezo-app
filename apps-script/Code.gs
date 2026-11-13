@@ -890,7 +890,7 @@ const VIDEO_KINDS_ = [['int_sarok', 'Interjúsarok videó'], ['interju', 'Kiáll
   ['short60', 'Short videó (40–60 mp)'], ['short30', 'Short videó (30–40 mp)'], ['short15', 'Short videó (15–20 mp)']];
 const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'modositas'];
 /** Új link a videóhoz: a régi link verzióként megmarad (a hozzászólások verziónként csoportosíthatók). */
-function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link && v.link !== link) v.vers = (v.vers || []).concat([{ at: now_(), link: v.link }]).slice(-30); v.link = link; }
+function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link && v.link !== link) { v.vers = (v.vers || []).concat([{ at: now_(), link: v.link }]).slice(-30); v.seenAt = ''; v.seenLast = ''; v.seenN = 0; } v.link = link; }   // új verzió: a megnyitás újra számít
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
@@ -1259,6 +1259,7 @@ function videoSet_(u, a) {
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); if (u.id !== 'client') FB_MAIL_ = { v: v, by: u.name }; }   /* az ügyfél kérésénél a vágó az új stílusú levelet kapja (clientDecide_) */   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) vidSetLink_(v, str_(String(a.link).trim(), 500));   // e-mail nélküli áthelyezésnél is a videó linkje
       if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)
+      if (a.st === 'leadva' && v.st !== 'leadva') { v.seenAt = ''; v.seenLast = ''; v.seenN = 0; }   // újbóli leadás: a korábbi megnyitás már nem számít
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);
