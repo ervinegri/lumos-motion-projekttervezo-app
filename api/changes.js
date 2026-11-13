@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd9e75dbe0",
+"at": "2026-11-13T14:54:17+01:00",
+"msg": "Belső ellenőrzés e-mail: rövid tárgy és szöveg, egy gomb (telefonon is áttekinthető)"
+},
+{
 "id": "9c9f005b92",
 "at": "2026-11-13T14:27:02+01:00",
 "msg": "Utómunka-dátumkorlát: a Sales App forgatás-megtörtént jelzése kivétel (teszt javítva)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-instrukciók a projekten: vezető írja, az utómunkás hozzászól és kipipálja (videótábla + projektoldal)"
 },
 {
-"id": "27e969676c",
-"at": "2026-11-13T08:58:46+01:00",
-"msg": "E-mailek: egységes dőlt lábléc az automatikus értesítéseken"
-},
-{
-"id": "6ce97fcae5",
-"at": "2026-11-13T07:55:26Z",
+"id": "7e98f6d697",
+"at": "2026-11-13T07:58:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
