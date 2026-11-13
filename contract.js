@@ -162,7 +162,7 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep&&c
   catch(e){if(box)box.innerHTML=`<p class="bad-txt">A minta nem készíthető el: ${esc(errText(e))}</p>`;}}
 
 /* 📨 Küldés: a szerződés PDF-je e-mailben az ügyfélnek – előtte a levél előnézete (a szöveg szerkeszthető), kérésre mentés az ügyfél mappájába is */
-const ctFirst=x=>{const n=String(x||'').split(',')[0].trim().split(/\s+/);return n.length>1?n[n.length-1]:n[0]||'';};
+const ctFirst=x=>{return huFirst(x);};
 async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
   if(!c.mail)c.mail={to:c.c_email||'',cc:'',subject:tp.t+' – '+(c.c_name||''),save:true,
     body:`Kedves ${ctFirst(c.c_rep)||'Ügyfelünk'}!\n\nCsatolva küldöm a ${tp.t.toLowerCase()} tervezetét. Kérlek, nézd át, és ha mindent rendben találsz, küldd vissza aláírva.\n\nHa bármi kérdés felmerül, szívesen segítek.`};

@@ -459,7 +459,7 @@ const rawPending=p=>p&&['helyszin','utomunka'].includes(p.status||'')&&!p.rawSen
 const rawEditors=p=>editorsOf(p).filter(e=>(p.crew||[]).some(a=>RAW_SHOOT.has(a.role)&&a.crewId!==e.id));
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
 function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d),nf=nasFolder(d);
-  const first=eds.length===1?String(eds[0].name).split(' ').slice(-1)[0]:'';
+  const first=eds.length===1?huFirst(String(eds[0].name)):'';
   const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.label+': '+t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
   const text=`Szia${first?' '+first:''}!\n\nA(z) „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga fent van a NAS-on.\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél húzd át az „Utómunka” lépést a „Videók jóváhagyásra várnak” lépésre, és ott add le a linket.\n\nKöszi!`;
   openModal('📦 Nyersanyag a NAS-on – e-mail a vágónak',`<div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>

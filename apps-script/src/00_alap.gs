@@ -130,6 +130,8 @@ const DATE_FIELDS = new Set(['date', 'endDate', 'deliveredAt', 'dueAt']);
 const CONDITION_LABELS = { ok: 'Üzemképes', javitas: 'Javításra vár', szerviz: 'Szervizben', selejt: 'Selejtezett' };
 const STATUS_LABELS = { egyeztetes: 'Egyeztetés', tervezes: 'Tervezés', helyszin: 'Helyszíni munka', utomunka: 'Utómunka', leadva: 'Videók leadva', jovahagyas: 'Jóváhagyásra vár', atadva: 'Kész', lemondva: 'Lemondva' };
 const ID_RE = /^[A-Za-z0-9-]{8,64}$/;
+/** Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna. */
+function huFirst_(n) { const w = String(n || '').replace(/\([^)]*\)/g, ' ').split(',')[0].trim().split(/\s+/).filter(x => x && !/^(dr|prof|ifj|id|özv|med|habil)\.?$/i.test(x)); return w.length > 1 ? w[1] : w[0] || ''; }
 
 /* ===================== WEBALKALMAZÁS ===================== */
 function doGet(e) {

@@ -90,7 +90,7 @@ function crewDeliver_(u, a) {
   const to = []; try { loadUsers_().forEach(x => { if (x.disabled || !x.email || (x.role !== 'admin' && x.role !== 'editor')) return; const ok = pick ? pick.indexOf(String(x.email).toLowerCase()) >= 0 : notify.indexOf(x.role) >= 0; if (ok && to.indexOf(x.email) < 0) to.push(x.email); }); } catch (e) { }
   if (to.length) {
     const url = projLink_(p), note = str_(a.note, 3000);
-    const first = (w => w.length > 1 ? w[w.length - 1] : String(u.name || ''))(String(u.name || '').trim().split(/\s+/));   // csak a keresztnév: Fodor Kata → Kata
+    const first = huFirst_(u.name) || String(u.name || '');   // csak a keresztnév: Fodor Kata → Kata
     const one = a.single === true;   // egyetlen videó: egyes szám
     let text = first + ' elkészítette a(z) „' + p.name + (one ? '” videóját - jóváhagyásra vár.' : '” videóit - jóváhagyásra várnak.') + (note ? '\n\nMegjegyzés: ' + note : '') + '\n\n' + (one ? 'Videó: ' : 'Videók: ') + [link].concat(parseLinks_(p.deliveryLinks)).join('\n') + (p.deliveryPass ? '\nJelszó: ' + p.deliveryPass : '') + '\n\nProjekt: ' + url;
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -115,7 +115,7 @@ function sendInviteMail_(user, actor, editedHtml) {
 }
 /** A meghívó levél tartalma (a küldés és a Beállítások előnézete is ezt használja). */
 function inviteMailBuild_(user, actor) {
-  const url = appUrl_() || FRONTEND_URL, sig = signatureFor_(actor), first = String(user.name || '').trim().split(/\s+/).slice(-1)[0] || user.name;
+  const url = appUrl_() || FRONTEND_URL, sig = signatureFor_(actor), first = huFirst_(String(user.name || '')) || user.name;
   const intro = 'Hozzáférést kaptál a ' + APP_TITLE + ' alkalmazáshoz.';
   const lines = ['Kedves ' + first + ',', '', intro, '',
     'Belépés: nyisd meg a ' + FRONTEND_LABEL + ' oldalt, és kattints a „Bejelentkezés Google-fiókkal” gombra.',

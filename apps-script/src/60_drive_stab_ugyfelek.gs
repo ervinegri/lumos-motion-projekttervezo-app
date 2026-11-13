@@ -346,7 +346,7 @@ function payStatementBuild_(u, a) {
   const pens = (Array.isArray(a.pens) ? a.pens : []).slice(0, 60).map(x => ({ project: str_(x.project, 160), amount: Math.abs(num(x.amount)), kind: str_(x.kind, 120), ref: str_(x.ref, 20), pct: num(x.pct), day: str_(x.day, 120), caseText: str_(x.caseText, 1500), reason: str_(x.reason, 3000), by: str_(x.by, 200) }));
   const rent = Math.max(0, num(a.rent)), adjs = (Array.isArray(a.adjs) ? a.adjs : num(a.adj) ? [{ amount: a.adj, note: a.adjNote, by: a.adjBy }] : []).slice(0, 30).map(x => ({ amount: num(x.amount), note: str_(x.note, 300), by: str_(x.by, 200) })).filter(x => x.amount), adj = adjs.reduce((s, x) => s + x.amount, 0), retained = Math.max(0, Math.round(num(a.retained)));   // korábbi hónapokból bennhagyott (még ki nem számlázott) összeg
   const feeSum = rows.reduce((s, r) => s + r.fee, 0), dedSum = rows.reduce((s, r) => s + r.ded, 0), gross = feeSum + rent, total = gross - dedSum + adj;
-  const vat = c.vat === 'afa', first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || c.name, e = escapeHtml_;
+  const vat = c.vat === 'afa', first = huFirst_(String(c.name || '')) || c.name, e = escapeHtml_;
   const pm = (v, sg) => payMoney_(v, sg) + (vat ? '\u00a0+\u00a0ÁFA' : '');
   const vatAmt = vat ? Math.round(total * 0.27) : 0;   // áfakörös szakembernél az ÁFA és a bruttó végösszeg is szerepel   // áfakörösnél minden összeg után „+ ÁFA”
   const subject = 'Díjösszesítő – ' + mLbl + ' · ' + c.name;   // összeg nélkül: értesítésben, továbbításkor ne látszódjon

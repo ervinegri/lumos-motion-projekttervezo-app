@@ -75,7 +75,7 @@ function videoReview_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
     if (v) { vidSetLink_(v, link); v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop();
+  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = huFirst_(String(rv.name || ''));
   const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
   const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldte: ' + (v ? v.name : 'videó') + ' – ' + p.name + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA videó megnyitása: ' + url + '\n\nEzt az automatikus értesítést a Lumos Motion Kft. Projekttervezője küldte.';
   const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldte: <b>' + escapeHtml_(v ? v.name : 'videó') + '</b> – ' + escapeHtml_(p.name) + '</p>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p><p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">Ezt az automatikus értesítést a Lumos Motion Kft. Projekttervezője küldte.</p>';
@@ -91,7 +91,7 @@ function videoReviewBatch_(u, a) {
   items.forEach(x => { if (!/^https?:\/\/\S+$/i.test(String(x && x.link || '').trim())) throw new Error('Minden videóhoz illeszd be a linket (https://…).'); });
   const note = str_(a.note, 1000).trim(), done = [], projects = {};
   items.forEach(x => { const r = videoReview_(u, { to: a.to, note: note, projectId: x.projectId, id: x.id, link: x.link, noMail: true }); done.push(r); projects[r.pid] = r.project; });
-  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = String(rv.name || '').split(' ').pop(), pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
+  const rv = SIG_DEFAULTS_[to] || { name: '' }, first = huFirst_(String(rv.name || '')), pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
   const text = 'Kedves ' + first + '!\n\n' + u.name + ' belső ellenőrzésre küldött ' + done.length + ' videót – ' + pn + ':\n\n' + done.map(r => '• ' + r.name).join('\n') + (note ? '\n\nMegjegyzés:\n' + note : '') + '\n\nA projekt: ' + appUrl_() + '#p=' + done[0].pid + '\n\nEzt az automatikus értesítést a Lumos Motion Kft. Projekttervezője küldte.';
   const html = '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(u.name) + '</b> belső ellenőrzésre küldött <b>' + done.length + ' videót</b> – ' + escapeHtml_(pn) + ':</p><ul>' + done.map(r => '<li><a href="' + escapeHtml_(appUrl_() + '#p=' + r.pid + '&v=' + encodeURIComponent(r.vid)) + '">' + escapeHtml_(r.name) + '</a></li>').join('') + '</ul>' + (note ? '<p><b>Megjegyzés:</b><br>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(appUrl_() + '#p=' + done[0].pid) + '">A projekt megnyitása</a></p><p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">Ezt az automatikus értesítést a Lumos Motion Kft. Projekttervezője küldte.</p>';
   let mail = false; try { mail = gmailSend_(to, 'Belső ellenőrzésre vár: ' + done.length + ' videó – ' + pn, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); }
@@ -275,7 +275,7 @@ function clientPreview_(u, a) {
 }
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
-  if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return cn.split(/\s+/).pop();
+  if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return huFirst_(cn);
   const lp = em.split('@')[0].split(/[._-]/)[0]; return lp ? lp.charAt(0).toUpperCase() + lp.slice(1) : 'Ügyfél'; }
 function clientDecide_(t, d, fb, vid) {
   if (clientTokenRead_(t).pv) throw new Error('Ez csak előnézet – itt a gombok nem küldenek semmit.');
@@ -300,7 +300,7 @@ function clientDecide_(t, d, fb, vid) {
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
   if (d === 'ok') { try {   // a videó vágója is értesül a jóváhagyásról (üzenet és link nélkül)
-      const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? String(c.name || '').trim().split(/\s+/).pop() : '';
+      const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';
       if (em && /@/.test(em)) { const when = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy. MM. dd. HH:mm'), subj = '✅ Jóváhagyva: ' + r.v.name + ' – ' + r.p.name;
         const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px">Jó hír: a videót <b>jóváhagyták</b>.</p>'
           + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">✓ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div></td></tr></table>'
@@ -308,13 +308,13 @@ function clientDecide_(t, d, fb, vid) {
         gmailSend_(em, subj, 'Kedves ' + (fn || 'Kolléga') + '!\n\nJó hír: a videót jóváhagyták: ' + r.v.name + ' – ' + r.p.name + '.\n\nKöszönjük a munkádat!', { htmlBody: html, name: 'Lumos Motion Projekttervező', __nk: 'vidOk' }); } } catch (e) { Logger.log('Vágó értesítés (jóváhagyás): ' + e); } }
   try { if (o.s) { const subj = (d === 'ok' ? 'Az ügyfél jóváhagyta: ' : 'Az ügyfél módosítást kér: ') + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
       const edC = (() => { try { return r.v.editor ? readAll_('crew').find(x => x.id === r.v.editor) : null; } catch (e) { return null; } })(), edMine = edC && String(edC.email || '').trim().toLowerCase() === String(o.s).trim().toLowerCase(), whose = edMine ? 'a munkádat' : edC ? sval_(edC.name) + ' munkáját' : 'a videót';   // a vágó munkáját hagyták jóvá
-      const ok = d === 'ok', sc = (() => { try { return readAll_('crew').find(x => String(x.email || '').trim().toLowerCase() === String(o.s).trim().toLowerCase()); } catch (e) { return null; } })(), sfn = sc ? String(sc.name || '').trim().split(/\s+/).pop() : '';
+      const ok = d === 'ok', sc = (() => { try { return readAll_('crew').find(x => String(x.email || '').trim().toLowerCase() === String(o.s).trim().toLowerCase()); } catch (e) { return null; } })(), sfn = sc ? huFirst_(String(sc.name || '')) : '';
       const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(sfn || 'Kolléga') + '!</p><p style="margin:0 0 14px">' + (ok ? 'Jó hír: az ügyfél <b>jóváhagyta</b> ' + escapeHtml_(whose) + '.' : 'Az ügyfél <b>módosítást kér</b> a videón.') + '</p>'
         + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:' + (ok ? '#eaf7ef;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + ';padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:' + (ok ? '#1e7a46' : '#b3261e') + '">' + (ok ? '✓ ' : '✎ ') + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div>'
         + (fb ? '<div style="font-size:14px;color:#202124;margin-top:10px;padding-top:10px;border-top:1px solid ' + (ok ? '#cfe9d9' : '#f3d0cb') + '"><span style="font-size:12px;color:#6b7680">Az ügyfél üzenete:</span><br>' + escapeHtml_(pinStrip_(fb)).replace(/\n/g, '<br>') + '</div>' : '') + '</td></tr></table>'
         + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az automatikus értesítést a Lumos Motion Kft. Projekttervezője küldte.</p></div>';
       gmailSend_(o.s, subj, 'Kedves ' + (sfn || 'Kolléga') + '!\n\n' + (ok ? 'Jó hír: az ügyfél jóváhagyta ' + whose + ': ' : 'Az ügyfél módosítást kér a videón: ') + r.v.name + ' – ' + r.p.name + '.' + (fb ? '\n\nAz ügyfél üzenete:\n' + fb : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' }); 
-      if (!ok) { try { const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? String(c.name || '').trim().split(/\s+/).pop() : '';   // a vágó is megkapja (ügyfél említése nélkül)
+      if (!ok) { try { const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';   // a vágó is megkapja (ügyfél említése nélkül)
         if (em && /@/.test(em) && em.toLowerCase() !== String(o.s).trim().toLowerCase()) { const fbc = pinStrip_(fb);
           const h2 = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px"><b>Módosítást kértek</b> a videón.</p>'
             + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#fff4f2;border-left:4px solid #d93025;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#b3261e">✎ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div>'
@@ -400,7 +400,7 @@ function videoSet_(u, a) {
   });
   logEvent_(u, 'Videó állapota', p.name, changed);
   if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
-    if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = String(c.name || '').split(' ').pop();
+    if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = huFirst_(String(c.name || ''));
       gmailSend_(em, 'Módosítást kér: ' + fm.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér: ' + fm.v.name + ' – ' + p.name + (fm.v.fb ? '\n\n' + pinStrip_(fm.v.fb) : '') + '\n\n' + url,
         { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér: <b>' + escapeHtml_(fm.v.name) + '</b> – ' + escapeHtml_(p.name) + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidMod' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
   return { project: projectView_(fullProject_(p), u) };
@@ -528,7 +528,7 @@ function salesNotify_(pid, kind, st) {
     if (!owners.length) return; const us = loadUsers_();
     owners.forEach(oid => { const su = us.find(x => x.id === oid && x.role === 'sales' && !x.disabled); const em = su && String(su.email || '').trim(); if (!em || !/@/.test(em)) return;
       const nk = kind === 'pay' ? 'salePay' : 'saleDone'; if (salesNotifyOf_(su)[nk] === false) return;
-      const fn = String(su.name || '').trim().split(/\s+/).pop(), pn = sval_(p.name), cl = sval_(p.client);
+      const fn = huFirst_(String(su.name || '')), pn = sval_(p.name), cl = sval_(p.client);
       const head = kind === 'pay' ? (st === 'teljes' ? 'Jó hír: az ügyfeled <b>kifizette</b> a teljes összeget.' : 'Jó hír: az ügyfeled <b>kifizette</b> az előleget / díjbekérőt.') : 'A projekted <b>elkészült és átadtuk</b> az ügyfélnek.';
       const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px">' + head + '</p>'
         + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">' + (kind === 'pay' ? '💰 ' : '✓ ') + escapeHtml_(pn) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(cl) + '</div></td></tr></table>'
@@ -699,7 +699,7 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   if (ct && ct.items && ct.items.length) { rows.push(['Vágnivaló', ct.items.join('\n')]); if (ct.due) rows.push(['Leadási határidő', ct.due]); }
   if (postOnly_(p, m.id)) { const pn = parseNotes_(p.crewNotes)[m.id]; if (pn) rows.push(['Neked szóló megjegyzés', String(pn)]); }   // nem kap eszközlistát: a személyes jegyzet ide kerül
   const intro = cm.intro || (changed ? 'Módosult a beosztásod ezen a projekten:' : 'Véglegesítettük a csapatot, és beosztottunk erre a projektre:');
-  const note = String(cm.note || '').trim(), first = String(m.name).split(/\s+/).pop();
+  const note = String(cm.note || '').trim(), first = huFirst_(String(m.name));
   const text = ['Kedves ' + first + ',', '', intro].concat(note ? ['', note] : []).concat([''])   // megszólítás → bevezető → megjegyzés → beosztás   // a megjegyzés rögtön a megszólítás után
     .concat(rows.map(r => /\n/.test(String(r[1])) ? r[0] + ':\n  • ' + String(r[1]).replace(/\n/g, '\n  • ') : r[0] + ': ' + r[1])).concat(link ? ['', 'Részletek a naptárbejegyzésben: ' + link] : []).concat(['', sigText]).join('\n');
   const html = '<p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro).replace(/\n/g, '<br>') + '</p>' + (note ? '<p>' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '') + '<table cellpadding="4" style="border-collapse:collapse">'

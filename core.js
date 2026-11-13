@@ -559,3 +559,6 @@ function rtClean(html){const doc=new DOMParser().parseFromString('<div>'+String(
     if(el){walk(c,el);to.appendChild(el);}else walk(c,to);});};
   walk(doc.body.firstChild||doc.body,out);let h=out.innerHTML.replace(/(<div><\/div>)+$/,'').replace(/^(\s|<br>)+|(\s|<br>)+$/g,'');return h;}
 function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.test(s)?rtClean(s):esc(s).replace(/\n/g,'<br>');}
+
+/* Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna */
+function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0].trim().split(/\s+/).filter(x=>x&&!/^(dr|prof|ifj|id|özv|med|habil)\.?$/i.test(x));return w.length>1?w[1]:w[0]||'';}

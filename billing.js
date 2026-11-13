@@ -203,7 +203,7 @@ const clTigMail=c=>{try{const o=typeof c.tigMail==='string'?JSON.parse(c.tigMail
 function tigMailModal(id){const t=tigList().find(x=>x.id===id);if(!t){toast('A TIG még nem töltődött be – frissíts.',true);return;}
   const n=s=>String(s||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>n(x.name)===n(t.client))||{},own=clTigMail(c),def=(S.fin.settings&&S.fin.settings.tigMail)||TIG_MAIL_DEF;
   const MN=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];let rows=[];try{rows=JSON.parse(t.rows||'[]');}catch(e){}
-  const v={nev:(c.rep||c.contactName||'').trim().split(/\s+/).slice(-1)[0]||'Partnerünk',ugyfel:t.client,honap:t.month?t.month.slice(0,4)+'. '+MN[Number(t.month.slice(5,7))-1]:'',osszeg:ftFmt(num(t.total))+' + ÁFA',tetelek:rows.map(r=>'• '+r.task+(r.period?' ('+r.period+')':'')).join('\n')};
+  const v={nev:huFirst((c.rep||c.contactName||''))||'Partnerünk',ugyfel:t.client,honap:t.month?t.month.slice(0,4)+'. '+MN[Number(t.month.slice(5,7))-1]:'',osszeg:ftFmt(num(t.total))+' + ÁFA',tetelek:rows.map(r=>'• '+r.task+(r.period?' ('+r.period+')':'')).join('\n')};
   const tpl=own||def,to=own&&own.to?own.to:[c.repEmail,c.contactEmail].filter(Boolean).filter((x,i,l)=>l.indexOf(x)===i).join(', ');
   openModal('TIG küldése e-mailben',`<div class="fields">${mf('mto','Címzett',{full:true,v:to,ph:'nev@ceg.hu',max:300})}${mf('mcc','Másolat (nem kötelező)',{full:true,v:own&&own.cc||'',max:300})}${mf('msubj','Tárgy',{full:true,v:tigTpl(tpl.subject,v),max:200})}
     <div class="field full"><label for="m-mtext">Üzenet</label><textarea class="inp" id="m-mtext" name="mtext" rows="8" maxlength="5000">${esc(tigTpl(tpl.text,v))}</textarea></div>

@@ -322,7 +322,7 @@ function sendEquipmentList_(u, a) {
   const sig = signatureFor_(u), pNotes = parseNotes_(p.crewNotes), previews = [];
   recipients.forEach(cid => {
     const c = crewMap[cid];
-    const first = String(c.name).trim().split(/\s+/).slice(-1)[0];
+    const first = huFirst_(String(c.name));
     const isLead = cid === p.lead, EQ = buildEq(isLead ? null : cid);
     const html = '<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#173042;font-size:14px;line-height:1.5;max-width:640px">'
       + '<p>Szia ' + e(first) + '!</p>'
