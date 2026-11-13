@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5dde09ffb5",
+"at": "2026-11-13T22:41:51+01:00",
+"msg": "Mobil: az oldal sehol nem húzható oldalra (a kilógó tartalmat az oldal levágja), számlázási kártyák nem szélesebbek a képernyőnél"
+},
+{
 "id": "846cc0d0bc",
 "at": "2026-11-13T22:40:21+01:00",
 "msg": "Mobil: elforgatás után a táblázatkeret magassága újraszámolódik (álló nézetben nem marad alacsony)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil számlázás: több számla kártyái nem csúsznak egymásra"
 },
 {
-"id": "1ca9544490",
-"at": "2026-11-13T21:59:57+01:00",
-"msg": "Idővonal álló telefonon: vastagabb sávok, a név vékonyabb betűvel a sávon belül, szélesebb napok"
-},
-{
-"id": "25881c7e6c",
-"at": "2026-11-13T20:57:23Z",
+"id": "b300d32847",
+"at": "2026-11-13T21:00:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
