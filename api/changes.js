@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d40b96ebfa",
+"at": "2026-11-13T22:21:42+01:00",
+"msg": "Mobil árajánlat-előnézet: tördelés javítva, semmi nem lóg ki, a PDF-oldal kicsinyítve fér el"
+},
+{
 "id": "45abfa4e7e",
 "at": "2026-11-13T22:20:03+01:00",
 "msg": "Mobil: az oldal ismét görgethető lefelé (overflow-x: clip a hidden helyett, nem lesz külön görgetőkeret a body)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil havi naptár: többnapos elemek folytatása vékony csík; az oldal nem lóg ki oldalra"
 },
 {
-"id": "0bc0b7ac97",
-"at": "2026-11-13T20:42:43+01:00",
-"msg": "E-mailek: az emojik nem esnek szét (HTML számkóddal mennek)"
-},
-{
-"id": "32670e6e99",
-"at": "2026-11-13T17:49:46Z",
+"id": "00aa090a5f",
+"at": "2026-11-13T19:42:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
