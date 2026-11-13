@@ -1398,3 +1398,12 @@ html body .tl-row .tl-track .tl-bar .tl-ok{display:inline}
 }
 /* álló telefon, Szerződés és számlázás: több számla esetén a kártyák ne csússzanak egymásra (ne töltse ki a cella magasságát) */
 @media (max-width:700px){html body .bill-tbl .bt-cell .pb-box{height:auto!important}html body .bill-tbl .bt-cell .pb-stack{height:auto!important}}
+/* álló telefon, Szerződés és számlázás: minden projekt külön, színezett kártya */
+@media (max-width:700px){
+html body .bill-tbl tbody tr:not(.bl-chead):not(.pt-month){margin:10px 8px;background:#e8eef5!important;border:1px solid #d3dde8!important;border-left:4px solid #3a6b8f!important;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(16,40,60,.06)}
+html body .bill-tbl tbody tr:not(.bl-chead):not(.pt-month)>td{background:transparent!important}
+html body .bill-tbl tbody tr:not(.bl-chead):not(.pt-month) .pb-box:not(.bs-green):not(.bs-late):not(.bs-wait):not(.bs-paid):not(.red):not(.late):not(.green){background:#fff!important}
+html body .bill-tbl tbody tr:not(.bl-chead):not(.pt-month).bs-paid,html body .bill-tbl tbody tr.bs-paid{background:#eef0f2!important;border-left-color:#9aa6b0!important}
+html body .bill-tbl tbody tr.bl-chead+tr:not(.bl-chead){margin-top:6px}
+}
+@media (max-width:700px){html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month){background:#e8eef5!important}html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month)>td{background:transparent!important}}
