@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fe4d34d763",
+"at": "2026-11-13T22:33:51+01:00",
+"msg": "Fekvő telefon: Bevétel és kiadás fejléce egy sorban, tömörebb dobozok és táblázatok"
+},
+{
 "id": "a3d9f9091f",
 "at": "2026-11-13T22:33:14+01:00",
 "msg": "Mobil Fizetések: a táblázat alja elérhető fekvőben, tömörebb állapotsorok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő mobil: névjelvény (pozíció) helyett a nézetváltó Fiók menüje, fülsor kifér, aktív fül mindig látszik"
 },
 {
-"id": "34beb19c85",
-"at": "2026-11-13T21:46:48+01:00",
-"msg": "Mobil: frissítés-sáv széles + lehúzással eltüntethető, NAV/Kiküldés rövid felirat egy sorban, díjösszesítő-lista sorai nem fednek"
-},
-{
-"id": "e155b33f44",
-"at": "2026-11-13T20:41:37Z",
+"id": "5c25526375",
+"at": "2026-11-13T20:46:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
