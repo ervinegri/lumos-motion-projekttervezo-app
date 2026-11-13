@@ -221,3 +221,8 @@
     window.addEventListener('blur',()=>{if(fast){const v=vd();if(v)v.playbackRate=1;badge(false);fast=false;}down=false;clearTimeout(hold);});}
   /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
 })();
+
+/* A jóváhagyó oldal linkjének másolása (más is megnézheti) */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#cpLink');if(!b)return;const u=location.href.split('#')[0];
+  const ok=()=>{const t=b.textContent;b.textContent='✓ Link kimásolva';setTimeout(()=>{b.textContent=t;},1800);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,()=>{prompt('Másold ki a linket:',u);});else{prompt('Másold ki a linket:',u);}});
