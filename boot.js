@@ -45,3 +45,10 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
   sync();if(mq.addEventListener)mq.addEventListener('change',sync);
   sel.addEventListener('focus',()=>{prev=sel.value;sync();});sel.addEventListener('pointerdown',()=>{prev=sel.value;sync();});
   document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value==='__settings'){e.stopImmediatePropagation();sel.value=prev;ACT.tab({dataset:{tab:SETTINGS_TAB()}});return;}if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();
+
+/* Nézetváltó: nincs külön „Másik szakember / értékesítő…” sor – a ↻ jelű sort újra kiválasztva lehet másikat választani */
+(()=>{const sel=document.getElementById('viewAs');if(!sel)return;sel.querySelectorAll('option[value="crew-other"],option[value="sales-other"]').forEach(o=>o.remove());let held=null;
+  const arm=()=>{if(held)return;const v=sel.value;if(v==='crew'||v==='sales'){const o=sel.selectedOptions[0];if(o&&/^↻/.test(o.textContent)){held=v;sel.selectedIndex=-1;}}};
+  sel.addEventListener('pointerdown',arm);sel.addEventListener('focus',arm);
+  sel.addEventListener('change',()=>{held=null;},true);
+  sel.addEventListener('blur',()=>{if(held&&sel.selectedIndex===-1)sel.value=held;held=null;});})();
