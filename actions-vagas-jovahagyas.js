@@ -305,7 +305,7 @@ function vidScrub(vd){if(vd._scrub)return;vd._scrub=1;vd.tabIndex=-1;vd.addEvent
 const pl=vd.closest('.vv-player');if(!pl)return;let st=null,moved=false;vidFps(vd);
   let pend=null;const seek=t=>{if(vd.seeking){pend=t;return;}pend=null;vd.currentTime=t;};vd.addEventListener('seeked',()=>{if(pend!=null&&Math.abs(pend-vd.currentTime)>1e-4){const t=pend;pend=null;vd.currentTime=t;}});   /* egyszerre csak egy ugrás: így minden megjelenített képkocka a valódi helyén van */
   const inCtl=e=>{const r=vd.getBoundingClientRect();return e.clientY>r.bottom-48;};
-  vd.addEventListener('pointerdown',e=>{if(e.button!==0||inCtl(e))return;if(window._vvPinMode||e.ctrlKey||e.metaKey){e.preventDefault();pinPlace(vd,e);return;}const r=vd.getBoundingClientRect();
+  vd.addEventListener('pointerdown',e=>{if(e.button!==0||inCtl(e)||(e.pointerType==='touch'&&!window._vvPinMode))return;   /* érintőképernyőn a beépített lejátszó kezeli a koppintást (különben a lejátszás rögtön megállna) */if(window._vvPinMode||e.ctrlKey||e.metaKey){e.preventDefault();pinPlace(vd,e);return;}const r=vd.getBoundingClientRect();
     st={x:e.clientX,lx:e.clientX,t:vd.currentTime,w:r.width,play:!vd.paused};moved=false;vd.setPointerCapture(e.pointerId);});
   vd.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x;if(!moved&&Math.abs(dx)<6)return;
     if(!moved){moved=true;vd.pause();pl.classList.add('scrubbing');}
