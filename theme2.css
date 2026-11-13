@@ -1482,3 +1482,9 @@ html body .q-pdf-page .qp{zoom:.4}
 }
 @media (min-width:430px) and (max-width:700px){html body .q-pdf-page .qp{zoom:.48}}
 @media (min-width:560px) and (max-width:700px){html body .q-pdf-page .qp{zoom:.66}}
+/* fekvő telefon: Projektek táblázat – a Státusz oszlop keskenyebb, a projekt oszlop kapja a helyet */
+@media (orientation:landscape) and (max-height:560px){
+html body .proj-table{table-layout:auto!important}
+html body .proj-table th:last-child,html body .proj-table td.pt-status,html body .proj-table td.pt-extra{width:210px!important;max-width:210px!important}
+html body .proj-table .pt-pills{display:flex;flex-wrap:wrap;gap:4px}
+}
