@@ -143,7 +143,8 @@ async function ctPdfLocal(blob){await ctLibs();const lib=await h2pLib(),host=doc
     const uri=await lib().set({margin:[M,0,M,0],image:{type:'jpeg',quality:.95},html2canvas:{scale:2,scrollX:0,scrollY:0,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:[]}}).from(box).outputPdf('datauristring');
     return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
-async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c._pdf=null;
+const ctSig=()=>JSON.stringify(Object.keys(S.ct).filter(k=>k[0]!=='_'&&k!=='step').sort().map(k=>[k,S.ct[k]]));   // a PDF csak akkor készül újra, ha valamelyik mező változott
+async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep&&c._pdfSig!==ctSig()){c._pdf=null;c._pages=null;}
   openModal('📝 Új szerződés – 3/3: minta',`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)} · ${esc(c.c_name)} – így fog kinézni. Ha valami nem stimmel, menj vissza és javítsd.</p><div class="ct-prev" id="ctPrev"><div class="loading"><span class="spin"></span>Minta készítése…</div></div>`,
     {submitLabel:'💾 Mentés a mappába',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="2">← Vissza</button><button type="button" class="btn outline" data-action="ct-dl" title="Letöltés Word-fájlként">⬇ .docx</button><button type="button" class="btn outline" data-action="ct-pdf" title="Letöltés PDF-ként">⬇ .pdf</button><button type="button" class="btn outline" data-action="ct-send">📨 Küldés</button>`,
      submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
@@ -151,11 +152,13 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep)c.
        try{await call('clientDocUpload',{client:c.client||c.c_name,b64:await ctB64(r.blob),name:pdfName.replace(/\.pdf$/i,'')+'.docx',mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',plain:true});}catch(e){toast('A .docx változat mentése nem sikerült: '+(e.message||e),true);}   // a szerkeszthető változat is a mappába kerül
        closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
-  try{const r=await ctBuild(),b64=c._pdf||await ctPdf(r.blob);c._pdf=b64;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
+  const show=pages=>{box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;};
+  if(c._pdf&&c._pages){show(c._pages);return;}
+  try{const sig=ctSig(),r=await ctBuild(),b64=c._pdf||await ctPdf(r.blob);c._pdf=b64;c._pdfSig=sig;if(!$('ctPrev'))return;   // a minta maga a PDF (oldalanként), pontosan ez kerül a mappába
     const lib=await pdfLib(),bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
     const doc=await lib.getDocument({data:u8,isEvalSupported:false}).promise,pages=[];
     for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i),vp=pg.getViewport({scale:1.6}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;pages.push(cv.toDataURL('image/jpeg',.88));}
-    box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;}
+    c._pages=pages;show(pages);}
   catch(e){if(box)box.innerHTML=`<p class="bad-txt">A minta nem készíthető el: ${esc(errText(e))}</p>`;}}
 
 /* 📨 Küldés: a szerződés PDF-je e-mailben az ügyfélnek – előtte a levél előnézete (a szöveg szerkeszthető), kérésre mentés az ügyfél mappájába is */
