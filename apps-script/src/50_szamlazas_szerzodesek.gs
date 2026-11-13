@@ -70,7 +70,7 @@ function szParseQuery_(body, no, withPdf) {
     payMethod: xmlText_(alap, 'fizmod'), buyer: vevo ? xmlText_(vevo, 'nev') : '', invNet: tot ? nr(xmlText_(tot, 'netto')) : 0, invGross: tot ? nr(xmlText_(tot, 'brutto')) : 0,
     invPaid: paid, paidAt: paidAt, fromDijbekero: xmlText_(alap, 'hivdijbekszam') };
   if (vevo) { out.buyerTax = xmlText_(vevo, 'adoszam'); out.buyerAddr = [xmlText_(vevo, 'irsz'), xmlText_(vevo, 'telepules')].filter(Boolean).join(' ') + (xmlText_(vevo, 'cim') ? ', ' + xmlText_(vevo, 'cim') : ''); out.buyerEmail = xmlText_(vevo, 'email'); }
-  out.itemNames = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).filter(Boolean);
+  out.itemNames = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'nev') || xmlText_(t, 'megnevezes')).filter(Boolean);
   out.advReal = /^(true|1|igen)$/i.test(xmlText_(alap, 'elolegszamla'));   // valódi (végszámlán levonható) előlegszámla – a „SZÁMLA A … DÍJBEKÉRŐ ALAPJÁN” sima számla
   // típus felismerése: a számlázz.hu jelzői, a sorszám, végül a tételek szövege (foglaló / előleg / végszámla)
   const flag = t => /^(true|1|igen)$/i.test(xmlText_(alap, t)), names = xmlFindAll_(doc, 'tetel').map(t => xmlText_(t, 'megnevezes')).join(' ') + ' ' + xmlText_(alap, 'megjegyzes');
