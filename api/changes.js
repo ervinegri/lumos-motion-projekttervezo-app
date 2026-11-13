@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e0f74f97b0",
+"at": "2026-11-13T06:47:53+01:00",
+"msg": "Szerződés mentésekor a szerkeszthető .docx is az ügyfél mappájába kerül (a PDF mellé)"
+},
+{
 "id": "fea7d2fef6",
 "at": "2026-11-12T22:59:27+01:00",
 "msg": "Naptár újraszinkron: időzítő-jogosultság nélkül is hibátlanul lefut"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a közelgő események leírása egyszer újraszinkronizálódik (jegyzetek nélkül)"
 },
 {
-"id": "5500d57ac3",
-"at": "2026-11-12T20:55:10+01:00",
-"msg": "Naptár: a projekt jegyzetei nem kerülnek a naptárbejegyzésbe"
-},
-{
-"id": "412b10a0d9",
-"at": "2026-11-12T19:54:58Z",
+"id": "bf5748f0ce",
+"at": "2026-11-12T19:55:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
