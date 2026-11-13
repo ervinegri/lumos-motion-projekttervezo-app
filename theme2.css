@@ -1172,3 +1172,4 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
 /* mobil havi rács: a többnapos elemek folytatása csak vékony színes csík (szöveg nélkül), és az oldal nem lóg ki oldalra */
 @media (max-width:760px){html body .cal-day .cal-chip.cont{font-size:0!important;height:5px;min-height:0;padding:0!important;border-radius:2px;margin:1px 0}
  html,body{overflow-x:hidden;max-width:100%}}
+@media (max-width:700px){html body .header-tools .view-as{max-width:calc(100vw - 210px)!important}}
