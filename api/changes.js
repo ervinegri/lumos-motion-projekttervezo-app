@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff26cff377",
+"at": "2026-11-13T21:57:15+01:00",
+"msg": "Mobil Fizetések: szélesebb hónapléptető nyilak"
+},
+{
 "id": "9d09f4ebba",
 "at": "2026-11-13T21:56:28+01:00",
 "msg": "Mobil Fizetések: görgetéskor a nevek fejléce fent marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: Google Naptár-szerű havi rács a kiválasztott nap eseményeivel; Értékesítés gombjai egy sorban"
 },
 {
-"id": "a906b49d48",
-"at": "2026-11-13T18:08:16+01:00",
-"msg": "Értesítések mobilon: a panel a képernyőn belül marad"
-},
-{
-"id": "c7593974c6",
-"at": "2026-11-13T17:07:52Z",
+"id": "fb020b7868",
+"at": "2026-11-13T17:08:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
