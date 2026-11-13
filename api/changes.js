@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "27e969676c",
+"at": "2026-11-13T08:58:46+01:00",
+"msg": "E-mailek: egységes dőlt lábléc az automatikus értesítéseken"
+},
+{
 "id": "840a053f0e",
 "at": "2026-11-13T08:55:18+01:00",
 "msg": "Utómunkára lépés csak a helyszíni munka napjától (felület és háttér)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár újraszinkron: időzítő-jogosultság nélkül is hibátlanul lefut"
 },
 {
-"id": "afb11c9122",
-"at": "2026-11-12T22:56:27+01:00",
-"msg": "Naptár: azonnali újraszinkron (ügyvezető), és a Naptár megnyitásakor egyszer újra lefut – a jegyzetek kikerülnek a leírásból"
-},
-{
-"id": "dfdcda903d",
-"at": "2026-11-12T21:46:33Z",
+"id": "fcd4572524",
+"at": "2026-11-12T21:56:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
