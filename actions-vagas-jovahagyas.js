@@ -577,7 +577,7 @@ function pnInner(pid){const d=S._pn[pid]||{notes:[]},L=d.notes||[],lead=pnLead()
       <div class="pn-t">${esc(n.t).replace(/\n/g,'<br>')}</div>
       ${(n.cm||[]).map(c=>`<div class="pn-cm"><b>${esc(c.by)}</b> <span class="muted">${fd(c.at)}</span> ${esc(c.t).replace(/\n/g,'<br>')}</div>`).join('')}
       <div class="pn-reply"><textarea class="inp" rows="1" maxlength="1000" placeholder="Hozzászólás… (Enter: új sor · Ctrl/⌘+Enter: küldés)" data-pn-cm="${esc(n.id)}"></textarea><button type="button" class="btn outline small" data-action="pn-cm" data-pid="${esc(pid)}" data-id="${esc(n.id)}">Küldés</button></div></div>`).join('');
-  return `<div class="pn-h">📝 Utómunka-instrukciók <span class="muted">– az összes videóra / fotóra vonatkozik</span></div>
+  return `<div class="pn-h">📝 Utómunka-instrukciók</div>
     ${lead?`<div class="pn-new"><textarea class="inp" rows="2" maxlength="2000" placeholder="pl. Minden shortba kerüljön felirat, a logó a jobb felső sarokba, zene: a megbeszélt lista…" data-pn-new="${esc(pid)}"></textarea><div class="pn-new-row"><label class="q-disc-on"><input type="checkbox" data-pn-notify="${esc(pid)}" checked> E-mail az utómunkásoknak</label><button type="button" class="btn primary small" data-action="pn-add" data-pid="${esc(pid)}">Hozzáadás</button></div></div>`:''}
     ${items||(d.loading?'<p class="hint" style="margin:0"><span class="spin" style="width:10px;height:10px"></span></p>':'<p class="hint" style="margin:0">Még nincs instrukció.</p>')}`;}
 async function pnAct(pid,arg,btn){if(btn)btn.disabled=true;try{const r=await call('postNoteAct',Object.assign({projectId:pid},arg));S._pn[pid]={notes:r.notes||[]};pnFill(pid);}catch(e){handleErr(e);if(btn)btn.disabled=false;}}
