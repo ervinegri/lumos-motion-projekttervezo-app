@@ -1017,3 +1017,5 @@ html body .stage[data-action="bd-lane"],html body .stage[data-action="bd-lane"] 
 html body .stage .stage-board{font-size:15px!important;padding:7px 15px!important;gap:7px}
 html body .stage .t-row .stage-board:hover,html body .stage .t-row .stage-board:focus,html body .stage .t-row .stage-board:active{transform:none!important;box-shadow:0 2px 8px rgba(16,25,35,.25)!important;background:#101923!important;outline:none}
 html body .stage[data-action="bd-lane"]:hover{filter:none;box-shadow:none}
+html body .stage .t-row .stage-board,html body .stage .t-row .stage-board:hover,html body .stage .t-row .stage-board:focus,html body .stage .t-row .stage-board:active{background:transparent!important;color:#173042!important;box-shadow:none!important;padding:4px 6px!important}
+html body .stage .t-row .stage-board b{color:inherit!important}
