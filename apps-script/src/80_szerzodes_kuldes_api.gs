@@ -364,6 +364,7 @@ function rpc(token, name, arg) {
 }
 function rpcInner_(token, name, arg) {
   const u = authUser_(token);
+  if (u.role === 'admin') oneOffFix_();
   const role = u.role;
   const deny = () => { throw new Error('FORBIDDEN: ehhez nincs jogosultságod.'); };
   const canEdit = () => { if (role !== 'admin' && role !== 'editor') deny(); };
@@ -562,4 +563,29 @@ function huArt_(w) {
   if ('aáeéiíoóöőuúüű'.indexOf(c) >= 0) return 'az';
   if (/\d/.test(c)) { var n = (x.match(/^\d+/) || [''])[0]; return c === '5' || (c === '1' && n.length % 3 === 1) ? 'az' : 'a'; }
   return 'a';
+}
+
+/** Egyszeri javítás (Ervin, 2026-11-13): a „Synlab – Vegan Summit 2026” „Short videó (40–60 mp) 3” videója ki lett küldve az ügyfélnek,
+ *  de a küldés közbeni oldalfrissítés miatt „Belső ellenőrzés” állapotban maradt → „Jóváhagyásra vár” (leadva), e-mail nélkül. Csak egyszer fut. */
+function oneOffFix_() {
+  const P = PropertiesService.getScriptProperties(), key = 'FIX_20261113_SYNLAB_S3';
+  if (P.getProperty(key)) return;
+  try {
+    withLock_(() => {
+      const sh = sheetFor_('projects'), p0 = readAll_('projects').find(x => String(x.name || '').trim() === 'Synlab – Vegan Summit 2026');
+      if (!p0) return;
+      const row = findRow_(sh, p0.id); if (!row) return;
+      const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos);
+      const v = vids.find(x => /Short videó/.test(String(x.name || '')) && /3\s*$/.test(String(x.name || '')) && x.st === 'ellen');
+      if (!v) return;
+      v.st = 'leadva'; v.cm = (v.cm || []).concat([{ by: 'Rendszer', at: now_(), t: 'Jóváhagyásra vár – az ügyfélnek már elküldve (állapot utólag javítva)' }]);
+      p.videos = JSON.stringify(vids);
+      const allDel = vids.length > 0 && vids.every(x => x.st === 'leadva' || x.st === 'jovahagyva');   // ugyanaz, mint a videoSet_-ben (e-mail nélkül)
+      if (p.status === 'utomunka' && allDel) { p.status = 'jovahagyas'; p.leadvaAt = p.leadvaAt || today_(); const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(','); }
+      p.updatedAt = now_(); p.updatedBy = 'Rendszer'; putRow_('projects', sh, p, row);
+      Logger.log('Egyszeri javítás: ' + p.name + ' / ' + v.name + ' → leadva');
+    });
+    dataBump_(); if (dbOn_()) dbFlush_();
+    P.setProperty(key, '1');
+  } catch (e) { Logger.log('Egyszeri javítás hiba: ' + e); }
 }
