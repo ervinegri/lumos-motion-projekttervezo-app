@@ -44,6 +44,9 @@
     if((m=/(?:^|\/\/)(e\.)?(?:u\.)?pcloud\.link\/publink\/show\?code=([\w-]+)/i.exec(u))&&PCV[u]){if(PCV[u].dl)setTimeout(()=>dlSet(PCV[u].dl),0);return vTag(PCV[u].src);}
     if(m)return `<div class="noembed" data-pc-code="${esc(m[2])}" data-pc-eu="${m[1]?'1':''}"><span class="spin"></span>Videó betöltése…</div>`;
     return '';}
+  /* fotógaléria: a szövegek fotókra szólnak */
+  const fotoWording=on=>{const t=(id,v,f)=>{const el=document.getElementById(id);if(el){if(!el.dataset.v)el.dataset.v=el.textContent;el.textContent=on?f:el.dataset.v;}};
+    t('askH','','💬 Tetszenek a fotók?');t('dl','','⬇ Fotók letöltése');const d=document.querySelector('p.done');if(d){if(!d.dataset.v)d.dataset.v=d.textContent;d.textContent=on?'Köszönjük! A fotókat jóváhagytad.':d.dataset.v;}};
   const noEmbed=(u,why)=>`<div class="noembed">${why?esc(why)+'<br>':''}A videó itt nem játszható le.${u?`<a href="${esc(u)}" target="_blank" rel="noopener">▶ Videó megnyitása</a>`:''}</div>`;
   /* külön „Letöltés” gomb (a lejátszó saját menüjéből a letöltés ki van véve) */
   let noDl=false;   /* vízjeles (még nem kifizetett) videó: nincs letöltés */
@@ -166,7 +169,7 @@
   let LAST=null;const PVK='lm_pvst_'+t,PVST=(()=>{try{return JSON.parse(localStorage.getItem(PVK)||'{}')||{};}catch(e){return {};}})();   /* előnézet: a kipróbált döntések megmaradnak videóváltáskor is (csak ebben a lapban) */
   const show=i=>{if(i.preview){if(i.items)i=Object.assign({},i,{items:i.items.map(x=>PVST[x.id]?Object.assign({},x,{state:PVST[x.id]}):x)});if(PVST[i.cur||CUR])i=Object.assign({},i,{state:PVST[i.cur||CUR]});}LAST=i;setTimeout(dlVis,0);if(i.state==='wait')['bOk','bSend'].forEach(k=>{const b=$(k);if(b)b.disabled=false;});   /* az előző videó döntése után a gombok újra kattinthatók */if(i.preview&&!document.getElementById('pvBan')){const bn=document.createElement('div');bn.id='pvBan';bn.className='pvban';bn.textContent='👁 Előnézet – így látja az ügyfél. A gombok kipróbálhatók, de nem küldenek semmit, és ez a megnyitás nem számít bele.';document.body.prepend(bn);const sv=()=>document.documentElement.style.setProperty('--pvb',(bn.offsetHeight||0)+'px');sv();addEventListener('resize',sv);}   /* az előnézeti sáv magassága levonódik, így nem lehet görgetni */$('load').hidden=true;$('main').hidden=false;$('ttl').hidden=false;placeTtl();   /* a cím a videó fölött */$('video').textContent=i.video;$('project').textContent=i.project;
     $('newTab').hidden=true;   /* nincs „Megnyitás új lapon” */
-    if(!shown){shown=true;if(i.link&&/pcloud\.link|drive\.google\.com/i.test(i.link))dlSet(i.link,true);   /* azonnal van letöltés (a pCloud / Drive oldalára), a közvetlen fájl-link később felülírja */const e=i.link?embed(i.link):'';$('player').innerHTML=e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
+    if(!shown){shown=true;if(i.link&&/pcloud\.link|drive\.google\.com/i.test(i.link))dlSet(i.link,true);   /* azonnal van letöltés (a pCloud / Drive oldalára), a közvetlen fájl-link később felülírja */const isF=i.k==='foto';fotoWording(isF);const e=isF?'':i.link?embed(i.link):'';$('player').innerHTML=isF?`<div class="noembed">📷 A fotók egy külön galériában vannak.${i.link?`<a href="${esc(i.link)}" target="_blank" rel="noopener">📷 Fotók megnyitása</a>`:'<br>Ehhez még nincs link.'}</div>`:e||noEmbed(i.link,i.link?'':'Ehhez a videóhoz még nincs link.');
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}
       if(i.wm)wmAdd(i.wmName);
       if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();

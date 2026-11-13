@@ -246,10 +246,12 @@ function calBlock(iso){
   const d=toDate(iso);
   return `<span class="cal" aria-hidden="true"><span class="cal-m">${esc(F_MON.format(d).replace('.',''))}</span><span class="cal-d">${d.getUTCDate()}</span><span class="cal-w">${esc(F_WD.format(d))}</span></span>`;
 }
+/* A leadott anyagok megnevezése: videó(k), fotók, vagy mindkettő */
+function appLabel(vs){const f=vs.filter(v=>v.k==='foto').length,n=vs.length-f;return n&&f?(n===1?'Videó':'Videók')+' és fotók':f?'Fotók':n===1?'Videó':'Videók';}
 function dueInfo(p){
   const due=dueDate(p);if(!due||!isOpen(p))return null;
   if(p.status==='leadva'||p.status==='jovahagyas'){const n=validISO(p.leadvaAt)?diffDays(p.leadvaAt,todayISO()):null;   // a videók már leadva: nem az átadási határidőt mutatjuk
-    const vs=p.videos||[],okN=vs.filter(v=>v.st==='jovahagyva').length;if(vs.length&&okN===vs.length)return {due,left:null,lead:0,cls:'ok',txt:vs.length===1?'✅ Videó jóváhagyva':'✅ Videók jóváhagyva'};   // az ügyfél már mindent jóváhagyott
+    const vs=p.videos||[],okN=vs.filter(v=>v.st==='jovahagyva').length;if(vs.length&&okN===vs.length)return {due,left:null,lead:0,cls:'ok',txt:'✅ '+appLabel(vs)+' jóváhagyva'};   // az ügyfél már mindent jóváhagyott
     if(n==null)return null;if(okN)return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:`${n>=7?'🚨 ':''}${n} napja leadva – ${okN}/${vs.length} jóváhagyva`};
     return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:n<=0?'Ma leadva – jóváhagyásra vár':`${n>=7?'🚨 ':''}${n} napja leadva – nincs jóváhagyás`};}
   const left=diffDays(todayISO(),due);

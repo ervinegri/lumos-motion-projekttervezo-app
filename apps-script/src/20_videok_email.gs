@@ -1,6 +1,14 @@
 /* ===================== Videónkénti vágói követés ===================== */
 const VIDEO_KINDS_ = [['int_sarok', 'Interjúsarok videó'], ['interju', 'Kiállítói videó (imázsfilm)'], ['int_resztvevo', 'Interjú'], ['aftermovie', 'Aftermovie'],
   ['short60', 'Short videó (40–60 mp)'], ['short30', 'Short videó (30–40 mp)'], ['short15', 'Short videó (15–20 mp)']];
+const flagOn_ = v => v === true || v === 1 || /^(1|true|igen)$/i.test(String(v == null ? '' : v).trim());
+/** Van-e a projektnek leadandó anyaga (videó, fotó, felvétel)? Ha nincs (csak helyszíni technika: fény, hang, vizuál, képkeverés, élő közvetítés), a rendezvény után rögtön kész. */
+function hasDeliverables_(p) {
+  if (p.eventType === 'Videóvágás') return true;
+  if (VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0) || ['er_summary', 'er_clips', 'er_subs', 'x_foto_n'].some(k => Number(p[k]) > 0)) return true;
+  if (['t_eloadas', 'x_foto', 'x_timelapse', 'x_dron', 'x_pov', 'x_nyersVetel', 'i_sarok', 'i_stand', 'er_total', 'er_close', 'er_creative', 'er_crowd', 'er_slides', 'er_zoom', 'er_post', 'er_drone'].some(k => flagOn_(p[k]))) return true;
+  return parseVideos_(p.videos).length > 0;
+}
 const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'modositas'];
 /** Új link a videóhoz: a régi link verzióként megmarad (a hozzászólások verziónként csoportosíthatók). */
 function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link && v.link !== link) { v.vers = (v.vers || []).concat([{ at: now_(), link: v.link }]).slice(-30); v.seenAt = ''; v.seenLast = ''; v.seenN = 0; } v.link = link; }   // új verzió: a megnyitás újra számít
@@ -19,10 +27,11 @@ function videosEnsure_(p, cutters) {
   const want = [];
   VIDEO_KINDS_.forEach(kn => { const n = Math.max(0, Math.min(40, Math.floor(Number(p[kn[0]]) || 0)));
     for (let i = 1; i <= n; i++) { const id = kn[0] + '-' + i, x = byId[id] || { id: id, k: kn[0], editor: '', st: 'vagasra', at: '' }; if (!x.cn) x.name = kn[1] + (n > 1 ? ' ' + i : ''); /* átnevezett videó neve megmarad */ want.push(x); } });
+  if (flagOn_(p.x_foto) || Number(p.x_foto_n) > 0) want.push(byId['foto-1'] || { id: 'foto-1', k: 'foto', name: 'Fotók', editor: '', st: 'vagasra', at: '' });   // a fotógaléria is leadandó / jóváhagyandó elem
   const ids = {}; want.forEach(x => { ids[x.id] = 1; });
   cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.editor)) want.push(x); });   // már dolgozott rajta valaki: nem tűnik el
   const one = cutters && cutters.length === 1 ? cutters[0] : '';
-  if (one) want.forEach(x => { if (!x.editor) x.editor = one; });
+  if (one) want.forEach(x => { if (!x.editor && x.k !== 'foto') x.editor = one; });   // a fotók nem a vágóé
   return want;
 }
 /** Egy videó állapotának / vágójának módosítása. Vezetők mindent; a vágó csak a saját (vagy gazdátlan) sorainak vágási állapotát. a: {projectId, id, st?, editor?} */
@@ -38,8 +47,14 @@ function mySalesComm_(cid) {
 function videosBackfill_() {
   const sh = sheetFor_('projects'), ca = readAll_('crewAssign');
   readAll_('projects').forEach(p => {
-    if (p.status === 'atadva' || p.status === 'lemondva' || parseVideos_(p.videos).length) return;
-    if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0)) return;
+    if (p.status === 'atadva' || p.status === 'lemondva') return;
+    const cur0 = parseVideos_(p.videos), wantF = flagOn_(p.x_foto) || Number(p.x_foto_n) > 0;
+    if (cur0.length) {   // már vannak videósorok: csak a fotógaléria sora hiányozhat
+      if (!wantF || cur0.some(x => x.k === 'foto')) return;
+      withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r), l = parseVideos_(q.videos); if (l.some(x => x.k === 'foto')) return; l.push({ id: 'foto-1', k: 'foto', name: 'Fotók', editor: '', st: 'vagasra', at: '' }); q.videos = JSON.stringify(parseVideos_(l)); putRow_('projects', sh, q, r); });
+      return;
+    }
+    if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0) && !(flagOn_(p.x_foto) || Number(p.x_foto_n) > 0)) return;
     const cutters = [...new Set(ca.filter(r => r.projectId === p.id && r.role === 'Vágó').map(r => String(r.crewId || '')))].filter(String);
     const vids = videosEnsure_(p, cutters), et = parseEditTasks_(p.editTasks);
     vids.forEach(x => { if (!x.editor) { const o = Object.keys(et).find(id => (et[id] || []).indexOf(x.k) >= 0); if (o) x.editor = o; } });
@@ -246,11 +261,11 @@ function clientInfo_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && 
     if (!items.length) throw new Error('A videó nem található.');
     const cur = (vid && items.find(x => x.id === vid)) || items.find(x => x.state === 'wait') || items[0]; o.v = cur.id;
     const r2 = clientVideo_(o); let wm2 = false; try { wm2 = wmActive_(r2.p); } catch (e) { }
-    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st) };
+    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, k: r2.v.k, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st) };
   }
   const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
-  if (o.pv) return { preview: true, wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: o.l || r.v.link, state: 'wait' };   // belső előnézet: nem számít megnyitásnak, döntés nincs
-  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
+  if (o.pv) return { preview: true, wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: o.l || r.v.link, state: 'wait' };   // belső előnézet: nem számít megnyitásnak, döntés nincs
+  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod' }; }
 /** Belső előnézet a küldő ablakból: ugyanaz az oldal, amit az ügyfél kap – megnyitásnak nem számít, dönteni nem lehet. */
 function clientPreview_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN');

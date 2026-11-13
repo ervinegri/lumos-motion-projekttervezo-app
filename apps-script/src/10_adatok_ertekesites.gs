@@ -63,8 +63,9 @@ function autoAdvance_() {
   const moved = withLock_(() => {
     const sh = sheetFor_('projects'), out = [];
     due.forEach(x => { const r = findRow_(sh, x.id); if (!r) return; const q = readRow_('projects', sh, r); if (q.status !== 'helyszin') return;
-      q.prevStatus = 'helyszin'; q.status = 'utomunka';
-      const sd = String(q.stepsDone || '').split(',').filter(String); if (sd.indexOf('helyszin') < 0) sd.push('helyszin'); q.stepsDone = sd.join(',');
+      const noPost = !hasDeliverables_(q);   // csak helyszíni technika: nincs utómunka, rögtön kész
+      q.prevStatus = 'helyszin'; q.status = noPost ? 'atadva' : 'utomunka';
+      const sd = String(q.stepsDone || '').split(',').filter(String); (noPost ? ['helyszin', 'utomunka', 'leadva', 'jovahagyas'] : ['helyszin']).forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); q.stepsDone = sd.join(',');
       q.updatedAt = now_(); q.updatedBy = 'Automatikus (a forgatás véget ért)'; putRow_('projects', sh, q, r); out.push(q.name); });
     if (out.length) { dbFlush_(); dataBump_(); }
     return out;
