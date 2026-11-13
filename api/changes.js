@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9075961710",
+"at": "2026-11-13T16:27:46+01:00",
+"msg": "Árajánlat: Tárgy és Érvényesség egy sorban"
+},
+{
 "id": "6d7ac93e5a",
 "at": "2026-11-13T16:27:01+01:00",
 "msg": "Árajánlat: (27% ÁFA) egy sorban, a kedvezmény-százalék rendes számjegyekkel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-kártya: a számláló fekete háttér nélkül"
 },
 {
-"id": "d80b79adb0",
-"at": "2026-11-13T13:44:17+01:00",
-"msg": "Utómunka-kártya: nincs emelkedés rámutatáskor"
-},
-{
-"id": "763d6fb4ec",
-"at": "2026-11-13T12:36:01Z",
+"id": "314cc3d53b",
+"at": "2026-11-13T12:44:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
