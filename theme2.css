@@ -1597,3 +1597,4 @@ html body #view .bill-tbl tbody tr:not(.bl-chead):not(.pt-month)>td{border-botto
 html body .bill-tbl .bt-cell .pb-box{overflow:hidden;min-width:0}
 html body .bill-tbl .bt-cell .pb-box .statuspill,html body .bill-tbl .bt-cell .pb-box a,html body .bill-tbl .bt-cell .pb-box .btn{max-width:100%;white-space:normal;box-sizing:border-box;overflow-wrap:anywhere}
 }
+@media (orientation:landscape) and (max-height:560px){html body .pay-sheet td:first-child,html body .pay-sheet th:first-child{padding-left:14px!important}}
