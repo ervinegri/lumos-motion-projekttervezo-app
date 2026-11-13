@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9b84b7adb1",
+"at": "2026-11-13T22:37:58+01:00",
+"msg": "Mobil: a Fizetések/Bevételek táblázatkerete pontosan a képernyő aljáig ér, így az alja is elérhető"
+},
+{
 "id": "0720829ffd",
 "at": "2026-11-13T22:36:55+01:00",
 "msg": "Fekvő telefon: Fizetések táblázat bal oldali hézaga kisebb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Fizetések: görgetéskor a nevek fejléce fent marad"
 },
 {
-"id": "1fb07faabc",
-"at": "2026-11-13T21:55:49+01:00",
-"msg": "Álló mobil: idővonal névoszlop nélkül (név a sávban vagy mellette), Ügyfelek egy oszlopban, Fizetések: Díjösszesítő felirat"
-},
-{
-"id": "bdf976bb9a",
-"at": "2026-11-13T20:50:37Z",
+"id": "fd1cd6f774",
+"at": "2026-11-13T20:55:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
