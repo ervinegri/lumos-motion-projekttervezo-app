@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "244fc29e73",
+"at": "2026-11-13T13:35:51+01:00",
+"msg": "Utómunka-kártya: kéz kurzor, nagyobb videószámláló"
+},
+{
 "id": "19722e0838",
 "at": "2026-11-13T13:34:20+01:00",
 "msg": "Projekt: az Utómunka lépés kártyája kattintható – a videótábla nyílik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: kezdés-távozás egy sorban, nincs ragadós címsáv; naptárnál működik a böngésző vissza/előre húzással"
 },
 {
-"id": "a95fa863a4",
-"at": "2026-11-13T08:38:24+01:00",
-"msg": "Fotógaléria jóváhagyandó elemként; csak helyszíni technikánál a rendezvény után rögtön Kész"
-},
-{
-"id": "a002d80155",
-"at": "2026-11-13T07:30:55Z",
+"id": "8663cb137f",
+"at": "2026-11-13T07:38:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
