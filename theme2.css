@@ -1531,3 +1531,30 @@ html body .pay-sheet tbody td,html body .pay-sheet tfoot td{padding-top:5px!impo
 html body .pay-sheet td.r,html body .pay-sheet td.r b{font-size:13px!important}
 html body .page-head.pay-head{margin-bottom:6px!important}
 }
+/* Szerződés és számlázás fejléce: fekvő telefonon egy sorban, mint a Fizetéseknél */
+.bh-sm{display:none}
+@media (orientation:landscape) and (max-height:560px){
+html body .page-head.bill-head{flex-wrap:nowrap!important;gap:6px!important;align-items:center!important;margin-bottom:6px!important}
+html body .page-head.bill-head>.subtabs{flex:0 1 auto!important;min-width:0;overflow-x:auto;scrollbar-width:none}
+html body .page-head.bill-head .subtabs .subtab{font-size:12.5px!important;padding:6px 9px!important;white-space:nowrap}
+html body .page-head.bill-head .subtabs .st-lg{display:none}html body .page-head.bill-head .subtabs .st-sm{display:inline;margin-left:4px}
+html body .page-head.bill-head>.grow{flex:0 0 auto!important;min-width:0;margin:0!important}
+html body .page-head.bill-head h2{display:none!important}
+html body .page-head.bill-head .bh-lg{display:none}html body .page-head.bill-head .bh-sm{display:inline}
+html body .page-head.bill-head .btn.small{font-size:12.5px!important;padding:5px 8px!important;min-height:32px!important;gap:3px!important;flex:0 0 auto;white-space:nowrap}
+html body .page-head.bill-head .mnav-chip:not(.on){display:none!important}
+html body .page-head.bill-head .mnav-chip.on{font-size:13px!important;padding:5px 9px!important;min-height:32px!important}
+html body .page-head.bill-head .month-nav .mn-arrow{min-width:32px!important;min-height:32px!important;padding:0 6px!important}
+html body .page-head.bill-head .mnav-row{margin:0!important}
+}
+@media (orientation:landscape) and (max-height:560px){html body .page-head.bill-head .bh-lg2{display:none}html body .page-head.bill-head [data-action="sz-sync"],html body .page-head.bill-head [data-action="sz-settings"]{min-width:36px;justify-content:center}}
+@media (orientation:landscape) and (max-height:560px){
+html body #view:has(.bill-head) .tiles{gap:6px!important;margin-bottom:8px!important}
+html body #view:has(.bill-head) .tile{padding:7px 10px!important;border-radius:10px!important}
+html body #view:has(.bill-head) .tile-n{font-size:17px!important}
+html body #view:has(.bill-head) .tile-l{font-size:11.5px!important}
+html body .bill-tbl td{padding:4px 5px!important}
+html body .bill-tbl .bt-cell .pb-box{padding:6px 8px!important;min-height:0!important}
+html body .bill-tbl .pb-t{font-size:10px!important}
+html body .bill-tbl tr.bl-chead>td{padding:6px 10px!important;font-size:13px!important}
+}
