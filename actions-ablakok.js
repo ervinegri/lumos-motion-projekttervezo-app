@@ -37,7 +37,7 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
   const mdBase=MD_KEY?MD_KEY.slice(0,MD_KEY.lastIndexOf('|')):'';
   document.documentElement.style.overflow='hidden';
   {const lf=$('modalRoot').querySelector('.links-field'),pf=$('modalRoot').querySelector('.pass-field'),ad=lf&&lf.querySelector('.link-add');if(lf&&pf&&ad&&!lf.querySelector('.cd-linkrow')){const row=document.createElement('div');row.className='cd-linkrow';ad.replaceWith(row);row.append(ad,pf);}}   // „+ Újabb link” és a jelszó egy sorban (minden linkes ablakban)
-  const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first)first.focus();
+  const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first&&!(window.matchMedia&&matchMedia('(pointer:coarse)').matches))first.focus();   // érintőképernyőn nem ugrik fel magától a billentyűzet
   if(MD_KEY){const k0=MD_KEY;setTimeout(()=>{if(MD_KEY!==k0)return;MD_KEY=mdBase+'|'+mdSig();mdRestore(MD_KEY);},0);}   // az aláírás a már kitöltött űrlapból készül (sok ablak a megnyitás után tölti be az adatokat) – így egy ügyfél piszkozata nem kerül át egy másikra
 }
 /* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
