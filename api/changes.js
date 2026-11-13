@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5ed6330057",
+"at": "2026-11-13T16:43:09+01:00",
+"msg": "Nyersanyag-levél: a/az névelő"
+},
+{
 "id": "c97d27923b",
 "at": "2026-11-13T16:33:21+01:00",
 "msg": "Árajánlat: Újabb másolat a mező címsorában"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: a következő lépés dátuma kötelező (háttér és áthúzás is ellenőrzi)"
 },
 {
-"id": "3a410d495a",
-"at": "2026-11-13T15:17:46+01:00",
-"msg": "Értékesítés: Árkalkulátor helyett Árajánlat küldése – előbb a lehetőség kiválasztása kártyákból"
-},
-{
-"id": "41f78904a6",
-"at": "2026-11-13T13:56:53Z",
+"id": "de188c2324",
+"at": "2026-11-13T14:17:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
