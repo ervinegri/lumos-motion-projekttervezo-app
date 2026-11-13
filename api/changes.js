@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ba332acf9d",
+"at": "2026-11-13T14:56:27+01:00",
+"msg": "Levélből érkező videólink: a friss betöltés után is megnyílik a videó"
+},
+{
 "id": "bd9e75dbe0",
 "at": "2026-11-13T14:54:17+01:00",
 "msg": "Belső ellenőrzés e-mail: rövid tárgy és szöveg, egy gomb (telefonon is áttekinthető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-hozzászólás válasz: többsoros mező, Enter új sor, Ctrl/Cmd+Enter vagy Küldés gomb"
 },
 {
-"id": "699b44384b",
-"at": "2026-11-13T09:04:02+01:00",
-"msg": "Utómunka-instrukciók a projekten: vezető írja, az utómunkás hozzászól és kipipálja (videótábla + projektoldal)"
-},
-{
-"id": "7e98f6d697",
-"at": "2026-11-13T07:58:57Z",
+"id": "9e4dd96b7d",
+"at": "2026-11-13T08:04:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
