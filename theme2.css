@@ -1030,3 +1030,4 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .ark-tabs button.on{background:#1d2a38!important;color:#fff!important}
 .ark-tabs button{font-weight:600}
 .ark-total{box-shadow:none}.ark-total b{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important}
+.ark-total{box-sizing:border-box;height:46px;padding:0 18px 0 16px;align-items:center}.ark-total b{font-size:18px;line-height:1}
