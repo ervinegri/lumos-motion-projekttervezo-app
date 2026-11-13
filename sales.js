@@ -275,8 +275,9 @@ ACT['dwd-clear']=async()=>{if(!confirm('Kikapcsolod? A levelek ezután ismét a 
 ACT['dwd-test']=async b=>{const m=($('dwd-mail')||{}).value||'';b.disabled=true;try{const r=await call('dwdTest',{email:m});toast('✅ Működik: az app küldhet '+r.email+' nevében.');}catch(e){handleErr(e);}finally{b.disabled=false;}};
 
 /* Árajánlat küldése: előbb kiválasztod a lehetőséget (kártyák), utána nyílik az árajánlat */
-ACT['quote-pick']=()=>{const T=todayISO(),L=(S.deals||[]).filter(d=>DEAL_OPEN.includes(d.stage)&&(isAdmin()||(S.me&&d.ownerId===S.me.id))).sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
-  openModal('📄 Árajánlat küldése – melyik lehetőséghez?',L.length?`<p class="hint" style="margin:-4px 0 12px">Kattints arra a lehetőségre, amelyhez az árajánlatot készíted.</p><div class="qp-grid">${L.map(d=>dealCard(d).replace(/data-action="deal-open"/,'data-action="quote-for"').replace(/draggable="(true|false)"/,'draggable="false"')).join('')}</div>`
-    :'<p class="hint" style="margin:0">Nincs nyitott lehetőség. Előbb vegyél fel egyet a „+ Új lehetőség” gombbal.</p>',{cancelLabel:'Mégse',noDraft:true});
-  const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;const mb=document.querySelector('#mform');if(mb)mb.classList.add('m-wide');};
+ACT['quote-pick']=()=>{const L=(S.deals||[]).filter(d=>DEAL_OPEN.includes(d.stage)&&(isAdmin()||(S.me&&d.ownerId===S.me.id))).sort((a,b)=>DEAL_OPEN.indexOf(a.stage)-DEAL_OPEN.indexOf(b.stage)||String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+  if(!L.length){openModal('📄 Árajánlat küldése','<p class="hint" style="margin:0">Nincs nyitott lehetőség. Előbb vegyél fel egyet a „+ Új lehetőség” gombbal.</p>',{cancelLabel:'Bezárás',noDraft:true});const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;return;}
+  const st=k=>(DEAL_STAGES.find(x=>x[0]===k)||[])[2]+' '+dealLbl(k);
+  openModal('📄 Árajánlat küldése',`<div class="field full"><label for="m-qpDeal">Melyik lehetőséghez?</label><select class="inp" id="m-qpDeal" name="deal" data-cmb="Lehetőség keresése…">${L.map(d=>`<option value="${esc(d.id)}">${esc(st(d.stage))} · ${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' – '+esc(d.client):''}</option>`).join('')}</select><span class="hint">Új érdeklődő, Ajánlat kiküldve és Tárgyalás állapotú lehetőségek.</span></div>`,
+    {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const id=String(fd.get('deal')||'');if(!id){toast('Válaszd ki a lehetőséget.',true);return;}closeModal();setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);}});};
 ACT['quote-for']=b=>{const id=b.dataset.id;closeModal();setTimeout(()=>ACT['deal-quote']({dataset:{id}}),0);};
