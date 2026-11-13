@@ -1624,3 +1624,4 @@ html body #mform.m-video .mbox,html body #mform.m-video{padding-left:10px!import
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){
 html body #modalRoot #mform.m-video:has(#m-vvCm:focus) .vv-player.vert{width:calc(24vh * 9 / 16)!important}
 }
+@media (pointer:coarse){.bd-card[draggable]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}

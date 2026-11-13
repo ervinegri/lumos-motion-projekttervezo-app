@@ -460,7 +460,7 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
   const hide=()=>{cur=null;if(tip)tip.style.display='none';};
   /* érintőképernyőn a súgó csak hosszú érintésre jön fel (sima koppintás = a szokásos művelet) */
   let lastTouch=0,lpT=null,lpShown=false,sx=0,sy=0;const recentTouch=()=>Date.now()-lastTouch<900;
-  document.addEventListener('touchstart',e=>{lastTouch=Date.now();clearTimeout(lpT);lpShown=false;if(cur)hide();const el=e.target.closest&&e.target.closest('[data-tip]');if(!el)return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;
+  document.addEventListener('touchstart',e=>{lastTouch=Date.now();clearTimeout(lpT);lpShown=false;if(cur)hide();const el=e.target.closest&&e.target.closest('[data-tip]');if(!el||e.target.closest('.bd-card[draggable]'))return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;
     lpT=setTimeout(()=>{lpShown=true;show(el);},480);},{passive:true,capture:true});
   document.addEventListener('touchmove',e=>{const t=e.touches[0];if(t&&Math.hypot(t.clientX-sx,t.clientY-sy)>10)clearTimeout(lpT);},{passive:true,capture:true});
   document.addEventListener('touchend',e=>{lastTouch=Date.now();clearTimeout(lpT);if(lpShown&&e.cancelable)e.preventDefault();},{capture:true});   /* hosszú érintés után ne nyíljon meg az elem */
