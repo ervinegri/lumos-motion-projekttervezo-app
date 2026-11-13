@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f179031433",
+"at": "2026-11-13T08:39:48+01:00",
+"msg": "Szakember nézet: kezdés-távozás egy sorban, nincs ragadós címsáv; naptárnál működik a böngésző vissza/előre húzással"
+},
+{
 "id": "a95fa863a4",
 "at": "2026-11-13T08:38:24+01:00",
 "msg": "Fotógaléria jóváhagyandó elemként; csak helyszíni technikánál a rendezvény után rögtön Kész"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: a felek táblázatai egyforma sorközzel és oszlopszélességgel"
 },
 {
-"id": "6f49fcf7dc",
-"at": "2026-11-12T22:38:21+01:00",
-"msg": "Szerződéssablonok: a felek adatai egységes rácsban (feliratok, két egyforma táblázat, szerepek egy vonalban)"
-},
-{
-"id": "a899b7aea0",
-"at": "2026-11-12T21:31:59Z",
+"id": "b0340f37b9",
+"at": "2026-11-12T21:38:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
