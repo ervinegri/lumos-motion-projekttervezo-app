@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "914fde2f3b",
+"at": "2026-11-13T06:51:32+01:00",
+"msg": "Videók: újbóli leadáskor / új verziónál a korábbi „Megnyitották” jelzés nem számít"
+},
+{
 "id": "e0f74f97b0",
 "at": "2026-11-13T06:47:53+01:00",
 "msg": "Szerződés mentésekor a szerkeszthető .docx is az ügyfél mappájába kerül (a PDF mellé)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a típusválasztás a cég kiválasztása után jelenik meg"
 },
 {
-"id": "236a745d31",
-"at": "2026-11-12T20:55:27+01:00",
-"msg": "Naptár: a közelgő események leírása egyszer újraszinkronizálódik (jegyzetek nélkül)"
-},
-{
-"id": "bf5748f0ce",
-"at": "2026-11-12T19:55:19Z",
+"id": "5524ef052c",
+"at": "2026-11-12T19:55:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
