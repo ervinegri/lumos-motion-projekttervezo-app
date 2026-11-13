@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db66dc3c8b",
+"at": "2026-11-13T13:27:07+01:00",
+"msg": "Ügyfélküldés: a mentett mintában ragadt videónév javítva; kifizetett projektnél nincs bepipálva a vízjel"
+},
+{
 "id": "67e3d2be9e",
 "at": "2026-11-13T12:29:30+01:00",
 "msg": "Belső ellenőrzés: több ellenőrző is kijelölhető (mindenki saját levelet kap)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlatörténet: tételnevek, év a dátumban"
 },
 {
-"id": "cb2ee897a0",
-"at": "2026-11-13T08:07:55+01:00",
-"msg": "Szerződés: visszalépés után a PDF megmarad, csak módosításkor készül újra"
-},
-{
-"id": "15ab1a4576",
-"at": "2026-11-13T07:03:03Z",
+"id": "1b45904df9",
+"at": "2026-11-13T07:08:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
