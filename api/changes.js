@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d874e28ad6",
+"at": "2026-11-13T23:04:05+01:00",
+"msg": "Egyszeri javítás: Synlab – Short videó 3 → Jóváhagyásra vár (e-mail nélkül, már kiment)"
+},
+{
 "id": "b09674a5ba",
 "at": "2026-11-13T23:01:38+01:00",
 "msg": "Videó áthelyezése közben a lehúzásos frissítés vár, az oldal bezárása figyelmeztet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil vágási tábla: szélesebb oszlopok"
 },
 {
-"id": "ac8bd370b4",
-"at": "2026-11-13T22:13:07+01:00",
-"msg": "Menüfülsor: a halványodó szél betöltéskor is látszik, a fülsor a szerepkör-választóig ér"
-},
-{
-"id": "3f1128ca69",
-"at": "2026-11-13T21:12:23Z",
+"id": "6e60ef8ff7",
+"at": "2026-11-13T21:13:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
