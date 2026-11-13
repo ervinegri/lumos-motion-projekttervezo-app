@@ -25,19 +25,19 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
   window.addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});
   if(mq.addEventListener)mq.addEventListener('change',upd);})();
 
-/* Fekvő mobilnézet: a Kilépés a névjelvény mögé kerül (érintésre jelenik meg) */
-(()=>{const mq=window.matchMedia&&matchMedia('(orientation:landscape) and (max-height:560px)');if(!mq)return;
-  const close=()=>{const p=document.getElementById('ucPop');if(p)p.remove();};
+/* A névjelvény menüje: ⚙️ Beállítások és Kilépés (érintésre / kattintásra jelenik meg) */
+const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');return t?t.id:'';}catch(e){return '';}};
+(()=>{const close=()=>{const p=document.getElementById('ucPop');if(p)p.remove();};
   document.addEventListener('click',e=>{const chip=e.target.closest&&e.target.closest('#userChip');const pop=document.getElementById('ucPop');
     if(pop&&!e.target.closest('#ucPop')){close();if(chip)return;}
-    if(!chip||!mq.matches)return;e.preventDefault();const r=chip.getBoundingClientRect(),p=document.createElement('div');p.id='ucPop';p.className='uc-pop';
-    p.innerHTML='<button type="button" class="btn ghost small" data-uc="out">Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
-    p.querySelector('[data-uc="out"]').addEventListener('click',()=>{close();const lb=document.getElementById('logoutBtn');if(lb)lb.click();});});
+    if(!chip)return;e.preventDefault();const r=chip.getBoundingClientRect(),p=document.createElement('div');p.id='ucPop';p.className='uc-pop';const st=SETTINGS_TAB();
+    p.innerHTML=(st?'<button type="button" class="uc-it" data-uc="set">⚙️ Beállítások</button>':'')+'<button type="button" class="uc-it" data-uc="out">⎋ Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
+    p.addEventListener('click',ev=>{const b=ev.target.closest('[data-uc]');if(!b)return;close();if(b.dataset.uc==='set'){ACT.tab({dataset:{tab:SETTINGS_TAB()}});}else{const lb=document.getElementById('logoutBtn');if(lb)lb.click();}});});
   window.addEventListener('scroll',close,{passive:true});})();
 
 /* Mobilon (álló és fekvő nézetben) a Kilépés a nézetváltó („💼 Ügyvezető”) listájában van: érintésre a lista végén jelenik meg */
 (()=>{const sel=document.getElementById('viewAs');if(!sel||!window.matchMedia)return;const mq=matchMedia('(max-width:760px),(orientation:landscape) and (max-height:560px)');let prev=sel.value;
-  const sync=()=>{let o=sel.querySelector('option[value="__logout"]');if(mq.matches&&!o){o=document.createElement('option');o.value='__logout';o.textContent='⎋ Kilépés';sel.appendChild(o);}else if(!mq.matches&&o)o.remove();document.documentElement.classList.toggle('va-logout',mq.matches);};
+  const sync=()=>{sel.querySelectorAll('option[value="__logout"],option[value="__settings"]').forEach(x=>x.remove());if(mq.matches){if(SETTINGS_TAB()){const so=document.createElement('option');so.value='__settings';so.textContent='⚙️ Beállítások';sel.appendChild(so);}const o=document.createElement('option');o.value='__logout';o.textContent='⎋ Kilépés';sel.appendChild(o);}document.documentElement.classList.toggle('va-logout',mq.matches);};
   sync();if(mq.addEventListener)mq.addEventListener('change',sync);
   sel.addEventListener('focus',()=>{prev=sel.value;sync();});sel.addEventListener('pointerdown',()=>{prev=sel.value;sync();});
-  document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();
+  document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value==='__settings'){e.stopImmediatePropagation();sel.value=prev;ACT.tab({dataset:{tab:SETTINGS_TAB()}});return;}if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();
