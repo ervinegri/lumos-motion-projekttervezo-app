@@ -257,14 +257,18 @@ function authUser_(token) {
   if (s.viewAs && u.role === 'admin' && s.viewAs.role === 'sales') return Object.assign({}, u, { role: 'sales', crewId: u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || '', realRole: 'admin', viewAs: s.viewAs });
   if (s.viewAs && u.role === 'admin' && (s.viewAs.role === 'editor' || s.viewAs.role === 'crew'))
     return Object.assign({}, u, { role: s.viewAs.role, crewId: s.viewAs.role === 'crew' ? String(s.viewAs.crewId || '') : (u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || ''), realRole: 'admin', viewAs: s.viewAs });
+  if (s.viewAs && u.role === 'editor' && s.viewAs.role === 'crew')   // a termelési vezető is megnézheti egy szakember szemével
+    return Object.assign({}, u, { role: 'crew', crewId: String(s.viewAs.crewId || ''), realRole: 'editor', viewAs: s.viewAs });
   return u;
 }
 
 function setViewAs_(token, u, arg) {
-  if (u.role !== 'admin' && u.realRole !== 'admin') throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  const ed = u.role === 'editor' || u.realRole === 'editor';
+  if (u.role !== 'admin' && u.realRole !== 'admin' && !ed) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
   const role = String(arg && arg.role || '');
+  if (ed && role && role !== 'crew' && role !== 'editor' && role !== 'admin') throw new Error('FORBIDDEN: termelési vezetőként csak szakember nézetre válthatsz.');
   let view = null;
-  if (role === 'editor') view = { role: 'editor' };
+  if (role === 'editor') view = ed ? null : { role: 'editor' };
   else if (role === 'sales') {
     const uid = str_(arg && arg.userId, 64), su = uid ? loadUsers_().find(x => x.id === uid && x.role === 'sales') : null;
     if (uid && !su) throw new Error('Az értékesítő nem található.');

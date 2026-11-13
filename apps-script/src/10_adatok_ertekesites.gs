@@ -166,7 +166,7 @@ function bootstrap_(u) {
 }
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
 function viewAsPick_(out, u) {
-  if (u.realRole === 'admin') out.viewAsCrew = readAll_('crew').map(c => ({ id: c.id, name: c.name, roles: c.roles }));
+  if (u.realRole === 'admin' || u.realRole === 'editor' || u.role === 'editor') out.viewAsCrew = readAll_('crew').map(c => ({ id: c.id, name: c.name, roles: c.roles }));
   if (u.realRole === 'admin' || u.role === 'admin') out.viewAsSales = loadUsers_().filter(x => x.role === 'sales' && !x.disabled).map(x => ({ id: x.id, name: x.name }));
   return out;
 }
