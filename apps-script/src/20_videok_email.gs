@@ -363,6 +363,7 @@ function clientSummary_(o, t) {
   } catch (e) { Logger.log('Ügyfél visszaigazolás: ' + e); }
 }
 let FB_MAIL_ = null;
+let OK_MAIL_ = null;   // jóváhagyási értesítés a vágónak (a mentés után megy ki)
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
@@ -393,6 +394,7 @@ function videoSet_(u, a) {
       if (!mgr && !(a.st === 'vagasra' && v.st === 'vagas' && (!v.editor || v.editor === u.crewId)) && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); if (u.id !== 'client') FB_MAIL_ = { v: v, by: u.name }; }   /* az ügyfél kérésénél a vágó az új stílusú levelet kapja (clientDecide_) */   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) vidSetLink_(v, str_(String(a.link).trim(), 500));   // e-mail nélküli áthelyezésnél is a videó linkje
+      if (u.id !== 'client' && v.editor && ((a.st === 'jovahagyva' && v.st !== 'jovahagyva') || (mgr && a.st === 'leadva' && v.st === 'ellen'))) OK_MAIL_ = { v: v, by: u.name, kind: a.st === 'jovahagyva' ? 'ok' : 'rv' };   /* a vágó értesítést kap: átment a belső ellenőrzésen / jóváhagyták (az ügyfél döntésénél a clientDecide_ küldi) */
       if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)
       if (a.st === 'leadva' && v.st !== 'leadva') { v.seenAt = ''; v.seenLast = ''; v.seenN = 0; }   // újbóli leadás: a korábbi megnyitás már nem számít
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
@@ -406,6 +408,11 @@ function videoSet_(u, a) {
     putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
   });
   logEvent_(u, 'Videó állapota', p.name, changed);
+  if (OK_MAIL_) { const om = OK_MAIL_; OK_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === om.v.editor), em = c && String(c.email || '').trim();
+    if (em && em.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(om.v.id), first = huFirst_(String(c.name || '')), ok = om.kind === 'ok';
+      const head = ok ? 'Jó hír: a videót jóváhagyták' : 'Átment a belső ellenőrzésen – ' + om.by + ' továbbküldte az ügyfélnek jóváhagyásra';
+      gmailSend_(em, (ok ? 'Jóváhagyva: ' : 'Átment a belső ellenőrzésen: ') + om.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + head + ': ' + om.v.name + ' – ' + p.name + '.\n\n' + (ok ? 'Köszönjük a munkádat!' : 'Ha az ügyfél módosítást kér, értesítünk.') + '\n\n' + url,
+        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62"><b>' + escapeHtml_(head) + '</b><br>' + escapeHtml_(om.v.name) + ' – ' + escapeHtml_(p.name) + '</p><p>' + (ok ? 'Köszönjük a munkádat!' : 'Ha az ügyfél módosítást kér, értesítünk.') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágói értesítés: ' + e); } }
   if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
     if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = huFirst_(String(c.name || ''));
       gmailSend_(em, 'Módosítást kér: ' + fm.v.name + ' – ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér: ' + fm.v.name + ' – ' + p.name + (fm.v.fb ? '\n\n' + pinStrip_(fm.v.fb) : '') + '\n\n' + url,
