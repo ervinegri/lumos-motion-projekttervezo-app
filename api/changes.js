@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff97f40056",
+"at": "2026-11-13T08:42:40+01:00",
+"msg": "Termelési vezető: szakember nézet; szakember nézetben nincs Státusz oszlop"
+},
+{
 "id": "f179031433",
 "at": "2026-11-13T08:39:48+01:00",
 "msg": "Szakember nézet: kezdés-távozás egy sorban, nincs ragadós címsáv; naptárnál működik a böngésző vissza/előre húzással"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződéssablonok: több hely az aláírásnak (kb. 2,3 cm a vonalak fölött)"
 },
 {
-"id": "7b3e96639b",
-"at": "2026-11-12T22:41:03+01:00",
-"msg": "Szerződéssablonok: a felek táblázatai egyforma sorközzel és oszlopszélességgel"
-},
-{
-"id": "b0340f37b9",
-"at": "2026-11-12T21:38:33Z",
+"id": "c614c9ad95",
+"at": "2026-11-12T21:41:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
