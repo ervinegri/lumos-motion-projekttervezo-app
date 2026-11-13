@@ -235,7 +235,9 @@ function crewFinalWarn(p){if(ro()||!crewFinalOn()||p.status==='atadva'||p.status
   const urg=soon?(left<=0?'⏰ A rendezvény már elkezdődött! ':`⏰ Kevesebb mint két hét van a rendezvényig (${left===1?'holnap kezdődik':'még '+left+' nap'}). `):'';
   return st==='changed'?`<span class="statuspill ${cls}" data-tip="${urg}A csapat a véglegesítés óta módosult – a projekt oldalán véglegesítsd újra, hogy a tagok értesítést kapjanak.">👥 Stáb módosult</span>`
     :`<span class="statuspill ${cls}" data-tip="${urg}${crewIds(p).size?'A csapat még nincs véglegesítve – a projekt oldalán véglegesítsd, hogy a tagok bekerüljenek a naptárba és értesítést kapjanak.':'Még nincs stáb beosztva erre a projektre.'}">👥 Stáb nincs véglegesítve</span>`;}
-function statusPill(p){const s=p.status||'tervezes';return `<span class="statuspill st-${esc(s)}${siteWaiting(p)?' st-wait':''}">${esc(stageLabel(p,s))}</span>${s==='tervezes'&&!ro()&&missingReq(p).length?'<span class="statuspill p-mute" data-tip="Hiányos alapadatok – a projekt oldalán pótolhatók">📝 Piszkozat</span>':''}`;}
+const allApproved=p=>{const vs=p.videos||[];return vs.length>0&&vs.every(v=>v.st==='jovahagyva');};
+function statusPill(p){const s=p.status||'tervezes';if((s==='jovahagyas'||s==='leadva')&&allApproved(p))return '';   // minden videót jóváhagytak: a „✅ Minden videó jóváhagyva” jelzés elég
+  return `<span class="statuspill st-${esc(s)}${siteWaiting(p)?' st-wait':''}">${esc(stageLabel(p,s))}</span>${s==='tervezes'&&!ro()&&missingReq(p).length?'<span class="statuspill p-mute" data-tip="Hiányos alapadatok – a projekt oldalán pótolhatók">📝 Piszkozat</span>':''}`;}
 function calBlock(iso){
   if(!validISO(iso))return `<span class="cal none" aria-hidden="true"><span class="cal-m">—</span><span class="cal-d">?</span></span>`;
   const d=toDate(iso);
@@ -259,6 +261,9 @@ function crewDim(p){if(!ro())return false;const st=p.status||'tervezes';if(st===
   const me=S.me&&S.me.crewId;return !(me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó'));}
 function myRole(p){if(!S.me||!S.me.crewId)return '';const r=[];if(p.lead===S.me.crewId)r.push('projektvezető');(p.crew||[]).forEach(a=>{if(a.crewId===S.me.crewId)r.push(a.role.toLowerCase());});return r.join(', ');}
 /* Létszám: a távolról (remote) vezető projektvezető nem számít bele */
+/* A helyszínen dolgozók száma: a vágó és az utómunka nélkül (aki helyszíni szerepben is szerepel, az számít) */
+const POST_ROLE_RE=/vágó|utómunk|szerkeszt|grafik|színez|color|animá|motion design/i;
+function siteCrewN(p){const ids=new Set();if(p.lead&&!p.leadRemote)ids.add(p.lead);(p.crew||[]).forEach(c=>{if(c.crewId&&!POST_ROLE_RE.test(c.role||''))ids.add(c.crewId);});return ids.size;}
 function crewN(p){const ids=crewIds(p);if(p.leadRemote&&p.lead&&!(p.crew||[]).some(c=>c.crewId===p.lead))ids.delete(p.lead);return ids.size;}
 function evRow(p,opt={}){
   const r=pr(p),T=todayISO();
@@ -452,14 +457,15 @@ function viewProjects(){
   const done=list.filter(closed).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // lezárt: hónaponként
   const issues=ro()?[]:computeIssues();
   const row=p=>{const r=pr(p),di=dueInfo(p),sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva'),days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
-    const nCrew=crewN(p),sz=nCrew>=6?3:nCrew>=3?2:1,crewChip=nCrew?`<span class="pt-crew sz${sz}" title="${nCrew} fő a projekten">👥 ${nCrew}</span>`:'';   // a projekt nagysága: minél több szakember, annál feltűnőbb
+    const nCrew=crewN(p),nSite=siteCrewN(p),sz=nSite>=6?3:nSite>=3?2:1,crewChip=nSite?`<span class="pt-crew sz${sz}" title="${nSite} fő a helyszínen (vágó és utómunka nélkül)">👥 ${nSite}</span>`:'';
+    const tm=p.startTime&&/^\d{1,2}:\d{2}$/.test(p.startTime)?`<span class="pt-time">🕘 ${esc(p.startTime)}${p.endTime&&/^\d{1,2}:\d{2}$/.test(p.endTime)?'–'+esc(p.endTime):''}</span>`:'';   // a projekt nagysága: minél több szakember, annál feltűnőbb
     const endT=String((r&&r.end>r.start&&p.lastEndTime)||p.endTime||''),overToday=!!r&&r.end===T&&(['utomunka','leadva','jovahagyas','atadva','lemondva'].includes(p.status)||(/^\d{2}:\d{2}$/.test(endT)&&endT<=new Date().toTimeString().slice(0,5)));   // ma volt, de már véget ért
     const when=!r?'':overToday?'past':r.start<=T&&r.end>=T?'now':r.start>T?'fut':'past',rel=!r?'':when==='now'?'<span class="pt-rel now">● MA</span>':when==='fut'?`<span class="pt-rel fut">${diffDays(T,r.start)===1?'holnap':diffDays(T,r.start)+' nap múlva'}</span>`:`<span class="pt-rel past">${diffDays(r.end,T)===0?'ma, véget ért':diffDays(r.end,T)===1?'tegnap':diffDays(r.end,T)+' napja'}</span>`;
     const due=di&&r&&(r.end<T||POST_STAGES.includes(p.status))?`<span class="statuspill p-${di.cls}">${di.txt}</span>`:'';
     const extra=ro()?(myRole(p)?`<span class="smallnum">${esc(myRole(p))}</span>`:'')+(()=>{const st=p.status||'tervezes',m={leadva:'⏳ Elfogadásra vár',jovahagyas:'⏳ Elfogadásra vár',atadva:'✓ Kész',lemondva:'Lemondva',utomunka:'✂️ Utómunka'}[st]||stageLabel(p,st);return `<span class="pt-mystat st-${esc(st)}">${esc(m)}</span>`;})()
       :`<span class="smallnum">${nCrew} fő · ${eqCount(p)} eszköz</span>`;
     const dim=crewDim(p);
-    return `<tr class="pt-row pt-st-${esc(p.status||'tervezes')} pt-${when||'nodate'} pt-sz${sz}${p.status==='lemondva'?' pt-cancel':''}${dim?' pt-dim':''}" data-action="open-project" data-id="${esc(p.id)}" tabindex="0"><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'&&!(ro()&&when==='past')?DONE_CHECK:''}${ro()&&when==='past'?'':crewChip}${rel}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
+    return `<tr class="pt-row pt-st-${esc(p.status||'tervezes')} pt-${when||'nodate'} pt-sz${sz}${p.status==='lemondva'?' pt-cancel':''}${dim?' pt-dim':''}" data-action="open-project" data-id="${esc(p.id)}" tabindex="0"><td class="pt-proj"><div class="pt-flex">${calBlock(r&&r.start)}<span class="ev-main"><span class="ev-title">${esc(p.name||'Névtelen projekt')}${p.status==='atadva'&&!(ro()&&when==='past')?DONE_CHECK:''}${ro()&&when==='past'?'':crewChip}${rel}${when==='past'?'':tm}</span><span class="ev-sub">${esc(sub)}${days}</span></span></div></td>
       <td class="pt-status"><div class="pt-pills">${ro()&&crewCuts(p,(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId)&&cutLeft(p)?`<span class="statuspill p-${cutLeft(p).cls}">✂️ ${esc(cutLeft(p).txt)}</span>`:''}${ro()&&when==='past'?'':statusPill(p)+crewFinalWarn(p)+due+vidLink(p,'statuspill p-info pt-video','▶ Leadott videó'+(p.deliveryPass?' 🔒':''),` data-action="ext-link" title="${esc(p.deliveryLink)}"`)}${budgetMissing(p)?`<span class="statuspill p-bad" data-tip="Hiányzik: ${esc(budgetMissing(p))}">💰 ${esc(budgetMissing(p))} hiányzik</span>`:''}</div></td>${ro()?`<td class="pt-extra">${extra}</td>`:''}</tr>`;};
   const cols=ro()?3:2;
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
