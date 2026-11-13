@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e107be2924",
+"at": "2026-11-13T22:06:37+01:00",
+"msg": "Mobil számlázás: minden projekt külön színezett kártyán"
+},
+{
 "id": "d67cbd8a00",
 "at": "2026-11-13T22:04:48+01:00",
 "msg": "Mobil Fizetések: a táblázat alja is elérhető (alacsonyabb keret, a görgetés továbbmegy az oldalra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások a névjelvény menüjében (mobilon a nézetváltóban), fülként nem kell"
 },
 {
-"id": "c0ec032775",
-"at": "2026-11-13T18:24:51+01:00",
-"msg": "Mobil: Kilépés a nézetváltó listájában; rövid legördülők érintésre billentyűzet és kijelölés nélkül"
-},
-{
-"id": "05b27fbd36",
-"at": "2026-11-13T17:24:02Z",
+"id": "6d052fec60",
+"at": "2026-11-13T17:25:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
