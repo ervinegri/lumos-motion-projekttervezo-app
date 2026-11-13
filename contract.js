@@ -87,6 +87,7 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   const t=CT_CACHE[c.tpl]||(CT_CACHE[c.tpl]=await call('contractTpl',{k:c.tpl}));
   const z=await window.JSZip.loadAsync(t.zip,{base64:true});if(!t.full)z.file('word/media/image1.png',t.img,{base64:true});   // a Drive-os (Wordben szerkesztett) sablon a saját képeivel jön
   let x=ctJoinTokens(await z.file('word/document.xml').async('string'));
+  x=x.replace(/<w:tbl>[\s\S]*?<\/w:tbl>/g,t=>t.replace(/<w:jc w:val="(both|distribute)"\/>/g,'<w:jc w:val="left"/>'));   // táblázatban nincs sorkizárás (a nevek, címek ne húzódjanak szét)
   const X=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const fill=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(o,k)?X(o[k]):m);
   const rep=(s,tok,items)=>{const i=s.indexOf(tok);if(i<0)return s;const st=Math.max(s.lastIndexOf('<w:tr ',i),s.lastIndexOf('<w:tr>',i)),en=s.indexOf('</w:tr>',i)+7;const row=s.slice(st,en);return s.slice(0,st)+items.map(it=>fill(row,it)).join('')+s.slice(en);};
