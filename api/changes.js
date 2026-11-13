@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "63949177c3",
+"at": "2026-11-13T21:49:37+01:00",
+"msg": "Mobil árkalkulátor ablak: tömör fejléc (rövid fülnevek, × egy sorban), Bezárás gomb nélkül, gombsor két sorban"
+},
+{
 "id": "1399a129ae",
 "at": "2026-11-13T21:48:21+01:00",
 "msg": "Fekvő mobil: névjelvény (pozíció) helyett a nézetváltó Fiók menüje, fülsor kifér, aktív fül mindig látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla mobilon: az oszlopfejlécek nem csúsznak egymásba"
 },
 {
-"id": "8a05032b14",
-"at": "2026-11-13T17:50:25+01:00",
-"msg": "Naptár: napváltás után (mobilon háttérből visszatérve) a mai napra ugrik"
-},
-{
-"id": "0df3790d3f",
-"at": "2026-11-13T16:31:24Z",
+"id": "e0d3af6bc6",
+"at": "2026-11-13T16:50:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
