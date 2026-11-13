@@ -1463,3 +1463,8 @@ html body .sheet-wrap .sheet.fin-inc tbody td:first-child,html body .sheet-wrap 
 html body .sheet-wrap .sheet.fin-inc tbody td:nth-child(2),html body .sheet-wrap .sheet.fin-inc thead th:nth-child(2){left:36px!important;max-width:none;min-width:0}
 html body .fin-inc tbody td:nth-child(2) .linkbtn{display:inline-block!important;max-width:150px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 }
+/* telefon: a görgethető táblázatkeretek ne „rugózzanak” oldalra (ne lehessen elhúzni a szélükön túl) */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .pay-wrap,html body .sheet-wrap,html body .tbl-wrap,html body .tl-wrap{overscroll-behavior-x:none!important}
+html,html body{overscroll-behavior-x:none;overflow-x:hidden}
+}
