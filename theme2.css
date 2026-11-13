@@ -1124,7 +1124,7 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
 @media (orientation:landscape) and (max-height:560px){
   html body .tbl-wrap,html body .sheet-wrap,html body .pay-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;max-width:100%}
   html body .pay-wrap .pay-sheet thead th,html body .sheet-wrap .sheet thead th{position:static!important;top:auto!important}
-  html,body{overflow-x:hidden}}
+  html body{overflow-x:clip}}
 @media (orientation:landscape) and (max-height:560px){html body .pay-sheet tbody td:first-child,html body .pay-sheet tfoot td:first-child{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line)}}
 /* Szerződés és számlázás: fekvő telefonon / keskeny ablakban görgetés nélkül, a teljes sor látszik */
 @media (max-width:1100px) and (min-width:701px){
@@ -1171,7 +1171,7 @@ html:has(#userChip:not(.hidden)) .tabs .tab[data-tab="beallitasok"],html:has(#us
  html body .dtitle .grow,html body .dtitle>div{min-width:0}}
 /* mobil havi rács: a többnapos elemek folytatása csak vékony színes csík (szöveg nélkül), és az oldal nem lóg ki oldalra */
 @media (max-width:760px){html body .cal-day .cal-chip.cont{font-size:0!important;height:5px;min-height:0;padding:0!important;border-radius:2px;margin:1px 0}
- html,body{overflow-x:hidden;max-width:100%}}
+ html body{overflow-x:clip;max-width:100%}}
 @media (max-width:700px){html body .header-tools .view-as{max-width:calc(100vw - 210px)!important}}
 /* naptár fejléce álló telefonon: nézet + Ma + hónap egy sorban, a szűrők és gombok kompaktan egy másik sorban */
 @media (max-width:700px){
@@ -1466,5 +1466,5 @@ html body .fin-inc tbody td:nth-child(2) .linkbtn{display:inline-block!important
 /* telefon: a görgethető táblázatkeretek ne „rugózzanak” oldalra (ne lehessen elhúzni a szélükön túl) */
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){
 html body .pay-wrap,html body .sheet-wrap,html body .tbl-wrap,html body .tl-wrap{overscroll-behavior-x:none!important}
-html,html body{overscroll-behavior-x:none;overflow-x:hidden}
+html body{overflow-x:clip}
 }
