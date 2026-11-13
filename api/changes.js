@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1c5144a36d",
+"at": "2026-11-13T22:35:25+01:00",
+"msg": "Fekvő telefon: sokkal kisebb hézag a menüsáv, a fejléc és a táblázat között"
+},
+{
 "id": "fe4d34d763",
 "at": "2026-11-13T22:33:51+01:00",
 "msg": "Fekvő telefon: Bevétel és kiadás fejléce egy sorban, tömörebb dobozok és táblázatok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil árkalkulátor ablak: tömör fejléc (rövid fülnevek, × egy sorban), Bezárás gomb nélkül, gombsor két sorban"
 },
 {
-"id": "1399a129ae",
-"at": "2026-11-13T21:48:21+01:00",
-"msg": "Fekvő mobil: névjelvény (pozíció) helyett a nézetváltó Fiók menüje, fülsor kifér, aktív fül mindig látszik"
-},
-{
-"id": "5c25526375",
-"at": "2026-11-13T20:46:57Z",
+"id": "2b8543afe5",
+"at": "2026-11-13T20:48:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
