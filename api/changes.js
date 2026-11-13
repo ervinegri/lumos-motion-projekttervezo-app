@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "772bdda1d5",
+"at": "2026-11-13T07:29:41+01:00",
+"msg": "setupTriggers: hiányzó jogosultság újrakérése"
+},
+{
 "id": "a958711f48",
 "at": "2026-11-13T07:22:31+01:00",
 "msg": "Kód modulokra bontva: háttér apps-script/src/NN_*.gs, felület views-*/actions-* + boot.js"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés PDF: nincs levágott szóvég (elválasztás ki), a felek táblázatai egyforma oszlopokkal"
 },
 {
-"id": "19b031358f",
-"at": "2026-11-12T21:31:41+01:00",
-"msg": "Új szerződés: a minta maga a PDF (oldalanként); a táblázatok nem lógnak ki a lapról"
-},
-{
-"id": "c85ea3b13b",
-"at": "2026-11-12T20:12:18Z",
+"id": "b39234424f",
+"at": "2026-11-12T20:31:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
