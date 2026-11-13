@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "67e3d2be9e",
+"at": "2026-11-13T12:29:30+01:00",
+"msg": "Belső ellenőrzés: több ellenőrző is kijelölhető (mindenki saját levelet kap)"
+},
+{
 "id": "442165ee18",
 "at": "2026-11-13T12:13:36+01:00",
 "msg": "Számlázás: ügyfélcsoportban is megjelenik a díjbekérő nélküli számla gombja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés: visszalépés után a PDF megmarad, csak módosításkor készül újra"
 },
 {
-"id": "6e386da301",
-"at": "2026-11-13T08:02:54+01:00",
-"msg": "Ügyfelek: számlatörténet a számlázz.hu-ból (lekérdezés sorszám szerint), az adatlapon Számlázva blokk"
-},
-{
-"id": "7164802116",
-"at": "2026-11-13T06:59:14Z",
+"id": "15ab1a4576",
+"at": "2026-11-13T07:03:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
