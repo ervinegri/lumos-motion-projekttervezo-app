@@ -1558,3 +1558,15 @@ html body .bill-tbl .bt-cell .pb-box{padding:6px 8px!important;min-height:0!impo
 html body .bill-tbl .pb-t{font-size:10px!important}
 html body .bill-tbl tr.bl-chead>td{padding:6px 10px!important;font-size:13px!important}
 }
+/* telefon: Fizetések – a keret a látható magassághoz igazodik (az alja elérhető), az alsó állapotsorok (Díjösszesítő, Számla, Kifizetés, Egyenleg) tömörek */
+@media (orientation:landscape) and (max-height:560px){html body .pay-wrap{max-height:calc(100dvh - 64px)!important}}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .pay-sheet tr.pay-strow td,html body .pay-sheet tfoot td{padding-top:3px!important;padding-bottom:3px!important;line-height:1.2!important;vertical-align:middle}
+html body .pay-sheet tr.pay-strow td:first-child{white-space:nowrap;font-size:13px!important}
+html body .pay-sheet tr.pay-strow td:first-child .muted{display:none}
+html body .pay-sheet .pst-sub{margin-top:1px!important}
+html body .pay-sheet .pst-act.full{padding:4px!important;font-size:12px!important}
+html body .pay-sheet .pst-card{padding:3px 7px!important}
+html body .pay-sheet .pst-line{min-height:0!important}
+html body .pay-sheet .pst-chk input{width:16px;height:16px}
+}
