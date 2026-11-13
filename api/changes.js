@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6604394b4d",
+"at": "2026-11-13T09:18:03+01:00",
+"msg": "E-mail lábléc: új szöveg"
+},
+{
 "id": "89fabf150c",
 "at": "2026-11-13T09:12:35+01:00",
 "msg": "Utómunka-instrukciók: alcím törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés-állapot (kiküldve/visszaküldve/aláírva) projekten és sales-ben; cégválasztó elrejtése; időzítők telepítése"
 },
 {
-"id": "4c41cb75f7",
-"at": "2026-11-13T06:58:53+01:00",
-"msg": "Szerződés: harmadik típus (kiállítói short megbízás) opciókkal; keskenyebb 1. lépés"
-},
-{
-"id": "c14d6575db",
-"at": "2026-11-13T05:51:58Z",
+"id": "c5e09f686d",
+"at": "2026-11-13T05:59:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
