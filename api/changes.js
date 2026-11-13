@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0759770b98",
+"at": "2026-11-13T18:38:05+01:00",
+"msg": "Projekt mentése nem írja vissza a videók állapotát (régi projektlap felülírta a vágó beküldését)"
+},
+{
 "id": "f39e4d1465",
 "at": "2026-11-13T18:36:20+01:00",
 "msg": "Levélből nyitott videó a friss adatokkal; nyitott videóablak frissül; mobilon a lépések 2 oszlopban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: a másolat-címzettek egyenként törölhetők"
 },
 {
-"id": "2f5b1ccbd7",
-"at": "2026-11-13T16:29:58+01:00",
-"msg": "Árajánlat: lapozó nyilak az opciók között; fotó nélkül „Kreatív videózás”"
-},
-{
-"id": "558bba38b9",
-"at": "2026-11-13T15:28:33Z",
+"id": "f909a11595",
+"at": "2026-11-13T15:30:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
