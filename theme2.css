@@ -1100,3 +1100,14 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .dl-sm{display:none}@media (max-width:700px){.dl-hbtns .dl-sm{display:inline}.dl-hbtns{margin-bottom:12px}}
 .topbar{transition:transform .22s ease}.topbar.tb-hide{transform:translateY(-100%)}
 .dl-hbtns .btn{gap:0}
+/* fekvő mobilnézet: egyetlen sáv (logó · fülek · eszközök), a Kilépés a névjelvény mögött */
+@media (orientation:landscape) and (max-height:560px){
+ html body .topbar-inner{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:'logo tabs tools'!important;min-height:0!important;padding-top:6px!important;padding-bottom:6px!important;gap:8px 14px!important}
+ html body .tabs{margin:0!important;padding:0!important;flex-wrap:nowrap!important;overflow-x:auto}
+ html body .brand{height:30px;width:auto}
+ html body #logoutBtn{display:none!important}
+ html body #userChip{cursor:pointer}html body #userChip::after{content:' ▾';opacity:.7}}
+.uc-pop{position:fixed;z-index:6000;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(10,25,40,.25);padding:6px}.uc-pop .btn{color:#1d2a38!important;border-color:#dde4eb!important;white-space:nowrap}
+@media (orientation:landscape) and (max-height:560px){html body .header-tools .user-chip:not(.hidden){display:inline-flex!important;max-width:200px}}
+@media (max-width:760px){html body .cal-grid{touch-action:pan-y pinch-zoom!important}html:has(.cal-grid){overscroll-behavior-y:auto!important}}
+@media (orientation:landscape) and (max-height:560px){html body #userChip{padding-right:14px!important;overflow:visible}}

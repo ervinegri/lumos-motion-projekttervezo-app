@@ -24,3 +24,13 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
     if(y>last+6)b.classList.add('tb-hide');else if(y<last-6)b.classList.remove('tb-hide');last=y;};
   window.addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});
   if(mq.addEventListener)mq.addEventListener('change',upd);})();
+
+/* Fekvő mobilnézet: a Kilépés a névjelvény mögé kerül (érintésre jelenik meg) */
+(()=>{const mq=window.matchMedia&&matchMedia('(orientation:landscape) and (max-height:560px)');if(!mq)return;
+  const close=()=>{const p=document.getElementById('ucPop');if(p)p.remove();};
+  document.addEventListener('click',e=>{const chip=e.target.closest&&e.target.closest('#userChip');const pop=document.getElementById('ucPop');
+    if(pop&&!e.target.closest('#ucPop')){close();if(chip)return;}
+    if(!chip||!mq.matches)return;e.preventDefault();const r=chip.getBoundingClientRect(),p=document.createElement('div');p.id='ucPop';p.className='uc-pop';
+    p.innerHTML='<button type="button" class="btn ghost small" data-uc="out">Kilépés</button>';p.style.top=(r.bottom+6)+'px';p.style.right=Math.max(8,innerWidth-r.right)+'px';document.body.appendChild(p);
+    p.querySelector('[data-uc="out"]').addEventListener('click',()=>{close();const lb=document.getElementById('logoutBtn');if(lb)lb.click();});});
+  window.addEventListener('scroll',close,{passive:true});})();
