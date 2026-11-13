@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f378aa28ef",
+"at": "2026-11-13T13:32:21+01:00",
+"msg": "Verzióváltó: a visszadobás indoka a régi verziónál"
+},
+{
 "id": "36d6cbd076",
 "at": "2026-11-13T13:31:28+01:00",
 "msg": "Verzióváltó: a régebbi (link-előzmény nélküli) videóknál is, a hozzászólásokkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: videónkénti leadott linkek, Videó(k) jóváhagyva"
 },
 {
-"id": "53b0d08134",
-"at": "2026-11-13T08:25:41+01:00",
-"msg": "Lemondott projekt sávja: magyarázó mondat törölve, dupla pont javítva"
-},
-{
-"id": "475610e6de",
-"at": "2026-11-13T07:23:00Z",
+"id": "7e2a35db08",
+"at": "2026-11-13T07:25:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
