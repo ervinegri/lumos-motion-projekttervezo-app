@@ -14,7 +14,7 @@ const ctToday=()=>{const d=new Date();return d.getFullYear()+'. '+String(d.getMo
 const ctFt=n=>String(Math.round(num(n))).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 const ctDay=iso=>{if(!validISO(iso))return '';const d=toDate(iso);return iso.replace(/-/g,'. ')+'., '+F_WD_LONG(d);};
 function F_WD_LONG(d){return ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'][d.getUTCDay()];}
-function ctNew(){S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:'',c_tax:'',c_phone:'',c_email:'',c_rep:'',sig_name:'',sig_rep:'',date:ctToday(),pid:'',fee:'',locs:[{place:'',date:''}],svcs:[{name:'',qty:'1',ext:''}],rb_mode:'pct',rb_pct:'10',rb_min:'40000',rb_amt:'',rk_mode:'pct',rk_pct:'10',rk_min:'40000',rk_amt:'',rk_years:'5',dlv:'final'};ctStep1();}
+function ctNew(){Object.keys(CT_CACHE).forEach(k=>delete CT_CACHE[k]);S.ct={step:1,tpl:'lumos_hatarozott',client:'',c_name:'',c_addr:'',c_tax:'',c_phone:'',c_email:'',c_rep:'',sig_name:'',sig_rep:'',date:ctToday(),pid:'',fee:'',locs:[{place:'',date:''}],svcs:[{name:'',qty:'1',ext:''}],rb_mode:'pct',rb_pct:'10',rb_min:'40000',rb_amt:'',rk_mode:'pct',rk_pct:'10',rk_min:'40000',rk_amt:'',rk_years:'5',dlv:'final'};ctStep1();}
 /* 1. lépés: sablon */
 /* 1. lépés: két döntés – melyik cég nevében (Lumos Motion Kft. / Egri Ervin E.V.), és milyen szerződés (Megbízási / Keretszerződés) */
 function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_')[0]:'',kind=c._picked?(cur.sh?'shortok':cur.hat?'hatarozott':'keret'):'';   // első megnyitáskor nincs előválasztás
@@ -22,7 +22,8 @@ function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_
   openModal('📝 Új szerződés – 1/3: sablon',`<div id="ct-firmbox"${firm?' hidden':''}><p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
       ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div></div>
     <div id="ct-kind"${firm?'':' hidden'}><p class="ct-firmsel"><span id="ct-firmname">${firm==='egri'?'Egri Ervin E.V.':'Lumos Motion Kft.'}</span> <button type="button" class="linkbtn" data-ct-chfirm="1">módosítás</button></p><p class="hint" style="margin:10px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
-      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói short megbízás','Rendezvényszervezővel: short videók a kiállítóknak, jutalékkal.')}</span></div></div>`,
+      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}<span class="ct-sh-opt"${firm==='egri'?' hidden':''}>${opt('ct_kind','shortok',kind==='shortok','Kiállítói short megbízás','Rendezvényszervezővel: short videók a kiállítóknak, jutalékkal.')}</span></div></div>
+    <p class="ct-tpledit"><button type="button" class="linkbtn" data-action="ct-tpls">✏️ Sablonok szerkesztése Wordben (Drive)</button></p>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
   const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('ct-narrow');}   // nincs Tovább gomb: a típusra kattintva lép tovább
@@ -84,8 +85,8 @@ Object.assign(ACT,{
 /* a docx kitöltése: {mező} helyőrzők; a helyszín- és szolgáltatássor annyiszor ismétlődik, ahány tétel van */
 async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   const t=CT_CACHE[c.tpl]||(CT_CACHE[c.tpl]=await call('contractTpl',{k:c.tpl}));
-  const z=await window.JSZip.loadAsync(t.zip,{base64:true});z.file('word/media/image1.png',t.img,{base64:true});
-  let x=await z.file('word/document.xml').async('string');
+  const z=await window.JSZip.loadAsync(t.zip,{base64:true});if(!t.full)z.file('word/media/image1.png',t.img,{base64:true});   // a Drive-os (Wordben szerkesztett) sablon a saját képeivel jön
+  let x=ctJoinTokens(await z.file('word/document.xml').async('string'));
   const X=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const fill=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(o,k)?X(o[k]):m);
   const rep=(s,tok,items)=>{const i=s.indexOf(tok);if(i<0)return s;const st=Math.max(s.lastIndexOf('<w:tr ',i),s.lastIndexOf('<w:tr>',i)),en=s.indexOf('</w:tr>',i)+7;const row=s.slice(st,en);return s.slice(0,st)+items.map(it=>fill(row,it)).join('')+s.slice(en);};
@@ -93,7 +94,7 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
     x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:l.date})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
-  if(tp.sh)x=fill(x,ctShTokens());
+  if(tp.sh){x=fill(x,ctShTokens());if(/^[aáeéiíoóöőuúüű]/i.test(String(S.ct.ev_name||'').trim()))x=x.replace(/(közzétételekor )a( ?<\/w:t>)/,'$1az$2');}
   x=x.replace(/<w:p[ >](?:(?!<w:p[ >])[\s\S])*?@@DEL@@(?:(?!<w:p[ >])[\s\S])*?<\/w:p>/g,'');   // kihagyott (opcionális) bekezdések
   x=fill(x,{deliv:ctDlvText(tp),raw_buy:ctRawText('rb',tp),raw_keep:ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
   if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
@@ -252,3 +253,18 @@ document.addEventListener('click',e=>{if(!e.target.closest||!e.target.closest('[
 const ctDealsOpen=()=>(S.deals||[]).filter(d=>d.stage!=='elveszett').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
 function ctDealField(){const ds=ctDealsOpen(),c=S.ct;if(!ds.length)return '';
   return `<div class="field full"><label for="ct-deal">Értékesítési lehetőség <span class="muted" style="font-weight:500;font-size:12px">– kiküldéskor itt jelöljük: szerződés kiküldve</span></label><select class="inp" id="ct-deal" name="dealId" data-cmb="Lehetőség kiválasztása…"><option value="">– nincs –</option>${ds.map(d=>`<option value="${esc(d.id)}"${c.dealId===d.id?' selected':''}>${esc(d.title)}${d.client&&!String(d.title).includes(d.client)?' · '+esc(d.client):''}</option>`).join('')}</select></div>`;}
+
+/* Word-ben szerkesztett sablon: a {mező} jelölőket a Word több részre bonthatja (helyesírás, formázás) – ezeket egybe kell fűzni */
+function ctJoinTokens(x){return x.replace(/\{((?:[A-Za-z0-9_]|<(?!\/?w:p[ >])[^>]+>)+)\}/g,(m,inner)=>/</.test(inner)?'{'+inner.replace(/<[^>]+>/g,'')+'}':m);}
+/* Sablonok a Drive-ban: listázás, a beépített sablonok bemásolása szerkeszthető .docx-ként */
+ACT['ct-tpls']=async()=>{let L;try{L=await call('ctTplList');}catch(e){handleErr(e);return;}
+  const rows=Object.keys(L.titles).map(k=>{const it=L.items[k];return `<div class="ct-tl-row"><b>${esc(L.titles[k])}</b>${it?`<a class="linkbtn" href="${esc(it.url)}" target="_blank" rel="noopener">Megnyitás ↗</a><small>Drive · módosítva ${esc(String(it.updated).slice(0,10))}</small>`:'<small class="muted">beépített (a kódban)</small>'}</div>`;}).join('');
+  const miss=Object.keys(L.titles).filter(k=>!L.items[k]);
+  openModal('✏️ Szerződéssablonok',`<p class="hint" style="margin:-4px 0 10px">A Drive-ban lévő sablont nyisd meg Wordben (vagy a Drive-ban „Megnyitás Wordben”), szerkeszd, és mentsd ugyanabba a fájlba – az új szerződések már abból készülnek, telepítés nélkül.<br><b>Fontos:</b> a kapcsos zárójeles mezőket (pl. <code>{c_name}</code>, <code>{date}</code>, <code>{p31}</code>) hagyd meg változatlanul, és a fájlnévben a zárójeles kulcs maradjon.</p>
+    <div class="ct-tl">${rows}</div>${L.folder?`<p style="margin:12px 0 0"><a class="linkbtn" href="${esc(L.folder)}" target="_blank" rel="noopener">📁 A sablonmappa megnyitása ↗</a></p>`:''}`,
+    {submitLabel:miss.length?`⬆ ${miss.length===Object.keys(L.titles).length?'Sablonok':'A hiányzó '+miss.length+' sablon'} másolása a Drive-ba`:'Bezárás',noDraft:true,submit:async()=>{if(!miss.length){closeModal();return;}
+      const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb){sb.disabled=true;sb.textContent='Másolás…';}
+      try{for(const k of miss){const t=await call('contractTpl',{k,builtin:true});const z=await window.JSZip.loadAsync(t.zip,{base64:true});z.file('word/media/image1.png',t.img,{base64:true});
+          await call('ctTplUpload',{k,b64:await z.generateAsync({type:'base64',compression:'DEFLATE'})});}
+        Object.keys(CT_CACHE).forEach(k=>delete CT_CACHE[k]);toast('A sablonok a Drive-ban vannak');ACT['ct-tpls']();}
+      catch(e){if(sb){sb.disabled=false;sb.textContent='Újra';}handleErr(e);}}});};

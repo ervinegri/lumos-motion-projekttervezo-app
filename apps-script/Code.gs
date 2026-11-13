@@ -112,7 +112,7 @@ const TABLES = {
     ['eventType', 'Rendezvény típusa'], ['venue', 'Helyszín'], ['eventDate', 'Rendezvény dátuma'], ['value', 'Várható érték (nettó Ft)'], ['stage', 'Szakasz'], ['chance', 'Esély (%)'],
     ['source', 'Forrás'], ['nextStep', 'Következő lépés'], ['nextDate', 'Következő lépés dátuma'], ['ownerId', 'Értékesítő azonosító'], ['ownerName', 'Értékesítő'],
     ['note', 'Megjegyzés'], ['lostReason', 'Elvesztés oka'], ['projectId', 'Projekt azonosító'], ['wonAt', 'Szerződve'], ['closedAt', 'Lezárva'],
-    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)'], ['commAuto', 'Jutalék automatikusan (Sales App)'], ['contactEmail2', 'Másodlagos e-mail'], ['ctStatus', 'Szerződés állapota'], ['ctAt', 'Szerződés állapota óta']] },   // új oszlop mindig a végére
+    ['createdAt', 'Létrehozva'], ['createdBy', 'Létrehozta'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['commPct', 'Jutalék (%)'], ['commAmt', 'Jutalék (Ft)'], ['services', 'Szóba jövő szolgáltatások'], ['commManual', 'Jutalék kézzel (%)'], ['commAuto', 'Jutalék automatikusan (Sales App)'], ['contactEmail2', 'Másodlagos e-mail']] },   // új oszlop mindig a végére
   officeRent: { tab: 'Irodabérlet', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['month', 'Hónap'], ['amount', 'Irodabérleti díj (nettó Ft)'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   crewDocs: { tab: 'Munkatársi szerződések', cols: [
@@ -5122,7 +5122,7 @@ function deleteUser_(arg, self) {
 }
 
 /* ===================== AZ EGYETLEN BELÉPÉSI PONT A KLIENSBŐL ===================== */
-const READ_ONLY_RPC_ = { contractTpl: 1, arkPricesGet: 1, arkPricesSet: 1, hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
+const READ_ONLY_RPC_ = { contractTpl: 1, ctTplList: 1, arkPricesGet: 1, arkPricesSet: 1, hubspotSources: 1, deliverRecipients: 1, dataVer: 1, dbPing: 1, geoSearch: 1, driveScan: 1, whoAmI: 1, bootstrap: 1, calendarEvents: 1, crewFinalPreview: 1, eqListPreview: 1, getLog: 1, listUsers: 1, setViewAs: 1, logout: 1, lookupTaxpayer: 1, hubspotContacts: 1, settingsData: 1, finData: 1, szPdf: 1 };   // ezek nem módosítják a projektadatokat
 function rpc(token, name, arg) {
   const res = rpcInner_(token, name, arg);
   if (dbOn_()) dbFlush_();   // biztonság kedvéért: a zároláson kívüli módosítások is mentődjenek
@@ -5252,7 +5252,9 @@ function rpcInner_(token, name, arg) {
     case 'dealQuoteSend': return dealQuoteSend_(u, arg);
     case 'dealQuoteSig': return dealQuoteSig_(u, arg);
     case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); const why = wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid), why: why }; }
-    case 'contractTpl': adminOnly(); { const k = String(arg && arg.k || ''); if (!/^((lumos|egri)_(hatarozott|keret)|lumos_shortok)$/.test(k) || typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.'); return { zip: CONTRACT_TPL_[k], img: CONTRACT_TPL_.img }; }
+    case 'contractTpl': adminOnly(); return ctTplGet_(String(arg && arg.k || ''), arg);
+    case 'ctTplList': adminOnly(); return ctTplList_();
+    case 'ctTplUpload': adminOnly(); return ctTplUpload_(u, arg);
     case 'deliverRecipients': return deliverRecipients_(u);
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
@@ -5693,4 +5695,55 @@ function setupTriggers() {
 function triggerStatus_() {
   try { return { ok: true, triggers: ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction()) }; }
   catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+}
+
+/* ===================== SZERZŐDÉSSABLONOK A DRIVE-BAN =====================
+ * A sablonok szerkeszthető .docx fájlként a Lumos főmappa „Szerződéssablonok” mappájában vannak; a fájlnévben zárójelben a kulcs,
+ * pl. „Keretszerződés – Lumos Motion Kft. (lumos_keret).docx”. Ha nincs ilyen fájl, a kódba épített sablon (Templates.gs) az alap. */
+const CT_KEYS_ = { lumos_keret: 'Keretszerződés – Lumos Motion Kft.', lumos_hatarozott: 'Megbízási szerződés – Lumos Motion Kft.', lumos_shortok: 'Kiállítói short megbízás – Lumos Motion Kft.', egri_keret: 'Kizárólagos keretmegállapodás – Egri Ervin E.V.', egri_hatarozott: 'Megbízási szerződés – Egri Ervin E.V.' };
+const DOCX_MIME_ = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+function ctTplFolder_(create) {
+  const P = PropertiesService.getScriptProperties(), id = P.getProperty('CT_TPL_FOLDER');
+  if (id) { try { const f = DriveApp.getFolderById(id); if (!f.isTrashed()) return f; } catch (e) { } }
+  if (!create) return null;
+  const root = lumosRoot_(); if (!root) throw new Error('A Lumos főmappa nem található.');
+  const f = folderPath_(root, 'Szerződéssablonok', {}); P.setProperty('CT_TPL_FOLDER', f.getId()); return f;
+}
+function ctTplFile_(k) {
+  const fo = ctTplFolder_(false); if (!fo) return null;
+  const it = fo.getFiles(); let best = null;
+  while (it.hasNext()) { const f = it.next(); if (f.getName().indexOf('(' + k + ')') < 0) continue; if (!best || f.getLastUpdated() > best.getLastUpdated()) best = f; }
+  return best;
+}
+function ctTplGet_(k, a) {
+  if (!CT_KEYS_[k]) throw new Error('Ismeretlen szerződéssablon.');
+  const img = typeof CONTRACT_TPL_ !== 'undefined' ? CONTRACT_TPL_.img : '';
+  if (!(a && a.builtin)) {
+    try {
+      const f = ctTplFile_(k);
+      if (f) {
+        let blob;
+        if (f.getMimeType() === MimeType.GOOGLE_DOCS) blob = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + f.getId() + '/export?mimeType=' + encodeURIComponent(DOCX_MIME_), { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } }).getBlob();
+        else blob = f.getBlob();
+        return { zip: Utilities.base64Encode(blob.getBytes()), img: img, full: true, src: 'drive', name: f.getName(), url: f.getUrl(), updated: f.getLastUpdated().toISOString() };
+      }
+    } catch (e) { Logger.log('Drive-sablon (' + k + '): ' + e); }
+  }
+  if (typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Ismeretlen szerződéssablon.');
+  return { zip: CONTRACT_TPL_[k], img: img, src: 'builtin' };
+}
+/** A sablonmappa állapota: melyik sablonnak van Drive-os példánya. */
+function ctTplList_() {
+  const fo = ctTplFolder_(false), out = {};
+  Object.keys(CT_KEYS_).forEach(k => { const f = fo ? ctTplFile_(k) : null; out[k] = f ? { name: f.getName(), url: f.getUrl(), updated: f.getLastUpdated().toISOString() } : null; });
+  return { folder: fo ? fo.getUrl() : '', items: out, titles: CT_KEYS_ };
+}
+/** Egy sablon feltöltése a mappába (a böngésző állítja össze a teljes .docx-et a beépített sablonból). Meglévőt nem ír felül. a: {k, b64} */
+function ctTplUpload_(u, a) {
+  const k = String(a && a.k || ''); if (!CT_KEYS_[k]) throw new Error('Ismeretlen szerződéssablon.');
+  const b64 = String(a.b64 || ''); if (!b64 || b64.length > 8 * 1024 * 1024) throw new Error('Hiányzik a sablon.');
+  const fo = ctTplFolder_(true); if (ctTplFile_(k)) return ctTplList_();
+  fo.createFile(Utilities.newBlob(Utilities.base64Decode(b64), DOCX_MIME_, CT_KEYS_[k] + ' (' + k + ').docx'));
+  logEvent_(u, 'Szerződéssablon a Drive-ba', CT_KEYS_[k], '');
+  return ctTplList_();
 }
