@@ -21,7 +21,7 @@ function ctStep1(){const c=S.ct,cur=ctTplOf(c.tpl),firm=c._picked?cur.k.split('_
   openModal('📝 Új szerződés – 1/3: sablon',`<p class="hint" style="margin:-4px 0 8px">Melyik cég nevében?</p><div class="ct-tpls" data-g="firm">
       ${opt('ct_firm','lumos',firm==='lumos','Lumos Motion Kft.','')}${opt('ct_firm','egri',firm==='egri','Egri Ervin E.V.','')}</div>
     <div id="ct-kind"${firm?'':' hidden'}><p class="hint" style="margin:16px 0 8px">Milyen szerződés?</p><div class="ct-tpls" data-g="kind">
-      ${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}</div></div>`,
+      ${opt('ct_kind','keret',kind==='keret','Keretszerződés','Visszatérő ügyfélnek: a megrendelések egyenként, a keret szerint.')}${opt('ct_kind','hatarozott',kind==='hatarozott','Megbízási szerződés','Egy projektre: helyszín, időpont, szolgáltatások, díj.')}</div></div>`,
     {submitLabel:'Tovább →',noDraft:true,submit:fd=>{const f=fd.get('ct_firm'),k=fd.get('ct_kind');if(!f){toast('Válaszd ki, melyik cég nevében készül.',true);return;}if(!k){toast('Válaszd ki a szerződés típusát.',true);return;}
       c.tpl=f+'_'+k;c._picked=true;ctStep2();}});
   const sb=document.querySelector('#modalRoot .mfoot [type="submit"]');if(sb)sb.hidden=true;}   // nincs Tovább gomb: a típusra kattintva lép tovább
