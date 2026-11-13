@@ -1023,3 +1023,5 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .cmb:has(#m-qpDeal) .cmb-it{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block!important}
 .cmb:has(#m-qpDeal) .cmb-it *{white-space:nowrap!important}
 .dl-add.dl-add-top{margin:0 0 8px}
+
+.q-ccin+.q-ccin{margin-top:6px}.q-ccadd{align-self:flex-start;margin-top:6px}
