@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f12d5d5115",
+"at": "2026-11-13T15:51:20+01:00",
+"msg": "Árajánlat: kalkulátoronként külön opció, több másolat-címzett, PDF-név: rendezvény/cég + Lumos Motion"
+},
+{
 "id": "fbdc10ecd5",
 "at": "2026-11-13T15:48:03+01:00",
 "msg": "Árajánlat: több kalkulátorból gyűjthető tételek, vissza a kalkulátorhoz; a/az névelő; nettó kiemelve, egyszerűbb összesítő; levélszöveg csak az előnézetben; frissítésjelző javítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videónézet telefonon: koppintásra elindul a lejátszás (a saját kattintáskezelő nem állítja meg)"
 },
 {
-"id": "fdc7e4bfc6",
-"at": "2026-11-13T11:47:45+01:00",
-"msg": "Jóváhagyó: kérdés törölve; belépési hibaüzenet rövidebb; mobil videónézet: a gombsor nem takar"
-},
-{
-"id": "61838116fe",
-"at": "2026-11-13T09:25:14Z",
+"id": "fb3af51565",
+"at": "2026-11-13T10:48:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
