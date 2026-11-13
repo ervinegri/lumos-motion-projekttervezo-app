@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d67cbd8a00",
+"at": "2026-11-13T22:04:48+01:00",
+"msg": "Mobil Fizetések: a táblázat alja is elérhető (alacsonyabb keret, a görgetés továbbmegy az oldalra)"
+},
+{
 "id": "6afa9c8c8d",
 "at": "2026-11-13T22:00:49+01:00",
 "msg": "Mobil számlázás: több számla kártyái nem csúsznak egymásra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: Kilépés a nézetváltó listájában; rövid legördülők érintésre billentyűzet és kijelölés nélkül"
 },
 {
-"id": "df01e04659",
-"at": "2026-11-13T18:23:53+01:00",
-"msg": "Fekvő mobil: egysoros felső sáv, Kilépés a névjelvény mögött; mobil havi naptár görgethető"
-},
-{
-"id": "07da972654",
-"at": "2026-11-13T17:19:41Z",
+"id": "05b27fbd36",
+"at": "2026-11-13T17:24:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
