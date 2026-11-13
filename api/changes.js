@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6c45708b70",
+"at": "2026-11-13T08:45:43+01:00",
+"msg": "Projektoldal: kódmegjegyzés kilógott a felületre – törölve"
+},
+{
 "id": "ff97f40056",
 "at": "2026-11-13T08:42:40+01:00",
 "msg": "Termelési vezető: szakember nézet; szakember nézetben nincs Státusz oszlop"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés fájlneve: típus_ügyfél_szolgáltató (pl. Keretszerzodes_Empatia_..._Lumos_Motion_Kft.pdf)"
 },
 {
-"id": "87a780be45",
-"at": "2026-11-12T22:42:59+01:00",
-"msg": "Szerződéssablonok: több hely az aláírásnak (kb. 2,3 cm a vonalak fölött)"
-},
-{
-"id": "c614c9ad95",
-"at": "2026-11-12T21:41:13Z",
+"id": "1e3ffae4e2",
+"at": "2026-11-12T21:43:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
