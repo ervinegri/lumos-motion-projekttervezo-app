@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9a59753ec8",
+"at": "2026-11-13T07:11:11+01:00",
+"msg": "Szerződés-állapot lehetőségeknél oszlop nélkül; 4.2 pont egyszerűsítve; mező-magyarázat"
+},
+{
 "id": "2bbbe1a318",
 "at": "2026-11-13T07:08:53+01:00",
 "msg": "Javítás: Értékesítés lap oszlopai visszaállítva; sablonok a Drive-ban; short szerződés aláírás egy oldalon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés PDF: nem üres (belső dobozból készül)"
 },
 {
-"id": "3f397ff545",
-"at": "2026-11-12T21:07:24+01:00",
-"msg": "Új szerződés: az ügyfél mappájába PDF kerül; PDF-letöltés gomb, a .docx letöltés megmarad"
-},
-{
-"id": "ab26c55b13",
-"at": "2026-11-12T20:04:32Z",
+"id": "0fff30848f",
+"at": "2026-11-12T20:07:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
