@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f2ec4acfa",
+"at": "2026-11-13T21:38:31+01:00",
+"msg": "Kifizetési tábla mobilon: a fejléc első cellája is rögzített"
+},
+{
 "id": "1697c03de4",
 "at": "2026-11-13T21:35:38+01:00",
 "msg": "Mobil: Fizetések fejléce egy sorban, a táblázatok a képernyő széléig érnek, kevesebb üres hely alul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: Csomagkedvezmény a Mennyiségi kedvezmény helyett"
 },
 {
-"id": "9432a62282",
-"at": "2026-11-13T17:08:05+01:00",
-"msg": "Árajánlat PDF: a kelt és érvényes dátum egymás alatt"
-},
-{
-"id": "e0cc33c66d",
-"at": "2026-11-13T16:03:23Z",
+"id": "840f79c74c",
+"at": "2026-11-13T16:08:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
