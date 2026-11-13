@@ -809,3 +809,50 @@ function finalizeCrew_(u, a) {
   return { project: projectView_(fullProject_(saved), u), sent: sent, sentTo: sentTo, changed: changedNames, failed: failed, noEmail: members.filter(m => valid.indexOf(m) < 0).map(m => m.name), calendarNotified: calNotified, link: link, mailPaused: !mailOn_(), stepped: stepped };
 }
 
+
+/* ===== Utómunka-instrukciók a projekten (az összes videóra / fotóra vonatkozó megjegyzések a vágónak) =====
+ * Tárolás: bigPut_('PN_<projekt>') – [{id, at, by, t, done:{by,at}|null, cm:[{at, by, t}]}], a legfrissebb elöl. A munkalap oszlopai érintetlenek. */
+function pnLoad_(pid) { try { const l = JSON.parse(bigGet_('PN_' + pid) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } }
+function pnSave_(pid, l) { bigPut_('PN_' + pid, JSON.stringify(l.slice(0, 40))); }
+function pnPost_(pid) {   // a projekt utómunkásai: a vágói beosztás és a videók / fotók kijelölt utómunkása
+  const ids = {}; readAll_('crewAssign').forEach(r => { if (r.projectId === pid && /vágó|utómunk|fotós/i.test(String(r.role || ''))) ids[r.crewId] = 1; });
+  const sh = sheetFor_('projects'), row = findRow_(sh, pid), p = row ? readRow_('projects', sh, row) : null; if (!p) throw new Error('A projekt nem található.');
+  parseVideos_(p.videos).forEach(v => { if (v.editor) ids[v.editor] = 1; });
+  return { p: p, crew: readAll_('crew').filter(c => ids[c.id]) };
+}
+function pnCan_(u, pid, write) {
+  if (u.role === 'admin' || u.role === 'editor') return pnPost_(pid);
+  const x = pnPost_(pid); if (write === 'lead' || !u.crewId || !x.crew.some(c => c.id === u.crewId)) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+  return x;
+}
+function postNotes_(u, a) { const pid = str_(a && a.projectId, 64); pnCan_(u, pid); return { notes: pnLoad_(pid) }; }
+function postNoteAct_(u, a) {
+  a = a || {}; const pid = str_(a.projectId, 64), act = String(a.act || ''), t = str_(a.text, act === 'add' ? 2000 : 1000).trim();
+  const x = pnCan_(u, pid, act === 'add' || act === 'del' ? 'lead' : 'any');
+  let note = null;
+  withLock_(() => {
+    const l = pnLoad_(pid);
+    if (act === 'add') { if (t.length < 2) throw new Error('Írd be az instrukciót.'); note = { id: Utilities.getUuid().slice(0, 8), at: now_(), by: u.name, t: t, done: null, cm: [] }; l.unshift(note); }
+    else { note = l.find(n => n.id === str_(a.id, 20)); if (!note) throw new Error('A bejegyzés nem található.');
+      if (act === 'comment') { if (t.length < 1) throw new Error('Írj valamit.'); note.cm = (note.cm || []).concat([{ at: now_(), by: u.name, t: t }]).slice(-30); }
+      else if (act === 'done') note.done = a.done ? { by: u.name, at: now_() } : null;
+      else if (act === 'del') l.splice(l.indexOf(note), 1);
+      else throw new Error('Ismeretlen művelet.'); }
+    pnSave_(pid, l); dataBump_();
+  });
+  // értesítés: új instrukciónál az utómunkásoknak; hozzászólásnál a bejegyzés írójának és a többi hozzászólónak (aki nem maga)
+  try {
+    const url = appUrl_() + '#p=' + pid, pn = x.p.name, me = String(u.email || '').toLowerCase();
+    let to = [];
+    if (act === 'add' && a.notify !== false) to = x.crew.map(c => String(c.email || '').trim());
+    if (act === 'comment') { const names = [note.by].concat((note.cm || []).map(c => c.by)); const users = loadUsers_(); to = names.map(n => { const us = users.find(z => z.name === n), cr = readAll_('crew').find(c => c.name === n); return String((us && us.email) || (cr && cr.email) || '').trim(); }); }
+    to = to.filter((m, i) => m && /@/.test(m) && m.toLowerCase() !== me && to.indexOf(m) === i);
+    if (to.length) {
+      const head = act === 'add' ? u.name + ' új utómunka-instrukciót írt' : u.name + ' hozzászólt egy utómunka-instrukcióhoz', body = act === 'add' ? t : t + '\n\n(Az instrukció: ' + note.t + ')';
+      gmailSend_(to.join(','), (act === 'add' ? 'Utómunka-instrukció: ' : 'Hozzászólás az instrukcióhoz: ') + pn, head + ' – ' + pn + '\n\n' + body + '\n\n' + url,
+        { htmlBody: '<p><b>' + escapeHtml_(head) + '</b> – ' + escapeHtml_(pn) + '</p><p style="padding:10px 12px;background:#fff7e0;border-left:4px solid #e0a800">' + escapeHtml_(t).replace(/\n/g, '<br>') + '</p>' + (act === 'comment' ? '<p style="color:#666;font-size:13px">Az instrukció: ' + escapeHtml_(note.t).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A projekt megnyitása</a></p>', name: 'Lumos Motion Projekttervező' });
+    }
+  } catch (e) { Logger.log('Instrukció e-mail: ' + e); }
+  logEvent_(u, 'Utómunka-instrukció', x.p.name, { add: 'új', comment: 'hozzászólás', done: a.done ? 'kész' : 'visszavonva', del: 'törölve' }[act] || act);
+  return { notes: pnLoad_(pid) };
+}

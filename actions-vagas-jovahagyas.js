@@ -139,7 +139,7 @@ function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
 ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
 /* Idővonal vágássáv → a projekt videóinak táblája (ugyanúgy húzható) */
 function laneModalBody(pid){const cards=boardCards().filter(c=>c.p.id===pid);return cards.length?boardLanes(cards,{noLink:true,single:true}):'<p class="hint">Ennek a projektnek nincs videója.</p>';}
-ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name||'Videók'),`<div class="bd-modal" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div>`,{submitLabel:'Projekt megnyitása',submit:async()=>{closeModal();openProject(p.id);},cancelLabel:'Bezárás'});try{sessionStorage.setItem('lpm_lane_open',p.id);}catch(e){}window.MODAL_BEFORE_CLOSE=()=>{try{sessionStorage.removeItem('lpm_lane_open');}catch(e){}S._bdSel=[];bdSelBar();};   /* frissítés után a videótábla is visszajön */
+ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name||'Videók'),`${pnBox(p.id)}<div class="bd-modal" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div>`,{submitLabel:'Projekt megnyitása',submit:async()=>{closeModal();openProject(p.id);},cancelLabel:'Bezárás'});try{sessionStorage.setItem('lpm_lane_open',p.id);}catch(e){}window.MODAL_BEFORE_CLOSE=()=>{try{sessionStorage.removeItem('lpm_lane_open');}catch(e){}S._bdSel=[];bdSelBar();};   /* frissítés után a videótábla is visszajön */
   const mb=document.querySelector('#mform .mbox,#mform');if(mb)mb.classList.add('m-wide');
   {const hl=document.querySelector('.bd-modal .bl-hl'),h=document.querySelector('#mform .mhead h3');if(hl&&h){const w=document.createElement('span');w.className='bl-ttl';w.innerHTML=hl.innerHTML;h.appendChild(w);h.classList.add('bl-h3');}}};   /* a határidő és a leadott darabszám a címsorba kerül */
 /* húzás közben csak az engedélyezett oszlop világosodik ki (a vágó csak „Utómunka alatt” / „Belső ellenőrzés” oszlopba tehet) */
@@ -560,3 +560,27 @@ document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dat
 document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-rt]');if(!t||t.getAttribute('contenteditable')!=='true')return;const cd=e.clipboardData;if(!cd)return;e.preventDefault();
   const h=cd.getData('text/html'),tx=cd.getData('text/plain');const ins=h?rtClean(h):esc(tx).replace(/\r?\n/g,'<br>');document.execCommand('insertHTML',false,ins);});
 document.addEventListener('keydown',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-rt]');if(!t||!(e.metaKey||e.ctrlKey))return;const k=e.key.toLowerCase();if(k==='b'||k==='i'||k==='u'){e.preventDefault();document.execCommand(k==='b'?'bold':k==='i'?'italic':'underline');}});
+
+/* ===== Utómunka-instrukciók: a projekt összes videójára / fotójára vonatkozó megjegyzések; a vezető írja, az utómunkás hozzászólhat és kipipálhatja ===== */
+S._pn=S._pn||{};
+const pnLead=()=>!ro()&&(isAdmin()||(S.me&&S.me.role==='editor'));
+function pnFill(pid){document.querySelectorAll(`.pn-box[data-pn="${CSS.escape(pid)}"]`).forEach(b=>{b.innerHTML=pnInner(pid);});}
+function pnBox(pid){if(!S._pn[pid]){S._pn[pid]={loading:1,notes:[]};call('postNotes',{projectId:pid}).then(r=>{S._pn[pid]={notes:r.notes||[]};pnFill(pid);}).catch(e=>{S._pn[pid]={notes:[],err:errText(e)};pnFill(pid);});}
+  return `<div class="pn-box" data-pn="${esc(pid)}">${pnInner(pid)}</div>`;}
+function pnInner(pid){const d=S._pn[pid]||{notes:[]},L=d.notes||[],lead=pnLead(),fd=s=>esc(String(s||'').slice(0,16).replace('T',' ').replace(/^(\d{4})-(\d\d)-(\d\d)/,'$2.$3.'));
+  if(d.err)return `<div class="pn-h">📝 Utómunka-instrukciók</div><p class="hint" style="margin:0">${esc(d.err)}</p>`;
+  if(!L.length&&!lead)return d.loading?'':'';
+  const items=L.map(n=>`<div class="pn-item${n.done?' done':''}" data-id="${esc(n.id)}"><div class="pn-meta"><b>${esc(n.by)}</b> · ${fd(n.at)}${n.done?` <span class="pn-ok">✓ kész – ${esc(n.done.by)}</span>`:''}<span class="pn-acts"><button type="button" class="linkbtn" data-action="pn-done" data-pid="${esc(pid)}" data-id="${esc(n.id)}" data-on="${n.done?'':'1'}">${n.done?'↺ Visszavonás':'✓ Kész'}</button>${lead?` <button type="button" class="linkbtn danger" data-action="pn-del" data-pid="${esc(pid)}" data-id="${esc(n.id)}" title="Törlés">✕</button>`:''}</span></div>
+      <div class="pn-t">${esc(n.t).replace(/\n/g,'<br>')}</div>
+      ${(n.cm||[]).map(c=>`<div class="pn-cm"><b>${esc(c.by)}</b> <span class="muted">${fd(c.at)}</span> ${esc(c.t).replace(/\n/g,'<br>')}</div>`).join('')}
+      <div class="pn-reply"><input class="inp" type="text" maxlength="1000" placeholder="Hozzászólás…" data-pn-cm="${esc(n.id)}"><button type="button" class="btn outline small" data-action="pn-cm" data-pid="${esc(pid)}" data-id="${esc(n.id)}">Küldés</button></div></div>`).join('');
+  return `<div class="pn-h">📝 Utómunka-instrukciók <span class="muted">– az összes videóra / fotóra vonatkozik</span></div>
+    ${lead?`<div class="pn-new"><textarea class="inp" rows="2" maxlength="2000" placeholder="pl. Minden shortba kerüljön felirat, a logó a jobb felső sarokba, zene: a megbeszélt lista…" data-pn-new="${esc(pid)}"></textarea><div class="pn-new-row"><label class="q-disc-on"><input type="checkbox" data-pn-notify="${esc(pid)}" checked> E-mail az utómunkásoknak</label><button type="button" class="btn primary small" data-action="pn-add" data-pid="${esc(pid)}">Hozzáadás</button></div></div>`:''}
+    ${items||(d.loading?'<p class="hint" style="margin:0"><span class="spin" style="width:10px;height:10px"></span></p>':'<p class="hint" style="margin:0">Még nincs instrukció.</p>')}`;}
+async function pnAct(pid,arg,btn){if(btn)btn.disabled=true;try{const r=await call('postNoteAct',Object.assign({projectId:pid},arg));S._pn[pid]={notes:r.notes||[]};pnFill(pid);}catch(e){handleErr(e);if(btn)btn.disabled=false;}}
+ACT['pn-add']=b=>{const pid=b.dataset.pid,ta=document.querySelector(`[data-pn-new="${CSS.escape(pid)}"]`),t=(ta&&ta.value||'').trim();if(t.length<2){toast('Írd be az instrukciót.',true);return;}
+  const nt=document.querySelector(`[data-pn-notify="${CSS.escape(pid)}"]`);pnAct(pid,{act:'add',text:t,notify:!nt||nt.checked},b).then(()=>toast('Instrukció mentve'));};
+ACT['pn-cm']=b=>{const pid=b.dataset.pid,id=b.dataset.id,inp=b.parentElement.querySelector('[data-pn-cm]'),t=(inp&&inp.value||'').trim();if(!t)return;pnAct(pid,{act:'comment',id,text:t},b);};
+ACT['pn-done']=b=>pnAct(b.dataset.pid,{act:'done',id:b.dataset.id,done:!!b.dataset.on},b);
+ACT['pn-del']=b=>confirmModal('Instrukció törlése','Biztosan törlöd ezt az instrukciót a hozzászólásaival együtt?','Törlés',()=>pnAct(b.dataset.pid,{act:'del',id:b.dataset.id}));
+document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&t&&t.dataset&&t.dataset.pnCm){e.preventDefault();const b=t.parentElement.querySelector('[data-action="pn-cm"]');if(b)b.click();}});
