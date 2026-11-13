@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1697c03de4",
+"at": "2026-11-13T21:35:38+01:00",
+"msg": "Mobil: Fizetések fejléce egy sorban, a táblázatok a képernyő széléig érnek, kevesebb üres hely alul"
+},
+{
 "id": "a9c3b6e71e",
 "at": "2026-11-13T21:31:51+01:00",
 "msg": "Mobil: egységes tömör megjelenés az egész appban (keret nélküli táblázatok, kisebb fejlécek, csempék, gombok)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: a kelt és érvényes dátum egymás alatt"
 },
 {
-"id": "db7d10b0ad",
-"at": "2026-11-13T17:03:14+01:00",
-"msg": "Árajánlat PDF: 20%-kal kisebb logó"
-},
-{
-"id": "b82d84aae2",
-"at": "2026-11-13T16:02:50Z",
+"id": "e0cc33c66d",
+"at": "2026-11-13T16:03:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
