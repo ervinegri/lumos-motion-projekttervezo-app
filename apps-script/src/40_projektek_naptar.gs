@@ -139,7 +139,7 @@ function saveProject_(u, a) {
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
     if (p.eventType === 'Videóvágás' && p.status === 'helyszin') p.status = 'utomunka';   // videóvágásnál nincs helyszíni munka
-    if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes', 'helyszin'].indexOf(old.status || '') >= 0) && p.eventType !== 'Videóvágás' && /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) && String(p.date) > today_())
+    if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes', 'helyszin'].indexOf(old.status || '') >= 0) && p.eventType !== 'Videóvágás' && !(u && u.id === 'sales-app') && /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) && String(p.date) > today_())   // a Sales App „forgatás megtörtént” jelzése hiteles
       throw new Error('A helyszíni munka napja (' + String(p.date).replace(/-/g, '.') + '.) még nem jött el – a projekt csak utána léphet utómunkára.');
     if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || old.status !== p.status) && !p.siteOk && p.eventType !== 'Videóvágás')   // a beszámoló a helyszíni munka kipipálásakor (a helyszíni munkára lépéskor még nem kell)
       throw new Error('Előbb jelöld be, hogy rendben ment-e a helyszíni munka.');
