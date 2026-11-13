@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a7e4483f37",
+"at": "2026-11-13T22:55:35+01:00",
+"msg": "Videótábla: az áthelyezett videó nem ugrik vissza a régi oszlopba egy közben beérkező régebbi adatfrissítés miatt; érintéses húzás-utánzat eltávolítva (az iPhone natívan támogatja)"
+},
+{
 "id": "646b83c3fe",
 "at": "2026-11-13T22:52:43+01:00",
 "msg": "Érintőképernyő: a vágási tábla kártyái hosszan nyomva áthúzhatók másik oszlopba"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés fejléc: alcím törölve, cím és gombok egy sorban, egyforma gombok"
 },
 {
-"id": "80c42872a8",
-"at": "2026-11-13T22:10:11+01:00",
-"msg": "Érintőképernyő: súgó csak hosszú érintésre; menüfülsor lágy átmenettel a szélén, az aktív fül teljesen látszik"
-},
-{
-"id": "00321cc07f",
-"at": "2026-11-13T21:08:10Z",
+"id": "0cb304775a",
+"at": "2026-11-13T21:10:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
