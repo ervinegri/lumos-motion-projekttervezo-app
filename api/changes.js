@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "003b9127f6",
+"at": "2026-11-13T13:30:27+01:00",
+"msg": "Videónézet: verzióváltó (v1…vN) – a régi verzió videója és hozzászólásai"
+},
+{
 "id": "594767c47f",
 "at": "2026-11-13T13:28:22+01:00",
 "msg": "Ügyfélküldés: kifizetett projektnél nincs vízjel-mező"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: időpont (tól–ig), helyszíni létszám vágó nélkül, jóváhagyott videóknál nincs Jóváhagyásra vár"
 },
 {
-"id": "22c04a257f",
-"at": "2026-11-13T08:15:13+01:00",
-"msg": "Számlatörténet: app-számlák tételnevei"
-},
-{
-"id": "f6d1c37424",
-"at": "2026-11-13T07:11:42Z",
+"id": "53bf842373",
+"at": "2026-11-13T07:15:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
