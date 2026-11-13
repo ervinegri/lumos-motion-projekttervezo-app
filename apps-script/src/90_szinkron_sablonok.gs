@@ -366,6 +366,7 @@ function arkPricesSet_(u, arg) {
 /** EGYSZER, A SZERKESZTŐBŐL FUTTATVA (▶ Futtatás → engedélyezés): az időzített feladatok telepítése és állapota.
  *  Az engedélyezési ablak ekkor kéri az időzítőkhöz szükséges jogosultságot (script.scriptapp). Többször is futtatható. */
 function setupTriggers() {
+  try { ScriptApp.requireAllScopes(ScriptApp.AuthMode.FULL); } catch (e) { if (/authoriz|engedély|permission/i.test(String(e))) throw e; }   // részleges (pipálós) engedélyezés után újra kéri a hiányzó jogosultságot
   const P = PropertiesService.getScriptProperties(), out = [];
   const ensure = (fn, mk) => { try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === fn)) { mk(); out.push(fn + ': telepítve'); } else out.push(fn + ': már fut'); } catch (e) { out.push(fn + ': HIBA – ' + e); } };
   ensure('szDailySync', () => ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create());
