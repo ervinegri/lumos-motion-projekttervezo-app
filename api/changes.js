@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "647cdf7189",
+"at": "2026-11-13T07:59:05+01:00",
+"msg": "Ügyfél adatlapja: Új szerződés létrehozása gomb"
+},
+{
 "id": "b3b8ab85e4",
 "at": "2026-11-13T07:57:58+01:00",
 "msg": "Szerződés: táblázatokban balra igazítás (nincs széthúzott név)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés: új Lumos keretszerződés-sablon (Ervin javított változata); nyersanyag-átadás és NAS-archiválás díja választható (%+minimum / fix / e-mailben egyeztetett), minden sablonban"
 },
 {
-"id": "2e1f971717",
-"at": "2026-11-12T22:01:21+01:00",
-"msg": "Új szerződés: rövidebb gombfeliratok, a mentés gomb nem csúszik új sorba"
-},
-{
-"id": "315a4b7f83",
-"at": "2026-11-12T20:50:01Z",
+"id": "6213df35fb",
+"at": "2026-11-12T21:01:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
