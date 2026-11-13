@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7d32129056",
+"at": "2026-11-13T18:44:59+01:00",
+"msg": "Mobil: nézetváltóban külön Szerepkör és Fiók csoport; projektcím egy sorban"
+},
+{
 "id": "8cc9fc5568",
 "at": "2026-11-13T18:40:17+01:00",
 "msg": "Mobil: az ablakok teljes oldalként, bennük is lehúzással frissítés; projektcím alatti részletek elrejtve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: a PDF-en mindig a címzett e-mail-címe szerepel (külön mező kivéve)"
 },
 {
-"id": "8c1642d548",
-"at": "2026-11-13T16:31:12+01:00",
-"msg": "Árajánlat: a kedvezményes ár kicsit nagyobb"
-},
-{
-"id": "f5448d1fc0",
-"at": "2026-11-13T15:30:49Z",
+"id": "64d7221b28",
+"at": "2026-11-13T15:31:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
