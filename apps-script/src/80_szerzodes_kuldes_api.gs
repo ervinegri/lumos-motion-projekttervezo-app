@@ -236,7 +236,7 @@ function googleLogin(credential) {
   if (email.slice(-(COMPANY_DOMAIN.length + 1)) === '@' + COMPANY_DOMAIN && String(info.hd || '').toLowerCase() !== COMPANY_DOMAIN)
     fail('A céges címmel csak a Lumos Motion Google Workspace-fiókkal lehet belépni.');
   const u = loadUsers_().find(x => String(x.email || '').toLowerCase() === email && !x.disabled);
-  if (!u) fail('Ehhez a Google-fiókhoz (' + email + ') nincs hozzáférés az apphoz. Kérd az ügyvezetőt, hogy vegyen fel.');
+  if (!u) fail('Ehhez a Google-fiókhoz (' + email + ') nincs hozzáférésed.');
   return createSession_(u, 'Belépés Google-lel');
 }
 

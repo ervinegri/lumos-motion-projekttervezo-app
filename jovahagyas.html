@@ -99,7 +99,7 @@ button,.btn,[role=button]{-webkit-user-select:none;user-select:none;-webkit-touc
 .modbox.open{grid-template-rows:1fr;opacity:1}
 .modin{overflow:hidden;min-height:0}
 .modbox.open .modin{padding-bottom:4px}
-#askHint{margin-bottom:12px}#askHint:empty{display:none}
+#askH{display:none!important}#askHint{margin-bottom:12px}#askHint:empty{display:none}
 .modbox.open~.row #bOk{display:none!important}
 .modx{border:0;background:transparent;color:#5b6478;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:6px}
 .modx{order:4}
@@ -189,7 +189,7 @@ html,body{overflow-x:clip}
     <div><div class="player" id="player"></div></div>
     <aside class="side">
       <div id="ask">
-        <h2 id="askH">💬 Tetszik a videó?</h2>
+        <h2 id="askH" hidden>💬 Tetszik a videó?</h2>
         <p class="hint" id="askHint"></p>
         <div class="modbox" id="modBox"><div class="modin">
           <p class="hint" id="tcHint">Írd le, hogy mit változtatnál.</p>

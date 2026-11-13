@@ -1003,3 +1003,9 @@ html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw 
 .pn-ed{min-height:64px;max-height:420px;overflow-y:auto;white-space:normal}.pn-t ul,.pn-t ol{margin:4px 0 4px 20px;padding:0}.pn-t p{margin:0 0 6px}
 .pn-box>summary{cursor:pointer;list-style:none;margin:0}.pn-box>summary::-webkit-details-marker{display:none}.pn-box>summary::after{content:'▾';margin-left:6px;color:var(--muted,#6b7280);display:inline-block;transition:transform .15s}.pn-box:not([open])>summary::after{transform:rotate(-90deg)}.pn-box[open]>summary{margin:0 0 8px}.pn-box[hidden]{display:none}.pn-cnt{font-weight:500;font-size:12.5px;color:var(--muted,#6b7280);margin-left:4px}.pn-cnt b{color:#a15c00}.pn-box:not([open]){padding:8px 14px}
 .th-link{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:inherit}.th-link:hover{text-decoration:underline;text-underline-offset:3px}
+/* mobil videónézet: a gombsor a tartalom után jön (nem takarja el a hozzászólásokat), a függőleges videó alacsonyabb */
+@media (max-width:760px){
+  #mform.m-video .mfoot{position:static!important;background:transparent;box-shadow:none;margin-top:14px;padding-top:12px;border-top:1px solid #e6ebef}
+  #mform.m-video .vv-player.vert{width:min(100%,calc(54dvh * 9 / 16))}
+  #mform.m-video .vv-cm{scroll-margin-top:12px}
+}
