@@ -1025,3 +1025,8 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .dl-add.dl-add-top{margin:0 0 8px}
 
 .q-ccin+.q-ccin{margin-top:6px}.q-ccadd{align-self:flex-start;margin-top:6px}
+
+/* árkalkulátor ablak: visszafogott, komolyabb megjelenés */
+.ark-tabs button.on{background:#1d2a38!important;color:#fff!important}
+.ark-tabs button{font-weight:600}
+.ark-total{box-shadow:none}.ark-total b{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important}
