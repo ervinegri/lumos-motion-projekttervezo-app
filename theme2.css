@@ -1015,3 +1015,5 @@ html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw 
 .stage[data-action="bd-lane"]{cursor:pointer}.stage[data-action="bd-lane"]:hover{filter:brightness(1.03);box-shadow:0 2px 10px rgba(0,0,0,.08)}
 html body .stage[data-action="bd-lane"],html body .stage[data-action="bd-lane"] *{cursor:pointer!important}
 html body .stage .stage-board{font-size:15px!important;padding:7px 15px!important;gap:7px}
+html body .stage .t-row .stage-board:hover,html body .stage .t-row .stage-board:focus,html body .stage .t-row .stage-board:active{transform:none!important;box-shadow:0 2px 8px rgba(16,25,35,.25)!important;background:#101923!important;outline:none}
+html body .stage[data-action="bd-lane"]:hover{filter:none;box-shadow:none}
