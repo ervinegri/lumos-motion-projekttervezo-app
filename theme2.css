@@ -992,3 +992,4 @@ html body #modalRoot .mbox.ct-narrow{max-width:420px!important;width:calc(100vw 
 .bs-back{font-size:12px;color:var(--info,#2563eb);margin:2px 0}.bs-back .linkbtn,.bs-backbtn{font-size:11.5px}.bs-backbtn{display:block;margin:1px 0 2px}
 .dl-ct{font-size:11.5px;font-weight:600;margin:4px 0 0;padding:2px 7px;border-radius:6px;display:inline-block;background:var(--warn-bg,#fff4dc);color:var(--warn,#9a6200)}.dl-ct-alairva{background:var(--ok-bg,#e3f6e8);color:var(--ok,#17803d)}.dl-ct-visszakuldve{background:var(--info-bg,#e6efff);color:var(--info,#2552c4)}.dl-ct-nemkell{display:none}
 .ct-tpledit{margin:14px 0 0;text-align:center}.ct-tpledit .linkbtn{font-size:12.5px}.ct-tl{display:grid;gap:6px}.ct-tl-row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 12px;border:1px solid var(--line,#e5e7eb);border-radius:10px}.ct-tl-row small{grid-column:1/-1;font-size:11.5px;color:var(--muted,#6b7280)}
+.cl-ct-new{margin:0 0 10px}

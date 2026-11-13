@@ -269,3 +269,6 @@ ACT['ct-tpls']=async()=>{let L;try{L=await call('ctTplList');}catch(e){handleErr
           await call('ctTplUpload',{k,b64:await z.generateAsync({type:'base64',compression:'DEFLATE'})});}
         Object.keys(CT_CACHE).forEach(k=>delete CT_CACHE[k]);toast('A sablonok a Drive-ban vannak');ACT['ct-tpls']();}
       catch(e){if(sb){sb.disabled=false;sb.textContent='Újra';}handleErr(e);}}});};
+
+/* Ügyfél adatlapjáról: új szerződés, az ügyfél adataival kitöltve */
+ACT['ct-new-client']=b=>{if(!isAdmin())return;const n=b.dataset.client||'';ctNew();if(n){ctFillClient(n);if(!S.ct.client)Object.assign(S.ct,{client:n,c_name:n,sig_name:n});}};
