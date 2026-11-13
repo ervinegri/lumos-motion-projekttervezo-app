@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "946385520d",
+"at": "2026-11-13T15:29:48+01:00",
+"msg": "Árajánlat küldése: csak választható (nem írható) lista, Új érdeklődő felvétele opció – mentés után rögtön az árajánlat"
+},
+{
 "id": "2c6ed37169",
 "at": "2026-11-13T15:27:57+01:00",
 "msg": "Árajánlat küldése: a lista sorai nem törnek, hosszú névnél három pont"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-instrukciók: alapból becsukva, fejlécben darabszám és nyitottak"
 },
 {
-"id": "aaff18f26d",
-"at": "2026-11-13T09:21:08+01:00",
-"msg": "Utómunka-instrukció: formázott szöveg (beillesztéskor a formázás megmarad, Ctrl+B/I/U)"
-},
-{
-"id": "c1c12881a8",
-"at": "2026-11-13T08:20:16Z",
+"id": "abb5f7ec2a",
+"at": "2026-11-13T08:21:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
