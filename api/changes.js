@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8c188ef23e",
+"at": "2026-11-13T09:23:22+01:00",
+"msg": "Utómunka-instrukciók: alapból becsukva, fejlécben darabszám és nyitottak"
+},
+{
 "id": "aaff18f26d",
 "at": "2026-11-13T09:21:08+01:00",
 "msg": "Utómunka-instrukció: formázott szöveg (beillesztéskor a formázás megmarad, Ctrl+B/I/U)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kód modulokra bontva: háttér apps-script/src/NN_*.gs, felület views-*/actions-* + boot.js"
 },
 {
-"id": "84acb504fb",
-"at": "2026-11-13T07:13:28+01:00",
-"msg": "Kiállítói szerződés: short helyett videó"
-},
-{
-"id": "9bade5f08e",
-"at": "2026-11-13T06:11:21Z",
+"id": "6aa46c5fe0",
+"at": "2026-11-13T06:13:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
