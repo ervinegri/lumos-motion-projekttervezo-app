@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6e386da301",
+"at": "2026-11-13T08:02:54+01:00",
+"msg": "Ügyfelek: számlatörténet a számlázz.hu-ból (lekérdezés sorszám szerint), az adatlapon Számlázva blokk"
+},
+{
 "id": "647cdf7189",
 "at": "2026-11-13T07:59:05+01:00",
 "msg": "Ügyfél adatlapja: Új szerződés létrehozása gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés: nyersanyag díjválasztó elrendezése"
 },
 {
-"id": "356bc69a39",
-"at": "2026-11-12T22:07:07+01:00",
-"msg": "Szerződés: új Lumos keretszerződés-sablon (Ervin javított változata); nyersanyag-átadás és NAS-archiválás díja választható (%+minimum / fix / e-mailben egyeztetett), minden sablonban"
-},
-{
-"id": "6213df35fb",
-"at": "2026-11-12T21:01:31Z",
+"id": "4986774c9f",
+"at": "2026-11-12T21:07:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
