@@ -94,7 +94,7 @@ function clientModal(pid,vid,multi){window._clPid=pid;window._clVid=vid;const p=
 const wmSales=p=>String(p.id||'').indexOf('sales-')===0||/Forrás: Sales App/.test(String(p.notes||''));
 const wmSet=p=>{const w=String((billOf(p.id)||{}).watermark||'');return w==='1'||(w!=='0'&&wmSales(p));};
 function wmFieldHtml(p){const on=wmSet(p),paid=p.payStatus==='teljes';
-  if(paid)return `<div class="field full wm-field"><label class="chk" style="opacity:.75"><input type="checkbox" disabled> 💧 <b>Vízjel a videón</b> <span class="muted">– nem kell: ✅ a projekt ki van fizetve, az ügyfél vízjel nélkül látja</span></label></div>`;   // kifizetve: a vízjel nem kerül rá, a pipa sem látszik bejelölve
+  if(paid)return '';   // kifizetve: a vízjel nem kerül rá, a mező sem látszik
   return `<div class="field full wm-field"><label class="chk"><input type="checkbox" data-wm-pid="${esc(p.id)}"${on?' checked':''}> 💧 <b>Vízjel a videón</b> <span class="muted">– amíg nincs kifizetve${wmSales(p)?' (Sales App projekt: alapból bekapcsolva)':''}</span></label>${on&&paid?'<small class="hint" style="margin:2px 0 0 26px;display:block">✅ Kifizetve – az ügyfél már vízjel nélkül látja.</small>':''}</div>`;}
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||t.dataset.wmPid===undefined||!isAdmin())return;const pid=t.dataset.wmPid,v=t.checked?'1':'0';
   try{const d=await call('billSave',{projectId:pid,watermark:v});if(d&&d.billing&&S.fin)S.fin.billing=d.billing;else if(S.fin){const arr=S.fin.billing=S.fin.billing||[];let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid),{projectId:pid});arr.push(b);}b.watermark=v;}
