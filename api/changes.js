@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "656c12f621",
+"at": "2026-11-13T22:40:04+01:00",
+"msg": "Mobil Fizetések: az alsó összesítő sorok számai nem csúsznak át a név-oszlopon"
+},
+{
 "id": "9b84b7adb1",
 "at": "2026-11-13T22:37:58+01:00",
 "msg": "Mobil: a Fizetések/Bevételek táblázatkerete pontosan a képernyő aljáig ér, így az alja is elérhető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Fizetések: szélesebb hónapléptető nyilak"
 },
 {
-"id": "9d09f4ebba",
-"at": "2026-11-13T21:56:28+01:00",
-"msg": "Mobil Fizetések: görgetéskor a nevek fejléce fent marad"
-},
-{
-"id": "fd1cd6f774",
-"at": "2026-11-13T20:55:59Z",
+"id": "f1c8b8798c",
+"at": "2026-11-13T20:56:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
