@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cb2ee897a0",
+"at": "2026-11-13T08:07:55+01:00",
+"msg": "Szerződés: visszalépés után a PDF megmarad, csak módosításkor készül újra"
+},
+{
 "id": "6e386da301",
 "at": "2026-11-13T08:02:54+01:00",
 "msg": "Ügyfelek: számlatörténet a számlázz.hu-ból (lekérdezés sorszám szerint), az adatlapon Számlázva blokk"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés űrlap: a szakaszcímek teljes szélességben"
 },
 {
-"id": "09102c05c5",
-"at": "2026-11-12T22:09:21+01:00",
-"msg": "Szerződés: nyersanyag díjválasztó elrendezése"
-},
-{
-"id": "4986774c9f",
-"at": "2026-11-12T21:07:16Z",
+"id": "c4f7c412ef",
+"at": "2026-11-12T21:09:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
