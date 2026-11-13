@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d80b79adb0",
+"at": "2026-11-13T13:44:17+01:00",
+"msg": "Utómunka-kártya: nincs emelkedés rámutatáskor"
+},
+{
 "id": "244fc29e73",
 "at": "2026-11-13T13:35:51+01:00",
 "msg": "Utómunka-kártya: kéz kurzor, nagyobb videószámláló"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Termelési vezető: szakember nézet; szakember nézetben nincs Státusz oszlop"
 },
 {
-"id": "f179031433",
-"at": "2026-11-13T08:39:48+01:00",
-"msg": "Szakember nézet: kezdés-távozás egy sorban, nincs ragadós címsáv; naptárnál működik a böngésző vissza/előre húzással"
-},
-{
-"id": "8663cb137f",
-"at": "2026-11-13T07:38:33Z",
+"id": "cd327dd90a",
+"at": "2026-11-13T07:39:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
