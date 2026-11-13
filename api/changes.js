@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "73dfa1e70e",
+"at": "2026-11-13T22:16:22+01:00",
+"msg": "Ügyfelek: Árajánlat küldése gomb a fejlécben (mobilon: Ajánlat), a gombok egy sorban"
+},
+{
 "id": "884e39e37f",
 "at": "2026-11-13T22:14:39+01:00",
 "msg": "Mobil vágási tábla: szélesebb oszlopok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt mentése nem írja vissza a videók állapotát (régi projektlap felülírta a vágó beküldését)"
 },
 {
-"id": "f39e4d1465",
-"at": "2026-11-13T18:36:20+01:00",
-"msg": "Levélből nyitott videó a friss adatokkal; nyitott videóablak frissül; mobilon a lépések 2 oszlopban"
-},
-{
-"id": "d0cbf5793b",
-"at": "2026-11-13T17:34:29Z",
+"id": "b11aff84eb",
+"at": "2026-11-13T17:36:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
