@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fd7abb03da",
+"at": "2026-11-14T08:26:22+01:00",
+"msg": "Idővonal: a vágási sávon csak egy jel a végén (zöld ✓ / ⏳), zöld pipák; Havi nézet: a vágói munkák csak a határidő napján"
+},
+{
 "id": "12faca8c40",
 "at": "2026-11-14T08:24:30+01:00",
 "msg": "Idővonal: egérrel fel-le is húzható (nem csak oldalra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: Bevétel és kiadás fejléce egy sorban, tömörebb dobozok és táblázatok"
 },
 {
-"id": "a3d9f9091f",
-"at": "2026-11-13T22:33:14+01:00",
-"msg": "Mobil Fizetések: a táblázat alja elérhető fekvőben, tömörebb állapotsorok"
-},
-{
-"id": "12c19a9073",
-"at": "2026-11-13T21:32:27Z",
+"id": "4d3042b4fe",
+"at": "2026-11-13T21:33:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
