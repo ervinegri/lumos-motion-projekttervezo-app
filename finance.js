@@ -403,6 +403,15 @@ document.addEventListener('change',e=>{const c=e.target;if(!c.dataset||!c.datase
   if(c.checked&&!ex&&p)box.insertAdjacentHTML('beforeend',szItemRow({name:szItemName(p),qty:1,price:projTotal(p),pid},box.children.length));
   if(!c.checked&&ex&&box.children.length>1)ex.remove();szTotals();});
 function szInvoiceModal(kind,id,o={}){
+  // A több projektre kiterjedő, már befizetett foglaló esetén előbb a közös bizonylat párosítását ajánljuk.
+  if(kind==='project'&&o.type==='dijbekero'&&typeof billGroupAdvance==='function'){
+    const p=projById(id),g=p&&billGroupAdvance(billClientMonthProjects(p)),x=g&&g.candidate;
+    if(x&&!invPids(x).includes(id)){
+      szLinkModal('project',id,'eloleg');
+      const n=$('m-no');if(n){n.value=x.no;n.focus();}
+      return;
+    }
+  }
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
   const inv0=invFor(kind,id),simpleAdv=inv0.some(x=>x.kind==='eloleg'&&x.advType==='szamla')&&!inv0.some(x=>x.kind==='eloleg'&&x.advType!=='szamla');
