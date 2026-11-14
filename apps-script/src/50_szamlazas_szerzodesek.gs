@@ -196,7 +196,7 @@ function szInvoice_(u, a) {
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
   let mail = null;
-  if (sendEmail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64 }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
+  if (sendEmail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64, subject: str_(a.mailSubject, 200).trim(), text: str_(a.mailText, 4000).trim() }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
     catch (e) { mail = { ok: false, error: String(e && e.message || e) }; Logger.log('Számla-levél hiba: ' + e); } }
   return Object.assign(finData_(), { invoice: row, mail: mail });
 }
@@ -1091,9 +1091,11 @@ function szInvoiceMail_(u, o) {
   const dd = String(o.due || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.');
   const lines = ['Tisztelt Partnerünk!', '', 'Csatoltan küldjük ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
     'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || ''), '', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.', '', 'Üdvözlettel,'];
-  const sig = signatureFor_(u), text = lines.join('\n') + (sig ? '\n\n' + sig.text : '');
-  const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + lines.map(l => escapeHtml_(l)).join('<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
-  const subj = label + ' – ' + o.no + (pn ? ' – ' + pn : '') + ' – Lumos Motion';
+  const fillNo = t => String(t).replace(/a\(z\)\s*\[számlaszám\]/g, huArt_(o.no) + ' ' + o.no).split('[számlaszám]').join(o.no);   // a szerkesztett levélben a sorszám helye
+  const body = o.text ? fillNo(o.text) : lines.join('\n');
+  const sig = signatureFor_(u), text = body + (sig ? '\n\n' + sig.text : '');
+  const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + body.split('\n').map(l => escapeHtml_(l)).join('<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
+  const subj = o.subject ? fillNo(o.subject) : label + ' – ' + o.no + (pn ? ' – ' + pn : '') + ' – Lumos Motion';
   const ok = gmailSend_(o.buyer.email.split(/[;]\s*/).join(','), subj, text, { htmlBody: html, attachments: [blob], name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : undefined }, 'invoice');
   if (!ok) throw new Error('Az e-mail-küldés szünetel – a levél nem ment ki.');
   return { ok: true, to: o.buyer.email };

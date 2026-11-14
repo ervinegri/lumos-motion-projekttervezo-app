@@ -429,13 +429,17 @@ function szInvoiceModal(kind,id,o={}){
     ${mf('fulfill','Teljesítés dátuma',{type:'date',v:o.fulfill||t.fulfill})}<div class="field"><label for="m-due">Fizetési határidő</label><input class="inp" id="m-due" name="due" type="date" value="${esc(addDays(todayISO(),st.dueDays))}"><div class="due-chips">${[1,5,8,15,30].map(n=>`<button type="button" class="chip due-chip" data-action="sz-due" data-n="${n}" aria-pressed="${n===num(st.dueDays)}">${n} nap</button>`).join('')}</div></div>
     ${ms('payMethod','Fizetési mód',['Átutalás','Készpénz','Bankkártya'],st.payMethod)}
     <div class="field"><span class="lbl">Küldés</span><div class="rolepick"><label><input type="checkbox" name="sendEmail"${st.sendEmail?' checked':''}> E-mailben a vevőnek</label></div></div>
+    <div class="field full sz-mailbox" id="sz-mailbox"${st.sendEmail?'':' hidden'}><span class="lbl">📧 A levél (a Lumos címéről, PDF melléklettel) – szerkeszthető</span>
+      <input class="inp" id="m-szSubj" maxlength="200" aria-label="A levél tárgya" placeholder="Tárgy">
+      <textarea class="inp" id="m-szText" rows="9" maxlength="4000" aria-label="A levél szövege"></textarea>
+      <small class="hint" style="margin:0">A [számlaszám] helyére a kiállításkor kapott sorszám kerül; az aláírásod automatikusan a végére kerül.</small></div>
     <div class="field full"><label for="m-comment">Megjegyzés a számlán</label><textarea class="inp" id="m-comment" name="comment" rows="2" maxlength="1000">${esc(st.comment||'')}</textarea></div>
   </div><div id="sz-prev"></div>`,{left:`<button type="button" class="btn outline small" data-action="sz-preview">👁 Előnézet</button><button type="button" class="btn outline small" data-action="sz-link" data-kind="${esc(kind)}" data-id="${esc(id)}">Meglévő számla hozzárendelése</button>`,submitLabel:'Tovább',submit:async fd=>{
     const items=szReadItems(),tot=szTotals();
     const k=fd.get('kind');
     const a={[kind==='project'?'projectId':'incomeId']:id,kind:k,dijbekeroNo:k==='eloleg'&&dbRow?dbRow.no:'',elolegNo:k==='vegszamla'&&elRow?elRow.no:'',paid:k==='eloleg',buyer:{name:String(fd.get('bName')||'').trim(),tax:String(fd.get('bTax')||'').trim(),email:fd.getAll('bEmail').map(x=>String(x||'').trim().toLowerCase()).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(','),
       zip:String(fd.get('bZip')||'').trim(),city:String(fd.get('bCity')||'').trim(),address:String(fd.get('bAddr')||'').trim()},items,fulfill:fd.get('fulfill'),due:fd.get('due'),payMethod:fd.get('payMethod'),
-      comment:String(fd.get('comment')||'').trim(),eInvoice:true,sendEmail:!!fd.get('sendEmail'),
+      comment:String(fd.get('comment')||'').trim(),eInvoice:true,sendEmail:!!fd.get('sendEmail'),mailSubject:String(($('m-szSubj')||{}).value||'').trim(),mailText:String(($('m-szText')||{}).value||'').trim(),
       projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[],tigId:o.tigId||''};
     if(a.buyer.name.length<2||!a.buyer.zip||!a.buyer.city||!a.buyer.address){toast('Add meg a vevő nevét és teljes címét.',true);return;}
     if(!items.length||items.some(it=>it.name.length<2||!it.qty)){toast('Minden tételnek legyen megnevezése és mennyisége.',true);return;}
@@ -446,7 +450,16 @@ function szInvoiceModal(kind,id,o={}){
         try{const d=await call('szInvoice',a);closeModal();finApply(d);toast(`${SZ_KIND[a.kind]} kiállítva: ${d.invoice&&d.invoice.no}`+(d.mail?(d.mail.ok?` · 📧 elküldve: ${d.mail.to}`:` · ⚠️ a levél nem ment ki: ${d.mail.error}`):''),!!(d.mail&&!d.mail.ok));
           {const e2=a.buyer.email,cl=(S.clients||[]).find(c=>c.name===a.buyer.name)||(t.buyer.clientId&&(S.clients||[]).find(c=>c.id===t.buyer.clientId));if(cl&&e2!==(cl.billEmail||'')&&typeof saveClientRec==='function')saveClientRec(Object.assign({},cl,{oldName:'',billEmail:e2})).catch(()=>{});}}   /* a pénzügyi e-mail-címet megjegyezzük az ügyfélnél */
         catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Kiállítás';}}});}});
-  szTotals();}
+  szTotals();szMailInit(t.name);}
+/* számla-levél: alapszöveg (a típus, az összeg, a határidő és a fizetési mód alapján) – amíg kézzel nem írtak bele, követi a változásokat */
+function szMailDefault(pn){const f=$('mform');if(!f)return {subj:'',text:''};const k=(f.querySelector('[name=kind]')||{}).value||'szamla',tot=szTotals()||{},due=(f.querySelector('[name=due]')||{}).value||'',pm=(f.querySelector('[name=payMethod]')||{}).value||'';
+  const L={szamla:['Számla','számlát'],dijbekero:['Díjbekérő','díjbekérőt'],eloleg:['Foglalószámla','foglalószámlát'],vegszamla:['Végszámla','végszámlát']}[k]||['Számla','számlát'];
+  const dd=/^\d{4}-\d{2}-\d{2}$/.test(due)?due.replace(/-/g,'. ')+'.':due;
+  return {subj:L[0]+' – [számlaszám] – '+(pn||'')+' – Lumos Motion',text:['Tisztelt Partnerünk!','','Csatoltan küldjük a(z) [számlaszám] számú '+L[1]+(pn?' ('+pn+')':'')+'.','','Fizetendő: '+ftFmt(tot.gross||0)+' (bruttó)','Fizetési határidő: '+dd,'Fizetési mód: '+pm,'','Ha bármi kérdés felmerül, válaszoljon erre a levélre.','','Üdvözlettel,'].join('\n')};}
+function szMailInit(pn){const f=$('mform'),sj=$('m-szSubj'),tx=$('m-szText'),box=$('sz-mailbox');if(!f||!sj||!tx)return;let dirty=false;
+  const fill=()=>{if(dirty)return;const d=szMailDefault(pn);sj.value=d.subj;tx.value=d.text;};fill();
+  [sj,tx].forEach(x=>x.addEventListener('input',()=>{dirty=true;}));
+  f.addEventListener('input',e=>{if(e.target!==sj&&e.target!==tx)setTimeout(fill,0);});f.addEventListener('change',e=>{if(e.target&&e.target.name==='sendEmail'&&box)box.hidden=!e.target.checked;if(e.target!==sj&&e.target!==tx)setTimeout(fill,0);});}
 function szLinkModal(kind,id,type,back){const t=szTargetInfo(kind,id);if(!t)return;szIdxEnsure();
   openModal('Meglévő bizonylat hozzárendelése',`<div class="fields">${mf('no','Bizonylatszám vagy cégnév',{full:true,max:60,ph:'pl. LUMOS-2026-75 vagy Kulcsár Akadémia'})}${kind==='project'?szSharedPick(id,[],false).replace('A bejelölt projekt tételként kerül a számlára; a kifizetés mindegyik projektnél megjelenik.','Ha a számla több munkáról szól, jelöld be a többit is – a számla és a kifizetése mindegyiknél megjelenik.'):''}</div>
     <div id="sz-peek" class="sz-peek" data-pid="${esc(id)}" data-slot="${esc(type||'')}"></div><p class="hint" style="margin:0">A számlázz.hu-ban már kiállított számlát kapcsolja ehhez: <b>${esc(t.name)}</b>. Az összeg és a kifizetések onnan töltődnek be, és a fizetési állapot magától követi.</p>
