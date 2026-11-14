@@ -70,3 +70,8 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
 (()=>{const v=document.getElementById('view');if(!v||!window.MutationObserver)return;let q=false;
   const fit=()=>{q=false;v.querySelectorAll('.tl-track').forEach(t=>{const b=t.querySelector('.tl-bar:not(.tl-cut)'),c=t.querySelector('.tl-cut');if(!b||!c)return;const br=b.getBoundingClientRect(),cr=c.getBoundingClientRect();const w=Math.max(br.right,cr.right)-br.left-16;if(w>20)b.style.setProperty('--nmw',w+'px');});};
   new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(fit);}}).observe(v,{childList:true,subtree:true});addEventListener('resize',()=>setTimeout(fit,100));})();
+/* idővonal: balra görgetéskor a részben kilógó sáv felirata (projekt neve) a látható rész elején marad */
+(()=>{let q=false;const fix=w=>{q=false;const wr=w.getBoundingClientRect(),L=wr.left;w.querySelectorAll('.tl-track .tl-bar').forEach(b=>{const r=b.getBoundingClientRect();let off=0;if(r.left<L&&r.right>L+40)off=Math.min(L-r.left,r.width-60);
+    if(off>0)b.style.setProperty('padding-left',(7+off)+'px','important');else if(b.style.paddingLeft)b.style.removeProperty('padding-left');});};
+  document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('tl-wrap'))return;if(!q){q=true;requestAnimationFrame(()=>fix(w));}},true);
+  const v=document.getElementById('view');if(v&&window.MutationObserver)new MutationObserver(()=>{const w=v.querySelector('.tl-wrap');if(w&&!q){q=true;requestAnimationFrame(()=>fix(w));}}).observe(v,{childList:true});})();
