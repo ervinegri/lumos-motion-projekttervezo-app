@@ -10,6 +10,16 @@ function crewAcceptedLock_(id) {
     {cancelLabel:'Rendben'});
   return true;
 }
+/* A meghívó e-mailben lévő Válaszolok link ismételt megnyitása: korábbi döntés megjelenítése. */
+function inviteAlreadyModal_(status, projectName) {
+  const yes=status==='yes';
+  openModal('✉️ Már megválaszoltad',
+    '<p style="margin:0 0 10px">Ezt a meghívást <b>már megválaszoltad</b>.</p>'+
+    (projectName?'<p style="margin:0 0 10px"><b>'+esc(projectName)+'</b></p>':'')+
+    '<p style="margin:0">Korábbi válaszod: <strong style="color:'+(yes?'#1f7a44':'#a33')+'">'+
+    (yes?'✓ Elfogadtad':'✗ Nem vállalod')+'</strong>.</p>',
+    {cancelLabel:'Rendben'});
+}
 const ACT={
   'mail-toggle':b=>{const on=!S.mailOn;const go=async()=>{b.disabled=true;try{const r=await call('setMail',{on});S.mailOn=r.mailOn;if(r.mailCats)S.mailCats=r.mailCats;render(true);toast(on?'E-mail értesítések bekapcsolva':'E-mailek szüneteltetve – senki nem kap e-mailt');}catch(e){handleErr(e);b.disabled=false;}};
     if(on)confirmModal('E-mailek bekapcsolása','Ettől kezdve a lent bepipált értesítések kimennek (a többi típus kikapcsolva marad).','Bekapcsolás',go);else go();},
@@ -275,7 +285,7 @@ const ACT={
       }:{cancelLabel:'Bezárás',noDraft:true});
     }catch(e){b.disabled=false;handleErr(e);}
   },
-  'inv-answer':async b=>{const yes=b.dataset.a==='yes',pid=b.dataset.id;b.disabled=true;try{await call('inviteRespond',{projectId:pid,answer:yes?'yes':'no'});if(b.dataset.close)closeModal();S.myInvites=(S.myInvites||[]).filter(x=>x.id!==b.dataset.id);toast(yes?'Elfogadtad – a meghívó visszajelzést kapott, és a projekt a naptáradba is bekerült':'Jelezted, hogy nem vállalod – a meghívó visszajelzést kapott');const was=S.projectId===pid;await load(true,false);if(yes&&projById(pid)){if(!was||S.projectId!==pid)openProject(pid);}else if(was&&ro()){S.projectId=null;S.draft=null;S.tab='projektek';render(true);}}catch(e){b.disabled=false;handleErr(e);}},
+  'inv-answer':async b=>{const yes=b.dataset.a==='yes',pid=b.dataset.id;b.disabled=true;try{const result=await call('inviteRespond',{projectId:pid,answer:yes?'yes':'no'});if(result&&result.alreadyAnswered){if(b.dataset.close)closeModal();inviteAlreadyModal_(result.status,result.name);return;}if(b.dataset.close)closeModal();S.myInvites=(S.myInvites||[]).filter(x=>x.id!==b.dataset.id);toast(yes?'Elfogadtad – a meghívó visszajelzést kapott, és a projekt a naptáradba is bekerült':'Jelezted, hogy nem vállalod – a meghívó visszajelzést kapott');const was=S.projectId===pid;await load(true,false);if(yes&&projById(pid)){if(!was||S.projectId!==pid)openProject(pid);}else if(was&&ro()){S.projectId=null;S.draft=null;S.tab='projektek';render(true);}}catch(e){b.disabled=false;handleErr(e);}},
   'proj-tl':b=>{S.cal.mode='ido';ACT.tab({dataset:{tab:'naptar',focus:'1'}});},   /* projektből az idővonalra, a projekt időszakára állva */
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
