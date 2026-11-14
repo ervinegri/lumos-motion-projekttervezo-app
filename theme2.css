@@ -1661,3 +1661,7 @@ html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done::after{content:'�
 html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.cut-ok::after,html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.st-atadva::after{content:'✓';font-size:15px;font-weight:800;color:#1f8a4c}
 /* a kész projektek pipája zöld */
 html body .tl-ok{color:#1f8a4c!important;font-weight:800}
+/* idővonal: a „Jóváhagyva” / kész jelzés mindenhol egy zöld pipa a sáv jobb szélén */
+html body .tl-track .tl-bar{position:relative}
+html body .tl-track .tl-bar .tl-ok{position:absolute!important;right:8px;top:50%;transform:translateY(-50%);font-size:15px!important;line-height:1;color:#1f8a4c!important;font-weight:800;order:9}
+html body .tl-track .tl-bar:has(.tl-ok){padding-right:26px!important}
