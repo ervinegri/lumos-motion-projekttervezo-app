@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "47d936f4c1",
+"at": "2026-11-14T20:16:45+02:00",
+"msg": "revert: restore original timeline; postproduction cards belong in Kanban"
+},
+{
+"id": "1de9e6b31c",
+"at": "2026-11-14T20:16:41+02:00",
+"msg": "revert: restore original timeline; postproduction cards belong in Kanban"
+},
+{
 "id": "65d92fb04a",
 "at": "2026-11-14T20:16:37+02:00",
 "msg": "revert: restore original timeline; postproduction cards belong in Kanban"
@@ -150,11 +160,6 @@ const ITEMS = [
 "id": "dc0ae96c66",
 "at": "2026-11-14T19:46:30+02:00",
 "msg": "style: present invitation email preview as readable modal card"
-},
-{
-"id": "dd621eac7c",
-"at": "2026-11-14T19:46:17+02:00",
-"msg": "fix: validate invitation preview recipient email correctly"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
