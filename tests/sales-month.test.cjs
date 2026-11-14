@@ -21,9 +21,9 @@ const state={
 };
 const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const fmt=x=>Math.round(Number(x)||0).toLocaleString('hu-HU')+' Ft';
-const lib=new Function('S','todayISO','isAdmin','projById','projTotal','esc','fold','ftFmt','num','fmtShort',
+const lib=new Function('S','todayISO','isAdmin','isSales','projById','projTotal','esc','fold','ftFmt','num','fmtShort',
   sales.slice(from,to)+'\nreturn {viewSales,salesShiftMonth,salesDealMonth,salesMonthText};')(
-  state,()=>'2026-11-14',()=>true,id=>projects[id]||null,p=>p.projectValue,
+  state,()=>'2026-11-14',()=>true,()=>false,id=>projects[id]||null,p=>p.projectValue,
   esc,x=>String(x==null?'':x).toLowerCase(),fmt,x=>Number(x)||0,x=>String(x).slice(5)
 );
 const current=lib.viewSales();
