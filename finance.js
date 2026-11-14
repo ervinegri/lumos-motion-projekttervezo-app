@@ -456,7 +456,7 @@ function szInvoiceModal(kind,id,o={}){
 function szMailDefault(pn){const f=$('mform');if(!f)return {subj:'',text:''};const k=(f.querySelector('[name=kind]')||{}).value||'szamla',tot=szTotals()||{},due=(f.querySelector('[name=due]')||{}).value||'',pm=(f.querySelector('[name=payMethod]')||{}).value||'';
   const L={szamla:['Számla','számlát'],dijbekero:['Díjbekérő','díjbekérőt'],eloleg:['Foglalószámla','foglalószámlát'],vegszamla:['Végszámla','végszámlát']}[k]||['Számla','számlát'];
   const dd=/^\d{4}-\d{2}-\d{2}$/.test(due)?due.replace(/-/g,'. ')+'.':due;
-  return {subj:L[0]+' – [számlaszám] – '+(pn||'')+' – Lumos Motion',text:['Tisztelt Partnerünk!','','Csatoltan küldjük a(z) [számlaszám] számú '+L[1]+(pn?' ('+pn+')':'')+'.','','Fizetendő: '+ftFmt(tot.gross||0)+' (bruttó)','Fizetési határidő: '+dd,'Fizetési mód: '+pm,'','Ha bármi kérdés felmerül, válaszoljon erre a levélre.','','Üdvözlettel,'].join('\n')};}
+  return {subj:L[0]+' – [számlaszám] – '+(pn||'')+' – Lumos Motion',text:['Tisztelt Partnerünk!','','Csatoltan küldjük a(z) [számlaszám] számú '+L[1]+(pn?' ('+pn+')':'')+'.','','Fizetendő: '+ftFmt(tot.gross||0)+' (bruttó)','Fizetési határidő: '+dd,'Fizetési mód: '+pm,'','Ha bármi kérdés felmerül, válaszoljon erre a levélre.'].join('\n')};}
 function szMailInit(pn){const f=$('mform'),sj=$('m-szSubj'),tx=$('m-szText'),box=$('sz-mailbox');if(!f||!sj||!tx)return;let dirty=false;
   const to=()=>{const e=$('sz-mto');if(e)e.textContent=[...f.querySelectorAll('#sz-mails input')].map(x=>x.value.trim()).filter(Boolean).join(', ')||'—';};
   const grow=()=>{tx.style.height='auto';tx.style.height=(tx.scrollHeight+4)+'px';};

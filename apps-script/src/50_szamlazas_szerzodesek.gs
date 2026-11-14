@@ -1091,7 +1091,7 @@ function szInvoiceMail_(u, o) {
   const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
   const dd = String(o.due || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.');
   const lines = ['Tisztelt Partnerünk!', '', 'Csatoltan küldjük ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
-    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || ''), '', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.', '', 'Üdvözlettel,'];
+    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || ''), '', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.'];
   const fillNo = t => String(t).replace(/a\(z\)\s*\[számlaszám\]/g, huArt_(o.no) + ' ' + o.no).split('[számlaszám]').join(o.no);   // a szerkesztett levélben a sorszám helye
   const body = o.text ? fillNo(o.text) : lines.join('\n');
   const sig = signatureFor_(u), text = body + (sig ? '\n\n' + sig.text : '');
