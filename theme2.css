@@ -1636,3 +1636,4 @@ html body .tl-now::before{width:9px!important;height:9px!important;top:3px!impor
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut){display:flex!important;flex-wrap:wrap;align-content:center;column-gap:4px;overflow:visible!important;z-index:4;position:relative}
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm,html body .tl-track:has(.tl-cut .tl-nm) .tl-bar:not(.tl-cut) .tl-nm{display:block!important;order:1;flex:0 0 auto;max-width:var(--nmw,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:5}
 html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut .tl-nm{display:none!important}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{text-align:right!important;justify-content:flex-end!important;align-items:flex-start!important;padding-right:8px!important}
