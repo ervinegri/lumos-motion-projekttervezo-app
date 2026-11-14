@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4f4de7117f",
+"at": "2026-11-14T13:29:45+01:00",
+"msg": "Meghívás: „Meghívást kaptál erre a projektre, mint vágó”, csak vágónál nincs helyszín/időpont; a levél gombja felugró elfogadó ablakot nyit"
+},
+{
 "id": "f2a524aa40",
 "at": "2026-11-14T13:16:08+01:00",
 "msg": "Javítás: a táblázat oszlopfejlécei maradnak (Távozás) – a felirat csak a felületen Végzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár súgó: hosszú tartalomnál görgethető, rá lehet vinni az egeret"
 },
 {
-"id": "54b0106a3d",
-"at": "2026-11-14T11:55:27+01:00",
-"msg": "Nézet-sáv: mindenhol kisebb szöveg és gombok"
-},
-{
-"id": "478ca8c6e3",
-"at": "2026-11-14T10:55:04Z",
+"id": "a76cd2a85e",
+"at": "2026-11-14T10:55:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
