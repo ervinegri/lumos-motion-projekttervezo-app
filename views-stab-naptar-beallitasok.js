@@ -317,7 +317,7 @@ function viewClients(){
       <td class="cl-ct">${c.name?esc(c.name):'<span class="muted">—</span>'}</td>
       <td class="cl-ph">${c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'<span class="muted">—</span>'}</td>
       <td class="cl-em">${c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:'<span class="muted">—</span>'}</td>
-      ${adm?`<td class="cl-ctr">${clContract(c,ps)}</td>`:''}</tr>`;}).join('');
+      ${adm?`<td class="cl-ctrc">${clContract(c,ps)}</td>`:''}</tr>`;}).join('');
   const all=knownClients('').length;
   return `<div class="page-head cl-head"><div class="grow"><h2>Ügyfelek</h2><p class="sub">${all} ügyfél${adm&&S._clDocsBusy?' · <span class="spin" style="width:11px;height:11px;vertical-align:-1px"></span> szerződések keresése a Drive-ban…':''}</p></div>${ro()?'':undoBar()}
       ${isAdmin()?'<button class="btn outline w" type="button" data-action="new-contract">📝 <span class="mlg">Új szerződés</span><span class="msm">Szerződés</span></button>':''}<button class="btn primary w" type="button" data-action="new-client">+ Új<span class="mlg"> ügyfél</span></button></div>
