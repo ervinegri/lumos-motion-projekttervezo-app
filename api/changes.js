@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e309d8d7e7",
+"at": "2026-11-14T18:56:54+02:00",
+"msg": "test: project seller section follows production and replaces duplicate lower card"
+},
+{
 "id": "8d4a420171",
 "at": "2026-11-14T18:55:46+02:00",
 "msg": "style: compact single salesperson selector and commission within blue finance panel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: implement month grouping for all pipeline stages"
 },
 {
-"id": "5a080558c3",
-"at": "2026-11-14T17:55:09+02:00",
-"msg": "test: include sales owner and revenue regression in finance suite"
-},
-{
-"id": "8b3be6e5ea",
-"at": "2026-11-14T15:54:52Z",
+"id": "292c036ecd",
+"at": "2026-11-14T15:55:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
