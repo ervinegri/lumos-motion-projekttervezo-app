@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7ef1507219",
+"at": "2026-11-14T20:09:21+02:00",
+"msg": "ui: render separate editor and photo-retouching deadline bars in shared projects"
+},
+{
 "id": "fae1d6495a",
 "at": "2026-11-14T20:08:01+02:00",
 "msg": "fix: identify calendar postproduction owners from actual assigned video and photo tasks"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "b49ed2054a",
 "at": "2026-11-14T19:42:40+02:00",
 "msg": "backend: reject removal of accepted project member on save"
-},
-{
-"id": "146b8a5176",
-"at": "2026-11-14T19:42:29+02:00",
-"msg": "feat: warn and block removal of accepted crew members"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
