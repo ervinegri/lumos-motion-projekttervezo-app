@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ee32d9c85",
+"at": "2026-11-14T12:07:05+01:00",
+"msg": "Kifizetések: kisebb Összesen felirat, érintéssel nem jelölődik ki a szöveg"
+},
+{
 "id": "6c83ffb4b8",
 "at": "2026-11-14T12:05:55+01:00",
 "msg": "Idővonal: a sávok neve simán tapad görgetéskor (nem ugrál); fekvő nézetben a gombok mérete visszaállítva, csak a hézagok kisebbek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: az oldal sem húzható le a tetején túl"
 },
 {
-"id": "b139a46e68",
-"at": "2026-11-14T11:32:08+01:00",
-"msg": "Idővonal: a naptár nem húzható túl a szélein"
-},
-{
-"id": "1d063f509a",
-"at": "2026-11-14T10:31:45Z",
+"id": "e6182396ee",
+"at": "2026-11-14T10:32:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
