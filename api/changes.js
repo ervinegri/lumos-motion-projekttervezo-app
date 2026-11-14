@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8f51f47244",
+"at": "2026-11-14T09:10:08+01:00",
+"msg": "Számlák: a vevőnek a Lumos címéről megy ki a levél PDF melléklettel (a számlázz.hu nem küldi)"
+},
+{
 "id": "f999443997",
 "at": "2026-11-14T08:57:28+01:00",
 "msg": "Naptár-súgó: ha lent nem fér el, a sáv fölé kerül (vagy görgethető), nem lóg ki a képernyőből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló telefon: havi naptár keret nélkül, faltól falig"
 },
 {
-"id": "5dde09ffb5",
-"at": "2026-11-13T22:41:51+01:00",
-"msg": "Mobil: az oldal sehol nem húzható oldalra (a kilógó tartalmat az oldal levágja), számlázási kártyák nem szélesebbek a képernyőnél"
-},
-{
-"id": "400ba3c6ba",
-"at": "2026-11-13T21:40:30Z",
+"id": "d5fcda7722",
+"at": "2026-11-13T21:41:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
