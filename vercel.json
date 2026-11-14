@@ -57,5 +57,8 @@
       "source": "/:code([A-Za-z0-9]{10})",
       "destination": "/jovahagyas.html"
     }
-  ]
+  ],
+  "github": {
+    "silent": true
+  }
 }
