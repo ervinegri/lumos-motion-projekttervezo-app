@@ -78,15 +78,15 @@ function viewSales(){
   const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
   const owners=salesOwners(all),self=salesSelfIds(all),selected=self.has(f.owner)&&S.me?S.me.id:f.owner;
   if(selected!==f.owner)f.owner=selected;  // régi szűrőérték átvezetése ugyanarra a személyre
-  const month=/^\d{4}-\d{2}$/.test(f.month)?f.month:f.month==='undated'||f.month==='all'?f.month:T.slice(0,7);
+  // Az értékesítési Kanban folyamatos: minden időpontból láthatók a lehetőségek.
+  // A hónapválasztó kizárólag a havi eredmény- és jutalékmutatókat befolyásolja.
+  const month=/^\d{4}-\d{2}$/.test(f.month)?f.month:f.month==='all'?'all':T.slice(0,7);
   f.month=month;
-  const allOwned=all.filter(d=>!selected||(selected===(S.me&&S.me.id)?self.has(d.ownerId):d.ownerId===selected));
-  const undated=allOwned.filter(d=>!salesDealMonth(d)).length;
-  let L=allOwned.filter(d=>month==='all'||(month==='undated'?!salesDealMonth(d):salesDealMonth(d)===month));
+  let L=all.filter(d=>!selected||(selected===(S.me&&S.me.id)?self.has(d.ownerId):d.ownerId===selected));
   if(f.q.trim())L=L.filter(d=>fold([d.title,d.client,d.contactName,d.venue,d.note,d.ownerName].join(' ')).includes(fold(f.q.trim())));
   const open=L.filter(d=>DEAL_OPEN.includes(d.stage)),won=L.filter(d=>d.stage==='nyert'),lost=L.filter(d=>d.stage==='elveszett');
   const sum=a=>a.reduce((s,d)=>s+dealVal(d),0),weighted=open.reduce((s,d)=>s+dealVal(d)*dealChance(d)/100,0);
-  const m=month==='all'||month==='undated'?T.slice(0,7):month,wonM=month==='all'?won.filter(d=>String(d.wonAt||'').slice(0,7)===T.slice(0,7)):won,rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
+  const wonM=month==='all'?won:won.filter(d=>salesDealMonth(d)===month),rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
   const contractComms=wonM.map(salesCommissionPreview).filter(x=>x&&x.amt>0),contractedComm=contractComms.reduce((sum,x)=>sum+x.amt,0);
   const late=open.filter(d=>d.nextDate&&d.nextDate<T).length,noNext=open.filter(d=>!d.nextStep&&!d.nextDate).length;
   const stOf=d=>d.stage==='nyert'&&(d.advPaidAt||d.noAdv)?'fizetve':d.stage;
@@ -104,16 +104,15 @@ function viewSales(){
         <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="-1" aria-label="Előző hónap" title="Előző hónap">‹</button>
         <span class="sales-month-title" aria-live="polite">${esc(salesMonthText(month))}</span>
         <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="1" aria-label="Következő hónap" title="Következő hónap">›</button>
-        <button class="btn outline sales-month-all${month==='all'?' active':''}" type="button" data-action="sales-month-all" aria-pressed="${month==='all'}">Összes</button>
-        ${undated?`<button class="btn outline sales-month-undated${month==='undated'?' active':''}" type="button" data-action="sales-month-undated" aria-pressed="${month==='undated'}" data-tip="Rendezvénydátum nélküli lehetőségek">Dátum nélkül · ${undated}</button>`:''}
+        <button class="btn outline sales-month-all${month==='all'?' active':''}" type="button" data-action="sales-month-all" aria-pressed="${month==='all'}">Összes időszak</button>
       </div>
-      <span class="sales-monthhint">A rendezvény vagy forgatás hónapja szerint</span>
+      <span class="sales-monthhint">Havi eredmények · a kártyák minden időszakból láthatók</span>
     </div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
-      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">${month==='all'?'e hónapban szerződve':'szerződött projekt · '+salesMonthText(month)} · ${wonM.length} db</div></div>
-      ${(()=>{const payMonth=month==='all'||month==='undated'?T.slice(0,7):month,ow=admin&&selected,
+      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">${month==='all'?'összes szerződött projekt':'szerződött projekt · '+salesMonthText(month)} · ${wonM.length} db</div></div>
+      ${(()=>{const payMonth=month==='all'?T.slice(0,7):month,ow=admin&&selected,
         people=(S.salesPeople||[]).filter(x=>!ow||(ow===(S.me&&S.me.id)?self.has(x.userId)||self.has(x.id):x.userId===ow||x.id===ow)),
         records=people.map(x=>(x.comm||{})[payMonth]).filter(Boolean),
         paidBase=records.reduce((sum,x)=>sum+num(x.base),0),
@@ -123,6 +122,7 @@ function viewSales(){
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
+    <div class="sales-board-head"><b>Értékesítési folyamat</b><span>Minden időszak · ${L.length} lehetőség</span></div>
     <div class="dl-board">${DEAL_STAGES.map(col).join('')}</div>
 `;
 }
@@ -215,7 +215,6 @@ Object.assign(ACT,{
   'sales-month-shift':b=>{S.salesF.month=salesShiftMonth(S.salesF.month,Number(b.dataset.d)||0);render(true);},
   'sales-month-today':()=>{S.salesF.month=todayISO().slice(0,7);render(true);},
   'sales-month-all':()=>{S.salesF.month='all';render(true);},
-  'sales-month-undated':()=>{S.salesF.month='undated';render(true);},
   'sales-owner':b=>{S.salesF.owner=b.dataset.id||'';render(true);},
   'sales-old':()=>{S.salesF.old=!S.salesF.old;render(true);}
 });
