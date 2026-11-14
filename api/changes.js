@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "714d1a3d7f",
+"at": "2026-11-14T17:45:27+02:00",
+"msg": "test: verify shared final invoice, ordinary advance balance, and external-issuer safeguard"
+},
+{
 "id": "7b85a0b0ee",
 "at": "2026-11-14T17:44:07+02:00",
 "msg": "test: scope shared invoice regression to the same client"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: a Névjegy gomb a telefonszám mellett, egy sorban"
 },
 {
-"id": "ed0e19bd65",
-"at": "2026-11-14T12:55:25+01:00",
-"msg": "Sablon választásakor a Rendezvény típusa is kitöltődik (látható mezőben is)"
-},
-{
-"id": "f86c686e17",
-"at": "2026-11-14T11:53:08Z",
+"id": "35683ae63b",
+"at": "2026-11-14T11:55:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
