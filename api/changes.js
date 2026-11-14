@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "54b0106a3d",
+"at": "2026-11-14T11:55:27+01:00",
+"msg": "Nézet-sáv: mindenhol kisebb szöveg és gombok"
+},
+{
 "id": "0b6f7e3f92",
 "at": "2026-11-14T11:54:55+01:00",
 "msg": "Jóváhagyó oldal: nincs automatikus szövegnagyítás fekvő iPhone-on"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla: a levél előnézete mint az árajánlatnál (feladó, címzett, tárgy, melléklet, aláírás); saját cím és számlázz.hu együtt is választható"
 },
 {
-"id": "79613d3fbe",
-"at": "2026-11-14T09:18:05+01:00",
-"msg": "Számla kiállítása: választható, ki küldje ki – saját (Lumos) cím vagy a számlázz.hu (a választás megmarad)"
-},
-{
-"id": "b983a331ea",
-"at": "2026-11-14T08:15:05Z",
+"id": "c6c1719726",
+"at": "2026-11-14T08:18:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
