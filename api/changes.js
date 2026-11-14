@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "516f785c75",
+"at": "2026-11-14T13:03:09+01:00",
+"msg": "Projekt: rendezett Videók panel (állapot, Videótábla és Idővonal gomb); Vágás helyett Utómunka"
+},
+{
 "id": "bb38f1da1a",
 "at": "2026-11-14T13:02:07+01:00",
 "msg": "Távozás helyett Végzés mindenhol; stábba felvett szakember automatikusan a megfelelő szolgáltatásra kerül (pl. kreatív operatőr)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások: kisebb szövegméret a „Küldés a kollégák saját címéről” panelen"
 },
 {
-"id": "0966aadd62",
-"at": "2026-11-14T11:52:02+01:00",
-"msg": "Napló: a felhasználók csökkenő sorrendben (bejegyzések száma szerint)"
-},
-{
-"id": "c67ee34118",
-"at": "2026-11-14T10:51:24Z",
+"id": "ca9ce26b5c",
+"at": "2026-11-14T10:52:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
