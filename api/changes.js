@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f29b1afcaa",
+"at": "2026-11-14T11:53:46+01:00",
+"msg": "A csengő azonnal megjelenik betöltéskor"
+},
+{
 "id": "ae18fa2dff",
 "at": "2026-11-14T11:52:48+01:00",
 "msg": "Beállítások: kisebb szövegméret a „Küldés a kollégák saját címéről” panelen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Termelési vezető: a termelői keret, a díjak összege és a maradék a Díjak panel tetején"
 },
 {
-"id": "a70163bc55",
-"at": "2026-11-14T09:12:38+01:00",
-"msg": "Névjegy: kis gomb a kapcsolattartó alatt; a QR-névjegyben nincs projektnév"
-},
-{
-"id": "8f5f805d45",
-"at": "2026-11-14T08:10:18Z",
+"id": "60a6e7d4c9",
+"at": "2026-11-14T08:12:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
