@@ -38,13 +38,20 @@ const ovPct=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
 function finSalesFees(p){const only=cid=>{const rs=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return rs.length>0&&rs.every(r=>r==='Értékesítő');};
   return (p.fees||[]).filter(f=>f.crewId&&f.kind!=='fixed'&&(only(f.crewId)||/értékesít|jutalék/i.test(String(f.task||'')))).reduce((a,f)=>a+num(f.amount),0);}
 function finProjectRow(p){const st=finSet(),amount=projTotal(p),fees=Math.round(feeSum(p)-finSalesFees(p));
-  const tov=Math.round((typeof extrasRaw==='function'?extrasRaw(p):[]).filter(x=>x&&x.kind==='tov').reduce((a,x)=>a+num(x.amount),0)),org=Math.round(typeof orgFee==='function'?num(orgFee(p)):0),base=Math.max(0,amount-tov-org),prod=fees+tov;   // szervezői jutalék is átfolyó költség   // továbbszámlázott: átfolyó költség – a Termelésbe kerül, a százalékok nélküle számolódnak
-  const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);   // projektenként egyedi értékesítés / eszköz-rezsi %
-  const dl=typeof projDeal==='function'?projDeal(p):null,de=dl&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;   // értékesítő hozta: az ő jutaléka az értékesítés
-  let ceo=(de&&de.amt>0?Math.round(de.amt):Math.round(base*(cp??st.ceoPct)/100))+org,marketing=Math.round(base*st.marketingPct/100);
+  const tov=Math.round((typeof extrasRaw==='function'?extrasRaw(p):[]).filter(x=>x&&x.kind==='tov').reduce((a,x)=>a+num(x.amount),0)),
+    org=Math.round(typeof orgFee==='function'?num(orgFee(p)):0),
+    base=Math.max(0,amount-tov-org),
+    prod=fees+tov+org;   // munkadíjak + továbbszámlázás + szervezői jutalék: három külön oszlop, együtt a teljes költség
+  const b=typeof billOf==='function'?billOf(p.id):{},cp=ovPct(b.ceoPct),rp=ovPct(b.rezsiPct);
+  const dl=typeof projDeal==='function'?projDeal(p):null,
+    salesAssigned=!!(dl&&String(dl.ownerId||'').trim()),
+    de=salesAssigned&&typeof salesCommEst==='function'?salesCommEst(p,dl):null;
+  // Értékesítő nélkül 0 Ft jutalék. A szervezői díj az átfolyó költségekhez tartozik.
+  const calculated=de&&Number.isFinite(Number(de.amt))?Math.round(num(de.amt)):Math.round(base*(cp??st.ceoPct)/100);
+  let ceo=salesAssigned?Math.max(0,calculated):0,marketing=Math.round(base*st.marketingPct/100);
   let profit,rezsi;if(rp!=null){rezsi=Math.round(base*rp/100);profit=amount-prod-ceo-marketing-rezsi;}else{profit=Math.round(base*st.profitPct/100);rezsi=amount-profit-ceo-marketing-prod;}
-  if(!amount){profit=0;ceo=0;rezsi=0;marketing=-prod;}   // érték nélküli (ingyenes) projekt: a költsége a marketingből megy, nem az eszköz-rezsiből
-  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,base,fees,prod,tov,org,profit,ceo,marketing,rezsi,ceoOv:cp!=null&&!(de&&de.amt>0),rezsiOv:rp!=null,ceoBy:de&&de.amt>0?(dl.ownerName||'értékesítő'):''};}
+  if(!amount){profit=0;ceo=0;rezsi=0;marketing=-prod;}
+  return {kind:'project',p,id:p.id,day:String(Number(pr(p).start.slice(8))),name:p.name||'Névtelen projekt',payStatus:p.payStatus||'',amount,base,fees,prod,tov,org,profit,ceo,marketing,rezsi,salesAssigned,ceoOv:salesAssigned&&cp!=null&&!(de&&Number.isFinite(Number(de.amt))),rezsiOv:rp!=null,ceoBy:salesAssigned&&de&&de.amt>0?(dl.ownerName||'értékesítő'):''};}
 /* Régi táblázat sora ↔ projekt: közös jellemző szó a névben (ügyfél, helyszín is számít), a gyakori szavak nélkül */
 const LEG_STOP=new Set('technikai ugyelet konferencia rendezveny webinar stream short video videok forgatas podcast hibrid masodik eloadas youtube napja workshop kiallitas esemeny budapest hungary kft zrt bt nonprofit egyesulet alapitvany tagozat levelezo akademia gala unnepseg evzaro fesztival expo talalkozo csoportos and the of az es db 2024 2025 2026 2027 ak tal csop ut utca ter krt hotel center etterem kavehaz'.split(' '));
 const legTok=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(w=>w.length>=2&&!LEG_STOP.has(w));
