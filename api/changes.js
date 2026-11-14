@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd21588aad",
+"at": "2026-11-14T19:20:01+02:00",
+"msg": "ui: show sent timestamp and one-line response deadline in invitation tooltips"
+},
+{
 "id": "7682cb4487",
 "at": "2026-11-14T19:17:10+02:00",
 "msg": "fix: include edit due date in project lead invitation request"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "style: display contracted sales commission clearly in card and monthly KPI"
 },
 {
-"id": "2128fa86bf",
-"at": "2026-11-14T18:25:57+02:00",
-"msg": "sales: show each won deal's contracted commission and percentage on its card"
-},
-{
-"id": "7d3482679a",
-"at": "2026-11-14T18:25:42+02:00",
-"msg": "sales: show contracted commission in monthly summary instead of misleading zero"
+"id": "b27448896a",
+"at": "2026-11-14T16:26:04Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
