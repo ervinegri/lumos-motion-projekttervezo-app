@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "12faca8c40",
+"at": "2026-11-14T08:24:30+01:00",
+"msg": "Idővonal: egérrel fel-le is húzható (nem csak oldalra)"
+},
+{
 "id": "4faeabde86",
 "at": "2026-11-14T08:22:48+01:00",
 "msg": "Idővonal: „Jóváhagyásra vár” egy sorban, „Idővonal” sor törölve; fejléc: külön Kilépés gomb elrejtve (a név menüjében van)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Fizetések: a táblázat alja elérhető fekvőben, tömörebb állapotsorok"
 },
 {
-"id": "328361f662",
-"at": "2026-11-13T22:32:13+01:00",
-"msg": "Fekvő telefon: Szerződés és számlázás fejléce egy sorban, tömörebb csempék és táblázat"
-},
-{
-"id": "7902cc92c1",
-"at": "2026-11-13T21:30:14Z",
+"id": "12c19a9073",
+"at": "2026-11-13T21:32:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
