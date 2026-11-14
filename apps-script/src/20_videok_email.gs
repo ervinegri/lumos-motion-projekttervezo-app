@@ -20,7 +20,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 1000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
-/** A megrendelt darabszámokból videósorok: a meglévők megmaradnak, a hiányzók létrejönnek, a még érintetlen (vágásra váró, vágó nélküli) fölösek törlődnek.
+/** A megrendelt darabszámokból videósorok: a megkezdett munkák megmaradnak; a korábban csak vágóhoz rendelt, de már nem kért és érintetlen feladatok törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
 function videosEnsure_(p, cutters) {
   const cur = parseVideos_(p.videos), byId = {}; cur.forEach(x => { byId[x.id] = x; });
@@ -29,7 +29,7 @@ function videosEnsure_(p, cutters) {
     for (let i = 1; i <= n; i++) { const id = kn[0] + '-' + i, x = byId[id] || { id: id, k: kn[0], editor: '', st: 'vagasra', at: '' }; if (!x.cn) x.name = kn[1] + (n > 1 ? ' ' + i : ''); /* átnevezett videó neve megmarad */ want.push(x); } });
   if (flagOn_(p.x_foto) || Number(p.x_foto_n) > 0) want.push(byId['foto-1'] || { id: 'foto-1', k: 'foto', name: 'Fotók', editor: '', st: 'vagasra', at: '' });   // a fotógaléria is leadandó / jóváhagyandó elem
   const ids = {}; want.forEach(x => { ids[x.id] = 1; });
-  cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.editor)) want.push(x); });   // már dolgozott rajta valaki: nem tűnik el
+  cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.link || (x.cm || []).length || (x.vers || []).length || x.fb || x.rvAt || x.okAt)) want.push(x); });   // a ténylegesen megkezdett munka megmarad; önmagában a kijelölt vágó nem tart fenn megszűnt feladatot
   const one = cutters && cutters.length === 1 ? cutters[0] : '';
   if (one) want.forEach(x => { if (!x.editor && x.k !== 'foto') x.editor = one; });   // a fotók nem a vágóé
   return want;
@@ -45,22 +45,35 @@ function mySalesComm_(cid) {
     return amt > 0 ? { projectId: p.id, name: sval_(p.name), date: sval_(p.date), endDate: sval_(p.endDate), amount: amt } : null; }).filter(Boolean);
 }
 function videosBackfill_() {
-  const sh = sheetFor_('projects'), ca = readAll_('crewAssign');
+  const sh = sheetFor_('projects'), ca = readAll_('crewAssign'); let changed = false;
   readAll_('projects').forEach(p => {
     if (p.status === 'atadva' || p.status === 'lemondva') return;
     const cur0 = parseVideos_(p.videos), wantF = flagOn_(p.x_foto) || Number(p.x_foto_n) > 0;
-    if (cur0.length) {   // már vannak videósorok: csak a fotógaléria sora hiányozhat
-      if (!wantF || cur0.some(x => x.k === 'foto')) return;
-      withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r), l = parseVideos_(q.videos); if (l.some(x => x.k === 'foto')) return; l.push({ id: 'foto-1', k: 'foto', name: 'Fotók', editor: '', st: 'vagasra', at: '' }); q.videos = JSON.stringify(parseVideos_(l)); putRow_('projects', sh, q, r); });
+    if (cur0.length) {
+      // A régi, érintetlen (csak vágóhoz rendelt) sorok is eltűnnek, ha a megrendelésből kikerültek.
+      const wantIds = new Set(videosEnsure_(p, []).map(x => x.id));
+      if (cur0.every(x => wantIds.has(x.id)) && (!wantF || cur0.some(x => x.k === 'foto'))) return;
+      withLock_(() => {
+        const r = findRow_(sh, p.id); if (!r) return;
+        const q = readRow_('projects', sh, r), l = parseVideos_(q.videos);
+        const ids = new Set(videosEnsure_(q, []).map(x => x.id));
+        const kept = l.filter(x => ids.has(x.id));
+        if ((flagOn_(q.x_foto) || Number(q.x_foto_n) > 0) && !kept.some(x => x.k === 'foto'))
+          kept.push({ id: 'foto-1', k: 'foto', name: 'Fotók', editor: '', st: 'vagasra', at: '' });
+        if (JSON.stringify(kept) === JSON.stringify(l)) return;
+        q.videos = JSON.stringify(kept);
+        putRow_('projects', sh, q, r); changed = true;
+      });
       return;
     }
-    if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0) && !(flagOn_(p.x_foto) || Number(p.x_foto_n) > 0)) return;
+    if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0) && !wantF) return;
     const cutters = [...new Set(ca.filter(r => r.projectId === p.id && r.role === 'Vágó').map(r => String(r.crewId || '')))].filter(String);
     const vids = videosEnsure_(p, cutters), et = parseEditTasks_(p.editTasks);
     vids.forEach(x => { if (!x.editor) { const o = Object.keys(et).find(id => (et[id] || []).indexOf(x.k) >= 0); if (o) x.editor = o; } });
     if (!vids.length) return;
-    withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r); if (parseVideos_(q.videos).length) return; q.videos = JSON.stringify(vids); putRow_('projects', sh, q, r); });
+    withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r); if (parseVideos_(q.videos).length) return; q.videos = JSON.stringify(vids); putRow_('projects', sh, q, r); changed = true; });
   });
+  if (changed) dataBump_();
   dbFlush_();
 }
 /** Belső ellenőrzésre küldés: a videó „Belső ellenőrzés” állapotba kerül, a link és a megjegyzés mentődik, a kiválasztott vezető e-mailt kap. */
