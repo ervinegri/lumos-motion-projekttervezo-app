@@ -151,11 +151,20 @@ function bootstrap_(u) {
     // a beszerzési értéket csak az ügyvezető látja (a termelési vezető megadhatja, de visszaolvasni nem tudja)
     out.inventory = inventory.map(i => Object.assign({}, i, { value: null, hasValue: i.value != null && i.value !== '' }));
   }
+  const ownInviteCid = inviteOwnCrewId_(u, crew);
+  if (ownInviteCid && !out.me.crewId) out.me.crewId = ownInviteCid;
+  if (ownInviteCid) {
+    const mineInvited = out.projects.filter(p => (p.lead === ownInviteCid || (p.crew || []).some(x => x.crewId === ownInviteCid)) && p.invites && p.invites[ownInviteCid] && p.invites[ownInviteCid].st === 'invited');
+    out.myInvites = mineInvited.map(p => {
+      let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), ownInviteCid); } catch (e) {}
+      return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
+        roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at };
+    });
+    if (u.role === 'admin' || u.role === 'editor') mineInvited.forEach(p => { p.invPending = true; });
+  }
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
     const mine = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
-    out.myInvites = mine.filter(p => p.invites && p.invites[cid] && p.invites[cid].st === 'invited').map(p => { let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), cid); } catch (e) {} return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
-      roles: [p.lead === cid ? 'Projektvezető' : ''].concat(p.crew.filter(c => c.crewId === cid).map(c => c.role)).filter(Boolean), at: p.invites[cid].at }; });   // függő meghívások: csak az alapadatok
     const invSt = p => p.invites && p.invites[cid] ? p.invites[cid].st : '';
     out.projects = mine.filter(p => p.lead === cid || !(p.invUse || invSt(p)) || invSt(p) === 'yes' || invSt(p) === 'invited');   // meghívásos projekt: elfogadás után látja; függő meghívásnál megnyithatja (Igen / Nem válaszhoz), a stábból csak az elfogadottakat látja
     out.projects.forEach(p => { if (invSt(p) === 'invited' && p.lead !== cid) p.invPending = true; });   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
@@ -170,6 +179,16 @@ function bootstrap_(u) {
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return viewAsPick_(out, u);
+}
+/** Meghívott munkatárs azonosítása: saját stábrekord, vagy vezetőnél egyetlen azonos e-mail címmel rendelkező stábrekord. */
+function inviteOwnCrewId_(u, crew) {
+  const assigned = String(u && u.crewId || '');
+  if (assigned) return assigned;
+  if (!u || (u.role !== 'admin' && u.role !== 'editor')) return '';
+  const email = String(u.email || '').trim().toLowerCase();
+  if (!email) return '';
+  const matches = (crew || readAll_('crew')).filter(c => String(c.email || '').trim().toLowerCase() === email);
+  return matches.length === 1 ? String(matches[0].id || '') : '';
 }
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
 function viewAsPick_(out, u) {
