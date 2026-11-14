@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a70163bc55",
+"at": "2026-11-14T09:12:38+01:00",
+"msg": "Névjegy: kis gomb a kapcsolattartó alatt; a QR-névjegyben nincs projektnév"
+},
+{
 "id": "8f51f47244",
 "at": "2026-11-14T09:10:08+01:00",
 "msg": "Számlák: a vevőnek a Lumos címéről megy ki a levél PDF melléklettel (a számlázz.hu nem küldi)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: vélemény írásakor a videó kicsi lesz és a szövegmező a billentyűzet fölé gördül"
 },
 {
-"id": "3ff7da3dc2",
-"at": "2026-11-13T22:42:42+01:00",
-"msg": "Álló telefon: havi naptár keret nélkül, faltól falig"
-},
-{
-"id": "d5fcda7722",
-"at": "2026-11-13T21:41:59Z",
+"id": "d2ac5e05c7",
+"at": "2026-11-13T21:42:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
