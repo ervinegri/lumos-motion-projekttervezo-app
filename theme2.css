@@ -2017,6 +2017,8 @@ html body .crew-mail-meta>div{display:grid;grid-template-columns:76px minmax(0,1
 html body .crew-mail-meta strong{color:var(--fg-2)}
 html body .crew-mail-preview{padding:22px 20px;background:#fff;border:1px solid var(--line);border-radius:12px;max-height:52vh;overflow:auto;overflow-wrap:anywhere}
 html body .crew-mail-preview>div{margin:0 auto}
+/* Az előnézet hivatkozásai látványként jelennek meg; küldés a modal fő gombjával. */
+html body .crew-mail-preview a{pointer-events:none;cursor:default}
 @media (max-width:600px){html body .crew-mail-meta>div{grid-template-columns:1fr;gap:2px}html body .crew-mail-preview{padding:16px 12px;max-height:48vh}}
 
 
