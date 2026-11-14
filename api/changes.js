@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e5f0470ece",
+"at": "2026-11-14T17:02:34+02:00",
+"msg": "style: compact icon-only resend action and remove inline deadline"
+},
+{
 "id": "3df7f38bca",
 "at": "2026-11-14T17:02:22+02:00",
 "msg": "ui: move invitation response deadline to pending status tooltip"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: kisebb naptár-gombsor"
 },
 {
-"id": "501fe032d8",
-"at": "2026-11-14T12:01:40+01:00",
-"msg": "Kifizetések szakember nézetben: keretes táblázat széllel"
-},
-{
-"id": "62607ad68d",
-"at": "2026-11-14T11:01:36Z",
+"id": "f81d70f32c",
+"at": "2026-11-14T11:01:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
