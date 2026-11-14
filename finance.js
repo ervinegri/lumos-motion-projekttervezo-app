@@ -412,6 +412,32 @@ function szInvoiceModal(kind,id,o={}){
       return;
     }
   }
+  // A közös foglaló végelszámolása az összes érintett projektet és a közös előlegbizonylatot együtt kezeli.
+  if(kind==='project'&&['vegszamla','szamla'].includes(o.type)){
+    const p=projById(id),group=p&&typeof billGroupAdvance==='function'?billGroupAdvance(billClientMonthProjects(p)):null;
+    const doc=group&&group.shared,ps=group&&group.projects||[];
+    const exact=!!doc&&invPids(doc).length===ps.length&&ps.every(x=>invPids(doc).includes(x.id));
+    if(exact&&doc.kind==='dijbekero'){
+      toast('A közös végszámlához előbb a befizetett díjbekérő foglalószámláját szükséges kapcsolni.',true);return;
+    }
+    if(exact&&doc.kind==='eloleg'&&doc.manual&&doc.issuer!=='kft'){
+      toast('A közös foglaló külső kiállítótól származik. A végszámla kiállításához egyeztesd a bizonylatot és a számlázó céget.',true);return;
+    }
+    const ready=exact&&doc.kind==='eloleg'&&Math.abs(num(group.paid)-num(doc.invNet))<=1&&ps.every(x=>!billInfo(x).fin);
+    if(ready&&!o.tigId&&!o.items&&!(o.projectIds&&o.projectIds.length)){
+      const ids=ps.map(x=>x.id).sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||'')));
+      return szInvoiceModal('project',ids[0],Object.assign({},o,{
+        projectIds:ids.slice(1),items:ids.map(pid=>({name:szItemName(projById(pid)),qty:1,price:projTotal(projById(pid)),pid}))
+      }));
+    }
+    // A normál számlaként kiállított foglaló után már kizárólag a még számlázatlan részt készítjük elő.
+    if(ready&&doc.advType==='szamla'&&o.items&&o.projectIds&&o.projectIds.length
+      &&o.items.every(it=>it.pid&&ps.some(x=>x.id===it.pid)&&num(it.price)===projTotal(projById(it.pid)))){
+      o=Object.assign({},o,{type:'szamla',items:o.items.map(it=>Object.assign({},it,{
+        price:Math.max(0,num(it.price)-Math.round(num(doc.invNet)*invShare(doc,it.pid)))
+      }))});
+    }
+  }
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
   const inv0=invFor(kind,id),simpleAdv=inv0.some(x=>x.kind==='eloleg'&&x.advType==='szamla')&&!inv0.some(x=>x.kind==='eloleg'&&x.advType!=='szamla');
