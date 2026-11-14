@@ -1943,3 +1943,15 @@ html body .inv-banner .grow .inv-line{display:inline;font-size:13.5px;line-heigh
 html body .inv-banner .inv-btns{display:flex;gap:7px;flex:0 0 auto}
 html body .inv-banner .inv-btns .btn{min-height:42px;padding:9px 18px;font-size:15px;font-weight:700}
 @media (max-width:900px){html body .inv-banner .grow{flex-basis:100%}html body .inv-banner .inv-btns{width:100%}html body .inv-banner .inv-btns .btn{flex:1}}
+
+/* Ügyfelenkénti foglaló-összesítés a számlázási nézetben */
+html body .bill-tbl tr.bl-chead .bl-gmetrics{display:flex;align-items:center;flex-wrap:wrap;gap:5px 16px;margin-top:7px;font-size:12.5px;color:var(--fg-2,#435260);font-weight:500}
+html body .bill-tbl tr.bl-chead .bl-gmetrics b{font-weight:800;font-variant-numeric:tabular-nums;color:var(--fg,#243444)}
+html body .bill-tbl tr.bl-chead .bl-gwarning{color:#8c5400;font-weight:750}
+html body .bill-tbl .bt-cell .pb-box{min-height:112px;padding:11px 12px;box-sizing:border-box}
+html body .bill-tbl .bl-adv-shared{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+html body .bill-tbl .bl-adv-shared .statuspill{white-space:normal;text-align:left;line-height:1.35}
+html body .bill-tbl .bl-adv-note{font-size:12px;line-height:1.4;font-weight:750;color:#885400}
+html body .bill-tbl .bl-adv-sub{font-size:11.5px;line-height:1.4;color:var(--fg-3,#697784)}
+html body .bill-tbl .bl-adv-link{min-height:38px;padding:7px 10px;white-space:normal;text-align:center}
+@media(max-width:700px){html body .bill-tbl tr.bl-chead .bl-gmetrics{gap:4px 12px}}
