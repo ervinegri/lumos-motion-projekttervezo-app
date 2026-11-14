@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb6d43eb37",
+"at": "2026-11-14T11:13:37+01:00",
+"msg": "Nézetváltó: termelési v. előnézetből is választható az Ügyvezető és az Értékesítő"
+},
+{
 "id": "87ba9a84e5",
 "at": "2026-11-14T11:09:14+01:00",
 "msg": "Fekvő telefon: az ablakok teljes oldalként nyílnak (nem lebegő popup)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a szekciócímek nem vágódnak le; a „ma” jelző szélesebb, áttetsző, lágy sáv"
 },
 {
-"id": "3d83214a4d",
-"at": "2026-11-14T08:01:20+01:00",
-"msg": "Idővonal minden nézetben: nincs bal oldali névoszlop, vastagabb sávok a projekt nevével"
-},
-{
-"id": "9d396cd5ac",
-"at": "2026-11-14T07:00:12Z",
+"id": "25c36b694c",
+"at": "2026-11-14T07:01:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
