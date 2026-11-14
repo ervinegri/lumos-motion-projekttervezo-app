@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "89d8159e41",
+"at": "2026-11-14T18:20:47+02:00",
+"msg": "test: provide sales-role guard when rendering project links"
+},
+{
 "id": "1665516c0b",
 "at": "2026-11-14T18:20:12+02:00",
 "msg": "test: clicking linked sales project name opens project while preserving card editing"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "chore: silence Vercel GitHub bot comments and notification emails"
 },
 {
-"id": "e5f0470ece",
-"at": "2026-11-14T17:02:34+02:00",
-"msg": "style: compact icon-only resend action and remove inline deadline"
-},
-{
-"id": "06c2e6c489",
-"at": "2026-11-14T15:02:30Z",
+"id": "69e4552bd1",
+"at": "2026-11-14T15:02:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
