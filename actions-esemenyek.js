@@ -363,11 +363,7 @@ document.addEventListener('input',e=>{
       else if(k==='post'){const old=postAmt(f);f.post=moneyVal(t.value);f.amount=f.dayAmounts&&projDays(S.draft).length?feeDaySum(S.draft,f):Math.max(0,num(f.amount)-old)+postAmt(f);}
       else if(k==='amount'||k==='rent')f[k]=moneyVal(t.value);else{f[k]=t.value;if(k==='name'){const c=S.crew.find(x=>x.name===t.value.trim());f.crewId=c?c.id:'';}}}}
     if(!S.dirty){S.dirty=true;renderChrome();}
-    refreshFinSums(S.draft);
-    const fa=document.querySelector('.fin-aside');if(fa)fa.innerHTML=finAside(S.draft);
-    {const kr=document.querySelectorAll('.keret-tr');if(kr.length===2){const tmp=document.createElement('tbody');tmp.innerHTML=keretRows(S.draft);kr[0].replaceWith(tmp.children[0]);kr[1].replaceWith(tmp.children[0]);}}
-    const fsum=k=>(S.draft.fees||[]).reduce((s,f)=>s+num(f[k]),0),ea=document.querySelector('.fin-amt'),er=document.querySelector('.fin-rent');
-    if(ea)ea.innerHTML=totalCell(S.draft);if(er)er.textContent=moneyFmt((S.draft.fees||[]).reduce((a,f)=>a+rentOf(S.draft,f),0)+rentalSum(S.draft,''))||0;
+    refreshFinSums(S.draft);   // egységes, azonnali frissítés minden részösszesítőnél
   }
   if(t.dataset.money==='big'){const pos=t.value.length-t.selectionStart;const d=String(t.value).replace(/\D/g,'');t.value=d===''?'':moneyFmt(Math.min(9999999999,Number(d)));try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
   if(t.dataset.money){const pos=t.value.length-t.selectionStart;const v=moneyVal(t.value),neg=t.name==='it_price'&&/^\s*[-−]/.test(t.value);t.value=(neg?'-':'')+(neg&&v===''?'':moneyFmt(v));try{const p=Math.max(0,t.value.length-pos);t.setSelectionRange(p,p);}catch(e){}return;}
