@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8d4a420171",
+"at": "2026-11-14T18:55:46+02:00",
+"msg": "style: compact single salesperson selector and commission within blue finance panel"
+},
+{
 "id": "8502f4065f",
 "at": "2026-11-14T18:55:04+02:00",
 "msg": "project finances: move 'Ki értékesítette?' panel after production and consolidate salesperson controls"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: include sales owner and revenue regression in finance suite"
 },
 {
-"id": "72dc5ec211",
-"at": "2026-11-14T17:54:45+02:00",
-"msg": "test: prevent duplicate CEO sales owner and missing linked project values"
-},
-{
-"id": "b7578fe8fc",
-"at": "2026-11-14T15:53:16Z",
+"id": "8b3be6e5ea",
+"at": "2026-11-14T15:54:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
