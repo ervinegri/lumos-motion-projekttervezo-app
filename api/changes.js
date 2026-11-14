@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9ff0c5f908",
+"at": "2026-11-14T20:19:28+02:00",
+"msg": "ui: show assigned photographer instead of video cutter in photo progress row"
+},
+{
 "id": "7ff5b73912",
 "at": "2026-11-14T20:18:29+02:00",
 "msg": "fix: assign photo Kanban card to photo-retouching owner instead of video editor"
@@ -152,9 +157,9 @@ const ITEMS = [
 "msg": "fix: show own invitations and their statuses in manager project dashboard"
 },
 {
-"id": "d1895c58c8",
-"at": "2026-11-14T19:48:12+02:00",
-"msg": "ui: equalize invitation call-to-action and accepted/declined badge widths"
+"id": "16b09cb358",
+"at": "2026-11-14T17:48:39Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
