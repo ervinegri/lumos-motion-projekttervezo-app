@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e4ca9409b4",
+"at": "2026-11-14T12:10:13+01:00",
+"msg": "Telefon: a Beállítások menüpont elrejtve (a szerepkör/fiók menüben elérhető)"
+},
+{
 "id": "de5abbbada",
 "at": "2026-11-14T12:09:13+01:00",
 "msg": "Szakember Beállítások: alcím törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: Jóváhagyásra vár sor oldalra húzható, csak vezetőknek látszik; kisebb hézag a napok fölött"
 },
 {
-"id": "3531a477c0",
-"at": "2026-11-14T11:34:38+01:00",
-"msg": "Naptár súgó: ha alatta/fölötte nem fér el, a sáv mellé kerül a képernyőn belül (nem vágódik le)"
-},
-{
-"id": "fdc8a9f71a",
-"at": "2026-11-14T10:32:53Z",
+"id": "be723aa280",
+"at": "2026-11-14T10:34:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
