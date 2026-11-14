@@ -1876,3 +1876,5 @@ html body #view>.cal-toolbar{margin:0 0 3px!important;padding-top:0!important;pa
 /* Kifizetések: az „Összesen (hónap, nettó)” felirat kisebb, hogy kiférjen */
 html body .pay-sheet tr.pay-totrow>td:first-child,html body .pay-sheet tr.pay-totrow>td:first-child b{font-size:12.5px!important}
 @media (pointer:coarse){html body .pay-sheet{-webkit-user-select:none;user-select:none}}
+/* Kifizetések: a projektnevek vékonyabb betűvel */
+html body .pay-sheet tbody td:first-child,html body .pay-sheet tbody td:first-child *{font-weight:500!important}
