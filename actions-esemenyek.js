@@ -268,7 +268,7 @@ const ACT={
     openModal('✂️ '+(ev.title||'(nincs cím)'),`<div class="kv">${[['Naptár','Vágói Naptár Lumos Motion'],['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location],['Leírás',ev.description]].filter(x=>x[1]).map(([k,v])=>`<p style="margin:0 0 8px"><span class="muted">${esc(k)}:</span> ${esc(v).replace(/\n/g,'<br>')}</p>`).join('')}${sug}</div>`,{cancelLabel:'Bezárás'});},
   'cal-day':b=>{const d=b.dataset.d,its=calItems(S.cal.month).filter(it=>it.date<=d&&it.endDate>=d);openModal(F_FULL.format(toDate(d)),`<div class="cal-daylist">${its.map(it=>calChip(it,d)).join('')}</div>`,{cancelLabel:'Bezárás'});},
   'cal-import':b=>importCalEvent(b.dataset.id),
-  'cal-new':b=>{if(!ro())guard(()=>newProjectModal(b.dataset.d||(S.cal.month===todayISO().slice(0,7)?todayISO():S.cal.month+'-01')));},
+  'cal-new':b=>{if(!ro())guard(()=>newProjectModal(b.dataset.d||todayISO()));},
   'cal-edit':b=>{const e=calEventById(b.dataset.id);if(e)calFormModal(e);},
   'cal-del':b=>arm(b,async()=>{try{await call('deleteCalEvent',{id:b.dataset.id});S.cal.events={};closeModal();render(true);toast('Bejegyzés törölve');}catch(e){handleErr(e);}}),
   'money-step':b=>{const el=$(b.dataset.for);if(!el)return;const cur=Number(moneyVal(el.value)||0);const n=Math.max(0,Math.min(MONEY_MAX,(Math.round(cur/MONEY_STEP)+Number(b.dataset.d))*MONEY_STEP));el.value=moneyFmt(n);el.focus();},

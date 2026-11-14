@@ -201,7 +201,7 @@ async function npDraft(btn){const form=$('mform');if(!form)return;if(!needName(f
 function incLinkAfter(form,saved){try{const id=form&&form.querySelector('[name=incId]')&&form.querySelector('[name=incId]').value;if(!id||!saved)return;
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r||r.name===saved.name)return;const row=Object.assign({},r,{name:saved.name});finLocal('income',[row]);call('finUpsert',{table:'income',row}).then(d=>finApply(d)).catch(handleErr);}catch(e){}}
 function newProjectModal(day,pre){NP_FILES=[];
-  const d0=day||(pre&&pre.date)||'';
+  const d0=day||(pre&&pre.date)||todayISO();   // új projekt: alapból a mai dátummal indul
   openModal(pre?'Projekt a bevételi sorból':'Új projekt',`<div class="fields">
     ${pre?`<div class="field full fw-note">💰 A régi táblázat „<b>${esc(pre.name)}</b>” sorából: a projekt értéke <b>${ftFmt(pre.amount)}</b> lesz, és a bevételi sor ehhez a projekthez kapcsolódik. Ha nem tudsz minden adatot, mentsd piszkozatként.</div><input type="hidden" name="incAmount" value="${num(pre.amount)}"><input type="hidden" name="fromIncome" value="1"><input type="hidden" name="incId" value="${esc(pre.incId||'')}">`+tplFieldHtml():tplFieldHtml()}
     ${mf('name','Projekt neve',{full:true,ph:'pl. Ecommerce Expo 2027',max:160,v:pre?pre.name:''})}
