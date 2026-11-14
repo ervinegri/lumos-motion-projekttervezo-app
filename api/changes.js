@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8c5c232a9c",
+"at": "2026-11-14T19:10:12+02:00",
+"msg": "project finance: use one shared live refresh for fees and budget fields"
+},
+{
 "id": "1647ee20b1",
 "at": "2026-11-14T19:09:52+02:00",
 "msg": "project finance: live refresh budget remainder and totals for all workday tables"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: clicking linked sales project name opens project while preserving card editing"
 },
 {
-"id": "fe4559530e",
-"at": "2026-11-14T18:19:32+02:00",
-"msg": "style: make linked project names visibly interactive and keyboard accessible"
-},
-{
-"id": "b48067d908",
-"at": "2026-11-14T16:19:20Z",
+"id": "7eb4c07633",
+"at": "2026-11-14T16:19:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
