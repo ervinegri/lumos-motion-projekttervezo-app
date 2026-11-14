@@ -1105,7 +1105,8 @@ html body .stage .t-row .stage-board b{color:inherit!important}
  html body .topbar-inner{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:'logo tabs tools'!important;min-height:0!important;padding-top:6px!important;padding-bottom:6px!important;gap:8px 14px!important}
  html body .tabs{margin:0!important;padding:0!important;flex-wrap:nowrap!important;overflow-x:auto}
  html body .brand{height:30px;width:auto}
- html body #logoutBtn{display:none!important}
+ @media (min-width:701px){html body .header-tools:has(#userChip:not(.hidden)) #logoutBtn{display:none!important}}
+@media (orientation:landscape) and (max-height:560px){html body .header-tools:has(#viewAs:not(.hidden)) #logoutBtn{display:none!important}}
  html body #userChip{cursor:pointer}html body #userChip::after{content:' ▾';opacity:.7}}
 .uc-pop{position:fixed;z-index:6000;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(10,25,40,.25);padding:6px}.uc-pop .btn{color:#1d2a38!important;border-color:#dde4eb!important;white-space:nowrap}
 @media (orientation:landscape) and (max-height:560px){html body .header-tools .user-chip:not(.hidden){display:inline-flex!important;max-width:200px}}
@@ -1642,3 +1643,14 @@ html body .tl-head .tl-d small.tl-dmn{color:var(--fg,#1d2a38)!important;font-wei
 html body .tl-head .tl-d.mstart{box-shadow:inset 2px 0 0 #1d2a38}
 /* idővonal: a vágási sáv felirata (✓ / Jóváhagyva) felül, az óra sorában – a név alatta fut át, nem takarják egymást */
 html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{display:block!important;text-align:left!important;padding:4px 7px!important}
+/* idővonal: „Jóváhagyásra vár” egy sorban – cím + projektcímkék egymás mellett */
+html body .tl-row.tl-wsec .tl-lbl.tl-wline{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;flex-wrap:nowrap!important;padding:5px 12px!important;background:#fbf6ea!important}
+html body .tl-row.tl-wsec{background:#fbf6ea}
+html body .tl-wline .tl-wtog{display:inline-flex;align-items:baseline;gap:6px;background:none;border:0;padding:0 4px 0 0;cursor:pointer;font:inherit;white-space:nowrap}
+html body .tl-wline .tl-wtog b{font-size:13px;color:var(--fg,#1d2a38)}
+html body .tl-wline .tl-wtog small{font-size:11.5px;color:var(--fg-2,#5b6876)}
+html body .tl-wline .tl-pinnote{position:static!important;margin:0!important;white-space:nowrap;flex:0 0 auto}
+html body .tl-wline .tl-pinnote .tl-nm{display:inline!important;font-weight:700;margin-right:6px}
+/* a fejlécben a külön „Kilépés” gomb nem kell – a név menüjében van */
+@media (min-width:701px){html body .header-tools:has(#userChip:not(.hidden)) #logoutBtn{display:none!important}}
+@media (orientation:landscape) and (max-height:560px){html body .header-tools:has(#viewAs:not(.hidden)) #logoutBtn{display:none!important}}
