@@ -752,11 +752,23 @@ function crewInvite_(u, a) {
   delete p.__asg; logEvent_(u, 'Meghívás elküldve', p.name, c.name + (mail ? ' (e-mail)' : '') + (calOk ? ' (naptár)' : ''));
   return { project: projectView_(fullProject_(p), u), mail: mail, cal: calOk, noEmail: !em };
 }
+/** Meghívólink megnyitásakor a saját válasz állapota, idegen projektadatok nélkül. */
+function inviteStatus_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u);
+  if (!cid) throw new Error('A felhasználódhoz stábrekord szükséges.');
+  const sh = sheetFor_('projects'), row = findRow_(sh, pid);
+  if (!row) return { st: 'missing' };
+  const p = readRow_('projects', sh, row), iv = parseInvites_(p.invites)[cid];
+  if (!iv) return { st: 'missing' };
+  return { st: iv.st, name: p.name };
+}
 function inviteRespond_(u, a) {
-  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p;
+  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p, alreadyAnswered = '';
   withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
     const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
+    if (inv[cid].st === 'yes' || inv[cid].st === 'no') { alreadyAnswered = inv[cid].st; return; }
     inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app' }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+  if (alreadyAnswered) return { alreadyAnswered: true, status: alreadyAnswered, name: p.name };
   logEvent_(u, yes ? 'Meghívás elfogadva' : 'Meghívás elutasítva', p.name, '');
   try {   // visszajelzés a meghívónak
     const iv = parseInvites_(p.invites)[cid] || {}, to = iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || ''), cr = readAll_('crew').find(x => x.id === cid) || {}, who = cr.name || u.name;
