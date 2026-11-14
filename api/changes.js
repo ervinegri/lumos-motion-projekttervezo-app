@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fc01a92fd1",
+"at": "2026-11-14T12:57:51+01:00",
+"msg": "Projekt: a Névjegy gomb a telefonszám mellett, egy sorban"
+},
+{
 "id": "ed0e19bd65",
 "at": "2026-11-14T12:55:25+01:00",
 "msg": "Sablon választásakor a Rendezvény típusa is kitöltődik (látható mezőben is)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások: letisztultabb e-mail értesítések (kártyák, kisebb szövegek, másolat-címkék egy sorban), alcím törölve"
 },
 {
-"id": "743725a465",
-"at": "2026-11-14T11:49:25+01:00",
-"msg": "Projektek lista: az ügyfél által jóváhagyott videó neve után zöld pipa"
-},
-{
-"id": "c1b0b372c2",
-"at": "2026-11-14T10:49:13Z",
+"id": "7d11b3accd",
+"at": "2026-11-14T10:49:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
