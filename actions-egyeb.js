@@ -385,9 +385,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.id!=='m-eventTy
   f.querySelectorAll('.np-onsite').forEach(x=>{x.hidden=ed;});if(ed){const ne=f.querySelector('.np-end');if(ne)ne.hidden=true;}
   const dl=f.querySelector('label[for=m-date]');if(dl)dl.textContent=ed?'✂️ Leadási határidő':(f.querySelector('.np-end:not([hidden])')?'Első nap':'Dátum');});
 /* Idővonal húzása egérrel (oldalra görgetés); a sávok áthúzása és a kattintás megmarad */
-(()=>{let w=null,x0=0,s0=0,moved=false;
-  document.addEventListener('mousedown',e=>{if(e.button!==0)return;const ww=e.target.closest&&e.target.closest('.tl-wrap');if(!ww||e.target.closest('[draggable=true]'))return;w=ww;x0=e.clientX;s0=w.scrollLeft;moved=false;});
-  document.addEventListener('mousemove',e=>{if(!w)return;const dx=e.clientX-x0;if(!moved&&Math.abs(dx)<5)return;if(!moved){moved=true;w.classList.add('panning');const t=$('calTip');if(t)t.remove();}w.scrollLeft=s0-dx;e.preventDefault();});
+(()=>{let w=null,x0=0,s0=0,y0=0,t0=0,wy0=0,moved=false;   // oldalra és fel-le is húzható
+  document.addEventListener('mousedown',e=>{if(e.button!==0)return;const ww=e.target.closest&&e.target.closest('.tl-wrap');if(!ww||e.target.closest('[draggable=true]'))return;w=ww;x0=e.clientX;s0=w.scrollLeft;y0=e.clientY;t0=w.scrollTop;wy0=scrollY;moved=false;});
+  document.addEventListener('mousemove',e=>{if(!w)return;const dx=e.clientX-x0,dy=e.clientY-y0;if(!moved&&Math.abs(dx)<5&&Math.abs(dy)<5)return;if(!moved){moved=true;w.classList.add('panning');const t=$('calTip');if(t)t.remove();}w.scrollLeft=s0-dx;
+    if(w.scrollHeight>w.clientHeight+2)w.scrollTop=t0-dy;else window.scrollTo(scrollX,wy0-dy);e.preventDefault();});
   document.addEventListener('mouseup',()=>{if(!w)return;w.classList.remove('panning');if(moved){const m=S.cal.month;S.cal.tlPos={m,x:w.scrollLeft,d:todayISO()};}w=null;});
   document.addEventListener('click',e=>{if(moved&&e.target.closest&&e.target.closest('.tl-wrap')){e.stopPropagation();e.preventDefault();moved=false;}},true);   // húzás után ne nyíljon meg a projekt
   document.addEventListener('scroll',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('tl-wrap')){S.cal.tlPos={m:S.cal.month,x:t.scrollLeft,y:t.scrollTop,d:todayISO()};tlCorner(t);}},true);})();
