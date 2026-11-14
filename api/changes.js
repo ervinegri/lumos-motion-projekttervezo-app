@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "068ce61987",
+"at": "2026-11-14T12:03:46+01:00",
+"msg": "Fekvő telefon: kisebb naptár-gombsor"
+},
+{
 "id": "501fe032d8",
 "at": "2026-11-14T12:01:40+01:00",
 "msg": "Kifizetések szakember nézetben: keretes táblázat széllel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló telefon naptár: rövidebb vágószűrő, hosszabb „+ Új projekt” gomb"
 },
 {
-"id": "c1bf37331f",
-"at": "2026-11-14T11:18:57+01:00",
-"msg": "Videótábla: instrukciók a címsorban, magasabb tábla fekvőben; videó ablak: fekvőben széltől szélig, álló nézetben nem csúszik szét"
-},
-{
-"id": "24e0cde2ac",
-"at": "2026-11-14T10:13:45Z",
+"id": "e4cedf9f89",
+"at": "2026-11-14T10:19:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
