@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "def325876e",
+"at": "2026-11-14T20:02:14+02:00",
+"msg": "ui: photo postproduction tooltip uses photo-specific task labels and selected assignee"
+},
+{
 "id": "3a7c20681d",
 "at": "2026-11-14T20:01:42+02:00",
 "msg": "feat: show photo postproduction deadline and photo assignee timeline rows"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "843edbfc58",
 "at": "2026-11-14T19:37:48+02:00",
 "msg": "ui: use present tense for declined crew invite status"
-},
-{
-"id": "9e56666594",
-"at": "2026-11-14T17:36:51Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
