@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b139a46e68",
+"at": "2026-11-14T11:32:08+01:00",
+"msg": "Idővonal: a naptár nem húzható túl a szélein"
+},
+{
 "id": "db5a9e3795",
 "at": "2026-11-14T11:31:35+01:00",
 "msg": "Álló telefon naptár: rövidebb vágószűrő, hosszabb „+ Új projekt” gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a vágási sáv pipája jobbra kerül, nem takarja a nevet"
 },
 {
-"id": "c04c5b94d0",
-"at": "2026-11-14T08:12:16+01:00",
-"msg": "Idővonal: a forgatási nap sávjában a név valóban látszik"
-},
-{
-"id": "a4451d9e80",
-"at": "2026-11-14T07:10:22Z",
+"id": "680ebd722e",
+"at": "2026-11-14T07:12:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
