@@ -422,9 +422,10 @@ function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.leng
   const pct=vs.length?Math.round(done/vs.length*100):0;
   return `<section class="panel content vid-panel" id="proj-videos"><div class="vp-head"><h3>🎞️ Videók</h3><span class="vp-prog" title="${done}/${vs.length} leadva"><i style="width:${pct}%"></i></span><span class="vp-cnt">${done}/${vs.length} leadva${appr?` · ${appr} ✓`:''}</span><span class="vp-btns"><button type="button" class="btn outline small" data-action="bd-lane" data-id="${esc(p.id)}">📋 Videótábla</button><button type="button" class="btn outline small" data-action="proj-tl" data-id="${esc(p.id)}">🗓️ Idővonal</button></span></div>${typeof pnBox==='function'?pnBox(p.id):''}<div class="vid-list">${rows}</div></section>`;}
 function roContentPanel(p){
-  // a szakember ezt a részt nem látja – kivéve a vágót, aki a kért vágnivaló anyagokat igen
-  const me=S.me&&S.me.crewId,isEditor=me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
+  // A fotók utómunkájára beosztott fotós a vágóval azonos Kanban-hozzáférést kap a saját feladataihoz.
+  const me=boardMe(),isEditor=!!me&&(crewPostWork(p,me)||(p.videos||[]).some(v=>vidOwner(p,v)===me));
   if(!isEditor)return '';
+  const mineCards=(p.videos||[]).filter(v=>vidOwner(p,v)===me).map(v=>({p,v,ow:me}));
   const mine=taskKeysOf(p,me),tasks=postTasks(p).filter(t=>mine.includes(t.k));
   const rows=tasks.map(t=>`<div class="op-row"><span class="op-n">${t.n}${t.k==='foto_db'?' db':'×'}</span><span class="op-l">${esc(t.label)}</span></div>`);
   if(rows.length&&p.x_rush)rows.push(`<div class="op-row"><span class="op-n">⚡</span><span class="op-l">Villámgyors kézbesítés</span></div>`);
@@ -436,11 +437,11 @@ function roContentPanel(p){
   if(fotoN(p)>0)field.push('Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):''));
   REC_LIVE.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
   const due=dueDate(p),di=due?dueInfo(p):null,r=pr(p);
-  const dueHtml=due?`<div class="cut-due${di&&di.cls!=='ok'?' late':''}"><span>📅 Videók leadási határideje</span><b>${esc(fmtDay(due))}</b>${cutLeft(p)&&p.status!=='atadva'?`<span class="cd-left">⏳ ${esc(cutLeft(p).txt)}</span>`:''}</div>`:'';
+  const dueHtml=due?`<div class="cut-due${di&&di.cls!=='ok'?' late':''}"><span>📅 Utómunka leadási határideje</span><b>${esc(fmtDay(due))}</b>${cutLeft(p)&&p.status!=='atadva'?`<span class="cd-left">⏳ ${esc(cutLeft(p).txt)}</span>`:''}</div>`:'';
   const showField=!editOnly(p)&&field.length>0;   // nincs megadott terepi felvétel: a rész nem jelenik meg (a forgatás napja az utómunka alatt)
   return `<div class="panel content"><h3>✂️ Utómunka</h3>${dueHtml}<div class="cut-grid${showField?'':' single'}">
     ${showField?`<section><h4 class="sub-h">📍 Terepi felvételek</h4>${roList(field)}${r?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section>`:''}
-    <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt utómunka.':'Ehhez a projekthez nincs megrendelt utómunka.'}</p>`}${!showField&&r&&!editOnly(p)?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section></div></div>${videosPanel(p)}`;
+    <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt utómunka.':'Ehhez a projekthez nincs megrendelt utómunka.'}</p>`}${!showField&&r&&!editOnly(p)?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section></div></div>${mineCards.length?`<section class="panel content crew-board-panel"><h3>📋 Kanban · Saját utómunkáim</h3><div class="crew-board-scroll">${boardLanes(mineCards,{noLink:true,single:true})}</div></section>`:''}${videosPanel(p)}`;
 
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
