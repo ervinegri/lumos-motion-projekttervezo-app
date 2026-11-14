@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "287cf766ee",
+"at": "2026-11-14T17:32:46+02:00",
+"msg": "Handle shared client deposits across projects without duplicate requests"
+},
+{
 "id": "d3c14c7d2d",
 "at": "2026-11-14T17:15:08+02:00",
 "msg": "fix: show full Hungarian weekdays and 23:00/20:00 editor email deadlines"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új projekt: alapból a mai dátummal indul"
 },
 {
-"id": "b172947189",
-"at": "2026-11-14T12:42:18+01:00",
-"msg": "Szakembereknek csak a nevük látszik a menüben (Szakember felirat és kalapács nélkül); Kifizetések: az oszlopelválasztó az összegekig jobbra"
-},
-{
-"id": "14ca9dcd5b",
-"at": "2026-11-14T11:12:23Z",
+"id": "6e40ee70bd",
+"at": "2026-11-14T11:42:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
