@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ab899c3300",
+"at": "2026-11-14T07:45:57+01:00",
+"msg": "Legördülők: megnyitáskor nincs kijelölve (kék) a szöveg – az első leütés így is lecseréli; egyszeri javítás eltávolítva"
+},
+{
 "id": "d874e28ad6",
 "at": "2026-11-13T23:04:05+01:00",
 "msg": "Egyszeri javítás: Synlab – Short videó 3 → Jóváhagyásra vár (e-mail nélkül, már kiment)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfelek: Árajánlat küldése gomb a fejlécben (mobilon: Ajánlat), a gombok egy sorban"
 },
 {
-"id": "884e39e37f",
-"at": "2026-11-13T22:14:39+01:00",
-"msg": "Mobil vágási tábla: szélesebb oszlopok"
-},
-{
-"id": "6e60ef8ff7",
-"at": "2026-11-13T21:13:16Z",
+"id": "b03c94a8af",
+"at": "2026-11-13T21:14:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
