@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fd7f62615d",
+"at": "2026-11-14T20:26:13+02:00",
+"msg": "backend: authorize assigned photo retouchers and include photo cards in specialist Kanban"
+},
+{
 "id": "cf5e2a26d6",
 "at": "2026-11-14T20:25:52+02:00",
 "msg": "fix: open postproduction Kanban from calendar deadline bars and calendar chips"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "d45da3bafc",
 "at": "2026-11-14T19:52:00+02:00",
 "msg": "fix: email invitation link shows already-answered popup on repeat opens"
-},
-{
-"id": "625f3c834d",
-"at": "2026-11-14T17:51:41Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
