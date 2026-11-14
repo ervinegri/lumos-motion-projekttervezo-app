@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f1bdb5f3a",
+"at": "2026-11-14T17:39:07+02:00",
+"msg": "billing: consolidate shared final invoice and prorate deposits without duplicate charging"
+},
+{
 "id": "287cf766ee",
 "at": "2026-11-14T17:32:46+02:00",
 "msg": "Handle shared client deposits across projects without duplicate requests"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felirat: Hozzávetőleges végzés"
 },
 {
-"id": "bfc98cd568",
-"at": "2026-11-14T12:51:00+01:00",
-"msg": "Új projekt: alapból a mai dátummal indul"
-},
-{
-"id": "6e40ee70bd",
-"at": "2026-11-14T11:42:26Z",
+"id": "86d22e1f34",
+"at": "2026-11-14T11:51:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
