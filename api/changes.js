@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "27e8e6dd07",
+"at": "2026-11-14T17:43:06+02:00",
+"msg": "billing: flag external-issuer shared deposits before final invoicing"
+},
+{
 "id": "edeb798aff",
 "at": "2026-11-14T17:42:30+02:00",
 "msg": "test: ensure one shared final invoice and independent project contracts"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Rendezvény típusa: Egyéb kivéve a választhatók közül (a régi Egyéb projektek megtartják)"
 },
 {
-"id": "c6a2e125c2",
-"at": "2026-11-14T12:52:38+01:00",
-"msg": "Rendezvény típusa: Reklám"
-},
-{
-"id": "a6990578d5",
-"at": "2026-11-14T11:52:30Z",
+"id": "34cbf7b6cc",
+"at": "2026-11-14T11:52:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
