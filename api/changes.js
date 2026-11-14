@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb6dcc8d76",
+"at": "2026-11-14T19:54:57+02:00",
+"msg": "fix: show editor calendar deadlines only for actual video editing work"
+},
+{
 "id": "8f4713a4c9",
 "at": "2026-11-14T19:54:44+02:00",
 "msg": "fix: distinguish video-editing assignments from photo-only deliverables"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "feat: display pending invitations in executive project dashboard"
 },
 {
-"id": "2bd49a272b",
-"at": "2026-11-14T19:35:29+02:00",
-"msg": "ui: remove crew visibility note from invitation panel"
-},
-{
-"id": "7f7c5df76b",
-"at": "2026-11-14T17:35:22Z",
+"id": "ef6dc6a4b4",
+"at": "2026-11-14T17:35:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
