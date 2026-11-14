@@ -1847,3 +1847,5 @@ html body .page-head.ph-inline>.head-search{flex:1 1 auto!important;min-width:0!
 /* kezdőképernyőről indított app (iPhone): a menüsor felcsúszik a Dynamic Island szintjéig – a fejléc háttere az állapotsor mögé is kiér */
 @media (orientation:portrait){html body .topbar{padding-top:max(0px,calc(env(safe-area-inset-top,0px) - 14px))!important}}
 @media (orientation:landscape){html body .topbar{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}}
+/* menüpontok, fülek, belső linkek: hosszú érintésre se lehessen elhúzni őket */
+html body a[href^="#"],html body .tab,html body .subtab,html body .brand-link,html body .brand,html body .topbar a,html body .topbar img{-webkit-user-drag:none!important;user-select:none;-webkit-user-select:none}

@@ -78,3 +78,5 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
       if(off>0){b.style.removeProperty('padding-left');n.style.transform='translateX('+off+'px)';n.style.maxWidth=Math.max(40,right-br.left-off-16)+'px';}else{n.style.transform='';n.style.maxWidth='';}});};
   document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('tl-wrap'))return;if(!q){q=true;requestAnimationFrame(()=>fix(w));}},true);
   const v=document.getElementById('view');if(v&&window.MutationObserver)new MutationObserver(()=>{const w=v.querySelector('.tl-wrap');if(w&&!q){q=true;requestAnimationFrame(()=>fix(w));}}).observe(v,{childList:true});})();
+/* menüpontok, fülek, belső linkek: ne lehessen őket elhúzni (iPhone hosszú érintés) */
+document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('a[href^="#"],.tab,.subtab,.brand-link,.topbar a,.topbar img')&&!t.closest('[draggable="true"]'))e.preventDefault();},true);
