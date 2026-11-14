@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "565f722b9d",
+"at": "2026-11-14T08:35:39+01:00",
+"msg": "Levélből érkező videólink: a videó azonnal megnyílik, a friss adat beérkezésekor frissül"
+},
+{
 "id": "c389381eb7",
 "at": "2026-11-14T08:32:56+01:00",
 "msg": "Levélből érkező videólink: csak a videó nyílik meg, a projektoldal nem"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: a Fizetések/Bevételek táblázatkerete pontosan a képernyő aljáig ér, így az alja is elérhető"
 },
 {
-"id": "0720829ffd",
-"at": "2026-11-13T22:36:55+01:00",
-"msg": "Fekvő telefon: Fizetések táblázat bal oldali hézaga kisebb"
-},
-{
-"id": "902a79e40a",
-"at": "2026-11-13T21:36:25Z",
+"id": "9d4900decf",
+"at": "2026-11-13T21:37:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
