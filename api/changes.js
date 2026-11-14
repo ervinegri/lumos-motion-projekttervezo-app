@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "51a398ef1a",
+"at": "2026-11-14T19:02:36+02:00",
+"msg": "style: align seller, commission percentage and amount on one horizontal row"
+},
+{
 "id": "ba2766da02",
 "at": "2026-11-14T18:57:14+02:00",
 "msg": "test: include consolidated project salesperson panel in regression suite"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "style: responsive sales monthly navigator aligned with calendar"
 },
 {
-"id": "a6d58294c7",
-"at": "2026-11-14T18:07:00+02:00",
-"msg": "sales: add monthly navigation controls and month-sensitive KPI labels"
-},
-{
-"id": "948c0c3ff5",
-"at": "2026-11-14T16:06:34Z",
+"id": "e783de2b94",
+"at": "2026-11-14T16:07:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
