@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a179baa639",
+"at": "2026-11-14T07:46:57+01:00",
+"msg": "Projekt: a Vissza gomb oda visz, ahonnan megnyitottad (pl. Naptár/idővonal), a görgetési helyzettel együtt"
+},
+{
 "id": "ab899c3300",
 "at": "2026-11-14T07:45:57+01:00",
 "msg": "Legördülők: megnyitáskor nincs kijelölve (kék) a szöveg – az első leütés így is lecseréli; egyszeri javítás eltávolítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Bevételek táblázat a Fizetésekhez hasonlóan: sötét rögzített fejléc, rögzített nap+név oszlop, egysoros sorok"
 },
 {
-"id": "73dfa1e70e",
-"at": "2026-11-13T22:16:22+01:00",
-"msg": "Ügyfelek: Árajánlat küldése gomb a fejlécben (mobilon: Ajánlat), a gombok egy sorban"
-},
-{
-"id": "b03c94a8af",
-"at": "2026-11-13T21:14:50Z",
+"id": "f14fed7501",
+"at": "2026-11-13T21:16:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
