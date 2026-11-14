@@ -113,13 +113,13 @@ function viewSales(){
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
       <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">${month==='all'?'e hónapban szerződve':'szerződött projekt · '+salesMonthText(month)} · ${wonM.length} db</div></div>
-      ${(()=>{const m=month==='all'||month==='undated'?todayISO().slice(0,7):month,ow=admin&&selected,
+      ${(()=>{const payMonth=month==='all'||month==='undated'?T.slice(0,7):month,ow=admin&&selected,
         people=(S.salesPeople||[]).filter(x=>!ow||(ow===(S.me&&S.me.id)?self.has(x.userId)||self.has(x.id):x.userId===ow||x.id===ow)),
-        records=people.map(x=>(x.comm||{})[m]).filter(Boolean),
-        base=records.reduce((sum,x)=>sum+num(x.base),0),amt=records.reduce((sum,x)=>sum+num(x.amount),0),
-        ownAdmin=admin&&ow===(S.me&&S.me.id)&&!people.length,
-        hint=ownAdmin?'Ügyvezetői értékesítések: az eredményt a Pénzügyek fül mutatja. A jutalékcsempe az értékesítői díjazással rendelkező fiókokra vonatkozik.':'Elszámolási időszak: '+m+'. A jutalék a tényleges kifizetés hónapjában jelenik meg, a befolyt nettó bevétel után.';
-        return `<div class="tile${amt?' ok':''}" data-tip="${esc(hint)}"><div class="tile-n">${ownAdmin?'—':ftFmt(amt)}</div><div class="tile-l">${ownAdmin?'Ügyvezetői értékesítés · Pénzügyek fül':'jutalék '+m+' · kifizetett alap: '+ftFmt(base)}</div></div>`;})()}
+        records=people.map(x=>(x.comm||{})[payMonth]).filter(Boolean),
+        paidBase=records.reduce((sum,x)=>sum+num(x.base),0),
+        paidComm=records.reduce((sum,x)=>sum+num(x.amount),0),
+        tip='A szerződött jutalék az adott hónap projektjeinek teljes nettó jutalékalapjára számított összeg. A tényleges kifizetés szerinti elszámolás külön történik.';
+        return '<div class="tile'+(contractedComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(contractedComm)+'</div><div class="tile-l">szerződött jutalék · '+contractComms.length+' projekt'+(people.length?'<div class="sales-comm-settled">Befolyt után elszámolt ('+esc(payMonth)+'): '+ftFmt(paidComm)+' · alap: '+ftFmt(paidBase)+'</div>':'')+'</div></div>';})()}
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
