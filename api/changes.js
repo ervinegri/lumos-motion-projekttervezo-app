@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cf3e9f29f7",
+"at": "2026-11-14T11:32:19+01:00",
+"msg": "Idővonal: az oldal sem húzható le a tetején túl"
+},
+{
 "id": "b139a46e68",
 "at": "2026-11-14T11:32:08+01:00",
 "msg": "Idővonal: a naptár nem húzható túl a szélein"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a fejléc egy sorban (a hónap neve 1-jén); a vágási sáv felirata az óra sorában, nem csúszik a névre"
 },
 {
-"id": "b5a9345139",
-"at": "2026-11-14T08:14:16+01:00",
-"msg": "Idővonal: a vágási sáv pipája jobbra kerül, nem takarja a nevet"
-},
-{
-"id": "680ebd722e",
-"at": "2026-11-14T07:12:26Z",
+"id": "6dc995badf",
+"at": "2026-11-14T07:14:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
