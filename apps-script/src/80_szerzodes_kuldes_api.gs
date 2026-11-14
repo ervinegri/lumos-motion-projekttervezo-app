@@ -390,6 +390,8 @@ function rpcInner_(token, name, arg) {
         const r = findRow_(sh, d.id), q = readRow_('deals', sh, r); q.commManual = pct === '' ? '' : String(pct); if (pct !== '' && ft == null) q.commPct = pct; if (ft != null) q.commAmt = ft; q.updatedAt = now_(); q.updatedBy = u.name; putRow_('deals', sh, q, r); }); dbFlush_();
       return { deals: dealsFor_(u), salesPeople: salesPeople_(u) };
     }
+    case 'crewInvite': canEdit(); return crewInvite_(u, arg);   // meghívás a projektre (naptár + e-mail)
+    case 'inviteRespond': if (role !== 'crew') deny(); return inviteRespond_(u, arg);   // a szakember elfogadja / elutasítja
     case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
       adminOnly(); const pid = str_(arg && arg.projectId, 64), oid = str_(arg && arg.ownerId, 64);
       const owner = oid ? salesOwnerOf_(oid) : null; if (oid && !owner) throw new Error('Az értékesítő nem található.');

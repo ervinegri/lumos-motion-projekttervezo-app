@@ -231,6 +231,10 @@ const ACT={
     setDraft({fees});toast(n+' tétel felvéve'+(days>1?' ('+days+' napra)':''));},
   'due-reset':()=>{if(S.draft)setDraft({dueAt:''});},
   'due-custom':()=>{const d=S.draft;if(!d)return;const r=pr(d);if(!r){toast('Előbb add meg a dátumot.',true);return;}setDraft({dueAt:addDays(r.end,1)});},
+  'crew-invite':async b=>{const d=S.draft;if(!d||ro())return;if(S.dirty){toast('Előbb mentsd a projektet, utána küldd a meghívást.',true);return;}const cid=b.dataset.id,c=crewById(cid);b.disabled=true;
+    try{const r=await call('crewInvite',{projectId:d.id,crewId:cid});if(r.project){const i=S.projects.findIndex(x=>x.id===d.id);if(i>=0)S.projects[i]=normProj(r.project);if(S.draft&&S.draft.id===d.id){S.draft.invites=r.project.invites;if(S.draftBase)S.draftBase.invites=r.project.invites;}}render(true);
+      toast(r.noEmail?(c?c.name:'')+': nincs e-mail-címe – a meghívás rögzítve, de levelet nem kapott':'Meghívás elküldve: '+(c?c.name:'')+(r.cal?' (naptárba is)':''),!!r.noEmail);}catch(e){b.disabled=false;handleErr(e);}},
+  'inv-answer':async b=>{const yes=b.dataset.a==='yes';b.disabled=true;try{await call('inviteRespond',{projectId:b.dataset.id,answer:yes?'yes':'no'});S.myInvites=(S.myInvites||[]).filter(x=>x.id!==b.dataset.id);toast(yes?'Elfogadtad – a projekt megjelent a beosztásaid között':'Jelezted, hogy nem vállalod');await load(true,false);}catch(e){b.disabled=false;handleErr(e);}},
   'proj-tl':b=>{S.cal.mode='ido';ACT.tab({dataset:{tab:'naptar',focus:'1'}});},   /* projektből az idővonalra, a projekt időszakára állva */
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);

@@ -133,6 +133,8 @@ function bootstrap_(u) {
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
+  try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
+    else if (u.role === 'admin' || u.role === 'editor') { const C = CacheService.getScriptCache(); if (!C.get('INV_SYNC')) { C.put('INV_SYNC', '1', 300); invitesSync_(projects); } } } catch (e) { Logger.log('Meghívás-szinkron: ' + e); }
   const out = {
     me: publicUser_(u), myNotify: (() => { try { return u.crewId ? crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)) : null; } catch (e) { return null; } })(), projects: projects.map(p => projectView_(p, u)), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
@@ -151,7 +153,10 @@ function bootstrap_(u) {
   }
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
-    out.projects = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
+    const mine = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
+    out.myInvites = mine.filter(p => p.invites && p.invites[cid] && p.invites[cid].st === 'invited').map(p => ({ id: p.id, name: p.name, date: p.date, endDate: p.endDate, startTime: p.startTime, endTime: p.endTime, venue: p.venue, eventType: p.eventType,
+      roles: [p.lead === cid ? 'Projektvezető' : ''].concat(p.crew.filter(c => c.crewId === cid).map(c => c.role)).filter(Boolean), at: p.invites[cid].at }));   // függő meghívások: csak az alapadatok
+    out.projects = mine.filter(p => !(p.invites && p.invites[cid] && p.invites[cid].st !== 'yes'));   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
     out.mySales = mySalesComm_(cid);   // a saját értékesítői jutalékai (csak az összeg – ár, % nem)
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
     const onIds = {}, itemIds = {};

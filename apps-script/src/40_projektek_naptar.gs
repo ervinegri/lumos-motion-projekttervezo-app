@@ -132,6 +132,7 @@ function saveProject_(u, a) {
     if (p.budgetRequest == null) p.budgetRequest = '';
     if (p.crewFinal == null) p.crewFinal = '';
     if (p.eqFinal == null) p.eqFinal = '';
+    p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
     if (p.payStatus == null) p.payStatus = '';
     if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal) && a.crewFinalSkip !== true)
       throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
@@ -687,3 +688,65 @@ function lookupTaxpayerApi_(arg) {
   return out;
 }
 
+
+/* ===================== MEGHÍVÁSOK =====================
+   A szakember a projektet csak akkor látja, ha a meghívást elfogadta (az appban vagy a Google Naptárban „Igen”).
+   Akinek nincs meghívási bejegyzése (régi projektek), annál minden marad a régiben. */
+function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JSON.parse(v || '{}'); } catch (e) { o = {}; } }
+  const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
+    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), ans: str_(x.ans, 30), via: str_(x.via, 10) }; });
+  return out; }
+/** Látja-e a szakember a projektet / a projekten belül a munkatársat: nincs meghívás → igen (régi működés); van → csak ha elfogadta. */
+function inviteOk_(inv, cid) { const x = inv && inv[cid]; return !x || x.st === 'yes'; }
+function crewInvite_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = str_(a && a.crewId, 64); let p, c, ev = null;
+  withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
+    const asg = readAll_('crewAssign').filter(x => x.projectId === pid), on = p.lead === cid || asg.some(x => x.crewId === cid); p.__asg = asg; if (!on) throw new Error('Előbb vedd fel a stábba.');
+    c = readAll_('crew').find(x => x.id === cid); if (!c) throw new Error('A munkatárs nem található.');
+    const inv = parseInvites_(p.invites), cur = inv[cid];
+    inv[cid] = { st: cur && cur.st === 'yes' ? 'yes' : 'invited', at: now_(), by: u.name, ans: cur && cur.st === 'yes' ? cur.ans : '', via: cur && cur.st === 'yes' ? cur.via : '' };
+    const asg0 = p.__asg; delete p.__asg; p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); p.__asg = asg0; dataBump_(); dbFlush_(); });
+  const em = String(c.email || '').trim().toLowerCase(); let calOk = false, mail = false;
+  try { ev = calEvent_(p.calEventId); } catch (e) {}
+  if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try {   // a projekt naptáreseményébe vendégként (a Google külön levelet nem küld – a meghívó a saját levelünk)
+    if (typeof Calendar !== 'undefined' && Calendar.Events) { const eid = String(ev.getId()).replace(/@google\.com$/, ''), CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid), att = cur.attendees || [];
+      if (!att.some(x => String(x.email || '').toLowerCase() === em)) { att.push({ email: em }); Calendar.Events.patch({ attendees: att }, CID, eid, { sendUpdates: 'none' }); } }
+    else if (!ev.getGuestList().some(g => String(g.getEmail()).toLowerCase() === em)) ev.addGuest(em);
+    calOk = true; } catch (e) { Logger.log('Meghívás – naptár hiba: ' + e); } }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+    const first = huFirst_(c.name) || c.name, roles = [p.lead === cid ? 'Projektvezető' : ''].concat((p.__asg || []).filter(x => x.crewId === cid).map(x => x.role)).filter(Boolean).filter((x, i, l) => l.indexOf(x) === i).join(', ');
+    const when = String(p.date || '') + (p.endDate && p.endDate !== p.date ? ' – ' + p.endDate : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
+    const url = appUrl_(), calUrl = ev ? calEventLink_(ev) : '';
+    const info = [when ? '📅 ' + when : '', p.venue ? '📍 ' + p.venue : '', roles ? '🎬 ' + roles : ''].filter(Boolean).join('\n');
+    const text = 'Kedves ' + first + '!\n\nMeghívunk erre a projektre: ' + p.name + '\n\n' + info + '\n\nKérjük, jelezd vissza az appban (Beosztásaim → Elfogadom), vagy a Google Naptárban az „Igen” gombbal:\n' + url + (calUrl ? '\n\nNaptár: ' + calUrl : '');
+    const html = mailCard_(escapeHtml_(first), 'Meghívunk erre a projektre: <b>' + escapeHtml_(p.name) + '</b>', info, url, '✓ Megnézem és elfogadom') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0">Vagy a <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” gombbal.</p>' : '');
+    try { mail = gmailSend_(em, 'Meghívás: ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Meghívás e-mail hiba: ' + e); }
+  }
+  delete p.__asg; logEvent_(u, 'Meghívás elküldve', p.name, c.name + (mail ? ' (e-mail)' : '') + (calOk ? ' (naptár)' : ''));
+  return { project: projectView_(fullProject_(p), u), mail: mail, cal: calOk, noEmail: !em };
+}
+function inviteRespond_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = String(u.crewId || ''), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p;
+  withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
+    const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
+    inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app' }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+  logEvent_(u, yes ? 'Meghívás elfogadva' : 'Meghívás elutasítva', p.name, '');
+  return { ok: true };
+}
+/** A Google Naptárban adott válaszok (Igen / Nem) átvétele a függő meghívásokhoz. */
+function invitesSync_(projects, onlyCid) {
+  if (typeof Calendar === 'undefined' || !Calendar.Events) return false; let changed = false; const today = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd'); let crewEm = null;
+  projects.forEach(p => { const inv = parseInvites_(p.invites), pend = Object.keys(inv).filter(k => inv[k].st === 'invited' && (!onlyCid || k === onlyCid)); if (!pend.length || !p.calEventId) return;
+    if ((p.endDate || p.date || '') && (p.endDate || p.date) < today) return;
+    try { const ev = calEvent_(p.calEventId); if (!ev) return; const cur = Calendar.Events.get(evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, '')), st = {};
+      (cur.attendees || []).forEach(x => { st[String(x.email || '').toLowerCase()] = x.responseStatus; });
+      if (!crewEm) { crewEm = {}; readAll_('crew').forEach(c => { crewEm[c.id] = String(c.email || '').trim().toLowerCase(); }); }
+      const upd = {}; pend.forEach(k => { const r = st[crewEm[k]]; if (r === 'accepted') upd[k] = 'yes'; else if (r === 'declined') upd[k] = 'no'; });
+      if (!Object.keys(upd).length) return;
+      withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r), iv = parseInvites_(q.invites);
+        Object.keys(upd).forEach(k => { if (iv[k] && iv[k].st === 'invited') iv[k] = Object.assign(iv[k], { st: upd[k], ans: now_(), via: 'cal' }); });
+        q.invites = JSON.stringify(iv); putRow_('projects', sh, q, r); p.invites = q.invites; changed = true; });
+    } catch (e) { Logger.log('Meghívás-szinkron hiba (' + p.name + '): ' + e); } });
+  if (changed) { try { dbFlush_(); dataBump_(); } catch (e) {} }
+  return changed;
+}

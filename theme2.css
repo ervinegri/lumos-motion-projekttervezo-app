@@ -1914,3 +1914,17 @@ html body .vid-panel .vid-ed .inp,html body .vid-panel .vid-ed .cmb-in{min-heigh
 /* Pénzügyek: az értékesítő választó a büdzsé sorában, egy magasságban a többi mezővel */
 html body .fin-v2 .fin-ssel{min-width:170px}
 html body .fin-v2 .fin-r{align-items:flex-end}
+/* Meghívások: állapot a stábkártyán, függő meghívások a szakembernél */
+html body .pcrew-inv{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 6px}
+html body .pcrew-inv .inv-btn{padding:3px 10px!important;font-size:12px!important;min-height:0!important}
+html body .inv-st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+html body .inv-st.yes{background:#e6f5ec;color:#1f7a44}html body .inv-st.no{background:#fdecec;color:#a33}html body .inv-st.wait{background:#fdf2dc;color:#8a5a00}
+html body .pcrew-inv .linkbtn{font-size:12px}
+html body .inv-panel{border:1px solid #f2dfb0;background:#fffaf0}
+html body .inv-panel .inv-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #f2e6c8}
+html body .inv-panel .inv-row:first-of-type{border-top:0}
+html body .inv-panel .inv-tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+html body .inv-panel .inv-tx small{color:#5b6876;font-size:12.5px}
+html body .inv-panel .inv-roles{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+html body .inv-panel .inv-btns{display:flex;gap:6px;flex:none}
+@media (max-width:700px){html body .inv-panel .inv-row{flex-direction:column;align-items:stretch}html body .inv-panel .inv-btns .btn{flex:1}}
