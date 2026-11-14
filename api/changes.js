@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fae1d6495a",
+"at": "2026-11-14T20:08:01+02:00",
+"msg": "fix: identify calendar postproduction owners from actual assigned video and photo tasks"
+},
+{
 "id": "e90cc720b2",
 "at": "2026-11-14T20:07:44+02:00",
 "msg": "fix: label video vs photo postproduction tasks with actual responsible person"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "146b8a5176",
 "at": "2026-11-14T19:42:29+02:00",
 "msg": "feat: warn and block removal of accepted crew members"
-},
-{
-"id": "f8fa37791c",
-"at": "2026-11-14T19:41:37+02:00",
-"msg": "ui: match declined invitation badge dimensions with accepted status"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
