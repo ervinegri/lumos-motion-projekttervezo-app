@@ -125,7 +125,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};if(o.finAllG){const seen={},u
   const b=i.b,pid=esc(p.id),val=num(p.projectValue),tot=projTotal(p),ex=extrasSum(p);
   const monthOver=!!pr(p)&&pr(p).start.slice(0,7)<todayISO().slice(0,7);   // a projekt hónapja letelt
   const tick=(k,on,lock,tip)=>lock?'':`<button class="stage-tick pb-tick${on?' on':''}" type="button" data-action="pb-skip" data-id="${pid}" data-k="${k}" aria-pressed="${on}" data-tip="${on?'Mégis kell':tip}">${on?'–':''}</button>`;
-  const box=(k,title,body,skip,lock,tip)=>`<div class="pb-box bs-box${skip?' skip':''}"><div class="pb-t">${title}</div>${skip?'<span class="statuspill p-mute">Nem kell</span>':body}${k?tick(k,skip,lock,tip):''}</div>`;
+  const box=(k,title,body,skip,lock,tip)=>`<div class="pb-box bs-box${skip?' skip':''}"><div class="pb-t">${title}</div>${skip?(k==='contract'?'<span class="statuspill p-mute" data-tip="Csak erre a projektre érvényes szerződéses beállítás">Nem kell · projekt</span>':'<span class="statuspill p-mute">Nem kell</span>'):body}${k?tick(k,skip,lock,tip):''}</div>`;
   const freeBox=t=>`<div class="pb-box bs-box skip"><div class="pb-t">${t}</div><span class="statuspill p-mute">🎁 Nem fizetős</span></div>`;
   // Szerződés
   const cs=b.contractStatus||'',sent=cs==='kikuldve'||cs==='alairva'||cs==='visszakuldve',signed=cs==='alairva',back=cs==='visszakuldve';
@@ -305,7 +305,19 @@ Object.assign(ACT,{
   'blf':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.v=f.v===b.dataset.v?'honap':b.dataset.v;render(true);},   // a csempe ki-be kapcsolja a szűrőt
   'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
-  'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
+  'bill-adv-link':b=>{
+    const p=projById(b.dataset.id),invoice=((S.fin&&S.fin.invoices)||[]).find(x=>x.id===b.dataset.inv);
+    if(!p||!invoice)return;
+    szLinkModal('project',p.id,'eloleg');
+    const input=$('m-no');if(input){input.value=invoice.no;input.focus();}
+  },
+  'bill-inv':b=>{
+    const project=projById(b.dataset.id);
+    if(b.dataset.type==='dijbekero'&&project){
+      const candidate=billGroupAdvance(billClientMonthProjects(project)).candidate;
+      if(candidate&&!invPids(candidate).includes(project.id)){ACT['bill-adv-link']({dataset:{id:project.id,inv:candidate.id}});return;}
+    }
+    if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
     const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id)).sort((x,y)=>String((pr(projById(x))||{}).start).localeCompare(String((pr(projById(y))||{}).start)));   // időrendben   // összevont kártya: egy közös számla, projektenként egy tétellel
     if(ids.length>1){szInvoiceModal('project',ids[0],{type:b.dataset.type,projectIds:ids.slice(1),items:ids.map(id=>{const p=projById(id);return {name:szItemName(p),qty:1,price:projTotal(p),pid:id};})});return;}
     szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
@@ -323,7 +335,9 @@ function billBoxes(p){
   const contract=i.fw?fwCell(i.fw,'pb-c'):`<div class="pb-c"><span class="statuspill ${CONTRACT_CLS[b.contractStatus||'']}">${CONTRACT_LABEL[b.contractStatus||'']}</span>
     ${b.contractUrl?`<a class="bl-file" href="${esc(b.contractUrl)}" target="_blank" rel="noopener">📎 ${esc(b.contractName||'Szerződés megnyitása')}</a>`:''}${b.contractUrl?'':'<span class="cdrop-tip">📥 Húzd ide a szerződést</span>'}<span class="cdrop-hint">📥 Engedd el a feltöltéshez</span>
     ${b.signedAt?`<span class="bl-meta">aláírva: ${esc(b.signedAt)}</span>`:''}</div>`;
+  const suspected=billGroupAdvance(billClientMonthProjects(p)).candidate;
   const adv=(i.db||i.el)?invLine(i.db)+(i.el?invLine(i.el,'Foglaló:'):(i.db&&invPaidOk(i.db)&&!i.db.ref?`<button class="linkbtn" type="button" data-action="bill-inv" data-id="${pid}" data-type="eloleg">+ Foglalószámla</button>`:''))
+    :suspected&&!invPids(suspected).includes(p.id)?`<button class="btn outline small bl-adv-link" type="button" data-action="bill-adv-link" data-id="${pid}" data-inv="${esc(suspected.id)}">🔗 Közös foglaló párosítása</button>`
     :billAddBtn(p.id,'dijbekero','Díjbekérő',!i.closed&&i.steps[i.nextI]&&i.steps[i.nextI][0]==='advIssued');
   const fin=i.fin?i.finAll.map(x=>invLine(x)).join('')+`<button class="linkbtn bl-more" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla">+ Újabb számla</button>`:billAddBtn(p.id,b.mode==='egyben'?'szamla':'vegszamla',b.mode==='egyben'?'Számla':'Végszámla',projDone(p)&&(b.mode==='egyben'||!!(i.db||i.el)));
   const dots=`<div class="bl-dots">${i.steps.map((s,k)=>`<span class="bl-dot${s[2]?' on':''}${k===i.nextI?' cur':''}" title="${esc(s[1])}${s[2]?' ✓':''}"></span>`).join('')}</div>`;
