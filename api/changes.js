@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "202c11f992",
+"at": "2026-11-14T11:57:52+01:00",
+"msg": "iPhone: hosszú érintésre nem jön elő a link-előnézet a menüpontokon és belső linkeken"
+},
+{
 "id": "269707ac1b",
 "at": "2026-11-14T11:57:09+01:00",
 "msg": "Idővonal: a jóváhagyás pipája nem lóg rá a projekt nevére"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla megerősítése: látszik, melyik csatornán (Lumos cím / számlázz.hu) és kinek megy ki a levél"
 },
 {
-"id": "4cef7922c5",
-"at": "2026-11-14T09:22:54+01:00",
-"msg": "Számla: „A számlázz.hu küldje” felirat"
-},
-{
-"id": "537d63c081",
-"at": "2026-11-14T08:22:04Z",
+"id": "60f206c585",
+"at": "2026-11-14T08:23:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
