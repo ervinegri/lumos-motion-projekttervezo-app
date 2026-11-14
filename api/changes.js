@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "26b1e9010d",
+"at": "2026-11-14T16:58:58+02:00",
+"msg": "Make pending invitation resend button prominent"
+},
+{
 "id": "8822e1b17c",
 "at": "2026-11-14T16:53:38+02:00",
 "msg": "Improve project invitations, deadlines, and calendar descriptions"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Menüpontok és belső linkek nem húzhatók el hosszú érintéssel"
 },
 {
-"id": "c89cec71a0",
-"at": "2026-11-14T12:00:01+01:00",
-"msg": "iPhone kezdőképernyős app: a menüsor a Dynamic Island szintjéig felér"
-},
-{
-"id": "a2e8c2d61c",
-"at": "2026-11-14T10:58:57Z",
+"id": "099dfb7400",
+"at": "2026-11-14T11:00:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
