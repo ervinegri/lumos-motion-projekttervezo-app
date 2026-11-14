@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "501fe032d8",
+"at": "2026-11-14T12:01:40+01:00",
+"msg": "Kifizetések szakember nézetben: keretes táblázat széllel"
+},
+{
 "id": "9965e9f06d",
 "at": "2026-11-14T12:01:27+01:00",
 "msg": "Kifizetések: a sorok nem nyúlnak meg, egysoros feliratok, jobbra-balra húzva hónapváltás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: instrukciók a címsorban, magasabb tábla fekvőben; videó ablak: fekvőben széltől szélig, álló nézetben nem csúszik szét"
 },
 {
-"id": "eb6d43eb37",
-"at": "2026-11-14T11:13:37+01:00",
-"msg": "Nézetváltó: termelési v. előnézetből is választható az Ügyvezető és az Értékesítő"
-},
-{
-"id": "c657afa86d",
-"at": "2026-11-14T10:09:24Z",
+"id": "24e0cde2ac",
+"at": "2026-11-14T10:13:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
