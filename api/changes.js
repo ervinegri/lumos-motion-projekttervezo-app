@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e2269ab124",
+"at": "2026-11-14T17:01:40+02:00",
+"msg": "ui: use compact icon-only resend button"
+},
+{
 "id": "26b1e9010d",
 "at": "2026-11-14T16:58:58+02:00",
 "msg": "Make pending invitation resend button prominent"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a sorok nem nyúlnak meg, egysoros feliratok, jobbra-balra húzva hónapváltás"
 },
 {
-"id": "869470e61b",
-"at": "2026-11-14T12:00:15+01:00",
-"msg": "Menüpontok és belső linkek nem húzhatók el hosszú érintéssel"
-},
-{
-"id": "099dfb7400",
-"at": "2026-11-14T11:00:09Z",
+"id": "5bda546100",
+"at": "2026-11-14T11:00:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
