@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5844fb4081",
+"at": "2026-11-14T11:51:11+01:00",
+"msg": "Beállítások: letisztultabb e-mail értesítések (kártyák, kisebb szövegek, másolat-címkék egy sorban), alcím törölve"
+},
+{
 "id": "743725a465",
 "at": "2026-11-14T11:49:25+01:00",
 "msg": "Projektek lista: az ügyfél által jóváhagyott videó neve után zöld pipa"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár-súgó: ha lent nem fér el, a sáv fölé kerül (vagy görgethető), nem lóg ki a képernyőből"
 },
 {
-"id": "a247acfdba",
-"at": "2026-11-14T08:55:38+01:00",
-"msg": "Súgók: rámutatás után kb. fél másodperccel jelennek meg (nem villannak fel azonnal)"
-},
-{
-"id": "64b8946758",
-"at": "2026-11-14T07:53:14Z",
+"id": "1f80aefb91",
+"at": "2026-11-14T07:55:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
