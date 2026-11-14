@@ -637,9 +637,9 @@ function viewProject(p){
         ${selField(p,'eventType','Rendezvény típusa',p.eventType&&!EVENT_TYPES.includes(p.eventType)?EVENT_TYPES.concat([p.eventType]):EVENT_TYPES,{cmb:'Válassz típust…'})}
         ${ro()?'':`<div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
-        ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
+        ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro(),after:'<button class="btn ghost small vcf-btn" type="button" data-action="vcf" title="Névjegy a telefonra (QR-kód)" aria-label="Névjegy a telefonra">📇 Névjegy</button>'})}
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
-        </div><div class="field full vcf-row"><button class="btn ghost small vcf-btn" type="button" data-action="vcf" title="Névjegy a telefonra (QR-kód)" aria-label="Névjegy a telefonra">📇 Névjegy</button></div>`}
+        </div>`}
         ${editOnly(p)?`<div class="field">${fld(p,'date','✂️ Leadási határidő',{type:'date'}).replace(/^<div class="field[^"]*">/,'').replace(/<\/div>$/,'')}<span class="hint" style="margin:2px 0 0">Videóvágás: nincs helyszín és kezdési idő – csak a leadás napja számít.</span></div>`:(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
           return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}<div class="time-pair">${tm('startTime',on?'Kezdés (első nap)':'Kezdés')}${tm('endTime',on?'Távozás kb. (első nap)':'Távozás (kb.)')}</div></div>
             <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
