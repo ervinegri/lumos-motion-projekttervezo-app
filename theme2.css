@@ -2018,3 +2018,9 @@ html body .crew-mail-meta strong{color:var(--fg-2)}
 html body .crew-mail-preview{padding:22px 20px;background:#fff;border:1px solid var(--line);border-radius:12px;max-height:52vh;overflow:auto;overflow-wrap:anywhere}
 html body .crew-mail-preview>div{margin:0 auto}
 @media (max-width:600px){html body .crew-mail-meta>div{grid-template-columns:1fr;gap:2px}html body .crew-mail-preview{padding:16px 12px;max-height:48vh}}
+
+
+/* Az elfogadott, elutasított és kiküldendő meghívók gombjai pontosan azonos méretűek. */
+html body .pcrew-inv>.inv-btn[data-action="crew-invite"],
+html body .pcrew-inv>.inv-st.yes,
+html body .pcrew-inv>.inv-st.no{box-sizing:border-box;width:148px;min-width:148px;height:44px;min-height:44px;display:inline-flex;justify-content:center;align-items:center;padding:8px 10px!important;white-space:nowrap}
