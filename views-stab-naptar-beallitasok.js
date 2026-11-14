@@ -406,7 +406,7 @@ function viewSettings(){
     if(!logActors.has(l.who))logActors.set(l.who,{name:l.who,role:l.role,count:0,login:0,last:0});
     const A=logActors.get(l.who),tk=cmTk(l.at);A.count++;if(tk>A.last)A.last=tk;if(/^Belépés/.test(l.action||'')&&tk>A.login)A.login=tk;
   }
-  const actors=[...logActors.values()].sort((a,b)=>((b.login||b.last)-(a.login||a.last))||a.name.localeCompare(b.name,'hu'));   // a legutóbb belépett felül
+  const actors=[...logActors.values()].sort((a,b)=>(b.count-a.count)||a.name.localeCompare(b.name,'hu'));   // csökkenő sorrend: a legtöbb bejegyzésű felül
   const logUser=S.logTab??(actors.find(u=>u.role==='admin'||u.role==='editor')?.name||'__all');
   const lt=logActors.has(logUser)?logUser:'__all';
   const logSel=lt==='__all'?S.log:S.log.filter(l=>l.who===lt);
