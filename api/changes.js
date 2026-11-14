@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "743725a465",
+"at": "2026-11-14T11:49:25+01:00",
+"msg": "Projektek lista: az ügyfél által jóváhagyott videó neve után zöld pipa"
+},
+{
 "id": "f3215e65b5",
 "at": "2026-11-14T11:49:04+01:00",
 "msg": "Fekvő telefon: Projektek lista egyoszlopos, a státuszcímkék a név alatt egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Súgók: rámutatás után kb. fél másodperccel jelennek meg (nem villannak fel azonnal)"
 },
 {
-"id": "f31e969e68",
-"at": "2026-11-14T08:53:05+01:00",
-"msg": "Idővonal: „Jóváhagyásra vár” címkéken „X napja leadva”"
-},
-{
-"id": "30215d2342",
-"at": "2026-11-14T07:35:47Z",
+"id": "64b8946758",
+"at": "2026-11-14T07:53:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
