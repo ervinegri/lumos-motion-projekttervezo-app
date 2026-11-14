@@ -47,6 +47,6 @@ jobs:
           clasp push -f
           N=$(clasp versions 2>/dev/null | grep -cE '^[0-9]+ - ' || true)
           echo "Verziók száma: $N / 200"
-          if [ "${N:-0}" -ge 199 ]; then echo "::error::Az Apps Script elérte a 200 verziós korlátot – Projekt előzmények → Verziók tömeges törlése"; exit 1; fi
+          if [ "${N:-0}" -ge 200 ]; then echo "::error::Az Apps Script elérte a 200 verziós korlátot – Projekt előzmények → Verziók tömeges törlése"; exit 1; fi
           clasp deploy -i "$DEP" -d "auto $(echo $GITHUB_SHA | cut -c1-7)"
           [ "${N:-0}" -ge 170 ] && echo "::warning::Apps Script verziók: $((N+1))/200 – hamarosan takarítani kell" || true
