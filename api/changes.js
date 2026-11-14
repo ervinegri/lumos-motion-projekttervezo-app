@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "154f785d58",
+"at": "2026-11-14T20:10:58+02:00",
+"msg": "style: make sales amount 30% wider and commission input 30% narrower"
+},
+{
 "id": "3d92985fac",
 "at": "2026-11-14T20:10:46+02:00",
 "msg": "ui: place sales amount before commission percentage"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "api: add read-only crew invitation preview and manager self-response"
 },
 {
-"id": "aa915a800d",
-"at": "2026-11-14T19:43:33+02:00",
-"msg": "feat: shared invitation email formatter and read-only preview"
-},
-{
-"id": "db7c47a69c",
-"at": "2026-11-14T19:43:26+02:00",
-"msg": "feat: show raw material handoff and edit deadline for combined onsite-editor invitations"
+"id": "585aff6c25",
+"at": "2026-11-14T17:43:41Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
