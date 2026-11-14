@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bb38f1da1a",
+"at": "2026-11-14T13:02:07+01:00",
+"msg": "Távozás helyett Végzés mindenhol; stábba felvett szakember automatikusan a megfelelő szolgáltatásra kerül (pl. kreatív operatőr)"
+},
+{
 "id": "fc01a92fd1",
 "at": "2026-11-14T12:57:51+01:00",
 "msg": "Projekt: a Névjegy gomb a telefonszám mellett, egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Napló: a felhasználók csökkenő sorrendben (bejegyzések száma szerint)"
 },
 {
-"id": "5844fb4081",
-"at": "2026-11-14T11:51:11+01:00",
-"msg": "Beállítások: letisztultabb e-mail értesítések (kártyák, kisebb szövegek, másolat-címkék egy sorban), alcím törölve"
-},
-{
-"id": "7d11b3accd",
-"at": "2026-11-14T10:49:33Z",
+"id": "c67ee34118",
+"at": "2026-11-14T10:51:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
