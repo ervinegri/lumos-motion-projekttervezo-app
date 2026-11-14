@@ -9,19 +9,40 @@ const DEAL_CT=[['','Még nincs kiküldve'],['kikuldve','Kiküldve, aláírásra 
 const dealCtPill=d=>d.ctStatus?`<div class="dl-ct dl-ct-${esc(d.ctStatus)}">📝 ${({kikuldve:'Szerződés kiküldve',visszakuldve:'Szerződés: módosítás alatt',alairva:'Szerződés aláírva',nemkell:'Nem kell szerződés'})[d.ctStatus]||''}${d.ctAt&&!d.projectId?' · '+esc(fmtShort(d.ctAt)):''}</div>`:'';
 const dealLbl=s=>(DEAL_STAGES.find(x=>x[0]===s)||[,s])[1];
 const dealById=id=>(S.deals||[]).find(d=>d.id===id);
-const dealVal=d=>Math.max(0,Math.round(+d.value||0));
+const dealVal=d=>{
+  // Szerződés után a kapcsolt projekt aktuális nettó értéke az elsődleges adat.
+  const p=d&&d.projectId&&d.stage==='nyert'&&typeof projById==='function'?projById(d.projectId):null;
+  const live=p&&typeof projTotal==='function'?Math.round(projTotal(p)):0;
+  return Math.max(0,live>0?live:Math.round(Number(d&&d.value)||0));
+};
 const dealChance=d=>d.chance==null||d.chance===''?(DEAL_CHANCE[d.stage]??0):+d.chance;
 S.salesF=S.salesF||{q:'',owner:'',old:false};
 
 /* Értékesítők a szűrőhöz és a kiosztáshoz: az ügyvezető (saját lehetőségei), az értékesítők, és akinek van lehetősége */
-function salesOwners(deals){const m=new Map();if(S.me&&S.me.id)m.set(S.me.id,'⭐ '+(S.me.name||'Én')+' (saját)');
-  (S.salesPeople||[]).forEach(x=>{if(x.userId&&!m.has(x.userId))m.set(x.userId,'👤 '+x.name);});
-  (deals||[]).forEach(d=>{if(d.ownerId&&!m.has(d.ownerId))m.set(d.ownerId,'👤 '+(d.ownerName||'?'));});
-  return [...m.entries()];}
+const salesOwnerKey=s=>String(s||'').toLocaleLowerCase('hu').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean).sort().join(' ');
+/* Egy személy régebbi teljes névvel és újabb rövidített fióknévvel is szerepelhet. A címzett e-mail előtagja pontosabb egyezést ad. */
+function salesSelfIds(deals){
+  const me=S.me||{},ids=new Set(me.id?[me.id]:[]);
+  const parts=String(me.email||'').split('@')[0].split('+')[0].split(/[._-]+/).filter(Boolean);
+  const emailName=parts.length>=2?salesOwnerKey(parts.join(' ')):'',current=salesOwnerKey(me.name);
+  if(!emailName||!current||!parts.some(t=>salesOwnerKey(t)===current))return ids;
+  (S.salesPeople||[]).forEach(x=>{if(x.userId&&salesOwnerKey(x.name)===emailName)ids.add(x.userId);});
+  (deals||[]).forEach(d=>{if(d.ownerId&&salesOwnerKey(d.ownerName)===emailName)ids.add(d.ownerId);});
+  return ids;
+}
+function salesOwners(deals){
+  const m=new Map(),me=S.me||{},self=salesSelfIds(deals);
+  const ownName=[...(S.salesPeople||[]).filter(x=>self.has(x.userId)).map(x=>x.name),...(deals||[]).filter(d=>self.has(d.ownerId)).map(d=>d.ownerName),me.name||'Én'].filter(Boolean).sort((a,b)=>String(b).length-String(a).length)[0];
+  if(me.id)m.set(me.id,'⭐ '+ownName+' (saját)');
+  (S.salesPeople||[]).forEach(x=>{const id=self.has(x.userId)?me.id:x.userId;if(id&&!m.has(id))m.set(id,'👤 '+x.name);});
+  (deals||[]).forEach(d=>{const id=self.has(d.ownerId)?me.id:d.ownerId;if(id&&!m.has(id))m.set(id,'👤 '+(d.ownerName||'?'));});
+  return [...m.entries()];
+}
 function viewSales(){
   const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
-  const owners=salesOwners(all);
-  let L=all.filter(d=>!f.owner||d.ownerId===f.owner);
+  const owners=salesOwners(all),self=salesSelfIds(all),selected=self.has(f.owner)&&S.me?S.me.id:f.owner;
+  if(selected!==f.owner)f.owner=selected;  // régi szűrőérték átvezetése ugyanarra a személyre
+  let L=all.filter(d=>!selected||(selected===(S.me&&S.me.id)?self.has(d.ownerId):d.ownerId===selected));
   if(f.q.trim())L=L.filter(d=>fold([d.title,d.client,d.contactName,d.venue,d.note,d.ownerName].join(' ')).includes(fold(f.q.trim())));
   const open=L.filter(d=>DEAL_OPEN.includes(d.stage)),won=L.filter(d=>d.stage==='nyert'),lost=L.filter(d=>d.stage==='elveszett');
   const sum=a=>a.reduce((s,d)=>s+dealVal(d),0),weighted=open.reduce((s,d)=>s+dealVal(d)*dealChance(d)/100,0);
@@ -81,7 +102,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
       <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><p class="hint" id="m-dHsSt" style="margin:8px 0 0"></p><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
-    ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(d.ownerId||S.salesF.owner||(S.me&&S.me.id))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
+    ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(salesSelfIds(S.deals||[]).has(d.ownerId||S.salesF.owner)?S.me&&S.me.id:(d.ownerId||S.salesF.owner||(S.me&&S.me.id)))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${!isNew&&d.ctStatus!=='nemkell'?`<div class="field"><label for="m-dCt">Szerződés állapota</label><select class="inp" id="m-dCt" name="dCt" data-cmb="Válassz…">${DEAL_CT.map(([v,l])=>`<option value="${v}"${(d.ctStatus||'')===v?' selected':''}>${l}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:(!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>`:'')+(!isNew&&(isAdmin()||(S.me&&d.ownerId===S.me.id))?`<button type="button" class="btn q-cta" data-action="deal-quote" data-id="${esc(d.id)}">📄 Árajánlat készítése</button>`:''),submitLabel:'Mentés',submit:async fd=>{
