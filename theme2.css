@@ -1755,3 +1755,12 @@ html body .subtabs .subtab{flex:1 1 0!important;min-width:0!important;justify-co
 }
 /* Bevételek táblázat: a teljes táblázat kint van (nincs belső függőleges görgetés), az oldal görget */
 html body .sheet-wrap:has(.fin-inc){max-height:none!important;height:auto!important;overflow-y:hidden!important}
+/* álló telefon: a fejléc egyetlen sor, mint fekvőben – a logó a bal szélen marad, a menüpontok, a szerepkör és a csengő együtt húzhatók oldalra */
+@media (max-width:700px) and (orientation:portrait){
+html body .topbar-inner{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;gap:4px!important;padding:6px 12px!important;min-height:0!important}
+html body .topbar-inner::-webkit-scrollbar{display:none}
+html body .topbar-inner>.identity{flex:0 0 auto;position:sticky;left:0;z-index:4;background:#243347;padding:0 6px 0 12px;margin-left:-12px;align-self:stretch;display:flex;align-items:center;box-shadow:10px 0 10px -6px #243347}
+html body .topbar-inner>.identity .brand{height:30px!important;width:auto!important;max-width:none!important}
+html body .topbar-inner>.tabs{flex:0 0 auto!important;width:auto!important;overflow:visible!important;margin:0!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
+html body .topbar-inner>.header-tools{flex:0 0 auto!important;margin-left:6px!important;display:flex!important;align-items:center;gap:6px}
+}
