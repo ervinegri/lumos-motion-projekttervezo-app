@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c974215e49",
+"at": "2026-11-14T18:30:58+02:00",
+"msg": "style: distinguish always-visible sales pipeline from monthly metrics"
+},
+{
 "id": "1d5c4af646",
 "at": "2026-11-14T18:30:46+02:00",
 "msg": "test: keep Kanban cards constant when browsing monthly sales KPIs"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: ensure one shared final invoice and independent project contracts"
 },
 {
-"id": "d58c8d0498",
-"at": "2026-11-14T17:40:06+02:00",
-"msg": "billing: create one shared final invoice with paid advance accounting safeguards"
-},
-{
-"id": "500d4cb27a",
-"at": "2026-11-14T15:39:14Z",
+"id": "3f41df0345",
+"at": "2026-11-14T15:40:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
