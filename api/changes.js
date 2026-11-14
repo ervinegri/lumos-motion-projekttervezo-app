@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9a3c5eaf97",
+"at": "2026-11-14T09:14:49+01:00",
+"msg": "Számla kiállítása: szerkeszthető levél-előnézet (tárgy + szöveg) a Lumos címéről küldött levélhez"
+},
+{
 "id": "74370861e8",
 "at": "2026-11-14T09:13:28+01:00",
 "msg": "Termelési vezető: a termelői keret, a díjak összege és a maradék a Díjak panel tetején"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Érintőképernyő: a vágási tábla kártyái hosszan nyomva áthúzhatók másik oszlopba"
 },
 {
-"id": "f43069a02e",
-"at": "2026-11-13T22:48:07+01:00",
-"msg": "Álló telefon: nagyobb videó a jóváhagyó ablakban (íráskor kicsi)"
-},
-{
-"id": "ae41671719",
-"at": "2026-11-13T21:47:54Z",
+"id": "f4b869fb09",
+"at": "2026-11-13T21:48:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
