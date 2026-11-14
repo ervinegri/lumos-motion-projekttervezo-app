@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e83ee1f56b",
+"at": "2026-11-14T19:50:59+02:00",
+"msg": "ui: disable preview-only email links until invitation is sent"
+},
+{
 "id": "08f4eee78a",
 "at": "2026-11-14T19:49:52+02:00",
 "msg": "ui: keep accepted crew trash button clickable even when crew is finalized"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: include live budget remainder regression in finance suite"
 },
 {
-"id": "a7204f12f4",
-"at": "2026-11-14T19:11:57+02:00",
-"msg": "test: live negative budget remainder while editing fees and multi-day budget tables"
-},
-{
-"id": "aceaf222e7",
-"at": "2026-11-14T17:10:21Z",
+"id": "8f600b7fa1",
+"at": "2026-11-14T17:12:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
