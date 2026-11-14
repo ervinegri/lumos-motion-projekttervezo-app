@@ -62,8 +62,13 @@ function viewSales(){
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
       <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">szerződve ebben a hónapban · ${wonM.length} db</div></div>
-      ${(()=>{const m=todayISO().slice(0,7),ow=admin&&S.salesF&&S.salesF.owner,L=(S.salesPeople||[]).filter(x=>!ow||x.userId===ow||x.id===ow).map(x=>(x.comm||{})[m]).filter(Boolean)   /* kiválasztott értékesítő: csak az ő jutaléka */,base=L.reduce((s,x)=>s+num(x.base),0),amt=L.reduce((s,x)=>s+num(x.amount),0);
-        return `<div class="tile${amt?' ok':''}" data-tip="A ténylegesen kifizetett nettó ügyfélbevétel után, sávosan (a továbbszámlázott költségek nélkül)"><div class="tile-n">${ftFmt(amt)}</div><div class="tile-l">jutalék ebben a hónapban · alap: ${ftFmt(base)}</div></div>`;})()}
+      ${(()=>{const m=todayISO().slice(0,7),ow=admin&&selected,
+        people=(S.salesPeople||[]).filter(x=>!ow||(ow===(S.me&&S.me.id)?self.has(x.userId)||self.has(x.id):x.userId===ow||x.id===ow)),
+        records=people.map(x=>(x.comm||{})[m]).filter(Boolean),
+        base=records.reduce((sum,x)=>sum+num(x.base),0),amt=records.reduce((sum,x)=>sum+num(x.amount),0),
+        ownAdmin=admin&&ow===(S.me&&S.me.id)&&!people.length,
+        hint=ownAdmin?'Ügyvezetői értékesítések: az eredményt a Pénzügyek fül mutatja. A jutalékcsempe az értékesítői díjazással rendelkező fiókokra vonatkozik.':'Elszámolási időszak: '+m+'. A jutalék a tényleges kifizetés hónapjában jelenik meg, a befolyt nettó bevétel után.';
+        return `<div class="tile${amt?' ok':''}" data-tip="${esc(hint)}"><div class="tile-n">${ownAdmin?'—':ftFmt(amt)}</div><div class="tile-l">${ownAdmin?'Ügyvezetői értékesítés · Pénzügyek fül':'jutalék '+m+' · kifizetett alap: '+ftFmt(base)}</div></div>`;})()}
     </div>
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
