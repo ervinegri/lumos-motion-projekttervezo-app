@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dd621eac7c",
+"at": "2026-11-14T19:46:17+02:00",
+"msg": "fix: validate invitation preview recipient email correctly"
+},
+{
 "id": "4b155b4bde",
 "at": "2026-11-14T19:46:02+02:00",
 "msg": "ui: show month and day on current-year invitation timestamps"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "style: shorten salesperson name and amount fields in inline finance card"
 },
 {
-"id": "7349fdb747",
-"at": "2026-11-14T19:02:49+02:00",
-"msg": "test: enforce one-row salesperson percentage and amount layout"
-},
-{
-"id": "99db0884b3",
-"at": "2026-11-14T17:02:44Z",
+"id": "730f39f492",
+"at": "2026-11-14T17:02:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
