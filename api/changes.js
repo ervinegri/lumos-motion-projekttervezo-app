@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d7bc8b21e4",
+"at": "2026-11-14T12:12:14+01:00",
+"msg": "Kifizetések szakember nézet: keskenyebb oldalsó szél"
+},
+{
 "id": "e4ca9409b4",
 "at": "2026-11-14T12:10:13+01:00",
 "msg": "Telefon: a Beállítások menüpont elrejtve (a szerepkör/fiók menüben elérhető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: a Fizetések táblázat kitölti a képernyő alját; álló nézetben a pénzügyi fülek rövid felirattal, fixen egy sorban"
 },
 {
-"id": "b58b0132c8",
-"at": "2026-11-14T11:37:00+01:00",
-"msg": "Idővonal: Jóváhagyásra vár sor oldalra húzható, csak vezetőknek látszik; kisebb hézag a napok fölött"
-},
-{
-"id": "be723aa280",
-"at": "2026-11-14T10:34:48Z",
+"id": "213b90b91f",
+"at": "2026-11-14T10:37:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
