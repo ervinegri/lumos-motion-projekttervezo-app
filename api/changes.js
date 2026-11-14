@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f3d6494b06",
+"at": "2026-11-14T17:51:56+02:00",
+"msg": "sales: merge owner aliases and show linked project revenue on won deal cards"
+},
+{
 "id": "d8ae82e193",
 "at": "2026-11-14T17:45:46+02:00",
 "msg": "test: return shared final modal function from source extract"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: rendezett Videók panel (állapot, Videótábla és Idővonal gomb); Vágás helyett Utómunka"
 },
 {
-"id": "bb38f1da1a",
-"at": "2026-11-14T13:02:07+01:00",
-"msg": "Távozás helyett Végzés mindenhol; stábba felvett szakember automatikusan a megfelelő szolgáltatásra kerül (pl. kreatív operatőr)"
-},
-{
-"id": "b2129dba8a",
-"at": "2026-11-14T11:58:01Z",
+"id": "fa2322ac8e",
+"at": "2026-11-14T12:02:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
