@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f7ceaef6ab",
+"at": "2026-11-14T18:43:40+02:00",
+"msg": "finance UI: split wages, pass-through and organizer fee columns and show zero for unassigned sales"
+},
+{
 "id": "d27024b130",
 "at": "2026-11-14T18:43:01+02:00",
 "msg": "finance: separate wages, pass-through and organizer fees and lock unassigned sales percent"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: verify shared final invoice, ordinary advance balance, and external-issuer safeguard"
 },
 {
-"id": "7b85a0b0ee",
-"at": "2026-11-14T17:44:07+02:00",
-"msg": "test: scope shared invoice regression to the same client"
-},
-{
-"id": "862e793aac",
-"at": "2026-11-14T15:43:12Z",
+"id": "bcfe42ff36",
+"at": "2026-11-14T15:44:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
