@@ -162,24 +162,27 @@ function szInvoice_(u, a) {
     sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
-    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
+    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', sendEmail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
     + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
     + '<vevo>' + szEl_('nev', buyer.name) + szEl_('irsz', buyer.zip) + szEl_('telepules', buyer.city) + szEl_('cim', buyer.address)
-    + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', sendEmail ? 'true' : 'false')
+    + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', 'false')   // a számlázz.hu nem küldi: a Lumos címéről megy (PDF melléklettel)
+   
     + szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '') + '</vevo>'
     + '<tetelek>' + items.map(it => '<tetel>' + szEl_('megnevezes', it.name) + szEl_('mennyiseg', String(it.qty)) + szEl_('mennyisegiEgyseg', it.unit) + szEl_('nettoEgysegar', String(it.price))
       + szEl_('afakulcs', it.vat) + szEl_('nettoErtek', String(it.net)) + szEl_('afaErtek', String(it.vatAmt)) + szEl_('bruttoErtek', String(it.gross)) + (it.note ? szEl_('megjegyzes', it.note) : '') + '</tetel>').join('') + '</tetelek>'
     + '</xmlszamla>';
   const r = szPost_('action-xmlagentxmlfile', xml);
+  let pdfB64 = '';
   let no = r.dec(r.headers.szlahu_szamlaszam), gross = Number(r.headers.szlahu_bruttovegosszeg) || 0, net = Number(r.headers.szlahu_nettovegosszeg) || 0, open = null, url = r.dec(r.headers.szlahu_vevoifiokurl);
   try {
     const doc = XmlService.parse(r.body).getRootElement();
     if (xmlText_(doc, 'sikeres') === 'false') throw new Error('számlázz.hu hiba (' + xmlText_(doc, 'hibakod') + '): ' + xmlText_(doc, 'hibauzenet'));
     no = xmlText_(doc, 'szamlaszam') || no; gross = Number(xmlText_(doc, 'szamlabrutto')) || gross; net = Number(xmlText_(doc, 'szamlanetto')) || net;
+    pdfB64 = String(xmlText_(doc, 'pdf') || '').replace(/\s+/g, '');
     const k = xmlText_(doc, 'kintlevoseg'); if (k !== '') open = Number(k); url = r.dec(xmlText_(doc, 'vevoifiokurl')) || url;
   } catch (e) { if (/számlázz\.hu hiba/.test(String(e.message))) throw e; }
   if (!no) throw new Error('A számlázz.hu nem adott vissza számlaszámot: ' + r.body.slice(0, 200));
@@ -192,7 +195,10 @@ function szInvoice_(u, a) {
   if (a.paid && !row.invPaid) { row.invPaid = row.invGross; row.paidAt = today; }
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
-  return Object.assign(finData_(), { invoice: row });
+  let mail = null;
+  if (sendEmail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64 }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
+    catch (e) { mail = { ok: false, error: String(e && e.message || e) }; Logger.log('Számla-levél hiba: ' + e); } }
+  return Object.assign(finData_(), { invoice: row, mail: mail });
 }
 
 /** Meglévő (a számlázz.hu-ban kiállított) számla hozzárendelése egy projekthez / bevételi sorhoz. */
@@ -1071,4 +1077,24 @@ function clientInvoices_(a) {
     items.push({ no: x.no, date: x.date, net: Number(x.invNet) || 0, gross: Number(x.invGross) || 0, kind: x.kind, projects: projOf(x), what: (() => { try { const l = JSON.parse(x.items || '[]'); return Array.isArray(l) ? l.map(i => i && i.name).filter(Boolean).join(' · ') : String(x.items || ''); } catch (e) { return String(x.items || ''); } })() }); });
   items.sort((x, y) => String(y.date).localeCompare(String(x.date)));
   return { items: items, total: items.reduce((s2, x) => s2 + x.net, 0), at: h.at || '', full: !!h.full };
+}
+
+/** A kiállított számla / díjbekérő kiküldése a Lumos címéről (a számlázz.hu helyett), PDF melléklettel. (Ervin, 2026-11-14) */
+function szInvoiceMail_(u, o) {
+  let b64 = o.pdfB64;
+  if (!b64) { const q = szQuery_(o.no, true); b64 = q && q.pdf; }
+  if (!b64) throw new Error('A számlázz.hu nem adta vissza a PDF-et – a levél nem ment ki.');
+  const blob = Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', String(o.no).replace(/[^\w.-]+/g, '_') + '.pdf');
+  const label = SZ_KIND_LABEL_[o.kind] || 'Számla', lbl = label.toLowerCase();
+  const p = o.projectId ? readAll_('projects').find(x => x.id === o.projectId) : null, pn = p ? String(p.name || '') : '';
+  const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
+  const dd = String(o.due || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.');
+  const lines = ['Tisztelt Partnerünk!', '', 'Csatoltan küldjük ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
+    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || ''), '', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.', '', 'Üdvözlettel,'];
+  const sig = signatureFor_(u), text = lines.join('\n') + (sig ? '\n\n' + sig.text : '');
+  const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + lines.map(l => escapeHtml_(l)).join('<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
+  const subj = label + ' – ' + o.no + (pn ? ' – ' + pn : '') + ' – Lumos Motion';
+  const ok = gmailSend_(o.buyer.email.split(/[;]\s*/).join(','), subj, text, { htmlBody: html, attachments: [blob], name: (u && u.name ? u.name + ' · ' : '') + 'Lumos Motion', replyTo: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : undefined }, 'invoice');
+  if (!ok) throw new Error('Az e-mail-küldés szünetel – a levél nem ment ki.');
+  return { ok: true, to: o.buyer.email };
 }
