@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2bd49a272b",
+"at": "2026-11-14T19:35:29+02:00",
+"msg": "ui: remove crew visibility note from invitation panel"
+},
+{
 "id": "a9ce733626",
 "at": "2026-11-14T19:35:14+02:00",
 "msg": "feat: allow managers to respond to own crew invitations"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "6e8ad3d88c",
 "at": "2026-11-14T18:30:09+02:00",
 "msg": "sales: keep all pipeline cards visible and apply month navigation to metrics only"
-},
-{
-"id": "93698dffcb",
-"at": "2026-11-14T18:27:56+02:00",
-"msg": "test: supply commission helper when checking isolated sales project cards"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
