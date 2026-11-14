@@ -20,15 +20,6 @@ const CAL_MOB=()=>window.matchMedia&&matchMedia('(max-width:760px)').matches;   
 document.addEventListener('click',e=>{const day=e.target.closest&&e.target.closest('.cal-day');if(!day)return;if(e.target.closest('button')&&!CAL_MOB())return;if(CAL_MOB()){e.preventDefault();e.stopPropagation();}
   S.cal.sel=day.dataset.day;if(CAL_MOB()){const d=day.dataset.day;let hit=false;document.querySelectorAll('.cal-agenda .ag-day').forEach(x=>{const on=x.dataset.agd===d;x.classList.toggle('on',on);hit=hit||on;});if(!hit&&d.slice(0,7)===S.cal.month){render(true);return;}if(d.slice(0,7)!==S.cal.month){S.cal.month=d.slice(0,7);render(true);return;}}document.querySelectorAll('.cal-day.sel').forEach(x=>x.classList.remove('sel'));day.classList.add('sel');});
 function calTipHtml(el){
-  if(el.dataset.postKind){
-    const p=projById(el.dataset.id);if(!p)return '';
-    const photo=el.dataset.postKind==='photo';
-    return '<b>'+esc(p.name||'Névtelen projekt')+'</b>'+
-      '<div class="tip-src">'+(photo?'📷 Fotók utómunkája':'✂️ Videó-utómunka')+'</div>'+
-      '<div><span>Felelős</span><em class="tv">'+esc(el.dataset.postOwner||'Kiosztásra vár')+'</em></div>'+
-      '<div><span>Feladat</span><em class="tv">'+esc(el.dataset.postTask||'Utómunka')+'</em></div>'+
-      '<div><span>Határidő</span><em class="tv">'+esc(el.dataset.postDue||'')+'</em></div>';
-  }
   const id=el.dataset.tipid;
   if(el.dataset.kind==='p'){const p=projById(id);if(!p)return '';
     {let ge=null;Object.values(S.cal.events||{}).forEach(l=>(l||[]).forEach(x=>{if(!ge&&((p.calEventId&&x.id===p.calEventId)||(x.projectId&&x.projectId===p.id)))ge=x;}));   // a valódi Google Naptár-bejegyzés: amit a stáb is lát
