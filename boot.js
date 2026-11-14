@@ -85,13 +85,27 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
     if(el.scrollWidth>el.clientWidth+2){const atL=el.scrollLeft<=2,atR=el.scrollLeft>=el.scrollWidth-el.clientWidth-2;if(!((dx>0&&atL)||(dx<0&&atR)))return;}
     const b=document.querySelector(`.pay-cbox [data-action="mnav"][data-d="${dx<0?-1:1}"],.pay-head [data-action="mnav"][data-d="${dx<0?-1:1}"]`);if(b)b.click();},{passive:true});})();
 /* Meghívó levél linkje (#inv=<projekt>): betöltés után felugrik a meghívás – Elfogadom / Nem vállalom; ha már elfogadta, a projekt nyílik meg */
+/* E-mailes meghívólink: a szerveren ellenőrizzük a korábbi választ, mielőtt válaszgombokat mutatunk. */
 (()=>{const pid=window.__INV;if(!pid)return;let n=0;
-  const go=()=>{if(!(typeof S!=='undefined'&&S.me&&Array.isArray(S.projects)&&(S._fresh||n>60))){if(++n<160)setTimeout(go,500);return;}
+  const go=async()=>{
+    if(!(typeof S!=='undefined'&&S.me&&Array.isArray(S.projects)&&(S._fresh||n>60))){if(++n<160)setTimeout(go,500);return;}
     try{if(/inv=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);}catch(e){}
-    const x=(S.myInvites||[]).find(i=>i.id===pid);
-    if(projById(pid)){openProject(pid);return;}   // a projekt nyílik meg – a tetején az Igen / Nem válasz
-    if(x){S.tab='projektek';render(true);openModal('✉️ Meghívás',`<div class="inv-modal"><p style="margin:0 0 6px">Meghívást kaptál erre a projektre${(x.roles||[]).length?', mint <b>'+esc(x.roles.map(r=>r.toLowerCase()).join(' és '))+'</b>':''}:</p><h3 style="margin:0 0 4px">${esc(x.name)}</h3><p class="hint" style="margin:0">${esc(fmtDay(x.date))}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+esc(x.endTime):''):''}${x.venue?' · '+esc(x.venue):''}</p><div class="btns" style="margin-top:14px;display:flex;gap:8px"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(pid)}" data-a="yes" data-close="1">✓ Elfogadom</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(pid)}" data-a="no" data-close="1">Nem vállalom</button></div></div>`,{cancelLabel:'Később'});return;}
-    if(projById(pid)){openProject(pid);return;}
-    if(S.me.viewAs&&(S.me.realRole==='admin'||S.me.realRole==='editor')&&typeof switchView==='function'&&!go._sw){go._sw=1;toast('Visszaváltás a saját nézetedre a meghívás megnyitásához…');switchView(S.me.realRole).then(()=>{S._fresh=true;n=0;setTimeout(go,300);});return;}   // előnézetből (pl. szakember nézet) nyitott link: vissza a saját nézetre
-    toast('Ez a meghívás már nem érvényes, vagy korábban nemet mondtál rá.',true);};
+    if(S.me.viewAs&&(S.me.realRole==='admin'||S.me.realRole==='editor')&&typeof switchView==='function'&&!go._sw){
+      go._sw=1;switchView(S.me.realRole).then(()=>{S._fresh=true;n=0;setTimeout(go,300);}).catch(handleErr);return;
+    }
+    let status;
+    try{status=await call('inviteStatus',{projectId:pid});}
+    catch(e){handleErr(e);return;}
+    if(status&&['yes','no'].includes(status.st)){inviteAlreadyModal_(status.st,status.name);return;}
+    if(!status||status.st!=='invited'){
+      openModal('Meghívás állapota','<p style="margin:0">Ehhez a fiókhoz jelenleg tartozó meghívást a projektben tudod ellenőrizni.</p>',{cancelLabel:'Rendben'});return;
+    }
+    const x=(S.myInvites||[]).find(i=>i.id===pid),p=projById(pid);
+    if(p){openProject(pid);return;}
+    S.tab='projektek';render(true);
+    const name=status.name||(x&&x.name)||'Projektmeghívás';
+    openModal('✉️ Meghívás',
+      `<div class="inv-modal"><p style="margin:0 0 6px">Meghívást kaptál erre a projektre${x&&(x.roles||[]).length?', mint <b>'+esc(x.roles.map(r=>r.toLowerCase()).join(' és '))+'</b>':''}:</p><h3 style="margin:0 0 4px">${esc(name)}</h3>${x?`<p class="hint" style="margin:0">${esc(fmtDay(x.date))}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+esc(x.endTime):''):''}${x.venue?' · '+esc(x.venue):''}</p>`:''}<div class="btns" style="margin-top:14px;display:flex;gap:8px"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(pid)}" data-a="yes" data-close="1">✓ Elfogadom</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(pid)}" data-a="no" data-close="1">Nem vállalom</button></div></div>`,
+      {cancelLabel:'Később'});
+  };
   setTimeout(go,300);})();
