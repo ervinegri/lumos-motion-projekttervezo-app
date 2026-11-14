@@ -53,6 +53,9 @@ $('logoutBtn').addEventListener('click',()=>guard(async()=>{
    miközben a háttérben letölti a friss adatot. Kilépéskor és lejárt belépésnél törlődik. */
 const BOOT_KEY='lpm_boot_v1';
 function bootCacheSave(d){try{localStorage.setItem(BOOT_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
+/* egy projekt friss (szerver által visszaadott) állapotát a helyi indító-gyorsítótárba írja – így oldalfrissítéskor sem a módosítás előtti állapot jelenik meg */
+function bootCachePatch(pj){try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||!c.d||!Array.isArray(c.d.projects))return;const i=c.d.projects.findIndex(x=>x&&x.id===pj.id);if(i<0)return;const old=c.d.projects[i];
+  c.d.projects[i]=Object.assign({},old,pj,{crew:pj.crew||old.crew,equipment:pj.equipment||old.equipment});localStorage.setItem(BOOT_KEY,JSON.stringify(c));}catch(e){}}
 function bootCacheClear(){try{localStorage.removeItem(BOOT_KEY);localStorage.removeItem('lumos_pm_fin_v1');}catch(e){}calCacheClear();}
 function bootFromCache(){
   try{const c=JSON.parse(localStorage.getItem(BOOT_KEY)||'null');if(!c||c.tk!==String(TOKEN).slice(-16)||!c.d||!c.d.me)return false;
