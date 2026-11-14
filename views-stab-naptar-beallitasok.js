@@ -146,7 +146,7 @@ function calItems(month){
   const vOk=e=>!cutC||(cutMail&&(e.guests||[]).includes(cutMail))||(!!cutNm&&fold((e.title||'')+' '+(e.description||'')).includes(cutNm));   // kiválasztott vágó: csak az ő vágói bejegyzései
   const myMail=me?String((crewById(me)||{}).email||'').toLowerCase():'';   /* szakember nézetben csak a saját vágói bejegyzései (ahol ő a vendég) */
   ((ro()&&calKind()!=='site')||(!ro()&&(S.cal.mode==='ido'||calCutDue()))?(S.cal.ev2[month]||[]):[]).filter(vOk)   /* a vágói naptár bejegyzései is a „Vágói határidők” pipához tartoznak */
-    .filter(e=>!ro()||(!!myMail&&(e.guests||[]).includes(myMail))).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)}));
+    .filter(e=>!ro()||(!!myMail&&(e.guests||[]).includes(myMail))).filter(e=>!(e.projectId&&projById(e.projectId))).forEach(e=>{const dl=S.cal.mode!=='ido';items.push({kind:'v',id:e.id,title:e.title||'(nincs cím)',date:dl?(e.endDate||e.date):e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||'',lp:vLinkProj(e)});});
   if(ro())return items.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99').localeCompare(b.time||'99'));
   (S.cal.events[month]||[]).forEach(e=>{if(linked.has(e.id)||(e.projectId&&projById(e.projectId)))return;
     items.push({kind:'g',id:e.id,title:e.title||'(nincs cím)',date:e.date,endDate:e.endDate||e.date,time:e.start||'',venue:e.location||''});});

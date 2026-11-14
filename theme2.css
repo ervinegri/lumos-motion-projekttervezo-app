@@ -1654,3 +1654,10 @@ html body .tl-wline .tl-pinnote .tl-nm{display:inline!important;font-weight:700;
 /* a fejlécben a külön „Kilépés” gomb nem kell – a név menüjében van */
 @media (min-width:701px){html body .header-tools:has(#userChip:not(.hidden)) #logoutBtn{display:none!important}}
 @media (orientation:landscape) and (max-height:560px){html body .header-tools:has(#viewAs:not(.hidden)) #logoutBtn{display:none!important}}
+/* idővonal: forgatási nap + vágás egy sorban – a vágási sávon nincs szöveg, csak a végén egy jel (zöld ✓ ha kész, ⏳ ha jóváhagyásra vár) */
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{font-size:0!important;position:relative}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>*{display:none!important}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done::after{content:'⏳';font-size:12px;position:absolute;right:8px;top:50%;transform:translateY(-50%)}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.cut-ok::after,html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.st-atadva::after{content:'✓';font-size:15px;font-weight:800;color:#1f8a4c}
+/* a kész projektek pipája zöld */
+html body .tl-ok{color:#1f8a4c!important;font-weight:800}
