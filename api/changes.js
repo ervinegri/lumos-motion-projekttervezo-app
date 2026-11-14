@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "05da123279",
+"at": "2026-11-14T20:23:40+02:00",
+"msg": "feat: add specialist Kanban tab for photo retouchers and preserve their active projects"
+},
+{
 "id": "177f097aeb",
 "at": "2026-11-14T20:20:47+02:00",
 "msg": "ui: hide photo count in Kanban and project video list"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "ui: disable preview-only email links until invitation is sent"
 },
 {
-"id": "08f4eee78a",
-"at": "2026-11-14T19:49:52+02:00",
-"msg": "ui: keep accepted crew trash button clickable even when crew is finalized"
-},
-{
-"id": "ea1f59216b",
-"at": "2026-11-14T17:49:06Z",
+"id": "3b606c4e8f",
+"at": "2026-11-14T17:49:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
