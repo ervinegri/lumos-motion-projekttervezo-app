@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "08f4eee78a",
+"at": "2026-11-14T19:49:52+02:00",
+"msg": "ui: keep accepted crew trash button clickable even when crew is finalized"
+},
+{
 "id": "7d6a124972",
 "at": "2026-11-14T19:48:59+02:00",
 "msg": "fix: show own invitations and their statuses in manager project dashboard"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: live negative budget remainder while editing fees and multi-day budget tables"
 },
 {
-"id": "8c5c232a9c",
-"at": "2026-11-14T19:10:12+02:00",
-"msg": "project finance: use one shared live refresh for fees and budget fields"
-},
-{
-"id": "8f9c2eb77c",
-"at": "2026-11-14T17:09:59Z",
+"id": "aceaf222e7",
+"at": "2026-11-14T17:10:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
