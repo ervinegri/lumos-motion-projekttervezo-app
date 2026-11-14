@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d9d8831ee3",
+"at": "2026-11-14T11:58:46+01:00",
+"msg": "Beosztásaim: cím és kereső egy sorban, alcím törölve"
+},
+{
 "id": "202c11f992",
 "at": "2026-11-14T11:57:52+01:00",
 "msg": "iPhone: hosszú érintésre nem jön elő a link-előnézet a menüpontokon és belső linkeken"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfelek: a Szerződés oszlop nem csúszik el (osztálynév-ütközés javítva)"
 },
 {
-"id": "c3bbdaa277",
-"at": "2026-11-14T09:25:15+01:00",
-"msg": "Számla megerősítése: látszik, melyik csatornán (Lumos cím / számlázz.hu) és kinek megy ki a levél"
-},
-{
-"id": "60f206c585",
-"at": "2026-11-14T08:23:04Z",
+"id": "5a7a11318e",
+"at": "2026-11-14T08:25:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
