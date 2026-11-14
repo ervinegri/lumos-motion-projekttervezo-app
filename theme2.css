@@ -1683,3 +1683,5 @@ html body .vcf-row .vcf-btn{width:auto!important;flex:0 0 auto;padding:4px 10px!
 .sz-mail .sz-mtext{display:block;width:100%;border:0;resize:none;background:transparent;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#1d2a38;padding:0;outline:none;overflow:hidden;min-height:120px}
 .sz-mail .sz-mtext:focus{background:#fffdf6}
 .sz-mail .sz-sig{margin-top:10px}
+.sz-chan{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#f4f7fa;border:1px solid var(--line,#dde4eb);font-size:13.5px;line-height:1.5}
+.sz-chan.none{color:var(--fg-2,#5b6876)}
