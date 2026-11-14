@@ -100,8 +100,8 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
     if(!status||status.st!=='invited'){
       openModal('Meghívás állapota','<p style="margin:0">Ehhez a fiókhoz jelenleg tartozó meghívást a projektben tudod ellenőrizni.</p>',{cancelLabel:'Rendben'});return;
     }
-    const x=(S.myInvites||[]).find(i=>i.id===pid),p=projById(pid);
-    if(p){openProject(pid);return;}
+    const x=(S.myInvites||[]).find(i=>i.id===pid);
+    // A válaszra váró meghívás mindig a válaszadó felugró ablakban nyílik meg.
     S.tab='projektek';render(true);
     const name=status.name||(x&&x.name)||'Projektmeghívás';
     openModal('✉️ Meghívás',
