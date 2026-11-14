@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7656690534",
+"at": "2026-11-14T19:56:47+02:00",
+"msg": "ci: allow the last available Apps Script version and warn about cleanup"
+},
+{
 "id": "eb6dcc8d76",
 "at": "2026-11-14T19:54:57+02:00",
 "msg": "fix: show editor calendar deadlines only for actual video editing work"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "840413b13c",
 "at": "2026-11-14T19:36:09+02:00",
 "msg": "feat: display pending invitations in executive project dashboard"
-},
-{
-"id": "ef6dc6a4b4",
-"at": "2026-11-14T17:35:37Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
