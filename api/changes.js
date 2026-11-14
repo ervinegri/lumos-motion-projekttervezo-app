@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f31e969e68",
+"at": "2026-11-14T08:53:05+01:00",
+"msg": "Idővonal: „Jóváhagyásra vár” címkéken „X napja leadva”"
+},
+{
 "id": "565f722b9d",
 "at": "2026-11-14T08:35:39+01:00",
 "msg": "Levélből érkező videólink: a videó azonnal megnyílik, a friss adat beérkezésekor frissül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil Fizetések: az alsó összesítő sorok számai nem csúsznak át a név-oszlopon"
 },
 {
-"id": "9b84b7adb1",
-"at": "2026-11-13T22:37:58+01:00",
-"msg": "Mobil: a Fizetések/Bevételek táblázatkerete pontosan a képernyő aljáig ér, így az alja is elérhető"
-},
-{
-"id": "9d4900decf",
-"at": "2026-11-13T21:37:05Z",
+"id": "386ca59dad",
+"at": "2026-11-13T21:38:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
