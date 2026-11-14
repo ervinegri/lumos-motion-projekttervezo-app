@@ -553,9 +553,15 @@ function orderSummary(p,bare){
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 /* a vágás sávjára mutatva: milyen videókat kell elkészíteni (a vágó csak a sajátjait látja) */
-function cutWhat(p){const me=ro()&&S.me&&S.me.crewId,ts=postTasks(p).filter(t=>t.k!=='foto_db'||!me).filter(t=>!me||taskKeysOf(p,me).includes(t.k));if(!ts.length)return '';
-  const multi=cutterIds(p).length>1&&!me,nm=id=>(crewById(id)||{}).name||'';
-  return '🎬 Elkészítendő videók:\n'+ts.map(t=>'• '+(t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.n+' db · '+t.label)+(multi&&taskOwners(p,t.k).length?' ('+taskOwners(p,t.k).map(nm).join(', ')+')':'')).join('\n')+'\n\n';}
+function cutWhat(p){
+  const who=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):S.cal.cutter;
+  const ts=postTasks(p).filter(t=>!who||taskKeysOf(p,who).includes(t.k));
+  if(!ts.length)return '';
+  const photo=ts.some(t=>t.k==='foto_db'),video=ts.some(t=>t.k!=='foto_db');
+  const multi=cutterIds(p).length>1&&!who,nm=id=>(crewById(id)||{}).name||'';
+  const title=photo&&!video?'📷 Fotók utómunkája:':photo?'🎬 Utómunka-feladatok:':'🎬 Elkészítendő videók:';
+  return title+'\n'+ts.map(t=>'• '+(t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.n+' db · '+t.label)+(multi&&taskOwners(p,t.k).length?' ('+taskOwners(p,t.k).map(nm).join(', ')+')':'')).join('\n')+'\n\n';
+}
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p).filter(t=>t.k!=='foto_db');if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';   // a fotók utómunkája a vágónál nem választható
   if(!tasks.length&&ro())return '';   // a szakember (vágó) nézetében nincs szervezői figyelmeztetés
