@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "79613d3fbe",
+"at": "2026-11-14T09:18:05+01:00",
+"msg": "Számla kiállítása: választható, ki küldje ki – saját (Lumos) cím vagy a számlázz.hu (a választás megmarad)"
+},
+{
 "id": "9a3c5eaf97",
 "at": "2026-11-14T09:14:49+01:00",
 "msg": "Számla kiállítása: szerkeszthető levél-előnézet (tárgy + szöveg) a Lumos címéről küldött levélhez"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: az áthelyezett videó nem ugrik vissza a régi oszlopba egy közben beérkező régebbi adatfrissítés miatt; érintéses húzás-utánzat eltávolítva (az iPhone natívan támogatja)"
 },
 {
-"id": "646b83c3fe",
-"at": "2026-11-13T22:52:43+01:00",
-"msg": "Érintőképernyő: a vágási tábla kártyái hosszan nyomva áthúzhatók másik oszlopba"
-},
-{
-"id": "f4b869fb09",
-"at": "2026-11-13T21:48:19Z",
+"id": "340a8ac3b4",
+"at": "2026-11-13T21:52:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
