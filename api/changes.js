@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a9ce733626",
+"at": "2026-11-14T19:35:14+02:00",
+"msg": "feat: allow managers to respond to own crew invitations"
+},
+{
 "id": "2a83ed28c5",
 "at": "2026-11-14T19:35:06+02:00",
 "msg": "feat: include manager's own pending crew invitations in bootstrap"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "93698dffcb",
 "at": "2026-11-14T18:27:56+02:00",
 "msg": "test: supply commission helper when checking isolated sales project cards"
-},
-{
-"id": "628ae810ab",
-"at": "2026-11-14T16:27:34Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
