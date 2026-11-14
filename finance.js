@@ -415,7 +415,7 @@ function szInvoiceModal(kind,id,o={}){
   // A közös foglalóhoz egy közös végszámlát, vagy egyszerű előreszámlázás esetén a fennmaradó összegről egy számlát készítünk.
   if(group&&group.shared&&!o.tigId&&!o.items&&!(o.projectIds&&o.projectIds.length)&&['vegszamla','szamla'].includes(o.type)
     &&group.ids.every(pid=>{const p=projById(pid);return p&&!billInfo(p).fin;})){
-    const ids=group.ids.slice().sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||''));
+    const ids=group.ids.slice().sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||'')));
     return szInvoiceModal('project',ids[0],Object.assign({},o,{projectIds:ids.slice(1),items:ids.map(pid=>({name:szItemName(projById(pid)),qty:1,price:projTotal(projById(pid)),pid}))}));
   }
   // A számlázz.hu által szimpla számlaként kezelt foglaló már kiszámlázott nettó részét levonjuk a közös új számla tételeiből.
