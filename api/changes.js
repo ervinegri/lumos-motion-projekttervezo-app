@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8502f4065f",
+"at": "2026-11-14T18:55:04+02:00",
+"msg": "project finances: move 'Ki értékesítette?' panel after production and consolidate salesperson controls"
+},
+{
 "id": "bcf9c3a33f",
 "at": "2026-11-14T18:46:37+02:00",
 "msg": "style: space separated production cost columns for readable finance table"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: prevent duplicate CEO sales owner and missing linked project values"
 },
 {
-"id": "4bd5af2bbc",
-"at": "2026-11-14T17:53:10+02:00",
-"msg": "sales API: use linked project net total for signed deal value, including sales-only users"
-},
-{
-"id": "b00dce564b",
-"at": "2026-11-14T15:53:02Z",
+"id": "b7578fe8fc",
+"at": "2026-11-14T15:53:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
