@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2a83ed28c5",
+"at": "2026-11-14T19:35:06+02:00",
+"msg": "feat: include manager's own pending crew invitations in bootstrap"
+},
+{
 "id": "5e00b3fd88",
 "at": "2026-11-14T19:28:57+02:00",
 "msg": "fix: lead invite shows filming time and venue, editor invite shows upload and edit deadlines"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: supply commission helper when checking isolated sales project cards"
 },
 {
-"id": "386df76be2",
-"at": "2026-11-14T18:27:27+02:00",
-"msg": "test: align monthly commission header assertion with contracted commission label"
-},
-{
-"id": "29a116c683",
-"at": "2026-11-14T16:27:11Z",
+"id": "628ae810ab",
+"at": "2026-11-14T16:27:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
