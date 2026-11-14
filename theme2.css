@@ -1737,3 +1737,4 @@ html body .cal-toolbar>.btns [data-action="cal-new"] .cm-lbl{display:inline!impo
 /* idővonal: a naptár nem húzható le / fel a szélein túl (nincs rugalmas „gumi” elhúzás) */
 html body .tl-wrap{overscroll-behavior:none!important}
 html:has(.tl-wrap),html:has(.tl-wrap) body{overscroll-behavior-y:none!important}
+html body .cal-tip.tip-sm{font-size:11px!important;line-height:1.3!important;padding:8px 10px!important}html body .cal-tip.tip-sm b{font-size:12px!important}
