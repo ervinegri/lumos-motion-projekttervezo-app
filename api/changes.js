@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "88eb6b66de",
+"at": "2026-11-14T19:48:09+02:00",
+"msg": "fix: show managers accepted and declined invitations, resolve own staff record by name"
+},
+{
 "id": "dc0ae96c66",
 "at": "2026-11-14T19:46:30+02:00",
 "msg": "style: present invitation email preview as readable modal card"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "ui: show signed negative budget remaining consistently in finance totals"
 },
 {
-"id": "f147ceb094",
-"at": "2026-11-14T19:07:44+02:00",
-"msg": "test: update salesperson inline field widths to compact design"
-},
-{
-"id": "e66f35ed01",
-"at": "2026-11-14T17:06:30Z",
+"id": "1c99cce822",
+"at": "2026-11-14T17:07:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
