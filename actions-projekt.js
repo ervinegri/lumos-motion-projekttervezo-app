@@ -55,6 +55,41 @@ function refreshFinSums(p){{const b=p?prodBase(p):0,ep=$('f-budgetPct'),ef=$('f-
   const o=document.querySelector('[data-other-sum]');if(o)o.textContent=moneyFmt(otherSumOf(p))||0;
   const f=document.querySelector('[data-field-sum]');if(f)f.textContent=moneyFmt(fieldSumOf(p))||0;
   const ps=document.querySelector('[data-post-sum]');if(ps)ps.textContent=moneyFmt(postSumOf(p))||0;
+  // Az aktuális projektkeret és az összes díjsor azonnal megjelenik a részösszegekben.
+  // Többnapos táblánál minden keret-összesítőt frissítünk, miközben a szerkesztett input fókusza megmarad.
+  if(p){
+    const blocks=document.querySelectorAll('.fin .keret-tr');
+    if(blocks.length){
+      const preview=document.createElement('tbody');preview.innerHTML=keretRows(p);
+      const rows=preview.querySelectorAll('.keret-tr');
+      if(rows.length===2){
+        blocks.forEach((old,i)=>{
+          const next=rows[i%2];
+          old.className=next.className;
+          old.innerHTML=next.innerHTML;
+        });
+      }
+    }
+    const amount=document.querySelector('.fin-amt');
+    if(amount)amount.innerHTML=totalCell(p);
+    const rental=document.querySelector('.fin-rent');
+    if(rental)rental.textContent=moneyFmt((p.fees||[]).reduce((sum,fee)=>sum+rentOf(p,fee),0)+rentalSum(p,''))||0;
+    const aside=document.querySelector('.fin-aside');
+    if(aside)aside.innerHTML=finAside(p);
+    // A termelési vezető felső keretpanelje ugyanazt a friss előjeles összeget kapja.
+    const top=document.querySelector('.keret-top');
+    if(top){
+      const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum;
+      const budget=top.querySelector('div:first-child b'),spent=top.querySelector('div:nth-child(2) b'),rest=top.querySelector('.kt-left');
+      if(budget)budget.textContent=k==null?'nincs megadva':moneyFmt(k)+' Ft';
+      if(spent)spent.textContent=(moneyFmt(sum)||0)+' Ft';
+      if(rest&&left!=null){
+        const val=rest.querySelector('b');
+        if(val){val.textContent=budgetRemainingFmt(left)+' Ft';val.classList.toggle('bad-txt',left<0);}
+        top.classList.toggle('over',left<0);
+      }
+    }
+  }
 }
 /* Csapat véglegesítése: megerősítés után a tagok a naptárba kerülnek, e-mailt és naptárértesítést kapnak. */
 async function crewFinalizeModal(){
