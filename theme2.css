@@ -1729,7 +1729,7 @@ html body #modalRoot #mform.m-video:not(:has(#m-vvCm:focus)) .vv-player.vert>vid
 }
 /* álló telefon: a vágószűrő rövidebb, az „+ Új projekt” gomb hosszabb (felirattal) */
 @media (max-width:700px){
-html body .cal-toolbar .cal-cutsel{flex:0 1 128px!important;min-width:0!important;max-width:128px!important}
+html body .cal-toolbar .cal-cutsel{flex:0 1 166px!important;min-width:0!important;max-width:166px!important}
 html body .cal-toolbar>.btns{flex:1 1 auto!important;min-width:0;display:flex!important;gap:8px}
 html body .cal-toolbar>.btns [data-action="cal-new"]{flex:1 1 auto!important;white-space:nowrap}
 html body .cal-toolbar>.btns [data-action="cal-new"] .cm-lbl{display:inline!important}
