@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d8ae82e193",
+"at": "2026-11-14T17:45:46+02:00",
+"msg": "test: return shared final modal function from source extract"
+},
+{
 "id": "714d1a3d7f",
 "at": "2026-11-14T17:45:27+02:00",
 "msg": "test: verify shared final invoice, ordinary advance balance, and external-issuer safeguard"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Távozás helyett Végzés mindenhol; stábba felvett szakember automatikusan a megfelelő szolgáltatásra kerül (pl. kreatív operatőr)"
 },
 {
-"id": "fc01a92fd1",
-"at": "2026-11-14T12:57:51+01:00",
-"msg": "Projekt: a Névjegy gomb a telefonszám mellett, egy sorban"
-},
-{
-"id": "35683ae63b",
-"at": "2026-11-14T11:55:34Z",
+"id": "b2129dba8a",
+"at": "2026-11-14T11:58:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
