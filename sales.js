@@ -68,10 +68,8 @@ function viewSales(){
   const sum=a=>a.reduce((s,d)=>s+dealVal(d),0),weighted=open.reduce((s,d)=>s+dealVal(d)*dealChance(d)/100,0);
   const m=month==='all'||month==='undated'?T.slice(0,7):month,wonM=month==='all'?won.filter(d=>String(d.wonAt||'').slice(0,7)===T.slice(0,7)):won,rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
   const late=open.filter(d=>d.nextDate&&d.nextDate<T).length,noNext=open.filter(d=>!d.nextStep&&!d.nextDate).length;
-  const cutoff=new Date(Date.now()-60*864e5).toISOString().slice(0,10),recent=d=>month!=='all'||f.old||String(d.closedAt||d.wonAt||d.updatedAt||'').slice(0,10)>=cutoff;
   const stOf=d=>d.stage==='nyert'&&(d.advPaidAt||d.noAdv)?'fizetve':d.stage;
-  const byStage=s=>L.filter(d=>stOf(d)===s&&(DEAL_OPEN.includes(s)||recent(d))).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
-  const hidden=L.filter(d=>!DEAL_OPEN.includes(d.stage)&&!recent(d)).length;
+  const byStage=s=>L.filter(d=>stOf(d)===s).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
   const col=([s,lbl,ic])=>{const arr=byStage(s);return `<section class="dl-col dl-${s}" data-stage="${s}"><header class="dl-colh"><span>${ic} ${lbl}</span><span class="dl-colc">${arr.length}${DEAL_OPEN.includes(s)||s==='nyert'||s==='fizetve'?`<small>${arr.length?' · '+ftFmt(sum(arr)):''}</small>`:''}</span></header>
     ${DEAL_OPEN.includes(s)?`<button class="dl-add dl-add-top" type="button" data-action="deal-new" data-stage="${s}">＋ Hozzáadás</button>`:''}<div class="dl-list">${arr.map(dealCard).join('')||(DEAL_OPEN.includes(s)?'':`<p class="dl-empty">—</p>`)}</div></section>`;};
   return `<div class="page-head"><div class="grow"><h2>Értékesítés</h2>${admin?'':'<p class="sub">Csak a saját lehetőségeidet látod</p>'}</div>
@@ -105,7 +103,7 @@ function viewSales(){
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="dl-board">${DEAL_STAGES.map(col).join('')}</div>
-    ${month==='all'&&(hidden||f.old)?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
+`;
 }
 function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.includes(d.stage),td=d.nextDate===T;
   const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${!d.advPaidAt&&d.noAdv?`<div class="dl-won dl-paid">📄 ${d.noAdv==='keret'?'Keretszerződés':'TIG-gel számlázzuk'} – nem kell díjbekérő</div>`:''}${d.advPaidAt?`<div class="dl-won dl-paid">💰 Díjbekérő kifizetve${/^\d{4}-\d\d-\d\d$/.test(d.advPaidAt)?' · '+esc(fmtShort(d.advPaidAt)):''}</div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
