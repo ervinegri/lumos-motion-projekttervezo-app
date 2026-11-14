@@ -1764,3 +1764,14 @@ html body .topbar-inner>.identity .brand{height:30px!important;width:auto!import
 html body .topbar-inner>.tabs{flex:0 0 auto!important;width:auto!important;overflow:visible!important;margin:0!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
 html body .topbar-inner>.header-tools{flex:0 0 auto!important;margin-left:6px!important;display:flex!important;align-items:center;gap:6px}
 }
+/* álló telefon: nincs „Új projekt” gomb a naptárban – a Google gomb feljebb, a szűrők sorába kerül */
+@media (max-width:700px){
+html body .cal-toolbar>.btns [data-action="cal-new"]{display:none!important}
+html body .cal-toolbar>.btns{flex:0 0 auto!important}
+html body .cal-toolbar .cal-cutsel{flex:1 1 0!important;max-width:none!important;min-width:0!important}
+html body .cal-toolbar:has(.cal-tog){flex-wrap:wrap}html body .cal-toolbar .cal-tog{padding-inline:10px!important;gap:6px!important}
+html body .cal-toolbar .cal-tog{flex:0 0 auto;white-space:nowrap}
+}
+@media (max-width:700px){html body .cal-toolbar:has(.cal-tog) .cal-tog,html body .cal-toolbar:has(.cal-tog)>.btns .btn{font-size:13px!important;padding-inline:9px!important}html body .cal-toolbar:has(.cal-tog) .cal-cutsel .inp,html body .cal-toolbar:has(.cal-tog) .cal-cutsel .cmb-in{font-size:13px!important;padding-inline:8px!important}}
+.cal-tog .ct-sm{display:none}@media (max-width:700px){html body .cal-tog .ct-lg{display:none}html body .cal-tog .ct-sm{display:inline}}
+@media (max-width:700px){html body .cal-toolbar .seg.cal-kind{margin-left:auto!important;margin-right:auto!important}}
