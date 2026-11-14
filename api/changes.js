@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6e8ad3d88c",
+"at": "2026-11-14T18:30:09+02:00",
+"msg": "sales: keep all pipeline cards visible and apply month navigation to metrics only"
+},
+{
 "id": "93698dffcb",
 "at": "2026-11-14T18:27:56+02:00",
 "msg": "test: supply commission helper when checking isolated sales project cards"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "billing: consolidate shared final invoice and prorate deposits without duplicate charging"
 },
 {
-"id": "287cf766ee",
-"at": "2026-11-14T17:32:46+02:00",
-"msg": "Handle shared client deposits across projects without duplicate requests"
-},
-{
-"id": "288a27225b",
-"at": "2026-11-14T15:15:21Z",
+"id": "8615a63dbb",
+"at": "2026-11-14T15:32:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
