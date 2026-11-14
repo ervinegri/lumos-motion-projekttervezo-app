@@ -185,7 +185,9 @@ document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.cl
 document.addEventListener('focusout',e=>{if(e.target.id==='m-tplQ')setTimeout(()=>{const a=document.activeElement;if((!a||a.id!=='m-tplQ')&&$('hsBox')&&$('hsBox').querySelector('.tpl-item'))pickClose();},150);});
 document.addEventListener('keydown',e=>{if(e.target.id!=='m-tplQ')return;if(e.key==='Enter'){e.preventDefault();if(TPL_ITEMS[0])tplPick(TPL_ITEMS[0]);}else if(e.key==='Escape')pickClose();},true);
 function tplFill(id){let t=projById(id);const f=$('mform');if(!t||!f)return;
-  const set=(n,v)=>{const e=f.querySelector('[name='+n+']');if(e)e.value=v||'';};
+  const set=(n,v)=>{const e=f.querySelector('[name='+n+']');if(!e)return;
+    if(e.tagName==='SELECT'){if(v&&![...e.options].some(o=>o.value===v)){const o=document.createElement('option');o.value=o.textContent=v;e.appendChild(o);}e.value=v||'';const w=e.closest('.cmb'),ci=w&&w.querySelector('input');if(ci)ci.value=e.selectedOptions[0]&&e.value?e.selectedOptions[0].textContent:'';e.dispatchEvent(new Event('change',{bubbles:true}));}   // a választólista (pl. Rendezvény típusa) látható mezője is frissül
+    else e.value=v||'';};
   if(t.client){const it=knownClients('').find(c=>c.company===t.client);mcSetClient(it||{isNew:true,company:t.client});}
   set('name',t.name);set('eventType',t.eventType);set('venue',t.venue);{const cl=t.client&&knownClients('').find(c=>c.company===t.client)||{};set('contactName',t.contactName||cl.name);set('contactEmail',t.contactEmail||cl.email);t=Object.assign({},t,{contactPhone:t.contactPhone||cl.phone||''});}   // ha a sablonnál üres, az ügyfél kapcsolattartója
   set('startTime',t.startTime);set('endTime',t.endTime);set('notes',t.notes);
