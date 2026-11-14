@@ -1801,3 +1801,4 @@ html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.
 html body .proj-table th:last-child,html body .proj-table td.pt-status,html body .proj-table td.pt-extra{width:auto!important;max-width:none!important}
 html body .proj-table{overflow:visible!important}html body .sheet-wrap:has(.proj-table){overflow-x:hidden!important}
 }
+html body .pt-video .pt-ok{position:static!important;color:#1f9d55!important;font-weight:800;margin-left:4px;font-size:1.05em}

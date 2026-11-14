@@ -228,7 +228,7 @@ const normProj=p=>{if(p&&(!p.status||p.status==='egyeztetes'))p.status='tervezes
 /* Videó link jelszóval: ráhúzva megjelenik a jelszó, egy kattintással másolható */
 /* Nincs közös leadási link: a leadott / jóváhagyott videók saját linkjei (egy videónál közvetlenül, többnél egyenként) */
 function vidLinksOf(p){const l=(p.videos||[]).filter(v=>/^https:\/\//i.test(v.link||'')&&['leadva','jovahagyva'].includes(v.st));if(!l.length)return '';
-  return l.map((v,i)=>`<a class="statuspill p-info pt-video" href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(v.name||'Videó')}">▶ ${l.length===1?'Leadott videó':esc(v.name&&l.filter(x=>x.name===v.name).length===1?v.name:(i+1)+'. videó')}</a>`).join('');}
+  return l.map((v,i)=>`<a class="statuspill p-info pt-video" href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(v.name||'Videó')}">▶ ${l.length===1?'Leadott videó':esc(v.name&&l.filter(x=>x.name===v.name).length===1?v.name:(i+1)+'. videó')}${v.st==='jovahagyva'?' <span class="tl-ok pt-ok" title="Az ügyfél jóváhagyta">✓</span>':''}</a>`).join('');}
 function vidLink(p,cls,label,extra){if(!/^https:\/\//i.test(p.deliveryLink||''))return '';const a=`<a class="${cls}" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener"${extra||''}>${label}</a>`;
   return p.deliveryPass?`<span class="pass-wrap">${a}<span class="pass-pop" role="tooltip">🔑 Jelszó: <code>${esc(p.deliveryPass)}</code><button type="button" class="pass-copy" data-action="copy-pass" data-pass="${esc(p.deliveryPass)}">Másolás</button></span></span>`:a;}
 function extraLinks(p,cls){const l=(Array.isArray(p.deliveryLinks)?p.deliveryLinks:[]).filter(x=>/^https:\/\//i.test(x));
