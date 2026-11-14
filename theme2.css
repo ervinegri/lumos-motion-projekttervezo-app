@@ -1692,3 +1692,38 @@ html body #modalRoot .modal:not(.cf-layer)>.mbox{width:100vw!important;max-width
 html body #modalRoot .modal:not(.cf-layer)>.mbox .mhead h3{font-size:17px!important}
 html body #modalRoot .modal:not(.cf-layer)>.mbox .mfoot{position:sticky;bottom:0;background:#fff;padding-top:8px;margin-top:auto}
 }
+/* Videótábla: az utómunka-instrukciók a címsor végén (lenyitva teljes szélességben) */
+html body #mform .mhead.pn-in{flex-wrap:wrap;row-gap:8px}
+html body #mform .mhead.pn-in>.pn-box{margin:0 0 0 auto;padding:5px 12px;flex:0 0 auto;align-self:center;order:1}
+html body #mform .mhead.pn-in>.x{order:2}
+html body #mform .mhead.pn-in>.pn-box>summary.pn-h{margin:0;font-size:13px;white-space:nowrap}
+html body #mform .mhead.pn-in>.pn-box[open]{order:3;flex:1 0 100%;margin:0;padding:10px 14px;max-height:45vh;overflow:auto}
+html body #mform .mhead.pn-in>.pn-box[open]>summary.pn-h{margin:0 0 8px}
+@media (max-width:700px){html body #mform .mhead.pn-in>.pn-box{order:3;flex:1 0 100%;margin:0}}
+/* Fekvő telefon: a tábla kitölti a magasságot, a gombok az alján */
+@media (orientation:landscape) and (max-height:560px){
+html body #modalRoot #mform:has(.bd-modal){height:100%;max-height:100%;min-height:0;display:flex;flex-direction:column;gap:8px!important;padding-bottom:calc(6px + env(safe-area-inset-bottom))!important}
+html body #mform:has(.bd-modal) .bd-modal{flex:1 1 auto;max-height:none!important;min-height:0;display:flex;flex-direction:column}
+html body #mform .bd-modal>.bl{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+html body #mform .bd-modal>.bl>.bl-row:not(.bl-head){flex:1 1 auto;min-height:0}
+html body #mform .bd-modal .bl-cell{overflow:auto}
+html body #mform:has(.bd-modal) .mfoot{padding-top:0!important;margin-top:0}
+html body #mform:has(.bd-modal) .mfoot .btn{padding-block:8px}}
+@media (orientation:landscape) and (max-height:560px){html body #modalRoot #mform:has(.mhead .pn-box[open]){overflow:auto}html body #mform:has(.mhead .pn-box[open]) .bd-modal{min-height:230px}}
+/* telefon: a videó ablak alsó gombjai beférnek (nem tolják oldalra az oldalt), a hozzászólások szövege kisebb */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body #modalRoot #mform.m-video{overflow-x:hidden!important}
+html body #mform.m-video .mfoot>.btn{flex:1 1 0!important;min-width:0!important;padding-inline:10px!important;font-size:14px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #mform.m-video .mfoot>.left{flex:1 1 0!important;min-width:0!important}
+html body #mform.m-video .mfoot>.left>.btn{width:100%!important;max-width:100%!important;min-width:0!important;padding-inline:10px!important;font-size:14px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #mform.m-video .vv-cm-i{font-size:13.5px!important;line-height:1.4!important;padding:8px 10px!important}
+html body #mform.m-video .vv-cm-i .muted,html body #mform.m-video .vv-cm-i b{font-size:13px!important}
+html body #mform.m-video .vv-cm-i .btn,html body #mform.m-video .vv-cm-i button{font-size:12px!important}
+html body #mform.m-video textarea#m-vvCm{font-size:16px!important}
+}
+/* fekvő telefon: az álló videó a képernyő bal szélén, teljes magasságban (széltől szélig) */
+@media (orientation:landscape) and (max-height:560px){
+html body #modalRoot #mform.m-video:has(.vv-player.vert):not(:has(#m-vvCm:focus)){padding-left:calc(100dvh * 9 / 16 + 14px)!important}
+html body #modalRoot #mform.m-video:not(:has(#m-vvCm:focus)) .vv-player.vert{position:fixed!important;left:0!important;top:0!important;bottom:0!important;height:100dvh!important;width:calc(100dvh * 9 / 16)!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:5;background:#000;aspect-ratio:auto!important}
+html body #modalRoot #mform.m-video:not(:has(#m-vvCm:focus)) .vv-player.vert>video,html body #modalRoot #mform.m-video:not(:has(#m-vvCm:focus)) .vv-player.vert>iframe{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain;border-radius:0!important}
+}
