@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bcf39e760a",
+"at": "2026-11-14T08:06:55+01:00",
+"msg": "Idővonal: a szekciócímek nem vágódnak le; a „ma” jelző szélesebb, áttetsző, lágy sáv"
+},
+{
 "id": "3d83214a4d",
 "at": "2026-11-14T08:01:20+01:00",
 "msg": "Idővonal minden nézetben: nincs bal oldali névoszlop, vastagabb sávok a projekt nevével"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil árajánlat-előnézet: tördelés javítva, semmi nem lóg ki, a PDF-oldal kicsinyítve fér el"
 },
 {
-"id": "45abfa4e7e",
-"at": "2026-11-13T22:20:03+01:00",
-"msg": "Mobil: az oldal ismét görgethető lefelé (overflow-x: clip a hidden helyett, nem lesz külön görgetőkeret a body)"
-},
-{
-"id": "998ec9e41f",
-"at": "2026-11-13T21:18:41Z",
+"id": "c234923b3f",
+"at": "2026-11-13T21:20:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
