@@ -189,6 +189,31 @@ const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
     window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')){window._tlRc=setTimeout(go,300);return;}S.cal.month=vm;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},450);}}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
+/* Egy közös utómunka-sávon belül minden felelős saját feladatkártyát kap. */
+function timelinePostCards(p,kinds,selectedId){
+  const cards=new Map();
+  const add=(kind,id,work)=>{
+    const key=kind+':'+(id||'');
+    if(!cards.has(key))cards.set(key,{kind,cid:id||'',name:(crewById(id)||{}).name||'Kiosztásra vár',tasks:[]});
+    const card=cards.get(key);if(work&&!card.tasks.includes(work))card.tasks.push(work);
+  };
+  postTasks(p).forEach(t=>{
+    const kind=t.k==='foto_db'?'photo':'video';if(!kinds.includes(kind))return;
+    let owners=taskOwners(p,t.k);
+    if(!owners.length&&kind==='video')owners=[...new Set((p.videos||[]).filter(v=>v.k===t.k&&v.editor).map(v=>v.editor))];
+    if(selectedId)owners=owners.filter(id=>id===selectedId);
+    if(!owners.length&&selectedId)return;
+    if(!owners.length)owners=[''];
+    const work=kind==='photo'?t.n+' fotó':(t.label||'Videó')+(t.n>1?' ×'+t.n:'');
+    owners.forEach(id=>add(kind,id,work));
+  });
+  if(kinds.includes('video')&&![...cards.values()].some(c=>c.kind==='video'))
+    (p.videos||[]).filter(v=>v.k!=='foto'&&v.st!=='vagasra').forEach(v=>{
+      if(selectedId&&v.editor!==selectedId)return;
+      add('video',v.editor||'',v.name||'Videó utómunka');
+    });
+  return [...cards.values()].sort((a,b)=>(a.kind==='video'?0:1)-(b.kind==='video'?0:1)||a.name.localeCompare(b.name,'hu'));
+}
 function calTimeline(m,items0,T,ahead){
   const months=Array.from({length:ahead+2},(_,i)=>shiftMonth(m,i-1));
   const first=months[0]+'-01',last=addDays(shiftMonth(m,ahead+1)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
@@ -243,12 +268,22 @@ function calTimeline(m,items0,T,ahead){
         const a2=c.st<first?first:c.st,b2=cEnd>last?last:cEnd;
         if(cEnd<first)return '';
         const pend=!cdone&&!editOnly(p)&&pr(p)&&pr(p).end>=T;   // még nincs leforgatva: a vágó még nem dolgozhat rajta
-        return (c.video?['video']:[]).concat(c.photo?['photo']:[]).map(kind=>{
-          const video=kind==='video',vp=video?vidProg(p):null,cutIcon=video?'✂️':'📷',cutTitle=video?'Vágási határidő':'Fotók utómunkájának határideje';
-          const cutJoin=video&&join,barRow=c.video&&c.photo&&!video?(c.same?3:2):(c.same?2:1);
-          const barName=c.video&&c.photo?(video?'✂️ '+(p.name||'Névtelen projekt'):'📷 Fotók utómunkája · '+(p.name||'Névtelen projekt')):(p.name||'Névtelen projekt');
-          return `<button type="button" class="cal-chip p cut st-${esc(p.status||'')} tl-bar tl-cut${video?'':' tl-photo'}${cutJoin?' tl-joined':''}${pend?' cut-pending':''}${cdone?' cut-done':''}${cdone&&vp&&vp.ok===vp.tot?' cut-ok':''}" style="grid-column:${col(a2)} / ${col(b2)+1};grid-row:${barRow}${cutJoin?';--from:'+FROM:''}"${ro()?'':' draggable="true"'} data-kind="cut" data-action="${vp?'bd-lane':'open-project'}" data-id="${esc(p.id)}" data-tip="${esc(p.name||'Névtelen projekt')}\\n\\n${esc(cutWhat(p,kind))}${cutIcon} ${cutTitle}: ${esc(fmtDay(c.due))}${vp?esc(vp.tip)+'\\n\\nKattints a videók táblájáért':''}${ro()?'':' · húzd el a határidő módosításához'}">${c.st<first?'‹ ':''}${!showBar||c1-c0<2?`<span class="tl-nm">${esc(barName)}</span>`:''}${cdone?(p.status==='atadva'||(vp&&vp.ok===vp.tot)?'<span class="tl-ok" title="Jóváhagyva">✓</span>':'⏳'):pend?'':cutIcon}${(()=>{const n=diffDays(c.st>T?c.st:T,c.due)+1;return n>0&&!c.same&&!pend&&!cdone?' '+n+' nap':'';})()}${vp&&!pend&&!(cdone&&vp.ok===vp.tot)?(cdone?` · ✅ ${vp.ok}/${vp.tot}`:` · ${vp.done}/${vp.tot}`):''}${c.due>last?' ›':''}${vp&&!pend?vp.html:''}</button>`;
-        }).join('');;})()}</div></div>`;}).join('');
+        const kinds=(c.video?['video']:[]).concat(c.photo?['photo']:[]);
+        const selected=ro()?me:S.cal.cutter;
+        const cards=timelinePostCards(p,kinds,selected);
+        const list=cards.length?cards:[{kind:kinds[0]||'video',name:'Kiosztásra vár',tasks:['Utómunka']}];
+        const classes='tl-post-lane'+(pend?' cut-pending':'')+(cdone?' cut-done':'');
+        return '<div class="'+classes+'" style="grid-column:'+col(a2)+' / '+(col(b2)+1)+';grid-row:'+(c.same?2:1)+'" aria-label="'+esc(p.name||'Névtelen projekt')+' – utómunka">'+
+          list.map(card=>{
+            const video=card.kind==='video',symbol=video?'✂️':'📷',title=video?'Vágási határidő':'Fotók utómunkájának határideje',
+                  tasks=card.tasks.join(' · '),act=video?'bd-lane':'open-project';
+            return '<button type="button" class="cal-chip p cut tl-post-card '+(video?'tl-post-video':'tl-post-photo')+
+              '" data-kind="cut" data-action="'+act+'" data-id="'+esc(p.id)+'" data-tipid="'+esc(p.id)+
+              '" data-post-owner="'+esc(card.name)+'" data-post-task="'+esc(tasks)+'" data-post-kind="'+card.kind+
+              '" data-post-due="'+esc(fmtDay(c.due))+'" title="'+esc(title+': '+fmtDay(c.due))+
+              '"'+(ro()?'':' draggable="true"')+'><span class="tl-post-person">'+symbol+' '+esc(card.name)+
+              '</span><span class="tl-post-work">'+esc(tasks)+'</span></button>';
+          }).join('')+'</div>';})()}</div></div>`;}).join('');
   const ti=T>=first&&T<=last?col(T):0;
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
     if(S.cal.tlKeep){const k=S.cal.tlKeep;S.cal.tlKeep=null;const lw0=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,cw0=(w.scrollWidth-lw0)/N;w.scrollLeft=Math.max(0,(col(k.d)-1+k.f)*cw0);w.scrollTop=k.t||0;S.cal.tlPos={m,x:w.scrollLeft,d:todayISO()};tlCorner(w);return;}   // végtelen görgetés: ugyanott marad a kép
