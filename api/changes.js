@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7d6a124972",
+"at": "2026-11-14T19:48:59+02:00",
+"msg": "fix: show own invitations and their statuses in manager project dashboard"
+},
+{
 "id": "d1895c58c8",
 "at": "2026-11-14T19:48:12+02:00",
 "msg": "ui: equalize invitation call-to-action and accepted/declined badge widths"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "project finance: use one shared live refresh for fees and budget fields"
 },
 {
-"id": "1647ee20b1",
-"at": "2026-11-14T19:09:52+02:00",
-"msg": "project finance: live refresh budget remainder and totals for all workday tables"
-},
-{
-"id": "5bb09af59c",
-"at": "2026-11-14T19:08:07+02:00",
-"msg": "ui: show signed negative budget remaining consistently in finance totals"
+"id": "8f9c2eb77c",
+"at": "2026-11-14T17:09:59Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
