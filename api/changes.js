@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2128fa86bf",
+"at": "2026-11-14T18:25:57+02:00",
+"msg": "sales: show each won deal's contracted commission and percentage on its card"
+},
+{
 "id": "7d3482679a",
 "at": "2026-11-14T18:25:42+02:00",
 "msg": "sales: show contracted commission in monthly summary instead of misleading zero"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "ui: display invitation reply deadline in two-line hover hint"
 },
 {
-"id": "2b63bd968d",
-"at": "2026-11-14T17:07:50+02:00",
-"msg": "Align crew cards and show compact invited status"
-},
-{
-"id": "ac6b0d09ab",
-"at": "2026-11-14T15:04:39Z",
+"id": "11c3c08933",
+"at": "2026-11-14T15:08:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
