@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5e1e709d29",
+"at": "2026-11-14T08:18:29+01:00",
+"msg": "Idővonal: balra görgetéskor a sáv felirata a látható rész elején marad"
+},
+{
 "id": "e9db2c834d",
 "at": "2026-11-14T08:17:00+01:00",
 "msg": "Idővonal: a fejléc egy sorban (a hónap neve 1-jén); a vágási sáv felirata az óra sorában, nem csúszik a névre"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: Pénzügyek fejléce egy sorban (rövid alfülnevek, NAV, Díjösszesítő)"
 },
 {
-"id": "f4d9bd8bd2",
-"at": "2026-11-13T22:26:33+01:00",
-"msg": "Fekvő telefon: a naptárban kiírva „+ Új projekt”"
-},
-{
-"id": "a0896ba7b5",
-"at": "2026-11-13T21:25:09Z",
+"id": "8ca3b5d5ff",
+"at": "2026-11-13T21:26:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
