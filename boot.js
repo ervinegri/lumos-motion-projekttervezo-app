@@ -89,6 +89,7 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   const go=()=>{if(!(typeof S!=='undefined'&&S.me&&Array.isArray(S.projects)&&(S._fresh||n>60))){if(++n<160)setTimeout(go,500);return;}
     try{if(/inv=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);}catch(e){}
     const x=(S.myInvites||[]).find(i=>i.id===pid);
+    if(projById(pid)){openProject(pid);return;}   // a projekt nyílik meg – a tetején az Igen / Nem válasz
     if(x){S.tab='projektek';render(true);openModal('✉️ Meghívás',`<div class="inv-modal"><p style="margin:0 0 6px">Meghívást kaptál erre a projektre${(x.roles||[]).length?', mint <b>'+esc(x.roles.map(r=>r.toLowerCase()).join(' és '))+'</b>':''}:</p><h3 style="margin:0 0 4px">${esc(x.name)}</h3><p class="hint" style="margin:0">${esc(fmtDay(x.date))}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+esc(x.endTime):''):''}${x.venue?' · '+esc(x.venue):''}</p><div class="btns" style="margin-top:14px;display:flex;gap:8px"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(pid)}" data-a="yes" data-close="1">✓ Elfogadom</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(pid)}" data-a="no" data-close="1">Nem vállalom</button></div></div>`,{cancelLabel:'Később'});return;}
     if(projById(pid)){openProject(pid);return;}
     toast('Ez a meghívás már nem érvényes, vagy korábban nemet mondtál rá.',true);};

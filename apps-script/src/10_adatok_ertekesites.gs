@@ -156,7 +156,9 @@ function bootstrap_(u) {
     const mine = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
     out.myInvites = mine.filter(p => p.invites && p.invites[cid] && p.invites[cid].st === 'invited').map(p => { let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), cid); } catch (e) {} return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
       roles: [p.lead === cid ? 'Projektvezető' : ''].concat(p.crew.filter(c => c.crewId === cid).map(c => c.role)).filter(Boolean), at: p.invites[cid].at }; });   // függő meghívások: csak az alapadatok
-    out.projects = mine.filter(p => p.lead === cid || !(p.invUse || (p.invites && p.invites[cid])) || (p.invites && p.invites[cid] && p.invites[cid].st === 'yes'));   // meghívásos projektnél csak elfogadás után látja (a meghívás nélküli régi projektek maradnak)   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
+    const invSt = p => p.invites && p.invites[cid] ? p.invites[cid].st : '';
+    out.projects = mine.filter(p => p.lead === cid || !(p.invUse || invSt(p)) || invSt(p) === 'yes' || invSt(p) === 'invited');   // meghívásos projekt: elfogadás után látja; függő meghívásnál megnyithatja (Igen / Nem válaszhoz), a stábból csak az elfogadottakat látja
+    out.projects.forEach(p => { if (invSt(p) === 'invited' && p.lead !== cid) p.invPending = true; });   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
     out.mySales = mySalesComm_(cid);   // a saját értékesítői jutalékai (csak az összeg – ár, % nem)
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
     const onIds = {}, itemIds = {};
