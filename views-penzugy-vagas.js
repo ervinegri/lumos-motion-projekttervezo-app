@@ -553,14 +553,18 @@ function orderSummary(p,bare){
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 /* a vágás sávjára mutatva: milyen videókat kell elkészíteni (a vágó csak a sajátjait látja) */
-function cutWhat(p){
+function cutWhat(p,kind=''){
   const who=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):S.cal.cutter;
-  const ts=postTasks(p).filter(t=>!who||taskKeysOf(p,who).includes(t.k));
+  const ts=postTasks(p).filter(t=>(!who||taskKeysOf(p,who).includes(t.k))&&
+    (kind==='video'?t.k!=='foto_db':kind==='photo'?t.k==='foto_db':true));
   if(!ts.length)return '';
-  const photo=ts.some(t=>t.k==='foto_db'),video=ts.some(t=>t.k!=='foto_db');
-  const multi=cutterIds(p).length>1&&!who,nm=id=>(crewById(id)||{}).name||'';
+  const photo=ts.some(t=>t.k==='foto_db'),video=ts.some(t=>t.k!=='foto_db'),nm=id=>(crewById(id)||{}).name||'';
   const title=photo&&!video?'📷 Fotók utómunkája:':photo?'🎬 Utómunka-feladatok:':'🎬 Elkészítendő videók:';
-  return title+'\n'+ts.map(t=>'• '+(t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.n+' db · '+t.label)+(multi&&taskOwners(p,t.k).length?' ('+taskOwners(p,t.k).map(nm).join(', ')+')':'')).join('\n')+'\n\n';
+  return title+'\n'+ts.map(t=>{
+    const owners=taskOwners(p,t.k).map(nm).filter(Boolean);
+    return '• '+(t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.n+' db · '+t.label)+
+      (owners.length?' ('+owners.join(', ')+')':'');
+  }).join('\n')+'\n\n';
 }
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p).filter(t=>t.k!=='foto_db');if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';   // a fotók utómunkája a vágónál nem választható
