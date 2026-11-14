@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "59d05bde61",
+"at": "2026-11-14T17:03:59+02:00",
+"msg": "chore: silence Vercel GitHub bot comments and notification emails"
+},
+{
 "id": "e5f0470ece",
 "at": "2026-11-14T17:02:34+02:00",
 "msg": "style: compact icon-only resend action and remove inline deadline"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a sávok neve simán tapad görgetéskor (nem ugrál); fekvő nézetben a gombok mérete visszaállítva, csak a hézagok kisebbek"
 },
 {
-"id": "068ce61987",
-"at": "2026-11-14T12:03:46+01:00",
-"msg": "Fekvő telefon: kisebb naptár-gombsor"
-},
-{
-"id": "f81d70f32c",
-"at": "2026-11-14T11:01:48Z",
+"id": "02b9c6402c",
+"at": "2026-11-14T11:03:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
