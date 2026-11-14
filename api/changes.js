@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8822e1b17c",
+"at": "2026-11-14T16:53:38+02:00",
+"msg": "Improve project invitations, deadlines, and calendar descriptions"
+},
+{
 "id": "b3387a644a",
 "at": "2026-11-14T15:15:32+01:00",
 "msg": "Meghívó: válaszadási határidő (3 nap), a projekt neve új sorban; a levél linkje előnézetből is működik (visszavált a saját nézetre)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "iPhone kezdőképernyős app: a menüsor a Dynamic Island szintjéig felér"
 },
 {
-"id": "d9d8831ee3",
-"at": "2026-11-14T11:58:46+01:00",
-"msg": "Beosztásaim: cím és kereső egy sorban, alcím törölve"
-},
-{
-"id": "355ecd4332",
-"at": "2026-11-14T10:58:01Z",
+"id": "a2e8c2d61c",
+"at": "2026-11-14T10:58:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
