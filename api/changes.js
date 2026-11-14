@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e5f0ac1dd",
+"at": "2026-11-14T17:52:55+02:00",
+"msg": "sales: clarify paid-month commission and CEO's own sales accounting"
+},
+{
 "id": "f3d6494b06",
 "at": "2026-11-14T17:51:56+02:00",
 "msg": "sales: merge owner aliases and show linked project revenue on won deal cards"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: értékesítő a büdzsé sorában új projektnél is; Több napos jelölő csak vezetőknek; szakembernél nincs külön Videók panel"
 },
 {
-"id": "516f785c75",
-"at": "2026-11-14T13:03:09+01:00",
-"msg": "Projekt: rendezett Videók panel (állapot, Videótábla és Idővonal gomb); Vágás helyett Utómunka"
-},
-{
-"id": "fa2322ac8e",
-"at": "2026-11-14T12:02:16Z",
+"id": "104a67d66c",
+"at": "2026-11-14T12:03:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
