@@ -161,6 +161,8 @@ function financePanel(p,inner){
   }
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek az alábbi táblázatot nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
+    ${adm?'':(()=>{const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum;   /* termelési vezető: a termelői keret fent, jól láthatóan */
+      return `<div class="keret-top${left!=null&&left<0?' over':''}"><div><span>Termelői keret</span><b>${k!=null?moneyFmt(k)+' Ft':'nincs megadva'}</b></div><div><span>Díjak összesen</span><b>${moneyFmt(sum)||0} Ft</b></div>${left!=null?`<div class="kt-left"><span>${left<0?'Keret túllépése':'Maradt a keretből'}</span><b>${left<0?'−':''}${moneyFmt(Math.abs(left))||0} Ft</b></div>`:''}</div>`;})()}
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     ${finPanelBody(p)}
     ${budgetRequestPanel(p)}

@@ -1668,3 +1668,10 @@ html body .tl-track .tl-bar:has(.tl-ok){padding-right:26px!important}
 /* „Névjegy a telefonra”: kis gomb, nem teljes szélességű sáv */
 html body .vcf-row{display:flex;justify-content:flex-end;margin-top:-4px}
 html body .vcf-row .vcf-btn{width:auto!important;flex:0 0 auto;padding:4px 10px!important;font-size:12px!important;min-height:0!important}
+/* termelési vezető: a termelői keret a Díjak panel tetején */
+.keret-top{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.keret-top>div{flex:1 1 160px;background:#f6f8fb;border:1px solid var(--line,#dde4eb);border-radius:12px;padding:9px 14px;display:flex;flex-direction:column;gap:2px}
+.keret-top span{font-size:12px;color:var(--fg-2,#5b6876)}
+.keret-top b{font-size:19px;font-variant-numeric:tabular-nums}
+.keret-top>div:first-child{background:#fff8e6;border-color:#efd9a4}
+.keret-top .kt-left b{color:#1f8a4c}.keret-top.over .kt-left{background:#fdeceb;border-color:#f2c1bd}.keret-top.over .kt-left b{color:#c0392b}
