@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d58c8d0498",
+"at": "2026-11-14T17:40:06+02:00",
+"msg": "billing: create one shared final invoice with paid advance accounting safeguards"
+},
+{
 "id": "6f1bdb5f3a",
 "at": "2026-11-14T17:39:07+02:00",
 "msg": "billing: consolidate shared final invoice and prorate deposits without duplicate charging"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új projekt: az ügyfél és a kapcsolattartó adatai nem kötelezők létrehozáskor"
 },
 {
-"id": "b58a6a9d93",
-"at": "2026-11-14T12:51:49+01:00",
-"msg": "Felirat: Hozzávetőleges végzés"
-},
-{
-"id": "86d22e1f34",
-"at": "2026-11-14T11:51:08Z",
+"id": "b46c9bcc87",
+"at": "2026-11-14T11:52:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
