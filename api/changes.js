@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0aa910aa3b",
+"at": "2026-11-14T11:42:26+01:00",
+"msg": "Álló telefon: egysoros fejléc – menüpontok, szerepkör és csengő együtt húzható, a logó helyben marad"
+},
+{
 "id": "ec38d66cff",
 "at": "2026-11-14T11:40:05+01:00",
 "msg": "Bevételek: a teljes táblázat látszik, nincs belső függőleges görgetés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a projekt sávjára kattintva is a videótábla (kanban) nyílik, ha vannak videók"
 },
 {
-"id": "fd7abb03da",
-"at": "2026-11-14T08:26:22+01:00",
-"msg": "Idővonal: a vágási sávon csak egy jel a végén (zöld ✓ / ⏳), zöld pipák; Havi nézet: a vágói munkák csak a határidő napján"
-},
-{
-"id": "ed9e4a92b5",
-"at": "2026-11-14T07:24:38Z",
+"id": "637b3b98e8",
+"at": "2026-11-14T07:26:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
