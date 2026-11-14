@@ -46,6 +46,8 @@ function billInfo(p){
   const fw=!b.contractStatus?fwFor(p):null;   // keretszerződés az ügyféllel → nem kell külön szerződés
   const contractOk=b.contractStatus==='alairva'||b.contractStatus==='nemkell'||!!fw;
   const cStep=b.contractStatus==='nemkell'||(fw&&fw.mode==='nemkell')?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
+  const matchingGroup=!db&&!el?billGroupAdvance(billClientMonthProjects(p)):null;
+  const pendingGroupAdvance=matchingGroup&&matchingGroup.candidate&&!invPids(matchingGroup.candidate).includes(p.id);
   const advIssued=!!(db||el),advPaid=!!((db&&invPaidOk(db))||(el&&invPaidOk(el)));
   const advSkip=b.mode!=='egyben'&&!db&&!el&&!!fin;   // a rendezvény napjától díjbekérő helyett rögtön (teljes) számla is mehet: ekkor nincs foglaló-lépés
   const full=b.mode!=='egyben'&&!advSkip&&num(b.advancePct)>=100,noFin=(b.noFinal==='1'||full)&&!fin,finSteps=noFin?[]:b.mode==='egyben'||advSkip?[['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!fin&&finAll.every(invPaidOk)]]:[['finIssued','Végszámla kiállítva',!!fin],['finPaid','Végszámla kifizetve',!!fin&&finAll.every(invPaidOk)]];
@@ -59,8 +61,9 @@ function billInfo(p){
     next=k==='contract'?(b.contractStatus==='kikuldve'?'Szerződés aláírásra vár':b.contractStatus==='visszakuldve'?'Szerződés módosítása':'Szerződés hiányzik'):k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
     nextCls=k==='contract'&&b.contractStatus!=='kikuldve'&&b.contractStatus!=='visszakuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     const tg=k==='finIssued'?tigOf(p.id):null;if(tg){next=tg.status==='jovahagyva'?'TIG jóváhagyva – számlázható':tg.status==='kiallitva'?'TIG elküldésre vár':'TIG jóváhagyásra vár';nextCls=tg.status==='jovahagyva'?'p-info':'p-warn';}
+    if(k==='advIssued'&&pendingGroupAdvance){next='Közös foglaló párosítása';nextCls='p-warn';}
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
-  return {p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,advSkip,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),openNet:open.reduce((s,x)=>s+due(x)*invNetR(x),0),lateNet:late.reduce((s,x)=>s+due(x)*invNetR(x),0),todo:!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
+  return {p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,advSkip,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),openNet:open.reduce((s,x)=>s+due(x)*invNetR(x),0),lateNet:late.reduce((s,x)=>s+due(x)*invNetR(x),0),todo:!pendingGroupAdvance&&!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
 /* A projekt legutóbbi, még nem számlázott TIG-je */
 const tigList=()=>((S.fin&&S.fin.tigs)||[]);
