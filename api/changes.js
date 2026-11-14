@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ae18fa2dff",
+"at": "2026-11-14T11:52:48+01:00",
+"msg": "Beállítások: kisebb szövegméret a „Küldés a kollégák saját címéről” panelen"
+},
+{
 "id": "0966aadd62",
 "at": "2026-11-14T11:52:02+01:00",
 "msg": "Napló: a felhasználók csökkenő sorrendben (bejegyzések száma szerint)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Névjegy: kis gomb a kapcsolattartó alatt; a QR-névjegyben nincs projektnév"
 },
 {
-"id": "8f51f47244",
-"at": "2026-11-14T09:10:08+01:00",
-"msg": "Számlák: a vevőnek a Lumos címéről megy ki a levél PDF melléklettel (a számlázz.hu nem küldi)"
-},
-{
-"id": "bddb612fb4",
-"at": "2026-11-14T07:57:36Z",
+"id": "8f5f805d45",
+"at": "2026-11-14T08:10:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
