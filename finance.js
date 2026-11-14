@@ -408,11 +408,20 @@ function szInvoiceModal(kind,id,o={}){
   if(group&&o.type==='dijbekero'&&group.candidate&&group.missing.some(i=>i.p.id===id)){
     toast('Ehhez az ügyfélcsoporthoz egy meglévő, összegében egyező foglaló tartozhat. Ellenőrizd és kapcsold a közös számlát.',true);return;
   }
-  // Amikor egyetlen közös foglaló már minden projekthez kapcsolódik, a végszámlát is egyszer, közös tételekkel készítjük elő.
+  // Fizetett díjbekérő után a tényleges foglalószámla alapján készülhet közös végszámla.
+  if(group&&group.shared&&group.doc&&group.doc.kind==='dijbekero'&&['vegszamla','szamla'].includes(o.type)){
+    toast('Előbb kapcsolódjon a befizetett díjbekérőhöz a foglalószámla; utána készíthető a közös végszámla.',true);return;
+  }
+  // A közös foglalóhoz egy közös végszámlát, vagy egyszerű előreszámlázás esetén a fennmaradó összegről egy számlát készítünk.
   if(group&&group.shared&&!o.tigId&&!o.items&&!(o.projectIds&&o.projectIds.length)&&['vegszamla','szamla'].includes(o.type)
     &&group.ids.every(pid=>{const p=projById(pid);return p&&!billInfo(p).fin;})){
-    const ids=group.ids.slice().sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||'')));
+    const ids=group.ids.slice().sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||''));
     return szInvoiceModal('project',ids[0],Object.assign({},o,{projectIds:ids.slice(1),items:ids.map(pid=>({name:szItemName(projById(pid)),qty:1,price:projTotal(projById(pid)),pid}))}));
+  }
+  // A számlázz.hu által szimpla számlaként kezelt foglaló már kiszámlázott nettó részét levonjuk a közös új számla tételeiből.
+  if(group&&group.shared&&group.doc&&group.doc.kind==='eloleg'&&group.doc.advType==='szamla'&&!o.tigId&&o.items&&o.projectIds&&o.projectIds.length
+    &&['vegszamla','szamla'].includes(o.type)&&o.items.every(it=>it.pid&&projById(it.pid)&&num(it.price)===projTotal(projById(it.pid)))){
+    o=Object.assign({},o,{type:'szamla',items:o.items.map(it=>Object.assign({},it,{price:Math.max(0,num(it.price)-Math.round(num(group.doc.invNet)*invShare(group.doc,it.pid)))}))});
   }
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
