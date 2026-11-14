@@ -1919,7 +1919,11 @@ html body .pcrew-inv{display:flex;align-items:center;gap:6px;flex-wrap:wrap;marg
 html body .pcrew-inv .inv-btn{padding:10px 16px!important;font-size:14px!important;min-height:44px!important;font-weight:700}
 html body .inv-st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
 html body .inv-st.yes{background:#e6f5ec;color:#1f7a44}html body .inv-st.no{background:#fdecec;color:#a33}html body .inv-st.wait{background:#fdf2dc;color:#8a5a00}
-html body .pcrew-inv .inv-pending{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+html body .pcrew-inv .inv-pending{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;width:100%}
+html body .pcrew-inv .inv-pending-top{display:flex;align-items:center;flex-wrap:wrap;gap:7px;max-width:100%}
+html body .pcrew-inv .reinvite-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px!important;padding:7px 12px!important;font-size:13px!important;font-weight:750!important;line-height:1.2!important;color:#733e00!important;background:#ffdf9d!important;border:1px solid #bd7a13!important;box-shadow:0 2px 5px rgba(90,53,0,.15);white-space:nowrap;cursor:pointer}
+html body .pcrew-inv .reinvite-btn:hover{background:#fccc70!important;border-color:#9c5908!important;box-shadow:0 3px 7px rgba(90,53,0,.22)}
+html body .pcrew-inv .reinvite-btn:focus-visible{outline:3px solid #a66a00;outline-offset:2px}
 html body .pcrew-inv .inv-deadline{display:block;font-size:12px;line-height:1.4;color:#8a5a00;padding-left:3px}
 html body .pcrew-inv .linkbtn{font-size:12px}
 html body .inv-panel{border:1px solid #f2dfb0;background:#fffaf0}
