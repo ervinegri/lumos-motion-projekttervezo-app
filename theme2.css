@@ -1990,3 +1990,9 @@ html body .sales-board-head{display:flex;align-items:center;justify-content:spac
 html body .sales-board-head b{font-weight:750}
 html body .sales-board-head span{font-size:12px;color:var(--fg-3,#697784);font-weight:500}
 @media(max-width:740px){html body .sales-board-head{margin-top:12px;font-size:13px}html body .sales-board-head span{font-size:11px}}
+
+/* Bevételek: elkülönített munkadíj, továbbszámlázás és szervezői jutalék. */
+html body .fin-tbl.fin-inc{min-width:1370px}
+html body .fin-inc tbody td:nth-child(8),html body .fin-inc tfoot td:nth-child(8){background:rgba(78,120,158,.045)}
+html body .fin-inc tbody td:nth-child(9),html body .fin-inc tfoot td:nth-child(9){background:rgba(151,124,70,.055)}
+html body .fin-inc tbody td:nth-child(8),html body .fin-inc tbody td:nth-child(9){font-variant-numeric:tabular-nums}
