@@ -1913,13 +1913,13 @@ html body .vid-panel .vid-ed .inp,html body .vid-panel .vid-ed .cmb-in{min-heigh
 @media (max-width:700px){html body .vid-panel .vid-row{flex-wrap:wrap}html body .vid-panel .vid-row .vid-n{flex-basis:100%}html body .vid-panel .vid-ed{min-width:0;flex:1 1 auto}html body .vid-panel .vp-btns{margin-left:0;width:100%}html body .vid-panel .vp-btns .btn{flex:1}}
 /* Projektpénzügyek: egyetlen kék blokk a Termelés után, értékesítőválasztóval és jutalékkal */
 html body .fin-v2 .fin-r{align-items:flex-end}
-html body .fin-v2 .grp-sales{flex:0 1 315px;min-width:255px;max-width:100%;box-sizing:border-box}
-html body .fin-v2 .grp-sales .grp-b{display:grid;grid-template-columns:minmax(78px,1fr) minmax(135px,1.5fr);gap:7px 9px;align-items:end}
-html body .fin-v2 .grp-sales .fin-ssel{grid-column:1/-1;width:100%;min-width:0}
+html body .fin-v2 .grp-sales{flex:0 1 530px;width:530px;min-width:0;max-width:100%;box-sizing:border-box}
+html body .fin-v2 .grp-sales .grp-b{display:grid;grid-template-columns:minmax(175px,2fr) minmax(90px,1fr) minmax(130px,1.45fr);gap:8px;align-items:end}
+html body .fin-v2 .grp-sales .fin-ssel{grid-column:1;width:auto;min-width:0}
 html body .fin-v2 .grp-sales .fin-scp,html body .fin-v2 .grp-sales .fin-scf{min-width:0;width:auto;max-width:100%}
 html body .fin-v2 .grp-sales .cmb,html body .fin-v2 .grp-sales .cmb-in,html body .fin-v2 .grp-sales select{width:100%!important;max-width:100%;box-sizing:border-box}
 html body .fin-v2 .grp-sales .money{min-width:0}
-@media (max-width:600px){html body .fin-v2 .grp-sales{flex:1 1 100%;min-width:0}}
+@media (max-width:600px){html body .fin-v2 .grp-sales{flex:1 1 100%;min-width:0;overflow-x:auto}html body .fin-v2 .grp-sales .grp-b{min-width:440px}}
 
 /* Meghívások: azonos magasságú fejléc minden stábkártyán, a nevek egy vonalban */
 html body .pcrew-inv-slot{height:48px;min-height:48px;flex:0 0 48px;display:flex;align-items:center;min-width:0}
