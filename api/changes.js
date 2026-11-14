@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4d9f4d4399",
+"at": "2026-11-14T17:04:31+02:00",
+"msg": "ui: use single app hover hint for invitation deadline"
+},
+{
 "id": "59d05bde61",
 "at": "2026-11-14T17:03:59+02:00",
 "msg": "chore: silence Vercel GitHub bot comments and notification emails"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: kisebb Összesen felirat, érintéssel nem jelölődik ki a szöveg"
 },
 {
-"id": "6c83ffb4b8",
-"at": "2026-11-14T12:05:55+01:00",
-"msg": "Idővonal: a sávok neve simán tapad görgetéskor (nem ugrál); fekvő nézetben a gombok mérete visszaállítva, csak a hézagok kisebbek"
-},
-{
-"id": "02b9c6402c",
-"at": "2026-11-14T11:03:55Z",
+"id": "b67542bc73",
+"at": "2026-11-14T11:06:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
