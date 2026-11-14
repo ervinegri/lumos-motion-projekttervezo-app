@@ -8,6 +8,34 @@ const billOn=()=>isAdmin()&&!!(S.capabilities&&S.capabilities.finance);
 const billOf=pid=>((S.fin&&S.fin.billing)||[]).find(b=>b.projectId===pid)||{projectId:pid,contractStatus:'',mode:'eloleg',advancePct:50,poNumber:'',note:'',contractUrl:'',contractName:''};
 const projDone=p=>['leadva','jovahagyas','atadva'].includes(p.status)||(pr(p)&&pr(p).end<todayISO());
 const fmtMD=d=>d?d.slice(5).replace('-','.')+'.':'';
+/* Ügyfél-hónap pénzügyi csoportja: kizárólag a bizonylatok tényleges kapcsolata számít igazolt közös foglalónak. */
+function billClientMonthProjects(p){
+  const d=pr(p),name=String(p.client||'').trim().toLocaleLowerCase('hu');
+  if(!d||!name)return [p];
+  return (S.projects||[]).filter(x=>x.status!=='lemondva'&&String(x.client||'').trim().toLocaleLowerCase('hu')===name&&pr(x)&&pr(x).start.slice(0,7)===d.start.slice(0,7));
+}
+function billGroupAdvance(rows){
+  const ps=rows.map(x=>x.p||x).filter(x=>x&&x.id),ids=new Set(ps.map(p=>p.id));
+  const total=ps.reduce((a,p)=>a+projTotal(p),0);
+  const expected=ps.reduce((a,p)=>a+Math.round(projTotal(p)*Math.max(0,Math.min(100,num(billOf(p.id).advancePct)))/100),0);
+  const all=((S.fin&&S.fin.invoices)||[]).filter(x=>(x.kind==='dijbekero'||x.kind==='eloleg')&&invPids(x).some(id=>ids.has(id)));
+  const refs=new Set(all.filter(x=>x.kind==='eloleg'&&x.ref).map(x=>String(x.ref)));
+  const docs=all.filter(x=>x.kind==='eloleg'||!refs.has(String(x.no||'')));
+  const coveredFraction=x=>{const linked=invPids(x),linkedSum=linked.reduce((a,id)=>a+projTotal(projById(id)||{}),0);
+    return linkedSum?linked.filter(id=>ids.has(id)).reduce((a,id)=>a+projTotal(projById(id)||{}),0)/linkedSum:1;};
+  const paid=Math.min(total,Math.round(docs.reduce((a,x)=>{
+    const amount=x.kind==='eloleg'&&x.manual&&invPaidOk(x)?num(x.invNet):num(x.invPaid)*invNetR(x);
+    return a+Math.max(0,amount)*coveredFraction(x);
+  },0)));
+  const qualified=docs.filter(x=>invPaidOk(x));
+  const sameDay=ps.length>1&&ps.every(p=>pr(p)&&pr(p).start===pr(ps[0]).start);
+  const candidate=ps.length>1&&sameDay&&ps.every(p=>billOf(p.id).mode!=='egyben')
+    &&docs.length===1&&qualified.length===1&&Math.abs(num(qualified[0].invNet)-expected)<=2
+    &&invPids(qualified[0]).every(id=>ids.has(id))
+    &&ps.some(p=>!invPids(qualified[0]).includes(p.id))?qualified[0]:null;
+  const shared=qualified.find(x=>invPids(x).length>1&&ps.every(p=>invPids(x).includes(p.id)))||null;
+  return {total,expected,paid,remaining:Math.max(0,total-paid),candidate,shared,projects:ps};
+}
 /* Egy projekt szerződés- és számlázási állapota */
 function billInfo(p){
   const b=billOf(p.id),inv=invFor('project',p.id),last=k=>inv.filter(x=>x.kind===k).pop()||null;
