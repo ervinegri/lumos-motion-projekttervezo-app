@@ -36,7 +36,7 @@ const ids=html=>Array.from(html.matchAll(/data-deal="([^"]+)"/g),x=>x[1]);
 const pick=m=>{state.salesF.month=m;return lib.viewSales();};
 assert.deepEqual(ids(current),['novOpen','novWon']);
 assert.deepEqual(ids(pick('2026-10')),['octWon'],'old payments remain visible under event month');
-assert.match(pick('2026-10'),/jutalék 2026-10/,'commission header follows selected payment month');
+assert.match(pick('2026-10'),/szerződött jutalék/,'commission header follows the selected project month');
 assert.deepEqual(ids(pick('2027-02')),['febOpen']);
 assert.deepEqual(ids(pick('2025-01')),['oldWon'],'historic closed deals remain visible');
 assert.deepEqual(ids(pick('undated')),['undated'],'undated leads stay accessible');
