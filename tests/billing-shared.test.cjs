@@ -83,3 +83,30 @@ console.log('PASS shared-client deposit accounting, matching and duplicate preve
     S.fin.invoices=prevInvoices;
   }
 }
+
+/* A közös foglaló után a végszámla tételei összevontan, kiállítótól függő biztonsági ellenőrzéssel készülnek. */
+{
+  const finance=fs.readFileSync(path.resolve(__dirname,'../finance.js'),'utf8');
+  const first=finance.indexOf('function szInvoiceModal(kind,id,o={}){'),last=finance.indexOf('  const t=szTargetInfo(kind,id)',first);
+  assert(first>=0&&last>first,'Shared final invoice preparation is available');
+  const ps=projects.filter(p=>p.id==='conf'||p.id==='short1'||p.id==='short2');
+  let advance={id:'adv',no:'EE-2026-8',kind:'eloleg',advType:'elolegszamla',projectId:'conf',projectIds:'short1,short2',invNet:177000,manual:false,issuer:'kft'};
+  const byId=id=>ps.find(p=>p.id===id),amount=p=>Number(p.projectValue)||0,alerts=[];
+  const create=new Function('billGroupAdvance','billClientMonthProjects','projById','billInfo','pr','num','invPids','invShare','szItemName','projTotal','toast',
+    finance.slice(first,last)+'  return o;\n}')(
+    ()=>({shared:advance,paid:177000,projects:ps}),()=>ps,byId,()=>({fin:null}),p=>({start:p.date}),
+    v=>Number(v)||0,x=>[x.projectId,...String(x.projectIds||'').split(',')].filter(Boolean),
+    (x,pid)=>amount(byId(pid))/354000,p=>p.name,amount,x=>alerts.push(x));
+  let out=create('project','conf',{type:'vegszamla'});
+  assert.equal(out.items.length,3,'one invoice with three items');
+  assert.equal(out.items.reduce((a,it)=>a+it.price,0),354000,'real advance is deducted by invoice reference');
+  assert.deepEqual(Array.from(out.projectIds),['short1','short2']);
+  advance={...advance,advType:'szamla'};
+  out=create('project','conf',{type:'vegszamla'});
+  assert.equal(out.type,'szamla');
+  assert.deepEqual(Array.from(out.items,it=>it.price),[148000,14500,14500],'ordinary advance is already invoiced');
+  advance={...advance,manual:true,issuer:'ev'};
+  assert.equal(create('project','conf',{type:'vegszamla'}),undefined,'external issuer requires review');
+  assert.equal(alerts.length,1);
+  console.log('PASS safe shared final invoice preview and external issuer check');
+}
