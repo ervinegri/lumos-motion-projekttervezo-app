@@ -160,7 +160,6 @@ function bootstrap_(u) {
       return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
         roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at };
     });
-    if (u.role === 'admin' || u.role === 'editor') mineInvited.forEach(p => { p.invPending = true; });
   }
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
