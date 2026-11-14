@@ -69,6 +69,13 @@ function billGroupFinance(g){
   return {sum,paidAdvance,remaining:Math.max(0,sum-paidAdvance),shared,candidate,doc,missing,ids};
 }
 
+function billGroupForProject(pid){
+  const p=projById(pid),r=p&&pr(p);if(!r)return null;
+  const cl=String(p.client||'').trim().toLowerCase(),month=r.start.slice(0,7);
+  const g=S.projects.filter(x=>x.status!=='lemondva'&&pr(x)&&pr(x).start.slice(0,7)===month&&String(x.client||'').trim().toLowerCase()===cl).map(billInfo);
+  return g.length>1?billGroupFinance(g):null;
+}
+
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
 const invNetR=x=>{const g=num(x.invGross),n=num(x.invNet);return g>0&&n>0?n/g:1/1.27;};   // bruttó → nettó arány a bizonylatból
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
@@ -287,7 +294,21 @@ Object.assign(ACT,{
   'blf':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.v=f.v===b.dataset.v?'honap':b.dataset.v;render(true);},   // a csempe ki-be kapcsolja a szűrőt
   'blf-m':b=>{const f=S.blf||(S.blf={v:'honap',q:''});f.m=shiftMonth(f.m||todayISO().slice(0,7),Number(b.dataset.d));f.v='honap';render(true);},
   'bill-edit':b=>billModal(b.dataset.id,b.dataset.focus),
+  'bill-adv-link':b=>{
+    const doc=((S.fin&&S.fin.invoices)||[]).find(x=>x.id===b.dataset.inv),ids=(b.dataset.ids||'').split(',').filter(Boolean),first=ids[0];
+    const g=first&&billGroupForProject(first);
+    if(!doc||!g||!g.candidate||g.doc.id!==doc.id||g.ids.length!==ids.length||!g.ids.every(id=>ids.includes(id))){toast('A foglaló adatai frissültek, ellenőrizd az ügyfélcsoportot.',true);return;}
+    const ps=g.ids.map(projById).filter(Boolean);
+    confirmModal('Közös foglaló hozzárendelése',
+      `A ${esc(doc.no)} bizonylat ${ftFmt(num(doc.invNet))} nettó összege pontosan a ${ftFmt(g.sum)} értékű, ${ps.length} projekt ${num(billOf(first).advancePct)}%-os foglalója. Hozzárendeled mindegyik projekthez? A számlázóban a bizonylat és a kifizetés változatlan marad.`,
+      'Összekapcsolás',async()=>{
+        try{const d=await call('szLink',{projectId:doc.projectId,no:doc.no,projectIds:g.ids.filter(id=>id!==doc.projectId)});
+          finApply(d);toast('A közös foglaló ${ps.length} projekthez kapcsolva: '+doc.no);}
+        catch(e){handleErr(e);}
+      });
+  },
   'bill-inv':b=>{if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
+    if(b.dataset.type==='dijbekero'){const g=billGroupForProject(b.dataset.id);if(g&&g.candidate&&g.missing.some(i=>i.p.id===b.dataset.id)){toast('Lehetséges közös foglaló: először az ügyfél fejlécében kapcsold a meglévő bizonylatot a projektekhez.',true);return;}}
     const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id)).sort((x,y)=>String((pr(projById(x))||{}).start).localeCompare(String((pr(projById(y))||{}).start)));   // időrendben   // összevont kártya: egy közös számla, projektenként egy tétellel
     if(ids.length>1){szInvoiceModal('project',ids[0],{type:b.dataset.type,projectIds:ids.slice(1),items:ids.map(id=>{const p=projById(id);return {name:szItemName(p),qty:1,price:projTotal(p),pid:id};})});return;}
     szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
