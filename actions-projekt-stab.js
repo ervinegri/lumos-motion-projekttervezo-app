@@ -227,3 +227,11 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.
   const d=projDeal(p);if(d)d.commManual=val;   // azonnal (a mentés a háttérben)
   S._commPend=S._commPend||{};S._commPend[p.id]=val;const tk=S._commTk=(S._commTk||0)+1;
   try{const r=await call('projSalesComm',{projectId:p.id,pct:val});if(tk===S._commTk)delete S._commPend[p.id];if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);toast(val===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék mentve');}catch(err){handleErr(err);render(true);}});
+
+/* Ha a stábba felveszel valakit egy szerepre (pl. Kreatív operatőr), a Szolgáltatásoknál az első üres, ugyanilyen szerepű feladatra is automatikusan ő kerül */
+function slotAutoFill(id,role){if(!id||!role)return;setTimeout(()=>{const d=S.draft;if(!d)return;
+  const sels=[...document.querySelectorAll('select[data-os-slot]')].filter(s=>!s.value&&!s.disabled);
+  const match=s=>{const r=opRoleFor(s.dataset.osSlot,s.dataset.role);return r===role||(role==='Operatőr'&&isOpRole(r))||s.dataset.role===role;};
+  const taken=s=>slotOwners(d,s.dataset.osSlot).includes(id);
+  const s=sels.find(x=>match(x)&&!taken(x)&&[...x.options].some(o=>o.value===id));if(!s)return;
+  s.value=id;s.dispatchEvent(new Event('change',{bubbles:true}));},60);}

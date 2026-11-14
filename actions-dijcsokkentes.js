@@ -227,7 +227,7 @@ function newProjectModal(day,pre){NP_FILES=[];
     const fieldOf={client:clientNew?'client':'clientQ'};
     const miss=missingReq(p).filter(([k])=>!['endDate','client','contactName','contactPhone','contactEmail'].includes(k));   // létrehozáskor az ügyfél és a kapcsolattartó adatai nem kötelezők
     if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Kezdés (óó:pp formában)']);
-    if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Távozás (óó:pp formában)']);
+    if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Végzés (óó:pp formában)']);
     if(p.date&&p.date<todayISO()&&form.dataset.pastOk!==p.date){form.dataset.pastOk=p.date;
       let w=$('m-pastWarn');if(!w){w=document.createElement('div');w.id='m-pastWarn';w.className='past-warn';form.querySelector('.fields').after(w);}
       w.innerHTML=`⚠️ <b>A projekt első napja a múltban van (${esc(fmtDay(p.date))}).</b> Biztosan múltbeli projektet hozol létre? Ha igen, kattints újra a „Projekt létrehozása” gombra.`;w.scrollIntoView({block:'nearest',behavior:'smooth'});

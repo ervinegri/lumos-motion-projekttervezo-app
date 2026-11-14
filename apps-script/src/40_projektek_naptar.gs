@@ -278,7 +278,7 @@ function calPlan_(p) {
   if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' helyszín' : ''));   // a felbontás nem kerül a naptárba
   // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
   // az érkezés és a távozás az esemény időpontjában szerepel, a leírásba nem kerül külön
-  if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · távozás kb. ' + p.lastEndTime : ''));
+  if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · végzés kb. ' + p.lastEndTime : ''));
   if (p.lead && crewMap[p.lead]) lines.push('Projektvezető: ' + [crewMap[p.lead].name, crewMap[p.lead].phone].filter(Boolean).join(', '));   // a naptár vendégei a stábtagok: az ügyfél kapcsolattartója nem kerül ide
   if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
   if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));

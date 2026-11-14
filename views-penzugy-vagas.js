@@ -641,9 +641,9 @@ function viewProject(p){
         ${fld(p,'contactEmail','E-mail',{type:'email'})}
         </div>`}
         ${editOnly(p)?`<div class="field">${fld(p,'date','✂️ Leadási határidő',{type:'date'}).replace(/^<div class="field[^"]*">/,'').replace(/<\/div>$/,'')}<span class="hint" style="margin:2px 0 0">Videóvágás: nincs helyszín és kezdési idő – csak a leadás napja számít.</span></div>`:(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
-          return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}<div class="time-pair">${tm('startTime',on?'Kezdés (első nap)':'Kezdés')}${tm('endTime',on?'Távozás kb. (első nap)':'Távozás (kb.)')}</div></div>
+          return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}<div class="time-pair">${tm('startTime',on?'Kezdés (első nap)':'Kezdés')}${tm('endTime',on?'Végzés kb. (első nap)':'Végzés (kb.)')}</div></div>
             <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
-            ${on?'<div class="time-pair">'+tm('lastStartTime','Kezdés (utolsó nap)')+tm('lastEndTime','Távozás kb. (utolsó nap)')+'</div>':''}</div></div>`;})()}
+            ${on?'<div class="time-pair">'+tm('lastStartTime','Kezdés (utolsó nap)')+tm('lastEndTime','Végzés kb. (utolsó nap)')+'</div>':''}</div></div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
   </div>

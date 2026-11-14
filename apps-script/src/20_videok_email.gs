@@ -717,7 +717,7 @@ function crewFinalBuild_(p, m, lead, link, changed, cm, u) {
   cm = cm || {};   // a felugró ablakban szerkesztett tárgy / bevezető / megjegyzés (üres = alapértelmezett)
   const range = fmtHuDate_(p.date) + (p.endDate && p.endDate > p.date ? ' – ' + fmtHuDate_(p.endDate) : '');
   const rows = [['Projekt', p.name], ['Időpont', range + (m.days.length ? ' (a te napjaid: ' + m.days.map(fmtHuDate_).join(', ') + ')' : '')],
-    ['Kezdés', p.startTime || ''], ['Távozás (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
+    ['Kezdés', p.startTime || ''], ['Végzés (kb.)', p.endTime || ''], ['Helyszín', p.venue || ''], ['Szereped', m.roles.join(', ')],
     ['Projektvezető', lead && lead.id !== m.id ? lead.name + (lead.phone ? ' · ' + lead.phone : '') : '']].filter(r => r[1]);   // a projektvezető a saját levelében nem kapja meg a saját nevét / számát
   siteTasks_(p, m.id).forEach(t => rows.push(t));   // helyszíni feladat: melyik teremben, milyen kameraszöggel, milyen eszközzel
   const ct = cm.cutTasks && cm.cutTasks[m.id];   // vágó: mit kell megvágnia + leadási határidő (a felület számolja)

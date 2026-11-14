@@ -234,7 +234,7 @@ const ACT={
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}
-    crew.push({crewId:id,role});S.addCrew={person:'',role:''};setDraft({crew});},
+    crew.push({crewId:id,role});S.addCrew={person:'',role:''};setDraft({crew});slotAutoFill(id,role);},
   'crew-remove':b=>{const d=S.draft;const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
     if(gone&&gone.crewId!==d.lead&&!crew.some(a=>a.crewId===gone.crewId)&&equipment.some(e=>e.crewId===gone.crewId)){equipment=clone(equipment).map(e=>e.crewId===gone.crewId?Object.assign(e,{crewId:''}):e);toast('A nála lévő eszközök a Közös eszközökhöz kerültek.');}
     setDraft({crew,equipment});},
@@ -408,8 +408,8 @@ document.addEventListener('change',e=>{
     return;}
   if(t.dataset.stepK&&d){const k=t.dataset.stepK,min=num(t.dataset.min),max=num(t.dataset.max);let n=parseInt(String(t.value).replace(/\D/g,''),10);if(!isFinite(n))n=min;n=Math.max(min,Math.min(max,n));
     setDraft(k==='foto_db'?{foto_db:n}:stepPatch(d,k,n));return;}
-  if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;if(t.value==='Projektvezető'){setDraft({lead:t.dataset.crewAddrole});return;}const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});return;}
-  if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});return;}
+  if(t.dataset.crewAddrole!==undefined&&d){if(!t.value)return;if(t.value==='Projektvezető'){setDraft({lead:t.dataset.crewAddrole});return;}const crew=clone(d.crew||[]);if(!crew.some(a=>a.crewId===t.dataset.crewAddrole&&a.role===t.value))crew.push({crewId:t.dataset.crewAddrole,role:t.value});setDraft({crew});slotAutoFill(t.dataset.crewAddrole,t.value);return;}
+  if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});slotAutoFill(crew[Number(t.dataset.crewRole)].crewId,t.value);return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;render(true);setTimeout(()=>{const e=$('add-crew-person'),ci=e&&e.parentNode&&e.parentNode.querySelector('.cmb-in');if(ci)ci.focus();else if(e)e.focus();},60);return;}
   if(t.id==='add-crew-person'&&d){const id=t.value;if(!id)return;const role=$('add-crew-role').value||'Operatőr';const c=crewById(id);
@@ -419,7 +419,7 @@ document.addEventListener('change',e=>{
       if(cur.length===all.length)delete cd[id];else cd[id]=all.filter(x=>cur.includes(x));
       if(!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});setDraft({crew,crewDays:cd});toast((c?c.name:'')+' beosztva a '+(all.indexOf(day)+1)+'. napra: '+role);return;}
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);render(true);return;}
-    crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role);return;}
+    crew.push({crewId:id,role});setDraft({crew});toast((c?c.name:'')+' beosztva: '+role);slotAutoFill(id,role);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__rent'){const key=t.dataset.eqAuto;t.value='';rentalModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__own'){const key=t.dataset.eqAuto;t.value='';ownGearModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__new'){const key=t.dataset.eqAuto;t.value='';itemModal(null,saved=>{if(!S.draft)return;const equipment=clone(S.draft.equipment||[]);equipment.push({itemId:saved.id,qty:1,crewId:key});setDraft({equipment});toast('Felvéve a leltárba és hozzárendelve: '+saved.name);});return;}
