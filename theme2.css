@@ -1745,3 +1745,11 @@ html body .tl-row.tl-wsec .tl-lbl.tl-wline::-webkit-scrollbar{display:none}
 html body .tl-row.tl-wsec .tl-wline .tl-wtog{position:sticky!important;left:-12px;z-index:2;background:#fbf6ea;box-shadow:8px 0 8px -4px #fbf6ea;padding-left:0}
 /* idővonal: a napok közvetlenül a gombsor alatt (kisebb hézag) */
 html body .content>.cal-toolbar:has(+.tl-wrap){margin-bottom:-4px!important}
+/* telefon: a Fizetések / Bevételek táblázat a képernyő aljáig kitölti a keretet (a sorok arányosan magasabbak, nincs üres sáv alul) */
+html body .pay-wrap.vfit>table,html body .sheet-wrap.vfit>table{height:100%}
+/* álló telefon: Fizetések · Szerződés · Bevétel – rövid feliratok, egy sorban, fixen (nem csúsznak oldalra) */
+@media (max-width:700px){
+html body .subtabs .st-lg{display:none!important}html body .subtabs .st-sm{display:inline!important;margin-left:4px}
+html body .subtabs{display:flex!important;flex-wrap:nowrap!important;overflow:hidden!important;width:100%;box-sizing:border-box;gap:4px!important}
+html body .subtabs .subtab{flex:1 1 0!important;min-width:0!important;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:6px!important}
+}
