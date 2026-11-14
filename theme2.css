@@ -1827,3 +1827,8 @@ html body .dwd-panel .inp{font-size:14px;min-height:36px;padding-block:6px}
 html body .dwd-panel .btn{font-size:13px!important}
 /* iPhone fekvő nézet: a Safari ne nagyítsa fel magától a hosszabb szövegeket (szövegméret-igazítás kikapcsolva) */
 html,html body{-webkit-text-size-adjust:100%!important;text-size-adjust:100%!important}
+/* Nézet-sáv (pl. „Szakember nézet – így látja az appot…”): mindenhol kicsi, egy sorban a gombokkal */
+html body .view-banner{font-size:12px!important;font-weight:600!important;line-height:1.35!important;padding:5px 12px!important;gap:6px 10px!important;flex-wrap:wrap;justify-content:center}
+html body .view-banner>span{min-width:0}
+html body .view-banner .btn{font-size:11.5px!important;padding:3px 10px!important;min-height:26px!important;line-height:1.2}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .view-banner{font-size:11px!important;padding:4px 10px!important}html body .view-banner .btn{font-size:11px!important;min-height:24px!important;padding:2px 9px!important}}
