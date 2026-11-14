@@ -717,12 +717,13 @@ function crewInvite_(u, a) {
       const year = shootYear + (mon < shootMonth ? 1 : 0);
       return year + '-' + ('0' + mon).slice(-2) + '-' + ('0' + Number(m[2])).slice(-2);
     })();
-    // Projektvezető: forgatási időpont és helyszín. Vágó: nyersanyag-feltöltési és vágási határidő.
-    // Ha valaki projektvezetőként és vágóként is szerepel, a projektvezetői meghívó az elsődleges.
-    const isLead = p.lead === cid, cutInvite = isCut && !isLead;
-    const rawUpload = cutInvite && p.date ? 'Nyersanyag feltöltési határideje: ' + huD(p.date).replace('., ', '. ') + ', 23:00' : '';
-    const cutDue = cutInvite && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
-    const info = [cutInvite ? rawUpload : (when ? '🎥 Forgatás: ' + when : ''), isLead && p.venue ? '📍 ' + p.venue : '', cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
+    // Egyidejű helyszíni és vágói szerepnél az e-mail mindkét feladat adatait tartalmazza.
+    const onSiteInvite = p.lead === cid || (p.__asg || []).some(x => x.crewId === cid && x.role !== 'Vágó' && x.role !== 'Értékesítő');
+    const rawUpload = isCut && p.date ? huD(p.date) + ', 23:00' : '';
+    const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
+    const info = [onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
+      rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'Nyersanyag feltöltési határideje: ') + rawUpload : '',
+      cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
     const dlD = new Date(Date.now() + 72 * 3600 * 1000); if (dlD.getMinutes() || dlD.getSeconds()) { dlD.setHours(dlD.getHours() + 1, 0, 0, 0); }   // válaszadási határidő: a meghívástól 3 nap (egész órára kerekítve)
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     try { withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return; const q = readRow_('projects', sh, r), iv = parseInvites_(q.invites); if (iv[cid]) { iv[cid].dl = dlTxt; q.invites = JSON.stringify(iv); putRow_('projects', sh, q, r); p.invites = q.invites; dbFlush_(); } }); } catch (e) {}
