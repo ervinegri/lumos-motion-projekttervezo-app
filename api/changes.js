@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e5332b4ae",
+"at": "2026-11-14T19:53:17+02:00",
+"msg": "ui: open answer popup directly for pending email invitation links"
+},
+{
 "id": "ba12dec932",
 "at": "2026-11-14T19:52:17+02:00",
 "msg": "fix: hide invitation response buttons once invitation already answered"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "5e00b3fd88",
 "at": "2026-11-14T19:28:57+02:00",
 "msg": "fix: lead invite shows filming time and venue, editor invite shows upload and edit deadlines"
-},
-{
-"id": "0811c8d158",
-"at": "2026-11-14T19:26:33+02:00",
-"msg": "fix: omit venue from project invitation emails"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
