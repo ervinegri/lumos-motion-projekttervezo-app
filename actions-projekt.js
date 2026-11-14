@@ -3,6 +3,7 @@
 function openProject(id){if(isSales())return;   // az értékesítő nem nyithat meg projektet
 
   const p=projById(id);if(!p)return;S.crewDay='';
+  if(!S.projectId){S._fromTab=S.tab!=='projektek'?S.tab:'';S._fromY=scrollY;}   /* a Vissza oda visz, ahonnan jöttél (pl. Naptár / idővonal) */
   S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.draftBase=clone(S.draft);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
   closeModal();render(true);scrollTo(0,0);
 }
