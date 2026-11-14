@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "72dc5ec211",
+"at": "2026-11-14T17:54:45+02:00",
+"msg": "test: prevent duplicate CEO sales owner and missing linked project values"
+},
+{
 "id": "4bd5af2bbc",
 "at": "2026-11-14T17:53:10+02:00",
 "msg": "sales API: use linked project net total for signed deal value, including sales-only users"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívások: Meghívás gomb a stábkártyán (naptár + e-mail), elfogadási állapot; a szakember csak elfogadás után látja a projektet és csak az elfogadott munkatársakat"
 },
 {
-"id": "83f2371034",
-"at": "2026-11-14T13:06:29+01:00",
-"msg": "Szakember nézet: a menüben kör nyíl a név előtt – rákattintva másik szakember választható"
-},
-{
-"id": "fd8953b8dd",
-"at": "2026-11-14T12:04:41Z",
+"id": "cff23d2a82",
+"at": "2026-11-14T12:06:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
