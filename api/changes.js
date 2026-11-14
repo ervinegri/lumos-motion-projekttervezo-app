@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b49ed2054a",
+"at": "2026-11-14T19:42:40+02:00",
+"msg": "backend: reject removal of accepted project member on save"
+},
+{
 "id": "146b8a5176",
 "at": "2026-11-14T19:42:29+02:00",
 "msg": "feat: warn and block removal of accepted crew members"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "project finances: move 'Ki értékesítette?' panel after production and consolidate salesperson controls"
 },
 {
-"id": "bcf9c3a33f",
-"at": "2026-11-14T18:46:37+02:00",
-"msg": "style: space separated production cost columns for readable finance table"
-},
-{
-"id": "a7803883d9",
-"at": "2026-11-14T16:46:07Z",
+"id": "326650d385",
+"at": "2026-11-14T16:46:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
