@@ -1883,3 +1883,4 @@ html body .pay-sheet tbody td:first-child,html body .pay-sheet tbody td:first-ch
 html:has(#viewAs:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:has(#viewAs:not(.hidden)) .topbar .tabs .tab[data-tab="ertesitesek"],
 html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="ertesitesek"]{display:none!important}
 }
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .pay-wrap.pay-center{margin-left:-4px!important;margin-right:-4px!important}}
