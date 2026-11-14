@@ -93,7 +93,7 @@ console.log('PASS shared-client deposit accounting, matching and duplicate preve
   let advance={id:'adv',no:'EE-2026-8',kind:'eloleg',advType:'elolegszamla',projectId:'conf',projectIds:'short1,short2',invNet:177000,manual:false,issuer:'kft'};
   const byId=id=>ps.find(p=>p.id===id),amount=p=>Number(p.projectValue)||0,alerts=[];
   const create=new Function('billGroupAdvance','billClientMonthProjects','projById','billInfo','pr','num','invPids','invShare','szItemName','projTotal','toast',
-    finance.slice(first,last)+'  return o;\n}')(
+    finance.slice(first,last)+'  return o;\n}\nreturn szInvoiceModal;')(
     ()=>({shared:advance,paid:177000,projects:ps}),()=>ps,byId,()=>({fin:null}),p=>({start:p.date}),
     v=>Number(v)||0,x=>[x.projectId,...String(x.projectIds||'').split(',')].filter(Boolean),
     (x,pid)=>amount(byId(pid))/354000,p=>p.name,amount,x=>alerts.push(x));
