@@ -556,7 +556,7 @@ function vcfText(o){const esc2=t=>String(t||'').replace(/\\/g,'\\\\').replace(/(
   return ['BEGIN:VCARD','VERSION:3.0','N:'+esc2(fam)+';'+esc2(giv)+';;;','FN:'+esc2(nm||o.org||'Kapcsolattartó')].concat(o.org?['ORG:'+esc2(o.org)]:[]).concat(o.tel?['TEL;TYPE=CELL:'+String(o.tel).replace(/[^\d+]/g,'')]:[]).concat(o.email?['EMAIL;TYPE=INTERNET:'+o.email]:[]).concat(o.note?['NOTE:'+esc2(o.note)]:[]).concat(['END:VCARD']).join('\r\n');}
 function loadQr(){return window.qrcode?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='/vendor/qrcode.js';s.onload=ok;s.onerror=()=>no(new Error('A QR-kód nem tölthető be.'));document.head.appendChild(s);});}
 ACT.vcf=async()=>{const d=S.draft||{};const tel=(()=>{const el=document.querySelector('[data-ph="k:contactPhone"]');if(el){const cc=(el.querySelector('.ph-cc')||{}).dataset,n=(el.querySelector('input')||{}).value;if(n)return ((cc&&cc.cc)||'+36')+String(n).replace(/\s/g,'');}return d.contactPhone||'';})();
-  const o={name:($('f-contactName')||{}).value||d.contactName||'',tel,email:($('f-contactEmail')||{}).value||d.contactEmail||'',org:d.client||'',note:d.name?'Projekt: '+d.name:''};
+  const o={name:($('f-contactName')||{}).value||d.contactName||'',tel,email:($('f-contactEmail')||{}).value||d.contactEmail||'',org:d.client||'',note:''};   // a projekt neve nem kerül a névjegybe
   if(!o.name&&!o.tel&&!o.email){toast('Előbb add meg a kapcsolattartó adatait.',true);return;}
   const v=vcfText(o);let img='';try{await loadQr();qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const q=qrcode(0,'M');q.addData(v,'Byte');q.make();img=q.createDataURL(6,8);}catch(e){}
   const fn=(o.name||'nevjegy').replace(/[^\wÀ-ž ]+/g,'').trim().replace(/\s+/g,'_')+'.vcf';

@@ -1665,3 +1665,6 @@ html body .tl-ok{color:#1f8a4c!important;font-weight:800}
 html body .tl-track .tl-bar{position:relative}
 html body .tl-track .tl-bar .tl-ok{position:absolute!important;right:8px;top:50%;transform:translateY(-50%);font-size:15px!important;line-height:1;color:#1f8a4c!important;font-weight:800;order:9}
 html body .tl-track .tl-bar:has(.tl-ok){padding-right:26px!important}
+/* „Névjegy a telefonra”: kis gomb, nem teljes szélességű sáv */
+html body .vcf-row{display:flex;justify-content:flex-end;margin-top:-4px}
+html body .vcf-row .vcf-btn{width:auto!important;flex:0 0 auto;padding:4px 10px!important;font-size:12px!important;min-height:0!important}
