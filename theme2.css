@@ -1837,3 +1837,5 @@ html body .cal-tip{pointer-events:auto!important;overflow-y:auto;overscroll-beha
 /* idővonal: a pipa ne lógjon rá a névre (a név a pipa előtt végződik) */
 html body .tl-row .tl-track .tl-bar:has(.tl-ok){padding-right:24px!important}
 html body .tl-row .tl-track .tl-bar:has(.tl-ok) .tl-nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* iPhone: hosszú érintésre ne jöjjön elő a link-előnézet (menüpontok, fülek, gombként használt linkek) */
+html body a[href^="#"],html body .tab,html body .subtab,html body .brand-link,html body a[data-action],html body .topbar a,html body img{-webkit-touch-callout:none!important}
