@@ -130,6 +130,14 @@ function postTasks(p){const t=[];if(!p)return t;
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)t.push({k:it.k,label:it.label,n});});
   if(num(p.foto_db)>0&&fotoN(p)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});   // fotózás nélkül nincs fotó-utómunka
   return t;}
+/** Vágói naptárba csak tényleges videó-utómunka kerüljön: a fotózás és a fotók leadása külön átadási feladat. */
+function hasVideoCutWork(p){
+  if(!p||p.status==='lemondva')return false;
+  if(editOnly(p))return true;
+  if(postTasks(p).some(t=>t.k!=='foto_db'))return true;
+  return (Array.isArray(p.videos)?p.videos:[]).some(v=>v.k!=='foto'&&
+    (v.st!=='vagasra'||v.link||(v.cm||[]).length||(v.vers||[]).length||v.fb||v.rvAt||v.okAt));
+}
 const editTasksOf=p=>{let o=p&&p.editTasks;if(typeof o==='string')try{o=o?JSON.parse(o):{};}catch(e){o={};}return o&&typeof o==='object'&&!Array.isArray(o)?o:{};};
 const cutterIds=p=>{const v=(p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId),et=editTasksOf(p),on=new Set((p&&p.crew||[]).map(a=>a.crewId));   // utómunkások: a vágók, és a fotók utómunkáját kapó fotós
   return [...new Set(v.concat(Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('foto_db'))))];};
