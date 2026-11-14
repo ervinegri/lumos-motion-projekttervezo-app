@@ -1884,3 +1884,6 @@ html:has(#viewAs:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:h
 html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="ertesitesek"]{display:none!important}
 }
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .pay-wrap.pay-center{margin-left:-4px!important;margin-right:-4px!important}}
+/* Kifizetések szakember nézet: az összeg oszlop csak olyan széles, mint az összegek (az elválasztó jobbra kerül) */
+html body .pay-wrap.pay-center .pay-sheet td:last-child,html body .pay-wrap.pay-center .pay-sheet th:last-child{width:1%!important;white-space:nowrap!important;padding-left:10px!important}
+html body .pay-wrap.pay-center .pay-sheet{table-layout:auto!important;width:100%!important}
