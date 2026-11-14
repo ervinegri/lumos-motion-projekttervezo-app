@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "caf7d4e99c",
+"at": "2026-11-14T19:38:32+02:00",
+"msg": "ui: match accepted invitation badge size to invite button"
+},
+{
 "id": "843edbfc58",
 "at": "2026-11-14T19:37:48+02:00",
 "msg": "ui: use present tense for declined crew invite status"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: include fee breakdown dependency and locked salesperson commission"
 },
 {
-"id": "4f1cf27681",
-"at": "2026-11-14T18:45:10+02:00",
-"msg": "test: verify separate wages/pass-through fees and zero salesperson commission"
-},
-{
-"id": "62f4e32c69",
-"at": "2026-11-14T16:43:47Z",
+"id": "bfb2ed57a5",
+"at": "2026-11-14T16:45:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
