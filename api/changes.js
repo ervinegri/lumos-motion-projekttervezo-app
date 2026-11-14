@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3a7c20681d",
+"at": "2026-11-14T20:01:42+02:00",
+"msg": "feat: show photo postproduction deadline and photo assignee timeline rows"
+},
+{
 "id": "ccd0040aef",
 "at": "2026-11-14T20:01:03+02:00",
 "msg": "feat: include photo retouching assignees in calendar postproduction filter"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "ui: use present tense for declined crew invite status"
 },
 {
-"id": "7379301bda",
-"at": "2026-11-14T19:36:46+02:00",
-"msg": "fix: retain manager project view after declining own crew invitation"
-},
-{
-"id": "f217179d02",
-"at": "2026-11-14T17:36:34Z",
+"id": "9e56666594",
+"at": "2026-11-14T17:36:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
