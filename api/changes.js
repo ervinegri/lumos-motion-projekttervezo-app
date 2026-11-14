@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d1895c58c8",
+"at": "2026-11-14T19:48:12+02:00",
+"msg": "ui: equalize invitation call-to-action and accepted/declined badge widths"
+},
+{
 "id": "88eb6b66de",
 "at": "2026-11-14T19:48:09+02:00",
 "msg": "fix: show managers accepted and declined invitations, resolve own staff record by name"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "5bb09af59c",
 "at": "2026-11-14T19:08:07+02:00",
 "msg": "ui: show signed negative budget remaining consistently in finance totals"
-},
-{
-"id": "1c99cce822",
-"at": "2026-11-14T17:07:52Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
