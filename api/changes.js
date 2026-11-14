@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "55c78aae1e",
+"at": "2026-11-14T18:06:22+02:00",
+"msg": "sales: implement month grouping for all pipeline stages"
+},
+{
 "id": "5a080558c3",
 "at": "2026-11-14T17:55:09+02:00",
 "msg": "test: include sales owner and revenue regression in finance suite"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: „Meghívást kaptál erre a projektre, mint vágó”, csak vágónál nincs helyszín/időpont; a levél gombja felugró elfogadó ablakot nyit"
 },
 {
-"id": "f2a524aa40",
-"at": "2026-11-14T13:16:08+01:00",
-"msg": "Javítás: a táblázat oszlopfejlécei maradnak (Távozás) – a felirat csak a felületen Végzés"
-},
-{
-"id": "e82a98526f",
-"at": "2026-11-14T12:13:50Z",
+"id": "174c54e3d0",
+"at": "2026-11-14T12:16:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
