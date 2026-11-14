@@ -47,7 +47,7 @@ const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');r
   document.addEventListener('change',e=>{if(e.target!==sel)return;if(sel.value==='__settings'){e.stopImmediatePropagation();sel.value=prev;ACT.tab({dataset:{tab:SETTINGS_TAB()}});return;}if(sel.value!=='__logout'){prev=sel.value;return;}e.stopImmediatePropagation();sel.value=prev;const lb=document.getElementById('logoutBtn');if(lb)lb.click();},true);})();
 
 /* Nézetváltó: nincs külön „Másik szakember / értékesítő…” sor – másikat a sárga sáv „↻ Másik …” gombjával lehet választani */
-(()=>{const sel=document.getElementById('viewAs');if(!sel)return;sel.querySelectorAll('option[value="crew-other"],option[value="sales-other"]').forEach(o=>o.remove());})();
+(()=>{const sel=document.getElementById('viewAs');if(!sel)return;sel.querySelectorAll('option[value="sales-other"]').forEach(o=>o.remove());})();
 ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCrewModal();};
 /* fekvő telefon: a kiválasztott menüfül mindig teljesen látszódjon (a fülsor oldalra görgethető) */
 (()=>{const t=document.getElementById('tabs');if(!t||!window.MutationObserver)return;const mq=matchMedia('(orientation:landscape) and (max-height:560px),(max-width:700px)');
