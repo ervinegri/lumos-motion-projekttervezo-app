@@ -41,7 +41,7 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.test?'🧪 TESZT: a levél neked ment ki, nem az ügyfélnek':r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
     catch(e){bdKeep(k,null);if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();handleErr(e);}finally{window.BD_BUSY=Math.max(0,(window.BD_BUSY||1)-1);}});}
 /* amíg egy videó áthelyezése / levele folyamatban van, az oldal frissítése / bezárása előtt figyelmeztet */
-addEventListener('beforeunload',e=>{if(window.BD_BUSY>0){e.preventDefault();e.returnValue='';}});
+if(typeof addEventListener==='function')addEventListener('beforeunload',e=>{if(window.BD_BUSY>0){e.preventDefault();e.returnValue='';}});
 /* Belső ellenőrzésre küldés: kinek (Ervin / Dávid), a videó linkje (kötelező), megjegyzés */
 /* Az ügyfél ismert címei: a projekt kapcsolattartója, az ügyfél adatlapja (kapcsolattartó, képviselő), az ügyfél korábbi projektjeinek kapcsolattartói */
 function clientContacts(p){const L=[],seen={},add=(name,email,tag)=>{email=String(email||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen[email.toLowerCase()])return;seen[email.toLowerCase()]=1;L.push({name:String(name||'').replace(/\s*\([^)]*\)/g,'').trim(),email,tag});};
