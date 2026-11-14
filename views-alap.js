@@ -517,6 +517,31 @@ function fotoRow(p){const n=fotoDb(p);
   return `<div class="dl${n?' on':''}"><div><div class="dl-name">Fotók utómunkája</div>${n?`<div class="dl-price">${n} db fotó</div>`:''}</div>
     <div class="stepper"><button type="button" data-action="foto-step" data-d="-1" aria-label="Fotók utómunkája: kevesebb"${n<=0||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="foto_db" data-min="0" data-max="${FOTO_MAX}" aria-label="Fotók száma" value="${n}"${D()}><button type="button" data-action="foto-step" data-d="1" aria-label="Fotózás: több"${n>=FOTO_MAX||ro()?' disabled':''}>+</button></div></div>`;}
 
-/* Szakember: függő meghívások – a projektet csak elfogadás után látja */
-function invitesBox(){const L=S.myInvites||[];if(!L.length)return '';
-  return `<div class="panel inv-panel"><h3>✉️ Meghívások <span class="aside">${L.length} db</span></h3>${L.map(x=>`<div class="inv-row"><div class="inv-tx"><b>${esc(x.name)}</b><small>${esc(fmtDay(x.date))}${x.endDate&&x.endDate!==x.date?' – '+esc(fmtDay(x.endDate)):''}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+esc(x.endTime):''):''}${x.venue?' · '+esc(x.venue):''}</small>${(x.roles||[]).length?`<span class="inv-roles">${x.roles.map(r=>`<span class="statuspill p-info">${esc(r)}</span>`).join('')}</span>`:''}</div><div class="inv-btns">${projById(x.id)?`<button type="button" class="btn ghost small" data-action="open-project" data-id="${esc(x.id)}">Megnézem</button>`:''}<button type="button" class="btn primary small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="yes">✓ Elfogadom</button><button type="button" class="btn outline small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="no">Nem vállalom</button></div></div>`).join('')}<p class="hint" style="margin:6px 0 0">A Google Naptárban az „Igen” válasz is elfogadásnak számít.</p></div>`;}
+/* Saját meghívások: az ügyvezető és termelési vezető a már elfogadott / elutasított
+   meghívóit is látja. A projektadatokból történő ellenőrzés a gyorsítótáras indulást is lefedi. */
+function ownInvitationRows(){
+  const server=Array.isArray(S.myInvites)?S.myInvites:[];
+  if(ro()||!S.me)return server;
+  const people=S.crew||[],norm=v=>String(v||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
+  let cid=String(S.me.crewId||'');
+  if(!people.some(c=>c.id===cid)){
+    const mail=String(S.me.email||'').trim().toLowerCase();
+    const sameMail=mail?people.filter(c=>String(c.email||'').trim().toLowerCase()===mail):[];
+    if(sameMail.length===1)cid=sameMail[0].id;
+    else{const name=norm(S.me.name),sameName=name?people.filter(c=>norm(c.name)===name):[];cid=sameName.length===1?sameName[0].id:'';}
+  }
+  const rows=new Map(server.map(x=>[x.id,x])),today=todayISO();
+  if(cid)(S.projects||[]).forEach(p=>{
+    const iv=p.invites&&p.invites[cid];
+    if(!iv||(!((p.lead===cid)||(p.crew||[]).some(a=>a.crewId===cid))))return;
+    if(iv.st!=='invited'&&(['atadva','lemondva'].includes(p.status)||(p.endDate||p.date||'9999-12-31')<today))return;
+    const post=isPostOnly(p,cid);
+    rows.set(p.id,{id:p.id,name:p.name,date:p.date,endDate:post?'':p.endDate,startTime:post?'':p.startTime,endTime:post?'':p.endTime,
+      venue:post?'':p.venue,eventType:p.eventType,post,roles:[p.lead===cid?'Projektvezető':''].concat((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role)).filter(Boolean),
+      at:iv.at||'',st:iv.st||'invited'});
+  });
+  return [...rows.values()].sort((a,b)=>(a.st==='invited'?-1:0)-(b.st==='invited'?-1:0)||String(b.at||'').localeCompare(String(a.at||'')));
+}
+function invitesBox(){const L=ownInvitationRows();if(!L.length)return '';
+  return `<div class="panel inv-panel"><h3>✉️ ${ro()?'Meghívások':'Saját meghívásaim'} <span class="aside">${L.length} db</span></h3>${L.map(x=>{const st=x.st||'invited';
+    return `<div class="inv-row"><div class="inv-tx"><b>${esc(x.name)}</b><small>${esc(fmtDay(x.date))}${x.endDate&&x.endDate!==x.date?' – '+esc(fmtDay(x.endDate)):''}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+x.endTime:''):''}${x.venue?' · '+esc(x.venue):''}</small>${(x.roles||[]).length?`<span class="inv-roles">${x.roles.map(r=>`<span class="statuspill p-info">${esc(r)}</span>`).join('')}</span>`:''}</div><div class="inv-btns">${projById(x.id)?`<button type="button" class="btn ghost small" data-action="open-project" data-id="${esc(x.id)}">Megnézem</button>`:''}${st==='invited'?`<button type="button" class="btn primary small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="yes">✓ Elfogadom</button><button type="button" class="btn outline small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="no">Nem vállalom</button>`:`<span class="inv-st ${st==='yes'?'yes':'no'}">${st==='yes'?'✓ Elfogadta':'✗ Nem vállalja'}</span>`}</div></div>`;}).join('')}<p class="hint" style="margin:6px 0 0">A Google Naptárban az „Igen” válasz is elfogadásnak számít.</p></div>`;}
