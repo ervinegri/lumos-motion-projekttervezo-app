@@ -1825,3 +1825,5 @@ html body .panel .mp-head .hint,html body .dwd-panel .hint{font-size:13px!import
 html body .dwd-panel code,html body .mail-panel2 code{font-size:11.5px!important;padding:1px 5px!important;word-break:break-all}
 html body .dwd-panel .inp{font-size:14px;min-height:36px;padding-block:6px}
 html body .dwd-panel .btn{font-size:13px!important}
+/* iPhone fekvő nézet: a Safari ne nagyítsa fel magától a hosszabb szövegeket (szövegméret-igazítás kikapcsolva) */
+html,html body{-webkit-text-size-adjust:100%!important;text-size-adjust:100%!important}
