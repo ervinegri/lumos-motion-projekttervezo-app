@@ -1685,3 +1685,10 @@ html body .vcf-row .vcf-btn{width:auto!important;flex:0 0 auto;padding:4px 10px!
 .sz-mail .sz-sig{margin-top:10px}
 .sz-chan{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#f4f7fa;border:1px solid var(--line,#dde4eb);font-size:13.5px;line-height:1.5}
 .sz-chan.none{color:var(--fg-2,#5b6876)}
+/* fekvő telefon: az ablakok (pl. videótábla) nem lebegő ablakként, hanem teljes oldalként nyílnak – a kis megerősítő kérdések kivételével */
+@media (orientation:landscape) and (max-height:560px){
+html body #modalRoot .modal:not(.cf-layer){padding:0!important;align-items:stretch}
+html body #modalRoot .modal:not(.cf-layer)>.mbox{width:100vw!important;max-width:100vw!important;min-height:100dvh;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;gap:10px!important}
+html body #modalRoot .modal:not(.cf-layer)>.mbox .mhead h3{font-size:17px!important}
+html body #modalRoot .modal:not(.cf-layer)>.mbox .mfoot{position:sticky;bottom:0;background:#fff;padding-top:8px;margin-top:auto}
+}
