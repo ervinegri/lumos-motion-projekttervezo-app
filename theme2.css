@@ -1911,3 +1911,6 @@ html body .vid-panel .vid-st .tl-ok{position:static!important;color:#1f9d55!impo
 html body .vid-panel .vid-ed{flex:0 0 auto;min-width:150px;font-size:12.5px}
 html body .vid-panel .vid-ed .inp,html body .vid-panel .vid-ed .cmb-in{min-height:30px;font-size:12.5px}
 @media (max-width:700px){html body .vid-panel .vid-row{flex-wrap:wrap}html body .vid-panel .vid-row .vid-n{flex-basis:100%}html body .vid-panel .vid-ed{min-width:0;flex:1 1 auto}html body .vid-panel .vp-btns{margin-left:0;width:100%}html body .vid-panel .vp-btns .btn{flex:1}}
+/* Pénzügyek: az értékesítő választó a büdzsé sorában, egy magasságban a többi mezővel */
+html body .fin-v2 .fin-ssel{min-width:170px}
+html body .fin-v2 .fin-r{align-items:flex-end}

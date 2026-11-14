@@ -236,7 +236,11 @@ function salesCommEst(p,d){if(!d)return null;const base=salesBase(p),man=String(
   if(man!==''&&!isNaN(Number(man)))return {amt:Math.round(base*Number(man)/100),pct:Number(man),base,manual:true};
   const sp=(S.salesPeople||[]).find(x=>x.userId===d.ownerId);if(!sp)return num(d.commAmt)?{amt:num(d.commAmt),pct:d.commPct,base}:null;
   const pct=base>=num(sp.commLimit)?num(sp.commHigh):num(sp.commLow);return {amt:Math.round(base*pct/100),pct,base};}
-function salesCommFields(p){const d=projDeal(p);if(!isAdmin()||!d||isFree(p))return '';const e=salesCommEst(p,d)||{amt:0,pct:''},dis=ro()||projLocked()?' disabled':'';
+function salesPpl(){const nmK=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  return (S.salesPeople||[]).filter((x,i,a)=>a.findIndex(y=>nmK(y.name)===nmK(x.name))===i).concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id||nmK(x.name)===nmK(c.name))).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id}))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));}
+function salesCommFields(p){const d=projDeal(p);if(!isAdmin()||isFree(p))return '';
+  if(!d){if(ro()||projLocked())return '';   /* még nincs értékesítő: a büdzsé sorában rögtön kiválasztható – utána itt jelenik meg a jutalék % és összege */
+    return `<div class="field fin-ssel"><label for="sales-sel">Értékesítő</label><select class="inp" id="sales-sel" data-cmb="Válassz…"><option value="">Válassz…</option>${salesPpl().map(x=>`<option value="${esc(x.userId)}">${esc(x.name)}</option>`).join('')}</select></div>`;}const e=salesCommEst(p,d)||{amt:0,pct:''},dis=ro()||projLocked()?' disabled':'';
   const tip=`${esc(d.ownerName||'Értékesítő')} jutaléka${e.manual?' (ennél a projektnél kézzel megadva)':' (az értékesítő sávos szabálya szerint)'} – a jutalékalap a továbbszámlázott költség nélküli érték: ${ftFmt(salesBase(p))}. Üresre törölve visszaáll a szabályra.`;
   return `<div class="field fin-scp"><label title="${tip}">Jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>
     <div class="field fin-scf"><label title="${tip}">${esc(d.ownerName||'Értékesítő')}</label><div class="money"><input class="inp money-inp" id="f-salesFt" type="text" inputmode="numeric" data-money="big" data-sales-ft value="${esc(moneyFmt(e.amt))}" placeholder="0" aria-label="Értékesítői jutalék összege"${dis}><span class="money-unit">Ft</span></div></div>`;}
@@ -381,7 +385,7 @@ const VPROG_ORDER=['jovahagyva','leadva','ellen','vagas','vagasra','modositas'];
 function vidProg(p){const vs=(Array.isArray(p.videos)?p.videos:[]).filter(v=>!ro()||vidOwner(p,v)===boardMe());if(!vs.length)return null;
   const n=k=>vs.filter(v=>v.st===k).length,segs=VPROG_ORDER.map(k=>[k,n(k)]).filter(x=>x[1]);
   return {done:n('leadva')+n('jovahagyva'),ok:n('jovahagyva'),tot:vs.length,html:`<span class="tl-prog">${segs.map(([k,c])=>`<i class="vp-${k}" style="flex:${c}"></i>`).join('')}</span>`,tip:'\n\n🎞️ Videók állapota:\n'+VID_ST.filter(([k])=>n(k)).map(([k,l])=>'• '+l+': '+n(k)).join('\n')};}
-function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.length)return '';
+function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.length||ro())return '';   // szakembernél nem kell (az Utómunka panel már mutatja)
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=S.me&&S.me.crewId,lock=projLocked()||p.status==='atadva'||p.status==='lemondva';
   const done=vs.filter(v=>v.st==='leadva'||v.st==='jovahagyva').length,appr=vs.filter(v=>v.st==='jovahagyva').length;
   const cutters=(S.crew||[]).filter(c=>(c.roles||[]).includes('Vágó')||(p.crew||[]).some(a=>a.crewId===c.id&&a.role==='Vágó')).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
@@ -409,7 +413,7 @@ function roContentPanel(p){
   const dueHtml=due?`<div class="cut-due${di&&di.cls!=='ok'?' late':''}"><span>📅 Videók leadási határideje</span><b>${esc(fmtDay(due))}</b>${cutLeft(p)&&p.status!=='atadva'?`<span class="cd-left">⏳ ${esc(cutLeft(p).txt)}</span>`:''}</div>`:'';
   return `<div class="panel content"><h3>✂️ Utómunka</h3>${dueHtml}<div class="cut-grid">
     ${editOnly(p)?'':`<section><h4 class="sub-h">📍 Terepi felvételek</h4>${field.length?roList(field):'<p class="hint" style="margin:0">Nincs megadva terepi felvétel.</p>'}${r?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section>`}
-    <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt vágnivaló.':'Ehhez a projekthez nincs megrendelt vágnivaló anyag.'}</p>`}</section></div></div>${videosPanel(p)}`;
+    <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt utómunka.':'Ehhez a projekthez nincs megrendelt utómunka.'}</p>`}</section></div></div>${videosPanel(p)}`;
 
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
@@ -644,8 +648,8 @@ function viewProject(p){
         </div>`}
         ${editOnly(p)?`<div class="field">${fld(p,'date','✂️ Leadási határidő',{type:'date'}).replace(/^<div class="field[^"]*">/,'').replace(/<\/div>$/,'')}<span class="hint" style="margin:2px 0 0">Videóvágás: nincs helyszín és kezdési idő – csak a leadás napja számít.</span></div>`:(()=>{const on=!!p.endDate||!!p._multi,tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
           return `<div class="field full day-cols"><div class="day-col">${fld(p,'date',on?'Első nap':'Dátum',{type:'date'})}<div class="time-pair">${tm('startTime',on?'Kezdés (első nap)':'Kezdés')}${tm('endTime',on?'Végzés kb. (első nap)':'Végzés (kb.)')}</div></div>
-            <div class="day-col"><div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>
-            ${on?'<div class="time-pair">'+tm('lastStartTime','Kezdés (utolsó nap)')+tm('lastEndTime','Végzés kb. (utolsó nap)')+'</div>':''}</div></div>`;})()}
+            ${ro()&&!on?'':`<div class="day-col">${ro()?fld(p,'endDate','Utolsó nap',{type:'date'}):`<div class="field"><label class="multi-lbl" for="f-multi"><input type="checkbox" id="f-multi" data-multi="1"${on?' checked':''}${D()}> Több napos – utolsó nap</label><input class="inp" id="f-endDate" data-field="endDate" type="date" value="${esc(p.endDate||'')}"${p.date?` min="${esc(p.date)}"`:''}${on&&!ro()?'':' disabled'}></div>`}
+            ${on?'<div class="time-pair">'+tm('lastStartTime','Kezdés (utolsó nap)')+tm('lastEndTime','Végzés kb. (utolsó nap)')+'</div>':''}</div>`}</div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
   </div>
