@@ -78,11 +78,23 @@ function viewSales(){
       <div class="dl-hbtns"><button class="btn btn-ark" type="button" data-action="quote-pick" title="Árajánlat küldése egy lehetőséghez">📄 Árajánlat<span class="dl-lg">&nbsp;küldése</span></button>
       <button class="btn outline" type="button" data-action="ark-open" title="Árkalkulátor (árajánlat nélkül)">🧮 <span class="dl-lg">Árkalkulátor</span><span class="dl-sm">Kalkulátor</span></button>
       <button class="btn primary" type="button" data-action="deal-new">+ Új<span class="dl-lg">&nbsp;lehetőség</span></button></div></div>
+
+    <div class="sales-monthbar">
+      <div class="sales-monthnav" role="group" aria-label="Értékesítés havi nézete">
+        <button class="btn outline sales-month-today" type="button" data-action="sales-month-today" title="Ugrás az aktuális hónapra">Ma</button>
+        <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="-1" aria-label="Előző hónap" title="Előző hónap">‹</button>
+        <span class="sales-month-title" aria-live="polite">${esc(salesMonthText(month))}</span>
+        <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="1" aria-label="Következő hónap" title="Következő hónap">›</button>
+        <button class="btn outline sales-month-all${month==='all'?' active':''}" type="button" data-action="sales-month-all" aria-pressed="${month==='all'}">Összes</button>
+        ${undated?`<button class="btn outline sales-month-undated${month==='undated'?' active':''}" type="button" data-action="sales-month-undated" aria-pressed="${month==='undated'}" data-tip="Rendezvénydátum nélküli lehetőségek">Dátum nélkül · ${undated}</button>`:''}
+      </div>
+      <span class="sales-monthhint">A rendezvény vagy forgatás hónapja szerint</span>
+    </div>
     <div class="tiles fin-tiles">
       <div class="tile"><div class="tile-n">${open.length}</div><div class="tile-l">nyitott lehetőség · ${ftFmt(sum(open))}${late?` · <b class="bad-txt">${late} lejárt teendő</b>`:noNext?` · ${noNext} teendő nélkül`:''}</div></div>
       <div class="tile" data-tip="A nyitott lehetőségek értéke az esélyükkel súlyozva"><div class="tile-n">${ftFmt(weighted)}</div><div class="tile-l">várható bevétel (súlyozott)</div></div>
-      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">szerződve ebben a hónapban · ${wonM.length} db</div></div>
-      ${(()=>{const m=todayISO().slice(0,7),ow=admin&&selected,
+      <div class="tile${wonM.length?' ok':''}"><div class="tile-n">${ftFmt(sum(wonM))}</div><div class="tile-l">${month==='all'?'e hónapban szerződve':'szerződött projekt · '+salesMonthText(month)} · ${wonM.length} db</div></div>
+      ${(()=>{const m=month==='all'||month==='undated'?todayISO().slice(0,7):month,ow=admin&&selected,
         people=(S.salesPeople||[]).filter(x=>!ow||(ow===(S.me&&S.me.id)?self.has(x.userId)||self.has(x.id):x.userId===ow||x.id===ow)),
         records=people.map(x=>(x.comm||{})[m]).filter(Boolean),
         base=records.reduce((sum,x)=>sum+num(x.base),0),amt=records.reduce((sum,x)=>sum+num(x.amount),0),
@@ -93,7 +105,7 @@ function viewSales(){
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="dl-board">${DEAL_STAGES.map(col).join('')}</div>
-    ${hidden||f.old?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
+    ${month==='all'&&(hidden||f.old)?`<p class="hint"><button class="linkbtn" type="button" data-action="sales-old">${f.old?'Csak az elmúlt 60 nap lezártjai':`Korábban lezárt lehetőségek mutatása (${hidden})`}</button></p>`:''}`;
 }
 function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.includes(d.stage),td=d.nextDate===T;
   const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${!d.advPaidAt&&d.noAdv?`<div class="dl-won dl-paid">📄 ${d.noAdv==='keret'?'Keretszerződés':'TIG-gel számlázzuk'} – nem kell díjbekérő</div>`:''}${d.advPaidAt?`<div class="dl-won dl-paid">💰 Díjbekérő kifizetve${/^\d{4}-\d\d-\d\d$/.test(d.advPaidAt)?' · '+esc(fmtShort(d.advPaidAt)):''}</div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Elveszett')}</div>`
@@ -181,6 +193,10 @@ Object.assign(ACT,{
   'deal-win':b=>{const d=dealById(b.dataset.id);if(d){closeModal();dealWinModal(d);}},
   'deal-del':b=>{const d=dealById(b.dataset.id);if(!d)return;confirmModal('Lehetőség törlése','Biztosan törlöd: „'+d.title+'”? Ha csak nem jött össze, inkább tedd az Elveszett oszlopba – így a nyerési arány is pontos marad.','Törlés',async()=>{try{const r=await call('deleteDeal',{id:d.id});S.deals=r.deals||S.deals;render(true);toast('Törölve');}catch(e){handleErr(e);}});},
   'deal-proj':b=>{closeModal();S.tab='projektek';if(typeof openProject==='function')openProject(b.dataset.id);},
+  'sales-month-shift':b=>{S.salesF.month=salesShiftMonth(S.salesF.month,Number(b.dataset.d)||0);render(true);},
+  'sales-month-today':()=>{S.salesF.month=todayISO().slice(0,7);render(true);},
+  'sales-month-all':()=>{S.salesF.month='all';render(true);},
+  'sales-month-undated':()=>{S.salesF.month='undated';render(true);},
   'sales-owner':b=>{S.salesF.owner=b.dataset.id||'';render(true);},
   'sales-old':()=>{S.salesF.old=!S.salesF.old;render(true);}
 });
