@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4bd5af2bbc",
+"at": "2026-11-14T17:53:10+02:00",
+"msg": "sales API: use linked project net total for signed deal value, including sales-only users"
+},
+{
 "id": "0e5f0ac1dd",
 "at": "2026-11-14T17:52:55+02:00",
 "msg": "sales: clarify paid-month commission and CEO's own sales accounting"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a menüben kör nyíl a név előtt – rákattintva másik szakember választható"
 },
 {
-"id": "b480395154",
-"at": "2026-11-14T13:04:32+01:00",
-"msg": "Pénzügyek: értékesítő a büdzsé sorában új projektnél is; Több napos jelölő csak vezetőknek; szakembernél nincs külön Videók panel"
-},
-{
-"id": "104a67d66c",
-"at": "2026-11-14T12:03:19Z",
+"id": "fd8953b8dd",
+"at": "2026-11-14T12:04:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
