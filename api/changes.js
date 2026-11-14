@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f2a524aa40",
+"at": "2026-11-14T13:16:08+01:00",
+"msg": "Javítás: a táblázat oszlopfejlécei maradnak (Távozás) – a felirat csak a felületen Végzés"
+},
+{
 "id": "7831e161e6",
 "at": "2026-11-14T13:13:40+01:00",
 "msg": "Meghívások: Meghívás gomb a stábkártyán (naptár + e-mail), elfogadási állapot; a szakember csak elfogadás után látja a projektet és csak az elfogadott munkatársakat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézet-sáv: mindenhol kisebb szöveg és gombok"
 },
 {
-"id": "0b6f7e3f92",
-"at": "2026-11-14T11:54:55+01:00",
-"msg": "Jóváhagyó oldal: nincs automatikus szövegnagyítás fekvő iPhone-on"
-},
-{
-"id": "060ce63451",
-"at": "2026-11-14T10:54:33Z",
+"id": "478ca8c6e3",
+"at": "2026-11-14T10:55:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
