@@ -303,7 +303,7 @@ Object.assign(ACT,{
       `A ${esc(doc.no)} bizonylat ${ftFmt(num(doc.invNet))} nettó összege pontosan a ${ftFmt(g.sum)} értékű, ${ps.length} projekt ${num(billOf(first).advancePct)}%-os foglalója. Hozzárendeled mindegyik projekthez? A számlázóban a bizonylat és a kifizetés változatlan marad.`,
       'Összekapcsolás',async()=>{
         try{const d=await call('szLink',{projectId:doc.projectId,no:doc.no,projectIds:g.ids.filter(id=>id!==doc.projectId)});
-          finApply(d);toast('A közös foglaló ${ps.length} projekthez kapcsolva: '+doc.no);}
+          finApply(d);toast('A közös foglaló '+ps.length+' projekthez kapcsolva: '+doc.no);}
         catch(e){handleErr(e);}
       });
   },
