@@ -1914,7 +1914,7 @@ html body .vid-panel .vid-ed .inp,html body .vid-panel .vid-ed .cmb-in{min-heigh
 /* Projektpénzügyek: egyetlen kék blokk a Termelés után, értékesítőválasztóval és jutalékkal */
 html body .fin-v2 .fin-r{align-items:flex-end}
 html body .fin-v2 .grp-sales{flex:0 1 430px;width:430px;min-width:0;max-width:100%;box-sizing:border-box}
-html body .fin-v2 .grp-sales .grp-b{display:grid;grid-template-columns:minmax(0,170px) minmax(0,100px) minmax(0,115px);gap:8px;align-items:end}
+html body .fin-v2 .grp-sales .grp-b{display:grid;grid-template-columns:minmax(0,170px) minmax(0,149.5px) minmax(0,70px);gap:8px;align-items:end}
 html body .fin-v2 .grp-sales .fin-ssel{grid-column:1;width:auto;min-width:0}
 html body .fin-v2 .grp-sales .fin-scp,html body .fin-v2 .grp-sales .fin-scf{min-width:0;width:auto;max-width:100%}
 html body .fin-v2 .grp-sales .cmb,html body .fin-v2 .grp-sales .cmb-in,html body .fin-v2 .grp-sales select{width:100%!important;max-width:100%;box-sizing:border-box}
