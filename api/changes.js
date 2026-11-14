@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "869470e61b",
+"at": "2026-11-14T12:00:15+01:00",
+"msg": "Menüpontok és belső linkek nem húzhatók el hosszú érintéssel"
+},
+{
 "id": "c89cec71a0",
 "at": "2026-11-14T12:00:01+01:00",
 "msg": "iPhone kezdőképernyős app: a menüsor a Dynamic Island szintjéig felér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: az ablakok teljes oldalként nyílnak (nem lebegő popup)"
 },
 {
-"id": "1adeb06ee7",
-"at": "2026-11-14T10:48:03+01:00",
-"msg": "Ügyfél döntéséről szóló értesítés tömörebb: tárgy „Módosítást kér: <projekt>”, a levél a videó nevével és az ügyfél szövegével kezdődik"
-},
-{
-"id": "74df021967",
-"at": "2026-11-14T08:59:42Z",
+"id": "687ddf27ca",
+"at": "2026-11-14T09:48:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
