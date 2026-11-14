@@ -17,6 +17,22 @@ const dealVal=d=>{
 };
 const dealChance=d=>d.chance==null||d.chance===''?(DEAL_CHANCE[d.stage]??0):+d.chance;
 S.salesF=S.salesF||{q:'',owner:'',old:false};
+if(!Object.prototype.hasOwnProperty.call(S.salesF,'month'))S.salesF.month=todayISO().slice(0,7);
+/* Havi értékesítési nézet: az ügylet a rendezvény / projekt időpontjához tartozik.
+   A dátum nélküli ügyek külön nézetben maradnak elérhetők. */
+const salesShiftMonth=(m,d)=>{
+  const base=/^\d{4}-\d{2}$/.test(String(m||''))?m:todayISO().slice(0,7);
+  const [y,mo]=base.split('-').map(Number);
+  return new Date(Date.UTC(y,mo-1+d,1)).toISOString().slice(0,7);
+};
+const salesDealMonth=d=>{
+  const p=d&&d.projectId&&typeof projById==='function'?projById(d.projectId):null;
+  const date=String(p&&p.date||d&&d.eventDate||'');
+  return /^\d{4}-\d{2}-\d{2}/.test(date)?date.slice(0,7):'';
+};
+const salesMonthText=m=>/^\d{4}-\d{2}$/.test(String(m||''))
+  ?new Intl.DateTimeFormat('hu-HU',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(m+'-01T12:00:00Z'))
+  :m==='undated'?'Dátum nélkül':'Összes hónap';
 
 /* Értékesítők a szűrőhöz és a kiosztáshoz: az ügyvezető (saját lehetőségei), az értékesítők, és akinek van lehetősége */
 const salesOwnerKey=s=>String(s||'').toLocaleLowerCase('hu').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean).sort().join(' ');
@@ -42,13 +58,17 @@ function viewSales(){
   const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
   const owners=salesOwners(all),self=salesSelfIds(all),selected=self.has(f.owner)&&S.me?S.me.id:f.owner;
   if(selected!==f.owner)f.owner=selected;  // régi szűrőérték átvezetése ugyanarra a személyre
-  let L=all.filter(d=>!selected||(selected===(S.me&&S.me.id)?self.has(d.ownerId):d.ownerId===selected));
+  const month=/^\d{4}-\d{2}$/.test(f.month)?f.month:f.month==='undated'||f.month==='all'?f.month:T.slice(0,7);
+  f.month=month;
+  const allOwned=all.filter(d=>!selected||(selected===(S.me&&S.me.id)?self.has(d.ownerId):d.ownerId===selected));
+  const undated=allOwned.filter(d=>!salesDealMonth(d)).length;
+  let L=allOwned.filter(d=>month==='all'||(month==='undated'?!salesDealMonth(d):salesDealMonth(d)===month));
   if(f.q.trim())L=L.filter(d=>fold([d.title,d.client,d.contactName,d.venue,d.note,d.ownerName].join(' ')).includes(fold(f.q.trim())));
   const open=L.filter(d=>DEAL_OPEN.includes(d.stage)),won=L.filter(d=>d.stage==='nyert'),lost=L.filter(d=>d.stage==='elveszett');
   const sum=a=>a.reduce((s,d)=>s+dealVal(d),0),weighted=open.reduce((s,d)=>s+dealVal(d)*dealChance(d)/100,0);
-  const m=T.slice(0,7),wonM=won.filter(d=>String(d.wonAt||'').slice(0,7)===m),rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
+  const m=month==='all'||month==='undated'?T.slice(0,7):month,wonM=month==='all'?won.filter(d=>String(d.wonAt||'').slice(0,7)===T.slice(0,7)):won,rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
   const late=open.filter(d=>d.nextDate&&d.nextDate<T).length,noNext=open.filter(d=>!d.nextStep&&!d.nextDate).length;
-  const cutoff=new Date(Date.now()-60*864e5).toISOString().slice(0,10),recent=d=>f.old||String(d.closedAt||d.wonAt||d.updatedAt||'').slice(0,10)>=cutoff;
+  const cutoff=new Date(Date.now()-60*864e5).toISOString().slice(0,10),recent=d=>month!=='all'||f.old||String(d.closedAt||d.wonAt||d.updatedAt||'').slice(0,10)>=cutoff;
   const stOf=d=>d.stage==='nyert'&&(d.advPaidAt||d.noAdv)?'fizetve':d.stage;
   const byStage=s=>L.filter(d=>stOf(d)===s&&(DEAL_OPEN.includes(s)||recent(d))).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
   const hidden=L.filter(d=>!DEAL_OPEN.includes(d.stage)&&!recent(d)).length;
