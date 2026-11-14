@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "177f097aeb",
+"at": "2026-11-14T20:20:47+02:00",
+"msg": "ui: hide photo count in Kanban and project video list"
+},
+{
 "id": "9ff0c5f908",
 "at": "2026-11-14T20:19:28+02:00",
 "msg": "ui: show assigned photographer instead of video cutter in photo progress row"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "ui: keep accepted crew trash button clickable even when crew is finalized"
 },
 {
-"id": "7d6a124972",
-"at": "2026-11-14T19:48:59+02:00",
-"msg": "fix: show own invitations and their statuses in manager project dashboard"
-},
-{
-"id": "16b09cb358",
-"at": "2026-11-14T17:48:39Z",
+"id": "ea1f59216b",
+"at": "2026-11-14T17:49:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
