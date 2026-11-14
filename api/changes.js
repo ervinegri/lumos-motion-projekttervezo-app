@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9965e9f06d",
+"at": "2026-11-14T12:01:27+01:00",
+"msg": "Kifizetések: a sorok nem nyúlnak meg, egysoros feliratok, jobbra-balra húzva hónapváltás"
+},
+{
 "id": "869470e61b",
 "at": "2026-11-14T12:00:15+01:00",
 "msg": "Menüpontok és belső linkek nem húzhatók el hosszú érintéssel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltó: termelési v. előnézetből is választható az Ügyvezető és az Értékesítő"
 },
 {
-"id": "87ba9a84e5",
-"at": "2026-11-14T11:09:14+01:00",
-"msg": "Fekvő telefon: az ablakok teljes oldalként nyílnak (nem lebegő popup)"
-},
-{
-"id": "687ddf27ca",
-"at": "2026-11-14T09:48:13Z",
+"id": "c657afa86d",
+"at": "2026-11-14T10:09:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
