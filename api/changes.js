@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "99db115aca",
+"at": "2026-11-14T19:06:22+02:00",
+"msg": "style: shorten salesperson name and amount fields in inline finance card"
+},
+{
 "id": "7349fdb747",
 "at": "2026-11-14T19:02:49+02:00",
 "msg": "test: enforce one-row salesperson percentage and amount layout"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: verify monthly sales navigation and period filters"
 },
 {
-"id": "901fdd89a1",
-"at": "2026-11-14T18:08:20+02:00",
-"msg": "sales: make all-month view include historical closed deals"
-},
-{
-"id": "0304f805b7",
-"at": "2026-11-14T16:07:39Z",
+"id": "23af410597",
+"at": "2026-11-14T16:08:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
