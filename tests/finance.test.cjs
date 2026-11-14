@@ -369,3 +369,4 @@ test('invoice search by company name: indexes numbers in order, then finds by bu
 
 require('./billing-shared.test.cjs');
 require('./sales-owner-revenue.test.cjs');
+require('./sales-month.test.cjs');
