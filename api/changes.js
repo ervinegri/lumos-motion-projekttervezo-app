@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7349fdb747",
+"at": "2026-11-14T19:02:49+02:00",
+"msg": "test: enforce one-row salesperson percentage and amount layout"
+},
+{
 "id": "51a398ef1a",
 "at": "2026-11-14T19:02:36+02:00",
 "msg": "style: align seller, commission percentage and amount on one horizontal row"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: make all-month view include historical closed deals"
 },
 {
-"id": "1e7a878976",
-"at": "2026-11-14T18:07:24+02:00",
-"msg": "style: responsive sales monthly navigator aligned with calendar"
-},
-{
-"id": "e783de2b94",
-"at": "2026-11-14T16:07:07Z",
+"id": "0304f805b7",
+"at": "2026-11-14T16:07:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
