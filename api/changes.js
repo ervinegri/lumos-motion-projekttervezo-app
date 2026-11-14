@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "83f2371034",
+"at": "2026-11-14T13:06:29+01:00",
+"msg": "Szakember nézet: a menüben kör nyíl a név előtt – rákattintva másik szakember választható"
+},
+{
 "id": "b480395154",
 "at": "2026-11-14T13:04:32+01:00",
 "msg": "Pénzügyek: értékesítő a büdzsé sorában új projektnél is; Több napos jelölő csak vezetőknek; szakembernél nincs külön Videók panel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "iPhone fekvő nézet: a Safari nem nagyítja fel magától a szövegeket"
 },
 {
-"id": "f29b1afcaa",
-"at": "2026-11-14T11:53:46+01:00",
-"msg": "A csengő azonnal megjelenik betöltéskor"
-},
-{
-"id": "a144b1440c",
-"at": "2026-11-14T10:52:56Z",
+"id": "303dfc50b5",
+"at": "2026-11-14T10:53:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
