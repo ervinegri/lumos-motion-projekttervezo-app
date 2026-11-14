@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5a080558c3",
+"at": "2026-11-14T17:55:09+02:00",
+"msg": "test: include sales owner and revenue regression in finance suite"
+},
+{
 "id": "72dc5ec211",
 "at": "2026-11-14T17:54:45+02:00",
 "msg": "test: prevent duplicate CEO sales owner and missing linked project values"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Javítás: a táblázat oszlopfejlécei maradnak (Távozás) – a felirat csak a felületen Végzés"
 },
 {
-"id": "7831e161e6",
-"at": "2026-11-14T13:13:40+01:00",
-"msg": "Meghívások: Meghívás gomb a stábkártyán (naptár + e-mail), elfogadási állapot; a szakember csak elfogadás után látja a projektet és csak az elfogadott munkatársakat"
-},
-{
-"id": "cff23d2a82",
-"at": "2026-11-14T12:06:38Z",
+"id": "e82a98526f",
+"at": "2026-11-14T12:13:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
