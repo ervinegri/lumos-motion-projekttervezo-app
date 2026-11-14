@@ -1857,14 +1857,19 @@ html body .pay-wrap.pay-center{width:auto!important;max-width:100%!important;mar
 html body .pay-wrap.pay-center .pay-sheet td:first-child,html body .pay-wrap.pay-center .pay-sheet th:first-child{padding-left:12px!important}
 html body .pay-wrap.pay-center .pay-sheet td:last-child,html body .pay-wrap.pay-center .pay-sheet th:last-child{padding-right:12px!important}
 }
-/* fekvő telefon: a naptár gombsora kisebb, kevesebb helyet foglal */
+/* fekvő telefon: a naptár gombsora körül kisebb hézagok (a gombok mérete marad) */
 @media (orientation:landscape) and (max-height:560px){
-html body .cal-toolbar{padding-top:4px!important;padding-bottom:4px!important;gap:6px!important;min-height:0!important}
-html body .cal-toolbar .btn,html body .cal-toolbar .seg button,html body .cal-toolbar .mnav-chip,html body .cal-toolbar .cm-arr,html body .cal-toolbar .cm-today{min-height:28px!important;height:28px!important;padding-top:0!important;padding-bottom:0!important;font-size:12.5px!important;line-height:28px!important}
-html body .cal-toolbar .seg{min-height:28px!important;padding:0!important}
-html body .cal-toolbar .seg button{padding-inline:10px!important}
-html body .cal-toolbar .cal-mnav [class*="cm-cur"],html body .cal-toolbar .cal-mnav .cm-mon,html body .cal-toolbar .cal-mnav .btn.dark{font-size:13px!important}
-html body .cal-toolbar .cal-cutsel .inp,html body .cal-toolbar .cal-cutsel .cmb-in{min-height:28px!important;height:28px!important;font-size:12.5px!important;padding-top:0!important;padding-bottom:0!important}
+html body .content:has(>.cal-toolbar){padding-top:4px!important}
+html body .content>.cal-toolbar{padding-top:2px!important;padding-bottom:2px!important;margin-top:0!important;margin-bottom:0!important;gap:6px!important;row-gap:4px!important;min-height:0!important}
+html body .content>.cal-toolbar:has(+.tl-wrap){margin-bottom:-6px!important}
+html body .cal-toolbar .cal-mnav{gap:6px!important}
+html body .cal-toolbar .cm-tools{gap:6px!important}
 }
-@media (orientation:landscape) and (max-height:560px){html body .cal-toolbar .cm-cur,html body .cal-toolbar .cm-cur *{min-height:28px!important;height:28px!important;line-height:28px!important;font-size:13px!important;padding-top:0!important;padding-bottom:0!important}html body .cal-toolbar .cm-cur{padding-inline:14px!important}html body .cal-toolbar .cm-cur select{opacity:0}}
-@media (orientation:landscape) and (max-height:560px){html body .content>.cal-toolbar{zoom:.8}}
+/* idővonal: a sáv neve görgetéskor simán a bal szélhez tapad (CSS sticky – nem ugrál) */
+html body .tl-row .tl-track .tl-bar{overflow:clip!important}
+html body .tl-row .tl-track .tl-bar>.tl-nm{position:sticky;left:6px;width:max-content;max-width:100%;box-sizing:border-box}
+html body .tl-row .tl-track .tl-bar::before{position:sticky;left:6px}
+@media (orientation:landscape) and (max-height:560px){
+html body #view.content:has(>.cal-toolbar){padding-top:3px!important;row-gap:0!important;gap:0!important}
+html body #view>.cal-toolbar{margin:0 0 3px!important;padding-top:0!important;padding-bottom:0!important}
+}
