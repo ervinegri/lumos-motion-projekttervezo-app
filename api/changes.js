@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "843edbfc58",
+"at": "2026-11-14T19:37:48+02:00",
+"msg": "ui: use present tense for declined crew invite status"
+},
+{
 "id": "7379301bda",
 "at": "2026-11-14T19:36:46+02:00",
 "msg": "fix: retain manager project view after declining own crew invitation"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "test: verify separate wages/pass-through fees and zero salesperson commission"
 },
 {
-"id": "f7ceaef6ab",
-"at": "2026-11-14T18:43:40+02:00",
-"msg": "finance UI: split wages, pass-through and organizer fee columns and show zero for unassigned sales"
-},
-{
-"id": "d27024b130",
-"at": "2026-11-14T18:43:01+02:00",
-"msg": "finance: separate wages, pass-through and organizer fees and lock unassigned sales percent"
+"id": "62f4e32c69",
+"at": "2026-11-14T16:43:47Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
