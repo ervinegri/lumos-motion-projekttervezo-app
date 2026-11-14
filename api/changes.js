@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7831e161e6",
+"at": "2026-11-14T13:13:40+01:00",
+"msg": "Meghívások: Meghívás gomb a stábkártyán (naptár + e-mail), elfogadási állapot; a szakember csak elfogadás után látja a projektet és csak az elfogadott munkatársakat"
+},
+{
 "id": "83f2371034",
 "at": "2026-11-14T13:06:29+01:00",
 "msg": "Szakember nézet: a menüben kör nyíl a név előtt – rákattintva másik szakember választható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: nincs automatikus szövegnagyítás fekvő iPhone-on"
 },
 {
-"id": "fb2e0b2608",
-"at": "2026-11-14T11:54:24+01:00",
-"msg": "iPhone fekvő nézet: a Safari nem nagyítja fel magától a szövegeket"
-},
-{
-"id": "303dfc50b5",
-"at": "2026-11-14T10:53:57Z",
+"id": "060ce63451",
+"at": "2026-11-14T10:54:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
