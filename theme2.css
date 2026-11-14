@@ -1802,3 +1802,20 @@ html body .proj-table th:last-child,html body .proj-table td.pt-status,html body
 html body .proj-table{overflow:visible!important}html body .sheet-wrap:has(.proj-table){overflow-x:hidden!important}
 }
 html body .pt-video .pt-ok{position:static!important;color:#1f9d55!important;font-weight:800;margin-left:4px;font-size:1.05em}
+/* Beállítások – e-mail értesítések: letisztultabb, kompaktabb kártyák */
+html body .mail-panel2 .mp-head h3{font-size:18px!important;line-height:1.25}
+html body .mail-panel2 .mp-head .hint{font-size:13px!important;line-height:1.45;color:#5b6876;max-width:60ch}
+html body .mail-panel2 .mp-group h4{font-size:12px!important;letter-spacing:.06em;color:#6b7785;margin:18px 0 8px!important;padding-bottom:6px;border-bottom:1px solid var(--line,#e2e6eb)}
+html body .mail-panel2 .mrow{background:#f7f9fb;border:1px solid #e6ebf0;border-radius:12px;padding:12px 14px!important;margin:0 0 10px!important}
+html body .mail-panel2 .mrow.off{opacity:.6}
+html body .mail-panel2 .mrow .ntf-tx b{font-size:14.5px!important}
+html body .mail-panel2 .mrow .ntf-tx small{font-size:12.5px!important;line-height:1.45;color:#5b6876}
+html body .mrow .mail-cc{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-top:8px;margin-top:8px!important;border-top:1px dashed #dde4eb}
+html body .mrow .mail-cc::-webkit-scrollbar{display:none}
+html body .mrow .mail-cc .muted{white-space:nowrap;flex:none}
+html body .mrow .cc-chip{white-space:nowrap;flex:none}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .mail-panel2{padding:14px!important}
+html body .mail-panel2 .mp-head{align-items:center!important}
+html body .mail-panel2 .mp-master{padding:6px 8px 6px 12px!important;font-size:13px!important}
+}
