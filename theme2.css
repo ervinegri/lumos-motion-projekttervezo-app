@@ -1636,4 +1636,9 @@ html body .tl-now::before{width:9px!important;height:9px!important;top:3px!impor
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut){display:flex!important;flex-wrap:wrap;align-content:center;column-gap:4px;overflow:visible!important;z-index:4;position:relative}
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm,html body .tl-track:has(.tl-cut .tl-nm) .tl-bar:not(.tl-cut) .tl-nm{display:block!important;order:1;flex:0 0 auto;max-width:var(--nmw,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:5}
 html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut .tl-nm{display:none!important}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{text-align:right!important;justify-content:flex-end!important;align-items:flex-start!important;padding-right:8px!important}
+/* idővonal fejléce egy sorban: a hónap neve az adott hónap 1-jén (a napok sorában), nincs külön hónapsor */
+html body .tl-head .tl-mband{display:none!important}
+html body .tl-head .tl-d small.tl-dmn{color:var(--fg,#1d2a38)!important;font-weight:800!important;text-transform:none;letter-spacing:0}
+html body .tl-head .tl-d.mstart{box-shadow:inset 2px 0 0 #1d2a38}
+/* idővonal: a vágási sáv felirata (✓ / Jóváhagyva) felül, az óra sorában – a név alatta fut át, nem takarják egymást */
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{display:block!important;text-align:left!important;padding:4px 7px!important}
