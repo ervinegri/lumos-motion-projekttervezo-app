@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7911124b81",
+"at": "2026-11-14T12:53:00+01:00",
+"msg": "Rendezvény típusa: Egyéb kivéve a választhatók közül (a régi Egyéb projektek megtartják)"
+},
+{
 "id": "c6a2e125c2",
 "at": "2026-11-14T12:52:38+01:00",
 "msg": "Rendezvény típusa: Reklám"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: Projektek lista egyoszlopos, a státuszcímkék a név alatt egy sorban"
 },
 {
-"id": "ed362f3b42",
-"at": "2026-11-14T11:47:17+01:00",
-"msg": "Telefon: keresőmezőre koppintva nem nagyít rá az oldal (iOS)"
-},
-{
-"id": "a6bd6b6be2",
-"at": "2026-11-14T10:47:00Z",
+"id": "6dadebd1d0",
+"at": "2026-11-14T10:47:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
