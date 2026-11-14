@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61c8e837ed",
+"at": "2026-11-14T20:24:32+02:00",
+"msg": "style: keep specialist Kanban project panel scrollable on smaller screens"
+},
+{
 "id": "c7e9da3335",
 "at": "2026-11-14T20:24:05+02:00",
 "msg": "feat: show photo retoucher own Kanban cards and tasks in specialist project detail"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "ui: show previously submitted invitation response instead of answering twice"
 },
 {
-"id": "61e3c94144",
-"at": "2026-11-14T19:51:13+02:00",
-"msg": "api: allow read-only lookup of own invitation response status"
-},
-{
-"id": "1b2af289ca",
-"at": "2026-11-14T19:51:04+02:00",
-"msg": "fix: make crew invitation responses final and expose read-only status for email links"
+"id": "e0eb91c4d2",
+"at": "2026-11-14T17:51:25Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
