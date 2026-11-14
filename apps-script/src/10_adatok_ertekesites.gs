@@ -193,7 +193,15 @@ function dealOrphansClean_() {
   dbFlush_();
 }
 function dealsFor_(u) {
-  const pids = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; });
+  const pids = {}, projectById = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; projectById[p.id] = p; });
+  // Szerződött lehetőségnél a projekten mentett aktuális nettó érték az irányadó; a korábbi, üres értékű ügyleteket is helyesen mutatja.
+  const finalDealValue = d => {
+    const p = d.stage === 'nyert' && d.projectId ? projectById[d.projectId] : null;
+    if (!p) return d.value === '' || d.value == null ? null : Number(d.value);
+    const ex = parseExtras_(p.extras).filter(x => x && x.kind !== 'org' && x.kind !== 'tov');
+    const total = Math.max(0, Math.round((Number(p.quotePrice) || 0) + ex.reduce((sum, x) => sum + (x.kind === 'le' ? -1 : 1) * (Number(x.amount) || 0), 0)));
+    return total > 0 ? total : (d.value === '' || d.value == null ? null : Number(d.value));
+  };
   const all = readAll_('deals').filter(d => !d.projectId || pids[d.projectId]);
   const uc = {}; if (u.role === 'admin') loadUsers_().forEach(x => { uc[x.id] = { crewId: x.crewId || '', sales: x.role === 'sales' }; });
   const adv = {}; try { readAll_('finInvoice').forEach(x => { const g = Number(x.invGross) || 0; if (!g || (Number(x.invPaid) || 0) < g - 1) return;   // kifizetett bizonylat (díjbekérő / foglaló / számla) → a lehetőség a „Díjbekérő kifizetve” oszlopba kerül
@@ -201,7 +209,7 @@ function dealsFor_(u) {
   const dct = dealCtMap_(), bst = {}; try { readAll_('finBilling').forEach(b => { if (b.contractStatus) bst[b.projectId] = b.contractStatus; }); } catch (e) { }
   const ck = v => String(v || '').trim().toLowerCase(), tigC = {};   // visszatérő, TIG-gel (teljesítésigazolással) számlázott ügyfél vagy keretszerződés: nem kap díjbekérőt
   try { readAll_('finTig').forEach(x => { if (ck(x.client)) tigC[ck(x.client)] = 'tig'; }); readAll_('finFramework').forEach(x => { if (ck(x.client) && String(x.mode || '') !== 'nemkell') tigC[ck(x.client)] = 'keret'; }); } catch (e) { }
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (dct[d.id] ? dct[d.id].s : ''), ctAt: dct[d.id] ? dct[d.id].at : '', advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: d.value === '' || d.value == null ? null : Number(d.value), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (dct[d.id] ? dct[d.id].s : ''), ctAt: dct[d.id] ? dct[d.id].at : '', advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: finalDealValue(d), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
