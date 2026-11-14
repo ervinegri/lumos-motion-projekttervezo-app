@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c4752e49e4",
+"at": "2026-11-14T13:51:48+01:00",
+"msg": "Meghívó: forgatási idő és vágási határidő a levélben; meghívásos projektnél a szakember csak az elfogadott munkatársakat látja (és csak elfogadás után a projektet)"
+},
+{
 "id": "4f4de7117f",
 "at": "2026-11-14T13:29:45+01:00",
 "msg": "Meghívás: „Meghívást kaptál erre a projektre, mint vágó”, csak vágónál nincs helyszín/időpont; a levél gombja felugró elfogadó ablakot nyit"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a jóváhagyás pipája nem lóg rá a projekt nevére"
 },
 {
-"id": "5dc50b8bd3",
-"at": "2026-11-14T11:56:42+01:00",
-"msg": "Naptár súgó: hosszú tartalomnál görgethető, rá lehet vinni az egeret"
-},
-{
-"id": "a76cd2a85e",
-"at": "2026-11-14T10:55:35Z",
+"id": "f0f9b1710e",
+"at": "2026-11-14T10:56:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
