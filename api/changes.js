@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "269707ac1b",
+"at": "2026-11-14T11:57:09+01:00",
+"msg": "Idővonal: a jóváhagyás pipája nem lóg rá a projekt nevére"
+},
+{
 "id": "5dc50b8bd3",
 "at": "2026-11-14T11:56:42+01:00",
 "msg": "Naptár súgó: hosszú tartalomnál görgethető, rá lehet vinni az egeret"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla: „A számlázz.hu küldje” felirat"
 },
 {
-"id": "a92ff42aeb",
-"at": "2026-11-14T09:21:55+01:00",
-"msg": "Számla-levél: nincs dupla „Üdvözlettel” (az aláírásban van)"
-},
-{
-"id": "32ac5fe500",
-"at": "2026-11-14T08:19:27Z",
+"id": "537d63c081",
+"at": "2026-11-14T08:22:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
