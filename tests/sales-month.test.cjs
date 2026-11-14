@@ -47,3 +47,27 @@ assert.equal(lib.salesShiftMonth('all',1),'2026-12','arrows return from all-mont
 state.salesF.owner='self';
 assert.deepEqual(ids(pick('2026-11')),['novOpen','novWon'],'owner filter and month filter compose');
 console.log('PASS sales monthly navigation, all-month view, undated leads, year boundary, KPI and owner filtering');
+
+/* Kattintható projektnevek – a címből projekt nyílik, a kártya többi része lehetőség marad. */
+{
+  const start=sales.indexOf('function dealCard(d){'),end=sales.indexOf('/* Új lehetőségnél:',start);
+  assert(start>=0&&end>start,'sales deal card implementation available');
+  const makeCard=new Function('DEAL_OPEN','dealVal','todayISO','isAdmin','isSales','projById','esc','fmtShort','ftFmt','dealCtPill','dealChance',
+    sales.slice(start,end)+'\nreturn dealCard;');
+  const deps=[['uj','ajanlat','targyalas'],d=>d.value||0,()=>'2026-11-14',()=>true,()=>false,
+    id=>id==='short'?{id:'short',name:'Short video'}:null,esc,x=>String(x).slice(5),fmt,()=>'',()=>10];
+  const card=makeCard(...deps);
+  const withProject=card({id:'deal1',title:'Short videó 1',stage:'nyert',projectId:'short',value:29000,wonAt:'2026-11-14'});
+  assert.match(withProject,/class="dl-project-link" data-action="deal-proj" data-id="short"/,'linked project title opens project');
+  assert.match(withProject,/data-action="deal-open" data-id="deal1"/,'card still opens sales deal');
+  assert.match(withProject,/aria-label="Projekt megnyitása:/,'project title is accessible via keyboard');
+  const openLead=card({id:'lead1',title:'Nyitott ügylet',stage:'uj',value:10000});
+  assert.doesNotMatch(openLead,/dl-project-link/,'open lead title stays ordinary text');
+  const salesCard=makeCard(...deps.slice(0,4),()=>true,...deps.slice(5))(
+    {id:'deal1',title:'Short videó 1',stage:'nyert',projectId:'short',value:29000});
+  assert.doesNotMatch(salesCard,/dl-project-link/,'sales-only user retains project access restrictions');
+  const action=sales.match(/'deal-proj':b=>\{[^}]+\}/);
+  assert(action&&action[0].includes('openProject(b.dataset.id)'),'project button uses existing project opener');
+  assert.doesNotMatch(action[0],/S\.tab\s*=/,'project opener preserves return-to-sales navigation');
+  console.log('PASS linked project title opens its project while preserving deal card and access restrictions');
+}
