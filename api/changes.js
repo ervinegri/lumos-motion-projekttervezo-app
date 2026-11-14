@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dbc88ef74a",
+"at": "2026-11-14T17:10:08+02:00",
+"msg": "ui: display invitation reply deadline in two-line hover hint"
+},
+{
 "id": "2b63bd968d",
 "at": "2026-11-14T17:07:50+02:00",
 "msg": "Align crew cards and show compact invited status"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember Beállítások: alcím törölve"
 },
 {
-"id": "b1ca1317ec",
-"at": "2026-11-14T12:08:32+01:00",
-"msg": "Kifizetések: vékonyabb projektnevek"
-},
-{
-"id": "4fbff76d2c",
-"at": "2026-11-14T11:07:16Z",
+"id": "6998497fb2",
+"at": "2026-11-14T11:08:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
