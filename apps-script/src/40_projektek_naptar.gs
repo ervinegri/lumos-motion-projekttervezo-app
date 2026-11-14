@@ -717,9 +717,11 @@ function crewInvite_(u, a) {
     const first = huFirst_(c.name) || c.name, rl = [p.lead === cid ? 'Projektvezető' : ''].concat((p.__asg || []).filter(x => x.crewId === cid).map(x => x.role)).filter(Boolean).filter((x, i, l) => l.indexOf(x) === i);
     const post = postOnly_(Object.assign({}, p, { crew: p.__asg || [] }), cid);   // csak vágó (utómunka): nincs helyszín és időpont
     const asTxt = rl.length ? ', mint ' + rl.map(x => x.toLowerCase()).join(' és ') : '';
-    const when = post ? '' : String(p.date || '') + (p.endDate && p.endDate !== p.date ? ' – ' + p.endDate : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
+    const huD = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); if (!m) return ''; const dt = new Date(+m[1], +m[2] - 1, +m[3]); return ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][dt.getDay()]; };   // pl. nov. 27., péntek
+    const when = huD(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + huD(p.endDate) : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
+    const due = str_(a && a.due, 40), isCut = (p.__asg || []).some(x => x.crewId === cid && x.role === 'Vágó');
     const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = ev && !post ? calEventLink_(ev) : '';
-    const info = [when ? '📅 ' + when : '', !post && p.venue ? '📍 ' + p.venue : ''].filter(Boolean).join('\n');
+    const info = [when ? '🎥 Forgatás: ' + when : '', !post && p.venue ? '📍 ' + p.venue : '', isCut && due ? '✂️ Vágási határidő: ' + due : ''].filter(Boolean).join('\n');
     const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ': ' + p.name + (info ? '\n\n' + info : '') + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ': <b>' + escapeHtml_(p.name) + '</b>', info, url, '✓ Elfogadom / válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
     try { mail = gmailSend_(em, 'Meghívás: ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Meghívás e-mail hiba: ' + e); }

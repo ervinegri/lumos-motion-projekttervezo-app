@@ -442,7 +442,7 @@ function projectView_(p, u) {
   q.videos = parseVideos_(q.videos); if (role === 'crew') q.videos = q.videos.filter(x => u.crewId && x.editor === u.crewId).map(x => Object.assign({}, x, { seenAt: '', seenLast: '', seenN: 0, cm: (x.cm || []).filter(c => !/^👁️ Megnyitotta a jóváhagyó oldalt/.test(String(c.t || ''))).map(c => Object.assign({}, c, { t: /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/.test(String(c.t || '')) ? 'Továbbküldve jóváhagyásra' : String(c.t || '').replace(/\s*\([^()]*@[^()]*\)/g, '').replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '…') })) }));   // a vágó nem látja az ügyfél e-mail címét   // a vágó csak a saját videóit látja
   q.editTasks = parseEditTasks_(q.editTasks);
   { const inv = parseInvites_(q.invites);   // meghívások: a vezetők mindet látják; a szakember csak a sajátját, és csak azokat a munkatársakat, akik elfogadták (vagy nem kaptak meghívást)
-    if (role === 'crew') { q.invites = u.crewId && inv[u.crewId] ? { [u.crewId]: inv[u.crewId] } : {}; if (Array.isArray(q.crew)) q.crew = q.crew.filter(a => a.crewId === u.crewId || inviteOk_(inv, a.crewId)); }
+    if (role === 'crew') { const use = Object.keys(inv).length > 0; q.invUse = use; q.invites = u.crewId && inv[u.crewId] ? { [u.crewId]: inv[u.crewId] } : {}; if (Array.isArray(q.crew)) q.crew = q.crew.filter(a => a.crewId === u.crewId || (use ? !!(inv[a.crewId] && inv[a.crewId].st === 'yes') : true)); }   // meghívásos projektnél csak az elfogadott munkatársak látszanak
     else q.invites = inv; }
   q.recRooms = parseRooms_(q.recRooms);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);
