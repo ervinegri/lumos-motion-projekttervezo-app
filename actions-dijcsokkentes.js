@@ -219,11 +219,11 @@ function newProjectModal(day,pre){NP_FILES=[];
     ${mf('endTime','Hozzávetőleges végzés',{ph:'pl. 18:30',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
     ${isAdmin()?npFilesField():''}
-  </div><p class="hint" style="margin:0">A jegyzeteken kívül minden mező kötelező. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
+  </div><p class="hint" style="margin:0">Az ügyfél, a kapcsolattartó és a jegyzetek nem kötelezők – később a projekt oldalán kiegészítheted. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
     if(!needName(form,'Add meg a projekt nevét.'))return;
     const {p,clientNew,g}=npBuild(fd);
     const fieldOf={client:clientNew?'client':'clientQ'};
-    const miss=missingReq(p).filter(([k])=>k!=='endDate');
+    const miss=missingReq(p).filter(([k])=>!['endDate','client','contactName','contactPhone','contactEmail'].includes(k));   // létrehozáskor az ügyfél és a kapcsolattartó adatai nem kötelezők
     if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Kezdés (óó:pp formában)']);
     if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Távozás (óó:pp formában)']);
     if(p.date&&p.date<todayISO()&&form.dataset.pastOk!==p.date){form.dataset.pastOk=p.date;
