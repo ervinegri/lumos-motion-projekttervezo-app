@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "87ba9a84e5",
+"at": "2026-11-14T11:09:14+01:00",
+"msg": "Fekvő telefon: az ablakok teljes oldalként nyílnak (nem lebegő popup)"
+},
+{
 "id": "1adeb06ee7",
 "at": "2026-11-14T10:48:03+01:00",
 "msg": "Ügyfél döntéséről szóló értesítés tömörebb: tárgy „Módosítást kér: <projekt>”, a levél a videó nevével és az ügyfél szövegével kezdődik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal minden nézetben: nincs bal oldali névoszlop, vastagabb sávok a projekt nevével"
 },
 {
-"id": "d28a2086d4",
-"at": "2026-11-14T08:00:02+01:00",
-"msg": "Rövid / rámutatásra nyíló legördülők: nincs villogó kurzor, a mezőről a listára húzva nem csukódik be"
-},
-{
-"id": "be9e305de7",
-"at": "2026-11-14T06:56:48Z",
+"id": "9d396cd5ac",
+"at": "2026-11-14T07:00:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
