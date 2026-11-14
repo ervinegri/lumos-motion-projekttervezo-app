@@ -1844,3 +1844,6 @@ html body .page-head.ph-inline{display:flex!important;flex-direction:row!importa
 html body .page-head.ph-inline>.grow{flex:0 0 auto!important;min-width:0}
 html body .page-head.ph-inline>.grow h2{margin:0!important;white-space:nowrap}
 html body .page-head.ph-inline>.head-search{flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important}
+/* kezdőképernyőről indított app (iPhone): a menüsor felcsúszik a Dynamic Island szintjéig – a fejléc háttere az állapotsor mögé is kiér */
+@media (orientation:portrait){html body .topbar{padding-top:max(0px,calc(env(safe-area-inset-top,0px) - 14px))!important}}
+@media (orientation:landscape){html body .topbar{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}}
