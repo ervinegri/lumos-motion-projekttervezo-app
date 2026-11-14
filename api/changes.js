@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cac02ba81f",
+"at": "2026-11-14T19:12:23+02:00",
+"msg": "test: include live budget remainder regression in finance suite"
+},
+{
 "id": "a7204f12f4",
 "at": "2026-11-14T19:11:57+02:00",
 "msg": "test: live negative budget remainder while editing fees and multi-day budget tables"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: calculate contracted commissions from the same project financial estimate"
 },
 {
-"id": "89d8159e41",
-"at": "2026-11-14T18:20:47+02:00",
-"msg": "test: provide sales-role guard when rendering project links"
-},
-{
-"id": "0343dfcae0",
-"at": "2026-11-14T16:20:20Z",
+"id": "d0c88a5c11",
+"at": "2026-11-14T16:20:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
