@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fe0e71ffa0",
+"at": "2026-11-14T17:14:24+02:00",
+"msg": "style: compact invitation copy into two flowing lines with responsive actions"
+},
+{
 "id": "b52e0b5ccb",
 "at": "2026-11-14T17:14:10+02:00",
 "msg": "ui: keep entire project invitation question as continuous inline text"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések szakember nézet: keskenyebb oldalsó szél"
 },
 {
-"id": "e4ca9409b4",
-"at": "2026-11-14T12:10:13+01:00",
-"msg": "Telefon: a Beállítások menüpont elrejtve (a szerepkör/fiók menüben elérhető)"
-},
-{
-"id": "61815e9126",
-"at": "2026-11-14T11:09:21Z",
+"id": "d8373e7c53",
+"at": "2026-11-14T11:10:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
