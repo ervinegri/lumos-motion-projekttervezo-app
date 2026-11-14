@@ -1819,3 +1819,9 @@ html body .mail-panel2{padding:14px!important}
 html body .mail-panel2 .mp-head{align-items:center!important}
 html body .mail-panel2 .mp-master{padding:6px 8px 6px 12px!important;font-size:13px!important}
 }
+/* Beállítások – „Küldés a kollégák saját címéről” és a többi panel: kisebb, olvasható szövegek */
+html body .panel .mp-head h3{font-size:16px!important;line-height:1.3}
+html body .panel .mp-head .hint,html body .dwd-panel .hint{font-size:13px!important;line-height:1.5!important;color:#5b6876}
+html body .dwd-panel code,html body .mail-panel2 code{font-size:11.5px!important;padding:1px 5px!important;word-break:break-all}
+html body .dwd-panel .inp{font-size:14px;min-height:36px;padding-block:6px}
+html body .dwd-panel .btn{font-size:13px!important}
