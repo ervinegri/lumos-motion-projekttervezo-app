@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f147ceb094",
+"at": "2026-11-14T19:07:44+02:00",
+"msg": "test: update salesperson inline field widths to compact design"
+},
+{
 "id": "99db115aca",
 "at": "2026-11-14T19:06:22+02:00",
 "msg": "style: shorten salesperson name and amount fields in inline finance card"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "test: include monthly sales navigation regression in finance test suite"
 },
 {
-"id": "715c8e58e6",
-"at": "2026-11-14T18:09:31+02:00",
-"msg": "test: verify monthly sales navigation and period filters"
-},
-{
-"id": "23af410597",
-"at": "2026-11-14T16:08:29Z",
+"id": "5bb06e04ee",
+"at": "2026-11-14T16:09:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
