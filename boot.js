@@ -65,3 +65,8 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
 (()=>{if(!window.matchMedia||!matchMedia('(pointer:coarse)').matches)return;
   document.addEventListener('focusin',e=>{const t=e.target;if(!t||t.id!=='m-vvCm')return;const go=()=>{try{t.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){t.scrollIntoView();}};setTimeout(go,120);setTimeout(go,450);});
   if(window.visualViewport)visualViewport.addEventListener('resize',()=>{const a=document.activeElement;if(a&&a.id==='m-vvCm')setTimeout(()=>a.scrollIntoView({block:'center'}),50);});})();
+
+/* idővonal: a forgatási nap sávjában lévő projektnév a mellette lévő vágási sáv végéig érhet */
+(()=>{const v=document.getElementById('view');if(!v||!window.MutationObserver)return;let q=false;
+  const fit=()=>{q=false;v.querySelectorAll('.tl-track').forEach(t=>{const b=t.querySelector('.tl-bar:not(.tl-cut)'),c=t.querySelector('.tl-cut');if(!b||!c)return;const br=b.getBoundingClientRect(),cr=c.getBoundingClientRect();const w=Math.max(br.right,cr.right)-br.left-16;if(w>20)b.style.setProperty('--nmw',w+'px');});};
+  new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(fit);}}).observe(v,{childList:true,subtree:true});addEventListener('resize',()=>setTimeout(fit,100));})();

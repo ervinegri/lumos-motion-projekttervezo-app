@@ -1632,3 +1632,7 @@ html body .tl-row.tl-sec .tl-lbl>*{left:0!important}
 html body .tl-now{width:14px!important;background:linear-gradient(90deg,rgba(217,48,37,0),rgba(217,48,37,.16) 30%,rgba(217,48,37,.16) 70%,rgba(217,48,37,0))!important;border-left:0;box-shadow:none}
 html body .tl-now::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(217,48,37,.85),rgba(217,48,37,.35));border-radius:2px}
 html body .tl-now::before{width:9px!important;height:9px!important;top:3px!important;background:#d93025!important;box-shadow:0 0 0 3px rgba(217,48,37,.18)}
+/* idővonal: forgatási nap + vágási sáv egy sorban – a projekt neve a forgatási napban, az óra alatt kezdődik és átér a vágási sávra */
+html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut){display:flex!important;flex-wrap:wrap;align-content:center;column-gap:4px;overflow:visible!important;z-index:4;position:relative}
+html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm{display:block!important;order:1;flex:0 0 auto;max-width:var(--nmw,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:5}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut .tl-nm{display:none!important}
