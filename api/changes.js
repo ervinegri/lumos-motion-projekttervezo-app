@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a622b0b62",
+"at": "2026-11-14T11:46:51+01:00",
+"msg": "Nézetváltás jól látható jelzéssel; álló telefonon a logó a bal szélen, kisebb; Projektek alcím törölve"
+},
+{
 "id": "47ef6869cf",
 "at": "2026-11-14T11:43:35+01:00",
 "msg": "Álló telefon naptár: nincs Új projekt gomb, Google a szűrők sorában; munkaszűrő középen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Levélből érkező videólink: csak a videó nyílik meg, a projektoldal nem"
 },
 {
-"id": "59f7cdc946",
-"at": "2026-11-14T08:30:47+01:00",
-"msg": "Idővonal: „✅ Jóváhagyva” helyett zöld pipa a sáv jobb szélén"
-},
-{
-"id": "691a40d9cb",
-"at": "2026-11-14T07:28:40Z",
+"id": "f008bd6abe",
+"at": "2026-11-14T07:30:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
