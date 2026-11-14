@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f3215e65b5",
+"at": "2026-11-14T11:49:04+01:00",
+"msg": "Fekvő telefon: Projektek lista egyoszlopos, a státuszcímkék a név alatt egy sorban"
+},
+{
 "id": "ed362f3b42",
 "at": "2026-11-14T11:47:17+01:00",
 "msg": "Telefon: keresőmezőre koppintva nem nagyít rá az oldal (iOS)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: „Jóváhagyásra vár” címkéken „X napja leadva”"
 },
 {
-"id": "565f722b9d",
-"at": "2026-11-14T08:35:39+01:00",
-"msg": "Levélből érkező videólink: a videó azonnal megnyílik, a friss adat beérkezésekor frissül"
-},
-{
-"id": "85caff5e6a",
-"at": "2026-11-14T07:33:05Z",
+"id": "30215d2342",
+"at": "2026-11-14T07:35:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
