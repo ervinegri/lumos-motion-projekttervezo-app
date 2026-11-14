@@ -39,7 +39,8 @@ document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.cl
   const h=calTipHtml(el);let t=$('calTip');if(!h){if(t)t.remove();return;}
   if(!t){t=document.createElement('div');t.id='calTip';t.className='cal-tip';document.body.appendChild(t);}t.innerHTML=h;
   const r=el.getBoundingClientRect(),w=Math.min(300,innerWidth-16);t.style.width=w+'px';let x=r.left+scrollX;if(x+w>scrollX+innerWidth-8)x=scrollX+innerWidth-8-w;
-  t.style.left=x+'px';t.style.top=(r.bottom+scrollY+6)+'px';},550);});
+  t.style.left=x+'px';t.style.maxHeight='';t.style.overflowY='';const th=t.offsetHeight,below=innerHeight-r.bottom-10,above=r.top-10;   /* ha lent nem fér el, fölé kerül; ha sehol, a nagyobb helyre görgethetően */
+  if(th<=below)t.style.top=(r.bottom+scrollY+6)+'px';else if(th<=above)t.style.top=(r.top+scrollY-th-6)+'px';else if(above>below){t.style.maxHeight=above+'px';t.style.overflowY='auto';t.style.top=(scrollY+4)+'px';}else{t.style.maxHeight=below+'px';t.style.overflowY='auto';t.style.top=(r.bottom+scrollY+6)+'px';}},550);});
 document.addEventListener('mouseout',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)){el._tip=false;const t=$('calTip');if(t)t.remove();}});
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
   const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
