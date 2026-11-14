@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61e3c94144",
+"at": "2026-11-14T19:51:13+02:00",
+"msg": "api: allow read-only lookup of own invitation response status"
+},
+{
+"id": "1b2af289ca",
+"at": "2026-11-14T19:51:04+02:00",
+"msg": "fix: make crew invitation responses final and expose read-only status for email links"
+},
+{
 "id": "e83ee1f56b",
 "at": "2026-11-14T19:50:59+02:00",
 "msg": "ui: disable preview-only email links until invitation is sent"
@@ -147,13 +157,8 @@ const ITEMS = [
 "msg": "fix: show edit deadlines in project lead invitation emails"
 },
 {
-"id": "cac02ba81f",
-"at": "2026-11-14T19:12:23+02:00",
-"msg": "test: include live budget remainder regression in finance suite"
-},
-{
-"id": "8f600b7fa1",
-"at": "2026-11-14T17:12:05Z",
+"id": "d3740979d7",
+"at": "2026-11-14T17:12:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
