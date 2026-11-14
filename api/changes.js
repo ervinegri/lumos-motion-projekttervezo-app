@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "47ef6869cf",
+"at": "2026-11-14T11:43:35+01:00",
+"msg": "Álló telefon naptár: nincs Új projekt gomb, Google a szűrők sorában; munkaszűrő középen"
+},
+{
 "id": "0aa910aa3b",
 "at": "2026-11-14T11:42:26+01:00",
 "msg": "Álló telefon: egysoros fejléc – menüpontok, szerepkör és csengő együtt húzható, a logó helyben marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: „✅ Jóváhagyva” helyett zöld pipa a sáv jobb szélén"
 },
 {
-"id": "327045539b",
-"at": "2026-11-14T08:28:32+01:00",
-"msg": "Idővonal: a projekt sávjára kattintva is a videótábla (kanban) nyílik, ha vannak videók"
-},
-{
-"id": "637b3b98e8",
-"at": "2026-11-14T07:26:32Z",
+"id": "691a40d9cb",
+"at": "2026-11-14T07:28:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
