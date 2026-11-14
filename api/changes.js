@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f05040949f",
+"at": "2026-11-14T12:52:20+01:00",
+"msg": "Új projekt: az ügyfél és a kapcsolattartó adatai nem kötelezők létrehozáskor"
+},
+{
 "id": "b58a6a9d93",
 "at": "2026-11-14T12:51:49+01:00",
 "msg": "Felirat: Hozzávetőleges végzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltás jól látható jelzéssel; álló telefonon a logó a bal szélen, kisebb; Projektek alcím törölve"
 },
 {
-"id": "47ef6869cf",
-"at": "2026-11-14T11:43:35+01:00",
-"msg": "Álló telefon naptár: nincs Új projekt gomb, Google a szűrők sorában; munkaszűrő középen"
-},
-{
-"id": "981e350f1d",
-"at": "2026-11-14T10:42:36Z",
+"id": "151139debb",
+"at": "2026-11-14T10:43:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
