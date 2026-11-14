@@ -252,7 +252,7 @@ const ACT={
     try {
       const preview=await call('crewInvitePreview',args);
       b.disabled=false;
-      const hasEmail=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(preview.to||'');
+      const hasEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(preview.to||'');
       const body=`<div class="crew-mail-review">
         <div class="crew-mail-meta"><div><strong>Címzett</strong><span>${esc(c&&c.name||'')} &lt;${esc(preview.to||'Nincs e-mail-cím')}&gt;</span></div>
         <div><strong>Tárgy</strong><span>${esc(preview.subject||'')}</span></div></div>
