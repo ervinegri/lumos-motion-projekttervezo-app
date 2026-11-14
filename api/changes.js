@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7379301bda",
+"at": "2026-11-14T19:36:46+02:00",
+"msg": "fix: retain manager project view after declining own crew invitation"
+},
+{
 "id": "21f0b75c5d",
 "at": "2026-11-14T19:36:26+02:00",
 "msg": "fix: keep manager projects visible while own invitations are pending"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "d27024b130",
 "at": "2026-11-14T18:43:01+02:00",
 "msg": "finance: separate wages, pass-through and organizer fees and lock unassigned sales percent"
-},
-{
-"id": "5a98e3d62c",
-"at": "2026-11-14T18:42:27+02:00",
-"msg": "finance: allocate organizer fee to costs and zero sales fee without assigned salesperson"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
