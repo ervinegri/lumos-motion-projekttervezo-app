@@ -2026,3 +2026,9 @@ html body .crew-mail-preview a{pointer-events:none;cursor:default}
 html body .pcrew-inv>.inv-btn[data-action="crew-invite"],
 html body .pcrew-inv>.inv-st.yes,
 html body .pcrew-inv>.inv-st.no{box-sizing:border-box;width:148px;min-width:148px;height:44px;min-height:44px;display:inline-flex;justify-content:center;align-items:center;padding:8px 10px!important;white-space:nowrap}
+
+
+/* Szakemberi projektadatlap: a saját utómunka Kanban táblája vízszintesen görgethető. */
+html body .crew-board-panel{min-width:0;overflow:hidden}
+html body .crew-board-scroll{max-width:100%;overflow-x:auto;padding-bottom:5px}
+html body .crew-board-scroll .bl{min-width:880px}
