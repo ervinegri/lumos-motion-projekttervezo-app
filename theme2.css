@@ -1873,3 +1873,6 @@ html body .tl-row .tl-track .tl-bar::before{position:sticky;left:6px}
 html body #view.content:has(>.cal-toolbar){padding-top:3px!important;row-gap:0!important;gap:0!important}
 html body #view>.cal-toolbar{margin:0 0 3px!important;padding-top:0!important;padding-bottom:0!important}
 }
+/* Kifizetések: az „Összesen (hónap, nettó)” felirat kisebb, hogy kiférjen */
+html body .pay-sheet tr.pay-totrow>td:first-child,html body .pay-sheet tr.pay-totrow>td:first-child b{font-size:12.5px!important}
+@media (pointer:coarse){html body .pay-sheet{-webkit-user-select:none;user-select:none}}
