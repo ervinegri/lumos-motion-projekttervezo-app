@@ -27,26 +27,34 @@ const lib=new Function('S','todayISO','isAdmin','isSales','projById','projTotal'
   esc,x=>String(x==null?'':x).toLowerCase(),fmt,x=>Number(x)||0,x=>String(x).slice(5)
 );
 const current=lib.viewSales();
-assert.equal(state.salesF.month,'2026-11','default to current month');
+assert.equal(state.salesF.month,'2026-11','default KPI period is current month');
 assert.match(current,/2026\. november/);
 assert.match(current,/data-action="sales-month-shift" data-d="-1"/);
 assert.match(current,/data-action="sales-month-shift" data-d="1"/);
 assert.match(current,/data-action="sales-month-today"/);
+assert.match(current,/Minden időszak/,'board explains its permanent scope');
+assert.doesNotMatch(current,/data-action="sales-month-undated"/,'undated leads remain directly on board');
 const ids=html=>Array.from(html.matchAll(/data-deal="([^"]+)"/g),x=>x[1]);
+const kpi=html=>Array.from(html.matchAll(/class="tile-n">([^<]+)</g),x=>x[1].replace(/\s+/g,''));
 const pick=m=>{state.salesF.month=m;return lib.viewSales();};
-assert.deepEqual(ids(current),['novOpen','novWon']);
-assert.deepEqual(ids(pick('2026-10')),['octWon'],'old payments remain visible under event month');
-assert.match(pick('2026-10'),/szerződött jutalék/,'commission header follows the selected project month');
-assert.deepEqual(ids(pick('2027-02')),['febOpen']);
-assert.deepEqual(ids(pick('2025-01')),['oldWon'],'historic closed deals remain visible');
-assert.deepEqual(ids(pick('undated')),['undated'],'undated leads stay accessible');
-assert.equal(ids(pick('all')).length,6,'all-month view includes all historic deals');
+const allCards=ids(current);
+assert.equal(allCards.length,6,'all sales opportunities are visible on the same pipeline');
+assert(allCards.includes('novOpen')&&allCards.includes('febOpen')&&allCards.includes('undated'),'future and undated leads are visible');
+assert.equal(kpi(current)[2],'29000Ft','November contracted revenue follows the selected KPI month');
+for(const month of ['2026-10','2027-02','2025-01','2026-12','all']){
+  assert.deepEqual(ids(pick(month)),allCards,'monthly navigation preserves all cards: '+month);
+}
+assert.equal(kpi(pick('2026-10'))[2],'147000Ft','October KPI follows event month');
+assert.equal(kpi(pick('2027-02'))[2],'0Ft','an empty KPI month still has every card');
+assert.equal(kpi(pick('2025-01'))[2],'150000Ft','historic month KPI can be reviewed');
+assert.equal(kpi(pick('all'))[2],'326000Ft','all-period KPI summarizes all contracted revenue');
 assert.equal(lib.salesShiftMonth('2026-12',1),'2027-01');
 assert.equal(lib.salesShiftMonth('2027-01',-1),'2026-12');
-assert.equal(lib.salesShiftMonth('all',1),'2026-12','arrows return from all-month view');
+assert.equal(lib.salesShiftMonth('all',1),'2026-12','arrows return from all-period view');
 state.salesF.owner='self';
-assert.deepEqual(ids(pick('2026-11')),['novOpen','novWon'],'owner filter and month filter compose');
-console.log('PASS sales monthly navigation, all-month view, undated leads, year boundary, KPI and owner filtering');
+assert.deepEqual(ids(pick('2026-11')),['novOpen','novWon','octWon'],'owner filter applies to all cards independently of period');
+assert.deepEqual(ids(pick('2026-10')),['novOpen','novWon','octWon'],'changing KPI period preserves selected seller cards');
+console.log('PASS sales pipeline always shows all dates; month affects KPIs only, year boundary and owner filter');
 
 /* Kattintható projektnevek – a címből projekt nyílik, a kártya többi része lehetőség marad. */
 {
