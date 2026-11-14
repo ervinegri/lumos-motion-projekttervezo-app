@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6c65f38993",
+"at": "2026-11-14T09:59:26+01:00",
+"msg": "Ügyfelek: a Szerződés oszlop nem csúszik el (osztálynév-ütközés javítva)"
+},
+{
 "id": "c3bbdaa277",
 "at": "2026-11-14T09:25:15+01:00",
 "msg": "Számla megerősítése: látszik, melyik csatornán (Lumos cím / számlázz.hu) és kinek megy ki a levél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Frissítéskor nem villan fel a módosítás előtti állapot: a sikeres módosítások a helyi indító-gyorsítótárba is bekerülnek"
 },
 {
-"id": "a179baa639",
-"at": "2026-11-14T07:46:57+01:00",
-"msg": "Projekt: a Vissza gomb oda visz, ahonnan megnyitottad (pl. Naptár/idővonal), a görgetési helyzettel együtt"
-},
-{
-"id": "835ba49a4a",
-"at": "2026-11-14T06:46:06Z",
+"id": "5e607a8ebc",
+"at": "2026-11-14T06:47:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
