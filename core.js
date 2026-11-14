@@ -466,7 +466,7 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
   document.addEventListener('touchend',e=>{lastTouch=Date.now();clearTimeout(lpT);if(lpShown&&e.cancelable)e.preventDefault();},{capture:true});   /* hosszú érintés után ne nyíljon meg az elem */
   document.addEventListener('click',e=>{if(lpShown&&Date.now()-lastTouch<700){e.preventDefault();e.stopPropagation();lpShown=false;}},true);
   document.addEventListener('contextmenu',e=>{if(lpShown||(recentTouch()&&e.target.closest&&e.target.closest('[data-tip]')))e.preventDefault();},true);
-  document.addEventListener('mouseover',e=>{if(recentTouch()&&!lpShown)return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur)show(el);}else if(cur)hide();});
+  let hovT=0,hovEl=null;document.addEventListener('mouseover',e=>{if(recentTouch()&&!lpShown)return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el){if(el!==cur&&el!==hovEl){clearTimeout(hovT);hovEl=el;if(cur)hide();hovT=setTimeout(()=>{hovEl=null;if(el.isConnected&&el.matches(':hover'))show(el);},550);}}else{clearTimeout(hovT);hovEl=null;if(cur)hide();}});   /* a súgó kicsit később jelenik meg (nem villan fel minden rámutatáskor) */
   document.addEventListener('focusin',e=>{if(recentTouch())return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el);});
   document.addEventListener('focusout',hide);document.addEventListener('scroll',hide,true);})();
 

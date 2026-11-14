@@ -35,10 +35,11 @@ function calTipHtml(el){
 }
 document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el){const t=$('calTip');if(t&&!e.target.closest('#calTip'))t.remove();return;}
   if(el._tip)return;document.querySelectorAll('.cal-chip').forEach(x=>x._tip=false);el._tip=true;
+  clearTimeout(window._calTipT);window._calTipT=setTimeout(()=>{if(!el.isConnected||!el.matches(':hover'))return;   /* a naptár súgója kicsit később jelenik meg */
   const h=calTipHtml(el);let t=$('calTip');if(!h){if(t)t.remove();return;}
   if(!t){t=document.createElement('div');t.id='calTip';t.className='cal-tip';document.body.appendChild(t);}t.innerHTML=h;
   const r=el.getBoundingClientRect(),w=Math.min(300,innerWidth-16);t.style.width=w+'px';let x=r.left+scrollX;if(x+w>scrollX+innerWidth-8)x=scrollX+innerWidth-8-w;
-  t.style.left=x+'px';t.style.top=(r.bottom+scrollY+6)+'px';});
+  t.style.left=x+'px';t.style.top=(r.bottom+scrollY+6)+'px';},550);});
 document.addEventListener('mouseout',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)){el._tip=false;const t=$('calTip');if(t)t.remove();}});
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
   const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
