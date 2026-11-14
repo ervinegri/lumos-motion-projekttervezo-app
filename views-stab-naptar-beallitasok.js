@@ -124,7 +124,10 @@ const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vág�
 /* Utómunka-felelős: vágó vagy a fotók utómunkájára ténylegesen kijelölt fotós. */
 const photoPostWork=p=>postTasks(p).some(t=>t.k==='foto_db');
 const crewPhotoPost=(p,id)=>!!id&&photoPostWork(p)&&taskOwners(p,'foto_db').includes(id);
-const crewPostWork=(p,id)=>!!id&&((hasVideoCutWork(p)&&crewCuts(p,id))||crewPhotoPost(p,id));
+const crewVideoPost=(p,id)=>!!id&&hasVideoCutWork(p)&&(
+  taskKeysOf(p,id).some(k=>k!=='foto_db'&&postTasks(p).some(t=>t.k===k))||
+  (p.videos||[]).some(v=>v.k!=='foto'&&v.editor===id));
+const crewPostWork=(p,id)=>crewVideoPost(p,id)||crewPhotoPost(p,id);
 const crewOnSite=(p,me)=>!!me&&!editOnly(p)&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
 function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewPostWork(p,me)));}
 function calCutDue(){try{return localStorage.getItem('lpm_cal_cutdue')!=='0';}catch(e){return true;}}
@@ -137,10 +140,10 @@ function calItems(month){
   S.projects.forEach(p=>{const q=pr(p);let pre='';
     if(cutter){const cut=crewPostWork(p,me)&&!cutOkMine(p,me);
       if(cut){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
-        if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:(crewPhotoPost(p,me)&&!hasVideoCutWork(p)?'📷 ':'✂️ ')+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
+        if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:(crewPhotoPost(p,me)&&!crewVideoPost(p,me)?'📷 ':'✂️ ')+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
       if(editOnly(p))return;}
     if(!ro()&&!editOnly(p)&&(hasVideoCutWork(p)||photoPostWork(p))&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewPostWork(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
-      if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:((hasVideoCutWork(p)&&(!S.cal.cutter||crewCuts(p,S.cal.cutter)))?'✂️ ':'📷 ')+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
+      if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:((hasVideoCutWork(p)&&(!S.cal.cutter||crewVideoPost(p,S.cal.cutter)))?'✂️ ':'📷 ')+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
     if(editOnly(p)){if(ro()||(S.cal.mode!=='ido'&&!calCutDue())||(S.cal.cutter&&!crewPostWork(p,S.cal.cutter))||!q||q.end<r.start||q.start>r.end)return;pre='✂️ ';}   // a „Vágói határidők” pipa ezt is elrejti   // videóvágás: nem terepi munka, lilán a leadás napján
     if(onlyCut)return;   // csak a vágói munkák
     if(calKind()==='site'&&!crewOnSite(p,me))return;   // terepi szűrő: csak a saját helyszíni munkák
@@ -196,7 +199,7 @@ function calTimeline(m,items0,T,ahead){
   const cutOf=p=>{
     if(!p||p.status==='lemondva'||calKind()==='site')return null;
     const person=ro()?me:S.cal.cutter;
-    const video=hasVideoCutWork(p)&&(!person||crewCuts(p,person));
+    const video=hasVideoCutWork(p)&&(!person||crewVideoPost(p,person));
     const photo=photoPostWork(p)&&(!person||crewPhotoPost(p,person));
     if(!video&&!photo)return null;
     const q=pr(p),due=dueDate(p);if(!q||!due)return null;
