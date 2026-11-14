@@ -389,14 +389,21 @@ let OK_MAIL_ = null;   // jóváhagyási értesítés a vágónak (a mentés ut�
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
-  const isCutter = readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó');
-  if (!mgr && !isCutter) throw new Error('FORBIDDEN: Csak a projekt vágója módosíthatja a videók állapotát.');
+  const myAssignment = readAll_('crewAssign').filter(r => r.projectId === pid && r.crewId === u.crewId);
+  const isCutter = myAssignment.some(r => r.role === 'Vágó');
+  const isPhotographer = myAssignment.some(r => r.role === 'Fotós');
+  if (!mgr && !isCutter && !isPhotographer) throw new Error('FORBIDDEN: Csak a kijelölt utómunka-felelős módosíthatja a kártyáját.');
   let p, changed = '';
   withLock_(() => {
     const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row);
     if (p.status === 'atadva' || p.status === 'lemondva') throw new Error('A projekt már le van zárva.');
     const vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    // A fotógaléria a fotók utómunkájához rendelt fotósé, a régebbi videószerkesztő-adatot is felülírja.
+    const et = parseEditTasks_(p.editTasks), photoOwner = v.k === 'foto' && isPhotographer && (et[u.crewId] || []).includes('foto_db') ? u.crewId : '';
+    if (!mgr && (v.k === 'foto' ? !photoOwner : !isCutter)) throw new Error('FORBIDDEN: A kártyát a kijelölt utómunka-felelős kezelheti.');
+    if (photoOwner && v.editor !== photoOwner) v.editor = photoOwner;
+    const assignedEditor = v.k === 'foto' ? photoOwner : v.editor;
     if (a.editor !== undefined) {
       if (!mgr) throw new Error('FORBIDDEN: A vágót a projektvezető jelöli ki.');
       const ed = str_(a.editor, 64); if (ed && !readAll_('crew').some(c => c.id === ed)) throw new Error('Ismeretlen szakember.');
@@ -404,7 +411,7 @@ function videoSet_(u, a) {
     }
     if (a.name !== undefined) { if (!mgr) throw new Error('FORBIDDEN: A videó nevét a projektvezető módosíthatja.'); const nm = str_(a.name, 120).trim(); if (!nm) throw new Error('Adj nevet a videónak.'); v.name = nm; v.cn = 1; changed += (changed ? ', ' : '') + 'név: ' + nm; }
     if (a.link !== undefined && a.st === undefined) {   // új link (pl. lejárt / forgalmi limites pCloud-link helyett): a vezető vagy a videó vágója
-      if (!mgr && !(v.editor && v.editor === u.crewId)) throw new Error('FORBIDDEN: A linket a vezető vagy a videó vágója cserélheti.');
+      if (!mgr && !(assignedEditor && assignedEditor === u.crewId)) throw new Error('FORBIDDEN: A linket a vezető vagy a videó vágója cserélheti.');
       if (v.st !== 'vagas' && !(mgr && !v.link)) throw new Error('Linket csak „Utómunka alatt” állapotban lehet beilleszteni (vagy belső ellenőrzésre küldéskor).');   // a vezető a hiányzó linket bármikor pótolhatja
       const ln = String(a.link || '').trim(); if (!/^https?:\/\/\S+$/i.test(ln)) throw new Error('Illeszd be a videó linkjét (https://…).');
       vidSetLink_(v, str_(ln, 500)); changed += (changed ? ', ' : '') + 'új link';
@@ -413,13 +420,13 @@ function videoSet_(u, a) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
       if (v.st === 'jovahagyva' && a.st !== 'jovahagyva' && u.role !== 'admin') throw new Error('A jóváhagyott videót csak az ügyvezető veheti vissza.');
       if (a.st === 'jovahagyva' && !v.link && !(a.link && /^https?:\/\/\S+$/i.test(String(a.link).trim()))) throw new Error('Jóváhagyottnak csak linkkel jelölhető a videó.');
-      if (!mgr && !(a.st === 'vagasra' && v.st === 'vagas' && (!v.editor || v.editor === u.crewId)) && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (v.editor && v.editor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
+      if (!mgr && !(a.st === 'vagasra' && v.st === 'vagas' && (!assignedEditor || assignedEditor === u.crewId)) && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (assignedEditor && assignedEditor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); if (u.id !== 'client') FB_MAIL_ = { v: v, by: u.name }; }   /* az ügyfél kérésénél a vágó az új stílusú levelet kapja (clientDecide_) */   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) vidSetLink_(v, str_(String(a.link).trim(), 500));   // e-mail nélküli áthelyezésnél is a videó linkje
       if (u.id !== 'client' && v.editor && ((a.st === 'jovahagyva' && v.st !== 'jovahagyva') || (mgr && a.st === 'leadva' && v.st === 'ellen'))) OK_MAIL_ = { v: v, by: u.name, kind: a.st === 'jovahagyva' ? 'ok' : 'rv' };   /* a vágó értesítést kap: átment a belső ellenőrzésen / jóváhagyták (az ügyfél döntésénél a clientDecide_ küldi) */
       if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)
       if (a.st === 'leadva' && v.st !== 'leadva') { v.seenAt = ''; v.seenLast = ''; v.seenN = 0; }   // újbóli leadás: a korábbi megnyitás már nem számít
-      v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr) v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
+      v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr && v.k !== 'foto') v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
     }
     p.videos = JSON.stringify(vids);
     const allDel = vids.length > 0 && vids.every(x => x.st === 'leadva' || x.st === 'jovahagyva');   // minden videó leadva → a projekt jóváhagyásra vár; ha újra nyitnak egyet, vissza az utómunkába
@@ -453,7 +460,12 @@ function projectView_(p, u) {
   q.crewNotes = role === 'crew' ? (u.crewId && notes[u.crewId] ? { [u.crewId]: notes[u.crewId] } : {}) : notes;
   q.crewDays = parseCrewDays_(q.crewDays);
   q.deliveryLinks = parseLinks_(q.deliveryLinks);
-  q.videos = parseVideos_(q.videos); if (role === 'crew') q.videos = q.videos.filter(x => u.crewId && x.editor === u.crewId).map(x => Object.assign({}, x, { seenAt: '', seenLast: '', seenN: 0, cm: (x.cm || []).filter(c => !/^👁️ Megnyitotta a jóváhagyó oldalt/.test(String(c.t || ''))).map(c => Object.assign({}, c, { t: /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/.test(String(c.t || '')) ? 'Továbbküldve jóváhagyásra' : String(c.t || '').replace(/\s*\([^()]*@[^()]*\)/g, '').replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '…') })) }));   // a vágó nem látja az ügyfél e-mail címét   // a vágó csak a saját videóit látja
+  q.videos = parseVideos_(q.videos);
+  if (role === 'crew') {
+    const et = parseEditTasks_(q.editTasks), photoMine = u.crewId && (et[u.crewId] || []).includes('foto_db') &&
+      (q.crew || []).some(a => a.crewId === u.crewId && a.role === 'Fotós');
+    q.videos = q.videos.filter(x => u.crewId && (x.k === 'foto' ? photoMine : x.editor === u.crewId)).map(x => Object.assign({}, x, { seenAt: '', seenLast: '', seenN: 0, cm: (x.cm || []).filter(c => !/^👁️ Megnyitotta a jóváhagyó oldalt/.test(String(c.t || ''))).map(c => Object.assign({}, c, { t: /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/.test(String(c.t || '')) ? 'Továbbküldve jóváhagyásra' : String(c.t || '').replace(/\s*\([^()]*@[^()]*\)/g, '').replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '…') })) }));   // a vágó nem látja az ügyfél e-mail címét   // a vágó csak a saját videóit látja
+  }
   q.editTasks = parseEditTasks_(q.editTasks);
   { const inv = parseInvites_(q.invites);   // meghívások: a vezetők mindet látják; a szakember csak a sajátját, és csak azokat a munkatársakat, akik elfogadták (vagy nem kaptak meghívást)
     if (role === 'crew') { const use = Object.keys(inv).length > 0; q.invUse = use; q.invites = u.crewId && inv[u.crewId] ? { [u.crewId]: inv[u.crewId] } : {}; if (Array.isArray(q.crew)) q.crew = q.crew.filter(a => a.crewId === u.crewId || (use ? !!(inv[a.crewId] && inv[a.crewId].st === 'yes') : true)); }   // meghívásos projektnél csak az elfogadott munkatársak látszanak
