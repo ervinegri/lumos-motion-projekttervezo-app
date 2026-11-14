@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b58b0132c8",
+"at": "2026-11-14T11:37:00+01:00",
+"msg": "Idővonal: Jóváhagyásra vár sor oldalra húzható, csak vezetőknek látszik; kisebb hézag a napok fölött"
+},
+{
 "id": "3531a477c0",
 "at": "2026-11-14T11:34:38+01:00",
 "msg": "Naptár súgó: ha alatta/fölötte nem fér el, a sáv mellé kerül a képernyőn belül (nem vágódik le)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: „Jóváhagyásra vár” egy sorban, „Idővonal” sor törölve; fejléc: külön Kilépés gomb elrejtve (a név menüjében van)"
 },
 {
-"id": "e6d1ae11fa",
-"at": "2026-11-14T08:20:28+01:00",
-"msg": "Idővonal: forgatási nap + vágás sávnál is a látható rész elején marad a név"
-},
-{
-"id": "9c88e5d23c",
-"at": "2026-11-14T07:18:37Z",
+"id": "29ec47abdc",
+"at": "2026-11-14T07:20:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
