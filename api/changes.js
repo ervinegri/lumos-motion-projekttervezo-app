@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cf5e2a26d6",
+"at": "2026-11-14T20:25:52+02:00",
+"msg": "fix: open postproduction Kanban from calendar deadline bars and calendar chips"
+},
+{
 "id": "61c8e837ed",
 "at": "2026-11-14T20:24:32+02:00",
 "msg": "style: keep specialist Kanban project panel scrollable on smaller screens"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "fix: email invitation link shows already-answered popup on repeat opens"
 },
 {
-"id": "8c0b38ffc7",
-"at": "2026-11-14T19:51:32+02:00",
-"msg": "ui: show previously submitted invitation response instead of answering twice"
-},
-{
-"id": "e0eb91c4d2",
-"at": "2026-11-14T17:51:25Z",
+"id": "625f3c834d",
+"at": "2026-11-14T17:51:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
