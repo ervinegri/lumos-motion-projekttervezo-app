@@ -372,3 +372,4 @@ require('./sales-owner-revenue.test.cjs');
 require('./sales-month.test.cjs');
 require('./finance-cost-allocation.test.cjs');
 require('./project-sales-panel.test.cjs');
+require('./budget-live.test.cjs');
