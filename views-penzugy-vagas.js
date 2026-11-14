@@ -280,12 +280,16 @@ function crewFinalBox(p,ids){
 /* Meghívó súgó: kiküldés + válaszadási határidő rövid, egysoros dátumformátumban. */
 function inviteHintDate(v){
   const s=String(v||'').trim();
+  const months=['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
   let m=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/.exec(s);
-  if(m)return m[1]+'. '+Number(m[2])+'. '+Number(m[3])+'., '+m[4];
-  m=/^(\d{4})\s+([^\s]+)\s+(\d{1,2}),\s*(\d{1,2}:\d{2})$/.exec(s);
-  if(m){const month=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'].indexOf(m[2].toLowerCase())+1;
-    if(month)return m[1]+'. '+month+'. '+Number(m[3])+'., '+m[4];}
-  return s;
+  let year=0,month=0,day=0,time='';
+  if(m){year=Number(m[1]);month=Number(m[2]);day=Number(m[3]);time=m[4];}
+  else {
+    m=/^(\d{4})\s+([^\s]+)\s+(\d{1,2}),\s*(\d{1,2}:\d{2})$/.exec(s);
+    if(m){year=Number(m[1]);month=months.findIndex(x=>x.toLowerCase()===m[2].toLowerCase())+1;day=Number(m[3]);time=m[4];}
+  }
+  if(!year||month<1||month>12||day<1||day>31)return s;
+  return (year<new Date().getFullYear()?year+'. ':'')+months[month-1]+' '+day+'., '+time;
 }
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const ROLES=projRoles(p);if(!ROLES.includes(selRole))selRole=ROLES.includes('Vágó')?'Vágó':ROLES[0];   // videóvágásnál csak projektvezető és vágó
