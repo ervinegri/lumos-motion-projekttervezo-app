@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5dc50b8bd3",
+"at": "2026-11-14T11:56:42+01:00",
+"msg": "Naptár súgó: hosszú tartalomnál görgethető, rá lehet vinni az egeret"
+},
+{
 "id": "54b0106a3d",
 "at": "2026-11-14T11:55:27+01:00",
 "msg": "Nézet-sáv: mindenhol kisebb szöveg és gombok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla-levél: nincs dupla „Üdvözlettel” (az aláírásban van)"
 },
 {
-"id": "ea50ddd055",
-"at": "2026-11-14T09:19:16+01:00",
-"msg": "Számla: a levél előnézete mint az árajánlatnál (feladó, címzett, tárgy, melléklet, aláírás); saját cím és számlázz.hu együtt is választható"
-},
-{
-"id": "c6c1719726",
-"at": "2026-11-14T08:18:13Z",
+"id": "32ac5fe500",
+"at": "2026-11-14T08:19:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
