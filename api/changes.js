@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "88f5f6fe83",
+"at": "2026-11-14T20:13:57+02:00",
+"msg": "ui: group video and photo postproduction into a single timeline bar with per-person cards"
+},
+{
 "id": "154f785d58",
 "at": "2026-11-14T20:10:58+02:00",
 "msg": "style: make sales amount 30% wider and commission input 30% narrower"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "feat: preview invitation email in popup before sending and resending"
 },
 {
-"id": "123a1f3dfc",
-"at": "2026-11-14T19:43:45+02:00",
-"msg": "api: add read-only crew invitation preview and manager self-response"
-},
-{
-"id": "585aff6c25",
-"at": "2026-11-14T17:43:41Z",
+"id": "af316d3815",
+"at": "2026-11-14T17:43:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
