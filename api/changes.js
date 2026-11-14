@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a247acfdba",
+"at": "2026-11-14T08:55:38+01:00",
+"msg": "Súgók: rámutatás után kb. fél másodperccel jelennek meg (nem villannak fel azonnal)"
+},
+{
 "id": "f31e969e68",
 "at": "2026-11-14T08:53:05+01:00",
 "msg": "Idővonal: „Jóváhagyásra vár” címkéken „X napja leadva”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: elforgatás után a táblázatkeret magassága újraszámolódik (álló nézetben nem marad alacsony)"
 },
 {
-"id": "656c12f621",
-"at": "2026-11-13T22:40:04+01:00",
-"msg": "Mobil Fizetések: az alsó összesítő sorok számai nem csúsznak át a név-oszlopon"
-},
-{
-"id": "386ca59dad",
-"at": "2026-11-13T21:38:06Z",
+"id": "ce2c5a122c",
+"at": "2026-11-13T21:40:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
