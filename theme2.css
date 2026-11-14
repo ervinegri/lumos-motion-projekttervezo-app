@@ -1851,3 +1851,9 @@ html body a[href^="#"],html body .tab,html body .subtab,html body .brand-link,ht
 /* Kifizetések: minden sor egysoros (a hosszú feliratok pontokkal végződnek) */
 html body .pay-sheet tfoot td:first-child,html body .pay-sheet tbody td:first-child{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
 html body .pay-sheet tfoot td:first-child b{white-space:nowrap}
+/* Kifizetések szakember (termelő) nézetben: a táblázatnak van széle (keretes kártya, nem széltől szélig) */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body .pay-wrap.pay-center{width:auto!important;max-width:100%!important;margin:0 12px!important;border:1px solid var(--line,#dde4eb)!important;border-radius:14px!important;box-shadow:0 1px 3px rgba(20,40,60,.06)!important;overflow:hidden auto!important}
+html body .pay-wrap.pay-center .pay-sheet td:first-child,html body .pay-wrap.pay-center .pay-sheet th:first-child{padding-left:12px!important}
+html body .pay-wrap.pay-center .pay-sheet td:last-child,html body .pay-wrap.pay-center .pay-sheet th:last-child{padding-right:12px!important}
+}
