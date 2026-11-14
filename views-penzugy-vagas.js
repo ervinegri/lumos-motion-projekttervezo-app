@@ -387,8 +387,10 @@ function videosPanel(p){const vs=Array.isArray(p.videos)?p.videos:[];if(!vs.leng
   const cutters=(S.crew||[]).filter(c=>(c.roles||[]).includes('Vágó')||(p.crew||[]).some(a=>a.crewId===c.id&&a.role==='Vágó')).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
   const rows=vs.map(v=>{const own=!v.editor||v.editor===me,canSt=!lock&&(mgr||(own&&v.st!=='jovahagyva'&&v.st!=='modositas')),stOpts=(mgr?VID_ST:VID_ST.slice(0,4)).map(([k,l])=>`<option value="${k}"${k===v.st?' selected':''}>${l}</option>`).join('');
     const ed=mgr&&!lock?`<select class="inp" data-vid-ed="${esc(v.id)}" data-cmb="Vágó…"><option value="">— nincs vágó —</option>${cutters.map(c=>`<option value="${esc(c.id)}"${c.id===v.editor?' selected':''}>${esc(c.name)}</option>`).join('')}</select>`:`<span>${esc((crewById(v.editor)||{}).name||'—')}</span>`;
-    return `<div class="vid-row"><span class="vid-n">🎞️ ${esc(v.name)}</span>${mgr?ed:''}</div>`;}).join('');   // az állapot a videótáblában (Utómunka lépés / Idővonal)
-  return `<section class="panel content vid-panel" id="proj-videos"><h3>🎞️ Videók <span class="aside">${done}/${vs.length} leadva${appr?` · ${appr} jóváhagyva`:''}</span></h3>${typeof pnBox==='function'?pnBox(p.id):''}<div class="vid-list">${rows}</div><p class="hint" style="margin:8px 0 0">Az állapotokat a <button type="button" class="linkbtn" data-action="bd-lane" data-id="${esc(p.id)}">videótáblában</button> kezeled (Utómunka lépés / Idővonal).</p></section>`;}
+    const stl=(VID_ST.find(x=>x[0]===v.st)||[,'Utómunkára vár'])[1],okv=v.st==='jovahagyva';
+    return `<div class="vid-row vr-${esc(v.st||'vagasra')}"><button type="button" class="vid-n" data-action="${v.link?'vid-view':'bd-lane'}" data-pid="${esc(p.id)}" data-vid="${esc(v.id)}" data-id="${esc(p.id)}">${v.link?'▶':'🎞️'} ${esc(v.name)}</button><span class="vid-st">${okv?'<span class="tl-ok">✓</span> ':''}${esc(stl)}</span>${mgr?`<span class="vid-ed">${ed}</span>`:v.editor?`<span class="vid-ed muted">✂️ ${esc((crewById(v.editor)||{}).name||'')}</span>`:''}</div>`;}).join('');
+  const pct=vs.length?Math.round(done/vs.length*100):0;
+  return `<section class="panel content vid-panel" id="proj-videos"><div class="vp-head"><h3>🎞️ Videók</h3><span class="vp-prog" title="${done}/${vs.length} leadva"><i style="width:${pct}%"></i></span><span class="vp-cnt">${done}/${vs.length} leadva${appr?` · ${appr} ✓`:''}</span><span class="vp-btns"><button type="button" class="btn outline small" data-action="bd-lane" data-id="${esc(p.id)}">📋 Videótábla</button><button type="button" class="btn outline small" data-action="proj-tl" data-id="${esc(p.id)}">🗓️ Idővonal</button></span></div>${typeof pnBox==='function'?pnBox(p.id):''}<div class="vid-list">${rows}</div></section>`;}
 function roContentPanel(p){
   // a szakember ezt a részt nem látja – kivéve a vágót, aki a kért vágnivaló anyagokat igen
   const me=S.me&&S.me.crewId,isEditor=me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vágó');
@@ -405,9 +407,9 @@ function roContentPanel(p){
   REC_LIVE.forEach(c=>{if(p[c.k])field.push(esc(c.label));});
   const due=dueDate(p),di=due?dueInfo(p):null,r=pr(p);
   const dueHtml=due?`<div class="cut-due${di&&di.cls!=='ok'?' late':''}"><span>📅 Videók leadási határideje</span><b>${esc(fmtDay(due))}</b>${cutLeft(p)&&p.status!=='atadva'?`<span class="cd-left">⏳ ${esc(cutLeft(p).txt)}</span>`:''}</div>`:'';
-  return `<div class="panel content"><h3>✂️ Vágás</h3>${dueHtml}<div class="cut-grid">
+  return `<div class="panel content"><h3>✂️ Utómunka</h3>${dueHtml}<div class="cut-grid">
     ${editOnly(p)?'':`<section><h4 class="sub-h">📍 Terepi felvételek</h4>${field.length?roList(field):'<p class="hint" style="margin:0">Nincs megadva terepi felvétel.</p>'}${r?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section>`}
-    <section><h4 class="sub-h">✂️ Vágnivaló anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt vágnivaló.':'Ehhez a projekthez nincs megrendelt vágnivaló anyag.'}</p>`}</section></div></div>${videosPanel(p)}`;
+    <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt vágnivaló.':'Ehhez a projekthez nincs megrendelt vágnivaló anyag.'}</p>`}</section></div></div>${videosPanel(p)}`;
 
   const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
   REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});

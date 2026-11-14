@@ -231,6 +231,7 @@ const ACT={
     setDraft({fees});toast(n+' tétel felvéve'+(days>1?' ('+days+' napra)':''));},
   'due-reset':()=>{if(S.draft)setDraft({dueAt:''});},
   'due-custom':()=>{const d=S.draft;if(!d)return;const r=pr(d);if(!r){toast('Előbb add meg a dátumot.',true);return;}setDraft({dueAt:addDays(r.end,1)});},
+  'proj-tl':b=>{S.cal.mode='ido';ACT.tab({dataset:{tab:'naptar',focus:'1'}});},   /* projektből az idővonalra, a projekt időszakára állva */
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}

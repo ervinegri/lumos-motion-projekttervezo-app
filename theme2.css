@@ -1891,3 +1891,23 @@ html body .pay-wrap.pay-center .pay-sheet{table-layout:auto!important;width:100%
 html body .field:has(>.vcf-btn){display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:6px;align-items:end}
 html body .field:has(>.vcf-btn)>label{grid-column:1 / -1}
 html body .field>.vcf-btn{width:auto!important;white-space:nowrap;padding:0 10px!important;min-height:0!important;height:100%;font-size:12.5px!important;border:1px solid var(--line,#dde4eb)!important;border-radius:10px!important;background:#fff!important}
+/* Projekt – Videók panel: rendezett sorok, állapot, gyors gombok (Videótábla, Idővonal) */
+html body .vid-panel .vp-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+html body .vid-panel .vp-head h3{margin:0!important}
+html body .vid-panel .vp-prog{flex:1 1 120px;max-width:260px;height:6px;border-radius:99px;background:#e6ebf0;overflow:hidden}
+html body .vid-panel .vp-prog i{display:block;height:100%;background:linear-gradient(90deg,#ffd25a,#ff9a4d);border-radius:inherit}
+html body .vid-panel .vp-cnt{font-size:12.5px;color:#5b6876;font-weight:600;white-space:nowrap}
+html body .vid-panel .vp-btns{margin-left:auto;display:flex;gap:6px}
+html body .vid-panel .vid-list{display:flex;flex-direction:column;gap:6px}
+html body .vid-panel .vid-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #e6ebf0;border-radius:10px;background:#f9fbfc}
+html body .vid-panel .vid-row .vid-n{flex:1 1 auto;min-width:0;text-align:left;background:none;border:0;padding:0;font:inherit;font-weight:600;font-size:13.5px;color:#1d2a38;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .vid-panel .vid-row .vid-n:hover{text-decoration:underline}
+html body .vid-panel .vid-st{flex:none;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;background:#eef2f6;color:#4a5866;white-space:nowrap}
+html body .vid-panel .vr-jovahagyva .vid-st{background:#e6f5ec;color:#1f7a44}
+html body .vid-panel .vr-leadva .vid-st{background:#fdf2dc;color:#8a5a00}
+html body .vid-panel .vr-modositas .vid-st{background:#fdecec;color:#a33}
+html body .vid-panel .vr-vagas .vid-st,html body .vid-panel .vr-ellen .vid-st{background:#eeeafc;color:#5a46b0}
+html body .vid-panel .vid-st .tl-ok{position:static!important;color:#1f9d55!important}
+html body .vid-panel .vid-ed{flex:0 0 auto;min-width:150px;font-size:12.5px}
+html body .vid-panel .vid-ed .inp,html body .vid-panel .vid-ed .cmb-in{min-height:30px;font-size:12.5px}
+@media (max-width:700px){html body .vid-panel .vid-row{flex-wrap:wrap}html body .vid-panel .vid-row .vid-n{flex-basis:100%}html body .vid-panel .vid-ed{min-width:0;flex:1 1 auto}html body .vid-panel .vp-btns{margin-left:0;width:100%}html body .vid-panel .vp-btns .btn{flex:1}}
