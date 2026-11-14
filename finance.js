@@ -403,6 +403,17 @@ document.addEventListener('change',e=>{const c=e.target;if(!c.dataset||!c.datase
   if(c.checked&&!ex&&p)box.insertAdjacentHTML('beforeend',szItemRow({name:szItemName(p),qty:1,price:projTotal(p),pid},box.children.length));
   if(!c.checked&&ex&&box.children.length>1)ex.remove();szTotals();});
 function szInvoiceModal(kind,id,o={}){
+  // Biztonságos közös számlázás: a már befizetett, más projektekre is kiterjedő foglaló külön díjbekérőt kizáró jelzés.
+  const group=kind==='project'&&typeof billGroupForProject==='function'?billGroupForProject(id):null;
+  if(group&&o.type==='dijbekero'&&group.candidate&&group.missing.some(i=>i.p.id===id)){
+    toast('Ehhez az ügyfélcsoporthoz egy meglévő, összegében egyező foglaló tartozhat. Ellenőrizd és kapcsold a közös számlát.',true);return;
+  }
+  // Amikor egyetlen közös foglaló már minden projekthez kapcsolódik, a végszámlát is egyszer, közös tételekkel készítjük elő.
+  if(group&&group.shared&&!o.tigId&&!o.items&&!(o.projectIds&&o.projectIds.length)&&['vegszamla','szamla'].includes(o.type)
+    &&group.ids.every(pid=>{const p=projById(pid);return p&&!billInfo(p).fin;})){
+    const ids=group.ids.slice().sort((a,b)=>String((pr(projById(a))||{}).start||'').localeCompare(String((pr(projById(b))||{}).start||'')));
+    return szInvoiceModal('project',ids[0],Object.assign({},o,{projectIds:ids.slice(1),items:ids.map(pid=>({name:szItemName(projById(pid)),qty:1,price:projTotal(projById(pid)),pid}))}));
+  }
   const t=szTargetInfo(kind,id),st=S.fin&&S.fin.sz;if(!t||!st)return;
   if(!st.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz számlát kiállítani.');return;}
   const inv0=invFor(kind,id),simpleAdv=inv0.some(x=>x.kind==='eloleg'&&x.advType==='szamla')&&!inv0.some(x=>x.kind==='eloleg'&&x.advType!=='szamla');
