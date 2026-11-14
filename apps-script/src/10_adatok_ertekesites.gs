@@ -154,8 +154,8 @@ function bootstrap_(u) {
   if (u.role === 'crew') {
     const cid = String(u.crewId || '');
     const mine = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
-    out.myInvites = mine.filter(p => p.invites && p.invites[cid] && p.invites[cid].st === 'invited').map(p => ({ id: p.id, name: p.name, date: p.date, endDate: p.endDate, startTime: p.startTime, endTime: p.endTime, venue: p.venue, eventType: p.eventType,
-      roles: [p.lead === cid ? 'Projektvezető' : ''].concat(p.crew.filter(c => c.crewId === cid).map(c => c.role)).filter(Boolean), at: p.invites[cid].at }));   // függő meghívások: csak az alapadatok
+    out.myInvites = mine.filter(p => p.invites && p.invites[cid] && p.invites[cid].st === 'invited').map(p => { let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), cid); } catch (e) {} return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
+      roles: [p.lead === cid ? 'Projektvezető' : ''].concat(p.crew.filter(c => c.crewId === cid).map(c => c.role)).filter(Boolean), at: p.invites[cid].at }; });   // függő meghívások: csak az alapadatok
     out.projects = mine.filter(p => !(p.invites && p.invites[cid] && p.invites[cid].st !== 'yes'));   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
     out.mySales = mySalesComm_(cid);   // a saját értékesítői jutalékai (csak az összeg – ár, % nem)
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)

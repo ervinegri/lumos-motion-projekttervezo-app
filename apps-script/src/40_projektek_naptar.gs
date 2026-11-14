@@ -714,12 +714,14 @@ function crewInvite_(u, a) {
     else if (!ev.getGuestList().some(g => String(g.getEmail()).toLowerCase() === em)) ev.addGuest(em);
     calOk = true; } catch (e) { Logger.log('Meghívás – naptár hiba: ' + e); } }
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-    const first = huFirst_(c.name) || c.name, roles = [p.lead === cid ? 'Projektvezető' : ''].concat((p.__asg || []).filter(x => x.crewId === cid).map(x => x.role)).filter(Boolean).filter((x, i, l) => l.indexOf(x) === i).join(', ');
-    const when = String(p.date || '') + (p.endDate && p.endDate !== p.date ? ' – ' + p.endDate : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
-    const url = appUrl_(), calUrl = ev ? calEventLink_(ev) : '';
-    const info = [when ? '📅 ' + when : '', p.venue ? '📍 ' + p.venue : '', roles ? '🎬 ' + roles : ''].filter(Boolean).join('\n');
-    const text = 'Kedves ' + first + '!\n\nMeghívunk erre a projektre: ' + p.name + '\n\n' + info + '\n\nKérjük, jelezd vissza az appban (Beosztásaim → Elfogadom), vagy a Google Naptárban az „Igen” gombbal:\n' + url + (calUrl ? '\n\nNaptár: ' + calUrl : '');
-    const html = mailCard_(escapeHtml_(first), 'Meghívunk erre a projektre: <b>' + escapeHtml_(p.name) + '</b>', info, url, '✓ Megnézem és elfogadom') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0">Vagy a <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” gombbal.</p>' : '');
+    const first = huFirst_(c.name) || c.name, rl = [p.lead === cid ? 'Projektvezető' : ''].concat((p.__asg || []).filter(x => x.crewId === cid).map(x => x.role)).filter(Boolean).filter((x, i, l) => l.indexOf(x) === i);
+    const post = postOnly_(Object.assign({}, p, { crew: p.__asg || [] }), cid);   // csak vágó (utómunka): nincs helyszín és időpont
+    const asTxt = rl.length ? ', mint ' + rl.map(x => x.toLowerCase()).join(' és ') : '';
+    const when = post ? '' : String(p.date || '') + (p.endDate && p.endDate !== p.date ? ' – ' + p.endDate : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
+    const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = ev && !post ? calEventLink_(ev) : '';
+    const info = [when ? '📅 ' + when : '', !post && p.venue ? '📍 ' + p.venue : ''].filter(Boolean).join('\n');
+    const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ': ' + p.name + (info ? '\n\n' + info : '') + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
+    const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ': <b>' + escapeHtml_(p.name) + '</b>', info, url, '✓ Elfogadom / válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
     try { mail = gmailSend_(em, 'Meghívás: ' + p.name, text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Meghívás e-mail hiba: ' + e); }
   }
   delete p.__asg; logEvent_(u, 'Meghívás elküldve', p.name, c.name + (mail ? ' (e-mail)' : '') + (calOk ? ' (naptár)' : ''));
