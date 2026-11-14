@@ -215,7 +215,7 @@ function calTimeline(m,items0,T,ahead){
     const p=it.kind==='p'?projById(it.id):null,sub=p?[p.client,p.venue].filter(Boolean).join(' · '):(it.venue||'');
     const dim=p&&crewDim(p),live=p&&calLive(p);
     const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v':'cal-chip g';
-    const act=it.kind==='p'?'open-project':it.kind==='v'?'cal-vevent':'cal-event';
+    const act=it.kind==='p'?((p&&(p.videos||[]).length)?'bd-lane':'open-project'):it.kind==='v'?'cal-vevent':'cal-event';
     const showBar=it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(p&&editOnly(p));
     const pOk=!!(p&&['leadva','jovahagyas','atadva'].includes(p.status)&&p.status!=='atadva'&&(v=>v&&v.tot&&v.ok===v.tot)(vidProg(p)));   // minden videó jóváhagyva: a forgatási sáv is zöld
     const cc0=p&&cutOf(p),join=!!(showBar&&cc0&&!cc0.same&&cc0.st>=first&&cc0.st<=last&&it.endDate>=first&&it.endDate<last);   // a forgatás vége és a vágás kezdete egybeolvad
