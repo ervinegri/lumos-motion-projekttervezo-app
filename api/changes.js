@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4cef7922c5",
+"at": "2026-11-14T09:22:54+01:00",
+"msg": "Számla: „A számlázz.hu küldje” felirat"
+},
+{
 "id": "a92ff42aeb",
 "at": "2026-11-14T09:21:55+01:00",
 "msg": "Számla-levél: nincs dupla „Üdvözlettel” (az aláírásban van)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Legördülők: megnyitáskor nincs kijelölve (kék) a szöveg – az első leütés így is lecseréli; egyszeri javítás eltávolítva"
 },
 {
-"id": "d874e28ad6",
-"at": "2026-11-13T23:04:05+01:00",
-"msg": "Egyszeri javítás: Synlab – Short videó 3 → Jóváhagyásra vár (e-mail nélkül, már kiment)"
-},
-{
-"id": "497042ceda",
-"at": "2026-11-13T22:01:48Z",
+"id": "b669dc6b2c",
+"at": "2026-11-13T22:04:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
