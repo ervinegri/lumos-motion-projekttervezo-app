@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ee68319ff1",
+"at": "2026-11-14T19:54:20+02:00",
+"msg": "fix: prune orphaned untouched video tasks, including previously assigned editors"
+},
+{
 "id": "0e5332b4ae",
 "at": "2026-11-14T19:53:17+02:00",
 "msg": "ui: open answer popup directly for pending email invitation links"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "2a83ed28c5",
 "at": "2026-11-14T19:35:06+02:00",
 "msg": "feat: include manager's own pending crew invitations in bootstrap"
-},
-{
-"id": "5e00b3fd88",
-"at": "2026-11-14T19:28:57+02:00",
-"msg": "fix: lead invite shows filming time and venue, editor invite shows upload and edit deadlines"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
