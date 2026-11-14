@@ -44,6 +44,7 @@ function mySalesComm_(cid) {
     const mp = String(d.commManual == null ? '' : d.commManual).trim(), amt = /^ft:/.test(mp) ? Number(mp.slice(3)) || 0 : mp !== '' && !isNaN(Number(mp)) ? Math.round(prodBase_(p) * Number(mp) / 100) : 0;
     return amt > 0 ? { projectId: p.id, name: sval_(p.name), date: sval_(p.date), endDate: sval_(p.endDate), amount: amt } : null; }).filter(Boolean);
 }
+/** Az admin/termelési vezető betöltéskor a régi, befejezetlen, már lemondott videófeladatok beosztásait is helyreállítja. */
 function videosBackfill_() {
   const sh = sheetFor_('projects'), ca = readAll_('crewAssign'); let changed = false;
   readAll_('projects').forEach(p => {
