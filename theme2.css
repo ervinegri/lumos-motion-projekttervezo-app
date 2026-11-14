@@ -1782,3 +1782,22 @@ html body.switching::before{content:"";position:fixed;z-index:10000;left:50%;top
 html body.switching #view{opacity:.3!important}
 html body.switching .topbar{box-shadow:inset 0 -3px 0 #ffd25a;animation:swBar 1s ease-in-out infinite alternate}
 @keyframes swSpin{to{transform:rotate(360deg)}}@keyframes swIn{from{opacity:0;transform:translate(-50%,-46%)}}@keyframes swBar{from{box-shadow:inset 0 -3px 0 rgba(255,210,90,.35)}to{box-shadow:inset 0 -3px 0 #ffd25a}}
+/* fekvő telefon: Projektek – ugyanaz az egyoszlopos elrendezés, mint állóban (a státuszcímkék a név alatt, egy sorban) */
+@media (orientation:landscape) and (max-height:560px){
+html body .proj-table{display:block;width:100%!important;min-width:0!important;table-layout:auto}
+html body .proj-table thead{display:none}
+html body .proj-table tbody{display:block}
+html body .proj-table tr{display:block;width:100%}
+html body .proj-table td{display:block;width:auto!important;max-width:none!important;border-left:0!important;border-right:0!important}
+html body .proj-table tr.pt-row>td.pt-proj{border-bottom:0!important;padding-bottom:4px!important}
+html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.pt-extra{padding-top:0!important;padding-bottom:10px!important}
+html body .proj-table tr.pt-row>td.pt-status:has(.pt-pills:empty){display:none}
+html body .proj-table .pt-pills{display:flex;flex-wrap:wrap;gap:4px 6px;justify-content:flex-start}
+html body .proj-table .pt-pills .statuspill{white-space:nowrap}
+html body .proj-table tr.pt-row{border-bottom:1px solid var(--line,#dde4eb)}
+html body .proj-table .pt-pills{flex-direction:row!important;align-items:center!important}
+html body .proj-table .pt-pills>*{display:inline-flex!important;width:auto!important;margin:0!important}
+html body .proj-table tr.pt-row>td.pt-status,html body .proj-table tr.pt-row>td.pt-extra{padding-left:72px!important}
+html body .proj-table th:last-child,html body .proj-table td.pt-status,html body .proj-table td.pt-extra{width:auto!important;max-width:none!important}
+html body .proj-table{overflow:visible!important}html body .sheet-wrap:has(.proj-table){overflow-x:hidden!important}
+}
