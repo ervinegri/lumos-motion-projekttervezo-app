@@ -454,7 +454,7 @@ function viewProjects(){
   if(S.projectId&&S.draft)return viewProject(S.draft);
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'tervezes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
-  let list=S.projects.filter(p=>!p.invPending);   /* függő meghívás: a Meghívások dobozban van */   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
+  let list=ro()?S.projects.filter(p=>!p.invPending):S.projects;   /* függő meghívás: a Meghívások dobozban van */   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
   if(ro()&&S.me&&S.me.crewId){const me=S.me.crewId,T0=todayISO();   /* szakember: csak az aktív beosztások – jövőbeli, most zajló, vagy vágás / jóváhagyás alatt, ha ő a vágó */
     list=list.filter(p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
       const cut=(p.crew||[]).some(c=>c.crewId===me&&/vágó/i.test(c.role||''))||(p.videos||[]).some(v=>v.editor===me);
@@ -494,7 +494,7 @@ function viewProjects(){
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
   return `<div class="page-head${ro()?' ph-inline':''}"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2></div>
       ${ro()?`<input class="inp search head-search" id="q-projects" type="search" placeholder="Keresés…" value="${esc(f.q)}" aria-label="Projektek keresése">`:'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>
-    ${ro()?invitesBox():''}
+    ${invitesBox()}
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
     ${ro()||!issues.length?'':`<div class="panel issues-panel"><h3>⚠️ Figyelmeztetések <span class="aside">${issues.length} db</span></h3><div class="issues">${issues.map(i=>issueRow(i)).join('')}</div></div>`}
     ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
