@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6d58294c7",
+"at": "2026-11-14T18:07:00+02:00",
+"msg": "sales: add monthly navigation controls and month-sensitive KPI labels"
+},
+{
 "id": "55c78aae1e",
 "at": "2026-11-14T18:06:22+02:00",
 "msg": "sales: implement month grouping for all pipeline stages"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó: forgatási idő és vágási határidő a levélben; meghívásos projektnél a szakember csak az elfogadott munkatársakat látja (és csak elfogadás után a projektet)"
 },
 {
-"id": "4f4de7117f",
-"at": "2026-11-14T13:29:45+01:00",
-"msg": "Meghívás: „Meghívást kaptál erre a projektre, mint vágó”, csak vágónál nincs helyszín/időpont; a levél gombja felugró elfogadó ablakot nyit"
-},
-{
-"id": "174c54e3d0",
-"at": "2026-11-14T12:16:18Z",
+"id": "537a85c782",
+"at": "2026-11-14T12:29:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
