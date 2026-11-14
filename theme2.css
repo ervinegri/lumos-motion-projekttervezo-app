@@ -1759,8 +1759,9 @@ html body .sheet-wrap:has(.fin-inc){max-height:none!important;height:auto!import
 @media (max-width:700px) and (orientation:portrait){
 html body .topbar-inner{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;gap:4px!important;padding:6px 12px!important;min-height:0!important}
 html body .topbar-inner::-webkit-scrollbar{display:none}
-html body .topbar-inner>.identity{flex:0 0 auto;position:sticky;left:0;z-index:4;background:#243347;padding:0 6px 0 12px;margin-left:-12px;align-self:stretch;display:flex;align-items:center;box-shadow:10px 0 10px -6px #243347}
-html body .topbar-inner>.identity .brand{height:30px!important;width:auto!important;max-width:none!important}
+html body .topbar-inner>.identity{flex:0 0 auto;position:sticky;left:0;z-index:4;background:#243347;padding:0 4px 0 0!important;margin:0!important;align-self:stretch;display:flex;align-items:center;box-shadow:10px 0 10px -6px #243347}
+html body .topbar-inner>.identity .brand{height:26px!important;width:auto!important;max-width:none!important;display:block}
+html body .topbar-inner{padding-left:0!important}html body .topbar-inner>.identity .brand-link{display:block;padding:0!important;margin:0!important}
 html body .topbar-inner>.tabs{flex:0 0 auto!important;width:auto!important;overflow:visible!important;margin:0!important;padding:0!important;-webkit-mask-image:none!important;mask-image:none!important}
 html body .topbar-inner>.header-tools{flex:0 0 auto!important;margin-left:6px!important;display:flex!important;align-items:center;gap:6px}
 }
@@ -1775,3 +1776,9 @@ html body .cal-toolbar .cal-tog{flex:0 0 auto;white-space:nowrap}
 @media (max-width:700px){html body .cal-toolbar:has(.cal-tog) .cal-tog,html body .cal-toolbar:has(.cal-tog)>.btns .btn{font-size:13px!important;padding-inline:9px!important}html body .cal-toolbar:has(.cal-tog) .cal-cutsel .inp,html body .cal-toolbar:has(.cal-tog) .cal-cutsel .cmb-in{font-size:13px!important;padding-inline:8px!important}}
 .cal-tog .ct-sm{display:none}@media (max-width:700px){html body .cal-tog .ct-lg{display:none}html body .cal-tog .ct-sm{display:inline}}
 @media (max-width:700px){html body .cal-toolbar .seg.cal-kind{margin-left:auto!important;margin-right:auto!important}}
+/* nézetváltás közben jól látható jelzés: középen kártya forgó ikonnal, felül futó csík */
+html body.switching::after{content:attr(data-switch-to);position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9999;background:#243347;color:#fff;font-weight:650;font-size:15px;padding:46px 24px 16px;line-height:20px;text-align:center;border-radius:14px;box-shadow:0 14px 40px rgba(10,20,40,.35);white-space:nowrap;pointer-events:none; animation:swIn .15s ease-out}
+html body.switching::before{content:"";position:fixed;z-index:10000;left:50%;top:calc(42% - 41px + 14px);width:18px;height:18px;margin:0 0 0 -12px;border:3px solid rgba(255,255,255,.3);border-top-color:#ffd25a;border-radius:50%;animation:swSpin .7s linear infinite;pointer-events:none}
+html body.switching #view{opacity:.3!important}
+html body.switching .topbar{box-shadow:inset 0 -3px 0 #ffd25a;animation:swBar 1s ease-in-out infinite alternate}
+@keyframes swSpin{to{transform:rotate(360deg)}}@keyframes swIn{from{opacity:0;transform:translate(-50%,-46%)}}@keyframes swBar{from{box-shadow:inset 0 -3px 0 rgba(255,210,90,.35)}to{box-shadow:inset 0 -3px 0 #ffd25a}}

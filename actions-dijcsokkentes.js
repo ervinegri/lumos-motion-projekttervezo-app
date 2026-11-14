@@ -346,7 +346,7 @@ function userModal(u){
 /* Ügyvezetői előnézet: a háttér a munkamenetet átállítja a választott szerepkörre, így pontosan azt kapod, amit ők. */
 async function switchView(role,crewId,userId){
   try{
-    document.body.classList.add('switching');
+    document.body.dataset.switchTo='Váltás: '+(role==='admin'?'Ügyvezető':role==='editor'?'Termelési v.':role==='sales'?'Értékesítő':'Szakember')+' nézet…';document.body.classList.add('switching');
     await Promise.race([SAVE_Q,new Promise(r=>setTimeout(r,15000))]);if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
     const r=await call('setViewAs',Object.assign({role,crewId},userId?{userId}:{}));
     const keepTab=S.tab,keepPid=S.projectId;   // nézetváltás után ugyanazon a menüponton (és projekten) maradunk, ha az új nézetben is elérhető
