@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bfc98cd568",
+"at": "2026-11-14T12:51:00+01:00",
+"msg": "Új projekt: alapból a mai dátummal indul"
+},
+{
 "id": "b172947189",
 "at": "2026-11-14T12:42:18+01:00",
 "msg": "Szakembereknek csak a nevük látszik a menüben (Szakember felirat és kalapács nélkül); Kifizetések: az oszlopelválasztó az összegekig jobbra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló telefon: egysoros fejléc – menüpontok, szerepkör és csengő együtt húzható, a logó helyben marad"
 },
 {
-"id": "ec38d66cff",
-"at": "2026-11-14T11:40:05+01:00",
-"msg": "Bevételek: a teljes táblázat látszik, nincs belső függőleges görgetés"
-},
-{
-"id": "37e21877f7",
-"at": "2026-11-14T10:39:52Z",
+"id": "f50004f270",
+"at": "2026-11-14T10:40:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
