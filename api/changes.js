@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b71e03ee31",
+"at": "2026-11-14T18:45:59+02:00",
+"msg": "test: run financial cost breakout and zero seller fee regression with suite"
+},
+{
 "id": "9ffce31b0a",
 "at": "2026-11-14T18:45:39+02:00",
 "msg": "test: include fee breakdown dependency and locked salesperson commission"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: clarify paid-month commission and CEO's own sales accounting"
 },
 {
-"id": "f3d6494b06",
-"at": "2026-11-14T17:51:56+02:00",
-"msg": "sales: merge owner aliases and show linked project revenue on won deal cards"
-},
-{
-"id": "8155e00499",
-"at": "2026-11-14T15:45:54Z",
+"id": "35a3365319",
+"at": "2026-11-14T15:52:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
