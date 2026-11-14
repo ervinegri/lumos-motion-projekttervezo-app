@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f999443997",
+"at": "2026-11-14T08:57:28+01:00",
+"msg": "Naptár-súgó: ha lent nem fér el, a sáv fölé kerül (vagy görgethető), nem lóg ki a képernyőből"
+},
+{
 "id": "a247acfdba",
 "at": "2026-11-14T08:55:38+01:00",
 "msg": "Súgók: rámutatás után kb. fél másodperccel jelennek meg (nem villannak fel azonnal)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: az oldal sehol nem húzható oldalra (a kilógó tartalmat az oldal levágja), számlázási kártyák nem szélesebbek a képernyőnél"
 },
 {
-"id": "846cc0d0bc",
-"at": "2026-11-13T22:40:21+01:00",
-"msg": "Mobil: elforgatás után a táblázatkeret magassága újraszámolódik (álló nézetben nem marad alacsony)"
-},
-{
-"id": "ce2c5a122c",
-"at": "2026-11-13T21:40:17Z",
+"id": "400ba3c6ba",
+"at": "2026-11-13T21:40:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
