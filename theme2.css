@@ -1878,3 +1878,8 @@ html body .pay-sheet tr.pay-totrow>td:first-child,html body .pay-sheet tr.pay-to
 @media (pointer:coarse){html body .pay-sheet{-webkit-user-select:none;user-select:none}}
 /* Kifizetések: a projektnevek vékonyabb betűvel */
 html body .pay-sheet tbody td:first-child,html body .pay-sheet tbody td:first-child *{font-weight:500!important}
+/* telefon: a Beállítások menüpont nem kell külön, mert a szerepkör / fiók menüjében benne van */
+@media (max-width:760px),(orientation:landscape) and (max-height:560px){
+html:has(#viewAs:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:has(#viewAs:not(.hidden)) .topbar .tabs .tab[data-tab="ertesitesek"],
+html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="beallitasok"],html:has(#userChip:not(.hidden)) .topbar .tabs .tab[data-tab="ertesitesek"]{display:none!important}
+}
