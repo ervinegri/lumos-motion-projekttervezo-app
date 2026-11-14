@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db7c47a69c",
+"at": "2026-11-14T19:43:26+02:00",
+"msg": "feat: show raw material handoff and edit deadline for combined onsite-editor invitations"
+},
+{
 "id": "b49ed2054a",
 "at": "2026-11-14T19:42:40+02:00",
 "msg": "backend: reject removal of accepted project member on save"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "style: compact single salesperson selector and commission within blue finance panel"
 },
 {
-"id": "8502f4065f",
-"at": "2026-11-14T18:55:04+02:00",
-"msg": "project finances: move 'Ki értékesítette?' panel after production and consolidate salesperson controls"
-},
-{
-"id": "326650d385",
-"at": "2026-11-14T16:46:45Z",
+"id": "9e6ebc8417",
+"at": "2026-11-14T16:55:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
