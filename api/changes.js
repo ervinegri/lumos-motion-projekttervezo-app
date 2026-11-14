@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b52e0b5ccb",
+"at": "2026-11-14T17:14:10+02:00",
+"msg": "ui: keep entire project invitation question as continuous inline text"
+},
+{
 "id": "dbc88ef74a",
 "at": "2026-11-14T17:10:08+02:00",
 "msg": "ui: display invitation reply deadline in two-line hover hint"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: a Beállítások menüpont elrejtve (a szerepkör/fiók menüben elérhető)"
 },
 {
-"id": "de5abbbada",
-"at": "2026-11-14T12:09:13+01:00",
-"msg": "Szakember Beállítások: alcím törölve"
-},
-{
-"id": "6998497fb2",
-"at": "2026-11-14T11:08:40Z",
+"id": "61815e9126",
+"at": "2026-11-14T11:09:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
