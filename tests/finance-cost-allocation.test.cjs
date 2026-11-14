@@ -47,10 +47,13 @@ assert.deepEqual([split.finWages(organizer),organizer.tov,split.finOrgCost(organ
 assert.equal(split.finSalesCost({kind:'manual',ceo:9000,org:3000}),6000,'legacy organizer fee remains separate in display');
 const k=code.indexOf('function pctIn('),l=code.indexOf('async function finSetPct(',k);
 assert(k>=0&&l>k);
-const pct=new Function('pctNum','esc',code.slice(k,l)+'\nreturn pctIn;')((v,base)=>base?v/base*100:0,String);
+const pct=new Function('pctNum','esc','finSalesCost',code.slice(k,l)+'\nreturn pctIn;')((v,base)=>base?v/base*100:0,String,split.finSalesCost);
 assert.match(pct(none,'ceo'),/0%/);
 assert.doesNotMatch(pct(none,'ceo'),/data-finpct=/,'no salesperson means read-only zero percent');
-assert.match(pct(seller,'ceo'),/data-finpct=/);
+assert.match(pct(seller,'ceo'),/pct-lock/,'calculated salesperson commission stays locked');
+const defaultSeller=make(159000,40000,45000,0,{ownerId:'seller-123'});
+assert.equal(defaultSeller.ceo,5700,'assigned seller gets default 5% if no specific rate is set');
+assert.match(pct(defaultSeller,'ceo'),/data-finpct=/,'assigned seller can have editable default percentage');
 assert.match(code,/colspan="2">Munkadíjak<\/th><th class="r">Továbbszámlázott<\/th><th class="r">Szervezői jutalék<\/th>/);
 assert.match(code,/TFn\(finWages\)/);
 assert.match(code,/TFn\(finSalesCost\)/);
