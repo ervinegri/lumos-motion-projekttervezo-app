@@ -154,11 +154,11 @@ function bootstrap_(u) {
   const ownInviteCid = inviteOwnCrewId_(u, crew);
   if (ownInviteCid && !out.me.crewId) out.me.crewId = ownInviteCid;
   if (ownInviteCid) {
-    const mineInvited = out.projects.filter(p => (p.lead === ownInviteCid || (p.crew || []).some(x => x.crewId === ownInviteCid)) && p.invites && p.invites[ownInviteCid] && p.invites[ownInviteCid].st === 'invited');
+    const mineInvited = out.projects.filter(p => (p.lead === ownInviteCid || (p.crew || []).some(x => x.crewId === ownInviteCid)) && p.invites && p.invites[ownInviteCid] && (p.invites[ownInviteCid].st === 'invited' || ((u.role === 'admin' || u.role === 'editor') && !['atadva', 'lemondva'].includes(p.status) && (!p.date || (p.endDate || p.date) >= today_()))));
     out.myInvites = mineInvited.map(p => {
       let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), ownInviteCid); } catch (e) {}
       return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
-        roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at };
+        roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at, st: p.invites[ownInviteCid].st };
     });
   }
   if (u.role === 'crew') {
@@ -179,15 +179,21 @@ function bootstrap_(u) {
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   return viewAsPick_(out, u);
 }
-/** Meghívott munkatárs azonosítása: saját stábrekord, vagy vezetőnél egyetlen azonos e-mail címmel rendelkező stábrekord. */
+/** Saját stábrekord azonosítása: fiók-kapcsolat, e-mail, majd egyedi teljes névegyezés. */
 function inviteOwnCrewId_(u, crew) {
-  const assigned = String(u && u.crewId || '');
-  if (assigned) return assigned;
-  if (!u || (u.role !== 'admin' && u.role !== 'editor')) return '';
+  if (!u) return '';
+  const people = crew || readAll_('crew'), assigned = String(u.crewId || '');
+  if (assigned && people.some(c => c.id === assigned)) return assigned;
+  if (u.role !== 'admin' && u.role !== 'editor') return assigned;
   const email = String(u.email || '').trim().toLowerCase();
-  if (!email) return '';
-  const matches = (crew || readAll_('crew')).filter(c => String(c.email || '').trim().toLowerCase() === email);
-  return matches.length === 1 ? String(matches[0].id || '') : '';
+  if (email) {
+    const byEmail = people.filter(c => String(c.email || '').trim().toLowerCase() === email);
+    if (byEmail.length === 1) return String(byEmail[0].id || '');
+  }
+  const normalize = v => String(v || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+  const name = normalize(u.name);
+  const byName = name ? people.filter(c => normalize(c.name) === name) : [];
+  return byName.length === 1 ? String(byName[0].id || '') : '';
 }
 /** Ügyvezetői előnézetben a nézetválasztóhoz kell a teljes szakemberlista (csak név és szerep), hogy másik szakemberre válthasson. */
 function viewAsPick_(out, u) {
