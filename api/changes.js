@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0b6f7e3f92",
+"at": "2026-11-14T11:54:55+01:00",
+"msg": "Jóváhagyó oldal: nincs automatikus szövegnagyítás fekvő iPhone-on"
+},
+{
 "id": "fb2e0b2608",
 "at": "2026-11-14T11:54:24+01:00",
 "msg": "iPhone fekvő nézet: a Safari nem nagyítja fel magától a szövegeket"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla kiállítása: választható, ki küldje ki – saját (Lumos) cím vagy a számlázz.hu (a választás megmarad)"
 },
 {
-"id": "9a3c5eaf97",
-"at": "2026-11-14T09:14:49+01:00",
-"msg": "Számla kiállítása: szerkeszthető levél-előnézet (tárgy + szöveg) a Lumos címéről küldött levélhez"
-},
-{
-"id": "4309477115",
-"at": "2026-11-14T08:13:37Z",
+"id": "b983a331ea",
+"at": "2026-11-14T08:15:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
