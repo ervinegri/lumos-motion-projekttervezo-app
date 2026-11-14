@@ -1753,3 +1753,5 @@ html body .subtabs .st-lg{display:none!important}html body .subtabs .st-sm{displ
 html body .subtabs{display:flex!important;flex-wrap:nowrap!important;overflow:hidden!important;width:100%;box-sizing:border-box;gap:4px!important}
 html body .subtabs .subtab{flex:1 1 0!important;min-width:0!important;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:6px!important}
 }
+/* Bevételek táblázat: a teljes táblázat kint van (nincs belső függőleges görgetés), az oldal görget */
+html body .sheet-wrap:has(.fin-inc){max-height:none!important;height:auto!important;overflow-y:hidden!important}
