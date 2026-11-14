@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1adeb06ee7",
+"at": "2026-11-14T10:48:03+01:00",
+"msg": "Ügyfél döntéséről szóló értesítés tömörebb: tárgy „Módosítást kér: <projekt>”, a levél a videó nevével és az ügyfél szövegével kezdődik"
+},
+{
 "id": "6c65f38993",
 "at": "2026-11-14T09:59:26+01:00",
 "msg": "Ügyfelek: a Szerződés oszlop nem csúszik el (osztálynév-ütközés javítva)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Rövid / rámutatásra nyíló legördülők: nincs villogó kurzor, a mezőről a listára húzva nem csukódik be"
 },
 {
-"id": "888786ee2b",
-"at": "2026-11-14T07:56:38+01:00",
-"msg": "Frissítéskor nem villan fel a módosítás előtti állapot: a sikeres módosítások a helyi indító-gyorsítótárba is bekerülnek"
-},
-{
-"id": "5e607a8ebc",
-"at": "2026-11-14T06:47:07Z",
+"id": "be9e305de7",
+"at": "2026-11-14T06:56:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
