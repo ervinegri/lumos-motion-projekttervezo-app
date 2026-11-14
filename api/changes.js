@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8f4713a4c9",
+"at": "2026-11-14T19:54:44+02:00",
+"msg": "fix: distinguish video-editing assignments from photo-only deliverables"
+},
+{
 "id": "ee68319ff1",
 "at": "2026-11-14T19:54:20+02:00",
 "msg": "fix: prune orphaned untouched video tasks, including previously assigned editors"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "ui: remove crew visibility note from invitation panel"
 },
 {
-"id": "a9ce733626",
-"at": "2026-11-14T19:35:14+02:00",
-"msg": "feat: allow managers to respond to own crew invitations"
-},
-{
-"id": "2a83ed28c5",
-"at": "2026-11-14T19:35:06+02:00",
-"msg": "feat: include manager's own pending crew invitations in bootstrap"
+"id": "7f7c5df76b",
+"at": "2026-11-14T17:35:22Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
