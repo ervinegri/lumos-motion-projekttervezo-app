@@ -33,6 +33,8 @@ assert.doesNotMatch(html,/data-sales-toggle/,'legacy checkbox removed from proje
 assert.doesNotMatch(source,/\$\{salesOption\(p\)\}/,'lower commission block removed from extras');
 assert.doesNotMatch(source,/<option value="sales">💼 Értékesítői jutalék<\/option>/,'duplicated extras action removed');
 assert.match(css,/grp-sales \.grp-b\{display:grid/,'responsive blue panel has a compact layout');
+assert.match(css,/grp-sales \.grp-b\{display:grid;grid-template-columns:minmax\(175px,2fr\) minmax\(90px,1fr\) minmax\(130px,1\.45fr\)/,'seller, percentage and amount share one row');
+assert.match(css,/grp-sales \.fin-ssel\{grid-column:1;/,'seller selector occupies first column');
 deal=null;
 const none=panel(pp);
 assert.equal((none.match(/id="sales-sel"/g)||[]).length,1,'unassigned projects retain selection');
