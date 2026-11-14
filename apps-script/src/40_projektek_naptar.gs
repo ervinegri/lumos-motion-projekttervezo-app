@@ -725,7 +725,7 @@ function crewInvite_(u, a) {
   return { project: projectView_(fullProject_(p), u), mail: mail, cal: calOk, noEmail: !em };
 }
 function inviteRespond_(u, a) {
-  const pid = str_(a && a.projectId, 64), cid = String(u.crewId || ''), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p;
+  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p;
   withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
     const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
     inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app' }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
