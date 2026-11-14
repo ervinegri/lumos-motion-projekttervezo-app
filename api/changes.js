@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c3bbdaa277",
+"at": "2026-11-14T09:25:15+01:00",
+"msg": "Számla megerősítése: látszik, melyik csatornán (Lumos cím / számlázz.hu) és kinek megy ki a levél"
+},
+{
 "id": "4cef7922c5",
 "at": "2026-11-14T09:22:54+01:00",
 "msg": "Számla: „A számlázz.hu küldje” felirat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: a Vissza gomb oda visz, ahonnan megnyitottad (pl. Naptár/idővonal), a görgetési helyzettel együtt"
 },
 {
-"id": "ab899c3300",
-"at": "2026-11-14T07:45:57+01:00",
-"msg": "Legördülők: megnyitáskor nincs kijelölve (kék) a szöveg – az első leütés így is lecseréli; egyszeri javítás eltávolítva"
-},
-{
-"id": "b669dc6b2c",
-"at": "2026-11-13T22:04:13Z",
+"id": "835ba49a4a",
+"at": "2026-11-14T06:46:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
