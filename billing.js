@@ -52,6 +52,23 @@ function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extr
       <div class="bl-meta">${esc(p.client||'—')}</div><div class="bl-val">${val?ftFmt(val)+' <span class="muted">nettó</span>'+(extrasOf(p).length?`<div class="bl-meta">${exBreak(p)}</div>`:''):isFree(p)?'<span class="muted">🎁 nem fizetős</span>':'<span class="muted">nincs érték megadva</span>'}</div>
       ${i.late.length?`<div class="bl-meta bad-txt">⚠ lejárt: ${ftFmt(i.lateSum)}</div>`:i.openSum?`<div class="bl-meta">kintlévő: ${ftFmt(i.openSum)}</div>`:''}${b.note?`<div class="bl-note" title="${esc(b.note)}">📝 ${esc(b.note.slice(0,60))}${b.note.length>60?'…':''}</div>`:''}</td>
     ${o.cSpan===0?'':`<td class="bt-cell${o.cSpan>1?' bt-merged':''}"${sp(o.cSpan)}>${C.contract}</td>`}${o.aSpan===0?'':`<td class="bt-cell${o.aSpan>1?' bt-merged':''}"${sp(o.aSpan)}>${C.adv}</td>`}${o.tigSpan===0?'':`<td class="bt-cell${o.tigSpan>1?' bt-merged':''}"${sp(o.tigSpan)}>${C.tig}</td>`}${o.finSpan===0?'':`<td class="bt-cell${o.finSpan>1?' bt-merged':''}"${sp(o.finSpan)}>${C.fin}</td>`}</tr>`;}
+
+/* Ügyfél/hónap szintű foglaló: azonos bizonylatot egyszer számolunk, a kapcsolást csak jóváhagyással végezzük. */
+const billAdvDoc=i=>(i.el&&invPaidOk(i.el)?i.el:i.db&&invPaidOk(i.db)?i.db:i.el||i.db||null);
+function billGroupFinance(g){
+  const sum=g.reduce((a,i)=>a+projTotal(i.p),0),ids=g.map(i=>i.p.id);
+  const seen=new Set(),docs=g.map(billAdvDoc).filter(x=>{if(!x||seen.has(x.id))return false;seen.add(x.id);return true;});
+  const paidPart=x=>{if(!invPaidOk(x)&&num(x.invPaid)<=0)return 0;if(x.kind==='eloleg'&&x.manual)return num(x.invNet);
+    const gross=num(x.invGross);return gross?Math.min(num(x.invNet),Math.round(num(x.invNet)*Math.min(1,num(x.invPaid)/gross))):0;};
+  const paidAdvance=docs.reduce((a,x)=>a+paidPart(x),0);
+  const pct=g.length&&g.every(i=>i.b.mode!=='egyben'&&num(i.b.advancePct)===num(g[0].b.advancePct))?num(g[0].b.advancePct):0;
+  const doc=docs.length===1?docs[0]:null,linked=doc?invPids(doc):[],missing=doc?g.filter(i=>!linked.includes(i.p.id)):[];
+  const shared=!!doc&&g.length>1&&g.every(i=>linked.includes(i.p.id));
+  const candidate=!!doc&&g.length>1&&pct>0&&invPaidOk(doc)&&Math.abs(num(doc.invNet)-Math.round(sum*pct/100))<=1
+    &&missing.length>0&&linked.every(id=>ids.includes(id))&&missing.every(i=>!i.db&&!i.el&&!i.fin&&!i.free);
+  return {sum,paidAdvance,remaining:Math.max(0,sum-paidAdvance),shared,candidate,doc,missing,ids};
+}
+
 /* Egy hónapon belül az azonos megrendelő projektjei egymás után; a közös TIG és a közös végszámla egy (összevont) cellában */
 const invNetR=x=>{const g=num(x.invGross),n=num(x.invNet);return g>0&&n>0?n/g:1/1.27;};   // bruttó → nettó arány a bizonylatból
 function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},order=[];
