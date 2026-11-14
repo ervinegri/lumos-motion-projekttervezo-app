@@ -693,8 +693,23 @@ function crewInvite_(u, a) {
     const when = huD(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + huD(p.endDate) : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
     const due = str_(a && a.due, 40), isCut = (p.__asg || []).some(x => x.crewId === cid && x.role === 'Vágó');
     const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = ev && !post ? calEventLink_(ev) : '';
+    // A meghívóban a vágóknak a nyersanyag-feltöltés és a vágás pontos, magyar napnevű határideje szerepel.
+    // Régebbi, már megnyitott felületek rövidített dátumát is teljes napnévre alakítjuk.
+    const editorDueIso = (() => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(due)) return due;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(String(p.dueAt || ''))) return p.dueAt;
+      const m = /^([^\s]+)\s+(\d{1,2})\./.exec(due);
+      if (!m) return '';
+      const months = ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'];
+      const mon = months.indexOf(m[1].toLowerCase()) + 1;
+      if (!mon) return '';
+      const shootYear = Number(String(p.date || '').slice(0, 4)) || new Date().getFullYear();
+      const shootMonth = Number(String(p.date || '').slice(5, 7)) || mon;
+      const year = shootYear + (mon < shootMonth ? 1 : 0);
+      return year + '-' + ('0' + mon).slice(-2) + '-' + ('0' + Number(m[2])).slice(-2);
+    })();
     const rawUpload = isCut && p.date ? 'Nyersanyag feltöltési határideje: ' + huD(p.date).replace('., ', '. ') + ', 23:00' : '';
-    const cutDue = isCut && due ? (huD(due) || due) + ', 20:00' : '';
+    const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
     const info = [isCut ? rawUpload : (when ? '🎥 Forgatás: ' + when : ''), !post && p.venue ? '📍 ' + p.venue : '', cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
     const dlD = new Date(Date.now() + 72 * 3600 * 1000); if (dlD.getMinutes() || dlD.getSeconds()) { dlD.setHours(dlD.getHours() + 1, 0, 0, 0); }   // válaszadási határidő: a meghívástól 3 nap (egész órára kerekítve)
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
