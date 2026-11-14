@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5bb09af59c",
+"at": "2026-11-14T19:08:07+02:00",
+"msg": "ui: show signed negative budget remaining consistently in finance totals"
+},
+{
 "id": "f147ceb094",
 "at": "2026-11-14T19:07:44+02:00",
 "msg": "test: update salesperson inline field widths to compact design"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: open linked project by clicking its name on deal cards"
 },
 {
-"id": "0d9037c935",
-"at": "2026-11-14T18:09:59+02:00",
-"msg": "test: include monthly sales navigation regression in finance test suite"
-},
-{
-"id": "5bb06e04ee",
-"at": "2026-11-14T16:09:38Z",
+"id": "8b1f8d1e02",
+"at": "2026-11-14T16:10:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
