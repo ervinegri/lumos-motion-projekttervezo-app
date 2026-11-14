@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "840413b13c",
+"at": "2026-11-14T19:36:09+02:00",
+"msg": "feat: display pending invitations in executive project dashboard"
+},
+{
 "id": "2bd49a272b",
 "at": "2026-11-14T19:35:29+02:00",
 "msg": "ui: remove crew visibility note from invitation panel"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "style: distinguish always-visible sales pipeline from monthly metrics"
 },
 {
-"id": "1d5c4af646",
-"at": "2026-11-14T18:30:46+02:00",
-"msg": "test: keep Kanban cards constant when browsing monthly sales KPIs"
-},
-{
-"id": "6e8ad3d88c",
-"at": "2026-11-14T18:30:09+02:00",
-"msg": "sales: keep all pipeline cards visible and apply month navigation to metrics only"
+"id": "a7ca406488",
+"at": "2026-11-14T16:30:53Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
