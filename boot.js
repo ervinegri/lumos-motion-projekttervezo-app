@@ -59,7 +59,7 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
 /* telefon: a görgethető táblázatkeretek (Fizetések, Bevételek) pontosan a képernyő aljáig érnek – így a táblázat minden sora elérhető a saját keretében, és nem kell az oldalt is görgetni */
 (()=>{const v=document.getElementById('view');if(!v||!window.matchMedia)return;const mq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');let q=false;
   const fit=()=>{q=false;const ws=v.querySelectorAll('.pay-wrap');ws.forEach(w=>{if(!mq.matches){w.style.removeProperty('max-height');w.style.removeProperty('height');w.classList.remove('vfit');return;}
-    const top=w.getBoundingClientRect().top+scrollY,vh=(window.visualViewport&&visualViewport.height)||innerHeight;const h=Math.max(220,Math.round(vh-top-6));w.style.setProperty('max-height',h+'px','important');w.style.setProperty('height',h+'px','important');w.classList.add('vfit');});};
+    const top=w.getBoundingClientRect().top+scrollY,vh=(window.visualViewport&&visualViewport.height)||innerHeight;const h=Math.max(220,Math.round(vh-top-6));w.style.setProperty('max-height',h+'px','important');w.style.removeProperty('height');w.classList.remove('vfit');});};
   const sch=()=>{if(!q){q=true;requestAnimationFrame(fit);}};new MutationObserver(sch).observe(v,{childList:true,subtree:true});const later=()=>{[60,250,600,1200].forEach(t=>setTimeout(fit,t));};addEventListener('resize',later);addEventListener('orientationchange',later);if(window.visualViewport)visualViewport.addEventListener('resize',later);mq.addEventListener&&mq.addEventListener('change',later);matchMedia('(orientation:portrait)').addEventListener&&matchMedia('(orientation:portrait)').addEventListener('change',later);setTimeout(fit,500);})();
 /* telefon: a véleménymezőre koppintva a mező a billentyűzet fölé gördül */
 (()=>{if(!window.matchMedia||!matchMedia('(pointer:coarse)').matches)return;
@@ -80,3 +80,8 @@ ACT['view-other']=b=>{if(b.dataset.r==='sales')viewAsSalesModal();else viewAsCre
   const v=document.getElementById('view');if(v&&window.MutationObserver)new MutationObserver(()=>{const w=v.querySelector('.tl-wrap');if(w&&!q){q=true;requestAnimationFrame(()=>fix(w));}}).observe(v,{childList:true});})();
 /* menüpontok, fülek, belső linkek: ne lehessen őket elhúzni (iPhone hosszú érintés) */
 document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('a[href^="#"],.tab,.subtab,.brand-link,.topbar a,.topbar img')&&!t.closest('[draggable="true"]'))e.preventDefault();},true);
+/* telefon: a Kifizetések / Fizetések táblán jobbra-balra húzva hónapot vált (ha a tábla nem szélesebb a képernyőnél) */
+(()=>{let x0=0,y0=0,w=null,t0=0;document.addEventListener('touchstart',e=>{const el=e.target.closest&&e.target.closest('.pay-wrap');if(!el||e.touches.length!==1){w=null;return;}w=el;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now();},{passive:true});
+  document.addEventListener('touchend',e=>{if(!w)return;const el=w;w=null;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Date.now()-t0>800||Math.abs(dx)<60||Math.abs(dy)>Math.abs(dx)*0.6)return;
+    if(el.scrollWidth>el.clientWidth+2){const atL=el.scrollLeft<=2,atR=el.scrollLeft>=el.scrollWidth-el.clientWidth-2;if(!((dx>0&&atL)||(dx<0&&atR)))return;}
+    const b=document.querySelector(`.pay-cbox [data-action="mnav"][data-d="${dx<0?-1:1}"],.pay-head [data-action="mnav"][data-d="${dx<0?-1:1}"]`);if(b)b.click();},{passive:true});})();

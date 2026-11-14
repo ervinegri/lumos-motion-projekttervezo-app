@@ -1746,7 +1746,6 @@ html body .tl-row.tl-wsec .tl-wline .tl-wtog{position:sticky!important;left:-12p
 /* idővonal: a napok közvetlenül a gombsor alatt (kisebb hézag) */
 html body .content>.cal-toolbar:has(+.tl-wrap){margin-bottom:-4px!important}
 /* telefon: a Fizetések / Bevételek táblázat a képernyő aljáig kitölti a keretet (a sorok arányosan magasabbak, nincs üres sáv alul) */
-html body .pay-wrap.vfit>table,html body .sheet-wrap.vfit>table{height:100%}
 /* álló telefon: Fizetések · Szerződés · Bevétel – rövid feliratok, egy sorban, fixen (nem csúsznak oldalra) */
 @media (max-width:700px){
 html body .subtabs .st-lg{display:none!important}html body .subtabs .st-sm{display:inline!important;margin-left:4px}
@@ -1849,3 +1848,6 @@ html body .page-head.ph-inline>.head-search{flex:1 1 auto!important;min-width:0!
 @media (orientation:landscape){html body .topbar{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}}
 /* menüpontok, fülek, belső linkek: hosszú érintésre se lehessen elhúzni őket */
 html body a[href^="#"],html body .tab,html body .subtab,html body .brand-link,html body .brand,html body .topbar a,html body .topbar img{-webkit-user-drag:none!important;user-select:none;-webkit-user-select:none}
+/* Kifizetések: minden sor egysoros (a hosszú feliratok pontokkal végződnek) */
+html body .pay-sheet tfoot td:first-child,html body .pay-sheet tbody td:first-child{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+html body .pay-sheet tfoot td:first-child b{white-space:nowrap}
