@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b172947189",
+"at": "2026-11-14T12:42:18+01:00",
+"msg": "Szakembereknek csak a nevük látszik a menüben (Szakember felirat és kalapács nélkül); Kifizetések: az oszlopelválasztó az összegekig jobbra"
+},
+{
 "id": "d7bc8b21e4",
 "at": "2026-11-14T12:12:14+01:00",
 "msg": "Kifizetések szakember nézet: keskenyebb oldalsó szél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: a teljes táblázat látszik, nincs belső függőleges görgetés"
 },
 {
-"id": "0ab44f4dca",
-"at": "2026-11-14T11:39:38+01:00",
-"msg": "Telefon: a Fizetések táblázat kitölti a képernyő alját; álló nézetben a pénzügyi fülek rövid felirattal, fixen egy sorban"
-},
-{
-"id": "213b90b91f",
-"at": "2026-11-14T10:37:09Z",
+"id": "37e21877f7",
+"at": "2026-11-14T10:39:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
