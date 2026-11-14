@@ -57,7 +57,7 @@ console.log('PASS shared-client deposit accounting, matching and duplicate preve
     S.fin.invoices=[invoice];
     const first=source.indexOf('function billMonthRows('),last=source.indexOf('/* A táblázat cellái lépésenként:',first);
     assert(first>=0&&last>first,'Billing month renderer is present');
-    const makeRows=()=>projects.map(p=>({
+    const makeRows=()=>projects.filter(p=>p.client==='Pletsérné Dr. Jung Andrea').map(p=>({
       p,b:{mode:'eloleg',advancePct:50,contractStatus:p.id==='conf'?'nemkell':''},
       el:invoice,db:null,fin:null,finAll:[],full:false,noFin:false,free:false
     }));
