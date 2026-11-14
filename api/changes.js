@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "56f212df1e",
+"at": "2026-11-14T20:14:38+02:00",
+"msg": "ui: show selected owner's task details on timeline card hover"
+},
+{
 "id": "04a42f74c6",
 "at": "2026-11-14T20:14:20+02:00",
 "msg": "style: one compact timeline lane with named editing and photo task cards"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "4b155b4bde",
 "at": "2026-11-14T19:46:02+02:00",
 "msg": "ui: show month and day on current-year invitation timestamps"
-},
-{
-"id": "d233204b31",
-"at": "2026-11-14T19:45:11+02:00",
-"msg": "feat: preview invitation email in popup before sending and resending"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
