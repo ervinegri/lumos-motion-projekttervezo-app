@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1665516c0b",
+"at": "2026-11-14T18:20:12+02:00",
+"msg": "test: clicking linked sales project name opens project while preserving card editing"
+},
+{
 "id": "fe4559530e",
 "at": "2026-11-14T18:19:32+02:00",
 "msg": "style: make linked project names visibly interactive and keyboard accessible"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "style: compact icon-only resend action and remove inline deadline"
 },
 {
-"id": "3df7f38bca",
-"at": "2026-11-14T17:02:22+02:00",
-"msg": "ui: move invitation response deadline to pending status tooltip"
-},
-{
-"id": "1938fa7d0b",
-"at": "2026-11-14T15:01:48Z",
+"id": "06c2e6c489",
+"at": "2026-11-14T15:02:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
