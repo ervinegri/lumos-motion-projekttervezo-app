@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c6a2e125c2",
+"at": "2026-11-14T12:52:38+01:00",
+"msg": "Rendezvény típusa: Reklám"
+},
+{
 "id": "f05040949f",
 "at": "2026-11-14T12:52:20+01:00",
 "msg": "Új projekt: az ügyfél és a kapcsolattartó adatai nem kötelezők létrehozáskor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: keresőmezőre koppintva nem nagyít rá az oldal (iOS)"
 },
 {
-"id": "1a622b0b62",
-"at": "2026-11-14T11:46:51+01:00",
-"msg": "Nézetváltás jól látható jelzéssel; álló telefonon a logó a bal szélen, kisebb; Projektek alcím törölve"
-},
-{
-"id": "151139debb",
-"at": "2026-11-14T10:43:44Z",
+"id": "a6bd6b6be2",
+"at": "2026-11-14T10:47:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
