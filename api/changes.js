@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e1b39fb1e7",
+"at": "2026-11-14T19:36:19+02:00",
+"msg": "feat: show own invitation confirmation in executive project details"
+},
+{
 "id": "840413b13c",
 "at": "2026-11-14T19:36:09+02:00",
 "msg": "feat: display pending invitations in executive project dashboard"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "finance: allocate organizer fee to costs and zero sales fee without assigned salesperson"
 },
 {
-"id": "c974215e49",
-"at": "2026-11-14T18:30:58+02:00",
-"msg": "style: distinguish always-visible sales pipeline from monthly metrics"
-},
-{
-"id": "a7ca406488",
-"at": "2026-11-14T16:30:53Z",
+"id": "fc80498bfc",
+"at": "2026-11-14T16:31:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
