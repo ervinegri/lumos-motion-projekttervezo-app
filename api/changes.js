@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "81088688e0",
+"at": "2026-11-14T14:38:14+01:00",
+"msg": "Meghívás: Válaszolok gomb a levélben, a link a projektet nyitja Igen/Nem válasszal (fent és a saját kártyán); visszajelzés e-mailben a meghívónak, elfogadáskor naptárba; vágónál nincs üres Terepi felvételek"
+},
+{
 "id": "c4752e49e4",
 "at": "2026-11-14T13:51:48+01:00",
 "msg": "Meghívó: forgatási idő és vágási határidő a levélben; meghívásos projektnél a szakember csak az elfogadott munkatársakat látja (és csak elfogadás után a projektet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "iPhone: hosszú érintésre nem jön elő a link-előnézet a menüpontokon és belső linkeken"
 },
 {
-"id": "269707ac1b",
-"at": "2026-11-14T11:57:09+01:00",
-"msg": "Idővonal: a jóváhagyás pipája nem lóg rá a projekt nevére"
-},
-{
-"id": "f0f9b1710e",
-"at": "2026-11-14T10:56:51Z",
+"id": "4234aa4d5b",
+"at": "2026-11-14T10:57:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
