@@ -1984,3 +1984,9 @@ html body .dl-comm{display:flex;align-items:center;justify-content:space-between
 html body .dl-comm b{font-weight:750;font-variant-numeric:tabular-nums}
 html body .dl-comm-pct{padding:2px 5px;border-radius:20px;background:#d8e8f8;font-weight:700;white-space:nowrap}
 html body .sales-comm-settled{margin-top:3px;font-size:11px;line-height:1.35;color:var(--fg-3,#6e7b89)}
+
+/* Az értékesítési Kanban folyamatos, a fenti hónapválasztó csak a havi eredményekre vonatkozik. */
+html body .sales-board-head{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:17px 0 10px;padding:0 2px;color:var(--fg,#243247);font-size:14px}
+html body .sales-board-head b{font-weight:750}
+html body .sales-board-head span{font-size:12px;color:var(--fg-3,#697784);font-weight:500}
+@media(max-width:740px){html body .sales-board-head{margin-top:12px;font-size:13px}html body .sales-board-head span{font-size:11px}}
