@@ -160,7 +160,7 @@ function szInvoice_(u, a) {
   const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
   const eInvoice = true,   // mindig e-számla
     sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);
-  const viaSz = sendEmail && a.mailVia === 'szamlazz', ownMail = sendEmail && !viaSz;   // ki küldi: a számlázz.hu, vagy mi a Lumos címéről (PDF melléklettel)   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
+  const viaSz = sendEmail && (a.mailSz === true || a.mailVia === 'szamlazz'), ownMail = sendEmail && (a.mailLumos !== undefined ? !!a.mailLumos : a.mailVia !== 'szamlazz');   // ki küldi: a számlázz.hu, vagy mi a Lumos címéről (PDF melléklettel)   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', ownMail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'

@@ -1675,3 +1675,11 @@ html body .vcf-row .vcf-btn{width:auto!important;flex:0 0 auto;padding:4px 10px!
 .keret-top b{font-size:19px;font-variant-numeric:tabular-nums}
 .keret-top>div:first-child{background:#fff8e6;border-color:#efd9a4}
 .keret-top .kt-left b{color:#1f8a4c}.keret-top.over .kt-left{background:#fdeceb;border-color:#f2c1bd}.keret-top.over .kt-left b{color:#c0392b}
+/* számla-levél előnézete (mint az árajánlatnál): fejléc + szerkeszthető szöveg + aláírás */
+.sz-mail{margin-top:4px}
+.sz-mail .sz-subj-row{display:flex;align-items:center;gap:6px}
+.sz-mail .sz-subj{flex:1;min-width:0;border:0;border-bottom:1px dashed #c9d3dd;background:transparent;font:inherit;font-weight:700;color:inherit;padding:2px 0;outline:none}
+.sz-mail .sz-subj:focus{border-bottom-color:#e2a03f}
+.sz-mail .sz-mtext{display:block;width:100%;border:0;resize:none;background:transparent;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#1d2a38;padding:0;outline:none;overflow:hidden;min-height:120px}
+.sz-mail .sz-mtext:focus{background:#fffdf6}
+.sz-mail .sz-sig{margin-top:10px}
