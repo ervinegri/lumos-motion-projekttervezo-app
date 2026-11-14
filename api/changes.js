@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ab471b2d66",
+"at": "2026-11-14T19:17:02+02:00",
+"msg": "fix: show edit deadlines in project lead invitation emails"
+},
+{
 "id": "cac02ba81f",
 "at": "2026-11-14T19:12:23+02:00",
 "msg": "test: include live budget remainder regression in finance suite"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: show contracted commission in monthly summary instead of misleading zero"
 },
 {
-"id": "7dca896bf1",
-"at": "2026-11-14T18:25:22+02:00",
-"msg": "sales: calculate contracted commissions from the same project financial estimate"
-},
-{
-"id": "d0c88a5c11",
-"at": "2026-11-14T16:20:54Z",
+"id": "55aa3330af",
+"at": "2026-11-14T16:25:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
