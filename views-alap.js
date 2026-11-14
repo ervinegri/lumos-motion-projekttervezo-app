@@ -142,6 +142,7 @@ function draftChanged(){if(!S.draft||!S.draftBase||S.draft.id!==S.draftBase.id)r
 function renderChrome(){if(S.dirty&&S.saving<=0&&!draftChanged())S.dirty=false;
   {const b=document.querySelector('.proj-save');if(b){const busy=S.saving>0;b.disabled=!S.dirty||busy;b.className='btn '+(S.dirty?'primary':'outline')+' small proj-save';b.textContent=busy?'Mentés…':S.dirty?'💾 Mentés':'✓ Mentve';}}
   const on=!!S.me;
+  try{if(on&&typeof bellRender==='function')bellRender();}catch(e){}   /* a csengő azonnal megjelenik (nem csak az 5 mp-es frissítéskor) */
   {let sp=$('savingPill');if(!sp){sp=document.createElement('div');sp.id='savingPill';sp.className='saving-pill';sp.setAttribute('role','status');document.body.appendChild(sp);}
     const busy=on&&S.saving>0;sp.classList.toggle('on',busy);if(busy&&!S._saveT0)S._saveT0=Date.now();if(!busy)S._saveT0=0;const sec=busy?Math.round((Date.now()-S._saveT0)/1000):0;sp.textContent=busy?'⏳ Mentés folyamatban…'+(sec>=6?' ('+sec+' mp – a szerver lassan válaszol)':''):'';if(busy){clearTimeout(S._spT);S._spT=setTimeout(()=>{try{renderChrome();}catch(e){}},1000);}}   // látszik, amíg a háttérben ment
   ['userChip','logoutBtn'].forEach(id=>$(id).classList.toggle('hidden',!on));
