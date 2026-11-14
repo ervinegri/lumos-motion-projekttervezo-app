@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1e7a878976",
+"at": "2026-11-14T18:07:24+02:00",
+"msg": "style: responsive sales monthly navigator aligned with calendar"
+},
+{
 "id": "a6d58294c7",
 "at": "2026-11-14T18:07:00+02:00",
 "msg": "sales: add monthly navigation controls and month-sensitive KPI labels"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: Válaszolok gomb a levélben, a link a projektet nyitja Igen/Nem válasszal (fent és a saját kártyán); visszajelzés e-mailben a meghívónak, elfogadáskor naptárba; vágónál nincs üres Terepi felvételek"
 },
 {
-"id": "c4752e49e4",
-"at": "2026-11-14T13:51:48+01:00",
-"msg": "Meghívó: forgatási idő és vágási határidő a levélben; meghívásos projektnél a szakember csak az elfogadott munkatársakat látja (és csak elfogadás után a projektet)"
-},
-{
-"id": "537a85c782",
-"at": "2026-11-14T12:29:53Z",
+"id": "74034e8148",
+"at": "2026-11-14T12:51:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
