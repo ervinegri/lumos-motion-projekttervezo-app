@@ -16,6 +16,26 @@ const dealVal=d=>{
   return Math.max(0,live>0?live:Math.round(Number(d&&d.value)||0));
 };
 const dealChance=d=>d.chance==null||d.chance===''?(DEAL_CHANCE[d.stage]??0):+d.chance;
+
+/* A projekt szerződött jutaléka és a pénz beérkezése alapján elszámolt jutalék külön mutató. */
+function salesCommissionPreview(d){
+  if(!d||d.stage!=='nyert'||!d.projectId)return null;
+  const p=typeof projById==='function'?projById(d.projectId):null;
+  if(p&&isAdmin()&&typeof salesCommEst==='function'){
+    const e=salesCommEst(p,d);
+    if(e&&Number.isFinite(Number(e.amt)))return {amt:Math.max(0,Math.round(Number(e.amt))),pct:e.pct,base:e.base,source:'project'};
+  }
+  const base=dealVal(d),manual=String(d.commManual==null?'':d.commManual).trim();
+  if(manual.startsWith('ft:')){
+    const amount=Math.max(0,Number(manual.slice(3))||0);
+    return {amt:Math.round(amount),pct:base>0?Math.round(amount/base*10000)/100:0,base,source:'manual'};
+  }
+  if(manual!==''&&Number.isFinite(Number(manual)))return {amt:Math.round(base*Number(manual)/100),pct:Number(manual),base,source:'manual'};
+  if(d.commPct!==''&&d.commPct!=null&&Number.isFinite(Number(d.commPct)))return {amt:Math.round(base*Number(d.commPct)/100),pct:Number(d.commPct),base,source:'rate'};
+  if(Number(d.commAmt)>0)return {amt:Math.round(Number(d.commAmt)),pct:base>0?Math.round(Number(d.commAmt)/base*10000)/100:0,base,source:'saved'};
+  return null;
+}
+
 S.salesF=S.salesF||{q:'',owner:'',old:false};
 if(!Object.prototype.hasOwnProperty.call(S.salesF,'month'))S.salesF.month=todayISO().slice(0,7);
 /* Havi értékesítési nézet: az ügylet a rendezvény / projekt időpontjához tartozik.
@@ -67,6 +87,7 @@ function viewSales(){
   const open=L.filter(d=>DEAL_OPEN.includes(d.stage)),won=L.filter(d=>d.stage==='nyert'),lost=L.filter(d=>d.stage==='elveszett');
   const sum=a=>a.reduce((s,d)=>s+dealVal(d),0),weighted=open.reduce((s,d)=>s+dealVal(d)*dealChance(d)/100,0);
   const m=month==='all'||month==='undated'?T.slice(0,7):month,wonM=month==='all'?won.filter(d=>String(d.wonAt||'').slice(0,7)===T.slice(0,7)):won,rate=won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null;
+  const contractComms=wonM.map(salesCommissionPreview).filter(x=>x&&x.amt>0),contractedComm=contractComms.reduce((sum,x)=>sum+x.amt,0);
   const late=open.filter(d=>d.nextDate&&d.nextDate<T).length,noNext=open.filter(d=>!d.nextStep&&!d.nextDate).length;
   const stOf=d=>d.stage==='nyert'&&(d.advPaidAt||d.noAdv)?'fizetve':d.stage;
   const byStage=s=>L.filter(d=>stOf(d)===s).sort((a,b)=>DEAL_OPEN.includes(s)?String(a.nextDate||'9999').localeCompare(String(b.nextDate||'9999'))||String(a.eventDate||'9999').localeCompare(String(b.eventDate||'9999')):String(b.closedAt||b.wonAt||'').localeCompare(String(a.closedAt||a.wonAt||'')));
