@@ -33,7 +33,7 @@ function calTipHtml(el){
   let ev=null;Object.values(S.cal.events||{}).concat(Object.values(S.cal.ev2||{})).forEach(l=>(l||[]).forEach(x=>{if(x.id===id)ev=x;}));if(!ev)return '';
   return `<b>${esc(ev.title||'(nincs cím)')}</b>${[['Időpont',fmtShort(ev.date)+(ev.endDate&&ev.endDate!==ev.date?' – '+fmtShort(ev.endDate):'')+(ev.start?', '+ev.start+(ev.end?'–'+ev.end:''):'')],['Helyszín',ev.location]].filter(x=>x[1]).map(([k,v])=>`<div><span>${esc(k)}</span><em class="tv">${esc(v)}</em></div>`).join('')}${ro()?"":`<div class="tip-hint">Jobb klikk: törlés</div>`}`;
 }
-document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el){const t=$('calTip');if(t&&!e.target.closest('#calTip'))t.remove();return;}
+document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el){const t=$('calTip');if(t&&!e.target.closest('#calTip'))setTimeout(()=>{if(t.isConnected&&!t.matches(':hover')&&!document.querySelector('.cal-chip:hover')){t.remove();document.querySelectorAll('.cal-chip').forEach(x=>x._tip=false);}},250);return;}
   if(el._tip)return;document.querySelectorAll('.cal-chip').forEach(x=>x._tip=false);el._tip=true;
   clearTimeout(window._calTipT);window._calTipT=setTimeout(()=>{if(!el.isConnected||!el.matches(':hover'))return;   /* a naptár súgója kicsit később jelenik meg */
   const h=calTipHtml(el);let t=$('calTip');if(!h){if(t)t.remove();return;}
@@ -45,7 +45,8 @@ document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.cl
 function calTipSide(t,r,w){const H=innerHeight-8;let th=t.offsetHeight;if(th>H){t.classList.add('tip-sm');th=t.offsetHeight;}if(th>H){t.classList.remove('tip-sm');return false;}
   const cx=Math.max(r.left,0)+Math.min(r.width,innerWidth)/2,right=innerWidth-cx-12,left=cx-12;let x;if(right>=w)x=cx+12;else if(left>=w)x=cx-12-w;else x=innerWidth-8-w;
   t.style.left=(x+scrollX)+'px';t.style.top=(scrollY+Math.max(4,Math.min(r.top,innerHeight-th-4)))+'px';return true;}
-document.addEventListener('mouseout',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)){el._tip=false;const t=$('calTip');if(t)t.remove();}});
+document.addEventListener('mouseout',e=>{const tp=e.target.closest&&e.target.closest('#calTip');if(tp&&!(e.relatedTarget&&(tp.contains(e.relatedTarget)||e.relatedTarget.closest&&e.relatedTarget.closest('.cal-chip')))){setTimeout(()=>{if(tp.isConnected&&!tp.matches(':hover')){tp.remove();document.querySelectorAll('.cal-chip').forEach(x=>x._tip=false);}},250);return;}
+  const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('#calTip'))){const t=$('calTip');setTimeout(()=>{if(t&&t.isConnected&&!t.matches(':hover')&&!el.matches(':hover')){el._tip=false;t.remove();}else if(!t)el._tip=false;},250);}});
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
   const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
   m.innerHTML=isP?`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button>`
