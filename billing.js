@@ -86,7 +86,7 @@ function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},
   const out=[];order.forEach((k,ci)=>{const g=by[k],L=g.length,merge=L>1&&g.every(i=>!i.free),groupFinance=billGroupFinance(g);
     const tk=i=>{const tg=tigList().filter(t=>tigPids(t).includes(i.p.id)).pop();return tg?'tig:'+tg.id:'none';};
     const fk=i=>{const f=(i.finAll||[])[0];return f?'inv:'+f.id:i.full||i.noFin?'':(i.db||i.el)?'adv:'+i.p.id:'none';};   // foglalós projekt végszámlája külön
-    const tigSame=merge&&g.every(i=>tk(i)===tk(g[0])),finAllInv=false,sharedPendingFinal=merge&&groupFinance.shared&&!!groupFinance.doc&&invPaidOk(groupFinance.doc)&&g.every(i=>!i.fin&&!i.noFin&&!i.full),finSame=sharedPendingFinal||finAllInv||merge&&g.every(i=>fk(i)&&fk(i)===fk(g[0])&&!/^adv:/.test(fk(i)));   // minden projektnek van számlája: egy kártya, az összes számlával
+    const tigSame=merge&&g.every(i=>tk(i)===tk(g[0])),finAllInv=false,sharedPendingFinal=merge&&groupFinance.shared&&!!groupFinance.doc&&groupFinance.doc.kind==='eloleg'&&invPaidOk(groupFinance.doc)&&g.every(i=>!i.fin&&!i.noFin&&!i.full),finSame=sharedPendingFinal||finAllInv||merge&&g.every(i=>fk(i)&&fk(i)===fk(g[0])&&!/^adv:/.test(fk(i)));   // minden projektnek van számlája: egy kártya, az összes számlával
     const advSame=merge&&g.every(i=>i.b.mode==='egyben');
     const ck=i=>String(i.b.contractFileId||i.b.contractUrl||''),cMerge=merge&&!!ck(g[0])&&g.every(i=>ck(i)===ck(g[0])&&i.b.contractStatus===g[0].b.contractStatus);   // szerződés: csak akkor egy közös cella, ha mindegyiknél ugyanaz a dokumentum (pl. két külön megrendelőlap → két cella)   // díjbekérő: ha egyiknél sem kell, egy kártya
     out.push({head:{name:g[0].p.client||'—',n:L,sum:groupFinance.sum,finance:groupFinance}});
@@ -137,7 +137,7 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};if(o.finAllG){const seen={},u
   if(paidSharedDoc){
     const part=Math.round(num(paidSharedDoc.invNet)*invShare(paidSharedDoc,p.id));
     adv=box('', 'Foglaló <span class="bs-scope">· közös bizonylat</span>',
-      `<div class="bs-shared-cover"><span class="statuspill p-ok">✓ Foglaló rendezve a közös számlában</span><div class="bs-x">${ftFmt(part)} nettó erre a projektre</div><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(paidSharedDoc.id)}">${esc(paidSharedDoc.no)}</button></div>`,false,true);
+      `<div class="bs-shared-cover"><span class="statuspill p-ok">${paidSharedDoc.kind==='dijbekero'?'✓ Befizetve a közös díjbekérőre':'✓ Foglaló rendezve a közös számlában'}</span><div class="bs-x">${ftFmt(part)} nettó erre a projektre</div><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(paidSharedDoc.id)}">${esc(paidSharedDoc.no)}</button></div>`,false,true);
   }
 
   // Végszámla
