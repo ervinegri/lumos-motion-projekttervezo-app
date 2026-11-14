@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "386df76be2",
+"at": "2026-11-14T18:27:27+02:00",
+"msg": "test: align monthly commission header assertion with contracted commission label"
+},
+{
 "id": "771422e341",
 "at": "2026-11-14T18:27:03+02:00",
 "msg": "test: contracted November commission appears even when invoice was paid in October"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "fix: show full Hungarian weekdays and 23:00/20:00 editor email deadlines"
 },
 {
-"id": "fe0e71ffa0",
-"at": "2026-11-14T17:14:24+02:00",
-"msg": "style: compact invitation copy into two flowing lines with responsive actions"
-},
-{
-"id": "07d832bb44",
-"at": "2026-11-14T15:14:22Z",
+"id": "4e373e42ae",
+"at": "2026-11-14T15:14:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
