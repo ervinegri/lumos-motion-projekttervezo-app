@@ -131,11 +131,11 @@ function calItems(month){
   const linked=new Set(S.projects.map(p=>p.calEventId).filter(Boolean));
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'',cutter=ro()&&crewIsCutter()&&calKind()!=='site',onlyCut=calKind()==='cut';
   S.projects.forEach(p=>{const q=pr(p);let pre='';
-    if(cutter){const cut=crewCuts(p,me)&&!cutOkMine(p,me);
+    if(cutter){const cut=hasVideoCutWork(p)&&crewCuts(p,me)&&!cutOkMine(p,me);
       if(cut){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
         if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:'✂️ '+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
       if(editOnly(p))return;}
-    if(!ro()&&!editOnly(p)&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewCuts(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
+    if(!ro()&&!editOnly(p)&&hasVideoCutWork(p)&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewCuts(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
       if(due&&due>=r.start&&due<=r.end)items.push({kind:'p',cut:true,id:p.id,title:'✂️ '+(p.name||'Névtelen projekt'),date:due,endDate:due,time:'',status:p.status||'tervezes',venue:''});}
     if(editOnly(p)){if(ro()||(S.cal.mode!=='ido'&&!calCutDue())||(S.cal.cutter&&!crewCuts(p,S.cal.cutter))||!q||q.end<r.start||q.start>r.end)return;pre='✂️ ';}   // a „Vágói határidők” pipa ezt is elrejti   // videóvágás: nem terepi munka, lilán a leadás napján
     if(onlyCut)return;   // csak a vágói munkák
@@ -189,7 +189,7 @@ function calTimeline(m,items0,T,ahead){
   const items=[],ik=new Set();months.forEach(month=>(month===m?items0:calItems(month)).forEach(it=>{const k=it.kind+':'+it.id+(it.cut?':c':'');if(!ik.has(k)){ik.add(k);items.push(it);}}));
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
   const me=ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
-  const cutOf=p=>{if(!p||p.status==='lemondva'||calKind()==='site'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
+  const cutOf=p=>{if(!p||!hasVideoCutWork(p)||p.status==='lemondva'||calKind()==='site'||(ro()&&!crewCuts(p,me))||(!ro()&&S.cal.cutter&&!crewCuts(p,S.cal.cutter)))return null;const q=pr(p),due=dueDate(p);if(!q||!due)return null;
     if(editOnly(p)){const c0=String(p.createdAt||'').slice(0,10);return {st:validISO(c0)&&c0<due?c0:due,due,same:false};}   // videóvágás: a felvételtől a leadásig
     const st=due>q.end?addDays(q.end,1):due;return {st,due,same:due<=q.end};};
   const rows=items.filter(it=>!it.cut&&it.endDate>=first&&it.date<=last&&!(it.kind==='p'&&it.status==='lemondva')&&!(!ro()&&S.cal.cutter&&it.kind!=='v'&&(it.kind!=='p'||!crewCuts(projById(it.id)||{},S.cal.cutter))));   // a lemondott projekt itt nem látszik; vágó kiválasztásakor csak az ő vágói munkái
