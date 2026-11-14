@@ -2007,3 +2007,14 @@ html body .fin-tbl.fin-inc{min-width:1370px}
 html body .fin-inc tbody td:nth-child(8),html body .fin-inc tfoot td:nth-child(8){background:rgba(78,120,158,.045)}
 html body .fin-inc tbody td:nth-child(9),html body .fin-inc tfoot td:nth-child(9){background:rgba(151,124,70,.055)}
 html body .fin-inc tbody td:nth-child(8),html body .fin-inc tbody td:nth-child(9){font-variant-numeric:tabular-nums}
+
+
+/* Meghívó e-mail: küldés előtti előnézet felugró ablakban. */
+html body .mbox:has(.crew-mail-review){width:min(740px,100%)}
+html body .crew-mail-review{min-width:0}
+html body .crew-mail-meta{display:grid;gap:8px;margin-bottom:14px}
+html body .crew-mail-meta>div{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:start;font-size:13.5px;overflow-wrap:anywhere}
+html body .crew-mail-meta strong{color:var(--fg-2)}
+html body .crew-mail-preview{padding:22px 20px;background:#fff;border:1px solid var(--line);border-radius:12px;max-height:52vh;overflow:auto;overflow-wrap:anywhere}
+html body .crew-mail-preview>div{margin:0 auto}
+@media (max-width:600px){html body .crew-mail-meta>div{grid-template-columns:1fr;gap:2px}html body .crew-mail-preview{padding:16px 12px;max-height:48vh}}
