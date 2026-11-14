@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9ffce31b0a",
+"at": "2026-11-14T18:45:39+02:00",
+"msg": "test: include fee breakdown dependency and locked salesperson commission"
+},
+{
 "id": "4f1cf27681",
 "at": "2026-11-14T18:45:10+02:00",
 "msg": "test: verify separate wages/pass-through fees and zero salesperson commission"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "sales: merge owner aliases and show linked project revenue on won deal cards"
 },
 {
-"id": "d8ae82e193",
-"at": "2026-11-14T17:45:46+02:00",
-"msg": "test: return shared final modal function from source extract"
-},
-{
-"id": "abcfc3bf83",
-"at": "2026-11-14T15:45:34Z",
+"id": "8155e00499",
+"at": "2026-11-14T15:45:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
