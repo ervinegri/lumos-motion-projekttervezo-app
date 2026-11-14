@@ -78,6 +78,15 @@ function saveProject_(u, a) {
       old = readRow_('projects', sh, row);
       if (old.mutationId === mutationId) return fullProject_(old);   // megismételt kérés
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a projektet.');
+      // Elfogadott meghívással rendelkező munkatárs projektről történő levétele tiltott.
+      const originalInvites = parseInvites_(old.invites);
+      const originalCrew = readAll_('crewAssign').filter(x => x.projectId === id);
+      const beforeMembers = new Set([old.lead].concat(originalCrew.map(x => x.crewId)).filter(Boolean));
+      const afterMembers = new Set([p.lead].concat(crew.map(x => x.crewId)).filter(Boolean));
+      beforeMembers.forEach(cid => {
+        if (originalInvites[cid] && originalInvites[cid].st === 'yes' && !afterMembers.has(cid))
+          throw new Error('Az elfogadott meghívású munkatárs a projekten marad. A beosztás zárolt.');
+      });
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
       p.quotePrice = old.quotePrice; p.extras = old.extras; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal; p.eqFinal = old.eqFinal; p.payStatus = old.payStatus;
     } else {
