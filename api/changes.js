@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b480395154",
+"at": "2026-11-14T13:04:32+01:00",
+"msg": "Pénzügyek: értékesítő a büdzsé sorában új projektnél is; Több napos jelölő csak vezetőknek; szakembernél nincs külön Videók panel"
+},
+{
 "id": "516f785c75",
 "at": "2026-11-14T13:03:09+01:00",
 "msg": "Projekt: rendezett Videók panel (állapot, Videótábla és Idővonal gomb); Vágás helyett Utómunka"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "A csengő azonnal megjelenik betöltéskor"
 },
 {
-"id": "ae18fa2dff",
-"at": "2026-11-14T11:52:48+01:00",
-"msg": "Beállítások: kisebb szövegméret a „Küldés a kollégák saját címéről” panelen"
-},
-{
-"id": "ca9ce26b5c",
-"at": "2026-11-14T10:52:11Z",
+"id": "a144b1440c",
+"at": "2026-11-14T10:52:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
