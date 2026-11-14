@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c04c5b94d0",
+"at": "2026-11-14T08:12:16+01:00",
+"msg": "Idővonal: a forgatási nap sávjában a név valóban látszik"
+},
+{
 "id": "bc68da55a8",
 "at": "2026-11-14T08:10:13+01:00",
 "msg": "Idővonal: rövid határidős projekteknél a név a forgatási napban, az óra alatt kezdődik és átér a vágási sávra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: naptár eszköztára egy sorban, oldalsó hónapok nélkül"
 },
 {
-"id": "ca72f02ed5",
-"at": "2026-11-13T22:22:25+01:00",
-"msg": "Fekvő telefon: Projektek táblázat Státusz oszlopa keskenyebb"
-},
-{
-"id": "223d54f95f",
-"at": "2026-11-13T21:21:52Z",
+"id": "a4e65b06f8",
+"at": "2026-11-13T21:22:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
