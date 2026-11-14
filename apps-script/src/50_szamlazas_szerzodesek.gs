@@ -159,17 +159,18 @@ function szInvoice_(u, a) {
   const today = today_(), fulfill = iso_(a.fulfill) || today, due = iso_(a.due) || today;
   const payMethod = SZ_PAYMETHODS.indexOf(a.payMethod) >= 0 ? a.payMethod : set.payMethod;
   const eInvoice = true,   // mindig e-számla
-    sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
+    sendEmail = mailOn_('invoice') && !!buyer.email && (a.sendEmail === undefined ? set.sendEmail : !!a.sendEmail);
+  const viaSz = sendEmail && a.mailVia === 'szamlazz', ownMail = sendEmail && !viaSz;   // ki küldi: a számlázz.hu, vagy mi a Lumos címéről (PDF melléklettel)   // kikapcsolt e-mailnél a számlázz.hu sem küldi ki
   const taxDigits = buyer.tax.replace(/\D/g, '');
   const xml = szXmlHead_('xmlszamla', 'agent')
-    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', sendEmail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
+    + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', ownMail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
     + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
     + '<vevo>' + szEl_('nev', buyer.name) + szEl_('irsz', buyer.zip) + szEl_('telepules', buyer.city) + szEl_('cim', buyer.address)
-    + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', 'false')   // a számlázz.hu nem küldi: a Lumos címéről megy (PDF melléklettel)
+    + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', viaSz ? 'true' : 'false')   // a számlázz.hu nem küldi: a Lumos címéről megy (PDF melléklettel)
    
     + szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '') + '</vevo>'
     + '<tetelek>' + items.map(it => '<tetel>' + szEl_('megnevezes', it.name) + szEl_('mennyiseg', String(it.qty)) + szEl_('mennyisegiEgyseg', it.unit) + szEl_('nettoEgysegar', String(it.price))
@@ -196,7 +197,7 @@ function szInvoice_(u, a) {
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
   let mail = null;
-  if (sendEmail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64, subject: str_(a.mailSubject, 200).trim(), text: str_(a.mailText, 4000).trim() }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
+  if (ownMail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64, subject: str_(a.mailSubject, 200).trim(), text: str_(a.mailText, 4000).trim() }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
     catch (e) { mail = { ok: false, error: String(e && e.message || e) }; Logger.log('Számla-levél hiba: ' + e); } }
   return Object.assign(finData_(), { invoice: row, mail: mail });
 }
