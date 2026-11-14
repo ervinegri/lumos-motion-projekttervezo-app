@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ec38d66cff",
+"at": "2026-11-14T11:40:05+01:00",
+"msg": "Bevételek: a teljes táblázat látszik, nincs belső függőleges görgetés"
+},
+{
 "id": "0ab44f4dca",
 "at": "2026-11-14T11:39:38+01:00",
 "msg": "Telefon: a Fizetések táblázat kitölti a képernyő alját; álló nézetben a pénzügyi fülek rövid felirattal, fixen egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a vágási sávon csak egy jel a végén (zöld ✓ / ⏳), zöld pipák; Havi nézet: a vágói munkák csak a határidő napján"
 },
 {
-"id": "12faca8c40",
-"at": "2026-11-14T08:24:30+01:00",
-"msg": "Idővonal: egérrel fel-le is húzható (nem csak oldalra)"
-},
-{
-"id": "d377b102c0",
-"at": "2026-11-14T07:23:02Z",
+"id": "ed9e4a92b5",
+"at": "2026-11-14T07:24:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
