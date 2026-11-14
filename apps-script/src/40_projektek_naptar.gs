@@ -252,43 +252,13 @@ function calEvent_(id) { if (!id) return null; try { const ev = cal_().getEventB
 function calDelete_(id) { try { const ev = calEvent_(id); if (ev) ev.deleteEvent(); } catch (e) { Logger.log('Naptár törlés hiba: ' + e); } }
 function calDate_(iso, hhmm) { const d = Utilities.parseDate(iso + ' ' + (hhmm || '00:00'), SHEET_TZ, 'yyyy-MM-dd HH:mm'); return d; }
 function calPlan_(p) {
-  const crewMap = byId_(readAll_('crew')), invMap = byId_(readAll_('inventory'));
-  const roles = {};
-  if (p.lead && crewMap[p.lead]) roles[p.lead] = ['Projektvezető'];
-  const etv = parseEditTasks_(p.editTasks), ownV = Object.keys(etv).filter(id => etv[id].indexOf('f_x_vago') >= 0), onsite = cid => ownV.length ? ownV.indexOf(cid) >= 0 : p.editOnsite === true;   // helyszíni vágó személyenként
-  (p.crew || []).forEach(c => { if (crewMap[c.crewId] && c.role !== 'Értékesítő') (roles[c.crewId] = roles[c.crewId] || []).push(c.role === 'Vágó' && onsite(c.crewId) ? 'Helyszíni vágó' : c.role); });
-  const crewLines = Object.keys(roles).map(cid => '• ' + crewMap[cid].name + ' – ' + roles[cid].join(', ') + (cid === p.lead && crewMap[cid].phone ? ' – ' + crewMap[cid].phone : ''));   // telefonszám csak a projektvezetőnél
-  // eszközök munkatársanként: előbb a név, alatta az eszközei, a csoportok között üres sor
-  const eqBy = {}, eqOrder = [];
-  (p.equipment || []).filter(e => invMap[e.itemId]).forEach(e => { const k = e.crewId && crewMap[e.crewId] ? e.crewId : ''; if (!eqBy[k]) { eqBy[k] = []; eqOrder.push(k); } eqBy[k].push('☐ ' + e.qty + '× ' + invMap[e.itemId].name); });
-  const eqTxt = eqOrder.sort((a, b) => (a === '') - (b === '')).map(k => (k ? crewMap[k].name : 'Közös / még nincs kiosztva') + '\n' + eqBy[k].join('\n')).join('\n\n');
-  const eqLines = eqTxt ? [eqTxt] : [];
-  const lines = [];
-  const rec = Object.keys(REC_LABELS).filter(k => p[k] === true && k !== 'er_creative').map(k => REC_LABELS[k] + (Number(p[k + '_n']) > 1 ? ' ×' + p[k + '_n'] : ''));
-  if (Number(p.er_clips) > 0) rec.push(p.er_clips + ' kivágás');
-  if (Number(p.er_subs) > 0) rec.push(p.er_subs + ' feliratozás');
-  if (Number(p.er_summary) > 0) rec.push(p.er_summary + ' rövid összefoglaló videó');
-  if (Number(p.foto_db) > 0) lines.push('Fotózás: ' + p.foto_db + ' db fotó');
-  const rooms = parseRooms_(p.recRooms), RL = { er_total: 'Teljes alakos kamera', er_close: 'Közeli kamera', er_crowd: 'Közönség kamera', er_slides: 'Diák rögzítése' };
-  if (rooms && rooms.some(r => Object.keys(RL).some(k => r[k] > 0))) {   // termenként: név + kamerák
-    lines.push('Előadásrögzítés helyszínenként:');
-    rooms.forEach((r, i) => { const cs = Object.keys(RL).filter(k => r[k] > 0).map(k => RL[k] + (r[k] > 1 ? ' ×' + r[k] : '')); if (cs.length) lines.push('• ' + (i + 1) + '. helyszín' + (r.name ? ' – ' + r.name : '') + ': ' + cs.join(', ')); });
-    Object.keys(RL).forEach(k => { const j = rec.findIndex(x => x.indexOf(REC_LABELS[k] || '@@') === 0); if (j >= 0) rec.splice(j, 1); });
-  }
-  if (p.er_creative === true) lines.push('Kreatív videózás: ' + (Number(p.er_creative_n) > 1 ? p.er_creative_n + ' kreatív kamera' : 'kreatív kamera'));   // nem előadásrögzítés
-  if (rec.length) lines.push('Előadásrögzítés és kivetítés: ' + rec.join(', ') + (Number(p.er_rooms) > 1 ? ' · ' + p.er_rooms + ' helyszín' : ''));   // a felbontás nem kerül a naptárba
-  // az ügyfél neve nem kerül a naptárba: a vendégek a szakemberek, ők az appban sem látják az ügyfelet
-  // az érkezés és a távozás az esemény időpontjában szerepel, a leírásba nem kerül külön
-  if (p.endDate && p.endDate > p.date && p.lastStartTime) lines.push('Utolsó nap (' + p.endDate + '): érkezés ' + p.lastStartTime + (p.lastEndTime ? ' · végzés kb. ' + p.lastEndTime : ''));
-  if (p.lead && crewMap[p.lead]) lines.push('Projektvezető: ' + [crewMap[p.lead].name, crewMap[p.lead].phone].filter(Boolean).join(', '));   // a naptár vendégei a stábtagok: az ügyfél kapcsolattartója nem kerül ide
-  if (crewLines.length) lines.push('', 'STÁB', crewLines.join('\n'));
-  if (eqLines.length) lines.push('', 'ESZKÖZÖK', eqLines.join('\n'));
-  if (p.techPlan) lines.push('', 'TERV', String(p.techPlan).slice(0, 1500));
-  // a projekt jegyzetei nem kerülnek a naptárba (belső / ügyféllevelezésből bemásolt tartalom)
-  // az app linkje nem kerül a leírásba: nem minden meghívottnak van hozzáférése
+  // A projekt naptáreseményének leírása üres; a szerepek és a visszaigazolások az appban szerepelnek.
+  const crewMap = byId_(readAll_('crew')), roles = {};
+  if (p.lead && crewMap[p.lead]) roles[p.lead] = true;
+  (p.crew || []).forEach(c => { if (crewMap[c.crewId] && c.role !== 'Értékesítő') roles[c.crewId] = true; });
   const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
   const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);
-  return { description: lines.join('\n'), guests: guests, crewEmails: crewEmails };
+  return { description: '', guests: guests, crewEmails: crewEmails };
 }
 /** Projekt → naptáresemény (létrehozás, frissítés, törlés). Visszaadja a projektet a friss calEventId-vel. */
 function syncCalendar_(p) {
@@ -342,12 +312,14 @@ function calQuietPatch_(ev, body, fallback) {
   if (typeof Calendar !== 'undefined' && Calendar.Events) { try { Calendar.Events.patch(body, evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, ''), { sendUpdates: 'none' }); return; } catch (e) { Logger.log('Csendes frissítés hiba: ' + e); } }
   fallback();
 }
-/** Egyszeri, csendes újraszinkron (2026-11-04): a közelgő események leírásából kikerülnek a stábtagok telefonszámai (csak a projektvezetőé marad).
-    A Naptár első megnyitásakor fut – időzítő nélkül, így biztosan lefut. A vendégek nem kapnak értesítést. */
+/** Egyszeri újraszinkron: a közelgő projekt-naptáresemények régi leírásának kiürítése. */
 function calPhoneFixOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_CALDESC7_2026_11_12')) return;   // 2026-11-12: a jegyzetek kikerülnek   // 2026-11-04: helyszíni vágó jelölése, felbontás és érkezés/távozás nélkül
-  P.setProperty('MIG_CALDESC7_2026_11_12', now_());   // 2026-11-04 este: eszközök munkatársanként, app-link nélkül
-  try { calResyncUpcoming(); } catch (e) { Logger.log('Újraszinkron hiba: ' + e); }
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('MIG_CALDESC_EMPTY_2026_11_14')) return;
+  try {
+    calResyncUpcoming();
+    P.setProperty('MIG_CALDESC_EMPTY_2026_11_14', now_());
+  } catch (e) { Logger.log('Naptárleírások frissítése hiba: ' + e); }
 }
 function setCalId_(id, evId) {
   withLock_(() => {
@@ -368,7 +340,7 @@ function calendarEvents_(a) {
   const start = calDate_(from), end = new Date(calDate_(to).getTime() + 86400000);
   if (end - start > 100 * 86400000) throw new Error('Legfeljebb 100 napot lehet egyszerre lekérni.');
   const which = a && a.cal === 'vagoi' ? 'vagoi' : 'terepi';
-  if (which === 'terepi') calPhoneFixOnce_();
+  calPhoneFixOnce_();
   const cache = CacheService.getScriptCache(), key = 'pm_cal_' + (cache.get('pm_cal_ver') || '0') + '_' + which + '_' + from + '_' + to, hit = cache.get(key);
   if (hit && !(a && a.fresh)) return JSON.parse(hit);   // fresh: Frissítés / visszatérés az app fülére – a Google Naptárban közben törölt esemény se maradjon itt
   const fmt = (d, f) => Utilities.formatDate(d, SHEET_TZ, f);
@@ -721,7 +693,9 @@ function crewInvite_(u, a) {
     const when = huD(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + huD(p.endDate) : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
     const due = str_(a && a.due, 40), isCut = (p.__asg || []).some(x => x.crewId === cid && x.role === 'Vágó');
     const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = ev && !post ? calEventLink_(ev) : '';
-    const info = [when ? '🎥 Forgatás: ' + when : '', !post && p.venue ? '📍 ' + p.venue : '', isCut && due ? '✂️ Vágási határidő: ' + due : ''].filter(Boolean).join('\n');
+    const rawUpload = isCut && p.date ? 'Nyersanyag feltöltési határideje: ' + huD(p.date).replace('., ', '. ') + ', 23:00' : '';
+    const cutDue = isCut && due ? (huD(due) || due) + ', 20:00' : '';
+    const info = [isCut ? rawUpload : (when ? '🎥 Forgatás: ' + when : ''), !post && p.venue ? '📍 ' + p.venue : '', cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
     const dlD = new Date(Date.now() + 72 * 3600 * 1000); if (dlD.getMinutes() || dlD.getSeconds()) { dlD.setHours(dlD.getHours() + 1, 0, 0, 0); }   // válaszadási határidő: a meghívástól 3 nap (egész órára kerekítve)
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     try { withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) return; const q = readRow_('projects', sh, r), iv = parseInvites_(q.invites); if (iv[cid]) { iv[cid].dl = dlTxt; q.invites = JSON.stringify(iv); putRow_('projects', sh, q, r); p.invites = q.invites; dbFlush_(); } }); } catch (e) {}
