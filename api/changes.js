@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2b63bd968d",
+"at": "2026-11-14T17:07:50+02:00",
+"msg": "Align crew cards and show compact invited status"
+},
+{
 "id": "4d9f4d4399",
 "at": "2026-11-14T17:04:31+02:00",
 "msg": "ui: use single app hover hint for invitation deadline"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: vékonyabb projektnevek"
 },
 {
-"id": "3ee32d9c85",
-"at": "2026-11-14T12:07:05+01:00",
-"msg": "Kifizetések: kisebb Összesen felirat, érintéssel nem jelölődik ki a szöveg"
-},
-{
-"id": "b67542bc73",
-"at": "2026-11-14T11:06:04Z",
+"id": "4fbff76d2c",
+"at": "2026-11-14T11:07:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
