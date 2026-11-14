@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d3c14c7d2d",
+"at": "2026-11-14T17:15:08+02:00",
+"msg": "fix: show full Hungarian weekdays and 23:00/20:00 editor email deadlines"
+},
+{
 "id": "fe0e71ffa0",
 "at": "2026-11-14T17:14:24+02:00",
 "msg": "style: compact invitation copy into two flowing lines with responsive actions"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakembereknek csak a nevük látszik a menüben (Szakember felirat és kalapács nélkül); Kifizetések: az oszlopelválasztó az összegekig jobbra"
 },
 {
-"id": "d7bc8b21e4",
-"at": "2026-11-14T12:12:14+01:00",
-"msg": "Kifizetések szakember nézet: keskenyebb oldalsó szél"
-},
-{
-"id": "d8373e7c53",
-"at": "2026-11-14T11:10:21Z",
+"id": "14ca9dcd5b",
+"at": "2026-11-14T11:12:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
