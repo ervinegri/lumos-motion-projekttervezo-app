@@ -634,7 +634,7 @@ function viewProject(p){
         ${fld(p,'name','Projekt neve')}
         ${editOnly(p)?'':fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Kezdd el gépelni a címet vagy a helyszín nevét…'})}
         ${ro()?'':`<div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="${ro()?'':'Keress vagy válassz ügyfelet… (üresen is hagyható)'}"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>`}
-        ${selField(p,'eventType','Rendezvény típusa',EVENT_TYPES,{cmb:'Válassz típust…'})}
+        ${selField(p,'eventType','Rendezvény típusa',p.eventType&&!EVENT_TYPES.includes(p.eventType)?EVENT_TYPES.concat([p.eventType]):EVENT_TYPES,{cmb:'Válassz típust…'})}
         ${ro()?'':`<div class="field full contact3">
         ${fld(p,'contactName','Kapcsolattartó')}
         ${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro()})}
