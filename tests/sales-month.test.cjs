@@ -52,10 +52,10 @@ console.log('PASS sales monthly navigation, all-month view, undated leads, year 
 {
   const start=sales.indexOf('function dealCard(d){'),end=sales.indexOf('/* Új lehetőségnél:',start);
   assert(start>=0&&end>start,'sales deal card implementation available');
-  const makeCard=new Function('DEAL_OPEN','dealVal','todayISO','isAdmin','isSales','projById','esc','fmtShort','ftFmt','dealCtPill','dealChance',
+  const makeCard=new Function('DEAL_OPEN','dealVal','todayISO','isAdmin','isSales','projById','esc','fmtShort','ftFmt','dealCtPill','dealChance','salesCommissionPreview',
     sales.slice(start,end)+'\nreturn dealCard;');
   const deps=[['uj','ajanlat','targyalas'],d=>d.value||0,()=>'2026-11-14',()=>true,()=>false,
-    id=>id==='short'?{id:'short',name:'Short video'}:null,esc,x=>String(x).slice(5),fmt,()=>'',()=>10];
+    id=>id==='short'?{id:'short',name:'Short video'}:null,esc,x=>String(x).slice(5),fmt,()=>'',()=>10,()=>null];
   const card=makeCard(...deps);
   const withProject=card({id:'deal1',title:'Short videó 1',stage:'nyert',projectId:'short',value:29000,wonAt:'2026-11-14'});
   assert.match(withProject,/class="dl-project-link" data-action="deal-proj" data-id="short"/,'linked project title opens project');
