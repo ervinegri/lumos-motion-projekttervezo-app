@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "715c8e58e6",
+"at": "2026-11-14T18:09:31+02:00",
+"msg": "test: verify monthly sales navigation and period filters"
+},
+{
 "id": "901fdd89a1",
 "at": "2026-11-14T18:08:20+02:00",
 "msg": "sales: make all-month view include historical closed deals"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Improve project invitations, deadlines, and calendar descriptions"
 },
 {
-"id": "b3387a644a",
-"at": "2026-11-14T15:15:32+01:00",
-"msg": "Meghívó: válaszadási határidő (3 nap), a projekt neve új sorban; a levél linkje előnézetből is működik (visszavált a saját nézetre)"
-},
-{
-"id": "9e6e88c2ea",
-"at": "2026-11-14T13:38:23Z",
+"id": "e958a4bbeb",
+"at": "2026-11-14T14:15:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
