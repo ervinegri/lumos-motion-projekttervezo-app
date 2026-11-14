@@ -1928,7 +1928,9 @@ html body .pcrew-inv{display:flex;align-items:center;gap:6px;flex-wrap:wrap;marg
 html body .pcrew-inv .inv-status-badge{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:38px;padding:7px 13px;border-radius:999px;background:#ffdf9d;border:1px solid #bd7a13;color:#733e00;font-size:13px;font-weight:750;line-height:1.2;cursor:help}
 html body .pcrew-inv .inv-btn{padding:10px 16px!important;font-size:14px!important;min-height:44px!important;font-weight:700}
 html body .inv-st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
-html body .inv-st.yes{background:#e6f5ec;color:#1f7a44}html body .inv-st.no{background:#fdecec;color:#a33}html body .inv-st.wait{background:#fdf2dc;color:#8a5a00}
+html body .inv-st.yes{background:#e6f5ec;color:#1f7a44}
+/* Az elfogadott meghívó státusza a Meghívás gombbal azonos méretű. */
+html body .pcrew-inv .inv-st.yes{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:44px;min-width:126px;padding:10px 16px;font-size:14px;font-weight:700;line-height:1.2;border-radius:999px}html body .inv-st.no{background:#fdecec;color:#a33}html body .inv-st.wait{background:#fdf2dc;color:#8a5a00}
 html body .pcrew-inv .inv-pending{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;width:100%}
 html body .pcrew-inv .inv-pending-top{display:flex;align-items:center;flex-wrap:nowrap;gap:7px;max-width:100%}
 html body .pcrew-inv .reinvite-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;padding:0!important;font-size:18px!important;font-weight:700!important;line-height:1!important;border-radius:7px!important;color:#865500!important;background:#ffefcf!important;border:1px solid #d7a245!important;box-shadow:0 1px 3px rgba(90,53,0,.12);cursor:pointer}
