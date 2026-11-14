@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed362f3b42",
+"at": "2026-11-14T11:47:17+01:00",
+"msg": "Telefon: keresőmezőre koppintva nem nagyít rá az oldal (iOS)"
+},
+{
 "id": "1a622b0b62",
 "at": "2026-11-14T11:46:51+01:00",
 "msg": "Nézetváltás jól látható jelzéssel; álló telefonon a logó a bal szélen, kisebb; Projektek alcím törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Levélből érkező videólink: a videó azonnal megnyílik, a friss adat beérkezésekor frissül"
 },
 {
-"id": "c389381eb7",
-"at": "2026-11-14T08:32:56+01:00",
-"msg": "Levélből érkező videólink: csak a videó nyílik meg, a projektoldal nem"
-},
-{
-"id": "f008bd6abe",
-"at": "2026-11-14T07:30:56Z",
+"id": "85caff5e6a",
+"at": "2026-11-14T07:33:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
