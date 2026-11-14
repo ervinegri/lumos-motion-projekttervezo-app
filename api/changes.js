@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d28a2086d4",
+"at": "2026-11-14T08:00:02+01:00",
+"msg": "Rövid / rámutatásra nyíló legördülők: nincs villogó kurzor, a mezőről a listára húzva nem csukódik be"
+},
+{
 "id": "888786ee2b",
 "at": "2026-11-14T07:56:38+01:00",
 "msg": "Frissítéskor nem villan fel a módosítás előtti állapot: a sikeres módosítások a helyi indító-gyorsítótárba is bekerülnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfelek: Ajánlat gomb eltávolítva"
 },
 {
-"id": "0631d23171",
-"at": "2026-11-13T22:17:51+01:00",
-"msg": "Mobil: a táblázatok nem húzhatók el oldalra a szélükön túl"
-},
-{
-"id": "9a076ba651",
-"at": "2026-11-13T21:17:46Z",
+"id": "75c610659c",
+"at": "2026-11-13T21:18:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
