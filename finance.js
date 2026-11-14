@@ -114,18 +114,24 @@ function finMktProjects(m){return S.projects.filter(p=>p.status!=='lemondva'&&pr
 function finExpensesFor(m){return ((S.fin&&S.fin.expense)||[]).filter(e=>e.kind==='fix'?(e.from&&e.from<=m&&(!e.to||e.to>=m)):e.month===m).concat(finMktProjects(m)).sort((a,b)=>(a.kind==='fix'?0:1)-(b.kind==='fix'?0:1)||num(b.amount)-num(a.amount)||a.name.localeCompare(b.name,'hu'));}   // fix elöl, összeg szerint csökkenő
 /* A díjazáshoz viszonyított arány (pl. a termelés vagy a megmaradó eszköz-rezsi rész hány %-a a bevételnek) */
 const pctOf=(v,base)=>{base=Number(base)||0;if(!base)return '';const x=Math.round(Number(v)/base*100);return `<span class="pct${x<0?' neg':''}">${x<0?'−':''}${Math.abs(x)}%</span>`;};
+/* A három költségnem külön jelenik meg. A régi, kézi sorokban a szervezői jutalék még az értékesítésbe van beépítve. */
+const finWages=r=>Math.round(r.fees!=null?num(r.fees):num(r.prod)-num(r.tov));
+const finOrgCost=r=>Math.round(num(r.org));
+const finSalesCost=r=>Math.round(num(r.ceo)-(r.kind==='project'?0:num(r.org)));
 /* Módosítható %: értékesítés és eszköz-rezsi (a termelés % fix, a díjakból jön). Üresre törölve visszaáll az alapértékre. */
 const pctNum=(v,base)=>{base=Number(base)||0;return base?Math.round(Number(v)/base*1000)/10:0;};
-function pctIn(r,k){const v=pctNum(k==='ceo'?r.ceo-(r.org||0):r[k],r.base!=null?r.base:r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv;
+function pctIn(r,k){const v=pctNum(k==='ceo'?finSalesCost(r):r[k],r.base!=null?r.base:r.amount),ov=k==='ceo'?r.ceoOv:r.rezsiOv;
+  if(k==='ceo'&&r.kind==='project'&&!r.salesAssigned)return '<span class="pct-lock" data-tip="Értékesítő kiválasztásáig a jutalék 0%. Az értékesítőt a projekt Pénzügyek paneljén tudod hozzárendelni.">0%</span>';
   if(k==='ceo'&&r.ceoBy)return `<span class="pct-lock" data-tip="${esc(r.ceoBy)} értékesítői jutaléka – a projekt Pénzügyek részében állítható">${String(v).replace('.',',')}</span>`;   // értékesítő hozta: a jutaléka, itt nem írható át
   return `<input class="pct-in${ov?' ov':''}${v<0?' neg':''}" type="text" inputmode="decimal" value="${String(v).replace('.',',')}" data-finpct="${k}" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" aria-label="${k==='ceo'?'Értékesítés':'Eszköz, rezsi'} %" title="${ov?'Egyedi érték – üresre törölve visszaáll az alapra':k==='ceo'&&r.ceoBy?esc(r.ceoBy)+' értékesítői jutaléka (a projekt Pénzügyek részéből) – átírhatod':k==='ceo'?'Alapérték a beállításokból – átírhatod':'A maradék – átírva a nyereség igazodik hozzá'}"${r.amount?'':' disabled'}>`;}
 async function finSetPct(t){const k=t.dataset.finpct,id=t.dataset.id,kind=t.dataset.kind,raw=String(t.value).trim().replace('%','').replace(',','.');
   const v=raw===''?null:Number(raw);if(v!=null&&(!isFinite(v)||v<0||v>100)){toast('0 és 100 közötti százalékot adj meg.',true);render(true);return;}
   const undoMsg='Mentve – visszavonás: '+(/Mac/.test(navigator.platform)?'⌘':'Ctrl')+' + Z';
-  if(kind==='project'){const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v,prev=(billOf(id)||{})[f];FIN_UNDO.push({kind,id,f,prev:prev==null?'':prev});finSave('billSave',{projectId:id,[f]:val},undoMsg,()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
+  if(kind==='project'){if(k==='ceo'){const p=projById(id),d=p&&typeof projDeal==='function'?projDeal(p):null;if(!d||!d.ownerId){toast('Előbb válassz értékesítőt a projekt adatlapján.',true);render(true);return;}}
+    const f=k==='ceo'?'ceoPct':'rezsiPct',val=v==null?'':v,prev=(billOf(id)||{})[f];FIN_UNDO.push({kind,id,f,prev:prev==null?'':prev});finSave('billSave',{projectId:id,[f]:val},undoMsg,()=>{const b=billOf(id);finLocal('billing',[Object.assign({},b,{id:b.id||newId(),projectId:id,[f]:val})]);});return;}
   const r=((S.fin&&S.fin.income)||[]).find(x=>x.id===id);if(!r)return;const st=finSet(),amount=num(r.amount),prod=num(r.prod),mk=num(r.marketing);
   let ceo=num(r.ceo),profit=num(r.profit),rezsi=Number(r.rezsi)||0;
-  if(k==='ceo'){ceo=Math.round(amount*(v??st.ceoPct)/100);rezsi=amount-prod-profit-ceo-mk;}   // értékesítés változott: a maradék (eszköz-rezsi) igazodik
+  if(k==='ceo'){ceo=Math.round(num(r.base!=null?r.base:amount)*(v??st.ceoPct)/100)+num(r.org);rezsi=amount-prod-profit-ceo-mk;}   // értékesítés változott: a maradék (eszköz-rezsi) igazodik
   else{rezsi=v==null?amount-prod-Math.round(amount*st.profitPct/100)-ceo-mk:Math.round(amount*v/100);profit=amount-prod-ceo-mk-rezsi;}   // eszköz-rezsi változott: a nyereség igazodik
   const row=Object.assign({},r,{ceo,profit,rezsi});FIN_UNDO.push({kind,row:Object.assign({},r)});finSave('finUpsert',{table:'income',row},undoMsg,()=>finLocal('income',[row]));}
 /* Visszavonás (⌘/Ctrl + Z) a százalékmezőkön: Esc szerkesztés közben az eredeti értéket adja vissza; mentés után a legutóbbi módosítást vonja vissza */
