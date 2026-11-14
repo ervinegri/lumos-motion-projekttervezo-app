@@ -1834,3 +1834,6 @@ html body .view-banner .btn{font-size:11.5px!important;padding:3px 10px!importan
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .view-banner{font-size:11px!important;padding:4px 10px!important}html body .view-banner .btn{font-size:11px!important;min-height:24px!important;padding:2px 9px!important}}
 /* naptár súgó: ha hosszú, görgethető (egérrel rá lehet menni, érintéssel húzható) */
 html body .cal-tip{pointer-events:auto!important;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 12px)}
+/* idővonal: a pipa ne lógjon rá a névre (a név a pipa előtt végződik) */
+html body .tl-row .tl-track .tl-bar:has(.tl-ok){padding-right:24px!important}
+html body .tl-row .tl-track .tl-bar:has(.tl-ok) .tl-nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;min-width:0}
