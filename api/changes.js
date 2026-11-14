@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "888786ee2b",
+"at": "2026-11-14T07:56:38+01:00",
+"msg": "Frissítéskor nem villan fel a módosítás előtti állapot: a sikeres módosítások a helyi indító-gyorsítótárba is bekerülnek"
+},
+{
 "id": "a179baa639",
 "at": "2026-11-14T07:46:57+01:00",
 "msg": "Projekt: a Vissza gomb oda visz, ahonnan megnyitottad (pl. Naptár/idővonal), a görgetési helyzettel együtt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mobil: a táblázatok nem húzhatók el oldalra a szélükön túl"
 },
 {
-"id": "e622160bd1",
-"at": "2026-11-13T22:17:37+01:00",
-"msg": "Mobil Bevételek táblázat a Fizetésekhez hasonlóan: sötét rögzített fejléc, rögzített nap+név oszlop, egysoros sorok"
-},
-{
-"id": "f14fed7501",
-"at": "2026-11-13T21:16:30Z",
+"id": "9a076ba651",
+"at": "2026-11-13T21:17:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
