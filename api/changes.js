@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed0e19bd65",
+"at": "2026-11-14T12:55:25+01:00",
+"msg": "Sablon választásakor a Rendezvény típusa is kitöltődik (látható mezőben is)"
+},
+{
 "id": "7911124b81",
 "at": "2026-11-14T12:53:00+01:00",
 "msg": "Rendezvény típusa: Egyéb kivéve a választhatók közül (a régi Egyéb projektek megtartják)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek lista: az ügyfél által jóváhagyott videó neve után zöld pipa"
 },
 {
-"id": "f3215e65b5",
-"at": "2026-11-14T11:49:04+01:00",
-"msg": "Fekvő telefon: Projektek lista egyoszlopos, a státuszcímkék a név alatt egy sorban"
-},
-{
-"id": "6dadebd1d0",
-"at": "2026-11-14T10:47:26Z",
+"id": "c1b0b372c2",
+"at": "2026-11-14T10:49:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
