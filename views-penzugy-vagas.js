@@ -92,11 +92,13 @@ function finPanelBody(p){
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
 const FIN_COLS_DEF=[52,250,220,170,250,150];
 function finCols(){let w=null;try{w=JSON.parse(localStorage.getItem('lpm_fin_cols5')||'null');}catch(e){}return Array.isArray(w)&&w.length===FIN_COLS_DEF.length?w:FIN_COLS_DEF.slice();}
+/* A keretmaradék minden összesítőben előjeles: túlköltésnél negatív forintösszeg jelenik meg. */
+const budgetRemainingFmt=left=>left==null?'':(left<0?'−':'')+(moneyFmt(Math.abs(left))||0);
 /* Termelői keret és maradék a táblázat „Összesen” sora alatt, a Díj oszlopban (mint az Excelben). */
 function keretRows(p){
   const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum,val=prodBase(p);
   const pct=isAdmin()&&k!=null?(p.budgetMode==='pct'?pctFmt(num(p.budgetVal)):val>0?pctFmt(k/val*100):''):'';
-  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td></td><td class="r tf-lbl fin-left-lbl">${left!=null&&left<0?'Keret túllépése':'Maradt a keretből'}</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':Math.round(left)===0?'<b class="perfekt">Pontos 🎯</b>':(left<0?'−':'')+(moneyFmt(Math.abs(left))||0)}</td><td colspan="2"></td></tr>
+  return `<tr class="keret-tr${left==null?'':left<0?' left-over':' left-ok'}"><td></td><td></td><td class="r tf-lbl fin-left-lbl">Maradt a keretből</td><td class="r fin-left ${left==null?'':left<0?'bad-txt':'ok-txt'}">${left==null?'':Math.round(left)===0?'<b class="perfekt">Pontos 🎯</b>':budgetRemainingFmt(left)}</td><td colspan="2"></td></tr>
         <tr class="keret-tr"><td></td><td></td><td class="r tf-lbl">Termelői keret</td><td class="r fin-keret-v">${k!=null?moneyFmt(k)+(pct?` <span class="muted">(${pct})</span>`:''):''}</td><td colspan="2"></td></tr>`;
 }
 function totalCell(p){const amt=feeSum(p),val=prodBase(p);return (moneyFmt(amt)||0)+(isAdmin()&&val>0?` <span class="muted">(${pctFmt(feeSum(p)/val*100)})</span>`:'');}
@@ -161,7 +163,7 @@ function financePanel(p,inner){
   return `<div class="${inner?'fin-inline fin':'panel fin'}">
     <p class="hint" style="margin:10px 0 8px">🔒 ${adm?'A projekt értékét és a százalékokat csak te látod. A termelési vezető a termelői díjakat és a keretet forintban látja, a szakemberek semmit.':'A szakemberek az alábbi táblázatot nem látják.'} Minden összeg nettó, ÁFA nélkül.</p>
     ${adm?'':(()=>{const k=budgetFt(p),sum=feeSum(p),left=k==null?null:k-sum;   /* termelési vezető: a termelői keret fent, jól láthatóan */
-      return `<div class="keret-top${left!=null&&left<0?' over':''}"><div><span>Termelői keret</span><b>${k!=null?moneyFmt(k)+' Ft':'nincs megadva'}</b></div><div><span>Díjak összesen</span><b>${moneyFmt(sum)||0} Ft</b></div>${left!=null?`<div class="kt-left"><span>${left<0?'Keret túllépése':'Maradt a keretből'}</span><b>${left<0?'−':''}${moneyFmt(Math.abs(left))||0} Ft</b></div>`:''}</div>`;})()}
+      return `<div class="keret-top${left!=null&&left<0?' over':''}"><div><span>Termelői keret</span><b>${k!=null?moneyFmt(k)+' Ft':'nincs megadva'}</b></div><div><span>Díjak összesen</span><b>${moneyFmt(sum)||0} Ft</b></div>${left!=null?`<div class="kt-left"><span>Maradt a keretből</span><b class="${left<0?'bad-txt':''}">${budgetRemainingFmt(left)} Ft</b></div>`:''}</div>`;})()}
     <datalist id="fee-names">${S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
     ${finPanelBody(p)}
     ${budgetRequestPanel(p)}
