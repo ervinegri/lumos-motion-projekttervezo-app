@@ -366,3 +366,5 @@ test('invoice search by company name: indexes numbers in order, then finds by bu
   assert.deepEqual(json('r2.items.map(x=>x.no)'),['LUMOS-2026-2']);
   assert.equal(json('q2'),40);   // a második keresés csak az új számlák egy-egy 20-as csomagját kérdezi le évente
 });
+
+require('./billing-shared.test.cjs');
