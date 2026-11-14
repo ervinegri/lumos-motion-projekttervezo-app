@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c89cec71a0",
+"at": "2026-11-14T12:00:01+01:00",
+"msg": "iPhone kezdőképernyős app: a menüsor a Dynamic Island szintjéig felér"
+},
+{
 "id": "d9d8831ee3",
 "at": "2026-11-14T11:58:46+01:00",
 "msg": "Beosztásaim: cím és kereső egy sorban, alcím törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél döntéséről szóló értesítés tömörebb: tárgy „Módosítást kér: <projekt>”, a levél a videó nevével és az ügyfél szövegével kezdődik"
 },
 {
-"id": "6c65f38993",
-"at": "2026-11-14T09:59:26+01:00",
-"msg": "Ügyfelek: a Szerződés oszlop nem csúszik el (osztálynév-ütközés javítva)"
-},
-{
-"id": "5a7a11318e",
-"at": "2026-11-14T08:25:30Z",
+"id": "74df021967",
+"at": "2026-11-14T08:59:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
