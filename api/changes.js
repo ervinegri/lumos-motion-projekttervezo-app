@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b58a6a9d93",
+"at": "2026-11-14T12:51:49+01:00",
+"msg": "Felirat: Hozzávetőleges végzés"
+},
+{
 "id": "bfc98cd568",
 "at": "2026-11-14T12:51:00+01:00",
 "msg": "Új projekt: alapból a mai dátummal indul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló telefon naptár: nincs Új projekt gomb, Google a szűrők sorában; munkaszűrő középen"
 },
 {
-"id": "0aa910aa3b",
-"at": "2026-11-14T11:42:26+01:00",
-"msg": "Álló telefon: egysoros fejléc – menüpontok, szerepkör és csengő együtt húzható, a logó helyben marad"
-},
-{
-"id": "f50004f270",
-"at": "2026-11-14T10:40:15Z",
+"id": "981e350f1d",
+"at": "2026-11-14T10:42:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
