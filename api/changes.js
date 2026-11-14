@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0ab44f4dca",
+"at": "2026-11-14T11:39:38+01:00",
+"msg": "Telefon: a Fizetések táblázat kitölti a képernyő alját; álló nézetben a pénzügyi fülek rövid felirattal, fixen egy sorban"
+},
+{
 "id": "b58b0132c8",
 "at": "2026-11-14T11:37:00+01:00",
 "msg": "Idővonal: Jóváhagyásra vár sor oldalra húzható, csak vezetőknek látszik; kisebb hézag a napok fölött"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: egérrel fel-le is húzható (nem csak oldalra)"
 },
 {
-"id": "4faeabde86",
-"at": "2026-11-14T08:22:48+01:00",
-"msg": "Idővonal: „Jóváhagyásra vár” egy sorban, „Idővonal” sor törölve; fejléc: külön Kilépés gomb elrejtve (a név menüjében van)"
-},
-{
-"id": "29ec47abdc",
-"at": "2026-11-14T07:20:36Z",
+"id": "d377b102c0",
+"at": "2026-11-14T07:23:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
