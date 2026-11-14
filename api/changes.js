@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "de5abbbada",
+"at": "2026-11-14T12:09:13+01:00",
+"msg": "Szakember Beállítások: alcím törölve"
+},
+{
 "id": "b1ca1317ec",
 "at": "2026-11-14T12:08:32+01:00",
 "msg": "Kifizetések: vékonyabb projektnevek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár súgó: ha alatta/fölötte nem fér el, a sáv mellé kerül a képernyőn belül (nem vágódik le)"
 },
 {
-"id": "62fbd42e29",
-"at": "2026-11-14T11:32:45+01:00",
-"msg": "Álló telefon naptár: vágószűrő 30%-kal szélesebb"
-},
-{
-"id": "20e2b0ec37",
-"at": "2026-11-14T10:32:32Z",
+"id": "fdc8a9f71a",
+"at": "2026-11-14T10:32:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
