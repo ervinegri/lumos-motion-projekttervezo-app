@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "166dbea9ec",
+"at": "2026-11-14T18:19:13+02:00",
+"msg": "sales: open linked project by clicking its name on deal cards"
+},
+{
 "id": "0d9037c935",
 "at": "2026-11-14T18:09:59+02:00",
 "msg": "test: include monthly sales navigation regression in finance test suite"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "ui: use compact icon-only resend button"
 },
 {
-"id": "26b1e9010d",
-"at": "2026-11-14T16:58:58+02:00",
-"msg": "Make pending invitation resend button prominent"
-},
-{
-"id": "88acf7e967",
-"at": "2026-11-14T14:53:46Z",
+"id": "2dcea1d636",
+"at": "2026-11-14T14:59:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
