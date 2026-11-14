@@ -2,7 +2,7 @@
 /* ===== Konstansok ===== */
 const STAGES=[{id:'tervezes',label:'Tervezés'},{id:'helyszin',label:'Helyszíni munka'},{id:'utomunka',label:'Utómunka'},{id:'leadva',label:'Videók leadva'},{id:'jovahagyas',label:'Jóváhagyásra vár'},{id:'atadva',label:'Kész'}];
 /* Kötelező alapadatok (a jegyzetek kivételével). Mentéskor a felület ellenőrzi. */
-const REQ_FIELDS=[['name','Projekt neve'],['venue','Helyszín'],['client','Ügyfél'],['eventType','Rendezvény típusa'],['contactName','Kapcsolattartó'],['contactPhone','Kapcsolattartó telefonja'],['contactEmail','Kapcsolattartó e-mail-címe'],['date','Első nap'],['endDate','Utolsó nap'],['startTime','Kezdés'],['endTime','Hozzávetőleges távozási óra']];
+const REQ_FIELDS=[['name','Projekt neve'],['venue','Helyszín'],['client','Ügyfél'],['eventType','Rendezvény típusa'],['contactName','Kapcsolattartó'],['contactPhone','Kapcsolattartó telefonja'],['contactEmail','Kapcsolattartó e-mail-címe'],['date','Első nap'],['endDate','Utolsó nap'],['startTime','Kezdés'],['endTime','Hozzávetőleges végzés']];
 function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
   if(k==='endDate')return !!(p._multi||p.endDate)&&!v;   // csak több napos projektnél
   if(k==='contactPhone')return v.replace(/\D/g,'').length<8;   // az országhívószám önmagában nem elég
