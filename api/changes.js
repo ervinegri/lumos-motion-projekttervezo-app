@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "901fdd89a1",
+"at": "2026-11-14T18:08:20+02:00",
+"msg": "sales: make all-month view include historical closed deals"
+},
+{
 "id": "1e7a878976",
 "at": "2026-11-14T18:07:24+02:00",
 "msg": "style: responsive sales monthly navigator aligned with calendar"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó: válaszadási határidő (3 nap), a projekt neve új sorban; a levél linkje előnézetből is működik (visszavált a saját nézetre)"
 },
 {
-"id": "81088688e0",
-"at": "2026-11-14T14:38:14+01:00",
-"msg": "Meghívás: Válaszolok gomb a levélben, a link a projektet nyitja Igen/Nem válasszal (fent és a saját kártyán); visszajelzés e-mailben a meghívónak, elfogadáskor naptárba; vágónál nincs üres Terepi felvételek"
-},
-{
-"id": "74034e8148",
-"at": "2026-11-14T12:51:57Z",
+"id": "9e6e88c2ea",
+"at": "2026-11-14T13:38:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
