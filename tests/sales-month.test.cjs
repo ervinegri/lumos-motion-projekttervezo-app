@@ -80,19 +80,18 @@ console.log('PASS sales pipeline always shows all dates; month affects KPIs only
   console.log('PASS linked project title opens its project while preserving deal card and access restrictions');
 }
 
-/* Szerződött jutalék: a kiválasztott projekt hónapjában a projekten megadott 10% is látszik,
-   a díjbekérő októberi befizetési dátumától függetlenül. */
+/* Szerződött jutalék: a díjbekérő kifizetésének hónapjában (itt október) számít; a projekten megadott 10% is látszik. */
 {
   const p=state.deals.find(x=>x.id==='novWon');
   const original=p.commManual;
   p.commManual='10';
   state.salesF.owner='self';
-  state.salesF.month='2026-11';
+  state.salesF.month='2026-10';
   const html=lib.viewSales();
-  assert.match(html,/szerződött jutalék · 1 projekt/);
+  assert.match(html,/szerződött jutalék · [12] projekt/);
   assert.match(html,/Jutalék: <b>2[\u00a0\u202f ]?900 Ft<\/b>/);
   assert.match(html,/class="dl-comm-pct">10%/);
   assert.match(html,/Befolyt|Díjbekérő kifizetve/);
   p.commManual=original;
-  console.log('PASS contracted commission 2 900 Ft on November short, separately from October payment');
+  console.log('PASS contracted commission 2 900 Ft counts in the díjbekérő payment month');
 }
