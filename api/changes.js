@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "228244022d",
+"at": "2026-11-15T17:34:54+02:00",
+"msg": "Projekt Pénzügyek: a nettó szerződött érték kártyán, az Értékesítés a Termelés előtt; értékesítő választásakor az Összeg és a Jutalék mező azonnal megjelenik (fókusz a %-on)"
+},
+{
 "id": "d26cc37ded",
 "at": "2026-11-15T17:17:49+02:00",
 "msg": "Bevételek: nincs ceruza a projektnevek után, az értékesítési % itt nem írható és mindig %-kal látszik, cím + Párosítások + kereső egy sorban"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Egri Ervin duplikált munkatárs-sorának egyszeri összevonása (minden hivatkozás átírva)"
 },
 {
-"id": "cef16d4994",
-"at": "2026-11-15T13:15:25+02:00",
-"msg": "Teljesítmény panel: a HubSpot-visszaírás utolsó hibája (ügyvezetőnek)"
-},
-{
-"id": "b134898010",
-"at": "2026-11-15T11:13:39Z",
+"id": "4a2476627a",
+"at": "2026-11-15T11:15:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
