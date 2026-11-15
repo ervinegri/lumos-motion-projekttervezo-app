@@ -148,7 +148,10 @@ function viewSales(){
         records=people.map(x=>(x.comm||{})[payMonth]).filter(Boolean),
         paidBase=records.reduce((sum,x)=>sum+num(x.base),0),
         paidComm=records.reduce((sum,x)=>sum+num(x.amount),0),
-        tip='A szerződött jutalék az adott hónap projektjeinek teljes nettó jutalékalapjára számított összeg. A tényleges kifizetés szerinti elszámolás külön történik.';
+        cl=wonM.map(d=>({d,c:salesCommissionPreview(d)})).filter(x=>x.c&&x.c.amt>0),its=records.flatMap(x=>x.items||[]),
+        tip='A szerződött jutalék az adott hónap projektjeinek teljes nettó jutalékalapjára számított összeg. A tényleges kifizetés szerinti elszámolás külön történik.'
+          +(cl.length?'\n\nSzerződött projektek:\n'+cl.map(x=>'• '+(x.d.title||'?')+' · alap '+ftFmt(x.c.base!=null?x.c.base:dealVal(x.d))+' · jutalék '+ftFmt(x.c.amt)+(x.c.pct!=null&&x.c.pct!==''?' ('+x.c.pct+'%)':'')).join('\n'):'')
+          +(its.length?'\n\nBefolyt után elszámolt ('+payMonth+'):\n'+its.map(x=>'• '+x.name+' · '+(x.invNo||'számla')+' · '+String(x.paidAt||'').slice(5).replace('-','.')+'. · alap '+ftFmt(x.base)).join('\n'):'');
         return '<div class="tile'+(contractedComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(contractedComm)+'</div><div class="tile-l">szerződött jutalék · '+contractComms.length+' projekt'+(people.length?'<div class="sales-comm-settled">Befolyt után elszámolt ('+esc(payMonth)+'): '+ftFmt(paidComm)+' · alap: '+ftFmt(paidBase)+'</div>':'')+'</div></div>';})()}
     </div>
     ${salesPerfPanel(all,owners,self,selected,month==="all"?T.slice(0,7):month)}
