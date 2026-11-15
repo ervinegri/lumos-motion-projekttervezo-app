@@ -922,8 +922,17 @@ function inviteRespond_(u, a) {
   try {   // visszajelzés a meghívónak
     const iv = parseInvites_(p.invites)[cid] || {}, to = iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || ''), cr = readAll_('crew').find(x => x.id === cid) || {}, who = cr.name || u.name;
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { const url = appUrl_() + '#p=' + pid, first = huFirst_(iv.by || '') || '';
-      const line = escapeHtml_(who) + (yes ? ' <b style="color:#1f7a44">elfogadta</b>' : ' <b style="color:#a33">nem vállalta</b>') + ' a meghívást: <b>' + escapeHtml_(p.name) + '</b>';
-      gmailSend_(to, (yes ? 'Elfogadta: ' : 'Nem vállalta: ') + who + ' · ' + p.name, 'Kedves ' + first + '!\n\n' + who + (yes ? ' elfogadta' : ' nem vállalta') + ' a meghívást: ' + p.name + '\n\n' + url, { htmlBody: mailCard_(first, line, '', url, 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }); }
+      // tömör értesítés: ki, mit, milyen szerepben, mikor – megszólítás és magyarázó szöveg nélkül
+      const roles = readAll_('crewAssign').filter(r => r.projectId === pid && r.crewId === cid).map(r => String(r.role || '')).filter(r => r && r !== 'Értékesítő');
+      if (p.lead === cid) roles.unshift('Projektvezető');
+      const rl = roles.filter((r, i) => roles.indexOf(r) === i).join(', ');
+      const HM = ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'], md = v => { const m = /^\d{4}-(\d{2})-(\d{2})/.exec(String(v || '')); return m ? HM[+m[1] - 1] + ' ' + (+m[2]) + '.' : ''; };
+      const when = md(p.date) + (p.endDate && p.endDate !== p.date ? '–' + md(p.endDate) : '');
+      const subj = (yes ? '✅ ' : '❌ ') + who + (yes ? ' vállalta' : ' nem vállalta') + ' · ' + p.name + (rl ? ' · ' + rl : '') + (when ? ' · ' + when : '');
+      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:520px"><p style="margin:0 0 12px"><b>' + escapeHtml_(who) + '</b> ' + (yes ? '<b style="color:#1f7a44">vállalta</b>' : '<b style="color:#a33">nem vállalta</b>') + ': <b>' + escapeHtml_(p.name) + '</b>'
+        + (rl ? '<br>Szerep: <b>' + escapeHtml_(rl) + '</b>' : '') + (when ? '<br>Időpont: ' + escapeHtml_(when) : '') + '</p>'
+        + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása</a></p></div>';
+      gmailSend_(to, subj, who + (yes ? ' vállalta' : ' nem vállalta') + ': ' + p.name + (rl ? '\nSzerep: ' + rl : '') + (when ? '\nIdőpont: ' + when : '') + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); }
   } catch (e) { Logger.log('Meghívás-visszajelzés hiba: ' + e); }
   if (yes) { try { const ev = calEvent_(p.calEventId), cr = readAll_('crew').find(x => x.id === cid) || {}, em = String(cr.email || '').trim().toLowerCase();   // elfogadás: a naptárában is ott legyen (vendégként, elfogadott válasszal)
     if (ev && em && typeof Calendar !== 'undefined' && Calendar.Events) { const eid = String(ev.getId()).replace(/@google\.com$/, ''), CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid), att = cur.attendees || []; let f = att.find(x => String(x.email || '').toLowerCase() === em);
