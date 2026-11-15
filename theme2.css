@@ -2046,8 +2046,8 @@ html body .pay-sheet .pst-card>span,html body .pst-sent{white-space:nowrap}
 .sales-perf{margin:14px 0}.sales-perf summary{display:flex;align-items:baseline;gap:10px;cursor:pointer;list-style:none}.sales-perf summary h3{margin:0}
 .perf-tbl th,.perf-tbl td{white-space:nowrap}.perf-tbl th.perf-g{text-align:center;font-size:12px;color:var(--fg-2);border-bottom:1px solid var(--line,#e3e7ea)}.perf-tbl th small{font-weight:500}
 .perf-tbl td[data-tip]{cursor:help}
-/* Fizetések: a számla-jelölés egy sorban (dátum · számlaszám · ikonok) – alacsonyabb sor */
+/* Fizetések: a számla-jelölés két sorban (dátum, alatta a számlaszám tördelés nélkül), az ikonok mellette – alacsonyabb sor */
 html body .pay-sheet .pst-line{flex-wrap:nowrap!important;gap:2px}
-html body .pay-sheet .pst-card{flex-direction:row!important;align-items:baseline!important;gap:5px!important;white-space:nowrap!important;padding:2px 7px!important}
+html body .pay-sheet .pst-card{flex-direction:column!important;align-items:flex-end!important;gap:0!important;white-space:nowrap!important;padding:2px 7px!important;line-height:1.15!important}
 html body .pay-sheet .pst-card small{white-space:nowrap;overflow-wrap:normal}
 html body .pay-sheet .nav-one{padding:0 2px;margin-left:0;font-size:12px}

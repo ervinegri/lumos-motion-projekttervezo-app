@@ -685,13 +685,29 @@ function hsEnsureContact_(email, name, phone, company) {
   const props = Object.assign({ email: email }, hsSplitName_(name)); if (phone) props.phone = String(phone); if (company) props.company = String(company);
   return String((hubspot_('post', '/crm/v3/objects/contacts', { properties: props }) || {}).id || '');
 }
-function hsEnsureCompany_(name) {
+/* Cég a HubSpotban: pontos név → hasonló név (a cégforma nélküli szavak egyezése) → a kapcsolattartó e-mail-domainje; újat csak akkor hozunk létre, ha egyik sincs. */
+const HS_LEGAL_ = ['zrt', 'kft', 'bt', 'nyrt', 'kkt', 'ev', 'egyesulet', 'alapitvany', 'ltd', 'gmbh', 'inc', 'kozhasznu', 'nonprofit', 'rt'];
+function hsCoTok_(n) { return String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(w => w.length > 1 && HS_LEGAL_.indexOf(w) < 0); }
+function hsEnsureCompany_(name, email) {
   name = String(name || '').trim(); if (name.length < 2) return '';
-  const hit = ((hubspot_('post', '/crm/v3/objects/companies/search', { filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: name }] }], properties: ['name'], limit: 1 }).results) || [])[0];
-  if (hit) return String(hit.id);
+  const props = ['name', 'domain'];
+  const exact = ((hubspot_('post', '/crm/v3/objects/companies/search', { filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: name }] }], properties: props, limit: 1 }).results) || [])[0];
+  if (exact) return String(exact.id);
+  const mine = hsCoTok_(name);
+  if (mine.length) {
+    const cands = (hubspot_('post', '/crm/v3/objects/companies/search', { query: mine[0], properties: props, limit: 20 }).results) || [];
+    const best = cands.map(c => { const t = hsCoTok_((c.properties || {}).name); return { id: String(c.id), s: mine.filter(w => t.indexOf(w) >= 0).length, all: mine.every(w => t.indexOf(w) >= 0) || t.every(w => mine.indexOf(w) >= 0) }; })
+      .filter(x => x.all && x.s >= 1).sort((a, b) => b.s - a.s)[0];
+    if (best) return best.id;
+  }
+  const dom = (/@([^@\s]+)$/.exec(String(email || '').toLowerCase()) || [])[1];
+  if (dom && !/^(gmail|googlemail|freemail|citromail|hotmail|outlook|yahoo|icloud|t-online|live)\./.test(dom)) {
+    const byDom = ((hubspot_('post', '/crm/v3/objects/companies/search', { filterGroups: [{ filters: [{ propertyName: 'domain', operator: 'EQ', value: dom }] }], properties: props, limit: 1 }).results) || [])[0];
+    if (byDom) return String(byDom.id);
+  }
   return String((hubspot_('post', '/crm/v3/objects/companies', { properties: { name: name } }) || {}).id || '');
 }
-function hsAssoc_(from, fid, to, tid) { if (fid && tid) { try { hubspot_('put', '/crm/v4/objects/' + from + '/' + fid + '/associations/default/' + to + '/' + tid); } catch (e) {} } }
+function hsAssoc_(from, fid, to, tid) { if (fid && tid) { try { hubspot_('put', '/crm/v4/objects/' + from + '/' + fid + '/associations/default/' + to + '/' + tid); } catch (e) { throw new Error('Társítás (' + from + ' → ' + to + '): ' + (e && e.message || e)); } } }
 /* Meglévő HubSpot deal keresése a lehetőséghez (a HubSpotban már vezetett dealek ne duplikálódjanak):
    1) korábbi párosítás, 2) pontosan azonos nevű deal, 3) a kapcsolattartó / cég dealjei közül a név szerint leginkább egyező. */
 function hsFindDeal_(d, cid, coid) {
@@ -710,7 +726,7 @@ function hsDealSync_(d) {
   try {
     const link = hsLinkGet_(d.id), st = hsStages_();
     const cid = hsEnsureContact_(d.contactEmail, d.contactName, d.contactPhone, d.client) || link.hsContact || '';
-    const coid = hsEnsureCompany_(d.client) || link.hsCompany || '';
+    const coid = link.hsCompany || hsEnsureCompany_(d.client, d.contactEmail) || '';
     let dealId = String(link.hsDeal || '') || hsFindDeal_(d, cid, coid);
     const amount = d.value !== '' && d.value != null && isFinite(Number(d.value)) && Number(d.value) > 0 ? String(Math.round(Number(d.value))) : '';
     const close = /^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate || '')) ? String(d.eventDate) + 'T12:00:00Z' : '';
@@ -724,7 +740,8 @@ function hsDealSync_(d) {
       const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
       if (amount) props.amount = amount; if (close) props.closedate = close; if (st[d.stage]) props.dealstage = st[d.stage];
       let oid = ''; try { oid = hsOwnerId_(owner, d.ownerName); } catch (e) {} if (oid) props.hubspot_owner_id = oid;   // tulajdonos nélkül is létrejön
-      dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props }) || {}).id || '');
+      const assoc = [[cid, 3], [coid, 5]].filter(x => x[0]).map(x => ({ to: { id: x[0] }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: x[1] }] }));   // deal → kapcsolattartó (3), cég (5)
+      dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props, associations: assoc }) || {}).id || '');
     }
     hsAssoc_('deals', dealId, 'contacts', cid); hsAssoc_('deals', dealId, 'companies', coid); hsAssoc_('contacts', cid, 'companies', coid);
     hsLinkPut_({ id: d.id, hsDeal: dealId, hsContact: cid, hsCompany: coid });
@@ -734,7 +751,7 @@ function hsDealSync_(d) {
 function hsClientSync_(c) {
   if (!c || !hsOn_()) return;
   try {
-    const coid = hsEnsureCompany_(c.name), cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
+    const coid = hsEnsureCompany_(c.name, c.contactEmail), cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
     hsAssoc_('contacts', cid, 'companies', coid);
     hsLinkPut_(Object.assign(hsLinkGet_(c.id), { hsContact: cid, hsCompany: coid }));
     hsOk_();
