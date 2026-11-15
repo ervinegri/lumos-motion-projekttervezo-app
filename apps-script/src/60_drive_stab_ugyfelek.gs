@@ -160,6 +160,38 @@ function deleteCrew_(u, a) {
   });
 }
 
+/* Egyszeri összevonás: duplikált munkatárs-sor (Egri Ervin – a „csak Értékesítő” sor beolvad a teljes sorba).
+   A régi azonosító minden szöveges hivatkozása (projektek stábja, díjai, értékesítők „crew:…”, kifizetések, felhasználók) az újra mutat,
+   a szerepek összeadódnak, majd a régi sor törlődik. CREW_MERGE_1 tulajdonság: csak egyszer fut. */
+const CREW_MERGES_ = [['f85ec95b-a80d-4a6c-90c1-2f2b85313fd9', 'e2ae8d1f-c88f-4616-b477-a43fb85938bd']];
+function crewMergeOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('CREW_MERGE_1')) return;
+  const done = [];
+  withLock_(() => {
+    CREW_MERGES_.forEach(([from, to]) => {
+      const csh = sheetFor_('crew'), fr = findRow_(csh, from), tr = findRow_(csh, to); if (!fr || !tr) return;
+      const a = readRow_('crew', csh, fr), b = readRow_('crew', csh, tr), roles = s => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
+      const merged = roles(b.roles).concat(roles(a.roles).filter(r => roles(b.roles).indexOf(r) < 0));
+      ['phone', 'email', 'company', 'tax'].forEach(k => { if (!b[k] && a[k]) b[k] = a[k]; });
+      b.roles = merged.join(', '); b.updatedAt = now_(); putRow_('crew', csh, b, tr);
+      const rep = v => typeof v === 'string' && v.indexOf(from) >= 0 ? v.split(from).join(to) : v;
+      Object.keys(TABLES).forEach(k => {
+        if (k === 'crew' || TABLES[k].assign) return;
+        const sh = sheetFor_(k);
+        readAll_(k).forEach(r => { if (!Object.keys(r).some(f => typeof r[f] === 'string' && r[f].indexOf(from) >= 0)) return;
+          const nr = {}; Object.keys(r).forEach(f => { nr[f] = rep(r[f]); }); putRow_(k, sh, nr, findRow_(sh, r.id)); });
+      });
+      rewriteAssign_('crewAssign', () => true, [], r => { if (r.crewId === from) r.crewId = to; });
+      const us = loadUsers_(); let uc = false; us.forEach(x => { if (x.crewId === from) { x.crewId = to; uc = true; } }); if (uc) saveUsers_(us);
+      csh.deleteRow(findRow_(csh, from));
+      done.push(sval_(b.name));
+    });
+    dbFlush_();
+  });
+  P.setProperty('CREW_MERGE_1', now_());
+  if (done.length) logEvent_({ name: 'Rendszer' }, 'Munkatárs összevonva', done.join(', '), 'duplikált sor');
+}
+
 function saveItem_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64);
