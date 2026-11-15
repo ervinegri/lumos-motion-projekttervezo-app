@@ -53,7 +53,7 @@ assert.doesNotMatch(pct(none,'ceo'),/data-finpct=/,'no salesperson means read-on
 assert.match(pct(seller,'ceo'),/pct-lock/,'calculated salesperson commission stays locked');
 const defaultSeller=make(159000,40000,45000,0,{ownerId:'seller-123'});
 assert.equal(defaultSeller.ceo,5700,'assigned seller gets default 5% if no specific rate is set');
-assert.match(pct(defaultSeller,'ceo'),/data-finpct=/,'assigned seller can have editable default percentage');
+assert.match(pct(defaultSeller,'ceo'),/pct-lock[^>]*>5%</,'the sales percentage is shown with % and is not editable in the income table (it is set on the project)');
 assert.match(code,/Díjazás<\/th>\$\{showTov\?'<th class="r">Továbbszámlázott<\/th>'/,'a továbbszámlázott oszlop a díjazás után, csak ha van ilyen tétel');
 assert.match(code,/\$\{showOrg\?'<th class="r">Szervezői jutalék<\/th>'/,'a szervezői jutalék oszlop is feltételes');
 assert.match(code,/TFn\(finWages\)/);

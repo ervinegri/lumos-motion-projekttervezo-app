@@ -2105,3 +2105,8 @@ html body .fin-inc tbody td:nth-child(2),html body .fin-inc tfoot td:nth-child(2
 html body .fin-inc th.r{text-align:right}
 html body .fin-inc tbody td:nth-child(3),html body .fin-inc thead th:nth-child(3){width:1%;white-space:nowrap}
 html body .sheet-wrap .fin-tbl.fin-inc{min-width:100%!important;width:100%!important}
+/* Bevételek: cím, Párosítások és kereső egy sorban */
+html body .fin-inc-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+html body .fin-inc-head h3{margin:0!important;flex:0 0 auto}
+html body .fin-inc-head .toolbar.fin-q{margin:0!important;flex:0 1 380px}
+html body .fin-inc-head .toolbar.fin-q .inp{min-height:36px}
