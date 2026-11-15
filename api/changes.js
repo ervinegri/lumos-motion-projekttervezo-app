@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "080105c17a",
+"at": "2026-11-15T13:45:17+02:00",
+"msg": "Fizetések: számla-jelölés egy sorban, alacsonyabb sor"
+},
+{
 "id": "89ec243e8b",
 "at": "2026-11-15T13:44:26+02:00",
 "msg": "Teljesítmény: súgó a cellákon – kik és mennyi van a számok mögött (lehetőségek, ajánlatok, szerződések, befolyt számlák)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "revert: restore original timeline; postproduction cards belong in Kanban"
 },
 {
-"id": "56f212df1e",
-"at": "2026-11-14T20:14:38+02:00",
-"msg": "ui: show selected owner's task details on timeline card hover"
-},
-{
-"id": "89c52ad10a",
-"at": "2026-11-14T18:14:31Z",
+"id": "d1504680f6",
+"at": "2026-11-14T18:14:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
