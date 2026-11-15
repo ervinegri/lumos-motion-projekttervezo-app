@@ -2082,3 +2082,7 @@ html.th2 .dl-board.lost-closed{grid-template-columns:repeat(5,minmax(200px,1fr))
 /* Értékesítés: a hónap sötét „gomb” (mint a Pénzügyeknél); rákattintva az aktuális hónapra ugrik */
 html body .sales-monthnav .sales-month-title.mnav-chip{background:#243347;border:1.5px solid #243347;color:#fff;border-radius:999px;padding:0 22px;min-height:42px;cursor:pointer}
 html body .sales-monthnav .sales-month-title.mnav-chip:hover{filter:brightness(1.15)}
+/* Pénzügyek (Fizetések, Szerződés és számlázás, Bevétel és kiadás): kisebb hézag a menü, a fejsor és a táblázat között */
+html body #view:has(.pay-head,.bill-head){padding-top:12px!important}
+html body #view:has(.pay-head,.bill-head){row-gap:10px!important}
+html body #view .pay-head,html body #view .bill-head{margin-bottom:0!important}
