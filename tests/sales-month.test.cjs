@@ -40,11 +40,11 @@ const pick=m=>{state.salesF.month=m;return lib.viewSales();};
 const allCards=ids(current);
 assert.equal(allCards.length,6,'all sales opportunities are visible on the same pipeline');
 assert(allCards.includes('novOpen')&&allCards.includes('febOpen')&&allCards.includes('undated'),'future and undated leads are visible');
-assert.equal(kpi(current)[2],'176000Ft','November contracted revenue follows the contract (wonAt) month');
+assert.equal(kpi(current)[2],'0Ft','paid díjbekérő month wins over the contract month');
 for(const month of ['2026-10','2027-02','2025-01','2026-12','all']){
   assert.deepEqual(ids(pick(month)),allCards,'monthly navigation preserves all cards: '+month);
 }
-assert.equal(kpi(pick('2026-10'))[2],'0Ft','an October event signed in November counts in November');
+assert.equal(kpi(pick('2026-10'))[2],'176000Ft','both deals count in the month their díjbekérő was paid (October)');
 assert.equal(kpi(pick('2027-02'))[2],'0Ft','an empty KPI month still has every card');
 assert.equal(kpi(pick('2025-01'))[2],'150000Ft','historic month KPI can be reviewed');
 assert.equal(kpi(pick('all'))[2],'326000Ft','all-period KPI summarizes all contracted revenue');
