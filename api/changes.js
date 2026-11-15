@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "693f0b147b",
+"at": "2026-11-15T19:09:08+02:00",
+"msg": "Projekt: az ajánlói jutalék kikerül az Egyéb költségek táblából, az összege az Ajánlói jutalék dobozban adható meg"
+},
+{
 "id": "48c74eeeb3",
 "at": "2026-11-15T18:48:54+02:00",
 "msg": "Stáb és eszközök: pozíció-kártyák – a pipált szolgáltatások adják a pozíciókat, betöltetlen pozíción választó; több pozíciónál az eszköz, jegyzet, meghívó az első kártyán, a vágói munkák a Vágó kártyán; + Pozíció hozzáadása"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fizetések: számla-jelölés két sorban (dátum + számlaszám), ikonok mellette; HubSpot: hasonló nevű / azonos domainű cég újrahasznosítása, deal társítása létrehozáskor, társítási hiba jelzése"
 },
 {
-"id": "080105c17a",
-"at": "2026-11-15T13:45:17+02:00",
-"msg": "Fizetések: számla-jelölés egy sorban, alacsonyabb sor"
-},
-{
-"id": "01fef034b6",
-"at": "2026-11-15T11:44:35Z",
+"id": "f5c767ecb8",
+"at": "2026-11-15T11:45:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
