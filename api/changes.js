@@ -2,6 +2,26 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e4400978ec",
+"at": "2026-11-15T12:58:50+02:00",
+"msg": "Árkalkulátor: az „Eredmény beküldése” kitöltött új lehetőséget nyit (érték, szolgáltatások, tételek, következő lépés)"
+},
+{
+"id": "68ed1b6229",
+"at": "2026-11-15T12:57:30+02:00",
+"msg": "Fizetések: a dátum (pl. ✓ nov. 13.) egy sorban"
+},
+{
+"id": "a18ef33043",
+"at": "2026-11-15T12:56:48+02:00",
+"msg": "Ártitok-teszt, natív select ellenőrzés, tesztek minden pushkor; a háttér csak sikeres ártitok-teszt után települ"
+},
+{
+"id": "c8eac35de9",
+"at": "2026-11-15T12:53:56+02:00",
+"msg": "Elhalt gombkezelők törlése (cut-deliver, imp-open, nas-copy, quote-for, raw-upload, sz-move, vid-start)"
+},
+{
 "id": "6b7c21c2d2",
 "at": "2026-11-15T12:42:10+02:00",
 "msg": "Szakember nézet: Kanban fül ideiglenesen elrejtve"
@@ -142,19 +162,9 @@ const ITEMS = [
 "msg": "ci: allow the last available Apps Script version and warn about cleanup"
 },
 {
-"id": "eb6dcc8d76",
-"at": "2026-11-14T19:54:57+02:00",
-"msg": "fix: show editor calendar deadlines only for actual video editing work"
-},
-{
-"id": "8f4713a4c9",
-"at": "2026-11-14T19:54:44+02:00",
-"msg": "fix: distinguish video-editing assignments from photo-only deliverables"
-},
-{
-"id": "ee68319ff1",
-"at": "2026-11-14T19:54:20+02:00",
-"msg": "fix: prune orphaned untouched video tasks, including previously assigned editors"
+"id": "b62230bb6a",
+"at": "2026-11-14T17:55:04Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
