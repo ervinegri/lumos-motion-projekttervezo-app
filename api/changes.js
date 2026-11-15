@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3e524eeb8e",
+"at": "2026-11-15T15:46:31+02:00",
+"msg": "Számlázás: bizonylat nélküli kintlévőség elöl; a szűrő-törlés link helyett a kijelölt csempe újrakattintása törli (kiemelve)"
+},
+{
 "id": "66527c1763",
 "at": "2026-11-15T15:45:49+02:00",
 "msg": "Bevételek tábla: Továbbszámlázott és Szervezői jutalék a Díjazás után, csak ha a hónapban van ilyen tétel"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Teljesítmény panel: tesztkörnyezetben nincs háttérhívás"
 },
 {
-"id": "04a95ea8c7",
-"at": "2026-11-15T13:11:18+02:00",
-"msg": "Értékesítés: Teljesítmény panel – HubSpot-aktivitás (hívás, megbeszélés, e-mail, új kontakt), megkeresés, ajánlat, szerződés, befolyt díj, jutalék értékesítőnként"
-},
-{
-"id": "17e2af3b4a",
-"at": "2026-11-15T11:10:05Z",
+"id": "dd1daaf93f",
+"at": "2026-11-15T11:11:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
