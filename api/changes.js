@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a8f1a3b412",
+"at": "2026-11-15T15:37:25+02:00",
+"msg": "Értékesítés: a hónap sötét gombként (mint a Pénzügyeknél), rákattintva a mai hónapra ugrik"
+},
+{
 "id": "d455944fec",
 "at": "2026-11-15T15:35:40+02:00",
 "msg": "Javítás: a számla-visszavonás kezelője az ACT létrehozása után töltődik (különben a díjcsökkentés-modul vége nem futott); Elveszett oszlop becsukható; lehetőség ablak: Cég ↔ Másodlagos e-mail csere, Rendezvény típusa + Honnan jött egy sorban"
@@ -140,16 +145,6 @@ const ITEMS = [
 "id": "68ed1b6229",
 "at": "2026-11-15T12:57:30+02:00",
 "msg": "Fizetések: a dátum (pl. ✓ nov. 13.) egy sorban"
-},
-{
-"id": "a18ef33043",
-"at": "2026-11-15T12:56:48+02:00",
-"msg": "Ártitok-teszt, natív select ellenőrzés, tesztek minden pushkor; a háttér csak sikeres ártitok-teszt után települ"
-},
-{
-"id": "c8eac35de9",
-"at": "2026-11-15T12:53:56+02:00",
-"msg": "Elhalt gombkezelők törlése (cut-deliver, imp-open, nas-copy, quote-for, raw-upload, sz-move, vid-start)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
