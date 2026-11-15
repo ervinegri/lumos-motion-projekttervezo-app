@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "92cdde17b1",
+"at": "2026-11-15T19:13:02+02:00",
+"msg": "Pozíció-címkék finom pasztell színe szerepcsoportonként"
+},
+{
 "id": "1c3d14c918",
 "at": "2026-11-15T19:10:33+02:00",
 "msg": "Pozíció-kártyák: a meghívó (állapota) minden kártyán látszik – egy meghívó szól az ember összes pozíciójára"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fizetések: 🔄 és ✕ csak rámutatáskor, lebegve"
 },
 {
-"id": "e3ac2cb648",
-"at": "2026-11-15T13:47:14+02:00",
-"msg": "HubSpot: a cég mindig friss kereséssel (nem a régi párosításból)"
-},
-{
-"id": "6df400befe",
-"at": "2026-11-15T11:47:02Z",
+"id": "d5137345f0",
+"at": "2026-11-15T11:47:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
