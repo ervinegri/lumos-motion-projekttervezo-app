@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4279be7439",
+"at": "2026-11-15T13:09:52+02:00",
+"msg": "Projekt értékesítő-választó: Ervin csak egyszer (az ügyvezető felhasználó = saját munkatárs-sora), névismétlődés kiszűrve"
+},
+{
 "id": "e1305f0dcc",
 "at": "2026-11-15T13:03:29+02:00",
 "msg": "Kintlévőség: a már esedékes hónap bizonylat nélküli projektjei is beleszámítanak"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "feat: show photo postproduction deadline and photo assignee timeline rows"
 },
 {
-"id": "ccd0040aef",
-"at": "2026-11-14T20:01:03+02:00",
-"msg": "feat: include photo retouching assignees in calendar postproduction filter"
-},
-{
-"id": "a1725080ef",
-"at": "2026-11-14T17:57:05Z",
+"id": "00161e1660",
+"at": "2026-11-14T18:01:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
