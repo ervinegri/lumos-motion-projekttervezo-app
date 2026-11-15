@@ -58,5 +58,5 @@ assert.match(code,/Díjazás<\/th>\$\{showTov\?'<th class="r">Továbbszámlázot
 assert.match(code,/\$\{showOrg\?'<th class="r">Szervezői jutalék<\/th>'/,'a szervezői jutalék oszlop is feltételes');
 assert.match(code,/TFn\(finWages\)/);
 assert.match(code,/TFn\(finSalesCost\)/);
-assert.match(code,/colspan="\$\{12\+\(showTov\?1:0\)\+\(showOrg\?1:0\)\}" class="empty-row"/);
+assert.match(code,/colspan="\$\{12\+\(showTov\?1:0\)\+\(showOrg\?1:0\)\+\(showRef\?1:0\)\}" class="empty-row"/);
 console.log('PASS project fee zero without seller, separate cost columns, organizer fee, revenue balance and legacy rows');

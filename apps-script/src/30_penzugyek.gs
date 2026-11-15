@@ -313,20 +313,18 @@ function finFixSep2026Once_() {
 }
 
 
-/* Egyszeri javítás (Ervin, 2026-11-15): Queen's Night Hungary – Zajácz Dávid ajánlói jutaléka 30 000 Ft (60 000 helyett). FIX_QN_REF_1: csak egyszer fut. */
+/* Queen's Night Hungary – Zajácz Dávid ajánlói jutaléka: a 60 000 Ft volt a helyes (Ervin, 2026-11-15). Ha a korábbi (téves) 30 000-es javítás már lefutott, visszaállítja. FIX_QN_REF_2: csak egyszer fut. */
 function fixQueensRefOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('FIX_QN_REF_1')) return;
-  let done = '';
-  withLock_(() => {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('FIX_QN_REF_2')) return;
+  if (P.getProperty('FIX_QN_REF_1')) withLock_(() => {
     const sh = sheetFor_('projects');
     readAll_('projects').filter(p => /queen.?s night/i.test(String(p.name || ''))).forEach(p => {
       const F = parseFees_(p.fees); let ch = false;
-      F.forEach(f => { if (f.kind === 'fixed' && f.key === 'ref' && /zaj[aá]cz/i.test(String(f.name || '')) && Number(String(f.amount).replace(/\D/g, '')) === 60000) { f.amount = 30000; ch = true; } });
-      if (!ch) return; const row = findRow_(sh, p.id); if (!row) return;
-      putRow_('projects', sh, Object.assign({}, p, { fees: JSON.stringify(F), updatedAt: now_() }), row); done = p.name;
+      F.forEach(f => { if (f.kind === 'fixed' && f.key === 'ref' && /zaj[aá]cz/i.test(String(f.name || '')) && Number(String(f.amount).replace(/\D/g, '')) === 30000) { f.amount = 60000; ch = true; } });
+      if (!ch) return; const row = findRow_(sh, p.id); if (row) putRow_('projects', sh, Object.assign({}, p, { fees: JSON.stringify(F), updatedAt: now_() }), row);
     });
     dbFlush_();
   });
-  P.setProperty('FIX_QN_REF_1', now_());
-  if (done) logEvent_({ name: 'Rendszer' }, 'Ajánlói jutalék javítva', done, 'Zajácz Dávid: 60 000 → 30 000 Ft');
+  P.setProperty('FIX_QN_REF_1', P.getProperty('FIX_QN_REF_1') || 'kihagyva'); P.setProperty('FIX_QN_REF_2', now_());
 }
+
