@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2392693404",
+"at": "2026-11-15T13:13:30+02:00",
+"msg": "HubSpot visszaírás: lehetőség → deal (érték, dátum, szakasz, tulajdonos, kapcsolattartó és cég társítva); új / módosított ügyfél → HubSpot cég és kapcsolattartó"
+},
+{
 "id": "f53beaad57",
 "at": "2026-11-15T13:11:36+02:00",
 "msg": "Teljesítmény panel: tesztkörnyezetben nincs háttérhívás"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "fix: label video vs photo postproduction tasks with actual responsible person"
 },
 {
-"id": "f0ec7cf481",
-"at": "2026-11-14T20:02:27+02:00",
-"msg": "style: widen postproduction owner dropdown to fit renamed option"
-},
-{
-"id": "54fbf343c8",
-"at": "2026-11-14T18:02:22Z",
+"id": "eafa60546d",
+"at": "2026-11-14T18:02:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
