@@ -78,7 +78,7 @@ function salesOwners(deals){
    Az ügyvezető mindenkit lát, az értékesítő csak magát (a háttér is így szűr). */
 function salesPerfPanel(all,owners,self,selected,m){
   const me=S.me||{},key=id=>self.has(id)?me.id:id,act=(S._hsAct||(S._hsAct={}))[m];
-  if(!act&&!S._hsActBusy){S._hsActBusy=m;call('hsActivity',{month:m}).then(r=>{S._hsAct[m]=r||{people:[]};}).catch(e=>{S._hsAct[m]={people:[],error:errText(e)};}).finally(()=>{S._hsActBusy='';if(S.tab==='ertekesites')render(true);});}
+  if(!act&&!S._hsActBusy&&typeof call==='function'){S._hsActBusy=m;call('hsActivity',{month:m}).then(r=>{S._hsAct[m]=r||{people:[]};}).catch(e=>{S._hsAct[m]={people:[],error:errText(e)};}).finally(()=>{S._hsActBusy='';if(S.tab==='ertekesites')render(true);});}
   const ids=owners.map(([id])=>id).filter(id=>!selected||id===selected);
   if(!ids.length)return '';
   const inM=v=>String(v||'').slice(0,7)===m,qRe=/^\[(\d{4}-\d{2})-\d{2}[^\]]*\] 📄 Árajánlat elküldve.*?(?:– ([\d\s]+) Ft)?/;
