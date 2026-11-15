@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1680d44bea",
+"at": "2026-11-15T18:39:53+02:00",
+"msg": "Bevételek: Ajánlói jutalék külön oszlopban (csak ha a hónapban van ilyen); Queen's Night ajánlói jutalék visszaállítva 60 000 Ft-ra, ha a téves javítás lefutott"
+},
+{
 "id": "fc43d66813",
 "at": "2026-11-15T18:30:20+02:00",
 "msg": "Queen's Night Hungary: Zajácz Dávid ajánlói jutaléka 30 000 Ft (egyszeri javítás)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Teljesítmény: súgó a cellákon – kik és mennyi van a számok mögött (lehetőségek, ajánlatok, szerződések, befolyt számlák)"
 },
 {
-"id": "45150f8851",
-"at": "2026-11-15T13:41:36+02:00",
-"msg": "Teljesítmény: HubSpot-felhasználó párosítása név alapján is (pl. „Ervin Egri” = „Egri Ervin”)"
-},
-{
-"id": "f3550b0d89",
-"at": "2026-11-15T11:29:49Z",
+"id": "7bcf213571",
+"at": "2026-11-15T11:41:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
