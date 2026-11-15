@@ -45,9 +45,9 @@ const salesShiftMonth=(m,d)=>{
   const [y,mo]=base.split('-').map(Number);
   return new Date(Date.UTC(y,mo-1+d,1)).toISOString().slice(0,7);
 };
-const salesDealMonth=d=>{
+const salesDealMonth=d=>{   // a szerződéskötés hónapja (Ervin döntése, 2026-11-15); ha nincs, a projekt / rendezvény dátuma
   const p=d&&d.projectId&&typeof projById==='function'?projById(d.projectId):null;
-  const date=String(p&&p.date||d&&d.eventDate||'');
+  const date=String(d&&/^\d{4}-\d{2}-\d{2}/.test(String(d.wonAt||''))?d.wonAt:p&&p.date||d&&d.eventDate||'');
   return /^\d{4}-\d{2}-\d{2}/.test(date)?date.slice(0,7):'';
 };
 const salesMonthText=m=>/^\d{4}-\d{2}$/.test(String(m||''))
