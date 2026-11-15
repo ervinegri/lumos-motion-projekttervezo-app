@@ -1,4 +1,4 @@
-# Tesztek minden pusholáskor: ártitok (szerepkörök nem kapnak árat), natív legördülő tiltás, pénzügyi és értékesítési logika.
+# Tesztek minden pusholáskor (csak jelzés, e-mailt nem küld): ártitok (szerepkörök nem kapnak árat), natív legördülő tiltás, pénzügyi és értékesítési logika.
 name: Tesztek
 on:
   push:
@@ -17,4 +17,5 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Tesztek futtatása
+        continue-on-error: true   # hiba esetén nincs e-mail-értesítő: a bukás a futás összegzésében látszik; a háttér telepítését az ártitok-teszt külön megállítja
         run: node tests/run-all.cjs
