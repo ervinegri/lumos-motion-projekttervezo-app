@@ -753,7 +753,7 @@ function hsActivity_(u, arg) {
   if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return Object.assign(JSON.parse(hit), { syncErr: syncErr }); } catch (e) {} } }
   const users = loadUsers_().filter(x => !x.disabled && (x.role === 'sales' || x.role === 'admin') && (u.role === 'admin' || x.id === u.id));
   let owners = [];
-  try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e) + ' (a HubSpot-felhasználók listája: crm.objects.owners.read hatókör kell)', people: [], syncErr: syncErr }; }
+  try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e) + (/elutasította/.test(String(e && e.message)) ? ' (a HubSpot-felhasználók listája: crm.objects.owners.read hatókör kell)' : ''), people: [], syncErr: syncErr }; }
   const byMail = {}, byName = {}; owners.forEach(o => { if (o.email) byMail[String(o.email).toLowerCase()] = o; const k = hsNameKey_([o.firstName, o.lastName].join(' ')); if (k && !byName[k]) byName[k] = o; });
   const y = +m.slice(0, 4), mo = +m.slice(5, 7), from = Date.UTC(y, mo - 1, 1) - 3600e3, to = Date.UTC(mo === 12 ? y + 1 : y, mo === 12 ? 0 : mo, 1) - 3600e3;   // budapesti hónap (téli idő közelítés)
   const count = (obj, oid, extra) => {
