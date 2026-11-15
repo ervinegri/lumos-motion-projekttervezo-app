@@ -600,7 +600,7 @@ function saveSignature_(u, a) {
 function dealQuoteSender_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
   if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőségedhez küldhetsz ajánlatot.');
-  const us = loadUsers_(), owner = us.find(x => x.id === d.ownerId && x.email && !x.disabled) || us.find(x => x.id === u.id) || u;
+  const us = loadUsers_(), owner = us.find(x => x.id === u.id && x.email && !x.disabled) || us.find(x => x.id === d.ownerId && x.email && !x.disabled) || u;   // a bejelentkezett felhasználó nevében megy (az ügyvezetőnél is), az aláírása is az övé
   const f = sigFields_(owner) || { name: owner.name || '', email: sigKey_(owner.email || ''), title: owner.role === 'sales' ? 'Értékesítő' : '', phone: '', photo: '' };
   const c = sigCustom_(owner.email || ''), sig = c ? { html: c, text: plainText_(c.replace(/<\/(div|tr|p|table)>/gi, '\n')).replace(/\n{3,}/g, '\n\n').trim() } : sigBuild_(f);
   return { d: d, owner: owner, f: f, sig: sig };

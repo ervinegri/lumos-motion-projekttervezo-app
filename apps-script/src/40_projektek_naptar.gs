@@ -723,7 +723,7 @@ function hsDealSync_(d) {
       const owner = (() => { const us = loadUsers_(), o = us.find(x => x.id === d.ownerId); if (o) return o.email; if (String(d.ownerId || '').indexOf('crew:') === 0) { const c = readAll_('crew').find(x => x.id === String(d.ownerId).slice(5)); return c && c.email; } return ''; })();
       const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
       if (amount) props.amount = amount; if (close) props.closedate = close; if (st[d.stage]) props.dealstage = st[d.stage];
-      const oid = hsOwnerId_(owner); if (oid) props.hubspot_owner_id = oid;
+      let oid = ''; try { oid = hsOwnerId_(owner); } catch (e) {} if (oid) props.hubspot_owner_id = oid;   // tulajdonos nélkül is létrejön
       dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props }) || {}).id || '');
     }
     hsAssoc_('deals', dealId, 'contacts', cid); hsAssoc_('deals', dealId, 'companies', coid); hsAssoc_('contacts', cid, 'companies', coid);
@@ -746,10 +746,11 @@ function hsClientSync_(c) {
 function hsActivity_(u, arg) {
   const m = /^\d{4}-\d{2}$/.test(String(arg && arg.month || '')) ? String(arg.month) : Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM');
   const ck = 'hsact:' + m + ':' + (u.role === 'admin' ? 'all' : u.id), cache = CacheService.getScriptCache();
-  if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return JSON.parse(hit); } catch (e) {} } }
+  const syncErr = u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '';   // mindig friss (nem a gyorsítótárból)
+  if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return Object.assign(JSON.parse(hit), { syncErr: syncErr }); } catch (e) {} } }
   const users = loadUsers_().filter(x => !x.disabled && (x.role === 'sales' || x.role === 'admin') && (u.role === 'admin' || x.id === u.id));
   let owners = [];
-  try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e), people: [] }; }
+  try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e) + ' (a HubSpot-felhasználók listája: crm.objects.owners.read hatókör kell)', people: [], syncErr: syncErr }; }
   const byMail = {}; owners.forEach(o => { if (o.email) byMail[String(o.email).toLowerCase()] = o; });
   const y = +m.slice(0, 4), mo = +m.slice(5, 7), from = Date.UTC(y, mo - 1, 1) - 3600e3, to = Date.UTC(mo === 12 ? y + 1 : y, mo === 12 ? 0 : mo, 1) - 3600e3;   // budapesti hónap (téli idő közelítés)
   const count = (obj, oid, extra) => {
@@ -762,7 +763,7 @@ function hsActivity_(u, arg) {
     return { userId: x.id, name: x.name, linked: true, calls: count('calls', o.id), meetings: count('meetings', o.id), emails: count('emails', o.id, [{ propertyName: 'hs_email_direction', operator: 'EQ', value: 'EMAIL' }]),
       contacts: (() => { try { return Number((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(o.id) }, { propertyName: 'createdate', operator: 'GTE', value: String(from) }, { propertyName: 'createdate', operator: 'LT', value: String(to) }] }], limit: 1 }) || {}).total) || 0; } catch (e) { return null; } })() };
   });
-  const out = { month: m, people: people, at: now_(), syncErr: u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '' };
+  const out = { month: m, people: people, at: now_(), syncErr: syncErr };
   try { cache.put(ck, JSON.stringify(out), 1800); } catch (e) {}
   return out;
 }
