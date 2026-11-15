@@ -2032,3 +2032,13 @@ html body .pcrew-inv>.inv-st.no{box-sizing:border-box;width:148px;min-width:148p
 html body .crew-board-panel{min-width:0;overflow:hidden}
 html body .crew-board-scroll{max-width:100%;overflow-x:auto;padding-bottom:5px}
 html body .crew-board-scroll .bl{min-width:880px}
+/* telefon (álló): videóablak – az álló videó nem tölti ki az egész képernyőt (alatta látszik a hozzászólás), a gombsor két tömör sorban */
+@media (max-width:760px) and (orientation:portrait){
+html body #mform.m-video .vv-player.vert{width:min(100%,calc(52svh * 9 / 16))!important}
+html body #mform.m-video .mfoot{display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding-top:10px!important}
+html body #mform.m-video .mfoot .vv-tcw{flex:1 1 100%!important;display:flex!important;gap:8px!important;width:auto!important}
+html body #mform.m-video .mfoot .vv-tcw>*{flex:1 1 auto;min-height:40px;padding:8px 10px!important;font-size:14px!important}
+html body #mform.m-video .mfoot>.btn,html body #mform.m-video .mfoot>button{flex:1 1 0!important;min-width:0!important;width:auto!important;min-height:44px;padding:8px 6px!important;font-size:14px!important;white-space:nowrap;letter-spacing:-.01em}
+html body #mform.m-video .mfoot kbd{display:none}
+html body #mform.m-video .mhead h3{word-break:normal;overflow-wrap:anywhere;min-width:0}
+}

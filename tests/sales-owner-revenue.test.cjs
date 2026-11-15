@@ -22,8 +22,8 @@ const D=[
   {id:'d3',stage:'nyert',ownerId:'legacy-admin',ownerName:'Egri Ervin',projectId:'short2',value:0},
   {id:'d4',stage:'uj',ownerId:'peter',ownerName:'Farkas Péter Ervin',value:400000}
 ];
-const h=new Function('S','projById','projTotal',frontend.slice(start,end)+'\nreturn {salesOwners,salesSelfIds,dealVal};')(
-  S,id=>P[id]||null,p=>p.projectValue);
+const h=new Function('S','projById','projTotal','todayISO',frontend.slice(start,end)+'\nreturn {salesOwners,salesSelfIds,dealVal};')(
+  S,id=>P[id]||null,p=>p.projectValue,()=>'2026-11-15');
 assert.deepEqual(Array.from(h.salesSelfIds(D)).sort(),['current-admin','legacy-admin']);
 assert.deepEqual(h.salesOwners(D).map(x=>x[1]),['⭐ Egri Ervin (saját)','👤 Farkas Péter Ervin','👤 Guzsloványi Flóra']);
 assert.deepEqual(D.slice(0,3).map(h.dealVal),[296000,29000,29000]);

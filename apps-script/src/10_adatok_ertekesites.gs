@@ -125,6 +125,7 @@ function migrateEmployeesOnce_() {
 function bootstrap_(u) {
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
+  try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}
@@ -319,6 +320,18 @@ function deleteDeal_(u, a) {
   });
 }
 /** Szerződés: projekt jön létre a lehetőség adataiból (Tervezés szakasz), a projekt értéke a megállapodott összeg. */
+/** Egyszeri takarítás: a korábban szerződött lehetőségek jegyzetei („Értékesítés (név): …”) kikerülnek a projektek jegyzeteiből – érzékeny értékesítési infó, a stáb is látja. */
+function dealNotesCleanupOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('DEAL_NOTES_CLEAN_1') === '1') return;
+  withLock_(() => {
+    const deals = readAll_('deals').filter(d => d.projectId && String(d.note || '').trim());
+    if (deals.length) { const psh = sheetFor_('projects');
+      deals.forEach(d => { const row = findRow_(psh, d.projectId); if (!row) return; const p = readRow_('projects', psh, row), blk = 'Értékesítés (' + d.ownerName + '): ' + d.note, n = String(p.notes || '');
+        if (n.indexOf(blk) < 0) return; p.notes = n.replace(blk, '').replace(/\n{3,}/g, '\n\n').trim(); p.updatedAt = now_(); p.mutationId = Utilities.getUuid(); putRow_('projects', psh, p, row); });
+      dbFlush_(); }
+    P.setProperty('DEAL_NOTES_CLEAN_1', '1');
+  });
+}
 function winDeal_(u, a) {
   a = a || {};
   const id = str_(a.id, 64), sh = sheetFor_('deals'), row = findRow_(sh, id);
@@ -339,7 +352,7 @@ function winDeal_(u, a) {
   if (!pdate) throw new Error('Add meg a rendezvény dátumát – ezzel kerül a naptárba.');
   const pid = linkId || Utilities.getUuid();
   if (!linkId) saveProject_({ id: u.id, name: u.name, email: u.email, role: 'admin' }, { id: pid, mutationId: Utilities.getUuid(), name: str_(a.title, 160) || d.title, client: d.client, venue: d.venue, eventType: d.eventType,
-    date: date, contactName: d.contactName, contactEmail: d.contactEmail, contactPhone: d.contactPhone, notes: d.note ? 'Értékesítés (' + d.ownerName + '): ' + d.note : '',
+    date: date, contactName: d.contactName, contactEmail: d.contactEmail, contactPhone: d.contactPhone, notes: '',   // a lehetőség jegyzetei (érzékeny értékesítési infó) NEM kerülnek a projektbe – a stáb is látja a projekt jegyzeteit
     status: 'tervezes', crew: [], equipment: [], baseUpdatedAt: '', projectValue: value, deferCal: true });
   withLock_(() => { const r2 = findRow_(sh, id), q = readRow_('deals', sh, r2);
     const ow = loadUsers_().find(x => x.id === q.ownerId);
