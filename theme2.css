@@ -2123,3 +2123,6 @@ html body .pos-card.pos-empty{border-style:dashed!important;background:rgba(255,
 html body .pos-card.pos-empty .pos-h{background:#fff4e0;color:#8a5a00;border-color:#f0d9a8}
 html body .pos-card.pos-secondary{opacity:.92}
 html body .pos-sec{margin:6px 0 0!important}
+html body .ref-chip{display:inline-flex;align-items:center;gap:6px}
+html body .ref-chip .ref-amt{display:inline-flex;align-items:center;width:130px}
+html body .ref-chip .ref-amt .inp{min-height:30px;padding:3px 30px 3px 8px;text-align:right}
