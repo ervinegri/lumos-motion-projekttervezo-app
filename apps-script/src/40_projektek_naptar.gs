@@ -652,7 +652,7 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
    Lehetőség mentésekor: kapcsolattartó (e-mail alapján) és cég (pontos név alapján) megkeresése, ha nincs, létrehozása;
    HubSpot deal létrehozása / frissítése (név, várható érték, rendezvény dátuma, szakasz, tulajdonos) a kettőhöz társítva.
    Új / módosított ügyfélnél: cég és kapcsolattartó a HubSpotban is. A jegyzetek NEM kerülnek át (érzékeny tartalom lehet).
-   Hatókörök a HUBSPOT_TOKEN-en: crm.objects.deals.read/write, crm.objects.contacts.write, crm.objects.companies.write.
+   (A deal-tükrözés alapból kikapcsolva – lásd hsDealSync_.) Hatókörök a HUBSPOT_TOKEN-en: crm.objects.deals.read/write, crm.objects.contacts.write, crm.objects.companies.write.
    Hiba esetén a mentés megtörténik, az utolsó hiba a HS_SYNC_ERR szkripttulajdonságba kerül (a Teljesítmény panel kiírja). */
 function hsOn_() { const P = PropertiesService.getScriptProperties(); return !!String(P.getProperty('HUBSPOT_TOKEN') || '').trim() && P.getProperty('HS_WRITE') !== '0'; }
 function hsErr_(e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · ' + String(e && e.message || e).slice(0, 300)); } catch (x) {} }
@@ -721,32 +721,41 @@ function hsFindDeal_(d, cid, coid) {
   const scored = res.map(x => { const t = tok((x.properties || {}).dealname); return { id: String(x.id), s: t.filter(w => mine.indexOf(w) >= 0).length }; }).filter(x => x.s >= 2).sort((a, b) => b.s - a.s);
   return scored.length ? scored[0].id : (res.length === 1 ? String(res[0].id) : '');
 }
+/* Ervin döntése (2026-11-15): a HubSpotban NEM vezetünk dealeket – a lehetőség gazdája az app.
+   Mentéskor csak a kapcsolattartó és a cég kerül a HubSpotba (keresés / létrehozás, egymáshoz társítva); deal nem jön létre és nem módosul.
+   (HS_DEALS='1' szkripttulajdonsággal a korábbi deal-tükrözés visszakapcsolható.) */
 function hsDealSync_(d) {
   if (!d || !hsOn_()) return;
   try {
-    const link = hsLinkGet_(d.id), st = hsStages_();
+    const link = hsLinkGet_(d.id);
     const cid = hsEnsureContact_(d.contactEmail, d.contactName, d.contactPhone, d.client) || link.hsContact || '';
     const coid = hsEnsureCompany_(d.client, d.contactEmail) || link.hsCompany || '';
-    let dealId = String(link.hsDeal || '') || hsFindDeal_(d, cid, coid);
-    const amount = d.value !== '' && d.value != null && isFinite(Number(d.value)) && Number(d.value) > 0 ? String(Math.round(Number(d.value))) : '';
-    const close = /^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate || '')) ? String(d.eventDate) + 'T12:00:00Z' : '';
-    if (dealId) {   // meglévő deal: a HubSpotban vezetett nevet, tulajdonost és nyitott szakaszt nem írjuk felül – csak az összeg, a dátum és a lezárás (szerződött / elveszett) megy át
-      const props = {}; if (amount) props.amount = amount; if (close) props.closedate = close;
-      if ((d.stage === 'nyert' || d.stage === 'elveszett') && st[d.stage]) props.dealstage = st[d.stage];
-      if (Object.keys(props).length) { try { hubspot_('patch', '/crm/v3/objects/deals/' + dealId, { properties: props }); } catch (e) { if (/HTTP 404/.test(String(e && e.message))) dealId = ''; else throw e; } }
-    }
-    if (!dealId) {   // nincs ilyen deal a HubSpotban: újat hozunk létre
-      const owner = (() => { const us = loadUsers_(), o = us.find(x => x.id === d.ownerId); if (o) return o.email; if (String(d.ownerId || '').indexOf('crew:') === 0) { const c = readAll_('crew').find(x => x.id === String(d.ownerId).slice(5)); return c && c.email; } return ''; })();
-      const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
-      if (amount) props.amount = amount; if (close) props.closedate = close; if (st[d.stage]) props.dealstage = st[d.stage];
-      let oid = ''; try { oid = hsOwnerId_(owner, d.ownerName); } catch (e) {} if (oid) props.hubspot_owner_id = oid;   // tulajdonos nélkül is létrejön
-      const assoc = [[cid, 3], [coid, 5]].filter(x => x[0]).map(x => ({ to: { id: x[0] }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: x[1] }] }));   // deal → kapcsolattartó (3), cég (5)
-      dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props, associations: assoc }) || {}).id || '');
-    }
-    hsAssoc_('deals', dealId, 'contacts', cid); hsAssoc_('deals', dealId, 'companies', coid); hsAssoc_('contacts', cid, 'companies', coid);
+    hsAssoc_('contacts', cid, 'companies', coid);
+    let dealId = String(link.hsDeal || '');
+    if (PropertiesService.getScriptProperties().getProperty('HS_DEALS') === '1') dealId = hsDealMirror_(d, link, cid, coid);
     hsLinkPut_({ id: d.id, hsDeal: dealId, hsContact: cid, hsCompany: coid });
     hsOk_();
   } catch (e) { hsErr_(e); }
+}
+function hsDealMirror_(d, link, cid, coid) {
+  const st = hsStages_();
+  let dealId = String(link.hsDeal || '') || hsFindDeal_(d, cid, coid);
+  const amount = d.value !== '' && d.value != null && isFinite(Number(d.value)) && Number(d.value) > 0 ? String(Math.round(Number(d.value))) : '';
+  const close = /^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate || '')) ? String(d.eventDate) + 'T12:00:00Z' : '';
+  if (dealId) {
+    const props = {}; if (amount) props.amount = amount; if (close) props.closedate = close;
+    if ((d.stage === 'nyert' || d.stage === 'elveszett') && st[d.stage]) props.dealstage = st[d.stage];
+    if (Object.keys(props).length) { try { hubspot_('patch', '/crm/v3/objects/deals/' + dealId, { properties: props }); } catch (e) { if (/HTTP 404/.test(String(e && e.message))) dealId = ''; else throw e; } }
+  }
+  if (!dealId) {
+    const owner = (() => { const us = loadUsers_(), o = us.find(x => x.id === d.ownerId); if (o) return o.email; if (String(d.ownerId || '').indexOf('crew:') === 0) { const c = readAll_('crew').find(x => x.id === String(d.ownerId).slice(5)); return c && c.email; } return ''; })();
+    const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
+    if (amount) props.amount = amount; if (close) props.closedate = close; if (st[d.stage]) props.dealstage = st[d.stage];
+    let oid = ''; try { oid = hsOwnerId_(owner, d.ownerName); } catch (e) {} if (oid) props.hubspot_owner_id = oid;
+    const assoc = [[cid, 3], [coid, 5]].filter(x => x[0]).map(x => ({ to: { id: x[0] }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: x[1] }] }));
+    dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props, associations: assoc }) || {}).id || '');
+  }
+  return dealId;
 }
 function hsClientSync_(c) {
   if (!c || !hsOn_()) return;
