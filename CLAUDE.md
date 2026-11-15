@@ -5,7 +5,7 @@
   (core.js `comboSelect`), és kiválasztáskor `change` eseményt küld, így a meglévő change-kezelők működnek. Natív select-et ne vezess be.
 - Minden díj nettó – a felületen ezt jelezni kell („nettó”).
 - Push előtt mindig `git pull --rebase` (a felhasználó párhuzamosan is fejleszt; a GitHub Action változásnaplót commitol).
-- Teszt: `node tests/finance.test.cjs`.
+- Teszt: `node tests/run-all.cjs` (minden pushkor GitHub Action is futtatja; az ártitok-teszt nélkül a háttér nem települ).
 - **`TABLES` oszlopfejlécei** (`apps-script/src/00_alap.gs`) (pl. `['x_nyersVetel', 'Nyersanyag megvásárlása']`) a munkalap/Neon fejlécével egyeznek, és a háttér ellenőrzi őket: **soha ne nevezd át** (a felületi feliratot a frontendben változtasd), új oszlop csak a lista végére kerülhet.
 
 ## Fájlszerkezet (modulok)

@@ -26,6 +26,9 @@ jobs:
       - uses: actions/setup-node@v4
         if: steps.chk.outputs.skip != '1'
         with: { node-version: 20 }
+      - name: Ártitok-teszt (szivárgó árral nem települ)
+        if: steps.chk.outputs.skip != '1'
+        run: node tests/price-leak.test.cjs
       - name: Feltöltés és telepítés
         if: steps.chk.outputs.skip != '1'
         env: { RC: '${{ secrets.CLASPRC_JSON }}', SID: '${{ secrets.CLASP_SCRIPT_ID }}' }

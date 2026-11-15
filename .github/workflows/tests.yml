@@ -1,0 +1,18 @@
+# Tesztek minden pusholáskor: ártitok (szerepkörök nem kapnak árat), natív legördülő tiltás, pénzügyi és értékesítési logika.
+name: Tesztek
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['api/changes.js']
+  pull_request:
+  workflow_dispatch:
+concurrency: { group: tests-${{ github.ref }}, cancel-in-progress: true }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Tesztek futtatása
+        run: node tests/run-all.cjs
