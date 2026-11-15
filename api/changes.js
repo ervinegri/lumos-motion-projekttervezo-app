@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "04a95ea8c7",
+"at": "2026-11-15T13:11:18+02:00",
+"msg": "Értékesítés: Teljesítmény panel – HubSpot-aktivitás (hívás, megbeszélés, e-mail, új kontakt), megkeresés, ajánlat, szerződés, befolyt díj, jutalék értékesítőnként"
+},
+{
 "id": "4279be7439",
 "at": "2026-11-15T13:09:52+02:00",
 "msg": "Projekt értékesítő-választó: Ervin csak egyszer (az ügyvezető felhasználó = saját munkatárs-sora), névismétlődés kiszűrve"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "ui: photo postproduction tooltip uses photo-specific task labels and selected assignee"
 },
 {
-"id": "3a7c20681d",
-"at": "2026-11-14T20:01:42+02:00",
-"msg": "feat: show photo postproduction deadline and photo assignee timeline rows"
-},
-{
-"id": "00161e1660",
-"at": "2026-11-14T18:01:10Z",
+"id": "5947a6b9b2",
+"at": "2026-11-14T18:01:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
