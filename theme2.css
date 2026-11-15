@@ -2097,3 +2097,4 @@ html body #view:has(.fin-head) .fin-flow{padding:4px 12px!important}
 html body #view:has(.fin-head) .fin-flow .flow-row{margin-top:0!important;padding:3px 0!important;font-size:13px!important;line-height:1.3}
 html body #view:has(.fin-head) .fin-flow .flow-row:first-child{border-top:0!important}
 html body #view:has(.fin-head) .fin-flow .flow-row b{font-size:14.5px!important}
+html body #view:has(.bill-head) .fin-tiles .tile-btn.on{border-color:#243347!important;box-shadow:inset 0 0 0 1.5px #243347!important}
