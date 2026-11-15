@@ -328,7 +328,7 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     ${ms('kind','Típus',[['be','Kölcsön a cégnek'],['vissza','Cég visszafizeti']],k)}
     ${mf('date','Dátum',{type:'date',v:v.date||todayISO()})}
     ${moneyField('amount','Összeg',v.amount??null,{steps:false})}
-    <div class="field"><label for="m-bank" id="m-bankL">${loanL(k)[0]}</label><select class="inp" id="m-bank" name="bank">${bk?bankOpts(k).replace(`value="${bk}"`,`value="${bk}" selected`):bankOpts(k)}</select></div>
+    <div class="field"><label for="m-bank" id="m-bankL">${loanL(k)[0]}</label><select class="inp" id="m-bank" name="bank" data-cmb="Bank…">${bk?bankOpts(k).replace(`value="${bk}"`,`value="${bk}" selected`):bankOpts(k)}</select></div>
     <div class="field"><label for="m-bank2" id="m-bank2L">${loanL(k)[1]}</label><select class="inp" id="m-bank2" name="bank2">${bank2Opts(v.bank2||'')}</select></div>
     ${mf('note','Megjegyzés',{full:true,max:300,v:v.note||''})}</div>`,{left:l?`<button type="button" class="btn danger small" data-action="fin-loan-del" data-id="${esc(l.id)}">Törlés</button>`:'',submitLabel:'Mentés',submit:async fd=>{
     const row={id:v.id||'',kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),bank:String(fd.get('bank')||''),bank2:String(fd.get('bank2')||''),note:String(fd.get('note')||'').trim()};
