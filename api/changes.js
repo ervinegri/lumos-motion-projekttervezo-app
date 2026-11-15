@@ -150,11 +150,6 @@ const ITEMS = [
 "id": "6b7c21c2d2",
 "at": "2026-11-15T12:42:10+02:00",
 "msg": "Szakember nézet: Kanban fül ideiglenesen elrejtve"
-},
-{
-"id": "60f880d095",
-"at": "2026-11-15T12:23:01+02:00",
-"msg": "Natív legördülők helyett a kereshető legördülő (díjcsökkentés, havi kimutatás, eszközlista-előnézet, hitel)"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
