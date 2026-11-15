@@ -2126,3 +2126,12 @@ html body .pos-sec{margin:6px 0 0!important}
 html body .ref-chip{display:inline-flex;align-items:center;gap:6px}
 html body .ref-chip .ref-amt{display:inline-flex;align-items:center;width:130px}
 html body .ref-chip .ref-amt .inp{min-height:30px;padding:3px 30px 3px 8px;text-align:right}
+/* Pozíció-címkék: finom pasztell színek (a projektvezető marad a feltűnő) */
+html body .pos-card .pos-h.pt-cam{background:#eaf2fb;color:#2f5f93;border-color:#d3e3f4}
+html body .pos-card .pos-h.pt-cut{background:#f2edfa;color:#6a4a9c;border-color:#e2d8f3}
+html body .pos-card .pos-h.pt-photo{background:#eaf6ef;color:#2c6e49;border-color:#d2e9db}
+html body .pos-card .pos-h.pt-drone{background:#e8f5f6;color:#25707a;border-color:#cfe7ea}
+html body .pos-card .pos-h.pt-tech{background:#fbf1e6;color:#8a5a20;border-color:#efdcc4}
+html body .pos-card .pos-h.pt-drive{background:#f1f2f4;color:#4b5563;border-color:#e0e3e8}
+html body .pos-card .pos-h.pt-sales{background:#fcebef;color:#9c3d55;border-color:#f3d3dc}
+html body .pos-card.pos-empty .pos-h{opacity:.85;border-style:dashed}
