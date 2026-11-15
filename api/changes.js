@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "69423af953",
+"at": "2026-11-15T13:29:41+02:00",
+"msg": "Árajánlat a bejelentkezett felhasználó nevében és aláírásával; HubSpot: tulajdonos-lista hiánya nem állítja meg a szinkront, friss hibajelzés"
+},
+{
 "id": "58f63f02d7",
 "at": "2026-11-15T13:27:20+02:00",
 "msg": "HubSpot: meglévő deal párosítása (név, kapcsolattartó / cég dealjei) – nincs duplikálás; meglévő dealnél csak összeg, dátum és lezárás frissül"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "ui: group video and photo postproduction into a single timeline bar with per-person cards"
 },
 {
-"id": "154f785d58",
-"at": "2026-11-14T20:10:58+02:00",
-"msg": "style: make sales amount 30% wider and commission input 30% narrower"
-},
-{
-"id": "0082ce0e7b",
-"at": "2026-11-14T18:10:54Z",
+"id": "c77bf10a90",
+"at": "2026-11-14T18:11:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
