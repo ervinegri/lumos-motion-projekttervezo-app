@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "89ec243e8b",
+"at": "2026-11-15T13:44:26+02:00",
+"msg": "Teljesítmény: súgó a cellákon – kik és mennyi van a számok mögött (lehetőségek, ajánlatok, szerződések, befolyt számlák)"
+},
+{
 "id": "45150f8851",
 "at": "2026-11-15T13:41:36+02:00",
 "msg": "Teljesítmény: HubSpot-felhasználó párosítása név alapján is (pl. „Ervin Egri” = „Egri Ervin”)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "ui: show selected owner's task details on timeline card hover"
 },
 {
-"id": "04a42f74c6",
-"at": "2026-11-14T20:14:20+02:00",
-"msg": "style: one compact timeline lane with named editing and photo task cards"
-},
-{
-"id": "8350835398",
-"at": "2026-11-14T18:14:04Z",
+"id": "89c52ad10a",
+"at": "2026-11-14T18:14:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
