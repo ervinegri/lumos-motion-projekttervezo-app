@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "37a34f2161",
+"at": "2026-11-15T13:20:07+02:00",
+"msg": "Egri Ervin duplikált munkatárs-sorának egyszeri összevonása (minden hivatkozás átírva)"
+},
+{
 "id": "cef16d4994",
 "at": "2026-11-15T13:15:25+02:00",
 "msg": "Teljesítmény panel: a HubSpot-visszaírás utolsó hibája (ügyvezetőnek)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "ui: place sales amount before commission percentage"
 },
 {
-"id": "7ef1507219",
-"at": "2026-11-14T20:09:21+02:00",
-"msg": "ui: render separate editor and photo-retouching deadline bars in shared projects"
-},
-{
-"id": "3c8d814a17",
-"at": "2026-11-14T18:08:08Z",
+"id": "7764046266",
+"at": "2026-11-14T18:09:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
