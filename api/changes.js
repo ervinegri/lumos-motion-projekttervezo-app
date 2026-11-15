@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e1f4ddd516",
+"at": "2026-11-15T15:43:40+02:00",
+"msg": "Bevétel és kiadás: tömör összesítő csempék; a számlázás csempe-elrendezése nem hat a Bevétel fülre"
+},
+{
 "id": "386c8b4a2b",
 "at": "2026-11-15T15:42:44+02:00",
 "msg": "Szerződés és számlázás: kintlévőség két csempén (bizonylattal / bizonylat nélkül, külön szűrővel), alacsonyabb csempék egy sorban"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projekt értékesítő-választó: Ervin csak egyszer (az ügyvezető felhasználó = saját munkatárs-sora), névismétlődés kiszűrve"
 },
 {
-"id": "e1305f0dcc",
-"at": "2026-11-15T13:03:29+02:00",
-"msg": "Kintlévőség: a már esedékes hónap bizonylat nélküli projektjei is beleszámítanak"
-},
-{
-"id": "f91f07ecaf",
-"at": "2026-11-15T10:59:37Z",
+"id": "4c526d0869",
+"at": "2026-11-15T11:03:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
