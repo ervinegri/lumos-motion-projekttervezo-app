@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d455944fec",
+"at": "2026-11-15T15:35:40+02:00",
+"msg": "Javítás: a számla-visszavonás kezelője az ACT létrehozása után töltődik (különben a díjcsökkentés-modul vége nem futott); Elveszett oszlop becsukható; lehetőség ablak: Cég ↔ Másodlagos e-mail csere, Rendezvény típusa + Honnan jött egy sorban"
+},
+{
 "id": "301636af10",
 "at": "2026-11-15T15:32:49+02:00",
 "msg": "Értékesítés: kifizetett díjbekérőnél annak hónapja számít a szerződött kártyákon (különben a szerződéskötés hónapja)"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "c8eac35de9",
 "at": "2026-11-15T12:53:56+02:00",
 "msg": "Elhalt gombkezelők törlése (cut-deliver, imp-open, nas-copy, quote-for, raw-upload, sz-move, vid-start)"
-},
-{
-"id": "6b7c21c2d2",
-"at": "2026-11-15T12:42:10+02:00",
-"msg": "Szakember nézet: Kanban fül ideiglenesen elrejtve"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
