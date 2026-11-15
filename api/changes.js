@@ -157,13 +157,8 @@ const ITEMS = [
 "msg": "ui: render separate editor and photo-retouching deadline bars in shared projects"
 },
 {
-"id": "fae1d6495a",
-"at": "2026-11-14T20:08:01+02:00",
-"msg": "fix: identify calendar postproduction owners from actual assigned video and photo tasks"
-},
-{
-"id": "cfd5f0bb43",
-"at": "2026-11-14T18:07:53Z",
+"id": "3c8d814a17",
+"at": "2026-11-14T18:08:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
