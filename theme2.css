@@ -2098,3 +2098,10 @@ html body #view:has(.fin-head) .fin-flow .flow-row{margin-top:0!important;paddin
 html body #view:has(.fin-head) .fin-flow .flow-row:first-child{border-top:0!important}
 html body #view:has(.fin-head) .fin-flow .flow-row b{font-size:14.5px!important}
 html body #view:has(.bill-head) .fin-tiles .tile-btn.on{border-color:#243347!important;box-shadow:inset 0 0 0 1.5px #243347!important}
+/* Bevételek tábla: az oszlopszélességet a számok adják – a fejléc tördelődik, a számok és a nevek nem */
+html body .fin-inc th{white-space:normal!important;line-height:1.15!important;vertical-align:bottom!important;word-break:normal;hyphens:manual}
+html body .fin-inc td.r,html body .fin-inc td.pc,html body .fin-inc td.n{white-space:nowrap;width:1%}
+html body .fin-inc tbody td:nth-child(2),html body .fin-inc tfoot td:nth-child(2){white-space:nowrap}
+html body .fin-inc th.r{text-align:right}
+html body .fin-inc tbody td:nth-child(3),html body .fin-inc thead th:nth-child(3){width:1%;white-space:nowrap}
+html body .sheet-wrap .fin-tbl.fin-inc{min-width:100%!important;width:100%!important}
