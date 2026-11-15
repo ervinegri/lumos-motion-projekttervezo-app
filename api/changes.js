@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0767da89d9",
+"at": "2026-11-15T13:55:44+02:00",
+"msg": "Teljesítmény: csak értékesítők + az ügyvezető (külön sorban, alul); Guzsloványi Flóra: Értékesítő → Ajánlói jutalék (egyszeri)"
+},
+{
 "id": "b403701501",
 "at": "2026-11-15T13:53:14+02:00",
 "msg": "Fizetések: számla kiállítása csak kiküldött díjösszesítő után (felület + háttér), kézi jelölés visszavonható; NAV-számla: rámutatáskor kis ablak a két művelettel, a számlaszám nem vágódik le"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "177f097aeb",
 "at": "2026-11-14T20:20:47+02:00",
 "msg": "ui: hide photo count in Kanban and project video list"
-},
-{
-"id": "9ff0c5f908",
-"at": "2026-11-14T20:19:28+02:00",
-"msg": "ui: show assigned photographer instead of video cutter in photo progress row"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
