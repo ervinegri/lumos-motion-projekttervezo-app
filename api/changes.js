@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "50dc347a81",
+"at": "2026-11-15T13:46:52+02:00",
+"msg": "Fizetések: számla-jelölés két sorban (dátum + számlaszám), ikonok mellette; HubSpot: hasonló nevű / azonos domainű cég újrahasznosítása, deal társítása létrehozáskor, társítási hiba jelzése"
+},
+{
 "id": "080105c17a",
 "at": "2026-11-15T13:45:17+02:00",
 "msg": "Fizetések: számla-jelölés egy sorban, alacsonyabb sor"
@@ -150,16 +155,6 @@ const ITEMS = [
 "id": "1de9e6b31c",
 "at": "2026-11-14T20:16:41+02:00",
 "msg": "revert: restore original timeline; postproduction cards belong in Kanban"
-},
-{
-"id": "65d92fb04a",
-"at": "2026-11-14T20:16:37+02:00",
-"msg": "revert: restore original timeline; postproduction cards belong in Kanban"
-},
-{
-"id": "d1504680f6",
-"at": "2026-11-14T18:14:45Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
