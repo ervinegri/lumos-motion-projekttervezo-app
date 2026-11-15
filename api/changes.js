@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b403701501",
+"at": "2026-11-15T13:53:14+02:00",
+"msg": "Fizetések: számla kiállítása csak kiküldött díjösszesítő után (felület + háttér), kézi jelölés visszavonható; NAV-számla: rámutatáskor kis ablak a két művelettel, a számlaszám nem vágódik le"
+},
+{
 "id": "9ef975f922",
 "at": "2026-11-15T13:50:29+02:00",
 "msg": "Fizetések: 🔄 és ✕ csak rámutatáskor, lebegve"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "9ff0c5f908",
 "at": "2026-11-14T20:19:28+02:00",
 "msg": "ui: show assigned photographer instead of video cutter in photo progress row"
-},
-{
-"id": "7ff5b73912",
-"at": "2026-11-14T20:18:29+02:00",
-"msg": "fix: assign photo Kanban card to photo-retouching owner instead of video editor"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
