@@ -2051,3 +2051,8 @@ html body .pay-sheet .pst-line{flex-wrap:nowrap!important;gap:2px}
 html body .pay-sheet .pst-card{flex-direction:column!important;align-items:flex-end!important;gap:0!important;white-space:nowrap!important;padding:2px 7px!important;line-height:1.15!important}
 html body .pay-sheet .pst-card small{white-space:nowrap;overflow-wrap:normal}
 html body .pay-sheet .nav-one{padding:0 2px;margin-left:0;font-size:12px}
+/* Fizetések: a NAV-frissítés (🔄) és a párosítás törlése (✕) csak a cella fölé víve jelenik meg, a jelölés mellett lebegve (nem foglal helyet) */
+html body .pay-sheet td.pay-st .pst-line{position:relative}
+html body .pay-sheet td.pay-st .pst-line>.nav-one{position:absolute;top:50%;transform:translateY(-50%);right:100%;margin-right:2px;opacity:0;pointer-events:none;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:opacity .12s}
+html body .pay-sheet td.pay-st .pst-line>.nav-one+.nav-one{margin-right:28px}
+html body .pay-sheet td.pay-st:hover .pst-line>.nav-one,html body .pay-sheet td.pay-st:focus-within .pst-line>.nav-one{opacity:1;pointer-events:auto}
