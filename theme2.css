@@ -2116,3 +2116,10 @@ html body .fin-inc-head .toolbar.fin-q .inp{min-height:36px}
 .grp-val .fin-val{width:200px;margin:0}
 .grp-val .fin-val>label{font-size:12.5px!important}
 html body .fin-inc .fin-wage-in{width:84px;text-align:right}
+/* Stáb: pozíció-kártyák */
+html body .pos-card{position:relative}
+html body .pos-card .pos-h{position:absolute;top:-10px;left:12px;background:#eef1f4;color:#3c4a57;border:1px solid #d9e0e6;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+html body .pos-card.pos-empty{border-style:dashed!important;background:rgba(255,255,255,.6)!important}
+html body .pos-card.pos-empty .pos-h{background:#fff4e0;color:#8a5a00;border-color:#f0d9a8}
+html body .pos-card.pos-secondary{opacity:.92}
+html body .pos-sec{margin:6px 0 0!important}

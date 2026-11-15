@@ -464,7 +464,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});slotAutoFill(crew[Number(t.dataset.crewRole)].crewId,t.value);return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;render(true);setTimeout(()=>{const e=$('add-crew-person'),ci=e&&e.parentNode&&e.parentNode.querySelector('.cmb-in');if(ci)ci.focus();else if(e)e.focus();},60);return;}
-  if(t.id==='add-crew-person'&&d){const id=t.value;if(!id)return;const role=$('add-crew-role').value||'Operatőr';const c=crewById(id);
+  if((t.id==='add-crew-person'||(t.dataset&&t.dataset.slotRole))&&d){const id=t.value;if(!id)return;const role=t.dataset&&t.dataset.slotRole?t.dataset.slotRole:($('add-crew-role').value||'Operatőr');const c=crewById(id);   // a betöltetlen pozíció-kártya választója is ide fut
     if(role==='Projektvezető'){setDraft({lead:id});toast((c?c.name:'')+' projektvezető');return;}
     const crew=clone(d.crew||[]),day=projDays(d).includes(S.crewDay)?S.crewDay:'',was=crew.some(a=>a.crewId===id)||d.lead===id;
     if(day){const all=projDays(d),cd=Object.assign({},d.crewDays||{});let cur=was?crewDaysOf(d,id).slice():[];if(!cur.includes(day))cur.push(day);
