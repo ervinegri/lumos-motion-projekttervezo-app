@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fc43d66813",
+"at": "2026-11-15T18:30:20+02:00",
+"msg": "Queen's Night Hungary: Zajácz Dávid ajánlói jutaléka 30 000 Ft (egyszeri javítás)"
+},
+{
 "id": "2fc8c08003",
 "at": "2026-11-15T17:58:03+02:00",
 "msg": "Bevételek: gyors egymás utáni cellabeírások nem vesznek el (nincs újrarajzolás gépelés közben, csak az utolsó szerverválasz érvényes); projekt nélküli soroknál a munkadíj % is írható"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Teljesítmény: HubSpot-felhasználó párosítása név alapján is (pl. „Ervin Egri” = „Egri Ervin”)"
 },
 {
-"id": "69423af953",
-"at": "2026-11-15T13:29:41+02:00",
-"msg": "Árajánlat a bejelentkezett felhasználó nevében és aláírásával; HubSpot: tulajdonos-lista hiánya nem állítja meg a szinkront, friss hibajelzés"
-},
-{
-"id": "9fb405ef80",
-"at": "2026-11-15T11:27:29Z",
+"id": "f3550b0d89",
+"at": "2026-11-15T11:29:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
