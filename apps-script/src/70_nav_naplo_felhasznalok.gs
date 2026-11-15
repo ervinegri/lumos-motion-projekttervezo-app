@@ -197,7 +197,8 @@ function saveClient_(u, a) {
   if (c.name.length < 2) throw new Error('Add meg az ügyfél nevét.');
   if (c.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.contactEmail)) throw new Error('Az e-mail-cím érvénytelen.');
   const oldName = str_(a.oldName, 160).trim();
-  return withLock_(() => {
+  let hsSync = null;
+  const res = withLock_(() => {
     const sh = sheetFor_('clients');
     let row = findRow_(sh, id), old = null;
     if (!row) {   // ugyanilyen nevű ügyfél már van → azt frissítjük (nem duplikálunk)
@@ -217,8 +218,11 @@ function saveClient_(u, a) {
     }
     dbFlush_();
     logEvent_(u, old ? 'Ügyfél módosítva' : 'Ügyfél felvéve', c.name, renamed ? renamed + ' projekt átnevezve' : '');
+    if (!old || ['name', 'contactEmail', 'contactName', 'contactPhone'].some(k => String(old[k] || '') !== String(c[k] || ''))) hsSync = c;   // új vagy módosult ügyfél → HubSpot
     return Object.assign({}, c, { renamed: renamed });
   });
+  if (hsSync) hsClientSync_(hsSync);
+  return res;
 }
 function deleteClient_(u, a) {
   const id = str_(a && a.id, 64);

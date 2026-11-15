@@ -250,7 +250,8 @@ function dealCan_(u, d) { if (u.role === 'admin') return; if (u.role !== 'sales'
 function saveDeal_(u, a) {
   a = a || {};
   const id = str_(a.id, 64) || Utilities.getUuid();
-  return withLock_(() => {
+  let saved = null;
+  const res = withLock_(() => {
     const sh = sheetFor_('deals'), row = findRow_(sh, id), old = row ? readRow_('deals', sh, row) : null;
     dealCan_(u, old);
     if (old && old.stage === 'nyert' && a.stage && a.stage !== 'nyert') throw new Error('Szerződött lehetőséget nem lehet visszaállítani – a projekt már elkészült.');
@@ -272,8 +273,12 @@ function saveDeal_(u, a) {
     if (d.stage === 'elveszett' && d.lostReason.length < 3) throw new Error('Írd be röviden, miért veszett el.');
     putRow_('deals', sh, d, row || null); dbFlush_();
     logEvent_(u, old ? (old.stage !== d.stage ? 'Értékesítés: ' + dealStageLbl_(d.stage) : 'Értékesítés módosítva') : 'Értékesítés: új lehetőség', d.title, d.client);
+    const K = ['title', 'value', 'stage', 'eventDate', 'contactEmail', 'contactName', 'contactPhone', 'client', 'ownerId'];
+    if (!old || K.some(k => String(old[k] || '') !== String(d[k] || ''))) saved = d;   // csak érdemi változásnál megy a HubSpotba
     return { deals: dealsFor_(u) };
   });
+  if (saved) hsDealSync_(saved);
+  return res;
 }
 /** A projekt értékesítője: szerződött („nyert”) lehetőség a projekthez az értékesítővel (jutalék, az értékesítő saját lehetőségei).
     Ha már van a projekthez lehetőség, csak az értékesítőt írja át; owner = null → a csak így létrehozott lehetőséget törli. */

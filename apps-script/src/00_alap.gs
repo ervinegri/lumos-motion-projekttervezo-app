@@ -122,7 +122,9 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['crewId', 'Munkatárs azonosító'], ['role', 'Szerep'], ['projectName', 'Projekt'], ['crewName', 'Munkatárs']] },
   eqAssign: { tab: 'Eszközbeosztás', assign: true, cols: [
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
-    ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] }
+    ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] },
+  hsLinks: { tab: 'HubSpot-kapcsolatok', cols: [   // app-rekord ↔ HubSpot-objektum (lehetőség → deal, ügyfél → cég / kapcsolattartó)
+    ['id', 'Azonosító (ne módosítsd)'], ['hsDeal', 'HubSpot deal'], ['hsContact', 'HubSpot kapcsolattartó'], ['hsCompany', 'HubSpot cég'], ['updatedAt', 'Szinkronizálva']] }
 };
 const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'int_sarok', 'int_resztvevo', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing', 'invNet', 'invGross', 'invPaid', 'advancePct']);
 const BOOL_FIELDS = new Set(FLAGS.concat(['legacy', 'leadRemote', 'editOnsite']));

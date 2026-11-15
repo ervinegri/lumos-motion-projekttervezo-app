@@ -648,6 +648,79 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
   return { notes: notes, found: !!c, ownErr: ownErr };
 }
 
+/* ===================== HUBSPOT VISSZAÍRÁS =====================
+   Lehetőség mentésekor: kapcsolattartó (e-mail alapján) és cég (pontos név alapján) megkeresése, ha nincs, létrehozása;
+   HubSpot deal létrehozása / frissítése (név, várható érték, rendezvény dátuma, szakasz, tulajdonos) a kettőhöz társítva.
+   Új / módosított ügyfélnél: cég és kapcsolattartó a HubSpotban is. A jegyzetek NEM kerülnek át (érzékeny tartalom lehet).
+   Hatókörök a HUBSPOT_TOKEN-en: crm.objects.deals.read/write, crm.objects.contacts.write, crm.objects.companies.write.
+   Hiba esetén a mentés megtörténik, az utolsó hiba a HS_SYNC_ERR szkripttulajdonságba kerül (a Teljesítmény panel kiírja). */
+function hsOn_() { const P = PropertiesService.getScriptProperties(); return !!String(P.getProperty('HUBSPOT_TOKEN') || '').trim() && P.getProperty('HS_WRITE') !== '0'; }
+function hsErr_(e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · ' + String(e && e.message || e).slice(0, 300)); } catch (x) {} }
+function hsOk_() { try { PropertiesService.getScriptProperties().deleteProperty('HS_SYNC_ERR'); } catch (x) {} }
+function hsLinkGet_(id) { const sh = sheetFor_('hsLinks'), row = findRow_(sh, id); return row ? readRow_('hsLinks', sh, row) : { id: id }; }
+function hsLinkPut_(x) { withLock_(() => { const sh = sheetFor_('hsLinks'); putRow_('hsLinks', sh, Object.assign({}, x, { updatedAt: now_() }), findRow_(sh, x.id) || null); }); }
+function hsOwnerId_(email) {
+  email = String(email || '').toLowerCase(); if (!email) return '';
+  const c = CacheService.getScriptCache(); let m = null; try { m = JSON.parse(c.get('hs_owners') || 'null'); } catch (e) {}
+  if (!m) { m = {}; ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { if (o.email) m[String(o.email).toLowerCase()] = String(o.id); }); try { c.put('hs_owners', JSON.stringify(m), 21600); } catch (e) {} }
+  return m[email] || '';
+}
+function hsStages_() {
+  const c = CacheService.getScriptCache(); let st = null; try { st = JSON.parse(c.get('hs_stages') || 'null'); } catch (e) {}
+  if (st) return st;
+  const p = hubspot_('get', '/crm/v3/pipelines/deals/default') || {}, L = (p.stages || []).slice().sort((a, b) => a.displayOrder - b.displayOrder);
+  const md = s => s.metadata || {}, closed = s => String(md(s).isClosed) === 'true';
+  const open = L.filter(s => !closed(s)), won = L.find(s => closed(s) && Number(md(s).probability) === 1), lost = L.find(s => closed(s) && Number(md(s).probability) === 0);
+  const at = i => (open[Math.min(i, open.length - 1)] || {}).id || '';
+  st = { pipeline: p.id || 'default', uj: at(0), ajanlat: at(2), targyalas: at(3), nyert: (won || {}).id || '', elveszett: (lost || {}).id || '' };
+  try { c.put('hs_stages', JSON.stringify(st), 21600); } catch (e) {}
+  return st;
+}
+function hsSplitName_(n) { const w = String(n || '').trim().split(/\s+/).filter(Boolean); return w.length < 2 ? { firstname: w[0] || '' } : { lastname: w[0], firstname: w.slice(1).join(' ') }; }   // magyar sorrend: vezetéknév elöl
+function hsEnsureContact_(email, name, phone, company) {
+  email = String(email || '').trim().toLowerCase(); if (!email) return '';
+  const hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], properties: ['email'], limit: 1 }).results) || [])[0];
+  if (hit) return String(hit.id);
+  const props = Object.assign({ email: email }, hsSplitName_(name)); if (phone) props.phone = String(phone); if (company) props.company = String(company);
+  return String((hubspot_('post', '/crm/v3/objects/contacts', { properties: props }) || {}).id || '');
+}
+function hsEnsureCompany_(name) {
+  name = String(name || '').trim(); if (name.length < 2) return '';
+  const hit = ((hubspot_('post', '/crm/v3/objects/companies/search', { filterGroups: [{ filters: [{ propertyName: 'name', operator: 'EQ', value: name }] }], properties: ['name'], limit: 1 }).results) || [])[0];
+  if (hit) return String(hit.id);
+  return String((hubspot_('post', '/crm/v3/objects/companies', { properties: { name: name } }) || {}).id || '');
+}
+function hsAssoc_(from, fid, to, tid) { if (fid && tid) { try { hubspot_('put', '/crm/v4/objects/' + from + '/' + fid + '/associations/default/' + to + '/' + tid); } catch (e) {} } }
+function hsDealSync_(d) {
+  if (!d || !hsOn_()) return;
+  try {
+    const link = hsLinkGet_(d.id), st = hsStages_();
+    const cid = hsEnsureContact_(d.contactEmail, d.contactName, d.contactPhone, d.client) || link.hsContact || '';
+    const coid = hsEnsureCompany_(d.client) || link.hsCompany || '';
+    const owner = (() => { const us = loadUsers_(), o = us.find(x => x.id === d.ownerId); if (o) return o.email; if (String(d.ownerId || '').indexOf('crew:') === 0) { const c = readAll_('crew').find(x => x.id === String(d.ownerId).slice(5)); return c && c.email; } return ''; })();
+    const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
+    if (d.value !== '' && d.value != null && isFinite(Number(d.value))) props.amount = String(Math.round(Number(d.value)));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate || ''))) props.closedate = String(d.eventDate) + 'T12:00:00Z';
+    if (st[d.stage]) props.dealstage = st[d.stage];
+    const oid = hsOwnerId_(owner); if (oid) props.hubspot_owner_id = oid;
+    let dealId = String(link.hsDeal || '');
+    if (dealId) { try { hubspot_('patch', '/crm/v3/objects/deals/' + dealId, { properties: props }); } catch (e) { if (/HTTP 404/.test(String(e && e.message))) dealId = ''; else throw e; } }
+    if (!dealId) dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props }) || {}).id || '');
+    hsAssoc_('deals', dealId, 'contacts', cid); hsAssoc_('deals', dealId, 'companies', coid); hsAssoc_('contacts', cid, 'companies', coid);
+    hsLinkPut_({ id: d.id, hsDeal: dealId, hsContact: cid, hsCompany: coid });
+    hsOk_();
+  } catch (e) { hsErr_(e); }
+}
+function hsClientSync_(c) {
+  if (!c || !hsOn_()) return;
+  try {
+    const coid = hsEnsureCompany_(c.name), cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
+    hsAssoc_('contacts', cid, 'companies', coid);
+    hsLinkPut_(Object.assign(hsLinkGet_(c.id), { hsContact: cid, hsCompany: coid }));
+    hsOk_();
+  } catch (e) { hsErr_(e); }
+}
+
 /* Értékesítői aktivitás a HubSpotból (Teljesítmény): hívások, megbeszélések, kimenő e-mailek havonta, tulajdonosonként.
    Az app felhasználóit e-mail-cím alapján párosítjuk a HubSpot-tulajdonosokkal. Az ügyvezető mindenkit, az értékesítő csak magát kapja. */
 function hsActivity_(u, arg) {
@@ -669,7 +742,7 @@ function hsActivity_(u, arg) {
     return { userId: x.id, name: x.name, linked: true, calls: count('calls', o.id), meetings: count('meetings', o.id), emails: count('emails', o.id, [{ propertyName: 'hs_email_direction', operator: 'EQ', value: 'EMAIL' }]),
       contacts: (() => { try { return Number((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(o.id) }, { propertyName: 'createdate', operator: 'GTE', value: String(from) }, { propertyName: 'createdate', operator: 'LT', value: String(to) }] }], limit: 1 }) || {}).total) || 0; } catch (e) { return null; } })() };
   });
-  const out = { month: m, people: people, at: now_() };
+  const out = { month: m, people: people, at: now_(), syncErr: u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '' };
   try { cache.put(ck, JSON.stringify(out), 1800); } catch (e) {}
   return out;
 }
