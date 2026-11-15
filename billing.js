@@ -198,8 +198,8 @@ function viewBilling(){
   const f=S.blf||(S.blf={v:'honap',q:''}),q=f.q.trim().toLowerCase();
   const all=S.projects.filter(p=>p.status!=='lemondva'&&pr(p)).map(billInfo);
   const curM=f.m||todayISO().slice(0,7);
-  const sets={honap:all.filter(i=>pr(i.p).start.slice(0,7)===curM),teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0||i.unbilledNet>0),lejart:all.filter(i=>i.late.length),kiall:all.filter(i=>i.todo),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
-  const labels=[['honap','📅 '+F_YM.format(toDate(curM+'-01'))],['teendo','Nyitott'],['kiall','Kiállítandó díjbekérő / végszámla'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
+  const sets={honap:all.filter(i=>pr(i.p).start.slice(0,7)===curM),teendo:all.filter(i=>!i.closed),kint:all.filter(i=>i.openSum>0||i.unbilledNet>0),kintb:all.filter(i=>i.openSum>0),kintn:all.filter(i=>i.unbilledNet>0),lejart:all.filter(i=>i.late.length),kiall:all.filter(i=>i.todo),szerzodes:all.filter(i=>i.noContract&&!i.closed),lezart:all.filter(i=>i.closed),mind:all};
+  const labels=[['honap','📅 '+F_YM.format(toDate(curM+'-01'))],['teendo','Nyitott'],['kiall','Kiállítandó díjbekérő / végszámla'],['szerzodes','Szerződés hiányzik'],['kint','Kintlévő'],['kintb','Kintlévő (bizonylattal)'],['kintn','Kintlévő (bizonylat nélkül)'],['lejart','Lejárt'],['lezart','Lezárt'],['mind','Mind']];
   let list=sets[f.v]||all;if(q)list=list.filter(i=>fold([i.p.name,i.p.client,...i.inv.map(x=>x.no)].join(' ')).includes(fold(q)));
   list.sort((a,b)=>String(pr(b.p).start).localeCompare(String(pr(a.p).start)));
   const months=[];list.forEach(i=>{const m=pr(i.p).start.slice(0,7);let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(i);});
@@ -213,7 +213,8 @@ function viewBilling(){
     <div class="tiles fin-tiles">
       <div class="tile-search"><input class="inp search" id="q-bill" type="search" placeholder="🔍 Projekt, ügyfél, számlaszám…" value="${esc(f.q)}" aria-label="Keresés">${f.v!=='honap'?`<button class="linkbtn" type="button" data-action="blf" data-v="honap">✕ ${esc((labels.find(x=>x[0]===f.v)||[,''])[1])} szűrő törlése</button>`:''}</div>
       <button class="tile tile-btn" type="button" data-action="blf" data-v="honap"><div class="tile-n">${ftFmt(mRev)}</div><div class="tile-l">${esc(F_YM.format(toDate(curM+'-01')).replace(/^\d{4}\.\s*/,''))} havi bevétel</div></button>
-      <button class="tile tile-btn" type="button" data-action="blf" data-v="kint"><div class="tile-n">${ftFmt(openSum)}</div><div class="tile-l">kintlévőség <span class="muted">nettó</span>${unbilledSum?`<br><small>ebből bizonylat nélkül: ${ftFmt(unbilledSum)}</small>`:''}</div></button>
+      <button class="tile tile-btn" type="button" data-action="blf" data-v="kintb" data-tip="Kiállított, még nem (teljesen) kifizetett díjbekérők és számlák"><div class="tile-n">${ftFmt(openSum-unbilledSum)}</div><div class="tile-l">kintlévőség bizonylattal <span class="muted">nettó</span></div></button>
+      <button class="tile tile-btn${unbilledSum?' warn':''}" type="button" data-action="blf" data-v="kintn" data-tip="Esedékes projektek (a mostani és korábbi hónapok), amelyekhez még semmilyen bizonylat nem készült"><div class="tile-n">${ftFmt(unbilledSum)}</div><div class="tile-l">kintlévőség bizonylat nélkül <span class="muted">nettó</span></div></button>
       <button class="tile tile-btn${lateSum?' bad':''}" type="button" data-action="blf" data-v="lejart"><div class="tile-n">${ftFmt(lateSum)}</div><div class="tile-l">lejárt</div></button>
     </div>
     ${list.length?`<div class="sheet-wrap"><table class="sheet bill-tbl"><thead><tr><th class="n">Nap</th><th>Projekt</th><th>Szerződés</th><th>Díjbekérő</th><th>TIG</th><th>Végszámla</th></tr></thead>

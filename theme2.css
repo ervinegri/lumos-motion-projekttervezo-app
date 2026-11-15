@@ -2086,3 +2086,9 @@ html body .sales-monthnav .sales-month-title.mnav-chip:hover{filter:brightness(1
 html body #view:has(.pay-head,.bill-head){padding-top:12px!important}
 html body #view:has(.pay-head,.bill-head){row-gap:10px!important}
 html body #view .pay-head,html body #view .bill-head{margin-bottom:0!important}
+/* Szerződés és számlázás: kereső + 4 csempe egy sorban, alacsonyabb csempék */
+html body #view:has(.bill-head) .fin-tiles{grid-template-columns:minmax(0,1.1fr) repeat(4,minmax(0,1fr));gap:8px!important;margin-bottom:8px!important}
+@media (max-width:860px){html body #view:has(.bill-head) .fin-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html body #view:has(.bill-head) .fin-tiles .tile{padding:5px 10px!important}
+html body #view:has(.bill-head) .fin-tiles .tile-n{font-size:19px!important;line-height:1.15}
+html body #view:has(.bill-head) .fin-tiles .tile-l{font-size:12px!important;line-height:1.2;margin-top:1px}
