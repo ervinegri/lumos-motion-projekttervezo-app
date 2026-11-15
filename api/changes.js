@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "60f880d095",
+"at": "2026-11-15T12:23:01+02:00",
+"msg": "Natív legördülők helyett a kereshető legördülő (díjcsökkentés, havi kimutatás, eszközlista-előnézet, hitel)"
+},
+{
 "id": "9154ebcb8a",
 "at": "2026-11-15T12:21:35+02:00",
 "msg": "Szerződéskor a lehetőség jegyzetei nem kerülnek a projektbe (+ egyszeri takarítás); telefonos videóablak: kisebb álló videó, tömör gombsor; elavult tesztek igazítása"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "0e5332b4ae",
 "at": "2026-11-14T19:53:17+02:00",
 "msg": "ui: open answer popup directly for pending email invitation links"
-},
-{
-"id": "ba12dec932",
-"at": "2026-11-14T19:52:17+02:00",
-"msg": "fix: hide invitation response buttons once invitation already answered"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
