@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "200a86a94c",
+"at": "2026-11-15T15:48:03+02:00",
+"msg": "Bevételek tábla: az oszlopszélességet a számok adják (fejléc tördelődik), a nevek nem törnek, nincs fölösleges vízszintes görgetés"
+},
+{
 "id": "3e524eeb8e",
 "at": "2026-11-15T15:46:31+02:00",
 "msg": "Számlázás: bizonylat nélküli kintlévőség elöl; a szűrő-törlés link helyett a kijelölt csempe újrakattintása törli (kiemelve)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "HubSpot visszaírás: lehetőség → deal (érték, dátum, szakasz, tulajdonos, kapcsolattartó és cég társítva); új / módosított ügyfél → HubSpot cég és kapcsolattartó"
 },
 {
-"id": "f53beaad57",
-"at": "2026-11-15T13:11:36+02:00",
-"msg": "Teljesítmény panel: tesztkörnyezetben nincs háttérhívás"
-},
-{
-"id": "dd1daaf93f",
-"at": "2026-11-15T11:11:26Z",
+"id": "d06f9c6724",
+"at": "2026-11-15T11:11:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
