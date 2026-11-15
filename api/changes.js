@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "48c74eeeb3",
+"at": "2026-11-15T18:48:54+02:00",
+"msg": "Stáb és eszközök: pozíció-kártyák – a pipált szolgáltatások adják a pozíciókat, betöltetlen pozíción választó; több pozíciónál az eszköz, jegyzet, meghívó az első kártyán, a vágói munkák a Vágó kártyán; + Pozíció hozzáadása"
+},
+{
 "id": "1680d44bea",
 "at": "2026-11-15T18:39:53+02:00",
 "msg": "Bevételek: Ajánlói jutalék külön oszlopban (csak ha a hónapban van ilyen); Queen's Night ajánlói jutalék visszaállítva 60 000 Ft-ra, ha a téves javítás lefutott"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fizetések: számla-jelölés egy sorban, alacsonyabb sor"
 },
 {
-"id": "89ec243e8b",
-"at": "2026-11-15T13:44:26+02:00",
-"msg": "Teljesítmény: súgó a cellákon – kik és mennyi van a számok mögött (lehetőségek, ajánlatok, szerződések, befolyt számlák)"
-},
-{
-"id": "7bcf213571",
-"at": "2026-11-15T11:41:45Z",
+"id": "01fef034b6",
+"at": "2026-11-15T11:44:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
