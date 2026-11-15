@@ -285,3 +285,29 @@ function decideBudgetChange_(u, a) {
   });
 }
 
+
+
+/* Egyszeri javítás (Ervin kérése, 2026-11-15) – 2026. szeptember bevételei:
+   minden tételnél 0 az értékesítés (Ügyvezető oszlop); a Lurdy technikai ügyeleteknél a termelés 70 000 Ft-nál 30 000, 140 000 Ft-nál 60 000.
+   Az eszköz-rezsi a maradék: díjazás − termelés − nyereség − értékesítés − marketing. FIN_FIX_2026_09: csak egyszer fut. */
+function finFixSep2026Once_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('FIN_FIX_2026_09')) return;
+  let n = 0;
+  withLock_(() => {
+    const sh = sheetFor_('finIncome'), N = v => Number(String(v == null ? '' : v).replace(/[^\d.-]/g, '')) || 0;
+    readAll_('finIncome').filter(r => String(r.month) === '2026-09').forEach(r => {
+      const row = findRow_(sh, r.id); if (!row) return;
+      const x = Object.assign({}, r), amt = N(r.amount);
+      if (/lurdy technikai ügyelet/i.test(String(r.name || ''))) {
+        const prod = amt === 70000 ? 30000 : amt === 140000 ? 60000 : null;
+        if (prod != null) { x.prod = prod; x.people = String(r.people || '').replace(/\d[\d\s]*$/, String(prod)) || ('Külsős: ' + prod); }
+      }
+      x.ceo = 0;
+      x.rezsi = amt - N(x.prod) - N(x.profit) - 0 - N(x.marketing);
+      putRow_('finIncome', sh, x, row); n++;
+    });
+    dbFlush_();
+  });
+  P.setProperty('FIN_FIX_2026_09', now_());
+  logEvent_({ name: 'Rendszer' }, 'Bevételek javítva', '2026-09', n + ' tétel: értékesítés 0, Lurdy termelés 30 / 60 ezer');
+}
