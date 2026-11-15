@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01629a2e9f",
+"at": "2026-11-15T12:59:30+02:00",
+"msg": "Számlázás: magyarázó szöveg törölve; Tesztek workflow YAML javítás"
+},
+{
 "id": "e4400978ec",
 "at": "2026-11-15T12:58:50+02:00",
 "msg": "Árkalkulátor: az „Eredmény beküldése” kitöltött új lehetőséget nyit (érték, szolgáltatások, tételek, következő lépés)"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "fix: deploy orphaned video-task cleanup to Apps Script production"
 },
 {
-"id": "7656690534",
-"at": "2026-11-14T19:56:47+02:00",
-"msg": "ci: allow the last available Apps Script version and warn about cleanup"
-},
-{
-"id": "b62230bb6a",
-"at": "2026-11-14T17:55:04Z",
+"id": "019830689e",
+"at": "2026-11-14T17:56:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
