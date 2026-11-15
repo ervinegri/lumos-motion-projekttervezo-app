@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2fc8c08003",
+"at": "2026-11-15T17:58:03+02:00",
+"msg": "Bevételek: gyors egymás utáni cellabeírások nem vesznek el (nincs újrarajzolás gépelés közben, csak az utolsó szerverválasz érvényes); projekt nélküli soroknál a munkadíj % is írható"
+},
+{
 "id": "d0fad701f1",
 "at": "2026-11-15T17:40:25+02:00",
 "msg": "Bevételek: projekt nélküli tételeknél a munkadíj (Ft) és az értékesítési % ideiglenesen írható; az eszköz-rezsi igazodik"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Árajánlat a bejelentkezett felhasználó nevében és aláírásával; HubSpot: tulajdonos-lista hiánya nem állítja meg a szinkront, friss hibajelzés"
 },
 {
-"id": "58f63f02d7",
-"at": "2026-11-15T13:27:20+02:00",
-"msg": "HubSpot: meglévő deal párosítása (név, kapcsolattartó / cég dealjei) – nincs duplikálás; meglévő dealnél csak összeg, dátum és lezárás frissül"
-},
-{
-"id": "fb85036d13",
-"at": "2026-11-15T11:20:17Z",
+"id": "9fb405ef80",
+"at": "2026-11-15T11:27:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
