@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d0fad701f1",
+"at": "2026-11-15T17:40:25+02:00",
+"msg": "Bevételek: projekt nélküli tételeknél a munkadíj (Ft) és az értékesítési % ideiglenesen írható; az eszköz-rezsi igazodik"
+},
+{
 "id": "86e83c0e43",
 "at": "2026-11-15T17:38:00+02:00",
 "msg": "2026. szeptember bevételei: értékesítés 0, Lurdy ügyeletek termelése 30 / 60 ezer (egyszeri javítás)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "HubSpot: meglévő deal párosítása (név, kapcsolattartó / cég dealjei) – nincs duplikálás; meglévő dealnél csak összeg, dátum és lezárás frissül"
 },
 {
-"id": "37a34f2161",
-"at": "2026-11-15T13:20:07+02:00",
-"msg": "Egri Ervin duplikált munkatárs-sorának egyszeri összevonása (minden hivatkozás átírva)"
-},
-{
-"id": "08ca8e7458",
-"at": "2026-11-15T11:16:09Z",
+"id": "fb85036d13",
+"at": "2026-11-15T11:20:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
