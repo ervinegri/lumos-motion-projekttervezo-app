@@ -238,12 +238,13 @@ function salesCommEst(p,d){if(!d)return null;const base=salesBase(p),man=String(
   const sp=(S.salesPeople||[]).find(x=>x.userId===d.ownerId);if(!sp)return num(d.commAmt)?{amt:num(d.commAmt),pct:d.commPct,base}:null;
   const pct=base>=num(sp.commLimit)?num(sp.commHigh):num(sp.commLow);return {amt:Math.round(base*pct/100),pct,base};}
 function salesPpl(){const nmK=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  return (S.salesPeople||[]).filter((x,i,a)=>a.findIndex(y=>nmK(y.name)===nmK(x.name))===i).concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id||nmK(x.name)===nmK(c.name))).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id}))).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));}
+  return (S.salesPeople||[]).filter((x,i,a)=>a.findIndex(y=>nmK(y.name)===nmK(x.name))===i).concat((S.crew||[]).filter(c=>(c.roles||[]).includes('Értékesítő')&&!(S.salesPeople||[]).some(x=>x.crewId===c.id||nmK(x.name)===nmK(c.name))).map(c=>({userId:'crew:'+c.id,name:c.name,crewId:c.id}))).filter((x,i,a)=>a.findIndex(y=>nmK(y.name)===nmK(x.name))===i).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));}
 function salesCommFields(p){
   if(!isAdmin()||isFree(p))return '';
   const d=projDeal(p),assigned=!!(d&&d.ownerId),disabled=ro()||projLocked(),dis=disabled?' disabled':'',
     ppl=salesPpl(),nmK=x=>String(x||'').toLocaleLowerCase('hu').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(),
-    match=x=>assigned&&(d.ownerId===x.userId||(!ppl.some(y=>y.userId===d.ownerId)&&nmK(d.ownerName)===nmK(x.name)));
+    me0=typeof S!=='undefined'&&S.me,meC=new Set(me0?(S.crew||[]).filter(c=>(S.me.crewId&&c.id===S.me.crewId)||(S.me.email&&String(c.email||'').toLowerCase()===String(S.me.email).toLowerCase())).map(c=>c.id):[]),   // az ügyvezető felhasználója = a saját munkatárs-sora (pl. „Ervin” = „Egri Ervin”): egy értékesítőként jelenik meg
+    match=x=>assigned&&(d.ownerId===x.userId||(me0&&d.ownerId===me0.id&&meC.has(x.crewId))||(!ppl.some(y=>y.userId===d.ownerId)&&nmK(d.ownerName)===nmK(x.name)));
   const opts=ppl.map(x=>`<option value="${esc(x.userId)}"${match(x)?' selected':''}>${esc(x.name)}</option>`).join('')
     +(assigned&&!ppl.some(x=>match(x))?`<option value="${esc(d.ownerId)}" selected>${esc(d.ownerName||'Értékesítő')}</option>`:'');
   const select=`<div class="field fin-ssel"><label for="sales-sel">Értékesítő</label><select class="inp" id="sales-sel" data-cmb="Válassz…"${dis}><option value="">Válassz…</option>${opts}</select></div>`;
