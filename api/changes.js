@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68d55e549f",
+"at": "2026-11-15T15:07:08+02:00",
+"msg": "Meghívás-visszajelzés: tömör levél – ki, vállalta-e, szerep (projektvezető is), időpont"
+},
+{
 "id": "ddb298721d",
 "at": "2026-11-15T15:03:35+02:00",
 "msg": "HubSpot: dealek nem jönnek létre / nem módosulnak (a lehetőség gazdája az app); csak kapcsolattartó és cég szinkron"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "c7e9da3335",
 "at": "2026-11-14T20:24:05+02:00",
 "msg": "feat: show photo retoucher own Kanban cards and tasks in specialist project detail"
-},
-{
-"id": "05da123279",
-"at": "2026-11-14T20:23:40+02:00",
-"msg": "feat: add specialist Kanban tab for photo retouchers and preserve their active projects"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
