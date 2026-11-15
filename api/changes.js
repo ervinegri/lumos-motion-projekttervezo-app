@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "86e83c0e43",
+"at": "2026-11-15T17:38:00+02:00",
+"msg": "2026. szeptember bevételei: értékesítés 0, Lurdy ügyeletek termelése 30 / 60 ezer (egyszeri javítás)"
+},
+{
 "id": "228244022d",
 "at": "2026-11-15T17:34:54+02:00",
 "msg": "Projekt Pénzügyek: a nettó szerződött érték kártyán, az Értékesítés a Termelés előtt; értékesítő választásakor az Összeg és a Jutalék mező azonnal megjelenik (fókusz a %-on)"
@@ -142,8 +147,8 @@ const ITEMS = [
 "msg": "Egri Ervin duplikált munkatárs-sorának egyszeri összevonása (minden hivatkozás átírva)"
 },
 {
-"id": "4a2476627a",
-"at": "2026-11-15T11:15:33Z",
+"id": "08ca8e7458",
+"at": "2026-11-15T11:16:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
