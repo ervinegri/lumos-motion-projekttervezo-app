@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e3ac2cb648",
+"at": "2026-11-15T13:47:14+02:00",
+"msg": "HubSpot: a cég mindig friss kereséssel (nem a régi párosításból)"
+},
+{
 "id": "50dc347a81",
 "at": "2026-11-15T13:46:52+02:00",
 "msg": "Fizetések: számla-jelölés két sorban (dátum + számlaszám), ikonok mellette; HubSpot: hasonló nevű / azonos domainű cég újrahasznosítása, deal társítása létrehozáskor, társítási hiba jelzése"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "fix: assign photo Kanban card to photo-retouching owner instead of video editor"
 },
 {
-"id": "47d936f4c1",
-"at": "2026-11-14T20:16:45+02:00",
-"msg": "revert: restore original timeline; postproduction cards belong in Kanban"
-},
-{
-"id": "1de9e6b31c",
-"at": "2026-11-14T20:16:41+02:00",
-"msg": "revert: restore original timeline; postproduction cards belong in Kanban"
+"id": "7a77f6743a",
+"at": "2026-11-14T18:16:52Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
