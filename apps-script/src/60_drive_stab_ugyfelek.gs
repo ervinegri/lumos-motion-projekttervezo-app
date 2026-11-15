@@ -460,6 +460,7 @@ function setPayStatus_(u, a) {
   if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('Hibás hónap.');
   if (field !== 'invoiced' && field !== 'paid') throw new Error('Ismeretlen állapot.');
   const c = readAll_('crew').find(x => x.id === crewId); if (!c) throw new Error('A munkatárs nem található.');
+  if (field === 'invoiced' && on && !isEmployee_(c) && !readAll_('paySent').some(x => x.month === month && x.crewId === crewId)) throw new Error(c.name + ': ebben a hónapban még nem ment ki díjösszesítő – előbb küldd ki, utána jelölhető a számla.');
   return withLock_(() => {
     const sh = sheetFor_('payStatus'), id = month + '|' + crewId, row = findRow_(sh, id);
     const cur = row ? readRow_('payStatus', sh, row) : { id: id, month: month, crewId: crewId, crewName: c.name, invoicedAt: '', invoicedBy: '', paidAt: '', paidBy: '' };
