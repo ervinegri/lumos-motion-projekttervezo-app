@@ -567,7 +567,6 @@ document.addEventListener('change',e=>{const t=e.target;if(!S._imp)return;const 
   else if(t.dataset.impk){const o=f(t.dataset.impk);if(o)o.kind=t.value;}
   else if(t.id==='imp-skipshow'){S._impShowSkip=t.checked;impRender();}});
 ACT['imp-all']=b=>{(S._imp||[]).forEach(o=>{if(!o.skip)o.on=b.dataset.v==='1'&&!!o.sel;});impRender();};
-ACT['imp-open']=()=>impModal();
 async function impRun(){const L=(S._imp||[]).filter(o=>o.on&&!o.skip&&o.sel);if(!L.length){toast('Nincs kijelölt, párosított számla.',true);return;}
   const items=L.map(o=>{const parts=o.sel.replace(/^m:/,'').split(','),first=parts[0].split(':'),it={no:o.no,kind:o.kind};
     if(first[0]==='p'){it.projectId=first[1];it.projectIds=parts.slice(1).map(x=>x.split(':')[1]);}else it.incomeId=first[1];return it;});

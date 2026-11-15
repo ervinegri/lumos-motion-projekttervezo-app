@@ -774,12 +774,6 @@ ACT['fin-mkt-proj']=async btn=>{const pid=btn.dataset.id,on=!!btn.dataset.on;if(
   try{const d=await call('billSave',{projectId:pid,mktProject:on?'1':'0'});if(d&&d.billing)S.fin.billing=d.billing;render(true);toast(on?'Áthelyezve a marketing költségek közé':'Visszakerült a bevételek közé');}catch(e){b.mktProject=prev;render(true);handleErr(e);}};
 
 /* Számla sztornózása: csak sztornó, vagy sztornó + új számla az előző adataival */
-ACT['sz-move']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(!x)return;const cur=projById(x.projectId),cl=fold((cur&&cur.client)||x.buyer||'').trim();
-  const L=S.projects.filter(p=>p.id!==x.projectId&&p.status!=='lemondva'&&pr(p)),same=L.filter(p=>cl&&fold(p.client||'').trim()===cl),rest=L.filter(p=>!same.includes(p));
-  const o=a=>a.sort((p,q)=>pr(q).start.localeCompare(pr(p).start)).map(p=>`<option value="${esc(p.id)}">${esc(fmtShort(pr(p).start))} · ${esc(p.name||'')} · ${moneyFmt(projTotal(p))||0} Ft</option>`).join('');
-  openModal('⇄ Számla áthelyezése',`<p style="margin:0 0 10px"><b>${esc(x.no)}</b> · nettó ${ftFmt(num(x.invNet))}<br><span class="muted">Most: ${esc(cur?(fmtShort(pr(cur).start)+' · '+cur.name):'—')}</span></p>
-    <div class="field full"><label for="m-mvP">Melyik projekthez tartozik valójában?</label><select class="inp" id="m-mvP" name="pid">${same.length?`<optgroup label="${esc((cur&&cur.client)||x.buyer||'Ugyanaz az ügyfél')}">${o(same)}</optgroup>`:''}${rest.length?`<optgroup label="Többi projekt">${o(rest)}</optgroup>`:''}</select></div>
-    <p class="hint" style="margin:8px 0 0">A számlázz.hu-ban semmi nem változik, csak az appban kerül át a másik projekthez (a fizetési állapottal együtt).</p>`,{submitLabel:'Áthelyezés',submit:async fd=>{const pid=String(fd.get('pid')||'');if(!pid)return;try{finApply(await call('szMove',{id:x.id,projectId:pid}));closeModal();toast(x.no+' áthelyezve: '+((projById(pid)||{}).name||''));}catch(e){handleErr(e);}}});};
 ACT['bs-opts']=b=>{const old=document.querySelector('.bs-menu');if(old){const same=old.dataset.for===b.dataset.id;old.remove();if(same)return;}
   const m=document.createElement('div');m.className='bs-menu';m.dataset.for=b.dataset.id;const id=esc(b.dataset.id);
   m.innerHTML=(b.dataset.pay?`<button type="button" data-action="sz-mpaid" data-id="${id}" data-paid="1">✓ Jelölés fizetettnek</button>`:'')+(b.dataset.sto?`<button type="button" class="bad" data-action="${b.dataset.sto==='dbk'?'sz-dbk-del':'sz-storno'}" data-id="${id}">↩️ Sztornó</button>`:'');

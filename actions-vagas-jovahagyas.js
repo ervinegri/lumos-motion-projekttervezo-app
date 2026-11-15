@@ -434,7 +434,6 @@ document.addEventListener('keydown',e=>{if(e.key.length!==1||e.key===' '||e.meta
   if(ta.dataset.reply){ta.focus();return;}const c=window._vvCaret;if(!(c&&c.v===ta.value&&c.s!=null))ta.setSelectionRange(ta.value.length,ta.value.length);if(ta.value.trim()){ACT['vid-tc']();}else ta.focus();},true);
 /* ▶ az időkód mögött: onnan lejátszás; játszás közben újra megnyomva megáll. Az időkódra kattintás csak odaugrik. */
 /* a vágó elkezdi a vágást: „Utómunkára vár” → „Utómunka alatt” (ugyanaz, mint a kártya áthúzása) */
-ACT['vid-start']=b=>{const bx=b.closest('.vv-cm');if(!bx)return;const pid=bx.dataset.pid,vid=bx.dataset.vid;closeModal();bdMove(pid,vid,'vagas');};
 ACT['vid-unapprove']=b=>{const pid=b.dataset.pid,vid=b.dataset.vid;confirmLayer('Jóváhagyás visszavonása','<p style="margin:0">A videó visszakerül az „Utómunka alatt” oszlopba (pl. ha az ügyfél utólag mégis módosítást kér). Csak az ügyvezető teheti meg.</p>','Visszavonás',(bt,layer)=>{layer.remove();closeModal();bdMove(pid,vid,'vagas');});};
 ACT['vid-play']=b=>{const vd=document.querySelector('.vv-player video');if(!vd)return;const icon=()=>document.querySelectorAll('.vv-play').forEach(x=>{x.textContent=x===vd._playBtn&&!vd.paused?'⏸':'▶';x.classList.toggle('on',x===vd._playBtn&&!vd.paused);});
   if(!vd._playIco){vd._playIco=1;['play','pause','ended'].forEach(t=>vd.addEventListener(t,icon));}
