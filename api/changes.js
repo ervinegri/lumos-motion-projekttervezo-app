@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "58f63f02d7",
+"at": "2026-11-15T13:27:20+02:00",
+"msg": "HubSpot: meglévő deal párosítása (név, kapcsolattartó / cég dealjei) – nincs duplikálás; meglévő dealnél csak összeg, dátum és lezárás frissül"
+},
+{
 "id": "37a34f2161",
 "at": "2026-11-15T13:20:07+02:00",
 "msg": "Egri Ervin duplikált munkatárs-sorának egyszeri összevonása (minden hivatkozás átírva)"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "style: make sales amount 30% wider and commission input 30% narrower"
 },
 {
-"id": "3d92985fac",
-"at": "2026-11-14T20:10:46+02:00",
-"msg": "ui: place sales amount before commission percentage"
-},
-{
-"id": "7764046266",
-"at": "2026-11-14T18:09:29Z",
+"id": "0082ce0e7b",
+"at": "2026-11-14T18:10:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
