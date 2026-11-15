@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d26cc37ded",
+"at": "2026-11-15T17:17:49+02:00",
+"msg": "Bevételek: nincs ceruza a projektnevek után, az értékesítési % itt nem írható és mindig %-kal látszik, cím + Párosítások + kereső egy sorban"
+},
+{
 "id": "200a86a94c",
 "at": "2026-11-15T15:48:03+02:00",
 "msg": "Bevételek tábla: az oszlopszélességet a számok adják (fejléc tördelődik), a nevek nem törnek, nincs fölösleges vízszintes görgetés"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Teljesítmény panel: a HubSpot-visszaírás utolsó hibája (ügyvezetőnek)"
 },
 {
-"id": "2392693404",
-"at": "2026-11-15T13:13:30+02:00",
-"msg": "HubSpot visszaírás: lehetőség → deal (érték, dátum, szakasz, tulajdonos, kapcsolattartó és cég társítva); új / módosított ügyfél → HubSpot cég és kapcsolattartó"
-},
-{
-"id": "d06f9c6724",
-"at": "2026-11-15T11:11:44Z",
+"id": "b134898010",
+"at": "2026-11-15T11:13:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
