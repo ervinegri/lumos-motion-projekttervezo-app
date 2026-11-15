@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c0ff13595a",
+"at": "2026-11-15T15:39:19+02:00",
+"msg": "Pénzügyek: kisebb hézag a menü, a fejsor és a táblázat között"
+},
+{
 "id": "a8f1a3b412",
 "at": "2026-11-15T15:37:25+02:00",
 "msg": "Értékesítés: a hónap sötét gombként (mint a Pénzügyeknél), rákattintva a mai hónapra ugrik"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Számlázás: magyarázó szöveg törölve; Tesztek workflow YAML javítás"
 },
 {
-"id": "e4400978ec",
-"at": "2026-11-15T12:58:50+02:00",
-"msg": "Árkalkulátor: az „Eredmény beküldése” kitöltött új lehetőséget nyit (érték, szolgáltatások, tételek, következő lépés)"
-},
-{
-"id": "68ed1b6229",
-"at": "2026-11-15T12:57:30+02:00",
-"msg": "Fizetések: a dátum (pl. ✓ nov. 13.) egy sorban"
+"id": "3a6bb3297f",
+"at": "2026-11-15T10:59:00Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
