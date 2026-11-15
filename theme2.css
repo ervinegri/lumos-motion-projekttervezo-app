@@ -2068,3 +2068,6 @@ html body .pay-sheet .pst-pop-act .nav-one{position:static!important;transform:n
 html body .pay-sheet .pst-pop-act .nav-one:hover{background:rgba(255,255,255,.24)!important}
 html body .pay-sheet td.pay-st:hover .pst-pop,html body .pay-sheet .pst-hov:focus-within .pst-pop{display:block}
 .perf-tbl tr.perf-boss td{border-top:2px solid var(--line-strong,#c9d3cd);background:#fafbfc}
+/* Meghívások panel: az állapot-címke a gombbal egy magasságban, középre igazítva */
+html body .inv-panel .inv-btns{display:flex;align-items:center;gap:8px}
+html body .inv-panel .inv-st{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;font-size:13px;line-height:1}
