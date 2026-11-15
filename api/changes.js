@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66527c1763",
+"at": "2026-11-15T15:45:49+02:00",
+"msg": "Bevételek tábla: Továbbszámlázott és Szervezői jutalék a Díjazás után, csak ha a hónapban van ilyen tétel"
+},
+{
 "id": "e1f4ddd516",
 "at": "2026-11-15T15:43:40+02:00",
 "msg": "Bevétel és kiadás: tömör összesítő csempék; a számlázás csempe-elrendezése nem hat a Bevétel fülre"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Értékesítés: Teljesítmény panel – HubSpot-aktivitás (hívás, megbeszélés, e-mail, új kontakt), megkeresés, ajánlat, szerződés, befolyt díj, jutalék értékesítőnként"
 },
 {
-"id": "4279be7439",
-"at": "2026-11-15T13:09:52+02:00",
-"msg": "Projekt értékesítő-választó: Ervin csak egyszer (az ügyvezető felhasználó = saját munkatárs-sora), névismétlődés kiszűrve"
-},
-{
-"id": "4c526d0869",
-"at": "2026-11-15T11:03:39Z",
+"id": "17e2af3b4a",
+"at": "2026-11-15T11:10:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
