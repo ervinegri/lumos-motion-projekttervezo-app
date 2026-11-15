@@ -92,7 +92,7 @@ function salesPerfPanel(all,owners,self,selected,m){
       wn:won.length,wv:won.reduce((a,d)=>a+dealVal(d),0),conv:won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null,
       base:cm.reduce((a,x)=>a+num(x.base),0),comm:cm.reduce((a,x)=>a+num(x.amount),0)};});
   const c=(v,tip)=>`<td class="r"${tip?` data-tip="${esc(tip)}"`:''}>${v==null?'<span class="muted">–</span>':v}</td>`,ft=v=>v?ftFmt(v):'<span class="muted">0</span>';
-  const err=act&&act.error?`<p class="hint bad-txt" style="margin:6px 0 0">HubSpot: ${esc(act.error)}</p>`:'';
+  const err=act&&act.error?`<p class="hint bad-txt" style="margin:6px 0 0">HubSpot: ${esc(act.error)}</p>`:''+(act&&act.syncErr?`<p class="hint bad-txt" style="margin:6px 0 0">HubSpot-visszaírás hibája: ${esc(act.syncErr)}</p>`:'');
   return `<details class="panel sales-perf" ${S._perfOpen===false?'':'open'}><summary><h3>📈 Teljesítmény · ${esc(salesMonthText(m))}</h3><span class="aside">${act?'HubSpot-aktivitás + eredmény az appból':'HubSpot-adatok betöltése…'}</span></summary>
     <div class="sheet-wrap"><table class="sheet perf-tbl"><thead><tr><th rowspan="2">Értékesítő</th><th colspan="4" class="perf-g">Aktivitás <small>(HubSpot)</small></th><th colspan="3" class="perf-g">Megkeresés, tárgyalás</th><th colspan="2" class="perf-g">Eredmény</th><th colspan="2" class="perf-g">Bevétel <small>(nettó)</small></th></tr>
     <tr><th class="r">📞 Hívás</th><th class="r">🤝 Megbeszélés</th><th class="r">✉️ E-mail</th><th class="r">👤 Új kontakt</th><th class="r">💡 Új lehetőség</th><th class="r">📄 Ajánlat ki</th><th class="r">💬 Folyamatban</th><th class="r">✅ Szerződés</th><th class="r">🎯 Arány</th><th class="r">💰 Befolyt díj</th><th class="r">Jutalék</th></tr></thead>
