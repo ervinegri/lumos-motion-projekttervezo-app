@@ -659,11 +659,11 @@ function hsErr_(e) { try { PropertiesService.getScriptProperties().setProperty('
 function hsOk_() { try { PropertiesService.getScriptProperties().deleteProperty('HS_SYNC_ERR'); } catch (x) {} }
 function hsLinkGet_(id) { const sh = sheetFor_('hsLinks'), row = findRow_(sh, id); return row ? readRow_('hsLinks', sh, row) : { id: id }; }
 function hsLinkPut_(x) { withLock_(() => { const sh = sheetFor_('hsLinks'); putRow_('hsLinks', sh, Object.assign({}, x, { updatedAt: now_() }), findRow_(sh, x.id) || null); }); }
-function hsOwnerId_(email) {
-  email = String(email || '').toLowerCase(); if (!email) return '';
+function hsOwnerId_(email, name) {
+  email = String(email || '').toLowerCase(); if (!email && !name) return '';
   const c = CacheService.getScriptCache(); let m = null; try { m = JSON.parse(c.get('hs_owners') || 'null'); } catch (e) {}
-  if (!m) { m = {}; ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { if (o.email) m[String(o.email).toLowerCase()] = String(o.id); }); try { c.put('hs_owners', JSON.stringify(m), 21600); } catch (e) {} }
-  return m[email] || '';
+  if (!m) { m = {}; ((hubspot_('get', '/crm/v3/owners?limit=100').results) || []).forEach(o => { if (o.email) m[String(o.email).toLowerCase()] = String(o.id); const k = hsNameKey_([o.firstName, o.lastName].join(' ')); if (k && !m['n:' + k]) m['n:' + k] = String(o.id); }); try { c.put('hs_owners', JSON.stringify(m), 21600); } catch (e) {} }
+  return m[email] || (name ? m['n:' + hsNameKey_(name)] || '' : '');
 }
 function hsStages_() {
   const c = CacheService.getScriptCache(); let st = null; try { st = JSON.parse(c.get('hs_stages') || 'null'); } catch (e) {}
@@ -723,7 +723,7 @@ function hsDealSync_(d) {
       const owner = (() => { const us = loadUsers_(), o = us.find(x => x.id === d.ownerId); if (o) return o.email; if (String(d.ownerId || '').indexOf('crew:') === 0) { const c = readAll_('crew').find(x => x.id === String(d.ownerId).slice(5)); return c && c.email; } return ''; })();
       const props = { dealname: String(d.title || 'Lehetőség').slice(0, 200), pipeline: st.pipeline };
       if (amount) props.amount = amount; if (close) props.closedate = close; if (st[d.stage]) props.dealstage = st[d.stage];
-      let oid = ''; try { oid = hsOwnerId_(owner); } catch (e) {} if (oid) props.hubspot_owner_id = oid;   // tulajdonos nélkül is létrejön
+      let oid = ''; try { oid = hsOwnerId_(owner, d.ownerName); } catch (e) {} if (oid) props.hubspot_owner_id = oid;   // tulajdonos nélkül is létrejön
       dealId = String((hubspot_('post', '/crm/v3/objects/deals', { properties: props }) || {}).id || '');
     }
     hsAssoc_('deals', dealId, 'contacts', cid); hsAssoc_('deals', dealId, 'companies', coid); hsAssoc_('contacts', cid, 'companies', coid);
@@ -743,22 +743,25 @@ function hsClientSync_(c) {
 
 /* Értékesítői aktivitás a HubSpotból (Teljesítmény): hívások, megbeszélések, kimenő e-mailek havonta, tulajdonosonként.
    Az app felhasználóit e-mail-cím alapján párosítjuk a HubSpot-tulajdonosokkal. Az ügyvezető mindenkit, az értékesítő csak magát kapja. */
+/** Név-kulcs a HubSpot-tulajdonos és az app-felhasználó párosításához: kisbetű, ékezet nélkül, a szavak ABC-sorrendben. */
+function hsNameKey_(n) { const w = String(n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z]+/).filter(Boolean); return w.length >= 2 ? w.sort().join(' ') : ''; }
+function hsCrewNameOf_(x) { try { const c = x && x.crewId ? readAll_('crew').find(r => r.id === x.crewId) : null; return c ? sval_(c.name) : ''; } catch (e) { return ''; } }
 function hsActivity_(u, arg) {
   const m = /^\d{4}-\d{2}$/.test(String(arg && arg.month || '')) ? String(arg.month) : Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM');
-  const ck = 'hsact:' + m + ':' + (u.role === 'admin' ? 'all' : u.id), cache = CacheService.getScriptCache();
+  const ck = 'hsact2:' + m + ':' + (u.role === 'admin' ? 'all' : u.id), cache = CacheService.getScriptCache();
   const syncErr = u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '';   // mindig friss (nem a gyorsítótárból)
   if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return Object.assign(JSON.parse(hit), { syncErr: syncErr }); } catch (e) {} } }
   const users = loadUsers_().filter(x => !x.disabled && (x.role === 'sales' || x.role === 'admin') && (u.role === 'admin' || x.id === u.id));
   let owners = [];
   try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e) + ' (a HubSpot-felhasználók listája: crm.objects.owners.read hatókör kell)', people: [], syncErr: syncErr }; }
-  const byMail = {}; owners.forEach(o => { if (o.email) byMail[String(o.email).toLowerCase()] = o; });
+  const byMail = {}, byName = {}; owners.forEach(o => { if (o.email) byMail[String(o.email).toLowerCase()] = o; const k = hsNameKey_([o.firstName, o.lastName].join(' ')); if (k && !byName[k]) byName[k] = o; });
   const y = +m.slice(0, 4), mo = +m.slice(5, 7), from = Date.UTC(y, mo - 1, 1) - 3600e3, to = Date.UTC(mo === 12 ? y + 1 : y, mo === 12 ? 0 : mo, 1) - 3600e3;   // budapesti hónap (téli idő közelítés)
   const count = (obj, oid, extra) => {
     const filters = [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(oid) }, { propertyName: 'hs_timestamp', operator: 'GTE', value: String(from) }, { propertyName: 'hs_timestamp', operator: 'LT', value: String(to) }].concat(extra || []);
     try { return Number((hubspot_('post', '/crm/v3/objects/' + obj + '/search', { filterGroups: [{ filters: filters }], properties: ['hs_timestamp'], limit: 1 }) || {}).total) || 0; } catch (e) { return null; }
   };
   const people = users.map(x => {
-    const o = byMail[String(x.email || '').toLowerCase()];
+    const o = byMail[String(x.email || '').toLowerCase()] || byName[hsNameKey_(x.name)] || byName[hsNameKey_(hsCrewNameOf_(x))];   // e-mail, vagy név (sorrendtől függetlenül: „Ervin Egri” = „Egri Ervin”)
     if (!o) return { userId: x.id, name: x.name, linked: false };
     return { userId: x.id, name: x.name, linked: true, calls: count('calls', o.id), meetings: count('meetings', o.id), emails: count('emails', o.id, [{ propertyName: 'hs_email_direction', operator: 'EQ', value: 'EMAIL' }]),
       contacts: (() => { try { return Number((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(o.id) }, { propertyName: 'createdate', operator: 'GTE', value: String(from) }, { propertyName: 'createdate', operator: 'LT', value: String(to) }] }], limit: 1 }) || {}).total) || 0; } catch (e) { return null; } })() };
