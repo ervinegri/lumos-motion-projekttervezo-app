@@ -767,6 +767,54 @@ function hsClientSync_(c) {
   } catch (e) { hsErr_(e); }
 }
 
+/* Egyszeri áthozatal (Ervin döntése, 2026-11-15: a HubSpotban nem vezetünk dealeket): a HubSpot dealjei lehetőségként az appba.
+   Nyitott szakasz → nyitott lehetőség, „Bukta” → elveszett; a „Siker” (megnyert) dealeket NEM hozzuk át (azok már projektek).
+   A tulajdonos marad (HubSpot-tulajdonos → app-felhasználó név / e-mail alapján); az appban már meglévő (azonos nevű) lehetőséget kihagyjuk.
+   Az eredményt a HS_DEAL_IMPORT_1 tulajdonság őrzi (JSON: átvett / kihagyott). */
+const HS_STAGE_MAP_ = { qualifiedtobuy: 'uj', presentationscheduled: 'ajanlat', contractsent: 'targyalas', closedwon: 'targyalas', closedlost: 'elveszett' };
+const HS_STAGE_LBL_ = { qualifiedtobuy: 'Igényfelmérés', presentationscheduled: 'Ajánlat készítés', contractsent: 'Döntésre vár', closedwon: 'Szerződés kiküldve', closedlost: 'Bukta', '5960764616': 'Siker' };
+function hsDealImportOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_DEAL_IMPORT_1') || !String(P.getProperty('HUBSPOT_TOKEN') || '').trim()) return;
+  const deals = []; let after = '';
+  for (let i = 0; i < 10; i++) { const r = hubspot_('get', '/crm/v3/objects/deals?limit=100&archived=false&properties=dealname,amount,dealstage,closedate,createdate,hs_lastmodifieddate,hubspot_owner_id&associations=contacts,companies' + (after ? '&after=' + after : '')) || {}; (r.results || []).forEach(x => deals.push(x)); after = ((r.paging || {}).next || {}).after || ''; if (!after) break; }
+  const owners = (hubspot_('get', '/crm/v3/owners?limit=100&archived=true').results || []).concat(hubspot_('get', '/crm/v3/owners?limit=100').results || []);
+  const users = loadUsers_().filter(u => !u.disabled && (u.role === 'admin' || u.role === 'sales')), crew = readAll_('crew');
+  const ukeys = users.map(u => ({ u: u, keys: [hsNameKey_(u.name), hsNameKey_(hsCrewNameOf_(u))].concat(crew.filter(c => u.email && String(c.email || '').toLowerCase() === String(u.email).toLowerCase()).map(c => hsNameKey_(sval_(c.name)))).filter(Boolean), mail: String(u.email || '').toLowerCase() }));
+  const ownerUser = oid => { const o = owners.find(x => String(x.id) === String(oid)); if (!o) return null; const k = hsNameKey_([o.firstName, o.lastName].join(' ')), m = String(o.email || '').toLowerCase(); const hit = ukeys.find(x => (m && x.mail === m) || (k && x.keys.indexOf(k) >= 0)); return hit ? hit.u : null; };
+  const tok = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const have = {}; readAll_('deals').forEach(d => { have[tok(d.title)] = 1; }); readAll_('projects').forEach(p => { have['p:' + tok(p.name)] = 1; });
+  const cIds = {}, coIds = {}; deals.forEach(d => { (((d.associations || {}).contacts || {}).results || []).slice(0, 1).forEach(a => { cIds[a.id] = 1; }); (((d.associations || {}).companies || {}).results || []).slice(0, 1).forEach(a => { coIds[a.id] = 1; }); });
+  const batch = (obj, ids, props) => { const out = {}, L = Object.keys(ids); for (let i = 0; i < L.length; i += 100) ((hubspot_('post', '/crm/v3/objects/' + obj + '/batch/read', { properties: props, inputs: L.slice(i, i + 100).map(id => ({ id: id })) }) || {}).results || []).forEach(x => { out[String(x.id)] = x.properties || {}; }); return out; };
+  const C = batch('contacts', cIds, ['firstname', 'lastname', 'email', 'phone', 'mobilephone']), CO = batch('companies', coIds, ['name']);
+  const day = v => { const d = new Date(isNaN(Number(v)) ? v : Number(v)); return isNaN(d) ? '' : Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd HH:mm:ss'); };
+  const res = { imported: [], skipped: [] }, sh = sheetFor_('deals'), today = today_();
+  withLock_(() => {
+    deals.forEach(x => {
+      const pr = x.properties || {}, name = String(pr.dealname || '').trim(), st = String(pr.dealstage || '');
+      if (!name) return;
+      if (st === '5960764616') { res.skipped.push(name + ' (Siker – már projekt)'); return; }
+      if (have[tok(name)] || have['p:' + tok(name)]) { res.skipped.push(name + ' (már az appban)'); return; }
+      const stage = HS_STAGE_MAP_[st] || 'uj', o = ownerUser(pr.hubspot_owner_id);
+      const ca = ((((x.associations || {}).contacts || {}).results || [])[0] || {}).id, coa = ((((x.associations || {}).companies || {}).results || [])[0] || {}).id;
+      const c = ca ? C[String(ca)] || {} : {}, co = coa ? CO[String(coa)] || {} : {};
+      const nm = [c.lastname, c.firstname].filter(Boolean).join(' ');
+      const d = { id: Utilities.getUuid(), title: name.slice(0, 160), client: String(co.name || '').slice(0, 160), contactName: nm.slice(0, 120), contactEmail: String(c.email || '').slice(0, 160), contactPhone: String(c.phone || c.mobilephone || '').slice(0, 40),
+        eventType: '', venue: '', eventDate: '', value: pr.amount !== '' && pr.amount != null && isFinite(Number(pr.amount)) ? Math.round(Number(pr.amount)) : '', stage: stage, chance: stage === 'elveszett' ? 0 : stage === 'targyalas' ? 50 : stage === 'ajanlat' ? 30 : 10,
+        source: 'HubSpot', nextStep: stage === 'elveszett' ? '' : 'Átvéve a HubSpotból – következő lépés megadása', nextDate: stage === 'elveszett' ? '' : today,
+        ownerId: o ? o.id : '', ownerName: o ? o.name : '', note: '[' + day(Date.now()).slice(0, 16) + ' · HubSpot] Átvéve a HubSpotból (szakasz: ' + (HS_STAGE_LBL_[st] || st || '–') + (pr.closedate ? ', zárási dátum: ' + day(pr.closedate).slice(0, 10) : '') + ')',
+        lostReason: stage === 'elveszett' ? 'HubSpot: Bukta' : '', projectId: '', wonAt: '', closedAt: stage === 'elveszett' ? day(pr.closedate || pr.hs_lastmodifieddate) : '',
+        createdAt: day(pr.createdate) || now_(), createdBy: 'HubSpot-import', updatedAt: now_(), updatedBy: 'HubSpot-import' };
+      putRow_('deals', sh, d, null); have[tok(name)] = 1;
+      res.imported.push(name + ' → ' + (o ? o.name : 'gazda nélkül') + ' · ' + stage);
+      try { putRow_('hsLinks', sheetFor_('hsLinks'), { id: d.id, hsDeal: String(x.id), hsContact: ca ? String(ca) : '', hsCompany: coa ? String(coa) : '', updatedAt: now_() }, null); } catch (e) {}
+    });
+    dbFlush_();
+  });
+  P.setProperty('HS_DEAL_IMPORT_1', JSON.stringify({ at: now_(), imported: res.imported.length, skipped: res.skipped.length }));
+  logEvent_({ name: 'Rendszer' }, 'HubSpot-dealek átvéve', res.imported.length + ' lehetőség', res.skipped.length + ' kihagyva');
+  try { P.setProperty('HS_DEAL_IMPORT_1_LIST', JSON.stringify(res).slice(0, 8500)); } catch (e) {}
+}
+
 /* Értékesítői aktivitás a HubSpotból (Teljesítmény): hívások, megbeszélések, kimenő e-mailek havonta, tulajdonosonként.
    Az app felhasználóit e-mail-cím alapján párosítjuk a HubSpot-tulajdonosokkal. Az ügyvezető mindenkit, az értékesítő csak magát kapja. */
 /** Név-kulcs a HubSpot-tulajdonos és az app-felhasználó párosításához: kisbetű, ékezet nélkül, a szavak ABC-sorrendben. */
