@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "45150f8851",
+"at": "2026-11-15T13:41:36+02:00",
+"msg": "Teljesítmény: HubSpot-felhasználó párosítása név alapján is (pl. „Ervin Egri” = „Egri Ervin”)"
+},
+{
 "id": "69423af953",
 "at": "2026-11-15T13:29:41+02:00",
 "msg": "Árajánlat a bejelentkezett felhasználó nevében és aláírásával; HubSpot: tulajdonos-lista hiánya nem állítja meg a szinkront, friss hibajelzés"
@@ -152,13 +157,8 @@ const ITEMS = [
 "msg": "style: one compact timeline lane with named editing and photo task cards"
 },
 {
-"id": "88f5f6fe83",
-"at": "2026-11-14T20:13:57+02:00",
-"msg": "ui: group video and photo postproduction into a single timeline bar with per-person cards"
-},
-{
-"id": "c77bf10a90",
-"at": "2026-11-14T18:11:05Z",
+"id": "8350835398",
+"at": "2026-11-14T18:14:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
