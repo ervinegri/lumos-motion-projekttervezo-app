@@ -2042,3 +2042,4 @@ html body #mform.m-video .mfoot>.btn,html body #mform.m-video .mfoot>button{flex
 html body #mform.m-video .mfoot kbd{display:none}
 html body #mform.m-video .mhead h3{word-break:normal;overflow-wrap:anywhere;min-width:0}
 }
+html body .pay-sheet .pst-card>span,html body .pst-sent{white-space:nowrap}
