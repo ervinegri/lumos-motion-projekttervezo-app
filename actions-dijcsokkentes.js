@@ -517,8 +517,6 @@ async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return
 function payEditMark(){document.querySelectorAll('[data-pe-tag]').forEach(t=>{t.hidden=!(S._payEdit&&S._payEdit[t.dataset.peTag]);});}
 document.addEventListener('input',e=>{const ed=e.target.closest&&e.target.closest('.mail-edit[data-pe]');if(!ed)return;S._payEdit=S._payEdit||{};S._payEdit[ed.dataset.pe]=ed.innerHTML;payEditMark();});
 /* Termelői fizetések alján: számlát kiállította / számla fizetve pipálása */
-ACT['pay-st-undo']=b=>{const cid=b.dataset.cid,month=b.dataset.month,nm=(crewById(cid)||{}).name||'';   // tévesen bejelölt „számla kiállítva” visszavonása
-  confirmModal('Számla kiállításának visszavonása',nm+' · '+month+': visszavonod, hogy a számla ki lett állítva?','Visszavonás',async()=>{S.payStatus=await call('setPayStatus',{month,crewId:cid,field:'invoiced',on:false});render(true);toast('Számla kiállítása visszavonva');});};
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.paySt)return;const on=t.checked;
   if(t.dataset.paySt==='paid'&&on){t.checked=false;const nm=(crewById(t.dataset.cid)||{}).name||'';   // kifizetés: dátum választással (alapból ma), utólag nem vonható vissza
     openModal('✅ Kifizetve – '+nm,`<div class="fields"><div class="field"><label for="m-paidAt">Kifizetés dátuma</label><input class="inp" id="m-paidAt" name="paidAt" type="date" value="${todayISO()}" max="${todayISO()}" required></div></div><p class="hint" style="margin:6px 0 0">A kifizetés rögzítése után nem vonható vissza.</p>`,

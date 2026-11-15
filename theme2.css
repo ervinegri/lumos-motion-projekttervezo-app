@@ -2071,3 +2071,11 @@ html body .pay-sheet td.pay-st:hover .pst-pop,html body .pay-sheet .pst-hov:focu
 /* Meghívások panel: az állapot-címke a gombbal egy magasságban, középre igazítva */
 html body .inv-panel .inv-btns{display:flex;align-items:center;gap:8px}
 html body .inv-panel .inv-st{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:999px;font-size:13px;line-height:1}
+/* Értékesítés: becsukható „Elveszett” oszlop */
+html.th2 .dl-board.lost-closed{grid-template-columns:repeat(5,minmax(200px,1fr)) 48px}
+@media (max-width:760px){html.th2 .dl-board.lost-closed{grid-template-columns:repeat(5,82%) 48px}}
+.dl-col.dl-col-closed{padding:0;min-height:180px;display:flex}
+.dl-col-tog{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;border:0;background:transparent;cursor:pointer;color:var(--fg-2);font:inherit;font-weight:700}
+.dl-col-tog:hover{background:rgba(0,0,0,.04);border-radius:14px}
+.dl-vert{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:13px}
+.dl-col-x{border:0;background:transparent;cursor:pointer;font-size:16px;font-weight:700;color:var(--fg-2);padding:0 6px 0 0}

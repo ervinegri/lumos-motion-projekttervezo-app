@@ -625,3 +625,5 @@ function vvPendCheck(){const pd=S._vvPend;if(!pd)return;if(Date.now()>pd.until){
 function vvRefreshOpen(){const b=document.querySelector('.vv-cm');if(!b)return;const p=projById(b.dataset.pid),v=p&&(p.videos||[]).find(x=>x.id===b.dataset.vid);if(!v)return;
   const sig=[v.st,v.link||'',(v.links||[]).length,(v.comments||[]).length].join('|');if(b.dataset.sig===undefined||b.dataset.sig===sig){b.dataset.sig=sig;return;}
   const ta=$('m-vvCm'),dr=ta?ta.value:'';ACT['vid-view']({dataset:{pid:b.dataset.pid,vid:b.dataset.vid}});const t2=$('m-vvCm');if(t2&&dr){t2.value=dr;}}
+ACT['pay-st-undo']=b=>{const cid=b.dataset.cid,month=b.dataset.month,nm=(crewById(cid)||{}).name||'';   // tévesen bejelölt „számla kiállítva” visszavonása
+  confirmModal('Számla kiállításának visszavonása',nm+' · '+month+': visszavonod, hogy a számla ki lett állítva?','Visszavonás',async()=>{S.payStatus=await call('setPayStatus',{month,crewId:cid,field:'invoiced',on:false});render(true);toast('Számla kiállítása visszavonva');});};
