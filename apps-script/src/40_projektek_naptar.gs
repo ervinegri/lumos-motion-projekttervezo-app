@@ -648,6 +648,32 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
   return { notes: notes, found: !!c, ownErr: ownErr };
 }
 
+/* Értékesítői aktivitás a HubSpotból (Teljesítmény): hívások, megbeszélések, kimenő e-mailek havonta, tulajdonosonként.
+   Az app felhasználóit e-mail-cím alapján párosítjuk a HubSpot-tulajdonosokkal. Az ügyvezető mindenkit, az értékesítő csak magát kapja. */
+function hsActivity_(u, arg) {
+  const m = /^\d{4}-\d{2}$/.test(String(arg && arg.month || '')) ? String(arg.month) : Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM');
+  const ck = 'hsact:' + m + ':' + (u.role === 'admin' ? 'all' : u.id), cache = CacheService.getScriptCache();
+  if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return JSON.parse(hit); } catch (e) {} } }
+  const users = loadUsers_().filter(x => !x.disabled && (x.role === 'sales' || x.role === 'admin') && (u.role === 'admin' || x.id === u.id));
+  let owners = [];
+  try { owners = (hubspot_('get', '/crm/v3/owners?limit=100').results) || []; } catch (e) { return { month: m, error: String(e && e.message || e), people: [] }; }
+  const byMail = {}; owners.forEach(o => { if (o.email) byMail[String(o.email).toLowerCase()] = o; });
+  const y = +m.slice(0, 4), mo = +m.slice(5, 7), from = Date.UTC(y, mo - 1, 1) - 3600e3, to = Date.UTC(mo === 12 ? y + 1 : y, mo === 12 ? 0 : mo, 1) - 3600e3;   // budapesti hónap (téli idő közelítés)
+  const count = (obj, oid, extra) => {
+    const filters = [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(oid) }, { propertyName: 'hs_timestamp', operator: 'GTE', value: String(from) }, { propertyName: 'hs_timestamp', operator: 'LT', value: String(to) }].concat(extra || []);
+    try { return Number((hubspot_('post', '/crm/v3/objects/' + obj + '/search', { filterGroups: [{ filters: filters }], properties: ['hs_timestamp'], limit: 1 }) || {}).total) || 0; } catch (e) { return null; }
+  };
+  const people = users.map(x => {
+    const o = byMail[String(x.email || '').toLowerCase()];
+    if (!o) return { userId: x.id, name: x.name, linked: false };
+    return { userId: x.id, name: x.name, linked: true, calls: count('calls', o.id), meetings: count('meetings', o.id), emails: count('emails', o.id, [{ propertyName: 'hs_email_direction', operator: 'EQ', value: 'EMAIL' }]),
+      contacts: (() => { try { return Number((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'hubspot_owner_id', operator: 'EQ', value: String(o.id) }, { propertyName: 'createdate', operator: 'GTE', value: String(from) }, { propertyName: 'createdate', operator: 'LT', value: String(to) }] }], limit: 1 }) || {}).total) || 0; } catch (e) { return null; } })() };
+  });
+  const out = { month: m, people: people, at: now_() };
+  try { cache.put(ck, JSON.stringify(out), 1800); } catch (e) {}
+  return out;
+}
+
 /* HubSpot cégek keresése (új lehetőség ügyfele): név, domain, város */
 function hubspotCompaniesApi_(arg) {
   const q = str_(arg && arg.q, 100).trim();

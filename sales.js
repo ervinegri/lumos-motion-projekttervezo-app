@@ -74,6 +74,30 @@ function salesOwners(deals){
   (deals||[]).forEach(d=>{const id=self.has(d.ownerId)?me.id:d.ownerId;if(id&&!m.has(id))m.set(id,'👤 '+(d.ownerName||'?'));});
   return [...m.entries()];
 }
+/* ===== Teljesítmény: értékesítőnként a hónap aktivitása (HubSpot), eredménye és bevétele (app) =====
+   Az ügyvezető mindenkit lát, az értékesítő csak magát (a háttér is így szűr). */
+function salesPerfPanel(all,owners,self,selected,m){
+  const me=S.me||{},key=id=>self.has(id)?me.id:id,act=(S._hsAct||(S._hsAct={}))[m];
+  if(!act&&!S._hsActBusy){S._hsActBusy=m;call('hsActivity',{month:m}).then(r=>{S._hsAct[m]=r||{people:[]};}).catch(e=>{S._hsAct[m]={people:[],error:errText(e)};}).finally(()=>{S._hsActBusy='';if(S.tab==='ertekesites')render(true);});}
+  const ids=owners.map(([id])=>id).filter(id=>!selected||id===selected);
+  if(!ids.length)return '';
+  const inM=v=>String(v||'').slice(0,7)===m,qRe=/^\[(\d{4}-\d{2})-\d{2}[^\]]*\] 📄 Árajánlat elküldve.*?(?:– ([\d\s]+) Ft)?/;
+  const rows=ids.map(id=>{const ds=all.filter(d=>key(d.ownerId)===id),nm=(owners.find(o=>o[0]===id)||[])[1]||'?';
+    const quotes=[];ds.forEach(d=>String(d.note||'').split('\n').forEach(l=>{const x=qRe.exec(l);if(x&&x[1]===m)quotes.push(num(String(x[2]||'').replace(/\s/g,'')));}));
+    const won=ds.filter(d=>d.stage==='nyert'&&inM(d.wonAt)),lost=ds.filter(d=>d.stage==='elveszett'&&inM(d.closedAt));
+    const sp=(S.salesPeople||[]).filter(x=>key(x.userId)===id),cm=sp.map(x=>(x.comm||{})[m]).filter(Boolean);
+    const h=((act&&act.people)||[]).filter(x=>key(x.userId)===id),hs=k=>h.length&&h.some(x=>x.linked)?h.reduce((a,x)=>a+(num(x[k])||0),0):null;
+    return {nm:nm.replace(/^[⭐👤🤝]\s*/u,''),linked:h.some(x=>x.linked),calls:hs('calls'),meet:hs('meetings'),mail:hs('emails'),cont:hs('contacts'),
+      nw:ds.filter(d=>inM(d.createdAt)).length,nego:ds.filter(d=>d.stage==='ajanlat'||d.stage==='targyalas').length,qn:quotes.length,qv:quotes.reduce((a,b)=>a+b,0),
+      wn:won.length,wv:won.reduce((a,d)=>a+dealVal(d),0),conv:won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):null,
+      base:cm.reduce((a,x)=>a+num(x.base),0),comm:cm.reduce((a,x)=>a+num(x.amount),0)};});
+  const c=(v,tip)=>`<td class="r"${tip?` data-tip="${esc(tip)}"`:''}>${v==null?'<span class="muted">–</span>':v}</td>`,ft=v=>v?ftFmt(v):'<span class="muted">0</span>';
+  const err=act&&act.error?`<p class="hint bad-txt" style="margin:6px 0 0">HubSpot: ${esc(act.error)}</p>`:'';
+  return `<details class="panel sales-perf" ${S._perfOpen===false?'':'open'}><summary><h3>📈 Teljesítmény · ${esc(salesMonthText(m))}</h3><span class="aside">${act?'HubSpot-aktivitás + eredmény az appból':'HubSpot-adatok betöltése…'}</span></summary>
+    <div class="sheet-wrap"><table class="sheet perf-tbl"><thead><tr><th rowspan="2">Értékesítő</th><th colspan="4" class="perf-g">Aktivitás <small>(HubSpot)</small></th><th colspan="3" class="perf-g">Megkeresés, tárgyalás</th><th colspan="2" class="perf-g">Eredmény</th><th colspan="2" class="perf-g">Bevétel <small>(nettó)</small></th></tr>
+    <tr><th class="r">📞 Hívás</th><th class="r">🤝 Megbeszélés</th><th class="r">✉️ E-mail</th><th class="r">👤 Új kontakt</th><th class="r">💡 Új lehetőség</th><th class="r">📄 Ajánlat ki</th><th class="r">💬 Folyamatban</th><th class="r">✅ Szerződés</th><th class="r">🎯 Arány</th><th class="r">💰 Befolyt díj</th><th class="r">Jutalék</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td><b>${esc(r.nm)}</b>${act&&!r.linked?' <span class="muted" data-tip="Nincs ilyen e-mail-című tulajdonos a HubSpotban">· nincs HubSpot</span>':''}</td>${c(r.calls)}${c(r.meet)}${c(r.mail,'Kimenő e-mailek')}${c(r.cont,'A HubSpotban ebben a hónapban hozzá rendelt új kapcsolattartók')}${c(r.nw,'Ebben a hónapban létrehozott lehetőségek')}${c(r.qn?r.qn+(r.qv?' · '+ftFmt(r.qv):''):0,'Az appból kiküldött árajánlatok (nettó)')}${c(r.nego,'Most „Ajánlat” vagy „Tárgyalás” szakaszban')}${c(r.wn?r.wn+' · '+ftFmt(r.wv):0,'Ebben a hónapban szerződött lehetőségek')}${c(r.conv==null?null:r.conv+'%','Szerződött / (szerződött + elveszett) ebben a hónapban')}${c(ft(r.base),'Ténylegesen befolyt ügyfélbevétel = jutalékalap')}${c(ft(r.comm))}</tr>`).join('')}</tbody></table></div>${err}</details>`;
+}
 function viewSales(){
   const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
   const owners=salesOwners(all),self=salesSelfIds(all),selected=self.has(f.owner)&&S.me?S.me.id:f.owner;
@@ -120,6 +144,7 @@ function viewSales(){
         tip='A szerződött jutalék az adott hónap projektjeinek teljes nettó jutalékalapjára számított összeg. A tényleges kifizetés szerinti elszámolás külön történik.';
         return '<div class="tile'+(contractedComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(contractedComm)+'</div><div class="tile-l">szerződött jutalék · '+contractComms.length+' projekt'+(people.length?'<div class="sales-comm-settled">Befolyt után elszámolt ('+esc(payMonth)+'): '+ftFmt(paidComm)+' · alap: '+ftFmt(paidBase)+'</div>':'')+'</div></div>';})()}
     </div>
+    ${salesPerfPanel(all,owners,self,selected,month==="all"?T.slice(0,7):month)}
     <div class="toolbar"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="sales-board-head"><b>Értékesítési folyamat</b><span>Minden időszak · ${L.length} lehetőség</span></div>

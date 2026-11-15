@@ -507,6 +507,7 @@ function rpcInner_(token, name, arg) {
     case 'hubspotNotes': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotNotesApi_(arg);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotSources': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hsSourceProp_();
+    case 'hsActivity': if (role !== 'admin' && role !== 'sales') deny(); return hsActivity_(u, arg);   // értékesítői aktivitás (az értékesítő csak a sajátját)
     case 'hubspotContacts': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactsApi_(arg);   // az értékesítő a lehetőségekhez keres kapcsolattartót
     case 'sendEquipmentList': canEdit(); return sendEquipmentList_(u, arg);
     case 'saveCrew': canEdit(); return saveCrew_(u, arg);
