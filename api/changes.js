@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "301636af10",
+"at": "2026-11-15T15:32:49+02:00",
+"msg": "Értékesítés: kifizetett díjbekérőnél annak hónapja számít a szerződött kártyákon (különben a szerződéskötés hónapja)"
+},
+{
 "id": "8330f76bb4",
 "at": "2026-11-15T15:25:35+02:00",
 "msg": "Értékesítés: a szerződött projekt és jutalék a szerződéskötés hónapjához számít"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "60f880d095",
 "at": "2026-11-15T12:23:01+02:00",
 "msg": "Natív legördülők helyett a kereshető legördülő (díjcsökkentés, havi kimutatás, eszközlista-előnézet, hitel)"
-},
-{
-"id": "9154ebcb8a",
-"at": "2026-11-15T12:21:35+02:00",
-"msg": "Szerződéskor a lehetőség jegyzetei nem kerülnek a projektbe (+ egyszeri takarítás); telefonos videóablak: kisebb álló videó, tömör gombsor; elavult tesztek igazítása"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
