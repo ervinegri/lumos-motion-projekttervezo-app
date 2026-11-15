@@ -54,8 +54,9 @@ assert.match(pct(seller,'ceo'),/pct-lock/,'calculated salesperson commission sta
 const defaultSeller=make(159000,40000,45000,0,{ownerId:'seller-123'});
 assert.equal(defaultSeller.ceo,5700,'assigned seller gets default 5% if no specific rate is set');
 assert.match(pct(defaultSeller,'ceo'),/data-finpct=/,'assigned seller can have editable default percentage');
-assert.match(code,/colspan="2">Munkadíjak<\/th><th class="r">Továbbszámlázott<\/th><th class="r">Szervezői jutalék<\/th>/);
+assert.match(code,/Díjazás<\/th>\$\{showTov\?'<th class="r">Továbbszámlázott<\/th>'/,'a továbbszámlázott oszlop a díjazás után, csak ha van ilyen tétel');
+assert.match(code,/\$\{showOrg\?'<th class="r">Szervezői jutalék<\/th>'/,'a szervezői jutalék oszlop is feltételes');
 assert.match(code,/TFn\(finWages\)/);
 assert.match(code,/TFn\(finSalesCost\)/);
-assert.match(code,/colspan="14" class="empty-row"/);
+assert.match(code,/colspan="\$\{12\+\(showTov\?1:0\)\+\(showOrg\?1:0\)\}" class="empty-row"/);
 console.log('PASS project fee zero without seller, separate cost columns, organizer fee, revenue balance and legacy rows');
