@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e1305f0dcc",
+"at": "2026-11-15T13:03:29+02:00",
+"msg": "Kintlévőség: a már esedékes hónap bizonylat nélküli projektjei is beleszámítanak"
+},
+{
 "id": "01629a2e9f",
 "at": "2026-11-15T12:59:30+02:00",
 "msg": "Számlázás: magyarázó szöveg törölve; Tesztek workflow YAML javítás"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "feat: include photo retouching assignees in calendar postproduction filter"
 },
 {
-"id": "7bcafc4a3b",
-"at": "2026-11-14T19:56:58+02:00",
-"msg": "fix: deploy orphaned video-task cleanup to Apps Script production"
-},
-{
-"id": "019830689e",
-"at": "2026-11-14T17:56:54Z",
+"id": "a1725080ef",
+"at": "2026-11-14T17:57:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
