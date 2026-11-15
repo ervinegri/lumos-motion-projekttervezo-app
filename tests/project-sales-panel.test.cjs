@@ -24,7 +24,7 @@ const panel=new Function('isAdmin','prodBase','budgetFt','moneyFmt','isFree','or
  ()=>'<aside>nettó</aside>',()=>'',esc,x=>Number(x)||0,()=>'' );
 const html=panel(pp);
 assert.match(html,/💼 Ki értékesítette\?/,'renamed blue section');
-assert(html.indexOf('grp-prod')<html.indexOf('grp-sales'),'blue sales section after production');
+assert(html.indexOf('grp-val')<html.indexOf('grp-sales')&&html.indexOf('grp-sales')<html.indexOf('grp-prod'),'order: contract value card, sales, then production (Ervin, 2026-11-15)');
 assert.equal((html.match(/id="sales-sel"/g)||[]).length,1,'single salesperson selector');
 assert.match(html,/<option value="seller1" selected>Egri Ervin<\/option>/,'existing salesperson retained');
 assert.match(html,/id="f-salesPct"[^>]*value="10"/,'commission percentage remains editable');
@@ -40,5 +40,5 @@ const none=panel(pp);
 assert.equal((none.match(/id="sales-sel"/g)||[]).length,1,'unassigned projects retain selection');
 assert.doesNotMatch(none,/id="f-salesPct"/,'commission fields require selected salesperson');
 pp.extras=[{kind:'tov',amount:2000}];
-assert(panel(pp).indexOf('grp-prod')<panel(pp).indexOf('grp-sales'),'order is stable with extra costs');
+assert(panel(pp).indexOf('grp-sales')<panel(pp).indexOf('grp-prod'),'order is stable with extra costs');
 console.log('PASS finance sales panel after production, selector consolidation and lower card removal');

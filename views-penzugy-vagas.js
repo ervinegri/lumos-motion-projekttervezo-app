@@ -86,7 +86,8 @@ function finPanelBody(p){
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
         <div class="field fin-budget${budgetFt(p)==null&&!free?' missing req':''}"><label for="f-budgetFt">Termelői keret</label>
           <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>`;
-  const rows=two?`<div class="fin-r">${valF}${org?orgOption(p):''}${tov?tovFields(p):''}${exm}</div><div class="fin-r">${finNet(p)}${prodG}${salesG}</div>`:`<div class="fin-r">${valF}${prodG}${salesG}${exm}</div>`;
+  const valG=`<div class="fin-grp grp-val"><div class="grp-h">💰 Szerződés</div><div class="grp-b">${valF}</div></div>`;   // a nettó érték is kártyán, mint a Termelés és az Értékesítés
+  const rows=two?`<div class="fin-r">${valG}${org?orgOption(p):''}${tov?tovFields(p):''}${exm}</div><div class="fin-r">${finNet(p)}${salesG}${prodG}</div>`:`<div class="fin-r">${valG}${salesG}${prodG}${exm}</div>`;
   return `<div class="fin-sum"><div class="fin-inputs fin-v2${two?' two':''}">${rows}</div>${free?'':extrasHtml(p)}</div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */

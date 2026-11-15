@@ -2110,3 +2110,8 @@ html body .fin-inc-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 html body .fin-inc-head h3{margin:0!important;flex:0 0 auto}
 html body .fin-inc-head .toolbar.fin-q{margin:0!important;flex:0 1 380px}
 html body .fin-inc-head .toolbar.fin-q .inp{min-height:36px}
+/* Projekt Pénzügyek: a nettó szerződött érték is kártyán */
+.grp-val{background:#fbf6ec;border-color:#eadfc8;flex:0 0 auto!important;width:auto!important}
+.grp-val .grp-h{color:#8a6420}
+.grp-val .fin-val{width:200px;margin:0}
+.grp-val .fin-val>label{font-size:12.5px!important}

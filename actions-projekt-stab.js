@@ -209,7 +209,9 @@ ACT['free-off']=()=>{if(!S.draft||!isAdmin())return;setDraft({projectValue:null}
 function commPendApply(){const P=S._commPend||{};Object.keys(P).forEach(pid=>{const d=(S.deals||[]).find(x=>x.projectId===pid&&x.stage==='nyert');if(d)d.commManual=P[pid];});}   /* a még mentés alatt álló jutalék % ne vesszen el egy közben érkező válasz miatt */
 async function projSalesSet(ownerId){const p=S.draft||projById(S.projectId);if(!p)return;
   {const d=typeof projDeal==='function'?projDeal(p):null,sp=(S.salesPeople||[]).find(x=>x.userId===ownerId)||{},nm=sp.name||(((S.crew||[]).find(c=>'crew:'+c.id===ownerId))||{}).name||'';   // azonnal látszik, a szerver a háttérben ment
-    if(d&&ownerId){d.ownerId=ownerId;d.ownerName=nm;render(true);}toast(ownerId?'Értékesítő: '+nm:'Értékesítői jutalék levéve');}
+    if(ownerId){if(d){d.ownerId=ownerId;d.ownerName=nm;}else (S.deals=S.deals||[]).push({id:'tmp-'+p.id,projectId:p.id,stage:'nyert',ownerId,ownerName:nm,title:p.name||'',client:p.client||''});   // ideiglenes lehetőség: az Összeg és a Jutalék mező azonnal megjelenik
+      render(true);setTimeout(()=>{const i=$('f-salesPct');if(i){i.focus();i.select&&i.select();}},60);}
+    toast(ownerId?'Értékesítő: '+nm:'Értékesítői jutalék levéve');}
   try{const r=await call('projSales',{projectId:p.id,ownerId:ownerId||''});if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;if(!ownerId&&S.salesOn)delete S.salesOn[p.id];render(true);}catch(e){handleErr(e);render(true);}}
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='sales-sel'&&isAdmin()){projSalesSet(t.value);return;}
