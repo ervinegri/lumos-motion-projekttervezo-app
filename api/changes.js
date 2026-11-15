@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7cb807804c",
+"at": "2026-11-15T15:10:39+02:00",
+"msg": "Értékesítés: a jutalék-csempe súgója felsorolja a projekteket, amelyekből a jutalék származik"
+},
+{
 "id": "29ff1aa636",
 "at": "2026-11-15T15:08:40+02:00",
 "msg": "HubSpot-dealek egyszeri áthozatala lehetőségként (nyitott + elveszett; a megnyertek kimaradnak, a tulajdonos marad)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "cf5e2a26d6",
 "at": "2026-11-14T20:25:52+02:00",
 "msg": "fix: open postproduction Kanban from calendar deadline bars and calendar chips"
-},
-{
-"id": "61c8e837ed",
-"at": "2026-11-14T20:24:32+02:00",
-"msg": "style: keep specialist Kanban project panel scrollable on smaller screens"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
