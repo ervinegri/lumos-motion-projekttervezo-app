@@ -125,7 +125,7 @@ function migrateEmployeesOnce_() {
 function bootstrap_(u) {
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   try { migrateEmployeesOnce_(); } catch (e) {}
-  try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {}
+  try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') crewRoleFixOnce_(); } catch (e) {}
   try { migrateFinalizedOnce_(); } catch (e) {}
   try { migrateEditOnlyOnce_(); } catch (e) {}
   try { calNoClientOnce_(); } catch (e) {}

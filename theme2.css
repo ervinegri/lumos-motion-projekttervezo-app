@@ -2067,3 +2067,4 @@ html body .pay-sheet .pst-pop-act{display:flex;gap:6px;padding:0 11px 9px;border
 html body .pay-sheet .pst-pop-act .nav-one{position:static!important;transform:none!important;opacity:1!important;pointer-events:auto!important;margin:0!important;background:rgba(255,255,255,.12)!important;color:#fff;font-size:12px;padding:4px 8px!important;border-radius:6px;white-space:nowrap;box-shadow:none!important}
 html body .pay-sheet .pst-pop-act .nav-one:hover{background:rgba(255,255,255,.24)!important}
 html body .pay-sheet td.pay-st:hover .pst-pop,html body .pay-sheet .pst-hov:focus-within .pst-pop{display:block}
+.perf-tbl tr.perf-boss td{border-top:2px solid var(--line-strong,#c9d3cd);background:#fafbfc}

@@ -192,6 +192,21 @@ function crewMergeOnce_() {
   if (done.length) logEvent_({ name: 'Rendszer' }, 'Munkatárs összevonva', done.join(', '), 'duplikált sor');
 }
 
+/* Egyszeri szerepcsere (Ervin döntése, 2026-11-15): Guzsloványi Flóra nem értékesítő, hanem ajánló – „Értékesítő” → „Ajánlói jutalék”.
+   A korábbi lehetőségei, szerződései és jutalékai változatlanok. CREW_ROLE_FIX_1: csak egyszer fut. */
+const CREW_ROLE_FIXES_ = [['7452cc7d-7495-45ad-b7bd-f7a9a705df6c', 'Értékesítő', 'Ajánlói jutalék']];
+function crewRoleFixOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('CREW_ROLE_FIX_1')) return;
+  withLock_(() => {
+    const sh = sheetFor_('crew');
+    CREW_ROLE_FIXES_.forEach(([id, from, to]) => { const row = findRow_(sh, id); if (!row) return; const c = readRow_('crew', sh, row);
+      const L = String(c.roles || '').split(',').map(x => x.trim()).filter(Boolean); if (L.indexOf(from) < 0) return;
+      const out = L.filter(r => r !== from); if (out.indexOf(to) < 0) out.push(to); c.roles = out.join(', '); c.updatedAt = now_(); putRow_('crew', sh, c, row); });
+    dbFlush_();
+  });
+  P.setProperty('CREW_ROLE_FIX_1', now_());
+}
+
 function saveItem_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64);
