@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "386c8b4a2b",
+"at": "2026-11-15T15:42:44+02:00",
+"msg": "Szerződés és számlázás: kintlévőség két csempén (bizonylattal / bizonylat nélkül, külön szűrővel), alacsonyabb csempék egy sorban"
+},
+{
 "id": "c0ff13595a",
 "at": "2026-11-15T15:39:19+02:00",
 "msg": "Pénzügyek: kisebb hézag a menü, a fejsor és a táblázat között"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Kintlévőség: a már esedékes hónap bizonylat nélküli projektjei is beleszámítanak"
 },
 {
-"id": "01629a2e9f",
-"at": "2026-11-15T12:59:30+02:00",
-"msg": "Számlázás: magyarázó szöveg törölve; Tesztek workflow YAML javítás"
-},
-{
-"id": "3a6bb3297f",
-"at": "2026-11-15T10:59:00Z",
+"id": "f91f07ecaf",
+"at": "2026-11-15T10:59:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
