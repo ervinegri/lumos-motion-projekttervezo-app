@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f53beaad57",
+"at": "2026-11-15T13:11:36+02:00",
+"msg": "Teljesítmény panel: tesztkörnyezetben nincs háttérhívás"
+},
+{
 "id": "04a95ea8c7",
 "at": "2026-11-15T13:11:18+02:00",
 "msg": "Értékesítés: Teljesítmény panel – HubSpot-aktivitás (hívás, megbeszélés, e-mail, új kontakt), megkeresés, ajánlat, szerződés, befolyt díj, jutalék értékesítőnként"
@@ -157,13 +162,8 @@ const ITEMS = [
 "msg": "style: widen postproduction owner dropdown to fit renamed option"
 },
 {
-"id": "def325876e",
-"at": "2026-11-14T20:02:14+02:00",
-"msg": "ui: photo postproduction tooltip uses photo-specific task labels and selected assignee"
-},
-{
-"id": "5947a6b9b2",
-"at": "2026-11-14T18:01:50Z",
+"id": "54fbf343c8",
+"at": "2026-11-14T18:02:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
