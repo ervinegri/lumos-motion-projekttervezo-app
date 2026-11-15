@@ -726,7 +726,7 @@ function hsDealSync_(d) {
   try {
     const link = hsLinkGet_(d.id), st = hsStages_();
     const cid = hsEnsureContact_(d.contactEmail, d.contactName, d.contactPhone, d.client) || link.hsContact || '';
-    const coid = link.hsCompany || hsEnsureCompany_(d.client, d.contactEmail) || '';
+    const coid = hsEnsureCompany_(d.client, d.contactEmail) || link.hsCompany || '';
     let dealId = String(link.hsDeal || '') || hsFindDeal_(d, cid, coid);
     const amount = d.value !== '' && d.value != null && isFinite(Number(d.value)) && Number(d.value) > 0 ? String(Math.round(Number(d.value))) : '';
     const close = /^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate || '')) ? String(d.eventDate) + 'T12:00:00Z' : '';
