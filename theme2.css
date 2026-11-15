@@ -2079,3 +2079,6 @@ html.th2 .dl-board.lost-closed{grid-template-columns:repeat(5,minmax(200px,1fr))
 .dl-col-tog:hover{background:rgba(0,0,0,.04);border-radius:14px}
 .dl-vert{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:13px}
 .dl-col-x{border:0;background:transparent;cursor:pointer;font-size:16px;font-weight:700;color:var(--fg-2);padding:0 6px 0 0}
+/* Értékesítés: a hónap sötét „gomb” (mint a Pénzügyeknél); rákattintva az aktuális hónapra ugrik */
+html body .sales-monthnav .sales-month-title.mnav-chip{background:#243347;border:1.5px solid #243347;color:#fff;border-radius:999px;padding:0 22px;min-height:42px;cursor:pointer}
+html body .sales-monthnav .sales-month-title.mnav-chip:hover{filter:brightness(1.15)}

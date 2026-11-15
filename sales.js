@@ -135,9 +135,8 @@ function viewSales(){
 
     <div class="sales-monthbar">
       <div class="sales-monthnav" role="group" aria-label="Értékesítés havi nézete">
-        <button class="btn outline sales-month-today" type="button" data-action="sales-month-today" title="Ugrás az aktuális hónapra">Ma</button>
         <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="-1" aria-label="Előző hónap" title="Előző hónap">‹</button>
-        <span class="sales-month-title" aria-live="polite">${esc(salesMonthText(month))}</span>
+        <button class="mnav-chip on sales-month-title" type="button" data-action="sales-month-today" title="Ugrás az aktuális hónapra" aria-live="polite">${esc(salesMonthText(month))}</button>
         <button class="btn outline sales-month-arrow" type="button" data-action="sales-month-shift" data-d="1" aria-label="Következő hónap" title="Következő hónap">›</button>
         <button class="btn outline sales-month-all${month==='all'?' active':''}" type="button" data-action="sales-month-all" aria-pressed="${month==='all'}">Összes időszak</button>
       </div>
