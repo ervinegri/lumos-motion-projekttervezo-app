@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "12c9ba9d27",
+"at": "2026-11-16T14:48:05+02:00",
+"msg": "Idővonal: a projekthez nem kötött, már lezajlott vágói bejegyzés is zöld"
+},
+{
 "id": "3050726b41",
 "at": "2026-11-16T14:46:31+02:00",
 "msg": "Naptár: a vágólista a projektszám szerint csökkenő sorrendben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fotók: galéria-kártya videólejátszó helyett, „Jóváhagyta a fotókat”, fotós szövegek; a vezető a galéria linkjét bármikor megadhatja / cserélheti; nem lejátszható linknél megnyitás új lapon"
 },
 {
-"id": "6cca495512",
-"at": "2026-11-16T13:02:56+02:00",
-"msg": "Stáb: személyenként egy kártya, a pozíciók címkeként (× a levételhez); vágó + helyszíni pozíciónál dupla széles kártya"
-},
-{
-"id": "834774ddf1",
-"at": "2026-11-16T10:53:19Z",
+"id": "54e1cde081",
+"at": "2026-11-16T11:03:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
