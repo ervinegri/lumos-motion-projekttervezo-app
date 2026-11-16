@@ -40,7 +40,7 @@ function rawNotify_(u, a) {
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor;
-  GmailApp.sendEmail(to.join(','), subj_('Nyersanyag feltöltve – ' + p.name), text + (sig ? '\n\n' + sig.text : ''), opts);
+  sendAs_(to.join(','), subj_('Nyersanyag feltöltve – ' + p.name), text + (sig ? '\n\n' + sig.text : ''), opts);
   logEvent_(u, 'Nyersanyag feltöltve', p.name, 'E-mail a vágónak: ' + to.join(', ') + (link ? ' · ' + link : ''));
   return { sentTo: to };
 }
@@ -98,7 +98,7 @@ function crewDeliver_(u, a) {
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + (custom || esc(text).replace(/\n/g, '<br>').replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')) + '</div>';
     if (custom) text = plainText_(custom);
     const opts = mailOptsFor_(u, html); delete opts.__actor;
-    try { GmailApp.sendEmail(to.join(','), subj_((a.single === true ? 'Videó' : 'Videók') + ' leadva – ' + p.name), text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
+    try { sendAs_(to.join(','), subj_((a.single === true ? 'Videó' : 'Videók') + ' leadva – ' + p.name), text, opts); } catch (e) { Logger.log('Leadás e-mail hiba: ' + e); }
   }
   logEvent_(u, 'Videók leadva', p.name, link + (to.length ? ' · értesítve: ' + to.join(', ') : ''));
   return { project: projectView_(fullProject_(p), u), notified: to };

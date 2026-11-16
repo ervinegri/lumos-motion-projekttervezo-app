@@ -603,9 +603,13 @@ function gmailSend_(to, subject, text, opts, cat) {
   // a GmailApp a 4 bájtos karaktereket (emojik, pl. 😔) hibásan kódolja (������): a HTML-ben számkóddal (&#x1F614;) adjuk át, a szöveges változatból kivesszük
   if (opts.htmlBody) opts.htmlBody = String(opts.htmlBody).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, c => '&#x' + c.codePointAt(0).toString(16).toUpperCase() + ';').replace(/[\uD800-\uDFFF]/g, '');
   text = String(text || '').replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').replace(/[\uD800-\uDFFF]/g, '');
-  const dwd = opts.__dwd; delete opts.__dwd;
-  if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subj_(subject), text, opts); return true; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
-  GmailApp.sendEmail(to, subj_(subject), text, opts); return true;
+  sendAs_(to, subj_(subject), text, opts); return true;
+}
+/** Tényleges küldés: ha van domainszintű megbízás (opts.__dwd), a kolléga saját postafiókjából, különben a központi fiókból. A tárgyat a hívó már összeállította. */
+function sendAs_(to, subject, text, opts) {
+  const dwd = opts.__dwd; delete opts.__dwd; delete opts.__actor;
+  if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subject, text, opts); return; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
+  GmailApp.sendEmail(to, subject, text, opts);
 }
 
 /* ===================== KÜLDÉS A KOLLÉGA SAJÁT CÍMÉRŐL (Google Workspace domainszintű megbízás) =====================

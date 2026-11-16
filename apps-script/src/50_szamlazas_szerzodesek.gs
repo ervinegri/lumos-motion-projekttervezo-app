@@ -921,7 +921,7 @@ function tigSend_(u, a) {
   const text = str_(a.text, 5000), sig = signatureFor_(u), esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor; opts.attachments = [pdf]; if (cc.length) opts.cc = cc.join(',');
-  GmailApp.sendEmail(to.join(','), subj_(str_(a.subject, 200) || 'Teljesítésigazolás'), text + (sig ? '\n\n' + sig.text : ''), opts);
+  sendAs_(to.join(','), subj_(str_(a.subject, 200) || 'Teljesítésigazolás'), text + (sig ? '\n\n' + sig.text : ''), opts);
   withLock_(() => { tigMark_(t.id, Object.assign({ sentAt: now_(), sentTo: to.concat(cc).join(', ') }, t.status === 'kiallitva' ? { status: 'kikuldve' } : {})); dbFlush_(); });
   logEvent_(u, 'Teljesítésigazolás', t.client, 'E-mailben elküldve: ' + to.join(', '));
   return finPart_(['tigs']);
