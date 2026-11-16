@@ -126,7 +126,7 @@ const photoPostWork=p=>postTasks(p).some(t=>t.k==='foto_db');
 const crewPhotoPost=(p,id)=>!!id&&photoPostWork(p)&&taskOwners(p,'foto_db').includes(id);
 const crewVideoPost=(p,id)=>!!id&&hasVideoCutWork(p)&&(
   taskKeysOf(p,id).some(k=>k!=='foto_db'&&postTasks(p).some(t=>t.k===k))||
-  (p.videos||[]).some(v=>v.k!=='foto'&&v.editor===id));
+  ((p.crew||[]).some(a=>a.crewId===id)&&(p.videos||[]).some(v=>v.k!=='foto'&&v.editor===id)));   // csak a projekten lévő utómunkás
 const crewPostWork=(p,id)=>crewVideoPost(p,id)||crewPhotoPost(p,id);
 const crewOnSite=(p,me)=>!!me&&!editOnly(p)&&(p.lead===me||(p.crew||[]).some(a=>a.crewId===me&&(a.role!=='Vágó'||onsiteCut(p,me))));
 function crewIsCutter(){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,c=crewById(me);return !!me&&((c&&(c.roles||[]).includes('Vágó'))||S.projects.some(p=>crewPostWork(p,me)));}
