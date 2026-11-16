@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d381e2615d",
+"at": "2026-11-16T12:03:43+02:00",
+"msg": "Lemondás ablak: termelési vezetőnél nincs „pénzügyek” említés"
+},
+{
 "id": "868f9e500f",
 "at": "2026-11-16T12:03:09+02:00",
 "msg": "Lemondás ablak: látszik, ki kap értesítést"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: az ajánlói jutalék kikerül az Egyéb költségek táblából, az összege az Ajánlói jutalék dobozban adható meg"
 },
 {
-"id": "48c74eeeb3",
-"at": "2026-11-15T18:48:54+02:00",
-"msg": "Stáb és eszközök: pozíció-kártyák – a pipált szolgáltatások adják a pozíciókat, betöltetlen pozíción választó; több pozíciónál az eszköz, jegyzet, meghívó az első kártyán, a vágói munkák a Vágó kártyán; + Pozíció hozzáadása"
-},
-{
-"id": "b053255e4d",
-"at": "2026-11-15T16:40:03Z",
+"id": "1d4ae4b221",
+"at": "2026-11-15T16:49:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
