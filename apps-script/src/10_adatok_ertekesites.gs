@@ -134,6 +134,7 @@ function bootstrap_(u) {
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
+  try { invitesExpire_(projects); } catch (e) { Logger.log('Meghívó-lejárat: ' + e); }   /* a határidőig meg nem válaszolt meghívó elutasításnak számít */
   try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
     else if (u.role === 'admin' || u.role === 'editor') { const C = CacheService.getScriptCache(); if (!C.get('INV_SYNC')) { C.put('INV_SYNC', '1', 300); invitesSync_(projects); } } } catch (e) { Logger.log('Meghívás-szinkron: ' + e); }
   const out = {

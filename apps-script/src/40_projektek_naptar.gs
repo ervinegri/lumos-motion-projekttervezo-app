@@ -1035,3 +1035,20 @@ function preDealNotify_(pid, won) {
       try { gmailSend_(em, subj, text, { name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Előfoglalás értesítés hiba: ' + e); } });
   } catch (e) { Logger.log('preDealNotify_: ' + e); }
 }
+
+/** A meghívó válaszadási határideje: a kiküldés + 48 óra napján 18:00 (vasárnap helyett hétfő) – ugyanaz, mint a levélben. */
+function inviteDeadline_(at) { const t0 = new Date(at); if (isNaN(t0)) return null; let t = new Date(t0.getTime() + 48 * 3600 * 1000);
+  if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000);
+  return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); }
+/** Lejárt, megválaszolatlan meghívó = elutasítás (st: 'no', via: 'lejart'). A betöltött projektlistát is frissíti. */
+function invitesExpire_(projects) {
+  const now = new Date(), hit = [];
+  projects.forEach(p => { const inv = parseInvites_(p.invites); if (Object.keys(inv).some(k => inv[k] && inv[k].st === 'invited' && inv[k].at && (d => d && d < now)(inviteDeadline_(inv[k].at)))) hit.push(p.id); });
+  if (!hit.length) return false;
+  withLock_(() => { const sh = sheetFor_('projects');
+    hit.forEach(pid => { const row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row), inv = parseInvites_(q.invites); let ch = false;
+      Object.keys(inv).forEach(k => { const iv = inv[k]; if (iv && iv.st === 'invited' && iv.at) { const d = inviteDeadline_(iv.at); if (d && d < now) { iv.st = 'no'; iv.via = 'lejart'; iv.ans = now_(); ch = true; } } });
+      if (!ch) return; q.invites = JSON.stringify(inv); putRow_('projects', sh, q, row); const lp = projects.find(x => x.id === pid); if (lp) lp.invites = q.invites; });
+    dataBump_(); dbFlush_(); });
+  return true;
+}
