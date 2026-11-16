@@ -689,7 +689,7 @@ function viewProject(p){
   const itemOpts=INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
     if(!items.length)return '';return `<optgroup label="${esc(cat)}">${items.map(i=>{const free=num(i.qty)-usedElsewhere(i.id,p);return `<option value="${esc(i.id)}"${i.id===eqSel?' selected':''}>${esc(i.name)} — ${free}/${num(i.qty)} szabad${i.condition&&i.condition!=='ok'?' ('+CONDITIONS[i.condition].toLowerCase()+')':''}</option>`;}).join('')}</optgroup>`;}).join('');
   const folder=ro()?'':p.folderId?`<a class="mini" href="${esc(driveUrl(p.folderId))}" target="_blank" rel="noopener">📁 Projektmappa megnyitása ↗</a>`:ro()?'':`<button class="mini" type="button" data-action="make-folder">📁 Projektmappa létrehozása</button>`;
-  const histBtn=ro()?'':`<button class="mini" type="button" data-action="proj-history" data-id="${esc(p.id)}">ℹ️ Részletek</button>`;
+  const histBtn=ro()||!isAdmin()?'':`<button class="mini" type="button" data-action="proj-history" data-id="${esc(p.id)}">ℹ️ Részletek</button>`;
   const iCut=(p.crew||[]).some(a=>a.crewId===(S.me&&S.me.crewId)&&a.role==='Vágó'),canDeliver=iCut&&['tervezes','helyszin','utomunka','leadva'].includes(p.status||'tervezes')&&needsDelivery(p);
   const vl=vidLink(p,'mini','Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':'')),xl=extraLinks(p,'mini');
   const dlPanel=!!(vl||xl)&&['leadva','jovahagyas','atadva'].includes(status)&&!(ro()&&!iCut&&r&&r.end<T);   // a Kész videók panel mutatja a linket – fent nem kell még egy gomb
