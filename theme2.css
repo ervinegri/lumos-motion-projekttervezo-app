@@ -2233,3 +2233,6 @@ html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>.tl-okfill{display:block!i
 /* Idővonal: a lezajlott helyszíni munka (forgatás) sávja zöld – innen megy át a vágás lilájába / zöldjébe */
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done:not(.tl-cut):not(.tl-split){background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important}
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.tl-split{--from:#cdeedd}
+/* Idővonal: a még le nem forgatott nap szürke */
+html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo:not(.tl-cut):not(.tl-split){background:#c9cfd5!important;color:#3f4a55!important;border-color:#c9cfd5!important}
+html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo.tl-split{--from:#c9cfd5}
