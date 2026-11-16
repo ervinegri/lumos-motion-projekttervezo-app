@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "577768c06e",
+"at": "2026-11-16T12:16:33+02:00",
+"msg": "Sales App szinkron: jövőbeli forgatású projekt nem léphet utómunkára a „leforgatva” jelzéstől"
+},
+{
 "id": "a87696d4f8",
 "at": "2026-11-16T12:14:27+02:00",
 "msg": "Lemondás-levél: a rögzítő neve nem zárójelben, hanem külön, szürke sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyersanyag-, leadás- és TIG-levelek is a kolléga saját címéről (domainszintű küldés)"
 },
 {
-"id": "bc0c6e2983",
-"at": "2026-11-16T10:59:48+02:00",
-"msg": "Projektek: „Lezárt projektek” lenyitható csoport; háttér: szintaxis-ellenőrzés a telepítés előtt, sikertelen telepítésről nincs GitHub-e-mail"
-},
-{
-"id": "dc3be6ddc7",
-"at": "2026-11-16T08:57:24Z",
+"id": "bb6c8b4025",
+"at": "2026-11-16T08:59:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
