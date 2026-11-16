@@ -2226,3 +2226,5 @@ html body .tl-bar:has(.tl-okfill)>*:not(.tl-okfill){text-shadow:0 0 3px rgba(0,0
 html body .tl-bar>*:not(.tl-okfill){position:relative;z-index:1}
 /* Idővonal: a forgatási sáv és a kész (zöld) vágási sáv között lágy, folytonos átmenet (nincs fehér csík) */
 html body .tl-row .tl-track .cal-chip.p.cut.tl-bar.tl-cut.tl-joined.cut-ok.cut-ok.cut-ok.cut-ok{background:linear-gradient(90deg,var(--from,#cdeedd) 0,#cdeedd 36px)!important;background:linear-gradient(in oklab 90deg,var(--from,#cdeedd) 0,#cdeedd 36px)!important;border-left:0!important;margin-left:-2px!important;border-top-left-radius:0!important;border-bottom-left-radius:0!important}
+/* Idővonal: a vágói naptár bejegyzése zöld, ha a hozzá tartozó projekt már kész */
+html body .tl-row .tl-track .cal-chip.v.v-ok.tl-bar,html body .cal-chip.v.v-ok{background:#cdeedd!important;color:#1f6b40!important;border-color:#8fd0aa!important}
