@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8054a01534",
+"at": "2026-11-16T11:53:40+02:00",
+"msg": "Pozíció-kártyák: egy meghívó személyenként, nincs duplikált szerepmező, csillag csak projektvezető nélkül, egységes kuka (pozícióról levétel), „Távolról vezeti”"
+},
+{
 "id": "3a65af9fb5",
 "at": "2026-11-16T11:51:25+02:00",
 "msg": "A közös „Csapat véglegesítése” funkció kikapcsolva (pozíciónként, külön véglegesítünk)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: gyors egymás utáni cellabeírások nem vesznek el (nincs újrarajzolás gépelés közben, csak az utolsó szerverválasz érvényes); projekt nélküli soroknál a munkadíj % is írható"
 },
 {
-"id": "d0fad701f1",
-"at": "2026-11-15T17:40:25+02:00",
-"msg": "Bevételek: projekt nélküli tételeknél a munkadíj (Ft) és az értékesítési % ideiglenesen írható; az eszköz-rezsi igazodik"
-},
-{
-"id": "c3c39741e9",
-"at": "2026-11-15T15:38:09Z",
+"id": "096cac798f",
+"at": "2026-11-15T15:40:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
