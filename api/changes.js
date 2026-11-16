@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a7b4499d8b",
+"at": "2026-11-16T13:50:29+02:00",
+"msg": "Idővonal: a kész projektek vágási sávja és a hozzájuk tartozó vágói bejegyzések zöldek"
+},
+{
 "id": "8e07cc9475",
 "at": "2026-11-16T13:49:05+02:00",
 "msg": "Idővonal: lágyabb átmenet a forgatási és a kész vágási sáv között"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondáskor e-mail a termelési vezetőnek; a háttér már nem kér csapat-véglegesítést a helyszíni munkához"
 },
 {
-"id": "4482100e84",
-"at": "2026-11-16T11:55:04+02:00",
-"msg": "Stáb és eszközök: a pozíciószámláló címkék törölve (a kártyák mutatják)"
-},
-{
-"id": "84b9c7ca6d",
-"at": "2026-11-16T09:53:50Z",
+"id": "fcbcb47055",
+"at": "2026-11-16T09:55:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
