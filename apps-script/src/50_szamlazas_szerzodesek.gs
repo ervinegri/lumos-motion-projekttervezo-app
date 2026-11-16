@@ -237,6 +237,10 @@ function szLink_(u, a) {
     a: {projectId|incomeId, projectIds, no, kind, issuer, date, due, invNet, invGross, paid, paidAt, b64, name, mime} */
 function szManual_(u, a) {
   a = a || {};
+  if (a.id && a.paid) {   /* számlázz.hu-s bizonylat: a kifizetést ott is rögzítjük (jóváírás), és csak siker esetén jelöljük nálunk */
+    const r0 = readAll_('finInvoice').find(x => x.id === str_(a.id, 64)), rest = r0 ? Math.round((Number(r0.invGross) || 0) - (Number(r0.invPaid) || 0)) : 0;
+    if (r0 && !r0.manual && r0.no && rest > 0) szCredit_(r0.no, iso_(a.paidAt) || today_(), rest, r0.payMethod);
+  }
   if (a.id) {
     withLock_(() => { const sh = sheetFor_('finInvoice'), row = findRow_(sh, str_(a.id, 64)); if (!row) throw new Error('A bizonylat nem található.'); const r = readRow_('finInvoice', sh, row);
       if (!r.manual && !a.paid) r.checkedAt = '';   // számlázz.hu-s számla: visszavonásnál a következő frissítés újra lekérdezi
@@ -1106,3 +1110,11 @@ function szInvoiceMail_(u, o) {
 /** Átutalásnál a számla/díjbekérő megjegyzésébe: a közleményben a teljes sorszámot kérjük (a banki párosításhoz). A sorszámot a számlázz.hu a kiállításkor adja, ezért itt általánosan. */
 function szPayNote_(c, pm) { c = String(c || '').trim(); if (!/átutal/i.test(String(pm || '')) || /közlemény/i.test(c)) return c;
   const n = 'Átutaláskor kérjük, a közleményben a bizonylat teljes sorszámát tüntesse fel, az elején lévő betűkkel együtt.'; return c ? c + '\n' + n : n; }
+
+/** Kifizetés (jóváírás) rögzítése egy számlázz.hu-s számlán / díjbekérőn – a korábbi jóváírások megmaradnak (additiv). */
+function szCredit_(no, date, amount, method) {
+  const key = szNeedKey_(), jog = /k[eé]szp/i.test(String(method || '')) ? 'készpénz' : /k[aá]rty/i.test(String(method || '')) ? 'bankkártya' : 'átutalás';
+  const xml = szXmlHead_('xmlszamlakifiz', 'agentkifiz') + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('szamlaszam', no) + szEl_('additiv', 'true') + '</beallitasok>'
+    + '<kifizetes>' + szEl_('datum', date) + szEl_('jogcim', jog) + szEl_('osszeg', String(Math.round(amount))) + szEl_('leiras', 'Projekttervezőben kifizetettnek jelölve') + '</kifizetes></xmlszamlakifiz>';
+  szPost_('action-szamla_agent_kifiz', xml);
+}

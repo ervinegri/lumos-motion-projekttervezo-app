@@ -625,7 +625,7 @@ document.addEventListener('input',e=>{if(e.target.id!=='m-no'||!$('sz-peek'))ret
 document.addEventListener('change',async e=>{if(e.target.id!=='m-invslot')return;const t=e.target;t.disabled=true;
   try{const d=await call('szSetKind',{id:t.dataset.invid,kind:t.value});closeModal();finApply(d);toast('Áthelyezve: '+(SZ_KIND[t.value]||t.value));}catch(err){handleErr(err);t.disabled=false;}});
 ACT['sz-manual']=b=>szManualModal(b.dataset.kind,b.dataset.id,b.dataset.type);
-ACT['sz-mpaid']=async b=>{try{const d=await call('szManual',{id:b.dataset.id,paid:b.dataset.paid==='1'});closeModal();finApply(d);toast(b.dataset.paid==='1'?'Kifizetettnek jelölve':'Kifizetés visszavonva');}catch(e){handleErr(e);}};
+ACT['sz-mpaid']=async b=>{const x0=((S.fin&&S.fin.invoices)||[]).find(x=>x.id===b.dataset.id)||{},sz=!x0.manual;try{const d=await call('szManual',{id:b.dataset.id,paid:b.dataset.paid==='1'});closeModal();finApply(d);toast(b.dataset.paid==='1'?'Kifizetettnek jelölve'+(sz?' – a számlázz.hu-ban is rögzítve':''):'Kifizetés visszavonva'+(sz?' az appban – a számlázz.hu-ban a jóváírást kézzel töröld':''));}catch(e){handleErr(e);}};
 function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
   const tgt=x.projectId?invPids(x).map(id=>(projById(id)||{}).name||'?').join(', '):(((S.fin.income||[]).find(r=>r.id===x.incomeId))||{}).name;
   openModal((SZ_KIND[x.kind]||'Számla')+' '+x.no,`<div class="sz-info">
