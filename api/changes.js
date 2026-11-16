@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b8642afee",
+"at": "2026-11-16T10:55:06+02:00",
+"msg": "HubSpot: kapcsolattartó–cég társítás a batch/associate/default végponttal (HTTP 415 javítás)"
+},
+{
 "id": "78127b15aa",
 "at": "2026-11-16T09:26:04+02:00",
 "msg": "Vercel: nincs build, ha csak háttér / teszt / Action / leírás változott (buildperc-spórolás)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Teljesítmény: csak értékesítők + az ügyvezető (külön sorban, alul); Guzsloványi Flóra: Értékesítő → Ajánlói jutalék (egyszeri)"
 },
 {
-"id": "b403701501",
-"at": "2026-11-15T13:53:14+02:00",
-"msg": "Fizetések: számla kiállítása csak kiküldött díjösszesítő után (felület + háttér), kézi jelölés visszavonható; NAV-számla: rámutatáskor kis ablak a két művelettel, a számlaszám nem vágódik le"
-},
-{
-"id": "99acda03c5",
-"at": "2026-11-15T11:50:37Z",
+"id": "4116241370",
+"at": "2026-11-15T11:53:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
