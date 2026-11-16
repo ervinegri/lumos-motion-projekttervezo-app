@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6ef2a225d",
+"at": "2026-11-16T16:18:28+02:00",
+"msg": "Pénzügyek táblák: a ráhúzott sor teljes szélességben enyhén kiemelve"
+},
+{
 "id": "b6977a0b51",
 "at": "2026-11-16T16:16:23+02:00",
 "msg": "Pénzügyek táblák: a ráhúzott sor kiemelve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a jóváhagyott arány kitöltését egy régi szabály elrejtette – most látszik"
 },
 {
-"id": "4ee214ac74",
-"at": "2026-11-16T13:51:16+02:00",
-"msg": "Idővonal: a kész projekthez tartozó vágói bejegyzések zöldek"
-},
-{
-"id": "adcdf8dbc0",
-"at": "2026-11-16T11:50:38Z",
+"id": "86379e3aa8",
+"at": "2026-11-16T11:51:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
