@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "58513cc853",
+"at": "2026-11-16T18:31:45+02:00",
+"msg": "Árajánlat küldése: a korábbi ügyfelek listája csak az ügyvezetőnek"
+},
+{
 "id": "b1d17e630e",
 "at": "2026-11-16T18:29:07+02:00",
 "msg": "Árajánlat küldése: korábbi ügyfél is választható – új lehetőség az ügyfél adataival, utána az árajánlat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek panel: csak a nyíl nyit/zár"
 },
 {
-"id": "e20360c730",
-"at": "2026-11-16T16:14:01+02:00",
-"msg": "Ki értékesítette? kártya: előbb a jutalék (%), utána az összeg"
-},
-{
-"id": "b6d21374be",
-"at": "2026-11-16T14:05:55Z",
+"id": "348a7874db",
+"at": "2026-11-16T14:14:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
