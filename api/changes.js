@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2f36fbfd7b",
+"at": "2026-11-16T14:07:01+02:00",
+"msg": "Idővonal: a lezárt projekt videói is megnyílnak a naptárból; összevont sorban a csak-vágás sávok neve látszik; lezajlott naptárbejegyzések zöldek"
+},
+{
 "id": "edc76a1d1e",
 "at": "2026-11-16T14:05:13+02:00",
 "msg": "Idővonal: videó nélküli projekt vágási sávjára kattintva a projekt nyílik meg (nem üres videótábla)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni munkára csak elfogadott meghívásokkal; elfogadás ideje a tooltipben (határidő helyett); nem fizetős kártyáról a „Nettó szerződött érték” felirat törölve"
 },
 {
-"id": "07447fed27",
-"at": "2026-11-16T12:17:38+02:00",
-"msg": "Javítás: szinkron-feltétel megjegyzése; teszt a jövőbeli forgatás esetére"
-},
-{
-"id": "a6198cacc4",
-"at": "2026-11-16T10:16:42Z",
+"id": "496fe139d8",
+"at": "2026-11-16T10:17:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
