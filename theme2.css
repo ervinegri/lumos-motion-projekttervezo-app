@@ -2266,3 +2266,6 @@ html body details.money-panel>summary button,html body details.money-panel>summa
 /* Pénzügyek táblák: ráhúzott sor kiemelése */
 html body .fin-tbl tbody tr:hover>td{background:#fff6dc!important}
 html body .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 #e0a93a}
+/* erősebb sor-kiemelés: áttetsző sárga réteg minden cellán (a sávozott háttér fölött is látszik) */
+html body #view .fin-tbl tbody tr:hover>td{box-shadow:inset 0 0 0 999px rgba(255,196,64,.16)!important}
+html body #view .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 #e0a93a,inset 0 0 0 999px rgba(255,196,64,.16)!important}
