@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bc0c6e2983",
+"at": "2026-11-16T10:59:48+02:00",
+"msg": "Projektek: „Lezárt projektek” lenyitható csoport; háttér: szintaxis-ellenőrzés a telepítés előtt, sikertelen telepítésről nincs GitHub-e-mail"
+},
+{
 "id": "c9765a4086",
 "at": "2026-11-16T10:57:14+02:00",
 "msg": "HubSpot társítás javítás (szintaxis); díjmentes projekt: tiszta 🎁 jelölés a Szerződés kártyán"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Meghívás-visszajelzés: tömör levél – ki, vállalta-e, szerep (projektvezető is), időpont"
 },
 {
-"id": "ddb298721d",
-"at": "2026-11-15T15:03:35+02:00",
-"msg": "HubSpot: dealek nem jönnek létre / nem módosulnak (a lehetőség gazdája az app); csak kapcsolattartó és cég szinkron"
-},
-{
-"id": "fe9f8ae8b5",
-"at": "2026-11-15T11:55:59Z",
+"id": "614663c7bf",
+"at": "2026-11-15T13:03:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
