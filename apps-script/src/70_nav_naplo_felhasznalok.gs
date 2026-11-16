@@ -622,7 +622,7 @@ function dealQuoteSend_(u, a) {
   if (!ok) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
   let deals; withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row);
     const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] 📄 Árajánlat elküldve (' + tos.join(', ') + ')' + (Number(a.total) ? ' – ' + String(Math.round(Number(a.total))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA' : '') + (Number(a.opts) > 1 ? ' – ' + Number(a.opts) + ' opcióval' : '');
-    x.note = line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : ''); if (x.stage === 'uj') x.stage = 'ajanlat'; x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
+    x.note = line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : ''); if (x.stage === 'uj') x.stage = 'ajanlat'; if (Number(a.total) > 0 && x.stage !== 'nyert') x.value = Math.round(Number(a.total)); x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
   logEvent_(u, 'Árajánlat elküldve', d.title, tos.join(', '));
   try { deals = dealsFor_(u); } catch (e) { }
   return { ok: true, test: !live, deals: deals };
@@ -641,4 +641,15 @@ function contractPdf_(u, a) {
     if (ex.getResponseCode() !== 200) throw new Error('A PDF nem készült el (export): ' + ex.getContentText().slice(0, 200));
     return { pdf: Utilities.base64Encode(ex.getContent()) };
   } finally { try { UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + id, { method: 'delete', headers: auth, muteHttpExceptions: true }); } catch (e) { } }
+}
+
+/** Egyszeri pótlás: az érték nélküli nyitott lehetőségek megkapják a legutóbb elküldött árajánlat nettó összegét (a jegyzet „Árajánlat elküldve … – N Ft + ÁFA” sorából). */
+function quoteValueOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('QUOTE_VALUE_1')) return;
+  withLock_(() => { const sh = sheetFor_('deals');
+    readAll_('deals').forEach(d => { if (d.stage === 'nyert' || d.stage === 'elveszett' || (d.value !== '' && d.value != null && Number(d.value) > 0)) return;
+      const m = /Árajánlat elküldve[^\n]*? – ([\d ]+) Ft \+ ÁFA/.exec(String(d.note || '')); if (!m) return; const v = Number(m[1].replace(/\s/g, '')); if (!(v > 0)) return;
+      const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.value = v; putRow_('deals', sh, x, row); });
+    dbFlush_(); });
+  P.setProperty('QUOTE_VALUE_1', new Date().toISOString());
 }
