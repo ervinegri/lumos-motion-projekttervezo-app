@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2c9afba80c",
+"at": "2026-11-16T14:49:20+02:00",
+"msg": "Idővonal: a „Jóváhagyásra vár” sáv visszakerült – minden projekt, amelynek akár csak egy videója vár jóváhagyásra"
+},
+{
 "id": "12c9ba9d27",
 "at": "2026-11-16T14:48:05+02:00",
 "msg": "Idővonal: a projekthez nem kötött, már lezajlott vágói bejegyzés is zöld"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondott projekt: a teljes tartalom szürke és zárolt; lezajlott rendezvényre nincs Meghívás gomb"
 },
 {
-"id": "b535c85b24",
-"at": "2026-11-16T13:05:10+02:00",
-"msg": "Fotók: galéria-kártya videólejátszó helyett, „Jóváhagyta a fotókat”, fotós szövegek; a vezető a galéria linkjét bármikor megadhatja / cserélheti; nem lejátszható linknél megnyitás új lapon"
-},
-{
-"id": "54e1cde081",
-"at": "2026-11-16T11:03:12Z",
+"id": "0d69db3615",
+"at": "2026-11-16T11:05:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
