@@ -267,6 +267,7 @@ function refOption(p,inEx){if(!isAdmin()||!inEx)return '';   // csak az ügyveze
 function crewFinalBox(p,ids){
   if(!ids.length)return '';
   if(crewPast(p))return `<div class="crew-final past" id="crew-final"><div class="cf-msg"><b>🔒 A rendezvény már lezajlott</b><small>A csapat és az eszközök utólag nem módosíthatók.</small></div></div>`;
+  if(!crewFinalOn())return '';   // közös véglegesítés nincs többé
   const st=crewFinalState(p),f=p.crewFinal,freeCut=postTasks(p).filter(t=>!taskOwners(p,t.k).length).length,on=crewFinalOn()&&!freeCut;
   // a véglegesítő ablak nem ugrik fel magától – csak a „Módosítások véglegesítése” gombra
   const sentL=(f&&(f.sentTo&&f.sentTo.length?f.sentTo:(f.notified||[]).map(n=>({name:n,email:((S.crew||[]).find(c=>c.name===n)||{}).email||''}))))||[];

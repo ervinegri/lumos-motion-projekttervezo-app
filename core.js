@@ -17,7 +17,7 @@ function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_
 function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id);return i<0?1e6:i;};
   return S.crew.slice().sort((a,b)=>rank(a.id)-rank(b.id)||prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));}
 /* Csapat véglegesítése: a stáb csak ekkor kerül a naptárba (értesítéssel). „changed”: azóta módosult a beosztás. */
-const crewFinalOn=()=>!!(S.capabilities&&S.capabilities.crewFinalize);
+const crewFinalOn=()=>false;   // a közös „Csapat véglegesítése” megszűnt: a szakembereket pozíciónként, külön hívjuk meg / véglegesítjük (a figyelmeztetés, a címke, a lépés-zár és a doboz is ehhez igazodik)
 const crewIdsNow=p=>[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].sort();
 function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role)).sort();
   const eq=(p.equipment||[]).filter(e=>(e.crewId||'')===cid).map(e=>e.itemId+'x'+(Number(e.qty)||1)).sort();
@@ -37,7 +37,7 @@ function cutTasksFor(p){const o={},cut=cutterIds(p);if(!cut.length)return o;cons
 const eqSig=p=>(p&&p.equipment||[]).map(e=>e.itemId+'|'+(e.crewId||'')+'|'+(num(e.qty)||1)).sort().join(',');
 function eqFinalState(p){const f=p&&p.eqFinal;if(!f||!f.at)return 'none';return f.sig===eqSig(p)?'ok':'changed';}
 const crewPast=p=>!!p&&!editOnly(p)&&!!pr(p)&&pr(p).end<todayISO();   // lezajlott rendezvény: a csapat (és az eszközök) már nem módosíthatók
-const crewLocked=p=>!ro()&&!!p&&(crewPast(p)||crewFinalState(p)!=='none'&&!(S.crewEdit||{})[p.id]);   // véglegesítés után (módosult állapotban is) csak a „Csapat módosítása” után szerkeszthető   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók
+const crewLocked=p=>!ro()&&!!p&&(crewPast(p)||crewFinalOn()&&crewFinalState(p)!=='none'&&!(S.crewEdit||{})[p.id]);   // véglegesítés után (módosult állapotban is) csak a „Csapat módosítása” után szerkeszthető   // véglegesített csapat: a kártyák szürkék, csak az eszközök módosíthatók
 const eqLocked=p=>!ro()&&!!p&&(crewPast(p)||eqFinalState(p)==='ok'&&!(S.eqEdit||{})[p.id]);
 function crewFinalState(p){const f=p&&p.crewFinal;if(!f||!Array.isArray(f.ids))return 'none';const d=crewFinalDiff(p);return d.added.length||d.changed.length||d.removed.length?'changed':'ok';}
 const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lépések (csak átadandó anyagnál)
