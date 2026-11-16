@@ -908,7 +908,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     })();
     // Egyidejű helyszíni és vágói szerepnél az e-mail mindkét feladat adatait tartalmazza.
     const onSiteInvite = p.lead === cid || (asg).some(x => x.crewId === cid && x.role !== 'Vágó' && x.role !== 'Értékesítő');
-    const rawUpload = isCut && p.date ? huD(p.date) : '';
+    const rawUpload = isCut && p.date ? (m => m ? ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()] : '')(/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(p.date))) : '';   /* teljes hónapnév: „december 2., szerda” */
     const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
     const info = [onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
