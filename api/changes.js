@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d6d7aa8ddc",
+"at": "2026-11-16T16:03:30+02:00",
+"msg": "HubSpot: a már javított 415-ös társítási hiba régi bejegyzése törlődik, nem jelenik meg"
+},
+{
 "id": "fe2fb2118c",
 "at": "2026-11-16T15:17:19+02:00",
 "msg": "Ha a forgatás még előttünk van, a projekt visszaállítható Tervezésre (pl. tévesen utómunkába került)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár idővonal: részleges jóváhagyásnál a sáv arányosan zöld"
 },
 {
-"id": "c2c8e0331a",
-"at": "2026-11-16T13:38:39+02:00",
-"msg": "Projektlista: egységes videó-összesítő (darabszám + jóváhagyott arány + állapotsáv) minden projektnél; javítva egy elnyelt definíció; teszt"
-},
-{
-"id": "94b8a06a97",
-"at": "2026-11-16T11:34:46Z",
+"id": "1f8e3d72c4",
+"at": "2026-11-16T11:38:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
