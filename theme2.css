@@ -2221,5 +2221,6 @@ html body .pos-card .eqrow input[type=number],html body .pos-card .eqrow .inp{wi
 html body .pos-card .eqrow .x{width:22px;height:22px;font-size:13px}
 /* Idővonal: részleges jóváhagyás arányos zöld kitöltéssel */
 html body .tl-bar{position:relative;overflow:hidden}
-html body .tl-bar .tl-okfill{position:absolute;left:0;top:0;bottom:0;background:rgba(46,158,98,.38);pointer-events:none;z-index:0}
+html body .tl-bar .tl-okfill{position:absolute;left:0;top:0;bottom:0;background:#cdeedd;border-right:1px solid #a8dcbe;pointer-events:none;z-index:0}
+html body .tl-bar:has(.tl-okfill)>*:not(.tl-okfill){text-shadow:0 0 3px rgba(0,0,0,.45)}
 html body .tl-bar>*:not(.tl-okfill){position:relative;z-index:1}
