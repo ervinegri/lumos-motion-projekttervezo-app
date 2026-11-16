@@ -2259,3 +2259,7 @@ html body .pos-card .pos-hs .pos-h,html body .pos-card .pos-hs .lead-badge{flex:
 /* Kifizetések: a számla sorszáma egy sorban (kisebb betűvel), nem törik három sorba */
 html body .pay-sheet td.pay-st .pst-card small{white-space:nowrap!important;overflow-wrap:normal!important;font-size:9.5px!important;letter-spacing:-.3px}
 html body .pay-sheet td.pay-st .pst-card{padding:2px 4px!important;max-width:100%!important;overflow:hidden}
+/* Pénzügyek panel: csak a nyíl nyit / zár (a címre kattintva nem csukódik össze) */
+html body details.money-panel>summary{pointer-events:none;cursor:default}
+html body details.money-panel>summary>h3::after{pointer-events:auto;cursor:pointer;padding:6px;margin-left:4px}
+html body details.money-panel>summary button,html body details.money-panel>summary a,html body details.money-panel>summary input{pointer-events:auto}
