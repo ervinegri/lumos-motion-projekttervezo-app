@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "14ca484878",
+"at": "2026-11-16T13:48:35+02:00",
+"msg": "Idővonal: a jóváhagyott arány csak a vágási (lila) részen, a forgatási sávon nem"
+},
+{
 "id": "a8fc073713",
 "at": "2026-11-16T13:46:02+02:00",
 "msg": "Idővonal: a részleges jóváhagyás kitöltése ugyanaz a zöld, mint a kész sávoké"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pozíció-kártyák: egy meghívó személyenként, nincs duplikált szerepmező, csillag csak projektvezető nélkül, egységes kuka (pozícióról levétel), „Távolról vezeti”"
 },
 {
-"id": "3a65af9fb5",
-"at": "2026-11-16T11:51:25+02:00",
-"msg": "A közös „Csapat véglegesítése” funkció kikapcsolva (pozíciónként, külön véglegesítünk)"
-},
-{
-"id": "9c1e8ca673",
-"at": "2026-11-16T09:43:24Z",
+"id": "7891d37b6f",
+"at": "2026-11-16T09:51:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
