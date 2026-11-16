@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "56f100373a",
+"at": "2026-11-16T11:20:15+02:00",
+"msg": "Projektlista: forgatás előtt nincs „Utómunkára vár” a videóknál"
+},
+{
 "id": "8cdd835ac8",
 "at": "2026-11-16T11:19:34+02:00",
 "msg": "Kifizetések: a számla teljes sorszáma látszik a kártyán"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevétel és kiadás: tömör összesítő csempék; a számlázás csempe-elrendezése nem hat a Bevétel fülre"
 },
 {
-"id": "386c8b4a2b",
-"at": "2026-11-15T15:42:44+02:00",
-"msg": "Szerződés és számlázás: kintlévőség két csempén (bizonylattal / bizonylat nélkül, külön szűrővel), alacsonyabb csempék egy sorban"
-},
-{
-"id": "c06cf85307",
-"at": "2026-11-15T13:39:34Z",
+"id": "1df6520c38",
+"at": "2026-11-15T13:42:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
