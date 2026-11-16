@@ -2242,3 +2242,13 @@ html body .tl-bar .tl-okfill.tl-waitfill{background:#fbe7b5;border-right:1px sol
 html body .tl-track .tl-cut.tl-withmain>.tl-waitfill{display:block!important}
 /* Idővonal: a Google Naptár app-projekt nélküli, már lezajlott bejegyzése is zöld */
 html body .tl-row .tl-track .cal-chip.g.g-past.tl-bar,html body .cal-chip.g.g-past{background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important}
+/* Idővonal: a zöld / sárga rész saját súgót kap ráhúzáskor */
+html body .tl-bar .tl-okfill{pointer-events:auto;cursor:help}
+/* vágónkénti csoport fejléce */
+html body .tl-row.tl-csec .tl-lbl b{font-size:12.5px;font-weight:800;color:#3b2f6b}
+html body .tl-row.tl-csec{background:#f6f4fb}
+/* keskeny (egynapos) sávok: a ✓ a jobb felső sarokba kerül, így a név kifér az óra alatt */
+html body .tl-row .tl-track .tl-bar .tl-ok{position:absolute;right:5px;top:3px;margin:0}
+/* lezárt, egynapos (osztott) sáv: forgatás + vágás is kész → zöld; csak a forgatás kész → zöldből a vágás színébe */
+html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split.shoot-done.shoot-done.shoot-done{background:linear-gradient(118deg,#cdeedd 0 52%,var(--cutc) 52% 100%)!important;color:#1f4f35!important}
+html body .tl-row .tl-track .cal-chip.p.tl-bar.tl-split.st-atadva.shoot-done.shoot-done.shoot-done{background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important}
