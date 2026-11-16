@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9cd811b5c3",
+"at": "2026-11-16T15:11:54+02:00",
+"msg": "Fotózás kiválasztásakor automatikusan a fotók utómunkája is (200 kép)"
+},
+{
 "id": "7e28cf8c33",
 "at": "2026-11-16T15:10:27+02:00",
 "msg": "Kifizetések: a számla sorszáma egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: kompakt videó-összesítő (állapotsáv), piros figyelmeztetésű projektek sora piros; pozíció-kártyák: címkék nem takarnak, kompakt eszközlista"
 },
 {
-"id": "18ff8b4a9e",
-"at": "2026-11-16T13:28:27+02:00",
-"msg": "Az értékesítő nem kap e-mailt az átadásról (beállítás is törölve); egyszeri csendes lezárás a teljesen jóváhagyott projekteknél"
-},
-{
-"id": "e2852c94ec",
-"at": "2026-11-16T11:23:40Z",
+"id": "ff9b31c4bf",
+"at": "2026-11-16T11:28:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
