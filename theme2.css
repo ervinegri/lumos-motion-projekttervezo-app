@@ -2163,3 +2163,7 @@ html body .pt-vs.vs-bad{background:#fbe5e3;color:#a6372c}
 /* Szerződés és Termelés kártya azonos magasságú */
 html body .fin-v2 .fin-r>.fin-grp{align-self:stretch;display:flex;flex-direction:column}
 html body .fin-v2 .fin-r>.fin-grp>.grp-b{flex:1}
+html body .pt-vtog{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;width:100%;padding:3px 6px;margin:0 -6px;border:0;background:none;border-radius:8px;font:inherit;font-size:12px;font-weight:600;color:#2b2f36;cursor:pointer;text-align:left}
+html body .pt-vtog:hover{background:#eef1f5}
+html body .pt-vcar{width:10px;color:#7a828e}
+html body .pt-vsum{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}

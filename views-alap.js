@@ -233,7 +233,10 @@ function vidLinksOf(p){const l=(p.videos||[]).filter(v=>/^https:\/\//i.test(v.li
 /* Projektlista: a vágási táblán lévő videók tételesen, a stádiumukkal (a leadott/jóváhagyott, linkkel rendelkező videó kattintható) */
 const VST_TONE={vagasra:'mute',vagas:'warn',ellen:'info',leadva:'info',jovahagyva:'ok',modositas:'bad'};
 function vidStList(p){const l=p.videos||[];if(!l.length)return '';const lab=st=>((typeof VID_ST!=='undefined'?VID_ST:[]).find(x=>x[0]===st)||[,'Utómunkára vár'])[1];
-  return `<div class="pt-vids">${l.map((v,i)=>{const st=v.st||'vagasra',nm=esc(v.name||(i+1)+'. videó'),lk=/^https:\/\//i.test(v.link||'')&&['leadva','jovahagyva'].includes(st);
+  const open=l.length<=3||!!(S._vidOpen&&S._vidOpen[p.id]),cnt={};l.forEach(v=>{const st=v.st||'vagasra';cnt[st]=(cnt[st]||0)+1;});
+  const head=l.length>3?`<button type="button" class="pt-vtog" data-action="pt-vid-tog" data-pid="${esc(p.id)}" aria-expanded="${open}"><span class="pt-vcar">${open?'▾':'▸'}</span> 🎞️ ${l.length} videó${open?'':`<span class="pt-vsum">${Object.keys(cnt).map(st=>`<span class="pt-vs vs-${VST_TONE[st]||'mute'}">${cnt[st]} · ${esc(lab(st))}</span>`).join('')}</span>`}</button>`:'';
+  if(!open)return `<div class="pt-vids">${head}</div>`;
+  return `<div class="pt-vids">${head}${l.map((v,i)=>{const st=v.st||'vagasra',nm=esc(v.name||(i+1)+'. videó'),lk=/^https:\/\//i.test(v.link||'')&&['leadva','jovahagyva'].includes(st);
     return `<div class="pt-vid">${lk?`<a href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" class="pt-vn" title="${nm} megnyitása">▶ ${nm}</a>`:`<span class="pt-vn" title="${nm}">${nm}</span>`}<span class="pt-vs vs-${VST_TONE[st]||'mute'}">${esc(lab(st))}</span></div>`;}).join('')}</div>`;}
 function vidLink(p,cls,label,extra){if(!/^https:\/\//i.test(p.deliveryLink||''))return '';const a=`<a class="${cls}" href="${esc(p.deliveryLink)}" target="_blank" rel="noopener"${extra||''}>${label}</a>`;
   return p.deliveryPass?`<span class="pass-wrap">${a}<span class="pass-pop" role="tooltip">🔑 Jelszó: <code>${esc(p.deliveryPass)}</code><button type="button" class="pass-copy" data-action="copy-pass" data-pass="${esc(p.deliveryPass)}">Másolás</button></span></span>`:a;}
