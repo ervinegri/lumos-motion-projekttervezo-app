@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7984d87a59",
+"at": "2026-11-16T22:18:55+02:00",
+"msg": "Stábkártya: elutasított meghívásnál enyhén piros keret"
+},
+{
 "id": "ea651265a2",
 "at": "2026-11-16T22:18:35+02:00",
 "msg": "Stábkártya: még meg nem hívott munkatársnál szürke keret"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jutalék mentési jelzés: csak ikon (tooltippel), nem lóg rá az Összeg feliratra"
 },
 {
-"id": "ef4be887a7",
-"at": "2026-11-16T20:31:58+02:00",
-"msg": "Jutalék mező: látható mentési állapot (mentetlen / mentés… / mentve)"
-},
-{
-"id": "679685c129",
-"at": "2026-11-16T16:52:28Z",
+"id": "b526fc485b",
+"at": "2026-11-16T18:32:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
