@@ -108,6 +108,10 @@ const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 /* Előfoglalás: a projekt egy még nem szerződött lehetőséghez kötve (tárgyalás alatt) */
 const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
 const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!(p.preStage||p.tent);};
+/* Eszközt igénylő helyszíni szerep: ha nincs nála eszköz, jelezzük (kamera, drón, fotó, technika) */
+const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming'];
+function gearNeed(p,cid){if(!p||!cid||editOnly(p))return '';const rl=(p.crew||[]).filter(a=>a.crewId===cid&&GEAR_ROLES.includes(a.role)).map(a=>a.role);if(!rl.length)return '';
+  if((p.equipment||[]).some(e=>e.crewId===cid)||(p.rentals||[]).some(r=>r.crewId===cid))return '';return rl.map(r=>r.toLowerCase()).join(', ')+': nincs eszköz';}
 const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
 const recPostNeed=p=>postN(p)>0||num(p.er_summary)>0||num(p.er_clips)>0;   /* előadásokból készülő utómunka */
 const roomOps=r=>roomCams(r).length?1:0;
@@ -332,6 +336,9 @@ function computeIssues(){
     if(noOp.length)out.push({level:'warn',text:`🎥 ${P}: ${noOp.map(x=>nm(x.r,x.i)).join(', ')} – van kamera, de nincs operatőr, így az eszközök senki eszközlistáján nem szerepelnek.`,pids:[p.id]});
     const noEq=RR.map((r,i)=>({r,i,m:roomCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
     if(noEq.length)out.push({level:'warn',text:`🎥 ${P}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}. Válassz eszközt, vagy töröld a felesleges sort.`,pids:[p.id]});});
+  /* eszközt igénylő szerep eszköz nélkül (kreatív kamera, drón, fotó, technika) */
+  if(!ro())liveEq.forEach(p=>{const ids=[...new Set((p.crew||[]).map(a=>a.crewId))].filter(id=>gearNeed(p,id));
+    if(ids.length)out.push({level:'warn',text:`🎒 ${p.name||'Névtelen projekt'}: nincs eszköz – ${ids.map(id=>((crewById(id)||{}).name||'?')+' ('+(p.crew||[]).filter(a=>a.crewId===id&&GEAR_ROLES.includes(a.role)).map(a=>a.role.toLowerCase()).join(', ')+')').join('; ')}.`,pids:[p.id]});});
   /* olyan pozíció, amihez nincs kiválasztott szolgáltatás */
   if(!ro())liveEq.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
     const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjúsarok operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
