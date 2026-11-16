@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c2c8e0331a",
+"at": "2026-11-16T13:38:39+02:00",
+"msg": "Projektlista: egységes videó-összesítő (darabszám + jóváhagyott arány + állapotsáv) minden projektnél; javítva egy elnyelt definíció; teszt"
+},
+{
 "id": "0e24430668",
 "at": "2026-11-16T13:34:36+02:00",
 "msg": "Projektlista: lemondott projektnél nem jelenik meg a videók állapota"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a számla sorszáma tördelve, teljes egészében olvasható"
 },
 {
-"id": "47ef0c614f",
-"at": "2026-11-16T11:24:09+02:00",
-"msg": "Projektek: a keresőmező a táblázat „Projekt” fejlécébe került"
-},
-{
-"id": "b0580f7ca5",
-"at": "2026-11-16T09:23:44Z",
+"id": "b700715e59",
+"at": "2026-11-16T09:24:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
