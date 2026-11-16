@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "398232deed",
+"at": "2026-11-16T11:04:04+02:00",
+"msg": "Nyersanyag-, leadás- és TIG-levelek is a kolléga saját címéről (domainszintű küldés)"
+},
+{
 "id": "bc0c6e2983",
 "at": "2026-11-16T10:59:48+02:00",
 "msg": "Projektek: „Lezárt projektek” lenyitható csoport; háttér: szintaxis-ellenőrzés a telepítés előtt, sikertelen telepítésről nincs GitHub-e-mail"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "HubSpot-dealek egyszeri áthozatala lehetőségként (nyitott + elveszett; a megnyertek kimaradnak, a tulajdonos marad)"
 },
 {
-"id": "68d55e549f",
-"at": "2026-11-15T15:07:08+02:00",
-"msg": "Meghívás-visszajelzés: tömör levél – ki, vállalta-e, szerep (projektvezető is), időpont"
-},
-{
-"id": "614663c7bf",
-"at": "2026-11-15T13:03:45Z",
+"id": "2cce2bb8b7",
+"at": "2026-11-15T13:07:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
