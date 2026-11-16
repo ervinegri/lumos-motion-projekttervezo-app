@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "891f317e5a",
+"at": "2026-11-16T13:32:23+02:00",
+"msg": "Meghívás: aki termelési vezetőként / ügyvezetőként saját magát osztja be, annak nem kell meghívó (elfogadottnak számít)"
+},
+{
 "id": "d18c1ee6ba",
 "at": "2026-11-16T13:31:17+02:00",
 "msg": "Projektlista: kompakt videó-összesítő (állapotsáv), piros figyelmeztetésű projektek sora piros; pozíció-kártyák: címkék nem takarnak, kompakt eszközlista"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Figyelmeztetések: „A stáb nincs véglegesítve” / „módosult” is megjelenik"
 },
 {
-"id": "380db208ca",
-"at": "2026-11-16T11:21:53+02:00",
-"msg": "Projektlista: „N napja jóváhagyásra vár” egy sárga címkében, a külön állapotcímke nélkül"
-},
-{
-"id": "2530668c9b",
-"at": "2026-11-16T09:21:09Z",
+"id": "16a963e3f8",
+"at": "2026-11-16T09:22:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
