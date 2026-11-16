@@ -181,7 +181,7 @@ const crewBell=()=>!!(S.me&&S.me.role==='crew'&&S.me.crewId&&!S.me.viewAs);
 const salesBell=()=>!!(S.me&&isSales()&&!S.me.viewAs&&S.myNotify&&S.myNotify.appPay!==false);   /* értékesítő: a megnyert lehetőségeinél beérkezett kifizetés */
 function salesBellItems(){const lim=new Date(Date.now()-14*864e5).toISOString().slice(0,10);return (S.deals||[]).filter(d=>d.advPaidAt&&d.advPaidAt>=lim).map(d=>({p:{id:d.projectId||'',name:d.client||''},v:{id:'',name:d.title||d.name||d.client||'Lehetőség'},kind:'pay',at:d.advPaidAt,key:'sp|'+d.id+'|'+d.advPaidAt})).sort((a,b)=>String(b.at).localeCompare(String(a.at)));}
 function crewBellItems(){const NF=S.myNotify||{},out=[],me=S.me.crewId,lim=new Date(Date.now()-21*864e5).toISOString().slice(0,10);
-  S.projects.forEach(p=>{if(p.status==='lemondva')return;(p.videos||[]).forEach(v=>{if(v.editor!==me)return;
+  S.projects.forEach(p=>{if(p.status==='lemondva')return;(p.videos||[]).forEach(v=>{if(v.editor!==me||!(p.crew||[]).some(a=>a.crewId===me))return;
     const sent=[...(v.cm||[])].reverse().find(c=>/^(Ügyfélnek elküldve|TESZT: az ügyfélnek|Továbbküldve jóváhagyásra)/.test(c.t||''));
     if(NF.appSent!==false&&v.st==='leadva'&&sent&&String(sent.at).slice(0,10)>=lim)out.push({p,v,kind:'sent',at:sent.at,by:sent.by,key:'cs|'+p.id+'|'+v.id+'|'+sent.at});
     if(NF.appOk!==false&&v.st==='jovahagyva'){const ok=[...(v.cm||[])].reverse().find(c=>/jóváhagy/i.test(c.t||''));const at=(ok&&ok.at)||v.at||'';if(String(at).slice(0,10)>=lim)out.push({p,v,kind:'ok',at,by:'',key:'co|'+p.id+'|'+v.id});}});});

@@ -402,6 +402,7 @@ function videoSet_(u, a) {
     // A fotógaléria a fotók utómunkájához rendelt fotósé, a régebbi videószerkesztő-adatot is felülírja.
     const et = parseEditTasks_(p.editTasks), photoOwner = v.k === 'foto' && isPhotographer && (et[u.crewId] || []).includes('foto_db') ? u.crewId : '';
     if (!mgr && (v.k === 'foto' ? !photoOwner : !isCutter)) throw new Error('FORBIDDEN: A kártyát a kijelölt utómunka-felelős kezelheti.');
+    if (v.editor && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === v.editor)) v.editor = '';   /* a projektről levett vágó régi bejegyzése nem számít (pl. ne kapjon értesítést) */
     if (photoOwner && v.editor !== photoOwner) v.editor = photoOwner;
     const assignedEditor = v.k === 'foto' ? photoOwner : v.editor;
     if (a.editor !== undefined) {

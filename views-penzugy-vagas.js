@@ -385,7 +385,7 @@ const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 /* A fotógaléria a fotók utómunkájára kijelölt fotóshoz tartozik; a videók a vágóikhoz. */
 const vidOwner=(p,v)=>{
   if(v.k==='foto')return taskOwners(p,'foto_db')[0]||'';
-  if(v.editor)return v.editor;
+  if(v.editor&&(p.crew||[]).some(a=>a.crewId===v.editor))return v.editor;   // a projektről levett vágó (régi bejegyzés) nem számít
   const owners=taskOwners(p,v.k);if(owners.length===1)return owners[0];
   const cutters=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);
   return cutters.length===1?cutters[0]:'';
