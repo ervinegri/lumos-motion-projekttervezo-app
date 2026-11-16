@@ -2135,3 +2135,10 @@ html body .pos-card .pos-h.pt-tech{background:#fbf1e6;color:#8a5a20;border-color
 html body .pos-card .pos-h.pt-drive{background:#f1f2f4;color:#4b5563;border-color:#e0e3e8}
 html body .pos-card .pos-h.pt-sales{background:#fcebef;color:#9c3d55;border-color:#f3d3dc}
 html body .pos-card.pos-empty .pos-h{opacity:.85;border-style:dashed}
+/* Díjmentes projekt a Szerződés kártyán */
+html body .fin-free .free-card{display:flex;align-items:center;gap:10px;min-height:46px;padding:6px 14px;border-radius:12px;background:linear-gradient(135deg,#eaf6ee,#f4fbf6);border:1px solid #cfe7d7}
+html body .fin-free .free-ic{font-size:22px;line-height:1}
+html body .fin-free .free-t{display:flex;flex-direction:column;line-height:1.2}
+html body .fin-free .free-t b{color:#24613f;font-size:14.5px}
+html body .fin-free .free-t small{color:#5c7a68;font-size:12px}
+html body .fin-free .free-undo{margin-top:6px;font-size:12.5px}
