@@ -143,6 +143,8 @@ function saveProject_(u, a) {
     if (p.crewFinal == null) p.crewFinal = '';
     if (p.eqFinal == null) p.eqFinal = '';
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
+    if (u && u.crewId && (u.role === 'editor' || u.role === 'admin') && (p.lead === u.crewId || crewIn.some(c => c && String(c.crewId || '') === u.crewId))) {   // a termelési vezető saját magát nem hívja meg: ha beosztja magát, a meghívás elfogadottnak számít
+      const inv = parseInvites_(p.invites); if (!inv[u.crewId] || inv[u.crewId].st !== 'yes') { inv[u.crewId] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self' }; p.invites = JSON.stringify(inv); } }
     if (p.payStatus == null) p.payStatus = '';
     // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
