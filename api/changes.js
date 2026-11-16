@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f27fe1bdfe",
+"at": "2026-11-16T17:48:24+02:00",
+"msg": "Meghívó: a nyersanyag napja teljes hónapnévvel („december 2., szerda”)"
+},
+{
 "id": "fc304299d4",
 "at": "2026-11-16T17:46:18+02:00",
 "msg": "Meghívás: vasárnapra eső válaszadási határidő hétfő 18:00-ra tolódik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a vágónkénti csoportok le- és felnyithatók (megjegyzi)"
 },
 {
-"id": "2c9afba80c",
-"at": "2026-11-16T14:49:20+02:00",
-"msg": "Idővonal: a „Jóváhagyásra vár” sáv visszakerült – minden projekt, amelynek akár csak egy videója vár jóváhagyásra"
-},
-{
-"id": "1dec68e169",
-"at": "2026-11-16T12:48:22Z",
+"id": "473fd39b9a",
+"at": "2026-11-16T12:49:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
