@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bbdf2d94f8",
+"at": "2026-11-16T21:48:34+02:00",
+"msg": "Projekt Részletek (előzmények): csak az ügyvezetőnek"
+},
+{
 "id": "c38f88a2bb",
 "at": "2026-11-16T21:46:52+02:00",
 "msg": "Előfoglalás sáv: a magyarázó szöveg csak az ügyvezetőnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat küldése: a korábbi ügyfelek listája csak az ügyvezetőnek"
 },
 {
-"id": "b1d17e630e",
-"at": "2026-11-16T18:29:07+02:00",
-"msg": "Árajánlat küldése: korábbi ügyfél is választható – új lehetőség az ügyfél adataival, utána az árajánlat"
-},
-{
-"id": "f6e6eefae0",
-"at": "2026-11-16T16:28:47Z",
+"id": "367a194965",
+"at": "2026-11-16T16:29:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
