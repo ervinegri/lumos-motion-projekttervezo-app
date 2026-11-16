@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b6977a0b51",
+"at": "2026-11-16T16:16:23+02:00",
+"msg": "Pénzügyek táblák: a ráhúzott sor kiemelve"
+},
+{
 "id": "7e9adb8edc",
 "at": "2026-11-16T16:15:53+02:00",
 "msg": "Cmd+S: „✓ Minden mentve” a félrevezető „Nincs mentetlen módosítás” helyett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a kész projekthez tartozó vágói bejegyzések zöldek"
 },
 {
-"id": "a7b4499d8b",
-"at": "2026-11-16T13:50:29+02:00",
-"msg": "Idővonal: a kész projektek vágási sávja és a hozzájuk tartozó vágói bejegyzések zöldek"
-},
-{
-"id": "db49a8fcee",
-"at": "2026-11-16T11:49:13Z",
+"id": "adcdf8dbc0",
+"at": "2026-11-16T11:50:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
