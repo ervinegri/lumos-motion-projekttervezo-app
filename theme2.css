@@ -2315,3 +2315,4 @@ html body .pcrew .inv-ask-q{font-size:12.5px;font-weight:650;color:#8a5a00;white
 html body .pcrew .inv-ask-b{height:24px;padding:0 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid transparent;font-family:inherit}
 html body .pcrew .inv-ask-b.yes{background:#1f7a44;color:#fff}html body .pcrew .inv-ask-b.yes:hover{background:#196437}
 html body .pcrew .inv-ask-b.no{background:#fff;color:#a33;border-color:#f3caca}html body .pcrew .inv-ask-b.no:hover{background:#fdf0f0}
+html body .bd-card.bd-wait{user-select:none;-webkit-user-select:none;pointer-events:auto}
