@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "78127b15aa",
+"at": "2026-11-16T09:26:04+02:00",
+"msg": "Vercel: nincs build, ha csak háttér / teszt / Action / leírás változott (buildperc-spórolás)"
+},
+{
 "id": "92cdde17b1",
 "at": "2026-11-15T19:13:02+02:00",
 "msg": "Pozíció-címkék finom pasztell színe szerepcsoportonként"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fizetések: számla kiállítása csak kiküldött díjösszesítő után (felület + háttér), kézi jelölés visszavonható; NAV-számla: rámutatáskor kis ablak a két művelettel, a számlaszám nem vágódik le"
 },
 {
-"id": "9ef975f922",
-"at": "2026-11-15T13:50:29+02:00",
-"msg": "Fizetések: 🔄 és ✕ csak rámutatáskor, lebegve"
-},
-{
-"id": "d5137345f0",
-"at": "2026-11-15T11:47:23Z",
+"id": "99acda03c5",
+"at": "2026-11-15T11:50:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
