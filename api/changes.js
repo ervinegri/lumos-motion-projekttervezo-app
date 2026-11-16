@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "524e5b0b22",
+"at": "2026-11-16T15:03:38+02:00",
+"msg": "Jóváhagyásra vár sáv: a váró videók neve is látszik (és ráhúzva a teljes lista)"
+},
+{
 "id": "d8c1583957",
 "at": "2026-11-16T15:02:14+02:00",
 "msg": "Idővonal: a vágónkénti csoportok le- és felnyithatók (megjegyzi)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Az utolsó videó / fotó jóváhagyásakor a projekt automatikusan Kész (az értékesítő értesül)"
 },
 {
-"id": "d0f1bb1863",
-"at": "2026-11-16T13:07:56+02:00",
-"msg": "Lezárás: a videók saját linkjei mellett nem kell külön átadási link"
-},
-{
-"id": "c784f00020",
-"at": "2026-11-16T11:07:49Z",
+"id": "1873fc0f95",
+"at": "2026-11-16T11:08:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
