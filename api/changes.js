@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "62fd80a6ab",
+"at": "2026-11-16T16:42:09+02:00",
+"msg": "Egyszeri rögzítés: szervezői jutalék a Longevity-rendezvény shortjainál (10 000 Ft/short), a Rippel short beszámítva a Longevity számlájába"
+},
+{
 "id": "e77c3e3948",
 "at": "2026-11-16T16:40:59+02:00",
 "msg": "Lezárt projektek: lakat a nevük mellett (projektlista, projekt oldal, naptár)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a jóváhagyásra váró videók is színesek (sárga), arányosan a jóváhagyottak (zöld) után"
 },
 {
-"id": "f3fc86b679",
-"at": "2026-11-16T14:02:32+02:00",
-"msg": "Idővonal: a Kész projektek forgatási napja is zöld (erősebb szabály a régi szürke ellen)"
-},
-{
-"id": "81ade0973d",
-"at": "2026-11-16T12:02:03Z",
+"id": "772690e2f6",
+"at": "2026-11-16T12:02:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
