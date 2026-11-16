@@ -2224,3 +2224,5 @@ html body .tl-bar{position:relative;overflow:hidden}
 html body .tl-bar .tl-okfill{position:absolute;left:0;top:0;bottom:0;background:#cdeedd;border-right:1px solid #a8dcbe;pointer-events:none;z-index:0}
 html body .tl-bar:has(.tl-okfill)>*:not(.tl-okfill){text-shadow:0 0 3px rgba(0,0,0,.45)}
 html body .tl-bar>*:not(.tl-okfill){position:relative;z-index:1}
+/* Idővonal: a forgatási sáv és a kész (zöld) vágási sáv között lágy, folytonos átmenet (nincs fehér csík) */
+html body .tl-row .tl-track .cal-chip.p.cut.tl-bar.tl-cut.tl-joined.cut-ok.cut-ok.cut-ok.cut-ok{background:linear-gradient(90deg,var(--from,#cdeedd) 0,#cdeedd 36px)!important;background:linear-gradient(in oklab 90deg,var(--from,#cdeedd) 0,#cdeedd 36px)!important;border-left:0!important;margin-left:-2px!important;border-top-left-radius:0!important;border-bottom-left-radius:0!important}
