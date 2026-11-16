@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "17a8a7d368",
+"at": "2026-11-16T13:21:13+02:00",
+"msg": "Az utolsó videó / fotó jóváhagyásakor a projekt automatikusan Kész (az értékesítő értesül)"
+},
+{
 "id": "d0f1bb1863",
 "at": "2026-11-16T13:07:56+02:00",
 "msg": "Lezárás: a videók saját linkjei mellett nem kell külön átadási link"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a számla teljes sorszáma látszik a kártyán"
 },
 {
-"id": "db54326949",
-"at": "2026-11-16T11:17:18+02:00",
-"msg": "Felületi szintaxis-teszt; szintaxishibás felület nem települ a Vercelre"
-},
-{
-"id": "efa2eb848e",
-"at": "2026-11-16T09:16:57Z",
+"id": "75f5916be4",
+"at": "2026-11-16T09:17:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
