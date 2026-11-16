@@ -707,7 +707,7 @@ function hsEnsureCompany_(name, email) {
   }
   return String((hubspot_('post', '/crm/v3/objects/companies', { properties: { name: name } }) || {}).id || '');
 }
-function hsAssoc_(from, fid, to, tid) { if (fid && tid) { try { hubspot_('put', '/crm/v4/objects/' + from + '/' + fid + '/associations/default/' + to + '/' + tid); } catch (e) { throw new Error('Társítás (' + from + ' → ' + to + '): ' + (e && e.message || e)); } } }
+function hsAssoc_(from, fid, to, tid) { if (fid && tid) { try { hubspot_('post', '/crm/v4/associations/' + from + '/' + to + '/batch/associate/default', { inputs: [{ from: { id: String(fid) }, to: { id: String(tid) } }] }); }   // a PUT törzs nélkül 415-öt adott (nincs Content-Type) catch (e) { throw new Error('Társítás (' + from + ' → ' + to + '): ' + (e && e.message || e)); } } }
 /* Meglévő HubSpot deal keresése a lehetőséghez (a HubSpotban már vezetett dealek ne duplikálódjanak):
    1) korábbi párosítás, 2) pontosan azonos nevű deal, 3) a kapcsolattartó / cég dealjei közül a név szerint leginkább egyező. */
 function hsFindDeal_(d, cid, coid) {
