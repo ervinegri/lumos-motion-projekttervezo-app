@@ -2203,3 +2203,19 @@ html body .vv-gallery:hover{background:#e3f1e8}
 /* Lemondott projekt: a projekt teljes tartalma szürke és nem szerkeszthető */
 html body .dfull.is-cancelled{filter:grayscale(1);opacity:.55;pointer-events:none;user-select:none}
 html body .money-body.is-locked{opacity:.7;pointer-events:none}
+/* Projektlista: kompakt videó-összesítő */
+html body .pt-vtog .pt-vcnt{margin-left:auto;font-size:11.5px;font-weight:600;color:#5d6470}
+html body .pt-vbar{display:flex;width:100%;height:5px;border-radius:999px;overflow:hidden;background:#e7eaee;margin:3px 0 1px}
+html body .pt-vbar i{display:block;height:100%}
+html body .pt-vbar .vb-jovahagyva{background:#2e9e62}html body .pt-vbar .vb-leadva{background:#6b8fd6}html body .pt-vbar .vb-ellen{background:#8fb0e8}
+html body .pt-vbar .vb-vagas{background:#f0b44c}html body .pt-vbar .vb-vagasra{background:#d5dae0}html body .pt-vbar .vb-modositas{background:#d9534f}
+/* Projektlista: piros figyelmeztetésű projekt sora is piros */
+html body .proj-table tr.pt-row.pt-bad>td{background:#fdf0ee!important}
+html body .proj-table tr.pt-row.pt-bad>td:first-child{box-shadow:inset 4px 0 0 #c0392b}
+/* Pozíció-kártyák: a címkék a kártya tetején, több sorban is (nem takarják a tartalmat) */
+html body .pos-card .pos-hs{position:static;margin:-22px 44px 8px -2px}
+/* Kompakt eszközlista a kártyákon */
+html body .pos-card .eqrow{padding:3px 0!important;min-height:0!important;gap:6px!important;font-size:13px}
+html body .pos-card .eqrow .who b{font-size:13px;font-weight:600;line-height:1.25}
+html body .pos-card .eqrow input[type=number],html body .pos-card .eqrow .inp{width:46px!important;height:26px!important;min-height:0!important;padding:2px 6px!important;font-size:13px!important}
+html body .pos-card .eqrow .x{width:22px;height:22px;font-size:13px}
