@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e77c3e3948",
+"at": "2026-11-16T16:40:59+02:00",
+"msg": "Lezárt projektek: lakat a nevük mellett (projektlista, projekt oldal, naptár)"
+},
+{
 "id": "bbbdd3989e",
 "at": "2026-11-16T16:33:55+02:00",
 "msg": "Bevételek: az Értékesítés összegére húzva látszik, ki értékesítette"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a Kész projektek forgatási napja is zöld (erősebb szabály a régi szürke ellen)"
 },
 {
-"id": "a352670d81",
-"at": "2026-11-16T14:01:50+02:00",
-"msg": "Idővonal: a még le nem forgatott nap szürke, a leforgatott zöld"
-},
-{
-"id": "a82b4d1a66",
-"at": "2026-11-16T12:01:13Z",
+"id": "81ade0973d",
+"at": "2026-11-16T12:02:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
