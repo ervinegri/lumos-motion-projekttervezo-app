@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "34fd54e6da",
+"at": "2026-11-16T11:13:25+02:00",
+"msg": "Videólista: azonos stádium egyszer, a projektjelzés által már kimondott stádium egyszer sem; redundancia-szabály a CLAUDE.md-ben"
+},
+{
 "id": "dc4109eca9",
 "at": "2026-11-16T11:12:41+02:00",
 "msg": "Projektlista: 3-nál több videó összecsukva, stádium-összesítővel, lenyitható"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Javítás: a számla-visszavonás kezelője az ACT létrehozása után töltődik (különben a díjcsökkentés-modul vége nem futott); Elveszett oszlop becsukható; lehetőség ablak: Cég ↔ Másodlagos e-mail csere, Rendezvény típusa + Honnan jött egy sorban"
 },
 {
-"id": "301636af10",
-"at": "2026-11-15T15:32:49+02:00",
-"msg": "Értékesítés: kifizetett díjbekérőnél annak hónapja számít a szerződött kártyákon (különben a szerződéskötés hónapja)"
-},
-{
-"id": "b3dea2e9f5",
-"at": "2026-11-15T13:25:44Z",
+"id": "eba429f69d",
+"at": "2026-11-15T13:32:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
