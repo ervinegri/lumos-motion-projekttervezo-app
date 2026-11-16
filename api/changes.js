@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "589e98eaf2",
+"at": "2026-11-16T12:53:09+02:00",
+"msg": "Videók: mentéskor a projektről levett vágó kikerül a videóiból; ügyfél-jóváhagyás és jegyzetek értesítése csak az aktuális vágónak"
+},
+{
 "id": "ed2e7374d5",
 "at": "2026-11-16T12:49:11+02:00",
 "msg": "Videók: a projektről levett vágó (régi bejegyzés) nem jelenik meg és nem kap értesítést – a feladat az aktuális vágóé"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: 3-nál több videó összecsukva, stádium-összesítővel, lenyitható"
 },
 {
-"id": "19a465a9b1",
-"at": "2026-11-16T11:12:07+02:00",
-"msg": "Nem fizetős projekt: teljes Extrák menü; fizetős tétel választásakor újra fizetős lesz"
-},
-{
-"id": "85676ab1d9",
-"at": "2026-11-16T09:10:44Z",
+"id": "58c2357a06",
+"at": "2026-11-16T09:12:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
