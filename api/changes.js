@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "65b9712e6c",
+"at": "2026-11-16T11:43:13+02:00",
+"msg": "Vercel: a szintaxis-ellenőrzés beágyazva fut (a tests/ mappa nincs a buildben, emiatt maradtak ki a telepítések)"
+},
+{
 "id": "c7b3049a62",
 "at": "2026-11-16T11:28:26+02:00",
 "msg": "Kifizetések: a számla sorszáma tördelve, teljes egészében olvasható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "2026. szeptember bevételei: értékesítés 0, Lurdy ügyeletek termelése 30 / 60 ezer (egyszeri javítás)"
 },
 {
-"id": "228244022d",
-"at": "2026-11-15T17:34:54+02:00",
-"msg": "Projekt Pénzügyek: a nettó szerződött érték kártyán, az Értékesítés a Termelés előtt; értékesítő választásakor az Összeg és a Jutalék mező azonnal megjelenik (fókusz a %-on)"
-},
-{
-"id": "c1940ea7ca",
-"at": "2026-11-15T15:18:03Z",
+"id": "d1aca31e29",
+"at": "2026-11-15T15:35:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
