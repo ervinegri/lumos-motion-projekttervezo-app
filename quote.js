@@ -35,11 +35,11 @@ function qFirst(n){return huFirst(n);}
 function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean),v=num(d.value);
   const items=sv.length?sv.map((x,i)=>({name:x,qty:'1',price:sv.length===1&&v?String(v):'',src:'init'})):[{name:d.title||'Videós szolgáltatás',qty:'1',price:v?String(v):'',src:'init'}];
   const no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();
-  const ev=!!d.title,a=qAuto(d,ev);S.q={evName:d.title||'',dealId:d.id,to:d.contactEmail||'',cc:d.contactEmail2||'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'15',note:'',no,ev,body:a.body,sig:null};}
+  const ev=!!d.title,a=qAuto(d,ev);S.q={evName:d.title||'',dealId:d.id,to:d.contactEmail||'',cc:d.contactEmail2||'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'20',note:'',no,ev,body:a.body,sig:null};}
 /* több opció (pl. 1 / 3 / 5 short): S.q.opts = [{title, items}], az aktív opció tételei = S.q.items */
 function qSetOpt(i){const q=S.q;q.oi=Math.max(0,Math.min(q.opts.length-1,i));q.items=q.opts[q.oi].items;}
 /* konkrét rendezvényre szóló vagy általános ajánlat: a tárgy és a levél alapszövege ehhez igazodik */
-function qAuto(d,ev,nm,val){const T=nm!=null?nm:d.title,V=Math.max(1,parseInt(val,10)||15);return {subject:ev&&T?'Árajánlat – '+T:'Árajánlat – Lumos Motion',
+function qAuto(d,ev,nm,val){const T=nm!=null?nm:d.title,V=Math.max(1,parseInt(val,10)||20);return {subject:ev&&T?'Árajánlat – '+T:'Árajánlat – Lumos Motion',
   body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&T?' '+huArt(T)+' „'+T+'” rendezvényhez':''}. Az ajánlat ${V} napig érvényes. Ha bármi kérdés felmerül, szívesen segítek.`};}
 function qRead(fd){const q=S.q;if(!q.rc)q.rc={name:'',person:'',addr:'',email:''};['name','person','addr','email'].forEach(k=>{if(fd.has('qrc_'+k))q.rc[k]=String(fd.get('qrc_'+k)||'').trim();});if(fd.has('q_ev'))q.ev=fd.get('q_ev')==='1';if(fd.has('q_evname'))q.evName=String(fd.get('q_evname')||'').trim();if($('q-discOn'))q.discOn=fd.has('q_discOn');if(fd.has('q_cc'))q.cc=fd.getAll('q_cc').map(x=>String(x||'').trim()).filter(Boolean).join(', ');['to','subject','valid','note','body','disc','discLbl'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});
   if(q.discLbl==='Mennyiségi '+'kedvezmény')q.discLbl='Csomagkedvezmény';   // a régi alapfelirat helyett
@@ -121,7 +121,7 @@ Object.assign(ACT,{
 const qFileName=()=>{const d=(S.deals||[]).find(x=>x.id===S.q.dealId)||{},evn=S.q.evName!=null?S.q.evName:d.title,who=S.q.ev&&evn?evn:((S.q.rc&&S.q.rc.name)||d.client||'');   // rendezvényre szóló: a rendezvény neve; általános: a cég neve
   return 'Arajanlat_'+(who?String(who).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'').slice(0,50)+'_':'')+'Lumos_Motion.pdf';};
 /* az ajánlat A4-es oldala (a PDF és az előnézet ugyanez) */
-function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=q.sig||{},gross=qGross(),dp=qDiscPct(),disc=qDisc(),tot=qTotal(),vat=Math.round(tot*Q_VAT/100),now=new Date(),until=new Date(Date.now()+Math.max(1,qNum(q.valid)||15)*864e5);
+function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=q.sig||{},gross=qGross(),dp=qDiscPct(),disc=qDisc(),tot=qTotal(),vat=Math.round(tot*Q_VAT/100),now=new Date(),until=new Date(Date.now()+Math.max(1,qNum(q.valid)||20)*864e5);
   const row=(it,i)=>`<tr><td>${i+1}.</td><td>${esc(it.name)}${it.desc?`<small class="qp-desc">${esc(it.desc)}</small>`:''}</td><td class="r">${esc(it.qty||'1')}</td><td class="r">${qFt(it.price)} Ft</td><td class="r"><b>${qFt(qNum(it.qty||1)*qNum(it.price))} Ft</b></td><td class="r qp-br">${qFt(Math.round(qNum(it.qty||1)*qNum(it.price)*(1+Q_VAT/100)))} Ft</td></tr>`;
   return `<div class="qp"><div class="qp-head"><img src="mail/lumos-motion-stacked.png?v=2" alt="Lumos Motion" class="qp-logo"><div class="qp-meta"><b>ÁRAJÁNLAT</b><span>${esc(q.no)}</span><span class="qp-dates"><i>Kelt:</i><i>${qDate(now)}</i><i>Érvényes:</i><i>${qDate(until)}</i></span></div></div>
     <div class="qp-parties">${(()=>{const rc=q.rc||{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:''},em=q.to;return `<div><small>Ajánlatot kapja</small><b>${esc(rc.name||'')}</b>${rc.person?`<span>${esc(rc.person)}</span>`:''}${rc.addr?`<span>${esc(rc.addr)}</span>`:''}${em?`<span>${esc(em)}</span>`:''}</div>`;})()}
@@ -132,7 +132,7 @@ function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=
     <div></div></div>`;}).join('')}
     ${q.note?`<div class="qp-note">${esc(q.note).replace(/\n/g,'<br>')}</div>`:''}
     <div class="qp-sig"><span>Üdvözlettel,</span><b>${esc(s.name||'')}</b>${s.title?`<span>${esc(s.title)}</span>`:''}<span>Lumos Motion Kft.</span>${s.phone?`<span>Tel.: ${esc(s.phone)}</span>`:''}${s.email?`<span>E-mail: ${esc(s.email)}</span>`:''}</div>
-    <div class="qp-foot">Az ajánlat a kelte után ${esc(String(Math.max(1,qNum(q.valid)||15)))} napig érvényes.</div></div>`;}
+    <div class="qp-foot">Az ajánlat a kelte után ${esc(String(Math.max(1,qNum(q.valid)||20)))} napig érvényes.</div></div>`;}
 /* mindig egyetlen A4-es oldal: a lap pontosan oldalméretű; ha a tartalom hosszabb, arányosan kicsinyítjük, hogy elférjen */
 const Q_PH=1120;
 /* oldalakra bontás: a blokkok (fejléc, felek, opciók, megjegyzés, aláírás) egészben kerülnek egy-egy A4-es oldalra; ami nem fér el, új oldalra megy */
@@ -181,5 +181,5 @@ function qRestore(){if(S._qRestored)return;S._qRestored=true;let o=null;try{o=JS
     S.q=o.q;qSig(o.q.dealId);if(o.stage==='preview')qPreview();else qEdit();};setTimeout(go,200);}
 
 /* Érvényesség módosítása: az e-mail szövegében is frissül a napok száma */
-document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid'||!S.q)return;const n=Math.max(1,parseInt(t.value,10)||15);S.q.valid=String(n);
+document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid'||!S.q)return;const n=Math.max(1,parseInt(t.value,10)||20);S.q.valid=String(n);
   S.q.body=String(S.q.body||'').replace(/Az ajánlat \d+ napig érvényes\./,'Az ajánlat '+n+' napig érvényes.');const bd=$('q-body');if(bd)bd.value=S.q.body;});
