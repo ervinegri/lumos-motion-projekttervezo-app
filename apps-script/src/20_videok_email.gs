@@ -1,6 +1,7 @@
 /* ===================== Videónkénti vágói követés ===================== */
 const VIDEO_KINDS_ = [['int_sarok', 'Interjúsarok videó'], ['interju', 'Kiállítói videó (imázsfilm)'], ['int_resztvevo', 'Interjú'], ['aftermovie', 'Aftermovie'],
-  ['short60', 'Short videó (40–60 mp)'], ['short30', 'Short videó (30–40 mp)'], ['short15', 'Short videó (15–20 mp)']];
+  ['short60', 'Short videó (40–60 mp)'], ['short30', 'Short videó (30–40 mp)'], ['short15', 'Short videó (15–20 mp)'],
+  ['er_post_n', 'Előadások utómunkája'], ['er_summary', 'Összefoglaló videó az előadásokból'], ['er_clips', 'Kivágás az előadásból (short)']];   // előadásrögzítés: helyszínenként az előadások utómunkája, az összefoglalók és a kivágások is kártyát kapnak
 const flagOn_ = v => v === true || v === 1 || /^(1|true|igen)$/i.test(String(v == null ? '' : v).trim());
 /** Van-e a projektnek leadandó anyaga (videó, fotó, felvétel)? Ha nincs (csak helyszíni technika: fény, hang, vizuál, képkeverés, élő közvetítés), a rendezvény után rögtön kész. */
 function hasDeliverables_(p) {
@@ -956,4 +957,19 @@ function postNoteAct_(u, a) {
   } catch (e) { Logger.log('Instrukció e-mail: ' + e); }
   logEvent_(u, 'Utómunka-instrukció', x.p.name, { add: 'új', comment: 'hozzászólás', done: a.done ? 'kész' : 'visszavonva', del: 'törölve' }[act] || act);
   return { notes: pnLoad_(pid) };
+}
+
+/** Egyszeri pótlás: a nyitott projekteknél az előadásrögzítés utómunkái (előadások, összefoglaló, kivágások) is megjelennek a vágási táblán. */
+function erVideosOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('ER_VIDEOS_1')) return;
+  withLock_(() => {
+    const sh = sheetFor_('projects'), asg = readAll_('crewAssign');
+    readAll_('projects').forEach(x => { if (['atadva', 'lemondva'].indexOf(x.status) >= 0) return; if (!(Number(x.er_post_n) > 0 || Number(x.er_summary) > 0 || Number(x.er_clips) > 0 || flagOn_(x.er_post))) return;
+      const row = findRow_(sh, x.id); if (!row) return; const p = readRow_('projects', sh, row);
+      if (!(Number(p.er_post_n) > 0) && flagOn_(p.er_post)) p.er_post_n = 1;
+      const cut = [...new Set(asg.filter(a => a.projectId === x.id && a.role === 'Vágó').map(a => String(a.crewId)))];
+      const before = String(p.videos || ''); p.videos = JSON.stringify(videosEnsure_(p, cut)); if (p.videos !== before) putRow_('projects', sh, p, row); });
+    dataBump_(); dbFlush_();
+  });
+  P.setProperty('ER_VIDEOS_1', new Date().toISOString());
 }
