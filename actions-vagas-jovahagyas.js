@@ -563,10 +563,10 @@ ACT.vcf=async()=>{const d=S.draft||{};const tel=(()=>{const el=document.querySel
   const fn=(o.name||'nevjegy').replace(/[^\wÀ-ž ]+/g,'').trim().replace(/\s+/g,'_')+'.vcf';
   openModal('📇 Névjegy a telefonra',`<div class="vcf-box">${img?`<img class="vcf-qr" src="${img}" alt="QR-kód: ${esc(o.name)} névjegye"><p class="hint">Olvasd be a telefon kamerájával, majd koppints a „Kapcsolat hozzáadása” gombra.</p>`:''}
     <div class="vcf-card"><b>${esc(o.name||'—')}</b>${o.org?`<span>${esc(o.org)}</span>`:''}${o.tel?`<span>📞 ${esc(o.tel)}</span>`:''}${o.email?`<span>✉️ ${esc(o.email)}</span>`:''}</div>
-    <div class="btns" style="justify-content:center"><button class="btn outline small" type="button" id="vcfDl">⬇ .vcf letöltése</button>${navigator.canShare?'<button class="btn outline small" type="button" id="vcfSh">📤 Megosztás</button>':''}</div></div>`,{noDraft:true,cancelLabel:'Bezárás'});
+    <div class="btns" style="justify-content:center"><button class="btn outline small" type="button" id="vcfDl">⬇ .vcf letöltése</button>${(()=>{try{return navigator.canShare&&navigator.canShare({files:[new File([v],fn,{type:'text/vcard'})]});}catch(e){return false;}})()?'<button class="btn outline small" type="button" id="vcfSh">📤 Megosztás</button>':''}</div></div>`,{noDraft:true,cancelLabel:'Bezárás'});
   const blob=new Blob([v],{type:'text/vcard'});
   const dl=$('vcfDl');if(dl)dl.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);};
-  const sh=$('vcfSh');if(sh)sh.onclick=async()=>{try{const f=new File([blob],fn,{type:'text/vcard'});if(navigator.canShare({files:[f]}))await navigator.share({files:[f],title:o.name});else dl.click();}catch(e){}};};
+  const sh=$('vcfSh');if(sh)sh.onclick=async()=>{const f=new File([blob],fn,{type:'text/vcard'});try{await navigator.share({files:[f],title:o.name});}catch(e){if(e&&e.name==='AbortError')return;dl.click();toast('A megosztás itt nem érhető el – letöltöttem a .vcf fájlt.');}};   /* csak ott látszik, ahol a böngésző fájlt tud megosztani (pl. telefon) */};
 
 /* formázott jegyzet: gépelés / beillesztés */
 document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.rt||!S.draft||ro())return;histTyping('rt|'+t.dataset.rt);S.draft[t.dataset.rt]=rtClean(t.innerHTML);if(!S.dirty){S.dirty=true;renderChrome();}},true);
