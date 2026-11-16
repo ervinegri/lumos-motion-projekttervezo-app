@@ -231,7 +231,7 @@ function viewFinance(){
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
 </div>
     <div class="tiles fin-tiles tiles-2">
-      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>${(()=>{const d=finDiffRows(m).reduce((s,x)=>s+x.bev-x.bill,0);return d?`<button type="button" class="linkbtn fin-diff" data-action="fin-diff" data-m="${m}">⚠ ${d>0?'+':''}${sFt(d)} eltérés a számlázástól – mitől?</button>`:'';})()}
+      <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>${(()=>{if(!fromApp)return '';const d=finDiffRows(m).reduce((s,x)=>s+x.bev-x.bill,0);return d?`<button type="button" class="linkbtn fin-diff" data-action="fin-diff" data-m="${m}">⚠ ${d>0?'+':''}${sFt(d)} eltérés a számlázástól – mitől?</button>`:'';})()}
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
         <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile fin-flow fin-split"><div class="flow-row plan"><span>Nyereség (${st.profitPct}%)</span><b>${ftFmt(T('profit'))}</b></div>
