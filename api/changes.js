@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a87696d4f8",
+"at": "2026-11-16T12:14:27+02:00",
+"msg": "Lemondás-levél: a rögzítő neve nem zárójelben, hanem külön, szürke sorban"
+},
+{
 "id": "fa520de32d",
 "at": "2026-11-16T12:13:36+02:00",
 "msg": "Naptár: a projektről levett vágó régi kiosztásai nem számítanak (pl. Fodor Kata a Business Bash-nél)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek: „Lezárt projektek” lenyitható csoport; háttér: szintaxis-ellenőrzés a telepítés előtt, sikertelen telepítésről nincs GitHub-e-mail"
 },
 {
-"id": "c9765a4086",
-"at": "2026-11-16T10:57:14+02:00",
-"msg": "HubSpot társítás javítás (szintaxis); díjmentes projekt: tiszta 🎁 jelölés a Szerződés kártyán"
-},
-{
-"id": "9d9f6cb3ea",
-"at": "2026-11-16T08:55:19Z",
+"id": "dc3be6ddc7",
+"at": "2026-11-16T08:57:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
