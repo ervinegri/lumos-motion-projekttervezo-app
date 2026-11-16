@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "879d44fe9b",
+"at": "2026-11-16T23:14:57+02:00",
+"msg": "Elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (meghívó az eddigi és az új pozícióval); sok pozíciónál rövid címkék"
+},
+{
 "id": "198662d402",
 "at": "2026-11-16T23:07:24+02:00",
 "msg": "Saját beosztás a névvel kötött fióknál is (és meghívott állapotból is); eszközt igénylő szerepnél eszközhiány jelzése (kártyán és figyelmeztetésben)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Végszámla-eltérés: a szervezői jutalék levonása (és a beszámított projektek) nem számít hibának, magyarázó jelzést kap"
 },
 {
-"id": "20f7bebba3",
-"at": "2026-11-16T21:15:40+02:00",
-"msg": "⌘/Ctrl+Enter szövegdobozban a saját küldőgombot nyomja (Hozzáadás/Küldés), nem az ablak fő gombját"
-},
-{
-"id": "dbc44c5af7",
-"at": "2026-11-16T19:15:23Z",
+"id": "f525f1d83b",
+"at": "2026-11-16T19:15:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
