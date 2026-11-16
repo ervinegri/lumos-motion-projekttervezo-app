@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef6aa2e5ef",
+"at": "2026-11-16T21:26:34+02:00",
+"msg": "Lépések: ha a forgatás még előttünk van, a Tervezés kártyára kattintva vissza lehet lépni"
+},
+{
 "id": "f580545f6b",
 "at": "2026-11-16T21:22:24+02:00",
 "msg": "Kifizetések: szélesebb személy-oszlop, a függő összeg nem lóg át a cellahatáron"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: meghívott (sárga ⏳), meg nem hívott (szürke ○) és elfogadott (zöld ✓) díjak megkülönböztetése, dőlt betű nélkül"
 },
 {
-"id": "31e6c3b031",
-"at": "2026-11-16T17:51:05+02:00",
-"msg": "Vágási tábla: az előadásrögzítés utómunkái (előadások, összefoglaló, kivágások) is kártyát kapnak; egyszeri pótlás a nyitott projekteknél"
-},
-{
-"id": "adf1bdbba2",
-"at": "2026-11-16T15:48:37Z",
+"id": "9cc2c96d6b",
+"at": "2026-11-16T15:51:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
