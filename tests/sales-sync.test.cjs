@@ -121,9 +121,11 @@ test('visszaírás közben mentettek a Salesben: nem írja felül, a következő
   const r2 = json('salesSync()'); assert.equal(r2.pulled, 1);
   assert.equal(sales(A)['Instrukció az operatőrnek'], 'Új instrukció a PT-ből'); assert.equal(proj(A).techPlan, 'Új instrukció a PT-ből');
 });
-test('Salesben kész forgatás → Utómunka', () => {
+test('Salesben kész forgatás → Utómunka (de csak ha a forgatás napja már elmúlt)', () => {
   setSales(A, 'Forgatás megtörtént', true, '2026-11-06 18:10:00');
-  json('salesSync()'); assert.equal(proj(A).status, 'utomunka');
+  json('salesSync()'); assert.equal(proj(A).status, 'tervezes');   // a forgatás (11-15) még jövőbeli: nem léptet
+  run('today_ = () => "2026-11-16"'); setSales(A, 'Forgatás megtörtént', false, '2026-11-16 18:00:00'); json('salesSync()'); setSales(A, 'Forgatás megtörtént', true, '2026-11-16 18:10:00');
+  json('salesSync()'); assert.equal(proj(A).status, 'utomunka'); run('today_ = () => "2026-11-06"');
 });
 test('Projekttervezőben lemondott projekt → a Salesben „lemondva”', () => {
   editProj(C, { status: 'lemondva', prevStatus: 'tervezes', cancelReason: 'Ügyfél lemondta' });

@@ -159,7 +159,7 @@ function salesSync() {
       }
       if ('cancelled' in push) { if (push.cancelled === '1' && want.status !== 'lemondva') { want.prevStatus = want.status; want.status = 'lemondva'; want.cancelReason = want.cancelReason || 'A Sales Appban lemondták.'; out.cancelled++; }
         else if (push.cancelled !== '1' && proj && proj.status === 'lemondva') { want.status = proj.prevStatus && proj.prevStatus !== 'lemondva' ? proj.prevStatus : 'tervezes'; } }
-      if ('filmingDone' in push && push.filmingDone === '1' && ['egyeztetes', 'tervezes', 'helyszin'].indexOf(want.status) >= 0 && !(/^\d{4}-\d{2}-\d{2}$/.test(String(want.date || '')) && String(want.date) > today_())) {   // jövőbeli forgatásnál a Sales App „leforgatva” jelzése nem léptet utómunkára want.status = 'utomunka'; want.siteOk = 'igen'; want.crewFinalSkip = true; }
+      if ('filmingDone' in push && push.filmingDone === '1' && ['egyeztetes', 'tervezes', 'helyszin'].indexOf(want.status) >= 0 && !(/^\d{4}-\d{2}-\d{2}$/.test(String(want.date || '')) && String(want.date) > today_())) { /* jövőbeli forgatásnál a Sales App „leforgatva” jelzése nem léptet utómunkára */ want.status = 'utomunka'; want.siteOk = 'igen'; want.crewFinalSkip = true; }
       const changedPT = !proj || Object.keys(push).length;
       let savedP = proj;
       if (changedPT) {
