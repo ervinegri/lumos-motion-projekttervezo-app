@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "18ff8b4a9e",
+"at": "2026-11-16T13:28:27+02:00",
+"msg": "Az értékesítő nem kap e-mailt az átadásról (beállítás is törölve); egyszeri csendes lezárás a teljesen jóváhagyott projekteknél"
+},
+{
 "id": "1e8b230086",
 "at": "2026-11-16T13:23:24+02:00",
 "msg": "Lezárt projekt: a pénzügyek is zárolva (Felnyitással módosíthatók)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: a videók teljes neve látszik"
 },
 {
-"id": "56f100373a",
-"at": "2026-11-16T11:20:15+02:00",
-"msg": "Projektlista: forgatás előtt nincs „Utómunkára vár” a videóknál"
-},
-{
-"id": "c0cf1d98c4",
-"at": "2026-11-16T09:19:47Z",
+"id": "8ab19686d4",
+"at": "2026-11-16T09:20:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
