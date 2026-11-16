@@ -3,6 +3,7 @@
 - **Legördülő lista:** minden új `<select>` a saját, kereshető legördülőt használja: `data-cmb="Helyőrző szöveg…"` attribútum
   (opcionálisan `data-cmb-sub="crew"` a szakember-alcímhez, `data-cmb-cls` az input osztályához). A `cmbAuto()` alakítja át
   (core.js `comboSelect`), és kiválasztáskor `change` eseményt küld, így a meglévő change-kezelők működnek. Natív select-et ne vezess be.
+- **Nincs redundancia a felületen:** ugyanaz az információ (pl. állapot, „jóváhagyva”) egy helyen csak egyszer jelenjen meg; ha egy összesítő jelzés már kimondja, a tételes címkék maradjanak el.
 - Minden díj nettó – a felületen ezt jelezni kell („nettó”).
 - Push előtt mindig `git pull --rebase` (a felhasználó párhuzamosan is fejleszt; a GitHub Action változásnaplót commitol).
 - Teszt: `node tests/run-all.cjs` (minden pushkor GitHub Action is futtatja; az ártitok-teszt nélkül a háttér nem települ).

@@ -2167,3 +2167,4 @@ html body .pt-vtog{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;wi
 html body .pt-vtog:hover{background:#eef1f5}
 html body .pt-vcar{width:10px;color:#7a828e}
 html body .pt-vsum{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+html body .pt-vone{justify-content:flex-start}
