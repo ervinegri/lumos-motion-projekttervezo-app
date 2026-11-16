@@ -2219,3 +2219,7 @@ html body .pos-card .eqrow{padding:3px 0!important;min-height:0!important;gap:6p
 html body .pos-card .eqrow .who b{font-size:13px;font-weight:600;line-height:1.25}
 html body .pos-card .eqrow input[type=number],html body .pos-card .eqrow .inp{width:46px!important;height:26px!important;min-height:0!important;padding:2px 6px!important;font-size:13px!important}
 html body .pos-card .eqrow .x{width:22px;height:22px;font-size:13px}
+/* Idővonal: részleges jóváhagyás arányos zöld kitöltéssel */
+html body .tl-bar{position:relative;overflow:hidden}
+html body .tl-bar .tl-okfill{position:absolute;left:0;top:0;bottom:0;background:rgba(46,158,98,.38);pointer-events:none;z-index:0}
+html body .tl-bar>*:not(.tl-okfill){position:relative;z-index:1}
