@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e20360c730",
+"at": "2026-11-16T16:14:01+02:00",
+"msg": "Ki értékesítette? kártya: előbb a jutalék (%), utána az összeg"
+},
+{
 "id": "bd3e561d05",
 "at": "2026-11-16T16:05:44+02:00",
 "msg": "Értékesítés: nem fizetős projekt lehetősége nem jelenik meg (pl. Business Bash)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a jóváhagyott arány csak a vágási (lila) részen, a forgatási sávon nem"
 },
 {
-"id": "a8fc073713",
-"at": "2026-11-16T13:46:02+02:00",
-"msg": "Idővonal: a részleges jóváhagyás kitöltése ugyanaz a zöld, mint a kész sávoké"
-},
-{
-"id": "0b4c3d1591",
-"at": "2026-11-16T11:42:43Z",
+"id": "49481b2bf8",
+"at": "2026-11-16T11:46:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
