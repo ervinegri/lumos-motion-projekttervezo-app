@@ -105,6 +105,8 @@ function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Helyszín';   // név nélkül: „1. Helyszín”
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
+const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
+const recPostNeed=p=>postN(p)>0||num(p.er_summary)>0||num(p.er_clips)>0;   /* előadásokból készülő utómunka */
 const roomOps=r=>roomCams(r).length?1:0;
 const camOwner=(p,rid,k,j)=>(slotOwners(p,rid+'_op')||[])[0]||'';   // a kamera gazdája: a 2.+ közelinél a saját operatőre, egyébként a terem operatőre   // egy operatőr egy termet visz, akárhány kamera van
 /* Egy beosztás-kulcs gazdái; a terem operatőreinél (<teremId>_op) a korábbi kameránkénti és régi (összesített) beosztások is számítanak */
@@ -313,6 +315,15 @@ function computeIssues(){
   }
   /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
   live.forEach(p=>{if(postN(p)>0&&!hasRec(p))out.push({level:'warn',text:`${p.name||'Névtelen projekt'}: az előadások utómunkája ki van választva, de az előadásrögzítés nincs. Jelöld be a Terepi feladatok → Előadásrögzítés résznél a kamerákat (vagy vedd ki az utómunkát, ha nem mi rögzítünk).`,pids:[p.id]});});
+  /* előadások utómunkája: minden rögzített helyszínen kell kamera, és a kamerához eszköz */
+  live.forEach(p=>{if(!recPostNeed(p)||!hasRec(p))return;const RR=recRoomsOf(p),nm=(r,i)=>roomName(r,i);
+    const noCam=RR.map((r,i)=>({r,i})).filter(x=>!roomVidCams(x.r).length);
+    if(noCam.length)out.push({level:'warn',text:`🎙️ ${p.name||'Névtelen projekt'}: az előadások utómunkájához felvétel kell, de ${noCam.map(x=>nm(x.r,x.i)).join(', ')} helyszínen nincs kamera kiválasztva (Terepi feladatok → Előadásrögzítés).`,pids:[p.id]});
+    const noEq=RR.map((r,i)=>({r,i,m:roomVidCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
+    if(noEq.length)out.push({level:'warn',text:`🎥 ${p.name||'Névtelen projekt'}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}.`,pids:[p.id]});});
+  /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
+  if(!ro())live.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
+    if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
   const seen=new Set();
   for(const it of S.inventory){
     const users=live.filter(p=>eqQty(p,it.id)>0);
