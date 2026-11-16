@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "30c333d6a1",
+"at": "2026-11-16T17:58:57+02:00",
+"msg": "Helyszíni értékesítő pozíció (az eladó értékesítő nem stábtag); egységes sárga sorkiemelés a Források, Ügyfelek, Kifizetések táblázatain"
+},
+{
 "id": "402aab8830",
 "at": "2026-11-16T17:55:42+02:00",
 "msg": "Stáb kártyák: az értékesítő nem jelenik meg pozícióként (az Értékesítés részben szerepel)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fotózás kiválasztásakor automatikusan a fotók utómunkája is (200 kép)"
 },
 {
-"id": "7e28cf8c33",
-"at": "2026-11-16T15:10:27+02:00",
-"msg": "Kifizetések: a számla sorszáma egy sorban"
-},
-{
-"id": "9be842073c",
-"at": "2026-11-16T13:06:41Z",
+"id": "37c0185dbf",
+"at": "2026-11-16T13:10:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
