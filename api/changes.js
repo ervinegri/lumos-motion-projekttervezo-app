@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef4be887a7",
+"at": "2026-11-16T20:31:58+02:00",
+"msg": "Jutalék mező: látható mentési állapot (mentetlen / mentés… / mentve)"
+},
+{
 "id": "3416432d07",
 "at": "2026-11-16T18:52:17+02:00",
 "msg": "Árajánlat: alapértelmezett érvényesség 20 nap"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevétel és kiadás: a Kintlévőségre húzva a kintlévő tételek listája"
 },
 {
-"id": "0d4ad78e50",
-"at": "2026-11-16T16:23:38+02:00",
-"msg": "Pénzügyek: az app előtti (régi táblázatos) hónapokban nem jelenik meg a számlázási eltérés"
-},
-{
-"id": "46b32a7150",
-"at": "2026-11-16T14:18:39Z",
+"id": "f0ed7da583",
+"at": "2026-11-16T14:23:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
