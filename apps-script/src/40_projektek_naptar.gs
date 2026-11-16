@@ -827,7 +827,8 @@ function hsCrewNameOf_(x) { try { const c = x && x.crewId ? readAll_('crew').fin
 function hsActivity_(u, arg) {
   const m = /^\d{4}-\d{2}$/.test(String(arg && arg.month || '')) ? String(arg.month) : Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM');
   const ck = 'hsact2:' + m + ':' + (u.role === 'admin' ? 'all' : u.id), cache = CacheService.getScriptCache();
-  const syncErr = u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '';   // mindig friss (nem a gyorsítótárból)
+  let syncErr = u.role === 'admin' ? String(PropertiesService.getScriptProperties().getProperty('HS_SYNC_ERR') || '') : '';   // mindig friss (nem a gyorsítótárból)
+  if (/HTTP 415/.test(syncErr)) { hsOk_(); syncErr = ''; }   // a 415-ös társítási hibát már javítottuk – a régi bejegyzés ne jelenjen meg
   if (!(arg && arg.fresh)) { const hit = cache.get(ck); if (hit) { try { return Object.assign(JSON.parse(hit), { syncErr: syncErr }); } catch (e) {} } }
   const users = loadUsers_().filter(x => !x.disabled && (x.role === 'sales' || x.role === 'admin') && (u.role === 'admin' || x.id === u.id));
   let owners = [];
