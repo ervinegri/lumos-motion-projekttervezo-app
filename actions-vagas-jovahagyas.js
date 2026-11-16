@@ -631,3 +631,5 @@ ACT['pay-st-undo']=b=>{const cid=b.dataset.cid,month=b.dataset.month,nm=(crewByI
 ACT['pt-closed-tog']=()=>{let v=false;try{v=localStorage.getItem('lpm_closed_open')!=='1';localStorage.setItem('lpm_closed_open',v?'1':'0');}catch(e){}render(true);};   // Projektek: „Lezárt projektek” csoport le- / felnyitása
 
 ACT['pt-vid-tog']=b=>{const id=b.dataset.pid;S._vidOpen=S._vidOpen||{};if(S._vidOpen[id])delete S._vidOpen[id];else S._vidOpen[id]=true;render(true);};   // Projektlista: a videók listájának le- / felnyitása
+
+ACT['tl-grp-tog']=b=>{const k=b.dataset.k;let L=tlGrpClosed();L=L.includes(k)?L.filter(x=>x!==k):L.concat(k);try{localStorage.setItem('lpm_tl_grp_closed',JSON.stringify(L));}catch(e){}S.cal.tlKeep=null;render(true);};   // Naptár idővonal: vágó-csoport le- / felnyitása

@@ -193,6 +193,7 @@ const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
     window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')){window._tlRc=setTimeout(go,300);return;}S.cal.month=vm;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},450);}}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
+const tlGrpClosed=()=>{try{return JSON.parse(localStorage.getItem('lpm_tl_grp_closed')||'[]')||[];}catch(e){return [];}};   // idővonal: lecsukott vágó-csoportok
 function calTimeline(m,items0,T,ahead){
   const months=Array.from({length:ahead+2},(_,i)=>shiftMonth(m,i-1));
   const first=months[0]+'-01',last=addDays(shiftMonth(m,ahead+1)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
@@ -259,8 +260,8 @@ function calTimeline(m,items0,T,ahead){
   const packed=order.map(key=>{const lanes=[];bodyRows.forEach((h,ix)=>{if(keys[ix]!==key)return;const a=Number((/data-a="(\d+)"/.exec(h)||[])[1]||0),b=Number((/data-b="(\d+)"/.exec(h)||[])[1]||0),k=h.indexOf(BGH),bars=k>=0?h.slice(k+BGH.length,h.length-'</div></div>'.length):'';
     const L=lanes.find(x=>x.end<a);if(L&&bars){L.bars+=bars;L.end=Math.max(L.end,b);L.b=Math.max(L.b,b);L.n++;}else lanes.push({head:k>=0?h.slice(0,k+BGH.length):h,bars,a,b,end:b,n:1,raw:k<0?h:''});});
     const html=lanes.map(L=>L.raw||L.head.replace(/data-b="\d+"/,'data-b="'+L.b+'"').replace('class="tl-row tl-it"',L.n>1?'class="tl-row tl-it tl-multi"':'class="tl-row tl-it"')+L.bars+'</div></div>').join('');
-    const n=keys.filter(x=>x===key).length,nm=key?((crewById(key)||{}).name||'Vágó'):'Vágás nélkül / egyéb';
-    return (grp&&order.length>1?`<div class="tl-row tl-sec tl-csec"><div class="tl-lbl tl-wline"><b>${key?'✂️ ':''}${esc(nm)}</b><small>${n} tétel</small></div><div class="tl-track"></div></div>`:'')+html;});
+    const n=keys.filter(x=>x===key).length,nm=key?((crewById(key)||{}).name||'Vágó'):'Vágás nélkül / egyéb',gk=key||'__none',shut=grp&&order.length>1&&tlGrpClosed().includes(gk);   // a csoport le- / felnyitható (megjegyzi)
+    return (grp&&order.length>1?`<div class="tl-row tl-sec tl-csec"><div class="tl-lbl tl-wline"><button type="button" class="tl-wtog" data-action="tl-grp-tog" data-k="${esc(gk)}" aria-expanded="${!shut}"><b>${shut?'▸':'▾'} ${key?'✂️ ':''}${esc(nm)}</b><small>${n} tétel${shut?' · elrejtve':''}</small></button></div><div class="tl-track"></div></div>`:'')+(shut?'':html);});
   const body=packed.join('');
   const ti=T>=first&&T<=last?col(T):0;
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{const w=document.querySelector('.tl-wrap');if(!w)return;const c=S.cal.tlPos;
