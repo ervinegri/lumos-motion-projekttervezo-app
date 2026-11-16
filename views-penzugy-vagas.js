@@ -252,8 +252,8 @@ function salesCommFields(p){
   if(!assigned)return select;
   const e=salesCommEst(p,d)||{amt:0,pct:''},
     tip=`${esc(d.ownerName||'Értékesítő')} jutaléka${e.manual?' (ennél a projektnél kézzel megadva)':' (az értékesítő sávos szabálya szerint)'} – jutalékalap: ${ftFmt(salesBase(p))}. Üresre törölve visszaáll a szabályra.`;
-  return select+`<div class="field fin-scf"><label title="${tip}">Összeg</label><div class="money"><input class="inp money-inp" id="f-salesFt" type="text" inputmode="numeric" data-money="big" data-sales-ft value="${esc(moneyFmt(e.amt))}" placeholder="0" aria-label="Értékesítői jutalék összege"${dis}><span class="money-unit">Ft</span></div></div>
-    <div class="field fin-scp"><label title="${tip}">Jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>`;
+  return select+`<div class="field fin-scp"><label title="${tip}">Jutalék</label><div class="money"><input class="inp money-inp" id="f-salesPct" type="text" inputmode="decimal" data-sales-pct value="${esc(String(e.pct===''?'':e.pct).replace('.',','))}" placeholder="%" aria-label="Értékesítői jutalék százaléka"${dis}><span class="money-unit">%</span></div></div>
+    <div class="field fin-scf"><label title="${tip}">Összeg</label><div class="money"><input class="inp money-inp" id="f-salesFt" type="text" inputmode="numeric" data-money="big" data-sales-ft value="${esc(moneyFmt(e.amt))}" placeholder="0" aria-label="Értékesítői jutalék összege"${dis}><span class="money-unit">Ft</span></div></div>`;
 }
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
 const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
