@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e28cf8c33",
+"at": "2026-11-16T15:10:27+02:00",
+"msg": "Kifizetések: a számla sorszáma egy sorban"
+},
+{
 "id": "ec81473701",
 "at": "2026-11-16T15:06:29+02:00",
 "msg": "Pozíció-kártyák: a címkék (pl. ★ Projektvezető) újra a kártya felső szegélyén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Az értékesítő nem kap e-mailt az átadásról (beállítás is törölve); egyszeri csendes lezárás a teljesen jóváhagyott projekteknél"
 },
 {
-"id": "1e8b230086",
-"at": "2026-11-16T13:23:24+02:00",
-"msg": "Lezárt projekt: a pénzügyek is zárolva (Felnyitással módosíthatók)"
-},
-{
-"id": "d2a66565fb",
-"at": "2026-11-16T11:21:23Z",
+"id": "e2852c94ec",
+"at": "2026-11-16T11:23:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
