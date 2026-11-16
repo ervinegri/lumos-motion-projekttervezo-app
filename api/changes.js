@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e604308af5",
+"at": "2026-11-16T13:07:39+02:00",
+"msg": "Lemondott projekt: a teljes tartalom szürke és zárolt; lezajlott rendezvényre nincs Meghívás gomb"
+},
+{
 "id": "b535c85b24",
 "at": "2026-11-16T13:05:10+02:00",
 "msg": "Fotók: galéria-kártya videólejátszó helyett, „Jóváhagyta a fotókat”, fotós szövegek; a vezető a galéria linkjét bármikor megadhatja / cserélheti; nem lejátszható linknél megnyitás új lapon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Javítás: fölösleges zárójel a projektlistában (az app nem töltött be)"
 },
 {
-"id": "601f6e0947",
-"at": "2026-11-16T11:14:51+02:00",
-"msg": "Projektlista: állapotcímkék egy sorban; tételes videólista mellett nincs közös „Leadott videó” gomb"
-},
-{
-"id": "15bec6a176",
-"at": "2026-11-16T09:13:35Z",
+"id": "75463dc159",
+"at": "2026-11-16T09:15:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
