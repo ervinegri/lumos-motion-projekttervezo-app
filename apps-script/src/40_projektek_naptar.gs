@@ -913,10 +913,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const info = [onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
-    const dlD = (() => {   // válaszadási határidő: a meghívástól 2 nap, mindig 18:00-kor (budapesti idő) – ha a 2 nap 18:00 utánra esik, a következő nap 18:00
-      const t = new Date(Date.now() + 48 * 3600 * 1000), H = Number(Utilities.formatDate(t, SHEET_TZ, 'H')), M = Number(Utilities.formatDate(t, SHEET_TZ, 'm'));
-      const d = (H < 18 || (H === 18 && M === 0)) ? t : new Date(t.getTime() + 24 * 3600 * 1000);
-      return Utilities.parseDate(Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();
+    const dlD = Utilities.parseDate(Utilities.formatDate(new Date(Date.now() + 48 * 3600 * 1000), SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');   // válaszadási határidő: a meghívás napja után 2 nappal, 18:00 (pl. hétfőn bármikor → szerda 18:00)
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
@@ -940,8 +937,10 @@ function crewInvite_(u, a) {
     const asg = readAll_('crewAssign').filter(x => x.projectId === pid), on = p.lead === cid || asg.some(x => x.crewId === cid); p.__asg = asg; if (!on) throw new Error('Előbb vedd fel a stábba.');
     c = readAll_('crew').find(x => x.id === cid); if (!c) throw new Error('A munkatárs nem található.');
     const inv = parseInvites_(p.invites), cur = inv[cid];
+    if (cid === u.crewId && (u.role === 'admin' || u.role === 'editor')) { inv[cid] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self' }; p.invites = JSON.stringify(inv); delete p.__asg; p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); p.__self = true; return; }   // saját magát nem hívja meg e-mailben: elfogadottnak számít
     inv[cid] = { st: cur && cur.st === 'yes' ? 'yes' : 'invited', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), ans: cur && cur.st === 'yes' ? cur.ans : '', via: cur && cur.st === 'yes' ? cur.via : '' };
     const asg0 = p.__asg; delete p.__asg; p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); p.__asg = asg0; dataBump_(); dbFlush_(); });
+  if (p.__self) { delete p.__self; logEvent_(u, 'Saját beosztás', p.name, c.name + ' (e-mail nélkül)'); return { project: projectView_(fullProject_(p), u), mail: false, cal: false, self: true }; }
   const em = String(c.email || '').trim().toLowerCase(); let calOk = false, mail = false;
   try { ev = calEvent_(p.calEventId); } catch (e) {}
   if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try {   // a projekt naptáreseményébe vendégként (a Google külön levelet nem küld – a meghívó a saját levelünk)

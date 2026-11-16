@@ -261,6 +261,8 @@ const ACT={
     const cid=b.dataset.id,c=crewById(cid);
     const isCut=(d.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'),dd=isCut&&typeof dueDate==='function'?dueDate(d):null;
     const args={projectId:d.id,crewId:cid,due:dd||''};
+    if(cid&&S.me&&cid===S.me.crewId&&(isAdmin()||S.me.role==='editor')){b.disabled=true;   /* saját magát: e-mail nélkül, azonnal elfogadottként rögzíti */
+      try{const sent=await call('crewInvite',args);if(sent.project){const i=S.projects.findIndex(x=>x.id===d.id);if(i>=0)S.projects[i]=normProj(sent.project);if(S.draft&&S.draft.id===d.id){S.draft.invites=sent.project.invites;if(S.draftBase)S.draftBase.invites=sent.project.invites;}}render(true);toast('✓ Saját beosztás rögzítve – e-mail nem ment ki');}catch(err){b.disabled=false;handleErr(err);}return;}
     b.disabled=true;
     try {
       const preview=await call('crewInvitePreview',args);
