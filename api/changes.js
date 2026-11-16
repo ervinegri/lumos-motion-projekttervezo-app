@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5cabcd3164",
+"at": "2026-11-16T11:10:34+02:00",
+"msg": "Nem fizetős projekt: az ajánlói jutalék is az Extrák menüből, mint a fizetősnél"
+},
+{
 "id": "8fa966ac98",
 "at": "2026-11-16T11:06:46+02:00",
 "msg": "Projektlista: videók tételesen a stádiumukkal; Szerződés és Termelés kártya azonos magasságú"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Saját meghívásaim: csak a megválaszolatlan meghívások látszanak; állapot-címke igazítva"
 },
 {
-"id": "7cb807804c",
-"at": "2026-11-15T15:10:39+02:00",
-"msg": "Értékesítés: a jutalék-csempe súgója felsorolja a projekteket, amelyekből a jutalék származik"
-},
-{
-"id": "6057131d42",
-"at": "2026-11-15T13:08:50Z",
+"id": "8b5af85fa3",
+"at": "2026-11-15T13:10:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
