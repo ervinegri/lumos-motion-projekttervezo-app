@@ -2178,3 +2178,7 @@ html body .pay-sheet td.pay-st .pst-card small{font-size:10.5px;letter-spacing:-
 html body .pt-vid{align-items:flex-start}
 html body .pt-vid .pt-vn{flex:1;max-width:none;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 html body .pt-vid .pt-vs{margin-top:1px}
+/* Projektek: keresőmező a táblázat fejlécében */
+html body .proj-table .pt-th{display:flex;align-items:center;gap:14px}
+html body .proj-table .pt-th .pt-q{flex:0 1 360px;min-width:160px;height:32px;padding:4px 10px;font-size:13.5px;font-weight:400;margin:-4px 0}
+@media (max-width:700px){html body .proj-table thead:has(#q-projects){display:block!important}html body .proj-table thead:has(#q-projects) tr{display:block}html body .proj-table thead:has(#q-projects) th{display:block;width:auto!important}html body .proj-table thead:has(#q-projects) th+th{display:none!important}html body .proj-table .pt-th .pt-q{flex:1}}

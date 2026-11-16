@@ -509,15 +509,15 @@ function viewProjects(){
     if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow)
     +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> Lezárt projektek <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
+  const qIn=`<input class="inp search pt-q" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">`;   // a keresőmező a táblázat „Projekt” fejlécében
   return `<div class="page-head${ro()?' ph-inline':''}"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2></div>
       ${ro()?`<input class="inp search head-search" id="q-projects" type="search" placeholder="Keresés…" value="${esc(f.q)}" aria-label="Projektek keresése">`:'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>
     ${invitesBox()}
     ${ro()&&!S.me.crewId?`<div class="banner"><p>A felhasználód még nincs összekapcsolva a stáblistával, ezért nem látod a beosztásaidat. Szólj az ügyvezetőnek.</p></div>`:''}
     ${ro()||!issues.length?'':`<div class="panel issues-panel"><h3>⚠️ Figyelmeztetések <span class="aside">${issues.length} db</span></h3><div class="issues">${issues.map(i=>issueRow(i)).join('')}</div></div>`}
     ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
-    ${ro()?'':`<div class="toolbar"><input class="inp search" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">
-</div>`}
-    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>Projekt</th>${ro()?'<th>Szereped</th>':'<th>Státusz</th>'}</tr></thead><tbody>${body}</tbody></table></div>`
+    ${ro()||body?'':`<div class="toolbar">${qIn}</div>`}
+    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><thead><tr><th>${ro()?'Projekt':`<div class="pt-th"><span>Projekt</span>${qIn}</div>`}</th>${ro()?'<th>Szereped</th>':'<th>Státusz</th>'}</tr></thead><tbody>${body}</tbody></table></div>`
       :`<div class="panel">${empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':ro()?'Még nem vagy beosztva egy projektre sem.':'Még nincs projekt. Hozd létre az elsőt az „Új projekt” gombbal.')}</div>`}`;
 }
 function fld(p,key,label,o={}){
