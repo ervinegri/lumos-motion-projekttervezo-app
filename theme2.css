@@ -2263,3 +2263,6 @@ html body .pay-sheet td.pay-st .pst-card{padding:2px 4px!important;max-width:100
 html body details.money-panel>summary{pointer-events:none;cursor:default}
 html body details.money-panel>summary>h3::after{pointer-events:auto;cursor:pointer;padding:6px;margin-left:4px}
 html body details.money-panel>summary button,html body details.money-panel>summary a,html body details.money-panel>summary input{pointer-events:auto}
+/* Pénzügyek táblák: ráhúzott sor kiemelése */
+html body .fin-tbl tbody tr:hover>td{background:#fff6dc!important}
+html body .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 #e0a93a}
