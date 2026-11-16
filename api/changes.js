@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ab0cd4be9b",
+"at": "2026-11-16T17:59:49+02:00",
+"msg": "Kifizetések: a lábléc sorai (díjösszesítő, számla, egyenleg) is kiemelődnek"
+},
+{
 "id": "30c333d6a1",
 "at": "2026-11-16T17:58:57+02:00",
 "msg": "Helyszíni értékesítő pozíció (az eladó értékesítő nem stábtag); egységes sárga sorkiemelés a Források, Ügyfelek, Kifizetések táblázatain"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyásra vár sáv: kiválasztott vágónál csak az ő videói"
 },
 {
-"id": "9cd811b5c3",
-"at": "2026-11-16T15:11:54+02:00",
-"msg": "Fotózás kiválasztásakor automatikusan a fotók utómunkája is (200 kép)"
-},
-{
-"id": "37c0185dbf",
-"at": "2026-11-16T13:10:37Z",
+"id": "e0affd3dab",
+"at": "2026-11-16T13:12:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
