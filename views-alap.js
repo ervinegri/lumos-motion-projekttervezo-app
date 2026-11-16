@@ -486,7 +486,8 @@ function viewProjects(){
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
   // egyetlen lista dátum szerint csökkenő sorrendben; a jelölő sor a mai (és még tartó) projektek alatt, a jövő / mai / lezajlott sorok eltérő jelöléssel
-  const all=list.slice().sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
+  const closedOpen=(()=>{try{return localStorage.getItem('lpm_closed_open')==='1';}catch(e){return false;}})(),hideClosed=!q&&!ro();   // lezárt (kész / lemondott) projektek: külön, lenyitható csoportban
+  const all=list.filter(p=>!(hideClosed&&closed(p))).sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
   let marked=false;const todayRow=`<tr class="pt-today-row"><td colspan="${cols}"><span><b>📍 Ma · ${esc(fmtDay(T))} · <span class="pt-clock">${nowHM()}</span></b></span></td></tr>`;
   let lastM=null;const monthRow=m=>`<tr class="pt-month pt-month-sep"><td colspan="${cols}">${m?esc(F_YM.format(toDate(m+'-01'))):'Dátum nélkül'}</td></tr>`;   // hónap-elválasztó
   // a mai projektek piros keretben, a keret tetején a „MA · …” jelölővel
@@ -494,7 +495,8 @@ function viewProjects(){
   const body=all.map((p,i)=>{const r=pr(p),m=r?r.start.slice(0,7):'';let h='';if(m!==lastM){h+=monthRow(m);lastM=m;}
     if(isTd(p)){const first=!(i>0&&isTd(all[i-1])&&!h),last=!(all[i+1]&&isTd(all[i+1])&&(pr(all[i+1]).start.slice(0,7)===m));marked=true;
       return h+row(p).replace('class="pt-row ','class="pt-row pt-tf'+(first?' pt-tf-first':'')+(last?' pt-tf-last':'')+' ');}
-    if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow);
+    if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow)
+    +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> Lezárt projektek <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
   return `<div class="page-head${ro()?' ph-inline':''}"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2></div>
       ${ro()?`<input class="inp search head-search" id="q-projects" type="search" placeholder="Keresés…" value="${esc(f.q)}" aria-label="Projektek keresése">`:'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>

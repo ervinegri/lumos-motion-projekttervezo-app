@@ -627,3 +627,4 @@ function vvRefreshOpen(){const b=document.querySelector('.vv-cm');if(!b)return;c
   const ta=$('m-vvCm'),dr=ta?ta.value:'';ACT['vid-view']({dataset:{pid:b.dataset.pid,vid:b.dataset.vid}});const t2=$('m-vvCm');if(t2&&dr){t2.value=dr;}}
 ACT['pay-st-undo']=b=>{const cid=b.dataset.cid,month=b.dataset.month,nm=(crewById(cid)||{}).name||'';   // tévesen bejelölt „számla kiállítva” visszavonása
   confirmModal('Számla kiállításának visszavonása',nm+' · '+month+': visszavonod, hogy a számla ki lett állítva?','Visszavonás',async()=>{S.payStatus=await call('setPayStatus',{month,crewId:cid,field:'invoiced',on:false});render(true);toast('Számla kiállítása visszavonva');});};
+ACT['pt-closed-tog']=()=>{let v=false;try{v=localStorage.getItem('lpm_closed_open')!=='1';localStorage.setItem('lpm_closed_open',v?'1':'0');}catch(e){}render(true);};   // Projektek: „Lezárt projektek” csoport le- / felnyitása

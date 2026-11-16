@@ -2142,3 +2142,8 @@ html body .fin-free .free-t{display:flex;flex-direction:column;line-height:1.2}
 html body .fin-free .free-t b{color:#24613f;font-size:14.5px}
 html body .fin-free .free-t small{color:#5c7a68;font-size:12px}
 html body .fin-free .free-undo{margin-top:6px;font-size:12.5px}
+/* Projektek: lenyitható „Lezárt projektek” csoport */
+html body .pt-closed-h td{padding:14px 4px 6px!important;border:0!important;background:transparent!important}
+html body .pt-closed-tog{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line,#dfe3e8);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;color:#3c4a57;cursor:pointer}
+html body .pt-closed-tog:hover{background:#f4f6f8}
+html body .pt-closed-car{font-size:12px;width:10px}

@@ -13,6 +13,7 @@ concurrency: { group: apps-script-deploy, cancel-in-progress: true }   # gyors e
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    continue-on-error: true   # Ervin kérése (2026-11-16): sikertelen telepítésről se jöjjön GitHub-e-mail; a hibát a futás összegzése és a Claude ellenőrzése jelzi
     steps:
       - name: Várakozás (összevonjuk a gyors egymásutáni módosításokat)
         if: github.event_name == 'push'
@@ -26,6 +27,9 @@ jobs:
       - uses: actions/setup-node@v4
         if: steps.chk.outputs.skip != '1'
         with: { node-version: 20 }
+      - name: Szintaxis-ellenőrzés
+        if: steps.chk.outputs.skip != '1'
+        run: node tests/gs-syntax.test.cjs
       - name: Ártitok-teszt (szivárgó árral nem települ)
         if: steps.chk.outputs.skip != '1'
         run: node tests/price-leak.test.cjs
