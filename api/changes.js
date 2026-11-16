@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8d4bfda108",
+"at": "2026-11-16T21:41:49+02:00",
+"msg": "Előfoglalás: projekt összekötése nyitott lehetőséggel (tárgyalás alatt) – csendes figyelmeztetések, számlázás a szerződés után, csíkozott megjelenés, szerződéskor ez válik élessé, elveszett lehetőségnél lemondás felajánlása; felszerelési figyelmeztetések 30 nappal előtte"
+},
+{
 "id": "ef1c235fd0",
 "at": "2026-11-16T21:31:29+02:00",
 "msg": "Stábkártya: kompakt, egységes meghívó-állapotcímkék"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: összegcellák nem törnek és nem érnek a cellahatárra"
 },
 {
-"id": "ab0cd4be9b",
-"at": "2026-11-16T17:59:49+02:00",
-"msg": "Kifizetések: a lábléc sorai (díjösszesítő, számla, egyenleg) is kiemelődnek"
-},
-{
-"id": "75563f4fd1",
-"at": "2026-11-16T15:59:07Z",
+"id": "dd56ac73d9",
+"at": "2026-11-16T15:59:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
