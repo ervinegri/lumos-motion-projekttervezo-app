@@ -2269,3 +2269,4 @@ html body .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 #e0a93
 /* erősebb sor-kiemelés: áttetsző sárga réteg minden cellán (a sávozott háttér fölött is látszik) */
 html body #view .fin-tbl tbody tr:hover>td{box-shadow:inset 0 0 0 999px rgba(255,196,64,.16)!important}
 html body #view .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 #e0a93a,inset 0 0 0 999px rgba(255,196,64,.16)!important}
+html body .pay-pill.pay-pick{cursor:pointer}html body .pay-pill.pay-pick:hover{filter:brightness(.95);outline:1px dashed #9aa5b1;outline-offset:1px}

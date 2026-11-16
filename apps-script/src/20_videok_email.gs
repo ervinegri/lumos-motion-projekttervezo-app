@@ -262,7 +262,7 @@ function wmPaidMail_(pid) {
 }
 function wmActive_(p) { const b = readAll_('finBilling').find(x => x.projectId === p.id), w = String((b && b.watermark) || '');
   const sales = String(p.id || '').indexOf('sales-') === 0 || /Forrás: Sales App/.test(String(p.notes || ''));
-  return (w === '1' || (w !== '0' && sales)) && p.payStatus !== 'teljes'; }
+  return (w === '1' || (w !== '0' && sales)) && ['teljes', 'beszamitva'].indexOf(p.payStatus) < 0; }
 /* Megnyitotta-e az ügyfél: a jóváhagyó oldal betöltésekor (amíg jóváhagyásra vár) feljegyezzük – első és utolsó megnyitás, darabszám */
 function clientSeen_(o) {
   try { withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos); let ch = false;

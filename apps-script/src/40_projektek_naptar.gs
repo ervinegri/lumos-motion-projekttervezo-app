@@ -145,7 +145,7 @@ function saveProject_(u, a) {
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
     if (u && u.crewId && (u.role === 'editor' || u.role === 'admin') && (p.lead === u.crewId || crewIn.some(c => c && String(c.crewId || '') === u.crewId))) {   // a termelési vezető saját magát nem hívja meg: ha beosztja magát, a meghívás elfogadottnak számít
       const inv = parseInvites_(p.invites); if (!inv[u.crewId] || inv[u.crewId].st !== 'yes') { inv[u.crewId] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self' }; p.invites = JSON.stringify(inv); } }
-    if (p.payStatus == null) p.payStatus = '';
+    p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : '';   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
     // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink && !parseVideos_(p.videos).some(v => /^https?:\/\//i.test(String(v.link || ''))))

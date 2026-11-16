@@ -3,8 +3,8 @@
    Bevétel projektenként: díjazás → nyereség % + értékesítés % + marketing % + termelési költség, a maradék az Eszköz/Rezsi alapba.
    A rezsi- és marketingkiadások ezekből az alapokból mennek, az egyenleg hónapról hónapra áthozódik.
    A beállított hónaptól („app számol”) a projektekből számolunk, előtte a régi táblázatból importált sorokból. */
-const PAY_LABEL={'':'—',var:'Fizetésre vár',eloleg:'Foglaló fizetve',teljes:'Teljes fizetve'};
-const PAY_CLS={'':'',var:'p-warn',eloleg:'p-info',teljes:'p-ok'};
+const PAY_LABEL={'':'—',var:'Fizetésre vár',eloleg:'Foglaló fizetve',teljes:'Teljes fizetve',beszamitva:'Beszámítva'};   // beszámítva: egy másik projekt számlájából levonva
+const PAY_CLS={'':'',var:'p-warn',eloleg:'p-info',teljes:'p-ok',beszamitva:'p-ok'};
 const FUND_LABEL={rezsi:'Eszközköltség, rezsi',marketing:'Marketing költség'};
 const finOn=()=>isAdmin()&&!!(S.capabilities&&S.capabilities.finance);
 const sFt=n=>(n<0?'−':'')+ftFmt(Math.abs(n));
@@ -90,7 +90,7 @@ function incProj(r){const pm=PAIR_RE.exec(r.note||'');if(pm)return projById(pm[1
 /* Egy bevételi sorból beérkezett (nettó) összeg: teljes fizetés = díjazás; foglalónál a számlák kifizetett része, ennek hiányában a foglaló %-a */
 /* Fizetési állapot a bizonylatokból (projekt / régi bevételi sor); ha nincs bizonylat, a régi kézi állapot */
 function finPayOf(r){const lp=r.kind==='project'?null:incProj(r),pid=r.kind==='project'?r.id:lp&&lp.id;const st=pid?szPayOf(pid):(()=>{const l=invFor('income',r.id);if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0||invPaidOk(x));return fin.length?(fin.every(invPaidOk)?'teljes':any(fin)||any(adv)?'eloleg':'var'):any(adv)?'eloleg':'var';})();return st||r.payStatus||'';}
-function finReceived(r){const ps=finPayOf(r);if(ps==='teljes')return num(r.amount);if(ps!=='eloleg')return 0;
+function finReceived(r){const ps=finPayOf(r);if(ps==='teljes'||ps==='beszamitva')return num(r.amount);if(ps!=='eloleg')return 0;
   const inv=invFor(r.kind,r.id).filter(x=>num(x.invGross)>0&&!(x.kind==='dijbekero'&&x.ref));
   if(inv.length)return Math.min(num(r.amount),Math.round(inv.reduce((s,x)=>s+(invPaidOk(x)?num(x.invGross):num(x.invPaid))*num(x.invNet)/num(x.invGross)*(r.kind==='project'?invShare(x,r.id):1),0)));
   const pct=r.kind==='project'&&typeof billOf==='function'?num(billOf(r.id).advancePct):50;return Math.round(num(r.amount)*(pct||50)/100);}
@@ -212,7 +212,8 @@ function viewFinance(){
   const payCell=r=>{const st=finPayOf(r),lp=r.kind==='project'?null:incProj(r),pid=r.kind==='project'?r.id:lp&&lp.id,sent=pid?((S.fin&&S.fin.invoices)||[]).some(x=>invPids(x).includes(pid)):invFor('income',r.id).length>0;   // kiküldött számla után piros
     const finSent=pid?((S.fin&&S.fin.invoices)||[]).some(x=>invPids(x).includes(pid)&&(x.kind==='szamla'||x.kind==='vegszamla'||!x.kind)):invFor('income',r.id).some(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind);   // végszámla kiállítva?
     if(st==='eloleg'&&finSent)return `<span class="statuspill pay-pill p-bad" data-tip="A foglaló be van fizetve, a végszámla még nincs kifizetve">Fizetésre vár</span>`;   // foglaló után a végszámlára vár
-    return `<span class="statuspill pay-pill ${st==='var'?(sent?'p-bad':'p-mute'):PAY_CLS[st]||''}">${esc(PAY_LABEL[st]||'—')}</span>`;};
+    const pp=pid&&projById(pid),off=st==='beszamitva'&&pp&&pp.payOffset?projById(pp.payOffset):null,pick=pid&&!sent&&isAdmin();   // számla nélküli projekt: kattintva kézzel állítható (pl. beszámítás)
+    return `<span class="statuspill pay-pill ${st==='var'?(sent?'p-bad':'p-mute'):PAY_CLS[st]||''}${pick?' pay-pick':''}"${pick?` role="button" tabindex="0" data-action="fin-pay-pick" data-id="${esc(pid)}"`:''}${st==='beszamitva'?` data-tip="${esc('↪ Beszámítva'+(off?': '+(off.name||'projekt')+' számlájába':''))}"`:pick?' data-tip="Kattints a fizetési állapot beállításához (pl. beszámítás)"':''}>${esc(PAY_LABEL[st]||'—')}${st==='beszamitva'?' ↪':''}</span>`;};
   const fq=String(S.finQ||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),incCl=r=>{const pp=r.kind==='project'?projById(r.id):incProj(r);return [r.name,pp&&pp.client,pp&&pp.name].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');};
   const incF=fq?inc.filter(r=>fq.split(/\s+/).every(w=>incCl(r).includes(w))):inc,TF=k=>sumK(incF,k),TFn=fn=>incF.reduce((sum,r)=>sum+fn(r),0);   // cég szerinti szűrés a Bevételek táblában
   const showTov=inc.some(r=>num(r.tov)),showOrg=inc.some(r=>num(finOrgCost(r))),showRef=inc.some(r=>num(r.ref));   // a továbbszámlázott és a szervezői jutalék oszlop csak akkor, ha a hónapban van ilyen tétel
@@ -813,3 +814,11 @@ ACT['sz-storno']=b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.data
           szInvoiceModal('project',x.projectId,{type:x.kind==='vegszamla'?'vegszamla':x.kind==='eloleg'?'eloleg':'szamla',projectIds:ids.filter(id=>id!==x.projectId),tigId:x.tigId||'',items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,price:it.price,vat:it.vat}))});}
         else if(mode==='new')toast('Az új számlát a bevételi sornál állítsd ki.',true);}
       catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='Sztornózás';}}}});};
+
+/* Számla nélküli projekt fizetési állapota kézzel – pl. „Beszámítva”: az összegét egy másik projekt számlájából vontuk le */
+ACT['fin-pay-pick']=b=>{const p=projById(b.dataset.id);if(!p||!isAdmin())return;const cur=p.payStatus||'';
+  const others=(S.projects||[]).filter(x=>x.id!==p.id&&x.status!=='lemondva').sort((a,c)=>String(c.date||'').localeCompare(String(a.date||'')));
+  openModal('💳 Fizetési állapot – '+(p.name||'projekt'),`<div class="fields"><div class="field full"><label for="m-payst">Állapot</label><select class="inp" id="m-payst" name="st" data-cmb="Válassz…">${[['','—'],['var','Fizetésre vár'],['teljes','Teljes fizetve'],['beszamitva','Beszámítva (másik projekt számlájából levonva)']].map(([k,l])=>`<option value="${k}"${k===cur?' selected':''}>${esc(l)}</option>`).join('')}</select></div>
+    <div class="field full"><label for="m-payoff">Melyik projekt számlájába számítottátok be? <span class="muted">(csak beszámításnál)</span></label><select class="inp" id="m-payoff" name="off" data-cmb="Kezdd el gépelni a projekt nevét…"><option value=""></option>${others.map(x=>`<option value="${esc(x.id)}"${x.id===p.payOffset?' selected':''}>${esc(x.name||'Projekt')}${x.date?' · '+esc(fmtShort(x.date)):''}</option>`).join('')}</select></div></div>`,
+    {submitLabel:'Mentés',submit:async fd=>{const st=String(fd.get('st')||''),off=String(fd.get('off')||'');if(st==='beszamitva'&&!off){toast('Válaszd ki, melyik projekt számlájába számítottátok be.',true);return;}
+      try{await call('finSetPay',{projectId:p.id,payStatus:st,offsetTo:off});p.payStatus=st;p.payOffset=st==='beszamitva'?off:'';closeModal();render(true);toast('Fizetési állapot: '+(PAY_LABEL[st]||'—'));}catch(e){handleErr(e);}}});};

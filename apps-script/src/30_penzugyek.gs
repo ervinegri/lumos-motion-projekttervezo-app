@@ -4,7 +4,7 @@
    A rezsi- és marketingkiadások ezekből az alapokból mennek; hónapról hónapra áthozott egyenleggel.
    Az app a beállított hónaptól a projektekből számol; előtte a régi táblázatból importált sorokból. */
 const FIN_SETTINGS_PROPERTY = 'LUMOS_PM_FIN_SETTINGS';
-const PAY_STATUSES = ['', 'var', 'eloleg', 'teljes'];
+const PAY_STATUSES = ['', 'var', 'eloleg', 'teljes', 'beszamitva'];   // beszamitva: egy másik projekt számlájából levonva (kifizetettnek számít)
 const FIN_FUNDS = ['rezsi', 'marketing'];
 function finSettings_() {
   let s = {}; try { s = JSON.parse(PropertiesService.getScriptProperties().getProperty(FIN_SETTINGS_PROPERTY) || '{}') || {}; } catch (e) { s = {}; }
@@ -94,16 +94,17 @@ function finDelete_(u, a) {
 /* Projekt fizetési állapota (csak ügyvezető): közvetlenül a cellába írjuk, a projekt módosítási idejét nem érinti */
 function finSetPay_(u, a) {
   const st = PAY_STATUSES.indexOf(a && a.payStatus) >= 0 ? a.payStatus : '';
-  const out = withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st); dbFlush_(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
+  const out = withLock_(() => { writeProjectPay_(str_(a && a.projectId, 64), st, st === 'beszamitva' ? str_(a && a.offsetTo, 64) : ''); dbFlush_(); dataBump_(); return { projectId: a.projectId, payStatus: st }; });
   return out;
 }
-function writeProjectPay_(projectId, st) {
+function writeProjectPay_(projectId, st, offset) {
   const sh = sheetFor_('projects'), row = findRow_(sh, projectId);
   if (!row) throw new Error('A projekt nem található.');
-  let wasPaid = false, wmWas = false; try { const old = readRow_('projects', sh, row); wasPaid = String(old.payStatus || '') === 'teljes'; wmWas = !wasPaid && wmActive_(old); } catch (e) { }
-  if (st === 'teljes' && !wasPaid && wmWas) WM_PAID_.push(projectId);   // a vízjel most kerül le → az ügyfél e-mailt kap (a zár után)
+  let wasPaid = false, wmWas = false; try { const old = readRow_('projects', sh, row); wasPaid = ['teljes', 'beszamitva'].indexOf(String(old.payStatus || '')) >= 0; wmWas = !wasPaid && wmActive_(old); } catch (e) { }
+  if ((st === 'teljes' || st === 'beszamitva') && !wasPaid && wmWas) WM_PAID_.push(projectId);   // a vízjel most kerül le → az ügyfél e-mailt kap (a zár után)
   const col = TABLES.projects.cols.findIndex(c => c[0] === 'payStatus') + 1;
   sh.getRange(row, col).setNumberFormat('@').setValue(st);
+  if (offset !== undefined) { const oc = TABLES.projects.cols.findIndex(c => c[0] === 'payOffset') + 1; if (oc > 0) sh.getRange(row, oc).setNumberFormat('@').setValue(offset || ''); }
 }
 
 /* ===== Régi táblázat importálása (egyszer, a Bevétel és kiadás fül beállításaiból) =====
