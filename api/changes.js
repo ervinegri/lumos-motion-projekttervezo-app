@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ec81473701",
+"at": "2026-11-16T15:06:29+02:00",
+"msg": "Pozíció-kártyák: a címkék (pl. ★ Projektvezető) újra a kártya felső szegélyén"
+},
+{
 "id": "524e5b0b22",
 "at": "2026-11-16T15:03:38+02:00",
 "msg": "Jóváhagyásra vár sáv: a váró videók neve is látszik (és ráhúzva a teljes lista)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lezárt projekt: a pénzügyek is zárolva (Felnyitással módosíthatók)"
 },
 {
-"id": "17a8a7d368",
-"at": "2026-11-16T13:21:13+02:00",
-"msg": "Az utolsó videó / fotó jóváhagyásakor a projekt automatikusan Kész (az értékesítő értesül)"
-},
-{
-"id": "1873fc0f95",
-"at": "2026-11-16T11:08:08Z",
+"id": "d2a66565fb",
+"at": "2026-11-16T11:21:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
