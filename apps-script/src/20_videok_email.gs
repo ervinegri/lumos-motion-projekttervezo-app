@@ -434,10 +434,15 @@ function videoSet_(u, a) {
     if (p.status === 'utomunka' && allDel) { p.status = 'jovahagyas'; p.leadvaAt = p.leadvaAt || today_();
       const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(','); }
     else if ((p.status === 'jovahagyas' || p.status === 'leadva') && vids.length && !allDel) { p.status = 'utomunka'; p.leadvaAt = ''; }
+    if (vids.length && vids.every(x => x.st === 'jovahagyva') && ['utomunka', 'leadva', 'jovahagyas'].indexOf(p.status) >= 0 && (p.siteOk || p.eventType === 'Videóvágás')) {   // az utolsó tételt is jóváhagyták: a projekt automatikusan „Kész”
+      p.status = 'atadva'; p.deliveredAt = p.deliveredAt || today_(); p.leadvaAt = p.leadvaAt || today_();
+      const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); p.stepsDone = sd.join(',');
+      SALES_DONE_ = pid; changed += (changed ? ', ' : '') + 'minden tétel jóváhagyva → a projekt kész'; }
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid();
     putRow_('projects', sh, p, row); dataBump_(); dbFlush_();
   });
   logEvent_(u, 'Videó állapota', p.name, changed);
+  if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }   // automatikus lezárás: az értékesítő értesül az átadásról
   if (OK_MAIL_) { const om = OK_MAIL_; OK_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === om.v.editor), em = c && String(c.email || '').trim();
     if (em && em.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(om.v.id), first = huFirst_(String(c.name || '')), ok = om.kind === 'ok';
       const head = ok ? 'Jó hír: a videót jóváhagyták' : 'Átment a belső ellenőrzésen – ' + om.by + ' továbbküldte az ügyfélnek jóváhagyásra';
