@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8cdd835ac8",
+"at": "2026-11-16T11:19:34+02:00",
+"msg": "Kifizetések: a számla teljes sorszáma látszik a kártyán"
+},
+{
 "id": "db54326949",
 "at": "2026-11-16T11:17:18+02:00",
 "msg": "Felületi szintaxis-teszt; szintaxishibás felület nem települ a Vercelre"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés és számlázás: kintlévőség két csempén (bizonylattal / bizonylat nélkül, külön szűrővel), alacsonyabb csempék egy sorban"
 },
 {
-"id": "c0ff13595a",
-"at": "2026-11-15T15:39:19+02:00",
-"msg": "Pénzügyek: kisebb hézag a menü, a fejsor és a táblázat között"
-},
-{
-"id": "c0ddda80ab",
-"at": "2026-11-15T13:37:35Z",
+"id": "c06cf85307",
+"at": "2026-11-15T13:39:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
