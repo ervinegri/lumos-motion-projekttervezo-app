@@ -233,7 +233,7 @@ function viewFinance(){
     <div class="tiles fin-tiles tiles-2">
       <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>${(()=>{if(!fromApp)return '';const d=finDiffRows(m).reduce((s,x)=>s+x.bev-x.bill,0);return d?`<button type="button" class="linkbtn fin-diff" data-action="fin-diff" data-m="${m}">⚠ ${d>0?'+':''}${sFt(d)} eltérés a számlázástól – mitől?</button>`:'';})()}
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
-        <div class="flow-row${planned-recv>0?' warn':''}"><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
+        <div class="flow-row${planned-recv>0?' warn':''}"${planned-recv>0?` data-tip="${esc('Kintlévő tételek:\n'+inc.map(r=>({r,d:Math.round(num(r.amount)-finReceived(r))})).filter(x=>x.d>0).map(x=>'• '+String(x.r.name||x.r.title||'Tétel')+': '+ftFmt(x.d)).join('\n'))}"`:''}><span>Kintlévőség</span><b>${ftFmt(Math.max(0,planned-recv))}</b></div></div>
       <div class="tile fin-flow fin-split"><div class="flow-row plan"><span>Nyereség (${st.profitPct}%)</span><b>${ftFmt(T('profit'))}</b></div>
         <div class="flow-row"><span>Munkadíjak</span><b>${ftFmt(inc.reduce((sum,r)=>sum+finWages(r),0))}</b></div>
          <div class="flow-row"><span>Továbbszámlázott költségek</span><b>${ftFmt(T('tov'))}</b></div>
