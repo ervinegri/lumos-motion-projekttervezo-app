@@ -10,4 +10,6 @@ git cat-file -e "$base^{commit}" 2>/dev/null || git fetch -q --depth=200 origin 
 git diff --quiet "$base" HEAD -- . ':(exclude)apps-script/**' ':(exclude)tests/**' ':(exclude).github/**' ':(exclude)scripts/**' ':(exclude)*.md' ':(exclude)api/changes.js' ':(exclude)changes.json'
 r=$?
 [ $r -eq 0 ] && { echo "Csak háttér / teszt / leírás változott – nincs Vercel-build."; exit 0; }
+# szintaxishibás felületi szkript nem települ: a legutóbbi működő változat marad élesben
+if command -v node >/dev/null 2>&1 && ! node tests/js-syntax.test.cjs; then echo "Szintaxishiba a felületben – a build kimarad, az előző változat marad élesben."; exit 0; fi
 exit 1
