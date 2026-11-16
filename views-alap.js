@@ -531,7 +531,7 @@ function selField(p,key,label,opts,o={}){
   const v=p[key]??'';
   return `<div class="field${o.full?' full':''}"><label for="f-${key}">${label}</label><select class="inp" id="f-${key}" data-field="${key}"${o.cmb?` data-cmb="${esc(o.cmb)}"`:''}${D()}><option value="">${o.empty||'Válassz…'}</option>${opts.map(x=>{const [val,lab]=Array.isArray(x)?x:[x,x];return `<option value="${esc(val)}"${val===v?' selected':''}>${esc(lab)}</option>`;}).join('')}</select></div>`;
 }
-const FOTO_DEF=150,FOTO_STEP=10,FOTO_MAX=1000;
+const FOTO_DEF=200,FOTO_STEP=10,FOTO_MAX=1000;
 const fotoDb=p=>num(p.foto_db);   // fotók utómunkája (db) – a helyszíni fotózás külön pipa a Terepi feladatoknál
 function fotoRow(p){const n=fotoDb(p);
   return `<div class="dl${n?' on':''}"><div><div class="dl-name">Fotók utómunkája</div>${n?`<div class="dl-price">${n} db fotó</div>`:''}</div>
