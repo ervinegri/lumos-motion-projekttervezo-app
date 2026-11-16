@@ -2236,3 +2236,5 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.tl-split{--from:#cdeed
 /* Idővonal: a még le nem forgatott nap szürke */
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo:not(.tl-cut):not(.tl-split){background:#c9cfd5!important;color:#3f4a55!important;border-color:#c9cfd5!important}
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo.tl-split{--from:#c9cfd5}
+/* erősebb szabály: a lezárt (Kész) projekt forgatási napja is zöld, nem a régi szürke „átadva” szín */
+html body .tl-row .tl-track .cal-chip.p.tl-bar.st-atadva.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split),html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split){background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important;opacity:1!important;filter:none!important}
