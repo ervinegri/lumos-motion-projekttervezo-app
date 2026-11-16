@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b947671d18",
+"at": "2026-11-16T12:10:35+02:00",
+"msg": "Lemondás-értesítés: az ügyvezető is kap e-mailt (a rögzítő kivételével)"
+},
+{
 "id": "72775bec02",
 "at": "2026-11-16T12:09:07+02:00",
 "msg": "Lemondás-levél: semleges megfogalmazás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "HubSpot: kapcsolattartó–cég társítás a batch/associate/default végponttal (HTTP 415 javítás)"
 },
 {
-"id": "78127b15aa",
-"at": "2026-11-16T09:26:04+02:00",
-"msg": "Vercel: nincs build, ha csak háttér / teszt / Action / leírás változott (buildperc-spórolás)"
-},
-{
-"id": "1e365db915",
-"at": "2026-11-15T17:13:12Z",
+"id": "5d02cf2df4",
+"at": "2026-11-16T07:26:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
