@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d0f1bb1863",
+"at": "2026-11-16T13:07:56+02:00",
+"msg": "Lezárás: a videók saját linkjei mellett nem kell külön átadási link"
+},
+{
 "id": "e604308af5",
 "at": "2026-11-16T13:07:39+02:00",
 "msg": "Lemondott projekt: a teljes tartalom szürke és zárolt; lezajlott rendezvényre nincs Meghívás gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felületi szintaxis-teszt; szintaxishibás felület nem települ a Vercelre"
 },
 {
-"id": "bf0343d530",
-"at": "2026-11-16T11:16:45+02:00",
-"msg": "Javítás: fölösleges zárójel a projektlistában (az app nem töltött be)"
-},
-{
-"id": "75463dc159",
-"at": "2026-11-16T09:15:07Z",
+"id": "efa2eb848e",
+"at": "2026-11-16T09:16:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
