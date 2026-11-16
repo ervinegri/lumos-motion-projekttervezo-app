@@ -133,9 +133,13 @@ const INT_FLAGS=[
   {k:'i_sarok',label:'Interjúsarok',sub:'Fix beállítás, fény és hang a helyszínen'},
   {k:'i_stand',label:'Interjúztatás a standnál',sub:'Kiállítók megszólaltatása a saját standjuknál'}];
 /* Vágói munkák: a megrendelt utómunka tételei (kulcs, megnevezés, darab) */
+/* Helyszínek előadásainak utómunkája: 2+ helyszínnél helyszínenként külön feladat (kulcs: er_post_n_r1, er_post_n_r2 …) */
+const erSplit=p=>{const n=postN(p);return n>1?Math.min(n,20):0;},erKey=i=>'er_post_n_r'+i,erKeys=p=>Array.from({length:erSplit(p)},(_,i)=>erKey(i+1));
+const erExpand=(p,l)=>{const sp=erSplit(p);if(sp&&l.includes('er_post_n'))return l.filter(k=>k!=='er_post_n').concat(erKeys(p).filter(k=>!l.includes(k)));if(!sp&&l.some(k=>/^er_post_n_r\d+$/.test(k)))return l.filter(k=>!/^er_post_n_r\d+$/.test(k)).concat(l.includes('er_post_n')?[]:['er_post_n']);return l.filter(k=>!/^er_post_n_r(\d+)$/.test(k)||Number(k.slice(11))<=sp);};
+const vidTaskKey=(p,v)=>v&&v.k==='er_post_n'&&erSplit(p)?erKey(Number(String(v.id).split('-').pop())||1):v&&v.k;
 function postTasks(p){const t=[];if(!p)return t;
   if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Helyszínek előadásainak utómunkája',n:1});
-  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>t.push({k:it.k,label:it.label,n:num(p[it.k])}));
+  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>{if(it.k==='er_post_n'&&erSplit(p)){const RR=recRoomsOf(p);for(let i=1;i<=erSplit(p);i++)t.push({k:erKey(i),label:(RR[i-1]?roomName(RR[i-1],i-1):i+'. helyszín')+' előadásainak utómunkája',n:1});return;}t.push({k:it.k,label:it.label,n:num(p[it.k])});});   /* több helyszínnél helyszínenként külön kiosztható */
   DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)t.push({k:it.k,label:it.label,n});});
   if(num(p.foto_db)>0&&fotoN(p)>0)t.push({k:'foto_db',label:'Fotók utómunkája',n:num(p.foto_db)});   // fotózás nélkül nincs fotó-utómunka
   return t;}
@@ -154,7 +158,7 @@ const cutterIds=p=>{const v=(p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>
 const postKeysOf=l=>(Array.isArray(l)?l:[]).filter(k=>!/^f_/.test(k));   // az f_ kezdetű kulcsok a terepi feladatok kiosztásai (ugyanabban a mezőben)
 function fieldOwners(p,k){const et=editTasksOf(p),on=new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean));return Object.keys(et).filter(id=>on.has(id)&&Array.isArray(et[id])&&et[id].includes('f_'+k));}
 function taskKeysOf(p,cid){if(!(p&&(p.lead===cid||(p.crew||[]).some(a=>a.crewId===cid))))return [];   // aki már nincs a projekten (régi, bennmaradt kiosztás), annak nincs feladata
-  const et0=editTasksOf(p),et={};Object.keys(et0).forEach(id=>{if(Array.isArray(et0[id])&&postKeysOf(et0[id]).length)et[id]=postKeysOf(et0[id]);});const cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
+  const et0=editTasksOf(p),et={};Object.keys(et0).forEach(id=>{if(Array.isArray(et0[id])&&postKeysOf(et0[id]).length)et[id]=erExpand(p,postKeysOf(et0[id]));});const cut=cutterIds(p),any=cut.some(id=>Array.isArray(et[id]));
   if(!any)return cut.length===1&&cut[0]===cid?postTasks(p).filter(t=>t.k!=='foto_db').map(t=>t.k):[];   // a fotók utómunkája sosem a vágóé
   const before=cut.slice(0,cut.indexOf(cid));   // egy videót csak egy vágó vághat: ha (régi adatban) többnél is szerepel, az elsőé
   const fo=(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Fotós');   // fotók utómunkája csak fotósé

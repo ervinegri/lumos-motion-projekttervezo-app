@@ -71,7 +71,7 @@ function videosBackfill_() {
     if (!VIDEO_KINDS_.some(kn => Number(p[kn[0]]) > 0) && !wantF) return;
     const cutters = [...new Set(ca.filter(r => r.projectId === p.id && r.role === 'Vágó').map(r => String(r.crewId || '')))].filter(String);
     const vids = videosEnsure_(p, cutters), et = parseEditTasks_(p.editTasks);
-    vids.forEach(x => { if (!x.editor) { const o = Object.keys(et).find(id => (et[id] || []).indexOf(x.k) >= 0); if (o) x.editor = o; } });
+    vids.forEach(x => { if (!x.editor) { const kk = x.k === 'er_post_n' ? ['er_post_n_r' + String(x.id).split('-').pop(), 'er_post_n'] : [x.k]; const o = Object.keys(et).find(id => (et[id] || []).some(k => kk.indexOf(k) >= 0)); if (o) x.editor = o; } });   /* helyszínenkénti előadás-utómunka */
     if (!vids.length) return;
     withLock_(() => { const r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r); if (parseVideos_(q.videos).length) return; q.videos = JSON.stringify(vids); putRow_('projects', sh, q, r); changed = true; });
   });

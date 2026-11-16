@@ -389,7 +389,7 @@ const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 const vidOwner=(p,v)=>{
   if(v.k==='foto')return taskOwners(p,'foto_db')[0]||'';
   if(v.editor&&(p.crew||[]).some(a=>a.crewId===v.editor))return v.editor;   // a projektről levett vágó (régi bejegyzés) nem számít
-  const owners=taskOwners(p,v.k);if(owners.length===1)return owners[0];
+  const owners=taskOwners(p,vidTaskKey(p,v));if(owners.length===1)return owners[0];
   const cutters=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);
   return cutters.length===1?cutters[0]:'';
 };
@@ -497,7 +497,7 @@ function fieldAsg(p,k,role,label,n,only){const ids=slotOwners(p,k),nm=id=>(crewB
     return `<select class="inp op-cutsel${cur?'':' none'}" data-cmb="${esc(ph)}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${cur?'':' none'}" data-os-slot="${esc(k)}" data-i="${i}" data-role="${esc(role)}" data-label="${esc(label)}" aria-label="${esc(label)}: ${esc(role.toLowerCase())}"><option value=""${cur?' data-keep="1"':''}>${cur?'— senki (levétel) —':esc(ph)}</option>${here.length?`<optgroup label="Már a projekten">${here.map(o).join('')}</optgroup>`:''}${fit.length?`<optgroup label="${esc(role)}">${fit.map(o).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(o).join('')}</optgroup>`:''}</select>`;};
   if(only!=null)return sel(only);   // egyetlen választó (pl. a 2. kreatív kamera saját sorában)
   return Array.from({length:slots},(_,i)=>sel(i)).join('');}
-function cutAsg(p,k){const o=taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_db',rl=FO?['Fotós']:['Vágó'];   // a fotók utómunkáját csak fotós végezheti
+function cutAsg(p,k){const o=k==='er_post_n'&&erSplit(p)?[...new Set(erKeys(p).flatMap(x=>taskOwners(p,x)))]:taskOwners(p,k),cutters=cutterIds(p),FO=k==='foto_db',rl=FO?['Fotós']:['Vágó'];   // a fotók utómunkáját csak fotós végezheti
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="c:${esc(k)}"`,o.length?(k==='foto_db'?'📷 ':'✂️ ')+o.map(id=>(crewById(id)||{}).name||'?').join(', '):(k==='foto_db'?'📷 nincs fotós':'✂️ nincs vágóhoz rendelve'),!o.length);
   const all=(S.crew||[]).filter(c=>(c.roles||[]).some(r=>rl.includes(r))||(!FO&&cutters.includes(c.id))||o.includes(c.id)).sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
   const ic=FO?'📷':'✂️',ph=ic+(FO?' fotós kiválasztása':' vágó kiválasztása');
