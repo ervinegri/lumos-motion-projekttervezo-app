@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e92dd4984f",
+"at": "2026-11-16T18:02:44+02:00",
+"msg": "Helyszínváltás-figyelmeztetés csak annak, aki az adott projekten a helyszínen van (remote vezető, otthonról vágó nem)"
+},
+{
 "id": "0033e05d95",
 "at": "2026-11-16T18:00:59+02:00",
 "msg": "Kifizetések: összegcellák nem törnek és nem érnek a cellahatárra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ha a forgatás még előttünk van, a projekt visszaállítható Tervezésre (pl. tévesen utómunkába került)"
 },
 {
-"id": "328e5b512d",
-"at": "2026-11-16T15:14:29+02:00",
-"msg": "Stáb: a „Pozíciónként…” magyarázó szöveg törölve"
-},
-{
-"id": "5b3c07744e",
-"at": "2026-11-16T13:12:56Z",
+"id": "fa31c47c35",
+"at": "2026-11-16T13:14:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
