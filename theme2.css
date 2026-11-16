@@ -2202,3 +2202,4 @@ html body .vv-gallery small{color:#5c7a68;font-size:12px;overflow:hidden;text-ov
 html body .vv-gallery:hover{background:#e3f1e8}
 /* Lemondott projekt: a projekt teljes tartalma szürke és nem szerkeszthető */
 html body .dfull.is-cancelled{filter:grayscale(1);opacity:.55;pointer-events:none;user-select:none}
+html body .money-body.is-locked{opacity:.7;pointer-events:none}

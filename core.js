@@ -245,7 +245,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const ro=()=>!S.me||S.me.role==='crew';
 const isAdmin=()=>S.me&&S.me.role==='admin';
 const isSales=()=>!!S.me&&S.me.role==='sales';
-const projLocked=()=>!!(S.tab==='projektek'&&S.draft&&S.draft.status==='atadva');   // lezárt projekt: csak a pénzügyek módosíthatók
+const projLocked=()=>!!(S.tab==='projektek'&&S.draft&&S.draft.status==='atadva');   // lezárt projekt: semmi sem módosítható (a pénzügyek sem) – az ügyvezető felnyithatja
 const D=()=>ro()||projLocked()?' disabled':'';
 function uuid(){try{if(crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});}
 function initials(n){const p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
