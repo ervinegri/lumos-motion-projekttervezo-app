@@ -2230,3 +2230,6 @@ html body .tl-row .tl-track .cal-chip.p.cut.tl-bar.tl-cut.tl-joined.cut-ok.cut-o
 html body .tl-row .tl-track .cal-chip.v.v-ok.tl-bar,html body .cal-chip.v.v-ok{background:#cdeedd!important;color:#1f6b40!important;border-color:#8fd0aa!important}
 /* a vágási sáv tartalma rejtett, ha a sorban forgatási sáv is van – a jóváhagyott arány zöld kitöltése viszont mindig látszik */
 html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>.tl-okfill{display:block!important}
+/* Idővonal: a lezajlott helyszíni munka (forgatás) sávja szürke – innen megy át a vágás lilájába / zöldjébe */
+html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done:not(.tl-cut):not(.tl-split){background:#c9cfd5!important;color:#3f4a55!important;border-color:#c9cfd5!important}
+html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.tl-split{--from:#c9cfd5}
