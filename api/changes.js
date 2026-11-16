@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "20f7bebba3",
+"at": "2026-11-16T21:15:40+02:00",
+"msg": "⌘/Ctrl+Enter szövegdobozban a saját küldőgombot nyomja (Hozzáadás/Küldés), nem az ablak fő gombját"
+},
+{
 "id": "536b2d7b88",
 "at": "2026-11-16T21:15:13+02:00",
 "msg": "CLAUDE.md: szövegmegőrzési szabály"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: válaszadási határidő 2 nap, a következő 12:00-ra vagy 18:00-ra kerekítve"
 },
 {
-"id": "f30db84300",
-"at": "2026-11-16T17:30:25+02:00",
-"msg": "Meghívás: a válaszadási határidő 3 nap helyett 24 óra"
-},
-{
-"id": "f6b02fbd33",
-"at": "2026-11-16T15:28:53Z",
+"id": "113ec4961e",
+"at": "2026-11-16T15:30:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
