@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19a465a9b1",
+"at": "2026-11-16T11:12:07+02:00",
+"msg": "Nem fizetős projekt: teljes Extrák menü; fizetős tétel választásakor újra fizetős lesz"
+},
+{
 "id": "5cabcd3164",
 "at": "2026-11-16T11:10:34+02:00",
 "msg": "Nem fizetős projekt: az ajánlói jutalék is az Extrák menüből, mint a fizetősnél"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés: a szerződött projekt és jutalék a szerződéskötés hónapjához számít"
 },
 {
-"id": "1f2f2c8105",
-"at": "2026-11-15T15:19:28+02:00",
-"msg": "Saját meghívásaim: csak a megválaszolatlan meghívások látszanak; állapot-címke igazítva"
-},
-{
-"id": "8b5af85fa3",
-"at": "2026-11-15T13:10:53Z",
+"id": "34bc0aa55f",
+"at": "2026-11-15T13:19:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
