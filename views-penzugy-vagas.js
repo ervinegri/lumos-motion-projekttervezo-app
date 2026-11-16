@@ -299,7 +299,7 @@ function posTone(r){r=String(r||'');return /vágó/i.test(r)?'pt-cut':/fotó/i.t
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const ROLES=projRoles(p);if(!ROLES.includes(selRole))selRole=ROLES.includes('Vágó')?'Vágó':ROLES[0];   // videóvágásnál csak projektvezető és vágó
   const opts=itemOptions(p);
-  const ids=[];if(p.lead)ids.push(p.lead);(p.crew||[]).forEach(a=>{if(!ids.includes(a.crewId))ids.push(a.crewId);});
+  const ids=[];if(p.lead)ids.push(p.lead);(p.crew||[]).forEach(a=>{if(a.role!=='Értékesítő'&&!ids.includes(a.crewId))ids.push(a.crewId);});
   const PD=projDays(p),selDay=PD.includes(S.crewDay)?S.crewDay:'',shownIds=selDay?ids.filter(id=>isPostOnly(p,id)||crewDaysOf(p,id).includes(selDay)):ids;   // utómunkás (pl. vágó) nem napokhoz kötött: minden napnál látszik   // több napos: napokra bontott stáb
   const dayTabs=PD.length?`<div class="day-tabs" role="tablist" aria-label="Stáb napok szerint"><button type="button" class="day-tab${selDay?'':' on'}" data-action="crew-day-tab" data-d="" role="tab" aria-selected="${!selDay}">Minden nap <span class="c">${ids.length}</span></button>${PD.map((dd,k)=>{const n=ids.filter(id=>!isPostOnly(p,id)&&crewDaysOf(p,id).includes(dd)).length;return `<button type="button" class="day-tab${selDay===dd?' on':''}" data-action="crew-day-tab" data-d="${dd}" role="tab" aria-selected="${selDay===dd}">${k+1}. nap · ${esc(dayLbl(dd))} <span class="c">${n}</span></button>`;}).join('')}</div>${selDay&&!ro()?`<p class="hint" style="margin:6px 0 0">A ${PD.indexOf(selDay)+1}. napra beosztott stáb. Akit most veszel fel, csak erre a napra kerül.</p>`:''}`:'';
   const CL=crewLocked(p),EL=eqLocked(p);
@@ -324,7 +324,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
       </div>${!ro()&&CL&&iv&&iv.st==='yes'?`<button class="trash pcrew-del" type="button" data-action="crew-person-remove" data-id="${esc(cid)}" aria-label="Elfogadott meghívású munkatárs eltávolítása" data-tip="A meghívó már elfogadva – kattints a tájékoztatáshoz">🗑️</button>`:''}<div class="pcrew-eqwrap"${EL?' inert':''}>${eqBlock}</div><div class="pcrew-cutwrap"${CL?' inert':''}>${cutTasksBlock(p,cid)}</div><div class="pcrew-eqwrap"${EL?' inert':''}>${noteBlock}</div></div>`;};
   // pozíciók: projektvezető, majd a szolgáltatások által igényelt szerepek (betöltött + betöltetlen), végül a további beosztások
   const slots=[];if(p.lead&&shownIds.includes(p.lead))slots.push({role:'Projektvezető',cid:p.lead});
-  const order=st.map(x=>x.role).filter(r=>r!=='Projektvezető'),entries=(p.crew||[]).map((a,i)=>({a,i})).filter(x=>!(x.a.role==='Projektvezető'&&p.lead===x.a.crewId));
+  const order=st.map(x=>x.role).filter(r=>r!=='Projektvezető'),entries=(p.crew||[]).map((a,i)=>({a,i})).filter(x=>!(x.a.role==='Projektvezető'&&p.lead===x.a.crewId)&&x.a.role!=='Értékesítő');   /* az értékesítő nem stábtag: a Pénzügyek → Értékesítés részben szerepel */
   const roleKeys=[...order,...entries.map(x=>x.a.role).filter((r,k,arr)=>!order.includes(r)&&arr.indexOf(r)===k)];
   roleKeys.forEach(rl=>{const filled=entries.filter(x=>x.a.role===rl||(rl==='Operatőr'&&OP_SUB.includes(x.a.role)&&!order.includes(x.a.role)));
     filled.forEach(x=>{if(shownIds.includes(x.a.crewId)&&!slots.some(z=>z.idx===x.i))slots.push({role:x.a.role,cid:x.a.crewId,idx:x.i});});
