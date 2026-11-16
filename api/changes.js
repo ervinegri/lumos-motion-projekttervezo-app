@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f5397fc21",
+"at": "2026-11-16T15:12:34+02:00",
+"msg": "Jóváhagyásra vár sáv: kiválasztott vágónál csak az ő videói"
+},
+{
 "id": "9cd811b5c3",
 "at": "2026-11-16T15:11:54+02:00",
 "msg": "Fotózás kiválasztásakor automatikusan a fotók utómunkája is (200 kép)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: aki termelési vezetőként / ügyvezetőként saját magát osztja be, annak nem kell meghívó (elfogadottnak számít)"
 },
 {
-"id": "d18c1ee6ba",
-"at": "2026-11-16T13:31:17+02:00",
-"msg": "Projektlista: kompakt videó-összesítő (állapotsáv), piros figyelmeztetésű projektek sora piros; pozíció-kártyák: címkék nem takarnak, kompakt eszközlista"
-},
-{
-"id": "ff9b31c4bf",
-"at": "2026-11-16T11:28:37Z",
+"id": "ceba37896c",
+"at": "2026-11-16T11:31:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
