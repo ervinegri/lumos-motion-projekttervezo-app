@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "07485b8803",
+"at": "2026-11-16T23:04:57+02:00",
+"msg": "Helyszínek előadásainak utómunkája: több helyszínnél helyszínenként külön feladat (külön vágóhoz rendelhető)"
+},
+{
 "id": "c580f73d13",
 "at": "2026-11-16T23:00:11+02:00",
 "msg": "Stáb: a betöltetlen pozíciók a kártyák végére kerülnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "CLAUDE.md: szövegmegőrzési szabály"
 },
 {
-"id": "b0d2d40830",
-"at": "2026-11-16T21:14:51+02:00",
-"msg": "Általános szabály: a szövegdobozokba írt, el nem küldött szöveg megmarad (ablakváltás, újratöltés után is); küldés után törlődik"
-},
-{
-"id": "4d67908adf",
-"at": "2026-11-16T19:04:34Z",
+"id": "8bef617547",
+"at": "2026-11-16T19:15:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
