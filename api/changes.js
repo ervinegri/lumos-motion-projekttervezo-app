@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db54326949",
+"at": "2026-11-16T11:17:18+02:00",
+"msg": "Felületi szintaxis-teszt; szintaxishibás felület nem települ a Vercelre"
+},
+{
 "id": "bf0343d530",
 "at": "2026-11-16T11:16:45+02:00",
 "msg": "Javítás: fölösleges zárójel a projektlistában (az app nem töltött be)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: kisebb hézag a menü, a fejsor és a táblázat között"
 },
 {
-"id": "a8f1a3b412",
-"at": "2026-11-15T15:37:25+02:00",
-"msg": "Értékesítés: a hónap sötét gombként (mint a Pénzügyeknél), rákattintva a mai hónapra ugrik"
-},
-{
-"id": "80bc18bace",
-"at": "2026-11-15T13:35:50Z",
+"id": "c0ddda80ab",
+"at": "2026-11-15T13:37:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
