@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fab60b1803",
+"at": "2026-11-16T13:57:09+02:00",
+"msg": "Idővonal: a lezajlott helyszíni munka sávja szürke, az átmenet szürkéből megy a vágás színébe"
+},
+{
 "id": "d2d771160e",
 "at": "2026-11-16T13:53:31+02:00",
 "msg": "Idővonal: a jóváhagyott arány kitöltését egy régi szabály elrejtette – most látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondás ablak: a címzetteket a háttér adja, így a termelési vezető is látja"
 },
 {
-"id": "d381e2615d",
-"at": "2026-11-16T12:03:43+02:00",
-"msg": "Lemondás ablak: termelési vezetőnél nincs „pénzügyek” említés"
-},
-{
-"id": "b4eaa4c540",
-"at": "2026-11-16T10:03:19Z",
+"id": "0723c661f3",
+"at": "2026-11-16T10:03:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
