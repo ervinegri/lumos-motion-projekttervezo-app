@@ -591,3 +591,13 @@ function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.te
 
 /* Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna */
 function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0].trim().split(/\s+/).filter(x=>x&&!/^(dr|prof|ifj|id|özv|med|habil)\.?$/i.test(x));return w.length>1?w[1]:w[0]||'';}
+
+/* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + pozíciók) elfogadta a meghívást */
+function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})();
+  const ids=[...new Set([d&&d.lead].concat((d&&d.crew||[]).map(a=>a.crewId)).filter(Boolean))];
+  return ids.filter(id=>!(inv[id]&&inv[id].st==='yes')).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?inv[id].st||'invited':''}));}
+function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
+  if(!ids.length){toast('Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true);return true;}
+  const m=invMissing(d);if(!m.length)return false;
+  const t=m.map(x=>x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join(', ');
+  toast('Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true);return true;}
