@@ -391,8 +391,8 @@ const vidOwner=(p,v)=>{
   const cutters=(p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId);
   return cutters.length===1?cutters[0]:'';
 };
-function boardCards(){const me=boardMe(),f=S.boardCut||'';const out=[];
-  S.projects.forEach(p=>{if(p.status==='lemondva'||p.status==='atadva'||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
+function boardCards(only){const me=boardMe(),f=S.boardCut||'';const out=[];   // only: egy projekt videói (a lezárt / Kész projekté is – pl. a naptárból megnyitva)
+  S.projects.forEach(p=>{if(only&&p.id!==only)return;if(p.status==='lemondva'||(p.status==='atadva'&&!only)||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
   return out;}
 const boardForMe=()=>{const me=boardMe();return !!me&&S.projects.some(p=>Array.isArray(p.videos)&&p.videos.some(v=>vidOwner(p,v)===me));};
 /* Sávos tábla: soronként egy projekt (határidő szerint, mint az idővonalon), oszloponként a vágás állapotai */

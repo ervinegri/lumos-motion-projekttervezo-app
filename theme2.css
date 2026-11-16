@@ -1636,13 +1636,13 @@ html body .tl-now::before{width:9px!important;height:9px!important;top:3px!impor
 /* idővonal: forgatási nap + vágási sáv egy sorban – a projekt neve a forgatási napban, az óra alatt kezdődik és átér a vágási sávra */
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut){display:flex!important;flex-wrap:wrap;align-content:center;column-gap:4px;overflow:visible!important;z-index:4;position:relative}
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm,html body .tl-track:has(.tl-cut .tl-nm) .tl-bar:not(.tl-cut) .tl-nm{display:block!important;order:1;flex:0 0 auto;max-width:var(--nmw,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:5}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut .tl-nm{display:none!important}
+html body .tl-track .tl-cut.tl-withmain .tl-nm{display:none!important}
 /* idővonal fejléce egy sorban: a hónap neve az adott hónap 1-jén (a napok sorában), nincs külön hónapsor */
 html body .tl-head .tl-mband{display:none!important}
 html body .tl-head .tl-d small.tl-dmn{color:var(--fg,#1d2a38)!important;font-weight:800!important;text-transform:none;letter-spacing:0}
 html body .tl-head .tl-d.mstart{box-shadow:inset 2px 0 0 #1d2a38}
 /* idővonal: a vágási sáv felirata (✓ / Jóváhagyva) felül, az óra sorában – a név alatta fut át, nem takarják egymást */
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{display:block!important;text-align:left!important;padding:4px 7px!important}
+html body .tl-track .tl-cut.tl-withmain{display:block!important;text-align:left!important;padding:4px 7px!important}
 /* idővonal: „Jóváhagyásra vár” egy sorban – cím + projektcímkék egymás mellett */
 html body .tl-row.tl-wsec .tl-lbl.tl-wline{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;flex-wrap:nowrap!important;padding:5px 12px!important;background:#fbf6ea!important}
 html body .tl-row.tl-wsec{background:#fbf6ea}
@@ -1655,10 +1655,10 @@ html body .tl-wline .tl-pinnote .tl-nm{display:inline!important;font-weight:700;
 @media (min-width:701px){html body .header-tools:has(#userChip:not(.hidden)) #logoutBtn{display:none!important}}
 @media (orientation:landscape) and (max-height:560px){html body .header-tools:has(#viewAs:not(.hidden)) #logoutBtn{display:none!important}}
 /* idővonal: forgatási nap + vágás egy sorban – a vágási sávon nincs szöveg, csak a végén egy jel (zöld ✓ ha kész, ⏳ ha jóváhagyásra vár) */
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut{font-size:0!important;position:relative}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>*{display:none!important}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done::after{content:'⏳';font-size:12px;position:absolute;right:8px;top:50%;transform:translateY(-50%)}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.cut-ok::after,html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut.cut-done.st-atadva::after{content:'✓';font-size:15px;font-weight:800;color:#1f8a4c}
+html body .tl-track .tl-cut.tl-withmain{font-size:0!important;position:relative}
+html body .tl-track .tl-cut.tl-withmain>*{display:none!important}
+html body .tl-track .tl-cut.tl-withmain.cut-done::after{content:'⏳';font-size:12px;position:absolute;right:8px;top:50%;transform:translateY(-50%)}
+html body .tl-track .tl-cut.tl-withmain.cut-done.cut-ok::after,html body .tl-track .tl-cut.tl-withmain.cut-done.st-atadva::after{content:'✓';font-size:15px;font-weight:800;color:#1f8a4c}
 /* a kész projektek pipája zöld */
 html body .tl-ok{color:#1f8a4c!important;font-weight:800}
 /* idővonal: a „Jóváhagyva” / kész jelzés mindenhol egy zöld pipa a sáv jobb szélén */
@@ -2229,7 +2229,7 @@ html body .tl-row .tl-track .cal-chip.p.cut.tl-bar.tl-cut.tl-joined.cut-ok.cut-o
 /* Idővonal: a vágói naptár bejegyzése zöld, ha a hozzá tartozó projekt már kész */
 html body .tl-row .tl-track .cal-chip.v.v-ok.tl-bar,html body .cal-chip.v.v-ok{background:#cdeedd!important;color:#1f6b40!important;border-color:#8fd0aa!important}
 /* a vágási sáv tartalma rejtett, ha a sorban forgatási sáv is van – a jóváhagyott arány zöld kitöltése viszont mindig látszik */
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>.tl-okfill{display:block!important}
+html body .tl-track .tl-cut.tl-withmain>.tl-okfill{display:block!important}
 /* Idővonal: a lezajlott helyszíni munka (forgatás) sávja zöld – innen megy át a vágás lilájába / zöldjébe */
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done:not(.tl-cut):not(.tl-split){background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important}
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.tl-split{--from:#cdeedd}
@@ -2239,4 +2239,6 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo.tl-split{--from:#c9cfd
 /* erősebb szabály: a lezárt (Kész) projekt forgatási napja is zöld, nem a régi szürke „átadva” szín */
 html body .tl-row .tl-track .cal-chip.p.tl-bar.st-atadva.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split),html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split){background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important;opacity:1!important;filter:none!important}
 html body .tl-bar .tl-okfill.tl-waitfill{background:#fbe7b5;border-right:1px solid #f0d58c}
-html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>.tl-waitfill{display:block!important}
+html body .tl-track .tl-cut.tl-withmain>.tl-waitfill{display:block!important}
+/* Idővonal: a Google Naptár app-projekt nélküli, már lezajlott bejegyzése is zöld */
+html body .tl-row .tl-track .cal-chip.g.g-past.tl-bar,html body .cal-chip.g.g-past{background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important}
