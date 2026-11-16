@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "07447fed27",
+"at": "2026-11-16T12:17:38+02:00",
+"msg": "Javítás: szinkron-feltétel megjegyzése; teszt a jövőbeli forgatás esetére"
+},
+{
 "id": "577768c06e",
 "at": "2026-11-16T12:16:33+02:00",
 "msg": "Sales App szinkron: jövőbeli forgatású projekt nem léphet utómunkára a „leforgatva” jelzéstől"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: videók tételesen a stádiumukkal; Szerződés és Termelés kártya azonos magasságú"
 },
 {
-"id": "398232deed",
-"at": "2026-11-16T11:04:04+02:00",
-"msg": "Nyersanyag-, leadás- és TIG-levelek is a kolléga saját címéről (domainszintű küldés)"
-},
-{
-"id": "bb6c8b4025",
-"at": "2026-11-16T08:59:59Z",
+"id": "394ca8ff13",
+"at": "2026-11-16T09:04:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
