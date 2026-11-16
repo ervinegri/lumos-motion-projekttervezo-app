@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7056d7682d",
+"at": "2026-11-16T18:07:04+02:00",
+"msg": "Közös eszközök megszüntetve (a gazdátlan eszközök figyelmeztetésként látszanak); előadás-utómunkánál kamera- és eszközhiány jelzése"
+},
+{
 "id": "e92dd4984f",
 "at": "2026-11-16T18:02:44+02:00",
 "msg": "Helyszínváltás-figyelmeztetés csak annak, aki az adott projekten a helyszínen van (remote vezető, otthonról vágó nem)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "HubSpot: a már javított 415-ös társítási hiba régi bejegyzése törlődik, nem jelenik meg"
 },
 {
-"id": "fe2fb2118c",
-"at": "2026-11-16T15:17:19+02:00",
-"msg": "Ha a forgatás még előttünk van, a projekt visszaállítható Tervezésre (pl. tévesen utómunkába került)"
-},
-{
-"id": "fa31c47c35",
-"at": "2026-11-16T13:14:39Z",
+"id": "1666661820",
+"at": "2026-11-16T13:17:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
