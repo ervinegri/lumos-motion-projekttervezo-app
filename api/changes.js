@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "65b53f4dae",
+"at": "2026-11-16T17:53:30+02:00",
+"msg": "Kifizetések: meghívott (sárga ⏳), meg nem hívott (szürke ○) és elfogadott (zöld ✓) díjak megkülönböztetése, dőlt betű nélkül"
+},
+{
 "id": "31e6c3b031",
 "at": "2026-11-16T17:51:05+02:00",
 "msg": "Vágási tábla: az előadásrögzítés utómunkái (előadások, összefoglaló, kivágások) is kártyát kapnak; egyszeri pótlás a nyitott projekteknél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pozíció-kártyák: a címkék (pl. ★ Projektvezető) újra a kártya felső szegélyén"
 },
 {
-"id": "524e5b0b22",
-"at": "2026-11-16T15:03:38+02:00",
-"msg": "Jóváhagyásra vár sáv: a váró videók neve is látszik (és ráhúzva a teljes lista)"
-},
-{
-"id": "f4aabcd7f2",
-"at": "2026-11-16T13:02:24Z",
+"id": "37662b568e",
+"at": "2026-11-16T13:03:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
