@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4234bcf589",
+"at": "2026-11-16T16:14:24+02:00",
+"msg": "Pénzügyek panel: csak a nyíl nyit/zár"
+},
+{
 "id": "e20360c730",
 "at": "2026-11-16T16:14:01+02:00",
 "msg": "Ki értékesítette? kártya: előbb a jutalék (%), utána az összeg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: lágyabb átmenet a forgatási és a kész vágási sáv között"
 },
 {
-"id": "14ca484878",
-"at": "2026-11-16T13:48:35+02:00",
-"msg": "Idővonal: a jóváhagyott arány csak a vágási (lila) részen, a forgatási sávon nem"
-},
-{
-"id": "49481b2bf8",
-"at": "2026-11-16T11:46:18Z",
+"id": "472ddfc234",
+"at": "2026-11-16T11:48:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
