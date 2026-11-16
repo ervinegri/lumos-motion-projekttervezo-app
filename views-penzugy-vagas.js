@@ -339,7 +339,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
   const eqN=eqCount(p),hasEq=(p.equipment||[]).length;
   const aside=`${ids.length} fő · ${eqN} eszköz`;
   const body=`
-    <p class="hint">Pozíciónként: a pipált szolgáltatások adják a pozíciókat – válaszd ki, ki tölti be, és kinél milyen eszköz lesz.</p>
+    
     ${!p.lead&&!ro()?`<div class="need-lead-box"><b>⚠️ Nincs projektvezető</b><span>Minden projektnek kell egy vezető – ő a stáb kapcsolattartója, és nélküle a projekt nem léphet tovább.</span>${projLocked()||crewLocked(p)?'':`<select class="inp" id="lead-pick" style="width:auto"><option value="">★ Projektvezető kijelölése…</option>${(()=>{const on=new Set(ids),all=(S.crew||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')),a=all.filter(c=>on.has(c.id)),b=all.filter(c=>!on.has(c.id)&&(c.roles||[]).includes('Projektvezető'));return (a.length?`<optgroup label="A projekten">${a.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</optgroup>`:'')+(b.length?`<optgroup label="Projektvezetők">${b.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</optgroup>`:'');})()}</select>`}</div>`:''}
     ${leadBusy.length?`<p class="bad-txt" style="margin:6px 0 0">A projektvezető ütközik: ${esc(leadBusy.map(q=>q.name).join(', '))}</p>`:''}
     ${dayTabs}
