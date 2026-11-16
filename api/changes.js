@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4482100e84",
+"at": "2026-11-16T11:55:04+02:00",
+"msg": "Stáb és eszközök: a pozíciószámláló címkék törölve (a kártyák mutatják)"
+},
+{
 "id": "8054a01534",
 "at": "2026-11-16T11:53:40+02:00",
 "msg": "Pozíció-kártyák: egy meghívó személyenként, nincs duplikált szerepmező, csillag csak projektvezető nélkül, egységes kuka (pozícióról levétel), „Távolról vezeti”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Queen's Night Hungary: Zajácz Dávid ajánlói jutaléka 30 000 Ft (egyszeri javítás)"
 },
 {
-"id": "2fc8c08003",
-"at": "2026-11-15T17:58:03+02:00",
-"msg": "Bevételek: gyors egymás utáni cellabeírások nem vesznek el (nincs újrarajzolás gépelés közben, csak az utolsó szerverválasz érvényes); projekt nélküli soroknál a munkadíj % is írható"
-},
-{
-"id": "096cac798f",
-"at": "2026-11-15T15:40:36Z",
+"id": "22fdd4b557",
+"at": "2026-11-15T15:58:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
