@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b1c684c71",
+"at": "2026-11-16T21:21:56+02:00",
+"msg": "Idővonal húzás: a forrássor ugyanazzal a szelektorral"
+},
+{
 "id": "4fd49d71c4",
 "at": "2026-11-16T21:21:44+02:00",
 "msg": "Idővonal: a sáv csak a saját sorában húzható (más szakember sorára nem dobható)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó: a nyersanyag napja teljes hónapnévvel („december 2., szerda”)"
 },
 {
-"id": "fc304299d4",
-"at": "2026-11-16T17:46:18+02:00",
-"msg": "Meghívás: vasárnapra eső válaszadási határidő hétfő 18:00-ra tolódik"
-},
-{
-"id": "e1bbcffa42",
-"at": "2026-11-16T15:40:30Z",
+"id": "d28e1fda86",
+"at": "2026-11-16T15:46:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
