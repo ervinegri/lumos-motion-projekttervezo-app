@@ -2185,3 +2185,4 @@ html body .proj-table .pt-th .pt-q{flex:0 1 360px;min-width:160px;height:32px;pa
 /* Kifizetések: a számla sorszáma ne lógjon ki a cellából – a kötőjeleknél tördelődik (pl. „E-GSZUFA-” / „2026-93”) */
 html body .pay-sheet td.pay-st .pst-card{max-width:100%!important;white-space:normal!important;box-sizing:border-box}
 html body .pay-sheet td.pay-st .pst-card small{white-space:normal!important;overflow-wrap:anywhere;text-align:right;line-height:1.15}
+html body .cancel-notify{margin:0 0 12px;padding:8px 12px;border-radius:10px;background:#eef3fb;color:#2b3a55;font-size:13.5px;line-height:1.45}
