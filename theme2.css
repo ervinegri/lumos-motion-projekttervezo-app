@@ -2310,3 +2310,8 @@ html body .tent-banner .tent-ic{font-size:20px}html body .tent-banner .grow{flex
 html body .tent-link{margin:8px 2px;font-size:13px;color:#5d6b7a}html body .bl-tent{font-size:12px;font-weight:600;color:#3b6fb0;cursor:help}
 html body .proj-table tr.pt-tent>td{background-image:repeating-linear-gradient(135deg,transparent,transparent 9px,rgba(59,111,176,.06) 9px,rgba(59,111,176,.06) 18px)!important}
 html body .cal-chip.p.tent{background-image:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(255,255,255,.55) 6px,rgba(255,255,255,.55) 12px)!important;opacity:.8;outline:1px dashed rgba(59,111,176,.6);outline-offset:-1px}
+html body .pcrew .pcrew-inv.inv-ask{display:flex!important;flex-wrap:nowrap!important;align-items:center;gap:6px;background:#fff6e2;border:1px solid #f0d58a;border-radius:8px;padding:3px 4px 3px 10px;height:32px;box-sizing:border-box}
+html body .pcrew .inv-ask-q{font-size:12.5px;font-weight:650;color:#8a5a00;white-space:nowrap;margin-right:2px}
+html body .pcrew .inv-ask-b{height:24px;padding:0 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid transparent;font-family:inherit}
+html body .pcrew .inv-ask-b.yes{background:#1f7a44;color:#fff}html body .pcrew .inv-ask-b.yes:hover{background:#196437}
+html body .pcrew .inv-ask-b.no{background:#fff;color:#a33;border-color:#f3caca}html body .pcrew .inv-ask-b.no:hover{background:#fdf0f0}
