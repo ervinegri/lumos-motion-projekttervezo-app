@@ -2272,5 +2272,7 @@ html body #view .fin-tbl tbody tr:hover>td:first-child{box-shadow:inset 3px 0 0 
 html body .pay-pill.pay-pick{cursor:pointer}html body .pay-pill.pay-pick:hover{filter:brightness(.95);outline:1px dashed #9aa5b1;outline-offset:1px}
 html body .done-check.done-lock{font-size:.8em;color:inherit;background:none;border:0;padding:0;margin-left:4px;filter:grayscale(.2);vertical-align:1px}
 /* Kifizetések: el nem fogadott meghívás díja – halványan, az összegekbe nem számít */
-html body .pay-sheet .pay-pend{color:#9aa3ad;font-style:italic;font-weight:500}
+html body .pay-sheet .pay-pend{color:#9aa3ad;font-style:normal;font-weight:500}
+html body .pay-sheet .pay-pend.inv{color:#b7791f}
+html body .pay-sheet .pay-acc{color:#2f9e5a;font-weight:700;font-size:10px;margin-right:4px}
 html body .pay-sheet .pay-pend.no{text-decoration:line-through}
