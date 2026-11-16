@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1cce8d294b",
+"at": "2026-11-16T12:00:05+02:00",
+"msg": "Lemondáskor e-mail a termelési vezetőnek; a háttér már nem kér csapat-véglegesítést a helyszíni munkához"
+},
+{
 "id": "4482100e84",
 "at": "2026-11-16T11:55:04+02:00",
 "msg": "Stáb és eszközök: a pozíciószámláló címkék törölve (a kártyák mutatják)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: Ajánlói jutalék külön oszlopban (csak ha a hónapban van ilyen); Queen's Night ajánlói jutalék visszaállítva 60 000 Ft-ra, ha a téves javítás lefutott"
 },
 {
-"id": "fc43d66813",
-"at": "2026-11-15T18:30:20+02:00",
-"msg": "Queen's Night Hungary: Zajácz Dávid ajánlói jutaléka 30 000 Ft (egyszeri javítás)"
-},
-{
-"id": "22fdd4b557",
-"at": "2026-11-15T15:58:13Z",
+"id": "9f5c88fdbf",
+"at": "2026-11-15T16:30:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
