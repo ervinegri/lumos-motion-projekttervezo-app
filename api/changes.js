@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef1c235fd0",
+"at": "2026-11-16T21:31:29+02:00",
+"msg": "Stábkártya: kompakt, egységes meghívó-állapotcímkék"
+},
+{
 "id": "d9dc1d78b3",
 "at": "2026-11-16T21:29:59+02:00",
 "msg": "Névjegy: a Megosztás gomb csak ott jelenik meg, ahol a böngésző fájlt tud megosztani; hiba esetén letöltés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a lábléc sorai (díjösszesítő, számla, egyenleg) is kiemelődnek"
 },
 {
-"id": "30c333d6a1",
-"at": "2026-11-16T17:58:57+02:00",
-"msg": "Helyszíni értékesítő pozíció (az eladó értékesítő nem stábtag); egységes sárga sorkiemelés a Források, Ügyfelek, Kifizetések táblázatain"
-},
-{
-"id": "9e1baf0a4c",
-"at": "2026-11-16T15:55:53Z",
+"id": "75563f4fd1",
+"at": "2026-11-16T15:59:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
