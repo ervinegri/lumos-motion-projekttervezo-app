@@ -10,7 +10,11 @@ function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
   return !v;}
 /* Videóvágás: nem terepi munka – nincs helyszín, érkezés/távozás; a dátum a leadási határidő */
 const editOnly=p=>!!p&&p.eventType==='Videóvágás';
-const projRoles=p=>editOnly(p)?['Projektvezető','Vágó']:CREW_ROLES;   // videóvágásnál csak projektvezető és vágó vehető fel
+const projRoles=p=>editOnly(p)?['Projektvezető','Vágó']:CREW_ROLES.filter(r=>r!=='Értékesítő');   /* az eladó értékesítő a Pénzügyek → Értékesítés részben; pozícióként csak a helyszíni értékesítő */
+/* A projekt eladójának (jutalékos értékesítő) munkatárs-azonosítója – ő nem stábtag */
+const dealSellerCid=p=>{const D=(S.deals||[]).filter(x=>x.projectId===p.id),d=D.find(x=>x.stage==='nyert')||D[0];const o=String((d&&d.ownerId)||'');if(!o)return '';if(o.indexOf('crew:')===0)return o.slice(5);const sp=(S.salesPeople||[]).find(x=>x.userId===o&&x.crewId);if(sp)return sp.crewId;return S.me&&S.me.id===o&&S.me.crewId?S.me.crewId:'';};
+const isDealSellerAsg=(p,a)=>a.role==='Értékesítő'&&a.crewId===dealSellerCid(p);
+const posLabel=r=>r==='Értékesítő'?'Helyszíni értékesítő':r;   // videóvágásnál csak projektvezető és vágó vehető fel
 const missingReq=p=>p?REQ_FIELDS.filter(([k])=>!(editOnly(p)&&['venue','startTime','endTime','endDate'].includes(k))&&reqEmpty(p,k)):[];
 /* Stáb kártyáinak sorrendje: a húzással beállított közös sorrend, utána prioritás és név. */
 function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_crew_order')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
@@ -47,7 +51,7 @@ const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges r
 const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
 /* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
 const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k))return 'Interjúsarok operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)(_\d+)?$/.test(k))return 'Statív operatőr';return role;};
-const CREW_ROLES=['Projektvezető','Értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
+const CREW_ROLES=['Projektvezető','Értékesítő','Helyszíni értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
