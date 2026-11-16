@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cc3ea48a68",
+"at": "2026-11-16T21:46:30+02:00",
+"msg": "Előfoglalás sáv: termelési vezetőnél az értékesítési állapot nélkül"
+},
+{
 "id": "c5134d6807",
 "at": "2026-11-16T21:44:55+02:00",
 "msg": "Kanban: a nyersanyagra váró (szürke) kártyák nem jelölhetők ki, a Mind kijelölése gomb sem jelenik meg hozzájuk"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előadásrögzítés: operatőr nélküli kamerás helyszín, üres kamerasor és szolgáltatás nélküli pozíció jelzése; az operatőr-választóban elöl a projekten lévők"
 },
 {
-"id": "7056d7682d",
-"at": "2026-11-16T18:07:04+02:00",
-"msg": "Közös eszközök megszüntetve (a gazdátlan eszközök figyelmeztetésként látszanak); előadás-utómunkánál kamera- és eszközhiány jelzése"
-},
-{
-"id": "220acc9f3b",
-"at": "2026-11-16T16:02:55Z",
+"id": "41ce7a3f29",
+"at": "2026-11-16T16:07:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
