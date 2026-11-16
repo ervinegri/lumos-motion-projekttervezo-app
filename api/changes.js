@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a8fc073713",
+"at": "2026-11-16T13:46:02+02:00",
+"msg": "Idővonal: a részleges jóváhagyás kitöltése ugyanaz a zöld, mint a kész sávoké"
+},
+{
 "id": "7869694896",
 "at": "2026-11-16T13:42:32+02:00",
 "msg": "Naptár idővonal: részleges jóváhagyásnál a sáv arányosan zöld"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "A közös „Csapat véglegesítése” funkció kikapcsolva (pozíciónként, külön véglegesítünk)"
 },
 {
-"id": "65b9712e6c",
-"at": "2026-11-16T11:43:13+02:00",
-"msg": "Vercel: a szintaxis-ellenőrzés beágyazva fut (a tests/ mappa nincs a buildben, emiatt maradtak ki a telepítések)"
-},
-{
-"id": "0c81613de2",
-"at": "2026-11-16T09:28:35Z",
+"id": "9c1e8ca673",
+"at": "2026-11-16T09:43:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
