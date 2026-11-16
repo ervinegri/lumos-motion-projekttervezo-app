@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cd62e6ba9f",
+"at": "2026-11-16T21:56:03+02:00",
+"msg": "Kifizetések: a szakember / értékesítő megnyithatja a saját, párosított számláját (csak a sajátját)"
+},
+{
 "id": "819aff626f",
 "at": "2026-11-16T21:53:33+02:00",
 "msg": "Előfoglalás a szakembereknek: előzetes meghívó (megbeszélés alatt), ⏳ jelölés a listában és a meghívásoknál, a díj függőben; véglegesítéskor / elmaradáskor értesítés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat e-mail: az érvényesség (napok) a levél szövegében is szerepel"
 },
 {
-"id": "c7424825e7",
-"at": "2026-11-16T18:36:58+02:00",
-"msg": "Árajánlat: a rendezvény neve átírható (az ajánlaton, a tárgyban és a fájlnévben)"
-},
-{
-"id": "1eb47dc1c4",
-"at": "2026-11-16T16:31:55Z",
+"id": "a0d9bf7905",
+"at": "2026-11-16T16:37:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
