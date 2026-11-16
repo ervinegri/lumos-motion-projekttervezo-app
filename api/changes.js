@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bbbdd3989e",
+"at": "2026-11-16T16:33:55+02:00",
+"msg": "Bevételek: az Értékesítés összegére húzva látszik, ki értékesítette"
+},
+{
 "id": "73b372b88d",
 "at": "2026-11-16T16:31:47+02:00",
 "msg": "Fizetés: új „Beszámítva” állapot (másik projekt számlájából levonva) – számla nélküli projektnél a Fizetés címkére kattintva állítható; a fizetési állapot mentéskor nem íródik felül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a még le nem forgatott nap szürke, a leforgatott zöld"
 },
 {
-"id": "8468fd80ba",
-"at": "2026-11-16T14:01:03+02:00",
-"msg": "Idővonal: a projekt neve teljesen kiíródik (átér a vágási sávra)"
-},
-{
-"id": "c821fb8cb1",
-"at": "2026-11-16T11:59:14Z",
+"id": "a82b4d1a66",
+"at": "2026-11-16T12:01:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
