@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6884b17bf5",
+"at": "2026-11-16T16:24:50+02:00",
+"msg": "Bevétel és kiadás: a Kintlévőségre húzva a kintlévő tételek listája"
+},
+{
 "id": "0d4ad78e50",
 "at": "2026-11-16T16:23:38+02:00",
 "msg": "Pénzügyek: az app előtti (régi táblázatos) hónapokban nem jelenik meg a számlázási eltérés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a közös nap nélküli projektek egy sorba kerülnek (kompaktabb naptár)"
 },
 {
-"id": "fab60b1803",
-"at": "2026-11-16T13:57:09+02:00",
-"msg": "Idővonal: a lezajlott helyszíni munka sávja szürke, az átmenet szürkéből megy a vágás színébe"
-},
-{
-"id": "62810b3683",
-"at": "2026-11-16T11:53:40Z",
+"id": "f8508bf1ab",
+"at": "2026-11-16T11:57:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
