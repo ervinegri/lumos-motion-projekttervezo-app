@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "536b2d7b88",
+"at": "2026-11-16T21:15:13+02:00",
+"msg": "CLAUDE.md: szövegmegőrzési szabály"
+},
+{
 "id": "b0d2d40830",
 "at": "2026-11-16T21:14:51+02:00",
 "msg": "Általános szabály: a szövegdobozokba írt, el nem küldött szöveg megmarad (ablakváltás, újratöltés után is); küldés után törlődik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: a válaszadási határidő 3 nap helyett 24 óra"
 },
 {
-"id": "125112a9d3",
-"at": "2026-11-16T17:28:37+02:00",
-"msg": "Kifizetések (ügyvezető): az el nem fogadott / ki nem küldött meghívás díja halványan, ⏳ jellel látszik, és nem számít bele az összegekbe"
-},
-{
-"id": "02e38ba678",
-"at": "2026-11-16T15:21:25Z",
+"id": "f6b02fbd33",
+"at": "2026-11-16T15:28:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
