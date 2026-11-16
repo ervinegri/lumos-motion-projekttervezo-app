@@ -694,10 +694,10 @@ async function tplBillCopy(tplId,newPid){try{if(!billOn()||!S.fin||!S.fin.billin
 document.addEventListener('click',e=>{const box=e.target.closest&&e.target.closest('.bs-box');if(!box||e.target.closest('button,a,input,label,select,textarea,.cmb,.bs-ref'))return;
   const b=box.querySelector('[data-action="sz-inv"]');if(b)b.click();});
 
-/* A végszámlából levont szervezői jutalék: az ugyanennél a szervezőnél (ügyfélnél), ugyanazon a rendezvényen (±14 nap) eladott projektek szervezői jutaléka,
+/* A végszámlából levont szervezői jutalék: az ugyanennél a szervezőnél (ügyfélnél), ugyanazon a rendezvényen (±1 nap) eladott projektek szervezői jutaléka,
    csökkentve a jutalékból „vásárolt”, ebbe a projektbe beszámított projektek értékével. Így a kisebb számla nem hibának számít. */
 function orgOffsetAdj(p){const nk=x=>fold(String(x||'')).replace(/\s+/g,' ').trim(),cl=nk(p.client),r=pr(p);if(!cl||!r)return {amt:0,tip:''};
-  const near=q=>{const x=pr(q);return x&&Math.abs(diffDays(x.start,r.start))<=14;},cName=id=>((S.clients||[]).find(c=>c.id===id)||{}).name||'';
+  const near=q=>{const x=pr(q);return x&&Math.abs(diffDays(x.start,r.start))<=1;},cName=id=>((S.clients||[]).find(c=>c.id===id)||{}).name||'';
   const fees=S.projects.filter(q=>q.id!==p.id&&q.status!=='lemondva'&&near(q)).map(q=>({q,f:extrasRaw(q).filter(x=>x&&x.kind==='org'&&nk(cName(x.clientId))===cl).reduce((a,x)=>a+num(x.amount),0)})).filter(x=>x.f>0);
   const offs=S.projects.filter(q=>q.id!==p.id&&q.payStatus==='beszamitva'&&q.payOffset===p.id).map(q=>({q,v:projTotal(q)}));
   const sumF=fees.reduce((a,x)=>a+x.f,0),sumO=offs.reduce((a,x)=>a+x.v,0),amt=sumF-sumO;if(amt<=0)return {amt:0,tip:''};
