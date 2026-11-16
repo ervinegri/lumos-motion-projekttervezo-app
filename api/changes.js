@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fc304299d4",
+"at": "2026-11-16T17:46:18+02:00",
+"msg": "Meghívás: vasárnapra eső válaszadási határidő hétfő 18:00-ra tolódik"
+},
+{
 "id": "36136621d0",
 "at": "2026-11-16T17:40:18+02:00",
 "msg": "Meghívás: saját magát (ügyvezető / termelési vezető) e-mail nélkül, elfogadottként rögzíti; határidő: a meghívás napja + 2 nap, 18:00"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a „Jóváhagyásra vár” sáv visszakerült – minden projekt, amelynek akár csak egy videója vár jóváhagyásra"
 },
 {
-"id": "12c9ba9d27",
-"at": "2026-11-16T14:48:05+02:00",
-"msg": "Idővonal: a projekthez nem kötött, már lezajlott vágói bejegyzés is zöld"
-},
-{
-"id": "bbbb9a89e4",
-"at": "2026-11-16T12:46:49Z",
+"id": "1dec68e169",
+"at": "2026-11-16T12:48:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
