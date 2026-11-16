@@ -143,6 +143,13 @@ function saveProject_(u, a) {
     if (p.crewFinal == null) p.crewFinal = '';
     if (p.eqFinal == null) p.eqFinal = '';
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
+    if (old && p.invites) { try {   /* elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (újra meghívandó; a saját beosztás magától rendben) */
+      const inv = parseInvites_(p.invites), oldAsg = readAll_('crewAssign').filter(x => x.projectId === id); let ch = false;
+      Object.keys(inv).forEach(cid => { const iv = inv[cid]; if (!iv || iv.st !== 'yes') return; const now = rolesOfCid_(p.lead, crew, cid); if (!now.length) return;
+        const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), add = now.filter(r => acc.indexOf(r) < 0);
+        if (add.length && iv.via !== 'self') { inv[cid] = Object.assign(iv, { st: 'invited', at: '', ans: '', dl: '', prev: acc, roles: acc }); ch = true; }
+        else if (String(iv.roles) !== String(now)) { iv.roles = now; ch = true; } });
+      if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új pozíció ellenőrzés: ' + e); } }
     p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : ''; p.preDeal = old ? (old.preDeal || '') : '';   /* az előfoglalás-kapcsolatot csak a projPreDeal módosítja */   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
     // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
@@ -875,8 +882,10 @@ function lookupTaxpayerApi_(arg) {
    Akinek nincs meghívási bejegyzése (régi projektek), annál minden marad a régiben. */
 function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JSON.parse(v || '{}'); } catch (e) { o = {}; } }
   const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
-    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10) }; });
+    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10) }; });
   return out; }
+/** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
+function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
 /** Látja-e a szakember a projektet / a projekten belül a munkatársat: nincs meghívás → igen (régi működés); van → csak ha elfogadta. */
 function inviteOk_(inv, cid) { const x = inv && inv[cid]; return !x || x.st === 'yes'; }
 /** A kiküldött meghívó és az előnézet közös, azonos e-mail-sablonja. */
@@ -908,14 +917,15 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const onSiteInvite = p.lead === cid || (asg).some(x => x.crewId === cid && x.role !== 'Vágó' && x.role !== 'Értékesítő');
     const rawUpload = isCut && p.date ? (m => m ? ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()] : '')(/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(p.date))) : '';   /* teljes hónapnév: „december 2., szerda” */
     const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
-    const tent = projTent_(p), info = [tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
+    const ivx = parseInvites_(p.invites)[cid] || {}, prevR = ivx.prev || [], nowR = rolesOfCid_(p.lead, asg, cid), addR = nowR.filter(r => prevR.indexOf(r) < 0);
+    const tent = projTent_(p), info = [prevR.length ? '✅ Eddig elfogadott pozíciód: ' + prevR.join(', ') + '\n🆕 Új pozíció (ezt külön el kell fogadnod): ' + addR.join(', ') : '', tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
     const dlD = (() => { let t = new Date(Date.now() + 48 * 3600 * 1000); if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000); return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();   /* vasárnapra eső határidő → hétfő 18:00 */   // válaszadási határidő: a meghívás napja után 2 nappal, 18:00 (pl. hétfőn bármikor → szerda 18:00)
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
-  return { to: em, subject: (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: html, dlTxt: dlTxt };
+  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új pozíció: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: html, dlTxt: dlTxt };
 }
 /** Megtekintés küldés előtt: kizárólag olvasás, meghívóállapot-módosítás nélkül. */
 function crewInvitePreview_(u, a) {
@@ -935,8 +945,8 @@ function crewInvite_(u, a) {
     const asg = readAll_('crewAssign').filter(x => x.projectId === pid), on = p.lead === cid || asg.some(x => x.crewId === cid); p.__asg = asg; if (!on) throw new Error('Előbb vedd fel a stábba.');
     c = readAll_('crew').find(x => x.id === cid); if (!c) throw new Error('A munkatárs nem található.');
     const inv = parseInvites_(p.invites), cur = inv[cid];
-    if ((u.role === 'admin' || u.role === 'editor') && cid === (u.crewId || inviteOwnCrewId_(u))) {   /* saját beosztás: a fiókhoz név / e-mail alapján kötött munkatárs is */ inv[cid] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self' }; p.invites = JSON.stringify(inv); delete p.__asg; p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); p.__self = true; return; }   // saját magát nem hívja meg e-mailben: elfogadottnak számít
-    inv[cid] = { st: cur && cur.st === 'yes' ? 'yes' : 'invited', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), ans: cur && cur.st === 'yes' ? cur.ans : '', via: cur && cur.st === 'yes' ? cur.via : '' };
+    if ((u.role === 'admin' || u.role === 'editor') && cid === (u.crewId || inviteOwnCrewId_(u))) {   /* saját beosztás: a fiókhoz név / e-mail alapján kötött munkatárs is */ inv[cid] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self', roles: rolesOfCid_(p.lead, p.__asg, cid) }; p.invites = JSON.stringify(inv); delete p.__asg; p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); p.__self = true; return; }   // saját magát nem hívja meg e-mailben: elfogadottnak számít
+    inv[cid] = { st: cur && cur.st === 'yes' ? 'yes' : 'invited', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), ans: cur && cur.st === 'yes' ? cur.ans : '', via: cur && cur.st === 'yes' ? cur.via : '', roles: cur ? cur.roles || [] : [], prev: cur ? cur.prev || [] : [] };
     const asg0 = p.__asg; delete p.__asg; p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); p.__asg = asg0; dataBump_(); dbFlush_(); });
   if (p.__self) { delete p.__self; logEvent_(u, 'Saját beosztás', p.name, c.name + ' (e-mail nélkül)'); return { project: projectView_(fullProject_(p), u), mail: false, cal: false, self: true }; }
   const em = String(c.email || '').trim().toLowerCase(); let calOk = false, mail = false;
@@ -969,7 +979,7 @@ function inviteRespond_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
     const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
     if (inv[cid].st === 'yes' || inv[cid].st === 'no') { alreadyAnswered = inv[cid].st; return; }
-    inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app' }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+    inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app', roles: yes ? rolesOfCid_(p.lead, readAll_('crewAssign').filter(x => x.projectId === pid), cid) : (inv[cid].roles || []), prev: [] }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
   if (alreadyAnswered) return { alreadyAnswered: true, status: alreadyAnswered, name: p.name };
   logEvent_(u, yes ? 'Meghívás elfogadva' : 'Meghívás elutasítva', p.name, '');
   try {   // visszajelzés a meghívónak
@@ -995,7 +1005,7 @@ function inviteRespond_(u, a) {
 /** A Google Naptárban adott válaszok (Igen / Nem) átvétele a függő meghívásokhoz. */
 function invitesSync_(projects, onlyCid) {
   if (typeof Calendar === 'undefined' || !Calendar.Events) return false; let changed = false; const today = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd'); let crewEm = null;
-  projects.forEach(p => { const inv = parseInvites_(p.invites), pend = Object.keys(inv).filter(k => inv[k].st === 'invited' && (!onlyCid || k === onlyCid)); if (!pend.length || !p.calEventId) return;
+  projects.forEach(p => { const inv = parseInvites_(p.invites), pend = Object.keys(inv).filter(k => inv[k].st === 'invited' && inv[k].at && !(inv[k].prev || []).length && (!onlyCid || k === onlyCid));   /* új pozíció: csak az appban fogadható el */ if (!pend.length || !p.calEventId) return;
     if ((p.endDate || p.date || '') && (p.endDate || p.date) < today) return;
     try { const ev = calEvent_(p.calEventId); if (!ev) return; const cur = Calendar.Events.get(evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, '')), st = {};
       (cur.attendees || []).forEach(x => { st[String(x.email || '').toLowerCase()] = x.responseStatus; });

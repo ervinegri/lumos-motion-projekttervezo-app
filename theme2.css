@@ -2324,3 +2324,4 @@ html body .pcrew.pos-card.inv-no{border-color:#eaa9a9!important;box-shadow:0 0 0
 html body #toast.center{top:50%!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translate(-50%,-50%)!important;max-width:520px;font-size:15px;padding:16px 22px!important;box-shadow:0 12px 40px rgba(15,23,42,.35)!important;z-index:10000}
 html body .stage.drop-no{position:relative;cursor:not-allowed;outline:2px dashed #e08b8b;outline-offset:-2px;background:#fdf3f3!important}
 html body .stage.drop-no::after{content:'🚫';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:22px}
+html body .pcrew .pcrew-inv .inv-btn.inv-new{border-color:#e0a93a!important;color:#8a5a00!important;background:#fff8e8!important}
