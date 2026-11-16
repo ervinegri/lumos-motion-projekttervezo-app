@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b535c85b24",
+"at": "2026-11-16T13:05:10+02:00",
+"msg": "Fotók: galéria-kártya videólejátszó helyett, „Jóváhagyta a fotókat”, fotós szövegek; a vezető a galéria linkjét bármikor megadhatja / cserélheti; nem lejátszható linknél megnyitás új lapon"
+},
+{
 "id": "6cca495512",
 "at": "2026-11-16T13:02:56+02:00",
 "msg": "Stáb: személyenként egy kártya, a pozíciók címkeként (× a levételhez); vágó + helyszíni pozíciónál dupla széles kártya"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: állapotcímkék egy sorban; tételes videólista mellett nincs közös „Leadott videó” gomb"
 },
 {
-"id": "34fd54e6da",
-"at": "2026-11-16T11:13:25+02:00",
-"msg": "Videólista: azonos stádium egyszer, a projektjelzés által már kimondott stádium egyszer sem; redundancia-szabály a CLAUDE.md-ben"
-},
-{
-"id": "9507c8952e",
-"at": "2026-11-16T09:12:56Z",
+"id": "15bec6a176",
+"at": "2026-11-16T09:13:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
