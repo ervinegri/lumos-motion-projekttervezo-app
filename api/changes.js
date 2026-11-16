@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c38f88a2bb",
+"at": "2026-11-16T21:46:52+02:00",
+"msg": "Előfoglalás sáv: a magyarázó szöveg csak az ügyvezetőnek"
+},
+{
 "id": "cc3ea48a68",
 "at": "2026-11-16T21:46:30+02:00",
 "msg": "Előfoglalás sáv: termelési vezetőnél az értékesítési állapot nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat küldése: korábbi ügyfél is választható – új lehetőség az ügyfél adataival, utána az árajánlat"
 },
 {
-"id": "10f7e07e8b",
-"at": "2026-11-16T18:28:36+02:00",
-"msg": "Előadásrögzítés: operatőr nélküli kamerás helyszín, üres kamerasor és szolgáltatás nélküli pozíció jelzése; az operatőr-választóban elöl a projekten lévők"
-},
-{
-"id": "41ce7a3f29",
-"at": "2026-11-16T16:07:15Z",
+"id": "f6e6eefae0",
+"at": "2026-11-16T16:28:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
