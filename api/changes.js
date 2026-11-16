@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd3e561d05",
+"at": "2026-11-16T16:05:44+02:00",
+"msg": "Értékesítés: nem fizetős projekt lehetősége nem jelenik meg (pl. Business Bash)"
+},
+{
 "id": "d6d7aa8ddc",
 "at": "2026-11-16T16:03:30+02:00",
 "msg": "HubSpot: a már javított 415-ös társítási hiba régi bejegyzése törlődik, nem jelenik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a részleges jóváhagyás kitöltése ugyanaz a zöld, mint a kész sávoké"
 },
 {
-"id": "7869694896",
-"at": "2026-11-16T13:42:32+02:00",
-"msg": "Naptár idővonal: részleges jóváhagyásnál a sáv arányosan zöld"
-},
-{
-"id": "1f8e3d72c4",
-"at": "2026-11-16T11:38:48Z",
+"id": "0b4c3d1591",
+"at": "2026-11-16T11:42:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
