@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "10f7e07e8b",
+"at": "2026-11-16T18:28:36+02:00",
+"msg": "Előadásrögzítés: operatőr nélküli kamerás helyszín, üres kamerasor és szolgáltatás nélküli pozíció jelzése; az operatőr-választóban elöl a projekten lévők"
+},
+{
 "id": "7056d7682d",
 "at": "2026-11-16T18:07:04+02:00",
 "msg": "Közös eszközök megszüntetve (a gazdátlan eszközök figyelmeztetésként látszanak); előadás-utómunkánál kamera- és eszközhiány jelzése"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: nem fizetős projekt lehetősége nem jelenik meg (pl. Business Bash)"
 },
 {
-"id": "d6d7aa8ddc",
-"at": "2026-11-16T16:03:30+02:00",
-"msg": "HubSpot: a már javított 415-ös társítási hiba régi bejegyzése törlődik, nem jelenik meg"
-},
-{
-"id": "1666661820",
-"at": "2026-11-16T13:17:29Z",
+"id": "d737ada729",
+"at": "2026-11-16T14:03:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
