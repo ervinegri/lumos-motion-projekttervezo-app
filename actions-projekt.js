@@ -251,7 +251,7 @@ function guard(fn,onCancel){
   if(onCancel&&mr)mr.addEventListener('click',function h(e){if(e.target.closest('[data-action="modal-cancel"],[data-action="modal-close"],[data-action="modal-bg"]')&&GUARD_NEXT){const c=GUARD_NEXT.onCancel;GUARD_NEXT=null;mr.removeEventListener('click',h,true);setTimeout(c,0);}},true);
 }
 let GUARD_NEXT=null;
-function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=false;if(p){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}else{S.projectId=null;S.draft=null;}renderChrome();}
+function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=false;if(typeof commDiscard==='function')commDiscard();if(p){S.draft=prepDraft(p);S.draftBase=clone(S.draft);}else{S.projectId=null;S.draft=null;}renderChrome();}
 /* Automatikus mentés: minden módosítás után rövid várakozással mentünk (gépelésnél kicsit később).
    A mentések sorban futnak (SAVE_Q), mindig a legfrissebb állapotot küldik, így a gyors kattintgatás sem veszít adatot. */
 let AUTO_T=0;
@@ -286,6 +286,7 @@ function saveDraft(){
   if(!S.draft||ro())return;
   const d=clone(S.draft);
   if(String(d.name||'').trim().length<2){toast('Add meg a projekt nevét.',true);return;}
+  const cd=S._commDraft&&S._commDraft.pid===d.id?S._commDraft:null;if(cd){S._commDraft=null;S._commOrig=null;}   /* a jutalék is ezzel a mentéssel megy */
   const i=S.projects.findIndex(x=>x.id===d.id),prev=i>=0?S.projects[i]:null;
   const local=Object.assign({},prev||{},d,{updatedAt:prev?prev.updatedAt:''});
   if(i>=0)S.projects[i]=local;else S.projects.push(local);
@@ -313,6 +314,7 @@ function saveDraft(){
       }else{toast('Nem sikerült menteni: '+m,true);}
     }finally{S.saving--;render(true);}
   });
+  if(cd)SAVE_Q=SAVE_Q.then(()=>commSave(cd));
   return SAVE_Q;
 }
 function personList(p,cid){

@@ -221,16 +221,16 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
 /* Értékesítői jutalék kézzel: % vagy Ft (a beírt Ft pontosan megmarad); üres = az értékesítő sávos szabálya. Gépelés közben a másik mező azonnal frissül. */
 document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined))return;const p=S.draft||projById(S.projectId);if(!p)return;const b=salesBase(p);
   if(t.dataset.salesPct!==undefined){const n=parseFloat(String(t.value).replace(/[^\d,.]/g,'').replace(',','.')),o=$('f-salesFt');if(o)o.value=isFinite(n)?moneyFmt(Math.round(b*n/100)):'';}
-  else{const ft=Number(String(t.value).replace(/\D/g,'')),o=$('f-salesPct');if(o)o.value=b>0&&String(t.value).trim()?String(Math.round(ft/b*10000)/100).replace('.',','):'';}
-  commSt('pend');});
-/* A jutalék külön, azonnal mentődik (nem a lenti mentés-sávval): a mező mellett látszik, hogy mentetlen, mentés alatt vagy mentve */
-function commSt(st){const el=$('comm-st');if(!el)return;el.className='comm-st '+st;el.textContent=st==='pend'?'●':st==='busy'?'…':st==='ok'?'✓':'';el.dataset.tip=st==='pend'?'Nincs mentve – Enter vagy kattints máshová':st==='busy'?'Mentés…':st==='ok'?'Mentve':'';if(st==='ok')setTimeout(()=>{const x=$('comm-st');if(x&&x.classList.contains('ok')){x.textContent='';x.className='comm-st';}},2500);}
-document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined)||!isAdmin())return;const p=S.draft||projById(S.projectId);if(!p)return;
+  else{const ft=Number(String(t.value).replace(/\D/g,'')),o=$('f-salesPct');if(o)o.value=b>0&&String(t.value).trim()?String(Math.round(ft/b*10000)/100).replace('.',','):'';}});
+/* A jutalék a többi módosítással együtt, a mentés-sávval mentődik (Mentés / ⌘S); Elvetésre visszaáll */
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined)||!isAdmin())return;const p=S.draft||projById(S.projectId);if(!p)return;
   let val='';const raw=String(t.value||'').trim();
   if(raw!==''){if(t.dataset.salesPct!==undefined){const n=parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'));if(!isFinite(n)){toast('Érvénytelen érték.',true);return;}val=String(Math.round(n*100)/100);}else val='ft:'+Number(raw.replace(/\D/g,''));}
-  const d=projDeal(p);if(d)d.commManual=val;   // azonnal (a mentés a háttérben)
-  S._commPend=S._commPend||{};S._commPend[p.id]=val;const tk=S._commTk=(S._commTk||0)+1;commSt('busy');
-  try{const r=await call('projSalesComm',{projectId:p.id,pct:val});if(tk===S._commTk)delete S._commPend[p.id];if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);commSt('ok');toast(val===''?'Értékesítői jutalék: az értékesítő szabálya szerint':'Értékesítői jutalék mentve');}catch(err){handleErr(err);render(true);}});
+  const d=projDeal(p);if(!d)return;if(!S._commDraft||S._commDraft.pid!==p.id)S._commOrig={pid:p.id,v:d.commManual};
+  d.commManual=val;S._commDraft={pid:p.id,val};if(!S.dirty){S.dirty=true;}renderChrome();});
+async function commSave(cd){S._commPend=S._commPend||{};S._commPend[cd.pid]=cd.val;const tk=S._commTk=(S._commTk||0)+1;
+  try{const r=await call('projSalesComm',{projectId:cd.pid,pct:cd.val});if(tk===S._commTk)delete S._commPend[cd.pid];if(r.deals){S.deals=r.deals;commPendApply();}if(r.salesPeople)S.salesPeople=r.salesPeople;render(true);}catch(err){handleErr(err);render(true);}}
+function commDiscard(){const o=S._commOrig;if(S._commDraft&&o){const d=(S.deals||[]).find(x=>x.projectId===o.pid&&x.stage==='nyert');if(d)d.commManual=o.v;}S._commDraft=null;S._commOrig=null;}
 
 /* Ha a stábba felveszel valakit egy szerepre (pl. Kreatív operatőr), a Szolgáltatásoknál az első üres, ugyanilyen szerepű feladatra is automatikusan ő kerül */
 function slotAutoFill(id,role){if(!id||!role)return;setTimeout(()=>{const d=S.draft;if(!d)return;
