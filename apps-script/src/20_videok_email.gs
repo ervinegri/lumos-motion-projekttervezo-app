@@ -314,7 +314,7 @@ function clientDecide_(t, d, fb, vid) {
   const who = { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' };
   if (d === 'ok') { videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
-      v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: '✅ Jóváhagyta a videót', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });   // a hozzászólásoknál is látszik a jóváhagyás
+      v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: v.k === 'foto' ? '✅ Jóváhagyta a fotókat' : '✅ Jóváhagyta a videót', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });   // a hozzászólásoknál is látszik a jóváhagyás
     if (fb) withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); }   // jóváhagyáshoz írt üzenet
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
@@ -413,7 +413,7 @@ function videoSet_(u, a) {
     if (a.name !== undefined) { if (!mgr) throw new Error('FORBIDDEN: A videó nevét a projektvezető módosíthatja.'); const nm = str_(a.name, 120).trim(); if (!nm) throw new Error('Adj nevet a videónak.'); v.name = nm; v.cn = 1; changed += (changed ? ', ' : '') + 'név: ' + nm; }
     if (a.link !== undefined && a.st === undefined) {   // új link (pl. lejárt / forgalmi limites pCloud-link helyett): a vezető vagy a videó vágója
       if (!mgr && !(assignedEditor && assignedEditor === u.crewId)) throw new Error('FORBIDDEN: A linket a vezető vagy a videó vágója cserélheti.');
-      if (v.st !== 'vagas' && !(mgr && !v.link)) throw new Error('Linket csak „Utómunka alatt” állapotban lehet beilleszteni (vagy belső ellenőrzésre küldéskor).');   // a vezető a hiányzó linket bármikor pótolhatja
+      if (v.st !== 'vagas' && !(mgr && (!v.link || v.k === 'foto'))) throw new Error('Linket csak „Utómunka alatt” állapotban lehet beilleszteni (vagy belső ellenőrzésre küldéskor).');   // a vezető a hiányzó linket bármikor pótolhatja
       const ln = String(a.link || '').trim(); if (!/^https?:\/\/\S+$/i.test(ln)) throw new Error('Illeszd be a videó linkjét (https://…).');
       vidSetLink_(v, str_(ln, 500)); changed += (changed ? ', ' : '') + 'új link';
     }

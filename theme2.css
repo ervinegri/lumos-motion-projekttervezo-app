@@ -2196,3 +2196,7 @@ html body .pcrew-list .pos-card.pos-wide>*{grid-column:1}
 html body .pcrew-list .pos-card.pos-wide>.pos-hs,html body .pcrew-list .pos-card.pos-wide>.pcrew-del{grid-column:auto}
 html body .pcrew-list .pos-card.pos-wide>.pcrew-cutwrap{grid-column:2;grid-row:1 / span 8;border-left:1px dashed #dfe4ea;padding-left:16px}
 @media (max-width:760px){html body .pcrew-list .pos-card.pos-wide{grid-column:auto;display:block}html body .pcrew-list .pos-card.pos-wide>.pcrew-cutwrap{border-left:0;padding-left:0}}
+html body .vv-gallery{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:#eef6f1;border:1px solid #d3e8db;color:#24613f;text-decoration:none;font-size:22px;margin-bottom:12px}
+html body .vv-gallery span{display:flex;flex-direction:column;flex:1;min-width:0;font-size:14px}
+html body .vv-gallery small{color:#5c7a68;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .vv-gallery:hover{background:#e3f1e8}
