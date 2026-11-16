@@ -329,6 +329,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
   roleKeys.forEach(rl=>{const filled=entries.filter(x=>x.a.role===rl||(rl==='Operatőr'&&OP_SUB.includes(x.a.role)&&!order.includes(x.a.role)));
     filled.forEach(x=>{if(shownIds.includes(x.a.crewId)&&!slots.some(z=>z.idx===x.i))slots.push({role:x.a.role,cid:x.a.crewId,idx:x.i});});
     const need=(st.find(z=>z.role===rl)||{}).need||0;for(let k=filled.length;k<need;k++)slots.push({role:rl,cid:null});});
+  slots.sort((a,b)=>(!a.cid)-(!b.cid));   /* a betöltetlen pozíciók a végére kerülnek (a többi sorrend marad) */
   const seenP={};slots.forEach(z=>{if(!z.cid)return;if(seenP[z.cid]){z.secondary=true;z.primaryRole=seenP[z.cid];}else seenP[z.cid]=z.role;});
   const emptyCard=z=>{const people=(S.crew||[]).filter(c=>!c.archived),fit=people.filter(x=>(x.roles||[]).includes(z.role)||(OP_SUB.includes(z.role)&&(x.roles||[]).includes('Operatőr'))),rest=people.filter(x=>!fit.includes(x));
     const opt=x=>{const busy=busyFor(x.id,p),already=(p.crew||[]).some(a=>a.crewId===x.id&&a.role===z.role);return `<option value="${esc(x.id)}"${already?' disabled':''}>${esc(x.name)}${already?' – már ebben a szerepben':busy.length?' – foglalt':ids.includes(x.id)?' – már a projekten':''}</option>`;};
