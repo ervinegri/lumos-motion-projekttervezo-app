@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "44e4b58db4",
+"at": "2026-11-16T17:35:26+02:00",
+"msg": "Meghívás: a válaszadási határidő mindig 18:00 (2 nap után); „A nyersanyag ezen a napon kerül feltöltésre: …” (óra nélkül)"
+},
+{
 "id": "88be5b28ae",
 "at": "2026-11-16T17:32:29+02:00",
 "msg": "Meghívás: válaszadási határidő 2 nap, a következő 12:00-ra vagy 18:00-ra kerekítve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a vágólista a projektszám szerint csökkenő sorrendben"
 },
 {
-"id": "18815a0571",
-"at": "2026-11-16T14:22:12+02:00",
-"msg": "Idővonal: vágónkénti csoportok, a zöld/sárga részek saját súgóval, vágólista projektszámmal, egynapos lezárt sávok zöldek, keskeny sávokban a név az óra alatt"
-},
-{
-"id": "44fc2af6bf",
-"at": "2026-11-16T12:08:27Z",
+"id": "636a4f0518",
+"at": "2026-11-16T12:22:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
