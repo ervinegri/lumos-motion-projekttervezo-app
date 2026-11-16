@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a352670d81",
+"at": "2026-11-16T14:01:50+02:00",
+"msg": "Idővonal: a még le nem forgatott nap szürke, a leforgatott zöld"
+},
+{
 "id": "8468fd80ba",
 "at": "2026-11-16T14:01:03+02:00",
 "msg": "Idővonal: a projekt neve teljesen kiíródik (átér a vágási sávra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a projektről levett vágó régi kiosztásai nem számítanak (pl. Fodor Kata a Business Bash-nél)"
 },
 {
-"id": "b947671d18",
-"at": "2026-11-16T12:10:35+02:00",
-"msg": "Lemondás-értesítés: az ügyvezető is kap e-mailt (a rögzítő kivételével)"
-},
-{
-"id": "fd8bf847de",
-"at": "2026-11-16T10:09:16Z",
+"id": "6d66e0e985",
+"at": "2026-11-16T10:10:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
