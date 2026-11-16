@@ -172,7 +172,7 @@ function calChip(it,day){
   const dim=it.kind==='p'&&crewDim(projById(it.id)||{});
   const live=it.kind==='p'&&calLive(projById(it.id));
   const drag=!ro()&&(it.kind==='g'||it.kind==='v'||(it.kind==='p'&&it.status!=='atadva'));
-  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v'+((q=>(q&&q.status==='atadva')||(!q&&(it.endDate||it.date)<todayISO())?' v-ok':'')(it.lp&&projById(it.lp))):'cal-chip g'+((it.endDate||it.date)<todayISO()?' g-past':'');
+  const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}${(q=>q&&isTent(q))(projById(it.id))?' tent':''}`:it.kind==='v'?'cal-chip v'+((q=>(q&&q.status==='atadva')||(!q&&(it.endDate||it.date)<todayISO())?' v-ok':'')(it.lp&&projById(it.lp))):'cal-chip g'+((it.endDate||it.date)<todayISO()?' g-past':'');
   return `<button type="button" class="${cls}${cont?' cont':''}"${drag?` draggable="true" data-drag-day="${day}"`:''} data-action="${it.kind==='p'?(it.cut?'bd-lane':'open-project'):it.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(it.id)}" data-kind="${it.kind}" data-tipid="${esc(it.id)}">${cont?'↳ ':it.time?`<b>${esc(it.time)}</b> `:''}${esc(it.title)}</button>`;
 }
 /* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
@@ -233,7 +233,7 @@ function calTimeline(m,items0,T,ahead){
   const bodyRows=rows.map(it=>{const a=it.date<first?first:it.date,b=it.endDate>last?last:it.endDate,c0=col(a),c1=col(b);
     const p=it.kind==='p'?projById(it.id):null,sub=p?[p.client,p.venue].filter(Boolean).join(' · '):(it.venue||'');
     const dim=p&&crewDim(p),live=p&&calLive(p);
-    const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}`:it.kind==='v'?'cal-chip v'+((q=>(q&&q.status==='atadva')||(!q&&(it.endDate||it.date)<todayISO())?' v-ok':'')(it.lp&&projById(it.lp))):'cal-chip g'+((it.endDate||it.date)<todayISO()?' g-past':'');
+    const cls=it.kind==='p'?`cal-chip p st-${esc(it.status)}${dim?' dim':''}${live?' live':''}${it.cut?' cut':''}${(q=>q&&isTent(q))(projById(it.id))?' tent':''}`:it.kind==='v'?'cal-chip v'+((q=>(q&&q.status==='atadva')||(!q&&(it.endDate||it.date)<todayISO())?' v-ok':'')(it.lp&&projById(it.lp))):'cal-chip g'+((it.endDate||it.date)<todayISO()?' g-past':'');
     const act=it.kind==='p'?((p&&(p.videos||[]).length)?'bd-lane':'open-project'):it.kind==='v'?'cal-vevent':'cal-event';
     const showBar=it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(p&&editOnly(p));
     const pOk=!!(p&&['leadva','jovahagyas','atadva'].includes(p.status)&&p.status!=='atadva'&&(v=>v&&v.tot&&v.ok===v.tot)(vidProg(p)));   // minden videó jóváhagyva: a forgatási sáv is zöld

@@ -416,6 +416,7 @@ function rpcInner_(token, name, arg) {
     case 'finDelete': adminOnly(); return finDelete_(u, arg);
     case 'finSettings': adminOnly(); return finSaveSettings_(u, arg);
     case 'finSetPay': adminOnly(); return finSetPay_(u, arg);
+    case 'projPreDeal': adminOnly(); return projPreDeal_(u, arg);
     case 'finImport': adminOnly(); return finImport_(u, arg);
     case 'szSettings': adminOnly(); return szSaveSettings_(u, arg);
     case 'szInvoice': adminOnly(); return szInvoice_(u, arg);

@@ -44,7 +44,7 @@ function billInfo(p){
   // a szerződés opcionális: csak akkor lépés, ha van (kiküldve / aláírva); kiküldött szerződésnél az aláírás a következő teendő
   // alapból kell szerződés; ha a „Nincs szerződés” ki van pipálva, kimarad a lépések közül
   const fw=!b.contractStatus?fwFor(p):null;   // keretszerződés az ügyféllel → nem kell külön szerződés
-  const contractOk=b.contractStatus==='alairva'||b.contractStatus==='nemkell'||!!fw;
+  const contractOk=!(typeof isTent==='function'&&isTent(p))&&(b.contractStatus==='alairva'||b.contractStatus==='nemkell'||!!fw);   /* előfoglalásnál (tárgyalás alatt) a szerződés még nincs meg */
   const cStep=b.contractStatus==='nemkell'||(fw&&fw.mode==='nemkell')?[]:[['contract',fw?'Keretszerződés':'Szerződés aláírva',contractOk]];
   const matchingGroup=!db&&!el?billGroupAdvance(billClientMonthProjects(p)):null;
   const pendingGroupAdvance=matchingGroup&&matchingGroup.candidate&&!invPids(matchingGroup.candidate).includes(p.id);
@@ -76,7 +76,7 @@ function billNextType(pid){const p=projById(pid);if(!p)return 'szamla';const i=b
 function invLine(x,label){if(!x)return '';const s=invState(x);
   const st=s==='paid'?`<span class="statuspill p-ok">✅ Fizetve${x.paidAt?' '+fmtMD(x.paidAt):''}</span>`:s==='part'?`<span class="info-txt">Részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">⚠ Lejárt ${fmtMD(x.due)}</span>`:`<span class="bad-txt">Fizetésre vár${x.due?' · '+fmtMD(x.due):''}</span>`;
   return `<div class="bl-doc"><button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${label?`<span class="muted">${label}</span> `:''}${esc(x.no)}</button><span class="bl-sub">${ftFmt(num(x.invGross))} · ${st}</span>${invShared(x)?`<span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 közös számla · ${invPids(x).length} projekt</span>`:''}</div>`;}
-const billAddBtn=(pid,type,label,strong,ids)=>`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}"${ids&&ids.length>1?` data-ids="${esc(ids.join(','))}"`:''} data-type="${type}">+ ${label}</button>`;
+const billAddBtn=(pid,type,label,strong,ids)=>typeof isTent==='function'&&isTent(projById(pid))?`<span class="bl-tent" data-tip="Előfoglalás – a lehetőség még tárgyalás alatt van. Számlázni a szerződés (Szerződve) után lehet.">🤝 Szerződés után</span>`:`<button class="btn ${strong?'primary':'outline'} small bl-add" type="button" data-action="bill-inv" data-id="${esc(pid)}"${ids&&ids.length>1?` data-ids="${esc(ids.join(','))}"`:''} data-type="${type}">+ ${label}</button>`;
 function billRow(i,o){o=o||{};const p=i.p,b=i.b,r=pr(p),val=projTotal(p),ex=extrasSum(p),C=billCells(p,i,o);
   const sp=n=>n>1?` rowspan="${n}"`:'';
   const cls=[i.closed?'bl-closed':'',o.cfirst?'bl-cfirst':'',o.cshade?'bl-cshade':''].filter(Boolean).join(' ');

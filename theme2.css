@@ -2305,3 +2305,8 @@ html body .pcrew .pcrew-inv>.inv-st.no{background:#fdf0f0!important;border:1px s
 html body .pcrew .pcrew-inv .inv-status-badge{background:#fff6e2!important;border:1px solid #f0d58a!important;color:#8a5a00!important}
 html body .pcrew .pcrew-inv .inv-btn{background:#fff!important;border:1px solid #d5dbe2!important;color:#2c3a4b!important}
 html body .pcrew .pcrew-inv .inv-btn:hover{border-color:#9aa6b2!important;background:#f7f9fb!important}
+html body .tent-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0;padding:11px 14px;border-radius:12px;border:1px dashed #9cb8dc;background:repeating-linear-gradient(135deg,#f3f7fc,#f3f7fc 10px,#eaf1fa 10px,#eaf1fa 20px)}
+html body .tent-banner .tent-ic{font-size:20px}html body .tent-banner .grow{flex:1;min-width:240px}html body .tent-banner .tent-sub{color:#4b5d73;font-weight:500}html body .tent-banner small{display:block;color:#5d6b7a;margin-top:2px}
+html body .tent-link{margin:8px 2px;font-size:13px;color:#5d6b7a}html body .bl-tent{font-size:12px;font-weight:600;color:#3b6fb0;cursor:help}
+html body .proj-table tr.pt-tent>td{background-image:repeating-linear-gradient(135deg,transparent,transparent 9px,rgba(59,111,176,.06) 9px,rgba(59,111,176,.06) 18px)!important}
+html body .cal-chip.p.tent{background-image:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(255,255,255,.55) 6px,rgba(255,255,255,.55) 12px)!important;opacity:.8;outline:1px dashed rgba(59,111,176,.6);outline-offset:-1px}

@@ -105,6 +105,9 @@ function recRoomsOf(p){if(!p)return [];if(Array.isArray(p.recRooms)&&p.recRooms.
   const r={id:'r1',name:''};ROOM_CAMS.forEach(c=>{r[c.k]=p[c.k]?(ROOM_CNT[c.k]?camN(p,c.k):1):0;});return [r];}   // alapból egy terem (régi projektnél a meglévő kamerákkal); továbbiak az „Új terem” gombbal
 const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Helyszín';   // név nélkül: „1. Helyszín”
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
+/* Előfoglalás: a projekt egy még nem szerződött lehetőséghez kötve (tárgyalás alatt) */
+const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
+const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!p.preStage;};
 const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
 const recPostNeed=p=>postN(p)>0||num(p.er_summary)>0||num(p.er_clips)>0;   /* előadásokból készülő utómunka */
 const roomOps=r=>roomCams(r).length?1:0;
@@ -313,10 +316,12 @@ function computeIssues(){
     if(names.length&&g.gap<TRAVEL_RED_MIN)out.push({level:'bad',text:`${names.join(', ')}: nincs idő a helyszínváltásra ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`,pids:[live[i].id,live[j].id]});
     else if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
+  /* előfoglalás (tárgyalás alatt) csendes; a felszerelési figyelmeztetések csak 30 nappal a rendezvény előtt */
+  const liveOps=live.filter(p=>!isTent(p)),liveEq=liveOps.filter(p=>diffDays(T,pr(p).start)<30);
   /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
-  live.forEach(p=>{if(postN(p)>0&&!hasRec(p))out.push({level:'warn',text:`${p.name||'Névtelen projekt'}: az előadások utómunkája ki van választva, de az előadásrögzítés nincs. Jelöld be a Terepi feladatok → Előadásrögzítés résznél a kamerákat (vagy vedd ki az utómunkát, ha nem mi rögzítünk).`,pids:[p.id]});});
+  liveEq.forEach(p=>{if(postN(p)>0&&!hasRec(p))out.push({level:'warn',text:`${p.name||'Névtelen projekt'}: az előadások utómunkája ki van választva, de az előadásrögzítés nincs. Jelöld be a Terepi feladatok → Előadásrögzítés résznél a kamerákat (vagy vedd ki az utómunkát, ha nem mi rögzítünk).`,pids:[p.id]});});
   /* előadásrögzítés: kamera az utómunkához, operatőr és eszköz minden kamerás helyszínhez */
-  live.forEach(p=>{if(!hasRec(p)&&!recRoomsOf(p).some(r=>roomCams(r).length))return;const RR=recRoomsOf(p),nm=(r,i)=>roomName(r,i),P=p.name||'Névtelen projekt';
+  liveEq.forEach(p=>{if(!hasRec(p)&&!recRoomsOf(p).some(r=>roomCams(r).length))return;const RR=recRoomsOf(p),nm=(r,i)=>roomName(r,i),P=p.name||'Névtelen projekt';
     if(recPostNeed(p)){const noCam=RR.map((r,i)=>({r,i})).filter(x=>!roomVidCams(x.r).length);
       if(noCam.length)out.push({level:'warn',text:`🎙️ ${P}: az előadások utómunkájához felvétel kell, de ${noCam.map(x=>nm(x.r,x.i)).join(', ')} helyszínen nincs kamera kiválasztva (Terepi feladatok → Előadásrögzítés).`,pids:[p.id]});}
     const noOp=RR.map((r,i)=>({r,i})).filter(x=>roomCams(x.r).length&&!slotOwners(p,x.r.id+'_op').length);
@@ -324,12 +329,12 @@ function computeIssues(){
     const noEq=RR.map((r,i)=>({r,i,m:roomCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
     if(noEq.length)out.push({level:'warn',text:`🎥 ${P}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}. Válassz eszközt, vagy töröld a felesleges sort.`,pids:[p.id]});});
   /* olyan pozíció, amihez nincs kiválasztott szolgáltatás */
-  if(!ro())live.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
+  if(!ro())liveEq.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
     const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjúsarok operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
     const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a pozíciót.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
-  if(!ro())live.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
+  if(!ro())liveEq.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
   const seen=new Set();
   for(const it of S.inventory){
@@ -342,14 +347,14 @@ function computeIssues(){
     }
     if(it.condition&&it.condition!=='ok'&&users.length)out.push({level:'warn',text:`${it.name} állapota: ${CONDITIONS[it.condition]||it.condition}, de be van osztva.`,pids:users.map(q=>q.id)});
   }
-  if(!ro())for(const p of live){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
+  if(!ro())for(const p of liveOps){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
     if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
-  if(!ro())for(const p of live){if(diffDays(T,pr(p).start)>=30||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
+  if(!ro())for(const p of liveOps){if(diffDays(T,pr(p).start)>=30||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
     if(free.length)out.push({level:'warn',text:`✂️ ${free.length} videó még nincs vágóhoz rendelve: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
-  if(!ro()&&typeof crewFinalOn==='function'&&crewFinalOn())for(const p of live){if(['atadva','lemondva'].includes(p.status))continue;const r=pr(p);if(!r||r.end<T)continue;const left=diffDays(T,r.start);if(left>=30)continue;   // stáb nincs véglegesítve (a projektlista piros címkéjével azonos feltétel)
+  if(!ro()&&typeof crewFinalOn==='function'&&crewFinalOn())for(const p of liveOps){if(['atadva','lemondva'].includes(p.status))continue;const r=pr(p);if(!r||r.end<T)continue;const left=diffDays(T,r.start);if(left>=30)continue;   // stáb nincs véglegesítve (a projektlista piros címkéjével azonos feltétel)
     const st=crewFinalState(p);if(st==='ok')continue;
     out.push({level:left<14?'bad':'warn',text:`👥 ${st==='changed'?'A stáb a véglegesítés óta módosult – véglegesítsd újra':'A stáb nincs véglegesítve'}${left<=0?' – a rendezvény már elkezdődött!':` (${left===1?'holnap kezdődik':'még '+left+' nap a rendezvényig'})`}.`,pids:[p.id]});}
-  if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
+  if(!ro())for(const p of liveOps){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
   for(const p of allProjects().filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&validISO(p.leadvaAt))){const n=diffDays(p.leadvaAt,T);   // leadott videók: sürgető figyelmeztetés, ha az ügyfél egy hete nem hagyta jóvá
     if(n>=7)out.push({level:'bad',text:`${n>=14?'🚨 ':''}A videók ${n} napja leadva, az ügyfél még nem hagyta jóvá.`,pids:[p.id]});}

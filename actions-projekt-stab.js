@@ -239,3 +239,12 @@ function slotAutoFill(id,role){if(!id||!role)return;setTimeout(()=>{const d=S.dr
   const taken=s=>slotOwners(d,s.dataset.osSlot).includes(id);
   const s=sels.find(x=>match(x)&&!taken(x)&&[...x.options].some(o=>o.value===id));if(!s)return;
   s.value=id;s.dispatchEvent(new Event('change',{bubbles:true}));},60);}
+
+/* Előfoglalás: projekt ↔ nyitott lehetőség összekötése / bontása (ügyvezető) */
+ACT['pre-deal-link']=()=>{const p=S.draft||projById(S.projectId);if(!p)return;const nk=x=>fold(String(x||''));
+  const open=(S.deals||[]).filter(d=>['uj','ajanlat','targyalas'].includes(d.stage)&&!S.projects.some(q=>q.preDeal===d.id)).sort((a,b)=>(nk(b.client)===nk(p.client))-(nk(a.client)===nk(p.client))||String(a.title).localeCompare(String(b.title),'hu'));
+  openModal('🤝 Előfoglalás – lehetőség hozzárendelése',`<p class="hint" style="margin:0 0 10px">Melyik ajánlathoz / tárgyaláshoz tartozik ez a projekt? A szerződésig előfoglalásként kezeljük: nincs stáb- és eszközfigyelmeztetés, és nem lehet számlázni.</p><div class="field full"><label for="m-pre">Lehetőség</label><select class="inp" id="m-pre" name="deal" data-cmb="Kezdd el gépelni a lehetőség vagy a cég nevét…"><option value=""></option>${open.map(d=>`<option value="${esc(d.id)}">${esc(d.title||'')}${d.client&&!String(d.title).includes(d.client)?' – '+esc(d.client):''} · ${esc(dealLbl(d.stage))}</option>`).join('')}</select></div>`,
+    {submitLabel:'Összekötés',noDraft:true,submit:async fd=>{const id=String(fd.get('deal')||'');if(!id){toast('Válaszd ki a lehetőséget.',true);return;}
+      try{await call('projPreDeal',{projectId:p.id,dealId:id});[projById(p.id),S.draft].forEach(x=>{if(x&&x.id===p.id)x.preDeal=id;});if(S.draftBase&&S.draftBase.id===p.id)S.draftBase.preDeal=id;closeModal();render(true);toast('Összekötve – előfoglalásként kezeljük a szerződésig');}catch(e){handleErr(e);}}});};
+ACT['pre-deal-unlink']=async()=>{const p=S.draft||projById(S.projectId);if(!p)return;try{await call('projPreDeal',{projectId:p.id,dealId:''});[projById(p.id),S.draft,S.draftBase].forEach(x=>{if(x&&x.id===p.id){x.preDeal='';x.preStage='';}});render(true);toast('Kapcsolat bontva');}catch(e){handleErr(e);}};
+ACT['pre-deal-open']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(d&&typeof dealModal==='function')dealModal(d);};

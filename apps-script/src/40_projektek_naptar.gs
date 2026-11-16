@@ -145,7 +145,7 @@ function saveProject_(u, a) {
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
     if (u && u.crewId && (u.role === 'editor' || u.role === 'admin') && (p.lead === u.crewId || crewIn.some(c => c && String(c.crewId || '') === u.crewId))) {   // a termelési vezető saját magát nem hívja meg: ha beosztja magát, a meghívás elfogadottnak számít
       const inv = parseInvites_(p.invites); if (!inv[u.crewId] || inv[u.crewId].st !== 'yes') { inv[u.crewId] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self' }; p.invites = JSON.stringify(inv); } }
-    p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : '';   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
+    p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : ''; p.preDeal = old ? (old.preDeal || '') : '';   /* az előfoglalás-kapcsolatot csak a projPreDeal módosítja */   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
     // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink && !parseVideos_(p.videos).some(v => /^https?:\/\//i.test(String(v.link || ''))))
@@ -1010,4 +1010,16 @@ function invitesSync_(projects, onlyCid) {
     } catch (e) { Logger.log('Meghívás-szinkron hiba (' + p.name + '): ' + e); } });
   if (changed) { try { dbFlush_(); dataBump_(); } catch (e) {} }
   return changed;
+}
+
+/** Előfoglalás: a projekt összekötése egy még nem szerződött (nyitott) lehetőséggel – vagy a kapcsolat törlése (dealId: ''). Csak ügyvezető. */
+function projPreDeal_(u, a) {
+  a = a || {}; const pid = str_(a.projectId, 64), did = str_(a.dealId, 64);
+  if (did) { const d = readAll_('deals').find(x => x.id === did); if (!d) throw new Error('A lehetőség nem található.');
+    if (['nyert', 'elveszett'].indexOf(d.stage) >= 0) throw new Error('Csak nyitott (még nem szerződött) lehetőség köthető előfoglaláshoz.');
+    if (readAll_('projects').some(x => x.id !== pid && x.preDeal === did)) throw new Error('Ez a lehetőség már egy másik projekthez van kötve.'); }
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
+    const p = readRow_('projects', sh, row); p.preDeal = did; p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  logEvent_(u, did ? 'Előfoglalás összekötve' : 'Előfoglalás kapcsolat törölve', pid, did);
+  return { ok: true };
 }
