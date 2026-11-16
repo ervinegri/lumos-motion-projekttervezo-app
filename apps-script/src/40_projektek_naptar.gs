@@ -908,17 +908,15 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     })();
     // Egyidejű helyszíni és vágói szerepnél az e-mail mindkét feladat adatait tartalmazza.
     const onSiteInvite = p.lead === cid || (asg).some(x => x.crewId === cid && x.role !== 'Vágó' && x.role !== 'Értékesítő');
-    const rawUpload = isCut && p.date ? huD(p.date) + ', 23:00' : '';
+    const rawUpload = isCut && p.date ? huD(p.date) : '';
     const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
     const info = [onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
-      rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'Nyersanyag feltöltési határideje: ') + rawUpload : '',
+      rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
-    const dlD = (() => {   // válaszadási határidő: a meghívástól 2 nap, felfelé kerekítve a következő 12:00-ra vagy 18:00-ra (budapesti idő)
+    const dlD = (() => {   // válaszadási határidő: a meghívástól 2 nap, mindig 18:00-kor (budapesti idő) – ha a 2 nap 18:00 utánra esik, a következő nap 18:00
       const t = new Date(Date.now() + 48 * 3600 * 1000), H = Number(Utilities.formatDate(t, SHEET_TZ, 'H')), M = Number(Utilities.formatDate(t, SHEET_TZ, 'm'));
-      const day = Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd'), at = (d, h) => Utilities.parseDate(d + ' ' + (h < 10 ? '0' : '') + h + ':00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
-      if (H < 12 || (H === 12 && M === 0)) return at(day, 12);
-      if (H < 18 || (H === 18 && M === 0)) return at(day, 18);
-      return at(Utilities.formatDate(new Date(t.getTime() + 24 * 3600 * 1000), SHEET_TZ, 'yyyy-MM-dd'), 12); })();
+      const d = (H < 18 || (H === 18 && M === 0)) ? t : new Date(t.getTime() + 24 * 3600 * 1000);
+      return Utilities.parseDate(Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
