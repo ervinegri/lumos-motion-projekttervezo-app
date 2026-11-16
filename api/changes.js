@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "868f9e500f",
+"at": "2026-11-16T12:03:09+02:00",
+"msg": "Lemondás ablak: látszik, ki kap értesítést"
+},
+{
 "id": "1cce8d294b",
 "at": "2026-11-16T12:00:05+02:00",
 "msg": "Lemondáskor e-mail a termelési vezetőnek; a háttér már nem kér csapat-véglegesítést a helyszíni munkához"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb és eszközök: pozíció-kártyák – a pipált szolgáltatások adják a pozíciókat, betöltetlen pozíción választó; több pozíciónál az eszköz, jegyzet, meghívó az első kártyán, a vágói munkák a Vágó kártyán; + Pozíció hozzáadása"
 },
 {
-"id": "1680d44bea",
-"at": "2026-11-15T18:39:53+02:00",
-"msg": "Bevételek: Ajánlói jutalék külön oszlopban (csak ha a hónapban van ilyen); Queen's Night ajánlói jutalék visszaállítva 60 000 Ft-ra, ha a téves javítás lefutott"
-},
-{
-"id": "9f5c88fdbf",
-"at": "2026-11-15T16:30:29Z",
+"id": "b053255e4d",
+"at": "2026-11-15T16:40:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
