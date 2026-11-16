@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d8c1583957",
+"at": "2026-11-16T15:02:14+02:00",
+"msg": "Idővonal: a vágónkénti csoportok le- és felnyithatók (megjegyzi)"
+},
+{
 "id": "2c9afba80c",
 "at": "2026-11-16T14:49:20+02:00",
 "msg": "Idővonal: a „Jóváhagyásra vár” sáv visszakerült – minden projekt, amelynek akár csak egy videója vár jóváhagyásra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lezárás: a videók saját linkjei mellett nem kell külön átadási link"
 },
 {
-"id": "e604308af5",
-"at": "2026-11-16T13:07:39+02:00",
-"msg": "Lemondott projekt: a teljes tartalom szürke és zárolt; lezajlott rendezvényre nincs Meghívás gomb"
-},
-{
-"id": "0d69db3615",
-"at": "2026-11-16T11:05:21Z",
+"id": "c784f00020",
+"at": "2026-11-16T11:07:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
