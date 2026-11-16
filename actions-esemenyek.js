@@ -227,6 +227,9 @@ const ACT={
   'lead-remove':()=>{const d=S.draft;if(!d)return;if(crewAcceptedLock_(d.lead))return;setDraft({lead:''});toast('A projektvezető szerep lekerült – jelölj ki új projektvezetőt.');},
   'crew-day-tab':b=>{S.crewDay=b.dataset.d||'';render(true);},
   'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);if(crewAcceptedLock_(id))return;
+    if(!b.dataset.ok){const iv=(d.invites||{})[id],nm=c?c.name:'a munkatársat',rl=[d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter(Boolean);   /* megerősítés törlés előtt */
+      openModal('Biztosan törlöd?',`<p style="margin:0">Biztosan leveszed <b>${esc(nm)}</b>${rl.length?' ('+esc(rl.join(', ').toLowerCase())+')':''} munkatársat a projektről?${iv&&iv.st==='invited'?' A kiküldött meghívója is érvényét veszti.':''}${(d.equipment||[]).some(e=>e.crewId===id)?' A nála lévő eszközök gazdátlanok lesznek.':''}</p>`,
+        {submitLabel:'Igen, törlöm',cancelLabel:'Mégse',noDraft:true,submit:()=>{closeModal();ACT['crew-person-remove']({dataset:{id,ok:'1'}});}});return;}
     {const day=projDays(d).includes(S.crewDay)?S.crewDay:'',cur=crewDaysOf(d,id);   // napi nézetben csak arról a napról vesszük le
       if(day&&cur.includes(day)&&cur.length>1&&b.closest('.pcrew')){const all=projDays(d),cd=Object.assign({},d.crewDays||{}),nx=cur.filter(x=>x!==day);cd[id]=all.filter(x=>nx.includes(x));
         const fees=(d.fees||[]).map(f=>{if(f.crewId!==id||!f.dayAmounts)return f;const g=Object.assign({},f);g.amount=nx.reduce((s,x)=>s+num(g.dayAmounts[x]),0);return g;});
