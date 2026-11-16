@@ -41,7 +41,11 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
   if(MD_KEY){const k0=MD_KEY;setTimeout(()=>{if(MD_KEY!==k0)return;MD_KEY=mdBase+'|'+mdSig();mdRestore(MD_KEY);},0);}   // az aláírás a már kitöltött űrlapból készül (sok ablak a megnyitás után tölti be az adatokat) – így egy ügyfél piszkozata nem kerül át egy másikra
 }
 /* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
-document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;const f=$('mform');if(!f||!modalSubmit)return;
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;
+  {const t=e.target;if(t&&t.tagName==='TEXTAREA'){   /* saját küldőgombos szövegdoboz (hozzászólás, instrukció): ⌘/Ctrl+Enter azt küldi, nem az ablakot */
+    if(t.dataset&&t.dataset.pnCm!==undefined){e.preventDefault();return;}   /* a hozzászólást a saját kezelője küldi */
+    const own=txtOwnBtn(t);if(own){e.preventDefault();e.stopPropagation();if(!own.disabled)own.click();return;}}}
+  const f=$('mform');if(!f||!modalSubmit)return;
   const b=f.querySelector('button[type=submit]');if(!b||b.disabled)return;e.preventDefault();if(f.requestSubmit)f.requestSubmit(b);else b.click();});
 /* Megerősítő réteg a nyitott ablak fölött: „← Vissza” visszavisz (a beírt adatok megmaradnak), a fő gomb végrehajt */
 function confirmLayer(title,html,okLabel,onOk){const root=$('modalRoot');if(!root)return;const old=root.querySelector('.cf-layer');if(old)old.remove();
@@ -225,3 +229,7 @@ document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.targ
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&e.target&&e.target.tagName==='TEXTAREA')txtMarkSent([e.target]);},true);
 (function(){const go=()=>{try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='TEXTAREA')txtRestore(n.parentElement||n);else txtRestore(n);}}).observe(document.body,{childList:true,subtree:true});txtRestore(document.body);}catch(e){}};
   if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})();
+
+/* A szövegdobozhoz tartozó saját küldőgomb (Hozzáadás / Küldés …) a legközelebbi közös szülőn belül, az ablak fő gombja nélkül */
+function txtOwnBtn(t){const f=t.closest('#mform');for(let c=t.parentElement,i=0;c&&c!==f&&c!==document.body&&i<5;c=c.parentElement,i++){
+  const L=[...c.querySelectorAll('button')].filter(b=>b.type!=='submit'&&/küld|hozzáad|send|add|post|comment|válasz/i.test((b.textContent||'')+' '+(b.dataset.action||'')));if(L.length)return L[0];}return null;}
