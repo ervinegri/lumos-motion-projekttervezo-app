@@ -39,8 +39,8 @@ function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).fi
 /* több opció (pl. 1 / 3 / 5 short): S.q.opts = [{title, items}], az aktív opció tételei = S.q.items */
 function qSetOpt(i){const q=S.q;q.oi=Math.max(0,Math.min(q.opts.length-1,i));q.items=q.opts[q.oi].items;}
 /* konkrét rendezvényre szóló vagy általános ajánlat: a tárgy és a levél alapszövege ehhez igazodik */
-function qAuto(d,ev,nm){const T=nm!=null?nm:d.title;return {subject:ev&&T?'Árajánlat – '+T:'Árajánlat – Lumos Motion',
-  body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&T?' '+huArt(T)+' „'+T+'” rendezvényhez':''}. Ha bármi kérdés felmerül, szívesen segítek.`};}
+function qAuto(d,ev,nm,val){const T=nm!=null?nm:d.title,V=Math.max(1,parseInt(val,10)||15);return {subject:ev&&T?'Árajánlat – '+T:'Árajánlat – Lumos Motion',
+  body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&T?' '+huArt(T)+' „'+T+'” rendezvényhez':''}. Az ajánlat ${V} napig érvényes. Ha bármi kérdés felmerül, szívesen segítek.`};}
 function qRead(fd){const q=S.q;if(!q.rc)q.rc={name:'',person:'',addr:'',email:''};['name','person','addr','email'].forEach(k=>{if(fd.has('qrc_'+k))q.rc[k]=String(fd.get('qrc_'+k)||'').trim();});if(fd.has('q_ev'))q.ev=fd.get('q_ev')==='1';if(fd.has('q_evname'))q.evName=String(fd.get('q_evname')||'').trim();if($('q-discOn'))q.discOn=fd.has('q_discOn');if(fd.has('q_cc'))q.cc=fd.getAll('q_cc').map(x=>String(x||'').trim()).filter(Boolean).join(', ');['to','subject','valid','note','body','disc','discLbl'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});
   if(q.discLbl==='Mennyiségi '+'kedvezmény')q.discLbl='Csomagkedvezmény';   // a régi alapfelirat helyett
   if(fd.has('q_otitle'))q.opts[q.oi].title=String(fd.get('q_otitle')||'').trim();
@@ -91,7 +91,7 @@ function qSumRows(){const br=n=>Math.round(n*(1+Q_VAT/100)),g=qGross(),dc=qDisc(
 function qTotUi(){const el=$('q-sumg');if(el)el.innerHTML=qSumRows();}
 document.addEventListener('input',e=>{const t=e.target;if(!t||!S.q||!t.name||!/^(qi_(qty|price)_|q_disc$)/.test(t.name))return;const f=$('mform');if(!f)return;qRead(new FormData(f));
   if(t.name!=='q_disc'){const i=Number(t.name.split('_').pop()),it=S.q.items[i],row=t.closest('.q-row'),sm=row&&row.querySelector('.q-sum');if(sm&&it)sm.textContent=qFt(qNum(it.qty||1)*qNum(it.price))+' Ft';const sb=row&&row.querySelector('.q-sumb');if(sb&&it)sb.textContent=qFt(Math.round(qNum(it.qty||1)*qNum(it.price)*(1+Q_VAT/100)))+' Ft';}qTotUi();});
-document.addEventListener('change',e=>{const t=e.target;if(!t||(t.name!=='q_ev'&&t.name!=='q_evname')||!S.q)return;const prev=S.q.ev,pn=S.q.evName,f=$('mform');if(f)qRead(new FormData(f));const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},ev=t.name==='q_ev'?t.value==='1':prev,old=qAuto(d,prev,pn),nw=qAuto(d,ev,q.evName);
+document.addEventListener('change',e=>{const t=e.target;if(!t||(t.name!=='q_ev'&&t.name!=='q_evname')||!S.q)return;const prev=S.q.ev,pn=S.q.evName,f=$('mform');if(f)qRead(new FormData(f));const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},ev=t.name==='q_ev'?t.value==='1':prev,old=qAuto(d,prev,pn,q.valid),nw=qAuto(d,ev,q.evName,q.valid);
   if(q.subject===old.subject)q.subject=nw.subject;if(q.body===old.body)q.body=nw.body;q.ev=ev;   // csak a saját (nem átírt) alapszöveget cseréljük
   const sj=$('q-subject'),bd=$('q-body');if(sj)sj.value=q.subject;if(bd)bd.value=q.body;document.querySelectorAll('.q-evsel label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));const en=document.querySelector('.q-evname');if(en)en.hidden=!q.ev;});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.id==='q-discOn'&&S.q){S.q.discOn=t.checked;document.querySelectorAll('.q-disc,.q-disc-h').forEach(x=>x.hidden=!t.checked);if(t.checked&&!qNum(S.q.disc)){S.q.disc='10';const i=$('q-disc');if(i)i.value='10';}qTotUi();if(t.checked){const i=$('q-disc');if(i)i.focus();}return;}if(t&&t.name==='q_disc'&&S.q&&qNum(t.value)>Q_DISC_MAX){t.value=String(Q_DISC_MAX);S.q.disc=t.value;qTotUi();toast('A kedvezmény legfeljebb '+Q_DISC_MAX+'% lehet.');}});
@@ -179,3 +179,7 @@ window.addEventListener('pagehide',()=>{try{const q=S.q,ed=document.getElementBy
 function qRestore(){if(S._qRestored)return;S._qRestored=true;let o=null;try{o=JSON.parse(sessionStorage.getItem(Q_KEY)||'null');sessionStorage.removeItem(Q_KEY);}catch(e){}
   if(!o||!o.q||Date.now()-o.at>3600000)return;S._mrDone=true;try{mrClear();}catch(e){}let n=0;const go=()=>{if(!(S.deals||[]).some(d=>d.id===o.q.dealId)||$('mform')){if(++n<40)setTimeout(go,300);return;}
     S.q=o.q;qSig(o.q.dealId);if(o.stage==='preview')qPreview();else qEdit();};setTimeout(go,200);}
+
+/* Érvényesség módosítása: az e-mail szövegében is frissül a napok száma */
+document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid'||!S.q)return;const n=Math.max(1,parseInt(t.value,10)||15);S.q.valid=String(n);
+  S.q.body=String(S.q.body||'').replace(/Az ajánlat \d+ napig érvényes\./,'Az ajánlat '+n+' napig érvényes.');const bd=$('q-body');if(bd)bd.value=S.q.body;});
