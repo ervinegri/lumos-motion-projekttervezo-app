@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d5a103d5c5",
+"at": "2026-11-16T14:02:51+02:00",
+"msg": "Idővonal: a jóváhagyásra váró videók is színesek (sárga), arányosan a jóváhagyottak (zöld) után"
+},
+{
 "id": "f3fc86b679",
 "at": "2026-11-16T14:02:32+02:00",
 "msg": "Idővonal: a Kész projektek forgatási napja is zöld (erősebb szabály a régi szürke ellen)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sales App szinkron: jövőbeli forgatású projekt nem léphet utómunkára a „leforgatva” jelzéstől"
 },
 {
-"id": "a87696d4f8",
-"at": "2026-11-16T12:14:27+02:00",
-"msg": "Lemondás-levél: a rögzítő neve nem zárójelben, hanem külön, szürke sorban"
-},
-{
-"id": "f6df07077a",
-"at": "2026-11-16T10:13:46Z",
+"id": "3e5c06dc2d",
+"at": "2026-11-16T10:14:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
