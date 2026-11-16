@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fa520de32d",
+"at": "2026-11-16T12:13:36+02:00",
+"msg": "Naptár: a projektről levett vágó régi kiosztásai nem számítanak (pl. Fodor Kata a Business Bash-nél)"
+},
+{
 "id": "b947671d18",
 "at": "2026-11-16T12:10:35+02:00",
 "msg": "Lemondás-értesítés: az ügyvezető is kap e-mailt (a rögzítő kivételével)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "HubSpot társítás javítás (szintaxis); díjmentes projekt: tiszta 🎁 jelölés a Szerződés kártyán"
 },
 {
-"id": "7b8642afee",
-"at": "2026-11-16T10:55:06+02:00",
-"msg": "HubSpot: kapcsolattartó–cég társítás a batch/associate/default végponttal (HTTP 415 javítás)"
-},
-{
-"id": "5d02cf2df4",
-"at": "2026-11-16T07:26:21Z",
+"id": "9d9f6cb3ea",
+"at": "2026-11-16T08:55:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
