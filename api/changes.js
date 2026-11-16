@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4ee214ac74",
+"at": "2026-11-16T13:51:16+02:00",
+"msg": "Idővonal: a kész projekthez tartozó vágói bejegyzések zöldek"
+},
+{
 "id": "a7b4499d8b",
 "at": "2026-11-16T13:50:29+02:00",
 "msg": "Idővonal: a kész projektek vágási sávja és a hozzájuk tartozó vágói bejegyzések zöldek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondás ablak: látszik, ki kap értesítést"
 },
 {
-"id": "1cce8d294b",
-"at": "2026-11-16T12:00:05+02:00",
-"msg": "Lemondáskor e-mail a termelési vezetőnek; a háttér már nem kér csapat-véglegesítést a helyszíni munkához"
-},
-{
-"id": "fcbcb47055",
-"at": "2026-11-16T09:55:15Z",
+"id": "dd4ac46f82",
+"at": "2026-11-16T10:00:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
