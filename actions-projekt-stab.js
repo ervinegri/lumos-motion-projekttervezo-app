@@ -224,7 +224,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||(t.dataset
   else{const ft=Number(String(t.value).replace(/\D/g,'')),o=$('f-salesPct');if(o)o.value=b>0&&String(t.value).trim()?String(Math.round(ft/b*10000)/100).replace('.',','):'';}
   commSt('pend');});
 /* A jutalék külön, azonnal mentődik (nem a lenti mentés-sávval): a mező mellett látszik, hogy mentetlen, mentés alatt vagy mentve */
-function commSt(st){const el=$('comm-st');if(!el)return;el.className='comm-st '+st;el.textContent=st==='pend'?'● Enter = mentés':st==='busy'?'mentés…':st==='ok'?'✓ Mentve':'';if(st==='ok')setTimeout(()=>{const x=$('comm-st');if(x&&x.classList.contains('ok')){x.textContent='';x.className='comm-st';}},2500);}
+function commSt(st){const el=$('comm-st');if(!el)return;el.className='comm-st '+st;el.textContent=st==='pend'?'●':st==='busy'?'…':st==='ok'?'✓':'';el.dataset.tip=st==='pend'?'Nincs mentve – Enter vagy kattints máshová':st==='busy'?'Mentés…':st==='ok'?'Mentve':'';if(st==='ok')setTimeout(()=>{const x=$('comm-st');if(x&&x.classList.contains('ok')){x.textContent='';x.className='comm-st';}},2500);}
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||(t.dataset.salesPct===undefined&&t.dataset.salesFt===undefined)||!isAdmin())return;const p=S.draft||projById(S.projectId);if(!p)return;
   let val='';const raw=String(t.value||'').trim();
   if(raw!==''){if(t.dataset.salesPct!==undefined){const n=parseFloat(raw.replace(/[^\d,.]/g,'').replace(',','.'));if(!isFinite(n)){toast('Érvénytelen érték.',true);return;}val=String(Math.round(n*100)/100);}else val='ft:'+Number(raw.replace(/\D/g,''));}
