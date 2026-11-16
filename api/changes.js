@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "198662d402",
+"at": "2026-11-16T23:07:24+02:00",
+"msg": "Saját beosztás a névvel kötött fióknál is (és meghívott állapotból is); eszközt igénylő szerepnél eszközhiány jelzése (kártyán és figyelmeztetésben)"
+},
+{
 "id": "07485b8803",
 "at": "2026-11-16T23:04:57+02:00",
 "msg": "Helyszínek előadásainak utómunkája: több helyszínnél helyszínenként külön feladat (külön vágóhoz rendelhető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "⌘/Ctrl+Enter szövegdobozban a saját küldőgombot nyomja (Hozzáadás/Küldés), nem az ablak fő gombját"
 },
 {
-"id": "536b2d7b88",
-"at": "2026-11-16T21:15:13+02:00",
-"msg": "CLAUDE.md: szövegmegőrzési szabály"
-},
-{
-"id": "8bef617547",
-"at": "2026-11-16T19:15:03Z",
+"id": "dbc44c5af7",
+"at": "2026-11-16T19:15:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
