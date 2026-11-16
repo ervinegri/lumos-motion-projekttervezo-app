@@ -11,5 +11,6 @@ git diff --quiet "$base" HEAD -- . ':(exclude)apps-script/**' ':(exclude)tests/*
 r=$?
 [ $r -eq 0 ] && { echo "Csak háttér / teszt / leírás változott – nincs Vercel-build."; exit 0; }
 # szintaxishibás felületi szkript nem települ: a legutóbbi működő változat marad élesben
-if command -v node >/dev/null 2>&1 && ! node tests/js-syntax.test.cjs; then echo "Szintaxishiba a felületben – a build kimarad, az előző változat marad élesben."; exit 0; fi
+# (a tests/ mappa a .vercelignore miatt itt nincs meg, ezért az ellenőrzés beágyazva fut; csak valódi szintaxishiba esetén marad ki a build)
+if command -v node >/dev/null 2>&1 && ! node -e 'const fs=require("fs");let bad=0;for(const f of fs.readdirSync(".").filter(f=>f.endsWith(".js"))){try{new Function(fs.readFileSync(f,"utf8"))}catch(e){bad=1;console.error(f+": "+e.message)}}process.exit(bad)'; then echo "Szintaxishiba a felületben – a build kimarad, az előző változat marad élesben."; exit 0; fi
 exit 1
