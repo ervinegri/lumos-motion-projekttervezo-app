@@ -166,7 +166,8 @@ function bootstrap_(u) {
     const cid = String(u.crewId || '');
     const mine = out.projects.filter(p => cid && (p.lead === cid || p.crew.some(c => c.crewId === cid)));
     const invSt = p => p.invites && p.invites[cid] ? p.invites[cid].st : '';
-    out.projects = mine.filter(p => p.lead === cid || !(p.invUse || invSt(p)) || invSt(p) === 'yes' || invSt(p) === 'invited');   // meghívásos projekt: elfogadás után látja; függő meghívásnál megnyithatja (Igen / Nem válaszhoz), a stábból csak az elfogadottakat látja
+    const todayC = today_(), past = p => String(p.endDate || p.date || '') < todayC;
+    out.projects = mine.filter(p => p.lead === cid || invSt(p) === 'yes' || invSt(p) === 'invited' || (!invSt(p) && (!p.invUse && past(p))));   // meghívás nélkül csak a régi (már lezajlott) beosztás látszik – jövőbeli projekt (és a díja) csak meghívás után   // meghívásos projekt: elfogadás után látja; függő meghívásnál megnyithatja (Igen / Nem válaszhoz), a stábból csak az elfogadottakat látja
     out.projects.forEach(p => { if (invSt(p) === 'invited' && p.lead !== cid) p.invPending = true; });   // a projektet csak elfogadott meghívás után látja (régi, meghívás nélküli beosztás: látja)
     out.mySales = mySalesComm_(cid);   // a saját értékesítői jutalékai (csak az összeg – ár, % nem)
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
