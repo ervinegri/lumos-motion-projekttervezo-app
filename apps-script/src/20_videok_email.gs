@@ -587,6 +587,23 @@ function salesNotify_(pid, kind, st) {
       gmailSend_(em, (kind === 'pay' ? 'Kifizetés érkezett: ' : 'Átadva: ') + pn, 'Kedves ' + (fn || 'Kolléga') + '!\n\n' + head.replace(/<\/?b>/g, '') + '\n\n' + pn + (cl ? ' – ' + cl : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' }); });
   } catch (e) { Logger.log('Értékesítő értesítés: ' + e); }
 }
+/** Lemondott projekt: e-mail a termelési vezető(k)nek (a lemondó kivételével), a lemondás okával. */
+function cancelNotify_(pid, u) {
+  try {
+    const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
+    const me = String(u && u.email || '').toLowerCase();
+    const to = loadUsers_().filter(x => x.role === 'editor' && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== me).map(x => String(x.email).trim());
+    if (!to.length) return;
+    const pn = sval_(p.name), cl = sval_(p.client), dt = /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) ? String(p.date).replace(/-/g, '.') + '.' : '', why = sval_(p.cancelReason), who = sval_(u && u.name);
+    const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Szia!</p><p style="margin:0 0 14px">Az alábbi projektet <b>lemondták</b>' + (who ? ' (' + escapeHtml_(who) + ')' : '') + ':</p>'
+      + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#fdecea;border-left:4px solid #c0392b;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#a0281c">🚫 ' + escapeHtml_(pn) + '</div>'
+      + '<div style="color:#5f6368;margin-top:2px">' + escapeHtml_([cl, dt].filter(Boolean).join(' · ')) + '</div>' + (why ? '<div style="margin-top:8px"><b>Indoklás:</b> ' + escapeHtml_(why) + '</div>' : '') + '</td></tr></table>'
+      + '<p style="margin:0">A projekt lekerült a naptárból, és nem számít bele az ütközésekbe és a határidőkbe. Ha volt beosztott stáb vagy lefoglalt eszköz, érdemes velük egyeztetni.</p>'
+      + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p></div>';
+    gmailSend_(to.join(','), 'Lemondva: ' + pn, 'Szia!\n\nAz alábbi projektet lemondták' + (who ? ' (' + who + ')' : '') + ':\n' + pn + (cl ? ' – ' + cl : '') + (dt ? ' · ' + dt : '') + (why ? '\nIndoklás: ' + why : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' });
+  } catch (e) { Logger.log('Lemondás-értesítés: ' + e); }
+}
+let CANCEL_DONE_ = null;
 let SALES_DONE_ = null;
 /** Formázott (HTML) jegyzet → sima szöveg (naptár, levél). */
 function notesText_(s) { s = String(s || ''); if (!/<\/?(p|div|br|b|strong|i|em|u|ul|ol|li|a|h[1-6])\b/i.test(s)) return s; return s.replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/(p|div|li|h[1-6])>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim(); }

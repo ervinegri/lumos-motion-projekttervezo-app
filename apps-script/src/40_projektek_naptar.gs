@@ -143,8 +143,7 @@ function saveProject_(u, a) {
     if (p.eqFinal == null) p.eqFinal = '';
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
     if (p.payStatus == null) p.payStatus = '';
-    if (['helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes'].indexOf(old.status || '') >= 0) && !parseCrewFinal_(p.crewFinal) && a.crewFinalSkip !== true)
-      throw new Error('A helyszíni munkára lépés előtt véglegesítsd a csapatot (Stáb → „Csapat véglegesítése”).');
+    // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink)
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
@@ -156,6 +155,7 @@ function saveProject_(u, a) {
     p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = mutationId;
     putRow_('projects', sh, p, row);
     if (p.status === 'atadva' && old && old.status !== 'atadva') SALES_DONE_ = id;
+    if (p.status === 'lemondva' && old && old.status !== 'lemondva') CANCEL_DONE_ = id;
     const sig = (list, f) => list.map(f).sort().join('|');
     const renamed = !old || old.name !== p.name;
     const oldCrew = old ? readAll_('crewAssign').filter(r => r.projectId === id) : [];
@@ -174,7 +174,8 @@ function saveProject_(u, a) {
     return out;
   });
   if (logArgs) logEvent_(u, logArgs[0], logArgs[1], logArgs[2]);
-  if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }   // az értékesítő értesül az átadásról
+  if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }
+  if (CANCEL_DONE_) { const cd = CANCEL_DONE_; CANCEL_DONE_ = null; cancelNotify_(cd, u); }   // a termelési vezető értesül a lemondásról   // az értékesítő értesül az átadásról
   if (a.deferCal === true || saved.duplicateOf) return saved;   // az új felület külön kérésben frissíti a naptárat, így a mentés gyors
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
