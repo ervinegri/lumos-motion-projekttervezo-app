@@ -107,7 +107,7 @@ const roomName=(r,i)=>String(r&&r.name||'').trim()||(i+1)+'. Helyszín';   // n�
 const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 /* Előfoglalás: a projekt egy még nem szerződött lehetőséghez kötve (tárgyalás alatt) */
 const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
-const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!p.preStage;};
+const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!(p.preStage||p.tent);};
 const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
 const recPostNeed=p=>postN(p)>0||num(p.er_summary)>0||num(p.er_clips)>0;   /* előadásokból készülő utómunka */
 const roomOps=r=>roomCams(r).length?1:0;

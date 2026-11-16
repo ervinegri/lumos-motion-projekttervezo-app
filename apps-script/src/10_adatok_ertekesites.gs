@@ -137,7 +137,7 @@ function bootstrap_(u) {
   try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
     else if (u.role === 'admin' || u.role === 'editor') { const C = CacheService.getScriptCache(); if (!C.get('INV_SYNC')) { C.put('INV_SYNC', '1', 300); invitesSync_(projects); } } } catch (e) { Logger.log('Meghívás-szinkron: ' + e); }
   const out = {
-    me: publicUser_(u), myNotify: (() => { try { return u.crewId ? crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)) : null; } catch (e) { return null; } })(), projects: (() => { const dst = {}; if (u.role !== 'crew') try { readAll_('deals').forEach(d => { dst[d.id] = d.stage; }); } catch (e) {} return projects.map(p => { const v = projectView_(p, u); if (u.role !== 'crew' && p.preDeal && dst[p.preDeal] && ['nyert', 'elveszett'].indexOf(dst[p.preDeal]) < 0) v.preStage = dst[p.preDeal]; return v; }); })(), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
+    me: publicUser_(u), myNotify: (() => { try { return u.crewId ? crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)) : null; } catch (e) { return null; } })(), projects: (() => { const dst = {}; try { readAll_('deals').forEach(d => { dst[d.id] = d.stage; }); } catch (e) {} return projects.map(p => { const v = projectView_(p, u); if (p.preDeal && dst[p.preDeal] && ['nyert', 'elveszett'].indexOf(dst[p.preDeal]) < 0) { if (u.role === 'crew') v.tent = true; else v.preStage = dst[p.preDeal]; } return v; });   /* a szakember csak azt látja, hogy előfoglalás */ })(), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),
     officeRent: u.role === 'crew' ? [] : readAll_('officeRent'),
     paySent: paySentList_(u),
     payStatus: u.role === 'admin' ? readAll_('payStatus') : u.role === 'crew' ? readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId) : readAll_('payStatus').filter(x => u.crewId && x.crewId === u.crewId).map(x => ({ id: x.id, month: x.month, crewId: x.crewId, invoicedAt: x.invoicedAt ? '1' : '', paidAt: x.paidAt ? '1' : '', invoiceNo: x.invoiceNo ? '1' : '', invoiceNet: x.invoiceNo ? x.invoiceNet : '' })),   // a termelési vezető csak a bennhagyott egyenleghez szükséges adatot kapja
@@ -279,6 +279,7 @@ function saveDeal_(u, a) {
     return { deals: dealsFor_(u) };
   });
   if (saved) hsDealSync_(saved);
+  try { if (saved && saved.stage === 'elveszett') { const pp = readAll_('projects').find(x => x.preDeal === saved.id && ['lemondva', 'atadva'].indexOf(x.status) < 0); if (pp) preDealNotify_(pp.id, false); } } catch (e) {}   /* elmaradt előfoglalás: a meghívott szakemberek értesítése */
   return res;
 }
 /** A projekt értékesítője: szerződött („nyert”) lehetőség a projekthez az értékesítővel (jutalék, az értékesítő saját lehetőségei).
@@ -367,6 +368,7 @@ function winDeal_(u, a) {
     putRow_('deals', sh, q, r2); dbFlush_(); });
   logEvent_(u, 'Értékesítés: szerződve', d.title, d.client + (linkId ? ' · meglévő projekthez kapcsolva' : ' · projekt létrehozva'));
   if (!linkId) try { const p = readAll_('projects').find(x => x.id === pid); if (p) syncCalendar_(fullProject_(p)); } catch (e) {}
+  try { if (linkP && linkP.preDeal === id) preDealNotify_(pid, true); } catch (e) {}   /* véglegessé vált előfoglalás */
   return { deals: dealsFor_(u), projectId: pid };
 }
 
