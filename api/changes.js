@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cd60f8faac",
+"at": "2026-11-16T22:33:33+02:00",
+"msg": "Saját beosztás csak a gombbal (mentéskor nem lesz magától elfogadott)"
+},
+{
 "id": "58ceaf9a44",
 "at": "2026-11-16T22:26:21+02:00",
 "msg": "Stábkártya törlése előtt megerősítés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számla/díjbekérő: átutalásnál a közleményben a teljes sorszámot kérjük (megjegyzés + e-mail)"
 },
 {
-"id": "ecc1241973",
-"at": "2026-11-16T20:48:59+02:00",
-"msg": "Kifizetések: elfogadott meghívásnál nincs pipa"
-},
-{
-"id": "251dd99130",
-"at": "2026-11-16T18:40:13Z",
+"id": "922ae2d2b3",
+"at": "2026-11-16T18:49:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
