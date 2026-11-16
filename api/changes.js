@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0033e05d95",
+"at": "2026-11-16T18:00:59+02:00",
+"msg": "Kifizetések: összegcellák nem törnek és nem érnek a cellahatárra"
+},
+{
 "id": "ab0cd4be9b",
 "at": "2026-11-16T17:59:49+02:00",
 "msg": "Kifizetések: a lábléc sorai (díjösszesítő, számla, egyenleg) is kiemelődnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: a „Pozíciónként…” magyarázó szöveg törölve"
 },
 {
-"id": "6f5397fc21",
-"at": "2026-11-16T15:12:34+02:00",
-"msg": "Jóváhagyásra vár sáv: kiválasztott vágónál csak az ő videói"
-},
-{
-"id": "e0affd3dab",
-"at": "2026-11-16T13:12:07Z",
+"id": "5b3c07744e",
+"at": "2026-11-16T13:12:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
