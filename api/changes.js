@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2dfe8a12b9",
+"at": "2026-11-16T22:52:23+02:00",
+"msg": "Stáb és eszközök: Stáb-instrukciók (közös jegyzet a helyszíni stábnak – mint az utómunka-instrukciók, e-maillel, hozzászólással, kész-jelöléssel)"
+},
+{
 "id": "cd60f8faac",
 "at": "2026-11-16T22:33:33+02:00",
 "msg": "Saját beosztás csak a gombbal (mentéskor nem lesz magától elfogadott)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kézi kifizetett-jelölés: a számlázz.hu-ban is rögzíti a jóváírást (Számla Agent kifizetés)"
 },
 {
-"id": "0c800cfdc4",
-"at": "2026-11-16T20:56:31+02:00",
-"msg": "Számla/díjbekérő: átutalásnál a közleményben a teljes sorszámot kérjük (megjegyzés + e-mail)"
-},
-{
-"id": "922ae2d2b3",
-"at": "2026-11-16T18:49:09Z",
+"id": "8b4cc079ef",
+"at": "2026-11-16T18:56:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
