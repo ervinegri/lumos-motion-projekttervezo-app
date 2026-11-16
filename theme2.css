@@ -2256,3 +2256,6 @@ html body .tl-pinnote .tl-wv{font-weight:600}
 /* Pozíció-kártyák: a pozíció-címkék ismét a kártya felső szegélyén ülnek (mint korábban), egy sorban */
 html body .pos-card .pos-hs{position:absolute!important;top:-11px;left:12px;right:46px;margin:0!important;flex-wrap:nowrap;overflow:hidden}
 html body .pos-card .pos-hs .pos-h,html body .pos-card .pos-hs .lead-badge{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Kifizetések: a számla sorszáma egy sorban (kisebb betűvel), nem törik három sorba */
+html body .pay-sheet td.pay-st .pst-card small{white-space:nowrap!important;overflow-wrap:normal!important;font-size:9.5px!important;letter-spacing:-.3px}
+html body .pay-sheet td.pay-st .pst-card{padding:2px 4px!important;max-width:100%!important;overflow:hidden}
