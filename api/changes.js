@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c9765a4086",
+"at": "2026-11-16T10:57:14+02:00",
+"msg": "HubSpot társítás javítás (szintaxis); díjmentes projekt: tiszta 🎁 jelölés a Szerződés kártyán"
+},
+{
 "id": "7b8642afee",
 "at": "2026-11-16T10:55:06+02:00",
 "msg": "HubSpot: kapcsolattartó–cég társítás a batch/associate/default végponttal (HTTP 415 javítás)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "HubSpot: dealek nem jönnek létre / nem módosulnak (a lehetőség gazdája az app); csak kapcsolattartó és cég szinkron"
 },
 {
-"id": "0767da89d9",
-"at": "2026-11-15T13:55:44+02:00",
-"msg": "Teljesítmény: csak értékesítők + az ügyvezető (külön sorban, alul); Guzsloványi Flóra: Értékesítő → Ajánlói jutalék (egyszeri)"
-},
-{
-"id": "4116241370",
-"at": "2026-11-15T11:53:24Z",
+"id": "fe9f8ae8b5",
+"at": "2026-11-15T11:55:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
