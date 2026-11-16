@@ -315,12 +315,19 @@ function computeIssues(){
   }
   /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
   live.forEach(p=>{if(postN(p)>0&&!hasRec(p))out.push({level:'warn',text:`${p.name||'Névtelen projekt'}: az előadások utómunkája ki van választva, de az előadásrögzítés nincs. Jelöld be a Terepi feladatok → Előadásrögzítés résznél a kamerákat (vagy vedd ki az utómunkát, ha nem mi rögzítünk).`,pids:[p.id]});});
-  /* előadások utómunkája: minden rögzített helyszínen kell kamera, és a kamerához eszköz */
-  live.forEach(p=>{if(!recPostNeed(p)||!hasRec(p))return;const RR=recRoomsOf(p),nm=(r,i)=>roomName(r,i);
-    const noCam=RR.map((r,i)=>({r,i})).filter(x=>!roomVidCams(x.r).length);
-    if(noCam.length)out.push({level:'warn',text:`🎙️ ${p.name||'Névtelen projekt'}: az előadások utómunkájához felvétel kell, de ${noCam.map(x=>nm(x.r,x.i)).join(', ')} helyszínen nincs kamera kiválasztva (Terepi feladatok → Előadásrögzítés).`,pids:[p.id]});
-    const noEq=RR.map((r,i)=>({r,i,m:roomVidCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
-    if(noEq.length)out.push({level:'warn',text:`🎥 ${p.name||'Névtelen projekt'}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}.`,pids:[p.id]});});
+  /* előadásrögzítés: kamera az utómunkához, operatőr és eszköz minden kamerás helyszínhez */
+  live.forEach(p=>{if(!hasRec(p)&&!recRoomsOf(p).some(r=>roomCams(r).length))return;const RR=recRoomsOf(p),nm=(r,i)=>roomName(r,i),P=p.name||'Névtelen projekt';
+    if(recPostNeed(p)){const noCam=RR.map((r,i)=>({r,i})).filter(x=>!roomVidCams(x.r).length);
+      if(noCam.length)out.push({level:'warn',text:`🎙️ ${P}: az előadások utómunkájához felvétel kell, de ${noCam.map(x=>nm(x.r,x.i)).join(', ')} helyszínen nincs kamera kiválasztva (Terepi feladatok → Előadásrögzítés).`,pids:[p.id]});}
+    const noOp=RR.map((r,i)=>({r,i})).filter(x=>roomCams(x.r).length&&!slotOwners(p,x.r.id+'_op').length);
+    if(noOp.length)out.push({level:'warn',text:`🎥 ${P}: ${noOp.map(x=>nm(x.r,x.i)).join(', ')} – van kamera, de nincs operatőr, így az eszközök senki eszközlistáján nem szerepelnek.`,pids:[p.id]});
+    const noEq=RR.map((r,i)=>({r,i,m:roomCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
+    if(noEq.length)out.push({level:'warn',text:`🎥 ${P}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}. Válassz eszközt, vagy töröld a felesleges sort.`,pids:[p.id]});});
+  /* olyan pozíció, amihez nincs kiválasztott szolgáltatás */
+  if(!ro())live.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
+    const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjúsarok operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
+    const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
+    if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a pozíciót.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
   if(!ro())live.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
