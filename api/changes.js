@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7869694896",
+"at": "2026-11-16T13:42:32+02:00",
+"msg": "Naptár idővonal: részleges jóváhagyásnál a sáv arányosan zöld"
+},
+{
 "id": "c2c8e0331a",
 "at": "2026-11-16T13:38:39+02:00",
 "msg": "Projektlista: egységes videó-összesítő (darabszám + jóváhagyott arány + állapotsáv) minden projektnél; javítva egy elnyelt definíció; teszt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vercel: a szintaxis-ellenőrzés beágyazva fut (a tests/ mappa nincs a buildben, emiatt maradtak ki a telepítések)"
 },
 {
-"id": "c7b3049a62",
-"at": "2026-11-16T11:28:26+02:00",
-"msg": "Kifizetések: a számla sorszáma tördelve, teljes egészében olvasható"
-},
-{
-"id": "b700715e59",
-"at": "2026-11-16T09:24:23Z",
+"id": "0c81613de2",
+"at": "2026-11-16T09:28:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
