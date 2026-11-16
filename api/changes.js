@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b3a4e07a01",
+"at": "2026-11-16T12:08:47+02:00",
+"msg": "Lemondás: semleges „Mi a lemondás oka?” (lehet az ügyfél is); a levélben „rögzítette”"
+},
+{
 "id": "080557b51f",
 "at": "2026-11-16T12:05:16+02:00",
 "msg": "Lemondás ablak: a címzetteket a háttér adja, így a termelési vezető is látja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pozíció-címkék finom pasztell színe szerepcsoportonként"
 },
 {
-"id": "1c3d14c918",
-"at": "2026-11-15T19:10:33+02:00",
-"msg": "Pozíció-kártyák: a meghívó (állapota) minden kártyán látszik – egy meghívó szól az ember összes pozíciójára"
-},
-{
-"id": "4e9b707d58",
-"at": "2026-11-15T17:09:16Z",
+"id": "e3e1cb63ff",
+"at": "2026-11-15T17:10:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
