@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "601f6e0947",
+"at": "2026-11-16T11:14:51+02:00",
+"msg": "Projektlista: állapotcímkék egy sorban; tételes videólista mellett nincs közös „Leadott videó” gomb"
+},
+{
 "id": "34fd54e6da",
 "at": "2026-11-16T11:13:25+02:00",
 "msg": "Videólista: azonos stádium egyszer, a projektjelzés által már kimondott stádium egyszer sem; redundancia-szabály a CLAUDE.md-ben"
@@ -147,8 +152,8 @@ const ITEMS = [
 "msg": "Javítás: a számla-visszavonás kezelője az ACT létrehozása után töltődik (különben a díjcsökkentés-modul vége nem futott); Elveszett oszlop becsukható; lehetőség ablak: Cég ↔ Másodlagos e-mail csere, Rendezvény típusa + Honnan jött egy sorban"
 },
 {
-"id": "eba429f69d",
-"at": "2026-11-15T13:32:59Z",
+"id": "9139342361",
+"at": "2026-11-15T13:33:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
