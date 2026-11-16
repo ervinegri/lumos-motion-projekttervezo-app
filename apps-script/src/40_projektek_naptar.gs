@@ -127,6 +127,7 @@ function saveProject_(u, a) {
     if (u.role === 'admin' || u.role === 'editor') {   // videósorok a megrendelt darabszámokból; a vágót/állapotot a projektvezető is átállíthatja
       let vids = parseVideos_(old ? old.videos : '');
       if (Array.isArray(a.videos)) { const inc = parseVideos_(a.videos), im = {}; inc.forEach(x => { im[x.id] = x; }); vids = vids.map(x => im[x.id] && !x.editor && im[x.id].editor ? Object.assign({}, x, { editor: im[x.id].editor }) : x); }   // az állapotot (st) és a már beállított vágót csak a külön videóműveletek módosítják: egy régi (gyorsítótárból nyitott) projektlap mentése nem írhatja vissza
+      { const onP = new Set(crewIn.map(c => String(c && c.crewId || '')).filter(String)); vids = vids.map(x => x.editor && !onP.has(x.editor) ? Object.assign({}, x, { editor: '' }) : x); }   /* a projektről levett vágó kikerül a videóiból – az aktuális vágó kapja meg */
       p.videos = JSON.stringify(videosEnsure_(Object.assign({}, p, { videos: JSON.stringify(vids) }), [...new Set(crewIn.filter(c => c && c.role === 'Vágó').map(c => String(c.crewId || '')))].filter(String)));
     } else p.videos = old ? old.videos || '' : '';
     if (Array.isArray(a.recRooms)) { const rr = parseRooms_(a.recRooms); p.recRooms = JSON.stringify(rr); roomsLegacy_(p, rr); }

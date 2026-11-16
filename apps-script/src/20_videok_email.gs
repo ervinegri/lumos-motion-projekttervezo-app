@@ -320,7 +320,7 @@ function clientDecide_(t, d, fb, vid) {
   else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
   if (d === 'ok') { try {   // a videó vágója is értesül a jóváhagyásról (üzenet és link nélkül)
-      const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';
+      const c = readAll_('crewAssign').some(z => z.projectId === r.p.id && z.crewId === r.v.editor) ? readAll_('crew').find(x => x.id === r.v.editor) : null, em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';
       if (em && /@/.test(em)) { const when = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy. MM. dd. HH:mm'), subj = '✅ Jóváhagyva: ' + r.v.name + ' – ' + r.p.name;
         const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px">Jó hír: a videót <b>jóváhagyták</b>.</p>'
           + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">✓ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div></td></tr></table>'
@@ -333,7 +333,7 @@ function clientDecide_(t, d, fb, vid) {
         + (msg ? '<div style="background:' + (ok ? '#eaf7ef;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + ';padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 16px;white-space:normal">' + escapeHtml_(msg).replace(/\n/g, '<br>') + '</div>' : '<p style="margin:0 0 16px;color:#4a5866">' + (ok ? 'Az ügyfél jóváhagyta, megjegyzés nélkül.' : 'Az ügyfél módosítást kért (üzenet nélkül).') + '</p>')
         + '<a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 18px;border-radius:8px;font-weight:bold">▶ Megnyitás</a></div>';
       gmailSend_(o.s, subj, (ok ? '✓ ' : '✎ ') + r.v.name + '\n\n' + (msg || (ok ? 'Jóváhagyva, megjegyzés nélkül.' : 'Módosítást kért (üzenet nélkül).')) + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); 
-      if (!ok) { try { const c = readAll_('crew').find(x => x.id === r.v.editor), em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';   // a vágó is megkapja (ügyfél említése nélkül)
+      if (!ok) { try { const c = readAll_('crewAssign').some(z => z.projectId === r.p.id && z.crewId === r.v.editor) ? readAll_('crew').find(x => x.id === r.v.editor) : null, em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';   // a vágó is megkapja (ügyfél említése nélkül)
         if (em && /@/.test(em) && em.toLowerCase() !== String(o.s).trim().toLowerCase()) { const fbc = pinStrip_(fb);
           const h2 = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(fn || 'Kolléga') + '!</p><p style="margin:0 0 14px"><b>Módosítást kértek</b> a videón.</p>'
             + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#fff4f2;border-left:4px solid #d93025;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#b3261e">✎ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div>'
@@ -893,7 +893,7 @@ function pnSave_(pid, l) { bigPut_('PN_' + pid, JSON.stringify(l.slice(0, 40)));
 function pnPost_(pid) {   // a projekt utómunkásai: a vágói beosztás és a videók / fotók kijelölt utómunkása
   const ids = {}; readAll_('crewAssign').forEach(r => { if (r.projectId === pid && /vágó|utómunk|fotós/i.test(String(r.role || ''))) ids[r.crewId] = 1; });
   const sh = sheetFor_('projects'), row = findRow_(sh, pid), p = row ? readRow_('projects', sh, row) : null; if (!p) throw new Error('A projekt nem található.');
-  parseVideos_(p.videos).forEach(v => { if (v.editor) ids[v.editor] = 1; });
+  const onP = {}; readAll_('crewAssign').forEach(r => { if (r.projectId === pid) onP[r.crewId] = 1; }); parseVideos_(p.videos).forEach(v => { if (v.editor && onP[v.editor]) ids[v.editor] = 1; });
   return { p: p, crew: readAll_('crew').filter(c => ids[c.id]) };
 }
 function pnCan_(u, pid, write) {
