@@ -141,8 +141,11 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
 /* Lépések húzással: az aktuális lépés kártyáját a következő (vagy egy későbbi) lépésre húzva halad a projekt */
 (()=>{let from=null;
   document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.stage.stage-drag');if(!c)return;from=c.dataset.v;c.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','stage:'+from);}catch(_){}});
-  document.addEventListener('dragend',()=>{from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));});
-  document.addEventListener('dragover',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');document.querySelectorAll('.stage.drop-hi').forEach(x=>{if(x!==t)x.classList.remove('drop-hi');});if(!t)return;e.preventDefault();t.classList.add('drop-hi');});
+  let noAt=null;   /* tiltott célra húzva (pl. meghívások nincsenek elfogadva): áthúzott jel, elengedéskor középen a magyarázat */
+  const blockedTo=v=>{const d=S.draft;return !!d&&!ro()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&invBlocked(d);};
+  document.addEventListener('dragend',()=>{const nb=noAt;noAt=null;from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi,.stage.drop-no').forEach(x=>x.classList.remove('dragging','drop-hi','drop-no'));if(nb&&S.draft)invBlock(S.draft);});
+  document.addEventListener('dragover',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');document.querySelectorAll('.stage.drop-hi,.stage.drop-no').forEach(x=>{if(x!==t)x.classList.remove('drop-hi','drop-no');});if(!t){noAt=null;return;}e.preventDefault();
+    if(blockedTo(t.dataset.v)){try{e.dataTransfer.dropEffect='none';}catch(_){}t.classList.add('drop-no');noAt=t.dataset.v;return;}noAt=null;t.classList.add('drop-hi');});
   document.addEventListener('drop',e=>{if(!from)return;const t=e.target.closest&&e.target.closest('.stage.stage-target');const cur=from;from=null;document.querySelectorAll('.stage.dragging,.stage.drop-hi').forEach(x=>x.classList.remove('dragging','drop-hi'));if(!t)return;e.preventDefault();
     if(ro()){if(t.dataset.v==='jovahagyas'&&cur==='utomunka')cutDeliverModal();return;}   // vágó: a leadás ablaka (link + értesítés)
     const d=S.draft;if(!d||ro())return;const ids=[...document.querySelectorAll('.stages .stage[data-v]')].map(x=>x.dataset.v),ci=ids.indexOf(cur),ti=ids.indexOf(t.dataset.v);if(ti<=ci)return;

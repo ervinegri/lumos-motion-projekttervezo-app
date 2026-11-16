@@ -2321,3 +2321,6 @@ html body .pcrew.pos-card.inv-ok{border-color:#9fd3b2!important;box-shadow:0 0 0
 html body .pcrew.pos-card.inv-wait{border-color:#ecd28a!important;box-shadow:0 0 0 1px #f5e3b0,0 1px 2px rgba(16,24,40,.04)!important}
 html body .pcrew.pos-card.inv-none{border-color:#c3cbd4!important;box-shadow:0 0 0 1px #dde2e8,0 1px 2px rgba(16,24,40,.04)!important}
 html body .pcrew.pos-card.inv-no{border-color:#eaa9a9!important;box-shadow:0 0 0 1px #f5d0d0,0 1px 2px rgba(16,24,40,.04)!important}
+html body #toast.center{top:50%!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translate(-50%,-50%)!important;max-width:520px;font-size:15px;padding:16px 22px!important;box-shadow:0 12px 40px rgba(15,23,42,.35)!important;z-index:10000}
+html body .stage.drop-no{position:relative;cursor:not-allowed;outline:2px dashed #e08b8b;outline-offset:-2px;background:#fdf3f3!important}
+html body .stage.drop-no::after{content:'🚫';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:22px}

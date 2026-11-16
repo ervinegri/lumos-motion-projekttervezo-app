@@ -408,7 +408,7 @@ function handleErr(e){
 /* Jogosultsági hiba: többnyire elavult munkamenet / nézet (pl. közben megváltozott a szerepkör) – csendben újratöltjük az adatokat (legfeljebb percenként egyszer) */
 let FORB_T=0;function forbiddenHeal(){if(Date.now()-FORB_T<60000)return;FORB_T=Date.now();try{if(typeof load==='function')load(true);}catch(e){}}
 let toastTimer=0;
-function toast(msg,isErr){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.add('show');clearTimeout(toastTimer);
+function toast(msg,isErr,center){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');clearTimeout(toastTimer);
   const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)
   const hide=()=>{toastTimer=setTimeout(()=>t.classList.remove('show'),ms);};hide();
   if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
@@ -623,8 +623,10 @@ function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0
 function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})();
   const ids=[...new Set([d&&d.lead].concat((d&&d.crew||[]).map(a=>a.crewId)).filter(Boolean))];
   return ids.filter(id=>!(inv[id]&&inv[id].st==='yes')).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?inv[id].st||'invited':''}));}
+/* csendes ellenőrzés (húzás közben): elakadna-e a helyszíni munkára lépés a meghívások miatt */
+function invBlocked(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);return !ids.length||invMissing(d).length>0;}
 function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
-  if(!ids.length){toast('Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true);return true;}
+  if(!ids.length){toast('Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
   const m=invMissing(d);if(!m.length)return false;
   const t=m.map(x=>x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join(', ');
-  toast('Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true);return true;}
+  toast('Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true,true);return true;}
