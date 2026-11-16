@@ -534,7 +534,7 @@ function rpcInner_(token, name, arg) {
     case 'getLog': adminOnly(); return getLog_();
     case 'projectHistory': canEdit(); return projectHistory_(u, arg);
     case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [], dwd: role === 'admin' ? dwdStatus_() : null };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
-    case 'cancelRecipients': canEdit(); return loadUsers_().filter(x => x.role === 'editor' && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== String(u.email || '').toLowerCase()).map(x => String(x.name || x.email));   // a lemondás-értesítés címzettjei (csak nevek) – ugyanaz a kör, mint a cancelNotify_-ban
+    case 'cancelRecipients': canEdit(); return loadUsers_().filter(x => (x.role === 'editor' || x.role === 'admin') && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== String(u.email || '').toLowerCase()).map(x => ({ name: String(x.name || x.email), role: x.role === 'admin' ? 'ügyvezető' : 'termelési vezető' }));   // a lemondás-értesítés címzettjei (csak nevek) – ugyanaz a kör, mint a cancelNotify_-ban
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);

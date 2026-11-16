@@ -587,12 +587,12 @@ function salesNotify_(pid, kind, st) {
       gmailSend_(em, (kind === 'pay' ? 'Kifizetés érkezett: ' : 'Átadva: ') + pn, 'Kedves ' + (fn || 'Kolléga') + '!\n\n' + head.replace(/<\/?b>/g, '') + '\n\n' + pn + (cl ? ' – ' + cl : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' }); });
   } catch (e) { Logger.log('Értékesítő értesítés: ' + e); }
 }
-/** Lemondott projekt: e-mail a termelési vezető(k)nek (a lemondó kivételével), a lemondás okával. */
+/** Lemondott projekt: e-mail a termelési vezető(k)nek és az ügyvezető(k)nek (a rögzítő kivételével), a lemondás okával. */
 function cancelNotify_(pid, u) {
   try {
     const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
     const me = String(u && u.email || '').toLowerCase();
-    const to = loadUsers_().filter(x => x.role === 'editor' && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== me).map(x => String(x.email).trim());
+    const to = loadUsers_().filter(x => (x.role === 'editor' || x.role === 'admin') && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== me).map(x => String(x.email).trim());
     if (!to.length) return;
     const pn = sval_(p.name), cl = sval_(p.client), dt = /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) ? String(p.date).replace(/-/g, '.') + '.' : '', why = sval_(p.cancelReason), who = sval_(u && u.name);
     const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Szia!</p><p style="margin:0 0 14px">Az alábbi projekt <b>lemondásra került</b>' + (who ? ' (rögzítette: ' + escapeHtml_(who) + ')' : '') + ':</p>'
