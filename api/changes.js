@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3416432d07",
+"at": "2026-11-16T18:52:17+02:00",
+"msg": "Árajánlat: alapértelmezett érvényesség 20 nap"
+},
+{
 "id": "a118573dd4",
 "at": "2026-11-16T18:49:06+02:00",
 "msg": "Árajánlat küldésekor az ajánlat nettó összege a lehetőség értéke lesz; egyszeri pótlás a korábban elküldött ajánlatokra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: az app előtti (régi táblázatos) hónapokban nem jelenik meg a számlázási eltérés"
 },
 {
-"id": "a6ef2a225d",
-"at": "2026-11-16T16:18:28+02:00",
-"msg": "Pénzügyek táblák: a ráhúzott sor teljes szélességben enyhén kiemelve"
-},
-{
-"id": "2de3f780e8",
-"at": "2026-11-16T14:16:33Z",
+"id": "46b32a7150",
+"at": "2026-11-16T14:18:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
