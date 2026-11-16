@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ecc1241973",
+"at": "2026-11-16T20:48:59+02:00",
+"msg": "Kifizetések: elfogadott meghívásnál nincs pipa"
+},
+{
 "id": "8eed714292",
 "at": "2026-11-16T20:40:02+02:00",
 "msg": "Kifizetések: az ügyvezető saját eladásának jutaléka is megjelenik a munkatárs-oszlopában"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lezárt projektek: lakat a nevük mellett (projektlista, projekt oldal, naptár)"
 },
 {
-"id": "bbbdd3989e",
-"at": "2026-11-16T16:33:55+02:00",
-"msg": "Bevételek: az Értékesítés összegére húzva látszik, ki értékesítette"
-},
-{
-"id": "11a52071a2",
-"at": "2026-11-16T14:31:55Z",
+"id": "3f2af21062",
+"at": "2026-11-16T14:34:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
