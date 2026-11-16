@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "af5facd4d6",
+"at": "2026-11-16T21:19:36+02:00",
+"msg": "Szervezői jutalék levonása: csak a ±1 napon belüli projektek"
+},
+{
 "id": "860a841c3d",
 "at": "2026-11-16T21:18:22+02:00",
 "msg": "Végszámla-eltérés: a szervezői jutalék levonása (és a beszámított projektek) nem számít hibának, magyarázó jelzést kap"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: saját magát (ügyvezető / termelési vezető) e-mail nélkül, elfogadottként rögzíti; határidő: a meghívás napja + 2 nap, 18:00"
 },
 {
-"id": "44e4b58db4",
-"at": "2026-11-16T17:35:26+02:00",
-"msg": "Meghívás: a válaszadási határidő mindig 18:00 (2 nap után); „A nyersanyag ezen a napon kerül feltöltésre: …” (óra nélkül)"
-},
-{
-"id": "272473ffc2",
-"at": "2026-11-16T15:32:41Z",
+"id": "22a444bbe1",
+"at": "2026-11-16T15:35:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
