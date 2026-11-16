@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "58ceaf9a44",
+"at": "2026-11-16T22:26:21+02:00",
+"msg": "Stábkártya törlése előtt megerősítés"
+},
+{
 "id": "3ba879f4c0",
 "at": "2026-11-16T22:22:05+02:00",
 "msg": "Lépések: tiltott lépésre húzáskor 🚫 jelzés, elengedéskor a magyarázat a képernyő közepén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: elfogadott meghívásnál nincs pipa"
 },
 {
-"id": "8eed714292",
-"at": "2026-11-16T20:40:02+02:00",
-"msg": "Kifizetések: az ügyvezető saját eladásának jutaléka is megjelenik a munkatárs-oszlopában"
-},
-{
-"id": "b91c8db18d",
-"at": "2026-11-16T18:35:09Z",
+"id": "251dd99130",
+"at": "2026-11-16T18:40:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
