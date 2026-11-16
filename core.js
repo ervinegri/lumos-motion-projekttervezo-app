@@ -323,6 +323,9 @@ function computeIssues(){
     if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
   if(!ro())for(const p of live){if(diffDays(T,pr(p).start)>=30||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
     if(free.length)out.push({level:'warn',text:`✂️ ${free.length} videó még nincs vágóhoz rendelve: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
+  if(!ro()&&typeof crewFinalOn==='function'&&crewFinalOn())for(const p of live){if(['atadva','lemondva'].includes(p.status))continue;const r=pr(p);if(!r||r.end<T)continue;const left=diffDays(T,r.start);if(left>=30)continue;   // stáb nincs véglegesítve (a projektlista piros címkéjével azonos feltétel)
+    const st=crewFinalState(p);if(st==='ok')continue;
+    out.push({level:left<14?'bad':'warn',text:`👥 ${st==='changed'?'A stáb a véglegesítés óta módosult – véglegesítsd újra':'A stáb nincs véglegesítve'}${left<=0?' – a rendezvény már elkezdődött!':` (${left===1?'holnap kezdődik':'még '+left+' nap a rendezvényig'})`}.`,pids:[p.id]});}
   if(!ro())for(const p of live){const miss=staffing(p).filter(s=>s.have<s.need);
     if(miss.length)out.push({level:'warn',text:`Hiányzó stáb: ${miss.map(m=>(m.need-m.have)+' '+m.role.toLowerCase()).join(', ')}.`,pids:[p.id]});}
   for(const p of allProjects().filter(p=>(p.status==='leadva'||p.status==='jovahagyas')&&validISO(p.leadvaAt))){const n=diffDays(p.leadvaAt,T);   // leadott videók: sürgető figyelmeztetés, ha az ügyfél egy hete nem hagyta jóvá
