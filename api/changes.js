@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ea651265a2",
+"at": "2026-11-16T22:18:35+02:00",
+"msg": "Stábkártya: még meg nem hívott munkatársnál szürke keret"
+},
+{
 "id": "caf1ecc1bf",
 "at": "2026-11-16T22:16:40+02:00",
 "msg": "Stábkártya: függő meghívásnál enyhén sárga keret"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jutalék mező: látható mentési állapot (mentetlen / mentés… / mentve)"
 },
 {
-"id": "3416432d07",
-"at": "2026-11-16T18:52:17+02:00",
-"msg": "Árajánlat: alapértelmezett érvényesség 20 nap"
-},
-{
-"id": "8bdbcf1d48",
-"at": "2026-11-16T16:49:17Z",
+"id": "679685c129",
+"at": "2026-11-16T16:52:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
