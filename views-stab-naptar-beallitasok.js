@@ -234,8 +234,8 @@ function calTimeline(m,items0,T,ahead){
     const showBar=it.date<=last&&it.endDate>=first&&!it.cutOnly&&!(p&&editOnly(p));
     const pOk=!!(p&&['leadva','jovahagyas','atadva'].includes(p.status)&&p.status!=='atadva'&&(v=>v&&v.tot&&v.ok===v.tot)(vidProg(p)));   // minden videó jóváhagyva: a forgatási sáv is zöld
     const cc0=p&&cutOf(p),join=!!(showBar&&cc0&&!cc0.same&&cc0.st>=first&&cc0.st<=last&&it.endDate>=first&&it.endDate<last);   // a forgatás vége és a vágás kezdete egybeolvad
-    const sDone=!!(p&&!live&&(pOk||['utomunka','leadva','jovahagyas','atadva'].includes(p.status)||(pr(p)&&pr(p).end<T)));   // a helyszíni munka már lezajlott: a forgatási sáv szürke
-    const FROM=live?'#d93025':dim?'#c2c3c6':sDone?'#c9cfd5':'var(--cal-p)';   // az új designban minden forgatási sáv pára-kék (élő: piros, halvány: szürke) – az átmenet ebből indul   // az átmenet a forgatási sáv tényleges színéből indul (élő: piros, lezajlott/halvány: szürke)
+    const sDone=!!(p&&!live&&(pOk||['utomunka','leadva','jovahagyas','atadva'].includes(p.status)||(pr(p)&&pr(p).end<T)));   // a helyszíni munka már lezajlott: a forgatási sáv zöld (kész)
+    const FROM=live?'#d93025':dim?'#c2c3c6':sDone?'#cdeedd':'var(--cal-p)';   // az új designban minden forgatási sáv pára-kék (élő: piros, halvány: szürke) – az átmenet ebből indul   // az átmenet a forgatási sáv tényleges színéből indul (élő: piros, lezajlott/halvány: szürke)
     /* ugyanazon a napon forgatás + vágás: egy sáv, ferdén kettéosztva (bal: forgatás, jobb: vágás) */
     const split=showBar&&cc0&&cc0.same&&c0===c1&&cc0.st>=first&&cc0.st<=last?(['leadva','jovahagyas','atadva'].includes(p.status)?'color-mix(in srgb,var(--violet,#7e57c2) 62%,#fff)':!editOnly(p)&&pr(p)&&pr(p).end>=T?'color-mix(in srgb,var(--violet,#7e57c2) 38%,#fff)':'var(--violet,#7e57c2)'):'';
     const cc=cc0,spanA=Math.min(c0,cc?col(cc.st<first?first:cc.st):c0),spanB=Math.max(c1,cc?col(cc.due>last?last:cc.due):c1);
