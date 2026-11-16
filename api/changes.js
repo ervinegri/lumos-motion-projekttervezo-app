@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b0d2d40830",
+"at": "2026-11-16T21:14:51+02:00",
+"msg": "Általános szabály: a szövegdobozokba írt, el nem küldött szöveg megmarad (ablakváltás, újratöltés után is); küldés után törlődik"
+},
+{
 "id": "e562a84150",
 "at": "2026-11-16T21:04:23+02:00",
 "msg": "Kézi kifizetett-jelölés: a számlázz.hu-ban is rögzíti a jóváírást (Számla Agent kifizetés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések (ügyvezető): az el nem fogadott / ki nem küldött meghívás díja halványan, ⏳ jellel látszik, és nem számít bele az összegekbe"
 },
 {
-"id": "2a87c24146",
-"at": "2026-11-16T17:21:14+02:00",
-"msg": "Szakember nézet: jövőbeli projekt (és díja) csak meghívás után látszik, a Kifizetésekbe csak az elfogadott meghívás díja számít"
-},
-{
-"id": "c7b23168d2",
-"at": "2026-11-16T14:42:27Z",
+"id": "02e38ba678",
+"at": "2026-11-16T15:21:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
