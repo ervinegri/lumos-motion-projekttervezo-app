@@ -203,3 +203,25 @@ async function hsSearch(q){
   catch(e){if($('hsList'))$('hsList').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-contactName'){const b=$('hsInline');if(b)b.style.display='';}if(e.target.id==='m-contactName'||e.target.id==='m-client'){clearTimeout(HS_T);HS_T=setTimeout(hsInline,400);}if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
+
+/* Szabad szöveg megőrzése: bármelyik szövegdobozba (textarea) írt, el nem küldött szöveg megmarad, ha közben máshová kattintasz,
+   másik ablakot nyitsz vagy újratöltöd az oldalt. Visszatöltés csak üres mezőbe; küldés (Küldés / Hozzáadás / Mentés gomb, ⌘/Ctrl+Enter) után törlődik.
+   A Mentés-gombos űrlapokat (MD_KEY) és a projekt mezőit (data-field) a saját mentésük kezeli. */
+const TXT_PFX='lpm_txt_',TXT_TTL=14*864e5,TXT_SENT={};
+function txtSkip(el){return !el||el.tagName!=='TEXTAREA'||el.readOnly||el.disabled||el.dataset.field!==undefined||el.dataset.crewNote!==undefined||el.dataset.noKeep!==undefined||(MD_KEY&&el.closest('#mform'));}
+function txtKey(el){const ctx=[],seen=new Set();for(let n=el;n&&n!==document.body;n=n.parentElement){if(!n.dataset)continue;['pid','vid','id','k','cid','lane'].forEach(a=>{const v=n.dataset[a];if(v&&!seen.has(a)){seen.add(a);ctx.push(a+'='+v);}});}
+  const f=el.closest('#mform'),t=f?f.getAttribute('aria-label')||'':'';
+  return TXT_PFX+[t,(S&&S.projectId)||'',ctx.join(','),el.id||'',el.name||'',el.getAttribute('placeholder')||''].join('|');}
+function txtGet(k){try{const o=JSON.parse(localStorage.getItem(k)||'null');if(!o)return '';if(Date.now()-o.t>TXT_TTL){localStorage.removeItem(k);return '';}return o.v||'';}catch(e){return '';}}
+function txtPut(k,v){try{if(String(v).trim())localStorage.setItem(k,JSON.stringify({v,t:Date.now()}));else localStorage.removeItem(k);}catch(e){}}
+function txtRestore(root){(root.querySelectorAll?root.querySelectorAll('textarea'):[]).forEach(el=>{if(txtSkip(el)||el.value)return;const k=txtKey(el);
+  if(TXT_SENT[k]&&Date.now()-TXT_SENT[k]<20000){delete TXT_SENT[k];txtPut(k,'');return;}   /* elküldve: a kiürült mezőbe nem töltjük vissza */
+  const v=txtGet(k);if(v){el.value=v;el.classList.add('txt-restored');el.title='Visszaállítva a félbehagyott szöveg';}});}
+document.addEventListener('input',e=>{const el=e.target;if(txtSkip(el))return;const k=txtKey(el);delete TXT_SENT[k];txtPut(k,el.value);el.classList.remove('txt-restored');},true);
+const txtMarkSent=els=>els.forEach(el=>{if(!txtSkip(el))TXT_SENT[txtKey(el)]=Date.now();});
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(!b)return;
+  const lbl=(b.textContent||'')+' '+(b.dataset.action||'')+' '+(b.type==='submit'?'submit':'');if(!/küld|hozzáad|mentés|ment\b|send|add|post|save|submit|reply|comment|válasz/i.test(lbl))return;
+  let c=b.parentElement;while(c&&c!==document.body&&!c.querySelector('textarea'))c=c.parentElement;if(!c||c===document.body)return;const L=[...c.querySelectorAll('textarea')],pre=L.filter(t=>t.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING);txtMarkSent([pre.length?pre[pre.length-1]:L[0]]);},true);   /* a gombhoz tartozó (előtte álló) szövegdoboz */
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&e.target&&e.target.tagName==='TEXTAREA')txtMarkSent([e.target]);},true);
+(function(){const go=()=>{try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='TEXTAREA')txtRestore(n.parentElement||n);else txtRestore(n);}}).observe(document.body,{childList:true,subtree:true});txtRestore(document.body);}catch(e){}};
+  if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})();
