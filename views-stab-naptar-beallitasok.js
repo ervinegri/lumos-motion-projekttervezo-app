@@ -125,7 +125,8 @@ const crewCuts=(p,me)=>!!me&&(p.crew||[]).some(a=>a.crewId===me&&a.role==='Vág�
 const photoPostWork=p=>postTasks(p).some(t=>t.k==='foto_db');
 const crewPhotoPost=(p,id)=>!!id&&photoPostWork(p)&&taskOwners(p,'foto_db').includes(id);
 /* Idővonal: a jóváhagyott videók aránya zöld kitöltésként a sávon (csak részleges jóváhagyásnál) */
-const tlOkFill=(p,from)=>{if(!p||p.status==='atadva'||p.status==='lemondva'||typeof vidProg!=='function')return '';const v=vidProg(p);if(!v||!v.tot||!v.ok||v.ok>=v.tot)return '';from=from||0;return `<span class="tl-okfill" style="left:${from}%;width:${Math.round(v.ok/v.tot*(100-from))}%" aria-hidden="true"></span>`;};   // csak a vágási (lila) részen: osztott sávnál a lila rész 52%-nál kezdődik
+const tlOkFill=(p,from)=>{if(!p||p.status==='atadva'||p.status==='lemondva')return '';const vs=Array.isArray(p.videos)?p.videos:[],tot=vs.length;if(!tot)return '';const ok=vs.filter(v=>v.st==='jovahagyva').length,wt=vs.filter(v=>v.st==='leadva').length;if(ok>=tot||(!ok&&!wt))return '';from=from||0;const w=100-from,a=ok/tot*w,b=wt/tot*w;   // a vágási (lila) rész: zöld = jóváhagyva, sárga = jóváhagyásra vár (arányosan)
+  return (ok?`<span class="tl-okfill" style="left:${from}%;width:${a.toFixed(1)}%" aria-hidden="true"></span>`:'')+(wt?`<span class="tl-okfill tl-waitfill" style="left:${(from+a).toFixed(1)}%;width:${b.toFixed(1)}%" aria-hidden="true"></span>`:'');};
 const crewVideoPost=(p,id)=>!!id&&hasVideoCutWork(p)&&(
   taskKeysOf(p,id).some(k=>k!=='foto_db'&&postTasks(p).some(t=>t.k===k))||
   ((p.crew||[]).some(a=>a.crewId===id)&&(p.videos||[]).some(v=>v.k!=='foto'&&v.editor===id)));   // csak a projekten lévő utómunkás

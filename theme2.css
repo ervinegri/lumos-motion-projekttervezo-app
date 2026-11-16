@@ -2238,3 +2238,5 @@ html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo:not(.tl-cut):not(.tl-s
 html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-todo.tl-split{--from:#c9cfd5}
 /* erősebb szabály: a lezárt (Kész) projekt forgatási napja is zöld, nem a régi szürke „átadva” szín */
 html body .tl-row .tl-track .cal-chip.p.tl-bar.st-atadva.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split),html body .tl-row .tl-track .cal-chip.p.tl-bar.shoot-done.shoot-done.shoot-done:not(.tl-cut):not(.tl-split){background:#cdeedd!important;color:#1f6b40!important;border-color:#cdeedd!important;opacity:1!important;filter:none!important}
+html body .tl-bar .tl-okfill.tl-waitfill{background:#fbe7b5;border-right:1px solid #f0d58c}
+html body .tl-track:has(.tl-bar:not(.tl-cut)) .tl-cut>.tl-waitfill{display:block!important}
