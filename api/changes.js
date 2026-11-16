@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed2e7374d5",
+"at": "2026-11-16T12:49:11+02:00",
+"msg": "Videók: a projektről levett vágó (régi bejegyzés) nem jelenik meg és nem kap értesítést – a feladat az aktuális vágóé"
+},
+{
 "id": "154a14f760",
 "at": "2026-11-16T12:20:30+02:00",
 "msg": "Helyszíni munkára csak elfogadott meghívásokkal; elfogadás ideje a tooltipben (határidő helyett); nem fizetős kártyáról a „Nettó szerződött érték” felirat törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nem fizetős projekt: teljes Extrák menü; fizetős tétel választásakor újra fizetős lesz"
 },
 {
-"id": "5cabcd3164",
-"at": "2026-11-16T11:10:34+02:00",
-"msg": "Nem fizetős projekt: az ajánlói jutalék is az Extrák menüből, mint a fizetősnél"
-},
-{
-"id": "632fc9abee",
-"at": "2026-11-16T09:06:56Z",
+"id": "85676ab1d9",
+"at": "2026-11-16T09:10:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
