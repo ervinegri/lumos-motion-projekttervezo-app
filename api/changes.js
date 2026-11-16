@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d8351a3968",
+"at": "2026-11-16T11:21:00+02:00",
+"msg": "Projektlista: a videók teljes neve látszik"
+},
+{
 "id": "56f100373a",
 "at": "2026-11-16T11:20:15+02:00",
 "msg": "Projektlista: forgatás előtt nincs „Utómunkára vár” a videóknál"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek tábla: Továbbszámlázott és Szervezői jutalék a Díjazás után, csak ha a hónapban van ilyen tétel"
 },
 {
-"id": "e1f4ddd516",
-"at": "2026-11-15T15:43:40+02:00",
-"msg": "Bevétel és kiadás: tömör összesítő csempék; a számlázás csempe-elrendezése nem hat a Bevétel fülre"
-},
-{
-"id": "1df6520c38",
-"at": "2026-11-15T13:42:54Z",
+"id": "43649307f4",
+"at": "2026-11-15T13:43:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
