@@ -330,7 +330,7 @@ test('crew signature is identical in the backend and the frontend',()=>{
 test('frontend: delivered videos show waiting days instead of the delivery deadline',()=>{
   const t=fr('todayISO()');
   fr(`var lp={status:'jovahagyas',date:'2026-10-01',leadvaAt:addDays(todayISO(),-3),dueAt:todayISO()};`);
-  assert.match(fr('dueInfo(lp).txt'),/3 napja leadva/);
+  assert.match(fr('dueInfo(lp).txt'),/3 napja jóváhagyásra vár/);
   fr(`lp.status='utomunka';`);assert.doesNotMatch(fr('dueInfo(lp).txt'),/videók/);
 });
 test('frontend: warnings compute for overdue, delivered and normal projects without errors',()=>{

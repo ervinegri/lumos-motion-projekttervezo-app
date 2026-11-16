@@ -254,7 +254,7 @@ function crewFinalWarn(p){if(ro()||!crewFinalOn()||p.status==='atadva'||p.status
   return st==='changed'?`<span class="statuspill ${cls}" data-tip="${urg}A csapat a véglegesítés óta módosult – a projekt oldalán véglegesítsd újra, hogy a tagok értesítést kapjanak.">👥 Stáb módosult</span>`
     :`<span class="statuspill ${cls}" data-tip="${urg}${crewIds(p).size?'A csapat még nincs véglegesítve – a projekt oldalán véglegesítsd, hogy a tagok bekerüljenek a naptárba és értesítést kapjanak.':'Még nincs stáb beosztva erre a projektre.'}">👥 Stáb nincs véglegesítve</span>`;}
 const allApproved=p=>{const vs=p.videos||[];return vs.length>0&&vs.every(v=>v.st==='jovahagyva');};
-function statusPill(p){const s=p.status||'tervezes';if((s==='jovahagyas'||s==='leadva')&&allApproved(p))return '';   // minden videót jóváhagytak: a „✅ Minden videó jóváhagyva” jelzés elég
+function statusPill(p){const s=p.status||'tervezes';if((s==='jovahagyas'||s==='leadva')&&(allApproved(p)||(()=>{const d=dueInfo(p);return !!(d&&d.lead!=null);})()))return '';   // a „N napja jóváhagyásra vár” jelzés kimondja   // minden videót jóváhagytak: a „✅ Minden videó jóváhagyva” jelzés elég
   return `<span class="statuspill st-${esc(s)}${siteWaiting(p)?' st-wait':''}">${esc(stageLabel(p,s))}</span>${s==='tervezes'&&!ro()&&missingReq(p).length?'<span class="statuspill p-mute" data-tip="Hiányos alapadatok – a projekt oldalán pótolhatók">📝 Piszkozat</span>':''}`;}
 function calBlock(iso){
   if(!validISO(iso))return `<span class="cal none" aria-hidden="true"><span class="cal-m">—</span><span class="cal-d">?</span></span>`;
@@ -267,8 +267,8 @@ function dueInfo(p){
   const due=dueDate(p);if(!due||!isOpen(p))return null;
   if(p.status==='leadva'||p.status==='jovahagyas'){const n=validISO(p.leadvaAt)?diffDays(p.leadvaAt,todayISO()):null;   // a videók már leadva: nem az átadási határidőt mutatjuk
     const vs=p.videos||[],okN=vs.filter(v=>v.st==='jovahagyva').length;if(vs.length&&okN===vs.length)return {due,left:null,lead:0,cls:'ok',txt:'✅ '+appLabel(vs)+' jóváhagyva'};   // az ügyfél már mindent jóváhagyott
-    if(n==null)return null;if(okN)return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:`${n>=7?'🚨 ':''}${n} napja leadva – ${okN}/${vs.length} jóváhagyva`};
-    return {due,left:null,lead:n,cls:n>=14?'alarm':n>=7?'bad':n>=3?'warn':'ok',txt:n<=0?'Ma leadva – jóváhagyásra vár':`${n>=7?'🚨 ':''}${n} napja leadva – nincs jóváhagyás`};}
+    if(n==null)return null;const cls=n>=14?'alarm':n>=7?'bad':'warn',w=n<=0?'Ma óta jóváhagyásra vár':`${n>=7?'🚨 ':''}${n} napja jóváhagyásra vár`;   // egy sorban, sárgán (7 nap után piros); a külön „Jóváhagyásra vár” állapotcímke ilyenkor elmarad
+    return {due,left:null,lead:n,cls,txt:okN?`${w} · ${okN}/${vs.length} kész`:w};}
   const left=diffDays(todayISO(),due);
   return {due,left,cls:left<=1?'bad':left<=3?'warn':'ok',txt:left<0?`${-left} napja lejárt`:left===0?'Ma kell átadni':`${left} nap az átadásig`};
 }
