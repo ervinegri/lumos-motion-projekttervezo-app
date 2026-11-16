@@ -600,7 +600,7 @@ function cancelNotify_(pid, u) {
       + '<div style="color:#5f6368;margin-top:2px">' + escapeHtml_([cl, dt].filter(Boolean).join(' · ')) + '</div>' + (why ? '<div style="margin-top:8px"><b>Indoklás:</b> ' + escapeHtml_(why) + '</div>' : '') + '</td></tr></table>'
       + '<p style="margin:0">A projekt lekerült a naptárból, és nem számít bele az ütközésekbe és a határidőkbe. Ha volt beosztott stáb vagy lefoglalt eszköz, érdemes velük egyeztetni.</p>'
       + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p></div>';
-    gmailSend_(to.join(','), 'Lemondva: ' + pn, 'Szia!\n\nAz alábbi projektet lemondták' + (who ? ' (' + who + ')' : '') + ':\n' + pn + (cl ? ' – ' + cl : '') + (dt ? ' · ' + dt : '') + (why ? '\nIndoklás: ' + why : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' });
+    gmailSend_(to.join(','), 'Lemondva: ' + pn, 'Szia!\n\nAz alábbi projekt lemondásra került' + (who ? ' (rögzítette: ' + who + ')' : '') + ':\n' + pn + (cl ? ' – ' + cl : '') + (dt ? ' · ' + dt : '') + (why ? '\nA lemondás oka: ' + why : ''), { htmlBody: html, name: 'Lumos Motion Projekttervező' });
   } catch (e) { Logger.log('Lemondás-értesítés: ' + e); }
 }
 let CANCEL_DONE_ = null;
