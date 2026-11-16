@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b1d17e630e",
+"at": "2026-11-16T18:29:07+02:00",
+"msg": "Árajánlat küldése: korábbi ügyfél is választható – új lehetőség az ügyfél adataival, utána az árajánlat"
+},
+{
 "id": "10f7e07e8b",
 "at": "2026-11-16T18:28:36+02:00",
 "msg": "Előadásrögzítés: operatőr nélküli kamerás helyszín, üres kamerasor és szolgáltatás nélküli pozíció jelzése; az operatőr-választóban elöl a projekten lévők"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ki értékesítette? kártya: előbb a jutalék (%), utána az összeg"
 },
 {
-"id": "bd3e561d05",
-"at": "2026-11-16T16:05:44+02:00",
-"msg": "Értékesítés: nem fizetős projekt lehetősége nem jelenik meg (pl. Business Bash)"
-},
-{
-"id": "d737ada729",
-"at": "2026-11-16T14:03:42Z",
+"id": "b6d21374be",
+"at": "2026-11-16T14:05:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
