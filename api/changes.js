@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e9adb8edc",
+"at": "2026-11-16T16:15:53+02:00",
+"msg": "Cmd+S: „✓ Minden mentve” a félrevezető „Nincs mentetlen módosítás” helyett"
+},
+{
 "id": "4234bcf589",
 "at": "2026-11-16T16:14:24+02:00",
 "msg": "Pénzügyek panel: csak a nyíl nyit/zár"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a kész projektek vágási sávja és a hozzájuk tartozó vágói bejegyzések zöldek"
 },
 {
-"id": "8e07cc9475",
-"at": "2026-11-16T13:49:05+02:00",
-"msg": "Idővonal: lágyabb átmenet a forgatási és a kész vágási sáv között"
-},
-{
-"id": "472ddfc234",
-"at": "2026-11-16T11:48:54Z",
+"id": "db49a8fcee",
+"at": "2026-11-16T11:49:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
