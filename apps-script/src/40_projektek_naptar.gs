@@ -146,7 +146,7 @@ function saveProject_(u, a) {
     if (p.payStatus == null) p.payStatus = '';
     // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
-    if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink)
+    if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink && !parseVideos_(p.videos).some(v => /^https?:\/\//i.test(String(v.link || ''))))
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
     if (p.eventType === 'Videóvágás' && p.status === 'helyszin') p.status = 'utomunka';   // videóvágásnál nincs helyszíni munka
     if (['utomunka', 'leadva', 'jovahagyas', 'atadva'].indexOf(p.status) >= 0 && (!old || ['', 'egyeztetes', 'tervezes', 'helyszin'].indexOf(old.status || '') >= 0) && p.eventType !== 'Videóvágás' && !(u && u.id === 'sales-app') && /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) && String(p.date) > today_())   // a Sales App „forgatás megtörtént” jelzése hiteles
