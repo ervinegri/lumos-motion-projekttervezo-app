@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e24430668",
+"at": "2026-11-16T13:34:36+02:00",
+"msg": "Projektlista: lemondott projektnél nem jelenik meg a videók állapota"
+},
+{
 "id": "891f317e5a",
 "at": "2026-11-16T13:32:23+02:00",
 "msg": "Meghívás: aki termelési vezetőként / ügyvezetőként saját magát osztja be, annak nem kell meghívó (elfogadottnak számít)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek: a keresőmező a táblázat „Projekt” fejlécébe került"
 },
 {
-"id": "eef61b35f9",
-"at": "2026-11-16T11:23:35+02:00",
-"msg": "Figyelmeztetések: „A stáb nincs véglegesítve” / „módosult” is megjelenik"
-},
-{
-"id": "16a963e3f8",
-"at": "2026-11-16T09:22:03Z",
+"id": "b0580f7ca5",
+"at": "2026-11-16T09:23:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
