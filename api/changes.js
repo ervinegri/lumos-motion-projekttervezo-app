@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "73b372b88d",
+"at": "2026-11-16T16:31:47+02:00",
+"msg": "Fizetés: új „Beszámítva” állapot (másik projekt számlájából levonva) – számla nélküli projektnél a Fizetés címkére kattintva állítható; a fizetési állapot mentéskor nem íródik felül"
+},
+{
 "id": "d231b6f707",
 "at": "2026-11-16T16:28:21+02:00",
 "msg": "Pénzügyek: ha a (közös) foglaló a projekt teljes összegét fedezi, „Teljes fizetve”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a projekt neve teljesen kiíródik (átér a vágási sávra)"
 },
 {
-"id": "f4c9cdfbd8",
-"at": "2026-11-16T13:59:05+02:00",
-"msg": "Idővonal: a lezajlott forgatások sávja zöld (szürke helyett)"
-},
-{
-"id": "a626f2e29b",
-"at": "2026-11-16T11:58:01Z",
+"id": "c821fb8cb1",
+"at": "2026-11-16T11:59:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
