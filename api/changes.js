@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "031ef1a010",
+"at": "2026-11-16T21:29:07+02:00",
+"msg": "Vissza-lépés a Tervezésre megszüntetve; az Utómunkára vár kártyái a nyersanyag feltöltéséig szürkék és nem mozdíthatók"
+},
+{
 "id": "ef6aa2e5ef",
 "at": "2026-11-16T21:26:34+02:00",
 "msg": "Lépések: ha a forgatás még előttünk van, a Tervezés kártyára kattintva vissza lehet lépni"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb kártyák: az értékesítő nem jelenik meg pozícióként (az Értékesítés részben szerepel)"
 },
 {
-"id": "65b53f4dae",
-"at": "2026-11-16T17:53:30+02:00",
-"msg": "Kifizetések: meghívott (sárga ⏳), meg nem hívott (szürke ○) és elfogadott (zöld ✓) díjak megkülönböztetése, dőlt betű nélkül"
-},
-{
-"id": "9cc2c96d6b",
-"at": "2026-11-16T15:51:16Z",
+"id": "a4996770c8",
+"at": "2026-11-16T15:53:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
