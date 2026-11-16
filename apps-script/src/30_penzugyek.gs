@@ -329,3 +329,24 @@ function fixQueensRefOnce_() {
   P.setProperty('FIX_QN_REF_1', P.getProperty('FIX_QN_REF_1') || 'kihagyva'); P.setProperty('FIX_QN_REF_2', now_());
 }
 
+
+/** Egyszeri rögzítés (Ervin kérése, 2026-11-16): a Longevity and Biohacking rendezvényen eladott 11 short után shortonként 10 000 Ft szervezői jutalék
+ *  (kedvezményezett ugyanaz, mint az ANF care shortnál); a Rippel Fivérek Shortját a szervezők a jutalékukból vették → „Beszámítva” a Longevity számlájába. */
+const ORG_FEE_FIX_ = [['High Care Weyergans', 10000], ['Lifestyle Hotel Matra short', 10000], ['Top egészség short', 10000], ['Vital Health short', 10000], ['Well Aging 3 db short', 30000], ['Yolongevity 3 db short', 30000]];
+function orgFeeFixOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('ORG_FEE_FIX_1')) return;
+  withLock_(() => {
+    const sh = sheetFor_('projects'), all = readAll_('projects'), nm = x => String(x || '').trim().toLowerCase();
+    const tplP = all.find(x => nm(x.name) === 'anf care short'), tpl = tplP ? parseExtras_(tplP.extras).find(x => x.kind === 'org') : null;
+    if (!tpl) { Logger.log('Szervezői jutalék: nincs minta (ANF care short)'); return; }
+    ORG_FEE_FIX_.forEach(([name, amt]) => { const x = all.find(q => nm(q.name) === nm(name)); if (!x) { Logger.log('Nincs ilyen projekt: ' + name); return; }
+      const row = findRow_(sh, x.id); if (!row) return; const p = readRow_('projects', sh, row), ex = parseExtras_(p.extras);
+      if (ex.some(e => e.kind === 'org')) return;   // már rögzítve
+      ex.push({ id: Utilities.getUuid().slice(0, 8), name: tpl.name, amount: amt, kind: 'org', clientId: tpl.clientId || '' });
+      p.extras = JSON.stringify(ex); p.updatedAt = now_(); putRow_('projects', sh, p, row); });
+    const rip = all.find(q => nm(q.name) === 'rippel fivérek shortja'), lon = all.find(q => nm(q.name) === 'longevity and biohacking');
+    if (rip && lon && !String(rip.payStatus || '')) writeProjectPay_(rip.id, 'beszamitva', lon.id);
+    dataBump_(); dbFlush_();
+  });
+  P.setProperty('ORG_FEE_FIX_1', new Date().toISOString());
+}
