@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f30db84300",
+"at": "2026-11-16T17:30:25+02:00",
+"msg": "Meghívás: a válaszadási határidő 3 nap helyett 24 óra"
+},
+{
 "id": "125112a9d3",
 "at": "2026-11-16T17:28:37+02:00",
 "msg": "Kifizetések (ügyvezető): az el nem fogadott / ki nem küldött meghívás díja halványan, ⏳ jellel látszik, és nem számít bele az összegekbe"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Javítás: a naptár nem nyílt meg (nem definiált változó a Google-bejegyzéseknél)"
 },
 {
-"id": "2f36fbfd7b",
-"at": "2026-11-16T14:07:01+02:00",
-"msg": "Idővonal: a lezárt projekt videói is megnyílnak a naptárból; összevont sorban a csak-vágás sávok neve látszik; lezajlott naptárbejegyzések zöldek"
-},
-{
-"id": "f6679e9e6e",
-"at": "2026-11-16T12:05:23Z",
+"id": "07e43ca51f",
+"at": "2026-11-16T12:07:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
