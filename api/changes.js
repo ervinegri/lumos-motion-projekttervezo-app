@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b528d94770",
+"at": "2026-11-16T21:44:28+02:00",
+"msg": "Szakember kifizetései: a még el nem fogadott meghívás díja ⏳-val látszik, az összegbe nem számít; a meghívás-válasz gombok rendezett, egysoros sávban"
+},
+{
 "id": "8d4bfda108",
 "at": "2026-11-16T21:41:49+02:00",
 "msg": "Előfoglalás: projekt összekötése nyitott lehetőséggel (tárgyalás alatt) – csendes figyelmeztetések, számlázás a szerződés után, csíkozott megjelenés, szerződéskor ez válik élessé, elveszett lehetőségnél lemondás felajánlása; felszerelési figyelmeztetések 30 nappal előtte"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszínváltás-figyelmeztetés csak annak, aki az adott projekten a helyszínen van (remote vezető, otthonról vágó nem)"
 },
 {
-"id": "0033e05d95",
-"at": "2026-11-16T18:00:59+02:00",
-"msg": "Kifizetések: összegcellák nem törnek és nem érnek a cellahatárra"
-},
-{
-"id": "dd56ac73d9",
-"at": "2026-11-16T15:59:59Z",
+"id": "818ec2ec90",
+"at": "2026-11-16T16:01:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
