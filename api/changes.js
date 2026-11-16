@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d231b6f707",
+"at": "2026-11-16T16:28:21+02:00",
+"msg": "Pénzügyek: ha a (közös) foglaló a projekt teljes összegét fedezi, „Teljes fizetve”"
+},
+{
 "id": "6884b17bf5",
 "at": "2026-11-16T16:24:50+02:00",
 "msg": "Bevétel és kiadás: a Kintlévőségre húzva a kintlévő tételek listája"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a lezajlott forgatások sávja zöld (szürke helyett)"
 },
 {
-"id": "becfc39494",
-"at": "2026-11-16T13:57:51+02:00",
-"msg": "Idővonal: a közös nap nélküli projektek egy sorba kerülnek (kompaktabb naptár)"
-},
-{
-"id": "f8508bf1ab",
-"at": "2026-11-16T11:57:26Z",
+"id": "a626f2e29b",
+"at": "2026-11-16T11:58:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
