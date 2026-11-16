@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c7424825e7",
+"at": "2026-11-16T18:36:58+02:00",
+"msg": "Árajánlat: a rendezvény neve átírható (az ajánlaton, a tárgyban és a fájlnévben)"
+},
+{
 "id": "58513cc853",
 "at": "2026-11-16T18:31:45+02:00",
 "msg": "Árajánlat küldése: a korábbi ügyfelek listája csak az ügyvezetőnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Cmd+S: „✓ Minden mentve” a félrevezető „Nincs mentetlen módosítás” helyett"
 },
 {
-"id": "4234bcf589",
-"at": "2026-11-16T16:14:24+02:00",
-"msg": "Pénzügyek panel: csak a nyíl nyit/zár"
-},
-{
-"id": "348a7874db",
-"at": "2026-11-16T14:14:13Z",
+"id": "a4c366f25e",
+"at": "2026-11-16T14:14:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
