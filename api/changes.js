@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8eed714292",
+"at": "2026-11-16T20:40:02+02:00",
+"msg": "Kifizetések: az ügyvezető saját eladásának jutaléka is megjelenik a munkatárs-oszlopában"
+},
+{
 "id": "e5d8fcaea3",
 "at": "2026-11-16T20:34:59+02:00",
 "msg": "Jutalék: a többi módosítással együtt a mentés-sávval mentődik (Mentés / ⌘S, Elvetésre visszaáll)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: az Értékesítés összegére húzva látszik, ki értékesítette"
 },
 {
-"id": "73b372b88d",
-"at": "2026-11-16T16:31:47+02:00",
-"msg": "Fizetés: új „Beszámítva” állapot (másik projekt számlájából levonva) – számla nélküli projektnél a Fizetés címkére kattintva állítható; a fizetési állapot mentéskor nem íródik felül"
-},
-{
-"id": "3f52a74010",
-"at": "2026-11-16T14:28:32Z",
+"id": "11a52071a2",
+"at": "2026-11-16T14:31:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
