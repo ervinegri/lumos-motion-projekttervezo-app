@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "526376d3fa",
+"at": "2026-11-16T14:08:14+02:00",
+"msg": "Javítás: a naptár nem nyílt meg (nem definiált változó a Google-bejegyzéseknél)"
+},
+{
 "id": "2f36fbfd7b",
 "at": "2026-11-16T14:07:01+02:00",
 "msg": "Idővonal: a lezárt projekt videói is megnyílnak a naptárból; összevont sorban a csak-vágás sávok neve látszik; lezajlott naptárbejegyzések zöldek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videók: a projektről levett vágó (régi bejegyzés) nem jelenik meg és nem kap értesítést – a feladat az aktuális vágóé"
 },
 {
-"id": "154a14f760",
-"at": "2026-11-16T12:20:30+02:00",
-"msg": "Helyszíni munkára csak elfogadott meghívásokkal; elfogadás ideje a tooltipben (határidő helyett); nem fizetős kártyáról a „Nettó szerződött érték” felirat törölve"
-},
-{
-"id": "496fe139d8",
-"at": "2026-11-16T10:17:47Z",
+"id": "9b9a2655e3",
+"at": "2026-11-16T10:20:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
