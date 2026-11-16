@@ -2171,3 +2171,6 @@ html body .pt-vone{justify-content:flex-start}
 /* Projektlista: az állapotcímkék egy sorban (tördelve), a videólista alattuk teljes szélességben */
 html body .proj-table .pt-pills{flex-direction:row;flex-wrap:wrap;align-items:center;gap:5px 6px}
 html body .proj-table .pt-pills>div.pt-vids{display:flex!important;flex-direction:column;flex-basis:100%;width:100%!important}
+/* Kifizetések: a számla teljes sorszáma látszódjon (kisebb betű, a kártya a szomszéd cella fölé is kilóghat) */
+html body .pay-sheet td.pay-st .pst-card{position:relative;z-index:2;padding:2px 5px!important}
+html body .pay-sheet td.pay-st .pst-card small{font-size:10.5px;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
