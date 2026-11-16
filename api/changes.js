@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "edc76a1d1e",
+"at": "2026-11-16T14:05:13+02:00",
+"msg": "Idővonal: videó nélküli projekt vágási sávjára kattintva a projekt nyílik meg (nem üres videótábla)"
+},
+{
 "id": "d5a103d5c5",
 "at": "2026-11-16T14:02:51+02:00",
 "msg": "Idővonal: a jóváhagyásra váró videók is színesek (sárga), arányosan a jóváhagyottak (zöld) után"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Javítás: szinkron-feltétel megjegyzése; teszt a jövőbeli forgatás esetére"
 },
 {
-"id": "577768c06e",
-"at": "2026-11-16T12:16:33+02:00",
-"msg": "Sales App szinkron: jövőbeli forgatású projekt nem léphet utómunkára a „leforgatva” jelzéstől"
-},
-{
-"id": "3e5c06dc2d",
-"at": "2026-11-16T10:14:41Z",
+"id": "a6198cacc4",
+"at": "2026-11-16T10:16:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
