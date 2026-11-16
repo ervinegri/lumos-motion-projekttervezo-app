@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8e07cc9475",
+"at": "2026-11-16T13:49:05+02:00",
+"msg": "Idővonal: lágyabb átmenet a forgatási és a kész vágási sáv között"
+},
+{
 "id": "14ca484878",
 "at": "2026-11-16T13:48:35+02:00",
 "msg": "Idővonal: a jóváhagyott arány csak a vágási (lila) részen, a forgatási sávon nem"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb és eszközök: a pozíciószámláló címkék törölve (a kártyák mutatják)"
 },
 {
-"id": "8054a01534",
-"at": "2026-11-16T11:53:40+02:00",
-"msg": "Pozíció-kártyák: egy meghívó személyenként, nincs duplikált szerepmező, csillag csak projektvezető nélkül, egységes kuka (pozícióról levétel), „Távolról vezeti”"
-},
-{
-"id": "7891d37b6f",
-"at": "2026-11-16T09:51:36Z",
+"id": "84b9c7ca6d",
+"at": "2026-11-16T09:53:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
