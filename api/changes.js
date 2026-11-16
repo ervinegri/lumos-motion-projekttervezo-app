@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0d4ad78e50",
+"at": "2026-11-16T16:23:38+02:00",
+"msg": "Pénzügyek: az app előtti (régi táblázatos) hónapokban nem jelenik meg a számlázási eltérés"
+},
+{
 "id": "a6ef2a225d",
 "at": "2026-11-16T16:18:28+02:00",
 "msg": "Pénzügyek táblák: a ráhúzott sor teljes szélességben enyhén kiemelve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a lezajlott helyszíni munka sávja szürke, az átmenet szürkéből megy a vágás színébe"
 },
 {
-"id": "d2d771160e",
-"at": "2026-11-16T13:53:31+02:00",
-"msg": "Idővonal: a jóváhagyott arány kitöltését egy régi szabály elrejtette – most látszik"
-},
-{
-"id": "86379e3aa8",
-"at": "2026-11-16T11:51:29Z",
+"id": "62810b3683",
+"at": "2026-11-16T11:53:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
