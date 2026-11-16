@@ -153,7 +153,7 @@ const ACT={
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
-    {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci&&!(b.dataset.v==='tervezes'&&!editOnly(d)&&validISO(d.date)&&d.date>todayISO())){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}   /* kivétel: ha a forgatás még előttünk van, vissza lehet állni Tervezésre */}   // csak előre
+    {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}}   // csak előre
     const v=b.dataset.v,go=()=>{
       if((v==='leadva'||(v==='jovahagyas'&&!S.draft.deliveryLink))&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // a „Videók leadva” lépés megszűnt: a jóváhagyásra várás előtt kérjük a linket   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink)){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
