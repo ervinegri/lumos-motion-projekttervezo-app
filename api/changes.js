@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "125112a9d3",
+"at": "2026-11-16T17:28:37+02:00",
+"msg": "Kifizetések (ügyvezető): az el nem fogadott / ki nem küldött meghívás díja halványan, ⏳ jellel látszik, és nem számít bele az összegekbe"
+},
+{
 "id": "2a87c24146",
 "at": "2026-11-16T17:21:14+02:00",
 "msg": "Szakember nézet: jövőbeli projekt (és díja) csak meghívás után látszik, a Kifizetésekbe csak az elfogadott meghívás díja számít"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a lezárt projekt videói is megnyílnak a naptárból; összevont sorban a csak-vágás sávok neve látszik; lezajlott naptárbejegyzések zöldek"
 },
 {
-"id": "edc76a1d1e",
-"at": "2026-11-16T14:05:13+02:00",
-"msg": "Idővonal: videó nélküli projekt vágási sávjára kattintva a projekt nyílik meg (nem üres videótábla)"
-},
-{
-"id": "28d8b67edf",
-"at": "2026-11-16T12:03:01Z",
+"id": "f6679e9e6e",
+"at": "2026-11-16T12:05:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
