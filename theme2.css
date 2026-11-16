@@ -2319,3 +2319,4 @@ html body .bd-card.bd-wait{user-select:none;-webkit-user-select:none;pointer-eve
 html body .tent-pill{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:6px;font-size:11.5px;font-weight:650;background:#eef1f5;color:#5d6b7a;border:1px dashed #b7c2cf;vertical-align:2px;white-space:nowrap}
 html body .pcrew.pos-card.inv-ok{border-color:#9fd3b2!important;box-shadow:0 0 0 1px #cfe9d9,0 1px 2px rgba(16,24,40,.04)!important}
 html body .pcrew.pos-card.inv-wait{border-color:#ecd28a!important;box-shadow:0 0 0 1px #f5e3b0,0 1px 2px rgba(16,24,40,.04)!important}
+html body .pcrew.pos-card.inv-none{border-color:#c3cbd4!important;box-shadow:0 0 0 1px #dde2e8,0 1px 2px rgba(16,24,40,.04)!important}
