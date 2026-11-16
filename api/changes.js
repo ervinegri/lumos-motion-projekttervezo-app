@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "47ef0c614f",
+"at": "2026-11-16T11:24:09+02:00",
+"msg": "Projektek: a keresőmező a táblázat „Projekt” fejlécébe került"
+},
+{
 "id": "eef61b35f9",
 "at": "2026-11-16T11:23:35+02:00",
 "msg": "Figyelmeztetések: „A stáb nincs véglegesítve” / „módosult” is megjelenik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: nincs ceruza a projektnevek után, az értékesítési % itt nem írható és mindig %-kal látszik, cím + Párosítások + kereső egy sorban"
 },
 {
-"id": "200a86a94c",
-"at": "2026-11-15T15:48:03+02:00",
-"msg": "Bevételek tábla: az oszlopszélességet a számok adják (fejléc tördelődik), a nevek nem törnek, nincs fölösleges vízszintes görgetés"
-},
-{
-"id": "f2bdeaee14",
-"at": "2026-11-15T13:46:40Z",
+"id": "95b51ac54d",
+"at": "2026-11-15T13:48:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
