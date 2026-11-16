@@ -328,7 +328,9 @@ function retainedBal(cid,month,incl){const items=[];let bal=0;
   return {bal,items};}
 /* Értékesítő díjazása egy hónapra: fix fizetés + a hónapban szerződött lehetőségek jutaléka (csak az ügyvezető és maga az értékesítő kapja meg az adatot) */
 /* Fiók nélküli értékesítő (munkatárs): a jutaléka projektenként, a projekt hónapjában – úgy, mint egy díj */
-const dealCrewId=d=>String(d.ownerId||'').indexOf('crew:')===0?String(d.ownerId).slice(5):(d.ownerCrewId||'');
+const dealCrewId=d=>{const o=String(d.ownerId||'');if(o.indexOf('crew:')===0)return o.slice(5);if(d.ownerCrewId)return d.ownerCrewId;
+  if(S.me&&S.me.id===o&&S.me.crewId)return S.me.crewId;   /* az ügyvezető saját eladása: az ő munkatárs-sora kapja a jutalékot */
+  if((S.salesPeople||[]).some(x=>x.userId===o))return '';const nk=x=>fold(String(x||'')).replace(/\s+/g,' ').trim(),c=d.ownerName?(S.crew||[]).filter(x=>nk(x.name)===nk(d.ownerName)):[];return c.length===1?c[0].id:'';};   /* fiókhoz nem kötött munkatárs: név szerint */
 const crewSalesComm=()=>(S.deals||[]).filter(d=>d.stage==='nyert'&&dealCrewId(d)).map(d=>{const p=projById(d.projectId);if(!p||p.status==='lemondva'||!pr(p))return null;const e=salesCommEst(p,d);return e&&e.amt?{p,cid:dealCrewId(d),amt:e.amt}:null;}).filter(Boolean);
 function salesPayOf(month,cid){const sp=(S.salesPeople||[]).find(x=>x.crewId===cid&&String(x.userId||'').indexOf('crew:')!==0);if(!sp)return null;
   const salary=month>=PAY_START&&(!sp.since||month>=sp.since)?num(sp.salary):0;
