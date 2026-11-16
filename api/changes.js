@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "328e5b512d",
+"at": "2026-11-16T15:14:29+02:00",
+"msg": "Stáb: a „Pozíciónként…” magyarázó szöveg törölve"
+},
+{
 "id": "6f5397fc21",
 "at": "2026-11-16T15:12:34+02:00",
 "msg": "Jóváhagyásra vár sáv: kiválasztott vágónál csak az ő videói"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: lemondott projektnél nem jelenik meg a videók állapota"
 },
 {
-"id": "891f317e5a",
-"at": "2026-11-16T13:32:23+02:00",
-"msg": "Meghívás: aki termelési vezetőként / ügyvezetőként saját magát osztja be, annak nem kell meghívó (elfogadottnak számít)"
-},
-{
-"id": "ceba37896c",
-"at": "2026-11-16T11:31:27Z",
+"id": "8f4b2f1e38",
+"at": "2026-11-16T11:32:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
