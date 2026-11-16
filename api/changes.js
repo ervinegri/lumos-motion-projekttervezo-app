@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4c9cdfbd8",
+"at": "2026-11-16T13:59:05+02:00",
+"msg": "Idővonal: a lezajlott forgatások sávja zöld (szürke helyett)"
+},
+{
 "id": "becfc39494",
 "at": "2026-11-16T13:57:51+02:00",
 "msg": "Idővonal: a közös nap nélküli projektek egy sorba kerülnek (kompaktabb naptár)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondás-levél: semleges megfogalmazás"
 },
 {
-"id": "b3a4e07a01",
-"at": "2026-11-16T12:08:47+02:00",
-"msg": "Lemondás: semleges „Mi a lemondás oka?” (lehet az ügyfél is); a levélben „rögzítette”"
-},
-{
-"id": "cdec7a6165",
-"at": "2026-11-16T10:05:26Z",
+"id": "cdd15698cb",
+"at": "2026-11-16T10:08:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
