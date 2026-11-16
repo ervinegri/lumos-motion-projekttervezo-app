@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ba879f4c0",
+"at": "2026-11-16T22:22:05+02:00",
+"msg": "Lépések: tiltott lépésre húzáskor 🚫 jelzés, elengedéskor a magyarázat a képernyő közepén"
+},
+{
 "id": "1810504657",
 "at": "2026-11-16T22:19:38+02:00",
 "msg": "Meghívó: a határidőig meg nem válaszolt meghívás elutasításnak számít (piros keret, ⌛ Nem válaszolt)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: az ügyvezető saját eladásának jutaléka is megjelenik a munkatárs-oszlopában"
 },
 {
-"id": "e5d8fcaea3",
-"at": "2026-11-16T20:34:59+02:00",
-"msg": "Jutalék: a többi módosítással együtt a mentés-sávval mentődik (Mentés / ⌘S, Elvetésre visszaáll)"
-},
-{
-"id": "ed7bfe8ae1",
-"at": "2026-11-16T18:32:59Z",
+"id": "b91c8db18d",
+"at": "2026-11-16T18:35:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
