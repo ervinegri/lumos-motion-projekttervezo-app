@@ -579,6 +579,7 @@ function myNotify_(u, a) {
 }
 /** Értékesítő értesítése a saját (megnyert) lehetőségéhez tartozó projektről: kifizetés érkezett / átadva. */
 function salesNotify_(pid, kind, st) {
+  if (kind === 'done') return;   // az átadásról az értékesítő nem kap e-mailt (Ervin döntése)
   try {
     const p = readAll_('projects').find(x => x.id === pid); if (!p) return;
     const owners = readAll_('deals').filter(d => d.projectId === pid && d.stage === 'nyert').map(d => String(d.ownerId || '')).filter((x, i, a) => x && a.indexOf(x) === i);
@@ -610,6 +611,24 @@ function cancelNotify_(pid, u) {
   } catch (e) { Logger.log('Lemondás-értesítés: ' + e); }
 }
 let CANCEL_DONE_ = null;
+/** Egyszeri, csendes lezárás: a már teljesen jóváhagyott (videó / fotó) projektek „Kész” állapotba kerülnek – e-mail nélkül. */
+function doneBackfillOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('DONE_BACKFILL_1')) return;
+  withLock_(() => {
+    const sh = sheetFor_('projects');
+    readAll_('projects').forEach(x => {
+      if (['utomunka', 'leadva', 'jovahagyas'].indexOf(x.status) < 0 || !(x.siteOk || x.eventType === 'Videóvágás')) return;
+      const vids = parseVideos_(x.videos); if (!vids.length || !vids.every(v => v.st === 'jovahagyva')) return;
+      const row = findRow_(sh, x.id); if (!row) return; const p = readRow_('projects', sh, row);
+      p.status = 'atadva'; p.deliveredAt = p.deliveredAt || today_(); p.leadvaAt = p.leadvaAt || today_();
+      const sd = String(p.stepsDone || '').split(',').filter(String); ['tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva'].forEach(k => { if (sd.indexOf(k) < 0) sd.push(k); }); p.stepsDone = sd.join(',');
+      p.updatedAt = now_(); p.updatedBy = 'Automatikus lezárás'; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row);
+      Logger.log('Kész (minden tétel jóváhagyva): ' + p.name);
+    });
+    dataBump_(); dbFlush_();
+  });
+  P.setProperty('DONE_BACKFILL_1', new Date().toISOString());
+}
 let SALES_DONE_ = null;
 /** Formázott (HTML) jegyzet → sima szöveg (naptár, levél). */
 function notesText_(s) { s = String(s || ''); if (!/<\/?(p|div|br|b|strong|i|em|u|ul|ol|li|a|h[1-6])\b/i.test(s)) return s; return s.replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/(p|div|li|h[1-6])>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim(); }
