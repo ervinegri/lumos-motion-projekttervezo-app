@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d9dc1d78b3",
+"at": "2026-11-16T21:29:59+02:00",
+"msg": "Névjegy: a Megosztás gomb csak ott jelenik meg, ahol a böngésző fájlt tud megosztani; hiba esetén letöltés"
+},
+{
 "id": "031ef1a010",
 "at": "2026-11-16T21:29:07+02:00",
 "msg": "Vissza-lépés a Tervezésre megszüntetve; az Utómunkára vár kártyái a nyersanyag feltöltéséig szürkék és nem mozdíthatók"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni értékesítő pozíció (az eladó értékesítő nem stábtag); egységes sárga sorkiemelés a Források, Ügyfelek, Kifizetések táblázatain"
 },
 {
-"id": "402aab8830",
-"at": "2026-11-16T17:55:42+02:00",
-"msg": "Stáb kártyák: az értékesítő nem jelenik meg pozícióként (az Értékesítés részben szerepel)"
-},
-{
-"id": "a4996770c8",
-"at": "2026-11-16T15:53:40Z",
+"id": "9e1baf0a4c",
+"at": "2026-11-16T15:55:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
