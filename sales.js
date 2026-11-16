@@ -108,7 +108,7 @@ function salesPerfPanel(all,owners,self,selected,m){
 /* Az „Elveszett” oszlop alapból becsukva (keskeny sáv); a nézőnként megjegyzett állapot csak kényelmi beállítás */
 function salesLostOpen(){try{return localStorage.getItem('lpm_lost_open')==='1';}catch(e){return false;}}
 function viewSales(){
-  const f=S.salesF,T=todayISO(),all=(S.deals||[]).slice(),admin=isAdmin();
+  const f=S.salesF,T=todayISO(),all=(S.deals||[]).filter(d=>!(d.projectId&&typeof isFree==='function'&&(q=>q&&isFree(q))(projById(d.projectId)))),admin=isAdmin();   // nem fizetős projekt nem értékesítés: nem jelenik meg a lehetőségek között
   const owners=salesOwners(all),self=salesSelfIds(all),selected=self.has(f.owner)&&S.me?S.me.id:f.owner;
   if(selected!==f.owner)f.owner=selected;  // régi szűrőérték átvezetése ugyanarra a személyre
   // Az értékesítési Kanban folyamatos: minden időpontból láthatók a lehetőségek.
