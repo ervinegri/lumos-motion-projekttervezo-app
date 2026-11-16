@@ -232,7 +232,7 @@ function vidLinksOf(p){const l=(p.videos||[]).filter(v=>/^https:\/\//i.test(v.li
   return l.map((v,i)=>`<a class="statuspill p-info pt-video" href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(v.name||'Videó')}">▶ ${l.length===1?'Leadott videó':esc(v.name&&l.filter(x=>x.name===v.name).length===1?v.name:(i+1)+'. videó')}${v.st==='jovahagyva'?' <span class="tl-ok pt-ok" title="Az ügyfél jóváhagyta">✓</span>':''}</a>`).join('');}
 /* Projektlista: a vágási táblán lévő videók tételesen, a stádiumukkal (a leadott/jóváhagyott, linkkel rendelkező videó kattintható) */
 const VST_TONE={vagasra:'mute',vagas:'warn',ellen:'info',leadva:'info',jovahagyva:'ok',modositas:'bad'};
-function vidStList(p){const l=p.videos||[];if(!l.length)return '';const lab=st=>((typeof VID_ST!=='undefined'?VID_ST:[]).find(x=>x[0]===st)||[,'Utómunkára vár'])[1];
+function vidStList(p){const l=p.videos||[];if(!l.length||p.status==='lemondva')return '';   // lemondott projektnél nincs videóállapotconst lab=st=>((typeof VID_ST!=='undefined'?VID_ST:[]).find(x=>x[0]===st)||[,'Utómunkára vár'])[1];
   const open=l.length<=3||!!(S._vidOpen&&S._vidOpen[p.id]),cnt={};l.forEach(v=>{const st=v.st||'vagasra';cnt[st]=(cnt[st]||0)+1;});
   /* Nincs redundancia: ha minden videó azonos stádiumban van, a stádium egyszer szerepel; ha azt a projekt állapotjelzése már kimondja (pl. „✅ Videó jóváhagyva”, „Jóváhagyásra vár”), egyszer sem */
   const sts=Object.keys(cnt),uni=sts.length===1?sts[0]:'',pre=['tervezes','helyszin'].includes(p.status||'tervezes'),implied=(pre&&uni==='vagasra')||uni==='jovahagyva'||(uni==='leadva'&&['leadva','jovahagyas'].includes(p.status||''));
