@@ -527,7 +527,13 @@ function rpcInner_(token, name, arg) {
     case 'payStatementPreview': adminOnly(); { const b = payStatementBuild_(u, arg); return { html: b.html, subject: b.subject, to: String(b.c.email || ''), from: (u.name || '') + ' · Lumos Motion <' + (u.email || MAIL_FROM) + '>' }; }
     case 'paySentHtml': return paySentHtml_(u, arg);
     case 'navSync': adminOnly(); { try { installNavTrigger_(); } catch (e) { } return navSync_(u, arg); }
-    case 'navInvoices': adminOnly(); return navInvoices_(u, arg);
+    case 'navInvoices': {   /* ügyvezető: bármelyik; szakember / értékesítő: csak a saját, a Kifizetésekhez párosított számlája (a tárolt adószámmal) */
+      if (u.role === 'admin' && !u.viewAs) return navInvoices_(u, arg);
+      const cid = String(u.crewId || ''); if (!cid) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
+      const want = String((arg && arg.nos) || '').split(/\s*,\s*/).filter(Boolean), own = readAll_('payStatus').filter(x => x.crewId === cid && x.invoiceNo);
+      const rec = own.find(x => { const have = String(x.invoiceNo).split(/\s*,\s*/); return want.length && want.every(n => have.indexOf(n) >= 0); });
+      if (!rec) throw new Error('FORBIDDEN: csak a saját számládat nyithatod meg.');
+      return navInvoices_(u, { nos: want.join(','), tax: rec.invoiceTax || '' }); }
     case 'navStatus': adminOnly(); { const c = navConfig_(); return { ok: c.ok, last: PropertiesService.getScriptProperties().getProperty('NAV_LAST_SYNC') || '' }; }
     case 'setPayStatus': adminOnly(); return setPayStatus_(u, arg);
     case 'sendPayStatements': adminOnly(); return sendPayStatements_(u, arg);
