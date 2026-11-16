@@ -165,7 +165,7 @@ function szInvoice_(u, a) {
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', ownMail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
-    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', str_(a.comment, 1000)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
+    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', szPayNote_(str_(a.comment, 1000), payMethod)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
@@ -1091,9 +1091,10 @@ function szInvoiceMail_(u, o) {
   const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
   const dd = String(o.due || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.');
   const lines = ['Tisztelt Partnerünk!', '', 'Csatoltan küldjük ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
-    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || ''), '', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.'];
+    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || '')].concat(/átutal/i.test(String(o.payMethod || '')) ? ['Közleményben kérjük feltüntetni: ' + o.no] : []).concat(['', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.']);
   const fillNo = t => String(t).replace(/a\(z\)\s*\[számlaszám\]/g, huArt_(o.no) + ' ' + o.no).split('[számlaszám]').join(o.no);   // a szerkesztett levélben a sorszám helye
-  const body = o.text ? fillNo(o.text) : lines.join('\n');
+  let body = o.text ? fillNo(o.text) : lines.join('\n');
+  if (/átutal/i.test(String(o.payMethod || '')) && body.indexOf(String(o.no)) >= 0 && !/közlemény/i.test(body)) body = body.replace(/(Fizetési mód:[^\n]*)/, '$1\nKözleményben kérjük feltüntetni: ' + o.no);   /* a korábban szerkesztett levélbe is bekerül */
   const sig = signatureFor_(u), text = body + (sig ? '\n\n' + sig.text : '');
   const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + body.split('\n').map(l => escapeHtml_(l)).join('<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const subj = o.subject ? fillNo(o.subject) : label + ' – ' + o.no + (pn ? ' – ' + pn : '') + ' – Lumos Motion';
@@ -1101,3 +1102,7 @@ function szInvoiceMail_(u, o) {
   if (!ok) throw new Error('Az e-mail-küldés szünetel – a levél nem ment ki.');
   return { ok: true, to: o.buyer.email };
 }
+
+/** Átutalásnál a számla/díjbekérő megjegyzésébe: a közleményben a teljes sorszámot kérjük (a banki párosításhoz). A sorszámot a számlázz.hu a kiállításkor adja, ezért itt általánosan. */
+function szPayNote_(c, pm) { c = String(c || '').trim(); if (!/átutal/i.test(String(pm || '')) || /közlemény/i.test(c)) return c;
+  const n = 'Átutaláskor kérjük, a közleményben a bizonylat teljes sorszámát tüntesse fel, az elején lévő betűkkel együtt.'; return c ? c + '\n' + n : n; }
