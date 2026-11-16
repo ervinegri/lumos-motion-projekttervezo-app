@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3050726b41",
+"at": "2026-11-16T14:46:31+02:00",
+"msg": "Naptár: a vágólista a projektszám szerint csökkenő sorrendben"
+},
+{
 "id": "18815a0571",
 "at": "2026-11-16T14:22:12+02:00",
 "msg": "Idővonal: vágónkénti csoportok, a zöld/sárga részek saját súgóval, vágólista projektszámmal, egynapos lezárt sávok zöldek, keskeny sávokban a név az óra alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: személyenként egy kártya, a pozíciók címkeként (× a levételhez); vágó + helyszíni pozíciónál dupla széles kártya"
 },
 {
-"id": "589e98eaf2",
-"at": "2026-11-16T12:53:09+02:00",
-"msg": "Videók: mentéskor a projektről levett vágó kikerül a videóiból; ügyfél-jóváhagyás és jegyzetek értesítése csak az aktuális vágónak"
-},
-{
-"id": "d590f01a3d",
-"at": "2026-11-16T10:49:21Z",
+"id": "834774ddf1",
+"at": "2026-11-16T10:53:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
