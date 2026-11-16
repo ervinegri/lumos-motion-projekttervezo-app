@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3a65af9fb5",
+"at": "2026-11-16T11:51:25+02:00",
+"msg": "A közös „Csapat véglegesítése” funkció kikapcsolva (pozíciónként, külön véglegesítünk)"
+},
+{
 "id": "65b9712e6c",
 "at": "2026-11-16T11:43:13+02:00",
 "msg": "Vercel: a szintaxis-ellenőrzés beágyazva fut (a tests/ mappa nincs a buildben, emiatt maradtak ki a telepítések)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bevételek: projekt nélküli tételeknél a munkadíj (Ft) és az értékesítési % ideiglenesen írható; az eszköz-rezsi igazodik"
 },
 {
-"id": "86e83c0e43",
-"at": "2026-11-15T17:38:00+02:00",
-"msg": "2026. szeptember bevételei: értékesítés 0, Lurdy ügyeletek termelése 30 / 60 ezer (egyszeri javítás)"
-},
-{
-"id": "d1aca31e29",
-"at": "2026-11-15T15:35:04Z",
+"id": "c3c39741e9",
+"at": "2026-11-15T15:38:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
