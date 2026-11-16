@@ -51,7 +51,7 @@ const extrasSum=p=>extrasPlus(p)-extrasMinus(p);
 const exBreak=p=>`szerződött ${ftFmt(num(p.projectValue))}${extrasPlus(p)?' + extra '+ftFmt(extrasPlus(p)):''}${extrasMinus(p)?' − kedvezmény '+ftFmt(extrasMinus(p)):''}`;
 const projTotal=p=>num(p&&p.projectValue)+extrasSum(p);
 const exTotTxt=p=>`Végső érték: <b>${ftFmt(projTotal(p))}</b> <span class="muted">(${exBreak(p)})</span>`;
-const extrasMenu=p=>ro()||projLocked()?'':`<select class="inp ex-menu" data-ex-menu data-cmb="＋ Hozzáadás…" data-cmb-cls="ex-menu" aria-label="Hozzáadás az extrákhoz"><option value="">＋ Hozzáadás…</option><option value="plus">＋ Extra szolgáltatás</option><option value="le">− Kedvezmény / jutalék</option><option value="tov">＋ Továbbszámlázott költség (utazás, szállás, eszközbérlés…)</option><option value="free">🎁 Nem fizetős projekt</option>${refOn(p)?'':'<option value="ref">🤝 Ajánlói jutalék szakembernek</option>'}${extrasRaw(p).some(x=>x&&x.kind==='org')?'':'<option value="org">🎪 Szervezői jutalék</option>'}</select>`;   // „＋ Hozzáadás…” menü (a büdzsé sorában)
+const extrasMenu=p=>ro()||projLocked()?'':isFree(p)?(refOn(p)?'':`<select class="inp ex-menu" data-ex-menu data-cmb="＋ Hozzáadás…" data-cmb-cls="ex-menu" aria-label="Hozzáadás az extrákhoz"><option value="">＋ Hozzáadás…</option><option value="ref">🤝 Ajánlói jutalék szakembernek</option></select>`):`<select class="inp ex-menu" data-ex-menu data-cmb="＋ Hozzáadás…" data-cmb-cls="ex-menu" aria-label="Hozzáadás az extrákhoz"><option value="">＋ Hozzáadás…</option><option value="plus">＋ Extra szolgáltatás</option><option value="le">− Kedvezmény / jutalék</option><option value="tov">＋ Továbbszámlázott költség (utazás, szállás, eszközbérlés…)</option><option value="free">🎁 Nem fizetős projekt</option>${refOn(p)?'':'<option value="ref">🤝 Ajánlói jutalék szakembernek</option>'}${extrasRaw(p).some(x=>x&&x.kind==='org')?'':'<option value="org">🎪 Szervezői jutalék</option>'}</select>`;   // „＋ Hozzáadás…” menü (a büdzsé sorában)
 /* Továbbszámlázott költség: a szervezői jutalékhoz hasonló mező a büdzsé sorában (a csatolmány az Új projekt ablakban tölthető fel) */
 function tovFields(p){if(!isAdmin())return '';const dis=ro()||projLocked(),raw=extrasRaw(p);
   return raw.map((x,i)=>{if(!x||x.kind!=='tov')return '';
@@ -81,7 +81,7 @@ function finPanelBody(p){
   const free=isFree(p),org=!free&&orgOf(p),tov=!free&&extrasRaw(p).some(x=>x&&x.kind==='tov'),two=!!(org||tov);   // két sor csak szervezői jutaléknál / továbbszámlázott költségnél
   const valF=free?`<div class="field fin-val fin-free"><label>Nettó szerződött érték</label><div class="free-card"><span class="free-ic">🎁</span><span class="free-t"><b>Nem fizetős projekt</b><small>0 Ft · nincs számlázás</small></span></div>${D()?'':'<button class="linkbtn free-undo" type="button" data-action="free-off">↩ Mégis fizetős</button>'}</div>`   // díjmentes projekt: tiszta jelölés üres beviteli mező helyett
     :`<div class="field fin-val${p.projectValue==null||p.projectValue===''?' missing req':''}"><label for="f-projectValue">Nettó szerződött érték</label><div class="money"><input class="inp money-inp" id="f-projectValue" type="text" data-money="big" data-fin="projectValue" inputmode="numeric" autocomplete="off" value="${esc(moneyFmt(p.projectValue))}" placeholder="pl. 969 000"><span class="money-unit">Ft</span></div></div>`;
-  const exm=free||ro()||projLocked()?'':`<div class="field fin-exm"><label title="A szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek">➕ Extrák és kedvezmények</label>${extrasMenu(p)}</div>`;
+  const exm=ro()||projLocked()||!extrasMenu(p)?'':`<div class="field fin-exm"><label title="A szerződött összegen felül / levonva, nettó; a végszámlára külön tételként kerülnek">➕ Extrák és kedvezmények</label>${extrasMenu(p)}</div>`;
   const sc=salesCommFields(p),salesG=sc?`<div class="fin-grp grp-sales"><div class="grp-h">💼 Ki értékesítette?</div><div class="grp-b">${sc}</div></div>`:'';
   const prodG=`<div class="fin-grp grp-prod"><div class="grp-h">🎬 Termelés</div><div class="grp-b"><div class="field fin-eff"><label for="f-budgetPct">Hatékonyság</label>
           <div class="money"><input class="inp money-inp" id="f-budgetPct" type="text" data-fin="budgetPct" inputmode="decimal" autocomplete="off" value="${esc(pctV)}" placeholder="pl. 40" aria-label="Keret a projekt értékének százalékában"><span class="money-unit">%</span></div></div>
@@ -89,7 +89,7 @@ function finPanelBody(p){
           <div class="money"><input class="inp money-inp" id="f-budgetFt" type="text" data-money="big" data-fin="budgetFt" inputmode="numeric" autocomplete="off" value="${esc(ftV)}" placeholder="pl. 400 000" aria-label="Keret forintban"><span class="money-unit">Ft</span></div></div></div></div>`;
   const valG=`<div class="fin-grp grp-val"><div class="grp-h">💰 Szerződés</div><div class="grp-b">${valF}</div></div>`;   // a nettó érték is kártyán, mint a Termelés és az Értékesítés
   const rows=two?`<div class="fin-r">${valG}${org?orgOption(p):''}${tov?tovFields(p):''}${exm}</div><div class="fin-r">${finNet(p)}${salesG}${prodG}</div>`:`<div class="fin-r">${valG}${salesG}${prodG}${exm}</div>`;
-  return `<div class="fin-sum"><div class="fin-inputs fin-v2${two?' two':''}">${rows}</div>${free?'':extrasHtml(p)}</div>`;
+  return `<div class="fin-sum"><div class="fin-inputs fin-v2${two?' two':''}">${rows}</div>${free?(refOn(p)?`<div class="extras" id="proj-extras">${refOption(p,true)}</div>`:''):extrasHtml(p)}</div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
 const FIN_COLS_DEF=[52,250,220,170,250,150];
@@ -170,7 +170,6 @@ function financePanel(p,inner){
     ${finPanelBody(p)}
     ${budgetRequestPanel(p)}
     ${tables}
-    ${refOption(p)}
     ${penPanel(p)}
   </div>`;
 }
@@ -258,7 +257,7 @@ function salesCommFields(p){
 }
 /* Ajánlói jutalék: projektopció (nem munkatársi szerep) */
 const refOn=p=>(p.fees||[]).some(f=>f.kind==='fixed'&&f.key==='ref')||!!(S.refOn||{})[p.id];
-function refOption(p,inEx){if(!isAdmin())return '';if(!inEx&&!isFree(p))return '';   // csak az ügyvezető látja: az Extrák és kedvezmények alatt (díjmentes projektnél lent)
+function refOption(p,inEx){if(!isAdmin()||!inEx)return '';   // csak az ügyvezető látja: az Extrák és kedvezmények alatt (díjmentes projektnél lent)
   const refs=(p.fees||[]).filter(f=>f.kind==='fixed'&&f.key==='ref'),on=refOn(p),dis=ro()||projLocked();
   if(inEx&&!on)return '';   // a „＋ Hozzáadás…” menüből kapcsolható be
   const opts=(S.crew||[]).filter(c=>!refs.some(f=>f.refCrewId===c.id)).sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
