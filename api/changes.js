@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dc4109eca9",
+"at": "2026-11-16T11:12:41+02:00",
+"msg": "Projektlista: 3-nál több videó összecsukva, stádium-összesítővel, lenyitható"
+},
+{
 "id": "19a465a9b1",
 "at": "2026-11-16T11:12:07+02:00",
 "msg": "Nem fizetős projekt: teljes Extrák menü; fizetős tétel választásakor újra fizetős lesz"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés: kifizetett díjbekérőnél annak hónapja számít a szerződött kártyákon (különben a szerződéskötés hónapja)"
 },
 {
-"id": "8330f76bb4",
-"at": "2026-11-15T15:25:35+02:00",
-"msg": "Értékesítés: a szerződött projekt és jutalék a szerződéskötés hónapjához számít"
-},
-{
-"id": "34bc0aa55f",
-"at": "2026-11-15T13:19:41Z",
+"id": "b3dea2e9f5",
+"at": "2026-11-15T13:25:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
