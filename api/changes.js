@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "72775bec02",
+"at": "2026-11-16T12:09:07+02:00",
+"msg": "Lemondás-levél: semleges megfogalmazás"
+},
+{
 "id": "b3a4e07a01",
 "at": "2026-11-16T12:08:47+02:00",
 "msg": "Lemondás: semleges „Mi a lemondás oka?” (lehet az ügyfél is); a levélben „rögzítette”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vercel: nincs build, ha csak háttér / teszt / Action / leírás változott (buildperc-spórolás)"
 },
 {
-"id": "92cdde17b1",
-"at": "2026-11-15T19:13:02+02:00",
-"msg": "Pozíció-címkék finom pasztell színe szerepcsoportonként"
-},
-{
-"id": "e3e1cb63ff",
-"at": "2026-11-15T17:10:42Z",
+"id": "1e365db915",
+"at": "2026-11-15T17:13:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
