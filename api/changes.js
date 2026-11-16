@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "380db208ca",
+"at": "2026-11-16T11:21:53+02:00",
+"msg": "Projektlista: „N napja jóváhagyásra vár” egy sárga címkében, a külön állapotcímke nélkül"
+},
+{
 "id": "d8351a3968",
 "at": "2026-11-16T11:21:00+02:00",
 "msg": "Projektlista: a videók teljes neve látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlázás: bizonylat nélküli kintlévőség elöl; a szűrő-törlés link helyett a kijelölt csempe újrakattintása törli (kiemelve)"
 },
 {
-"id": "66527c1763",
-"at": "2026-11-15T15:45:49+02:00",
-"msg": "Bevételek tábla: Továbbszámlázott és Szervezői jutalék a Díjazás után, csak ha a hónapban van ilyen tétel"
-},
-{
-"id": "43649307f4",
-"at": "2026-11-15T13:43:49Z",
+"id": "822c2ff14c",
+"at": "2026-11-15T13:45:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
