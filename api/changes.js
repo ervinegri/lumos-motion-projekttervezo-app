@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c5134d6807",
+"at": "2026-11-16T21:44:55+02:00",
+"msg": "Kanban: a nyersanyagra váró (szürke) kártyák nem jelölhetők ki, a Mind kijelölése gomb sem jelenik meg hozzájuk"
+},
+{
 "id": "b528d94770",
 "at": "2026-11-16T21:44:28+02:00",
 "msg": "Szakember kifizetései: a még el nem fogadott meghívás díja ⏳-val látszik, az összegbe nem számít; a meghívás-válasz gombok rendezett, egysoros sávban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Közös eszközök megszüntetve (a gazdátlan eszközök figyelmeztetésként látszanak); előadás-utómunkánál kamera- és eszközhiány jelzése"
 },
 {
-"id": "e92dd4984f",
-"at": "2026-11-16T18:02:44+02:00",
-"msg": "Helyszínváltás-figyelmeztetés csak annak, aki az adott projekten a helyszínen van (remote vezető, otthonról vágó nem)"
-},
-{
-"id": "818ec2ec90",
-"at": "2026-11-16T16:01:10Z",
+"id": "220acc9f3b",
+"at": "2026-11-16T16:02:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
