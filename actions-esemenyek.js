@@ -153,13 +153,13 @@ const ACT={
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
   discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
-    {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}}   // csak előre
+    {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci&&!(b.dataset.v==='tervezes'&&!editOnly(d)&&validISO(d.date)&&d.date>todayISO())){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}   /* kivétel: ha a forgatás még előttünk van, vissza lehet állni Tervezésre */}   // csak előre
     const v=b.dataset.v,go=()=>{
       if((v==='leadva'||(v==='jovahagyas'&&!S.draft.deliveryLink))&&needsDelivery(S.draft)){deliveryModal('leadva');return;}   // a „Videók leadva” lépés megszűnt: a jóváhagyásra várás előtt kérjük a linket   // videók leadása: az Átadás ablak, utána „jóváhagyásra vár”
       if(v==='atadva'&&needsDelivery(S.draft)&&!(videoStagesOn()&&S.draft.deliveryLink)){deliveryModal();return;}   // ha a leadáskor még nem rögzítették, itt kérjük a linket
       if(v==='atadva'&&S.draft.t_kepkeveres&&!needsDelivery(S.draft)&&!/^https:\/\//i.test(S.draft.deliveryLink||'')){streamLinkModal(go);return;}   // streamnél is kell a videó linkje a lezáráshoz
       if(S.draft.status===v)return;
-      setDraft({status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
+      setDraft({...(v==='tervezes'?{siteOk:'',siteReport:''}:{}),status:v,deliveredAt:v==='atadva'?(S.draft.deliveredAt||todayISO()):'',leadvaAt:['leadva','jovahagyas','atadva'].includes(v)?(S.draft.leadvaAt||(v==='atadva'?'':todayISO())):'',stepsDone:ticksUpTo(S.draft,v)});
       if(v==='atadva'){confetti();setTimeout(()=>{if(S.dirty)saveDraft();},0);}};   // „Kész”: ünneplés és azonnali mentés   // lezáráskor ünneplünk (mentés a Mentés gombbal)
     if([...POST_STAGES,'atadva'].includes(v)&&siteFuture(d)){toast(siteFutureMsg(d),true);return;}
     if(['helyszin',...POST_STAGES,'atadva'].includes(v)&&!d.lead){toast('Előbb jelöld ki a projektvezetőt – minden projekthez kötelező.',true);const e=$('add-crew-role');if(e){FOLD.crew=true;const dd=e.closest('details');if(dd)dd.open=true;e.value='Projektvezető';e.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{const e2=$('add-crew-role');if(e2){e2.scrollIntoView({block:'center',behavior:'smooth'});const pp=$('add-crew-person');if(pp)setTimeout(()=>pp.focus(),300);}},50);}return;}
