@@ -101,6 +101,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
   if(v==='ref'){(S.refOn=S.refOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('ref-add');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   if(v==='sales'){(S.salesOn=S.salesOn||{})[S.draft.id]=true;render(true);setTimeout(()=>{const s=$('sales-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   if(v==='free'){setDraft({projectValue:0});toast('🎁 Nem fizetős projekt');return;}
+  if(isFree(S.draft)&&['plus','le','tov','org'].includes(v)){setDraft({projectValue:null});toast('A projekt újra fizetős – add meg a nettó szerződött értéket.');}   // fizetős tétel a nem fizetős projekten: visszaáll fizetősre
   if(v==='org'){if(ACT['org-add'])ACT['org-add']();setTimeout(()=>{const s=$('org-sel');const i=s&&s.parentNode.querySelector('.cmb-in');if(i)i.focus();},80);return;}
   ACT['extra-add']({dataset:v==='le'?{le:'1'}:v==='tov'?{tov:'1'}:{}});});
 /* A fejléc magassága (a ragadós projektcímhez), és árnyék, amikor a cím fent ragad */
