@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68eb71e3e5",
+"at": "2026-11-16T20:32:47+02:00",
+"msg": "Jutalék mentési jelzés: csak ikon (tooltippel), nem lóg rá az Összeg feliratra"
+},
+{
 "id": "ef4be887a7",
 "at": "2026-11-16T20:31:58+02:00",
 "msg": "Jutalék mező: látható mentési állapot (mentetlen / mentés… / mentve)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: ha a (közös) foglaló a projekt teljes összegét fedezi, „Teljes fizetve”"
 },
 {
-"id": "6884b17bf5",
-"at": "2026-11-16T16:24:50+02:00",
-"msg": "Bevétel és kiadás: a Kintlévőségre húzva a kintlévő tételek listája"
-},
-{
-"id": "f0ed7da583",
-"at": "2026-11-16T14:23:49Z",
+"id": "6e90bf3c58",
+"at": "2026-11-16T14:25:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
