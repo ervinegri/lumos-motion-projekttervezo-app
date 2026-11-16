@@ -1,5 +1,5 @@
 {
-  "ignoreCommand": "git log -1 --pretty=%s | grep -q '^Változásnapló frissítése' && exit 0 || exit 1",
+  "ignoreCommand": "bash scripts/vercel-ignore.sh",
   "headers": [
     {
       "source": "/(.*)",
