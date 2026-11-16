@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bf0343d530",
+"at": "2026-11-16T11:16:45+02:00",
+"msg": "Javítás: fölösleges zárójel a projektlistában (az app nem töltött be)"
+},
+{
 "id": "601f6e0947",
 "at": "2026-11-16T11:14:51+02:00",
 "msg": "Projektlista: állapotcímkék egy sorban; tételes videólista mellett nincs közös „Leadott videó” gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: a hónap sötét gombként (mint a Pénzügyeknél), rákattintva a mai hónapra ugrik"
 },
 {
-"id": "d455944fec",
-"at": "2026-11-15T15:35:40+02:00",
-"msg": "Javítás: a számla-visszavonás kezelője az ACT létrehozása után töltődik (különben a díjcsökkentés-modul vége nem futott); Elveszett oszlop becsukható; lehetőség ablak: Cég ↔ Másodlagos e-mail csere, Rendezvény típusa + Honnan jött egy sorban"
-},
-{
-"id": "9139342361",
-"at": "2026-11-15T13:33:28Z",
+"id": "80bc18bace",
+"at": "2026-11-15T13:35:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
