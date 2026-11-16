@@ -247,7 +247,7 @@ function vidLink(p,cls,label,extra){if(!/^https:\/\//i.test(p.deliveryLink||''))
   return p.deliveryPass?`<span class="pass-wrap">${a}<span class="pass-pop" role="tooltip">🔑 Jelszó: <code>${esc(p.deliveryPass)}</code><button type="button" class="pass-copy" data-action="copy-pass" data-pass="${esc(p.deliveryPass)}">Másolás</button></span></span>`:a;}
 function extraLinks(p,cls){const l=(Array.isArray(p.deliveryLinks)?p.deliveryLinks:[]).filter(x=>/^https:\/\//i.test(x));
   return l.map((u,i)=>`<a class="${cls}" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">${i+2}. link ↗</a>`).join('');}
-const DONE_CHECK=' <span class="done-check" title="Lezárva" aria-label="Lezárva">✓</span>';
+const DONE_CHECK=' <span class="done-check done-lock" data-tip="Lezárt projekt – csak Felnyitással módosítható" aria-label="Lezárva">🔒</span>';   // lezárt (Kész) projekt: lakat
 /* Figyelmeztetés a listában: a projekt csapata még nincs véglegesítve (vagy véglegesítés óta módosult) */
 function crewFinalWarn(p){if(ro()||!crewFinalOn()||p.status==='atadva'||p.status==='lemondva')return '';const r=pr(p);if(r&&r.end<todayISO())return '';
   const st=crewFinalState(p);if(st==='ok')return '';
