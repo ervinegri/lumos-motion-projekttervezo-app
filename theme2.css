@@ -2556,3 +2556,7 @@ html body .qs-pdf{touch-action:pan-x pan-y}html body .qs-pdf .qs-pages{transitio
 html body .qs-box .qs-pdf{padding:0!important;border:0!important;background:none!important;margin:0 -14px;width:calc(100% + 28px);border-radius:0}
 html body .qs-pdf .qs-page{margin:0 0 8px!important;box-shadow:0 1px 4px rgba(15,23,42,.15);border-radius:0}
 }
+/* ajánlat-néző: a lap a néző szélességét kitölti, körben kis szegéllyel */
+html body .qs-box .qs-pdf{padding:16px!important;background:#eef1f4!important;border:0!important}
+@media (max-width:700px){html body .qs-box .qs-pdf{padding:8px!important;margin:0 -14px;width:calc(100% + 28px)}}
+html body .qs-pdf .qs-page{margin:0 auto 12px!important;box-shadow:0 2px 8px rgba(15,23,42,.18)!important}

@@ -212,7 +212,7 @@ ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);
   const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));delete r.b64;S._qSent=r;
   const ft=n=>String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');   /* az ajánlat maga, ablakban (PDF-nézőben) */
   openModal('📨 '+(d.title||'Kiküldött ajánlat'),`<p class="hint" style="margin:0 0 8px">Kiküldve: ${esc(String(r.at||'').slice(0,16))}${r.by?' · küldte: '+esc(r.by):''} · <b>címzett: ${esc(r.to||'?')}</b>${Number(r.total)?' · '+ft(r.total)+' Ft + ÁFA (nettó)':''}${/@lumosmotion\.(com|hu)/i.test(r.to||'')?' <span class="bad-txt">· belső címre ment (teszt?)</span>':''}</p><div class="qs-pdf" id="qs-pdf"><p class="hint" style="margin:20px">Betöltés…</p></div>`,
-    {cancelLabel:'Bezárás',noDraft:true,left:`<span class="qs-zoom" data-url="${url}" data-z="0"><button type="button" class="btn outline small" data-action="qs-zoom" data-d="-1" title="Kicsinyítés">−</button><button type="button" class="btn outline small qs-zl" data-action="qs-zoom" data-d="0" title="Teljes oldal">Teljes oldal</button><button type="button" class="btn outline small" data-action="qs-zoom" data-d="1" title="Nagyítás">＋</button></span><a class="btn ghost" href="${url}" download="${esc((d.title||'Arajanlat').replace(/[\\/:*?"<>|]+/g,'-'))}.pdf">⬇ Letöltés</a><a class="btn ghost qs-newtab" href="${url}" target="_blank" rel="noopener">↗ Új lapon</a>${r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:''}`});
+    {cancelLabel:'Bezárás',noDraft:true,left:`<a class="btn ghost" href="${url}" download="${esc((d.title||'Arajanlat').replace(/[\\/:*?"<>|]+/g,'-'))}.pdf">⬇ Letöltés</a><a class="btn ghost qs-newtab" href="${url}" target="_blank" rel="noopener">↗ Új lapon</a>${r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:''}`});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','qs-box');QS_DOC={u8,z:0};qsRender();};
 ACT['q-sent-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id),r=S._qSent;closeModal();if(!d||!r||!r.q)return;const q=r.q;q.dealId=d.id;q.no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();S.q=q;qSig(d.id);qEdit();toast('Új verzió az elküldött ajánlatból – módosítsd, majd küldd ki');};
 
@@ -221,8 +221,8 @@ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.cl
 /* kiküldött ajánlat nézője: a PDF oldalait maga az app rajzolja ki (pdf.js) – telefonon is működik; nagyítás / kicsinyítés / teljes szélesség */
 let QS_DOC=null;const QS_Z=[50,75,100,125,150,200];
 async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{const lib=await pdfLib();QS_DOC.doc=QS_DOC.doc||await lib.getDocument({data:QS_DOC.u8.slice(),isEvalSupported:false}).promise;const doc=QS_DOC.doc;
-    const mob=box.clientWidth<700,pad=mob?0:24,W=Math.max(200,box.clientWidth-pad),H=Math.max(200,box.clientHeight-pad),dpr=Math.min(2,window.devicePixelRatio||1),frag=document.createDocumentFragment();
-    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=mob?fitW:Math.min(fitW,H/v1.height),sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=Math.round(fit/fitW*100)),vp=pg.getViewport({scale:sc*dpr});
+    const mob=box.clientWidth<700,pad=mob?16:32,W=Math.max(200,box.clientWidth-pad),H=Math.max(200,box.clientHeight-pad),dpr=Math.min(2,window.devicePixelRatio||1),frag=document.createDocumentFragment();
+    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=fitW,sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=Math.round(fit/fitW*100)),vp=pg.getViewport({scale:sc*dpr});
       const c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width=Math.floor(vp.width/dpr)+'px';c.style.height=Math.floor(vp.height/dpr)+'px';c.className='qs-page';
       await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;frag.appendChild(c);}
     if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
@@ -234,9 +234,9 @@ ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom');if(!w||!QS_DOC)return;let z=QS_
 /* zoomolás magában a nézőben: csippentés közben csak a kép nagyítódik (nem ugrál), elengedéskor élesen újrarajzolódik;
    legkisebb méret: telefonon a teljes szélesség, asztalon a teljes oldal */
 let QS_RT=0;
-const qsMin=()=>{const box=$('qs-pdf');return box&&box.clientWidth<700?100:(QS_DOC&&QS_DOC.zFit)||100;};
+const qsMin=()=>100;
 function qsZoomTo(z,live){if(!QS_DOC)return;z=Math.max(qsMin(),Math.min(300,Math.round(z)));const cur=QS_DOC.zEff||100,wr=document.querySelector('#qs-pdf .qs-pages');QS_DOC.z=z;
-  if(wr){wr.style.transformOrigin=(QS_DOC._ox!=null?QS_DOC._ox+'px '+QS_DOC._oy+'px':'top center');wr.style.transform='scale('+(z/cur)+')';}const l=document.querySelector('.qs-zoom .qs-zl');if(l)l.textContent=z<=qsMin()?'Teljes oldal':z+'%';
+  if(wr){wr.style.transformOrigin=(QS_DOC._ox!=null?QS_DOC._ox+'px '+QS_DOC._oy+'px':'top center');wr.style.transform='scale('+(z/cur)+')';}
   clearTimeout(QS_RT);if(!live)QS_RT=setTimeout(qsCommit,180);}
 function qsCommit(){clearTimeout(QS_RT);QS_DOC._ox=null;qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';});}
 document.addEventListener('wheel',e=>{const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box||!e.ctrlKey||!QS_DOC)return;e.preventDefault();
