@@ -2466,3 +2466,8 @@ html body #tabs,html body #tabs *{cursor:default!important}
 html body #bellBtn,html body #bellBtn *,html body #userChip,html body #userChip *{cursor:default!important}
 /* idővonal: a név a teljes (forgatás + vágás) sáv végéig érhet – a címke nem vágódik le a sáv előtt */
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm{max-width:var(--nmw,100%)!important}
+@media (min-width:1101px){
+html body .cal-toolbar .cal-mnav{flex:0 0 auto!important;flex-wrap:nowrap!important;width:auto!important}
+html body .cal-toolbar .cm-cur{min-width:170px}
+html body .cal-toolbar .cm-side{min-width:0;padding:0 12px!important}
+}
