@@ -1,0 +1,10 @@
+{"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
+"items":[
+{"id":"2026-11-17-dark","at":"2026-11-17","msg":"🌙 Sötét mód: a jobb felső névjelvény menüjében kapcsolható (ki / be / a telefon beállítása szerint)."},
+{"id":"2026-11-17-mobil","at":"2026-11-17","msg":"📱 Telefonon és tableten: a naptár idővonalán lefelé görgetve a menü eltűnik, így több fér ki; tableten a menü egy sorba került, a táblázatok a képernyő széléig érnek."},
+{"id":"2026-11-17-tl","at":"2026-11-17","msg":"🗓️ Idővonal: minden sávon látszik a projekt neve (oldalra görgetve is), a jóváhagyásra váró videókat homokóra jelzi."},
+{"id":"2026-11-17-utomunka","at":"2026-11-17","msg":"✂️ Utómunka-tábla: az első oszlopok között a kirendelt vágó mozgatja a videókat; az instrukciók szerkesztője tömörebb."},
+{"id":"2026-11-17-alap","at":"2026-11-17","msg":"📋 Projekt alapadatai: tömörebb elrendezés; több napos rendezvénynél a napok egyenként, saját kezdéssel és végzéssel adhatók meg."},
+{"id":"2026-11-16-meghivo","at":"2026-11-16","msg":"✉️ Meghívók: a stábkártya kerete mutatja az állapotot (zöld elfogadva, sárga függőben, piros elutasítva); a határidőig meg nem válaszolt meghívás elutasításnak számít; új pozícióra külön meghívó jön."},
+{"id":"2026-11-16-stabinstr","at":"2026-11-16","msg":"📝 Stáb-instrukciók: közös jegyzet a helyszíni stábnak, e-mail-értesítéssel és hozzászólással; több helyszínnél helyszínenként külön utómunka-feladat."}
+]}

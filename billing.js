@@ -673,13 +673,20 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){
 
 /* „Az app frissült” értesítés: új verzió első betöltésekor megmutatjuk, mi változott – csak az ügyvezetőnek (a változásnapló nem nyilvános) */
 (function(){const K='lpm_seen_ver';
-  async function run(){try{if(!S.me){setTimeout(run,1500);return;}if(!(S.me.role==='admin'||S.me.realRole==='admin'))return;const items=(((await call('changesList'))||{}).items)||[];if(!items.length)return;
+  async function run(){try{if(!S.me){setTimeout(run,1500);return;}if(!(S.me.role==='admin'||S.me.realRole==='admin')){news();return;}const items=(((await call('changesList'))||{}).items)||[];if(!items.length)return;
     let seen=null;try{seen=localStorage.getItem(K);localStorage.setItem(K,items[0].id);}catch(e){return;}
     if(!seen||seen===items[0].id)return;   // első látogatás vagy nincs újdonság
     const i=items.findIndex(x=>x.id===seen),news=(i<0?items.slice(0,6):items.slice(0,i)).slice(0,10),staff=true;
     const d=document.createElement('div');d.className='upd-done';d.setAttribute('role','status');
     d.innerHTML=`<div class="ud-h"><b>✅ Az app frissült</b><button type="button" class="x" aria-label="Bezárás">✕</button></div>`+(staff&&news.length?`<ul>${news.map(x=>`<li>${esc(x.msg)}</li>`).join('')}</ul>`:'<p>Az új változat már be van töltve.</p>');
     d.querySelector('.x').onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{if(d.isConnected&&!d.matches(':hover')){d.classList.add('ud-fade');setTimeout(()=>d.remove(),900);}},40000);}catch(e){}}
+  /* a többi felhasználónak (szakember, termelési vezető, értékesítő): a hirek.json válogatott újdonságai – pénzügyi és értékesítési tételek nélkül */
+  async function news(){try{const r=await fetch('hirek.json',{cache:'no-store'});if(!r.ok)return;const items=((await r.json())||{}).items||[];if(!items.length)return;
+    const KN='lpm_seen_news',lim=new Date(Date.now()-21*864e5).toISOString().slice(0,10);let seen=[];try{seen=JSON.parse(localStorage.getItem(KN)||'[]');}catch(e){}
+    const fresh=items.filter(x=>x&&x.id&&!seen.includes(x.id)&&String(x.at||'')>=lim).slice(0,8);try{localStorage.setItem(KN,JSON.stringify(items.map(x=>x.id)));}catch(e){return;}if(!fresh.length)return;
+    const d=document.createElement('div');d.className='upd-done';d.setAttribute('role','status');
+    d.innerHTML=`<div class="ud-h"><b>✨ Újdonságok az appban</b><button type="button" class="x" aria-label="Bezárás">✕</button></div><ul>${fresh.map(x=>`<li>${esc(x.msg)}</li>`).join('')}</ul>`;
+    d.querySelector('.x').onclick=()=>d.remove();document.body.appendChild(d);}catch(e){}}
   setTimeout(run,1500);})();
 
 /* Sablonból létrehozott projekt: ami a sablonnál nem volt (szerződés, díjbekérő, TIG), az újnál sem kérjük */

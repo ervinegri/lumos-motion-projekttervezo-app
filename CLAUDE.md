@@ -6,6 +6,7 @@
 - **Nincs redundancia a felületen:** ugyanaz az információ (pl. állapot, „jóváhagyva”) egy helyen csak egyszer jelenjen meg; ha egy összesítő jelzés már kimondja, a tételes címkék maradjanak el.
 - **A beírt szöveg nem veszhet el:** minden `<textarea>` tartalmát az `actions-ablakok.js` szövegmegőrzője (`txtKey`/`txtRestore`) automatikusan menti és visszatölti; küldés után törlődik. Új szövegdoboznál ne kerüld meg (csak indokolt esetben `data-no-keep`); a küldőgomb felirata/akciója tartalmazza a küldés/hozzáadás/mentés szót.
 - Minden díj nettó – a felületen ezt jelezni kell („nettó”).
+- **Újdonságok a többi felhasználónak:** nagyobb (nem pénzügyi, nem értékesítési) fejlesztésnél egy rövid, közérthető sort is a `hirek.json` lista elejére (egyedi `id`, `at` dátum). Ezt a szakemberek, a termelési vezető és az értékesítők a következő belépéskor „✨ Újdonságok az appban” dobozban látják; az ügyvezető a teljes változásnaplót kapja. Pénzhez (díjak, számlák, fizetések, jutalék) és értékesítéshez kötődő tétel nem kerülhet bele.
 - Push előtt mindig `git pull --rebase` (a felhasználó párhuzamosan is fejleszt; a GitHub Action változásnaplót commitol).
 - Teszt: `node tests/run-all.cjs` (minden pushkor GitHub Action is futtatja; az ártitok-teszt nélkül a háttér nem települ).
 - **`TABLES` oszlopfejlécei** (`apps-script/src/00_alap.gs`) (pl. `['x_nyersVetel', 'Nyersanyag megvásárlása']`) a munkalap/Neon fejlécével egyeznek, és a háttér ellenőrzi őket: **soha ne nevezd át** (a felületi feliratot a frontendben változtasd), új oszlop csak a lista végére kerülhet.
