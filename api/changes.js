@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e838aef76a",
+"at": "2026-11-17T23:35:00+02:00",
+"msg": "Sötét mód: a sötétzöld kiemelőszín (aktív hónap, gombok) sötét marad, szövegként világoszöld"
+},
+{
 "id": "402d26dccd",
 "at": "2026-11-17T23:19:53+02:00",
 "msg": "Átnézés: 5 sehol nem hívott háttérfüggvény törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt Pénzügyek: a Levonások után kártya új sorban"
 },
 {
-"id": "19a359f91d",
-"at": "2026-11-17T17:06:51+02:00",
-"msg": "Tablet: Szerződés és számlázás, Bevétel és kiadás fejléce is egy sorban"
-},
-{
-"id": "0902b57b32",
-"at": "2026-11-17T15:05:19Z",
+"id": "8bd2449a08",
+"at": "2026-11-17T15:07:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
