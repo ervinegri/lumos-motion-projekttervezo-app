@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6eb67d47b5",
+"at": "2026-11-17T23:47:24+02:00",
+"msg": "Banki tételek: a közleményben hivatkozott, már kifizetett számlák tételei nem várnak párosításra; nyitott app-számlára javaslat; a lista első 6 tétele, a többi lenyitható"
+},
+{
 "id": "66e0f586c8",
 "at": "2026-11-17T23:42:20+02:00",
 "msg": "Állapot: táblaméretek lekérhetők (a Neon-forgalom elemzéséhez, adat nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: sötét háttér és menüsáv javítása"
 },
 {
-"id": "74fbada4fe",
-"at": "2026-11-17T22:38:43+02:00",
-"msg": "Sötét mód: egy szín csak egyszer alakul át"
-},
-{
-"id": "3e383457bc",
-"at": "2026-11-17T20:36:58Z",
+"id": "f82f363583",
+"at": "2026-11-17T20:38:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
