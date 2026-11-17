@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0c1caf1171",
+"at": "2026-11-17T14:27:55+02:00",
+"msg": "Ajánlat-néző: a lap saját margóival, külső keret nélkül tölti ki a nézőt"
+},
+{
 "id": "2cbea27ba7",
 "at": "2026-11-17T14:27:14+02:00",
 "msg": "Lehetőség ablaka: 📇 névjegy QR-kóddal a telefonszám mellett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: kattintásra ablakban maga a PDF; reggeli e-mail a lehetőségek mai / lejárt teendőiről"
 },
 {
-"id": "9cc4f220f3",
-"at": "2026-11-17T12:42:08+02:00",
-"msg": "Kiküldött ajánlat a kártyán a régebben küldötteknél is (a PDF visszakeresése a levelek közül)"
-},
-{
-"id": "04dc496879",
-"at": "2026-11-17T10:41:00Z",
+"id": "8233271bde",
+"at": "2026-11-17T10:42:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
