@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c507ae2409",
+"at": "2026-11-17T16:41:21+02:00",
+"msg": "Fizetések tábla: oszlopszélesség-számítás hibájának javítása (névütközés miatt leállt)"
+},
+{
 "id": "b60ade295d",
 "at": "2026-11-17T16:40:33+02:00",
 "msg": "Értékesítés: a hónapváltó és a fő gombok egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon, Fizetések: nincs üres sáv a tábla alatt"
 },
 {
-"id": "ec209a9ac9",
-"at": "2026-11-17T15:32:56+02:00",
-"msg": "Táblázatok: nincs lefelé húzás / rugózás"
-},
-{
-"id": "14b35e27a2",
-"at": "2026-11-17T13:28:11Z",
+"id": "7a7f43f3b1",
+"at": "2026-11-17T13:33:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
