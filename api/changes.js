@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c699288551",
+"at": "2026-11-17T15:09:56+02:00",
+"msg": "Betöltés-jelző szélesebb, a projektnév nem törik"
+},
+{
 "id": "54227435dd",
 "at": "2026-11-17T15:09:14+02:00",
 "msg": "Ajánlat-néző: teljes képernyő gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: zoomgombok nélkül, nagyobb lap kis szegéllyel (csippentéssel továbbra is zoomolható)"
 },
 {
-"id": "81627cd8be",
-"at": "2026-11-17T14:20:22+02:00",
-"msg": "Kiküldött ajánlat: küldő és címzett egyértelműen, belső címre küldött ajánlat jelölése"
-},
-{
-"id": "1ad46eed3b",
-"at": "2026-11-17T12:19:51Z",
+"id": "99e056c8f7",
+"at": "2026-11-17T12:20:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
