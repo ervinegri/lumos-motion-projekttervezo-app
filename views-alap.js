@@ -586,3 +586,4 @@ function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIE
   /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
   const pw=matchMedia('(max-width:700px)').matches?134:307,sw=t.querySelector('col.pay-c-sum')?112:0;   /* a CSS-ben megadott szélességek (pay-c-proj / pay-c-sum) */
   t.style.setProperty('width',(pw+sw+n*parseInt(w,10))+'px','important');});}
+window.addEventListener('resize',()=>{try{payFit();}catch(e){}});   /* forgatáskor újraszámol */
