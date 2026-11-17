@@ -154,14 +154,17 @@ function api_(raw) {
     const body = JSON.parse(raw || '{}');
     const fn = String(body.fn || ''), args = Array.isArray(body.args) ? body.args : [];
     let data;
-    if (fn === 'rpc') data = rpc(args[0], args[1], args[2]);
-    else if (fn === 'googleLogin') data = googleLogin(args[0]);
-    else if (fn === 'clientInfo') data = clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
-    else if (fn === 'clientDecide') data = clientDecide_(args[0], args[1], args[2], args[3]);
-    else if (fn === 'arkPrices') data = arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
+    const run = () => {
+    if (fn === 'rpc') return rpc(args[0], args[1], args[2]);
+    else if (fn === 'googleLogin') return googleLogin(args[0]);
+    else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
+    else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
+    };
+    try { data = run(); if (DB_) dbFlush_(); }
+    catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFallback_(e1); data = run(); }   /* a Neon nem érhető el: automatikusan vissza a Google-táblázatra, és a kérés onnan fut le */
     out = { ok: true, data: data === undefined ? null : data };
-    if (DB_) dbFlush_();
   } catch (err) {
     try { if (DB_) { Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; }); dbFlush_(); } } catch (e2) { }   // hibánál a félkész módosításokat eldobjuk, csak a napló megy
     out = { ok: false, error: String((err && err.message) || err) };
@@ -192,6 +195,7 @@ function neonSql_(list, url) {
   const single = list.length === 1;
   const payload = JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) });
   let res;
+  try {
   if (url) {   // közvetlen kapcsolat (ha a NEON_URL szkripttulajdonság be van állítva)
     const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(String(url));
     if (!m) throw new Error('A NEON_URL nem érvényes Postgres-cím.');
@@ -200,6 +204,7 @@ function neonSql_(list, url) {
   } else {
     res = UrlFetchApp.fetch(DB_PROXY_URL, { method: 'post', contentType: 'application/json', muteHttpExceptions: true, payload: payload, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
   }
+  } catch (e) { if (/NEON_URL nem érvényes/.test(String(e && e.message))) throw e; throw new Error('Adatbázis-hiba (hálózat): ' + String(e && e.message || e).slice(0, 200)); }
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
@@ -281,12 +286,23 @@ function dbFlush_() {
 function dbLog_(row) { (DB_.pendingLog = DB_.pendingLog || []).push(row.map(x => String(x == null ? '' : x))); }   // a napló a következő mentéssel együtt megy (a kérés végén mindenképp kiírjuk)
 function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, action, subject, details FROM lpm_log ORDER BY id DESC LIMIT 600' }])[0]; return (r.rows || []).map(x => ({ at: x[0], who: x[1], role: x[2], action: x[3], subject: x[4], details: x[5] })); }
 
+/** Leállt-e a Neon: hálózati hiba, szerverhiba (5xx), vagy a keret / felfüggesztés miatti elutasítás. A lekérdezési (SQL) hibák nem számítanak. */
+function neonDown_(e) { const m = String(e && e.message || e); if (!/^Adatbázis-hiba/.test(m)) return false;
+  return /\(hálózat\)|\((5\d\d|402|429)\)/.test(m) || /quota|exceeded|suspend|disabled|limit|unavailable|timed? ?out|ECONN|ENOTFOUND/i.test(m); }
+/** Automatikus visszaesés: a mód „sheet” lesz (az utolsó mentett táblázat-állapottal), az ügyvezetők e-mailt kapnak; a Beállításokban is látszik. */
+function neonFallback_(e) {
+  const P = PropertiesService.getScriptProperties(), msg = String(e && e.message || e).slice(0, 300);
+  P.setProperty(DB_MODE_PROPERTY, 'sheet'); P.setProperty('DB_FALLBACK', JSON.stringify({ at: now_(), err: msg, backup: P.getProperty('DB_LAST_BACKUP') || '' }));
+  DB_ = null; SS_CACHE_ = null; try { scBump_(); } catch (x) {} try { dataBump_(); } catch (x) {}
+  try { const to = loadUsers_().filter(x => x && x.role === 'admin' && !x.disabled && x.email).map(x => x.email).join(',');
+    if (to) MailApp.sendEmail(to, '⚠️ Projekttervező: a Neon leállt – az app visszaváltott a táblázatra', 'A Neon adatbázis nem érhető el (' + msg + '), ezért az app automatikusan a Google-táblázatra váltott, és onnan működik tovább.\n\nA táblázat az utolsó mentés állapotát tartalmazza (' + (P.getProperty('DB_LAST_BACKUP') || 'ismeretlen időpont') + '). Az azóta a Neonba írt változások a Neonban vannak – amikor újra elérhető, a Beállítások → Neon adatbázis kártyán lehet dönteni róluk.'); } catch (x) { Logger.log('Visszaesés-értesítő: ' + x); }
+}
 /** Kapcsolat-teszt (ügyvezető): elérhető-e az adatbázis, és mennyi idő egy lekérdezés. */
 function dbPing_() {
-  const url = neonUrl_();
+  const url = neonUrl_(), P0 = PropertiesService.getScriptProperties(); let fb = null; try { fb = JSON.parse(P0.getProperty('DB_FALLBACK') || 'null'); } catch (e) {}
   const t0 = Date.now(); dbSchema_(url); const t1 = Date.now();
   const r = neonSql_([{ query: 'SELECT count(*)::text, coalesce(max(updated_at)::text, \'\') FROM lpm_sheet' }], url)[0];
-  return { ok: true, via: url ? 'közvetlen' : 'Vercel', account: Session.getEffectiveUser().getEmail(), schemaMs: t1 - t0, queryMs: Date.now() - t1, tables: Number((r.rows[0] || [])[0] || 0), lastWrite: (r.rows[0] || [])[1] || '', mode: PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) || 'sheet' };
+  return { fallback: fb, lastBackup: P0.getProperty('DB_LAST_BACKUP') || '', ok: true, via: url ? 'közvetlen' : 'Vercel', account: Session.getEffectiveUser().getEmail(), schemaMs: t1 - t0, queryMs: Date.now() - t1, tables: Number((r.rows[0] || [])[0] || 0), lastWrite: (r.rows[0] || [])[1] || '', mode: PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) || 'sheet' };
 }
 /** Átköltöztetés: a Google-táblázat összes munkalapja (és a napló) az adatbázisba. Újra futtatható (felülír). */
 function dbMigrate_(u) {
@@ -320,7 +336,8 @@ function dbSetMode_(u, a) {
   const mode = a && a.mode === 'neon' ? 'neon' : 'sheet';
   let mig = null;
   if (mode === 'neon' && a.migrate) mig = dbMigrate_(u);
-  if (mode === 'sheet' && dbOn_() && a.backup !== false) dbBackup_();   // visszakapcsoláskor a friss adatok a táblázatba
+  if (mode === 'sheet' && dbOn_() && a.backup !== false) { try { dbBackup_(); } catch (e) { if (!neonDown_(e)) throw e; }   /* leállt Neonnál a mentés kimarad, a visszakapcsolás akkor is megtörténik */ }
+  if (mode === 'neon') PropertiesService.getScriptProperties().deleteProperty('DB_FALLBACK');   // visszakapcsoláskor a friss adatok a táblázatba
   PropertiesService.getScriptProperties().setProperty(DB_MODE_PROPERTY, mode);
   try { if (mode === 'neon') installBackupTrigger(); } catch (e) { Logger.log('Mentési időzítő: ' + e); }
   dataBump_();
@@ -339,6 +356,7 @@ function dbBackup_() {
     const rg = sh.getRange(1, 1, data.length, nc); rg.setNumberFormat('@'); rg.setValues(data); out[tab] = data.length - 1;
   });
   SpreadsheetApp.flush();
+  try { PropertiesService.getScriptProperties().setProperty('DB_LAST_BACKUP', now_()); } catch (e) {}
   return { ok: true, tables: out, at: now_() };
 }
 /* Éjszakai mentés (időzített futás, 2–3 óra között) */

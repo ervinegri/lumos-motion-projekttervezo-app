@@ -406,6 +406,12 @@ function viewMyNotify(){const n=S.myNotify||{},sales=isSales(),cut=!sales&&crewI
     <div class="panel ntf-panel"><h3>📧 E-mail értesítések</h3>${(sales?SEM:EM).map(row).join('')}<p class="hint">A díjösszesítő és a belépési meghívó mindig megérkezik.</p></div>
     ${cut||sales?`<div class="panel ntf-panel"><h3>🔔 Értesítések az appban</h3>${(sales?SAP:AP).map(row).join('')}</div>`:''}</div>`;}
 /* ===== Beállítások (admin) ===== */
+/* Neon adatbázis kártya: kapcsolat-teszt, átváltás, és az automatikus visszaesés jelzése */
+function dbPanel(){const d=S.dbInfo||{},m=d.mode,fb=d.fallback;
+  const st=m?`<p class="hint">Jelenleg: <b>${m==='neon'?'Neon adatbázis':'Google-táblázat'}</b>${m==='neon'&&d.lastBackup?` · utolsó mentés a táblázatba: ${esc(d.lastBackup)}`:''}</p>`:'';
+  const fbTxt=fb&&m!=='neon'?`<p class="bad-txt">⚠️ ${esc(fb.at||'')}: a Neon nem volt elérhető, ezért az app automatikusan visszaváltott a táblázatra${fb.backup?` (a táblázat a ${esc(fb.backup)}-i mentés állapotával folytatta)`:''}. Az azóta a Neonba írt változások a Neonban maradtak – Neonra váltáskor a táblázat tartalma felülírja őket.</p>`:'';
+  const sw=m==='sheet'&&d.ok?`<button class="btn primary small" type="button" data-action="db-mode" data-mode="neon">Átváltás Neonra</button>`:m==='neon'?`<button class="btn outline small" type="button" data-action="db-mode" data-mode="sheet">Vissza a táblázatra</button>`:'';
+  return `<div class="panel db-panel"><h3>🗄️ Neon adatbázis</h3><p class="hint">A Kapcsolat-teszt csak megnézi, elérhető-e a Neon – nem kapcsol át. Ha Neon módban a Neon leáll, az app magától visszavált a táblázatra, és e-mailben szól.</p>${st}${fbTxt}<div class="btns"><button class="btn outline small" type="button" data-action="db-ping">Kapcsolat-teszt</button>${sw}</div>${d.msg?`<p class="${/^Hiba/.test(d.msg)?'bad-txt':'hint'}">${esc(d.msg)}</p>`:''}</div>`;}
 function viewSettings(){
   if(S.users===null||S.log===null){loadSettings();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
   const MC=[['assign','👥 Beosztás','Szakemberek','A stáb véglegesítésekor (és módosításkor) megkapják a beosztásukat: időpont, helyszín, szerep, stáb.'],
@@ -451,7 +457,7 @@ function viewSettings(){
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
       ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2></div></div>
-    ${mailPanel}${dwdPanel()}${isAdmin()?`<div class="panel db-panel"><h3>🗄️ Neon adatbázis</h3><p class="hint">Kapcsolat-teszt: csak megnézi, elérhető-e a Neon – nem kapcsol át, adatot nem módosít.</p><div class="btns"><button class="btn outline small" type="button" data-action="db-ping">Kapcsolat-teszt</button></div>${S.dbInfo&&S.dbInfo.msg?`<p class="${/^Hiba/.test(S.dbInfo.msg)?'bad-txt':'hint'}">${esc(S.dbInfo.msg)}</p>`:''}</div>`:''}
+    ${mailPanel}${dwdPanel()}${isAdmin()?dbPanel():''}
     ${S.links.folder?`<div class="btns"><a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a></div>`:''}
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
