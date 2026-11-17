@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3f8355ae58",
+"at": "2026-11-17T17:01:14+02:00",
+"msg": "Projekt Pénzügyek kártyák tableten: a mezők nem lógnak ki, a kártyák tördelődnek"
+},
+{
 "id": "e7ea05fd7a",
 "at": "2026-11-17T16:59:39+02:00",
 "msg": "Tablet, Fizetések: a fejléc egy sora kifér 768 px-en is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon: a tábla szélén nincs oldal-rugózás (üres sáv)"
 },
 {
-"id": "3280b80e45",
-"at": "2026-11-17T15:45:14+02:00",
-"msg": "Fizetések tábla telefonon: hely az iPhone alsó vonalának"
-},
-{
-"id": "4ecd1eacd2",
-"at": "2026-11-17T13:45:01Z",
+"id": "ebeee9bb33",
+"at": "2026-11-17T13:45:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
