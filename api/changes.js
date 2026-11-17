@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "64e3e09cb1",
+"at": "2026-11-17T16:31:14+02:00",
+"msg": "Ügyfél-visszaigazoló levél: nincs „válaszolj erre a levélre” sor, „döntéseidet” szó törölve"
+},
+{
 "id": "a2df884eed",
 "at": "2026-11-17T16:20:59+02:00",
 "msg": "Naptár idővonala telefonon: háttérfrissítéskor a görgetés és az eltüntetett menü megmarad (mint a Fizetéseknél)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Táblázatból nincs lehúzásos frissítés"
 },
 {
-"id": "0563de59c8",
-"at": "2026-11-17T15:24:09+02:00",
-"msg": "Fizetések: húzással nem vált hónapot, csak a gombokkal"
-},
-{
-"id": "81d3d1f17f",
-"at": "2026-11-17T13:23:39Z",
+"id": "9ee71115fd",
+"at": "2026-11-17T13:24:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
