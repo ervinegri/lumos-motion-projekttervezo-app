@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "92feb53f24",
+"at": "2026-11-17T12:15:48+02:00",
+"msg": "Értékesítés: „📄 Mentett ajánlat” jelzés a lehetőség kártyáján (kattintva folytatható)"
+},
+{
 "id": "7e548ee558",
 "at": "2026-11-17T12:13:00+02:00",
 "msg": "Árajánlat: mentés piszkozatként (lehetőségenként, bármelyik eszközről folytatható, küldéskor törlődik); fotózás leírása: válogatott fotó átadása"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltás: egyetlen töltésjelzés"
 },
 {
-"id": "e817d8a458",
-"at": "2026-11-17T09:11:32+02:00",
-"msg": "Utómunka-tábla: az első oszlopok között csak a kirendelt vágó, a jóváhagyási oszlopokba csak vezető mozgat; nézetmenü jelöli az aktuális (szakember) nézetet; Neon kapcsolat-teszt a beállításokban"
-},
-{
-"id": "4739d25b92",
-"at": "2026-11-17T07:07:27Z",
+"id": "ef29887d3b",
+"at": "2026-11-17T07:11:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
