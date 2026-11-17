@@ -2794,3 +2794,5 @@ html body .fin-v2 .fin-r>.fin-br{flex:0 0 100%!important;width:100%;height:0;mar
 /* Stáb lista: az egész sor kattintható (szerkesztés) */
 html body .crew-tbl tr.crew-row{cursor:pointer}
 html body .crew-tbl tr.crew-row:hover td{background-color:rgba(31,90,61,.05)}
+/* gépen: a Fizetések tábla kerete pontosan a tábla szélességéig ér (a tábla az oszlopszélességek miatt keskenyebb lehet a helynél) */
+@media (min-width:1181px){html body #view .pay-wrap:not(.dock-wrap){width:fit-content!important;max-width:100%!important}}
