@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a3f3642fac",
+"at": "2026-11-17T12:48:55+02:00",
+"msg": "Mentés gomb szürke, amíg nincs mit menteni (minden ablakban); „Ajánlat kiküldve” felirat a kártyán"
+},
+{
 "id": "1e49baacac",
 "at": "2026-11-17T12:47:17+02:00",
 "msg": "Kártya: kompakt ajánlat-jelzések"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Idővonal: homokóra a jóváhagyásra váró (sárga) részek közepén"
 },
 {
-"id": "6cbb82aba3",
-"at": "2026-11-17T10:01:03+02:00",
-"msg": "Online pénzügyi adatkapcsolat: kimenő és bejövő számlák fogadása (PDF a Drive-ra), szakember-számlák és kimenő utalások párosítása a Kifizetésekhez, szállítói számlák kiadásként, havi banki forgalom, ügyfelek fizetési fegyelme"
-},
-{
-"id": "df12caed6d",
-"at": "2026-11-17T09:54:30+02:00",
-"msg": "Beállítások előtöltése csak ügyvezető / termelési v. nézetben (szakember nézetben jogosultsági hibát adott)"
+"id": "167d2ab027",
+"at": "2026-11-17T08:01:13Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
