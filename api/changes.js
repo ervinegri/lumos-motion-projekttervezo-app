@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "324503f351",
+"at": "2026-11-17T12:19:29+02:00",
+"msg": "Lehetőség ablaka: mentett ajánlat folytatása / új árajánlat gombok"
+},
+{
 "id": "0887fb1375",
 "at": "2026-11-17T12:18:51+02:00",
 "msg": "Videólista: az „Utómunka alatt” lila"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások: korábbi előtöltés, nézetváltáskor nem ürül"
 },
 {
-"id": "a37b99d00c",
-"at": "2026-11-17T09:20:41+02:00",
-"msg": "Meghívások doboz kompakt"
-},
-{
-"id": "67a73d1b70",
-"at": "2026-11-17T07:18:48Z",
+"id": "630aa28f07",
+"at": "2026-11-17T07:20:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
