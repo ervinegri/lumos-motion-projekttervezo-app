@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "218d714dff",
+"at": "2026-11-17T08:21:23+02:00",
+"msg": "Alapadatok: tömör 12 oszlopos elrendezés; a Több napos jelölő a dátum sorában, az utolsó nap mezői csak bepipálva jelennek meg"
+},
+{
 "id": "ecb32c24ff",
 "at": "2026-11-17T08:16:47+02:00",
 "msg": "Új pozíció meghívó: egyértelmű szöveg (a korábbi megmarad); ha az újat nem vállalja, a korábbi elfogadott marad, a kártyán jelezve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a sáv csak a saját sorában húzható (más szakember sorára nem dobható)"
 },
 {
-"id": "af5facd4d6",
-"at": "2026-11-16T21:19:36+02:00",
-"msg": "Szervezői jutalék levonása: csak a ±1 napon belüli projektek"
-},
-{
-"id": "175247efd3",
-"at": "2026-11-16T19:18:33Z",
+"id": "dd6ccc06eb",
+"at": "2026-11-16T19:19:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
