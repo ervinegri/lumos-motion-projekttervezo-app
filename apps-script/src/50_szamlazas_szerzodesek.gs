@@ -1258,10 +1258,22 @@ function szDocsView_() {
   return { open: open, bankMonths: bankMonths };
 }
 /** Az ügyvezető döntése egy jóváírásról: párosítás egy bizonylathoz (kifizetettre állítja, a számlázz.hu-ban is jóváírja) vagy elvetés. */
+/** Csak a számlázz.hu-ban kiállított (az appban nem szereplő) számlák kifizetése egy banki tételből: jóváírás a számlázz.hu-ban, és nálunk is. */
+function szBankSzPay_(u, t, nos) {
+  let left = Math.round(Number(t.amount) || 0);
+  nos.slice(0, 10).map(n => str_(n, 60)).forEach(no => {
+    const d = readAll_('szDocs').find(x => x.kind === 'ki' && x.no === no && !x.storno); if (!d) throw new Error('A számla nem található: ' + no);
+    const rest = Math.round((Number(d.gross) || 0) - (Number(d.paid) || 0)), amt = Math.min(rest, left); if (amt <= 0) return;
+    szCredit_(no, t.valueDate || today_(), amt, d.payMethod); left -= amt;
+    withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d.id); if (!r) return; const x = readRow_('szDocs', sh, r); x.paid = (Number(x.paid) || 0) + amt; x.paidAt = t.valueDate || today_(); putRow_('szDocs', sh, x, r); dbFlush_(); });
+    logEvent_(u, 'Számlázás', d.partnerName || '', 'Banki tételből kifizetve (számlázz.hu-ban is): ' + no + ' – ' + amt + ' Ft');
+  });
+}
 function szBankSet_(u, a) {
   const id = str_(a && a.id, 64), st = a && a.status === 'parositva' ? 'parositva' : 'elvetve', inv = str_(a && a.invoiceId, 64);
   const t = readAll_('bankTx').find(x => x.id === id); if (!t) throw new Error('A tétel nem található.');
   if (st === 'parositva' && /^pay:/.test(inv)) { const pid = inv.slice(4), p = readAll_('payStatus').find(x => x.id === pid); if (!p) throw new Error('A díj nem található.'); setPayStatus_(u, { month: p.month, crewId: p.crewId, field: 'paid', on: true, date: t.valueDate }); }   // kimenő utalás: a szakember havi díja kifizetve
+  else if (st === 'parositva' && Array.isArray(a.szNos) && a.szNos.length) szBankSzPay_(u, t, a.szNos);
   else if (st === 'parositva') { if (!inv) throw new Error('Válaszd ki a bizonylatot.'); szManual_(u, { id: inv, paid: true, paidAt: t.valueDate }); }
   withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, id); if (!r) return; const row = readRow_('bankTx', sh, r); row.status = st; if (inv) row.matchInvoice = inv; row.handledBy = u.name; row.handledAt = now_(); putRow_('bankTx', sh, row, r); dbFlush_(); });
   logEvent_(u, 'Számlázás', t.partnerName || 'Banki tétel', (st === 'parositva' ? 'Banki tétel párosítva: ' : 'Banki tétel elvetve: ') + t.amount + ' Ft' + (t.note ? ' – ' + t.note : ''));
@@ -1272,9 +1284,10 @@ function szBankSet_(u, a) {
 const szNoKey_ = s => String(s || '').replace(/\s+/g, '').toUpperCase().replace(/-0+(\d)/g, '-$1');
 function szBankDocIndex_(invoices) {
   const ix = {}, add = (no, d) => { const k = szNoKey_(no); if (k.length >= 4) (ix[k] = ix[k] || []).push(d); };
-  invoices.forEach(x => add(x.no, { inv: x, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
+  invoices.forEach(x => add(x.no, { no: x.no, inv: x, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
+  const inApp = {}; invoices.forEach(x => { inApp[szNoKey_(x.no)] = 1; });
   let sd = []; try { sd = readAll_('szDocs'); } catch (e) {}
-  sd.forEach(d => { if (d.kind === 'ki' && !d.storno) add(d.no, { gross: Number(d.gross) || 0, paid: Number(d.paid) || 0 }); });
+  sd.forEach(d => { if (d.kind === 'ki' && !d.storno && !inApp[szNoKey_(d.no)]) add(d.no, { no: d.no, sz: d.id, buyer: d.partnerName, gross: Number(d.gross) || 0, paid: Number(d.paid) || 0 }); });   // a csak a számlázz.hu-ban kiállított számlák
   return ix;
 }
 /** A közleményben hivatkozott számlaszámok („E-LUMOS-2026-5, 6” → …-5 és …-6; „Lumos -2026-81” is). */
@@ -1290,8 +1303,10 @@ function szBankRefFix_(t, inv, docs) {
   if (t.dir !== 'BE' || t.status === 'javaslat' && t.matchInvoice) return t;
   const refs = szBankRefs_(t.note, docs); if (!refs.length) return t;
   if (refs.every(r => r.gross > 0 && r.paid >= r.gross - 1)) return null;
-  const open = refs.filter(r => r.inv && r.paid < r.gross - 1);
-  return open.length === 1 ? Object.assign({}, t, { matchInvoice: open[0].inv.id, matchScore: 95, status: 'javaslat' }) : t;
+  const open = refs.filter(r => r.paid < r.gross - 1), app = open.filter(r => r.inv);
+  if (app.length === 1 && open.length === 1) return Object.assign({}, t, { matchInvoice: app[0].inv.id, matchScore: 95, status: 'javaslat' });
+  if (!app.length && open.length) return Object.assign({}, t, { matchSz: open.map(r => ({ no: r.no, buyer: r.buyer || '', rest: Math.round(r.gross - r.paid) })) });   // csak a számlázz.hu-ban lévő nyitott számla(k)
+  return t;
 }
 /** A Pénzügyek oldalra: a kezeletlen beérkező jóváírások (90 napra visszamenőleg); ami közben máshogy kifizetetté vált, kimarad. */
 function szBankOpen_() {

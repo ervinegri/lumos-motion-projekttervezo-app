@@ -29,7 +29,7 @@ function finSaveSettings_(u, a) {
 }
 /* Betöltéskor gyorsítótárból (minden módosítás új verziószámot ad, így mindig friss); a módosító műveletek a friss finData_()-t adják vissza */
 function finDataCached_() {
-  const key = 'pm_fin_' + dataVer_(), hit = cacheGetJSON_(key);
+  const key = 'pm_fin3_' + dataVer_(), hit = cacheGetJSON_(key);
   if (hit) { hit.sz = szSettingsView_(); return hit; }
   const out = finData_();
   cachePutJSON_(key, out, DATA_CACHE_TTL);

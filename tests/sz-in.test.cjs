@@ -64,5 +64,8 @@ console.log('ok');
   const fx = B.szBankRefFix_({ dir: 'BE', note: 'D-LUMOS-11,12 díjbekérő' }, {}, docs);
   assert.ok(fx && fx.matchInvoice === 'i12' && fx.status === 'javaslat', 'egy nyitott app-számla → javaslat');
   assert.ok(B.szBankRefFix_({ dir: 'BE', note: 'AMZN Mktp' }, {}, docs), 'hivatkozás nélkül marad');
+  add('E-LUMOS-2026-9', { no: 'E-LUMOS-2026-9', gross: 635000, paid: 0, sz: 'ki_1' });
+  const z = B.szBankRefFix_({ dir: 'BE', note: 'E-LUMOS-2026-9' }, {}, docs);
+  assert.ok(z && z.matchSz && z.matchSz[0].no === 'E-LUMOS-2026-9' && z.matchSz[0].rest === 635000, 'csak a számlázz.hu-ban lévő nyitott számla → javaslat');
   console.log('ok2');
 }
