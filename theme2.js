@@ -40,7 +40,7 @@
   var built=false;
   function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&/^dark(Css|Pre)$/.test(ss.ownerNode.id||''))continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
     var st=document.getElementById('darkCss')||document.createElement('style');st.id='darkCss';
-    st.textContent='html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
+    st.textContent='html.dark .tl-row .tl-track .cal-chip.p.cut.tl-cut.tl-joined{--from:transparent!important}html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
     if(!st.parentNode)document.head.appendChild(st);built=true;}
   function apply(){var d=on();h.classList.toggle('dark',d);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',d?'#0f171e':'#1d2a38');if(d){if(document.readyState==='complete')build();}}
   if(on()){h.classList.add('dark');document.write('<style id="darkPre">html.dark,html.dark body{background:#0f171e!important}</style>');}   /* amíg a sötét pár elkészül: ne villanjon világosan */

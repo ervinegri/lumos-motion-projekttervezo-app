@@ -673,7 +673,7 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){
 
 /* „Az app frissült” értesítés: új verzió első betöltésekor megmutatjuk, mi változott – csak az ügyvezetőnek (a változásnapló nem nyilvános) */
 (function(){const K='lpm_seen_ver';
-  async function run(){try{if(!S.me){setTimeout(run,1500);return;}if(!(S.me.role==='admin'||S.me.realRole==='admin')){news();return;}const items=(((await call('changesList'))||{}).items)||[];if(!items.length)return;
+  async function run(){try{if(!S.me){setTimeout(run,1500);return;}if(S.me.role!=='admin'){news();return;}   /* nézetváltáskor (pl. termelési v. nézet) is azt látod, amit az a szerepkör kapna */const items=(((await call('changesList'))||{}).items)||[];if(!items.length)return;
     let seen=null;try{seen=localStorage.getItem(K);localStorage.setItem(K,items[0].id);}catch(e){return;}
     if(!seen||seen===items[0].id)return;   // első látogatás vagy nincs újdonság
     const i=items.findIndex(x=>x.id===seen),news=(i<0?items.slice(0,6):items.slice(0,i)).slice(0,10),staff=true;
