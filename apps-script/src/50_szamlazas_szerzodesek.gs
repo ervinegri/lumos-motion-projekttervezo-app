@@ -1125,7 +1125,7 @@ function szCredit_(no, date, amount, method) {
    A beérkező jóváírásokhoz összeg + partnernév + közlemény alapján nyitott bizonylatot javaslunk; a kifizetést az ügyvezető erősíti meg. */
 const SZ_BANK_POSTFIX = 'LUMPT';   // a regisztrációkor megadott 5 karakteres kulcsutótag
 function szBankKeyGen_(u) {
-  const P = PropertiesService.getScriptProperties(), key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '').slice(0, 40) + SZ_BANK_POSTFIX;
+  const P = PropertiesService.getScriptProperties(), key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '').slice(0, 35) + SZ_BANK_POSTFIX;
   P.setProperty('SZ_BANK_KEY_H', sha256hex_(key)); P.setProperty('SZ_BANK_KEY_AT', now_());
   logEvent_(u, 'Számlázás', 'Banki adatkapcsolat', 'Új azonosító kulcs generálva');
   return { key: key, at: P.getProperty('SZ_BANK_KEY_AT') };   // a kulcs csak most látszik (utána nem kérhető vissza)
