@@ -1118,3 +1118,63 @@ function szCredit_(no, date, amount, method) {
     + '<kifizetes>' + szEl_('datum', date) + szEl_('jogcim', jog) + szEl_('osszeg', String(Math.round(amount))) + szEl_('leiras', 'Projekttervezőben kifizetettnek jelölve') + '</kifizetes></xmlszamlakifiz>';
   szPost_('action-szamla_agent_kifiz', xml);
 }
+
+/* ===================== BANKI TRANZAKCIÓK (számlázz.hu Online pénzügyi adatkapcsolat) =====================
+   A számlázz.hu a fiók banki tételeit (a számlához nem párosítottakat is) egyenként küldi a /api/szbank végpontra (Vercel),
+   az továbbítja ide. Az azonosító kulcsot az app generálja (csak a hash-e tárolódik), az ügyvezető másolja be a számlázz.hu-ba.
+   A beérkező jóváírásokhoz összeg + partnernév + közlemény alapján nyitott bizonylatot javaslunk; a kifizetést az ügyvezető erősíti meg. */
+const SZ_BANK_POSTFIX = 'LUMPT';   // a regisztrációkor megadott 5 karakteres kulcsutótag
+function szBankKeyGen_(u) {
+  const P = PropertiesService.getScriptProperties(), key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '').slice(0, 40) + SZ_BANK_POSTFIX;
+  P.setProperty('SZ_BANK_KEY_H', sha256hex_(key)); P.setProperty('SZ_BANK_KEY_AT', now_());
+  logEvent_(u, 'Számlázás', 'Banki adatkapcsolat', 'Új azonosító kulcs generálva');
+  return { key: key, at: P.getProperty('SZ_BANK_KEY_AT') };   // a kulcs csak most látszik (utána nem kérhető vissza)
+}
+function szBankNorm_(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\b(kft|bt|zrt|nyrt|kkt|ev|e\.v|egyeni vallalkozo|alapitvany|egyesulet)\b\.?/g, ' ').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function szBankMatch_(t, invoices) {
+  const amt = Math.round(Number(t.amount) || 0), note = String(t.note || ''), noteN = note.replace(/\s+/g, '').toUpperCase(), pn = szBankNorm_(t.partnerName).split(' ').filter(w => w.length > 3);
+  let best = null;
+  invoices.forEach(x => {
+    const rest = Math.round((Number(x.invGross) || 0) - (Number(x.invPaid) || 0)); if (rest <= 0 || !x.no) return;
+    const no = String(x.no).replace(/\s+/g, '').toUpperCase(), tail = (no.match(/(\d+)\D*$/) || [])[1] || '';
+    let sc = 0;
+    if (Math.abs(rest - amt) <= 1) sc += 50; else if (Math.abs(Math.round(Number(x.invGross) || 0) - amt) <= 1) sc += 35;
+    if (noteN.indexOf(no) >= 0) sc += 45; else if (tail.length >= 3 && new RegExp('(^|\\D)' + tail.replace(/^0+/, '') + '(\\D|$)').test(note)) sc += 15;
+    const bn = szBankNorm_(x.buyer).split(' ').filter(w => w.length > 3); if (pn.length && bn.some(w => pn.indexOf(w) >= 0)) sc += 25;
+    if (sc >= 50 && (!best || sc > best.sc)) best = { id: x.id, sc: sc };
+  });
+  return best;
+}
+function szBankIn_(key, xml) {
+  const P = PropertiesService.getScriptProperties(), h = P.getProperty('SZ_BANK_KEY_H');
+  if (!h || !key || sha256hex_(String(key)) !== h) return { hibakod: 'KEY_ERR' };
+  const root = XmlService.parse(String(xml || '')).getRootElement(), ns = root.getNamespace();
+  const g = (el, n) => { const c = el.getChild(n, ns); return c ? String(c.getText() || '').trim() : ''; }, pe = root.getChild('partner', ns);
+  const t = { szId: g(root, 'id'), account: g(root, 'bankszamla'), valueDate: iso_(g(root, 'erteknap').slice(0, 10)), dir: g(root, 'irany'), type: g(root, 'tipus'), technical: /^(true|1)$/i.test(g(root, 'technikai')) ? '1' : '',
+    amount: Number(g(root, 'osszeg')) || 0, currency: g(root, 'devizanem') || 'HUF', partnerName: pe ? g(pe, 'nev') : '', partnerAccount: pe ? g(pe, 'bankszamla') : '', note: g(root, 'kozlemeny').slice(0, 500), receivedAt: now_() };
+  if (!t.szId) throw new Error('Hiányzó tranzakció-azonosító.');
+  t.id = 'bt_' + t.szId.replace(/[^\w-]/g, '').slice(0, 40);
+  withLock_(() => {
+    const sh = sheetFor_('bankTx'); if (findRow_(sh, t.id)) return;   // ugyanaz a tétel másodszor: nem duplikáljuk
+    if (t.dir === 'BE' && !t.technical && /^HUF$/i.test(t.currency)) { const m = szBankMatch_(t, readAll_('finInvoice')); if (m) { t.matchInvoice = m.id; t.matchScore = m.sc; t.status = 'javaslat'; } }
+    putRow_('bankTx', sh, t, 0); dbFlush_();
+  });
+  return { ok: true };
+}
+/** Az ügyvezető döntése egy jóváírásról: párosítás egy bizonylathoz (kifizetettre állítja, a számlázz.hu-ban is jóváírja) vagy elvetés. */
+function szBankSet_(u, a) {
+  const id = str_(a && a.id, 64), st = a && a.status === 'parositva' ? 'parositva' : 'elvetve', inv = str_(a && a.invoiceId, 64);
+  const t = readAll_('bankTx').find(x => x.id === id); if (!t) throw new Error('A tétel nem található.');
+  if (st === 'parositva') { if (!inv) throw new Error('Válaszd ki a bizonylatot.'); szManual_(u, { id: inv, paid: true, paidAt: t.valueDate }); }
+  withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, id); if (!r) return; const row = readRow_('bankTx', sh, r); row.status = st; if (inv) row.matchInvoice = inv; row.handledBy = u.name; row.handledAt = now_(); putRow_('bankTx', sh, row, r); dbFlush_(); });
+  logEvent_(u, 'Számlázás', t.partnerName || 'Banki tétel', (st === 'parositva' ? 'Jóváírás párosítva: ' : 'Jóváírás elvetve: ') + t.amount + ' Ft' + (t.note ? ' – ' + t.note : ''));
+  return finData_();
+}
+/** A Pénzügyek oldalra: a kezeletlen beérkező jóváírások (90 napra visszamenőleg); ami közben máshogy kifizetetté vált, kimarad. */
+function szBankOpen_() {
+  let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
+  const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd'), inv = {}; readAll_('finInvoice').forEach(x => { inv[x.id] = x; });
+  return all.filter(t => t.dir === 'BE' && !t.technical && (!t.status || t.status === 'javaslat') && String(t.valueDate || '') >= lim)
+    .filter(t => { const x = t.matchInvoice && inv[t.matchInvoice]; return !(x && t.status === 'javaslat' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) && Number(t.matchScore) >= 95); })   // a számlázz.hu közben magától párosította
+    .slice(-200);
+}

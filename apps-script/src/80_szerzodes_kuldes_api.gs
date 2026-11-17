@@ -426,6 +426,8 @@ function rpcInner_(token, name, arg) {
     case 'szStorno': adminOnly(); return szStorno_(u, arg);
     case 'szDbkDelete': adminOnly(); return szDbkDelete_(u, arg);
     case 'szManual': adminOnly(); return szManual_(u, arg);
+    case 'szBankSet': adminOnly(); return szBankSet_(u, arg);
+    case 'szBankKey': adminOnly(); return szBankKeyGen_(u);
     case 'szLinkBatch': adminOnly(); return szLinkBatch_(u, arg);
     case 'szPeek': adminOnly(); return szPeek_(u, arg);
     case 'szSearch': adminOnly(); return szSearch_(u, arg);

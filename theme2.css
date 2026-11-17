@@ -2425,3 +2425,13 @@ html body .inv-panel>.hint{margin:4px 0 0!important;font-size:12px}
 /* sima visszajelzés (pl. „Nézet: …”, „Mentve”): a képernyő közepén, magától eltűnik */
 html body #toast.mid{top:50%!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translate(-50%,-50%) scale(.96)!important;max-width:520px;z-index:10000;transition:opacity .18s,transform .18s}
 html body #toast.mid.show{transform:translate(-50%,-50%) scale(1)!important}
+/* Beérkezett utalások – párosításra várnak */
+html body .bank-box{padding:12px 18px!important;border-left:4px solid #2f6fb3}
+html body .bank-box>h3{margin:0 0 4px!important;font-size:16px}
+html body .bank-box .bk-row{display:grid;grid-template-columns:96px minmax(0,1fr) 120px auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #eef1f4}
+html body .bank-box .bk-d{font-size:12.5px;color:#6b7684}
+html body .bank-box .bk-p{display:flex;flex-direction:column;min-width:0}html body .bank-box .bk-p small{color:#6b7684;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .bank-box .bk-a{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+html body .bank-box .bk-m{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap;font-size:13px}
+html body .bank-box .bk-m .btn{min-height:30px!important;height:30px;padding:0 12px!important;font-size:12.5px!important}
+@media (max-width:760px){html body .bank-box .bk-row{grid-template-columns:1fr auto}html body .bank-box .bk-d{grid-column:1/-1}html body .bank-box .bk-m{grid-column:1/-1}}

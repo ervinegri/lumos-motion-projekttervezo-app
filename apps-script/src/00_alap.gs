@@ -124,7 +124,11 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] },
   hsLinks: { tab: 'HubSpot-kapcsolatok', cols: [   // app-rekord ↔ HubSpot-objektum (lehetőség → deal, ügyfél → cég / kapcsolattartó)
-    ['id', 'Azonosító (ne módosítsd)'], ['hsDeal', 'HubSpot deal'], ['hsContact', 'HubSpot kapcsolattartó'], ['hsCompany', 'HubSpot cég'], ['updatedAt', 'Szinkronizálva']] }
+    ['id', 'Azonosító (ne módosítsd)'], ['hsDeal', 'HubSpot deal'], ['hsContact', 'HubSpot kapcsolattartó'], ['hsCompany', 'HubSpot cég'], ['updatedAt', 'Szinkronizálva']] },
+  bankTx: { tab: 'Banki tranzakciók', cols: [   // számlázz.hu Online pénzügyi adatkapcsolat: a fiók banki tételei (a párosítatlanok is)
+    ['id', 'Azonosító (ne módosítsd)'], ['szId', 'számlázz.hu azonosító'], ['account', 'Bankszámla'], ['valueDate', 'Értéknap'], ['dir', 'Irány (BE / KI)'], ['type', 'Típus'], ['technical', 'Technikai (1)'],
+    ['amount', 'Összeg'], ['currency', 'Devizanem'], ['partnerName', 'Partner neve'], ['partnerAccount', 'Partner bankszámla'], ['note', 'Közlemény'], ['receivedAt', 'Beérkezett'],
+    ['matchInvoice', 'Javasolt bizonylat (azonosító)'], ['matchScore', 'Párosítás erőssége'], ['status', 'Állapot (javaslat / parositva / elvetve)'], ['handledBy', 'Kezelte'], ['handledAt', 'Kezelve']] }
 };
 const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'int_sarok', 'int_resztvevo', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing', 'invNet', 'invGross', 'invPaid', 'advancePct']);
 const BOOL_FIELDS = new Set(FLAGS.concat(['legacy', 'leadRemote', 'editOnsite']));
@@ -159,6 +163,7 @@ function api_(raw) {
     else if (fn === 'googleLogin') return googleLogin(args[0]);
     else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'szBank') return szBankIn_(args[0], args[1]);   // nyilvános (a Vercel /api/szbank továbbítja): a számlázz.hu banki tranzakciója, azonosító kulccsal
     else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
     };

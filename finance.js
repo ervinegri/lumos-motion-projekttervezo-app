@@ -21,7 +21,7 @@ async function finLoad(force){if(!S.fin&&!S._finCacheTried){S._finCacheTried=tru
     S.fin=d;S.finErr='';finCacheSave(d);}catch(e){if(!S.fin){S.finErr=errText(e)||'Hiba';}handleErr(e);}finally{S._finLoading=false;if(S.tab==='penzugy'||S.tab==='szerzodes'||(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML))render(true);
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
-const FIN_KEYS=['income','expense','loan','settings','invoices','billing','frameworks','tigs','sz'];
+const FIN_KEYS=['bankTx','bankKeyAt','income','expense','loan','settings','invoices','billing','frameworks','tigs','sz'];
 function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});S.fin=Object.assign({},S.fin||{},part);finCacheSave(S.fin);   // a szerver csak a módosult táblát küldi vissza
   (d.invoices||[]).forEach(x=>invPids(x).forEach(pid=>{const p=projById(pid);if(p){const st=szPayOf(pid);if(st)p.payStatus=st;}}));render(true);}
 /* Közös számla: a fő projekt + a projectIds-ben felsorolt további projektek; a projekt részaránya a projektértékek arányában */
@@ -200,6 +200,12 @@ ACT['fin-pair']=()=>{const L=pairRows();if(!L.length){toast('Nincs ellenőrizend
 /* Kintlévőség: minden hónap fizetésre váró / foglalós tétele */
 function finReceivables(){const months=finMonths();let n=0,sum=0;months.forEach(m=>finIncomeFor(m).forEach(r=>{if(r.payStatus==='var'||r.payStatus==='eloleg'){n++;sum+=r.amount;}}));return {n,sum};}
 
+/* Beérkező banki jóváírások (számlázz.hu Online pénzügyi adatkapcsolat): amit a számlázz.hu nem párosított számlához – javaslattal, egy kattintással megerősíthető */
+function bankBox(){const L=(isAdmin()&&S.fin&&S.fin.bankTx)||[];if(!L.length)return '';const inv=id=>((S.fin.invoices)||[]).find(x=>x.id===id);
+  const rows=L.slice().sort((a,b)=>String(b.valueDate).localeCompare(String(a.valueDate))).map(t=>{const x=t.matchInvoice&&inv(t.matchInvoice),rest=x?Math.round((Number(x.invGross)||0)-(Number(x.invPaid)||0)):0;
+    const sug=x&&rest>0?`<span class="bk-sug">→ <b>${esc(x.no||'')}</b> · ${esc(x.buyer||'')} · ${sFt(rest)}${Math.abs(rest-Math.round(Number(t.amount)||0))>1?' <span class="muted">(részösszeg)</span>':''}</span><button class="btn primary small" type="button" data-action="bank-ok" data-id="${esc(t.id)}" data-inv="${esc(x.id)}">✓ Kifizetve</button>`:x?`<span class="muted">→ ${esc(x.no||'')} már kifizetve</span>`:'<span class="muted">Nincs hozzá illő nyitott számla</span>';
+    return `<div class="bk-row"><span class="bk-d">${esc(fmtDay(t.valueDate))}</span><span class="bk-p"><b>${esc(t.partnerName||'Ismeretlen partner')}</b>${t.note?`<small>${esc(t.note)}</small>`:''}</span><span class="bk-a">${sFt(Math.round(Number(t.amount)||0))}</span><span class="bk-m">${sug}<button class="btn ghost small" type="button" data-action="bank-no" data-id="${esc(t.id)}" title="Nem számlához tartozik / már kezelve">Elvetés</button></span></div>`;}).join('');
+  return `<div class="panel bank-box"><h3>🏦 Beérkezett utalások – párosításra várnak <span class="aside">${L.length} db</span></h3><p class="hint" style="margin:0 0 6px">A számlázz.hu nem tudta őket számlához kötni (pl. hiányos közlemény). A javaslat összeg, partnernév és közlemény alapján készül – megerősítéskor a számla kifizetett lesz, a számlázz.hu-ban is.</p>${rows}</div>`;}
 function viewFinance(){
   if(!finOn())return `<div class="panel">${empty('A Bevétel és kiadás a háttérkód frissítése után érhető el.')}</div>`;
   if(!S.fin)return finLoadingView();
@@ -233,7 +239,7 @@ function viewFinance(){
   const loans=((S.fin.loan)||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))),lIn=sumK(loans.filter(l=>l.kind!=='vissza'),'amount'),lOut=sumK(loans.filter(l=>l.kind==='vissza'),'amount');
   return `<div class="page-head bill-head fin-head"><div class="grow"><h2>Bevétel és kiadás</h2>${monthNav('fin-month',months,m)}</div>${undoBar()}
       ${szOn()?`<button class="btn outline small" type="button" data-action="sz-sync" title="${esc(S.fin.sz.lastSync?'Utoljára: '+S.fin.sz.lastSync:'')}"${S._szSyncing?' disabled':''}>${S._szSyncing?'Frissítés…':'🔄 Kifizetések'}</button>`:''}
-</div>
+</div>${bankBox()}
     <div class="tiles fin-tiles tiles-2">
       <div class="tile fin-flow"><div class="flow-row plan"><span>Tervezett bevétel</span><b>${ftFmt(T('amount'))}</b></div>${(()=>{if(!fromApp)return '';const d=finDiffRows(m).reduce((s,x)=>s+x.bev-x.bill,0);return d?`<button type="button" class="linkbtn fin-diff" data-action="fin-diff" data-m="${m}">⚠ ${d>0?'+':''}${sFt(d)} eltérés a számlázástól – mitől?</button>`:'';})()}
         <div class="flow-row ok"><span>Beérkezett fizetés</span><b>${ftFmt(recv)}</b></div>
@@ -667,6 +673,10 @@ function szSettingsModal(msg){const st=(S.fin&&S.fin.sz)||{},ipn=st.ipnToken?Str
     <div class="field full"><label for="m-ipnUrl">IPN üzenet internetcíme – a fizetési értesítésekhez</label>
       <div class="tax-row"><input class="inp" id="m-ipnUrl" readonly value="${esc(ipn||'Mentés után jelenik meg')}"><button class="btn outline small" type="button" data-action="sz-copy-ipn"${ipn?'':' disabled'}>Másolás</button></div>
       <small class="hint" style="margin:4px 0 0">Másold be a számlázz.hu-ban: Beállítások → Fiók beállításai → Számlázási alapadatok → <b>IPN üzenet internetcíme</b>, majd Mentés. Ha egy számla kifizetése rögzül (banki párosítás vagy kézi jóváírás), néhány percen belül itt is „fizetve” lesz. Biztonsági okból az app ilyenkor visszakérdez a számlázz.hu-tól.</small></div>
+    <div class="field full"><label>Banki tranzakciók fogadása – Online pénzügyi adatkapcsolat ${st.bankKeyAt||(S.fin&&S.fin.bankKeyAt)?'<span class="statuspill p-ok">✓ kulcs generálva</span>':''}</label>
+      <div class="tax-row"><input class="inp" id="m-bankUrl" readonly value="${esc(location.origin+'/api/szbank')}"><button class="btn outline small" type="button" data-action="sz-copy-bank">Másolás</button></div>
+      <div class="tax-row" style="margin-top:6px"><input class="inp" id="m-bankKey" readonly placeholder="${(S.fin&&S.fin.bankKeyAt)?'Kulcs generálva: '+esc(S.fin.bankKeyAt)+' (újat generálhatsz)':'Még nincs kulcs'}"><button class="btn outline small" type="button" data-action="sz-bank-key">Új kulcs</button></div>
+      <small class="hint" style="margin:4px 0 0">Fogadó URL a regisztrációhoz; a kulcsot a számlázz.hu-ban: Beállítások → Fiók beállításai → <b>Online pénzügyi adatkapcsolat</b> → Azonosító kulcs. A kulcs csak generáláskor látszik – utána az app sem mutatja.</small></div>
     ${mf('dueDays','Fizetési határidő (nap)',{v:st.dueDays??8,im:'numeric'})}
     ${ms('vat','Alapértelmezett ÁFA',SZ_VATS,st.vat||'27')}
     ${mf('unit','Mennyiségi egység',{v:st.unit||'db',max:20})}
@@ -692,6 +702,12 @@ Object.assign(ACT,{
   'sz-sync-one':b=>{closeModal();szSync(false,b.dataset.id);},
   'sz-settings':()=>szSettingsModal(),
   'sz-copy-ipn':()=>copyText(($('m-ipnUrl')||{}).value||'','IPN cím vágólapra másolva'),
+  'sz-copy-bank':()=>copyText(($('m-bankUrl')||{}).value||'','Fogadó URL vágólapra másolva'),
+  'sz-bank-key':async b=>{const go=async()=>{b.disabled=true;try{const r=await call('szBankKey');S.fin.bankKeyAt=r.at;const i=$('m-bankKey');if(i){i.value=r.key;i.select();}copyText(r.key,'Új kulcs vágólapra másolva – illeszd be a számlázz.hu-ban');}catch(e){handleErr(e);}finally{b.disabled=false;}};
+    if(S.fin&&S.fin.bankKeyAt)confirmLayer('Új azonosító kulcs','<p style="margin:0">A régi kulcs azonnal érvénytelen lesz: az újat be kell másolnod a számlázz.hu-ba, különben nem érkeznek a banki tételek.</p>','Új kulcs',(bb,d)=>{if(d&&d.remove)d.remove();go();});else go();},
+  'bank-ok':b=>{const t=(S.fin.bankTx||[]).find(x=>x.id===b.dataset.id),x=((S.fin.invoices)||[]).find(i=>i.id===b.dataset.inv);if(!t||!x)return;
+    openModal('Utalás párosítása',`<p style="margin:0"><b>${esc(t.partnerName||'')}</b> · ${sFt(Math.round(Number(t.amount)||0))} · ${esc(fmtDay(t.valueDate))}${t.note?`<br><span class="muted">${esc(t.note)}</span>`:''}<br><br>→ <b>${esc(x.no)}</b> (${esc(x.buyer||'')}) kifizetettre állítva, a számlázz.hu-ban is jóváírva, ${esc(fmtDay(t.valueDate))}-i dátummal.</p>`,{submitLabel:'✓ Kifizetve',noDraft:true,submit:async()=>{closeModal();await finCall('szBankSet',{id:t.id,status:'parositva',invoiceId:x.id},'Párosítva – a számla kifizetett');}});},
+  'bank-no':b=>finCall('szBankSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
   'sz-item-add':()=>{const box=$('sz-items');if(!box)return;box.insertAdjacentHTML('beforeend',szItemRow({name:'',qty:1,price:''},box.children.length));szTotals();},
   'sz-item-del':b=>{const box=$('sz-items');if(box&&box.children.length>1){b.closest('[data-szitem]').remove();szTotals();}else toast('Legalább egy tétel kell.',true);}
 });
