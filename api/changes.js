@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dfd2d9cfa7",
+"at": "2026-11-17T15:34:24+02:00",
+"msg": "Fekvő telefon, Fizetések: nincs üres sáv a tábla alatt"
+},
+{
 "id": "ec209a9ac9",
 "at": "2026-11-17T15:32:56+02:00",
 "msg": "Táblázatok: nincs lefelé húzás / rugózás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző telefonon: fele olyan magas gombsáv"
 },
 {
-"id": "b1859baefc",
-"at": "2026-11-17T14:40:27+02:00",
-"msg": "Ajánlat-néző: alacsonyabb gombsáv"
-},
-{
-"id": "0a9403ded9",
-"at": "2026-11-17T12:39:52Z",
+"id": "0cefe71b9d",
+"at": "2026-11-17T12:40:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
