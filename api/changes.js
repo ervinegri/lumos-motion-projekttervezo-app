@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19a359f91d",
+"at": "2026-11-17T17:06:51+02:00",
+"msg": "Tablet: Szerződés és számlázás, Bevétel és kiadás fejléce is egy sorban"
+},
+{
 "id": "366d182d8e",
 "at": "2026-11-17T17:05:08+02:00",
 "msg": "Tablet: minden táblázat a képernyő széléig ér, a projekt neve oszlop oldalra görgetéskor a helyén marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon: egyetlen natív görgetés (a fejléc a tábla fölött görget ki, a menüsáv eltolással) – nincs akadás lendületnél"
 },
 {
-"id": "a9f09a974a",
-"at": "2026-11-17T15:49:23+02:00",
-"msg": "Fizetések tábla: háttérfrissítéskor nem ugrik vissza a tetejére (görgetés és a felső rész állapota megmarad)"
-},
-{
-"id": "9a6ec86760",
-"at": "2026-11-17T13:47:35Z",
+"id": "e21f069e09",
+"at": "2026-11-17T13:49:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
