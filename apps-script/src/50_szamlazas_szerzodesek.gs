@@ -1270,13 +1270,16 @@ function szBankSzPay_(u, t, nos) {
   });
 }
 function szBankSet_(u, a) {
-  const id = str_(a && a.id, 64), st = a && a.status === 'parositva' ? 'parositva' : 'elvetve', inv = str_(a && a.invoiceId, 64);
+  const id = str_(a && a.id, 64), st = ({ parositva: 1, kolcson: 1, vissza: 1 })[a && a.status] ? a.status : 'elvetve', inv = str_(a && a.invoiceId, 64);
   const t = readAll_('bankTx').find(x => x.id === id); if (!t) throw new Error('A tétel nem található.');
+  if (st === 'kolcson') {   // tagi kölcsön (vagy annak visszafizetése): a Tagi kölcsön táblába kerül
+    finUpsert_(u, { table: 'loan', row: { id: Utilities.getUuid(), date: t.valueDate || today_(), kind: t.dir === 'KI' ? 'vissza' : 'be', amount: Math.round(Math.abs(Number(t.amount) || 0)), note: [t.partnerName, t.note].filter(Boolean).join(' – ').slice(0, 300) } });
+  }
   if (st === 'parositva' && /^pay:/.test(inv)) { const pid = inv.slice(4), p = readAll_('payStatus').find(x => x.id === pid); if (!p) throw new Error('A díj nem található.'); setPayStatus_(u, { month: p.month, crewId: p.crewId, field: 'paid', on: true, date: t.valueDate }); }   // kimenő utalás: a szakember havi díja kifizetve
   else if (st === 'parositva' && Array.isArray(a.szNos) && a.szNos.length) szBankSzPay_(u, t, a.szNos);
   else if (st === 'parositva') { if (!inv) throw new Error('Válaszd ki a bizonylatot.'); szManual_(u, { id: inv, paid: true, paidAt: t.valueDate }); }
-  withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, id); if (!r) return; const row = readRow_('bankTx', sh, r); row.status = st; if (inv) row.matchInvoice = inv; row.handledBy = u.name; row.handledAt = now_(); putRow_('bankTx', sh, row, r); dbFlush_(); });
-  logEvent_(u, 'Számlázás', t.partnerName || 'Banki tétel', (st === 'parositva' ? 'Banki tétel párosítva: ' : 'Banki tétel elvetve: ') + t.amount + ' Ft' + (t.note ? ' – ' + t.note : ''));
+  withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, id); if (!r) return; const row = readRow_('bankTx', sh, r); row.status = st === 'vissza' ? '' : st; if (inv) row.matchInvoice = inv;   /* vissza: az elvetett tétel újra a párosításra várók közé */ row.handledBy = u.name; row.handledAt = now_(); putRow_('bankTx', sh, row, r); dbFlush_(); });
+  logEvent_(u, 'Számlázás', t.partnerName || 'Banki tétel', ({ parositva: 'Banki tétel párosítva: ', kolcson: 'Banki tétel → tagi kölcsön: ', vissza: 'Elvetett banki tétel visszaállítva: ' }[st] || 'Banki tétel elvetve: ') + t.amount + ' Ft' + (t.note ? ' – ' + t.note : ''));
   dataBump_();
   return finData_();
 }
@@ -1308,12 +1311,19 @@ function szBankRefFix_(t, inv, docs) {
   if (!app.length && open.length) return Object.assign({}, t, { matchSz: open.map(r => ({ no: r.no, buyer: r.buyer || '', rest: Math.round(r.gross - r.paid) })) });   // csak a számlázz.hu-ban lévő nyitott számla(k)
   return t;
 }
+const szLoanNote_ = n => /tagi\s*k[öo]lcs[öo]n/i.test(String(n || ''));
+/** Az utóbbi 90 nap elvetett banki tételei (visszaállíthatók, vagy tagi kölcsönként rögzíthetők). */
+function szBankDismissed_() {
+  let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
+  const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd');
+  return all.filter(t => t.status === 'elvetve' && !t.technical && String(t.valueDate || '') >= lim).slice(-60);
+}
 /** A Pénzügyek oldalra: a kezeletlen beérkező jóváírások (90 napra visszamenőleg); ami közben máshogy kifizetetté vált, kimarad. */
 function szBankOpen_() {
   let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
   const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd'), inv = {}; readAll_('finInvoice').forEach(x => { inv[x.id] = x; });
   const docs = szBankDocIndex_(Object.keys(inv).map(k => inv[k]));
-  return all.filter(t => (t.dir === 'BE' || (t.dir === 'KI' && t.status === 'javaslat')) && !t.technical && (!t.status || t.status === 'javaslat') && String(t.valueDate || '') >= lim)
+  return all.filter(t => (t.dir === 'BE' || (t.dir === 'KI' && (t.status === 'javaslat' || szLoanNote_(t.note)))) && !t.technical && (!t.status || t.status === 'javaslat') && String(t.valueDate || '') >= lim)
     .map(t => szBankRefFix_(t, inv, docs)).filter(t => t)
     .filter(t => { const x = t.matchInvoice && inv[t.matchInvoice]; return !(x && t.status === 'javaslat' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) && Number(t.matchScore) >= 95); })   // a számlázz.hu közben magától párosította
     .slice(-200);

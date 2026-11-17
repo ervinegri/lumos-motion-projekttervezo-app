@@ -21,7 +21,7 @@ ctx.XmlService = { parse(xml) {
   return { getRootElement: () => root };
 } };
 const code = fs.readdirSync(SRC).filter(f => f.endsWith('.gs')).sort().map(f => fs.readFileSync(path.join(SRC, f), 'utf8')).join('\n');
-vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_};', ctx);
+vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_,szBankSet_};', ctx);
 const A = ctx.__api;
 A.setup();
 ctx.PropertiesService.getScriptProperties().setProperty('SZ_BANK_KEY_H', A.sha256hex_('jo-kulcs'));
@@ -68,4 +68,18 @@ console.log('ok');
   const z = B.szBankRefFix_({ dir: 'BE', note: 'E-LUMOS-2026-9' }, {}, docs);
   assert.ok(z && z.matchSz && z.matchSz[0].no === 'E-LUMOS-2026-9' && z.matchSz[0].rest === 635000, 'csak a számlázz.hu-ban lévő nyitott számla → javaslat');
   console.log('ok2');
+}
+
+/* 5) elvetett / tagi kölcsön: a banki tétel a Tagi kölcsön táblába kerül; az elvetett visszaállítható */
+{
+  const u = { name: 'Teszt', role: 'admin', id: 'x' };
+  A.szBankSet_(u, { id: 'bt_T2', status: 'elvetve' });
+  assert.equal(A.readAll_('bankTx').find(t => t.id === 'bt_T2').status, 'elvetve');
+  A.szBankSet_(u, { id: 'bt_T2', status: 'vissza' });
+  assert.equal(A.readAll_('bankTx').find(t => t.id === 'bt_T2').status, '', 'visszaállítva');
+  A.szBankSet_(u, { id: 'bt_T1', status: 'kolcson' });
+  const L = A.readAll_('finLoan');
+  assert.equal(L.length, 1, 'egy tagi kölcsön sor'); assert.equal(Number(L[0].amount), 127000); assert.equal(L[0].kind, 'be'); assert.equal(L[0].date, '2026-11-17');
+  assert.equal(A.readAll_('bankTx').find(t => t.id === 'bt_T1').status, 'kolcson');
+  console.log('ok3');
 }
