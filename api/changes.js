@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b434b1354c",
+"at": "2026-11-17T14:57:23+02:00",
+"msg": "Ajánlat-néző: új nagyítás – egyszeri, nagy felbontású rajzolás, a csippentés csak a méretet állítja (elengedéskor nem ugrik)"
+},
+{
 "id": "a3cc6377de",
 "at": "2026-11-17T14:56:02+02:00",
 "msg": "Folyamatjelzés: „Dolgozom…” helyett kiírja, mit tölt be (pl. Ajánlat betöltése – …)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: keskeny oszlopok álló nézetben is"
 },
 {
-"id": "d9d7ec2bfd",
-"at": "2026-11-17T13:55:33+02:00",
-"msg": "Kiküldött ajánlat: a PDF-et az app rajzolja ki (telefonon is), működő nagyítás"
-},
-{
-"id": "e0f01a5e78",
-"at": "2026-11-17T11:24:02Z",
+"id": "4c9659d113",
+"at": "2026-11-17T11:55:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
