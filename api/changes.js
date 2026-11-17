@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "90799cbae5",
+"at": "2026-11-17T11:25:49+02:00",
+"msg": "Csengő és névjelvény: sima kurzor"
+},
+{
 "id": "362d303324",
 "at": "2026-11-17T11:25:19+02:00",
 "msg": "Felső menü: sima kurzor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Figyelmeztető üzenet: egér elvitelére sem tűnik el"
 },
 {
-"id": "c60ff13d0d",
-"at": "2026-11-17T09:01:07+02:00",
-"msg": "Figyelmeztető üzenet: csak kattintásra tűnik el"
-},
-{
-"id": "bd4f45fc9c",
-"at": "2026-11-17T07:00:56Z",
+"id": "128e7edc84",
+"at": "2026-11-17T07:01:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
