@@ -126,5 +126,6 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
 (()=>{if(!('ontouchstart' in window))return;let w=null,x0=0,y0=0;
   document.addEventListener('touchstart',e=>{w=e.touches.length===1&&e.target.closest?e.target.closest('.pay-wrap,.dock-wrap'):null;if(w){x0=e.touches[0].clientX;y0=e.touches[0].clientY;}},{passive:true});
   document.addEventListener('touchmove',e=>{if(!w||e.touches.length!==1)return;const t=e.touches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dy)<=Math.abs(dx))return;
+    if(w.scrollHeight<=w.clientHeight+1)return;   /* ha a tábla nem görget függőlegesen (pl. tableten az oldal görget), nem fogjuk meg */
     const atTop=w.scrollTop<=0,atBot=w.scrollTop+w.clientHeight>=w.scrollHeight-1;if((dy>0&&atTop)||(dy<0&&atBot)){if(e.cancelable)e.preventDefault();}},{passive:false});
   document.addEventListener('touchend',()=>{w=null;},{passive:true});})();
