@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9444d4219d",
+"at": "2026-11-17T12:20:53+02:00",
+"msg": "Új projekt: létrehozáskor csak a név (és a dátum) kötelező"
+},
+{
 "id": "324503f351",
 "at": "2026-11-17T12:19:29+02:00",
 "msg": "Lehetőség ablaka: mentett ajánlat folytatása / új árajánlat gombok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltás gyorsítása (könnyített betöltés, megjegyzett nézetek), visszajelzések középen"
 },
 {
-"id": "a3d8869e8c",
-"at": "2026-11-17T09:26:05+02:00",
-"msg": "Beállítások: korábbi előtöltés, nézetváltáskor nem ürül"
-},
-{
-"id": "630aa28f07",
-"at": "2026-11-17T07:20:52Z",
+"id": "8324eb75a9",
+"at": "2026-11-17T07:26:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
