@@ -18,12 +18,14 @@
     if(l>=.78||l<=.3||s<.18){l=1-l;l=l<.5?.07+l*.86:.12+l*.86;if(s>.18)s*=.72;}else return null;   /* telített középtónus (márkaszín): marad */
     function f(t){var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;}
     var R=Math.round((s?f(hh+1/3):l)*255),G=Math.round((s?f(hh):l)*255),B=Math.round((s?f(hh-1/3):l)*255);return a<1?'rgba('+R+','+G+','+B+','+a+')':'rgb('+R+','+G+','+B+')';}
-  var HEX=/#([0-9a-f]{3,8})\b/gi,RGB=/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/gi,NAMED=/\b(white|black)\b/gi;
-  function cv(v){var ch=false,o=v.replace(HEX,function(m,x){if(x.length===3||x.length===4)x=x.split('').map(function(c){return c+c;}).join('');if(x.length!==6&&x.length!==8)return m;
-      var a=x.length===8?parseInt(x.slice(6),16)/255:1,n=conv(parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16),a);if(!n)return m;ch=true;return n;})
-    .replace(RGB,function(m,r,g,b,a){var al=a==null?1:/%$/.test(a)?parseFloat(a)/100:+a;if(/rgba?\(\s*0[\s,]+0[\s,]+0[\s,]+(0|0\.\d+)\)/.test(m)&&al<.5)return m;   /* árnyékok (átlátszó fekete) maradnak */
-      var n=conv(+r,+g,+b,al);if(!n)return m;ch=true;return n;})
-    .replace(NAMED,function(m){ch=true;return m.toLowerCase()==='white'?'rgb(22,30,38)':'rgb(232,238,243)';});return ch?o:null;}
+  var ANY=/#([0-9a-f]{3,8})\b|rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)|\b(white|black)\b/gi;
+  function cv(v){var ch=false,o=v.replace(ANY,function(m,x,r,g,b,a,nm){var n=null;   /* egyetlen menet: egy színt csak egyszer alakítunk át */
+      if(x){if(x.length===3||x.length===4)x=x.split('').map(function(c){return c+c;}).join('');if(x.length!==6&&x.length!==8)return m;
+        n=conv(parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16),x.length===8?parseInt(x.slice(6),16)/255:1);}
+      else if(r!=null){var al=a==null?1:/%$/.test(a)?parseFloat(a)/100:+a;if(+r+ +g+ +b===0&&al<.5)return m;   /* árnyékok (átlátszó fekete) maradnak */
+        n=conv(+r,+g,+b,al);}
+      else if(nm)n=nm.toLowerCase()==='white'?'rgb(22,30,38)':'rgb(232,238,243)';
+      if(!n)return m;ch=true;return n;});return ch?o:null;}
   var SKIP=/\.topbar|#userChip|\.uc-pop|\.work-pill|#toast|\.qs-pdf|\.qs-pages|\.brand|\.identity|\.vv-player|video|iframe|canvas|\.mn-qr|qr/i;   /* a sötét menüsáv és a már sötét elemek / képek maradnak */
   function sel(s){return s.split(',').map(function(x){x=x.trim();if(/^:root\b/.test(x))return 'html.dark'+x.slice(5);if(/^html\b/.test(x))return 'html.dark'+x.slice(4);return 'html.dark '+x;}).join(',');}
   function walk(list,out){for(var i=0;i<list.length;i++){var r=list[i];
