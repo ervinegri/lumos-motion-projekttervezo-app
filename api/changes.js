@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b2be6e0187",
+"at": "2026-11-17T15:53:55+02:00",
+"msg": "Meghívás-figyelmeztetés: a hiányzó nevek külön sorban"
+},
+{
 "id": "ad2f30803c",
 "at": "2026-11-17T15:53:34+02:00",
 "msg": "Fizetések tábla telefonon: egyetlen natív görgetés (a fejléc a tábla fölött görget ki, a menüsáv eltolással) – nincs akadás lendületnél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző telefonon: gombsor a képernyő alján, nincs üres sáv alatta"
 },
 {
-"id": "8c003a2100",
-"at": "2026-11-17T15:04:10+02:00",
-"msg": "Folyamatjelzés: két sorban (művelet, alatta a címe)"
-},
-{
-"id": "a7843e8ee6",
-"at": "2026-11-17T13:01:55Z",
+"id": "3e7c06dd6b",
+"at": "2026-11-17T13:04:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
