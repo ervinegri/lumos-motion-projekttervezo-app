@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a37b99d00c",
+"at": "2026-11-17T09:20:41+02:00",
+"msg": "Meghívások doboz kompakt"
+},
+{
 "id": "b2c08bcc25",
 "at": "2026-11-17T09:18:38+02:00",
 "msg": "Neon: átváltó gomb a Beállításokban, automatikus visszaesés a táblázatra (e-mail értesítéssel), mentés időpontja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszínek előadásainak utómunkája: több helyszínnél helyszínenként külön feladat (külön vágóhoz rendelhető)"
 },
 {
-"id": "c580f73d13",
-"at": "2026-11-16T23:00:11+02:00",
-"msg": "Stáb: a betöltetlen pozíciók a kártyák végére kerülnek"
-},
-{
-"id": "88db1c9c69",
-"at": "2026-11-16T20:52:34Z",
+"id": "d962765dac",
+"at": "2026-11-16T21:00:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
