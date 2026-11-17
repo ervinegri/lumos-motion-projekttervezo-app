@@ -118,6 +118,7 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
     const safe=parseFloat(getComputedStyle(tb).paddingTop)||0,max=Math.max(0,tb.offsetHeight-safe),y=Math.min(max,Math.max(0,W.scrollTop));
     tb.style.transition='none';tb.style.transform=y?'translate3d(0,'+(-y)+'px,0)':'';};
   document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap')||!document.body.classList.contains('pay-dock'))return;W=w;if(!raf)raf=requestAnimationFrame(upd);},{capture:true,passive:true});
+  window.payDockSync=w=>{W=w;upd();};   /* újrarajzolás után a menüsáv helyzete a (visszaállított) görgetéshez igazodik */
 })();
 
 /* Fizetések tábla telefonon: a tábla tetején lefelé / alján felfelé húzva (gyors görgetésnél is) az iPhone az egész oldalt
