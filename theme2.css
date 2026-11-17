@@ -2775,3 +2775,8 @@ html body.pay-dock #view .dock-wrap .pay-sheet thead th{top:var(--pay-st,0px)!im
  html body .page-head.pay-head>.btn,html body .page-head.pay-head .mnav-chip{font-size:12.5px!important;padding:0 8px!important}
  html body #view>.page-head.pay-head{padding-left:0!important;padding-right:0!important}
 }
+/* Projekt Pénzügyek kártyák (tablet és gép): egy kártya nem lehet keskenyebb a benne lévő mezőknél – ha nem fér ki, a sor tördelődik (nem lóg ki a mező, nem csúszik egymásra) */
+@media (min-width:701px){
+ html body .fin-v2 .fin-r>.fin-grp,html body .fin-v2 .fin-r>.fin-exm{flex-shrink:0!important;min-width:max-content!important;max-width:100%}
+ html body .fin-v2 .fin-r>.fin-grp>.grp-b{min-width:max-content}
+}
