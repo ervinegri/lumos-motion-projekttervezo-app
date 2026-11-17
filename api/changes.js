@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8fa79f5c0b",
+"at": "2026-11-17T12:09:27+02:00",
+"msg": "Naptár eszköztár: a hónapváltó nem tördel"
+},
+{
 "id": "f298cff376",
 "at": "2026-11-17T12:05:11+02:00",
 "msg": "Idővonal: a projektnév a sáv végéig ér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pénzügyek: rendezett kártyák (Levonások, Levonások után); naptár: fel-le görgetéssel lapozás, eszköztár egy sorban; ügyvezető nem lesz vendég a naptáreseményekben"
 },
 {
-"id": "5c16f53b98",
-"at": "2026-11-17T09:02:26+02:00",
-"msg": "Instrukciók: tömörebb szerkesztő (2 sor, fókuszban nő), kisebb gomb, redundáns „Még nincs instrukció” sor nélkül"
-},
-{
-"id": "bf905170c4",
-"at": "2026-11-17T07:01:36Z",
+"id": "077efdcf0d",
+"at": "2026-11-17T07:02:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
