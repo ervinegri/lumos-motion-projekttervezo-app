@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "822436fb58",
+"at": "2026-11-17T22:55:38+02:00",
+"msg": "Sötét mód: aktív kapcsolók sötétek; a hozzászólás Küldés gombja nem nyúlik meg"
+},
+{
 "id": "d30985be8f",
 "at": "2026-11-17T22:54:16+02:00",
 "msg": "Stáb: a számlázó cég, adószám és ÁFA csak az ügyvezetőnek látszik; sötét mód: aktív hónap és frissítés-sáv sötét"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: oszlopszélesség-számítás hibájának javítása (névütközés miatt leállt)"
 },
 {
-"id": "b60ade295d",
-"at": "2026-11-17T16:40:33+02:00",
-"msg": "Értékesítés: a hónapváltó és a fő gombok egy sorban"
-},
-{
-"id": "c3e4206f06",
-"at": "2026-11-17T14:40:02Z",
+"id": "44076c77ac",
+"at": "2026-11-17T14:40:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
