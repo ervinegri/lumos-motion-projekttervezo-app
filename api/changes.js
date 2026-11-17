@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "26664af9dc",
+"at": "2026-11-17T16:54:54+02:00",
+"msg": "Projekt pénzügyek: új tételtípus – ⛽ Saját költség (pl. tankolás): a teljes összegből vonódik le, nem kerül a számlára; a Bevétel és kiadás lebontásában külön sor"
+},
+{
 "id": "e15793c785",
 "at": "2026-11-17T16:46:27+02:00",
 "msg": "Fizetések tábla: a fejléc a tábla keretének tetejéhez tapad (nincs üres sáv fölötte tableten/gépen)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon (álló és fekvő): a felső rész fokozatosan, a görgetéssel együtt tűnik el / jön vissza"
 },
 {
-"id": "dc91fbc72b",
-"at": "2026-11-17T15:40:22+02:00",
-"msg": "Fekvő telefon, Fizetések: a felső rész ténylegesen eltűnik lefelé görgetéskor"
-},
-{
-"id": "838f7ecbec",
-"at": "2026-11-17T13:38:40Z",
+"id": "d0359b8e71",
+"at": "2026-11-17T13:40:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
