@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b60ade295d",
+"at": "2026-11-17T16:40:33+02:00",
+"msg": "Értékesítés: a hónapváltó és a fő gombok egy sorban"
+},
+{
 "id": "129e90e399",
 "at": "2026-11-17T16:39:51+02:00",
 "msg": "Tablet/telefon: az oldal nem kicsinyedhet le (minimum-scale=1)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Táblázatok: nincs lefelé húzás / rugózás"
 },
 {
-"id": "d35312a1ed",
-"at": "2026-11-17T15:27:55+02:00",
-"msg": "Fekvő telefon: a felugró ablak háttere a teljes tartalom mögött ott van"
-},
-{
-"id": "1c3e207be5",
-"at": "2026-11-17T13:26:49Z",
+"id": "14b35e27a2",
+"at": "2026-11-17T13:28:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
