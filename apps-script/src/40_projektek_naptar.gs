@@ -809,7 +809,7 @@ function hsClientSync_(c) {
    Nyitott szakasz → nyitott lehetőség, „Bukta” → elveszett; a „Siker” (megnyert) dealeket NEM hozzuk át (azok már projektek).
    A tulajdonos marad (HubSpot-tulajdonos → app-felhasználó név / e-mail alapján); az appban már meglévő (azonos nevű) lehetőséget kihagyjuk.
    Az eredményt a HS_DEAL_IMPORT_1 tulajdonság őrzi (JSON: átvett / kihagyott). */
-const HS_STAGE_MAP_ = { qualifiedtobuy: 'uj', presentationscheduled: 'ajanlat', contractsent: 'targyalas', closedwon: 'targyalas', closedlost: 'elveszett' };
+const HS_STAGE_MAP_ = { qualifiedtobuy: 'uj', presentationscheduled: 'ajanlat', contractsent: 'ajanlat', closedwon: 'ajanlat', closedlost: 'elveszett' };
 const HS_STAGE_LBL_ = { qualifiedtobuy: 'Igényfelmérés', presentationscheduled: 'Ajánlat készítés', contractsent: 'Döntésre vár', closedwon: 'Szerződés kiküldve', closedlost: 'Bukta', '5960764616': 'Siker' };
 function hsDealImportOnce_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_DEAL_IMPORT_1') || !String(P.getProperty('HUBSPOT_TOKEN') || '').trim()) return;

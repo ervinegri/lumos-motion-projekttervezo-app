@@ -2537,3 +2537,10 @@ html.th2 .dl-board,html body .dl-board{grid-template-columns:repeat(6,210px)!imp
 html body .dl-board.lost-closed{grid-template-columns:repeat(5,210px) 44px!important}
 html body .dl-colh small{display:inline}
 }
+/* a „Tárgyalás” oszlop megszűnt: 5 oszlop (Új érdeklődő, Ajánlat kiküldve, Szerződve, Díjbekérő fizetve, Sikertelen) */
+html.th2 .dl-board,html body .dl-board{grid-template-columns:repeat(5,minmax(200px,1fr))}
+html body .dl-board.lost-closed{grid-template-columns:repeat(4,minmax(200px,1fr)) 48px}
+@media (max-width:760px){
+html.th2 .dl-board,html body .dl-board{grid-template-columns:repeat(5,210px)!important}
+html body .dl-board.lost-closed{grid-template-columns:repeat(4,210px) 44px!important}
+}
