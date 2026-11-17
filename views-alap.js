@@ -208,11 +208,14 @@ function render(force){setTimeout(appReveal,0);
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
   renderChrome();
   if(!S.loaded)return;
+  const pwO=VIEW.querySelector('.pay-wrap'),pwS=pwO?{t:pwO.scrollTop,l:pwO.scrollLeft,k:S.tab+'|'+(S.payMonth||'')}:null;   /* Fizetések tábla: a görgetett helyzet frissítéskor megmarad */
   VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertesitesek'?viewMyNotify():S.tab==='ertekesites'?viewSales():viewProjects());
   {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}
-  try{if(window.payFullOff)payFullOff();}catch(e){}   /* újrarajzoláskor a felső rész visszajön */
+  const pwN=VIEW.querySelector('.pay-wrap'),pwKeep=!!(pwS&&pwN&&pwS.k===S.tab+'|'+(S.payMonth||''));
+  try{if(window.payFullOff)payFullOff(pwKeep);}catch(e){}   /* újrarajzoláskor a felső rész visszajön – kivéve, ha ugyanaz a tábla frissült (adatbetöltés) */
   try{payFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
+  if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;try{if(window.payFullRe)payFullRe(pwN);}catch(e){}}
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);

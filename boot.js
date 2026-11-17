@@ -125,13 +125,14 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
     /* amíg a felső rész kicsúszik, a tábla tartalma áll (ugyanannyival lejjebb toljuk) – csak utána görget a tábla */
     {const t=W&&W.querySelector('table');if(t)t.style.marginTop=n?n+'px':'';}
     document.body.classList.toggle('pay-full',n>=base&&n>0);};
-  const off=()=>{if(c||W){apply(0);}W=null;base=0;};
+  const off=keep=>{if(keep&&c){W=null;return;}if(c||W){apply(0);}W=null;base=0;};   /* keep: a tábla újrarajzolódik, a felső rész állapota marad */
+  const re=w=>{W=w;const n=Math.max(0,Math.min(base,Math.round(w.scrollTop)));apply(n);};
   document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap'))return;if(!mq.matches){off();return;}
     if(W!==w||!document.contains(W)){off();W=w;}
     if(!c)base=Math.max(0,Math.round(w.getBoundingClientRect().top));   /* a tábla teteje a képernyő tetejétől, kiinduló helyzetben */
     const n=Math.max(0,Math.min(base,Math.round(w.scrollTop)));if(n!==c)apply(n);},{capture:true,passive:true});
-  if(mq.addEventListener)mq.addEventListener('change',off);
-  window.addEventListener('hashchange',off);window.payFullOff=off;
+  if(mq.addEventListener)mq.addEventListener('change',()=>off());
+  window.addEventListener('hashchange',()=>off());window.payFullOff=off;window.payFullRe=re;
 })();
 
 /* Fizetések tábla telefonon: a tábla tetején lefelé / alján felfelé húzva (gyors görgetésnél is) az iPhone az egész oldalt
