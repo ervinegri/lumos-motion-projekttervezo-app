@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8ba772c972",
+"at": "2026-11-17T12:54:11+02:00",
+"msg": "Kiküldött ajánlat: előtöltés már a kártyára mutatva"
+},
+{
 "id": "e141086aa9",
 "at": "2026-11-17T12:52:18+02:00",
 "msg": "Kiküldött ajánlat: új lapon nyitáskor az ablak bezárul"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Adatbázis-állapot (/api/dbstatus): aktív adatbázis, óránkénti Neon-lekérdezések forrás szerint, időzítők"
 },
 {
-"id": "f6e9ba232e",
-"at": "2026-11-17T11:03:06+02:00",
-"msg": "Termelési v. nézet előtöltése: a nézetváltás első alkalommal is azonnali"
-},
-{
-"id": "daeb32d78a",
-"at": "2026-11-17T09:02:32Z",
+"id": "32eb0abaac",
+"at": "2026-11-17T09:03:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
