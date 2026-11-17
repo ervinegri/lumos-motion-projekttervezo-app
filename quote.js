@@ -230,7 +230,7 @@ ACT['qs-full']=()=>{const mb=document.querySelector('#modalRoot .qs-box');if(!mb
   try{if(on){const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}
     else if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}}catch(x){}};
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{const mb=document.querySelector('#modalRoot .qs-box.qs-full');if(mb&&!(document.fullscreenElement||document.webkitFullscreenElement))qsFullSet(false);}));
-window.addEventListener('resize',()=>{if(document.querySelector('#modalRoot .qs-box.qs-full'))qsRefit();});
+window.addEventListener('resize',()=>{if(document.querySelector('#modalRoot .qs-box'))qsRefit();});   /* forgatáskor / teljes képernyőnél az ajánlat a szélességhez igazodik */
 {const mr=document.getElementById('modalRoot');if(mr&&window.MutationObserver)new MutationObserver(()=>{if(!mr.querySelector('.qs-box')&&(document.fullscreenElement||document.webkitFullscreenElement))try{(document.exitFullscreen||document.webkitExitFullscreen).call(document);}catch(x){}}).observe(mr,{childList:true});}   /* az ablak bezárásakor a teljes képernyő is megszűnik */
 document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('.qs-newtab'))setTimeout(()=>{try{closeModal();}catch(x){}},0);});   /* új lapon nyitva: az ablak bezárul */
 
@@ -258,4 +258,5 @@ document.addEventListener('touchmove',e=>{if(!QS_PZ||e.touches.length!==2)return
 document.addEventListener('touchend',e=>{if(QS_PZ){if(e.touches.length<2)QS_PZ=null;return;}
   /* nagyítás nélkül görgetés után az ablak pontosan visszaáll a megnyitáskori helyzetébe */
   const mb=e.target&&e.target.closest&&e.target.closest('.qs-box');if(!mb||e.touches.length||!QS_DOC||(QS_DOC.z||100)>100)return;
-  setTimeout(()=>{try{const sc=qsScroller($('qs-pdf'));if(sc)sc.scrollTo({top:0,behavior:'smooth'});const bx=$('qs-pdf');if(bx)bx.scrollTo({left:0,behavior:'smooth'});}catch(x){}},60);},{passive:true});
+  setTimeout(()=>{try{const bx=$('qs-pdf'),sc=qsScroller(bx);   /* csak ha nincs mit görgetni (a tartalom elfér) – különben a görgetett helyzet marad */
+    if(sc&&sc!==bx&&sc.scrollHeight<=sc.clientHeight+2)sc.scrollTo({top:0,behavior:'smooth'});if(bx&&bx.scrollWidth<=bx.clientWidth+2&&bx.scrollLeft)bx.scrollTo({left:0,behavior:'smooth'});}catch(x){}},60);},{passive:true});
