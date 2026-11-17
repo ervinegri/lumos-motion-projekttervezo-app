@@ -915,8 +915,6 @@ function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JS
   return out; }
 /** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
 function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
-/** Látja-e a szakember a projektet / a projekten belül a munkatársat: nincs meghívás → igen (régi működés); van → csak ha elfogadta. */
-function inviteOk_(inv, cid) { const x = inv && inv[cid]; return !x || x.st === 'yes'; }
 /** A kiküldött meghívó és az előnézet közös, azonos e-mail-sablonja. */
 function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
   const em = String(c.email || '').trim().toLowerCase(), pid = p.id;

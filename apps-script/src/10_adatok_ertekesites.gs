@@ -50,28 +50,6 @@ function calNoClientOnce_() {
   P.setProperty('MIG_CALNOTES_2026_11_12', now_());
   try { ScriptApp.newTrigger('calResyncUpcoming').timeBased().after(60 * 1000).create(); } catch (e) {}
 }
-/* Automatikus lépés: a Helyszíni munka szakaszban lévő projekt a forgatás vége után magától Utómunkába kerül
-   (utolsó nap + távozási idő; ha nincs megadva, a nap végén). A helyszíni beszámolót utána kell bejelölni – az app figyelmeztet rá.
-   Bejelentkezéskor fut (legfeljebb 5 percenként), így időzítő nélkül is naprakész. */
-function autoAdvance_() {
-  const cache = CacheService.getScriptCache(); if (cache.get('pm_autoadv')) return; cache.put('pm_autoadv', '1', 300);
-  const nowS = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm');
-  const endOf = p => { const multi = p.endDate && p.endDate > p.date, d = multi ? p.endDate : p.date; if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || ''))) return '';
-    const t = String((multi && p.lastEndTime) || p.endTime || '').trim(); return d + ' ' + (/^\d{2}:\d{2}$/.test(t) ? t : '23:59'); };
-  const due = readAll_('projects').filter(p => p.status === 'helyszin' && endOf(p) && endOf(p) < nowS);
-  if (!due.length) return;
-  const moved = withLock_(() => {
-    const sh = sheetFor_('projects'), out = [];
-    due.forEach(x => { const r = findRow_(sh, x.id); if (!r) return; const q = readRow_('projects', sh, r); if (q.status !== 'helyszin') return;
-      const noPost = !hasDeliverables_(q);   // csak helyszíni technika: nincs utómunka, rögtön kész
-      q.prevStatus = 'helyszin'; q.status = noPost ? 'atadva' : 'utomunka';
-      const sd = String(q.stepsDone || '').split(',').filter(String); (noPost ? ['helyszin', 'utomunka', 'leadva', 'jovahagyas'] : ['helyszin']).forEach(x => { if (sd.indexOf(x) < 0) sd.push(x); }); q.stepsDone = sd.join(',');
-      q.updatedAt = now_(); q.updatedBy = 'Automatikus (a forgatás véget ért)'; putRow_('projects', sh, q, r); out.push(q.name); });
-    if (out.length) { dbFlush_(); dataBump_(); }
-    return out;
-  });
-  moved.forEach(n => logEvent_(null, 'Automatikus lépés', n, 'Helyszíni munka → Utómunka (a forgatás véget ért)'));
-}
 function calResyncUpcoming() {
   const today = today_();
   readAll_('projects').filter(p => p.calEventId && (p.status === 'lemondva' || String(p.endDate || p.date || '') >= today)).forEach(p => { try { syncCalendar_(fullProject_(p)); } catch (e) {} });

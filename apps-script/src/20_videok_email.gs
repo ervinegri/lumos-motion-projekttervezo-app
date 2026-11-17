@@ -625,8 +625,6 @@ function doneBackfillOnce_() {
   P.setProperty('DONE_BACKFILL_1', new Date().toISOString());
 }
 let SALES_DONE_ = null;
-/** Formázott (HTML) jegyzet → sima szöveg (naptár, levél). */
-function notesText_(s) { s = String(s || ''); if (!/<\/?(p|div|br|b|strong|i|em|u|ul|ol|li|a|h[1-6])\b/i.test(s)) return s; return s.replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/(p|div|li|h[1-6])>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim(); }
 const AUTO_FOOT_ = 'Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {};

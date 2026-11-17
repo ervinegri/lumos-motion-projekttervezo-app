@@ -671,12 +671,6 @@ function crewDocsAuto_() {
   } catch (e) { P.setProperty('CREWDOCS_AUTO2_RES', JSON.stringify({ at: now_(), err: String((e && e.message) || e).slice(0, 300) })); P.deleteProperty('CREWDOCS_AUTO2_AT'); }
 }
 function crewDocsAutoRun() { ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'crewDocsAutoRun').forEach(t => { try { ScriptApp.deleteTrigger(t); } catch (e) {} }); crewDocsAuto_(); }
-function crewDocsAutoSchedule_() {
-  const P = PropertiesService.getScriptProperties();
-  if (P.getProperty('CREWDOCS_AUTO2_AT') === today_()) return;
-  if (ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'crewDocsAutoRun')) return;
-  ScriptApp.newTrigger('crewDocsAutoRun').timeBased().after(20 * 1000).create();
-}
 /** Aláírt munkatársi szerződések begyűjtése a Gmailből (külsősök, akiknek még nincs feltöltött szerződésük). a: {dry, crewIds?} */
 function crewDocsImport_(u, a) {
   a = a || {};
