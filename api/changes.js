@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1e49baacac",
+"at": "2026-11-17T12:47:17+02:00",
+"msg": "Kártya: kompakt ajánlat-jelzések"
+},
+{
 "id": "e19fea1bb0",
 "at": "2026-11-17T12:47:08+02:00",
 "msg": "Kiküldött ajánlat: kattintásra ablakban maga a PDF; reggeli e-mail a lehetőségek mai / lejárt teendőiről"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "df12caed6d",
 "at": "2026-11-17T09:54:30+02:00",
 "msg": "Beállítások előtöltése csak ügyvezető / termelési v. nézetben (szakember nézetben jogosultsági hibát adott)"
-},
-{
-"id": "6646c2f48b",
-"at": "2026-11-17T07:54:22Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
