@@ -582,4 +582,6 @@ function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIE
   t.querySelectorAll('tr').forEach(tr=>{const cs=tr.children;for(let i=1;i<=n&&i<cs.length;i++){const td=cs[i];if(td.colSpan>1)break;const tx=(td.textContent||'').trim();if(!/\d[\d\s\u00a0]*\s?Ft$/.test(tx))continue;
       rg.selectNodeContents(td);const w=rg.getBoundingClientRect().width;if(w>mx)mx=w;}});
   if(!mx)return;const td0=t.querySelector('tbody td.r'),cs=td0&&getComputedStyle(td0),pad=cs?parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight):16,w=Math.ceil(mx+pad+2)+'px';
-  cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');});}
+  cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');
+  /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
+  let tw=0;t.querySelectorAll('col').forEach(c=>{tw+=parseFloat(getComputedStyle(c).width)||0;});if(tw)t.style.setProperty('width',Math.ceil(tw)+'px','important');});}
