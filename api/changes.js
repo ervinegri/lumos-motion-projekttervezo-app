@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dd725d5da5",
+"at": "2026-11-17T11:24:32+02:00",
+"msg": "Projektlista videósáv: a jóváhagyásra váró rész sárga"
+},
+{
 "id": "9550367a9c",
 "at": "2026-11-17T11:15:27+02:00",
 "msg": "Nyitva hagyott app: 10 perc tétlenség után nincs háttérfrissítés (az adatbázis elalhat), mozdulatra azonnal frissít"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Minden figyelmeztető üzenet: ⚠️, középen, elsötétített háttér előtt fehér dobozban"
 },
 {
-"id": "3b48024e65",
-"at": "2026-11-17T08:57:17+02:00",
-"msg": "Nézetváltó menü: az inaktív nézetek beljebb és szürkébben"
-},
-{
-"id": "76786abc98",
-"at": "2026-11-17T06:57:07Z",
+"id": "03f3f842ee",
+"at": "2026-11-17T06:57:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
