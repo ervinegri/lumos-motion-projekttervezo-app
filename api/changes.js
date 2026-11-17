@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "129e90e399",
+"at": "2026-11-17T16:39:51+02:00",
+"msg": "Tablet/telefon: az oldal nem kicsinyedhet le (minimum-scale=1)"
+},
+{
 "id": "9c961e0bb3",
 "at": "2026-11-17T16:39:05+02:00",
 "msg": "Tablet: a széles Fizetések tábla nem tolja ki oldalra az egész oldalt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: a felugró ablak háttere a teljes tartalom mögött ott van"
 },
 {
-"id": "a9756ff8d8",
-"at": "2026-11-17T15:26:38+02:00",
-"msg": "Fizetések tábla: forgatáskor újraszámolt oszlopok"
-},
-{
-"id": "1dc01d4b9f",
-"at": "2026-11-17T13:26:30Z",
+"id": "1c3e207be5",
+"at": "2026-11-17T13:26:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
