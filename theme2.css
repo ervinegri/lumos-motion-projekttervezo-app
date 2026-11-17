@@ -2531,3 +2531,9 @@ html body .dl-card .dl-f{font-size:11px!important;margin-top:4px!important}
 html body .dl-card .dl-ch{padding:0 6px!important;font-size:10.5px!important}
 html body .dl-card .dl-qdraft{font-size:10.5px!important;padding:0 6px!important}
 }
+/* álló telefon: fix szélességű oszlopok (nem nyomódnak össze), oldalra görgethető tábla */
+@media (max-width:760px){
+html.th2 .dl-board,html body .dl-board{grid-template-columns:repeat(6,210px)!important;overflow-x:auto!important}
+html body .dl-board.lost-closed{grid-template-columns:repeat(5,210px) 44px!important}
+html body .dl-colh small{display:inline}
+}
