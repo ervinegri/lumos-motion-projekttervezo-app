@@ -245,8 +245,7 @@ document.addEventListener('wheel',e=>{const box=e.target&&e.target.closest&&e.ta
 let QS_PZ=null;
 document.addEventListener('touchstart',e=>{const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box||!QS_DOC)return;
   if(e.touches.length===2){const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),r=box.getBoundingClientRect();
-    QS_DOC._ox=(a.clientX+b.clientX)/2-r.left+box.scrollLeft;QS_DOC._oy=(a.clientY+b.clientY)/2-r.top+box.scrollTop;QS_PZ={d,z:QS_DOC.z||QS_DOC.zEff||100};}
-  else if(e.touches.length===1){const t=Date.now();if(QS_DOC._tap&&t-QS_DOC._tap<300){QS_DOC._tap=0;qsZoomTo((QS_DOC.z||QS_DOC.zEff||100)>=140?qsMin():150);}else QS_DOC._tap=t;}},{passive:true});
+    QS_DOC._ox=(a.clientX+b.clientX)/2-r.left+box.scrollLeft;QS_DOC._oy=(a.clientY+b.clientY)/2-r.top+box.scrollTop;QS_PZ={d,z:QS_DOC.z||QS_DOC.zEff||100};}},{passive:true});   /* dupla koppintásos zoom nincs: görgetés közben véletlenül is bekapcsolt */
 document.addEventListener('touchmove',e=>{if(!QS_PZ||e.touches.length!==2)return;const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box)return;e.preventDefault();
   const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);qsZoomTo(QS_PZ.z*d/QS_PZ.d,true);},{passive:false});
 document.addEventListener('touchend',e=>{if(QS_PZ&&e.touches.length<2){QS_PZ=null;qsCommit();}},{passive:true});
