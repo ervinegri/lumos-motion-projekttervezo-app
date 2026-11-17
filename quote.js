@@ -229,7 +229,7 @@ async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{cons
       await pg.render({canvasContext:x0,viewport:vp}).promise;
       let bx0=c0.width,by0=c0.height,bx1=0,by1=0;try{const D=x0.getImageData(0,0,c0.width,c0.height).data,st=4;for(let y=0;y<c0.height;y+=st)for(let x=0;x<c0.width;x+=st){const o=(y*c0.width+x)*4;if(D[o]<238||D[o+1]<238||D[o+2]<238){if(x<bx0)bx0=x;if(x>bx1)bx1=x;if(y<by0)by0=y;if(y>by1)by1=y;}}}catch(e){bx0=0;by0=0;bx1=c0.width;by1=c0.height;}
       if(bx1<=bx0||by1<=by0){bx0=0;by0=0;bx1=c0.width;by1=c0.height;}
-      const m=Math.round(10*k),cx=Math.max(0,bx0-m),cy=Math.max(0,by0-m),cw=Math.min(c0.width,bx1+m)-cx,ch=Math.min(c0.height,by1+m)-cy;
+      const m=Math.round(4*k),cx=Math.max(0,bx0-m),cy=Math.max(0,by0-m),cw=Math.min(c0.width,bx1+m)-cx,ch=Math.min(c0.height,by1+m)-cy;
       const c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').drawImage(c0,cx,cy,cw,ch,0,0,cw,ch);
       const dw=Math.round(W*(QS_DOC.z?QS_DOC.z/100:1));c.style.width=dw+'px';c.style.height=Math.round(dw*ch/cw)+'px';c.className='qs-page';frag.appendChild(c);}
     if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
