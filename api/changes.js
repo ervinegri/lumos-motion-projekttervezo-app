@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2d4fd242b1",
+"at": "2026-11-17T08:39:21+02:00",
+"msg": "Fejléc: a nézetváltó és a névjelvény egy gombban (a nézetek a névjelvény menüjében)"
+},
+{
 "id": "44fa2da9c5",
 "at": "2026-11-17T08:38:35+02:00",
 "msg": "Stábkártya: ⚙️ menü a kuka helyett (távolról vezeti, helyszíni vágó, meghívó újraküldése, projektvezető, levétel); elfogadott meghívás után a távoli / helyszíni jelleg nem módosítható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kanban: a nyersanyagra váró (szürke) kártyák nem jelölhetők ki, a Mind kijelölése gomb sem jelenik meg hozzájuk"
 },
 {
-"id": "b528d94770",
-"at": "2026-11-16T21:44:28+02:00",
-"msg": "Szakember kifizetései: a még el nem fogadott meghívás díja ⏳-val látszik, az összegbe nem számít; a meghívás-válasz gombok rendezett, egysoros sávban"
-},
-{
-"id": "67545a3654",
-"at": "2026-11-16T19:41:59Z",
+"id": "bbdf2f847a",
+"at": "2026-11-16T19:44:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
