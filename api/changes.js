@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f2159c708f",
+"at": "2026-11-18T00:10:28+02:00",
+"msg": "Tagi kölcsön: a banki tételből rögzített sor nem duplikál (ha kézzel már fel volt véve, csak a közlemény kerül rá); a két meglévő duplikátum egyszeri összevonása; banki tétel részletei kattintásra"
+},
+{
 "id": "b3e56bf2d6",
 "at": "2026-11-18T00:04:59+02:00",
 "msg": "Banki tételek: tagi kölcsön rögzítése egy kattintással (a „tagi kölcsön” közleményű tételeknél javaslat); az elvetett tételek lenyithatók, visszaállíthatók vagy tagi kölcsönként rögzíthetők"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a naptár sávjaiban nincs világos átmenet; nézetváltáskor a frissítés-értesítő az adott szerepkör szerinti (nem a teljes változásnapló)"
 },
 {
-"id": "d7867539ce",
-"at": "2026-11-17T22:47:17+02:00",
-"msg": "Sötét mód: a felugró ablak háttere sötét fátyol marad, a névjelvény menüje is sötét; Stáb lista: az egész sor kattintható"
-},
-{
-"id": "57421b4590",
-"at": "2026-11-17T20:45:53Z",
+"id": "c57784e623",
+"at": "2026-11-17T20:47:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
