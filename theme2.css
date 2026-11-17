@@ -2335,8 +2335,9 @@ html body .basics .b-col .field{margin:0!important;min-width:0}
 html body .basics .b-row2{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px}
 html body .basics .b-row2.b-contact{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
 html body .basics .b-when{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,.8fr);gap:10px}
-html body .basics .b-multi{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4b5d73;cursor:pointer;margin:-2px 0 0}
+html body .basics .b-multi{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#5d6b7a;cursor:pointer;margin:0 0 0 12px;vertical-align:1px}html body .basics .b-multi input{margin:0}
 html body .basics .vcf-btn{padding:0 10px!important}
 html body .basics .rt-notes{min-height:64px!important}
 html body .basics .fields>.field.full{margin-top:2px}
 @media (max-width:900px){html body .basics .b-grid{grid-template-columns:minmax(0,1fr);gap:10px}html body .basics .b-col+.b-col{border-left:0;padding-left:0}html body .basics .b-when,html body .basics .b-row2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+html body .basics .lbl-row{display:flex;align-items:baseline;gap:0;white-space:nowrap}html body .basics .lbl-row>label:first-child{margin:0}

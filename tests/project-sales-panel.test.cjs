@@ -31,13 +31,13 @@ assert.match(html,/id="f-salesPct"[^>]*value="10"/,'commission percentage remain
 assert.match(html,/id="f-salesFt"[^>]*value="2900"/,'commission amount remains editable');
 assert.doesNotMatch(html,/data-sales-toggle/,'legacy checkbox removed from project panel');
 assert.doesNotMatch(source,/\$\{salesOption\(p\)\}/,'lower commission block removed from extras');
-assert.doesNotMatch(source,/<option value="sales">💼 Értékesítői jutalék<\/option>/,'duplicated extras action removed');
+assert.match(source,/<option value="sales">💼 Értékesítői jutalék<\/option>/,'értékesítő nélküli projektnél az Extrák menüből adható hozzá (Ervin, 2026-11-17)');
 assert.match(css,/grp-sales \.grp-b\{display:grid/,'responsive blue panel has a compact layout');
 assert.match(css,/grp-sales \.grp-b\{display:grid;grid-template-columns:minmax\(0,170px\) minmax\(0,100px\) minmax\(0,115px\)/,'seller, percentage and amount share one row');
 assert.match(css,/grp-sales \.fin-ssel\{grid-column:1;/,'seller selector occupies first column');
 deal=null;
 const none=panel(pp);
-assert.equal((none.match(/id="sales-sel"/g)||[]).length,1,'unassigned projects retain selection');
+assert.equal((none.match(/id="sales-sel"/g)||[]).length,0,'értékesítő nélkül a kék blokk nem jelenik meg (az Extrák menüből kapcsolható be)');
 assert.doesNotMatch(none,/id="f-salesPct"/,'commission fields require selected salesperson');
 pp.extras=[{kind:'tov',amount:2000}];
 assert(panel(pp).indexOf('grp-sales')<panel(pp).indexOf('grp-prod'),'order is stable with extra costs');
