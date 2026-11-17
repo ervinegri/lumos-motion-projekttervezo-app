@@ -585,7 +585,7 @@ function invitesBox(){const L=ownInvitationRows().filter(x=>(x.st||'invited')===
 function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIEW.querySelectorAll('table.pay-sheet').forEach(t=>{const cols=t.querySelectorAll('col.pay-c-person');if(!cols.length)return;
   const n=cols.length,rg=document.createRange();let mx=0;
   t.querySelectorAll('tr').forEach(tr=>{const cs=tr.children;for(let i=1;i<=n&&i<cs.length;i++){const td=cs[i];if(td.colSpan>1)break;const tx=(td.textContent||'').trim();if(!/\d[\d\s\u00a0]*\s?Ft$/.test(tx))continue;
-      rg.selectNodeContents(td);const cs=getComputedStyle(td),w=rg.getBoundingClientRect().width+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+parseFloat(cs.borderLeftWidth||0)+parseFloat(cs.borderRightWidth||0);if(w>mx)mx=w;}});   /* a cella saját betűje és belső margója szerint (az összesítő sor nagyobb, vastagabb) */
+      const cs=getComputedStyle(td),w=payTextW(td,rg)+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+parseFloat(cs.borderLeftWidth||0)+parseFloat(cs.borderRightWidth||0);if(w>mx)mx=w;}});   /* a cella saját betűje és belső margója szerint (az összesítő sor nagyobb, vastagabb) */
   if(!mx)return;const w=Math.ceil(mx+4)+'px';
   cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');
   /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
@@ -610,3 +610,8 @@ function payDockFit(){const w=document.querySelector('body.pay-dock #view .pay-w
 {let pdMq=null;try{pdMq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');}catch(e){}
   if(pdMq&&pdMq.addEventListener)pdMq.addEventListener('change',()=>{try{if(document.querySelector('#view .pay-wrap'))render(true);}catch(e){}});
   window.addEventListener('resize',()=>{try{payDockFit();}catch(e){}});}
+
+/* a cella szövegének tényleges szélessége (soronként a szövegdarabok összege) – blokkos elem esetén sem a cella szélessége számít */
+function payTextW(td,rg){const lines={};const tw=document.createTreeWalker(td,NodeFilter.SHOW_TEXT);let n;
+  while((n=tw.nextNode())){if(!n.nodeValue.trim())continue;rg.selectNodeContents(n);for(const r of rg.getClientRects()){if(!r.width)continue;const k=Math.round((r.top+r.bottom)/12);const L=lines[k]||(lines[k]={l:r.left,r:r.right});L.l=Math.min(L.l,r.left);L.r=Math.max(L.r,r.right);}}
+  let mx=0;Object.values(lines).forEach(L=>{mx=Math.max(mx,L.r-L.l);});return mx;}
