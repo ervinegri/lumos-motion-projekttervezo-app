@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9b0c67b672",
+"at": "2026-11-18T00:16:28+02:00",
+"msg": "Tagi kölcsön: a sorra kattintva a hozzá tartozó banki utalás részletei (kézi sornál a sor adatai és módosítás)"
+},
+{
 "id": "f2159c708f",
 "at": "2026-11-18T00:10:28+02:00",
 "msg": "Tagi kölcsön: a banki tételből rögzített sor nem duplikál (ha kézzel már fel volt véve, csak a közlemény kerül rá); a két meglévő duplikátum egyszeri összevonása; banki tétel részletei kattintásra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: nincs világos villanás frissítéskor (a sötét stílus az előző betöltésből azonnal érvényes, és már a DOM betöltésekor elkészül)"
 },
 {
-"id": "c870e2335e",
-"at": "2026-11-17T22:48:57+02:00",
-"msg": "Sötét mód: a naptár sávjaiban nincs világos átmenet; nézetváltáskor a frissítés-értesítő az adott szerepkör szerinti (nem a teljes változásnapló)"
-},
-{
-"id": "c57784e623",
-"at": "2026-11-17T20:47:27Z",
+"id": "7fff5df617",
+"at": "2026-11-17T20:49:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
