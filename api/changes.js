@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7839a8e6d7",
+"at": "2026-11-17T08:34:14+02:00",
+"msg": "Utómunka lépéskártya: a videószámláló (🎬 x/y ✅) levéve – a kártyára kattintva nyílik a videótábla"
+},
+{
 "id": "7bb55812b3",
 "at": "2026-11-17T08:33:08+02:00",
 "msg": "Alapadatok mobilon: dátum teljes szélességben, kezdés+végzés egy sorban, a többi mező egymás alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előfoglalás: projekt összekötése nyitott lehetőséggel (tárgyalás alatt) – csendes figyelmeztetések, számlázás a szerződés után, csíkozott megjelenés, szerződéskor ez válik élessé, elveszett lehetőségnél lemondás felajánlása; felszerelési figyelmeztetések 30 nappal előtte"
 },
 {
-"id": "ef1c235fd0",
-"at": "2026-11-16T21:31:29+02:00",
-"msg": "Stábkártya: kompakt, egységes meghívó-állapotcímkék"
-},
-{
-"id": "49ed6345f0",
-"at": "2026-11-16T19:30:18Z",
+"id": "5afd67da15",
+"at": "2026-11-16T19:31:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
