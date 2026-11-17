@@ -144,5 +144,5 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
         c.setAttribute('data-stk','1');c.style.position='sticky';c.style.left=lefts[col]+'px';c.style.zIndex=r.parentElement.tagName==='THEAD'?'7':'4';c.style.backgroundColor=bg(c);
         if(col+span===n)c.style.boxShadow='1px 0 0 var(--line,#d6dee6)';col+=span;}});});};
   const sch=()=>{if(!q){q=true;requestAnimationFrame(fix);}};
-  const v=document.getElementById('view');if(v&&window.MutationObserver)new MutationObserver(sch).observe(v,{childList:true,subtree:true});
+  window.tabStick=sch;   /* a render() hívja (nem figyelünk minden DOM-változást – nagy tábláknál az akasztana) */
   window.addEventListener('resize',sch);if(mq.addEventListener)mq.addEventListener('change',sch);})();

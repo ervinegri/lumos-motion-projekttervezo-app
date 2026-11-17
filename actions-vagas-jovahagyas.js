@@ -61,7 +61,8 @@ const CL_TPL_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” videó a(z) {p
 /* a mintában ragadt korábbi videónév (ennél az ügyfélnél bármelyik projekt bármelyik videója) → {video}; szóköz- és kisbetű-tűrő */
 const clUnName=(t,p)=>{let x=String(t||'');const cn=String((p&&p.client)||'').trim().toLowerCase(),names=new Set();
   (S.projects||[]).filter(q=>q.id===(p&&p.id)||(cn&&String(q.client||'').trim().toLowerCase()===cn)).forEach(q=>(q.videos||[]).forEach(y=>{if(y&&y.name){names.add(String(y.name).trim());names.add(vShort(y.name));}}));
-  [...names].filter(z=>z&&z.length>3).sort((a,b)=>b.length-a.length).forEach(z=>{const re=new RegExp(z.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'),'gi');x=x.replace(re,'{video}');});return x;};
+  /* csak jellegzetes nevek: legalább két szó, vagy egyszavas, de legalább 6 betűs név pontos írásmóddal – különben egy közönséges szó (pl. „interjú”) is cserélődne */
+  [...names].filter(z=>z&&(/\s/.test(z)?z.length>5:z.length>=6)).sort((a,b)=>b.length-a.length).forEach(z=>{const multi=/\s/.test(z),re=new RegExp(z.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'),multi?'gi':'g');x=x.replace(re,'{video}');});return x;};
 const clSubj=(p,v)=>{let t='';try{t=localStorage.getItem('lpm_vidsubj|'+String(p.client||'').trim().toLowerCase())||'';}catch(e){}t=clUnName(t,p);return String(t||'Elkészült: {video} – {projekt}').replace(/\{video\}/g,v.name).replace(/\{projekt\}/g,p.name||'');};   /* a tárgy szerkezete is megmarad ügyfelenként */
 const clClient=p=>{const cn=String(p.client||'').trim().toLowerCase();return (S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===cn)||null;};
 /* Névelő: „a” vagy „az” a következő szó kiejtése szerint (magánhangzó, illetve 1, 5, 50… → „az”) */

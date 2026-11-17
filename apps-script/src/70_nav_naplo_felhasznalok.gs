@@ -613,6 +613,26 @@ function quoteFolder_() {
   if (!f) { f = DriveApp.createFolder('Lumos – kiküldött árajánlatok'); P.setProperty('QUOTE_FOLDER', f.getId()); }
   return f;
 }
+/* Ajánlat-adatok (QS_ kiküldött, QD_ piszkozat): a teljes adat egy JSON-fájl a Drive-on, a beállítás-tárban csak egy rövid mutató
+   ({at, f}) – a beállítás-tár összesen 500 KB, a teljes ajánlatokkal pár tucat után betelne. A régi (teljes) bejegyzéseket is olvassa. */
+function qPtr_(k) { const v = PropertiesService.getScriptProperties().getProperty(k); if (!v) return null; try { return JSON.parse(v); } catch (e) { return null; } }
+function qGet_(k) {
+  const p = qPtr_(k); if (!p) return null; if (!p.f) return p;
+  try { return JSON.parse(DriveApp.getFileById(p.f).getBlob().getDataAsString()); } catch (e) { Logger.log('Ajánlat-adat olvasása (' + k + '): ' + e); return null; }
+}
+function qPut_(k, obj) {
+  const txt = JSON.stringify(obj), old = qPtr_(k); let fid = old && old.f ? old.f : '';
+  if (fid) { try { DriveApp.getFileById(fid).setContent(txt); } catch (e) { fid = ''; } }
+  if (!fid) fid = quoteFolder_().createFile(Utilities.newBlob(txt, 'application/json', k + '.json')).getId();
+  PropertiesService.getScriptProperties().setProperty(k, JSON.stringify({ at: obj.at || now_(), f: fid }));
+}
+function qDel_(k) { const p = qPtr_(k); PropertiesService.getScriptProperties().deleteProperty(k); if (p && p.f) { try { DriveApp.getFileById(p.f).setTrashed(true); } catch (e) {} } }
+/** Egyszeri: a beállítás-tárban lévő teljes ajánlat-adatok átköltöztetése Drive-fájlba (a tárban csak a mutató marad). */
+function quoteStoreMigrateOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('QSTORE_MIG_1')) return; const all = P.getProperties(); let n = 0;
+  Object.keys(all).forEach(k => { if (!/^Q[SD]_/.test(k)) return; let o = null; try { o = JSON.parse(all[k]); } catch (e) { return; } if (!o || o.f) return; try { qPut_(k, o); n++; } catch (e) { Logger.log('Ajánlat-adat költöztetése (' + k + '): ' + e); } });
+  P.setProperty('QSTORE_MIG_1', now_() + ' · ' + n);
+}
 /** Régebben kiküldött ajánlat visszakeresése: a lehetőség jegyzetében lévő „📄 Árajánlat elküldve (címzett)” sor alapján
     a levelezésben (elküldött levél vagy másolat) megkeressük a PDF-mellékletet, és elmentjük, mint az újonnan küldötteket. */
 function quoteSentRecover_(d) {
@@ -624,7 +644,7 @@ function quoteSentRecover_(d) {
     const att = msg.getAttachments().find(a => /pdf$/i.test(a.getName()) || a.getContentType() === 'application/pdf'); if (!att) continue;
     const fid = quoteFolder_().createFile(att.copyBlob().setName(m[1].slice(0, 10) + ' ' + att.getName())).getId();
     const json = JSON.stringify({ at: m[1], by: m[2] || '', to: to.join(', '), total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, recovered: true });
-    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, json); return json;
+    qPut_('QS_' + d.id, JSON.parse(json)); return json;
   }
   return null;
 }
@@ -637,10 +657,10 @@ function quoteSent_(u, a) {
     const bytes = Utilities.base64Decode(b64); if (String.fromCharCode.apply(null, bytes.slice(0, 4)) !== '%PDF') throw new Error('Ez nem PDF-fájl.');
     const nm = (/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/.exec(String(d.note || '')) || []);
     const fid = quoteFolder_().createFile(Utilities.newBlob(bytes, 'application/pdf', (nm[1] ? nm[1].slice(0, 10) + ' ' : '') + str_(a.name, 120).replace(/[\\/:*?"<>|]+/g, '-'))).getId();
-    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, JSON.stringify({ at: nm[1] || now_(), by: nm[2] || u.name, to: nm[3] || '', total: Number(String(nm[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, uploaded: u.name }));
+    qPut_('QS_' + d.id, ({ at: nm[1] || now_(), by: nm[2] || u.name, to: nm[3] || '', total: Number(String(nm[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, uploaded: u.name }));
     try { dataBump_(); } catch (e) {} a = { dealId: d.id, op: 'pdf' };
   }
-  let v = PropertiesService.getScriptProperties().getProperty('QS_' + d.id);
+  let v = qGet_('QS_' + d.id); v = v ? JSON.stringify(v) : null;
   if (!v) { try { v = quoteSentRecover_(d); } catch (e) { Logger.log('Ajánlat visszakeresése: ' + e); } }   // a funkció előtt küldött ajánlat: a PDF visszakeresése a levelek közül
   if (!v) return null;
   const m = JSON.parse(v);
@@ -652,12 +672,11 @@ function quoteDraft_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
   if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát mentheted.');
   const P = PropertiesService.getScriptProperties(), k = 'QD_' + d.id;
-  if (a.op === 'get') { const v = P.getProperty(k); return v ? JSON.parse(v) : null; }
-  if (a.op === 'del') { P.deleteProperty(k); try { dataBump_(); } catch (e) {} return { ok: true }; }
+  if (a.op === 'get') return qGet_(k);
+  if (a.op === 'del') { qDel_(k); try { dataBump_(); } catch (e) {} return { ok: true }; }
   const q = a.q || {}; ['_pdf', '_pdfP', 'sig'].forEach(x => { delete q[x]; });
   const json = JSON.stringify({ q: q, at: now_(), by: u.name });
-  if (json.length > 8500) throw new Error('Az ajánlat túl nagy a mentéshez – rövidítsd a leírásokat.');
-  P.setProperty(k, json); try { dataBump_(); } catch (e) {} return { ok: true, at: now_() };
+  qPut_(k, JSON.parse(json)); try { dataBump_(); } catch (e) {} return { ok: true, at: now_() };
 }
 function dealQuoteSend_(u, a) {
   a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
@@ -679,8 +698,7 @@ function dealQuoteSend_(u, a) {
     const fid = quoteFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd') + ' ' + fname)).getId();
     const q = a.q && typeof a.q === 'object' ? a.q : null; if (q) ['_pdf', '_pdfP', 'sig'].forEach(k => { delete q[k]; });
     let meta = { at: now_(), by: u.name, to: tos.join(', '), total: Number(a.total) || 0, fileId: fid, q: q };
-    if (JSON.stringify(meta).length > 8500) meta.q = null;
-    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, JSON.stringify(meta));
+    qPut_('QS_' + d.id, meta);
   } catch (e) { Logger.log('Kiküldött ajánlat mentése: ' + e); }
   try { deals = dealsFor_(u); } catch (e) { }
   return { ok: true, test: !live, deals: deals };
