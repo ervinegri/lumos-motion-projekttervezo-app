@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6bbe438940",
+"at": "2026-11-17T13:55:54+02:00",
+"msg": "Értékesítés telefonon: keskeny oszlopok álló nézetben is"
+},
+{
 "id": "d9d7ec2bfd",
 "at": "2026-11-17T13:55:33+02:00",
 "msg": "Kiküldött ajánlat: a PDF-et az app rajzolja ki (telefonon is), működő nagyítás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista videósáv: a jóváhagyásra váró rész sárga"
 },
 {
-"id": "9550367a9c",
-"at": "2026-11-17T11:15:27+02:00",
-"msg": "Nyitva hagyott app: 10 perc tétlenség után nincs háttérfrissítés (az adatbázis elalhat), mozdulatra azonnal frissít"
-},
-{
-"id": "b58450a490",
-"at": "2026-11-17T09:12:49Z",
+"id": "66a34edcb9",
+"at": "2026-11-17T09:15:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
