@@ -2624,3 +2624,9 @@ html body .work-pill>i{flex:0 0 auto}
 html body .work-pill .wp-t{display:flex;flex-direction:column;min-width:0;line-height:1.3}
 html body .work-pill .wp-t b{font-weight:700}
 html body .work-pill .wp-t small{font-size:12.5px;font-weight:500;opacity:.85;white-space:normal}
+/* telefonon a gombsor a képernyő alján – az ajánlat szürke kerete tölti ki a köztes helyet (nincs üres fehér sáv a gombok alatt) */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{min-height:100dvh!important;display:flex!important;flex-direction:column!important}
+html body #modalRoot .qs-box .qs-pdf{flex:1 1 auto!important}
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{margin-top:0!important}
+}
