@@ -227,7 +227,7 @@ async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{cons
       const vp=pg.getViewport({scale:sc*dpr}),c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width=Math.floor(vp.width/dpr)+'px';c.style.height=Math.floor(vp.height/dpr)+'px';c.className='qs-page';
       await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;frag.appendChild(c);}
     if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
-    const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);if(fy)box.scrollTop=fy*box.scrollHeight-box.clientHeight/2;box.scrollLeft=Math.max(0,fx*box.scrollWidth-box.clientWidth/2);}   /* a nézet közepe nagyítás után is ugyanott marad */catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
+    const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);if(!QS_DOC._keep){if(fy)box.scrollTop=fy*box.scrollHeight-box.clientHeight/2;box.scrollLeft=Math.max(0,fx*box.scrollWidth-box.clientWidth/2);}}   /* a nézet közepe nagyítás után is ugyanott marad */catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
 ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom');if(!w||!QS_DOC)return;let z=QS_DOC.z||0,d=Number(b.dataset.d);
   if(d===0)z=0;else{const cur=z||QS_DOC.zEff||100;z=d>0?(QS_Z.find(x=>x>cur+1)||300):([...QS_Z].reverse().find(x=>x<cur-1)||0);if(z&&z<qsMin())z=0;}   /* a legkisebb méret a teljes oldal */
   QS_DOC.z=z;const l=w.querySelector('.qs-zl');if(l)l.textContent=z?z+'%':'Teljes oldal';qsRender();};   /* csak a # rész változása nem tölti újra a PDF-nézőt: előbb kiürítjük */
@@ -239,7 +239,11 @@ const qsMin=()=>100;
 function qsZoomTo(z,live){if(!QS_DOC)return;z=Math.max(qsMin(),Math.min(300,Math.round(z)));const cur=QS_DOC.zEff||100,wr=document.querySelector('#qs-pdf .qs-pages');QS_DOC.z=z;
   if(wr){wr.style.transformOrigin=(QS_DOC._ox!=null?QS_DOC._ox+'px '+QS_DOC._oy+'px':'top center');wr.style.transform='scale('+(z/cur)+')';}
   clearTimeout(QS_RT);if(!live)QS_RT=setTimeout(qsCommit,180);}
-function qsCommit(){clearTimeout(QS_RT);QS_DOC._ox=null;qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';});}
+function qsCommit(){clearTimeout(QS_RT);const box=$('qs-pdf'),mb=box&&box.closest('.qs-box'),z0=QS_DOC.zEff||100,ox=QS_DOC._ox,oy=QS_DOC._oy;
+  /* a csippentés középpontja újrarajzolás után is ugyanott maradjon a képernyőn */
+  const f=box&&ox!=null?{ox,oy,sx:ox-box.scrollLeft,st:mb?mb.scrollTop:0}:null;QS_DOC._ox=null;QS_DOC._keep=!!f;
+  qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';QS_DOC._keep=false;
+    if(f&&box){const r=(QS_DOC.zEff||100)/z0;box.scrollLeft=Math.max(0,f.ox*r-f.sx);if(mb)mb.scrollTop=Math.max(0,f.st+f.oy*(r-1));}});}
 document.addEventListener('wheel',e=>{const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box||!e.ctrlKey||!QS_DOC)return;e.preventDefault();
   const base=QS_DOC.z||QS_DOC.zEff||100;qsZoomTo(base*Math.exp(-e.deltaY*0.01),true);clearTimeout(QS_RT);QS_RT=setTimeout(qsCommit,250);},{passive:false});
 let QS_PZ=null;
