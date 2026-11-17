@@ -2662,3 +2662,11 @@ html body #modalRoot .qs-box.qs-full .qs-pdf{border-radius:0!important;padding-b
 html body .topbar{padding-left:max(0px,calc(env(safe-area-inset-left,0px) - 30px))!important;padding-right:max(0px,calc(env(safe-area-inset-right,0px) - 30px))!important}
 html body .topbar-inner{padding-right:6px!important;max-width:none!important}
 }
+/* Fizetések tábla: a projektnév oszlopa 20%-kal keskenyebb; a munkatársak oszlopa a legszélesebb összeghez igazodik (payFit) – a szélesebb címkék beférnek / … */
+html body .pay-sheet .pay-c-proj{width:307px!important}
+@media (max-width:700px){html body .pay-sheet .pay-c-proj{width:134px!important}}
+html body .pay-sheet.pay-fit{width:auto!important;min-width:0!important}
+html body .pay-sheet.pay-fit td.r,html body .pay-sheet.pay-fit th.r{overflow:hidden;text-overflow:ellipsis}
+html body .pay-sheet.pay-fit td.r>*{max-width:100%;box-sizing:border-box}
+/* Fizetések tábla: a „Projekt neve” fejléc is a helyén marad görgetéskor (a görgetett sorok nem csúsznak fölé) */
+html body .pay-wrap .pay-sheet thead th:first-child{position:sticky!important;top:0!important;left:0!important;z-index:9!important}

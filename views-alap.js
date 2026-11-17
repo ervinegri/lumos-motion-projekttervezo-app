@@ -209,7 +209,8 @@ function render(force){setTimeout(appReveal,0);
   renderChrome();
   if(!S.loaded)return;
   VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertesitesek'?viewMyNotify():S.tab==='ertekesites'?viewSales():viewProjects());
-  {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
+  {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}
+  try{payFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
@@ -574,3 +575,11 @@ function ownInvitationRows(){
 function invitesBox(){const L=ownInvitationRows().filter(x=>(x.st||'invited')==='invited');if(!L.length)return '';   // csak a még megválaszolatlan meghívások (elfogadás / elutasítás után eltűnik)
   return `<div class="panel inv-panel"><h3>✉️ ${ro()?'Meghívások':'Saját meghívásaim'} <span class="aside">${L.length} db</span></h3>${L.map(x=>{const st=x.st||'invited';
     return `<div class="inv-row"><div class="inv-tx"><b>${esc(x.name)}</b>${(q=>q&&isTent(q))(projById(x.id))?'<span class="tent-pill">⏳ Előzetes foglalás – még megbeszélés alatt van</span>':''}<small>${esc(fmtDay(x.date))}${x.endDate&&x.endDate!==x.date?' – '+esc(fmtDay(x.endDate)):''}${x.startTime?' · '+esc(x.startTime)+(x.endTime?'–'+x.endTime:''):''}${x.venue?' · '+esc(x.venue):''}</small>${(x.roles||[]).length?`<span class="inv-roles">${x.roles.map(r=>`<span class="statuspill p-info">${esc(r)}</span>`).join('')}</span>`:''}</div><div class="inv-btns">${projById(x.id)?`<button type="button" class="btn ghost small" data-action="open-project" data-id="${esc(x.id)}">Megnézem</button>`:''}${st==='invited'?`<button type="button" class="btn primary small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="yes">✓ Elfogadom</button><button type="button" class="btn outline small" data-action="inv-answer" data-id="${esc(x.id)}" data-a="no">Nem vállalom</button>`:`<span class="inv-st ${st==='yes'?'yes':'no'}">${st==='yes'?'✓ Elfogadta':'✗ Nem vállalja'}</span>`}</div></div>`;}).join('')}<p class="hint" style="margin:6px 0 0">A Google Naptárban az „Igen” válasz is elfogadásnak számít.</p></div>`;}
+
+/* Fizetések tábla: a munkatársak oszlopai olyan szélesek, mint a bennük lévő legszélesebb összeg (a „… Ft” cellák alapján) */
+function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIEW.querySelectorAll('table.pay-sheet').forEach(t=>{const cols=t.querySelectorAll('col.pay-c-person');if(!cols.length)return;
+  const n=cols.length,rg=document.createRange();let mx=0;
+  t.querySelectorAll('tr').forEach(tr=>{const cs=tr.children;for(let i=1;i<=n&&i<cs.length;i++){const td=cs[i];if(td.colSpan>1)break;const tx=(td.textContent||'').trim();if(!/\d[\d\s\u00a0]*\s?Ft$/.test(tx))continue;
+      rg.selectNodeContents(td);const w=rg.getBoundingClientRect().width;if(w>mx)mx=w;}});
+  if(!mx)return;const td0=t.querySelector('tbody td.r'),cs=td0&&getComputedStyle(td0),pad=cs?parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight):16,w=Math.ceil(mx+pad+2)+'px';
+  cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');});}

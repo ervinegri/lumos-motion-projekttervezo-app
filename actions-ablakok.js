@@ -239,3 +239,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKe
 /* A szövegdobozhoz tartozó saját küldőgomb (Hozzáadás / Küldés …) a legközelebbi közös szülőn belül, az ablak fő gombja nélkül */
 function txtOwnBtn(t){const f=t.closest('#mform');for(let c=t.parentElement,i=0;c&&c!==f&&c!==document.body&&i<5;c=c.parentElement,i++){
   const L=[...c.querySelectorAll('button')].filter(b=>b.type!=='submit'&&/küld|hozzáad|send|add|post|comment|válasz/i.test((b.textContent||'')+' '+(b.dataset.action||'')));if(L.length)return L[0];}return null;}
+
+/* iPhone: ha a látható terület el van tolva (pl. a billentyűzet bezárása után, vagy görgetés közben megérintve), a felugró ablak
+   nem a képernyő tetejétől indult, hanem feljebb csúszott, és alatta kilátszott az oldal – az ablakot mindig a látható területhez igazítjuk */
+(function(){const vv=window.visualViewport;if(!vv||!(window.matchMedia&&matchMedia('(pointer:coarse)').matches))return;
+  const pin=()=>{const m=document.querySelector('#modalRoot>.modal');if(!m)return;const off=Math.round(vv.offsetTop);
+    if(off>0){m.style.top=off+'px';m.style.bottom='auto';m.style.height=Math.round(vv.height)+'px';}else{m.style.top='';m.style.bottom='';m.style.height='';}};
+  vv.addEventListener('resize',pin);vv.addEventListener('scroll',pin);
+  const mr=document.getElementById('modalRoot');if(mr&&window.MutationObserver)new MutationObserver(()=>{pin();requestAnimationFrame(pin);setTimeout(pin,300);}).observe(mr,{childList:true});})();
