@@ -640,7 +640,7 @@ function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(t
 /* csendes ellenőrzés (húzás közben): elakadna-e a helyszíni munkára lépés a meghívások miatt */
 function invBlocked(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);return !ids.length||invMissing(d).length>0;}
 function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
-  if(!ids.length){toast('Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
+  if(!ids.length){toast('⚠️ Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
   const m=invMissing(d);if(!m.length)return false;
   const t=m.map(x=>x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join(', ');
-  toast('Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true,true);return true;}
+  toast('⚠️ Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true,true);return true;}
