@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "086dc2634e",
+"at": "2026-11-17T23:39:16+02:00",
+"msg": "Neon-kiesésnél nincs automatikus átváltás a (nem friss) táblázatra, csak e-mail; sötét módban sötétebb ablak-háttér"
+},
+{
 "id": "3557708990",
 "at": "2026-11-17T23:37:22+02:00",
 "msg": "Hónapváltó: fix szélességű hónapgombok – lapozáskor semmi nem csúszik el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: balra görgetve a kicsúszó sávok neve a látható rész elejére kerül"
 },
 {
-"id": "e29c0ca3f2",
-"at": "2026-11-17T22:27:00+02:00",
-"msg": "Ponytail-átnézés javításai: ajánlat-adatok Drive-fájlban (a beállítás-tár nem telik be), szigorúbb videónév-csere a levélmintában, teszt a fizetési állapotra, tableten nincs DOM-figyelő, felülírt CSS-szabályok törölve; projekt pénzügyek: Termelés a Levonások után mellett"
-},
-{
-"id": "538bdc61fb",
-"at": "2026-11-17T20:17:04Z",
+"id": "1391be13d3",
+"at": "2026-11-17T20:27:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
