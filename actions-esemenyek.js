@@ -389,11 +389,11 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');
 /* Folyamatban lévő művelet: ha egy gomb mögötti munka nem azonnali, a gomb forog („…”), és fent egy „Dolgozom…” jelzés is látszik */
 let WORK_N=0,WORK_T=0;
 function workPill(){let w=$('workPill');if(!w){w=document.createElement('div');w.id='workPill';w.className='work-pill';w.setAttribute('role','status');w.setAttribute('aria-live','polite');w.innerHTML='<i></i>Dolgozom…';document.body.appendChild(w);}return w;}
-function workTrack(pr){WORK_N++;clearTimeout(WORK_T);WORK_T=setTimeout(()=>{if(WORK_N>0)workPill().classList.add('on');},250);
+function workTrack(pr,lbl){WORK_N++;clearTimeout(WORK_T);WORK_T=setTimeout(()=>{if(WORK_N>0){const w=workPill();w.innerHTML='<i></i>'+esc(lbl||'Dolgozom…');w.classList.add('on');}},250);   /* a jelzés kiírja, mi folyik (pl. „Ajánlat betöltése – …”) */
   const done=()=>{WORK_N=Math.max(0,WORK_N-1);if(!WORK_N){clearTimeout(WORK_T);const w=$('workPill');if(w)w.classList.remove('on');}};Promise.resolve(pr).then(done,done);return pr;}
 function workBtn(b,pr){b.dataset.working='1';let marked=false,txt='';
   const t=setTimeout(()=>{if(!b.isConnected||b.disabled)return;marked=true;txt=b.textContent;if(txt.trim().length>2&&!/…\s*$/.test(txt)){b.textContent=txt.replace(/\s+$/,'')+'…';}b.dataset.busy='1';b.classList.add('is-busy');b.setAttribute('aria-busy','true');},120);
-  workTrack(pr);const done=()=>{clearTimeout(t);delete b.dataset.working;if(marked&&b.isConnected){delete b.dataset.busy;if(b.textContent===txt.replace(/\s+$/,'')+'…')b.textContent=txt;b.classList.remove('is-busy');b.removeAttribute('aria-busy');}};Promise.resolve(pr).then(done,done);}   // linkként megjelenő gomb (fülek): sima kattintásra az app kezeli, jobb klikkre / új lapra a böngésző
+  workTrack(pr,b.dataset.work||(()=>{const x=String(b.textContent||'').replace(/[…\s]+$/,'').trim();return x.length>2&&x.length<40?x+'…':'';})());const done=()=>{clearTimeout(t);delete b.dataset.working;if(marked&&b.isConnected){delete b.dataset.busy;if(b.textContent===txt.replace(/\s+$/,'')+'…')b.textContent=txt;b.classList.remove('is-busy');b.removeAttribute('aria-busy');}};Promise.resolve(pr).then(done,done);}   // linkként megjelenő gomb (fülek): sima kattintásra az app kezeli, jobb klikkre / új lapra a böngésző
 function fieldValue(t){
   const k=t.dataset.field;
   if(t.type==='number'){if(t.value==='')return k==='hours'?8:null;const n=Math.round(num(t.value));return k==='hours'?Math.min(16,Math.max(1,n)):Math.max(0,n);}
