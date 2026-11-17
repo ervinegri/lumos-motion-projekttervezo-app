@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c3fcc6cf73",
+"at": "2026-11-17T13:57:06+02:00",
+"msg": "Értékesítés álló telefonon: fix 210 px-es oszlopok (nem nyomódnak össze)"
+},
+{
 "id": "f268939412",
 "at": "2026-11-17T13:56:10+02:00",
 "msg": "Értékesítés álló telefonon: kompaktabb oszlopok és kártyák"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Csengő és névjelvény: sima kurzor"
 },
 {
-"id": "362d303324",
-"at": "2026-11-17T11:25:19+02:00",
-"msg": "Felső menü: sima kurzor"
-},
-{
-"id": "f8c6c48eaf",
-"at": "2026-11-17T09:24:43Z",
+"id": "c1731e55b8",
+"at": "2026-11-17T09:25:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
