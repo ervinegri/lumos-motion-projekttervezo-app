@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f268939412",
+"at": "2026-11-17T13:56:10+02:00",
+"msg": "Értékesítés álló telefonon: kompaktabb oszlopok és kártyák"
+},
+{
 "id": "6bbe438940",
 "at": "2026-11-17T13:55:54+02:00",
 "msg": "Értékesítés telefonon: keskeny oszlopok álló nézetben is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felső menü: sima kurzor"
 },
 {
-"id": "dd725d5da5",
-"at": "2026-11-17T11:24:32+02:00",
-"msg": "Projektlista videósáv: a jóváhagyásra váró rész sárga"
-},
-{
-"id": "66a34edcb9",
-"at": "2026-11-17T09:15:38Z",
+"id": "f8c6c48eaf",
+"at": "2026-11-17T09:24:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
