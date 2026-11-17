@@ -27,12 +27,12 @@ function modalRestore(){if(S._mrDone)return;S._mrDone=true;let o=null;try{o=JSON
   let n=0;const go=()=>{if($('mform')){if(++n<20)setTimeout(go,300);return;}if(!S.loaded&&!(S.projects||[]).length){if(++n<40)setTimeout(go,300);return;}if(o.tab&&S.tab!==o.tab)return;
     const fake={dataset:Object.assign({},o.d),tagName:'BUTTON',closest:()=>null,classList:{contains:()=>false,add(){},remove(){},toggle(){}},getAttribute:()=>null,setAttribute(){},removeAttribute(){},style:{}};
     try{window._lastAct={a:o.a,d:o.d,t:Date.now()};ACT[o.a](fake);}catch(e){mrClear();}};setTimeout(go,150);}
-function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel='Mégse',noDraft=false}={}){mrNote();
+function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel='Mégse',noDraft=false,danger}={}){const DNG=danger!==undefined?!!danger:/törl|levesz|lemond/i.test(submitLabel);   /* romboló művelet: piros gomb */mrNote();
   modalSubmit=submit||null;MD_KEY=submit&&!noDraft?mdKey(title):'';if(noDraft)try{mdClear(mdKey(title));}catch(e){}   // noDraft: mindig üres űrlap (a félbehagyott nem töltődik vissza)
   $('modalRoot').innerHTML=`<div class="modal" data-action="modal-bg"><form class="mbox" id="mform" role="dialog" aria-modal="true" aria-label="${esc(title)}" novalidate>
     <div class="mhead"><h3>${esc(title)}</h3><button type="button" class="x" data-action="modal-close" aria-label="Bezárás">×</button></div>
     ${body}
-    <div class="mfoot">${left?`<span class="left">${left}</span>`:''}<button type="button" class="btn outline" data-action="${submit?'modal-cancel':'modal-close'}">${esc(cancelLabel)}</button>${submit?`<button type="submit" class="btn primary">${esc(submitLabel)}</button>`:''}</div></form></div>`;
+    <div class="mfoot">${left?`<span class="left">${left}</span>`:''}<button type="button" class="btn outline" data-action="${submit?'modal-cancel':'modal-close'}">${esc(cancelLabel)}</button>${submit?`<button type="submit" class="btn primary${DNG?' btn-dng':''}">${esc(submitLabel)}</button>`:''}</div></form></div>`;
   if(MD_KEY)MD_KEY+='|'+mdSig();   // a piszkozat csak ugyanarra a kiinduló űrlapra töltődik vissza (pl. másik munkatárs szerkesztésekor nem)
   const mdBase=MD_KEY?MD_KEY.slice(0,MD_KEY.lastIndexOf('|')):'';
   document.documentElement.style.overflow='hidden';
