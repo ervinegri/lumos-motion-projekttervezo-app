@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cb3b1d7607",
+"at": "2026-11-17T17:02:14+02:00",
+"msg": "Tablet, Fizetések: újra görgethető fel-le (a rugózás-elnyelés csak függőlegesen görgető táblán)"
+},
+{
 "id": "3f8355ae58",
 "at": "2026-11-17T17:01:14+02:00",
 "msg": "Projekt Pénzügyek kártyák tableten: a mezők nem lógnak ki, a kártyák tördelődnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: az Összesen sor épp az iPhone vonala fölött"
 },
 {
-"id": "cb0111f8c5",
-"at": "2026-11-17T15:46:35+02:00",
-"msg": "Fizetések tábla telefonon: a tábla szélén nincs oldal-rugózás (üres sáv)"
-},
-{
-"id": "ebeee9bb33",
-"at": "2026-11-17T13:45:29Z",
+"id": "eed5d45d3b",
+"at": "2026-11-17T13:46:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
