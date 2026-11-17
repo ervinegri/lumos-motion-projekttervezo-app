@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "15feb04218",
+"at": "2026-11-17T11:09:10+02:00",
+"msg": "Adatbázis-állapot (/api/dbstatus): aktív adatbázis, óránkénti Neon-lekérdezések forrás szerint, időzítők"
+},
+{
 "id": "f6e9ba232e",
 "at": "2026-11-17T11:03:06+02:00",
 "msg": "Termelési v. nézet előtöltése: a nézetváltás első alkalommal is azonnali"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Megerősítő ablakok: törlés / levétel / lemondás gombja piros"
 },
 {
-"id": "c8da3835a4",
-"at": "2026-11-17T08:49:54+02:00",
-"msg": "Stábkártya: a projektvezető címke rövidítve (★ P.V.)"
-},
-{
-"id": "aa9e4f9a0f",
-"at": "2026-11-17T06:45:21Z",
+"id": "bf79027f15",
+"at": "2026-11-17T06:50:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
