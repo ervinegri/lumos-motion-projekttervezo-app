@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e9bb216891",
+"at": "2026-11-17T16:38:35+02:00",
+"msg": "Érintőképernyőn az oldal nem húzható oldalra"
+},
+{
 "id": "3d375cfe6f",
 "at": "2026-11-17T16:37:58+02:00",
 "msg": "Tablet: a menü a logó sorában (egyetlen fejlécsáv)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: helyes táblaszélesség (a projektnév oszlop nem nyúlik ki)"
 },
 {
-"id": "5691a14e5a",
-"at": "2026-11-17T15:26:01+02:00",
-"msg": "Fizetések tábla: az oszlopszélességek ténylegesen érvényesülnek (rögzített táblaszélesség)"
-},
-{
-"id": "a2d18a556d",
-"at": "2026-11-17T13:25:52Z",
+"id": "5090a8a7c5",
+"at": "2026-11-17T13:26:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
