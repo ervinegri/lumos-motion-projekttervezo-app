@@ -2714,3 +2714,11 @@ html body .fin-v2 .grp-ded .grp-b>.field{flex:0 0 auto!important}
 /* naptár idővonala dokkolva (telefon): a hónapváltó / szűrők az idővonal fölött görgetnek ki */
 html body.pay-dock #view .dock-wrap.tl-wrap{border-top:0!important;box-shadow:none!important;flex:none!important}
 html body.pay-dock #view .dock-wrap>.pay-hd .cal-toolbar{margin:0!important}
+/* tablet (701–1180 px): a menü a logó sorában – egyetlen sáv (logó · fülek · eszközök); ha nem fér ki, a fülek oldalra görgethetők */
+@media (min-width:701px) and (max-width:1180px) and (min-height:561px){
+ html body .topbar-inner{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:'logo tabs tools'!important;gap:8px 12px!important;padding-top:8px!important;padding-bottom:8px!important;min-height:0!important}
+ html body .topbar-inner>.tabs{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:0!important;padding:0!important;min-width:0;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
+ html body .topbar-inner>.tabs::-webkit-scrollbar{display:none}
+ html body .topbar-inner>.tabs .tab{flex:0 0 auto;white-space:nowrap;padding:7px 11px!important;font-size:14px!important}
+ html body .identity .brand{height:30px!important;width:auto}
+}
