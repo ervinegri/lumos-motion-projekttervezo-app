@@ -2445,3 +2445,4 @@ html body .tl-bar .tl-okfill.tl-waitfill::after{content:'⏳';font-size:12px;lin
 html body .tl-track .tl-cut.tl-withmain.cut-done:has(.tl-waitfill)::after{content:none}
 /* nézetmenü: a nem aktuális nézetek beljebb (az aktuális ✓ sor a bal szélen) */
 html body .uc-pop .uc-it[data-uv]:not(.on){padding-left:44px!important}
+html body .tl-bar .tl-okfill.tl-waitfill::after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
