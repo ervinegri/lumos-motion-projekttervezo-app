@@ -2407,3 +2407,5 @@ html body .fin-v2 .grp-net .fin-net>label{font-size:12.5px!important;white-space
 html body .fin-v2 .grp-net .grp-b,html body .fin-v2 .grp-val .grp-b{align-items:flex-end}
 html body .fin-v2 .fin-exm{align-self:flex-start;margin-top:22px}
 @media (max-width:600px){html body .fin-v2 .grp-ded .org-line{grid-template-columns:1fr 130px}html body .fin-v2 .grp-net .fin-net{width:100%}}
+/* nézetváltáskor csak a középső „Váltás: … nézet…” jelzés látszik, a felső „Dolgozom…” nem (ne legyen kétszer) */
+html body.switching #workPill{display:none!important}
