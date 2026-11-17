@@ -31,10 +31,10 @@
   function walk(list,out){for(var i=0;i<list.length;i++){var r=list[i];
       if(r.cssRules&&!r.selectorText){var inner=[];walk(r.cssRules,inner);if(inner.length){var c=r.conditionText||(r.media&&r.media.mediaText)||'';out.push((r instanceof CSSSupportsRule?'@supports ':'@media ')+c+'{'+inner.join('')+'}');}continue;}
       if(!r.selectorText||!r.style||SKIP.test(r.selectorText))continue;var d=[];
-      for(var j=0;j<r.style.length;j++){var p=r.style[j],v=r.style.getPropertyValue(p);if(!v||!/(#|rgb|white|black)/i.test(v))continue;if(/^(--font|--shadow)/.test(p))continue;var n=cv(v);if(n)d.push(p+':'+n+(r.style.getPropertyPriority(p)?'!important':''));}
+      for(var j=0;j<r.style.length;j++){var p=r.style[j],v=r.style.getPropertyValue(p);if(!v||!/(#|rgb|white|black)/i.test(v))continue;if(/^(--font|--shadow|--ink)/.test(p))continue;   /* --ink: a sötét márkaszín (menüsáv, kiemelt gombok) marad */var n=cv(v);if(n)d.push(p+':'+n+(r.style.getPropertyPriority(p)?'!important':''));}
       if(d.length)out.push(sel(r.selectorText)+'{'+d.join(';')+'}');}}
   var built=false;
-  function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&ss.ownerNode.id==='darkCss')continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
+  function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&/^dark(Css|Pre)$/.test(ss.ownerNode.id||''))continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
     var st=document.getElementById('darkCss')||document.createElement('style');st.id='darkCss';
     st.textContent='html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
     if(!st.parentNode)document.head.appendChild(st);built=true;}
