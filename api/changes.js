@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "21ec03dfee",
+"at": "2026-11-17T15:57:43+02:00",
+"msg": "Fizetések fejléce: egyforma hézagok, a NAV és a Díjösszesítő gomb a hónapváltóval egyező méretű"
+},
+{
 "id": "2924d95800",
 "at": "2026-11-17T15:56:45+02:00",
 "msg": "Fizetések tábla telefonon: betöltéskor a menüsáv a tábla görgetési helyzetéhez igazodik (nem marad félig felcsúszva)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: teljes képernyő gomb"
 },
 {
-"id": "16e89b513f",
-"at": "2026-11-17T15:07:21+02:00",
-"msg": "Ajánlat-néző fekvő telefonon: oldalsó szélek nélkül"
-},
-{
-"id": "73764c926c",
-"at": "2026-11-17T13:05:32Z",
+"id": "edad279969",
+"at": "2026-11-17T13:07:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
