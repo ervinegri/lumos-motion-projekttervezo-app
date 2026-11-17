@@ -368,9 +368,9 @@ function clientSummary_(o, t) {
       + (r.msg ? '<div style="font-size:14px;color:#202124;margin-top:10px;padding-top:10px;border-top:1px solid ' + (r.ok ? '#cfe9d9' : '#f3d0cb') + '"><span style="font-size:12px;color:#6b7680">Az üzeneted:</span><br>' + escapeHtml_(r.msg).replace(/\n/g, '<br>') + '</div>' : '') + '</td></tr></table>';
     const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><p style="margin:0 0 12px">Kedves ' + escapeHtml_(nm) + '!</p><p style="margin:0 0 14px">' + escapeHtml_(lead) + '</p>'
       + '<p style="margin:0 0 10px;font-weight:bold">' + escapeHtml_(sval_(p.name)) + '</p>' + rows.map(box).join('')
-      + '<p style="margin:16px 0 14px">' + escapeHtml_(next) + '</p><p style="margin:0 0 14px">A videókat és a döntéseidet itt bármikor visszanézheted: <a href="' + escapeHtml_(url) + '">jóváhagyó oldal</a></p>'
-      + '<p style="margin:0 0 0">Ha kérdésed van, egyszerűen válaszolj erre a levélre.</p><p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p></div>';
-    const text = 'Kedves ' + nm + '!\n\n' + lead + '\n\n' + sval_(p.name) + '\n' + rows.map(r => '\n' + (r.ok ? '✓ ' : '✎ ') + r.v.name + ' – ' + (r.ok ? 'jóváhagyva' : 'módosítást kértél') + (r.msg ? '\nAz üzeneted: ' + r.msg : '')).join('\n') + '\n\n' + next + '\n\nA jóváhagyó oldal: ' + url + '\n\nHa kérdésed van, egyszerűen válaszolj erre a levélre.';
+      + '<p style="margin:16px 0 14px">' + escapeHtml_(next) + '</p><p style="margin:0">A videókat itt bármikor visszanézheted: <a href="' + escapeHtml_(url) + '">jóváhagyó oldal</a></p>'
+      + '<p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p></div>';
+    const text = 'Kedves ' + nm + '!\n\n' + lead + '\n\n' + sval_(p.name) + '\n' + rows.map(r => '\n' + (r.ok ? '✓ ' : '✎ ') + r.v.name + ' – ' + (r.ok ? 'jóváhagyva' : 'módosítást kértél') + (r.msg ? '\nAz üzeneted: ' + r.msg : '')).join('\n') + '\n\n' + next + '\n\nA jóváhagyó oldal: ' + url;
     const live = clientMailLive_(), to = live ? tos.join(', ') : String(o.s || ''); if (!to) return;
     const subj = (live ? '' : '[TESZT – valójában neki: ' + tos.join(', ') + '] ') + 'Visszaigazolás: ' + sval_(p.name) + (multi ? ' – ' + rows.length + ' videó' : ' – ' + rows[0].v.name);
     const opts = { htmlBody: html, name: 'Lumos Motion' }; if (o.s && /@/.test(o.s)) opts.replyTo = o.s;
