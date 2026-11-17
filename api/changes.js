@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0674edc2f7",
+"at": "2026-11-17T12:25:34+02:00",
+"msg": "Kiküldött ajánlat a lehetőségnél (PDF megnyitása, új verzió belőle); „Dolgozom…” jelzés középen"
+},
+{
 "id": "bd95f61635",
 "at": "2026-11-17T12:23:51+02:00",
 "msg": "Mentett ajánlat jelzés: kattintásra egyből a mentett ajánlat nyílik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "IPN: díjbekérőnél is a számlázz.hu kifizetési dátuma"
 },
 {
-"id": "142ef8758c",
-"at": "2026-11-17T09:33:56+02:00",
-"msg": "Nézetváltás: termelési v. nézetből is lehet értékesítőre váltani (a valódi szerepkör számít)"
-},
-{
-"id": "1bd45a913a",
-"at": "2026-11-17T07:28:18Z",
+"id": "cedc0e7fd4",
+"at": "2026-11-17T07:34:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
