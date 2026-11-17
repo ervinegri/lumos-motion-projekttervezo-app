@@ -375,6 +375,10 @@ function rpcInner_(token, name, arg) {
     case 'dwdSet': adminOnly(); return dwdSet_(u, arg);
     case 'dwdTest': adminOnly(); return dwdTest_(u, arg);
     case 'dataVer': return { v: dataVer_() };   // olcsó változásfigyelés: a kliens ebből tudja, hogy frissítsen-e
+    case 'viewBoot': {   // előtöltés: a termelési v. nézet adatai a munkamenet átkapcsolása nélkül (csak ügyvezetői nézetből), hogy a váltás azonnali legyen
+      if (u.role !== 'admin' || u.viewAs) deny();
+      const ev = Object.assign({}, u, { role: 'editor', crewId: u.crewId || ((readAll_('crew').find(c => String(c.email || '').toLowerCase() === String(u.email || '').toLowerCase() || c.name === u.name) || {}).id) || '', realRole: 'admin', viewAs: { role: 'editor' } });
+      return bootstrap_(ev, true); }
     case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token), true) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': if (arg && arg.open) logAppOpen_(u); return bootstrap_(u);
