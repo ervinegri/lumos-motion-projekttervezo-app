@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d7867539ce",
+"at": "2026-11-17T22:47:17+02:00",
+"msg": "Sötét mód: a felugró ablak háttere sötét fátyol marad, a névjelvény menüje is sötét; Stáb lista: az egész sor kattintható"
+},
+{
 "id": "199f1894a7",
 "at": "2026-11-17T22:45:42+02:00",
 "msg": "Sötét mód: visszafogottabb színes hátterek (figyelmeztetések, címkék)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár idővonala telefonon: háttérfrissítéskor a görgetés és az eltüntetett menü megmarad (mint a Fizetéseknél)"
 },
 {
-"id": "bb6f52499c",
-"at": "2026-11-17T16:19:26+02:00",
-"msg": "Naptár idővonala telefonon: a Fizetésekhez hasonlóan görgetéskor eltűnik a menü (egyetlen natív görgetés)"
-},
-{
-"id": "153b9263f7",
-"at": "2026-11-17T14:11:31Z",
+"id": "d1fdcc797e",
+"at": "2026-11-17T14:19:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
