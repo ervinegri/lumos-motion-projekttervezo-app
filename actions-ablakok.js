@@ -38,8 +38,14 @@ function openModal(title,body,{submit,submitLabel='Mentés',left='',cancelLabel=
   document.documentElement.style.overflow='hidden';
   {const lf=$('modalRoot').querySelector('.links-field'),pf=$('modalRoot').querySelector('.pass-field'),ad=lf&&lf.querySelector('.link-add');if(lf&&pf&&ad&&!lf.querySelector('.cd-linkrow')){const row=document.createElement('div');row.className='cd-linkrow';ad.replaceWith(row);row.append(ad,pf);}}   // „+ Újabb link” és a jelszó egy sorban (minden linkes ablakban)
   const first=$('modalRoot').querySelector('input:not([type=checkbox]):not([type=radio]),textarea,select');if(first&&!(window.matchMedia&&matchMedia('(pointer:coarse)').matches))first.focus();   // érintőképernyőn nem ugrik fel magától a billentyűzet
+  if(submit&&/^(💾\s*)?Mentés$/.test(submitLabel)){const f0=$('mform');setTimeout(()=>{if($('mform')!==f0)return;f0._snap=mfSnap(f0);mfIdle(f0);},350);}   /* amíg nincs mit menteni, a Mentés gomb szürke */
   if(MD_KEY){const k0=MD_KEY;setTimeout(()=>{if(MD_KEY!==k0)return;MD_KEY=mdBase+'|'+mdSig();mdRestore(MD_KEY);},0);}   // az aláírás a már kitöltött űrlapból készül (sok ablak a megnyitás után tölti be az adatokat) – így egy ügyfél piszkozata nem kerül át egy másikra
 }
+/* Mentés gomb állapota: az űrlap a megnyitáskori állapotában van-e (akkor szürke, nem kattintható) */
+function mfSnap(f){return [...f.elements].filter(e=>(e.name||e.id)&&e.type!=='submit'&&e.type!=='button').map(e=>(e.name||e.id)+'='+(e.type==='checkbox'||e.type==='radio'?e.checked:e.value)).join('\u0001');}
+function mfIdle(f){if(!f||f._snap==null)return;const b=f.querySelector('.mfoot button[type=submit]');if(!b)return;const idle=mfSnap(f)===f._snap;b.disabled=idle;b.classList.toggle('btn-idle',idle);b.title=idle?'Nincs mit menteni':'';}
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const f=e.target&&e.target.closest&&e.target.closest('#mform');if(f&&f._snap!=null)setTimeout(()=>mfIdle(f),0);},true));
+document.addEventListener('click',e=>{const f=e.target&&e.target.closest&&e.target.closest('#mform');if(f&&f._snap!=null)setTimeout(()=>mfIdle(f),60);},true);   // sor hozzáadása / törlése gombbal
 /* ⌘/Ctrl + Enter: a felugró ablak fő gombja (Tovább / Mentés / Felvétel …), szövegmezőből is */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!(e.metaKey||e.ctrlKey)||e.isComposing)return;
   {const t=e.target;if(t&&t.tagName==='TEXTAREA'){   /* saját küldőgombos szövegdoboz (hozzászólás, instrukció): ⌘/Ctrl+Enter azt küldi, nem az ablakot */
