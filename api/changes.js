@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5c16f53b98",
+"at": "2026-11-17T09:02:26+02:00",
+"msg": "Instrukciók: tömörebb szerkesztő (2 sor, fókuszban nő), kisebb gomb, redundáns „Még nincs instrukció” sor nélkül"
+},
+{
 "id": "9f7b76d65a",
 "at": "2026-11-17T09:01:27+02:00",
 "msg": "Figyelmeztető üzenet: egér elvitelére sem tűnik el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lépések: tiltott lépésre húzáskor 🚫 jelzés, elengedéskor a magyarázat a képernyő közepén"
 },
 {
-"id": "1810504657",
-"at": "2026-11-16T22:19:38+02:00",
-"msg": "Meghívó: a határidőig meg nem válaszolt meghívás elutasításnak számít (piros keret, ⌛ Nem válaszolt)"
-},
-{
-"id": "eef73a09ca",
-"at": "2026-11-16T20:19:05Z",
+"id": "06eabbd350",
+"at": "2026-11-16T20:19:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
