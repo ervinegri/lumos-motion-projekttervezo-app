@@ -2655,5 +2655,5 @@ html body .work-pill{width:max-content!important;max-width:min(94vw,588px)!impor
 /* teljes képernyő: nincs gombsáv – a Kilépés gomb az ajánlat fölött lebeg */
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box.qs-full .mfoot{position:absolute!important;left:0;right:0;bottom:0;z-index:2;background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important;pointer-events:none;justify-content:center!important;padding:0 0 max(14px,env(safe-area-inset-bottom))!important}
 html body #modalRoot .qs-box.qs-full .mfoot .left{justify-content:center;width:100%}
-html body #modalRoot .qs-box.qs-full .mfoot .qs-fs{pointer-events:auto;background:rgba(29,42,56,.88)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 6px 20px rgba(16,24,40,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html body #modalRoot .qs-box.qs-full .mfoot .qs-fs{pointer-events:auto;background:rgba(29,42,56,.5)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 4px 14px rgba(16,24,40,.18);text-shadow:0 1px 2px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 html body #modalRoot .qs-box.qs-full .qs-pdf{border-radius:0!important;padding-bottom:72px!important}
