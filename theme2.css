@@ -2464,3 +2464,5 @@ html body .pt-vbar .vb-leadva{background:#f0c85a}
 /* felső menü: sima nyíl kurzor (nem mutató kéz) */
 html body #tabs,html body #tabs *{cursor:default!important}
 html body #bellBtn,html body #bellBtn *,html body #userChip,html body #userChip *{cursor:default!important}
+/* idővonal: a név a teljes (forgatás + vágás) sáv végéig érhet – a címke nem vágódik le a sáv előtt */
+html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm{max-width:var(--nmw,100%)!important}
