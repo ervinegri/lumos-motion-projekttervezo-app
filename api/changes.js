@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd6929578b",
+"at": "2026-11-17T15:23:27+02:00",
+"msg": "Fizetések tábla: keskenyebb projektnév-oszlop, a munkatárs-oszlop a legszélesebb összeghez igazodik, a Projekt neve fejléc rögzítve; iPhone: a felugró ablak a látható területhez igazodik"
+},
+{
 "id": "c9360512d5",
 "at": "2026-11-17T15:19:25+02:00",
 "msg": "Fekvő telefon: szélesebb menüsáv"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: a lap saját margóival, külső keret nélkül tölti ki a nézőt"
 },
 {
-"id": "2cbea27ba7",
-"at": "2026-11-17T14:27:14+02:00",
-"msg": "Lehetőség ablaka: 📇 névjegy QR-kóddal a telefonszám mellett"
-},
-{
-"id": "2d88485aa5",
-"at": "2026-11-17T12:24:34Z",
+"id": "c5b392a713",
+"at": "2026-11-17T12:27:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
