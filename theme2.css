@@ -2446,3 +2446,6 @@ html body .tl-track .tl-cut.tl-withmain.cut-done:has(.tl-waitfill)::after{conten
 /* nézetmenü: a nem aktuális nézetek beljebb (az aktuális ✓ sor a bal szélen) */
 html body .uc-pop .uc-it[data-uv]:not(.on){padding-left:44px!important}
 html body .tl-bar .tl-okfill.tl-waitfill::after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+/* homokóra a sárga rész közepén – annyi, ahány videó vár jóváhagyásra */
+html body .tl-bar .tl-okfill.tl-waitfill::after{content:none!important}
+html body .tl-bar .tl-okfill.tl-waitfill>.tl-hg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-style:normal;font-size:12px;line-height:1;white-space:nowrap;letter-spacing:1px;text-shadow:none;max-width:100%;overflow:hidden}

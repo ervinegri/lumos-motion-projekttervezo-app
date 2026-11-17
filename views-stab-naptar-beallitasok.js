@@ -127,7 +127,7 @@ const crewPhotoPost=(p,id)=>!!id&&photoPostWork(p)&&taskOwners(p,'foto_db').incl
 /* Idővonal: a jóváhagyott videók aránya zöld kitöltésként a sávon (csak részleges jóváhagyásnál) */
 const tlOkFill=(p,from)=>{if(!p||p.status==='atadva'||p.status==='lemondva')return '';const vs=Array.isArray(p.videos)?p.videos:[],tot=vs.length;if(!tot)return '';const ok=vs.filter(v=>v.st==='jovahagyva').length,wt=vs.filter(v=>v.st==='leadva').length;if(ok>=tot||(!ok&&!wt))return '';from=from||0;const w=100-from,a=ok/tot*w,b=wt/tot*w;   // a vágási (lila) rész: zöld = jóváhagyva, sárga = jóváhagyásra vár (arányosan)
   const nm=v=>'• '+String(v.name||'Videó'),tOk='✅ Jóváhagyva ('+ok+'):\n'+vs.filter(v=>v.st==='jovahagyva').map(nm).join('\n'),tWt='📤 Jóváhagyásra vár ('+wt+'):\n'+vs.filter(v=>v.st==='leadva').map(nm).join('\n');   // ráhúzva: melyik videók tartoznak az adott részhez
-  return (ok?`<span class="tl-okfill" style="left:${from}%;width:${a.toFixed(1)}%" data-tip="${esc(tOk)}"></span>`:'')+(wt?`<span class="tl-okfill tl-waitfill" style="left:${(from+a).toFixed(1)}%;width:${b.toFixed(1)}%" data-tip="${esc(tWt)}"></span>`:'');};
+  return (ok?`<span class="tl-okfill" style="left:${from}%;width:${a.toFixed(1)}%" data-tip="${esc(tOk)}"></span>`:'')+(wt?`<span class="tl-okfill tl-waitfill" style="left:${(from+a).toFixed(1)}%;width:${b.toFixed(1)}%" data-tip="${esc(tWt)}"><i class="tl-hg">${wt>6?'⏳×'+wt:'⏳'.repeat(wt)}</i></span>`:'');};
 const crewVideoPost=(p,id)=>!!id&&hasVideoCutWork(p)&&(
   taskKeysOf(p,id).some(k=>k!=='foto_db'&&postTasks(p).some(t=>t.k===k))||
   ((p.crew||[]).some(a=>a.crewId===id)&&(p.videos||[]).some(v=>v.k!=='foto'&&v.editor===id)));   // csak a projekten lévő utómunkás
