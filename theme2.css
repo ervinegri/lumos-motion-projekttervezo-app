@@ -2355,3 +2355,9 @@ html body .basics .b-day-add{align-self:flex-start;font-size:13px;font-weight:60
   html body .basics .b-col>.b-row2,html body .basics .b-row2.b-contact{grid-template-columns:minmax(0,1fr)!important}
   html body .basics .b-col>.b-row2>.field{grid-column:auto!important}
 }
+html body .pcrew .pcrew-gear{font-size:16px;opacity:.7;background:transparent;border:0;cursor:pointer}html body .pcrew .pcrew-gear:hover{opacity:1}
+html body .cg-menu{position:absolute;z-index:9000;min-width:230px;background:#fff;border:1px solid #dde2e8;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:6px}
+html body .cg-menu .cg-it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:transparent;border:0;border-radius:6px;padding:8px 10px;font:inherit;font-size:13.5px;cursor:pointer;color:#1f2a3a}
+html body .cg-menu .cg-it:hover{background:#f3f6f9}html body .cg-menu .cg-it.dis{opacity:.45;cursor:not-allowed}html body .cg-menu .cg-it.bad{color:#a33}
+html body .cg-menu .cg-chk{font-size:15px;width:16px}html body .cg-menu hr{border:0;border-top:1px solid #eef1f4;margin:4px 0}
+html body .pcrew .role-flag{display:inline-block;font-size:12px;font-weight:600;color:#4b5d73;margin:2px 0}

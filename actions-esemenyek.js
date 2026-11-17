@@ -457,7 +457,7 @@ document.addEventListener('change',e=>{
     if(t.checked&&(REC_CAMS.some(c=>c.k===k)||REC_LIVE.some(c=>c.k===k))&&!num(d.er_rooms))ch.er_rooms=1;   // rögzítési opció → legalább 1 terem
     if(k==='x_vago'){Object.assign(ch,onsiteCutCh(d,t.checked));}
     setDraft(ch);return;}
-  if(t.dataset.leadRemote&&d){setDraft({leadRemote:t.checked});return;}
+  if(t.dataset.leadRemote&&d){const iv=(d.invites||{})[d.lead];if(iv&&iv.st==='yes'){t.checked=!t.checked;toast('Már elfogadta a meghívást – a beosztás jellege nem módosítható',true);return;}setDraft({leadRemote:t.checked});return;}
   if(t.dataset.editOnsite&&d){const cid=t.dataset.editOnsite,K='f_x_vago',et=etWithField(d);   // csak ennek a vágónak a jelölője
     if(!fieldOwners(d,'x_vago').length&&d.editOnsite)cutterIds(d).forEach(id=>{if(id!==cid&&(d.crew||[]).some(a=>a.crewId===id&&a.role==='Vágó'))et[id]=(et[id]||[]).concat([K]);});   // régi (projekt szintű) jelölés → a többiek megtartják
     et[cid]=(et[cid]||[]).filter(x=>x!==K);if(t.checked)et[cid].push(K);if(!et[cid].length)delete et[cid];
@@ -508,3 +508,23 @@ ACT['day-add']=()=>{const d=S.draft;if(!d||!validISO(d.date))return;const L=days
 ACT['day-del']=b=>{const d=S.draft;if(!d)return;const L=daysOf(d).slice();L.splice(Number(b.dataset.i),1);setDays(L);};
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.dayI===undefined||!S.draft)return;const L=daysOf(S.draft).map(x=>Object.assign({},x)),i=Number(t.dataset.dayI);if(!L[i])return;
   L[i][t.dataset.dayF]=t.value;if(t.dataset.dayF==='d'&&validISO(S.draft.date)&&t.value<=S.draft.date){toast('A további nap az első nap után legyen.',true);render(true);return;}setDays(L);});
+
+/* Stábkártya ⚙️ menü: távolról vezeti, helyszíni vágó, meghívó, projektvezető, levétel. Elfogadott meghívás után a beosztás jellege (távoli / helyszíni) már nem módosítható. */
+function crewGearClose(){const m=document.getElementById('crewGearMenu');if(m)m.remove();}
+ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementById('crewGearMenu');crewGearClose();if(was&&was.dataset.cid===b.dataset.id)return;
+  const cid=b.dataset.id,iv=(d.invites||{})[cid],acc=!!(iv&&iv.st==='yes'),lead=d.lead===cid,cut=(d.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'),me=cid===(S.me&&S.me.crewId),lockTip='Már elfogadta a meghívást – a beosztás jellege nem módosítható';
+  const it=(act,lbl,o={})=>`<button type="button" class="cg-it${o.dis?' dis':''}${o.bad?' bad':''}" data-cg="${act}"${o.tip?` data-tip="${esc(o.tip)}"`:''}>${o.chk!==undefined?`<span class="cg-chk">${o.chk?'☑':'☐'}</span>`:''}${lbl}</button>`;
+  const h=[lead?it('remote','🛰️ Távolról vezeti',{chk:!!d.leadRemote,dis:acc,tip:acc?lockTip:'Nem kell a helyszínen lennie, így nem ütközik más munkával'}):'',
+    cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
+    iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
+    !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
+    '<hr>',it('remove','🗑️ Levétel a projektről',{bad:true})].join('');
+  const m=document.createElement('div');m.id='crewGearMenu';m.className='cg-menu';m.dataset.cid=cid;m.innerHTML=h;document.body.appendChild(m);
+  const r=b.getBoundingClientRect();m.style.top=(window.scrollY+r.bottom+4)+'px';m.style.left=Math.max(8,window.scrollX+r.right-m.offsetWidth)+'px';
+  m.addEventListener('click',e=>{const x=e.target.closest('[data-cg]');if(!x)return;e.stopPropagation();if(x.classList.contains('dis')){toast(lockTip,true);return;}const a=x.dataset.cg;crewGearClose();
+    if(a==='remote'){setDraft({leadRemote:!S.draft.leadRemote});return;}
+    if(a==='onsite'){const t=document.createElement('input');t.type='checkbox';t.dataset.editOnsite=cid;t.checked=!onsiteCut(S.draft,cid);t.style.display='none';document.body.appendChild(t);t.dispatchEvent(new Event('change',{bubbles:true}));t.remove();return;}
+    if(a==='resend'){const btn=document.querySelector(`[data-action="crew-invite"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
+    if(a==='lead'){const btn=document.querySelector(`[data-action="make-lead"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
+    if(a==='remove')ACT['crew-person-remove']({dataset:{id:cid}});});};
+document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('#crewGearMenu')&&!e.target.closest('[data-action="crew-gear"]'))crewGearClose();},true);
