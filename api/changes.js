@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4e79c5a9e1",
+"at": "2026-11-17T22:44:29+02:00",
+"msg": "Sötét mód: a var(…, szín) tartalékos háttereket is átalakítja (naptár világos csíkjai)"
+},
+{
 "id": "b884f686e6",
 "at": "2026-11-17T22:41:50+02:00",
 "msg": "Újdonságok a többi felhasználónak (szakemberek, termelési vezető, értékesítők): válogatott, nem pénzügyi és nem értékesítési fejlesztések a belépéskor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt Pénzügyek: a Levonások kártya nem nyújtja 600 px magasra a sort"
 },
 {
-"id": "cce7f93b18",
-"at": "2026-11-17T16:01:55+02:00",
-"msg": "Gépen újra görgethető az oldal a táblák fölött (a rugózás-tiltás csak telefonon)"
-},
-{
-"id": "01bc021009",
-"at": "2026-11-17T14:01:17Z",
+"id": "f75712f306",
+"at": "2026-11-17T14:02:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
