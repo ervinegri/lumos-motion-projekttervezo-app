@@ -581,8 +581,8 @@ function invitesBox(){const L=ownInvitationRows().filter(x=>(x.st||'invited')===
 function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIEW.querySelectorAll('table.pay-sheet').forEach(t=>{const cols=t.querySelectorAll('col.pay-c-person');if(!cols.length)return;
   const n=cols.length,rg=document.createRange();let mx=0;
   t.querySelectorAll('tr').forEach(tr=>{const cs=tr.children;for(let i=1;i<=n&&i<cs.length;i++){const td=cs[i];if(td.colSpan>1)break;const tx=(td.textContent||'').trim();if(!/\d[\d\s\u00a0]*\s?Ft$/.test(tx))continue;
-      rg.selectNodeContents(td);const w=rg.getBoundingClientRect().width;if(w>mx)mx=w;}});
-  if(!mx)return;const td0=t.querySelector('tbody td.r'),cs=td0&&getComputedStyle(td0),pad=cs?parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight):16,w=Math.ceil(mx+pad+2)+'px';
+      rg.selectNodeContents(td);const cs=getComputedStyle(td),w=rg.getBoundingClientRect().width+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+parseFloat(cs.borderLeftWidth||0)+parseFloat(cs.borderRightWidth||0);if(w>mx)mx=w;}});   /* a cella saját betűje és belső margója szerint (az összesítő sor nagyobb, vastagabb) */
+  if(!mx)return;const w=Math.ceil(mx+4)+'px';
   cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');
   /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
   const pw=matchMedia('(max-width:700px)').matches?134:307,sw=t.querySelector('col.pay-c-sum')?112:0;   /* a CSS-ben megadott szélességek (pay-c-proj / pay-c-sum) */
