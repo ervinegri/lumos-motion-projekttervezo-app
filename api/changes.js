@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d4e37aa6df",
+"at": "2026-11-17T22:36:49+02:00",
+"msg": "Sötét mód (első változat): a névjelvény menüjében ki / be / a rendszer szerint; a sötét színek a meglévő stílusokból készülnek"
+},
+{
 "id": "2cef8f5327",
 "at": "2026-11-17T22:34:44+02:00",
 "msg": "Idővonal: balra görgetve a kicsúszó sávok neve a látható rész elejére kerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: az oszlopszélesség a szöveg tényleges szélességéből (nem nő újrarajzolásonként)"
 },
 {
-"id": "21ec03dfee",
-"at": "2026-11-17T15:57:43+02:00",
-"msg": "Fizetések fejléce: egyforma hézagok, a NAV és a Díjösszesítő gomb a hónapváltóval egyező méretű"
-},
-{
-"id": "70c267d381",
-"at": "2026-11-17T13:56:58Z",
+"id": "05184a9d39",
+"at": "2026-11-17T13:58:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
