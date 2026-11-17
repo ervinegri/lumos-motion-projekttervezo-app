@@ -2594,3 +2594,8 @@ html body .dl-qsent.qs-loading{opacity:.6;cursor:progress!important}html body .d
 html body .qs-pdf{overflow-x:auto!important}
 html body .qs-pdf .qs-pages{margin:0 auto;transform:none!important}
 html body .qs-pdf .qs-page{display:block;width:100%!important;height:auto!important}
+/* nagyításkor csak az ajánlat változik: a felugró ablak (fejléc, gombsor) szélessége és mérete marad */
+html body .qs-box{touch-action:pan-x pan-y;overflow-x:hidden!important;min-width:0!important}
+html body .qs-box .qs-pdf{min-width:0!important;max-width:100%;contain:inline-size}
+@media (max-width:700px){html body .qs-box .qs-pdf{max-width:100vw!important}}
+html body .qs-box .mhead,html body .qs-box .mfoot,html body .qs-box>.hint{max-width:100%}
