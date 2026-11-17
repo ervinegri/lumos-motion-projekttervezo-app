@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d30985be8f",
+"at": "2026-11-17T22:54:16+02:00",
+"msg": "Stáb: a számlázó cég, adószám és ÁFA csak az ügyvezetőnek látszik; sötét mód: aktív hónap és frissítés-sáv sötét"
+},
+{
 "id": "686afd4275",
 "at": "2026-11-17T22:52:42+02:00",
 "msg": "Sötét mód: a halvány színes kijelölések (pl. aktív hónap) is sötétek; a sárga gombon sötét szöveg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: a hónapváltó és a fő gombok egy sorban"
 },
 {
-"id": "129e90e399",
-"at": "2026-11-17T16:39:51+02:00",
-"msg": "Tablet/telefon: az oldal nem kicsinyedhet le (minimum-scale=1)"
-},
-{
-"id": "c5c31b61f6",
-"at": "2026-11-17T14:39:15Z",
+"id": "c3e4206f06",
+"at": "2026-11-17T14:40:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
