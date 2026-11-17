@@ -375,7 +375,7 @@ function rpcInner_(token, name, arg) {
     case 'dwdSet': adminOnly(); return dwdSet_(u, arg);
     case 'dwdTest': adminOnly(); return dwdTest_(u, arg);
     case 'dataVer': return { v: dataVer_() };   // olcsó változásfigyelés: a kliens ebből tudja, hogy frissítsen-e
-    case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token)) }; }   // egy körben: nézetváltás + az új nézet adatai
+    case 'setViewAs': { setViewAs_(token, u, arg); return { ok: true, boot: bootstrap_(authUser_(token), true) }; }   // egy körben: nézetváltás + az új nézet adatai
     case 'logout': PropertiesService.getScriptProperties().deleteProperty(SESSION_PREFIX + sha256hex_(String(token))); return { ok: true };
     case 'bootstrap': if (arg && arg.open) logAppOpen_(u); return bootstrap_(u);
     case 'saveDeal': if (role !== 'admin' && role !== 'sales') deny(); return saveDeal_(u, arg);

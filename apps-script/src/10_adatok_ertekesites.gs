@@ -122,20 +122,22 @@ function migrateEmployeesOnce_() {
   });
   P.setProperty('MIG_EMP_2026_11', now_());
 }
-function bootstrap_(u) {
+function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lépések kimaradnak (gyorsabb) – a következő normál betöltés elvégzi
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
-  try { migrateEmployeesOnce_(); } catch (e) {}
-  try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') erVideosOnce_(); } catch (e) {} try { if (u.role === 'admin') calAdminGuestCleanOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteValueOnce_(); } catch (e) {} try { if (u.role === 'admin') orgFeeFixOnce_(); } catch (e) {} try { if (u.role === 'admin') doneBackfillOnce_(); } catch (e) {} try { if (u.role === 'admin') crewRoleFixOnce_(); } catch (e) {} try { if (u.role === 'admin') finFixSep2026Once_(); } catch (e) {} try { if (u.role === 'admin') fixQueensRefOnce_(); } catch (e) {} try { if (u.role === 'admin') hsDealImportOnce_(); } catch (e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · HubSpot-deal áthozatal: ' + String(e && e.message || e).slice(0, 200)); } catch (x) {} }
-  try { migrateFinalizedOnce_(); } catch (e) {}
-  try { migrateEditOnlyOnce_(); } catch (e) {}
-  try { calNoClientOnce_(); } catch (e) {}
-  try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
-  try { if (u && u.role === 'admin') { salesSyncEnsure_(); szDailyEnsure_(); } } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+  if (!light) {
+    try { migrateEmployeesOnce_(); } catch (e) {}
+    try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') erVideosOnce_(); } catch (e) {} try { if (u.role === 'admin') calAdminGuestCleanOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteValueOnce_(); } catch (e) {} try { if (u.role === 'admin') orgFeeFixOnce_(); } catch (e) {} try { if (u.role === 'admin') doneBackfillOnce_(); } catch (e) {} try { if (u.role === 'admin') crewRoleFixOnce_(); } catch (e) {} try { if (u.role === 'admin') finFixSep2026Once_(); } catch (e) {} try { if (u.role === 'admin') fixQueensRefOnce_(); } catch (e) {} try { if (u.role === 'admin') hsDealImportOnce_(); } catch (e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · HubSpot-deal áthozatal: ' + String(e && e.message || e).slice(0, 200)); } catch (x) {} }
+    try { migrateFinalizedOnce_(); } catch (e) {}
+    try { migrateEditOnlyOnce_(); } catch (e) {}
+    try { calNoClientOnce_(); } catch (e) {}
+    try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
+    try { if (u && u.role === 'admin') { salesSyncEnsure_(); szDailyEnsure_(); } } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+  }
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
-  try { invitesExpire_(projects); } catch (e) { Logger.log('Meghívó-lejárat: ' + e); }   /* a határidőig meg nem válaszolt meghívó elutasításnak számít */
-  try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
+  if (!light) try { invitesExpire_(projects); } catch (e) { Logger.log('Meghívó-lejárat: ' + e); }   /* a határidőig meg nem válaszolt meghívó elutasításnak számít */
+  if (!light) try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
     else if (u.role === 'admin' || u.role === 'editor') { const C = CacheService.getScriptCache(); if (!C.get('INV_SYNC')) { C.put('INV_SYNC', '1', 300); invitesSync_(projects); } } } catch (e) { Logger.log('Meghívás-szinkron: ' + e); }
   const out = {
     me: publicUser_(u), myNotify: (() => { try { return u.crewId ? crewNotifyOf_(readAll_('crew').find(x => x.id === u.crewId)) : null; } catch (e) { return null; } })(), projects: (() => { const dst = {}; try { readAll_('deals').forEach(d => { dst[d.id] = d.stage; }); } catch (e) {} return projects.map(p => { const v = projectView_(p, u); if (p.preDeal && dst[p.preDeal] && ['nyert', 'elveszett'].indexOf(dst[p.preDeal]) < 0) { if (u.role === 'crew') v.tent = true; else v.preStage = dst[p.preDeal]; } return v; });   /* a szakember csak azt látja, hogy előfoglalás */ })(), crew: crew, inventory: inventory, clients: u.role === 'crew' ? [] : (base.clients || []),

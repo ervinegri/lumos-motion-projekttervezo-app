@@ -2422,3 +2422,6 @@ html body .inv-panel .inv-btns{gap:6px!important;flex:none}
 html body .inv-panel .inv-btns .btn{min-height:30px!important;height:30px;padding:0 12px!important;font-size:12.5px!important}
 html body .inv-panel>.hint{margin:4px 0 0!important;font-size:12px}
 @media (max-width:700px){html body .inv-panel .inv-row{flex-wrap:wrap}html body .inv-panel .inv-btns{width:100%;justify-content:flex-end}}
+/* sima visszajelzés (pl. „Nézet: …”, „Mentve”): a képernyő közepén, magától eltűnik */
+html body #toast.mid{top:50%!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translate(-50%,-50%) scale(.96)!important;max-width:520px;z-index:10000;transition:opacity .18s,transform .18s}
+html body #toast.mid.show{transform:translate(-50%,-50%) scale(1)!important}

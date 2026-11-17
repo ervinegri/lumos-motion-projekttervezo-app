@@ -350,14 +350,16 @@ async function switchView(role,crewId,userId){
   try{
     document.body.dataset.switchTo='Váltás: '+(role==='admin'?'Ügyvezető':role==='editor'?'Termelési v.':role==='sales'?'Értékesítő':'Szakember')+' nézet…';document.body.classList.add('switching');
     await Promise.race([SAVE_Q,new Promise(r=>setTimeout(r,15000))]);if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
-    const r=await call('setViewAs',Object.assign({role,crewId},userId?{userId}:{}));
+    const realRole=S.me&&(S.me.realRole||S.me.role),vkey=(role===realRole||(role==='admin'&&realRole==='admin'))?'self':role+'|'+(crewId||userId||''),hit=S._vb&&S._vb[vkey]&&Date.now()-S._vb[vkey].at<20*60*1000?S._vb[vkey].d:null;
+    const req=call('setViewAs',Object.assign({role,crewId},userId?{userId}:{}));
+    let r;if(hit){S._viewP=req.catch(()=>{});r={boot:hit};}else r=await req;   /* már látott nézet: azonnal a megjegyzett adatból, a friss adat a háttérben jön */
     const keepTab=S.tab,keepPid=S.projectId;   // nézetváltás után ugyanazon a menüponton (és projekten) maradunk, ha az új nézetben is elérhető
     S.projectId=null;S.draft=null;S.dirty=false;S._settingsAt=0;S.cal.events={};   /* a Beállítások adatai megmaradnak (azonnal látszanak), a háttérben frissülnek */
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     await load(false,false,r&&r.boot);
     S.tab=TABS().some(t=>t.id===keepTab)?keepTab:TABS()[0].id;
     if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));S.draftBase=clone(S.draft);}
-    render(true);document.body.classList.remove('switching');toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő':'Nézet: Szakember');
+    render(true);document.body.classList.remove('switching');if(hit){req.then(rr=>{S._viewP=null;if(rr&&rr.boot)load(true,false,rr.boot).then(()=>render(true));},e=>{S._viewP=null;handleErr(e);});}toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő':'Nézet: Szakember');
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 const crewSub=id=>{const c=crewById(id)||(S.viewAsCrew||[]).find(x=>x.id===id);return c?[(c.roles||[]).join(', '),c.company].filter(Boolean).join(' · '):id==='__new'?'a stáblistára is felkerül':'';};   // a választóban a név alatt
