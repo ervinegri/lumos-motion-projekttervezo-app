@@ -401,10 +401,8 @@ const invState=x=>{if(x.kind==='eloleg'&&x.manual)return 'paid';const g=num(x.in
 const INV_CLS={paid:'p-ok',part:'p-info',late:'p-bad',open:'p-warn'};
 const SZ_KIND={szamla:'Számla',dijbekero:'Díjbekérő',eloleg:'Foglalószámla',vegszamla:'Végszámla'},SZ_KIND_S={dijbekero:'D ',eloleg:'E ',vegszamla:'V '};
 const invChip=x=>{const s=invState(x);return `<button class="statuspill inv-chip ${INV_CLS[s]}" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="${esc((SZ_KIND[x.kind]||'Számla')+' · '+(x.buyer||'')+' · bruttó '+ftFmt(num(x.invGross)))}">${SZ_KIND_S[x.kind]||''}${esc(x.no)} ${s==='paid'?'✓':s==='part'?'½':s==='late'?'⚠':'…'}</button>`;};
-const invCell=r=>`<div class="inv-cell">${invFor(r.kind,r.id).map(invChip).join('')}<button class="linkbtn inv-new" type="button" data-action="sz-new" data-kind="${esc(r.kind)}" data-id="${esc(r.id)}" title="Számla kiállítása vagy meglévő hozzárendelése">🧾${invFor(r.kind,r.id).length?'':' Számla'}</button></div>`;
 function szRepEmail(cl,p){return (cl&&(cl.repEmail||cl.contactEmail))||(p&&p.contactEmail)||'';}   // a számla a cég képviselőjéhez megy
 function szFinEmail(cl){if(cl&&cl.billEmail)return cl.billEmail;const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');return m?(m[1].split(/[,\s]+/).find(x=>x.includes('@'))||''):'';}
-function szBillingEmail(cl,p){const m=/Számlázási e-mail:\s*([^;\n]+)/i.exec((cl&&cl.note)||'');const first=m?m[1].split(/[,\s]+/).find(x=>x.includes('@')):'';return first||(cl&&cl.contactEmail)||(p&&p.contactEmail)||'';}
 function szSplitAddr(a){const m=/^\s*(\d{4})\s+([^,]+),\s*(.+)$/.exec(a||'');return m?{zip:m[1],city:m[2].trim(),address:m[3].trim()}:{zip:'',city:'',address:String(a||'').trim()};}
 /* Projekt neve + dátuma a számlatételhez, pl. „PP Konferencia – október 14.” (több nap: „október 14–15.”) */
 const SZ_MN=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
@@ -560,8 +558,6 @@ function szLinkModal(kind,id,type,back){const t=szTargetInfo(kind,id);if(!t)retu
 /* Kézi bizonylat: nem az összekötött számlázz.hu-fiókból (pl. Egri Ervin E.V.) – csak a PDF-et kell feltölteni, az adatokat az app olvassa ki belőle */
 let PDFJS=null;
 function pdfLib(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='vendor/pdfjs/pdf.min.js';sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';ok(window.pdfjsLib);}catch(e){no(e);}};sc.onerror=()=>{PDFJS=null;no(new Error('A PDF-olvasó nem töltődött be.'));};document.head.appendChild(sc);}));}
-const huDate=s=>{const m=/(\d{4})[.\-\/ ]\s*(\d{1,2})[.\-\/ ]\s*(\d{1,2})/.exec(String(s||''));return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:'';};
-const huNum=s=>{const t=String(s||'').replace(/Ft/i,'').replace(/[\s ]/g,'').replace(',','.');return /^-?\d+(\.\d+)?$/.test(t)?Math.round(Number(t)):null;};
 /* Számlázz.hu-s (és hasonló) számla-PDF szövegéből: szám, típus, kiállító, vevő, dátumok, összegek (magyar és angol nyelvű számla is) */
 async function pdfItems(buf,worker){const lib=await pdfLib(),doc=await lib.getDocument(Object.assign({data:new Uint8Array(buf),isEvalSupported:false},worker?{worker}:{})).promise;
   const pg=await doc.getPage(1),W=pg.getViewport({scale:1}).width,tc=await pg.getTextContent();try{doc.destroy();}catch(e){}

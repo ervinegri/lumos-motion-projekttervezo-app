@@ -255,8 +255,7 @@ function discardDraft(){const id=S.draft&&S.draft.id,p=id&&projById(id);S.dirty=
 /* Automatikus mentés: minden módosítás után rövid várakozással mentünk (gépelésnél kicsit később).
    A mentések sorban futnak (SAVE_Q), mindig a legfrissebb állapotot küldik, így a gyors kattintgatás sem veszít adatot. */
 let AUTO_T=0;
-function autoSave(delay){return;   // kézi mentés (Mentés gomb / Ctrl+S) – nincs automatikus mentés
-  if(!S.draft||ro()||!S.dirty)return;clearTimeout(AUTO_T);AUTO_T=setTimeout(()=>{if(S.draft&&S.dirty&&!ro())saveDraft();},delay);}
+function autoSave(){}   // kézi mentés (Mentés gomb / Ctrl+S) – nincs automatikus mentés
 function flushSave(){if(S.draft&&S.dirty&&!ro()){clearTimeout(AUTO_T);saveDraft();}}
 /* Mentés azonnal a felületen (optimista), a háttérben sorban küldjük a szervernek.
    Így nem kell megvárni az Apps Scriptet; ha a mentés mégsem sikerül, visszakapod a módosításokat és szólunk. */
@@ -316,14 +315,6 @@ function saveDraft(){
   });
   if(cd)SAVE_Q=SAVE_Q.then(()=>commSave(cd));
   return SAVE_Q;
-}
-function personList(p,cid){
-  const c=crewById(cid);const lines=[`Eszközlista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · kezdés '+p.startTime:''}`,'',((c&&c.name)||'?').toUpperCase()];
-  const mine=(p.equipment||[]).filter(e=>e.crewId===cid).map(e=>({e,it:itemById(e.itemId)})).filter(x=>x.it);
-  rentalsOf(p,cid).forEach(r=>lines.push(`☐ ${r.name} (${r.own?'saját':'bérelt'+(r.company?', '+r.company:'')})`));
-  if(!mine.length&&!rentalsOf(p,cid).length)lines.push('(nincs nála eszköz)');
-  mine.forEach(({e,it})=>lines.push(`☐ ${num(e.qty)}× ${it.name}${it.serial?' ('+it.serial+')':''}${it.location?' – '+it.location:''}`));
-  return lines.join('\n');
 }
 function packingList(p){
   const lines=[`Pakolási lista – ${p.name||'Projekt'}`,`${fmtRange(p)}${p.venue?' · '+p.venue:''}${p.startTime?' · kezdés '+p.startTime:''}`,''];

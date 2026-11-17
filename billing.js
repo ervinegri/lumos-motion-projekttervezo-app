@@ -111,9 +111,6 @@ function billMonthRows(arr){const n=s=>String(s||'').trim().toLowerCase(),by={},
   })():billRow(r.i,r.o)).join('');}
 /* A táblázat cellái lépésenként: Szerződés (elküldve, aláírva), TIG (elküldve, jóváhagyva), Díjbekérő (elküldve, fizetve), Végszámla (elküldve, fizetve) */
 const bsStep=(on,label,extra,act)=>`<div class="bs-step${on?' on':''}">${act?`<button type="button" class="bs-dot" ${act} aria-pressed="${on}" title="${on?'Visszavonás':'Megtörtént'}">${on?'✓':''}</button>`:`<span class="bs-dot">${on?'✓':''}</span>`}<span class="bs-l${/^\d{2}\.\d{2}\.$/.test(String(extra||''))?' inl':''}"><span>${label}</span>${extra?`<span class="bs-x">${extra}</span>`:''}</span></div>`;
-function bsInv(x){if(!x)return '';const s=invState(x);return `<button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}">${esc(x.no)}</button> · ${ftFmt(num(x.invGross))}${x.manual?` <span class="muted" title="Kézzel rögzített bizonylat – a kifizetést kézzel kell jelölni">✍️ ${x.issuer==='kft'?'Kft.':'E.V.'}</span>`:''}${invShared(x)?` <span class="bl-shared" title="${esc(invPids(x).map(id=>(projById(id)||{}).name||'?').join(' · '))}">🔗 ${invPids(x).length} projekt</span>`:''}`;}
-function bsPaid(x){if(!x)return '';const s=invState(x);return s==='paid'?(x.paidAt?fmtMD(x.paidAt):''):s==='part'?`<span class="info-txt">részben: ${ftFmt(num(x.invPaid))}</span>`:s==='late'?`<span class="bad-txt">lejárt ${fmtMD(x.due)}</span>`:x.due?`határidő ${fmtMD(x.due)}`:'';}
-const bsIss=x=>x&&x.manual&&x.issuer==='ev'?'E.V.':'L.M.';
 const bsSent=(label,x)=>bsStep(true,label+' elküldve',`${x.date?fmtMD(x.date)+' · ':''}<button class="bl-no" type="button" data-action="sz-inv" data-id="${esc(x.id)}" title="Számla megnyitása (PDF)">${esc(x.no)}</button>`);
 const bsPaidStep=x=>{const ok=invPaidOk(x),st=invState(x),d=x.paidAt||x.date;
   if(!ok)return bsStep(false,`${st==='part'?`Részben kifizetve <span class="bs-in">${ftFmt(num(x.invPaid))}</span>`:`Nincs kifizetve${x.due?` <span class="bs-in${st==='late'?' late':''}">· ${st==='late'?'lejárt':'határidő'} ${fmtMD(x.due)}</span>`:''}`}`);
@@ -224,21 +221,6 @@ function viewBilling(){
 }
 /* ===== Teljesítésigazolások: kiküldve → jóváhagyva → számla a TIG alapján (közös számla az összes tételre) ===== */
 const TIG_ST={kiallitva:['Elküldésre vár','p-warn'],kikuldve:['Jóváhagyásra vár','p-warn'],jovahagyva:['Jóváhagyva','p-info'],szamlazva:['Számlázva','p-ok']};
-function tigPanel(){const all=tigList().slice().sort((a,b)=>String(b.month).localeCompare(String(a.month))||String(b.createdAt).localeCompare(String(a.createdAt)));
-  const open=all.filter(t=>t.status!=='szamlazva'),done=all.filter(t=>t.status==='szamlazva').slice(0,12);
-  const row=t=>{const st=TIG_ST[t.status]||TIG_ST.kikuldve,ps=tigPids(t),inv=t.invoiceNo?((S.fin.invoices||[]).find(x=>x.no===t.invoiceNo)):null;
-    let rows=[];try{rows=JSON.parse(t.rows||'[]');}catch(e){}
-    return `<tr><td><b>${esc(t.client)}</b><div class="bl-meta">${esc(F_YM.format(toDate(t.month+'-01')))} · ${rows.length} tétel${ps.length?` · ${ps.length} projekt`:''}</div></td>
-      <td class="r"><b>${ftFmt(num(t.total))}</b></td>
-      <td><span class="statuspill ${st[1]}">${st[0]}${t.approvedAt&&t.status==='jovahagyva'?' '+fmtMD(t.approvedAt):''}</span>${inv?invLine(inv):t.invoiceNo?`<div class="bl-meta">${esc(t.invoiceNo)}</div>`:''}</td>
-      <td><div class="tig-act">${t.url?`<a class="linkbtn" href="${esc(t.url)}" target="_blank" rel="noopener">📄 PDF</a>`:''}
-        ${t.status==='kikuldve'?`<button class="btn outline small" type="button" data-action="tig-approve" data-id="${esc(t.id)}">✓ Jóváhagyták</button>`:''}
-        ${t.status==='jovahagyva'?`<button class="btn primary small" type="button" data-action="tig-invoice" data-id="${esc(t.id)}">🧾 Számla a TIG alapján</button><button class="linkbtn" type="button" data-action="tig-unapprove" data-id="${esc(t.id)}">visszavonás</button>`:''}
-        ${t.status!=='szamlazva'?`<button class="trash" type="button" data-action="tig-del" data-id="${esc(t.id)}" aria-label="TIG törlése" title="Törlés a listából (a PDF megmarad)">🗑️</button>`:''}</div></td></tr>`;};
-  return `<details class="panel fold tig-panel" data-fold="tig"${FOLD.tig!==false?' open':''}><summary><h3>📝 Teljesítésigazolások <span class="aside">${open.length?open.length+' nyitott':all.length?'mind számlázva':'nincs'}</span></h3></summary>
-    ${all.length?`<div class="sheet-wrap"><table class="sheet fin-tbl tig-tbl"><thead><tr><th>Ügyfél · hónap</th><th class="r">Összesen (nettó)</th><th>Állapot</th><th></th></tr></thead><tbody>${open.map(row).join('')}${done.length?`<tr class="pt-month"><td colspan="4"><span class="muted">Számlázva</span></td></tr>${done.map(row).join('')}`:''}</tbody></table></div>`
-      :`<p class="hint" style="margin:0">Még nincs rögzített TIG. A hónap végén a <b>TIG kiállítása</b> gombbal összegyűjtheted az ügyfél havi projektjeit; ha jóváhagyták, innen egy számlát állíthatsz ki az összes tételre.</p>`}
-    <p class="hint" style="margin:8px 0 0">TIG → ügyfél jóváhagyja → számla a TIG tételeivel. A számla mindegyik projekthez hozzárendelődik, így a kifizetés mindenhol megjelenik.</p><div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="tig-new">+ TIG kiállítása</button></div></details>`;}
 function tigInvoice(id){const t=tigList().find(x=>x.id===id);if(!t)return;let rows=[];try{rows=JSON.parse(t.rows||'[]');}catch(e){}
   let ps=tigPids(t).filter(projById);if(!ps.length)ps=tigProjects(t.client,t.month).map(p=>p.id);
   if(!ps.length){toast('A TIG-hez nem tartozik projekt az appban – a számlát a projektnél vagy a számlázz.hu-ban állítsd ki, majd rendeld hozzá.',true);return;}
@@ -379,12 +361,6 @@ const fwReal=f=>!!f&&(f.mode==='nemkell'||!!f.url||!!f.fileId);
 function fwFor(p){const f=fwOfClient(p&&p.client);if(!fwReal(f))return null;const r=pr(p);return !f.validTo||!r||f.validTo>=r.start?f:null;}
 const readB64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=()=>no(new Error('A fájl nem olvasható.'));r.readAsDataURL(file);});
 const fwCell=(f,cls)=>f.mode==='nemkell'?`<div class="${cls}"><span class="statuspill p-mute" title="Az ügyfél nem igényel szerződést">🚫 Nem igényel szerződést</span></div>`:`<div class="${cls}">${f.url?`<a class="statuspill p-ok fw-link" href="${esc(f.url)}" target="_blank" rel="noopener" title="${esc(f.fileName||'Keretszerződés megnyitása')}">🤝 Keretszerződés ↗</a>`:`<span class="statuspill p-ok" title="Keretszerződés az ügyféllel">🤝 Keretszerződés</span>`}${f.validTo?`<span class="bl-meta">érvényes: ${esc(f.validTo)}</span>`:''}</div>`;
-function fwPanel(){const list=((S.fin&&S.fin.frameworks)||[]).slice().sort((a,b)=>a.client.localeCompare(b.client,'hu'));const T=todayISO();
-  return `<details class="panel fold" data-fold="fw"${FOLD.fw?' open':''}><summary><h3>🤝 Keretszerződések <span class="aside">${list.length?list.length+' ügyfél':'nincs'}</span></h3></summary>
-    ${list.length?`<div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Ügyfél</th><th>Szerződés</th><th>Aláírva</th><th>Érvényes eddig</th><th>Projektek</th><th></th></tr></thead><tbody>${list.map(f=>{const n=S.projects.filter(p=>p.status!=='lemondva'&&fwFor(p)===f).length,exp=f.validTo&&f.validTo<T;
-      return `<tr><td><b>${esc(f.client)}</b>${f.note?`<div class="bl-meta">${esc(f.note)}</div>`:''}</td><td>${f.mode==='nemkell'?'<span class="statuspill p-mute">🚫 Nem igényel szerződést</span>':f.url?`<a class="bl-file" href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.fileName||'Megnyitás')}</a>`:'<span class="muted">—</span>'}</td><td>${esc(f.signedAt||'—')}</td><td>${f.validTo?`<span class="${exp?'bad-txt':''}">${esc(f.validTo)}${exp?' (lejárt)':''}</span>`:'határozatlan'}</td><td>${n}</td>
-        <td class="nowrap"><button class="editbtn" type="button" data-action="fw-edit" data-id="${esc(f.id)}" aria-label="Módosítás">✏️</button><button class="trash" type="button" data-action="fw-del" data-id="${esc(f.id)}" aria-label="Törlés">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="hint" style="margin:8px 0 0">Ha egy ügyféllel keretszerződés van, az ügyfél projektjeinél nem kell külön szerződés.</p>'}
-    <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fw-new">+ Keretszerződés</button></div></details>`;}
 function fwModal(f){const v=f||{},isNew=!v.id,nk=v.mode==='nemkell',names=[...new Set([...(S.clients||[]).map(c=>c.name),...S.projects.map(p=>p.client)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu'));
   openModal(!isNew?'Szerződés – '+v.client:v.client?'Szerződés – '+v.client:'Új keretszerződés',`<div class="fields">
     <div class="field full"><label for="m-fwClient">Ügyfél</label><input class="inp" id="m-fwClient" name="client" list="fw-clients" value="${esc(v.client||'')}" maxlength="160" autocomplete="off"${!isNew?' readonly':''}><datalist id="fw-clients">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
@@ -464,10 +440,6 @@ function tigModal(pre){const prevM=shiftMonth(todayISO().slice(0,7),-1),m0=(pre&
       finApply(r);openModal('TIG elkészült',`<p style="margin:0 0 12px"><b>${esc(r.name)}</b> · ${ftFmt(r.total)} + ÁFA</p><div class="btns"><button class="btn primary" type="button" data-action="tig-mail" data-id="${esc(r.tig&&r.tig.id||'')}">✉️ Küldés e-mailben</button><a class="btn outline" href="${esc(r.url)}" target="_blank" rel="noopener">📄 Megnyitás ↗</a></div><p class="hint" style="margin:12px 0 0">Ha az ügyfél jóváhagyta, a <b>Teljesítésigazolások</b> listában jelöld (Szerződés és számlázás fül alja), és onnan egy kattintással kiállíthatod a számlát az összes tételre.</p>`,{cancelLabel:'Bezárás'});}
     catch(e){handleErr(e);if(btn){btn.disabled=false;btn.textContent='TIG elkészítése';}}}});
   setTimeout(()=>{const c=$('m-tigClient'),m=$('m-tigMonth'),box=$('tig-rows');if(c&&c.value&&m&&box&&/^\d{4}-\d{2}$/.test(m.value))box.innerHTML=tigRowsHtml(c.value,m.value);tigFill();},30);}
-/* A TIG-en megadott képviselő az ügyfél adataiba is bekerül (ha eltér) */
-function tigSaveRep(client,full){const n=s=>String(s||'').trim().toLowerCase(),c=(S.clients||[]).find(x=>n(x.name)===n(client));
-  const i=full.indexOf(','),rep=(i<0?full:full.slice(0,i)).trim(),repTitle=i<0?(c&&c.repTitle||''):full.slice(i+1).trim();   // „Név, titulus”
-  if(!c||(c.rep===rep&&(c.repTitle||'')===repTitle))return;saveClientRec(Object.assign({},c,{rep,repTitle,oldName:''})).catch(()=>{});}
 /* Másik lapon módosított projekt: a TIG-sor neve, összege, linkje frissül */
 function tigSyncRows(p){document.querySelectorAll(`#tig-rows .tig-row[data-pid="${CSS.escape(p.id)}"]`).forEach(r=>{const t=r.querySelector('.tig-task'),a=r.querySelector('.tig-amt'),l=r.querySelector('.tig-link');
   if(t)t.value=p.name||'';if(a)a.value=moneyFmt(projTotal(p));if(l&&/^https:\/\//i.test(p.deliveryLink||'')){l.value=p.deliveryLink;l.dispatchEvent(new Event('input',{bubbles:true}));}
@@ -531,11 +503,6 @@ async function impRead(files){const out=[],pdfs=[];const st=$('imp-st');const sa
   let n=0,k=0;const one=async w=>{while(k<pdfs.length){const f=pdfs[k++];try{const r=await pdfItems(await f.buf(),w);const o=invParseItems(r.it,r.W);o.file=f.name;if(o.no)out.push(o);}catch(e){}say(`Számlák beolvasása… ${++n} / ${pdfs.length}`);}};
   await Promise.all(W.flatMap(w=>[one(w),one(w)]));W.forEach(w=>{try{w&&w.destroy();}catch(e){}});
   return out;}
-function impModal(){if(!S.fin||!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az importhoz előbb add meg a számlázz.hu Agent-kulcsot.');return;}
-  openModal('Számlák importálása a számlázz.hu-ból',`<div class="fields"><div class="field full"><label for="m-impf">A számlázz.hu „Csoportos letöltés” ZIP-je (vagy több számla-PDF)</label><input class="inp" id="m-impf" type="file" accept=".zip,.pdf,application/zip,application/pdf" multiple></div></div>
-    <p class="hint" style="margin:0">A számlázz.hu-ban: Számlák → jelöld ki az összeset → Műveletek → Csoportos letöltés. Az app minden számlához javasol egy projektet vagy régi bevételi sort; te jóváhagyod, és csak a bepipáltak kerülnek be. A sztornózott számlákat és a sztornókat kihagyja.</p>
-    <p class="hint" id="imp-st" style="margin:8px 0 0"></p><div id="imp-list"></div>`,{submitLabel:'Importálás',submit:()=>impRun()});
-  const mb=document.querySelector('#mform');if(mb)mb.classList.add('imp-wide');}
 document.addEventListener('change',async e=>{if(e.target.id!=='m-impf')return;const files=[...(e.target.files||[])];if(!files.length)return;
   let L;try{L=await impRead(files);}catch(err){toast(errText(err),true);return;}
   const have=new Set(((S.fin&&S.fin.invoices)||[]).map(x=>x.no)),stornoed=new Set(L.filter(o=>o.storno&&o.storno!=='?').map(o=>o.storno));
