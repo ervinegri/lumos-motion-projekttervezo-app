@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4ac6506ff8",
+"at": "2026-11-17T22:16:53+02:00",
+"msg": "Küldés az ügyfélnek: a mentett mintában ragadt korábbi videónév (tárgyban is) az aktuális videóra cserélődik"
+},
+{
 "id": "d693942fc9",
 "at": "2026-11-17T22:11:49+02:00",
 "msg": "Projekt Pénzügyek: a Levonások után kártya új sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon: kisebb hézagok az altabok körül"
 },
 {
-"id": "b2be6e0187",
-"at": "2026-11-17T15:53:55+02:00",
-"msg": "Meghívás-figyelmeztetés: a hiányzó nevek külön sorban"
-},
-{
-"id": "0632c61856",
-"at": "2026-11-17T13:53:46Z",
+"id": "793f45bca3",
+"at": "2026-11-17T13:54:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
