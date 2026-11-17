@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e29c0ca3f2",
+"at": "2026-11-17T22:27:00+02:00",
+"msg": "Ponytail-átnézés javításai: ajánlat-adatok Drive-fájlban (a beállítás-tár nem telik be), szigorúbb videónév-csere a levélmintában, teszt a fizetési állapotra, tableten nincs DOM-figyelő, felülírt CSS-szabályok törölve; projekt pénzügyek: Termelés a Levonások után mellett"
+},
+{
 "id": "4ac6506ff8",
 "at": "2026-11-17T22:16:53+02:00",
 "msg": "Küldés az ügyfélnek: a mentett mintában ragadt korábbi videónév (tárgyban is) az aktuális videóra cserélődik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon: betöltéskor a menüsáv a tábla görgetési helyzetéhez igazodik (nem marad félig felcsúszva)"
 },
 {
-"id": "485557ff2f",
-"at": "2026-11-17T15:55:50+02:00",
-"msg": "Fizetések tábla telefonon: kisebb hézagok az altabok körül"
-},
-{
-"id": "793f45bca3",
-"at": "2026-11-17T13:54:04Z",
+"id": "4186785373",
+"at": "2026-11-17T13:56:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
