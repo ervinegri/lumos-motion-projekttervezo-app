@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "15fe73b57f",
+"at": "2026-11-17T15:42:03+02:00",
+"msg": "Fizetések tábla telefonon (álló és fekvő): a felső rész fokozatosan, a görgetéssel együtt tűnik el / jön vissza"
+},
+{
 "id": "dc91fbc72b",
 "at": "2026-11-17T15:40:22+02:00",
 "msg": "Fekvő telefon, Fizetések: a felső rész ténylegesen eltűnik lefelé görgetéskor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: betöltés közben másikra kattintva mindig az utoljára kért nyílik meg"
 },
 {
-"id": "c2d7ed12f6",
-"at": "2026-11-17T14:50:07+02:00",
-"msg": "Ajánlat-néző: zoom elengedésekor a valóban görgető elemet igazítjuk (nem ugrik)"
-},
-{
-"id": "5ea48f40a4",
-"at": "2026-11-17T12:48:40Z",
+"id": "21603c6d96",
+"at": "2026-11-17T12:50:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
