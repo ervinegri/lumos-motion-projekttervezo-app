@@ -2586,3 +2586,6 @@ html body .qs-box .mfoot .btn{width:auto!important;flex:0 0 auto}
 /* ajánlat-néző: a gombsor fele olyan magas (kevés hely fölötte és alatta) */
 html body #modalRoot .qs-box .mfoot{padding-top:6px!important;padding-bottom:max(6px,env(safe-area-inset-bottom))!important;margin-top:4px!important;min-height:0!important}
 html body #modalRoot .qs-box{padding-bottom:0!important}
+/* ajánlat-néző telefonon: a gombsáv alatt a rendszer alsó sávja csak egyszer számít (eddig kétszer) */
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-bottom:0!important;min-height:0!important}
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{padding-top:4px!important;padding-bottom:max(4px,calc(env(safe-area-inset-bottom) - 14px))!important;margin-top:0!important}
