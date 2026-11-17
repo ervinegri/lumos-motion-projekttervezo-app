@@ -200,7 +200,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid
   S.q.body=String(S.q.body||'').replace(/Az ajánlat \d+ napig érvényes\./,'Az ajánlat '+n+' napig érvényes.');const bd=$('q-body');if(bd)bd.value=S.q.body;});
 
 /* Kiküldött ajánlat: a lehetőség kártyáján / ablakában – a PDF megnyitása, vagy új verzió az elküldött ajánlatból */
-ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;let r=null;try{r=await call('quoteSent',{dealId:d.id,op:'pdf'});}catch(e){handleErr(e);return;}
+/* a kiküldött ajánlat PDF-je: rámutatáskor előre letöltjük, és megjegyezzük – kattintásra azonnal nyílik */
+const QS_C={};const qsGet=id=>QS_C[id]||(QS_C[id]=call('quoteSent',{dealId:id,op:'pdf'}).catch(e=>{delete QS_C[id];throw e;}));
+document.addEventListener('pointerover',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"]');if(b&&b.dataset.id&&!QS_C[b.dataset.id])qsGet(b.dataset.id).catch(()=>{});},{passive:true});
+ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;let r=null;try{r=Object.assign({},await qsGet(d.id));}catch(e){handleErr(e);return;}
   if(!r||!r.b64){toast('A kiküldött ajánlat PDF-jét nem találtam a levelek között (valószínűleg az értékesítő saját postafiókjából ment ki). A lehetőség jegyzeteiben látszik, mikor és kinek küldték.',true);return;}
   const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));delete r.b64;S._qSent=r;
   const ft=n=>String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');   /* az ajánlat maga, ablakban (PDF-nézőben) */
