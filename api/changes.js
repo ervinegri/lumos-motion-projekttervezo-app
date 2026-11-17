@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2f48ae08a5",
+"at": "2026-11-17T23:17:13+02:00",
+"msg": "Átnézés: az Elvetés gomb a teljes visszaállítást használja (dupla kulcs); szerződés mentése után a pénzügyi adatok frissülnek; pipálás-felirat escape; halott kódrészek törölve"
+},
+{
 "id": "b52e40e6a9",
 "at": "2026-11-17T23:13:15+02:00",
 "msg": "Átvilágítás javításai: Neon-akadásnál újrapróbálás (nincs azonnali visszaváltás a táblázatra, nincs dupla futás); kifizetett állapot a bizonylat ÁFÁ-jával; közös API-hitelesítés; minden írás frissíti a nyitott lapokat; banki párosítás pontosítva; teszt a számlázz.hu fogadóra; felesleges képek törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetési állapot: a díjbekérő és a belőle készült előlegszámla egy befizetésnek számít (nem lesz tévesen „Teljes fizetve”)"
 },
 {
-"id": "cb3b1d7607",
-"at": "2026-11-17T17:02:14+02:00",
-"msg": "Tablet, Fizetések: újra görgethető fel-le (a rugózás-elnyelés csak függőlegesen görgető táblán)"
-},
-{
-"id": "60e8a2d1cc",
-"at": "2026-11-17T15:01:25Z",
+"id": "b69060f1c4",
+"at": "2026-11-17T15:02:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
