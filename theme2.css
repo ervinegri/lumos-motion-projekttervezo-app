@@ -2735,3 +2735,13 @@ html body .page-head.sales-head>.sales-monthbar .sales-monthhint{flex:0 1 auto;m
 html body .page-head.sales-head>.dl-hbtns{margin:0 0 0 auto!important;flex:0 0 auto}
 @media (max-width:1180px){html body .page-head.sales-head>.sales-monthbar .sales-monthhint{display:none}}
 @media (max-width:760px){html body .page-head.sales-head>.sales-monthbar{flex:1 1 100%;flex-wrap:wrap}html body .page-head.sales-head>.dl-hbtns{margin:0!important}}
+/* Értékesítés fejléce tableten: egy sorban, egységes gombmagasság (34 px); a gombok rövid felirattal */
+@media (min-width:701px) and (max-width:1180px){
+ html body .page-head.sales-head{flex-wrap:nowrap!important}
+ html body .page-head.sales-head>.sales-monthbar{flex:1 1 auto}
+ html body .page-head.sales-head .dl-hbtns .dl-lg{display:none!important}
+ html body .page-head.sales-head .dl-hbtns .dl-sm{display:inline!important}
+}
+html body .page-head.sales-head .dl-hbtns{display:flex;gap:8px;align-items:center}
+html body .page-head.sales-head .dl-hbtns .btn,html body .page-head.sales-head .sales-monthbar .btn,html body .page-head.sales-head .sales-monthbar .mnav-chip{height:34px!important;min-height:34px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;display:inline-flex;align-items:center;box-sizing:border-box;white-space:nowrap}
+html body .page-head.sales-head .dl-hbtns .btn{padding-left:14px!important;padding-right:14px!important}
