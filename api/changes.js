@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fcf490f2dc",
+"at": "2026-11-17T14:48:28+02:00",
+"msg": "Ajánlat-néző: csippentés után a nagyított rész a helyén marad (nem ugrik középre)"
+},
+{
 "id": "3dfa264edd",
 "at": "2026-11-17T14:46:34+02:00",
 "msg": "Ajánlat-néző: görgetés elengedése után visszaáll a kiinduló helyzetbe (nagyítás nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: ha a PDF nincs meg a levelek között, feltölthető"
 },
 {
-"id": "8ba772c972",
-"at": "2026-11-17T12:54:11+02:00",
-"msg": "Kiküldött ajánlat: előtöltés már a kártyára mutatva"
-},
-{
-"id": "4093044d7a",
-"at": "2026-11-17T10:52:32Z",
+"id": "dc6623685b",
+"at": "2026-11-17T10:54:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
