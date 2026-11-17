@@ -2798,3 +2798,6 @@ html body .crew-tbl tr.crew-row:hover td{background-color:rgba(31,90,61,.05)}
 @media (min-width:1181px){html body #view .pay-wrap:not(.dock-wrap){width:fit-content!important;max-width:100%!important}}
 
 .pn-reply{align-items:flex-end}.pn-reply .btn{align-self:flex-end;height:auto;min-height:34px}
+
+/* az idővonal sávjai alatti videóállapot-csík kivéve */
+html body .tl-row .tl-prog,html body .tl-row .tl-cut .tl-prog{display:none!important}
