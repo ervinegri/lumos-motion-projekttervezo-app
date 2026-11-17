@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ec209a9ac9",
+"at": "2026-11-17T15:32:56+02:00",
+"msg": "Táblázatok: nincs lefelé húzás / rugózás"
+},
+{
 "id": "d35312a1ed",
 "at": "2026-11-17T15:27:55+02:00",
 "msg": "Fekvő telefon: a felugró ablak háttere a teljes tartalom mögött ott van"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: alacsonyabb gombsáv"
 },
 {
-"id": "a8478ad206",
-"at": "2026-11-17T14:39:42+02:00",
-"msg": "Ajánlat-néző: görgetéskor nem változik a nagyítás (dupla koppintás kivéve)"
-},
-{
-"id": "9d3141ee14",
-"at": "2026-11-17T12:37:55Z",
+"id": "0a9403ded9",
+"at": "2026-11-17T12:39:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
