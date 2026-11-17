@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6cbb82aba3",
+"at": "2026-11-17T10:01:03+02:00",
+"msg": "Online pénzügyi adatkapcsolat: kimenő és bejövő számlák fogadása (PDF a Drive-ra), szakember-számlák és kimenő utalások párosítása a Kifizetésekhez, szállítói számlák kiadásként, havi banki forgalom, ügyfelek fizetési fegyelme"
+},
+{
 "id": "df12caed6d",
 "at": "2026-11-17T09:54:30+02:00",
 "msg": "Beállítások előtöltése csak ügyvezető / termelési v. nézetben (szakember nézetben jogosultsági hibát adott)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Több napos rendezvény: a napok egyenként hozzáadhatók (＋ Nap hozzáadása), mindegyik saját kezdéssel és végzéssel"
 },
 {
-"id": "23802b527a",
-"at": "2026-11-17T08:26:50+02:00",
-"msg": "Alapadatok: a típus/helyszín sor a dátum/kezdés/végzés oszlophatáraihoz igazítva"
-},
-{
-"id": "b1fa89afe3",
-"at": "2026-11-17T06:26:38Z",
+"id": "02d398abef",
+"at": "2026-11-17T06:27:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
