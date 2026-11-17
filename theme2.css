@@ -2551,3 +2551,8 @@ html body .qs-box .qs-pdf{height:calc(100vh - 230px)!important;min-height:320px}
 html body .qs-box{max-height:none!important}
 @media (max-width:700px){html body .qs-box .qs-pdf{height:calc(100vh - 300px)!important}}
 html body .qs-pdf{touch-action:pan-x pan-y}html body .qs-pdf .qs-pages{transition:none;will-change:transform}
+/* telefonon: az ajánlat a néző széléig ér (keret és belső margó nélkül) */
+@media (max-width:700px){
+html body .qs-box .qs-pdf{padding:0!important;border:0!important;background:none!important;margin:0 -14px;width:calc(100% + 28px);border-radius:0}
+html body .qs-pdf .qs-page{margin:0 0 8px!important;box-shadow:0 1px 4px rgba(15,23,42,.15);border-radius:0}
+}
