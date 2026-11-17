@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a3cc6377de",
+"at": "2026-11-17T14:56:02+02:00",
+"msg": "Folyamatjelzés: „Dolgozom…” helyett kiírja, mit tölt be (pl. Ajánlat betöltése – …)"
+},
+{
 "id": "e4dfa5f0fe",
 "at": "2026-11-17T14:55:03+02:00",
 "msg": "Kiküldött ajánlat: betöltés közben másikra kattintva mindig az utoljára kért nyílik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: a PDF-et az app rajzolja ki (telefonon is), működő nagyítás"
 },
 {
-"id": "a9a98188ad",
-"at": "2026-11-17T13:23:53+02:00",
-"msg": "Ajánlat-néző: a nagyítás újratölti a PDF-et"
-},
-{
-"id": "f217d26e7d",
-"at": "2026-11-17T10:55:10Z",
+"id": "e0f01a5e78",
+"at": "2026-11-17T11:24:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
