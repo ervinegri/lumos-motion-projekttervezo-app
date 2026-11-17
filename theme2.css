@@ -2657,3 +2657,8 @@ html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box.qs-full .mfoot{position:
 html body #modalRoot .qs-box.qs-full .mfoot .left{justify-content:center;width:100%}
 html body #modalRoot .qs-box.qs-full .mfoot .qs-fs{pointer-events:auto;background:rgba(29,42,56,.5)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 4px 14px rgba(16,24,40,.18);text-shadow:0 1px 2px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 html body #modalRoot .qs-box.qs-full .qs-pdf{border-radius:0!important;padding-bottom:72px!important}
+/* telefon fekvő nézet: a menüsáv szélesebb – a kamerakivágás miatti behúzás csak annyi, amennyi tényleg kell */
+@media (orientation:landscape) and (max-height:560px){
+html body .topbar{padding-left:max(0px,calc(env(safe-area-inset-left,0px) - 30px))!important;padding-right:max(0px,calc(env(safe-area-inset-right,0px) - 30px))!important}
+html body .topbar-inner{padding-right:6px!important;max-width:none!important}
+}
