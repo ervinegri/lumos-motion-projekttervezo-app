@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac3c1729b9",
+"at": "2026-11-17T15:05:23+02:00",
+"msg": "Ajánlat-néző telefonon: fejléc és gombsor fix, csak az ajánlat görget / nagyítódik"
+},
+{
 "id": "284d8e39f2",
 "at": "2026-11-17T15:04:43+02:00",
 "msg": "Ajánlat-néző telefonon: gombsor a képernyő alján, nincs üres sáv alatta"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző telefonon: a lap a szélekig ér"
 },
 {
-"id": "4b514f912f",
-"at": "2026-11-17T14:17:33+02:00",
-"msg": "Ajánlat-néző: zoomolás csippentéssel / Ctrl+görgővel, dupla koppintás"
-},
-{
-"id": "7ce82371fd",
-"at": "2026-11-17T12:16:34Z",
+"id": "c5d251a0e3",
+"at": "2026-11-17T12:17:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
