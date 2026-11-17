@@ -323,10 +323,12 @@ function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, actio
 /** Leállt-e a Neon: hálózati hiba, szerverhiba (5xx), vagy a keret / felfüggesztés miatti elutasítás. A lekérdezési (SQL) hibák nem számítanak. */
 function neonDown_(e) { const m = String(e && e.message || e); if (!/^Adatbázis-hiba/.test(m)) return false;
   return /\(hálózat\)|\((5\d\d|402|429)\)/.test(m) || /quota|exceeded|suspend|disabled|limit|unavailable|timed? ?out|ECONN|ENOTFOUND/i.test(m); }
-/** Neon-hiba: a táblázatra csak tartós kiesésnél vált (10 percen belül legalább 4 sikertelen kérés, mindegyik már 3 próbálkozás után),
-    mert a táblázat csak az éjszakai mentés állapotát tartalmazza – egy átmeneti akadás miatt nem dolgozhat az app napos adatból. */
+/** Neon-hiba: tartós kiesésnél (10 percen belül legalább 4 sikertelen kérés, mindegyik már 3 próbálkozás után) e-mail az ügyvezetőnek. */
 function neonFailed_(e) {
-  try { const C = CacheService.getScriptCache(), n = Number(C.get('neon_fail') || 0) + 1; C.put('neon_fail', String(n), 600); if (n >= 4) { C.remove('neon_fail'); neonFallback_(e); } } catch (x) {}
+  try { const C = CacheService.getScriptCache(), n = Number(C.get('neon_fail') || 0) + 1; C.put('neon_fail', String(n), 600);
+    if (n >= 4 && !C.get('neon_fail_mail')) { C.put('neon_fail_mail', '1', 21600);   /* nincs automatikus átváltás: a táblázat mentése nem friss, abból dolgozva adat veszne el – az ügyvezető e-mailt kap, és ő dönt */
+      const to = loadUsers_().filter(x => x && x.role === 'admin' && !x.disabled && x.email).map(x => x.email).join(',');
+      if (to) MailApp.sendEmail(to, '⚠️ Projekttervező: a Neon adatbázis nem érhető el', 'A Neon adatbázis 10 percen belül többször sem válaszolt (' + String(e && e.message || e).slice(0, 300) + ').\n\nAz app NEM váltott át automatikusan a Google-táblázatra, mert az nem tartalmazza a legfrissebb adatokat. A kérések addig hibát adnak, amíg a Neon újra elérhető.'); } } catch (x) {}
 }
 /** Automatikus visszaesés: a mód „sheet” lesz (az utolsó mentett táblázat-állapottal), az ügyvezetők e-mailt kapnak; a Beállításokban is látszik. */
 function neonFallback_(e) {
