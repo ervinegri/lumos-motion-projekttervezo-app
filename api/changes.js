@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5377312396",
+"at": "2026-11-17T14:14:31+02:00",
+"msg": "Értékesítés: oszloprács javítása"
+},
+{
 "id": "e68b382021",
 "at": "2026-11-17T14:14:24+02:00",
 "msg": "Értékesítés: a „Tárgyalás” szakasz megszűnt (a lehetőségek az „Ajánlat kiküldve” oszlopba kerülnek)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "f298cff376",
 "at": "2026-11-17T12:05:11+02:00",
 "msg": "Idővonal: a projektnév a sáv végéig ér"
-},
-{
-"id": "30c0408394",
-"at": "2026-11-17T09:25:58Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
