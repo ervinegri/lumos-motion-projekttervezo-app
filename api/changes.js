@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3b48024e65",
+"at": "2026-11-17T08:57:17+02:00",
+"msg": "Nézetváltó menü: az inaktív nézetek beljebb és szürkébben"
+},
+{
 "id": "bc7b85fa4f",
 "at": "2026-11-17T08:56:57+02:00",
 "msg": "Középre kitett üzenetnél elsötétül a háttér (kattintásra bezárul); a Kifizetések számla-felugrója nem vágódik le"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: függő meghívásnál enyhén sárga keret"
 },
 {
-"id": "19c95f31e3",
-"at": "2026-11-16T22:14:32+02:00",
-"msg": "Stábkártya: elfogadott meghívásnál enyhén zöld keret"
-},
-{
-"id": "a17b5e80f5",
-"at": "2026-11-16T19:56:13Z",
+"id": "bfb384bfdb",
+"at": "2026-11-16T20:14:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
