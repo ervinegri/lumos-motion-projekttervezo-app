@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bc7b85fa4f",
+"at": "2026-11-17T08:56:57+02:00",
+"msg": "Középre kitett üzenetnél elsötétül a háttér (kattintásra bezárul); a Kifizetések számla-felugrója nem vágódik le"
+},
+{
 "id": "db433ccaa5",
 "at": "2026-11-17T08:54:27+02:00",
 "msg": "Helyszíni munka tiltó üzenet: ⚠️ jellel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: elfogadott meghívásnál enyhén zöld keret"
 },
 {
-"id": "cd62e6ba9f",
-"at": "2026-11-16T21:56:03+02:00",
-"msg": "Kifizetések: a szakember / értékesítő megnyithatja a saját, párosított számláját (csak a sajátját)"
-},
-{
-"id": "7cf16e696b",
-"at": "2026-11-16T19:53:43Z",
+"id": "a17b5e80f5",
+"at": "2026-11-16T19:56:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
