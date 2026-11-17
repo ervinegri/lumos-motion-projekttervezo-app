@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "74fbada4fe",
+"at": "2026-11-17T22:38:43+02:00",
+"msg": "Sötét mód: egy szín csak egyszer alakul át"
+},
+{
 "id": "d4e37aa6df",
 "at": "2026-11-17T22:36:49+02:00",
 "msg": "Sötét mód (első változat): a névjelvény menüjében ki / be / a rendszer szerint; a sötét színek a meglévő stílusokból készülnek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "számlázz.hu adatkapcsolat válasz: az alap/id csak egész számként (XSD szerint)"
 },
 {
-"id": "558b9d92c6",
-"at": "2026-11-17T15:59:06+02:00",
-"msg": "Fizetések tábla: az oszlopszélesség a szöveg tényleges szélességéből (nem nő újrarajzolásonként)"
-},
-{
-"id": "05184a9d39",
-"at": "2026-11-17T13:58:01Z",
+"id": "0314e96a05",
+"at": "2026-11-17T13:59:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
