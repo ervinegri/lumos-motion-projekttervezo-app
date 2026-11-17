@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "df12caed6d",
+"at": "2026-11-17T09:54:30+02:00",
+"msg": "Beállítások előtöltése csak ügyvezető / termelési v. nézetben (szakember nézetben jogosultsági hibát adott)"
+},
+{
 "id": "c48700aa07",
 "at": "2026-11-17T09:54:06+02:00",
 "msg": "Nézetváltás visszajelzése a szakember / értékesítő nevével"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Alapadatok: a típus/helyszín sor a dátum/kezdés/végzés oszlophatáraihoz igazítva"
 },
 {
-"id": "c9069ade19",
-"at": "2026-11-17T08:26:23+02:00",
-"msg": "Értékesítői jutalék: értékesítő nélkül az Extrák menüből adható hozzá, a lehetőségből jött projektnél magától megjelenik; Több napos jelölő a Dátum felirat mellett"
-},
-{
-"id": "0d608ee5cb",
-"at": "2026-11-17T06:24:21Z",
+"id": "b1fa89afe3",
+"at": "2026-11-17T06:26:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
