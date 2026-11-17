@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "199f1894a7",
+"at": "2026-11-17T22:45:42+02:00",
+"msg": "Sötét mód: visszafogottabb színes hátterek (figyelmeztetések, címkék)"
+},
+{
 "id": "4e79c5a9e1",
 "at": "2026-11-17T22:44:29+02:00",
 "msg": "Sötét mód: a var(…, szín) tartalékos háttereket is átalakítja (naptár világos csíkjai)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár idővonala telefonon: a Fizetésekhez hasonlóan görgetéskor eltűnik a menü (egyetlen natív görgetés)"
 },
 {
-"id": "34a007d22f",
-"at": "2026-11-17T16:11:20+02:00",
-"msg": "Projekt Pénzügyek: a Levonások kártya nem nyújtja 600 px magasra a sort"
-},
-{
-"id": "f75712f306",
-"at": "2026-11-17T14:02:05Z",
+"id": "153b9263f7",
+"at": "2026-11-17T14:11:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
