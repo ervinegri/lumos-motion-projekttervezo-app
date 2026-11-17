@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8ed380df58",
+"at": "2026-11-17T15:47:24+02:00",
+"msg": "Fizetések tábla: az oszlopszélesség az összesítő sor (nagyobb, vastagabb) összegeivel is számol"
+},
+{
 "id": "e9baa5267c",
 "at": "2026-11-17T15:47:01+02:00",
 "msg": "Fizetések tábla: az Összesen sor épp az iPhone vonala fölött"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: cím nélkül, kisebb távolság a gombsor körül"
 },
 {
-"id": "f25dc5ea4d",
-"at": "2026-11-17T14:59:34+02:00",
-"msg": "Ajánlat-néző fekvő telefonon: mint állóban"
-},
-{
-"id": "610217c717",
-"at": "2026-11-17T12:59:07Z",
+"id": "8e86d9f698",
+"at": "2026-11-17T12:59:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
