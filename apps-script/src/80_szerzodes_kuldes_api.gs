@@ -500,7 +500,7 @@ function rpcInner_(token, name, arg) {
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'videoCmDone': return videoCmDone_(u, arg);
     case 'myNotify': return myNotify_(u, arg);
-    case 'dealQuoteSend': { const r = dealQuoteSend_(u, arg); try { PropertiesService.getScriptProperties().deleteProperty('QD_' + str_(arg && arg.dealId, 64)); } catch (e) {} return r; }   // elküldve: a piszkozat törlődik
+    case 'dealQuoteSend': { const r = dealQuoteSend_(u, arg); try { PropertiesService.getScriptProperties().deleteProperty('QD_' + str_(arg && arg.dealId, 64)); dataBump_(); } catch (e) {} return r; }   // elküldve: a piszkozat törlődik
     case 'quoteDraft': return quoteDraft_(u, arg);
     case 'dealQuoteSig': return dealQuoteSig_(u, arg);
     case 'wmPaidMail': adminOnly(); { const pid = str_(arg && arg.projectId, 64); const why = wmPaidMail_(pid); return { sent: !!PropertiesService.getScriptProperties().getProperty('WMPAID_' + pid), why: why }; }

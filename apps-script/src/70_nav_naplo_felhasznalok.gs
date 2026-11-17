@@ -614,11 +614,11 @@ function quoteDraft_(u, a) {
   if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát mentheted.');
   const P = PropertiesService.getScriptProperties(), k = 'QD_' + d.id;
   if (a.op === 'get') { const v = P.getProperty(k); return v ? JSON.parse(v) : null; }
-  if (a.op === 'del') { P.deleteProperty(k); return { ok: true }; }
+  if (a.op === 'del') { P.deleteProperty(k); try { dataBump_(); } catch (e) {} return { ok: true }; }
   const q = a.q || {}; ['_pdf', '_pdfP', 'sig'].forEach(x => { delete q[x]; });
   const json = JSON.stringify({ q: q, at: now_(), by: u.name });
   if (json.length > 8500) throw new Error('Az ajánlat túl nagy a mentéshez – rövidítsd a leírásokat.');
-  P.setProperty(k, json); return { ok: true, at: now_() };
+  P.setProperty(k, json); try { dataBump_(); } catch (e) {} return { ok: true, at: now_() };
 }
 function dealQuoteSend_(u, a) {
   a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
