@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "230d24c6e6",
+"at": "2026-11-17T23:40:24+02:00",
+"msg": "Sötét mód: az aktív alfül (pl. Stáb) sötét; a sárga gombok halványabbak"
+},
+{
 "id": "086dc2634e",
 "at": "2026-11-17T23:39:16+02:00",
 "msg": "Neon-kiesésnél nincs automatikus átváltás a (nem friss) táblázatra, csak e-mail; sötét módban sötétebb ablak-háttér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód (első változat): a névjelvény menüjében ki / be / a rendszer szerint; a sötét színek a meglévő stílusokból készülnek"
 },
 {
-"id": "2cef8f5327",
-"at": "2026-11-17T22:34:44+02:00",
-"msg": "Idővonal: balra görgetve a kicsúszó sávok neve a látható rész elejére kerül"
-},
-{
-"id": "1391be13d3",
-"at": "2026-11-17T20:27:16Z",
+"id": "efc2f40512",
+"at": "2026-11-17T20:34:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
