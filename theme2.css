@@ -2546,3 +2546,7 @@ html body .dl-board.lost-closed{grid-template-columns:repeat(4,210px) 44px!impor
 }
 html.th2 body .dl-board.lost-closed{grid-template-columns:repeat(4,minmax(200px,1fr)) 48px}
 @media (max-width:760px){html.th2 body .dl-board.lost-closed{grid-template-columns:repeat(4,210px) 44px!important}}
+/* ajánlat-néző: magasabb terület, alapból az egész oldal látszik */
+html body .qs-box .qs-pdf{height:calc(100vh - 230px)!important;min-height:320px}
+html body .qs-box{max-height:none!important}
+@media (max-width:700px){html body .qs-box .qs-pdf{height:calc(100vh - 300px)!important}}
