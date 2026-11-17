@@ -32,7 +32,7 @@ const invPaidOk=x=>(x.kind==='eloleg'&&!!x.manual)||(num(x.invGross)>0&&num(x.in
 const szPayOf=pid=>{const l=((S.fin&&S.fin.invoices)||[]).filter(x=>invPids(x).includes(pid));if(!l.length)return '';const fin=l.filter(x=>x.kind==='szamla'||x.kind==='vegszamla'||!x.kind),adv=l.filter(x=>x.kind==='dijbekero'||x.kind==='eloleg'),any=a=>a.some(x=>num(x.invPaid)>0||invPaidOk(x));
   if(fin.length)return fin.every(invPaidOk)?'teljes':any(fin)||any(adv)?'eloleg':'var';if(!any(adv))return 'var';
   /* a foglaló a teljes összeget fedezi (pl. 100%-os, közös foglalószámla) → kifizetve – a közös számlából a projektre eső rész számít */
-  try{const p=projById(pid),tot=p?num(projTotal(p)):0,paidNet=adv.reduce((s,x)=>{const g=num(x.invGross),pg=x.kind==='eloleg'&&x.manual?g:num(x.invPaid);return s+(g>0?pg*num(x.invNet)/g:0)*invShare(x,pid);},0);if(tot>0&&paidNet>=tot-5)return 'teljes';}catch(e){}
+  try{const p=projById(pid),tot=p?num(projTotal(p)):0,pn=k=>adv.filter(x=>x.kind===k).reduce((s,x)=>{const g=num(x.invGross),pg=x.kind==='eloleg'&&x.manual?g:num(x.invPaid);return s+(g>0?pg*num(x.invNet)/g:0)*invShare(x,pid);},0),paidNet=Math.max(pn('dijbekero'),pn('eloleg'));   /* a fizetett díjbekérőből előlegszámla lesz – ugyanaz a befizetés egyszer számít */if(tot>0&&paidNet>=tot-5)return 'teljes';}catch(e){}
   return 'eloleg';};
 const finSet=()=>(S.fin&&S.fin.settings)||{profitPct:30,ceoPct:5,marketingPct:5,openMonth:'',openRezsi:0,openMarketing:0,appFromMonth:''};
 /* Egy projekt felosztása */
