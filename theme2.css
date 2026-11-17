@@ -2803,3 +2803,6 @@ html body .crew-tbl tr.crew-row:hover td{background-color:rgba(31,90,61,.05)}
 html body .tl-row .tl-prog,html body .tl-row .tl-cut .tl-prog{display:none!important}
 
 .ct-vst{margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:12.5px}.ct-vrow{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.ct-vn{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ct-vrow>span:last-child{flex:0 0 auto;white-space:nowrap}
+
+/* idővonal: az összekapcsolt forgatás + vágás sávon nincs átmenet (egyszínű) */
+html body .tl-row .tl-track .cal-chip.tl-joined,html body .tl-row .tl-track .cal-chip.tl-cut{background-size:calc(100% + 40px) 100%!important;background-position:100% 0!important}
