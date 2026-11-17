@@ -15,6 +15,7 @@
   /* szín → sötét pár (HSL-ben): a nagyon világos (≥ 78%) és a szürkés / nagyon sötét színek világossága megfordul */
   function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
     if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh/=6;}
+    if(a<.9&&l<=.3)return null;   /* áttetsző sötét fátyol (felugró ablak háttere, árnyék): marad sötét */
     if(l>=.78||l<=.3||s<.18){var lt=l>=.78;l=1-l;l=l<.5?(lt?.09+l*.55:.07+l*.86):.12+l*.86;if(s>.18)s*=lt?.38:.72;}else return null;   /* a világos színes hátterek (figyelmeztetés, címkék) visszafogott, sötét árnyalatot kapnak */   /* telített középtónus (márkaszín): marad */
     function f(t){var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;}
     var R=Math.round((s?f(hh+1/3):l)*255),G=Math.round((s?f(hh):l)*255),B=Math.round((s?f(hh-1/3):l)*255);return a<1?'rgba('+R+','+G+','+B+','+a+')':'rgb('+R+','+G+','+B+')';}
@@ -26,7 +27,7 @@
         n=conv(+r,+g,+b,al);}
       else if(nm)n=nm.toLowerCase()==='white'?'rgb(22,30,38)':'rgb(232,238,243)';
       if(!n)return m;ch=true;return n;});return ch?o:null;}
-  var SKIP=/\.topbar|#userChip|\.uc-pop|\.work-pill|#toast|\.qs-pdf|\.qs-pages|\.brand|\.identity|\.vv-player|video|iframe|canvas|\.mn-qr|qr/i;   /* a sötét menüsáv és a már sötét elemek / képek maradnak */
+  var SKIP=/\.topbar|#userChip|\.work-pill|#toast|\.qs-pdf|\.qs-pages|\.brand|\.identity|\.vv-player|video|iframe|canvas|\.mn-qr|qr/i;   /* a sötét menüsáv és a már sötét elemek / képek maradnak */
   function sel(s){return s.split(',').map(function(x){x=x.trim();if(/^:root\b/.test(x))return 'html.dark'+x.slice(5);if(/^html\b/.test(x))return 'html.dark'+x.slice(4);return 'html.dark '+x;}).join(',');}
   function walk(list,out){for(var i=0;i<list.length;i++){var r=list[i];
       if(r.cssRules&&!r.selectorText){var inner=[];walk(r.cssRules,inner);if(inner.length){var c=r.conditionText||(r.media&&r.media.mediaText)||'';out.push((r instanceof CSSSupportsRule?'@supports ':'@media ')+c+'{'+inner.join('')+'}');}continue;}

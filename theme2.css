@@ -2791,3 +2791,6 @@ html body.pay-dock #view .dock-wrap .pay-sheet thead th{top:var(--pay-st,0px)!im
 }
 /* Projekt Pénzügyek: a „Levonások után” kártya (és az Extrák) új sorban, a Szerződés + Levonások sor alatt */
 html body .fin-v2 .fin-r>.fin-br{flex:0 0 100%!important;width:100%;height:0;margin:0;padding:0;min-width:0!important}
+/* Stáb lista: az egész sor kattintható (szerkesztés) */
+html body .crew-tbl tr.crew-row{cursor:pointer}
+html body .crew-tbl tr.crew-row:hover td{background-color:rgba(31,90,61,.05)}

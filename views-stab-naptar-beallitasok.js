@@ -54,7 +54,7 @@ function viewCrew(){
       ${penStrikeNote(c.id)}
     </article>`;}).join('');
   const rowsOf=L=>f.view!=='list'?'':L.map(c=>{const n=nextOf(c)[0];
-    return `<tr><td><div class="nm" style="display:flex;gap:6px;align-items:center">${esc(c.name)} ${prioBadge(c)}${crewDocIcon(c)}</div>${c.company?`<div class="ser">${esc(c.company)}</div>`:''}</td>
+    return `<tr class="crew-row" data-action="edit-crew" data-id="${esc(c.id)}" title="${esc(c.name)} szerkesztése"><td><div class="nm" style="display:flex;gap:6px;align-items:center">${esc(c.name)} ${prioBadge(c)}${crewDocIcon(c)}</div>${c.company?`<div class="ser">${esc(c.company)}</div>`:''}</td>
       <td>${esc((c.roles||[]).join(', '))||'<span class="muted">—</span>'}${(c.skills||[]).length?`<div class="ser">${esc(c.skills.join(', '))}</div>`:''}</td>
       <td>${esc(c.type||'')}</td>
       <td>${c.phone?`<button class="copy" style="text-align:left;white-space:nowrap" type="button" data-action="copy" data-text="${esc(c.phone)}">${esc(c.phone)}</button>`:''}</td>
