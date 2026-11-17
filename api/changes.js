@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f298cff376",
+"at": "2026-11-17T12:05:11+02:00",
+"msg": "Idővonal: a projektnév a sáv végéig ér"
+},
+{
 "id": "90799cbae5",
 "at": "2026-11-17T11:25:49+02:00",
 "msg": "Csengő és névjelvény: sima kurzor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Instrukciók: tömörebb szerkesztő (2 sor, fókuszban nő), kisebb gomb, redundáns „Még nincs instrukció” sor nélkül"
 },
 {
-"id": "9f7b76d65a",
-"at": "2026-11-17T09:01:27+02:00",
-"msg": "Figyelmeztető üzenet: egér elvitelére sem tűnik el"
-},
-{
-"id": "128e7edc84",
-"at": "2026-11-17T07:01:16Z",
+"id": "bf905170c4",
+"at": "2026-11-17T07:01:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
