@@ -2809,3 +2809,6 @@ html body .tl-row .tl-track .cal-chip.tl-joined,html body .tl-row .tl-track .cal
 
 /* hónapváltó: a gombok szélessége a leghosszabb hónapnévhez igazodik (szeptember), így lapozáskor semmi nem csúszik el */
 .mn-l{display:inline-block;min-width:6.3em;text-align:center}.mn-l.mn-cur{min-width:9.4em}
+
+/* Értékesítés: a kiválasztott „Összes időszak” gomb sötét alapon fehér (a .btn.outline fehér háttere ne írja felül) */
+html body .btn.outline.sales-month-all.active{background:#243347!important;color:#fff!important;border-color:#243347!important}
