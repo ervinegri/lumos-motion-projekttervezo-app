@@ -2688,3 +2688,11 @@ html body .pay-wrap{max-height:calc(100dvh - var(--tbh0,44px))!important;margin-
 html body .pay-wrap{overflow-anchor:none}
 /* telefon: a tábla utolsó sora (Összesen) ne kerüljön az iPhone alsó vonala alá */
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .pay-wrap::after{content:"";display:block;height:max(0px,calc(env(safe-area-inset-bottom,0px) - 16px))}}
+/* Telefon, Fizetések tábla „dokkolva”: a tábla görgető felülete kitölti a képernyőt (a menüsáv alatt), benne fent az altabok /
+   hónapváltó, alatta a tábla – egyetlen natív görgetés; a nevek sora az állapotsor alá tapad */
+html body.pay-dock #view .pay-wrap{position:fixed!important;inset:0!important;z-index:15;height:100dvh!important;max-height:none!important;margin:0!important;width:100vw!important;background:var(--bg,#eef1f4);overscroll-behavior:none!important;-webkit-overflow-scrolling:touch}
+html body.pay-dock #view .pay-wrap>.pay-hd,html body.pay-dock #view .pay-wrap>.pay-ft{position:sticky;left:0;z-index:8;box-sizing:border-box;padding:0 12px 10px;display:flex;flex-direction:column;gap:10px}
+html body.pay-dock #view .pay-wrap>.pay-ft{padding-top:12px}
+html body.pay-dock #view .pay-wrap>.pay-hd>.pay-hd-sp{flex:none;margin-bottom:2px}
+html body.pay-dock #view .pay-wrap .pay-sheet thead th{top:var(--pay-st,0px)!important}
+html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin:0!important}

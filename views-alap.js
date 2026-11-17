@@ -212,10 +212,10 @@ function render(force){setTimeout(appReveal,0);
   VIEW.innerHTML=finSubNav()+(S.tab==='projektek'?viewProjects():S.tab==='naptar'?viewCalendar():S.tab==='vagas'?viewCutBoard():S.tab==='stab'||S.tab==='ertekesitok'?viewCrew():S.tab==='leltar'?viewInventory():S.tab==='ugyfelek'?viewClients():S.tab==='kifizetesek'?viewPayouts():S.tab==='penzugy'?viewFinance():S.tab==='szerzodes'?viewBilling():S.tab==='beallitasok'?viewSettings():S.tab==='ertesitesek'?viewMyNotify():S.tab==='ertekesites'?viewSales():viewProjects());
   {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}
   const pwN=VIEW.querySelector('.pay-wrap'),pwKeep=!!(pwS&&pwN&&pwS.k===S.tab+'|'+(S.payMonth||''));
-  try{if(window.payFullOff)payFullOff(pwKeep);}catch(e){}   /* újrarajzoláskor a felső rész visszajön – kivéve, ha ugyanaz a tábla frissült (adatbetöltés) */
   try{payFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
-  if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;try{if(window.payFullRe)payFullRe(pwN);}catch(e){}}
+  try{payDock();}catch(e){}   /* telefonon a Fizetések tábla egyetlen görgető felületen (a fejléc a táblával együtt görget) */
+  if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;}
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
@@ -591,3 +591,21 @@ function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIE
   const pw=matchMedia('(max-width:700px)').matches?134:307,sw=t.querySelector('col.pay-c-sum')?112:0;   /* a CSS-ben megadott szélességek (pay-c-proj / pay-c-sum) */
   t.style.setProperty('width',(pw+sw+n*parseInt(w,10))+'px','important');});}
 window.addEventListener('resize',()=>{try{payFit();}catch(e){}});   /* forgatáskor újraszámol */
+
+/* Telefon (álló és fekvő), Fizetések tábla: a tábla feletti rész (altabok, hónapváltó…) a tábla görgető felületébe kerül, a tábla
+   fölé – így lefelé görgetve előbb az gördül ki natívan (lendülettel, akadás nélkül), és utána görget a tábla; a nevek sora fent
+   marad. A menüsáv a görgetéssel együtt csúszik ki (csak eltolás, nincs újrarendezés). */
+function payDock(){const mq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)'),VIEW=document.getElementById('view'),tb=document.querySelector('.topbar');
+  const w=VIEW&&VIEW.querySelector('.pay-wrap'),t=w&&w.querySelector(':scope>table');
+  if(!w||!t||!mq.matches){document.body.classList.remove('pay-dock');if(tb){tb.style.transform='';tb.style.transition='';}return;}
+  const chain=[];for(let n=w;n&&n!==VIEW;n=n.parentElement)chain.unshift(n);
+  const before=[],after=[];chain.forEach(n=>{let p=n.parentElement.firstElementChild;while(p&&p!==n){before.push(p);p=p.nextElementSibling;}});
+  for(let i=chain.length-1;i>=0;i--){let x=chain[i].nextElementSibling;while(x){after.push(x);x=x.nextElementSibling;}}
+  const hd=document.createElement('div');hd.className='pay-hd';hd.innerHTML='<div class="pay-hd-sp"></div>';before.forEach(x=>hd.appendChild(x));w.insertBefore(hd,t);
+  if(after.length){const ft=document.createElement('div');ft.className='pay-ft';after.forEach(x=>ft.appendChild(x));w.appendChild(ft);}
+  document.body.classList.add('pay-dock');payDockFit();}
+function payDockFit(){const w=document.querySelector('body.pay-dock #view .pay-wrap');if(!w)return;const cw=w.clientWidth+'px';w.querySelectorAll(':scope>.pay-hd,:scope>.pay-ft').forEach(x=>{x.style.width=cw;});
+  const tb=document.querySelector('.topbar');if(tb){const sp=w.querySelector('.pay-hd-sp');if(sp)sp.style.height=tb.offsetHeight+'px';document.documentElement.style.setProperty('--pay-st',(parseFloat(getComputedStyle(tb).paddingTop)||0)+'px');}}
+{let pdMq=null;try{pdMq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');}catch(e){}
+  if(pdMq&&pdMq.addEventListener)pdMq.addEventListener('change',()=>{try{if(document.querySelector('#view .pay-wrap'))render(true);}catch(e){}});
+  window.addEventListener('resize',()=>{try{payDockFit();}catch(e){}});}

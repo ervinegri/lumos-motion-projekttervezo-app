@@ -112,27 +112,12 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   };
   setTimeout(go,300);})();
 
-/* Telefon (álló és fekvő), Fizetések tábla: lefelé görgetve előbb a tábla feletti rész (menüsáv, altabok, hónapváltó) csúszik ki
-   fokozatosan a képből, és csak utána görget a tábla – végül csak a tábla fejléce (a nevek sora) marad fent; visszafelé ugyanígy jön vissza.
-   (Az oldalt nem görgetjük – iPhone-on érintés közben az nem megbízható –, hanem a felső részt toljuk feljebb.) */
-(()=>{const mq=window.matchMedia&&matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');if(!mq)return;
-  let W=null,base=0,c=0;
-  const vh=()=>Math.round((window.visualViewport&&visualViewport.height)||window.innerHeight);
-  const apply=n=>{const view=document.getElementById('view'),tb=document.querySelector('.topbar');c=n;
-    if(view)view.style.marginTop=n?(-n)+'px':'';
-    if(tb){const th=tb.offsetHeight;tb.style.transition=n?'none':'';tb.style.transform=n?'translateY('+(-Math.min(n,th))+'px)':'';}
-    if(W){if(n)W.style.setProperty('max-height',(vh()-(base-n))+'px','important');else W.style.removeProperty('max-height');}
-    /* amíg a felső rész kicsúszik, a tábla tartalma áll (ugyanannyival lejjebb toljuk) – csak utána görget a tábla */
-    {const t=W&&W.querySelector('table');if(t)t.style.marginTop=n?n+'px':'';}
-    document.body.classList.toggle('pay-full',n>=base&&n>0);};
-  const off=keep=>{if(keep&&c){W=null;return;}if(c||W){apply(0);}W=null;base=0;};   /* keep: a tábla újrarajzolódik, a felső rész állapota marad */
-  const re=w=>{W=w;const n=Math.max(0,Math.min(base,Math.round(w.scrollTop)));apply(n);};
-  document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap'))return;if(!mq.matches){off();return;}
-    if(W!==w||!document.contains(W)){off();W=w;}
-    if(!c)base=Math.max(0,Math.round(w.getBoundingClientRect().top));   /* a tábla teteje a képernyő tetejétől, kiinduló helyzetben */
-    const n=Math.max(0,Math.min(base,Math.round(w.scrollTop)));if(n!==c)apply(n);},{capture:true,passive:true});
-  if(mq.addEventListener)mq.addEventListener('change',()=>off());
-  window.addEventListener('hashchange',()=>off());window.payFullOff=off;window.payFullRe=re;
+/* Telefon, Fizetések tábla (payDock): a menüsáv a tábla görgetésével együtt, 1:1-ben csúszik ki / vissza – csak eltolás (GPU), így
+   lendületes görgetésnél sem akad; a felső (állapotsor alatti) sötét sáv megmarad */
+(()=>{let raf=0,W=null;const upd=()=>{raf=0;const tb=document.querySelector('.topbar');if(!tb||!W||!document.body.classList.contains('pay-dock'))return;
+    const safe=parseFloat(getComputedStyle(tb).paddingTop)||0,max=Math.max(0,tb.offsetHeight-safe),y=Math.min(max,Math.max(0,W.scrollTop));
+    tb.style.transition='none';tb.style.transform=y?'translate3d(0,'+(-y)+'px,0)':'';};
+  document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap')||!document.body.classList.contains('pay-dock'))return;W=w;if(!raf)raf=requestAnimationFrame(upd);},{capture:true,passive:true});
 })();
 
 /* Fizetések tábla telefonon: a tábla tetején lefelé / alján felfelé húzva (gyors görgetésnél is) az iPhone az egész oldalt
