@@ -508,7 +508,7 @@ function szIpn_(e) {
         let q = null; try { q = szQuery_(no, false); } catch (err) { q = { no: no, date: today_(), due: '', invNet: 0, invGross: Math.round(Number(p.szlahu_bruttovegosszeg) || 0), invPaid: Math.round(Number(p.szlahu_kifizetettbrutto) || 0), paidAt: iso_(p.szlahu_kifizdat) || today_(), payMethod: str_(p.szlahu_fizetesmod, 40), buyer: db.buyer }; }
         szAddAdvance_(all, db, q, extra);
         extra.forEach(x => putRow_('finInvoice', sh, x, 0));
-        db.invPaid = Number(db.invGross) || q.invPaid; db.paidAt = q.paidAt || today_(); db.checkedAt = now_(); db.ref = no;
+        db.invPaid = Number(db.invGross) || q.invPaid; db.paidAt = (p.szlahu_kifizdat ? iso_(p.szlahu_kifizdat) : '') || q.paidAt || today_();   /* az IPN kifizetési dátuma (ha a számlázz.hu küldi) */ db.checkedAt = now_(); db.ref = no;
         putRow_('finInvoice', sh, db, findRow_(sh, db.id));
         szApplyPay_(invTargets_(db));
         dbFlush_();
