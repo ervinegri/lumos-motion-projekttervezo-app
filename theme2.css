@@ -2745,3 +2745,6 @@ html body .page-head.sales-head>.dl-hbtns{margin:0 0 0 auto!important;flex:0 0 a
 html body .page-head.sales-head .dl-hbtns{display:flex;gap:8px;align-items:center}
 html body .page-head.sales-head .dl-hbtns .btn,html body .page-head.sales-head .sales-monthbar .btn,html body .page-head.sales-head .sales-monthbar .mnav-chip{height:34px!important;min-height:34px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;display:inline-flex;align-items:center;box-sizing:border-box;white-space:nowrap}
 html body .page-head.sales-head .dl-hbtns .btn{padding-left:14px!important;padding-right:14px!important}
+/* Fizetések tábla: a tábla a saját keretében görget, ezért a fejléc a keret tetejéhez tapad (nem a menüsáv magasságával lejjebb – az üres sávot hagyott fölötte) */
+html body .pay-wrap .pay-sheet thead th{top:0}
+html body.pay-dock #view .dock-wrap .pay-sheet thead th{top:var(--pay-st,0px)!important}
