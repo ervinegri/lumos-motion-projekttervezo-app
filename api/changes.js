@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5916fb79cf",
+"at": "2026-11-17T14:37:44+02:00",
+"msg": "Ajánlat-néző: eredeti gombméret, keskeny gombsor"
+},
+{
 "id": "64bc458679",
 "at": "2026-11-17T14:35:47+02:00",
 "msg": "Ajánlat-néző: alacsonyabb gombsor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: „Elveszett” helyett „Sikertelen”"
 },
 {
-"id": "4bee393e7e",
-"at": "2026-11-17T12:50:34+02:00",
-"msg": "Kiküldött ajánlat: előtöltés rámutatáskor, megjegyzett PDF"
-},
-{
-"id": "f9a109334b",
-"at": "2026-11-17T10:49:41Z",
+"id": "df1382c76f",
+"at": "2026-11-17T10:50:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
