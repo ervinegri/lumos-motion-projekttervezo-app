@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "362d303324",
+"at": "2026-11-17T11:25:19+02:00",
+"msg": "Felső menü: sima kurzor"
+},
+{
 "id": "dd725d5da5",
 "at": "2026-11-17T11:24:32+02:00",
 "msg": "Projektlista videósáv: a jóváhagyásra váró rész sárga"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Figyelmeztető üzenet: csak kattintásra tűnik el"
 },
 {
-"id": "ebabab78ed",
-"at": "2026-11-17T09:00:47+02:00",
-"msg": "Minden figyelmeztető üzenet: ⚠️, középen, elsötétített háttér előtt fehér dobozban"
-},
-{
-"id": "03f3f842ee",
-"at": "2026-11-17T06:57:27Z",
+"id": "bd4f45fc9c",
+"at": "2026-11-17T07:00:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
