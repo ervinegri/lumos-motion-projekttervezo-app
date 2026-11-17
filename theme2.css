@@ -2486,3 +2486,20 @@ html body .qs-pdf{width:100%;height:min(78vh,1100px);border:1px solid #e3e7ec;bo
 html body .dl-card .dl-qdraft{padding:1px 8px!important;font-size:11px!important;line-height:1.5!important;margin:3px 4px 1px 0!important;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;border-width:1px}
 /* Mentés gomb, amíg nincs mit menteni: szürke */
 html body .mfoot button[type=submit].btn-idle,html body .mfoot button[type=submit]:disabled{background:#e4e8ec!important;color:#8a94a0!important;border-color:#e4e8ec!important;box-shadow:none!important;cursor:default!important;background-image:none!important}
+/* Értékesítés: kereső, értékesítő-szűrő és a folyamat címe egy kompakt sorban */
+html body .toolbar.sales-tb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 10px!important}
+html body .sales-tb .sales-tb-h{display:flex;align-items:baseline;gap:8px;margin-right:auto;white-space:nowrap}
+html body .sales-tb .sales-tb-h b{font-size:15px}html body .sales-tb .sales-tb-h small{color:#7a8592;font-size:12.5px}
+html body .sales-tb .inp.search{flex:0 1 300px;min-height:36px!important;height:36px;padding:6px 12px!important;font-size:14px}
+html body .sales-tb .sales-own{display:flex;align-items:center;gap:6px;margin:0}html body .sales-tb .sales-own>span{font-size:12.5px;color:#5d6470}
+html body .sales-tb .sales-own .cmb-in,html body .sales-tb .sales-own select{min-height:36px!important;height:36px;padding-top:6px!important;padding-bottom:6px!important;font-size:14px;width:200px}
+/* Értékesítés: hónapválasztó és a mutatók kompaktan */
+html body .sales-monthbar{margin:6px 0 8px!important;gap:8px!important}
+html body .sales-monthbar .btn,html body .sales-monthbar .mnav-chip{min-height:34px!important;height:34px;padding:0 12px!important;font-size:13.5px!important}
+html body .sales-monthbar .sales-month-arrow{min-width:34px!important;padding:0 8px!important}
+html body .sales-monthbar .sales-monthhint{font-size:12px}
+html body .tiles.fin-tiles{gap:10px!important;margin:0 0 6px!important}
+html body .tiles.fin-tiles .tile{padding:9px 14px!important;min-height:0!important;border-radius:12px}
+html body .tiles.fin-tiles .tile-n{font-size:19px!important;line-height:1.25}
+html body .tiles.fin-tiles .tile-l{font-size:12px!important;margin-top:1px}
+html body .tiles.fin-tiles .sales-comm-settled{font-size:11px;margin-top:2px}
