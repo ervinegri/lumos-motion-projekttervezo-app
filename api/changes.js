@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f6e9ba232e",
+"at": "2026-11-17T11:03:06+02:00",
+"msg": "Termelési v. nézet előtöltése: a nézetváltás első alkalommal is azonnali"
+},
+{
 "id": "ff70113e98",
 "at": "2026-11-17T11:02:23+02:00",
 "msg": "Idővonal: fehér címke a vágási sávra átlógó projektnév mögött"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: a projektvezető címke rövidítve (★ P.V.)"
 },
 {
-"id": "ac18001d36",
-"at": "2026-11-17T08:45:11+02:00",
-"msg": "Stábkártya ⚙️ menü: pozíció cseréje, beosztás átadása, eszközlista neki, névjegy, díj megadása, díjcsökkentés; a jelölőnégyzetek helyett „✓ be” jelzés"
-},
-{
-"id": "8eb21a4c48",
-"at": "2026-11-17T06:39:30Z",
+"id": "aa9e4f9a0f",
+"at": "2026-11-17T06:45:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
