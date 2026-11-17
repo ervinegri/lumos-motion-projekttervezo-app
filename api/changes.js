@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bde87972ce",
+"at": "2026-11-17T16:44:57+02:00",
+"msg": "Értékesítés fejléce: tableten is egy sor, egységes gombméret"
+},
+{
 "id": "6da336c75c",
 "at": "2026-11-17T16:42:49+02:00",
 "msg": "Fizetések tábla: a Projekt neve fejléc ugyanabban a sorban, mint a nevek (tablet/gép)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon, Fizetések: lefelé görgetve a felső rész eltűnik, csak a tábla fejléce marad"
 },
 {
-"id": "293c917298",
-"at": "2026-11-17T15:37:27+02:00",
-"msg": "Tagi kölcsön tételek nem törölhetők"
-},
-{
-"id": "802a6adc18",
-"at": "2026-11-17T13:34:34Z",
+"id": "0ab974c46a",
+"at": "2026-11-17T13:37:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
