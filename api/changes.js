@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cb0111f8c5",
+"at": "2026-11-17T15:46:35+02:00",
+"msg": "Fizetések tábla telefonon: a tábla szélén nincs oldal-rugózás (üres sáv)"
+},
+{
 "id": "3280b80e45",
 "at": "2026-11-17T15:45:14+02:00",
 "msg": "Fizetések tábla telefonon: hely az iPhone alsó vonalának"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: nagyításkor a fejléc és a gombsor nem változik"
 },
 {
-"id": "b434b1354c",
-"at": "2026-11-17T14:57:23+02:00",
-"msg": "Ajánlat-néző: új nagyítás – egyszeri, nagy felbontású rajzolás, a csippentés csak a méretet állítja (elengedéskor nem ugrik)"
-},
-{
-"id": "b04e5a9b6d",
-"at": "2026-11-17T12:56:12Z",
+"id": "3c4a92e874",
+"at": "2026-11-17T12:57:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
