@@ -2599,3 +2599,11 @@ html body .qs-box{touch-action:pan-x pan-y;overflow-x:hidden!important;min-width
 html body .qs-box .qs-pdf{min-width:0!important;max-width:100%;contain:inline-size}
 @media (max-width:700px){html body .qs-box .qs-pdf{max-width:100vw!important}}
 html body .qs-box .mhead,html body .qs-box .mfoot,html body .qs-box>.hint{max-width:100%}
+/* fekvő telefon: ugyanúgy, mint állóban – a teljes ajánlat görgethető, a gombsor alul, a nagyítás az ajánlat keretén belül */
+@media (orientation:landscape) and (max-height:560px){
+html body .qs-box .qs-pdf{height:auto!important;min-height:0!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;padding:8px!important}
+html body #modalRoot .qs-box{max-height:none!important;overflow-y:auto}
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-bottom:0!important;min-height:0!important}
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{position:static!important;padding-top:4px!important;padding-bottom:max(4px,env(safe-area-inset-bottom))!important}
+html body .qs-box .qs-pdf .qs-pages{max-width:none}
+}
