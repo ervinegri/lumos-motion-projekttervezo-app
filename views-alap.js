@@ -101,9 +101,15 @@ const idleOk=()=>{const a=document.activeElement;return S.loaded&&!S.dirty&&!S.s
 let VER_BUSY=false;
 /* a videótábla (csak az van nyitva, nincs benne űrlap / videónéző) frissülhet: pl. az ügyfél közben jóváhagyott */
 const boardIdle=()=>{const a=document.activeElement,mr=$('modalRoot');return S.loaded&&!S.dirty&&!S.saving&&!S.loading&&document.visibilityState==='visible'&&!!(mr&&mr.querySelector('.bd-modal'))&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox')&&!document.querySelector('#modalRoot .vv-cm, #modalRoot .cf-layer');};
-setInterval(async()=>{if(!TOKEN||VER_BUSY||!(idleOk()||boardIdle()))return;VER_BUSY=true;
+/* Felhasználói aktivitás: 10 perc mozdulatlanság (egér, billentyű, érintés, görgetés) után az app nem kérdez rá a változásokra
+   és nem tölt újra a háttérben – így a nyitva hagyott fül nem tartja ébren az adatbázist. Az első mozdulatra azonnal frissít. */
+let LAST_ACT=Date.now(),WAS_IDLE=false;const USER_IDLE_MS=10*60*1000,userActive=()=>Date.now()-LAST_ACT<USER_IDLE_MS;
+['pointerdown','pointermove','keydown','wheel','touchstart','scroll'].forEach(ev=>window.addEventListener(ev,()=>{const back=WAS_IDLE;LAST_ACT=Date.now();WAS_IDLE=false;
+  if(back&&S.loaded&&!S.dirty&&!S.saving&&document.visibilityState==='visible'&&Date.now()-S.lastLoad>60000)load(true);},{passive:true,capture:true}));
+setInterval(()=>{if(!userActive())WAS_IDLE=true;},30000);
+setInterval(async()=>{if(!TOKEN||VER_BUSY||!userActive()||!(idleOk()||boardIdle()))return;VER_BUSY=true;
   try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&(idleOk()||boardIdle())){S.dataVer=v;if(S.tab==='naptar')calForceFresh();const bd=boardIdle();await load(true);if(bd&&boardIdle()&&typeof bdRefresh==='function')bdRefresh();}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
-setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
+setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(userActive()&&idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
 window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
 
