@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "686afd4275",
+"at": "2026-11-17T22:52:42+02:00",
+"msg": "Sötét mód: a halvány színes kijelölések (pl. aktív hónap) is sötétek; a sárga gombon sötét szöveg"
+},
+{
 "id": "80ae094e7a",
 "at": "2026-11-17T22:51:31+02:00",
 "msg": "Sötét mód: a sötét hátterek (táblafejléc, kiemelt gombok) és a rajtuk lévő világos szöveg megmarad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet/telefon: az oldal nem kicsinyedhet le (minimum-scale=1)"
 },
 {
-"id": "9c961e0bb3",
-"at": "2026-11-17T16:39:05+02:00",
-"msg": "Tablet: a széles Fizetések tábla nem tolja ki oldalra az egész oldalt"
-},
-{
-"id": "8fb31c986e",
-"at": "2026-11-17T14:38:46Z",
+"id": "c5c31b61f6",
+"at": "2026-11-17T14:39:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
