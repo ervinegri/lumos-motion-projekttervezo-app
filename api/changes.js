@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "846966a99f",
+"at": "2026-11-17T17:04:21+02:00",
+"msg": "Fizetési állapot: a díjbekérő és a belőle készült előlegszámla egy befizetésnek számít (nem lesz tévesen „Teljes fizetve”)"
+},
+{
 "id": "cb3b1d7607",
 "at": "2026-11-17T17:02:14+02:00",
 "msg": "Tablet, Fizetések: újra görgethető fel-le (a rugózás-elnyelés csak függőlegesen görgető táblán)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: az oszlopszélesség az összesítő sor (nagyobb, vastagabb) összegeivel is számol"
 },
 {
-"id": "e9baa5267c",
-"at": "2026-11-17T15:47:01+02:00",
-"msg": "Fizetések tábla: az Összesen sor épp az iPhone vonala fölött"
-},
-{
-"id": "eed5d45d3b",
-"at": "2026-11-17T13:46:52Z",
+"id": "68b0aa4e56",
+"at": "2026-11-17T13:47:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
