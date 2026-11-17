@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b2c08bcc25",
+"at": "2026-11-17T09:18:38+02:00",
+"msg": "Neon: átváltó gomb a Beállításokban, automatikus visszaesés a táblázatra (e-mail értesítéssel), mentés időpontja"
+},
+{
 "id": "01ead6a7c4",
 "at": "2026-11-17T09:15:05+02:00",
 "msg": "Nézetváltás: egyetlen töltésjelzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: a betöltetlen pozíciók a kártyák végére kerülnek"
 },
 {
-"id": "2dfe8a12b9",
-"at": "2026-11-16T22:52:23+02:00",
-"msg": "Stáb és eszközök: Stáb-instrukciók (közös jegyzet a helyszíni stábnak – mint az utómunka-instrukciók, e-maillel, hozzászólással, kész-jelöléssel)"
-},
-{
-"id": "048a93f2fc",
-"at": "2026-11-16T20:33:45Z",
+"id": "88db1c9c69",
+"at": "2026-11-16T20:52:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
