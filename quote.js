@@ -201,7 +201,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid
 
 /* Kiküldött ajánlat: a lehetőség kártyáján / ablakában – a PDF megnyitása, vagy új verzió az elküldött ajánlatból */
 ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;let r=null;try{r=await call('quoteSent',{dealId:d.id,op:'get'});}catch(e){handleErr(e);return;}
-  if(!r){toast('Ehhez a lehetőséghez nincs elmentett kiküldött ajánlat (a funkció előtt küldött ajánlatok nem kerültek mentésre).',true);return;}
+  if(!r){toast('A kiküldött ajánlat PDF-jét nem találtam a levelek között (valószínűleg az értékesítő saját postafiókjából ment ki). A lehetőség jegyzeteiben látszik, mikor és kinek küldték.',true);return;}
   const ft=n=>String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
   openModal('📨 Kiküldött ajánlat',`<p style="margin:0 0 6px"><b>${esc(d.title||'')}</b></p><p class="hint" style="margin:0">Kiküldve: ${esc(String(r.at||'').slice(0,16))}${r.by?' · '+esc(r.by):''}<br>Címzett: ${esc(r.to||'')}${Number(r.total)?'<br>Összeg: '+ft(r.total)+' Ft + ÁFA (nettó)':''}</p>`,
     {submitLabel:'📄 PDF megnyitása',noDraft:true,left:r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:'',submit:async()=>{

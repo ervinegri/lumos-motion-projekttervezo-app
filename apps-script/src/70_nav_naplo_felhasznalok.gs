@@ -613,11 +613,28 @@ function quoteFolder_() {
   if (!f) { f = DriveApp.createFolder('Lumos – kiküldött árajánlatok'); P.setProperty('QUOTE_FOLDER', f.getId()); }
   return f;
 }
+/** Régebben kiküldött ajánlat visszakeresése: a lehetőség jegyzetében lévő „📄 Árajánlat elküldve (címzett)” sor alapján
+    a levelezésben (elküldött levél vagy másolat) megkeressük a PDF-mellékletet, és elmentjük, mint az újonnan küldötteket. */
+function quoteSentRecover_(d) {
+  const m = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/.exec(String(d.note || '')); if (!m) return null;
+  const to = m[3].split(/\s*,\s*/).filter(x => /@/.test(x)); if (!to.length) return null;
+  const day = m[1].slice(0, 10).replace(/-/g, '/'), next = Utilities.formatDate(new Date(new Date(m[1].slice(0, 10) + 'T12:00:00').getTime() + 2 * 864e5), SHEET_TZ, 'yyyy/MM/dd');
+  const th = GmailApp.search('to:' + to[0] + ' subject:Árajánlat has:attachment filename:pdf after:' + day + ' before:' + next, 0, 5);
+  for (const t of th) for (const msg of t.getMessages().reverse()) {
+    const att = msg.getAttachments().find(a => /pdf$/i.test(a.getName()) || a.getContentType() === 'application/pdf'); if (!att) continue;
+    const fid = quoteFolder_().createFile(att.copyBlob().setName(m[1].slice(0, 10) + ' ' + att.getName())).getId();
+    const json = JSON.stringify({ at: m[1], by: m[2] || '', to: to.join(', '), total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, recovered: true });
+    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, json); return json;
+  }
+  return null;
+}
 /** Kiküldött ajánlat: adatai (get) vagy a PDF (pdf) – csak az ügyvezető és a lehetőség értékesítője. */
 function quoteSent_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
   if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát nézheted meg.');
-  const v = PropertiesService.getScriptProperties().getProperty('QS_' + d.id); if (!v) return null;
+  let v = PropertiesService.getScriptProperties().getProperty('QS_' + d.id);
+  if (!v) { try { v = quoteSentRecover_(d); } catch (e) { Logger.log('Ajánlat visszakeresése: ' + e); } }   // a funkció előtt küldött ajánlat: a PDF visszakeresése a levelek közül
+  if (!v) return null;
   const m = JSON.parse(v);
   if (a.op === 'pdf') return { b64: Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()) };
   delete m.fileId; return m;
