@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c7d6af0fed",
+"at": "2026-11-17T22:49:56+02:00",
+"msg": "Sötét mód: nincs világos villanás frissítéskor (a sötét stílus az előző betöltésből azonnal érvényes, és már a DOM betöltésekor elkészül)"
+},
+{
 "id": "c870e2335e",
 "at": "2026-11-17T22:48:57+02:00",
 "msg": "Sötét mód: a naptár sávjaiban nincs világos átmenet; nézetváltáskor a frissítés-értesítő az adott szerepkör szerinti (nem a teljes változásnapló)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet: a menü a logó sorában (egyetlen fejlécsáv)"
 },
 {
-"id": "64e3e09cb1",
-"at": "2026-11-17T16:31:14+02:00",
-"msg": "Ügyfél-visszaigazoló levél: nincs „válaszolj erre a levélre” sor, „döntéseidet” szó törölve"
-},
-{
-"id": "55d8a9dd08",
-"at": "2026-11-17T14:21:09Z",
+"id": "e3f2825e11",
+"at": "2026-11-17T14:31:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
