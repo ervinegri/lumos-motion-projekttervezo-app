@@ -352,7 +352,7 @@ async function switchView(role,crewId,userId){
     await Promise.race([SAVE_Q,new Promise(r=>setTimeout(r,15000))]);if(S.dirty){document.body.classList.remove('switching');toast('A módosítások mentése nem sikerült – előbb mentsd el őket, aztán válts nézetet.',true);renderChrome();return;}   // előbb fusson le minden folyamatban lévő mentés
     const r=await call('setViewAs',Object.assign({role,crewId},userId?{userId}:{}));
     const keepTab=S.tab,keepPid=S.projectId;   // nézetváltás után ugyanazon a menüponton (és projekten) maradunk, ha az új nézetben is elérhető
-    S.projectId=null;S.draft=null;S.dirty=false;S.users=null;S.log=null;S.cal.events={};
+    S.projectId=null;S.draft=null;S.dirty=false;S._settingsAt=0;S.cal.events={};   /* a Beállítások adatai megmaradnak (azonnal látszanak), a háttérben frissülnek */
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     await load(false,false,r&&r.boot);
     S.tab=TABS().some(t=>t.id===keepTab)?keepTab:TABS()[0].id;
