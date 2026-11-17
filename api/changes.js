@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7348ac195e",
+"at": "2026-11-17T09:28:08+02:00",
+"msg": "Nézetváltás gyorsítása (könnyített betöltés, megjegyzett nézetek), visszajelzések középen"
+},
+{
 "id": "a3d8869e8c",
 "at": "2026-11-17T09:26:05+02:00",
 "msg": "Beállítások: korábbi előtöltés, nézetváltáskor nem ürül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (meghívó az eddigi és az új pozícióval); sok pozíciónál rövid címkék"
 },
 {
-"id": "198662d402",
-"at": "2026-11-16T23:07:24+02:00",
-"msg": "Saját beosztás a névvel kötött fióknál is (és meghívott állapotból is); eszközt igénylő szerepnél eszközhiány jelzése (kártyán és figyelmeztetésben)"
-},
-{
-"id": "15d99b7869",
-"at": "2026-11-16T21:05:08Z",
+"id": "5530e90d31",
+"at": "2026-11-16T21:07:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
