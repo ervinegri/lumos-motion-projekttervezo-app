@@ -2326,12 +2326,17 @@ html body .stage.drop-no{position:relative;cursor:not-allowed;outline:2px dashed
 html body .stage.drop-no::after{content:'🚫';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:22px}
 html body .pcrew .pcrew-inv .inv-btn.inv-new{border-color:#e0a93a!important;color:#8a5a00!important;background:#fff8e8!important}
 html body .pcrew .inv-decl{margin:0 0 6px;padding:4px 8px;border-radius:6px;background:#fdf0f0;border:1px solid #f3caca;color:#a33;font-size:12px;font-weight:650}
-/* Alapadatok: tömör, 12 oszlopos elrendezés */
-html body .basics .fields{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:10px 14px!important}
-html body .basics .fields>*{grid-column:span 12;margin:0!important;min-width:0}
-html body .basics .fields>.c2{grid-column:span 2}html body .basics .fields>.c3{grid-column:span 3}html body .basics .fields>.c5{grid-column:span 5}html body .basics .fields>.c6{grid-column:span 6}html body .basics .fields>.c9{grid-column:span 9}
-html body .basics .fields>.full{grid-column:1/-1}
-html body .basics .multi-cell{display:flex;align-items:flex-end;padding-bottom:11px}
-html body .basics .multi-cell .multi-lbl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;margin:0}
+/* Alapadatok: két oszlop – rendezvény | ügyfél */
+html body .basics .b-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 28px;margin:0}
+html body .basics .b-grid.b-one{grid-template-columns:minmax(0,1fr)}
+html body .basics .b-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+html body .basics .b-col+.b-col{border-left:1px solid #e6eaef;padding-left:28px}
+html body .basics .b-col .field{margin:0!important;min-width:0}
+html body .basics .b-row2{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px}
+html body .basics .b-row2.b-contact{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+html body .basics .b-when{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,.8fr);gap:10px}
+html body .basics .b-multi{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4b5d73;cursor:pointer;margin:-2px 0 0}
+html body .basics .vcf-btn{padding:0 10px!important}
 html body .basics .rt-notes{min-height:64px!important}
-@media (max-width:900px){html body .basics .fields>*{grid-column:1/-1!important}}
+html body .basics .fields>.field.full{margin-top:2px}
+@media (max-width:900px){html body .basics .b-grid{grid-template-columns:minmax(0,1fr);gap:10px}html body .basics .b-col+.b-col{border-left:0;padding-left:0}html body .basics .b-when,html body .basics .b-row2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
