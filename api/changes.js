@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "54227435dd",
+"at": "2026-11-17T15:09:14+02:00",
+"msg": "Ajánlat-néző: teljes képernyő gomb"
+},
+{
 "id": "16e89b513f",
 "at": "2026-11-17T15:07:21+02:00",
 "msg": "Ajánlat-néző fekvő telefonon: oldalsó szélek nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: küldő és címzett egyértelműen, belső címre küldött ajánlat jelölése"
 },
 {
-"id": "d829f27640",
-"at": "2026-11-17T14:19:41+02:00",
-"msg": "Ajánlat-néző: nem lehet túlzottan kicsinyíteni, csippentéskor nem ugrál"
-},
-{
-"id": "8418d85fed",
-"at": "2026-11-17T12:18:15Z",
+"id": "1ad46eed3b",
+"at": "2026-11-17T12:19:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
