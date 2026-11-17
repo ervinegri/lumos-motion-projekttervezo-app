@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "142ef8758c",
+"at": "2026-11-17T09:33:56+02:00",
+"msg": "Nézetváltás: termelési v. nézetből is lehet értékesítőre váltani (a valódi szerepkör számít)"
+},
+{
 "id": "7348ac195e",
 "at": "2026-11-17T09:28:08+02:00",
 "msg": "Nézetváltás gyorsítása (könnyített betöltés, megjegyzett nézetek), visszajelzések középen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új pozíció meghívó: egyértelmű szöveg (a korábbi megmarad); ha az újat nem vállalja, a korábbi elfogadott marad, a kártyán jelezve"
 },
 {
-"id": "879d44fe9b",
-"at": "2026-11-16T23:14:57+02:00",
-"msg": "Elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (meghívó az eddigi és az új pozícióval); sok pozíciónál rövid címkék"
-},
-{
-"id": "5530e90d31",
-"at": "2026-11-16T21:07:36Z",
+"id": "d914588f1b",
+"at": "2026-11-16T21:15:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
