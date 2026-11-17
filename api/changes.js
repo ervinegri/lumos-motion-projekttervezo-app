@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff7a25c271",
+"at": "2026-11-17T10:59:01+02:00",
+"msg": "Idővonal: annyi homokóra, ahány videó vár jóváhagyásra"
+},
+{
 "id": "79c0df5953",
 "at": "2026-11-17T10:57:51+02:00",
 "msg": "Idővonal: a homokóra pontosan a sárga rész közepén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fejléc: a nézetváltó és a névjelvény egy gombban (a nézetek a névjelvény menüjében)"
 },
 {
-"id": "44fa2da9c5",
-"at": "2026-11-17T08:38:35+02:00",
-"msg": "Stábkártya: ⚙️ menü a kuka helyett (távolról vezeti, helyszíni vágó, meghívó újraküldése, projektvezető, levétel); elfogadott meghívás után a távoli / helyszíni jelleg nem módosítható"
-},
-{
-"id": "900312908e",
-"at": "2026-11-17T06:34:25Z",
+"id": "2f2d00042e",
+"at": "2026-11-17T06:38:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
