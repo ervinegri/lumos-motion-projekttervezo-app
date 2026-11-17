@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c60ff13d0d",
+"at": "2026-11-17T09:01:07+02:00",
+"msg": "Figyelmeztető üzenet: csak kattintásra tűnik el"
+},
+{
 "id": "ebabab78ed",
 "at": "2026-11-17T09:00:47+02:00",
 "msg": "Minden figyelmeztető üzenet: ⚠️, középen, elsötétített háttér előtt fehér dobozban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: elutasított meghívásnál enyhén piros keret"
 },
 {
-"id": "ea651265a2",
-"at": "2026-11-16T22:18:35+02:00",
-"msg": "Stábkártya: még meg nem hívott munkatársnál szürke keret"
-},
-{
-"id": "3650f05c3d",
-"at": "2026-11-16T20:16:51Z",
+"id": "b56d678166",
+"at": "2026-11-16T20:18:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
