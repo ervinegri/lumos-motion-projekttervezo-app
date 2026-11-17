@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "34a007d22f",
+"at": "2026-11-17T16:11:20+02:00",
+"msg": "Projekt Pénzügyek: a Levonások kártya nem nyújtja 600 px magasra a sort"
+},
+{
 "id": "cce7f93b18",
 "at": "2026-11-17T16:01:55+02:00",
 "msg": "Gépen újra görgethető az oldal a táblák fölött (a rugózás-tiltás csak telefonon)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: szélesebb menüsáv"
 },
 {
-"id": "d41911fe1c",
-"at": "2026-11-17T15:15:19+02:00",
-"msg": "Ajánlat-néző: görgetés után nem ugrik vissza; forgatáskor újra a szélességhez igazodik"
-},
-{
-"id": "5df4f05ec9",
-"at": "2026-11-17T13:13:59Z",
+"id": "f805336d49",
+"at": "2026-11-17T13:15:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
