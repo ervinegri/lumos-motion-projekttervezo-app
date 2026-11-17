@@ -2722,3 +2722,5 @@ html body.pay-dock #view .dock-wrap>.pay-hd .cal-toolbar{margin:0!important}
  html body .topbar-inner>.tabs .tab{flex:0 0 auto;white-space:nowrap;padding:7px 11px!important;font-size:14px!important}
  html body .identity .brand{height:30px!important;width:auto}
 }
+/* érintőképernyő (telefon, tablet): az egész oldal nem húzható / rugóztatható oldalra – csak a táblák görgetnek vízszintesen */
+@media (pointer:coarse){html,html body{overscroll-behavior-x:none!important}html{overflow-x:hidden}}
