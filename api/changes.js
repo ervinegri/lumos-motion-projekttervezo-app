@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7a2b1bfc21",
+"at": "2026-11-17T23:00:31+02:00",
+"msg": "Sötét mód: a sötétkék háttér a lap aljáig ér"
+},
+{
 "id": "9b1a14031f",
 "at": "2026-11-17T23:00:04+02:00",
 "msg": "Kifizetések: az Összesen (még fizetendő) sor is csak akkor látszik, ha van fizetendő"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet, Fizetések: a fejléc egy sora kifér 768 px-en is"
 },
 {
-"id": "6cbdd6755d",
-"at": "2026-11-17T16:58:08+02:00",
-"msg": "Tablet, Fizetések: altabok és hónapváltó egy sorban, a tábla a képernyő széléig"
-},
-{
-"id": "1183bb345d",
-"at": "2026-11-17T14:55:05Z",
+"id": "29cc3c0226",
+"at": "2026-11-17T14:58:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
