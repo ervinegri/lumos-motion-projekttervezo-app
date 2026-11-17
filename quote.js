@@ -223,9 +223,15 @@ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.cl
 let QS_DOC=null;const QS_Z=[50,75,100,125,150,200];
 async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{const lib=await pdfLib();QS_DOC.doc=QS_DOC.doc||await lib.getDocument({data:QS_DOC.u8.slice(),isEvalSupported:false}).promise;const doc=QS_DOC.doc;
     const mob=box.clientWidth<700,pad=mob?16:32,W=Math.max(200,box.clientWidth-pad),H=Math.max(200,box.clientHeight-pad),dpr=Math.min(2,window.devicePixelRatio||1),frag=document.createDocumentFragment();
-    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=fitW,sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=Math.round(fit/fitW*100)),vp=pg.getViewport({scale:sc*dpr});
-      const c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width=Math.floor(vp.width/dpr)+'px';c.style.height=Math.floor(vp.height/dpr)+'px';c.className='qs-page';
-      await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;frag.appendChild(c);}
+    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=fitW,sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=100);
+      /* a lap fehér margóit levágjuk (csak a tartalom látszik, a szürke keretben), és a tartalom tölti ki a szélességet */
+      const k=sc*dpr*1.5,vp=pg.getViewport({scale:k}),c0=document.createElement('canvas');c0.width=Math.floor(vp.width);c0.height=Math.floor(vp.height);const x0=c0.getContext('2d');
+      await pg.render({canvasContext:x0,viewport:vp}).promise;
+      let bx0=c0.width,by0=c0.height,bx1=0,by1=0;try{const D=x0.getImageData(0,0,c0.width,c0.height).data,st=4;for(let y=0;y<c0.height;y+=st)for(let x=0;x<c0.width;x+=st){const o=(y*c0.width+x)*4;if(D[o]<238||D[o+1]<238||D[o+2]<238){if(x<bx0)bx0=x;if(x>bx1)bx1=x;if(y<by0)by0=y;if(y>by1)by1=y;}}}catch(e){bx0=0;by0=0;bx1=c0.width;by1=c0.height;}
+      if(bx1<=bx0||by1<=by0){bx0=0;by0=0;bx1=c0.width;by1=c0.height;}
+      const m=Math.round(10*k),cx=Math.max(0,bx0-m),cy=Math.max(0,by0-m),cw=Math.min(c0.width,bx1+m)-cx,ch=Math.min(c0.height,by1+m)-cy;
+      const c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').drawImage(c0,cx,cy,cw,ch,0,0,cw,ch);
+      const dw=Math.round(W*(QS_DOC.z?QS_DOC.z/100:1));c.style.width=dw+'px';c.style.height=Math.round(dw*ch/cw)+'px';c.className='qs-page';frag.appendChild(c);}
     if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
     const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);if(fy)box.scrollTop=fy*box.scrollHeight-box.clientHeight/2;box.scrollLeft=Math.max(0,fx*box.scrollWidth-box.clientWidth/2);}   /* a nézet közepe nagyítás után is ugyanott marad */catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
 ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom');if(!w||!QS_DOC)return;let z=QS_DOC.z||0,d=Number(b.dataset.d);
