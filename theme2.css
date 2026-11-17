@@ -2685,7 +2685,3 @@ html body .pay-wrap{max-height:calc(100dvh - var(--tbh0,44px))!important;margin-
 }
 /* fekvő telefon: a Fizetések tábla a teljes képernyő magasságát kitölti, amikor a felső rész eltűnt */
 @media (orientation:landscape) and (max-height:560px){html body .pay-wrap{max-height:100dvh!important}}
-/* fekvő telefon, Fizetések teljes tábla mód: nincs felső rész, a tábla kitölti a képernyőt */
-html body.pay-full #view,html body.pay-full main.content{padding-top:0!important;margin-top:0!important}
-html body.pay-full #view .panel:has(.pay-wrap){padding-top:0!important;margin-top:0!important}
-html body.pay-full .pay-wrap{max-height:100dvh!important}

@@ -112,15 +112,22 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   };
   setTimeout(go,300);})();
 
-/* Fekvő telefon, Fizetések tábla: lefelé görgetve a tábla felett lévő rész (menüsáv, altabok, hónapváltó) eltűnik – csak a tábla
-   fejléce (a nevek sora) marad fent; a tábla tetején felfelé görgetve újra megjelenik. (Az oldal görgetése iPhone-on érintés közben
-   nem megbízható, ezért a felső részt elrejtjük, nem elgörgetjük.) */
-(()=>{const mq=window.matchMedia&&matchMedia('(orientation:landscape) and (max-height:560px)');if(!mq)return;const L=new WeakMap();let hid=[];
-  const on=w=>{if(hid.length)return;const view=document.getElementById('view');let n=w;while(n&&n!==document.body){for(let p=n.previousElementSibling;p;p=p.previousElementSibling){if(p.style.display!=='none'){hid.push([p,p.style.display]);p.style.display='none';}}if(n===view)break;n=n.parentElement;}
-    const tb=document.querySelector('.topbar');if(tb){hid.push([tb,tb.style.display]);tb.style.display='none';}document.body.classList.add('pay-full');};
-  const off=()=>{if(!hid.length)return;hid.forEach(([el,d])=>{el.style.display=d;});hid=[];document.body.classList.remove('pay-full');};
+/* Telefon (álló és fekvő), Fizetések tábla: lefelé görgetve a tábla feletti rész (menüsáv, altabok, hónapváltó) fokozatosan,
+   a görgetéssel együtt csúszik ki a képből – végül csak a tábla fejléce (a nevek sora) marad fent; visszafelé ugyanígy jön vissza.
+   (Az oldalt nem görgetjük – iPhone-on érintés közben az nem megbízható –, hanem a felső részt toljuk feljebb.) */
+(()=>{const mq=window.matchMedia&&matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');if(!mq)return;
+  let W=null,base=0,c=0;
+  const vh=()=>Math.round((window.visualViewport&&visualViewport.height)||window.innerHeight);
+  const apply=n=>{const view=document.getElementById('view'),tb=document.querySelector('.topbar');c=n;
+    if(view)view.style.marginTop=n?(-n)+'px':'';
+    if(tb){const th=tb.offsetHeight;tb.style.transition=n?'none':'';tb.style.transform=n?'translateY('+(-Math.min(n,th))+'px)':'';}
+    if(W){if(n)W.style.setProperty('max-height',(vh()-(base-n))+'px','important');else W.style.removeProperty('max-height');}
+    document.body.classList.toggle('pay-full',n>=base&&n>0);};
+  const off=()=>{if(c||W){apply(0);}W=null;base=0;};
   document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap'))return;if(!mq.matches){off();return;}
-    const st=w.scrollTop,prev=L.has(w)?L.get(w):0;L.set(w,st);if(st>prev&&st>8)on(w);else if(st<prev&&st<=2)off();},{capture:true,passive:true});
-  if(mq.addEventListener)mq.addEventListener('change',()=>{if(!mq.matches)off();});
+    if(W!==w||!document.contains(W)){off();W=w;}
+    if(!c)base=Math.max(0,Math.round(w.getBoundingClientRect().top));   /* a tábla teteje a képernyő tetejétől, kiinduló helyzetben */
+    const n=Math.max(0,Math.min(base,Math.round(w.scrollTop)));if(n!==c)apply(n);},{capture:true,passive:true});
+  if(mq.addEventListener)mq.addEventListener('change',off);
   window.addEventListener('hashchange',off);window.payFullOff=off;
 })();
