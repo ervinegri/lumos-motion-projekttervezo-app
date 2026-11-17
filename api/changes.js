@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2cef8f5327",
+"at": "2026-11-17T22:34:44+02:00",
+"msg": "Idővonal: balra görgetve a kicsúszó sávok neve a látható rész elejére kerül"
+},
+{
 "id": "e29c0ca3f2",
 "at": "2026-11-17T22:27:00+02:00",
 "msg": "Ponytail-átnézés javításai: ajánlat-adatok Drive-fájlban (a beállítás-tár nem telik be), szigorúbb videónév-csere a levélmintában, teszt a fizetési állapotra, tableten nincs DOM-figyelő, felülírt CSS-szabályok törölve; projekt pénzügyek: Termelés a Levonások után mellett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések fejléce: egyforma hézagok, a NAV és a Díjösszesítő gomb a hónapváltóval egyező méretű"
 },
 {
-"id": "2924d95800",
-"at": "2026-11-17T15:56:45+02:00",
-"msg": "Fizetések tábla telefonon: betöltéskor a menüsáv a tábla görgetési helyzetéhez igazodik (nem marad félig felcsúszva)"
-},
-{
-"id": "4186785373",
-"at": "2026-11-17T13:56:00Z",
+"id": "70c267d381",
+"at": "2026-11-17T13:56:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
