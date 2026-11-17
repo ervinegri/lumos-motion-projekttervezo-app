@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2632ee1db8",
+"at": "2026-11-17T08:29:14+02:00",
+"msg": "Több napos rendezvény: a napok egyenként hozzáadhatók (＋ Nap hozzáadása), mindegyik saját kezdéssel és végzéssel"
+},
+{
 "id": "23802b527a",
 "at": "2026-11-17T08:26:50+02:00",
 "msg": "Alapadatok: a típus/helyszín sor a dátum/kezdés/végzés oszlophatáraihoz igazítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Vissza-lépés a Tervezésre megszüntetve; az Utómunkára vár kártyái a nyersanyag feltöltéséig szürkék és nem mozdíthatók"
 },
 {
-"id": "ef6aa2e5ef",
-"at": "2026-11-16T21:26:34+02:00",
-"msg": "Lépések: ha a forgatás még előttünk van, a Tervezés kártyára kattintva vissza lehet lépni"
-},
-{
-"id": "e04fd01a3b",
-"at": "2026-11-16T19:22:34Z",
+"id": "5d7d036c13",
+"at": "2026-11-16T19:26:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
