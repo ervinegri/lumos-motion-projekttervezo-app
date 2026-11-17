@@ -21,7 +21,7 @@ ctx.XmlService = { parse(xml) {
   return { getRootElement: () => root };
 } };
 const code = fs.readdirSync(SRC).filter(f => f.endsWith('.gs')).sort().map(f => fs.readFileSync(path.join(SRC, f), 'utf8')).join('\n');
-vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_,szBankSet_};', ctx);
+vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_,szBankSet_,finUpsert_,loanDupMergeOnce_};', ctx);
 const A = ctx.__api;
 A.setup();
 ctx.PropertiesService.getScriptProperties().setProperty('SZ_BANK_KEY_H', A.sha256hex_('jo-kulcs'));
@@ -82,4 +82,21 @@ console.log('ok');
   assert.equal(L.length, 1, 'egy tagi kölcsön sor'); assert.equal(Number(L[0].amount), 127000); assert.equal(L[0].kind, 'be'); assert.equal(L[0].date, '2026-11-17');
   assert.equal(A.readAll_('bankTx').find(t => t.id === 'bt_T1').status, 'kolcson');
   console.log('ok3');
+}
+
+/* 6) kézzel is rögzített tagi kölcsön: a duplikátum összevonódik (a kézi sor marad, a közleménnyel) */
+{
+  const u = { name: 'Teszt', role: 'admin', id: 'x' };
+  A.finUpsert_(u, { table: 'loan', row: { id: 'man1', date: '2026-09-25', kind: 'be', amount: 150000, note: '' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'bnk1', date: '2026-09-25', kind: 'be', amount: 150000, note: 'EGRI ERVIN – tagi kölcsön' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'man3', date: '2026-11-12', kind: 'vissza', amount: 1000000, bank: 'Binx', bank2: 'OTP' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'bnk3', date: '2026-11-12', kind: 'vissza', amount: 1000000, note: 'Egri Ervin – Tagi kölcsön résztörlesztése' } });
+  A.loanDupMergeOnce_();
+  const L = A.readAll_('finLoan'), ids = L.map(l => l.id).sort();
+  assert.ok(ids.includes('man1') && ids.includes('man3') && !ids.includes('bnk1') && !ids.includes('bnk3'), 'a kézi sorok maradnak: ' + ids);
+  assert.equal(L.find(l => l.id === 'man1').note, 'EGRI ERVIN – tagi kölcsön', 'a közlemény átkerül');
+  A.szDataIn_('jo-kulcs', tx('T3').replace('127000', '50000')); A.finUpsert_(u, { table: 'loan', row: { id: 'man2', date: '2026-11-17', kind: 'be', amount: 50000, bank: 'OTP' } });
+  A.szBankSet_(u, { id: 'bt_T3', status: 'kolcson' });
+  assert.equal(A.readAll_('finLoan').filter(l => Number(l.amount) === 50000).length, 1, 'banki rögzítés nem duplikál');
+  console.log('ok4');
 }

@@ -351,3 +351,16 @@ function orgFeeFixOnce_() {
   });
   P.setProperty('ORG_FEE_FIX_1', new Date().toISOString());
 }
+/** Egyszeri (2026-11-17): a banki tételből rögzített tagi kölcsön, ha ugyanaz a tétel kézzel is fel volt véve (azonos nap, típus, összeg;
+    a banki sor „Partner – …tagi kölcsön…” megjegyzésű, bank nélkül) – a két sor egy lesz: a kézi sor kapja a közleményt, a banki sor törlődik. */
+function loanDupMergeOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('LOAN_DUP_2')) return; let n = 0;
+  withLock_(() => { const sh = sheetFor_('finLoan'), L = readAll_('finLoan'), g = {};
+    L.forEach(l => { const k = l.date + '|' + l.kind + '|' + Math.round(Number(l.amount) || 0); (g[k] = g[k] || []).push(l); });
+    Object.keys(g).forEach(k => { const x = g[k]; if (x.length !== 2) return; const fromBank = l => !l.bank && !l.bank2 && / – /.test(String(l.note || '')) && /tagi\s*k[öo]lcs[öo]n/i.test(String(l.note || '')), drop = x.find(fromBank), keep = x.find(l => l !== drop && !fromBank(l)); if (!keep || !drop) return;   // a banki tételből készült sor (partner – közlemény) megy, a kézi marad
+      if (!keep.note && drop.note) { keep.note = drop.note; putRow_('finLoan', sh, keep, findRow_(sh, keep.id)); }
+      const r = findRow_(sh, drop.id); if (r) { sh.deleteRow(r); n++; } });
+    if (n) dbFlush_(); });
+  P.setProperty('LOAN_DUP_2', now_() + ' · ' + n); if (n) { dataBump_(); logEvent_({ name: 'Rendszer', role: 'admin' }, 'Pénzügyek', 'Tagi kölcsön', n + ' duplikált sor összevonva'); }
+}
+

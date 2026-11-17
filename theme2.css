@@ -2812,3 +2812,5 @@ html body .tl-row .tl-track .cal-chip.tl-joined,html body .tl-row .tl-track .cal
 
 /* Értékesítés: a kiválasztott „Összes időszak” gomb sötét alapon fehér (a .btn.outline fehér háttere ne írja felül) */
 html body .btn.outline.sales-month-all.active{background:#243347!important;color:#fff!important;border-color:#243347!important}
+
+.bank-box .bk-p[data-action="bank-info"]{cursor:pointer}.bank-box .bk-p[data-action="bank-info"]:hover b{text-decoration:underline}
