@@ -208,6 +208,8 @@ ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);
   const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));delete r.b64;S._qSent=r;
   const ft=n=>String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');   /* az ajánlat maga, ablakban (PDF-nézőben) */
   openModal('📨 '+(d.title||'Kiküldött ajánlat'),`<p class="hint" style="margin:0 0 8px">Kiküldve: ${esc(String(r.at||'').slice(0,16))}${r.by?' · '+esc(r.by):''} · ${esc(r.to||'')}${Number(r.total)?' · '+ft(r.total)+' Ft + ÁFA':''}</p><iframe class="qs-pdf" src="${url}#toolbar=0&navpanes=0&view=Fit" title="Kiküldött árajánlat"></iframe>`,
-    {cancelLabel:'Bezárás',noDraft:true,left:`<a class="btn ghost" href="${url}" target="_blank" rel="noopener">↗ Új lapon</a>${r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:''}`});
+    {cancelLabel:'Bezárás',noDraft:true,left:`<a class="btn ghost qs-newtab" href="${url}" target="_blank" rel="noopener">↗ Új lapon</a>${r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:''}`});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','qs-box');};
 ACT['q-sent-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id),r=S._qSent;closeModal();if(!d||!r||!r.q)return;const q=r.q;q.dealId=d.id;q.no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();S.q=q;qSig(d.id);qEdit();toast('Új verzió az elküldött ajánlatból – módosítsd, majd küldd ki');};
+
+document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('.qs-newtab'))setTimeout(()=>{try{closeModal();}catch(x){}},0);});   /* új lapon nyitva: az ablak bezárul */
