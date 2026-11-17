@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db433ccaa5",
+"at": "2026-11-17T08:54:27+02:00",
+"msg": "Helyszíni munka tiltó üzenet: ⚠️ jellel"
+},
+{
 "id": "4de6430190",
 "at": "2026-11-17T08:53:21+02:00",
 "msg": "Lépések: csak a következő lépésre lehet húzni, a későbbiek szürkék, animáció nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a szakember / értékesítő megnyithatja a saját, párosított számláját (csak a sajátját)"
 },
 {
-"id": "819aff626f",
-"at": "2026-11-16T21:53:33+02:00",
-"msg": "Előfoglalás a szakembereknek: előzetes meghívó (megbeszélés alatt), ⏳ jelölés a listában és a meghívásoknál, a díj függőben; véglegesítéskor / elmaradáskor értesítés"
-},
-{
-"id": "5c66b97ada",
-"at": "2026-11-16T19:48:53Z",
+"id": "7cf16e696b",
+"at": "2026-11-16T19:53:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
