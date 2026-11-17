@@ -584,4 +584,5 @@ function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIE
   if(!mx)return;const td0=t.querySelector('tbody td.r'),cs=td0&&getComputedStyle(td0),pad=cs?parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight):16,w=Math.ceil(mx+pad+2)+'px';
   cols.forEach(c=>c.style.setProperty('width',w,'important'));t.classList.add('pay-fit');
   /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
-  let tw=0;t.querySelectorAll('col').forEach(c=>{tw+=parseFloat(getComputedStyle(c).width)||0;});if(tw)t.style.setProperty('width',Math.ceil(tw)+'px','important');});}
+  const pw=matchMedia('(max-width:700px)').matches?134:307,sw=t.querySelector('col.pay-c-sum')?112:0;   /* a CSS-ben megadott szélességek (pay-c-proj / pay-c-sum) */
+  t.style.setProperty('width',(pw+sw+n*parseInt(w,10))+'px','important');});}
