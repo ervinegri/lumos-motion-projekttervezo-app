@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e817d8a458",
+"at": "2026-11-17T09:11:32+02:00",
+"msg": "Utómunka-tábla: az első oszlopok között csak a kirendelt vágó, a jóváhagyási oszlopokba csak vezető mozgat; nézetmenü jelöli az aktuális (szakember) nézetet; Neon kapcsolat-teszt a beállításokban"
+},
+{
 "id": "f8705a91c5",
 "at": "2026-11-17T09:07:10+02:00",
 "msg": "Pénzügyek: rendezett kártyák (Levonások, Levonások után); naptár: fel-le görgetéssel lapozás, eszköztár egy sorban; ügyvezető nem lesz vendég a naptáreseményekben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Saját beosztás csak a gombbal (mentéskor nem lesz magától elfogadott)"
 },
 {
-"id": "58ceaf9a44",
-"at": "2026-11-16T22:26:21+02:00",
-"msg": "Stábkártya törlése előtt megerősítés"
-},
-{
-"id": "c120426920",
-"at": "2026-11-16T20:22:16Z",
+"id": "4906bf0ebe",
+"at": "2026-11-16T20:26:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
