@@ -129,3 +129,20 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
     if(w.scrollHeight<=w.clientHeight+1)return;   /* ha a tábla nem görget függőlegesen (pl. tableten az oldal görget), nem fogjuk meg */
     const atTop=w.scrollTop<=0,atBot=w.scrollTop+w.clientHeight>=w.scrollHeight-1;if((dy>0&&atTop)||(dy<0&&atBot)){if(e.cancelable)e.preventDefault();}},{passive:false});
   document.addEventListener('touchend',()=>{w=null;},{passive:true});})();
+
+/* Tablet (701–1180 px): minden oldalra görgethető táblában a projekt neve oszlop (és az előtte lévő keskeny oszlopok, pl. „Nap”) a helyén
+   marad vízszintes görgetéskor – a cellák háttere a sor saját színe, hogy alattuk ne látszódjon át a görgetett tartalom */
+(()=>{const mq=window.matchMedia&&matchMedia('(min-width:701px) and (max-width:1180px)');if(!mq)return;let q=false;
+  const bg=el=>{for(let n=el;n&&n.tagName!=='DIV';n=n.parentElement){const c=getComputedStyle(n).backgroundColor;if(c&&c!=='transparent'&&!/rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c))return c;}return '#fff';};
+  const clear=t=>{t.querySelectorAll('[data-stk]').forEach(c=>{c.style.position='';c.style.left='';c.style.zIndex='';c.style.backgroundColor='';c.style.boxShadow='';c.removeAttribute('data-stk');});t.removeAttribute('data-stk-n');};
+  const fix=()=>{q=false;const v=document.getElementById('view');if(!v)return;
+    v.querySelectorAll('table.sheet').forEach(t=>{const w=t.parentElement;if(!mq.matches||!w||w.classList.contains('dock-wrap')||w.scrollWidth<=w.clientWidth+2){if(t.hasAttribute('data-stk-n'))clear(t);return;}
+      const hr=t.tHead&&t.tHead.rows[t.tHead.rows.length-1];if(!hr)return;const hs=[...hr.cells];let n=hs.findIndex(c=>/projekt|megnevez|értékesítő|ügyfél/i.test(c.textContent||''))+1;if(n<1)n=1;if(n>3)n=1;
+      const lefts=[];let x=0;for(let i=0;i<n;i++){lefts.push(x);x+=hs[i]?hs[i].getBoundingClientRect().width:0;}
+      t.setAttribute('data-stk-n',n);
+      [...t.rows].forEach(r=>{let col=0;for(const c of r.cells){if(col>=n)break;const span=c.colSpan||1;if(col+span>n&&span>1){col+=span;continue;}
+        c.setAttribute('data-stk','1');c.style.position='sticky';c.style.left=lefts[col]+'px';c.style.zIndex=r.parentElement.tagName==='THEAD'?'7':'4';c.style.backgroundColor=bg(c);
+        if(col+span===n)c.style.boxShadow='1px 0 0 var(--line,#d6dee6)';col+=span;}});});};
+  const sch=()=>{if(!q){q=true;requestAnimationFrame(fix);}};
+  const v=document.getElementById('view');if(v&&window.MutationObserver)new MutationObserver(sch).observe(v,{childList:true,subtree:true});
+  window.addEventListener('resize',sch);if(mq.addEventListener)mq.addEventListener('change',sch);})();

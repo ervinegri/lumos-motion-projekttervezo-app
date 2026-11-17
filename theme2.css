@@ -2780,3 +2780,9 @@ html body.pay-dock #view .dock-wrap .pay-sheet thead th{top:var(--pay-st,0px)!im
  html body .fin-v2 .fin-r>.fin-grp,html body .fin-v2 .fin-r>.fin-exm{flex-shrink:0!important;min-width:max-content!important;max-width:100%}
  html body .fin-v2 .fin-r>.fin-grp>.grp-b{min-width:max-content}
 }
+/* Tablet (701–1180 px): minden táblázat (Bevételek, Kiadások, Szerződés és számlázás, Projektek…) a képernyő széléig ér */
+@media (min-width:701px) and (max-width:1180px){
+ html body #view .sheet-wrap:not(.pay-center):not(.dock-wrap){width:100vw!important;max-width:100vw!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;border-left:0!important;border-right:0!important;border-radius:0!important;box-shadow:none!important}
+ html body #view .panel:has(.sheet-wrap:not(.pay-center)){overflow:visible!important}
+ html body #view .sheet-wrap:not(.pay-center) .sheet{border-radius:0!important}
+}
