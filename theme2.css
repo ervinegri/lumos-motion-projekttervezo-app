@@ -2727,3 +2727,11 @@ html body.pay-dock #view .dock-wrap>.pay-hd .cal-toolbar{margin:0!important}
 /* a széles tábla ne tolja ki az oldalt: a tartó elemek nem nőhetnek a tábla szélességére (a tábla a saját keretében görget) */
 html body #view>*,html body #view .panel:has(.pay-wrap),html body #view .panel:has(.sheet-wrap){min-width:0;max-width:100%}
 html body #view .pay-wrap:not(.dock-wrap){max-width:100%;overflow-x:auto!important}
+/* Értékesítés fejléce: a hónapváltó és a gombok (Árajánlat, Árkalkulátor, + Új lehetőség) egy sorban; keskeny kijelzőn tördelődik */
+html body .page-head.sales-head{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px 12px!important}
+html body .page-head.sales-head>.grow:not(:empty){flex:1 1 100%}
+html body .page-head.sales-head>.sales-monthbar{margin:0!important;flex:1 1 auto;min-width:0;justify-content:flex-start!important;flex-wrap:nowrap}
+html body .page-head.sales-head>.sales-monthbar .sales-monthhint{flex:0 1 auto;min-width:0;text-align:left;white-space:normal;line-height:1.3}
+html body .page-head.sales-head>.dl-hbtns{margin:0 0 0 auto!important;flex:0 0 auto}
+@media (max-width:1180px){html body .page-head.sales-head>.sales-monthbar .sales-monthhint{display:none}}
+@media (max-width:760px){html body .page-head.sales-head>.sales-monthbar{flex:1 1 100%;flex-wrap:wrap}html body .page-head.sales-head>.dl-hbtns{margin:0!important}}
