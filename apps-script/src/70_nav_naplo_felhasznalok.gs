@@ -632,6 +632,14 @@ function quoteSentRecover_(d) {
 function quoteSent_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
   if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát nézheted meg.');
+  if (a.op === 'upload') {   // régi ajánlat, amelynek a PDF-je nem volt meg a levelek között: kézzel feltöltve
+    const b64 = String(a.b64 || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik a PDF (vagy túl nagy).');
+    const bytes = Utilities.base64Decode(b64); if (String.fromCharCode.apply(null, bytes.slice(0, 4)) !== '%PDF') throw new Error('Ez nem PDF-fájl.');
+    const nm = (/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/.exec(String(d.note || '')) || []);
+    const fid = quoteFolder_().createFile(Utilities.newBlob(bytes, 'application/pdf', (nm[1] ? nm[1].slice(0, 10) + ' ' : '') + str_(a.name, 120).replace(/[\\/:*?"<>|]+/g, '-'))).getId();
+    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, JSON.stringify({ at: nm[1] || now_(), by: nm[2] || u.name, to: nm[3] || '', total: Number(String(nm[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, uploaded: u.name }));
+    try { dataBump_(); } catch (e) {} a = { dealId: d.id, op: 'pdf' };
+  }
   let v = PropertiesService.getScriptProperties().getProperty('QS_' + d.id);
   if (!v) { try { v = quoteSentRecover_(d); } catch (e) { Logger.log('Ajánlat visszakeresése: ' + e); } }   // a funkció előtt küldött ajánlat: a PDF visszakeresése a levelek közül
   if (!v) return null;
