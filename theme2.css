@@ -2544,3 +2544,5 @@ html body .dl-board.lost-closed{grid-template-columns:repeat(4,minmax(200px,1fr)
 html.th2 .dl-board,html body .dl-board{grid-template-columns:repeat(5,210px)!important}
 html body .dl-board.lost-closed{grid-template-columns:repeat(4,210px) 44px!important}
 }
+html.th2 body .dl-board.lost-closed{grid-template-columns:repeat(4,minmax(200px,1fr)) 48px}
+@media (max-width:760px){html.th2 body .dl-board.lost-closed{grid-template-columns:repeat(4,210px) 44px!important}}
