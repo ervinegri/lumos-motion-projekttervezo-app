@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9f7b76d65a",
+"at": "2026-11-17T09:01:27+02:00",
+"msg": "Figyelmeztető üzenet: egér elvitelére sem tűnik el"
+},
+{
 "id": "c60ff13d0d",
 "at": "2026-11-17T09:01:07+02:00",
 "msg": "Figyelmeztető üzenet: csak kattintásra tűnik el"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó: a határidőig meg nem válaszolt meghívás elutasításnak számít (piros keret, ⌛ Nem válaszolt)"
 },
 {
-"id": "7984d87a59",
-"at": "2026-11-16T22:18:55+02:00",
-"msg": "Stábkártya: elutasított meghívásnál enyhén piros keret"
-},
-{
-"id": "b56d678166",
-"at": "2026-11-16T20:18:46Z",
+"id": "eef73a09ca",
+"at": "2026-11-16T20:19:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
