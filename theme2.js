@@ -36,7 +36,8 @@
       if(!r.selectorText||!r.style||SKIP.test(r.selectorText))continue;var d=[];
       /* a deklarációkat a szövegből olvassuk: a var(…, #szín) tartalékos rövidítéseknél (pl. background) a részértékek üresek lennének */
       var txt=r.style.cssText,DM=/(?:^|;)\s*([-\w]+)\s*:\s*((?:[^;(]|\([^)]*\))+?)\s*(!important)?\s*(?=;|$)/g,mm;
-      while((mm=DM.exec(txt))){var p=mm[1],v=mm[2];if(!v||!/(#|rgb|white|black)/i.test(v)||/url\(/i.test(v))continue;if(/^(--font|--shadow|--ink)/.test(p))continue;   /* --ink: a sötét márkaszín (menüsáv, kiemelt gombok) marad */
+      while((mm=DM.exec(txt))){var p=mm[1],v=mm[2];if(v&&/^(color|fill|-webkit-text-fill-color)$/.test(p)&&/var\(--accent[,)]/.test(v)){d.push(p+':#86cfa5'+(mm[3]?'!important':''));continue;}   /* a sötétzöld kiemelőszín szövegként világoszöld */
+        if(!v||!/(#|rgb|white|black)/i.test(v)||/url\(/i.test(v))continue;if(/^(--font|--shadow|--ink|--accent(-hover)?$)/.test(p))continue;   /* --ink: a sötét márkaszín (menüsáv, kiemelt gombok) marad */
         MODE=/^--/.test(p)?'sym':/^(color|-webkit-text-fill-color|caret-color|text-decoration-color|fill)$/.test(p)?'fg':'bg';var n=cv(v);MODE='sym';if(n)d.push(p+':'+n+(mm[3]?'!important':''));}
       if(d.length)out.push(sel(r.selectorText)+'{'+d.join(';')+'}');}}
   var built=false;
