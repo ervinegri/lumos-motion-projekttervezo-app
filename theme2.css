@@ -2607,3 +2607,8 @@ html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-bottom:0!importa
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{position:static!important;padding-top:4px!important;padding-bottom:max(4px,env(safe-area-inset-bottom))!important}
 html body .qs-box .qs-pdf .qs-pages{max-width:none}
 }
+/* Értékesítés: nincs külön „Értékesítés” cím (a fül mutatja), kisebb távolság a gombok és a hónapválasztó között */
+html body .page-head.sales-head{margin:0 0 4px!important;padding-top:0!important;min-height:0!important}
+html body .page-head.sales-head .grow:empty{display:none}
+html body .page-head.sales-head+.sales-monthbar{margin-top:4px!important}
+@media (max-width:760px){html body .page-head.sales-head{gap:8px!important}html body .page-head.sales-head .dl-hbtns{width:100%}}
