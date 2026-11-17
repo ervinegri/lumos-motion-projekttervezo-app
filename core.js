@@ -530,7 +530,7 @@ function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips
 /* Egységes hónapválasztó (minden pénzügyi fülön a cím alatt): ‹ [hónap] ›; months: újabb elöl */
 function monthNav(id,months,sel){const sh=(m,d)=>{const y=Number(m.slice(0,4)),k=Number(m.slice(5,7))-1+d;return new Date(Date.UTC(y,k,1)).toISOString().slice(0,7);};
   const ms=[...new Set(months.concat([sel,sh(sel,-1),sh(sel,1)]))].sort().reverse(),lbl=m=>F_YM.format(toDate(m+'-01'));
-  const chip=(m,cur)=>`<button class="mnav-chip${cur?' on':''}" type="button" data-action="mnav-pick" data-for="${id}" data-m="${m}"${cur?' aria-current="true"':''}>${esc(cur?lbl(m):lbl(m).replace(/^\d{4}\.\s*/,m.slice(0,4)===sel.slice(0,4)?'':'$&'))}</button>`;
+  const chip=(m,cur)=>`<button class="mnav-chip${cur?' on':''}" type="button" data-action="mnav-pick" data-for="${id}" data-m="${m}"${cur?' aria-current="true"':''}><span class="mn-l${cur?' mn-cur':''}">${esc(cur?lbl(m):lbl(m).replace(/^\d{4}\.\s*/,m.slice(0,4)===sel.slice(0,4)?'':'$&'))}</span></button>`;
   return `<div class="mnav-row"><div class="month-nav"><button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="1" aria-label="Előző hónap" title="Előző hónap">‹</button>${chip(sh(sel,-1))}${chip(sel,true)}${chip(sh(sel,1))}<button class="btn outline small mn-arrow" type="button" data-action="mnav" data-for="${id}" data-d="-1" aria-label="Következő hónap" title="Következő hónap">›</button><select class="mnav-sel" id="${id}" hidden aria-hidden="true">${ms.map(m=>`<option value="${m}"${m===sel?' selected':''}>${m}</option>`).join('')}</select></div></div>`;}
 
 /* a felső sáv magassága a ragadós táblázatfejlécekhez */

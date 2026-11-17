@@ -2806,3 +2806,6 @@ html body .tl-row .tl-prog,html body .tl-row .tl-cut .tl-prog{display:none!impor
 
 /* idővonal: az összekapcsolt forgatás + vágás sávon nincs átmenet (egyszínű) */
 html body .tl-row .tl-track .cal-chip.tl-joined,html body .tl-row .tl-track .cal-chip.tl-cut{background-size:calc(100% + 40px) 100%!important;background-position:100% 0!important}
+
+/* hónapváltó: a gombok szélessége a leghosszabb hónapnévhez igazodik (szeptember), így lapozáskor semmi nem csúszik el */
+.mn-l{display:inline-block;min-width:6.3em;text-align:center}.mn-l.mn-cur{min-width:9.4em}
