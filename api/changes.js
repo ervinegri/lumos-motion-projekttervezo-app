@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "99eb303864",
+"at": "2026-11-17T12:50:59+02:00",
+"msg": "Teljesítmény-súgó: sikertelen"
+},
+{
 "id": "0568a74b96",
 "at": "2026-11-17T12:50:52+02:00",
 "msg": "Értékesítés: „Elveszett” helyett „Sikertelen”"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "79c0df5953",
 "at": "2026-11-17T10:57:51+02:00",
 "msg": "Idővonal: a homokóra pontosan a sárga rész közepén"
-},
-{
-"id": "affea89b3b",
-"at": "2026-11-17T08:57:49Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
