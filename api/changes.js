@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aaffeb20f4",
+"at": "2026-11-17T16:01:07+02:00",
+"msg": "számlázz.hu adatkapcsolat: a generált kulcs legfeljebb 40 karakter (35 + LUMPT)"
+},
+{
 "id": "68208a50a1",
 "at": "2026-11-17T16:00:25+02:00",
 "msg": "számlázz.hu adatkapcsolat válasz: az alap/id csak egész számként (XSD szerint)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lebegő Kilépés gomb: átlátszóbb háttér"
 },
 {
-"id": "c2c5d2eab9",
-"at": "2026-11-17T15:11:54+02:00",
-"msg": "Teljes képernyő: lebegő Kilépés gomb, gombsáv nélkül"
-},
-{
-"id": "0b2845cfe3",
-"at": "2026-11-17T13:10:07Z",
+"id": "6d5910ae2e",
+"at": "2026-11-17T13:12:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
