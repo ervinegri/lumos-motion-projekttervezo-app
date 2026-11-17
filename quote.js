@@ -234,7 +234,7 @@ async function qsRender(){const box=$('qs-pdf'),D=QS_DOC;if(!box||!D)return;try{
     if($('qs-pdf')!==box||QS_DOC!==D)return;   /* közben másik ajánlat nyílt meg */
     D.W=W;D.z=100;wr.style.width=W+'px';box.innerHTML='';box.appendChild(wr);}catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
 /* a függőlegesen ténylegesen görgető elem (telefonon a felugró ablak vagy a háttere) */
-function qsScroller(el){let e=el&&el.parentElement;while(e&&e!==document.body){const cs=getComputedStyle(e);if(/(auto|scroll)/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+1)return e;e=e.parentElement;}return document.scrollingElement||document.documentElement;}
+function qsScroller(el){if(el&&/(auto|scroll)/.test(getComputedStyle(el).overflowY)&&el.scrollHeight>el.clientHeight+1)return el;let e=el&&el.parentElement;while(e&&e!==document.body){const cs=getComputedStyle(e);if(/(auto|scroll)/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+1)return e;e=e.parentElement;}return document.scrollingElement||document.documentElement;}
 /* nagyítás: a (cx,cy) képernyőpont alatti rész a helyén marad */
 function qsZoomAt(z,cx,cy){const D=QS_DOC,box=$('qs-pdf'),wr=box&&box.querySelector('.qs-pages');if(!D||!wr||!D.W)return;z=Math.max(100,Math.min(400,z));
   const r1=wr.getBoundingClientRect(),px=(cx-r1.left)/r1.width,py=(cy-r1.top)/r1.height;D.z=z;wr.style.width=Math.round(D.W*z/100)+'px';

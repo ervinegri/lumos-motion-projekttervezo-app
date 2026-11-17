@@ -2630,3 +2630,10 @@ html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{min-height:100dvh!import
 html body #modalRoot .qs-box .qs-pdf{flex:1 1 auto!important}
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{margin-top:0!important}
 }
+/* telefonon (álló és fekvő): a fejléc és a gombsor fix, csak az ajánlat görget és nagyítódik a köztük lévő területen */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{height:100dvh!important;min-height:0!important;max-height:100dvh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+html body #modalRoot .qs-box .qs-pdf{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:auto!important;-webkit-overflow-scrolling:touch}
+html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{position:static!important;flex:0 0 auto}
+html body #modalRoot .qs-box .mhead,html body #modalRoot .qs-box>p.hint{flex:0 0 auto}
+}
