@@ -2458,3 +2458,4 @@ html body.tl-dragging .tl-row .tl-track .tl-bar,html body .tl-row .tl-track .tl-
 /* idővonal: a projekt neve mindig az óra ALATT (új sorban), nem mellette */
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut)::after{content:'';order:1;flex:0 0 100%;height:0}
 html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm{order:2!important}
+html body:not(.ro) .tl-row .tl-track .tl-bar,html body:not(.ro) .tl-row .tl-track .tl-bar *{cursor:grab!important}
