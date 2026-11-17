@@ -188,7 +188,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${ms('dType','Rendezvény típusa',d.eventType&&!EVENT_TYPES.includes(d.eventType)?EVENT_TYPES.concat([d.eventType]):EVENT_TYPES,d.eventType||'',{empty:'—',cmb:'Válassz típust…'})}
     ${ms('dSource','Honnan jött? <span class="muted" style="font-weight:500;font-size:12px">– a HubSpotból</span>',DEAL_SOURCES,d.source||'',{empty:'—',cmb:'Honnan jött?…'})}
     ${(()=>{const cur=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean);return mselField('dServices','Szóba jövő szolgáltatások',DEAL_SERVICES.concat(cur.filter(x=>!DEAL_SERVICES.includes(x))),cur,'Válaszd ki, mik jöhetnek szóba (többet is lehet)…',true).replace('<div class="field"','<div class="field full"');})()}
-    ${phoneField({name:'dCPhone',value:d.contactPhone||''})}
+    ${phoneField({name:'dCPhone',value:d.contactPhone||'',after:'<button class="btn ghost small vcf-btn" type="button" data-action="deal-vcf" title="Névjegy a telefonra (QR-kód)" aria-label="Névjegy a telefonra">📇</button>'})}
     <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
     ${mf('dDate','Rendezvény dátuma',{v:d.eventDate,type:'date'})}
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
@@ -425,3 +425,11 @@ ACT['dl-lost-tog']=()=>{const v=!salesLostOpen();try{localStorage.setItem('lpm_l
 function preLostOffer(did){const p=(S.projects||[]).find(x=>x.preDeal===did&&!['lemondva','atadva'].includes(x.status));if(!p)return;
   openModal('Előfoglalt projekt',`<p style="margin:0">A lehetőséghez a(z) <b>${esc(p.name)}</b> projekt tartozik előfoglalásként${pr(p)?' ('+esc(fmtRange(p))+')':''}. Lemondod a projektet is?</p>`,
     {submitLabel:'Projekt megnyitása a lemondáshoz',cancelLabel:'Most nem',noDraft:true,submit:()=>{closeModal();openProject(p.id);setTimeout(()=>{const c=document.querySelector('[data-action="cancel-toggle"]');if(c)c.click();},500);}});}
+
+/* 📇 a lehetőség kapcsolattartójának névjegye QR-kóddal (a lehetőség ablaka fölött nyílik, a beírt adatok megmaradnak) */
+ACT['deal-vcf']=async()=>{const v=id=>String(($(id)||{}).value||'').trim(),row=document.querySelector('[data-ph="n:dCPhone"]');
+  const tel=row?(((row.querySelector('.ph-cc')||{}).dataset||{}).cc||'+36')+String((row.querySelector('.ph-num')||{}).value||'').replace(/\s/g,''):'';
+  const o={name:v('m-dCName'),tel:/\d{6,}/.test(tel)?tel:'',email:v('m-dCEmail'),org:v('m-dClient'),note:''};
+  if(!o.name&&!o.tel&&!o.email){toast('Előbb add meg a kapcsolattartó adatait.',true);return;}
+  let img='';try{await loadQr();qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const q=qrcode(0,'M');q.addData(vcfText(o),'Byte');q.make();img=q.createDataURL(6,8);}catch(e){}
+  confirmLayer('📇 Névjegy a telefonra',`<div class="vcf-box" style="text-align:center">${img?`<img class="vcf-qr" src="${img}" alt="QR-kód: ${esc(o.name)} névjegye"><p class="hint">Olvasd be a telefon kamerájával, majd koppints a „Kapcsolat hozzáadása” gombra.</p>`:'<p class="hint">A QR-kód most nem készíthető el.</p>'}<p style="margin:6px 0 0"><b>${esc(o.name)}</b>${o.org?' · '+esc(o.org):''}<br>${esc(o.tel)}${o.email?' · '+esc(o.email):''}</p></div>`,'Kész',(b,d)=>{d.remove();});};
