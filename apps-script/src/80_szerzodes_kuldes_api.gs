@@ -263,7 +263,7 @@ function authUser_(token) {
 }
 
 function setViewAs_(token, u, arg) {
-  const ed = u.role === 'editor' || u.realRole === 'editor';
+  const ed = u.realRole ? u.realRole === 'editor' : u.role === 'editor';   /* a valódi szerepkör számít: az ügyvezető termelési v. nézetből is válthat értékesítőre */
   if (u.role !== 'admin' && u.realRole !== 'admin' && !ed) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
   const role = String(arg && arg.role || '');
   if (ed && role && role !== 'crew' && role !== 'editor' && role !== 'admin') throw new Error('FORBIDDEN: termelési vezetőként csak szakember nézetre válthatsz.');
