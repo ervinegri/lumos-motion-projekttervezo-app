@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e68b382021",
+"at": "2026-11-17T14:14:24+02:00",
+"msg": "Értékesítés: a „Tárgyalás” szakasz megszűnt (a lehetőségek az „Ajánlat kiküldve” oszlopba kerülnek)"
+},
+{
 "id": "c3fcc6cf73",
 "at": "2026-11-17T13:57:06+02:00",
 "msg": "Értékesítés álló telefonon: fix 210 px-es oszlopok (nem nyomódnak össze)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a projektnév a sáv végéig ér"
 },
 {
-"id": "90799cbae5",
-"at": "2026-11-17T11:25:49+02:00",
-"msg": "Csengő és névjelvény: sima kurzor"
-},
-{
-"id": "c1731e55b8",
-"at": "2026-11-17T09:25:28Z",
+"id": "30c0408394",
+"at": "2026-11-17T09:25:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
