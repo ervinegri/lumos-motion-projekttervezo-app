@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6ef07c96d8",
+"at": "2026-11-17T11:10:50+02:00",
+"msg": "Idővonal: a projekt neve az óra alatt"
+},
+{
 "id": "9fc5b3a71c",
 "at": "2026-11-17T11:10:30+02:00",
 "msg": "Idővonal: minden projektnév címkén; a sávon és a szövegen markolás kurzor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni munka tiltó üzenet: ⚠️ jellel"
 },
 {
-"id": "4de6430190",
-"at": "2026-11-17T08:53:21+02:00",
-"msg": "Lépések: csak a következő lépésre lehet húzni, a későbbiek szürkék, animáció nélkül"
-},
-{
-"id": "0187cfe02f",
-"at": "2026-11-17T06:52:02Z",
+"id": "74061d749c",
+"at": "2026-11-17T06:53:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
