@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6fde77ef79",
+"at": "2026-11-17T14:42:34+02:00",
+"msg": "Ajánlat-néző telefonon: fele olyan magas gombsáv"
+},
+{
 "id": "b1859baefc",
 "at": "2026-11-17T14:40:27+02:00",
 "msg": "Ajánlat-néző: alacsonyabb gombsáv"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kiküldött ajánlat: új lapon nyitáskor az ablak bezárul"
 },
 {
-"id": "6e86268506",
-"at": "2026-11-17T12:51:38+02:00",
-"msg": "Értékesítés: kompakt fejléc (kereső, szűrő, hónapválasztó, mutatók)"
-},
-{
-"id": "b0e807fe6e",
-"at": "2026-11-17T10:51:31Z",
+"id": "c0478e7809",
+"at": "2026-11-17T10:51:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
