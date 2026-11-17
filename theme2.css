@@ -2683,3 +2683,5 @@ html body:not(.has-savebar) #view:has(.pay-wrap),html body:not(.has-savebar) mai
 html body #view .panel:has(>.pay-wrap),html body #view .panel:has(.pay-wrap){padding-bottom:0!important;margin-bottom:0!important}
 html body .pay-wrap{max-height:calc(100dvh - var(--tbh0,44px))!important;margin-bottom:0!important}
 }
+/* fekvő telefon: a Fizetések tábla a teljes képernyő magasságát kitölti, amikor a felső rész eltűnt */
+@media (orientation:landscape) and (max-height:560px){html body .pay-wrap{max-height:100dvh!important}}

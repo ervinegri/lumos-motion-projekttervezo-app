@@ -111,3 +111,12 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
       {cancelLabel:'Később'});
   };
   setTimeout(go,300);})();
+
+/* Fekvő telefon, Fizetések tábla: lefelé görgetve a tábla felett lévő rész (menüsáv, altabok, hónapváltó) eltűnik – csak a tábla
+   fejléce (a nevek sora) marad fent; a tábla tetejére visszagörgetve újra megjelenik */
+(()=>{const mq=window.matchMedia&&matchMedia('(orientation:landscape) and (max-height:560px)');if(!mq)return;const L=new WeakMap();
+  document.addEventListener('scroll',e=>{const w=e.target;if(!mq.matches||!w||!w.classList||!w.classList.contains('pay-wrap'))return;
+    const st=w.scrollTop,prev=L.has(w)?L.get(w):0;L.set(w,st);const top=w.getBoundingClientRect().top;
+    if(st>prev&&st>2&&top>1)window.scrollTo({top:window.scrollY+top,behavior:'smooth'});   /* lefelé: a tábla a képernyő tetejére áll */
+    else if(st<prev&&st<=2&&window.scrollY>0)window.scrollTo({top:0,behavior:'smooth'});},{capture:true,passive:true});   /* a tábla tetején felfelé: visszajön a felső rész */
+})();
