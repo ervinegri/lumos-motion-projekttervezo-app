@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d707842354",
+"at": "2026-11-17T22:51:04+02:00",
+"msg": "Sötét mód: halványabb logó; gépen a Fizetések tábla kerete a tábla szélességéig ér"
+},
+{
 "id": "c7d6af0fed",
 "at": "2026-11-17T22:49:56+02:00",
 "msg": "Sötét mód: nincs világos villanás frissítéskor (a sötét stílus az előző betöltésből azonnal érvényes, és már a DOM betöltésekor elkészül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Érintőképernyőn az oldal nem húzható oldalra"
 },
 {
-"id": "3d375cfe6f",
-"at": "2026-11-17T16:37:58+02:00",
-"msg": "Tablet: a menü a logó sorában (egyetlen fejlécsáv)"
-},
-{
-"id": "e3f2825e11",
-"at": "2026-11-17T14:31:26Z",
+"id": "5d8e500efa",
+"at": "2026-11-17T14:38:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
