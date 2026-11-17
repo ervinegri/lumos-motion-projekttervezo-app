@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b884f686e6",
+"at": "2026-11-17T22:41:50+02:00",
+"msg": "Újdonságok a többi felhasználónak (szakemberek, termelési vezető, értékesítők): válogatott, nem pénzügyi és nem értékesítési fejlesztések a belépéskor"
+},
+{
 "id": "a59fb85e62",
 "at": "2026-11-17T22:40:15+02:00",
 "msg": "Sötét mód: sötét háttér és menüsáv javítása"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Gépen újra görgethető az oldal a táblák fölött (a rugózás-tiltás csak telefonon)"
 },
 {
-"id": "aaffeb20f4",
-"at": "2026-11-17T16:01:07+02:00",
-"msg": "számlázz.hu adatkapcsolat: a generált kulcs legfeljebb 40 karakter (35 + LUMPT)"
-},
-{
-"id": "55b27375e7",
-"at": "2026-11-17T14:00:36Z",
+"id": "01bc021009",
+"at": "2026-11-17T14:01:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
