@@ -2348,3 +2348,10 @@ html body .basics .b-col>.b-row2:not(.b-contact)>.field:nth-child(2){grid-column
 html body .basics .b-day-end{display:flex;align-items:center;gap:6px}html body .basics .b-day-end .inp{flex:1;min-width:0}
 html body .basics .b-day-del{border:0;background:transparent;color:#9aa3ad;font-size:18px;line-height:1;cursor:pointer;padding:4px}html body .basics .b-day-del:hover{color:#a33}
 html body .basics .b-day-add{align-self:flex-start;font-size:13px;font-weight:600;margin-top:-2px}
+/* Alapadatok – mobil: a dátum teljes szélességben, alatta kezdés + végzés; a többi mező egymás alatt */
+@media (max-width:900px){
+  html body .basics .b-when{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  html body .basics .b-when>.field:first-child{grid-column:1/-1!important}
+  html body .basics .b-col>.b-row2,html body .basics .b-row2.b-contact{grid-template-columns:minmax(0,1fr)!important}
+  html body .basics .b-col>.b-row2>.field{grid-column:auto!important}
+}
