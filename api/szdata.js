@@ -7,7 +7,7 @@ const RESP = { banktranz: 'banktranzvalasz', szamla: 'szamlavalasz', szamlabe: '
 const esc = s => String(s == null ? '' : s).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 function reply(res, code, kind, id, hibakod) {
   const root = RESP[kind] || 'banktranzvalasz', ns = 'http://www.szamlazz.hu/' + root;
-  const alap = kind && kind !== 'banktranz' && id ? '<alap><id>' + esc(id) + '</id></alap>' : '';
+  const alap = kind && kind !== 'banktranz' && /^\d{1,9}$/.test(String(id || '')) ? '<alap><id>' + id + '</id></alap>' : '';   // az XSD szerint az id egész szám (és nem kötelező)
   res.statusCode = code; res.setHeader('Content-Type', 'application/xml; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
   res.end('<?xml version="1.0" encoding="UTF-8"?>\n<' + root + ' xmlns="' + ns + '">' + alap + (hibakod ? '<hibakod>' + hibakod + '</hibakod>' : '') + '</' + root + '>');
 }
