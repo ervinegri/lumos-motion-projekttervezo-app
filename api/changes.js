@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fe38e36678",
+"at": "2026-11-17T10:57:34+02:00",
+"msg": "Nézetmenü: a nem aktuális nézetek beljebb"
+},
+{
 "id": "1073dd1f40",
 "at": "2026-11-17T10:57:14+02:00",
 "msg": "Instrukciók: a kész jelölés nem vonható vissza (nincs Visszavonás gomb)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka lépéskártya: a videószámláló (🎬 x/y ✅) levéve – a kártyára kattintva nyílik a videótábla"
 },
 {
-"id": "7bb55812b3",
-"at": "2026-11-17T08:33:08+02:00",
-"msg": "Alapadatok mobilon: dátum teljes szélességben, kezdés+végzés egy sorban, a többi mező egymás alatt"
-},
-{
-"id": "5d021fa634",
-"at": "2026-11-17T06:33:04Z",
+"id": "6f6243a150",
+"at": "2026-11-17T06:33:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
