@@ -2578,3 +2578,8 @@ html body .qs-box .qs-pdf{width:100vw!important;max-width:100vw!important;margin
 html body .qs-box .qs-pdf{height:auto!important;min-height:0!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important}
 html body #modalRoot .qs-box{max-height:none!important;overflow-y:auto}
 }
+/* ajánlat-néző: alacsonyabb gombsor (fele magas) */
+html body .qs-box .mfoot{padding-top:6px!important;padding-bottom:6px!important;gap:6px!important;flex-wrap:nowrap!important}
+html body .qs-box .mfoot .left{display:flex;gap:6px;flex-wrap:nowrap}
+html body .qs-box .mfoot .btn{min-height:30px!important;height:30px;padding:0 12px!important;font-size:13px!important;width:auto!important;flex:0 0 auto}
+@media (max-width:700px){html body .qs-box .mfoot{justify-content:space-between}html body .qs-box .mfoot .btn{padding:0 10px!important;font-size:12.5px!important}}
