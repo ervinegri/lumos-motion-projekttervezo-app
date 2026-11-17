@@ -2482,3 +2482,5 @@ html body .work-pill{top:50%!important;transform:translate(-50%,-50%) scale(.96)
 html body .work-pill.on{transform:translate(-50%,-50%) scale(1)!important}
 html body .qs-box{width:min(980px,96vw)!important;max-width:none!important}
 html body .qs-pdf{width:100%;height:min(78vh,1100px);border:1px solid #e3e7ec;border-radius:10px;background:#f4f6f8}
+/* kártya: a mentett / kiküldött ajánlat jelzése kompakt, egy sorban */
+html body .dl-card .dl-qdraft{padding:1px 8px!important;font-size:11px!important;line-height:1.5!important;margin:3px 4px 1px 0!important;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;border-width:1px}
