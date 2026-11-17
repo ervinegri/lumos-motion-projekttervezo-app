@@ -276,12 +276,34 @@ function evCalId_(ev) { try { return ev.getOriginalCalendarId() || CALENDAR_ID; 
 function calEvent_(id) { if (!id) return null; try { const ev = cal_().getEventById(id); if (ev) return ev; } catch (e) {} try { const v = CalendarApp.getCalendarById(CAL_VAGOI_ID); return v ? v.getEventById(id) : null; } catch (e) { return null; } }   // terepi, majd vágói naptár
 function calDelete_(id) { try { const ev = calEvent_(id); if (ev) ev.deleteEvent(); } catch (e) { Logger.log('Naptár törlés hiba: ' + e); } }
 function calDate_(iso, hhmm) { const d = Utilities.parseDate(iso + ' ' + (hhmm || '00:00'), SHEET_TZ, 'yyyy-MM-dd HH:mm'); return d; }
+/** Az ügyvezető(k) e-mail címei (a fiók címe és a hozzá kötött munkatárs címe): ők nem lesznek vendégek a naptáreseményekben – a terepi naptárt úgyis látják, a saját naptárukba ne kerüljön másolat. */
+function calNoGuest_(crewMap) {
+  const out = {}, cm = crewMap || byId_(readAll_('crew'));
+  try { const me = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); if (me) out[me] = 1; } catch (e) {}
+  try { loadUsers_().filter(x => x && x.role === 'admin' && !x.disabled).forEach(x => {
+    const em = String(x.email || '').trim().toLowerCase(); if (em) out[em] = 1;
+    const cid = inviteOwnCrewId_(x, Object.keys(cm).map(k => cm[k])); const c = cid && cm[cid]; if (c && c.email) out[String(c.email).trim().toLowerCase()] = 1; }); } catch (e) {}
+  return out;
+}
+/** Egyszeri takarítás: a meglévő (mai vagy későbbi) projekt-eseményekről leveszi az ügyvezető vendégbejegyzését – értesítés nélkül. */
+function calAdminGuestCleanOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('CAL_ADMIN_GUEST_1')) return;
+  if (typeof Calendar === 'undefined' || !Calendar.Events) return;
+  const noG = calNoGuest_(), today = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd'); let n = 0;
+  readAll_('projects').filter(p => p.calEventId && String(p.endDate || p.date || '') >= today).forEach(p => { try {
+    const ev = calEvent_(p.calEventId); if (!ev) return;
+    const eid = String(ev.getId()).replace(/@google\.com$/, ''), CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid), att = cur.attendees || [];
+    const keep = att.filter(x => !noG[String(x.email || '').toLowerCase()]); if (keep.length === att.length) return;
+    Calendar.Events.patch({ attendees: keep }, CID, eid, { sendUpdates: 'none' }); n++; } catch (e) { Logger.log('Vendég-takarítás: ' + e); } });
+  P.setProperty('CAL_ADMIN_GUEST_1', now_() + ' · ' + n);
+}
 function calPlan_(p) {
   // A projekt naptáreseményének leírása üres; a szerepek és a visszaigazolások az appban szerepelnek.
   const crewMap = byId_(readAll_('crew')), roles = {};
   if (p.lead && crewMap[p.lead]) roles[p.lead] = true;
   (p.crew || []).forEach(c => { if (crewMap[c.crewId] && c.role !== 'Értékesítő') roles[c.crewId] = true; });
-  const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
+  const noG = calNoGuest_(crewMap);
+  const guests = Object.keys(roles).map(cid => String(crewMap[cid].email || '').toLowerCase()).filter(m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m) && !noG[m]);   /* az ügyvezető nem lesz vendég: a projektek ne kerüljenek a saját (privát) naptárába */
   const crewEmails = Object.keys(crewMap).map(k => String(crewMap[k].email || '').toLowerCase()).filter(Boolean);
   return { description: '', guests: guests, crewEmails: crewEmails };
 }
@@ -958,7 +980,7 @@ function crewInvite_(u, a) {
   if (p.__self) { delete p.__self; logEvent_(u, 'Saját beosztás', p.name, c.name + ' (e-mail nélkül)'); return { project: projectView_(fullProject_(p), u), mail: false, cal: false, self: true }; }
   const em = String(c.email || '').trim().toLowerCase(); let calOk = false, mail = false;
   try { ev = calEvent_(p.calEventId); } catch (e) {}
-  if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try {   // a projekt naptáreseményébe vendégként (a Google külön levelet nem küld – a meghívó a saját levelünk)
+  if (ev && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em) && !calNoGuest_()[em]) { try {   // a projekt naptáreseményébe vendégként (a Google külön levelet nem küld – a meghívó a saját levelünk)
     if (typeof Calendar !== 'undefined' && Calendar.Events) { const eid = String(ev.getId()).replace(/@google\.com$/, ''), CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid), att = cur.attendees || [];
       if (!att.some(x => String(x.email || '').toLowerCase() === em)) { att.push({ email: em }); Calendar.Events.patch({ attendees: att }, CID, eid, { sendUpdates: 'none' }); } }
     else if (!ev.getGuestList().some(g => String(g.getEmail()).toLowerCase() === em)) ev.addGuest(em);

@@ -2383,3 +2383,27 @@ html body .pn-box .pn-new-row{margin:6px 0 2px!important}
 html body .pn-box .pn-new-row label{font-size:12.5px!important;font-weight:600}
 html body .pn-box .pn-new-row .btn{padding:5px 14px!important;font-size:12.5px!important;min-height:0!important;height:30px}
 html body .pn-box{padding:8px 12px!important}
+/* naptár eszköztár asztali nézetben: egy sorban marad, a középső hónap fix szélességű (lapozáskor nem ugrál) */
+@media (min-width:1101px){
+html body .page-head.cal-toolbar{flex-wrap:nowrap!important}
+html body .cal-toolbar .cm-cur{min-width:186px;justify-content:center}
+html body .cal-toolbar .cm-side{min-width:104px;justify-content:center}
+html body .cal-toolbar .cal-cutsel{flex:0 1 230px!important;min-width:150px!important;width:auto!important}
+html body .cal-toolbar>.btns{margin-left:auto;flex:none;white-space:nowrap}
+html body .cal-toolbar .cal-tog{flex:none;white-space:nowrap}
+}
+/* Pénzügyek: Szerződés → Levonások → Levonások után egy sorban, alatta Értékesítés és Termelés – egyforma kártyák */
+html body .fin-v2.two .fin-r{align-items:stretch!important}
+html body .fin-v2 .grp-ded{background:#fbf1f1;border-color:#efd6d6}
+html body .fin-v2 .grp-ded .grp-h{color:#9a3a3a}
+html body .fin-v2 .grp-ded .grp-b{flex-direction:column;align-items:stretch!important;gap:8px}
+html body .fin-v2 .grp-ded .fin-org{width:auto;margin:0}
+html body .fin-v2 .grp-ded .fin-org>label{font-size:12.5px!important;min-height:20px}
+html body .fin-v2 .grp-ded .org-line{display:grid;grid-template-columns:minmax(150px,240px) 150px;gap:8px}
+html body .fin-v2 .grp-net{background:#f3f5f4;border-color:#dfe5e2}
+html body .fin-v2 .grp-net .grp-h{color:#3d5a4b}
+html body .fin-v2 .grp-net .fin-net{width:170px;margin:0}
+html body .fin-v2 .grp-net .fin-net>label{font-size:12.5px!important;white-space:normal;max-width:170px}
+html body .fin-v2 .grp-net .grp-b,html body .fin-v2 .grp-val .grp-b{align-items:flex-end}
+html body .fin-v2 .fin-exm{align-self:flex-start;margin-top:22px}
+@media (max-width:600px){html body .fin-v2 .grp-ded .org-line{grid-template-columns:1fr 130px}html body .fin-v2 .grp-net .fin-net{width:100%}}
