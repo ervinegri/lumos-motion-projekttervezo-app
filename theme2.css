@@ -2702,3 +2702,9 @@ html body #toast{white-space:pre-line}
 html body.pay-dock #view .pay-wrap>.pay-hd{padding-bottom:4px!important;gap:4px!important}
 html body.pay-dock #view .pay-wrap>.pay-hd>.pay-hd-sp{margin-bottom:0!important}
 html body.pay-dock #view .pay-wrap>.pay-hd .page-head,html body.pay-dock #view .pay-wrap>.pay-hd .page-head>*{padding-top:3px!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important;min-height:0!important}
+/* Fizetések fejléce: a NAV és a Díjösszesítő gomb ugyanakkora, mint a hónapváltó gombjai */
+html body .page-head.pay-head .btn,html body .page-head.pay-head .month-nav .btn,html body .page-head.pay-head .mn-arrow,html body .page-head.pay-head .mnav-chip{height:34px!important;min-height:34px!important;box-sizing:border-box;padding-top:0!important;padding-bottom:0!important;display:inline-flex;align-items:center;font-size:13.5px!important}
+/* dokkolt Fizetések tábla: a menüsáv alatti és a tábla feletti hézag egyforma (6 px) */
+html body.pay-dock #view .pay-wrap>.pay-hd{gap:6px!important;padding-bottom:6px!important}
+html body.pay-dock #view .pay-wrap>.pay-hd>*,html body.pay-dock #view .pay-wrap>.pay-hd .subtabs,html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin-top:0!important;margin-bottom:0!important}
+html body.pay-dock #view .pay-wrap>.pay-hd .page-head{padding-top:0!important;padding-bottom:0!important}
