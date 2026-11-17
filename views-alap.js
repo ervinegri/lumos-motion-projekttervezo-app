@@ -237,7 +237,7 @@ const normProj=p=>{if(p&&(!p.status||p.status==='egyeztetes'))p.status='tervezes
 function vidLinksOf(p){const l=(p.videos||[]).filter(v=>/^https:\/\//i.test(v.link||'')&&['leadva','jovahagyva'].includes(v.st));if(!l.length)return '';
   return l.map((v,i)=>`<a class="statuspill p-info pt-video" href="${esc(v.link)}" target="_blank" rel="noopener" data-action="ext-link" title="${esc(v.name||'Videó')}">▶ ${l.length===1?'Leadott videó':esc(v.name&&l.filter(x=>x.name===v.name).length===1?v.name:(i+1)+'. videó')}${v.st==='jovahagyva'?' <span class="tl-ok pt-ok" title="Az ügyfél jóváhagyta">✓</span>':''}</a>`).join('');}
 /* Projektlista: a vágási táblán lévő videók tételesen, a stádiumukkal (a leadott/jóváhagyott, linkkel rendelkező videó kattintható) */
-const VST_TONE={vagasra:'mute',vagas:'warn',ellen:'info',leadva:'info',jovahagyva:'ok',modositas:'bad'};
+const VST_TONE={vagasra:'mute',vagas:'cut',ellen:'info',leadva:'info',jovahagyva:'ok',modositas:'bad'};
 function vidStList(p){   // projektlista: videók összesítője – egy sor (darabszám + jóváhagyott arány) és vékony állapotsáv; kattintásra lenyílik a tételes lista
   const l=p.videos||[];if(!l.length||p.status==='lemondva')return '';   /* lemondott projektnél nincs videóállapot */
   const lab=st=>((typeof VID_ST!=='undefined'?VID_ST:[]).find(x=>x[0]===st)||[,'Utómunkára vár'])[1];
