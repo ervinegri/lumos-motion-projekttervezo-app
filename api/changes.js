@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7ea05fd7a",
+"at": "2026-11-17T16:59:39+02:00",
+"msg": "Tablet, Fizetések: a fejléc egy sora kifér 768 px-en is"
+},
+{
 "id": "6cbdd6755d",
 "at": "2026-11-17T16:58:08+02:00",
 "msg": "Tablet, Fizetések: altabok és hónapváltó egy sorban, a tábla a képernyő széléig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla telefonon: hely az iPhone alsó vonalának"
 },
 {
-"id": "4a449fdd4b",
-"at": "2026-11-17T15:44:49+02:00",
-"msg": "Fizetések tábla telefonon: előbb a menü gördül ki, csak utána a tábla"
-},
-{
-"id": "a52c1759ab",
-"at": "2026-11-17T13:42:14Z",
+"id": "4ecd1eacd2",
+"at": "2026-11-17T13:45:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
