@@ -248,4 +248,7 @@ document.addEventListener('touchstart',e=>{const box=e.target&&e.target.closest&
     QS_DOC._ox=(a.clientX+b.clientX)/2-r.left+box.scrollLeft;QS_DOC._oy=(a.clientY+b.clientY)/2-r.top+box.scrollTop;QS_PZ={d,z:QS_DOC.z||QS_DOC.zEff||100};}},{passive:true});   /* dupla koppintásos zoom nincs: görgetés közben véletlenül is bekapcsolt */
 document.addEventListener('touchmove',e=>{if(!QS_PZ||e.touches.length!==2)return;const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box)return;e.preventDefault();
   const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);qsZoomTo(QS_PZ.z*d/QS_PZ.d,true);},{passive:false});
-document.addEventListener('touchend',e=>{if(QS_PZ&&e.touches.length<2){QS_PZ=null;qsCommit();}},{passive:true});
+document.addEventListener('touchend',e=>{if(QS_PZ&&e.touches.length<2){QS_PZ=null;qsCommit();return;}
+  /* nagyítás nélkül görgetés után az ablak pontosan visszaáll a megnyitáskori helyzetébe */
+  const mb=e.target&&e.target.closest&&e.target.closest('.qs-box');if(!mb||e.touches.length||!QS_DOC||(QS_DOC.z&&QS_DOC.z>100))return;
+  setTimeout(()=>{try{mb.scrollTo({top:0,behavior:'smooth'});const bx=$('qs-pdf');if(bx)bx.scrollTo({left:0,top:0,behavior:'smooth'});const md=mb.closest('.modal');if(md)md.scrollTo({top:0,behavior:'smooth'});}catch(x){}},60);},{passive:true});
