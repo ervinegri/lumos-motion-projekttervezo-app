@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "830a70b5bd",
+"at": "2026-11-17T22:58:12+02:00",
+"msg": "Idővonal: a sávok alatti videóállapot-csík kivéve"
+},
+{
 "id": "fb19a96c10",
 "at": "2026-11-17T22:57:54+02:00",
 "msg": "Sötét mód: az idővonal sávjai egyszínűek (nincs átmenet, nincs névcímke-háttér)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: a fejléc a tábla keretének tetejéhez tapad (nincs üres sáv fölötte tableten/gépen)"
 },
 {
-"id": "bde87972ce",
-"at": "2026-11-17T16:44:57+02:00",
-"msg": "Értékesítés fejléce: tableten is egy sor, egységes gombméret"
-},
-{
-"id": "0a801639c0",
-"at": "2026-11-17T14:43:01Z",
+"id": "1f1cb10612",
+"at": "2026-11-17T14:45:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
