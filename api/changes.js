@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9b1a14031f",
+"at": "2026-11-17T23:00:04+02:00",
+"msg": "Kifizetések: az Összesen (még fizetendő) sor is csak akkor látszik, ha van fizetendő"
+},
+{
 "id": "de7e5e6817",
 "at": "2026-11-17T22:59:29+02:00",
 "msg": "Szakember nézet: a vágó kártyáján látszik a saját videói állapota és a jóváhagyás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet, Fizetések: altabok és hónapváltó egy sorban, a tábla a képernyő széléig"
 },
 {
-"id": "26664af9dc",
-"at": "2026-11-17T16:54:54+02:00",
-"msg": "Projekt pénzügyek: új tételtípus – ⛽ Saját költség (pl. tankolás): a teljes összegből vonódik le, nem kerül a számlára; a Bevétel és kiadás lebontásában külön sor"
-},
-{
-"id": "1a76398225",
-"at": "2026-11-17T14:46:36Z",
+"id": "1183bb345d",
+"at": "2026-11-17T14:55:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
