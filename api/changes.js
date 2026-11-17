@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ad2f30803c",
+"at": "2026-11-17T15:53:34+02:00",
+"msg": "Fizetések tábla telefonon: egyetlen natív görgetés (a fejléc a tábla fölött görget ki, a menüsáv eltolással) – nincs akadás lendületnél"
+},
+{
 "id": "a9f09a974a",
 "at": "2026-11-17T15:49:23+02:00",
 "msg": "Fizetések tábla: háttérfrissítéskor nem ugrik vissza a tetejére (görgetés és a felső rész állapota megmarad)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Folyamatjelzés: két sorban (művelet, alatta a címe)"
 },
 {
-"id": "f431af76a4",
-"at": "2026-11-17T15:01:45+02:00",
-"msg": "Ajánlat-néző: kompakt fejléc"
-},
-{
-"id": "dae8246b4d",
-"at": "2026-11-17T13:00:52Z",
+"id": "a7843e8ee6",
+"at": "2026-11-17T13:01:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
