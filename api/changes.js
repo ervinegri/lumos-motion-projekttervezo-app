@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "44bb94eb26",
+"at": "2026-11-17T15:26:20+02:00",
+"msg": "Fizetések tábla: helyes táblaszélesség (a projektnév oszlop nem nyúlik ki)"
+},
+{
 "id": "5691a14e5a",
 "at": "2026-11-17T15:26:01+02:00",
 "msg": "Fizetések tábla: az oszlopszélességek ténylegesen érvényesülnek (rögzített táblaszélesség)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: alacsonyabb gombsor"
 },
 {
-"id": "54af75e1d0",
-"at": "2026-11-17T14:32:13+02:00",
-"msg": "Ajánlat-néző telefonon: a teljes oldal látszik, a gombok alatta"
-},
-{
-"id": "dcaba14f7c",
-"at": "2026-11-17T12:29:59Z",
+"id": "e5dfad669a",
+"at": "2026-11-17T12:32:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
