@@ -2686,3 +2686,5 @@ html body .pay-wrap{max-height:calc(100dvh - var(--tbh0,44px))!important;margin-
 /* fekvő telefon: a Fizetések tábla a teljes képernyő magasságát kitölti, amikor a felső rész eltűnt */
 @media (orientation:landscape) and (max-height:560px){html body .pay-wrap{max-height:100dvh!important}}
 html body .pay-wrap{overflow-anchor:none}
+/* telefon: a tábla utolsó sora (Összesen) ne kerüljön az iPhone alsó vonala alá */
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .pay-wrap::after{content:"";display:block;height:calc(env(safe-area-inset-bottom,0px) + 6px)}}
