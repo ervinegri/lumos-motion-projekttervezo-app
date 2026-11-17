@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b52e40e6a9",
+"at": "2026-11-17T23:13:15+02:00",
+"msg": "Átvilágítás javításai: Neon-akadásnál újrapróbálás (nincs azonnali visszaváltás a táblázatra, nincs dupla futás); kifizetett állapot a bizonylat ÁFÁ-jával; közös API-hitelesítés; minden írás frissíti a nyitott lapokat; banki párosítás pontosítva; teszt a számlázz.hu fogadóra; felesleges képek törölve"
+},
+{
 "id": "382068ac41",
 "at": "2026-11-17T23:02:02+02:00",
 "msg": "Idővonal: világos módban sincs átmenet a sávokon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet, Fizetések: újra görgethető fel-le (a rugózás-elnyelés csak függőlegesen görgető táblán)"
 },
 {
-"id": "3f8355ae58",
-"at": "2026-11-17T17:01:14+02:00",
-"msg": "Projekt Pénzügyek kártyák tableten: a mezők nem lógnak ki, a kártyák tördelődnek"
-},
-{
-"id": "363c9d7b9e",
-"at": "2026-11-17T14:59:50Z",
+"id": "60e8a2d1cc",
+"at": "2026-11-17T15:01:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
