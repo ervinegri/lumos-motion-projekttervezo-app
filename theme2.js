@@ -13,9 +13,11 @@
   function pref(){try{return localStorage.getItem('lpm_theme')||'light';}catch(e){return 'light';}}
   function on(){var p=pref();return p==='dark'||(p==='auto'&&!!(mq&&mq.matches));}
   /* szín → sötét pár (HSL-ben): a nagyon világos (≥ 78%) és a szürkés / nagyon sötét színek világossága megfordul */
-  function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
+  var MODE='sym';function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
     if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh/=6;}
-    if(a<.9&&l<=.3)return null;   /* áttetsző sötét fátyol (felugró ablak háttere, árnyék): marad sötét */
+    if(a<.9&&l<=.3)return null;
+    if(MODE==='bg'&&l<.78&&s>=.18)return null;if(MODE==='bg'&&l<=.3)return null;   /* háttér, keret: csak a világos fordul sötétre – a sötét (pl. táblafejléc, kiemelt gomb) marad, a rajta lévő világos szöveggel együtt */
+    if(MODE==='fg'&&l>=.78)return null;   /* szöveg: a világos szöveg sötét / színes háttéren van – marad */   /* áttetsző sötét fátyol (felugró ablak háttere, árnyék): marad sötét */
     if(l>=.78||l<=.3||s<.18){var lt=l>=.78;l=1-l;l=l<.5?(lt?.09+l*.55:.07+l*.86):.12+l*.86;if(s>.18)s*=lt?.38:.72;}else return null;   /* a világos színes hátterek (figyelmeztetés, címkék) visszafogott, sötét árnyalatot kapnak */   /* telített középtónus (márkaszín): marad */
     function f(t){var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;}
     var R=Math.round((s?f(hh+1/3):l)*255),G=Math.round((s?f(hh):l)*255),B=Math.round((s?f(hh-1/3):l)*255);return a<1?'rgba('+R+','+G+','+B+','+a+')':'rgb('+R+','+G+','+B+')';}
@@ -35,7 +37,7 @@
       /* a deklarációkat a szövegből olvassuk: a var(…, #szín) tartalékos rövidítéseknél (pl. background) a részértékek üresek lennének */
       var txt=r.style.cssText,DM=/(?:^|;)\s*([-\w]+)\s*:\s*((?:[^;(]|\([^)]*\))+?)\s*(!important)?\s*(?=;|$)/g,mm;
       while((mm=DM.exec(txt))){var p=mm[1],v=mm[2];if(!v||!/(#|rgb|white|black)/i.test(v)||/url\(/i.test(v))continue;if(/^(--font|--shadow|--ink)/.test(p))continue;   /* --ink: a sötét márkaszín (menüsáv, kiemelt gombok) marad */
-        var n=cv(v);if(n)d.push(p+':'+n+(mm[3]?'!important':''));}
+        MODE=/^--/.test(p)?'sym':/^(color|-webkit-text-fill-color|caret-color|text-decoration-color|fill)$/.test(p)?'fg':'bg';var n=cv(v);MODE='sym';if(n)d.push(p+':'+n+(mm[3]?'!important':''));}
       if(d.length)out.push(sel(r.selectorText)+'{'+d.join(';')+'}');}}
   var built=false;
   function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&/^dark(Css|Pre|Cache)$/.test(ss.ownerNode.id||''))continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
