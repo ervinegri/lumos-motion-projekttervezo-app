@@ -2373,3 +2373,5 @@ html body #view .pay-sheet td.r.pay-st{overflow:visible!important}
 html body #toastDim{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;animation:tdIn .15s ease}@keyframes tdIn{from{opacity:0}to{opacity:1}}
 html body .uc-pop .uc-it[data-uv]:not(.on){padding-left:28px!important;color:#7a8592!important}
 html body .uc-pop .uc-it[data-uv]:not(.on):hover{color:#1f2a3a!important}
+/* középre kitett figyelmeztetés: fehér doboz, sötét szöveg (az elsötétített háttér előtt) */
+html body #toast.center{background:#fff!important;color:#1f2a3a!important;border:1px solid #e3e7ec!important;border-radius:14px!important;box-shadow:0 18px 50px rgba(15,23,42,.35)!important}

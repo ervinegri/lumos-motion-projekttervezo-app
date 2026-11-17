@@ -422,7 +422,8 @@ function handleErr(e){
 /* Jogosultsági hiba: többnyire elavult munkamenet / nézet (pl. közben megváltozott a szerepkör) – csendben újratöltjük az adatokat (legfeljebb percenként egyszer) */
 let FORB_T=0;function forbiddenHeal(){if(Date.now()-FORB_T<60000)return;FORB_T=Date.now();try{if(typeof load==='function')load(true);}catch(e){}}
 let toastTimer=0;
-function toast(msg,isErr,center){const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');clearTimeout(toastTimer);
+function toast(msg,isErr,center){if(isErr){center=true;msg=String(msg||'');if(!/^[\u2190-\u2BFF\u{1F000}-\u{1FAFF}]/u.test(msg))msg='⚠️ '+msg;}   /* minden figyelmeztető / tiltó üzenet: ⚠️, középen, elsötétített háttérrel */
+  const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');clearTimeout(toastTimer);
   const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)
   let dim=document.getElementById('toastDim');if(center&&!dim){dim=document.createElement('div');dim.id='toastDim';dim.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');dim.remove();});document.body.appendChild(dim);}else if(!center&&dim)dim.remove();   /* középre kitett üzenetnél elsötétül a háttér; kattintásra bezárul */
   const hide=()=>{toastTimer=setTimeout(()=>{t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();},ms);};hide();
