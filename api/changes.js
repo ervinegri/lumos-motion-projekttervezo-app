@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d693942fc9",
+"at": "2026-11-17T22:11:49+02:00",
+"msg": "Projekt Pénzügyek: a Levonások után kártya új sorban"
+},
+{
 "id": "19a359f91d",
 "at": "2026-11-17T17:06:51+02:00",
 "msg": "Tablet: Szerződés és számlázás, Bevétel és kiadás fejléce is egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás-figyelmeztetés: a hiányzó nevek külön sorban"
 },
 {
-"id": "ad2f30803c",
-"at": "2026-11-17T15:53:34+02:00",
-"msg": "Fizetések tábla telefonon: egyetlen natív görgetés (a fejléc a tábla fölött görget ki, a menüsáv eltolással) – nincs akadás lendületnél"
-},
-{
-"id": "e21f069e09",
-"at": "2026-11-17T13:49:35Z",
+"id": "0632c61856",
+"at": "2026-11-17T13:53:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
