@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a68b70ef32",
+"at": "2026-11-17T15:13:48+02:00",
+"msg": "Lebegő Kilépés gomb: átlátszóbb háttér"
+},
+{
 "id": "c2c5d2eab9",
 "at": "2026-11-17T15:11:54+02:00",
 "msg": "Teljes képernyő: lebegő Kilépés gomb, gombsáv nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: a lap fehér margói levágva, a tartalom tölti ki a nézőt"
 },
 {
-"id": "a11aa5200c",
-"at": "2026-11-17T14:23:01+02:00",
-"msg": "Kiküldött ajánlat: a belső címek nem látszanak; ha csak belső címre ment, ezt jelzi"
-},
-{
-"id": "21fd2141b3",
-"at": "2026-11-17T12:21:58Z",
+"id": "e71b6dae5b",
+"at": "2026-11-17T12:23:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
