@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "23802b527a",
+"at": "2026-11-17T08:26:50+02:00",
+"msg": "Alapadatok: a típus/helyszín sor a dátum/kezdés/végzés oszlophatáraihoz igazítva"
+},
+{
 "id": "c9069ade19",
 "at": "2026-11-17T08:26:23+02:00",
 "msg": "Értékesítői jutalék: értékesítő nélkül az Extrák menüből adható hozzá, a lehetőségből jött projektnél magától megjelenik; Több napos jelölő a Dátum felirat mellett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lépések: ha a forgatás még előttünk van, a Tervezés kártyára kattintva vissza lehet lépni"
 },
 {
-"id": "f580545f6b",
-"at": "2026-11-16T21:22:24+02:00",
-"msg": "Kifizetések: szélesebb személy-oszlop, a függő összeg nem lóg át a cellahatáron"
-},
-{
-"id": "dbb6c27473",
-"at": "2026-11-16T19:22:05Z",
+"id": "e04fd01a3b",
+"at": "2026-11-16T19:22:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
