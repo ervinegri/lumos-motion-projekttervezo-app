@@ -36,7 +36,7 @@ function finDataCached_() {
   return out;
 }
 function finData_() {
-  return { bankTx: szBankOpen_(), bankKeyAt: PropertiesService.getScriptProperties().getProperty('SZ_BANK_KEY_AT') || '', income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
+  return { bankTx: szBankOpen_(), szDocs: szDocsView_(), bankKeyAt: PropertiesService.getScriptProperties().getProperty('SZ_BANK_KEY_AT') || '', income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
 }
 /* Gyors válasz: a módosító műveletek csak az érintett táblát adják vissza (a többi nem változott) */
 const FIN_PART_TABLES_ = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan', invoices: 'finInvoice', billing: 'finBilling', frameworks: 'finFramework', tigs: 'finTig' };

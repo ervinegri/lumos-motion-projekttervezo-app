@@ -337,6 +337,12 @@ function viewInventory(){
 }
 
 /* ===== Ügyfelek ===== */
+/* Ügyfél fizetési fegyelme (ügyvezető): a kifizetett számlák határidőhöz mért átlagos késése és a lejárt, nyitott számlák */
+function clPayDisc(name){const n=String(name||'').trim().toLowerCase(),T=todayISO(),L=((S.fin&&S.fin.invoices)||[]).filter(x=>String(x.buyer||'').trim().toLowerCase()===n&&Number(x.invGross)>0&&validISO(String(x.due||'').slice(0,10)));if(!L.length)return '';
+  const dd=(a,b)=>Math.round((toDate(a)-toDate(b))/864e5),paid=L.filter(x=>Number(x.invPaid)>=Number(x.invGross)&&validISO(String(x.paidAt||'').slice(0,10))),late=paid.map(x=>Math.max(0,dd(String(x.paidAt).slice(0,10),String(x.due).slice(0,10))));
+  const over=L.filter(x=>Number(x.invPaid)<Number(x.invGross)&&String(x.due).slice(0,10)<T).length,avg=late.length?Math.round(late.reduce((s,v)=>s+v,0)/late.length):null,nLate=late.filter(v=>v>0).length;
+  const txt=[avg==null?'':avg===0?'mindig határidőre fizet':'átl. '+avg+' nap késés',over?over+' lejárt számla':''].filter(Boolean).join(' · ');if(!txt)return '';
+  return `<div class="cl-pay${over||avg>7?' bad':avg>0?' warn':' ok'}" data-tip="${esc(paid.length+' kifizetett számla, ebből '+nLate+' késve'+(over?' · '+over+' lejárt, nyitott':''))}">⏱ ${esc(txt)}</div>`;}
 function viewClients(){
   const q=S.clf.q.trim().toLowerCase(),T=todayISO();
   let list=knownClients('');
@@ -344,7 +350,7 @@ function viewClients(){
   const projOf=c=>S.projects.filter(p=>String(p.client||'').trim().toLowerCase()===c.company.toLowerCase()).sort((a,b)=>byStart(b,a));
   const adm=isAdmin()&&S.capabilities&&S.capabilities.finance;if(adm&&!S.fin&&!S.finErr)setTimeout(()=>finLoad().then(()=>{if(S.tab==='ugyfelek')render(true);}),0);
   const rows=list.map(c=>{const ps=projOf(c),next=ps.filter(p=>p.status!=='lemondva'&&pr(p)&&pr(p).end>=T).sort(byStart)[0],last=next||ps[0];
-    return `<tr class="cl-row" data-action="edit-client" data-name="${esc(c.company)}" title="Ügyfél adatai"><td class="cl-main"><button class="linkbtn nm cl-name" type="button" data-action="edit-client" data-name="${esc(c.company)}">${esc(c.company)}</button>${c.address?`<div class="ser">${esc(c.address)}</div>`:''}</td>
+    return `<tr class="cl-row" data-action="edit-client" data-name="${esc(c.company)}" title="Ügyfél adatai"><td class="cl-main"><button class="linkbtn nm cl-name" type="button" data-action="edit-client" data-name="${esc(c.company)}">${esc(c.company)}</button>${adm?clPayDisc(c.company):''}${c.address?`<div class="ser">${esc(c.address)}</div>`:''}</td>
       <td class="cl-tax"><span class="ser">${esc(c.tax||'')}</span></td>
       <td class="cl-ct">${c.name?esc(c.name):'<span class="muted">—</span>'}</td>
       <td class="cl-ph">${c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'<span class="muted">—</span>'}</td>
