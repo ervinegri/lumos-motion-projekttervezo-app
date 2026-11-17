@@ -2674,3 +2674,6 @@ html body .pay-wrap .pay-sheet thead th:first-child{position:sticky!important;to
 @media (orientation:landscape) and (max-height:560px){
 html body #modalRoot .modal:not(.cf-layer)>.mbox:not(.qs-box){height:auto!important;max-height:none!important;align-self:flex-start!important;overflow:visible!important}
 }
+/* táblázatok: nem lehet lefelé „lehúzni” (nincs rugózó túlhúzás sem a táblán, sem az oldalon, amíg tábla van rajta) */
+html body .pay-wrap,html body .sheet-wrap{overscroll-behavior:none!important}
+html:has(#view .pay-wrap),html:has(#view .pay-wrap) body{overscroll-behavior-y:none!important}
