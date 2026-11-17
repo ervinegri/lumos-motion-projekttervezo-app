@@ -2670,3 +2670,7 @@ html body .pay-sheet.pay-fit td.r,html body .pay-sheet.pay-fit th.r{overflow:hid
 html body .pay-sheet.pay-fit td.r>*{max-width:100%;box-sizing:border-box}
 /* Fizetések tábla: a „Projekt neve” fejléc is a helyén marad görgetéskor (a görgetett sorok nem csúsznak fölé) */
 html body .pay-wrap .pay-sheet thead th:first-child{position:sticky!important;top:0!important;left:0!important;z-index:9!important}
+/* fekvő telefon: a teljes oldalas ablak a tartalmával együtt nő (eddig egy képernyőnyi magas maradt, és a többi tartalom háttér nélkül „kilógott” belőle) */
+@media (orientation:landscape) and (max-height:560px){
+html body #modalRoot .modal:not(.cf-layer)>.mbox:not(.qs-box){height:auto!important;max-height:none!important;align-self:flex-start!important;overflow:visible!important}
+}
