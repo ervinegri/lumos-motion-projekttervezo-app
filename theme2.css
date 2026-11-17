@@ -2708,3 +2708,6 @@ html body .page-head.pay-head .btn,html body .page-head.pay-head .month-nav .btn
 html body.pay-dock #view .pay-wrap>.pay-hd{gap:6px!important;padding-bottom:6px!important}
 html body.pay-dock #view .pay-wrap>.pay-hd>*,html body.pay-dock #view .pay-wrap>.pay-hd .subtabs,html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin-top:0!important;margin-bottom:0!important}
 html body.pay-dock #view .pay-wrap>.pay-hd .page-head{padding-top:0!important;padding-bottom:0!important}
+/* Projekt Pénzügyek – Levonások kártya: a tételek (Továbbszámlázott, szervezői jutalék) egymás alatt vannak, ezért a soros
+   elrendezésből örökölt 560 px-es alapméret itt magasságként érvényesült, és az egész sort 600 px magasra nyújtotta */
+html body .fin-v2 .grp-ded .grp-b>.field{flex:0 0 auto!important}
