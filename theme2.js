@@ -16,7 +16,7 @@
   var MODE='sym';function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
     if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh/=6;}
     if(a<.9&&l<=.3)return null;
-    if(MODE==='bg'&&l<.78&&s>=.18)return null;if(MODE==='bg'&&l<=.3)return null;   /* háttér, keret: csak a világos fordul sötétre – a sötét (pl. táblafejléc, kiemelt gomb) marad, a rajta lévő világos szöveggel együtt */
+    if(MODE==='bg'&&l>=.66&&l<.78&&s>=.18)l=.8;if(MODE==='bg'&&l<.78&&s>=.18)return null;if(MODE==='bg'&&l<=.3)return null;   /* háttér, keret: csak a világos fordul sötétre – a sötét (pl. táblafejléc, kiemelt gomb) marad, a rajta lévő világos szöveggel együtt */
     if(MODE==='fg'&&l>=.78)return null;   /* szöveg: a világos szöveg sötét / színes háttéren van – marad */   /* áttetsző sötét fátyol (felugró ablak háttere, árnyék): marad sötét */
     if(l>=.78||l<=.3||s<.18){var lt=l>=.78;l=1-l;l=l<.5?(lt?.09+l*.55:.07+l*.86):.12+l*.86;if(s>.18)s*=lt?.38:.72;}else return null;   /* a világos színes hátterek (figyelmeztetés, címkék) visszafogott, sötét árnyalatot kapnak */   /* telített középtónus (márkaszín): marad */
     function f(t){var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;}
@@ -42,7 +42,7 @@
   var built=false;
   function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&/^dark(Css|Pre|Cache)$/.test(ss.ownerNode.id||''))continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
     var st=document.getElementById('darkCss')||document.createElement('style');st.id='darkCss';
-    st.textContent='html.dark .topbar .brand,html.dark .identity .brand{filter:brightness(.78)}html.dark .tl-row .tl-track .cal-chip.p.cut.tl-cut.tl-joined{--from:transparent!important}html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
+    st.textContent='html.dark .btn.primary,html.dark .btn-primary{color:#1d1a12!important}html.dark .topbar .brand,html.dark .identity .brand{filter:brightness(.78)}html.dark .tl-row .tl-track .cal-chip.p.cut.tl-cut.tl-joined{--from:transparent!important}html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
     if(!st.parentNode)document.head.appendChild(st);built=true;try{localStorage.setItem('lpm_dark_css',st.textContent);}catch(e){}}   /* a következő betöltéskor azonnal ez kerül be – nincs világos villanás */
   function apply(){var d=on();h.classList.toggle('dark',d);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',d?'#0f171e':'#1d2a38');if(d){if(document.readyState==='complete')build();}}
   if(on()){h.classList.add('dark');var cached='';try{cached=localStorage.getItem('lpm_dark_css')||'';}catch(e){}
