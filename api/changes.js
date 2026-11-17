@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "558b9d92c6",
+"at": "2026-11-17T15:59:06+02:00",
+"msg": "Fizetések tábla: az oszlopszélesség a szöveg tényleges szélességéből (nem nő újrarajzolásonként)"
+},
+{
 "id": "21ec03dfee",
 "at": "2026-11-17T15:57:43+02:00",
 "msg": "Fizetések fejléce: egyforma hézagok, a NAV és a Díjösszesítő gomb a hónapváltóval egyező méretű"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Betöltés-jelző szélesebb, a projektnév nem törik"
 },
 {
-"id": "54227435dd",
-"at": "2026-11-17T15:09:14+02:00",
-"msg": "Ajánlat-néző: teljes képernyő gomb"
-},
-{
-"id": "edad279969",
-"at": "2026-11-17T13:07:31Z",
+"id": "af862f3e42",
+"at": "2026-11-17T13:09:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
