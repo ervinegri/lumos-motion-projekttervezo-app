@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "57842b45a3",
+"at": "2026-11-17T11:12:40+02:00",
+"msg": "Idővonal: markolás kurzor a sáv minden részén (a jóváhagyási kitöltésen is)"
+},
+{
 "id": "6ef07c96d8",
 "at": "2026-11-17T11:10:50+02:00",
 "msg": "Idővonal: a projekt neve az óra alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Középre kitett üzenetnél elsötétül a háttér (kattintásra bezárul); a Kifizetések számla-felugrója nem vágódik le"
 },
 {
-"id": "db433ccaa5",
-"at": "2026-11-17T08:54:27+02:00",
-"msg": "Helyszíni munka tiltó üzenet: ⚠️ jellel"
-},
-{
-"id": "74061d749c",
-"at": "2026-11-17T06:53:31Z",
+"id": "a5e2d8ffef",
+"at": "2026-11-17T06:54:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
