@@ -162,12 +162,14 @@ function api_(raw) {
   try {
     const body = JSON.parse(raw || '{}');
     const fn = String(body.fn || ''), args = Array.isArray(body.args) ? body.args : [];
+    NQ_CTX_ = fn === 'rpc' ? 'app: ' + String(args[1] || '') : fn;   // adatbázis-forgalom: melyik művelet kérdezte
     let data;
     const run = () => {
     if (fn === 'rpc') return rpc(args[0], args[1], args[2]);
     else if (fn === 'googleLogin') return googleLogin(args[0]);
     else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'dbStatus') return dbStatus_();   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
     else if (fn === 'szBank' || fn === 'szData') return szDataIn_(args[0], args[1]);   // nyilvános (a Vercel /api/szbank továbbítja): a számlázz.hu banki tranzakciója, azonosító kulccsal
     else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
@@ -218,7 +220,25 @@ function neonSql_(list, url) {
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
+  nqCount_(list.length);
   return single ? [j] : (j.results || []);
+}
+/* Neon-forgalom figyelése: óránként, forrásonként hány lekérdezés ment (Google-gyorsítótár, 6 óra) – ebből látszik, mi tartja ébren az adatbázist */
+let NQ_CTX_ = '';
+function nqCount_(n) {
+  try {
+    let ctx = NQ_CTX_;
+    if (!ctx) { const st = String(new Error().stack || '').split('\n').map(l => (/at (\w+)/.exec(l) || [])[1]).filter(x => x && !/^(nqCount_|neonSql_|dbLoad_|dbFlush_|withLock_|readAll_|sheetFor_|getSheetByName|Error)$/.test(x)); ctx = 'időzített: ' + (st[st.length - 1] || '?'); }
+    const C = CacheService.getScriptCache(), k = 'nq_' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyyMMddHH'); let o = {}; try { o = JSON.parse(C.get(k) || '{}'); } catch (e) {}
+    o[ctx] = (o[ctx] || 0) + (n || 1); C.put(k, JSON.stringify(o), 21600);
+  } catch (e) {}
+}
+function dbStatus_() {
+  const P = PropertiesService.getScriptProperties(), C = CacheService.getScriptCache(), hours = {};
+  for (let i = 0; i < 6; i++) { const k = 'nq_' + Utilities.formatDate(new Date(Date.now() - i * 3600e3), SHEET_TZ, 'yyyyMMddHH'); try { const v = C.get(k); if (v) hours[k.slice(3)] = JSON.parse(v); } catch (e) {} }
+  let fb = null; try { fb = JSON.parse(P.getProperty('DB_FALLBACK') || 'null'); } catch (e) {}
+  return { mode: P.getProperty(DB_MODE_PROPERTY) === 'neon' ? 'neon' : 'sheet', now: now_(), fallbackAt: fb ? fb.at : '', lastBackup: P.getProperty('DB_LAST_BACKUP') || '', neonQueriesByHour: hours,
+    triggers: (() => { try { return ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction() + ' (' + String(t.getEventType()) + ')'); } catch (e) { return []; } })() };
 }
 function dbSchema_(url) {
   neonSql_([
