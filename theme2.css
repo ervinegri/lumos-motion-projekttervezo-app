@@ -2696,3 +2696,5 @@ html body.pay-dock #view .pay-wrap>.pay-ft{padding-top:12px}
 html body.pay-dock #view .pay-wrap>.pay-hd>.pay-hd-sp{flex:none;margin-bottom:2px}
 html body.pay-dock #view .pay-wrap .pay-sheet thead th{top:var(--pay-st,0px)!important}
 html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin:0!important}
+/* értesítés: a szövegben lévő sortörés új sort kezd (pl. felsorolt nevek) */
+html body #toast{white-space:pre-line}

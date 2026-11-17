@@ -645,5 +645,5 @@ function invBlocked(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[])
 function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
   if(!ids.length){toast('⚠️ Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
   const m=invMissing(d);if(!m.length)return false;
-  const t=m.map(x=>x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join(', ');
-  toast('⚠️ Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik: '+t+'.',true,true);return true;}
+  const t=m.map(x=>'• '+x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join('\n');   /* minden név külön sorban */
+  toast('⚠️ Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik:\n'+t,true,true);return true;}
