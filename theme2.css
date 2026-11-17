@@ -2583,3 +2583,6 @@ html body .qs-box .mfoot{padding-top:6px!important;padding-bottom:6px!important;
 html body .qs-box .mfoot .left{display:flex;gap:6px;flex-wrap:nowrap}
 html body .qs-box .mfoot .btn{width:auto!important;flex:0 0 auto}
 @media (max-width:700px){html body .qs-box .mfoot{justify-content:space-between}}
+/* ajánlat-néző: a gombsor fele olyan magas (kevés hely fölötte és alatta) */
+html body #modalRoot .qs-box .mfoot{padding-top:6px!important;padding-bottom:max(6px,env(safe-area-inset-bottom))!important;margin-top:4px!important;min-height:0!important}
+html body #modalRoot .qs-box{padding-bottom:0!important}
