@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "17331d1a99",
+"at": "2026-11-17T23:55:52+02:00",
+"msg": "Banki tételek: a csak a számlázz.hu-ban kiállított nyitott számlákra is javaslat, egy kattintással kifizetett (a számlázz.hu-ban is jóváírva); a pénzügyi gyorsítótár az új kóddal frissül"
+},
+{
 "id": "ad2f8024ff",
 "at": "2026-11-17T23:53:26+02:00",
 "msg": "Beállítások: a Neon-leírás az új működést mutatja (nincs automatikus átváltás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a var(…, szín) tartalékos háttereket is átalakítja (naptár világos csíkjai)"
 },
 {
-"id": "b884f686e6",
-"at": "2026-11-17T22:41:50+02:00",
-"msg": "Újdonságok a többi felhasználónak (szakemberek, termelési vezető, értékesítők): válogatott, nem pénzügyi és nem értékesítési fejlesztések a belépéskor"
-},
-{
-"id": "f5b3df7324",
-"at": "2026-11-17T20:40:25Z",
+"id": "803da6a273",
+"at": "2026-11-17T20:42:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
