@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a11aa5200c",
+"at": "2026-11-17T14:23:01+02:00",
+"msg": "Kiküldött ajánlat: a belső címek nem látszanak; ha csak belső címre ment, ezt jelzi"
+},
+{
 "id": "8af1d9ad22",
 "at": "2026-11-17T14:21:49+02:00",
 "msg": "Ajánlat-néző: zoomgombok nélkül, nagyobb lap kis szegéllyel (csippentéssel továbbra is zoomolható)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mentett ajánlat jelzés: kattintásra egyből a mentett ajánlat nyílik"
 },
 {
-"id": "9444d4219d",
-"at": "2026-11-17T12:20:53+02:00",
-"msg": "Új projekt: létrehozáskor csak a név (és a dátum) kötelező"
-},
-{
-"id": "dbc9982e42",
-"at": "2026-11-17T10:19:38Z",
+"id": "b53c349e29",
+"at": "2026-11-17T10:21:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
