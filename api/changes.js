@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dc91fbc72b",
+"at": "2026-11-17T15:40:22+02:00",
+"msg": "Fekvő telefon, Fizetések: a felső rész ténylegesen eltűnik lefelé görgetéskor"
+},
+{
 "id": "1b23e40f6b",
 "at": "2026-11-17T15:38:29+02:00",
 "msg": "Fekvő telefon, Fizetések: lefelé görgetve a felső rész eltűnik, csak a tábla fejléce marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: zoom elengedésekor a valóban görgető elemet igazítjuk (nem ugrik)"
 },
 {
-"id": "fcf490f2dc",
-"at": "2026-11-17T14:48:28+02:00",
-"msg": "Ajánlat-néző: csippentés után a nagyított rész a helyén marad (nem ugrik középre)"
-},
-{
-"id": "587f8e4da7",
-"at": "2026-11-17T12:46:45Z",
+"id": "5ea48f40a4",
+"at": "2026-11-17T12:48:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
