@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e141086aa9",
+"at": "2026-11-17T12:52:18+02:00",
+"msg": "Kiküldött ajánlat: új lapon nyitáskor az ablak bezárul"
+},
+{
 "id": "6e86268506",
 "at": "2026-11-17T12:51:38+02:00",
 "msg": "Értékesítés: kompakt fejléc (kereső, szűrő, hónapválasztó, mutatók)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Termelési v. nézet előtöltése: a nézetváltás első alkalommal is azonnali"
 },
 {
-"id": "ff70113e98",
-"at": "2026-11-17T11:02:23+02:00",
-"msg": "Idővonal: fehér címke a vágási sávra átlógó projektnév mögött"
-},
-{
-"id": "79ef0ed09f",
-"at": "2026-11-17T08:59:10Z",
+"id": "daeb32d78a",
+"at": "2026-11-17T09:02:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
