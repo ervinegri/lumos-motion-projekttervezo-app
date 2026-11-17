@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c48700aa07",
+"at": "2026-11-17T09:54:06+02:00",
+"msg": "Nézetváltás visszajelzése a szakember / értékesítő nevével"
+},
+{
 "id": "9e952455bc",
 "at": "2026-11-17T09:46:37+02:00",
 "msg": "Banki tranzakciók fogadása (számlázz.hu Online pénzügyi adatkapcsolat): /api/szbank végpont, kulcs generálás, párosítási javaslat és megerősítés a Pénzügyekben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítői jutalék: értékesítő nélkül az Extrák menüből adható hozzá, a lehetőségből jött projektnél magától megjelenik; Több napos jelölő a Dátum felirat mellett"
 },
 {
-"id": "0934b81723",
-"at": "2026-11-17T08:24:10+02:00",
-"msg": "Alapadatok: két összefogott oszlop – rendezvény (név, típus, helyszín, időpont) | ügyfél és kapcsolattartó"
-},
-{
-"id": "93876a6c13",
-"at": "2026-11-17T06:21:43Z",
+"id": "0d608ee5cb",
+"at": "2026-11-17T06:24:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
