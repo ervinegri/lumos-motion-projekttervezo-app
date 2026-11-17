@@ -3,3 +3,42 @@
    Bejelentkezve az app csak betöltés után, lágyan tűnik elő (booting). */
 (function(){var h=document.documentElement;h.classList.add('th2');var t='';try{t=localStorage.getItem('lumos_pm_token_v1')||'';}catch(e){}if(!t)h.classList.add('no-auth');else h.classList.add('booting');
   setTimeout(function(){h.classList.remove('booting');},8000);})();
+
+/* ===== Sötét mód =====
+   Beállítás: localStorage 'lpm_theme' = 'light' | 'dark' | 'auto' (a rendszer szerint). Nincs külön, kézzel karbantartott sötét
+   stíluslap: betöltéskor az app az összes CSS-szabályból elkészíti a sötét párját (a nagyon világos és nagyon sötét színek
+   világossága megfordul, a telített márkaszínek maradnak), így minden új stílus automatikusan sötét változatot kap.
+   shortcut: a JS-ben beírt (style="…") színeket nem alakítja át – ha valahol világos folt marad, azt célzottan kell javítani. */
+(function(){var h=document.documentElement,mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+  function pref(){try{return localStorage.getItem('lpm_theme')||'light';}catch(e){return 'light';}}
+  function on(){var p=pref();return p==='dark'||(p==='auto'&&!!(mq&&mq.matches));}
+  /* szín → sötét pár (HSL-ben): a nagyon világos (≥ 78%) és a szürkés / nagyon sötét színek világossága megfordul */
+  function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
+    if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh/=6;}
+    if(l>=.78||l<=.3||s<.18){l=1-l;l=l<.5?.07+l*.86:.12+l*.86;if(s>.18)s*=.72;}else return null;   /* telített középtónus (márkaszín): marad */
+    function f(t){var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;t<0&&(t+=1);t>1&&(t-=1);return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;}
+    var R=Math.round((s?f(hh+1/3):l)*255),G=Math.round((s?f(hh):l)*255),B=Math.round((s?f(hh-1/3):l)*255);return a<1?'rgba('+R+','+G+','+B+','+a+')':'rgb('+R+','+G+','+B+')';}
+  var HEX=/#([0-9a-f]{3,8})\b/gi,RGB=/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/gi,NAMED=/\b(white|black)\b/gi;
+  function cv(v){var ch=false,o=v.replace(HEX,function(m,x){if(x.length===3||x.length===4)x=x.split('').map(function(c){return c+c;}).join('');if(x.length!==6&&x.length!==8)return m;
+      var a=x.length===8?parseInt(x.slice(6),16)/255:1,n=conv(parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16),a);if(!n)return m;ch=true;return n;})
+    .replace(RGB,function(m,r,g,b,a){var al=a==null?1:/%$/.test(a)?parseFloat(a)/100:+a;if(/rgba?\(\s*0[\s,]+0[\s,]+0[\s,]+(0|0\.\d+)\)/.test(m)&&al<.5)return m;   /* árnyékok (átlátszó fekete) maradnak */
+      var n=conv(+r,+g,+b,al);if(!n)return m;ch=true;return n;})
+    .replace(NAMED,function(m){ch=true;return m.toLowerCase()==='white'?'rgb(22,30,38)':'rgb(232,238,243)';});return ch?o:null;}
+  var SKIP=/\.topbar|#userChip|\.uc-pop|\.work-pill|#toast|\.qs-pdf|\.qs-pages|\.brand|\.identity|\.vv-player|video|iframe|canvas|\.mn-qr|qr/i;   /* a sötét menüsáv és a már sötét elemek / képek maradnak */
+  function sel(s){return s.split(',').map(function(x){x=x.trim();if(/^:root\b/.test(x))return 'html.dark'+x.slice(5);if(/^html\b/.test(x))return 'html.dark'+x.slice(4);return 'html.dark '+x;}).join(',');}
+  function walk(list,out){for(var i=0;i<list.length;i++){var r=list[i];
+      if(r.cssRules&&!r.selectorText){var inner=[];walk(r.cssRules,inner);if(inner.length){var c=r.conditionText||(r.media&&r.media.mediaText)||'';out.push((r instanceof CSSSupportsRule?'@supports ':'@media ')+c+'{'+inner.join('')+'}');}continue;}
+      if(!r.selectorText||!r.style||SKIP.test(r.selectorText))continue;var d=[];
+      for(var j=0;j<r.style.length;j++){var p=r.style[j],v=r.style.getPropertyValue(p);if(!v||!/(#|rgb|white|black)/i.test(v))continue;if(/^(--font|--shadow)/.test(p))continue;var n=cv(v);if(n)d.push(p+':'+n+(r.style.getPropertyPriority(p)?'!important':''));}
+      if(d.length)out.push(sel(r.selectorText)+'{'+d.join(';')+'}');}}
+  var built=false;
+  function build(){if(built)return;var out=[];for(var i=0;i<document.styleSheets.length;i++){var ss=document.styleSheets[i];if(ss.ownerNode&&ss.ownerNode.id==='darkCss')continue;var rl;try{rl=ss.cssRules;}catch(e){continue;}if(rl)walk(rl,out);}
+    var st=document.getElementById('darkCss')||document.createElement('style');st.id='darkCss';
+    st.textContent='html.dark{color-scheme:dark}html.dark body{background:#0f171e;color:#e2e9ee}html.dark img:not(.brand):not([src*=".svg"]){filter:none}'+out.join('\n');
+    if(!st.parentNode)document.head.appendChild(st);built=true;}
+  function apply(){var d=on();h.classList.toggle('dark',d);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',d?'#0f171e':'#1d2a38');if(d){if(document.readyState==='complete')build();}}
+  if(on()){h.classList.add('dark');document.write('<style id="darkPre">html.dark,html.dark body{background:#0f171e!important}</style>');}   /* amíg a sötét pár elkészül: ne villanjon világosan */
+  window.addEventListener('load',function(){if(on())build();var p=document.getElementById('darkPre');if(p)p.remove();});
+  if(mq&&mq.addEventListener)mq.addEventListener('change',function(){if(pref()==='auto'){apply();if(on())build();}});
+  window.lpmTheme=function(v){if(v){try{localStorage.setItem('lpm_theme',v);}catch(e){}}apply();if(on())build();return pref();};
+})();
