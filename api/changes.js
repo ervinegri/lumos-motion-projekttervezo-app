@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4d2b149b7a",
+"at": "2026-11-17T12:49:30+02:00",
+"msg": "Kiküldött ajánlat: teljes oldalnézet oldalsáv nélkül"
+},
+{
 "id": "a3f3642fac",
 "at": "2026-11-17T12:48:55+02:00",
 "msg": "Mentés gomb szürke, amíg nincs mit menteni (minden ablakban); „Ajánlat kiküldve” felirat a kártyán"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Instrukciók: a kész jelölés nem vonható vissza (nincs Visszavonás gomb)"
 },
 {
-"id": "75e9e4acbe",
-"at": "2026-11-17T10:56:56+02:00",
-"msg": "Idővonal: homokóra a jóváhagyásra váró (sárga) részek közepén"
-},
-{
-"id": "167d2ab027",
-"at": "2026-11-17T08:01:13Z",
+"id": "68f31d3d83",
+"at": "2026-11-17T08:57:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
