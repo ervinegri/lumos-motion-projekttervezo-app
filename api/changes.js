@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3b64fd5a63",
+"at": "2026-11-17T22:56:59+02:00",
+"msg": "Idővonalra váltáskor a mai nap jön be; Egyenleg sor csak elmaradásnál; rövidebb keresőmező"
+},
+{
 "id": "822436fb58",
 "at": "2026-11-17T22:55:38+02:00",
 "msg": "Sötét mód: aktív kapcsolók sötétek; a hozzászólás Küldés gombja nem nyúlik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: a Projekt neve fejléc ugyanabban a sorban, mint a nevek (tablet/gép)"
 },
 {
-"id": "c507ae2409",
-"at": "2026-11-17T16:41:21+02:00",
-"msg": "Fizetések tábla: oszlopszélesség-számítás hibájának javítása (névütközés miatt leállt)"
-},
-{
-"id": "44076c77ac",
-"at": "2026-11-17T14:40:45Z",
+"id": "1e32808357",
+"at": "2026-11-17T14:41:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
