@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f8705a91c5",
+"at": "2026-11-17T09:07:10+02:00",
+"msg": "Pénzügyek: rendezett kártyák (Levonások, Levonások után); naptár: fel-le görgetéssel lapozás, eszköztár egy sorban; ügyvezető nem lesz vendég a naptáreseményekben"
+},
+{
 "id": "5c16f53b98",
 "at": "2026-11-17T09:02:26+02:00",
 "msg": "Instrukciók: tömörebb szerkesztő (2 sor, fókuszban nő), kisebb gomb, redundáns „Még nincs instrukció” sor nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya törlése előtt megerősítés"
 },
 {
-"id": "3ba879f4c0",
-"at": "2026-11-16T22:22:05+02:00",
-"msg": "Lépések: tiltott lépésre húzáskor 🚫 jelzés, elengedéskor a magyarázat a képernyő közepén"
-},
-{
-"id": "06eabbd350",
-"at": "2026-11-16T20:19:49Z",
+"id": "c120426920",
+"at": "2026-11-16T20:22:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
