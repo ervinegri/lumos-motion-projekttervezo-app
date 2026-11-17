@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "293c917298",
+"at": "2026-11-17T15:37:27+02:00",
+"msg": "Tagi kölcsön tételek nem törölhetők"
+},
+{
 "id": "dfd2d9cfa7",
 "at": "2026-11-17T15:34:24+02:00",
 "msg": "Fekvő telefon, Fizetések: nincs üres sáv a tábla alatt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: görgetés elengedése után visszaáll a kiinduló helyzetbe (nagyítás nélkül)"
 },
 {
-"id": "6fde77ef79",
-"at": "2026-11-17T14:42:34+02:00",
-"msg": "Ajánlat-néző telefonon: fele olyan magas gombsáv"
-},
-{
-"id": "0cefe71b9d",
-"at": "2026-11-17T12:40:37Z",
+"id": "e1c5290b28",
+"at": "2026-11-17T12:42:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
