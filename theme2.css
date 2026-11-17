@@ -2409,3 +2409,16 @@ html body .fin-v2 .fin-exm{align-self:flex-start;margin-top:22px}
 @media (max-width:600px){html body .fin-v2 .grp-ded .org-line{grid-template-columns:1fr 130px}html body .fin-v2 .grp-net .fin-net{width:100%}}
 /* nézetváltáskor csak a középső „Váltás: … nézet…” jelzés látszik, a felső „Dolgozom…” nem (ne legyen kétszer) */
 html body.switching #workPill{display:none!important}
+/* Meghívások doboz: kompakt, soronként egy sor (név · dátum · szerep), kisebb gombok */
+html body .inv-panel{padding:12px 18px!important}
+html body .inv-panel>h3{margin:0 0 4px!important;font-size:16px}
+html body .inv-panel .inv-row{padding:6px 0!important;gap:10px!important;align-items:center!important}
+html body .inv-panel .inv-tx{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:4px 10px!important;min-width:0}
+html body .inv-panel .inv-tx>b{font-size:14.5px}
+html body .inv-panel .inv-tx>small{margin:0!important;font-size:12.5px}
+html body .inv-panel .inv-roles{margin:0!important;display:inline-flex;gap:4px}
+html body .inv-panel .inv-roles .statuspill{padding:1px 8px!important;font-size:11.5px!important;min-height:0}
+html body .inv-panel .inv-btns{gap:6px!important;flex:none}
+html body .inv-panel .inv-btns .btn{min-height:30px!important;height:30px;padding:0 12px!important;font-size:12.5px!important}
+html body .inv-panel>.hint{margin:4px 0 0!important;font-size:12px}
+@media (max-width:700px){html body .inv-panel .inv-row{flex-wrap:wrap}html body .inv-panel .inv-btns{width:100%;justify-content:flex-end}}
