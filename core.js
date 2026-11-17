@@ -426,7 +426,7 @@ function toast(msg,isErr,center){if(isErr){center=true;msg=String(msg||'');if(!/
   const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');clearTimeout(toastTimer);
   const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)
   let dim=document.getElementById('toastDim');if(center&&!dim){dim=document.createElement('div');dim.id='toastDim';dim.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');dim.remove();});document.body.appendChild(dim);}else if(!center&&dim)dim.remove();   /* középre kitett üzenetnél elsötétül a háttér; kattintásra bezárul */
-  const hide=()=>{toastTimer=setTimeout(()=>{t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();},ms);};hide();
+  const hide=()=>{if(center)return;toastTimer=setTimeout(()=>{t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();},ms);};hide();   /* a középre kitett figyelmeztetés csak kattintásra tűnik el */
   t.onclick=()=>{clearTimeout(toastTimer);t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();};
   if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
 

@@ -2375,3 +2375,4 @@ html body .uc-pop .uc-it[data-uv]:not(.on){padding-left:28px!important;color:#7a
 html body .uc-pop .uc-it[data-uv]:not(.on):hover{color:#1f2a3a!important}
 /* középre kitett figyelmeztetés: fehér doboz, sötét szöveg (az elsötétített háttér előtt) */
 html body #toast.center{background:#fff!important;color:#1f2a3a!important;border:1px solid #e3e7ec!important;border-radius:14px!important;box-shadow:0 18px 50px rgba(15,23,42,.35)!important}
+html body #toast.center{cursor:pointer}html body #toast.center::after{content:'Kattints a bezáráshoz';display:block;margin-top:8px;font-size:11.5px;font-weight:500;color:#8a94a0}
