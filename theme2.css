@@ -2816,3 +2816,5 @@ html body .btn.outline.sales-month-all.active{background:#243347!important;color
 .bank-box .bk-p[data-action="bank-info"]{cursor:pointer}.bank-box .bk-p[data-action="bank-info"]:hover b{text-decoration:underline}
 
 .fin-tbl tr.loan-row{cursor:pointer}.fin-tbl tr.loan-row:hover td{background:rgba(36,51,71,.04)}
+
+.link-like{cursor:pointer;font-weight:650;text-decoration:underline;text-decoration-color:rgba(36,51,71,.3)}

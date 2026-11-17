@@ -29,14 +29,14 @@ function finSaveSettings_(u, a) {
 }
 /* Betöltéskor gyorsítótárból (minden módosítás új verziószámot ad, így mindig friss); a módosító műveletek a friss finData_()-t adják vissza */
 function finDataCached_() {
-  const key = 'pm_fin5_' + dataVer_(), hit = cacheGetJSON_(key);
+  const key = 'pm_fin6_' + dataVer_(), hit = cacheGetJSON_(key);
   if (hit) { hit.sz = szSettingsView_(); return hit; }
   const out = finData_();
   cachePutJSON_(key, out, DATA_CACHE_TTL);
   return out;
 }
 function finData_() {
-  return { bankTx: szBankOpen_(), bankTxOff: szBankDismissed_(), bankTxLoan: (() => { try { return readAll_('bankTx').filter(t => t.status === 'kolcson'); } catch (e) { return []; } })(), szDocs: szDocsView_(), bankKeyAt: PropertiesService.getScriptProperties().getProperty('SZ_BANK_KEY_AT') || '', income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
+  return { bankTx: szBankOpen_(), bankTxOff: szBankDismissed_(), bankTxLoan: (() => { try { return readAll_('bankTx').filter(t => !t.technical && (t.status === 'kolcson' || szLoanNote_(t.note))); } catch (e) { return []; } })(),   /* a tagi kölcsönnel kapcsolatos összes banki utalás, a kezdetektől (egyeztetéshez) */ szDocs: szDocsView_(), bankKeyAt: PropertiesService.getScriptProperties().getProperty('SZ_BANK_KEY_AT') || '', income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
 }
 /* Gyors válasz: a módosító műveletek csak az érintett táblát adják vissza (a többi nem változott) */
 const FIN_PART_TABLES_ = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan', invoices: 'finInvoice', billing: 'finBilling', frameworks: 'finFramework', tigs: 'finTig' };
