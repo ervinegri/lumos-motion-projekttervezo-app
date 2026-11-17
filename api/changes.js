@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9550367a9c",
+"at": "2026-11-17T11:15:27+02:00",
+"msg": "Nyitva hagyott app: 10 perc tétlenség után nincs háttérfrissítés (az adatbázis elalhat), mozdulatra azonnal frissít"
+},
+{
 "id": "57842b45a3",
 "at": "2026-11-17T11:12:40+02:00",
 "msg": "Idővonal: markolás kurzor a sáv minden részén (a jóváhagyási kitöltésen is)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltó menü: az inaktív nézetek beljebb és szürkébben"
 },
 {
-"id": "bc7b85fa4f",
-"at": "2026-11-17T08:56:57+02:00",
-"msg": "Középre kitett üzenetnél elsötétül a háttér (kattintásra bezárul); a Kifizetések számla-felugrója nem vágódik le"
-},
-{
-"id": "a5e2d8ffef",
-"at": "2026-11-17T06:54:37Z",
+"id": "76786abc98",
+"at": "2026-11-17T06:57:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
