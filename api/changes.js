@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66e0f586c8",
+"at": "2026-11-17T23:42:20+02:00",
+"msg": "Állapot: táblaméretek lekérhetők (a Neon-forgalom elemzéséhez, adat nélkül)"
+},
+{
 "id": "230d24c6e6",
 "at": "2026-11-17T23:40:24+02:00",
 "msg": "Sötét mód: az aktív alfül (pl. Stáb) sötét; a sárga gombok halványabbak"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: egy szín csak egyszer alakul át"
 },
 {
-"id": "d4e37aa6df",
-"at": "2026-11-17T22:36:49+02:00",
-"msg": "Sötét mód (első változat): a névjelvény menüjében ki / be / a rendszer szerint; a sötét színek a meglévő stílusokból készülnek"
-},
-{
-"id": "efc2f40512",
-"at": "2026-11-17T20:34:54Z",
+"id": "3e383457bc",
+"at": "2026-11-17T20:36:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
