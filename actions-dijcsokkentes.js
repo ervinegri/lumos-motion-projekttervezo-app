@@ -359,7 +359,7 @@ async function switchView(role,crewId,userId){
     await load(false,false,r&&r.boot);
     S.tab=TABS().some(t=>t.id===keepTab)?keepTab:TABS()[0].id;
     if(S.tab==='projektek'&&keepPid&&projById(keepPid)){S.projectId=keepPid;S.draft=prepDraft(projById(keepPid));S.draftBase=clone(S.draft);}
-    render(true);document.body.classList.remove('switching');if(hit){req.then(rr=>{S._viewP=null;if(rr&&rr.boot)load(true,false,rr.boot).then(()=>render(true));},e=>{S._viewP=null;handleErr(e);});}toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő':'Nézet: Szakember');
+    render(true);document.body.classList.remove('switching');if(hit){req.then(rr=>{S._viewP=null;if(rr&&rr.boot)load(true,false,rr.boot).then(()=>render(true));},e=>{S._viewP=null;handleErr(e);});}{const va=S.me&&S.me.viewAs,nm=va&&va.crewName?' – '+va.crewName:'';toast(role==='admin'?'Nézet: Ügyvezető':role==='editor'?'Nézet: Termelési v.':role==='sales'?'Nézet: Értékesítő'+nm:'Nézet: Szakember'+nm);}   /* a választott szakember / értékesítő neve is */
   }catch(e){document.body.classList.remove('switching');handleErr(e);renderChrome();}
 }
 const crewSub=id=>{const c=crewById(id)||(S.viewAsCrew||[]).find(x=>x.id===id);return c?[(c.roles||[]).join(', '),c.company].filter(Boolean).join(' · '):id==='__new'?'a stáblistára is felkerül':'';};   // a választóban a név alatt
