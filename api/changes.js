@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bb6f52499c",
+"at": "2026-11-17T16:19:26+02:00",
+"msg": "Naptár idővonala telefonon: a Fizetésekhez hasonlóan görgetéskor eltűnik a menü (egyetlen natív görgetés)"
+},
+{
 "id": "34a007d22f",
 "at": "2026-11-17T16:11:20+02:00",
 "msg": "Projekt Pénzügyek: a Levonások kártya nem nyújtja 600 px magasra a sort"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: keskenyebb projektnév-oszlop, a munkatárs-oszlop a legszélesebb összeghez igazodik, a Projekt neve fejléc rögzítve; iPhone: a felugró ablak a látható területhez igazodik"
 },
 {
-"id": "c9360512d5",
-"at": "2026-11-17T15:19:25+02:00",
-"msg": "Fekvő telefon: szélesebb menüsáv"
-},
-{
-"id": "f805336d49",
-"at": "2026-11-17T13:15:29Z",
+"id": "c39fabcb96",
+"at": "2026-11-17T13:19:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
