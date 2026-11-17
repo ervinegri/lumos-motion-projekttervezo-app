@@ -152,9 +152,7 @@ ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name
   {const pb=document.querySelector('#mform > .pn-box'),mh=document.querySelector('#mform .mhead'),x=mh&&mh.querySelector('.x');if(pb&&mh){mh.insertBefore(pb,x);mh.classList.add('pn-in');}}};   /* az utómunka-instrukciók a címsor végére kerülnek; lenyitva teljes szélességben */   /* a határidő és a leadott darabszám a címsorba kerül */
 /* húzás közben csak az engedélyezett oszlop világosodik ki (a vágó csak „Utómunka alatt” / „Belső ellenőrzés” oszlopba tehet) */
 let BD_DRAG=null;
-function bdCanTo(pid,vid,to){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v||p.status==='atadva'||v.st==='jovahagyva')return false;if(!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')))return true;
-  if(to==='vagasra')return v.st==='vagas';   /* a vágó a véletlenül elkezdett videót visszateheti az „Utómunkára vár” oszlopba */
-  return ['vagas','ellen'].includes(to)&&!['jovahagyva','leadva'].includes(v.st)&&!(v.st==='ellen'&&to!=='ellen');}
+function bdCanTo(pid,vid,to){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);return bdAllowed(p,v,to);}   /* szabály: views-penzugy-vagas.js bdAllowed */
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c)return;BD_DRAG={pid:c.dataset.bdPid,vid:c.dataset.bdVid};e.dataTransfer.setData('text/plain','bd|'+c.dataset.bdPid+'|'+c.dataset.bdVid);e.dataTransfer.effectAllowed='move';c.classList.add('dragging');if(c.classList.contains('sel')){const all=document.querySelectorAll('.bd-card.sel');all.forEach(x=>x.classList.add('dragging'));
     if(all.length>1){/* húzáskor látszódjon, hogy mind megy: egymásra rakott kártyák + darabszám */const g=document.createElement('div');g.className='bd-ghost';const r=c.getBoundingClientRect();g.style.width=r.width+'px';
       g.innerHTML=[...all].slice(0,3).map((x,i)=>`<div class="bd-ghost-c" style="transform:translate(${i*6}px,${i*6}px)">${esc((x.querySelector('.bd-t,.bd-name,b,strong')||x).textContent.trim().split('\n')[0].slice(0,40))}</div>`).reverse().join('')+`<span class="bd-ghost-n">${all.length} videó</span>`;

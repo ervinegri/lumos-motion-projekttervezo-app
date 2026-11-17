@@ -396,6 +396,16 @@ function seenPill(v){if(!v||v.st!=='leadva'||ro()||!(isAdmin()||(S.me&&S.me.role
   return seen?`<span class="bd-seen on" data-tip="${esc('A jóváhagyó oldalt megnyitották\nElőször: '+f(v.seenAt)+(v.seenN>1?'\nUtoljára: '+f(v.seenLast)+' · összesen '+v.seenN+'×':''))}">👁️ Megnyitották · ${esc(f(v.seenAt))}</span>`:`<span class="bd-seen" data-tip="${v.seenAt?'Az újbóli leadás óta még nem nyitották meg (korábban: '+esc(f(v.seenAt))+')':'A levélben kapott linket még nem nyitották meg'}">✉️ Még nem nyitották meg</span>`;}
 const BOARD_COLS=[['modositas','🔁 Módosítást kér'],['vagasra','Utómunkára vár'],['vagas','✂️ Utómunka alatt'],['ellen','🔍 Belső ellenőrzés'],['leadva','📤 Jóváhagyásra vár'],['jovahagyva','✅ Jóváhagyva']];
 const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
+/* Ki mozgathatja a kártyát: az első oszlopok (Utómunkára vár, Utómunka alatt, Belső ellenőrzés, Módosítás) között csak a videóhoz rendelt vágó;
+   a Belső ellenőrzésből a Jóváhagyásra vár / Jóváhagyva oszlopba (és onnan tovább) csak az ügyvezető és a termelési vezető. */
+const BD_PRE=['vagasra','vagas','ellen','modositas'];
+function bdAllowed(p,v,to){if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p))return false;
+  const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=ro()?boardMe():String(S.me&&S.me.crewId||''),ow=vidOwner(p,v),mine=!ow||(!!me&&ow===me);
+  if(BD_PRE.includes(v.st)&&BD_PRE.includes(to)){if(!mine)return false;if(mgr)return true;
+    if(to==='vagasra')return v.st==='vagas';return ['vagas','ellen'].includes(to)&&!(v.st==='ellen'&&to!=='ellen');}
+  if(v.st==='ellen')return mgr&&['leadva','jovahagyva'].includes(to);
+  if(v.st==='leadva')return mgr;   /* jóváhagyva, vagy az ügyfél kérésére vissza a vágóhoz */
+  return false;}
 /* A fotógaléria a fotók utómunkájára kijelölt fotóshoz tartozik; a videók a vágóikhoz. */
 const vidOwner=(p,v)=>{
   if(v.k==='foto')return taskOwners(p,'foto_db')[0]||'';
@@ -413,7 +423,7 @@ const boardForMe=()=>{const me=boardMe();return !!me&&S.projects.some(p=>Array.i
 /* Sávos tábla: soronként egy projekt (határidő szerint, mint az idővonalon), oszloponként a vágás állapotai */
 function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),T=todayISO();
   const showMod=cards.some(c=>c.v.st==='modositas'),COLS=BOARD_COLS.filter(([k])=>k!=='modositas'||showMod);
-  const canMove=(c,to)=>{if(c.p.status==='atadva'||c.v.st==='jovahagyva')return false;if(c.v.st==='vagasra'&&rawWait(c.p))return false;   /* jóváhagyott videó nem mozdítható */if(mgr)return true;return ['vagas','ellen'].includes(to)&&!['jovahagyva','leadva'].includes(c.v.st)&&!(c.v.st==='ellen'&&to!=='ellen');};   // a vágó csak „Utómunka alatt” és „Belső ellenőrzés” oszlopba húzhat; az ügyfél-jóváhagyásba csak ügyvezető / termelési vezető
+  const canMove=(c,to)=>bdAllowed(c.p,c.v,to);   // a vágó csak „Utómunka alatt” és „Belső ellenőrzés” oszlopba húzhat; az ügyfél-jóváhagyásba csak ügyvezető / termelési vezető
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:mgr?'leadva':''})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
     const rw=c.v.st==='vagasra'?rawWait(c.p):'';

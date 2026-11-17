@@ -421,6 +421,8 @@ function videoSet_(u, a) {
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
       if (v.st === 'jovahagyva' && a.st !== 'jovahagyva' && u.role !== 'admin') throw new Error('A jóváhagyott videót csak az ügyvezető veheti vissza.');
+      { const PRE = ['vagasra', 'vagas', 'ellen', 'modositas'];   /* az első oszlopok között csak a videóhoz rendelt vágó mozgat; a vezető a belső ellenőrzésből visszaküldheti (javítandó) */
+        if (mgr && PRE.indexOf(a.st) >= 0 && PRE.indexOf(v.st) >= 0 && a.st !== v.st && assignedEditor && assignedEditor !== (u.crewId || inviteOwnCrewId_(u)) && !(v.st === 'ellen' && (a.st === 'vagas' || a.st === 'modositas'))) throw new Error('FORBIDDEN: Az utómunka oszlopai között csak a videóhoz rendelt vágó mozgathatja a kártyát.'); }
       if (a.st === 'jovahagyva' && !v.link && !(a.link && /^https?:\/\/\S+$/i.test(String(a.link).trim()))) throw new Error('Jóváhagyottnak csak linkkel jelölhető a videó.');
       if (!mgr && !(a.st === 'vagasra' && v.st === 'vagas' && (!assignedEditor || assignedEditor === u.crewId)) && (['vagas', 'ellen'].indexOf(a.st) < 0 || v.st === 'jovahagyva' || v.st === 'leadva' || (assignedEditor && assignedEditor !== u.crewId))) throw new Error('FORBIDDEN: ezt az állapotot nem állíthatod be.');
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 1000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); if (u.id !== 'client') FB_MAIL_ = { v: v, by: u.name }; }   /* az ügyfél kérésénél a vágó az új stílusú levelet kapja (clientDecide_) */   // visszadobás indokkal → a vágó e-mailt kap
