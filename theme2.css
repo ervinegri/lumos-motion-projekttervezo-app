@@ -2690,24 +2690,27 @@ html body .pay-wrap{overflow-anchor:none}
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){html body .pay-wrap::after{content:"";display:block;height:max(0px,calc(env(safe-area-inset-bottom,0px) - 16px))}}
 /* Telefon, Fizetések tábla „dokkolva”: a tábla görgető felülete kitölti a képernyőt (a menüsáv alatt), benne fent az altabok /
    hónapváltó, alatta a tábla – egyetlen natív görgetés; a nevek sora az állapotsor alá tapad */
-html body.pay-dock #view .pay-wrap{position:fixed!important;inset:0!important;z-index:15;height:100dvh!important;max-height:none!important;margin:0!important;width:100vw!important;background:var(--bg,#eef1f4);overscroll-behavior:none!important;-webkit-overflow-scrolling:touch}
-html body.pay-dock #view .pay-wrap>.pay-hd,html body.pay-dock #view .pay-wrap>.pay-ft{position:sticky;left:0;z-index:8;box-sizing:border-box;padding:0 12px 10px;display:flex;flex-direction:column;gap:10px}
-html body.pay-dock #view .pay-wrap>.pay-ft{padding-top:12px}
-html body.pay-dock #view .pay-wrap>.pay-hd>.pay-hd-sp{flex:none;margin-bottom:2px}
-html body.pay-dock #view .pay-wrap .pay-sheet thead th{top:var(--pay-st,0px)!important}
-html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin:0!important}
+html body.pay-dock #view .dock-wrap{position:fixed!important;inset:0!important;z-index:15;height:100dvh!important;max-height:none!important;margin:0!important;width:100vw!important;background:var(--bg,#eef1f4);overscroll-behavior:none!important;-webkit-overflow-scrolling:touch}
+html body.pay-dock #view .dock-wrap>.pay-hd,html body.pay-dock #view .dock-wrap>.pay-ft{position:sticky;left:0;z-index:8;box-sizing:border-box;padding:0 12px 10px;display:flex;flex-direction:column;gap:10px}
+html body.pay-dock #view .dock-wrap>.pay-ft{padding-top:12px}
+html body.pay-dock #view .dock-wrap>.pay-hd>.pay-hd-sp{flex:none;margin-bottom:2px}
+html body.pay-dock #view .dock-wrap .pay-sheet thead th,html body.pay-dock #view .dock-wrap .tl-head{top:var(--pay-st,0px)!important}
+html body.pay-dock #view .dock-wrap>.pay-hd .page-head{margin:0!important}
 /* értesítés: a szövegben lévő sortörés új sort kezd (pl. felsorolt nevek) */
 html body #toast{white-space:pre-line}
 /* Fizetések tábla dokkolva: kisebb hézag a menüsáv és az altabok, illetve az altabok és a tábla között */
-html body.pay-dock #view .pay-wrap>.pay-hd{padding-bottom:4px!important;gap:4px!important}
-html body.pay-dock #view .pay-wrap>.pay-hd>.pay-hd-sp{margin-bottom:0!important}
-html body.pay-dock #view .pay-wrap>.pay-hd .page-head,html body.pay-dock #view .pay-wrap>.pay-hd .page-head>*{padding-top:3px!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important;min-height:0!important}
+html body.pay-dock #view .dock-wrap>.pay-hd{padding-bottom:4px!important;gap:4px!important}
+html body.pay-dock #view .dock-wrap>.pay-hd>.pay-hd-sp{margin-bottom:0!important}
+html body.pay-dock #view .dock-wrap>.pay-hd .page-head,html body.pay-dock #view .dock-wrap>.pay-hd .page-head>*{padding-top:3px!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important;min-height:0!important}
 /* Fizetések fejléce: a NAV és a Díjösszesítő gomb ugyanakkora, mint a hónapváltó gombjai */
 html body .page-head.pay-head .btn,html body .page-head.pay-head .month-nav .btn,html body .page-head.pay-head .mn-arrow,html body .page-head.pay-head .mnav-chip{height:34px!important;min-height:34px!important;box-sizing:border-box;padding-top:0!important;padding-bottom:0!important;display:inline-flex;align-items:center;font-size:13.5px!important}
 /* dokkolt Fizetések tábla: a menüsáv alatti és a tábla feletti hézag egyforma (6 px) */
-html body.pay-dock #view .pay-wrap>.pay-hd{gap:6px!important;padding-bottom:6px!important}
-html body.pay-dock #view .pay-wrap>.pay-hd>*,html body.pay-dock #view .pay-wrap>.pay-hd .subtabs,html body.pay-dock #view .pay-wrap>.pay-hd .page-head{margin-top:0!important;margin-bottom:0!important}
-html body.pay-dock #view .pay-wrap>.pay-hd .page-head{padding-top:0!important;padding-bottom:0!important}
+html body.pay-dock #view .dock-wrap>.pay-hd{gap:6px!important;padding-bottom:6px!important}
+html body.pay-dock #view .dock-wrap>.pay-hd>*,html body.pay-dock #view .dock-wrap>.pay-hd .subtabs,html body.pay-dock #view .dock-wrap>.pay-hd .page-head{margin-top:0!important;margin-bottom:0!important}
+html body.pay-dock #view .dock-wrap>.pay-hd .page-head{padding-top:0!important;padding-bottom:0!important}
 /* Projekt Pénzügyek – Levonások kártya: a tételek (Továbbszámlázott, szervezői jutalék) egymás alatt vannak, ezért a soros
    elrendezésből örökölt 560 px-es alapméret itt magasságként érvényesült, és az egész sort 600 px magasra nyújtotta */
 html body .fin-v2 .grp-ded .grp-b>.field{flex:0 0 auto!important}
+/* naptár idővonala dokkolva (telefon): a hónapváltó / szűrők az idővonal fölött görgetnek ki */
+html body.pay-dock #view .dock-wrap.tl-wrap{border-top:0!important;box-shadow:none!important;flex:none!important}
+html body.pay-dock #view .dock-wrap>.pay-hd .cal-toolbar{margin:0!important}

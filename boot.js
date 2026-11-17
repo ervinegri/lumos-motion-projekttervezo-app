@@ -117,14 +117,14 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
 (()=>{let raf=0,W=null;const upd=()=>{raf=0;const tb=document.querySelector('.topbar');if(!tb||!W||!document.body.classList.contains('pay-dock'))return;
     const safe=parseFloat(getComputedStyle(tb).paddingTop)||0,max=Math.max(0,tb.offsetHeight-safe),y=Math.min(max,Math.max(0,W.scrollTop));
     tb.style.transition='none';tb.style.transform=y?'translate3d(0,'+(-y)+'px,0)':'';};
-  document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('pay-wrap')||!document.body.classList.contains('pay-dock'))return;W=w;if(!raf)raf=requestAnimationFrame(upd);},{capture:true,passive:true});
+  document.addEventListener('scroll',e=>{const w=e.target;if(!w||!w.classList||!w.classList.contains('dock-wrap')||!document.body.classList.contains('pay-dock'))return;W=w;if(!raf)raf=requestAnimationFrame(upd);},{capture:true,passive:true});
   window.payDockSync=w=>{W=w;upd();};   /* újrarajzolás után a menüsáv helyzete a (visszaállított) görgetéshez igazodik */
 })();
 
 /* Fizetések tábla telefonon: a tábla tetején lefelé / alján felfelé húzva (gyors görgetésnél is) az iPhone az egész oldalt
    „rugóztatta”, és üres sáv nyílt a tábla fölött vagy alatt – a tábla szélén a további függőleges húzást elnyeljük */
 (()=>{if(!('ontouchstart' in window))return;let w=null,x0=0,y0=0;
-  document.addEventListener('touchstart',e=>{w=e.touches.length===1&&e.target.closest?e.target.closest('.pay-wrap'):null;if(w){x0=e.touches[0].clientX;y0=e.touches[0].clientY;}},{passive:true});
+  document.addEventListener('touchstart',e=>{w=e.touches.length===1&&e.target.closest?e.target.closest('.pay-wrap,.dock-wrap'):null;if(w){x0=e.touches[0].clientX;y0=e.touches[0].clientY;}},{passive:true});
   document.addEventListener('touchmove',e=>{if(!w||e.touches.length!==1)return;const t=e.touches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dy)<=Math.abs(dx))return;
     const atTop=w.scrollTop<=0,atBot=w.scrollTop+w.clientHeight>=w.scrollHeight-1;if((dy>0&&atTop)||(dy<0&&atBot)){if(e.cancelable)e.preventDefault();}},{passive:false});
   document.addEventListener('touchend',()=>{w=null;},{passive:true});})();

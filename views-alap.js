@@ -216,7 +216,7 @@ function render(force){setTimeout(appReveal,0);
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
   try{payDock();}catch(e){}   /* telefonon a Fizetések tábla egyetlen görgető felületen (a fejléc a táblával együtt görget) */
   if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;}
-  try{const tb=document.querySelector('.topbar');if(document.body.classList.contains('pay-dock')&&pwN&&window.payDockSync)payDockSync(pwN);else if(tb&&tb.style.transform){tb.style.transform='';tb.style.transition='';}}catch(e){}
+  try{const tb=document.querySelector('.topbar'),dw=VIEW.querySelector('.dock-wrap');if(document.body.classList.contains('pay-dock')&&dw&&window.payDockSync)payDockSync(dw);else if(tb&&tb.style.transform){tb.style.transform='';tb.style.transition='';}}catch(e){}
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
@@ -597,18 +597,18 @@ window.addEventListener('resize',()=>{try{payFit();}catch(e){}});   /* forgatás
    fölé – így lefelé görgetve előbb az gördül ki natívan (lendülettel, akadás nélkül), és utána görget a tábla; a nevek sora fent
    marad. A menüsáv a görgetéssel együtt csúszik ki (csak eltolás, nincs újrarendezés). */
 function payDock(){const mq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)'),VIEW=document.getElementById('view'),tb=document.querySelector('.topbar');
-  const w=VIEW&&VIEW.querySelector('.pay-wrap'),t=w&&w.querySelector(':scope>table');
+  const w=VIEW&&VIEW.querySelector('.pay-wrap,.tl-wrap'),t=w&&w.querySelector(':scope>table,:scope>.tl');   /* Fizetések tábla vagy a naptár idővonala */
   if(!w||!t||!mq.matches){document.body.classList.remove('pay-dock');if(tb){tb.style.transform='';tb.style.transition='';}return;}
   const chain=[];for(let n=w;n&&n!==VIEW;n=n.parentElement)chain.unshift(n);
   const before=[],after=[];chain.forEach(n=>{let p=n.parentElement.firstElementChild;while(p&&p!==n){before.push(p);p=p.nextElementSibling;}});
   for(let i=chain.length-1;i>=0;i--){let x=chain[i].nextElementSibling;while(x){after.push(x);x=x.nextElementSibling;}}
   const hd=document.createElement('div');hd.className='pay-hd';hd.innerHTML='<div class="pay-hd-sp"></div>';before.forEach(x=>hd.appendChild(x));w.insertBefore(hd,t);
   if(after.length){const ft=document.createElement('div');ft.className='pay-ft';after.forEach(x=>ft.appendChild(x));w.appendChild(ft);}
-  document.body.classList.add('pay-dock');payDockFit();}
-function payDockFit(){const w=document.querySelector('body.pay-dock #view .pay-wrap');if(!w)return;const cw=w.clientWidth+'px';w.querySelectorAll(':scope>.pay-hd,:scope>.pay-ft').forEach(x=>{x.style.width=cw;});
+  w.classList.add('dock-wrap');document.body.classList.add('pay-dock');payDockFit();}
+function payDockFit(){const w=document.querySelector('body.pay-dock #view .dock-wrap');if(!w)return;const cw=w.clientWidth+'px';w.querySelectorAll(':scope>.pay-hd,:scope>.pay-ft').forEach(x=>{x.style.width=cw;});
   const tb=document.querySelector('.topbar');if(tb){const sp=w.querySelector('.pay-hd-sp');if(sp)sp.style.height=tb.offsetHeight+'px';document.documentElement.style.setProperty('--pay-st',(parseFloat(getComputedStyle(tb).paddingTop)||0)+'px');}}
 {let pdMq=null;try{pdMq=matchMedia('(max-width:700px),(orientation:landscape) and (max-height:560px)');}catch(e){}
-  if(pdMq&&pdMq.addEventListener)pdMq.addEventListener('change',()=>{try{if(document.querySelector('#view .pay-wrap'))render(true);}catch(e){}});
+  if(pdMq&&pdMq.addEventListener)pdMq.addEventListener('change',()=>{try{if(document.querySelector('#view .pay-wrap,#view .tl-wrap'))render(true);}catch(e){}});
   window.addEventListener('resize',()=>{try{payDockFit();}catch(e){}});}
 
 /* a cella szövegének tényleges szélessége (soronként a szövegdarabok összege) – blokkos elem esetén sem a cella szélessége számít */
