@@ -1268,11 +1268,38 @@ function szBankSet_(u, a) {
   dataBump_();
   return finData_();
 }
+/** Számlaszám → bizonylatok (az app számlái és a számlázz.hu-ból érkezett kimenő számlák, díjbekérők), a közleményben keresve: szóköz nélkül, nagybetűvel. */
+const szNoKey_ = s => String(s || '').replace(/\s+/g, '').toUpperCase().replace(/-0+(\d)/g, '-$1');
+function szBankDocIndex_(invoices) {
+  const ix = {}, add = (no, d) => { const k = szNoKey_(no); if (k.length >= 4) (ix[k] = ix[k] || []).push(d); };
+  invoices.forEach(x => add(x.no, { inv: x, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
+  let sd = []; try { sd = readAll_('szDocs'); } catch (e) {}
+  sd.forEach(d => { if (d.kind === 'ki' && !d.storno) add(d.no, { gross: Number(d.gross) || 0, paid: Number(d.paid) || 0 }); });
+  return ix;
+}
+/** A közleményben hivatkozott számlaszámok („E-LUMOS-2026-5, 6” → …-5 és …-6; „Lumos -2026-81” is). */
+function szBankRefs_(note, docs) {
+  const n = String(note || '').toUpperCase().replace(/\s*-\s*/g, '-'), out = [], seen = {}, take = k => { if (docs[k] && !seen[k]) { seen[k] = 1; out.push.apply(out, docs[k]); } };
+  const re = /([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-)(\d+)((?:\s*[,;&]\s*\d+)*)/g; let m;
+  while ((m = re.exec(n))) { take(szNoKey_(m[1] + m[2])); (m[3].match(/\d+/g) || []).forEach(x => take(szNoKey_(m[1] + x))); }
+  return out;
+}
+/** Ha a közleményben szereplő számla(k) már ki vannak fizetve (pl. a számlázz.hu maga párosította), a tétel nem vár párosításra;
+    ha pontosan egy nyitott app-számlára hivatkozik, az lesz a javaslat. */
+function szBankRefFix_(t, inv, docs) {
+  if (t.dir !== 'BE' || t.status === 'javaslat' && t.matchInvoice) return t;
+  const refs = szBankRefs_(t.note, docs); if (!refs.length) return t;
+  if (refs.every(r => r.gross > 0 && r.paid >= r.gross - 1)) return null;
+  const open = refs.filter(r => r.inv && r.paid < r.gross - 1);
+  return open.length === 1 ? Object.assign({}, t, { matchInvoice: open[0].inv.id, matchScore: 95, status: 'javaslat' }) : t;
+}
 /** A Pénzügyek oldalra: a kezeletlen beérkező jóváírások (90 napra visszamenőleg); ami közben máshogy kifizetetté vált, kimarad. */
 function szBankOpen_() {
   let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
   const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd'), inv = {}; readAll_('finInvoice').forEach(x => { inv[x.id] = x; });
+  const docs = szBankDocIndex_(Object.keys(inv).map(k => inv[k]));
   return all.filter(t => (t.dir === 'BE' || (t.dir === 'KI' && t.status === 'javaslat')) && !t.technical && (!t.status || t.status === 'javaslat') && String(t.valueDate || '') >= lim)
+    .map(t => szBankRefFix_(t, inv, docs)).filter(t => t)
     .filter(t => { const x = t.matchInvoice && inv[t.matchInvoice]; return !(x && t.status === 'javaslat' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) && Number(t.matchScore) >= 95); })   // a számlázz.hu közben magától párosította
     .slice(-200);
 }

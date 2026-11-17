@@ -50,3 +50,19 @@ assert.ok(m2 && m2.sc === 50, 'a „000” végű számlaszám nem egyezik minde
 const m3 = A.szBankMatch_(t('szamla 345 kiegyenlitese'), [inv('a', 'LUM-2026-012', 50000), inv('b', 'LUM-2026-345', 50000)]);
 assert.equal(m3 && m3.id, 'b', 'a közleményben szereplő sorszám a jó számlát választja');
 console.log('ok');
+/* 4) közleményben hivatkozott, már kifizetett számla: a tétel nem vár párosításra; egy nyitott app-számla: az a javaslat */
+{
+  const ctx2 = ctx; const B = vm.runInContext('({szBankRefs_, szBankRefFix_, szNoKey_})', ctx2);
+  const docs = {}; const add = (no, d) => { (docs[B.szNoKey_(no)] = docs[B.szNoKey_(no)] || []).push(d); };
+  add('E-LUMOS-2026-5', { gross: 100, paid: 100 }); add('E-LUMOS-2026-6', { gross: 100, paid: 100 });
+  add('D-LUMOS-11', { gross: 50, paid: 50 }); add('D-LUMOS-12', { gross: 50, paid: 0, inv: { id: 'i12' } });
+  add('LUMOS-2026-81', { gross: 70, paid: 70 });
+  assert.equal(B.szBankRefs_('E-LUMOS-2026-5, 6', docs).length, 2, 'felsorolt számlaszámok');
+  assert.equal(B.szBankRefs_('Lumos -2026-81', docs).length, 1, 'szóközös számlaszám');
+  assert.equal(B.szBankRefs_('Fizetes ABC E-LUMOS-2026-5', docs).length, 1, 'előtte más szó');
+  assert.equal(B.szBankRefFix_({ dir: 'BE', note: 'E-LUMOS-2026-5, 6' }, {}, docs), null, 'mind kifizetve → nem vár párosításra');
+  const fx = B.szBankRefFix_({ dir: 'BE', note: 'D-LUMOS-11,12 díjbekérő' }, {}, docs);
+  assert.ok(fx && fx.matchInvoice === 'i12' && fx.status === 'javaslat', 'egy nyitott app-számla → javaslat');
+  assert.ok(B.szBankRefFix_({ dir: 'BE', note: 'AMZN Mktp' }, {}, docs), 'hivatkozás nélkül marad');
+  console.log('ok2');
+}
