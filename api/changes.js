@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "672b209b7f",
+"at": "2026-11-17T15:00:43+02:00",
+"msg": "Értékesítés: cím nélkül, kisebb távolság a gombsor körül"
+},
+{
 "id": "f25dc5ea4d",
 "at": "2026-11-17T14:59:34+02:00",
 "msg": "Ajánlat-néző fekvő telefonon: mint állóban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: a „Tárgyalás” szakasz megszűnt (a lehetőségek az „Ajánlat kiküldve” oszlopba kerülnek)"
 },
 {
-"id": "c3fcc6cf73",
-"at": "2026-11-17T13:57:06+02:00",
-"msg": "Értékesítés álló telefonon: fix 210 px-es oszlopok (nem nyomódnak össze)"
-},
-{
-"id": "c4e8ca1af5",
-"at": "2026-11-17T11:56:19Z",
+"id": "e160dbcaf2",
+"at": "2026-11-17T11:57:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
