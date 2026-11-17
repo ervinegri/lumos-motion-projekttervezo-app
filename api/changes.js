@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "691390b246",
+"at": "2026-11-17T08:51:51+02:00",
+"msg": "Megerősítő ablakok: törlés / levétel / lemondás gombja piros"
+},
+{
 "id": "c8da3835a4",
 "at": "2026-11-17T08:49:54+02:00",
 "msg": "Stábkártya: a projektvezető címke rövidítve (★ P.V.)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt Részletek (előzmények): csak az ügyvezetőnek"
 },
 {
-"id": "c38f88a2bb",
-"at": "2026-11-16T21:46:52+02:00",
-"msg": "Előfoglalás sáv: a magyarázó szöveg csak az ügyvezetőnek"
-},
-{
-"id": "46e2733f37",
-"at": "2026-11-16T19:46:42Z",
+"id": "6a67f45666",
+"at": "2026-11-16T19:47:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
