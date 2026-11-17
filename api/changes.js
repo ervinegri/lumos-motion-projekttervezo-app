@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cce7f93b18",
+"at": "2026-11-17T16:01:55+02:00",
+"msg": "Gépen újra görgethető az oldal a táblák fölött (a rugózás-tiltás csak telefonon)"
+},
+{
 "id": "aaffeb20f4",
 "at": "2026-11-17T16:01:07+02:00",
 "msg": "számlázz.hu adatkapcsolat: a generált kulcs legfeljebb 40 karakter (35 + LUMPT)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: görgetés után nem ugrik vissza; forgatáskor újra a szélességhez igazodik"
 },
 {
-"id": "a68b70ef32",
-"at": "2026-11-17T15:13:48+02:00",
-"msg": "Lebegő Kilépés gomb: átlátszóbb háttér"
-},
-{
-"id": "6d5910ae2e",
-"at": "2026-11-17T13:12:09Z",
+"id": "5df4f05ec9",
+"at": "2026-11-17T13:13:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
