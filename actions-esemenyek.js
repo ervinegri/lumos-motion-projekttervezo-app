@@ -389,7 +389,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');
 /* Folyamatban lévő művelet: ha egy gomb mögötti munka nem azonnali, a gomb forog („…”), és fent egy „Dolgozom…” jelzés is látszik */
 let WORK_N=0,WORK_T=0;
 function workPill(){let w=$('workPill');if(!w){w=document.createElement('div');w.id='workPill';w.className='work-pill';w.setAttribute('role','status');w.setAttribute('aria-live','polite');w.innerHTML='<i></i>Dolgozom…';document.body.appendChild(w);}return w;}
-function workTrack(pr,lbl){WORK_N++;clearTimeout(WORK_T);WORK_T=setTimeout(()=>{if(WORK_N>0){const w=workPill();w.innerHTML='<i></i>'+esc(lbl||'Dolgozom…');w.classList.add('on');}},250);   /* a jelzés kiírja, mi folyik (pl. „Ajánlat betöltése – …”) */
+function workTrack(pr,lbl){WORK_N++;clearTimeout(WORK_T);WORK_T=setTimeout(()=>{if(WORK_N>0){const w=workPill(),L=String(lbl||'Dolgozom…'),k=L.indexOf(' – ');w.innerHTML='<i></i><span class="wp-t">'+(k>0?'<b>'+esc(L.slice(0,k))+'</b><small>'+esc(L.slice(k+3))+'</small>':esc(L))+'</span>';w.classList.add('on');}},250);   /* a jelzés kiírja, mi folyik (pl. „Ajánlat betöltése – …”) */
   const done=()=>{WORK_N=Math.max(0,WORK_N-1);if(!WORK_N){clearTimeout(WORK_T);const w=$('workPill');if(w)w.classList.remove('on');}};Promise.resolve(pr).then(done,done);return pr;}
 function workBtn(b,pr){b.dataset.working='1';let marked=false,txt='';
   const t=setTimeout(()=>{if(!b.isConnected||b.disabled)return;marked=true;txt=b.textContent;if(txt.trim().length>2&&!/…\s*$/.test(txt)){b.textContent=txt.replace(/\s+$/,'')+'…';}b.dataset.busy='1';b.classList.add('is-busy');b.setAttribute('aria-busy','true');},120);

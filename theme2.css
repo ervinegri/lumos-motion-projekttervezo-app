@@ -2618,3 +2618,9 @@ html body #modalRoot .qs-box .mhead h3{font-size:16px!important;line-height:1.25
 html body #modalRoot .qs-box .mhead .x{width:30px;height:30px}
 html body #modalRoot .qs-box .mhead+.hint,html body #modalRoot .qs-box>p.hint{font-size:12px!important;line-height:1.35!important;margin:0 0 6px!important}
 @media (max-width:700px),(orientation:landscape) and (max-height:560px){html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-top:6px!important;gap:4px!important}}
+/* folyamatjelzés: első sor a művelet, második a tárgya (pl. az ajánlat címe) */
+html body .work-pill{max-width:min(86vw,420px);align-items:center}
+html body .work-pill>i{flex:0 0 auto}
+html body .work-pill .wp-t{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+html body .work-pill .wp-t b{font-weight:700}
+html body .work-pill .wp-t small{font-size:12.5px;font-weight:500;opacity:.85;white-space:normal}
