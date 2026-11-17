@@ -2368,3 +2368,6 @@ html body .uc-pop .uc-it.on{font-weight:700;background:#f3f6f9}html body .uc-pop
 html body .cg-menu .cg-on{margin-left:auto;font-size:11.5px;font-weight:700;color:#1f7a44}html body .cg-menu .cg-it.on{font-weight:600}
 html body .mfoot .btn.primary.btn-dng{background:#d64545!important;background-image:none!important;border-color:#c23a3a!important;color:#fff!important}html body .mfoot .btn.primary.btn-dng:hover{background:#c23a3a!important}
 html body .stage.stage-off{background:#f1f3f5!important;color:#9aa3ad!important;border-style:dashed!important;box-shadow:none!important;transition:none!important;cursor:default!important;transform:none!important}html body .stage.stage-off:hover{background:#f1f3f5!important;box-shadow:none!important;transform:none!important}html body .stage.stage-off *{color:#9aa3ad!important}
+html body #view .pay-sheet td.r.pay-st{overflow:visible!important}   
+/* a számla-felugró ne vágódjon le */
+html body #toastDim{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;animation:tdIn .15s ease}@keyframes tdIn{from{opacity:0}to{opacity:1}}
