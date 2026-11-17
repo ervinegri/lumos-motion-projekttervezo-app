@@ -2650,3 +2650,5 @@ html body #modalRoot .qs-box.qs-full .qs-pdf{flex:1 1 0!important;min-height:0!i
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box.qs-full .mfoot{position:static!important;flex:0 0 auto;justify-content:center!important;padding:4px max(8px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}
 html body #modalRoot .qs-box.qs-full .mfoot>*:not(.left),html body #modalRoot .qs-box.qs-full .mfoot .left>*:not(.qs-fs){display:none!important}
 @media (max-width:700px){html body #modalRoot .qs-box:not(.qs-full) .qs-fs .qs-fs-t{display:none}}
+/* betöltés-jelző: a tartalmához igazodik (max. 40%-kal szélesebb, mint korábban), így a projektnév nem törik */
+html body .work-pill{width:max-content!important;max-width:min(94vw,588px)!important}
