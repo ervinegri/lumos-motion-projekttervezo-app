@@ -222,25 +222,30 @@ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.cl
 let QS_DOC=null;const QS_Z=[50,75,100,125,150,200];
 async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{const lib=await pdfLib();QS_DOC.doc=QS_DOC.doc||await lib.getDocument({data:QS_DOC.u8.slice(),isEvalSupported:false}).promise;const doc=QS_DOC.doc;
     const mob=box.clientWidth<700,pad=mob?0:24,W=Math.max(200,box.clientWidth-pad),H=Math.max(200,box.clientHeight-pad),dpr=Math.min(2,window.devicePixelRatio||1),frag=document.createDocumentFragment();
-    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=mob?fitW:Math.min(fitW,H/v1.height),sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100)),vp=pg.getViewport({scale:sc*dpr});
+    for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=mob?fitW:Math.min(fitW,H/v1.height),sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=Math.round(fit/fitW*100)),vp=pg.getViewport({scale:sc*dpr});
       const c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width=Math.floor(vp.width/dpr)+'px';c.style.height=Math.floor(vp.height/dpr)+'px';c.className='qs-page';
       await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;frag.appendChild(c);}
-    if(!$('qs-pdf'))return;const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);}catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
+    if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
+    const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);if(fy)box.scrollTop=fy*box.scrollHeight-box.clientHeight/2;box.scrollLeft=Math.max(0,fx*box.scrollWidth-box.clientWidth/2);}   /* a nézet közepe nagyítás után is ugyanott marad */catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
 ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom');if(!w||!QS_DOC)return;let z=QS_DOC.z||0,d=Number(b.dataset.d);
-  if(d===0)z=0;else{let i=z?QS_Z.indexOf(z):2;i=Math.max(0,Math.min(QS_Z.length-1,i+d));z=QS_Z[i];}
+  if(d===0)z=0;else{const cur=z||QS_DOC.zEff||100;z=d>0?(QS_Z.find(x=>x>cur+1)||300):([...QS_Z].reverse().find(x=>x<cur-1)||0);if(z&&z<qsMin())z=0;}   /* a legkisebb méret a teljes oldal */
   QS_DOC.z=z;const l=w.querySelector('.qs-zl');if(l)l.textContent=z?z+'%':'Teljes oldal';qsRender();};   /* csak a # rész változása nem tölti újra a PDF-nézőt: előbb kiürítjük */
 
-/* zoomolás magában a nézőben: trackpad-csippentés / Ctrl+görgő asztalon, két ujjas csippentés telefonon; dupla koppintás: teljes oldal ↔ 150% */
+/* zoomolás magában a nézőben: csippentés közben csak a kép nagyítódik (nem ugrál), elengedéskor élesen újrarajzolódik;
+   legkisebb méret: telefonon a teljes szélesség, asztalon a teljes oldal */
 let QS_RT=0;
-function qsZoomTo(z){if(!QS_DOC)return;z=Math.max(30,Math.min(400,Math.round(z)));const cur=QS_DOC.zEff||100,wr=document.querySelector('#qs-pdf .qs-pages');QS_DOC.z=z;
-  if(wr){wr.style.transformOrigin='top center';wr.style.transform='scale('+(z/cur)+')';}const l=document.querySelector('.qs-zoom .qs-zl');if(l)l.textContent=z+'%';
-  clearTimeout(QS_RT);QS_RT=setTimeout(()=>{qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';});},220);}
+const qsMin=()=>{const box=$('qs-pdf');return box&&box.clientWidth<700?100:(QS_DOC&&QS_DOC.zFit)||100;};
+function qsZoomTo(z,live){if(!QS_DOC)return;z=Math.max(qsMin(),Math.min(300,Math.round(z)));const cur=QS_DOC.zEff||100,wr=document.querySelector('#qs-pdf .qs-pages');QS_DOC.z=z;
+  if(wr){wr.style.transformOrigin=(QS_DOC._ox!=null?QS_DOC._ox+'px '+QS_DOC._oy+'px':'top center');wr.style.transform='scale('+(z/cur)+')';}const l=document.querySelector('.qs-zoom .qs-zl');if(l)l.textContent=z<=qsMin()?'Teljes oldal':z+'%';
+  clearTimeout(QS_RT);if(!live)QS_RT=setTimeout(qsCommit,180);}
+function qsCommit(){clearTimeout(QS_RT);QS_DOC._ox=null;qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';});}
 document.addEventListener('wheel',e=>{const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box||!e.ctrlKey||!QS_DOC)return;e.preventDefault();
-  const base=QS_DOC.z||QS_DOC.zEff||100;qsZoomTo(base*Math.exp(-e.deltaY*0.01));},{passive:false});
+  const base=QS_DOC.z||QS_DOC.zEff||100;qsZoomTo(base*Math.exp(-e.deltaY*0.01),true);clearTimeout(QS_RT);QS_RT=setTimeout(qsCommit,250);},{passive:false});
 let QS_PZ=null;
 document.addEventListener('touchstart',e=>{const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box||!QS_DOC)return;
-  if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);QS_PZ={d,z:QS_DOC.z||QS_DOC.zEff||100};}
-  else if(e.touches.length===1){const t=Date.now();if(QS_DOC._tap&&t-QS_DOC._tap<300){QS_DOC._tap=0;if(QS_DOC.z&&QS_DOC.z>=140){QS_DOC.z=0;const l=document.querySelector('.qs-zoom .qs-zl');if(l)l.textContent='Teljes oldal';qsRender();}else qsZoomTo(150);}else QS_DOC._tap=t;}},{passive:true});
+  if(e.touches.length===2){const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),r=box.getBoundingClientRect();
+    QS_DOC._ox=(a.clientX+b.clientX)/2-r.left+box.scrollLeft;QS_DOC._oy=(a.clientY+b.clientY)/2-r.top+box.scrollTop;QS_PZ={d,z:QS_DOC.z||QS_DOC.zEff||100};}
+  else if(e.touches.length===1){const t=Date.now();if(QS_DOC._tap&&t-QS_DOC._tap<300){QS_DOC._tap=0;qsZoomTo((QS_DOC.z||QS_DOC.zEff||100)>=140?qsMin():150);}else QS_DOC._tap=t;}},{passive:true});
 document.addEventListener('touchmove',e=>{if(!QS_PZ||e.touches.length!==2)return;const box=e.target&&e.target.closest&&e.target.closest('#qs-pdf');if(!box)return;e.preventDefault();
-  const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);qsZoomTo(QS_PZ.z*d/QS_PZ.d);},{passive:false});
-document.addEventListener('touchend',e=>{if(e.touches.length<2)QS_PZ=null;},{passive:true});
+  const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);qsZoomTo(QS_PZ.z*d/QS_PZ.d,true);},{passive:false});
+document.addEventListener('touchend',e=>{if(QS_PZ&&e.touches.length<2){QS_PZ=null;qsCommit();}},{passive:true});
