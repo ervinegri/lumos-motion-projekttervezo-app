@@ -222,4 +222,4 @@ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.cl
 const QS_Z=[50,75,100,125,150,200];
 ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom'),f=document.querySelector('.qs-pdf');if(!w||!f)return;let z=Number(w.dataset.z)||0,d=Number(b.dataset.d);
   if(d===0)z=0;else{let i=z?QS_Z.indexOf(z):2;i=Math.max(0,Math.min(QS_Z.length-1,i+d));z=QS_Z[i];}
-  w.dataset.z=String(z);const l=w.querySelector('.qs-zl');if(l)l.textContent=z?z+'%':'Teljes oldal';f.src=w.dataset.url+'#toolbar=0&navpanes=0&'+(z?'zoom='+z:'view=Fit');};
+  w.dataset.z=String(z);const l=w.querySelector('.qs-zl');if(l)l.textContent=z?z+'%':'Teljes oldal';const nu=w.dataset.url+'#toolbar=0&navpanes=0&'+(z?'zoom='+z:'view=Fit');f.src='about:blank';setTimeout(()=>{f.src=nu;},30);};   /* csak a # rész változása nem tölti újra a PDF-nézőt: előbb kiürítjük */
