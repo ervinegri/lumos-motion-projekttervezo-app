@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "366d182d8e",
+"at": "2026-11-17T17:05:08+02:00",
+"msg": "Tablet: minden táblázat a képernyő széléig ér, a projekt neve oszlop oldalra görgetéskor a helyén marad"
+},
+{
 "id": "846966a99f",
 "at": "2026-11-17T17:04:21+02:00",
 "msg": "Fizetési állapot: a díjbekérő és a belőle készült előlegszámla egy befizetésnek számít (nem lesz tévesen „Teljes fizetve”)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések tábla: háttérfrissítéskor nem ugrik vissza a tetejére (görgetés és a felső rész állapota megmarad)"
 },
 {
-"id": "8ed380df58",
-"at": "2026-11-17T15:47:24+02:00",
-"msg": "Fizetések tábla: az oszlopszélesség az összesítő sor (nagyobb, vastagabb) összegeivel is számol"
-},
-{
-"id": "68b0aa4e56",
-"at": "2026-11-17T13:47:13Z",
+"id": "9a6ec86760",
+"at": "2026-11-17T13:47:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
