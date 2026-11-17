@@ -58,9 +58,9 @@ ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);i
   if(!dr||!dr.q){fresh();return;}
   openModal('Mentett ajánlat',`<p style="margin:0">Ehhez a lehetőséghez van egy mentett, még ki nem küldött ajánlat (${esc(String(dr.at||'').slice(0,16))}${dr.by?' · '+esc(dr.by):''}).</p>`,{submitLabel:'Folytatom',noDraft:true,left:`<button type="button" class="btn outline" data-action="q-draft-new" data-id="${esc(d.id)}">Újat kezdek</button>`,
     submit:()=>{closeModal();S.q=dr.q;qSig(d.id);qEdit();}});};
-ACT['q-draft-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);closeModal();if(!d)return;call('quoteDraft',{dealId:d.id,op:'del'}).catch(()=>{});qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
+ACT['q-draft-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);closeModal();if(!d)return;d.qDraft='';call('quoteDraft',{dealId:d.id,op:'del'}).catch(()=>{});qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
 ACT['q-save']=async b=>{const f=$('mform');if(!S.q||!f)return;try{qRead(new FormData(f));}catch(e){}b.disabled=true;
-  try{const st=Object.assign({},S.q);delete st._pdf;delete st._pdfP;await call('quoteDraft',{dealId:S.q.dealId,q:st});toast('Ajánlat mentve – a lehetőségnél később folytathatod');}catch(e){handleErr(e);}finally{b.disabled=false;}};
+  try{const st=Object.assign({},S.q);delete st._pdf;delete st._pdfP;const r=await call('quoteDraft',{dealId:S.q.dealId,q:st});{const dd=(S.deals||[]).find(x=>x.id===S.q.dealId);if(dd)dd.qDraft=(r&&r.at)||'1';}toast('Ajánlat mentve – a lehetőségnél később folytathatod');}catch(e){handleErr(e);}finally{b.disabled=false;}};
 async function qSig(id){if(S.q&&S.q.sig)return;try{const s=await call('dealQuoteSig',{dealId:id});if(S.q&&S.q.dealId===id){S.q.sig=s;const h=document.querySelector('#q-body+.hint');if(h)h.textContent='Alá automatikusan bekerül '+s.name+' aláírása, a PDF pedig mellékletként megy.';}}catch(e){handleErr(e);}}
 ACT['q-skip']=b=>{window._arkQuoteDeal='';qEdit();};
 window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmotion.hu')return;const x=(e.data||{}).arkQuoteData;if(!x||!S.q||!window._arkQuoteDeal)return;window._arkQuoteDeal='';

@@ -2471,3 +2471,5 @@ html body .cal-toolbar .cal-mnav{flex:0 0 auto!important;flex-wrap:nowrap!import
 html body .cal-toolbar .cm-cur{min-width:170px}
 html body .cal-toolbar .cm-side{min-width:0;padding:0 12px!important}
 }
+html body .dl-qdraft{display:inline-flex;align-items:center;gap:4px;margin:4px 0 2px;padding:2px 9px;border-radius:999px;border:1px dashed #c9a24a;background:#fff8e6;color:#7a5a12;font:600 11.5px/1.5 inherit;cursor:pointer}
+html body .dl-qdraft:hover{background:#fdeec8}
