@@ -2724,3 +2724,6 @@ html body.pay-dock #view .dock-wrap>.pay-hd .cal-toolbar{margin:0!important}
 }
 /* érintőképernyő (telefon, tablet): az egész oldal nem húzható / rugóztatható oldalra – csak a táblák görgetnek vízszintesen */
 @media (pointer:coarse){html,html body{overscroll-behavior-x:none!important}html{overflow-x:hidden}}
+/* a széles tábla ne tolja ki az oldalt: a tartó elemek nem nőhetnek a tábla szélességére (a tábla a saját keretében görget) */
+html body #view>*,html body #view .panel:has(.pay-wrap),html body #view .panel:has(.sheet-wrap){min-width:0;max-width:100%}
+html body #view .pay-wrap:not(.dock-wrap){max-width:100%;overflow-x:auto!important}
