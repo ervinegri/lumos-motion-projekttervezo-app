@@ -302,15 +302,7 @@ function clientDecide_(t, d, fb, vid) {
   if (clientTokenRead_(t).pv) throw new Error('Ez csak előnézet – itt a gombok nem küldenek semmit.');
   const o = clientTokenRead_(t); if (o.vs && o.vs.length > 1) { vid = str_(vid, 40); if (o.vs.indexOf(vid) < 0) throw new Error('Válaszd ki a videót.'); o.v = vid; }   // közös link: a kiválasztott videóról dönt
   const r = clientVideo_(o); fb = str_(fb, 1500).trim();
-  if (d === 'note') {   // jóváhagyás után az ügyfél még üzenhet (nem kötelező)
-    throw new Error('Üzenetet a jóváhagyással együtt tudsz küldeni.'); if (fb.length < 2) throw new Error('Írd be az üzenetedet.');
-    const nm = clientFirst_(r.p, String(o.c || '').split(',')[0]);
-    withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
-      v.cm = (v.cm || []).concat([{ by: nm, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-    try { if (o.s) { const subj = 'Üzenet az ügyféltől (jóváhagyás után): ' + r.v.name + ' – ' + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);
-        gmailSend_(o.s, subj, subj + '\n\n' + fb + '\n\n' + url, { htmlBody: '<p><b>' + escapeHtml_(subj) + '</b></p><p style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62">' + escapeHtml_(fb).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Ügyfél-üzenet értesítés: ' + e); }
-    return Object.assign(clientInfo_(t, false, o.v), { noted: true });
-  }
+  if (d === 'note') throw new Error('Üzenetet a jóváhagyással együtt tudsz küldeni.');   // külön üzenet jóváhagyás után már nincs
   if (r.v.st !== 'leadva') return clientInfo_(t, false, o.v);   // már döntöttek (vagy visszakerült az utómunkába)
   const who = { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' };
   if (d === 'ok') { videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });

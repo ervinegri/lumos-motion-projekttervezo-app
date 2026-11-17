@@ -86,7 +86,7 @@ const ACT={
   'modal-bg':()=>{},   // mellékattintásra nem zárul be (a tartalom megmarad)
   'modal-cancel':()=>{const k=MD_KEY;MD_KEY='';mdClear(k);closeModal();},
   save:()=>saveChecked(),
-  'discard':()=>{discardDraft();render(true);toast('Módosítások elvetve');},
+  'discard':()=>{histPush();discardDraft();render(true);toast('Módosítások elvetve');},
   'tpl-clear':()=>{const q=$('m-tplQ'),h=$('m-tplId'),x=document.querySelector('.tpl-clear');if(q)q.value='';if(h)h.value='';if(x)x.hidden=true;if(q)q.focus();},
   'db-ping':async b=>{b.disabled=true;try{const r=await call('dbPing');S.dbInfo={mode:r.mode,ok:true,fallback:r.fallback||null,lastBackup:r.lastBackup||'',msg:`Kapcsolat rendben · ${r.tables} tábla az adatbázisban · lekérdezés ${r.queryMs} ms`};render(true);}catch(e){handleErr(e);S.dbInfo={mode:(S.dbInfo||{}).mode||'sheet',msg:'Hiba: '+errText(e)};render(true);}},
   'db-backup':async b=>{b.disabled=true;b.textContent='Mentés…';try{const r=await call('dbBackup');S.dbInfo=Object.assign({},S.dbInfo,{msg:'Biztonsági mentés kész: '+r.at});render(true);toast('A táblázat frissítve');}catch(e){handleErr(e);b.disabled=false;}},
@@ -151,7 +151,6 @@ const ACT={
   'pay-step':b=>{const sel=$('pay-month');if(!sel)return;const i=sel.selectedIndex+Number(b.dataset.d);if(i<0||i>=sel.options.length)return;setMonthAll(sel.options[i].value);render(true);},
   'budget-approve':b=>budgetDecision(b.dataset.id,true),
   'budget-reject':b=>budgetDecision(b.dataset.id,false),
-  discard:()=>{histPush();const p=projById(S.projectId);S.draft=p?clone(p):null;S.dirty=false;render(true);toast('Módosítások elvetve');},
   stage:b=>{const d=S.draft;if(!d||ro())return;if(d.status==='atadva'){toast('A projekt lezárva – feloldás a 🔓 Felnyitás gombbal.',true);return;}
     {const ids=STAGES.map(s=>s.id),ci=ids.indexOf(d.status||'tervezes'),ti=ids.indexOf(b.dataset.v);if(d.status!=='lemondva'&&ti>=0&&ti<ci){toast('Egy elért lépésről nem lehet visszalépni.',true);return;}}   // csak előre
     const v=b.dataset.v,go=()=>{

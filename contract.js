@@ -150,7 +150,7 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep&&c
      submit:async()=>{const r=await ctBuild();const b64=c._pdf||await ctPdf(r.blob),pdfName=r.name.replace(/\.docx$/i,'')+'.pdf';   // az ügyfél mappájába PDF kerül
        const d=await call('clientDocUpload',{client:c.client||c.c_name,b64,name:pdfName,mime:'application/pdf',kind:tp.hat||tp.sh?'egyeb':'keret'});
        try{await call('clientDocUpload',{client:c.client||c.c_name,b64:await ctB64(r.blob),name:pdfName.replace(/\.pdf$/i,'')+'.docx',mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',plain:true});}catch(e){toast('A .docx változat mentése nem sikerült: '+(e.message||e),true);}   // a szerkeszthető változat is a mappába kerül
-       closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d&&typeof billApply==='function')try{billApply(d);}catch(e){}render(true);}});
+       closeModal();toast('Szerződés mentve: '+(c.client||c.c_name));if(d)try{finApply(d);}catch(e){}render(true);}});
   const box=$('ctPrev');document.querySelector('#mform')&&document.querySelector('#mform').classList.add('ct-wide');
   const show=pages=>{box.innerHTML=`<div class="ct-pages">${pages.map((u,i)=>`<div class="ct-page"><img src="${u}" alt="${i+1}. oldal"><span class="ct-pn">${i+1}/${pages.length}</span></div>`).join('')}</div>`;};
   if(c._pdf&&c._pages){show(c._pages);return;}
@@ -182,7 +182,7 @@ async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
        const r=await call('contractSend',{client:c.client||c.c_name,to:m.to,cc:m.cc,subject:m.subject,body:m.body,pdf:b64,fileName:fname,save:m.save,kind:tp.hat||tp.sh?'egyeb':'keret',dealId:c.dealId||'',projectId:tp.hat?c.pid||'':'',docx:m.save?await ctB64((await ctBuild()).blob):''});
        closeModal();toast(r.test?'Teszt üzemmód: a levél hozzád ment ki.':'✅ Szerződés elküldve: '+m.to+(m.save&&r.saved&&!r.saved.error?' · mentve az ügyfél mappájába':''));
        if(r.status){if(r.status.deals)S.deals=r.status.deals;if(r.status.billing&&S.fin)S.fin.billing=r.status.billing;try{render(true);}catch(e){}}
-       if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved&&typeof billApply==='function')try{billApply(r.saved);}catch(e){}
+       if(r.saved&&r.saved.error)toast('A mentés nem sikerült: '+r.saved.error,true);else if(r.saved)try{finApply(r.saved);}catch(e){}
        S.ct=null;render(true);}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');}
 Object.assign(ACT,{

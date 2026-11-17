@@ -320,7 +320,7 @@ function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,i
     const rolesV=slot.idx!=null?roles.filter(x=>x.i===slot.idx):[];
     const roleHtml=roles.map(({a,i})=>`${a.role==='Vágó'&&!ro()?(onsiteCut(p,cid)?`<span class="role-flag" data-tip="A helyszínen vág – a ⚙️ menüben állítható">📍 Helyszíni vágó</span>`:''):''}`).join('');
     const free=(p.lead===cid?[]:['Projektvezető']).concat(CREW_ROLES.filter(r=>r!=='Projektvezető'&&(ROLES.includes(r)||(OP_SUB.includes(r)&&ROLES.includes('Operatőr')))&&!roles.some(x=>x.a.role===r)));
-    const addRole=true?'':`<span class="role-sel role-add"><select class="inp" data-crew-addrole="${esc(cid)}" data-cmb="+ Szerep" data-cmb-cls="inp role-cmb" aria-label="Extra szerep hozzáadása"><option value="">+ Szerep</option>${free.map(rl=>`<option${OP_SUB.includes(rl)&&free.includes('Operatőr')?' data-parent="Operatőr"':''}>${esc(rl)}</option>`).join('')}</select></span>`;
+    const addRole='';
     const rows=eqRowsFor(p,cid),leadOnly=p.lead===cid&&!roles.length,note=(p.crewNotes||{})[cid]||'';
     const first=cr?huFirst(String(cr.name)):'';
     const rentHtml=rentalsOf(p,cid).map(r=>`<div class="eqrow rent"><div class="who"><b>${esc(r.name)}</b><small>${r.own?'Saját eszköz':'Bérelt'}${r.company?' · '+esc(r.company):''}${canSeeFees()&&num(r.price)?' · '+ftFmt(r.price):''}</small></div>${ro()?'':`<button class="trash" type="button" data-action="rent-remove" data-id="${esc(r.id)}" aria-label="Bérelt eszköz törlése">🗑️</button>`}</div>`).join('');
@@ -489,20 +489,6 @@ function roContentPanel(p){
     ${showField?`<section><h4 class="sub-h">📍 Terepi felvételek</h4>${roList(field)}${r?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section>`:''}
     <section><h4 class="sub-h">✂️ Utómunka anyagok</h4>${rows.length?`<div class="op-list">${rows.join('')}</div>`:`<p class="hint" style="margin:0">${postTasks(p).length?'Ehhez a projekthez még nincs hozzád rendelt utómunka.':'Ehhez a projekthez nincs megrendelt utómunka.'}</p>`}${!showField&&r&&!editOnly(p)?`<p class="hint" style="margin:8px 0 0">Forgatás: ${esc(fmtRange(p))}</p>`:''}</section></div></div>${mineCards.length?`<section class="panel content crew-board-panel"><h3>📋 Kanban · Saját utómunkáim</h3><div class="crew-board-scroll">${boardLanes(mineCards,{noLink:true,single:true})}</div></section>`:''}${videosPanel(p)}`;
 
-  const rooms=Math.max(1,num(p.er_rooms)||1),rec=[];
-  REC_CAMS.forEach(c=>{if(p[c.k])rec.push(esc(c.label)+(camN(p,c.k)>1&&CAM_COUNTS.some(x=>x.flag===c.k)?' ×'+camN(p,c.k):''));});
-  REC_LIVE.forEach(c=>{if(p[c.k])rec.push(esc(c.label));});
-  if(p.er_post&&!num(p.er_post_n))rec.push('<b>1</b> helyszín előadásainak utómunkája');
-  REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>rec.push(it.k==='er_post_n'?`<b>${num(p[it.k])}</b> helyszín előadásainak utómunkája`:`${esc(it.label)}: <b>${num(p[it.k])}</b>`));
-  if(rec.length&&rooms>1)rec.unshift(`Rögzített helyszínek száma: <b>${rooms}</b>`);
-  const krea=[];
-  DELIVERABLES.forEach(it=>{const n=num(p[it.k]);if(n>0)krea.push(`${esc(it.label)}: <b>${n}</b>`);if(it.k==='aftermovie'&&fotoDb(p)>0)krea.push(`Fotók utómunkája: <b>${fotoDb(p)} db</b>`);});
-  EXTRAS.filter(e=>e.k!=='x_foto'&&e.k!=='x_nyersTarolas'&&p[e.k]).forEach(e=>krea.push(esc(e.label)));
-  const tech=TECH.filter(t=>p[t.k]).map(t=>esc(t.label)),plan=String(p.techPlan||'').trim();
-  if(!rec.length&&!krea.length&&!tech.length&&!plan)return '';
-  const techHtml=tech.length||plan?`<div class="tech-sec"><h4 class="sub-h">💡 Hang-, fény- és vizuáltechnika</h4>${tech.length?roList(tech):''}${plan?`<div class="sec-lbl">Forgatási és technikai terv</div><div class="ro-text">${esc(plan)}</div>`:''}</div>`:'';
-  const col=(t,items)=>items.length?`<section class="content-col"><h4 class="sub-h">${t}</h4>${roList(items)}</section>`:'';
-  return `<div class="panel content"><h3>🧾 Szolgáltatások</h3>${rec.length||krea.length?`<div class="content-grid${rec.length&&krea.length?'':' single'}">${col('📽️ Előadásrögzítés és kivetítés',rec)}${col('🎬 Kreatív tartalmak',krea)}</div>`:''}${techHtml}</div>`;
 }
 /* Tartalmak témánként: minden téma egy kártya – bal oldalt a helyszíni feladat, jobb oldalt a hozzá tartozó utómunka.
    Csak a kiválasztott tételek látszanak, a többi a „+ hozzáadás” alatt; a csukott kártya fejlécében címkéken az összefoglaló. */
