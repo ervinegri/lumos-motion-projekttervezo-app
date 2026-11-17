@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c9069ade19",
+"at": "2026-11-17T08:26:23+02:00",
+"msg": "Értékesítői jutalék: értékesítő nélkül az Extrák menüből adható hozzá, a lehetőségből jött projektnél magától megjelenik; Több napos jelölő a Dátum felirat mellett"
+},
+{
 "id": "0934b81723",
 "at": "2026-11-17T08:24:10+02:00",
 "msg": "Alapadatok: két összefogott oszlop – rendezvény (név, típus, helyszín, időpont) | ügyfél és kapcsolattartó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: szélesebb személy-oszlop, a függő összeg nem lóg át a cellahatáron"
 },
 {
-"id": "5b1c684c71",
-"at": "2026-11-16T21:21:56+02:00",
-"msg": "Idővonal húzás: a forrássor ugyanazzal a szelektorral"
-},
-{
-"id": "a0649c9aa1",
-"at": "2026-11-16T19:21:54Z",
+"id": "dbb6c27473",
+"at": "2026-11-16T19:22:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
