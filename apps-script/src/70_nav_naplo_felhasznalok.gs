@@ -608,6 +608,18 @@ function dealQuoteSender_(u, a) {
 /** Az ajánlat előnézetéhez: ki küldi, és milyen aláírással. */
 function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html, from: (function () { const o = mailOptsFor_(r.owner, ''); return o.__dwd || o.from || Session.getEffectiveUser().getEmail() || ''; })() }; }   // from: a tényleges feladó (álnév, ha be van állítva)
 /** a: {dealId, to, cc, subject, body, pdf (base64), fileName, total} */
+/* Árajánlat-piszkozat: lehetőségenként egy mentett (még ki nem küldött) ajánlat – bármelyik eszközről folytatható; küldéskor törlődik. */
+function quoteDraft_(u, a) {
+  const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
+  if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát mentheted.');
+  const P = PropertiesService.getScriptProperties(), k = 'QD_' + d.id;
+  if (a.op === 'get') { const v = P.getProperty(k); return v ? JSON.parse(v) : null; }
+  if (a.op === 'del') { P.deleteProperty(k); return { ok: true }; }
+  const q = a.q || {}; ['_pdf', '_pdfP', 'sig'].forEach(x => { delete q[x]; });
+  const json = JSON.stringify({ q: q, at: now_(), by: u.name });
+  if (json.length > 8500) throw new Error('Az ajánlat túl nagy a mentéshez – rövidítsd a leírásokat.');
+  P.setProperty(k, json); return { ok: true, at: now_() };
+}
 function dealQuoteSend_(u, a) {
   a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
   const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
