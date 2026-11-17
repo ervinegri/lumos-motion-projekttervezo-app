@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "382068ac41",
+"at": "2026-11-17T23:02:02+02:00",
+"msg": "Idővonal: világos módban sincs átmenet a sávokon"
+},
+{
 "id": "7a2b1bfc21",
 "at": "2026-11-17T23:00:31+02:00",
 "msg": "Sötét mód: a sötétkék háttér a lap aljáig ér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt Pénzügyek kártyák tableten: a mezők nem lógnak ki, a kártyák tördelődnek"
 },
 {
-"id": "e7ea05fd7a",
-"at": "2026-11-17T16:59:39+02:00",
-"msg": "Tablet, Fizetések: a fejléc egy sora kifér 768 px-en is"
-},
-{
-"id": "29cc3c0226",
-"at": "2026-11-17T14:58:20Z",
+"id": "363c9d7b9e",
+"at": "2026-11-17T14:59:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
