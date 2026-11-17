@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8c003a2100",
+"at": "2026-11-17T15:04:10+02:00",
+"msg": "Folyamatjelzés: két sorban (művelet, alatta a címe)"
+},
+{
 "id": "f431af76a4",
 "at": "2026-11-17T15:01:45+02:00",
 "msg": "Ajánlat-néző: kompakt fejléc"
@@ -147,9 +152,9 @@ const ITEMS = [
 "msg": "Ajánlat-néző: nagyobb terület, alapból a teljes oldal látszik"
 },
 {
-"id": "5377312396",
-"at": "2026-11-17T14:14:31+02:00",
-"msg": "Értékesítés: oszloprács javítása"
+"id": "74ea0e84a1",
+"at": "2026-11-17T12:14:58Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
