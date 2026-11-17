@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a2df884eed",
+"at": "2026-11-17T16:20:59+02:00",
+"msg": "Naptár idővonala telefonon: háttérfrissítéskor a görgetés és az eltüntetett menü megmarad (mint a Fizetéseknél)"
+},
+{
 "id": "bb6f52499c",
 "at": "2026-11-17T16:19:26+02:00",
 "msg": "Naptár idővonala telefonon: a Fizetésekhez hasonlóan görgetéskor eltűnik a menü (egyetlen natív görgetés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: húzással nem vált hónapot, csak a gombokkal"
 },
 {
-"id": "bd6929578b",
-"at": "2026-11-17T15:23:27+02:00",
-"msg": "Fizetések tábla: keskenyebb projektnév-oszlop, a munkatárs-oszlop a legszélesebb összeghez igazodik, a Projekt neve fejléc rögzítve; iPhone: a felugró ablak a látható területhez igazodik"
-},
-{
-"id": "c39fabcb96",
-"at": "2026-11-17T13:19:35Z",
+"id": "81d3d1f17f",
+"at": "2026-11-17T13:23:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
