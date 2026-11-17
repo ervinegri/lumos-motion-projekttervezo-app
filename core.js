@@ -209,6 +209,9 @@ const crewById=id=>S.crew.find(c=>c.id===id);
 const itemById=id=>S.inventory.find(i=>i.id===id);
 const projById=id=>S.projects.find(p=>p.id===id);
 const isOpen=p=>p.status!=='atadva'&&p.status!=='lemondva';
+/* További napok (az első napon túl): [{d,s,e}]. Régi projektnél a dátumtartományból áll elő (a közbülső napok az első nap idejével). */
+function daysOf(p){if(!p)return [];let L=p.days;if(typeof L==='string'){try{L=JSON.parse(L||'[]');}catch(e){L=[];}}if(Array.isArray(L)&&L.length)return L.filter(x=>x&&x.d).map(x=>({d:x.d,s:x.s||'',e:x.e||''}));
+  if(!validISO(p.date)||!validISO(p.endDate)||p.endDate<=p.date)return [];const out=[];for(let d=addDays(p.date,1);d<=p.endDate&&out.length<20;d=addDays(d,1))out.push({d,s:d===p.endDate?(p.lastStartTime||p.startTime||''):(p.startTime||''),e:d===p.endDate?(p.lastEndTime||p.endTime||''):(p.endTime||'')});return out;}
 function pr(p){if(!p||!validISO(p.date))return null;const end=validISO(p.endDate)&&p.endDate>=p.date?p.endDate:p.date;return {start:p.date,end};}
 const overlap=(a,b)=>a&&b&&a.start<=b.end&&b.start<=a.end;
 /* Időablak egynapos projektnél: érkezés + helyszíni munkaidő. Ha nincs érkezési idő, egész naposnak vesszük. */

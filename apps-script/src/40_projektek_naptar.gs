@@ -31,6 +31,13 @@ function saveProject_(u, a) {
     techPlan: str_(a.techPlan, 5000), notes: str_(a.notes, 20000), deliveryLink: str_(a.deliveryLink, 500), deliveryPass: str_(a.deliveryPass, 120), deliveryNotes: str_(a.deliveryNotes, 3000), dueKept: a.dueKept === 'igen' || a.dueKept === 'nem' ? a.dueKept : '', stepsDone: (Array.isArray(a.stepsDone) ? a.stepsDone : String(a.stepsDone || '').split(',')).filter(x => ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'jovahagyas'].indexOf(x) >= 0).join(','), siteOk: a.siteOk === 'igen' || a.siteOk === 'nem' ? a.siteOk : '', siteReport: str_(a.siteReport, 3000), deliveredAt: iso_(a.deliveredAt), dueAt: iso_(a.dueAt)
   };
   if (p.name.length < 2) throw new Error('Add meg a projekt nevét (legalább 2 karakter).');
+  { /* további napok: [{d,s,e}] – az első nap a date/startTime/endTime, az utolsó nap az endDate/lastStartTime/lastEndTime is */
+    let L = a.days; if (typeof L === 'string') { try { L = JSON.parse(L || '[]'); } catch (e) { L = []; } } if (!Array.isArray(L)) L = [];
+    const T = v => /^\d{2}:\d{2}$/.test(String(v || '')) ? String(v) : '', seenD = {};
+    L = L.map(x => ({ d: /^\d{4}-\d{2}-\d{2}$/.test(String(x && x.d || '')) ? String(x.d) : '', s: T(x && x.s), e: T(x && x.e) })).filter(x => x.d && p.date && x.d > p.date && !seenD[x.d] && (seenD[x.d] = 1)).sort((x, y) => x.d < y.d ? -1 : 1).slice(0, 20);
+    p.days = L.length ? JSON.stringify(L) : '';
+    if (L.length) { const last = L[L.length - 1]; p.endDate = last.d; p.lastStartTime = last.s; p.lastEndTime = last.e; } else if (Array.isArray(a.days)) { p.endDate = ''; p.lastStartTime = ''; p.lastEndTime = ''; }   /* a felület üres listát küld: egynapos */
+  }
   if (p.endDate && (!p.date || p.endDate < p.date)) p.endDate = '';
   if (!p.endDate || p.endDate === p.date) { p.lastStartTime = ''; p.lastEndTime = ''; }
   if (p.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.contactEmail)) throw new Error('A kapcsolattartó e-mail-címe érvénytelen.');

@@ -501,3 +501,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
 /* A helyszíni munka napja még nem jött el: addig nem lehet utómunkára (vagy tovább) lépni */
 function siteFuture(d){return !!d&&!editOnly(d)&&validISO(d.date)&&d.date>todayISO()&&['','egyeztetes','tervezes','helyszin'].includes(d.status||'');}
 function siteFutureMsg(d){return `A helyszíni munka napja (${fmtShort(d.date)}) még nem jött el – a projekt csak utána léphet utómunkára.`;}
+
+/* Napok hozzáadása / törlése / módosítása (Alapadatok) */
+function setDays(L){const d=S.draft;if(!d)return;L=L.filter(x=>x&&x.d).sort((a,b)=>a.d<b.d?-1:1);const last=L[L.length-1];setDraft({days:L,endDate:last?last.d:'',lastStartTime:last?last.s||'':'',lastEndTime:last?last.e||'':''});}
+ACT['day-add']=()=>{const d=S.draft;if(!d||!validISO(d.date))return;const L=daysOf(d).slice(),last=L.length?L[L.length-1]:{d:d.date,s:d.startTime||'',e:d.endTime||''};L.push({d:addDays(last.d,1),s:last.s,e:last.e});setDays(L);};
+ACT['day-del']=b=>{const d=S.draft;if(!d)return;const L=daysOf(d).slice();L.splice(Number(b.dataset.i),1);setDays(L);};
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset.dayI===undefined||!S.draft)return;const L=daysOf(S.draft).map(x=>Object.assign({},x)),i=Number(t.dataset.dayI);if(!L[i])return;
+  L[i][t.dataset.dayF]=t.value;if(t.dataset.dayF==='d'&&validISO(S.draft.date)&&t.value<=S.draft.date){toast('A további nap az első nap után legyen.',true);render(true);return;}setDays(L);});
