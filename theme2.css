@@ -2480,3 +2480,5 @@ html body .dl-qsent{border-color:#9cb8dc;background:#eef4fb;color:#2f5f93}html b
 /* „Dolgozom…” jelzés a képernyő közepén (mint a többi visszajelzés) */
 html body .work-pill{top:50%!important;transform:translate(-50%,-50%) scale(.96)!important;z-index:10001}
 html body .work-pill.on{transform:translate(-50%,-50%) scale(1)!important}
+html body .qs-box{width:min(980px,96vw)!important;max-width:none!important}
+html body .qs-pdf{width:100%;height:min(78vh,1100px);border:1px solid #e3e7ec;border-radius:10px;background:#f4f6f8}

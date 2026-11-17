@@ -427,9 +427,10 @@ function viewSettings(){
     ['penAdmin','🔔 Jóváhagyásra váró díjcsökkentés','Ügyvezetők','Ha a termelési vezető díjcsökkentést javasol, az ügyvezető jóváhagyást kér.'],
     ['invoice','🧾 Számla, díjbekérő','Az ügyfél (vevő)','A számlázz.hu e-mailben elküldi a kiállított bizonylatot a vevő e-mail-címére.'],
     ['invite','✉️ Meghívó','Az új kolléga','Belépési meghívó, amikor új felhasználót veszel fel.'],
+    ['dealNext','📅 Értékesítési teendők','A lehetőség értékesítője','Hétköznap reggel 7 és 8 között, ha a lehetőségein aznapra esik (vagy már lejárt) a következő lépés.'],
     ['payStatement','💰 Díjösszesítő','Az érintett szakember','A havi díjösszesítő a Fizetések oldal „Díjösszesítő kiküldése” gombjával: tételek, levonások, számlázási adatok.']],mc=S.mailCats||{},cc=S.mailCc||{};
   const CC=[['actor','aki küldi'],['editor','termelési vezetők'],['admin','ügyvezetők']];
-  const MG=[['👷 Szakembereknek',['assign','eqlist','penalty','payStatement']],['🤝 Ügyfeleknek és vendégeknek',['invoice','calendar']],['💼 Belső',['penAdmin','invite']]],MCo=Object.fromEntries(MC.map(x=>[x[0],x]));
+  const MG=[['👷 Szakembereknek',['assign','eqlist','penalty','payStatement']],['🤝 Ügyfeleknek és vendégeknek',['invoice','calendar']],['💼 Belső',['penAdmin','invite','dealNext']]],MCo=Object.fromEntries(MC.map(x=>[x[0],x]));
   const mRow=k=>{const [,l,to,d]=MCo[k],on=mc[k]!==false,dis=!S.mailOn;return `<div class="mrow${on?'':' off'}"><label class="mrow-main"><span class="ntf-tx"><b>${l}</b><small>${d}</small><span class="mrow-to">Címzett: ${to}</span></span><span class="ntf-sw"><input type="checkbox" data-mailcat="${k}"${on?' checked':''}${dis?' disabled':''}><i></i></span></label>
       ${cc[k]?`<div class="mail-cc"><span class="muted">Másolatot kap:</span>${CC.map(([r,rl])=>`<label class="cc-chip${cc[k].includes(r)?' on':''}"><input type="checkbox" data-mailcc="${k}" data-role="${r}"${cc[k].includes(r)?' checked':''}${S.mailOn&&on?'':' disabled'}> ${rl}</label>`).join('')}</div>`:''}</div>`;};
   const mailPanel=S.mailOn===undefined?'':`<div class="panel mail-panel2${S.mailOn?'':' off'}"><div class="mp-head"><div class="grow"><h3>📧 E-mail értesítések</h3><p class="hint">${S.mailOn?'Az app leveleket küld. Típusonként is kikapcsolhatod őket, és beállíthatod, ki kapjon másolatot.':'Szünetel – most senki nem kap e-mailt az apptól.'}</p></div>

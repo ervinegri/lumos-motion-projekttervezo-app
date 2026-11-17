@@ -545,7 +545,7 @@ function crewMembers_(p) {
 const MAIL_ON_PROPERTY = 'LUMOS_PM_MAIL_ON';
 /* E-mail értesítések: főkapcsoló + típusonként külön kapcsoló (alapból mind be, ha a főkapcsoló be van kapcsolva) */
 const MAIL_CATS_PROPERTY = 'LUMOS_PM_MAIL_CATS';
-const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite', 'payStatement'];
+const MAIL_CATS_ = ['assign', 'calendar', 'eqlist', 'penalty', 'penAdmin', 'invoice', 'invite', 'payStatement', 'dealNext'];
 function mailCats_() { let o = {}; try { o = JSON.parse(PropertiesService.getScriptProperties().getProperty(MAIL_CATS_PROPERTY) || '{}') || {}; } catch (e) { o = {}; } const out = {}; MAIL_CATS_.forEach(k => { out[k] = o[k] !== false; }); return out; }
 const MAIL_CC_PROPERTY = 'LUMOS_PM_MAIL_CC';
 const MAIL_CC_DEFAULT_ = { assign: [], eqlist: ['actor'], penalty: [], penAdmin: [], payStatement: [] };   // másolat (CC): admin = ügyvezetők, editor = termelési vezetők, actor = aki a műveletet végzi

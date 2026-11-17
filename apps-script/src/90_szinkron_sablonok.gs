@@ -436,3 +436,27 @@ function ctTplUpload_(u, a) {
   logEvent_(u, 'Szerződéssablon a Drive-ba', CT_KEYS_[k], '');
   return ctTplList_();
 }
+
+/* ===== Értékesítés: reggeli emlékeztető a lehetőségek mai (és lejárt) következő lépéseiről – az értékesítőnek ===== */
+function dealNextEnsure_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('DEAL_NEXT_INSTALLED')) return;
+  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'dealNextDaily')) ScriptApp.newTrigger('dealNextDaily').timeBased().atHour(7).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('DEAL_NEXT_INSTALLED', now_()); } catch (e) { Logger.log('Teendő-emlékeztető időzítő: ' + e); }
+}
+function dealNextDaily() {
+  if (!mailOn_('dealNext')) return;
+  const T = today_(), dow = new Date().getDay(); if (dow === 0 || dow === 6) return;   // hétvégén nem küldünk (hétfőn a hétvégiek lejártként jönnek)
+  const open = readAll_('deals').filter(d => ['uj', 'ajanlat', 'targyalas'].indexOf(d.stage) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(String(d.nextDate || '')) && d.nextDate <= T);
+  if (!open.length) return;
+  const users = loadUsers_(), crew = byId_(readAll_('crew')), by = {};
+  open.forEach(d => { const id = String(d.ownerId || ''); let em = '', nm = '';
+    if (id.indexOf('crew:') === 0) { const c = crew[id.slice(5)]; em = c && c.email; nm = c && c.name; } else { const x = users.find(u => u.id === id && !u.disabled); em = x && x.email; nm = x && x.name; }
+    em = String(em || '').trim().toLowerCase(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return; (by[em] = by[em] || { nm: nm, today: [], late: [] })[d.nextDate === T ? 'today' : 'late'].push(d); });
+  const li = d => '<li style="margin:0 0 8px"><b>' + escapeHtml_(d.title || 'Lehetőség') + '</b>' + (d.client ? ' – ' + escapeHtml_(d.client) : '') + '<br><span style="color:#2f5f93">➜ ' + escapeHtml_(d.nextStep || 'Teendő') + '</span>' + (d.nextDate < T ? ' <span style="color:#a33">(lejárt: ' + d.nextDate.replace(/-/g, '.') + '.)</span>' : '') + '</li>';
+  Object.keys(by).forEach(em => { const o = by[em], first = String(o.nm || '').trim().split(/\s+/).pop() || '';
+    const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">Szia' + (first ? ' ' + escapeHtml_(first) : '') + '!<br><br>' +
+      (o.today.length ? '<b>Mai teendők a lehetőségeiden (' + o.today.length + '):</b><ul style="padding-left:18px">' + o.today.map(li).join('') + '</ul>' : '') +
+      (o.late.length ? '<b>Lejárt teendők (' + o.late.length + '):</b><ul style="padding-left:18px">' + o.late.map(li).join('') + '</ul>' : '') +
+      '<a href="' + FRONTEND_URL + '" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 16px;border-radius:999px;font-weight:600">Értékesítés megnyitása</a></div>';
+    const text = (o.today.length ? 'Mai teendők:\n' + o.today.map(d => '• ' + d.title + ' – ' + (d.nextStep || '')).join('\n') + '\n\n' : '') + (o.late.length ? 'Lejárt teendők:\n' + o.late.map(d => '• ' + d.title + ' – ' + (d.nextStep || '') + ' (' + d.nextDate + ')').join('\n') + '\n\n' : '') + FRONTEND_URL;
+    try { gmailSend_(em, '📅 Mai teendők – ' + (o.today.length ? o.today.length + ' lehetőség' : '') + (o.today.length && o.late.length ? ', ' : '') + (o.late.length ? o.late.length + ' lejárt' : ''), text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }, 'dealNext'); } catch (e) { Logger.log('Teendő-emlékeztető: ' + e); } });
+}

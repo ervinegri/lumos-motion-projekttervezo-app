@@ -636,7 +636,7 @@ function quoteSent_(u, a) {
   if (!v) { try { v = quoteSentRecover_(d); } catch (e) { Logger.log('Ajánlat visszakeresése: ' + e); } }   // a funkció előtt küldött ajánlat: a PDF visszakeresése a levelek közül
   if (!v) return null;
   const m = JSON.parse(v);
-  if (a.op === 'pdf') return { b64: Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()) };
+  if (a.op === 'pdf') { const b64 = Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()); delete m.fileId; m.b64 = b64; return m; }   // a PDF az adataival együtt
   delete m.fileId; return m;
 }
 /* Árajánlat-piszkozat: lehetőségenként egy mentett (még ki nem küldött) ajánlat – bármelyik eszközről folytatható; küldéskor törlődik. */
