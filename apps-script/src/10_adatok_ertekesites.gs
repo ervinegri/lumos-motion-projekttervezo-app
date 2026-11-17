@@ -233,7 +233,7 @@ function dealsFor_(u) {
   const finalDealValue = d => {
     const p = d.stage === 'nyert' && d.projectId ? projectById[d.projectId] : null;
     if (!p) return d.value === '' || d.value == null ? null : Number(d.value);
-    const ex = parseExtras_(p.extras).filter(x => x && x.kind !== 'org' && x.kind !== 'tov');
+    const ex = parseExtras_(p.extras).filter(x => x && x.kind !== 'org' && x.kind !== 'tov' && x.kind !== 'sajat');
     const total = Math.max(0, Math.round((Number(p.quotePrice) || 0) + ex.reduce((sum, x) => sum + (x.kind === 'le' ? -1 : 1) * (Number(x.amount) || 0), 0)));
     return total > 0 ? total : (d.value === '' || d.value == null ? null : Number(d.value));
   };

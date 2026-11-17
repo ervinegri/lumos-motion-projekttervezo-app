@@ -28,7 +28,7 @@ const ACT={
   'open-project':b=>{const id=b.dataset.id;if(S.projectId===id){closeModal();return;}guard(()=>openProject(id));},
   'np-file-del':b=>{NP_FILES.splice(Number(b.dataset.i),1);npFilesShow();},
   'extra-file-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).map(x=>Object.assign({},x)),i=Number(b.dataset.i);if(!l[i])return;l[i].fileUrl='';l[i].fileName='';setDraft({extras:l});render(true);toast('Csatolmány levéve (a fájl a Drive-ban megmarad)');},
-  'extra-add':b=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),Object.assign({id:uuid().slice(0,8),name:'',amount:0},b&&b.dataset&&b.dataset.le?{kind:'le'}:b&&b.dataset&&b.dataset.tov?{kind:'tov'}:{})]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
+  'extra-add':b=>{if(!S.draft||!isAdmin())return;setDraft({extras:[...(S.draft.extras||[]),Object.assign({id:uuid().slice(0,8),name:'',amount:0},b&&b.dataset&&b.dataset.le?{kind:'le'}:b&&b.dataset&&b.dataset.tov?{kind:'tov'}:b&&b.dataset&&b.dataset.sajat?{kind:'sajat'}:{})]});setTimeout(()=>{const l=document.querySelectorAll('[data-extra-name]');if(l.length)l[l.length-1].focus();},30);},
   'org-add':()=>{if(!S.draft||!isAdmin()||orgOf(S.draft))return;setDraft({extras:[...(S.draft.extras||[]),{id:uuid().slice(0,8),name:'',amount:10000,kind:'org',clientId:''}]});},
   'extra-del':b=>{if(!S.draft||!isAdmin())return;const l=(S.draft.extras||[]).slice();l.splice(Number(b.dataset.i),1);setDraft({extras:l});},
   back:()=>guard(()=>{S.projectId=null;S.draft=null;const ft=S._fromTab,fy=S._fromY||0;S._fromTab='';if(ft)S.tab=ft;render(true);scrollTo(0,ft?fy:0);}),
