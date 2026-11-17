@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ecb32c24ff",
+"at": "2026-11-17T08:16:47+02:00",
+"msg": "Új pozíció meghívó: egyértelmű szöveg (a korábbi megmarad); ha az újat nem vállalja, a korábbi elfogadott marad, a kártyán jelezve"
+},
+{
 "id": "879d44fe9b",
 "at": "2026-11-16T23:14:57+02:00",
 "msg": "Elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (meghívó az eddigi és az új pozícióval); sok pozíciónál rövid címkék"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szervezői jutalék levonása: csak a ±1 napon belüli projektek"
 },
 {
-"id": "860a841c3d",
-"at": "2026-11-16T21:18:22+02:00",
-"msg": "Végszámla-eltérés: a szervezői jutalék levonása (és a beszámított projektek) nem számít hibának, magyarázó jelzést kap"
-},
-{
-"id": "f525f1d83b",
-"at": "2026-11-16T19:15:51Z",
+"id": "175247efd3",
+"at": "2026-11-16T19:18:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
