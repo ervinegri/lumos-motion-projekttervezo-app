@@ -239,7 +239,9 @@ const qsMin=()=>100;
 function qsZoomTo(z,live){if(!QS_DOC)return;z=Math.max(qsMin(),Math.min(300,Math.round(z)));const cur=QS_DOC.zEff||100,wr=document.querySelector('#qs-pdf .qs-pages');QS_DOC.z=z;
   if(wr){wr.style.transformOrigin=(QS_DOC._ox!=null?QS_DOC._ox+'px '+QS_DOC._oy+'px':'top center');wr.style.transform='scale('+(z/cur)+')';}
   clearTimeout(QS_RT);if(!live)QS_RT=setTimeout(qsCommit,180);}
-function qsCommit(){clearTimeout(QS_RT);const box=$('qs-pdf'),mb=box&&box.closest('.qs-box'),z0=QS_DOC.zEff||100,ox=QS_DOC._ox,oy=QS_DOC._oy;
+/* a függőlegesen ténylegesen görgető elem (telefonon a felugró ablak vagy a háttere) */
+function qsScroller(el){let e=el&&el.parentElement;while(e&&e!==document.body){const cs=getComputedStyle(e);if(/(auto|scroll)/.test(cs.overflowY)&&e.scrollHeight>e.clientHeight+1)return e;e=e.parentElement;}return document.scrollingElement||document.documentElement;}
+function qsCommit(){clearTimeout(QS_RT);const box=$('qs-pdf'),mb=box&&qsScroller(box),z0=QS_DOC.zEff||100,ox=QS_DOC._ox,oy=QS_DOC._oy;
   /* a csippentés középpontja újrarajzolás után is ugyanott maradjon a képernyőn */
   const f=box&&ox!=null?{ox,oy,sx:ox-box.scrollLeft,st:mb?mb.scrollTop:0}:null;QS_DOC._ox=null;QS_DOC._keep=!!f;
   qsRender().then(()=>{const w2=document.querySelector('#qs-pdf .qs-pages');if(w2)w2.style.transform='';QS_DOC._keep=false;
