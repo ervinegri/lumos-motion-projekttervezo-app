@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fb19a96c10",
+"at": "2026-11-17T22:57:54+02:00",
+"msg": "Sötét mód: az idővonal sávjai egyszínűek (nincs átmenet, nincs névcímke-háttér)"
+},
+{
 "id": "3b64fd5a63",
 "at": "2026-11-17T22:56:59+02:00",
 "msg": "Idővonalra váltáskor a mai nap jön be; Egyenleg sor csak elmaradásnál; rövidebb keresőmező"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés fejléce: tableten is egy sor, egységes gombméret"
 },
 {
-"id": "6da336c75c",
-"at": "2026-11-17T16:42:49+02:00",
-"msg": "Fizetések tábla: a Projekt neve fejléc ugyanabban a sorban, mint a nevek (tablet/gép)"
-},
-{
-"id": "1e32808357",
-"at": "2026-11-17T14:41:32Z",
+"id": "0a801639c0",
+"at": "2026-11-17T14:43:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
