@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d41911fe1c",
+"at": "2026-11-17T15:15:19+02:00",
+"msg": "Ajánlat-néző: görgetés után nem ugrik vissza; forgatáskor újra a szélességhez igazodik"
+},
+{
 "id": "a68b70ef32",
 "at": "2026-11-17T15:13:48+02:00",
 "msg": "Lebegő Kilépés gomb: átlátszóbb háttér"
@@ -145,16 +150,6 @@ const ITEMS = [
 "id": "3f0df0d571",
 "at": "2026-11-17T14:24:09+02:00",
 "msg": "Ajánlat-néző: keskenyebb fehér szegély"
-},
-{
-"id": "d19459a481",
-"at": "2026-11-17T14:24:00+02:00",
-"msg": "Ajánlat-néző: a lap fehér margói levágva, a tartalom tölti ki a nézőt"
-},
-{
-"id": "e71b6dae5b",
-"at": "2026-11-17T12:23:10Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
