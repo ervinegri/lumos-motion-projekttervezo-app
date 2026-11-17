@@ -203,7 +203,11 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid
 /* a kiküldött ajánlat PDF-je: rámutatáskor előre letöltjük, és megjegyezzük – kattintásra azonnal nyílik */
 const QS_C={};const qsGet=id=>QS_C[id]||(QS_C[id]=call('quoteSent',{dealId:id,op:'pdf'}).catch(e=>{delete QS_C[id];throw e;}));
 document.addEventListener('pointerover',e=>{const c=e.target&&e.target.closest&&e.target.closest('.dl-card'),b=(c&&c.querySelector('[data-action="q-sent-open"]'))||(e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"]'));   /* már a kártyára mutatva előtölt */if(b&&b.dataset.id&&!QS_C[b.dataset.id])qsGet(b.dataset.id).catch(()=>{});},{passive:true});
-ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;let r=null;try{r=Object.assign({},await qsGet(d.id));}catch(e){handleErr(e);return;}
+ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;
+  /* betöltés közben egy másik ajánlatra kattintva: mindig az utoljára kért nyílik meg (a korábbi betöltés eredménye elvész, nem ugrik fel később) */
+  const tok=S._qsTok=(S._qsTok||0)+1;document.querySelectorAll('.dl-qsent.qs-loading').forEach(x=>x.classList.remove('qs-loading'));if(b.classList)b.classList.add('qs-loading');
+  let r=null;try{r=Object.assign({},await qsGet(d.id));}catch(e){if(tok===S._qsTok){if(b.classList)b.classList.remove('qs-loading');handleErr(e);}return;}
+  if(b.classList)b.classList.remove('qs-loading');if(tok!==S._qsTok)return;
   if(!r||!r.b64){delete QS_C[d.id];   /* nem találtuk: a PDF feltölthető (pl. az értékesítő elküldött leveléből letöltve) */
     openModal('📨 Kiküldött ajánlat – PDF feltöltése',`<p style="margin:0 0 10px">Ennek az ajánlatnak a PDF-jét nem találtam a levelek között – valószínűleg ${esc(d.ownerName||'az értékesítő')} saját postafiókjából ment ki, ahhoz az app nem fér hozzá.</p><p class="hint" style="margin:0 0 12px">Ha megvan a PDF (pl. az elküldött levél mellékletéből letöltve), töltsd fel ide – utána a kártyáról is megnyitható lesz.</p><input class="inp" id="m-qsFile" type="file" accept="application/pdf,.pdf">`,
       {submitLabel:'Feltöltés',noDraft:true,submit:async()=>{const fi=$('m-qsFile'),f=fi&&fi.files&&fi.files[0];if(!f){toast('Válaszd ki a PDF-et.',true);return;}if(f.size>9*1024*1024){toast('A fájl túl nagy (max. 9 MB).',true);return;}
@@ -221,12 +225,13 @@ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.cl
 
 /* kiküldött ajánlat nézője: a PDF oldalait maga az app rajzolja ki (pdf.js) – telefonon is működik; nagyítás / kicsinyítés / teljes szélesség */
 let QS_DOC=null;const QS_Z=[50,75,100,125,150,200];
-async function qsRender(){const box=$('qs-pdf');if(!box||!QS_DOC)return;try{const lib=await pdfLib();QS_DOC.doc=QS_DOC.doc||await lib.getDocument({data:QS_DOC.u8.slice(),isEvalSupported:false}).promise;const doc=QS_DOC.doc;
+async function qsRender(){const box=$('qs-pdf'),D=QS_DOC;if(!box||!D)return;try{const lib=await pdfLib();QS_DOC.doc=QS_DOC.doc||await lib.getDocument({data:QS_DOC.u8.slice(),isEvalSupported:false}).promise;const doc=QS_DOC.doc;
     const mob=box.clientWidth<700,pad=mob?16:32,W=Math.max(200,box.clientWidth-pad),H=Math.max(200,box.clientHeight-pad),dpr=Math.min(2,window.devicePixelRatio||1),frag=document.createDocumentFragment();
     for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),fitW=W/v1.width,fit=fitW,sc=QS_DOC.z?QS_DOC.z/100*fitW:fit,_e=(QS_DOC.zEff=Math.round(sc/fitW*100),QS_DOC.zFit=100);
       const vp=pg.getViewport({scale:sc*dpr}),c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width=Math.floor(vp.width/dpr)+'px';c.style.height=Math.floor(vp.height/dpr)+'px';c.className='qs-page';
       await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;frag.appendChild(c);}
-    if(!$('qs-pdf'))return;const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
+    if(!$('qs-pdf')||$('qs-pdf')!==box||QS_DOC!==D)return;   /* közben másik ajánlat nyílt meg: ezt a rajzolást eldobjuk */
+    const fy=box.scrollHeight>box.clientHeight?(box.scrollTop+box.clientHeight/2)/box.scrollHeight:0,fx=box.scrollWidth>box.clientWidth?(box.scrollLeft+box.clientWidth/2)/box.scrollWidth:.5;
     const wr=document.createElement('div');wr.className='qs-pages';wr.appendChild(frag);box.innerHTML='';box.appendChild(wr);if(!QS_DOC._keep){if(fy)box.scrollTop=fy*box.scrollHeight-box.clientHeight/2;box.scrollLeft=Math.max(0,fx*box.scrollWidth-box.clientWidth/2);}}   /* a nézet közepe nagyítás után is ugyanott marad */catch(e){box.innerHTML='<p class="bad-txt" style="margin:20px">A PDF nem jeleníthető meg itt – nyisd meg új lapon vagy töltsd le.</p>';}}
 ACT['qs-zoom']=b=>{const w=b.closest('.qs-zoom');if(!w||!QS_DOC)return;let z=QS_DOC.z||0,d=Number(b.dataset.d);
   if(d===0)z=0;else{const cur=z||QS_DOC.zEff||100;z=d>0?(QS_Z.find(x=>x>cur+1)||300):([...QS_Z].reverse().find(x=>x<cur-1)||0);if(z&&z<qsMin())z=0;}   /* a legkisebb méret a teljes oldal */

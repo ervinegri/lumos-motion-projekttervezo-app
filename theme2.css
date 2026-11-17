@@ -2589,3 +2589,4 @@ html body #modalRoot .qs-box{padding-bottom:0!important}
 /* ajánlat-néző telefonon: a gombsáv alatt a rendszer alsó sávja csak egyszer számít (eddig kétszer) */
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-bottom:0!important;min-height:0!important}
 html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box .mfoot{padding-top:4px!important;padding-bottom:max(4px,calc(env(safe-area-inset-bottom) - 14px))!important;margin-top:0!important}
+html body .dl-qsent.qs-loading{opacity:.6;cursor:progress!important}html body .dl-qsent.qs-loading::before{content:'';display:inline-block;width:9px;height:9px;margin-right:4px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:szSpin .7s linear infinite;vertical-align:-1px}
