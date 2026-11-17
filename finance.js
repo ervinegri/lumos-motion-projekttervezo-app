@@ -274,7 +274,7 @@ function viewFinance(){
           <tfoot><tr><td><b>Elérhető</b></td><td class="r ${bal.endRezsi<0?'bad-txt':'ok-txt'}"><b>${sFt(bal.endRezsi)}</b></td><td class="r ${bal.endMkt<0?'bad-txt':'ok-txt'}"><b>${sFt(bal.endMkt)}</b></td></tr></tfoot></table></div></div>
     </div>
     <div class="panel"><h3>🤝 Tagi kölcsön <span class="aside">fennmaradó: <b>${ftFmt(lIn-lOut)}</b></span></h3>
-      <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Dátum</th><th>Típus</th><th>Bank</th><th>Megjegyzés</th><th class="r">Összeg</th><th></th></tr></thead><tbody>${loans.map(l=>`<tr><td>${esc(l.date)}</td><td>${l.kind==='vissza'?'<span class="statuspill p-ok">Cég visszafizeti</span>':'<span class="statuspill p-bad">Kölcsön a cégnek</span>'}</td><td>${esc(l.kind==='vissza'?loanBank(l)+(l.bank2?' → '+l.bank2:''):(l.bank2?l.bank2+' → ':'')+loanBank(l))}</td><td>${esc(l.note||'')}</td><td class="r">${moneyFmt(l.amount)}</td><td class="nowrap"><button class="editbtn" type="button" data-action="fin-loan-edit" data-id="${esc(l.id)}" aria-label="Módosítás" title="Módosítás">✏️</button><button class="trash" type="button" data-action="fin-loan-del" data-id="${esc(l.id)}" aria-label="Törlés" title="Törlés">🗑️</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-row">Nincs tagi kölcsön.</td></tr>'}</tbody>
+      <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Dátum</th><th>Típus</th><th>Bank</th><th>Megjegyzés</th><th class="r">Összeg</th><th></th></tr></thead><tbody>${loans.map(l=>`<tr><td>${esc(l.date)}</td><td>${l.kind==='vissza'?'<span class="statuspill p-ok">Cég visszafizeti</span>':'<span class="statuspill p-bad">Kölcsön a cégnek</span>'}</td><td>${esc(l.kind==='vissza'?loanBank(l)+(l.bank2?' → '+l.bank2:''):(l.bank2?l.bank2+' → ':'')+loanBank(l))}</td><td>${esc(l.note||'')}</td><td class="r">${moneyFmt(l.amount)}</td><td class="nowrap"><button class="editbtn" type="button" data-action="fin-loan-edit" data-id="${esc(l.id)}" aria-label="Módosítás" title="Módosítás">✏️</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-row">Nincs tagi kölcsön.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="4">Kölcsön összesen: <b>${ftFmt(lIn)}</b> · visszafizetve: <b>${ftFmt(lOut)}</b></td><td class="r"><b>${ftFmt(lIn-lOut)}</b></td><td></td></tr></tfoot></table></div>
       <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-loan-new">+ Tétel</button></div></div>`;
 }
@@ -361,7 +361,7 @@ function finLoanModal(l){const v=l||{},k=v.kind==='vissza'?'vissza':'be',bk=l?lo
     ${moneyField('amount','Összeg',v.amount??null,{steps:false})}
     <div class="field"><label for="m-bank" id="m-bankL">${loanL(k)[0]}</label><select class="inp" id="m-bank" name="bank" data-cmb="Bank…">${bk?bankOpts(k).replace(`value="${bk}"`,`value="${bk}" selected`):bankOpts(k)}</select></div>
     <div class="field"><label for="m-bank2" id="m-bank2L">${loanL(k)[1]}</label><select class="inp" id="m-bank2" name="bank2">${bank2Opts(v.bank2||'')}</select></div>
-    ${mf('note','Megjegyzés',{full:true,max:300,v:v.note||''})}</div>`,{left:l?`<button type="button" class="btn danger small" data-action="fin-loan-del" data-id="${esc(l.id)}">Törlés</button>`:'',submitLabel:'Mentés',submit:async fd=>{
+    ${mf('note','Megjegyzés',{full:true,max:300,v:v.note||''})}</div>`,{submitLabel:'Mentés',submit:async fd=>{
     const row={id:v.id||'',kind:fd.get('kind'),date:fd.get('date'),amount:num(moneyVal(fd.get('amount'))),bank:String(fd.get('bank')||''),bank2:String(fd.get('bank2')||''),note:String(fd.get('note')||'').trim()};
     if(!row.amount){toast('Add meg az összeget.',true);return;}
     row.id=row.id||newId();finSave('finUpsert',{table:'loan',row},'Tétel mentve',()=>finLocal('loan',[row]));}});}
@@ -381,7 +381,8 @@ Object.assign(ACT,{
     else confirmModal('Kiadás törlése','Biztosan törlöd ezt a kiadást?','Törlés',()=>finSave('finDelete',{table:'expense',id:e.id},'Törölve',()=>finLocal('expense',[{id:e.id}],true)));},
   'fin-loan-new':()=>finLoanModal(null),
   'fin-loan-edit':b=>{const l=((S.fin&&S.fin.loan)||[]).find(x=>x.id===b.dataset.id);if(l)finLoanModal(l);},
-  'fin-loan-del':b=>{const id=b.dataset.id;confirmModal('Tétel törlése','Biztosan törlöd ezt a tagi kölcsön tételt?','Törlés',()=>finSave('finDelete',{table:'loan',id},'Törölve',()=>finLocal('loan',[{id}],true)));}
+  /* tagi kölcsön tétel nem törölhető (csak módosítható) */
+  'fin-loan-del':()=>{}
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='fin-month'){setMonthAll(t.value);render(true);return;}

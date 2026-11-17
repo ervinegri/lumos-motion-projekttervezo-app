@@ -87,6 +87,7 @@ function finUpsert_(u, a) {
 function finDelete_(u, a) {
   const table = { income: 'finIncome', expense: 'finExpense', loan: 'finLoan' }[a && a.table];
   if (!table) throw new Error('Ismeretlen táblázat.');
+  if (table === 'finLoan') throw new Error('Tagi kölcsön tétel nem törölhető – csak módosítható.');
   withLock_(() => { const sh = sheetFor_(table), row = findRow_(sh, str_(a.id, 64)); if (row) sh.deleteRow(row); dbFlush_(); });
   logEvent_(u, 'Bevétel és kiadás', '', a.table + ' tétel törölve');
   return finPart_([a.table]);
