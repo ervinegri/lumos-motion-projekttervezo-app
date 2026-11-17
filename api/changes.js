@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7bb55812b3",
+"at": "2026-11-17T08:33:08+02:00",
+"msg": "Alapadatok mobilon: dátum teljes szélességben, kezdés+végzés egy sorban, a többi mező egymás alatt"
+},
+{
 "id": "5104557330",
 "at": "2026-11-17T08:32:54+02:00",
 "msg": "Díjtáblák: a szakember- és díjoszlop a tartalomhoz igazodik; előfoglalás összekötése a lehetőség ablakából (a projektben a felhívó sor törölve)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: kompakt, egységes meghívó-állapotcímkék"
 },
 {
-"id": "d9dc1d78b3",
-"at": "2026-11-16T21:29:59+02:00",
-"msg": "Névjegy: a Megosztás gomb csak ott jelenik meg, ahol a böngésző fájlt tud megosztani; hiba esetén letöltés"
-},
-{
-"id": "69632aeb86",
-"at": "2026-11-16T19:29:25Z",
+"id": "49ed6345f0",
+"at": "2026-11-16T19:30:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
