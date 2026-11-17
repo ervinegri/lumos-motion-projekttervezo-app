@@ -428,7 +428,7 @@ function toast(msg,isErr,center){if(isErr){center=true;msg=String(msg||'');if(!/
   let dim=document.getElementById('toastDim');if(center&&!dim){dim=document.createElement('div');dim.id='toastDim';dim.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');dim.remove();});document.body.appendChild(dim);}else if(!center&&dim)dim.remove();   /* középre kitett üzenetnél elsötétül a háttér; kattintásra bezárul */
   const hide=()=>{if(center)return;toastTimer=setTimeout(()=>{t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();},ms);};hide();   /* a középre kitett figyelmeztetés csak kattintásra tűnik el */
   t.onclick=()=>{clearTimeout(toastTimer);t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();};
-  if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
+  if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{if(t.classList.contains('center'))return;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
 
 
 /* ===== Telefonszám országhívószámmal (alapból +36) ===== */
