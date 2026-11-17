@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9b3d6cbe5e",
+"at": "2026-11-17T23:19:38+02:00",
+"msg": "Átnézés: 23 sehol nem használt felületi függvény és a kikapcsolt automatikus mentés maradéka törölve"
+},
+{
 "id": "2f48ae08a5",
 "at": "2026-11-17T23:17:13+02:00",
 "msg": "Átnézés: az Elvetés gomb a teljes visszaállítást használja (dupla kulcs); szerződés mentése után a pénzügyi adatok frissülnek; pipálás-felirat escape; halott kódrészek törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tablet: minden táblázat a képernyő széléig ér, a projekt neve oszlop oldalra görgetéskor a helyén marad"
 },
 {
-"id": "846966a99f",
-"at": "2026-11-17T17:04:21+02:00",
-"msg": "Fizetési állapot: a díjbekérő és a belőle készült előlegszámla egy befizetésnek számít (nem lesz tévesen „Teljes fizetve”)"
-},
-{
-"id": "b69060f1c4",
-"at": "2026-11-17T15:02:27Z",
+"id": "8801dc1b85",
+"at": "2026-11-17T15:04:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
