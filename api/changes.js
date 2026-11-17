@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e4dfa5f0fe",
+"at": "2026-11-17T14:55:03+02:00",
+"msg": "Kiküldött ajánlat: betöltés közben másikra kattintva mindig az utoljára kért nyílik meg"
+},
+{
 "id": "c2d7ed12f6",
 "at": "2026-11-17T14:50:07+02:00",
 "msg": "Ajánlat-néző: zoom elengedésekor a valóban görgető elemet igazítjuk (nem ugrik)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: a nagyítás újratölti a PDF-et"
 },
 {
-"id": "c58a05c124",
-"at": "2026-11-17T12:55:01+02:00",
-"msg": "Kiküldött ajánlat nézője: nagyítás, kicsinyítés, teljes oldal, letöltés"
-},
-{
-"id": "d545063442",
-"at": "2026-11-17T10:54:54Z",
+"id": "f217d26e7d",
+"at": "2026-11-17T10:55:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
