@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "75e9e4acbe",
+"at": "2026-11-17T10:56:56+02:00",
+"msg": "Idővonal: homokóra a jóváhagyásra váró (sárga) részek közepén"
+},
+{
 "id": "6cbb82aba3",
 "at": "2026-11-17T10:01:03+02:00",
 "msg": "Online pénzügyi adatkapcsolat: kimenő és bejövő számlák fogadása (PDF a Drive-ra), szakember-számlák és kimenő utalások párosítása a Kifizetésekhez, szállítói számlák kiadásként, havi banki forgalom, ügyfelek fizetési fegyelme"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Díjtáblák: a szakember- és díjoszlop a tartalomhoz igazodik; előfoglalás összekötése a lehetőség ablakából (a projektben a felhívó sor törölve)"
 },
 {
-"id": "2632ee1db8",
-"at": "2026-11-17T08:29:14+02:00",
-"msg": "Több napos rendezvény: a napok egyenként hozzáadhatók (＋ Nap hozzáadása), mindegyik saját kezdéssel és végzéssel"
-},
-{
-"id": "02d398abef",
-"at": "2026-11-17T06:27:00Z",
+"id": "00d57e484a",
+"at": "2026-11-17T06:29:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
