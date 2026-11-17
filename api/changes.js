@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c870e2335e",
+"at": "2026-11-17T22:48:57+02:00",
+"msg": "Sötét mód: a naptár sávjaiban nincs világos átmenet; nézetváltáskor a frissítés-értesítő az adott szerepkör szerinti (nem a teljes változásnapló)"
+},
+{
 "id": "d7867539ce",
 "at": "2026-11-17T22:47:17+02:00",
 "msg": "Sötét mód: a felugró ablak háttere sötét fátyol marad, a névjelvény menüje is sötét; Stáb lista: az egész sor kattintható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-visszaigazoló levél: nincs „válaszolj erre a levélre” sor, „döntéseidet” szó törölve"
 },
 {
-"id": "a2df884eed",
-"at": "2026-11-17T16:20:59+02:00",
-"msg": "Naptár idővonala telefonon: háttérfrissítéskor a görgetés és az eltüntetett menü megmarad (mint a Fizetéseknél)"
-},
-{
-"id": "d1fdcc797e",
-"at": "2026-11-17T14:19:37Z",
+"id": "55d8a9dd08",
+"at": "2026-11-17T14:21:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
