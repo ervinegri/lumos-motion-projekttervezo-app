@@ -175,7 +175,7 @@ function api_(raw) {
     else throw new Error('Ismeretlen művelet.');
     };
     try { data = run(); if (DB_) dbFlush_(); }
-    catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFallback_(e1); data = run(); }   /* a Neon nem érhető el: automatikusan vissza a Google-táblázatra, és a kérés onnan fut le */
+    catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFailed_(e1); throw new Error('Az adatbázis most nem érhető el – várj egy percet, és próbáld újra.'); }   /* a kérést nem futtatjuk újra (egy számla vagy levél már kimehetett); tartós kiesésnél vált a táblázatra */
     out = { ok: true, data: data === undefined ? null : data };
   } catch (err) {
     try { if (DB_) { Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; }); dbFlush_(); } } catch (e2) { }   // hibánál a félkész módosításokat eldobjuk, csak a napló megy
@@ -207,6 +207,7 @@ function neonSql_(list, url) {
   const single = list.length === 1;
   const payload = JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) });
   let res;
+  for (let att = 0; ; att++) {   // átmeneti hiba (hálózat, 5xx, 429): rövid várakozás után még kétszer próbálja
   try {
   if (url) {   // közvetlen kapcsolat (ha a NEON_URL szkripttulajdonság be van állítva)
     const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(String(url));
@@ -216,7 +217,9 @@ function neonSql_(list, url) {
   } else {
     res = UrlFetchApp.fetch(DB_PROXY_URL, { method: 'post', contentType: 'application/json', muteHttpExceptions: true, payload: payload, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
   }
-  } catch (e) { if (/NEON_URL nem érvényes/.test(String(e && e.message))) throw e; throw new Error('Adatbázis-hiba (hálózat): ' + String(e && e.message || e).slice(0, 200)); }
+  } catch (e) { if (/NEON_URL nem érvényes/.test(String(e && e.message))) throw e; if (att < 2) { Utilities.sleep(400 + att * 1200); continue; } throw new Error('Adatbázis-hiba (hálózat): ' + String(e && e.message || e).slice(0, 200)); }
+  if (att < 2 && (res.getResponseCode() >= 500 || res.getResponseCode() === 429)) { Utilities.sleep(400 + att * 1200); continue; }
+  break; }
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
@@ -311,6 +314,7 @@ function dbFlush_() {
   neonSql_(logs.map(r => ({ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) VALUES ($1,$2,$3,$4,$5,$6)', params: r })).concat(dirty.map(s => { const n = s.getLastRow(), rows = s.v.slice(0, n).map(r => (r || []).slice(0, Math.max(s.cols, 1)).map(x => x === undefined || x === null ? '' : x));
     s._json = JSON.stringify(rows); return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now() RETURNING tab, ver::text', params: [s.tab, s._json] }; }))).forEach(res => { try { const x = res && res.rows && res.rows[0]; if (!x) return; const s = DB_.sheets[x[0]]; if (s && s._json) tabCachePut_(x[0], x[1], s._json); } catch (e) { } });   // a most írt tábla rögtön a gyorsítótárba (a következő olvasás nem tölti le)
   dirty.forEach(s => { s.dirty = false; s.isNew = false; });
+  if (dirty.length) dataBump_();   // bármilyen írás (a betöltés karbantartó lépései is): a többi nyitott lap frissül
 }
 /* Napló az adatbázisban (csak hozzáfűzés; a lista az utolsó 300 bejegyzés) */
 function dbLog_(row) { (DB_.pendingLog = DB_.pendingLog || []).push(row.map(x => String(x == null ? '' : x))); }   // a napló a következő mentéssel együtt megy (a kérés végén mindenképp kiírjuk)
@@ -319,6 +323,11 @@ function dbGetLog_() { const r = neonSql_([{ query: 'SELECT at, who, role, actio
 /** Leállt-e a Neon: hálózati hiba, szerverhiba (5xx), vagy a keret / felfüggesztés miatti elutasítás. A lekérdezési (SQL) hibák nem számítanak. */
 function neonDown_(e) { const m = String(e && e.message || e); if (!/^Adatbázis-hiba/.test(m)) return false;
   return /\(hálózat\)|\((5\d\d|402|429)\)/.test(m) || /quota|exceeded|suspend|disabled|limit|unavailable|timed? ?out|ECONN|ENOTFOUND/i.test(m); }
+/** Neon-hiba: a táblázatra csak tartós kiesésnél vált (10 percen belül legalább 4 sikertelen kérés, mindegyik már 3 próbálkozás után),
+    mert a táblázat csak az éjszakai mentés állapotát tartalmazza – egy átmeneti akadás miatt nem dolgozhat az app napos adatból. */
+function neonFailed_(e) {
+  try { const C = CacheService.getScriptCache(), n = Number(C.get('neon_fail') || 0) + 1; C.put('neon_fail', String(n), 600); if (n >= 4) { C.remove('neon_fail'); neonFallback_(e); } } catch (x) {}
+}
 /** Automatikus visszaesés: a mód „sheet” lesz (az utolsó mentett táblázat-állapottal), az ügyvezetők e-mailt kapnak; a Beállításokban is látszik. */
 function neonFallback_(e) {
   const P = PropertiesService.getScriptProperties(), msg = String(e && e.message || e).slice(0, 300);

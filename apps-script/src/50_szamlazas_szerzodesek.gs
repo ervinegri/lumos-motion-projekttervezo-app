@@ -104,7 +104,8 @@ function szApplyPay_(targets) {
         // a fizetett díjbekérőből előlegszámla lesz – ugyanaz a befizetés kétszer ne számítson: a két csoport közül a nagyobb
         const pd = x => x.kind === 'eloleg' && x.manual ? (Number(x.invGross) || 0) : (Number(x.invPaid) || 0);
         const paid = Math.max(li.filter(x => x.kind === 'dijbekero').reduce((s2, x) => s2 + pd(x), 0), li.filter(x => x.kind === 'eloleg').reduce((s2, x) => s2 + pd(x), 0));
-        if (val > 0 && paid >= Math.round(val * 1.27) - 5) st = 'teljes'; } catch (e) {}
+        const vx = li.find(x => (Number(x.invGross) || 0) > 0 && (Number(x.invNet) || 0) > 0), rt = vx ? Number(vx.invGross) / Number(vx.invNet) : 1.27;   // a bizonylat saját ÁFA-aránya (0% / AAM / EU-s ügyfélnél 1,0)
+        if (val > 0 && paid >= Math.round(val * rt) - 5) st = 'teljes'; } catch (e) {}
     }
     if (!st) return;
     if (t.projectId) { let was = ''; try { const pp = readAll_('projects').find(x => x.id === t.projectId); was = String((pp && pp.payStatus) || ''); } catch (e) {}
@@ -1138,10 +1139,10 @@ function szBankMatch_(t, invoices) {
   let best = null;
   invoices.forEach(x => {
     const rest = Math.round((Number(x.invGross) || 0) - (Number(x.invPaid) || 0)); if (rest <= 0 || !x.no) return;
-    const no = String(x.no).replace(/\s+/g, '').toUpperCase(), tail = (no.match(/(\d+)\D*$/) || [])[1] || '';
+    const no = String(x.no).replace(/\s+/g, '').toUpperCase(), tail = ((no.match(/(\d+)\D*$/) || [])[1] || '').replace(/^0+/, '');   // a számlaszám végi sorszám, kezdő nullák nélkül
     let sc = 0;
     if (Math.abs(rest - amt) <= 1) sc += 50; else if (Math.abs(Math.round(Number(x.invGross) || 0) - amt) <= 1) sc += 35;
-    if (noteN.indexOf(no) >= 0) sc += 45; else if (tail.length >= 3 && new RegExp('(^|\\D)' + tail.replace(/^0+/, '') + '(\\D|$)').test(note)) sc += 15;
+    if (noteN.indexOf(no) >= 0) sc += 45; else if (tail.length >= 3 && new RegExp('(^|\\D)0*' + tail + '(\\D|$)').test(note)) sc += 15;   // legalább 3 jegy (a „000” vagy egy dátum napja ne egyezzen)
     const bn = szBankNorm_(x.buyer).split(' ').filter(w => w.length > 3); if (pn.length && bn.some(w => pn.indexOf(w) >= 0)) sc += 25;
     if (sc >= 50 && (!best || sc > best.sc)) best = { id: x.id, sc: sc };
   });

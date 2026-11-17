@@ -367,7 +367,7 @@ function arkDealPreset(x){const ft=v=>ftFmt(Math.round(num(v))),rows=(x.rows||[]
   rows.forEach(r=>ARK_SVC.forEach(([re,n])=>{if(re.test(r.name||'')&&!svc.includes(n))svc.push(n);}));
   if(/előadás/i.test(x.title||'')&&!svc.includes('Előadásrögzítés'))svc.unshift('Előadásrögzítés');
   const note='🧮 Árkalkulátor ('+(x.title||'')+'):\n'+rows.map(r=>'• '+r.name+(r.qty&&r.qty!=='1 db'?' ('+r.qty+')':'')+': '+ft(r.amount)).join('\n')+'\nÖsszesen nettó: '+ft(val);
-  return {title:x.title||'Árkalkulátor',value:val,services:svc.join(', '),note,nextStep:'Árajánlat küldése az ügyfélnek',nextDate:new Date(Date.now()+864e5).toISOString().slice(0,10)};}
+  return {title:x.title||'Árkalkulátor',value:val,services:svc.join(', '),note,nextStep:'Árajánlat küldése az ügyfélnek',nextDate:addDays(todayISO(),1)};}
 window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmotion.hu'||!window._arkDealNew)return;const x=(e.data||{}).arkQuoteData;if(!x)return;window._arkDealNew=0;
   const pre=arkDealPreset(x);if(!pre.value){toast('Előbb válassz tételeket a kalkulátorban.',true);return;}closeModal();setTimeout(()=>dealModal(null,pre),0);});
 ACT['ark-msg']=b=>{const f=$('ark-frame');if(f&&f.contentWindow)f.contentWindow.postMessage({ark:b.dataset.m},'https://kalkulator.lumosmotion.hu');};   // a kalkulátor saját gombjait indítja

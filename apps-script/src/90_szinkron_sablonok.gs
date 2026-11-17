@@ -77,7 +77,7 @@ function salesSync() {
   catch (e) { if (/does not exist|nem létezik|42P01/i.test(String((e && e.message) || e))) return { waiting: 'A Sales App még nem az adatbázisban tárol (dbMoveToNeon).' }; throw e; }
   if (!S.list.length) return { orders: 0 };
   const links = {}; (neonSql_([{ query: 'SELECT order_id, project_id, coalesce(client_id, \'\'), snap::text FROM lx_link' }])[0].rows || []).forEach(r => { links[r[0]] = { projectId: r[1], clientId: r[2], snap: JSON.parse(r[3] || '{}') }; });
-  dataBump_();   // friss adatból dolgozunk
+  if (!dbOn_()) dataBump_();   // táblázat módban friss adatból dolgozunk (Neonban minden írás már frissíti a verziót – a nyitott lapok így nem töltődnek újra 5 percenként)
   const base = loadBase_(), projById = byId_(base.projects), clients = base.clients || [], crew = base.crew || [];
   const out = { orders: S.list.length, created: 0, updated: 0, pulled: 0, cancelled: 0, errors: [] }, pulls = [];
   let newCount = 0;
