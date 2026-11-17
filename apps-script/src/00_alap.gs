@@ -169,7 +169,7 @@ function api_(raw) {
     else if (fn === 'googleLogin') return googleLogin(args[0]);
     else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
-    else if (fn === 'dbStatus') return dbStatus_();   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
+    else if (fn === 'dbStatus') return dbStatus_(args[0] === 'sizes');   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
     else if (fn === 'szBank' || fn === 'szData') return szDataIn_(args[0], args[1]);   // nyilvános (a Vercel /api/szbank továbbítja): a számlázz.hu banki tranzakciója, azonosító kulccsal
     else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
@@ -236,11 +236,12 @@ function nqCount_(n) {
     o[ctx] = (o[ctx] || 0) + (n || 1); C.put(k, JSON.stringify(o), 21600);
   } catch (e) {}
 }
-function dbStatus_() {
+function dbStatus_(sizes) {
   const P = PropertiesService.getScriptProperties(), C = CacheService.getScriptCache(), hours = {};
   for (let i = 0; i < 6; i++) { const k = 'nq_' + Utilities.formatDate(new Date(Date.now() - i * 3600e3), SHEET_TZ, 'yyyyMMddHH'); try { const v = C.get(k); if (v) hours[k.slice(3)] = JSON.parse(v); } catch (e) {} }
   let fb = null; try { fb = JSON.parse(P.getProperty('DB_FALLBACK') || 'null'); } catch (e) {}
   return { mode: P.getProperty(DB_MODE_PROPERTY) === 'neon' ? 'neon' : 'sheet', now: now_(), fallbackAt: fb ? fb.at : '', lastBackup: P.getProperty('DB_LAST_BACKUP') || '', neonQueriesByHour: hours,
+    sizes: sizes ? (() => { try { return (neonSql_([{ query: "SELECT 'lpm:' || tab, octet_length(rows::text)::text, ver::text, updated_at::text FROM lpm_sheet UNION ALL SELECT 'ls:' || tab, octet_length(rows::text)::text, ver::text, updated_at::text FROM ls_sheet ORDER BY 2 DESC" }])[0].rows || []).map(r => ({ tab: r[0], bytes: Number(r[1]), ver: Number(r[2]), at: r[3] })); } catch (e) { return String(e.message || e).slice(0, 200); } })() : undefined,   /* forgalom-elemzéshez: táblánként a méret (adat nélkül) */
     triggers: (() => { try { return ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction() + ' (' + String(t.getEventType()) + ')'); } catch (e) { return []; } })() };
 }
 function dbSchema_(url) {
