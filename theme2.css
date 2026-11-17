@@ -2443,3 +2443,5 @@ html body .cl-pay{font-size:11.5px;font-weight:600;margin-top:2px}html body .cl-
 html body .tl-bar .tl-okfill.tl-waitfill{display:flex;align-items:center;justify-content:center;overflow:hidden}
 html body .tl-bar .tl-okfill.tl-waitfill::after{content:'⏳';font-size:12px;line-height:1;text-shadow:none}
 html body .tl-track .tl-cut.tl-withmain.cut-done:has(.tl-waitfill)::after{content:none}
+/* nézetmenü: a nem aktuális nézetek beljebb (az aktuális ✓ sor a bal szélen) */
+html body .uc-pop .uc-it[data-uv]:not(.on){padding-left:44px!important}
