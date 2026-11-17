@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e174bd61e6",
+"at": "2026-11-17T23:36:12+02:00",
+"msg": "Sötét mód: az oldalcímek a logó feliratához hasonlóan halványabbak"
+},
+{
 "id": "e838aef76a",
 "at": "2026-11-17T23:35:00+02:00",
 "msg": "Sötét mód: a sötétzöld kiemelőszín (aktív hónap, gombok) sötét marad, szövegként világoszöld"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Küldés az ügyfélnek: a mentett mintában ragadt korábbi videónév (tárgyban is) az aktuális videóra cserélődik"
 },
 {
-"id": "d693942fc9",
-"at": "2026-11-17T22:11:49+02:00",
-"msg": "Projekt Pénzügyek: a Levonások után kártya új sorban"
-},
-{
-"id": "8bd2449a08",
-"at": "2026-11-17T15:07:05Z",
+"id": "b63a02ae5b",
+"at": "2026-11-17T20:12:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
