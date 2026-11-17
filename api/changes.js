@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68208a50a1",
+"at": "2026-11-17T16:00:25+02:00",
+"msg": "számlázz.hu adatkapcsolat válasz: az alap/id csak egész számként (XSD szerint)"
+},
+{
 "id": "558b9d92c6",
 "at": "2026-11-17T15:59:06+02:00",
 "msg": "Fizetések tábla: az oszlopszélesség a szöveg tényleges szélességéből (nem nő újrarajzolásonként)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Teljes képernyő: lebegő Kilépés gomb, gombsáv nélkül"
 },
 {
-"id": "c699288551",
-"at": "2026-11-17T15:09:56+02:00",
-"msg": "Betöltés-jelző szélesebb, a projektnév nem törik"
-},
-{
-"id": "af862f3e42",
-"at": "2026-11-17T13:09:26Z",
+"id": "0b2845cfe3",
+"at": "2026-11-17T13:10:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
