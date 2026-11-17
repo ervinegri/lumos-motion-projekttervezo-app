@@ -170,7 +170,7 @@ function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
     <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPages().join('')}</div></div></div>`,
     {submitLabel:'📨 Küldés',noDraft:true,
      submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
-       try{const pdf=await qPdfCached();const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:q.opts.length>1?0:qTotal(),opts:q.opts.length});
+       try{const pdf=await qPdfCached();const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:q.opts.length>1?0:qTotal(),opts:q.opts.length,q:(()=>{const st=Object.assign({},q);delete st._pdf;delete st._pdfP;delete st.sig;return st;})()});
          if(r&&r.deals)S.deals=r.deals;closeModal();S.q=null;render(true);toast(r&&r.test?'TESZT: az ajánlat csak neked ment ki':'Árajánlat elküldve: '+q.to);}
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');
@@ -194,3 +194,13 @@ function qRestore(){if(S._qRestored)return;S._qRestored=true;let o=null;try{o=JS
 /* Érvényesség módosítása: az e-mail szövegében is frissül a napok száma */
 document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid'||!S.q)return;const n=Math.max(1,parseInt(t.value,10)||20);S.q.valid=String(n);
   S.q.body=String(S.q.body||'').replace(/Az ajánlat \d+ napig érvényes\./,'Az ajánlat '+n+' napig érvényes.');const bd=$('q-body');if(bd)bd.value=S.q.body;});
+
+/* Kiküldött ajánlat: a lehetőség kártyáján / ablakában – a PDF megnyitása, vagy új verzió az elküldött ajánlatból */
+ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;let r=null;try{r=await call('quoteSent',{dealId:d.id,op:'get'});}catch(e){handleErr(e);return;}
+  if(!r){toast('Ehhez a lehetőséghez nincs elmentett kiküldött ajánlat (a funkció előtt küldött ajánlatok nem kerültek mentésre).',true);return;}
+  const ft=n=>String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  openModal('📨 Kiküldött ajánlat',`<p style="margin:0 0 6px"><b>${esc(d.title||'')}</b></p><p class="hint" style="margin:0">Kiküldve: ${esc(String(r.at||'').slice(0,16))}${r.by?' · '+esc(r.by):''}<br>Címzett: ${esc(r.to||'')}${Number(r.total)?'<br>Összeg: '+ft(r.total)+' Ft + ÁFA (nettó)':''}</p>`,
+    {submitLabel:'📄 PDF megnyitása',noDraft:true,left:r.q?`<button type="button" class="btn outline" data-action="q-sent-new" data-id="${esc(d.id)}">✏️ Új verzió ebből</button>`:'',submit:async()=>{
+      const w=window.open('about:blank','_blank');try{const p=await call('quoteSent',{dealId:d.id,op:'pdf'});const bin=atob(p.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));if(w)w.location.href=url;else location.href=url;}catch(e){if(w)w.close();handleErr(e);}}});
+  S._qSent=r;};
+ACT['q-sent-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id),r=S._qSent;closeModal();if(!d||!r||!r.q)return;const q=r.q;q.dealId=d.id;q.no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();S.q=q;qSig(d.id);qEdit();toast('Új verzió az elküldött ajánlatból – módosítsd, majd küldd ki');};

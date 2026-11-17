@@ -608,6 +608,20 @@ function dealQuoteSender_(u, a) {
 /** Az ajánlat előnézetéhez: ki küldi, és milyen aláírással. */
 function dealQuoteSig_(u, a) { const r = dealQuoteSender_(u, a); return { name: r.f.name || r.owner.name, email: r.owner.email || '', title: r.f.title || '', phone: r.f.phone || '', sigHtml: r.sig.html, from: (function () { const o = mailOptsFor_(r.owner, ''); return o.__dwd || o.from || Session.getEffectiveUser().getEmail() || ''; })() }; }   // from: a tényleges feladó (álnév, ha be van állítva)
 /** a: {dealId, to, cc, subject, body, pdf (base64), fileName, total} */
+function quoteFolder_() {
+  const P = PropertiesService.getScriptProperties(); let f = null; try { const id = P.getProperty('QUOTE_FOLDER'); f = id ? DriveApp.getFolderById(id) : null; } catch (e) { f = null; }
+  if (!f) { f = DriveApp.createFolder('Lumos – kiküldött árajánlatok'); P.setProperty('QUOTE_FOLDER', f.getId()); }
+  return f;
+}
+/** Kiküldött ajánlat: adatai (get) vagy a PDF (pdf) – csak az ügyvezető és a lehetőség értékesítője. */
+function quoteSent_(u, a) {
+  const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
+  if (u.role !== 'admin' && d.ownerId !== u.id) throw new Error('FORBIDDEN: Csak a saját lehetőséged ajánlatát nézheted meg.');
+  const v = PropertiesService.getScriptProperties().getProperty('QS_' + d.id); if (!v) return null;
+  const m = JSON.parse(v);
+  if (a.op === 'pdf') return { b64: Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()) };
+  delete m.fileId; return m;
+}
 /* Árajánlat-piszkozat: lehetőségenként egy mentett (még ki nem küldött) ajánlat – bármelyik eszközről folytatható; küldéskor törlődik. */
 function quoteDraft_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
@@ -636,6 +650,13 @@ function dealQuoteSend_(u, a) {
     const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] 📄 Árajánlat elküldve (' + tos.join(', ') + ')' + (Number(a.total) ? ' – ' + String(Math.round(Number(a.total))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft + ÁFA' : '') + (Number(a.opts) > 1 ? ' – ' + Number(a.opts) + ' opcióval' : '');
     x.note = line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : ''); if (x.stage === 'uj') x.stage = 'ajanlat'; if (Number(a.total) > 0 && x.stage !== 'nyert') x.value = Math.round(Number(a.total)); x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
   logEvent_(u, 'Árajánlat elküldve', d.title, tos.join(', '));
+  try {   // a kiküldött ajánlat megmarad: PDF a Drive-on (a szkript tulajdonosának saját mappájában), az adatai a lehetőséghez kötve
+    const fid = quoteFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd') + ' ' + fname)).getId();
+    const q = a.q && typeof a.q === 'object' ? a.q : null; if (q) ['_pdf', '_pdfP', 'sig'].forEach(k => { delete q[k]; });
+    let meta = { at: now_(), by: u.name, to: tos.join(', '), total: Number(a.total) || 0, fileId: fid, q: q };
+    if (JSON.stringify(meta).length > 8500) meta.q = null;
+    PropertiesService.getScriptProperties().setProperty('QS_' + d.id, JSON.stringify(meta));
+  } catch (e) { Logger.log('Kiküldött ajánlat mentése: ' + e); }
   try { deals = dealsFor_(u); } catch (e) { }
   return { ok: true, test: !live, deals: deals };
 }
