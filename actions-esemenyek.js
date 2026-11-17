@@ -513,11 +513,14 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
 function crewGearClose(){const m=document.getElementById('crewGearMenu');if(m)m.remove();}
 ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementById('crewGearMenu');crewGearClose();if(was&&was.dataset.cid===b.dataset.id)return;
   const cid=b.dataset.id,iv=(d.invites||{})[cid],acc=!!(iv&&iv.st==='yes'),lead=d.lead===cid,cut=(d.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'),me=cid===(S.me&&S.me.crewId),lockTip='Már elfogadta a meghívást – a beosztás jellege nem módosítható';
-  const it=(act,lbl,o={})=>`<button type="button" class="cg-it${o.dis?' dis':''}${o.bad?' bad':''}" data-cg="${act}"${o.tip?` data-tip="${esc(o.tip)}"`:''}>${o.chk!==undefined?`<span class="cg-chk">${o.chk?'☑':'☐'}</span>`:''}${lbl}</button>`;
+  const it=(act,lbl,o={})=>`<button type="button" class="cg-it${o.dis?' dis':''}${o.bad?' bad':''}${o.chk?' on':''}" data-cg="${act}"${o.tip?` data-tip="${esc(o.tip)}"`:''}>${lbl}${o.chk?'<span class="cg-on">✓ be</span>':''}</button>`;
   const h=[lead?it('remote','🛰️ Távolról vezeti',{chk:!!d.leadRemote,dis:acc,tip:acc?lockTip:'Nem kell a helyszínen lennie, így nem ütközik más munkával'}):'',
     cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
     iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
     !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
+    '<hr>',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
+    (d.equipment||[]).some(e=>e.crewId===cid)&&projById(d.id)?it('eqlist','✉️ Eszközlista küldése neki'):'',
+    it('vcf','📇 Névjegy'),isAdmin()?it('fee','💰 Díj megadása'):'',isAdmin()&&projById(d.id)?it('pen','🚨 Díjcsökkentés'):'',
     '<hr>',it('remove','🗑️ Levétel a projektről',{bad:true})].join('');
   const m=document.createElement('div');m.id='crewGearMenu';m.className='cg-menu';m.dataset.cid=cid;m.innerHTML=h;document.body.appendChild(m);
   const r=b.getBoundingClientRect();m.style.top=(window.scrollY+r.bottom+4)+'px';m.style.left=Math.max(8,window.scrollX+r.right-m.offsetWidth)+'px';
@@ -526,5 +529,23 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='onsite'){const t=document.createElement('input');t.type='checkbox';t.dataset.editOnsite=cid;t.checked=!onsiteCut(S.draft,cid);t.style.display='none';document.body.appendChild(t);t.dispatchEvent(new Event('change',{bubbles:true}));t.remove();return;}
     if(a==='resend'){const btn=document.querySelector(`[data-action="crew-invite"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
     if(a==='lead'){const btn=document.querySelector(`[data-action="make-lead"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
+    if(a==='role'){crewRoleSwap(cid);return;}
+    if(a==='swap'){crewHandover(cid);return;}
+    if(a==='eqlist'){sendListModal(cid);return;}
+    if(a==='vcf'){ACT.vcf({dataset:{cid}});return;}
+    if(a==='pen'){penModal(cid);return;}
+    if(a==='fee'){const mp=document.querySelector('.money-panel,details[data-fold="money"]');if(mp&&mp.tagName==='DETAILS')mp.open=true;setTimeout(()=>{const i=(S.draft.fees||[]).findIndex(f=>f.crewId===cid),el=i>=0?$('fee-'+i+'-amount'):null;if(el){el.scrollIntoView({block:'center'});el.focus();el.select&&el.select();}else toast('Még nincs díjsora – mentés után jelenik meg a Pénzügyekben.',true);},120);return;}
     if(a==='remove')ACT['crew-person-remove']({dataset:{id:cid}});});};
+/* Pozíció cseréje: az egyik pozíciója helyett másik (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
+function crewRoleSwap(cid){const d=S.draft;if(!d)return;const mine=(d.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);if(!mine.length)return;const c=crewById(cid);
+  openModal('Pozíció cseréje – '+(c?c.name:''),`${mine.length>1?`<div class="field full"><label for="m-rfrom">Melyik pozíció helyett?</label><select class="inp" id="m-rfrom" name="from" data-cmb="Pozíció…">${mine.map(x=>`<option value="${x.i}">${esc(posLabel(x.a.role))}</option>`).join('')}</select></div>`:`<p class="hint" style="margin:0 0 8px">Jelenleg: <b>${esc(posLabel(mine[0].a.role))}</b></p><input type="hidden" name="from" value="${mine[0].i}">`}
+    <div class="field full"><label for="m-rto">Új pozíció</label><select class="inp" id="m-rto" name="to" data-cmb="Válassz pozíciót…"><option value=""></option>${projRoles(d).filter(r=>!mine.some(x=>x.a.role===r)).map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>${((d.invites||{})[cid]||{}).st==='yes'?'<p class="hint" style="margin:6px 0 0">Már elfogadta a meghívást: az új pozíciót mentés után külön el kell fogadnia.</p>':''}`,
+    {submitLabel:'Csere',noDraft:true,submit:fd=>{const i=Number(fd.get('from')),to=String(fd.get('to')||'');if(!to){toast('Válaszd ki az új pozíciót.',true);return;}const crew=clone(d.crew||[]);if(!crew[i])return;crew[i].role=to;closeModal();setDraft({crew});toast('Pozíció cserélve – mentsd a módosítást');}});}
+/* Beosztás átadása: ugyanazok a pozíciók, feladatok és eszközök egy másik munkatárshoz */
+function crewHandover(cid){const d=S.draft;if(!d)return;const c=crewById(cid),ids=new Set([d.lead].concat((d.crew||[]).map(a=>a.crewId)));
+  const cand=(S.crew||[]).filter(x=>!x.inactive&&!ids.has(x.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
+  openModal('Beosztás átadása – '+(c?c.name:''),`<p class="hint" style="margin:0 0 8px">Az új munkatárs megkapja a pozícióit, a vágói feladatait és a nála lévő eszközöket. A meghívást neki külön kell elküldeni.</p><div class="field full"><label for="m-ho">Kinek adod át?</label><select class="inp" id="m-ho" name="to" data-cmb="Kezdd el gépelni a nevet…" data-cmb-sub="crew"><option value=""></option>${cand.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></div>`,
+    {submitLabel:'Átadás',noDraft:true,submit:fd=>{const to=String(fd.get('to')||'');if(!to){toast('Válaszd ki, kinek adod át.',true);return;}const iv=(d.invites||{})[cid];if(iv&&iv.st==='yes'&&iv.via!=='self'){toast('Elfogadott meghívású munkatárs beosztását nem lehet átadni – előbb beszéld meg vele.',true);return;}
+      const crew=(d.crew||[]).map(a=>a.crewId===cid?Object.assign({},a,{crewId:to}):a),equipment=(d.equipment||[]).map(e=>e.crewId===cid?Object.assign({},e,{crewId:to}):e),et=etWithField(d);if(et[cid]){et[to]=(et[to]||[]).concat(et[cid]);delete et[cid];}
+      const ch={crew,equipment,editTasks:et};if(d.lead===cid)ch.lead=to;closeModal();setDraft(ch);toast('Átadva '+((crewById(to)||{}).name||'')+' részére – mentés után küldd ki neki a meghívót');}});}
 document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('#crewGearMenu')&&!e.target.closest('[data-action="crew-gear"]'))crewGearClose();},true);
