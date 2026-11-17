@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01ead6a7c4",
+"at": "2026-11-17T09:15:05+02:00",
+"msg": "Nézetváltás: egyetlen töltésjelzés"
+},
+{
 "id": "e817d8a458",
 "at": "2026-11-17T09:11:32+02:00",
 "msg": "Utómunka-tábla: az első oszlopok között csak a kirendelt vágó, a jóváhagyási oszlopokba csak vezető mozgat; nézetmenü jelöli az aktuális (szakember) nézetet; Neon kapcsolat-teszt a beállításokban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb és eszközök: Stáb-instrukciók (közös jegyzet a helyszíni stábnak – mint az utómunka-instrukciók, e-maillel, hozzászólással, kész-jelöléssel)"
 },
 {
-"id": "cd60f8faac",
-"at": "2026-11-16T22:33:33+02:00",
-"msg": "Saját beosztás csak a gombbal (mentéskor nem lesz magától elfogadott)"
-},
-{
-"id": "4906bf0ebe",
-"at": "2026-11-16T20:26:32Z",
+"id": "048a93f2fc",
+"at": "2026-11-16T20:33:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
