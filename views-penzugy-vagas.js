@@ -625,13 +625,19 @@ function cutWhat(p,kind=''){
       (owners.length?' ('+owners.join(', ')+')':'');
   }).join('\n')+'\n\n';
 }
+/* Szakember nézet: a saját videói állapota a kártyán (ki és mikor hagyta jóvá) */
+function ctVidSt(p,cid){const vs=(Array.isArray(p.videos)?p.videos:[]).filter(v=>vidOwner(p,v)===cid);if(!vs.length)return '';
+  const lbl=Object.fromEntries(VID_ST),who=huFirst(String(p.contactName||'').replace(/\([^)]*\)/g,''))||'az ügyfél';
+  const ok=v=>v.st==='jovahagyva',line=v=>ok(v)?`✅ Jóváhagyta ${esc(who)}${v.okAt?' · '+fmtMD(String(v.okAt).slice(0,10)):''}`:esc(lbl[v.st]||'');
+  if(vs.length>1&&vs.every(ok))return `<div class="ct-vst"><span class="ok-txt">✅ Mind a ${vs.length} videót jóváhagyta ${esc(who)}</span></div>`;
+  return `<div class="ct-vst">${vs.map(v=>`<div class="ct-vrow"><span class="ct-vn">${esc(v.name||'')}</span><span class="${ok(v)?'ok-txt':'muted'}">${line(v)}</span></div>`).join('')}</div>`;}
 function cutTasksBlock(p,cid){
   const tasks=postTasks(p).filter(t=>t.k!=='foto_db');if(!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'))return '';   // a fotók utómunkája a vágónál nem választható
   if(!tasks.length&&ro())return '';   // a szakember (vágó) nézetében nincs szervezői figyelmeztetés
   if(!tasks.length){const ri=(p.crew||[]).findIndex(a=>a.crewId===cid&&a.role==='Vágó');
     return `<div class="cut-tasks cut-none"><div class="ct-h">✂️ Elkészítendő munkák</div><p class="warn-txt" style="margin:0 0 6px"><b>⚠️ Vágó be van osztva, de nincs kiválasztva vágnivaló.</b> Jelöld be fent az Utómunkánál, mit kell elkészíteni – addig nem tudja, min dolgozik, és a leadási határidő sem számolható.</p>${ro()||crewLocked(p)?'':`<div class="btns"><button class="btn primary small" type="button" data-action="goto-post">🎬 Utómunka kiválasztása</button>${ri>=0?`<button class="btn outline small" type="button" data-action="crew-remove" data-i="${ri}">Vágó szerep levétele</button>`:''}</div>`}</div>`;}
   const mine=taskKeysOf(p,cid),implicit=!cutterIds(p).some(id=>Array.isArray(editTasksOf(p)[id]));
-  if(ro())return mine.length?`<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák</div><div class="ct-chips">${tasks.filter(t=>mine.includes(t.k)).map(t=>`<span class="day-chip ct-chip on">${esc(t.label)} · ${t.n} db</span>`).join('')}</div></div>`:'';
+  if(ro())return mine.length?`<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák</div><div class="ct-chips">${tasks.filter(t=>mine.includes(t.k)).map(t=>`<span class="day-chip ct-chip on">${esc(t.label)} · ${t.n} db</span>`).join('')}</div>${ctVidSt(p,cid)}</div>`:'';
   const free=tasks.filter(t=>!taskOwners(p,t.k).length).length;
   return `<div class="cut-tasks"><div class="ct-h">✂️ Elkészítendő munkák${implicit&&mine.length?' <span class="muted">· egy vágó: minden az övé</span>':''}${free?` <span class="ct-free">⚠️ ${free} videó még nincs vágóhoz rendelve</span>`:''}</div><div class="ct-chips">${tasks.filter(t=>!taskOwners(p,t.k).some(x=>x!==cid)).map(t=>{const on=mine.includes(t.k),oth=[],nobody=!on;
     return `<button type="button" class="day-chip ct-chip${on?' on':''}${nobody?' free':''}${oth.length?' other':''}" data-action="cut-task" data-cid="${esc(cid)}" data-k="${t.k}" aria-pressed="${on}"${projLocked()||oth.length?' disabled':''} title="${on?'Ő vágja – kattints, ha mégsem':oth.length?esc(oth.map(id=>(crewById(id)||{}).name||'').join(', '))+' vágja – ha másnak adnád, előbb nála vedd le':'Még senki nem vágja – kattints, ha ő'}">${on?'✓ ':nobody?'⚠️ ':''}<span class="ct-lbl">${esc(t.label)}</span><span class="ct-n">· ${t.n} db</span>${oth.length?` <span class="ct-who">→ ${esc(oth.map(id=>huFirst(String((crewById(id)||{}).name||''))).join(', '))}</span>`:''}</button>`;}).join('')}</div></div>`;
