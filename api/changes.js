@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "473d2048e5",
+"at": "2026-11-17T15:25:42+02:00",
+"msg": "Táblázatból nincs lehúzásos frissítés"
+},
+{
 "id": "0563de59c8",
 "at": "2026-11-17T15:24:09+02:00",
 "msg": "Fizetések: húzással nem vált hónapot, csak a gombokkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző telefonon: a szürke keret a képernyő széléig"
 },
 {
-"id": "598e19aa5f",
-"at": "2026-11-17T14:28:41+02:00",
-"msg": "Ajánlat-néző: szürke keret vissza"
-},
-{
-"id": "9e1097ebe4",
-"at": "2026-11-17T12:28:04Z",
+"id": "570375e4d3",
+"at": "2026-11-17T12:28:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
