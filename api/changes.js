@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c8da3835a4",
+"at": "2026-11-17T08:49:54+02:00",
+"msg": "Stábkártya: a projektvezető címke rövidítve (★ P.V.)"
+},
+{
 "id": "ac18001d36",
 "at": "2026-11-17T08:45:11+02:00",
 "msg": "Stábkártya ⚙️ menü: pozíció cseréje, beosztás átadása, eszközlista neki, névjegy, díj megadása, díjcsökkentés; a jelölőnégyzetek helyett „✓ be” jelzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előfoglalás sáv: a magyarázó szöveg csak az ügyvezetőnek"
 },
 {
-"id": "cc3ea48a68",
-"at": "2026-11-16T21:46:30+02:00",
-"msg": "Előfoglalás sáv: termelési vezetőnél az értékesítési állapot nélkül"
-},
-{
-"id": "227c20a488",
-"at": "2026-11-16T19:45:06Z",
+"id": "46e2733f37",
+"at": "2026-11-16T19:46:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
