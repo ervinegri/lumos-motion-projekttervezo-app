@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5691a14e5a",
+"at": "2026-11-17T15:26:01+02:00",
+"msg": "Fizetések tábla: az oszlopszélességek ténylegesen érvényesülnek (rögzített táblaszélesség)"
+},
+{
 "id": "473d2048e5",
 "at": "2026-11-17T15:25:42+02:00",
 "msg": "Táblázatból nincs lehúzásos frissítés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző telefonon: a teljes oldal látszik, a gombok alatta"
 },
 {
-"id": "a256af11c9",
-"at": "2026-11-17T14:29:49+02:00",
-"msg": "Ajánlat-néző telefonon: a szürke keret a képernyő széléig"
-},
-{
-"id": "570375e4d3",
-"at": "2026-11-17T12:28:51Z",
+"id": "dcaba14f7c",
+"at": "2026-11-17T12:29:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
