@@ -215,7 +215,8 @@ function render(force){setTimeout(appReveal,0);
   try{payFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
   try{payDock();}catch(e){}
-  try{if(window.tabStick)tabStick();}catch(e){}   /* tablet: a projekt neve oszlop rögzítése */   /* telefonon a Fizetések tábla egyetlen görgető felületen (a fejléc a táblával együtt görget) */
+  try{if(window.tabStick)tabStick();}catch(e){}
+  try{if(window.tlNameFix)tlNameFix();}catch(e){}   /* idővonal: a balra kicsúszó sávok neve látható marad */   /* tablet: a projekt neve oszlop rögzítése */   /* telefonon a Fizetések tábla egyetlen görgető felületen (a fejléc a táblával együtt görget) */
   pwN=VIEW.querySelector('.dock-wrap')||pwN;if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;}
   try{const tb=document.querySelector('.topbar'),dw=VIEW.querySelector('.dock-wrap');if(document.body.classList.contains('pay-dock')&&dw&&window.payDockSync)payDockSync(dw);else if(tb&&tb.style.transform){tb.style.transform='';tb.style.transition='';}}catch(e){}
   {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
