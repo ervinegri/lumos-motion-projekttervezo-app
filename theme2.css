@@ -2461,3 +2461,5 @@ html body .tl-track:has(.tl-cut) .tl-bar:not(.tl-cut) .tl-nm{order:2!important}
 html body:not(.ro) .tl-row .tl-track .tl-bar,html body:not(.ro) .tl-row .tl-track .tl-bar *{cursor:grab!important}
 /* videósáv: a jóváhagyásra váró rész sárga (mint az idővonalon és a „jóváhagyásra vár” jelzésen) */
 html body .pt-vbar .vb-leadva{background:#f0c85a}
+/* felső menü: sima nyíl kurzor (nem mutató kéz) */
+html body #tabs,html body #tabs *{cursor:default!important}
