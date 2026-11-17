@@ -2463,3 +2463,4 @@ html body:not(.ro) .tl-row .tl-track .tl-bar,html body:not(.ro) .tl-row .tl-trac
 html body .pt-vbar .vb-leadva{background:#f0c85a}
 /* felső menü: sima nyíl kurzor (nem mutató kéz) */
 html body #tabs,html body #tabs *{cursor:default!important}
+html body #bellBtn,html body #bellBtn *,html body #userChip,html body #userChip *{cursor:default!important}
