@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e15793c785",
+"at": "2026-11-17T16:46:27+02:00",
+"msg": "Fizetések tábla: a fejléc a tábla keretének tetejéhez tapad (nincs üres sáv fölötte tableten/gépen)"
+},
+{
 "id": "bde87972ce",
 "at": "2026-11-17T16:44:57+02:00",
 "msg": "Értékesítés fejléce: tableten is egy sor, egységes gombméret"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fekvő telefon, Fizetések: a felső rész ténylegesen eltűnik lefelé görgetéskor"
 },
 {
-"id": "1b23e40f6b",
-"at": "2026-11-17T15:38:29+02:00",
-"msg": "Fekvő telefon, Fizetések: lefelé görgetve a felső rész eltűnik, csak a tábla fejléce marad"
-},
-{
-"id": "0ab974c46a",
-"at": "2026-11-17T13:37:40Z",
+"id": "838f7ecbec",
+"at": "2026-11-17T13:38:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
