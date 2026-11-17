@@ -2341,3 +2341,7 @@ html body .basics .rt-notes{min-height:64px!important}
 html body .basics .fields>.field.full{margin-top:2px}
 @media (max-width:900px){html body .basics .b-grid{grid-template-columns:minmax(0,1fr);gap:10px}html body .basics .b-col+.b-col{border-left:0;padding-left:0}html body .basics .b-when,html body .basics .b-row2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 html body .basics .lbl-row{display:flex;align-items:baseline;gap:0;white-space:nowrap}html body .basics .lbl-row>label:first-child{margin:0}
+/* bal oszlop: a típus/helyszín sor ugyanazokon az oszlophatárokon, mint a dátum/kezdés/végzés */
+html body .basics .b-col>.b-row2:not(.b-contact){grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,.8fr)}
+html body .basics .b-col>.b-row2:not(.b-contact)>.field:nth-child(2){grid-column:span 2}
+@media (max-width:900px){html body .basics .b-col>.b-row2:not(.b-contact){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}html body .basics .b-col>.b-row2:not(.b-contact)>.field:nth-child(2){grid-column:auto}}
