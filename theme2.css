@@ -2612,3 +2612,9 @@ html body .page-head.sales-head{margin:0 0 4px!important;padding-top:0!important
 html body .page-head.sales-head .grow:empty{display:none}
 html body .page-head.sales-head+.sales-monthbar{margin-top:4px!important}
 @media (max-width:760px){html body .page-head.sales-head{gap:8px!important}html body .page-head.sales-head .dl-hbtns{width:100%}}
+/* ajánlat-néző: kompakt fejléc (cím + kiküldési adatok) */
+html body #modalRoot .qs-box .mhead{padding:0!important;margin:0 0 2px!important;min-height:0!important}
+html body #modalRoot .qs-box .mhead h3{font-size:16px!important;line-height:1.25!important;margin:0!important}
+html body #modalRoot .qs-box .mhead .x{width:30px;height:30px}
+html body #modalRoot .qs-box .mhead+.hint,html body #modalRoot .qs-box>p.hint{font-size:12px!important;line-height:1.35!important;margin:0 0 6px!important}
+@media (max-width:700px),(orientation:landscape) and (max-height:560px){html body #modalRoot .modal:not(.cf-layer)>.mbox.qs-box{padding-top:6px!important;gap:4px!important}}
