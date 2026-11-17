@@ -225,8 +225,8 @@ function newProjectModal(day,pre){NP_FILES=[];
     if(!needName(form,'Add meg a projekt nevét.'))return;
     const {p,clientNew,g}=npBuild(fd);
     const fieldOf={client:clientNew?'client':'clientQ'};
-    const miss=missingReq(p).filter(([k])=>!['endDate','client','contactName','contactPhone','contactEmail'].includes(k));   // létrehozáskor az ügyfél és a kapcsolattartó adatai nem kötelezők
-    if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Kezdés (óó:pp formában)']);
+    const miss=missingReq(p).filter(([k])=>k==='name'||k==='date');   /* létrehozáskor csak a név (és a dátum) kötelező – a többit később, a projekt oldalán (ott a figyelmeztetések jelzik, mi hiányzik) */
+    if(g('startTime')&&!p.startTime)miss.unshift(['startTime','Kezdés (óó:pp formában)']);   // ha beírta, legyen helyes
     if(g('endTime')&&!p.endTime)miss.unshift(['endTime','Végzés (óó:pp formában)']);
     if(p.date&&p.date<todayISO()&&form.dataset.pastOk!==p.date){form.dataset.pastOk=p.date;
       let w=$('m-pastWarn');if(!w){w=document.createElement('div');w.id='m-pastWarn';w.className='past-warn';form.querySelector('.fields').after(w);}
