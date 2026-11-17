@@ -91,7 +91,7 @@ function finPanelBody(p){
   const valG=`<div class="fin-grp grp-val"><div class="grp-h">💰 Szerződés</div><div class="grp-b">${valF}</div></div>`;   // a nettó érték is kártyán, mint a Termelés és az Értékesítés
   const dedG=two?`<div class="fin-grp grp-ded"><div class="grp-h">➖ Levonások</div><div class="grp-b">${org?orgOption(p):''}${tov?tovFields(p):''}</div></div>`:'',   /* szervezői jutalék és továbbszámlázott költség egy kártyán */
     netG=two?`<div class="fin-grp grp-net"><div class="grp-h">＝ Levonások után</div><div class="grp-b">${finNet(p)}</div></div>`:'';
-  const rows=two?`<div class="fin-r">${valG}${dedG}${netG}${exm}</div><div class="fin-r">${salesG}${prodG}</div>`:`<div class="fin-r">${valG}${salesG}${prodG}${exm}</div>`;
+  const rows=two?`<div class="fin-r">${valG}${dedG}<div class="fin-br" aria-hidden="true"></div>${netG}${exm}</div><div class="fin-r">${salesG}${prodG}</div>`:`<div class="fin-r">${valG}${salesG}${prodG}${exm}</div>`;
   return `<div class="fin-sum"><div class="fin-inputs fin-v2${two?' two':''}">${rows}</div>${free?(refOn(p)?`<div class="extras" id="proj-extras">${refOption(p,true)}</div>`:''):extrasHtml(p)}</div>`;
 }
 /* Oszlopszélességek: a fejléc szélén húzva állíthatók, böngészőnként megjegyezzük. */
