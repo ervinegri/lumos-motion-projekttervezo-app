@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "46d8742e60",
+"at": "2026-11-17T09:39:58+02:00",
+"msg": "IPN: díjbekérőnél is a számlázz.hu kifizetési dátuma"
+},
+{
 "id": "142ef8758c",
 "at": "2026-11-17T09:33:56+02:00",
 "msg": "Nézetváltás: termelési v. nézetből is lehet értékesítőre váltani (a valódi szerepkör számít)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Alapadatok: tömör 12 oszlopos elrendezés; a Több napos jelölő a dátum sorában, az utolsó nap mezői csak bepipálva jelennek meg"
 },
 {
-"id": "ecb32c24ff",
-"at": "2026-11-17T08:16:47+02:00",
-"msg": "Új pozíció meghívó: egyértelmű szöveg (a korábbi megmarad); ha az újat nem vállalja, a korábbi elfogadott marad, a kártyán jelezve"
-},
-{
-"id": "d914588f1b",
-"at": "2026-11-16T21:15:09Z",
+"id": "59151fbab7",
+"at": "2026-11-17T06:16:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
