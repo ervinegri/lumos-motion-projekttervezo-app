@@ -2325,3 +2325,4 @@ html body #toast.center{top:50%!important;bottom:auto!important;left:50%!importa
 html body .stage.drop-no{position:relative;cursor:not-allowed;outline:2px dashed #e08b8b;outline-offset:-2px;background:#fdf3f3!important}
 html body .stage.drop-no::after{content:'🚫';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:22px}
 html body .pcrew .pcrew-inv .inv-btn.inv-new{border-color:#e0a93a!important;color:#8a5a00!important;background:#fff8e8!important}
+html body .pcrew .inv-decl{margin:0 0 6px;padding:4px 8px;border-radius:6px;background:#fdf0f0;border:1px solid #f3caca;color:#a33;font-size:12px;font-weight:650}

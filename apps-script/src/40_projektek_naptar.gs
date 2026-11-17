@@ -146,7 +146,7 @@ function saveProject_(u, a) {
     if (old && p.invites) { try {   /* elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (újra meghívandó; a saját beosztás magától rendben) */
       const inv = parseInvites_(p.invites), oldAsg = readAll_('crewAssign').filter(x => x.projectId === id); let ch = false;
       Object.keys(inv).forEach(cid => { const iv = inv[cid]; if (!iv || iv.st !== 'yes') return; const now = rolesOfCid_(p.lead, crew, cid); if (!now.length) return;
-        const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), add = now.filter(r => acc.indexOf(r) < 0);
+        const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), add = now.filter(r => acc.indexOf(r) < 0 && (iv.decl || []).indexOf(r) < 0);
         if (add.length && iv.via !== 'self') { inv[cid] = Object.assign(iv, { st: 'invited', at: '', ans: '', dl: '', prev: acc, roles: acc }); ch = true; }
         else if (String(iv.roles) !== String(now)) { iv.roles = now; ch = true; } });
       if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új pozíció ellenőrzés: ' + e); } }
@@ -882,7 +882,7 @@ function lookupTaxpayerApi_(arg) {
    Akinek nincs meghívási bejegyzése (régi projektek), annál minden marad a régiben. */
 function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JSON.parse(v || '{}'); } catch (e) { o = {}; } }
   const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
-    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10) }; });
+    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10) }; });
   return out; }
 /** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
 function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
@@ -918,7 +918,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const rawUpload = isCut && p.date ? (m => m ? ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()] : '')(/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(p.date))) : '';   /* teljes hónapnév: „december 2., szerda” */
     const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
     const ivx = parseInvites_(p.invites)[cid] || {}, prevR = ivx.prev || [], nowR = rolesOfCid_(p.lead, asg, cid), addR = nowR.filter(r => prevR.indexOf(r) < 0);
-    const tent = projTent_(p), info = [prevR.length ? '✅ Eddig elfogadott pozíciód: ' + prevR.join(', ') + '\n🆕 Új pozíció (ezt külön el kell fogadnod): ' + addR.join(', ') : '', tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
+    const tent = projTent_(p), info = [prevR.length ? '✅ Ami megmarad: ' + prevR.join(', ') + ' – ezt már elfogadtad, nem kell újra válaszolnod.\n🆕 Új feladat: ' + addR.join(', ') + ' – erre kérjük a válaszod. Ha nem vállalod, a korábbi pozíciód akkor is megmarad.' : '', tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');
     const dlD = (() => { let t = new Date(Date.now() + 48 * 3600 * 1000); if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000); return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();   /* vasárnapra eső határidő → hétfő 18:00 */   // válaszadási határidő: a meghívás napja után 2 nappal, 18:00 (pl. hétfőn bármikor → szerda 18:00)
@@ -979,7 +979,9 @@ function inviteRespond_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
     const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
     if (inv[cid].st === 'yes' || inv[cid].st === 'no') { alreadyAnswered = inv[cid].st; return; }
-    inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app', roles: yes ? rolesOfCid_(p.lead, readAll_('crewAssign').filter(x => x.projectId === pid), cid) : (inv[cid].roles || []), prev: [] }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+    const prevR = inv[cid].prev || [], nowR = rolesOfCid_(p.lead, readAll_('crewAssign').filter(x => x.projectId === pid), cid);
+    if (!yes && prevR.length) inv[cid] = Object.assign(inv[cid], { st: 'yes', ans: now_(), via: 'app', roles: prevR, prev: [], decl: nowR.filter(r => prevR.indexOf(r) < 0) });   /* az új pozíciót nem vállalta: a korábbi megmarad */
+    else inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app', roles: yes ? nowR : (inv[cid].roles || []), prev: [], decl: [] }); p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
   if (alreadyAnswered) return { alreadyAnswered: true, status: alreadyAnswered, name: p.name };
   logEvent_(u, yes ? 'Meghívás elfogadva' : 'Meghívás elutasítva', p.name, '');
   try {   // visszajelzés a meghívónak
