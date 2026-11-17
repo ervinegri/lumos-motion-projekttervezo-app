@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd95f61635",
+"at": "2026-11-17T12:23:51+02:00",
+"msg": "Mentett ajánlat jelzés: kattintásra egyből a mentett ajánlat nyílik"
+},
+{
 "id": "9444d4219d",
 "at": "2026-11-17T12:20:53+02:00",
 "msg": "Új projekt: létrehozáskor csak a név (és a dátum) kötelező"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nézetváltás: termelési v. nézetből is lehet értékesítőre váltani (a valódi szerepkör számít)"
 },
 {
-"id": "7348ac195e",
-"at": "2026-11-17T09:28:08+02:00",
-"msg": "Nézetváltás gyorsítása (könnyített betöltés, megjegyzett nézetek), visszajelzések középen"
-},
-{
-"id": "8324eb75a9",
-"at": "2026-11-17T07:26:16Z",
+"id": "1bd45a913a",
+"at": "2026-11-17T07:28:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
