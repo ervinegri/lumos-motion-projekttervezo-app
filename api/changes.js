@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b3e56bf2d6",
+"at": "2026-11-18T00:04:59+02:00",
+"msg": "Banki tételek: tagi kölcsön rögzítése egy kattintással (a „tagi kölcsön” közleményű tételeknél javaslat); az elvetett tételek lenyithatók, visszaállíthatók vagy tagi kölcsönként rögzíthetők"
+},
+{
 "id": "48ac0938be",
 "at": "2026-11-17T23:58:51+02:00",
 "msg": "Értékesítés: az aktív „Összes időszak” gomb olvasható (sötét alapon fehér)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a felugró ablak háttere sötét fátyol marad, a névjelvény menüje is sötét; Stáb lista: az egész sor kattintható"
 },
 {
-"id": "199f1894a7",
-"at": "2026-11-17T22:45:42+02:00",
-"msg": "Sötét mód: visszafogottabb színes hátterek (figyelmeztetések, címkék)"
-},
-{
-"id": "cef381ec76",
-"at": "2026-11-17T20:44:40Z",
+"id": "57421b4590",
+"at": "2026-11-17T20:45:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
