@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "284d8e39f2",
+"at": "2026-11-17T15:04:43+02:00",
+"msg": "Ajánlat-néző telefonon: gombsor a képernyő alján, nincs üres sáv alatta"
+},
+{
 "id": "8c003a2100",
 "at": "2026-11-17T15:04:10+02:00",
 "msg": "Folyamatjelzés: két sorban (művelet, alatta a címe)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: zoomolás csippentéssel / Ctrl+görgővel, dupla koppintás"
 },
 {
-"id": "61a7f4e987",
-"at": "2026-11-17T14:16:25+02:00",
-"msg": "Ajánlat-néző: nagyobb terület, alapból a teljes oldal látszik"
-},
-{
-"id": "74ea0e84a1",
-"at": "2026-11-17T12:14:58Z",
+"id": "7ce82371fd",
+"at": "2026-11-17T12:16:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
