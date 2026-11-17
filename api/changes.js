@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a9a98188ad",
+"at": "2026-11-17T13:23:53+02:00",
+"msg": "Ajánlat-néző: a nagyítás újratölti a PDF-et"
+},
+{
 "id": "c58a05c124",
 "at": "2026-11-17T12:55:01+02:00",
 "msg": "Kiküldött ajánlat nézője: nagyítás, kicsinyítés, teljes oldal, letöltés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: markolás kurzor a sáv minden részén (a jóváhagyási kitöltésen is)"
 },
 {
-"id": "6ef07c96d8",
-"at": "2026-11-17T11:10:50+02:00",
-"msg": "Idővonal: a projekt neve az óra alatt"
-},
-{
-"id": "b043885473",
-"at": "2026-11-17T09:10:40Z",
+"id": "c49dde0654",
+"at": "2026-11-17T09:10:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
