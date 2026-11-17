@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a9f09a974a",
+"at": "2026-11-17T15:49:23+02:00",
+"msg": "Fizetések tábla: háttérfrissítéskor nem ugrik vissza a tetejére (görgetés és a felső rész állapota megmarad)"
+},
+{
 "id": "8ed380df58",
 "at": "2026-11-17T15:47:24+02:00",
 "msg": "Fizetések tábla: az oszlopszélesség az összesítő sor (nagyobb, vastagabb) összegeivel is számol"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlat-néző: kompakt fejléc"
 },
 {
-"id": "672b209b7f",
-"at": "2026-11-17T15:00:43+02:00",
-"msg": "Értékesítés: cím nélkül, kisebb távolság a gombsor körül"
-},
-{
-"id": "8e86d9f698",
-"at": "2026-11-17T12:59:50Z",
+"id": "dae8246b4d",
+"at": "2026-11-17T13:00:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
