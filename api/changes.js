@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6e86268506",
+"at": "2026-11-17T12:51:38+02:00",
+"msg": "Értékesítés: kompakt fejléc (kereső, szűrő, hónapválasztó, mutatók)"
+},
+{
 "id": "99eb303864",
 "at": "2026-11-17T12:50:59+02:00",
 "msg": "Teljesítmény-súgó: sikertelen"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Idővonal: fehér címke a vágási sávra átlógó projektnév mögött"
 },
 {
-"id": "ff7a25c271",
-"at": "2026-11-17T10:59:01+02:00",
-"msg": "Idővonal: annyi homokóra, ahány videó vár jóváhagyásra"
-},
-{
-"id": "79c0df5953",
-"at": "2026-11-17T10:57:51+02:00",
-"msg": "Idővonal: a homokóra pontosan a sárga rész közepén"
+"id": "79ef0ed09f",
+"at": "2026-11-17T08:59:10Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const TOKENS = new Map();   // token → { email, exp } (melegen tartott függvénynél nem kérdezzük újra a Google-t)
