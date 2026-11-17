@@ -119,7 +119,11 @@ function finAside(p){
 /* Pénzügyek: lenyíló táblázat (ügyvezető: érték, díjak, keret, fedezet; termelési vezető: díjak és keret Ft-ban). */
 function financePanel(p,inner){
   if(!canSeeFees())return '';
-  const cols=finCols(),th=(t,i,cls)=>`<th${cls?` class="${cls}"`:''}>${t}${i<cols.length-1?`<span class="col-grip" data-col="${i}" title="Húzd az oszlop szélességéhez (dupla kattintás: alaphelyzet)"></span>`:''}</th>`;
+  const cols=finCols();{   /* a szakember- és a díjoszlop mindig a tartalomhoz igazodik; a maradék hely a feladat és az eszköz oszlopé */
+    const nms=(p.fees||[]).map(f=>(crewById(f.crewId)||{}).name||f.label||f.name||'').concat(['Szakember','Egyéb tétel neve']),nW=Math.max(...nms.map(x=>String(x).length));
+    const fW=Math.max(8,...(p.fees||[]).map(f=>String(moneyFmt(num(f.amount))||'').length),String(moneyFmt(feeSum(p))||'').length+1);
+    cols[1]=Math.min(280,Math.max(150,Math.round(nW*7.6+64)));cols[3]=Math.min(150,Math.max(96,Math.round(fW*8.4+26)));}
+  const th=(t,i,cls)=>`<th${cls?` class="${cls}"`:''}>${t}${i<cols.length-1?`<span class="col-grip" data-col="${i}" title="Húzd az oszlop szélességéhez (dupla kattintás: alaphelyzet)"></span>`:''}</th>`;
   const fees=p.fees||[],adm=isAdmin();
   const tin=(i,k,v,ph,o={})=>`<input class="cell-in${o.money?' num':''}" type="text" id="fee-${i}-${esc(k)}" data-fee-i="${i}" data-fee-k="${k}"${o.money?' data-money="1" inputmode="numeric"':''}${o.list?` list="${o.list}"`:''} autocomplete="off" value="${o.money?(num(v)?esc(moneyFmt(v)):''):esc(v||'')}" placeholder="${ph}" aria-label="${ph}">`;
   const ro_=t=>`<div class="cell-ro">${t}</div>`;
@@ -128,8 +132,8 @@ function financePanel(p,inner){
   const rentCell=(f,i)=>f.kind==='fixed'?ro_(''):f.crewId&&rentalsOf(p,f.crewId).some(r=>!r.own)?ro_(`<span class="num-ro" title="A stábkártyán felvett bérelt eszközökből">${moneyFmt(rentalSum(p,f.crewId))}</span>`):tin(i,'rent',f.rent,'0',{money:1});
   const commonRow=()=>rentalsOf(p,'').length?`<tr class="fixed-row"><td class="n"></td><td><div class="cell-ro">Senkihez nem rendelt eszközök</div></td><td><div class="cell-ro">${esc(rentalsOf(p,'').map(r=>r.name).join(', '))}</div></td><td><div class="cell-ro"></div></td><td></td><td><div class="cell-ro"><span class="num-ro">${moneyFmt(rentalSum(p,''))}</span></div></td></tr>`:'';
   const nf=fees.filter(x=>x.kind!=='fixed').length,days=projDays(p);
-  const head=`<colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${th('#',0,'n')}${th('Szakember',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}</tr></thead>`;
-  const tbl=(body,foot,cls,noHead)=>`<div class="sheet-wrap${cls?' '+cls:''}"><table class="sheet fin-sheet" style="width:${cols.reduce((x,y)=>x+y,0)}px;min-width:100%">${noHead?`<colgroup>${cols.map(w=>`<col style="width:${w}px">`).join('')}</colgroup>`:head}<tbody>${body}</tbody>${foot||''}</table></div>`;
+  const head=`<colgroup>${cols.map((w,i)=>i===2||i===4?'<col>':`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${th('#',0,'n')}${th('Szakember',1)}${th('Termelői feladat',2)}${th('Díj (Ft)',3,'r')}${th('Eszköz neve',4)}${th('Eszközbérlés (Ft)',5,'r')}</tr></thead>`;
+  const tbl=(body,foot,cls,noHead)=>`<div class="sheet-wrap${cls?' '+cls:''}"><table class="sheet fin-sheet" style="width:100%;min-width:${cols.reduce((x,y)=>x+y,0)}px">${noHead?`<colgroup>${cols.map((w,i)=>i===2||i===4?'<col>':`<col style="width:${w}px">`).join('')}</colgroup>`:head}<tbody>${body}</tbody>${foot||''}</table></div>`;
   const sumTbl=()=>`<div class="day-tbl-h">Összesítés</div>`+tbl('',foot,'sum-sheet',true);
   const foot=`<tfoot><tr><td></td><td></td><td class="r tf-lbl">Összesen</td><td class="r fin-amt">${totalCell(p)}</td><td></td><td class="r fin-rent">${moneyFmt(fees.reduce((s,f)=>s+rentOf(p,f),0)+rentalSum(p,''))||0}</td></tr>${keretRows(p)}</tfoot>`;
   const postRows=fees.map((f,i)=>({f,i})).filter(x=>x.f.kind!=='fixed'&&feePost(p,x.f.crewId));
@@ -635,7 +639,7 @@ function tentBanner(p){if(!p||['atadva','lemondva'].includes(p.status))return ''
     return `<div class="tent-banner"><span class="tent-ic">🤝</span><div class="grow"><b>Tárgyalás alatt – előfoglalás</b>${d?` <span class="tent-sub">· ${esc(d.title||'Lehetőség')} · ${esc(stl)}${num(d.value)?' · '+ftFmt(d.value)+' nettó':''}</span>`:''}${isAdmin()?'<small>A stáb- és eszközfigyelmeztetések és a számlázás a szerződés után indulnak. Ha a lehetőséget Szerződve állapotba teszed, ez a projekt válik élessé.</small>':''}</div>${adm&&d?`<button class="btn outline small w" type="button" data-action="pre-deal-open" data-id="${esc(d.id)}">Ajánlat megnyitása</button><button class="linkbtn" type="button" data-action="pre-deal-unlink">Kapcsolat bontása</button>`:''}</div>`;}
   if(!adm||p.preDeal||(p.status&&p.status!=='tervezes')||(typeof projDeal==='function'&&projDeal(p))||editOnly(p))return '';
   const open=(S.deals||[]).filter(d=>['uj','ajanlat','targyalas'].includes(d.stage)&&!S.projects.some(q=>q.preDeal===d.id));if(!open.length)return '';
-  return `<p class="tent-link">🤝 Még tárgyalás alatt van? <button class="linkbtn" type="button" data-action="pre-deal-link">Kösd össze a lehetőséggel</button> – előfoglalásként kezeljük a szerződésig.</p>`;}
+  return '';}   /* az összekötés az Értékesítésből indul (a felhívó sor nem kell) */
 function viewProject(p){
   const c=calc(p),st=staffing(p),iss=computeIssues().filter(i=>i.pids.includes(p.id));
   const r=pr(p),T=todayISO(),di=dueInfo(p);
