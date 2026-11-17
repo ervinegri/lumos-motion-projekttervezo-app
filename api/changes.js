@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5104557330",
+"at": "2026-11-17T08:32:54+02:00",
+"msg": "Díjtáblák: a szakember- és díjoszlop a tartalomhoz igazodik; előfoglalás összekötése a lehetőség ablakából (a projektben a felhívó sor törölve)"
+},
+{
 "id": "2632ee1db8",
 "at": "2026-11-17T08:29:14+02:00",
 "msg": "Több napos rendezvény: a napok egyenként hozzáadhatók (＋ Nap hozzáadása), mindegyik saját kezdéssel és végzéssel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Névjegy: a Megosztás gomb csak ott jelenik meg, ahol a böngésző fájlt tud megosztani; hiba esetén letöltés"
 },
 {
-"id": "031ef1a010",
-"at": "2026-11-16T21:29:07+02:00",
-"msg": "Vissza-lépés a Tervezésre megszüntetve; az Utómunkára vár kártyái a nyersanyag feltöltéséig szürkék és nem mozdíthatók"
-},
-{
-"id": "5d7d036c13",
-"at": "2026-11-16T19:26:45Z",
+"id": "69632aeb86",
+"at": "2026-11-16T19:29:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
