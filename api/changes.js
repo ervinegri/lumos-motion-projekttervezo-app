@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "44fa2da9c5",
+"at": "2026-11-17T08:38:35+02:00",
+"msg": "Stábkártya: ⚙️ menü a kuka helyett (távolról vezeti, helyszíni vágó, meghívó újraküldése, projektvezető, levétel); elfogadott meghívás után a távoli / helyszíni jelleg nem módosítható"
+},
+{
 "id": "7839a8e6d7",
 "at": "2026-11-17T08:34:14+02:00",
 "msg": "Utómunka lépéskártya: a videószámláló (🎬 x/y ✅) levéve – a kártyára kattintva nyílik a videótábla"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember kifizetései: a még el nem fogadott meghívás díja ⏳-val látszik, az összegbe nem számít; a meghívás-válasz gombok rendezett, egysoros sávban"
 },
 {
-"id": "8d4bfda108",
-"at": "2026-11-16T21:41:49+02:00",
-"msg": "Előfoglalás: projekt összekötése nyitott lehetőséggel (tárgyalás alatt) – csendes figyelmeztetések, számlázás a szerződés után, csíkozott megjelenés, szerződéskor ez válik élessé, elveszett lehetőségnél lemondás felajánlása; felszerelési figyelmeztetések 30 nappal előtte"
-},
-{
-"id": "5afd67da15",
-"at": "2026-11-16T19:31:40Z",
+"id": "67545a3654",
+"at": "2026-11-16T19:41:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
