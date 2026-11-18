@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fa57a1e6aa",
+"at": "2026-11-18T12:36:39+02:00",
+"msg": "Lezajlott rendezvény: a csapat és az eszközök 🔓 Feloldás gombbal újra módosíthatók (ügyvezető, termelési vezető)"
+},
+{
 "id": "4414c1430c",
 "at": "2026-11-18T08:48:59+02:00",
 "msg": "Értékesítés telefonon: hosszan nyomva a kártyán áthelyezés-menü (szakasz gombok) a megbízhatatlan ujjas húzás helyett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Átnézés: 23 sehol nem használt felületi függvény és a kikapcsolt automatikus mentés maradéka törölve"
 },
 {
-"id": "2f48ae08a5",
-"at": "2026-11-17T23:17:13+02:00",
-"msg": "Átnézés: az Elvetés gomb a teljes visszaállítást használja (dupla kulcs); szerződés mentése után a pénzügyi adatok frissülnek; pipálás-felirat escape; halott kódrészek törölve"
-},
-{
-"id": "0f11374b64",
-"at": "2026-11-17T21:13:30Z",
+"id": "04680c82a4",
+"at": "2026-11-17T21:17:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
