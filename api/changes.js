@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "baa0eee46e",
+"at": "2026-11-18T14:23:25+02:00",
+"msg": "Gépen nincs túlgörgetési rugózás: a felső sáv és a projekt címsávja nem válik szét az oldal alján"
+},
+{
 "id": "609d96eace",
 "at": "2026-11-18T14:22:44+02:00",
 "msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok valóban oldalra görögnek (a mobilos oszlop-illesztés eddig visszaugratta)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: az aktív „Összes időszak” gomb olvasható (sötét alapon fehér)"
 },
 {
-"id": "17331d1a99",
-"at": "2026-11-17T23:55:52+02:00",
-"msg": "Banki tételek: a csak a számlázz.hu-ban kiállított nyitott számlákra is javaslat, egy kattintással kifizetett (a számlázz.hu-ban is jóváírva); a pénzügyi gyorsítótár az új kóddal frissül"
-},
-{
-"id": "3e1f8e9cf7",
-"at": "2026-11-17T21:53:37Z",
+"id": "99174fc72f",
+"at": "2026-11-17T21:56:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
