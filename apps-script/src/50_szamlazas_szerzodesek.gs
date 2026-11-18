@@ -1324,8 +1324,9 @@ function szBankSet_(u, a) {
 /** Számlaszám → bizonylatok (az app számlái és a számlázz.hu-ból érkezett kimenő számlák, díjbekérők), a közleményben keresve: szóköz nélkül, nagybetűvel. */
 const szNoKey_ = s => String(s || '').replace(/\s+/g, '').toUpperCase().replace(/-0+(\d)/g, '-$1');
 function szBankDocIndex_(invoices) {
-  const ix = {}, add = (no, d) => { const k = szNoKey_(no); if (k.length >= 4) (ix[k] = ix[k] || []).push(d); };
-  invoices.forEach(x => add(x.no, { no: x.no, inv: x, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
+  const ix = {}, all = [], add = (no, d) => { const k = szNoKey_(no); if (k.length >= 4) { (ix[k] = ix[k] || []).push(d); d.key = k; all.push(d); } };
+  Object.defineProperty(ix, '_all', { value: all, enumerable: false });
+  invoices.forEach(x => add(x.no, { no: x.no, inv: x, buyer: x.buyer, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
   const inApp = {}; invoices.forEach(x => { inApp[szNoKey_(x.no)] = 1; });
   let sd = []; try { sd = readAll_('szDocs'); } catch (e) {}
   sd.forEach(d => { if (d.kind === 'ki' && !d.storno && !inApp[szNoKey_(d.no)]) add(d.no, { no: d.no, sz: d.id, buyer: d.partnerName, gross: Number(d.gross) || 0, paid: Number(d.paid) || 0 }); });   // a csak a számlázz.hu-ban kiállított számlák
@@ -1336,13 +1337,23 @@ function szBankRefs_(note, docs) {
   const n = String(note || '').toUpperCase().replace(/\s*-\s*/g, '-'), out = [], seen = {}, take = k => { if (docs[k] && !seen[k]) { seen[k] = 1; out.push.apply(out, docs[k]); } };
   const re = /([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-)(\d+)((?:\s*[,;&]\s*\d+)*)/g; let m;
   while ((m = re.exec(n))) { take(szNoKey_(m[1] + m[2])); (m[3].match(/\d+/g) || []).forEach(x => take(szNoKey_(m[1] + x))); }
+  if (!out.length && docs._all) {   // csak a sorszám végét írták („2026-84”, „Sz. 2026-75”): a számlaszám vége egyezzen
+    const re2 = /(?:^|[^A-Z0-9-])(\d{4})-0*(\d{1,6})(?!\d)/g; let m2;
+    while ((m2 = re2.exec(n))) { const suf = '-' + m2[1] + '-' + m2[2], hit = docs._all.filter(d => d.key.slice(-suf.length) === suf); if (hit.length && hit.every(d => d.key === hit[0].key)) take(hit[0].key); }
+  }
   return out;
 }
 /** Ha a közleményben szereplő számla(k) már ki vannak fizetve (pl. a számlázz.hu maga párosította), a tétel nem vár párosításra;
     ha pontosan egy nyitott app-számlára hivatkozik, az lesz a javaslat. */
 function szBankRefFix_(t, inv, docs) {
   if (t.dir !== 'BE' || t.status === 'javaslat' && t.matchInvoice) return t;
-  const refs = szBankRefs_(t.note, docs); if (!refs.length) return t;
+  let refs = szBankRefs_(t.note, docs);
+  if (!refs.length && docs._all) {   // nincs (felismerhető) számlaszám: a partner neve és az összeg (bruttó, ±1 Ft) alapján
+    const amt = Math.round(Number(t.amount) || 0), pw = szBankNorm_(t.partnerName).split(' ').filter(w => w.length > 3);
+    const hit = pw.length ? docs._all.filter(d => Math.abs(Math.round(d.gross) - amt) <= 1 && pw.some(w => szBankNorm_(d.buyer || '').split(' ').indexOf(w) >= 0)) : [];
+    const open = hit.filter(d => d.paid < d.gross - 1); refs = open.length === 1 ? open : [];   // csak javaslat (egy már kifizetett, azonos összegű számla miatt nem rejtjük el)
+  }
+  if (!refs.length) return t;
   if (refs.every(r => r.gross > 0 && r.paid >= r.gross - 1)) return null;
   const open = refs.filter(r => r.paid < r.gross - 1), app = open.filter(r => r.inv);
   if (app.length === 1 && open.length === 1) return Object.assign({}, t, { matchInvoice: app[0].inv.id, matchScore: 95, status: 'javaslat' });

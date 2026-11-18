@@ -67,6 +67,12 @@ console.log('ok');
   add('E-LUMOS-2026-9', { no: 'E-LUMOS-2026-9', gross: 635000, paid: 0, sz: 'ki_1' });
   const z = B.szBankRefFix_({ dir: 'BE', note: 'E-LUMOS-2026-9' }, {}, docs);
   assert.ok(z && z.matchSz && z.matchSz[0].no === 'E-LUMOS-2026-9' && z.matchSz[0].rest === 635000, 'csak a számlázz.hu-ban lévő nyitott számla → javaslat');
+  const all = []; Object.keys(docs).forEach(k => docs[k].forEach(d => { d.key = k; all.push(d); })); Object.defineProperty(docs, '_all', { value: all, enumerable: false });
+  add('LUMOS-2026-84', { no: 'LUMOS-2026-84', gross: 88900, paid: 88900, buyer: 'Lurdy Kft.' }); docs._all.push(Object.assign(docs[B.szNoKey_('LUMOS-2026-84')][0], { key: B.szNoKey_('LUMOS-2026-84') }));
+  assert.equal(B.szBankRefFix_({ dir: 'BE', note: '2026-84' }, {}, docs), null, 'csak a sorszám vége („2026-84”) → kifizetett számla, elrejtve');
+  add('E-LUMOS-2026-2', { no: 'E-LUMOS-2026-2', gross: 934720, paid: 0, buyer: 'KULCSÁR AKADÉMIA KFT', sz: 'k1' }); docs._all.push(Object.assign(docs[B.szNoKey_('E-LUMOS-2026-2')][0], { key: B.szNoKey_('E-LUMOS-2026-2') }));
+  const ku = B.szBankRefFix_({ dir: 'BE', note: '', partnerName: 'KULCSÁR AKADÉMIA KFT', amount: 934720 }, {}, docs);
+  assert.ok(ku && ku.matchSz && ku.matchSz[0].no === 'E-LUMOS-2026-2', 'közlemény nélkül: partner + összeg → javaslat');
   console.log('ok2');
 }
 

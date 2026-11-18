@@ -2,6 +2,7 @@
    Lehetőségek a szerződésig: Új érdeklődő → Ajánlat kiküldve → Szerződve / Elveszett.
    Az ügyvezető mindet látja (és szűrhet értékesítőre), az értékesítő csak a sajátjait. Szerződéskor projekt jön létre
    (Tervezés szakasz) – az értékesítő ezután csak azt látja, hogy szerződve lett, a projekt részleteit és a díjakat nem. */
+const DL_TOUCH=typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches;   // érintőképernyő: saját húzás (lásd lent)
 const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküldve','📨'],['nyert','Szerződve','✅'],['fizetve','Díjbekérő fizetve','💰'],['elveszett','Sikertelen','✕']];   // „Díjbekérő kifizetve”: szerződött lehetőség, amelynek projektjéhez kifizetett díjbekérő / számla tartozik (magától kerül ide)
 const DEAL_OPEN=['uj','ajanlat','targyalas'],DEAL_CHANCE={uj:10,ajanlat:30,targyalas:60};
 const DEAL_SOURCES=['Ajánlás','Visszatérő ügyfél','Weboldal','E-mail / telefon','Közösségi média','Rendezvényen','Hideg megkeresés','Egyéb'];
@@ -169,7 +170,7 @@ const dealSentAt=d=>{if(d.qSent)return String(d.qSent).slice(0,10);const m=/\[(\
 function dealCard(d){const T=todayISO(),od=d.nextDate&&d.nextDate<T&&DEAL_OPEN.includes(d.stage),td=d.nextDate===T;
   const foot=d.stage==='nyert'?`<div class="dl-won">✅ Szerződve${d.wonAt?' · '+esc(fmtShort(d.wonAt)):''}</div>${!d.advPaidAt&&d.noAdv?`<div class="dl-won dl-paid">📄 ${d.noAdv==='keret'?'Keretszerződés':'TIG-gel számlázzuk'} – nem kell díjbekérő</div>`:''}${d.advPaidAt?`<div class="dl-won dl-paid">💰 Díjbekérő kifizetve${/^\d{4}-\d\d-\d\d$/.test(d.advPaidAt)?' · '+esc(fmtShort(d.advPaidAt)):''}</div>`:''}`:d.stage==='elveszett'?`<div class="dl-lost">✕ ${esc(d.lostReason||'Sikertelen')}</div>`
     :(d.nextStep||d.nextDate)?`<div class="dl-next${od?' late':td?' today':''}">➜ ${esc(d.nextStep||'Teendő')}${d.nextDate?` · <b>${od?'lejárt: ':td?'ma':''}${td?'':esc(fmtShort(d.nextDate))}</b>`:''}</div>`:`<div class="dl-next none">➜ nincs következő lépés</div>`;
-  return `<article class="dl-card${d.projectId?' dl-proj':''}"${d.projectId?' title="Ehhez az ügylethez már van projekt"':''} draggable="${d.stage==='nyert'?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
+  return `<article class="dl-card${d.projectId?' dl-proj':''}"${d.projectId?' title="Ehhez az ügylethez már van projekt"':''} draggable="${d.stage==='nyert'||(typeof DL_TOUCH!=='undefined'&&DL_TOUCH)?'false':'true'}" data-deal="${esc(d.id)}" data-action="deal-open" data-id="${esc(d.id)}" tabindex="0">
     <div class="dl-t">${d.projectId&&!isSales()&&typeof projById==='function'&&projById(d.projectId)?`<button type="button" class="dl-project-link" data-action="deal-proj" data-id="${esc(d.projectId)}" title="Projekt megnyitása: ${esc(d.title)}" aria-label="Projekt megnyitása: ${esc(d.title)}">${esc(d.title)} <span aria-hidden="true">↗</span></button>`:esc(d.title)}</div>${d.contactName?`<div class="dl-c"><button type="button" class="linkbtn dl-hs" data-action="hs-contact" data-name="${esc(d.contactName)}" data-email="${esc(d.contactEmail||'')}" data-company="${esc(d.client||'')}" title="${esc(d.contactName)} – megnyitás a HubSpotban">${esc(d.contactName)} ↗</button></div>`:d.client?`<div class="dl-c">${esc(d.client)}</div>`:''}
     ${(typeof dealSentAt==='function'&&dealSentAt(d))&&DEAL_OPEN.includes(d.stage)?`<button type="button" class="dl-qdraft dl-qsent" data-action="q-sent-open" data-id="${esc(d.id)}" data-work="Ajánlat betöltése – ${esc(d.title||'')}" title="A kiküldött árajánlat megnyitása">📨 Ajánlat kiküldve · ${esc(fmtShort(dealSentAt(d)))}</button>`:''}
     ${d.qDraft?`<button type="button" class="dl-qdraft" data-action="q-draft-cont" data-id="${esc(d.id)}" data-work="Mentett ajánlat betöltése – ${esc(d.title||'')}" title="Mentett, még ki nem küldött árajánlat – folytatás">📄 Mentett ajánlat</button>`:''}
@@ -245,8 +246,12 @@ async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)re
   if(stage==='fizetve'){toast('Ide magától kerül a lehetőség: ha a díjbekérőt (vagy számlát) kifizették, vagy ha az ügyfelet TIG-gel / keretszerződéssel számlázzuk.',true);return;}
   if(d.stage==='nyert'){toast('Szerződött lehetőséget nem lehet visszahúzni.',true);return;}
   if(stage==='nyert'){dealWinModal(d);return;}
+  if(stage==='elveszett'){   // Sikertelen: csak az okát kérdezzük
+    openModal('Sikertelen: '+d.title,`<div class="fields"><div class="field full"><label for="m-lostOnly">Miért nem sikerült?</label><input class="inp" id="m-lostOnly" name="lost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény" autocomplete="off"></div></div>`,{submitLabel:'Mentés – sikertelen',noDraft:true,submit:async fd=>{
+      const nd=Object.assign({},d,{stage:'elveszett',lostReason:String(fd.get('lost')||'').trim(),chance:0});closeModal();const prev=S.deals;S.deals=S.deals.map(x=>x.id===id?nd:x);render(true);
+      try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast('Sikertelen: '+d.title);}catch(e){S.deals=prev;render(true);handleErr(e);}}});
+    setTimeout(()=>{const x=$('m-lostOnly');if(x)x.focus();},60);return;}
   if(DEAL_OPEN.includes(stage)&&(!d.nextStep||!d.nextDate)){toast('Előbb add meg a következő lépést és a dátumát.',true);dealModal(d);return;}   // a következő lépés és a dátuma kötelező
-  if(stage==='elveszett'){dealModal(d,{stage:'elveszett'});setTimeout(()=>{const x=$('m-dLost');if(x)x.focus();},50);return;}
   const nd=Object.assign({},d,{stage});if(d.chance==null||d.chance===''||+d.chance===DEAL_CHANCE[d.stage])nd.chance=DEAL_CHANCE[stage];
   const prev=S.deals;S.deals=S.deals.map(x=>x.id===id?nd:x);render(true);
   try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast(dealLbl(stage)+': '+d.title);}catch(e){S.deals=prev;render(true);handleErr(e);}}
@@ -268,6 +273,20 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='m-dStage'){const lf=$('dl-lostf');if(lf)lf.hidden=t.value!=='elveszett';const ch=$('m-dChance');if(ch&&DEAL_CHANCE[t.value]!=null)ch.value=DEAL_CHANCE[t.value];if(t.value==='elveszett'&&ch)ch.value=0;}
   if(t.id==='m-dClient'){const c=knownClients('').find(x=>fold(x.company)===fold(t.value.trim()));if(c){[['m-dCName',c.name],['m-dCEmail',c.email]].forEach(([id,v])=>{const el=$(id);if(el&&!el.value&&v)el.value=v;});{const ph=$('m-dCPhone');if(ph&&!ph.value&&c.phone)mPhoneSet('m-dCPhone',c.phone);}}}});
 /* Húzd és ejtsd: a kártya a másik oszlopba kerül (Szerződve: projekt létrehozása, Elveszett: ok megadása) */
+/* Telefon / tablet: hosszan nyomva a kártya „felemelhető”, és ujjal áthúzható egy másik oszlopba (a böngésző saját húzása érintőn megbízhatatlan, és szövegkijelölést indít) */
+(()=>{let tm=null,st=null,card=null,ghost=null,over=null,sx=0,sy=0,dx=0,dy=0,raf=0;
+  const colAt=(x,y)=>{if(ghost)ghost.style.visibility='hidden';const el=document.elementFromPoint(x,y);if(ghost)ghost.style.visibility='';return el&&el.closest&&el.closest('.dl-col');};
+  const end=()=>{clearTimeout(tm);tm=null;cancelAnimationFrame(raf);if(ghost)ghost.remove();ghost=null;if(card)card.classList.remove('drag');document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('dl-touchdrag');card=null;st=null;over=null;};
+  document.addEventListener('touchstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');if(!c||e.touches.length>1||e.target.closest('a,button,input,select,textarea'))return;const d=dealById(c.dataset.id);if(!d||d.stage==='nyert')return;
+    const t=e.touches[0];sx=t.clientX;sy=t.clientY;st={c};
+    tm=setTimeout(()=>{card=c;const r=c.getBoundingClientRect();dx=sx-r.left;dy=sy-r.top;ghost=c.cloneNode(true);ghost.classList.add('dl-ghost');Object.assign(ghost.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',zIndex:9999,pointerEvents:'none'});document.body.appendChild(ghost);c.classList.add('drag');document.body.classList.add('dl-touchdrag');try{navigator.vibrate&&navigator.vibrate(15);}catch(x){}},380);},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!st)return;const t=e.touches[0];if(!card){if(Math.abs(t.clientX-sx)>8||Math.abs(t.clientY-sy)>8){clearTimeout(tm);st=null;}return;}
+    e.preventDefault();ghost.style.left=(t.clientX-dx)+'px';ghost.style.top=(t.clientY-dy)+'px';
+    const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
+    const b=document.querySelector('.dl-board');cancelAnimationFrame(raf);if(b){const W=innerWidth,v=t.clientX<44?-14:t.clientX>W-44?14:0;if(v){const step=()=>{b.scrollLeft+=v;raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);}}},{passive:false});
+  const fin=e=>{if(!st)return;if(card&&e.type==='touchend'){const t=e.changedTouches[0],col=colAt(t.clientX,t.clientY),id=card.dataset.deal;end();if(col&&col.dataset.stage)dealMove(id,col.dataset.stage);return;}end();};
+  document.addEventListener('touchend',fin);document.addEventListener('touchcancel',fin);
+  document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.dl-card'))e.preventDefault();});})();
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');if(!c)return;S._dragDeal=c.dataset.deal;c.classList.add('drag');try{e.dataTransfer.setData('text/plain',c.dataset.deal);e.dataTransfer.effectAllowed='move';}catch(x){}});
 document.addEventListener('dragend',e=>{document.querySelectorAll('.dl-card.drag').forEach(x=>x.classList.remove('drag'));document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));setTimeout(()=>{S._dragDeal='';},50);});
 document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('.dl-col');if(!col||!S._dragDeal)return;e.preventDefault();document.querySelectorAll('.dl-col.over').forEach(x=>{if(x!==col)x.classList.remove('over');});col.classList.add('over');});

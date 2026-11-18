@@ -2820,3 +2820,8 @@ html body .btn.outline.sales-month-all.active{background:#243347!important;color
 .link-like{cursor:pointer;font-weight:650;text-decoration:underline;text-decoration-color:rgba(36,51,71,.3)}
 
 .exp-src{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line,#dfe5ea);border-radius:12px;background:rgba(36,51,71,.03)}
+
+/* értékesítési tábla érintőn: nincs szövegkijelölés / hosszú-nyomás menü a kártyán; húzás közben az oldal nem görög */
+@media (pointer:coarse){.dl-card{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
+.dl-ghost{opacity:.92;transform:rotate(2deg) scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,.28)!important}
+body.dl-touchdrag{overflow:hidden;touch-action:none}
