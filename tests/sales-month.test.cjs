@@ -32,7 +32,7 @@ assert.match(current,/2026\. november/);
 assert.match(current,/data-action="sales-month-shift" data-d="-1"/);
 assert.match(current,/data-action="sales-month-shift" data-d="1"/);
 assert.match(current,/data-action="sales-month-today"/);
-assert.match(current,/Minden időszak/,'board explains its permanent scope');
+assert.doesNotMatch(current,/Értékesítési folyamat<\/b>/,'a folyamat fölött nincs külön címsor (Ervin kérése, 2026-11-18)');
 assert.doesNotMatch(current,/data-action="sales-month-undated"/,'undated leads remain directly on board');
 const ids=html=>Array.from(html.matchAll(/data-deal="([^"]+)"/g),x=>x[1]);
 const kpi=html=>Array.from(html.matchAll(/class="tile-n">([^<]+)</g),x=>x[1].replace(/\s+/g,''));
