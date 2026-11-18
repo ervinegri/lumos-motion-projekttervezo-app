@@ -160,7 +160,7 @@ function viewSales(){
         return '<div class="tile'+(contractedComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(contractedComm)+'</div><div class="tile-l">szerződött jutalék · '+contractComms.length+' projekt'+(people.length?'<div class="sales-comm-settled">Befolyt után elszámolt ('+esc(payMonth)+'): '+ftFmt(paidComm)+' · alap: '+ftFmt(paidBase)+'</div>':'')+'</div></div>';})()}
     </div>
     ${salesPerfPanel(all,owners,self,selected,month==="all"?T.slice(0,7):month)}
-    <div class="toolbar sales-tb"><span class="sales-tb-h"><b>Értékesítési folyamat</b><small>Minden időszak · ${L.length} lehetőség</small></span><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
+    <div class="toolbar sales-tb"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">
       ${admin?`<label class="sales-own"><span>Értékesítő:</span><select class="inp" id="sales-owner" data-cmb="Válassz értékesítőt…" aria-label="Kinek a lehetőségeit nézed"><option value="__all"${f.owner?'':' selected'}>👥 Mindenki</option>${owners.map(([id,n])=>`<option value="${esc(id)}"${f.owner===id?' selected':''}>${esc(n||'?')}</option>`).join('')}</select></label>`:''}</div>
     <div class="dl-board${lostOpen?'':' lost-closed'}">${DEAL_STAGES.map(col).join('')}</div>
 `;
