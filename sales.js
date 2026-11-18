@@ -273,29 +273,16 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
   if(t.id==='m-dStage'){const lf=$('dl-lostf');if(lf)lf.hidden=t.value!=='elveszett';const ch=$('m-dChance');if(ch&&DEAL_CHANCE[t.value]!=null)ch.value=DEAL_CHANCE[t.value];if(t.value==='elveszett'&&ch)ch.value=0;}
   if(t.id==='m-dClient'){const c=knownClients('').find(x=>fold(x.company)===fold(t.value.trim()));if(c){[['m-dCName',c.name],['m-dCEmail',c.email]].forEach(([id,v])=>{const el=$(id);if(el&&!el.value&&v)el.value=v;});{const ph=$('m-dCPhone');if(ph&&!ph.value&&c.phone)mPhoneSet('m-dCPhone',c.phone);}}}});
 /* Húzd és ejtsd: a kártya a másik oszlopba kerül (Szerződve: projekt létrehozása, Elveszett: ok megadása) */
-/* Telefon / tablet: hosszan nyomva a kártya „felemelhető”, és ujjal áthúzható egy másik oszlopba (a böngésző saját húzása érintőn megbízhatatlan, és szövegkijelölést indít) */
-(()=>{let tm=null,st=null,card=null,ghost=null,over=null,sx=0,sy=0,dx=0,dy=0,raf=0,lx=0,ly=0;
-  const colAt=(x,y)=>{if(ghost)ghost.style.visibility='hidden';const el=document.elementFromPoint(x,y);if(ghost)ghost.style.visibility='';return el&&el.closest&&el.closest('.dl-col');};
-  const end=()=>{clearTimeout(tm);tm=null;cancelAnimationFrame(raf);const pend=S._dlDragRender;S._dlDrag=0;S._dlDragRender=0;if(pend)setTimeout(()=>render(true),0);if(ghost)ghost.remove();ghost=null;if(card)card.classList.remove('drag');document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));document.body.classList.remove('dl-touchdrag');card=null;st=null;over=null;};
-  document.addEventListener('touchstart',e=>{if(card){if(![...e.touches].some(x=>x.identifier===st.tid))end();return;}   /* a húzó ujj már nincs a kijelzőn (elveszett felengedés): a húzás véget ér */
-    const c=e.target.closest&&e.target.closest('.dl-card');if(!c||e.touches.length>1||e.target.closest('a,button,input,select,textarea'))return;const d=dealById(c.dataset.id);if(!d||d.stage==='nyert')return;
-    const t=e.touches[0];sx=t.clientX;sy=t.clientY;st={c,tid:t.identifier};
-    tm=setTimeout(()=>{card=c;const r=c.getBoundingClientRect();dx=sx-r.left;dy=sy-r.top;ghost=c.cloneNode(true);ghost.classList.add('dl-ghost');Object.assign(ghost.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',zIndex:9999,pointerEvents:'none'});document.body.appendChild(ghost);c.classList.add('drag');document.body.classList.add('dl-touchdrag');S._dlDrag=1;try{navigator.vibrate&&navigator.vibrate(15);}catch(x){}},380);},{passive:true});
-  const hScroller=()=>{let h=document.querySelector('.dl-board');while(h&&h!==document.body&&!(h.scrollWidth>h.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(h).overflowX)))h=h.parentElement;return h&&h!==document.body?h:null;};
-  document.addEventListener('touchmove',e=>{if(!st)return;const t=card&&st.tid!=null?[...e.touches].find(x=>x.identifier===st.tid)||e.touches[0]:e.touches[0];if(!card){if(Math.abs(t.clientX-sx)>8||Math.abs(t.clientY-sy)>8){clearTimeout(tm);st=null;}return;}
-    e.preventDefault();
-    const o=[...e.touches].find(x=>x.identifier!==st.tid);   /* a másik ujjal közben görgethető: oldalra az oszlopok, fel-le az oldal */
-    if(o){if(st.o&&st.o.id===o.identifier){const ddx=o.clientX-st.o.x,ddy=o.clientY-st.o.y,h=hScroller();if(h)h.scrollLeft-=ddx;else scrollBy(-ddx,0);scrollBy(0,-ddy);}st.o={id:o.identifier,x:o.clientX,y:o.clientY};}else st.o=null;ghost.style.left=(t.clientX-dx)+'px';ghost.style.top=(t.clientY-dy)+'px';
-    const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
-    cancelAnimationFrame(raf);lx=t.clientX;ly=t.clientY;const step=()=>{   /* a képernyő széléhez húzva: oldalra az oszlopok, fel-le az oldal görög (folyamatosan, amíg ott tartod) */
-      const W=innerWidth,H=innerHeight,E=56,vx=lx<E?-Math.ceil((E-lx)/3):lx>W-E?Math.ceil((lx-W+E)/3):0,vy=ly<E+60?-Math.ceil((E+60-ly)/4):ly>H-E?Math.ceil((ly-H+E)/4):0;if(!vx&&!vy)return;
-      if(vx){let h=document.querySelector('.dl-board');while(h&&h!==document.body&&!(h.scrollWidth>h.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(h).overflowX)))h=h.parentElement;if(h&&h!==document.body)h.scrollLeft+=vx;else scrollBy(vx,0);}
-      if(vy)scrollBy(0,vy);
-      const col=colAt(lx,ly);if(col!==over){document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
-      raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);},{passive:false});
-  const fin=e=>{if(!st)return;if(card&&![...e.changedTouches].some(x=>x.identifier===st.tid))return;   /* a görgető ujj felemelése nem ejti le a kártyát */
-    if(card&&e.type==='touchend'){const t=[...e.changedTouches].find(x=>x.identifier===st.tid)||e.changedTouches[0],col=colAt(t.clientX,t.clientY),id=card.dataset.deal;end();if(col&&col.dataset.stage)dealMove(id,col.dataset.stage);return;}end();};
-  document.addEventListener('touchend',fin,true);document.addEventListener('touchcancel',fin,true);addEventListener('blur',()=>{if(card||st)end();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&(card||st))end();});
+/* Telefon / tablet: hosszan nyomva a kártyán felugrik az áthelyezés menüje (az ujjal húzás érintőn megbízhatatlan volt) */
+(()=>{let tm=null,sx=0,sy=0,fired=false;
+  const menu=c=>{const d=dealById(c.dataset.id);if(!d)return;fired=true;try{navigator.vibrate&&navigator.vibrate(15);}catch(x){}
+    const opts=DEAL_STAGES.filter(([s])=>s!==d.stage&&s!=='fizetve'&&!(d.stage==='nyert'));
+    if(!opts.length){toast('Szerződött lehetőséget nem lehet áthelyezni.',true);return;}
+    openModal('Áthelyezés: '+d.title,`<div class="dl-move">${opts.map(([s,l,ic])=>`<button type="button" class="btn ${s==='elveszett'?'outline':'primary'} dl-move-b" data-mv="${s}">${ic} ${esc(l)}</button>`).join('')}</div>`,{noDraft:true,submitLabel:'Mégse',submit:()=>closeModal()});
+    document.querySelectorAll('#modalRoot .dl-move-b').forEach(b=>b.addEventListener('click',()=>{closeModal();dealMove(d.id,b.dataset.mv);}));};
+  document.addEventListener('touchstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');fired=false;if(!c||e.touches.length>1||e.target.closest('a,button,input,select,textarea'))return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;clearTimeout(tm);tm=setTimeout(()=>menu(c),450);},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!tm)return;const t=e.touches[0];if(Math.abs(t.clientX-sx)>8||Math.abs(t.clientY-sy)>8){clearTimeout(tm);tm=null;}},{passive:true});
+  const stop=()=>{clearTimeout(tm);tm=null;};document.addEventListener('touchend',e=>{stop();if(fired&&e.target.closest&&e.target.closest('.dl-card')){e.preventDefault();fired=false;}},{passive:false});document.addEventListener('touchcancel',stop);
   document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.dl-card'))e.preventDefault();});})();
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');if(!c)return;S._dragDeal=c.dataset.deal;c.classList.add('drag');try{e.dataTransfer.setData('text/plain',c.dataset.deal);e.dataTransfer.effectAllowed='move';}catch(x){}});
 document.addEventListener('dragend',e=>{document.querySelectorAll('.dl-card.drag').forEach(x=>x.classList.remove('drag'));document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));setTimeout(()=>{S._dragDeal='';},50);});
