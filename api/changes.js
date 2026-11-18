@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "37384aee7c",
+"at": "2026-11-18T14:45:46+02:00",
+"msg": "Idővonal: nincs dupla név (a vágás-sáv neve csak akkor jelenik meg, ha biztosan megtaláltuk és kicsúszott a forgatás-sáv; a régi, ütköző név-eltoló kikapcsolva)"
+},
+{
 "id": "788ac23557",
 "at": "2026-11-18T14:40:39+02:00",
 "msg": "Idővonal: a vágás-sávon a név csak akkor jelenik meg, ha a forgatás-sáv kicsúszott; a név mindig a látható rész elejére kerül (nem a sáv végére)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: a keresés és az értékesítő-választó egy sorban"
 },
 {
-"id": "0b99f1dc74",
-"at": "2026-11-18T08:11:48+02:00",
-"msg": "Értékesítés telefonon: hosszan nyomva a kártya áthúzható (nincs szövegkijelölés); Sikertelenbe húzva csak az okát kérdezi; banki tételek: „2026-84” típusú rövid számlaszám és közlemény nélküli partner+összeg alapú párosítás"
-},
-{
-"id": "8bd4aad627",
-"at": "2026-11-18T06:07:19Z",
+"id": "420ae19ed7",
+"at": "2026-11-18T06:11:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
