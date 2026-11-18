@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef3cc027d0",
+"at": "2026-11-18T08:15:05+02:00",
+"msg": "Értékesítés telefonon: a keresés és az értékesítő-választó egy sorban"
+},
+{
 "id": "0b99f1dc74",
 "at": "2026-11-18T08:11:48+02:00",
 "msg": "Értékesítés telefonon: hosszan nyomva a kártya áthúzható (nincs szövegkijelölés); Sikertelenbe húzva csak az okát kérdezi; banki tételek: „2026-84” típusú rövid számlaszám és közlemény nélküli partner+összeg alapú párosítás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: a sávok alatti videóállapot-csík kivéve"
 },
 {
-"id": "fb19a96c10",
-"at": "2026-11-17T22:57:54+02:00",
-"msg": "Sötét mód: az idővonal sávjai egyszínűek (nincs átmenet, nincs névcímke-háttér)"
-},
-{
-"id": "72225de965",
-"at": "2026-11-17T20:57:09Z",
+"id": "7d49e44ad1",
+"at": "2026-11-17T20:58:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
