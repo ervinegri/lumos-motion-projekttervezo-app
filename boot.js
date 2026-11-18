@@ -28,7 +28,7 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
   if(mq.addEventListener)mq.addEventListener('change',upd);})();
 
 /* A névjelvény menüje: ⚙️ Beállítások és Kilépés (érintésre / kattintásra jelenik meg) */
-const THEME_LBL=()=>{const p=window.lpmTheme?lpmTheme():'light';return '🌙 Sötét mód: '+(p==='dark'?'be':p==='auto'?'a rendszer szerint':'ki');},THEME_NEXT=()=>{const p=window.lpmTheme?lpmTheme():'light';return p==='light'?'dark':p==='dark'?'auto':'light';};   /* ki → be → a rendszer szerint → ki */
+const THEME_LBL=()=>{const p=window.lpmTheme?lpmTheme():'light';return '🌙 Sötét mód: '+(p==='dark'?'be':'ki');},THEME_NEXT=()=>{const p=window.lpmTheme?lpmTheme():'light';return p==='dark'?'light':'dark';};   /* ki → be → a rendszer szerint → ki */
 const SETTINGS_TAB=()=>{try{const t=TABS().find(x=>x.label==='Beállítások');return t?t.id:'';}catch(e){return '';}};
 (()=>{const close=()=>{const p=document.getElementById('ucPop');if(p)p.remove();};
   document.addEventListener('click',e=>{const chip=e.target.closest&&e.target.closest('#userChip');const pop=document.getElementById('ucPop');

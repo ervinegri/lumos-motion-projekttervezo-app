@@ -11,7 +11,7 @@
    shortcut: a JS-ben beírt (style="…") színeket nem alakítja át – ha valahol világos folt marad, azt célzottan kell javítani. */
 (function(){var h=document.documentElement,mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
   function pref(){try{return localStorage.getItem('lpm_theme')||'light';}catch(e){return 'light';}}
-  function on(){var p=pref();return p==='dark'||(p==='auto'&&!!(mq&&mq.matches));}
+  function on(){return pref()==='dark';}   /* csak ki / be (a „rendszer szerint” megszűnt – a korábbi auto beállítás világosnak számít) */
   /* szín → sötét pár (HSL-ben): a nagyon világos (≥ 78%) és a szürkés / nagyon sötét színek világossága megfordul */
   var MODE='sym';function conv(r,g,b,a){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
     if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh/=6;}
