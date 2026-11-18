@@ -147,13 +147,8 @@ const ITEMS = [
 "msg": "Tagi kölcsön: a 2026-06-06-i duplikált kézi visszafizetés törölve (= 07-06 banki utalás); banki rögzítéskor az elírt dátumú kézi sor javul (nem lesz dupla); az egyeztetés az eltérő dátumú párt is felismeri"
 },
 {
-"id": "c9c0d9f1bd",
-"at": "2026-11-18T00:23:47+02:00",
-"msg": "Tagi kölcsön: banki utalások egyeztetése a kezdetektől (melyik van a táblában, melyik hiányzik – egy kattintással rögzíthető; mely sorokhoz nincs banki pár)"
-},
-{
-"id": "4351ea872d",
-"at": "2026-11-17T22:16:38Z",
+"id": "6677ddc615",
+"at": "2026-11-17T22:24:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
