@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fb48e94eca",
+"at": "2026-11-18T08:00:49+02:00",
+"msg": "Bejövő számla kiadásként: az üzenet megmondja, melyik hónapba került (a teljesítés hónapja)"
+},
+{
 "id": "798ad926bf",
 "at": "2026-11-18T07:53:28+02:00",
 "msg": "Tagi kölcsön: a 2026-06-06-i duplikált kézi visszafizetés törölve (= 07-06 banki utalás); banki rögzítéskor az elírt dátumú kézi sor javul (nem lesz dupla); az egyeztetés az eltérő dátumú párt is felismeri"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a halvány színes kijelölések (pl. aktív hónap) is sötétek; a sárga gombon sötét szöveg"
 },
 {
-"id": "80ae094e7a",
-"at": "2026-11-17T22:51:31+02:00",
-"msg": "Sötét mód: a sötét hátterek (táblafejléc, kiemelt gombok) és a rajtuk lévő világos szöveg megmarad"
-},
-{
-"id": "969a0e66aa",
-"at": "2026-11-17T20:51:18Z",
+"id": "fa484b299e",
+"at": "2026-11-17T20:51:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
