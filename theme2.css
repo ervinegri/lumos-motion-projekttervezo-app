@@ -2848,3 +2848,4 @@ html body .panel.inv-panel{background:linear-gradient(180deg,#fff6df,#fffaf0)!im
 
 /* meghívás gombjai: Megnézem · Nem vállalom · Elfogadom (az elfogadás jobb oldalt) */
 .inv-btns{display:flex;gap:8px;align-items:center}.inv-btns [data-a="yes"]{order:3}.inv-btns [data-a="no"]{order:2}
+.panel.inv-panel.inv-click{cursor:pointer}.panel.inv-panel.inv-click .inv-row.inv-click:hover{background:none}.panel.inv-panel.inv-click:hover{box-shadow:0 8px 28px rgba(232,163,59,.3)!important}
