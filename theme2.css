@@ -2873,3 +2873,6 @@ html body .tl-track .tl-cut.tl-withmain.nm-show>.tl-nm{display:block!important}
 /* a forgatás-sávhoz kapcsolt vágás-sáv saját neve csak akkor látszik, ha a forgatás-sáv kicsúszott (különben dupla lenne) */
 html body .tl-track .tl-cut.tl-joined:not(.nm-show)>.tl-nm,html body .tl-track .tl-cut.tl-withmain:not(.nm-show)>.tl-nm{visibility:hidden!important}
 html body .tl-track .tl-cut.tl-joined.nm-show>.tl-nm{display:block!important;visibility:visible!important}
+
+html body .tl-track .tl-cut.nm-dup:not(.nm-show)>.tl-nm{visibility:hidden!important}
+html body .tl-track .tl-cut.nm-dup.nm-show>.tl-nm{display:block!important;visibility:visible!important}
