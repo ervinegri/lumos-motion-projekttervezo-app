@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d6696f14d1",
+"at": "2026-11-18T14:21:01+02:00",
+"msg": "Értékesítés telefonon: húzás közben alul gyors célpontok a szakaszokhoz (pl. Sikertelen) – nem kell az oszlopig görgetni"
+},
+{
 "id": "a076d90189",
 "at": "2026-11-18T14:07:27+02:00",
 "msg": "Értékesítés telefonon: vissza az ujjas húzás (hosszan nyomva), megbízhatóbban – a kártyán is figyeli a felengedést, húzás közben nincs újrarajzolás, beragadás esetén magától lezárul, lerakás után nem nyílik meg a kártya"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Banki tételek: a közleményben hivatkozott, már kifizetett számlák tételei nem várnak párosításra; nyitott app-számlára javaslat; a lista első 6 tétele, a többi lenyitható"
 },
 {
-"id": "66e0f586c8",
-"at": "2026-11-17T23:42:20+02:00",
-"msg": "Állapot: táblaméretek lekérhetők (a Neon-forgalom elemzéséhez, adat nélkül)"
-},
-{
-"id": "73126813f1",
-"at": "2026-11-17T21:40:36Z",
+"id": "7f57b9019b",
+"at": "2026-11-17T21:42:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
