@@ -363,4 +363,13 @@ function loanDupMergeOnce_() {
     if (n) dbFlush_(); });
   P.setProperty('LOAN_DUP_2', now_() + ' · ' + n); if (n) { dataBump_(); logEvent_({ name: 'Rendszer', role: 'admin' }, 'Pénzügyek', 'Tagi kölcsön', n + ' duplikált sor összevonva'); }
 }
-
+/** Egyszeri (2026-11-18, Ervin jóváhagyásával): a 2026-06-06-i 1 350 000 Ft-os kézi visszafizetés ugyanaz, mint a 2026-07-06-i banki utalás – a kézi sor törlődik. */
+function loanFixOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('LOAN_FIX_1')) return; let done = '';
+  withLock_(() => { const sh = sheetFor_('finLoan'), L = readAll_('finLoan');
+    const dup = L.find(l => l.date === '2026-06-06' && l.kind === 'vissza' && Math.round(Number(l.amount) || 0) === 1350000 && !l.note);
+    const bank = L.find(l => l.date === '2026-07-06' && l.kind === 'vissza' && Math.round(Number(l.amount) || 0) === 1350000);
+    if (dup && bank) { const r = findRow_(sh, dup.id); if (r) { sh.deleteRow(r); dbFlush_(); done = dup.id; } } });
+  P.setProperty('LOAN_FIX_1', now_() + (done ? ' · törölve ' + done : ' · nem kellett'));
+  if (done) { dataBump_(); logEvent_({ name: 'Rendszer', role: 'admin' }, 'Pénzügyek', 'Tagi kölcsön', 'Duplikált sor törölve: 2026-06-06 visszafizetés 1 350 000 Ft (= 2026-07-06 banki utalás)'); }
+}

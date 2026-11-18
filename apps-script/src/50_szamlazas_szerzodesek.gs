@@ -1274,7 +1274,9 @@ function szBankSet_(u, a) {
   const t = readAll_('bankTx').find(x => x.id === id); if (!t) throw new Error('A tétel nem található.');
   if (st === 'kolcson') {   // tagi kölcsön (vagy annak visszafizetése): a Tagi kölcsön táblába kerül
     const kind = t.dir === 'KI' ? 'vissza' : 'be', amount = Math.round(Math.abs(Number(t.amount) || 0)), date = t.valueDate || today_(), note = [t.partnerName, t.note].filter(Boolean).join(' – ').slice(0, 300);
-    const same = readAll_('finLoan').find(l => l.date === date && l.kind === kind && Math.round(Number(l.amount) || 0) === amount);   // kézzel már rögzítve: nem lesz második sor, csak a közlemény kerül rá
+    const LL = readAll_('finLoan'), sameAmt = l => l.kind === kind && Math.round(Number(l.amount) || 0) === amount, dd = l => Math.abs(new Date(l.date) - new Date(date)) / 864e5;
+    const near = LL.filter(l => sameAmt(l) && l.date !== date && !l.note && dd(l) <= 40);   // kézzel, elírt dátummal rögzítve (pl. 06-06 a 07-06 helyett): az lesz javítva
+    const same = LL.find(l => l.date === date && sameAmt(l)) || (near.length === 1 ? Object.assign({}, near[0], { date: date }) : null);   // kézzel már rögzítve: nem lesz második sor, csak a közlemény kerül rá
     finUpsert_(u, { table: 'loan', row: same ? Object.assign({}, same, { note: same.note || note }) : { id: Utilities.getUuid(), date: date, kind: kind, amount: amount, note: note } });
   }
   if (st === 'parositva' && /^pay:/.test(inv)) { const pid = inv.slice(4), p = readAll_('payStatus').find(x => x.id === pid); if (!p) throw new Error('A díj nem található.'); setPayStatus_(u, { month: p.month, crewId: p.crewId, field: 'paid', on: true, date: t.valueDate }); }   // kimenő utalás: a szakember havi díja kifizetve
