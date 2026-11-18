@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dc08eed2ee",
+"at": "2026-11-18T13:50:38+02:00",
+"msg": "Bérelt eszköz: a bérleti díj mezőt csak az ügyvezető látja (a termelési vezetőnek nem kell megadnia)"
+},
+{
 "id": "692de5a643",
 "at": "2026-11-18T13:22:49+02:00",
 "msg": "Saját meghívásaim: egy meghívásnál az egész doboz kattintható (a gombok kivételével)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: az aktív alfül (pl. Stáb) sötét; a sárga gombok halványabbak"
 },
 {
-"id": "086dc2634e",
-"at": "2026-11-17T23:39:16+02:00",
-"msg": "Neon-kiesésnél nincs automatikus átváltás a (nem friss) táblázatra, csak e-mail; sötét módban sötétebb ablak-háttér"
-},
-{
-"id": "f069d5eb8e",
-"at": "2026-11-17T21:37:37Z",
+"id": "ec9d76ee39",
+"at": "2026-11-17T21:39:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
