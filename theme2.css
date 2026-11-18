@@ -2858,3 +2858,6 @@ body.dl-touchdrag .dl-board,html body.dl-touchdrag .dl-board{scroll-snap-type:no
 
 /* a projekt címsávja a felső sáv része (alatta lóg): túlgörgetéskor (rugózás) együtt mozognak */
 html body .topbar>.ptbar{position:absolute!important;top:100%!important;left:0;right:0}
+
+/* Értékesítési folyamat fejléce (tablet, gép): cím · értékesítő · keresés egy sorban */
+@media (min-width:701px){html body .toolbar.sales-tb{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:12px!important}html body .sales-tb .sales-tb-h{flex:1 1 auto!important;min-width:0!important;margin:0!important}html body .sales-tb .sales-own{order:2!important;flex:0 0 auto!important;margin:0!important;display:flex!important;align-items:center;gap:8px}html body .sales-tb .sales-own>*:not(span){width:210px!important;min-width:0}html body .sales-tb #q-sales{order:3!important;flex:0 1 320px!important;min-width:160px!important;width:auto!important;margin:0!important}}
