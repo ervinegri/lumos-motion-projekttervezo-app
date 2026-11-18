@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "798ad926bf",
+"at": "2026-11-18T07:53:28+02:00",
+"msg": "Tagi kölcsön: a 2026-06-06-i duplikált kézi visszafizetés törölve (= 07-06 banki utalás); banki rögzítéskor az elírt dátumú kézi sor javul (nem lesz dupla); az egyeztetés az eltérő dátumú párt is felismeri"
+},
+{
 "id": "c9c0d9f1bd",
 "at": "2026-11-18T00:23:47+02:00",
 "msg": "Tagi kölcsön: banki utalások egyeztetése a kezdetektől (melyik van a táblában, melyik hiányzik – egy kattintással rögzíthető; mely sorokhoz nincs banki pár)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a sötét hátterek (táblafejléc, kiemelt gombok) és a rajtuk lévő világos szöveg megmarad"
 },
 {
-"id": "d707842354",
-"at": "2026-11-17T22:51:04+02:00",
-"msg": "Sötét mód: halványabb logó; gépen a Fizetések tábla kerete a tábla szélességéig ér"
-},
-{
-"id": "aee950c97f",
-"at": "2026-11-17T20:50:06Z",
+"id": "969a0e66aa",
+"at": "2026-11-17T20:51:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
