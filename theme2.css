@@ -2832,3 +2832,5 @@ body.dl-touchdrag{touch-action:none}
 /* gombnyomás visszajelzés: azonnal szürke és nem nyomható, amíg a művelet fut */
 button.tapped,button[data-working]{opacity:.55!important;filter:grayscale(.5);pointer-events:none}
 .mfoot button[type=submit]:disabled:not(.btn-idle){opacity:.6;filter:grayscale(.4)}
+
+@media (max-width:700px){html body .toolbar.sales-tb{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important}html body .sales-tb .sales-own{order:1!important;flex:0 0 40%!important;max-width:40%!important;overflow:hidden}html body .sales-tb #q-sales{order:2!important}html body .sales-tb .sales-own *{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}}
