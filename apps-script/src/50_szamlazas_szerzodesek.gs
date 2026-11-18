@@ -1201,7 +1201,7 @@ function szDocIn_(root, kind) {
     const sh = sheetFor_('szDocs'), r = findRow_(sh, d.id), cur = r ? readRow_('szDocs', sh, r) : null;
     if (cur) ['pdfUrl', 'crewId', 'status', 'expenseId', 'handledBy', 'handledAt'].forEach(k => { d[k] = cur[k] || ''; });
     if (!d.pdfUrl && pdf.length > 100) { try { d.pdfUrl = szDocPdf_(d, pdf); } catch (e) { Logger.log('Bizonylat-PDF: ' + e); } }
-    if (kind === 'be' && !d.crewId) { const tax8 = szDigits_(d.partnerTax).slice(0, 8), c = tax8.length === 8 ? readAll_('crew').find(x => szDigits_(x.tax).slice(0, 8) === tax8) : null; if (c) { d.crewId = c.id; d.status = 'stab'; } }
+    if (kind === 'be' && !d.crewId) { const c = szCrewOfDoc_(d, readAll_('crew')); if (c) { d.crewId = c.id; d.status = 'stab'; } }
     putRow_('szDocs', sh, d, r || 0);
     if (kind === 'ki' && d.no && d.paid > 0) {   // a számlázz.hu-ban rögzített kifizetés (banki párosítás, kézi jóváírás) az app bizonylatán is
       const fs = sheetFor_('finInvoice'), fr = findRow_(fs, (readAll_('finInvoice').find(x => x.no === d.no) || {}).id || '-');
@@ -1249,6 +1249,23 @@ function szDocSet_(u, a) {
   return finData_();
 }
 /** Pénzügyek: kezeletlen bejövő számlák, havi banki forgalom, és az ügyfelek fizetési fegyelméhez a kimenő számlák kifizetési adatai. */
+/** Bejövő számla → szakember: adószám (első 8 jegy), ha az nincs meg, a név vagy a számlázó cég neve (pontos egyezés, ékezet és cégforma nélkül; csak ha egyértelmű). */
+function szCrewOfDoc_(d, crew) {
+  const tax8 = szDigits_(d.partnerTax).slice(0, 8);
+  if (tax8.length === 8) { const c = crew.find(x => szDigits_(x.tax).slice(0, 8) === tax8); if (c) return c; }
+  const pn = szBankNorm_(String(d.partnerName || '').replace(/,\s*\d[\d\s-]*$/, '')); if (pn.length < 5) return null;   // „MAJOR BENCE ANDRÁS, 61382152” → major bence andras
+  const hit = crew.filter(x => x.type !== 'Belsős' && [x.name, x.company].some(n => n && szBankNorm_(n) === pn));
+  return hit.length === 1 ? hit[0] : null;
+}
+/** Egyszeri (2026-11-18): a már beérkezett, de szakemberhez nem kötött bejövő számlák újrapróbálása (név szerinti egyezéssel is). */
+function szDocCrewRetryOnce_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DOC_CREW_RETRY_1')) return; let n = 0;
+  const crew = readAll_('crew'), todo = readAll_('szDocs').filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno);
+  todo.forEach(d0 => { const c = szCrewOfDoc_(d0, crew); if (!c) return;
+    let d = null; withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d0.id); if (!r) return; const x = readRow_('szDocs', sh, r); if (x.crewId || x.status) return; x.crewId = c.id; x.status = 'stab'; putRow_('szDocs', sh, x, r); dbFlush_(); n++; d = x; });
+    if (d && /^(SZ|VS|HS)$/.test(d.type || 'SZ')) { try { szDocCrewApply_(d); } catch (e) { Logger.log('Szakember-számla párosítás: ' + e); } } });
+  P.setProperty('SZ_DOC_CREW_RETRY_1', now_() + ' · ' + n); if (n) dataBump_();
+}
 function szDocsView_() {
   let docs = []; try { docs = readAll_('szDocs'); } catch (e) { return { open: [], bankMonths: {} }; }
   const lim = Utilities.formatDate(new Date(Date.now() - 120 * 864e5), SHEET_TZ, 'yyyy-MM-dd');
