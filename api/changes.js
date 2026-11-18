@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "134524fdd6",
+"at": "2026-11-18T08:20:00+02:00",
+"msg": "Értékesítés telefonon: a kártyát tartva a másik ujjal görgethető az oldal és az oszlopok"
+},
+{
 "id": "902cf84fe2",
 "at": "2026-11-18T08:18:43+02:00",
 "msg": "Értékesítés telefonon: előbb az értékesítő-választó, utána a keresés; egyik sem lóg ki a képernyő szélére"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonal: világos módban sincs átmenet a sávokon"
 },
 {
-"id": "7a2b1bfc21",
-"at": "2026-11-17T23:00:31+02:00",
-"msg": "Sötét mód: a sötétkék háttér a lap aljáig ér"
-},
-{
-"id": "871a221b5c",
-"at": "2026-11-17T21:00:14Z",
+"id": "27492925ca",
+"at": "2026-11-17T21:00:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
