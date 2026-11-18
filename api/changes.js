@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c9a5f84b89",
+"at": "2026-11-18T08:16:48+02:00",
+"msg": "Gombok: megnyomáskor azonnal szürkék, amíg a művelet fut nem nyomhatók újra (fél másodpercen belüli második nyomás sem fut le); mentés gomb ugyanígy"
+},
+{
 "id": "ef3cc027d0",
 "at": "2026-11-18T08:15:05+02:00",
 "msg": "Értékesítés telefonon: a keresés és az értékesítő-választó egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a vágó kártyáján látszik a saját videói állapota és a jóváhagyás"
 },
 {
-"id": "830a70b5bd",
-"at": "2026-11-17T22:58:12+02:00",
-"msg": "Idővonal: a sávok alatti videóállapot-csík kivéve"
-},
-{
-"id": "7d49e44ad1",
-"at": "2026-11-17T20:58:05Z",
+"id": "9043270d57",
+"at": "2026-11-17T20:58:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
