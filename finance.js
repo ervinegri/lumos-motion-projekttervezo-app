@@ -735,7 +735,7 @@ Object.assign(ACT,{
     const x=((S.fin.invoices)||[]).find(i=>i.id===b.dataset.inv);if(!x)return;
     openModal('Utalás párosítása',`<p style="margin:0"><b>${esc(t.partnerName||'')}</b> · ${sFt(Math.round(Number(t.amount)||0))} · ${esc(fmtDay(t.valueDate))}${t.note?`<br><span class="muted">${esc(t.note)}</span>`:''}<br><br>→ <b>${esc(x.no)}</b> (${esc(x.buyer||'')}) kifizetettre állítva, a számlázz.hu-ban is jóváírva, ${esc(fmtDay(t.valueDate))}-i dátummal.</p>`,{submitLabel:'✓ Kifizetve',noDraft:true,submit:async()=>{closeModal();await finCall('szBankSet',{id:t.id,status:'parositva',invoiceId:x.id},'Párosítva – a számla kifizetett');}});},
   'bank-no':b=>finCall('szBankSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
-  'indoc-exp':b=>finCall('szDocSet',{id:b.dataset.id,status:'kiadas',fund:b.dataset.fund},'Kiadásként rögzítve ('+(b.dataset.fund==='marketing'?'marketing':'rezsi')+')'),
+  'indoc-exp':b=>{const d=((S.fin.szDocs&&S.fin.szDocs.open)||[]).find(x=>x.id===b.dataset.id),m=String((d&&(d.telj||d.kelt))||todayISO()).slice(0,7);finCall('szDocSet',{id:b.dataset.id,status:'kiadas',fund:b.dataset.fund},'Kiadásként rögzítve: '+F_YM.format(toDate(m+'-01'))+', '+(b.dataset.fund==='marketing'?'marketing':'rezsi')+' (a teljesítés hónapja)');},
   'indoc-no':b=>finCall('szDocSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
   'sz-item-add':()=>{const box=$('sz-items');if(!box)return;box.insertAdjacentHTML('beforeend',szItemRow({name:'',qty:1,price:''},box.children.length));szTotals();},
   'sz-item-del':b=>{const box=$('sz-items');if(box&&box.children.length>1){b.closest('[data-szitem]').remove();szTotals();}else toast('Legalább egy tétel kell.',true);}
