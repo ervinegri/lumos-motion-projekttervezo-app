@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "692de5a643",
+"at": "2026-11-18T13:22:49+02:00",
+"msg": "Saját meghívásaim: egy meghívásnál az egész doboz kattintható (a gombok kivételével)"
+},
+{
 "id": "7c0e3b2194",
 "at": "2026-11-18T13:21:33+02:00",
 "msg": "Meghívás: az Elfogadom gomb jobb oldalt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Neon-kiesésnél nincs automatikus átváltás a (nem friss) táblázatra, csak e-mail; sötét módban sötétebb ablak-háttér"
 },
 {
-"id": "3557708990",
-"at": "2026-11-17T23:37:22+02:00",
-"msg": "Hónapváltó: fix szélességű hónapgombok – lapozáskor semmi nem csúszik el"
-},
-{
-"id": "2b55b2b6c2",
-"at": "2026-11-17T21:36:21Z",
+"id": "f069d5eb8e",
+"at": "2026-11-17T21:37:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
