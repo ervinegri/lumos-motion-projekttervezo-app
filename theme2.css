@@ -2828,3 +2828,7 @@ body.dl-touchdrag{overflow:hidden;touch-action:none}
 
 /* Értékesítés telefonon: a keresés és az értékesítő-választó egy sorban */
 @media (max-width:700px){html body .toolbar.sales-tb{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}html body .sales-tb .sales-tb-h{flex:1 0 100%!important}html body .sales-tb #q-sales{flex:1 1 0!important;min-width:0!important;width:auto!important;margin:0!important}html body .sales-tb .sales-own{flex:0 0 42%!important;min-width:0!important;margin:0!important;display:flex!important}html body .sales-tb .sales-own>span{display:none!important}html body .sales-tb .sales-own>*{flex:1 1 auto;min-width:0;width:100%!important}}
+
+/* gombnyomás visszajelzés: azonnal szürke és nem nyomható, amíg a művelet fut */
+button.tapped,button[data-working]{opacity:.55!important;filter:grayscale(.5);pointer-events:none}
+.mfoot button[type=submit]:disabled:not(.btn-idle){opacity:.6;filter:grayscale(.4)}
