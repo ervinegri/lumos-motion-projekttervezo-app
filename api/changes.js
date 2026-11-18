@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7c0e3b2194",
+"at": "2026-11-18T13:21:33+02:00",
+"msg": "Meghívás: az Elfogadom gomb jobb oldalt"
+},
+{
 "id": "043345f4da",
 "at": "2026-11-18T13:21:22+02:00",
 "msg": "Saját meghívásaim: az egész sor kattintható (megnyitja a projektet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hónapváltó: fix szélességű hónapgombok – lapozáskor semmi nem csúszik el"
 },
 {
-"id": "e174bd61e6",
-"at": "2026-11-17T23:36:12+02:00",
-"msg": "Sötét mód: az oldalcímek a logó feliratához hasonlóan halványabbak"
-},
-{
-"id": "eef5c2d0eb",
-"at": "2026-11-17T21:35:11Z",
+"id": "2b55b2b6c2",
+"at": "2026-11-17T21:36:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
