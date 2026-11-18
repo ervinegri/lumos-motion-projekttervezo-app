@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aa53bed42e",
+"at": "2026-11-18T12:39:54+02:00",
+"msg": "Eszközök: a kiküldött (véglegesített) eszközlista zárolását 🔓 Feloldás gomb oldja fel közelgő projektnél (ügyvezető, termelési vezető), utána újra véglegesíthető; lezajlott rendezvénynél nincs feloldás"
+},
+{
 "id": "fa57a1e6aa",
 "at": "2026-11-18T12:36:39+02:00",
 "msg": "Lezajlott rendezvény: a csapat és az eszközök 🔓 Feloldás gombbal újra módosíthatók (ügyvezető, termelési vezető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Átnézés: 5 sehol nem hívott háttérfüggvény törölve"
 },
 {
-"id": "9b3d6cbe5e",
-"at": "2026-11-17T23:19:38+02:00",
-"msg": "Átnézés: 23 sehol nem használt felületi függvény és a kikapcsolt automatikus mentés maradéka törölve"
-},
-{
-"id": "04680c82a4",
-"at": "2026-11-17T21:17:23Z",
+"id": "25bdc67eff",
+"at": "2026-11-17T21:19:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
