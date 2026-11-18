@@ -294,7 +294,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
     if(o){if(st.o&&st.o.id===o.identifier){scrollXY(-(o.clientX-st.o.x)*1.6,-(o.clientY-st.o.y)*1.6);const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}}st.o={id:o.identifier,x:o.clientX,y:o.clientY};}else st.o=null;ghost.style.left=(t.clientX-dx)+'px';ghost.style.top=(t.clientY-dy)+'px';
     const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
     cancelAnimationFrame(raf);lx=t.clientX;ly=t.clientY;const step=()=>{   /* a képernyő széléhez húzva: oldalra az oszlopok, fel-le az oldal görög (folyamatosan, amíg ott tartod) */
-      const W=innerWidth,H=innerHeight,E=56,vx=lx<E?-Math.ceil((E-lx)/3):lx>W-E?Math.ceil((lx-W+E)/3):0,vy=ly<E+60?-Math.ceil((E+60-ly)/4):ly>H-E?Math.ceil((ly-H+E)/4):0;if(!vx&&!vy)return;
+      const W=innerWidth,H=innerHeight,E=64,vx=lx<E?-Math.ceil((E-lx)/2)-4:lx>W-E?Math.ceil((lx-W+E)/2)+4:0,vy=ly<E+60?-Math.ceil((E+60-ly)/4):ly>H-E?Math.ceil((ly-H+E)/4):0;if(!vx&&!vy)return;
       scrollXY(vx,vy);
       const col=colAt(lx,ly);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
       raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);};
