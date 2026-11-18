@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4414c1430c",
+"at": "2026-11-18T08:48:59+02:00",
+"msg": "Értékesítés telefonon: hosszan nyomva a kártyán áthelyezés-menü (szakasz gombok) a megbízhatatlan ujjas húzás helyett"
+},
+{
 "id": "bce8f0a329",
 "at": "2026-11-18T08:42:17+02:00",
 "msg": "Értékesítés telefonon: a húzott kártya nem ragad be (húzás közben nincs újrarajzolás, elveszett felengedésnél a következő érintés lezárja)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Átnézés: az Elvetés gomb a teljes visszaállítást használja (dupla kulcs); szerződés mentése után a pénzügyi adatok frissülnek; pipálás-felirat escape; halott kódrészek törölve"
 },
 {
-"id": "b52e40e6a9",
-"at": "2026-11-17T23:13:15+02:00",
-"msg": "Átvilágítás javításai: Neon-akadásnál újrapróbálás (nincs azonnali visszaváltás a táblázatra, nincs dupla futás); kifizetett állapot a bizonylat ÁFÁ-jával; közös API-hitelesítés; minden írás frissíti a nyitott lapokat; banki párosítás pontosítva; teszt a számlázz.hu fogadóra; felesleges képek törölve"
-},
-{
-"id": "2401bc6043",
-"at": "2026-11-17T21:02:16Z",
+"id": "0f11374b64",
+"at": "2026-11-17T21:13:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
