@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9fc29c92c8",
+"at": "2026-11-18T14:22:28+02:00",
+"msg": "Értékesítés telefonon: húzás közben a másik ujjal görgetés a ténylegesen görgő tartón (oldalra és fel-le), két ujjnál nincs nagyítás"
+},
+{
 "id": "d6696f14d1",
 "at": "2026-11-18T14:21:01+02:00",
 "msg": "Értékesítés telefonon: húzás közben alul gyors célpontok a szakaszokhoz (pl. Sikertelen) – nem kell az oszlopig görgetni"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beállítások: a Neon-leírás az új működést mutatja (nincs automatikus átváltás)"
 },
 {
-"id": "6eb67d47b5",
-"at": "2026-11-17T23:47:24+02:00",
-"msg": "Banki tételek: a közleményben hivatkozott, már kifizetett számlák tételei nem várnak párosításra; nyitott app-számlára javaslat; a lista első 6 tétele, a többi lenyitható"
-},
-{
-"id": "7f57b9019b",
-"at": "2026-11-17T21:42:31Z",
+"id": "3628308f4a",
+"at": "2026-11-17T21:47:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
