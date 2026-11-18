@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a076d90189",
+"at": "2026-11-18T14:07:27+02:00",
+"msg": "Értékesítés telefonon: vissza az ujjas húzás (hosszan nyomva), megbízhatóbban – a kártyán is figyeli a felengedést, húzás közben nincs újrarajzolás, beragadás esetén magától lezárul, lerakás után nem nyílik meg a kártya"
+},
+{
 "id": "dc08eed2ee",
 "at": "2026-11-18T13:50:38+02:00",
 "msg": "Bérelt eszköz: a bérleti díj mezőt csak az ügyvezető látja (a termelési vezetőnek nem kell megadnia)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Állapot: táblaméretek lekérhetők (a Neon-forgalom elemzéséhez, adat nélkül)"
 },
 {
-"id": "230d24c6e6",
-"at": "2026-11-17T23:40:24+02:00",
-"msg": "Sötét mód: az aktív alfül (pl. Stáb) sötét; a sárga gombok halványabbak"
-},
-{
-"id": "ec9d76ee39",
-"at": "2026-11-17T21:39:26Z",
+"id": "73126813f1",
+"at": "2026-11-17T21:40:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
