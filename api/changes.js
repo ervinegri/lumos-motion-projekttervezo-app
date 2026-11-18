@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "609d96eace",
+"at": "2026-11-18T14:22:44+02:00",
+"msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok valóban oldalra görögnek (a mobilos oszlop-illesztés eddig visszaugratta)"
+},
+{
 "id": "9fc29c92c8",
 "at": "2026-11-18T14:22:28+02:00",
 "msg": "Értékesítés telefonon: húzás közben a másik ujjal görgetés a ténylegesen görgő tartón (oldalra és fel-le), két ujjnál nincs nagyítás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Banki tételek: a csak a számlázz.hu-ban kiállított nyitott számlákra is javaslat, egy kattintással kifizetett (a számlázz.hu-ban is jóváírva); a pénzügyi gyorsítótár az új kóddal frissül"
 },
 {
-"id": "ad2f8024ff",
-"at": "2026-11-17T23:53:26+02:00",
-"msg": "Beállítások: a Neon-leírás az új működést mutatja (nincs automatikus átváltás)"
-},
-{
-"id": "3628308f4a",
-"at": "2026-11-17T21:47:40Z",
+"id": "3e1f8e9cf7",
+"at": "2026-11-17T21:53:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
