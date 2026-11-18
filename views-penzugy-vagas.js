@@ -270,7 +270,7 @@ function refOption(p,inEx){if(!isAdmin()||!inEx)return '';   // csak az ügyveze
       ${dis?'':`<select class="inp" id="ref-add" data-cmb="+ szakember kiválasztása (kezdj el gépelni)…" data-cmb-sub="crew"><option value="">+ szakember kiválasztása…</option>${opts}</select>`}</div><p class="hint" style="margin:4px 0 0">Az összeg itt adható meg (nettó); a jutalék a szakember Kifizetéseiben és a Bevétel és kiadás táblában külön oszlopban jelenik meg.</p>`:''}</div>`;}
 function crewFinalBox(p,ids){
   if(!ids.length)return '';
-  if(crewPast(p))return `<div class="crew-final past" id="crew-final"><div class="cf-msg"><b>🔒 A rendezvény már lezajlott</b><small>A csapat és az eszközök utólag nem módosíthatók.</small></div></div>`;
+  if(crewPast(p))return `<div class="crew-final past" id="crew-final"><div class="cf-msg"><b>🔒 A rendezvény már lezajlott</b><small>A csapat és az eszközök csak feloldás után módosíthatók.</small></div>${!ro()&&(isAdmin()||(S.me&&S.me.role==='editor'))?'<button class="btn outline small" type="button" data-action="crew-past-unlock">🔓 Feloldás</button>':''}</div>`;
   if(!crewFinalOn())return '';   // közös véglegesítés nincs többé
   const st=crewFinalState(p),f=p.crewFinal,freeCut=postTasks(p).filter(t=>!taskOwners(p,t.k).length).length,on=crewFinalOn()&&!freeCut;
   // a véglegesítő ablak nem ugrik fel magától – csak a „Módosítások véglegesítése” gombra
