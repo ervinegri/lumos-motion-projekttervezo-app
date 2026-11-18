@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f8e77711b9",
+"at": "2026-11-18T08:07:09+02:00",
+"msg": "Mai teendők levél: az „Értékesítés megnyitása” gomb az Értékesítés fület nyitja"
+},
+{
 "id": "a219f95382",
 "at": "2026-11-18T08:06:40+02:00",
 "msg": "Bejövő számla: többszöri kattintásra sem rögzül többször (háttér + felület); a meglévő duplikátumok egyszeri törlése; a kiadás szerkesztőjében a számla és a banki tranzakció részletei"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Idővonalra váltáskor a mai nap jön be; Egyenleg sor csak elmaradásnál; rövidebb keresőmező"
 },
 {
-"id": "822436fb58",
-"at": "2026-11-17T22:55:38+02:00",
-"msg": "Sötét mód: aktív kapcsolók sötétek; a hozzászólás Küldés gombja nem nyúlik meg"
-},
-{
-"id": "20429355d1",
-"at": "2026-11-17T20:54:30Z",
+"id": "28ddea6f11",
+"at": "2026-11-17T20:55:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
