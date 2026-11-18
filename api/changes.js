@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "735405f34d",
+"at": "2026-11-18T08:03:12+02:00",
+"msg": "Bejövő számlák: a szakember számlája név / számlázó cég alapján is párosul (ha az adószám hiányzik a Stábnál); a már beérkezett számlák egyszeri újrapróbálása"
+},
+{
 "id": "fb48e94eca",
 "at": "2026-11-18T08:00:49+02:00",
 "msg": "Bejövő számla kiadásként: az üzenet megmondja, melyik hónapba került (a teljesítés hónapja)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: a számlázó cég, adószám és ÁFA csak az ügyvezetőnek látszik; sötét mód: aktív hónap és frissítés-sáv sötét"
 },
 {
-"id": "686afd4275",
-"at": "2026-11-17T22:52:42+02:00",
-"msg": "Sötét mód: a halvány színes kijelölések (pl. aktív hónap) is sötétek; a sárga gombon sötét szöveg"
-},
-{
-"id": "fa484b299e",
-"at": "2026-11-17T20:51:44Z",
+"id": "0254225324",
+"at": "2026-11-17T20:52:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
