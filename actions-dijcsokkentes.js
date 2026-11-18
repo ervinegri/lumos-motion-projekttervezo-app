@@ -614,10 +614,10 @@ function rentalModal(crewId){
   openModal('Bérelt eszköz'+(c?' – '+c.name:' – közös'),`<div class="fields">
     ${mf('name','Eszköz neve',{full:true,ph:'pl. Sony FX6 + 24-70 GM',max:120})}
     ${mf('company','Bérbeadó cég',{ph:'pl. Rentalcam',max:120})}
-    ${canSeeFees()?moneyField('price','Bérleti díj (nettó)','',{steps:false,ph:'pl. 25 000'}):''}
+    ${isAdmin()?moneyField('price','Bérleti díj (nettó)','',{steps:false,ph:'pl. 25 000'}):''}
   </div>`,{submitLabel:'Hozzáadás',submit:async(fd,form)=>{
     const name=String(fd.get('name')||'').trim();if(!name){toast('Add meg az eszköz nevét.',true);return;}
-    const r={id:uuid(),crewId:crewId||'',name,company:String(fd.get('company')||'').trim(),price:canSeeFees()?(moneyVal(fd.get('price'))||0):0};
+    const r={id:uuid(),crewId:crewId||'',name,company:String(fd.get('company')||'').trim(),price:isAdmin()?(moneyVal(fd.get('price'))||0):0};   // a díjat csak az ügyvezető adja meg
     closeModal();setDraft({rentals:(S.draft.rentals||[]).concat([r])});setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 async function sendListModal(only){
