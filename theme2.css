@@ -2867,3 +2867,5 @@ html body .topbar>.ptbar{position:absolute!important;top:100%!important;left:0;r
 
 /* idővonal: a név helyét a script állítja (látható rész eleje) – a régi „sticky” eltolás ne adódjon hozzá */
 html body .tl-row .tl-track .tl-bar>.tl-nm{position:relative!important;left:0!important}
+
+html body .tl-track .tl-cut.tl-withmain.nm-show>.tl-nm{display:block!important}

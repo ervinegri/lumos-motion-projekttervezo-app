@@ -147,6 +147,7 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
    csúszik – így mindig olvasható (a sáv levágja a tartalmát, ezért a CSS-es „sticky” itt nem működik). */
 (()=>{let raf=0,W=null;
   const fix=()=>{raf=0;const w=W;if(!w||!document.contains(w))return;const wr=w.getBoundingClientRect(),lb=w.querySelector('.tl-row:not(.tl-head) .tl-lbl'),lw=lb&&lb.offsetWidth&&getComputedStyle(lb).position==='sticky'?lb.getBoundingClientRect().right-wr.left:0,vis=wr.left+lw;
+    w.querySelectorAll('.tl-cut.tl-withmain').forEach(c=>{const r=c.getBoundingClientRect();c.classList.toggle('nm-show',r.left<vis+24&&r.right>vis+40);});   /* a forgatás utáni vágás-sáv: ha a sáv eleje (a forgatással, ahol a név van) kicsúszott, a vágás-sávon is megjelenik a név */
     const L=[...w.querySelectorAll('.tl-bar>.tl-nm')],M=L.map(n=>{const b=n.parentElement.getBoundingClientRect();return [n,b,n.offsetWidth];});   /* előbb minden mérés, utána az írás */
     M.forEach(([n,b,nw])=>{let x=0;if(b.left<vis&&b.right>vis)x=Math.max(0,vis-b.left+4);   /* a név a látható rész elején indul – ha a sávból már csak kevés látszik, az eleje akkor is olvasható (a sáv vége levágja), és görgetéskor fokozatosan jelenik meg */n.style.transform=x?'translateX('+Math.round(x)+'px)':'';});};
   document.addEventListener('scroll',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('tl-wrap'))return;W=t;if(!raf)raf=requestAnimationFrame(fix);},{capture:true,passive:true});
