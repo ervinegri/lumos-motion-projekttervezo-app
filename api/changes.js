@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "043345f4da",
+"at": "2026-11-18T13:21:22+02:00",
+"msg": "Saját meghívásaim: az egész sor kattintható (megnyitja a projektet)"
+},
+{
 "id": "b4cb7aacd3",
 "at": "2026-11-18T13:17:58+02:00",
 "msg": "Saját meghívásaim: szembetűnőbb doboz (meleg háttér, bal sáv, számláló, harang, „Válaszod vár” felirat)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: az oldalcímek a logó feliratához hasonlóan halványabbak"
 },
 {
-"id": "e838aef76a",
-"at": "2026-11-17T23:35:00+02:00",
-"msg": "Sötét mód: a sötétzöld kiemelőszín (aktív hónap, gombok) sötét marad, szövegként világoszöld"
-},
-{
-"id": "391f3d53dc",
-"at": "2026-11-17T21:20:08Z",
+"id": "eef5c2d0eb",
+"at": "2026-11-17T21:35:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
