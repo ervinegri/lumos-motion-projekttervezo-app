@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fbce0b1ab2",
+"at": "2026-11-18T14:36:55+02:00",
+"msg": "Idővonal: a hosszú (vágás) sávon is megjelenik a projekt neve, ha a sáv eleje kicsúszott a képből"
+},
+{
 "id": "96f28ceb78",
 "at": "2026-11-18T14:34:59+02:00",
 "msg": "Sötét mód: csak be / ki (a „rendszer szerint” megszűnt)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Mai teendők levél: az „Értékesítés megnyitása” gomb az Értékesítés fület nyitja"
 },
 {
-"id": "a219f95382",
-"at": "2026-11-18T08:06:40+02:00",
-"msg": "Bejövő számla: többszöri kattintásra sem rögzül többször (háttér + felület); a meglévő duplikátumok egyszeri törlése; a kiadás szerkesztőjében a számla és a banki tranzakció részletei"
-},
-{
-"id": "bfb93cd9d6",
-"at": "2026-11-18T06:03:22Z",
+"id": "7f412a63f9",
+"at": "2026-11-18T06:06:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
