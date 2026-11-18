@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b6097b64ca",
+"at": "2026-11-18T08:17:37+02:00",
+"msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok oldalra, az oldal fel-le görög"
+},
+{
 "id": "c9a5f84b89",
 "at": "2026-11-18T08:16:48+02:00",
 "msg": "Gombok: megnyomáskor azonnal szürkék, amíg a művelet fut nem nyomhatók újra (fél másodpercen belüli második nyomás sem fut le); mentés gomb ugyanígy"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: az Összesen (még fizetendő) sor is csak akkor látszik, ha van fizetendő"
 },
 {
-"id": "de7e5e6817",
-"at": "2026-11-17T22:59:29+02:00",
-"msg": "Szakember nézet: a vágó kártyáján látszik a saját videói állapota és a jóváhagyás"
-},
-{
-"id": "9043270d57",
-"at": "2026-11-17T20:58:28Z",
+"id": "4b11238394",
+"at": "2026-11-17T20:59:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
