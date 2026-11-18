@@ -2851,3 +2851,10 @@ html body .panel.inv-panel{background:linear-gradient(180deg,#fff6df,#fffaf0)!im
 
 .dl-ghost{opacity:.94;transform:rotate(2deg) scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,.28)!important}
 body.dl-touchdrag{touch-action:none;-webkit-user-select:none;user-select:none}
+
+/* telefonos húzás: alul gyors célpontok a szakaszokhoz */
+.dl-dropbar{position:fixed;left:8px;right:8px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:9998;display:flex;gap:6px;padding:6px;border-radius:16px;background:rgba(29,42,56,.92);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.dl-dropchip{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 4px;border-radius:12px;border:2px dashed rgba(255,255,255,.35);color:#fff;font-size:11.5px;font-weight:700;text-align:center;line-height:1.15}
+.dl-dropchip span{font-size:18px}
+.dl-dropchip.over{background:#2f8a57;border-style:solid;border-color:#7fd3a3}
+.dl-dropchip.dl-dc-elveszett.over{background:#b3423a;border-color:#f0a39c}
