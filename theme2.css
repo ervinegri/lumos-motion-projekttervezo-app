@@ -2843,3 +2843,5 @@ html body .panel.inv-panel{background:linear-gradient(180deg,#fff6df,#fffaf0)!im
 .inv-panel .inv-bell{display:inline-block;transform-origin:50% 10%;animation:invBell 2.6s ease-in-out infinite}
 @keyframes invBell{0%,70%,100%{transform:rotate(0)}74%{transform:rotate(14deg)}78%{transform:rotate(-12deg)}82%{transform:rotate(8deg)}86%{transform:rotate(-5deg)}90%{transform:rotate(0)}}
 @media (prefers-reduced-motion:reduce){.inv-panel .inv-bell{animation:none}}
+
+.inv-row.inv-click{cursor:pointer;border-radius:12px;transition:background .15s}.inv-row.inv-click:hover{background:rgba(232,163,59,.12)}
