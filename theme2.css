@@ -2833,7 +2833,6 @@ button.tapped,button[data-working]{opacity:.55!important;filter:grayscale(.5);po
 
 @media (max-width:700px){html body .toolbar.sales-tb{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important}html body .sales-tb .sales-own{order:1!important;flex:0 0 40%!important;max-width:40%!important;overflow:hidden}html body .sales-tb #q-sales{order:2!important}html body .sales-tb .sales-own *{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}}
 
-.dl-move{display:flex;flex-direction:column;gap:10px}.dl-move .btn{justify-content:flex-start;min-height:48px;font-size:16px}
 
 /* Saját meghívásaim: szembetűnő doboz (meleg háttér, vastag bal sáv, számláló, finoman lüktető harang) */
 html body .panel.inv-panel{background:linear-gradient(180deg,#fff6df,#fffaf0)!important;border:1.5px solid #f0c66a!important;border-left:6px solid #e8a33b!important;box-shadow:0 6px 22px rgba(232,163,59,.18)!important}
@@ -2849,3 +2848,6 @@ html body .panel.inv-panel{background:linear-gradient(180deg,#fff6df,#fffaf0)!im
 /* meghívás gombjai: Megnézem · Nem vállalom · Elfogadom (az elfogadás jobb oldalt) */
 .inv-btns{display:flex;gap:8px;align-items:center}.inv-btns [data-a="yes"]{order:3}.inv-btns [data-a="no"]{order:2}
 .panel.inv-panel.inv-click{cursor:pointer}.panel.inv-panel.inv-click .inv-row.inv-click:hover{background:none}.panel.inv-panel.inv-click:hover{box-shadow:0 8px 28px rgba(232,163,59,.3)!important}
+
+.dl-ghost{opacity:.94;transform:rotate(2deg) scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,.28)!important}
+body.dl-touchdrag{touch-action:none;-webkit-user-select:none;user-select:none}

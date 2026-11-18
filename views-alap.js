@@ -199,7 +199,8 @@ function anchorFix(){const a=ANCHOR;if(!a||Date.now()-a.at>1500)return;const fix
   fix();requestAnimationFrame(()=>{fix();requestAnimationFrame(fix);});setTimeout(fix,60);setTimeout(fix,250);}
 const IS_MAC=typeof navigator!=='undefined'&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||''),KBD_SAVE=IS_MAC?'⌘S':'Ctrl+S',KBD_UNDO=IS_MAC?'⌘Z':'Ctrl+Z';   // gyorsbillentyű felirata a géphez igazítva
 function appReveal(){const h=document.documentElement;if(h.classList.contains('booting'))requestAnimationFrame(()=>h.classList.remove('booting'));}
-function render(force){setTimeout(appReveal,0);
+function render(force){setTimeout(appReveal,0);if(S._dlDrag){S._dlDragRender=1;return;}   // kártyahúzás közben (érintő) nem rajzolunk újra
+
   if(!S.me)return;
   document.body.classList.toggle('proj-locked',projLocked());
   const ae=document.activeElement;
