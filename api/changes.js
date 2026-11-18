@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "48fd701d0e",
+"at": "2026-11-18T14:27:09+02:00",
+"msg": "Értékesítési folyamat fejléce: cím, értékesítő-választó és keresés egy sorban (tablet, gép)"
+},
+{
 "id": "ebf6e44ee6",
 "at": "2026-11-18T14:26:50+02:00",
 "msg": "Projekt címsávja a felső sáv része: a rugózás megmarad, de a kettő nem válik szét"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tagi kölcsön: a sorra kattintva a hozzá tartozó banki utalás részletei (kézi sornál a sor adatai és módosítás)"
 },
 {
-"id": "f2159c708f",
-"at": "2026-11-18T00:10:28+02:00",
-"msg": "Tagi kölcsön: a banki tételből rögzített sor nem duplikál (ha kézzel már fel volt véve, csak a közlemény kerül rá); a két meglévő duplikátum egyszeri összevonása; banki tétel részletei kattintásra"
-},
-{
-"id": "6daaf85ce1",
-"at": "2026-11-17T22:05:08Z",
+"id": "c7fa5da1ab",
+"at": "2026-11-17T22:10:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
