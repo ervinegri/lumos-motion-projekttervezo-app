@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "96f28ceb78",
+"at": "2026-11-18T14:34:59+02:00",
+"msg": "Sötét mód: csak be / ki (a „rendszer szerint” megszűnt)"
+},
+{
 "id": "e5ba6ed4fa",
 "at": "2026-11-18T14:32:28+02:00",
 "msg": "Idővonal: a sáv neve pontosan a látható rész elején (a régi ragadós eltolás nem adódik hozzá)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Bejövő számla: többszöri kattintásra sem rögzül többször (háttér + felület); a meglévő duplikátumok egyszeri törlése; a kiadás szerkesztőjében a számla és a banki tranzakció részletei"
 },
 {
-"id": "735405f34d",
-"at": "2026-11-18T08:03:12+02:00",
-"msg": "Bejövő számlák: a szakember számlája név / számlázó cég alapján is párosul (ha az adószám hiányzik a Stábnál); a már beérkezett számlák egyszeri újrapróbálása"
-},
-{
-"id": "3c7a74bfe9",
-"at": "2026-11-18T06:00:59Z",
+"id": "bfb93cd9d6",
+"at": "2026-11-18T06:03:22Z",
 "msg": "Változásnapló frissítése"
 }
 ];
