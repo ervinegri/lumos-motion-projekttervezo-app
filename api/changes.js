@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "13f1aa589d",
+"at": "2026-11-18T14:30:40+02:00",
+"msg": "Idővonal: oldalra görgetéskor a sávok neve a látható rész elejétől fokozatosan jelenik meg (rövid látható résznél is)"
+},
+{
 "id": "055168f3bc",
 "at": "2026-11-18T14:29:32+02:00",
 "msg": "Értékesítés: a folyamat címsora kivéve; előbb az értékesítő-választó, utána a keresés"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Bejövő számla kiadásként: az üzenet megmondja, melyik hónapba került (a teljesítés hónapja)"
 },
 {
-"id": "798ad926bf",
-"at": "2026-11-18T07:53:28+02:00",
-"msg": "Tagi kölcsön: a 2026-06-06-i duplikált kézi visszafizetés törölve (= 07-06 banki utalás); banki rögzítéskor az elírt dátumú kézi sor javul (nem lesz dupla); az egyeztetés az eltérő dátumú párt is felismeri"
-},
-{
-"id": "6677ddc615",
-"at": "2026-11-17T22:24:04Z",
+"id": "76a2dd9e95",
+"at": "2026-11-18T05:53:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
