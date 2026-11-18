@@ -2869,3 +2869,7 @@ html body .topbar>.ptbar{position:absolute!important;top:100%!important;left:0;r
 html body .tl-row .tl-track .tl-bar>.tl-nm{position:relative!important;left:0!important}
 
 html body .tl-track .tl-cut.tl-withmain.nm-show>.tl-nm{display:block!important}
+
+/* a forgatás-sávhoz kapcsolt vágás-sáv saját neve csak akkor látszik, ha a forgatás-sáv kicsúszott (különben dupla lenne) */
+html body .tl-track .tl-cut.tl-joined:not(.nm-show)>.tl-nm,html body .tl-track .tl-cut.tl-withmain:not(.nm-show)>.tl-nm{visibility:hidden!important}
+html body .tl-track .tl-cut.tl-joined.nm-show>.tl-nm{display:block!important;visibility:visible!important}
