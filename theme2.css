@@ -2856,5 +2856,5 @@ body.dl-touchdrag{touch-action:none;-webkit-user-select:none;user-select:none}
 /* húzás közben a tábla oszlopai ne „ugorjanak vissza” (a mobilos oszlop-illesztés kikapcsolva), így a szélen és két ujjal is görgethető */
 body.dl-touchdrag .dl-board,html body.dl-touchdrag .dl-board{scroll-snap-type:none!important;scroll-behavior:auto!important}
 
-/* gépen az oldal alján/tetején nincs „rugózás”: a felső sáv (ragadós) és a projekt címsávja (rögzített) így nem válik szét */
-@media (pointer:fine){html,body{overscroll-behavior-y:none}}
+/* a projekt címsávja a felső sáv része (alatta lóg): túlgörgetéskor (rugózás) együtt mozognak */
+html body .topbar>.ptbar{position:absolute!important;top:100%!important;left:0;right:0}
