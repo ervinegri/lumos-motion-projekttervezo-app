@@ -283,16 +283,19 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
     tm=setTimeout(()=>{card=c;const r=c.getBoundingClientRect();dx=sx-r.left;dy=sy-r.top;ghost=c.cloneNode(true);ghost.classList.add('dl-ghost');Object.assign(ghost.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',zIndex:9999,pointerEvents:'none'});document.body.appendChild(ghost);c.classList.add('drag');document.body.classList.add('dl-touchdrag');S._dlDrag=1;   /* alul gyors célpontok: ide is le lehet tenni (pl. a Sikertelen oszlop messze jobbra van) */
       {const d=dealById(c.dataset.id)||{};const bar=document.createElement('div');bar.className='dl-dropbar';bar.innerHTML=DEAL_STAGES.filter(([s])=>s!=='fizetve'&&s!==d.stage).map(([s,l,ic])=>`<div class="dl-dropchip dl-dc-${s}" data-stage="${s}"><span>${ic}</span>${esc(l)}</div>`).join('');document.body.appendChild(bar);}last=Date.now();c.addEventListener('touchmove',mv,{passive:false});c.addEventListener('touchend',fin);c.addEventListener('touchcancel',fin);   /* a kártyán is figyelünk: ha a dokumentumig nem jutna el az esemény, a húzás akkor se ragad be */
       clearInterval(wd);wd=setInterval(()=>{if(!card){clearInterval(wd);return;}if(Date.now()-last>8000)end();},1000);try{navigator.vibrate&&navigator.vibrate(15);}catch(x){}},380);},{passive:true});
-  const hScroller=()=>{let h=document.querySelector('.dl-board');while(h&&h!==document.body&&!(h.scrollWidth>h.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(h).overflowX)))h=h.parentElement;return h&&h!==document.body?h:null;};
+  const scr=(ax,el)=>{let h=el;while(h&&h!==document.body&&h!==document.documentElement){const cs=getComputedStyle(h);if(ax==='x'?h.scrollWidth>h.clientWidth+2&&/(auto|scroll)/.test(cs.overflowX):h.scrollHeight>h.clientHeight+2&&/(auto|scroll)/.test(cs.overflowY))return h;h=h.parentElement;}return null;};
+  const hScroller=()=>scr('x',document.querySelector('.dl-board'));
+  const scrollXY=(vx,vy)=>{   /* görgetés oldalra (az oszlopok tartója) és fel-le (az a tartó, amelyik ténylegesen görög – telefonon nem mindig az ablak) */
+    if(vx){const h=hScroller();if(h)h.scrollLeft+=vx;else scrollBy(vx,0);}
+    if(vy){const v=scr('y',document.querySelector('.dl-board'));const before=v?v.scrollTop:scrollY;if(v)v.scrollTop+=vy;if(!v||v.scrollTop===before){const se=document.scrollingElement||document.documentElement;se.scrollTop+=vy;}}};
   let last=0,wd=0;const mv=e=>{if(!st)return;last=Date.now();const t=card&&st.tid!=null?[...e.touches].find(x=>x.identifier===st.tid)||e.touches[0]:e.touches[0];if(!card){if(Math.abs(t.clientX-sx)>8||Math.abs(t.clientY-sy)>8){clearTimeout(tm);st=null;}return;}
     e.preventDefault();
     const o=[...e.touches].find(x=>x.identifier!==st.tid);   /* a másik ujjal közben görgethető: oldalra az oszlopok, fel-le az oldal */
-    if(o){if(st.o&&st.o.id===o.identifier){const ddx=o.clientX-st.o.x,ddy=o.clientY-st.o.y,h=hScroller();if(h)h.scrollLeft-=ddx;else scrollBy(-ddx,0);scrollBy(0,-ddy);}st.o={id:o.identifier,x:o.clientX,y:o.clientY};}else st.o=null;ghost.style.left=(t.clientX-dx)+'px';ghost.style.top=(t.clientY-dy)+'px';
+    if(o){if(st.o&&st.o.id===o.identifier){scrollXY(-(o.clientX-st.o.x)*1.6,-(o.clientY-st.o.y)*1.6);const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}}st.o={id:o.identifier,x:o.clientX,y:o.clientY};}else st.o=null;ghost.style.left=(t.clientX-dx)+'px';ghost.style.top=(t.clientY-dy)+'px';
     const col=colAt(t.clientX,t.clientY);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
     cancelAnimationFrame(raf);lx=t.clientX;ly=t.clientY;const step=()=>{   /* a képernyő széléhez húzva: oldalra az oszlopok, fel-le az oldal görög (folyamatosan, amíg ott tartod) */
       const W=innerWidth,H=innerHeight,E=56,vx=lx<E?-Math.ceil((E-lx)/3):lx>W-E?Math.ceil((lx-W+E)/3):0,vy=ly<E+60?-Math.ceil((E+60-ly)/4):ly>H-E?Math.ceil((ly-H+E)/4):0;if(!vx&&!vy)return;
-      if(vx){let h=document.querySelector('.dl-board');while(h&&h!==document.body&&!(h.scrollWidth>h.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(h).overflowX)))h=h.parentElement;if(h&&h!==document.body)h.scrollLeft+=vx;else scrollBy(vx,0);}
-      if(vy)scrollBy(0,vy);
+      scrollXY(vx,vy);
       const col=colAt(lx,ly);if(col!==over){document.querySelectorAll('.dl-col.over,.dl-dropchip.over').forEach(x=>x.classList.remove('over'));if(col)col.classList.add('over');over=col;}
       raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);};
   document.addEventListener('touchmove',mv,{passive:false});
@@ -300,6 +303,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;
     if(card&&e.type==='touchend'){if(e.cancelable)e.preventDefault();   /* ne legyen utána „kattintás” a kártyán */
       const t=[...e.changedTouches].find(x=>x.identifier===st.tid)||e.changedTouches[0],col=colAt(t.clientX,t.clientY),id=card.dataset.deal;end();if(col&&col.dataset.stage)dealMove(id,col.dataset.stage);return;}end();};
   document.addEventListener('touchend',fin,true);document.addEventListener('touchcancel',fin,true);addEventListener('blur',()=>{if(card||st)end();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&(card||st))end();});
+  document.addEventListener('gesturestart',e=>{if(card)e.preventDefault();});   /* két ujjal görgetéskor ne nagyítson az iPhone */
   document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.dl-card'))e.preventDefault();});})();
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.dl-card');if(!c)return;S._dragDeal=c.dataset.deal;c.classList.add('drag');try{e.dataTransfer.setData('text/plain',c.dataset.deal);e.dataTransfer.effectAllowed='move';}catch(x){}});
 document.addEventListener('dragend',e=>{document.querySelectorAll('.dl-card.drag').forEach(x=>x.classList.remove('drag'));document.querySelectorAll('.dl-col.over').forEach(x=>x.classList.remove('over'));setTimeout(()=>{S._dragDeal='';},50);});
