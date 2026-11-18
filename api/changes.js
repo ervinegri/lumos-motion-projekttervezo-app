@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "902cf84fe2",
+"at": "2026-11-18T08:18:43+02:00",
+"msg": "Értékesítés telefonon: előbb az értékesítő-választó, utána a keresés; egyik sem lóg ki a képernyő szélére"
+},
+{
 "id": "b6097b64ca",
 "at": "2026-11-18T08:17:37+02:00",
 "msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok oldalra, az oldal fel-le görög"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a sötétkék háttér a lap aljáig ér"
 },
 {
-"id": "9b1a14031f",
-"at": "2026-11-17T23:00:04+02:00",
-"msg": "Kifizetések: az Összesen (még fizetendő) sor is csak akkor látszik, ha van fizetendő"
-},
-{
-"id": "4b11238394",
-"at": "2026-11-17T20:59:40Z",
+"id": "871a221b5c",
+"at": "2026-11-17T21:00:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
