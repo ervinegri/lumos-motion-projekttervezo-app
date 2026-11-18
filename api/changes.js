@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4cb7aacd3",
+"at": "2026-11-18T13:17:58+02:00",
+"msg": "Saját meghívásaim: szembetűnőbb doboz (meleg háttér, bal sáv, számláló, harang, „Válaszod vár” felirat)"
+},
+{
 "id": "aa53bed42e",
 "at": "2026-11-18T12:39:54+02:00",
 "msg": "Eszközök: a kiküldött (véglegesített) eszközlista zárolását 🔓 Feloldás gomb oldja fel közelgő projektnél (ügyvezető, termelési vezető), utána újra véglegesíthető; lezajlott rendezvénynél nincs feloldás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Sötét mód: a sötétzöld kiemelőszín (aktív hónap, gombok) sötét marad, szövegként világoszöld"
 },
 {
-"id": "402d26dccd",
-"at": "2026-11-17T23:19:53+02:00",
-"msg": "Átnézés: 5 sehol nem hívott háttérfüggvény törölve"
-},
-{
-"id": "25bdc67eff",
-"at": "2026-11-17T21:19:48Z",
+"id": "391f3d53dc",
+"at": "2026-11-17T21:20:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
