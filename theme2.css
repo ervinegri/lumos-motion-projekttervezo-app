@@ -2818,3 +2818,5 @@ html body .btn.outline.sales-month-all.active{background:#243347!important;color
 .fin-tbl tr.loan-row{cursor:pointer}.fin-tbl tr.loan-row:hover td{background:rgba(36,51,71,.04)}
 
 .link-like{cursor:pointer;font-weight:650;text-decoration:underline;text-decoration-color:rgba(36,51,71,.3)}
+
+.exp-src{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line,#dfe5ea);border-radius:12px;background:rgba(36,51,71,.03)}

@@ -300,7 +300,8 @@ function finApplySafe(d){if(!finEditing()){finApply(d);return;}const part={};FIN
   const keep={};['income'].forEach(k=>{keep[k]=(S.fin&&S.fin[k]||[]).slice();});S.fin=Object.assign({},S.fin||{},part);
   if(part.income)S.fin.income=part.income.map(r=>{const loc=keep.income.find(x=>x.id===r.id);return loc&&loc._dirty?loc:r;});finCacheSave(S.fin);S._finRerender=true;}
 document.addEventListener('focusout',e=>{const t=e.target;if(!S._finRerender||!t||!t.dataset||!(t.dataset.finpct||t.dataset.finwage||t.dataset.finwagepct))return;setTimeout(()=>{if(!finEditing()&&S._finRerender){S._finRerender=false;render(true);}},30);});
-async function finCall(name,arg,okMsg){try{const d=await call(name,arg);finApply(d);if(okMsg)toast(okMsg);return d;}catch(e){handleErr(e);return null;}}
+const FIN_BUSY=new Set();   // ugyanaz a művelet egyszerre csak egyszer fut (többszöri kattintás ellen)
+async function finCall(name,arg,okMsg){const k=name+'|'+JSON.stringify(arg||{});if(FIN_BUSY.has(k))return null;FIN_BUSY.add(k);try{const d=await call(name,arg);finApply(d);if(okMsg)toast(okMsg);return d;}catch(e){handleErr(e);return null;}finally{FIN_BUSY.delete(k);}}
 function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
   openModal(r?'Bevétel szerkesztése':'Egyéb bevétel',`<div class="fields">
     ${mf('name','Megnevezés',{full:true,v:v.name,max:200,ph:'pl. Lurdy technikai ügyelet'})}
@@ -316,7 +317,10 @@ function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
     const row=Object.assign({},v,{id:v.id||'',month:v.month||m,name:String(fd.get('name')||'').trim(),day:r?String(fd.get('day')||'').trim():'',payStatus:r?fd.get('payStatus'):'var',amount,prod,profit,ceo,marketing,rezsi:keepSplit?r.rezsi:amount-profit-ceo-marketing-prod});
     row.id=row.id||newId();finSave('finUpsert',{table:'income',row},'Bevétel mentve',()=>finLocal('income',[row]));}});}
 function finExpenseModal(e){const v=e||{},m=S.finMonth;if(e&&!e.id)e=null;
-  openModal((e?'Kiadás szerkesztése':'Új kiadás')+' – '+(v.fund==='marketing'?'marketing':'eszközköltség, rezsi'),`<div class="fields">
+  const src=e&&S.fin&&S.fin.szDocs&&S.fin.szDocs.byExp&&S.fin.szDocs.byExp[e.id],kv=R=>R.filter(r=>r[1]).map(([k,x])=>`<div class="kv"><span>${esc(k)}</span><b style="word-break:break-word">${esc(x)}</b></div>`).join('');
+  const srcHtml=src?`<div class="exp-src"><h4 class="sub-h" style="margin:4px 0 4px">📥 Bejövő számla${src.pdfUrl?` · <a href="${esc(src.pdfUrl)}" target="_blank" rel="noopener">📄 PDF</a>`:''}</h4><div class="kv-list">${kv([['Szállító',src.partnerName],['Adószám',src.partnerTax],['Számlaszám',src.no],['Kiállítás',src.kelt],['Teljesítés',src.telj],['Fizetési határidő',src.fizh],['Fizetési mód',src.payMethod],['Nettó',sFt(Math.round(Number(src.net)||0))],['Bruttó',sFt(Math.round(Number(src.gross)||0))],['Tételek',src.items],['Rögzítette',[src.handledBy,src.handledAt].filter(Boolean).join(' · ')]])}</div>
+    <h4 class="sub-h" style="margin:10px 0 4px">🏦 Banki tranzakció</h4>${src.tx?`<div class="kv-list">${kv([['Értéknap',src.tx.valueDate],['Összeg','−'+sFt(Math.round(Number(src.tx.amount)||0))],['Kedvezményezett',src.tx.partnerName],['Kedvezményezett számla',src.tx.partnerAccount],['Közlemény',src.tx.note],['Saját számla',src.tx.account]])}</div>`:'<p class="hint" style="margin:0">Nem találtam hozzá kimenő utalást (azonos bruttó összeg és szállító, a kiállítás után).</p>'}</div>`:'';
+  openModal((e?'Kiadás szerkesztése':'Új kiadás')+' – '+(v.fund==='marketing'?'marketing':'eszközköltség, rezsi'),`${srcHtml}<div class="fields">
     ${mf('name','Megnevezés',{full:true,v:v.name,max:200,ph:'pl. Könyvelő'})}
     ${moneyField('amount','Összeg (nettó)',v.amount,{steps:false})}
     <input type="hidden" name="fund" value="${v.fund==='marketing'?'marketing':'rezsi'}">
