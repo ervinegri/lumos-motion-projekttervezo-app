@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e5ba6ed4fa",
+"at": "2026-11-18T14:32:28+02:00",
+"msg": "Idővonal: a sáv neve pontosan a látható rész elején (a régi ragadós eltolás nem adódik hozzá)"
+},
+{
 "id": "13f1aa589d",
 "at": "2026-11-18T14:30:40+02:00",
 "msg": "Idővonal: oldalra görgetéskor a sávok neve a látható rész elejétől fokozatosan jelenik meg (rövid látható résznél is)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Bejövő számlák: a szakember számlája név / számlázó cég alapján is párosul (ha az adószám hiányzik a Stábnál); a már beérkezett számlák egyszeri újrapróbálása"
 },
 {
-"id": "fb48e94eca",
-"at": "2026-11-18T08:00:49+02:00",
-"msg": "Bejövő számla kiadásként: az üzenet megmondja, melyik hónapba került (a teljesítés hónapja)"
-},
-{
-"id": "76a2dd9e95",
-"at": "2026-11-18T05:53:44Z",
+"id": "3c7a74bfe9",
+"at": "2026-11-18T06:00:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
