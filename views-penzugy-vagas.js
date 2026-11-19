@@ -174,6 +174,8 @@ function financePanel(p,inner){
     ${penPanel(p)}
   </div>`;
 }
+/* a saját díj: szakembernél a háttér csak ezt küldi (myFee); ügyvezetőnél „szakemberként nézve” a díjlistából */
+function myFeeOf(p){const cid=S.me&&S.me.crewId;return p.myFee||(cid?(p.fees||[]).find(f=>f.crewId===cid&&f.kind!=='fixed'):null)||null;}
 function myFeePanel(p){
   const cid=S.me&&S.me.crewId,a=num(p.myFee.amount),pens=(p.penalties||[]).filter(x=>x.crewId===cid);
   if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten <span class="muted" style="font-weight:600">· nettó</span></h3><div class="my-fee-amt">${ftFmt(a)} <span class="fee-net">nettó</span></div></div>`;
@@ -682,7 +684,7 @@ function viewProject(p){
     ${tentBanner(p)}
     ${iss.length?`<div class="issues">${iss.map(i=>issueRow(i,p.id)).join('')}</div>`:''}
     ${(ro()&&p.invPending||!ro()&&(S.myInvites||[]).some(x=>x.id===p.id&&(!x.st||x.st==='invited')))?(()=>{const me=S.me&&S.me.crewId,rl=[p.lead===me?'projektvezető':''].concat((p.crew||[]).filter(a=>a.crewId===me).map(a=>a.role.toLowerCase())).filter(Boolean);
-      return `<div class="inv-banner"><div class="grow"><span class="inv-line">✉️ Meghívást kaptál erre a projektre${rl.length?', mint '+esc(rl.join(' és ')):''}. Elfogadod?</span>${p.myFee&&num(p.myFee.amount)?(()=>{const nd=p.myFee.dayAmounts&&typeof p.myFee.dayAmounts==='object'?Object.keys(p.myFee.dayAmounts).length:0;return `<span class="inv-fee">💰 Díjad: <b>${ftFmt(num(p.myFee.amount))}</b> nettó${nd>1?' · '+nd+' napra összesen':''} – az elfogadással ezt a díjat fogadod el.</span>`;})():''}</div><div class="inv-btns"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(p.id)}" data-a="yes">✓ Igen</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(p.id)}" data-a="no">✗ Nem</button></div></div>`;})():''}
+      return `<div class="inv-banner"><div class="grow"><span class="inv-line">✉️ Meghívást kaptál erre a projektre${rl.length?', mint '+esc(rl.join(' és ')):''}. Elfogadod?</span>${(()=>{const f=myFeeOf(p);if(!f||!num(f.amount))return '';const nd=f.dayAmounts&&typeof f.dayAmounts==='object'?Object.keys(f.dayAmounts).length:0;return `<span class="inv-fee">💰 Díjad: <b>${ftFmt(num(f.amount))}</b> nettó${nd>1?' · '+nd+' napra összesen':''} – az elfogadással ezt a díjat fogadod el.</span>`;})()}</div><div class="inv-btns"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(p.id)}" data-a="yes">✓ Igen</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(p.id)}" data-a="no">✗ Nem</button></div></div>`;})():''}
   </div>
   <div class="dfull${status==='lemondva'?' is-cancelled':''}"${status==='lemondva'?' inert':''}>
       ${dlPanel?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))}</div>`:''}
