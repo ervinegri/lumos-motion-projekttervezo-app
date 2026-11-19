@@ -911,7 +911,7 @@ function lookupTaxpayerApi_(arg) {
    Akinek nincs meghívási bejegyzése (régi projektek), annál minden marad a régiben. */
 function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JSON.parse(v || '{}'); } catch (e) { o = {}; } }
   const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
-    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10), fee: Math.max(0, Math.round(Number(x.fee) || 0)), cx: x.cx && typeof x.cx === 'object' ? { at: str_(x.cx.at, 30), why: str_(x.cx.why, 600), days: Math.round(Number(x.cx.days) || 0), tier: ['free', 'p50', 'p100'].indexOf(x.cx.tier) >= 0 ? x.cx.tier : '' } : null }; });   // cx: elfogadás utáni visszamondás
+    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10), fee: Math.max(0, Math.round(Number(x.fee) || 0)), calSt: ['accepted', 'declined'].indexOf(x.calSt) >= 0 ? x.calSt : '', cx: x.cx && typeof x.cx === 'object' ? { at: str_(x.cx.at, 30), why: str_(x.cx.why, 600), days: Math.round(Number(x.cx.days) || 0), tier: ['free', 'p50', 'p100'].indexOf(x.cx.tier) >= 0 ? x.cx.tier : '' } : null }; });   // cx: elfogadás utáni visszamondás
   return out; }
 /** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
 function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
@@ -924,7 +924,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const huD = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); if (!m) return ''; const dt = new Date(+m[1], +m[2] - 1, +m[3]); return ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][dt.getDay()]; };   // pl. nov. 27., péntek
     const when = huD(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + huD(p.endDate) : '') + (p.startTime ? ', ' + p.startTime + (p.endTime ? '–' + p.endTime : '') : '');
     const due = str_(dueInput, 40), isCut = (asg).some(x => x.crewId === cid && x.role === 'Vágó');
-    const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = ev && !post ? calEventLink_(ev) : '';
+    const url = appUrl_() + '#inv=' + encodeURIComponent(pid), calUrl = '';   // a Google Naptárban adott „Igen” nem elfogadás (a díj csak a Projekttervezőben látszik – keretszerződés 4.1.)
     // A meghívóban a vágóknak a nyersanyag-feltöltés és a vágás pontos, magyar napnevű határideje szerepel.
     // Régebbi, már megnyitott felületek rövidített dátumát is teljes napnévre alakítjuk.
     const editorDueIso = (() => {
@@ -1079,11 +1079,17 @@ function invitesSync_(projects, onlyCid) {
     try { const ev = calEvent_(p.calEventId); if (!ev) return; const cur = Calendar.Events.get(evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, '')), st = {};
       (cur.attendees || []).forEach(x => { st[String(x.email || '').toLowerCase()] = x.responseStatus; });
       if (!crewEm) { crewEm = {}; readAll_('crew').forEach(c => { crewEm[c.id] = String(c.email || '').trim().toLowerCase(); }); }
-      const upd = {}; pend.forEach(k => { const r = st[crewEm[k]]; if (r === 'accepted') upd[k] = 'yes'; else if (r === 'declined') upd[k] = 'no'; });
-      if (!Object.keys(upd).length) return;
+      /* a naptárban adott válasz NEM elfogadás / elutasítás (a díj csak a Projekttervezőben látszik): csak jelezzük – a szakembernek és a meghívónak egyszer */
+      const upd = {}; pend.forEach(k => { const r = st[crewEm[k]]; if ((r === 'accepted' || r === 'declined') && inv[k].calSt !== r) upd[k] = r; });
+      if (!Object.keys(upd).length) return; const sent = [];
       withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r), iv = parseInvites_(q.invites);
-        Object.keys(upd).forEach(k => { if (iv[k] && iv[k].st === 'invited') iv[k] = Object.assign(iv[k], { st: upd[k], ans: now_(), via: 'cal' }); });
+        Object.keys(upd).forEach(k => { if (iv[k] && iv[k].st === 'invited' && iv[k].calSt !== upd[k]) { iv[k].calSt = upd[k]; sent.push([k, upd[k], iv[k]]); } });
         q.invites = JSON.stringify(iv); putRow_('projects', sh, q, r); p.invites = q.invites; changed = true; });
+      sent.forEach(([k, r0, iv]) => { try { const cr = readAll_('crew').find(x => x.id === k) || {}, who = cr.name || 'A munkatárs', url = appUrl_() + '#inv=' + encodeURIComponent(p.id), yes = r0 === 'accepted';
+        if (yes && /@/.test(crewEm[k] || '')) gmailSend_(crewEm[k], 'Fogadd el a meghívást az appban: ' + p.name, 'Kedves ' + (huFirst_(cr.name) || '') + '!\n\nA Google Naptárban jelezted, hogy ott leszel – köszönjük! A meghívást viszont a Projekttervezőben kell elfogadnod (ott látod a díjadat is), a naptárbeli válasz nem számít elfogadásnak.\n\nElfogadás: ' + url, { htmlBody: mailCard_(huFirst_(cr.name) || '', 'A Google Naptárban jelezted, hogy ott leszel – köszönjük!<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', 'A meghívást a Projekttervezőben kell elfogadnod (ott látod a díjadat is) – a naptárbeli válasz nem számít elfogadásnak.', url, 'Elfogadom az appban'), name: 'Lumos Motion Projekttervező' }, 'assign');
+        const to = iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || '');
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) gmailSend_(to, (yes ? '📅 ' : '📅❌ ') + who + ' a naptárban ' + (yes ? '„Igen”-t' : '„Nem”-et') + ' jelzett · ' + p.name, who + ' a Google Naptárban ' + (yes ? '„Igen”' : '„Nem”') + ' választ adott, de a Projekttervezőben még nem válaszolt' + (yes ? ' (emlékeztetőt kapott, hogy ott fogadja el).' : '. A meghívás még válaszra vár – érdemes rákérdezni.') + '\n\n' + appUrl_() + '#p=' + p.id, { name: 'Lumos Motion Projekttervező' });
+      } catch (e) { Logger.log('Naptárválasz-jelzés hiba: ' + e); } });
     } catch (e) { Logger.log('Meghívás-szinkron hiba (' + p.name + '): ' + e); } });
   if (changed) { try { dbFlush_(); dataBump_(); } catch (e) {} }
   return changed;
