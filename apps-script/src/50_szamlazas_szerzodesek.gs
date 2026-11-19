@@ -1287,6 +1287,11 @@ function szDocExpDupOnce_() {
 function szDocsView_() {
   let docs = []; try { docs = readAll_('szDocs'); } catch (e) { return { open: [], bankMonths: {} }; }
   const lim = Utilities.formatDate(new Date(Date.now() - 120 * 864e5), SHEET_TZ, 'yyyy-MM-dd');
+  { const crew0 = (() => { try { return readAll_('crew'); } catch (e) { return []; } })(), linked = {};   // a még szakemberhez nem kötött bejövő számlák: ha most már felismerhető a szakember (pl. névtag-egyezés, volt munkatárs), azonnal hozzákötjük
+    docs.filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno && String(d.kelt || '') >= lim).forEach(d0 => { const c = szCrewOfDoc_(d0, crew0); if (!c) return; let d = null;
+      try { withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d0.id); if (!r) return; const x = readRow_('szDocs', sh, r); if (x.crewId || x.status) return; x.crewId = c.id; x.status = 'stab'; putRow_('szDocs', sh, x, r); dbFlush_(); d = x; }); } catch (e) { Logger.log('szDocsView párosítás: ' + e); }
+      if (d) { linked[d.id] = 1; d0.crewId = d.crewId; d0.status = d.status; if (/^(SZ|VS|HS)$/.test(d.type || 'SZ')) { try { szDocCrewApply_(d); } catch (e) {} } } });
+    if (Object.keys(linked).length) dataBump_(); }
   const open = docs.filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno && String(d.kelt || '') >= lim).slice(-200)
     .map(d => ({ id: d.id, no: d.no, kelt: d.kelt, telj: d.telj, fizh: d.fizh, partnerName: d.partnerName, net: d.net, gross: d.gross, items: d.items, pdfUrl: d.pdfUrl, payMethod: d.payMethod }));
   const bankMonths = {}; try { readAll_('bankTx').forEach(t => { if (t.technical || !/^HUF$/i.test(t.currency || 'HUF')) return; const m = String(t.valueDate || '').slice(0, 7); if (!m) return; const o = bankMonths[m] = bankMonths[m] || { be: 0, ki: 0 }; o[t.dir === 'KI' ? 'ki' : 'be'] += Math.round(Number(t.amount) || 0); }); } catch (e) {}
