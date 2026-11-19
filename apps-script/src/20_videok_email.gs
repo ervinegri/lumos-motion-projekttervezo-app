@@ -12,7 +12,8 @@ function hasDeliverables_(p) {
 }
 const VIDEO_STATES_ = ['vagasra', 'vagas', 'ellen', 'leadva', 'jovahagyva', 'modositas'];
 /** Új link a videóhoz: a régi link verzióként megmarad (a hozzászólások verziónként csoportosíthatók). */
-function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link && v.link !== link) { v.vers = (v.vers || []).concat([{ at: now_(), link: v.link }]).slice(-30); v.seenAt = ''; v.seenLast = ''; v.seenN = 0; } v.link = link; }   // új verzió: a megnyitás újra számít
+function vidLinkKey_(l) { l = String(l || '').trim(); var m = l.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]{10,})/) || l.match(/[?&]id=([\w-]{20,})/) || l.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/) || l.match(/vimeo\.com\/(?:video\/)?(\d+)/); if (m) return m[1]; return l.replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^https?:\/\/(www\.)?/, '').toLowerCase(); }   // ugyanaz a fájl más paraméterrel = nem új verzió
+function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link && vidLinkKey_(v.link) !== vidLinkKey_(link)) { v.vers = (v.vers || []).concat([{ at: now_(), link: v.link }]).slice(-30); v.seenAt = ''; v.seenLast = ''; v.seenN = 0; } v.link = link; }   // új verzió: a megnyitás újra számít
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
