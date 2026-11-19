@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "158a5dabef",
+"at": "2026-11-19T10:47:54+01:00",
+"msg": "Meghívó előnézet: Mégse és Küldés gomb"
+},
+{
 "id": "f24ca40fc9",
 "at": "2026-11-19T10:44:27+01:00",
 "msg": "Meghívó e-mail: a díj nem szerepel benne (az appban a meghívás sávjában továbbra is látszik)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "784fe0dfcd",
 "at": "2026-11-19T07:32:30+02:00",
 "msg": "Idővonal: a betöltött időszak szélén azonnal továbbtölt (nem akad meg a hónaphatáron)"
-},
-{
-"id": "2e38e59cd5",
-"at": "2026-11-19T07:29:51+02:00",
-"msg": "Idővonal: görgetés közben nem rajzol újra (csak a betöltött időszak szélén, érintés/lendület után), a fejléc-frissítés képkockánként egyszer"
 }
 ];
 const allowed = require('./_auth.js');
