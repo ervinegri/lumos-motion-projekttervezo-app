@@ -2938,3 +2938,4 @@ html body .q-pdf-page{max-height:calc(100vh - 220px)!important}
 .bd-rev.int{background:#eef0f4;color:#4b5563;font-weight:600}
 :where(html.ax-stone) .bd-rev.int{background:#ececf2;color:#4b4b52}
 html body .inv-cx-btn{color:#a33!important}
+html body .inv-banner .inv-fee{display:block;margin-top:4px;font-size:13.5px;color:var(--fg-2)}
