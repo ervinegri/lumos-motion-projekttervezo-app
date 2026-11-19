@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bb3860141f",
+"at": "2026-11-19T10:10:00+01:00",
+"msg": "Beillesztés: a számozott / felsorolt lista beljebb kezdődik, mint a sima bekezdés (mint a levélben), az alpontok még beljebb"
+},
+{
 "id": "1a950d8c10",
 "at": "2026-11-19T10:07:59+01:00",
 "msg": "Értékesítés: a jutalék a fizetéstől számít – a havi csempe a befolyt összeg utáni jutalékot és a kifizetett alapot mutatja, a szerződött jutalék csak tájékoztató"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "a4fa1c4ace",
 "at": "2026-11-19T07:26:30+02:00",
 "msg": "Idővonal: a nevek helyét egyszer méri le, görgetéskor csak a transform változik (nem akad a görgetés)"
-},
-{
-"id": "4cd648768a",
-"at": "2026-11-19T07:24:48+02:00",
-"msg": "Idővonal: a név sosem lóg túl a sáv végén"
 }
 ];
 const allowed = require('./_auth.js');
