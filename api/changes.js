@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a7d11b6e90",
+"at": "2026-11-19T09:01:15+02:00",
+"msg": "Ügyfélnek küldés: javított változatnál (az ügyfél módosítást kért) „javított változat” szöveg és tárgy; a másik videótípusra (pl. aftermovie) mentett minta nem kerül egy imázsfilm levelébe"
+},
+{
 "id": "fa9ab65eec",
 "at": "2026-11-19T08:34:34+02:00",
 "msg": "Értékesítés (asztali): elöl a keresés, utána az Értékesítő-választó"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: az alsó gyors célpont-sáv kivéve (görgetéssel / szélre húzással lehet oszlopot váltani)"
 },
 {
-"id": "baa0eee46e",
-"at": "2026-11-18T14:23:25+02:00",
-"msg": "Gépen nincs túlgörgetési rugózás: a felső sáv és a projekt címsávja nem válik szét az oldal alján"
-},
-{
-"id": "4c183c60e4",
-"at": "2026-11-18T12:22:53Z",
+"id": "8fd94f7c50",
+"at": "2026-11-18T12:23:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
