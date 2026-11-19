@@ -174,8 +174,8 @@ function financePanel(p,inner){
     ${penPanel(p)}
   </div>`;
 }
-/* a saját díj: szakembernél a háttér csak ezt küldi (myFee); ügyvezetőnél „szakemberként nézve” a díjlistából */
-function myFeeOf(p){const cid=S.me&&S.me.crewId;return p.myFee||(cid?(p.fees||[]).find(f=>f.crewId===cid&&f.kind!=='fixed'):null)||null;}
+/* a saját díj a meghívásnál: csak a valódi szakember látja (a háttér neki küldi: myFee); „szakemberként nézve” (ügyvezetői nézetváltás) nem jelenik meg */
+function myFeeOf(p){return p.myFee||null;}
 function myFeePanel(p){
   const cid=S.me&&S.me.crewId,a=num(p.myFee.amount),pens=(p.penalties||[]).filter(x=>x.crewId===cid);
   if(!pens.length)return `<div class="panel my-fee-panel"><h3>💰 Díjad ezen a projekten <span class="muted" style="font-weight:600">· nettó</span></h3><div class="my-fee-amt">${ftFmt(a)} <span class="fee-net">nettó</span></div></div>`;
