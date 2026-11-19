@@ -593,6 +593,11 @@ S._pnOpen=S._pnOpen||{};const pnShow=pid=>{const d=S._pn[pid]||{};return pnLead(
 const pnK=k=>String(k).indexOf('crew:')===0?{kind:'crew',pid:String(k).slice(5)}:{kind:'post',pid:String(k)};
 function pnBox(pid){if(!S._pn[pid]){S._pn[pid]={loading:1,notes:[]};call('postNotes',{projectId:pnK(pid).pid,kind:pnK(pid).kind}).then(r=>{S._pn[pid]={notes:r.notes||[]};pnFill(pid);}).catch(e=>{S._pn[pid]={notes:[],err:errText(e)};pnFill(pid);});}
   return `<details class="pn-box" data-pn="${esc(pid)}"${S._pnOpen[pid]?' open':''}${pnShow(pid)?'':' hidden'}>${pnInner(pid)}</details>`;}   // alapból becsukva: csak a fejléc (darabszám) látszik
+/* előtöltés: a videótábla megnyitásakor már kész legyen az instrukció-doboz (ne utólag ugorjon be) */
+function pnPrefetch(pid){if(!pid||S._pn[pid])return;S._pn[pid]={loading:1,notes:[]};call('postNotes',{projectId:pnK(pid).pid,kind:pnK(pid).kind}).then(r=>{S._pn[pid]={notes:r.notes||[]};pnFill(pid);}).catch(e=>{S._pn[pid]={notes:[],err:errText(e)};pnFill(pid);});}
+document.addEventListener('pointerover',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-action="bd-lane"]');if(t&&pnLead())pnPrefetch(t.dataset.id);},true);
+{let pnT=0,pnN=0;const scan=()=>{if(!pnLead()||!S.loaded)return;document.querySelectorAll('[data-action="bd-lane"][data-id]').forEach(el=>{if(pnN<15&&!S._pn[el.dataset.id]){pnN++;pnPrefetch(el.dataset.id);}});};
+  try{new MutationObserver(()=>{clearTimeout(pnT);pnT=setTimeout(()=>(window.requestIdleCallback||setTimeout)(scan),1500);}).observe(document.documentElement,{childList:true,subtree:true});}catch(_){}}
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('pn-box'))S._pnOpen[d.dataset.pn]=d.open;},true);
 function pnInner(pid){const d=S._pn[pid]||{notes:[]},L=d.notes||[],lead=pnLead(),fd=s=>esc(String(s||'').slice(0,16).replace('T',' ').replace(/^(\d{4})-(\d\d)-(\d\d)/,'$2.$3.'));
   const CR=pnK(pid).kind==='crew',TTL=CR?'📋 Stáb-instrukciók':'📝 Utómunka-instrukciók';
