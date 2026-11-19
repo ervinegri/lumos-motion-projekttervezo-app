@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7973e10db9",
+"at": "2026-11-19T10:45:30+02:00",
+"msg": "Beillesztés szövegdobozba (jóváhagyó oldal és az app): a Wordből / Docsból / levélből másolt felsorolás, számozás, bekezdés és üres sor megmarad"
+},
+{
 "id": "8859b1cbba",
 "at": "2026-11-19T10:43:49+02:00",
 "msg": "Videóablak: „💬 Hozzászólás küldése” gomb a mező alatt; az alsó sor (Időkód · Jelölés · Bezárás) mindig a dobozon belül marad"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "414cf5f1d4",
 "at": "2026-11-19T07:18:29+02:00",
 "msg": "Idővonal: a látható bal szélt a projektsor címkéjéből számolja (a jóváhagyásra váró sáv széles fejléce elcsúsztatta a neveket)"
-},
-{
-"id": "b01dd21247",
-"at": "2026-11-18T15:55:51+02:00",
-"msg": "Idővonal: a vágás-sáv neve rejtve, ha közvetlenül előtte ugyanannak a projektnek a forgatás-sávja látszik (összevont sorokban is)"
 }
 ];
 const allowed = require('./_auth.js');
