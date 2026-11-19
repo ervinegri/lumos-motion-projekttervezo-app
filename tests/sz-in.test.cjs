@@ -75,6 +75,8 @@ console.log('ok');
   assert.ok(ku && ku.matchSz && ku.matchSz[0].no === 'E-LUMOS-2026-2', 'közlemény nélkül: partner + összeg → javaslat');
   add('LUMOS-2026-69', { no: 'LUMOS-2026-69', gross: 883285, paid: 883285, paidAt: '2026-09-30', buyer: 'Marketing Amazing Kft.' }); docs._all.push(Object.assign(docs[B.szNoKey_('LUMOS-2026-69')][0], { key: B.szNoKey_('LUMOS-2026-69') }));
   assert.equal(B.szBankRefFix_({ dir: 'BE', note: 'D-LUMOS-6', partnerName: 'MARKETING AMAZING KORLÁTOLT FELELŐS', amount: 883285, valueDate: '2026-09-30' }, {}, docs), null, 'ismeretlen hivatkozás, de a partner+összeg számlája aznap már kifizetve → elrejtve');
+  ['LUMOS-2026-64', 88900, 'LUMOS-2026-66', 177800].forEach((v, i, A2) => { if (i % 2) return; add(v, { no: v, gross: A2[i + 1], paid: A2[i + 1], buyer: 'Lurdy Rendezvényszervező Kft' }); docs._all.push(Object.assign(docs[B.szNoKey_(v)][0], { key: B.szNoKey_(v) })); });
+  assert.equal(B.szBankRefFix_({ dir: 'BE', note: '64 66', partnerName: 'LURDY RENDEZVÉNYSZERVEZŐ KORLÁTOLT', amount: 266700, valueDate: '2026-10-05' }, {}, docs), null, 'csak sorszámok („64 66”), összegük egyezik, kifizetve → elrejtve');
   console.log('ok2');
 }
 

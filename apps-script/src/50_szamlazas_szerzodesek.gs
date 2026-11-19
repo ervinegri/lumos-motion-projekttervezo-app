@@ -1348,6 +1348,14 @@ function szBankRefs_(note, docs) {
 function szBankRefFix_(t, inv, docs) {
   if (t.dir !== 'BE' || t.status === 'javaslat' && t.matchInvoice) return t;
   let refs = szBankRefs_(t.note, docs);
+  if (!refs.length && docs._all) {   // csak a sorszámokat írták („64 66”): a partner számlái közül azok, amelyek összege pontosan a befizetés
+    const amt = Math.round(Number(t.amount) || 0), pw = szBankNorm_(t.partnerName).split(' ').filter(w => w.length > 3), nums = String(t.note || '').match(/(?:^|[^0-9-])(\d{1,4})(?![0-9])/g) || [];
+    if (pw.length && nums.length) {
+      const yr = String(iso_(t.valueDate) || today_()).slice(0, 4), pd = docs._all.filter(d => pw.some(w => szBankNorm_(d.buyer || '').split(' ').indexOf(w) >= 0));
+      const pick = nums.map(x => { const n = x.replace(/\D/g, ''), h = pd.filter(d => d.key.slice(-(n.length + 1)) === '-' + n); return h.find(d => d.key.indexOf('-' + yr + '-') >= 0) || (h.length === 1 ? h[0] : null); });
+      if (pick.every(Boolean) && Math.abs(pick.reduce((s2, d) => s2 + Math.round(d.gross), 0) - amt) <= 1) refs = pick.filter((d, i) => pick.indexOf(d) === i);
+    }
+  }
   if (!refs.length && docs._all) {   // nincs (felismerhető) számlaszám: a partner neve és az összeg (bruttó, ±1 Ft) alapján
     const amt = Math.round(Number(t.amount) || 0), pw = szBankNorm_(t.partnerName).split(' ').filter(w => w.length > 3);
     const hit = pw.length ? docs._all.filter(d => Math.abs(Math.round(d.gross) - amt) <= 1 && pw.some(w => szBankNorm_(d.buyer || '').split(' ').indexOf(w) >= 0)) : [];
