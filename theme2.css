@@ -2944,3 +2944,5 @@ html body #mform.m-video .vv-cm-act{display:flex;justify-content:flex-end;margin
 html body #mform.m-video .mfoot{position:static!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;max-width:100%!important;box-sizing:border-box}
 html body #mform.m-video .mfoot .vv-tcw{flex:0 1 auto!important;width:auto!important;max-width:100%!important;margin:0!important;position:static!important;transform:none!important;justify-content:flex-start!important}
 html body #mform.m-video .mfoot .vv-tcw>*{flex:0 0 auto}
+/* hozzászólásban a beillesztett behúzás (alpontok) megmarad */
+html body .vv-cm-i>div:not(.vv-reps){white-space:pre-wrap}
