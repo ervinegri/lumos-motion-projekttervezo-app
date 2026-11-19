@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "07fc5e5276",
+"at": "2026-11-19T08:00:32+02:00",
+"msg": "Arculat: Astryx butter téma kipróbálható (névjelvény menü → 🎨 Arculat: Stone / Butter, csak ügyvezetőnek, eszközönként); alap marad a stone"
+},
+{
 "id": "f5f92a52b1",
 "at": "2026-11-19T07:56:32+02:00",
 "msg": "Arculat: Astryx stone téma – hűvös, enyhén lilás szürkék, grafit elsődleges szín, 8px lekerekítés; sötét mód hozzáigazítva"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: vissza az ujjas húzás (hosszan nyomva), megbízhatóbban – a kártyán is figyeli a felengedést, húzás közben nincs újrarajzolás, beragadás esetén magától lezárul, lerakás után nem nyílik meg a kártya"
 },
 {
-"id": "dc08eed2ee",
-"at": "2026-11-18T13:50:38+02:00",
-"msg": "Bérelt eszköz: a bérleti díj mezőt csak az ügyvezető látja (a termelési vezetőnek nem kell megadnia)"
-},
-{
-"id": "6d8318debb",
-"at": "2026-11-18T11:22:59Z",
+"id": "820a2afa54",
+"at": "2026-11-18T11:50:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
