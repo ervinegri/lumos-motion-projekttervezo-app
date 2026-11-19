@@ -188,7 +188,7 @@
   /* mennyit nézett meg a videóból (a ténylegesen lejátszott szakaszok összege) */
   const watched=()=>{const v=vd();if(!v||!isFinite(v.duration)||!v.duration)return 1;let s=0;for(let k=0;k<v.played.length;k++)s+=v.played.end(k)-v.played.start(k);return s/v.duration;};
   /* megerősítés a panelen (a böngésző saját felugró ablaka helyett) */
-  const cfm=(title,sub,no)=>new Promise(res=>{$('cfmT').textContent=title;$('cfmS').textContent=sub;$('cfmNo').textContent=no;$('cfm').hidden=false;$('ask').classList.add('cfm-on');
+  const cfm=(title,sub,no,yes)=>new Promise(res=>{$('cfmT').textContent=title;$('cfmS').textContent=sub;$('cfmNo').textContent=no;{const y=$('cfmYes');if(!y.dataset.def)y.dataset.def=y.textContent;y.textContent=yes||y.dataset.def;}$('cfm').hidden=false;$('ask').classList.add('cfm-on');
     const done=v=>{$('cfm').hidden=true;$('ask').classList.remove('cfm-on');$('cfmYes').onclick=$('cfmNo').onclick=null;res(v);};$('cfmYes').onclick=()=>done(true);$('cfmNo').onclick=()=>done(false);});
   /* „Jóváhagyom”: első kattintásra lenyílik az (opcionális) üzenet, a második kattintás véglegesít */
   const okOpen=on=>{$('okMsg').hidden=!on;$('ask').classList.toggle('ok-open',on);$('bOk').textContent=on?'✓ Jóváhagyás elküldése':'✓ Jóváhagyom';$('bModX').hidden=!on&&!$('modBox').classList.contains('open');if(on)setTimeout(()=>$('okNote').focus(),120);};
@@ -201,7 +201,8 @@
   const modOpen=on=>{const b=$('modBox');b.classList.toggle('open',on);$('bSend').textContent=on?'↩ Elküldöm a módosítást':'↩ Módosítást kérek';$('bModX').hidden=!on;$('askHint').hidden=on;
     if(on){const v=vd();setTimeout(()=>{$('fb').focus();},150);}};
   $('bModX').onclick=()=>{okOpen(false);modOpen(false);if($('err2'))$('err2').hidden=true;};
-  $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}go('mod',fb,e.currentTarget);};
+  $('bSend').onclick=e=>{if(!$('modBox').classList.contains('open')){modOpen(true);return;}const fb=$('fb').value.trim();if(fb.length<3){$('err2').hidden=false;$('err2').textContent='Írd le röviden, mit módosítsunk.';$('fb').focus();return;}const btn=e.currentTarget,n=Number((LAST&&LAST.rounds)||0);   /* küldés előtt: biztosan mindent leírt? (a díjmentes javítási körök száma korlátozott) */
+    cfm('Mindent leírtál?',n>=2?'Erre a módosításra árajánlatot küldünk, és annak elfogadása után készítjük el.':n===1?'Ez az utolsó díjmentes javítási kör – az ezután kért módosításokat már csak külön díjazással tudjuk vállalni.':'Elküldés után ennek alapján javítjuk a videót. Utána még egy díjmentes javítási kör marad.','Még írok','↩ Igen, elküldöm').then(ok=>{if(ok)go('mod',fb,btn);else $('fb').focus();});};
   $('bNote').onclick=e=>{const n=$('note').value.trim(),b=e.currentTarget;if(n.length<2){$('err3').hidden=false;$('err3').textContent='Írd be az üzenetedet.';$('note').focus();return;}
     $('err3').hidden=true;if(LAST&&LAST.preview){$('noteBox').hidden=true;$('noteOk').hidden=false;return;}b.disabled=true;b.textContent='Küldés…';api('clientDecide',[t,'note',n,CUR]).then(()=>{$('noteBox').hidden=true;$('noteOk').hidden=false;}).catch(x=>{b.disabled=false;b.textContent='Üzenet küldése';$('err3').hidden=false;$('err3').textContent=x.message;});};
   $('bTc').onclick=insTc;
