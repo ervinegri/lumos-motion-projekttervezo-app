@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "60a3082436",
+"at": "2026-11-19T10:40:04+02:00",
+"msg": "Meghívás: a Google Naptárban adott „Igen” / „Nem” már nem elfogadás / elutasítás (a díj csak a Projekttervezőben látszik) – helyette egyszeri jelzés a meghívónak és emlékeztető a szakembernek; a levélből és a felületről kikerült a naptáras elfogadás"
+},
+{
 "id": "e014b5c502",
 "at": "2026-11-19T10:28:31+02:00",
 "msg": "Meghívás: a szakember a saját díját látja a meghívás sávjában, a felugró meghívásban és a meghívó e-mailben („az elfogadással ezt a díjat fogadod el”); az elfogadott díjat az app rögzíti"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "7717af673e",
 "at": "2026-11-18T15:11:18+02:00",
 "msg": "Idővonal: több forgatási napnál a vágás-sáv a hozzá legközelebbi forgatás-sávot nézi (nincs dupla név)"
-},
-{
-"id": "bc4d21eee9",
-"at": "2026-11-18T15:07:52+02:00",
-"msg": "Idővonal: a forgatás-sávhoz kapcsolt vágás-sáv neve rejtve, amíg a forgatás-sáv látszik (nincs egymásra írt név)"
 }
 ];
 const allowed = require('./_auth.js');
