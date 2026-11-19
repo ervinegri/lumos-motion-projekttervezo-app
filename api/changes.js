@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d79cf76a18",
+"at": "2026-11-19T20:49:37+02:00",
+"msg": "Keretszerződés: a felek adatai táblázatban (nem lebegő szövegdobozban), az oldalszám rendes láblécben – a Google-PDF így nem csúszik szét; a küldőablakban a levél előnézete fejléccel és aláírással"
+},
+{
 "id": "200046625b",
 "at": "2026-11-19T18:35:23+02:00",
 "msg": "Fotók utómunkája: magától a kiválasztott fotósé, amíg kézzel senkihez nincs rendelve (felület + mentéskor a háttér is rögzíti)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: jóváhagyás után „Ezzel a projektet lezártuk. Köszönjük a közös munkát!” (több videónál: a többire még vár)"
 },
 {
-"id": "133c32ff7c",
-"at": "2026-11-19T11:02:29+01:00",
-"msg": "Jóváhagyó oldal: útmutató szöveg finomítása"
-},
-{
-"id": "48b0916c1d",
-"at": "2026-11-19T10:01:47Z",
+"id": "84a07a292b",
+"at": "2026-11-19T10:02:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
