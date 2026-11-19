@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e052bfdf39",
+"at": "2026-11-19T10:06:59+01:00",
+"msg": "Beillesztés levélből (Gmail): az alpontok behúzása megmarad (a lista elemein lévő margó nem írja felül a beágyazást; a lista mellé tett allista is behúzva)"
+},
+{
 "id": "51ad29eeee",
 "at": "2026-11-19T10:49:24+02:00",
 "msg": "Beillesztés: a behúzott alpontok szintje is megmarad (Google Docs aria-level, Word mso-list / margin-left, számozás folytatása); a hozzászólásban és az értesítő levélben is látszik a behúzás"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "b4cf6c6b7d",
 "at": "2026-11-19T07:24:25+02:00",
 "msg": "Bank: csak sorszámokat tartalmazó közlemény („64 66”) – a partner számláit összegezve párosít"
-},
-{
-"id": "943394f076",
-"at": "2026-11-19T07:23:43+02:00",
-"msg": "Idővonal: a forgatás+vágás sávon az eredeti név csúszik végig (nem jelenik meg második név)"
 }
 ];
 const allowed = require('./_auth.js');
