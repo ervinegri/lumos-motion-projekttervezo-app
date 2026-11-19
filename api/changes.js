@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db98bb6a15",
+"at": "2026-11-19T11:31:27+01:00",
+"msg": "Videótábla: kéz-kurzor csak mozdítható kártyán, ott hoverre emelkedés + fogantyú"
+},
+{
 "id": "beaf81a8f8",
 "at": "2026-11-19T11:28:36+01:00",
 "msg": "Jóváhagyó oldal: 'Írd le röviden…' hiba eltűnik gépeléskor és a megerősítő ablaknál"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: „💬 Hozzászólás küldése” gomb a mező alatt; az alsó sor (Időkód · Jelölés · Bezárás) mindig a dobozon belül marad"
 },
 {
-"id": "60a3082436",
-"at": "2026-11-19T10:40:04+02:00",
-"msg": "Meghívás: a Google Naptárban adott „Igen” / „Nem” már nem elfogadás / elutasítás (a díj csak a Projekttervezőben látszik) – helyette egyszeri jelzés a meghívónak és emlékeztető a szakembernek; a levélből és a felületről kikerült a naptáras elfogadás"
-},
-{
-"id": "3115d4b904",
-"at": "2026-11-19T08:28:41Z",
+"id": "fae837fdbe",
+"at": "2026-11-19T08:40:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
