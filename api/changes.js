@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "943394f076",
+"at": "2026-11-19T07:23:43+02:00",
+"msg": "Idővonal: a forgatás+vágás sávon az eredeti név csúszik végig (nem jelenik meg második név)"
+},
+{
 "id": "8748ddd315",
 "at": "2026-11-19T07:19:54+02:00",
 "msg": "Bank: a díjbekérőre hivatkozó befizetés eltűnik a listából, ha a partner+összeg szerinti számla aznap már kifizetett"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: hosszan nyomva a kártyán áthelyezés-menü (szakasz gombok) a megbízhatatlan ujjas húzás helyett"
 },
 {
-"id": "bce8f0a329",
-"at": "2026-11-18T08:42:17+02:00",
-"msg": "Értékesítés telefonon: a húzott kártya nem ragad be (húzás közben nincs újrarajzolás, elveszett felengedésnél a következő érintés lezárja)"
-},
-{
-"id": "0c0f9139e7",
-"at": "2026-11-18T06:20:10Z",
+"id": "cc393c902c",
+"at": "2026-11-18T06:42:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
