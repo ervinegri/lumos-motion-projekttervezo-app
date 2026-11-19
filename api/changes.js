@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4cd648768a",
+"at": "2026-11-19T07:24:48+02:00",
+"msg": "Idővonal: a név sosem lóg túl a sáv végén"
+},
+{
 "id": "b4cf6c6b7d",
 "at": "2026-11-19T07:24:25+02:00",
 "msg": "Bank: csak sorszámokat tartalmazó közlemény („64 66”) – a partner számláit összegezve párosít"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Eszközök: a kiküldött (véglegesített) eszközlista zárolását 🔓 Feloldás gomb oldja fel közelgő projektnél (ügyvezető, termelési vezető), utána újra véglegesíthető; lezajlott rendezvénynél nincs feloldás"
 },
 {
-"id": "fa57a1e6aa",
-"at": "2026-11-18T12:36:39+02:00",
-"msg": "Lezajlott rendezvény: a csapat és az eszközök 🔓 Feloldás gombbal újra módosíthatók (ügyvezető, termelési vezető)"
-},
-{
-"id": "2259e09730",
-"at": "2026-11-18T06:49:07Z",
+"id": "8df70665f2",
+"at": "2026-11-18T10:36:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
