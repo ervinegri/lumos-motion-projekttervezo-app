@@ -311,12 +311,13 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)re
     <div style="margin-top:12px"><button type="button" class="btn outline small" id="alv-dl">⬇ Letöltés Wordben</button></div>`,
     {submitLabel:'Tovább a küldéshez →',submit:async fd=>{const o={name:String(fd.get('name')||'').trim(),addr:String(fd.get('addr')||'').trim(),tax:String(fd.get('tax')||'').trim(),phone:String(fd.get('phone')||'').trim(),email:String(fd.get('email')||'').trim(),prev:String(fd.get('prev')||'')};
       let r;try{r=await alvBuild(o);}catch(e){handleErr(e);return;}const b64=await alvB64(r.blob),first=huFirst(c.name)||'';
-      openModal('Keretszerződés küldése – '+(c.name||''),`<div class="field full"><label for="alv-to">Címzett</label><input class="inp" id="alv-to" name="to" value="${esc(o.email||c.email||'')}" required></div>
+      openModal('Keretszerződés küldése – '+(c.name||''),`<div class="alv-send"><div class="ct-prev" id="alvPrev"><div class="loading"><span class="spin"></span> A szerződés betöltése…</div></div><div><div class="field full"><label for="alv-to">Címzett</label><input class="inp" id="alv-to" name="to" value="${esc(o.email||c.email||'')}" required></div>
         <div class="field full"><label for="alv-subj">Tárgy</label><input class="inp" id="alv-subj" name="subject" value="Alvállalkozói keretszerződés – Lumos Motion"></div>
         <div class="field full"><label for="alv-body">Levél</label><textarea class="inp" id="alv-body" name="body" rows="9">Kedves ${esc(first)},\n\nmellékelten küldöm az alvállalkozói keretszerződést. A projektek meghívása, visszaigazolása, a díjak, a leadás és a visszajelzések a Projekttervezőben mennek, és a szerződés ezt is rögzíti – a visszamondás és a javítási körök szabályaival együtt.\n\nKérlek, olvasd át, és ha rendben találod, írd alá, és küldd vissza erre a címre. Ha bármi kérdésed van vele kapcsolatban, szívesen átbeszéljük.</textarea></div>
-        <p class="hint" style="margin:0">📎 Melléklet: ${esc(r.name)} · a levél a saját címedről, az aláírásoddal megy ki, a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p>`,
+        <p class="hint" style="margin:0">📎 Melléklet: ${esc(r.name)} · a levél a saját címedről, az aláírásoddal megy ki, a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p></div></div>`,
         {submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
-          S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});}});
+          S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});
+      const fm=$('mform');if(fm)fm.classList.add('ct-wide');alvShow(r.blob);}});
   const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
     try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};
 
@@ -326,3 +327,13 @@ ACT['crew-ctr-new']=()=>{if(!isAdmin())return;const L=crewSorted().filter(c=>!is
     <p class="hint" style="margin:6px 0 0">A következő lépésben a munkatárs adataival kitöltött alvállalkozói keretszerződést letöltheted vagy elküldheted.</p>`,
     {submitLabel:'Tovább →',submit:fd=>{const id=String(fd.get('cid')||'');if(!id){toast('Válassz munkatársat.');return;}ACT['crew-ctr']({dataset:{id}});}});
   if(typeof cmbAuto==='function')cmbAuto();};
+
+/* a küldés előtt maga a szerződés is látszik: a Google által készített PDF (pontosan úgy, mint Wordben – a fejléc szövegdobozaival együtt); ha nem sikerül, a böngésző rajzolja a Word-fájlt */
+async function alvShow(blob){const box=$('alvPrev');if(!box)return;
+  try{const r=await call('contractPdf',{docx:await alvB64(blob)});if(!$('alvPrev'))return;
+    if(r&&r.pdf){const u8=Uint8Array.from(atob(r.pdf),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));
+      box.classList.add('pdf');box.innerHTML=`<iframe src="${url}#view=FitH&toolbar=0" title="A szerződés"></iframe>`;return;}}catch(e){console.warn('Szerződés-PDF:',e);}
+  try{await ctLibs();box.innerHTML='';
+  await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
+  try{ctTidy(box);ctFixCounters(box);}catch(e){}
+  const w=box.querySelector('.docx-wrapper'),sec=box.querySelector('section.docx');if(w&&sec){const k=Math.min(1,(box.clientWidth-24)/(sec.offsetWidth+20));if(k<1)w.style.zoom=k;}}catch(e){box.innerHTML='<p class="hint" style="margin:10px">A minta nem jeleníthető meg – a „Letöltés Wordben” gombbal megnézheted.</p>';}}

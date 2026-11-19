@@ -2961,3 +2961,6 @@ html body .bd-card[draggable=true]{position:relative;transition:box-shadow .15s,
 html body .bd-card[draggable=true]::after{content:"⠿";position:absolute;top:8px;right:9px;font-size:15px;line-height:1;color:#9aa5b1;opacity:0;transition:opacity .15s;pointer-events:none}
 @media (hover:hover){html body .bd-card[draggable=true]:hover{box-shadow:0 6px 16px rgba(20,40,60,.16);transform:translateY(-1px)}html body .bd-card[draggable=true]:hover::after{opacity:1}}
 html body .bd-card[draggable=true]>.bd-t{padding-right:16px}
+
+html body .alv-send{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:16px;align-items:start}html body .alv-send .ct-prev{max-height:68vh;min-height:min(68vh,560px)}@media(max-width:760px){html body .alv-send{grid-template-columns:1fr}html body .alv-send .ct-prev{max-height:45vh}}
+html body .alv-send .ct-prev.pdf{padding:0;overflow:hidden;height:68vh}html body .alv-send .ct-prev.pdf iframe{width:100%;height:100%;border:0;display:block}@media(max-width:760px){html body .alv-send .ct-prev.pdf{height:55vh}}
