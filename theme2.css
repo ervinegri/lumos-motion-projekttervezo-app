@@ -2925,3 +2925,7 @@ html.th2:where(.ax-stone) .topbar select,html.th2:where(.ax-stone) #viewAs{backg
 html.th2:where(.ax-stone) .stage.cur .n{color:rgba(255,255,255,.7)!important}
 div.q-disc-on{cursor:default!important}div.q-disc-on label{cursor:pointer;margin:0!important;font:inherit!important;display:inline!important;text-transform:none!important;letter-spacing:normal!important;color:inherit!important}div.q-disc-on input{cursor:pointer}
 @media (min-width:701px){html body .sales-tb #q-sales{order:1!important}html body .sales-tb .sales-own{order:2!important}}
+/* Értékesítés: a „Díjbekérő fizetve” oszlop is becsukható (keskeny, függőleges felirat) */
+html.th2 body .dl-board.dl-board.paid-closed{grid-template-columns:repeat(3,minmax(200px,1fr)) 48px minmax(200px,1fr)!important}
+html.th2 body .dl-board.dl-board.paid-closed.lost-closed{grid-template-columns:repeat(3,minmax(200px,1fr)) 48px 48px!important}
+@media (max-width:760px){html.th2 body .dl-board.dl-board.paid-closed{grid-template-columns:repeat(3,210px) 44px 210px!important}html.th2 body .dl-board.dl-board.paid-closed.lost-closed{grid-template-columns:repeat(3,210px) 44px 44px!important}}
