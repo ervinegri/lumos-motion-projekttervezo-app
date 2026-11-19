@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6886114f4a",
+"at": "2026-11-19T11:14:48+01:00",
+"msg": "Videótábla kártya: nincs „▶ videó” és hozzászólás-szám"
+},
+{
 "id": "26d5b23110",
 "at": "2026-11-19T11:12:44+01:00",
 "msg": "Videótábla: az 1. javítás jelvénye sárga, a 2.-tól piros"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a harmadik javításkéréstől – a díjmentes körök elfogytak, árajánlat alapján készül"
 },
 {
-"id": "7bee2b3f26",
-"at": "2026-11-19T09:22:17+02:00",
-"msg": "Jóváhagyó oldal: az ügyfél második javításkérésénél figyelmeztetés – ez az utolsó díjmentes javítási kör, mindent írjon bele"
-},
-{
-"id": "7dc61ce5fb",
-"at": "2026-11-19T07:17:03Z",
+"id": "e286b884a0",
+"at": "2026-11-19T07:22:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
