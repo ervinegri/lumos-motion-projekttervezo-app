@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "96078ef3e8",
+"at": "2026-11-19T11:26:40+01:00",
+"msg": "Jóváhagyó oldal: módosítás/üzenet minimális hossza feloldva (1 karakter is elég)"
+},
+{
 "id": "96c9072614",
 "at": "2026-11-19T11:24:28+01:00",
 "msg": "Board kártya: '↩ javítandó' címke törölve (a javítás-jelvény már mutatja)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: a szakember a saját díját látja a meghívás sávjában, a felugró meghívásban és a meghívó e-mailben („az elfogadással ezt a díjat fogadod el”); az elfogadott díjat az app rögzíti"
 },
 {
-"id": "1b2061afb3",
-"at": "2026-11-19T10:00:46+02:00",
-"msg": "Elfogadott projekt visszamondása az appban („Mégsem tudom vállalni”): a keretszerződés feltételei (30 napnál korábban évente 2× díjmentes, 30–15 nap 50%, 15 napon belül 100% kötbér), kötelező indoklás, e-mail a meghívónak és az ügyvezetőnek; a vezetői kártyán látszik"
-},
-{
-"id": "0cb0d1beb0",
-"at": "2026-11-19T07:36:35Z",
+"id": "16b46022fb",
+"at": "2026-11-19T08:00:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
