@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bac60a887c",
+"at": "2026-11-19T08:08:23+02:00",
+"msg": "Kinézet: választható Stone (Astryx, alap) vagy a saját Lumos arculat (névjelvény menü → 🎨 Kinézet, eszközönként); butter törölve"
+},
+{
 "id": "07fc5e5276",
 "at": "2026-11-19T08:00:32+02:00",
 "msg": "Arculat: Astryx butter téma kipróbálható (névjelvény menü → 🎨 Arculat: Stone / Butter, csak ügyvezetőnek, eszközönként); alap marad a stone"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: húzás közben alul gyors célpontok a szakaszokhoz (pl. Sikertelen) – nem kell az oszlopig görgetni"
 },
 {
-"id": "a076d90189",
-"at": "2026-11-18T14:07:27+02:00",
-"msg": "Értékesítés telefonon: vissza az ujjas húzás (hosszan nyomva), megbízhatóbban – a kártyán is figyeli a felengedést, húzás közben nincs újrarajzolás, beragadás esetén magától lezárul, lerakás után nem nyílik meg a kártya"
-},
-{
-"id": "820a2afa54",
-"at": "2026-11-18T11:50:48Z",
+"id": "ad91a35030",
+"at": "2026-11-18T12:07:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
