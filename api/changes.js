@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c2a439c821",
+"at": "2026-11-19T09:09:17+02:00",
+"msg": "Bejövő számla → szakember: névtag-egyezés (pl. második keresztnév a számlán) és a már nem aktív (törölt) szakemberek is; egyszeri újrapárosítás"
+},
+{
 "id": "cd790286a6",
 "at": "2026-11-19T09:03:19+02:00",
 "msg": "Árajánlat: nagyobb PDF az előnézetben; a mentett ajánlatból nyitva is megjelenik a szignó (a mentett, elavult aláírás-adat helyett mindig frissen kérjük le)"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "48fd701d0e",
 "at": "2026-11-18T14:27:09+02:00",
 "msg": "Értékesítési folyamat fejléce: cím, értékesítő-választó és keresés egy sorban (tablet, gép)"
-},
-{
-"id": "ebf6e44ee6",
-"at": "2026-11-18T14:26:50+02:00",
-"msg": "Projekt címsávja a felső sáv része: a rugózás megmarad, de a kettő nem válik szét"
 }
 ];
 const allowed = require('./_auth.js');
