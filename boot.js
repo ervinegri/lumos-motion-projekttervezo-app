@@ -146,12 +146,25 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
 
 /* Naptár idővonal: ha balra (korábbra) görgetsz és egy sáv eleje kicsúszik a képből, a projekt neve a sáv látható részének elejére
    csúszik – így mindig olvasható (a sáv levágja a tartalmát, ezért a CSS-es „sticky” itt nem működik). */
-(()=>{let raf=0,W=null;
-  const fix=()=>{raf=0;const w=W;if(!w||!document.contains(w))return;const wr=w.getBoundingClientRect(),lb=w.querySelector('.tl-row.tl-it>.tl-lbl'),lw=lb&&lb.offsetWidth&&getComputedStyle(lb).position==='sticky'?lb.offsetWidth:0,vis=Math.max(0,wr.left)+lw;   /* csak egy projektsor címkéje számít (a szakasz-fejléc szélesebb lehet) */
-    w.querySelectorAll('.tl-cut').forEach(c=>{const cn=c.querySelector(':scope>.tl-nm'),tr=c.closest('.tl-track'),r=c.getBoundingClientRect(),key=c.dataset.id,txt=cn?cn.textContent.trim():'';
-      const ms=tr?[...tr.querySelectorAll('.tl-bar:not(.tl-cut)')].filter(x=>{const n=x.querySelector('.tl-nm');if(!n)return false;const b=x.getBoundingClientRect();return (x.dataset.id===key||(txt&&n.textContent.trim()===txt))&&b.left<r.left+4&&r.left-b.right<80;}):[];   /* a vágás előtti, hozzá tartozó forgatás-sáv (azonos projekt vagy azonos név, közvetlenül előtte) */
-      const mr=ms.length?Math.max(...ms.map(x=>x.getBoundingClientRect().right)):-1e9;const jn=c.classList.contains('tl-joined');c.classList.toggle('nm-dup',jn||ms.length>0||c.classList.contains('tl-withmain'));if(jn){c.classList.remove('nm-show');return;}   /* a forgatás-sávhoz tapadó vágás-sávon nincs külön név: a forgatás-sáv neve csúszik végig rajta */c.classList.toggle('nm-show',!ms.length&&!c.classList.contains('tl-withmain')&&!c.classList.contains('tl-joined')||mr<vis+30&&r.right>vis+60);});   /* a vágás-sávon csak akkor látszik a név, ha a forgatás-sáv (ahol a név van) már kicsúszott balra */
-    const L=[...w.querySelectorAll('.tl-bar>.tl-nm')].filter(n=>n.offsetParent),M=L.map(n=>{const p=n.parentElement,b=p.getBoundingClientRect();let right=b.right;if(p.classList.contains('tl-join')){const cj=[...p.parentElement.querySelectorAll('.tl-cut.tl-joined')].find(x=>x.dataset.id===p.dataset.id);if(cj)right=Math.max(right,cj.getBoundingClientRect().right);}return [n,b,n.offsetWidth,right];});   /* előbb minden mérés, utána az írás */
-    M.forEach(([n,b,nw,right])=>{let x=0;const nat=b.left+n.offsetLeft;if(right>vis&&(nat<vis+4||n.parentElement.classList.contains('nm-show')))x=Math.max(vis,b.left)+6-nat;   /* a név a látható rész elején indul – ha a sávból már csak kevés látszik, az eleje akkor is olvasható (a sáv vége levágja), és görgetéskor fokozatosan jelenik meg */n.style.transform=x?'translateX('+Math.round(x)+'px)':'';const av=Math.round(right-(nat+x)-8);if(x||n.parentElement.classList.contains('tl-join')){n.style.maxWidth=Math.max(0,av)+'px';n.style.visibility=av<22?'hidden':'';}else{n.style.maxWidth='';n.style.visibility='';}});};   /* a név sosem lóg túl a sáv végén (a végénél rövidül, majd eltűnik) */
-  document.addEventListener('scroll',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('tl-wrap'))return;W=t;if(!raf)raf=requestAnimationFrame(fix);},{capture:true,passive:true});
-  window.tlNameFix=()=>{W=document.querySelector('#view .tl-wrap');if(W&&!raf)raf=requestAnimationFrame(fix);};})();
+(()=>{let raf=0,W=null,C=null;
+  /* Egyszer (rajzoláskor / átméretezéskor) lemérjük a sávokat a görgetett tartalom koordinátáiban; görgetéskor már csak számolunk
+     és a transform-ot írjuk (nincs elrendezés-olvasás) – így a görgetés nem akad. */
+  const build=w=>{const wr=w.getBoundingClientRect(),sl=w.scrollLeft,X=v=>v-wr.left+sl,lb=w.querySelector('.tl-row.tl-it>.tl-lbl'),lw=lb&&lb.offsetWidth&&getComputedStyle(lb).position==='sticky'?lb.offsetWidth:0;
+    const box=e=>{const r=e.getBoundingClientRect();return {l:X(r.left),r:X(r.right),w:r.width};};
+    const cuts=[...w.querySelectorAll('.tl-cut')].map(c=>{const cn=c.querySelector(':scope>.tl-nm'),tr=c.closest('.tl-track'),b=box(c),txt=cn?cn.textContent.trim():'',jn=c.classList.contains('tl-joined'),wm=c.classList.contains('tl-withmain');
+      const ms=tr?[...tr.querySelectorAll('.tl-bar:not(.tl-cut)')].filter(x=>{const n=x.querySelector('.tl-nm');if(!n)return false;const q=box(x);return (x.dataset.id===c.dataset.id||(txt&&n.textContent.trim()===txt))&&q.l<b.l+4&&b.l-q.r<80;}):[];
+      const mr=ms.length?Math.max(...ms.map(x=>box(x).r)):-1e9;c.classList.toggle('nm-dup',jn||ms.length>0||wm);if(jn)c.classList.remove('nm-show');
+      return jn?null:{c,b,mr,always:!ms.length&&!wm,on:null};}).filter(Boolean);
+    const names=[...w.querySelectorAll('.tl-bar>.tl-nm')].filter(n=>n.offsetParent).map(n=>{const p=n.parentElement,b=box(p);let right=b.r;
+      if(p.classList.contains('tl-join')){const cj=[...p.parentElement.querySelectorAll('.tl-cut.tl-joined')].find(x=>x.dataset.id===p.dataset.id);if(cj)right=Math.max(right,box(cj).r);}
+      n.style.transform='';const nat=b.l+n.offsetLeft;return {n,p,b,right,nat,join:p.classList.contains('tl-join'),cut:cuts.find(k=>k.c===p),last:''};});
+    return {w,wl:Math.max(0,wr.left)-wr.left+lw,cuts,names};};
+  const fix=()=>{raf=0;const w=W;if(!w||!document.contains(w))return;if(!C||C.w!==w)C=build(w);const vis=w.scrollLeft+C.wl;
+    C.cuts.forEach(k=>{const on=k.always||k.mr<vis+30&&k.b.r>vis+60;if(on!==k.on){k.on=on;k.c.classList.toggle('nm-show',on);}});
+    C.names.forEach(o=>{let x=0;const show=o.cut?o.cut.on:false;if(o.right>vis&&(o.nat<vis+4||show))x=Math.max(vis,o.b.l)+6-o.nat;
+      const av=Math.round(o.right-(o.nat+x)-8),lim=x||o.join,key=Math.round(x)+'|'+(lim?Math.max(0,av):'');if(key===o.last)return;o.last=key;
+      o.n.style.transform=x?'translateX('+Math.round(x)+'px)':'';o.n.style.maxWidth=lim?Math.max(0,av)+'px':'';o.n.style.visibility=lim&&av<22?'hidden':'';});};   /* a név a látható rész elején, sosem lóg túl a sáv végén */
+  const go=()=>{if(!raf)raf=requestAnimationFrame(fix);};
+  document.addEventListener('scroll',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('tl-wrap'))return;if(W!==t){W=t;C=null;}go();},{capture:true,passive:true});
+  window.addEventListener('resize',()=>{C=null;go();},{passive:true});
+  window.tlNameFix=()=>{W=document.querySelector('#view .tl-wrap');C=null;if(W)go();};})();
