@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "49929b31ab",
+"at": "2026-11-19T11:31:35+01:00",
+"msg": "Videótábla: cím nem fut a fogantyú alá"
+},
+{
 "id": "db98bb6a15",
 "at": "2026-11-19T11:31:27+01:00",
 "msg": "Videótábla: kéz-kurzor csak mozdítható kártyán, ott hoverre emelkedés + fogantyú"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "8859b1cbba",
 "at": "2026-11-19T10:43:49+02:00",
 "msg": "Videóablak: „💬 Hozzászólás küldése” gomb a mező alatt; az alsó sor (Időkód · Jelölés · Bezárás) mindig a dobozon belül marad"
-},
-{
-"id": "fae837fdbe",
-"at": "2026-11-19T08:40:14Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
