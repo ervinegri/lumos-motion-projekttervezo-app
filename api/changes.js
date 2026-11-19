@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e748f9fd5b",
+"at": "2026-11-19T11:46:42+01:00",
+"msg": "Videóablak: link nélküli, visszajelzésekből kikövetkeztetett verziók (v1..vN) megszüntetve – csak valódi linkcsere ad új verziót"
+},
+{
 "id": "12b01b6952",
 "at": "2026-11-19T11:33:46+01:00",
 "msg": "Verziók: ugyanannak a fájlnak más paraméterű linkje nem új verzió (Drive/YouTube/Vimeo azonosító szerint), meglévő duplikátumok összevonva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beillesztés levélből (Gmail): az alpontok behúzása megmarad (a lista elemein lévő margó nem írja felül a beágyazást; a lista mellé tett allista is behúzva)"
 },
 {
-"id": "51ad29eeee",
-"at": "2026-11-19T10:49:24+02:00",
-"msg": "Beillesztés: a behúzott alpontok szintje is megmarad (Google Docs aria-level, Word mso-list / margin-left, számozás folytatása); a hozzászólásban és az értesítő levélben is látszik a behúzás"
-},
-{
-"id": "873aa5b92e",
-"at": "2026-11-19T08:46:04Z",
+"id": "91c89c15ac",
+"at": "2026-11-19T08:49:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
