@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cd790286a6",
+"at": "2026-11-19T09:03:19+02:00",
+"msg": "Árajánlat: nagyobb PDF az előnézetben; a mentett ajánlatból nyitva is megjelenik a szignó (a mentett, elavult aláírás-adat helyett mindig frissen kérjük le)"
+},
+{
+"id": "62d931dbf8",
+"at": "2026-11-19T09:03:19+02:00",
+"msg": "Értékesítés: a „Díjbekérő fizetve” oszlop is becsukható (‹ gomb, függőleges felirat), eszközönként megjegyzi"
+},
+{
 "id": "a7d11b6e90",
 "at": "2026-11-19T09:01:15+02:00",
 "msg": "Ügyfélnek küldés: javított változatnál (az ügyfél módosítást kért) „javított változat” szöveg és tárgy; a másik videótípusra (pl. aftermovie) mentett minta nem kerül egy imázsfilm levelébe"
@@ -140,16 +150,6 @@ const ITEMS = [
 "id": "ebf6e44ee6",
 "at": "2026-11-18T14:26:50+02:00",
 "msg": "Projekt címsávja a felső sáv része: a rugózás megmarad, de a kettő nem válik szét"
-},
-{
-"id": "8f13fe1282",
-"at": "2026-11-18T14:25:49+02:00",
-"msg": "Értékesítés telefonon: az alsó gyors célpont-sáv kivéve (görgetéssel / szélre húzással lehet oszlopot váltani)"
-},
-{
-"id": "8fd94f7c50",
-"at": "2026-11-18T12:23:41Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
