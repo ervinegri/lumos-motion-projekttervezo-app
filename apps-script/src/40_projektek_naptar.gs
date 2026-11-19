@@ -952,7 +952,9 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
-  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új pozíció: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: html, dlTxt: dlTxt };
+  let htmlOut = html;
+  if (onSiteInvite && p.venue) { const ev0 = escapeHtml_('📍 ' + p.venue); htmlOut = htmlOut.replace(ev0, '📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(p.venue) + '" style="color:#1a56db;text-decoration:underline">' + escapeHtml_(p.venue) + '</a>'); }   // a helyszín kattintható (Google Térkép)
+  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új pozíció: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
 }
 /** Megtekintés küldés előtt: kizárólag olvasás, meghívóállapot-módosítás nélkül. */
 function crewInvitePreview_(u, a) {
