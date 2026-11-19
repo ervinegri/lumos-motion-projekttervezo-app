@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7372a336f0",
+"at": "2026-11-19T11:01:38+01:00",
+"msg": "Jóváhagyó oldal: a díjmentes körök elfogytak figyelmeztetés piros"
+},
+{
 "id": "5a44440d30",
 "at": "2026-11-19T11:01:21+01:00",
 "msg": "Jóváhagyó oldal: módosítás küldése előtt megerősítés („Mindent leírtál?”) a javítási kör szerinti szöveggel"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "9d89bcf602",
 "at": "2026-11-19T08:31:38+02:00",
 "msg": "Árajánlat: az „Árkalkulátorból” és a „Kedvezmény az ajánlatban” csak a szövegén kattintható (a felirat és az ikon nem)"
-},
-{
-"id": "bac60a887c",
-"at": "2026-11-19T08:08:23+02:00",
-"msg": "Kinézet: választható Stone (Astryx, alap) vagy a saját Lumos arculat (névjelvény menü → 🎨 Kinézet, eszközönként); butter törölve"
 }
 ];
 const allowed = require('./_auth.js');
