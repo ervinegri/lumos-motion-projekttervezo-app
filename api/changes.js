@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "81aeb68de7",
+"at": "2026-11-19T07:39:19+02:00",
+"msg": "Arculat: Astryx (Meta) neutral téma – semleges szürkék, Figtree betű, fekete elsődleges gomb, világos fejléc, 10/12px lekerekítés, finom árnyék; sötét mód hozzáigazítva"
+},
+{
 "id": "784fe0dfcd",
 "at": "2026-11-19T07:32:30+02:00",
 "msg": "Idővonal: a betöltött időszak szélén azonnal továbbtölt (nem akad meg a hónaphatáron)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Saját meghívásaim: egy meghívásnál az egész doboz kattintható (a gombok kivételével)"
 },
 {
-"id": "7c0e3b2194",
-"at": "2026-11-18T13:21:33+02:00",
-"msg": "Meghívás: az Elfogadom gomb jobb oldalt"
-},
-{
-"id": "df4dfca420",
-"at": "2026-11-18T11:21:31Z",
+"id": "2d470a64f8",
+"at": "2026-11-18T11:21:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
