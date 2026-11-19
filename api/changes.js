@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5a44440d30",
+"at": "2026-11-19T11:01:21+01:00",
+"msg": "Jóváhagyó oldal: módosítás küldése előtt megerősítés („Mindent leírtál?”) a javítási kör szerinti szöveggel"
+},
+{
 "id": "61b6382f74",
 "at": "2026-11-19T10:58:34+01:00",
 "msg": "Jóváhagyó oldal: új útmutató szöveg a módosításkérésnél (több változtatás, végén az Elküldöm a módosítást gomb)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "bac60a887c",
 "at": "2026-11-19T08:08:23+02:00",
 "msg": "Kinézet: választható Stone (Astryx, alap) vagy a saját Lumos arculat (névjelvény menü → 🎨 Kinézet, eszközönként); butter törölve"
-},
-{
-"id": "07fc5e5276",
-"at": "2026-11-19T08:00:32+02:00",
-"msg": "Arculat: Astryx butter téma kipróbálható (névjelvény menü → 🎨 Arculat: Stone / Butter, csak ügyvezetőnek, eszközönként); alap marad a stone"
 }
 ];
 const allowed = require('./_auth.js');
