@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5c0b11b297",
+"at": "2026-11-19T08:33:00+02:00",
+"msg": "Árajánlat: a kedvezmény opciónként külön állítható (régi ajánlatnál minden opció megkapja a korábbi beállítást); az opció-gombon a kedvezményes ár"
+},
+{
 "id": "9d89bcf602",
 "at": "2026-11-19T08:31:38+02:00",
 "msg": "Árajánlat: az „Árkalkulátorból” és a „Kedvezmény az ajánlatban” csak a szövegén kattintható (a felirat és az ikon nem)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok valóban oldalra görögnek (a mobilos oszlop-illesztés eddig visszaugratta)"
 },
 {
-"id": "9fc29c92c8",
-"at": "2026-11-18T14:22:28+02:00",
-"msg": "Értékesítés telefonon: húzás közben a másik ujjal görgetés a ténylegesen görgő tartón (oldalra és fel-le), két ujjnál nincs nagyítás"
-},
-{
-"id": "eb4d662899",
-"at": "2026-11-18T12:21:17Z",
+"id": "d0c3085214",
+"at": "2026-11-18T12:22:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
