@@ -64,13 +64,13 @@ ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);i
   let dr=null;try{dr=await call('quoteDraft',{dealId:d.id,op:'get'});}catch(e){}   /* mentett, még ki nem küldött ajánlat: folytatható */
   if(!dr||!dr.q){fresh();return;}
   openModal('Mentett ajánlat',`<p style="margin:0">Ehhez a lehetőséghez van egy mentett, még ki nem küldött ajánlat (${esc(String(dr.at||'').slice(0,16))}${dr.by?' · '+esc(dr.by):''}).</p>`,{submitLabel:'Folytatom',noDraft:true,left:`<button type="button" class="btn outline" data-action="q-draft-new" data-id="${esc(d.id)}">Újat kezdek</button>`,
-    submit:()=>{closeModal();S.q=dr.q;qSig(d.id);qEdit();}});};
+    submit:()=>{closeModal();S.q=dr.q;delete S.q.sig;qSig(d.id);qEdit();}});};
 ACT['q-draft-cont']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;b.disabled=true;let dr=null;try{dr=await call('quoteDraft',{dealId:d.id,op:'get'});}catch(e){handleErr(e);}finally{b.disabled=false;}
-  closeModal();if(dr&&dr.q){S.q=dr.q;qSig(d.id);qEdit();}else{d.qDraft='';qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});}};
+  closeModal();if(dr&&dr.q){S.q=dr.q;delete S.q.sig;qSig(d.id);qEdit();}else{d.qDraft='';qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});}};
 ACT['q-draft-new']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);closeModal();if(!d)return;d.qDraft='';call('quoteDraft',{dealId:d.id,op:'del'}).catch(()=>{});qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
 ACT['q-save']=async b=>{const f=$('mform');if(!S.q||!f)return;try{qRead(new FormData(f));}catch(e){}b.disabled=true;
-  try{const st=Object.assign({},S.q);delete st._pdf;delete st._pdfP;const r=await call('quoteDraft',{dealId:S.q.dealId,q:st});{const dd=(S.deals||[]).find(x=>x.id===S.q.dealId);if(dd)dd.qDraft=(r&&r.at)||'1';}toast('Ajánlat mentve – a lehetőségnél később folytathatod');}catch(e){handleErr(e);}finally{b.disabled=false;}};
-async function qSig(id){if(S.q&&S.q.sig)return;try{const s=await call('dealQuoteSig',{dealId:id});if(S.q&&S.q.dealId===id){S.q.sig=s;const h=document.querySelector('#q-body+.hint');if(h)h.textContent='Alá automatikusan bekerül '+s.name+' aláírása, a PDF pedig mellékletként megy.';}}catch(e){handleErr(e);}}
+  try{const st=Object.assign({},S.q);delete st._pdf;delete st._pdfP;delete st.sig;const r=await call('quoteDraft',{dealId:S.q.dealId,q:st});{const dd=(S.deals||[]).find(x=>x.id===S.q.dealId);if(dd)dd.qDraft=(r&&r.at)||'1';}toast('Ajánlat mentve – a lehetőségnél később folytathatod');}catch(e){handleErr(e);}finally{b.disabled=false;}};
+async function qSig(id){if(S.q&&S.q.sig&&S.q.sig.name)return;try{const s=await call('dealQuoteSig',{dealId:id});if(S.q&&S.q.dealId===id){S.q.sig=s;const h=document.querySelector('#q-body+.hint');if(h)h.textContent='Alá automatikusan bekerül '+s.name+' aláírása, a PDF pedig mellékletként megy.';}}catch(e){handleErr(e);}}
 ACT['q-skip']=b=>{window._arkQuoteDeal='';qEdit();};
 window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmotion.hu')return;const x=(e.data||{}).arkQuoteData;if(!x||!S.q||!window._arkQuoteDeal)return;window._arkQuoteDeal='';
   const rooms=Math.max(1,num(x.rooms)||1),items=(x.rows||[]).filter(r=>num(r.amount)>0).map(r=>{const amt=Math.round(num(r.amount)),m=/^(\d+)\s*db$/.exec(String(r.qty||'').trim()),n=m?Number(m[1]):1,
@@ -171,7 +171,7 @@ async function qPdf(){const lib=await h2pLib(),pages=qPages(),host=document.crea
     const uri=await w.outputPdf('datauristring');return String(uri).split(',')[1]||'';}
   finally{host.remove();}}
 function qPdfCached(){const q=S.q;if(q._pdf)return Promise.resolve(q._pdf);if(!q._pdfP)q._pdfP=qPdf().then(b=>{if(S.q===q)q._pdf=b;return b;}).finally(()=>{q._pdfP=null;});return q._pdfP;}
-function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;
+function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;if(!s.name&&q.dealId){q.sig=null;qSig(q.dealId).then(()=>{if(S.q===q&&q.sig&&q.sig.name&&document.querySelector('.q-prev'))qPreview();});}   /* ha még nincs meg az aláírás (pl. mentett vagy korábbi ajánlatból nyitva), lekérjük, és az előnézet frissül */
   openModal('📄 Árajánlat – előnézet',`<div class="q-prev"><div class="q-mail"><div class="q-mh"><div><span>Feladó:</span> ${esc((s.name||'')+' · Lumos Motion')} &lt;${esc(s.from||s.email||'')}&gt;${s.from&&s.email&&s.from.toLowerCase()!==s.email.toLowerCase()?` <small class="q-from-note">(a válaszok ${esc(s.email)} címre mennek – a saját címéről küldéshez „Küldés másként” álnév kell)</small>`:''}</div><div><span>Címzett:</span> ${esc(q.to)}${q.cc?' · Másolat: '+esc(q.cc):''}</div><div><span>Tárgy:</span> <b>${esc(q.subject)}</b></div><div><span>Melléklet:</span> 📎 ${esc(qFileName())}</div></div>
       <div class="q-mb"><div id="q-mbody" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(q.body).replace(/\n/g,'<br>')}</div><br>${s.sigHtml||''}</div></div>
     <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPages().join('')}</div></div></div>`,
@@ -196,7 +196,7 @@ window.addEventListener('pagehide',()=>{try{const q=S.q,ed=document.getElementBy
   const st=Object.assign({},q);delete st._pdf;delete st._pdfP;sessionStorage.setItem(Q_KEY,JSON.stringify({q:st,stage:pv?'preview':'edit',at:Date.now()}));}catch(e){}});
 function qRestore(){if(S._qRestored)return;S._qRestored=true;let o=null;try{o=JSON.parse(sessionStorage.getItem(Q_KEY)||'null');sessionStorage.removeItem(Q_KEY);}catch(e){}
   if(!o||!o.q||Date.now()-o.at>3600000)return;S._mrDone=true;try{mrClear();}catch(e){}let n=0;const go=()=>{if(!(S.deals||[]).some(d=>d.id===o.q.dealId)||$('mform')){if(++n<40)setTimeout(go,300);return;}
-    S.q=o.q;qSig(o.q.dealId);if(o.stage==='preview')qPreview();else qEdit();};setTimeout(go,200);}
+    S.q=o.q;delete S.q.sig;qSig(o.q.dealId);if(o.stage==='preview')qPreview();else qEdit();};setTimeout(go,200);}
 
 /* Érvényesség módosítása: az e-mail szövegében is frissül a napok száma */
 document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid'||!S.q)return;const n=Math.max(1,parseInt(t.value,10)||20);S.q.valid=String(n);

@@ -2929,3 +2929,7 @@ div.q-disc-on{cursor:default!important}div.q-disc-on label{cursor:pointer;margin
 html.th2 body .dl-board.dl-board.paid-closed{grid-template-columns:repeat(3,minmax(200px,1fr)) 48px minmax(200px,1fr)!important}
 html.th2 body .dl-board.dl-board.paid-closed.lost-closed{grid-template-columns:repeat(3,minmax(200px,1fr)) 48px 48px!important}
 @media (max-width:760px){html.th2 body .dl-board.dl-board.paid-closed{grid-template-columns:repeat(3,210px) 44px 210px!important}html.th2 body .dl-board.dl-board.paid-closed.lost-closed{grid-template-columns:repeat(3,210px) 44px 44px!important}}
+/* Árajánlat-előnézet: nagyobb PDF (szélesebb ablak, a PDF kapja a hely nagyobb részét, magasabb görgethető terület) */
+html body .mbox-q{width:min(1440px,97vw)!important;max-width:min(1440px,97vw)!important}
+@media (min-width:901px){html body .q-prev{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)!important}}
+html body .q-pdf-page{max-height:calc(100vh - 220px)!important}
