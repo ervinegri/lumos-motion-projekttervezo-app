@@ -226,3 +226,14 @@
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#cpLink');if(!b)return;const u=window._vidLink||'';if(!u)return;
   const ok=()=>{const t=b.textContent;b.textContent='✓ Link kimásolva';setTimeout(()=>{b.textContent=t;},1800);};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,()=>{prompt('Másold ki a linket:',u);});else{prompt('Másold ki a linket:',u);}});
+/* Beillesztés szövegdobozba: Wordből / Google Docsból / levélből másolt szövegnél a felsorolás (•, 1.), a bekezdések és az üres sorok megmaradnak (a szövegdoboz csak sima szöveget tud). */
+function htmlPasteText(h){try{const d=new DOMParser().parseFromString(h,'text/html');const B=/^(P|DIV|H[1-6]|LI|TR|BLOCKQUOTE|PRE|UL|OL|TABLE|SECTION|ARTICLE|HEADER|FOOTER)$/;let out='';const nl=()=>{if(out&&!out.endsWith('\n'))out+='\n';};
+  const walk=(n,depth,ol)=>{for(const c of n.childNodes){if(c.nodeType===3){out+=c.nodeValue.replace(/\s+/g,' ');continue;}if(c.nodeType!==1)continue;const t=c.tagName;if(t==='STYLE'||t==='SCRIPT'||t==='HEAD'||t==='META'||t==='TITLE')continue;
+    if(t==='BR'){out+='\n';continue;}
+    if(t==='UL'||t==='OL'){nl();let k=0;for(const li of c.children){if(li.tagName!=='LI'){walk(li,depth+1,t==='OL');continue;}k++;nl();out+='  '.repeat(depth)+(t==='OL'?k+'. ':'• ');walk(li,depth+1,t==='OL');nl();}if(!depth)out+='\n';continue;}
+    if(t==='LI'){nl();out+='  '.repeat(Math.max(0,depth-1))+'• ';walk(c,depth,ol);nl();continue;}
+    if(t==='TD'||t==='TH'){walk(c,depth,ol);out+='\t';continue;}
+    const blk=B.test(t);if(blk)nl();walk(c,depth,ol);if(blk){nl();if(t==='P'||/^H/.test(t))out+='\n';}}};
+  walk(d.body,0,false);return out.replace(/[ \t]+\n/g,'\n').replace(/\n[ ]+(?=\S)/g,m=>m).replace(/\n{3,}/g,'\n\n').replace(/^\s+|\s+$/g,'');}catch(e){return '';}}
+document.addEventListener('paste',e=>{const ta=e.target;if(!ta||ta.tagName!=='TEXTAREA'||e.defaultPrevented)return;const cd=e.clipboardData;if(!cd)return;const h=cd.getData('text/html');if(!h||!/<(li|p|br|h[1-6]|div)\b/i.test(h))return;
+  const t=htmlPasteText(h);if(!t)return;e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.setRangeText(t,s,en,'end');ta.dispatchEvent(new Event('input',{bubbles:true}));},true);
