@@ -158,7 +158,22 @@ function qPages(){const m=document.createElement('div');m.style.cssText='positio
   try{const pg=m.firstElementChild;pg.style.minHeight='0';const kids=[...pg.children],foot=kids.pop(),cs=getComputedStyle(pg),padT=parseFloat(cs.paddingTop)||0,padB=parseFloat(cs.paddingBottom)||0;
     const tops=kids.map(k=>k.getBoundingClientRect().top),ft=foot.getBoundingClientRect(),hs=kids.map((k,i)=>(i<kids.length-1?tops[i+1]:ft.top)-tops[i]);
     const cap=Q_PH-padT-padB-ft.height-24,pages=[];let cur=[],used=0;
-    kids.forEach((k,i)=>{if(cur.length&&used+hs[i]>cap){pages.push(cur);cur=[];used=0;}cur.push(k.outerHTML);used+=hs[i];});pages.push(cur);
+    /* a tételtáblázat oldalhatáron sorok mentén kettéválik (a folytatásban újra a fejléc), így az első oldal nem marad üresen */
+    const split=(k,h)=>{const tb=k.querySelector('table.qp-tbl tbody'),rows=tb?[...tb.children]:[];if(rows.length<2)return null;const kr=k.getBoundingClientRect(),tr=tb.getBoundingClientRect(),th=k.querySelector('table.qp-tbl thead'),
+        oh=k.querySelector('.qp-opt-h'),head=tr.top-kr.top,thH=th?th.getBoundingClientRect().height:0,ohH=oh?oh.getBoundingClientRect().bottom-kr.top:0,foot=h-(tr.bottom-kr.top),rh=rows.map(r=>r.getBoundingClientRect().height);
+      const part=(from,to,withHead,withFoot)=>{const c=k.cloneNode(true),cb=c.querySelector('table.qp-tbl tbody');[...cb.children].forEach((r,j)=>{if(j<from||j>=to)r.remove();});if(!withFoot){const tf=c.querySelector('tfoot');if(tf)tf.remove();}if(!withHead){const o=c.querySelector('.qp-opt-h');if(o)o.remove();}return c.outerHTML;};
+      return {rows:rows.length,rh,head,thH,ohH,foot,part};};
+    kids.forEach((k,i)=>{let h=hs[i];
+      if(cur.length&&used+h>cap){const sp=split(k,h);
+        if(sp){let from=0,first=true;
+          while(from<sp.rows){const hh=first?sp.head:sp.head-sp.ohH;let n=0,sum=hh;while(from+n<sp.rows&&sum+sp.rh[from+n]<=cap-used)sum+=sp.rh[from+n++];
+            const last=from+n>=sp.rows;if(last&&sum+sp.foot>cap-used&&n>0){n--;sum-=sp.rh[from+n];}
+            if(!n&&!cur.length){n=1;sum=hh+sp.rh[from];}   // egy sor önmagában is túl magas: akkor is továbblépünk
+            if(n>=1&&(n>=2||!cur.length||from+n>=sp.rows)){cur.push(sp.part(from,from+n,first,from+n>=sp.rows));used+=sum+(from+n>=sp.rows?sp.foot:0);from+=n;first=false;}
+            if(from<sp.rows){pages.push(cur);cur=[];used=0;}}
+          return;}
+        pages.push(cur);cur=[];used=0;}
+      cur.push(k.outerHTML);used+=h;});pages.push(cur);
     return pages.map((p,i)=>`<div class="qp${i?' qp-cont':''}">${p.join('')}<div class="qp-foot"><span>${foot.innerHTML}</span>${pages.length>1?`<span class="qp-pn">${i+1}/${pages.length}. oldal</span>`:''}</div></div>`);}
   finally{m.remove();}}
 async function qPdf(){const lib=await h2pLib(),pages=qPages(),host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0;z-index:-1;width:794px;background:#fff';
