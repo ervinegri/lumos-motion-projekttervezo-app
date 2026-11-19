@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e014b5c502",
+"at": "2026-11-19T10:28:31+02:00",
+"msg": "Meghívás: a szakember a saját díját látja a meghívás sávjában, a felugró meghívásban és a meghívó e-mailben („az elfogadással ezt a díjat fogadod el”); az elfogadott díjat az app rögzíti"
+},
+{
 "id": "1b2061afb3",
 "at": "2026-11-19T10:00:46+02:00",
 "msg": "Elfogadott projekt visszamondása az appban („Mégsem tudom vállalni”): a keretszerződés feltételei (30 napnál korábban évente 2× díjmentes, 30–15 nap 50%, 15 napon belül 100% kötbér), kötelező indoklás, e-mail a meghívónak és az ügyvezetőnek; a vezetői kártyán látszik"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "bc4d21eee9",
 "at": "2026-11-18T15:07:52+02:00",
 "msg": "Idővonal: a forgatás-sávhoz kapcsolt vágás-sáv neve rejtve, amíg a forgatás-sáv látszik (nincs egymásra írt név)"
-},
-{
-"id": "37384aee7c",
-"at": "2026-11-18T14:45:46+02:00",
-"msg": "Idővonal: nincs dupla név (a vágás-sáv neve csak akkor jelenik meg, ha biztosan megtaláltuk és kicsúszott a forgatás-sáv; a régi, ütköző név-eltoló kikapcsolva)"
 }
 ];
 const allowed = require('./_auth.js');
