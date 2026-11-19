@@ -399,7 +399,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.id!=='m-eventTy
     if(w.scrollHeight>w.clientHeight+2)w.scrollTop=t0-dy;else window.scrollTo(scrollX,wy0-dy);e.preventDefault();});
   document.addEventListener('mouseup',()=>{if(!w)return;w.classList.remove('panning');if(moved){const m=S.cal.month;S.cal.tlPos={m,x:w.scrollLeft,d:todayISO()};}w=null;});
   document.addEventListener('click',e=>{if(moved&&e.target.closest&&e.target.closest('.tl-wrap')){e.stopPropagation();e.preventDefault();moved=false;}},true);   // húzás után ne nyíljon meg a projekt
-  document.addEventListener('scroll',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('tl-wrap')){S.cal.tlPos={m:S.cal.month,x:t.scrollLeft,y:t.scrollTop,d:todayISO()};tlCorner(t);}},true);})();
+  let cq=0;document.addEventListener('scroll',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('tl-wrap')&&!cq){cq=requestAnimationFrame(()=>{cq=0;S.cal.tlPos={m:S.cal.month,x:t.scrollLeft,y:t.scrollTop,d:todayISO()};tlCorner(t);});}},{capture:true,passive:true});})();   // képkockánként egyszer
 /* Idővonal: melyik napra mutat az egér (oszlop a sávon belül) */
 function tlDay(e){const t=e.target.closest&&e.target.closest('.tl-track[data-first]');if(!t)return '';const r=t.getBoundingClientRect(),n=Number(t.dataset.n)||30;
   const i=Math.max(0,Math.min(n-1,Math.floor((e.clientX-r.left)/(r.width/n))));return addDays(t.dataset.first,i);}
