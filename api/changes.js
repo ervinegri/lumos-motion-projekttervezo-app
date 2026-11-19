@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8c6cadfb70",
+"at": "2026-11-19T11:03:48+01:00",
+"msg": "Jóváhagyó oldal: jóváhagyás után „Ezzel a projektet lezártuk. Köszönjük a közös munkát!” (több videónál: a többire még vár)"
+},
+{
 "id": "133c32ff7c",
 "at": "2026-11-19T11:02:29+01:00",
 "msg": "Jóváhagyó oldal: útmutató szöveg finomítása"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "fa9ab65eec",
 "at": "2026-11-19T08:34:34+02:00",
 "msg": "Értékesítés (asztali): elöl a keresés, utána az Értékesítő-választó"
-},
-{
-"id": "5c0b11b297",
-"at": "2026-11-19T08:33:00+02:00",
-"msg": "Árajánlat: a kedvezmény opciónként külön állítható (régi ajánlatnál minden opció megkapja a korábbi beállítást); az opció-gombon a kedvezményes ár"
 }
 ];
 const allowed = require('./_auth.js');
