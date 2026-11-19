@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d36f0b3a85",
+"at": "2026-11-19T10:45:54+02:00",
+"msg": "Naptárválasz-emlékeztető: rövidebb szöveg"
+},
+{
 "id": "7973e10db9",
 "at": "2026-11-19T10:45:30+02:00",
 "msg": "Beillesztés szövegdobozba (jóváhagyó oldal és az app): a Wordből / Docsból / levélből másolt felsorolás, számozás, bekezdés és üres sor megmarad"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "8748ddd315",
 "at": "2026-11-19T07:19:54+02:00",
 "msg": "Bank: a díjbekérőre hivatkozó befizetés eltűnik a listából, ha a partner+összeg szerinti számla aznap már kifizetett"
-},
-{
-"id": "414cf5f1d4",
-"at": "2026-11-19T07:18:29+02:00",
-"msg": "Idővonal: a látható bal szélt a projektsor címkéjéből számolja (a jóváhagyásra váró sáv széles fejléce elcsúsztatta a neveket)"
 }
 ];
 const allowed = require('./_auth.js');
