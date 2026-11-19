@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "81724d98f0",
+"at": "2026-11-19T11:06:41+01:00",
+"msg": "Jóváhagyó oldal: javított változat címe „… – javítás”"
+},
+{
 "id": "04b8c0abaa",
 "at": "2026-11-19T11:06:21+01:00",
 "msg": "Jóváhagyó oldal: „Még vannak észrevételeim” gomb"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Bejövő számla → szakember: névtag-egyezés (pl. második keresztnév a számlán) és a már nem aktív (törölt) szakemberek is; egyszeri újrapárosítás"
 },
 {
-"id": "cd790286a6",
-"at": "2026-11-19T09:03:19+02:00",
-"msg": "Árajánlat: nagyobb PDF az előnézetben; a mentett ajánlatból nyitva is megjelenik a szignó (a mentett, elavult aláírás-adat helyett mindig frissen kérjük le)"
-},
-{
-"id": "62d931dbf8",
-"at": "2026-11-19T09:03:19+02:00",
-"msg": "Értékesítés: a „Díjbekérő fizetve” oszlop is becsukható (‹ gomb, függőleges felirat), eszközönként megjegyzi"
+"id": "d893147248",
+"at": "2026-11-19T07:03:32Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
