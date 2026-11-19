@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6873074405",
+"at": "2026-11-19T11:08:33+01:00",
+"msg": "Jóváhagyó oldal: a második javítástól sorszám a címben (– 2. javítás, – 3. javítás…)"
+},
+{
 "id": "81724d98f0",
 "at": "2026-11-19T11:06:41+01:00",
 "msg": "Jóváhagyó oldal: javított változat címe „… – javítás”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bejövő számlák: a listázáskor is megpróbálja szakemberhez kötni a még párosítatlanokat (nem csak beérkezéskor / egyszeri futással)"
 },
 {
-"id": "c2a439c821",
-"at": "2026-11-19T09:09:17+02:00",
-"msg": "Bejövő számla → szakember: névtag-egyezés (pl. második keresztnév a számlán) és a már nem aktív (törölt) szakemberek is; egyszeri újrapárosítás"
-},
-{
-"id": "d893147248",
-"at": "2026-11-19T07:03:32Z",
+"id": "9c1d321089",
+"at": "2026-11-19T07:09:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
