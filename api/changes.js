@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9a9efe2c7e",
+"at": "2026-11-19T12:00:49+01:00",
+"msg": "Utómunka-instrukciók előtöltése (a tábla megnyitásakor már kész, nem utólag ugrik be)"
+},
+{
 "id": "e748f9fd5b",
 "at": "2026-11-19T11:46:42+01:00",
 "msg": "Videóablak: link nélküli, visszajelzésekből kikövetkeztetett verziók (v1..vN) megszüntetve – csak valódi linkcsere ad új verziót"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: a jutalék a fizetéstől számít – a havi csempe a befolyt összeg utáni jutalékot és a kifizetett alapot mutatja, a szerződött jutalék csak tájékoztató"
 },
 {
-"id": "e052bfdf39",
-"at": "2026-11-19T10:06:59+01:00",
-"msg": "Beillesztés levélből (Gmail): az alpontok behúzása megmarad (a lista elemein lévő margó nem írja felül a beágyazást; a lista mellé tett allista is behúzva)"
-},
-{
-"id": "91c89c15ac",
-"at": "2026-11-19T08:49:34Z",
+"id": "13a7131158",
+"at": "2026-11-19T09:07:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
