@@ -2876,3 +2876,5 @@ html body .tl-track .tl-cut.tl-joined.nm-show>.tl-nm{display:block!important;vis
 
 html body .tl-track .tl-cut.nm-dup:not(.nm-show)>.tl-nm{visibility:hidden!important}
 html body .tl-track .tl-cut.nm-dup.nm-show>.tl-nm{display:block!important;visibility:visible!important}
+html body .tl-row .tl-track .tl-bar.tl-join:not(.tl-cut){overflow:visible!important;z-index:6}
+html body .tl-track .tl-cut.tl-joined>.tl-nm{display:none!important}
