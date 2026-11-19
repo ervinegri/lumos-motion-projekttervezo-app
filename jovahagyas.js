@@ -173,7 +173,7 @@
       const yf=document.querySelector('#player iframe[data-vert="1"]');if(yf){$('player').classList.add('vert');$('main').classList.add('vside');}
       if(i.wm)wmAdd(i.wmName);
       if(document.querySelector('[data-pc-code]'))pcloud(i.link);else videoReady();introWhenReady();}else introOut();
-    $('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';if(i.cur)CUR=i.cur;tabs(i);if(i.cur)INFO[i.cur]=i;setTimeout(()=>prefetch(i),1500);};
+    {const lf=$('lastFix');if(lf)lf.hidden=!(i.state==='wait'&&Number(i.rounds||0)===1);}   /* második javításkérés: ez az utolsó díjmentes kör */$('ask').hidden=i.state!=='wait';$('doneOk').hidden=i.state!=='ok';$('doneMod').hidden=i.state!=='mod';if(i.cur)CUR=i.cur;tabs(i);if(i.cur)INFO[i.cur]=i;setTimeout(()=>prefetch(i),1500);};
   if(!t){err('Hiányzó vagy hibás link.');return;}
   api('clientInfo',[t,CUR?'preview':'',CUR,(()=>{try{return localStorage.getItem('lumos_pm_token_v1')||'';}catch(e){return '';}})()]).then(i=>{show(i);if(d==='mod'&&i.state==='wait')$('fb').focus();}).catch(e=>err(e.message));
   addEventListener('beforeunload',e=>{if(!LAST||LAST.preview)return;const its=LAST.items||[],typed=['fb','okNote','note'].some(id=>{const x=$(id);return x&&!x.closest('[hidden]')&&x.value.trim();}),half=its.length>1&&its.some(x=>x.state==='wait')&&its.some(x=>x.state!=='wait');if(typed||half){e.preventDefault();e.returnValue='';}});   /* kilépéskor figyelmeztet: félbehagyott átnézés (van még döntésre váró videó) vagy el nem küldött szöveg */
