@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e6ae0179b6",
+"at": "2026-11-19T16:10:51+02:00",
+"msg": "Stáb: „Új szerződés” gomb (munkatárs kiválasztása → keretszerződés kitöltése/küldése)"
+},
+{
 "id": "b23eba7569",
 "at": "2026-11-19T16:09:45+02:00",
 "msg": "Meghívás: a díj nem látszik „szakemberként nézve” (ügyvezetői nézetváltásnál)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: bemutató mód (?demo=1) – az ügyfél felülete valódi működéssel, de semmi nem megy a háttérbe; több javításkérés és a figyelmeztetések kipróbálhatók"
 },
 {
-"id": "9ef9a71004",
-"at": "2026-11-19T10:49:50+01:00",
-"msg": "Meghívó e-mail: a helyszín kattintható (Google Térkép)"
-},
-{
-"id": "db9aa600aa",
-"at": "2026-11-19T09:48:03Z",
+"id": "65c6300ef4",
+"at": "2026-11-19T09:50:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
