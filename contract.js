@@ -310,14 +310,14 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)re
     <p class="hint" style="margin:8px 0 0">Ha van korábbi szerződés, a 16.5. pont szerint az újat felváltja; ha nincs dátum, általános megfogalmazás kerül bele.</p>
     <div style="margin-top:12px"><button type="button" class="btn outline small" id="alv-dl">⬇ Letöltés Wordben</button></div>`,
     {submitLabel:'Tovább a küldéshez →',submit:async fd=>{const o={name:String(fd.get('name')||'').trim(),addr:String(fd.get('addr')||'').trim(),tax:String(fd.get('tax')||'').trim(),phone:String(fd.get('phone')||'').trim(),email:String(fd.get('email')||'').trim(),prev:String(fd.get('prev')||'')};
-      let r;try{r=await alvBuild(o);}catch(e){handleErr(e);return;}const b64=await alvB64(r.blob),first=huFirst(c.name)||'';
+      let r;try{r=await alvBuild(o);}catch(e){handleErr(e);return;}window._alvFile=r.name;const b64=await alvB64(r.blob),first=huFirst(c.name)||'';
       openModal('Keretszerződés küldése – '+(c.name||''),`<div class="alv-send"><div class="ct-prev" id="alvPrev"><div class="loading"><span class="spin"></span> A szerződés betöltése…</div></div><div><div class="field full"><label for="alv-to">Címzett</label><input class="inp" id="alv-to" name="to" value="${esc(o.email||c.email||'')}" required></div>
         <div class="field full"><label for="alv-subj">Tárgy</label><input class="inp" id="alv-subj" name="subject" value="Alvállalkozói keretszerződés – Lumos Motion"></div>
-        <div class="field full"><label for="alv-body">Levél</label><textarea class="inp" id="alv-body" name="body" rows="9">Kedves ${esc(first)},\n\nmellékelten küldöm az alvállalkozói keretszerződést. A projektek meghívása, visszaigazolása, a díjak, a leadás és a visszajelzések a Projekttervezőben mennek, és a szerződés ezt is rögzíti – a visszamondás és a javítási körök szabályaival együtt.\n\nKérlek, olvasd át, és ha rendben találod, írd alá, és küldd vissza erre a címre. Ha bármi kérdésed van vele kapcsolatban, szívesen átbeszéljük.</textarea></div>
-        <p class="hint" style="margin:0">📎 Melléklet: ${esc(r.name)} · a levél a saját címedről, az aláírásoddal megy ki, a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p></div></div>`,
+        <div class="field full"><span class="lbl">A levél előnézete <span class="muted" style="font-weight:500">– kattints a szövegbe, és írd át, ami kell</span></span><textarea id="alv-body" name="body" hidden>Kedves ${esc(first)},\n\nmellékelten küldöm az alvállalkozói keretszerződést. A projektek meghívása, visszaigazolása, a díjak, a leadás és a visszajelzések a Projekttervezőben mennek, és a szerződés ezt is rögzíti – a visszamondás és a javítási körök szabályaival együtt.\n\nKérlek, olvasd át, és ha rendben találod, írd alá, és küldd vissza erre a címre. Ha bármi kérdésed van vele kapcsolatban, szívesen átbeszéljük.</textarea><div class="cl-prev-box"><div class="inv-h pe-head" id="alv-head"></div><div id="alv-mprev"><p class="hint" style="padding:12px">Előnézet betöltése…</p></div></div></div>
+        <p class="hint" style="margin:6px 0 0">Elküldés után a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p></div></div>`,
         {submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
           S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});
-      const fm=$('mform');if(fm)fm.classList.add('ct-wide');alvShow(r.blob);}});
+      const fm=$('mform');if(fm){fm.classList.add('ct-wide');fm.addEventListener('input',e=>{if(e.target.id==='alv-to'||e.target.id==='alv-subj')alvHead();});}alvHead();alvMail();alvShow(r.blob);}});
   const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
     try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};
 
@@ -337,3 +337,16 @@ async function alvShow(blob){const box=$('alvPrev');if(!box)return;
   await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
   try{ctTidy(box);ctFixCounters(box);}catch(e){}
   const w=box.querySelector('.docx-wrapper'),sec=box.querySelector('section.docx');if(w&&sec){const k=Math.min(1,(box.clientWidth-24)/(sec.offsetWidth+20));if(k<1)w.style.zoom=k;}}catch(e){box.innerHTML='<p class="hint" style="margin:10px">A minta nem jeleníthető meg – a „Letöltés Wordben” gombbal megnézheted.</p>';}}
+
+/* a levél úgy látszik, ahogy kimegy (mint az ügyfélnek küldött videólevélnél): fejléc + szerkeszthető szöveg + a küldő aláírása */
+function alvHead(){const h=$('alv-head');if(!h)return;const v=id=>String(($(id)||{}).value||'').trim();
+  h.innerHTML=`<div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(v('alv-to')||'(add meg a címzettet)')}</div><div><span>Tárgy:</span> <b>${esc(v('alv-subj'))}</b></div><div><span>Melléklet:</span> 📎 ${esc(window._alvFile||'')}</div>`;}
+function alvMail(){const box=$('alv-mprev'),bd=$('alv-body');if(!box||!bd)return;
+  (S._mySig!=null?Promise.resolve(S._mySig):call('mySignature').then(r=>(S._mySig=(r&&r.html)||'')).catch(()=>(S._mySig=''))).then(()=>{if(!$('alv-mprev'))return;
+    const html=esc(bd.value).split('\n').join('<br>');box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='A levél előnézete (szerkeszthető)';
+    f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124}#ed:focus{outline:none}#ed{min-height:80px}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'')+'</div></body></html>';
+    const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
+    f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;if(typeof noNav==='function')noNav(d);fit();setTimeout(fit,400);const ed=d.getElementById('ed');
+      ed.addEventListener('input',()=>{const c=ed.cloneNode(true);c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>x.prepend(d.createTextNode('\n')));
+        bd.value=c.textContent.replace(/\u00a0/g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
+    box.appendChild(f);});}
