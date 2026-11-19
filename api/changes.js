@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b23eba7569",
+"at": "2026-11-19T16:09:45+02:00",
+"msg": "Meghívás: a díj nem látszik „szakemberként nézve” (ügyvezetői nézetváltásnál)"
+},
+{
 "id": "b5de2cdcf4",
 "at": "2026-11-19T16:06:19+02:00",
 "msg": "Alvállalkozói keretszerződés a Stáb adatlapról: kitöltés, letöltés, küldés e-mailben, mentés a dokumentumok közé"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó e-mail: a helyszín kattintható (Google Térkép)"
 },
 {
-"id": "158a5dabef",
-"at": "2026-11-19T10:47:54+01:00",
-"msg": "Meghívó előnézet: Mégse és Küldés gomb"
-},
-{
-"id": "0f21dfd78f",
-"at": "2026-11-19T09:44:37Z",
+"id": "db9aa600aa",
+"at": "2026-11-19T09:48:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
