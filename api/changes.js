@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fa9ab65eec",
+"at": "2026-11-19T08:34:34+02:00",
+"msg": "Értékesítés (asztali): elöl a keresés, utána az Értékesítő-választó"
+},
+{
 "id": "5c0b11b297",
 "at": "2026-11-19T08:33:00+02:00",
 "msg": "Árajánlat: a kedvezmény opciónként külön állítható (régi ajánlatnál minden opció megkapja a korábbi beállítást); az opció-gombon a kedvezményes ár"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Gépen nincs túlgörgetési rugózás: a felső sáv és a projekt címsávja nem válik szét az oldal alján"
 },
 {
-"id": "609d96eace",
-"at": "2026-11-18T14:22:44+02:00",
-"msg": "Értékesítés telefonon: húzás közben a képernyő széléhez víve az oszlopok valóban oldalra görögnek (a mobilos oszlop-illesztés eddig visszaugratta)"
-},
-{
-"id": "d0c3085214",
-"at": "2026-11-18T12:22:38Z",
+"id": "4c183c60e4",
+"at": "2026-11-18T12:22:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
