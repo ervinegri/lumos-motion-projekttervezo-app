@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9ef9a71004",
+"at": "2026-11-19T10:49:50+01:00",
+"msg": "Meghívó e-mail: a helyszín kattintható (Google Térkép)"
+},
+{
 "id": "158a5dabef",
 "at": "2026-11-19T10:47:54+01:00",
 "msg": "Meghívó előnézet: Mégse és Küldés gomb"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "81aeb68de7",
 "at": "2026-11-19T07:39:19+02:00",
 "msg": "Arculat: Astryx (Meta) neutral téma – semleges szürkék, Figtree betű, fekete elsődleges gomb, világos fejléc, 10/12px lekerekítés, finom árnyék; sötét mód hozzáigazítva"
-},
-{
-"id": "784fe0dfcd",
-"at": "2026-11-19T07:32:30+02:00",
-"msg": "Idővonal: a betöltött időszak szélén azonnal továbbtölt (nem akad meg a hónaphatáron)"
 }
 ];
 const allowed = require('./_auth.js');
