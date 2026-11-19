@@ -277,7 +277,7 @@ const ACT={
         <p class="hint" style="margin:10px 0 0">A küldéssel a rendszer rögzíti a meghívást, és frissíti a naptárbejegyzést is.</p>
       </div>`;
       openModal('✉️ Meghívó e-mail előnézete',body,hasEmail?{
-        cancelLabel:'Mégse',submitLabel:'✉️ Meghívó elküldése',noDraft:true,
+        cancelLabel:'Mégse',submitLabel:'Küldés',noDraft:true,
         submit:async()=>{
           const sent=await call('crewInvite',args);
           if(sent.noEmail)throw new Error('A címzett e-mail-címe hiányzik. Add meg a stáblistában.');
