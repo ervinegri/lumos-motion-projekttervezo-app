@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1b2061afb3",
+"at": "2026-11-19T10:00:46+02:00",
+"msg": "Elfogadott projekt visszamondása az appban („Mégsem tudom vállalni”): a keretszerződés feltételei (30 napnál korábban évente 2× díjmentes, 30–15 nap 50%, 15 napon belül 100% kötbér), kötelező indoklás, e-mail a meghívónak és az ügyvezetőnek; a vezetői kártyán látszik"
+},
+{
 "id": "405717d15e",
 "at": "2026-11-19T09:36:21+02:00",
 "msg": "Jóváhagyó oldal: díjas javítás szövege (Ervin megfogalmazása)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "37384aee7c",
 "at": "2026-11-18T14:45:46+02:00",
 "msg": "Idővonal: nincs dupla név (a vágás-sáv neve csak akkor jelenik meg, ha biztosan megtaláltuk és kicsúszott a forgatás-sáv; a régi, ütköző név-eltoló kikapcsolva)"
-},
-{
-"id": "788ac23557",
-"at": "2026-11-18T14:40:39+02:00",
-"msg": "Idővonal: a vágás-sávon a név csak akkor jelenik meg, ha a forgatás-sáv kicsúszott; a név mindig a látható rész elejére kerül (nem a sáv végére)"
 }
 ];
 const allowed = require('./_auth.js');
