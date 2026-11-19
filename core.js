@@ -141,6 +141,9 @@ const INT_FLAGS=[
 const erSplit=p=>{const n=postN(p);return n>1?Math.min(n,20):0;},erKey=i=>'er_post_n_r'+i,erKeys=p=>Array.from({length:erSplit(p)},(_,i)=>erKey(i+1));
 const erExpand=(p,l)=>{const sp=erSplit(p);if(sp&&l.includes('er_post_n'))return l.filter(k=>k!=='er_post_n').concat(erKeys(p).filter(k=>!l.includes(k)));if(!sp&&l.some(k=>/^er_post_n_r\d+$/.test(k)))return l.filter(k=>!/^er_post_n_r\d+$/.test(k)).concat(l.includes('er_post_n')?[]:['er_post_n']);return l.filter(k=>!/^er_post_n_r(\d+)$/.test(k)||Number(k.slice(11))<=sp);};
 const vidTaskKey=(p,v)=>v&&v.k==='er_post_n'&&erSplit(p)?erKey(Number(String(v.id).split('-').pop())||1):v&&v.k;
+/* a gazdátlan utómunka megnevezése: a fotók utómunkája nem „videó”, és nem vágóhoz kerül */
+function freePostTxt(free){const ph=free.filter(t=>t.k==='foto_db').length>0,v=free.filter(t=>t.k!=='foto_db').length;
+  return v&&ph?`${v} videó és a fotók utómunkája még nincs utómunkáshoz rendelve`:ph?'A fotók utómunkája még nincs senkihez rendelve':`${v} videó még nincs vágóhoz rendelve`;}
 function postTasks(p){const t=[];if(!p)return t;
   if(p.er_post&&!num(p.er_post_n))t.push({k:'er_post_n',label:'Helyszínek előadásainak utómunkája',n:1});
   REC_COUNTS.filter(it=>it.k!=='er_rooms'&&num(p[it.k])>0).forEach(it=>{if(it.k==='er_post_n'&&erSplit(p)){const RR=recRoomsOf(p);for(let i=1;i<=erSplit(p);i++)t.push({k:erKey(i),label:(RR[i-1]?roomName(RR[i-1],i-1):i+'. helyszín')+' előadásainak utómunkája',n:1});return;}t.push({k:it.k,label:it.label,n:num(p[it.k])});});   /* több helyszínnél helyszínenként külön kiosztható */
@@ -364,7 +367,7 @@ function computeIssues(){
   if(!ro())for(const p of liveOps){if(['atadva','lemondva'].includes(p.status)||postTasks(p).length)continue;const cut=[...new Set((p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];   // vágó van, vágnivaló nincs
     if(cut.length)out.push({level:'warn',text:`✂️ ${cut.map(id=>(crewById(id)||{}).name||'A vágó').join(', ')} vágóként be van osztva, de nincs kiválasztva vágnivaló (Utómunka).`,pids:[p.id]});}
   if(!ro())for(const p of liveOps){if(diffDays(T,pr(p).start)>=30||!cutterIds(p).length)continue;const free=postTasks(p).filter(t=>!taskOwners(p,t.k).length);   // van vágó, de egyes videók gazdátlanok
-    if(free.length)out.push({level:'warn',text:`✂️ ${free.length} videó még nincs vágóhoz rendelve: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
+    if(free.length)out.push({level:'warn',text:free.every(t=>t.k==='foto_db')?`📷 ${freePostTxt(free)}.`:`✂️ ${freePostTxt(free)}: ${free.map(t=>t.label).join(', ')}.`,pids:[p.id]});}
   if(!ro()&&typeof crewFinalOn==='function'&&crewFinalOn())for(const p of liveOps){if(['atadva','lemondva'].includes(p.status))continue;const r=pr(p);if(!r||r.end<T)continue;const left=diffDays(T,r.start);if(left>=30)continue;   // stáb nincs véglegesítve (a projektlista piros címkéjével azonos feltétel)
     const st=crewFinalState(p);if(st==='ok')continue;
     out.push({level:left<14?'bad':'warn',text:`👥 ${st==='changed'?'A stáb a véglegesítés óta módosult – véglegesítsd újra':'A stáb nincs véglegesítve'}${left<=0?' – a rendezvény már elkezdődött!':` (${left===1?'holnap kezdődik':'még '+left+' nap a rendezvényig'})`}.`,pids:[p.id]});}
