@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "02c603e5b0",
+"at": "2026-11-19T20:57:37+02:00",
+"msg": "Keretszerződés-levél: utolsó mondat ki"
+},
+{
 "id": "0e71874f3a",
 "at": "2026-11-19T20:55:45+02:00",
 "msg": "Keretszerződés-levél: rövidebb alapszöveg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: javított változat címe „… – javítás”"
 },
 {
-"id": "04b8c0abaa",
-"at": "2026-11-19T11:06:21+01:00",
-"msg": "Jóváhagyó oldal: „Még vannak észrevételeim” gomb"
-},
-{
-"id": "f679a8e5d9",
-"at": "2026-11-19T10:05:49Z",
+"id": "4016552882",
+"at": "2026-11-19T10:06:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
