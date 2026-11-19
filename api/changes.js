@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c06c75771a",
+"at": "2026-11-19T09:33:02+02:00",
+"msg": "Jóváhagyó oldal: egyértelműbb szöveg a díjas javításnál (az árajánlatot kell elfogadni)"
+},
+{
 "id": "5cc3028dc8",
 "at": "2026-11-19T09:24:15+02:00",
 "msg": "Jóváhagyó oldal: a harmadik javításkéréstől – a díjmentes körök elfogytak, árajánlat alapján készül"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "96f28ceb78",
 "at": "2026-11-18T14:34:59+02:00",
 "msg": "Sötét mód: csak be / ki (a „rendszer szerint” megszűnt)"
-},
-{
-"id": "e5ba6ed4fa",
-"at": "2026-11-18T14:32:28+02:00",
-"msg": "Idővonal: a sáv neve pontosan a látható rész elején (a régi ragadós eltolás nem adódik hozzá)"
 }
 ];
 const allowed = require('./_auth.js');
