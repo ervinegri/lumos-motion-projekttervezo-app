@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61b6382f74",
+"at": "2026-11-19T10:58:34+01:00",
+"msg": "Jóváhagyó oldal: új útmutató szöveg a módosításkérésnél (több változtatás, végén az Elküldöm a módosítást gomb)"
+},
+{
 "id": "46ffee2472",
 "at": "2026-11-19T10:55:06+01:00",
 "msg": "Jóváhagyó oldal: bemutató mód (?demo=1) – az ügyfél felülete valódi működéssel, de semmi nem megy a háttérbe; több javításkérés és a figyelmeztetések kipróbálhatók"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "07fc5e5276",
 "at": "2026-11-19T08:00:32+02:00",
 "msg": "Arculat: Astryx butter téma kipróbálható (névjelvény menü → 🎨 Arculat: Stone / Butter, csak ügyvezetőnek, eszközönként); alap marad a stone"
-},
-{
-"id": "f5f92a52b1",
-"at": "2026-11-19T07:56:32+02:00",
-"msg": "Arculat: Astryx stone téma – hűvös, enyhén lilás szürkék, grafit elsődleges szín, 8px lekerekítés; sötét mód hozzáigazítva"
 }
 ];
 const allowed = require('./_auth.js');
