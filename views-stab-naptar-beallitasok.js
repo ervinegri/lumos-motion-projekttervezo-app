@@ -190,8 +190,9 @@ const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
   const cur=document.querySelector('.cm-cur'),sides=document.querySelectorAll('.cm-side');
   if(cur){const tt=vm.slice(0,4)+'. '+MNf(vm);if(cur.textContent!==tt){cur.textContent=tt;if(sides[0])sides[0].textContent=yr(shiftMonth(vm,-1))+MNf(shiftMonth(vm,-1));if(sides[1])sides[1].textContent=yr(shiftMonth(vm,1))+MNf(shiftMonth(vm,1));}}
   clearTimeout(window._tlRc);const pos0=w.scrollLeft/cw,near=pos0<12||pos0+(w.clientWidth-lw)/cw>n-12;   /* csak a betöltött időszak széle közelében rendezzük át (különben a görgetés közbeni újrarajzolás megakasztaná) */
-  if(vm!==S.cal.month&&near){const pos=pos0,idx=Math.floor(pos);const keep={d:addDays(b.dataset.first,idx),f:pos-idx,t:w.scrollTop};
-    window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')||window._tlTouch||Date.now()-(window._tlWheel||0)<900){window._tlRc=setTimeout(go,300);return;}S.cal.month=vm;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},450);}}
+  const tgt=!near?'':vm!==S.cal.month?vm:shiftMonth(vm,pos0<12?-1:1);   // a szélén mindig tovább tölt (akkor is, ha a látható hónap még a régi)
+  if(tgt){const pos=pos0,idx=Math.floor(pos);const keep={d:addDays(b.dataset.first,idx),f:pos-idx,t:w.scrollTop};
+    window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')){window._tlRc=setTimeout(go,200);return;}S.cal.month=tgt;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},150);}}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
 const tlGrpClosed=()=>{try{return JSON.parse(localStorage.getItem('lpm_tl_grp_closed')||'[]')||[];}catch(e){return [];}};   // idővonal: lecsukott vágó-csoportok
@@ -489,8 +490,3 @@ function dwdPanel(){if(!isAdmin()||!S.dwd)return '';const d=S.dwd;
     <div class="dwd-body">${d.on?`<div class="btns"><input class="inp" id="dwd-mail" type="email" placeholder="peter.farkas@lumosmotion.com" value="peter.farkas@lumosmotion.com" style="max-width:300px"><button type="button" class="btn outline small" data-action="dwd-test">🔎 Kapcsolat tesztelése (levelet nem küld)</button><button type="button" class="btn ghost small" data-action="dwd-clear">Kikapcsolás</button></div><p class="hint">Engedélyezendő jogosultság a Workspace adminban: <code>${esc(d.scope)}</code></p>`
       :`<label class="hint" for="dwd-json" style="display:block;margin:4px 0">A szolgáltatásfiók letöltött JSON-kulcsfájljának teljes tartalma (nem jelenik meg újra, biztonságosan tároljuk):</label><textarea class="inp" id="dwd-json" rows="4" placeholder='{"type": "service_account", ...}' spellcheck="false" autocomplete="off" style="font-family:monospace;font-size:12px"></textarea><div class="btns" style="margin-top:8px"><button type="button" class="btn primary small" data-action="dwd-save">💾 Kulcs mentése</button></div>`}</div></div>`;}
 
-/* idővonal: amíg érintve van / görgő-lendület tart, nem rajzolunk újra (különben megáll a görgetés) */
-document.addEventListener('touchstart',e=>{if(e.target.closest&&e.target.closest('.tl-wrap'))window._tlTouch=1;},{passive:true,capture:true});
-document.addEventListener('touchend',()=>{if(window._tlTouch)setTimeout(()=>{window._tlTouch=0;},600);},{passive:true,capture:true});
-document.addEventListener('touchcancel',()=>{window._tlTouch=0;},{passive:true,capture:true});
-document.addEventListener('wheel',e=>{if(e.target.closest&&e.target.closest('.tl-wrap'))window._tlWheel=Date.now();},{passive:true,capture:true});
