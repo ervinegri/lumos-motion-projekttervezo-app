@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "12b01b6952",
+"at": "2026-11-19T11:33:46+01:00",
+"msg": "Verziók: ugyanannak a fájlnak más paraméterű linkje nem új verzió (Drive/YouTube/Vimeo azonosító szerint), meglévő duplikátumok összevonva"
+},
+{
 "id": "eb98faeac4",
 "at": "2026-11-19T11:31:55+01:00",
 "msg": "Utómunka-instrukciók: Kész gomb törölve"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Beillesztés: a behúzott alpontok szintje is megmarad (Google Docs aria-level, Word mso-list / margin-left, számozás folytatása); a hozzászólásban és az értesítő levélben is látszik a behúzás"
 },
 {
-"id": "d36f0b3a85",
-"at": "2026-11-19T10:45:54+02:00",
-"msg": "Naptárválasz-emlékeztető: rövidebb szöveg"
-},
-{
-"id": "7973e10db9",
-"at": "2026-11-19T10:45:30+02:00",
-"msg": "Beillesztés szövegdobozba (jóváhagyó oldal és az app): a Wordből / Docsból / levélből másolt felsorolás, számozás, bekezdés és üres sor megmarad"
+"id": "873aa5b92e",
+"at": "2026-11-19T08:46:04Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
