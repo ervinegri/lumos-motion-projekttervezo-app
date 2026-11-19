@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "26d5b23110",
+"at": "2026-11-19T11:12:44+01:00",
+"msg": "Videótábla: az 1. javítás jelvénye sárga, a 2.-tól piros"
+},
+{
 "id": "07ffbe9310",
 "at": "2026-11-19T11:09:31+01:00",
 "msg": "Jóváhagyó oldal: a „projektet lezártuk” csak akkor, ha a projekt minden videója jóvá van hagyva (külön linken küldött videókat is figyeli)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az ügyfél második javításkérésénél figyelmeztetés – ez az utolsó díjmentes javítási kör, mindent írjon bele"
 },
 {
-"id": "c01210826e",
-"at": "2026-11-19T09:16:48+02:00",
-"msg": "Videótábla: jelvény a kártyán – „🔁 N. javítás” (az ügyfél kért javítást, a kérések a jelvény fölött), illetve „↩ Belső visszadobás”"
-},
-{
-"id": "3cb9af6a17",
-"at": "2026-11-19T07:12:58Z",
+"id": "7dc61ce5fb",
+"at": "2026-11-19T07:17:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
