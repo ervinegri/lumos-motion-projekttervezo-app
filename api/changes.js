@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c98c2830d1",
+"at": "2026-11-19T14:22:29+02:00",
+"msg": "Árajánlat PDF: a tételtáblázat oldalhatáron sorok mentén kettéválik (a folytatásban újra a fejléc), nem marad üresen az első oldal"
+},
+{
 "id": "9a9efe2c7e",
 "at": "2026-11-19T12:00:49+01:00",
 "msg": "Utómunka-instrukciók előtöltése (a tábla megnyitásakor már kész, nem utólag ugrik be)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Beillesztés: a számozott / felsorolt lista beljebb kezdődik, mint a sima bekezdés (mint a levélben), az alpontok még beljebb"
 },
 {
-"id": "1a950d8c10",
-"at": "2026-11-19T10:07:59+01:00",
-"msg": "Értékesítés: a jutalék a fizetéstől számít – a havi csempe a befolyt összeg utáni jutalékot és a kifizetett alapot mutatja, a szerződött jutalék csak tájékoztató"
-},
-{
-"id": "13a7131158",
-"at": "2026-11-19T09:07:08Z",
+"id": "cd5bcf8a19",
+"at": "2026-11-19T09:08:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
