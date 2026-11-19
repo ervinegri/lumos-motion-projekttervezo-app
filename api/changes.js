@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ccc33cdac1",
+"at": "2026-11-19T18:25:28+02:00",
+"msg": "Utómunka-figyelmeztetés: a fotók utómunkája nem „videó” (külön szöveg fotóra, videóra és a kettőre)"
+},
+{
 "id": "4b69385e81",
 "at": "2026-11-19T17:36:09+02:00",
 "msg": "Kézikönyv szerepenként a Beállítások fülön (📖 Kézikönyv); szakembereknél és értékesítőknél a Beállítások fül mindig látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a díjmentes körök elfogytak figyelmeztetés piros"
 },
 {
-"id": "5a44440d30",
-"at": "2026-11-19T11:01:21+01:00",
-"msg": "Jóváhagyó oldal: módosítás küldése előtt megerősítés („Mindent leírtál?”) a javítási kör szerinti szöveggel"
-},
-{
-"id": "27d7f0f792",
-"at": "2026-11-19T09:58:48Z",
+"id": "d893baf034",
+"at": "2026-11-19T10:01:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
