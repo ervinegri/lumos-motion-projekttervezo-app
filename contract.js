@@ -319,3 +319,10 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)re
           S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});}});
   const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
     try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};
+
+/* a Stáb oldal „Új szerződés” gombja: munkatárs kiválasztása, majd ugyanaz a kitöltő/küldő ablak */
+ACT['crew-ctr-new']=()=>{if(!isAdmin())return;const L=crewSorted().filter(c=>!isSalesCrew(c)&&!isEmployee(c));
+  openModal('Új szerződés',`<div class="field full"><label for="alv-pick">Munkatárs</label><select id="alv-pick" name="cid" data-cmb="Válassz munkatársat…" data-cmb-sub="crew" required><option value=""></option>${L.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div>
+    <p class="hint" style="margin:6px 0 0">A következő lépésben a munkatárs adataival kitöltött alvállalkozói keretszerződést letöltheted vagy elküldheted.</p>`,
+    {submitLabel:'Tovább →',submit:fd=>{const id=String(fd.get('cid')||'');if(!id){toast('Válassz munkatársat.');return;}ACT['crew-ctr']({dataset:{id}});}});
+  if(typeof cmbAuto==='function')cmbAuto();};
