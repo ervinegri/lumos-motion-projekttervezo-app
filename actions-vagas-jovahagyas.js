@@ -59,7 +59,7 @@ function clAfter(pid,vid){if(bdGroupNext(pid,vid))return;const lp=window._clLane
 /* Küldés az ügyfélnek: címzettek, link, tárgy és SZERKESZTHETŐ levél (tegező); a végére az aláírásod kerül. A kiküldött szöveg az ügyfélnél sablonként megmarad. */
 /* javított változat: az ügyfél korábban módosítást kért (a jóváhagyó oldalon) – ilyenkor a levél és a tárgy is erről szól */
 const CL_FIX_DEF='Kedves {nev},\n\nElkészült a(z) „{video}” javított változata a kért módosításokkal. Nézd meg, kérlek, és jelezd, ha így már jóváhagyod, vagy ha még valamit módosítanál.\n\n{link}';
-const clIsFix=v=>{const st=new Set();(S.crew||[]).concat(S.users||[]).concat(S.me?[S.me]:[]).forEach(x=>{const n=String((x&&x.name)||'').trim().toLowerCase();if(n){st.add(n);st.add(n.split(/\s+/).pop());st.add(n.split(/\s+/)[0]);}});return (v.cm||[]).some(c=>/^↩/.test(String(c.t||''))&&!st.has(String(c.by||'').trim().toLowerCase()));};   // a ↩ visszajelzést nem a csapat (hanem az ügyfél) írta
+const clIsFix=v=>vidRounds(v).cl>0;   // az ügyfél korábban javítást kért
 /* a mentett minta egy másik videótípusra szólt (pl. „aftermovie-ja”, de most imázsfilm megy): az alapszöveg jön */
 const CL_KINDW=['aftermovie','short','imázsfilm','interjú','összefoglaló','kisfilm','reel','teaser','trailer'];
 const clOtherKind=(t,v)=>{const x=String(t||'').toLowerCase(),n=(String(v.name||'')+' '+String(((typeof DELIVERABLES!=='undefined'?DELIVERABLES:[]).find(d=>d.k===v.k)||{}).label||'')).toLowerCase();return CL_KINDW.some(w=>x.includes(w)&&!n.includes(w));};
