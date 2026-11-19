@@ -155,10 +155,10 @@ function viewSales(){
         paidBase=records.reduce((sum,x)=>sum+num(x.base),0),
         paidComm=records.reduce((sum,x)=>sum+num(x.amount),0),
         cl=wonM.map(d=>({d,c:salesCommissionPreview(d)})).filter(x=>x.c&&x.c.amt>0),its=records.flatMap(x=>x.items||[]),
-        tip='A szerződött jutalék az adott hónap projektjeinek teljes nettó jutalékalapjára számított összeg. A tényleges kifizetés szerinti elszámolás külön történik.'
+        tip='A jutalék a fizetéstől számít: abban a hónapban jár, amikor az ügyfél kifizette a számlát (a befolyt nettó összeg után). A szerződött jutalék csak tájékoztató – az adott hónapban megkötött projektek teljes jutalékalapjára számolva.'
           +(cl.length?'\n\nSzerződött projektek:\n'+cl.map(x=>'• '+(x.d.title||'?')+' · alap '+ftFmt(x.c.base!=null?x.c.base:dealVal(x.d))+' · jutalék '+ftFmt(x.c.amt)+(x.c.pct!=null&&x.c.pct!==''?' ('+x.c.pct+'%)':'')).join('\n'):'')
           +(its.length?'\n\nBefolyt után elszámolt ('+payMonth+'):\n'+its.map(x=>'• '+x.name+' · '+(x.invNo||'számla')+' · '+String(x.paidAt||'').slice(5).replace('-','.')+'. · alap '+ftFmt(x.base)).join('\n'):'');
-        return '<div class="tile'+(contractedComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(contractedComm)+'</div><div class="tile-l">szerződött jutalék · '+contractComms.length+' projekt'+(people.length?'<div class="sales-comm-settled">Befolyt után elszámolt ('+esc(payMonth)+'): '+ftFmt(paidComm)+' · alap: '+ftFmt(paidBase)+'</div>':'')+'</div></div>';})()}
+        return '<div class="tile'+(paidComm?' ok':'')+'" data-tip="'+esc(tip)+'"><div class="tile-n">'+ftFmt(paidComm)+'</div><div class="tile-l">jutalék a befolyt összeg után ('+esc(salesMonthText(payMonth))+') · kifizetett alap: '+ftFmt(paidBase)+(contractedComm?'<div class="sales-comm-settled">tájékoztató: szerződött jutalék · '+contractComms.length+' projekt: '+ftFmt(contractedComm)+'</div>':'')+'</div></div>';})()}   /* a jutalék a fizetéstől számít (Ervin döntése, 2026-11-19) */
     </div>
     ${salesPerfPanel(all,owners,self,selected,month==="all"?T.slice(0,7):month)}
     <div class="toolbar sales-tb"><input class="inp search" id="q-sales" type="search" placeholder="Keresés: név, ügyfél, kapcsolattartó…" value="${esc(f.q)}" aria-label="Keresés">

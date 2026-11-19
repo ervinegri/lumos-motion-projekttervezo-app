@@ -1,7 +1,7 @@
 /* Minden teszt futtatása (GitHub Action és kézi futtatás: node tests/run-all.cjs).
    PENDING: ismerten bukó tesztek, amelyek Ervin döntésére várnak (a pénzügyi logika megváltozott) – figyelmeztetést adnak, de nem buktatják a futást. */
 const { spawnSync } = require('child_process'), fs = require('fs'), path = require('path');
-const PENDING = new Set(['finance.test.cjs', 'sales-owner-revenue.test.cjs']);
+const PENDING = new Set(['finance.test.cjs']);
 let failed = 0;
 for (const f of fs.readdirSync(__dirname).filter(f => f.endsWith('.test.cjs')).sort()) {
   const r = spawnSync(process.execPath, [path.join(__dirname, f)], { encoding: 'utf8' });
