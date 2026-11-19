@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a4fa1c4ace",
+"at": "2026-11-19T07:26:30+02:00",
+"msg": "Idővonal: a nevek helyét egyszer méri le, görgetéskor csak a transform változik (nem akad a görgetés)"
+},
+{
 "id": "4cd648768a",
 "at": "2026-11-19T07:24:48+02:00",
 "msg": "Idővonal: a név sosem lóg túl a sáv végén"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Saját meghívásaim: szembetűnőbb doboz (meleg háttér, bal sáv, számláló, harang, „Válaszod vár” felirat)"
 },
 {
-"id": "aa53bed42e",
-"at": "2026-11-18T12:39:54+02:00",
-"msg": "Eszközök: a kiküldött (véglegesített) eszközlista zárolását 🔓 Feloldás gomb oldja fel közelgő projektnél (ügyvezető, termelési vezető), utána újra véglegesíthető; lezajlott rendezvénynél nincs feloldás"
-},
-{
-"id": "8df70665f2",
-"at": "2026-11-18T10:36:49Z",
+"id": "42812183ce",
+"at": "2026-11-18T10:40:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
