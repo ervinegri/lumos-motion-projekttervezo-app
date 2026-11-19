@@ -2939,3 +2939,8 @@ html body .q-pdf-page{max-height:calc(100vh - 220px)!important}
 :where(html.ax-stone) .bd-rev.int{background:#ececf2;color:#4b4b52}
 html body .inv-cx-btn{color:#a33!important}
 html body .inv-banner .inv-fee{display:block;margin-top:4px;font-size:13.5px;color:var(--fg-2)}
+/* videóablak: küldés gomb a hozzászólás-mező alatt; az alsó sor (Időkód · Jelölés · Bezárás) mindig a dobozon belül */
+html body #mform.m-video .vv-cm-act{display:flex;justify-content:flex-end;margin:6px 0 10px}
+html body #mform.m-video .mfoot{position:static!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;max-width:100%!important;box-sizing:border-box}
+html body #mform.m-video .mfoot .vv-tcw{flex:0 1 auto!important;width:auto!important;max-width:100%!important;margin:0!important;position:static!important;transform:none!important;justify-content:flex-start!important}
+html body #mform.m-video .mfoot .vv-tcw>*{flex:0 0 auto}
