@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "45d3eee809",
+"at": "2026-11-19T14:41:21+02:00",
+"msg": "Meghívás: a díj „szakemberként nézve” (ügyvezetői nézetváltásnál) is látszik a meghívásnál"
+},
+{
 "id": "c98c2830d1",
 "at": "2026-11-19T14:22:29+02:00",
 "msg": "Árajánlat PDF: a tételtáblázat oldalhatáron sorok mentén kettéválik (a folytatásban újra a fejléc), nem marad üresen az első oldal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó e-mail: a díj nem szerepel benne (az appban a meghívás sávjában továbbra is látszik)"
 },
 {
-"id": "bb3860141f",
-"at": "2026-11-19T10:10:00+01:00",
-"msg": "Beillesztés: a számozott / felsorolt lista beljebb kezdődik, mint a sima bekezdés (mint a levélben), az alpontok még beljebb"
-},
-{
-"id": "cd5bcf8a19",
-"at": "2026-11-19T09:08:08Z",
+"id": "1f33211ab0",
+"at": "2026-11-19T09:10:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
