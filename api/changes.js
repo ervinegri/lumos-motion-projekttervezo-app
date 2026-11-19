@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4cf6c6b7d",
+"at": "2026-11-19T07:24:25+02:00",
+"msg": "Bank: csak sorszámokat tartalmazó közlemény („64 66”) – a partner számláit összegezve párosít"
+},
+{
 "id": "943394f076",
 "at": "2026-11-19T07:23:43+02:00",
 "msg": "Idővonal: a forgatás+vágás sávon az eredeti név csúszik végig (nem jelenik meg második név)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Lezajlott rendezvény: a csapat és az eszközök 🔓 Feloldás gombbal újra módosíthatók (ügyvezető, termelési vezető)"
 },
 {
-"id": "4414c1430c",
-"at": "2026-11-18T08:48:59+02:00",
-"msg": "Értékesítés telefonon: hosszan nyomva a kártyán áthelyezés-menü (szakasz gombok) a megbízhatatlan ujjas húzás helyett"
-},
-{
-"id": "cc393c902c",
-"at": "2026-11-18T06:42:26Z",
+"id": "2259e09730",
+"at": "2026-11-18T06:49:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
