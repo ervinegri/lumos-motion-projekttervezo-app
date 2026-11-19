@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "beaf81a8f8",
+"at": "2026-11-19T11:28:36+01:00",
+"msg": "Jóváhagyó oldal: 'Írd le röviden…' hiba eltűnik gépeléskor és a megerősítő ablaknál"
+},
+{
 "id": "96078ef3e8",
 "at": "2026-11-19T11:26:40+01:00",
 "msg": "Jóváhagyó oldal: módosítás/üzenet minimális hossza feloldva (1 karakter is elég)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: a Google Naptárban adott „Igen” / „Nem” már nem elfogadás / elutasítás (a díj csak a Projekttervezőben látszik) – helyette egyszeri jelzés a meghívónak és emlékeztető a szakembernek; a levélből és a felületről kikerült a naptáras elfogadás"
 },
 {
-"id": "e014b5c502",
-"at": "2026-11-19T10:28:31+02:00",
-"msg": "Meghívás: a szakember a saját díját látja a meghívás sávjában, a felugró meghívásban és a meghívó e-mailben („az elfogadással ezt a díjat fogadod el”); az elfogadott díjat az app rögzíti"
-},
-{
-"id": "16b46022fb",
-"at": "2026-11-19T08:00:57Z",
+"id": "3115d4b904",
+"at": "2026-11-19T08:28:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
