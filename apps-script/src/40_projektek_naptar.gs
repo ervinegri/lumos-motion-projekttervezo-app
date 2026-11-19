@@ -131,6 +131,8 @@ function saveProject_(u, a) {
     if (p.deliveryLinks == null) p.deliveryLinks = old ? old.deliveryLinks : '';
     if (a.editTasks !== undefined) p.editTasks = JSON.stringify(parseEditTasks_(a.editTasks));
     if (p.editTasks == null) p.editTasks = old ? old.editTasks || '' : '';
+    { const et = parseEditTasks_(p.editTasks), on = new Set(crew.map(c => c.crewId)), fot = crew.filter(c => c.role === 'Fotós').map(c => c.crewId);   /* a fotók utómunkája magától a kiválasztott fotósé (ha még senkié) */
+      if (Number(p.foto_db) > 0 && fot.length && !Object.keys(et).some(k => on.has(k) && (et[k] || []).indexOf('foto_db') >= 0)) { et[fot[0]] = (et[fot[0]] || []).concat('foto_db'); p.editTasks = JSON.stringify(et); } }
     if (u.role === 'admin' || u.role === 'editor') {   // videósorok a megrendelt darabszámokból; a vágót/állapotot a projektvezető is átállíthatja
       let vids = parseVideos_(old ? old.videos : '');
       if (Array.isArray(a.videos)) { const inc = parseVideos_(a.videos), im = {}; inc.forEach(x => { im[x.id] = x; }); vids = vids.map(x => im[x.id] && !x.editor && im[x.id].editor ? Object.assign({}, x, { editor: im[x.id].editor }) : x); }   // az állapotot (st) és a már beállított vágót csak a külön videóműveletek módosítják: egy régi (gyorsítótárból nyitott) projektlap mentése nem írhatja vissza
