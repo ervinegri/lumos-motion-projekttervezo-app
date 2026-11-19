@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a950d8c10",
+"at": "2026-11-19T10:07:59+01:00",
+"msg": "Értékesítés: a jutalék a fizetéstől számít – a havi csempe a befolyt összeg utáni jutalékot és a kifizetett alapot mutatja, a szerződött jutalék csak tájékoztató"
+},
+{
 "id": "e052bfdf39",
 "at": "2026-11-19T10:06:59+01:00",
 "msg": "Beillesztés levélből (Gmail): az alpontok behúzása megmarad (a lista elemein lévő margó nem írja felül a beágyazást; a lista mellé tett allista is behúzva)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "4cd648768a",
 "at": "2026-11-19T07:24:48+02:00",
 "msg": "Idővonal: a név sosem lóg túl a sáv végén"
-},
-{
-"id": "b4cf6c6b7d",
-"at": "2026-11-19T07:24:25+02:00",
-"msg": "Bank: csak sorszámokat tartalmazó közlemény („64 66”) – a partner számláit összegezve párosít"
 }
 ];
 const allowed = require('./_auth.js');
