@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4b69385e81",
+"at": "2026-11-19T17:36:09+02:00",
+"msg": "Kézikönyv szerepenként a Beállítások fülön (📖 Kézikönyv); szakembereknél és értékesítőknél a Beállítások fül mindig látszik"
+},
+{
 "id": "0b617851ff",
 "at": "2026-11-19T16:47:44+02:00",
 "msg": "Keretszerződés küldése: a szerződés is látszik a küldőablakban (Google PDF, tartalékként Word-megjelenítés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: módosítás küldése előtt megerősítés („Mindent leírtál?”) a javítási kör szerinti szöveggel"
 },
 {
-"id": "61b6382f74",
-"at": "2026-11-19T10:58:34+01:00",
-"msg": "Jóváhagyó oldal: új útmutató szöveg a módosításkérésnél (több változtatás, végén az Elküldöm a módosítást gomb)"
-},
-{
-"id": "ba0007ce50",
-"at": "2026-11-19T09:55:17Z",
+"id": "27d7f0f792",
+"at": "2026-11-19T09:58:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
