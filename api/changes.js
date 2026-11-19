@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9d77e4fcf0",
+"at": "2026-11-19T09:12:49+02:00",
+"msg": "Bejövő számlák: a listázáskor is megpróbálja szakemberhez kötni a még párosítatlanokat (nem csak beérkezéskor / egyszeri futással)"
+},
+{
 "id": "c2a439c821",
 "at": "2026-11-19T09:09:17+02:00",
 "msg": "Bejövő számla → szakember: névtag-egyezés (pl. második keresztnév a számlán) és a már nem aktív (törölt) szakemberek is; egyszeri újrapárosítás"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "055168f3bc",
 "at": "2026-11-18T14:29:32+02:00",
 "msg": "Értékesítés: a folyamat címsora kivéve; előbb az értékesítő-választó, utána a keresés"
-},
-{
-"id": "48fd701d0e",
-"at": "2026-11-18T14:27:09+02:00",
-"msg": "Értékesítési folyamat fejléce: cím, értékesítő-választó és keresés egy sorban (tablet, gép)"
 }
 ];
 const allowed = require('./_auth.js');
