@@ -639,6 +639,21 @@ function crewDocsFolder_() {
   P.setProperty(CREW_DOCS_FOLDER_PROPERTY, f.getId()); return f;
 }
 function crewDocsList_() { return readAll_('crewDocs').map(d => ({ id: d.id, crewId: String(d.crewId || ''), title: d.title || '', fileName: d.fileName || '', mime: d.mime || '', signedAt: iso_(d.signedAt) || '', note: d.note || '', createdAt: d.createdAt || '', createdBy: d.createdBy || '' })); }
+/* ===== Alvállalkozói keretszerződés a Stáb adataiból: sablon (Templates.gs „alv_keret”), küldés e-mailben, mentés a munkatárs dokumentumai közé ===== */
+function crewContractTpl_() { if (typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_.alv_keret) throw new Error('Hiányzik a keretszerződés-sablon.'); return { zip: CONTRACT_TPL_.alv_keret }; }
+function crewContractSend_(u, a) {
+  a = a || {}; const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid); if (!c) throw new Error('A munkatárs nem található.');
+  const ok = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e), to = String(a.to || '').split(/[,;\s]+/).filter(ok), cc = String(a.cc || '').split(/[,;\s]+/).filter(ok);
+  if (!to.length) throw new Error('Adj meg érvényes címzettet.'); if (!a.docx || String(a.docx).length > 14 * 1024 * 1024) throw new Error('Hiányzik a szerződés.');
+  const name = str_(a.fileName, 150).replace(/[\\/]/g, '-') || 'Keretszerzodes.docx', subj = str_(a.subject, 200) || 'Alvállalkozói keretszerződés', body = String(a.body || '').slice(0, 20000);
+  const blob = Utilities.newBlob(Utilities.base64Decode(String(a.docx)), DOCX_MIME_, name);
+  const r0 = contractSender_(u), html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r0.sig.html;   // a küldő saját aláírásával, a saját címéről
+  const opts = mailOptsFor_(r0.owner, html); opts.attachments = [blob]; if (cc.length) opts.cc = cc.join(',');
+  if (!gmailSend_(to.join(','), subj, body + '\n\n' + r0.sig.text, opts)) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
+  const r = crewDocSave_(u, { crewId: cid, b64: a.docx, mime: DOCX_MIME_, name: name, title: 'Alvállalkozói keretszerződés (aláírásra elküldve)', note: 'Elküldve ' + today_() + ' → ' + to.join(', ') });
+  logEvent_(u, 'Keretszerződés elküldve', c.name || cid, to.join(', '));
+  return r;
+}
 function crewDocSave_(u, a) {
   a = a || {};
   const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid);

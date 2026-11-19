@@ -289,3 +289,33 @@ function clInvHtml(name){const d=S._clInv[name];
   return `<div class="cl-work" id="cl-inv"><h4>🧾 Számlázva <span class="muted">· ${d.items.length} számla · összesen ${ftFmt(d.total)} nettó</span></h4>
     <p class="hint" style="margin:0 0 6px">${Object.keys(yrs).sort().reverse().map(y=>`${y}: <b>${ftFmt(yrs[y])}</b>`).join(' · ')}</p>
     <div class="tbl-wrap"><table class="cl-work-t"><thead><tr><th>Dátum</th><th>Sorszám</th><th>Projekt / tétel</th><th class="num">Nettó</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;}
+
+/* ===== Alvállalkozói keretszerződés a Stáb adataiból (csak ügyvezető): kitöltés → letöltés vagy küldés e-mailben; a küldött példány a munkatárs dokumentumai közé kerül ===== */
+const ALV_SUF=d=>{d=+d;if(d%10===0)return d===10?'én':'án';return {1:'jén',2:'án',3:'án',4:'én',5:'én',6:'án',7:'én',8:'án',9:'én'}[d%10];};
+const ALV_DATE=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));if(!m)return '';const H=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];return `${m[1]}. ${H[+m[2]-1]} ${+m[3]}-${ALV_SUF(m[3])}`;};
+let ALV_TPL=null;
+async function alvBuild(o){if(!window.JSZip)await jszipLib();const t=ALV_TPL||(ALV_TPL=await call('crewContractTpl',{}));const z=await window.JSZip.loadAsync(t.zip,{base64:true});
+  const X=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),dot='……………………………………';
+  const p165=o.prev?`A jelen szerződés a Felek között ${ALV_DATE(o.prev)} létrejött keretszerződést az aláírás napjával felváltja.`:'A jelen szerződés a Felek között korábban létrejött, azonos tárgyú megállapodásokat az aláírás napjával felváltja.';
+  const V={v_name:o.name||dot,v_addr:o.addr||dot,v_tax:o.tax||dot,v_phone:o.phone||dot,v_email:o.email||dot,v_sign:o.name||'Vállalkozó',p165};
+  let x=await z.file('word/document.xml').async('string');x=x.replace(/\{(v_name|v_addr|v_tax|v_phone|v_email|v_sign|p165)\}/g,(m,k)=>X(V[k]));z.file('word/document.xml',x);
+  const slug=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
+  return {blob:await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),name:'Keretszerzodes_'+(slug(o.name)||'vallalkozo')+'_Lumos_Motion.docx'};}
+const alvB64=blob=>new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
+ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)return;
+  const prev=(crewDocsOf(c.id).find(d=>d.signedAt&&/szerz/i.test(d.title||''))||{}).signedAt||'';
+  const f=(k,l,v,ph,t)=>`<div class="field${t==='full'?' full':''}"><label for="alv-${k}">${l}</label><input class="inp" id="alv-${k}" name="${k}" value="${esc(v||'')}" placeholder="${esc(ph||'')}"${t==='date'?' type="date"':''}></div>`;
+  openModal('Alvállalkozói keretszerződés – '+(c.name||''),`<p class="hint" style="margin:0 0 10px">A szerződés a Stáb adataival töltődik ki – itt még átírhatod. Ami üresen marad, kipontozva kerül a szerződésbe.</p>
+    <div class="grid2">${f('name','Vállalkozó neve (cégnév / EV)',c.company||c.name,'pl. Minta Anna E.V.','full')}${f('addr','Székhely / cím','','pl. 2000 Szentendre, Fő utca 1.','full')}${f('tax','Adószám',c.tax)}${f('phone','Telefonszám',c.phone)}${f('email','E-mail cím',c.email)}${f('prev','Korábbi szerződés dátuma (ha van)',prev,'','date')}</div>
+    <p class="hint" style="margin:8px 0 0">Ha van korábbi szerződés, a 16.5. pont szerint az újat felváltja; ha nincs dátum, általános megfogalmazás kerül bele.</p>
+    <div style="margin-top:12px"><button type="button" class="btn outline small" id="alv-dl">⬇ Letöltés Wordben</button></div>`,
+    {submitLabel:'Tovább a küldéshez →',submit:async fd=>{const o={name:String(fd.get('name')||'').trim(),addr:String(fd.get('addr')||'').trim(),tax:String(fd.get('tax')||'').trim(),phone:String(fd.get('phone')||'').trim(),email:String(fd.get('email')||'').trim(),prev:String(fd.get('prev')||'')};
+      let r;try{r=await alvBuild(o);}catch(e){handleErr(e);return;}const b64=await alvB64(r.blob),first=huFirst(c.name)||'';
+      openModal('Keretszerződés küldése – '+(c.name||''),`<div class="field full"><label for="alv-to">Címzett</label><input class="inp" id="alv-to" name="to" value="${esc(o.email||c.email||'')}" required></div>
+        <div class="field full"><label for="alv-subj">Tárgy</label><input class="inp" id="alv-subj" name="subject" value="Alvállalkozói keretszerződés – Lumos Motion"></div>
+        <div class="field full"><label for="alv-body">Levél</label><textarea class="inp" id="alv-body" name="body" rows="9">Kedves ${esc(first)},\n\nmellékelten küldöm az alvállalkozói keretszerződést. A projektek meghívása, visszaigazolása, a díjak, a leadás és a visszajelzések a Projekttervezőben mennek, és a szerződés ezt is rögzíti – a visszamondás és a javítási körök szabályaival együtt.\n\nKérlek, olvasd át, és ha rendben találod, írd alá, és küldd vissza erre a címre. Ha bármi kérdésed van vele kapcsolatban, szívesen átbeszéljük.</textarea></div>
+        <p class="hint" style="margin:0">📎 Melléklet: ${esc(r.name)} · a levél a saját címedről, az aláírásoddal megy ki, a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p>`,
+        {submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
+          S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});}});
+  const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
+    try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};
