@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "200046625b",
+"at": "2026-11-19T18:35:23+02:00",
+"msg": "Fotók utómunkája: magától a kiválasztott fotósé, amíg kézzel senkihez nincs rendelve (felület + mentéskor a háttér is rögzíti)"
+},
+{
 "id": "ccc33cdac1",
 "at": "2026-11-19T18:25:28+02:00",
 "msg": "Utómunka-figyelmeztetés: a fotók utómunkája nem „videó” (külön szöveg fotóra, videóra és a kettőre)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: útmutató szöveg finomítása"
 },
 {
-"id": "7372a336f0",
-"at": "2026-11-19T11:01:38+01:00",
-"msg": "Jóváhagyó oldal: a díjmentes körök elfogytak figyelmeztetés piros"
-},
-{
-"id": "d893baf034",
-"at": "2026-11-19T10:01:31Z",
+"id": "48b0916c1d",
+"at": "2026-11-19T10:01:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
