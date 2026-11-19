@@ -318,7 +318,7 @@ function clientDecide_(t, d, fb, vid) {
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: v.k === 'foto' ? '✅ Jóváhagyta a fotókat' : '✅ Jóváhagyta a videót', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });   // a hozzászólásoknál is látszik a jóváhagyás
     if (fb) withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); }   // jóváhagyáshoz írt üzenet
-  else if (d === 'mod') { if (fb.length < 3) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
+  else if (d === 'mod') { if (!fb.length) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
   else throw new Error('Ismeretlen döntés.');
   if (d === 'ok') { try {   // a videó vágója is értesül a jóváhagyásról (üzenet és link nélkül)
       const c = readAll_('crewAssign').some(z => z.projectId === r.p.id && z.crewId === r.v.editor) ? readAll_('crew').find(x => x.id === r.v.editor) : null, em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';
