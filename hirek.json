@@ -1,6 +1,6 @@
 {"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
 "items":[
-{"id":"2026-11-19-astryx","at":"2026-11-19","msg":"🎨 Új, letisztult kinézet: világos fejléc, új betűtípus, egységes gombok és mezők – minden funkció a régi helyén maradt."},
+{"id":"2026-11-19-astryx","at":"2026-11-19","msg":"🎨 Új, letisztult kinézet: világos fejléc, új betűtípus, egységes gombok és mezők – minden funkció a régi helyén maradt. A jobb felső névjelvény menüjében (🎨 Kinézet) visszaválthatsz a korábbira."},
 {"id":"2026-11-17-dark","at":"2026-11-17","msg":"🌙 Sötét mód: a jobb felső névjelvény menüjében kapcsolható (ki / be / a telefon beállítása szerint)."},
 {"id":"2026-11-17-mobil","at":"2026-11-17","msg":"📱 Telefonon és tableten: a naptár idővonalán lefelé görgetve a menü eltűnik, így több fér ki; tableten a menü egy sorba került, a táblázatok a képernyő széléig érnek."},
 {"id":"2026-11-17-tl","at":"2026-11-17","msg":"🗓️ Idővonal: minden sávon látszik a projekt neve (oldalra görgetve is), a jóváhagyásra váró videókat homokóra jelzi."},
