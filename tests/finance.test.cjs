@@ -247,7 +247,7 @@ test('finance: legacy sheet import (two header rows, status column, expenses, ca
   const st=json('finSettings_()');assert.equal(st.openMonth,'2025-04');assert.equal(st.appFromMonth,'2026-11');
 });
 const front=vm.createContext({console,document:doc,window:{addEventListener(){},LUMOS_API_URL:'https://example.test'},localStorage:{getItem(){return null}},sessionStorage:{getItem(){return null}},location:{hash:'',pathname:'/'},history:{replaceState(){}},setInterval(){},setTimeout(fn){timers.push(fn);return timers.length},clearTimeout(){},crypto,scrollTo(){},requestAnimationFrame(){},URL,URLSearchParams});
-for(const f of ['core.js','views-alap.js','views-penzugy-vagas.js','views-stab-naptar-beallitasok.js','actions-ablakok.js','actions-dijcsokkentes.js','actions-projekt.js','actions-esemenyek.js','actions-egyeb.js','actions-projekt-stab.js','actions-vagas-jovahagyas.js','finance.js']){
+for(const f of ['core.js','views-alap.js','views-penzugy-vagas.js','views-stab-naptar-beallitasok.js','actions-ablakok.js','actions-dijcsokkentes.js','actions-projekt.js','actions-esemenyek.js','actions-egyeb.js','actions-projekt-stab.js','actions-vagas-jovahagyas.js','finance.js','kezikonyv.js']){
   let source=fs.readFileSync(path.join(root,f),'utf8');
   source=source.replace("if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogin('');}",'');
   vm.runInContext(source,front,{filename:f});
