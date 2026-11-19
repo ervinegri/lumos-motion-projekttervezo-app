@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8859b1cbba",
+"at": "2026-11-19T10:43:49+02:00",
+"msg": "Videóablak: „💬 Hozzászólás küldése” gomb a mező alatt; az alsó sor (Időkód · Jelölés · Bezárás) mindig a dobozon belül marad"
+},
+{
 "id": "60a3082436",
 "at": "2026-11-19T10:40:04+02:00",
 "msg": "Meghívás: a Google Naptárban adott „Igen” / „Nem” már nem elfogadás / elutasítás (a díj csak a Projekttervezőben látszik) – helyette egyszeri jelzés a meghívónak és emlékeztető a szakembernek; a levélből és a felületről kikerült a naptáras elfogadás"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "b01dd21247",
 "at": "2026-11-18T15:55:51+02:00",
 "msg": "Idővonal: a vágás-sáv neve rejtve, ha közvetlenül előtte ugyanannak a projektnek a forgatás-sávja látszik (összevont sorokban is)"
-},
-{
-"id": "7717af673e",
-"at": "2026-11-18T15:11:18+02:00",
-"msg": "Idővonal: több forgatási napnál a vágás-sáv a hozzá legközelebbi forgatás-sávot nézi (nincs dupla név)"
 }
 ];
 const allowed = require('./_auth.js');
