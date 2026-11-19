@@ -387,7 +387,7 @@ const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jova
 function vidRounds(v){const st=new Set();(S.crew||[]).concat(S.users||[]).concat(S.me?[S.me]:[]).forEach(x=>{const n=String((x&&x.name)||'').trim().toLowerCase();if(n){st.add(n);n.split(/\s+/).forEach(w=>st.add(w));}});
   const L=(v&&v.cm||[]).filter(c=>/^↩/.test(String(c.t||''))),cl=L.filter(c=>!st.has(String(c.by||'').trim().toLowerCase()));return {cl:cl.length,int:L.length-cl.length,clL:cl};}
 function revPill(v){if(!v||v.st==='jovahagyva')return '';const r=vidRounds(v);
-  if(r.cl)return `<span class="bd-rev" data-tip="${esc('Az ügyfél '+r.cl+'× kért javítást'+(r.clL.length?':\n'+r.clL.map(c=>'• '+String(c.t||'').replace(/^↩\s*/,'').slice(0,140)).join('\n'):''))}">🔁 ${r.cl}. javítás</span>`;
+  if(r.cl)return `<span class="bd-rev${r.cl===1?' r1':''}" data-tip="${esc('Az ügyfél '+r.cl+'× kért javítást'+(r.clL.length?':\n'+r.clL.map(c=>'• '+String(c.t||'').replace(/^↩\s*/,'').slice(0,140)).join('\n'):''))}">🔁 ${r.cl}. javítás</span>`;
   if(r.int&&(v.st==='vagas'||v.st==='ellen'))return `<span class="bd-rev int" data-tip="Belső ellenőrzésből visszaküldve">↩ Belső visszadobás${r.int>1?' · '+r.int+'×':''}</span>`;return '';}
 function seenPill(v){if(!v||v.st!=='leadva'||ro()||!(isAdmin()||(S.me&&S.me.role==='editor'))||!(v.cm||[]).some(x=>/Ügyfélnek elküldve/.test(x.t||'')))return '';const f=x=>String(x||'').slice(0,16).replace('T',' ').replace(/^\d{4}-(\d\d)-(\d\d)/,(m,a,b)=>['Jan.','Febr.','Márc.','Ápr.','Máj.','Jún.','Júl.','Aug.','Szept.','Okt.','Nov.','Dec.'][+a-1]+' '+(+b)+'.');
   const seen=v.seenAt&&String(v.seenLast||v.seenAt).slice(0,10)>=String(v.at||'').slice(0,10);   // a korábbi (pl. V1) megnyitás az újbóli leadás után már nem számít

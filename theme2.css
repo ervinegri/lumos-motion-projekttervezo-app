@@ -2946,3 +2946,6 @@ html body #mform.m-video .mfoot .vv-tcw{flex:0 1 auto!important;width:auto!impor
 html body #mform.m-video .mfoot .vv-tcw>*{flex:0 0 auto}
 /* hozzászólásban a beillesztett behúzás (alpontok) megmarad */
 html body .vv-cm-i>div:not(.vv-reps){white-space:pre-wrap}
+
+/* videótábla: az 1. javítás sárga, a 2.-tól piros */
+html body .bd-rev.r1{background:#fff3cd;color:#8a5a00}
