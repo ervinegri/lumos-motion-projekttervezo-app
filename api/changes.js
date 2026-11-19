@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "414cf5f1d4",
+"at": "2026-11-19T07:18:29+02:00",
+"msg": "Idővonal: a látható bal szélt a projektsor címkéjéből számolja (a jóváhagyásra váró sáv széles fejléce elcsúsztatta a neveket)"
+},
+{
 "id": "b01dd21247",
 "at": "2026-11-18T15:55:51+02:00",
 "msg": "Idővonal: a vágás-sáv neve rejtve, ha közvetlenül előtte ugyanannak a projektnek a forgatás-sávja látszik (összevont sorokban is)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Értékesítés telefonon: a kártyát tartva a másik ujjal görgethető az oldal és az oszlopok"
 },
 {
-"id": "902cf84fe2",
-"at": "2026-11-18T08:18:43+02:00",
-"msg": "Értékesítés telefonon: előbb az értékesítő-választó, utána a keresés; egyik sem lóg ki a képernyő szélére"
-},
-{
-"id": "b81b913187",
-"at": "2026-11-18T06:17:52Z",
+"id": "852a75de7d",
+"at": "2026-11-18T06:19:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
