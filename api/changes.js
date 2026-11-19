@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2484d995c0",
+"at": "2026-11-19T11:21:17+01:00",
+"msg": "Megerősítő ablak: 'Utána még egy díjmentes kör marad' mondat törölve"
+},
+{
 "id": "ef094a5d17",
 "at": "2026-11-19T11:19:33+01:00",
 "msg": "Észrevételek 6000 karakterig (eddig 1000/1500-nál levágódott); videóablak címében a javítás száma; jóváhagyó oldalon: két díjmentes javítási kör"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: díjas javítás szövege (Ervin megfogalmazása)"
 },
 {
-"id": "1371a7c833",
-"at": "2026-11-19T09:34:09+02:00",
-"msg": "Jóváhagyó oldal: „az elfogadott árajánlat után készítjük el”"
-},
-{
-"id": "2de8699727",
-"at": "2026-11-19T07:33:16Z",
+"id": "c673a00d70",
+"at": "2026-11-19T07:34:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
