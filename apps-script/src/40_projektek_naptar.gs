@@ -911,7 +911,7 @@ function lookupTaxpayerApi_(arg) {
    Akinek nincs meghívási bejegyzése (régi projektek), annál minden marad a régiben. */
 function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JSON.parse(v || '{}'); } catch (e) { o = {}; } }
   const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
-    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10) }; });
+    out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10), cx: x.cx && typeof x.cx === 'object' ? { at: str_(x.cx.at, 30), why: str_(x.cx.why, 600), days: Math.round(Number(x.cx.days) || 0), tier: ['free', 'p50', 'p100'].indexOf(x.cx.tier) >= 0 ? x.cx.tier : '' } : null }; });   // cx: elfogadás utáni visszamondás
   return out; }
 /** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
 function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
@@ -1000,6 +1000,45 @@ function inviteStatus_(u, a) {
   const p = readRow_('projects', sh, row), iv = parseInvites_(p.invites)[cid];
   if (!iv) return { st: 'missing' };
   return { st: iv.st, name: p.name };
+}
+/** Elfogadás utáni visszamondás feltételei (keretszerződés 2.5.): 30 napnál korábban évente 2× díjmentes; 30–15 nap: a díj 50%-a; 15 napon belül: 100% kötbér
+    (ledolgozás vagy kiszámlázás – a Megrendelő dönt). Igazolt, elháríthatatlan ok esetén nincs kötbér (2.6.). */
+function inviteCancelTerms_(cid, p) {
+  const t = today_(), st = String(p.date || '').slice(0, 10); if (!/^\d{4}-\d{2}-\d{2}$/.test(st)) throw new Error('A projektnek nincs dátuma.');
+  const days = Math.round((Date.UTC(+st.slice(0, 4), +st.slice(5, 7) - 1, +st.slice(8, 10)) - Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10))) / 864e5);
+  const yr = t.slice(0, 4); let used = 0;
+  readAll_('projects').forEach(q => { const iv = parseInvites_(q.invites)[cid]; if (iv && iv.cx && iv.cx.tier === 'free' && String(iv.cx.at || '').slice(0, 4) === yr) used++; });
+  const tier = days > 30 ? (used < 2 ? 'free' : 'p50') : days >= 15 ? 'p50' : 'p100';
+  return { days: days, used: used, tier: tier, pct: tier === 'free' ? 0 : tier === 'p50' ? 50 : 100 };
+}
+function inviteCancelInfo_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u); if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.');
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) throw new Error('A projekt nem található.');
+  const iv = parseInvites_(p.invites)[cid]; if (!iv || iv.st !== 'yes') throw new Error('Ezt a projektet nem vállaltad el.');
+  if (String(p.date || '') <= today_()) throw new Error('A projekt már elkezdődött – visszamondani csak közvetlenül, telefonon tudod.');
+  return Object.assign({ name: p.name }, inviteCancelTerms_(cid, p));
+}
+function inviteCancel_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u), why = str_(a && a.why, 600).trim(); if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.');
+  if (why.length < 5) throw new Error('Írd le röviden, miért nem tudod vállalni.');
+  let p, terms;
+  withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
+    const inv = parseInvites_(p.invites); if (!inv[cid] || inv[cid].st !== 'yes') throw new Error('Ezt a projektet nem vállaltad el.');
+    if (String(p.date || '') <= today_()) throw new Error('A projekt már elkezdődött – visszamondani csak közvetlenül, telefonon tudod.');
+    terms = inviteCancelTerms_(cid, p);
+    inv[cid] = Object.assign(inv[cid], { st: 'no', ans: now_(), via: 'app', cx: { at: now_(), why: why, days: terms.days, tier: terms.tier } });
+    p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+  const TL = { free: 'díjmentes (30 napnál korábbi, idei ' + (terms.used + 1) + '. visszamondás)', p50: 'a díjazás 50%-a kötbér', p100: 'a díjazás 100%-a kötbér' }[terms.tier];
+  logEvent_(u, 'Projekt visszamondva (elfogadás után)', p.name, terms.days + ' nap · ' + TL + ' · ' + why);
+  try { const iv = parseInvites_(p.invites)[cid] || {}, cr = readAll_('crew').find(x => x.id === cid) || {}, who = cr.name || u.name, url = appUrl_() + '#p=' + pid;
+    const to = [iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || '')].concat(loadUsers_().filter(x => x.role === 'admin').map(x => x.email)).filter((e, i, A) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '') && A.indexOf(e) === i);
+    if (to.length) { const subj = '⚠️ ' + who + ' visszamondta · ' + p.name + ' · ' + terms.days + ' nappal előtte' + (terms.pct ? ' · kötbér: ' + terms.pct + '%' : '');
+      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px"><b>' + escapeHtml_(who) + '</b> <b style="color:#a33">visszamondta</b> a már elfogadott projektet: <b>' + escapeHtml_(p.name) + '</b></p>'
+        + '<p style="margin:0 0 10px">A projekt kezdetéig: <b>' + terms.days + ' nap</b><br>Feltétel: <b>' + escapeHtml_(TL) + '</b>' + (terms.pct ? '<br><span style="color:#5f6368">Ledolgozás vagy kiszámlázás – erről ti döntötök. Igazolt, elháríthatatlan ok esetén nem jár kötbér.</span>' : '') + '</p>'
+        + '<div style="background:#fff4f2;border-left:4px solid #d93025;padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 14px">' + escapeHtml_(why).replace(/\n/g, '<br>') + '</div>'
+        + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása – helyettes keresése</a></p></div>';
+      gmailSend_(to.join(','), subj, who + ' visszamondta: ' + p.name + '\n' + terms.days + ' nap · ' + TL + '\n\nIndok: ' + why + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszamondás-értesítés hiba: ' + e); }
+  return terms;
 }
 function inviteRespond_(u, a) {
   const pid = str_(a && a.projectId, 64), cid = inviteOwnCrewId_(u), yes = a && a.answer === 'yes'; if (!cid) throw new Error('A felhasználód nincs összekapcsolva a stáblistával.'); let p, alreadyAnswered = '';
