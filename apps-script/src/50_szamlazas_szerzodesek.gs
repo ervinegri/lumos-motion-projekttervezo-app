@@ -1326,10 +1326,10 @@ const szNoKey_ = s => String(s || '').replace(/\s+/g, '').toUpperCase().replace(
 function szBankDocIndex_(invoices) {
   const ix = {}, all = [], add = (no, d) => { const k = szNoKey_(no); if (k.length >= 4) { (ix[k] = ix[k] || []).push(d); d.key = k; all.push(d); } };
   Object.defineProperty(ix, '_all', { value: all, enumerable: false });
-  invoices.forEach(x => add(x.no, { no: x.no, inv: x, buyer: x.buyer, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0 }));
+  invoices.forEach(x => add(x.no, { no: x.no, inv: x, buyer: x.buyer, gross: Number(x.invGross) || 0, paid: Number(x.invPaid) || 0, paidAt: iso_(x.paidAt) || '' }));
   const inApp = {}; invoices.forEach(x => { inApp[szNoKey_(x.no)] = 1; });
   let sd = []; try { sd = readAll_('szDocs'); } catch (e) {}
-  sd.forEach(d => { if (d.kind === 'ki' && !d.storno && !inApp[szNoKey_(d.no)]) add(d.no, { no: d.no, sz: d.id, buyer: d.partnerName, gross: Number(d.gross) || 0, paid: Number(d.paid) || 0 }); });   // a csak a számlázz.hu-ban kiállított számlák
+  sd.forEach(d => { if (d.kind === 'ki' && !d.storno && !inApp[szNoKey_(d.no)]) add(d.no, { no: d.no, sz: d.id, buyer: d.partnerName, gross: Number(d.gross) || 0, paid: Number(d.paid) || 0, paidAt: iso_(d.paidAt) || '' }); });   // a csak a számlázz.hu-ban kiállított számlák
   return ix;
 }
 /** A közleményben hivatkozott számlaszámok („E-LUMOS-2026-5, 6” → …-5 és …-6; „Lumos -2026-81” is). */
@@ -1351,7 +1351,8 @@ function szBankRefFix_(t, inv, docs) {
   if (!refs.length && docs._all) {   // nincs (felismerhető) számlaszám: a partner neve és az összeg (bruttó, ±1 Ft) alapján
     const amt = Math.round(Number(t.amount) || 0), pw = szBankNorm_(t.partnerName).split(' ').filter(w => w.length > 3);
     const hit = pw.length ? docs._all.filter(d => Math.abs(Math.round(d.gross) - amt) <= 1 && pw.some(w => szBankNorm_(d.buyer || '').split(' ').indexOf(w) >= 0)) : [];
-    const open = hit.filter(d => d.paid < d.gross - 1); refs = open.length === 1 ? open : [];   // csak javaslat (egy már kifizetett, azonos összegű számla miatt nem rejtjük el)
+    const open = hit.filter(d => d.paid < d.gross - 1); refs = open.length === 1 ? open : [];
+    if (!open.length && hit.length) { const td = iso_(t.valueDate); if (td && hit.some(d => d.paidAt && Math.abs((new Date(d.paidAt) - new Date(td)) / 864e5) <= 5)) return null; }   // a számlázz.hu már kifizetettnek jelölte (a befizetés napja körül): nem vár párosításra   // csak javaslat (egy már kifizetett, azonos összegű számla miatt nem rejtjük el)
   }
   if (!refs.length) return t;
   if (refs.every(r => r.gross > 0 && r.paid >= r.gross - 1)) return null;

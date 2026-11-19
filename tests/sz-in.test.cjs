@@ -73,6 +73,8 @@ console.log('ok');
   add('E-LUMOS-2026-2', { no: 'E-LUMOS-2026-2', gross: 934720, paid: 0, buyer: 'KULCSÁR AKADÉMIA KFT', sz: 'k1' }); docs._all.push(Object.assign(docs[B.szNoKey_('E-LUMOS-2026-2')][0], { key: B.szNoKey_('E-LUMOS-2026-2') }));
   const ku = B.szBankRefFix_({ dir: 'BE', note: '', partnerName: 'KULCSÁR AKADÉMIA KFT', amount: 934720 }, {}, docs);
   assert.ok(ku && ku.matchSz && ku.matchSz[0].no === 'E-LUMOS-2026-2', 'közlemény nélkül: partner + összeg → javaslat');
+  add('LUMOS-2026-69', { no: 'LUMOS-2026-69', gross: 883285, paid: 883285, paidAt: '2026-09-30', buyer: 'Marketing Amazing Kft.' }); docs._all.push(Object.assign(docs[B.szNoKey_('LUMOS-2026-69')][0], { key: B.szNoKey_('LUMOS-2026-69') }));
+  assert.equal(B.szBankRefFix_({ dir: 'BE', note: 'D-LUMOS-6', partnerName: 'MARKETING AMAZING KORLÁTOLT FELELŐS', amount: 883285, valueDate: '2026-09-30' }, {}, docs), null, 'ismeretlen hivatkozás, de a partner+összeg számlája aznap már kifizetve → elrejtve');
   console.log('ok2');
 }
 
