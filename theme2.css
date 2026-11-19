@@ -2949,3 +2949,7 @@ html body .vv-cm-i>div:not(.vv-reps){white-space:pre-wrap}
 
 /* videótábla: az 1. javítás sárga, a 2.-tól piros */
 html body .bd-rev.r1{background:#fff3cd;color:#8a5a00}
+/* videótábla: minden kártya egyforma (a nagyobb) magasságú; a vágó neve alul */
+html body .bd-card{min-height:85px;box-sizing:border-box;display:flex;flex-direction:column}
+html body .bd-card>.bd-t{flex:none}
+html body .bd-card>.bd-m{margin-top:auto}
