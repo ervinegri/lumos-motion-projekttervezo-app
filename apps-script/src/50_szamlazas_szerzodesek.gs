@@ -1255,17 +1255,23 @@ function szCrewOfDoc_(d, crew) {
   const tax8 = szDigits_(d.partnerTax).slice(0, 8);
   if (tax8.length === 8) { const c = crew.find(x => szDigits_(x.tax).slice(0, 8) === tax8); if (c) return c; }
   const pn = szBankNorm_(String(d.partnerName || '').replace(/,\s*\d[\d\s-]*$/, '')); if (pn.length < 5) return null;   // „MAJOR BENCE ANDRÁS, 61382152” → major bence andras
-  const hit = crew.filter(x => x.type !== 'Belsős' && [x.name, x.company].some(n => n && szBankNorm_(n) === pn));
+  let hit = crew.filter(x => x.type !== 'Belsős' && [x.name, x.company].some(n => n && szBankNorm_(n) === pn));
+  if (!hit.length) {   // a számlán a teljes név (pl. második keresztnévvel) – a szakember minden névtagja szerepeljen benne; a már nem aktív (törölt) szakemberek is
+    const pw = pn.split(' '), ids = {}; crew.forEach(x => { ids[x.id] = 1; });
+    const ar = (typeof crewArchive_ === 'function' ? crewArchive_() : {}), all = crew.concat(Object.keys(ar).filter(k => !ids[k]).map(k => ({ id: k, name: ar[k], type: '' })));
+    const sub = n => { const w = szBankNorm_(n || '').split(' ').filter(Boolean); return w.length >= 2 && w.every(x => pw.indexOf(x) >= 0); };
+    hit = all.filter(x => x.type !== 'Belsős' && (sub(x.name) || sub(x.company)));
+  }
   return hit.length === 1 ? hit[0] : null;
 }
 /** Egyszeri (2026-11-18): a már beérkezett, de szakemberhez nem kötött bejövő számlák újrapróbálása (név szerinti egyezéssel is). */
 function szDocCrewRetryOnce_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DOC_CREW_RETRY_1')) return; let n = 0;
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DOC_CREW_RETRY_2')) return;   // 2: névtag-egyezés + a már nem aktív szakemberek is let n = 0;
   const crew = readAll_('crew'), todo = readAll_('szDocs').filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno);
   todo.forEach(d0 => { const c = szCrewOfDoc_(d0, crew); if (!c) return;
     let d = null; withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d0.id); if (!r) return; const x = readRow_('szDocs', sh, r); if (x.crewId || x.status) return; x.crewId = c.id; x.status = 'stab'; putRow_('szDocs', sh, x, r); dbFlush_(); n++; d = x; });
     if (d && /^(SZ|VS|HS)$/.test(d.type || 'SZ')) { try { szDocCrewApply_(d); } catch (e) { Logger.log('Szakember-számla párosítás: ' + e); } } });
-  P.setProperty('SZ_DOC_CREW_RETRY_1', now_() + ' · ' + n); if (n) dataBump_();
+  P.setProperty('SZ_DOC_CREW_RETRY_2', now_() + ' · ' + n); if (n) dataBump_();
 }
 /** Egyszeri (2026-11-18): a bejövő számlából többszöri kattintással többször rögzített kiadás – csak a számlához kötött sor marad. */
 function szDocExpDupOnce_() {

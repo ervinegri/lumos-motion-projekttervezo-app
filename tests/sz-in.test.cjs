@@ -77,6 +77,8 @@ console.log('ok');
   assert.equal(B.szBankRefFix_({ dir: 'BE', note: 'D-LUMOS-6', partnerName: 'MARKETING AMAZING KORLÁTOLT FELELŐS', amount: 883285, valueDate: '2026-09-30' }, {}, docs), null, 'ismeretlen hivatkozás, de a partner+összeg számlája aznap már kifizetve → elrejtve');
   ['LUMOS-2026-64', 88900, 'LUMOS-2026-66', 177800].forEach((v, i, A2) => { if (i % 2) return; add(v, { no: v, gross: A2[i + 1], paid: A2[i + 1], buyer: 'Lurdy Rendezvényszervező Kft' }); docs._all.push(Object.assign(docs[B.szNoKey_(v)][0], { key: B.szNoKey_(v) })); });
   assert.equal(B.szBankRefFix_({ dir: 'BE', note: '64 66', partnerName: 'LURDY RENDEZVÉNYSZERVEZŐ KORLÁTOLT', amount: 266700, valueDate: '2026-10-05' }, {}, docs), null, 'csak sorszámok („64 66”), összegük egyezik, kifizetve → elrejtve');
+  { const C = vm.runInContext('szCrewOfDoc_', ctx2); let r = null; try { r = C({ partnerName: 'KOÓS NÁNDOR ÁRON, 59937126', partnerTax: '' }, [{ id: 'k', name: 'Koós Nándor', type: 'Állandó külsős' }, { id: 'z', name: 'Zajácz Dávid', type: 'Belsős' }]); } catch (e) { r = { err: String(e) }; }
+    assert.ok(r && r.id === 'k', 'a számlán második keresztnévvel szereplő szakember is megtalálható: ' + JSON.stringify(r)); }
   console.log('ok2');
 }
 
