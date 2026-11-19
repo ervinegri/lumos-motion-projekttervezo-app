@@ -277,7 +277,12 @@ function staffTok_(tok) { if (!tok) return false; try { authUser_(tok); return t
 /** Hányszor kért már javítást az ügyfél ennél a videónál (↩ megjegyzés, amit nem a csapat írt). */
 function vidClientRounds_(v) { const st = {}; try { readAll_('crew').concat(loadUsers_()).forEach(x => { const n = String(x && x.name || '').trim().toLowerCase(); if (n) { st[n] = 1; n.split(/\s+/).forEach(w => { st[w] = 1; }); } }); } catch (e) {}
   return (v && v.cm || []).filter(c => /^↩/.test(String(c.t || '')) && !st[String(c.by || '').trim().toLowerCase()]).length; }
-function clientInfo_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
+/** A jóváhagyó oldal adatai + hány videó vár még a projektben ezen a linken kívül (a „projektet lezártuk” csak akkor jelenik meg, ha mind jóvá van hagyva). */
+function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
+  try { if (r && !r.preview) { const o = clientTokenRead_(t), p = readAll_('projects').find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
+    r.projRest = p ? parseVideos_(p.videos).filter(v => !on[v.id] && v.st !== 'jovahagyva').length : 0; } } catch (e) { Logger.log('projRest: ' + e); }
+  return r; }
+function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';
   if (o.vs && o.vs.length > 1) {   // több videó egy linken: a kiválasztott (vagy az első még döntésre váró) videó + a lista
     const p0 = readAll_('projects').find(x => x.id === o.p); if (!p0) throw new Error('A videó nem található.'); const all = parseVideos_(p0.videos);
