@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f5f92a52b1",
+"at": "2026-11-19T07:56:32+02:00",
+"msg": "Arculat: Astryx stone téma – hűvös, enyhén lilás szürkék, grafit elsődleges szín, 8px lekerekítés; sötét mód hozzáigazítva"
+},
+{
 "id": "81aeb68de7",
 "at": "2026-11-19T07:39:19+02:00",
 "msg": "Arculat: Astryx (Meta) neutral téma – semleges szürkék, Figtree betű, fekete elsődleges gomb, világos fejléc, 10/12px lekerekítés, finom árnyék; sötét mód hozzáigazítva"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Bérelt eszköz: a bérleti díj mezőt csak az ügyvezető látja (a termelési vezetőnek nem kell megadnia)"
 },
 {
-"id": "692de5a643",
-"at": "2026-11-18T13:22:49+02:00",
-"msg": "Saját meghívásaim: egy meghívásnál az egész doboz kattintható (a gombok kivételével)"
-},
-{
-"id": "2d470a64f8",
-"at": "2026-11-18T11:21:44Z",
+"id": "6d8318debb",
+"at": "2026-11-18T11:22:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
