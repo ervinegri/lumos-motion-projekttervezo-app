@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "21854c9597",
+"at": "2026-11-20T22:50:25+01:00",
+"msg": "Helyszíni munkára lépés: a bejelentkezett vezető saját beosztása elfogadottnak számít (és a háttérben rögzül)"
+},
+{
 "id": "7e21a28620",
 "at": "2026-11-20T22:46:04+01:00",
 "msg": "Google-értékelések: Cégprofil összekötése, napi behúzás, ügyfélhez párosítás, válasz az appból; értékelt ügyfélnek nem megy emlékeztető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés e-mail: a szerződés PDF-ben megy ki (és PDF-ként kerül a munkatárs dokumentumai közé)"
 },
 {
-"id": "0ce40c3a2b",
-"at": "2026-11-20T15:18:52+01:00",
-"msg": "Statiszta keretszerződés (cím és feliratok), 7.2 kivétel-mondat törölve; Értékesítők fülön csak a kizárólag értékesítők"
-},
-{
-"id": "01978f9dff",
-"at": "2026-11-20T14:15:49Z",
+"id": "2a86fbafce",
+"at": "2026-11-20T14:19:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
