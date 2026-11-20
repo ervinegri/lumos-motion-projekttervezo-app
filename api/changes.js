@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "02a4bf83de",
+"at": "2026-11-20T16:17:44+01:00",
+"msg": "Munkatárs űrlap: a 🔍 (cégnév betöltése) az adószám mezőnél"
+},
+{
 "id": "e632b9e50d",
 "at": "2026-11-20T16:00:03+01:00",
 "msg": "Naptár: a projekthez egyértelműen illeszkedő, kézzel felvett vágói naptárbejegyzés nem jelenik meg külön (duplikátum)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: a székhely a NAV adózói adataiból, ha ott nincs (egyéni vállalkozó), a munkatárs NAV-ban párosított számlájáról"
 },
 {
-"id": "1afe7928af",
-"at": "2026-11-20T14:50:09+01:00",
-"msg": "Cmd/Ctrl+S projekten kívül sem nyitja meg a böngésző mentés ablakát"
-},
-{
-"id": "c7ac771788",
-"at": "2026-11-20T13:47:33Z",
+"id": "3514bdba8f",
+"at": "2026-11-20T13:50:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
