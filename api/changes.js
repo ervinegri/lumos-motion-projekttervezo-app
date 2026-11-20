@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "deba3cc7ab",
+"at": "2026-11-20T15:28:56+01:00",
+"msg": "Számlázás: ha a kiszámlázott nettó összeg eltér a projekt értékétől (pl. utólag megemelt érték), nem 'Lezárva' – Kiszámlázatlan / Túlszámlázva jelzés, számla a különbözetre gomb, figyelmeztetés"
+},
+{
 "id": "ca439f2689",
 "at": "2026-11-20T15:26:41+01:00",
 "msg": "Elfogadott beosztás: pozíció levétele megerősítéssel + automatikus e-mail a szakembernek; az utolsó pozíciónál lemondás-figyelmeztetés (2.7., 7 napon belül 50% lemondási díj egyéb költségként)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés-sablon: 2.8 Előfoglalás pont (30 napos véglegesítés, 48 órás elsőbbség, díjmentes visszavonás)"
 },
 {
-"id": "5d65cacfe7",
-"at": "2026-11-20T10:27:18+02:00",
-"msg": "Google-értékelés: a jóváhagyó oldalon, ha a projekt minden videója jóváhagyva, értékelés-kérő doboz; átadás után 4 nappal egyetlen kérő levél a kapcsolattartónak (ha nem nyitotta meg, és fél éven belül nem kértünk az ügyféltől); rögzül a kérés és a megnyitás"
-},
-{
-"id": "8b5b373cd9",
-"at": "2026-11-20T08:14:47Z",
+"id": "6665dd4036",
+"at": "2026-11-20T08:27:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
