@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0d954781a7",
+"at": "2026-11-20T14:27:07+01:00",
+"msg": "Keretszerződés 7.5: a közvetlen kapcsolat pontosítása (kiállító, független megbízás, egyeztetés kétség esetén)"
+},
+{
 "id": "c064890045",
 "at": "2026-11-20T14:24:57+01:00",
 "msg": "Keretszerződés 2.5.5: a kötbér rendezési módját (ledolgozás / kifizetés) a Vállalkozó választja; app-szövegek igazítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Alvállalkozói keretszerződés a Stáb adatlapról: kitöltés, letöltés, küldés e-mailben, mentés a dokumentumok közé"
 },
 {
-"id": "45d3eee809",
-"at": "2026-11-19T14:41:21+02:00",
-"msg": "Meghívás: a díj „szakemberként nézve” (ügyvezetői nézetváltásnál) is látszik a meghívásnál"
-},
-{
-"id": "2da48207f2",
-"at": "2026-11-19T12:22:40Z",
+"id": "2229e194a3",
+"at": "2026-11-19T12:41:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
