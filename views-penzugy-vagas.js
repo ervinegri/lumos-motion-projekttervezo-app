@@ -401,6 +401,7 @@ const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 const BD_PRE=['vagasra','vagas','ellen','modositas'];
 function bdAllowed(p,v,to){if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p))return false;
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=ro()?boardMe():String(S.me&&S.me.crewId||''),ow=vidOwner(p,v),mine=!ow||(!!me&&ow===me);
+  if(['vagasra','vagas','modositas'].includes(v.st)&&to==='leadva'&&mgr&&!!me&&ow===me)return true;   /* a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen az ügyfélnek adhatja */
   if(BD_PRE.includes(v.st)&&BD_PRE.includes(to)){if(!mine)return false;if(mgr)return true;
     if(to==='vagasra')return v.st==='vagas';return ['vagas','ellen'].includes(to)&&!(v.st==='ellen'&&to!=='ellen');}
   if(v.st==='ellen')return mgr&&['leadva','jovahagyva'].includes(to);
