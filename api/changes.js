@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c415864f46",
+"at": "2026-11-20T16:39:11+01:00",
+"msg": "Leltár: a sorok kattinthatók (megnyitják az eszköz adatlapját)"
+},
+{
 "id": "710ddb2900",
 "at": "2026-11-20T16:38:32+01:00",
 "msg": "Stáb lista: a megszűnt (átnevezett) szerepre beragadt szűrő törlődik – pl. Statiszta → Szereplő"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Statiszták alfül (Statiszta szerep) + modell keretszerződés sablon, kitöltés és küldés az appból"
 },
 {
-"id": "7668967e0b",
-"at": "2026-11-20T14:57:05+01:00",
-"msg": "Székhely-gyorsítótár új kulccsal (a számlából vett cím ne maradjon meg)"
-},
-{
-"id": "6e3fe2c10a",
-"at": "2026-11-20T13:56:42Z",
+"id": "a9445eee9c",
+"at": "2026-11-20T13:57:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
