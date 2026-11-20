@@ -363,8 +363,7 @@ function viewClients(){
       ${adm?`<td class="cl-ctrc">${clContract(c,ps)}</td>`:''}</tr>`;}).join('');
   const all=knownClients('').length;
   return `<div class="page-head cl-head"><div class="grow"><h2>Ügyfelek</h2><p class="sub">${all} ügyfél${adm&&S._clDocsBusy?' · <span class="spin" style="width:11px;height:11px;vertical-align:-1px"></span> szerződések keresése a Drive-ban…':''}</p></div>${ro()?'':undoBar()}
-      ${isAdmin()?'<button class="btn outline w" type="button" data-action="new-contract">📝 <span class="mlg">Új szerződés</span><span class="msm">Szerződés</span></button>':''}<button class="btn primary w" type="button" data-action="new-client">+ Új<span class="mlg"> ügyfél</span></button></div>
-    ${gbpPanel()}
+      ${gbpBtn()}${isAdmin()?'<button class="btn outline w" type="button" data-action="new-contract">📝 <span class="mlg">Új szerződés</span><span class="msm">Szerződés</span></button>':''}<button class="btn primary w" type="button" data-action="new-client">+ Új<span class="mlg"> ügyfél</span></button></div>
     <div class="toolbar cl-tb"><input class="inp search" id="q-cl" type="search" placeholder="Keresés cégnév, adószám, kapcsolattartó vagy e-mail szerint" value="${esc(S.clf.q)}" aria-label="Ügyfelek keresése"></div>
     ${rows?`<div class="tbl-wrap cl-wrap"><table><thead><tr><th>Ügyfél</th><th>Adószám</th><th>Kapcsolattartó</th><th class="cl-ph">Telefon</th><th>E-mail</th>${adm?'<th>Szerződés</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="panel">${empty(all?'Nincs a keresésnek megfelelő ügyfél.':'Még nincs ügyfél. Vegyél fel egyet, vagy adj meg ügyfelet egy projektnél.')}</div>`}`;
 }
@@ -497,11 +496,11 @@ function dwdPanel(){if(!isAdmin()||!S.dwd)return '';const d=S.dwd;
 
 /* ===== Google-értékelések (Ügyfelek fül, csak ügyvezető): a Cégprofil értékelései, ügyfélhez párosítva, válasz az appból ===== */
 const gbpStars=n=>{n=Math.round(Number(n)||0);return '<span class="gbp-st" aria-label="'+n+' csillag">'+'★'.repeat(n)+'<i>'+'★'.repeat(Math.max(0,5-n))+'</i></span>';};
-function gbpLoad(sync){if(S._gbpL)return;S._gbpL=1;call('gbpList',{sync:!!sync}).then(r=>{S.gbp=r;}).catch(e=>{S.gbp=Object.assign({reviews:[]},S.gbp||{},{err:errText(e)});}).finally(()=>{S._gbpL=0;if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);});}
-function gbpPanel(){if(!isAdmin())return '';if(!S.gbp){gbpLoad(false);return '';}
+function gbpLoad(sync){if(S._gbpL)return;S._gbpL=1;call('gbpList',{sync:!!sync}).then(r=>{S.gbp=r;}).catch(e=>{S.gbp=Object.assign({reviews:[]},S.gbp||{},{err:errText(e)});}).finally(()=>{S._gbpL=0;gbpRefresh();if(S.tab==='ugyfelek'&&$('gbp-modal'))render(true);});}
+function gbpBody(){const g0=S.gbp;if(!g0)return '<p class="hint"><span class="spin" style="width:12px;height:12px"></span> Betöltés…</p>';
   const g=S.gbp,R=g.reviews||[],noRep=R.filter(r=>!r.reply).length,shown=S._gbpAll?R:R.slice(0,6);
   const cls=knownClients('').map(c=>c.company).sort((a,b)=>a.localeCompare(b,'hu'));
-  const head=g.connected?`${g.avg?`<b class="gbp-avg">${String(Math.round(g.avg*10)/10).replace('.',',')}</b> ${gbpStars(g.avg)} `:''}<span class="muted">${g.total||R.length} értékelés${noRep?` · <b>${noRep} válasz nélkül</b>`:''}</span>`:'<span class="muted">nincs összekötve</span>';
+  const head=g.connected?`${g.avg?`<b class="gbp-avg">${(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')}</b> ${gbpStars(g.avg)} `:''}<span class="muted">${g.total||R.length} értékelés${noRep?` · <b>${noRep} válasz nélkül</b>`:''}</span>`:'<span class="muted">nincs összekötve</span>';
   let body;
   if(!g.connected)body=`<p class="hint" style="margin:0 0 10px">Kösd össze a Lumos Motion Google Cégprofilját: az app naponta behúzza az értékeléseket, az ügyfélhez párosítja őket (aki már értékelt, annak nem megy emlékeztető), és innen válaszolhatsz rájuk.</p>${g.secret?'':'<div class="gbp-sec"><label for="gbp-secret">1. Az OAuth-kliens titkos kulcsa (Client secret, „GOCSPX-…”)</label><div class="gbp-sec-row"><input class="inp" id="gbp-secret" type="password" autocomplete="off" spellcheck="false" placeholder="GOCSPX-…"><button class="btn outline small" type="button" data-action="gbp-secret">Mentés</button></div><span class="hint" style="margin:0">Csak a háttérben tárolódik, utána senki nem látja.</span></div>'}<button class="btn primary small" type="button" data-action="gbp-connect"${g.secret?'':' disabled'}>🔗 Google Cégprofil összekötése</button>`;
   else body=(g.err?`<p class="hint warn-txt" style="margin:0 0 10px">⚠️ ${esc(g.err)}</p>`:'')+(R.length?`<div class="gbp-list">${shown.map(r=>`<div class="gbp-r"><div class="gbp-rh">${gbpStars(r.stars)}<b>${esc(r.author||'Névtelen')}</b><span class="muted">${esc(fmtDay(String(r.createdAt).slice(0,10)))}</span>
@@ -510,4 +509,8 @@ function gbpPanel(){if(!isAdmin())return '';if(!S.gbp){gbpLoad(false);return '';
       ${r.reply?`<div class="gbp-rep"><b>Válaszunk:</b> ${esc(r.reply)} <button class="linkbtn" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">Szerkesztés</button></div>`:`<button class="btn outline small" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">↩︎ Válasz</button>`}</div>`).join('')}</div>
       ${R.length>6?`<button class="linkbtn" type="button" data-action="gbp-more">${S._gbpAll?'Kevesebb':'Mind a '+R.length+' értékelés'}</button>`:''}`:'<p class="hint" style="margin:0">Még nincs behúzott értékelés.</p>')
     +`<div class="gbp-foot"><span class="muted">${g.sync?'Frissítve: '+esc(g.sync.slice(0,16).replace(/-/g,'.'))+' · naponta 6-kor':''}</span><button class="btn ghost small" type="button" data-action="gbp-sync"${S._gbpL?' disabled':''}>🔄 Frissítés most</button><a class="btn ghost small" href="${esc(g.url||'#')}" target="_blank" rel="noopener">Értékelési link ↗</a></div>`;
-  return `<details class="panel content fold gbp" data-fold="gbp"${FOLD.gbp?' open':''}><summary><h3>⭐ Google-értékelések <span class="gbp-sum">${head}</span></h3></summary>${body}</details>`;}
+  return `<div class="gbp-hd">${head}</div>${body}`;}
+function gbpBtn(){if(!isAdmin())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp||{},R=g.reviews||[],noRep=R.filter(r=>!r.reply).length;
+  return `<button class="btn outline w" type="button" data-action="gbp-open" title="Google-értékelések">⭐ <span class="mlg">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')+' · '+(g.total||R.length)+' értékelés':'Értékelések'}</span><span class="msm">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',','):''}</span>${noRep?` <span class="gbp-badge">${noRep}</span>`:''}</button>`;}
+/* a nyitott értékelés-ablak frissítése (újrarajzolás nélkül) */
+function gbpRefresh(){const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}else if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);}

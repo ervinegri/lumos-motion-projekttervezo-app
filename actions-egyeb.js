@@ -451,21 +451,23 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
 /* Google-értékelések: műveletek (a panel a views-stab-naptar-beallitasok.js-ben) */
 document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.gbpmatch)return;const id=t.dataset.gbpmatch,cl=t.value;
   const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===id);if(r){r.client=cl;r.manual='1';}
-  call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
+  call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;gbpRefresh();toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
 Object.assign(ACT,{
-  'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');render(true);}catch(e){b.disabled=false;handleErr(e);}},
-  'gbp-more':()=>{S._gbpAll=!S._gbpAll;render(true);},
-  'gbp-sync':()=>{gbpLoad(true);render(true);},
+  'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');gbpRefresh();}catch(e){b.disabled=false;handleErr(e);}},
+  'gbp-open':()=>{openModal('⭐ Google-értékelések',`<div id="gbp-modal" class="gbp">${gbpBody()}</div>`,{cancelLabel:'Bezárás',noDraft:true});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(typeof cmbAuto==='function')cmbAuto();},
+  'gbp-more':()=>{S._gbpAll=!S._gbpAll;gbpRefresh();},
+  'gbp-sync':b=>{if(b)b.disabled=true;gbpLoad(true);},
   'gbp-connect':()=>{if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast('A Google-belépés még töltődik – próbáld újra pár másodperc múlva.',true);return;}
     const cc=google.accounts.oauth2.initCodeClient({client_id:G_CLIENT,scope:'https://www.googleapis.com/auth/business.manage',ux_mode:'popup',login_hint:(S.me&&S.me.email)||'',
       callback:async r=>{if(!r||!r.code){if(r&&r.error)toast('A Google-engedélyezés megszakadt.',true);return;}toast('Összekötés…');
-        try{await call('gbpConnect',{code:r.code});S.gbp=null;S._gbpL=0;FOLD.gbp=true;gbpLoad(false);toast('A Google Cégprofil összekötve ✓');}catch(e){handleErr(e);}}});
+        try{await call('gbpConnect',{code:r.code});S._gbpL=0;gbpLoad(false);toast('A Google Cégprofil összekötve ✓');}catch(e){handleErr(e);}}});
     cc.requestCode();},
   'gbp-reply':b=>{const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===b.dataset.id);if(!r)return;
     openModal('Válasz: '+(r.author||'értékelés'),`<div class="fields"><div class="field full"><div class="gbp-r" style="margin:0">${gbpStars(r.stars)} <b>${esc(r.author||'')}</b>${r.text?`<div class="gbp-tx">${esc(r.text)}</div>`:''}</div></div>
       <div class="field full"><label for="m-gbpRep">Válaszunk (nyilvánosan megjelenik a Google-ön)</label><textarea class="inp" id="m-gbpRep" name="rep" rows="5" maxlength="4000" placeholder="pl. Köszönjük szépen, öröm volt veletek dolgozni!">${esc(r.reply||'')}</textarea></div></div>`,
       {submitLabel:r.reply?'Válasz mentése':'Válasz közzététele',noDraft:true,left:r.reply?`<button type="button" class="btn danger small" data-action="gbp-rep-del" data-id="${esc(r.id)}">Válasz törlése</button>`:'',
-       submit:async fd=>{const t=String(fd.get('rep')||'').trim();if(!t){toast('Írd be a választ.',true);return;}try{S.gbp=await call('gbpReply',{id:r.id,text:t});closeModal();render(true);toast('A válasz megjelent a Google-ön ✓');}catch(e){handleErr(e);}}});
+       submit:async fd=>{const t=String(fd.get('rep')||'').trim();if(!t){toast('Írd be a választ.',true);return;}try{S.gbp=await call('gbpReply',{id:r.id,text:t});closeModal();toast('A válasz megjelent a Google-ön ✓');}catch(e){handleErr(e);}}});
+    window.MODAL_BEFORE_CLOSE=()=>()=>{if(!$('mform'))ACT['gbp-open']();};
     setTimeout(()=>{const x=$('m-gbpRep');if(x){x.focus();if(typeof autoGrow==='function')autoGrow(x);}},60);},
-  'gbp-rep-del':async b=>{if(!confirm('Törlöd a válaszunkat a Google-ről?'))return;try{S.gbp=await call('gbpReply',{id:b.dataset.id,text:''});closeModal();render(true);toast('A válasz törölve.');}catch(e){handleErr(e);}}
+  'gbp-rep-del':async b=>{if(!confirm('Törlöd a válaszunkat a Google-ről?'))return;try{S.gbp=await call('gbpReply',{id:b.dataset.id,text:''});closeModal();toast('A válasz törölve.');}catch(e){handleErr(e);}}
 });
