@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b075749aec",
+"at": "2026-11-20T19:10:42+01:00",
+"msg": "HubSpot kétirányú ügyfélszinkron: mentéskor frissíti a céget és kapcsolattartót, óránként visszahúzza a változásokat, HubSpot ↗ gomb és frissítésjelzés"
+},
+{
 "id": "c415864f46",
 "at": "2026-11-20T16:39:11+01:00",
 "msg": "Leltár: a sorok kattinthatók (megnyitják az eszköz adatlapját)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: az ablak tetején választható a típus (alvállalkozói / modell), a munkatárs-lista ehhez igazodik"
 },
 {
-"id": "514821ded3",
-"at": "2026-11-20T15:03:38+01:00",
-"msg": "Statiszták alfül (Statiszta szerep) + modell keretszerződés sablon, kitöltés és küldés az appból"
-},
-{
-"id": "a9445eee9c",
-"at": "2026-11-20T13:57:13Z",
+"id": "6f8550c05c",
+"at": "2026-11-20T14:03:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
