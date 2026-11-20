@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "710ddb2900",
+"at": "2026-11-20T16:38:32+01:00",
+"msg": "Stáb lista: a megszűnt (átnevezett) szerepre beragadt szűrő törlődik – pl. Statiszta → Szereplő"
+},
+{
 "id": "f1c753af94",
 "at": "2026-11-20T16:38:05+01:00",
 "msg": "Munkatárs / eszköz adatlap: meglévő elemnél zárolva nyílik, a 🔒 Szerkesztés gombbal oldható fel (a dokumentumok zárolva is kezelhetők)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Székhely-gyorsítótár új kulccsal (a számlából vett cím ne maradjon meg)"
 },
 {
-"id": "14e5a8d1a2",
-"at": "2026-11-20T14:56:33+01:00",
-"msg": "Keretszerződés: a székhely csak az adószámból (a számlás kiegészítés kivéve)"
-},
-{
-"id": "8834d2cec8",
-"at": "2026-11-20T13:56:18Z",
+"id": "6e3fe2c10a",
+"at": "2026-11-20T13:56:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
