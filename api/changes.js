@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "31bf901ac4",
+"at": "2026-11-20T08:43:20+02:00",
+"msg": "Frissítés visszatéréskor: telefon felébresztése / visszaváltás után (ha 1 percnél régebbi az adat) az app újratölt – eddig az alvás alatt álló időzítő miatt elmaradt"
+},
+{
 "id": "02c603e5b0",
 "at": "2026-11-19T20:57:37+02:00",
 "msg": "Keretszerződés-levél: utolsó mondat ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a második javítástól sorszám a címben (– 2. javítás, – 3. javítás…)"
 },
 {
-"id": "81724d98f0",
-"at": "2026-11-19T11:06:41+01:00",
-"msg": "Jóváhagyó oldal: javított változat címe „… – javítás”"
-},
-{
-"id": "4016552882",
-"at": "2026-11-19T10:06:32Z",
+"id": "d0f6b371b1",
+"at": "2026-11-19T10:06:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
