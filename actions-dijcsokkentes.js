@@ -160,6 +160,7 @@ function npBuild(fd){
     if(p.eventType==='Videóvágás'){p.venue='';p.endDate='';p.startTime='';p.endTime='';}   // videóvágás: csak a leadás napja
     if(g('fromIncome')){p.projectValue=num(g('incAmount'))||null;p._noCal=true;}   // régi bevételi sorból: múltbeli projekt, nem kerül a naptárba
     {const it=knownClients('').find(c=>c.company===p.client);if(it&&!clientNew&&!p.clientTax){p.clientTax=it.tax;p.clientAddress=it.address;}}
+  if(p.endDate&&validISO(p.date)){const L=[];for(let d=addDays(p.date,1);d<=p.endDate&&L.length<20;d=addDays(d,1))L.push({d,s:time(g('dS_'+d))||p.startTime,e:time(g('dE_'+d))||p.endTime});if(L.length)p.days=L;}   /* több napos: minden napnak saját kezdés / végzés */
   const tid=g('tplId'),tpl=tid&&projById(tid);
   if(tpl){const skip=new Set(Object.keys(p).concat(TPL_SKIP));Object.keys(tpl).forEach(k=>{if(!skip.has(k))p[k]=clone(tpl[k]);});
     p.crew=clone(tpl.crew||[]);p.equipment=clone(tpl.equipment||[]);p.lead=tpl.lead||'';
@@ -219,6 +220,7 @@ function newProjectModal(day,pre){NP_FILES=[];
     <div class="field np-end" hidden><label for="m-endDate">Utolsó nap</label><div class="np-end-row"><input class="inp" id="m-endDate" name="endDate" type="date"><button type="button" class="x w" data-action="np-multi-off" aria-label="Egy napos" title="Mégis egy napos">×</button></div></div>
     ${mf('startTime','Kezdés',{ph:'pl. 10:00',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
     ${mf('endTime','Hozzávetőleges végzés',{ph:'pl. 18:30',im:'numeric',max:5}).replace('<div class="field','<div class="field np-onsite')}
+    <div class="field full np-days np-onsite" id="m-npDays" hidden></div>
     <div class="field full"><label for="m-notes">Jegyzetek (nem kötelező)</label><textarea class="inp" id="m-notes" name="notes" maxlength="5000"></textarea></div>
     ${isAdmin()?npFilesField():''}
   </div><p class="hint" style="margin:0">Az ügyfél, a kapcsolattartó és a jegyzetek nem kötelezők – később a projekt oldalán kiegészítheted. A projekt a „Terepi Munkák” naptárba is bekerül. Ha még nincs meg minden adat, mentsd piszkozatként – később a projekt oldalán kiegészítheted.</p>`,{noDraft:true,submitLabel:'Projekt létrehozása',left:'<button type="button" class="btn ghost" data-action="np-draft">💾 Piszkozat mentése</button>',submit:async(fd,form)=>{
@@ -644,3 +646,17 @@ async function sendListModal(only){
     }catch(e){handleErr(e);}
   }});
 }
+
+/* Új projekt, több nap: a 2. naptól minden napnak külön kezdés és hozzávetőleges végzés (alapból az 1. nap időpontjai, amíg át nem írod) */
+function npDaysDraw(f){const box=f&&f.querySelector('#m-npDays');if(!box)return;const v=n=>String((f.querySelector('[name='+n+']')||{}).value||'').trim();
+  const d0=v('date'),d1=v('endDate'),endOn=!(f.querySelector('.np-end')||{}).hidden,multi=endOn&&validISO(d0)&&validISO(d1)&&d1>d0;
+  const sl=f.querySelector('label[for=m-startTime]'),el=f.querySelector('label[for=m-endTime]');if(sl)sl.textContent=multi?'Kezdés (1. nap)':'Kezdés';if(el)el.textContent=multi?'Hozzávetőleges végzés (1. nap)':'Hozzávetőleges végzés';
+  if(!multi){box.hidden=true;box.innerHTML='';return;}
+  const old={};box.querySelectorAll('input[data-npd]').forEach(i=>{if(i.dataset.ed)old[i.name]=i.value;});
+  const s0=v('startTime'),e0=v('endTime'),rows=[];let k=2;for(let d=addDays(d0,1);d<=d1&&rows.length<20;d=addDays(d,1),k++){const sn='dS_'+d,en='dE_'+d;
+    rows.push(`<div class="np-day"><span class="np-day-l">${k}. nap · ${esc(dayLbl(d))}</span><input class="inp" name="${sn}" data-npd="1"${sn in old?' data-ed="1"':''} inputmode="numeric" maxlength="5" placeholder="Kezdés" aria-label="${k}. nap kezdés" value="${esc(sn in old?old[sn]:s0)}"><input class="inp" name="${en}" data-npd="1"${en in old?' data-ed="1"':''} inputmode="numeric" maxlength="5" placeholder="Végzés (kb.)" aria-label="${k}. nap hozzávetőleges végzés" value="${esc(en in old?old[en]:e0)}"></div>`);}
+  box.innerHTML=`<span class="lbl">További napok – kezdés és hozzávetőleges végzés</span>${rows.join('')}`;box.hidden=false;}
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target;if(!t||!t.closest)return;const f=t.closest('form');if(!f||!f.querySelector('#m-npDays'))return;
+  if(t.dataset&&t.dataset.npd){t.dataset.ed='1';return;}
+  if(['date','endDate','startTime','endTime'].includes(t.name))npDaysDraw(f);}));
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-action="np-multi-off"],[data-action="np-multi"]');if(b){const f=b.closest('form');setTimeout(()=>npDaysDraw(f),0);}});
