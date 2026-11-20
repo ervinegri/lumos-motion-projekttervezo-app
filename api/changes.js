@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1afe7928af",
+"at": "2026-11-20T14:50:09+01:00",
+"msg": "Cmd/Ctrl+S projekten kívül sem nyitja meg a böngésző mentés ablakát"
+},
+{
 "id": "94455ab4d5",
 "at": "2026-11-20T14:47:22+01:00",
 "msg": "Keretszerződés küldése: szélesebb ablak; aláírásnál mindig a mai dátum (Budapest, ÉÉÉÉ. hónap N.)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-figyelmeztetés: a fotók utómunkája nem „videó” (külön szöveg fotóra, videóra és a kettőre)"
 },
 {
-"id": "4b69385e81",
-"at": "2026-11-19T17:36:09+02:00",
-"msg": "Kézikönyv szerepenként a Beállítások fülön (📖 Kézikönyv); szakembereknél és értékesítőknél a Beállítások fül mindig látszik"
-},
-{
-"id": "8b0436b704",
-"at": "2026-11-19T14:48:01Z",
+"id": "9866daceb4",
+"at": "2026-11-19T15:36:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
