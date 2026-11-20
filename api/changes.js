@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a3d141b4d1",
+"at": "2026-11-20T19:44:06+01:00",
+"msg": "Értékesítés: áthúzáskor „Lehetőség → Oszlop” üzenet"
+},
+{
 "id": "86745ea3d2",
 "at": "2026-11-20T19:43:23+01:00",
 "msg": "Értékesítés: kilógó megjegyzés törlése a jutalékcsempe alól"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs törlése: ha a szerveren már nincs meg, jelzi és frissít"
 },
 {
-"id": "f137323e2d",
-"at": "2026-11-20T15:11:51+01:00",
-"msg": "Munkatárs űrlap: a Vállalkozás mező nem ajánl fel ügyfél- és más cégeket"
-},
-{
-"id": "5ed0a53fe4",
-"at": "2026-11-20T14:10:46Z",
+"id": "7aabd5bd3c",
+"at": "2026-11-20T14:12:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
