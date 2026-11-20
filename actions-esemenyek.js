@@ -1,6 +1,23 @@
 'use strict';
 /* ===== Események ===== */
 /* Elfogadott meghívás: a munkatárs a projekten marad, törléskor tájékoztató ablak nyílik. */
+/* Elfogadott meghívású szakember pozíciójának levétele: egy pozíció → megerősítés + automatikus e-mail neki;
+   az utolsó pozíció (lekerül a projektről) → a Megrendelő lemondása (keretszerződés 2.7.: 7 napon belül a díj 50%-a jár) */
+const posArt_=w=>/^[aáeéiíoóöőuúüű]/i.test(String(w||'').trim())?'az':'a';
+function rolesOfCrew_(d,id){return [d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter((x,i,l)=>x&&l.indexOf(x)===i);}
+function acceptedPosGate_(id,removed,proceed){const d=S.draft,iv=d&&d.invites&&d.invites[id];
+  if(!iv||iv.st!=='yes'||iv.via==='self'){proceed();return;}
+  const c=crewById(id),name=c&&c.name||'A munkatárs',first=huFirst(name)||name,all=rolesOfCrew_(d,id),kept=all.filter(r=>!removed.includes(r)),lc=a=>a.map(r=>String(r).toLowerCase()),rmT=lc(removed).join(' és ');
+  if(kept.length){const line=`Módosult a beosztásod: ${posArt_(rmT)} ${rmT} pozíció lekerült, ${posArt_(lc(kept)[0])} ${lc(kept).join(' és ')} marad.`;
+    openModal('Pozíció levétele',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed ${posArt_(rmT)} <b>${esc(rmT)}</b> pozíciót, erről automatikus e-mailt kap:</p><div class="banner" style="margin:0"><p>„${esc(line)}”</p></div>`,
+      {submitLabel:'Levétel és értesítés',cancelLabel:'Mégse',noDraft:true,submit:async()=>{closeModal();proceed();if(S.dirty)saveDraft();try{await call('crewPosNotify',{projectId:d.id,crewId:id,removed,kept});toast(first+' e-mailt kapott a módosításról');}catch(e){handleErr(e);}}});return;}
+  const days=validISO(d.date)?diffDays(todayISO(),d.date):99,f=(d.fees||[]).find(x=>x.crewId===id),fee=f?num(f.amount):0,late=days>=0&&days<=7,half=Math.round(fee/2);
+  openModal('⚠️ Lekerül a projektről',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed az utolsó pozícióját is, lekerül a projektről – ez a mi részünkről a projekt lemondásának számít.</p>
+    <div class="banner warn" style="margin:0 0 10px"><p>${late?`A projekt <b>${days?days+' nap múlva':'ma'}</b> kezdődik, ezért a keretszerződés 2.7. pontja szerint <b>a díja 50%-át${fee?' ('+huf(half)+')':''} ki kell fizetni</b>.${fee?' Ezt egyéb költségként rögzítem a projekten.':''}`:`A projekt ${days} nap múlva kezdődik – 7 napnál korábbi lemondásnál nem jár lemondási díj.`}</p></div>
+    <p class="hint" style="margin:0">${esc(first)} automatikus e-mailt kap arról, hogy mégsem lesz rá szükség a projekten.</p>`,
+    {submitLabel:'Levétel és értesítés',danger:true,cancelLabel:'Mégse',noDraft:true,submit:async()=>{closeModal();proceed();
+      if(late&&half)setDraft({fees:(S.draft.fees||[]).concat([{kind:'fixed',name:name+' – lemondási díj (keretszerződés 2.7.)',amount:half,rent:''}])});
+      if(S.dirty)saveDraft();try{await call('crewPosNotify',{projectId:d.id,crewId:id,removed:all,kept:[],all:true,fee:late?half:0});toast(first+' e-mailt kapott – lekerült a projektről');}catch(e){handleErr(e);}}});}
 function crewAcceptedLock_(id) {
   const d=S.draft, iv=d&&d.invites&&d.invites[id];
   if (!iv||iv.st!=='yes'||iv.via==='self') return false;   /* saját beosztás: szabadon módosítható */
@@ -223,9 +240,9 @@ const ACT={
   'sig-edit':b=>sigModal(b.dataset.id),
   'view-reset':()=>guard(()=>switchView('admin')),
   'crew-add-focus':()=>{const e=$('add-crew-person');if(!e)return;e.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>{const ci=e.parentNode&&e.parentNode.querySelector('.cmb-in');if(ci)ci.focus();else{e.focus();try{e.showPicker&&e.showPicker();}catch(_){}}},350);},
-  'lead-remove':()=>{const d=S.draft;if(!d)return;if(crewAcceptedLock_(d.lead))return;setDraft({lead:''});toast('A projektvezető szerep lekerült – jelölj ki új projektvezetőt.');},
+  'lead-remove':()=>{const d=S.draft;if(!d)return;const id=d.lead;acceptedPosGate_(id,['Projektvezető'],()=>{setDraft({lead:''});toast('A projektvezető szerep lekerült – jelölj ki új projektvezetőt.');});},
   'crew-day-tab':b=>{S.crewDay=b.dataset.d||'';render(true);},
-  'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);if(crewAcceptedLock_(id))return;
+  'crew-person-remove':b=>{const d=S.draft;if(!d)return;const id=b.dataset.id,c=crewById(id);{const iv=(d.invites||{})[id];if(iv&&iv.st==='yes'&&iv.via!=='self'&&!b.dataset.ok){acceptedPosGate_(id,rolesOfCrew_(d,id),()=>ACT['crew-person-remove']({dataset:{id,ok:'1'}}));return;}}
     if(!b.dataset.ok){const iv=(d.invites||{})[id],nm=c?c.name:'a munkatársat',rl=[d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter(Boolean);   /* megerősítés törlés előtt */
       openModal('Biztosan törlöd?',`<p style="margin:0">Biztosan leveszed <b>${esc(nm)}</b>${rl.length?' ('+esc(rl.join(', ').toLowerCase())+')':''} munkatársat a projektről?${iv&&iv.st==='invited'?' A kiküldött meghívója is érvényét veszti.':''}${(d.equipment||[]).some(e=>e.crewId===id)?' A nála lévő eszközök gazdátlanok lesznek.':''}</p>`,
         {submitLabel:'Igen, törlöm',cancelLabel:'Mégse',noDraft:true,submit:()=>{closeModal();ACT['crew-person-remove']({dataset:{id,ok:'1'}});}});return;}
@@ -311,7 +328,7 @@ const ACT={
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}
     crew.push({crewId:id,role});S.addCrew={person:'',role:''};setDraft({crew});slotAutoFill(id,role);},
-  'crew-remove':b=>{const d=S.draft;if(!d)return;const ref=(d.crew||[])[Number(b.dataset.i)];if(ref&&crewAcceptedLock_(ref.crewId))return;const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
+  'crew-remove':b=>{const d=S.draft;if(!d)return;const ref=(d.crew||[])[Number(b.dataset.i)];if(ref&&!b.dataset.ok){acceptedPosGate_(ref.crewId,[ref.role],()=>ACT['crew-remove']({dataset:{i:b.dataset.i,ok:'1'}}));return;}const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
     if(gone&&gone.crewId!==d.lead&&!crew.some(a=>a.crewId===gone.crewId)&&equipment.some(e=>e.crewId===gone.crewId)){equipment=clone(equipment).map(e=>e.crewId===gone.crewId?Object.assign(e,{crewId:''}):e);toast('A nála lévő eszközök gazdátlanok lettek – rendeld őket valaki máshoz.');}
     setDraft({crew,equipment});},
   'eq-add':b=>{const d=S.draft;if(!d)return;const key=b.dataset.crew||'',sk=key||'common';const sel=$('add-eq-item-'+sk),qel=$('add-eq-qty-'+sk);const id=sel&&sel.value;if(!id){toast('Válassz eszközt.',true);if(sel)sel.focus();return;}

@@ -1134,6 +1134,25 @@ function preDealNotify_(pid, won) {
 function inviteDeadline_(at) { const t0 = new Date(at); if (isNaN(t0)) return null; let t = new Date(t0.getTime() + 48 * 3600 * 1000);
   if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000);
   return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); }
+/** Elfogadott meghívású szakember pozíciójának levétele: a meghívás frissül, és a szakember rövid e-mailt kap.
+    all: az utolsó pozíció is lekerült (a Megrendelő lemondása – keretszerződés 2.7.; fee: a 7 napon belül járó díjrész). */
+function crewPosNotify_(u, a) {
+  const pid = str_(a && a.projectId, 64), cid = str_(a && a.crewId, 64), L = v => (Array.isArray(v) ? v : []).map(x => str_(x, 40)).filter(Boolean).slice(0, 10);
+  const removed = L(a && a.removed), kept = L(a && a.kept), all = !!(a && a.all) || !kept.length, fee = Math.max(0, Math.round(Number(a && a.fee) || 0)); let p;
+  withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, pid); if (!r) throw new Error('A projekt nem található.'); p = readRow_('projects', sh, r);
+    const inv = parseInvites_(p.invites); if (!inv[cid]) return;
+    if (all) inv[cid] = Object.assign(inv[cid], { st: 'no', via: 'levéve', ans: now_() }); else inv[cid].roles = kept;
+    p.invites = JSON.stringify(inv); putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
+  const c = readAll_('crew').find(x => x.id === cid) || {}, em = String(c.email || '').trim().toLowerCase(), first = huFirst_(c.name) || c.name || '';
+  const art = w => /^[aáeéiíoóöőuúüű]/i.test(String(w || '')) ? 'az' : 'a', lc = l => l.map(x => x.toLowerCase()).join(' és ');
+  const line = all ? 'Mégsem lesz szükség a közreműködésedre ezen a projekten.' + (fee ? ' A keretszerződés 2.7. pontja szerint a díjad 50%-át (' + fee.toLocaleString('hu-HU') + ' Ft) kifizetjük.' : '')
+    : 'Módosult a beosztásod: ' + art(lc(removed)) + ' ' + lc(removed) + ' pozíció lekerült, ' + art(lc(kept)) + ' ' + lc(kept) + ' marad.';
+  let mail = false;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try { mail = gmailSend_(em, (all ? 'Lekerültél a projektről: ' : 'Módosult a beosztásod: ') + p.name, 'Kedves ' + first + '!\n\n' + line + '\n\n' + p.name + (p.date ? ' – ' + preHuDate_(p.date) : '') + '\n\n' + appUrl_() + '#p=' + pid,
+      { htmlBody: mailCard_(first, escapeHtml_(line) + '<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', p.date ? '📅 ' + preHuDate_(p.date) : '', appUrl_() + (all ? '' : '#p=' + pid), all ? 'Projekttervező' : 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Pozíció-értesítés hiba: ' + e); } }
+  logEvent_(u, all ? 'Szakember levéve a projektről' : 'Pozíció levéve', p.name, (c.name || cid) + ' · ' + removed.join(', ') + (fee ? ' · lemondási díj: ' + fee : ''));
+  return { mail: mail };
+}
 /* ===================== ELŐFOGLALÁS (keretszerződés 2.8.) =====================
    A szakembert a részletek (feladat, időbeosztás, eszköz, díj) előtt is lefoglalhatjuk: visszaigazolja, hogy szabadon tartja a napot.
    – legkésőbb a projekt előtt 30 nappal véglegesítjük (rendes meghívó díjjal) vagy elengedjük; ha nem, magától megszűnik;
