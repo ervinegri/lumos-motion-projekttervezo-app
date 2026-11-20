@@ -250,6 +250,7 @@ function mselField(name,label,opts,sel,ph,canAdd){const S2=new Set(sel||[]);retu
 function mselSum(a,ph){return a.length?a.map(x=>`<span class="msel-chip">${esc(x)}</span>`).join(''):`<span class="muted">${esc(ph||'Válassz…')}</span>`;}
 function crewModal(c){
   setTimeout(crewSalesToggle,0);
+  const coEd=isAdmin()||!!(S.me&&S.me.role==='editor');   /* a vállalkozás neve és az adószám a termelési vezetőnél is szerkeszthető */
   if(c&&c._new)c=Object.assign({},c);const v=c||{},roles=new Set(v.roles||[]);if(c&&c._new)c=null;
   const uses=c?S.projects.filter(p=>crewIds(p).has(c.id)).length:0;
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
@@ -257,9 +258,9 @@ function crewModal(c){
     ${mselField('roles','Szerepek',CREW_ROLES,[...roles],'Válassz szerepet…')}
     ${mselField('skills','Részletek',CREW_SKILLS,v.skills||[],'Válassz részleteket…')}
     ${ms('type','Jogviszony',CREW_TYPES,isEmployee(v)?CREW_TYPES[3]:v.type||'Belsős')}
-    ${isAdmin()?'':`<input type="hidden" name="company" value="${esc(v.company||'')}"><input type="hidden" name="tax" value="${esc(v.tax||'')}"><input type="hidden" name="vat" value="${v.vat==='afa'?'afa':'aam'}">`}${isAdmin()?`<div class="field"><label for="m-company">Vállalkozás (számlázó cég)</label><div class="tax-row"><input class="inp" id="m-company" name="company" value="${esc(v.company||'')}" placeholder="pl. Minta Anna E.V. – vagy add meg lent az adószámot, és 🔍" autocomplete="off" maxlength="160"><button class="btn outline small" type="button" data-action="crew-co-lookup" title="Cégnév betöltése az adószám alapján (NAV)">🔍</button></div></div>`:''}
+    ${isAdmin()?'':`${coEd?'':`<input type="hidden" name="company" value="${esc(v.company||'')}"><input type="hidden" name="tax" value="${esc(v.tax||'')}">`}<input type="hidden" name="vat" value="${v.vat==='afa'?'afa':'aam'}">`}${coEd?`<div class="field"><label for="m-company">Vállalkozás (számlázó cég)</label><div class="tax-row"><input class="inp" id="m-company" name="company" value="${esc(v.company||'')}" placeholder="pl. Minta Anna E.V. – vagy add meg lent az adószámot, és 🔍" autocomplete="off" maxlength="160"><button class="btn outline small" type="button" data-action="crew-co-lookup" title="Cégnév betöltése az adószám alapján (NAV)">🔍</button></div></div>`:''}
     <div id="f-dayRate">${moneyField('dayRate','Napidíj (nettó)',v.dayRate)}</div>
-    ${isAdmin()?mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'}):''}
+    ${coEd?mf('tax','Adószám (a számla NAV-os párosításához)',{v:v.tax,ph:'12345678-1-42'}):''}
     ${isAdmin()?`<div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>`:''}
     ${phoneField({name:'phone',value:v.phone})}
     ${mf('email','E-mail',{type:'email',v:v.email})}
