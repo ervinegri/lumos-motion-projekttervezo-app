@@ -570,7 +570,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='remove')ACT['crew-person-remove']({dataset:{id:cid}});});};
 /* Pozíció cseréje: az egyik pozíciója helyett másik (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
 /* ⚙️ → Új pozíció hozzáadása: ugyanaz a munkatárs még egy pozícióban (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
-function crewRoleAdd(cid){const d=S.draft;if(!d)return;const c=crewById(cid),have=rolesOfCrew_(d,cid),opts=projRoles(d).filter(r=>!have.includes(r));
+function crewRoleAdd(cid){const d=S.draft;if(!d)return;const c=crewById(cid),have=rolesOfCrew_(d,cid),opts=projRoles(d).filter(r=>!have.includes(r)&&!(r==='Projektvezető'&&d.lead));
   openModal('Új pozíció – '+(c?c.name:''),`<div class="field full"><label for="m-radd">Pozíció</label><select class="inp" id="m-radd" name="role" data-cmb="Válassz pozíciót…"><option value=""></option>${opts.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
     <p class="hint" style="margin:6px 0 0">Jelenleg: ${esc(have.join(', ')||'—')}. ${((d.invites||{})[cid]||{}).st==='yes'&&((d.invites||{})[cid]||{}).via!=='self'?'Már elfogadta a meghívást – az új pozícióra külön meghívót kap („Meghívás · új pozíció”), a korábbi megmarad.':''} Az eladó értékesítő jutaléka a Pénzügyek → Értékesítés részben adható meg; itt a <b>Helyszíni értékesítő</b> pozíció választható.</p>`,
     {submitLabel:'Hozzáadás',noDraft:true,submit:fd=>{const role=String(fd.get('role')||'');if(!role){toast('Válassz pozíciót.',true);return;}if(role==='Projektvezető'){closeModal();setDraft({lead:cid});toast('Projektvezető lett – mentsd a módosítást');return;}
