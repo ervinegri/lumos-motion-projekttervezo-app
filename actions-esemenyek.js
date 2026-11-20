@@ -3,7 +3,7 @@
 /* Elfogadott meghívás: a munkatárs a projekten marad, törléskor tájékoztató ablak nyílik. */
 function crewAcceptedLock_(id) {
   const d=S.draft, iv=d&&d.invites&&d.invites[id];
-  if (!iv||iv.st!=='yes') return false;
+  if (!iv||iv.st!=='yes'||iv.via==='self') return false;   /* saját beosztás: szabadon módosítható */
   const c=crewById(id), name=c&&c.name||'A munkatárs';
   openModal('🔒 Elfogadott meghívás',
     '<p style="margin:0"><b>'+esc(name)+'</b> már elfogadta a projektmeghívást. A beosztása rögzített, a projekten marad.</p>',
