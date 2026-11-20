@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a616b46f80",
+"at": "2026-11-20T19:38:09+01:00",
+"msg": "Árajánlat: kikapcsolható Összesen sor (pl. napidíjas ajánlatnál)"
+},
+{
 "id": "b075749aec",
 "at": "2026-11-20T19:10:42+01:00",
 "msg": "HubSpot kétirányú ügyfélszinkron: mentéskor frissíti a céget és kapcsolattartót, óránként visszahúzza a változásokat, HubSpot ↗ gomb és frissítésjelzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Statiszta: nincs eszköz (munkatárs űrlapon a Részletek rejtve, projekten nincs eszközblokk)"
 },
 {
-"id": "1b9e2278af",
-"at": "2026-11-20T15:07:28+01:00",
-"msg": "Új szerződés: az ablak tetején választható a típus (alvállalkozói / modell), a munkatárs-lista ehhez igazodik"
-},
-{
-"id": "6f8550c05c",
-"at": "2026-11-20T14:03:47Z",
+"id": "a931531c72",
+"at": "2026-11-20T14:07:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
