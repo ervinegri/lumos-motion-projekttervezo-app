@@ -120,7 +120,8 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
   const projects = base.projects, crew = base.crew, inventory = base.inventory;
-  if (!light) try { invitesExpire_(projects); } catch (e) { Logger.log('Meghívó-lejárat: ' + e); }   /* a határidőig meg nem válaszolt meghívó elutasításnak számít */
+  if (!light) try { invitesExpire_(projects); } catch (e) { Logger.log('Meghívó-lejárat: ' + e); }
+  if (!light) try { preSweep_(projects); } catch (e) { Logger.log('Előfoglalás-lejárat: ' + e); }   /* a határidőig meg nem válaszolt meghívó elutasításnak számít */
   if (!light) try { if (u.role === 'crew' && u.crewId) invitesSync_(projects, String(u.crewId));   // a Google Naptárban adott „Igen / Nem” válaszok átvétele
     else if (u.role === 'admin' || u.role === 'editor') { const C = CacheService.getScriptCache(); if (!C.get('INV_SYNC')) { C.put('INV_SYNC', '1', 300); invitesSync_(projects); } } } catch (e) { Logger.log('Meghívás-szinkron: ' + e); }
   const out = {
@@ -146,7 +147,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
     out.myInvites = mineInvited.map(p => {
       let post = false; try { post = postOnly_(Object.assign({}, p, { editTasks: JSON.stringify(p.editTasks || {}) }), ownInviteCid); } catch (e) {}
       return { id: p.id, name: p.name, date: p.date, endDate: post ? '' : p.endDate, startTime: post ? '' : p.startTime, endTime: post ? '' : p.endTime, venue: post ? '' : p.venue, eventType: p.eventType, post: post,
-        roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at, st: p.invites[ownInviteCid].st };
+        roles: [p.lead === ownInviteCid ? 'Projektvezető' : ''].concat(p.crew.filter(x => x.crewId === ownInviteCid).map(x => x.role)).filter(Boolean), at: p.invites[ownInviteCid].at, st: p.invites[ownInviteCid].st, pre: p.invites[ownInviteCid].pre ? 1 : 0, pd: p.invites[ownInviteCid].pd || '' };
     });
   }
   if (u.role === 'crew') {

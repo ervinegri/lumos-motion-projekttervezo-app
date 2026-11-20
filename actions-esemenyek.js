@@ -262,8 +262,8 @@ const ACT={
     if(S.dirty){toast('Előbb mentsd a projektet, utána nyisd meg a meghívót.',true);return;}
     const cid=b.dataset.id,c=crewById(cid);
     const isCut=(d.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó'),dd=isCut&&typeof dueDate==='function'?dueDate(d):null;
-    const args={projectId:d.id,crewId:cid,due:dd||''};
-    if(cid&&S.me&&cid===S.me.crewId&&(isAdmin()||S.me.role==='editor')){b.disabled=true;   /* saját magát: e-mail nélkül, azonnal elfogadottként rögzíti */
+    const pre=b.dataset.pre==='1',args={projectId:d.id,crewId:cid,due:dd||'',pre};
+    if(!pre&&cid&&S.me&&cid===S.me.crewId&&(isAdmin()||S.me.role==='editor')){b.disabled=true;   /* saját magát: e-mail nélkül, azonnal elfogadottként rögzíti */
       try{const sent=await call('crewInvite',args);if(sent.project){const i=S.projects.findIndex(x=>x.id===d.id);if(i>=0)S.projects[i]=normProj(sent.project);if(S.draft&&S.draft.id===d.id){S.draft.invites=sent.project.invites;if(S.draftBase)S.draftBase.invites=sent.project.invites;}}render(true);toast('✓ Saját beosztás rögzítve – e-mail nem ment ki');}catch(err){b.disabled=false;handleErr(err);}return;}
     b.disabled=true;
     try {
@@ -276,7 +276,7 @@ const ACT={
         <div class="crew-mail-preview" aria-label="Kiküldendő e-mail előnézete">${preview.html||'<p>A meghívó szövege jelenleg üres.</p>'}</div>
         <p class="hint" style="margin:10px 0 0">A küldéssel a rendszer rögzíti a meghívást, és frissíti a naptárbejegyzést is.</p>
       </div>`;
-      openModal('✉️ Meghívó e-mail előnézete',body,hasEmail?{
+      openModal(pre?'⏳ Előfoglaló e-mail előnézete':'✉️ Meghívó e-mail előnézete',body,hasEmail?{
         cancelLabel:'Mégse',submitLabel:'Küldés',noDraft:true,
         submit:async()=>{
           const sent=await call('crewInvite',args);
@@ -287,11 +287,15 @@ const ACT={
             if(S.draft&&S.draft.id===d.id){S.draft.invites=sent.project.invites;if(S.draftBase)S.draftBase.invites=sent.project.invites;}
           }
           closeModal();render(true);
-          toast('Meghívás elküldve: '+(c?c.name:'')+(sent.cal?' (naptárba is)':''));
+          toast((pre?'Előfoglalás elküldve: ':'Meghívás elküldve: ')+(c?c.name:'')+(sent.cal?' (naptárba is)':''));
         }
       }:{cancelLabel:'Bezárás',noDraft:true});
     }catch(e){b.disabled=false;handleErr(e);}
   },
+  'pre-release':b=>{const d=S.draft;if(!d||ro())return;const cid=b.dataset.id,c=crewById(cid),iv=(d.invites||{})[cid]||{};
+    openModal(iv.st==='yes'?'Előfoglalás elengedése':'Előfoglalás visszavonása',`<p style="margin:0">${esc(c?c.name:'')} kap egy rövid levelet, hogy a(z) <b>${esc(fmtDay(d.date))}</b> napot már nem kell szabadon tartania. Az elengedés díjmentes (keretszerződés 2.8.3.).</p>`,{submitLabel:'Elengedés',noDraft:true,submit:async()=>{const r=await call('preRelease',{projectId:d.id,crewId:cid});if(r.project){const i=S.projects.findIndex(x=>x.id===d.id);if(i>=0)S.projects[i]=normProj(r.project);if(S.draft&&S.draft.id===d.id){S.draft.invites=r.project.invites;if(S.draftBase)S.draftBase.invites=r.project.invites;}}closeModal();render(true);toast('Elengedve – '+(c?c.name:'')+' értesítést kapott');}});},
+  'pre-offer':b=>{const pid=b.dataset.id,p=projById(pid);
+    openModal('Más ajánlatot kaptál?',`<p style="margin:0 0 8px">Jelezzük a projekt vezetőjének, hogy erre a napra más ajánlatot kaptál.</p><p class="hint" style="margin:0">48 órán belül véglegesítjük a foglalást (megkapod a részleteket és a díjat), vagy elengedünk. Ha addig nem döntünk, szabadon elfogadhatod a másik ajánlatot.</p>`,{submitLabel:'Jelzem',noDraft:true,submit:async()=>{const r=await call('preOffer',{projectId:pid});closeModal();toast('Jelezted – '+(r.due?r.due+'-ig ':'')+'döntünk');load(true);}});},
   'inv-cancel':async b=>{const pid=b.dataset.id;let t;b.disabled=true;try{t=await call('inviteCancelInfo',{projectId:pid});}catch(e){b.disabled=false;handleErr(e);return;}b.disabled=false;
     const TX={free:`A projekt kezdetéig még <b>${t.days} nap</b> van. 30 napnál korábbi visszamondásra évente 2 alkalommal van lehetőséged – idén eddig ${t.used}× éltél vele. <b>Ez a visszamondás díjmentes.</b>`,
       p50:t.days>30?`A projekt kezdetéig még <b>${t.days} nap</b> van, de idén már 2× visszamondtál díjmentesen. Ezért a keretszerződés szerint <b>a díjazás 50%-a kötbér</b>.`:`A projekt kezdetéig <b>${t.days} nap</b> van (30–15 nap). A keretszerződés szerint ilyenkor <b>a díjazás 50%-a kötbér</b>.`,
@@ -301,7 +305,7 @@ const ACT={
       <div class="field full"><label for="m-cxWhy">Miért nem tudod vállalni?</label><textarea class="inp" id="m-cxWhy" name="why" rows="3" maxlength="600" placeholder="pl. megbetegedtem / ütközik egy másik munkával…" required></textarea></div>`,
       {submitLabel:'Visszamondás elküldése',danger:true,submit:async fd=>{const why=String(fd.get('why')||'').trim();if(why.length<5){toast('Írd le röviden, miért nem tudod vállalni.',true);return;}
         try{await call('inviteCancel',{projectId:pid,why});closeModal();toast('Visszamondtad – értesítettük a projekt vezetőjét.');load(true);}catch(e){handleErr(e);}}});},
-  'inv-answer':async b=>{const yes=b.dataset.a==='yes',pid=b.dataset.id;b.disabled=true;try{const result=await call('inviteRespond',{projectId:pid,answer:yes?'yes':'no'});if(result&&result.alreadyAnswered){if(b.dataset.close)closeModal();inviteAlreadyModal_(result.status,result.name);return;}if(b.dataset.close)closeModal();S.myInvites=(S.myInvites||[]).filter(x=>x.id!==b.dataset.id);toast(yes?'Elfogadtad – a meghívó visszajelzést kapott, és a projekt a naptáradba is bekerült':'Jelezted, hogy nem vállalod – a meghívó visszajelzést kapott');const was=S.projectId===pid;await load(true,false);if(yes&&projById(pid)){if(!was||S.projectId!==pid)openProject(pid);}else if(was&&ro()){S.projectId=null;S.draft=null;S.tab='projektek';render(true);}}catch(e){b.disabled=false;handleErr(e);}},
+  'inv-answer':async b=>{const yes=b.dataset.a==='yes',pid=b.dataset.id;b.disabled=true;try{const result=await call('inviteRespond',{projectId:pid,answer:yes?'yes':'no'});if(result&&result.alreadyAnswered){if(b.dataset.close)closeModal();inviteAlreadyModal_(result.status,result.name);return;}if(b.dataset.close)closeModal();S.myInvites=(S.myInvites||[]).filter(x=>x.id!==b.dataset.id);toast(b.dataset.pre||((projById(pid)||{}).invites||{})[S.me&&S.me.crewId]&&((projById(pid)||{}).invites||{})[S.me.crewId].pre?(yes?'Köszönjük – jeleztük, hogy szabadon tartod a napot':'Jelezted, hogy nem tudod szabadon tartani'):yes?'Elfogadtad – a meghívó visszajelzést kapott, és a projekt a naptáradba is bekerült':'Jelezted, hogy nem vállalod – a meghívó visszajelzést kapott');const was=S.projectId===pid;await load(true,false);if(yes&&projById(pid)){if(!was||S.projectId!==pid)openProject(pid);}else if(was&&ro()){S.projectId=null;S.draft=null;S.tab='projektek';render(true);}}catch(e){b.disabled=false;handleErr(e);}},
   'proj-tl':b=>{S.cal.mode='ido';ACT.tab({dataset:{tab:'naptar',focus:'1'}});},   /* projektből az idővonalra, a projekt időszakára állva */
   'crew-add':()=>{const d=S.draft;if(!d)return;const id=S.addCrew.person;if(!id){toast('Válassz munkatársat.',true);return;}
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);

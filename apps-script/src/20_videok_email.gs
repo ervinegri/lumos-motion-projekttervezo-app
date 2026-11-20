@@ -509,7 +509,7 @@ function projectView_(p, u) {
   if (role === 'admin') { const v = Number(q.quotePrice); q.projectValue = q.quotePrice === '' || q.quotePrice == null || !isFinite(v) ? null : v; q.extras = parseExtras_(q.extras); } else delete q.extras;
   delete q.quotePrice;
   if (role === 'admin' || role === 'editor') q.fees = parseFees_(q.fees);
-  else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount) q.myFee = { amount: mine.amount, dayAmounts: mine.dayAmounts }; delete q.fees; }   // a szakember csak a saját díját látja
+  else { const mine = role === 'crew' && u.crewId ? parseFees_(q.fees).find(f => f.crewId === u.crewId) : null; if (mine && mine.amount && !((parseInvites_(q.invites)[u.crewId] || {}).pre)) q.myFee = { amount: mine.amount, dayAmounts: mine.dayAmounts };   /* előfoglalásnál még nincs díj */ delete q.fees; }   // a szakember csak a saját díját látja
   // díjcsökkentések: vezetők mindet, a szakember csak a saját, jóváhagyott tételeit látja
   const pens = parsePen_(q.penalties);
   q.penalties = role === 'crew' ? pens.filter(x => x.crewId === u.crewId && x.status === 'approved').map(x => Object.assign({}, x, { copyEmail: '' })) : (role === 'admin' || role === 'editor' ? pens : []);

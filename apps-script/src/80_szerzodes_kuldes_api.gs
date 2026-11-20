@@ -399,6 +399,8 @@ function rpcInner_(token, name, arg) {
     case 'inviteStatus': if (role !== 'crew' && role !== 'admin' && role !== 'editor') deny(); return inviteStatus_(u, arg);   // meghívólink: korábbi válasz ellenőrzése
     case 'inviteCancelInfo': if (role !== 'crew' && role !== 'admin' && role !== 'editor') deny(); return inviteCancelInfo_(u, arg);   // elfogadás utáni visszamondás feltételei
     case 'inviteCancel': if (role !== 'crew' && role !== 'admin' && role !== 'editor') deny(); return inviteCancel_(u, arg);
+    case 'preOffer': if (role !== 'crew' && role !== 'admin' && role !== 'editor') deny(); return preOffer_(u, arg);   // előfoglalás: más ajánlatot kapott (48 óra a döntésre)
+    case 'preRelease': canEdit(); return preRelease_(u, arg);   // előfoglalás elengedése
     case 'inviteRespond': if (role !== 'crew' && role !== 'admin' && role !== 'editor') deny(); return inviteRespond_(u, arg);   // a szakember elfogadja / elutasítja
     case 'projSales': {   // a projekt értékesítője (Extrák → Értékesítői jutalék)
       adminOnly(); const pid = str_(arg && arg.projectId, 64), oid = str_(arg && arg.ownerId, 64);
