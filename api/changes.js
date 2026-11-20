@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f1c753af94",
+"at": "2026-11-20T16:38:05+01:00",
+"msg": "Munkatárs / eszköz adatlap: meglévő elemnél zárolva nyílik, a 🔒 Szerkesztés gombbal oldható fel (a dokumentumok zárolva is kezelhetők)"
+},
+{
 "id": "cfae39d4b0",
 "at": "2026-11-20T16:33:42+01:00",
 "msg": "Szereplő (statiszta, modell, beszélő szereplő): Szereplői keretszerződés, Szereplők fül és szerep; a régi Statiszta szerep automatikusan Szereplő lesz"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: a székhely csak az adószámból (a számlás kiegészítés kivéve)"
 },
 {
-"id": "5b7ee441d6",
-"at": "2026-11-20T14:56:08+01:00",
-"msg": "Keretszerződés küldése: bal alsó sarokban Letöltés és Megnyitás új lapon gomb"
-},
-{
-"id": "fbffd7fcb2",
-"at": "2026-11-20T13:53:39Z",
+"id": "8834d2cec8",
+"at": "2026-11-20T13:56:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
