@@ -302,7 +302,7 @@ ACT['proj-history']=async b=>{const p=projById(b.dataset.id)||S.draft;if(!p)retu
   catch(e){const box=$('ph-body');if(box)box.innerHTML=`<p class="bad-txt">${esc(errText(e))}</p>`;}};
 
 const salesOnly=roles=>roles.length>0&&roles.every(r=>r==='Értékesítő'||r==='Ajánlói jutalék');   // csak értékesítői szerep: a gyártási részletek és a napidíj nem kell
-function crewSalesToggle(){const w=document.querySelector('.msel[data-msel=roles]');if(!w)return;const rl=[...w.querySelectorAll('input:checked')].map(i=>i.value),so=salesOnly(rl),ex=rl.length>0&&rl.every(r=>r==='Statiszta');['f-skills','f-dayRate'].forEach(id=>{const x=$(id);if(x)x.hidden=so||(ex&&id==='f-skills');});}   /* értékesítőnél nincs eszköz és napidíj; statisztánál nincs eszköz (részletek) */
+function crewSalesToggle(){const w=document.querySelector('.msel[data-msel=roles]');if(!w)return;const rl=[...w.querySelectorAll('input:checked')].map(i=>i.value),so=salesOnly(rl),ex=rl.length>0&&rl.every(r=>r==='Szereplő'||r==='Statiszta');['f-skills','f-dayRate'].forEach(id=>{const x=$(id);if(x)x.hidden=so||(ex&&id==='f-skills');});}   /* értékesítőnél nincs eszköz és napidíj; szereplőnél nincs eszköz (részletek) */
 document.addEventListener('change',e=>{const w=e.target.closest&&e.target.closest('.msel');if(!w)return;if(w.dataset.msel==='roles')crewSalesToggle();const ph=w.dataset.ph||(w.dataset.msel==='roles'?'Válassz szerepet…':'Válassz részleteket…');w.querySelector('.msel-v').innerHTML=mselSum([...w.querySelectorAll('input:checked')].map(i=>i.value),ph);});
 document.addEventListener('click',e=>{if(!e.target.closest('.msel'))document.querySelectorAll('.msel-pop').forEach(x=>{if(!x.hidden){x.hidden=true;x.closest('.msel').classList.remove('open');}});});
 

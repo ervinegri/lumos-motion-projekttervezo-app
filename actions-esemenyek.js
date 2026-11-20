@@ -62,7 +62,7 @@ const ACT={
   'crew-co-lookup':async b=>{const t=$('m-tax'),co=$('m-company');const v=String((t&&t.value)||'').replace(/\D/g,'');if(v.length<8){toast('Írd be az adószámot (legalább az első 8 számjegyét), és abból betöltöm a cég nevét.',true);if(t)t.focus();return;}
     b.disabled=true;try{const r=await call('lookupTaxpayer',{tax:v});if(co&&r.name)co.value=r.name;toast('Cégnév betöltve: '+(r.name||''));}catch(e){handleErr(e);}finally{b.disabled=false;}},
   'msel':b=>{const w=b.closest('.msel'),pop=w.querySelector('.msel-pop'),open=pop.hidden;document.querySelectorAll('.msel-pop').forEach(x=>{x.hidden=true;});pop.hidden=!open;w.classList.toggle('open',open);if(open){pop.scrollTop=0;const q=pop.querySelector('.msel-q');if(q){q.value='';pop.querySelectorAll('label').forEach(l=>{l.hidden=false;});const ad=pop.querySelector('.msel-add');if(ad)ad.hidden=true;setTimeout(()=>{q.focus({preventScroll:true});pop.scrollTop=0;},0);}}},
-  'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:S.tab==='statisztak'?{roles:['Statiszta'],_new:true}:null),
+  'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:S.tab==='statisztak'?{roles:['Szereplő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c){crewModal(c);if(b.dataset.focus)setTimeout(()=>{const x=$(b.dataset.focus);if(x)x.scrollIntoView({block:'center'});},60);}},
   'crew-doc-up':b=>{const fi=$('cdoc-file');if(fi)fi.click();},
   'crew-doc-open':async b=>{const w=window.open('about:blank','_blank');

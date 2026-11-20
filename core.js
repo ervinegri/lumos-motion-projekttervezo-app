@@ -51,7 +51,7 @@ const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges r
 const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
 /* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
 const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k))return 'Interjúsarok operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)(_\d+)?$/.test(k))return 'Statív operatőr';return role;};
-const CREW_ROLES=['Projektvezető','Értékesítő','Helyszíni értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Key Account Manager','Statiszta'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
+const CREW_ROLES=['Projektvezető','Értékesítő','Helyszíni értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Key Account Manager','Szereplő'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
@@ -665,3 +665,7 @@ function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!p
   if(autoSiteStep._done===d.id)return;autoSiteStep._done=d.id;
   setDraft({status:'helyszin',stepsDone:ticksUpTo(d,'helyszin')});setTimeout(()=>{if(S.dirty)saveDraft();},0);
   toast('✓ Minden feltétel teljesült – a projekt átlépett a Helyszíni munkára');}catch(e){}}
+
+/* „Statiszta” szerep → „Szereplő” (statiszta, modell és beszélő szereplő gyűjtőneve, 2026-11-20): a régi adatokat betöltéskor átnevezzük, mentéskor már az új név megy */
+function fixLegacyRoles(){const f=a=>{if(Array.isArray(a))for(let i=0;i<a.length;i++)if(a[i]==='Statiszta')a[i]='Szereplő';};
+  (S.crew||[]).forEach(c=>f(c.roles));(S.projects||[]).forEach(p=>(p.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';}));if(S.draft)(S.draft.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';});}
