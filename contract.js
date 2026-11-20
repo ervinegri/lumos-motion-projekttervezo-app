@@ -325,7 +325,7 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;let c=b.dataset.id?crewById(b.dataset.i
     sel.addEventListener('change',fill);sel.addEventListener('input',fill);}}
   /* székhely: az adószámból a NAV-adatokból (ugyanaz, mint a Stábnál a cégnév-betöltés) */
   {const fm=$('mform'),q=k=>fm&&fm.querySelector('[name="'+k+'"]');let last='';const addrFill=async()=>{const a=q('addr'),t=q('tax');if(!a||!t)return;const v=String(t.value||'').replace(/\D/g,'');if(v.length<8||a.value.trim()||v.slice(0,8)===last)return;last=v.slice(0,8);
-      const ph=a.placeholder;a.placeholder='Székhely betöltése az adószámból…';try{const r=await call('lookupTaxpayer',{tax:v});if(r&&r.address&&!a.value.trim())a.value=r.address;}catch(e){}finally{a.placeholder=ph;}};
+      const ph=a.placeholder;a.placeholder='Székhely betöltése az adószámból…';try{const r=await call('crewAddress',{crewId:c&&c.id||'',tax:v});if(r&&r.address&&!a.value.trim())a.value=r.address;}catch(e){}finally{a.placeholder=ph;}};
     window._alvAddrFill=addrFill;const t=q('tax');if(t)t.addEventListener('change',addrFill);addrFill();}
   const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
     try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};

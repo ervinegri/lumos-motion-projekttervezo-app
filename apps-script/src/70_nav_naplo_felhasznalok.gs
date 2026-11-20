@@ -728,3 +728,18 @@ function quoteValueOnce_() {
     dbFlush_(); });
   P.setProperty('QUOTE_VALUE_1', new Date().toISOString());
 }
+
+/** Keretszerződéshez: a munkatárs székhelye. 1) a NAV adózói adataiból (számlázz.hu), 2) ha ott nincs (pl. egyéni vállalkozónál a NAV nem adja ki),
+    a tőle befogadott, NAV-ban párosított számla eladói címéből. */
+function crewAddress_(a) {
+  const cid = str_(a && a.crewId, 64), c = cid ? readAll_('crew').find(x => x.id === cid) : null;
+  const tax8 = String((a && a.tax) || (c && c.tax) || '').replace(/\D/g, '').slice(0, 8); if (tax8.length !== 8) return { address: '' };
+  const C = CacheService.getScriptCache(), hit = C.get('cadr_' + tax8); if (hit) return { address: hit, src: 'cache' };
+  let address = '', src = '';
+  try { if (szamlazzKey_()) { const t = szamlazzTaxpayer_(tax8); address = prettyAddress_(t); src = 'nav'; } } catch (e) {}
+  if (!address && c) { try { const cfg = navConfig_(); if (cfg.ok) {
+      const nos = []; readAll_('payStatus').filter(x => x.crewId === c.id && x.invoiceNo).sort((x, y) => String(y.month).localeCompare(String(x.month))).forEach(x => String(x.invoiceNo).split(/\s*,\s*/).forEach(n => { if (n && nos.length < 2) nos.push(n); }));
+      if (nos.length) { const inv = navInvoices_(null, { tax: tax8, nos: nos.join(',') }).find(i => i && i.supplier && i.supplier.address); if (inv) { address = inv.supplier.address; src = 'szamla'; } } } } catch (e) { Logger.log('Székhely számlából: ' + e); } }
+  if (address) { try { C.put('cadr_' + tax8, address, 21600); } catch (e) {} }
+  return { address: address, src: src };
+}

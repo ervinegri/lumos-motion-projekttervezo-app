@@ -518,6 +518,7 @@ function rpcInner_(token, name, arg) {
     case 'setDeliveryLinks': return setDeliveryLinks_(u, arg);
     case 'deleteProject': canEdit(); return deleteProject_(u, arg);
     case 'createProjectFolder': canEdit(); return createProjectFolder_(u, arg);
+    case 'crewAddress': adminOnly(); return crewAddress_(arg);   // keretszerződés: a munkatárs székhelye (NAV adózói adat, különben a számlájáról)
     case 'lookupTaxpayer': canEdit(); return lookupTaxpayerApi_(arg);
     case 'hubspotContactLink': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotContactLinkApi_(arg);
     case 'hubspotNotes': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotNotesApi_(arg);
