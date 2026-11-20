@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a951f205f6",
+"at": "2026-11-20T15:50:50+01:00",
+"msg": "Lezajlott projektnél is levehető egy-egy pozíció (×, megerősítéssel)"
+},
+{
 "id": "13812b28de",
 "at": "2026-11-20T15:48:55+01:00",
 "msg": "Új pozíció ablak: a pozíciólista azonnal lenyílik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés 7.5: a közvetlen kapcsolat pontosítása (kiállító, független megbízás, egyeztetés kétség esetén)"
 },
 {
-"id": "c064890045",
-"at": "2026-11-20T14:24:57+01:00",
-"msg": "Keretszerződés 2.5.5: a kötbér rendezési módját (ledolgozás / kifizetés) a Vállalkozó választja; app-szövegek igazítva"
-},
-{
-"id": "1d9643f529",
-"at": "2026-11-20T13:14:36Z",
+"id": "272d8e6d06",
+"at": "2026-11-20T13:25:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
