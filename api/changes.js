@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9539be8bb9",
+"at": "2026-11-20T10:04:49+02:00",
+"msg": "pCloud-mappa több videóval: minden videó a nevében lévő szám szerinti fájlt játssza (Short videó 3 → short_3…), az ügyfél-jóváhagyó oldalon és a belső videóablakban is"
+},
+{
 "id": "6341116160",
 "at": "2026-11-20T09:47:31+02:00",
 "msg": "Utómunka-tábla: a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen a Jóváhagyásra vár oszlopba húzhatja"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: az 1. javítás jelvénye sárga, a 2.-tól piros"
 },
 {
-"id": "07ffbe9310",
-"at": "2026-11-19T11:09:31+01:00",
-"msg": "Jóváhagyó oldal: a „projektet lezártuk” csak akkor, ha a projekt minden videója jóvá van hagyva (külön linken küldött videókat is figyeli)"
-},
-{
-"id": "e8e8fc4d71",
-"at": "2026-11-19T10:08:45Z",
+"id": "c2443b6fde",
+"at": "2026-11-19T10:09:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
