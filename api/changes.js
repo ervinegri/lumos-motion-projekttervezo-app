@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "00312d44d1",
+"at": "2026-11-20T15:55:51+01:00",
+"msg": "Projekt videótábla: alapból csukva; az oszlopok nem görgetnek külön, az egész oldal görget"
+},
+{
 "id": "fd7a35dc33",
 "at": "2026-11-20T15:53:09+01:00",
 "msg": "Projekt: a Szolgáltatások panel is összecsukható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerződés: a munkatárs választó a kitöltő ablakban (nincs külön lépés); a székhely az adószámból automatikusan betöltődik"
 },
 {
-"id": "c563c124ad",
-"at": "2026-11-20T14:32:34+01:00",
-"msg": "Projekt oldal: videótábla (kanban) az Alapadatok fölött, utómunka-instrukciókkal"
-},
-{
-"id": "d9192bd844",
-"at": "2026-11-20T13:29:05Z",
+"id": "7a1c024685",
+"at": "2026-11-20T13:32:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
