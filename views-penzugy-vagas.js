@@ -318,7 +318,7 @@ function inviteHintDate(v){
 }
 /* Pozíció-címke finom színe szerepcsoportonként */
 /* sok pozíciónál rövid címke (a teljes név a súgóban) */
-const posShort=r=>({'Kreatív operatőr':'Kreatív op.','Statív operatőr':'Statív op.','Interjúsarok operatőr':'Interjú op.','Drónpilóta':'Drón','Képkeverő / streaming':'Képkeverő','Hangtechnikus':'Hang','Fénytechnikus':'Fény','Vizuáltechnikus':'Vizuál','Helyszíni értékesítő':'Helyszíni ért.','Sofőr / rakodó':'Sofőr'})[r]||r;
+const posShort=r=>({'Key Account Manager':'KAM','Kreatív operatőr':'Kreatív op.','Statív operatőr':'Statív op.','Interjúsarok operatőr':'Interjú op.','Drónpilóta':'Drón','Képkeverő / streaming':'Képkeverő','Hangtechnikus':'Hang','Fénytechnikus':'Fény','Vizuáltechnikus':'Vizuál','Helyszíni értékesítő':'Helyszíni ért.','Sofőr / rakodó':'Sofőr'})[r]||r;
 function posTone(r){r=String(r||'');return /vágó/i.test(r)?'pt-cut':/fotó/i.test(r)?'pt-photo':/drón/i.test(r)?'pt-drone':/hang|fény|vizuál|képkever|stream/i.test(r)?'pt-tech':/sofőr|rakod/i.test(r)?'pt-drive':/értékes|ajánl/i.test(r)?'pt-sales':'pt-cam';}
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const ROLES=projRoles(p);if(!ROLES.includes(selRole))selRole=ROLES.includes('Vágó')?'Vágó':ROLES[0];   // videóvágásnál csak projektvezető és vágó
