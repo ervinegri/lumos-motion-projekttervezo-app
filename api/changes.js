@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fe58c85b29",
+"at": "2026-11-20T14:04:32+01:00",
+"msg": "Újdonságok: előfoglalás, napi időpontok"
+},
+{
 "id": "6f507ba837",
 "at": "2026-11-20T14:04:13+01:00",
 "msg": "Új projekt: több napnál minden napnak külön kezdés és hozzávetőleges végzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-instrukciók előtöltése (a tábla megnyitásakor már kész, nem utólag ugrik be)"
 },
 {
-"id": "e748f9fd5b",
-"at": "2026-11-19T11:46:42+01:00",
-"msg": "Videóablak: link nélküli, visszajelzésekből kikövetkeztetett verziók (v1..vN) megszüntetve – csak valódi linkcsere ad új verziót"
-},
-{
-"id": "ead1443d19",
-"at": "2026-11-19T10:33:55Z",
+"id": "fb5600428c",
+"at": "2026-11-19T10:46:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
