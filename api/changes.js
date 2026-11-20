@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "37514bb0d7",
+"at": "2026-11-20T14:01:34+01:00",
+"msg": "Lecserélt / levett szakember díjsora eltűnik a Pénzügyekből (a régi árva sorok megnyitáskor törlődnek)"
+},
+{
 "id": "c9cf619dc0",
 "at": "2026-11-20T14:00:24+01:00",
 "msg": "Hang- és vizuáltechnikusnál nem kötelező az eszköz; tervezés → helyszíni munka automatikusan, ha minden feltétel teljesül; előfoglalás nem számít elfogadott meghívásnak"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "eb98faeac4",
 "at": "2026-11-19T11:31:55+01:00",
 "msg": "Utómunka-instrukciók: Kész gomb törölve"
-},
-{
-"id": "49929b31ab",
-"at": "2026-11-19T11:31:35+01:00",
-"msg": "Videótábla: cím nem fut a fogantyú alá"
 }
 ];
 const allowed = require('./_auth.js');
