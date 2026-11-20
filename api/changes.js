@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8222f6b5ac",
+"at": "2026-11-20T22:55:29+01:00",
+"msg": "Google-értékelések: a titkos kulcs az appból is beállítható"
+},
+{
 "id": "21854c9597",
 "at": "2026-11-20T22:50:25+01:00",
 "msg": "Helyszíni munkára lépés: a bejelentkezett vezető saját beosztása elfogadottnak számít (és a háttérben rögzül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Saját beosztás: a pozíciók levehetők (nem zárolja az elfogadott meghívás)"
 },
 {
-"id": "627b24e967",
-"at": "2026-11-20T15:19:33+01:00",
-"msg": "Keretszerződés e-mail: a szerződés PDF-ben megy ki (és PDF-ként kerül a munkatárs dokumentumai közé)"
-},
-{
-"id": "2a86fbafce",
-"at": "2026-11-20T14:19:02Z",
+"id": "46b36bfb8d",
+"at": "2026-11-20T14:19:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
