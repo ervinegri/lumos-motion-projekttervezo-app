@@ -255,7 +255,7 @@ async function dealMove(id,stage){const d=dealById(id);if(!d||d.stage===stage)re
   if(DEAL_OPEN.includes(stage)&&(!d.nextStep||!d.nextDate)){toast('Előbb add meg a következő lépést és a dátumát.',true);dealModal(d);return;}   // a következő lépés és a dátuma kötelező
   const nd=Object.assign({},d,{stage});if(d.chance==null||d.chance===''||+d.chance===DEAL_CHANCE[d.stage])nd.chance=DEAL_CHANCE[stage];
   const prev=S.deals;S.deals=S.deals.map(x=>x.id===id?nd:x);render(true);
-  try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast(dealLbl(stage)+': '+d.title);}catch(e){S.deals=prev;render(true);handleErr(e);}}
+  try{const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;render(true);toast(d.title+' → '+dealLbl(stage));}catch(e){S.deals=prev;render(true);handleErr(e);}}   // áthelyezés: melyik oszlopba került (nem „új érdeklődő” felvétel)
 
 Object.assign(ACT,{
   'deal-new':b=>(S._qAfterNew=false,dealModal(null,b&&b.dataset.stage?{stage:b.dataset.stage}:null)),
