@@ -302,14 +302,15 @@ async function alvBuild(o){if(!window.JSZip)await jszipLib();const t=ALV_TPL||(A
   const slug=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
   return {blob:await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),name:'Keretszerzodes_'+(slug(o.name)||'vallalkozo')+'_Lumos_Motion.docx'};}
 const alvB64=blob=>new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
-ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)return;
-  const prev=(crewDocsOf(c.id).find(d=>d.signedAt&&/szerz/i.test(d.title||''))||{}).signedAt||'';
+ACT['crew-ctr']=b=>{if(!isAdmin())return;let c=b.dataset.id?crewById(b.dataset.id):null;const pick=!!b.dataset.pick;if(!c&&!pick)return;c=c||{};
+  const prevOf=x=>x&&x.id?(crewDocsOf(x.id).find(d=>d.signedAt&&/szerz/i.test(d.title||''))||{}).signedAt||'':'',prev=prevOf(c);
+  const L=pick?crewSorted().filter(x=>!isSalesCrew(x)&&!isEmployee(x)):[];   /* a Stáb oldal „Új szerződés” gombjáról: a munkatárs választó ugyanebben az ablakban */
   const f=(k,l,v,ph,t)=>`<div class="field${t==='full'?' full':''}"><label for="alv-${k}">${l}</label><input class="inp" id="alv-${k}" name="${k}" value="${esc(v||'')}" placeholder="${esc(ph||'')}"${t==='date'?' type="date"':''}></div>`;
-  openModal('Alvállalkozói keretszerződés – '+(c.name||''),`<p class="hint" style="margin:0 0 10px">A szerződés a Stáb adataival töltődik ki – itt még átírhatod. Ami üresen marad, kipontozva kerül a szerződésbe.</p>
+  openModal(pick?'Új szerződés':'Alvállalkozói keretszerződés – '+(c.name||''),`${pick?`<div class="field full" style="margin-bottom:10px"><label for="alv-pick">Munkatárs</label><select id="alv-pick" name="cid" data-cmb="Válassz munkatársat…" data-cmb-sub="crew"><option value=""></option>${L.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></div>`:''}<p class="hint" style="margin:0 0 10px">A szerződés a Stáb adataival töltődik ki – itt még átírhatod. Ami üresen marad, kipontozva kerül a szerződésbe.</p>
     <div class="grid2">${f('name','Vállalkozó neve (cégnév / EV)',c.company||c.name,'pl. Minta Anna E.V.','full')}${f('addr','Székhely / cím','','pl. 2000 Szentendre, Fő utca 1.','full')}${f('tax','Adószám',c.tax)}${f('phone','Telefonszám',c.phone)}${f('email','E-mail cím',c.email)}${f('prev','Korábbi szerződés dátuma (ha van)',prev,'','date')}</div>
     <p class="hint" style="margin:8px 0 0">Ha van korábbi szerződés, a 16.5. pont szerint az újat felváltja; ha nincs dátum, általános megfogalmazás kerül bele.</p>
     <div style="margin-top:12px"><button type="button" class="btn outline small" id="alv-dl">⬇ Letöltés Wordben</button></div>`,
-    {submitLabel:'Tovább a küldéshez →',submit:async fd=>{const o={name:String(fd.get('name')||'').trim(),addr:String(fd.get('addr')||'').trim(),tax:String(fd.get('tax')||'').trim(),phone:String(fd.get('phone')||'').trim(),email:String(fd.get('email')||'').trim(),prev:String(fd.get('prev')||'')};
+    {submitLabel:'Tovább a küldéshez →',submit:async fd=>{if(!c.id){toast('Válassz munkatársat.',true);const pk=document.querySelector('#mform .cmb-inp,#alv-pick');if(pk)pk.focus();return;}const o={name:String(fd.get('name')||'').trim(),addr:String(fd.get('addr')||'').trim(),tax:String(fd.get('tax')||'').trim(),phone:String(fd.get('phone')||'').trim(),email:String(fd.get('email')||'').trim(),prev:String(fd.get('prev')||'')};
       let r;try{r=await alvBuild(o);}catch(e){handleErr(e);return;}window._alvFile=r.name;const b64=await alvB64(r.blob),first=huFirst(c.name)||'';
       openModal('Keretszerződés küldése – '+(c.name||''),`<div class="alv-send"><div class="ct-prev" id="alvPrev"><div class="loading"><span class="spin"></span> A szerződés betöltése…</div></div><div><div class="field full"><label for="alv-to">Címzett</label><input class="inp" id="alv-to" name="to" value="${esc(o.email||c.email||'')}" required></div>
         <div class="field full"><label for="alv-subj">Tárgy</label><input class="inp" id="alv-subj" name="subject" value="Alvállalkozói keretszerződés – Lumos Motion"></div>
@@ -318,15 +319,18 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;const c=crewById(b.dataset.id);if(!c)re
         {submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
           S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});
       const fm=$('mform');if(fm){fm.classList.add('ct-wide');fm.addEventListener('input',e=>{if(e.target.id==='alv-to'||e.target.id==='alv-subj')alvHead();});}alvHead();alvMail();alvShow(r.blob);}});
+  if(pick){if(typeof cmbAuto==='function')cmbAuto();const sel=$('alv-pick');if(sel){const fill=()=>{const x=crewById(sel.value);if(!x)return;c=x;const fm=$('mform'),set=(k,v)=>{const i=fm&&fm.querySelector('[name="'+k+'"]');if(i){i.value=v||'';if(i._flatpickr)i._flatpickr.setDate(v||'',false);}};
+      set('name',x.company||x.name);set('tax',x.tax);set('phone',x.phone);set('email',x.email);set('prev',prevOf(x));set('addr','');if(window._alvAddrFill)window._alvAddrFill();const h=document.querySelector('#mform .mhead h3');if(h)h.textContent='Alvállalkozói keretszerződés – '+(x.name||'');};
+    sel.addEventListener('change',fill);sel.addEventListener('input',fill);}}
+  /* székhely: az adószámból a NAV-adatokból (ugyanaz, mint a Stábnál a cégnév-betöltés) */
+  {const fm=$('mform'),q=k=>fm&&fm.querySelector('[name="'+k+'"]');let last='';const addrFill=async()=>{const a=q('addr'),t=q('tax');if(!a||!t)return;const v=String(t.value||'').replace(/\D/g,'');if(v.length<8||a.value.trim()||v.slice(0,8)===last)return;last=v.slice(0,8);
+      const ph=a.placeholder;a.placeholder='Székhely betöltése az adószámból…';try{const r=await call('lookupTaxpayer',{tax:v});if(r&&r.address&&!a.value.trim())a.value=r.address;}catch(e){}finally{a.placeholder=ph;}};
+    window._alvAddrFill=addrFill;const t=q('tax');if(t)t.addEventListener('change',addrFill);addrFill();}
   const dl=$('alv-dl');if(dl)dl.onclick=async()=>{const fm=$('mform');const g=k=>((fm&&fm.querySelector('[name="'+k+'"]'))||{}).value||'';
     try{const r=await alvBuild({name:g('name').trim(),addr:g('addr').trim(),tax:g('tax').trim(),phone:g('phone').trim(),email:g('email').trim(),prev:g('prev')});const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();}catch(e){handleErr(e);}};};
 
 /* a Stáb oldal „Új szerződés” gombja: munkatárs kiválasztása, majd ugyanaz a kitöltő/küldő ablak */
-ACT['crew-ctr-new']=()=>{if(!isAdmin())return;const L=crewSorted().filter(c=>!isSalesCrew(c)&&!isEmployee(c));
-  openModal('Új szerződés',`<div class="field full"><label for="alv-pick">Munkatárs</label><select id="alv-pick" name="cid" data-cmb="Válassz munkatársat…" data-cmb-sub="crew" required><option value=""></option>${L.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div>
-    <p class="hint" style="margin:6px 0 0">A következő lépésben a munkatárs adataival kitöltött alvállalkozói keretszerződést letöltheted vagy elküldheted.</p>`,
-    {submitLabel:'Tovább →',submit:fd=>{const id=String(fd.get('cid')||'');if(!id){toast('Válassz munkatársat.');return;}ACT['crew-ctr']({dataset:{id}});}});
-  if(typeof cmbAuto==='function')cmbAuto();};
+ACT['crew-ctr-new']=()=>{if(!isAdmin())return;ACT['crew-ctr']({dataset:{pick:'1'}});};
 
 /* a küldés előtt maga a szerződés is látszik: a Google által készített PDF (pontosan úgy, mint Wordben – a fejléc szövegdobozaival együtt); ha nem sikerül, a böngésző rajzolja a Word-fájlt */
 async function alvShow(blob){const box=$('alvPrev');if(!box)return;
