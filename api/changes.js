@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f507ba837",
+"at": "2026-11-20T14:04:13+01:00",
+"msg": "Új projekt: több napnál minden napnak külön kezdés és hozzávetőleges végzés"
+},
+{
 "id": "384b7282d5",
 "at": "2026-11-20T14:02:14+01:00",
 "msg": "Keretszerződés-sablon: 8.9 – az alvállalkozóról készült fotók/videók felhasználása, a megszűnés után is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóablak: link nélküli, visszajelzésekből kikövetkeztetett verziók (v1..vN) megszüntetve – csak valódi linkcsere ad új verziót"
 },
 {
-"id": "12b01b6952",
-"at": "2026-11-19T11:33:46+01:00",
-"msg": "Verziók: ugyanannak a fájlnak más paraméterű linkje nem új verzió (Drive/YouTube/Vimeo azonosító szerint), meglévő duplikátumok összevonva"
-},
-{
-"id": "3d40b88597",
-"at": "2026-11-19T10:32:20Z",
+"id": "ead1443d19",
+"at": "2026-11-19T10:33:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
