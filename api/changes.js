@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4adc91b0c",
+"at": "2026-11-20T14:14:25+01:00",
+"msg": "Előfoglalás: véglegesítési határidő 20 nap (app + keretszerződés 2.8.1)"
+},
+{
 "id": "fe58c85b29",
 "at": "2026-11-20T14:04:32+01:00",
 "msg": "Újdonságok: előfoglalás, napi időpontok"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat PDF: a tételtáblázat oldalhatáron sorok mentén kettéválik (a folytatásban újra a fejléc), nem marad üresen az első oldal"
 },
 {
-"id": "9a9efe2c7e",
-"at": "2026-11-19T12:00:49+01:00",
-"msg": "Utómunka-instrukciók előtöltése (a tábla megnyitásakor már kész, nem utólag ugrik be)"
-},
-{
-"id": "fb5600428c",
-"at": "2026-11-19T10:46:52Z",
+"id": "6ec8158634",
+"at": "2026-11-19T11:00:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
