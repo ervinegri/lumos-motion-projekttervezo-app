@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c563c124ad",
+"at": "2026-11-20T14:32:34+01:00",
+"msg": "Projekt oldal: videótábla (kanban) az Alapadatok fölött, utómunka-instrukciókkal"
+},
+{
 "id": "30d2eb731b",
 "at": "2026-11-20T14:28:53+01:00",
 "msg": "Keretszerződés: 12.6 (eseti felelősségbiztosítás előírása) törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: „Új szerződés” gomb (munkatárs kiválasztása → keretszerződés kitöltése/küldése)"
 },
 {
-"id": "b23eba7569",
-"at": "2026-11-19T16:09:45+02:00",
-"msg": "Meghívás: a díj nem látszik „szakemberként nézve” (ügyvezetői nézetváltásnál)"
-},
-{
-"id": "34d926bd69",
-"at": "2026-11-19T14:06:30Z",
+"id": "6d50262091",
+"at": "2026-11-19T14:09:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
