@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e848620937",
+"at": "2026-11-20T15:59:15+01:00",
+"msg": "Pozíció levételekor a Szolgáltatásoknál a hozzá tartozó feladat (pl. terem-operatőr) is lekerül a szakemberről"
+},
+{
 "id": "00312d44d1",
 "at": "2026-11-20T15:55:51+01:00",
 "msg": "Projekt videótábla: alapból csukva; az oszlopok nem görgetnek külön, az egész oldal görget"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés küldése: szélesebb ablak; aláírásnál mindig a mai dátum (Budapest, ÉÉÉÉ. hónap N.)"
 },
 {
-"id": "5c83e37658",
-"at": "2026-11-20T14:46:07+01:00",
-"msg": "Új szerződés: a munkatárs választó a kitöltő ablakban (nincs külön lépés); a székhely az adószámból automatikusan betöltődik"
-},
-{
-"id": "7a1c024685",
-"at": "2026-11-20T13:32:44Z",
+"id": "3547254a0e",
+"at": "2026-11-20T13:46:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
