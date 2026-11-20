@@ -124,7 +124,7 @@ const TABLES = {
     ['projectId', 'Projekt azonosító'], ['itemId', 'Eszköz azonosító'], ['qty', 'Darab'], ['projectName', 'Projekt'], ['itemName', 'Eszköz'],
     ['crewId', 'Felelős azonosító'], ['crewName', 'Felelős (kinél van)']] },
   hsLinks: { tab: 'HubSpot-kapcsolatok', cols: [   // app-rekord ↔ HubSpot-objektum (lehetőség → deal, ügyfél → cég / kapcsolattartó)
-    ['id', 'Azonosító (ne módosítsd)'], ['hsDeal', 'HubSpot deal'], ['hsContact', 'HubSpot kapcsolattartó'], ['hsCompany', 'HubSpot cég'], ['updatedAt', 'Szinkronizálva']] },
+    ['id', 'Azonosító (ne módosítsd)'], ['hsDeal', 'HubSpot deal'], ['hsContact', 'HubSpot kapcsolattartó'], ['hsCompany', 'HubSpot cég'], ['updatedAt', 'Szinkronizálva'], ['hsPull', 'HubSpotból frissítve']] },
   bankTx: { tab: 'Banki tranzakciók', cols: [   // számlázz.hu Online pénzügyi adatkapcsolat: a fiók banki tételei (a párosítatlanok is)
     ['id', 'Azonosító (ne módosítsd)'], ['szId', 'számlázz.hu azonosító'], ['account', 'Bankszámla'], ['valueDate', 'Értéknap'], ['dir', 'Irány (BE / KI)'], ['type', 'Típus'], ['technical', 'Technikai (1)'],
     ['amount', 'Összeg'], ['currency', 'Devizanem'], ['partnerName', 'Partner neve'], ['partnerAccount', 'Partner bankszámla'], ['note', 'Közlemény'], ['receivedAt', 'Beérkezett'],

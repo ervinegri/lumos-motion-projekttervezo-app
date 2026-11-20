@@ -325,6 +325,11 @@ function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
+function hsPullHourly() { try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
+function hsPullEnsure_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_PULL_INSTALLED')) return;
+  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'hsPullHourly')) ScriptApp.newTrigger('hsPullHourly').timeBased().everyHours(1).create(); P.setProperty('HS_PULL_INSTALLED', '1'); } catch (e) {}
+}
 function salesSyncEnsure_() {
   const P = PropertiesService.getScriptProperties();
   P.setProperty('SALES_SYNC_INSTALLED', P.getProperty('SALES_SYNC_INSTALLED') || now_());   // nincs ötperces időzítő: a Sales App ritkán változik, az ügyvezetői belépés futtatja a szinkront (salesSyncNow)

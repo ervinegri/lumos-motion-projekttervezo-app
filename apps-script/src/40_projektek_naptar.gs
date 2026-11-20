@@ -798,14 +798,51 @@ function hsDealMirror_(d, link, cid, coid) {
   }
   return dealId;
 }
+/* ===================== ÜGYFÉL ↔ HUBSPOT (kétirányú, 2026-11-20) =====================
+   App → HubSpot: mentéskor a párosított (vagy most párosított / létrehozott) cég és kapcsolattartó adatai frissülnek.
+   HubSpot → App: óránként (az ügyvezető belépésekor, háttérben) a HubSpotban azóta módosult párosított rekordok adatai átjönnek.
+   Ütközésnél a később módosított nyer: a HubSpot-rekord módosítási ideje vs. az utolsó szinkron ideje (hsLinks.updatedAt). */
+function hsAddrSplit_(a) { a = String(a || '').trim(); const m = /^(\d{4})\s+([^,]+),\s*(.+)$/.exec(a); return m ? { zip: m[1], city: m[2].trim(), address: m[3].trim() } : { address: a }; }
+function hsAddrJoin_(p) { p = p || {}; const zc = [p.zip, p.city].filter(Boolean).join(' '); return [zc, p.address].filter(Boolean).join(', '); }
 function hsClientSync_(c) {
   if (!c || !hsOn_()) return;
   try {
-    const coid = hsEnsureCompany_(c.name, c.contactEmail), cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
+    const L = hsLinkGet_(c.id);
+    let coid = L.hsCompany || hsEnsureCompany_(c.name, c.contactEmail), cid = L.hsContact || hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
+    if (!cid && c.contactEmail) cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name);
+    if (coid) { const ad = hsAddrSplit_(c.address), pr = { name: c.name }; if (c.address) { pr.address = ad.address || ''; if (ad.zip) pr.zip = ad.zip; if (ad.city) pr.city = ad.city; }
+      try { hubspot_('patch', '/crm/v3/objects/companies/' + coid, { properties: pr }); } catch (e) { if (/HTTP 404/.test(String(e))) coid = hsEnsureCompany_(c.name, c.contactEmail); else throw e; } }
+    if (cid) { const nm = hsSplitName_(c.contactName), pr = {}; if (c.contactName) { pr.firstname = nm.firstname || ''; pr.lastname = nm.lastname || ''; } if (c.contactPhone) pr.phone = String(c.contactPhone); if (c.contactTitle) pr.jobtitle = String(c.contactTitle); pr.company = c.name;
+      try { hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: pr }); } catch (e) { if (/HTTP 404/.test(String(e))) cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name); else throw e; }
+      if (c.contactEmail) { try { hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: { email: String(c.contactEmail).trim().toLowerCase() } }); } catch (e) {} } }   // e-mail ütközésnél (már létező HubSpot-kontakt) marad a régi
     hsAssoc_('contacts', cid, 'companies', coid);
-    hsLinkPut_(Object.assign(hsLinkGet_(c.id), { hsContact: cid, hsCompany: coid }));
+    hsLinkPut_(Object.assign(L, { hsContact: cid, hsCompany: coid }));
     hsOk_();
   } catch (e) { hsErr_(e); }
+}
+function hsPortal_() { const P = PropertiesService.getScriptProperties(); let v = P.getProperty('HS_PORTAL_ID'); if (!v) { try { v = String((hubspot_('get', '/account-info/v3/details') || {}).portalId || ''); if (v) P.setProperty('HS_PORTAL_ID', v); } catch (e) { v = ''; } } return v || ''; }
+function hsTs_(s) { try { return s ? Utilities.parseDate(String(s), SHEET_TZ, 'yyyy-MM-dd HH:mm:ss').getTime() : 0; } catch (e) { return 0; } }
+/** HubSpot → app: a párosított ügyfelek HubSpotban azóta módosult adatai. force: a gyorsítótártól függetlenül. */
+function hsPull_(u, a) {
+  if (!hsOn_()) return { skipped: 'off' };
+  const C = CacheService.getScriptCache(); if (!(a && a.force) && C.get('hsPull1')) return { skipped: 'recent' }; C.put('hsPull1', '1', 3600);
+  const links = readAll_('hsLinks').filter(x => x.hsCompany || x.hsContact), clients = readAll_('clients'), byId = {}; clients.forEach(c => { byId[c.id] = c; });
+  const L = links.filter(x => byId[x.id]); if (!L.length) return { changed: 0 };
+  const batch = (obj, ids, props) => { const out = {}; for (let i = 0; i < ids.length; i += 100) { const r = hubspot_('post', '/crm/v3/objects/' + obj + '/batch/read', { properties: props, inputs: ids.slice(i, i + 100).map(id => ({ id: String(id) })) }); (r.results || []).forEach(x => { out[String(x.id)] = x; }); } return out; };
+  let co = {}, ct = {};
+  try { co = batch('companies', L.map(x => x.hsCompany).filter(Boolean), ['name', 'address', 'city', 'zip', 'hs_lastmodifieddate']); ct = batch('contacts', L.map(x => x.hsContact).filter(Boolean), ['firstname', 'lastname', 'email', 'phone', 'mobilephone', 'jobtitle', 'lastmodifieddate']); } catch (e) { hsErr_(e); return { error: String(e.message || e) }; }
+  const changed = [];
+  L.forEach(x => { const c = byId[x.id], since = hsTs_(x.updatedAt) + 90000, upd = {};
+    const k = co[String(x.hsCompany)], kp = k && k.properties || {}; if (k && new Date(kp.hs_lastmodifieddate || k.updatedAt || 0).getTime() > since) { const ad = hsAddrJoin_(kp); if (ad && ad !== String(c.address || '')) upd.address = ad; }
+    const t = ct[String(x.hsContact)], tp = t && t.properties || {}; if (t && new Date(tp.lastmodifieddate || t.updatedAt || 0).getTime() > since) {
+      const nm = [tp.lastname, tp.firstname].filter(Boolean).join(' ').trim(), ph = tp.phone || tp.mobilephone || '', em = String(tp.email || '').trim().toLowerCase();
+      if (nm && nm !== String(c.contactName || '')) upd.contactName = nm; if (ph && ph.replace(/\D/g, '') !== String(c.contactPhone || '').replace(/\D/g, '')) upd.contactPhone = ph; if (em && em !== String(c.contactEmail || '').toLowerCase()) upd.contactEmail = em; if (tp.jobtitle && tp.jobtitle !== String(c.contactTitle || '')) upd.contactTitle = tp.jobtitle; }
+    if (Object.keys(upd).length) changed.push({ id: c.id, upd: upd, name: c.name }); });
+  if (changed.length) withLock_(() => { const sh = sheetFor_('clients'); changed.forEach(ch => { const r = findRow_(sh, ch.id); if (!r) return; const c = readRow_('clients', sh, r); Object.assign(c, ch.upd); c.updatedAt = now_(); putRow_('clients', sh, c, r); }); dataBump_(); dbFlush_(); });
+  const LBL = { address: 'cím', contactName: 'kapcsolattartó', contactPhone: 'telefon', contactEmail: 'e-mail', contactTitle: 'titulus' };
+  changed.forEach(ch => { const x = L.find(y => y.id === ch.id); try { hsLinkPut_(Object.assign({}, x, { hsPull: now_() + ' · ' + Object.keys(ch.upd).map(k => LBL[k] || k).join(', ') })); } catch (e) {} });
+  changed.forEach(ch => { try { logEvent_(u || { name: 'HubSpot' }, 'Ügyfél frissítve a HubSpotból', ch.name, Object.keys(ch.upd).join(', ')); } catch (e) {} });
+  hsOk_(); return { changed: changed.length, names: changed.map(x => x.name) };
 }
 
 /* Egyszeri áthozatal (Ervin döntése, 2026-11-15: a HubSpotban nem vezetünk dealeket): a HubSpot dealjei lehetőségként az appba.

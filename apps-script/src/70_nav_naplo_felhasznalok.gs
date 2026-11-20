@@ -218,7 +218,7 @@ function saveClient_(u, a) {
     }
     dbFlush_();
     logEvent_(u, old ? 'Ügyfél módosítva' : 'Ügyfél felvéve', c.name, renamed ? renamed + ' projekt átnevezve' : '');
-    if (!old || ['name', 'contactEmail', 'contactName', 'contactPhone'].some(k => String(old[k] || '') !== String(c[k] || ''))) hsSync = c;   // új vagy módosult ügyfél → HubSpot
+    if (!old || ['name', 'contactEmail', 'contactName', 'contactPhone', 'contactTitle', 'address'].some(k => String(old[k] || '') !== String(c[k] || ''))) hsSync = c;   // új vagy módosult ügyfél → HubSpot
     return Object.assign({}, c, { renamed: renamed });
   });
   if (hsSync) hsClientSync_(hsSync);

@@ -65,7 +65,18 @@ function newClientModal(pre,edit,reg){   // reg: az Ügyfelek fülről (nincs ny
       closeModal();if(S.draft)setDraft(patch);saveClientRec(rec).catch(()=>{});}});   // a projektből felvett ügyfél is bekerül az Ügyfelek közé
   if(pre){const n=$('m-client');if(n)n.value=pre;}
   if(edit){[['m-clientTax',edit.clientTax],['m-client',edit.client],['m-clientAddress',edit.clientAddress],['m-contactName',edit.contactName],['m-contactEmail',edit.contactEmail]].forEach(([id,v])=>{const e=$(id);if(e)e.value=v||'';});}
+  if(edit&&edit.id)hsClientBadge(edit.id);
 }
+/* HubSpot-kapcsolat az ügyfél adatlapján: „HubSpot ↗” gomb a párosított céghez + jelzés, ha az adatok a HubSpotból frissültek. */
+let HS_CL=null,HS_CL_T=0;
+async function hsClientBadge(id){if(!(isAdmin()||(S.me&&S.me.role==='editor')))return;
+  try{if(!HS_CL||Date.now()-HS_CL_T>120000){HS_CL=await call('hsClientLinks',{});HS_CL_T=Date.now();}}catch(e){return;}
+  const L=(HS_CL.links||[]).find(x=>x.id===id),f=document.querySelector('#mform .fields');if(!L||!f||document.getElementById('hsBadge'))return;
+  const url=HS_CL.portal?`https://app.hubspot.com/contacts/${encodeURIComponent(HS_CL.portal)}/company/${encodeURIComponent(L.co)}`:'';
+  const pull=String(L.pull||''),when=pull.slice(0,16).replace(/^(\d{4})-(\d\d)-(\d\d) /,'$1.$2.$3. '),what=pull.split(' · ')[1]||'';
+  const d=document.createElement('div');d.id='hsBadge';d.className='hs-badge full';
+  d.innerHTML=`${url?`<a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">HubSpot ↗</a>`:''}${pull?`<span class="muted">🔄 HubSpotból frissítve: ${esc(when)}${what?` (${esc(what)})`:''}</span>`:'<span class="muted">Párosítva a HubSpottal · a változások mentéskor és óránként szinkronizálódnak</span>'}`;
+  f.insertBefore(d,f.firstChild);}
 /* Kereshető ügyfélválasztó: gépelésre szűr, a lista végén mindig ott az „Új ügyfél felvétele”. */
 function clientSearch(input,all){
   const q=all?'':input.value.trim(),cur=S.draft&&String(S.draft.client||'').trim();
