@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b111465384",
+"at": "2026-11-20T15:35:34+01:00",
+"msg": "Javítás: Szerződés és számlázás oldal betöltési hiba (különbözet-doboz hozzáfűzése)"
+},
+{
 "id": "deba3cc7ab",
 "at": "2026-11-20T15:28:56+01:00",
 "msg": "Számlázás: ha a kiszámlázott nettó összeg eltér a projekt értékétől (pl. utólag megemelt érték), nem 'Lezárva' – Kiszámlázatlan / Túlszámlázva jelzés, számla a különbözetre gomb, figyelmeztetés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előfoglalás (keretszerződés 2.8.): stábkártyán Előfoglalás gomb, rövid levél, visszaigazolás, 'Más ajánlatot kaptam' 48 órás döntés, 30 napos lejárat + emlékeztető, Véglegesítés rendes meghívóval, Elengedés"
 },
 {
-"id": "e2264fa1bc",
-"at": "2026-11-20T13:52:52+01:00",
-"msg": "Keretszerződés-sablon: 2.8 Előfoglalás pont (30 napos véglegesítés, 48 órás elsőbbség, díjmentes visszavonás)"
-},
-{
-"id": "6665dd4036",
-"at": "2026-11-20T08:27:29Z",
+"id": "19381becb0",
+"at": "2026-11-20T12:53:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
