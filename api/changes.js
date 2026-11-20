@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4bbc14fcc",
+"at": "2026-11-20T10:13:02+02:00",
+"msg": "Kézikönyv: szintaxisjavítás"
+},
+{
 "id": "f0ef1b179e",
 "at": "2026-11-20T10:12:40+02:00",
 "msg": "pCloud fájlnév-ellenőrzés: csak kisbetű, szám, alulvonás – hibás névnél a link nem menthető (lista a hibás nevekről), a videóablakban is jelzi; kézikönyv + újdonság"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Megerősítő ablak: 'Utána még egy díjmentes kör marad' mondat törölve"
 },
 {
-"id": "ef094a5d17",
-"at": "2026-11-19T11:19:33+01:00",
-"msg": "Észrevételek 6000 karakterig (eddig 1000/1500-nál levágódott); videóablak címében a javítás száma; jóváhagyó oldalon: két díjmentes javítási kör"
-},
-{
-"id": "d88efd5c5f",
-"at": "2026-11-19T10:16:52Z",
+"id": "be1765a440",
+"at": "2026-11-19T10:19:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
