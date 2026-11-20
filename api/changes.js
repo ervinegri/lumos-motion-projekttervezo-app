@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "be0292ce41",
+"at": "2026-11-20T15:10:31+01:00",
+"msg": "Statiszta: nincs eszköz (munkatárs űrlapon a Részletek rejtve, projekten nincs eszközblokk)"
+},
+{
 "id": "1b9e2278af",
 "at": "2026-11-20T15:07:28+01:00",
 "msg": "Új szerződés: az ablak tetején választható a típus (alvállalkozói / modell), a munkatárs-lista ehhez igazodik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud-mappa több videóval: minden videó a nevében lévő szám szerinti fájlt játssza (Short videó 3 → short_3…), az ügyfél-jóváhagyó oldalon és a belső videóablakban is"
 },
 {
-"id": "6341116160",
-"at": "2026-11-20T09:47:31+02:00",
-"msg": "Utómunka-tábla: a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen a Jóváhagyásra vár oszlopba húzhatja"
-},
-{
-"id": "2a5955cf3c",
-"at": "2026-11-20T06:43:31Z",
+"id": "2817129255",
+"at": "2026-11-20T07:47:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
