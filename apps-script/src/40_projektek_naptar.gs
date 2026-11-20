@@ -1139,7 +1139,7 @@ function inviteDeadline_(at) { const t0 = new Date(at); if (isNaN(t0)) return nu
    – legkésőbb a projekt előtt 30 nappal véglegesítjük (rendes meghívó díjjal) vagy elengedjük; ha nem, magától megszűnik;
    – ha más ajánlatot kap, jelzi („Más ajánlatot kaptam”): 48 órán belül döntünk, különben felszabadul;
    – a véglegesítésig díjmentesen visszavonható. A meghívás-bejegyzésben: pre: 1, pd: véglegesítési határidő, off: az ajánlat jelzése. */
-const PRE_DAYS_ = 30, PRE_OFFER_H_ = 48;
+const PRE_DAYS_ = 20, PRE_OFFER_H_ = 48;
 function preDue_(p) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(p && p.date || '')); if (!m) return ''; return Utilities.formatDate(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] - PRE_DAYS_, 12)), 'UTC', 'yyyy-MM-dd'); }
 function preCheck_(p, cur) {
   const pd = preDue_(p); if (!pd) throw new Error('Előfoglaláshoz add meg a projekt dátumát.');

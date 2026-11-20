@@ -289,8 +289,8 @@ function crewFinalBox(p,ids){
   return `<div class="crew-final ${st}" id="crew-final">${st==='ok'?editBtn:`<button class="btn ${st==='none'?'primary':'outline'} small" type="button" data-action="crew-finalize"${on?'':' disabled'}>${st==='changed'?'✅ Módosítások véglegesítése':'✅ Csapat véglegesítése'}</button>`}<div class="cf-msg">${msg}${freeCut&&st!=='ok'?`<small class="bad-txt"><b>⛔ Nem véglegesíthető:</b> ${freePostTxt(freeL)}${cutterIds(p).length?'':' (nincs vágó beosztva)'}.</small>`:on||freeCut?'':'<small>A háttérkód frissítése után kapcsol be.</small>'}</div></div>${eqBox}`;
 }
 /* Meghívó súgó: kiküldés + válaszadási határidő rövid, egysoros dátumformátumban. */
-/* Előfoglalás (keretszerződés 2.8.): a szakember a részletek előtt szabadon tartja a napot; legkésőbb 30 nappal előtte véglegesítjük vagy elengedjük */
-const PRE_DAYS=30;
+/* Előfoglalás (keretszerződés 2.8.): a szakember a részletek előtt szabadon tartja a napot; legkésőbb 20 nappal előtte véglegesítjük vagy elengedjük */
+const PRE_DAYS=20;
 function preOk(p){return !!(p&&validISO(p.date)&&addDays(p.date,-PRE_DAYS)>=todayISO());}
 function preOffDue(iv){const t=new Date(String(iv&&iv.off||'').replace(' ','T'));if(isNaN(t))return '';const d=new Date(t.getTime()+48*3600e3),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;}
 function preBtn(p,cid){return preOk(p)?`<button type="button" class="btn outline small inv-btn inv-pre" data-action="crew-invite" data-pre="1" data-id="${esc(cid)}" data-tip="${esc('Előfoglalás: még a részletek (feladat, időbeosztás, díj) előtt lefoglalod – a szakember visszaigazolja, hogy szabadon tartja a napot.\nLegkésőbb '+fmtDay(addDays(p.date,-PRE_DAYS))+'-ig véglegesíteni kell (rendes meghívó), különben megszűnik. Keretszerződés 2.8.')}">⏳ Előfoglalás</button>`:'';}
