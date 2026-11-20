@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "35ed6d0a89",
+"at": "2026-11-20T15:15:40+01:00",
+"msg": "Munkatárs törlése: ha a szerveren már nincs meg, jelzi és frissít"
+},
+{
 "id": "f137323e2d",
 "at": "2026-11-20T15:11:51+01:00",
 "msg": "Munkatárs űrlap: a Vállalkozás mező nem ajánl fel ügyfél- és más cégeket"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud-változatok: a képarány (1x1, 16:9, 16-9, 9_16, 4_5…) sem keveredik a sorszámmal; azonos dátumnál a legnagyobb verzió az alap"
 },
 {
-"id": "65e48418dc",
-"at": "2026-11-20T10:07:29+02:00",
-"msg": "pCloud-mappa: egy videó több változata (v1, v2, képarány) – a legfrissebb az alap, a lejátszó alatt „Változatok” választóval a többi is megnézhető; a verziószám / képarány / felbontás nem keveredik a videó sorszámával"
-},
-{
-"id": "88b4f13de8",
-"at": "2026-11-20T08:05:00Z",
+"id": "dcf904654c",
+"at": "2026-11-20T08:07:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
