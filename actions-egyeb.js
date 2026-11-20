@@ -453,6 +453,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.da
   const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===id);if(r){r.client=cl;r.manual='1';}
   call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
 Object.assign(ACT,{
+  'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');render(true);}catch(e){b.disabled=false;handleErr(e);}},
   'gbp-more':()=>{S._gbpAll=!S._gbpAll;render(true);},
   'gbp-sync':()=>{gbpLoad(true);render(true);},
   'gbp-connect':()=>{if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast('A Google-belépés még töltődik – próbáld újra pár másodperc múlva.',true);return;}

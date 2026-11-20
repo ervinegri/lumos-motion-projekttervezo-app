@@ -3004,3 +3004,4 @@ html body tr.inv-row{cursor:pointer}html body tr.inv-row:hover td{background-col
 .gbp-rh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%}.gbp-cl{margin-left:auto;min-width:220px;max-width:100%}.gbp-tx{white-space:pre-wrap;font-size:14px;line-height:1.5}
 .gbp-rep{font-size:13px;background:var(--soft,#f4f5f7);border-radius:8px;padding:6px 10px;width:100%;box-sizing:border-box}.gbp-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.gbp-foot .muted{margin-right:auto;font-size:12.5px}
 @media (max-width:640px){.gbp-cl{margin-left:0;width:100%}}
+.gbp-sec{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;max-width:520px}.gbp-sec label{font-weight:600;font-size:13px}.gbp-sec-row{display:flex;gap:8px}.gbp-sec-row .inp{flex:1}

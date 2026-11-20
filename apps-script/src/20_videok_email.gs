@@ -393,6 +393,9 @@ function gbpMatch_(u, a) {
   withLock_(() => { const sh = sheetFor_('gReviews'), r = findRow_(sh, id); if (!r) throw new Error('Az értékelés nem található.'); const x = readRow_('gReviews', sh, r); x.client = cl; x.manual = '1'; putRow_('gReviews', sh, x, r); dataBump_(); dbFlush_(); });
   return gbpList_(u);
 }
+/** A titkos kulcs beállítása az appból (az Apps Script felülete 50 tulajdonság fölött csak olvasható). Visszaolvasni nem lehet. */
+function gbpSetSecret_(u, a) { const v = String(a && a.secret || '').trim(); if (!/^[\w-]{20,100}$/.test(v)) throw new Error('Ez nem tűnik érvényes titkos kulcsnak (általában „GOCSPX-” kezdetű).');
+  gbpProps_().setProperty('GBP_CLIENT_SECRET', v); CacheService.getScriptCache().remove('gbpTok'); logEvent_(u, 'Google Cégprofil: titkos kulcs beállítva', '', ''); return gbpList_(u); }
 function gbpDisconnect_(u) { const P = gbpProps_(); ['GBP_REFRESH', 'GBP_LOCATION', 'GBP_TITLE', 'GBP_ERR'].forEach(k => P.deleteProperty(k)); CacheService.getScriptCache().remove('gbpTok'); logEvent_(u, 'Google Cégprofil leválasztva', '', ''); return gbpList_(u); }
 /** Ügyfelek, akik már írtak értékelést (kisbetűs cégnév) – nekik nem megy emlékeztető. */
 function gbpReviewed_() { const o = {}; try { readAll_('gReviews').forEach(x => { if (x.client) o[String(x.client).trim().toLowerCase()] = 1; }); } catch (e) {} return o; }

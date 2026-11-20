@@ -529,6 +529,7 @@ function rpcInner_(token, name, arg) {
     case 'gbpConnect': adminOnly(); return gbpConnect_(u, arg);
     case 'gbpReply': adminOnly(); return gbpReply_(u, arg);
     case 'gbpMatch': adminOnly(); return gbpMatch_(u, arg);
+    case 'gbpSecret': adminOnly(); return gbpSetSecret_(u, arg);
     case 'gbpDisconnect': adminOnly(); return gbpDisconnect_(u);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotSources': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hsSourceProp_();
