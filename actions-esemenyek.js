@@ -509,7 +509,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
     if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();histStep(1);return;}}
   else if((e.ctrlKey||e.metaKey)&&!e.altKey&&!(S.draft&&S.projectId&&S.tab==='projektek')&&!$('modalRoot').innerHTML&&!(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))&&!ro()){const k=e.key.toLowerCase();
     if(k==='z'&&!e.shiftKey){e.preventDefault();opStep(-1);return;}
-    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();commitActive();if(S.dirty)saveChecked();else setTimeout(()=>{if(!S.dirty)toast('✓ Minden mentve');},300);/* a külön mentődő mezők (pl. jutalék %, hatékonyság) a mezőből kilépve maguk mentenek */}});
+    if((k==='z'&&e.shiftKey)||k==='y'){e.preventDefault();opStep(1);return;}}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='s'&&!(S.draft&&!ro())){e.preventDefault();const a=document.activeElement;if(a&&a.blur&&/^(INPUT|TEXTAREA)$/.test(a.tagName)){a.dispatchEvent(new Event('change',{bubbles:true}));}toast('✓ Minden mentve');return;}   /* projekten kívül se nyíljon meg a böngésző „Weboldal mentése” ablaka – itt minden magától mentődik */
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&S.draft&&!ro()){e.preventDefault();commitActive();if(S.dirty)saveChecked();else setTimeout(()=>{if(!S.dirty)toast('✓ Minden mentve');},300);/* a külön mentődő mezők (pl. jutalék %, hatékonyság) a mezőből kilépve maguk mentenek */}});
 
 /* A helyszíni munka napja még nem jött el: addig nem lehet utómunkára (vagy tovább) lépni */
 function siteFuture(d){return !!d&&!editOnly(d)&&validISO(d.date)&&d.date>todayISO()&&['','egyeztetes','tervezes','helyszin'].includes(d.status||'');}
