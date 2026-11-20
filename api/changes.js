@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "337e835fe9",
+"at": "2026-11-20T14:51:38+01:00",
+"msg": "Keretszerződés: a székhely a NAV adózói adataiból, ha ott nincs (egyéni vállalkozó), a munkatárs NAV-ban párosított számlájáról"
+},
+{
 "id": "1afe7928af",
 "at": "2026-11-20T14:50:09+01:00",
 "msg": "Cmd/Ctrl+S projekten kívül sem nyitja meg a böngésző mentés ablakát"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fotók utómunkája: magától a kiválasztott fotósé, amíg kézzel senkihez nincs rendelve (felület + mentéskor a háttér is rögzíti)"
 },
 {
-"id": "ccc33cdac1",
-"at": "2026-11-19T18:25:28+02:00",
-"msg": "Utómunka-figyelmeztetés: a fotók utómunkája nem „videó” (külön szöveg fotóra, videóra és a kettőre)"
-},
-{
-"id": "9866daceb4",
-"at": "2026-11-19T15:36:23Z",
+"id": "73a9976cd7",
+"at": "2026-11-19T16:25:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
