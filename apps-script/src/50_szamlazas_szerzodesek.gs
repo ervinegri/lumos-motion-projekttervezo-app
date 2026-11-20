@@ -646,11 +646,12 @@ function crewContractSend_(u, a) {
   const ok = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e), to = String(a.to || '').split(/[,;\s]+/).filter(ok), cc = String(a.cc || '').split(/[,;\s]+/).filter(ok);
   if (!to.length) throw new Error('Adj meg érvényes címzettet.'); if (!a.docx || String(a.docx).length > 14 * 1024 * 1024) throw new Error('Hiányzik a szerződés.');
   const name = str_(a.fileName, 150).replace(/[\\/]/g, '-') || 'Keretszerzodes.docx', subj = str_(a.subject, 200) || 'Alvállalkozói keretszerződés', body = String(a.body || '').slice(0, 20000);
-  const blob = Utilities.newBlob(Utilities.base64Decode(String(a.docx)), DOCX_MIME_, name);
+  let blob = Utilities.newBlob(Utilities.base64Decode(String(a.docx)), DOCX_MIME_, name), pdfB64 = '', pdfName = name.replace(/\.docx$/i, '') + '.pdf';
+  try { pdfB64 = contractPdf_(u, { docx: String(a.docx) }).pdf || ''; if (pdfB64) blob = Utilities.newBlob(Utilities.base64Decode(pdfB64), 'application/pdf', pdfName); } catch (e) { Logger.log('Keretszerződés PDF hiba (Word megy ki): ' + e); }   // a szerződés PDF-ben megy ki (ha az átalakítás nem sikerül, Wordben)
   const r0 = contractSender_(u), html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r0.sig.html;   // a küldő saját aláírásával, a saját címéről
   const opts = mailOptsFor_(r0.owner, html); opts.attachments = [blob]; if (cc.length) opts.cc = cc.join(',');
   if (!gmailSend_(to.join(','), subj, body + '\n\n' + r0.sig.text, opts)) throw new Error('Az e-mail nem ment ki (az e-mailek szünetelnek?).');
-  const r = crewDocSave_(u, { crewId: cid, b64: a.docx, mime: DOCX_MIME_, name: name, title: (str_(a.title, 80) || 'Alvállalkozói keretszerződés') + ' (aláírásra elküldve)', note: 'Elküldve ' + today_() + ' → ' + to.join(', ') });
+  const r = crewDocSave_(u, { crewId: cid, b64: pdfB64 || a.docx, mime: pdfB64 ? 'application/pdf' : DOCX_MIME_, name: pdfB64 ? pdfName : name, title: (str_(a.title, 80) || 'Alvállalkozói keretszerződés') + ' (aláírásra elküldve)', note: 'Elküldve ' + today_() + ' → ' + to.join(', ') });
   logEvent_(u, 'Keretszerződés elküldve', c.name || cid, to.join(', '));
   return r;
 }
