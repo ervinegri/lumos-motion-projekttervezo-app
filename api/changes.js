@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7aa6fb852e",
+"at": "2026-11-20T10:09:00+02:00",
+"msg": "pCloud-változatok: a képarány (1x1, 16:9, 16-9, 9_16, 4_5…) sem keveredik a sorszámmal; azonos dátumnál a legnagyobb verzió az alap"
+},
+{
 "id": "65e48418dc",
 "at": "2026-11-20T10:07:29+02:00",
 "msg": "pCloud-mappa: egy videó több változata (v1, v2, képarány) – a legfrissebb az alap, a lejátszó alatt „Változatok” választóval a többi is megnézhető; a verziószám / képarány / felbontás nem keveredik a videó sorszámával"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: minden kártya egyforma magas (a nagyobb méret), a vágó neve alul"
 },
 {
-"id": "6886114f4a",
-"at": "2026-11-19T11:14:48+01:00",
-"msg": "Videótábla kártya: nincs „▶ videó” és hozzászólás-szám"
-},
-{
-"id": "fb734bcf7b",
-"at": "2026-11-19T10:12:53Z",
+"id": "efe66c0f02",
+"at": "2026-11-19T10:14:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
