@@ -200,7 +200,7 @@ function szInvoice_(u, a) {
   withLock_(() => { putRow_('finInvoice', sheetFor_('finInvoice'), row, 0); szApplyPay_(invTargets_(row)); if (row.tigId) tigMark_(row.tigId, { status: 'szamlazva', invoiceNo: no }); dbFlush_(); });
   logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' kiállítva: ' + no);
   let mail = null;
-  if (ownMail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64, subject: str_(a.mailSubject, 200).trim(), text: str_(a.mailText, 4000).trim() }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
+  if (ownMail) { try { mail = szInvoiceMail_(u, { no: no, kind: kind, buyer: buyer, due: due, gross: row.invGross, net: row.invNet, payMethod: payMethod, projectId: tg.projectId, pdfB64: pdfB64, subject: str_(a.mailSubject, 200).trim(), text: str_(a.mailText, 4000).trim() }); logEvent_(u, 'Számlázás', buyer.name, SZ_KIND_LABEL_[kind] + ' e-mailben elküldve (Lumos címéről): ' + no + ' → ' + buyer.email); }
     catch (e) { mail = { ok: false, error: String(e && e.message || e) }; Logger.log('Számla-levél hiba: ' + e); } }
   return Object.assign(finData_(), { invoice: row, mail: mail });
 }
@@ -1107,11 +1107,12 @@ function szInvoiceMail_(u, o) {
   const p = o.projectId ? readAll_('projects').find(x => x.id === o.projectId) : null, pn = p ? String(p.name || '') : '';
   const ft = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
   const dd = String(o.due || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.');
-  const lines = ['Tisztelt Partnerünk!', '', 'Csatoltan küldjük ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
-    'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || '')].concat(/átutal/i.test(String(o.payMethod || '')) ? ['Közleményben kérjük feltüntetni: ' + o.no] : []).concat(['', 'Ha bármi kérdés felmerül, válaszoljon erre a levélre.']);
+  const fn = p && p.contactName ? huFirst_(p.contactName) : '';
+  const lines = [fn ? 'Kedves ' + fn + '!' : 'Sziasztok!', '', 'Csatolva küldöm ' + huArt_(o.no) + ' ' + o.no + ' számú ' + ({ szamla: 'számlát', dijbekero: 'díjbekérőt', eloleg: 'foglalószámlát', vegszamla: 'végszámlát' }[o.kind] || lbl + 'ot') + (pn ? ' (' + pn + ')' : '') + '.', '',
+    'Nettó összeg: ' + ft(o.net), 'Fizetendő: ' + ft(o.gross) + ' (bruttó)', 'Fizetési határidő: ' + dd, 'Fizetési mód: ' + (o.payMethod || '')].concat(/átutal/i.test(String(o.payMethod || '')) ? ['Közleménybe kérlek, írd be: ' + o.no] : []).concat(['', 'Ha bármi kérdésed van, válaszolj erre a levélre.']);
   const fillNo = t => String(t).replace(/a\(z\)\s*\[számlaszám\]/g, huArt_(o.no) + ' ' + o.no).split('[számlaszám]').join(o.no);   // a szerkesztett levélben a sorszám helye
   let body = o.text ? fillNo(o.text) : lines.join('\n');
-  if (/átutal/i.test(String(o.payMethod || '')) && body.indexOf(String(o.no)) >= 0 && !/közlemény/i.test(body)) body = body.replace(/(Fizetési mód:[^\n]*)/, '$1\nKözleményben kérjük feltüntetni: ' + o.no);   /* a korábban szerkesztett levélbe is bekerül */
+  if (/átutal/i.test(String(o.payMethod || '')) && body.indexOf(String(o.no)) >= 0 && !/közlemény/i.test(body)) body = body.replace(/(Fizetési mód:[^\n]*)/, '$1\nKözleménybe kérlek, írd be: ' + o.no);   /* a korábban szerkesztett levélbe is bekerül */
   const sig = signatureFor_(u), text = body + (sig ? '\n\n' + sig.text : '');
   const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + body.split('\n').map(l => escapeHtml_(l)).join('<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const subj = o.subject ? fillNo(o.subject) : label + ' – ' + o.no + (pn ? ' – ' + pn : '') + ' – Lumos Motion';
