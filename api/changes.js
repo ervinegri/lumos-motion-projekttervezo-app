@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "13812b28de",
+"at": "2026-11-20T15:48:55+01:00",
+"msg": "Új pozíció ablak: a pozíciólista azonnal lenyílik"
+},
+{
 "id": "7a5416bb40",
 "at": "2026-11-20T15:44:36+01:00",
 "msg": "Új szerep / pozíció: Key Account Manager"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés 2.5.5: a kötbér rendezési módját (ledolgozás / kifizetés) a Vállalkozó választja; app-szövegek igazítva"
 },
 {
-"id": "f4adc91b0c",
-"at": "2026-11-20T14:14:25+01:00",
-"msg": "Előfoglalás: véglegesítési határidő 20 nap (app + keretszerződés 2.8.1)"
-},
-{
-"id": "2e2ae27afe",
-"at": "2026-11-20T13:04:41Z",
+"id": "1d9643f529",
+"at": "2026-11-20T13:14:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
