@@ -298,7 +298,8 @@ async function alvBuild(o){if(!window.JSZip)await jszipLib();const t=ALV_TPL||(A
   const X=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),dot='……………………………………';
   const p165=o.prev?`A jelen szerződés a Felek között ${ALV_DATE(o.prev)} létrejött keretszerződést az aláírás napjával felváltja.`:'A jelen szerződés a Felek között korábban létrejött, azonos tárgyú megállapodásokat az aláírás napjával felváltja.';
   const V={v_name:o.name||dot,v_addr:o.addr||dot,v_tax:o.tax||dot,v_phone:o.phone||dot,v_email:o.email||dot,v_sign:o.name||'Vállalkozó',p165};
-  let x=await z.file('word/document.xml').async('string');x=x.replace(/\{(v_name|v_addr|v_tax|v_phone|v_email|v_sign|p165)\}/g,(m,k)=>X(V[k]));z.file('word/document.xml',x);
+  let x=await z.file('word/document.xml').async('string');{const d=new Date(),HM=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];x=x.replace('<w:t>Budapest,</w:t>','<w:t>Budapest, '+d.getFullYear()+'. '+HM[d.getMonth()]+' '+d.getDate()+'.</w:t>');}   /* aláírás helye és napja: mindig a mai dátum */
+  x=x.replace(/\{(v_name|v_addr|v_tax|v_phone|v_email|v_sign|p165)\}/g,(m,k)=>X(V[k]));z.file('word/document.xml',x);
   const slug=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
   return {blob:await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),name:'Keretszerzodes_'+(slug(o.name)||'vallalkozo')+'_Lumos_Motion.docx'};}
 const alvB64=blob=>new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
