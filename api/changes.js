@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c9cf619dc0",
+"at": "2026-11-20T14:00:24+01:00",
+"msg": "Hang- és vizuáltechnikusnál nem kötelező az eszköz; tervezés → helyszíni munka automatikusan, ha minden feltétel teljesül; előfoglalás nem számít elfogadott meghívásnak"
+},
+{
 "id": "4597d93b29",
 "at": "2026-11-20T13:58:40+01:00",
 "msg": "Előfoglalás (keretszerződés 2.8.): stábkártyán Előfoglalás gomb, rövid levél, visszaigazolás, 'Más ajánlatot kaptam' 48 órás döntés, 30 napos lejárat + emlékeztető, Véglegesítés rendes meghívóval, Elengedés"
@@ -145,16 +150,6 @@ const ITEMS = [
 "id": "49929b31ab",
 "at": "2026-11-19T11:31:35+01:00",
 "msg": "Videótábla: cím nem fut a fogantyú alá"
-},
-{
-"id": "db98bb6a15",
-"at": "2026-11-19T11:31:27+01:00",
-"msg": "Videótábla: kéz-kurzor csak mozdítható kártyán, ott hoverre emelkedés + fogantyú"
-},
-{
-"id": "383a61b216",
-"at": "2026-11-19T10:28:44Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
