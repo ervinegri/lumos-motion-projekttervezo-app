@@ -2993,3 +2993,5 @@ html body .inp.inp-loading::placeholder{color:#3b6fb0;opacity:1;font-weight:600}
 /* zárolt adatlap (🔒 Szerkesztés gombbal oldható) */
 html body .fields.m-locked .inp:disabled,html body .fields.m-locked .msel-btn:disabled,html body .fields.m-locked .cmb-in:disabled{background:#f6f7f9;color:#334155;cursor:default}html body .m-lock-btn{margin-left:auto;margin-right:8px}
 html body #mform .mhead:has(.m-lock-btn){display:flex;align-items:center}
+
+html body tr.inv-row{cursor:pointer}html body tr.inv-row:hover td{background-color:rgba(31,90,61,.05)}

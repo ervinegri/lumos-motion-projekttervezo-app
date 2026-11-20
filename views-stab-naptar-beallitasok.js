@@ -327,7 +327,7 @@ function viewInventory(){
     return `<tr class="grp"><td colspan="6">${esc(cat)} · ${items.reduce((s,i)=>s+num(i.qty),0)} db</td></tr>`+items.map(i=>{
       const cond=i.condition||'ok';
       const condCls=cond==='ok'?'p-ok':cond==='selejt'?'':cond==='szerviz'?'p-bad':'p-warn';
-      return `<tr><td><div class="nm">${esc(i.name)}${invFmt(i)?` <span class="fmt-tag fmt-${invFmt(i)}">${FMT_LBL[invFmt(i)]}</span>`:''}</div>${i.note?`<div class="ser">${esc(i.note)}</div>`:''}</td>
+      return `<tr class="inv-row" data-action="edit-item" data-id="${esc(i.id)}" title="${esc(i.name)} szerkesztése"><td><div class="nm">${esc(i.name)}${invFmt(i)?` <span class="fmt-tag fmt-${invFmt(i)}">${FMT_LBL[invFmt(i)]}</span>`:''}</div>${i.note?`<div class="ser">${esc(i.note)}</div>`:''}</td>
         <td class="num">${num(i.qty)}</td>
         <td><span class="statuspill ${condCls}">${esc(CONDITIONS[cond]||cond)}</span></td>
         <td>${i.location?esc(i.location):'<span class="muted">—</span>'}</td>
