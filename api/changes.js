@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "30d2eb731b",
+"at": "2026-11-20T14:28:53+01:00",
+"msg": "Keretszerződés: 12.6 (eseti felelősségbiztosítás előírása) törölve"
+},
+{
 "id": "0d954781a7",
 "at": "2026-11-20T14:27:07+01:00",
 "msg": "Keretszerződés 7.5: a közvetlen kapcsolat pontosítása (kiállító, független megbízás, egyeztetés kétség esetén)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: a díj nem látszik „szakemberként nézve” (ügyvezetői nézetváltásnál)"
 },
 {
-"id": "b5de2cdcf4",
-"at": "2026-11-19T16:06:19+02:00",
-"msg": "Alvállalkozói keretszerződés a Stáb adatlapról: kitöltés, letöltés, küldés e-mailben, mentés a dokumentumok közé"
-},
-{
-"id": "2229e194a3",
-"at": "2026-11-19T12:41:31Z",
+"id": "34d926bd69",
+"at": "2026-11-19T14:06:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
