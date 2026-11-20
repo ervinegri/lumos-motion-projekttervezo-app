@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0ce40c3a2b",
+"at": "2026-11-20T15:18:52+01:00",
+"msg": "Statiszta keretszerződés (cím és feliratok), 7.2 kivétel-mondat törölve; Értékesítők fülön csak a kizárólag értékesítők"
+},
+{
 "id": "35ed6d0a89",
 "at": "2026-11-20T15:15:40+01:00",
 "msg": "Munkatárs törlése: ha a szerveren már nincs meg, jelzi és frissít"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud fájlnév-ellenőrzés: csak kisbetű, szám, alulvonás – hibás névnél a link nem menthető (lista a hibás nevekről), a videóablakban is jelzi; kézikönyv + újdonság"
 },
 {
-"id": "7aa6fb852e",
-"at": "2026-11-20T10:09:00+02:00",
-"msg": "pCloud-változatok: a képarány (1x1, 16:9, 16-9, 9_16, 4_5…) sem keveredik a sorszámmal; azonos dátumnál a legnagyobb verzió az alap"
-},
-{
-"id": "dcf904654c",
-"at": "2026-11-20T08:07:39Z",
+"id": "02b2d67f4d",
+"at": "2026-11-20T08:09:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
