@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e21a28620",
+"at": "2026-11-20T22:46:04+01:00",
+"msg": "Google-értékelések: Cégprofil összekötése, napi behúzás, ügyfélhez párosítás, válasz az appból; értékelt ügyfélnek nem megy emlékeztető"
+},
+{
 "id": "a3d141b4d1",
 "at": "2026-11-20T19:44:06+01:00",
 "msg": "Értékesítés: áthúzáskor „Lehetőség → Oszlop” üzenet"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Statiszta keretszerződés (cím és feliratok), 7.2 kivétel-mondat törölve; Értékesítők fülön csak a kizárólag értékesítők"
 },
 {
-"id": "35ed6d0a89",
-"at": "2026-11-20T15:15:40+01:00",
-"msg": "Munkatárs törlése: ha a szerveren már nincs meg, jelzi és frissít"
-},
-{
-"id": "7aabd5bd3c",
-"at": "2026-11-20T14:12:01Z",
+"id": "01978f9dff",
+"at": "2026-11-20T14:15:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
