@@ -279,9 +279,32 @@ function staffTok_(tok) { if (!tok) return false; try { authUser_(tok); return t
 function vidClientRounds_(v) { const st = {}; try { readAll_('crew').concat(loadUsers_()).forEach(x => { const n = String(x && x.name || '').trim().toLowerCase(); if (n) { st[n] = 1; n.split(/\s+/).forEach(w => { st[w] = 1; }); } }); } catch (e) {}
   return (v && v.cm || []).filter(c => /^↩/.test(String(c.t || '')) && !st[String(c.by || '').trim().toLowerCase()]).length; }
 /** A jóváhagyó oldal adatai + hány videó vár még a projektben ezen a linken kívül (a „projektet lezártuk” csak akkor jelenik meg, ha mind jóvá van hagyva). */
+/* ===== Google-értékelés: a jóváhagyó oldalon (ha a projekt minden videója jóváhagyva) és egyszeri emlékeztető levélben az átadás után ===== */
+const REVIEW_URL_ = 'https://g.page/r/CTVRfe8K1Q20EBM/review', REVIEW_WAIT_DAYS_ = 4, REVIEW_CLIENT_GAP_DAYS_ = 180;
+/** Az ügyfél a jóváhagyó oldalon megnyitotta az értékelést: rögzítjük (így emlékeztető már nem megy). */
+function clientReview_(t) { const o = clientTokenRead_(t); if (o.pv) return { ok: true };
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row); if (p.reviewClick) return;
+    p.reviewClick = now_(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  return { ok: true }; }
+/** Naponta: az átadás után REVIEW_WAIT_DAYS_ nappal egyetlen kérő levél a kapcsolattartónak, ha még nem nyitotta meg az értékelést, és az ügyféltől fél éven belül nem kértünk. */
+function reviewDaily_() { if (!clientMailLive_()) return;
+  const all = readAll_('projects'), today = today_(), dd = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5), key = p => String(p.client || '').trim().toLowerCase();
+  const recent = {}; all.forEach(p => { const k = key(p), at = String(p.reviewAt || p.reviewClick || '').slice(0, 10); if (k && at && dd(at, today) < REVIEW_CLIENT_GAP_DAYS_) recent[k] = 1; });
+  all.filter(p => p.status === 'atadva' && p.deliveredAt && !p.reviewAt && !p.reviewClick && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(p.contactEmail || '').trim())).forEach(p => {
+    const age = dd(String(p.deliveredAt).slice(0, 10), today); if (age < REVIEW_WAIT_DAYS_ || age > 30 || recent[key(p)]) return;
+    const to = String(p.contactEmail).trim(), first = String(p.contactName || '').trim().split(/\s+/).slice(-1)[0] || '';
+    const subj = 'Egy kérés a ' + sval_(p.name) + ' kapcsán';
+    const txt = (first ? 'Kedves ' + first + ',' : 'Kedves Ügyfelünk,') + '\n\nköszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész:\n' + REVIEW_URL_ + '\n\nKöszönjük!\nLumos Motion';
+    const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#202124">' + (first ? 'Kedves ' + escapeHtml_(first) + ',' : 'Kedves Ügyfelünk,') + '<br><br>köszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész.<br><br><a href="' + REVIEW_URL_ + '" style="display:inline-block;background:#1c1c22;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px">⭐ Értékelés írása</a><br><br>Köszönjük!<br>Lumos Motion</div>';
+    let sent = false; try { sent = gmailSend_(to, subj, txt, { name: 'Lumos Motion', htmlBody: html }); } catch (e) { Logger.log('Értékelés-kérés: ' + e); }
+    if (!sent) return; recent[key(p)] = 1;
+    withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, p.id); if (!row) return; const q = readRow_('projects', sh, row); if (q.reviewAt) return; q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+    logEvent_({ name: 'Automatikus', role: 'admin' }, 'Google-értékelés kérése', p.name, to); });
+}
 function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
   try { if (r && !r.preview) { const o = clientTokenRead_(t), p = readAll_('projects').find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
     r.projRest = p ? parseVideos_(p.videos).filter(v => !on[v.id] && v.st !== 'jovahagyva').length : 0; } } catch (e) { Logger.log('projRest: ' + e); }
+  if (r) r.review = REVIEW_URL_;
   return r; }
 function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';

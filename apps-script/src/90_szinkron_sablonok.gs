@@ -319,7 +319,8 @@ function installSalesSync() {
   return 'A Sales App szinkron 5 percenként fut.';
 }
 /** Tartalék: naponta egyszer (reggel) a kifizetések lekérdezése a számlázz.hu-tól – ha egy IPN-értesítés elmaradna. */
-function szDailySync() { try { if (!szamlazzKey_()) return; szSync_({ id: 'sz-auto', name: 'számlázz.hu (napi ellenőrzés)', role: 'admin', email: '' }, {}); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés: ' + e); } try { if (DB_) dbFlush_(); } catch (e) { } }
+function szDailySync() { try { reviewDaily_(); } catch (e) { Logger.log('reviewDaily: ' + e); }
+  try { if (!szamlazzKey_()) return; szSync_({ id: 'sz-auto', name: 'számlázz.hu (napi ellenőrzés)', role: 'admin', email: '' }, {}); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés: ' + e); } try { if (DB_) dbFlush_(); } catch (e) { } }
 function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
