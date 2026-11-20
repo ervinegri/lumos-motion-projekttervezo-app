@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6341116160",
+"at": "2026-11-20T09:47:31+02:00",
+"msg": "Utómunka-tábla: a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen a Jóváhagyásra vár oszlopba húzhatja"
+},
+{
 "id": "31bf901ac4",
 "at": "2026-11-20T08:43:20+02:00",
 "msg": "Frissítés visszatéréskor: telefon felébresztése / visszaváltás után (ha 1 percnél régebbi az adat) az app újratölt – eddig az alvás alatt álló időzítő miatt elmaradt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a „projektet lezártuk” csak akkor, ha a projekt minden videója jóvá van hagyva (külön linken küldött videókat is figyeli)"
 },
 {
-"id": "6873074405",
-"at": "2026-11-19T11:08:33+01:00",
-"msg": "Jóváhagyó oldal: a második javítástól sorszám a címben (– 2. javítás, – 3. javítás…)"
-},
-{
-"id": "d0f6b371b1",
-"at": "2026-11-19T10:06:50Z",
+"id": "e8e8fc4d71",
+"at": "2026-11-19T10:08:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
