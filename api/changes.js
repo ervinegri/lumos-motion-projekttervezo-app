@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "28ec95aa3c",
+"at": "2026-11-20T15:40:00+01:00",
+"msg": "Számla-levél: tegező szöveg (Kedves keresztnév / Sziasztok), a nettó összeg is benne van"
+},
+{
 "id": "3b3fcfc041",
 "at": "2026-11-20T15:36:25+01:00",
 "msg": "Statiszta keretszerződés: a Projekttervező említése kivéve (e-mail / üzenet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lecserélt / levett szakember díjsora eltűnik a Pénzügyekből (a régi árva sorok megnyitáskor törlődnek)"
 },
 {
-"id": "c9cf619dc0",
-"at": "2026-11-20T14:00:24+01:00",
-"msg": "Hang- és vizuáltechnikusnál nem kötelező az eszköz; tervezés → helyszíni munka automatikusan, ha minden feltétel teljesül; előfoglalás nem számít elfogadott meghívásnak"
-},
-{
-"id": "fa827efbfc",
-"at": "2026-11-20T12:58:49Z",
+"id": "1930f411e0",
+"at": "2026-11-20T13:00:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
