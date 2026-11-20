@@ -2976,7 +2976,7 @@ html body .np-days .np-day-l{font-size:13px;font-weight:600;color:var(--ink2,#47
 /* Projekt oldalán a videótábla */
 html body .proj-board .bd-proj{margin-top:10px}
 html body .proj-board .bd-proj .bl-single{display:flex;flex-direction:column;gap:8px}
-html body .proj-board .bd-proj .bl-cell{max-height:60vh;overflow-y:auto}
+html body .proj-board .bd-proj .bl-cell{max-height:none!important;height:auto!important;overflow:visible!important;overscroll-behavior:auto}html body .proj-board .bd-proj .bl-row,html body .proj-board .bd-proj .bl-single{max-height:none!important;overflow:visible!important}
 html body .proj-board .pn-box{margin-top:8px}
 
 html body .mbox:has(#mform.ct-wide){max-width:min(1360px,97vw)!important;width:min(1360px,97vw)!important}

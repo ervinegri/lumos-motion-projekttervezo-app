@@ -731,4 +731,4 @@ function viewProject(p){
 
 /* Projekt oldalán a videótábla (kanban) – ugyanaz, mint a naptárból nyíló „Videók” ablakban */
 function projBoardPanel(p){if(ro()||!projById(p.id)||!(Array.isArray(p.videos)&&p.videos.length)||typeof laneModalBody!=='function')return '';
-  return `<details class="panel fold proj-board" data-fold="board"${FOLD.board!==false?' open':''}><summary><h3>🎬 Videótábla</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}
+  return `<details class="panel fold proj-board" data-fold="board"${FOLD.board===true?' open':''}><summary><h3>🎬 Videótábla</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}
