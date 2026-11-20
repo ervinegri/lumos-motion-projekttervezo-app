@@ -2997,3 +2997,4 @@ html body #mform .mhead:has(.m-lock-btn){display:flex;align-items:center}
 html body tr.inv-row{cursor:pointer}html body tr.inv-row:hover td{background-color:rgba(31,90,61,.05)}
 
 .hs-badge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;font-size:13px}
+.q-tot-h[hidden]{display:none!important}
