@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e2264fa1bc",
+"at": "2026-11-20T13:52:52+01:00",
+"msg": "Keretszerződés-sablon: 2.8 Előfoglalás pont (30 napos véglegesítés, 48 órás elsőbbség, díjmentes visszavonás)"
+},
+{
 "id": "5d65cacfe7",
 "at": "2026-11-20T10:27:18+02:00",
 "msg": "Google-értékelés: a jóváhagyó oldalon, ha a projekt minden videója jóváhagyva, értékelés-kérő doboz; átadás után 4 nappal egyetlen kérő levél a kapcsolattartónak (ha nem nyitotta meg, és fél éven belül nem kértünk az ügyféltől); rögzül a kérés és a megnyitás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: 'Írd le röviden…' hiba eltűnik gépeléskor és a megerősítő ablaknál"
 },
 {
-"id": "96078ef3e8",
-"at": "2026-11-19T11:26:40+01:00",
-"msg": "Jóváhagyó oldal: módosítás/üzenet minimális hossza feloldva (1 karakter is elég)"
-},
-{
-"id": "0f529d265a",
-"at": "2026-11-19T10:24:37Z",
+"id": "8f9f5b46c8",
+"at": "2026-11-19T10:26:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
