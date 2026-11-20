@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e632b9e50d",
+"at": "2026-11-20T16:00:03+01:00",
+"msg": "Naptár: a projekthez egyértelműen illeszkedő, kézzel felvett vágói naptárbejegyzés nem jelenik meg külön (duplikátum)"
+},
+{
 "id": "e848620937",
 "at": "2026-11-20T15:59:15+01:00",
 "msg": "Pozíció levételekor a Szolgáltatásoknál a hozzá tartozó feladat (pl. terem-operatőr) is lekerül a szakemberről"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Cmd/Ctrl+S projekten kívül sem nyitja meg a böngésző mentés ablakát"
 },
 {
-"id": "94455ab4d5",
-"at": "2026-11-20T14:47:22+01:00",
-"msg": "Keretszerződés küldése: szélesebb ablak; aláírásnál mindig a mai dátum (Budapest, ÉÉÉÉ. hónap N.)"
-},
-{
-"id": "3547254a0e",
-"at": "2026-11-20T13:46:20Z",
+"id": "c7ac771788",
+"at": "2026-11-20T13:47:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
