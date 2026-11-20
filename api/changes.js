@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fd7a35dc33",
+"at": "2026-11-20T15:53:09+01:00",
+"msg": "Projekt: a Szolgáltatások panel is összecsukható"
+},
+{
 "id": "ee97fc08da",
 "at": "2026-11-20T15:52:06+01:00",
 "msg": "Stábkártya: hosszú pozícióneveknél (pl. Key Account Manager) rövid címke, hogy a × látszódjon"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt oldal: videótábla (kanban) az Alapadatok fölött, utómunka-instrukciókkal"
 },
 {
-"id": "30d2eb731b",
-"at": "2026-11-20T14:28:53+01:00",
-"msg": "Keretszerződés: 12.6 (eseti felelősségbiztosítás előírása) törölve"
-},
-{
-"id": "3f3d4957fa",
-"at": "2026-11-20T13:27:18Z",
+"id": "d9192bd844",
+"at": "2026-11-20T13:29:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
