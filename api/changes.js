@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3688d82374",
+"at": "2026-11-20T23:03:42+01:00",
+"msg": "Google-értékelések: az értékelés eredeti szövege a fordítás helyett (eddig kimaradt)"
+},
+{
 "id": "feb0c88ae4",
 "at": "2026-11-20T23:02:33+01:00",
 "msg": "Google-értékelések: panel helyett gomb az Új szerződés mellett, ablakban nyílik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlázás: ha a kiszámlázott nettó összeg eltér a projekt értékétől (pl. utólag megemelt érték), nem 'Lezárva' – Kiszámlázatlan / Túlszámlázva jelzés, számla a különbözetre gomb, figyelmeztetés"
 },
 {
-"id": "ca439f2689",
-"at": "2026-11-20T15:26:41+01:00",
-"msg": "Elfogadott beosztás: pozíció levétele megerősítéssel + automatikus e-mail a szakembernek; az utolsó pozíciónál lemondás-figyelmeztetés (2.7., 7 napon belül 50% lemondási díj egyéb költségként)"
-},
-{
-"id": "e53b6a489a",
-"at": "2026-11-20T14:22:05Z",
+"id": "ec8d1bd673",
+"at": "2026-11-20T14:26:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
