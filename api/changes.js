@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c064890045",
+"at": "2026-11-20T14:24:57+01:00",
+"msg": "Keretszerződés 2.5.5: a kötbér rendezési módját (ledolgozás / kifizetés) a Vállalkozó választja; app-szövegek igazítva"
+},
+{
 "id": "f4adc91b0c",
 "at": "2026-11-20T14:14:25+01:00",
 "msg": "Előfoglalás: véglegesítési határidő 20 nap (app + keretszerződés 2.8.1)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívás: a díj „szakemberként nézve” (ügyvezetői nézetváltásnál) is látszik a meghívásnál"
 },
 {
-"id": "c98c2830d1",
-"at": "2026-11-19T14:22:29+02:00",
-"msg": "Árajánlat PDF: a tételtáblázat oldalhatáron sorok mentén kettéválik (a folytatásban újra a fejléc), nem marad üresen az első oldal"
-},
-{
-"id": "6ec8158634",
-"at": "2026-11-19T11:00:59Z",
+"id": "2da48207f2",
+"at": "2026-11-19T12:22:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
