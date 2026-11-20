@@ -702,6 +702,7 @@ function viewProject(p){
       const pre=!!((p.invites||{})[me]||{}).pre||(S.myInvites||[]).some(x=>x.id===p.id&&x.pre);return `<div class="inv-banner"><div class="grow"><span class="inv-line">${pre?'⏳ Előfoglalás: szeretnénk előre lefoglalni erre a projektre'+(rl.length?', mint '+esc(rl.join(' és ')):'')+'. Szabadon tudod tartani a napot? A részleteket később küldjük.':'✉️ Meghívást kaptál erre a projektre'+(rl.length?', mint '+esc(rl.join(' és ')):'')+'. Elfogadod?'}</span>${(()=>{const f=myFeeOf(p);if(!f||!num(f.amount))return '';const nd=f.dayAmounts&&typeof f.dayAmounts==='object'?Object.keys(f.dayAmounts).length:0;return `<span class="inv-fee">💰 Díjad: <b>${ftFmt(num(f.amount))}</b> nettó${nd>1?' · '+nd+' napra összesen':''} – az elfogadással ezt a díjat fogadod el.</span>`;})()}</div><div class="inv-btns"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(p.id)}" data-a="yes">✓ Igen</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(p.id)}" data-a="no">✗ Nem</button></div></div>`;})():''}
   </div>
   <div class="dfull${status==='lemondva'?' is-cancelled':''}"${status==='lemondva'?' inert':''}>
+      ${projBoardPanel(p)}
       ${dlPanel?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))}</div>`:''}
       <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${(()=>{   /* két oszlop: bal – a rendezvény (név, típus, helyszín, időpont), jobb – az ügyfél és a kapcsolattartó */
@@ -727,3 +728,7 @@ function viewProject(p){
     :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
   ${ro()&&p.myFee&&num(p.myFee.amount)&&(p.penalties||[]).some(x=>x.crewId===(S.me&&S.me.crewId))?myFeePanel(p):''}`;   // a díj a Kifizetések fülön látszik; itt csak díjcsökkentésnél (a kifogás miatt)
 }
+
+/* Projekt oldalán a videótábla (kanban) – ugyanaz, mint a naptárból nyíló „Videók” ablakban */
+function projBoardPanel(p){if(ro()||!projById(p.id)||!(Array.isArray(p.videos)&&p.videos.length)||typeof laneModalBody!=='function')return '';
+  return `<details class="panel fold proj-board" data-fold="board"${FOLD.board!==false?' open':''}><summary><h3>🎬 Videótábla</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}
