@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f137323e2d",
+"at": "2026-11-20T15:11:51+01:00",
+"msg": "Munkatárs űrlap: a Vállalkozás mező nem ajánl fel ügyfél- és más cégeket"
+},
+{
 "id": "be0292ce41",
 "at": "2026-11-20T15:10:31+01:00",
 "msg": "Statiszta: nincs eszköz (munkatárs űrlapon a Részletek rejtve, projekten nincs eszközblokk)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud-mappa: egy videó több változata (v1, v2, képarány) – a legfrissebb az alap, a lejátszó alatt „Változatok” választóval a többi is megnézhető; a verziószám / képarány / felbontás nem keveredik a videó sorszámával"
 },
 {
-"id": "9539be8bb9",
-"at": "2026-11-20T10:04:49+02:00",
-"msg": "pCloud-mappa több videóval: minden videó a nevében lévő szám szerinti fájlt játssza (Short videó 3 → short_3…), az ügyfél-jóváhagyó oldalon és a belső videóablakban is"
-},
-{
-"id": "2817129255",
-"at": "2026-11-20T07:47:41Z",
+"id": "88b4f13de8",
+"at": "2026-11-20T08:05:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
