@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3b3fcfc041",
+"at": "2026-11-20T15:36:25+01:00",
+"msg": "Statiszta keretszerződés: a Projekttervező említése kivéve (e-mail / üzenet)"
+},
+{
 "id": "b111465384",
 "at": "2026-11-20T15:35:34+01:00",
 "msg": "Javítás: Szerződés és számlázás oldal betöltési hiba (különbözet-doboz hozzáfűzése)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hang- és vizuáltechnikusnál nem kötelező az eszköz; tervezés → helyszíni munka automatikusan, ha minden feltétel teljesül; előfoglalás nem számít elfogadott meghívásnak"
 },
 {
-"id": "4597d93b29",
-"at": "2026-11-20T13:58:40+01:00",
-"msg": "Előfoglalás (keretszerződés 2.8.): stábkártyán Előfoglalás gomb, rövid levél, visszaigazolás, 'Más ajánlatot kaptam' 48 órás döntés, 30 napos lejárat + emlékeztető, Véglegesítés rendes meghívóval, Elengedés"
-},
-{
-"id": "19381becb0",
-"at": "2026-11-20T12:53:10Z",
+"id": "fa827efbfc",
+"at": "2026-11-20T12:58:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
