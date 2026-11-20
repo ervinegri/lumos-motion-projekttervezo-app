@@ -447,3 +447,24 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
   if(g.kind==='v'){const m=S.cal.month,L=S.cal.ev2[m]||[],ev=L.find(x=>x.id===g.id);if(!ev)return;const old={date:ev.date,endDate:ev.endDate};   // Vágói naptár: azonnal átkerül, a háttérben mentődik
     ev.date=sh(ev.date);if(ev.endDate)ev.endDate=sh(ev.endDate);render(true);
     try{await call('moveCalEvent',{id:g.id,days,cal:'vagoi'});calForceFresh();loadCalEvents(m);toast(`„${ev.title||'Bejegyzés'}” áthelyezve: ${fmtDay(ev.date)}`);}catch(err){Object.assign(ev,old);render(true);handleErr(err);}}});
+
+/* Google-értékelések: műveletek (a panel a views-stab-naptar-beallitasok.js-ben) */
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.gbpmatch)return;const id=t.dataset.gbpmatch,cl=t.value;
+  const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===id);if(r){r.client=cl;r.manual='1';}
+  call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
+Object.assign(ACT,{
+  'gbp-more':()=>{S._gbpAll=!S._gbpAll;render(true);},
+  'gbp-sync':()=>{gbpLoad(true);render(true);},
+  'gbp-connect':()=>{if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast('A Google-belépés még töltődik – próbáld újra pár másodperc múlva.',true);return;}
+    const cc=google.accounts.oauth2.initCodeClient({client_id:G_CLIENT,scope:'https://www.googleapis.com/auth/business.manage',ux_mode:'popup',login_hint:(S.me&&S.me.email)||'',
+      callback:async r=>{if(!r||!r.code){if(r&&r.error)toast('A Google-engedélyezés megszakadt.',true);return;}toast('Összekötés…');
+        try{await call('gbpConnect',{code:r.code});S.gbp=null;S._gbpL=0;FOLD.gbp=true;gbpLoad(false);toast('A Google Cégprofil összekötve ✓');}catch(e){handleErr(e);}}});
+    cc.requestCode();},
+  'gbp-reply':b=>{const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===b.dataset.id);if(!r)return;
+    openModal('Válasz: '+(r.author||'értékelés'),`<div class="fields"><div class="field full"><div class="gbp-r" style="margin:0">${gbpStars(r.stars)} <b>${esc(r.author||'')}</b>${r.text?`<div class="gbp-tx">${esc(r.text)}</div>`:''}</div></div>
+      <div class="field full"><label for="m-gbpRep">Válaszunk (nyilvánosan megjelenik a Google-ön)</label><textarea class="inp" id="m-gbpRep" name="rep" rows="5" maxlength="4000" placeholder="pl. Köszönjük szépen, öröm volt veletek dolgozni!">${esc(r.reply||'')}</textarea></div></div>`,
+      {submitLabel:r.reply?'Válasz mentése':'Válasz közzététele',noDraft:true,left:r.reply?`<button type="button" class="btn danger small" data-action="gbp-rep-del" data-id="${esc(r.id)}">Válasz törlése</button>`:'',
+       submit:async fd=>{const t=String(fd.get('rep')||'').trim();if(!t){toast('Írd be a választ.',true);return;}try{S.gbp=await call('gbpReply',{id:r.id,text:t});closeModal();render(true);toast('A válasz megjelent a Google-ön ✓');}catch(e){handleErr(e);}}});
+    setTimeout(()=>{const x=$('m-gbpRep');if(x){x.focus();if(typeof autoGrow==='function')autoGrow(x);}},60);},
+  'gbp-rep-del':async b=>{if(!confirm('Törlöd a válaszunkat a Google-ről?'))return;try{S.gbp=await call('gbpReply',{id:b.dataset.id,text:''});closeModal();render(true);toast('A válasz törölve.');}catch(e){handleErr(e);}}
+});

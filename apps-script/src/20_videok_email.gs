@@ -289,7 +289,7 @@ function clientReview_(t) { const o = clientTokenRead_(t); if (o.pv) return { ok
 /** Naponta: az átadás után REVIEW_WAIT_DAYS_ nappal egyetlen kérő levél a kapcsolattartónak, ha még nem nyitotta meg az értékelést, és az ügyféltől fél éven belül nem kértünk. */
 function reviewDaily_() { if (!clientMailLive_()) return;
   const all = readAll_('projects'), today = today_(), dd = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5), key = p => String(p.client || '').trim().toLowerCase();
-  const recent = {}; all.forEach(p => { const k = key(p), at = String(p.reviewAt || p.reviewClick || '').slice(0, 10); if (k && at && dd(at, today) < REVIEW_CLIENT_GAP_DAYS_) recent[k] = 1; });
+  const recent = gbpReviewed_(); all.forEach(p => { const k = key(p), at = String(p.reviewAt || p.reviewClick || '').slice(0, 10); if (k && at && dd(at, today) < REVIEW_CLIENT_GAP_DAYS_) recent[k] = 1; });
   all.filter(p => p.status === 'atadva' && p.deliveredAt && !p.reviewAt && !p.reviewClick && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(p.contactEmail || '').trim())).forEach(p => {
     const age = dd(String(p.deliveredAt).slice(0, 10), today); if (age < REVIEW_WAIT_DAYS_ || age > 30 || recent[key(p)]) return;
     const to = String(p.contactEmail).trim(), first = String(p.contactName || '').trim().split(/\s+/).slice(-1)[0] || '';
@@ -301,6 +301,101 @@ function reviewDaily_() { if (!clientMailLive_()) return;
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, p.id); if (!row) return; const q = readRow_('projects', sh, row); if (q.reviewAt) return; q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
     logEvent_({ name: 'Automatikus', role: 'admin' }, 'Google-értékelés kérése', p.name, to); });
 }
+/* ===== Google Cégprofil: értékelések behúzása, ügyfélhez párosítása, válasz (2026-11-20) =====
+   Hozzáférés: a Lumos Motion Projekttervezo Cloud projekt (236393101415) OAuth-ügyfelével, egyszeri ügyvezetői engedélyezéssel (tartós token a Script Propertiesben).
+   Kell hozzá: GBP_CLIENT_SECRET Script Property (az OAuth-ügyfél titkos kulcsa – az ügyvezető másolja be, az app nem kéri el). */
+const GBP_SCOPE_ = 'https://www.googleapis.com/auth/business.manage';
+const STARS_ = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
+function gbpProps_() { return PropertiesService.getScriptProperties(); }
+function gbpErr_(e) { const m = String(e && e.message || e).slice(0, 400); try { gbpProps_().setProperty('GBP_ERR', now_() + ' · ' + m); } catch (x) {} return m; }
+function gbpTokenPost_(payload) {
+  const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/token', { method: 'post', payload: payload, muteHttpExceptions: true }), j = JSON.parse(r.getContentText() || '{}');
+  if (r.getResponseCode() >= 300) throw new Error('Google-engedély: ' + (j.error_description || j.error || r.getResponseCode()));
+  return j;
+}
+function gbpSecret_() { const s = String(gbpProps_().getProperty('GBP_CLIENT_SECRET') || '').trim(); if (!s) throw new Error('Hiányzik a GBP_CLIENT_SECRET (az OAuth-ügyfél titkos kulcsa) az Apps Script beállításaiból.'); return s; }
+function gbpTok_() {
+  const C = CacheService.getScriptCache(), hit = C.get('gbpTok'); if (hit) return hit;
+  const rt = gbpProps_().getProperty('GBP_REFRESH'); if (!rt) throw new Error('A Google Cégprofil nincs összekötve.');
+  const j = gbpTokenPost_({ client_id: googleClientId_(), client_secret: gbpSecret_(), refresh_token: rt, grant_type: 'refresh_token' });
+  C.put('gbpTok', j.access_token, Math.max(60, Math.min(3000, (j.expires_in || 3600) - 300))); return j.access_token;
+}
+function gbpApi_(method, url, body) {
+  const o = { method: method, headers: { Authorization: 'Bearer ' + gbpTok_() }, muteHttpExceptions: true, contentType: 'application/json' }; if (body) o.payload = JSON.stringify(body);
+  const r = UrlFetchApp.fetch(url, o), t = r.getContentText() || '{}', c = r.getResponseCode();
+  if (c >= 300) { let m = t; try { const j = JSON.parse(t); m = (j.error && (j.error.message || j.error.status)) || t; } catch (e) {} throw new Error('Google Cégprofil (HTTP ' + c + '): ' + String(m).slice(0, 300)); }
+  return JSON.parse(t);
+}
+/** Egyszeri összekötés: a böngészőben kapott engedélykódból tartós token, majd a Lumos Motion cégprofil megkeresése. */
+function gbpConnect_(u, a) {
+  const code = String(a && a.code || ''); if (!code) throw new Error('Hiányzó engedélykód.');
+  const j = gbpTokenPost_({ code: code, client_id: googleClientId_(), client_secret: gbpSecret_(), redirect_uri: 'postmessage', grant_type: 'authorization_code' });
+  if (!j.refresh_token) throw new Error('A Google nem adott tartós hozzáférést. Vond vissza a Projekttervező hozzáférését a myaccount.google.com/permissions oldalon, és kösd össze újra.');
+  const P = gbpProps_(); P.setProperty('GBP_REFRESH', j.refresh_token); CacheService.getScriptCache().put('gbpTok', j.access_token, 3000);
+  P.deleteProperty('GBP_LOCATION'); P.deleteProperty('GBP_ERR'); P.setProperty('GBP_BY', (u && (u.email || u.name)) || '');
+  gbpLocation_(); logEvent_(u, 'Google Cégprofil összekötve', P.getProperty('GBP_TITLE') || '', '');
+  return gbpSync_(u);
+}
+/** accounts/…/locations/… – az első olyan hely, amelynek a nevében szerepel a „Lumos”, különben az első. */
+function gbpLocation_() {
+  const P = gbpProps_(), have = P.getProperty('GBP_LOCATION'); if (have) return have;
+  const accs = (gbpApi_('get', 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts').accounts) || []; let pick = null;
+  accs.forEach(acc => { if (pick && /lumos/i.test(pick.title)) return; let tok = '';
+    do { const r = gbpApi_('get', 'https://mybusinessbusinessinformation.googleapis.com/v1/' + acc.name + '/locations?readMask=name,title&pageSize=100' + (tok ? '&pageToken=' + encodeURIComponent(tok) : ''));
+      (r.locations || []).forEach(l => { if (!pick || (!/lumos/i.test(pick.title) && /lumos/i.test(l.title || ''))) pick = { path: acc.name + '/' + l.name, title: l.title || '' }; }); tok = r.nextPageToken || ''; } while (tok); });
+  if (!pick) throw new Error('Ehhez a Google-fiókhoz nem tartozik Cégprofil.');
+  P.setProperty('GBP_LOCATION', pick.path); P.setProperty('GBP_TITLE', pick.title); return pick.path;
+}
+const gbpFold_ = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\b(kft|bt|zrt|nyrt|kkt|llc|ltd|egyesulet|nonprofit|dr)\b/g, ' ').replace(/\s+/g, ' ').trim();
+/** Az értékelő neve → ügyfél: cégnév, kapcsolattartó vagy képviselő (a projektek kapcsolattartói is). Csak egyértelmű egyezés. */
+function gbpGuess_(author, clients, projects) {
+  const a = gbpFold_(author); if (a.length < 3) return '';
+  const sameName = (x) => { const f = gbpFold_(x); if (!f) return false; if (f === a) return true; const w1 = f.split(' ').sort().join(' '), w2 = a.split(' ').sort().join(' '); return w1 === w2 && f.indexOf(' ') > 0; };   // „Kiss Anna” = „Anna Kiss”
+  const hits = {};
+  clients.forEach(c => { if (sameName(c.name) || sameName(c.contactName) || sameName(c.rep)) hits[c.name] = 1; });
+  projects.forEach(p => { if (p.client && sameName(p.contactName)) hits[String(p.client).trim()] = 1; });
+  const k = Object.keys(hits); return k.length === 1 ? k[0] : '';
+}
+/** Naponta (és kérésre): az értékelések behúzása. */
+function gbpSync_(u) {
+  const P = gbpProps_(); if (!P.getProperty('GBP_REFRESH')) return { connected: false };
+  try {
+    const loc = gbpLocation_(), out = []; let tok = '';
+    do { const r = gbpApi_('get', 'https://mybusiness.googleapis.com/v4/' + loc + '/reviews?pageSize=50' + (tok ? '&pageToken=' + encodeURIComponent(tok) : '')); (r.reviews || []).forEach(x => out.push(x)); tok = r.nextPageToken || ''; if (r.averageRating != null) { P.setProperty('GBP_AVG', String(r.averageRating)); P.setProperty('GBP_TOTAL', String(r.totalReviewCount || 0)); } } while (tok && out.length < 1000);
+    const clients = readAll_('clients'), projects = readAll_('projects'); let added = 0;
+    withLock_(() => { const sh = sheetFor_('gReviews'), old = {}; readAll_('gReviews').forEach(x => { old[x.id] = x; });
+      out.forEach(x => { const id = String(x.reviewId || x.name || ''); if (!id) return; const o = old[id], au = (x.reviewer && x.reviewer.displayName) || '';
+        const row = { id: id, author: au, stars: STARS_[x.starRating] || '', text: String(x.comment || '').replace(/\s*\(Translated by Google\)[\s\S]*$/, '').replace(/^\(Original\)\s*/, ''), createdAt: String(x.createTime || '').slice(0, 19).replace('T', ' '), updatedAt: String(x.updateTime || '').slice(0, 19).replace('T', ' '),
+          reply: (x.reviewReply && x.reviewReply.comment) || '', replyAt: x.reviewReply ? String(x.reviewReply.updateTime || '').slice(0, 19).replace('T', ' ') : '', photo: (x.reviewer && x.reviewer.profilePhotoUrl) || '',
+          client: o && o.manual ? o.client : ((o && o.client) || gbpGuess_(au, clients, projects)), manual: o && o.manual ? o.manual : '' };
+        if (!o) added++; if (!o || JSON.stringify(Object.assign({}, o)) !== JSON.stringify(Object.assign({}, o, row))) putRow_('gReviews', sh, row, findRow_(sh, id) || null); });
+      dataBump_(); dbFlush_(); });
+    P.setProperty('GBP_SYNC', now_()); P.deleteProperty('GBP_ERR');
+    if (added && u) logEvent_(u, 'Google-értékelések behúzva', added + ' új', '');
+    return { connected: true, added: added, total: out.length };
+  } catch (e) { return { connected: true, error: gbpErr_(e) }; }
+}
+function gbpList_(u, a) {
+  const P = gbpProps_(); if (a && a.sync) gbpSync_(u);
+  let rows = []; try { rows = readAll_('gReviews'); } catch (e) {}
+  rows.sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt)));
+  return { connected: !!P.getProperty('GBP_REFRESH'), secret: !!P.getProperty('GBP_CLIENT_SECRET'), title: P.getProperty('GBP_TITLE') || '', avg: Number(P.getProperty('GBP_AVG') || 0), total: Number(P.getProperty('GBP_TOTAL') || rows.length), sync: P.getProperty('GBP_SYNC') || '', err: P.getProperty('GBP_ERR') || '', url: REVIEW_URL_, reviews: rows };
+}
+function gbpReply_(u, a) {
+  const id = String(a && a.id || ''), txt = String(a && a.text || '').trim(); if (!id) throw new Error('Hiányzó értékelés.'); if (txt.length > 4000) throw new Error('A válasz legfeljebb 4000 karakter lehet.');
+  const url = 'https://mybusiness.googleapis.com/v4/' + gbpLocation_() + '/reviews/' + encodeURIComponent(id) + '/reply';
+  if (txt) gbpApi_('put', url, { comment: txt }); else gbpApi_('delete', url);
+  withLock_(() => { const sh = sheetFor_('gReviews'), r = findRow_(sh, id); if (!r) return; const x = readRow_('gReviews', sh, r); x.reply = txt; x.replyAt = txt ? now_() : ''; putRow_('gReviews', sh, x, r); dataBump_(); dbFlush_(); });
+  logEvent_(u, txt ? 'Válasz Google-értékelésre' : 'Google-válasz törölve', id, txt.slice(0, 120)); return gbpList_(u);
+}
+function gbpMatch_(u, a) {
+  const id = String(a && a.id || ''), cl = String(a && a.client || '').trim();
+  withLock_(() => { const sh = sheetFor_('gReviews'), r = findRow_(sh, id); if (!r) throw new Error('Az értékelés nem található.'); const x = readRow_('gReviews', sh, r); x.client = cl; x.manual = '1'; putRow_('gReviews', sh, x, r); dataBump_(); dbFlush_(); });
+  return gbpList_(u);
+}
+function gbpDisconnect_(u) { const P = gbpProps_(); ['GBP_REFRESH', 'GBP_LOCATION', 'GBP_TITLE', 'GBP_ERR'].forEach(k => P.deleteProperty(k)); CacheService.getScriptCache().remove('gbpTok'); logEvent_(u, 'Google Cégprofil leválasztva', '', ''); return gbpList_(u); }
+/** Ügyfelek, akik már írtak értékelést (kisbetűs cégnév) – nekik nem megy emlékeztető. */
+function gbpReviewed_() { const o = {}; try { readAll_('gReviews').forEach(x => { if (x.client) o[String(x.client).trim().toLowerCase()] = 1; }); } catch (e) {} return o; }
 function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
   try { if (r && !r.preview) { const o = clientTokenRead_(t), p = readAll_('projects').find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
     r.projRest = p ? parseVideos_(p.videos).filter(v => !on[v.id] && v.st !== 'jovahagyva').length : 0; } } catch (e) { Logger.log('projRest: ' + e); }

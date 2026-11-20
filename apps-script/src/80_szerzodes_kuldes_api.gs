@@ -525,6 +525,11 @@ function rpcInner_(token, name, arg) {
     case 'hubspotNotes': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotNotesApi_(arg);
     case 'hsPull': if (role !== 'admin') deny(); return hsPull_(u, arg);   // HubSpot → app: párosított ügyfelek frissítése (óránként, háttérben)
     case 'hsClientLinks': if (role !== 'admin' && role !== 'editor') deny(); return { portal: hsOn_() ? hsPortal_() : '', links: readAll_('hsLinks').filter(x => x.hsCompany).map(x => ({ id: x.id, co: x.hsCompany, ct: x.hsContact, pull: x.hsPull || '' })) };
+    case 'gbpList': adminOnly(); return gbpList_(u, arg);   // Google-értékelések
+    case 'gbpConnect': adminOnly(); return gbpConnect_(u, arg);
+    case 'gbpReply': adminOnly(); return gbpReply_(u, arg);
+    case 'gbpMatch': adminOnly(); return gbpMatch_(u, arg);
+    case 'gbpDisconnect': adminOnly(); return gbpDisconnect_(u);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
     case 'hubspotSources': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hsSourceProp_();
     case 'hsActivity': if (role !== 'admin' && role !== 'sales') deny(); return hsActivity_(u, arg);   // értékesítői aktivitás (az értékesítő csak a sajátját)
