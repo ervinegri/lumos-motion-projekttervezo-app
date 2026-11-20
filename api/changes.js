@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4597d93b29",
+"at": "2026-11-20T13:58:40+01:00",
+"msg": "Előfoglalás (keretszerződés 2.8.): stábkártyán Előfoglalás gomb, rövid levél, visszaigazolás, 'Más ajánlatot kaptam' 48 órás döntés, 30 napos lejárat + emlékeztető, Véglegesítés rendes meghívóval, Elengedés"
+},
+{
 "id": "e2264fa1bc",
 "at": "2026-11-20T13:52:52+01:00",
 "msg": "Keretszerződés-sablon: 2.8 Előfoglalás pont (30 napos véglegesítés, 48 órás elsőbbség, díjmentes visszavonás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: kéz-kurzor csak mozdítható kártyán, ott hoverre emelkedés + fogantyú"
 },
 {
-"id": "beaf81a8f8",
-"at": "2026-11-19T11:28:36+01:00",
-"msg": "Jóváhagyó oldal: 'Írd le röviden…' hiba eltűnik gépeléskor és a megerősítő ablaknál"
-},
-{
-"id": "8f9f5b46c8",
-"at": "2026-11-19T10:26:48Z",
+"id": "383a61b216",
+"at": "2026-11-19T10:28:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
