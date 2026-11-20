@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7a5416bb40",
+"at": "2026-11-20T15:44:36+01:00",
+"msg": "Új szerep / pozíció: Key Account Manager"
+},
+{
 "id": "5818802ee6",
 "at": "2026-11-20T15:44:00+01:00",
 "msg": "Új pozíció: projektvezető csak akkor választható, ha még nincs"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Előfoglalás: véglegesítési határidő 20 nap (app + keretszerződés 2.8.1)"
 },
 {
-"id": "fe58c85b29",
-"at": "2026-11-20T14:04:32+01:00",
-"msg": "Újdonságok: előfoglalás, napi időpontok"
-},
-{
-"id": "84987f8528",
-"at": "2026-11-20T13:04:27Z",
+"id": "2e2ae27afe",
+"at": "2026-11-20T13:04:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
