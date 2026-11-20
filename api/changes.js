@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1b9e2278af",
+"at": "2026-11-20T15:07:28+01:00",
+"msg": "Új szerződés: az ablak tetején választható a típus (alvállalkozói / modell), a munkatárs-lista ehhez igazodik"
+},
+{
 "id": "514821ded3",
 "at": "2026-11-20T15:03:38+01:00",
 "msg": "Statiszták alfül (Statiszta szerep) + modell keretszerződés sablon, kitöltés és küldés az appból"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunka-tábla: a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen a Jóváhagyásra vár oszlopba húzhatja"
 },
 {
-"id": "31bf901ac4",
-"at": "2026-11-20T08:43:20+02:00",
-"msg": "Frissítés visszatéréskor: telefon felébresztése / visszaváltás után (ha 1 percnél régebbi az adat) az app újratölt – eddig az alvás alatt álló időzítő miatt elmaradt"
-},
-{
-"id": "7a3f43197e",
-"at": "2026-11-19T18:57:46Z",
+"id": "2a5955cf3c",
+"at": "2026-11-20T06:43:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
