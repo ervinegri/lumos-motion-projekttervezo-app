@@ -109,7 +109,7 @@ const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
 const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!(p.preStage||p.tent);};
 /* Eszközt igénylő helyszíni szerep: ha nincs nála eszköz, jelezzük (kamera, drón, fotó, technika) */
-const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming'];
+const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Fénytechnikus','Képkeverő / streaming'];
 function gearNeed(p,cid){if(!p||!cid||editOnly(p))return '';const rl=(p.crew||[]).filter(a=>a.crewId===cid&&GEAR_ROLES.includes(a.role)).map(a=>a.role);if(!rl.length)return '';
   if((p.equipment||[]).some(e=>e.crewId===cid)||(p.rentals||[]).some(r=>r.crewId===cid))return '';return rl.map(r=>r.toLowerCase()).join(', ')+': nincs eszköz';}
 const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
@@ -646,11 +646,20 @@ function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0
 /* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + pozíciók) elfogadta a meghívást */
 function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})();
   const ids=[...new Set([d&&d.lead].concat((d&&d.crew||[]).map(a=>a.crewId)).filter(Boolean))];
-  return ids.filter(id=>!(inv[id]&&inv[id].st==='yes')).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?inv[id].st||'invited':''}));}
+  return ids.filter(id=>!(inv[id]&&inv[id].st==='yes'&&!inv[id].pre)).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?(inv[id].pre&&inv[id].st==='yes'?'pre':inv[id].st||'invited'):''}));}   /* az előfoglalás még nem elfogadott meghívás */
 /* csendes ellenőrzés (húzás közben): elakadna-e a helyszíni munkára lépés a meghívások miatt */
 function invBlocked(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);return !ids.length||invMissing(d).length>0;}
 function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
   if(!ids.length){toast('⚠️ Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
   const m=invMissing(d);if(!m.length)return false;
-  const t=m.map(x=>'• '+x.name+(x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join('\n');   /* minden név külön sorban */
+  const t=m.map(x=>'• '+x.name+(x.st==='pre'?' (előfoglalás – még véglegesíteni kell)':x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join('\n');   /* minden név külön sorban */
   toast('⚠️ Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik:\n'+t,true,true);return true;}
+
+/* Automatikus lépés: ha a tervezés minden feltétele teljesül (projektvezető, kötelező alapadatok, mindenki elfogadta a meghívást,
+   nincs nyitott figyelmeztetés a projekten), a projekt magától a Helyszíni munkára lép és mentődik. Csak megnyitott, mentett állapotú projektnél. */
+function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!projById(d.id)||(d.status||'tervezes')!=='tervezes')return;
+  if(editOnly(d)||!d.lead||missingReq(d).length||invBlocked(d))return;
+  if(typeof computeIssues==='function'&&computeIssues().some(i=>(i.pids||[]).includes(d.id)))return;
+  if(autoSiteStep._done===d.id)return;autoSiteStep._done=d.id;
+  setDraft({status:'helyszin',stepsDone:ticksUpTo(d,'helyszin')});setTimeout(()=>{if(S.dirty)saveDraft();},0);
+  toast('✓ Minden feltétel teljesült – a projekt átlépett a Helyszíni munkára');}catch(e){}}
