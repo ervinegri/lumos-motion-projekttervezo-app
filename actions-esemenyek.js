@@ -549,7 +549,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
     iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
     !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
-    '<hr>',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
+    '<hr>',it('addrole','➕ Új pozíció hozzáadása'),(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
     (d.equipment||[]).some(e=>e.crewId===cid)&&projById(d.id)?it('eqlist','✉️ Eszközlista küldése neki'):'',
     it('vcf','📇 Névjegy'),isAdmin()?it('fee','💰 Díj megadása'):'',isAdmin()&&projById(d.id)?it('pen','🚨 Díjcsökkentés'):'',
     '<hr>',it('remove','🗑️ Levétel a projektről',{bad:true})].join('');
@@ -561,6 +561,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='resend'){const btn=document.querySelector(`[data-action="crew-invite"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
     if(a==='lead'){const btn=document.querySelector(`[data-action="make-lead"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
     if(a==='role'){crewRoleSwap(cid);return;}
+    if(a==='addrole'){crewRoleAdd(cid);return;}
     if(a==='swap'){crewHandover(cid);return;}
     if(a==='eqlist'){sendListModal(cid);return;}
     if(a==='vcf'){ACT.vcf({dataset:{cid}});return;}
@@ -568,6 +569,13 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='fee'){const mp=document.querySelector('.money-panel,details[data-fold="money"]');if(mp&&mp.tagName==='DETAILS')mp.open=true;setTimeout(()=>{const i=(S.draft.fees||[]).findIndex(f=>f.crewId===cid),el=i>=0?$('fee-'+i+'-amount'):null;if(el){el.scrollIntoView({block:'center'});el.focus();el.select&&el.select();}else toast('Még nincs díjsora – mentés után jelenik meg a Pénzügyekben.',true);},120);return;}
     if(a==='remove')ACT['crew-person-remove']({dataset:{id:cid}});});};
 /* Pozíció cseréje: az egyik pozíciója helyett másik (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
+/* ⚙️ → Új pozíció hozzáadása: ugyanaz a munkatárs még egy pozícióban (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
+function crewRoleAdd(cid){const d=S.draft;if(!d)return;const c=crewById(cid),have=rolesOfCrew_(d,cid),opts=projRoles(d).filter(r=>!have.includes(r));
+  openModal('Új pozíció – '+(c?c.name:''),`<div class="field full"><label for="m-radd">Pozíció</label><select class="inp" id="m-radd" name="role" data-cmb="Válassz pozíciót…"><option value=""></option>${opts.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
+    <p class="hint" style="margin:6px 0 0">Jelenleg: ${esc(have.join(', ')||'—')}. ${((d.invites||{})[cid]||{}).st==='yes'&&((d.invites||{})[cid]||{}).via!=='self'?'Már elfogadta a meghívást – az új pozícióra külön meghívót kap („Meghívás · új pozíció”), a korábbi megmarad.':''} Az eladó értékesítő jutaléka a Pénzügyek → Értékesítés részben adható meg; itt a <b>Helyszíni értékesítő</b> pozíció választható.</p>`,
+    {submitLabel:'Hozzáadás',noDraft:true,submit:fd=>{const role=String(fd.get('role')||'');if(!role){toast('Válassz pozíciót.',true);return;}if(role==='Projektvezető'){closeModal();setDraft({lead:cid});toast('Projektvezető lett – mentsd a módosítást');return;}
+      const crew=clone(d.crew||[]);crew.push({crewId:cid,role});closeModal();setDraft({crew});if(typeof slotAutoFill==='function')slotAutoFill(cid,role);toast(role+' pozíció hozzáadva – mentsd a módosítást');}});
+  if(typeof cmbAuto==='function')cmbAuto();}
 function crewRoleSwap(cid){const d=S.draft;if(!d)return;const mine=(d.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);if(!mine.length)return;const c=crewById(cid);
   openModal('Pozíció cseréje – '+(c?c.name:''),`${mine.length>1?`<div class="field full"><label for="m-rfrom">Melyik pozíció helyett?</label><select class="inp" id="m-rfrom" name="from" data-cmb="Pozíció…">${mine.map(x=>`<option value="${x.i}">${esc(posLabel(x.a.role))}</option>`).join('')}</select></div>`:`<p class="hint" style="margin:0 0 8px">Jelenleg: <b>${esc(posLabel(mine[0].a.role))}</b></p><input type="hidden" name="from" value="${mine[0].i}">`}
     <div class="field full"><label for="m-rto">Új pozíció</label><select class="inp" id="m-rto" name="to" data-cmb="Válassz pozíciót…"><option value=""></option>${projRoles(d).filter(r=>!mine.some(x=>x.a.role===r)).map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>${((d.invites||{})[cid]||{}).st==='yes'?'<p class="hint" style="margin:6px 0 0">Már elfogadta a meghívást: az új pozíciót mentés után külön el kell fogadnia.</p>':''}`,
