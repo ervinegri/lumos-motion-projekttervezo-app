@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f0ef1b179e",
+"at": "2026-11-20T10:12:40+02:00",
+"msg": "pCloud fájlnév-ellenőrzés: csak kisbetű, szám, alulvonás – hibás névnél a link nem menthető (lista a hibás nevekről), a videóablakban is jelzi; kézikönyv + újdonság"
+},
+{
 "id": "7aa6fb852e",
 "at": "2026-11-20T10:09:00+02:00",
 "msg": "pCloud-változatok: a képarány (1x1, 16:9, 16-9, 9_16, 4_5…) sem keveredik a sorszámmal; azonos dátumnál a legnagyobb verzió az alap"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Észrevételek 6000 karakterig (eddig 1000/1500-nál levágódott); videóablak címében a javítás száma; jóváhagyó oldalon: két díjmentes javítási kör"
 },
 {
-"id": "1c235d1794",
-"at": "2026-11-19T11:16:42+01:00",
-"msg": "Videótábla: minden kártya egyforma magas (a nagyobb méret), a vágó neve alul"
-},
-{
-"id": "efe66c0f02",
-"at": "2026-11-19T10:14:59Z",
+"id": "d88efd5c5f",
+"at": "2026-11-19T10:16:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
