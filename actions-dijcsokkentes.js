@@ -276,6 +276,7 @@ function crewModal(c){
       const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
     catch(e){handleErr(e);}
   }});
+  if(c)modalLock('#cdoc');
 }
 function itemModal(it,after){
   const v=it||{};
@@ -297,6 +298,7 @@ function itemModal(it,after){
     try{const saved=await call('saveItem',data);const i=S.inventory.findIndex(x=>x.id===saved.id);if(i>=0)S.inventory[i]=saved;else S.inventory.push(saved);if(!after)entRec('item',(it?'eszköz módosítása: ':'eszköz felvétele: ')+saved.name,saved.id,it?clone(it):null,clone(saved));closeModal();render(true);if(after)after(saved);else toast(it?'Mentve':'Eszköz felvéve');}
     catch(e){handleErr(e);}
   }});
+  if(it)modalLock();
 }
 document.addEventListener('change',e=>{if(e.target.id==='m-company'){const k=crewCompanies().find(x=>fold(x.name)===fold(e.target.value.trim()));const t=$('m-tax');if(k&&k.tax&&t&&!t.value){t.value=k.tax;}if(k&&k.vat){const r=document.querySelector('#mform [name=vat][value="'+k.vat+'"]');if(r)r.checked=true;}}});   // ismert vállalkozás: az adószám és az ÁFA is átjön
 document.addEventListener('change',e=>{if(e.target.id==='m-role'){const sc=$('m-salesComp');if(sc)sc.hidden=e.target.value!=='sales';const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const nf=$('m-newCrewF');if(nf){nf.hidden=e.target.value!=='__new';if(!nf.hidden)setTimeout(()=>$('m-newName').focus(),0);}const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
@@ -660,3 +662,11 @@ function npDaysDraw(f){const box=f&&f.querySelector('#m-npDays');if(!box)return;
   if(t.dataset&&t.dataset.npd){t.dataset.ed='1';return;}
   if(['date','endDate','startTime','endTime'].includes(t.name))npDaysDraw(f);}));
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-action="np-multi-off"],[data-action="np-multi"]');if(b){const f=b.closest('form');setTimeout(()=>npDaysDraw(f),0);}});
+
+/* Már létező elem (munkatárs, eszköz) adatlapja zárolva nyílik: a 🔒 gombbal oldható fel a szerkesztés (véletlen átírás ellen). keep: ami zárolva is használható (pl. dokumentumok). */
+function modalLock(keep){setTimeout(()=>{const f=$('mform');if(!f)return;const box=f.querySelector('.fields');if(!box)return;
+  const els=[...box.querySelectorAll('input,select,textarea,button')].filter(x=>!(keep&&x.closest(keep))&&!x.disabled);
+  els.forEach(x=>{x.dataset.lk='1';x.disabled=true;});box.classList.add('m-locked');
+  const sub=f.querySelector('.mfoot button[type=submit]');if(sub){sub.dataset.lk='1';sub.disabled=true;}
+  const h=f.querySelector('.mhead h3');if(h&&!f.querySelector('.m-lock-btn')){const b=document.createElement('button');b.type='button';b.className='btn outline small m-lock-btn';b.textContent='🔒 Szerkesztés';b.title='Az adatok zárolva – kattints a módosításhoz';
+    b.onclick=()=>{f.querySelectorAll('[data-lk]').forEach(x=>{x.disabled=false;delete x.dataset.lk;});box.classList.remove('m-locked');b.remove();const n=box.querySelector('input:not([type=hidden]),textarea');if(n)n.focus();};h.after(b);}},0);}

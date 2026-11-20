@@ -2989,3 +2989,7 @@ html body .bl-gap{margin-top:8px;padding:8px 10px;border-radius:10px;background:
 @keyframes inpLoad{0%{background-position:0 0}100%{background-position:200% 0}}
 html body .inp.inp-loading{background-image:linear-gradient(90deg,transparent 0%,rgba(59,111,176,.12) 50%,transparent 100%);background-size:200% 100%;animation:inpLoad 1.1s linear infinite;color:#3b6fb0}
 html body .inp.inp-loading::placeholder{color:#3b6fb0;opacity:1;font-weight:600}
+
+/* zárolt adatlap (🔒 Szerkesztés gombbal oldható) */
+html body .fields.m-locked .inp:disabled,html body .fields.m-locked .msel-btn:disabled,html body .fields.m-locked .cmb-in:disabled{background:#f6f7f9;color:#334155;cursor:default}html body .m-lock-btn{margin-left:auto;margin-right:8px}
+html body #mform .mhead:has(.m-lock-btn){display:flex;align-items:center}
