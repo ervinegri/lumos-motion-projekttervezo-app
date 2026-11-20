@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "372d887cc3",
+"at": "2026-11-20T14:53:29+01:00",
+"msg": "Keretszerződés fájlnév: E.V. → EV (egyben)"
+},
+{
 "id": "337e835fe9",
 "at": "2026-11-20T14:51:38+01:00",
 "msg": "Keretszerződés: a székhely a NAV adózói adataiból, ha ott nincs (egyéni vállalkozó), a munkatárs NAV-ban párosított számlájáról"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: a felek adatai táblázatban (nem lebegő szövegdobozban), az oldalszám rendes láblécben – a Google-PDF így nem csúszik szét; a küldőablakban a levél előnézete fejléccel és aláírással"
 },
 {
-"id": "200046625b",
-"at": "2026-11-19T18:35:23+02:00",
-"msg": "Fotók utómunkája: magától a kiválasztott fotósé, amíg kézzel senkihez nincs rendelve (felület + mentéskor a háttér is rögzíti)"
-},
-{
-"id": "73a9976cd7",
-"at": "2026-11-19T16:25:38Z",
+"id": "a8c82debbc",
+"at": "2026-11-19T16:35:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
