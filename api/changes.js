@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "397dae9ae0",
+"at": "2026-11-20T15:43:46+01:00",
+"msg": "Stábkártya ⚙️: Új pozíció hozzáadása ugyanannak a munkatársnak"
+},
+{
 "id": "0d7eab401a",
 "at": "2026-11-20T15:42:14+01:00",
 "msg": "Munkatárs űrlap: a vállalkozás neve és az adószám a termelési vezetőnél is szerkeszthető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új projekt: több napnál minden napnak külön kezdés és hozzávetőleges végzés"
 },
 {
-"id": "384b7282d5",
-"at": "2026-11-20T14:02:14+01:00",
-"msg": "Keretszerződés-sablon: 8.9 – az alvállalkozóról készült fotók/videók felhasználása, a megszűnés után is"
-},
-{
-"id": "4f6f956218",
-"at": "2026-11-20T13:01:43Z",
+"id": "d07ee18e0c",
+"at": "2026-11-20T13:02:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
