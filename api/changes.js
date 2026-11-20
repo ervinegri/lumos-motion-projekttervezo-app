@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b7ee441d6",
+"at": "2026-11-20T14:56:08+01:00",
+"msg": "Keretszerződés küldése: bal alsó sarokban Letöltés és Megnyitás új lapon gomb"
+},
+{
 "id": "372d887cc3",
 "at": "2026-11-20T14:53:29+01:00",
 "msg": "Keretszerződés fájlnév: E.V. → EV (egyben)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: a felsorolások sorközei (a pont rendes betűtípussal, tételek között kis térköz)"
 },
 {
-"id": "d79cf76a18",
-"at": "2026-11-19T20:49:37+02:00",
-"msg": "Keretszerződés: a felek adatai táblázatban (nem lebegő szövegdobozban), az oldalszám rendes láblécben – a Google-PDF így nem csúszik szét; a küldőablakban a levél előnézete fejléccel és aláírással"
-},
-{
-"id": "a8c82debbc",
-"at": "2026-11-19T16:35:34Z",
+"id": "5a0ce14ddd",
+"at": "2026-11-19T18:49:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
