@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0d7eab401a",
+"at": "2026-11-20T15:42:14+01:00",
+"msg": "Munkatárs űrlap: a vállalkozás neve és az adószám a termelési vezetőnél is szerkeszthető"
+},
+{
 "id": "28ec95aa3c",
 "at": "2026-11-20T15:40:00+01:00",
 "msg": "Számla-levél: tegező szöveg (Kedves keresztnév / Sziasztok), a nettó összeg is benne van"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés-sablon: 8.9 – az alvállalkozóról készült fotók/videók felhasználása, a megszűnés után is"
 },
 {
-"id": "37514bb0d7",
-"at": "2026-11-20T14:01:34+01:00",
-"msg": "Lecserélt / levett szakember díjsora eltűnik a Pénzügyekből (a régi árva sorok megnyitáskor törlődnek)"
-},
-{
-"id": "1930f411e0",
-"at": "2026-11-20T13:00:34Z",
+"id": "4f6f956218",
+"at": "2026-11-20T13:01:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
