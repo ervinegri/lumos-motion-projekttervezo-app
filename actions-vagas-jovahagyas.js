@@ -233,8 +233,8 @@ const BELL_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stro
 /* Videó megtekintése: beágyazott lejátszó + üzenet; belső ellenőrzésnél jóváhagyás (→ ügyfél jóváhagyására vár) vagy visszadobás indokkal */
 /* pCloud-mappa több videóval: a videó nevében lévő utolsó szám (pl. „Short videó 3”) szerinti fájl(ok); több változatnál (v1, v2, 9:16…) a legfrissebb az alap, a többi választható */
 const pcHits=(L,name)=>{L=L.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu',{numeric:true}));if(L.length<2)return {f:L[0]||null,alts:[]};const ns=String(name||'').match(/\d+/g),n=ns?String(Number(ns[ns.length-1])):'',re=n?new RegExp('(^|\\D)0*'+n+'(\\D|$)'):null;
-  const hit=re?L.filter(f=>re.test(String(f.name||'').replace(/\.[^.]+$/,'').replace(/(^|[_\-\s.(])v(?:er(?:zi[oó])?)?[\s_\-]*\d+/gi,'$1').replace(/\d+\s*[x:×]\s*\d+|\d{3,4}p\b|\b[48]k\b/gi,' '))):[],tm=f=>Date.parse(f.modified||f.created||'')||0;
-  if(hit.length===1)return {f:hit[0],alts:[]};if(hit.length>1){const nw=hit.slice().sort((a,b)=>tm(b)-tm(a))[0];return {f:nw,alts:hit};}return {f:L[0],alts:L};};
+  const hit=re?L.filter(f=>re.test(String(f.name||'').replace(/\.[^.]+$/,'').replace(/(^|[_\-\s.(])v(?:er(?:zi[oó])?)?[\s_\-]*\d+/gi,'$1').replace(/\d+\s*[x:×]\s*\d+|(^|\D)(?:1[-_]1|16[-_]9|9[-_]16|4[-_]5|5[-_]4|21[-_]9)(?!\d)|\d{3,4}p\b|\b[48]k\b/gi,'$1 '))):[],tm=f=>Date.parse(f.modified||f.created||'')||0;
+  if(hit.length===1)return {f:hit[0],alts:[]};if(hit.length>1){const nw=hit.slice().sort((a,b)=>tm(b)-tm(a)||String(b.name).localeCompare(String(a.name),'hu',{numeric:true}))[0];return {f:nw,alts:hit};}return {f:L[0],alts:L};};
 const pcPick=(L,name)=>pcHits(L,name).f;
 function vidEmbed(u,name){u=String(u||'').trim();let m;
   if((m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{10,})/.exec(u)))return `<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
