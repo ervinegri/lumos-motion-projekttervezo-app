@@ -668,4 +668,4 @@ function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!p
 
 /* „Statiszta” szerep → „Szereplő” (statiszta, modell és beszélő szereplő gyűjtőneve, 2026-11-20): a régi adatokat betöltéskor átnevezzük, mentéskor már az új név megy */
 function fixLegacyRoles(){const f=a=>{if(Array.isArray(a))for(let i=0;i<a.length;i++)if(a[i]==='Statiszta')a[i]='Szereplő';};
-  (S.crew||[]).forEach(c=>f(c.roles));(S.projects||[]).forEach(p=>(p.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';}));if(S.draft)(S.draft.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';});}
+  (S.crew||[]).forEach(c=>f(c.roles));if(S.cf&&S.cf.role==='Statiszta')S.cf.role='Szereplő';(S.projects||[]).forEach(p=>(p.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';}));if(S.draft)(S.draft.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';});}

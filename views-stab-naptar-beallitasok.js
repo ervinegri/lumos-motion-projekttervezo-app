@@ -34,6 +34,7 @@ function viewCrew(){
   const T=todayISO(),f=S.cf,q=f.q.trim().toLowerCase();
   const salesTab=S.tab==='ertekesitok',extraTab=S.tab==='statisztak';   // külön alfül: Stáb (szakemberek), Értékesítők (ügyvezető) és Statiszták
   const base=crewSorted().filter(c=>extraTab?isExtraCrew(c):!isExtraCrew(c)&&(!isAdmin()||(salesTab?isSalesCrew(c):!isSalesCrew(c))));let list=base;
+  if(f.role&&!CREW_ROLES.includes(f.role)&&!CREW_SKILLS.includes(f.role))f.role='';   /* megszűnt / átnevezett szerepre beragadt szűrő ne rejtse el a listát */
   if(f.role)list=list.filter(c=>(c.roles||[]).includes(f.role)||(c.skills||[]).includes(f.role));
   if(q)list=list.filter(c=>fold([c.name,c.phone,c.email,c.company,(c.roles||[]).join(' '),(c.skills||[]).join(' '),c.note].join(' ')).includes(fold(q)));
   const internal=S.crew.filter(c=>(c.type==='Belsős'||isEmployee(c))).length;
