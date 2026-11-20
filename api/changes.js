@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5c83e37658",
+"at": "2026-11-20T14:46:07+01:00",
+"msg": "Új szerződés: a munkatárs választó a kitöltő ablakban (nincs külön lépés); a székhely az adószámból automatikusan betöltődik"
+},
+{
 "id": "c563c124ad",
 "at": "2026-11-20T14:32:34+01:00",
 "msg": "Projekt oldal: videótábla (kanban) az Alapadatok fölött, utómunka-instrukciókkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés küldése: a szerződés is látszik a küldőablakban (Google PDF, tartalékként Word-megjelenítés)"
 },
 {
-"id": "e6ae0179b6",
-"at": "2026-11-19T16:10:51+02:00",
-"msg": "Stáb: „Új szerződés” gomb (munkatárs kiválasztása → keretszerződés kitöltése/küldése)"
-},
-{
-"id": "6d50262091",
-"at": "2026-11-19T14:09:57Z",
+"id": "4be77c39fb",
+"at": "2026-11-19T14:11:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
