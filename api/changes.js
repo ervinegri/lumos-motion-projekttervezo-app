@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "514821ded3",
+"at": "2026-11-20T15:03:38+01:00",
+"msg": "Statiszták alfül (Statiszta szerep) + modell keretszerződés sablon, kitöltés és küldés az appból"
+},
+{
 "id": "7668967e0b",
 "at": "2026-11-20T14:57:05+01:00",
 "msg": "Székhely-gyorsítótár új kulccsal (a számlából vett cím ne maradjon meg)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Frissítés visszatéréskor: telefon felébresztése / visszaváltás után (ha 1 percnél régebbi az adat) az app újratölt – eddig az alvás alatt álló időzítő miatt elmaradt"
 },
 {
-"id": "02c603e5b0",
-"at": "2026-11-19T20:57:37+02:00",
-"msg": "Keretszerződés-levél: utolsó mondat ki"
-},
-{
-"id": "2d834867ef",
-"at": "2026-11-19T18:55:54Z",
+"id": "7a3f43197e",
+"at": "2026-11-19T18:57:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
