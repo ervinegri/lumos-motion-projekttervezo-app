@@ -161,6 +161,7 @@ function offSiteEqRelease(d){if(!d||!Array.isArray(d.equipment))return;const on=
   if(gone.size){d.equipment=eq;setTimeout(()=>toast(`${[...gone].map(id=>(crewById(id)||{}).name||'Valaki').join(', ')} már nincs a helyszínen – az eszközei gazdátlanok lettek, oszd ki őket újra.`),0);}}
 function setDraft(patch){if(ro()||!S.draft)return;histPush();HIST.key='';Object.assign(S.draft,patch);
   if('crew' in patch&&!S.draft.lead){const ids=[...new Set((S.draft.crew||[]).map(a=>a.crewId))];if(ids.length===1)S.draft.lead=ids[0];}   // egyszemélyes stábnál ő a projektvezető
+  if(('crew' in patch||'lead' in patch)&&!('editTasks' in patch))syncSlotsWithCrew(S.draft);
   if(('crew' in patch||'lead' in patch)&&!('fees' in patch))syncFeesWithCrew(S.draft);roomEqSync(S.draft);offSiteEqRelease(S.draft);if(!projLocked())roomOpEqFill(S.draft,!S._noTick);S.dirty=true;render(true);autoSave(400);}
 /* Beosztott munkatárs → sor a Pénzügyek táblázatában (név, feladat, napidíj × napok); a díjat ott lehet átírni.
    Ha valakit levesznek a projektről, a sora csak akkor törlődik, ha még nem írtak be díjat. */
@@ -339,3 +340,13 @@ function arm(b,fn){
   b.dataset.armed='1';const old=b.textContent;b.textContent='Biztosan? Kattints újra';b.classList.add('armed');
   setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=old;b.classList.remove('armed');}},4000);
 }
+
+/* Pozíció levétele → a Szolgáltatásoknál (pl. előadásrögzítés terem-operatőre, fotós, helyszíni vágó) a hozzá tartozó feladat is lekerül róla.
+   Minden beosztás-logika össze van kötve: aki már nem tölti be a feladathoz szükséges pozíciót, az a feladatról is lekerül. */
+function syncSlotsWithCrew(d){try{const et0=editTasksOf(d),SR=window.SLOT_ROLE||{};let ch=false;const et={};
+  const held=id=>[d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter(Boolean);
+  const need=k=>SR[k]||(/^(r[a-z0-9]+_)?(op|er_(total|close|crowd|slides)(_\d+)?)$/.test(k)?'Statív operatőr':'');
+  Object.keys(et0).forEach(id=>{const L=Array.isArray(et0[id])?et0[id]:[],h=held(id);
+    const keep=L.filter(x=>{if(!/^f_/.test(x))return true;const r=need(x.slice(2));if(!r||!h.length)return true;const ok=h.includes(r)||(OP_SUB.includes(r)&&h.includes('Operatőr'))||(r==='Operatőr'&&h.some(isOpRole));if(!ok)ch=true;return ok;});
+    if(keep.length)et[id]=keep;else if(L.length)ch=true;});
+  if(ch)d.editTasks=et;}catch(e){}}
