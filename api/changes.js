@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68c93693a5",
+"at": "2026-11-20T10:14:38+02:00",
+"msg": "pCloud fájlnév-hiba: a felugró üzenet nem takarja el a hibás nevek listáját"
+},
+{
 "id": "f4bbc14fcc",
 "at": "2026-11-20T10:13:02+02:00",
 "msg": "Kézikönyv: szintaxisjavítás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Board kártya: '↩ javítandó' címke törölve (a javítás-jelvény már mutatja)"
 },
 {
-"id": "2484d995c0",
-"at": "2026-11-19T11:21:17+01:00",
-"msg": "Megerősítő ablak: 'Utána még egy díjmentes kör marad' mondat törölve"
-},
-{
-"id": "be1765a440",
-"at": "2026-11-19T10:19:44Z",
+"id": "83fdcdcde7",
+"at": "2026-11-19T10:21:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
