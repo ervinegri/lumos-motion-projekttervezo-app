@@ -13,7 +13,7 @@ function penStrikeNote(cid){   // az elmúlt 12 hónap összes jóváhagyott hib
   return `<p class="pen-strike${n>=3?' bad':''}" data-tip="${esc(tip)}" tabindex="0">⚠️ ${all.length} hiba az elmúlt 12 hónapban: ${parts.join(', ')}${n>=3?' – a szerződés 3.7. pontja szerint (3 súlyos/kritikus hiba) azonnali hatályú felmondásra van jogotok.':''}</p>`;}
 /* Értékesítő a stábban: akinek értékesítői fiókja van, vagy csak értékesítői (és ajánlói) szerepe */
 const isExtraCrew=c=>(c.roles||[]).includes('Statiszta')&&(c.roles||[]).every(r=>r==='Statiszta');   /* statiszta / modell: külön alfül */
-const isSalesCrew=c=>(S.salesPeople||[]).some(x=>x.crewId===c.id)||((c.roles||[]).includes('Értékesítő')&&(c.roles||[]).every(r=>r==='Értékesítő'||r==='Ajánlói jutalék'));
+const isSalesCrew=c=>!(c.roles||[]).some(r=>r!=='Értékesítő'&&r!=='Ajánlói jutalék')&&((S.salesPeople||[]).some(x=>x.crewId===c.id)||(c.roles||[]).includes('Értékesítő'));   /* csak aki kizárólag értékesít: akinek gyártási szerepe is van (pl. operatőr), a Stábban marad – a jutaléka ettől változatlan */
 /* Munkatársi szerződés (csak az ügyvezető látja – a háttér másnak nem is küldi el) */
 const crewDocsOf=cid=>isAdmin()?(S.crewDocs||[]).filter(d=>d.crewId===cid).sort((a,b)=>String(b.signedAt||b.createdAt).localeCompare(String(a.signedAt||a.createdAt))):[];
 function crewDocKv(c){if(!isAdmin()||!Array.isArray(S.crewDocs))return '';const L=crewDocsOf(c.id);
@@ -64,7 +64,7 @@ function viewCrew(){
   const pc=n=>base.filter(c=>prioNum(c)===n).length;
   return `<div class="page-head"><div class="grow"><h2>${salesTab?'Értékesítők':extraTab?'Statiszták':'Stáb'}</h2><p class="sub">${salesTab?list.length+' értékesítő · fiókot és jutalékot a Beállításokban adhatsz meg':extraTab?list.length+' statiszta / modell':S.crew.length+' munkatárs'+(S.crew.length?` · ${internal} belsős`:'')}</p></div>${ro()?'':undoBar()}
       ${!salesTab&&isAdmin()&&Array.isArray(S.crewDocs)?`<button class="btn outline w" type="button" data-action="crew-docs-gmail" title="A külsősök aláírt szerződéseit megkeresi a leveleid között, és feltölti őket">📥 Szerződések a Gmailből</button>`:''}
-      ${!salesTab&&isAdmin()?`<button class="btn outline w" type="button" data-action="crew-ctr-new"${extraTab?' data-kind="modell"':''} title="${extraTab?'Modell keretszerződés':'Alvállalkozói keretszerződés'} a munkatárs adataival – letöltés vagy küldés e-mailben">📝 Új szerződés</button>`:''}
+      ${!salesTab&&isAdmin()?`<button class="btn outline w" type="button" data-action="crew-ctr-new"${extraTab?' data-kind="modell"':''} title="${extraTab?'Statiszta keretszerződés':'Alvállalkozói keretszerződés'} a munkatárs adataival – letöltés vagy küldés e-mailben">📝 Új szerződés</button>`:''}
       <button class="btn primary w" type="button" data-action="new-crew">${salesTab?'+ Új értékesítő':extraTab?'+ Új statiszta':'+ Új munkatárs'}</button></div>
     <div class="toolbar"><input class="inp search" id="q-crew" type="search" placeholder="Keresés név, szerep, vállalkozás szerint" value="${esc(f.q)}" aria-label="Stáb keresése">
       <select class="inp" id="crew-role-filter" style="width:auto" aria-label="Szűrés szerep szerint" data-cmb="Szerep szerint…"><option value="" data-keep="1">Minden szerep</option><optgroup label="Szerep">${CREW_ROLES.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup><optgroup label="Részletek">${CREW_SKILLS.map(r=>`<option${r===f.role?' selected':''}>${esc(r)}</option>`).join('')}</optgroup></select>
