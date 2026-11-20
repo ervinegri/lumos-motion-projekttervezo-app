@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ee97fc08da",
+"at": "2026-11-20T15:52:06+01:00",
+"msg": "Stábkártya: hosszú pozícióneveknél (pl. Key Account Manager) rövid címke, hogy a × látszódjon"
+},
+{
 "id": "a951f205f6",
 "at": "2026-11-20T15:50:50+01:00",
 "msg": "Lezajlott projektnél is levehető egy-egy pozíció (×, megerősítéssel)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: 12.6 (eseti felelősségbiztosítás előírása) törölve"
 },
 {
-"id": "0d954781a7",
-"at": "2026-11-20T14:27:07+01:00",
-"msg": "Keretszerződés 7.5: a közvetlen kapcsolat pontosítása (kiállító, független megbízás, egyeztetés kétség esetén)"
-},
-{
-"id": "272d8e6d06",
-"at": "2026-11-20T13:25:06Z",
+"id": "3f3d4957fa",
+"at": "2026-11-20T13:27:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
