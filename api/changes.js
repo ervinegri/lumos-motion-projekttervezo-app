@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "86745ea3d2",
+"at": "2026-11-20T19:43:23+01:00",
+"msg": "Értékesítés: kilógó megjegyzés törlése a jutalékcsempe alól"
+},
+{
 "id": "a616b46f80",
 "at": "2026-11-20T19:38:09+01:00",
 "msg": "Árajánlat: kikapcsolható Összesen sor (pl. napidíjas ajánlatnál)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs űrlap: a Vállalkozás mező nem ajánl fel ügyfél- és más cégeket"
 },
 {
-"id": "be0292ce41",
-"at": "2026-11-20T15:10:31+01:00",
-"msg": "Statiszta: nincs eszköz (munkatárs űrlapon a Részletek rejtve, projekten nincs eszközblokk)"
-},
-{
-"id": "a931531c72",
-"at": "2026-11-20T14:07:39Z",
+"id": "5ed0a53fe4",
+"at": "2026-11-20T14:10:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
