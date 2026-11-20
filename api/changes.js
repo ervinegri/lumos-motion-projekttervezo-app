@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "14e5a8d1a2",
+"at": "2026-11-20T14:56:33+01:00",
+"msg": "Keretszerződés: a székhely csak az adószámból (a számlás kiegészítés kivéve)"
+},
+{
 "id": "5b7ee441d6",
 "at": "2026-11-20T14:56:08+01:00",
 "msg": "Keretszerződés küldése: bal alsó sarokban Letöltés és Megnyitás új lapon gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés-levél: rövidebb alapszöveg"
 },
 {
-"id": "5f246b806f",
-"at": "2026-11-19T20:53:54+02:00",
-"msg": "Keretszerződés: a felsorolások sorközei (a pont rendes betűtípussal, tételek között kis térköz)"
-},
-{
-"id": "5a0ce14ddd",
-"at": "2026-11-19T18:49:48Z",
+"id": "842fca173c",
+"at": "2026-11-19T18:54:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
