@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5818802ee6",
+"at": "2026-11-20T15:44:00+01:00",
+"msg": "Új pozíció: projektvezető csak akkor választható, ha még nincs"
+},
+{
 "id": "397dae9ae0",
 "at": "2026-11-20T15:43:46+01:00",
 "msg": "Stábkártya ⚙️: Új pozíció hozzáadása ugyanannak a munkatársnak"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Újdonságok: előfoglalás, napi időpontok"
 },
 {
-"id": "6f507ba837",
-"at": "2026-11-20T14:04:13+01:00",
-"msg": "Új projekt: több napnál minden napnak külön kezdés és hozzávetőleges végzés"
-},
-{
-"id": "d07ee18e0c",
-"at": "2026-11-20T13:02:23Z",
+"id": "84987f8528",
+"at": "2026-11-20T13:04:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
