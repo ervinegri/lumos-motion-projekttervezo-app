@@ -26,7 +26,8 @@ A videókat egy táblán követed: **Utómunkára vár → Utómunka alatt → B
 
 - A videó ablakában hozzászólhatsz, időkóddal is, és a **Küldés** gombbal elküldöd.
 - Ha az ügyfél javítást kér, a kártyán látszik, hányadik körnél tart (pl. „🔁 2. javítás”), a jelvény fölé húzva pedig az ügyfél kérései.
-- Azt is jelzi, ha a videó a belső ellenőrzésből jött vissza.`;
+- Azt is jelzi, ha a videó a belső ellenőrzésből jött vissza.
+- **Fájlnevek a pCloudon:** csak kisbetű, szám és alulvonás (_), pl. `short_3_16x9.mp4` vagy `short_3_v2.mp4`. Ha egy mappában több videó van, a név száma mondja meg, melyik videóhoz tartozik; ugyanannak a videónak több változata (v1, v2, 16x9, 1x1) is lehet. Hibás névnél a link nem menthető.`;
 const KK={
 crew:`# Kézikönyv – Szakembereknek
 

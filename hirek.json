@@ -1,5 +1,6 @@
 {"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
 "items":[
+{"id":"2026-11-20-pcloud-nevek","at":"2026-11-20","msg":"🔤 pCloud fájlnevek: a feltöltött videók és fotók nevében csak kisbetű, szám és alulvonás (_) lehet (pl. short_3_16x9.mp4). Ha a linkben más karakter van, az app jelzi, és a link csak átnevezés után menthető."},
 {"id":"2026-11-19-kezikonyv","at":"2026-11-19","msg":"📖 Kézikönyv: a Beállítások fülön (📖 Kézikönyv) megtalálod a saját szerepedre szabott használati útmutatót – meghívások, beosztások, utómunka, értesítések, gyakori kérdések."},
 {"id":"2026-11-19-javitas-kor","at":"2026-11-19","msg":"🔁 A videókártyán látszik, hányadik javításnál tart (pl. „🔁 2. javítás”, az ügyfél kérései a jelvény fölé húzva), illetve ha a belső ellenőrzésből jött vissza."},
 {"id":"2026-11-19-astryx","at":"2026-11-19","msg":"🎨 Új, letisztult kinézet: világos fejléc, új betűtípus, egységes gombok és mezők – minden funkció a régi helyén maradt. A jobb felső névjelvény menüjében (🎨 Kinézet) visszaválthatsz a korábbira."},
