@@ -2984,3 +2984,8 @@ html body #mform.ct-wide .mfoot .left{display:flex;gap:8px;margin-right:auto;fle
 
 /* Számla: a kiszámlázott összeg eltér a projekt értékétől */
 html body .bl-gap{margin-top:8px;padding:8px 10px;border-radius:10px;background:#fdecec;border:1px solid #f3b8b8;color:#7a1f1f;font-size:12.5px;display:flex;flex-direction:column;gap:4px}html body .bl-gap b{color:#b42318}html body .bl-gap.over{background:#fff4e5;border-color:#f5d39b;color:#7a4a00}html body .bl-gap .btn{align-self:flex-start;margin-top:2px}
+
+/* betöltés alatt álló mező (pl. székhely az adószámból) */
+@keyframes inpLoad{0%{background-position:0 0}100%{background-position:200% 0}}
+html body .inp.inp-loading{background-image:linear-gradient(90deg,transparent 0%,rgba(59,111,176,.12) 50%,transparent 100%);background-size:200% 100%;animation:inpLoad 1.1s linear infinite;color:#3b6fb0}
+html body .inp.inp-loading::placeholder{color:#3b6fb0;opacity:1;font-weight:600}
