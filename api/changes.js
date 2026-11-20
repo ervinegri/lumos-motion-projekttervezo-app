@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5d65cacfe7",
+"at": "2026-11-20T10:27:18+02:00",
+"msg": "Google-értékelés: a jóváhagyó oldalon, ha a projekt minden videója jóváhagyva, értékelés-kérő doboz; átadás után 4 nappal egyetlen kérő levél a kapcsolattartónak (ha nem nyitotta meg, és fél éven belül nem kértünk az ügyféltől); rögzül a kérés és a megnyitás"
+},
+{
 "id": "68c93693a5",
 "at": "2026-11-20T10:14:38+02:00",
 "msg": "pCloud fájlnév-hiba: a felugró üzenet nem takarja el a hibás nevek listáját"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: módosítás/üzenet minimális hossza feloldva (1 karakter is elég)"
 },
 {
-"id": "96c9072614",
-"at": "2026-11-19T11:24:28+01:00",
-"msg": "Board kártya: '↩ javítandó' címke törölve (a javítás-jelvény már mutatja)"
-},
-{
-"id": "83fdcdcde7",
-"at": "2026-11-19T10:21:27Z",
+"id": "0f529d265a",
+"at": "2026-11-19T10:24:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
