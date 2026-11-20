@@ -301,7 +301,7 @@ async function alvBuild(o){if(!window.JSZip)await jszipLib();const t=ALV_TPL||(A
   let x=await z.file('word/document.xml').async('string');{const d=new Date(),HM=['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];x=x.replace('<w:t>Budapest,</w:t>','<w:t>Budapest, '+d.getFullYear()+'. '+HM[d.getMonth()]+' '+d.getDate()+'.</w:t>');}   /* aláírás helye és napja: mindig a mai dátum */
   x=x.replace(/\{(v_name|v_addr|v_tax|v_phone|v_email|v_sign|p165)\}/g,(m,k)=>X(V[k]));z.file('word/document.xml',x);
   const slug=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
-  return {blob:await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),name:'Keretszerzodes_'+(slug(o.name)||'vallalkozo')+'_Lumos_Motion.docx'};}
+  return {blob:await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),name:'Keretszerzodes_'+(slug(String(o.name||'').replace(/\b([Ee])\.\s*([Vv])\.?/g,'EV'))||'vallalkozo')+'_Lumos_Motion.docx'};}
 const alvB64=blob=>new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=no;fr.readAsDataURL(blob);});
 ACT['crew-ctr']=b=>{if(!isAdmin())return;let c=b.dataset.id?crewById(b.dataset.id):null;const pick=!!b.dataset.pick;if(!c&&!pick)return;c=c||{};
   const prevOf=x=>x&&x.id?(crewDocsOf(x.id).find(d=>d.signedAt&&/szerz/i.test(d.title||''))||{}).signedAt||'':'',prev=prevOf(c);
