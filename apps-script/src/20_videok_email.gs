@@ -365,7 +365,7 @@ function gbpSync_(u) {
     const clients = readAll_('clients'), projects = readAll_('projects'); let added = 0;
     withLock_(() => { const sh = sheetFor_('gReviews'), old = {}; readAll_('gReviews').forEach(x => { old[x.id] = x; });
       out.forEach(x => { const id = String(x.reviewId || x.name || ''); if (!id) return; const o = old[id], au = (x.reviewer && x.reviewer.displayName) || '';
-        const row = { id: id, author: au, stars: STARS_[x.starRating] || '', text: String(x.comment || '').replace(/\s*\(Translated by Google\)[\s\S]*$/, '').replace(/^\(Original\)\s*/, ''), createdAt: String(x.createTime || '').slice(0, 19).replace('T', ' '), updatedAt: String(x.updateTime || '').slice(0, 19).replace('T', ' '),
+        const row = { id: id, author: au, stars: STARS_[x.starRating] || '', text: gbpText_(x.comment), createdAt: String(x.createTime || '').slice(0, 19).replace('T', ' '), updatedAt: String(x.updateTime || '').slice(0, 19).replace('T', ' '),
           reply: (x.reviewReply && x.reviewReply.comment) || '', replyAt: x.reviewReply ? String(x.reviewReply.updateTime || '').slice(0, 19).replace('T', ' ') : '', photo: (x.reviewer && x.reviewer.profilePhotoUrl) || '',
           client: o && o.manual ? o.client : ((o && o.client) || gbpGuess_(au, clients, projects)), manual: o && o.manual ? o.manual : '' };
         if (!o) added++; if (!o || JSON.stringify(Object.assign({}, o)) !== JSON.stringify(Object.assign({}, o, row))) putRow_('gReviews', sh, row, findRow_(sh, id) || null); });
@@ -375,6 +375,8 @@ function gbpSync_(u) {
     return { connected: true, added: added, total: out.length };
   } catch (e) { return { connected: true, error: gbpErr_(e) }; }
 }
+/** A Google a nem magyar nyelvű fiókoknál fordítással küldi: „(Translated by Google) … (Original) …” – az eredeti szöveg kell. */
+function gbpText_(c) { c = String(c || '').trim(); const m = /\(Original\)\s*([\s\S]*)$/.exec(c); if (m) return m[1].trim(); return c.replace(/\s*\(Translated by Google\)[\s\S]*$/, '').trim(); }
 function gbpList_(u, a) {
   const P = gbpProps_(); if (a && a.sync) gbpSync_(u);
   let rows = []; try { rows = readAll_('gReviews'); } catch (e) {}
