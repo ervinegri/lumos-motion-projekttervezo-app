@@ -5,6 +5,7 @@ function openProject(id){if(isSales())return;   // az értékesítő nem nyithat
   const p=projById(id);if(!p)return;S.crewDay='';
   if(!S.projectId){S._fromTab=S.tab!=='projektek'?S.tab:'';S._fromY=scrollY;}   /* a Vissza oda visz, ahonnan jöttél (pl. Naptár / idővonal) */
   S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.draftBase=clone(S.draft);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
+  {const d=S.draft,ids=[...crewIds(d)];if(!ro()&&canSeeFees()&&!projLocked()&&(d.fees||[]).some(f=>f.crewId&&!ids.includes(f.crewId))){syncFeesWithCrew(d);S.dirty=true;setTimeout(()=>{if(S.dirty&&S.draft===d)saveDraft();},0);}}   /* korábban lecserélt szakember árva díjsora: eltávolítjuk és mentjük */
   closeModal();render(true);scrollTo(0,0);
 }
 /* Visszavonás / mégis (Ctrl/⌘+Z, Ctrl/⌘+Shift+Z vagy Ctrl+Y): a projekt vázlatáról pillanatképeket tartunk. */
@@ -236,7 +237,7 @@ function syncFeesWithCrew(d){
     else{f.crewId=id;if(f.autoTask||!f.task)f.task=rolesOf(id),f.autoTask=true;}});
   if(days>1)fees.forEach(f=>{if(f.crewId&&!isPostOnly(d,f.crewId)&&!f.dayAmounts&&num(f.amount)){const ds=crewDaysOf(d,f.crewId),per=Math.floor(num(f.amount)/ds.length);f.dayAmounts={};ds.forEach((x,k)=>f.dayAmounts[x]=k===ds.length-1?num(f.amount)-per*(ds.length-1):per);}});   // több napos: a meglévő díj napokra bontva
   fees.forEach(f=>{if(f.crewId&&days>1&&!isPostOnly(d,f.crewId)&&f.dayAmounts)f.amount=feeDaySum(d,f);});
-  fees=fees.filter(f=>!f.crewId||(ids.includes(f.crewId)&&!onlyRef(f.crewId))||num(f.amount)||num(f.rent));
+  fees=fees.filter(f=>!f.crewId||(ids.includes(f.crewId)&&!onlyRef(f.crewId)));   /* a lecserélt / levett szakember sora a díjával együtt eltűnik a Pénzügyekből */
   d.fees=orderFees(fees);
 }
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
