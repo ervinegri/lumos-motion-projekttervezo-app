@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "384b7282d5",
+"at": "2026-11-20T14:02:14+01:00",
+"msg": "Keretszerződés-sablon: 8.9 – az alvállalkozóról készült fotók/videók felhasználása, a megszűnés után is"
+},
+{
 "id": "37514bb0d7",
 "at": "2026-11-20T14:01:34+01:00",
 "msg": "Lecserélt / levett szakember díjsora eltűnik a Pénzügyekből (a régi árva sorok megnyitáskor törlődnek)"
@@ -147,9 +152,9 @@ const ITEMS = [
 "msg": "Verziók: ugyanannak a fájlnak más paraméterű linkje nem új verzió (Drive/YouTube/Vimeo azonosító szerint), meglévő duplikátumok összevonva"
 },
 {
-"id": "eb98faeac4",
-"at": "2026-11-19T11:31:55+01:00",
-"msg": "Utómunka-instrukciók: Kész gomb törölve"
+"id": "3d40b88597",
+"at": "2026-11-19T10:32:20Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
