@@ -1010,7 +1010,7 @@ function inviteStatus_(u, a) {
   return { st: iv.st, name: p.name };
 }
 /** Elfogadás utáni visszamondás feltételei (keretszerződés 2.5.): 30 napnál korábban évente 2× díjmentes; 30–15 nap: a díj 50%-a; 15 napon belül: 100% kötbér
-    (ledolgozás vagy kiszámlázás – a Megrendelő dönt). Igazolt, elháríthatatlan ok esetén nincs kötbér (2.6.). */
+    (ledolgozás vagy kifizetés – a Vállalkozó választ). Igazolt, elháríthatatlan ok esetén nincs kötbér (2.6.). */
 function inviteCancelTerms_(cid, p) {
   const t = today_(), st = String(p.date || '').slice(0, 10); if (!/^\d{4}-\d{2}-\d{2}$/.test(st)) throw new Error('A projektnek nincs dátuma.');
   const days = Math.round((Date.UTC(+st.slice(0, 4), +st.slice(5, 7) - 1, +st.slice(8, 10)) - Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10))) / 864e5);
@@ -1044,7 +1044,7 @@ function inviteCancel_(u, a) {
     const to = [iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || '')].concat(loadUsers_().filter(x => x.role === 'admin').map(x => x.email)).filter((e, i, A) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '') && A.indexOf(e) === i);
     if (to.length) { const subj = '⚠️ ' + who + ' visszamondta · ' + p.name + ' · ' + terms.days + ' nappal előtte' + (terms.pct ? ' · kötbér: ' + terms.pct + '%' : '');
       const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px"><b>' + escapeHtml_(who) + '</b> <b style="color:#a33">visszamondta</b> a már elfogadott projektet: <b>' + escapeHtml_(p.name) + '</b></p>'
-        + '<p style="margin:0 0 10px">A projekt kezdetéig: <b>' + terms.days + ' nap</b><br>Feltétel: <b>' + escapeHtml_(TL) + '</b>' + (terms.pct ? '<br><span style="color:#5f6368">Ledolgozás vagy kiszámlázás – erről ti döntötök. Igazolt, elháríthatatlan ok esetén nem jár kötbér.</span>' : '') + '</p>'
+        + '<p style="margin:0 0 10px">A projekt kezdetéig: <b>' + terms.days + ' nap</b><br>Feltétel: <b>' + escapeHtml_(TL) + '</b>' + (terms.pct ? '<br><span style="color:#5f6368">Ledolgozás vagy kifizetés – a szakember választ (keretszerződés 2.5.5.). Igazolt, elháríthatatlan ok esetén nem jár kötbér.</span>' : '') + '</p>'
         + '<div style="background:#fff4f2;border-left:4px solid #d93025;padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 14px">' + escapeHtml_(why).replace(/\n/g, '<br>') + '</div>'
         + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása – helyettes keresése</a></p></div>';
       gmailSend_(to.join(','), subj, who + ' visszamondta: ' + p.name + '\n' + terms.days + ' nap · ' + TL + '\n\nIndok: ' + why + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszamondás-értesítés hiba: ' + e); }
