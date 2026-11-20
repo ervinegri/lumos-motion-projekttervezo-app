@@ -648,12 +648,18 @@ function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0
 /* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + pozíciók) elfogadta a meghívást */
 function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})();
   const ids=[...new Set([d&&d.lead].concat((d&&d.crew||[]).map(a=>a.crewId)).filter(Boolean))];
-  return ids.filter(id=>!(inv[id]&&inv[id].st==='yes'&&!inv[id].pre)).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?(inv[id].pre&&inv[id].st==='yes'?'pre':inv[id].st||'invited'):''}));}   /* az előfoglalás még nem elfogadott meghívás */
+  const me=invSelf();return ids.filter(id=>id!==me&&!(inv[id]&&inv[id].st==='yes'&&!inv[id].pre)).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?(inv[id].pre&&inv[id].st==='yes'?'pre':inv[id].st||'invited'):''}));}   /* az előfoglalás még nem elfogadott meghívás */
+/* a bejelentkezett ügyvezető / termelési vezető saját magát nem hívja meg: a saját beosztása elfogadottnak számít */
+function invSelf(){return S.me&&S.me.crewId&&(S.me.role==='admin'||S.me.role==='editor')?S.me.crewId:'';}
+/* lépéskor a saját beosztást a háttérben is elfogadottként rögzítjük (e-mail nélkül, mint a „Meghívás” gomb saját magára) */
+function invSelfAccept(d){const me=invSelf();if(!me||!d||!d.id)return;const inRole=d.lead===me||(d.crew||[]).some(a=>a.crewId===me);if(!inRole)return;
+  const iv=(()=>{const x=d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})()[me];if(iv&&iv.st==='yes'&&!iv.pre)return;
+  call('crewInvite',{projectId:d.id,crewId:me,due:'',pre:false}).then(r=>{if(r&&r.project){const i=S.projects.findIndex(x=>x.id===d.id);if(i>=0)S.projects[i]=normProj(r.project);if(S.draft&&S.draft.id===d.id){S.draft.invites=r.project.invites;if(S.draftBase)S.draftBase.invites=r.project.invites;}}}).catch(()=>{});}
 /* csendes ellenőrzés (húzás közben): elakadna-e a helyszíni munkára lépés a meghívások miatt */
 function invBlocked(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);return !ids.length||invMissing(d).length>0;}
 function invBlock(d){if(!d)return false;const ids=[d.lead].concat((d.crew||[]).map(a=>a.crewId)).filter(Boolean);
   if(!ids.length){toast('⚠️ Előbb oszd be és hívd meg a stábot – helyszíni munkára csak elfogadott meghívásokkal lehet lépni.',true,true);return true;}
-  const m=invMissing(d);if(!m.length)return false;
+  const m=invMissing(d);if(!m.length){invSelfAccept(d);return false;}
   const t=m.map(x=>'• '+x.name+(x.st==='pre'?' (előfoglalás – még véglegesíteni kell)':x.st==='no'?' (nem vállalja)':x.st?' (még nem válaszolt)':' (nincs meghívva)')).join('\n');   /* minden név külön sorban */
   toast('⚠️ Helyszíni munkára csak akkor léphet, ha mindenki elfogadta a meghívást. Hiányzik:\n'+t,true,true);return true;}
 
