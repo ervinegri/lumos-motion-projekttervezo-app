@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "feb0c88ae4",
+"at": "2026-11-20T23:02:33+01:00",
+"msg": "Google-értékelések: panel helyett gomb az Új szerződés mellett, ablakban nyílik"
+},
+{
 "id": "8222f6b5ac",
 "at": "2026-11-20T22:55:29+01:00",
 "msg": "Google-értékelések: a titkos kulcs az appból is beállítható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Elfogadott beosztás: pozíció levétele megerősítéssel + automatikus e-mail a szakembernek; az utolsó pozíciónál lemondás-figyelmeztetés (2.7., 7 napon belül 50% lemondási díj egyéb költségként)"
 },
 {
-"id": "1f877fcbf6",
-"at": "2026-11-20T15:21:53+01:00",
-"msg": "Saját beosztás: a pozíciók levehetők (nem zárolja az elfogadott meghívás)"
-},
-{
-"id": "46b36bfb8d",
-"at": "2026-11-20T14:19:41Z",
+"id": "e53b6a489a",
+"at": "2026-11-20T14:22:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
