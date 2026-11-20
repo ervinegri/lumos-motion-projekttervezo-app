@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cfae39d4b0",
+"at": "2026-11-20T16:33:42+01:00",
+"msg": "Szereplő (statiszta, modell, beszélő szereplő): Szereplői keretszerződés, Szereplők fül és szerep; a régi Statiszta szerep automatikusan Szereplő lesz"
+},
+{
 "id": "d725e9beeb",
 "at": "2026-11-20T16:20:29+01:00",
 "msg": "Keretszerződés: a Word-letöltés csak a küldő ablakban; a székhely betöltése látható (animált mező), sikertelen keresésnél jelzi"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés küldése: bal alsó sarokban Letöltés és Megnyitás új lapon gomb"
 },
 {
-"id": "372d887cc3",
-"at": "2026-11-20T14:53:29+01:00",
-"msg": "Keretszerződés fájlnév: E.V. → EV (egyben)"
-},
-{
-"id": "a2882cecbf",
-"at": "2026-11-20T13:51:48Z",
+"id": "fbffd7fcb2",
+"at": "2026-11-20T13:53:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
