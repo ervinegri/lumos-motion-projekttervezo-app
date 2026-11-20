@@ -104,9 +104,12 @@ const boardIdle=()=>{const a=document.activeElement,mr=$('modalRoot');return S.l
 /* Felhasználói aktivitás: 10 perc mozdulatlanság (egér, billentyű, érintés, görgetés) után az app nem kérdez rá a változásokra
    és nem tölt újra a háttérben – így a nyitva hagyott fül nem tartja ébren az adatbázist. Az első mozdulatra azonnal frissít. */
 let LAST_ACT=Date.now(),WAS_IDLE=false;const USER_IDLE_MS=10*60*1000,userActive=()=>Date.now()-LAST_ACT<USER_IDLE_MS;
-['pointerdown','pointermove','keydown','wheel','touchstart','scroll'].forEach(ev=>window.addEventListener(ev,()=>{const back=WAS_IDLE;LAST_ACT=Date.now();WAS_IDLE=false;
+['pointerdown','pointermove','keydown','wheel','touchstart','scroll'].forEach(ev=>window.addEventListener(ev,()=>{const back=WAS_IDLE||Date.now()-LAST_ACT>USER_IDLE_MS;   /* telefonon alvás alatt az időzítő áll – az eltelt időből is látjuk, hogy tétlen volt */LAST_ACT=Date.now();WAS_IDLE=false;
   if(back&&S.loaded&&!S.dirty&&!S.saving&&document.visibilityState==='visible'&&Date.now()-S.lastLoad>60000)load(true);},{passive:true,capture:true}));
 setInterval(()=>{if(!userActive())WAS_IDLE=true;},30000);
+/* visszatérés az appba (telefon felébresztése, másik appból/fülről vissza): ha 1 percnél régebbi az adat, frissít */
+const backFresh=()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-(S.lastLoad||0)>60000){LAST_ACT=Date.now();WAS_IDLE=false;load(true);}};
+document.addEventListener('visibilitychange',backFresh);window.addEventListener('pageshow',e=>{if(e.persisted)backFresh();});window.addEventListener('focus',backFresh);
 setInterval(async()=>{if(!TOKEN||VER_BUSY||!userActive()||!(idleOk()||boardIdle()))return;VER_BUSY=true;
   try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&(idleOk()||boardIdle())){S.dataVer=v;if(S.tab==='naptar')calForceFresh();const bd=boardIdle();await load(true);if(bd&&boardIdle()&&typeof bdRefresh==='function')bdRefresh();}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
 setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(userActive()&&idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
