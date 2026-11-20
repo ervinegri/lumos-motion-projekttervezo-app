@@ -317,9 +317,11 @@ ACT['crew-ctr']=b=>{if(!isAdmin())return;let c=b.dataset.id?crewById(b.dataset.i
         <div class="field full"><label for="alv-subj">Tárgy</label><input class="inp" id="alv-subj" name="subject" value="Alvállalkozói keretszerződés – Lumos Motion"></div>
         <div class="field full"><span class="lbl">A levél előnézete <span class="muted" style="font-weight:500">– kattints a szövegbe, és írd át, ami kell</span></span><textarea id="alv-body" name="body" hidden>Kedves ${esc(first)},\n\nMellékelten küldöm az alvállalkozói keretszerződést.\n\nKérlek, olvasd át, és ha rendben találod, írd alá, és küldd vissza erre a címre.</textarea><div class="cl-prev-box"><div class="inv-h pe-head" id="alv-head"></div><div id="alv-mprev"><p class="hint" style="padding:12px">Előnézet betöltése…</p></div></div></div>
         <p class="hint" style="margin:6px 0 0">Elküldés után a szerződés a munkatárs dokumentumai közé is bekerül („aláírásra elküldve”).</p></div></div>`,
-        {submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
+        {left:'<button type="button" class="btn outline" id="alv-dl2">⬇ Letöltés</button><button type="button" class="btn outline" id="alv-open">↗ Megnyitás új lapon</button>',submitLabel:'📨 Küldés',submit:async fd2=>{try{const res=await call('crewContractSend',{crewId:c.id,to:String(fd2.get('to')||''),subject:String(fd2.get('subject')||''),body:String(fd2.get('body')||''),docx:b64,fileName:r.name});
           S.crewDocs=res.crewDocs||S.crewDocs;closeModal();toast('Keretszerződés elküldve: '+String(fd2.get('to')||''));render(true);}catch(e){handleErr(e);}}});
-      const fm=$('mform');if(fm){fm.classList.add('ct-wide');fm.addEventListener('input',e=>{if(e.target.id==='alv-to'||e.target.id==='alv-subj')alvHead();});}alvHead();alvMail();alvShow(r.blob);}});
+      const fm=$('mform');if(fm){fm.classList.add('ct-wide');fm.addEventListener('input',e=>{if(e.target.id==='alv-to'||e.target.id==='alv-subj')alvHead();});}window._alvPdf='';{const d2=$('alv-dl2'),op=$('alv-open');if(d2)d2.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();a.remove();};
+        if(op)op.onclick=()=>{const u=window._alvPdf||URL.createObjectURL(r.blob);window.open(u,'_blank','noopener');};}   /* bal alsó sarok: a szerződés letöltése Wordben / megnyitása új lapon (PDF-ként, ha már elkészült) */
+      alvHead();alvMail();alvShow(r.blob);}});
   if(pick){if(typeof cmbAuto==='function')cmbAuto();const sel=$('alv-pick');if(sel){const fill=()=>{const x=crewById(sel.value);if(!x)return;c=x;const fm=$('mform'),set=(k,v)=>{const i=fm&&fm.querySelector('[name="'+k+'"]');if(i){i.value=v||'';if(i._flatpickr)i._flatpickr.setDate(v||'',false);}};
       set('name',x.company||x.name);set('tax',x.tax);set('phone',x.phone);set('email',x.email);set('prev',prevOf(x));set('addr','');if(window._alvAddrFill)window._alvAddrFill();const h=document.querySelector('#mform .mhead h3');if(h)h.textContent='Alvállalkozói keretszerződés – '+(x.name||'');};
     sel.addEventListener('change',fill);sel.addEventListener('input',fill);}}
@@ -337,7 +339,7 @@ ACT['crew-ctr-new']=()=>{if(!isAdmin())return;ACT['crew-ctr']({dataset:{pick:'1'
 async function alvShow(blob){const box=$('alvPrev');if(!box)return;
   try{const r=await call('contractPdf',{docx:await alvB64(blob)});if(!$('alvPrev'))return;
     if(r&&r.pdf){const u8=Uint8Array.from(atob(r.pdf),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));
-      box.classList.add('pdf');box.innerHTML=`<iframe src="${url}#view=FitH&toolbar=0" title="A szerződés"></iframe>`;return;}}catch(e){console.warn('Szerződés-PDF:',e);}
+      window._alvPdf=url;box.classList.add('pdf');box.innerHTML=`<iframe src="${url}#view=FitH&toolbar=0" title="A szerződés"></iframe>`;return;}}catch(e){console.warn('Szerződés-PDF:',e);}
   try{await ctLibs();box.innerHTML='';
   await window.docx.renderAsync(blob,box,box,{useBase64URL:true,inWrapper:true,ignoreLastRenderedPageBreak:true,breakPages:false,ignoreHeight:true});
   try{ctTidy(box);ctFixCounters(box);}catch(e){}
