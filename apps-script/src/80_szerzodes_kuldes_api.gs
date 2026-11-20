@@ -457,7 +457,7 @@ function rpcInner_(token, name, arg) {
       const out = { items: ((JSON.parse(r.getContentText()) || {}).items || []).slice(0, 40) }; try { c.put('pm_changes', JSON.stringify(out), 120); } catch (e) {} return out;
     }
     case 'crewDocsImport': adminOnly(); return crewDocsImport_(u, arg);
-    case 'crewContractTpl': adminOnly(); return crewContractTpl_();
+    case 'crewContractTpl': adminOnly(); return crewContractTpl_(arg);
     case 'crewContractSend': adminOnly(); return crewContractSend_(u, arg);
     case 'crewDocDelete': adminOnly(); return crewDocDelete_(u, arg);
     case 'crewDocRename': adminOnly(); return crewDocRename_(u, arg);
