@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ca439f2689",
+"at": "2026-11-20T15:26:41+01:00",
+"msg": "Elfogadott beosztás: pozíció levétele megerősítéssel + automatikus e-mail a szakembernek; az utolsó pozíciónál lemondás-figyelmeztetés (2.7., 7 napon belül 50% lemondási díj egyéb költségként)"
+},
+{
 "id": "1f877fcbf6",
 "at": "2026-11-20T15:21:53+01:00",
 "msg": "Saját beosztás: a pozíciók levehetők (nem zárolja az elfogadott meghívás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelés: a jóváhagyó oldalon, ha a projekt minden videója jóváhagyva, értékelés-kérő doboz; átadás után 4 nappal egyetlen kérő levél a kapcsolattartónak (ha nem nyitotta meg, és fél éven belül nem kértünk az ügyféltől); rögzül a kérés és a megnyitás"
 },
 {
-"id": "68c93693a5",
-"at": "2026-11-20T10:14:38+02:00",
-"msg": "pCloud fájlnév-hiba: a felugró üzenet nem takarja el a hibás nevek listáját"
-},
-{
-"id": "c20fe95c8d",
-"at": "2026-11-20T08:13:11Z",
+"id": "8b5b373cd9",
+"at": "2026-11-20T08:14:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
