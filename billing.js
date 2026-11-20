@@ -53,17 +53,19 @@ function billInfo(p){
   const full=b.mode!=='egyben'&&!advSkip&&num(b.advancePct)>=100,noFin=(b.noFinal==='1'||full)&&!fin,finSteps=noFin?[]:b.mode==='egyben'||advSkip?[['finIssued','Számla kiállítva',!!fin],['finPaid','Számla kifizetve',!!fin&&finAll.every(invPaidOk)]]:[['finIssued','Végszámla kiállítva',!!fin],['finPaid','Végszámla kifizetve',!!fin&&finAll.every(invPaidOk)]];
   const free=isFree(p)&&!inv.length;   // nem fizetős projekt: nincs díjbekérő és számla
   const steps=free?[...cStep]:b.mode==='egyben'||advSkip?[...cStep,...finSteps]:[...cStep,['advIssued','Díjbekérő kiállítva',advIssued],['advPaid','Foglaló kifizetve',advPaid],...finSteps];
-  const nextI=steps.findIndex(s=>!s[2]),closed=nextI<0;
+  const nextI=steps.findIndex(s=>!s[2]);
+  /* lezárt (minden számla kiállítva és kifizetve) projektnél a kiszámlázott nettó összeg egyezzen a projekt értékével – pl. utólag megemelt érték (továbbszámlázott költség) */
+  const billedNet=Math.round(inv.filter(x=>x.kind!=='dijbekero').reduce((a,x)=>a+num(x.invNet)*invShare(x,p.id),0)),gap=!free&&nextI<0&&inv.some(x=>x.kind!=='dijbekero')?Math.round((projTotal(p)||0)-billedNet):0,closed=nextI<0&&!gap;
   const open=inv.filter(x=>!(x.kind==='dijbekero'&&(x.ref||el))&&!invPaidOk(x)),late=open.filter(x=>x.due&&x.due<todayISO());
   const due=x=>Math.max(0,num(x.invGross)-num(x.invPaid))*invShare(x,p.id);
-  let next=free?'Nem fizetős':'Lezárva',nextCls=free?'p-mute':'p-ok';
-  if(!closed){const k=steps[nextI][0];
+  let next=free?'Nem fizetős':gap>0?'Kiszámlázatlan: '+ftFmt(gap):gap<0?'Túlszámlázva: '+ftFmt(-gap):'Lezárva',nextCls=free?'p-mute':gap?'p-bad':'p-ok';
+  if(!closed&&nextI>=0){const k=steps[nextI][0];
     next=k==='contract'?(b.contractStatus==='kikuldve'?'Szerződés aláírásra vár':b.contractStatus==='visszakuldve'?'Szerződés módosítása':'Szerződés hiányzik'):k==='advIssued'?'Díjbekérő kiállítása':k==='advPaid'?'Foglalóra vár':k==='finIssued'?(projDone(p)?(b.mode==='egyben'?'Számla kiállítása':'Végszámla kiállítása'):(b.mode==='egyben'?'Számla a projekt után':'Végszámla a projekt után')):'Fizetésre vár';
     nextCls=k==='contract'&&b.contractStatus!=='kikuldve'&&b.contractStatus!=='visszakuldve'?'p-bad':(k==='advIssued'||(k==='finIssued'&&projDone(p)))?'p-info':'p-warn';
     const tg=k==='finIssued'?tigOf(p.id):null;if(tg){next=tg.status==='jovahagyva'?'TIG jóváhagyva – számlázható':tg.status==='kiallitva'?'TIG elküldésre vár':'TIG jóváhagyásra vár';nextCls=tg.status==='jovahagyva'?'p-info':'p-warn';}
     if(k==='advIssued'&&pendingGroupAdvance){next='Közös foglaló párosítása';nextCls='p-warn';}
     if(late.length){next='Lejárt fizetés';nextCls='p-bad';}}
-  return {p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,advSkip,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),openNet:open.reduce((s,x)=>s+due(x)*invNetR(x),0),unbilledNet:!free&&!closed&&!pendingGroupAdvance&&!inv.some(x=>x.kind!=='storno')&&pr(p).start.slice(0,7)<=todayISO().slice(0,7)?Math.max(0,Math.round(projTotal(p)||0)):0,   // kintlévő akkor is, ha a hónapban már van összeg, de még semmilyen bizonylat nincs
+  return {gap,billedNet,p,b,fw,inv,db,el,fin,finAll,finExtra,noFin,full,free,advSkip,steps,nextI,closed,next,nextCls,open,late,openSum:open.reduce((s,x)=>s+due(x),0),lateSum:late.reduce((s,x)=>s+due(x),0),openNet:open.reduce((s,x)=>s+due(x)*invNetR(x),0),unbilledNet:!free&&!closed&&!pendingGroupAdvance&&!inv.some(x=>x.kind!=='storno')&&pr(p).start.slice(0,7)<=todayISO().slice(0,7)?Math.max(0,Math.round(projTotal(p)||0)):Math.max(0,gap),   // kintlévő akkor is, ha a hónapban már van összeg, de még semmilyen bizonylat nincs
     lateNet:late.reduce((s,x)=>s+due(x)*invNetR(x),0),todo:!pendingGroupAdvance&&!closed&&steps[nextI]&&(steps[nextI][0]==='advIssued'||(steps[nextI][0]==='finIssued'&&projDone(p))),noContract:!contractOk};   // noContract = aláírásra váró szerződés
 }
 /* A projekt legutóbbi, még nem számlázott TIG-je */
@@ -175,7 +177,8 @@ function billCells(p,i,o){i=i||billInfo(p);o=o||{};if(o.finAllG){const seen={},u
   const cDone=!!i.fw||signed;   // aláírt szerződés / keretszerződés: szürke kártya
   const red=(h,on)=>on?h.replace('class="pb-box bs-box','class="pb-box bs-box bs-late'):h;   // letelt a hónap, és még nincs kész: piros kártya
   const tigOver=monthOver&&tigNeed&&!appr,finOver=monthOver&&!fx&&!i.noFin&&!i.full&&!i.free&&tot>0;
-  return {contract:paid(contract,cDone),tig:paid(red(tig,tigOver),appr),adv:wait(paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),!!i.db&&!advPaid&&!invPaidOk(i.db)),fin:(o.moreNew?(h=>h+`<button class="bl-more-card" type="button" data-action="bill-inv" data-id="${esc(o.moreNew.pid)}" data-type="${o.moreNew.type}" title="${esc(o.moreNew.name)}">＋ ${o.moreNew.label} kiállítása</button>`):fx&&o.moreBtn!==false?(h=>h+`<button class="bl-more-card" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla" title="Ha az ügyfél utólag újabb terméket rendel ugyanerre a projektre">＋ Újabb számla</button>`):(h=>h))(multiFin||wait(red(green(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver),!!fx&&!i.finAll.every(invPaidOk)))};}
+  const gapH=i.gap&&!o.finAllG?`<div class="bl-gap${i.gap<0?' over':''}"><b>⚠ ${i.gap>0?'Kiszámlázatlan':'Túlszámlázva'}: ${ftFmt(Math.abs(i.gap))} nettó</b><span>A számlák összesen ${ftFmt(i.billedNet)}, a projekt értéke ${ftFmt(projTotal(p))}.</span>${i.gap>0?`<button class="btn primary small" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla" data-amt="${i.gap}">＋ Számla a különbözetre (${ftFmt(i.gap)})</button>`:'<span>Ha az érték a helyes, jóváíró (sztornó) számla kellhet.</span>'}</div>`:'';
+  return {contract:paid(contract,cDone),tig:paid(red(tig,tigOver),appr),adv:wait(paid(late(adv,i.db&&!invPaidOk(i.db)&&!i.el?i.db:null),advPaid),!!i.db&&!advPaid&&!invPaidOk(i.db)),fin:(o.moreNew?(h=>h+`<button class="bl-more-card" type="button" data-action="bill-inv" data-id="${esc(o.moreNew.pid)}" data-type="${o.moreNew.type}" title="${esc(o.moreNew.name)}">＋ ${o.moreNew.label} kiállítása</button>`):fx&&o.moreBtn!==false?(h=>h+`<button class="bl-more-card" type="button" data-action="bill-inv" data-id="${pid}" data-type="szamla" title="Ha az ügyfél utólag újabb terméket rendel ugyanerre a projektre">＋ Újabb számla</button>`):(h=>h))(h=>h+gapH)(multiFin||wait(red(green(late(fin,(i.finAll||[]).find(x=>invState(x)==='late')||fx),!!fx&&i.finAll.every(invPaidOk)),finOver),!!fx&&!i.finAll.every(invPaidOk)))};}
 ACT['bl-cstep']=async btn=>{const st=btn.dataset.st;if(!S.fin||!S.fin.billing)return;const arr=S.fin.billing;
   const pids=(btn.dataset.ids?btn.dataset.ids.split(','):[btn.dataset.id]).filter(Boolean);   // összevont cella: a megrendelő összes projektjére
   const undo=[];pids.forEach(pid=>{let b=arr.find(x=>x.projectId===pid);if(!b){b=Object.assign({},billOf(pid));arr.push(b);}
@@ -311,6 +314,7 @@ Object.assign(ACT,{
     if(!S.fin.sz||!S.fin.sz.hasKey){szSettingsModal('Az Agent-kulcs megadása után tudsz bizonylatot kiállítani.');return;}
     const ids=(b.dataset.ids||'').split(',').filter(id=>id&&projById(id)).sort((x,y)=>String((pr(projById(x))||{}).start).localeCompare(String((pr(projById(y))||{}).start)));   // időrendben   // összevont kártya: egy közös számla, projektenként egy tétellel
     if(ids.length>1){szInvoiceModal('project',ids[0],{type:b.dataset.type,projectIds:ids.slice(1),items:ids.map(id=>{const p=projById(id);return {name:szItemName(p),qty:1,price:projTotal(p),pid:id};})});return;}
+    if(b.dataset.amt&&project){szInvoiceModal('project',b.dataset.id,{type:'szamla',items:[{name:szItemName(project),qty:1,price:num(b.dataset.amt),pid:project.id}]});return;}   /* a projekt megemelt értékének kiszámlázatlan része */
     szInvoiceModal('project',b.dataset.id,{type:b.dataset.type});},
   'bill-clear':b=>{const id=b.dataset.id;closeModal();confirmModal('Szerződés leválasztása','A fájl a Drive-ban megmarad, csak a projektről kerül le a hivatkozás.','Leválasztás',()=>finCall('billSave',{projectId:id,clearFile:true},'Leválasztva'));}
 });

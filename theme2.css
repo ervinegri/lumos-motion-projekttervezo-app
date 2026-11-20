@@ -2981,3 +2981,6 @@ html body .proj-board .pn-box{margin-top:8px}
 
 html body .mbox:has(#mform.ct-wide){max-width:min(1360px,97vw)!important;width:min(1360px,97vw)!important}
 html body #mform.ct-wide .mfoot .left{display:flex;gap:8px;margin-right:auto;flex-wrap:wrap}
+
+/* Számla: a kiszámlázott összeg eltér a projekt értékétől */
+html body .bl-gap{margin-top:8px;padding:8px 10px;border-radius:10px;background:#fdecec;border:1px solid #f3b8b8;color:#7a1f1f;font-size:12.5px;display:flex;flex-direction:column;gap:4px}html body .bl-gap b{color:#b42318}html body .bl-gap.over{background:#fff4e5;border-color:#f5d39b;color:#7a4a00}html body .bl-gap .btn{align-self:flex-start;margin-top:2px}

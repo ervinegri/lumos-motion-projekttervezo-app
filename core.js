@@ -346,6 +346,8 @@ function computeIssues(){
     if(noOp.length)out.push({level:'warn',text:`🎥 ${P}: ${noOp.map(x=>nm(x.r,x.i)).join(', ')} – van kamera, de nincs operatőr, így az eszközök senki eszközlistáján nem szerepelnek.`,pids:[p.id]});
     const noEq=RR.map((r,i)=>({r,i,m:roomCams(r).filter(c=>ROOM_EQ[c.k]&&roomEq(r,c.k).some(id=>!id))})).filter(x=>x.m.length);
     if(noEq.length)out.push({level:'warn',text:`🎥 ${P}: nincs eszköz kiválasztva – ${noEq.map(x=>nm(x.r,x.i)+': '+x.m.map(c=>c.label.toLowerCase()).join(', ')).join('; ')}. Válassz eszközt, vagy töröld a felesleges sort.`,pids:[p.id]});});
+  /* számlázás: a kiszámlázott nettó összeg eltér a (megemelt) projekt értékétől */
+  if(isAdmin()&&typeof billInfo==='function'&&S.fin&&S.fin.invoices)S.projects.forEach(p=>{if(p.status==='lemondva'||!pr(p)||pr(p).start<addDays(todayISO(),-400))return;try{const g=billInfo(p).gap;if(g)out.push({level:'warn',text:`🧾 ${p.name||'Névtelen projekt'}: ${g>0?'kiszámlázatlan '+huf(g):'túlszámlázva '+huf(-g)} nettó – a számlák összege eltér a projekt értékétől.`,pids:[p.id]});}catch(e){}});
   /* eszközt igénylő szerep eszköz nélkül (kreatív kamera, drón, fotó, technika) */
   if(!ro())liveEq.forEach(p=>{const ids=[...new Set((p.crew||[]).map(a=>a.crewId))].filter(id=>gearNeed(p,id));
     if(ids.length)out.push({level:'warn',text:`🎒 ${p.name||'Névtelen projekt'}: nincs eszköz – ${ids.map(id=>((crewById(id)||{}).name||'?')+' ('+(p.crew||[]).filter(a=>a.crewId===id&&GEAR_ROLES.includes(a.role)).map(a=>a.role.toLowerCase()).join(', ')+')').join('; ')}.`,pids:[p.id]});});
