@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1f877fcbf6",
+"at": "2026-11-20T15:21:53+01:00",
+"msg": "Saját beosztás: a pozíciók levehetők (nem zárolja az elfogadott meghívás)"
+},
+{
 "id": "627b24e967",
 "at": "2026-11-20T15:19:33+01:00",
 "msg": "Keretszerződés e-mail: a szerződés PDF-ben megy ki (és PDF-ként kerül a munkatárs dokumentumai közé)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud fájlnév-hiba: a felugró üzenet nem takarja el a hibás nevek listáját"
 },
 {
-"id": "f4bbc14fcc",
-"at": "2026-11-20T10:13:02+02:00",
-"msg": "Kézikönyv: szintaxisjavítás"
-},
-{
-"id": "f4749a94bb",
-"at": "2026-11-20T08:12:50Z",
+"id": "c20fe95c8d",
+"at": "2026-11-20T08:13:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
