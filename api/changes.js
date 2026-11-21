@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "29615a1b62",
+"at": "2026-11-21T09:56:52+01:00",
+"msg": "Jóváhagyó oldal: kék „1. / 2. javítási kör” jelzés a javításkérésnél; a csúszkára kattintva megáll a videó"
+},
+{
 "id": "2af5422894",
 "at": "2026-11-21T09:54:21+01:00",
 "msg": "Jóváhagyó oldal: az „egyetlen üzenetben” mondat törölve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: kikapcsolható Összesen sor (pl. napidíjas ajánlatnál)"
 },
 {
-"id": "b075749aec",
-"at": "2026-11-20T19:10:42+01:00",
-"msg": "HubSpot kétirányú ügyfélszinkron: mentéskor frissíti a céget és kapcsolattartót, óránként visszahúzza a változásokat, HubSpot ↗ gomb és frissítésjelzés"
-},
-{
-"id": "e3d3daa885",
-"at": "2026-11-20T15:39:21Z",
+"id": "0a71f12d95",
+"at": "2026-11-20T18:10:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
