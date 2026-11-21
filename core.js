@@ -404,6 +404,8 @@ function computeIssues(){
     if(left<0)out.push({level:'bad',text:`Az átadási határidő ${-left} napja lejárt (${fmtShort(dueDate(p))}).`,pids:[p.id]});}
   if(isAdmin())for(const p of allProjects().filter(isOpen)){const m=[];if(p.projectValue==null||p.projectValue==='')m.push('büdzsé (a projekt értéke)');if(budgetFt(p)==null&&!isFree(p))m.push('termelői keret');   // a nem fizetős projekt (0 Ft) érvényes   // csak az ügyvezető látja
     if(m.length)out.push({level:'warn',text:`💰 Még nincs megadva: ${m.join(' és ')}.`,pids:[p.id]});}
+  /* a rendezvény előtti utolsó 7 napban minden projektre szóló figyelmeztetés piros (sürgős) */
+  out.forEach(i=>{if(i.level!=='warn'||!(i.pids||[]).length)return;const soon=i.pids.some(id=>{const q=projById(id),r=q&&pr(q);if(!r||['atadva','lemondva'].includes(q.status))return false;const d=diffDays(T,r.start);return d>=0&&d<=7;});if(soon){i.level='bad';i.urgent=1;}});
   return out.sort((a,b)=>(a.level==='bad'?0:1)-(b.level==='bad'?0:1));
 }
 
