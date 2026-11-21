@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7ef66d5107",
+"at": "2026-11-21T21:28:50+01:00",
+"msg": "Google-értékelések: a csengő percenként néz rá (az azonnali Google-értesítés után)"
+},
+{
 "id": "ff3751bb01",
 "at": "2026-11-21T21:12:46+01:00",
 "msg": "Google-értékelések: azonnali értesítés (Pub/Sub → /api/gbp-push → Apps Script)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az „egyetlen üzenetben” mondat törölve"
 },
 {
-"id": "dd6c5c0960",
-"at": "2026-11-21T09:53:59+01:00",
-"msg": "Jóváhagyó oldal: az „egyetlen üzenetben” mondat nem félkövér"
-},
-{
-"id": "6e5f18353b",
-"at": "2026-11-21T08:53:29Z",
+"id": "ac08a1dc0d",
+"at": "2026-11-21T08:54:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
