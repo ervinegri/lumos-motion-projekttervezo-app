@@ -276,6 +276,9 @@ function clientSeen_(o) {
 /** Érvényes Projekttervező-munkamenet (a csapat tagja nyitja meg az ügyfél linkjét ugyanabban a böngészőben). */
 function staffTok_(tok) { if (!tok) return false; try { authUser_(tok); return true; } catch (e) { return false; } }
 /** Hányszor kért már javítást az ügyfél ennél a videónál (↩ megjegyzés, amit nem a csapat írt). */
+/** az ügyfél utolsó módosítási kérésének szövege (a köszönő üzenet alatt visszaigazolásként) */
+function vidClientLastFb_(v) { const st = {}; try { readAll_('crew').concat(loadUsers_()).forEach(x => { const n = String(x && x.name || '').trim().toLowerCase(); if (n) { st[n] = 1; n.split(/\s+/).forEach(w => { st[w] = 1; }); } }); } catch (e) {}
+  const L = (v && v.cm || []).filter(c => /^↩/.test(String(c.t || '')) && !st[String(c.by || '').trim().toLowerCase()]); return L.length ? String(L[L.length - 1].t).replace(/^↩\s*/, '') : ''; }
 function vidClientRounds_(v) { const st = {}; try { readAll_('crew').concat(loadUsers_()).forEach(x => { const n = String(x && x.name || '').trim().toLowerCase(); if (n) { st[n] = 1; n.split(/\s+/).forEach(w => { st[w] = 1; }); } }); } catch (e) {}
   return (v && v.cm || []).filter(c => /^↩/.test(String(c.t || '')) && !st[String(c.by || '').trim().toLowerCase()]).length; }
 /** A jóváhagyó oldal adatai + hány videó vár még a projektben ezen a linken kívül (a „projektet lezártuk” csak akkor jelenik meg, ha mind jóvá van hagyva). */
@@ -434,11 +437,11 @@ function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen
     if (!items.length) throw new Error('A videó nem található.');
     const cur = (vid && items.find(x => x.id === vid)) || items.find(x => x.state === 'wait') || items[0]; o.v = cur.id;
     const r2 = clientVideo_(o); let wm2 = false; try { wm2 = wmActive_(r2.p); } catch (e) { }
-    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, k: r2.v.k, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st), rounds: vidClientRounds_(r2.v) };
+    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, k: r2.v.k, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st), rounds: vidClientRounds_(r2.v), fbLast: !o.pv && stOf(r2.v.st) === 'mod' ? vidClientLastFb_(r2.v) : '' };
   }
   const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
   if (o.pv) return { preview: true, wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: o.l || r.v.link, state: 'wait', rounds: vidClientRounds_(r.v) };   // belső előnézet: nem számít megnyitásnak, döntés nincs
-  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod', rounds: vidClientRounds_(r.v) }; }
+  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod', rounds: vidClientRounds_(r.v), fbLast: r.v.st !== 'jovahagyva' && r.v.st !== 'leadva' ? vidClientLastFb_(r.v) : '' }; }
 /** Belső előnézet a küldő ablakból: ugyanaz az oldal, amit az ügyfél kap – megnyitásnak nem számít, dönteni nem lehet. */
 function clientPreview_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN');
