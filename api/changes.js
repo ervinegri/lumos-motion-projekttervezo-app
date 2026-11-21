@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9368c12e57",
+"at": "2026-11-21T09:29:14+01:00",
+"msg": "Azonnali módosítások: a számla- és kifizetési pipák is azonnal, visszaugrás nélkül"
+},
+{
 "id": "9936c093ab",
 "at": "2026-11-21T09:28:42+01:00",
 "msg": "Azonnali módosítások visszaugrás nélkül (függő műveletek helyi listája, minden beérkező adatra ráírva, frissítés után újraküldve); havi keret: maradék az e havi tételek után"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt videótábla: alapból csukva; az oszlopok nem görgetnek külön, az egész oldal görget"
 },
 {
-"id": "fd7a35dc33",
-"at": "2026-11-20T15:53:09+01:00",
-"msg": "Projekt: a Szolgáltatások panel is összecsukható"
-},
-{
-"id": "09ae432bfe",
-"at": "2026-11-20T14:52:18Z",
+"id": "e2f1c5bf87",
+"at": "2026-11-20T14:53:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
