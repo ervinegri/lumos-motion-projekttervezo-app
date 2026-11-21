@@ -31,6 +31,7 @@ h1{font-size:20px;margin:0 0 2px;line-height:1.25}
 #ask{display:flex;flex-direction:column;gap:10px}
 .side h2{font-size:15px;margin:0}
 .hint{font-size:12.5px;color:var(--mut);margin:0;line-height:1.45}
+#tcHint{font-size:14.5px;line-height:1.5;color:#3c4043}#tcHint b{color:#202124}
 textarea{width:100%;min-height:170px;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:12px;padding:12px;resize:vertical;background:#fff}
 textarea:focus{outline:none;border-color:#9aa6b2;box-shadow:0 0 0 3px rgba(29,42,56,.08)}
 .tc{align-self:flex-start;font:inherit;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer;color:var(--ink)}
@@ -197,7 +198,7 @@ html,body{overflow-x:clip}
         <h2 id="askH" hidden>💬 Tetszik a videó?</h2>
         <p class="hint" id="askHint"></p>
         <div class="modbox" id="modBox"><div class="modin">
-          <p class="lastfix" id="paidFix" hidden>💬 <b>A díjmentes javítási körök elfogytak.</b> Ezt a módosítást is szívesen elvégezzük: írd le, mit szeretnél, és küldünk rá egy árajánlatot, annak elfogadása után elvégezzük a javítást.</p><p class="lastfix" id="lastFix" hidden>⚠️ <b>Ez az utolsó díjmentes javítási kör.</b> Kérlek, most írj le minden módosítást, amit szeretnél – az ezután kért további javításokat már csak külön díjazás mellett tudjuk vállalni.</p><p class="hint" id="tcHint">Minden munkára két díjmentes javítási kört biztosítunk. Írd le, hogy mit változtatnál. Ha mindent leírtál, kattints az „Elküldöm a módosítást” gombra.</p>
+          <p class="lastfix" id="paidFix" hidden>💬 <b>A díjmentes javítási körök elfogytak.</b> Ezt a módosítást is szívesen elvégezzük: írd le, mit szeretnél, és küldünk rá egy árajánlatot, annak elfogadása után elvégezzük a javítást.</p><p class="lastfix" id="lastFix" hidden>⚠️ <b>Ez az utolsó díjmentes javítási kör.</b> Kérlek, most írj le minden módosítást, amit szeretnél – az ezután kért további javításokat már csak külön díjazás mellett tudjuk vállalni.</p><p class="hint" id="tcHint">Minden munkára két díjmentes javítási kört biztosítunk. <b>Kérjük, egyetlen üzenetben írd le az összes módosítást, amit szeretnél</b> – egy elküldött üzenet egy javítási kört jelent. Ha mindent leírtál, kattints az „Elküldöm a módosítást” gombra.</p>
           <button type="button" class="tc" id="bTc" hidden title="Az aktuális időpont beszúrása">⏱ Időkód beszúrása · <b id="tcNow">0:00</b></button>
           <textarea id="fb" placeholder="" maxlength="6000"></textarea>
         </div></div>
