@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "018ec5f26b",
+"at": "2026-11-21T23:02:53+01:00",
+"msg": "Számlázási eltérés: a végszámlából levont szervezői jutalék (és a beszámított projektek) nem kiszámlázatlan"
+},
+{
 "id": "1e75e3d4ea",
 "at": "2026-11-21T23:00:23+01:00",
 "msg": "Figyelmeztetések: 14 napon belül piros"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Zárolt adatlap: a nem szerkeszthető választók nem kattinthatók és nem úgy is néznek ki"
 },
 {
-"id": "97e6cee460",
-"at": "2026-11-21T18:08:07+01:00",
-"msg": "Feltöltés: a fájlok mérethatára 10 helyett 30 MB"
-},
-{
-"id": "5145cb8215",
-"at": "2026-11-21T16:00:28Z",
+"id": "8e88611981",
+"at": "2026-11-21T17:08:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
