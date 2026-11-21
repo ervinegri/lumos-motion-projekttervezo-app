@@ -209,9 +209,11 @@ const pcPick=(L,name)=>pcHits(L,name).f;
     const done=v=>{$('cfm').hidden=true;$('ask').classList.remove('cfm-on');$('cfmYes').onclick=$('cfmNo').onclick=null;res(v);};$('cfmYes').onclick=()=>done(true);$('cfmNo').onclick=()=>done(false);});
   /* „Jóváhagyom”: első kattintásra lenyílik az (opcionális) üzenet, a második kattintás véglegesít */
   const okOpen=on=>{$('okMsg').hidden=!on;$('ask').classList.toggle('ok-open',on);$('bOk').textContent=on?'✓ Jóváhagyás elküldése':'✓ Jóváhagyom';$('bModX').hidden=!on&&!$('modBox').classList.contains('open');if(on)setTimeout(()=>$('okNote').focus(),120);};
-  $('bOk').onclick=async e=>{const btn=e.currentTarget;if(!$('ask').classList.contains('ok-open')&&!$('modBox').classList.contains('open')){okOpen(true);return;}
+  /* „Még nem nézted végig” kérdés: a „Szeretnél üzenni valamit?” mező ELŐTT (első kattintásra) */
+  const notWatchedOk=async()=>{if(watched()>=0.8)return true;if(await cfm('Még nem nézted végig a videót.','Biztosan jóváhagyod így?','Inkább végignézem'))return true;const bp=document.querySelector('.bigplay'),v=vd();if(bp)bp.click();else if(v){v.muted=false;v.play().catch(()=>{});}return false;};
+  $('bOk').onclick=async e=>{const btn=e.currentTarget;if(!$('ask').classList.contains('ok-open')&&!$('modBox').classList.contains('open')){if(await notWatchedOk())okOpen(true);return;}
     if($('fb').value.trim().length>=3&&$('modBox').classList.contains('open')&&!(await cfm('Írtál észrevételt.','Biztosan jóváhagyod a videót módosítás nélkül?','Mégse')))return;
-    if(watched()<0.8&&!(await cfm('Még nem nézted végig a videót.','Biztosan jóváhagyod így?','Inkább végignézem'))){const bp=document.querySelector('.bigplay'),v=vd();if(bp)bp.click();else if(v){v.muted=false;v.play().catch(()=>{});}return;}
+    if($('modBox').classList.contains('open')&&!(await notWatchedOk()))return;   // a javításkérő ablakból közvetlenül jóváhagyva még nem kérdeztük
     go('ok',($('okNote').value||'').trim(),btn);};
 
   /* „Módosítást kérek”: első kattintásra lenyílik a szövegmező (időkóddal), második kattintásra elküldi */
