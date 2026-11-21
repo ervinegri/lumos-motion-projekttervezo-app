@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0ea0122e1b",
+"at": "2026-11-21T09:48:57+01:00",
+"msg": "Videócím: „– javítás 1”, „– javítás 2” (az ügyfél oldalán és a belső ablakban is)"
+},
+{
 "id": "e7fec0c869",
 "at": "2026-11-21T09:48:03+01:00",
 "msg": "Jóváhagyó oldal: az utolsó díjmentes kör figyelmeztetése a „Mindent leírtál?” megerősítésbe került"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs űrlap: a 🔍 (cégnév betöltése) az adószám mezőnél"
 },
 {
-"id": "e632b9e50d",
-"at": "2026-11-20T16:00:03+01:00",
-"msg": "Naptár: a projekthez egyértelműen illeszkedő, kézzel felvett vágói naptárbejegyzés nem jelenik meg külön (duplikátum)"
-},
-{
-"id": "41d6e79044",
-"at": "2026-11-20T14:59:26Z",
+"id": "5de6669c7d",
+"at": "2026-11-20T15:00:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
