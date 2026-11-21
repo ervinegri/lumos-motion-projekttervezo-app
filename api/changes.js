@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "97e6cee460",
+"at": "2026-11-21T18:08:07+01:00",
+"msg": "Feltöltés: a fájlok mérethatára 10 helyett 30 MB"
+},
+{
 "id": "ec442d4877",
 "at": "2026-11-21T17:00:17+01:00",
 "msg": "Videó: korábbi verzió törölhető (ügyvezető, termelési vezető) – pl. próbából bent maradt fájl"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az utolsó díjmentes kör figyelmeztetése a „Mindent leírtál?” megerősítésbe került"
 },
 {
-"id": "53c6d4b88c",
-"at": "2026-11-21T09:33:49+01:00",
-"msg": "Azonnali módosítások kiterjesztése: törlések, meglévő elemek mentése, pipák és kapcsolók az egész appban"
-},
-{
-"id": "96d93077d3",
-"at": "2026-11-21T08:29:23Z",
+"id": "fef3b8374d",
+"at": "2026-11-21T08:33:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
