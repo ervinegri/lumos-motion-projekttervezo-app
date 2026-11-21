@@ -243,9 +243,9 @@ const pcPick=(L,name)=>pcHits(L,name).f;
       if(document.fullscreenElement)document.exitFullscreen();else if(pl.requestFullscreen)pl.requestFullscreen();else{const v=vd();if(v&&v.webkitEnterFullscreen)v.webkitEnterFullscreen();}});
     const typ2=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable);};   /* szóköz: gombon / a videón állva is lejátszás–megállítás (a böngésző saját kezelése nélkül, különben kétszer váltana) */
     window.addEventListener('keypress',e=>{if((e.code==='Space'||e.key===' ')&&!typ2()&&vd()){e.preventDefault();e.stopPropagation();}},true);
-    /* ← / →: 5 mp vissza / előre (Shift-tel 1 mp), gépelés közben nem */
+    /* ← / →: egy képkocka vissza / előre (a videó megáll), Shift-tel 1 mp; gépelés közben nem */
     window.addEventListener('keydown',e=>{if((e.key!=='ArrowLeft'&&e.key!=='ArrowRight')||e.metaKey||e.ctrlKey||e.altKey||typ2())return;const v=vd();if(!v||!v.duration)return;e.preventDefault();e.stopPropagation();
-      const st=e.shiftKey?1:5;v.currentTime=Math.max(0,Math.min(v.duration-0.05,v.currentTime+(e.key==='ArrowRight'?st:-st)));},true);
+      if(!e.shiftKey&&!v.paused)v.pause();const st=e.shiftKey?1:1/25;v.currentTime=Math.max(0,Math.min(v.duration-0.05,v.currentTime+(e.key==='ArrowRight'?st:-st)));},true);
     window.addEventListener('keydown',e=>{if((e.code!=='Space'&&e.key!==' ')||typ2())return;const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();if(e.repeat||down)return;down=true;fast=false;
       hold=setTimeout(()=>{fast=true;const bp=document.querySelector('.bigplay');if(bp)bp.click();else if(v.paused){v.muted=false;v.play().catch(()=>{});}v.playbackRate=2;badge(true);},350);},true);
     window.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();
