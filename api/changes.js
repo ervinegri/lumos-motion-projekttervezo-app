@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c66683a997",
+"at": "2026-11-21T23:03:40+01:00",
+"msg": "Számlázási eltérés: a szervezői jutalék levonása elfogadott (de nem kötelező) – mindkét összeg rendben"
+},
+{
 "id": "018ec5f26b",
 "at": "2026-11-21T23:02:53+01:00",
 "msg": "Számlázási eltérés: a végszámlából levont szervezői jutalék (és a beszámított projektek) nem kiszámlázatlan"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szerződés-feltöltés: zárolt adatlapon is működik, nagy fájlnál jelzi, hogy tovább tart"
 },
 {
-"id": "3ce7d74017",
-"at": "2026-11-21T18:11:02+01:00",
-"msg": "Zárolt adatlap: a nem szerkeszthető választók nem kattinthatók és nem úgy is néznek ki"
-},
-{
-"id": "8e88611981",
-"at": "2026-11-21T17:08:16Z",
+"id": "68bc360d58",
+"at": "2026-11-21T17:11:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
