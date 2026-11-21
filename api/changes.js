@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c286725ba3",
+"at": "2026-11-21T11:03:49+01:00",
+"msg": "Ellenőrzés: bejövő számlák beérkezési késése"
+},
+{
 "id": "9bb38dd268",
 "at": "2026-11-21T11:01:05+01:00",
 "msg": "Ellenőrzés: bejövő számlák PDF-elérhetősége"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Azonnali módosítások: a számla- és kifizetési pipák is azonnal, visszaugrás nélkül"
 },
 {
-"id": "9936c093ab",
-"at": "2026-11-21T09:28:42+01:00",
-"msg": "Azonnali módosítások visszaugrás nélkül (függő műveletek helyi listája, minden beérkező adatra ráírva, frissítés után újraküldve); havi keret: maradék az e havi tételek után"
-},
-{
-"id": "3a7d71cc29",
-"at": "2026-11-21T08:24:06Z",
+"id": "c7e2bf466a",
+"at": "2026-11-21T08:28:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
