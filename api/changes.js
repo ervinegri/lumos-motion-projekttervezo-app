@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68b9e347e5",
+"at": "2026-11-21T09:59:57+01:00",
+"msg": "Jóváhagyó oldal: ← / → nyilakkal 5 mp vissza / előre (Shift-tel 1 mp)"
+},
+{
 "id": "e123f7f9c0",
 "at": "2026-11-21T09:58:20+01:00",
 "msg": "Jóváhagyó oldal: „2. javítási kör” felirat rövidítése"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: Cégprofil összekötése, napi behúzás, ügyfélhez párosítás, válasz az appból; értékelt ügyfélnek nem megy emlékeztető"
 },
 {
-"id": "a3d141b4d1",
-"at": "2026-11-20T19:44:06+01:00",
-"msg": "Értékesítés: áthúzáskor „Lehetőség → Oszlop” üzenet"
-},
-{
-"id": "6475e03ddb",
-"at": "2026-11-20T18:43:32Z",
+"id": "8207ef6c65",
+"at": "2026-11-20T18:44:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
