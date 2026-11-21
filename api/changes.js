@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "53c6d4b88c",
+"at": "2026-11-21T09:33:49+01:00",
+"msg": "Azonnali módosítások kiterjesztése: törlések, meglévő elemek mentése, pipák és kapcsolók az egész appban"
+},
+{
 "id": "9368c12e57",
 "at": "2026-11-21T09:29:14+01:00",
 "msg": "Azonnali módosítások: a számla- és kifizetési pipák is azonnal, visszaugrás nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Pozíció levételekor a Szolgáltatásoknál a hozzá tartozó feladat (pl. terem-operatőr) is lekerül a szakemberről"
 },
 {
-"id": "00312d44d1",
-"at": "2026-11-20T15:55:51+01:00",
-"msg": "Projekt videótábla: alapból csukva; az oszlopok nem görgetnek külön, az egész oldal görget"
-},
-{
-"id": "e2f1c5bf87",
-"at": "2026-11-20T14:53:17Z",
+"id": "9e5b9f3d77",
+"at": "2026-11-20T14:56:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
