@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2b3fbc9172",
+"at": "2026-11-21T09:10:33+01:00",
+"msg": "Szöveghossz: minden szövegmező a háttér határánál azonnal megáll és szól (hiányzó és eltérő maxlength-ek pótolva)"
+},
+{
 "id": "0d04800d1d",
 "at": "2026-11-21T08:35:45+01:00",
 "msg": "Általános szabály: a beírt szöveget soha nem vágjuk le csendben – a háttér hibát ad, a felület megállítja az írást és a túl hosszú beillesztést"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya ⚙️: Új pozíció hozzáadása ugyanannak a munkatársnak"
 },
 {
-"id": "0d7eab401a",
-"at": "2026-11-20T15:42:14+01:00",
-"msg": "Munkatárs űrlap: a vállalkozás neve és az adószám a termelési vezetőnél is szerkeszthető"
-},
-{
-"id": "6dafbc916b",
-"at": "2026-11-20T14:40:10Z",
+"id": "1ee6ee1bb8",
+"at": "2026-11-20T14:42:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
