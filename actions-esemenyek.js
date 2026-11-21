@@ -338,6 +338,7 @@ const ACT={
   'eq-remove':b=>{const equipment=clone(S.draft.equipment||[]);equipment.splice(Number(b.dataset.i),1);setDraft({equipment});},
   'send-list':()=>sendListModal(),
   'crew-finalize':()=>crewFinalizeModal(),
+  'goto-field':()=>{const d=document.querySelector('details.svc-edit');if(d)d.open=true;setTimeout(()=>{const h=[...document.querySelectorAll('.content h4.sub-h')].find(x=>/Terepi feladatok/.test(x.textContent))||d;if(h){h.scrollIntoView({behavior:'smooth',block:'center'});const sec=h.closest('section');if(sec){sec.classList.add('flash');setTimeout(()=>sec.classList.remove('flash'),1600);}}},50);},
   'goto-post':()=>{const d=document.querySelector('details.svc-edit');if(d)d.open=true;setTimeout(()=>{const h=[...document.querySelectorAll('.content h4.sub-h')].find(x=>/Utómunka/.test(x.textContent))||d;if(h){h.scrollIntoView({behavior:'smooth',block:'center'});const sec=h.closest('section');if(sec){sec.classList.add('flash');setTimeout(()=>sec.classList.remove('flash'),1600);}}},50);},
   'make-lead':b=>{const d=S.draft;if(!d||ro()||projLocked())return;const id=b.dataset.id,c=crewById(id),old=d.lead&&crewById(d.lead);if(d.lead!==id&&d.lead&&crewAcceptedLock_(d.lead))return;
     const go=()=>{setDraft({lead:id});toast((c?c.name:'')+' lett a projektvezető');};

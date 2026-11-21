@@ -109,6 +109,7 @@ const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
 const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!(p.preStage||p.tent);};
 /* Eszközt igénylő helyszíni szerep: ha nincs nála eszköz, jelezzük (kamera, drón, fotó, technika) */
+const FIELD_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming'];   // terepi szerepkörök: fent a Terepi feladatoknál kell feladatot kapniuk
 const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Fénytechnikus','Képkeverő / streaming'];
 function gearNeed(p,cid){if(!p||!cid||editOnly(p))return '';const rl=(p.crew||[]).filter(a=>a.crewId===cid&&GEAR_ROLES.includes(a.role)).map(a=>a.role);if(!rl.length)return '';
   if((p.equipment||[]).some(e=>e.crewId===cid)||(p.rentals||[]).some(r=>r.crewId===cid))return '';return rl.map(r=>r.toLowerCase()).join(', ')+': nincs eszköz';}
