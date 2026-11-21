@@ -145,7 +145,7 @@ Egy projekt állapotai sorban: **Tervezés → Helyszíni munka → Utómunka �
 
 1. Add hozzá a szakembereket a projekthez, mindenkinek a szerepével (operatőr, vágó, fotós stb.).
 2. Az app meghívást küld nekik. A stábkártya kerete mutatja az állapotot: **zöld** elfogadva, **sárga** függőben, **piros** elutasítva.
-3. A határidőig meg nem válaszolt meghívás elutasításnak számít. Új pozícióra külön meghívó megy.
+3. A határidőig meg nem válaszolt meghívás elutasításnak számít. Új szerepkörre külön meghívó megy.
 4. Ha valaki elfogadás után visszamondja, e-mailben értesítést kapsz az okával együtt.
 5. A stáb véglegesítésekor mindenki megkapja a beosztását (időpont, helyszín, szerep, stáb), az eszközlistát pedig külön küldöd ki.
 

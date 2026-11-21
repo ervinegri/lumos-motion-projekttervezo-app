@@ -341,8 +341,8 @@ function arm(b,fn){
   setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=old;b.classList.remove('armed');}},4000);
 }
 
-/* Pozíció levétele → a Szolgáltatásoknál (pl. előadásrögzítés terem-operatőre, fotós, helyszíni vágó) a hozzá tartozó feladat is lekerül róla.
-   Minden beosztás-logika össze van kötve: aki már nem tölti be a feladathoz szükséges pozíciót, az a feladatról is lekerül. */
+/* Szerepkör levétele → a Szolgáltatásoknál (pl. előadásrögzítés terem-operatőre, fotós, helyszíni vágó) a hozzá tartozó feladat is lekerül róla.
+   Minden beosztás-logika össze van kötve: aki már nem tölti be a feladathoz szükséges szerepkört, az a feladatról is lekerül. */
 function syncSlotsWithCrew(d){try{const et0=editTasksOf(d),SR=window.SLOT_ROLE||{};let ch=false;const et={};
   const held=id=>[d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter(Boolean);
   const need=k=>SR[k]||(/^(r[a-z0-9]+_)?(op|er_(total|close|crowd|slides)(_\d+)?)$/.test(k)?'Statív operatőr':'');

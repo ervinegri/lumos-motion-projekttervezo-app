@@ -10,7 +10,7 @@ function reqEmpty(p,k){const v=String(p[k]==null?'':p[k]).trim();
   return !v;}
 /* Videóvágás: nem terepi munka – nincs helyszín, érkezés/távozás; a dátum a leadási határidő */
 const editOnly=p=>!!p&&p.eventType==='Videóvágás';
-const projRoles=p=>editOnly(p)?['Projektvezető','Vágó']:CREW_ROLES.filter(r=>r!=='Értékesítő');   /* az eladó értékesítő a Pénzügyek → Értékesítés részben; pozícióként csak a helyszíni értékesítő */
+const projRoles=p=>editOnly(p)?['Projektvezető','Vágó']:CREW_ROLES.filter(r=>r!=='Értékesítő');   /* az eladó értékesítő a Pénzügyek → Értékesítés részben; szerepkörként csak a helyszíni értékesítő */
 /* A projekt eladójának (jutalékos értékesítő) munkatárs-azonosítója – ő nem stábtag */
 const dealSellerCid=p=>{const D=(S.deals||[]).filter(x=>x.projectId===p.id),d=D.find(x=>x.stage==='nyert')||D[0];const o=String((d&&d.ownerId)||'');if(!o)return '';if(o.indexOf('crew:')===0)return o.slice(5);const sp=(S.salesPeople||[]).find(x=>x.userId===o&&x.crewId);if(sp)return sp.crewId;return S.me&&S.me.id===o&&S.me.crewId?S.me.crewId:'';};
 const isDealSellerAsg=(p,a)=>a.role==='Értékesítő'&&a.crewId===dealSellerCid(p);
@@ -21,7 +21,7 @@ function crewOrderLocal(){try{const a=JSON.parse(localStorage.getItem('lumos_pm_
 function crewSorted(){const ord=S.crewOrder||[],rank=id=>{const i=ord.indexOf(id);return i<0?1e6:i;};
   return S.crew.slice().sort((a,b)=>rank(a.id)-rank(b.id)||prioNum(a)-prioNum(b)||a.name.localeCompare(b.name,'hu'));}
 /* Csapat véglegesítése: a stáb csak ekkor kerül a naptárba (értesítéssel). „changed”: azóta módosult a beosztás. */
-const crewFinalOn=()=>false;   // a közös „Csapat véglegesítése” megszűnt: a szakembereket pozíciónként, külön hívjuk meg / véglegesítjük (a figyelmeztetés, a címke, a lépés-zár és a doboz is ehhez igazodik)
+const crewFinalOn=()=>false;   // a közös „Csapat véglegesítése” megszűnt: a szakembereket szerepkörönként, külön hívjuk meg / véglegesítjük (a figyelmeztetés, a címke, a lépés-zár és a doboz is ehhez igazodik)
 const crewIdsNow=p=>[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].sort();
 function crewSig(p,cid){const roles=(p.lead===cid?['Projektvezető']:[]).concat((p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role)).sort();
   const eq=(p.equipment||[]).filter(e=>(e.crewId||'')===cid).map(e=>e.itemId+'x'+(Number(e.qty)||1)).sort();
@@ -351,11 +351,11 @@ function computeIssues(){
   /* eszközt igénylő szerep eszköz nélkül (kreatív kamera, drón, fotó, technika) */
   if(!ro())liveEq.forEach(p=>{const ids=[...new Set((p.crew||[]).map(a=>a.crewId))].filter(id=>gearNeed(p,id));
     if(ids.length)out.push({level:'warn',text:`🎒 ${p.name||'Névtelen projekt'}: nincs eszköz – ${ids.map(id=>((crewById(id)||{}).name||'?')+' ('+(p.crew||[]).filter(a=>a.crewId===id&&GEAR_ROLES.includes(a.role)).map(a=>a.role.toLowerCase()).join(', ')+')').join('; ')}.`,pids:[p.id]});});
-  /* olyan pozíció, amihez nincs kiválasztott szolgáltatás */
+  /* olyan szerepkör, amihez nincs kiválasztott szolgáltatás */
   if(!ro())liveEq.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
     const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjúsarok operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
     const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
-    if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a pozíciót.`,pids:[p.id]});});
+    if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
   if(!ro())liveEq.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
@@ -695,7 +695,7 @@ function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.te
 /* Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna */
 function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0].trim().split(/\s+/).filter(x=>x&&!/^(dr|prof|ifj|id|özv|med|habil)\.?$/i.test(x));return w.length>1?w[1]:w[0]||'';}
 
-/* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + pozíciók) elfogadta a meghívást */
+/* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + szerepkörök) elfogadta a meghívást */
 function invMissing(d){const inv=(()=>{const x=d&&d.invites;if(!x)return {};if(typeof x==='string'){try{return JSON.parse(x)||{};}catch(e){return {};}}return x;})();
   const ids=[...new Set([d&&d.lead].concat((d&&d.crew||[]).map(a=>a.crewId)).filter(Boolean))];
   const me=invSelf();return ids.filter(id=>id!==me&&!(inv[id]&&inv[id].st==='yes'&&!inv[id].pre)).map(id=>({id,name:(crewById(id)||{}).name||(S.crewNames||{})[id]||'Ismeretlen',st:inv[id]?(inv[id].pre&&inv[id].st==='yes'?'pre':inv[id].st||'invited'):''}));}   /* az előfoglalás még nem elfogadott meghívás */

@@ -1,18 +1,18 @@
 'use strict';
 /* ===== Események ===== */
 /* Elfogadott meghívás: a munkatárs a projekten marad, törléskor tájékoztató ablak nyílik. */
-/* Elfogadott meghívású szakember pozíciójának levétele: egy pozíció → megerősítés + automatikus e-mail neki;
-   az utolsó pozíció (lekerül a projektről) → a Megrendelő lemondása (keretszerződés 2.7.: 7 napon belül a díj 50%-a jár) */
+/* Elfogadott meghívású szakember szerepkörének levétele: egy szerepkör → megerősítés + automatikus e-mail neki;
+   az utolsó szerepkör (lekerül a projektről) → a Megrendelő lemondása (keretszerződés 2.7.: 7 napon belül a díj 50%-a jár) */
 const posArt_=w=>/^[aáeéiíoóöőuúüű]/i.test(String(w||'').trim())?'az':'a';
 function rolesOfCrew_(d,id){return [d.lead===id?'Projektvezető':''].concat((d.crew||[]).filter(a=>a.crewId===id).map(a=>a.role)).filter((x,i,l)=>x&&l.indexOf(x)===i);}
 function acceptedPosGate_(id,removed,proceed){const d=S.draft,iv=d&&d.invites&&d.invites[id];
   if(!iv||iv.st!=='yes'||iv.via==='self'){proceed();return;}
   const c=crewById(id),name=c&&c.name||'A munkatárs',first=huFirst(name)||name,all=rolesOfCrew_(d,id),kept=all.filter(r=>!removed.includes(r)),lc=a=>a.map(r=>String(r).toLowerCase()),rmT=lc(removed).join(' és ');
-  if(kept.length){const line=`Módosult a beosztásod: ${posArt_(rmT)} ${rmT} pozíció lekerült, ${posArt_(lc(kept)[0])} ${lc(kept).join(' és ')} marad.`;
-    openModal('Pozíció levétele',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed ${posArt_(rmT)} <b>${esc(rmT)}</b> pozíciót, erről automatikus e-mailt kap:</p><div class="banner" style="margin:0"><p>„${esc(line)}”</p></div>`,
+  if(kept.length){const line=`Módosult a beosztásod: ${posArt_(rmT)} ${rmT} szerepkör lekerült, ${posArt_(lc(kept)[0])} ${lc(kept).join(' és ')} marad.`;
+    openModal('Szerepkör levétele',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed ${posArt_(rmT)} <b>${esc(rmT)}</b> szerepkört, erről automatikus e-mailt kap:</p><div class="banner" style="margin:0"><p>„${esc(line)}”</p></div>`,
       {submitLabel:'Levétel és értesítés',cancelLabel:'Mégse',noDraft:true,submit:async()=>{closeModal();proceed();if(S.dirty)saveDraft();try{await call('crewPosNotify',{projectId:d.id,crewId:id,removed,kept});toast(first+' e-mailt kapott a módosításról');}catch(e){handleErr(e);}}});return;}
   const days=validISO(d.date)?diffDays(todayISO(),d.date):99,f=(d.fees||[]).find(x=>x.crewId===id),fee=f?num(f.amount):0,late=days>=0&&days<=7,half=Math.round(fee/2);
-  openModal('⚠️ Lekerül a projektről',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed az utolsó pozícióját is, lekerül a projektről – ez a mi részünkről a projekt lemondásának számít.</p>
+  openModal('⚠️ Lekerül a projektről',`<p style="margin:0 0 10px"><b>${esc(name)}</b> már elfogadta a meghívást. Ha leveszed az utolsó szerepkörét is, lekerül a projektről – ez a mi részünkről a projekt lemondásának számít.</p>
     <div class="banner warn" style="margin:0 0 10px"><p>${late?`A projekt <b>${days?days+' nap múlva':'ma'}</b> kezdődik, ezért a keretszerződés 2.7. pontja szerint <b>a díja 50%-át${fee?' ('+huf(half)+')':''} ki kell fizetni</b>.${fee?' Ezt egyéb költségként rögzítem a projekten.':''}`:`A projekt ${days} nap múlva kezdődik – 7 napnál korábbi lemondásnál nem jár lemondási díj.`}</p></div>
     <p class="hint" style="margin:0">${esc(first)} automatikus e-mailt kap arról, hogy mégsem lesz rá szükség a projekten.</p>`,
     {submitLabel:'Levétel és értesítés',danger:true,cancelLabel:'Mégse',noDraft:true,submit:async()=>{closeModal();proceed();
@@ -328,7 +328,7 @@ const ACT={
     const role=$('add-crew-role').value;const crew=clone(d.crew||[]);
     if(crew.some(a=>a.crewId===id&&a.role===role)){toast('Már be van osztva ebben a szerepben.',true);return;}
     crew.push({crewId:id,role});S.addCrew={person:'',role:''};setDraft({crew});slotAutoFill(id,role);},
-  'crew-remove':b=>{const d=S.draft;if(!d)return;if(eqLockGuard_(d))return;const ref=(d.crew||[])[Number(b.dataset.i)];if(ref&&!b.dataset.ok&&!b.dataset.past&&crewPast(d)){openModal('Lezajlott projekt',`<p style="margin:0">A projekt már lezajlott. Biztosan leveszed ${esc((crewById(ref.crewId)||{}).name||'a munkatársat')} <b>${esc(posLabel(ref.role).toLowerCase())}</b> pozícióját?</p>`,{submitLabel:'Levétel',cancelLabel:'Mégse',noDraft:true,submit:()=>{closeModal();ACT['crew-remove']({dataset:{i:b.dataset.i,past:'1'}});}});return;}if(ref&&!b.dataset.ok){acceptedPosGate_(ref.crewId,[ref.role],()=>ACT['crew-remove']({dataset:{i:b.dataset.i,ok:'1'}}));return;}const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
+  'crew-remove':b=>{const d=S.draft;if(!d)return;if(eqLockGuard_(d))return;const ref=(d.crew||[])[Number(b.dataset.i)];if(ref&&!b.dataset.ok&&!b.dataset.past&&crewPast(d)){openModal('Lezajlott projekt',`<p style="margin:0">A projekt már lezajlott. Biztosan leveszed ${esc((crewById(ref.crewId)||{}).name||'a munkatársat')} <b>${esc(posLabel(ref.role).toLowerCase())}</b> szerepkörét?</p>`,{submitLabel:'Levétel',cancelLabel:'Mégse',noDraft:true,submit:()=>{closeModal();ACT['crew-remove']({dataset:{i:b.dataset.i,past:'1'}});}});return;}if(ref&&!b.dataset.ok){acceptedPosGate_(ref.crewId,[ref.role],()=>ACT['crew-remove']({dataset:{i:b.dataset.i,ok:'1'}}));return;}const crew=clone(d.crew||[]);const gone=crew.splice(Number(b.dataset.i),1)[0];let equipment=d.equipment||[];
     if(gone&&gone.crewId!==d.lead&&!crew.some(a=>a.crewId===gone.crewId)&&equipment.some(e=>e.crewId===gone.crewId)){equipment=clone(equipment).map(e=>e.crewId===gone.crewId?Object.assign(e,{crewId:''}):e);toast('A nála lévő eszközök gazdátlanok lettek – rendeld őket valaki máshoz.');}
     setDraft({crew,equipment});},
   'eq-add':b=>{const d=S.draft;if(!d)return;const key=b.dataset.crew||'',sk=key||'common';const sel=$('add-eq-item-'+sk),qel=$('add-eq-qty-'+sk);const id=sel&&sel.value;if(!id){toast('Válassz eszközt.',true);if(sel)sel.focus();return;}
@@ -503,7 +503,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.crewRole!==undefined&&d){const crew=clone(d.crew||[]);crew[Number(t.dataset.crewRole)].role=t.value;setDraft({crew});slotAutoFill(crew[Number(t.dataset.crewRole)].crewId,t.value);return;}
   if(t.dataset.eqI!==undefined&&d){const q=Math.max(1,Math.round(num(t.value)||1));const equipment=clone(d.equipment||[]);const ex=equipment[Number(t.dataset.eqI)];if(ex){ex.qty=q;setDraft({equipment});}return;}
   if(t.id==='add-crew-role'){S.addCrew.role=t.value;render(true);setTimeout(()=>{const e=$('add-crew-person'),ci=e&&e.parentNode&&e.parentNode.querySelector('.cmb-in');if(ci)ci.focus();else if(e)e.focus();},60);return;}
-  if((t.id==='add-crew-person'||(t.dataset&&t.dataset.slotRole))&&d){const id=t.value;if(!id)return;const role=t.dataset&&t.dataset.slotRole?t.dataset.slotRole:($('add-crew-role').value||'Operatőr');const c=crewById(id);   // a betöltetlen pozíció-kártya választója is ide fut
+  if((t.id==='add-crew-person'||(t.dataset&&t.dataset.slotRole))&&d){const id=t.value;if(!id)return;const role=t.dataset&&t.dataset.slotRole?t.dataset.slotRole:($('add-crew-role').value||'Operatőr');const c=crewById(id);   // a betöltetlen szerepkör-kártya választója is ide fut
     if(role==='Projektvezető'){setDraft({lead:id});toast((c?c.name:'')+' projektvezető');return;}
     const crew=clone(d.crew||[]),day=projDays(d).includes(S.crewDay)?S.crewDay:'',was=crew.some(a=>a.crewId===id)||d.lead===id;
     if(day){const all=projDays(d),cd=Object.assign({},d.crewDays||{});let cur=was?crewDaysOf(d,id).slice():[];if(!cur.includes(day))cur.push(day);
@@ -550,7 +550,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
     iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
     !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
-    '<hr>',it('addrole','➕ Új pozíció hozzáadása'),((d.lead===cid?1:0)+(d.crew||[]).filter(a=>a.crewId===cid).length>1)?it('rmrole','➖ Pozíció eltávolítása'):'',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
+    '<hr>',it('addrole','➕ Új szerepkör hozzáadása'),((d.lead===cid?1:0)+(d.crew||[]).filter(a=>a.crewId===cid).length>1)?it('rmrole','➖ Szerepkör eltávolítása'):'',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Szerepkör cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
     (d.equipment||[]).some(e=>e.crewId===cid)&&projById(d.id)?it('eqlist','✉️ Eszközlista küldése neki'):'',
     it('vcf','📇 Névjegy'),isAdmin()?it('fee','💰 Díj megadása'):'',isAdmin()&&projById(d.id)?it('pen','🚨 Díjcsökkentés'):'',
     '<hr>',it('remove','🗑️ Levétel a projektről',{bad:true})].join('');
@@ -570,33 +570,33 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='pen'){penModal(cid);return;}
     if(a==='fee'){const mp=document.querySelector('.money-panel,details[data-fold="money"]');if(mp&&mp.tagName==='DETAILS')mp.open=true;setTimeout(()=>{const i=(S.draft.fees||[]).findIndex(f=>f.crewId===cid),el=i>=0?$('fee-'+i+'-amount'):null;if(el){el.scrollIntoView({block:'center'});el.focus();el.select&&el.select();}else toast('Még nincs díjsora – mentés után jelenik meg a Pénzügyekben.',true);},120);return;}
     if(a==='remove')ACT['crew-person-remove']({dataset:{id:cid}});});};
-/* Pozíció cseréje: az egyik pozíciója helyett másik (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
-/* ⚙️ → Új pozíció hozzáadása: ugyanaz a munkatárs még egy pozícióban (elfogadott meghívásnál az új pozíciót külön el kell fogadnia) */
+/* Szerepkör cseréje: az egyik szerepköre helyett másik (elfogadott meghívásnál az új szerepkört külön el kell fogadnia) */
+/* ⚙️ → Új szerepkör hozzáadása: ugyanaz a munkatárs még egy szerepkörben (elfogadott meghívásnál az új szerepkört külön el kell fogadnia) */
 function crewRoleAdd(cid){const d=S.draft;if(!d)return;const c=crewById(cid),have=rolesOfCrew_(d,cid),opts=projRoles(d).filter(r=>!have.includes(r)&&!(r==='Projektvezető'&&d.lead));
-  openModal('Új pozíció – '+(c?c.name:''),`<div class="field full"><label for="m-radd">Pozíció</label><select class="inp" id="m-radd" name="role" data-cmb="Válassz pozíciót…"><option value=""></option>${opts.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
-    <p class="hint" style="margin:6px 0 0">Jelenleg: ${esc(have.join(', ')||'—')}. ${((d.invites||{})[cid]||{}).st==='yes'&&((d.invites||{})[cid]||{}).via!=='self'?'Már elfogadta a meghívást – az új pozícióra külön meghívót kap („Meghívás · új pozíció”), a korábbi megmarad.':''} Az eladó értékesítő jutaléka a Pénzügyek → Értékesítés részben adható meg; itt a <b>Helyszíni értékesítő</b> pozíció választható.</p>`,
-    {submitLabel:'Hozzáadás',noDraft:true,submit:fd=>{const role=String(fd.get('role')||'');if(!role){toast('Válassz pozíciót.',true);return;}if(role==='Projektvezető'){closeModal();setDraft({lead:cid});toast('Projektvezető lett – mentsd a módosítást');return;}
-      const crew=clone(d.crew||[]);crew.push({crewId:cid,role});closeModal();setDraft({crew});if(typeof slotAutoFill==='function')slotAutoFill(cid,role);toast(role+' pozíció hozzáadva – mentsd a módosítást');}});
+  openModal('Új szerepkör – '+(c?c.name:''),`<div class="field full"><label for="m-radd">Szerepkör</label><select class="inp" id="m-radd" name="role" data-cmb="Válassz szerepkört…"><option value=""></option>${opts.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
+    <p class="hint" style="margin:6px 0 0">Jelenleg: ${esc(have.join(', ')||'—')}. ${((d.invites||{})[cid]||{}).st==='yes'&&((d.invites||{})[cid]||{}).via!=='self'?'Már elfogadta a meghívást – az új szerepkörre külön meghívót kap („Meghívás · új szerepkör”), a korábbi megmarad.':''} Az eladó értékesítő jutaléka a Pénzügyek → Értékesítés részben adható meg; itt a <b>Helyszíni értékesítő</b> szerepkör választható.</p>`,
+    {submitLabel:'Hozzáadás',noDraft:true,submit:fd=>{const role=String(fd.get('role')||'');if(!role){toast('Válassz szerepkört.',true);return;}if(role==='Projektvezető'){closeModal();setDraft({lead:cid});toast('Projektvezető lett – mentsd a módosítást');return;}
+      const crew=clone(d.crew||[]);crew.push({crewId:cid,role});closeModal();setDraft({crew});if(typeof slotAutoFill==='function')slotAutoFill(cid,role);toast(role+' szerepkör hozzáadva – mentsd a módosítást');}});
   if(typeof cmbAuto==='function')cmbAuto();setTimeout(()=>{const w=$('m-radd'),i=w&&w.closest('.cmb')&&w.closest('.cmb').querySelector('input');if(i)i.focus();},60);}   /* a lista azonnal lenyílik */
 function crewRoleSwap(cid){const d=S.draft;if(!d)return;const mine=(d.crew||[]).map((a,i)=>({a,i})).filter(x=>x.a.crewId===cid);if(!mine.length)return;const c=crewById(cid);
-  openModal('Pozíció cseréje – '+(c?c.name:''),`${mine.length>1?`<div class="field full"><label for="m-rfrom">Melyik pozíció helyett?</label><select class="inp" id="m-rfrom" name="from" data-cmb="Pozíció…">${mine.map(x=>`<option value="${x.i}">${esc(posLabel(x.a.role))}</option>`).join('')}</select></div>`:`<p class="hint" style="margin:0 0 8px">Jelenleg: <b>${esc(posLabel(mine[0].a.role))}</b></p><input type="hidden" name="from" value="${mine[0].i}">`}
-    <div class="field full"><label for="m-rto">Új pozíció</label><select class="inp" id="m-rto" name="to" data-cmb="Válassz pozíciót…"><option value=""></option>${projRoles(d).filter(r=>!mine.some(x=>x.a.role===r)).map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>${((d.invites||{})[cid]||{}).st==='yes'?'<p class="hint" style="margin:6px 0 0">Már elfogadta a meghívást: az új pozíciót mentés után külön el kell fogadnia.</p>':''}`,
-    {submitLabel:'Csere',noDraft:true,submit:fd=>{const i=Number(fd.get('from')),to=String(fd.get('to')||'');if(!to){toast('Válaszd ki az új pozíciót.',true);return;}const crew=clone(d.crew||[]);if(!crew[i])return;crew[i].role=to;closeModal();setDraft({crew});toast('Pozíció cserélve – mentsd a módosítást');}});}
-/* Beosztás átadása: ugyanazok a pozíciók, feladatok és eszközök egy másik munkatárshoz */
+  openModal('Szerepkör cseréje – '+(c?c.name:''),`${mine.length>1?`<div class="field full"><label for="m-rfrom">Melyik szerepkör helyett?</label><select class="inp" id="m-rfrom" name="from" data-cmb="Szerepkör…">${mine.map(x=>`<option value="${x.i}">${esc(posLabel(x.a.role))}</option>`).join('')}</select></div>`:`<p class="hint" style="margin:0 0 8px">Jelenleg: <b>${esc(posLabel(mine[0].a.role))}</b></p><input type="hidden" name="from" value="${mine[0].i}">`}
+    <div class="field full"><label for="m-rto">Új szerepkör</label><select class="inp" id="m-rto" name="to" data-cmb="Válassz szerepkört…"><option value=""></option>${projRoles(d).filter(r=>!mine.some(x=>x.a.role===r)).map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>${((d.invites||{})[cid]||{}).st==='yes'?'<p class="hint" style="margin:6px 0 0">Már elfogadta a meghívást: az új szerepkört mentés után külön el kell fogadnia.</p>':''}`,
+    {submitLabel:'Csere',noDraft:true,submit:fd=>{const i=Number(fd.get('from')),to=String(fd.get('to')||'');if(!to){toast('Válaszd ki az új szerepkört.',true);return;}const crew=clone(d.crew||[]);if(!crew[i])return;crew[i].role=to;closeModal();setDraft({crew});toast('Szerepkör cserélve – mentsd a módosítást');}});}
+/* Beosztás átadása: ugyanazok a szerepkörök, feladatok és eszközök egy másik munkatárshoz */
 function crewHandover(cid){const d=S.draft;if(!d)return;const c=crewById(cid),ids=new Set([d.lead].concat((d.crew||[]).map(a=>a.crewId)));
   const cand=(S.crew||[]).filter(x=>!x.inactive&&!ids.has(x.id)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'hu'));
-  openModal('Beosztás átadása – '+(c?c.name:''),`<p class="hint" style="margin:0 0 8px">Az új munkatárs megkapja a pozícióit, a vágói feladatait és a nála lévő eszközöket. A meghívást neki külön kell elküldeni.</p><div class="field full"><label for="m-ho">Kinek adod át?</label><select class="inp" id="m-ho" name="to" data-cmb="Kezdd el gépelni a nevet…" data-cmb-sub="crew"><option value=""></option>${cand.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></div>`,
+  openModal('Beosztás átadása – '+(c?c.name:''),`<p class="hint" style="margin:0 0 8px">Az új munkatárs megkapja a szerepköreit, a vágói feladatait és a nála lévő eszközöket. A meghívást neki külön kell elküldeni.</p><div class="field full"><label for="m-ho">Kinek adod át?</label><select class="inp" id="m-ho" name="to" data-cmb="Kezdd el gépelni a nevet…" data-cmb-sub="crew"><option value=""></option>${cand.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></div>`,
     {submitLabel:'Átadás',noDraft:true,submit:fd=>{const to=String(fd.get('to')||'');if(!to){toast('Válaszd ki, kinek adod át.',true);return;}const iv=(d.invites||{})[cid];if(iv&&iv.st==='yes'&&iv.via!=='self'){toast('Elfogadott meghívású munkatárs beosztását nem lehet átadni – előbb beszéld meg vele.',true);return;}
       const crew=(d.crew||[]).map(a=>a.crewId===cid?Object.assign({},a,{crewId:to}):a),equipment=(d.equipment||[]).map(e=>e.crewId===cid?Object.assign({},e,{crewId:to}):e),et=etWithField(d);if(et[cid]){et[to]=(et[to]||[]).concat(et[cid]);delete et[cid];}
       const ch={crew,equipment,editTasks:et};if(d.lead===cid)ch.lead=to;closeModal();setDraft(ch);toast('Átadva '+((crewById(to)||{}).name||'')+' részére – mentés után küldd ki neki a meghívót');}});}
 document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('#crewGearMenu')&&!e.target.closest('[data-action="crew-gear"]'))crewGearClose();},true);
 
-/* lezárt (véglegesített) eszközlista: pozíció / ember levétele csak feloldás után */
+/* lezárt (véglegesített) eszközlista: szerepkör / ember levétele csak feloldás után */
 function eqLockGuard_(d){if(!ro()&&eqFinalState(d)==='ok'&&!(S.eqEdit||{})[d.id]){toast('Az eszközök véglegesítve – a módosításhoz előbb oldd fel (🔓 Feloldás a Stáb és eszközök alján).',true);return true;}return false;}
 
-/* ⚙️ → Pozíció eltávolítása: a munkatárs egyik pozíciója lekerül (a többi marad); a meglévő szabályok (elfogadott meghívás, lakat) érvényesek */
-function crewRoleRemove(cid){const d=S.draft;if(!d||eqLockGuard_(d))return;const L=[];if(d.lead===cid)L.push({k:'lead',lbl:'Projektvezető'});(d.crew||[]).forEach((a,i)=>{if(a.crewId===cid)L.push({k:String(i),lbl:a.role||'Pozíció'});});
-  if(L.length<2){toast('Ez az egyetlen pozíciója – a projektről a „Levétel a projektről” menüponttal veheted le.',true);return;}
+/* ⚙️ → Szerepkör eltávolítása: a munkatárs egyik szerepköre lekerül (a többi marad); a meglévő szabályok (elfogadott meghívás, lakat) érvényesek */
+function crewRoleRemove(cid){const d=S.draft;if(!d||eqLockGuard_(d))return;const L=[];if(d.lead===cid)L.push({k:'lead',lbl:'Projektvezető'});(d.crew||[]).forEach((a,i)=>{if(a.crewId===cid)L.push({k:String(i),lbl:a.role||'Szerepkör'});});
+  if(L.length<2){toast('Ez az egyetlen szerepköre – a projektről a „Levétel a projektről” menüponttal veheted le.',true);return;}
   const go=k=>{if(k==='lead')ACT['lead-remove']();else ACT['crew-remove']({dataset:{i:k}});};
-  const c=crewById(cid);openModal('Pozíció eltávolítása – '+(c?c.name:''),`<div class="fields"><div class="field full"><label for="m-rmrole">Melyik pozíciót veszed le?</label><select class="inp" id="m-rmrole" name="k" data-cmb="Válassz pozíciót…">${L.map(x=>`<option value="${esc(x.k)}">${esc(x.lbl)}</option>`).join('')}</select></div></div>`,
-    {submitLabel:'Pozíció eltávolítása',noDraft:true,danger:true,submit:fd=>{const k=String(fd.get('k')||'');closeModal();go(k);}});}
+  const c=crewById(cid);openModal('Szerepkör eltávolítása – '+(c?c.name:''),`<div class="fields"><div class="field full"><label for="m-rmrole">Melyik szerepkört veszed le?</label><select class="inp" id="m-rmrole" name="k" data-cmb="Válassz szerepkört…">${L.map(x=>`<option value="${esc(x.k)}">${esc(x.lbl)}</option>`).join('')}</select></div></div>`,
+    {submitLabel:'Szerepkör eltávolítása',noDraft:true,danger:true,submit:fd=>{const k=String(fd.get('k')||'');closeModal();go(k);}});}

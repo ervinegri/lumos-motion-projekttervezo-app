@@ -153,15 +153,15 @@ function saveProject_(u, a) {
     if (p.crewFinal == null) p.crewFinal = '';
     if (p.eqFinal == null) p.eqFinal = '';
     p.invites = old ? old.invites || '' : '';   // a meghívásokat csak a külön művelet (crewInvite / inviteRespond) módosítja
-    if (old && p.invites) { try {   /* elfogadott meghívás + új pozíció: az új pozíciót külön el kell fogadni (újra meghívandó; a saját beosztás magától rendben) */
+    if (old && p.invites) { try {   /* elfogadott meghívás + új szerepkör: az új szerepkört külön el kell fogadni (újra meghívandó; a saját beosztás magától rendben) */
       const inv = parseInvites_(p.invites), oldAsg = readAll_('crewAssign').filter(x => x.projectId === id); let ch = false;
       Object.keys(inv).forEach(cid => { const iv = inv[cid]; if (!iv || iv.st !== 'yes') return; const now = rolesOfCid_(p.lead, crew, cid); if (!now.length) return;
         const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), add = now.filter(r => acc.indexOf(r) < 0 && (iv.decl || []).indexOf(r) < 0);
         if (add.length && iv.via !== 'self') { inv[cid] = Object.assign(iv, { st: 'invited', at: '', ans: '', dl: '', prev: acc, roles: acc }); ch = true; }
         else if (String(iv.roles) !== String(now)) { iv.roles = now; ch = true; } });
-      if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új pozíció ellenőrzés: ' + e); } }
+      if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új szerepkör ellenőrzés: ' + e); } }
     p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : ''; p.preDeal = old ? (old.preDeal || '') : '';   /* az előfoglalás-kapcsolatot csak a projPreDeal módosítja */   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
-    // a közös csapat-véglegesítés megszűnt (pozíciónként, külön meghívással véglegesítünk) – nincs lépés-zár
+    // a közös csapat-véglegesítés megszűnt (szerepkörönként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak
     if (p.status === 'atadva' && (!old || old.status !== 'atadva') && (needsDelivery_(p) || p.t_kepkeveres === true) && !p.deliveryLink && !parseVideos_(p.videos).some(v => /^https?:\/\//i.test(String(v.link || ''))))
       throw new Error('Átadás előtt add meg az átadási linket (mappa vagy videók).');
@@ -953,7 +953,7 @@ function parseInvites_(v) { let o = v; if (typeof v === 'string') { try { o = JS
   const out = {}; if (o && typeof o === 'object' && !Array.isArray(o)) Object.keys(o).slice(0, 80).forEach(k => { const x = o[k] || {}; if (!/^[\w-]{1,64}$/.test(k)) return;
     out[k] = { st: ['invited', 'yes', 'no'].indexOf(x.st) >= 0 ? x.st : 'invited', at: str_(x.at, 30), by: str_(x.by, 80), bye: str_(x.bye, 160), dl: str_(x.dl, 40), ans: str_(x.ans, 30), via: str_(x.via, 10), roles: (Array.isArray(x.roles) ? x.roles : []).map(r => str_(r, 40)).slice(0, 10), prev: (Array.isArray(x.prev) ? x.prev : []).map(r => str_(r, 40)).slice(0, 10), decl: (Array.isArray(x.decl) ? x.decl : []).map(r => str_(r, 40)).slice(0, 10), fee: Math.max(0, Math.round(Number(x.fee) || 0)), calSt: ['accepted', 'declined'].indexOf(x.calSt) >= 0 ? x.calSt : '', pre: x.pre ? 1 : 0, pd: /^\d{4}-\d{2}-\d{2}$/.test(String(x.pd || '')) ? String(x.pd) : '', off: str_(x.off, 30), rem: x.rem ? 1 : 0, fin: x.fin ? 1 : 0, cx: x.cx && typeof x.cx === 'object' ? { at: str_(x.cx.at, 30), why: str_(x.cx.why, 600), days: Math.round(Number(x.cx.days) || 0), tier: ['free', 'p50', 'p100'].indexOf(x.cx.tier) >= 0 ? x.cx.tier : '' } : null }; });   // cx: elfogadás utáni visszamondás
   return out; }
-/** A munkatárs pozíciói egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
+/** A munkatárs szerepkörei egy projekten (projektvezető + beosztások, az értékesítő nélkül). */
 function rolesOfCid_(lead, asg, cid) { const r = (lead === cid ? ['Projektvezető'] : []).concat((asg || []).filter(x => x.crewId === cid && x.role !== 'Értékesítő').map(x => String(x.role || ''))); return r.filter((x, i) => x && r.indexOf(x) === i); }
 /** A kiküldött meghívó és az előnézet közös, azonos e-mail-sablonja. */
 function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
@@ -985,7 +985,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const rawUpload = isCut && p.date ? (m => m ? ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'][+m[2] - 1] + ' ' + (+m[3]) + '., ' + ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()] : '')(/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(p.date))) : '';   /* teljes hónapnév: „december 2., szerda” */
     const cutDue = isCut && editorDueIso ? huD(editorDueIso) + ', 20:00' : '';
     const ivx = parseInvites_(p.invites)[cid] || {}, prevR = ivx.prev || [], nowR = rolesOfCid_(p.lead, asg, cid), addR = nowR.filter(r => prevR.indexOf(r) < 0);
-    const tent = projTent_(p), info = [ivx.fin ? '✅ Az előfoglalást véglegesítjük – itt vannak a részletek, kérjük, fogadd el a meghívást.' : '', prevR.length ? '✅ Ami megmarad: ' + prevR.join(', ') + ' – ezt már elfogadtad, nem kell újra válaszolnod.\n🆕 Új feladat: ' + addR.join(', ') + ' – erre kérjük a válaszod. Ha nem vállalod, a korábbi pozíciód akkor is megmarad.' : '', tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
+    const tent = projTent_(p), info = [ivx.fin ? '✅ Az előfoglalást véglegesítjük – itt vannak a részletek, kérjük, fogadd el a meghívást.' : '', prevR.length ? '✅ Ami megmarad: ' + prevR.join(', ') + ' – ezt már elfogadtad, nem kell újra válaszolnod.\n🆕 Új feladat: ' + addR.join(', ') + ' – erre kérjük a válaszod. Ha nem vállalod, a korábbi szerepköröd akkor is megmarad.' : '', tent ? '⏳ Előzetes foglalás: a projekt még megbeszélés alatt van. Kérlek, tartsd szabadon ezt a napot – ha véglegessé válik, szólunk.' : '', onSiteInvite && when ? '🎥 Forgatás: ' + when : '', onSiteInvite && p.venue ? '📍 ' + p.venue : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');   /* a díj nem kerül a levélbe (Ervin kérése, 2026-11-19) – az appban, a meghívás sávjában látszik */
     const dlD = (() => { let t = new Date(Date.now() + 48 * 3600 * 1000); if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000); return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();   /* vasárnapra eső határidő → hétfő 18:00 */   // válaszadási határidő: a meghívás napja után 2 nappal, 18:00 (pl. hétfőn bármikor → szerda 18:00)
@@ -994,7 +994,7 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
   let htmlOut = html;
   if (onSiteInvite && p.venue) { const ev0 = escapeHtml_('📍 ' + p.venue); htmlOut = htmlOut.replace(ev0, '📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(p.venue) + '" style="color:#1a56db;text-decoration:underline">' + escapeHtml_(p.venue) + '</a>'); }   // a helyszín kattintható (Google Térkép)
-  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új pozíció: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
+  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új szerepkör: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
 }
 /** Megtekintés küldés előtt: kizárólag olvasás, meghívóállapot-módosítás nélkül. */
 function crewInvitePreview_(u, a) {
@@ -1093,7 +1093,7 @@ function inviteRespond_(u, a) {
     const inv = parseInvites_(p.invites); if (!inv[cid]) throw new Error('Ehhez a projekthez nincs meghívásod.');
     if (inv[cid].st === 'yes' || inv[cid].st === 'no') { alreadyAnswered = inv[cid].st; return; }
     const prevR = inv[cid].prev || [], nowR = rolesOfCid_(p.lead, readAll_('crewAssign').filter(x => x.projectId === pid), cid);
-    if (!yes && prevR.length) inv[cid] = Object.assign(inv[cid], { st: 'yes', ans: now_(), via: 'app', roles: prevR, prev: [], decl: nowR.filter(r => prevR.indexOf(r) < 0) });   /* az új pozíciót nem vállalta: a korábbi megmarad */
+    if (!yes && prevR.length) inv[cid] = Object.assign(inv[cid], { st: 'yes', ans: now_(), via: 'app', roles: prevR, prev: [], decl: nowR.filter(r => prevR.indexOf(r) < 0) });   /* az új szerepkört nem vállalta: a korábbi megmarad */
     else inv[cid] = Object.assign(inv[cid], { st: yes ? 'yes' : 'no', ans: now_(), via: 'app', roles: yes ? nowR : (inv[cid].roles || []), prev: [], decl: [] });
     if (yes && !inv[cid].pre) { try { const f = parseFees_(p.fees).find(x => x.crewId === cid); inv[cid].fee = Math.round(Number(f && f.amount) || 0); } catch (e) {} }   /* az elfogadott díj (keretszerződés 4.1.) */ p.invites = JSON.stringify(inv); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, r); dataBump_(); dbFlush_(); });
   if (alreadyAnswered) return { alreadyAnswered: true, status: alreadyAnswered, name: p.name };
@@ -1122,7 +1122,7 @@ function inviteRespond_(u, a) {
 /** A Google Naptárban adott válaszok (Igen / Nem) átvétele a függő meghívásokhoz. */
 function invitesSync_(projects, onlyCid) {
   if (typeof Calendar === 'undefined' || !Calendar.Events) return false; let changed = false; const today = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd'); let crewEm = null;
-  projects.forEach(p => { const inv = parseInvites_(p.invites), pend = Object.keys(inv).filter(k => inv[k].st === 'invited' && inv[k].at && !(inv[k].prev || []).length && (!onlyCid || k === onlyCid));   /* új pozíció: csak az appban fogadható el */ if (!pend.length || !p.calEventId) return;
+  projects.forEach(p => { const inv = parseInvites_(p.invites), pend = Object.keys(inv).filter(k => inv[k].st === 'invited' && inv[k].at && !(inv[k].prev || []).length && (!onlyCid || k === onlyCid));   /* új szerepkör: csak az appban fogadható el */ if (!pend.length || !p.calEventId) return;
     if ((p.endDate || p.date || '') && (p.endDate || p.date) < today) return;
     try { const ev = calEvent_(p.calEventId); if (!ev) return; const cur = Calendar.Events.get(evCalId_(ev), String(ev.getId()).replace(/@google\.com$/, '')), st = {};
       (cur.attendees || []).forEach(x => { st[String(x.email || '').toLowerCase()] = x.responseStatus; });
@@ -1171,8 +1171,8 @@ function preDealNotify_(pid, won) {
 function inviteDeadline_(at) { const t0 = new Date(at); if (isNaN(t0)) return null; let t = new Date(t0.getTime() + 48 * 3600 * 1000);
   if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000);
   return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); }
-/** Elfogadott meghívású szakember pozíciójának levétele: a meghívás frissül, és a szakember rövid e-mailt kap.
-    all: az utolsó pozíció is lekerült (a Megrendelő lemondása – keretszerződés 2.7.; fee: a 7 napon belül járó díjrész). */
+/** Elfogadott meghívású szakember szerepkörének levétele: a meghívás frissül, és a szakember rövid e-mailt kap.
+    all: az utolsó szerepkör is lekerült (a Megrendelő lemondása – keretszerződés 2.7.; fee: a 7 napon belül járó díjrész). */
 function crewPosNotify_(u, a) {
   const pid = str_(a && a.projectId, 64), cid = str_(a && a.crewId, 64), L = v => (Array.isArray(v) ? v : []).map(x => str_(x, 40)).filter(Boolean).slice(0, 10);
   const removed = L(a && a.removed), kept = L(a && a.kept), all = !!(a && a.all) || !kept.length, fee = Math.max(0, Math.round(Number(a && a.fee) || 0)); let p;
@@ -1183,11 +1183,11 @@ function crewPosNotify_(u, a) {
   const c = readAll_('crew').find(x => x.id === cid) || {}, em = String(c.email || '').trim().toLowerCase(), first = huFirst_(c.name) || c.name || '';
   const art = w => /^[aáeéiíoóöőuúüű]/i.test(String(w || '')) ? 'az' : 'a', lc = l => l.map(x => x.toLowerCase()).join(' és ');
   const line = all ? 'Mégsem lesz szükség a közreműködésedre ezen a projekten.' + (fee ? ' A keretszerződés 2.7. pontja szerint a díjad 50%-át (' + fee.toLocaleString('hu-HU') + ' Ft) kifizetjük.' : '')
-    : 'Módosult a beosztásod: ' + art(lc(removed)) + ' ' + lc(removed) + ' pozíció lekerült, ' + art(lc(kept)) + ' ' + lc(kept) + ' marad.';
+    : 'Módosult a beosztásod: ' + art(lc(removed)) + ' ' + lc(removed) + ' szerepkör lekerült, ' + art(lc(kept)) + ' ' + lc(kept) + ' marad.';
   let mail = false;
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try { mail = gmailSend_(em, (all ? 'Lekerültél a projektről: ' : 'Módosult a beosztásod: ') + p.name, 'Kedves ' + first + '!\n\n' + line + '\n\n' + p.name + (p.date ? ' – ' + preHuDate_(p.date) : '') + '\n\n' + appUrl_() + '#p=' + pid,
-      { htmlBody: mailCard_(first, escapeHtml_(line) + '<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', p.date ? '📅 ' + preHuDate_(p.date) : '', appUrl_() + (all ? '' : '#p=' + pid), all ? 'Projekttervező' : 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Pozíció-értesítés hiba: ' + e); } }
-  logEvent_(u, all ? 'Szakember levéve a projektről' : 'Pozíció levéve', p.name, (c.name || cid) + ' · ' + removed.join(', ') + (fee ? ' · lemondási díj: ' + fee : ''));
+      { htmlBody: mailCard_(first, escapeHtml_(line) + '<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', p.date ? '📅 ' + preHuDate_(p.date) : '', appUrl_() + (all ? '' : '#p=' + pid), all ? 'Projekttervező' : 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Szerepkör-értesítés hiba: ' + e); } }
+  logEvent_(u, all ? 'Szakember levéve a projektről' : 'Szerepkör levéve', p.name, (c.name || cid) + ' · ' + removed.join(', ') + (fee ? ' · lemondási díj: ' + fee : ''));
   return { mail: mail };
 }
 /* ===================== ELŐFOGLALÁS (keretszerződés 2.8.) =====================
