@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "00de8d7723",
+"at": "2026-11-21T22:12:30+01:00",
+"msg": "Alapadatok zárolása meghívó után (időpont, helyszín…): Módosítás gombbal oldható, változáskor e-mail a meghívott stábnak"
+},
+{
 "id": "453a5f92bc",
 "at": "2026-11-21T22:07:32+01:00",
 "msg": "Senkihez nem rendelt eszköz emberhez rendelhető a választóból (nem foglaltként számít, áthelyeződik)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az utolsó díjmentes kör szövegének átfogalmazása"
 },
 {
-"id": "385c019cf7",
-"at": "2026-11-21T10:03:00+01:00",
-"msg": "Jóváhagyó oldal: módosítás elküldése után csak a köszönő üzenet látszik, középen"
-},
-{
-"id": "3206aecf95",
-"at": "2026-11-21T09:01:42Z",
+"id": "c05b1d71ce",
+"at": "2026-11-21T09:03:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
