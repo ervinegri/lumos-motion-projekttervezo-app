@@ -326,6 +326,11 @@ function szDailyEnsure_() {
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
 function hsPullHourly() { try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
+function gbpHourly() { try { gbpSync_(null); } catch (e) {} }   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
+function gbpHourlyEnsure_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('GBP_HOURLY_INSTALLED')) return;
+  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'gbpHourly')) ScriptApp.newTrigger('gbpHourly').timeBased().everyHours(1).create(); P.setProperty('GBP_HOURLY_INSTALLED', '1'); } catch (e) {}
+}
 function hsPullEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_PULL_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'hsPullHourly')) ScriptApp.newTrigger('hsPullHourly').timeBased().everyHours(1).create(); P.setProperty('HS_PULL_INSTALLED', '1'); } catch (e) {}

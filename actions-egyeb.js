@@ -454,7 +454,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.da
   call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;gbpRefresh();toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
 Object.assign(ACT,{
   'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');gbpRefresh();}catch(e){b.disabled=false;handleErr(e);}},
-  'gbp-open':()=>{openModal('⭐ Google-értékelések',`<div id="gbp-modal" class="gbp">${gbpBody()}</div>`,{cancelLabel:'Bezárás',noDraft:true});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(typeof cmbAuto==='function')cmbAuto();},
+  'gbp-open':()=>{openModal('⭐ Google-értékelések',`<div id="gbp-modal" class="gbp">${gbpBody()}</div>`,{cancelLabel:'Bezárás',noDraft:true});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(typeof cmbAuto==='function')cmbAuto();if(S.gbp&&S.gbp.connected)gbpLoad(true,true);},   // megnyitáskor magától frissít (csak új értékelésnél szól)
   'gbp-more':()=>{S._gbpAll=!S._gbpAll;gbpRefresh();},
   'gbp-sync':b=>{if(b)b.disabled=true;gbpLoad(true);},
   'gbp-connect':()=>{if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast('A Google-belépés még töltődik – próbáld újra pár másodperc múlva.',true);return;}

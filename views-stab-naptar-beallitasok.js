@@ -496,7 +496,7 @@ function dwdPanel(){if(!isAdmin()||!S.dwd)return '';const d=S.dwd;
 
 /* ===== Google-értékelések (Ügyfelek fül, csak ügyvezető): a Cégprofil értékelései, ügyfélhez párosítva, válasz az appból ===== */
 const gbpStars=n=>{n=Math.round(Number(n)||0);return '<span class="gbp-st" aria-label="'+n+' csillag">'+'★'.repeat(n)+'<i>'+'★'.repeat(Math.max(0,5-n))+'</i></span>';};
-function gbpLoad(sync){if(S._gbpL)return;S._gbpL=sync?2:1;if(sync)gbpRefresh();call('gbpList',{sync:!!sync}).then(r=>{S.gbp=r;if(sync&&r.syncRes){const x=r.syncRes;if(x.error)toast('Frissítés sikertelen: '+x.error,true);else toast(x.added?x.added+' új értékelés behúzva ✓':'Az értékelések naprakészek ✓');}}).catch(e=>{S.gbp=Object.assign({reviews:[]},S.gbp||{},{err:errText(e)});}).finally(()=>{S._gbpL=0;gbpRefresh();if(S.tab==='ugyfelek'&&$('gbp-modal'))render(true);});}
+function gbpLoad(sync,quiet){if(S._gbpL)return;S._gbpL=sync?2:1;S._gbpAt=Date.now();if(sync)gbpRefresh();call('gbpList',{sync:!!sync}).then(r=>{S.gbp=r;if(sync&&r.syncRes){const x=r.syncRes;if(x.error){if(!quiet)toast('Frissítés sikertelen: '+x.error,true);}else if(x.added||!quiet)toast(x.added?x.added+' új értékelés behúzva ✓':'Az értékelések naprakészek ✓');}}).catch(e=>{S.gbp=Object.assign({reviews:[]},S.gbp||{},{err:errText(e)});}).finally(()=>{S._gbpL=0;gbpRefresh();if(S.tab==='ugyfelek'&&$('gbp-modal'))render(true);});}
 function gbpBody(){const g0=S.gbp;if(!g0)return '<p class="hint"><span class="spin" style="width:12px;height:12px"></span> Betöltés…</p>';
   const g=S.gbp,R=g.reviews||[],noRep=R.filter(r=>!r.reply).length,shown=S._gbpAll?R:R.slice(0,6);
   const cls=knownClients('').map(c=>c.company).sort((a,b)=>a.localeCompare(b,'hu'));
@@ -508,10 +508,12 @@ function gbpBody(){const g0=S.gbp;if(!g0)return '<p class="hint"><span class="sp
       ${r.text?`<div class="gbp-tx">${esc(r.text)}</div>`:''}
       ${r.reply?`<div class="gbp-rep"><b>Válaszunk:</b> ${esc(r.reply)} <button class="linkbtn" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">Szerkesztés</button></div>`:`<button class="btn outline small" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">↩︎ Válasz</button>`}</div>`).join('')}</div>
       ${R.length>6?`<button class="linkbtn" type="button" data-action="gbp-more">${S._gbpAll?'Kevesebb':'Mind a '+R.length+' értékelés'}</button>`:''}`:'<p class="hint" style="margin:0">Még nincs behúzott értékelés.</p>')
-    +`<div class="gbp-foot"><span class="muted">${g.sync?'Frissítve: '+esc(g.sync.slice(0,16).replace(/-/g,'.'))+' · naponta 6-kor':''}</span><a class="btn ghost small" href="${esc(g.url||'#')}" target="_blank" rel="noopener">Értékelési link ↗</a></div>`;
+    +`<div class="gbp-foot"><span class="muted">${g.sync?'Frissítve: '+esc(g.sync.slice(0,16).replace(/-/g,'.'))+' · óránként magától':''}</span><a class="btn ghost small" href="${esc(g.url||'#')}" target="_blank" rel="noopener">Értékelési link ↗</a></div>`;
   const rb=g.connected?`<button class="btn outline small gbp-rf" type="button" data-action="gbp-sync"${S._gbpL?' disabled':''}>${S._gbpL===2?'<span class="spin" style="width:11px;height:11px"></span> Frissítés…':'🔄 Frissítés'}</button>`:'';
   return `<div class="gbp-hd">${head}${rb}</div>${body}`;}
 function gbpBtn(){if(!isAdmin())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp||{},R=g.reviews||[],noRep=R.filter(r=>!r.reply).length;
   return `<button class="btn outline w" type="button" data-action="gbp-open" title="Google-értékelések">⭐ <span class="mlg">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')+' · '+(g.total||R.length)+' értékelés':'Értékelések'}</span><span class="msm">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',','):''}</span>${noRep?` <span class="gbp-badge">${noRep}</span>`:''}</button>`;}
 /* a nyitott értékelés-ablak frissítése (újrarajzolás nélkül) */
+/* háttérfrissítés (5 percenként, csak ügyvezető): a háttér óránként behúzza az új értékeléseket, a csengő innen tudja meg */
+function gbpPoll(){if(!isAdmin()||S._gbpL||(S._gbpAt&&Date.now()-S._gbpAt<5*60000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
 function gbpRefresh(){const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}else if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);}
