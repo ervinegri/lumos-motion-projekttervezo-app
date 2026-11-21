@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "daf34320ad",
+"at": "2026-11-21T22:25:07+01:00",
+"msg": "Elfogadott meghívó után a szakember eszközei zárolva a kártyán (Módosítás / Visszazárás), változáskor e-mail"
+},
+{
 "id": "94dd16391c",
 "at": "2026-11-21T22:23:23+01:00",
 "msg": "Díjtábla fejléc: az oszlopszélesség-fogantyú nem látszik kurzorként (csak rámutatva, halványan)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetős javítás: ha az ügyfél nem kéri, az utolsó változat automatikusan jóváhagyva"
 },
 {
-"id": "9f93309faf",
-"at": "2026-11-21T10:13:02+01:00",
-"msg": "Fizetős (3.+) javítás: árajánlatig zárolva; az ügyvezető küldi az ajánlatot, az ügyfél online fogadja el vagy utasítja el, elfogadáskor automatikusan feloldódik és extraként a projekthez kerül; köszönő üzenet semleges színnel"
-},
-{
-"id": "4fed17c971",
-"at": "2026-11-21T09:05:35Z",
+"id": "be71d53d59",
+"at": "2026-11-21T09:13:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
