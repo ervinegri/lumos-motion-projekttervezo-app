@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1595c64868",
+"at": "2026-11-21T22:31:52+01:00",
+"msg": "Eszköz-zár: csak egy kis lakat a fogaskerék alatt, rámutatva az üzenet"
+},
+{
 "id": "daf34320ad",
 "at": "2026-11-21T22:25:07+01:00",
 "msg": "Elfogadott meghívó után a szakember eszközei zárolva a kártyán (Módosítás / Visszazárás), változáskor e-mail"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a köszönő üzenet alatt az ügyfél módosítási kérése"
 },
 {
-"id": "fbbcc44c70",
-"at": "2026-11-21T10:15:47+01:00",
-"msg": "Fizetős javítás: ha az ügyfél nem kéri, az utolsó változat automatikusan jóváhagyva"
-},
-{
-"id": "be71d53d59",
-"at": "2026-11-21T09:13:11Z",
+"id": "71b7457c1a",
+"at": "2026-11-21T09:15:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
