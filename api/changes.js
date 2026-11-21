@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b20a58c75a",
+"at": "2026-11-21T08:21:53+01:00",
+"msg": "Értékeléskérés: csak a mai naptól átadott projekteknél (régi projekteknek utólag nem megy), legfeljebb 14 napig"
+},
+{
 "id": "3688d82374",
 "at": "2026-11-20T23:03:42+01:00",
 "msg": "Google-értékelések: az értékelés eredeti szövege a fordítás helyett (eddig kimaradt)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Javítás: Szerződés és számlázás oldal betöltési hiba (különbözet-doboz hozzáfűzése)"
 },
 {
-"id": "deba3cc7ab",
-"at": "2026-11-20T15:28:56+01:00",
-"msg": "Számlázás: ha a kiszámlázott nettó összeg eltér a projekt értékétől (pl. utólag megemelt érték), nem 'Lezárva' – Kiszámlázatlan / Túlszámlázva jelzés, számla a különbözetre gomb, figyelmeztetés"
-},
-{
-"id": "ec8d1bd673",
-"at": "2026-11-20T14:26:51Z",
+"id": "38ece5dca3",
+"at": "2026-11-20T14:29:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
