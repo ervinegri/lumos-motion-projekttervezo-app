@@ -17,7 +17,7 @@ function vidSetLink_(v, link) { link = String(link || ''); if (v.link && link &&
 function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSON.parse(v || '[]'); } catch (e) { l = []; } }
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
-    link: str_(x && x.link, 500), note: str_(x && x.note, 1000), rvTo: str_(x && x.rvTo, 300), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
+    link: str_(x && x.link, 500), note: str_(x && x.note, 6000), rvTo: str_(x && x.rvTo, 300), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
     fb: str_(x && x.fb, 6000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), vers: (Array.isArray(x && x.vers) ? x.vers : []).slice(-30).map(r => ({ at: str_(r && r.at, 30), link: str_(r && r.link, 500) })).filter(r => r.at), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
@@ -87,7 +87,7 @@ function videoReview_(u, a) {
   a = a || {};
   const tos = rvList_(a.to), to = tos.join(','); if (!tos.length) throw new Error('Válaszd ki, ki kapja az értesítést.');
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
-  const note = str_(a.note, 1000).trim();
+  const note = str_(a.note, 6000).trim();
   const res = videoSet_(u, { projectId: a.projectId, id: a.id, st: 'ellen' });
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40); let p, v;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
@@ -109,7 +109,7 @@ function videoReviewBatch_(u, a) {
   a = a || {}; const tos = rvList_(a.to); if (!tos.length) throw new Error('Válaszd ki, ki kapja az értesítést.');
   const items = (Array.isArray(a.items) ? a.items : []).slice(0, 40); if (!items.length) throw new Error('Nincs kiválasztott videó.');
   items.forEach(x => { if (!/^https?:\/\/\S+$/i.test(String(x && x.link || '').trim())) throw new Error('Minden videóhoz illeszd be a linket (https://…).'); });
-  const note = str_(a.note, 1000).trim(), done = [], projects = {};
+  const note = str_(a.note, 6000).trim(), done = [], projects = {};
   items.forEach(x => { const r = videoReview_(u, { to: a.to, note: note, projectId: x.projectId, id: x.id, link: x.link, noMail: true }); done.push(r); projects[r.pid] = r.project; });
   const pn = done.map(r => r.pname).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
   let mail = false;
@@ -188,7 +188,7 @@ function videoClient_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: Az ügyfélnek a projektvezető küldheti el.');
   const tos = str_(a.to, 600).split(/\s*,\s*/).map(x => x.trim()).filter(Boolean).slice(0, 8), to = tos.join(', '); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');   // több címzett is lehet
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
-  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 1500).trim(); let text = str_(a.text, 4000).trim();
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 6000).trim(); let text = str_(a.text, 6000).trim();
   const ids = (Array.isArray(a.ids) && a.ids.length > 1 ? a.ids : [vid]).map(x => str_(x, 40)).filter(Boolean).slice(0, 30);   // több videó egy levélben (közös jóváhagyó oldal)
   ids.forEach(id => videoSet_(u, { projectId: pid, id: id, st: 'leadva' }));
   let p, v, names = [];
