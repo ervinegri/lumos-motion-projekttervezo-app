@@ -154,7 +154,7 @@ ACT['crew-revert']=()=>{const d=S.draft,f=d&&d.crewFinal;if(!d||ro()||!f||!f.sig
 (()=>{let from=null;const clr=()=>document.querySelectorAll('.pcrew.eq-drop-hi').forEach(x=>x.classList.remove('eq-drop-hi'));
   document.addEventListener('dragstart',e=>{const r=e.target.closest&&e.target.closest('.eqrow[data-eq-drag]');if(!r||ro()||!S.draft)return;from=Number(r.dataset.eqDrag);r.classList.add('dragging');try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','eq:'+from);}catch(_){}});
   document.addEventListener('dragend',()=>{document.querySelectorAll('.eqrow.dragging').forEach(x=>x.classList.remove('dragging'));clr();from=null;});
-  const tgt=e=>{if(from==null)return null;const c=e.target.closest&&e.target.closest('.pcrew[data-eq-drop]');if(!c)return null;const eq=(S.draft.equipment||[])[from];if(!eq||(eq.crewId||'')===c.dataset.eqDrop)return null;return c;};
+  const tgt=e=>{if(from==null)return null;const c=e.target.closest&&e.target.closest('.pcrew[data-eq-drop]');if(!c)return null;if(typeof eqPersonLocked==='function'&&eqPersonLocked(S.draft,c.dataset.eqDrop))return null;const eq=(S.draft.equipment||[])[from];if(!eq||(eq.crewId||'')===c.dataset.eqDrop)return null;return c;};
   document.addEventListener('dragover',e=>{const c=tgt(e);if(!c)return;e.preventDefault();try{e.dataTransfer.dropEffect='move';}catch(_){}if(!c.classList.contains('eq-drop-hi')){clr();c.classList.add('eq-drop-hi');}});
   document.addEventListener('drop',e=>{const c=tgt(e);clr();if(!c)return;e.preventDefault();const d=S.draft;if(!d||ro()||projLocked()||eqLocked(d))return;
     const to=c.dataset.eqDrop,equipment=clone(d.equipment||[]),src=equipment[from];if(!src)return;from=null;

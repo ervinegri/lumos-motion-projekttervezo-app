@@ -27,7 +27,10 @@ function taskNotice_(u, tn) {
   Object.keys(inv).forEach(cid => {
     const iv = inv[cid] || {}, ov = oldInv[cid] || {}; if (iv.pre || !(iv.st === 'yes' || (iv.st === 'invited' && iv.at))) return;
     if (!(ov.st === 'yes' || (ov.st === 'invited' && ov.at))) return;   // most kapta a meghívót: abban már az új lista van
-    const before = taskListOf_(oldP, tn.crew, cid, tn.labels), after = taskListOf_(p, tn.crew, cid, tn.labels), tChg = before.join('|') !== after.join('|');
+    const eqL = (rows, rent) => { const o = {}; (rows || []).filter(e => (e.crewId || '') === cid).forEach(e => { const nm = ((tn.invMap || {})[e.itemId] || {}).name || 'Eszköz'; o[nm] = (o[nm] || 0) + (Number(e.qty) || 0); });
+      let R = rent; if (typeof R === 'string') { try { R = JSON.parse(R || '[]'); } catch (x) { R = []; } } (Array.isArray(R) ? R : []).filter(r => r && r.crewId === cid).forEach(r => { const nm = String(r.name || 'Eszköz') + (r.own ? ' (saját)' : ' (bérelt)'); o[nm] = (o[nm] || 0) + 1; });
+      return Object.keys(o).sort().map(k => '🎒 ' + k + (o[k] > 1 ? ' ×' + o[k] : '')); };
+    const before = taskListOf_(oldP, tn.crew, cid, tn.labels).concat(eqL(tn.eqOld, oldP.rentals)), after = taskListOf_(p, tn.crew, cid, tn.labels).concat(eqL(tn.eqNew, p.rentals)), tChg = before.join('|') !== after.join('|');
     if (!tChg && !basics.length) return;
     const c = crewRows.find(r => r.id === cid); if (!c || !c.email || (u && u.email && String(u.email).toLowerCase() === String(c.email).toLowerCase())) return;
     const gone = before.filter(x => after.indexOf(x) < 0), added = after.filter(x => before.indexOf(x) < 0), first = String(c.name || '').split(' ').slice(-1)[0] || c.name;
@@ -218,7 +221,7 @@ function saveProject_(u, a) {
     if (renamed || sig(oldEq, r => r.itemId + ':' + (r.crewId || '') + ':' + r.qty) !== sig(equipment, e => e.itemId + ':' + e.crewId + ':' + e.qty))
       rewriteAssign_('eqAssign', r => r.projectId !== id,
         equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name, crewId: e.crewId, crewName: e.crewId ? crewMap[e.crewId].name : '' })));
-    if (old) TASK_NOTICE_ = { old: old, p: Object.assign({}, p), crew: crew, labels: a.taskLabels && typeof a.taskLabels === 'object' ? a.taskLabels : {} };   // a meghívót már megkapó szakember feladatai változtak-e (a zár után e-mail)
+    if (old) TASK_NOTICE_ = { old: old, p: Object.assign({}, p), crew: crew, eqOld: oldEq, eqNew: equipment, invMap: invMap, labels: a.taskLabels && typeof a.taskLabels === 'object' ? a.taskLabels : {} };   // a meghívót már megkapó szakember feladatai változtak-e (a zár után e-mail)
     dbFlush_();
     logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p, assignDiff_(oldCrew, crew, oldEq, equipment, crewMap, invMap), crewMap) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
     if (dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
