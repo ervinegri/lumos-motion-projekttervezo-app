@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "85eae8cc1e",
+"at": "2026-11-21T10:01:34+01:00",
+"msg": "Jóváhagyó oldal: ← / → egy képkockát lép (megállítva), Shift-tel 1 mp"
+},
+{
 "id": "8fd3e18eef",
 "at": "2026-11-21T10:00:59+01:00",
 "msg": "Jóváhagyó oldal: 30%-kal szélesebb oldalsáv / szövegmező"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: a titkos kulcs az appból is beállítható"
 },
 {
-"id": "21854c9597",
-"at": "2026-11-20T22:50:25+01:00",
-"msg": "Helyszíni munkára lépés: a bejelentkezett vezető saját beosztása elfogadottnak számít (és a háttérben rögzül)"
-},
-{
-"id": "f899dbcba1",
-"at": "2026-11-20T21:46:14Z",
+"id": "5a9e1a0e16",
+"at": "2026-11-20T21:50:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
