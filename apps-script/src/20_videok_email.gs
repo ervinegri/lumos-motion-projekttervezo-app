@@ -398,10 +398,10 @@ function gbpSync_(u) {
 /** A Google a nem magyar nyelvű fiókoknál fordítással küldi: „(Translated by Google) … (Original) …” – az eredeti szöveg kell. */
 function gbpText_(c) { c = String(c || '').trim(); const m = /\(Original\)\s*([\s\S]*)$/.exec(c); if (m) return m[1].trim(); return c.replace(/\s*\(Translated by Google\)[\s\S]*$/, '').trim(); }
 function gbpList_(u, a) {
-  const P = gbpProps_(); if (a && a.sync) gbpSync_(u);
+  const P = gbpProps_(); const syncRes = (a && a.sync) ? gbpSync_(u) : null;
   let rows = []; try { rows = readAll_('gReviews'); } catch (e) {}
   rows.sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt)));
-  return { connected: !!P.getProperty('GBP_REFRESH'), secret: !!P.getProperty('GBP_CLIENT_SECRET'), title: P.getProperty('GBP_TITLE') || '', avg: Number(P.getProperty('GBP_AVG') || 0), total: Number(P.getProperty('GBP_TOTAL') || rows.length), sync: P.getProperty('GBP_SYNC') || '', err: P.getProperty('GBP_ERR') || '', url: REVIEW_URL_, reviews: rows };
+  return { connected: !!P.getProperty('GBP_REFRESH'), secret: !!P.getProperty('GBP_CLIENT_SECRET'), title: P.getProperty('GBP_TITLE') || '', avg: Number(P.getProperty('GBP_AVG') || 0), total: Number(P.getProperty('GBP_TOTAL') || rows.length), sync: P.getProperty('GBP_SYNC') || '', err: P.getProperty('GBP_ERR') || '', url: REVIEW_URL_, reviews: rows, syncRes: syncRes };
 }
 function gbpReply_(u, a) {
   const id = String(a && a.id || ''), txt = String(a && a.text || '').trim(); if (!id) throw new Error('Hiányzó értékelés.'); if (txt.length > 4000) throw new Error('A válasz legfeljebb 4000 karakter lehet.');
