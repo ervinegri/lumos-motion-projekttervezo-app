@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b3a80aa486",
+"at": "2026-11-21T09:20:24+01:00",
+"msg": "Bejövő számla elvetése: azonnal eltűnik, a mentés a háttérben fut (hibánál visszakerül)"
+},
+{
 "id": "c330219a6d",
 "at": "2026-11-21T09:17:28+01:00",
 "msg": "Jóváhagyó oldal: az értékelés-doboz nem jelenik meg, ha az ügyfél már értékelt vagy már rákattintott"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új pozíció ablak: a pozíciólista azonnal lenyílik"
 },
 {
-"id": "7a5416bb40",
-"at": "2026-11-20T15:44:36+01:00",
-"msg": "Új szerep / pozíció: Key Account Manager"
-},
-{
-"id": "5fc0ca79de",
-"at": "2026-11-20T14:44:09Z",
+"id": "bcb8804d6f",
+"at": "2026-11-20T14:44:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
