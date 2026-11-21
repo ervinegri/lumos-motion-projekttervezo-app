@@ -374,7 +374,7 @@ function computeIssues(){
     const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
   /* közelgő projekt (30 napon belül), ami még nincs készen: projektvezető, betöltetlen szerepkör, meghívók */
-  if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=7?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
+  if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=14?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
   if(!ro())liveEq.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
@@ -404,8 +404,8 @@ function computeIssues(){
     if(left<0)out.push({level:'bad',text:`Az átadási határidő ${-left} napja lejárt (${fmtShort(dueDate(p))}).`,pids:[p.id]});}
   if(isAdmin())for(const p of allProjects().filter(isOpen)){const m=[];if(p.projectValue==null||p.projectValue==='')m.push('büdzsé (a projekt értéke)');if(budgetFt(p)==null&&!isFree(p))m.push('termelői keret');   // a nem fizetős projekt (0 Ft) érvényes   // csak az ügyvezető látja
     if(m.length)out.push({level:'warn',text:`💰 Még nincs megadva: ${m.join(' és ')}.`,pids:[p.id]});}
-  /* a rendezvény előtti utolsó 7 napban minden projektre szóló figyelmeztetés piros (sürgős) */
-  out.forEach(i=>{if(i.level!=='warn'||!(i.pids||[]).length)return;const soon=i.pids.some(id=>{const q=projById(id),r=q&&pr(q);if(!r||['atadva','lemondva'].includes(q.status))return false;const d=diffDays(T,r.start);return d>=0&&d<=7;});if(soon){i.level='bad';i.urgent=1;}});
+  /* a rendezvény előtti utolsó 14 napban minden projektre szóló figyelmeztetés piros (sürgős) */
+  out.forEach(i=>{if(i.level!=='warn'||!(i.pids||[]).length)return;const soon=i.pids.some(id=>{const q=projById(id),r=q&&pr(q);if(!r||['atadva','lemondva'].includes(q.status))return false;const d=diffDays(T,r.start);return d>=0&&d<=14;});if(soon){i.level='bad';i.urgent=1;}});
   return out.sort((a,b)=>(a.level==='bad'?0:1)-(b.level==='bad'?0:1));
 }
 
