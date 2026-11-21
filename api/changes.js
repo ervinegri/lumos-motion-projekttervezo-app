@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ec442d4877",
+"at": "2026-11-21T17:00:17+01:00",
+"msg": "Videó: korábbi verzió törölhető (ügyvezető, termelési vezető) – pl. próbából bent maradt fájl"
+},
+{
 "id": "c286725ba3",
 "at": "2026-11-21T11:03:49+01:00",
 "msg": "Ellenőrzés: bejövő számlák beérkezési késése"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Azonnali módosítások kiterjesztése: törlések, meglévő elemek mentése, pipák és kapcsolók az egész appban"
 },
 {
-"id": "9368c12e57",
-"at": "2026-11-21T09:29:14+01:00",
-"msg": "Azonnali módosítások: a számla- és kifizetési pipák is azonnal, visszaugrás nélkül"
-},
-{
-"id": "c7e2bf466a",
-"at": "2026-11-21T08:28:51Z",
+"id": "96d93077d3",
+"at": "2026-11-21T08:29:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
