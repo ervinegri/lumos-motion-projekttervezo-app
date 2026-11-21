@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c5a23bd984",
+"at": "2026-11-21T09:22:23+01:00",
+"msg": "Bejövő számlák: Rezsi / Marketing / Elvetés azonnal eltűnik, a mentés a háttérben fut"
+},
+{
 "id": "b3a80aa486",
 "at": "2026-11-21T09:20:24+01:00",
 "msg": "Bejövő számla elvetése: azonnal eltűnik, a mentés a háttérben fut (hibánál visszakerül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lezajlott projektnél is levehető egy-egy pozíció (×, megerősítéssel)"
 },
 {
-"id": "13812b28de",
-"at": "2026-11-20T15:48:55+01:00",
-"msg": "Új pozíció ablak: a pozíciólista azonnal lenyílik"
-},
-{
-"id": "bcb8804d6f",
-"at": "2026-11-20T14:44:45Z",
+"id": "7269ce63ea",
+"at": "2026-11-20T14:49:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
