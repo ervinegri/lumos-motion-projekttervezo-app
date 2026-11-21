@@ -555,6 +555,15 @@ function rpcInner_(token, name, arg) {
     case 'payStatementPreview': adminOnly(); { const b = payStatementBuild_(u, arg); return { html: b.html, subject: b.subject, to: String(b.c.email || ''), from: (u.name || '') + ' · Lumos Motion <' + (u.email || MAIL_FROM) + '>' }; }
     case 'paySentHtml': return paySentHtml_(u, arg);
     case 'navSync': adminOnly(); { try { installNavTrigger_(); } catch (e) { } return navSync_(u, arg); }
+    case 'navVsSz': {   /* ügyvezető, csak olvasás: a NAV-ból párosított szakemberszámlák megvannak-e a számlázz.hu bejövő bizonylatai között */
+      adminOnly(); const t8 = x => String(x || '').replace(/\D/g, '').slice(0, 8), nrm = x => String(x || '').trim().toUpperCase().replace(/\s+/g, '');
+      const docs = readAll_('szDocs').filter(d => d.kind === 'be'), idx = {}; docs.forEach(d => { idx[nrm(d.no) + '|' + t8(d.partnerTax)] = d; idx[nrm(d.no)] = idx[nrm(d.no)] || d; });
+      const crew = {}; readAll_('crew').forEach(c => { crew[c.id] = c.name; });
+      const rows = []; readAll_('payStatus').filter(s => s.invoiceNo && String(s.month) >= String(arg && arg.from || '2026-06')).forEach(s => String(s.invoiceNo).split(/\s*,\s*/).filter(Boolean).forEach(no => {
+        const d = idx[nrm(no) + '|' + t8(s.invoiceTax)] || idx[nrm(no)]; rows.push({ month: s.month, crew: crew[s.crewId] || s.crewName || s.crewId, no: no, inSz: !!d, szStatus: d ? (d.status || '') : '', szCrew: d ? (crew[d.crewId] || '') : '' }); }));
+      const months = {}; docs.forEach(d => { const m = String(d.kelt || '').slice(0, 7); months[m] = (months[m] || 0) + 1; });
+      return { rows: rows, szBeByMonth: months, szBeTotal: docs.length };
+    }
     case 'navInvoices': {   /* ügyvezető: bármelyik; szakember / értékesítő: csak a saját, a Kifizetésekhez párosított számlája (a tárolt adószámmal) */
       if (u.role === 'admin' && !u.viewAs) return navInvoices_(u, arg);
       const cid = String(u.crewId || ''); if (!cid) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
