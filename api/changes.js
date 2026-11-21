@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6f9b4831c",
+"at": "2026-11-21T22:56:46+01:00",
+"msg": "Figyelmeztetés doboz: egy projektnél az egész doboz kattintható"
+},
+{
 "id": "c33e18108a",
 "at": "2026-11-21T22:47:19+01:00",
 "msg": "Stábkártya: visszautasított meghívó erős piros (a sárgához, zöldhöz igazítva)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ellenőrzés: bejövő számlák beérkezési késése"
 },
 {
-"id": "9bb38dd268",
-"at": "2026-11-21T11:01:05+01:00",
-"msg": "Ellenőrzés: bejövő számlák PDF-elérhetősége"
-},
-{
-"id": "6fd93c8451",
-"at": "2026-11-21T09:27:00Z",
+"id": "d85461becd",
+"at": "2026-11-21T10:01:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
