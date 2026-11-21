@@ -2317,7 +2317,7 @@ html body .pcrew .inv-ask-b.yes{background:#1f7a44;color:#fff}html body .pcrew .
 html body .pcrew .inv-ask-b.no{background:#fff;color:#a33;border-color:#f3caca}html body .pcrew .inv-ask-b.no:hover{background:#fdf0f0}
 html body .bd-card.bd-wait{user-select:none;-webkit-user-select:none;pointer-events:auto}
 html body .tent-pill{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:6px;font-size:11.5px;font-weight:650;background:#eef1f5;color:#5d6b7a;border:1px dashed #b7c2cf;vertical-align:2px;white-space:nowrap}html:where(.ax-stone) body .tent-pill{background:#f1f1f8;color:#69696e;border:1px dashed #c1c1c6}
-html body .pcrew.pos-card.inv-ok{border:2px solid #34a853!important;background:linear-gradient(180deg,#eefaf2 0,#fff 120px)!important;box-shadow:0 0 0 3px #d5f0de,0 2px 6px rgba(52,168,83,.12)!important}   /* elfogadott meghívó: messziről látszó zöld kártya */
+html body .pcrew.pos-card.inv-ok{border:2px solid #1e8e3e!important;background:linear-gradient(180deg,#d9f2e2 0,#ecf9f1 160px,#f4fbf7 100%)!important;box-shadow:0 0 0 3px #bfe6cc,0 2px 8px rgba(30,142,62,.18)!important}   /* elfogadott meghívó: messziről látszó zöld kártya */
 html body .pcrew.pos-card.inv-wait{border-color:#ecd28a!important;box-shadow:0 0 0 1px #f5e3b0,0 1px 2px rgba(16,24,40,.04)!important}
 html body .pcrew.pos-card.inv-none{border-color:#c3cbd4!important;box-shadow:0 0 0 1px #dde2e8,0 1px 2px rgba(16,24,40,.04)!important}html:where(.ax-stone) body .pcrew.pos-card.inv-none{border-color:#cacad0!important;box-shadow:0 0 0 1px #e1e1e7,0 1px 2px rgba(16,24,40,.04)!important}
 html body .pcrew.pos-card.inv-no{border-color:#eaa9a9!important;box-shadow:0 0 0 1px #f5d0d0,0 1px 2px rgba(16,24,40,.04)!important}
