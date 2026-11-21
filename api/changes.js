@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff3751bb01",
+"at": "2026-11-21T21:12:46+01:00",
+"msg": "Google-értékelések: azonnali értesítés (Pub/Sub → /api/gbp-push → Apps Script)"
+},
+{
 "id": "66e0dffd00",
 "at": "2026-11-21T21:07:36+01:00",
 "msg": "Google-értékelések: óránkénti automatikus behúzás, megnyitáskor frissítés, új értékelés a csengőben + felugró értesítés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az „egyetlen üzenetben” mondat nem félkövér"
 },
 {
-"id": "e7d5093153",
-"at": "2026-11-21T09:53:19+01:00",
-"msg": "Jóváhagyó oldal: a díjmentes körök elfogyása után nem jelenik meg az általános javítási útmutató"
-},
-{
-"id": "3d88ab44ef",
-"at": "2026-11-21T08:52:45Z",
+"id": "6e5f18353b",
+"at": "2026-11-21T08:53:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
