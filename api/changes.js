@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "12fc94826c",
+"at": "2026-11-21T22:37:32+01:00",
+"msg": "Elfogadott meghívós stábkártya feltűnőbb: erős zöld keret és halvány zöld háttér"
+},
+{
 "id": "8cb68ece5c",
 "at": "2026-11-21T22:36:54+01:00",
 "msg": "Eszköz-zár lakat: lekerekített négyzet jelvény"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb: eszközök visszazárása újraküldés nélkül; ⚙️ menüben „Pozíció eltávolítása”"
 },
 {
-"id": "33a560324d",
-"at": "2026-11-21T10:22:10+01:00",
-"msg": "Jóváhagyó oldal: elküldött kérésnél az oldal nem görgethető, a kérés doboza 30%-kal szélesebb és magában görgethető"
-},
-{
-"id": "ffec9f6ce8",
-"at": "2026-11-21T09:21:31Z",
+"id": "419976a970",
+"at": "2026-11-21T09:22:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
