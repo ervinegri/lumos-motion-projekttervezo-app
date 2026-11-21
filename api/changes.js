@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "453a5f92bc",
+"at": "2026-11-21T22:07:32+01:00",
+"msg": "Senkihez nem rendelt eszköz emberhez rendelhető a választóból (nem foglaltként számít, áthelyeződik)"
+},
+{
 "id": "ce000403bc",
 "at": "2026-11-21T22:04:01+01:00",
 "msg": "Interjúsarok operatőr → Interjú operatőr (átnevezés + egyszeri adatjavítás); régi sima Operatőr a feladatából adódó típusra (kártyán és mentéskor)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: módosítás elküldése után csak a köszönő üzenet látszik, középen"
 },
 {
-"id": "85eae8cc1e",
-"at": "2026-11-21T10:01:34+01:00",
-"msg": "Jóváhagyó oldal: ← / → egy képkockát lép (megállítva), Shift-tel 1 mp"
-},
-{
-"id": "a31622b572",
-"at": "2026-11-21T09:01:07Z",
+"id": "3206aecf95",
+"at": "2026-11-21T09:01:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
