@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "05e4f5fd79",
+"at": "2026-11-21T10:24:42+01:00",
+"msg": "Felület: „pozíció” helyett „szerepkör” mindenhol"
+},
+{
 "id": "3ae91de496",
 "at": "2026-11-21T10:23:54+01:00",
 "msg": "Stáb: eszközök visszazárása újraküldés nélkül; ⚙️ menüben „Pozíció eltávolítása”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bejövő számlák: Rezsi / Marketing / Elvetés azonnal eltűnik, a mentés a háttérben fut"
 },
 {
-"id": "b3a80aa486",
-"at": "2026-11-21T09:20:24+01:00",
-"msg": "Bejövő számla elvetése: azonnal eltűnik, a mentés a háttérben fut (hibánál visszakerül)"
-},
-{
-"id": "e9ccb91359",
-"at": "2026-11-21T08:17:37Z",
+"id": "7527e3c22b",
+"at": "2026-11-21T08:20:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
