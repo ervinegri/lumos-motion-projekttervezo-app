@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e44f80c74",
+"at": "2026-11-21T21:33:11+01:00",
+"msg": "Google-értékelések: napi önellenőrzés és önjavítás az azonnali értesítésnél, elakadás jelzése; új szabály a CLAUDE.md-ben (profi megoldás > gyors)"
+},
+{
 "id": "7ef66d5107",
 "at": "2026-11-21T21:28:50+01:00",
 "msg": "Google-értékelések: a csengő percenként néz rá (az azonnali Google-értesítés után)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: kék „1. / 2. javítási kör” jelzés a javításkérésnél; a csúszkára kattintva megáll a videó"
 },
 {
-"id": "2af5422894",
-"at": "2026-11-21T09:54:21+01:00",
-"msg": "Jóváhagyó oldal: az „egyetlen üzenetben” mondat törölve"
-},
-{
-"id": "ac08a1dc0d",
-"at": "2026-11-21T08:54:12Z",
+"id": "56f1980443",
+"at": "2026-11-21T08:54:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
