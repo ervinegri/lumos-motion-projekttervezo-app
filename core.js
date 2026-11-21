@@ -428,6 +428,8 @@ const vidPatch=(L,a)=>{(L||[]).forEach(p=>{if(!p||p.id!==a.projectId||!Array.isA
 const OPT={
   szDocSet:{replay:true,patch:(b,a)=>{const D=b.szDocs;if(D&&Array.isArray(D.open))D.open=D.open.filter(x=>x.id!==a.id);}},
   saveDeal:{replay:a=>!!a.id,patch:(b,a)=>{if(!a.id||!Array.isArray(b.deals))return;const d=b.deals.find(x=>x.id===a.id);if(d)Object.keys(a).forEach(k=>{if(k!=='updatedAt')d[k]=a[k];});}},
+  setPayStatus:{replay:true,patch:(b,a)=>{const L=Array.isArray(b)?(b.length&&b[0]&&'invoicedAt' in b[0]?b:null):b.payStatus;if(!L||!/^(invoiced|paid)$/.test(a.field||''))return;
+    (Array.isArray(a.crewIds)?a.crewIds:[a.crewId]).forEach(cid=>{const id=a.month+'|'+cid;let r=L.find(x=>x.id===id);if(!r){r={id,month:a.month,crewId:cid,invoicedAt:'',invoicedBy:'',paidAt:'',paidBy:''};L.push(r);}r[a.field+'At']=a.on?(a.date||new Date().toISOString().slice(0,10)):'';r[a.field+'By']=a.on?((S.me&&S.me.name)||''):'';});}},
   videoSet:{replay:false,patch:(b,a)=>{if(a.st===undefined&&a.name===undefined&&a.link===undefined)return;vidPatch(b.projects,a);if(b.project)vidPatch([b.project],a);}}
 };
 function pendGet(){try{const L=JSON.parse(localStorage.getItem(PEND_KEY)||'[]');return Array.isArray(L)?L.filter(x=>x&&OPT[x.n]&&Date.now()-x.at<PEND_TTL&&x.tk===String(TOKEN).slice(-16)):[];}catch(e){return [];}}
@@ -438,14 +440,14 @@ function pendDone(id){pendPut(pendGet().filter(x=>x.id!==id));}
 function pendPatch(b,skip){if(!b||typeof b!=='object')return b;pendGet().forEach(x=>{if(x.id===skip)return;try{OPT[x.n].patch(b,x.a);}catch(e){}});return b;}
 /* a függő módosítások ráírása az élő állapotra */
 function pendPatchState(){const L=pendGet();if(!L.length)return;const projs=(S.projects||[]).concat([S.draft,S.draftBase].filter(Boolean));
-  const b={deals:S.deals,szDocs:S.fin&&S.fin.szDocs,projects:projs};L.forEach(x=>{try{OPT[x.n].patch(b,x.a);}catch(e){}});if(S.fin&&S.fin.szDocs&&b.szDocs)S.fin.szDocs=b.szDocs;}
+  const b={deals:S.deals,szDocs:S.fin&&S.fin.szDocs,projects:projs,payStatus:Array.isArray(S.payStatus)?S.payStatus:null};L.forEach(x=>{try{OPT[x.n].patch(b,x.a);}catch(e){}});if(S.fin&&S.fin.szDocs&&b.szDocs)S.fin.szDocs=b.szDocs;}
 /* oldalfrissítés után: a meg nem erősített, ismételhető műveletek újraküldése */
 let PEND_REPLAYED=false;
 function pendReplay(){if(PEND_REPLAYED||!TOKEN)return;PEND_REPLAYED=true;const L=pendGet();if(!L.length)return;let n=0;
   L.forEach(x=>{const o=OPT[x.n],rp=typeof o.replay==='function'?o.replay(x.a):o.replay;if(!rp)return;n++;
     gs('rpc',TOKEN,x.n,x.a).then(()=>{pendDone(x.id);},e=>{pendDone(x.id);try{handleErr(e);}catch(_){}}).finally(()=>{if(--n===0)setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(e){}},300);});});}
 const call=(name,arg)=>{if(S._viewP&&name!=='setViewAs')return S._viewP.then(()=>call(name,arg),()=>call(name,arg));   /* nézetváltás közben (a gyorsítótárból már látszik az új nézet) minden kérés megvárja, hogy a háttér is átálljon */if(BG_RE.test(name)){if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);}const fm=FIN_MUT_RE.test(name),wm=fm||!READ_RE.test(name);if(fm){S._finMut=(S._finMut||0)+1;S._finLive=(S._finLive||0)+1;}if(wm){S._mut=(S._mut||0)+1;S._mutLive=(S._mutLive||0)+1;}
-  const pid0=OPT[name]&&arg?pendAdd(name,arg):'';if(pid0){try{pendPatchState();}catch(e){}}
+  const pid0=OPT[name]&&arg?pendAdd(name,arg):'';if(pid0){try{pendPatchState();setTimeout(()=>{try{if(!$('modalRoot').innerHTML&&typeof render==='function')render(true);}catch(e){}},0);}catch(e){}}
   const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg).then(r=>{if(pid0)pendDone(pid0);return pendPatch(r,pid0);},e=>{if(pid0){pendDone(pid0);setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(_){}},200);}throw e;});if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(r=>{done();try{const pj=r&&(r.project||(name==='saveProject'&&r.id&&r.updatedAt?r:null));if(pj&&pj.id&&typeof bootCachePatch==='function')bootCachePatch(pj);}catch(e){}},done);}return pr;};   /* a sikeres módosítás a helyi gyorsítótárba is bekerül: frissítéskor nem a régi állapot villan fel */   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
 const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}return /^FORBIDDEN/.test(m)?'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.':m;};   // nyers hibakód nem jut a felhasználó elé
