@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "49b647ed8d",
+"at": "2026-11-21T22:15:58+01:00",
+"msg": "Közelgő (14 napon belüli) projekt figyelmeztetés: mi hiányzik még (projektvezető, szerepkörök, meghívók) – listában, figyelmeztetésekben, projektben"
+},
+{
 "id": "00de8d7723",
 "at": "2026-11-21T22:12:30+01:00",
 "msg": "Alapadatok zárolása meghívó után (időpont, helyszín…): Módosítás gombbal oldható, változáskor e-mail a meghívott stábnak"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a köszönő üzenet pontosan a képernyő közepén"
 },
 {
-"id": "a19633561a",
-"at": "2026-11-21T10:03:44+01:00",
-"msg": "Jóváhagyó oldal: az utolsó díjmentes kör szövegének átfogalmazása"
-},
-{
-"id": "c05b1d71ce",
-"at": "2026-11-21T09:03:10Z",
+"id": "4b190c2838",
+"at": "2026-11-21T09:03:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
