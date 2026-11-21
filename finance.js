@@ -13,7 +13,7 @@ const signedVal=s=>{const t=String(s||'').replace(/\s/g,'');if(!t)return 0;const
 function finLoadingView(){if(S.finErr)return `<div class="panel">${empty('Nem sikerült betölteni: '+esc(S.finErr))}<div class="btns"><button class="btn primary" type="button" data-action="fin-retry">Újrapróbálás</button></div></div>`;
   finLoad();return '<div class="loading"><span class="spin"></span>Betöltés…</div>';}
 const FIN_CACHE_KEY='lumos_pm_fin_v1';   // az ügyvezető saját böngészőjében: frissítéskor azonnal látszik az utolsó állapot, a friss adat a háttérben jön
-function finCacheGet(){try{const c=JSON.parse(localStorage.getItem(FIN_CACHE_KEY)||'null');if(!c||!S.me||S.me.role!=='admin'||c.tk!==String(TOKEN).slice(-16)||Date.now()-c.at>7*864e5)return null;return c.d;}catch(e){return null;}}
+function finCacheGet(){try{const c=JSON.parse(localStorage.getItem(FIN_CACHE_KEY)||'null');if(!c||!S.me||S.me.role!=='admin'||c.tk!==String(TOKEN).slice(-16)||Date.now()-c.at>7*864e5)return null;return pendPatch(c.d);}catch(e){return null;}}
 function finCacheSave(d){try{if(S.me&&S.me.role==='admin'&&d)localStorage.setItem(FIN_CACHE_KEY,JSON.stringify({tk:String(TOKEN).slice(-16),at:Date.now(),d}));}catch(e){}}
 async function finLoad(force){if(!S.fin&&!S._finCacheTried){S._finCacheTried=true;const c=finCacheGet();if(c){S.fin=c;S.finErr='';force=true;setTimeout(()=>{if(S.tab==='penzugy'||S.tab==='szerzodes'||S.tab==='ugyfelek'||S.projectId)render(true);},0);}}
   if(S.fin&&!force)return;if(S._finLoading)return;if(S.fin&&(S._finLive||0)>0){setTimeout(()=>finLoad(true),1500);return;}S._finLoading=true;const mut0=S._finMut||0;
@@ -240,6 +240,7 @@ function viewFinance(){
           ${(()=>{const mk=fund==='marketing',keret=mk?bal.carryMkt+bal.inMkt:bal.carryRezsi+bal.inRezsi,end=keret-sumK(l,'amount');
             const inM=mk?bal.inMkt:bal.inRezsi,car=mk?bal.carryMkt:bal.carryRezsi;
             return `<tr class="fin-keret"><td colspan="2"><b>Havi ${mk?'marketing':'eszköz, rezsi'} keret</b> <span class="muted">(e havi bevételekből)</span></td><td class="r"><b>${sFt(inM)}</b></td></tr>
+            ${(()=>{const left=inM-sumK(l,'amount');return `<tr class="fin-keret"><td colspan="2">Ebből maradt az e havi tételek után</td><td class="r${left<0?' bad-txt':''}">${sFt(left)}</td></tr>`;})()}
             <tr class="fin-keret"><td colspan="2">Áthozat az előző hónapokból</td><td class="r${car<0?' bad-txt':''}">${sFt(car)}</td></tr>
             <tr class="fin-end ${end<0?'neg':'pos'}"><td colspan="2"><b>${end<0?'🔻 Mínuszban vagyunk':'✅ Maradék a keretből'}</b></td><td class="r"><b>${end<0?'−'+ftFmt(-end):ftFmt(end)}</b></td></tr>`;})()}</tfoot></table></div>
         <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-exp-new" data-fund="${fund}">+ Kiadás</button></div></div>`;};

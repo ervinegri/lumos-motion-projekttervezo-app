@@ -418,8 +418,35 @@ async function gsOnce(fn,...args){
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDoc(Delete|Upload)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind|BankSet|DocSet)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
 const READ_RE=/^(inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
 const BG_RE=/^(szSync|salesSyncNow|crewDocsImport|navSync|syncCalendar)$/;   // háttér-szinkronok: nem tartják vissza a betöltést
+/* ===== AZONNALI MÓDOSÍTÁSOK, VISSZAUGRÁS NÉLKÜL (2026-11-21) =====
+   A regisztrált műveletek (állapotváltások) azonnal látszanak, és egy helyi „függő” listába kerülnek (localStorage – oldalfrissítést is túlél).
+   Amíg a szerver nem erősítette meg, MINDEN beérkező adatra (betöltés, gyorsítótár, más műveletek válasza) újra rávezetjük őket → nincs visszaugrás.
+   Siker: kikerül a listából. Hiba: kikerül, az adatok frissülnek (a valós állapot látszik) és hibaüzenet jön. Oldalfrissítés után a még
+   meg nem erősített, ismételhető műveleteket újraküldjük (a szerver ezeknél ismétlésbiztos), a többit legfeljebb 3 percig vezetjük rá. */
+const PEND_KEY='lpm_pend_v1',PEND_TTL=3*60*1000;
+const vidPatch=(L,a)=>{(L||[]).forEach(p=>{if(!p||p.id!==a.projectId||!Array.isArray(p.videos))return;const v=p.videos.find(x=>x.id===a.id);if(!v)return;['st','name','link'].forEach(k=>{if(a[k]!==undefined)v[k]=a[k];});});};
+const OPT={
+  szDocSet:{replay:true,patch:(b,a)=>{const D=b.szDocs;if(D&&Array.isArray(D.open))D.open=D.open.filter(x=>x.id!==a.id);}},
+  saveDeal:{replay:a=>!!a.id,patch:(b,a)=>{if(!a.id||!Array.isArray(b.deals))return;const d=b.deals.find(x=>x.id===a.id);if(d)Object.keys(a).forEach(k=>{if(k!=='updatedAt')d[k]=a[k];});}},
+  videoSet:{replay:false,patch:(b,a)=>{if(a.st===undefined&&a.name===undefined&&a.link===undefined)return;vidPatch(b.projects,a);if(b.project)vidPatch([b.project],a);}}
+};
+function pendGet(){try{const L=JSON.parse(localStorage.getItem(PEND_KEY)||'[]');return Array.isArray(L)?L.filter(x=>x&&OPT[x.n]&&Date.now()-x.at<PEND_TTL&&x.tk===String(TOKEN).slice(-16)):[];}catch(e){return [];}}
+function pendPut(L){try{if(L.length)localStorage.setItem(PEND_KEY,JSON.stringify(L));else localStorage.removeItem(PEND_KEY);}catch(e){}}
+function pendAdd(n,a){const id='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);const L=pendGet();L.push({id,n,a,at:Date.now(),tk:String(TOKEN).slice(-16)});pendPut(L);return id;}
+function pendDone(id){pendPut(pendGet().filter(x=>x.id!==id));}
+/* a függő módosítások ráírása egy adatcsomagra (szerverválasz, gyorsítótár) – skip: a saját, épp megerősített művelet */
+function pendPatch(b,skip){if(!b||typeof b!=='object')return b;pendGet().forEach(x=>{if(x.id===skip)return;try{OPT[x.n].patch(b,x.a);}catch(e){}});return b;}
+/* a függő módosítások ráírása az élő állapotra */
+function pendPatchState(){const L=pendGet();if(!L.length)return;const projs=(S.projects||[]).concat([S.draft,S.draftBase].filter(Boolean));
+  const b={deals:S.deals,szDocs:S.fin&&S.fin.szDocs,projects:projs};L.forEach(x=>{try{OPT[x.n].patch(b,x.a);}catch(e){}});if(S.fin&&S.fin.szDocs&&b.szDocs)S.fin.szDocs=b.szDocs;}
+/* oldalfrissítés után: a meg nem erősített, ismételhető műveletek újraküldése */
+let PEND_REPLAYED=false;
+function pendReplay(){if(PEND_REPLAYED||!TOKEN)return;PEND_REPLAYED=true;const L=pendGet();if(!L.length)return;let n=0;
+  L.forEach(x=>{const o=OPT[x.n],rp=typeof o.replay==='function'?o.replay(x.a):o.replay;if(!rp)return;n++;
+    gs('rpc',TOKEN,x.n,x.a).then(()=>{pendDone(x.id);},e=>{pendDone(x.id);try{handleErr(e);}catch(_){}}).finally(()=>{if(--n===0)setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(e){}},300);});});}
 const call=(name,arg)=>{if(S._viewP&&name!=='setViewAs')return S._viewP.then(()=>call(name,arg),()=>call(name,arg));   /* nézetváltás közben (a gyorsítótárból már látszik az új nézet) minden kérés megvárja, hogy a háttér is átálljon */if(BG_RE.test(name)){if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);}const fm=FIN_MUT_RE.test(name),wm=fm||!READ_RE.test(name);if(fm){S._finMut=(S._finMut||0)+1;S._finLive=(S._finLive||0)+1;}if(wm){S._mut=(S._mut||0)+1;S._mutLive=(S._mutLive||0)+1;}
-  const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg);if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(r=>{done();try{const pj=r&&(r.project||(name==='saveProject'&&r.id&&r.updatedAt?r:null));if(pj&&pj.id&&typeof bootCachePatch==='function')bootCachePatch(pj);}catch(e){}},done);}return pr;};   /* a sikeres módosítás a helyi gyorsítótárba is bekerül: frissítéskor nem a régi állapot villan fel */   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
+  const pid0=OPT[name]&&arg?pendAdd(name,arg):'';if(pid0){try{pendPatchState();}catch(e){}}
+  const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg).then(r=>{if(pid0)pendDone(pid0);return pendPatch(r,pid0);},e=>{if(pid0){pendDone(pid0);setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(_){}},200);}throw e;});if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(r=>{done();try{const pj=r&&(r.project||(name==='saveProject'&&r.id&&r.updatedAt?r:null));if(pj&&pj.id&&typeof bootCachePatch==='function')bootCachePatch(pj);}catch(e){}},done);}return pr;};   /* a sikeres módosítás a helyi gyorsítótárba is bekerül: frissítéskor nem a régi állapot villan fel */   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
 const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}return /^FORBIDDEN/.test(m)?'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.':m;};   // nyers hibakód nem jut a felhasználó elé
 function handleErr(e){
