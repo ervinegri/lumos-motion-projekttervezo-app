@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "108326685f",
+"at": "2026-11-21T09:23:58+01:00",
+"msg": "Videótábla: ⭐ Értékelés oszlop a Jóváhagyva után – kézi értékeléskérés átnézhető levéllel"
+},
+{
 "id": "c5a23bd984",
 "at": "2026-11-21T09:22:23+01:00",
 "msg": "Bejövő számlák: Rezsi / Marketing / Elvetés azonnal eltűnik, a mentés a háttérben fut"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: hosszú pozícióneveknél (pl. Key Account Manager) rövid címke, hogy a × látszódjon"
 },
 {
-"id": "a951f205f6",
-"at": "2026-11-20T15:50:50+01:00",
-"msg": "Lezajlott projektnél is levehető egy-egy pozíció (×, megerősítéssel)"
-},
-{
-"id": "7269ce63ea",
-"at": "2026-11-20T14:49:06Z",
+"id": "10722017f5",
+"at": "2026-11-20T14:51:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
