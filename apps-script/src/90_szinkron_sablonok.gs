@@ -319,14 +319,14 @@ function installSalesSync() {
   return 'A Sales App szinkron 5 percenként fut.';
 }
 /** Tartalék: naponta egyszer (reggel) a kifizetések lekérdezése a számlázz.hu-tól – ha egy IPN-értesítés elmaradna. */
-function szDailySync() { try { gbpSync_(null); } catch (e) { Logger.log('gbpSync: ' + e); }
+function szDailySync() { try { gbpSync_(null); } catch (e) { Logger.log('gbpSync: ' + e); } try { gbpPushCheck_(); } catch (e) {}
   try { if (!szamlazzKey_()) return; szSync_({ id: 'sz-auto', name: 'számlázz.hu (napi ellenőrzés)', role: 'admin', email: '' }, {}); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés: ' + e); } try { if (DB_) dbFlush_(); } catch (e) { } }
 function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
 function hsPullHourly() { try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
-function gbpHourly() { try { gbpSync_(null); } catch (e) {} }   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
+function gbpHourly() { try { const r = gbpSync_(null); gbpPushMissed_(r && r.added); } catch (e) {} }   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
 function gbpHourlyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('GBP_HOURLY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'gbpHourly')) ScriptApp.newTrigger('gbpHourly').timeBased().everyHours(1).create(); P.setProperty('GBP_HOURLY_INSTALLED', '1'); } catch (e) {}

@@ -11,6 +11,10 @@
 - Teszt: `node tests/run-all.cjs` (minden pushkor GitHub Action is futtatja; az ártitok-teszt nélkül a háttér nem települ).
 - **`TABLES` oszlopfejlécei** (`apps-script/src/00_alap.gs`) (pl. `['x_nyersVetel', 'Nyersanyag megvásárlása']`) a munkalap/Neon fejlécével egyeznek, és a háttér ellenőrzi őket: **soha ne nevezd át** (a felületi feliratot a frontendben változtasd), új oszlop csak a lista végére kerülhet.
 
+## Megoldás választása – általános szabály (2026-11-21)
+Az ügyvezető kérése: **inkább legyen sok munka, de működjön profin.** Nem a leggyorsabb / legkisebb kódváltozással járó megoldást választjuk, hanem a tartósat és teljeset (valós idejű a lekérdezgetés helyett, önellenőrzés és önjavítás, látható állapot, hibánál jelzés, tartalék út).
+Ha több út van és a jobbik a felhasználó közreműködését igényli (pl. Google Cloud beállítás), azt **előre** írd le (mit nyer vele, mit kell tennie), ne utólag derüljön ki. Ideiglenes / gyenge megoldást csak kifejezett kérésre.
+
 ## Fájlszerkezet (modulok)
 - **Háttér:** `apps-script/src/NN_nev.gs` – a fájlnév eleji szám a betöltési sorrend (az Action `filePushOrder`-rel ebben a sorrendben tölti fel).
   Egy közös globális tér: a fájlok egymás függvényeit szabadon hívhatják, de **betöltéskor futó** (függvényen kívüli) kód csak a korábbi fájlok függvényeit használhatja.
