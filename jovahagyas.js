@@ -245,7 +245,9 @@ const pcPick=(L,name)=>pcHits(L,name).f;
     window.addEventListener('keypress',e=>{if((e.code==='Space'||e.key===' ')&&!typ2()&&vd()){e.preventDefault();e.stopPropagation();}},true);
     /* ← / →: egy képkocka vissza / előre (a videó megáll), Shift-tel 1 mp; gépelés közben nem */
     window.addEventListener('keydown',e=>{if((e.key!=='ArrowLeft'&&e.key!=='ArrowRight')||e.metaKey||e.ctrlKey||e.altKey||typ2())return;const v=vd();if(!v||!v.duration)return;e.preventDefault();e.stopPropagation();
-      if(!e.shiftKey&&!v.paused)v.pause();const st=e.shiftKey?1:1/25;v.currentTime=Math.max(0,Math.min(v.duration-0.05,v.currentTime+(e.key==='ArrowRight'?st:-st)));},true);
+      {const bp=document.querySelector('.bigplay');if(bp)bp.remove();}   /* a nyitó ▶ réteg se sötétítse a képet léptetéskor */
+      if(!e.shiftKey&&!v.paused)v.pause();const st=e.shiftKey?1:1/25;
+      if(!TOUCH&&v.controls){v.controls=false;const back=()=>{v.controls=true;pl2.removeEventListener('pointermove',back);v.removeEventListener('play',back);};const pl2=$('player')||v;setTimeout(()=>{pl2.addEventListener('pointermove',back);v.addEventListener('play',back);},300);}   /* léptetés közben a vezérlő (és a sötét sáv) eltűnik; egérmozgásra vagy lejátszáskor visszajön */v.currentTime=Math.max(0,Math.min(v.duration-0.05,v.currentTime+(e.key==='ArrowRight'?st:-st)));},true);
     window.addEventListener('keydown',e=>{if((e.code!=='Space'&&e.key!==' ')||typ2())return;const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();if(e.repeat||down)return;down=true;fast=false;
       hold=setTimeout(()=>{fast=true;const bp=document.querySelector('.bigplay');if(bp)bp.click();else if(v.paused){v.muted=false;v.play().catch(()=>{});}v.playbackRate=2;badge(true);},350);},true);
     window.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();
