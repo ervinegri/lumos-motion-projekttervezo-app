@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ce000403bc",
+"at": "2026-11-21T22:04:01+01:00",
+"msg": "Interjúsarok operatőr → Interjú operatőr (átnevezés + egyszeri adatjavítás); régi sima Operatőr a feladatából adódó típusra (kártyán és mentéskor)"
+},
+{
 "id": "ef0286cb44",
 "at": "2026-11-21T22:00:48+01:00",
 "msg": "Nincs sima „Operatőr” szerepkör a projekten: mindig konkrét típus (kreatív / statív / interjúsarok); a csere nem kér újra elfogadást"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: ← / → egy képkockát lép (megállítva), Shift-tel 1 mp"
 },
 {
-"id": "8fd3e18eef",
-"at": "2026-11-21T10:00:59+01:00",
-"msg": "Jóváhagyó oldal: 30%-kal szélesebb oldalsáv / szövegmező"
-},
-{
-"id": "9145d0e8d7",
-"at": "2026-11-21T09:00:07Z",
+"id": "a31622b572",
+"at": "2026-11-21T09:01:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
