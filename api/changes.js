@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6b252afea3",
+"at": "2026-11-21T22:45:41+01:00",
+"msg": "Stábkártya: kiküldött, megválaszolatlan meghívó sárga; ki nem küldött szürke"
+},
+{
 "id": "ff5d390507",
 "at": "2026-11-21T22:40:00+01:00",
 "msg": "Elfogadott stábkártya: még zöldebb (teljes zöld háttér, sötétebb keret)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ellenőrzés (csak olvasás): NAV-ból párosított szakemberszámlák vs. számlázz.hu bejövő bizonylatok"
 },
 {
-"id": "05e4f5fd79",
-"at": "2026-11-21T10:24:42+01:00",
-"msg": "Felület: „pozíció” helyett „szerepkör” mindenhol"
-},
-{
-"id": "bebaca9f48",
-"at": "2026-11-21T09:24:02Z",
+"id": "50c9a6095a",
+"at": "2026-11-21T09:24:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
