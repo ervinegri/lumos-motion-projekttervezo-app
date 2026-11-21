@@ -3019,3 +3019,7 @@ label:has(> input:disabled){cursor:default!important;pointer-events:none}
 /* meghívó utáni zár a szolgáltatásoknál (Terepi feladatok / Utómunka) */
 .svc-lock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;padding:9px 12px;border-radius:10px;background:#fff7e6;border:1px solid #f3d9a4;font-size:13.5px;line-height:1.4}.svc-lock span{flex:1 1 220px}.svc-lock.open{background:#eef6ff;border-color:#c9defa}
 .tcards.svc-locked{opacity:.62;filter:saturate(.6);cursor:not-allowed}
+/* oszlopszélesség-fogantyú: alapból láthatatlan (ne tűnjön villogó kurzornak), csak a fogantyú fölött / húzás közben halvány vonal */
+html.th2 .col-grip::after,html.th2 .fin-sheet th:hover .col-grip::after{background:transparent}
+html.th2 .col-grip:hover::after,html.th2 body.col-resizing .col-grip::after{background:#b7c2cd}
+html.th2 .fin-sheet th{user-select:none;caret-color:transparent}
