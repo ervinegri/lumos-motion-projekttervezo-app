@@ -287,11 +287,13 @@ function clientReview_(t) { const o = clientTokenRead_(t); if (o.pv) return { ok
     p.reviewClick = now_(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   return { ok: true }; }
 /** Naponta: az átadás után REVIEW_WAIT_DAYS_ nappal egyetlen kérő levél a kapcsolattartónak, ha még nem nyitotta meg az értékelést, és az ügyféltől fél éven belül nem kértünk. */
+const REVIEW_START_ = '2026-11-21';
 function reviewDaily_() { if (!clientMailLive_()) return;
   const all = readAll_('projects'), today = today_(), dd = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5), key = p => String(p.client || '').trim().toLowerCase();
   const recent = gbpReviewed_(); all.forEach(p => { const k = key(p), at = String(p.reviewAt || p.reviewClick || '').slice(0, 10); if (k && at && dd(at, today) < REVIEW_CLIENT_GAP_DAYS_) recent[k] = 1; });
   all.filter(p => p.status === 'atadva' && p.deliveredAt && !p.reviewAt && !p.reviewClick && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(p.contactEmail || '').trim())).forEach(p => {
-    const age = dd(String(p.deliveredAt).slice(0, 10), today); if (age < REVIEW_WAIT_DAYS_ || age > 30 || recent[key(p)]) return;
+    if (String(p.deliveredAt).slice(0, 10) < REVIEW_START_) return;   // csak a funkció indulása után átadott projektek (a régieket nem kérjük utólag)
+    const age = dd(String(p.deliveredAt).slice(0, 10), today); if (age < REVIEW_WAIT_DAYS_ || age > 14 || recent[key(p)]) return;
     const to = String(p.contactEmail).trim(), first = String(p.contactName || '').trim().split(/\s+/).slice(-1)[0] || '';
     const subj = 'Egy kérés a ' + sval_(p.name) + ' kapcsán';
     const txt = (first ? 'Kedves ' + first + ',' : 'Kedves Ügyfelünk,') + '\n\nköszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész:\n' + REVIEW_URL_ + '\n\nKöszönjük!\nLumos Motion';
