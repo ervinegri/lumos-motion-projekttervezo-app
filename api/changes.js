@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8d7eb09d12",
+"at": "2026-11-21T21:51:09+01:00",
+"msg": "Meghívó után zárolt feladatok: Utómunka / Terepi feladatok csak „Módosítás” után szerkeszthető, változáskor e-mail a szakembernek"
+},
+{
 "id": "2395a38e95",
 "at": "2026-11-21T21:46:34+01:00",
 "msg": "Stábkártya: figyelmeztetés, ha terepi szerepkörű munkatársnak nincs terepi feladata (+ ugrás a Terepi feladatokhoz)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: „2. javítási kör” felirat rövidítése"
 },
 {
-"id": "206ed5c42d",
-"at": "2026-11-21T09:57:31+01:00",
-"msg": "Jóváhagyó oldal: „1. javítási kör” felirat rövidítése"
-},
-{
-"id": "57f0b2bd02",
-"at": "2026-11-21T08:57:00Z",
+"id": "d05ab57eea",
+"at": "2026-11-21T08:57:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
