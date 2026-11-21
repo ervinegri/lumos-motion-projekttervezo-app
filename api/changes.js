@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a741356b7e",
+"at": "2026-11-21T22:19:43+01:00",
+"msg": "Közelgő projekt figyelmeztetés: 30 napon belül, 7 napon belül piros"
+},
+{
 "id": "49b647ed8d",
 "at": "2026-11-21T22:15:58+01:00",
 "msg": "Közelgő (14 napon belüli) projekt figyelmeztetés: mi hiányzik még (projektvezető, szerepkörök, meghívók) – listában, figyelmeztetésekben, projektben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: képkocka-léptetéskor eltűnik a vezérlő és a sötét réteg (egérmozgásra visszajön)"
 },
 {
-"id": "8d03ce7afc",
-"at": "2026-11-21T10:04:48+01:00",
-"msg": "Jóváhagyó oldal: a köszönő üzenet pontosan a képernyő közepén"
-},
-{
-"id": "4b190c2838",
-"at": "2026-11-21T09:03:52Z",
+"id": "9964f32664",
+"at": "2026-11-21T09:05:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
