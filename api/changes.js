@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "27541e3ffd",
+"at": "2026-11-21T21:53:45+01:00",
+"msg": "Meghívó-zár: műveletnév-ütközés javítása (svc-unlock → svc-lock-open)"
+},
+{
 "id": "8d7eb09d12",
 "at": "2026-11-21T21:51:09+01:00",
 "msg": "Meghívó után zárolt feladatok: Utómunka / Terepi feladatok csak „Módosítás” után szerkeszthető, változáskor e-mail a szakembernek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: ← / → nyilakkal 5 mp vissza / előre (Shift-tel 1 mp)"
 },
 {
-"id": "e123f7f9c0",
-"at": "2026-11-21T09:58:20+01:00",
-"msg": "Jóváhagyó oldal: „2. javítási kör” felirat rövidítése"
-},
-{
-"id": "d05ab57eea",
-"at": "2026-11-21T08:57:40Z",
+"id": "f9fa510538",
+"at": "2026-11-21T08:58:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
