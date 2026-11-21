@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66e0dffd00",
+"at": "2026-11-21T21:07:36+01:00",
+"msg": "Google-értékelések: óránkénti automatikus behúzás, megnyitáskor frissítés, új értékelés a csengőben + felugró értesítés"
+},
+{
 "id": "32af1d1261",
 "at": "2026-11-21T21:01:08+01:00",
 "msg": "Google-értékelések: Frissítés gomb a fejlécben, visszajelzéssel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a díjmentes körök elfogyása után nem jelenik meg az általános javítási útmutató"
 },
 {
-"id": "19aff0c071",
-"at": "2026-11-21T09:52:34+01:00",
-"msg": "Jóváhagyó oldal: a javítási útmutató nagyobb betűvel, kiemelve, hogy egyetlen üzenetben kell leírni minden módosítást"
-},
-{
-"id": "638479eb8a",
-"at": "2026-11-21T08:51:16Z",
+"id": "3d88ab44ef",
+"at": "2026-11-21T08:52:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
