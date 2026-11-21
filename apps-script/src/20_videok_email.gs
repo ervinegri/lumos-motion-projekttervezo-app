@@ -570,6 +570,14 @@ function videoQuoteSend_(u, a) {
   logEvent_(u, 'Fizetős javítás: árajánlat elküldve', r0.p.name, no + ' · ' + ftHu_(total) + ' · ' + to.join(', '));
   return { project: projectView_(fullProject_(r0.p), u) };
 }
+/** Egy korábbi videóverzió törlése (pl. próbából feltöltött fájl) – ügyvezető / termelési vezető. a: {projectId, id, at} */
+function videoVerDelete_(u, a) {
+  if (!(u.role === 'admin' || u.role === 'editor')) throw new Error('FORBIDDEN: Verziót csak az ügyvezető vagy a termelési vezető törölhet.');
+  const at = str_(a && a.at, 30); let gone = null;
+  const r = vqEdit_(str_(a && a.projectId, 64), str_(a && a.id, 40), (p, v) => { const i = (v.vers || []).findIndex(x => x && x.at === at); if (i < 0) throw new Error('A verzió nem található.'); gone = v.vers.splice(i, 1)[0]; });
+  logEvent_(u, 'Videóverzió törölve', r.p.name, r.v.name + ' · ' + (gone && gone.link || ''));
+  return { project: projectView_(fullProject_(r.p), u) };
+}
 /** Kézi elfogadás (pl. telefonon fogadta el) – csak az ügyvezető */
 function videoQuote_(u, a) {
   if (u.role !== 'admin') throw new Error('FORBIDDEN: Az árajánlatot csak az ügyvezető kezelheti.');

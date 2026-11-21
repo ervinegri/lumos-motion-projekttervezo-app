@@ -498,6 +498,7 @@ function rpcInner_(token, name, arg) {
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
+    case 'videoVerDelete': return videoVerDelete_(u, arg);   // próbából bent maradt korábbi verzió törlése
     case 'videoReview': return videoReview_(u, arg);
     case 'videoReviewBatch': return videoReviewBatch_(u, arg);
     case 'videoClient': return videoClient_(u, arg);
