@@ -348,6 +348,7 @@ const ACT={
         closeModal();(S.crewEdit=S.crewEdit||{})[d.id]=true;try{await call('logNote',{action:'Véglegesített csapat módosítása',subject:d.name||'',details:why});}catch(_){}render(true);}});
     const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb)sb.className='btn alarm';},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
+  'eq-relock':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=false;render(true);toast('Visszazárva');},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;if(!(d.equipment||[]).length&&!(d.rentals||[]).length){toast('Nincs még eszköz hozzárendelve – nincs mit véglegesíteni.',true);return;}flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
     const p=projById(d.id)||d,list=(p.equipment||[]).map(e=>{const it=itemById(e.itemId);return `<li><b>${esc(it?it.name:'Törölt eszköz')}</b>${num(e.qty)>1?' ×'+num(e.qty):''} <span class="muted">· ${esc(e.crewId?((crewById(e.crewId)||{}).name||''):'közös')}</span></li>`;}).join('');
     confirmLayer('🎒 Eszközök véglegesítése',`<p style="margin:0 0 8px">${list?'Ezek az eszközök mennek a projektre:':'Még nincs eszköz hozzárendelve – így is véglegesíted?'}</p>${list?`<ul class="cf-list">${list}</ul>`:''}<div id="eqMailBox" style="margin-top:10px">${searchingHtml('Kimenő eszközlisták betöltése')}</div><p class="hint" style="margin:8px 0 0">Véglegesítés után az eszközök zárolva lesznek; az „Eszközök módosítása” gombbal bármikor újra szerkeszthetők.</p>`,'Véglegesítés',async(btn,layer)=>{
@@ -549,7 +550,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
     iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
     !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
-    '<hr>',it('addrole','➕ Új pozíció hozzáadása'),(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
+    '<hr>',it('addrole','➕ Új pozíció hozzáadása'),((d.lead===cid?1:0)+(d.crew||[]).filter(a=>a.crewId===cid).length>1)?it('rmrole','➖ Pozíció eltávolítása'):'',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Pozíció cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
     (d.equipment||[]).some(e=>e.crewId===cid)&&projById(d.id)?it('eqlist','✉️ Eszközlista küldése neki'):'',
     it('vcf','📇 Névjegy'),isAdmin()?it('fee','💰 Díj megadása'):'',isAdmin()&&projById(d.id)?it('pen','🚨 Díjcsökkentés'):'',
     '<hr>',it('remove','🗑️ Levétel a projektről',{bad:true})].join('');
@@ -562,6 +563,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
     if(a==='lead'){const btn=document.querySelector(`[data-action="make-lead"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
     if(a==='role'){crewRoleSwap(cid);return;}
     if(a==='addrole'){crewRoleAdd(cid);return;}
+    if(a==='rmrole'){crewRoleRemove(cid);return;}
     if(a==='swap'){crewHandover(cid);return;}
     if(a==='eqlist'){sendListModal(cid);return;}
     if(a==='vcf'){ACT.vcf({dataset:{cid}});return;}
@@ -591,3 +593,10 @@ document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('#c
 
 /* lezárt (véglegesített) eszközlista: pozíció / ember levétele csak feloldás után */
 function eqLockGuard_(d){if(!ro()&&eqFinalState(d)==='ok'&&!(S.eqEdit||{})[d.id]){toast('Az eszközök véglegesítve – a módosításhoz előbb oldd fel (🔓 Feloldás a Stáb és eszközök alján).',true);return true;}return false;}
+
+/* ⚙️ → Pozíció eltávolítása: a munkatárs egyik pozíciója lekerül (a többi marad); a meglévő szabályok (elfogadott meghívás, lakat) érvényesek */
+function crewRoleRemove(cid){const d=S.draft;if(!d||eqLockGuard_(d))return;const L=[];if(d.lead===cid)L.push({k:'lead',lbl:'Projektvezető'});(d.crew||[]).forEach((a,i)=>{if(a.crewId===cid)L.push({k:String(i),lbl:a.role||'Pozíció'});});
+  if(L.length<2){toast('Ez az egyetlen pozíciója – a projektről a „Levétel a projektről” menüponttal veheted le.',true);return;}
+  const go=k=>{if(k==='lead')ACT['lead-remove']();else ACT['crew-remove']({dataset:{i:k}});};
+  const c=crewById(cid);openModal('Pozíció eltávolítása – '+(c?c.name:''),`<div class="fields"><div class="field full"><label for="m-rmrole">Melyik pozíciót veszed le?</label><select class="inp" id="m-rmrole" name="k" data-cmb="Válassz pozíciót…">${L.map(x=>`<option value="${esc(x.k)}">${esc(x.lbl)}</option>`).join('')}</select></div></div>`,
+    {submitLabel:'Pozíció eltávolítása',noDraft:true,danger:true,submit:fd=>{const k=String(fd.get('k')||'');closeModal();go(k);}});}
