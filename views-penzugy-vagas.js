@@ -552,14 +552,16 @@ const invActive=(p,cid)=>{const iv=(p.invites||{})[cid];return !!iv&&!iv.pre&&(i
 function opShow(p,cid,r){if(r!=='Operatőr')return r;const held=(p.crew||[]).filter(a=>a.crewId===cid&&a.role!=='Operatőr').map(a=>a.role),EX=(typeof EXTRAS!=='undefined'?EXTRAS:[]).concat(typeof TECH!=='undefined'?TECH:[]);
   const rs=(editTasksOf(p)[cid]||[]).filter(x=>/^f_/.test(x)).map(k=>{const kk=k.slice(2),sr=(window.SLOT_ROLE||{})[kk]||(EX.find(e=>e.k===kk)||{}).role;return sr&&sr!=='Operatőr'?sr:opRoleFor(kk,'Operatőr');});
   return rs.find(x=>!held.includes(x))||r;}   // az a feladat számít, amelyhez még nincs külön szerepköre (pl. kreatív mellé interjú)
-function svcLockOf(p,kind){if(ro()||projLocked()||((kind==='post'?S.postEdit:S.fieldEdit)||{})[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&svcLockWho(p,kind).length>0};
+const svcEditMap=kind=>kind==='post'?(S.postEdit=S.postEdit||{}):kind==='basic'?(S.basicEdit=S.basicEdit||{}):(S.fieldEdit=S.fieldEdit||{});
+function svcLockOf(p,kind){if(ro()||projLocked()||svcEditMap(kind)[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&svcLockWho(p,kind).length>0};
   const who=svcLockWho(p,kind);return {on:who.length>0,who,open:false};}
 function svcLockWho(p,kind){const et=editTasksOf(p);
+  if(kind==='basic')return [...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>invActive(p,id));   // időpont, helyszín: mindenkit érint, aki már meghívót kapott
   const ids=kind==='post'?cutterIds(p):[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>(et[id]||[]).some(k=>/^f_/.test(k)));
   return ids.filter(id=>invActive(p,id));}
 function svcLockBar(p,kind,lk){const nm=id=>huFirst(String((crewById(id)||{}).name||'?')),who=lk.on?lk.who:svcLockWho(p,kind);if(!who.length||ro()||projLocked())return '';
   const ws=who.map(id=>{const iv=(p.invites||{})[id];return `<b>${esc(nm(id))}</b> ${iv.st==='yes'?'elfogadta':'megkapta'}`;}).join(', ');
-  return lk.on?`<div class="svc-lock">🔒 <span>${ws} a meghívót – ${kind==='post'?'a vágnivalók':'a terepi feladatok'} zárolva.</span><button class="btn outline small" type="button" data-action="svc-lock-open" data-k="${kind}">✏️ Módosítás</button></div>`
+  return lk.on?`<div class="svc-lock">🔒 <span>${ws} a meghívót – ${kind==='post'?'a vágnivalók':kind==='basic'?'az alapadatok (időpont, helyszín)':'a terepi feladatok'} zárolva.</span><button class="btn outline small" type="button" data-action="svc-lock-open" data-k="${kind}">✏️ Módosítás</button></div>`
     :`<div class="svc-lock open">🔓 <span>Szerkeszthető – ${ws} a meghívót. Mentéskor e-mailben értesítjük a változásról.</span><button class="btn ghost small" type="button" data-action="svc-lock-close" data-k="${kind}">🔒 Visszazárás</button></div>`;}
 function topicCards(p,{camRow,dlRow,D}){
   const tgl=(k,label)=>`<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${esc(label)}</span></label>`;
@@ -741,7 +743,7 @@ function viewProject(p){
           :`<div class="b-when">${fld(p,'date',DL.length?'1. nap':'Dátum',{type:'date'})}${tm('startTime','Kezdés')}${tm('endTime','Végzés (kb.)')}</div>${DL.map(dr).join('')}${ro()||!p.date?'':`<button type="button" class="linkbtn b-day-add" data-action="day-add">＋ Nap hozzáadása</button>`}`;
         const ev=`<div class="b-col">${fld(p,'name','Projekt neve')}<div class="b-row2">${selField(p,'eventType','Rendezvény típusa',p.eventType&&!EVENT_TYPES.includes(p.eventType)?EVENT_TYPES.concat([p.eventType]):EVENT_TYPES,{cmb:'Válassz típust…'})}${editOnly(p)?'':fld(p,'venue',`Helyszín${p.venue?` <a class="linkbtn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue)}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px">📍 Térkép ↗</a>`:''}`,{ph:ro()?'':'Cím vagy helyszín neve…'})}</div>${when}</div>`;
         const cl=ro()?'':`<div class="b-col">${`<div class="field"><label for="f-client">Ügyfél</label><div class="combo"><input class="inp" id="f-client" type="text" autocomplete="off" value="${esc(p.client||'')}" placeholder="Keress vagy válassz ügyfelet…"${D()}></div>${p.clientTax||p.clientAddress?`<span class="hint" style="margin:2px 0 0">${esc([p.clientAddress,p.clientTax?'Adószám: '+p.clientTax:''].filter(Boolean).join(' · '))}</span>`:''}</div>`}${fld(p,'contactName','Kapcsolattartó')}<div class="b-row2 b-contact">${phoneField({key:'contactPhone',value:p.contactPhone,disabled:ro(),after:'<button class="btn ghost small vcf-btn" type="button" data-action="vcf" title="Névjegy a telefonra (QR-kód)" aria-label="Névjegy a telefonra">📇</button>'})}${fld(p,'contactEmail','E-mail',{type:'email'})}</div></div>`;
-        return `<div class="field full b-grid${ro()?' b-one':''}">${ev}${cl}</div>`;})()}
+        const lkB=svcLockOf(p,'basic');return `${svcLockBar(p,'basic',lkB)}<div class="field full b-grid${ro()?' b-one':''}${lkB.on?' svc-locked':''}"${lkB.on?' inert':''}>${ev}${cl}</div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
   </div>

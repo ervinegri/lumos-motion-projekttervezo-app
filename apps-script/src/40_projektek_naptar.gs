@@ -20,19 +20,24 @@ function taskListOf_(p, crew, cid, labels) {
 function taskNotice_(u, tn) {
   const oldP = tn.old, p = tn.p, inv = parseInvites_(p.invites), oldInv = parseInvites_(oldP.invites);
   const crewRows = readAll_('crew'), link = projLink_(p);
+  const when = x => (fmtHuDate_(x.date) || x.date || '') + (x.startTime ? ' ' + x.startTime + (x.endTime ? '–' + x.endTime : '') : '') + (x.endDate && x.endDate !== x.date ? ' … ' + (fmtHuDate_(x.endDate) || x.endDate) : '');
+  const basics = [];   // ami a szakembert érinti az alapadatokból: időpont (napok is) és helyszín
+  if (when(oldP) !== when(p) || String(oldP.days || '') !== String(p.days || '')) basics.push('Időpont: ' + when(oldP) + ' → ' + when(p));
+  if (String(oldP.venue || '') !== String(p.venue || '')) basics.push('Helyszín: ' + (oldP.venue || '–') + ' → ' + (p.venue || '–'));
   Object.keys(inv).forEach(cid => {
     const iv = inv[cid] || {}, ov = oldInv[cid] || {}; if (iv.pre || !(iv.st === 'yes' || (iv.st === 'invited' && iv.at))) return;
     if (!(ov.st === 'yes' || (ov.st === 'invited' && ov.at))) return;   // most kapta a meghívót: abban már az új lista van
-    const before = taskListOf_(oldP, tn.crew, cid, tn.labels), after = taskListOf_(p, tn.crew, cid, tn.labels);
-    if (before.join('|') === after.join('|')) return;
+    const before = taskListOf_(oldP, tn.crew, cid, tn.labels), after = taskListOf_(p, tn.crew, cid, tn.labels), tChg = before.join('|') !== after.join('|');
+    if (!tChg && !basics.length) return;
     const c = crewRows.find(r => r.id === cid); if (!c || !c.email || (u && u.email && String(u.email).toLowerCase() === String(c.email).toLowerCase())) return;
     const gone = before.filter(x => after.indexOf(x) < 0), added = after.filter(x => before.indexOf(x) < 0), first = String(c.name || '').split(' ').slice(-1)[0] || c.name;
-    const box = (added.length ? 'Új / módosult:\n' + added.map(x => '• ' + x).join('\n') + '\n\n' : '') + (gone.length ? 'Lekerült:\n' + gone.map(x => '• ' + x).join('\n') + '\n\n' : '') + 'A teljes, aktuális listád:\n' + (after.length ? after.map(x => '• ' + x).join('\n') : '– jelenleg nincs feladatod ezen a projekten');
-    const line = 'Módosultak a feladataid a(z) <b>' + escapeHtml_(p.name) + '</b> projekten (' + escapeHtml_(fmtHuDate_(p.date) || p.date || '') + '). ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:';
+    const box = (basics.length ? 'Változás a projektben:\n' + basics.map(x => '• ' + x).join('\n') + '\n\n' : '') + (!tChg ? '' : (added.length ? 'Új / módosult:\n' + added.map(x => '• ' + x).join('\n') + '\n\n' : '') + (gone.length ? 'Lekerült:\n' + gone.map(x => '• ' + x).join('\n') + '\n\n' : '') + 'A teljes, aktuális listád:\n' + (after.length ? after.map(x => '• ' + x).join('\n') : '– jelenleg nincs feladatod ezen a projekten'));
+    const what = basics.length && !tChg ? 'Módosult a(z) <b>' + escapeHtml_(p.name) + '</b> projekt ' + (basics.length > 1 ? 'időpontja és helyszíne' : /^Időpont/.test(basics[0]) ? 'időpontja' : 'helyszíne') : '';
+    const line = what ? what + '. ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:' : 'Módosultak a feladataid a(z) <b>' + escapeHtml_(p.name) + '</b> projekten (' + escapeHtml_(fmtHuDate_(p.date) || p.date || '') + '). ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:';
     const html = mailCard_(first, line, box, link, 'Megnyitom a projektet');
-    const text = 'Kedves ' + first + '!\n\nMódosultak a feladataid a(z) „' + p.name + '” projekten.\n\n' + box + '\n\n' + link;
-    const opts = mailOptsFor_(u, html); gmailSend_(c.email, 'Módosult a feladatod – ' + p.name, text, opts, 'assign');
-    try { logEvent_(u, 'Feladat-változás értesítő', p.name, c.name + ': ' + (added.concat(gone.map(x => '− ' + x)).join('; ')).slice(0, 400)); } catch (e) {}
+    const text = 'Kedves ' + first + '!\n\n' + (tChg ? 'Módosultak a feladataid' : 'Változás történt') + ' a(z) „' + p.name + '” projekten.\n\n' + box + '\n\n' + link;
+    const opts = mailOptsFor_(u, html); gmailSend_(c.email, (tChg ? 'Módosult a feladatod' : 'Változás a projektben') + ' – ' + p.name, text, opts, 'assign');
+    try { logEvent_(u, 'Feladat-változás értesítő', p.name, c.name + ': ' + basics.concat(added, gone.map(x => '− ' + x)).join('; ').slice(0, 400)); } catch (e) {}
   });
 }
 function saveProject_(u, a) {
