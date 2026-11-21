@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "33a560324d",
+"at": "2026-11-21T10:22:10+01:00",
+"msg": "Jóváhagyó oldal: elküldött kérésnél az oldal nem görgethető, a kérés doboza 30%-kal szélesebb és magában görgethető"
+},
+{
 "id": "902919abd3",
 "at": "2026-11-21T10:21:23+01:00",
 "msg": "Stáb: véglegesített (lakatolt) eszközöknél a pozíció és a szakember csak feloldás után vehető le"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az értékelés-doboz nem jelenik meg, ha az ügyfél már értékelt vagy már rákattintott"
 },
 {
-"id": "eae57281f4",
-"at": "2026-11-21T09:17:09+01:00",
-"msg": "Jóváhagyó oldal: a „Még nem nézted végig” kérdés az üzenetmező előtt jön"
-},
-{
-"id": "30eede4b1c",
-"at": "2026-11-21T08:10:41Z",
+"id": "b14f4b785f",
+"at": "2026-11-21T08:17:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
