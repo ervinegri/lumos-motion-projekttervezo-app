@@ -406,7 +406,10 @@ function gbpReviewed_() { const o = {}; try { readAll_('gReviews').forEach(x => 
 function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
   try { if (r && !r.preview) { const o = clientTokenRead_(t), p = readAll_('projects').find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
     r.projRest = p ? parseVideos_(p.videos).filter(v => !on[v.id] && v.st !== 'jovahagyva').length : 0; } } catch (e) { Logger.log('projRest: ' + e); }
-  if (r) r.review = REVIEW_URL_;
+  /* értékelés-doboz: nem jelenik meg, ha az ügyfél már írt értékelést (párosítva), vagy bármelyik projektjénél rákattintott már az értékelés gombra */
+  if (r) { let show = true; try { const o = clientTokenRead_(t), all = readAll_('projects'), p = all.find(x => x.id === o.p), k = String((p && p.client) || '').trim().toLowerCase();
+      if (k && (gbpReviewed_()[k] || all.some(x => String(x.client || '').trim().toLowerCase() === k && x.reviewClick))) show = false; } catch (e) {}
+    if (show) r.review = REVIEW_URL_; }
   return r; }
 function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';
