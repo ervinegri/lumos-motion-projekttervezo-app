@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "60671b1c45",
+"at": "2026-11-21T22:58:40+01:00",
+"msg": "Figyelmeztetések: a rendezvény előtti utolsó 7 napban minden projekt-figyelmeztetés piros"
+},
+{
 "id": "a6f9b4831c",
 "at": "2026-11-21T22:56:46+01:00",
 "msg": "Figyelmeztetés doboz: egy projektnél az egész doboz kattintható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: korábbi verzió törölhető (ügyvezető, termelési vezető) – pl. próbából bent maradt fájl"
 },
 {
-"id": "c286725ba3",
-"at": "2026-11-21T11:03:49+01:00",
-"msg": "Ellenőrzés: bejövő számlák beérkezési késése"
-},
-{
-"id": "d85461becd",
-"at": "2026-11-21T10:01:14Z",
+"id": "42d75f3bc8",
+"at": "2026-11-21T10:03:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
