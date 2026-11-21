@@ -676,7 +676,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 
 /* Már létező elem (munkatárs, eszköz) adatlapja zárolva nyílik: a 🔒 gombbal oldható fel a szerkesztés (véletlen átírás ellen). keep: ami zárolva is használható (pl. dokumentumok). */
 function modalLock(keep){setTimeout(()=>{const f=$('mform');if(!f)return;const box=f.querySelector('.fields');if(!box)return;
-  const els=[...box.querySelectorAll('input,select,textarea,button')].filter(x=>!(keep&&x.closest(keep))&&!x.disabled);
+  const els=[...box.querySelectorAll('input,select,textarea,button')].filter(x=>!(keep&&x.closest(keep))&&!x.closest('#cdoc')&&!x.disabled);   /* a szerződés-feltöltés zárolt adatlapon is működik */
   els.forEach(x=>{x.dataset.lk='1';x.disabled=true;});box.classList.add('m-locked');
   const sub=f.querySelector('.mfoot button[type=submit]');if(sub){sub.dataset.lk='1';sub.disabled=true;}
   const h=f.querySelector('.mhead h3');if(h&&!f.querySelector('.m-lock-btn')){const b=document.createElement('button');b.type='button';b.className='btn outline small m-lock-btn';b.textContent='🔒 Szerkesztés';b.title='Az adatok zárolva – kattints a módosításhoz';

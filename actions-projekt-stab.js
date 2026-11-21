@@ -188,7 +188,7 @@ const cdocTitle=n=>{n=String(n||'');const b=n.replace(/\.[a-z0-9]{2,5}$/i,'');
 async function crewDocUpload(cid,files){files=[...(files||[])].filter(Boolean);if(!files.length)return;const zone=document.querySelector('.cdoc-drop'),fn=$('cdoc-fn');
   const big=files.find(f=>f.size>30*1024*1024);if(big){toast(big.name+': a fájl legfeljebb 30 MB lehet.',true);return;}
   if(zone)zone.classList.add('busy');let ok=0;
-  try{for(const f of files){if(fn)fn.textContent='⏳ Feltöltés: '+f.name+(files.length>1?` (${ok+1}/${files.length})`:'')+'…';
+  try{for(const f of files){if(fn)fn.textContent='⏳ Feltöltés: '+f.name+(files.length>1?` (${ok+1}/${files.length})`:'')+'…'+(f.size>2e6?' Nagyobb fájlnál ez akár 1 perc is lehet – ne zárd be az ablakot.':'');
       const tt=($('cdoc-title')||{}).value||'';const r=await call('crewDocSave',{crewId:cid,title:(files.length===1&&tt.trim())||cdocTitle(f.name),signedAt:($('cdoc-date')||{}).value||'',b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});
       S.crewDocs=r.crewDocs||S.crewDocs;ok++;}
     const c=crewById(cid),sec=$('cdoc');if(sec&&c)sec.outerHTML=crewDocSection(c);render(true);toast(ok>1?ok+' szerződés feltöltve':'Szerződés feltöltve');}
