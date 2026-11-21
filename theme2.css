@@ -3007,3 +3007,4 @@ html body tr.inv-row{cursor:pointer}html body tr.inv-row:hover td{background-col
 .gbp-sec{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;max-width:520px}.gbp-sec label{font-weight:600;font-size:13px}.gbp-sec-row{display:flex;gap:8px}.gbp-sec-row .inp{flex:1}
 .gbp-hd{display:flex;align-items:center;gap:6px;margin:0 0 12px;font-size:13.5px}.gbp-badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:#d93025;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .bd-rv{cursor:default}.bd-rv.todo{display:flex;justify-content:center;padding:8px}.bd-rv.ok .bd-t{color:#1e7e34}
+.vv-arr{min-width:26px;font-weight:700}.vv-arr[disabled]{opacity:.35;cursor:default}
