@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ce7d74017",
+"at": "2026-11-21T18:11:02+01:00",
+"msg": "Zárolt adatlap: a nem szerkeszthető választók nem kattinthatók és nem úgy is néznek ki"
+},
+{
 "id": "97e6cee460",
 "at": "2026-11-21T18:08:07+01:00",
 "msg": "Feltöltés: a fájlok mérethatára 10 helyett 30 MB"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videócím: „– javítás 1”, „– javítás 2” (az ügyfél oldalán és a belső ablakban is)"
 },
 {
-"id": "e7fec0c869",
-"at": "2026-11-21T09:48:03+01:00",
-"msg": "Jóváhagyó oldal: az utolsó díjmentes kör figyelmeztetése a „Mindent leírtál?” megerősítésbe került"
-},
-{
-"id": "fef3b8374d",
-"at": "2026-11-21T08:33:57Z",
+"id": "b2fdf0083a",
+"at": "2026-11-21T08:48:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
