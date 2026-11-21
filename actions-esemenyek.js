@@ -518,8 +518,10 @@ document.addEventListener('change',e=>{
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__rent'){const key=t.dataset.eqAuto;t.value='';rentalModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__own'){const key=t.dataset.eqAuto;t.value='';ownGearModal(key);return;}
   if(t.dataset.eqAuto!==undefined&&d&&t.value==='__new'){const key=t.dataset.eqAuto;t.value='';itemModal(null,saved=>{if(!S.draft)return;const equipment=clone(S.draft.equipment||[]);equipment.push({itemId:saved.id,qty:1,crewId:key});setDraft({equipment});toast('Felvéve a leltárba és hozzárendelve: '+saved.name);});return;}
-  if(t.dataset.eqAuto!==undefined&&d){const id=t.value;if(!id)return;const key=t.dataset.eqAuto,equipment=clone(d.equipment||[]);const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);
-    if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:id,qty:1,crewId:key});setDraft({equipment});return;}
+  if(t.dataset.eqAuto!==undefined&&d){const id=t.value;if(!id)return;const key=t.dataset.eqAuto,equipment=clone(d.equipment||[]);
+    let moved=false;if(key){const ui=equipment.findIndex(e=>e.itemId===id&&!e.crewId&&num(e.qty)>0);if(ui>=0){moved=true;equipment[ui].qty=num(equipment[ui].qty)-1;if(equipment[ui].qty<=0)equipment.splice(ui,1);}}   // a senkihez nem rendelt darab kerül hozzá (nem foglal újat)
+    const ex=equipment.find(e=>e.itemId===id&&(e.crewId||'')===key);
+    if(ex)ex.qty=num(ex.qty)+1;else equipment.push({itemId:id,qty:1,crewId:key});setDraft({equipment});if(moved){const it=itemById(id),c=crewById(key);toast((it?it.name:'Eszköz')+' → '+(c?c.name:'')+' (a senkihez nem rendeltek közül)');}return;}
   if(t.id==='add-eq-item'){S.addEq.item=t.value;return;}
   if(t.id==='crew-role-filter'){S.cf.role=t.value;render(true);return;}
   if(t.id==='inv-cat'){S.inf.cat=t.value;render(true);return;}

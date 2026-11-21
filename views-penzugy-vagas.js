@@ -10,7 +10,7 @@ const CAT_ICON={'Kamera':'📷','Objektív':'🔭','Hang':'🎤','Fény':'💡',
 const catLbl=c=>(CAT_ICON[c]||'📦')+' '+c;
 function itemOptions(p){
   return INV_CATS.map(cat=>{const items=S.inventory.filter(i=>(i.category||'Egyéb')===cat&&i.condition!=='selejt').sort((a,b)=>a.name.localeCompare(b.name,'hu'));
-    if(!items.length)return '';return `<optgroup label="${esc(catLbl(cat))}">${items.map(i=>{const free=num(i.qty)-usedElsewhere(i.id,p)-eqQty(p,i.id);return `<option value="${esc(i.id)}"${free<=0?' disabled':''}>${esc(i.name)} — ${Math.max(0,free)}/${num(i.qty)} szabad${i.condition&&i.condition!=='ok'?' ('+CONDITIONS[i.condition].toLowerCase()+')':''}</option>`;}).join('')}</optgroup>`;}).join('');
+    if(!items.length)return '';return `<optgroup label="${esc(catLbl(cat))}">${items.map(i=>{const un=eqUnassigned(p,i.id),free=num(i.qty)-usedElsewhere(i.id,p)-eqQty(p,i.id);return `<option value="${esc(i.id)}"${free+un<=0?' disabled':''}>${esc(i.name)} — ${un?un+' itt, senkinél'+(free>0?' · ':''):''}${un&&free<=0?'':Math.max(0,free)+'/'+num(i.qty)+' szabad'}${i.condition&&i.condition!=='ok'?' ('+CONDITIONS[i.condition].toLowerCase()+')':''}</option>`;}).join('')}</optgroup>`;}).join('');
 }
 function eqRowsFor(p,key){
   return (p.equipment||[]).map((e,i)=>({e,i})).filter(x=>(x.e.crewId||'')===key).map(({e,i})=>{const it=itemById(e.itemId);

@@ -270,6 +270,7 @@ const remoteLead=p=>!!(p&&p.leadRemote&&p.lead&&(p.crew||[]).filter(c=>c.crewId=
 /* Helyszíni vágó személyenként: akinél a „Vágó a helyszínen” feladat van (régi adatnál a projekt szintű jelölő) */
 function onsiteCut(p,id){const o=fieldOwners(p,'x_vago');return o.length?o.includes(id):!!p.editOnsite;}
 function onSiteIds(p){if(editOnly(p))return new Set();const s=crewIds(p);if(remoteLead(p))s.delete(p.lead);[...s].forEach(id=>{if(isPostOnly(p,id)&&!onsiteCut(p,id)&&!(feeSales(p,id)&&(p.equipment||[]).some(e=>e.crewId===id)))s.delete(id);});/* eszközzel kiküldött értékesítő a helyszínen van */return s;}   // a vágó otthonról dolgozik, kivéve ha helyszíni vágó
+const eqUnassigned=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id&&!e.crewId).reduce((s,e)=>s+num(e.qty),0);   // a projekten lévő, senkihez nem rendelt darab: emberhez rendelhető (nem foglal újat)
 const eqQty=(p,id)=>(p.equipment||[]).filter(e=>e.itemId===id).reduce((s,e)=>s+num(e.qty),0);
 const eqCount=p=>(p.equipment||[]).reduce((s,e)=>s+num(e.qty),0);
 const clone=x=>JSON.parse(JSON.stringify(x));
