@@ -402,7 +402,7 @@ const VID_CLS={vagasra:'p-mute',vagas:'p-warn',ellen:'p-warn',leadva:'p-ok',jova
 /* Visszadobások száma: az ügyfél javítást kért (↩, nem a csapat írta) / belső ellenőrzésből visszaküldve (↩, a csapat írta) */
 function vidRounds(v){const st=new Set();(S.crew||[]).concat(S.users||[]).concat(S.me?[S.me]:[]).forEach(x=>{const n=String((x&&x.name)||'').trim().toLowerCase();if(n){st.add(n);n.split(/\s+/).forEach(w=>st.add(w));}});
   const L=(v&&v.cm||[]).filter(c=>/^↩/.test(String(c.t||''))),cl=L.filter(c=>!st.has(String(c.by||'').trim().toLowerCase()));return {cl:cl.length,int:L.length-cl.length,clL:cl};}
-function revPill(v){if(!v||v.st==='jovahagyva')return '';const r=vidRounds(v);
+function revPill(v){if(!v||v.st==='jovahagyva')return '';if(v.pq==='wait'||v.pq==='sent')return `<span class="bd-rev pq" data-tip="${esc(v.pq==='sent'?'Fizetős javítás – az árajánlatot elküldtük, az ügyfél döntésére vár. Az elfogadásig a kártya nem mozdítható.':'Fizetős javítás – árajánlatra vár. Az árajánlat elfogadásáig a kártya nem mozdítható.')}">💰 ${v.pq==='sent'?'Ajánlat elküldve':'Árajánlatra vár'}</span>`;const r=vidRounds(v);
   if(r.cl)return `<span class="bd-rev${r.cl===1?' r1':''}" data-tip="${esc('Az ügyfél '+r.cl+'× kért javítást'+(r.clL.length?':\n'+r.clL.map(c=>'• '+String(c.t||'').replace(/^↩\s*/,'').slice(0,140)).join('\n'):''))}">🔁 ${r.cl}. javítás</span>`;
   if(r.int&&(v.st==='vagas'||v.st==='ellen'))return `<span class="bd-rev int" data-tip="Belső ellenőrzésből visszaküldve">↩ Belső visszadobás${r.int>1?' · '+r.int+'×':''}</span>`;return '';}
 function seenPill(v){if(!v||v.st!=='leadva'||ro()||!(isAdmin()||(S.me&&S.me.role==='editor'))||!(v.cm||[]).some(x=>/Ügyfélnek elküldve/.test(x.t||'')))return '';const f=x=>String(x||'').slice(0,16).replace('T',' ').replace(/^\d{4}-(\d\d)-(\d\d)/,(m,a,b)=>['Jan.','Febr.','Márc.','Ápr.','Máj.','Jún.','Júl.','Aug.','Szept.','Okt.','Nov.','Dec.'][+a-1]+' '+(+b)+'.');
@@ -413,7 +413,7 @@ const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 /* Ki mozgathatja a kártyát: az első oszlopok (Utómunkára vár, Utómunka alatt, Belső ellenőrzés, Módosítás) között csak a videóhoz rendelt vágó;
    a Belső ellenőrzésből a Jóváhagyásra vár / Jóváhagyva oszlopba (és onnan tovább) csak az ügyvezető és a termelési vezető. */
 const BD_PRE=['vagasra','vagas','ellen','modositas'];
-function bdAllowed(p,v,to){if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p))return false;
+function bdAllowed(p,v,to){if(v&&(v.pq==='wait'||v.pq==='sent'))return false;   /* fizetős javítás: az árajánlat elfogadásáig zárolva */if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p))return false;
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=ro()?boardMe():String(S.me&&S.me.crewId||''),ow=vidOwner(p,v),mine=!ow||(!!me&&ow===me);
   if(['vagasra','vagas','modositas'].includes(v.st)&&to==='leadva'&&mgr&&!!me&&ow===me)return true;   /* a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen az ügyfélnek adhatja */
   if(BD_PRE.includes(v.st)&&BD_PRE.includes(to)){if(!mine)return false;if(mgr)return true;

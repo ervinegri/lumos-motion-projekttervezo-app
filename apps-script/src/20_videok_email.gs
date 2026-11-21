@@ -18,7 +18,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
   return (Array.isArray(l) ? l : []).slice(0, 120).map(x => ({ id: str_(x && x.id, 40), k: str_(x && x.k, 30), name: str_(x && x.name, 120), editor: str_(x && x.editor, 64),
     st: x && x.st === 'modositas' ? 'vagas' : VIDEO_STATES_.indexOf(x && x.st) >= 0 ? x.st : 'vagasra', at: str_(x && x.at, 30),
     link: str_(x && x.link, 500), note: str_(x && x.note, 6000), rvTo: str_(x && x.rvTo, 300), rvBy: str_(x && x.rvBy, 120), rvAt: str_(x && x.rvAt, 30),
-    fb: str_(x && x.fb, 6000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), vers: (Array.isArray(x && x.vers) ? x.vers : []).slice(-30).map(r => ({ at: str_(r && r.at, 30), link: str_(r && r.link, 500) })).filter(r => r.at), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
+    fb: str_(x && x.fb, 6000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), pq: ['wait', 'sent', 'ok', 'no'].indexOf(x && x.pq) >= 0 ? x.pq : '', pqAt: str_(x && x.pqAt, 30), pqSent: str_(x && x.pqSent, 30), pqOk: str_(x && x.pqOk, 30), pqNo: str_(x && x.pqNo, 40), pqTo: str_(x && x.pqTo, 300), pqTotal: Math.max(0, Math.round(Number(x && x.pqTotal) || 0)), pqItems: (Array.isArray(x && x.pqItems) ? x.pqItems : []).slice(0, 20).map(r => ({ name: str_(r && r.name, 200), net: Math.max(0, Math.round(Number(r && r.net) || 0)) })).filter(r => r.name), pqDec: str_(x && x.pqDec, 30), pqNote: str_(x && x.pqNote, 2000), pqReq: str_(x && x.pqReq, 6000), vers: (Array.isArray(x && x.vers) ? x.vers : []).slice(-30).map(r => ({ at: str_(r && r.at, 30), link: str_(r && r.link, 500) })).filter(r => r.at), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
     cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 6000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
@@ -450,7 +450,8 @@ function clientPreview_(u, a) {
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
   if (cn && (!em || String(p.contactEmail || '').trim().toLowerCase() === em)) return huFirst_(cn);
   const lp = em.split('@')[0].split(/[._-]/)[0]; return lp ? lp.charAt(0).toUpperCase() + lp.slice(1) : 'Ügyfél'; }
-function clientDecide_(t, d, fb, vid) {
+let PAID_Q_ = false;
+function clientDecide_(t, d, fb, vid) { PAID_Q_ = false;
   if (clientTokenRead_(t).pv) throw new Error('Ez csak előnézet – itt a gombok nem küldenek semmit.');
   const o = clientTokenRead_(t); if (o.vs && o.vs.length > 1) { vid = str_(vid, 40); if (o.vs.indexOf(vid) < 0) throw new Error('Válaszd ki a videót.'); o.v = vid; }   // közös link: a kiválasztott videóról dönt
   const r = clientVideo_(o); fb = str_(fb, 6000).trim();
@@ -462,7 +463,9 @@ function clientDecide_(t, d, fb, vid) {
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: v.k === 'foto' ? '✅ Jóváhagyta a fotókat' : '✅ Jóváhagyta a videót', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });   // a hozzászólásoknál is látszik a jóváhagyás
     if (fb) withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: '💬 ' + fb, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); }   // jóváhagyáshoz írt üzenet
-  else if (d === 'mod') { if (!fb.length) throw new Error('Írd le röviden, mit módosítsunk.'); videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb }); }
+  else if (d === 'mod') { if (!fb.length) throw new Error('Írd le röviden, mit módosítsunk.'); PAID_Q_ = vidClientRounds_(r.v) >= 2; videoSet_(who, { projectId: o.p, id: o.v, st: 'vagas', fb: fb });
+    if (PAID_Q_) withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;   /* 3. kör: fizetős – árajánlatig zárolva */
+      v.pq = 'wait'; v.pqAt = now_(); v.pqSent = ''; v.pqOk = ''; v.pqReq = fb; v.cm = (v.cm || []).concat([{ by: 'Rendszer', at: now_(), t: '💰 Fizetős javítás – árajánlatra vár. A javítás az árajánlat elfogadása után indulhat.', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); }); }
   else throw new Error('Ismeretlen döntés.');
   if (d === 'ok') { try {   // a videó vágója is értesül a jóváhagyásról (üzenet és link nélkül)
       const c = readAll_('crewAssign').some(z => z.projectId === r.p.id && z.crewId === r.v.editor) ? readAll_('crew').find(x => x.id === r.v.editor) : null, em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';
@@ -471,7 +474,7 @@ function clientDecide_(t, d, fb, vid) {
           + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px"><tr><td style="background:#eaf7ef;border-left:4px solid #2e9e62;padding:12px 16px;border-radius:0 8px 8px 0"><div style="font-size:15px;font-weight:bold;color:#1e7a46">✓ ' + escapeHtml_(r.v.name) + '</div><div style="font-size:13px;color:#4a5866;margin-top:3px">' + escapeHtml_(r.p.name) + '</div></td></tr></table>'
           + '<p style="margin:0 0 18px">Köszönjük a munkádat!</p><p style="margin:22px 0 0;font-size:12px;color:#80868b;font-style:italic">Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.</p></div>';
         gmailSend_(em, subj, 'Kedves ' + (fn || 'Kolléga') + '!\n\nJó hír: a videót jóváhagyták: ' + r.v.name + ' – ' + r.p.name + '.\n\nKöszönjük a munkádat!', { htmlBody: html, name: 'Lumos Motion Projekttervező', __nk: 'vidOk' }); } } catch (e) { Logger.log('Vágó értesítés (jóváhagyás): ' + e); } }
-  try { if (o.s) { const ok = d === 'ok', subj = (ok ? 'Jóváhagyta: ' : 'Módosítást kér: ') + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);   /* tömör értesítés (Ervin, 2026-11-14): a tárgyban a projekt, a levél elején a videó (kártya) neve, utána az ügyfél szövege */
+  try { if (o.s) { const ok = d === 'ok', subj = (ok ? 'Jóváhagyta: ' : PAID_Q_ ? '💰 Fizetős javítást kér (árajánlat kell): ' : 'Módosítást kér: ') + r.p.name, url = appUrl_() + '#p=' + o.p + '&v=' + encodeURIComponent(o.v);   /* tömör értesítés (Ervin, 2026-11-14): a tárgyban a projekt, a levél elején a videó (kártya) neve, utána az ügyfél szövege */
       const msg = fb ? pinStrip_(fb) : '';
       const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124">'
         + '<div style="font-size:16px;font-weight:bold;color:' + (ok ? '#1e7a46' : '#b3261e') + ';margin:0 0 8px">' + (ok ? '✓ ' : '✎ ') + escapeHtml_(r.v.name) + '</div>'
@@ -531,6 +534,72 @@ function mailCard_(first, line, box, btnUrl, btnLabel, boxColor) {
 }
 let FB_MAIL_ = null;
 let OK_MAIL_ = null;   // jóváhagyási értesítés a vágónak (a mentés után megy ki)
+/* ===== Fizetős (3.+) javítás árajánlata – az ügyvezető készíti és küldi, az ügyfél egy linken fogadja el vagy utasítja el (2026-11-21) =====
+   Elfogadáskor a javítás automatikusan feloldódik (a vágó / termelési vezető onnantól mozgathatja), az összeg extraként a projekthez kerül (számlázandó).
+   Elutasításkor a videó visszakerül „Jóváhagyásra vár” állapotba (az utolsó változat jóváhagyható). */
+let QUOTE_SYS_ = false;
+function vqEdit_(pid, vid, fn) { let out = null; withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.'); const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+  fn(p, v); p.videos = JSON.stringify(vids); p.updatedAt = now_(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); out = { p: p, v: v }; }); return out; }
+const ftHu_ = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
+/** a: {projectId, id, items:[{name, net}], to, subject, text} – csak az ügyvezető */
+function videoQuoteSend_(u, a) {
+  if (u.role !== 'admin') throw new Error('FORBIDDEN: Az árajánlatot csak az ügyvezető küldheti.');
+  const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), to = String(a && a.to || '').split(/[,;\s]+/).map(x => x.trim()).filter(Boolean);
+  if (!to.length || !to.every(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))) throw new Error('Hibás e-mail-cím.');
+  const items = (Array.isArray(a && a.items) ? a.items : []).slice(0, 20).map(r => ({ name: str_(r && r.name, 200).trim(), net: Math.max(0, Math.round(Number(r && r.net) || 0)) })).filter(r => r.name && r.net > 0);
+  if (!items.length) throw new Error('Adj meg legalább egy tételt összeggel.');
+  const total = items.reduce((s, r) => s + r.net, 0), subject = str_(a && a.subject, 200).trim(), text = str_(a && a.text, 6000).trim(); if (!subject || !text) throw new Error('A tárgy és a szöveg nem lehet üres.');
+  const no = 'JA-' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyyMMdd') + '-' + Utilities.getUuid().slice(0, 4).toUpperCase();
+  const r0 = vqEdit_(pid, vid, (p, v) => { if (!(v.pq === 'wait' || v.pq === 'sent')) throw new Error('Ehhez a videóhoz nem tartozik függő fizetős javítás.');
+    v.pq = 'sent'; v.pqSent = now_(); v.pqNo = no; v.pqTo = to.join(','); v.pqItems = items; v.pqTotal = total; v.pqDec = ''; v.pqNote = '';
+    v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: '📄 Árajánlat elküldve (' + no + ', nettó ' + ftHu_(total) + ') – ' + to.join(', '), ts: '' }]).slice(-100); });
+  const link = appUrl_().replace(/\/+$/, '') + '/ajanlat.html?t=' + clientShort_(clientToken_({ p: pid, v: vid, q: no }));
+  const sig = signatureFor_(u), esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rows = items.map(r => '<tr><td style="padding:6px 10px;border-bottom:1px solid #e6e9ee">' + esc(r.name) + '</td><td style="padding:6px 10px;border-bottom:1px solid #e6e9ee;text-align:right;white-space:nowrap">' + ftHu_(r.net) + '</td></tr>').join('');
+  const req = r0.v.pqReq || '';
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') +
+    (req ? '<div style="margin:14px 0;padding:10px 12px;background:#f3f6f9;border-left:3px solid #9aa7b4;border-radius:6px"><b>A kért módosítás:</b><br>' + esc(req).replace(/\n/g, '<br>') + '</div>' : '') +
+    '<table style="border-collapse:collapse;margin:16px 0;min-width:320px"><tr><th style="text-align:left;padding:6px 10px;border-bottom:2px solid #1d2a38">Tétel</th><th style="text-align:right;padding:6px 10px;border-bottom:2px solid #1d2a38">Nettó</th></tr>' + rows +
+    '<tr><td style="padding:8px 10px"><b>Összesen (nettó)</b></td><td style="padding:8px 10px;text-align:right"><b>' + ftHu_(total) + '</b></td></tr></table>' +
+    '<p><a href="' + link + '" style="display:inline-block;background:#1e7a46;color:#fff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:bold">Ajánlat megtekintése és elfogadása</a></p></div>' + (sig ? '<br>' + sig.html : '');
+  const plain = text + (req ? '\n\nA kért módosítás:\n' + req : '') + '\n\n' + items.map(r => '• ' + r.name + ': ' + ftHu_(r.net)).join('\n') + '\nÖsszesen (nettó): ' + ftHu_(total) + '\n\nAz ajánlat elfogadása: ' + link + (sig ? '\n\n' + sig.text : '');
+  const opts = mailOptsFor_(u, html); delete opts.__actor; sendAs_(to.join(','), subj_(subject), plain, opts);
+  logEvent_(u, 'Fizetős javítás: árajánlat elküldve', r0.p.name, no + ' · ' + ftHu_(total) + ' · ' + to.join(', '));
+  return { project: projectView_(fullProject_(r0.p), u) };
+}
+/** Kézi elfogadás (pl. telefonon fogadta el) – csak az ügyvezető */
+function videoQuote_(u, a) {
+  if (u.role !== 'admin') throw new Error('FORBIDDEN: Az árajánlatot csak az ügyvezető kezelheti.');
+  const r = vqDecide_(str_(a && a.projectId, 64), str_(a && a.id, 40), a && a.action === 'no' ? 'no' : 'ok', u.name, '');
+  return { project: projectView_(fullProject_(r.p), u) };
+}
+function vqDecide_(pid, vid, dec, by, note) {
+  let prevSt = '';
+  const r = vqEdit_(pid, vid, (p, v) => { if (!(v.pq === 'wait' || v.pq === 'sent')) throw new Error('Erről az ajánlatról már döntöttek.');
+    v.pq = dec; v.pqDec = now_(); v.pqNote = str_(note, 2000); prevSt = v.st;
+    if (dec === 'ok') { v.pqOk = now_(); const ex = parseExtras_(p.extras); if (v.pqTotal > 0) { ex.push({ id: Utilities.getUuid().slice(0, 8), name: 'Fizetős javítás – ' + v.name + (v.pqNo ? ' (' + v.pqNo + ')' : ''), amount: v.pqTotal, kind: '' }); p.extras = JSON.stringify(parseExtras_(ex)); } }
+    else { v.st = 'leadva'; v.at = today_(); }   // elutasította: az utolsó változat marad, jóváhagyásra vár
+    v.cm = (v.cm || []).concat([{ by: by, at: now_(), t: (dec === 'ok' ? '✅ Árajánlat elfogadva – mehet a javítás.' : '✖ Az árajánlatot nem fogadta el – a videó az utolsó változattal jóváhagyásra vár.') + (note ? '\n💬 ' + note : ''), ts: '' }]).slice(-100); });
+  try { logEvent_({ name: by, role: 'admin' }, dec === 'ok' ? 'Fizetős javítás: árajánlat elfogadva' : 'Fizetős javítás: árajánlat elutasítva', r.p.name, r.v.name); } catch (e) {}
+  try {   // értesítés: ügyvezető + termelési vezető(k); elfogadáskor a vágó is
+    const users = loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled && /@/.test(String(x.email || ''))).map(x => String(x.email).trim());
+    const ed = dec === 'ok' && r.v.editor ? (readAll_('crew').find(c => c.id === r.v.editor) || {}).email : '';
+    const to = users.concat(ed && /@/.test(ed) ? [ed] : []).filter((x, i, A) => A.indexOf(x) === i);
+    const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), subj = (dec === 'ok' ? '✅ Elfogadták az árajánlatot – mehet a javítás: ' : '✖ Nem fogadták el az árajánlatot: ') + r.v.name + ' – ' + r.p.name;
+    const body = (dec === 'ok' ? 'Az ügyfél elfogadta a fizetős javítás árajánlatát (' + ftHu_(r.v.pqTotal) + ' nettó). A javítás elindulhat.' : 'Az ügyfél nem fogadta el a fizetős javítás árajánlatát. A videó az utolsó változattal jóváhagyásra vár.') + (note ? '\n\nÜzenete: ' + note : '') + '\n\n' + url;
+    to.forEach(em => { try { gmailSend_(em, subj, body, { name: 'Lumos Motion Projekttervező', htmlBody: escapeHtml_(body).replace(/\n/g, '<br>') }); } catch (e) {} });
+  } catch (e) { Logger.log('Árajánlat-értesítés: ' + e); }
+  return r;
+}
+/** Nyilvános (ajanlat.html): az ajánlat adatai */
+function clientQuote_(t) { const o = clientTokenRead_(t); if (!o || !o.q) throw new Error('Érvénytelen link.');
+  const p = readAll_('projects').find(x => x.id === o.p), v = p && parseVideos_(p.videos).find(x => x.id === o.v); if (!v || v.pqNo !== o.q) throw new Error('Ez az ajánlat már nem érvényes.');
+  return { project: sval_(p.name), client: sval_(p.client), video: v.name, no: v.pqNo, items: v.pqItems, total: v.pqTotal, req: v.pqReq || '', sent: v.pqSent, state: v.pq === 'sent' ? 'open' : v.pq, decided: v.pqDec }; }
+/** Nyilvános: elfogadás / elutasítás */
+function clientQuoteDecide_(t, dec, note) { const o = clientTokenRead_(t); if (!o || !o.q) throw new Error('Érvénytelen link.');
+  const p = readAll_('projects').find(x => x.id === o.p), v = p && parseVideos_(p.videos).find(x => x.id === o.v); if (!v || v.pqNo !== o.q) throw new Error('Ez az ajánlat már nem érvényes.');
+  if (v.pq !== 'sent') return clientQuote_(t);
+  vqDecide_(o.p, o.v, dec === 'ok' ? 'ok' : 'no', clientFirst_(p, '') || 'Ügyfél', str_(note, 2000).trim()); return clientQuote_(t); }
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
@@ -564,6 +633,7 @@ function videoSet_(u, a) {
     }
     if (a.st !== undefined) {
       if (VIDEO_STATES_.indexOf(a.st) < 0) throw new Error('Ismeretlen állapot.');
+      if ((v.pq === 'wait' || v.pq === 'sent') && a.st !== v.st && u.id !== 'client' && !QUOTE_SYS_) throw new Error('Ez a fizetős javítás árajánlatra vár – csak az árajánlat elfogadása után indulhat (az ügyvezető jelzi).');   /* 3. körtől: árajánlat nélkül senki nem mozdíthatja */
       if (v.st === 'jovahagyva' && a.st !== 'jovahagyva' && u.role !== 'admin') throw new Error('A jóváhagyott videót csak az ügyvezető veheti vissza.');
       { const PRE = ['vagasra', 'vagas', 'ellen', 'modositas'];   /* az első oszlopok között csak a videóhoz rendelt vágó mozgat; a vezető a belső ellenőrzésből visszaküldheti (javítandó) */
         if (mgr && PRE.indexOf(a.st) >= 0 && PRE.indexOf(v.st) >= 0 && a.st !== v.st && assignedEditor && assignedEditor !== (u.crewId || inviteOwnCrewId_(u)) && !(v.st === 'ellen' && (a.st === 'vagas' || a.st === 'modositas'))) throw new Error('FORBIDDEN: Az utómunka oszlopai között csak a videóhoz rendelt vágó mozgathatja a kártyát.'); }
