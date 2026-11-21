@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff5d390507",
+"at": "2026-11-21T22:40:00+01:00",
+"msg": "Elfogadott stábkártya: még zöldebb (teljes zöld háttér, sötétebb keret)"
+},
+{
 "id": "12fc94826c",
 "at": "2026-11-21T22:37:32+01:00",
 "msg": "Elfogadott meghívós stábkártya feltűnőbb: erős zöld keret és halvány zöld háttér"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felület: „pozíció” helyett „szerepkör” mindenhol"
 },
 {
-"id": "3ae91de496",
-"at": "2026-11-21T10:23:54+01:00",
-"msg": "Stáb: eszközök visszazárása újraküldés nélkül; ⚙️ menüben „Pozíció eltávolítása”"
-},
-{
-"id": "419976a970",
-"at": "2026-11-21T09:22:20Z",
+"id": "bebaca9f48",
+"at": "2026-11-21T09:24:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
