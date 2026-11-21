@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7fec0c869",
+"at": "2026-11-21T09:48:03+01:00",
+"msg": "Jóváhagyó oldal: az utolsó díjmentes kör figyelmeztetése a „Mindent leírtál?” megerősítésbe került"
+},
+{
 "id": "53c6d4b88c",
 "at": "2026-11-21T09:33:49+01:00",
 "msg": "Azonnali módosítások kiterjesztése: törlések, meglévő elemek mentése, pipák és kapcsolók az egész appban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: a projekthez egyértelműen illeszkedő, kézzel felvett vágói naptárbejegyzés nem jelenik meg külön (duplikátum)"
 },
 {
-"id": "e848620937",
-"at": "2026-11-20T15:59:15+01:00",
-"msg": "Pozíció levételekor a Szolgáltatásoknál a hozzá tartozó feladat (pl. terem-operatőr) is lekerül a szakemberről"
-},
-{
-"id": "9e5b9f3d77",
-"at": "2026-11-20T14:56:00Z",
+"id": "41d6e79044",
+"at": "2026-11-20T14:59:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
