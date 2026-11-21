@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fbbcc44c70",
+"at": "2026-11-21T10:15:47+01:00",
+"msg": "Fizetős javítás: ha az ügyfél nem kéri, az utolsó változat automatikusan jóváhagyva"
+},
+{
 "id": "9f93309faf",
 "at": "2026-11-21T10:13:02+01:00",
 "msg": "Fizetős (3.+) javítás: árajánlatig zárolva; az ügyvezető küldi az ajánlatot, az ügyfél online fogadja el vagy utasítja el, elfogadáskor automatikusan feloldódik és extraként a projekthez kerül; köszönő üzenet semleges színnel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Általános szabály: a beírt szöveget soha nem vágjuk le csendben – a háttér hibát ad, a felület megállítja az írást és a túl hosszú beillesztést"
 },
 {
-"id": "0686e708d0",
-"at": "2026-11-21T08:32:19+01:00",
-"msg": "Google-értékeléskérő e-mailek végleges kikapcsolása (Ervin kérése)"
-},
-{
-"id": "3cacf708da",
-"at": "2026-11-21T07:25:41Z",
+"id": "efdc35d6b6",
+"at": "2026-11-21T07:32:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
