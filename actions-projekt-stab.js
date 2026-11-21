@@ -27,10 +27,10 @@ document.addEventListener('change',e=>{if(e.target.id!=='lead-pick'||!S.draft||!
 function etWithField(d){const et0=editTasksOf(d),et={};Object.keys(et0).forEach(id=>{const f=(et0[id]||[]).filter(k=>/^f_/.test(k));if(f.length)et[id]=f.slice();});
   cutterIds(d).forEach(id=>{et[id]=(et[id]||[]).concat(taskKeysOf(d,id));});return et;}
 /* Terepi feladat kiosztása az összesítőben: a munkatárs a szereppel a stábba is bekerül; újra kiválasztva lekerül a feladatról */
-document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset||t.dataset.osField===undefined||!d||ro()||projLocked())return;const k=t.dataset.osField,role=t.dataset.role,id=t.value;if(!id)return;
+document.addEventListener('change',e=>{const t=e.target,d=S.draft;if(!t.dataset||t.dataset.osField===undefined||!d||ro()||projLocked())return;const k=t.dataset.osField,role=opRoleFor(k,t.dataset.role),id=t.value;if(!id)return;
   const et=etWithField(d),crew=clone(d.crew||[]),c=crewById(id),has=(et[id]||[]).includes('f_'+k);
   if(has){et[id]=et[id].filter(x=>x!=='f_'+k);if(!et[id].length)delete et[id];toast((c?c.name:'')+' lekerült erről a feladatról');}
-  else{et[id]=(et[id]||[]).concat(['f_'+k]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role))crew.push({crewId:id,role});toast((c?c.name:'')+' beosztva: '+(t.dataset.label||role));}
+  else{et[id]=(et[id]||[]).concat(['f_'+k]);if(role&&!crew.some(a=>a.crewId===id&&a.role===role)){const gi=OP_SUB.includes(role)?crew.findIndex(a=>a.crewId===id&&a.role==='Operatőr'):-1;if(gi>=0)crew[gi]={crewId:id,role};else crew.push({crewId:id,role});}toast((c?c.name:'')+' beosztva: '+(t.dataset.label||role));}
   const y0=scrollY;setDraft({crew,editTasks:et});requestAnimationFrame(()=>scrollTo(0,y0));});
 
 /* Stábkártya: a kártya bármely üres részére kattintva is megnyílik a szerkesztés (nem csak a ceruzával) */

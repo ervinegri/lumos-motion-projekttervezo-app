@@ -114,7 +114,7 @@ async function importCalEvent(id){
   const ex=S.projects.find(p=>p.calEventId===id);if(ex){closeModal();openProject(ex.id);toast('Ebből az eseményből már van projekt');return;}
   importing=true;const btn=document.querySelector('[data-action=cal-import]');if(btn){btn.disabled=true;btn.textContent='Létrehozás…';}
   try{
-  const crew=[];(e.guests||[]).forEach(m=>{const c=S.crew.find(x=>String(x.email||'').toLowerCase()===m);if(c&&!crew.some(a=>a.crewId===c.id))crew.push({crewId:c.id,role:(c.roles||[]).find(r=>r!=='Projektvezető')||'Operatőr'});});
+  const crew=[];(e.guests||[]).forEach(m=>{const c=S.crew.find(x=>String(x.email||'').toLowerCase()===m);if(c&&!crew.some(a=>a.crewId===c.id))crew.push({crewId:c.id,role:opFix(e,(c.roles||[]).find(r=>r!=='Projektvezető')||'Operatőr')});});
   let hours=8;if(e.start&&e.end){const [a1,a2]=e.start.split(':').map(Number),[b1,b2]=e.end.split(':').map(Number);const h=Math.round(((b1*60+b2)-(a1*60+a2))/60);if(h>=1&&h<=16)hours=h;}
   const pad=t=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(t||''));return m?String(m[1]).padStart(2,'0')+':'+m[2]:'';};
   let nm=String(e.title||'').trim();if(nm.length<2)nm='Projekt – '+fmtShort(e.date);
