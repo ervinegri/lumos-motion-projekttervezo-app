@@ -259,7 +259,7 @@ function szManual_(u, a) {
   if (!net) throw new Error('Add meg a nettó összeget.');
   let fileUrl = '';
   if (a.b64) {
-    const b64 = String(a.b64); if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+    const b64 = String(a.b64); if (b64.length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
     const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/pdf';
     const p0 = tg.projectId ? readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), tg.projectId)) : null;
     const cf = p0 && p0.client ? clientFolder_(p0.client) : null, year = String(iso_(a.date) || today_()).slice(0, 4), ext = (/\.[a-z0-9]{2,5}$/i.exec(String(a.name || '')) || ['.pdf'])[0];
@@ -596,7 +596,7 @@ function billSave_(u, a) {
 function extraFileUpload_(u, a) {
   const pid = str_(a && a.projectId, 64), name = (str_(a && a.name, 150).replace(/[\\/]/g, '-') || 'csatolmany.pdf'), b64 = String(a && a.b64 || '');
   if (!b64) throw new Error('Nincs feltöltendő fájl.');
-  if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  if (b64.length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
   const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
   const root = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId), folder = folderPath_(root, a.folder === 'Csatolmányok' ? 'Csatolmányok' : 'Továbbszámlázott', {});
   const file = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, uniqueName_(folder, name)));
@@ -607,7 +607,7 @@ function billUpload_(u, a) {
   const pid = str_(a && a.projectId, 64);
   const name = str_(a && a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf', b64 = String(a && a.b64 || '');
   if (!b64) throw new Error('Nincs feltöltendő fájl.');
-  if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  if (b64.length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
   const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
   const pr0 = readRow_('projects', sheetFor_('projects'), findRow_(sheetFor_('projects'), pid));
   const cf = pr0 && pr0.client ? clientFolder_(pr0.client) : null;   // a főmappában: 02 Ügyfelek / <ügyfél> / Szerződések / <év>
@@ -660,7 +660,7 @@ function crewDocSave_(u, a) {
   const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid);
   if (!c) throw new Error('A munkatárs nem található.');
   if (!a.b64) throw new Error('Válaszd ki a szerződés fájlját.');
-  if (String(a.b64).length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  if (String(a.b64).length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
   const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
   const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'szerzodes.pdf';
   const ext = (/\.[a-z0-9]{2,5}$/i.exec(name) || ['.pdf'])[0];
@@ -732,7 +732,7 @@ function crewDocsImport_(u, a) {
 function crewDocGet_(u, a) {
   const d = readAll_('crewDocs').find(x => x.id === str_(a && a.id, 64)); if (!d) throw new Error('A szerződés nem található.');
   const b = DriveApp.getFileById(String(d.fileId)).getBlob();
-  if (b.getBytes().length > 10 * 1024 * 1024) throw new Error('A fájl túl nagy a megnyitáshoz.');
+  if (b.getBytes().length > 30 * 1024 * 1024) throw new Error('A fájl túl nagy a megnyitáshoz.');
   return { name: d.fileName || b.getName(), mime: b.getContentType() || d.mime || 'application/pdf', b64: Utilities.base64Encode(b.getBytes()) };
 }
 function crewDocRename_(u, a) {
@@ -767,7 +767,7 @@ function fwSave_(u, a) {
   const url = str_(a.url, 500); if (url && !/^https:\/\//.test(url)) throw new Error('A link https:// kezdetű legyen.');
   let file = null;
   if (a.b64) {   // feltöltés a Projektek / Keretszerződések mappába
-    if (String(a.b64).length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+    if (String(a.b64).length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
     const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
     const name = str_(a.name, 150).replace(/[\\/]/g, '-') || 'keretszerzodes.pdf';
     const cf = clientFolder_(client);   // a főmappában: 02 Ügyfelek / <ügyfél> / Keretszerződés
@@ -969,7 +969,7 @@ function tigSave_(u, a) {
 function clientDocUpload_(u, a) {
   a = a || {};
   const client = str_(a.client, 160).replace(/\s+/g, ' '); if (client.length < 2) throw new Error('Hiányzik az ügyfél neve.');
-  const b64 = String(a.b64 || ''); if (!b64) throw new Error('Nincs feltöltendő fájl.'); if (b64.length > 14 * 1024 * 1024) throw new Error('A fájl legfeljebb 10 MB lehet.');
+  const b64 = String(a.b64 || ''); if (!b64) throw new Error('Nincs feltöltendő fájl.'); if (b64.length > 41 * 1024 * 1024) throw new Error('A fájl legfeljebb 30 MB lehet.');
   const did = x => (/[-\w]{25,}/.exec(String(x || '')) || [])[0] || '', rep = did(a.replace);
   if (rep) { const fw = readAll_('finFramework').some(r => r.fileId === rep || did(r.url) === rep), bl = readAll_('finBilling').some(r => r.contractFileId === rep || did(r.contractUrl) === rep);
     if (!fw && !bl && !(clientDocs_({}).folders || []).some(f => (f.docs || []).some(d => !d.folder && did(d.url) === rep))) throw new Error('A lecserélendő fájl nem szerepel az ügyfél szerződései között.'); }

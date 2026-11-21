@@ -7,7 +7,7 @@ const BD_DONE={};function bdRecent(){const now=Date.now();Object.keys(BD_DONE).f
 function bdApply(pid){const p=projById(pid);if(!p||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const k=pid+'|'+v.id;if(BD_PEND[k])v.st=BD_PEND[k].st;});}
 function bdRefresh(){render(true);const mb=document.querySelector('.bd-modal');if(mb){mb.innerHTML=laneModalBody(mb.dataset.pid);const hl=mb.querySelector('.bl-hl'),tt=document.querySelector('#mform .bl-ttl');if(hl&&tt)tt.innerHTML=hl.innerHTML;}try{bdSelBar();}catch(e){}}
 /* Továbbszámlázott tétel csatolmánya: kiválasztás vagy behúzás után azonnal feltöltődik a projekt Drive-mappájába */
-async function extraFileUp(i,f){if(!f||!S.draft||!isAdmin())return;if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+async function extraFileUp(i,f){if(!f||!S.draft||!isAdmin())return;if(f.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}
   const box=document.querySelector(`[data-extra-drop="${i}"] .tov-file`);if(box)box.innerHTML='<span class="muted">⏳ Feltöltés…</span>';
   try{const r=await call('extraFileUpload',{projectId:S.draft.id,b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});
     const l=(S.draft.extras||[]).map(x=>Object.assign({},x));if(l[i]){l[i].fileUrl=r.url;l[i].fileName=r.name;setDraft({extras:l});}render(true);toast('Csatolmány feltöltve');}

@@ -264,7 +264,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
       <small class="hint" style="margin:4px 0 0">Ha mégis külön szerződés kell ehhez a projekthez, állítsd be lent az állapotát.</small></div>`:fwAny?`<div class="field full fw-note warn">⚠️ ${esc(p.client)} keretszerződése ${esc(fwAny.validTo)}-ig volt érvényes, ez a projekt utána van. <button class="linkbtn" type="button" data-action="fw-edit" data-id="${esc(fwAny.id)}">Meghosszabbítás</button></div>`:''}
     ${ms('contractStatus','Szerződés állapota',Object.entries(CONTRACT_LABEL).map(([k,l])=>[k,k===''&&fw?'Keretszerződés alapján':l]),b.contractStatus||'')}
     ${mf('signedAt','Aláírás dátuma',{type:'date',v:b.signedAt||''})}
-    <div class="field full"><label for="m-cfile">Szerződés feltöltése (PDF, kép, Word – max. 10 MB)</label>
+    <div class="field full"><label for="m-cfile">Szerződés feltöltése (PDF, kép, Word – max. 30 MB)</label>
       <input class="inp" id="m-cfile" name="cfile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
       <small class="hint" style="margin:4px 0 0">${b.contractUrl?`Jelenleg: <a href="${esc(b.contractUrl)}" target="_blank" rel="noopener">${esc(b.contractName||b.contractUrl)}</a>${b.contractAt?' · '+esc(b.contractAt.slice(0,10)):''} – új fájllal lecseréled. <button class="linkbtn" type="button" data-action="bill-clear" data-id="${esc(pid)}">Leválasztás</button>`:'A projekt Drive-mappájába kerül (ha még nincs, létrehozzuk).'}</small></div>
     ${mf('contractUrl','…vagy szerződés linkje (pl. Drive, aláíró szolgáltatás)',{full:true,v:b.contractFileId?'':(b.contractUrl||''),ph:'https://…',max:500})}
@@ -278,7 +278,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
     const d={projectId:pid,contractStatus:fd.get('contractStatus'),signedAt:fd.get('signedAt')||'',mode:fd.get('mode'),advancePct:Number(fd.get('advancePct')),note:String(fd.get('note')||'').trim()};
     const url=String(fd.get('contractUrl')||'').trim();if(!file&&!b.contractFileId)d.contractUrl=url;else if(!file&&url)d.contractUrl=url;
     if(!(d.advancePct>=0&&d.advancePct<=100)){toast('A foglaló 0 és 100% között legyen.',true);return;}
-    if(file&&file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+    if(file&&file.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent=file?'Feltöltés…':'Mentés…';}
     const asFw=!!fd.get('asFw');
     try{
@@ -369,13 +369,13 @@ function fwModal(f){const v=f||{},isNew=!v.id,nk=v.mode==='nemkell',names=[...ne
   openModal(!isNew?'Szerződés – '+v.client:v.client?'Szerződés – '+v.client:'Új keretszerződés',`<div class="fields">
     <div class="field full"><label for="m-fwClient">Ügyfél</label><input class="inp" id="m-fwClient" name="client" list="fw-clients" value="${esc(v.client||'')}" maxlength="160" autocomplete="off"${!isNew?' readonly':''}><datalist id="fw-clients">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
     <div class="field full"><label class="bl-nocontract fw-chk"><input type="checkbox" id="m-fwNone" name="fwNone"${nk?' checked':''}> Ez az ügyfél nem igényel szerződést – a projektjeinél nem kérjük</label></div>
-    <div class="fw-files fields field full"${nk?' hidden':''}><div class="field full"><label for="m-fwFile">Keretszerződés feltöltése (max. 10 MB)</label><input class="inp" id="m-fwFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
+    <div class="fw-files fields field full"${nk?' hidden':''}><div class="field full"><label for="m-fwFile">Keretszerződés feltöltése (max. 30 MB)</label><input class="inp" id="m-fwFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
       ${v.url?`<small class="hint" style="margin:4px 0 0">Jelenleg: <a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.fileName||v.url)}</a> – új fájllal lecseréled.</small>`:''}</div>
     ${mf('fwUrl','…vagy link',{full:true,v:v.fileId?'':(v.url||''),ph:'https://…',max:500})}
     ${mf('fwSigned','Aláírás dátuma',{type:'date',v:v.signedAt||''})}${mf('fwValid','Érvényes eddig (üresen: határozatlan)',{type:'date',v:v.validTo||''})}
     </div>${mf('fwNote','Megjegyzés',{full:true,v:v.note||'',max:500})}</div>`,{submitLabel:'Mentés',submit:async fd=>{
     const client=String(fd.get('client')||'').trim(),file=($('m-fwFile')||{}).files&&$('m-fwFile').files[0],url=String(fd.get('fwUrl')||'').trim();
-    if(client.length<2){toast('Add meg az ügyfelet.',true);return;}if(file&&file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+    if(client.length<2){toast('Add meg az ügyfelet.',true);return;}if(file&&file.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}
     const none=!!($('m-fwNone')||{}).checked;const a={id:v.id||'',client,mode:none?'nemkell':'',signedAt:fd.get('fwSigned')||'',validTo:fd.get('fwValid')||'',note:String(fd.get('fwNote')||'').trim()};
     if(file){a.b64=await readB64(file);a.name=file.name;a.mime=file.type||'application/octet-stream';}else if(!v.fileId||url)a.url=url;
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Mentés…';}
@@ -558,7 +558,7 @@ document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.clo
 document.addEventListener('drop',e=>{if(!hasFiles(e))return;const z=e.target.closest&&e.target.closest('[data-cdrop],[data-cldrop]');document.querySelectorAll('.over[data-cdrop],.over[data-cldrop]').forEach(x=>x.classList.remove('over'));if(!z)return;e.preventDefault();
   const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;
   if(!CDROP_OK.test(f.name)){toast('Szerződésként PDF, Word vagy kép tölthető fel.',true);return;}
-  if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+  if(f.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}
   if(z.dataset.cldrop!==undefined)clientContractDrop(z.dataset.cldrop,f,z);else contractDropModal(z.dataset.cdrop,f);});
 function contractDropModal(pid,file){const p=projById(pid);if(!p)return;const b=billOf(pid);
   openModal('Szerződés feltöltése – '+(p.name||''),`<p class="cd-file">📎 <b>${esc(file.name)}</b> <span class="muted">· ${Math.max(1,Math.round(file.size/1024))} KB</span></p>
@@ -608,7 +608,7 @@ async function clientContractDrop(client,file,zone){if(!client)return;
   catch(e){handleErr(e);}finally{if(zone)zone.classList.remove('busy');}}
 function clDocsReopen(client){const go=()=>{if(S.clDocs){render(true);clDocsModal(client);}else setTimeout(go,400);};clDir(client);go();}
 ACT['cl-doc-pick']=b=>{const z=b.closest('[data-cldrop]'),i=document.createElement('input');i.type='file';i.accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.heic';
-  i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(!CDROP_OK.test(f.name)){toast('Szerződésként PDF, Word vagy kép tölthető fel.',true);return;}if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}clientContractDrop(b.dataset.client,f,z);};i.click();};
+  i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(!CDROP_OK.test(f.name)){toast('Szerződésként PDF, Word vagy kép tölthető fel.',true);return;}if(f.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}clientContractDrop(b.dataset.client,f,z);};i.click();};
 ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.dataset.client;
   if(b.dataset.inline){confirmLayer('Szerződés törlése',`<p style="margin:0 0 4px">A(z) „<b>${esc(name)}</b>” fájl a Drive kukájába kerül (30 napig visszaállítható), és lekerül a projektekről, illetve a keretszerződésből.</p>`,'Törlés',(bt,layer)=>{
     /* azonnal eltűnik a listából, a Drive-törlés a háttérben fut */
@@ -621,7 +621,7 @@ ACT['cl-doc-del']=b=>{const url=b.dataset.url,name=b.dataset.name,client=b.datas
     catch(e){handleErr(e);}});};
 
 ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i.type='file';i.accept='.pdf,.doc,.docx,.jpg,.jpeg,.png,.heic';
-  i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(f.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}contractDropModal(pid,f);};i.click();};
+  i.onchange=()=>{const f=i.files&&i.files[0];if(!f)return;if(f.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}contractDropModal(pid,f);};i.click();};
 /* Új verzió figyelése: ha közben frissült az app (új telepítés), egy sáv jelzi, egy kattintással betölthető */
 (function(){const files=[...document.querySelectorAll('script[src]')].map(x=>x.getAttribute('src')).filter(x=>x&&!/^(https?:)?\/\//.test(x)&&!/^vendor\//.test(x)).concat('index.html');   // az összes saját szkript (a felület több fájlban van)
   let base=null,shown=false;const T0=Date.now()-60000;   // a betöltött változat ideje (≈) – az ennél újabb változások az újak

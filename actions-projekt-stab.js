@@ -186,7 +186,7 @@ const cdocTitle=n=>{n=String(n||'');const b=n.replace(/\.[a-z0-9]{2,5}$/i,'');
     /(^|[^a-z])(evb|evny|uevb)([^a-z]|$)|egy[eé]ni.?v[aá]llalkoz/i.test(b)?'Egyéni vállalkozói igazolás':/kamar/i.test(b)?'Kamarai igazolás':/szerz/i.test(b)?'Szerződés':
     /nda|titoktart/i.test(b)?'Titoktartási nyilatkozat':(b.replace(/[_]+/g,' ').replace(/\s+/g,' ').trim()||'Dokumentum');};
 async function crewDocUpload(cid,files){files=[...(files||[])].filter(Boolean);if(!files.length)return;const zone=document.querySelector('.cdoc-drop'),fn=$('cdoc-fn');
-  const big=files.find(f=>f.size>10*1024*1024);if(big){toast(big.name+': a fájl legfeljebb 10 MB lehet.',true);return;}
+  const big=files.find(f=>f.size>30*1024*1024);if(big){toast(big.name+': a fájl legfeljebb 30 MB lehet.',true);return;}
   if(zone)zone.classList.add('busy');let ok=0;
   try{for(const f of files){if(fn)fn.textContent='⏳ Feltöltés: '+f.name+(files.length>1?` (${ok+1}/${files.length})`:'')+'…';
       const tt=($('cdoc-title')||{}).value||'';const r=await call('crewDocSave',{crewId:cid,title:(files.length===1&&tt.trim())||cdocTitle(f.name),signedAt:($('cdoc-date')||{}).value||'',b64:await readB64(f),name:f.name,mime:f.type||'application/octet-stream'});

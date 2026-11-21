@@ -614,7 +614,7 @@ function szManualModal(kind,id,type){const t=szTargetInfo(kind,id);if(!t)return;
     const a={[kind==='project'?'projectId':'incomeId']:id,no:String(fd.get('no')||'').trim(),kind:fd.get('mkind'),issuer:fd.get('issuer'),buyer:String(fd.get('buyer')||'').trim(),date:fd.get('date'),due:fd.get('due'),
       invNet:moneyVal(fd.get('invNet')),invGross:moneyVal(fd.get('invGross')),projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[]};
     if(!a.no||!a.invNet){const d=$('m-mfix');if(d)d.hidden=false;toast('Nem sikerült mindent kiolvasni – add meg a bizonylatszámot és az összeget.',true);return;}
-    if(file.size>10*1024*1024){toast('A fájl legfeljebb 10 MB lehet.',true);return;}
+    if(file.size>30*1024*1024){toast('A fájl legfeljebb 30 MB lehet.',true);return;}
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Feltöltés…';}
     try{if(a.issuer==='kft'&&S.fin.sz&&S.fin.sz.hasKey){   // a Lumos Motion Kft. számlája a bekötött számlázz.hu-fiókból jön: hozzárendeljük, a kifizetést magától követi
         const d=await call('szLink',{[kind==='project'?'projectId':'incomeId']:id,no:a.no,kind:a.kind==='szamla'?'':a.kind,slot:type||'',projectIds:a.projectIds});closeModal();finApply(d);toast('Számla hozzárendelve: '+a.no+' – a kifizetést a számlázz.hu-ból követi');return;}
