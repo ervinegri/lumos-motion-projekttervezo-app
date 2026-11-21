@@ -525,6 +525,7 @@ function rpcInner_(token, name, arg) {
     case 'hubspotNotes': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotNotesApi_(arg);
     case 'hsPull': if (role !== 'admin') deny(); return hsPull_(u, arg);   // HubSpot → app: párosított ügyfelek frissítése (óránként, háttérben)
     case 'hsClientLinks': if (role !== 'admin' && role !== 'editor') deny(); return { portal: hsOn_() ? hsPortal_() : '', links: readAll_('hsLinks').filter(x => x.hsCompany).map(x => ({ id: x.id, co: x.hsCompany, ct: x.hsContact, pull: x.hsPull || '' })) };
+    case 'reviewSend': return reviewSend_(u, arg);   // kézi értékeléskérés
     case 'gbpList': adminOnly(); return gbpList_(u, arg);   // Google-értékelések
     case 'gbpConnect': adminOnly(); return gbpConnect_(u, arg);
     case 'gbpReply': adminOnly(); return gbpReply_(u, arg);

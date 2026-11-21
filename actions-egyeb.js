@@ -471,3 +471,15 @@ Object.assign(ACT,{
     setTimeout(()=>{const x=$('m-gbpRep');if(x){x.focus();if(typeof autoGrow==='function')autoGrow(x);}},60);},
   'gbp-rep-del':async b=>{if(!confirm('Törlöd a válaszunkat a Google-ről?'))return;try{S.gbp=await call('gbpReply',{id:b.dataset.id,text:''});closeModal();toast('A válasz törölve.');}catch(e){handleErr(e);}}
 });
+
+/* Kézi Google-értékelés kérés a videótábla „⭐ Értékelés” oszlopából: a levelet az ügyvezető / termelési vezető nézi át és küldi el */
+ACT['rv-send']=b=>{const p=S.projects.find(x=>x.id===b.dataset.pid);if(!p)return;const first=String(p.contactName||'').trim().split(/\s+/).slice(-1)[0]||'';
+  const txt=(first?'Kedves '+first+'!':'Kedves Ügyfelünk!')+'\n\nKöszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész:\n'+REVIEW_URL+'\n\nKöszönjük!';
+  openModal('⭐ Értékelés kérése – '+(p.name||''),`<div class="fields">
+    ${p.reviewAt?`<div class="field full"><p class="hint warn-txt" style="margin:0">Ennél a projektnél már kértünk értékelést (${esc(fmtDay(String(p.reviewAt).slice(0,10)))}).</p></div>`:''}
+    <div class="field full"><label for="m-rvTo">Címzett</label><input class="inp" id="m-rvTo" name="to" type="email" maxlength="300" value="${esc(p.contactEmail||'')}"></div>
+    <div class="field full"><label for="m-rvSubj">Tárgy</label><input class="inp" id="m-rvSubj" name="subject" maxlength="200" value="${esc('Egy kérés a '+(p.name||'projekt')+' kapcsán')}"></div>
+    <div class="field full"><label for="m-rvText">Levél (az aláírásod automatikusan alá kerül)</label><textarea class="inp" id="m-rvText" name="text" rows="9" maxlength="6000">${esc(txt)}</textarea></div></div>`,
+    {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim();if(!to){toast('Add meg a címzettet.',true);return;}
+      try{const r=await call('reviewSend',{projectId:p.id,to,subject:String(fd.get('subject')||''),text:String(fd.get('text')||'')});p.reviewAt=r.reviewAt;closeModal();render(true);toast('Elküldve: '+to);}catch(e){handleErr(e);}}});
+  setTimeout(()=>{const x=$('m-rvText');if(x&&typeof autoGrow==='function')autoGrow(x);},60);};

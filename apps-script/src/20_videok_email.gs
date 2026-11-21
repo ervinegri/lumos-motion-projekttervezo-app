@@ -303,6 +303,21 @@ function reviewDaily_() { return;   /* KIKAPCSOLVA (2026-11-21, Ervin): semmilye
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, p.id); if (!row) return; const q = readRow_('projects', sh, row); if (q.reviewAt) return; q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
     logEvent_({ name: 'Automatikus', role: 'admin' }, 'Google-értékelés kérése', p.name, to); });
 }
+/** KÉZI értékeléskérés (2026-11-21, Ervin: csak kézzel, a videótábla „⭐ Értékelés” oszlopából). a: {projectId, to, subject, text} – a szöveget az ügyvezető írja / nézi át. */
+function reviewSend_(u, a) {
+  if (!(u.role === 'admin' || u.role === 'editor')) throw new Error('Nincs jogosultságod.');
+  const pid = str_(a && a.projectId, 64), to = String(a && a.to || '').split(/[,;\s]+/).map(x => x.trim()).filter(Boolean);
+  if (!to.length || !to.every(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))) throw new Error('Hibás e-mail-cím.');
+  const subject = str_(a && a.subject, 200).trim(), text = str_(a && a.text, 6000).trim(); if (!subject || !text) throw new Error('A tárgy és a szöveg nem lehet üres.');
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) throw new Error('A projekt nem található.');
+  const sig = signatureFor_(u), esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>').replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
+  const opts = mailOptsFor_(u, html); delete opts.__actor;
+  sendAs_(to.join(','), subj_(subject), text + (sig ? '\n\n' + sig.text : ''), opts);
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row); q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+  logEvent_(u, 'Google-értékelés kérése (kézi)', p.name, to.join(', '));
+  return { ok: true, reviewAt: now_() };
+}
 /* ===== Google Cégprofil: értékelések behúzása, ügyfélhez párosítása, válasz (2026-11-20) =====
    Hozzáférés: a Lumos Motion Projekttervezo Cloud projekt (236393101415) OAuth-ügyfelével, egyszeri ügyvezetői engedélyezéssel (tartós token a Script Propertiesben).
    Kell hozzá: GBP_CLIENT_SECRET Script Property (az OAuth-ügyfél titkos kulcsa – az ügyvezető másolja be, az app nem kéri el). */
