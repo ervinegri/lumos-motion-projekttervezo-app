@@ -348,9 +348,9 @@ const ACT={
       {submitLabel:'Igen, módosítom',cancelLabel:'Mégse',submit:async fd=>{const why=String(fd.get('ceWhy')||'').trim();if(why.length<3){toast('Írd be röviden, miért kell módosítani.',true);$('m-ceWhy').focus();return;}
         closeModal();(S.crewEdit=S.crewEdit||{})[d.id]=true;try{await call('logNote',{action:'Véglegesített csapat módosítása',subject:d.name||'',details:why});}catch(_){}render(true);}});
     const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb)sb.className='btn alarm';},
-  'svc-unlock':b=>{const d=S.draft;if(!d)return;const k=b.dataset.k,who=svcLockWho(d,k).map(id=>(crewById(id)||{}).name||'?').join(', ');
+  'svc-lock-open':b=>{const d=S.draft;if(!d)return;const k=b.dataset.k,who=svcLockWho(d,k).map(id=>(crewById(id)||{}).name||'?').join(', ');
     confirmModal(k==='post'?'Vágnivalók módosítása':'Terepi feladatok módosítása',`${who} már megkapta / elfogadta a meghívót ezekkel a feladatokkal. Ha módosítasz, mentéskor e-mailt kap a változásról (mi került le, mi jött hozzá).`,'✏️ Módosítom',()=>{const o=k==='post'?(S.postEdit=S.postEdit||{}):(S.fieldEdit=S.fieldEdit||{});o[d.id]=true;render(true);});},
-  'svc-relock':b=>{const d=S.draft;if(!d)return;const o=b.dataset.k==='post'?S.postEdit:S.fieldEdit;if(o)delete o[d.id];render(true);toast('Visszazárva');},
+  'svc-lock-close':b=>{const d=S.draft;if(!d)return;const o=b.dataset.k==='post'?S.postEdit:S.fieldEdit;if(o)delete o[d.id];render(true);toast('Visszazárva');},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
   'eq-relock':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=false;render(true);toast('Visszazárva');},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;if(!(d.equipment||[]).length&&!(d.rentals||[]).length){toast('Nincs még eszköz hozzárendelve – nincs mit véglegesíteni.',true);return;}flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}

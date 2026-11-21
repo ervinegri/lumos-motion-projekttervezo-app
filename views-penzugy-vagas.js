@@ -555,8 +555,8 @@ function svcLockWho(p,kind){const et=editTasksOf(p);
   return ids.filter(id=>invActive(p,id));}
 function svcLockBar(p,kind,lk){const nm=id=>huFirst(String((crewById(id)||{}).name||'?')),who=lk.on?lk.who:svcLockWho(p,kind);if(!who.length||ro()||projLocked())return '';
   const ws=who.map(id=>{const iv=(p.invites||{})[id];return `<b>${esc(nm(id))}</b> ${iv.st==='yes'?'elfogadta':'megkapta'}`;}).join(', ');
-  return lk.on?`<div class="svc-lock">🔒 <span>${ws} a meghívót – ${kind==='post'?'a vágnivalók':'a terepi feladatok'} zárolva.</span><button class="btn outline small" type="button" data-action="svc-unlock" data-k="${kind}">✏️ Módosítás</button></div>`
-    :`<div class="svc-lock open">🔓 <span>Szerkeszthető – ${ws} a meghívót. Mentéskor e-mailben értesítjük a változásról.</span><button class="btn ghost small" type="button" data-action="svc-relock" data-k="${kind}">🔒 Visszazárás</button></div>`;}
+  return lk.on?`<div class="svc-lock">🔒 <span>${ws} a meghívót – ${kind==='post'?'a vágnivalók':'a terepi feladatok'} zárolva.</span><button class="btn outline small" type="button" data-action="svc-lock-open" data-k="${kind}">✏️ Módosítás</button></div>`
+    :`<div class="svc-lock open">🔓 <span>Szerkeszthető – ${ws} a meghívót. Mentéskor e-mailben értesítjük a változásról.</span><button class="btn ghost small" type="button" data-action="svc-lock-close" data-k="${kind}">🔒 Visszazárás</button></div>`;}
 function topicCards(p,{camRow,dlRow,D}){
   const tgl=(k,label)=>`<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${esc(label)}</span></label>`;
   const recCnt=it=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
