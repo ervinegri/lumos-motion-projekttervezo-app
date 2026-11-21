@@ -3011,3 +3011,8 @@ html body tr.inv-row{cursor:pointer}html body tr.inv-row:hover td{background-col
 .pq-bar{background:#fff4e5;border:1px solid #f0d48a;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13.5px;line-height:1.5}.pq-bar.ok{background:#eaf7ef;border-color:#b9e2c8}.pq-act{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .bd-rev.pq{background:#fff4e5;color:#8a5a00;border-color:#f0d48a}.pq-row{display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:6px}
 .pq-req{background:#f3f6f9;border-left:3px solid #9aa7b4;border-radius:8px;padding:8px 12px;font-size:13.5px;line-height:1.5;max-height:220px;overflow:auto}
+/* nem szerkeszthető (zárolt / letiltott) választók: ne tűnjenek kattinthatónak */
+.m-locked label,.m-locked .rolepick label,.m-locked [data-cmb-wrap],.m-locked .cmb{cursor:default!important;pointer-events:none}
+label:has(> input:disabled){cursor:default!important;pointer-events:none}
+.rolepick label:has(> input:disabled){opacity:.75;box-shadow:none}
+.rolepick label:has(> input:disabled:not(:checked)){opacity:.5}
