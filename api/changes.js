@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0d04800d1d",
+"at": "2026-11-21T08:35:45+01:00",
+"msg": "Általános szabály: a beírt szöveget soha nem vágjuk le csendben – a háttér hibát ad, a felület megállítja az írást és a túl hosszú beillesztést"
+},
+{
 "id": "0686e708d0",
 "at": "2026-11-21T08:32:19+01:00",
 "msg": "Google-értékeléskérő e-mailek végleges kikapcsolása (Ervin kérése)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs űrlap: a vállalkozás neve és az adószám a termelési vezetőnél is szerkeszthető"
 },
 {
-"id": "28ec95aa3c",
-"at": "2026-11-20T15:40:00+01:00",
-"msg": "Számla-levél: tegező szöveg (Kedves keresztnév / Sziasztok), a nettó összeg is benne van"
-},
-{
-"id": "dbf99d2b17",
-"at": "2026-11-20T14:36:35Z",
+"id": "6dafbc916b",
+"at": "2026-11-20T14:40:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
