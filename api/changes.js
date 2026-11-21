@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "902919abd3",
+"at": "2026-11-21T10:21:23+01:00",
+"msg": "Stáb: véglegesített (lakatolt) eszközöknél a pozíció és a szakember csak feloldás után vehető le"
+},
+{
 "id": "6a20192ae1",
 "at": "2026-11-21T10:18:46+01:00",
 "msg": "Jóváhagyó oldal: a köszönő üzenet alatt az ügyfél módosítási kérése"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a „Még nem nézted végig” kérdés az üzenetmező előtt jön"
 },
 {
-"id": "2b3fbc9172",
-"at": "2026-11-21T09:10:33+01:00",
-"msg": "Szöveghossz: minden szövegmező a háttér határánál azonnal megáll és szól (hiányzó és eltérő maxlength-ek pótolva)"
-},
-{
-"id": "823b739af5",
-"at": "2026-11-21T07:35:55Z",
+"id": "30eede4b1c",
+"at": "2026-11-21T08:10:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
