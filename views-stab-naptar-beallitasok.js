@@ -514,6 +514,6 @@ function gbpBody(){const g0=S.gbp;if(!g0)return '<p class="hint"><span class="sp
 function gbpBtn(){if(!isAdmin())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp||{},R=g.reviews||[],noRep=R.filter(r=>!r.reply).length;
   return `<button class="btn outline w" type="button" data-action="gbp-open" title="Google-értékelések">⭐ <span class="mlg">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')+' · '+(g.total||R.length)+' értékelés':'Értékelések'}</span><span class="msm">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',','):''}</span>${noRep?` <span class="gbp-badge">${noRep}</span>`:''}</button>`;}
 /* a nyitott értékelés-ablak frissítése (újrarajzolás nélkül) */
-/* háttérfrissítés (5 percenként, csak ügyvezető): a háttér óránként behúzza az új értékeléseket, a csengő innen tudja meg */
-function gbpPoll(){if(!isAdmin()||S._gbpL||(S._gbpAt&&Date.now()-S._gbpAt<5*60000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
+/* háttérfrissítés (percenként, csak ügyvezető): a Google azonnal szól a háttérnek (Pub/Sub), az behúzza az új értékelést, a csengő innen tudja meg */
+function gbpPoll(){if(!isAdmin()||S._gbpL||(S._gbpAt&&Date.now()-S._gbpAt<60000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
 function gbpRefresh(){const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}else if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);}
