@@ -325,8 +325,8 @@ function tightFor(personId,p){if(!pr(p)||!onSiteIds(p).has(personId))return [];/
 const tightText=g=>g.gap<TRAVEL_RED_MIN?`Nincs idő a helyszínváltásra: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`:`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
 function busyFor(personId,p){const r=pr(p);if(!r||editOnly(p))return [];if(remoteLead(p)&&p.lead===personId)return [];if(isPostOnly(p,personId)&&!onsiteCut(p,personId))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&!sameVenue(p,q)&&onSiteIds(q).has(personId));}
 function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
-/* Mi hiányzik még egy közelgő (14 napon belüli, tervezés alatti) projektből: projektvezető, szerepkörök, meghívók – a figyelmeztetésekhez és a listához */
-function prepIssues(p){if(!p||ro()||isTent(p)||(p.status||'tervezes')!=='tervezes')return null;const r=pr(p),T=todayISO();if(!r||r.start<T)return null;const left=diffDays(T,r.start);if(left>14)return null;
+/* Mi hiányzik még egy közelgő (30 napon belüli, tervezés alatti) projektből: projektvezető, szerepkörök, meghívók – a figyelmeztetésekhez és a listához */
+function prepIssues(p){if(!p||ro()||isTent(p)||(p.status||'tervezes')!=='tervezes')return null;const r=pr(p),T=todayISO();if(!r||r.start<T)return null;const left=diffDays(T,r.start);if(left>30)return null;
   const nm=id=>huFirst((crewById(id)||{}).name||'?'),items=[];
   if(!p.lead)items.push('nincs projektvezető');
   staffing(p).filter(x=>x.role!=='Projektvezető'&&x.have<x.need).forEach(x=>items.push(`${x.role.toLowerCase()}: ${x.have}/${x.need}`));
@@ -373,8 +373,8 @@ function computeIssues(){
     const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjú operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
     const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
-  /* közelgő projekt (14 napon belül), ami még nincs készen: projektvezető, betöltetlen szerepkör, meghívók */
-  if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=3?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
+  /* közelgő projekt (30 napon belül), ami még nincs készen: projektvezető, betöltetlen szerepkör, meghívók */
+  if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=7?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
   if(!ro())liveEq.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});
