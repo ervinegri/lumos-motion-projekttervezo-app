@@ -301,6 +301,7 @@ function finApplySafe(d){if(!finEditing()){finApply(d);return;}const part={};FIN
   if(part.income)S.fin.income=part.income.map(r=>{const loc=keep.income.find(x=>x.id===r.id);return loc&&loc._dirty?loc:r;});finCacheSave(S.fin);S._finRerender=true;}
 document.addEventListener('focusout',e=>{const t=e.target;if(!S._finRerender||!t||!t.dataset||!(t.dataset.finpct||t.dataset.finwage||t.dataset.finwagepct))return;setTimeout(()=>{if(!finEditing()&&S._finRerender){S._finRerender=false;render(true);}},30);});
 const FIN_BUSY=new Set();   // ugyanaz a művelet egyszerre csak egyszer fut (többszöri kattintás ellen)
+const INDOC_PEND=new Set();
 async function finCall(name,arg,okMsg){const k=name+'|'+JSON.stringify(arg||{});if(FIN_BUSY.has(k))return null;FIN_BUSY.add(k);try{const d=await call(name,arg);finApply(d);if(okMsg)toast(okMsg);return d;}catch(e){handleErr(e);return null;}finally{FIN_BUSY.delete(k);}}
 function finIncomeModal(r){const v=r||{},m=S.finMonth,st=finSet();
   openModal(r?'Bevétel szerkesztése':'Egyéb bevétel',`<div class="fields">
@@ -741,7 +742,10 @@ Object.assign(ACT,{
     openModal('Utalás párosítása',`<p style="margin:0"><b>${esc(t.partnerName||'')}</b> · ${sFt(Math.round(Number(t.amount)||0))} · ${esc(fmtDay(t.valueDate))}${t.note?`<br><span class="muted">${esc(t.note)}</span>`:''}<br><br>→ <b>${esc(x.no)}</b> (${esc(x.buyer||'')}) kifizetettre állítva, a számlázz.hu-ban is jóváírva, ${esc(fmtDay(t.valueDate))}-i dátummal.</p>`,{submitLabel:'✓ Kifizetve',noDraft:true,submit:async()=>{closeModal();await finCall('szBankSet',{id:t.id,status:'parositva',invoiceId:x.id},'Párosítva – a számla kifizetett');}});},
   'bank-no':b=>finCall('szBankSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
   'indoc-exp':b=>{const d=((S.fin.szDocs&&S.fin.szDocs.open)||[]).find(x=>x.id===b.dataset.id),m=String((d&&(d.telj||d.kelt))||todayISO()).slice(0,7);return finCall('szDocSet',{id:b.dataset.id,status:'kiadas',fund:b.dataset.fund},'Kiadásként rögzítve: '+F_YM.format(toDate(m+'-01'))+', '+(b.dataset.fund==='marketing'?'marketing':'rezsi')+' (a teljesítés hónapja)').then(r=>r);},
-  'indoc-no':b=>finCall('szDocSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
+  'indoc-no':b=>{const id=b.dataset.id,D=S.fin&&S.fin.szDocs;if(!D||!D.open)return finCall('szDocSet',{id,status:'elvetve'});   /* azonnal eltűnik; a mentés a háttérben fut, hibánál visszakerül */
+    const i=D.open.findIndex(x=>x.id===id);if(i<0)return;const it=D.open.splice(i,1)[0];INDOC_PEND.add(id);render(true);
+    const prune=()=>{const D2=S.fin&&S.fin.szDocs;if(D2&&D2.open)D2.open=D2.open.filter(x=>!INDOC_PEND.has(x.id));};   // a gyorsan egymás után elvetettek ne ugorjanak vissza egy korábbi válasszal
+    call('szDocSet',{id,status:'elvetve'}).then(d=>{INDOC_PEND.delete(id);finApply(d);prune();render(true);}).catch(e=>{INDOC_PEND.delete(id);const D2=S.fin&&S.fin.szDocs;if(D2&&D2.open&&!D2.open.some(x=>x.id===id))D2.open.splice(Math.min(i,D2.open.length),0,it);render(true);handleErr(e);});},
   'sz-item-add':()=>{const box=$('sz-items');if(!box)return;box.insertAdjacentHTML('beforeend',szItemRow({name:'',qty:1,price:''},box.children.length));szTotals();},
   'sz-item-del':b=>{const box=$('sz-items');if(box&&box.children.length>1){b.closest('[data-szitem]').remove();szTotals();}else toast('Legalább egy tétel kell.',true);}
 });
