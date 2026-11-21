@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9936c093ab",
+"at": "2026-11-21T09:28:42+01:00",
+"msg": "Azonnali módosítások visszaugrás nélkül (függő műveletek helyi listája, minden beérkező adatra ráírva, frissítés után újraküldve); havi keret: maradék az e havi tételek után"
+},
+{
 "id": "108326685f",
 "at": "2026-11-21T09:23:58+01:00",
 "msg": "Videótábla: ⭐ Értékelés oszlop a Jóváhagyva után – kézi értékeléskérés átnézhető levéllel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: a Szolgáltatások panel is összecsukható"
 },
 {
-"id": "ee97fc08da",
-"at": "2026-11-20T15:52:06+01:00",
-"msg": "Stábkártya: hosszú pozícióneveknél (pl. Key Account Manager) rövid címke, hogy a × látszódjon"
-},
-{
-"id": "10722017f5",
-"at": "2026-11-20T14:51:00Z",
+"id": "09ae432bfe",
+"at": "2026-11-20T14:52:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
