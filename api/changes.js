@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8fd3e18eef",
+"at": "2026-11-21T10:00:59+01:00",
+"msg": "Jóváhagyó oldal: 30%-kal szélesebb oldalsáv / szövegmező"
+},
+{
 "id": "68b9e347e5",
 "at": "2026-11-21T09:59:57+01:00",
 "msg": "Jóváhagyó oldal: ← / → nyilakkal 5 mp vissza / előre (Shift-tel 1 mp)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni munkára lépés: a bejelentkezett vezető saját beosztása elfogadottnak számít (és a háttérben rögzül)"
 },
 {
-"id": "7e21a28620",
-"at": "2026-11-20T22:46:04+01:00",
-"msg": "Google-értékelések: Cégprofil összekötése, napi behúzás, ügyfélhez párosítás, válasz az appból; értékelt ügyfélnek nem megy emlékeztető"
-},
-{
-"id": "8207ef6c65",
-"at": "2026-11-20T18:44:16Z",
+"id": "f899dbcba1",
+"at": "2026-11-20T21:46:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
