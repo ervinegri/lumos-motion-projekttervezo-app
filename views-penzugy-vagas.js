@@ -524,7 +524,7 @@ function svcCan(p){return !ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.dra
 function fieldAsg(p,k,role,label,n,only){const ids=slotOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="f:${esc(k)}"`,ids.length?'👥 '+ids.map(nm).join(', '):'👥 nincs beosztva',!ids.length);
   const all=(S.crew||[]).slice().sort((x,y)=>prioNum(x)-prioNum(y)||x.name.localeCompare(y.name,'hu'));
-  (window.SLOT_ROLE||(window.SLOT_ROLE={}))[k]=opRoleFor(k,role);   /* melyik feladathoz milyen szerepkör kell – a szerepkör levételekor a feladat is lekerül róla */
+  (window.SLOT_ROLE||(window.SLOT_ROLE={}))[k]=opRoleFor(k,role);(window.SLOT_LABEL||(window.SLOT_LABEL={}))[k]=String(label||'');   /* melyik feladathoz milyen szerepkör kell – a szerepkör levételekor a feladat is lekerül róla */
   const sel=i=>{const cur=ids[i]||'',free=all.filter(c=>c.id===cur||!ids.includes(c.id)),strict=k==='x_vago'||k==='x_foto',onP=new Set((p.crew||[]).filter(a=>a.role===role||(role==='Operatőr'&&isOpRole(a.role))).map(a=>a.crewId).concat(role==='Operatőr'&&p.lead?[p.lead]:[])),here=strict?[]:free.filter(c=>onP.has(c.id)),fit=free.filter(c=>!here.includes(c)&&((c.roles||[]).includes(role)||(strict&&c.id===cur))),rest=strict?[]:free.filter(c=>!here.includes(c)&&!(c.roles||[]).includes(role)),o=c=>`<option value="${esc(c.id)}"${c.id===cur?' selected':''}>${esc(c.name)}</option>`;
     const ph='👥 '+role.toLowerCase()+(/_op$/.test(k)?'':' kiválasztása');
     return `<select class="inp op-cutsel${cur?'':' none'}" data-cmb="${esc(ph)}" data-cmb-sub="crew" data-cmb-cls="op-cutsel${cur?'':' none'}" data-os-slot="${esc(k)}" data-i="${i}" data-role="${esc(role)}" data-label="${esc(label)}" aria-label="${esc(label)}: ${esc(role.toLowerCase())}"><option value=""${cur?' data-keep="1"':''}>${cur?'— senki (levétel) —':esc(ph)}</option>${here.length?`<optgroup label="Már a projekten">${here.map(o).join('')}</optgroup>`:''}${fit.length?`<optgroup label="${esc(role)}">${fit.map(o).join('')}</optgroup>`:''}${rest.length?`<optgroup label="Egyéb munkatársak">${rest.map(o).join('')}</optgroup>`:''}</select>`;};
@@ -545,6 +545,18 @@ window.addEventListener('resize',()=>{clearTimeout(window._ptfT);window._ptfT=se
 /* a „Ma” sávon a pontos idő, percenként frissül */
 function nowHM(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 setInterval(()=>document.querySelectorAll('.pt-clock').forEach(e=>{e.textContent=nowHM();}),15000);
+/* Meghívó után a szakember feladatai zárolva: aki már meghívót kapott / elfogadta, annak a vágnivalói (Utómunka) és terepi feladatai
+   csak a „Módosítás” gombbal szerkeszthetők; mentéskor a háttér e-mailben értesíti a változásról (saveProject_ → taskNotice_). */
+const invActive=(p,cid)=>{const iv=(p.invites||{})[cid];return !!iv&&!iv.pre&&(iv.st==='yes'||(iv.st==='invited'&&!!iv.at));};
+function svcLockOf(p,kind){if(ro()||projLocked()||((kind==='post'?S.postEdit:S.fieldEdit)||{})[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&svcLockWho(p,kind).length>0};
+  const who=svcLockWho(p,kind);return {on:who.length>0,who,open:false};}
+function svcLockWho(p,kind){const et=editTasksOf(p);
+  const ids=kind==='post'?cutterIds(p):[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>(et[id]||[]).some(k=>/^f_/.test(k)));
+  return ids.filter(id=>invActive(p,id));}
+function svcLockBar(p,kind,lk){const nm=id=>huFirst(String((crewById(id)||{}).name||'?')),who=lk.on?lk.who:svcLockWho(p,kind);if(!who.length||ro()||projLocked())return '';
+  const ws=who.map(id=>{const iv=(p.invites||{})[id];return `<b>${esc(nm(id))}</b> ${iv.st==='yes'?'elfogadta':'megkapta'}`;}).join(', ');
+  return lk.on?`<div class="svc-lock">🔒 <span>${ws} a meghívót – ${kind==='post'?'a vágnivalók':'a terepi feladatok'} zárolva.</span><button class="btn outline small" type="button" data-action="svc-unlock" data-k="${kind}">✏️ Módosítás</button></div>`
+    :`<div class="svc-lock open">🔓 <span>Szerkeszthető – ${ws} a meghívót. Mentéskor e-mailben értesítjük a változásról.</span><button class="btn ghost small" type="button" data-action="svc-relock" data-k="${kind}">🔒 Visszazárás</button></div>`;}
 function topicCards(p,{camRow,dlRow,D}){
   const tgl=(k,label)=>`<label class="toggle"><input type="checkbox" data-flag="${k}"${p[k]?' checked':''}${D()}><span class="tl">${esc(label)}</span></label>`;
   const recCnt=it=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
@@ -586,8 +598,9 @@ function topicCards(p,{camRow,dlRow,D}){
   const foL=[F({on:fotoN(p)>0,html:stepRow(p,FOTO_COUNT),chip:'Fotós a helyszínen'+(fotoN(p)>1?' ×'+fotoN(p):'')},'x_foto','Fotós','Fotós a helyszínen',fotoN(p))],foR=[C({on:fotoDb(p)>0,html:fotoRow(p),chip:fotoDb(p)+' db fotó'},'foto_db')];
   const teL=TECH.map(t=>flag(t.k,t.label,t.role)).concat(REC_LIVE.map(c=>flag(c.k,c.label,c.role)));
   const due=needsDelivery(p)&&!editOnly(p)?(()=>{const r=pr(p),dd=dueDate(p),own=validISO(p.dueAt);return `<div class="due-row"><label for="f-dueAt">📅 Leadási határidő</label><input class="inp" id="f-dueAt" data-field="dueAt" type="date" value="${esc(dd||'')}"${r?` min="${esc(r.end)}"`:''}${ro()?' disabled':''}><span class="hint">${own?'egyedi határidő':noDefDue(p)?'nincs megadva – add meg a vágási határidőt':'alapértelmezett: a rendezvény utáni nap'}</span></div>`;})():'';
-  return `${due}<div class="tc-cols${editOnly(p)?' tc-one':''}">${editOnly(p)?'':`<section><h4 class="sub-h">📍 Terepi feladatok</h4><div class="tcards">${card('t_rec','🎙️ Előadásrögzítés',recL)}${card('t_krea','🎥 Kreatív videózás',krL)}${card('t_int','🎤 Interjúk / imázsfilmek videózása',intL)}${card('t_foto','📷 Fotózás',foL)}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL)}</div></section>`}
-    <section><h4 class="sub-h">🎬 Utómunka</h4><div class="tcards">${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${fotoN(p)>0?card('p_foto','📷 Fotók utómunkája',foR):''}${card('p_raw','📦 Nyersanyag',[flag('x_nyersVetel','Nyersanyag átadása')])}</div></section></div>`;   // a nyersanyag átadása külön kártya, beosztás nélkül   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
+  const lkF=svcLockOf(p,'field'),lkP=svcLockOf(p,'post');
+  return `${due}<div class="tc-cols${editOnly(p)?' tc-one':''}">${editOnly(p)?'':`<section><h4 class="sub-h">📍 Terepi feladatok</h4>${svcLockBar(p,'field',lkF)}<div class="tcards${lkF.on?' svc-locked':''}"${lkF.on?' inert':''}>${card('t_rec','🎙️ Előadásrögzítés',recL)}${card('t_krea','🎥 Kreatív videózás',krL)}${card('t_int','🎤 Interjúk / imázsfilmek videózása',intL)}${card('t_foto','📷 Fotózás',foL)}${card('t_tech','💡 Vizuál-, hang- és fénytechnika',teL)}</div></section>`}
+    <section><h4 class="sub-h">🎬 Utómunka</h4>${svcLockBar(p,'post',lkP)}<div class="tcards${lkP.on?' svc-locked':''}"${lkP.on?' inert':''}>${card('p_rec','🎙️ Előadások',recR)}${card('p_int','🎤 Interjúk / imázsfilmek',intR)}${card('p_krea','🎞️ Kreatív tartalmak',krR)}${fotoN(p)>0?card('p_foto','📷 Fotók utómunkája',foR):''}${card('p_raw','📦 Nyersanyag',[flag('x_nyersVetel','Nyersanyag átadása')])}</div></section></div>`;   // a nyersanyag átadása külön kártya, beosztás nélkül   // terepi és utómunka külön: az utómunkában bármelyik felvétel felhasználható
 }
 /* Vágó kártyáján: mely munkákat készíti el */
 /* a vágás sávjára mutatva: milyen videókat kell elkészíteni (a vágó csak a sajátjait látja) */

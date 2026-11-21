@@ -6,6 +6,35 @@ function parseExtras_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
 /** Termelői alap (hatékonyság / termelői keret): végső érték (szerződött + extrák − kedvezmények) − szervezői jutalék − továbbszámlázott költség */
 const prodBase_ = p => { const ex = parseExtras_(p.extras), n = v => Number(v) || 0; return Math.max(0, n(p.quotePrice) + ex.reduce((a, e) => a + (e.kind === 'org' || e.kind === 'le' || e.kind === 'tov' || e.kind === 'sajat' ? -1 : 1) * n(e.amount), 0)); };   // a továbbszámlázott költség a szerződött érték része: levonjuk
 const orgFee_ = p => parseExtras_(p.extras).filter(e => e.kind === 'org').reduce((a, e) => a + Number(e.amount || 0), 0);
+let TASK_NOTICE_ = null;
+/* ===== Feladat-változás értesítő: aki már megkapta / elfogadta a meghívót, annak e-mail megy, ha a vágnivalói vagy a terepi feladatai változnak ===== */
+function taskListOf_(p, crew, cid, labels) {
+  const et = parseEditTasks_(p.editTasks), L = et[cid] || [], VK = {}; VIDEO_KINDS_.forEach(x => { VK[x[0]] = x[1]; }); VK.foto_db = 'Fotók utómunkája';
+  const n = k => Number(p[k]) || 0, cutters = crew.filter(c => c.role === 'Vágó').map(c => c.crewId);
+  let post = L.filter(k => !/^f_/.test(k) && VK[k] && n(k) > 0);
+  if (!post.length && cutters.length === 1 && cutters[0] === cid && !Object.keys(et).some(id => cutters.indexOf(id) >= 0 && (et[id] || []).some(k => !/^f_/.test(k)))) post = Object.keys(VK).filter(k => k !== 'foto_db' && n(k) > 0);   // egy vágó, kimondatlan kiosztás: minden az övé
+  const out = post.map(k => VK[k] + ' · ' + n(k) + ' db');
+  L.filter(k => /^f_/.test(k)).forEach(k => { const lb = String(labels[k.slice(2)] || '').slice(0, 80); out.push('📍 ' + (lb || k.slice(2))); });
+  return out;
+}
+function taskNotice_(u, tn) {
+  const oldP = tn.old, p = tn.p, inv = parseInvites_(p.invites), oldInv = parseInvites_(oldP.invites);
+  const crewRows = readAll_('crew'), link = projLink_(p);
+  Object.keys(inv).forEach(cid => {
+    const iv = inv[cid] || {}, ov = oldInv[cid] || {}; if (iv.pre || !(iv.st === 'yes' || (iv.st === 'invited' && iv.at))) return;
+    if (!(ov.st === 'yes' || (ov.st === 'invited' && ov.at))) return;   // most kapta a meghívót: abban már az új lista van
+    const before = taskListOf_(oldP, tn.crew, cid, tn.labels), after = taskListOf_(p, tn.crew, cid, tn.labels);
+    if (before.join('|') === after.join('|')) return;
+    const c = crewRows.find(r => r.id === cid); if (!c || !c.email || (u && u.email && String(u.email).toLowerCase() === String(c.email).toLowerCase())) return;
+    const gone = before.filter(x => after.indexOf(x) < 0), added = after.filter(x => before.indexOf(x) < 0), first = String(c.name || '').split(' ').slice(-1)[0] || c.name;
+    const box = (added.length ? 'Új / módosult:\n' + added.map(x => '• ' + x).join('\n') + '\n\n' : '') + (gone.length ? 'Lekerült:\n' + gone.map(x => '• ' + x).join('\n') + '\n\n' : '') + 'A teljes, aktuális listád:\n' + (after.length ? after.map(x => '• ' + x).join('\n') : '– jelenleg nincs feladatod ezen a projekten');
+    const line = 'Módosultak a feladataid a(z) <b>' + escapeHtml_(p.name) + '</b> projekten (' + escapeHtml_(fmtHuDate_(p.date) || p.date || '') + '). ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:';
+    const html = mailCard_(first, line, box, link, 'Megnyitom a projektet');
+    const text = 'Kedves ' + first + '!\n\nMódosultak a feladataid a(z) „' + p.name + '” projekten.\n\n' + box + '\n\n' + link;
+    const opts = mailOptsFor_(u, html); gmailSend_(c.email, 'Módosult a feladatod – ' + p.name, text, opts, 'assign');
+    try { logEvent_(u, 'Feladat-változás értesítő', p.name, c.name + ': ' + (added.concat(gone.map(x => '− ' + x)).join('; ')).slice(0, 400)); } catch (e) {}
+  });
+}
 function saveProject_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64), mutationId = str_(a.mutationId, 64);
@@ -184,6 +213,7 @@ function saveProject_(u, a) {
     if (renamed || sig(oldEq, r => r.itemId + ':' + (r.crewId || '') + ':' + r.qty) !== sig(equipment, e => e.itemId + ':' + e.crewId + ':' + e.qty))
       rewriteAssign_('eqAssign', r => r.projectId !== id,
         equipment.map(e => ({ projectId: id, itemId: e.itemId, qty: e.qty, projectName: p.name, itemName: invMap[e.itemId].name, crewId: e.crewId, crewName: e.crewId ? crewMap[e.crewId].name : '' })));
+    if (old) TASK_NOTICE_ = { old: old, p: Object.assign({}, p), crew: crew, labels: a.taskLabels && typeof a.taskLabels === 'object' ? a.taskLabels : {} };   // a meghívót már megkapó szakember feladatai változtak-e (a zár után e-mail)
     dbFlush_();
     logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p, assignDiff_(oldCrew, crew, oldEq, equipment, crewMap, invMap), crewMap) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
     if (dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
@@ -193,7 +223,8 @@ function saveProject_(u, a) {
   });
   if (logArgs) logEvent_(u, logArgs[0], logArgs[1], logArgs[2]);
   if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }
-  if (CANCEL_DONE_) { const cd = CANCEL_DONE_; CANCEL_DONE_ = null; cancelNotify_(cd, u); }   // a termelési vezető értesül a lemondásról   // az értékesítő értesül az átadásról
+  if (CANCEL_DONE_) { const cd = CANCEL_DONE_; CANCEL_DONE_ = null; cancelNotify_(cd, u); }
+  if (TASK_NOTICE_) { const tn = TASK_NOTICE_; TASK_NOTICE_ = null; try { taskNotice_(u, tn); } catch (e) { Logger.log('taskNotice: ' + e); } }   // a termelési vezető értesül a lemondásról   // az értékesítő értesül az átadásról
   if (a.deferCal === true || saved.duplicateOf) return saved;   // az új felület külön kérésben frissíti a naptárat, így a mentés gyors
   return syncCalendar_(saved);   // a naptár frissítése a zár után (lassú lehet); hiba esetén a mentés akkor is megmarad
 }
