@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c330219a6d",
+"at": "2026-11-21T09:17:28+01:00",
+"msg": "Jóváhagyó oldal: az értékelés-doboz nem jelenik meg, ha az ügyfél már értékelt vagy már rákattintott"
+},
+{
 "id": "eae57281f4",
 "at": "2026-11-21T09:17:09+01:00",
 "msg": "Jóváhagyó oldal: a „Még nem nézted végig” kérdés az üzenetmező előtt jön"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új szerep / pozíció: Key Account Manager"
 },
 {
-"id": "5818802ee6",
-"at": "2026-11-20T15:44:00+01:00",
-"msg": "Új pozíció: projektvezető csak akkor választható, ha még nincs"
-},
-{
-"id": "49a776a40e",
-"at": "2026-11-20T14:43:57Z",
+"id": "5fc0ca79de",
+"at": "2026-11-20T14:44:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
