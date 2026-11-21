@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8cb68ece5c",
+"at": "2026-11-21T22:36:54+01:00",
+"msg": "Eszköz-zár lakat: lekerekített négyzet jelvény"
+},
+{
 "id": "a3fc777b12",
 "at": "2026-11-21T22:33:50+01:00",
 "msg": "Eszköz-zár lakat: kerek, halvány sárga keret (feloldva kék)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: elküldött kérésnél az oldal nem görgethető, a kérés doboza 30%-kal szélesebb és magában görgethető"
 },
 {
-"id": "902919abd3",
-"at": "2026-11-21T10:21:23+01:00",
-"msg": "Stáb: véglegesített (lakatolt) eszközöknél a pozíció és a szakember csak feloldás után vehető le"
-},
-{
-"id": "07b5f3474e",
-"at": "2026-11-21T09:18:53Z",
+"id": "ffec9f6ce8",
+"at": "2026-11-21T09:21:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
