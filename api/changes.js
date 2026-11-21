@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6a20192ae1",
+"at": "2026-11-21T10:18:46+01:00",
+"msg": "Jóváhagyó oldal: a köszönő üzenet alatt az ügyfél módosítási kérése"
+},
+{
 "id": "fbbcc44c70",
 "at": "2026-11-21T10:15:47+01:00",
 "msg": "Fizetős javítás: ha az ügyfél nem kéri, az utolsó változat automatikusan jóváhagyva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szöveghossz: minden szövegmező a háttér határánál azonnal megáll és szól (hiányzó és eltérő maxlength-ek pótolva)"
 },
 {
-"id": "0d04800d1d",
-"at": "2026-11-21T08:35:45+01:00",
-"msg": "Általános szabály: a beírt szöveget soha nem vágjuk le csendben – a háttér hibát ad, a felület megállítja az írást és a túl hosszú beillesztést"
-},
-{
-"id": "efdc35d6b6",
-"at": "2026-11-21T07:32:27Z",
+"id": "823b739af5",
+"at": "2026-11-21T07:35:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
