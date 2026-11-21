@@ -3023,4 +3023,4 @@ label:has(> input:disabled){cursor:default!important;pointer-events:none}
 html.th2 .col-grip::after,html.th2 .fin-sheet th:hover .col-grip::after{background:transparent}
 html.th2 .col-grip:hover::after,html.th2 body.col-resizing .col-grip::after{background:#b7c2cd}
 html.th2 .fin-sheet th{user-select:none;caret-color:transparent}
-.eq-plock{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 6px;padding:6px 10px;border-radius:8px;background:#fff7e6;border:1px solid #f3d9a4;font-size:12.5px}.eq-plock span{flex:1 1 140px}.eq-plock.open{background:#eef6ff;border-color:#c9defa}
+html body .pcrew .pcrew-lock{position:absolute;top:40px;right:8px;width:30px;height:26px;display:flex;align-items:center;justify-content:center;padding:0;font-size:14px;opacity:.55;background:transparent;border:0;cursor:pointer}html body .pcrew .pcrew-lock:hover{opacity:1}html body .pcrew .pcrew-lock.open{opacity:.9}
