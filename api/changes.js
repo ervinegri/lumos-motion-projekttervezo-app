@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "32af1d1261",
+"at": "2026-11-21T21:01:08+01:00",
+"msg": "Google-értékelések: Frissítés gomb a fejlécben, visszajelzéssel"
+},
+{
 "id": "6414687c93",
 "at": "2026-11-21T18:16:46+01:00",
 "msg": "Munkatárs dokumentumai: Drive-on meglévő fájl felvétele"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a javítási útmutató nagyobb betűvel, kiemelve, hogy egyetlen üzenetben kell leírni minden módosítást"
 },
 {
-"id": "e9afa0e737",
-"at": "2026-11-21T09:51:06+01:00",
-"msg": "Videóverziók: pCloud-linkeknél is rögzül és váltható a verzió; ‹ › lapozás a verziók között"
-},
-{
-"id": "a427526af9",
-"at": "2026-11-21T08:49:42Z",
+"id": "638479eb8a",
+"at": "2026-11-21T08:51:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
