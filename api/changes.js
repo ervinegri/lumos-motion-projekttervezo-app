@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7d5093153",
+"at": "2026-11-21T09:53:19+01:00",
+"msg": "Jóváhagyó oldal: a díjmentes körök elfogyása után nem jelenik meg az általános javítási útmutató"
+},
+{
 "id": "19aff0c071",
 "at": "2026-11-21T09:52:34+01:00",
 "msg": "Jóváhagyó oldal: a javítási útmutató nagyobb betűvel, kiemelve, hogy egyetlen üzenetben kell leírni minden módosítást"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb lista: a megszűnt (átnevezett) szerepre beragadt szűrő törlődik – pl. Statiszta → Szereplő"
 },
 {
-"id": "f1c753af94",
-"at": "2026-11-20T16:38:05+01:00",
-"msg": "Munkatárs / eszköz adatlap: meglévő elemnél zárolva nyílik, a 🔒 Szerkesztés gombbal oldható fel (a dokumentumok zárolva is kezelhetők)"
-},
-{
-"id": "ac349bde28",
-"at": "2026-11-20T15:33:52Z",
+"id": "f2e8a8913e",
+"at": "2026-11-20T15:38:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
