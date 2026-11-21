@@ -272,7 +272,7 @@ function billModal(pid,focus){const p=projById(pid);if(!p)return;const b=billOf(
       <div class="fw-extra" hidden><div class="fields" style="margin-top:8px">${mf('fwValidTo','Érvényes eddig (üresen: határozatlan)',{type:'date'})}</div></div></div>`:''}
     ${ms('mode','Fizetési konstrukció',[['eloleg','Foglaló + végszámla'],['egyben','Egy számla (foglaló nélkül)']],b.mode||'eloleg')}
     ${(()=>{const ii=billInfo(p);return ii.db||ii.el?`<div class="field"><label>Foglaló (%)</label><div class="inp ro-inp" title="A díjbekérő / foglalószámla már ki van állítva – a foglaló nem módosítható">${num(b.advancePct)}% 🔒</div><input type="hidden" name="advancePct" value="${num(b.advancePct)}"></div>`:mf('advancePct','Foglaló (%)',{v:b.advancePct??50,im:'numeric'});})()}
-    <div class="field full"><label for="m-note">Megjegyzés (fizetési feltétel, kapcsolattartó a pénzügyön stb.)</label><textarea class="inp" id="m-note" name="note" rows="2" maxlength="1000">${esc(b.note||'')}</textarea></div>
+    <div class="field full"><label for="m-note">Megjegyzés (fizetési feltétel, kapcsolattartó a pénzügyön stb.)</label><textarea class="inp" id="m-note" name="note" rows="2" maxlength="500">${esc(b.note||'')}</textarea></div>
   </div>`,{submitLabel:'Mentés',submit:async fd=>{
     const file=($('m-cfile')||{}).files&&$('m-cfile').files[0];
     const d={projectId:pid,contractStatus:fd.get('contractStatus'),signedAt:fd.get('signedAt')||'',mode:fd.get('mode'),advancePct:Number(fd.get('advancePct')),note:String(fd.get('note')||'').trim()};

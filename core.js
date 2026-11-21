@@ -676,6 +676,10 @@ function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!p
 function fixLegacyRoles(){const f=a=>{if(Array.isArray(a))for(let i=0;i<a.length;i++)if(a[i]==='Statiszta')a[i]='Szereplő';};
   (S.crew||[]).forEach(c=>f(c.roles));if(S.cf&&S.cf.role==='Statiszta')S.cf.role='Szereplő';(S.projects||[]).forEach(p=>(p.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';}));if(S.draft)(S.draft.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';});}
 
+/* a háttér határai az egyértelmű nevű mezőkre, ha a mezőn nincs maxlength (fókuszkor kapja meg) */
+const TXT_MAX={location:300,clientAddress:300,address:300,lostReason:300,cc:300,description:5000,message:2000,techPlan:5000,deliveryNotes:3000,siteReport:3000,cancelReason:1000,notes:20000};
+document.addEventListener('focusin',e=>{const el=e.target;if(!el||!(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&/^(text|search|email|url|tel|)$/.test(el.type||'')))||el.hasAttribute('maxlength'))return;
+  const k=el.dataset.field||el.name||String(el.id||'').replace(/^m-/,'');if(TXT_MAX[k])el.setAttribute('maxlength',TXT_MAX[k]);},true);
 /* ÁLTALÁNOS SZABÁLY: szöveget nem vágunk le csendben. A maxlength-es mezőknél az írás megáll a határon, és szólunk;
    a túl hosszú beillesztést nem csonkítjuk, hanem megállítjuk (a vágólap tartalma megmarad, rövidíthető). */
 (function(){let last=0;const warn=(el,msg)=>{const now=Date.now();if(now-last<2500)return;last=now;try{toast(msg,true);}catch(e){}};
