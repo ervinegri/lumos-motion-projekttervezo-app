@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a19633561a",
+"at": "2026-11-21T10:03:44+01:00",
+"msg": "Jóváhagyó oldal: az utolsó díjmentes kör szövegének átfogalmazása"
+},
+{
 "id": "385c019cf7",
 "at": "2026-11-21T10:03:00+01:00",
 "msg": "Jóváhagyó oldal: módosítás elküldése után csak a köszönő üzenet látszik, középen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: az értékelés eredeti szövege a fordítás helyett (eddig kimaradt)"
 },
 {
-"id": "feb0c88ae4",
-"at": "2026-11-20T23:02:33+01:00",
-"msg": "Google-értékelések: panel helyett gomb az Új szerződés mellett, ablakban nyílik"
-},
-{
-"id": "4e3ed5a16c",
-"at": "2026-11-20T21:55:42Z",
+"id": "70277ee3fa",
+"at": "2026-11-20T22:02:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
