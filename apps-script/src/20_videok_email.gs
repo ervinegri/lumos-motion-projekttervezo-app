@@ -288,7 +288,7 @@ function clientReview_(t) { const o = clientTokenRead_(t); if (o.pv) return { ok
   return { ok: true }; }
 /** Naponta: az átadás után REVIEW_WAIT_DAYS_ nappal egyetlen kérő levél a kapcsolattartónak, ha még nem nyitotta meg az értékelést, és az ügyféltől fél éven belül nem kértünk. */
 const REVIEW_START_ = '2026-11-21';
-function reviewDaily_() { if (!clientMailLive_()) return;
+function reviewDaily_() { return;   /* KIKAPCSOLVA (2026-11-21, Ervin): semmilyen Google-értékeléssel kapcsolatos e-mail nem mehet ki */ if (!clientMailLive_()) return;
   const all = readAll_('projects'), today = today_(), dd = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5), key = p => String(p.client || '').trim().toLowerCase();
   const recent = gbpReviewed_(); all.forEach(p => { const k = key(p), at = String(p.reviewAt || p.reviewClick || '').slice(0, 10); if (k && at && dd(at, today) < REVIEW_CLIENT_GAP_DAYS_) recent[k] = 1; });
   all.filter(p => p.status === 'atadva' && p.deliveredAt && !p.reviewAt && !p.reviewClick && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(p.contactEmail || '').trim())).forEach(p => {

@@ -319,7 +319,7 @@ function installSalesSync() {
   return 'A Sales App szinkron 5 percenként fut.';
 }
 /** Tartalék: naponta egyszer (reggel) a kifizetések lekérdezése a számlázz.hu-tól – ha egy IPN-értesítés elmaradna. */
-function szDailySync() { try { gbpSync_(null); } catch (e) { Logger.log('gbpSync: ' + e); } try { reviewDaily_(); } catch (e) { Logger.log('reviewDaily: ' + e); }
+function szDailySync() { try { gbpSync_(null); } catch (e) { Logger.log('gbpSync: ' + e); }
   try { if (!szamlazzKey_()) return; szSync_({ id: 'sz-auto', name: 'számlázz.hu (napi ellenőrzés)', role: 'admin', email: '' }, {}); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés: ' + e); } try { if (DB_) dbFlush_(); } catch (e) { } }
 function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
