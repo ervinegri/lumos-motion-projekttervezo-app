@@ -417,7 +417,7 @@ function rpcInner_(token, name, arg) {
     case 'finalizeCrew': canEdit(); return finalizeCrew_(u, arg);
     case 'finalizeEquipment': canEdit(); return finalizeEquipment_(u, arg);
     case 'eqListPreview': canEdit(); return eqListPreview_(u, arg);
-    case 'logNote': canEdit(); logEvent_(u, 'Véglegesített csapat módosítása', str_(arg && arg.subject, 200), str_(arg && arg.details, 300)); return { ok: true };
+    case 'logNote': canEdit(); logEvent_(u, 'Véglegesített csapat módosítása', str_(arg && arg.subject, 200), String((arg && arg.details) || '').trim().slice(0, 300)); return { ok: true };
     case 'crewFinalPreview': canEdit(); return crewFinalPreview_(u, arg);
     case 'saveSignature': canEdit(); return saveSignature_(u, arg);
     case 'finData': adminOnly(); return finDataCached_();

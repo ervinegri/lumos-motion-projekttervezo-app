@@ -18,3 +18,6 @@
 - **Felület:** az `index.html` sorrendjében töltődik (`core.js` → `views-*.js` → `actions-*.js` → `finance.js` … → `boot.js`). Az indítás a `boot.js`-ben, minden szkript után.
   Új szkriptfájlt az `index.html`-be és a `tests/finance.test.cjs` fájllistájába is fel kell venni.
 - **Értékesítés munkalap:** a 33. oszlop jelenleg egy duplikált „Másodlagos e-mail” fejléc – amíg a lapon nincs rendezve, a `deals` táblához ne adj új oszlopot.
+
+## Szöveg hossza – általános szabály (2026-11-21)
+A felhasználó által beírt szöveget SOHA nem vágjuk le csendben. A backend `str_` hibát dob, ha a kérésben érkezett szöveg (≥300 karakteres határú mezőnél) hosszabb a határnál; a frontend a maxlength-nél megállítja az írást és a túl hosszú beillesztést, és szól. Új szövegmezőnél a frontend maxlength = a backend határa. Előnézethez / naplóhoz `.slice()`-t használj, ne `str_`-t.

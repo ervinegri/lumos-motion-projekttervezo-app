@@ -164,6 +164,7 @@ function api_(raw) {
   try {
     const body = JSON.parse(raw || '{}');
     const fn = String(body.fn || ''), args = Array.isArray(body.args) ? body.args : [];
+    IN_TXT_ = new Set(); try { inTxtCollect_(args, IN_TXT_, 0); } catch (e) {}
     NQ_CTX_ = fn === 'rpc' ? 'app: ' + String(args[1] || '') : fn;   // adatbázis-forgalom: melyik művelet kérdezte
     let data;
     const run = () => {
@@ -555,7 +556,16 @@ function rewriteAssign_(key, keep, add, rename) {
 function byId_(list) { const m = {}; list.forEach(x => { m[x.id] = x; }); return m; }
 function now_() { return Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm:ss'); }
 function today_() { return Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd'); }
-function str_(v, max) { return String(v == null ? '' : v).trim().slice(0, max); }
+/* ÁLTALÁNOS SZABÁLY (2026-11-21, Ervin): a felhasználó által beírt szöveget SOHA nem vágjuk le csendben.
+   Ha egy kérésben érkezett szöveg hosszabb a mező határánál, hibát adunk (a szöveg a felületen megmarad), nem csonkítunk.
+   IN_TXT_: a kérés összes ≥ 300 karakteres szövege; a tárolt adatok normalizálása (nem a kérésből jön) továbbra is csak vág. */
+let IN_TXT_ = null;
+function inTxtCollect_(x, set, d) { if (d > 8 || x == null) return; if (typeof x === 'string') { if (x.length >= 300) set.add(x); return; } if (typeof x === 'object') Object.keys(x).forEach(k => inTxtCollect_(x[k], set, d + 1)); }
+function str_(v, max) {
+  const raw = String(v == null ? '' : v), t = raw.trim();
+  if (t.length > max && max >= 300 && IN_TXT_ && IN_TXT_.has(raw)) throw new Error('Túl hosszú szöveg: legfeljebb ' + max.toLocaleString('hu-HU') + ' karakter lehet, ez ' + t.length.toLocaleString('hu-HU') + '. Rövidítsd, vagy oszd két részre – semmi nem veszett el, a szöveg a mezőben maradt.');
+  return t.slice(0, max);
+}
 function iso_(v) { const s = str_(v, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''; }
 function int_(v, min, max, def) {
   if (v === '' || v == null) return def;

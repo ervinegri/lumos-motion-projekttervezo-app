@@ -675,3 +675,12 @@ function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!p
 /* „Statiszta” szerep → „Szereplő” (statiszta, modell és beszélő szereplő gyűjtőneve, 2026-11-20): a régi adatokat betöltéskor átnevezzük, mentéskor már az új név megy */
 function fixLegacyRoles(){const f=a=>{if(Array.isArray(a))for(let i=0;i<a.length;i++)if(a[i]==='Statiszta')a[i]='Szereplő';};
   (S.crew||[]).forEach(c=>f(c.roles));if(S.cf&&S.cf.role==='Statiszta')S.cf.role='Szereplő';(S.projects||[]).forEach(p=>(p.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';}));if(S.draft)(S.draft.crew||[]).forEach(x=>{if(x&&x.role==='Statiszta')x.role='Szereplő';});}
+
+/* ÁLTALÁNOS SZABÁLY: szöveget nem vágunk le csendben. A maxlength-es mezőknél az írás megáll a határon, és szólunk;
+   a túl hosszú beillesztést nem csonkítjuk, hanem megállítjuk (a vágólap tartalma megmarad, rövidíthető). */
+(function(){let last=0;const warn=(el,msg)=>{const now=Date.now();if(now-last<2500)return;last=now;try{toast(msg,true);}catch(e){}};
+  document.addEventListener('paste',e=>{const el=e.target;if(!el||!(el.tagName==='TEXTAREA'||el.tagName==='INPUT'))return;const max=+el.getAttribute('maxlength');if(!max||max<50)return;
+    const add=(e.clipboardData&&e.clipboardData.getData('text'))||'',sel=(el.selectionEnd||0)-(el.selectionStart||0),len=el.value.length-sel+add.length;
+    if(len>max){e.preventDefault();warn(el,'A beillesztett szöveg túl hosszú: ebben a mezőben legfeljebb '+max.toLocaleString('hu-HU')+' karakter fér el (most '+len.toLocaleString('hu-HU')+' lenne). Rövidítsd, vagy oszd két részre.');}},true);
+  document.addEventListener('input',e=>{const el=e.target;if(!el||!(el.tagName==='TEXTAREA'||el.tagName==='INPUT'))return;const max=+el.getAttribute('maxlength');if(!max||max<50)return;
+    if(el.value.length>=max)warn(el,'Elérted a mező határát ('+max.toLocaleString('hu-HU')+' karakter) – innen nem lehet tovább írni. Ha több mondanivaló van, küldd el, és folytasd egy új hozzászólásban.');},true);})();
