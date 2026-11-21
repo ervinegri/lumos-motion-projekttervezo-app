@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4edc2a0bce",
+"at": "2026-11-21T10:26:51+01:00",
+"msg": "Ellenőrzés (csak olvasás): NAV-ból párosított szakemberszámlák vs. számlázz.hu bejövő bizonylatok"
+},
+{
 "id": "05e4f5fd79",
 "at": "2026-11-21T10:24:42+01:00",
 "msg": "Felület: „pozíció” helyett „szerepkör” mindenhol"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: ⭐ Értékelés oszlop a Jóváhagyva után – kézi értékeléskérés átnézhető levéllel"
 },
 {
-"id": "c5a23bd984",
-"at": "2026-11-21T09:22:23+01:00",
-"msg": "Bejövő számlák: Rezsi / Marketing / Elvetés azonnal eltűnik, a mentés a háttérben fut"
-},
-{
-"id": "7527e3c22b",
-"at": "2026-11-21T08:20:33Z",
+"id": "f49dd938ea",
+"at": "2026-11-21T08:22:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
