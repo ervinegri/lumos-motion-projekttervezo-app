@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "168f77f73e",
+"at": "2026-11-21T08:25:26+01:00",
+"msg": "Videó: a leadási / ellenőrzési megjegyzés 1000 helyett 6000 karakterig (eddig levágta)"
+},
+{
 "id": "b20a58c75a",
 "at": "2026-11-21T08:21:53+01:00",
 "msg": "Értékeléskérés: csak a mai naptól átadott projekteknél (régi projekteknek utólag nem megy), legfeljebb 14 napig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Statiszta keretszerződés: a Projekttervező említése kivéve (e-mail / üzenet)"
 },
 {
-"id": "b111465384",
-"at": "2026-11-20T15:35:34+01:00",
-"msg": "Javítás: Szerződés és számlázás oldal betöltési hiba (különbözet-doboz hozzáfűzése)"
-},
-{
-"id": "38ece5dca3",
-"at": "2026-11-20T14:29:06Z",
+"id": "431c470bd9",
+"at": "2026-11-20T14:35:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
