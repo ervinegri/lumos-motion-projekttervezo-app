@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "206ed5c42d",
+"at": "2026-11-21T09:57:31+01:00",
+"msg": "Jóváhagyó oldal: „1. javítási kör” felirat rövidítése"
+},
+{
 "id": "29615a1b62",
 "at": "2026-11-21T09:56:52+01:00",
 "msg": "Jóváhagyó oldal: kék „1. / 2. javítási kör” jelzés a javításkérésnél; a csúszkára kattintva megáll a videó"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékesítés: kilógó megjegyzés törlése a jutalékcsempe alól"
 },
 {
-"id": "a616b46f80",
-"at": "2026-11-20T19:38:09+01:00",
-"msg": "Árajánlat: kikapcsolható Összesen sor (pl. napidíjas ajánlatnál)"
-},
-{
-"id": "0a71f12d95",
-"at": "2026-11-20T18:10:52Z",
+"id": "039187fac5",
+"at": "2026-11-20T18:38:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
