@@ -318,7 +318,7 @@ function inviteHintDate(v){
 }
 /* Szerepkör-címke finom színe szerepcsoportonként */
 /* sok szerepkörnél rövid címke (a teljes név a súgóban) */
-const posShort=r=>({'Key Account Manager':'KAM','Kreatív operatőr':'Kreatív op.','Statív operatőr':'Statív op.','Interjúsarok operatőr':'Interjú op.','Drónpilóta':'Drón','Képkeverő / streaming':'Képkeverő','Hangtechnikus':'Hang','Fénytechnikus':'Fény','Vizuáltechnikus':'Vizuál','Helyszíni értékesítő':'Helyszíni ért.','Sofőr / rakodó':'Sofőr'})[r]||r;
+const posShort=r=>({'Key Account Manager':'KAM','Kreatív operatőr':'Kreatív op.','Statív operatőr':'Statív op.','Interjú operatőr':'Interjú op.','Drónpilóta':'Drón','Képkeverő / streaming':'Képkeverő','Hangtechnikus':'Hang','Fénytechnikus':'Fény','Vizuáltechnikus':'Vizuál','Helyszíni értékesítő':'Helyszíni ért.','Sofőr / rakodó':'Sofőr'})[r]||r;
 function posTone(r){r=String(r||'');return /vágó/i.test(r)?'pt-cut':/fotó/i.test(r)?'pt-photo':/drón/i.test(r)?'pt-drone':/hang|fény|vizuál|képkever|stream/i.test(r)?'pt-tech':/sofőr|rakod/i.test(r)?'pt-drive':/értékes|ajánl/i.test(r)?'pt-sales':'pt-cam';}
 function crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,inner){
   const ROLES=projRoles(p);if(!ROLES.includes(selRole))selRole=ROLES.includes('Vágó')?'Vágó':ROLES[0];   // videóvágásnál csak projektvezető és vágó
@@ -549,7 +549,9 @@ setInterval(()=>document.querySelectorAll('.pt-clock').forEach(e=>{e.textContent
    csak a „Módosítás” gombbal szerkeszthetők; mentéskor a háttér e-mailben értesíti a változásról (saveProject_ → taskNotice_). */
 const invActive=(p,cid)=>{const iv=(p.invites||{})[cid];return !!iv&&!iv.pre&&(iv.st==='yes'||(iv.st==='invited'&&!!iv.at));};
 /* régi adat: a projekten még sima „Operatőr” szerepkör – a kártyán a terepi feladatából adódó típus látszik (az adat a következő kiosztáskor cserélődik) */
-function opShow(p,cid,r){if(r!=='Operatőr')return r;const k=(editTasksOf(p)[cid]||[]).find(x=>/^f_/.test(x));if(!k)return r;const kk=k.slice(2),sr=(window.SLOT_ROLE||{})[kk]||((typeof EXTRAS!=='undefined'?EXTRAS:[]).concat(typeof TECH!=='undefined'?TECH:[]).find(e=>e.k===kk)||{}).role;return sr&&sr!=='Operatőr'?sr:opRoleFor(kk,'Operatőr');}
+function opShow(p,cid,r){if(r!=='Operatőr')return r;const held=(p.crew||[]).filter(a=>a.crewId===cid&&a.role!=='Operatőr').map(a=>a.role),EX=(typeof EXTRAS!=='undefined'?EXTRAS:[]).concat(typeof TECH!=='undefined'?TECH:[]);
+  const rs=(editTasksOf(p)[cid]||[]).filter(x=>/^f_/.test(x)).map(k=>{const kk=k.slice(2),sr=(window.SLOT_ROLE||{})[kk]||(EX.find(e=>e.k===kk)||{}).role;return sr&&sr!=='Operatőr'?sr:opRoleFor(kk,'Operatőr');});
+  return rs.find(x=>!held.includes(x))||r;}   // az a feladat számít, amelyhez még nincs külön szerepköre (pl. kreatív mellé interjú)
 function svcLockOf(p,kind){if(ro()||projLocked()||((kind==='post'?S.postEdit:S.fieldEdit)||{})[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&svcLockWho(p,kind).length>0};
   const who=svcLockWho(p,kind);return {on:who.length>0,who,open:false};}
 function svcLockWho(p,kind){const et=editTasksOf(p);

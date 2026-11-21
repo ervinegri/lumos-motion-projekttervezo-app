@@ -287,6 +287,7 @@ function saveDraft(){
   if(!S.draft||ro())return;
   const d=clone(S.draft);
   if(String(d.name||'').trim().length<2){toast('Add meg a projekt nevét.',true);return;}
+  if(typeof opShow==='function'&&(d.crew||[]).some(a=>a.role==='Operatőr')){const seen=new Set();d.crew=(d.crew||[]).map(a=>a.role==='Operatőr'?Object.assign({},a,{role:opShow(d,a.crewId,'Operatőr')}):a).filter(a=>{const k=a.crewId+'|'+a.role;if(seen.has(k))return false;seen.add(k);return true;});S.draft.crew=clone(d.crew);}   /* régi sima „Operatőr” → a feladatából adódó típus (mentéskor rendbe teszi) */
   const cd=S._commDraft&&S._commDraft.pid===d.id?S._commDraft:null;if(cd){S._commDraft=null;S._commOrig=null;}   /* a jutalék is ezzel a mentéssel megy */
   const i=S.projects.findIndex(x=>x.id===d.id),prev=i>=0?S.projects[i]:null;
   const local=Object.assign({},prev||{},d,{updatedAt:prev?prev.updatedAt:''});

@@ -331,6 +331,15 @@ function gbpHourlyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('GBP_HOURLY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'gbpHourly')) ScriptApp.newTrigger('gbpHourly').timeBased().everyHours(1).create(); P.setProperty('GBP_HOURLY_INSTALLED', '1'); } catch (e) {}
 }
+/** Egyszeri adatjavítás: átnevezett szerepkörök (ROLE_ALIAS_) a stáb-profilokban, a beosztásokban és a meghívókban. */
+function roleRenameOnce_() {
+  const P = PropertiesService.getScriptProperties(), key = 'ROLE_RENAME_V1'; if (P.getProperty(key)) return;
+  try { withLock_(() => { const fix = v => { let t = String(v == null ? '' : v); Object.keys(ROLE_ALIAS_).forEach(o => { t = t.split(o).join(ROLE_ALIAS_[o]); }); return t; };
+    [['crew', ['roles']], ['crewAssign', ['role']], ['projects', ['invites', 'fees']]].forEach(([tb, cols]) => { const sh = sheetFor_(tb);
+      readAll_(tb).forEach(r => { let ch = false; const o = Object.assign({}, r); cols.forEach(c => { if (o[c] == null) return; const raw = typeof o[c] === 'string' ? o[c] : JSON.stringify(o[c]), nv = fix(raw); if (nv !== raw) { o[c] = typeof o[c] === 'string' ? nv : JSON.parse(nv); ch = true; } });
+        if (ch && o.id) putRow_(tb, sh, o, findRow_(sh, o.id) || null); }); });
+    dataBump_(); dbFlush_(); }); P.setProperty(key, now_()); } catch (e) { Logger.log('roleRenameOnce: ' + e); }
+}
 function hsPullEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_PULL_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'hsPullHourly')) ScriptApp.newTrigger('hsPullHourly').timeBased().everyHours(1).create(); P.setProperty('HS_PULL_INSTALLED', '1'); } catch (e) {}

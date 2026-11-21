@@ -470,7 +470,7 @@ function postModal(next){
 /* A projekt vágói (Vágó szereppel) */
 const editorsOf=p=>[...new Set((p&&p.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))].map(id=>crewById(id)).filter(Boolean);
 /* Nyersanyag-értesítő csak annak a vágónak kell, akinek más is forgatott (ha ő maga az egyetlen operatőr / fotós / drónos, nála van az anyag) */
-const RAW_SHOOT=new Set(['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Drónpilóta','Fotós']);
+const RAW_SHOOT=new Set(['Operatőr','Kreatív operatőr','Statív operatőr','Interjú operatőr','Drónpilóta','Fotós']);
 /* A nyersanyag a Synology NAS-ra kerül (Dávid tölti fel); egységes mappanév: ÉÉÉÉ-HH-NN_projekt-neve */
 const nasFolder=p=>{const r=pr(p),n=fold(p&&p.name).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/,'');return (r?r.start+'_':'')+(n||'projekt');};
 const rawShot=p=>!editOnly(p)&&(p.crew||[]).some(a=>RAW_SHOOT.has(a.role));

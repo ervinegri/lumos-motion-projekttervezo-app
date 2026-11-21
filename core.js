@@ -48,13 +48,13 @@ const POST_STAGES=['utomunka','leadva','jovahagyas'];   // utómunka utáni lép
 const videoStagesOn=()=>!!(S.capabilities&&S.capabilities.videoStages);   // az új háttérkóddal aktiválódik (a régi háttér nem ismeri ezeket az állapotokat)
 const STATUS_LABEL={egyeztetes:'Egyeztetés',tervezes:'Tervezés',helyszin:'Helyszíni munka',utomunka:'Utómunka',leadva:'Videók leadva',jovahagyas:'Jóváhagyásra vár',atadva:'Kész',lemondva:'Lemondva'};
 const EVENT_TYPES=['Konferencia','Webinárium','Csoportos találkozó','Céges rendezvény','Gála, díjátadó','Kiállítás, expo','Termékbemutató','Sportesemény','Koncert','Short videó forgatás','Reklám','Videóvágás','Podcast','Interjú'];
-const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjúsarok operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
+const OP_SUB=['Kreatív operatőr','Statív operatőr','Interjú operatőr'],isOpRole=r=>r==='Operatőr'||OP_SUB.includes(r);   // operatőr-altípusok: az „Operatőr” szerepű munkatársnál választhatók
 /* Beosztáskor a feladatból adódó operatőr-típus kerül a kártyára: kreatív kamera / short felvétel → Kreatív, rögzített (statív) kamerák → Statív, interjúsarok → Interjúsarok */
-const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k)||/^i_/.test(k))return 'Interjúsarok operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)(_\d+)?$/.test(k))return 'Statív operatőr';return 'Kreatív operatőr';};   // sima „Operatőr” szerepkör a projekten nincs: mindig a konkrét típus (a kreatív extrák – timelapse, POV – kreatív operatőrt kérnek)
+const opRoleFor=(k,role)=>{if(role!=='Operatőr')return role;k=String(k||'');if(k==='er_creative'||/^rec_short/.test(k))return 'Kreatív operatőr';if(/int/.test(k)||/^i_/.test(k))return 'Interjú operatőr';if(/_op$/.test(k)||/^(r[a-z0-9]+_)?er_(total|close|crowd|slides)(_\d+)?$/.test(k))return 'Statív operatőr';return 'Kreatív operatőr';};   // sima „Operatőr” szerepkör a projekten nincs: mindig a konkrét típus (a kreatív extrák – timelapse, POV – kreatív operatőrt kérnek)
 /* betöltetlen „operatőr” helyre / régi adatnál: a projekt terepi feladataiból a legvalószínűbb típus */
-const opDefault=p=>{p=p||{};const st=['er_total','er_close','er_crowd','er_slides'].some(k=>p[k])||(Array.isArray(p.recRooms)&&p.recRooms.length>0),iv=!!(p.i_sarok||p.i_stand),kr=!!p.er_creative;return kr||!(st||iv)?'Kreatív operatőr':st?'Statív operatőr':'Interjúsarok operatőr';};
+const opDefault=p=>{p=p||{};const st=['er_total','er_close','er_crowd','er_slides'].some(k=>p[k])||(Array.isArray(p.recRooms)&&p.recRooms.length>0),iv=!!(p.i_sarok||p.i_stand),kr=!!p.er_creative;return kr||!(st||iv)?'Kreatív operatőr':st?'Statív operatőr':'Interjú operatőr';};
 const opFix=(p,r)=>r==='Operatőr'?opDefault(p):r;
-const CREW_ROLES=['Projektvezető','Értékesítő','Helyszíni értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Key Account Manager','Szereplő'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
+const CREW_ROLES=['Projektvezető','Értékesítő','Helyszíni értékesítő','Operatőr','Kreatív operatőr','Statív operatőr','Interjú operatőr','Vágó','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming','Sofőr / rakodó','Key Account Manager','Szereplő'];   // az ajánlói jutalék nem szerep: a projektnél opcióként adható meg
 const CREW_TYPES=['Belsős','Állandó külsős','Alkalmi freelancer','Bérszámfejtett (munkaviszony / megbízás)'];
 const isEmployee=c=>/^(Alkalmazott|Bérszámfejtett)/.test(String(c&&c.type||''));   // bejelentett munkaviszony: munkabér – nincs díjösszesítő, számla
 const CREW_SKILLS=['Statív','Gimbal','Előadásvágás','Kreatív vágás','Werk','Saját kamera','Eszközbérlés'];
@@ -112,8 +112,8 @@ const roomCams=r=>ROOM_CAMS.filter(c=>num(r[c.k])>0);
 const preDealOf=p=>p&&p.preDeal?(S.deals||[]).find(d=>d.id===p.preDeal)||null:null;
 const isTent=p=>{if(!p||!p.preDeal||['atadva','lemondva'].includes(p.status))return false;const d=preDealOf(p);return d?!['nyert','elveszett'].includes(d.stage):!!(p.preStage||p.tent);};
 /* Eszközt igénylő helyszíni szerep: ha nincs nála eszköz, jelezzük (kamera, drón, fotó, technika) */
-const FIELD_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming'];   // terepi szerepkörök: fent a Terepi feladatoknál kell feladatot kapniuk
-const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjúsarok operatőr','Fotós','Drónpilóta','Fénytechnikus','Képkeverő / streaming'];
+const FIELD_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjú operatőr','Fotós','Drónpilóta','Hangtechnikus','Fénytechnikus','Vizuáltechnikus','Képkeverő / streaming'];   // terepi szerepkörök: fent a Terepi feladatoknál kell feladatot kapniuk
+const GEAR_ROLES=['Operatőr','Kreatív operatőr','Statív operatőr','Interjú operatőr','Fotós','Drónpilóta','Fénytechnikus','Képkeverő / streaming'];
 function gearNeed(p,cid){if(!p||!cid||editOnly(p))return '';const rl=(p.crew||[]).filter(a=>a.crewId===cid&&GEAR_ROLES.includes(a.role)).map(a=>a.role);if(!rl.length)return '';
   if((p.equipment||[]).some(e=>e.crewId===cid)||(p.rentals||[]).some(r=>r.crewId===cid))return '';return rl.map(r=>r.toLowerCase()).join(', ')+': nincs eszköz';}
 const roomVidCams=r=>ROOM_CAMS.filter(c=>c.k!=='er_slides'&&num(r[c.k])>0);   /* videót rögzítő kameraszögek (a diák nem videófelvétel) */
@@ -357,7 +357,7 @@ function computeIssues(){
     if(ids.length)out.push({level:'warn',text:`🎒 ${p.name||'Névtelen projekt'}: nincs eszköz – ${ids.map(id=>((crewById(id)||{}).name||'?')+' ('+(p.crew||[]).filter(a=>a.crewId===id&&GEAR_ROLES.includes(a.role)).map(a=>a.role.toLowerCase()).join(', ')+')').join('; ')}.`,pids:[p.id]});});
   /* olyan szerepkör, amihez nincs kiválasztott szolgáltatás */
   if(!ro())liveEq.forEach(p=>{if(editOnly(p))return;const roomCam=recRoomsOf(p).some(r=>roomVidCams(r).length)||REC_CAMS.some(c=>c.k!=='er_creative'&&p[c.k]);
-    const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjúsarok operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
+    const has={'Kreatív operatőr':camN(p,'er_creative')>0||!!p.er_creative,'Interjú operatőr':INT_FLAGS.some(c=>p[c.k]),'Statív operatőr':roomCam};
     const bad=(p.crew||[]).filter(a=>a.role in has&&!has[a.role]);
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */

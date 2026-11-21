@@ -115,7 +115,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
     try { migrateEditOnlyOnce_(); } catch (e) {}
     try { calNoClientOnce_(); } catch (e) {}
     try { if (u && (u.role === 'admin' || u.role === 'editor')) videosBackfill_(); } catch (e) { Logger.log('Videó-pótlás hiba: ' + e); }
-    try { if (u && u.role === 'admin') { salesSyncEnsure_(); szDailyEnsure_(); dealNextEnsure_(); hsPullEnsure_(); gbpHourlyEnsure_(); } } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
+    try { if (u && u.role === 'admin') { salesSyncEnsure_(); szDailyEnsure_(); dealNextEnsure_(); hsPullEnsure_(); gbpHourlyEnsure_(); roleRenameOnce_(); } } catch (e) {}   // a Sales App szinkron időzítése (egyszer)
   }
   /* 2026-11-04: nincs automatikus lépés – a Helyszíni munkából az Utómunkába is kézzel (áthúzással) lép a projekt */
   const base = loadBase_();
@@ -378,7 +378,7 @@ function parseFees_(raw) {
   if (!Array.isArray(arr)) return [];
   return arr.slice(0, 40).map(x => ({
     name: str_(x && x.name, 80), crewId: str_(x && x.crewId, 64), task: str_(x && x.task, 120), gear: str_(x && x.gear, 200),
-    roles: Array.isArray(x && x.roles) ? x.roles.map(r => str_(r, 40)).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
+    roles: Array.isArray(x && x.roles) ? x.roles.map(r => roleNorm_(str_(r, 40))).filter(r => CREW_ROLES.indexOf(r) >= 0 || r === 'Nem helyszíni').slice(0, 8) : [],
     kind: x && (x.kind === 'other' || x.kind === 'fixed') ? x.kind : '', key: str_(x && x.key, 20), refCrewId: str_(x && x.refCrewId, 64), autoTask: !!(x && x.autoTask),
     amount: int_(x && x.amount, 0, FEE_MAX, 0), post: int_(x && x.post, 0, FEE_MAX, 0), rent: int_(x && x.rent, 0, FEE_MAX, 0),
     dayAmounts: x && x.dayAmounts && typeof x.dayAmounts === 'object' ? Object.keys(x.dayAmounts).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).slice(0, 31).reduce((o, k) => { o[k] = int_(x.dayAmounts[k], 0, FEE_MAX, 0); return o; }, {}) : undefined

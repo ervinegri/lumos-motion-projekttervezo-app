@@ -97,7 +97,7 @@ function saveProject_(u, a) {
     crewIn.forEach(x => {
       const cid = str_(x && x.crewId, 64);
       const r0 = x && x.role === 'Termelési vezető' ? 'Projektvezető' : x && x.role;
-      const role = CREW_ROLES.indexOf(r0) >= 0 ? r0 : 'Operatőr';
+      const role = CREW_ROLES.indexOf(roleNorm_(r0)) >= 0 ? roleNorm_(r0) : 'Operatőr';
       if (crewMap[cid] && !seen[cid + '|' + role]) { seen[cid + '|' + role] = 1; crew.push({ crewId: cid, role: role }); }
     });
     const eqm = {};
@@ -185,7 +185,7 @@ function saveProject_(u, a) {
     if (old && p.invites) { try {   /* elfogadott meghívás + új szerepkör: az új szerepkört külön el kell fogadni (újra meghívandó; a saját beosztás magától rendben) */
       const inv = parseInvites_(p.invites), oldAsg = readAll_('crewAssign').filter(x => x.projectId === id); let ch = false;
       Object.keys(inv).forEach(cid => { const iv = inv[cid]; if (!iv || iv.st !== 'yes') return; const now = rolesOfCid_(p.lead, crew, cid); if (!now.length) return;
-        const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), opSub = ['Kreatív operatőr', 'Statív operatőr', 'Interjúsarok operatőr'], add = now.filter(r => acc.indexOf(r) < 0 && (iv.decl || []).indexOf(r) < 0 && !(opSub.indexOf(r) >= 0 && acc.indexOf('Operatőr') >= 0));   // a sima „Operatőr” konkrét típusra cserélése nem új szerepkör (nem kell újra elfogadni)
+        const acc = iv.roles && iv.roles.length ? iv.roles : rolesOfCid_(old.lead, oldAsg, cid), opSub = ['Kreatív operatőr', 'Statív operatőr', 'Interjú operatőr'], add = now.filter(r => acc.indexOf(r) < 0 && (iv.decl || []).indexOf(r) < 0 && !(opSub.indexOf(r) >= 0 && acc.indexOf('Operatőr') >= 0));   // a sima „Operatőr” konkrét típusra cserélése nem új szerepkör (nem kell újra elfogadni)
         if (add.length && iv.via !== 'self') { inv[cid] = Object.assign(iv, { st: 'invited', at: '', ans: '', dl: '', prev: acc, roles: acc }); ch = true; }
         else if (String(iv.roles) !== String(now)) { iv.roles = now; ch = true; } });
       if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új szerepkör ellenőrzés: ' + e); } }

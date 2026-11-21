@@ -112,7 +112,7 @@ function saveCrew_(u, a) {
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
   const c = {
     id: id, name: str_(a.name, 100).replace(/\s+/g, ' '),
-    roles: (Array.isArray(a.roles) ? a.roles : []).filter(r => CREW_ROLES.indexOf(r) >= 0),
+    roles: (Array.isArray(a.roles) ? a.roles : []).map(roleNorm_).filter(r => CREW_ROLES.indexOf(r) >= 0),
     type: /^Alkalmazott/.test(String(a.type || '')) ? CREW_TYPES[3] : CREW_TYPES.indexOf(a.type) >= 0 ? a.type : 'Belsős',
     phone: str_(a.phone, 40), email: str_(a.email, 160).toLowerCase(),
     dayRate: (a.dayRate === '' || a.dayRate == null) ? null : int_(a.dayRate, 0, 1e8, null), note: str_(a.note, 500),
