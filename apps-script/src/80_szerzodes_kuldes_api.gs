@@ -560,9 +560,10 @@ function rpcInner_(token, name, arg) {
       const docs = readAll_('szDocs').filter(d => d.kind === 'be'), idx = {}; docs.forEach(d => { idx[nrm(d.no) + '|' + t8(d.partnerTax)] = d; idx[nrm(d.no)] = idx[nrm(d.no)] || d; });
       const crew = {}; readAll_('crew').forEach(c => { crew[c.id] = c.name; });
       const rows = []; readAll_('payStatus').filter(s => s.invoiceNo && String(s.month) >= String(arg && arg.from || '2026-06')).forEach(s => String(s.invoiceNo).split(/\s*,\s*/).filter(Boolean).forEach(no => {
-        const d = idx[nrm(no) + '|' + t8(s.invoiceTax)] || idx[nrm(no)]; rows.push({ month: s.month, crew: crew[s.crewId] || s.crewName || s.crewId, no: no, inSz: !!d, szStatus: d ? (d.status || '') : '', szCrew: d ? (crew[d.crewId] || '') : '' }); }));
+        const d = idx[nrm(no) + '|' + t8(s.invoiceTax)] || idx[nrm(no)]; rows.push({ month: s.month, crew: crew[s.crewId] || s.crewName || s.crewId, no: no, inSz: !!d, szStatus: d ? (d.status || '') : '', szCrew: d ? (crew[d.crewId] || '') : '', pdf: d ? !!d.pdfUrl : false }); }));
       const months = {}; docs.forEach(d => { const m = String(d.kelt || '').slice(0, 7); months[m] = (months[m] || 0) + 1; });
-      return { rows: rows, szBeByMonth: months, szBeTotal: docs.length };
+      const pfx = {}; docs.forEach(d => { const k = (/^([A-Za-z]+)-/.exec(String(d.no || '')) || [, '(egyéb)'])[1]; const o = pfx[k] = pfx[k] || { n: 0, pdf: 0 }; o.n++; if (d.pdfUrl) o.pdf++; });
+      return { rows: rows, szBeByMonth: months, szBeTotal: docs.length, pdfAll: docs.filter(d => d.pdfUrl).length, pfx: pfx, noPdf: docs.filter(d => !d.pdfUrl).slice(-15).map(d => d.no + ' · ' + d.partnerName) };
     }
     case 'navInvoices': {   /* ügyvezető: bármelyik; szakember / értékesítő: csak a saját, a Kifizetésekhez párosított számlája (a tárolt adószámmal) */
       if (u.role === 'admin' && !u.viewAs) return navInvoices_(u, arg);
