@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3ae91de496",
+"at": "2026-11-21T10:23:54+01:00",
+"msg": "Stáb: eszközök visszazárása újraküldés nélkül; ⚙️ menüben „Pozíció eltávolítása”"
+},
+{
 "id": "33a560324d",
 "at": "2026-11-21T10:22:10+01:00",
 "msg": "Jóváhagyó oldal: elküldött kérésnél az oldal nem görgethető, a kérés doboza 30%-kal szélesebb és magában görgethető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Bejövő számla elvetése: azonnal eltűnik, a mentés a háttérben fut (hibánál visszakerül)"
 },
 {
-"id": "c330219a6d",
-"at": "2026-11-21T09:17:28+01:00",
-"msg": "Jóváhagyó oldal: az értékelés-doboz nem jelenik meg, ha az ügyfél már értékelt vagy már rákattintott"
-},
-{
-"id": "b14f4b785f",
-"at": "2026-11-21T08:17:17Z",
+"id": "e9ccb91359",
+"at": "2026-11-21T08:17:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
