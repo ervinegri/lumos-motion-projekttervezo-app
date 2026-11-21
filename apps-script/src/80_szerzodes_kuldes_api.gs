@@ -563,7 +563,7 @@ function rpcInner_(token, name, arg) {
         const d = idx[nrm(no) + '|' + t8(s.invoiceTax)] || idx[nrm(no)]; rows.push({ month: s.month, crew: crew[s.crewId] || s.crewName || s.crewId, no: no, inSz: !!d, szStatus: d ? (d.status || '') : '', szCrew: d ? (crew[d.crewId] || '') : '', pdf: d ? !!d.pdfUrl : false }); }));
       const months = {}; docs.forEach(d => { const m = String(d.kelt || '').slice(0, 7); months[m] = (months[m] || 0) + 1; });
       const pfx = {}; docs.forEach(d => { const k = (/^([A-Za-z]+)-/.exec(String(d.no || '')) || [, '(egyéb)'])[1]; const o = pfx[k] = pfx[k] || { n: 0, pdf: 0 }; o.n++; if (d.pdfUrl) o.pdf++; });
-      return { rows: rows, szBeByMonth: months, szBeTotal: docs.length, pdfAll: docs.filter(d => d.pdfUrl).length, pfx: pfx, noPdf: docs.filter(d => !d.pdfUrl).slice(-15).map(d => d.no + ' · ' + d.partnerName) };
+      return { rows: rows, szBeByMonth: months, szBeTotal: docs.length, pdfAll: docs.filter(d => d.pdfUrl).length, pfx: pfx, noPdf: docs.filter(d => !d.pdfUrl).slice(-15).map(d => d.no + ' · ' + d.partnerName), lag: docs.filter(d => d.receivedAt && d.kelt && String(d.kelt) >= '2026-09-01').map(d => ({ no: d.no, kelt: String(d.kelt).slice(0, 10), rec: String(d.receivedAt).slice(0, 16) })) };
     }
     case 'navInvoices': {   /* ügyvezető: bármelyik; szakember / értékesítő: csak a saját, a Kifizetésekhez párosított számlája (a tárolt adószámmal) */
       if (u.role === 'admin' && !u.viewAs) return navInvoices_(u, arg);
