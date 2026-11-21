@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "40e36d94b0",
+"at": "2026-11-21T09:49:27+01:00",
+"msg": "Jóváhagyó oldal: a „Mindent leírtál?” megerősítés eredeti szövege marad, a felső figyelmeztető doboz törölve"
+},
+{
 "id": "0ea0122e1b",
 "at": "2026-11-21T09:48:57+01:00",
 "msg": "Videócím: „– javítás 1”, „– javítás 2” (az ügyfél oldalán és a belső ablakban is)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keretszerződés: a Word-letöltés csak a küldő ablakban; a székhely betöltése látható (animált mező), sikertelen keresésnél jelzi"
 },
 {
-"id": "02a4bf83de",
-"at": "2026-11-20T16:17:44+01:00",
-"msg": "Munkatárs űrlap: a 🔍 (cégnév betöltése) az adószám mezőnél"
-},
-{
-"id": "5de6669c7d",
-"at": "2026-11-20T15:00:17Z",
+"id": "65236224f9",
+"at": "2026-11-20T15:17:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
