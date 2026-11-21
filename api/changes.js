@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ef0286cb44",
+"at": "2026-11-21T22:00:48+01:00",
+"msg": "Nincs sima „Operatőr” szerepkör a projekten: mindig konkrét típus (kreatív / statív / interjúsarok); a csere nem kér újra elfogadást"
+},
+{
 "id": "27541e3ffd",
 "at": "2026-11-21T21:53:45+01:00",
 "msg": "Meghívó-zár: műveletnév-ütközés javítása (svc-unlock → svc-lock-open)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: 30%-kal szélesebb oldalsáv / szövegmező"
 },
 {
-"id": "68b9e347e5",
-"at": "2026-11-21T09:59:57+01:00",
-"msg": "Jóváhagyó oldal: ← / → nyilakkal 5 mp vissza / előre (Shift-tel 1 mp)"
-},
-{
-"id": "f9fa510538",
-"at": "2026-11-21T08:58:28Z",
+"id": "9145d0e8d7",
+"at": "2026-11-21T09:00:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
