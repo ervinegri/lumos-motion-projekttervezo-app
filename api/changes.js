@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "385c019cf7",
+"at": "2026-11-21T10:03:00+01:00",
+"msg": "Jóváhagyó oldal: módosítás elküldése után csak a köszönő üzenet látszik, középen"
+},
+{
 "id": "85eae8cc1e",
 "at": "2026-11-21T10:01:34+01:00",
 "msg": "Jóváhagyó oldal: ← / → egy képkockát lép (megállítva), Shift-tel 1 mp"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: panel helyett gomb az Új szerződés mellett, ablakban nyílik"
 },
 {
-"id": "8222f6b5ac",
-"at": "2026-11-20T22:55:29+01:00",
-"msg": "Google-értékelések: a titkos kulcs az appból is beállítható"
-},
-{
-"id": "5a9e1a0e16",
-"at": "2026-11-20T21:50:34Z",
+"id": "4e3ed5a16c",
+"at": "2026-11-20T21:55:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
