@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19aff0c071",
+"at": "2026-11-21T09:52:34+01:00",
+"msg": "Jóváhagyó oldal: a javítási útmutató nagyobb betűvel, kiemelve, hogy egyetlen üzenetben kell leírni minden módosítást"
+},
+{
 "id": "e9afa0e737",
 "at": "2026-11-21T09:51:06+01:00",
 "msg": "Videóverziók: pCloud-linkeknél is rögzül és váltható a verzió; ‹ › lapozás a verziók között"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs / eszköz adatlap: meglévő elemnél zárolva nyílik, a 🔒 Szerkesztés gombbal oldható fel (a dokumentumok zárolva is kezelhetők)"
 },
 {
-"id": "cfae39d4b0",
-"at": "2026-11-20T16:33:42+01:00",
-"msg": "Szereplő (statiszta, modell, beszélő szereplő): Szereplői keretszerződés, Szereplők fül és szerep; a régi Statiszta szerep automatikusan Szereplő lesz"
-},
-{
-"id": "bf20b7dc97",
-"at": "2026-11-20T15:20:40Z",
+"id": "ac349bde28",
+"at": "2026-11-20T15:33:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
