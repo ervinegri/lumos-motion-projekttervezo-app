@@ -655,6 +655,9 @@ function crewContractSend_(u, a) {
   logEvent_(u, 'Keretszerződés elküldve', c.name || cid, to.join(', '));
   return r;
 }
+/** Drive-on már meglévő fájl felvétele a munkatárs dokumentumai közé (ügyvezető) – a: {crewId, fileId, title, signedAt} */
+function crewDocFromDrive_(u, a) { const f = DriveApp.getFileById(str_(a && a.fileId, 100)), b = f.getBlob();
+  return crewDocSave_(u, { crewId: a.crewId, title: a.title, signedAt: a.signedAt, name: f.getName(), mime: b.getContentType() || 'application/pdf', b64: Utilities.base64Encode(b.getBytes()) }); }
 function crewDocSave_(u, a) {
   a = a || {};
   const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid);

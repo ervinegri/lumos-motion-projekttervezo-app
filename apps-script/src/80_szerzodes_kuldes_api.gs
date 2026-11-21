@@ -450,6 +450,7 @@ function rpcInner_(token, name, arg) {
     case 'mySignature': { const sg = signatureFor_(u); return { html: sg ? sg.html : '' }; }   // a saját e-mail aláírás előnézete (pl. az ügyfélnek küldött levél alatt)
     case 'fwSave': adminOnly(); return fwSave_(u, arg);
     case 'crewDocSave': adminOnly(); return crewDocSave_(u, arg);
+    case 'crewDocFromDrive': adminOnly(); return crewDocFromDrive_(u, arg);
     case 'crewDocGet': adminOnly(); return crewDocGet_(u, arg);
     case 'changesList': {   // az app változásnaplója – nem nyilvános, csak az ügyvezető kapja meg
       if (role !== 'admin' && u.realRole !== 'admin') deny(); const c = CacheService.getScriptCache(), hit = c.get('pm_changes');   // előnézetben (szakember/értékesítő nézet) is az ügyvezetőé if (hit) return JSON.parse(hit);
