@@ -10,12 +10,12 @@
     const head=`<h1>Árajánlat – ${esc(d.video)}</h1><p class="sub">${esc(d.project)}${d.no?' · '+esc(d.no):''}</p>${d.req?`<div class="req"><b>A kért módosítás:</b><div>${esc(d.req).replace(/\n/g,'<br>')}</div></div>`:''}
       <table><tr><th>Tétel</th><th class="r">Nettó</th></tr>${(d.items||[]).map(r=>`<tr><td>${esc(r.name)}</td><td class="r">${ft(r.net)}</td></tr>`).join('')}<tr class="tot"><td>Összesen (nettó)</td><td class="r">${ft(d.total)}</td></tr></table>`;
     if(d.state==='ok'){B.innerHTML=head+'<p class="msg ok">Köszönjük, az ajánlatot elfogadtad! A javítással hamarosan jelentkezünk.</p>';return;}
-    if(d.state==='no'){B.innerHTML=head+'<p class="msg">Rendben, a javítást nem kéred. A videó utolsó változata jóváhagyásra vár.</p>';return;}
-    B.innerHTML=head+`<p class="hint">Ha elfogadod, elkészítjük a javítást. Ha nem kéred, az utolsó változat marad, és azt jóváhagyhatod.</p>
+    if(d.state==='no'){B.innerHTML=head+'<p class="msg">Rendben, a javítást nem kéred. A videó utolsó változatát jóváhagytuk – köszönjük!</p>';return;}
+    B.innerHTML=head+`<p class="hint">Ha elfogadod, elkészítjük a javítást. Ha nem kéred, a videó utolsó változatát jóváhagyottnak tekintjük.</p>
       <textarea id="note" maxlength="2000" placeholder="Üzenet (nem kötelező)"></textarea>
       <div class="btns"><button type="button" class="ok" id="bOk">✓ Elfogadom az ajánlatot</button><button type="button" id="bNo">Nem kérem a javítást</button></div><p class="err" id="err" hidden></p>`;
     const go=dec=>{const b1=$('bOk'),b2=$('bNo');b1.disabled=b2.disabled=true;api('clientQuoteDecide',[t,dec,($('note').value||'').trim()]).then(show).catch(e=>{b1.disabled=b2.disabled=false;const er=$('err');er.hidden=false;er.textContent=e.message||String(e);});};
-    $('bOk').onclick=()=>go('ok');$('bNo').onclick=()=>{if(confirm('Biztosan nem kéred a javítást?'))go('no');};};
+    $('bOk').onclick=()=>go('ok');$('bNo').onclick=()=>{if(confirm('Biztosan nem kéred a javítást? Ebben az esetben a videó utolsó változatát jóváhagyottnak tekintjük.'))go('no');};};
   if(!t&&!DEMO){$('box').innerHTML='<p class="msg">Érvénytelen link.</p>';return;}
   api('clientQuote',[t]).then(show).catch(e=>{$('box').innerHTML='<p class="msg">'+esc(e.message||String(e))+'</p>';});
 })();

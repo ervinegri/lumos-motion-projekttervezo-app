@@ -578,15 +578,16 @@ function vqDecide_(pid, vid, dec, by, note) {
   const r = vqEdit_(pid, vid, (p, v) => { if (!(v.pq === 'wait' || v.pq === 'sent')) throw new Error('Erről az ajánlatról már döntöttek.');
     v.pq = dec; v.pqDec = now_(); v.pqNote = str_(note, 2000); prevSt = v.st;
     if (dec === 'ok') { v.pqOk = now_(); const ex = parseExtras_(p.extras); if (v.pqTotal > 0) { ex.push({ id: Utilities.getUuid().slice(0, 8), name: 'Fizetős javítás – ' + v.name + (v.pqNo ? ' (' + v.pqNo + ')' : ''), amount: v.pqTotal, kind: '' }); p.extras = JSON.stringify(parseExtras_(ex)); } }
-    else { v.st = 'leadva'; v.at = today_(); }   // elutasította: az utolsó változat marad, jóváhagyásra vár
-    v.cm = (v.cm || []).concat([{ by: by, at: now_(), t: (dec === 'ok' ? '✅ Árajánlat elfogadva – mehet a javítás.' : '✖ Az árajánlatot nem fogadta el – a videó az utolsó változattal jóváhagyásra vár.') + (note ? '\n💬 ' + note : ''), ts: '' }]).slice(-100); });
+
+    v.cm = (v.cm || []).concat([{ by: by, at: now_(), t: (dec === 'ok' ? '✅ Árajánlat elfogadva – mehet a javítás.' : '✖ A fizetős javítást nem kérte – az utolsó változat automatikusan jóváhagyva.') + (note ? '\n💬 ' + note : ''), ts: '' }]).slice(-100); });
+  if (dec === 'no') { try { videoSet_({ id: 'client', name: by, email: '', role: 'editor', crewId: '' }, { projectId: pid, id: vid, st: 'jovahagyva' }); } catch (e) { Logger.log('Automatikus jóváhagyás: ' + e); } }   /* nem kéri a fizetős javítást: az utolsó változat automatikusan jóváhagyva */
   try { logEvent_({ name: by, role: 'admin' }, dec === 'ok' ? 'Fizetős javítás: árajánlat elfogadva' : 'Fizetős javítás: árajánlat elutasítva', r.p.name, r.v.name); } catch (e) {}
   try {   // értesítés: ügyvezető + termelési vezető(k); elfogadáskor a vágó is
     const users = loadUsers_().filter(x => (x.role === 'admin' || x.role === 'editor') && !x.disabled && /@/.test(String(x.email || ''))).map(x => String(x.email).trim());
     const ed = dec === 'ok' && r.v.editor ? (readAll_('crew').find(c => c.id === r.v.editor) || {}).email : '';
     const to = users.concat(ed && /@/.test(ed) ? [ed] : []).filter((x, i, A) => A.indexOf(x) === i);
-    const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), subj = (dec === 'ok' ? '✅ Elfogadták az árajánlatot – mehet a javítás: ' : '✖ Nem fogadták el az árajánlatot: ') + r.v.name + ' – ' + r.p.name;
-    const body = (dec === 'ok' ? 'Az ügyfél elfogadta a fizetős javítás árajánlatát (' + ftHu_(r.v.pqTotal) + ' nettó). A javítás elindulhat.' : 'Az ügyfél nem fogadta el a fizetős javítás árajánlatát. A videó az utolsó változattal jóváhagyásra vár.') + (note ? '\n\nÜzenete: ' + note : '') + '\n\n' + url;
+    const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), subj = (dec === 'ok' ? '✅ Elfogadták az árajánlatot – mehet a javítás: ' : '✖ Nem kérték a fizetős javítást (az utolsó változat jóváhagyva): ') + r.v.name + ' – ' + r.p.name;
+    const body = (dec === 'ok' ? 'Az ügyfél elfogadta a fizetős javítás árajánlatát (' + ftHu_(r.v.pqTotal) + ' nettó). A javítás elindulhat.' : 'Az ügyfél nem kérte a fizetős javítást, ezért az utolsó változat automatikusan jóváhagyva lett.') + (note ? '\n\nÜzenete: ' + note : '') + '\n\n' + url;
     to.forEach(em => { try { gmailSend_(em, subj, body, { name: 'Lumos Motion Projekttervező', htmlBody: escapeHtml_(body).replace(/\n/g, '<br>') }); } catch (e) {} });
   } catch (e) { Logger.log('Árajánlat-értesítés: ' + e); }
   return r;
