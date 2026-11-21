@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "971c6a0087",
+"at": "2026-11-21T10:05:26+01:00",
+"msg": "Jóváhagyó oldal: képkocka-léptetéskor eltűnik a vezérlő és a sötét réteg (egérmozgásra visszajön)"
+},
+{
 "id": "8d03ce7afc",
 "at": "2026-11-21T10:04:48+01:00",
 "msg": "Jóváhagyó oldal: a köszönő üzenet pontosan a képernyő közepén"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: a leadási / ellenőrzési megjegyzés 1000 helyett 6000 karakterig (eddig levágta)"
 },
 {
-"id": "b20a58c75a",
-"at": "2026-11-21T08:21:53+01:00",
-"msg": "Értékeléskérés: csak a mai naptól átadott projekteknél (régi projekteknek utólag nem megy), legfeljebb 14 napig"
-},
-{
-"id": "47ee37ad9f",
-"at": "2026-11-20T22:03:51Z",
+"id": "e07c500a63",
+"at": "2026-11-21T07:22:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
