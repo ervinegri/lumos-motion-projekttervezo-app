@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6414687c93",
+"at": "2026-11-21T18:16:46+01:00",
+"msg": "Munkatárs dokumentumai: Drive-on meglévő fájl felvétele"
+},
+{
 "id": "1f22027a36",
 "at": "2026-11-21T18:14:31+01:00",
 "msg": "Szerződés-feltöltés: zárolt adatlapon is működik, nagy fájlnál jelzi, hogy tovább tart"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videóverziók: pCloud-linkeknél is rögzül és váltható a verzió; ‹ › lapozás a verziók között"
 },
 {
-"id": "40e36d94b0",
-"at": "2026-11-21T09:49:27+01:00",
-"msg": "Jóváhagyó oldal: a „Mindent leírtál?” megerősítés eredeti szövege marad, a felső figyelmeztető doboz törölve"
-},
-{
-"id": "f19358858e",
-"at": "2026-11-21T08:49:06Z",
+"id": "a427526af9",
+"at": "2026-11-21T08:49:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
