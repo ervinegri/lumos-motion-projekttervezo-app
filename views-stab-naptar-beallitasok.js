@@ -508,7 +508,7 @@ function gbpBody(){const g0=S.gbp;if(!g0)return '<p class="hint"><span class="sp
       ${r.text?`<div class="gbp-tx">${esc(r.text)}</div>`:''}
       ${r.reply?`<div class="gbp-rep"><b>Válaszunk:</b> ${esc(r.reply)} <button class="linkbtn" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">Szerkesztés</button></div>`:`<button class="btn outline small" type="button" data-action="gbp-reply" data-id="${esc(r.id)}">↩︎ Válasz</button>`}</div>`).join('')}</div>
       ${R.length>6?`<button class="linkbtn" type="button" data-action="gbp-more">${S._gbpAll?'Kevesebb':'Mind a '+R.length+' értékelés'}</button>`:''}`:'<p class="hint" style="margin:0">Még nincs behúzott értékelés.</p>')
-    +`<div class="gbp-foot"><span class="muted">${g.sync?'Frissítve: '+esc(g.sync.slice(0,16).replace(/-/g,'.'))+' · óránként magától':''}</span><a class="btn ghost small" href="${esc(g.url||'#')}" target="_blank" rel="noopener">Értékelési link ↗</a></div>`;
+    +`<div class="gbp-foot"><span class="muted">${g.sync?'Frissítve: '+esc(g.sync.slice(0,16).replace(/-/g,'.'))+(g.push?' · azonnal (Google-értesítés)':' · óránként magától'):''}</span><a class="btn ghost small" href="${esc(g.url||'#')}" target="_blank" rel="noopener">Értékelési link ↗</a></div>`;
   const rb=g.connected?`<button class="btn outline small gbp-rf" type="button" data-action="gbp-sync"${S._gbpL?' disabled':''}>${S._gbpL===2?'<span class="spin" style="width:11px;height:11px"></span> Frissítés…':'🔄 Frissítés'}</button>`:'';
   return `<div class="gbp-hd">${head}${rb}</div>${body}`;}
 function gbpBtn(){if(!isAdmin())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp||{},R=g.reviews||[],noRep=R.filter(r=>!r.reply).length;

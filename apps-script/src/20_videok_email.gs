@@ -401,7 +401,7 @@ function gbpList_(u, a) {
   const P = gbpProps_(); const syncRes = (a && a.sync) ? gbpSync_(u) : null;
   let rows = []; try { rows = readAll_('gReviews'); } catch (e) {}
   rows.sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt)));
-  return { connected: !!P.getProperty('GBP_REFRESH'), secret: !!P.getProperty('GBP_CLIENT_SECRET'), title: P.getProperty('GBP_TITLE') || '', avg: Number(P.getProperty('GBP_AVG') || 0), total: Number(P.getProperty('GBP_TOTAL') || rows.length), sync: P.getProperty('GBP_SYNC') || '', err: P.getProperty('GBP_ERR') || '', url: REVIEW_URL_, reviews: rows, syncRes: syncRes };
+  return { connected: !!P.getProperty('GBP_REFRESH'), secret: !!P.getProperty('GBP_CLIENT_SECRET'), title: P.getProperty('GBP_TITLE') || '', avg: Number(P.getProperty('GBP_AVG') || 0), total: Number(P.getProperty('GBP_TOTAL') || rows.length), sync: P.getProperty('GBP_SYNC') || '', err: P.getProperty('GBP_ERR') || '', url: REVIEW_URL_, reviews: rows, syncRes: syncRes, push: !!P.getProperty('GBP_PUSH_TOPIC'), pushLast: P.getProperty('GBP_PUSH_LAST') || '' };
 }
 function gbpReply_(u, a) {
   const id = String(a && a.id || ''), txt = String(a && a.text || '').trim(); if (!id) throw new Error('Hiányzó értékelés.'); if (txt.length > 4000) throw new Error('A válasz legfeljebb 4000 karakter lehet.');
@@ -419,6 +419,34 @@ function gbpMatch_(u, a) {
 function gbpSetSecret_(u, a) { const v = String(a && a.secret || '').trim(); if (!/^[\w-]{20,100}$/.test(v)) throw new Error('Ez nem tűnik érvényes titkos kulcsnak (általában „GOCSPX-” kezdetű).');
   gbpProps_().setProperty('GBP_CLIENT_SECRET', v); CacheService.getScriptCache().remove('gbpTok'); logEvent_(u, 'Google Cégprofil: titkos kulcs beállítva', '', ''); return gbpList_(u); }
 function gbpDisconnect_(u) { const P = gbpProps_(); ['GBP_REFRESH', 'GBP_LOCATION', 'GBP_TITLE', 'GBP_ERR'].forEach(k => P.deleteProperty(k)); CacheService.getScriptCache().remove('gbpTok'); logEvent_(u, 'Google Cégprofil leválasztva', '', ''); return gbpList_(u); }
+/* ===== Azonnali értesítés új értékelésről: Google Cloud Pub/Sub → https://projekttervezo.lumosmotion.hu/api/gbp-push?t=… → doPost =====
+   Beállítás (egyszer): a Google Cloudban Pub/Sub téma, a mybusiness-api-pubsub@system.gserviceaccount.com publikálhat bele,
+   push-feliratkozás a fenti címre; utána a gbpPush API (téma neve) beállítja a Cégprofil értesítéseit. */
+const GBP_PUSH_URL_ = 'https://projekttervezo.lumosmotion.hu/api/gbp-push';
+function gbpPushToken_() { const P = gbpProps_(); let t = P.getProperty('GBP_PUSH_TOKEN'); if (!t) { t = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '').slice(0, 8); P.setProperty('GBP_PUSH_TOKEN', t); } return t; }
+function gbpPushIn_(e) {
+  const ok = () => ContentService.createTextOutput('OK');
+  try {
+    const P = gbpProps_(), t = P.getProperty('GBP_PUSH_TOKEN'); if (!t || String(e.parameter.gbppush) !== t) return ok();
+    const C = CacheService.getScriptCache(); if (C.get('gbpPushBusy')) return ok(); C.put('gbpPushBusy', '1', 20);   // több értesítés egyszerre: egy behúzás elég
+    P.setProperty('GBP_PUSH_LAST', now_() + (e.parameter.type ? ' · ' + String(e.parameter.type).slice(0, 40) : ''));
+    gbpSync_(null);
+  } catch (x) { Logger.log('gbpPushIn: ' + x); }
+  return ok();
+}
+/** a.topic = „projects/<projekt>/topics/<téma>” → bekapcsolja; a.off → kikapcsolja. Visszaadja a push-feliratkozás címét. */
+function gbpPush_(u, a) {
+  const P = gbpProps_(), acc = String(gbpLocation_()).split('/').slice(0, 2).join('/');
+  const topic = a && a.off ? '' : str_(a && a.topic, 200);
+  if (topic && !/^projects\/[a-z0-9-]+\/topics\/[A-Za-z0-9._~%+-]+$/.test(topic)) throw new Error('A téma neve így néz ki: projects/<projekt-azonosító>/topics/<téma>');
+  const body = { name: acc + '/notificationSetting', pubsubTopic: topic, notificationTypes: topic ? ['NEW_REVIEW', 'UPDATED_REVIEW'] : [] };
+  const r = gbpApi_('patch', 'https://mybusinessnotifications.googleapis.com/v1/' + acc + '/notificationSetting?updateMask=pubsubTopic,notificationTypes', body);
+  if (topic) P.setProperty('GBP_PUSH_TOPIC', topic); else P.deleteProperty('GBP_PUSH_TOPIC');
+  logEvent_(u, topic ? 'Google-értékelések: azonnali értesítés be' : 'Google-értékelések: azonnali értesítés ki', topic, '');
+  return { topic: r.pubsubTopic || '', types: r.notificationTypes || [], pushUrl: GBP_PUSH_URL_ + '?t=' + gbpPushToken_() };
+}
+function gbpPushInfo_(u) { const P = gbpProps_(); let cur = null; try { cur = gbpApi_('get', 'https://mybusinessnotifications.googleapis.com/v1/' + String(gbpLocation_()).split('/').slice(0, 2).join('/') + '/notificationSetting'); } catch (e) { cur = { error: String(e.message || e).slice(0, 300) }; }
+  return { account: String(gbpLocation_()).split('/').slice(0, 2).join('/'), setting: cur, pushUrl: GBP_PUSH_URL_ + '?t=' + gbpPushToken_(), last: P.getProperty('GBP_PUSH_LAST') || '' }; }
 /** Ügyfelek, akik már írtak értékelést (kisbetűs cégnév) – nekik nem megy emlékeztető. */
 function gbpReviewed_() { const o = {}; try { readAll_('gReviews').forEach(x => { if (x.client) o[String(x.client).trim().toLowerCase()] = 1; }); } catch (e) {} return o; }
 function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);

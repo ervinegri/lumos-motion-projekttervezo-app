@@ -156,6 +156,7 @@ function doGet(e) {
 /** A felület kérései: GET ?p=... (rövid kérések) vagy POST törzs (hosszú kérések). Tartalom: { fn, args }. */
 function doPost(e) {
   if (e && e.parameter && e.parameter.ipn) return szIpn_(e);   // számlázz.hu fizetési értesítés (IPN)
+  if (e && e.parameter && e.parameter.gbppush) return gbpPushIn_(e);   // Google Cégprofil: új értékelés (Pub/Sub → /api/gbp-push)
   return api_((e && e.postData && e.postData.contents) || '{}');
 }
 
