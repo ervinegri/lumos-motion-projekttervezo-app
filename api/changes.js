@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "572fd17120",
+"at": "2026-11-22T08:44:42+01:00",
+"msg": "Ügyfél adatai ablak kétszer olyan széles (1200 px)"
+},
+{
 "id": "8c9788861b",
 "at": "2026-11-22T08:28:31+01:00",
 "msg": "Keresőkből kivéve: X-Robots-Tag noindex minden oldalon, robots meta, robots.txt"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: azonnali értesítés (Pub/Sub → /api/gbp-push → Apps Script)"
 },
 {
-"id": "66e0dffd00",
-"at": "2026-11-21T21:07:36+01:00",
-"msg": "Google-értékelések: óránkénti automatikus behúzás, megnyitáskor frissítés, új értékelés a csengőben + felugró értesítés"
-},
-{
-"id": "ae8a1bdf5c",
-"at": "2026-11-21T20:01:19Z",
+"id": "f9b23c4fd4",
+"at": "2026-11-21T20:07:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
