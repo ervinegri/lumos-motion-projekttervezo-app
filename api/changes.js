@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "23de4a9e0a",
+"at": "2026-11-22T10:32:45+01:00",
+"msg": "Értékelés részletei: állapot akkor is, ha nem minden videó jóváhagyott"
+},
+{
 "id": "e4267717fb",
 "at": "2026-11-22T10:31:46+01:00",
 "msg": "Jóváhagyott videóhoz nincs hozzászólás; értékelés kártya részletei; Kézikönyv a névjelvény menüjében; visszamondási rész ki a kézikönyvből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-lista: Google-értékelés oszlop (értékelt / megnyitotta / kértük)"
 },
 {
-"id": "572fd17120",
-"at": "2026-11-22T08:44:42+01:00",
-"msg": "Ügyfél adatai ablak kétszer olyan széles (1200 px)"
-},
-{
-"id": "29932dcca8",
-"at": "2026-11-22T07:28:40Z",
+"id": "a3126d7c96",
+"at": "2026-11-22T07:44:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
