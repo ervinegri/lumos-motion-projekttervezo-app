@@ -3125,3 +3125,12 @@ html body .rv-dt-rep{margin-top:6px;font-size:13px}
   html body #mform.m-video .vv-body.side:has(#m-vvCm)>.vv-player.vert{height:calc(100vh - 235px)!important;max-height:calc(100vh - 235px)!important}
   html body #mform.m-video .vv-body.side>.vv-tcw{justify-self:end}
 }
+/* álló videó: a képernyő aljáig ér; a lábléc gombjai a jobb alsó sarokban, a hozzászólások fölött */
+@media (min-width:1100px){
+  html body #modalRoot #mform.m-video:has(.vv-player.vert){position:relative!important}
+  html body #modalRoot #mform.m-video:has(.vv-player.vert) .mfoot{position:absolute!important;right:24px;bottom:14px;left:auto;width:auto!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;z-index:3}
+  html body #modalRoot #mform.m-video .vv-body.side>.vv-player.vert{height:calc(100vh - 104px)!important;max-height:calc(100vh - 104px)!important}
+  html body #modalRoot #mform.m-video .vv-body.side:has(#m-vvCm)>.vv-player.vert{height:calc(100vh - 158px)!important;max-height:calc(100vh - 158px)!important}
+  html body #modalRoot #mform.m-video .vv-body.side>.vv-cm{max-height:calc(100vh - 104px)!important;padding-bottom:64px;box-sizing:border-box}
+  html body #modalRoot #mform.m-video .vv-body.side{padding-bottom:14px}
+}
