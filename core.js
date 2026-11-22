@@ -375,6 +375,8 @@ function computeIssues(){
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
   /* közelgő projekt (30 napon belül), ami még nincs készen: projektvezető, betöltetlen szerepkör, meghívók */
   if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=14?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
+  /* Google-értékelés: 7 napja kértük, nem értékelt → egy emlékeztető javasolt (csak ügyvezető, a videótábla ⭐ Értékelés oszlopából küldhető) */
+  if(isAdmin()&&typeof rvState==='function')S.projects.forEach(p=>{try{if(rvState(p)==='remind')out.push({level:'warn',text:`⏰ ${p.name||'Névtelen projekt'}: ${diffDays(String(p.reviewAt).slice(0,10),todayISO())} napja kértünk Google-értékelést – küldhető az emlékeztető (Utómunka → ⭐ Értékelés).`,pids:[p.id],rv:1});}catch(e){}});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */
   if(!ro())liveEq.forEach(p=>{const ids=new Set(crewIds(p));const n=(p.equipment||[]).filter(e=>!e.crewId||!ids.has(e.crewId)).length+(p.rentals||[]).filter(r=>!r.crewId).length;
     if(n)out.push({level:'warn',text:`🧰 ${p.name||'Névtelen projekt'}: ${n} eszköz nincs senkihez rendelve – húzd egy munkatárs kártyájára (vagy töröld).`,pids:[p.id]});});

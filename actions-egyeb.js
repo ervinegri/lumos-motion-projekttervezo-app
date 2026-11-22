@@ -473,13 +473,23 @@ Object.assign(ACT,{
 });
 
 /* Kézi Google-értékelés kérés a videótábla „⭐ Értékelés” oszlopából: a levelet az ügyvezető / termelési vezető nézi át és küldi el */
-ACT['rv-send']=b=>{const p=S.projects.find(x=>x.id===b.dataset.pid);if(!p)return;const first=String(p.contactName||'').trim().split(/\s+/).slice(-1)[0]||'';
-  const txt=(first?'Kedves '+first+'!':'Kedves Ügyfelünk!')+'\n\nKöszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész:\n'+REVIEW_URL+'\n\nKöszönjük!';
-  openModal('⭐ Értékelés kérése – '+(p.name||''),`<div class="fields">
-    ${p.reviewAt?`<div class="field full"><p class="hint warn-txt" style="margin:0">Ennél a projektnél már kértünk értékelést (${esc(fmtDay(String(p.reviewAt).slice(0,10)))}).</p></div>`:''}
+ACT['rv-send']=b=>{const p=S.projects.find(x=>x.id===b.dataset.pid);if(!p)return;const rem=b.dataset.rem==='1',first=String(p.contactName||'').trim().split(/\s+/).slice(-1)[0]||'',hi=first?'Kedves '+first+'!':'Kedves Ügyfelünk!';
+  const txt=rem?hi+'\n\nNemrég kértünk tőled egy rövid Google-értékelést a(z) „'+(p.name||'projekt')+'” kapcsán. Tudom, hogy sok a dolgod – ha van egy perced, nagyon sokat segítene nekünk, ha leírnád néhány mondatban, mit csináltunk nálatok:\n'+REVIEW_URL+'\n\nKöszönjük!'
+    :hi+'\n\nKöszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész. Akár csak pár szóban leírhatod, mit csináltunk nálatok:\n'+REVIEW_URL+'\n\nKöszönjük!';
+  const subj=rem?'Emlékeztető: egy perc a(z) '+(p.name||'projekt')+' kapcsán':'Egy kérés a(z) '+(p.name||'projekt')+' kapcsán';
+  openModal((rem?'⏰ Emlékeztető – ':'⭐ Értékelés kérése – ')+(p.name||''),`<div class="rv-grid"><div class="fields">
+    ${p.reviewAt&&!rem?`<div class="field full"><p class="hint warn-txt" style="margin:0">Ennél a projektnél már kértünk értékelést (${esc(fmtDay(String(p.reviewAt).slice(0,10)))}).</p></div>`:''}
+    ${rem?`<div class="field full"><p class="hint" style="margin:0">Kérve: ${esc(fmtDay(String(p.reviewAt).slice(0,10)))}${p.reviewClick?' · megnyitotta: '+esc(fmtDay(String(p.reviewClick).slice(0,10))):' · a linket még nem nyitotta meg'}. Ez az egyetlen emlékeztető – utána nem kérjük többször.</p></div>`:''}
     <div class="field full"><label for="m-rvTo">Címzett</label><input class="inp" id="m-rvTo" name="to" type="email" maxlength="300" value="${esc(p.contactEmail||'')}"></div>
-    <div class="field full"><label for="m-rvSubj">Tárgy</label><input class="inp" id="m-rvSubj" name="subject" maxlength="200" value="${esc('Egy kérés a '+(p.name||'projekt')+' kapcsán')}"></div>
-    <div class="field full"><label for="m-rvText">Levél (az aláírásod automatikusan alá kerül)</label><textarea class="inp" id="m-rvText" name="text" rows="9" maxlength="6000">${esc(txt)}</textarea></div></div>`,
-    {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim();if(!to){toast('Add meg a címzettet.',true);return;}
-      try{const r=await call('reviewSend',{projectId:p.id,to,subject:String(fd.get('subject')||''),text:String(fd.get('text')||'')});p.reviewAt=r.reviewAt;closeModal();render(true);toast('Elküldve: '+to);}catch(e){handleErr(e);}}});
+    <div class="field full"><label for="m-rvSubj">Tárgy</label><input class="inp" id="m-rvSubj" name="subject" maxlength="200" value="${esc(subj)}"></div>
+    <div class="field full"><label for="m-rvText">Levél</label><textarea class="inp" id="m-rvText" name="text" rows="11" maxlength="6000">${esc(txt)}</textarea></div></div>
+    <div class="rv-prev"><div class="rv-prev-h">👁 Előnézet – így kapja meg</div><div class="rv-prev-head" id="rv-ph"></div><div class="rv-prev-body" id="rv-pb"></div></div></div>`,
+    {submitLabel:rem?'⏰ Emlékeztető küldése':'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim();if(!to){toast('Add meg a címzettet.',true);return;}const text=String(fd.get('text')||'');if(!text.includes(REVIEW_URL)&&!confirm('A levélből kimaradt az értékelés linkje. Így is elküldöd?'))return;
+      try{const r=await call('reviewSend',{projectId:p.id,to,subject:String(fd.get('subject')||''),text,reminder:rem});if(rem)p.reviewRemAt=r.reviewAt;else p.reviewAt=r.reviewAt;closeModal();render(true);toast((rem?'Emlékeztető elküldve: ':'Elküldve: ')+to);}catch(e){handleErr(e);}}});
+  {const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
+  const prev=()=>{const t=($('m-rvText')||{}).value||'',h=$('rv-ph'),bd=$('rv-pb');if(!h||!bd)return;
+    h.innerHTML=`<div><span>Címzett:</span> ${esc(($('m-rvTo')||{}).value||'–')}</div><div><span>Tárgy:</span> <b>${esc(($('m-rvSubj')||{}).value||'')}</b></div>`;
+    bd.innerHTML=esc(t).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,'<br>')+(S._mySig?'<div class="rv-sig">'+S._mySig+'</div>':'<div class="rv-sig muted">(az aláírásod)</div>');};
+  const fm=$('mform');if(fm)fm.addEventListener('input',prev);
+  (S._mySig!=null?Promise.resolve(S._mySig):call('mySignature').then(r=>(S._mySig=(r&&r.html)||'')).catch(()=>(S._mySig=''))).then(prev);prev();
   setTimeout(()=>{const x=$('m-rvText');if(x&&typeof autoGrow==='function')autoGrow(x);},60);};

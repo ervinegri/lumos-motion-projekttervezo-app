@@ -317,9 +317,9 @@ function reviewSend_(u, a) {
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>').replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor;
   sendAs_(to.join(','), subj_(subject), text + (sig ? '\n\n' + sig.text : ''), opts);
-  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row); q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
-  logEvent_(u, 'Google-értékelés kérése (kézi)', p.name, to.join(', '));
-  return { ok: true, reviewAt: now_() };
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row); if (a && a.reminder) q.reviewRemAt = now_(); else q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+  logEvent_(u, a && a.reminder ? 'Google-értékelés emlékeztető (kézi)' : 'Google-értékelés kérése (kézi)', p.name, to.join(', '));
+  return { ok: true, reviewAt: now_(), reminder: !!(a && a.reminder) };
 }
 /* ===== Google Cégprofil: értékelések behúzása, ügyfélhez párosítása, válasz (2026-11-20) =====
    Hozzáférés: a Lumos Motion Projekttervezo Cloud projekt (236393101415) OAuth-ügyfelével, egyszeri ügyvezetői engedélyezéssel (tartós token a Script Propertiesben).

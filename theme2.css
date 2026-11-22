@@ -3044,3 +3044,11 @@ tr.cl-inv-row{cursor:pointer}tr.cl-inv-row:hover td{background:#f5f8fb}tr.cl-inv
   html body .modal .mbox.mbox-xwide .tax-row .btn{white-space:nowrap;padding-inline:10px}
   html body .modal .mbox.mbox-xwide .tax-row .inp{min-width:0}
 }
+/* értékeléskérő levél: szerkesztés + élő előnézet */
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.rv-prev{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;position:sticky;top:0}
+.rv-prev-h{font-size:12px;font-weight:700;color:#5b6573;padding:8px 12px;background:#f6f7f9;border-bottom:1px solid var(--line)}
+.rv-prev-head{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6}.rv-prev-head span{color:#7a8491}
+.rv-prev-body{padding:14px;font:14px/1.5 Arial,Helvetica,sans-serif;color:#111;max-height:420px;overflow:auto}.rv-sig{margin-top:14px}
+.bd-rv.remind{border-color:#f0c36d;background:#fff8e8}
+@media (max-width:820px){.rv-grid{grid-template-columns:1fr}}
