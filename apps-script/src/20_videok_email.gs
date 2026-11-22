@@ -681,6 +681,19 @@ function videoNoteRestore_(u, a) {
     p.videos = JSON.stringify(L); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); logEvent_(u, 'Leadási kísérőszöveg visszaállítva', p.name, v.name + ' · ' + at); });
   return { ok: true };
 }
+/** Hiányzó verzióhatár pótlása (a régi pCloud-hiba miatt nem rögzült): a: {projectId, id, at, link?} – az előző verzió linkje, ha ismert */
+function videoVerAdd_(u, a) {
+  if (u.role !== 'admin') throw new Error('Csak az ügyvezető javíthatja.');
+  const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), at = str_(a && a.at, 30), link = str_(a && a.link, 500);
+  if (!/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(at)) throw new Error('Hibás időpont.');
+  let out = null;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.'); const p = readRow_('projects', sh, row);
+    const L = parseVideos_(p.videos), v = L.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    if ((v.vers || []).some(r => r.at === at)) throw new Error('Ez a verzióhatár már megvan.');
+    v.vers = (v.vers || []).concat([{ at: at, link: link }]).sort((x, y) => String(x.at).localeCompare(String(y.at))).slice(-30);
+    p.videos = JSON.stringify(L); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); out = { vers: v.vers.length + 1 }; logEvent_(u, 'Hiányzó videóverzió pótolva', p.name, v.name + ': verzióhatár ' + at + ', most ' + (v.vers.length + 1) + ' verzió'); });
+  return out;
+}
 function videoVerFix_(u, a) {
   if (u.role !== 'admin') throw new Error('Csak az ügyvezető javíthatja.');
   const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), idx = Number(a && a.idx), at = str_(a && a.at, 30);
