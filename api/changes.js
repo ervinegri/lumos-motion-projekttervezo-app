@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ae40da1ef8",
+"at": "2026-11-22T10:41:53+01:00",
+"msg": "pCloud: törölt link üzenete"
+},
+{
 "id": "8e4251abf2",
 "at": "2026-11-22T10:39:31+01:00",
 "msg": "Álló videó a képernyő aljáig"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: a kapcsolattartó mezőbe lépve rögtön HubSpot-keresés (a cég kapcsolatai, gépelve név szerint)"
 },
 {
-"id": "8aabc56257",
-"at": "2026-11-22T08:59:29+01:00",
-"msg": "Ügyfél adatai: rövidebb „Betöltés” gomb, hogy az adószám kiférjen"
-},
-{
-"id": "b250246c14",
-"at": "2026-11-22T07:58:10Z",
+"id": "5afffabef2",
+"at": "2026-11-22T07:59:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
