@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bef360512a",
+"at": "2026-11-22T09:45:07+01:00",
+"msg": "Videó-ablak: a hozzászólások száma nem látszik a fejlécben"
+},
+{
 "id": "4d1ea63290",
 "at": "2026-11-22T09:44:19+01:00",
 "msg": "Videó-ablak: a hozzászólás-lista nincs levágva az oldalsó oszlopban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Elfogadott meghívós stábkártya feltűnőbb: erős zöld keret és halvány zöld háttér"
 },
 {
-"id": "8cb68ece5c",
-"at": "2026-11-21T22:36:54+01:00",
-"msg": "Eszköz-zár lakat: lekerekített négyzet jelvény"
-},
-{
-"id": "4528a65e78",
-"at": "2026-11-21T21:34:02Z",
+"id": "fa8771e76c",
+"at": "2026-11-21T21:37:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
