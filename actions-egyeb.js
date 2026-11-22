@@ -522,3 +522,7 @@ async function noticeCheck(pid,next){const snap=S.noticeSnap&&S.noticeSnap[pid];
   }catch(e){handleErr(e);done();}}
 ACT['nt-skip']=()=>{if(S._ntSkip)S._ntSkip();};
 ACT['nt-revert']=()=>{if(S._ntRevert)S._ntRevert();};
+
+/* videó-ablak → projekt linkje: a projekt nyíljon meg (ne ugorjon vissza a projekt videótáblája) */
+ACT['vv-proj-open']=b=>{const id=b.dataset.id;window.MODAL_BEFORE_CLOSE=null;window._clLane='';closeModal();{const mu=document.getElementById('modalUnder');if(mu)mu.innerHTML='';}
+  if(S.projectId===id){if(S.tab!=='projektek')S.tab='projektek';render(true);scrollTo(0,0);return;}guard(()=>openProject(id));};
