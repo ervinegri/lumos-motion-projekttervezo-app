@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c6397a5db7",
+"at": "2026-11-22T17:04:05+02:00",
+"msg": "Projekt Pénzügyek telefonon: Szerződés és Termelés kártya egy sorban"
+},
+{
 "id": "12f48a64c1",
 "at": "2026-11-22T17:02:31+02:00",
 "msg": "Alapadatok mindig zárva nyílik (lakat), lenyitható szakaszok nyila egységesen jobbra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-ablak: a videó függőlegesen középen"
 },
 {
-"id": "bef360512a",
-"at": "2026-11-22T09:45:07+01:00",
-"msg": "Videó-ablak: a hozzászólások száma nem látszik a fejlécben"
-},
-{
-"id": "11e8810fab",
-"at": "2026-11-22T08:44:29Z",
+"id": "48d6d7539b",
+"at": "2026-11-22T08:45:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
