@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5794bfae86",
+"at": "2026-11-22T10:25:38+01:00",
+"msg": "Hozzászólások időrendben a korábbi verzióknál is"
+},
+{
 "id": "0e68310a20",
 "at": "2026-11-22T10:19:47+01:00",
 "msg": "Videóverzió csak érdemi visszajelzés után; hozzászólás küldése a láblécben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google Cégprofil adatai: olvasás, kategóriakeresés, módosítás (leírás, kategóriák, szolgáltatások) – ügyvezetői API"
 },
 {
-"id": "c66683a997",
-"at": "2026-11-21T23:03:40+01:00",
-"msg": "Számlázási eltérés: a szervezői jutalék levonása elfogadott (de nem kötelező) – mindkét összeg rendben"
-},
-{
-"id": "d6c4d75457",
-"at": "2026-11-21T22:03:02Z",
+"id": "76c1936a89",
+"at": "2026-11-21T22:03:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
