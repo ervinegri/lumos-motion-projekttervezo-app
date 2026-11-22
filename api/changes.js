@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7369bb3e49",
+"at": "2026-11-22T08:52:17+01:00",
+"msg": "Ügyfél adatai: az adószám mező szélesebb (ne vágja le)"
+},
+{
 "id": "04ea3fd2f8",
 "at": "2026-11-22T08:51:27+01:00",
 "msg": "Ügyfél adatai: kompakt elrendezés a széles ablakban (adószám·cégnév·székhely, kapcsolattartó és képviselő egy-egy sorban)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó után zárolt feladatok: Utómunka / Terepi feladatok csak „Módosítás” után szerkeszthető, változáskor e-mail a szakembernek"
 },
 {
-"id": "2395a38e95",
-"at": "2026-11-21T21:46:34+01:00",
-"msg": "Stábkártya: figyelmeztetés, ha terepi szerepkörű munkatársnak nincs terepi feladata (+ ugrás a Terepi feladatokhoz)"
-},
-{
-"id": "45c4101395",
-"at": "2026-11-21T20:33:19Z",
+"id": "c75f90a387",
+"at": "2026-11-21T20:46:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
