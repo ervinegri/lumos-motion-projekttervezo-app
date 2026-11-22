@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "42afb3863d",
+"at": "2026-11-22T10:34:26+01:00",
+"msg": "CLAUDE.md: kézikönyv szabály"
+},
+{
 "id": "b28569abd2",
 "at": "2026-11-22T10:34:14+01:00",
 "msg": "Kézikönyv: mások díjáról szóló mondat ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: kompakt elrendezés a széles ablakban (adószám·cégnév·székhely, kapcsolattartó és képviselő egy-egy sorban)"
 },
 {
-"id": "2d7e00471c",
-"at": "2026-11-22T08:49:08+01:00",
-"msg": "Ügyfél adatai: a számlák kattinthatók (PDF, régi számlázz.hu-s számlák is); adószám és cégnév egy sorban"
-},
-{
-"id": "525e8032f5",
-"at": "2026-11-22T07:46:26Z",
+"id": "53743d7eab",
+"at": "2026-11-22T07:49:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
