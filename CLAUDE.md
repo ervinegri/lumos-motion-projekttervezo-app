@@ -11,6 +11,9 @@
 - Teszt: `node tests/run-all.cjs` (minden pushkor GitHub Action is futtatja; az ártitok-teszt nélkül a háttér nem települ).
 - **`TABLES` oszlopfejlécei** (`apps-script/src/00_alap.gs`) (pl. `['x_nyersVetel', 'Nyersanyag megvásárlása']`) a munkalap/Neon fejlécével egyeznek, és a háttér ellenőrzi őket: **soha ne nevezd át** (a felületi feliratot a frontendben változtasd), új oszlop csak a lista végére kerülhet.
 
+## Kézikönyv – szabály (2026-11-22)
+A kézikönyv (kezikonyv.js) mindig csak az olvasóról és a saját munkájáról szól: sose írjunk benne másokról (pl. „mások díját nem látod”, más szakemberek, más szerepek jogosultságai a szakembernek / értékesítőnek).
+
 ## Megoldás választása – általános szabály (2026-11-21)
 Az ügyvezető kérése: **inkább legyen sok munka, de működjön profin.** Nem a leggyorsabb / legkisebb kódváltozással járó megoldást választjuk, hanem a tartósat és teljeset (valós idejű a lekérdezgetés helyett, önellenőrzés és önjavítás, látható állapot, hibánál jelzés, tartalék út).
 Ha több út van és a jobbik a felhasználó közreműködését igényli (pl. Google Cloud beállítás), azt **előre** írd le (mit nyer vele, mit kell tennie), ne utólag derüljön ki. Ideiglenes / gyenge megoldást csak kifejezett kérésre.
