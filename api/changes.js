@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e4267717fb",
+"at": "2026-11-22T10:31:46+01:00",
+"msg": "Jóváhagyott videóhoz nincs hozzászólás; értékelés kártya részletei; Kézikönyv a névjelvény menüjében; visszamondási rész ki a kézikönyvből"
+},
+{
 "id": "ed7c1b0aa9",
 "at": "2026-11-22T10:27:20+01:00",
 "msg": "Hiányzó videóverzió-határ pótlása (ügyvezető)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai ablak kétszer olyan széles (1200 px)"
 },
 {
-"id": "8c9788861b",
-"at": "2026-11-22T08:28:31+01:00",
-"msg": "Keresőkből kivéve: X-Robots-Tag noindex minden oldalon, robots meta, robots.txt"
-},
-{
-"id": "9baf551d9b",
-"at": "2026-11-22T07:19:38Z",
+"id": "29932dcca8",
+"at": "2026-11-22T07:28:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
