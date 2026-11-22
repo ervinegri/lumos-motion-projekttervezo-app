@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "343d7eaa1f",
+"at": "2026-11-22T10:44:02+01:00",
+"msg": "Értékelés részletei: a kiküldött levél tartalma (mentés + utólagos pótlás)"
+},
+{
 "id": "b3403b6ed9",
 "at": "2026-11-22T10:43:14+01:00",
 "msg": "pCloud hibaüzenetek egyszerűsítve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Azonnali cégkereső a Cégnév mezőben: ügyfelek, projektek, számlázz.hu-s vevők – gépelés közben, adószámmal és címmel"
 },
 {
-"id": "37eeec623a",
-"at": "2026-11-22T09:09:57+01:00",
-"msg": "Értékeléskérés: élő levél-előnézet az aláírással; 7 nap után egyetlen, jóváhagyandó emlékeztető (videótábla + figyelmeztetés)"
-},
-{
-"id": "eba074c7e8",
-"at": "2026-11-22T08:04:53Z",
+"id": "73482aa3c2",
+"at": "2026-11-22T08:10:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
