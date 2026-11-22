@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a2a83c6a1d",
+"at": "2026-11-22T09:24:08+01:00",
+"msg": "Cégkereső: előtöltés az indulás után + helyi gyorsítótár (azonnali), adószám nélküli ismétlődések összevonva"
+},
+{
 "id": "566e131306",
 "at": "2026-11-22T09:21:27+01:00",
 "msg": "Azonnali cégkereső a Cégnév mezőben: ügyfelek, projektek, számlázz.hu-s vevők – gépelés közben, adószámmal és címmel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Közelgő projekt figyelmeztetés: 30 napon belül, 7 napon belül piros"
 },
 {
-"id": "49b647ed8d",
-"at": "2026-11-21T22:15:58+01:00",
-"msg": "Közelgő (14 napon belüli) projekt figyelmeztetés: mi hiányzik még (projektvezető, szerepkörök, meghívók) – listában, figyelmeztetésekben, projektben"
-},
-{
-"id": "1f9391b5d1",
-"at": "2026-11-21T21:12:45Z",
+"id": "2c90341620",
+"at": "2026-11-21T21:16:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
