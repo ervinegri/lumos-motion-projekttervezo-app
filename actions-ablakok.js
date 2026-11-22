@@ -211,6 +211,7 @@ async function hsSearch(q){
       :`<p class="hint">${q?'Nincs találat.':'Az ügyfél cégéhez nincs kapcsolattartó a HubSpotban – keress név vagy e-mail alapján.'}</p>`;}
   catch(e){if($('hsList'))$('hsList').innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;}
 }
+document.addEventListener('focusin',e=>{if(e.target.id==='m-contactName'&&!e.target.readOnly){const b=$('hsInline');if(b&&b.style.display==='none'){b.style.display='';hsInline();}}});   /* a kapcsolattartó mezőbe lépve rögtön a cég HubSpot-kapcsolatai */
 document.addEventListener('input',e=>{if(e.target.id==='m-contactName'){const b=$('hsInline');if(b)b.style.display='';}if(e.target.id==='m-contactName'||e.target.id==='m-client'){clearTimeout(HS_T);HS_T=setTimeout(hsInline,400);}if(e.target.id==='m-hsq'){clearTimeout(HS_T);const v=e.target.value.trim();HS_T=setTimeout(()=>hsSearch(v.length>=2?v:''),350);}});
 
 /* Szabad szöveg megőrzése: bármelyik szövegdobozba (textarea) írt, el nem küldött szöveg megmarad, ha közben máshová kattintasz,
