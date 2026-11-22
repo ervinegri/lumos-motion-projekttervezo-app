@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d14f042e45",
+"at": "2026-11-22T10:53:10+01:00",
+"msg": "Értékelés: ugyanattól az ügyféltől már kértünk – nem kérünk újra"
+},
+{
 "id": "ddf9ef7af7",
 "at": "2026-11-22T10:51:07+01:00",
 "msg": "Hozzászólások: szerep ikon a név előtt (💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó, ⭐ ügyfél)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Zárak: egységes kis lakat-jelvény a szakaszok jobb felső sarkában; értesítő e-mail csak előnézet után, kézzel (visszazáráskor / a projekt elhagyásakor), magától nem megy ki"
 },
 {
-"id": "a2a83c6a1d",
-"at": "2026-11-22T09:24:08+01:00",
-"msg": "Cégkereső: előtöltés az indulás után + helyi gyorsítótár (azonnali), adószám nélküli ismétlődések összevonva"
-},
-{
-"id": "f9e36c3ad0",
-"at": "2026-11-22T08:21:36Z",
+"id": "aeca69dd9a",
+"at": "2026-11-22T08:24:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
