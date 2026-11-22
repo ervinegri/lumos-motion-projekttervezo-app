@@ -3090,3 +3090,11 @@ html body #mform.m-video .vv-body>.vv-tcw{display:flex;align-items:center;gap:10
   html body #mform.m-video .vv-body>.vv-tcw{grid-column:1;grid-row:3;margin:10px 0 0;align-self:start}
   html body #mform.m-video .vv-body>.vv-cm{grid-column:2;grid-row:1 / span 4}
 }
+/* verzióváltó: ugyanolyan szegmens-gomb, mint a Naptár nézetváltója – a kiválasztott sötét, a többi fehér */
+html body .vv-vers{display:inline-flex;align-items:stretch;gap:0;margin-left:10px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff;vertical-align:middle}
+html body .vv-vers .vv-ver.vv-verb{margin:0;border:0;border-radius:0;background:transparent;color:var(--fg-2,#48484d);font-size:12.5px;font-weight:740;padding:5px 12px;line-height:1.2;cursor:pointer}
+html body .vv-vers .vv-ver.vv-verb+.vv-verb{border-left:1px solid var(--line)}
+html body .vv-vers .vv-ver.vv-verb.on{background:var(--fg,#1f2933);color:#fff}
+html body .vv-vers .vv-ver.vv-verb:not(.on):not(:disabled):hover{background:#f1f3f6}
+html body .vv-vers .vv-ver.vv-verb.vv-arr{padding:5px 10px;font-size:14px}
+html body .vv-vers .vv-ver.vv-verb:disabled{color:#c3c8cf;cursor:default}

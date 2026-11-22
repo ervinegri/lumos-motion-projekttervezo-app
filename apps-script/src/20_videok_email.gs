@@ -666,6 +666,17 @@ function clientQuoteDecide_(t, dec, note) { const o = clientTokenRead_(t); if (!
   const p = readAll_('projects').find(x => x.id === o.p), v = p && parseVideos_(p.videos).find(x => x.id === o.v); if (!v || v.pqNo !== o.q) throw new Error('Ez az ajánlat már nem érvényes.');
   if (v.pq !== 'sent') return clientQuote_(t);
   vqDecide_(o.p, o.v, dec === 'ok' ? 'ok' : 'no', clientFirst_(p, '') || 'Ügyfél', str_(note, 2000).trim()); return clientQuote_(t); }
+/** Adatjavítás (ügyvezető): egy korábbi verzió határidőpontjának igazítása – ha a verzió rossz időponttal rögzült (pl. a pCloud-linkek régi összevetési hibája miatt), a hozzászólások rossz verziónál látszanak. */
+function videoVerFix_(u, a) {
+  if (u.role !== 'admin') throw new Error('Csak az ügyvezető javíthatja.');
+  const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), idx = Number(a && a.idx), at = str_(a && a.at, 30);
+  if (!/^\d{4}-\d\d-\d\d \d\d:\d\d(:\d\d)?$/.test(at)) throw new Error('Hibás időpont.');
+  let out = null;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.'); const p = readRow_('projects', sh, row);
+    const L = parseVideos_(p.videos), v = L.find(x => x.id === vid); if (!v || !v.vers || !v.vers[idx]) throw new Error('A verzió nem található.');
+    const old = v.vers[idx].at; v.vers[idx].at = at; p.videos = JSON.stringify(L); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); out = { old: old, at: at }; logEvent_(u, 'Videóverzió időpont javítva', p.name, v.name + ' v' + (idx + 1) + ': ' + old + ' → ' + at); });
+  return out;
+}
 function videoSet_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
