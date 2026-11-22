@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a3be05b0e",
+"at": "2026-11-22T09:55:39+01:00",
+"msg": "Videó-ablak: széles képernyőn teljes képernyős"
+},
+{
 "id": "1e3c5089eb",
 "at": "2026-11-22T09:54:05+01:00",
 "msg": "Videó-ablak: a videó függőlegesen középen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: kiküldött, megválaszolatlan meghívó sárga; ki nem küldött szürke"
 },
 {
-"id": "ff5d390507",
-"at": "2026-11-21T22:40:00+01:00",
-"msg": "Elfogadott stábkártya: még zöldebb (teljes zöld háttér, sötétebb keret)"
-},
-{
-"id": "9c398d8982",
-"at": "2026-11-21T21:37:42Z",
+"id": "5b161d6f0d",
+"at": "2026-11-21T21:40:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
