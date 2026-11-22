@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "12f48a64c1",
+"at": "2026-11-22T17:02:31+02:00",
+"msg": "Alapadatok mindig zárva nyílik (lakat), lenyitható szakaszok nyila egységesen jobbra"
+},
+{
 "id": "7b7753e962",
 "at": "2026-11-22T16:58:02+02:00",
 "msg": "Telefon: a logó háttere minden kinézetben a fejléc színe (Stone: fehér)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-ablak: a hozzászólások száma nem látszik a fejlécben"
 },
 {
-"id": "4d1ea63290",
-"at": "2026-11-22T09:44:19+01:00",
-"msg": "Videó-ablak: a hozzászólás-lista nincs levágva az oldalsó oszlopban"
-},
-{
-"id": "e87c556b18",
-"at": "2026-11-22T08:40:35Z",
+"id": "11e8810fab",
+"at": "2026-11-22T08:44:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
