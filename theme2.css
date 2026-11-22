@@ -3167,3 +3167,13 @@ html body details.panel.fold:has(.sec-lock) .sec-lock{right:58px!important;top:1
  html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .field>label{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
  html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .grp-h{font-size:11px!important;margin-bottom:4px}
 }
+
+/* Projekt oldalán az Utómunka tábla: oldalra húzható (swipe) – a fejléc és az oszlopok együtt mozognak; telefonon oszloponként bepattan */
+html body .proj-board .bd-proj{overflow-x:auto!important;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}
+html body .proj-board .bd-proj::-webkit-scrollbar{display:none}
+html body .proj-board .bd-proj .bl-single{width:max-content;min-width:100%}
+@media (max-width:700px){
+ html body .proj-board .bd-proj{scroll-snap-type:x mandatory;scroll-padding-left:0;margin-left:-16px;margin-right:-16px;padding:0 16px}
+ html body .proj-board .bd-proj .bl-single .bl-row{grid-template-columns:repeat(var(--bl-n),calc(100vw - 72px))!important;min-width:0!important}
+ html body .proj-board .bd-proj .bl-head>.bl-h{scroll-snap-align:start}
+}

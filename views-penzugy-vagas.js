@@ -747,9 +747,8 @@ function viewProject(p){
       const pre=!!((p.invites||{})[me]||{}).pre||(S.myInvites||[]).some(x=>x.id===p.id&&x.pre);return `<div class="inv-banner"><div class="grow"><span class="inv-line">${pre?'⏳ Előfoglalás: szeretnénk előre lefoglalni erre a projektre'+(rl.length?', mint '+esc(rl.join(' és ')):'')+'. Szabadon tudod tartani a napot? A részleteket később küldjük.':'✉️ Meghívást kaptál erre a projektre'+(rl.length?', mint '+esc(rl.join(' és ')):'')+'. Elfogadod?'}</span>${(()=>{const f=myFeeOf(p);if(!f||!num(f.amount))return '';const nd=f.dayAmounts&&typeof f.dayAmounts==='object'?Object.keys(f.dayAmounts).length:0;return `<span class="inv-fee">💰 Díjad: <b>${ftFmt(num(f.amount))}</b> nettó${nd>1?' · '+nd+' napra összesen':''} – az elfogadással ezt a díjat fogadod el.</span>`;})()}</div><div class="inv-btns"><button type="button" class="btn primary" data-action="inv-answer" data-id="${esc(p.id)}" data-a="yes">✓ Igen</button><button type="button" class="btn outline" data-action="inv-answer" data-id="${esc(p.id)}" data-a="no">✗ Nem</button></div></div>`;})():''}
   </div>
   <div class="dfull${status==='lemondva'?' is-cancelled':''}"${status==='lemondva'?' inert':''}>
-      ${projBoardPanel(p)}
       ${dlPanel?`<div class="panel dl-panel"><div class="grow"><h3>🎬 Kész videók</h3><p class="hint" style="margin:2px 0 0">${p.deliveredAt?'Átadva: '+esc(fmtDay(p.deliveredAt))+' · ':''}${esc(String(p.deliveryNotes||'').slice(0,200))||'A videók letölthetők az átadási linkről.'}</p></div>${(isAdmin()||(S.me&&S.me.role==='editor'))&&status!=='atadva'?`<button class="btn outline small" type="button" data-action="dl-edit" data-id="${esc(p.id)}">✏️ Linkek módosítása</button>`:''}${vidLink(p,'btn primary','▶️ Átadási link megnyitása ↗'+(p.deliveryPass?' 🔒':''))}</div>`:''}
-      <details class="panel fold basics" data-fold="basics"${FOLD.basics!==false?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
+      <details class="panel fold basics" data-fold="basics"${FOLD.basics===true||(FOLD.basics==null&&missingReq(p).length)?' open':''}><summary><h3>📋 Alapadatok</h3></summary><div class="fields">
         ${(()=>{   /* két oszlop: bal – a rendezvény (név, típus, helyszín, időpont), jobb – az ügyfél és a kapcsolattartó */
         const tm=(k,l)=>fld(p,k,l,{ph:k.endsWith('EndTime')||k==='endTime'?'pl. 18:30':'pl. 10:00',im:'numeric'}).replace('data-field=','data-time="1" maxlength="5" data-field=');
         const DL=daysOf(p),dr=(x,i)=>`<div class="b-when b-day"><div class="field"><label for="f-day${i}">${i+2}. nap</label><input class="inp" id="f-day${i}" type="date" data-day-i="${i}" data-day-f="d" value="${esc(x.d)}"${p.date?` min="${esc(addDays(p.date,1))}"`:''}${D()}></div><div class="field"><label>Kezdés</label><input class="inp" type="text" inputmode="numeric" maxlength="5" data-time="1" data-day-i="${i}" data-day-f="s" value="${esc(x.s||'')}" placeholder="pl. 10:00"${D()}></div><div class="field"><label>Végzés (kb.)</label><div class="b-day-end"><input class="inp" type="text" inputmode="numeric" maxlength="5" data-time="1" data-day-i="${i}" data-day-f="e" value="${esc(x.e||'')}" placeholder="pl. 18:30"${D()}>${ro()?'':`<button type="button" class="b-day-del" data-action="day-del" data-i="${i}" title="Nap törlése" aria-label="${i+2}. nap törlése">×</button>`}</div></div></div>`;
@@ -760,6 +759,7 @@ function viewProject(p){
         const lkB=svcLockOf(p,'basic');return `${svcLockBar(p,'basic',lkB)}<div class="field full b-grid${ro()?' b-one':''}${lkB.on?' svc-locked':''}"${lkB.on?' inert':''}>${ev}${cl}</div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
+      ${projBoardPanel(p)}
   </div>
   ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   
@@ -776,4 +776,4 @@ function viewProject(p){
 
 /* Projekt oldalán a videótábla (kanban) – ugyanaz, mint a naptárból nyíló „Videók” ablakban */
 function projBoardPanel(p){if(ro()||!projById(p.id)||!(Array.isArray(p.videos)&&p.videos.length)||typeof laneModalBody!=='function')return '';
-  return `<details class="panel fold proj-board" data-fold="board"${FOLD.board===true?' open':''}><summary><h3>🎬 Videótábla</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}
+  return `<details class="panel fold proj-board" data-fold="board"${FOLD.board===true?' open':''}><summary><h3>🎬 Utómunka</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}
