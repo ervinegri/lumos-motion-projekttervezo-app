@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "adf2f38f44",
+"at": "2026-11-22T10:36:38+01:00",
+"msg": "Videó: a Verzió törlése gomb kikerült"
+},
+{
 "id": "42afb3863d",
 "at": "2026-11-22T10:34:26+01:00",
 "msg": "CLAUDE.md: kézikönyv szabály"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: az adószám mező szélesebb (ne vágja le)"
 },
 {
-"id": "04ea3fd2f8",
-"at": "2026-11-22T08:51:27+01:00",
-"msg": "Ügyfél adatai: kompakt elrendezés a széles ablakban (adószám·cégnév·székhely, kapcsolattartó és képviselő egy-egy sorban)"
-},
-{
-"id": "53743d7eab",
-"at": "2026-11-22T07:49:19Z",
+"id": "9f60417d16",
+"at": "2026-11-22T07:51:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
