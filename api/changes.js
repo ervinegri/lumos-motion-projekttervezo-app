@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8e4251abf2",
+"at": "2026-11-22T10:39:31+01:00",
+"msg": "Álló videó a képernyő aljáig"
+},
+{
 "id": "cfab296d13",
 "at": "2026-11-22T10:38:42+01:00",
 "msg": "Jóváhagyás és üzenet egy hozzászólásban; jóváhagyott sáv ki; álló videó magassága"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: rövidebb „Betöltés” gomb, hogy az adószám kiférjen"
 },
 {
-"id": "0d22bbcdc4",
-"at": "2026-11-22T08:58:00+01:00",
-"msg": "Ügyfél adatai: egyenletes, egymás alá igazított mezők (4 oszlop)"
-},
-{
-"id": "774df085a0",
-"at": "2026-11-22T07:55:49Z",
+"id": "b250246c14",
+"at": "2026-11-22T07:58:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
