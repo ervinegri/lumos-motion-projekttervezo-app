@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2facb6613d",
+"at": "2026-11-22T09:34:10+01:00",
+"msg": "Értesítő előnézet: „Változtatások elvetése” – visszaállás a feloldás előtti állapotra, értesítő nélkül"
+},
+{
 "id": "a09ae52a03",
 "at": "2026-11-22T09:29:14+01:00",
 "msg": "Zárak: egységes kis lakat-jelvény a szakaszok jobb felső sarkában; értesítő e-mail csak előnézet után, kézzel (visszazáráskor / a projekt elhagyásakor), magától nem megy ki"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Elfogadott meghívó után a szakember eszközei zárolva a kártyán (Módosítás / Visszazárás), változáskor e-mail"
 },
 {
-"id": "94dd16391c",
-"at": "2026-11-21T22:23:23+01:00",
-"msg": "Díjtábla fejléc: az oszlopszélesség-fogantyú nem látszik kurzorként (csak rámutatva, halványan)"
-},
-{
-"id": "d99eebcd48",
-"at": "2026-11-21T21:19:51Z",
+"id": "0c2e362b6a",
+"at": "2026-11-21T21:23:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
