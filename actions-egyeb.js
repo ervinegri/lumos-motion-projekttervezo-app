@@ -510,9 +510,15 @@ async function noticeCheck(pid,next){const snap=S.noticeSnap&&S.noticeSnap[pid];
     const pn=(projById(pid)||{}).name||'';
     openModal('📧 Értesítő a változásról – '+pn,`<p class="hint" style="margin:0 0 10px">A zárolt adatok változása ${M.length} meghívott szakembert érint. Nézd át a leveleket – csak akkor mennek ki, ha elküldöd.</p>
       ${M.map(m=>`<div class="nt-mail"><div class="nt-head"><div><span>Címzett:</span> <b>${esc(m.name||'')}</b> &lt;${esc(m.to)}&gt;</div><div><span>Tárgy:</span> <b>${esc(m.subject)}</b></div></div><div class="nt-body">${m.html}</div></div>`).join('')}`,
-      {left:'<button type="button" class="btn ghost" data-action="nt-skip">Nem küldök értesítőt</button>',submitLabel:'✉️ '+(M.length>1?M.length+' értesítő':'Értesítő')+' küldése',cancelLabel:'Később',noDraft:true,
+      {left:'<button type="button" class="btn ghost" data-action="nt-revert" title="A projekt visszaáll a feloldás előtti állapotra, értesítő nem megy ki">↩️ Változtatások elvetése</button><button type="button" class="btn ghost" data-action="nt-skip">Nem küldök értesítőt</button>',submitLabel:'✉️ '+(M.length>1?M.length+' értesítő':'Értesítő')+' küldése',cancelLabel:'Később',noDraft:true,
        submit:async()=>{try{const s2=await call('taskNoticeSend',args);clear();closeModal();toast('Elküldve: '+((s2&&s2.messages)||[]).map(m=>m.name||m.to).join(', '));render(true);done();}catch(e){handleErr(e);}}});
     {const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
     S._ntSkip=()=>{clear();closeModal();toast('Értesítő nélkül – a változás mentve.');render(true);done();};
+    S._ntRevert=()=>{if(!confirm('Elveted a feloldás óta tett változtatásokat? A projekt visszaáll a feloldás előtti állapotra, értesítő nem megy ki.'))return;
+      const cur=projById(pid),rest=Object.assign(clone(snap),{updatedAt:cur?cur.updatedAt:snap.updatedAt});
+      if(S.draft&&S.draft.id===pid){S.draft=prepDraft(rest);S.dirty=true;saveDraft();}
+      else{const k=S.projects.findIndex(x=>x.id===pid);if(k>=0)S.projects[k]=rest;call('saveProject',Object.assign({},rest,{baseUpdatedAt:rest.updatedAt,mutationId:uuid(),deferCal:true})).catch(handleErr);}
+      clear();closeModal();toast('A változtatások elvetve – visszaállt a feloldás előtti állapot.');render(true);done();};
   }catch(e){handleErr(e);done();}}
 ACT['nt-skip']=()=>{if(S._ntSkip)S._ntSkip();};
+ACT['nt-revert']=()=>{if(S._ntRevert)S._ntRevert();};
