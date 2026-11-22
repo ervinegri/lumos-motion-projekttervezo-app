@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "717dcf76cf",
+"at": "2026-11-22T10:56:09+01:00",
+"msg": "Videósor nélküli projekt: az átadott link lejátszóval az utómunka-ablakban"
+},
+{
 "id": "d14f042e45",
 "at": "2026-11-22T10:53:10+01:00",
 "msg": "Értékelés: ugyanattól az ügyféltől már kértünk – nem kérünk újra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értesítő előnézet: „Változtatások elvetése” – visszaállás a feloldás előtti állapotra, értesítő nélkül"
 },
 {
-"id": "a09ae52a03",
-"at": "2026-11-22T09:29:14+01:00",
-"msg": "Zárak: egységes kis lakat-jelvény a szakaszok jobb felső sarkában; értesítő e-mail csak előnézet után, kézzel (visszazáráskor / a projekt elhagyásakor), magától nem megy ki"
-},
-{
-"id": "aeca69dd9a",
-"at": "2026-11-22T08:24:16Z",
+"id": "f28a03ef3c",
+"at": "2026-11-22T08:29:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
