@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b0d89894ff",
+"at": "2026-11-22T17:05:56+02:00",
+"msg": "Projekt: Videótábla → Utómunka, az Alapadatok alá; telefonon swipe-olható; Alapadatok alapból csukva"
+},
+{
 "id": "c6397a5db7",
 "at": "2026-11-22T17:04:05+02:00",
 "msg": "Projekt Pénzügyek telefonon: Szerződés és Termelés kártya egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-ablak: széles képernyőn teljes képernyős"
 },
 {
-"id": "1e3c5089eb",
-"at": "2026-11-22T09:54:05+01:00",
-"msg": "Videó-ablak: a videó függőlegesen középen"
-},
-{
-"id": "48d6d7539b",
-"at": "2026-11-22T08:45:21Z",
+"id": "b843e1ae55",
+"at": "2026-11-22T08:54:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
