@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a30c6eacb4",
+"at": "2026-11-22T10:26:38+01:00",
+"msg": "Álló videó széles képernyőn nagyban, középen"
+},
+{
 "id": "5794bfae86",
 "at": "2026-11-22T10:25:38+01:00",
 "msg": "Hozzászólások időrendben a korábbi verzióknál is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "gbpCatSearch: angol nyelvű keresés is"
 },
 {
-"id": "2e3b9ae3a9",
-"at": "2026-11-22T08:16:33+01:00",
-"msg": "Google Cégprofil adatai: olvasás, kategóriakeresés, módosítás (leírás, kategóriák, szolgáltatások) – ügyvezetői API"
-},
-{
-"id": "76c1936a89",
-"at": "2026-11-21T22:03:49Z",
+"id": "8ad37e0515",
+"at": "2026-11-22T07:16:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
