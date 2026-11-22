@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5dc50a0712",
+"at": "2026-11-22T10:02:48+01:00",
+"msg": "Videó-ablak: az időkód / jelölés sáv közvetlenül a videó alatt; Cmd/Ctrl+Enter elküldi a hozzászólást"
+},
+{
 "id": "8135be0b88",
 "at": "2026-11-22T09:56:53+01:00",
 "msg": "Videó-ablak: a projekt linkje magát a projektet nyitja meg (nem a videótáblát)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Figyelmeztetés doboz: egy projektnél az egész doboz kattintható"
 },
 {
-"id": "c33e18108a",
-"at": "2026-11-21T22:47:19+01:00",
-"msg": "Stábkártya: visszautasított meghívó erős piros (a sárgához, zöldhöz igazítva)"
-},
-{
-"id": "77e6ae6482",
-"at": "2026-11-21T21:45:50Z",
+"id": "3f994fb60d",
+"at": "2026-11-21T21:47:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
