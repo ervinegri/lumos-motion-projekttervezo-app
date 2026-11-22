@@ -3104,3 +3104,10 @@ html body .vv-cm>.vv-cm-new{order:90;margin:10px 0 0}html body .vv-cm>.vv-cm-act
 
 /* hozzászólás küldése a láblécben: csak ha van szövegdoboz */
 html body #mform:not(:has(#m-vvCm)) .mfoot .vv-send-f{display:none}
+/* álló (vertikális) videó széles képernyőn: nagy, a bal oszlop közepén; az időkód sáv alatta, középen */
+@media (min-width:1100px){
+  html body #mform.m-video .vv-body.side{grid-template-columns:minmax(0,1.4fr) minmax(380px,1fr)}
+  html body #mform.m-video .vv-body>.vv-player.vert{justify-self:center!important;height:calc(100vh - 250px)!important;max-height:calc(100vh - 250px)!important;width:auto!important;max-width:100%!important;aspect-ratio:var(--ar,9/16)!important;margin:0!important}
+  html body #mform.m-video .vv-body>.vv-player.vert>video,html body #mform.m-video .vv-body>.vv-player.vert>iframe{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain}
+  html body #mform.m-video .vv-body.side>.vv-tcw{justify-self:center;justify-content:center}
+}
