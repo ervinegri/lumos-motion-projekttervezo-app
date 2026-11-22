@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2d7e00471c",
+"at": "2026-11-22T08:49:08+01:00",
+"msg": "Ügyfél adatai: a számlák kattinthatók (PDF, régi számlázz.hu-s számlák is); adószám és cégnév egy sorban"
+},
+{
 "id": "f6aff4fd89",
 "at": "2026-11-22T08:46:14+01:00",
 "msg": "Ügyfél-lista: Google-értékelés oszlop (értékelt / megnyitotta / kértük)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: napi önellenőrzés és önjavítás az azonnali értesítésnél, elakadás jelzése; új szabály a CLAUDE.md-ben (profi megoldás > gyors)"
 },
 {
-"id": "7ef66d5107",
-"at": "2026-11-21T21:28:50+01:00",
-"msg": "Google-értékelések: a csengő percenként néz rá (az azonnali Google-értesítés után)"
-},
-{
-"id": "e254b9a04f",
-"at": "2026-11-21T20:12:54Z",
+"id": "8dd5ad0403",
+"at": "2026-11-21T20:29:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
