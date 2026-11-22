@@ -262,7 +262,10 @@ document.addEventListener('paste',e=>{const ta=e.target;if(!ta||ta.tagName!=='TE
 
 /* ===== Azonnali cégkereső (Ügyfél adatai / Új ügyfél → Cégnév): a saját adatainkból (ügyfelek, projektek, számlázz.hu-s vevők), gépelés közben helyben szűr ===== */
 let CO_IDX=null,CO_LOAD=null;
-const coLoad=()=>CO_IDX?Promise.resolve(CO_IDX):(CO_LOAD||(CO_LOAD=call('companyIndex',{}).then(r=>(CO_IDX=Array.isArray(r)?r:[])).catch(()=>{CO_LOAD=null;return [];})));
+const CO_KEY='lpm_coidx_v1';try{const c=JSON.parse(localStorage.getItem(CO_KEY)||'null');if(c&&Array.isArray(c.l))CO_IDX=c.l;}catch(e){}   /* az előző index azonnal kéznél (a frissítés a háttérben jön) */
+const coFetch=()=>CO_LOAD||(CO_LOAD=call('companyIndex',{}).then(r=>{CO_IDX=Array.isArray(r)?r:[];try{localStorage.setItem(CO_KEY,JSON.stringify({at:Date.now(),l:CO_IDX}));}catch(e){}CO_LOAD=null;return CO_IDX;}).catch(()=>{CO_LOAD=null;return CO_IDX||[];}));
+const coLoad=()=>{if(CO_IDX){if(!coLoad._fresh){coLoad._fresh=1;coFetch().then(()=>{if($('coSug')&&!$('coSug').hidden)coRender();});}return Promise.resolve(CO_IDX);}return coFetch();};
+setTimeout(()=>{try{if(typeof canEditNow==='function'?canEditNow():!ro())coLoad();}catch(e){}},4000);   /* az app indulása után a háttérben előtöltve – az első gépelésnél már nincs várakozás */
 function coRender(){const inp=$('m-client');if(!inp||inp.readOnly)return;let box=$('coSug');const fld=inp.closest('.field');if(!fld)return;
   if(!box){fld.style.position='relative';fld.insertAdjacentHTML('beforeend','<div id="coSug" class="co-sug" role="listbox"></div>');box=$('coSug');}
   const q=fold(inp.value.trim());if(q.length<2||!CO_IDX){box.innerHTML='';box.hidden=true;return;}

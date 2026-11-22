@@ -1102,6 +1102,9 @@ function companyIndex_() {
   readAll_('projects').forEach(p => add(p.client, p.clientTax, p.clientAddress, 'projekt'));
   try { const h = szHistLoad_(); Object.keys(h.inv).forEach(no => { const v = h.inv[no]; add(v[1], v[2], '', 'számla'); }); } catch (e) {}
   try { readAll_('finInvoice').forEach(x => add(x.buyer, x.buyerTax || '', x.buyerAddress || '', 'számla')); } catch (e) {}
+  const nk = n => String(n || '').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.,]/g, ''), byName = {};
+  Object.keys(out).forEach(key => { if (key[0] === 't') byName[nk(out[key].n)] = out[key]; });
+  Object.keys(out).forEach(key => { if (key[0] !== 'n') return; const t = byName[nk(out[key].n)]; if (t) { if (!t.a && out[key].a) t.a = out[key].a; delete out[key]; } });   // ugyanaz a cég adószám nélkül is: összevonva
   return Object.keys(out).map(key => out[key]);
 }
 function clientInvoices_(a) {
