@@ -3027,3 +3027,7 @@ html body .pcrew .pcrew-lock{position:absolute;top:42px;right:9px;width:28px;hei
 .issue.issue-click{cursor:pointer;transition:filter .12s,box-shadow .12s}.issue.issue-click:hover{filter:brightness(.97);box-shadow:0 1px 4px rgba(31,41,51,.12)}.issue.issue-click:focus-visible{outline:2px solid #1f2933;outline-offset:2px}
 html body .modal .mbox.mbox-xwide{width:min(1200px,100%);max-width:min(1200px,100%)}
 @media (max-width:700px){html body .modal .mbox.mbox-xwide{width:100%;max-width:100%}}
+/* ügyfél-lista: Google-értékelés oszlop */
+.cl-rv{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.cl-rv.ok{background:#fff6dc;border-color:#f2d37a;color:#7a5a00}.cl-rv.click{background:#eef4ff;border-color:#c9daf8;color:#2b5aa8}.cl-rv.sent{background:#f3f4f6;border-color:#e2e5e9;color:#5b6573}
+td.cl-g,th.cl-g{text-align:center;white-space:nowrap}
