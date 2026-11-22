@@ -168,9 +168,9 @@ function knownClients(q){
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
 /* Új ügyfél: adószámból a cégnév és a székhely a NAV-ból (számlázz.hu-n keresztül, mint a Sales Appban). */
-const taxBlock=()=>`<div class="field"><label for="m-clientTax">Adószám</label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup">Cégadatok betöltése</button></div>
+const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><label for="m-clientTax">Adószám</label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup">Cégadatok betöltése</button></div>
   <button class="linkbtn" type="button" data-action="nav-search" style="align-self:flex-start;font-size:13px">🔎 Adószám keresése név alapján (NAV)</button></div>
-  ${mf('client','Cégnév',{max:160})}${mf('clientAddress','Székhely',{full:true,max:300})}`;   /* adószám és cégnév egy sorban */
+  ${mf('clientAddress','Székhely',{full:true,max:300})}`;   /* cégnév és adószám egy sorban */
 async function taxLookup(){
   const t=$('m-clientTax'),b=document.querySelector('[data-action=tax-lookup]');if(!t)return;const v=t.value.replace(/\D/g,'');
   if(v.length<8){toast('Az adószám első 8 számjegye szükséges.',true);t.focus();return;}
