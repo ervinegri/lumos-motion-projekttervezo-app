@@ -493,3 +493,5 @@ ACT['rv-send']=b=>{const p=S.projects.find(x=>x.id===b.dataset.pid);if(!p)return
   const fm=$('mform');if(fm)fm.addEventListener('input',prev);
   (S._mySig!=null?Promise.resolve(S._mySig):call('mySignature').then(r=>(S._mySig=(r&&r.html)||'')).catch(()=>(S._mySig=''))).then(prev);prev();
   setTimeout(()=>{const x=$('m-rvText');if(x&&typeof autoGrow==='function')autoGrow(x);},60);};
+
+ACT['co-pick']=b=>coPick(b);   /* azonnali cégkereső találata (actions-ablakok.js) */

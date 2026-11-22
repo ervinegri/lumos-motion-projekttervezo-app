@@ -259,3 +259,22 @@ function htmlPasteText(h){try{const d=new DOMParser().parseFromString(h,'text/ht
   walk(d.body,0,false);return out.replace(/[ \t]+\n/g,'\n').replace(/\n[ ]+(?=\S)/g,m=>m).replace(/\n{3,}/g,'\n\n').replace(/^\s*\n|\s+$/g,'');}catch(e){return '';}}
 document.addEventListener('paste',e=>{const ta=e.target;if(!ta||ta.tagName!=='TEXTAREA'||e.defaultPrevented)return;const cd=e.clipboardData;if(!cd)return;const h=cd.getData('text/html');if(!h||!/<(li|p|br|h[1-6]|div)\b/i.test(h))return;
   const t=htmlPasteText(h);if(!t)return;e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.setRangeText(t,s,en,'end');ta.dispatchEvent(new Event('input',{bubbles:true}));},true);
+
+/* ===== Azonnali cégkereső (Ügyfél adatai / Új ügyfél → Cégnév): a saját adatainkból (ügyfelek, projektek, számlázz.hu-s vevők), gépelés közben helyben szűr ===== */
+let CO_IDX=null,CO_LOAD=null;
+const coLoad=()=>CO_IDX?Promise.resolve(CO_IDX):(CO_LOAD||(CO_LOAD=call('companyIndex',{}).then(r=>(CO_IDX=Array.isArray(r)?r:[])).catch(()=>{CO_LOAD=null;return [];})));
+function coRender(){const inp=$('m-client');if(!inp||inp.readOnly)return;let box=$('coSug');const fld=inp.closest('.field');if(!fld)return;
+  if(!box){fld.style.position='relative';fld.insertAdjacentHTML('beforeend','<div id="coSug" class="co-sug" role="listbox"></div>');box=$('coSug');}
+  const q=fold(inp.value.trim());if(q.length<2||!CO_IDX){box.innerHTML='';box.hidden=true;return;}
+  const qd=inp.value.replace(/\D/g,''),L=CO_IDX.map(c=>{const n=fold(c.n);let sc=n.startsWith(q)?3:n.split(/[\s.,-]+/).some(w=>w.startsWith(q))?2:n.includes(q)?1:0;if(!sc&&qd.length>=4&&String(c.t).replace(/\D/g,'').startsWith(qd))sc=2;return {c,sc};}).filter(x=>x.sc).sort((a,b)=>b.sc-a.sc||(b.c.t?1:0)-(a.c.t?1:0)||a.c.n.localeCompare(b.c.n,'hu')).slice(0,8);
+  S._coL=L.map(x=>x.c);
+  if(!L.length){box.innerHTML='<p class="hint" style="margin:6px 10px">Nincs ilyen cég a saját adatainkban – az adószámmal töltsd be (NAV).</p>';box.hidden=false;return;}
+  box.innerHTML=S._coL.map((c,i)=>`<button type="button" class="co-it" data-action="co-pick" data-i="${i}"><b>${esc(c.n)}</b><small>${esc([c.t?'Adószám: '+c.t:'',c.a].filter(Boolean).join(' · ')||c.s)}</small></button>`).join('');box.hidden=false;}
+document.addEventListener('focusin',e=>{if(e.target.id==='m-client'&&$('mform')&&$('m-clientTax')){coLoad().then(coRender);}});
+document.addEventListener('input',e=>{if(e.target.id==='m-client'&&$('m-clientTax')){if(CO_IDX)coRender();else coLoad().then(coRender);}});
+document.addEventListener('keydown',e=>{if(e.target.id==='m-client'&&e.key==='Escape'){const b=$('coSug');if(b&&!b.hidden){b.hidden=true;e.stopPropagation();}}},true);
+document.addEventListener('mousedown',e=>{const b=$('coSug');if(b&&!b.hidden&&!e.target.closest('#coSug')&&e.target.id!=='m-client')b.hidden=true;});
+function coPick(btn){const c=(S._coL||[])[Number(btn.dataset.i)];if(!c)return;const set=(id,v)=>{const x=$(id);if(x&&v)x.value=v;};set('m-client',c.n);
+  const t=$('m-clientTax');if(t&&c.t){t.value=c.t;t._done=1;}set('m-clientAddress',c.a);const b=$('coSug');if(b)b.hidden=true;
+  if(c.t&&!c.a&&typeof taxLookup==='function')taxLookup();   // ha csak adószám van, a címet a NAV-ból tölti be
+  toast(c.t?'Cégadatok kitöltve':'Cégnév kitöltve – az adószám nincs meg, add meg vagy keresd a NAV-ban');}

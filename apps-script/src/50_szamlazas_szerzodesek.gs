@@ -1091,6 +1091,19 @@ function szHistBuyers_() {
     .sort((x, y) => y.net - x.net);
 }
 /** Egy ügyfél számlái (számlázz.hu-történet + az appban rögzítettek, pl. E.V.), projekttel vagy a tételek nevével. a: {name} */
+/** Azonnali cégkereső a saját adatainkból: ügyfelek, projektek ügyféladatai, minden számlázz.hu-s vevő (adószámmal), app-számlák vevői.
+    Egyszer letölti a felület, utána gépelés közben helyben szűr (nincs várakozás). */
+function companyIndex_() {
+  const out = {}, k = (n, t) => { const t8 = String(t || '').replace(/\D/g, '').slice(0, 8); return t8.length === 8 ? 't' + t8 : 'n' + String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); };
+  const add = (n, t, a, src) => { n = String(n || '').trim(); if (n.length < 2) return; const key = k(n, t), o = out[key];
+    if (!o) out[key] = { n: n, t: String(t || '').trim(), a: String(a || '').trim(), s: src };
+    else { if (!o.t && t) o.t = String(t).trim(); if (!o.a && a) o.a = String(a).trim(); if (src === 'ügyfél') { o.n = n; o.s = src; } } };
+  readAll_('clients').forEach(c => add(c.name, c.tax, c.address, 'ügyfél'));
+  readAll_('projects').forEach(p => add(p.client, p.clientTax, p.clientAddress, 'projekt'));
+  try { const h = szHistLoad_(); Object.keys(h.inv).forEach(no => { const v = h.inv[no]; add(v[1], v[2], '', 'számla'); }); } catch (e) {}
+  try { readAll_('finInvoice').forEach(x => add(x.buyer, x.buyerTax || '', x.buyerAddress || '', 'számla')); } catch (e) {}
+  return Object.keys(out).map(key => out[key]);
+}
 function clientInvoices_(a) {
   const name = str_(a && a.name, 160).trim(); if (!name) return { items: [] };
   const c = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === name.toLowerCase()) || { name: name, tax: '' };
