@@ -3032,3 +3032,14 @@ html body .modal .mbox.mbox-xwide{width:min(1200px,100%);max-width:min(1200px,10
 .cl-rv.ok{background:#fff6dc;border-color:#f2d37a;color:#7a5a00}.cl-rv.click{background:#eef4ff;border-color:#c9daf8;color:#2b5aa8}.cl-rv.sent{background:#f3f4f6;border-color:#e2e5e9;color:#5b6573}
 td.cl-g,th.cl-g{text-align:center;white-space:nowrap}
 tr.cl-inv-row{cursor:pointer}tr.cl-inv-row:hover td{background:#f5f8fb}tr.cl-inv-row.is-busy{opacity:.6}
+/* Ügyfél adatai (széles ablak): kompakt elrendezés – 1. sor adószám · cégnév · székhely, 2. sor kapcsolattartó 4 mezője, a képviselő 4 mezője is egy sorban */
+@media (min-width:900px){
+  html body .modal .mbox.mbox-xwide .fields{grid-template-columns:repeat(12,minmax(0,1fr));gap:12px 12px}
+  html body .modal .mbox.mbox-xwide .fields>.field,html body .modal .mbox.mbox-xwide .fields>*{grid-column:span 3}
+  html body .modal .mbox.mbox-xwide .fields>.full{grid-column:span 12}
+  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientTax){grid-column:span 3}
+  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-client){grid-column:span 4}
+  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientAddress){grid-column:span 5}
+  html body .modal .mbox.mbox-xwide .tax-row .btn{white-space:nowrap;padding-inline:10px}
+  html body .modal .mbox.mbox-xwide .tax-row .inp{min-width:0}
+}
