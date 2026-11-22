@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "86a8884153",
+"at": "2026-11-22T09:40:24+01:00",
+"msg": "Videó-ablak: széles képernyőn a videó balra, a hozzászólások jobbra"
+},
+{
 "id": "49e6d3e8d6",
 "at": "2026-11-22T09:38:05+01:00",
 "msg": "Ügyfélnek küldés: a vágó kísérőszövege bekerül a levélbe (a link elé, átírható; a mentett mintába nem)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Eszköz-zár lakat: kerek, halvány sárga keret (feloldva kék)"
 },
 {
-"id": "1595c64868",
-"at": "2026-11-21T22:31:52+01:00",
-"msg": "Eszköz-zár: csak egy kis lakat a fogaskerék alatt, rámutatva az üzenet"
-},
-{
-"id": "6a5caea862",
-"at": "2026-11-21T21:25:17Z",
+"id": "00208674df",
+"at": "2026-11-21T21:32:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
