@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b4c144891",
+"at": "2026-11-22T10:37:42+01:00",
+"msg": "Álló videó nagyobb, a hozzászólások mellett; szélesebb szöveges rész"
+},
+{
 "id": "adf2f38f44",
 "at": "2026-11-22T10:36:38+01:00",
 "msg": "Videó: a Verzió törlése gomb kikerült"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: előbb a cégnév, utána az adószám"
 },
 {
-"id": "7369bb3e49",
-"at": "2026-11-22T08:52:17+01:00",
-"msg": "Ügyfél adatai: az adószám mező szélesebb (ne vágja le)"
-},
-{
-"id": "9f60417d16",
-"at": "2026-11-22T07:51:37Z",
+"id": "b0028bc04f",
+"at": "2026-11-22T07:52:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
