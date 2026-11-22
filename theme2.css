@@ -3122,6 +3122,6 @@ html body .rv-dt-rep{margin-top:6px;font-size:13px}
 @media (min-width:1100px){
   html body #mform.m-video .vv-body.side{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);column-gap:32px}
   html body #mform.m-video .vv-body.side>.vv-player.vert{justify-self:end!important;height:calc(100vh - 180px)!important;max-height:calc(100vh - 180px)!important}
-  html body #mform.m-video .vv-body.side:has(>.vv-tcw)>.vv-player.vert{height:calc(100vh - 235px)!important;max-height:calc(100vh - 235px)!important}
+  html body #mform.m-video .vv-body.side:has(#m-vvCm)>.vv-player.vert{height:calc(100vh - 235px)!important;max-height:calc(100vh - 235px)!important}
   html body #mform.m-video .vv-body.side>.vv-tcw{justify-self:end}
 }
