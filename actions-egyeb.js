@@ -495,3 +495,24 @@ ACT['rv-send']=b=>{const p=S.projects.find(x=>x.id===b.dataset.pid);if(!p)return
   setTimeout(()=>{const x=$('m-rvText');if(x&&typeof autoGrow==='function')autoGrow(x);},60);};
 
 ACT['co-pick']=b=>coPick(b);   /* azonnali cégkereső találata (actions-ablakok.js) */
+
+/* ===== Értesítő a meghívott stábnak a zárolt adatok változásáról – mindig előnézettel, kézi küldéssel =====
+   Feloldáskor elmentjük a projekt állapotát; visszazáráskor (az utolsó zár) vagy a projekt elhagyásakor a háttér összeveti a mostanival,
+   és ha valakit érint, megmutatjuk a leveleket: elküldöd vagy nem. Magától semmi nem megy ki. */
+function noticeSnapTake(pid){S.noticeSnap=S.noticeSnap||{};if(!S.noticeSnap[pid]){const p=projById(pid);if(p)S.noticeSnap[pid]=clone(p);}}
+function noticeOpen(pid){const ks=['postEdit','fieldEdit','basicEdit'].some(k=>S[k]&&S[k][pid]);return ks||Object.keys(S.eqPersonEdit||{}).some(k=>k.indexOf(pid+'|')===0);}
+function noticeMaybe(pid){if(!noticeOpen(pid))noticeCheck(pid);}
+async function noticeCheck(pid,next){const snap=S.noticeSnap&&S.noticeSnap[pid];const done=()=>{if(next)next();};if(!snap){done();return;}
+  const clear=()=>{delete S.noticeSnap[pid];['postEdit','fieldEdit','basicEdit'].forEach(k=>{if(S[k])delete S[k][pid];});Object.keys(S.eqPersonEdit||{}).forEach(k=>{if(k.indexOf(pid+'|')===0)delete S.eqPersonEdit[k];});};
+  try{if(S.dirty&&S.draft&&S.draft.id===pid&&!ro())saveDraft();await SAVE_Q;
+    const args={projectId:pid,old:snap,taskLabels:Object.assign({},window.SLOT_LABEL||{})},r=await call('taskNoticePreview',args),M=(r&&r.messages)||[];
+    if(!M.length){clear();done();return;}
+    const pn=(projById(pid)||{}).name||'';
+    openModal('📧 Értesítő a változásról – '+pn,`<p class="hint" style="margin:0 0 10px">A zárolt adatok változása ${M.length} meghívott szakembert érint. Nézd át a leveleket – csak akkor mennek ki, ha elküldöd.</p>
+      ${M.map(m=>`<div class="nt-mail"><div class="nt-head"><div><span>Címzett:</span> <b>${esc(m.name||'')}</b> &lt;${esc(m.to)}&gt;</div><div><span>Tárgy:</span> <b>${esc(m.subject)}</b></div></div><div class="nt-body">${m.html}</div></div>`).join('')}`,
+      {left:'<button type="button" class="btn ghost" data-action="nt-skip">Nem küldök értesítőt</button>',submitLabel:'✉️ '+(M.length>1?M.length+' értesítő':'Értesítő')+' küldése',cancelLabel:'Később',noDraft:true,
+       submit:async()=>{try{const s2=await call('taskNoticeSend',args);clear();closeModal();toast('Elküldve: '+((s2&&s2.messages)||[]).map(m=>m.name||m.to).join(', '));render(true);done();}catch(e){handleErr(e);}}});
+    {const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
+    S._ntSkip=()=>{clear();closeModal();toast('Értesítő nélkül – a változás mentve.');render(true);done();};
+  }catch(e){handleErr(e);done();}}
+ACT['nt-skip']=()=>{if(S._ntSkip)S._ntSkip();};

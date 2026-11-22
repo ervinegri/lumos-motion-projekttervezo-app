@@ -3055,3 +3055,10 @@ tr.cl-inv-row{cursor:pointer}tr.cl-inv-row:hover td{background:#f5f8fb}tr.cl-inv
 /* azonnali cégkereső legördülő */
 .co-sug{position:absolute;left:0;right:0;top:100%;margin-top:4px;z-index:40;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(16,24,40,.14);max-height:320px;overflow:auto;padding:4px}
 .co-it{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:8px 10px;border:0;background:transparent;border-radius:8px;cursor:pointer;font:inherit}.co-it:hover,.co-it:focus{background:#f2f6fa;outline:none}.co-it small{color:#6b7480;font-size:12px}
+/* egységes zár-jelvény: stábkártya (pcrew-lock) és szakaszok (Alapadatok, Terepi feladatok, Utómunka) */
+html body .lock-badge{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:13px;line-height:1;background:#fff7e6;border:1px solid #f0d49b;border-radius:8px;box-shadow:0 1px 2px rgba(31,41,51,.08);cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+html body .lock-badge:hover{background:#ffefcc;border-color:#e5b95c;transform:scale(1.06)}html body .lock-badge.open{background:#eef6ff;border-color:#b9d3f5}html body .lock-badge.open:hover{background:#e1eeff;border-color:#8fb6ec}
+html body .sec-lock{position:absolute;top:-3px;right:0;z-index:3}
+html body section:has(>.sec-lock){position:relative}html body section:has(>.sec-lock)>.sub-h{padding-right:40px}
+html body details.panel:has(.sec-lock){position:relative}html body details.panel .fields>.sec-lock,html body details.panel .sec-lock{top:18px;right:18px}
+.nt-mail{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 12px;background:#fff}.nt-head{padding:9px 14px;background:#f6f7f9;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6}.nt-head span{color:#7a8491}.nt-body{padding:10px 14px;max-height:340px;overflow:auto}
