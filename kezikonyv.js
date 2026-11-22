@@ -31,7 +31,7 @@ A videókat egy táblán követed: **Utómunkára vár → Utómunka alatt → B
 const KK={
 crew:`# Kézikönyv – Szakembereknek
 
-A Projekttervezőben kapod a meghívásokat, itt látod a beosztásaidat, a projektek részleteit és a saját díjadat. A munkád íve: meghívás → elfogadás → helyszíni munka vagy utómunka → havi díjösszesítő → számla. Csak a saját díjadat látod, másokét soha.
+A Projekttervezőben kapod a meghívásokat, itt látod a beosztásaidat, a projektek részleteit és a saját díjadat. A munkád íve: meghívás → elfogadás → helyszíni munka vagy utómunka → havi díjösszesítő → számla.
 
 Füleid: **Beosztásaim, Naptár, Kifizetések, Beállítások**.
 
