@@ -561,13 +561,18 @@ function opShow(p,cid,r){if(r!=='Operatőr')return r;const held=(p.crew||[]).fil
   const rs=(editTasksOf(p)[cid]||[]).filter(x=>/^f_/.test(x)).map(k=>{const kk=k.slice(2),sr=(window.SLOT_ROLE||{})[kk]||(EX.find(e=>e.k===kk)||{}).role;return sr&&sr!=='Operatőr'?sr:opRoleFor(kk,'Operatőr');});
   return rs.find(x=>!held.includes(x))||r;}   // az a feladat számít, amelyhez még nincs külön szerepköre (pl. kreatív mellé interjú)
 const svcEditMap=kind=>kind==='post'?(S.postEdit=S.postEdit||{}):kind==='basic'?(S.basicEdit=S.basicEdit||{}):(S.fieldEdit=S.fieldEdit||{});
-function svcLockOf(p,kind){if(ro()||projLocked()||svcEditMap(kind)[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&svcLockWho(p,kind).length>0};
-  const who=svcLockWho(p,kind);return {on:who.length>0,who,open:false};}
+/* az Alapadatok mindig zárva nyílik (véletlen átírás ellen) – a még nem mentett (új) projekt kivétel; a többi szakasz csak meghívott esetén zár */
+const basicAlways=(p,kind)=>kind==='basic'&&!!projById(p.id);
+function svcLockOf(p,kind){if(ro()||projLocked()||svcEditMap(kind)[p.id])return {on:false,who:[],open:!ro()&&!projLocked()&&(svcLockWho(p,kind).length>0||basicAlways(p,kind))};
+  const who=svcLockWho(p,kind);return {on:who.length>0||basicAlways(p,kind),who,open:false};}
 function svcLockWho(p,kind){const et=editTasksOf(p);
   if(kind==='basic')return [...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>invActive(p,id));   // időpont, helyszín: mindenkit érint, aki már meghívót kapott
   const ids=kind==='post'?cutterIds(p):[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>(et[id]||[]).some(k=>/^f_/.test(k)));
   return ids.filter(id=>invActive(p,id));}
-function svcLockBar(p,kind,lk){const nm=id=>huFirst(String((crewById(id)||{}).name||'?')),who=lk.on?lk.who:svcLockWho(p,kind);if(!who.length||ro()||projLocked())return '';
+function svcLockBar(p,kind,lk){const nm=id=>huFirst(String((crewById(id)||{}).name||'?')),who=lk.on?lk.who:svcLockWho(p,kind);if(ro()||projLocked())return '';
+  if(!who.length){if(!basicAlways(p,kind))return '';   // senki nincs meghívva: egyszerű zár, értesítő nélkül
+    return lk.on?`<button class="lock-badge sec-lock" type="button" data-action="svc-lock-open" data-k="${kind}" aria-label="Zárolva" data-tip="Az alapadatok zárolva, hogy véletlenül se íródjanak át. Kattints a módosításhoz.">🔒</button>`
+      :`<button class="lock-badge sec-lock open" type="button" data-action="svc-lock-close" data-k="${kind}" aria-label="Visszazárás" data-tip="Szerkeszthető – kattints a visszazáráshoz.">🔓</button>`;}
   const ws=who.map(id=>{const iv=(p.invites||{})[id];return nm(id)+' '+(iv.st==='yes'?'elfogadta':'megkapta');}).join(', '),what=kind==='post'?'a vágnivalók':kind==='basic'?'az alapadatok (időpont, helyszín)':'a terepi feladatok';
   /* csak egy kis lakat a szakasz jobb felső sarkában (mint a stábkártyán); rámutatva a magyarázat, kattintva feloldás / visszazárás */
   return lk.on?`<button class="lock-badge sec-lock" type="button" data-action="svc-lock-open" data-k="${kind}" aria-label="Zárolva" data-tip="${esc(ws+' a meghívót – '+what+' zárolva. Kattints a módosításhoz.')}">🔒</button>`

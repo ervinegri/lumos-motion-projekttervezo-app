@@ -244,7 +244,8 @@ function syncFeesWithCrew(d){
 const rowDays=p=>{const r=pr(p);return r?diffDays(r.start,r.end)+1:1;};
 /* Kézi mentés: elnavigálás előtt rákérdezünk a mentetlen módosításokra (Mentés és tovább / Elvetés / Mégse) */
 function guard(fn,onCancel){
-  {const pid=S.draft&&S.draft.id;if(pid&&S.noticeSnap&&S.noticeSnap[pid]&&typeof noticeCheck==='function'){const go=fn;fn=()=>noticeCheck(pid,go);}}   /* feloldott, módosított projekt elhagyása: előbb az értesítő előnézete */
+  {const pid=S.draft&&S.draft.id;if(pid&&S.noticeSnap&&S.noticeSnap[pid]&&typeof noticeCheck==='function'){const go=fn;fn=()=>noticeCheck(pid,go);}
+   else if(pid&&S.basicEdit&&S.basicEdit[pid]){const go=fn;fn=()=>{delete S.basicEdit[pid];go();};}}   /* elhagyáskor az Alapadatok újra zárul */   /* feloldott, módosított projekt elhagyása: előbb az értesítő előnézete */
   if(!(S.dirty&&S.draft&&!ro())){fn();return;}
   const name=S.draft.name||'projekt';
   openModal('Mentetlen módosítások',`<p style="margin:0">A(z) <b>${esc(name)}</b> projekten mentetlen módosítások vannak. Elmented őket?</p>`,
