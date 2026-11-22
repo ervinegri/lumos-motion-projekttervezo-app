@@ -45,16 +45,6 @@ ${KK_ALAP}
 
 A meghívás a Google Naptárban is megjelenik. Ott az „Igen” csak jelzés: az elfogadás a Projekttervezőben történik, erről az app emlékeztet is.
 
-## Visszamondás elfogadás után
-
-Egy már elfogadott, jövőbeli projektnél a projekt fejlécében a **Mégsem tudom vállalni** gombbal mondhatod vissza. Az ablak megmutatja a feltételeket, és meg kell adnod az okát. A feltételek a keretszerződés szerint:
-
-| Mikor mondod vissza | Következmény |
-| --- | --- |
-| több mint 30 nappal előtte | díjmentes, évente legfeljebb 2 alkalommal |
-| 15–30 nappal előtte | a díj 50%-a |
-| 15 napon belül | a díj 100%-a |
-
 ## Beosztásaim és Naptár
 
 A **Beosztásaim** fülön a projektjeid listája, a **Naptár** fülön ugyanez idővonalon. Egy projektet megnyitva látod:
@@ -230,7 +220,7 @@ function kkView(){const own=kkRole(),r=isAdmin()&&!(S.me&&S.me.viewAs)&&KK[S.kkR
   return `${pick}<article class="panel kk-doc">${kkMd(KK[r])}</article>`;}
 /* a Beállítások fül két része: ⚙️ Beállítások és 📖 Kézikönyv (ha nincs mit beállítani, csak a kézikönyv) */
 function kkWrap(fn,canSet){const on=!canSet||S.kkOn;
-  const seg=canSet?`<div class="seg kk-sw" role="group" aria-label="Beállítások vagy kézikönyv"><button type="button" data-action="kk-on" data-v="0" aria-pressed="${!on}">⚙️ Beállítások</button><button type="button" data-action="kk-on" data-v="1" aria-pressed="${on}">📖 Kézikönyv</button></div>`:'';
+  const seg='';   /* a Beállítások és a Kézikönyv a névjelvény menüjéből nyílik */
   if(!on)return seg+fn();
   return `<div class="kk-page">${seg}${kkView()}</div>`;}
 ACT['kk-on']=b=>{S.kkOn=b.dataset.v==='1';render(true);};

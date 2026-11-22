@@ -3111,3 +3111,10 @@ html body #mform:not(:has(#m-vvCm)) .mfoot .vv-send-f{display:none}
   html body #mform.m-video .vv-body>.vv-player.vert>video,html body #mform.m-video .vv-body>.vv-player.vert>iframe{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain}
   html body #mform.m-video .vv-body.side>.vv-tcw{justify-self:center;justify-content:center}
 }
+
+/* értékelés kártya: kattintható, részletek ablak */
+html body .bd-rv.rv-clk{cursor:pointer}html body .bd-rv.rv-clk:hover{box-shadow:0 0 0 2px var(--accent,#2563eb) inset}
+html body .rv-dt{display:flex;flex-direction:column;gap:6px;min-width:min(440px,80vw)}
+html body .rv-dt-r{display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:14px}
+html body .rv-dt-rv{margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(127,127,127,.08);font-size:14px}html body .rv-dt-rv p{margin:6px 0;white-space:pre-wrap}
+html body .rv-dt-rep{margin-top:6px;font-size:13px}
