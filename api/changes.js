@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f6aff4fd89",
+"at": "2026-11-22T08:46:14+01:00",
+"msg": "Ügyfél-lista: Google-értékelés oszlop (értékelt / megnyitotta / kértük)"
+},
+{
 "id": "572fd17120",
 "at": "2026-11-22T08:44:42+01:00",
 "msg": "Ügyfél adatai ablak kétszer olyan széles (1200 px)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: a csengő percenként néz rá (az azonnali Google-értesítés után)"
 },
 {
-"id": "ff3751bb01",
-"at": "2026-11-21T21:12:46+01:00",
-"msg": "Google-értékelések: azonnali értesítés (Pub/Sub → /api/gbp-push → Apps Script)"
-},
-{
-"id": "f9b23c4fd4",
-"at": "2026-11-21T20:07:48Z",
+"id": "e254b9a04f",
+"at": "2026-11-21T20:12:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
