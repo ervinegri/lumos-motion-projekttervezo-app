@@ -3072,3 +3072,5 @@ html body details.panel:has(.sec-lock){position:relative}html body details.panel
 /* oldalsó hozzászólás-oszlop: a lista ne legyen külön levágva – az egész oszlop görget */
 @media (min-width:1100px){html body #mform.m-video .vv-body>.vv-cm .vv-cm-l{max-height:none;overflow:visible}}
 html body #mform.m-video .vv-body.side .vv-cm-l{max-height:none;overflow:visible}
+/* a videó függőlegesen középen a hozzászólás-oszlop mellett */
+@media (min-width:1100px){html body #mform.m-video .vv-body>.vv-player{position:relative;align-self:center}}
