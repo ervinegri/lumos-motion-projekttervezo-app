@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cfab296d13",
+"at": "2026-11-22T10:38:42+01:00",
+"msg": "Jóváhagyás és üzenet egy hozzászólásban; jóváhagyott sáv ki; álló videó magassága"
+},
+{
 "id": "5b4c144891",
 "at": "2026-11-22T10:37:42+01:00",
 "msg": "Álló videó nagyobb, a hozzászólások mellett; szélesebb szöveges rész"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: egyenletes, egymás alá igazított mezők (4 oszlop)"
 },
 {
-"id": "ed41573682",
-"at": "2026-11-22T08:55:41+01:00",
-"msg": "Ügyfél adatai: előbb a cégnév, utána az adószám"
-},
-{
-"id": "b0028bc04f",
-"at": "2026-11-22T07:52:26Z",
+"id": "774df085a0",
+"at": "2026-11-22T07:55:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
