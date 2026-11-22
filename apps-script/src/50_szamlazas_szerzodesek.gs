@@ -476,6 +476,13 @@ function szAddAdvance_(all, db, q, out) {
     invPaid: q.invPaid || q.invGross, paidAt: q.paidAt || q.date, payMethod: q.payMethod, createdAt: now_(), createdBy: 'számlázz.hu', checkedAt: now_(), note: 'A díjbekérő kifizetése után automatikusan', items: '', ref: db.no, projectIds: db.projectIds || '', advType: q.advReal ? 'elolegszamla' : 'szamla' };
   out.push(r); all.push(r);
 }
+/** Számla PDF a számlaszám alapján (régi, csak a számlázz.hu-ban lévő számlákhoz is) – ügyvezető. */
+function szPdfNo_(u, a) {
+  const no = str_(a && a.no, 64).trim(); if (!no) throw new Error('Hiányzó számlaszám.');
+  const r = readAll_('finInvoice').find(x => x.no === no); if (r) return szPdf_(u, { id: r.id });
+  const q = szQuery_(no, true); if (q && q.pdf) return { name: no.replace(/[^\w.-]+/g, '_') + '.pdf', b64: q.pdf };
+  throw new Error('A számla PDF-je nem érhető el a számlázz.hu-ban.');
+}
 function szPdf_(u, a) {
   const r = readAll_('finInvoice').find(x => x.id === str_(a && a.id, 64));
   if (!r) throw new Error('A számla nem található.');

@@ -3031,3 +3031,4 @@ html body .modal .mbox.mbox-xwide{width:min(1200px,100%);max-width:min(1200px,10
 .cl-rv{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;border:1px solid transparent}
 .cl-rv.ok{background:#fff6dc;border-color:#f2d37a;color:#7a5a00}.cl-rv.click{background:#eef4ff;border-color:#c9daf8;color:#2b5aa8}.cl-rv.sent{background:#f3f4f6;border-color:#e2e5e9;color:#5b6573}
 td.cl-g,th.cl-g{text-align:center;white-space:nowrap}
+tr.cl-inv-row{cursor:pointer}tr.cl-inv-row:hover td{background:#f5f8fb}tr.cl-inv-row.is-busy{opacity:.6}

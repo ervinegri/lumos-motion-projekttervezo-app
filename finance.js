@@ -662,7 +662,7 @@ function szInvModal(x){const s=invState(x),g=num(x.invGross),p=num(x.invPaid);
     submitLabel:s==='paid'?'Kifizetés visszavonása':'✅ Kifizetve',submit:()=>ACT['sz-mpaid']({dataset:{id:x.id,paid:s==='paid'?'0':'1'}})}:
   {left:`<button type="button" class="btn danger small" data-action="sz-unlink" data-id="${esc(x.id)}">Hozzárendelés törlése</button>${x.kind!=='dijbekero'&&!x.manual&&!(num(x.invPaid)>0)&&!invPaidOk(x)?`<button type="button" class="btn outline small" data-action="sz-storno" data-id="${esc(x.id)}">↩️ Sztornó</button>`:''}${x.kind==='dijbekero'&&!(num(x.invPaid)>0)&&!invPaidOk(x)?`<button type="button" class="btn outline small" data-action="sz-dbk-del" data-id="${esc(x.id)}">↩️ Sztornó</button>`:''}`,cancelLabel:'Bezárás',submitLabel:'⬇️ PDF',submit:async()=>{
     const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Letöltés…';}
-    try{const d=await call('szPdf',{id:x.id});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    try{const d=await call(x.id?'szPdf':'szPdfNo',x.id?{id:x.id}:{no:x.no});const bin=atob(d.b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
       const url=URL.createObjectURL(new Blob([arr],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=szFileName(x);document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
     catch(e){handleErr(e);}finally{if(btn){btn.disabled=false;btn.textContent='⬇️ PDF';}}}});
   if(x.manual)return;const f=document.querySelector('#mform .mfoot');if(f){const r=document.createElement('button');r.type='button';r.className='btn outline';r.dataset.action='sz-sync-one';r.dataset.id=x.id;r.textContent='🔄 Frissítés';f.insertBefore(r,f.querySelector('button[type=submit]'));}}
@@ -712,6 +712,7 @@ Object.assign(ACT,{
   'sz-link':b=>szLinkModal(b.dataset.kind,b.dataset.id,(($('m-kind')||{}).value)||b.dataset.type,!!$('m-kind')),
   'sz-inv-info':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvModal(x);},
   'sz-inv-db':b=>ACT['sz-inv'](b),   /* díjbekérő hivatkozás (a kártya üres részére kattintva nem ez, hanem a foglalószámla nyílik) */
+  'cl-inv-open':b=>{const no=b.dataset.no;if(!no)return;const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.no===no)||{no,buyer:b.dataset.buyer||''};szInvOpen(x,b);},   /* ügyfél adatai → Számlázva: a sor megnyitja a számla PDF-jét */
   'sz-inv':b=>{const x=((S.fin&&S.fin.invoices)||[]).find(i=>i.id===b.dataset.id);if(x)szInvOpen(x,b);},
   'sz-unlink':b=>{const id=b.dataset.id;confirmModal('Hozzárendelés törlése','A számla az appból kikerül, a számlázz.hu-ban változatlanul megmarad (sztornózni ott tudod).','Törlés',()=>finCall('szUnlink',{id},'Hozzárendelés törölve'));},
   'sz-sync':()=>szSync(false),

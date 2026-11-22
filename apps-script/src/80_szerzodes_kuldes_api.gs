@@ -444,6 +444,7 @@ function rpcInner_(token, name, arg) {
     case 'szSetKind': adminOnly(); return szSetKind_(u, arg);
     case 'szSync': adminOnly(); return szSync_(u, arg);
     case 'szPdf': adminOnly(); return szPdf_(u, arg);
+    case 'szPdfNo': adminOnly(); return szPdfNo_(u, arg);
     case 'billSave': adminOnly(); return billSave_(u, arg);
     case 'billUpload': adminOnly(); return billUpload_(u, arg);
     case 'extraFileUpload': adminOnly(); return extraFileUpload_(u, arg);
