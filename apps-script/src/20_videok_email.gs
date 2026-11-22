@@ -21,7 +21,7 @@ function parseVideos_(v) { let l = v; if (typeof v === 'string') { try { l = JSO
     fb: str_(x && x.fb, 6000), fbBy: str_(x && x.fbBy, 120), fbAt: str_(x && x.fbAt, 30), okAt: str_(x && x.okAt, 30), pq: ['wait', 'sent', 'ok', 'no'].indexOf(x && x.pq) >= 0 ? x.pq : '', pqAt: str_(x && x.pqAt, 30), pqSent: str_(x && x.pqSent, 30), pqOk: str_(x && x.pqOk, 30), pqNo: str_(x && x.pqNo, 40), pqTo: str_(x && x.pqTo, 300), pqTotal: Math.max(0, Math.round(Number(x && x.pqTotal) || 0)), pqItems: (Array.isArray(x && x.pqItems) ? x.pqItems : []).slice(0, 20).map(r => ({ name: str_(r && r.name, 200), net: Math.max(0, Math.round(Number(r && r.net) || 0)) })).filter(r => r.name), pqDec: str_(x && x.pqDec, 30), pqNote: str_(x && x.pqNote, 2000), pqReq: str_(x && x.pqReq, 6000), vers: (Array.isArray(x && x.vers) ? x.vers : []).slice(-30).map(r => ({ at: str_(r && r.at, 30), link: str_(r && r.link, 500) })).filter(r => r.at), cn: x && x.cn ? 1 : 0, seenAt: str_(x && x.seenAt, 30), seenLast: str_(x && x.seenLast, 30), seenN: Math.max(0, Math.round(Number(x && x.seenN) || 0)),
     dn: (Array.isArray(x && x.dn) ? x.dn : []).slice(-300).map(k => str_(k, 60)).filter(Boolean),
     dnBy: (() => { const o = {}, src = x && x.dnBy && typeof x.dnBy === 'object' ? x.dnBy : {}; Object.keys(src).slice(-300).forEach(k => { const r = src[k]; if (r && typeof r === 'object') o[str_(k, 60)] = { by: str_(r.by, 120), at: str_(r.at, 30) }; }); return o; })(),   // ki és mikor pipálta ki   // kipipált (elvégzett) időkódos észrevételek: „<hozzászólás ideje>#<sorszám>”
-    cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 6000), ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
+    cm: (Array.isArray(x && x.cm) ? x.cm : []).slice(-100).map(c => ({ by: str_(c && c.by, 120), at: str_(c && c.at, 30), t: str_(c && c.t, 6000), k: c && c.k === 'note' ? 'note' : '', ts: c && c.ts !== '' && c.ts != null && isFinite(Number(c.ts)) ? Math.max(0, Math.round(Number(c.ts))) : '' })).filter(c => c.t) })).filter(x => x.id); }   // fb: visszadobás indoka   // rv*: belső ellenőrzésre küldés
 /** A megrendelt darabszámokból videósorok: a megkezdett munkák megmaradnak; a korábban csak vágóhoz rendelt, de már nem kért és érintetlen feladatok törlődnek.
     Ha a projektnek pontosan egy vágója van, a vágó nélküli sorok az övéi. */
 function videosEnsure_(p, cutters) {
@@ -91,7 +91,8 @@ function videoReview_(u, a) {
   const res = videoSet_(u, { projectId: a.projectId, id: a.id, st: 'ellen' });
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40); let p, v;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
-    if (v) { vidSetLink_(v, link); v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
+    if (v) { if (v.note && v.rvAt && !(v.cm || []).some(c => c.k === 'note' && c.at === v.rvAt)) v.cm = (v.cm || []).concat([{ by: v.rvBy || '', at: v.rvAt, t: v.note, k: 'note', ts: '' }]).slice(-100);   // az előző leadás kísérőszövege megmarad (a saját verziójánál látszik)
+      vidSetLink_(v, link); v.note = note; v.rvTo = to; v.rvBy = u.name; v.rvAt = now_(); }
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
   const mk = em => { const first = huFirst_(String((SIG_DEFAULTS_[em] || {}).name || ''));
@@ -667,6 +668,17 @@ function clientQuoteDecide_(t, dec, note) { const o = clientTokenRead_(t); if (!
   if (v.pq !== 'sent') return clientQuote_(t);
   vqDecide_(o.p, o.v, dec === 'ok' ? 'ok' : 'no', clientFirst_(p, '') || 'Ügyfél', str_(note, 2000).trim()); return clientQuote_(t); }
 /** Adatjavítás (ügyvezető): egy korábbi verzió határidőpontjának igazítása – ha a verzió rossz időponttal rögzült (pl. a pCloud-linkek régi összevetési hibája miatt), a hozzászólások rossz verziónál látszanak. */
+/** Adatjavítás (ügyvezető): elveszett leadási kísérőszöveg visszaállítása a hozzászólások közé (pl. az értesítő levélből). */
+function videoNoteRestore_(u, a) {
+  if (u.role !== 'admin') throw new Error('Csak az ügyvezető javíthatja.');
+  const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), at = str_(a && a.at, 30), by = str_(a && a.by, 120), t = str_(a && a.text, 6000).trim();
+  if (!t || !/^\d{4}-\d\d-\d\d \d\d:\d\d(:\d\d)?$/.test(at)) throw new Error('Hiányzó szöveg vagy hibás időpont.');
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.'); const p = readRow_('projects', sh, row);
+    const L = parseVideos_(p.videos), v = L.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+    if (!(v.cm || []).some(c => c.k === 'note' && c.at === at)) v.cm = (v.cm || []).concat([{ by: by, at: at, t: t, k: 'note', ts: '' }]).slice(-100);
+    p.videos = JSON.stringify(L); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); logEvent_(u, 'Leadási kísérőszöveg visszaállítva', p.name, v.name + ' · ' + at); });
+  return { ok: true };
+}
 function videoVerFix_(u, a) {
   if (u.role !== 'admin') throw new Error('Csak az ügyvezető javíthatja.');
   const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), idx = Number(a && a.idx), at = str_(a && a.at, 30);
