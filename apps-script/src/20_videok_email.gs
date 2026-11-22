@@ -346,6 +346,21 @@ function gbpApi_(method, url, body) {
   if (c >= 300) { let m = t; try { const j = JSON.parse(t); m = (j.error && (j.error.message || j.error.status)) || t; } catch (e) {} throw new Error('Google Cégprofil (HTTP ' + c + '): ' + String(m).slice(0, 300)); }
   return JSON.parse(t);
 }
+/* ===== Cégprofil adatai (kategóriák, leírás, szolgáltatások): olvasás és módosítás – csak ügyvezető, a módosítás nyilvános ===== */
+const GBP_BI_ = 'https://mybusinessbusinessinformation.googleapis.com/v1/';
+function gbpLocShort_() { return 'locations/' + String(gbpLocation_()).split('/locations/')[1]; }
+function gbpInfo_() { return gbpApi_('get', GBP_BI_ + gbpLocShort_() + '?readMask=title,categories,profile,serviceItems,storefrontAddress,serviceArea,websiteUri,metadata'); }
+function gbpCatSearch_(a) { const q = str_(a && a.q, 60); if (!q) return { categories: [] };
+  return gbpApi_('get', GBP_BI_ + 'categories?regionCode=HU&languageCode=hu&view=BASIC&pageSize=20&filter=' + encodeURIComponent('displayName=' + q)); }
+/** a.mask: 'profile.description' | 'categories' | 'serviceItems' (vesszővel több); a.loc: a módosított mezők. */
+function gbpInfoSet_(u, a) {
+  const ok = ['profile.description', 'categories', 'serviceItems'], mask = String(a && a.mask || '').split(',').map(x => x.trim()).filter(x => ok.indexOf(x) >= 0);
+  if (!mask.length) throw new Error('Nincs módosítható mező.');
+  const loc = a.loc || {}; if (mask.indexOf('profile.description') >= 0 && String((loc.profile || {}).description || '').length > 750) throw new Error('A leírás legfeljebb 750 karakter lehet.');
+  const r = gbpApi_('patch', GBP_BI_ + gbpLocShort_() + '?updateMask=' + encodeURIComponent(mask.join(',')), loc);
+  logEvent_(u, 'Google Cégprofil módosítva', mask.join(', '), JSON.stringify(loc).slice(0, 900));
+  return r;
+}
 /** Egyszeri összekötés: a böngészőben kapott engedélykódból tartós token, majd a Lumos Motion cégprofil megkeresése. */
 function gbpConnect_(u, a) {
   const code = String(a && a.code || ''); if (!code) throw new Error('Hiányzó engedélykód.');

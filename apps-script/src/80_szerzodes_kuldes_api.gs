@@ -536,6 +536,9 @@ function rpcInner_(token, name, arg) {
     case 'gbpMatch': adminOnly(); return gbpMatch_(u, arg);
     case 'gbpSecret': adminOnly(); return gbpSetSecret_(u, arg);
     case 'gbpDisconnect': adminOnly(); return gbpDisconnect_(u);
+    case 'gbpInfo': adminOnly(); return gbpInfo_();
+    case 'gbpCatSearch': adminOnly(); return gbpCatSearch_(arg);
+    case 'gbpInfoSet': adminOnly(); return gbpInfoSet_(u, arg);   // nyilvános Cégprofil módosítás (leírás, kategóriák, szolgáltatások)
     case 'gbpPush': adminOnly(); return gbpPush_(u, arg);          // azonnali értesítés (Pub/Sub) be/ki
     case 'gbpPushInfo': adminOnly(); return gbpPushInfo_(u);
     case 'hubspotCompanies': if (role !== 'admin' && role !== 'editor' && role !== 'sales') deny(); return hubspotCompaniesApi_(arg);
