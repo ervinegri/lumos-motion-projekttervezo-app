@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4d1ea63290",
+"at": "2026-11-22T09:44:19+01:00",
+"msg": "Videó-ablak: a hozzászólás-lista nincs levágva az oldalsó oszlopban"
+},
+{
 "id": "86a8884153",
 "at": "2026-11-22T09:40:24+01:00",
 "msg": "Videó-ablak: széles képernyőn a videó balra, a hozzászólások jobbra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Eszköz-zár lakat: lekerekített négyzet jelvény"
 },
 {
-"id": "a3fc777b12",
-"at": "2026-11-21T22:33:50+01:00",
-"msg": "Eszköz-zár lakat: kerek, halvány sárga keret (feloldva kék)"
-},
-{
-"id": "00208674df",
-"at": "2026-11-21T21:32:04Z",
+"id": "4528a65e78",
+"at": "2026-11-21T21:34:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
