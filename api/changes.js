@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8c9788861b",
+"at": "2026-11-22T08:28:31+01:00",
+"msg": "Keresőkből kivéve: X-Robots-Tag noindex minden oldalon, robots meta, robots.txt"
+},
+{
 "id": "eb4155f687",
 "at": "2026-11-22T08:19:30+01:00",
 "msg": "gbpCatSearch: angol nyelvű keresés is"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: óránkénti automatikus behúzás, megnyitáskor frissítés, új értékelés a csengőben + felugró értesítés"
 },
 {
-"id": "32af1d1261",
-"at": "2026-11-21T21:01:08+01:00",
-"msg": "Google-értékelések: Frissítés gomb a fejlécben, visszajelzéssel"
-},
-{
-"id": "32a97c48a2",
-"at": "2026-11-21T17:16:54Z",
+"id": "ae8a1bdf5c",
+"at": "2026-11-21T20:01:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
