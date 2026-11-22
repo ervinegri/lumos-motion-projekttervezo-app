@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb1006ab59",
+"at": "2026-11-22T09:04:43+01:00",
+"msg": "Ügyfél adatai: a kapcsolattartó mezőbe lépve rögtön HubSpot-keresés (a cég kapcsolatai, gépelve név szerint)"
+},
+{
 "id": "8aabc56257",
 "at": "2026-11-22T08:59:29+01:00",
 "msg": "Ügyfél adatai: rövidebb „Betöltés” gomb, hogy az adószám kiférjen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Senkihez nem rendelt eszköz emberhez rendelhető a választóból (nem foglaltként számít, áthelyeződik)"
 },
 {
-"id": "ce000403bc",
-"at": "2026-11-21T22:04:01+01:00",
-"msg": "Interjúsarok operatőr → Interjú operatőr (átnevezés + egyszeri adatjavítás); régi sima Operatőr a feladatából adódó típusra (kártyán és mentéskor)"
-},
-{
-"id": "8df7c9c786",
-"at": "2026-11-21T21:00:57Z",
+"id": "0040d0174a",
+"at": "2026-11-21T21:04:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
