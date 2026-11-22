@@ -3101,3 +3101,6 @@ html body .vv-vers .vv-ver.vv-verb:disabled{color:#c3c8cf;cursor:default}
 /* hozzászólások időrendben: felül a legrégebbi, alul a legújabb, legalul a szövegmező */
 html body .vv-cm{display:flex;flex-direction:column}
 html body .vv-cm>.vv-cm-new{order:90;margin:10px 0 0}html body .vv-cm>.vv-cm-act{order:91}
+
+/* hozzászólás küldése a láblécben: csak ha van szövegdoboz */
+html body #mform:not(:has(#m-vvCm)) .mfoot .vv-send-f{display:none}
