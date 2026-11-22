@@ -3037,9 +3037,9 @@ tr.cl-inv-row{cursor:pointer}tr.cl-inv-row:hover td{background:#f5f8fb}tr.cl-inv
   html body .modal .mbox.mbox-xwide .fields{grid-template-columns:repeat(12,minmax(0,1fr));gap:12px 12px}
   html body .modal .mbox.mbox-xwide .fields>.field,html body .modal .mbox.mbox-xwide .fields>*{grid-column:span 3}
   html body .modal .mbox.mbox-xwide .fields>.full{grid-column:span 12}
-  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientTax){grid-column:span 3}
+  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientTax){grid-column:span 4}
   html body .modal .mbox.mbox-xwide .fields>.field:has(#m-client){grid-column:span 4}
-  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientAddress){grid-column:span 5}
+  html body .modal .mbox.mbox-xwide .fields>.field:has(#m-clientAddress){grid-column:span 4}
   html body .modal .mbox.mbox-xwide .tax-row .btn{white-space:nowrap;padding-inline:10px}
   html body .modal .mbox.mbox-xwide .tax-row .inp{min-width:0}
 }
