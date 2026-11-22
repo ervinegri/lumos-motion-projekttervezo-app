@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "04ea3fd2f8",
+"at": "2026-11-22T08:51:27+01:00",
+"msg": "Ügyfél adatai: kompakt elrendezés a széles ablakban (adószám·cégnév·székhely, kapcsolattartó és képviselő egy-egy sorban)"
+},
+{
 "id": "2d7e00471c",
 "at": "2026-11-22T08:49:08+01:00",
 "msg": "Ügyfél adatai: a számlák kattinthatók (PDF, régi számlázz.hu-s számlák is); adószám és cégnév egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stábkártya: figyelmeztetés, ha terepi szerepkörű munkatársnak nincs terepi feladata (+ ugrás a Terepi feladatokhoz)"
 },
 {
-"id": "0e44f80c74",
-"at": "2026-11-21T21:33:11+01:00",
-"msg": "Google-értékelések: napi önellenőrzés és önjavítás az azonnali értesítésnél, elakadás jelzése; új szabály a CLAUDE.md-ben (profi megoldás > gyors)"
-},
-{
-"id": "8dd5ad0403",
-"at": "2026-11-21T20:29:03Z",
+"id": "45c4101395",
+"at": "2026-11-21T20:33:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
