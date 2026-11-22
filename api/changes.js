@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b28569abd2",
+"at": "2026-11-22T10:34:14+01:00",
+"msg": "Kézikönyv: mások díjáról szóló mondat ki"
+},
+{
 "id": "23de4a9e0a",
 "at": "2026-11-22T10:32:45+01:00",
 "msg": "Értékelés részletei: állapot akkor is, ha nem minden videó jóváhagyott"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél adatai: a számlák kattinthatók (PDF, régi számlázz.hu-s számlák is); adószám és cégnév egy sorban"
 },
 {
-"id": "f6aff4fd89",
-"at": "2026-11-22T08:46:14+01:00",
-"msg": "Ügyfél-lista: Google-értékelés oszlop (értékelt / megnyitotta / kértük)"
-},
-{
-"id": "a3126d7c96",
-"at": "2026-11-22T07:44:55Z",
+"id": "525e8032f5",
+"at": "2026-11-22T07:46:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
