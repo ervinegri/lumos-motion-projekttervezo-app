@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "83f2a7eb8b",
+"at": "2026-11-22T10:05:42+01:00",
+"msg": "Verzióváltó a Naptár szegmens-gombjainak stílusában (látszik a kiválasztott); verzió-időpont javító (ügyvezető)"
+},
+{
 "id": "5dc50a0712",
 "at": "2026-11-22T10:02:48+01:00",
 "msg": "Videó-ablak: az időkód / jelölés sáv közvetlenül a videó alatt; Cmd/Ctrl+Enter elküldi a hozzászólást"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Figyelmeztetések: a rendezvény előtti utolsó 7 napban minden projekt-figyelmeztetés piros"
 },
 {
-"id": "a6f9b4831c",
-"at": "2026-11-21T22:56:46+01:00",
-"msg": "Figyelmeztetés doboz: egy projektnél az egész doboz kattintható"
-},
-{
-"id": "3f994fb60d",
-"at": "2026-11-21T21:47:30Z",
+"id": "4dd23a5974",
+"at": "2026-11-21T21:56:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
