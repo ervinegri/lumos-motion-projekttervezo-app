@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed7c1b0aa9",
+"at": "2026-11-22T10:27:20+01:00",
+"msg": "Hiányzó videóverzió-határ pótlása (ügyvezető)"
+},
+{
 "id": "a30c6eacb4",
 "at": "2026-11-22T10:26:38+01:00",
 "msg": "Álló videó széles képernyőn nagyban, középen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Keresőkből kivéve: X-Robots-Tag noindex minden oldalon, robots meta, robots.txt"
 },
 {
-"id": "eb4155f687",
-"at": "2026-11-22T08:19:30+01:00",
-"msg": "gbpCatSearch: angol nyelvű keresés is"
-},
-{
-"id": "8ad37e0515",
-"at": "2026-11-22T07:16:42Z",
+"id": "9baf551d9b",
+"at": "2026-11-22T07:19:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
