@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b7753e962",
+"at": "2026-11-22T16:58:02+02:00",
+"msg": "Telefon: a logó háttere minden kinézetben a fejléc színe (Stone: fehér)"
+},
+{
 "id": "93f0de0c00",
 "at": "2026-11-22T16:54:17+02:00",
 "msg": "Ügyfelek fekvő telefonon: kártyás lista, nincs oldalra görgetés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-ablak: a hozzászólás-lista nincs levágva az oldalsó oszlopban"
 },
 {
-"id": "86a8884153",
-"at": "2026-11-22T09:40:24+01:00",
-"msg": "Videó-ablak: széles képernyőn a videó balra, a hozzászólások jobbra"
-},
-{
-"id": "5033da8978",
-"at": "2026-11-22T08:38:14Z",
+"id": "e87c556b18",
+"at": "2026-11-22T08:40:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
