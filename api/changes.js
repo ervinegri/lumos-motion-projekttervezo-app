@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2e3b9ae3a9",
+"at": "2026-11-22T08:16:33+01:00",
+"msg": "Google Cégprofil adatai: olvasás, kategóriakeresés, módosítás (leírás, kategóriák, szolgáltatások) – ügyvezetői API"
+},
+{
 "id": "c66683a997",
 "at": "2026-11-21T23:03:40+01:00",
 "msg": "Számlázási eltérés: a szervezői jutalék levonása elfogadott (de nem kötelező) – mindkét összeg rendben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatárs dokumentumai: Drive-on meglévő fájl felvétele"
 },
 {
-"id": "1f22027a36",
-"at": "2026-11-21T18:14:31+01:00",
-"msg": "Szerződés-feltöltés: zárolt adatlapon is működik, nagy fájlnál jelzi, hogy tovább tart"
-},
-{
-"id": "68bc360d58",
-"at": "2026-11-21T17:11:10Z",
+"id": "61d2b1fd95",
+"at": "2026-11-21T17:14:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
