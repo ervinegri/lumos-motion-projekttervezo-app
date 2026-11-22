@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eb4155f687",
+"at": "2026-11-22T08:19:30+01:00",
+"msg": "gbpCatSearch: angol nyelvű keresés is"
+},
+{
 "id": "2e3b9ae3a9",
 "at": "2026-11-22T08:16:33+01:00",
 "msg": "Google Cégprofil adatai: olvasás, kategóriakeresés, módosítás (leírás, kategóriák, szolgáltatások) – ügyvezetői API"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Google-értékelések: Frissítés gomb a fejlécben, visszajelzéssel"
 },
 {
-"id": "6414687c93",
-"at": "2026-11-21T18:16:46+01:00",
-"msg": "Munkatárs dokumentumai: Drive-on meglévő fájl felvétele"
-},
-{
-"id": "61d2b1fd95",
-"at": "2026-11-21T17:14:40Z",
+"id": "32a97c48a2",
+"at": "2026-11-21T17:16:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
