@@ -3149,3 +3149,21 @@ html body .fold>summary>h3{width:100%}
 html body .fold>summary>h3::after{order:99;margin-left:auto!important;margin-right:4px}
 html body .fold>summary>h3:has(.aside)::after{margin-left:12px!important}
 html body details.panel.fold:has(.sec-lock) .sec-lock{right:58px!important;top:10px!important}
+/* álló telefon: a Szerződés és a Termelés kártya egy sorban (tömör mezők) */
+@media (max-width:700px){
+ html body .fin-v2:not(.two) .fin-r{display:grid!important;grid-template-columns:minmax(0,40fr) minmax(0,60fr);gap:8px!important;align-items:stretch!important}
+ html body .fin-v2:not(.two) .fin-r>.grp-val{grid-column:1;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important}
+ html body .fin-v2:not(.two) .fin-r>.grp-prod{grid-column:2;width:auto!important;min-width:0!important;max-width:none!important;margin:0!important}
+ html body .fin-v2:not(.two) .fin-r>:not(.grp-val):not(.grp-prod){grid-column:1/-1}
+ html body .fin-v2:not(.two) .fin-r>.grp-val,html body .fin-v2:not(.two) .fin-r>.grp-prod{padding:8px 9px!important;box-sizing:border-box}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .grp-b{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;align-items:flex-end!important;min-width:0!important}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .field{width:auto!important;min-width:0!important;max-width:none!important;margin:0!important;flex:1 1 0}
+ html body .fin-v2:not(.two) .grp-prod .fin-eff{flex:0 0 66px!important}
+ html body .fin-v2:not(.two) .fin-r{grid-template-columns:minmax(0,41fr) minmax(0,59fr)!important}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .field>label{font-size:11.5px!important;line-height:1.2;white-space:normal!important;min-height:28px;display:flex;align-items:flex-end}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .money{min-width:0}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .money-inp{font-size:14px!important;padding-left:6px!important;padding-right:2px!important;min-width:0;width:100%!important;min-height:40px}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .money-unit{font-size:12px!important;padding:0 6px 0 2px!important;margin:0!important}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .field>label{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+ html body .fin-v2:not(.two) :is(.grp-val,.grp-prod) .grp-h{font-size:11px!important;margin-bottom:4px}
+}
