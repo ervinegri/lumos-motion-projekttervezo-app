@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ed41573682",
+"at": "2026-11-22T08:55:41+01:00",
+"msg": "Ügyfél adatai: előbb a cégnév, utána az adószám"
+},
+{
 "id": "7369bb3e49",
 "at": "2026-11-22T08:52:17+01:00",
 "msg": "Ügyfél adatai: az adószám mező szélesebb (ne vágja le)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Meghívó-zár: műveletnév-ütközés javítása (svc-unlock → svc-lock-open)"
 },
 {
-"id": "8d7eb09d12",
-"at": "2026-11-21T21:51:09+01:00",
-"msg": "Meghívó után zárolt feladatok: Utómunka / Terepi feladatok csak „Módosítás” után szerkeszthető, változáskor e-mail a szakembernek"
-},
-{
-"id": "c75f90a387",
-"at": "2026-11-21T20:46:43Z",
+"id": "7d440df578",
+"at": "2026-11-21T20:51:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
