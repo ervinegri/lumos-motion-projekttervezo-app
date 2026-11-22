@@ -159,7 +159,12 @@ function reviewModal(pid,vid){const p=projById(pid),v=p&&(p.videos||[]).find(x=>
   setTimeout(()=>{const i=$('m-rvLink');if(i)i.focus();},60);}
 ACT['bd-move']=b=>bdMove(b.dataset.pid,b.dataset.vid,b.dataset.st);
 /* Idővonal vágássáv → a projekt videóinak táblája (ugyanúgy húzható) */
-function laneModalBody(pid){const cards=boardCards(pid);return cards.length?boardLanes(cards,{noLink:true,single:true}):'<p class="hint">Ennek a projektnek nincs videója.</p>';}
+function laneModalBody(pid){const cards=boardCards(pid);if(cards.length)return boardLanes(cards,{noLink:true,single:true});
+  /* videósor nélküli (pl. eseményrögzítéses) projekt: az „Átadás” részbe feltöltött link(ek) lejátszóval */
+  const p=projById(pid),L=p?[...new Set([p.deliveryLink].concat(Array.isArray(p.deliveryLinks)?p.deliveryLinks:[]).map(x=>String(x||'').trim()).filter(x=>/^https?:\/\//i.test(x)))]:[];
+  if(!L.length)return '<p class="hint">Ennek a projektnek nincs videója.</p>';
+  setTimeout(()=>{try{pcloudLoad();}catch(e){}},0);
+  return `<div class="dl-vids"><p class="hint" style="margin:0 0 10px">📦 Átadott videó${L.length>1?'k':''}${p.deliveredAt?' · '+esc(fmtShort(String(p.deliveredAt).slice(0,10))):''}</p>${L.map(u=>{const e=vidEmbed(u,p.name);return `<div class="dl-vid">${e?`<div class="vv-player" data-link="${esc(u)}">${e}</div>`:''}<a class="linkbtn" href="${esc(u)}" target="_blank" rel="noopener">${esc(u)} ↗</a></div>`;}).join('')}</div>`;}
 ACT['bd-lane']=b=>{const p=projById(b.dataset.id);if(!p)return;openModal((p.name||'Videók'),`${pnBox(p.id)}<div class="bd-modal" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div>`,{submitLabel:'Projekt megnyitása',submit:async()=>{closeModal();openProject(p.id);},cancelLabel:'Bezárás'});try{sessionStorage.setItem('lpm_lane_open',p.id);}catch(e){}window.MODAL_BEFORE_CLOSE=()=>{try{sessionStorage.removeItem('lpm_lane_open');}catch(e){}S._bdSel=[];bdSelBar();};   /* frissítés után a videótábla is visszajön */
   const mb=document.querySelector('#mform .mbox,#mform');if(mb)mb.classList.add('m-wide');
   {const hl=document.querySelector('.bd-modal .bl-hl'),h=document.querySelector('#mform .mhead h3');if(hl&&h){const w=document.createElement('span');w.className='bl-ttl';w.innerHTML=hl.innerHTML;h.appendChild(w);h.classList.add('bl-h3');}}
