@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac34724f76",
+"at": "2026-11-22T10:14:23+01:00",
+"msg": "Hozzászólások időrendben (alul a legújabb és a szövegmező); a korábbi leadások kísérőszövege megmarad a saját verziójánál; visszaállító (ügyvezető)"
+},
+{
 "id": "3a18cbd144",
 "at": "2026-11-22T10:08:00+01:00",
 "msg": "Videó-ablak: a korábbi verziók hozzászólásai nem látszanak az új verziónál (a verzióváltóval érhetők el)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Számlázási eltérés: a végszámlából levont szervezői jutalék (és a beszámított projektek) nem kiszámlázatlan"
 },
 {
-"id": "1e75e3d4ea",
-"at": "2026-11-21T23:00:23+01:00",
-"msg": "Figyelmeztetések: 14 napon belül piros"
-},
-{
-"id": "ccfaae61a9",
-"at": "2026-11-21T21:58:48Z",
+"id": "626eef45f0",
+"at": "2026-11-21T22:00:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
