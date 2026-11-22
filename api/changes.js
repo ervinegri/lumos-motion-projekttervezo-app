@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ddf9ef7af7",
+"at": "2026-11-22T10:51:07+01:00",
+"msg": "Hozzászólások: szerep ikon a név előtt (💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó, ⭐ ügyfél)"
+},
+{
 "id": "343d7eaa1f",
 "at": "2026-11-22T10:44:02+01:00",
 "msg": "Értékelés részletei: a kiküldött levél tartalma (mentés + utólagos pótlás)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Cégkereső: előtöltés az indulás után + helyi gyorsítótár (azonnali), adószám nélküli ismétlődések összevonva"
 },
 {
-"id": "566e131306",
-"at": "2026-11-22T09:21:27+01:00",
-"msg": "Azonnali cégkereső a Cégnév mezőben: ügyfelek, projektek, számlázz.hu-s vevők – gépelés közben, adószámmal és címmel"
-},
-{
-"id": "73482aa3c2",
-"at": "2026-11-22T08:10:06Z",
+"id": "f9e36c3ad0",
+"at": "2026-11-22T08:21:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
