@@ -168,7 +168,7 @@ function knownClients(q){
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
 /* Új ügyfél: adószámból a cégnév és a székhely a NAV-ból (számlázz.hu-n keresztül, mint a Sales Appban). */
-const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><label for="m-clientTax">Adószám</label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup">Cégadatok betöltése</button></div>
+const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><label for="m-clientTax">Adószám</label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup" title="Cégadatok betöltése az adószám alapján (NAV)">Betöltés</button></div>
   <button class="linkbtn" type="button" data-action="nav-search" style="align-self:flex-start;font-size:13px">🔎 Adószám keresése név alapján (NAV)</button></div>
   ${mf('clientAddress','Székhely',{full:true,max:300})}`;   /* cégnév és adószám egy sorban */
 async function taxLookup(){
@@ -177,7 +177,7 @@ async function taxLookup(){
   if(b){b.disabled=true;b.textContent='Betöltés…';}
   try{const r=await call('lookupTaxpayer',{tax:v});$('m-client').value=r.name||'';$('m-clientAddress').value=r.address||'';toast('Cégadatok betöltve');}
   catch(e){toast(errText(e),true);}
-  finally{if(b){b.disabled=false;b.textContent='Cégadatok betöltése';}}
+  finally{if(b){b.disabled=false;b.textContent='Betöltés';}}
 }
 document.addEventListener('input',e=>{if(e.target.id==='m-clientTax'){const t=e.target,d=t.value.replace(/\D/g,'');if(d.length===11&&!t._done){t._done=1;t.value=d.slice(0,8)+'-'+d[8]+'-'+d.slice(9);taxLookup();}else if(d.length<11)t._done=0;}});   // teljes adószámnál magától betölt
 async function saveClientRec(rec){
