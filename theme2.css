@@ -3074,3 +3074,11 @@ html body details.panel:has(.sec-lock){position:relative}html body details.panel
 html body #mform.m-video .vv-body.side .vv-cm-l{max-height:none;overflow:visible}
 /* a videó függőlegesen középen a hozzászólás-oszlop mellett */
 @media (min-width:1100px){html body #mform.m-video .vv-body>.vv-player{position:relative;align-self:center}}
+/* videó-ablak széles képernyőn: teljes képernyős (keret és háttér nélkül) */
+@media (min-width:1100px){
+  html body .modal:has(#mform.m-video){padding:0!important;align-items:stretch}
+  html body #mform.m-video{width:100vw!important;max-width:100vw!important;height:100vh;max-height:100vh!important;border-radius:0;border:0;margin:0;box-shadow:none;display:flex;flex-direction:column}
+  html body #mform.m-video .vv-body{flex:1 1 auto;min-height:0;align-items:stretch}
+  html body #mform.m-video .vv-body>.vv-player{max-height:calc(100vh - 190px);align-self:center}
+  html body #mform.m-video .vv-body>.vv-cm{max-height:calc(100vh - 190px)}
+}
