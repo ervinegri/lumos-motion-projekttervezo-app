@@ -528,7 +528,7 @@ ACT['vv-proj-open']=b=>{const id=b.dataset.id;window.MODAL_BEFORE_CLOSE=null;win
   if(S.projectId===id){if(S.tab!=='projektek')S.tab='projektek';render(true);scrollTo(0,0);return;}guard(()=>openProject(id));};
 
 /* Értékelés kártya: részletek (kérés, címzett, megnyitás, emlékeztető, maga az értékelés) */
-ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvState(p),r=rvReview(p),d=x=>x?esc(String(x).slice(0,16).replace('T',' ')):'–';
+ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvState(p)||(rvReview(p)?'reviewed':p.reviewClick?'click':p.reviewAt?'sent':'todo'),r=rvReview(p),d=x=>x?esc(String(x).slice(0,16).replace('T',' ')):'–';
   const row=(k,v)=>`<div class="rv-dt-r"><span class="muted">${k}</span><span>${v}</span></div>`;
   const html=`<div class="mbody rv-dt">${row('Állapot',{reviewed:'⭐ Értékelt a Google-ön',remind:'⏰ Emlékeztető javasolt',click:'👆 Megnyitotta az értékelést',sent:'✉️ Értékelést kértünk',todo:'Még nem kértünk értékelést'}[st]||'–')}${row('Ügyfél',esc(p.client||'–'))}${row('Kérve',d(p.reviewAt))}<div id="rv-dt-to">${p.reviewAt&&isAdmin()?row('Címzett','<span class="muted">betöltés…</span>'):''}</div>${row('Megnyitotta',d(p.reviewClick))}${row('Emlékeztető',d(p.reviewRemAt))}
     ${r?`<div class="rv-dt-rv"><div><b>${'★'.repeat(+r.stars||0)}</b> · ${esc(r.author||'')} · <span class="muted">${d(r.createdAt)}</span></div>${r.text?`<p>${esc(r.text)}</p>`:''}${r.reply?`<div class="rv-dt-rep"><span class="muted">A válaszunk:</span> ${esc(r.reply)}</div>`:'<div class="muted">Még nem válaszoltunk rá.</div>'}</div>`:''}</div>`;
