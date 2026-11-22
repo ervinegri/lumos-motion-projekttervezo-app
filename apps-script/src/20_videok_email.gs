@@ -351,7 +351,7 @@ const GBP_BI_ = 'https://mybusinessbusinessinformation.googleapis.com/v1/';
 function gbpLocShort_() { return 'locations/' + String(gbpLocation_()).split('/locations/')[1]; }
 function gbpInfo_() { return gbpApi_('get', GBP_BI_ + gbpLocShort_() + '?readMask=title,categories,profile,serviceItems,storefrontAddress,serviceArea,websiteUri,metadata'); }
 function gbpCatSearch_(a) { const q = str_(a && a.q, 60); if (!q) return { categories: [] };
-  return gbpApi_('get', GBP_BI_ + 'categories?regionCode=HU&languageCode=hu&view=BASIC&pageSize=20&filter=' + encodeURIComponent('displayName=' + q)); }
+  return gbpApi_('get', GBP_BI_ + 'categories?regionCode=HU&languageCode=' + (a && a.lang === 'en' ? 'en' : 'hu') + '&view=BASIC&pageSize=20&filter=' + encodeURIComponent('displayName=' + q)); }
 /** a.mask: 'profile.description' | 'categories' | 'serviceItems' (vesszővel több); a.loc: a módosított mezők. */
 function gbpInfoSet_(u, a) {
   const ok = ['profile.description', 'categories', 'serviceItems'], mask = String(a && a.mask || '').split(',').map(x => x.trim()).filter(x => ok.indexOf(x) >= 0);
