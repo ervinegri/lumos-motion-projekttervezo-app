@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "37eeec623a",
+"at": "2026-11-22T09:09:57+01:00",
+"msg": "Értékeléskérés: élő levél-előnézet az aláírással; 7 nap után egyetlen, jóváhagyandó emlékeztető (videótábla + figyelmeztetés)"
+},
+{
 "id": "eb1006ab59",
 "at": "2026-11-22T09:04:43+01:00",
 "msg": "Ügyfél adatai: a kapcsolattartó mezőbe lépve rögtön HubSpot-keresés (a cég kapcsolatai, gépelve név szerint)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Alapadatok zárolása meghívó után (időpont, helyszín…): Módosítás gombbal oldható, változáskor e-mail a meghívott stábnak"
 },
 {
-"id": "453a5f92bc",
-"at": "2026-11-21T22:07:32+01:00",
-"msg": "Senkihez nem rendelt eszköz emberhez rendelhető a választóból (nem foglaltként számít, áthelyeződik)"
-},
-{
-"id": "0040d0174a",
-"at": "2026-11-21T21:04:13Z",
+"id": "9922c74b68",
+"at": "2026-11-21T21:07:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
