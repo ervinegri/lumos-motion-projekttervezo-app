@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8aabc56257",
+"at": "2026-11-22T08:59:29+01:00",
+"msg": "Ügyfél adatai: rövidebb „Betöltés” gomb, hogy az adószám kiférjen"
+},
+{
 "id": "0d22bbcdc4",
 "at": "2026-11-22T08:58:00+01:00",
 "msg": "Ügyfél adatai: egyenletes, egymás alá igazított mezők (4 oszlop)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Interjúsarok operatőr → Interjú operatőr (átnevezés + egyszeri adatjavítás); régi sima Operatőr a feladatából adódó típusra (kártyán és mentéskor)"
 },
 {
-"id": "ef0286cb44",
-"at": "2026-11-21T22:00:48+01:00",
-"msg": "Nincs sima „Operatőr” szerepkör a projekten: mindig konkrét típus (kreatív / statív / interjúsarok); a csere nem kér újra elfogadást"
-},
-{
-"id": "045be31594",
-"at": "2026-11-21T20:53:55Z",
+"id": "8df7c9c786",
+"at": "2026-11-21T21:00:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
