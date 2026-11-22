@@ -3134,3 +3134,7 @@ html body .rv-dt-rep{margin-top:6px;font-size:13px}
   html body #modalRoot #mform.m-video .vv-body.side>.vv-cm{max-height:calc(100vh - 104px)!important;padding-bottom:64px;box-sizing:border-box}
   html body #modalRoot #mform.m-video .vv-body.side{padding-bottom:14px}
 }
+
+html body .rv-dt-mail{margin-top:8px;border:1px solid rgba(127,127,127,.25);border-radius:10px;padding:8px 12px;font-size:14px}
+html body .rv-dt-mail>summary{cursor:pointer;font-weight:600}
+html body .rv-dt-subj{margin:8px 0 6px}html body .rv-dt-body{white-space:pre-wrap;background:rgba(127,127,127,.07);border-radius:8px;padding:10px 12px;max-height:40vh;overflow:auto}

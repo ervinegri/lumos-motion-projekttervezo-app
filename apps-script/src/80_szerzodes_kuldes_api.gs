@@ -448,6 +448,7 @@ function rpcInner_(token, name, arg) {
     case 'companyIndex': canEdit(); return companyIndex_();
     case 'videoVerFix': return videoVerFix_(u, arg);
     case 'videoVerAdd': return videoVerAdd_(u, arg);
+    case 'reviewMailAdd': return reviewMailAdd_(u, arg);
     case 'videoNoteRestore': return videoNoteRestore_(u, arg);
     case 'taskNoticePreview': return taskNoticeRun_(u, arg, true);   // értesítő e-mailek előnézete (nem küld)
     case 'taskNoticeSend': return taskNoticeRun_(u, arg, false);   // azonnali cégkereső (saját adatokból)

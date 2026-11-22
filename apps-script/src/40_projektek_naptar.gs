@@ -154,7 +154,7 @@ function saveProject_(u, a) {
           throw new Error('Az elfogadott meghívású munkatárs a projekten marad. A beosztás zárolt.');
       });
       p.createdAt = old.createdAt; p.folderId = old.folderId; p.listSentAt = old.listSentAt; p.listSentTo = old.listSentTo; p.calEventId = old.calEventId;
-      p.reviewAt = old.reviewAt; p.reviewClick = old.reviewClick; p.reviewRemAt = old.reviewRemAt;   // a Google-értékelés kérése a háttérben rögzül
+      p.reviewAt = old.reviewAt; p.reviewClick = old.reviewClick; p.reviewRemAt = old.reviewRemAt; p.reviewMail = old.reviewMail;   // a Google-értékelés kérése a háttérben rögzül
       p.quotePrice = old.quotePrice; p.extras = old.extras; p.fees = old.fees; p.budgetMode = old.budgetMode; p.budgetVal = old.budgetVal; p.crewNotes = old.crewNotes; p.rentals = old.rentals; p.penalties = old.penalties; p.budgetRequest = old.budgetRequest; p.crewFinal = old.crewFinal; p.eqFinal = old.eqFinal; p.payStatus = old.payStatus;
     } else {
       if (a.baseUpdatedAt) throw new Error('Ezt a projektet közben törölték.');

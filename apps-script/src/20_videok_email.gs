@@ -306,10 +306,21 @@ function reviewDaily_() { return;   /* KIKAPCSOLVA (2026-11-21, Ervin): semmilye
     const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#202124">' + (first ? 'Kedves ' + escapeHtml_(first) + ',' : 'Kedves Ügyfelünk,') + '<br><br>köszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész.<br><br><a href="' + REVIEW_URL_ + '" style="display:inline-block;background:#1c1c22;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px">⭐ Értékelés írása</a><br><br>Köszönjük!<br>Lumos Motion</div>';
     let sent = false; try { sent = gmailSend_(to, subj, txt, { name: 'Lumos Motion', htmlBody: html }); } catch (e) { Logger.log('Értékelés-kérés: ' + e); }
     if (!sent) return; recent[key(p)] = 1;
-    withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, p.id); if (!row) return; const q = readRow_('projects', sh, row); if (q.reviewAt) return; q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+    withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, p.id); if (!row) return; const q = readRow_('projects', sh, row); if (q.reviewAt) return; q.reviewAt = now_(); reviewMailPush_(q, { at: now_(), by: 'Automatikus', to: to, subject: subj, text: txt, rem: 0 }); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
     logEvent_({ name: 'Automatikus', role: 'admin' }, 'Google-értékelés kérése', p.name, to); });
 }
 /** KÉZI értékeléskérés (2026-11-21, Ervin: csak kézzel, a videótábla „⭐ Értékelés” oszlopából). a: {projectId, to, subject, text} – a szöveget az ügyvezető írja / nézi át. */
+/** A kiküldött értékelés-kérő levelek (tárgy, címzett, szöveg) a projektnél – a részletek ablakban visszanézhetők. */
+function reviewMailList_(p) { try { const l = JSON.parse(p.reviewMail || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } }
+function reviewMailPush_(q, m) { q.reviewMail = JSON.stringify(reviewMailList_(q).concat([{ at: str_(m.at, 30), by: str_(m.by, 120), to: str_(m.to, 300), subject: str_(m.subject, 200), text: str_(m.text, 6000), rem: m.rem ? 1 : 0 }]).slice(-10)); }
+/** Utólagos pótlás (ügyvezető): a korábban kiküldött levél tartalma a Gmail „Elküldött” mappájából. a: {projectId, at, by, to, subject, text, rem} */
+function reviewMailAdd_(u, a) {
+  if (u.role !== 'admin') throw new Error('Csak az ügyvezető pótolhatja.');
+  const pid = str_(a && a.projectId, 64); if (!str_(a && a.text, 6000).trim()) throw new Error('Üres levél.');
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.'); const q = readRow_('projects', sh, row);
+    if (reviewMailList_(q).some(x => x.at === a.at)) throw new Error('Ez a levél már megvan.'); reviewMailPush_(q, a); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+  return { ok: true };
+}
 function reviewSend_(u, a) {
   if (!(u.role === 'admin' || u.role === 'editor')) throw new Error('Nincs jogosultságod.');
   const pid = str_(a && a.projectId, 64), to = String(a && a.to || '').split(/[,;\s]+/).map(x => x.trim()).filter(Boolean);
@@ -320,7 +331,7 @@ function reviewSend_(u, a) {
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111;line-height:1.5">' + esc(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>').replace(/\n/g, '<br>') + '</div>' + (sig ? '<br>' + sig.html : '');
   const opts = mailOptsFor_(u, html); delete opts.__actor;
   sendAs_(to.join(','), subj_(subject), text + (sig ? '\n\n' + sig.text : ''), opts);
-  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row); if (a && a.reminder) q.reviewRemAt = now_(); else q.reviewAt = now_(); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row); if (a && a.reminder) q.reviewRemAt = now_(); else q.reviewAt = now_(); reviewMailPush_(q, { at: now_(), by: u.name, to: to.join(', '), subject: subject, text: text, rem: a && a.reminder ? 1 : 0 }); putRow_('projects', sh, q, row); dataBump_(); dbFlush_(); });
   logEvent_(u, a && a.reminder ? 'Google-értékelés emlékeztető (kézi)' : 'Google-értékelés kérése (kézi)', p.name, to.join(', '));
   return { ok: true, reviewAt: now_(), reminder: !!(a && a.reminder) };
 }
