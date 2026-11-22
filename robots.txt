@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+# Belső alkalmazás: minden oldal noindex (X-Robots-Tag + meta). A crawl szándékosan engedélyezett,
+# hogy a Google lássa a noindex jelzést és kivegye a találatok közül.
