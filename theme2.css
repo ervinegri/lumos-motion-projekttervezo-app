@@ -3183,3 +3183,8 @@ html body button.cl-rv{cursor:pointer;font:inherit;border:0}html body button.cl-
 /* lakatolt Alapadatok: olvasható, kijelölhető, de nem szerkeszthető */
 html body .ro-lock input,html body .ro-lock textarea{cursor:text;caret-color:transparent}
 html body .ro-lock button:not(.ph-copy):not([data-action*="copy"]):not([data-action="vcf"]),html body .ro-lock select{cursor:not-allowed}
+/* dokumentumsor: a ✏️ és az × mindig a sor végén, egy sorban */
+html body .cdoc-row{flex-wrap:nowrap}
+html body .cdoc-row .cdoc-open{flex:1 1 auto;min-width:0}
+html body .cdoc-row .muted{flex:0 1 auto;min-width:0;text-align:right}
+html body .cdoc-row>.x{flex:none;align-self:center}
