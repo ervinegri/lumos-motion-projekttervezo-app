@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bc41955949",
+"at": "2026-11-23T11:02:29+01:00",
+"msg": "Dokumentumsor: az × nem törik új sorba"
+},
+{
 "id": "0e30230e51",
 "at": "2026-11-23T11:00:32+01:00",
 "msg": "Citan megállapodás: átvételkor csak sérülésnél kell jelezni, az átadás-átvételi lap nem kötelező"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékelés részletei: állapot akkor is, ha nem minden videó jóváhagyott"
 },
 {
-"id": "e4267717fb",
-"at": "2026-11-22T10:31:46+01:00",
-"msg": "Jóváhagyott videóhoz nincs hozzászólás; értékelés kártya részletei; Kézikönyv a névjelvény menüjében; visszamondási rész ki a kézikönyvből"
-},
-{
-"id": "51c460af5b",
-"at": "2026-11-22T09:27:28Z",
+"id": "ad80f95d0d",
+"at": "2026-11-22T09:31:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
