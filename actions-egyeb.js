@@ -536,3 +536,15 @@ ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvSta
   const ok=st==='remind'?'⏰ Emlékeztető küldése':st==='sent'&&!p.reviewRemAt?'✉️ Újraküldés':'Rendben';
   confirmLayer('⭐ Értékelés – '+(p.name||''),html,ok,(btn,layer)=>{layer.remove();if(ok!=='Rendben')ACT['rv-send']({dataset:{pid:p.id,rem:st==='remind'?'1':''}});});
   if(p.reviewAt&&isAdmin())call('getLog').then(L=>{const box=$('rv-dt-to');if(!box)return;const to=[...new Set((L||[]).filter(x=>x.subject===p.name&&/Google-értékelés/.test(x.action||'')).map(x=>String(x.details||'')).filter(Boolean))];box.innerHTML=row('Címzett',to.length?esc(to.join(', ')):'<span class="muted">nem található a naplóban</span>');}).catch(()=>{const box=$('rv-dt-to');if(box)box.innerHTML='';});};
+
+/* Lakatolt Alapadatok: kijelölhető, másolható, a linkek és a másolás gombok működnek – de semmi nem módosítható (nem „inert”, csak olvasható). */
+(()=>{const IN=e=>e.target&&e.target.closest&&e.target.closest('[data-ro-lock]');const OK=t=>t.closest('a[href],[data-action*="copy"],[data-action="vcf"]');let lastT=0;
+  const tip=()=>{const n=Date.now();if(n-lastT>2500){lastT=n;toast('🔒 Az Alapadatok zárva vannak – a lakattal oldhatod fel a módosításhoz.');}};
+  const stop=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();};
+  ['click','mousedown','pointerdown','touchstart'].forEach(t=>document.addEventListener(t,e=>{const L=IN(e);if(!L)return;const x=e.target;if(OK(x))return;
+    if(x.closest('button,select,[role="option"],[role="listbox"],[data-action],.cmb-btn')||x.matches('input[type="date"],input[type="time"],input[type="checkbox"],input[type="radio"]')){stop(e);if(t==='click')tip();}},true));
+  ['beforeinput','paste','drop','cut'].forEach(t=>document.addEventListener(t,e=>{if(IN(e)){stop(e);tip();}},true));
+  ['input','change'].forEach(t=>document.addEventListener(t,e=>{if(IN(e))stop(e);},true));
+  document.addEventListener('keydown',e=>{if(!IN(e))return;const k=e.key;if((e.metaKey||e.ctrlKey)&&/^[ac]$/i.test(k))return;if(['Tab','Shift','Meta','Control','Alt','ArrowLeft','ArrowRight','Home','End','Escape'].includes(k))return;stop(e);if(k.length===1||k==='Backspace'||k==='Delete')tip();},true);
+  ['focus','focusin'].forEach(t=>document.addEventListener(t,e=>{if(IN(e))e.stopImmediatePropagation();},true));   /* a keresőlisták (ügyfél, helyszín…) ne nyíljanak le */
+})();

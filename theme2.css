@@ -3179,3 +3179,7 @@ html body .proj-board .bd-proj .bl-single{width:max-content;min-width:100%}
 }
 
 html body button.cl-rv{cursor:pointer;font:inherit;border:0}html body button.cl-rv:hover{filter:brightness(.95);box-shadow:0 0 0 2px rgba(202,138,4,.35)}
+
+/* lakatolt Alapadatok: olvasható, kijelölhető, de nem szerkeszthető */
+html body .ro-lock input,html body .ro-lock textarea{cursor:text;caret-color:transparent}
+html body .ro-lock button:not(.ph-copy):not([data-action*="copy"]):not([data-action="vcf"]),html body .ro-lock select{cursor:not-allowed}
