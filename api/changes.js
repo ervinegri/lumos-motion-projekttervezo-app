@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "48b8f398a4",
+"at": "2026-11-23T17:22:59+02:00",
+"msg": "E-mail-ellenőrzés közben forgó jelző (mint máshol az appban)"
+},
+{
 "id": "d3586a931f",
 "at": "2026-11-23T17:18:08+02:00",
 "msg": "Felhasználó ablak: hibás / nem Google-os e-mail-címnél a mentés gomb tiltva (el sem indul), ellenőrzés közben is; piros jelzés a mező alatt, a mező is piros; előnézet sem készül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló videó a képernyő aljáig"
 },
 {
-"id": "cfab296d13",
-"at": "2026-11-22T10:38:42+01:00",
-"msg": "Jóváhagyás és üzenet egy hozzászólásban; jóváhagyott sáv ki; álló videó magassága"
-},
-{
-"id": "6f6a6fe403",
-"at": "2026-11-22T09:37:54Z",
+"id": "96b37db7e4",
+"at": "2026-11-22T09:38:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
