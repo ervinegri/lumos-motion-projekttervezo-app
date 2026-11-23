@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0fdffda167",
+"at": "2026-11-23T09:38:15+01:00",
+"msg": "Videó megtekintése: az előnézeti oldal adatai is előre betöltve – a megnyíló lap azonnal kirajzol"
+},
+{
 "id": "ba94457203",
 "at": "2026-11-23T09:34:46+01:00",
 "msg": "Videó megtekintése gyorsítás: rövid link takarítása óránként (nem minden kattintásnál), előnézeti link újrahasználva, a jóváhagyó oldal egyszer olvassa a projekteket"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hiányzó videóverzió-határ pótlása (ügyvezető)"
 },
 {
-"id": "a30c6eacb4",
-"at": "2026-11-22T10:26:38+01:00",
-"msg": "Álló videó széles képernyőn nagyban, középen"
-},
-{
-"id": "7b4472ccb4",
-"at": "2026-11-22T09:25:47Z",
+"id": "030e0de5b4",
+"at": "2026-11-22T09:26:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
