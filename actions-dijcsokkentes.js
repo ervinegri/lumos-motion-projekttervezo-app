@@ -319,8 +319,14 @@ const GK_C={};
 async function gkCheck(em){em=String(em||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em))return em?'bad':'';const d=em.split('@')[1];if(d==='gmail.com'||d==='googlemail.com')return 'gmail';if(d in GK_C)return GK_C[d];
   try{const r=await call('emailCheck',{email:em});GK_C[d]=r&&r.kind||'';}catch(e){return '';}return GK_C[d];}
 function gkShow(kind,em){const b=$('m-gk');if(!b)return;const T={gmail:'✅ Gmail-cím – ezzel be tud lépni.',workspace:'✅ Google-fiók (a domain levelezését a Google kezeli) – ezzel be tud lépni.',
-    other:'⛔ <b>Ezzel a címmel nem tud belépni</b> – nem Google-fiók. Adj meg Gmail-címet, vagy olyan céges címet, amelynek levelezését a Google kezeli. Amíg ez így marad, nem menthető.',bad:'⛔ Hibás e-mail-cím.'};
-  b.hidden=!T[kind];b.className='field full gk-box gk-'+kind;b.innerHTML=T[kind]||'';}
+    other:'⛔ <b>Ezzel a címmel nem tud belépni</b> – nem Google-fiók. Adj meg Gmail-címet, vagy olyan céges címet, amelynek levelezését a Google kezeli. Amíg ez így marad, nem menthető.',bad:'⛔ Hibás e-mail-cím.',nomail:'⛔ <b>Ilyen e-mail-cím nem létezik</b> – a @ utáni rész (domain) nem fogad leveleket. Valószínűleg elírás.'};
+  const sg=kind&&kind!=='gmail'&&kind!=='workspace'?gkSuggest(em):'';
+  b.hidden=!T[kind];b.className='field full gk-box gk-'+kind;b.innerHTML=(T[kind]||'')+(sg?` <button type="button" class="linkbtn gk-fix" data-em="${esc(sg)}">Erre gondoltál: <b>${esc(sg)}</b>?</button>`:'');}
+/* elírt domain (pl. lumsmotion.com, gmial.com): a legközelebbi ismert domain ajánlása */
+function gkSuggest(em){const m=/^([^@]+)@(.+)$/.exec(String(em||'').trim().toLowerCase());if(!m)return '';const d=m[2],K=new Set(['gmail.com','lumosmotion.com']);(S.users||[]).concat(S.crew||[]).forEach(x=>{const dd=String(x.email||'').toLowerCase().split('@')[1];if(dd)K.add(dd);});
+  const lev=(a,b)=>{const r=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let p=r[0];r[0]=i;for(let j=1;j<=b.length;j++){const t=r[j];r[j]=Math.min(r[j]+1,r[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t;}}return r[b.length];};
+  let best='',bd=3;K.forEach(k=>{if(k===d)return;const x=lev(d,k);if(x<bd){bd=x;best=k;}});return best?m[1]+'@'+best:'';}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.gk-fix');if(!b)return;const i=$('m-email');if(!i)return;i.value=b.dataset.em;i.dispatchEvent(new Event('input',{bubbles:true}));});
 document.addEventListener('input',e=>{if(e.target.id!=='m-email'||!$('m-gk'))return;clearTimeout(gkShow.t);const em=e.target.value;$('m-gk').hidden=true;gkShow.t=setTimeout(async()=>{const k=await gkCheck(em);if(($('m-email')||{}).value===em)gkShow(k,em);},600);});
 function userModal(u){
   const v=u||{};S._invEdit='';
@@ -352,7 +358,7 @@ function userModal(u){
     if(isNewCrew&&newName.length<2){toast('Add meg az új kolléga nevét.',true);$('m-newName').focus();return;}
     if(!cr&&!isNewCrew&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából, vagy válaszd az „Új kolléga” lehetőséget.',true);return;}
         {const em0=String(fd.get('email')||'').trim(),gk=await gkCheck(em0);if(gk==='bad'){toast('Hibás e-mail-cím.',true);$('m-email').focus();return;}
-          if(gk==='other'){gkShow(gk,em0);toast('Ezzel az e-mail-címmel nem tud belépni – adj meg Google-fiókhoz tartozó címet (pl. Gmail).',true);$('m-email').focus();return;}}
+          if(gk==='other'||gk==='nomail'){gkShow(gk,em0);toast(gk==='nomail'?'Ilyen e-mail-cím nem létezik – valószínűleg elírás.':'Ezzel az e-mail-címmel nem tud belépni – adj meg Google-fiókhoz tartozó címet (pl. Gmail).',true);$('m-email').focus();return;}}
         const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on',resendInvite:!!u&&fd.get('resendInvite')==='1'};
         if(data.role==='sales'){data.salary=moneyVal(fd.get('salary'));data.commLimit=moneyVal(fd.get('commLimit'))||1000000;data.commLow=fd.get('commLow');data.commHigh=fd.get('commHigh');if(String(data.commLow).trim()===''||String(data.commHigh).trim()===''){toast('Add meg az értékesítő jutalék %-át (a határ alatt és felett).',true);return;}if(data.salary===''){toast('Add meg a fix havi fizetést (ha nincs, írj 0-t).',true);return;}}if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
     try{

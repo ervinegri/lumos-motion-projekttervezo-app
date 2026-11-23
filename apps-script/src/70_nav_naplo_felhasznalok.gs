@@ -450,6 +450,7 @@ function publicUser_(u) {
   return o;
 }
 /** Belépni csak Google-fiókkal lehet. Megnézi, hogy az e-mail-cím Google-os-e: gmail.com, vagy olyan domain, amelynek levelezését a Google kezeli (Workspace, MX-rekord alapján).
+ *  'nomail' → a domain nem létezik / nem fogad levelet (elírás);
  *  'gmail' | 'workspace' → biztosan Google-fiók; 'other' → csak akkor tud belépni, ha ehhez a címhez külön Google-fiókot hozott létre; 'bad' → hibás cím; '' → nem sikerült ellenőrizni.
  *  Csak a domain megy ki (a Google nyilvános DNS-ének), a cím nem; az eredmény domainenként 6 órára tárolva. */
 function emailGoogleKind_(email) {
@@ -462,7 +463,7 @@ function emailGoogleKind_(email) {
   try {
     const r = UrlFetchApp.fetch('https://dns.google/resolve?type=MX&name=' + encodeURIComponent(dom), { muteHttpExceptions: true, followRedirects: true });
     if (r.getResponseCode() === 200) { const j = JSON.parse(r.getContentText() || '{}'), mx = (j.Answer || []).map(a => String(a.data || '').toLowerCase());
-      kind = !mx.length ? '' : mx.some(x => /(google\.com|googlemail\.com|smtp\.google\.com)\.?$/.test(x)) ? 'workspace' : 'other'; }   // MX nélkül nem tudjuk eldönteni
+      kind = j.Status === 3 || (j.Status === 0 && !mx.length) ? 'nomail' : !mx.length ? '' : mx.some(x => /(google\.com|googlemail\.com|smtp\.google\.com)\.?$/.test(x)) ? 'workspace' : 'other'; }   // MX nélkül nem tudjuk eldönteni
   } catch (e) { Logger.log('MX-ellenőrzés (' + dom + '): ' + e); }
   try { cache.put(ck, kind || '-', kind ? 21600 : 600); } catch (e) {}
   return kind;
