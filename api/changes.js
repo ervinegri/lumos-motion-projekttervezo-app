@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4235322ea8",
+"at": "2026-11-23T17:12:15+02:00",
+"msg": "E-mail-cím: nem létező / levelet nem fogadó domain sem menthető, elírásnál javaslat (pl. lumsmotion.com → lumosmotion.com)"
+},
+{
 "id": "1d7da9204d",
 "at": "2026-11-23T16:48:51+02:00",
 "msg": "Nem Google-os e-mail-cím nem menthető (piros jelzés, háttér is ellenőrzi); távolabbi projekteknél is jelez, ha valaki nem válaszolt a meghívóra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Álló videó nagyobb, a hozzászólások mellett; szélesebb szöveges rész"
 },
 {
-"id": "adf2f38f44",
-"at": "2026-11-22T10:36:38+01:00",
-"msg": "Videó: a Verzió törlése gomb kikerült"
-},
-{
-"id": "e466444077",
-"at": "2026-11-22T09:34:35Z",
+"id": "8475f86aef",
+"at": "2026-11-22T09:36:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
