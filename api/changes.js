@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4693a6cd19",
+"at": "2026-11-23T16:04:39+02:00",
+"msg": "Visszadobás: a beírt szöveg nem veszhet el (háttérkoppintás nem zár, hibánál újraküldhető), csak időkód nem elég; Vissza gomb az ablakot zárja; ügyfélnek kiküldött verziók jelölve"
+},
+{
 "id": "bc41955949",
 "at": "2026-11-23T11:02:29+01:00",
 "msg": "Dokumentumsor: az × nem törik új sorba"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kézikönyv: mások díjáról szóló mondat ki"
 },
 {
-"id": "23de4a9e0a",
-"at": "2026-11-22T10:32:45+01:00",
-"msg": "Értékelés részletei: állapot akkor is, ha nem minden videó jóváhagyott"
-},
-{
-"id": "ad80f95d0d",
-"at": "2026-11-22T09:31:54Z",
+"id": "2569317f2a",
+"at": "2026-11-22T09:32:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
