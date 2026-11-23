@@ -251,7 +251,7 @@ function saveDeal_(u, a) {
     const num = (v, max) => { if (v === '' || v == null) return ''; const n = Math.round(Number(String(v).replace(/[^\d.-]/g, ''))); return isFinite(n) ? Math.max(0, Math.min(max, n)) : ''; };
     const d = {
       id: id, title: str_(a.title, 160), client: str_(a.client, 160), contactName: str_(a.contactName, 120), contactEmail: str_(a.contactEmail, 160), contactEmail2: str_(a.contactEmail2, 160).trim(), contactPhone: str_(a.contactPhone, 40),
-      eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 ? a.eventType : '', venue: str_(a.venue, 200), eventDate: iso_(a.eventDate), value: num(a.value, VALUE_MAX), stage: stage,
+      eventType: EVENT_TYPES.indexOf(a.eventType) >= 0 || a.eventType === 'Általános ajánlat' ? a.eventType : '', venue: a.eventType === 'Általános ajánlat' ? '' : str_(a.venue, 200), eventDate: a.eventType === 'Általános ajánlat' ? '' : iso_(a.eventDate),   /* általános ajánlat (árlista): nincs konkrét rendezvény */ value: num(a.value, VALUE_MAX), stage: stage,
       chance: num(a.chance, 100), source: str_(a.source, 80).trim(), nextStep: str_(a.nextStep, 200), nextDate: iso_(a.nextDate),
       ownerId: owner ? owner.id : old ? old.ownerId : u.id, ownerName: owner ? owner.name : old ? old.ownerName : u.name, note: str_(a.note, 20000), services: (Array.isArray(a.services) ? a.services : String(a.services || '').split(',')).map(x => str_(x, 60).trim()).filter(Boolean).slice(0, 20).join(', '),
       lostReason: stage === 'elveszett' ? str_(a.lostReason, 300) : '', projectId: old ? old.projectId : '', wonAt: old ? old.wonAt : '', commManual: old ? old.commManual : '', commAuto: old ? old.commAuto : '', commPct: old ? old.commPct : '', commAmt: old ? old.commAmt : '',

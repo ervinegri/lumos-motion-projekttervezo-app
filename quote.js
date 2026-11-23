@@ -39,7 +39,7 @@ const qDash=t=>String(t||'').replace(/ - /g,' – ');
 function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean),v=num(d.value);
   const items=sv.length?sv.map((x,i)=>({name:x,qty:'1',price:sv.length===1&&v?String(v):'',src:'init'})):[{name:d.title||'Videós szolgáltatás',qty:'1',price:v?String(v):'',src:'init'}];
   const no='A-'+todayISO().replace(/-/g,'')+'-'+String(d.id||'').replace(/[^a-z0-9]/gi,'').slice(0,4).toUpperCase();
-  const ev=!!d.title,a=qAuto(d,ev);S.q={evName:d.title||'',dealId:d.id,to:d.contactEmail||'',cc:d.contactEmail2||'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'20',note:'',no,ev,body:a.body,sig:null};}
+  const ev=!!d.title&&d.eventType!=='Általános ajánlat',a=qAuto(d,ev);   /* általános ajánlatnál (árlista) nincs rendezvény a levélben / PDF-en */S.q={evName:d.title||'',dealId:d.id,to:d.contactEmail||'',cc:d.contactEmail2||'',subject:a.subject,items,opts:[{title:'',items}],oi:0,rc:{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:'',addr:'',email:''},valid:'20',note:'',no,ev,body:a.body,sig:null};}
 /* több opció (pl. 1 / 3 / 5 short): S.q.opts = [{title, items}], az aktív opció tételei = S.q.items */
 /* a kedvezmény opciónként külön (régi mentésnél az ajánlat-szintű beállítás minden opcióra átkerül) */
 function qMig(q){if(q&&('discOn' in q||'disc' in q||'discLbl' in q)){(q.opts||[]).forEach(o=>{if(!('discOn' in o)){o.discOn=!!q.discOn;o.disc=q.disc||'';o.discLbl=q.discLbl||'';}});delete q.discOn;delete q.disc;delete q.discLbl;}return q;}
