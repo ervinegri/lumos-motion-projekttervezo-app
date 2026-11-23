@@ -181,8 +181,20 @@ function zebra(root){(root||document).querySelectorAll('table tbody').forEach(tb
 function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+projSlug(projById(S.projectId)||{id:S.projectId}):S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
 function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
 /* Böngésző vissza/előre: az előző nézetre (fül vagy projekt) lépünk; a folyamatban lévő módosítás előtte elmentődik. */
-window.addEventListener('popstate',()=>{if(!S.me||!S.loaded)return;
-  if(document.querySelector('#modalRoot .mbox')){try{history.pushState(null,'',location.pathname+location.search+wantedHash());}catch(e){}return;}   // nyitott felugró ablak alatt nincs vissza / előre lapozás
+/* Felugró ablak és a Vissza gomb: megnyíláskor egy saját előzmény-bejegyzés kerül be, így a (telefonos / böngészős) Vissza az ablakot zárja be,
+   és a mögötte lévő nézetre (pl. a videótáblára) tér vissza – nem hagyja el az appot. Ha az ablak máshogy zárul, a bejegyzést mi vesszük vissza. */
+const MD_HIST={on:false,skip:0,t:0};
+function mdHistSync(){clearTimeout(MD_HIST.t);MD_HIST.t=setTimeout(()=>{const open=!!document.querySelector('#modalRoot .mbox');
+  if(open&&!MD_HIST.on){try{history.pushState({lpmModal:1},'',location.href);MD_HIST.on=true;}catch(e){}}
+  else if(!open&&MD_HIST.on){MD_HIST.on=false;if(history.state&&history.state.lpmModal){MD_HIST.skip++;try{history.back();}catch(e){MD_HIST.skip--;}}}},120);}
+(()=>{const go=()=>{const r=document.getElementById('modalRoot');if(!r)return setTimeout(go,200);try{new MutationObserver(mdHistSync).observe(r,{childList:true,subtree:false});}catch(e){}};go();})();
+function mdHistBack(){   /* Vissza nyitott ablaknál: a legfelső réteg zárul; beírt szöveget tartalmazó réteg nem zárul el (a szöveg nem veszhet el) */
+  const cf=document.querySelector('#modalRoot .cf-layer');
+  if(cf){if([...cf.querySelectorAll('textarea,input')].some(x=>String(x.value||'').trim())){try{history.pushState({lpmModal:1},'',location.href);}catch(e){}toast('Előbb küldd el vagy töröld a beírt szöveget – vagy nyomd a „← Vissza” gombot.',true);return;}cf.remove();try{history.pushState({lpmModal:1},'',location.href);}catch(e){}return;}
+  MD_HIST.on=false;const x=document.querySelector('#modalRoot [data-action="modal-close"],#modalRoot .mclose,#modalRoot [aria-label="Bezárás"]');if(x)x.click();else closeModal();
+  setTimeout(()=>{if(document.querySelector('#modalRoot .mbox')&&!MD_HIST.on){try{history.pushState({lpmModal:1},'',location.href);MD_HIST.on=true;}catch(e){}}},150);}
+window.addEventListener('popstate',()=>{if(MD_HIST.skip>0){MD_HIST.skip--;return;}if(!S.me||!S.loaded)return;
+  if(document.querySelector('#modalRoot .mbox')){mdHistBack();return;}   // nyitott felugró ablaknál a Vissza az ablakot zárja
   const h=location.hash||'';
   const go=()=>{const pm=HASH_P.exec(h),tm=/^#t=([a-z]+)$/.exec(h),pp=pm&&projFromHash(pm[1]);
     if(pp){S.tab='projektek';S.projectId=pp.id;S.draft=prepDraft(pp);S.draftBase=clone(S.draft);}
