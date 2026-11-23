@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e30230e51",
+"at": "2026-11-23T11:00:32+01:00",
+"msg": "Citan megállapodás: átvételkor csak sérülésnél kell jelezni, az átadás-átvételi lap nem kötelező"
+},
+{
 "id": "0fdffda167",
 "at": "2026-11-23T09:38:15+01:00",
 "msg": "Videó megtekintése: az előnézeti oldal adatai is előre betöltve – a megnyíló lap azonnal kirajzol"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyott videóhoz nincs hozzászólás; értékelés kártya részletei; Kézikönyv a névjelvény menüjében; visszamondási rész ki a kézikönyvből"
 },
 {
-"id": "ed7c1b0aa9",
-"at": "2026-11-22T10:27:20+01:00",
-"msg": "Hiányzó videóverzió-határ pótlása (ügyvezető)"
-},
-{
-"id": "030e0de5b4",
-"at": "2026-11-22T09:26:50Z",
+"id": "51c460af5b",
+"at": "2026-11-22T09:27:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
