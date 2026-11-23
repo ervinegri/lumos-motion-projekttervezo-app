@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cd4f8633eb",
+"at": "2026-11-23T08:32:29+01:00",
+"msg": "Citan megállapodás modellnek (szereplőnek) is kitölthető"
+},
+{
 "id": "8af630202f",
 "at": "2026-11-23T08:30:22+01:00",
 "msg": "Citan megállapodás: rendszám (AO PS-758) a sablonban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hozzászólások időrendben (alul a legújabb és a szövegmező); a korábbi leadások kísérőszövege megmarad a saját verziójánál; visszaállító (ügyvezető)"
 },
 {
-"id": "3a18cbd144",
-"at": "2026-11-22T10:08:00+01:00",
-"msg": "Videó-ablak: a korábbi verziók hozzászólásai nem látszanak az új verziónál (a verzióváltóval érhetők el)"
-},
-{
-"id": "b1332bca21",
-"at": "2026-11-22T09:05:50Z",
+"id": "16765bce21",
+"at": "2026-11-22T09:08:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
