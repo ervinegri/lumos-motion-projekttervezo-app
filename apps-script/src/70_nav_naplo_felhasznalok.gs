@@ -449,7 +449,25 @@ function publicUser_(u) {
   if (u.realRole) { o.realRole = u.realRole; o.viewAs = u.viewAs; }
   return o;
 }
-function adminListUser_(u) { return Object.assign({ id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || ''), disabled: !!u.disabled, createdAt: u.createdAt || '' }, u.role === 'sales' ? salesCompOf_(u) : {}); }
+/** Belépni csak Google-fiókkal lehet. Megnézi, hogy az e-mail-cím Google-os-e: gmail.com, vagy olyan domain, amelynek levelezését a Google kezeli (Workspace, MX-rekord alapján).
+ *  'gmail' | 'workspace' → biztosan Google-fiók; 'other' → csak akkor tud belépni, ha ehhez a címhez külön Google-fiókot hozott létre; 'bad' → hibás cím; '' → nem sikerült ellenőrizni.
+ *  Csak a domain megy ki (a Google nyilvános DNS-ének), a cím nem; az eredmény domainenként 6 órára tárolva. */
+function emailGoogleKind_(email) {
+  const em = String(email || '').trim().toLowerCase(), m = /^[^\s@]+@([a-z0-9.-]+\.[a-z]{2,})$/.exec(em);
+  if (!m) return 'bad';
+  const dom = m[1];
+  if (dom === 'gmail.com' || dom === 'googlemail.com') return 'gmail';
+  const ck = 'gk1_' + dom, cache = CacheService.getScriptCache(), hit = cache.get(ck); if (hit) return hit === '-' ? '' : hit;
+  let kind = '';
+  try {
+    const r = UrlFetchApp.fetch('https://dns.google/resolve?type=MX&name=' + encodeURIComponent(dom), { muteHttpExceptions: true, followRedirects: true });
+    if (r.getResponseCode() === 200) { const j = JSON.parse(r.getContentText() || '{}'), mx = (j.Answer || []).map(a => String(a.data || '').toLowerCase());
+      kind = mx.some(x => /(google\.com|googlemail\.com|smtp\.google\.com)\.?$/.test(x)) ? 'workspace' : 'other'; }
+  } catch (e) { Logger.log('MX-ellenőrzés (' + dom + '): ' + e); }
+  try { cache.put(ck, kind || '-', kind ? 21600 : 600); } catch (e) {}
+  return kind;
+}
+function adminListUser_(u) { return Object.assign({ id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || ''), gk: emailGoogleKind_(u.email), disabled: !!u.disabled, createdAt: u.createdAt || '' }, u.role === 'sales' ? salesCompOf_(u) : {}); }
 /** Értékesítő díjazása: fix havi fizetés (nettó) + jutalék szerződésenként: a határ alatti értéknél commLow %, felette commHigh %. */
 function salesComp_(a) {
   const pct = v => { const n = Number(String(v == null ? '' : v).replace(',', '.')); return isFinite(n) && n >= 0 && n <= 100 ? Math.round(n * 100) / 100 : NaN; };

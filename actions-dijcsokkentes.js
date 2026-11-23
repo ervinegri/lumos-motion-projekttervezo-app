@@ -314,6 +314,14 @@ function itemModal(it,after){
 }
 document.addEventListener('change',e=>{if(e.target.id==='m-company'){const k=crewCompanies().find(x=>fold(x.name)===fold(e.target.value.trim()));const t=$('m-tax');if(k&&k.tax&&t&&!t.value){t.value=k.tax;}if(k&&k.vat){const r=document.querySelector('#mform [name=vat][value="'+k.vat+'"]');if(r)r.checked=true;}}});   // ismert vállalkozás: az adószám és az ÁFA is átjön
 document.addEventListener('change',e=>{if(e.target.id==='m-role'){const sc=$('m-salesComp');if(sc)sc.hidden=e.target.value!=='sales';const w=$('m-edWarn');if(w&&w.innerHTML.trim())w.hidden=e.target.value!=='editor';}if(e.target.id==='m-crewId'){const nf=$('m-newCrewF');if(nf){nf.hidden=e.target.value!=='__new';if(!nf.hidden)setTimeout(()=>$('m-newName').focus(),0);}const c=crewById(e.target.value),em=$('m-email');if(c&&c.email&&em&&!em.value)em.value=c.email;}});   // a stáblistás e-mail-cím átjön
+/* Belépés csak Google-fiókkal: a megadott e-mail-cím Google-os-e (gmail / Google által kezelt domain) – a háttér ellenőrzi (MX), domainenként tárolva */
+const GK_C={};
+async function gkCheck(em){em=String(em||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em))return em?'bad':'';const d=em.split('@')[1];if(d==='gmail.com'||d==='googlemail.com')return 'gmail';if(d in GK_C)return GK_C[d];
+  try{const r=await call('emailCheck',{email:em});GK_C[d]=r&&r.kind||'';}catch(e){return '';}return GK_C[d];}
+function gkShow(kind,em){const b=$('m-gk');if(!b)return;const T={gmail:'✅ Gmail-cím – ezzel be tud lépni.',workspace:'✅ Google-fiók (a domain levelezését a Google kezeli) – ezzel be tud lépni.',
+    other:'⚠️ <b>Nem Google-os cím.</b> Csak akkor tud belépni, ha ehhez a címhez külön Google-fiókot hozott létre. A meghívó levél leírja, hogyan (új Gmail nélkül). Ha van Gmail-címe, egyszerűbb azt megadni.',bad:'⚠️ Hibás e-mail-cím.'};
+  b.hidden=!T[kind];b.className='field full gk-box gk-'+kind;b.innerHTML=T[kind]||'';}
+document.addEventListener('input',e=>{if(e.target.id!=='m-email'||!$('m-gk'))return;clearTimeout(gkShow.t);const em=e.target.value;$('m-gk').hidden=true;gkShow.t=setTimeout(async()=>{const k=await gkCheck(em);if(($('m-email')||{}).value===em)gkShow(k,em);},600);});
 function userModal(u){
   const v=u||{};S._invEdit='';
   const crewOpts=[['','Válassz a stáblistából…'],...(u?[]:[['__new','➕ Új kolléga – még nincs a stáblistán']]),...S.crew.slice().sort((a,b)=>a.name.localeCompare(b.name,'hu')).map(c=>[c.id,c.name])];
@@ -323,6 +331,7 @@ function userModal(u){
     <div class="field full" id="m-newCrewF" hidden><label for="m-newName">Új kolléga neve</label><input class="inp" id="m-newName" name="newName" maxlength="100" placeholder="pl. Kovács Péter"><p class="hint" style="margin:4px 0 0">Felvesszük a stáblistára is: értékesítő szerepkörnél az <b>Értékesítők</b>, egyébként a <b>Stáb</b> közé kerül.</p></div>
     ${isAdmin()?ms('role','Szerepkör',Object.entries(USER_ROLES).filter(([k])=>isAdmin()||k==='crew').filter(([k])=>k!=='admin'||v.role==='admin'||!(S.users||[]).some(x=>x.role==='admin'&&x.id!==v.id)),defRole):'<input type="hidden" name="role" value="crew">'}
     ${mf('email','Google-fiók e-mail-címe (ezzel lép be)',{type:'email',v:v.email,ph:'pl. kollega@lumosmotion.com',full:!isAdmin()})}
+    <div class="field full gk-box" id="m-gk" hidden></div>
     ${isAdmin()?`<div class="field full sales-comp" id="m-salesComp"${defRole==='sales'?'':' hidden'}><span class="lbl">💼 Értékesítő díjazása</span><div class="sc-grid">
       ${moneyField('salary','Fix fizetés (nettó / hó)',v.salary==null?'':v.salary,{steps:false,ph:'pl. 300 000'})}
       ${moneyField('commLimit','Jutaléksáv határa (havi alap)',v.commLimit==null?1000000:v.commLimit,{steps:false})}
@@ -342,6 +351,8 @@ function userModal(u){
     const isNewCrew=fd.get('crewId')==='__new',newName=String(fd.get('newName')||'').trim().replace(/\s+/g,' ');
     if(isNewCrew&&newName.length<2){toast('Add meg az új kolléga nevét.',true);$('m-newName').focus();return;}
     if(!cr&&!isNewCrew&&!(u&&v.name)){toast('Válaszd ki a munkatársat a stáblistából, vagy válaszd az „Új kolléga” lehetőséget.',true);return;}
+        {const em0=String(fd.get('email')||'').trim(),gk=await gkCheck(em0);if(gk==='bad'){toast('Hibás e-mail-cím.',true);$('m-email').focus();return;}
+          if(gk==='other'&&!(S._gkOk===em0.toLowerCase())){gkShow(gk,em0);const rs=fd.get('resendInvite')||'';confirmLayer('⚠️ Nem Google-os e-mail-cím',`<div style="margin:0 16px"><p style="margin:0 0 8px"><b>${esc(em0)}</b> nem Gmail-cím, és a domainjének levelezését sem a Google kezeli.</p><p class="hint" style="margin:0">Csak akkor tud belépni, ha ehhez a címhez külön Google-fiókot hozott létre. A meghívó levél lépésről lépésre leírja, hogyan csinálhatja meg (új Gmail nélkül, a meglévő címével). Ha van Gmail-címe, egyszerűbb azt megadni.</p></div>`,'Mentés így is',(bb,d)=>{S._gkOk=em0.toLowerCase();if(d&&d.remove)d.remove();const f=$('mform'),h=$('m-resend');if(h&&rs)h.value=rs;if(f)f.requestSubmit();setTimeout(()=>{if(h)h.value='';},0);});return;}}
         const data={id:u?u.id:undefined,name:cr?cr.name:v.name,role:fd.get('role'),crewId:fd.get('crewId'),email:fd.get('email').trim(),disabled:fd.get('disabled')==='on',sendInvite:u?false:fd.get('sendInvite')==='on',resendInvite:!!u&&fd.get('resendInvite')==='1'};
         if(data.role==='sales'){data.salary=moneyVal(fd.get('salary'));data.commLimit=moneyVal(fd.get('commLimit'))||1000000;data.commLow=fd.get('commLow');data.commHigh=fd.get('commHigh');if(String(data.commLow).trim()===''||String(data.commHigh).trim()===''){toast('Add meg az értékesítő jutalék %-át (a határ alatt és felett).',true);return;}if(data.salary===''){toast('Add meg a fix havi fizetést (ha nincs, írj 0-t).',true);return;}}if(!u&&data.sendInvite&&S._invEdit&&$('invPrev')&&$('invPrev').querySelector('.mail-frame'))data.inviteHtml=S._invEdit;
     try{
@@ -357,6 +368,7 @@ function userModal(u){
   }});
   comboSelect($('m-crewId'),'Kezdj el gépelni: név…',crewSub);
   sigEdInit(u);
+  {const em=($('m-email')||{}).value;if(em)gkCheck(em).then(k=>{if(($('m-email')||{}).value===em)gkShow(k,em);});}
   if(u){const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb){const rb=document.createElement('button');rb.type='button';rb.className='btn primary';rb.textContent='Mentés és meghívó újraküldése';
     rb.addEventListener('click',()=>{const h=$('m-resend');if(h)h.value='1';$('mform').requestSubmit();setTimeout(()=>{if(h)h.value='';},0);});sb.before(rb);}}   // pl. javított e-mail-cím után
 }

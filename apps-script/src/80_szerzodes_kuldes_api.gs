@@ -117,12 +117,16 @@ function sendInviteMail_(user, actor, editedHtml) {
 function inviteMailBuild_(user, actor) {
   const url = appUrl_() || FRONTEND_URL, sig = signatureFor_(actor), first = huFirst_(String(user.name || '')) || user.name;
   const intro = 'Hozzáférést kaptál a ' + APP_TITLE + ' alkalmazáshoz.';
+  const other = emailGoogleKind_(user.email) === 'other';   /* nem Google-os cím: leírjuk, hogyan lesz hozzá Google-fiók (a meglévő címmel, új Gmail nélkül) */
+  const howT = other ? ['', 'Fontos: a belépéshez Google-fiók kell. Ha ehhez a címhez (' + user.email + ') még nincs Google-fiókod, pár perc alatt létrehozhatod, új Gmail-cím nélkül:',
+    '1. Nyisd meg: https://accounts.google.com/signup', '2. Add meg a neved, majd a következő lépésnél válaszd a „Meglévő e-mail-cím használata” lehetőséget.', '3. Írd be ezt a címet: ' + user.email + ', és erősítsd meg a kódot, amit oda küld a Google.', 'Ezután már be tudsz lépni az appba.'] : [];
+  const howH = other ? '<div style="margin:14px 0;padding:12px 14px;background:#fff7e6;border-left:4px solid #e0a100;border-radius:0 8px 8px 0"><p style="margin:0 0 6px"><b>Fontos:</b> a belépéshez Google-fiók kell. Ha ehhez a címhez (<b>' + escapeHtml_(user.email) + '</b>) még nincs Google-fiókod, pár perc alatt létrehozhatod, új Gmail-cím nélkül:</p><ol style="margin:0;padding-left:20px"><li>Nyisd meg: <a href="https://accounts.google.com/signup">accounts.google.com/signup</a></li><li>Add meg a neved, majd a következő lépésnél válaszd a <b>„Meglévő e-mail-cím használata”</b> lehetőséget.</li><li>Írd be ezt a címet: <b>' + escapeHtml_(user.email) + '</b>, és erősítsd meg a kódot, amit oda küld a Google.</li></ol><p style="margin:6px 0 0">Ezután már be tudsz lépni az appba.</p></div>' : '';
   const lines = ['Kedves ' + first + ',', '', intro, '',
     'Belépés: nyisd meg a ' + FRONTEND_LABEL + ' oldalt, és kattints a „Bejelentkezés Google-fiókkal” gombra.',
-    'Ezzel a Google-fiókkal lépj be: ' + user.email, '', sig ? sig.text : MAIL_SIGNATURE_TEXT];
+    'Ezzel a Google-fiókkal lépj be: ' + user.email].concat(howT, ['', sig ? sig.text : MAIL_SIGNATURE_TEXT]);
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#111111;line-height:1.5;font-size:14px"><p>Kedves ' + escapeHtml_(first) + ',</p><p>' + escapeHtml_(intro) + '</p>'
     + '<p>Belépés: nyisd meg a <a href="' + escapeHtml_(url) + '">' + escapeHtml_(FRONTEND_LABEL) + '</a> oldalt, és kattints a <b>„Bejelentkezés Google-fiókkal”</b> gombra.</p>'
-    + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p><div style="margin-top:18px">' + (sig ? sig.html : '<p>' + MAIL_SIGNATURE_HTML + '</p>') + '</div></div>';
+    + '<p>Ezzel a Google-fiókkal lépj be: <b>' + escapeHtml_(user.email) + '</b></p>' + howH + '<div style="margin-top:18px">' + (sig ? sig.html : '<p>' + MAIL_SIGNATURE_HTML + '</p>') + '</div></div>';
   return { subject: APP_TITLE + ' App – meghívó', text: lines.join('\n'), html: html, from: actor && actor.email ? (actor.name || '') + ' · Lumos Motion <' + actor.email + '>' : 'Lumos Motion <' + MAIL_FROM + '>' };
 }
 
@@ -596,6 +600,7 @@ function rpcInner_(token, name, arg) {
     case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [], dwd: role === 'admin' ? dwdStatus_() : null };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'cancelRecipients': canEdit(); return loadUsers_().filter(x => (x.role === 'editor' || x.role === 'admin') && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== String(u.email || '').toLowerCase()).map(x => ({ name: String(x.name || x.email), role: x.role === 'admin' ? 'ügyvezető' : 'termelési vezető' }));   // a lemondás-értesítés címzettjei (csak nevek) – ugyanaz a kör, mint a cancelNotify_-ban
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
+    case 'emailCheck': canEdit(); return { kind: emailGoogleKind_(arg && arg.email) };
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);
       const res = saveUser_(arg, u);

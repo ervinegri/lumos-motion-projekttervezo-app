@@ -3193,3 +3193,9 @@ html body .cdoc-row>.x{flex:none;align-self:center}
 html body .vv-vers .vv-ver.int:not(.on){color:var(--muted,#6b7280)}
 html body .vv-vers .vv-ver.ext:not(.on){background:#e8f4ec;color:#1e7a46}
 html body .vv-vers .vv-ver .vv-ext-t{display:inline-block;margin-left:4px;font-size:10px;font-weight:600;opacity:.85;letter-spacing:.02em}
+
+/* Google-fiók ellenőrzés a felhasználó ablakában és a listában */
+html body .gk-box{display:block!important;margin:-4px 0 0;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.45}
+html body .gk-box.gk-gmail,html body .gk-box.gk-workspace{background:#eaf7ef;color:#1e7a46}
+html body .gk-box.gk-other,html body .gk-box.gk-bad{background:#fff4e0;color:#7a4a00}
+html body .gk-warn{display:inline-block;margin-left:4px;padding:0 6px;border-radius:6px;background:#fff4e0;color:#7a4a00;font-weight:600;white-space:nowrap}
