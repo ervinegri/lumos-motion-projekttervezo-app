@@ -450,7 +450,7 @@ function publicUser_(u) {
   return o;
 }
 /** Belépni csak Google-fiókkal lehet. Megnézi, hogy az e-mail-cím Google-os-e: gmail.com, vagy olyan domain, amelynek levelezését a Google kezeli (Workspace, MX-rekord alapján).
- *  'nomail' → a domain nem létezik / nem fogad levelet (elírás);
+ *  'nomail' → a domain nem létezik / nem fogad levelet (elírás); 'nouser' → a saját Workspace-domainen nincs ilyen fiók;
  *  'gmail' | 'workspace' → biztosan Google-fiók; 'other' → csak akkor tud belépni, ha ehhez a címhez külön Google-fiókot hozott létre; 'bad' → hibás cím; '' → nem sikerült ellenőrizni.
  *  Csak a domain megy ki (a Google nyilvános DNS-ének), a cím nem; az eredmény domainenként 6 órára tárolva. */
 function emailGoogleKind_(email) {
@@ -458,6 +458,7 @@ function emailGoogleKind_(email) {
   if (!m) return 'bad';
   const dom = m[1];
   if (dom === 'gmail.com' || dom === 'googlemail.com') return 'gmail';
+  if (dom === ownDomain_()) { const ex = wsUserExists_(em); if (ex === false) return 'nouser'; if (ex === true) return 'workspace'; }   // saját domain: a konkrét fiókot is megnézzük
   const ck = 'gk1_' + dom, cache = CacheService.getScriptCache(), hit = cache.get(ck); if (hit) return hit === '-' ? '' : hit;
   let kind = '';
   try {
@@ -468,6 +469,17 @@ function emailGoogleKind_(email) {
   try { cache.put(ck, kind || '-', kind ? 21600 : 600); } catch (e) {}
   return kind;
 }
+/** Saját Workspace-domain (pl. lumosmotion.com): létezik-e ilyen felhasználó? A naptár szabad/foglalt lekérdezése a domainen belül minden valódi fióknál válaszol,
+ *  nem létező címnél (vagy csoportnál / álnévnél, amivel belépni sem lehet) „notFound” hibát ad. true / false / null (nem eldönthető). Új jogosultság nem kell (a Naptár szolgáltatás már engedélyezett). */
+function wsUserExists_(em) {
+  const ck = 'wsu1_' + em, cache = CacheService.getScriptCache(), hit = cache.get(ck); if (hit) return hit === '1' ? true : hit === '0' ? false : null;
+  let res = null;
+  try { const t0 = new Date(), r = Calendar.Freebusy.query({ timeMin: t0.toISOString(), timeMax: new Date(t0.getTime() + 3600000).toISOString(), items: [{ id: em }] }), c = r && r.calendars && (r.calendars[em] || r.calendars[em.toLowerCase()]);
+    if (c) res = (c.errors || []).some(e => e && e.reason === 'notFound') ? false : !(c.errors || []).length ? true : null; } catch (e) { Logger.log('Fiók-ellenőrzés (' + em + '): ' + e); }
+  try { cache.put(ck, res === true ? '1' : res === false ? '0' : '-', res === null ? 300 : res ? 21600 : 600); } catch (e) {}
+  return res;
+}
+function ownDomain_() { try { return String(Session.getEffectiveUser().getEmail() || '').toLowerCase().split('@')[1] || ''; } catch (e) { return ''; } }
 function adminListUser_(u) { return Object.assign({ id: u.id, name: u.name, role: u.role, crewId: String(u.crewId || ''), email: String(u.email || ''), gk: emailGoogleKind_(u.email), disabled: !!u.disabled, createdAt: u.createdAt || '' }, u.role === 'sales' ? salesCompOf_(u) : {}); }
 /** Értékesítő díjazása: fix havi fizetés (nettó) + jutalék szerződésenként: a határ alatti értéknél commLow %, felette commHigh %. */
 function salesComp_(a) {
