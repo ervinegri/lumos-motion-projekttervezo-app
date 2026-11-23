@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1d7da9204d",
+"at": "2026-11-23T16:48:51+02:00",
+"msg": "Nem Google-os e-mail-cím nem menthető (piros jelzés, háttér is ellenőrzi); távolabbi projekteknél is jelez, ha valaki nem válaszolt a meghívóra"
+},
+{
 "id": "21258a5e32",
 "at": "2026-11-23T16:20:12+02:00",
 "msg": "Belépés: Google-fiók ellenőrzés (gmail / Google által kezelt domain MX alapján) – figyelmeztetés a felhasználó ablakában és a listában, megerősítés mentéskor; a meghívó leírja, hogyan lesz Google-fiók a meglévő címhez"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: a Verzió törlése gomb kikerült"
 },
 {
-"id": "42afb3863d",
-"at": "2026-11-22T10:34:26+01:00",
-"msg": "CLAUDE.md: kézikönyv szabály"
-},
-{
-"id": "c49b96edf3",
-"at": "2026-11-22T09:34:22Z",
+"id": "e466444077",
+"at": "2026-11-22T09:34:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
