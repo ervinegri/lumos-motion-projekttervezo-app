@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1c393296c6",
+"at": "2026-11-23T19:16:06+02:00",
+"msg": "Árajánlat: általános ajánlatnál nincs Cím mező (és a PDF-en sem szerepel)"
+},
+{
 "id": "024d38ef48",
 "at": "2026-11-23T19:15:37+02:00",
 "msg": "Lehetőség: a Cég balra, a Kapcsolattartó jobbra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: a logó háttere minden kinézetben a fejléc színe (Stone: fehér)"
 },
 {
-"id": "93f0de0c00",
-"at": "2026-11-22T16:54:17+02:00",
-"msg": "Ügyfelek fekvő telefonon: kártyás lista, nincs oldalra görgetés"
-},
-{
-"id": "ebdfa8e4f5",
-"at": "2026-11-22T14:52:49Z",
+"id": "b6e716f3d5",
+"at": "2026-11-22T14:54:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
