@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2e789d7923",
+"at": "2026-11-23T18:49:33+02:00",
+"msg": "Új lehetőség: az Értékesítő a szóba jövő szolgáltatások után (teljes szélességben), a Szakasz és az Esély egy sorban"
+},
+{
 "id": "1503be350b",
 "at": "2026-11-23T18:47:54+02:00",
 "msg": "Általános ajánlat: nincs megnevezés, várható érték, előfoglalt projekt; telefon az e-mail mellett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hozzászólások: szerep ikon a név előtt (💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó, ⭐ ügyfél)"
 },
 {
-"id": "343d7eaa1f",
-"at": "2026-11-22T10:44:02+01:00",
-"msg": "Értékelés részletei: a kiküldött levél tartalma (mentés + utólagos pótlás)"
-},
-{
-"id": "825059b7e9",
-"at": "2026-11-22T09:43:28Z",
+"id": "0ee5f35d16",
+"at": "2026-11-22T09:44:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
