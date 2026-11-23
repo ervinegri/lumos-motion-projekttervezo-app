@@ -3177,3 +3177,5 @@ html body .proj-board .bd-proj .bl-single{width:max-content;min-width:100%}
  html body .proj-board .bd-proj .bl-single .bl-row{grid-template-columns:repeat(var(--bl-n),calc(100vw - 72px))!important;min-width:0!important}
  html body .proj-board .bd-proj .bl-head>.bl-h{scroll-snap-align:start}
 }
+
+html body button.cl-rv{cursor:pointer;font:inherit;border:0}html body button.cl-rv:hover{filter:brightness(.95);box-shadow:0 0 0 2px rgba(202,138,4,.35)}

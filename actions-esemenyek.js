@@ -557,7 +557,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
   const it=(act,lbl,o={})=>`<button type="button" class="cg-it${o.dis?' dis':''}${o.bad?' bad':''}${o.chk?' on':''}" data-cg="${act}"${o.tip?` data-tip="${esc(o.tip)}"`:''}>${lbl}${o.chk?'<span class="cg-on">✓ be</span>':''}</button>`;
   const h=[lead?it('remote','🛰️ Távolról vezeti',{chk:!!d.leadRemote,dis:acc,tip:acc?lockTip:'Nem kell a helyszínen lennie, így nem ütközik más munkával'}):'',
     cut?it('onsite','📍 Helyszíni vágó',{chk:onsiteCut(d,cid),dis:acc,tip:acc?lockTip:'A helyszínen vág (különben otthonról dolgozik)'}):'',
-    iv&&iv.st==='invited'&&iv.at&&!me?it('resend','↻ Meghívó újraküldése'):'',
+    iv&&iv.st==='invited'&&(iv.at||iv.pre)&&!me?it('resend',iv.pre?'↻ Előfoglalás újraküldése':'↻ Meghívó újraküldése'):'',
     !lead?it('lead','★ Projektvezetőnek jelölöm'):'',
     '<hr>',it('addrole','➕ Új szerepkör hozzáadása'),((d.lead===cid?1:0)+(d.crew||[]).filter(a=>a.crewId===cid).length>1)?it('rmrole','➖ Szerepkör eltávolítása'):'',(d.crew||[]).some(a=>a.crewId===cid)?it('role','🔁 Szerepkör cseréje'):'',it('swap','👤 Beosztás átadása másnak'),
     (d.equipment||[]).some(e=>e.crewId===cid)&&projById(d.id)?it('eqlist','✉️ Eszközlista küldése neki'):'',
@@ -568,7 +568,7 @@ ACT['crew-gear']=b=>{const d=S.draft;if(!d)return;const was=document.getElementB
   m.addEventListener('click',e=>{const x=e.target.closest('[data-cg]');if(!x)return;e.stopPropagation();if(x.classList.contains('dis')){toast(lockTip,true);return;}const a=x.dataset.cg;crewGearClose();
     if(a==='remote'){setDraft({leadRemote:!S.draft.leadRemote});return;}
     if(a==='onsite'){const t=document.createElement('input');t.type='checkbox';t.dataset.editOnsite=cid;t.checked=!onsiteCut(S.draft,cid);t.style.display='none';document.body.appendChild(t);t.dispatchEvent(new Event('change',{bubbles:true}));t.remove();return;}
-    if(a==='resend'){const btn=document.querySelector(`[data-action="crew-invite"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
+    if(a==='resend'){const iv2=(d.invites||{})[cid];ACT['crew-invite']({dataset:{id:cid,pre:iv2&&iv2.pre?'1':''},disabled:false});return;}
     if(a==='lead'){const btn=document.querySelector(`[data-action="make-lead"][data-id="${CSS.escape(cid)}"]`);if(btn)btn.click();return;}
     if(a==='role'){crewRoleSwap(cid);return;}
     if(a==='addrole'){crewRoleAdd(cid);return;}

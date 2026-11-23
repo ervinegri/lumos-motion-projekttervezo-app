@@ -324,7 +324,14 @@ function gapBetween(p,q){
 function tightFor(personId,p){if(!pr(p)||!onSiteIds(p).has(personId))return [];/* aki ezen a projekten nincs a helyszínen (remote vezető, otthonról vágó), annak nincs helyszínváltása */return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&!sameVenue(p,q)&&onSiteIds(q).has(personId)).map(q=>gapBetween(p,q)).filter(g=>g&&g.gap<TRAVEL_BUFFER_MIN);}
 const tightText=g=>g.gap<TRAVEL_RED_MIN?`Nincs idő a helyszínváltásra: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`:`Szoros váltás: ${esc(g.first.name||'projekt')} vége ${hhmm(g.end)}, ${esc(g.second.name||'projekt')} kezdete ${hhmm(g.start)} – csak ${g.gap} perc. Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`;
 function busyFor(personId,p){const r=pr(p);if(!r||editOnly(p))return [];if(remoteLead(p)&&p.lead===personId)return [];if(isPostOnly(p,personId)&&!onsiteCut(p,personId))return [];return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)&&!sameVenue(p,q)&&onSiteIds(q).has(personId));}
-function usedElsewhere(itemId,p){const r=pr(p);if(!r)return 0;return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>s+eqQty(q,itemId),0);}
+/* Egy időben futó másik projektekben lefoglalt darabszám. Ugyanaz a munkatárs ugyanazzal az eszközzel két egy időben futó projektben (pl. egy rendezvényen belül egy másik ügyfélnek is videózunk) = ugyanaz a fizikai eszköz, ezért ez nem számít foglaltnak.
+   cid: annak a munkatársnak, akihez épp eszközt rendelünk, a másik projektben nála lévő darabok is választhatók. */
+function eqQtyBy(q,itemId,cid){return (q.equipment||[]).filter(e=>e.itemId===itemId&&(e.crewId||'')===(cid||'')).reduce((s,e)=>s+num(e.qty),0);}
+/* egy időben futó projektek együttes eszközigénye: munkatársanként a legnagyobb darabszám (nála ugyanaz az eszköz), a senkihez nem rendelteké összeadva */
+function eqNeed(ps,itemId){const by={};let un=0;ps.forEach(q=>(q.equipment||[]).filter(e=>e.itemId===itemId).forEach(e=>{if(!e.crewId){un+=num(e.qty);return;}by[q.id+'|'+e.crewId]=(by[q.id+'|'+e.crewId]||0)+num(e.qty);}));const mx={};Object.keys(by).forEach(k=>{const c=k.split('|')[1];mx[c]=Math.max(mx[c]||0,by[k]);});return un+Object.values(mx).reduce((s,x)=>s+x,0);}
+function usedElsewhere(itemId,p,cid){const r=pr(p);if(!r)return 0;const mine=c=>c?eqQtyBy(p,itemId,c):0;
+  return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>{const holders=[...new Set((q.equipment||[]).filter(e=>e.itemId===itemId&&e.crewId).map(e=>e.crewId))];
+    let used=eqQty(q,itemId);holders.forEach(h=>{const inQ=eqQtyBy(q,itemId,h),inP=eqQtyBy(p,itemId,h);used-=Math.min(inQ,inP);if(h===cid)used-=Math.max(0,inQ-inP);});return s+Math.max(0,used);},0);}
 /* Mi hiányzik még egy közelgő (30 napon belüli, tervezés alatti) projektből: projektvezető, szerepkörök, meghívók – a figyelmeztetésekhez és a listához */
 function prepIssues(p){if(!p||ro()||isTent(p)||(p.status||'tervezes')!=='tervezes')return null;const r=pr(p),T=todayISO();if(!r||r.start<T)return null;const left=diffDays(T,r.start);if(left>30)return null;
   const nm=id=>huFirst((crewById(id)||{}).name||'?'),items=[];
@@ -385,7 +392,7 @@ function computeIssues(){
     const users=live.filter(p=>eqQty(p,it.id)>0);
     for(const p of users){
       const ov=users.filter(q=>clash(p,q));
-      const need=ov.reduce((s,q)=>s+eqQty(q,it.id),0);
+      const need=eqNeed(ov,it.id);   /* ugyanannál a munkatársnál több egy idejű projektben: egy eszköz */
       if(need>num(it.qty)){const key=it.id+':'+ov.map(q=>q.id).sort().join(',');if(seen.has(key))continue;seen.add(key);
         out.push({level:'bad',text:`${it.name}: ${need} db kellene egyszerre, de csak ${num(it.qty)} db van.`,pids:ov.map(q=>q.id)});}
     }
