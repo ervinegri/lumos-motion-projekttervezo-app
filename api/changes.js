@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "69f4f86eb4",
+"at": "2026-11-23T18:51:17+02:00",
+"msg": "Új lehetőség: Szóba jövő szolgáltatások és Értékesítő egy sorban"
+},
+{
 "id": "2e789d7923",
 "at": "2026-11-23T18:49:33+02:00",
 "msg": "Új lehetőség: az Értékesítő a szóba jövő szolgáltatások után (teljes szélességben), a Szakasz és az Esély egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékelés: ugyanattól az ügyféltől már kértünk – nem kérünk újra"
 },
 {
-"id": "ddf9ef7af7",
-"at": "2026-11-22T10:51:07+01:00",
-"msg": "Hozzászólások: szerep ikon a név előtt (💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó, ⭐ ügyfél)"
-},
-{
-"id": "0ee5f35d16",
-"at": "2026-11-22T09:44:11Z",
+"id": "d1863b31c7",
+"at": "2026-11-22T09:51:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
