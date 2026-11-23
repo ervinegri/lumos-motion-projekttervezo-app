@@ -382,6 +382,11 @@ function computeIssues(){
     if(bad.length)out.push({level:'warn',text:`👥 ${p.name||'Névtelen projekt'}: ${bad.map(a=>((crewById(a.crewId)||{}).name||'Valaki')+' – '+a.role.toLowerCase()).join(', ')}, de ehhez nincs kiválasztott szolgáltatás. Jelöld be a feladatot, vagy állítsd át a szerepkört.`,pids:[p.id]});});
   /* közelgő projekt (30 napon belül), ami még nincs készen: projektvezető, betöltetlen szerepkör, meghívók */
   if(!ro())liveOps.forEach(p=>{const pi=prepIssues(p);if(!pi)return;out.push({level:pi.left<=14?'bad':'warn',prep:1,text:`⏰ ${p.name||'Névtelen projekt'} – ${pi.left===0?'ma':pi.left===1?'holnap':pi.left+' nap múlva'}, még nincs kész: ${pi.items.join('; ')}.`,pids:[p.id]});});
+  /* távolabbi projekt (30 napon túl): ha már kiküldtük a meghívót, és valaki még nem válaszolt, azt is jelezzük (a teljes készültséget csak 30 napon belül) */
+  if(!ro())liveOps.forEach(p=>{if(!p||isTent(p)||(p.status||'tervezes')!=='tervezes')return;const r=pr(p),T=todayISO();if(!r||r.start<T)return;const left=diffDays(T,r.start);if(left<=30)return;
+    const inv=p.invites||{},ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))],w=ids.filter(id=>{const iv=inv[id];return iv&&iv.st==='invited'&&iv.at&&!iv.pre;}),no=ids.filter(id=>(inv[id]||{}).st==='no');
+    if(!w.length&&!no.length)return;const nm=id=>huFirst((crewById(id)||{}).name||'?'),it=[];if(w.length)it.push('nem válaszolt: '+w.map(nm).join(', '));if(no.length)it.push('visszautasította: '+no.map(nm).join(', '));
+    out.push({level:'warn',prep:1,text:`✉️ ${p.name||'Névtelen projekt'} – ${fmtDay(r.start)}: ${it.join('; ')}.`,pids:[p.id]});});
   /* Google-értékelés: 7 napja kértük, nem értékelt → egy emlékeztető javasolt (csak ügyvezető, a videótábla ⭐ Értékelés oszlopából küldhető) */
   if(isAdmin()&&typeof rvState==='function')S.projects.forEach(p=>{try{if(rvState(p)==='remind')out.push({level:'warn',text:`⏰ ${p.name||'Névtelen projekt'}: ${diffDays(String(p.reviewAt).slice(0,10),todayISO())} napja kértünk Google-értékelést – küldhető az emlékeztető (Utómunka → ⭐ Értékelés).`,pids:[p.id],rv:1});}catch(e){}});
   /* felelős nélküli eszköz: minden eszköznek valakinél kell lennie */

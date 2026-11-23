@@ -462,7 +462,7 @@ function emailGoogleKind_(email) {
   try {
     const r = UrlFetchApp.fetch('https://dns.google/resolve?type=MX&name=' + encodeURIComponent(dom), { muteHttpExceptions: true, followRedirects: true });
     if (r.getResponseCode() === 200) { const j = JSON.parse(r.getContentText() || '{}'), mx = (j.Answer || []).map(a => String(a.data || '').toLowerCase());
-      kind = mx.some(x => /(google\.com|googlemail\.com|smtp\.google\.com)\.?$/.test(x)) ? 'workspace' : 'other'; }
+      kind = !mx.length ? '' : mx.some(x => /(google\.com|googlemail\.com|smtp\.google\.com)\.?$/.test(x)) ? 'workspace' : 'other'; }   // MX nélkül nem tudjuk eldönteni
   } catch (e) { Logger.log('MX-ellenőrzés (' + dom + '): ' + e); }
   try { cache.put(ck, kind || '-', kind ? 21600 : 600); } catch (e) {}
   return kind;

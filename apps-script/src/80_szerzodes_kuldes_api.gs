@@ -603,6 +603,8 @@ function rpcInner_(token, name, arg) {
     case 'emailCheck': canEdit(); return { kind: emailGoogleKind_(arg && arg.email) };
     case 'saveUser': {
       canEdit(); editorUserGuard_(u, String(arg && arg.role || ''), arg && arg.id);
+      { const em = String(arg && arg.email || '').trim().toLowerCase(), old = arg && arg.id ? loadUsers_().find(x => x.id === arg.id) : null;   /* csak Google-fiókkal lehet belépni: új / megváltozott cím csak Google-os lehet */
+        if (em && (!old || String(old.email || '').trim().toLowerCase() !== em)) { const k = emailGoogleKind_(em); if (k === 'other' || k === 'bad') throw new Error(k === 'bad' ? 'Hibás e-mail-cím.' : 'Ezzel az e-mail-címmel nem tud belépni (nem Google-fiók). Adj meg Gmail-címet, vagy olyan céges címet, amelynek levelezését a Google kezeli.'); } }
       const res = saveUser_(arg, u);
       const a = arg || {};
       logEvent_(u, 'Felhasználó mentve', String(a.name || ''), (a.id ? 'módosítva' : 'új') + ' · ' + (ROLE_NAMES_[a.role] || a.role) + (a.disabled === true ? ' · letiltva' : '') + (res.mail && res.mail.sent ? ' · Google-meghívó kiküldve' : ''));
