@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3c9371950c",
+"at": "2026-11-23T09:33:00+01:00",
+"msg": "Ügyfél-levél: első változatnál a szövegben sincs „javítás”; a Videó megtekintése előnézet előre betöltve (azonnal nyílik)"
+},
+{
 "id": "de52d37d87",
 "at": "2026-11-23T09:31:17+01:00",
 "msg": "Ügyfélnek küldés: belső visszadobás után nem „javítás” – az ügyfélnek ez az első változat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hozzászólások időrendben a korábbi verzióknál is"
 },
 {
-"id": "0e68310a20",
-"at": "2026-11-22T10:19:47+01:00",
-"msg": "Videóverzió csak érdemi visszajelzés után; hozzászólás küldése a láblécben"
-},
-{
-"id": "6834fe8387",
-"at": "2026-11-22T09:14:37Z",
+"id": "eff67f86d7",
+"at": "2026-11-22T09:19:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
