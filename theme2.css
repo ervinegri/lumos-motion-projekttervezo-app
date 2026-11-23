@@ -3204,3 +3204,5 @@ html body .gk-box.gk-wait{background:#f1f3f6;color:#4a5866}
 html body #mform .mfoot [data-gk-off]{opacity:.45;cursor:not-allowed;filter:grayscale(.6)}
 @keyframes gkShake{0%,100%{transform:none}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 html body .gk-box.gk-shake{animation:gkShake .35s}
+html body .gk-box.gk-wait{display:flex!important;align-items:center;gap:8px}html body .gk-box.gk-wait .spin{flex:0 0 auto}
+html body .gk-box.gk-wait{flex-direction:row!important;justify-content:flex-start!important;text-align:left}html body .gk-box.gk-wait .spin{margin:0!important;width:16px;height:16px}

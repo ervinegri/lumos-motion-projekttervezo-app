@@ -322,7 +322,7 @@ async function gkCheck(em){em=String(em||'').trim().toLowerCase();if(!/^[^\s@]+@
 /* a mentés gomb(ok) tiltása, amíg a cím hibás vagy épp ellenőrzés alatt áll – rá sem lehet kattintani */
 function gkGate(state){const f=$('mform');if(!f)return;f.dataset.gk=state||'';f.querySelectorAll('.mfoot button[type=submit],.mfoot .btn.primary').forEach(b=>{if(state){b.dataset.gkOff='1';b.setAttribute('aria-disabled','true');b.title=state==='wait'?'Ellenőrzöm az e-mail-címet…':'Javítsd az e-mail-címet – így nem menthető.';}else if(b.dataset.gkOff){delete b.dataset.gkOff;b.removeAttribute('aria-disabled');b.title='';}});}
 async function gkRun(em){const b=$('m-gk');if(!b)return;em=String(em||'').trim();if(!em){b.hidden=true;gkGate('');return;}
-  gkGate('wait');b.hidden=false;b.className='field full gk-box gk-wait';b.innerHTML='⏳ Ellenőrzöm az e-mail-címet…';
+  gkGate('wait');b.hidden=false;b.className='field full gk-box gk-wait';b.innerHTML='<span class="spin" aria-hidden="true"></span> Ellenőrzöm az e-mail-címet…';
   const k=await gkCheck(em);if(String(($('m-email')||{}).value||'').trim()!==em)return;gkShow(k,em);gkGate(GK_BAD(k)?'bad':'');}
 function gkShow(kind,em){const b=$('m-gk');if(!b)return;const T={gmail:'✅ Gmail-cím – ezzel be tud lépni.',workspace:'✅ Google-fiók (a domain levelezését a Google kezeli) – ezzel be tud lépni.',
     other:'⛔ <b>Ezzel a címmel nem tud belépni</b> – nem Google-fiók. Adj meg Gmail-címet, vagy olyan céges címet, amelynek levelezését a Google kezeli. Amíg ez így marad, nem menthető.',bad:'⛔ Hibás e-mail-cím.',nomail:'⛔ <b>Ilyen e-mail-cím nem létezik</b> – a @ utáni rész (domain) nem fogad leveleket. Valószínűleg elírás.'};
