@@ -136,7 +136,7 @@ const ACT={
     const ids=b.dataset.ids.split(',').filter(c=>c&&!!st(c)[f+'At']!==on);if(!ids.length){toast(on?'Már mindenkinél be van pipálva.':'Senkinél nincs bepipálva.');return;}
     b.disabled=true;try{S.payStatus=await call('setPayStatus',{month:m,crewIds:ids,field:f,on});render(true);toast(`${f==='paid'?'Számla fizetve':'Számlát kiállította'}: ${on?'bepipálva':'visszavonva'} – ${ids.length} fő`);}catch(e){b.disabled=false;handleErr(e);}},
   'pm-all':b=>{const on=b.dataset.on==='1';document.querySelectorAll('#modalRoot input[name=pm]:not(:disabled)').forEach(x=>{x.checked=on;});},
-  'invite-prev':async()=>{const box=$('invPrev');if(!box)return;const c=crewById(($('m-crewId')||{}).value),email=(($('m-email')||{}).value||'').trim();
+  'invite-prev':async()=>{const box=$('invPrev');if(!box)return;{const f=$('mform'),g=$('m-gk');if(f&&f.dataset.gk==='bad'){box.innerHTML='';if(g){g.hidden=false;g.classList.remove('gk-shake');void g.offsetWidth;g.classList.add('gk-shake');}return;}}   /* hibás címre nincs előnézet sem */const c=crewById(($('m-crewId')||{}).value),email=(($('m-email')||{}).value||'').trim();
     box.innerHTML='<p class="hint">Előnézet betöltése…</p>';{const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
     try{const r=await call('invitePreview',{name:c?c.name:'',email});
       box.innerHTML=`<div class="inv-prev"><div class="inv-h"><div><span>Feladó:</span> ${esc(r.from)}</div><div><span>Címzett:</span> ${esc(email||'(még nincs megadva)')}</div><div><span>Tárgy:</span> <b>${esc(r.subject)}</b></div><small class="hint">Kattints a levélbe, és írd át, ami kell – ez a változat megy ki. Ha másik munkatársat választasz, nyisd meg újra az előnézetet.</small></div></div>`;

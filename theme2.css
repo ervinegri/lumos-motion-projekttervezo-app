@@ -3200,3 +3200,7 @@ html body .gk-box.gk-gmail,html body .gk-box.gk-workspace{background:#eaf7ef;col
 html body .gk-box.gk-other,html body .gk-box.gk-bad,html body .gk-box.gk-nomail{background:#fdecea;color:#b3261e;border:1px solid #f3b8b2}
 html body .gk-warn{display:inline-block;margin-left:4px;padding:0 6px;border-radius:6px;background:#fdecea;color:#b3261e;font-weight:600;white-space:nowrap}
 html body .gk-box .gk-fix{display:block;margin-top:4px;color:inherit;text-decoration:underline}
+html body .gk-box.gk-wait{background:#f1f3f6;color:#4a5866}
+html body #mform .mfoot [data-gk-off]{opacity:.45;cursor:not-allowed;filter:grayscale(.6)}
+@keyframes gkShake{0%,100%{transform:none}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+html body .gk-box.gk-shake{animation:gkShake .35s}
