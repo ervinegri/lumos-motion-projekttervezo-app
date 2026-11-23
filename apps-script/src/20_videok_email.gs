@@ -220,20 +220,25 @@ function videoClient_(u, a) {
 /** Ügyfél-levelek élesen mennek (Ervin, 2026-11-09). Tesztüzem visszakapcsolása: Script Property LUMOS_CLIENT_MAIL_LIVE = '0' */
 function clientMailLive_() { return PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') !== '0'; }
 function clientSecret_() { const P = PropertiesService.getScriptProperties(); let k = P.getProperty('LUMOS_CLIENT_SECRET'); if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); P.setProperty('LUMOS_CLIENT_SECRET', k); } return k; }
-function clientToken_(o) { o.x = Date.now() + 60 * 864e5; const b = Utilities.base64EncodeWebSafe(JSON.stringify(o)).replace(/=+$/, ''), sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(b, clientSecret_())).replace(/=+$/, ''); return b + '.' + sg; }
+function clientToken_(o) { o.x = Date.now() + (o.pv ? 3 : 60) * 864e5;   // a belső előnézet linkje 3 napig él (nem gyűlik a tárolóban)
+  const b = Utilities.base64EncodeWebSafe(JSON.stringify(o)).replace(/=+$/, ''), sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(b, clientSecret_())).replace(/=+$/, ''); return b + '.' + sg; }
 /** Rövid kód a hosszú, aláírt kulcshoz (Script Properties: CS_<kód>); a 60 napnál régebbieket kitakarítja. */
 function clientShort_(tok) {
   const pr = PropertiesService.getScriptProperties(), abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
   let code = ''; for (let k = 0; k < 20; k++) { code = ''; const r = Utilities.getUuid().replace(/-/g, ''); for (let i = 0; i < 10; i++) code += abc[parseInt(r.substr(i * 3, 3), 16) % abc.length]; if (!pr.getProperty('CS_' + code)) break; }
   pr.setProperty('CS_' + code, tok);
-  try { const all = pr.getProperties(), now = Date.now(); Object.keys(all).forEach(k => { if (k.indexOf('CS_') !== 0) return; try { const o = clientTokenRead_(all[k]); if (!o) pr.deleteProperty(k); } catch (e) { if (/lejárt/.test(String(e.message))) pr.deleteProperty(k); } }); } catch (e) { }
+  /* takarítás óránként legfeljebb egyszer (korábban minden új linknél végigment az összesen – a tároló növekedésével egyre lassult): a lejárt kódok törlése a kulcs aláírás-ellenőrzése nélkül, csak a lejárati időből */
+  try { const cc = CacheService.getScriptCache(); if (!cc.get('cs_clean')) { cc.put('cs_clean', '1', 3600); const all = pr.getProperties(), now = Date.now(); Object.keys(all).forEach(k => { if (k.indexOf('CS_') !== 0) return; try { const b = String(all[k]).split('.')[0], o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(b + '==='.slice((b.length + 3) % 4))).getDataAsString()); if (!o || (o.x && now > o.x)) pr.deleteProperty(k); } catch (e) { pr.deleteProperty(k); } }); } } catch (e) { }
   return code;
 }
 function clientTokenRead_(t) { if (/^[A-Za-z0-9]{6,16}$/.test(String(t || ''))) { t = PropertiesService.getScriptProperties().getProperty('CS_' + t); if (!t) throw new Error('Érvénytelen link.'); }   // rövid link kódja
   const m = /^([\w-]+)\.([\w-]+)$/.exec(String(t || '')); if (!m) throw new Error('Érvénytelen link.');
   const sg = Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(m[1], clientSecret_())).replace(/=+$/, ''); if (sg !== m[2]) throw new Error('Érvénytelen link.');
   const o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(m[1] + '==='.slice((m[1].length + 3) % 4))).getDataAsString()); if (!o || !o.p || !o.v) throw new Error('Érvénytelen link.'); if (o.x && Date.now() > o.x) throw new Error('A link lejárt – kérj újat.'); return o; }
-function clientVideo_(o) { const p = readAll_('projects').find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
+/* a jóváhagyó oldal egy lekérésén belül a projekteket csak egyszer olvassuk az adatbázisból (korábban 3×) */
+let CI_ON_ = false, CI_PROJ_ = null;
+function ciProjects_() { return CI_ON_ ? (CI_PROJ_ || (CI_PROJ_ = readAll_('projects'))) : readAll_('projects'); }
+function clientVideo_(o) { const p = ciProjects_().find(x => x.id === o.p); if (!p) throw new Error('A videó nem található.'); const v = parseVideos_(p.videos).find(x => x.id === o.v); if (!v) throw new Error('A videó nem található.'); return { p: p, v: v }; }
 /* Vízjel a jóváhagyó lejátszón: pipával kérhető; a Sales Appból jött projekteknél alapból be van kapcsolva; kifizetés (teljes) után lekerül */
 let WM_PAID_ = [];
 /** Kifizetés után lekerült a vízjel: az ügyfél (akinek a jóváhagyó linket küldtük) egyszer e-mailt kap a végleges videók linkjével. */
@@ -489,18 +494,19 @@ function gbpPushInfo_(u) { const P = gbpProps_(); let cur = null; try { cur = gb
   return { account: String(gbpLocation_()).split('/').slice(0, 2).join('/'), setting: cur, pushUrl: GBP_PUSH_URL_ + '?t=' + gbpPushToken_(), last: P.getProperty('GBP_PUSH_LAST') || '' }; }
 /** Ügyfelek, akik már írtak értékelést (kisbetűs cégnév) – nekik nem megy emlékeztető. */
 function gbpReviewed_() { const o = {}; try { readAll_('gReviews').forEach(x => { if (x.client) o[String(x.client).trim().toLowerCase()] = 1; }); } catch (e) {} return o; }
-function clientInfo_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
-  try { if (r && !r.preview) { const o = clientTokenRead_(t), p = readAll_('projects').find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
+function clientInfo_(t, seen, vid) { CI_ON_ = true; CI_PROJ_ = null; try { return clientInfoRun_(t, seen, vid); } finally { CI_ON_ = false; CI_PROJ_ = null; } }
+function clientInfoRun_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
+  try { if (r && !r.preview) { const o = clientTokenRead_(t), p = ciProjects_().find(x => x.id === o.p), on = {}; (o.vs && o.vs.length ? o.vs : [o.v]).concat([r.cur || o.v]).forEach(id => { on[id] = 1; });
     r.projRest = p ? parseVideos_(p.videos).filter(v => !on[v.id] && v.st !== 'jovahagyva').length : 0; } } catch (e) { Logger.log('projRest: ' + e); }
   /* értékelés-doboz: nem jelenik meg, ha az ügyfél már írt értékelést (párosítva), vagy bármelyik projektjénél rákattintott már az értékelés gombra */
-  if (r) { let show = true; try { const o = clientTokenRead_(t), all = readAll_('projects'), p = all.find(x => x.id === o.p), k = String((p && p.client) || '').trim().toLowerCase();
+  if (r) { let show = true; try { const o = clientTokenRead_(t), all = ciProjects_(), p = all.find(x => x.id === o.p), k = String((p && p.client) || '').trim().toLowerCase();
       if (k && (gbpReviewed_()[k] || all.some(x => String(x.client || '').trim().toLowerCase() === k && x.reviewClick))) show = false; } catch (e) {}
     if (show) r.review = REVIEW_URL_; }
   return r; }
 function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';
   if (o.vs && o.vs.length > 1) {   // több videó egy linken: a kiválasztott (vagy az első még döntésre váró) videó + a lista
-    const p0 = readAll_('projects').find(x => x.id === o.p); if (!p0) throw new Error('A videó nem található.'); const all = parseVideos_(p0.videos);
+    const p0 = ciProjects_().find(x => x.id === o.p); if (!p0) throw new Error('A videó nem található.'); const all = parseVideos_(p0.videos);
     const items = o.vs.map(id => all.find(x => x.id === id)).filter(Boolean).map(x => ({ id: x.id, name: x.name, state: stOf(x.st) }));
     if (!items.length) throw new Error('A videó nem található.');
     const cur = (vid && items.find(x => x.id === vid)) || items.find(x => x.state === 'wait') || items[0]; o.v = cur.id;
@@ -515,7 +521,11 @@ function clientPreview_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN');
   const pid = str_(a && a.projectId, 64), vid = str_(a && a.id, 40), l = str_(a && a.link, 500).trim();
   clientVideo_({ p: pid, v: vid });
-  return { url: FRONTEND_URL + '/' + clientShort_(clientToken_(Object.assign({ p: pid, v: vid, s: String(u.email || ''), c: '', pv: 1, l: /^https?:\/\/\S+$/i.test(l) ? l : '' }, Array.isArray(a.ids) && a.ids.length > 1 ? { vs: a.ids.map(x => str_(x, 40)).slice(0, 30) } : {}))) };
+  /* ugyanarra a videóra / linkre a korábbi előnézeti kód újrahasználva (6 órán át) – nem kell új rövid linket írni */
+  const ck = 'pv_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify([pid, vid, l, (a && a.ids) || [], String(u.email || '')]))).slice(0, 22), cc = CacheService.getScriptCache();
+  let code = cc.get(ck); if (code && !PropertiesService.getScriptProperties().getProperty('CS_' + code)) code = '';
+  if (!code) { code = clientShort_(clientToken_(Object.assign({ p: pid, v: vid, s: String(u.email || ''), c: '', pv: 1, l: /^https?:\/\/\S+$/i.test(l) ? l : '' }, Array.isArray(a.ids) && a.ids.length > 1 ? { vs: a.ids.map(x => str_(x, 40)).slice(0, 30) } : {}))); cc.put(ck, code, 6 * 3600); }
+  return { url: FRONTEND_URL + '/' + code };
 }
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
