@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1503be350b",
+"at": "2026-11-23T18:47:54+02:00",
+"msg": "Általános ajánlat: nincs megnevezés, várható érték, előfoglalt projekt; telefon az e-mail mellett"
+},
+{
 "id": "e7ff725ea9",
 "at": "2026-11-23T18:25:54+02:00",
 "msg": "Új lehetőség: „Általános ajánlat” (árlista rendezvény nélkül) – nincs típus/helyszín/dátum, a megnevezés és a következő lépés magától kitöltődik; az árajánlat ilyenkor rendezvény nélkül készül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Értékelés részletei: a kiküldött levél tartalma (mentés + utólagos pótlás)"
 },
 {
-"id": "b3403b6ed9",
-"at": "2026-11-22T10:43:14+01:00",
-"msg": "pCloud hibaüzenetek egyszerűsítve"
-},
-{
-"id": "fc2fc62cc5",
-"at": "2026-11-22T09:42:02Z",
+"id": "825059b7e9",
+"at": "2026-11-22T09:43:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
