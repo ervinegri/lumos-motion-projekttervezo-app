@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7ff725ea9",
+"at": "2026-11-23T18:25:54+02:00",
+"msg": "Új lehetőség: „Általános ajánlat” (árlista rendezvény nélkül) – nincs típus/helyszín/dátum, a megnevezés és a következő lépés magától kitöltődik; az árajánlat ilyenkor rendezvény nélkül készül"
+},
+{
 "id": "c735e5f2b3",
 "at": "2026-11-23T17:26:03+02:00",
 "msg": "Saját (lumosmotion.com) címnél a konkrét fiók létezését is ellenőrzi (naptár szabad/foglalt alapján, új jogosultság nélkül) – nem létező céges fiók nem menthető"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "pCloud hibaüzenetek egyszerűsítve"
 },
 {
-"id": "ae40da1ef8",
-"at": "2026-11-22T10:41:53+01:00",
-"msg": "pCloud: törölt link üzenete"
-},
-{
-"id": "eb449978c5",
-"at": "2026-11-22T09:39:40Z",
+"id": "fc2fc62cc5",
+"at": "2026-11-22T09:42:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
