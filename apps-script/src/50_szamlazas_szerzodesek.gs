@@ -647,7 +647,7 @@ function crewDocsFolder_() {
 }
 function crewDocsList_() { return readAll_('crewDocs').map(d => ({ id: d.id, crewId: String(d.crewId || ''), title: d.title || '', fileName: d.fileName || '', mime: d.mime || '', signedAt: iso_(d.signedAt) || '', note: d.note || '', createdAt: d.createdAt || '', createdBy: d.createdBy || '' })); }
 /* ===== Alvállalkozói keretszerződés a Stáb adataiból: sablon (Templates.gs „alv_keret”), küldés e-mailben, mentés a munkatárs dokumentumai közé ===== */
-function crewContractTpl_(a) { const k = a && a.k === 'modell_keret' ? 'modell_keret' : 'alv_keret'; if (typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Hiányzik a keretszerződés-sablon.'); return { zip: CONTRACT_TPL_[k] }; }   // alvállalkozói vagy modell (statiszta) keretszerződés
+function crewContractTpl_(a) { const k = a && (a.k === 'modell_keret' || a.k === 'auto_hasznalat') ? a.k : 'alv_keret'; if (typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Hiányzik a keretszerződés-sablon.'); return { zip: CONTRACT_TPL_[k] }; }   // alvállalkozói vagy modell (statiszta) keretszerződés
 function crewContractSend_(u, a) {
   a = a || {}; const cid = str_(a.crewId, 64), c = readAll_('crew').find(x => x.id === cid); if (!c) throw new Error('A munkatárs nem található.');
   const ok = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e), to = String(a.to || '').split(/[,;\s]+/).filter(ok), cc = String(a.cc || '').split(/[,;\s]+/).filter(ok);
