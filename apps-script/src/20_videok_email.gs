@@ -525,7 +525,8 @@ function clientPreview_(u, a) {
   const ck = 'pv_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify([pid, vid, l, (a && a.ids) || [], String(u.email || '')]))).slice(0, 22), cc = CacheService.getScriptCache();
   let code = cc.get(ck); if (code && !PropertiesService.getScriptProperties().getProperty('CS_' + code)) code = '';
   if (!code) { code = clientShort_(clientToken_(Object.assign({ p: pid, v: vid, s: String(u.email || ''), c: '', pv: 1, l: /^https?:\/\/\S+$/i.test(l) ? l : '' }, Array.isArray(a.ids) && a.ids.length > 1 ? { vs: a.ids.map(x => str_(x, 40)).slice(0, 30) } : {}))); cc.put(ck, code, 6 * 3600); }
-  return { url: FRONTEND_URL + '/' + code };
+  let info = null; try { info = clientInfo_(code, false, ''); } catch (e) { }   // az oldal adatai is: a megnyíló lap azonnal kirajzolja (nem kell újra a szerverhez fordulnia)
+  return { url: FRONTEND_URL + '/' + code, info: info };
 }
 /* Az ügyfél megjelenő neve: csak a keresztneve (a kapcsolattartó nevéből, ha az e-mail egyezik; különben az e-mail cím elejéből) – e-mail cím nem látszik */
 function clientFirst_(p, em) { em = String(em || '').trim().toLowerCase(); const cn = String(p && p.contactName || '').trim();
