@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5718d98b14",
+"at": "2026-11-23T08:22:35+01:00",
+"msg": "Mercedes Citan gépjármű-használati megállapodás sablon a szerződések között"
+},
+{
 "id": "26881fcdea",
 "at": "2026-11-23T08:13:07+01:00",
 "msg": "Lakatolt Alapadatok: kijelölhető, másolható, kattintható – de nem módosítható"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Verzióváltó a Naptár szegmens-gombjainak stílusában (látszik a kiválasztott); verzió-időpont javító (ügyvezető)"
 },
 {
-"id": "5dc50a0712",
-"at": "2026-11-22T10:02:48+01:00",
-"msg": "Videó-ablak: az időkód / jelölés sáv közvetlenül a videó alatt; Cmd/Ctrl+Enter elküldi a hozzászólást"
-},
-{
-"id": "ae694c8c51",
-"at": "2026-11-22T08:57:00Z",
+"id": "904ec755fa",
+"at": "2026-11-22T09:02:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
