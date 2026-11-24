@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "242b9d7942",
+"at": "2026-11-24T12:51:08+02:00",
+"msg": "Többnapos rendezvény a lehetőségnél és az árajánlatban: napok kijelölése, a kalkulátor naponta számol, a projekt minden napja bekerül"
+},
+{
 "id": "e77d62bf3c",
 "at": "2026-11-24T12:23:38+02:00",
 "msg": "Projektek telefonon: az állapotcímke és a videóösszesítő egy sorban, tömörebben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehetőség: a Cég balra, a Kapcsolattartó jobbra"
 },
 {
-"id": "5bbed1aab8",
-"at": "2026-11-23T18:54:03+02:00",
-"msg": "Új lehetőség: az Értékesítő balra, a Szóba jövő szolgáltatások jobbra"
-},
-{
-"id": "230e5f3570",
-"at": "2026-11-23T16:53:08Z",
+"id": "e14aa93de6",
+"at": "2026-11-23T16:54:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
