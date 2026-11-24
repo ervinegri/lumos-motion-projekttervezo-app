@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f6cad78e06",
+"at": "2026-11-24T18:48:48+01:00",
+"msg": "Tagi kölcsön: egyszeri bankkivonat-egyeztetés (2026-11-24)"
+},
+{
 "id": "74049ce505",
 "at": "2026-11-24T17:41:35+02:00",
 "msg": "Ajánlatkészítés a lehetőségből: a lehetőség ablaka nem tűnik el – halványan alatta marad, és bezáráskor (Esc, ×, Bezárás) azonnal, a beírt adatokkal együtt visszajön"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: a régi, sérült kódolású ikonok (��) helyreállítva a megjelenítésben"
 },
 {
-"id": "e00ff4590a",
-"at": "2026-11-24T08:36:58+02:00",
-"msg": "Videó hozzászólások: azonos percben írt üzenet és küldés is összevonódik"
-},
-{
-"id": "a82005ad03",
-"at": "2026-11-24T06:35:40Z",
+"id": "1afc2569ea",
+"at": "2026-11-24T06:37:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
