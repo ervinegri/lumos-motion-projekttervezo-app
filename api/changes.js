@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c14574e446",
+"at": "2026-11-24T08:31:00+02:00",
+"msg": "Videó hozzászólások: „Ügyfélnek elküldve” és „Ügyfél jóváhagyta” címke is (a szöveg nem ismétli: Címzett: …)"
+},
+{
 "id": "8e360fc529",
 "at": "2026-11-24T08:27:03+02:00",
 "msg": "Videó hozzászólások: a vágó leadási szövege csak az új verziónál látszik (nem kétszer)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Citan megállapodás modellnek (szereplőnek) is kitölthető"
 },
 {
-"id": "8af630202f",
-"at": "2026-11-23T08:30:22+01:00",
-"msg": "Citan megállapodás: rendszám (AO PS-758) a sablonban"
-},
-{
-"id": "64e979623c",
-"at": "2026-11-23T07:22:44Z",
+"id": "c0bdff0880",
+"at": "2026-11-23T07:30:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
