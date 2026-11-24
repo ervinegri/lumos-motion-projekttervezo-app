@@ -279,7 +279,7 @@ function viewFinance(){
     <div class="panel"><h3>🤝 Tagi kölcsön <span class="aside">fennmaradó: <b>${ftFmt(lIn-lOut)}</b></span></h3>
       <div class="sheet-wrap"><table class="sheet fin-tbl"><thead><tr><th>Dátum</th><th>Típus</th><th>Bank</th><th>Megjegyzés</th><th class="r">Összeg</th><th></th></tr></thead><tbody>${loans.map(l=>`<tr class="loan-row" data-action="loan-info" data-id="${esc(l.id)}" title="Részletek"><td>${esc(l.date)}</td><td>${l.kind==='vissza'?'<span class="statuspill p-ok">Cég visszafizeti</span>':'<span class="statuspill p-bad">Kölcsön a cégnek</span>'}</td><td>${esc(l.kind==='vissza'?loanBank(l)+(l.bank2?' → '+l.bank2:''):(l.bank2?l.bank2+' → ':'')+loanBank(l))}</td><td>${esc(l.note||'')}</td><td class="r">${moneyFmt(l.amount)}</td><td class="nowrap"><button class="editbtn" type="button" data-action="fin-loan-edit" data-id="${esc(l.id)}" aria-label="Módosítás" title="Módosítás">✏️</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-row">Nincs tagi kölcsön.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="4">Kölcsön összesen: <b>${ftFmt(lIn)}</b> · visszafizetve: <b>${ftFmt(lOut)}</b></td><td class="r"><b>${ftFmt(lIn-lOut)}</b></td><td></td></tr></tfoot></table></div>
-      <div class="btns" style="margin-top:10px"><button class="btn outline small" type="button" data-action="fin-loan-new">+ Tétel</button>${(S.fin.bankTxLoan||[]).length?`<button class="btn ghost small" type="button" data-action="loan-bank">🏦 Banki utalások egyeztetése (${(S.fin.bankTxLoan||[]).length})</button>`:''}</div></div>`;
+      ${(S.fin.bankTxLoan||[]).length?`<div class="btns" style="margin-top:10px"><button class="btn ghost small" type="button" data-action="loan-bank">🏦 Banki utalások egyeztetése (${(S.fin.bankTxLoan||[]).length})</button></div>`:''}</div>`;
 }
 
 /* ===== Műveletek ===== */
@@ -392,7 +392,7 @@ Object.assign(ACT,{
   'fin-exp-del':b=>{const e=((S.fin&&S.fin.expense)||[]).find(x=>x.id===b.dataset.id);if(!e)return;const m=S.finMonth;
     if(e.kind==='fix'&&e.from<m){confirmModal('Fix kiadás megszüntetése',`A(z) „${e.name}” ${F_YM.format(toDate(m+'-01'))}${/(szeptember|október|november|december)$/.test(F_YM.format(toDate(m+'-01')))?'től':'tól'} már nem jelenik meg; a korábbi hónapokban megmarad.`,'Megszüntetés',()=>{const row=Object.assign({},e,{to:shiftMonth(m,-1)});finSave('finUpsert',{table:'expense',row},'Megszüntetve',()=>finLocal('expense',[row]));});}
     else confirmModal('Kiadás törlése','Biztosan törlöd ezt a kiadást?','Törlés',()=>finSave('finDelete',{table:'expense',id:e.id},'Törölve',()=>finLocal('expense',[{id:e.id}],true)));},
-  'fin-loan-new':()=>finLoanModal(null),
+  /* új tagi kölcsön tétel csak banki utalásból rögzíthető (Banki utalások egyeztetése → Rögzítés); kézi felvétel nincs */
   'fin-loan-edit':b=>{const l=((S.fin&&S.fin.loan)||[]).find(x=>x.id===b.dataset.id);if(l)finLoanModal(l);},
   /* tagi kölcsön tétel nem törölhető (csak módosítható) */
   'fin-loan-del':()=>{}
