@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "10b6dfdf57",
+"at": "2026-11-24T21:26:10+01:00",
+"msg": "Kifizetve, de még nincs számla: a sorra kattintva megnyílnak az utalás részletei"
+},
+{
 "id": "e00ad03436",
 "at": "2026-11-24T22:25:57+02:00",
 "msg": "Jóváhagyó oldal: az ügyfél üzenete formázható (félkövér, dőlt, felsorolás, számozott lista, Ctrl/⌘+B/I, élő előnézet); az appban formázva jelenik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefon: a csengő lenyílója akkor is megjelenik, ha a fejléc oldalra van görgetve (a lap tetejére kerül, nem vágja le a fejléc)"
 },
 {
-"id": "bc3b801c65",
-"at": "2026-11-24T11:13:19+02:00",
-"msg": "Részletek-napló: pontos változások (termelői díj: kinek, mennyiről mennyire; JSON-mezők tételesen; a csak formai változás nem kerül be); az automatikus lépés külön jelölve"
-},
-{
-"id": "19793f1eb0",
-"at": "2026-11-24T09:09:34Z",
+"id": "37ecdf9531",
+"at": "2026-11-24T09:13:29Z",
 "msg": "Változásnapló frissítése"
 }
 ];
