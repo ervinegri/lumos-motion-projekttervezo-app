@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4dd854af82",
+"at": "2026-11-24T16:09:16+02:00",
+"msg": "Lehetőség mentése: az ablak azonnal bezárul (a mentés a háttérben fut, hibánál újranyílik a beírt adatokkal); a HubSpot-frissítés háttérsorba került, a mentés nem vár rá"
+},
+{
 "id": "f09f9f3d9d",
 "at": "2026-11-24T15:51:33+02:00",
 "msg": "Árajánlat: a lehetőség ablakából indítva bezáráskor visszatér a lehetőséghez (nem lép ki belőle)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a „Továbbküldve jóváhagyásra” is ügyfélnek küldésként számít (verziók összevonása, ügyfél-jelölés, címke)"
 },
 {
-"id": "c02b1c2116",
-"at": "2026-11-24T08:32:19+02:00",
-"msg": "Videó hozzászólások: a csak időkódos visszadobás összevonva az előtte írt hozzászólással (egy bejegyzés, „Visszaküldve a vágónak” címkével)"
-},
-{
-"id": "3b128790e6",
-"at": "2026-11-24T06:31:10Z",
+"id": "9110e5478b",
+"at": "2026-11-24T06:32:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
