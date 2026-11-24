@@ -315,7 +315,12 @@ function vidCmItems(v){const P=(S.projects||[]).find(p=>(p.videos||[]).includes(
   if(v.fb&&!(v.cm||[]).some(c=>{const x=nrm(String(c.t).replace(/^↩\s*/,'')),y=nrm(v.fb);return x===y||(x.length>20&&y.length>20&&(x.startsWith(y.slice(0,Math.min(x.length,y.length)-3))||y.startsWith(x.slice(0,Math.min(x.length,y.length)-3))))||v.fb.endsWith(String(c.t).replace(/^↩ /,''));}))L.push({by:v.fbBy,at:v.fbAt,t:'↩ '+v.fb,kind:'fb'});
   if(v.st==='jovahagyva'&&v.okAt&&!(v.cm||[]).some(c=>/^✅ Jóváhagyta/.test(String(c.t||''))))L.push({by:huFirst(String((P&&P.contactName)||''))||'',at:v.okAt,t:v.k==='foto'?'✅ Jóváhagyta a fotókat':'✅ Jóváhagyta a videót',kind:'ok'});   // a korábbi jóváhagyások is látszanak
   if(v.k==='foto')L.forEach(c=>{c.t=String(c.t||'').replace('Jóváhagyta a videót','Jóváhagyta a fotókat');});   // fotógalériánál ne „videó” szerepeljen
-  const D=S._cmDel||{},seen={};return L.filter(c=>{const k=(c.by||'')+'|'+String(c.at||'').replace('T',' ').slice(0,16)+'|'+nrm(String(c.t||'').replace(/^↩\s*/,'')).slice(0,200);if(seen[k])return false;seen[k]=1;return true;}).filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>cmTk(y.at)-cmTk(x.at));}
+  const D=S._cmDel||{},seen={};return vvMergeBack(L.filter(c=>{const k=(c.by||'')+'|'+String(c.at||'').replace('T',' ').slice(0,16)+'|'+nrm(String(c.t||'').replace(/^↩\s*/,'')).slice(0,200);if(seen[k])return false;seen[k]=1;return true;}).filter(c=>!D[v.id+'|'+(c.kind||'cm')+'|'+c.at]).sort((x,y)=>cmTk(y.at)-cmTk(x.at)));}
+/* csak időkódot tartalmazó visszadobás (↩ [0:55:03]) + közvetlenül előtte, ugyanattól írt hozzászólás (10 percen belül) → egy bejegyzés, „Visszaküldve a vágónak” címkével */
+function vvMergeBack(L){const A=L.slice().sort((x,y)=>cmTk(x.at)-cmTk(y.at)),hide=new Set();
+  A.forEach((c,i)=>{const t=String(c.t||'');if(!/^↩/.test(t)||String(t.replace(/^↩\s*/,'')).replace(TC_RE,'').replace(/\s+/g,'').length>=3)return;
+    for(let j=i-1;j>=0;j--){const p=A[j];if(hide.has(p))continue;if(p.by!==c.by||cmTk(c.at)-cmTk(p.at)>600000||/^↩|^Ügyfélnek elküldve|^👁️|^✅/.test(String(p.t||''))||p.k==='note')break;p.backMerged=true;hide.add(c);break;}});
+  return L.filter(c=>!hide.has(c));}
 /* hozzászólás ideje → időbélyeg (bármilyen formátumból: ISO, „2026-11-10 13:20”, „2026. 11. 10. 13:20”) – a legfrissebb legyen felül */
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
@@ -335,7 +340,7 @@ function pqBanner(v){if(!v||!(v.pq==='wait'||v.pq==='sent'||v.pq==='no'||(v.pq==
 /* a hozzászóló szerepe a neve előtt: 💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó (stáb), ⭐ ügyfél */
 /* a folyamat lépései vizuálisan elkülönítve: belső ellenőrzésre küldés, ügyfélnek küldés, megnyitás, ügyfél módosítási kérése, jóváhagyás */
 function vvStepKind(c){const t=String(c&&c.t||''),cli=String(cmWho(c&&c.by)).indexOf('⭐')>=0;
-  if(c.k==='note'||/ellenőrzés/.test(String(c.tag||'')))return 'rv';if(/^(Ügyfélnek elküldve|TESZT:)/.test(t))return 'send';if(/^👁️/.test(t))return 'seen';if(/^✅/.test(t))return 'ok';if(/^↩/.test(t))return cli?'cli':'back';return '';}
+  if(c.k==='note'||/ellenőrzés/.test(String(c.tag||'')))return 'rv';if(/^(Ügyfélnek elküldve|TESZT:)/.test(t))return 'send';if(/^👁️/.test(t))return 'seen';if(/^✅/.test(t))return 'ok';if(/^↩/.test(t))return cli?'cli':'back';return c.backMerged?'back':'';}
 const VV_STEP={rv:'🔍 Belső ellenőrzésre küldve',send:'📤 Ügyfélnek elküldve',seen:'👁️ Ügyfél megnyitotta',ok:'✅ Ügyfél jóváhagyta',cli:'↩ Ügyfél módosítást kér',back:'↩ Visszaküldve a vágónak'};
 /* címkés lépésnél a szöveg ne ismételje a címkét: „Ügyfélnek elküldve (x@y.hu)” → „Címzett: x@y.hu”, „✅ Jóváhagyta a videót” → (nincs külön szöveg) */
 const vvBodyC=c=>{const k=vvStepKind(c),t=String(c.t||'');if(k==='send'){const m=/^Ügyfélnek elküldve\s*\(([^)]*)\)\s*(.*)$/s.exec(t);if(m)return Object.assign({},c,{t:'Címzett: '+m[1]+(m[2]?' '+m[2].replace(/^:\s*/,'\n'):'')});}if(k==='ok'&&/^✅ Jóváhagyta a videót\.?$/.test(t.trim()))return Object.assign({},c,{t:''});return c;};
