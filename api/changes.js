@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "221e97cd17",
+"at": "2026-11-24T11:47:20+02:00",
+"msg": "Csengő: megnyitás után olvasott marad frissítés után is (a később betöltődő kifizetések / értékelések is; az olvasottak listája nem íródik felül)"
+},
+{
 "id": "5b715fa698",
 "at": "2026-11-24T11:46:47+02:00",
 "msg": "Lehúzás-frissítés telefonon: kisebb húzási küszöb (iOS rugalmas túlhúzás), a beragadt videó-áthelyezés számláló nem tiltja tovább"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Általános ajánlat: nincs megnevezés, várható érték, előfoglalt projekt; telefon az e-mail mellett"
 },
 {
-"id": "e7ff725ea9",
-"at": "2026-11-23T18:25:54+02:00",
-"msg": "Új lehetőség: „Általános ajánlat” (árlista rendezvény nélkül) – nincs típus/helyszín/dátum, a megnevezés és a következő lépés magától kitöltődik; az árajánlat ilyenkor rendezvény nélkül készül"
-},
-{
-"id": "bff19ef053",
-"at": "2026-11-23T15:26:13Z",
+"id": "5e09ee6d1e",
+"at": "2026-11-23T16:26:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
