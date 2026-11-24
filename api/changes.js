@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f48ae0b323",
+"at": "2026-11-24T22:26:32+01:00",
+"msg": "Jóváhagyó oldal: a Google-értékelés kérése kikerült"
+},
+{
 "id": "2490969f51",
 "at": "2026-11-24T22:24:59+01:00",
 "msg": "Jóváhagyó oldal: a „Mindent leírtál?” alól kikerült az „Elküldés után ennek alapján javítjuk a videót.” mondat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: a lehetőség ablakából indítva bezáráskor visszatér a lehetőséghez (nem lép ki belőle)"
 },
 {
-"id": "5a82953f42",
-"at": "2026-11-24T15:48:41+02:00",
-"msg": "Többnapos rendezvény: tetszőleges napok kijelölése (nem kell egymás utániaknak lenniük), az ajánlat és a projekt csak a kijelölt napokkal számol"
-},
-{
-"id": "0c5fb7a0ce",
-"at": "2026-11-24T13:39:46Z",
+"id": "bdd7ae920c",
+"at": "2026-11-24T13:48:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
