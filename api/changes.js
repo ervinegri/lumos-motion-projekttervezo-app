@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cca778506a",
+"at": "2026-11-24T20:27:29+02:00",
+"msg": "Hiányzó meghívó / beosztás: a figyelmeztetés a Helyszíni munka szakaszban is megjelenik (nem csak Tervezésben)"
+},
+{
 "id": "ac4a433a79",
 "at": "2026-11-24T19:02:30+01:00",
 "msg": "Tagi kölcsön: a kézi „+ Tétel” gomb kikerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefonon a hozzászólások és jegyzetek teljes hosszukban látszanak (nem kis görgethető dobozban) – videó, lehetőség-jegyzetek, napló"
 },
 {
-"id": "7e3962f786",
-"at": "2026-11-24T09:52:06+02:00",
-"msg": "Telefonos frissülés: a válasz nélkül beragadt kérés (alvás / háttér) nem akasztja meg többé a frissítést – 90 mp időkorlát, a beragadt betöltés és mentés-számláló feloldása"
-},
-{
-"id": "ed0d1370df",
-"at": "2026-11-24T06:38:58Z",
+"id": "9ae72c5634",
+"at": "2026-11-24T07:52:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
