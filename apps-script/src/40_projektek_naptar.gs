@@ -753,7 +753,7 @@ function hubspotNotesApi_(arg) {   // jegyzetek + feladatok + e-mailek + hívás
 /* ===================== HUBSPOT VISSZAÍRÁS =====================
    Lehetőség mentésekor: kapcsolattartó (e-mail alapján) és cég (pontos név alapján) megkeresése, ha nincs, létrehozása;
    HubSpot deal létrehozása / frissítése (név, várható érték, rendezvény dátuma, szakasz, tulajdonos) a kettőhöz társítva.
-   Új / módosított ügyfélnél: cég és kapcsolattartó a HubSpotban is. A jegyzetek NEM kerülnek át (érzékeny tartalom lehet).
+   Új / módosított ügyfélnél: cég és kapcsolattartó a HubSpotban is. 2026-11-24 (Ervin kérése): a meglévő kapcsolattartó adatai, a „Honnan jött?” és az új jegyzetek is átkerülnek.
    (A deal-tükrözés alapból kikapcsolva – lásd hsDealSync_.) Hatókörök a HUBSPOT_TOKEN-en: crm.objects.deals.read/write, crm.objects.contacts.write, crm.objects.companies.write.
    Hiba esetén a mentés megtörténik, az utolsó hiba a HS_SYNC_ERR szkripttulajdonságba kerül (a Teljesítmény panel kiírja). */
 function hsOn_() { const P = PropertiesService.getScriptProperties(); return !!String(P.getProperty('HUBSPOT_TOKEN') || '').trim() && P.getProperty('HS_WRITE') !== '0'; }
@@ -783,7 +783,11 @@ function hsSplitName_(n) { const w = String(n || '').trim().split(/\s+/).filter(
 function hsEnsureContact_(email, name, phone, company) {
   email = String(email || '').trim().toLowerCase(); if (!email) return '';
   const hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], properties: ['email'], limit: 1 }).results) || [])[0];
-  if (hit) return String(hit.id);
+  if (hit) {   /* meglévő kapcsolattartó: az appban megadott (nem üres) név, telefon, cég a HubSpotban is frissül */
+    const up = {}, nm = hsSplitName_(name); if (nm.firstname) up.firstname = nm.firstname; if (nm.lastname) up.lastname = nm.lastname; if (phone) up.phone = String(phone); if (company) up.company = String(company);
+    if (Object.keys(up).length) { try { hubspot_('patch', '/crm/v3/objects/contacts/' + hit.id, { properties: up }); } catch (e) { hsErr_(e); } }
+    return String(hit.id);
+  }
   const props = Object.assign({ email: email }, hsSplitName_(name)); if (phone) props.phone = String(phone); if (company) props.company = String(company);
   return String((hubspot_('post', '/crm/v3/objects/contacts', { properties: props }) || {}).id || '');
 }
@@ -833,11 +837,28 @@ function hsDealSync_(d) {
     const cid = hsEnsureContact_(d.contactEmail, d.contactName, d.contactPhone, d.client) || link.hsContact || '';
     const coid = hsEnsureCompany_(d.client, d.contactEmail) || link.hsCompany || '';
     hsAssoc_('contacts', cid, 'companies', coid);
+    try { hsNotesPush_(d, cid, coid); } catch (e) { hsErr_(e); }      // az appban írt új jegyzetek → HubSpot-jegyzet
+    try { hsSourcePush_(d, cid, coid); } catch (e) { hsErr_(e); }     // „Honnan jött?” → a HubSpot forrás-mezője (ha írható)
     let dealId = String(link.hsDeal || '');
     if (PropertiesService.getScriptProperties().getProperty('HS_DEALS') === '1') dealId = hsDealMirror_(d, link, cid, coid);
     hsLinkPut_({ id: d.id, hsDeal: dealId, hsContact: cid, hsCompany: coid });
     hsOk_();
   } catch (e) { hsErr_(e); }
+}
+/* Az app jegyzetei „[ÉÉÉÉ-HH-NN óó:pp · Név] szöveg” bejegyzések; mentéskor az újak (a régi jegyzetben még nem szereplők) HubSpot-jegyzetként a kapcsolattartóhoz és a céghez kerülnek.
+   A szöveg elején „[Projekttervező · Név]” – az app a HubSpot-tevékenységek között ezeket nem mutatja kétszer. */
+function hsNoteEntries_(t) { const out = []; let cur = null; String(t || '').split('\n').forEach(l => { const m = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}|Korábbi)(?: · ([^\]]*))?\] ?/.exec(l); if (m) { cur = { at: m[1], by: m[2] || '', text: l.slice(m[0].length) }; out.push(cur); } else if (cur) cur.text += '\n' + l; }); return out.map(x => Object.assign(x, { text: x.text.trim() })).filter(x => x.text && x.at !== 'Korábbi'); }
+function hsNotesPush_(d, cid, coid) {
+  if (!cid && !coid) return; const key = x => x.at + '|' + x.text, had = {}; hsNoteEntries_(d._oldNote).forEach(x => { had[key(x)] = 1; });
+  const nw = hsNoteEntries_(d.note).filter(x => !had[key(x)]).slice(0, 10); if (!nw.length) return;
+  nw.forEach(x => { let ts = Date.now(); try { ts = Utilities.parseDate(x.at, SHEET_TZ, 'yyyy-MM-dd HH:mm').getTime(); } catch (e) {}
+    const body = '[Projekttervező' + (x.by ? ' · ' + x.by : '') + '] ' + x.text, assoc = [[cid, 202], [coid, 190]].filter(a => a[0]).map(a => ({ to: { id: String(a[0]) }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: a[1] }] }));
+    hubspot_('post', '/crm/v3/objects/notes', { properties: { hs_note_body: escapeHtml_(body).replace(/\n/g, '<br>'), hs_timestamp: new Date(ts).toISOString() }, associations: assoc }); });
+}
+function hsSourcePush_(d, cid, coid) {
+  const lbl = String(d.source || '').trim(); if (!lbl) return; const sp = hsSourceProp_(); if (!sp || /^hs_analytics/.test(sp.name) || sp.obj === 'deals') return;   // az „Eredeti forrás” csak olvasható; dealt nem vezetünk
+  const o = (sp.options || []).find(x => x.label === lbl || x.value === lbl); if (!o) return; const id = sp.obj === 'contacts' ? cid : coid; if (!id) return;
+  hubspot_('patch', '/crm/v3/objects/' + sp.obj + '/' + id, { properties: { [sp.name]: o.value } });
 }
 function hsDealMirror_(d, link, cid, coid) {
   const st = hsStages_();

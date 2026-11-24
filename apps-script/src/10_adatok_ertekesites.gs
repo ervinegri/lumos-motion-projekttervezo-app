@@ -264,8 +264,8 @@ function saveDeal_(u, a) {
     if (d.stage === 'elveszett' && d.lostReason.length < 3) throw new Error('Írd be röviden, miért veszett el.');
     putRow_('deals', sh, d, row || null); dbFlush_();
     logEvent_(u, old ? (old.stage !== d.stage ? 'Értékesítés: ' + dealStageLbl_(d.stage) : 'Értékesítés módosítva') : 'Értékesítés: új lehetőség', d.title, d.client);
-    const K = ['title', 'value', 'stage', 'eventDate', 'contactEmail', 'contactName', 'contactPhone', 'client', 'ownerId'];
-    if (!old || K.some(k => String(old[k] || '') !== String(d[k] || ''))) saved = d;   // csak érdemi változásnál megy a HubSpotba
+    const K = ['title', 'value', 'stage', 'eventDate', 'contactEmail', 'contactName', 'contactPhone', 'client', 'ownerId', 'note', 'source'];
+    if (!old || K.some(k => String(old[k] || '') !== String(d[k] || ''))) saved = Object.assign({}, d, { _oldNote: old ? old.note : '' });   // csak érdemi változásnál megy a HubSpotba
     return { deals: dealsFor_(u) };
   });
   if (saved) hsDealSync_(saved);
