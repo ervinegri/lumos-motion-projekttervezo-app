@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "852c30c5b9",
+"at": "2026-11-24T20:47:46+02:00",
+"msg": "Bejövő díjbekérő: „díjbekérő” és „✓ kifizetve” jelzés a beérkezett számlák között; a később érkező végszámla magától a díjbekérőből rögzített kiadáshoz kapcsolódik"
+},
+{
 "id": "cdb720cee8",
 "at": "2026-11-24T20:34:20+02:00",
 "msg": "Kifizetve, de még számla nélkül: a díjbekérő alapján utalt összeg banki utalásból kiadásként rögzíthető, a később érkező végszámla ugyanahhoz kapcsolódik; elfogadott meghívásnál az elvállalt szerepkör nem vehető le"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lábléc: a stábnak és a felhasználóknak (külső címen is) szóló levelekben sincs – csak az ügyfeleknek"
 },
 {
-"id": "c28f90cf2d",
-"at": "2026-11-24T10:48:44+02:00",
-"msg": "Belső (céges címre menő) értesítő levelekben nincs „Ezt az értesítést … küldte” lábléc"
-},
-{
-"id": "3e294a535b",
-"at": "2026-11-24T07:53:18Z",
+"id": "ca3e041b1b",
+"at": "2026-11-24T08:48:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
