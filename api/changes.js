@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2490969f51",
+"at": "2026-11-24T22:24:59+01:00",
+"msg": "Jóváhagyó oldal: a „Mindent leírtál?” alól kikerült az „Elküldés után ennek alapján javítjuk a videót.” mondat"
+},
+{
 "id": "adcb413dd0",
 "at": "2026-11-24T22:23:54+01:00",
 "msg": "Jóváhagyó oldal: szöveg után az időkód új sorba kerül; azonos időkódnál a kurzor az új időkód mögé áll"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Többnapos rendezvény: tetszőleges napok kijelölése (nem kell egymás utániaknak lenniük), az ajánlat és a projekt csak a kijelölt napokkal számol"
 },
 {
-"id": "fa67754b08",
-"at": "2026-11-24T15:39:35+02:00",
-"msg": "E-mail védőháló: ugyanaz a levél 15 percen belül nem megy ki kétszer, hozzászólás-értesítő videónként 10 percenként legfeljebb egy, a napi teendőlevél naponta egyszer, megerősítő gomb dupla kattintás ellen"
-},
-{
-"id": "7a89312cbd",
-"at": "2026-11-24T13:34:36Z",
+"id": "0c5fb7a0ce",
+"at": "2026-11-24T13:39:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
