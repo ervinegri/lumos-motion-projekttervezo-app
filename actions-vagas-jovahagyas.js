@@ -328,7 +328,7 @@ function vvMergeBack(L){const ev=c=>/^(↩|Ügyfélnek elküldve|TESZT: az ügyf
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
 /* az ügyfél (és a stáb) formázott üzenete: **félkövér**, _dőlt_, „- ” felsorolás, „1. ” számozott sor – soronként, hogy az időkódos pipák is megmaradjanak */
-const mdInl=h=>h.replace(/(^|\s)(https:\/\/[^\s<"]+)/g,(m,a,u)=>a+'<a href="'+u+'" target="_blank" rel="noopener">'+(/drive\.google\.com/.test(u)?'📁 Megnyitás a Drive-on':u)+'</a>').replace(/\*\*(?=\S)(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g,'$1<i>$2</i>');
+const mdInl=h=>h.split(/(https:\/\/[^\s<"]+)/).map((part,k)=>k%2?'<a href="'+part+'" target="_blank" rel="noopener">'+(/drive\.google\.com/.test(part)?'📁 Megnyitás a Drive-on':part)+'</a>':part.replace(/\*\*(?=\S)(.+?\S)\*\*/g,'<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g,'<i>$1</i>')).join('');
 const mdLine=h=>{const b=/^(\s*)[-•*]\s+(.*)$/.exec(h),n=/^(\s*)(\d{1,2})[.)]\s+(.*)$/.exec(h);
   return b?`<span class="md-li"><i class="md-m">•</i>${mdInl(b[2])}</span>`:n?`<span class="md-li"><i class="md-m">${n[2]}.</i>${mdInl(n[3])}</span>`:mdInl(h);};
 function vidCmBody(v,c,reps){let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v),me=S.me&&S.me.name;

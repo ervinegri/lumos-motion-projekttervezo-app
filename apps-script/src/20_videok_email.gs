@@ -1396,5 +1396,5 @@ function cupDone_(t, u, fileId) {
 }
 
 /** az ügyfél formázott üzenete e-mailben: **félkövér**, _dőlt_, „- ” felsorolás → HTML (biztonságosan, előbb escape) */
-function mdMail_(t) { return String(t || '').split('\n').map(L => { let h = escapeHtml_(L).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g, '$1<i>$2</i>');
+function mdMail_(t) { return String(t || '').split('\n').map(L => { let h = escapeHtml_(L).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g, '<i>$1</i>');
   const b = /^\s*[-•*]\s+(.*)$/.exec(h); return b ? '&nbsp;&nbsp;•&nbsp;' + b[1] : h; }).join('<br>'); }

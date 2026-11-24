@@ -139,6 +139,7 @@ const pcPick=(L,name)=>pcHits(L,name).f;
     const upd=()=>{$('tcNow').textContent=tcFmt(v.currentTime);};['timeupdate','seeked','loadedmetadata'].forEach(e=>v.addEventListener(e,upd));
     const asp=()=>{const p=$('player');if(v.videoWidth&&v.videoHeight>v.videoWidth){p.classList.add('vert');p.style.setProperty('--ar',v.videoWidth+'/'+v.videoHeight);$('main').classList.add('vside');}else if(v.videoWidth){p.classList.remove('vert');$('main').classList.remove('vside');}};if(v.videoWidth)asp();else v.addEventListener('loadedmetadata',asp,{once:true});}
   function insTc(){const v=vd(),ta=$('fb');if(!v)return;v.pause();const s='['+tcFmt(v.currentTime)+'] ';
+    {const ed=window._rteOf&&window._rteOf('fb');if(ed&&ed._insTc){ed._insTc(s);return;}}
     {/* időrendi sorrend: ha már vannak időkódos sorok, az új a másodperce szerinti helyére kerül */const L=ta.value.split('\n'),re=/^\s*\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?\]/,sec=x=>{const m=re.exec(x);return m?tcSec(m[1],m[2],m[4],m[3]):null;},now=v.currentTime;
       if(L.some(x=>sec(x)!=null)){let at=L.findIndex(x=>{const q=sec(x);return q!=null&&q>now+0.001;});let c;
         if(at>=0){let off=0;for(let k=0;k<at;k++)off+=L[k].length+1;ta.value=ta.value.slice(0,off)+s+'\n'+ta.value.slice(off);c=off+s.length;}
@@ -237,40 +238,62 @@ const pcPick=(L,name)=>pcHits(L,name).f;
     window._posSide=posSide;addEventListener('resize',()=>requestAnimationFrame(posSide));if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(posSide));const pl=$('player');if(pl)ro.observe(pl);if(sd)ro.observe(sd);}
     const upd=()=>{if(!sd||innerWidth<=860){if(sd)sd.style.minHeight='';return;}if(editing())return;let h=sd.scrollHeight;{const dw=$('dlWrap');if(dw&&dw.hidden&&!noDl){dw.hidden=false;h=Math.max(h,sd.scrollHeight);dw.hidden=true;}}   /* a (még rejtett) letöltés gomb helyét is számoljuk, hogy jóváhagyás után se ugorjon */if(h>lock+1){lock=h;sd.style.minHeight=lock+'px';}};
     if(sd&&window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(upd)).observe(sd);addEventListener('resize',()=>{lock=0;if(sd)sd.style.minHeight='';upd();});}
-  /* Szövegformázás az ügyfél üzenetében: félkövér, dőlt, felsorolás, számozott lista (a szöveg egyszerű jelölésekkel – **félkövér**, _dőlt_, „- ” – kerül el, így e-mailben is olvasható; alatta élő előnézet) */
-  {const MD=window.mdLiteHtml=t=>{const e=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-      const il=h=>h.replace(/\*\*(?=\S)([\s\S]+?)\*\*/g,'<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g,'$1<i>$2</i>');
-      let out='',lt='';const close=()=>{if(lt){out+='</'+lt+'>';lt='';}};
+  /* Szövegformázás az ügyfél üzenetében – szerkesztés közben azonnal látszik (mint egy Word-dokumentumban): félkövér, dőlt, felsorolás, számozott lista.
+     A háttérben a szöveg egyszerű jelölésekkel (**félkövér**, _dőlt_, „- ”) tárolódik a rejtett mezőben, így a küldés, az időkódok és az e-mailek változatlanul működnek. */
+  {const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const URL_RE=/(https?:\/\/[^\s<"]+)/g;
+    const inl=(h,tc)=>h.split(URL_RE).map((part,k)=>k%2?part:part.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g,'<b>$1</b>').replace(/_(?=\S)([^_\n]*?\S)_/g,'<i>$1</i>')
+        .replace(tc?TC_RE:/$^/g,(m,a,b,sep,c)=>`<span class="tcc" contenteditable="false" data-tc="${a}|${b}|${sep||''}|${c||''}">${m}</span>`)).join('');
+    window.mdLiteHtml=t=>{let out='',lt='';const close=()=>{if(lt){out+='</'+lt+'>';lt='';}};
       String(t||'').split('\n').forEach(L=>{const b=/^\s*[-•*]\s+(.*)$/.exec(L),n=/^\s*(\d{1,2})[.)]\s+(.*)$/.exec(L);
-        if(b){if(lt!=='ul'){close();out+='<ul>';lt='ul';}out+='<li>'+il(e(b[1]))+'</li>';}
-        else if(n){if(lt!=='ol'){close();out+='<ol>';lt='ol';}out+='<li>'+il(e(n[2]))+'</li>';}
-        else{close();out+=(L.trim()?'<p>'+il(e(L))+'</p>':'<p class="sp"></p>');}});close();return out;};
-    const has=t=>/\*\*\S|(^|\s)_\S|^\s*([-•*]|\d{1,2}[.)])\s+/m.test(t);
-    const wrap=(ta,m)=>{const a=ta.selectionStart,z=ta.selectionEnd,v=ta.value,sel=v.slice(a,z)||(m==='**'?'félkövér szöveg':'dőlt szöveg');
-      const on=v.slice(a-m.length,a)===m&&v.slice(z,z+m.length)===m;   /* már formázott: levesszük */
-      if(on){ta.value=v.slice(0,a-m.length)+v.slice(a,z)+v.slice(z+m.length);ta.setSelectionRange(a-m.length,z-m.length);}
-      else{ta.value=v.slice(0,a)+m+sel+m+v.slice(z);ta.setSelectionRange(a+m.length,a+m.length+sel.length);}};
-    const list=(ta,num)=>{const v=ta.value,a=v.lastIndexOf('\n',ta.selectionStart-1)+1,zi=v.indexOf('\n',ta.selectionEnd),z=zi<0?v.length:zi;const L=v.slice(a,z).split('\n');
-      const isL=num?L.every(x=>/^\s*\d{1,2}[.)]\s+/.test(x)):L.every(x=>/^\s*[-•*]\s+/.test(x));
-      const N=L.map((x,i)=>isL?x.replace(num?/^\s*\d{1,2}[.)]\s+/:/^\s*[-•*]\s+/,''):(num?(i+1)+'. ':'- ')+x.replace(/^\s*([-•*]|\d{1,2}[.)])\s+/,''));
-      const r=N.join('\n');ta.value=v.slice(0,a)+r+v.slice(z);ta.setSelectionRange(a+r.length,a+r.length);};
-    ['fb','okNote','note'].forEach(id=>{const ta=$(id);if(!ta||ta.dataset.fmt)return;ta.dataset.fmt=1;
+        if(b){if(lt!=='ul'){close();out+='<ul>';lt='ul';}out+='<li>'+inl(esc(b[1]),1)+'</li>';}
+        else if(n){if(lt!=='ol'){close();out+='<ol>';lt='ol';}out+='<li>'+inl(esc(n[2]),1)+'</li>';}
+        else{close();out+='<div>'+(L.length?inl(esc(L),1):'<br>')+'</div>';}});close();return out;};
+    /* szerkesztő tartalma → jelöléses szöveg */
+    const wrapM=(x,M)=>x.split('\n').map(l=>{const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(l);return m[2]?m[1]+M+m[2]+M+m[3]:l;}).join('\n');
+    const BOLD=c=>c.tagName==='B'||c.tagName==='STRONG'||(c.style&&/^(bold|[6-9]00)$/.test(c.style.fontWeight)),ITAL=c=>c.tagName==='I'||c.tagName==='EM'||(c.style&&c.style.fontStyle==='italic');
+    const inS=n=>{let s='';n.childNodes.forEach(c=>{if(c.nodeType===3){s+=c.nodeValue.replace(/ /g,' ');return;}if(c.nodeType!==1)return;
+      if(c.tagName==='BR'){s+='\n';return;}if(c.classList&&c.classList.contains('tcc')){s+=c.textContent;return;}
+      if(c.tagName==='DIV'||c.tagName==='P'){if(s&&!s.endsWith('\n'))s+='\n';s+=inS(c).replace(/\n$/,'')+'\n';return;}
+      let x=inS(c);if(BOLD(c))x=wrapM(x,'**');if(ITAL(c))x=wrapM(x,'_');s+=x;});return s;};
+    const ser=root=>{let out='';const end=()=>{if(out&&!out.endsWith('\n'))out+='\n';};
+      root.childNodes.forEach(c=>{if(c.nodeType===1&&(c.tagName==='UL'||c.tagName==='OL')){end();[...c.children].forEach((li,i)=>{out+=(c.tagName==='OL'?(i+1)+'. ':'- ')+inS(li).replace(/\n+/g,' ').trim()+'\n';});}
+        else if(c.nodeType===1&&(c.tagName==='DIV'||c.tagName==='P')){end();out+=(c.querySelector('ul,ol,div,p')?ser(c):inS(c).replace(/\n$/,''))+'\n';}
+        else if(c.nodeType===1&&c.tagName==='BR')out+='\n';
+        else out+=inS({childNodes:[c]});});
+      return out.replace(/\n+$/,'');};
+    const RTE={};window._rteOf=id=>RTE[id]||null;
+    const vdesc=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
+    ['fb','okNote','note'].forEach(id=>{const ta=$(id);if(!ta||ta.dataset.fmt)return;ta.dataset.fmt=1;const max=Number(ta.getAttribute('maxlength'))||6000;
       const bar=document.createElement('div');bar.className='fmt-bar';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label','Szöveg formázása');
-      bar.innerHTML='<button type="button" data-f="b" title="Félkövér (Ctrl/⌘+B)" aria-label="Félkövér"><b>B</b></button><button type="button" data-f="i" title="Dőlt (Ctrl/⌘+I)" aria-label="Dőlt"><i>I</i></button><button type="button" data-f="ul" title="Felsorolás" aria-label="Felsorolás">• Lista</button><button type="button" data-f="ol" title="Számozott lista" aria-label="Számozott lista">1. Lista</button>';
-      const host=ta.closest('.tc-wrap')||ta;host.parentNode.insertBefore(bar,host);
-      const pv=document.createElement('div');pv.className='fmt-pv';pv.hidden=true;host.parentNode.insertBefore(pv,host.nextSibling);
-      const upd=()=>{const t=ta.value;const on=has(t);pv.hidden=!on;if(on)pv.innerHTML='<span class="fmt-pv-h">Így fog látszani:</span>'+MD(t);};
-      const act=f=>{ta.focus();if(f==='b')wrap(ta,'**');else if(f==='i')wrap(ta,'_');else list(ta,f==='ol');ta.dispatchEvent(new Event('input',{bubbles:true}));};
+      bar.innerHTML='<button type="button" data-f="bold" title="Félkövér (Ctrl/⌘+B)" aria-label="Félkövér"><b>B</b></button><button type="button" data-f="italic" title="Dőlt (Ctrl/⌘+I)" aria-label="Dőlt"><i>I</i></button><button type="button" data-f="insertUnorderedList" title="Felsorolás" aria-label="Felsorolás">• Lista</button><button type="button" data-f="insertOrderedList" title="Számozott lista" aria-label="Számozott lista">1. Lista</button>';
+      const ed=document.createElement('div');ed.className='rte'+(id==='fb'?' rte-big':'');ed.contentEditable='true';ed.setAttribute('role','textbox');ed.setAttribute('aria-multiline','true');ed.setAttribute('aria-label',(ta.labels&&ta.labels[0]&&ta.labels[0].textContent)||'Üzenet');ed.dataset.ph=ta.getAttribute('placeholder')||'';
+      const host=ta.parentNode;host.classList.add('rte-host');host.insertBefore(bar,ta);host.insertBefore(ed,ta);RTE[id]=ed;
+      let lock=false;const sync=()=>{lock=true;vdesc.set.call(ta,ser(ed));ta.dispatchEvent(new Event('input',{bubbles:true}));lock=false;ed.classList.toggle('empty',!ta.value.trim());};
+      Object.defineProperty(ta,'value',{configurable:true,get(){return vdesc.get.call(ta);},set(v){vdesc.set.call(ta,v);if(!lock){ed.innerHTML=v?mdLiteHtml(v):'';ed.classList.toggle('empty',!String(v||'').trim());}}});
+      new MutationObserver(()=>{ed.dataset.ph=ta.getAttribute('placeholder')||'';}).observe(ta,{attributes:true,attributeFilter:['placeholder']});   /* a kitöltési szöveg (később állítva is) a szerkesztőben látszik */
+      const placeEnd=()=>{ed.focus();const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);};
+      ta.focus=placeEnd;
+      if(ta.value)ed.innerHTML=mdLiteHtml(ta.value);ed.classList.toggle('empty',!ta.value.trim());
+      try{document.execCommand('styleWithCSS',false,false);document.execCommand('defaultParagraphSeparator',false,'div');}catch(e){}
+      ed.addEventListener('input',sync);
+      const tooLong=add=>{if(ser(ed).length+add<=max)return false;const e2=$(id==='fb'?'err2':id==='note'?'err3':'err2');if(e2){e2.hidden=false;e2.textContent='Az üzenet legfeljebb '+max+' karakter lehet – kérlek, rövidítsd.';}return true;};
+      ed.addEventListener('beforeinput',e=>{if(/^insert/.test(e.inputType)&&e.inputType!=='insertFromPaste'&&tooLong(1))e.preventDefault();});
+      ed.addEventListener('paste',e=>{e.preventDefault();const cd=e.clipboardData;if(!cd)return;let txt=cd.getData('text/plain')||'';const h=cd.getData('text/html');if(h&&typeof htmlPasteText==='function'){const t2=htmlPasteText(h);if(t2)txt=t2;}
+        if(tooLong(txt.length))return;document.execCommand('insertHTML',false,mdLiteHtml(txt.replace(/\r/g,'')).replace(/^<div>([\s\S]*?)<\/div>/,'$1'));});
+      ed.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)return;});
+      ed.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.tcc'),v=vd();if(!c||!v)return;const q=c.dataset.tc.split('|');v.pause();v.currentTime=tcSec(q[0],q[1],q[3],q[2]);ed.querySelectorAll('.tcc.on').forEach(x=>x.classList.remove('on'));c.classList.add('on');});
+      const upd=()=>{if(!ed.contains(document.getSelection().anchorNode))return;bar.querySelectorAll('button[data-f]').forEach(b=>{let on=false;try{on=document.queryCommandState(b.dataset.f);}catch(e){}b.classList.toggle('on',on);});};
+      document.addEventListener('selectionchange',upd);
       bar.addEventListener('mousedown',e=>e.preventDefault());   /* a kijelölés a szövegben marad */
-      bar.addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(b)act(b.dataset.f);});
-      ta.addEventListener('keydown',e=>{if(!(e.metaKey||e.ctrlKey)||e.altKey)return;const k=e.key.toLowerCase();if(k==='b'||k==='i'){e.preventDefault();act(k);}});
-      /* Enter egy lista sorában: a következő sor is listaelem; üres listaelemnél kilép a listából */
-      ta.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.metaKey||e.ctrlKey||e.isComposing)return;const v=ta.value,p=ta.selectionStart;if(p!==ta.selectionEnd)return;const a=v.lastIndexOf('\n',p-1)+1,line=v.slice(a,p);
-        const m=/^(\s*)([-•*]|\d{1,2}[.)])\s+(.*)$/.exec(line);if(!m)return;e.preventDefault();
-        if(!m[3].trim()){ta.value=v.slice(0,a)+v.slice(p);ta.setSelectionRange(a,a);}
-        else{const nx=/^\d/.test(m[2])?(parseInt(m[2],10)+1)+m[2].replace(/\d+/,''):m[2];const ins='\n'+m[1]+nx+' ';ta.value=v.slice(0,p)+ins+v.slice(p);ta.setSelectionRange(p+ins.length,p+ins.length);}
-        ta.dispatchEvent(new Event('input',{bubbles:true}));},true);
-      ta.addEventListener('input',upd);upd();});}
+      bar.addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;if(!ed.contains(document.getSelection().anchorNode))placeEnd();document.execCommand(b.dataset.f,false,null);sync();upd();});
+      /* időkód a kurzor helyére (vagy időrendi helyére) – a szerkesztőben kék címkeként */
+      ed._insTc=s=>{const v=vd();const cur=ta.value;const L=cur.split('\n'),re=/^\s*\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?\]/,sec=x=>{const m=re.exec(x);return m?tcSec(m[1],m[2],m[4],m[3]):null;},now=v?v.currentTime:0;
+        if(L.some(x=>sec(x)!=null)){let at=L.findIndex(x=>{const q=sec(x);return q!=null&&q>now+0.001;});if(at>=0)L.splice(at,0,s.trimEnd());else{while(L.length&&!L[L.length-1].trim())L.pop();L.push(s.trimEnd());}
+          ta.value=L.join('\n');const chips=[...ed.querySelectorAll('.tcc')].filter(x=>x.textContent===s.trim());const c=chips[0];ed.focus();if(c){const r=document.createRange();r.setStartAfter(c);r.collapse(true);const g=getSelection();g.removeAllRanges();g.addRange(r);document.execCommand('insertText',false,' ');}sync();return;}
+        if(!ed.contains(document.getSelection().anchorNode))placeEnd();else ed.focus();
+        const m=/^\[(\d{1,3}):(\d{2})(?:([.,:])(\d{1,3}))?\]/.exec(s.trim());const chip=m?`<span class="tcc" contenteditable="false" data-tc="${m[1]}|${m[2]}|${m[3]||''}|${m[4]||''}">${esc(s.trim())}</span>&nbsp;`:esc(s);
+        document.execCommand('insertHTML',false,chip);sync();};});}
   /* Fájlfeltöltés (logó, grafika, arculat, segédlet): darabokban a szerveren át a projekt Drive-mappájába; fájlonként folyamatjelző, hibánál újrapróbálás */
   {const box=$('upBox'),inp=$('upIn'),list=$('upList');
     const post=(fn,args)=>fetch(window.LUMOS_API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args})}).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
