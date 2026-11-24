@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c99a47abc4",
+"at": "2026-11-24T22:12:26+01:00",
+"msg": "Jóváhagyó oldal: telefonon a videó címe a videó fölött"
+},
+{
 "id": "09b737435e",
 "at": "2026-11-24T22:10:45+01:00",
 "msg": "Jóváhagyó oldal: belső előnézetben a fájlfeltöltés folyamatjelzője bemutató (szürke), egyértelmű felirattal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videótábla: megnyitáskor és a lapra visszatéréskor azonnal ellenőrzi a változásokat (pl. friss ellenőrzésre küldés)"
 },
 {
-"id": "722e21f78d",
-"at": "2026-11-24T15:27:48+02:00",
-"msg": "Árajánlat: többnapos rendezvénynél a Rendezvény dobozban kiemelt „N napos rendezvény” jelzés és a teljes időszak (a kalkulátor napjaiból is)"
-},
-{
-"id": "4929feee97",
-"at": "2026-11-24T12:47:58Z",
+"id": "550d0cd245",
+"at": "2026-11-24T13:27:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
