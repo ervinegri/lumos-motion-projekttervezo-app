@@ -1072,8 +1072,8 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .qp-sig{margin-top:auto!important;margin-bottom:18px}.qp-foot{margin-top:0!important;font-size:13.5px!important}
 .qp-logo{height:46px!important}
 .qp-dates{display:grid!important;grid-template-columns:auto auto;column-gap:6px;justify-content:end;text-align:left}.qp-dates i{font-style:normal}.qp-dates i:nth-child(odd){text-align:right}
-.q-namew{display:flex;flex-direction:column;min-width:0}.q-pdfl .q-row .inp.q-desc{min-height:26px;font-size:12px;color:#6b7684;padding-top:0;padding-bottom:2px}:where(html.ax-stone) .q-pdfl .q-row .inp.q-desc{color:#75757a}.qp-desc{display:block;font-size:11px;color:#6b7684;margin-top:1px;line-height:1.35}:where(html.ax-stone) .qp-desc{color:#75757a}
-.qp .qp-tbl small.qp-desc{text-transform:none!important;letter-spacing:0!important;font-weight:400!important;font-size:11px!important;color:#6b7684!important}:where(html.ax-stone) .qp .qp-tbl small.qp-desc{color:#75757a!important}
+.q-namew{display:flex;flex-direction:column;min-width:0}.q-pdfl .q-row .inp.q-desc{min-height:26px;font-size:13px;color:#3d4652;padding-top:0;padding-bottom:2px}:where(html.ax-stone) .q-pdfl .q-row .inp.q-desc{color:#3d4652}.qp-desc{display:block;font-size:11px;color:#6b7684;margin-top:1px;line-height:1.35}:where(html.ax-stone) .qp-desc{color:#75757a}
+.qp .qp-tbl small.qp-desc{text-transform:none!important;letter-spacing:0!important;font-weight:400!important;font-size:12.5px!important;line-height:1.4!important;color:#3d4652!important;margin-top:3px!important}:where(html.ax-stone) .qp .qp-tbl small.qp-desc{color:#3d4652!important}
 .bl-h{min-width:0;overflow:hidden}.bl-h .bl-ht{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}.bl-h .bd-n{flex:none}.bl-h .bl-play,.bl-h .bl-selall{flex:none}
 @media (max-width:700px){html.th2 .bl-h .bl-play{width:22px;height:22px}.bl-h{gap:4px;padding:6px 8px}}
 @media (max-width:700px){.bl-h{flex-wrap:wrap;row-gap:4px}.bl-h .bl-ht{flex:1 1 100%;white-space:normal}}
