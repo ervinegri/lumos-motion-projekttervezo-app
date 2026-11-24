@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0aa940e9c3",
+"at": "2026-11-24T22:19:28+01:00",
+"msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb helyén jelenik meg, a megírt üzenet és a csatolt fájlok látszanak"
+},
+{
 "id": "c99a47abc4",
 "at": "2026-11-24T22:12:26+01:00",
 "msg": "Jóváhagyó oldal: telefonon a videó címe a videó fölött"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hozzászólás: elküldés után a szöveg nem töltődik vissza egy későbbi frissítéskor; ugyanaz a hozzászólás 15 percen belül nem kerül be kétszer; sikertelen küldésnél a szöveg visszakerül"
 },
 {
-"id": "9d842c00c1",
-"at": "2026-11-24T15:28:42+02:00",
-"msg": "Videótábla: megnyitáskor és a lapra visszatéréskor azonnal ellenőrzi a változásokat (pl. friss ellenőrzésre küldés)"
-},
-{
-"id": "550d0cd245",
-"at": "2026-11-24T13:27:59Z",
+"id": "7d7411fbe9",
+"at": "2026-11-24T13:28:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
