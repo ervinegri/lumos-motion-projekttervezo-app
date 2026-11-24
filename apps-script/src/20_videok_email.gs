@@ -974,10 +974,18 @@ function doneBackfillOnce_() {
 }
 let SALES_DONE_ = null;
 const AUTO_FOOT_ = 'Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
+/* belső címzett: céges (saját domain) cím, vagy a stáb / felhasználók valamelyike – nekik nem kell az „Ezt az értesítést … küldte” lábléc; az ügyfeleknek igen */
+let INT_MAILS_ = null;
+function isInternalMail_(em, own) {
+  em = String(em || '').trim().toLowerCase(); if (!em) return false; if (own && em.split('@')[1] === own) return true;
+  if (!INT_MAILS_) { INT_MAILS_ = {}; try { readAll_('crew').forEach(c => String(c.email || '').split(/[,;\s]+/).forEach(x => { x = x.trim().toLowerCase(); if (x) INT_MAILS_[x] = 1; })); } catch (e) {}
+    try { loadUsers_().forEach(u => { const x = String(u.email || '').trim().toLowerCase(); if (x) INT_MAILS_[x] = 1; }); } catch (e) {} }
+  return !!INT_MAILS_[em];
+}
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {};
   { const own = ownDomain_(), rc = String(to || '').split(',').concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(Boolean);
-    if (own && rc.length && rc.every(x => x.split('@')[1] === own)) {   /* csak belső (céges) címzett: nincs „Ezt az értesítést … küldte” lábléc – csak helyet foglal */
+    if (rc.length && rc.every(x => isInternalMail_(x, own))) {   /* csak belső (céges) címzett: nincs „Ezt az értesítést … küldte” lábléc – csak helyet foglal */
       opts.__noFoot = 1; if (opts.htmlBody) opts.htmlBody = String(opts.htmlBody).replace(/<p[^>]*>\s*Ezt az értesítést a Lumos Motion Kft\. Projekttervező szoftvere küldte\.\s*<\/p>/g, '');
       text = String(text || '').replace(/\n*Ezt az értesítést a Lumos Motion Kft\. Projekttervező szoftvere küldte\.\s*$/, ''); } }
   if (!opts.__noFoot && opts.name === 'Lumos Motion Projekttervező' && String(opts.htmlBody || '').indexOf(AUTO_FOOT_) < 0) {   // automatikus értesítés: egységes lábléc (dőlt)
