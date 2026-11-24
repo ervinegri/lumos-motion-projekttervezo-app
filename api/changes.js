@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "adcb413dd0",
+"at": "2026-11-24T22:23:54+01:00",
+"msg": "Jóváhagyó oldal: szöveg után az időkód új sorba kerül; azonos időkódnál a kurzor az új időkód mögé áll"
+},
+{
 "id": "7612b78ded",
 "at": "2026-11-24T22:21:32+01:00",
 "msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb fölé úszik (nem változik a magasság, nem ugrik a szöveg); az „Igen, elküldöm” olyan, mint az „Elküldöm a módosítást”"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "E-mail védőháló: ugyanaz a levél 15 percen belül nem megy ki kétszer, hozzászólás-értesítő videónként 10 percenként legfeljebb egy, a napi teendőlevél naponta egyszer, megerősítő gomb dupla kattintás ellen"
 },
 {
-"id": "945b1d0058",
-"at": "2026-11-24T15:34:26+02:00",
-"msg": "Videó hozzászólás: bezáráskor / továbblépéskor csak a most begépelt szöveg megy el – a visszatöltött régi szöveg magától soha"
-},
-{
-"id": "2b2bc35872",
-"at": "2026-11-24T13:31:27Z",
+"id": "7a89312cbd",
+"at": "2026-11-24T13:34:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
