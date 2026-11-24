@@ -436,12 +436,15 @@ async function gsOnce(fn,...args){
   const modes=body.length<6000?['get','post']:['post','post'];
   let j=null,netErr=false;
   for(const mode of modes){
+    /* időkorlát: telefonon (alvás / háttérbe tétel) egy kérés válasz nélkül „beragadhat” – ilyenkor az app sosem frissülne. 90 mp után hibának vesszük. */
+    const ac=typeof AbortController==='function'?new AbortController():null,tm=ac?setTimeout(()=>{try{ac.abort();}catch(_){}},90000):0;
     try{
       const res=mode==='get'
-        ?await fetch(API_URL+(API_URL.indexOf('?')>=0?'&':'?')+'p='+encodeURIComponent(body),{redirect:'follow',keepalive:body.length<8000})
-        :await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow',keepalive:body.length<60000});   // keepalive: frissítés/bezárás közben is végigmegy a mentés
+        ?await fetch(API_URL+(API_URL.indexOf('?')>=0?'&':'?')+'p='+encodeURIComponent(body),{redirect:'follow',keepalive:body.length<8000,signal:ac?ac.signal:undefined})
+        :await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow',keepalive:body.length<60000,signal:ac?ac.signal:undefined});   // keepalive: frissítés/bezárás közben is végigmegy a mentés
       j=await res.json();netErr=false;
     }catch(e){j=null;netErr=true;break;}
+    finally{if(tm)clearTimeout(tm);}
     if(j&&j.ok&&!('data' in j))continue; /* nem a kérésre érkezett válasz: próbáljuk a másik módon */
     break;
   }
@@ -451,7 +454,7 @@ async function gsOnce(fn,...args){
   return j.data;
 }
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDoc(Delete|Upload)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind|BankSet|DocSet)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
-const READ_RE=/^(inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
+const READ_RE=/^(emailCheck|contractPdf|inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
 const BG_RE=/^(szSync|salesSyncNow|crewDocsImport|navSync|syncCalendar)$/;   // háttér-szinkronok: nem tartják vissza a betöltést
 /* ===== AZONNALI MÓDOSÍTÁSOK, VISSZAUGRÁS NÉLKÜL (2026-11-21) =====
    A regisztrált műveletek (állapotváltások) azonnal látszanak, és egy helyi „függő” listába kerülnek (localStorage – oldalfrissítést is túlél).
@@ -502,7 +505,7 @@ let PEND_REPLAYED=false;
 function pendReplay(){if(PEND_REPLAYED||!TOKEN)return;PEND_REPLAYED=true;const L=pendGet();if(!L.length)return;let n=0;
   L.forEach(x=>{const o=OPT[x.n],rp=typeof o.replay==='function'?o.replay(x.a):o.replay;if(!rp)return;n++;
     gs('rpc',TOKEN,x.n,x.a).then(()=>{pendDone(x.id);},()=>{pendDone(x.id);})   /* pl. „már törölve” – a friss betöltés úgyis a valós állapotot mutatja */.finally(()=>{if(--n===0)setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(e){}},300);});});}
-const call=(name,arg)=>{if(S._viewP&&name!=='setViewAs')return S._viewP.then(()=>call(name,arg),()=>call(name,arg));   /* nézetváltás közben (a gyorsítótárból már látszik az új nézet) minden kérés megvárja, hogy a háttér is átálljon */if(BG_RE.test(name)){if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);}const fm=FIN_MUT_RE.test(name),wm=fm||!READ_RE.test(name);if(fm){S._finMut=(S._finMut||0)+1;S._finLive=(S._finLive||0)+1;}if(wm){S._mut=(S._mut||0)+1;S._mutLive=(S._mutLive||0)+1;}
+const call=(name,arg)=>{if(S._viewP&&name!=='setViewAs')return S._viewP.then(()=>call(name,arg),()=>call(name,arg));   /* nézetváltás közben (a gyorsítótárból már látszik az új nézet) minden kérés megvárja, hogy a háttér is átálljon */if(BG_RE.test(name)){if(FIN_MUT_RE.test(name))S._finMut=(S._finMut||0)+1;return gs('rpc',TOKEN,name,arg===undefined?null:arg);}const fm=FIN_MUT_RE.test(name),wm=fm||!READ_RE.test(name);if(fm){S._finMut=(S._finMut||0)+1;S._finLive=(S._finLive||0)+1;}if(wm){S._mut=(S._mut||0)+1;S._mutLive=(S._mutLive||0)+1;S._mutLiveAt=Date.now();}
   const pid0=OPT[name]&&arg?pendAdd(name,arg):'';if(pid0){try{pendPatchState();setTimeout(()=>{try{if(!$('modalRoot').innerHTML&&typeof render==='function')render(true);}catch(e){}},0);}catch(e){}}
   const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg).then(r=>{if(pid0)pendDone(pid0);return pendPatch(r,pid0);},e=>{if(pid0){pendDone(pid0);setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(_){}},200);}throw e;});if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(r=>{done();try{const pj=r&&(r.project||(name==='saveProject'&&r.id&&r.updatedAt?r:null));if(pj&&pj.id&&typeof bootCachePatch==='function')bootCachePatch(pj);}catch(e){}},done);}return pr;};   /* a sikeres módosítás a helyi gyorsítótárba is bekerül: frissítéskor nem a régi állapot villan fel */   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');

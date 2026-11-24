@@ -70,7 +70,8 @@ function bootFromCache(){
   }catch(e){return false;}
 }
 async function load(quiet,announce,pre){
-  if(S.loading&&!pre)return;S.loading=true;const seq=S.loadSeq=(S.loadSeq||0)+1;   // nézetváltáskor a folyamatban lévő betöltést felülírjuk
+  if(S.loading&&!pre&&Date.now()-(S.loadingAt||0)<100000)return;S.loading=true;S.loadingAt=Date.now();   /* beragadt (100 mp-nél régebbi) betöltés nem akadályozza a frissítést */
+  if((S._mutLive||0)>0&&Date.now()-(S._mutLiveAt||0)>120000)S._mutLive=0;   /* válasz nélkül maradt mentés-számláló ne tartsa vissza örökre a friss adatot */const seq=S.loadSeq=(S.loadSeq||0)+1;   // nézetváltáskor a folyamatban lévő betöltést felülírjuk
   if(!quiet&&!S.loaded)VIEW.innerHTML='<div class="loading"><span class="spin"></span>Betöltés…</div>';
   try{
     if(!pre&&S.saving)await SAVE_Q;   // ne töltsük be a régi állapotot, amíg mentés fut
