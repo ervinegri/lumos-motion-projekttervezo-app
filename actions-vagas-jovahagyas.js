@@ -327,8 +327,12 @@ function vvMergeBack(L){const ev=c=>/^(↩|Ügyfélnek elküldve|TESZT: az ügyf
 /* hozzászólás ideje → időbélyeg (bármilyen formátumból: ISO, „2026-11-10 13:20”, „2026. 11. 10. 13:20”) – a legfrissebb legyen felül */
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
+/* az ügyfél (és a stáb) formázott üzenete: **félkövér**, _dőlt_, „- ” felsorolás, „1. ” számozott sor – soronként, hogy az időkódos pipák is megmaradjanak */
+const mdInl=h=>h.replace(/\*\*(?=\S)(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g,'$1<i>$2</i>');
+const mdLine=h=>{const b=/^(\s*)[-•*]\s+(.*)$/.exec(h),n=/^(\s*)(\d{1,2})[.)]\s+(.*)$/.exec(h);
+  return b?`<span class="md-li"><i class="md-m">•</i>${mdInl(b[2])}</span>`:n?`<span class="md-li"><i class="md-m">${n[2]}.</i>${mdInl(n[3])}</span>`:mdInl(h);};
 function vidCmBody(v,c,reps){let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v),me=S.me&&S.me.name;
-  return String(c.t||'').split('\n').map(line=>{const h=tcLinks(esc(line));if(h.indexOf('class="vv-ts')<0)return esc(line)+'<br>';let first='';
+  return String(c.t||'').split('\n').map(line=>{const h=tcLinks(esc(line));if(h.indexOf('class="vv-ts')<0)return mdLine(esc(line))+'<br>';let first='';
     const hh=h.replace(/<button type="button" class="vv-ts/g,()=>{const k=String(c.at||'')+'#'+(n++),on=dn.has(k);if(!first)first=k;
       return `<label class="vv-done${on?' on':''}" title="${on?'Elvégezve – kattints a visszavonáshoz':'Pipáld ki, ha elvégezted'}"><input type="checkbox" data-vv-done="${esc(k)}"${on?' checked':''}${can?'':' disabled'}></label><button type="button" class="vv-ts${on?' done':''}`;});
     const R=(reps[first]||[]).map(r=>`<div class="vv-cm-i vv-rep" data-raw="${esc(r.t)}" data-by="${esc(r.by||'')}"><b>${cmWho(r.by)}${esc(r.by||'')}</b> <span class="muted">· ${esc(String(r.at||'').slice(5,16).replace('T',' '))}</span>${r.idx!=null&&me&&r.by===me&&!S.me.viewAs?`<button type="button" class="vv-cm-del" data-action="vid-cm-del" data-idx="${r.idx}" data-kind="" data-at="${esc(r.at||'')}" title="Válasz törlése">🗑</button>`:''} ${esc(r.t)}</div>`).join('');

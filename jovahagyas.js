@@ -237,6 +237,40 @@ const pcPick=(L,name)=>pcHits(L,name).f;
     window._posSide=posSide;addEventListener('resize',()=>requestAnimationFrame(posSide));if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(posSide));const pl=$('player');if(pl)ro.observe(pl);if(sd)ro.observe(sd);}
     const upd=()=>{if(!sd||innerWidth<=860){if(sd)sd.style.minHeight='';return;}if(editing())return;let h=sd.scrollHeight;{const dw=$('dlWrap');if(dw&&dw.hidden&&!noDl){dw.hidden=false;h=Math.max(h,sd.scrollHeight);dw.hidden=true;}}   /* a (még rejtett) letöltés gomb helyét is számoljuk, hogy jóváhagyás után se ugorjon */if(h>lock+1){lock=h;sd.style.minHeight=lock+'px';}};
     if(sd&&window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(upd)).observe(sd);addEventListener('resize',()=>{lock=0;if(sd)sd.style.minHeight='';upd();});}
+  /* Szövegformázás az ügyfél üzenetében: félkövér, dőlt, felsorolás, számozott lista (a szöveg egyszerű jelölésekkel – **félkövér**, _dőlt_, „- ” – kerül el, így e-mailben is olvasható; alatta élő előnézet) */
+  {const MD=window.mdLiteHtml=t=>{const e=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const il=h=>h.replace(/\*\*(?=\S)([\s\S]+?)\*\*/g,'<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g,'$1<i>$2</i>');
+      let out='',lt='';const close=()=>{if(lt){out+='</'+lt+'>';lt='';}};
+      String(t||'').split('\n').forEach(L=>{const b=/^\s*[-•*]\s+(.*)$/.exec(L),n=/^\s*(\d{1,2})[.)]\s+(.*)$/.exec(L);
+        if(b){if(lt!=='ul'){close();out+='<ul>';lt='ul';}out+='<li>'+il(e(b[1]))+'</li>';}
+        else if(n){if(lt!=='ol'){close();out+='<ol>';lt='ol';}out+='<li>'+il(e(n[2]))+'</li>';}
+        else{close();out+=(L.trim()?'<p>'+il(e(L))+'</p>':'<p class="sp"></p>');}});close();return out;};
+    const has=t=>/\*\*\S|(^|\s)_\S|^\s*([-•*]|\d{1,2}[.)])\s+/m.test(t);
+    const wrap=(ta,m)=>{const a=ta.selectionStart,z=ta.selectionEnd,v=ta.value,sel=v.slice(a,z)||(m==='**'?'félkövér szöveg':'dőlt szöveg');
+      const on=v.slice(a-m.length,a)===m&&v.slice(z,z+m.length)===m;   /* már formázott: levesszük */
+      if(on){ta.value=v.slice(0,a-m.length)+v.slice(a,z)+v.slice(z+m.length);ta.setSelectionRange(a-m.length,z-m.length);}
+      else{ta.value=v.slice(0,a)+m+sel+m+v.slice(z);ta.setSelectionRange(a+m.length,a+m.length+sel.length);}};
+    const list=(ta,num)=>{const v=ta.value,a=v.lastIndexOf('\n',ta.selectionStart-1)+1,zi=v.indexOf('\n',ta.selectionEnd),z=zi<0?v.length:zi;const L=v.slice(a,z).split('\n');
+      const isL=num?L.every(x=>/^\s*\d{1,2}[.)]\s+/.test(x)):L.every(x=>/^\s*[-•*]\s+/.test(x));
+      const N=L.map((x,i)=>isL?x.replace(num?/^\s*\d{1,2}[.)]\s+/:/^\s*[-•*]\s+/,''):(num?(i+1)+'. ':'- ')+x.replace(/^\s*([-•*]|\d{1,2}[.)])\s+/,''));
+      const r=N.join('\n');ta.value=v.slice(0,a)+r+v.slice(z);ta.setSelectionRange(a+r.length,a+r.length);};
+    ['fb','okNote','note'].forEach(id=>{const ta=$(id);if(!ta||ta.dataset.fmt)return;ta.dataset.fmt=1;
+      const bar=document.createElement('div');bar.className='fmt-bar';bar.setAttribute('role','toolbar');bar.setAttribute('aria-label','Szöveg formázása');
+      bar.innerHTML='<button type="button" data-f="b" title="Félkövér (Ctrl/⌘+B)" aria-label="Félkövér"><b>B</b></button><button type="button" data-f="i" title="Dőlt (Ctrl/⌘+I)" aria-label="Dőlt"><i>I</i></button><button type="button" data-f="ul" title="Felsorolás" aria-label="Felsorolás">• Lista</button><button type="button" data-f="ol" title="Számozott lista" aria-label="Számozott lista">1. Lista</button>';
+      const host=ta.closest('.tc-wrap')||ta;host.parentNode.insertBefore(bar,host);
+      const pv=document.createElement('div');pv.className='fmt-pv';pv.hidden=true;host.parentNode.insertBefore(pv,host.nextSibling);
+      const upd=()=>{const t=ta.value;const on=has(t);pv.hidden=!on;if(on)pv.innerHTML='<span class="fmt-pv-h">Így fog látszani:</span>'+MD(t);};
+      const act=f=>{ta.focus();if(f==='b')wrap(ta,'**');else if(f==='i')wrap(ta,'_');else list(ta,f==='ol');ta.dispatchEvent(new Event('input',{bubbles:true}));};
+      bar.addEventListener('mousedown',e=>e.preventDefault());   /* a kijelölés a szövegben marad */
+      bar.addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(b)act(b.dataset.f);});
+      ta.addEventListener('keydown',e=>{if(!(e.metaKey||e.ctrlKey)||e.altKey)return;const k=e.key.toLowerCase();if(k==='b'||k==='i'){e.preventDefault();act(k);}});
+      /* Enter egy lista sorában: a következő sor is listaelem; üres listaelemnél kilép a listából */
+      ta.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.metaKey||e.ctrlKey||e.isComposing)return;const v=ta.value,p=ta.selectionStart;if(p!==ta.selectionEnd)return;const a=v.lastIndexOf('\n',p-1)+1,line=v.slice(a,p);
+        const m=/^(\s*)([-•*]|\d{1,2}[.)])\s+(.*)$/.exec(line);if(!m)return;e.preventDefault();
+        if(!m[3].trim()){ta.value=v.slice(0,a)+v.slice(p);ta.setSelectionRange(a,a);}
+        else{const nx=/^\d/.test(m[2])?(parseInt(m[2],10)+1)+m[2].replace(/\d+/,''):m[2];const ins='\n'+m[1]+nx+' ';ta.value=v.slice(0,p)+ins+v.slice(p);ta.setSelectionRange(p+ins.length,p+ins.length);}
+        ta.dispatchEvent(new Event('input',{bubbles:true}));},true);
+      ta.addEventListener('input',upd);upd();});}
   ['fb','okNote','note'].forEach(id=>{const ta=$(id);if(!ta)return;const grow=()=>{const pl=$('player'),sd=document.querySelector('.side'),plH=pl?pl.getBoundingClientRect().height:400,other=sd?sd.getBoundingClientRect().height-ta.getBoundingClientRect().height:250,mx=Math.max(110,Math.min(window.innerHeight*0.6,(window.innerWidth>860?plH:window.innerHeight)-other));   /* a panel legfeljebb a videó magasságáig nő, utána a mezőben görget */ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight+2,mx)+'px';ta.style.overflowY=ta.scrollHeight+2>mx?'auto':'hidden';};ta.addEventListener('input',grow);ta.addEventListener('focus',grow);window.addEventListener('resize',grow);});   /* gépelés közben a mező nő (görgetés nélkül) */
   /* Szóköz: rövid lenyomás = lejátszás / megállítás (az első hanggal indít); hosszan nyomva = 2× sebesség, amíg nyomod (mint a YouTube-on) */
   {let hold=0,fast=false,down=false;const typing=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable||a.tagName==='BUTTON'||a.tagName==='A');};
