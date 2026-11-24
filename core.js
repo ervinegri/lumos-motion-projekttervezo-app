@@ -454,7 +454,7 @@ async function gsOnce(fn,...args){
   return j.data;
 }
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDoc(Delete|Upload)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind|BankSet|DocSet)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
-const READ_RE=/^(emailCheck|contractPdf|inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
+const READ_RE=/^(emailCheck|contractPdf|gbpList|companyIndex|hsClientLinks|ctTplList|clientInvoices|inviteStatus|crewAddress|crewContractTpl|inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
 const BG_RE=/^(szSync|salesSyncNow|crewDocsImport|navSync|syncCalendar)$/;   // háttér-szinkronok: nem tartják vissza a betöltést
 /* ===== AZONNALI MÓDOSÍTÁSOK, VISSZAUGRÁS NÉLKÜL (2026-11-21) =====
    A regisztrált műveletek (állapotváltások) azonnal látszanak, és egy helyi „függő” listába kerülnek (localStorage – oldalfrissítést is túlél).
