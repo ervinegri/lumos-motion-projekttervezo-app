@@ -532,6 +532,12 @@ function viewProjects(){
     +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> Lezárt projektek <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
   const qIn=`<input class="inp search pt-q" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">`;   // a keresőmező a táblázat „Projekt” fejlécében
+  const mob=!ro()&&!!(window.matchMedia&&matchMedia('(max-width:700px)').matches);   /* telefonon: a kereső és az „Új projekt” egy sorban, a fül neve már kimondja, hol vagyunk */
+  if(mob)return `<div class="page-head ph-mob">${qIn.replace('placeholder="Keresés név, ügyfél, helyszín szerint"','placeholder="Keresés: név, ügyfél, helyszín"')}<button class="btn primary w" type="button" data-action="new-project">+ Új</button></div>
+    ${invitesBox()}
+    ${!issues.length?'':`<div class="panel issues-panel"><h3>⚠️ Figyelmeztetések <span class="aside">${issues.length} db</span></h3><div class="issues">${issues.map(i=>issueRow(i)).join('')}</div></div>`}
+    ${isAdmin()?pendingPenPanel()+pendingBudgetPanel():''}
+    ${body?`<div class="sheet-wrap proj-wrap"><table class="sheet proj-table"><tbody>${body}</tbody></table></div>`:`<div class="panel">${empty(S.projects.length?'Nincs a szűrésnek megfelelő projekt.':'Még nincs projekt. Hozd létre az elsőt az „Új” gombbal.')}</div>`}`;
   return `<div class="page-head${ro()?' ph-inline':''}"><div class="grow"><h2>${ro()?'Beosztásaim':'Projektek'}</h2></div>
       ${ro()?`<input class="inp search head-search" id="q-projects" type="search" placeholder="Keresés…" value="${esc(f.q)}" aria-label="Projektek keresése">`:'<button class="btn primary w" type="button" data-action="new-project">+ Új projekt</button>'}</div>
     ${invitesBox()}
@@ -620,3 +626,6 @@ function payDockFit(){const w=document.querySelector('body.pay-dock #view .dock-
 function payTextW(td,rg){const lines={};const tw=document.createTreeWalker(td,NodeFilter.SHOW_TEXT);let n;
   while((n=tw.nextNode())){if(!n.nodeValue.trim())continue;rg.selectNodeContents(n);for(const r of rg.getClientRects()){if(!r.width)continue;const k=Math.round((r.top+r.bottom)/12);const L=lines[k]||(lines[k]={l:r.left,r:r.right});L.l=Math.min(L.l,r.left);L.r=Math.max(L.r,r.right);}}
   let mx=0;Object.values(lines).forEach(L=>{mx=Math.max(mx,L.r-L.l);});return mx;}
+
+/* telefon ↔ szélesebb nézet (forgatás): a Projektek fejléce az új szélességhez igazodik */
+try{matchMedia('(max-width:700px)').addEventListener('change',()=>{try{const a=document.activeElement;if(S.loaded&&S.tab==='projektek'&&!S.projectId&&!(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)))render(true);}catch(e){}});}catch(e){}
