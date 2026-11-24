@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c44e509d8a",
+"at": "2026-11-24T22:08:06+01:00",
+"msg": "Jóváhagyó oldal: a feltöltött fájl sora nem lesz zöld gomb (osztálynév-ütközés a Jóváhagyom gombbal)"
+},
+{
 "id": "a32a2b1d47",
 "at": "2026-11-24T22:03:48+01:00",
 "msg": "Jóváhagyó oldal: az Enter újra időkódot szúr be (a videón / az oldalon; a szövegszerkesztőben új sor)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új verzió: a régóta nyitott lap magától frissül egy nyugodt pillanatban (nincs nyitott ablak, nem gépel, 1,5 perce nem használják vagy visszatér a lapra)"
 },
 {
-"id": "df15233cc9",
-"at": "2026-11-24T14:43:17+02:00",
-"msg": "Árajánlat: a tételek leírása nagyobb és sötétebb (jobban olvasható)"
-},
-{
-"id": "cc9e3797cd",
-"at": "2026-11-24T10:56:26Z",
+"id": "a8b7cfa775",
+"at": "2026-11-24T12:43:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
