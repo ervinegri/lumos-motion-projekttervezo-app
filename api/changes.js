@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "74049ce505",
+"at": "2026-11-24T17:41:35+02:00",
+"msg": "Ajánlatkészítés a lehetőségből: a lehetőség ablaka nem tűnik el – halványan alatta marad, és bezáráskor (Esc, ×, Bezárás) azonnal, a beírt adatokkal együtt visszajön"
+},
+{
 "id": "4ca54a9122",
 "at": "2026-11-24T16:27:28+02:00",
 "msg": "Teljesítménytábla: „Jutalékalap” oszlop, a súgóban tételesen a befolyt összeg és a levont szervezői jutalék / továbbszámlázott költség"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: azonos percben írt üzenet és küldés is összevonódik"
 },
 {
-"id": "29627ee043",
-"at": "2026-11-24T08:35:24+02:00",
-"msg": "Videó hozzászólások: az ügyfélnek küldés is összevonva az előtte (10 percen belül) írt saját üzenettel"
-},
-{
-"id": "32e51404a5",
-"at": "2026-11-24T06:34:55Z",
+"id": "a82005ad03",
+"at": "2026-11-24T06:35:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
