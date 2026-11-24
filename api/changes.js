@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "45f6722ebb",
+"at": "2026-11-24T22:23:42+02:00",
+"msg": "Kifizetve, de számla nélkül: a „＋ Rezsi / ＋ Marketing” gomb hibánál kiírja az okát, eltérő azonosítónál frissíti a listát"
+},
+{
 "id": "852c30c5b9",
 "at": "2026-11-24T20:47:46+02:00",
 "msg": "Bejövő díjbekérő: „díjbekérő” és „✓ kifizetve” jelzés a beérkezett számlák között; a később érkező végszámla magától a díjbekérőből rögzített kiadáshoz kapcsolódik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Frissülés: a betöltés eredményét legfeljebb 3-szor dobjuk el közbejött írás miatt (utána mindenképp frissül); az olvasó kérések (gbpList, companyIndex…) nem számítanak írásnak"
 },
 {
-"id": "075b1bfe2c",
-"at": "2026-11-24T10:51:29+02:00",
-"msg": "Lábléc: a stábnak és a felhasználóknak (külső címen is) szóló levelekben sincs – csak az ügyfeleknek"
-},
-{
-"id": "ca3e041b1b",
-"at": "2026-11-24T08:48:56Z",
+"id": "a9f112597a",
+"at": "2026-11-24T08:51:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
