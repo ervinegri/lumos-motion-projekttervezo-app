@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "722e21f78d",
+"at": "2026-11-24T15:27:48+02:00",
+"msg": "Árajánlat: többnapos rendezvénynél a Rendezvény dobozban kiemelt „N napos rendezvény” jelzés és a teljes időszak (a kalkulátor napjaiból is)"
+},
+{
 "id": "b680481d53",
 "at": "2026-11-24T14:47:46+02:00",
 "msg": "Új verzió: a régóta nyitott lap magától frissül egy nyugodt pillanatban (nincs nyitott ablak, nem gépel, 1,5 perce nem használják vagy visszatér a lapra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Rendezvény típusa: Esküvő és Ingatlan"
 },
 {
-"id": "48b9b1792a",
-"at": "2026-11-24T08:03:56+02:00",
-"msg": "HubSpot visszaírás bővítve: meglévő kapcsolattartó neve/telefonja/cége frissül, az appban írt új jegyzetek HubSpot-jegyzetként a kapcsolattartóhoz és a céghez kerülnek (az appban nem duplán), a „Honnan jött?” a HubSpot forrás-mezőjébe is (ha írható)"
-},
-{
-"id": "3645d91212",
-"at": "2026-11-24T05:59:02Z",
+"id": "4f0cd3b2fb",
+"at": "2026-11-24T06:04:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
