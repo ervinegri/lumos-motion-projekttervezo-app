@@ -1002,13 +1002,30 @@ function gmailSend_(to, subject, text, opts, cat) {
   // a GmailApp a 4 bájtos karaktereket (emojik, pl. 😔) hibásan kódolja (������): a HTML-ben számkóddal (&#x1F614;) adjuk át, a szöveges változatból kivesszük
   if (opts.htmlBody) opts.htmlBody = String(opts.htmlBody).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, c => '&#x' + c.codePointAt(0).toString(16).toUpperCase() + ';').replace(/[\uD800-\uDFFF]/g, '');
   text = String(text || '').replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').replace(/[\uD800-\uDFFF]/g, '');
-  sendAs_(to, subj_(subject), text, opts); return true;
+  opts.__auto = 1; return sendAs_(to, subj_(subject), text, opts);
 }
 /** Tényleges küldés: ha van domainszintű megbízás (opts.__dwd), a kolléga saját postafiókjából, különben a központi fiókból. A tárgyat a hívó már összeállította. */
+/* ===== Hiábavaló levelek elleni védőháló (minden kimenő levél ezen megy át) =====
+   1) ugyanaz a levél (címzett + tárgy + szöveg) 15 percen belül nem megy ki még egyszer – dupla kattintás, újraküldött kérés, visszatöltött szöveg ellen;
+   2) hozzászólás-értesítő: egy címzett egy videóról 10 percenként legfeljebb egyet kap (a további hozzászólások az appban látszanak). */
+function mailHash_(k) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, k, Utilities.Charset.UTF_8)).slice(0, 40); }
+function mailGuard_(to, subject, text) {
+  let c = null; try { c = CacheService.getScriptCache(); } catch (e) { return ''; }
+  const rc = String(to || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean).sort().join(',');
+  const kd = 'mdup_' + mailHash_(rc + '\n' + subject + '\n' + String(text || '').replace(/\s+/g, ' ').trim());
+  const kb = /Hozzászólás:/.test(String(subject)) ? 'mthr_' + mailHash_(rc + '\n' + subject) : '';
+  try { if (c.get(kd)) return 'dup'; if (kb && c.get(kb)) return 'burst'; c.put(kd, '1', 900); if (kb) c.put(kb, '1', 600); } catch (e) { }
+  return '';
+}
 function sendAs_(to, subject, text, opts) {
+  const auto = opts.__auto; delete opts.__auto;
+  { const g = mailGuard_(to, subject, text);
+    if (g) { Logger.log('Levél kihagyva (' + (g === 'dup' ? 'ugyanez 15 percen belül már kiment' : 'hozzászólás-értesítő 10 percen belül már ment') + '): ' + to + ' – ' + subject);
+      if (auto || g === 'burst') return false;
+      throw new Error('Ugyanez a levél ugyanennek a címzettnek az elmúlt 15 percben már kiment – nem küldtük el újra.'); } }
   const dwd = opts.__dwd; delete opts.__dwd; delete opts.__actor;
-  if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subject, text, opts); return; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
-  GmailApp.sendEmail(to, subject, text, opts);
+  if (dwd && !opts.inlineImages) { try { dwdSend_(dwd, to, subject, text, opts); return true; } catch (e) { Logger.log('Domainszintű küldés sikertelen (' + dwd + '), a központi fiókról megy: ' + e); } }
+  GmailApp.sendEmail(to, subject, text, opts); return true;
 }
 
 /* ===================== KÜLDÉS A KOLLÉGA SAJÁT CÍMÉRŐL (Google Workspace domainszintű megbízás) =====================

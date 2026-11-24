@@ -467,6 +467,8 @@ function dealNextDaily() {
   const T = today_(), dow = new Date().getDay(); if (dow === 0 || dow === 6) return;   // hétvégén nem küldünk (hétfőn a hétvégiek lejártként jönnek)
   const open = readAll_('deals').filter(d => ['uj', 'ajanlat', 'targyalas'].indexOf(d.stage) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(String(d.nextDate || '')) && d.nextDate <= T);
   if (!open.length) return;
+  /* naponta egyszer: ha az időzítő valamiért kétszer futna (pl. dupla eseményindító), a második futás nem küld újra */
+  { const P = PropertiesService.getScriptProperties(), k = 'DEALNEXT_SENT'; if (P.getProperty(k) === T) { Logger.log('dealNextDaily: ma már kiment.'); return; } P.setProperty(k, T); }
   const users = loadUsers_(), crew = byId_(readAll_('crew')), by = {};
   open.forEach(d => { const id = String(d.ownerId || ''); let em = '', nm = '';
     if (id.indexOf('crew:') === 0) { const c = crew[id.slice(5)]; em = c && c.email; nm = c && c.name; } else { const x = users.find(u => u.id === id && !u.disabled); em = x && x.email; nm = x && x.name; }
