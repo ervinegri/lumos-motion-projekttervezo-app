@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c5defea26d",
+"at": "2026-11-24T11:51:43+02:00",
+"msg": "Projektek telefonon: kereső és „+ Új” gomb egy sorban (a fölösleges cím és fejléc nélkül)"
+},
+{
 "id": "d20c8a8feb",
 "at": "2026-11-24T11:50:38+02:00",
 "msg": "Lehúzás-frissítés: iOS-en a töredék görgetési érték (pl. 0,33) nem tiltja le"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új lehetőség: Szóba jövő szolgáltatások és Értékesítő egy sorban"
 },
 {
-"id": "2e789d7923",
-"at": "2026-11-23T18:49:33+02:00",
-"msg": "Új lehetőség: az Értékesítő a szóba jövő szolgáltatások után (teljes szélességben), a Szakasz és az Esély egy sorban"
-},
-{
-"id": "4626c122ec",
-"at": "2026-11-23T16:48:07Z",
+"id": "8834cf5a89",
+"at": "2026-11-23T16:49:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
