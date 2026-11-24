@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "89394779a0",
+"at": "2026-11-24T21:52:22+01:00",
+"msg": "Jóváhagyó oldal: Gmail-szerű formázó eszköztár egy sorban az időkód gombbal (betűtípus, méret, félkövér, dőlt, aláhúzott, szín, igazítás, listák, behúzás, áthúzás, formázás törlése); az appban és az e-mailben is így jelenik meg"
+},
+{
 "id": "bed085d6c3",
 "at": "2026-11-24T22:39:22+02:00",
 "msg": "Jóváhagyó oldal: a formázás szerkesztés közben azonnal látszik (mint egy Word-dokumentumban), időkód kék címkeként; a fájlcsatolás a módosításkérés része"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek telefonon: a hónap-elválasztó sorok elmaradnak (a dátumblokk mutatja a hónapot)"
 },
 {
-"id": "c5defea26d",
-"at": "2026-11-24T11:51:43+02:00",
-"msg": "Projektek telefonon: kereső és „+ Új” gomb egy sorban (a fölösleges cím és fejléc nélkül)"
-},
-{
-"id": "02f56bff82",
-"at": "2026-11-24T09:50:48Z",
+"id": "3a93861921",
+"at": "2026-11-24T09:51:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
