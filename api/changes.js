@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eff1951f6b",
+"at": "2026-11-24T15:31:09+02:00",
+"msg": "Hozzászólás: elküldés után a szöveg nem töltődik vissza egy későbbi frissítéskor; ugyanaz a hozzászólás 15 percen belül nem kerül be kétszer; sikertelen küldésnél a szöveg visszakerül"
+},
+{
 "id": "9d842c00c1",
 "at": "2026-11-24T15:28:42+02:00",
 "msg": "Videótábla: megnyitáskor és a lapra visszatéréskor azonnal ellenőrzi a változásokat (pl. friss ellenőrzésre küldés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó: verziók v1 / Revision 1 / Revision 2…, a hozzászólásoknál a folyamat lépései színnel és címkével elkülönítve"
 },
 {
-"id": "c0371a0d6e",
-"at": "2026-11-24T08:18:35+02:00",
-"msg": "Videó verziók: az ügyfélnek küldéskor cserélt link nem új verzió (a háttér sem hoz létre újat; a korábbi ilyen bejegyzéseket a felület összevonja)"
-},
-{
-"id": "f55154e835",
-"at": "2026-11-24T06:07:03Z",
+"id": "61e32b3902",
+"at": "2026-11-24T06:18:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
