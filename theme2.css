@@ -3243,3 +3243,6 @@ html body .vv-cm-i.st-pay{border-left-color:#a16207;background:#fdf8e6}html body
 html body .page-head.ph-mob{display:flex!important;align-items:center;gap:10px;flex-wrap:nowrap;margin-bottom:12px}
 html body .page-head.ph-mob .pt-q{flex:1 1 auto;min-width:0;width:auto!important;margin:0!important}
 html body .page-head.ph-mob{align-items:stretch!important}html body .page-head.ph-mob .btn{flex:0 0 auto;white-space:nowrap;align-self:stretch;min-height:44px;padding-left:16px;padding-right:16px}
+
+/* Projektek telefonon: a hónap-elválasztó sorok elmaradnak – a dátumblokk minden sorban mutatja a hónapot */
+@media (max-width:700px){html body #view .proj-table tbody tr.pt-month-sep{display:none!important}}
