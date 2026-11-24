@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cdb720cee8",
+"at": "2026-11-24T20:34:20+02:00",
+"msg": "Kifizetve, de még számla nélkül: a díjbekérő alapján utalt összeg banki utalásból kiadásként rögzíthető, a később érkező végszámla ugyanahhoz kapcsolódik; elfogadott meghívásnál az elvállalt szerepkör nem vehető le"
+},
+{
 "id": "cca778506a",
 "at": "2026-11-24T20:27:29+02:00",
 "msg": "Hiányzó meghívó / beosztás: a figyelmeztetés a Helyszíni munka szakaszban is megjelenik (nem csak Tervezésben)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Belső (céges címre menő) értesítő levelekben nincs „Ezt az értesítést … küldte” lábléc"
 },
 {
-"id": "ba4c0646b0",
-"at": "2026-11-24T09:53:02+02:00",
-"msg": "Telefonon a hozzászólások és jegyzetek teljes hosszukban látszanak (nem kis görgethető dobozban) – videó, lehetőség-jegyzetek, napló"
-},
-{
-"id": "9ae72c5634",
-"at": "2026-11-24T07:52:23Z",
+"id": "3e294a535b",
+"at": "2026-11-24T07:53:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
