@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac338b212b",
+"at": "2026-11-24T08:06:51+02:00",
+"msg": "Rendezvény típusa: Esküvő és Ingatlan"
+},
+{
 "id": "48b9b1792a",
 "at": "2026-11-24T08:03:56+02:00",
 "msg": "HubSpot visszaírás bővítve: meglévő kapcsolattartó neve/telefonja/cége frissül, az appban írt új jegyzetek HubSpot-jegyzetként a kapcsolattartóhoz és a céghez kerülnek (az appban nem duplán), a „Honnan jött?” a HubSpot forrás-mezőjébe is (ha írható)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt: Videótábla → Utómunka, az Alapadatok alá; telefonon swipe-olható; Alapadatok alapból csukva"
 },
 {
-"id": "c6397a5db7",
-"at": "2026-11-22T17:04:05+02:00",
-"msg": "Projekt Pénzügyek telefonon: Szerződés és Termelés kártya egy sorban"
-},
-{
-"id": "9dc9ecc138",
-"at": "2026-11-22T15:02:42Z",
+"id": "59230eca28",
+"at": "2026-11-22T15:04:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
