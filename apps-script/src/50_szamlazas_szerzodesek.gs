@@ -1285,7 +1285,12 @@ function szDocSet_(u, a) {
   const d = readAll_('szDocs').find(x => x.id === id); if (!d) throw new Error('A bizonylat nem található.');
   if (d.status) return finData_();   // már kezelve (pl. többszöri kattintás): nem rögzítjük újra
   let expId = '';
-  if (st === 'kiadas') { const r = finClean_('finExpense', { name: (d.partnerName || 'Szállító') + (d.no ? ' – ' + d.no : ''), fund: a.fund === 'marketing' ? 'marketing' : 'rezsi', kind: 'egyszeri', month: String(d.telj || d.kelt || today_()).slice(0, 7), amount: Math.round(Number(d.net) || 0), note: 'számlázz.hu bejövő számla · bruttó ' + Math.round(Number(d.gross) || 0) + ' Ft' + (d.pdfUrl ? ' · ' + d.pdfUrl : '') });
+  const pre = st === 'kiadas' ? szBankExpOf_(d) : null;   /* a díjbekérő alapján már kifizetve és kiadásként rögzítve: a számla ahhoz a kiadáshoz kapcsolódik */
+  if (pre && readAll_('finExpense').some(e => e.id === pre)) {
+    withLock_(() => { const sh = sheetFor_('finExpense'), r = findRow_(sh, pre); if (!r) return; const e = readRow_('finExpense', sh, r);
+      e.name = (d.partnerName || 'Szállító') + (d.no ? ' – ' + d.no : ''); e.amount = Math.round(Number(d.net) || 0) || e.amount; e.note = 'számlázz.hu bejövő számla · bruttó ' + Math.round(Number(d.gross) || 0) + ' Ft' + (d.pdfUrl ? ' · ' + d.pdfUrl : '') + ' · előre kifizetve (díjbekérő)'; putRow_('finExpense', sh, e, r); dbFlush_(); });
+    expId = pre;
+  } else if (st === 'kiadas') { const r = finClean_('finExpense', { name: (d.partnerName || 'Szállító') + (d.no ? ' – ' + d.no : ''), fund: a.fund === 'marketing' ? 'marketing' : 'rezsi', kind: 'egyszeri', month: String(d.telj || d.kelt || today_()).slice(0, 7), amount: Math.round(Number(d.net) || 0), note: 'számlázz.hu bejövő számla · bruttó ' + Math.round(Number(d.gross) || 0) + ' Ft' + (d.pdfUrl ? ' · ' + d.pdfUrl : '') });
     let dup = false; withLock_(() => { const cur = readAll_('szDocs').find(x => x.id === id); if (cur && cur.status) { dup = true; return; } const sh = sheetFor_('finExpense'); putRow_('finExpense', sh, r, 0); dbFlush_(); }); if (dup) return finData_(); expId = r.id; }
   withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, id); if (!r) return; const row = readRow_('szDocs', sh, r); row.status = st; row.expenseId = expId; row.handledBy = u.name; row.handledAt = now_(); putRow_('szDocs', sh, row, r); dbFlush_(); });
   logEvent_(u, 'Bevétel és kiadás', d.partnerName || 'Bejövő számla', st === 'kiadas' ? 'Kiadásként rögzítve: ' + d.no : 'Elvetve: ' + d.no);
@@ -1439,4 +1444,40 @@ function szBankOpen_() {
     .map(t => szBankRefFix_(t, inv, docs)).filter(t => t)
     .filter(t => { const x = t.matchInvoice && inv[t.matchInvoice]; return !(x && t.status === 'javaslat' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) && Number(t.matchScore) >= 95); })   // a számlázz.hu közben magától párosította
     .slice(-200);
+}
+
+/* ===== Kifizetett, de még számla nélküli kimenő utalások (pl. díjbekérő alapján fizetett szállító) =====
+   A díjbekérő nem számla, ezért a számlázz.hu-ba nem érkezik bejövő számlaként – a kiadás eddig csak a végszámla megérkezésekor jelent meg.
+   Most a banki utalásból azonnal rögzíthető kiadásként; amikor a végszámla megérkezik, ugyanahhoz a kiadáshoz kapcsolódik (nem lesz kétszer). */
+function szBankPayNoDoc_() {
+  let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
+  const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd');
+  let docs = []; try { docs = readAll_('szDocs').filter(d => d.kind === 'be' && !d.storno); } catch (e) { }
+  const pw = n => szBankNorm_(n).split(' ').filter(w => w.length >= 3);
+  const sameP = (a, b) => { const A = pw(a), B = pw(b); return A.length && B.length && A.some(w => B.indexOf(w) >= 0); };
+  const hasDoc = t => { const am = Math.round(Math.abs(Number(t.amount) || 0)); return docs.some(d => Math.abs(Math.round(Number(d.gross) || 0) - am) <= 1 && sameP(d.partnerName, t.partnerName)); };
+  return all.filter(t => t.dir === 'KI' && !t.technical && !t.status && /^HUF$/i.test(t.currency || 'HUF') && Math.abs(Number(t.amount) || 0) >= 500 && String(t.valueDate || '') >= lim
+      && !szLoanNote_(t.note) && !/\bNAV\b|ad[óo]hivatal|kincst[áa]r/i.test(String(t.partnerName || '')) && !hasDoc(t))
+    .sort((a, b) => String(b.valueDate).localeCompare(String(a.valueDate))).slice(0, 100);
+}
+/** Kimenő utalás → kiadás (a végszámla később ehhez kapcsolódik). */
+function szBankExpense_(u, a) {
+  const id = str_(a && a.id, 64), t = readAll_('bankTx').find(x => x.id === id); if (!t) throw new Error('A tétel nem található.');
+  if (t.status) return finData_();   // már kezelve (többszöri kattintás)
+  const gross = Math.round(Math.abs(Number(t.amount) || 0)), net = Math.round(Number(a.net) || 0); if (!(net > 0)) throw new Error('Add meg a nettó összeget.');
+  if (net > gross) throw new Error('A nettó összeg nem lehet nagyobb az utalt bruttó összegnél (' + gross + ' Ft).');
+  const r = finClean_('finExpense', { name: str_(a.name, 200) || ((t.partnerName || 'Szállító') + (t.note ? ' – ' + t.note : '')), fund: a.fund === 'marketing' ? 'marketing' : 'rezsi', kind: 'egyszeri',
+    month: String(t.valueDate || today_()).slice(0, 7), amount: net, note: 'banki utalás ' + (t.valueDate || '') + ' · bruttó ' + gross + ' Ft · a számla még nem érkezett meg · ' + t.id });
+  let dup = false;
+  withLock_(() => { const sh = sheetFor_('bankTx'), row = findRow_(sh, id); if (!row) return; const x = readRow_('bankTx', sh, row); if (x.status) { dup = true; return; }
+    putRow_('finExpense', sheetFor_('finExpense'), r, 0); x.status = 'kiadas'; x.matchInvoice = 'exp:' + r.id; x.handledBy = u.name; x.handledAt = now_(); putRow_('bankTx', sh, x, row); dbFlush_(); });
+  if (!dup) logEvent_(u, 'Bevétel és kiadás', t.partnerName || 'Banki utalás', 'Kiadásként rögzítve banki utalásból (számla nélkül): ' + gross + ' Ft');
+  dataBump_(); return finData_();
+}
+/** A végszámla megérkezett: van-e hozzá már (banki utalásból rögzített) kiadás – azonos bruttó összeg és szállító */
+function szBankExpOf_(d) {
+  const am = Math.round(Number(d.gross) || 0), pw = n => szBankNorm_(n).split(' ').filter(w => w.length >= 3), D = pw(d.partnerName);
+  let tx = []; try { tx = readAll_('bankTx').filter(t => t.status === 'kiadas' && /^exp:/.test(t.matchInvoice || '')); } catch (e) { return null; }
+  const t = tx.find(t => Math.abs(Math.round(Math.abs(Number(t.amount) || 0)) - am) <= 1 && pw(t.partnerName).some(w => D.indexOf(w) >= 0));
+  return t ? t.matchInvoice.slice(4) : null;
 }
