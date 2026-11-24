@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bed085d6c3",
+"at": "2026-11-24T22:39:22+02:00",
+"msg": "Jóváhagyó oldal: a formázás szerkesztés közben azonnal látszik (mint egy Word-dokumentumban), időkód kék címkeként; a fájlcsatolás a módosításkérés része"
+},
+{
 "id": "4809b9af3d",
 "at": "2026-11-24T21:34:54+01:00",
 "msg": "Banki utalásból kiadás: külföldi szolgáltatónál ÁFA nélkül (nettó = utalt összeg); figyelmeztet, ha a hónapban már van hasonló kiadás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek telefonon: kereső és „+ Új” gomb egy sorban (a fölösleges cím és fejléc nélkül)"
 },
 {
-"id": "d20c8a8feb",
-"at": "2026-11-24T11:50:38+02:00",
-"msg": "Lehúzás-frissítés: iOS-en a töredék görgetési érték (pl. 0,33) nem tiltja le"
-},
-{
-"id": "4a94d095f2",
-"at": "2026-11-24T09:47:30Z",
+"id": "02f56bff82",
+"at": "2026-11-24T09:50:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
