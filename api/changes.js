@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "098c3c878a",
+"at": "2026-11-24T08:38:41+02:00",
+"msg": "Videó hozzászólások: a régi, sérült kódolású ikonok (��) helyreállítva a megjelenítésben"
+},
+{
 "id": "e00ff4590a",
 "at": "2026-11-24T08:36:58+02:00",
 "msg": "Videó hozzászólások: azonos percben írt üzenet és küldés is összevonódik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Dokumentumsor: az × nem törik új sorba"
 },
 {
-"id": "0e30230e51",
-"at": "2026-11-23T11:00:32+01:00",
-"msg": "Citan megállapodás: átvételkor csak sérülésnél kell jelezni, az átadás-átvételi lap nem kötelező"
-},
-{
-"id": "eb18e453ee",
-"at": "2026-11-23T08:38:25Z",
+"id": "418dabecc1",
+"at": "2026-11-23T10:00:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
