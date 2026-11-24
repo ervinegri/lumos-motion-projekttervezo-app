@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "945b1d0058",
+"at": "2026-11-24T15:34:26+02:00",
+"msg": "Videó hozzászólás: bezáráskor / továbblépéskor csak a most begépelt szöveg megy el – a visszatöltött régi szöveg magától soha"
+},
+{
 "id": "eff1951f6b",
 "at": "2026-11-24T15:31:09+02:00",
 "msg": "Hozzászólás: elküldés után a szöveg nem töltődik vissza egy későbbi frissítéskor; ugyanaz a hozzászólás 15 percen belül nem kerül be kétszer; sikertelen küldésnél a szöveg visszakerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Stáb kártya: 30 napon belüli projektnél a meg nem hívott tagnál piros „Még nincs meghívva · N nap múlva” jelzés"
 },
 {
-"id": "5dbafb56f5",
-"at": "2026-11-24T08:23:33+02:00",
-"msg": "Videó: verziók v1 / Revision 1 / Revision 2…, a hozzászólásoknál a folyamat lépései színnel és címkével elkülönítve"
-},
-{
-"id": "61e32b3902",
-"at": "2026-11-24T06:18:45Z",
+"id": "b7f885dd0d",
+"at": "2026-11-24T06:23:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
