@@ -3212,3 +3212,17 @@ html body .dl-4row{display:grid!important;grid-template-columns:minmax(0,1.15fr)
 html body .dl-4row>.field{margin:0!important;min-width:0}
 html body .dl-4row .inp,html body .dl-4row .fp-alt{width:100%!important;min-width:0}
 @media (max-width:700px){html body .dl-4row{grid-template-columns:minmax(0,1fr) 92px;gap:10px 10px}html body .dl-4row>.field:nth-child(3){grid-column:1/-1}html body .dl-4row>.field:nth-child(4){grid-column:1/-1}}
+
+/* verzióválasztó: a gomb felirata egy sorban */
+html body .vv-vers .vv-ver{white-space:nowrap}
+/* hozzászólások: a folyamat lépései színnel és címkével */
+html body .vv-cm-i[class*=" st-"]{border-left:4px solid transparent}
+html body .vv-cm-i .vv-step-tag{display:table;margin:0 0 6px;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.01em}
+html body .vv-cm-i.st-rv{border-left-color:#7c5cd6;background:#f4f0fd}html body .vv-cm-i.st-rv .vv-step-tag{background:#e6ddfb;color:#4b2fa3}
+html body .vv-cm-i.st-send{border-left-color:#2e7d4f;background:#edf7f0}html body .vv-cm-i.st-send .vv-step-tag{background:#d5eedd;color:#1e6a3e}
+html body .vv-cm-i.st-cli{border-left-color:#d48a00;background:#fff6e5}html body .vv-cm-i.st-cli .vv-step-tag{background:#ffe7b8;color:#7a4a00}
+html body .vv-cm-i.st-back{border-left-color:#c2410c;background:#fff1ea}html body .vv-cm-i.st-back .vv-step-tag{background:#ffdccb;color:#8a2d06}
+html body .vv-cm-i.st-ok{border-left-color:#15803d;background:#e8f7ec}html body .vv-cm-i.st-ok .vv-step-tag{background:#c9edd4;color:#11632f}
+html body .vv-cm-i.st-seen{opacity:.75;font-size:.95em;background:transparent;padding-top:4px;padding-bottom:4px}
+html body .vv-cm-i .vv-step-tag+b{margin-left:0}
+html body .vv-cm-i .vv-step-tag{margin-right:8px}
