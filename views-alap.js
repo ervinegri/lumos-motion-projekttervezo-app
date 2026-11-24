@@ -113,8 +113,12 @@ setInterval(()=>{if(!userActive())WAS_IDLE=true;},30000);
 /* visszatérés az appba (telefon felébresztése, másik appból/fülről vissza): ha 1 percnél régebbi az adat, frissít */
 const backFresh=()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-(S.lastLoad||0)>60000){LAST_ACT=Date.now();WAS_IDLE=false;load(true);}};
 document.addEventListener('visibilitychange',backFresh);window.addEventListener('pageshow',e=>{if(e.persisted)backFresh();});window.addEventListener('focus',backFresh);
-setInterval(async()=>{if(!TOKEN||VER_BUSY||!userActive()||!(idleOk()||boardIdle()))return;VER_BUSY=true;
-  try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&(idleOk()||boardIdle())){S.dataVer=v;if(S.tab==='naptar')calForceFresh();const bd=boardIdle();await load(true);if(bd&&boardIdle()&&typeof bdRefresh==='function')bdRefresh();}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}},15000);
+/* változásfigyelés: 15 mp-enként, és azonnal, amikor a felhasználó visszatér a lapra vagy megnyit egy videótáblát / videót
+   (pl. e-mailt kap, hogy ellenőrzésre küldtek valamit – a tábla ne a fél perccel korábbi állapotot mutassa) */
+async function verCheck(force){if(!TOKEN||VER_BUSY||!(force||userActive())||!(idleOk()||boardIdle()))return;VER_BUSY=true;
+  try{const r=await call('dataVer');const v=r&&r.v;if(v&&S.dataVer&&v!==S.dataVer&&(idleOk()||boardIdle())){S.dataVer=v;if(S.tab==='naptar')calForceFresh();const bd=boardIdle();await load(true);if(bd&&boardIdle()&&typeof bdRefresh==='function')bdRefresh();}else if(v)S.dataVer=v;}catch(e){}finally{VER_BUSY=false;}}
+setInterval(()=>verCheck(),15000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(()=>verCheck(true),300);});window.addEventListener('focus',()=>setTimeout(()=>verCheck(true),300));
 setInterval(()=>{const mgr=S.me&&(S.me.role==='admin'||S.me.role==='editor');if(userActive()&&idleOk()&&Date.now()-S.lastLoad>(mgr?120000:300000))load(true);},30000);   // a vezetőknél 2 percenként (értesítések)
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.loaded&&!S.dirty&&!S.saving&&Date.now()-S.lastLoad>60000)load(true);});
 window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro())){e.preventDefault();e.returnValue='';}});   // mentetlen módosításnál a böngésző rákérdez
