@@ -338,7 +338,7 @@ function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[
     const one=f=>{const li=document.createElement('li');li.innerHTML=`<span class="un">${esc(f.name)}</span><span class="us">várakozik…</span><span class="ub"><i></i></span>`;list.appendChild(li);
       const st=x=>li.querySelector('.us').textContent=x,bar=p=>li.querySelector('.ub i').style.width=Math.round(p*100)+'%';
       if(f.size>300*1024*1024){li.classList.add('u-err');st('túl nagy (max. 300 MB)');return;}
-      if(DEMO||(LAST&&LAST.preview)){bar(1);li.classList.add('u-ok');st('előnézet – nem töltjük fel');return;}
+      if(DEMO||(LAST&&LAST.preview)){li.classList.add('u-pv');let k=0;const tm=setInterval(()=>{k=Math.min(1,k+0.1);bar(k);st(Math.round(k*100)+'% · előnézet');if(k>=1){clearInterval(tm);st('előnézet – itt nem töltjük fel (az ügyfélnél feltöltődik)');}},120);return;}   /* belső előnézet: a folyamatjelző csak bemutató, a fájl nem kerül fel */
       busy++;Q=Q.then(async()=>{try{st('feltöltés…');const s0=await post('clientUpStart',[t,CUR,f.name,f.type||'',f.size]);let off=0,res=null;
           while(off<f.size){const ch=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await b64(ch);let tries=0;
             for(;;){try{res=await post('clientUpChunk',[t,s0.upId,off,d]);break;}catch(e){if(++tries>=3||/lejárt|Hibás/.test(e.message))throw e;await new Promise(r=>setTimeout(r,1500*tries));}}
