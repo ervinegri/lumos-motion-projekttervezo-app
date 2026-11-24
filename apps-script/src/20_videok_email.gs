@@ -976,9 +976,13 @@ let SALES_DONE_ = null;
 const AUTO_FOOT_ = 'Ezt az értesítést a Lumos Motion Kft. Projekttervező szoftvere küldte.';
 function gmailSend_(to, subject, text, opts, cat) {
   opts = opts || {};
-  if (opts.name === 'Lumos Motion Projekttervező' && String(opts.htmlBody || '').indexOf(AUTO_FOOT_) < 0) {   // automatikus értesítés: egységes lábléc (dőlt)
+  { const own = ownDomain_(), rc = String(to || '').split(',').concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(Boolean);
+    if (own && rc.length && rc.every(x => x.split('@')[1] === own)) {   /* csak belső (céges) címzett: nincs „Ezt az értesítést … küldte” lábléc – csak helyet foglal */
+      opts.__noFoot = 1; if (opts.htmlBody) opts.htmlBody = String(opts.htmlBody).replace(/<p[^>]*>\s*Ezt az értesítést a Lumos Motion Kft\. Projekttervező szoftvere küldte\.\s*<\/p>/g, '');
+      text = String(text || '').replace(/\n*Ezt az értesítést a Lumos Motion Kft\. Projekttervező szoftvere küldte\.\s*$/, ''); } }
+  if (!opts.__noFoot && opts.name === 'Lumos Motion Projekttervező' && String(opts.htmlBody || '').indexOf(AUTO_FOOT_) < 0) {   // automatikus értesítés: egységes lábléc (dőlt)
     if (opts.htmlBody) opts.htmlBody += '<p style="color:#7b8794;font-size:12px;font-style:italic;margin-top:18px">' + AUTO_FOOT_ + '</p>';
-    text = String(text || '') + '\n\n' + AUTO_FOOT_; } const actor = opts.__actor; delete opts.__actor;
+    text = String(text || '') + '\n\n' + AUTO_FOOT_; } const actor = opts.__actor; delete opts.__actor; delete opts.__noFoot;
   { const nk = opts.__nk || ({ assign: 1, eqlist: 1 }[cat] ? cat : ''); delete opts.__nk; if (nk && !crewNotifyOk_(to, nk)) { Logger.log('A címzett kikapcsolta (' + nk + '): ' + to + ' – ' + subject); return false; } }   // a szakember saját beállítása
   if (!mailOn_(cat)) { Logger.log('E-mail szünetel, nem ment ki: ' + to + ' – ' + subject); return false; }
   if (cat) { const toL = String(to).toLowerCase().split(','), cc = mailCcList_(cat, actor).concat(opts.cc ? String(opts.cc).split(',') : []).map(x => x.trim().toLowerCase()).filter(x => x && toL.indexOf(x) < 0);
