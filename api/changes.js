@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c0371a0d6e",
+"at": "2026-11-24T08:18:35+02:00",
+"msg": "Videó verziók: az ügyfélnek küldéskor cserélt link nem új verzió (a háttér sem hoz létre újat; a korábbi ilyen bejegyzéseket a felület összevonja)"
+},
+{
 "id": "ac338b212b",
 "at": "2026-11-24T08:06:51+02:00",
 "msg": "Rendezvény típusa: Esküvő és Ingatlan"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Közös kamera ugyanannál az operatőrnél egy idejű projektekben (+usecase teszt); meghívó újraküldése a fogaskerék menüben; Google-értékelés csillag kattintásra válasz"
 },
 {
-"id": "b0d89894ff",
-"at": "2026-11-22T17:05:56+02:00",
-"msg": "Projekt: Videótábla → Utómunka, az Alapadatok alá; telefonon swipe-olható; Alapadatok alapból csukva"
-},
-{
-"id": "59230eca28",
-"at": "2026-11-22T15:04:14Z",
+"id": "3c0133cd6f",
+"at": "2026-11-22T15:06:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
