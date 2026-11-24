@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "df15233cc9",
+"at": "2026-11-24T14:43:17+02:00",
+"msg": "Árajánlat: a tételek leírása nagyobb és sötétebb (jobban olvasható)"
+},
+{
 "id": "5eed472ec4",
 "at": "2026-11-24T12:56:17+02:00",
 "msg": "Árajánlat: a „Tovább” után a kalkulátor azonnal nyílik (mentett ajánlat nélkül nem vár a szerverre), töltés közben az ablak látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehetőség: Szakasz, Esély, Következő lépés és Mikor egy sorban (telefonon 2×2)"
 },
 {
-"id": "1c393296c6",
-"at": "2026-11-23T19:16:06+02:00",
-"msg": "Árajánlat: általános ajánlatnál nincs Cím mező (és a PDF-en sem szerepel)"
-},
-{
-"id": "9b1f43eeea",
-"at": "2026-11-23T17:15:47Z",
+"id": "673e5f565a",
+"at": "2026-11-23T17:16:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
