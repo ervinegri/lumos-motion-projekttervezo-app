@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c28f90cf2d",
+"at": "2026-11-24T10:48:44+02:00",
+"msg": "Belső (céges címre menő) értesítő levelekben nincs „Ezt az értesítést … küldte” lábléc"
+},
+{
 "id": "ba4c0646b0",
 "at": "2026-11-24T09:53:02+02:00",
 "msg": "Telefonon a hozzászólások és jegyzetek teljes hosszukban látszanak (nem kis görgethető dobozban) – videó, lehetőség-jegyzetek, napló"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nem Google-os e-mail-cím nem menthető (piros jelzés, háttér is ellenőrzi); távolabbi projekteknél is jelez, ha valaki nem válaszolt a meghívóra"
 },
 {
-"id": "21258a5e32",
-"at": "2026-11-23T16:20:12+02:00",
-"msg": "Belépés: Google-fiók ellenőrzés (gmail / Google által kezelt domain MX alapján) – figyelmeztetés a felhasználó ablakában és a listában, megerősítés mentéskor; a meghívó leírja, hogyan lesz Google-fiók a meglévő címhez"
-},
-{
-"id": "4a11799bd7",
-"at": "2026-11-23T14:04:50Z",
+"id": "6330a6c11f",
+"at": "2026-11-23T14:20:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
