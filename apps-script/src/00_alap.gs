@@ -34,7 +34,7 @@ const SETUP_USERS = [
 
 /* ===================== ADATMODELL ===================== */
 const STATUSES = ['egyeztetes', 'tervezes', 'helyszin', 'utomunka', 'leadva', 'jovahagyas', 'atadva', 'lemondva'];
-const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Reklám', 'Videóvágás', 'Podcast', 'Interjú', 'Egyéb'];
+const EVENT_TYPES = ['Konferencia', 'Webinárium', 'Csoportos találkozó', 'Céges rendezvény', 'Gála, díjátadó', 'Kiállítás, expo', 'Termékbemutató', 'Sportesemény', 'Koncert', 'Short videó forgatás', 'Reklám', 'Videóvágás', 'Podcast', 'Interjú', 'Esküvő', 'Ingatlan', 'Egyéb'];
 const ROLE_ALIAS_ = { 'Interjúsarok operatőr': 'Interjú operatőr' };   // átnevezett szerepkörök (2026-11-21): a régi név az új névre fordul
 const roleNorm_ = r => ROLE_ALIAS_[r] || r;
 const CREW_ROLES = ['Projektvezető', 'Értékesítő', 'Helyszíni értékesítő', 'Operatőr', 'Kreatív operatőr', 'Statív operatőr', 'Interjú operatőr', 'Vágó', 'Fotós', 'Drónpilóta', 'Hangtechnikus', 'Fénytechnikus', 'Vizuáltechnikus', 'Képkeverő / streaming', 'Sofőr / rakodó', 'Ajánlói jutalék', 'Statiszta', 'Key Account Manager', 'Szereplő'];
