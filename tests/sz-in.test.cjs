@@ -21,7 +21,7 @@ ctx.XmlService = { parse(xml) {
   return { getRootElement: () => root };
 } };
 const code = fs.readdirSync(SRC).filter(f => f.endsWith('.gs')).sort().map(f => fs.readFileSync(path.join(SRC, f), 'utf8')).join('\n');
-vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_,szBankSet_,finUpsert_,loanDupMergeOnce_};', ctx);
+vm.runInContext(code + '\n;this.__api={setup,szDataIn_,szBankMatch_,readAll_,sha256hex_,szBankSet_,finUpsert_,loanDupMergeOnce_,loanFixOnce2_};', ctx);
 const A = ctx.__api;
 A.setup();
 ctx.PropertiesService.getScriptProperties().setProperty('SZ_BANK_KEY_H', A.sha256hex_('jo-kulcs'));
@@ -112,3 +112,25 @@ console.log('ok');
   assert.equal(A.readAll_('finLoan').filter(l => Number(l.amount) === 50000).length, 1, 'banki rögzítés nem duplikál');
   console.log('ok4');
 }
+
+/* 7) egyszeri bankkivonat-egyeztetés (2026-11-24): a 02-20-i duplikátum törlődik, a 03-14-i sor 04-14-re kerül; másodszor nem fut */
+{
+  const u = { name: 'Teszt', role: 'admin', id: 'x' };
+  A.finUpsert_(u, { table: 'loan', row: { id: 'd20', date: '2026-02-20', kind: 'vissza', amount: 1200000, note: '' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'd21', date: '2026-02-21', kind: 'vissza', amount: 1200000, note: 'Egri Ervin – Tagi kölcsön visszafizetése' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'm14', date: '2026-03-14', kind: 'vissza', amount: 350000, note: '' } });
+  A.finUpsert_(u, { table: 'loan', row: { id: 'k16', date: '2026-02-16', kind: 'be', amount: 7300000, note: '' } });
+  A.loanFixOnce2_();
+  let L = A.readAll_('finLoan');
+  assert.ok(!L.some(l => l.id === 'd20'), 'a 02-20-i duplikátum törlődik');
+  assert.ok(L.some(l => l.id === 'd21') && L.some(l => l.id === 'k16'), 'a többi sor marad');
+  const m = L.find(l => l.id === 'm14');
+  assert.equal(m.date, '2026-04-14', 'a 350 000-es sor dátuma javul');
+  assert.equal(m.bank, 'Revolut'); assert.equal(m.bank2, 'Revolut');
+  assert.equal(Number(m.amount), 350000, 'az összeg nem változik');
+  A.finUpsert_(u, { table: 'loan', row: { id: 'd20b', date: '2026-02-20', kind: 'vissza', amount: 1200000, note: '' } });
+  A.loanFixOnce2_();
+  assert.ok(A.readAll_('finLoan').some(l => l.id === 'd20b'), 'csak egyszer fut');
+  console.log('ok5');
+}
+

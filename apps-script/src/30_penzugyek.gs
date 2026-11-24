@@ -373,3 +373,22 @@ function loanFixOnce_() {
   P.setProperty('LOAN_FIX_1', now_() + (done ? ' · törölve ' + done : ' · nem kellett'));
   if (done) { dataBump_(); logEvent_({ name: 'Rendszer', role: 'admin' }, 'Pénzügyek', 'Tagi kölcsön', 'Duplikált sor törölve: 2026-06-06 visszafizetés 1 350 000 Ft (= 2026-07-06 banki utalás)'); }
 }
+/** Egyszeri (2026-11-24, Ervin jóváhagyásával, a bankkivonatokkal egyeztetve):
+    – a 2026-02-20-i 1 200 000 Ft-os, megjegyzés nélküli visszafizetés ugyanaz, mint a 2026-02-21-i banki utalás (Binx → OTP) – a kézi sor törlődik;
+    – a 2026-03-14-i 350 000 Ft-os visszafizetés valójában 2026-04-14-én ment (Revolut Business → Revolut) – a dátum és a bank javul.
+    Csak akkor nyúl a sorokhoz, ha pontosan a leírt állapotot találja; különben nem csinál semmit (a naplóba írja, mit talált). */
+function loanFixOnce2_() {
+  const P = PropertiesService.getScriptProperties(); if (P.getProperty('LOAN_FIX_2')) return; const done = [];
+  withLock_(() => { const sh = sheetFor_('finLoan'), L = readAll_('finLoan'), amt = l => Math.round(Number(l.amount) || 0);
+    const dup = L.filter(l => l.date === '2026-02-20' && l.kind === 'vissza' && amt(l) === 1200000 && !String(l.note || '').trim());
+    const bank = L.find(l => l.date === '2026-02-21' && l.kind === 'vissza' && amt(l) === 1200000);
+    if (dup.length === 1 && bank) { const r = findRow_(sh, dup[0].id); if (r) { sh.deleteRow(r); done.push('2026-02-20 duplikált 1 200 000 Ft-os visszafizetés törölve (= 2026-02-21 banki utalás)'); } }
+    const moved = L.filter(l => l.date === '2026-03-14' && l.kind === 'vissza' && amt(l) === 350000);
+    const already = L.some(l => l.date === '2026-04-14' && l.kind === 'vissza' && amt(l) === 350000);
+    if (moved.length === 1 && !already) { const r = findRow_(sh, moved[0].id);
+      if (r) { const x = moved[0]; x.date = '2026-04-14'; x.bank = 'Revolut'; x.bank2 = 'Revolut'; if (!String(x.note || '').trim()) x.note = 'Egri Ervin – Tagi kölcsön törlesztése';
+        putRow_('finLoan', sh, x, r); done.push('2026-03-14-i 350 000 Ft-os visszafizetés dátuma 2026-04-14-re javítva (Revolut → Revolut)'); } }
+    if (done.length) dbFlush_(); });
+  P.setProperty('LOAN_FIX_2', now_() + (done.length ? ' · ' + done.join(' · ') : ' · nem kellett'));
+  if (done.length) { dataBump_(); logEvent_({ name: 'Rendszer', role: 'admin' }, 'Pénzügyek', 'Tagi kölcsön', 'Bankkivonat-egyeztetés: ' + done.join('; ')); }
+}
