@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "09b737435e",
+"at": "2026-11-24T22:10:45+01:00",
+"msg": "Jóváhagyó oldal: belső előnézetben a fájlfeltöltés folyamatjelzője bemutató (szürke), egyértelmű felirattal"
+},
+{
 "id": "c44e509d8a",
 "at": "2026-11-24T22:08:06+01:00",
 "msg": "Jóváhagyó oldal: a feltöltött fájl sora nem lesz zöld gomb (osztálynév-ütközés a Jóváhagyom gombbal)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: többnapos rendezvénynél a Rendezvény dobozban kiemelt „N napos rendezvény” jelzés és a teljes időszak (a kalkulátor napjaiból is)"
 },
 {
-"id": "b680481d53",
-"at": "2026-11-24T14:47:46+02:00",
-"msg": "Új verzió: a régóta nyitott lap magától frissül egy nyugodt pillanatban (nincs nyitott ablak, nem gépel, 1,5 perce nem használják vagy visszatér a lapra)"
-},
-{
-"id": "a8b7cfa775",
-"at": "2026-11-24T12:43:28Z",
+"id": "4929feee97",
+"at": "2026-11-24T12:47:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
