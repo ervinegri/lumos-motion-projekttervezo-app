@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e00ff4590a",
+"at": "2026-11-24T08:36:58+02:00",
+"msg": "Videó hozzászólások: azonos percben írt üzenet és küldés is összevonódik"
+},
+{
 "id": "29627ee043",
 "at": "2026-11-24T08:35:24+02:00",
 "msg": "Videó hozzászólások: az ügyfélnek küldés is összevonva az előtte (10 percen belül) írt saját üzenettel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Citan megállapodás: átvételkor csak sérülésnél kell jelezni, az átadás-átvételi lap nem kötelező"
 },
 {
-"id": "0fdffda167",
-"at": "2026-11-23T09:38:15+01:00",
-"msg": "Videó megtekintése: az előnézeti oldal adatai is előre betöltve – a megnyíló lap azonnal kirajzol"
-},
-{
-"id": "cfd0702575",
-"at": "2026-11-23T08:34:55Z",
+"id": "eb18e453ee",
+"at": "2026-11-23T08:38:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
