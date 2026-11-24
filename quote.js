@@ -66,6 +66,8 @@ const qTotal=()=>qGross()-qDisc();   // nettó fizetendő
 ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;
   const fresh=()=>{if(!S.q||S.q.dealId!==d.id)qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
   if(S.q&&S.q.dealId===d.id){fresh();return;}
+  /* nincs ismert mentett ajánlat: a kalkulátor azonnal nyílik (nem várunk a szerverre); a háttérben azért ellenőrizzük, hátha másik gépen mentettek egyet */
+  if(!d.qDraft){fresh();call('quoteDraft',{dealId:d.id,op:'get'}).then(dr=>{if(dr&&dr.q){d.qDraft=dr.at||'1';toast('Ehhez a lehetőséghez van egy mentett ajánlat is'+(dr.by?' ('+dr.by+')':'')+' – a lehetőségnél a „Mentett ajánlat folytatása” gombbal nyithatod meg.');}}).catch(()=>{});return;}
   let dr=null;try{dr=await call('quoteDraft',{dealId:d.id,op:'get'});}catch(e){}   /* mentett, még ki nem küldött ajánlat: folytatható */
   if(!dr||!dr.q){fresh();return;}
   openModal('Mentett ajánlat',`<p style="margin:0">Ehhez a lehetőséghez van egy mentett, még ki nem küldött ajánlat (${esc(String(dr.at||'').slice(0,16))}${dr.by?' · '+esc(dr.by):''}).</p>`,{submitLabel:'Folytatom',noDraft:true,left:`<button type="button" class="btn outline" data-action="q-draft-new" data-id="${esc(d.id)}">Újat kezdek</button>`,
