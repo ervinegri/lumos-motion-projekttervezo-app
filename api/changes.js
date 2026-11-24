@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ecea68b7e8",
+"at": "2026-11-24T16:24:30+02:00",
+"msg": "Teljesítménytábla: az ajánlói jutalék is megjelenik (· ajánló sor), összesítő sor a befolyt díjra és a jutalékra, az Arány oszlop magyarázata"
+},
+{
 "id": "4dd854af82",
 "at": "2026-11-24T16:09:16+02:00",
 "msg": "Lehetőség mentése: az ablak azonnal bezárul (a mentés a háttérben fut, hibánál újranyílik a beírt adatokkal); a HubSpot-frissítés háttérsorba került, a mentés nem vár rá"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: a vízjel levétele és a fizetős javítás lépései (árajánlat, elfogadás) is kiemelve"
 },
 {
-"id": "9129374797",
-"at": "2026-11-24T08:33:42+02:00",
-"msg": "Szakember nézet: a „Továbbküldve jóváhagyásra” is ügyfélnek küldésként számít (verziók összevonása, ügyfél-jelölés, címke)"
-},
-{
-"id": "9110e5478b",
-"at": "2026-11-24T06:32:28Z",
+"id": "422af21076",
+"at": "2026-11-24T06:33:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
