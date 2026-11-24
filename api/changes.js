@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8e360fc529",
+"at": "2026-11-24T08:27:03+02:00",
+"msg": "Videó hozzászólások: a vágó leadási szövege csak az új verziónál látszik (nem kétszer)"
+},
+{
 "id": "e9a4a7a3c7",
 "at": "2026-11-24T08:25:52+02:00",
 "msg": "Stáb kártya: 30 napon belüli projektnél a meg nem hívott tagnál piros „Még nincs meghívva · N nap múlva” jelzés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Citan megállapodás: rendszám (AO PS-758) a sablonban"
 },
 {
-"id": "5718d98b14",
-"at": "2026-11-23T08:22:35+01:00",
-"msg": "Mercedes Citan gépjármű-használati megállapodás sablon a szerződések között"
-},
-{
-"id": "8710322538",
-"at": "2026-11-23T07:13:17Z",
+"id": "64e979623c",
+"at": "2026-11-23T07:22:44Z",
 "msg": "Változásnapló frissítése"
 }
 ];
