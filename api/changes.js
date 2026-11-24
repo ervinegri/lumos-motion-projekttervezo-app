@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3fe4b24921",
+"at": "2026-11-24T08:34:45+02:00",
+"msg": "Videó hozzászólások: a vízjel levétele és a fizetős javítás lépései (árajánlat, elfogadás) is kiemelve"
+},
+{
 "id": "9129374797",
 "at": "2026-11-24T08:33:42+02:00",
 "msg": "Szakember nézet: a „Továbbküldve jóváhagyásra” is ügyfélnek küldésként számít (verziók összevonása, ügyfél-jelölés, címke)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó megtekintése gyorsítás: rövid link takarítása óránként (nem minden kattintásnál), előnézeti link újrahasználva, a jóváhagyó oldal egyszer olvassa a projekteket"
 },
 {
-"id": "3c9371950c",
-"at": "2026-11-23T09:33:00+01:00",
-"msg": "Ügyfél-levél: első változatnál a szövegben sincs „javítás”; a Videó megtekintése előnézet előre betöltve (azonnal nyílik)"
-},
-{
-"id": "eea1dbe8fa",
-"at": "2026-11-23T08:31:27Z",
+"id": "cfd5a9ea86",
+"at": "2026-11-23T08:33:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
