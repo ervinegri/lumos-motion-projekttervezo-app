@@ -297,7 +297,7 @@ function saveDraft(){
   S.dirty=false;S.saving=(S.saving||0)+1;SAVE_PENDING[d.id]=(SAVE_PENDING[d.id]||0)+1;
   S.cal.events={};S.savedFlash=0;render(true);
   SAVE_Q=SAVE_Q.then(async()=>{
-    const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true,taskLabels:Object.assign({},window.SLOT_LABEL||{})},finalSkipped(d)?{crewFinalSkip:true}:{});   // „saját felelősségre” kihagyott véglegesítés
+    const payload=Object.assign({},d,{baseUpdatedAt:(projById(d.id)||{}).updatedAt||'',mutationId:uuid(),deferCal:true,taskLabels:Object.assign({},window.SLOT_LABEL||{})},finalSkipped(d)?{crewFinalSkip:true}:{},S._autoStep===d.id?{autoStep:1}:{});S._autoStep='';   // „saját felelősségre” kihagyott véglegesítés
     try{
       let saved;for(let k=0;;k++){try{saved=await call('saveProject',payload);break;}
         catch(e){if(k<2&&/Zárol|lock/i.test(errText(e))){toast('A szerver épp foglalt (más is ment) – újrapróbálom… ('+(k+1)+'/2)');await new Promise(r=>setTimeout(r,2000*(k+1)));continue;}throw e;}}   // foglalt szerver: pár másodperc múlva újrapróbáljuk (ugyanaz a mutationId, nem duplikál)

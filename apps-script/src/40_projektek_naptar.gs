@@ -246,6 +246,7 @@ function saveProject_(u, a) {
     if (false && old) TASK_NOTICE_ = { old: old, p: Object.assign({}, p), crew: crew, eqOld: oldEq, eqNew: equipment, invMap: invMap, labels: a.taskLabels && typeof a.taskLabels === 'object' ? a.taskLabels : {} };   // a meghívót már megkapó szakember feladatai változtak-e (a zár után e-mail)
     dbFlush_();
     logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p, assignDiff_(oldCrew, crew, oldEq, equipment, crewMap, invMap), crewMap) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
+    if (old && a && a.autoStep) logArgs[0] = 'Automatikus lépés (az app léptette – minden feltétel teljesült)';   /* nem a felhasználó kézi módosítása */
     if (dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
@@ -286,6 +287,45 @@ function assignDiff_(oldCrew, crew, oldEq, eq, crewMap, invMap) {
   return out;
 }
 
+/* Részletek-napló: a JSON-mezők pontos változása olvasható formában */
+const ftFmt_ = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
+function feeDiff_(x, y, crewMap) {
+  const A = parseFees_(x), B = parseFees_(y), key = f => f.crewId ? 'c:' + f.crewId + '|' + (f.key || f.task || '') : 'n:' + (f.name || f.task || f.gear || ''),
+    who = f => (f.crewId && crewMap && crewMap[f.crewId] && crewMap[f.crewId].name) || f.name || f.task || f.gear || '?',
+    sum = f => (Number(f.amount) || 0) + (Number(f.post) || 0) + (Number(f.rent) || 0), desc = f => who(f) + (f.task && f.crewId ? ' (' + f.task + ')' : ''),
+    mA = {}, mB = {}, out = [];
+  A.forEach(f => { mA[key(f)] = f; }); B.forEach(f => { mB[key(f)] = f; });
+  Object.keys(mB).forEach(k => { const o = mA[k], n = mB[k];
+    if (!o) { if (sum(n)) out.push('Termelői díj – ' + desc(n) + ': ' + ftFmt_(sum(n)) + ' (új, nettó)'); return; }
+    const parts = []; if ((o.amount || 0) !== (n.amount || 0)) parts.push(ftFmt_(o.amount) + ' → ' + ftFmt_(n.amount));
+    if ((o.post || 0) !== (n.post || 0)) parts.push('utómunka ' + ftFmt_(o.post) + ' → ' + ftFmt_(n.post)); if ((o.rent || 0) !== (n.rent || 0)) parts.push('bérlés ' + ftFmt_(o.rent) + ' → ' + ftFmt_(n.rent));
+    if (JSON.stringify(o.dayAmounts || {}) !== JSON.stringify(n.dayAmounts || {})) parts.push('napi bontás módosult');
+    if (parts.length) out.push('Termelői díj – ' + desc(n) + ': ' + parts.join(', ') + ' (nettó)'); });
+  Object.keys(mA).forEach(k => { if (!mB[k] && sum(mA[k])) out.push('Termelői díj – ' + desc(mA[k]) + ': ' + ftFmt_(sum(mA[k])) + ' → törölve'); });
+  return out;   // csak sorrend / formai változás: nincs bejegyzés
+}
+/* általános JSON-mező: [] = nincs érdemi eltérés, null = nem bontható, különben a sorok */
+function jsonDiff_(label, x, y, crewMap) {
+  let A, B; try { A = x ? JSON.parse(x) : null; B = y ? JSON.parse(y) : null; } catch (e) { return null; }
+  const canon = v => JSON.stringify(v, (k, val) => val && typeof val === 'object' && !Array.isArray(val) ? Object.keys(val).sort().reduce((o, kk) => { o[kk] = val[kk]; return o; }, {}) : val);
+  if (canon(A) === canon(B)) return [];
+  const nm = id => (crewMap && crewMap[id] && crewMap[id].name) || id, sv = v => { const t = typeof v === 'object' ? JSON.stringify(v) : String(v == null || v === '' ? '–' : v); return t.length > 60 ? t.slice(0, 57) + '…' : t; };
+  const isIdArr = v => Array.isArray(v) && v.every(e => e && typeof e === 'object' && (e.id || e.crewId));
+  if ((A == null || isIdArr(A)) && (B == null || isIdArr(B))) {
+    const id = e => String(e.id || e.crewId), ttl = e => e.name || (e.crewId ? nm(e.crewId) : '') || e.title || e.label || id(e), mA = {}, mB = {}, out = [];
+    (A || []).forEach(e => { mA[id(e)] = e; }); (B || []).forEach(e => { mB[id(e)] = e; });
+    Object.keys(mB).forEach(k => { const o = mA[k], n = mB[k]; if (!o) { out.push(label + ': + ' + ttl(n)); return; }
+      const ch = Object.keys(Object.assign({}, o, n)).filter(f => !/^(at|updatedAt|cm|vers|dn|dnBy|seen\w*)$/.test(f) && canon(o[f]) !== canon(n[f])).slice(0, 4);
+      if (ch.length) out.push(label + ' – ' + ttl(n) + ': ' + ch.map(f => f + ' ' + sv(o[f]) + ' → ' + sv(n[f])).join(', ')); });
+    Object.keys(mA).forEach(k => { if (!mB[k]) out.push(label + ': − ' + ttl(mA[k])); });
+    return out.slice(0, 8);
+  }
+  if (A && B && typeof A === 'object' && typeof B === 'object' && !Array.isArray(A) && !Array.isArray(B)) {
+    const ks = Object.keys(Object.assign({}, A, B)).filter(f => canon(A[f]) !== canon(B[f])).slice(0, 6);
+    return ks.map(f => label + ' – ' + (crewMap && crewMap[f] ? nm(f) : f) + ': ' + sv(A[f]) + ' → ' + sv(B[f]));
+  }
+  return [label + ': ' + sv(A) + ' → ' + sv(B)];
+}
 function diffProject_(a, b, extra, crewMap) {
   const labels = {};
   TABLES.projects.cols.forEach(c => { labels[c[0]] = c[1]; });
@@ -296,6 +336,8 @@ function diffProject_(a, b, extra, crewMap) {
     const x = a[k] == null ? '' : String(a[k]), y = b[k] == null ? '' : String(b[k]);
     const short = v => v.length <= 80 && !/^[\[{]/.test(v.trim());   // rövid értéknél a régi → új érték is (a projekt Részletek ablakához)
     if (x !== y && k === 'lead') { const n = v => v ? ((crewMap && crewMap[v] && crewMap[v].name) || v) : '–'; changed.push('Projektvezető: ' + n(x) + ' → ' + n(y)); return; }
+    if (x !== y && k === 'fees') { feeDiff_(x, y, crewMap).forEach(t => changed.push(t)); return; }   // termelői díjak: kinek, mennyiről mennyire
+    if (x !== y && /^[\[{]/.test(x.trim() || y.trim() || ' ')) { const L = jsonDiff_(labels[k], x, y, crewMap); if (L) L.forEach(t => changed.push(t)); else if (L === null) changed.push(labels[k]); return; }   // JSON-mező: a pontos eltérés (a csak formai változás nem kerül a naplóba)
     if (x !== y) changed.push(k === 'status' ? 'Állapot: ' + (STATUS_LABELS[a.status] || a.status) + ' → ' + (STATUS_LABELS[b.status] || b.status) : short(x) && short(y) ? labels[k] + ': ' + (x || '–') + ' → ' + (y || '–') : labels[k]);
   });
   (extra || []).forEach(x => changed.push(x));

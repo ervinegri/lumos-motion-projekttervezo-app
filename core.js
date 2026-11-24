@@ -757,7 +757,7 @@ function autoSiteStep(){try{const d=S.draft;if(!d||ro()||S.dirty||S.saving>0||!p
   if(editOnly(d)||!d.lead||missingReq(d).length||invBlocked(d))return;
   if(typeof computeIssues==='function'&&computeIssues().some(i=>!i.prep&&(i.pids||[]).includes(d.id)))return;
   if(autoSiteStep._done===d.id)return;autoSiteStep._done=d.id;
-  setDraft({status:'helyszin',stepsDone:ticksUpTo(d,'helyszin')});setTimeout(()=>{if(S.dirty)saveDraft();},0);
+  setDraft({status:'helyszin',stepsDone:ticksUpTo(d,'helyszin')});S._autoStep=d.id;setTimeout(()=>{if(S.dirty)saveDraft();},0);
   toast('✓ Minden feltétel teljesült – a projekt átlépett a Helyszíni munkára');}catch(e){}}
 
 /* „Statiszta” szerep → „Szereplő” (statiszta, modell és beszélő szereplő gyűjtőneve, 2026-11-20): a régi adatokat betöltéskor átnevezzük, mentéskor már az új név megy */
