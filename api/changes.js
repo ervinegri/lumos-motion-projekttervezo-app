@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5eed472ec4",
+"at": "2026-11-24T12:56:17+02:00",
+"msg": "Árajánlat: a „Tovább” után a kalkulátor azonnal nyílik (mentett ajánlat nélkül nem vár a szerverre), töltés közben az ablak látszik"
+},
+{
 "id": "242b9d7942",
 "at": "2026-11-24T12:51:08+02:00",
 "msg": "Többnapos rendezvény a lehetőségnél és az árajánlatban: napok kijelölése, a kalkulátor naponta számol, a projekt minden napja bekerül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Árajánlat: általános ajánlatnál nincs Cím mező (és a PDF-en sem szerepel)"
 },
 {
-"id": "024d38ef48",
-"at": "2026-11-23T19:15:37+02:00",
-"msg": "Lehetőség: a Cég balra, a Kapcsolattartó jobbra"
-},
-{
-"id": "e14aa93de6",
-"at": "2026-11-23T16:54:13Z",
+"id": "9b1f43eeea",
+"at": "2026-11-23T17:15:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
