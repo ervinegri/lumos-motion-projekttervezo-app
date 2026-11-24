@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9d842c00c1",
+"at": "2026-11-24T15:28:42+02:00",
+"msg": "Videótábla: megnyitáskor és a lapra visszatéréskor azonnal ellenőrzi a változásokat (pl. friss ellenőrzésre küldés)"
+},
+{
 "id": "722e21f78d",
 "at": "2026-11-24T15:27:48+02:00",
 "msg": "Árajánlat: többnapos rendezvénynél a Rendezvény dobozban kiemelt „N napos rendezvény” jelzés és a teljes időszak (a kalkulátor napjaiból is)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó verziók: az ügyfélnek küldéskor cserélt link nem új verzió (a háttér sem hoz létre újat; a korábbi ilyen bejegyzéseket a felület összevonja)"
 },
 {
-"id": "ac338b212b",
-"at": "2026-11-24T08:06:51+02:00",
-"msg": "Rendezvény típusa: Esküvő és Ingatlan"
-},
-{
-"id": "4f0cd3b2fb",
-"at": "2026-11-24T06:04:08Z",
+"id": "f55154e835",
+"at": "2026-11-24T06:07:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
