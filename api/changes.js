@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9129374797",
+"at": "2026-11-24T08:33:42+02:00",
+"msg": "Szakember nézet: a „Továbbküldve jóváhagyásra” is ügyfélnek küldésként számít (verziók összevonása, ügyfél-jelölés, címke)"
+},
+{
 "id": "c02b1c2116",
 "at": "2026-11-24T08:32:19+02:00",
 "msg": "Videó hozzászólások: a csak időkódos visszadobás összevonva az előtte írt hozzászólással (egy bejegyzés, „Visszaküldve a vágónak” címkével)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél: első változatnál a szövegben sincs „javítás”; a Videó megtekintése előnézet előre betöltve (azonnal nyílik)"
 },
 {
-"id": "de52d37d87",
-"at": "2026-11-23T09:31:17+01:00",
-"msg": "Ügyfélnek küldés: belső visszadobás után nem „javítás” – az ügyfélnek ez az első változat"
-},
-{
-"id": "3efde20e8e",
-"at": "2026-11-23T07:32:38Z",
+"id": "eea1dbe8fa",
+"at": "2026-11-23T08:31:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
