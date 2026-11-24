@@ -319,7 +319,7 @@ function vidCmItems(v){const P=(S.projects||[]).find(p=>(p.videos||[]).includes(
 /* csak időkódot tartalmazó visszadobás (↩ [0:55:03]) + közvetlenül előtte, ugyanattól írt hozzászólás (10 percen belül) → egy bejegyzés, „Visszaküldve a vágónak” címkével */
 function vvMergeBack(L){const A=L.slice().sort((x,y)=>cmTk(x.at)-cmTk(y.at)),hide=new Set();
   A.forEach((c,i)=>{const t=String(c.t||'');if(!/^↩/.test(t)||String(t.replace(/^↩\s*/,'')).replace(TC_RE,'').replace(/\s+/g,'').length>=3)return;
-    for(let j=i-1;j>=0;j--){const p=A[j];if(hide.has(p))continue;if(p.by!==c.by||cmTk(c.at)-cmTk(p.at)>600000||/^↩|^Ügyfélnek elküldve|^👁️|^✅/.test(String(p.t||''))||p.k==='note')break;p.backMerged=true;hide.add(c);break;}});
+    for(let j=i-1;j>=0;j--){const p=A[j];if(hide.has(p))continue;if(p.by!==c.by||cmTk(c.at)-cmTk(p.at)>600000||/^↩|^Ügyfélnek elküldve|^Továbbküldve jóváhagyásra|^👁️|^✅/.test(String(p.t||''))||p.k==='note')break;p.backMerged=true;hide.add(c);break;}});
   return L.filter(c=>!hide.has(c));}
 /* hozzászólás ideje → időbélyeg (bármilyen formátumból: ISO, „2026-11-10 13:20”, „2026. 11. 10. 13:20”) – a legfrissebb legyen felül */
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
@@ -340,12 +340,12 @@ function pqBanner(v){if(!v||!(v.pq==='wait'||v.pq==='sent'||v.pq==='no'||(v.pq==
 /* a hozzászóló szerepe a neve előtt: 💼 ügyvezető, ⚙️ termelési vezető, ✂️ vágó (stáb), ⭐ ügyfél */
 /* a folyamat lépései vizuálisan elkülönítve: belső ellenőrzésre küldés, ügyfélnek küldés, megnyitás, ügyfél módosítási kérése, jóváhagyás */
 function vvStepKind(c){const t=String(c&&c.t||''),cli=String(cmWho(c&&c.by)).indexOf('⭐')>=0;
-  if(c.k==='note'||/ellenőrzés/.test(String(c.tag||'')))return 'rv';if(/^(Ügyfélnek elküldve|TESZT:)/.test(t))return 'send';if(/^👁️/.test(t))return 'seen';if(/^✅/.test(t))return 'ok';if(/^↩/.test(t))return cli?'cli':'back';return c.backMerged?'back':'';}
+  if(c.k==='note'||/ellenőrzés/.test(String(c.tag||'')))return 'rv';if(/^(Ügyfélnek elküldve|TESZT:|Továbbküldve jóváhagyásra)/.test(t))return 'send';if(/^👁️/.test(t))return 'seen';if(/^✅/.test(t))return 'ok';if(/^↩/.test(t))return cli?'cli':'back';return c.backMerged?'back':'';}
 const VV_STEP={rv:'🔍 Belső ellenőrzésre küldve',send:'📤 Ügyfélnek elküldve',seen:'👁️ Ügyfél megnyitotta',ok:'✅ Ügyfél jóváhagyta',cli:'↩ Ügyfél módosítást kér',back:'↩ Visszaküldve a vágónak'};
 /* címkés lépésnél a szöveg ne ismételje a címkét: „Ügyfélnek elküldve (x@y.hu)” → „Címzett: x@y.hu”, „✅ Jóváhagyta a videót” → (nincs külön szöveg) */
-const vvBodyC=c=>{const k=vvStepKind(c),t=String(c.t||'');if(k==='send'){const m=/^Ügyfélnek elküldve\s*\(([^)]*)\)\s*(.*)$/s.exec(t);if(m)return Object.assign({},c,{t:'Címzett: '+m[1]+(m[2]?' '+m[2].replace(/^:\s*/,'\n'):'')});}if(k==='ok'&&/^✅ Jóváhagyta a videót\.?$/.test(t.trim()))return Object.assign({},c,{t:''});return c;};
+const vvBodyC=c=>{const k=vvStepKind(c),t=String(c.t||'');if(k==='send'){const m=/^Ügyfélnek elküldve\s*\(([^)]*)\)\s*(.*)$/s.exec(t);if(m)return Object.assign({},c,{t:'Címzett: '+m[1]+(m[2]?' '+m[2].replace(/^:\s*/,'\n'):'')});}if(k==='send'&&/^Továbbküldve jóváhagyásra\.?$/.test(t.trim()))return Object.assign({},c,{t:''});if(k==='ok'&&/^✅ Jóváhagyta a videót\.?$/.test(t.trim()))return Object.assign({},c,{t:''});return c;};
 const vvStep=c=>{const k=vvStepKind(c);return k?' st-'+k:'';};
-const vvStepTag=c=>{const k=vvStepKind(c);return k&&['rv','send','ok','cli','back'].includes(k)?`<span class="vv-step-tag">${VV_STEP[k]}</span>`:'';};
+const vvStepTag=c=>{const k=vvStepKind(c);if(k==='send'&&/^Továbbküldve jóváhagyásra/.test(String(c.t||'')))return '<span class="vv-step-tag">📤 Továbbküldve jóváhagyásra</span>';return k&&['rv','send','ok','cli','back'].includes(k)?`<span class="vv-step-tag">${VV_STEP[k]}</span>`:'';};
 function cmWho(by){const n=String(by||'').trim();if(!n||/^(Rendszer|Lumos Motion|Automatikus)$/.test(n))return '';const r=(S.leads||{})[n]||(Array.isArray(S.users)?((S.users.find(u=>String(u.name||'').trim()===n)||{}).role||''):'');if(r==='admin')return '💼 ';if(r==='editor')return '⚙️ ';if((S.crew||[]).some(c=>String(c.name||'').trim()===n)||Object.values(S.crewNames||{}).some(x=>String(x||'').trim()===n)||(Array.isArray(S.users)&&S.users.some(u=>String(u.name||'').trim()===n)))return '✂️ ';return '⭐ ';}
 function vidCmHtml(v){const L0=vidCmItems(v),reps={},L=[];L0.forEach(c=>{const m=c.kind?null:REP_RE.exec(String(c.t||''));if(m){(reps[m[1]]=reps[m[1]]||[]).push(Object.assign({},c,{t:String(c.t).slice(m[0].length)}));}else L.push(c);});L.reverse();   /* időrendben: felül a legrégebbi, alul a legújabb – minden verziónál */for(let i=L.length-2;i>=0;i--){const x=L[i],y=L[i+1];if(/^✅ Jóváhagyta/.test(String(x.t||''))&&/^💬 /.test(String(y.t||''))&&x.by===y.by&&Math.abs(cmTk(y.at)-cmTk(x.at))<=120000){L[i]=Object.assign({},x,{t:x.t+'\n'+y.t});L.splice(i+1,1);}}   /* a jóváhagyás és a mellé írt üzenet egy hozzászólásban */
   Object.keys(reps).forEach(k=>reps[k].sort((x,y)=>String(x.at).localeCompare(String(y.at))));
@@ -694,7 +694,7 @@ document.addEventListener('keydown',e=>{const t=e.target&&e.target.closest&&e.ta
 /* ugyanannak a videónak az újra beillesztett linkje (más paraméterrel / ugyanaz a fájl) nem számít új verziónak */
 function vidLinkKey(l){l=String(l||'').trim();let m=l.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]{10,})/)||l.match(/[?&]id=([\w-]{20,})/)||l.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/)||l.match(/vimeo\.com\/(?:video\/)?(\d+)/)||l.match(/[?&]code=([\w-]{6,})/);if(m)return m[1];   /* pCloud: a code paraméter azonosítja a fájlt (enélkül minden pCloud-link „ugyanaz” lett, és eltűntek a verziók) */return l.replace(/[?#].*$/,'').replace(/\/+$/,'').replace(/^https?:\/\/(www\.)?/,'').toLowerCase();}
 /* az ügyfélnek küldéskor cserélt link (pl. ugyanannak a videónak másik megosztási linkje) nem új verzió – a korábbi adatokban is összevonjuk */
-function vvVers(v){const sends=(v.cm||[]).filter(c=>/^(Ügyfélnek elküldve|TESZT:)/.test(String(c.t||''))).map(c=>cmTk(c.at)),L=(v.vers||[]).filter(x=>x&&x.at),out=[];L.forEach((x,i)=>{const nx=i+1<L.length?L[i+1].link:v.link;if(x.link&&nx&&vidLinkKey(x.link)===vidLinkKey(nx))return;const t=cmTk(x.at);if(sends.some(s=>Math.abs(s-t)<=180000))return;out.push(x);});return out;}
+function vvVers(v){const sends=(v.cm||[]).filter(c=>/^(Ügyfélnek elküldve|TESZT:|Továbbküldve jóváhagyásra)/.test(String(c.t||''))).map(c=>cmTk(c.at)),L=(v.vers||[]).filter(x=>x&&x.at),out=[];L.forEach((x,i)=>{const nx=i+1<L.length?L[i+1].link:v.link;if(x.link&&nx&&vidLinkKey(x.link)===vidLinkKey(nx))return;const t=cmTk(x.at);if(sends.some(s=>Math.abs(s-t)<=180000))return;out.push(x);});return out;}
 function vvBounds(v){const VS=vvVers(v).map(x=>x.at).filter(Boolean);if(VS.length)return {VS,links:true};/* link nélküli (visszajelzésekből kikövetkeztetett) verziók nincsenek: azok nem valódi új videók voltak */return {VS:[],links:false};}
 /* melyik verziók mentek ki az ügyfélnek: az „Ügyfélnek elküldve” bejegyzés ideje szerint (a küldéskor cserélt link már az új verzióhoz tartozik) */
 /* a leadás kísérőszövege az új linkkel egy pillanatban születik – mindig az új verzióhoz tartozik (ne látsszon az előzőnél is) */
@@ -702,7 +702,7 @@ const vvT=c=>cmTk(c&&c.at)+((c&&(c.k==='note'||/ellenőrzés/.test(String(c.tag|
 /* verziók elnevezése: az első leadás v1, utána a javítások Revision 1, Revision 2 … */
 const vvLbl=k=>k<=1?'v1':'Revision '+(k-1);
 function vvExt(v){const VS=vvBounds(v).VS,st=[-Infinity].concat(VS.map(cmTk)),out=new Set();
-  (v.cm||[]).forEach(c=>{if(!/^Ügyfélnek elküldve/.test(String(c.t||'')))return;const t=cmTk(c.at)+60000;let k=1;for(let i=0;i<st.length;i++)if(st[i]<=t)k=i+1;out.add(k);});
+  (v.cm||[]).forEach(c=>{if(!/^(Ügyfélnek elküldve|Továbbküldve jóváhagyásra)/.test(String(c.t||'')))return;const t=cmTk(c.at)+60000;let k=1;for(let i=0;i<st.length;i++)if(st[i]<=t)k=i+1;out.add(k);});
   if(!VS.length&&['leadva','jovahagyva'].includes(v.st))out.add(1);return out;}
 function vvSel(v){const n=vvBounds(v).VS.length+1,w=window._vvVer;return w&&w.vid===v.id&&w.k>=1&&w.k<=n?w.k:n;}
 ACT['vv-ver']=b=>{const box=document.querySelector('.vv-cm');if(!box)return;const pid=box.dataset.pid,vid=box.dataset.vid,p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(!v)return;
