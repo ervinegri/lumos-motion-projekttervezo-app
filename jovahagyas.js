@@ -369,7 +369,11 @@ function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[
     window.addEventListener('keyup',e=>{if((e.code!=='Space'&&e.key!==' ')||!down)return;down=false;clearTimeout(hold);const v=vd();if(!v)return;e.preventDefault();e.stopPropagation();
       if(fast){v.playbackRate=1;badge(false);fast=false;return;}const bp=document.querySelector('.bigplay');if(bp){bp.click();return;}if(v.paused){v.muted=false;v.play().catch(()=>{});}else v.pause();},true);
     window.addEventListener('blur',()=>{if(fast){const v=vd();if(v)v.playbackRate=1;badge(false);fast=false;}down=false;clearTimeout(hold);});}
-  /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása */
+  /* Enter bárhol az oldalon (pl. a videóra kattintás után, amikor a lejátszón a fókusz): időkód beszúrása, nem a videó folytatása; a szövegszerkesztőben az Enter új sor */
+  document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.metaKey||e.ctrlKey||e.altKey||e.isComposing||!vd())return;const tb=$('bTc'),fbx=$('fb');if(!tb||tb.hidden||(fbx&&fbx.disabled))return;
+    const a=document.activeElement;if(a&&(a.isContentEditable||(a.closest&&a.closest('.rte,.fmt-bar,.fb-menu'))||a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.tagName==='SELECT'||(a.tagName==='BUTTON'&&a.id!=='bTc')||a.tagName==='A'))return;
+    if(!tb.offsetParent)return;   /* csak ha a módosításkérő doboz látszik */
+    e.preventDefault();e.stopPropagation();insTc();},true);
 })();
 
 /* A jóváhagyó oldal linkjének másolása (más is megnézheti) */
