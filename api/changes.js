@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b7945a377e",
+"at": "2026-11-24T11:53:22+02:00",
+"msg": "Projektek telefonon: a hónap-elválasztó sorok elmaradnak (a dátumblokk mutatja a hónapot)"
+},
+{
 "id": "c5defea26d",
 "at": "2026-11-24T11:51:43+02:00",
 "msg": "Projektek telefonon: kereső és „+ Új” gomb egy sorban (a fölösleges cím és fejléc nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehetőség: a Szerződés állapota csak szerződött lehetőségnél látszik (vagy ha már van állapota)"
 },
 {
-"id": "69f4f86eb4",
-"at": "2026-11-23T18:51:17+02:00",
-"msg": "Új lehetőség: Szóba jövő szolgáltatások és Értékesítő egy sorban"
-},
-{
-"id": "8834cf5a89",
-"at": "2026-11-23T16:49:44Z",
+"id": "7c232768d3",
+"at": "2026-11-23T16:51:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
