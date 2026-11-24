@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8426c7f914",
+"at": "2026-11-24T21:55:07+01:00",
+"msg": "Jóváhagyó oldal: új javítási útmutató szöveg; az „Időkód beszúrása” gomb neve visszakerült, az eszköztár így is egy sorban"
+},
+{
 "id": "89394779a0",
 "at": "2026-11-24T21:52:22+01:00",
 "msg": "Jóváhagyó oldal: Gmail-szerű formázó eszköztár egy sorban az időkód gombbal (betűtípus, méret, félkövér, dőlt, aláhúzott, szín, igazítás, listák, behúzás, áthúzás, formázás törlése); az appban és az e-mailben is így jelenik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektek telefonon: az állapotcímke és a videóösszesítő egy sorban, tömörebben"
 },
 {
-"id": "b7945a377e",
-"at": "2026-11-24T11:53:22+02:00",
-"msg": "Projektek telefonon: a hónap-elválasztó sorok elmaradnak (a dátumblokk mutatja a hónapot)"
-},
-{
-"id": "3a93861921",
-"at": "2026-11-24T09:51:53Z",
+"id": "e940e977d6",
+"at": "2026-11-24T09:53:31Z",
 "msg": "Változásnapló frissítése"
 }
 ];
