@@ -3232,3 +3232,9 @@ html body .inv-urgent-l{display:inline-flex;align-items:center;gap:4px;font-weig
 html body .pcrew-inv .btn.inv-btn.inv-urgent,html body .inv-btn.inv-urgent{border-color:#d93025!important;color:#b3261e!important;background:#fdecea!important;font-weight:700}
 html body .vv-cm-i.st-wm{border-left-color:#1d6fb8;background:#eaf3fb}html body .vv-cm-i.st-wm .vv-step-tag{background:#d3e6f7;color:#14507f}
 html body .vv-cm-i.st-pay{border-left-color:#a16207;background:#fdf8e6}html body .vv-cm-i.st-pay .vv-step-tag{background:#f6e7b0;color:#6b4204}
+/* Telefonon / keskeny képernyőn a hozzászólások és jegyzetek nem külön, kis dobozban görgetnek: teljes hosszukban látszanak, az egész ablak görget (egységesen mindenhol) */
+@media (max-width:1099px){
+  html body #modalRoot .vv-cm,html body #modalRoot .vv-cm-l,html body #modalRoot .vv-body.side>.vv-cm{max-height:none!important;overflow:visible!important}
+  html body #modalRoot .dnotes{max-height:none!important;overflow:visible!important}
+  html body .log-scroll{max-height:none!important}
+}
