@@ -3206,3 +3206,9 @@ html body #mform .mfoot [data-gk-off]{opacity:.45;cursor:not-allowed;filter:gray
 html body .gk-box.gk-shake{animation:gkShake .35s}
 html body .gk-box.gk-wait{display:flex!important;align-items:center;gap:8px}html body .gk-box.gk-wait .spin{flex:0 0 auto}
 html body .gk-box.gk-wait{flex-direction:row!important;justify-content:flex-start!important;text-align:left}html body .gk-box.gk-wait .spin{margin:0!important;width:16px;height:16px}
+
+/* lehetőség: Szakasz · Esély · Következő lépés · Mikor egy sorban (telefonon 2×2) */
+html body .dl-4row{display:grid!important;grid-template-columns:minmax(0,1.15fr) 92px minmax(0,2fr) minmax(0,1.25fr);gap:0 12px;align-items:end}
+html body .dl-4row>.field{margin:0!important;min-width:0}
+html body .dl-4row .inp,html body .dl-4row .fp-alt{width:100%!important;min-width:0}
+@media (max-width:700px){html body .dl-4row{grid-template-columns:minmax(0,1fr) 92px;gap:10px 10px}html body .dl-4row>.field:nth-child(3){grid-column:1/-1}html body .dl-4row>.field:nth-child(4){grid-column:1/-1}}
