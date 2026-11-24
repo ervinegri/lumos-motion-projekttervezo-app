@@ -325,7 +325,7 @@ function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
-function hsPullHourly() { try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
+function hsPullHourly() { try { hsDealQueueRun(); } catch (e) {} try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
 function gbpHourly() { try { const r = gbpSync_(null); gbpPushMissed_(r && r.added); } catch (e) {} }   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
 function gbpHourlyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('GBP_HOURLY_INSTALLED')) return;
@@ -481,4 +481,25 @@ function dealNextDaily() {
       '<a href="' + FRONTEND_URL.replace(/[#/]*$/, '') + '/#t=ertekesites" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 16px;border-radius:999px;font-weight:600">Értékesítés megnyitása</a></div>';
     const text = (o.today.length ? 'Mai teendők:\n' + o.today.map(d => '• ' + d.title + ' – ' + (d.nextStep || '')).join('\n') + '\n\n' : '') + (o.late.length ? 'Lejárt teendők:\n' + o.late.map(d => '• ' + d.title + ' – ' + (d.nextStep || '') + ' (' + d.nextDate + ')').join('\n') + '\n\n' : '') + FRONTEND_URL;
     try { gmailSend_(em, '📅 Mai teendők – ' + (o.today.length ? o.today.length + ' lehetőség' : '') + (o.today.length && o.late.length ? ', ' : '') + (o.late.length ? o.late.length + ' lejárt' : ''), text, { htmlBody: html, name: 'Lumos Motion Projekttervező' }, 'dealNext'); } catch (e) { Logger.log('Teendő-emlékeztető: ' + e); } });
+}
+
+/* ===== HubSpot-frissítés háttérsora: a lehetőség mentése nem vár a HubSpotra =====
+   A mentés a változást sorba teszi és egy 1 perces egyszeri időzítőt indít; az időzítő (és tartalékként az óránkénti szinkron) feldolgozza.
+   Ha az időzítőt nem lehet létrehozni, azonnal, a régi módon szinkronizál – így semmi nem marad ki. */
+const HSQ_KEY = 'HS_DEAL_Q';
+function hsDealQueue_(d) {
+  if (!d || typeof hsOn_ === 'function' && !hsOn_()) return;
+  let queued = false;
+  try { const lock = LockService.getScriptLock(); if (lock.tryLock(5000)) { try { const P = PropertiesService.getScriptProperties(); let q = []; try { q = JSON.parse(P.getProperty(HSQ_KEY) || '[]'); } catch (e) { q = []; }
+        const prev = q.find(x => x && x.id === d.id), item = Object.assign({}, d); if (prev && prev._oldNote !== undefined) item._oldNote = prev._oldNote;   /* több gyors mentés: a legelső régi jegyzethez képest számolunk */
+        q = q.filter(x => x && x.id !== d.id).concat([item]); const s = JSON.stringify(q); if (s.length < 8500) { P.setProperty(HSQ_KEY, s); queued = true; } } finally { lock.releaseLock(); } } } catch (e) { queued = false; }
+  if (!queued) { hsDealSync_(d); return; }
+  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'hsDealQueueRun')) ScriptApp.newTrigger('hsDealQueueRun').timeBased().after(60 * 1000).create(); }
+  catch (e) { hsDealQueueRun(); }
+}
+function hsDealQueueRun() {
+  try { ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'hsDealQueueRun').forEach(t => ScriptApp.deleteTrigger(t)); } catch (e) { }
+  let q = []; const lock = LockService.getScriptLock();
+  if (lock.tryLock(10000)) { try { const P = PropertiesService.getScriptProperties(); try { q = JSON.parse(P.getProperty(HSQ_KEY) || '[]'); } catch (e) { q = []; } P.deleteProperty(HSQ_KEY); } finally { lock.releaseLock(); } }
+  (q || []).forEach(d => { try { hsDealSync_(d); } catch (e) { Logger.log('HubSpot-sor hiba (' + (d && d.title) + '): ' + e); } });
 }

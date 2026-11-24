@@ -304,7 +304,7 @@ function saveDeal_(u, a) {
     if (!old || K.some(k => String(old[k] || '') !== String(d[k] || ''))) saved = Object.assign({}, d, { _oldNote: old ? old.note : '' });   // csak érdemi változásnál megy a HubSpotba
     return { deals: dealsFor_(u) };
   });
-  if (saved) hsDealSync_(saved);
+  if (saved) hsDealQueue_(saved);   /* a HubSpot-frissítés a háttérben fut (pár másodperc) – a mentés azonnal visszajelez */
   try { if (saved && saved.stage === 'elveszett') { const pp = readAll_('projects').find(x => x.preDeal === saved.id && ['lemondva', 'atadva'].indexOf(x.status) < 0); if (pp) preDealNotify_(pp.id, false); } } catch (e) {}   /* elmaradt előfoglalás: a meghívott szakemberek értesítése */
   return res;
 }
