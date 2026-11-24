@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bc3b801c65",
+"at": "2026-11-24T11:13:19+02:00",
+"msg": "Részletek-napló: pontos változások (termelői díj: kinek, mennyiről mennyire; JSON-mezők tételesen; a csak formai változás nem kerül be); az automatikus lépés külön jelölve"
+},
+{
 "id": "139ca53b93",
 "at": "2026-11-24T11:09:23+02:00",
 "msg": "Frissülés: a betöltés eredményét legfeljebb 3-szor dobjuk el közbejött írás miatt (utána mindenképp frissül); az olvasó kérések (gbpList, companyIndex…) nem számítanak írásnak"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "E-mail-ellenőrzés közben forgó jelző (mint máshol az appban)"
 },
 {
-"id": "d3586a931f",
-"at": "2026-11-23T17:18:08+02:00",
-"msg": "Felhasználó ablak: hibás / nem Google-os e-mail-címnél a mentés gomb tiltva (el sem indul), ellenőrzés közben is; piros jelzés a mező alatt, a mező is piros; előnézet sem készül"
-},
-{
-"id": "5442a9200a",
-"at": "2026-11-23T15:12:26Z",
+"id": "9a51812b06",
+"at": "2026-11-23T15:18:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
