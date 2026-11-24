@@ -332,8 +332,10 @@ function eqNeed(ps,itemId){const by={};let un=0;ps.forEach(q=>(q.equipment||[]).
 function usedElsewhere(itemId,p,cid){const r=pr(p);if(!r)return 0;const mine=c=>c?eqQtyBy(p,itemId,c):0;
   return allProjects().filter(q=>q.id!==p.id&&q.status!=='lemondva'&&clash(p,q)).reduce((s,q)=>{const holders=[...new Set((q.equipment||[]).filter(e=>e.itemId===itemId&&e.crewId).map(e=>e.crewId))];
     let used=eqQty(q,itemId);holders.forEach(h=>{const inQ=eqQtyBy(q,itemId,h),inP=eqQtyBy(p,itemId,h);used-=Math.min(inQ,inP);if(h===cid)used-=Math.max(0,inQ-inP);});return s+Math.max(0,used);},0);}
+/* a forgatás előtti szakaszok: a hiányzó meghívó / beosztás itt is jelzendő (pl. ha a projekt már „Helyszíni munka”, de valakit utólag osztottak be vagy a meghívása megszűnt) */
+const PRE_SHOOT=new Set(['tervezes','helyszin']);
 /* Mi hiányzik még egy közelgő (30 napon belüli, tervezés alatti) projektből: projektvezető, szerepkörök, meghívók – a figyelmeztetésekhez és a listához */
-function prepIssues(p){if(!p||ro()||isTent(p)||(p.status||'tervezes')!=='tervezes')return null;const r=pr(p),T=todayISO();if(!r||r.start<T)return null;const left=diffDays(T,r.start);if(left>30)return null;
+function prepIssues(p){if(!p||ro()||isTent(p)||!PRE_SHOOT.has(p.status||'tervezes'))return null;const r=pr(p),T=todayISO();if(!r||r.start<T)return null;const left=diffDays(T,r.start);if(left>30)return null;
   const nm=id=>huFirst((crewById(id)||{}).name||'?'),items=[];
   if(!p.lead)items.push('nincs projektvezető');
   staffing(p).filter(x=>x.role!=='Projektvezető'&&x.have<x.need).forEach(x=>items.push(`${x.role.toLowerCase()}: ${x.have}/${x.need}`));
