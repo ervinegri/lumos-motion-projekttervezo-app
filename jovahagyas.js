@@ -186,7 +186,8 @@ const pcPick=(L,name)=>pcHits(L,name).f;
         dw.querySelector('.vdl').onclick=()=>dlAll(i.items.filter(x=>x.state==='ok'),dw);}}
     if(nw&&i.state!=='wait'){['doneOk','doneMod'].forEach(id=>{const el=$(id);if(!el||el.hidden)return;const b=document.createElement('button');b.type='button';b.className='vnext';b.textContent='Következő videó: '+nw.name+' ›';b.onclick=()=>goV(nw.id);el.after(b);});}}
   /* Google-értékelés: ha a projekt minden videója jóváhagyva (mindenkitől kérjük, nem csak az elégedettektől) */
-  function rvwShow(i){document.querySelectorAll('.rvw').forEach(x=>x.remove());if(!i||!i.review)return;const its=i.items&&i.items.length?i.items:null;
+  function rvwShow(i){document.querySelectorAll('.rvw').forEach(x=>x.remove());return;   /* a Google-értékelés kérése nem a jóváhagyó oldalon van (külön, előnézet után küldött levélben kérjük) */
+    if(!i||!i.review)return;const its=i.items&&i.items.length?i.items:null;
     const allOk=(its?its.every(x=>x.state==='ok'):i.state==='ok')&&!Number(i.projRest||0);if(!allOk)return;
     const anchor=document.querySelector('.vdl-w')||document.querySelector('.vdone')||(!$('doneOk').hidden&&$('doneOk'));if(!anchor)return;
     const b=document.createElement('div');b.className='rvw';b.innerHTML='<b>⭐ Elégedett voltál a munkánkkal?</b><span>Nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész.</span><a class="rvw-btn" target="_blank" rel="noopener">⭐ Értékelés írása</a>';

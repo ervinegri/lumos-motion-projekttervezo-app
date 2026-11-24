@@ -505,7 +505,7 @@ function clientInfoRun_(t, seen, vid) { const r = clientInfoCore_(t, seen, vid);
   /* értékelés-doboz: nem jelenik meg, ha az ügyfél már írt értékelést (párosítva), vagy bármelyik projektjénél rákattintott már az értékelés gombra */
   if (r) { let show = true; try { const o = clientTokenRead_(t), all = ciProjects_(), p = all.find(x => x.id === o.p), k = String((p && p.client) || '').trim().toLowerCase();
       if (k && (gbpReviewed_()[k] || all.some(x => String(x.client || '').trim().toLowerCase() === k && x.reviewClick))) show = false; } catch (e) {}
-    if (show) r.review = REVIEW_URL_; }
+    if (show && false) r.review = REVIEW_URL_; }   // a jóváhagyó oldalon nem kérünk értékelést
   return r; }
 function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen && !o.pv) clientSeen_(o);
   const stOf = st => st === 'jovahagyva' ? 'ok' : st === 'leadva' ? 'wait' : 'mod';
