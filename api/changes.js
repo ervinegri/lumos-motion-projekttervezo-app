@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e9ddb089cd",
+"at": "2026-11-24T07:58:51+02:00",
+"msg": "Lehetőség: Szakasz, Esély, Következő lépés és Mikor egy sorban (telefonon 2×2)"
+},
+{
 "id": "1c393296c6",
 "at": "2026-11-23T19:16:06+02:00",
 "msg": "Árajánlat: általános ajánlatnál nincs Cím mező (és a PDF-en sem szerepel)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Alapadatok mindig zárva nyílik (lakat), lenyitható szakaszok nyila egységesen jobbra"
 },
 {
-"id": "7b7753e962",
-"at": "2026-11-22T16:58:02+02:00",
-"msg": "Telefon: a logó háttere minden kinézetben a fejléc színe (Stone: fehér)"
-},
-{
-"id": "b6e716f3d5",
-"at": "2026-11-22T14:54:27Z",
+"id": "5b6901f78e",
+"at": "2026-11-22T14:58:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
