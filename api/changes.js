@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "afa07fc729",
+"at": "2026-11-24T21:59:53+01:00",
+"msg": "Jóváhagyó oldal: Google Dokumentumok-szerű eszköztár (ikonok), az Időkód beszúrása feltűnő kék gomb külön sorban; az útmutató szöveg visszaállítva"
+},
+{
 "id": "8426c7f914",
 "at": "2026-11-24T21:55:07+01:00",
 "msg": "Jóváhagyó oldal: új javítási útmutató szöveg; az „Időkód beszúrása” gomb neve visszakerült, az eszköztár így is egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Többnapos rendezvény a lehetőségnél és az árajánlatban: napok kijelölése, a kalkulátor naponta számol, a projekt minden napja bekerül"
 },
 {
-"id": "e77d62bf3c",
-"at": "2026-11-24T12:23:38+02:00",
-"msg": "Projektek telefonon: az állapotcímke és a videóösszesítő egy sorban, tömörebben"
-},
-{
-"id": "e940e977d6",
-"at": "2026-11-24T09:53:31Z",
+"id": "5b5b53a2f7",
+"at": "2026-11-24T10:23:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
