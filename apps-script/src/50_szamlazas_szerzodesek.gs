@@ -1340,8 +1340,22 @@ function szDocsView_() {
       try { withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d0.id); if (!r) return; const x = readRow_('szDocs', sh, r); if (x.crewId || x.status) return; x.crewId = c.id; x.status = 'stab'; putRow_('szDocs', sh, x, r); dbFlush_(); d = x; }); } catch (e) { Logger.log('szDocsView párosítás: ' + e); }
       if (d) { linked[d.id] = 1; d0.crewId = d.crewId; d0.status = d.status; if (/^(SZ|VS|HS)$/.test(d.type || 'SZ')) { try { szDocCrewApply_(d); } catch (e) {} } } });
     if (Object.keys(linked).length) dataBump_(); }
+  /* díjbekérő → végszámla: ha a díjbekérőt már kiadásként rögzítették, a később érkező végszámla magától ahhoz a kiadáshoz kapcsolódik (nem lesz kétszer) */
+  try { const t8 = x => szDigits_(x).slice(0, 8), am = x => Math.round(Number(x) || 0);
+    docs.filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno && d.type !== 'D').forEach(d0 => {
+      const pf = docs.find(x => x.kind === 'be' && x.type === 'D' && x.status === 'kiadas' && x.expenseId && !x.finalId && t8(x.partnerTax) && t8(x.partnerTax) === t8(d0.partnerTax) && Math.abs(am(x.gross) - am(d0.gross)) <= 1);
+      if (!pf) return;
+      withLock_(() => { const sh = sheetFor_('szDocs'), r = findRow_(sh, d0.id); if (!r) return; const x = readRow_('szDocs', sh, r); if (x.status) return; x.status = 'kiadas'; x.expenseId = pf.expenseId; x.handledBy = 'Rendszer (díjbekérő ' + (pf.no || '') + ')'; x.handledAt = now_(); putRow_('szDocs', sh, x, r);
+        const sE = sheetFor_('finExpense'), rE = findRow_(sE, pf.expenseId); if (rE) { const e = readRow_('finExpense', sE, rE); e.name = (d0.partnerName || 'Szállító') + (d0.no ? ' – ' + d0.no : ''); e.note = 'számlázz.hu bejövő számla · bruttó ' + am(d0.gross) + ' Ft' + (d0.pdfUrl ? ' · ' + d0.pdfUrl : '') + ' · díjbekérő: ' + (pf.no || ''); putRow_('finExpense', sE, e, rE); }
+        dbFlush_(); d0.status = 'kiadas'; pf.finalId = d0.id; });
+    }); } catch (e) { Logger.log('Díjbekérő → végszámla: ' + e); }
+  /* kifizetve? – a szállítónak indított kimenő utalás (azonos bruttó összeg, a szállító bankszámlájára vagy nevére), a kiállítás után */
+  const kiTx = (() => { try { return readAll_('bankTx').filter(t => t.dir === 'KI' && !t.technical); } catch (e) { return []; } })();
+  const paidOf = d => { const am = Math.round(Number(d.gross) || 0), acc = szDigits_(d.partnerAccount), pn = szBankNorm_(d.partnerName).split(' ').filter(w => w.length >= 3);
+    const t = kiTx.find(t => Math.abs(Math.round(Math.abs(Number(t.amount) || 0)) - am) <= 1 && String(t.valueDate || '') >= String(d.kelt || '').slice(0, 10) && ((acc && szDigits_(t.partnerAccount).slice(-16) === acc.slice(-16)) || szBankNorm_(t.partnerName).split(' ').some(w => pn.indexOf(w) >= 0)));
+    return t ? t.valueDate : ''; };
   const open = docs.filter(d => d.kind === 'be' && !d.crewId && !d.status && !d.storno && String(d.kelt || '') >= lim).slice(-200)
-    .map(d => ({ id: d.id, no: d.no, kelt: d.kelt, telj: d.telj, fizh: d.fizh, partnerName: d.partnerName, net: d.net, gross: d.gross, items: d.items, pdfUrl: d.pdfUrl, payMethod: d.payMethod }));
+    .map(d => ({ id: d.id, no: d.no, type: d.type, kelt: d.kelt, telj: d.telj, fizh: d.fizh, partnerName: d.partnerName, net: d.net, gross: d.gross, items: d.items, pdfUrl: d.pdfUrl, payMethod: d.payMethod, paidTx: paidOf(d) }));
   const bankMonths = {}; try { readAll_('bankTx').forEach(t => { if (t.technical || !/^HUF$/i.test(t.currency || 'HUF')) return; const m = String(t.valueDate || '').slice(0, 7); if (!m) return; const o = bankMonths[m] = bankMonths[m] || { be: 0, ki: 0 }; o[t.dir === 'KI' ? 'ki' : 'be'] += Math.round(Number(t.amount) || 0); }); } catch (e) {}
   const byExp = {}, txs = (() => { try { return readAll_('bankTx').filter(t => t.dir === 'KI' && !t.technical); } catch (e) { return []; } })();
   docs.filter(d => d.kind === 'be' && d.expenseId).forEach(d => { const g = Math.round(Number(d.gross) || 0), pn = szBankNorm_(d.partnerName).split(' ').filter(w => w.length > 3);

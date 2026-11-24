@@ -3259,3 +3259,6 @@ html body .pt-vcs{display:none}@media (max-width:700px){html body .proj-table .p
 
 /* félretett (alsó) ablak: halványan látszik a felső alatt, nem kattintható */
 #modalStashBox>.modal{z-index:79;pointer-events:none;background:rgba(10,24,34,.35)}#modalStashBox>.modal .mbox{opacity:.55;filter:saturate(.7)}
+
+/* kis címke a banki / bejövő számla sorokban */
+.pill-mini{display:inline-block;font-size:11px;font-weight:700;line-height:1.5;padding:0 7px;border-radius:999px;background:#eef1f5;color:#4a5562;margin-left:4px;vertical-align:1px}.pill-mini.ok{background:#e3f4e8;color:#1f7a3d}
