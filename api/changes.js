@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c02b1c2116",
+"at": "2026-11-24T08:32:19+02:00",
+"msg": "Videó hozzászólások: a csak időkódos visszadobás összevonva az előtte írt hozzászólással (egy bejegyzés, „Visszaküldve a vágónak” címkével)"
+},
+{
 "id": "c14574e446",
 "at": "2026-11-24T08:31:00+02:00",
 "msg": "Videó hozzászólások: „Ügyfélnek elküldve” és „Ügyfél jóváhagyta” címke is (a szöveg nem ismétli: Címzett: …)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfélnek küldés: belső visszadobás után nem „javítás” – az ügyfélnek ez az első változat"
 },
 {
-"id": "cd4f8633eb",
-"at": "2026-11-23T08:32:29+01:00",
-"msg": "Citan megállapodás modellnek (szereplőnek) is kitölthető"
-},
-{
-"id": "c0bdff0880",
-"at": "2026-11-23T07:30:31Z",
+"id": "3efde20e8e",
+"at": "2026-11-23T07:32:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
