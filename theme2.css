@@ -3226,3 +3226,7 @@ html body .vv-cm-i.st-ok{border-left-color:#15803d;background:#e8f7ec}html body 
 html body .vv-cm-i.st-seen{opacity:.75;font-size:.95em;background:transparent;padding-top:4px;padding-bottom:4px}
 html body .vv-cm-i .vv-step-tag+b{margin-left:0}
 html body .vv-cm-i .vv-step-tag{margin-right:8px}
+
+/* meg nem hívott stábtag közeli projektnél */
+html body .inv-urgent-l{display:inline-flex;align-items:center;gap:4px;font-weight:700}
+html body .pcrew-inv .btn.inv-btn.inv-urgent,html body .inv-btn.inv-urgent{border-color:#d93025!important;color:#b3261e!important;background:#fdecea!important;font-weight:700}
