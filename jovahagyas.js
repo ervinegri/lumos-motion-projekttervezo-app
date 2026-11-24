@@ -337,14 +337,14 @@ function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[
     let Q=Promise.resolve(),busy=0;
     const one=f=>{const li=document.createElement('li');li.innerHTML=`<span class="un">${esc(f.name)}</span><span class="us">várakozik…</span><span class="ub"><i></i></span>`;list.appendChild(li);
       const st=x=>li.querySelector('.us').textContent=x,bar=p=>li.querySelector('.ub i').style.width=Math.round(p*100)+'%';
-      if(f.size>300*1024*1024){li.classList.add('err');st('túl nagy (max. 300 MB)');return;}
-      if(DEMO||(LAST&&LAST.preview)){bar(1);li.classList.add('ok');st('előnézet – nem töltjük fel');return;}
+      if(f.size>300*1024*1024){li.classList.add('u-err');st('túl nagy (max. 300 MB)');return;}
+      if(DEMO||(LAST&&LAST.preview)){bar(1);li.classList.add('u-ok');st('előnézet – nem töltjük fel');return;}
       busy++;Q=Q.then(async()=>{try{st('feltöltés…');const s0=await post('clientUpStart',[t,CUR,f.name,f.type||'',f.size]);let off=0,res=null;
           while(off<f.size){const ch=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await b64(ch);let tries=0;
             for(;;){try{res=await post('clientUpChunk',[t,s0.upId,off,d]);break;}catch(e){if(++tries>=3||/lejárt|Hibás/.test(e.message))throw e;await new Promise(r=>setTimeout(r,1500*tries));}}
             off=res&&res.next?res.next:off+ch.size;bar(Math.min(1,off/f.size));st(fmt(Math.min(off,f.size))+' / '+fmt(f.size));if(res&&res.done)break;}
-          li.classList.add('ok');bar(1);st('✓ feltöltve ('+fmt(f.size)+')');}
-        catch(e){li.classList.add('err');st('nem sikerült: '+e.message);}finally{busy--;}});};
+          li.classList.add('u-ok');bar(1);st('✓ feltöltve ('+fmt(f.size)+')');}
+        catch(e){li.classList.add('u-err');st('nem sikerült: '+e.message);}finally{busy--;}});};
     const add=files=>{[...files].forEach(one);if(inp)inp.value='';};
     if(box&&inp){$('bUp').onclick=()=>inp.click();inp.onchange=()=>add(inp.files);
       ['dragenter','dragover'].forEach(ev=>box.addEventListener(ev,e=>{e.preventDefault();box.classList.add('drag');}));['dragleave','drop'].forEach(ev=>box.addEventListener(ev,e=>{e.preventDefault();box.classList.remove('drag');}));
