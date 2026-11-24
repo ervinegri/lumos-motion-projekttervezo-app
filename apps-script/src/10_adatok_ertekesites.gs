@@ -208,21 +208,36 @@ function dealOrphansClean_() {
   dbFlush_();
 }
 /* ===== Többnapos rendezvény: a lehetőség utolsó napja külön lapon (dealDays) ===== */
-const DEAL_DAYS_MAX = 14;
-function dealEndMap_() { const o = {}; try { readAll_('dealDays').forEach(x => { const e = iso_(x.eventEnd); if (x.id && e) o[String(x.id)] = e; }); } catch (e) { } return o; }
-/** az utolsó nap érvényesítése: az első nap után, legfeljebb DEAL_DAYS_MAX napos rendezvény; egynaposnál üres */
-function dealEndOk_(start, end) {
-  start = iso_(start); end = iso_(end); if (!start || !end || end <= start) return '';
-  const n = Math.round((new Date(end + 'T12:00:00Z') - new Date(start + 'T12:00:00Z')) / 864e5) + 1;
-  if (n > DEAL_DAYS_MAX) throw new Error('A rendezvény legfeljebb ' + DEAL_DAYS_MAX + ' napos lehet (most ' + n + ' nap).');
-  return end;
+const DEAL_DAYS_MAX = 14, DEAL_SPAN_MAX = 62;
+/* Többnapos rendezvény: a kiválasztott munkanapok (nem kell egymás utániaknak lenniük – pl. 25., 27., 29.) */
+const isoD_ = x => /^\d{4}-\d{2}-\d{2}$/.test(String(x || '').slice(0, 10)) ? String(x).slice(0, 10) : '';
+const dayAdd_ = (iso, n) => Utilities.formatDate(new Date(new Date(iso + 'T12:00:00Z').getTime() + n * 864e5), 'UTC', 'yyyy-MM-dd');
+/** a napok listája (az első nap = a rendezvény dátuma); egynaposnál üres lista. Szigorú: hibát dob a túl sok / túl szétszórt napra */
+function dealDaysNorm_(start, list, strict) {
+  start = isoD_(start); if (!start) return [];
+  let L = (Array.isArray(list) ? list : String(list || '').split(',')).map(isoD_).filter(Boolean);
+  L = L.concat([start]).filter((x, k, a) => a.indexOf(x) === k).sort().filter(x => x >= start);
+  if (L.length > DEAL_DAYS_MAX) { if (strict) throw new Error('Legfeljebb ' + DEAL_DAYS_MAX + ' nap jelölhető ki (most ' + L.length + ').'); L = L.slice(0, DEAL_DAYS_MAX); }
+  const far = L.filter(x => x > dayAdd_(start, DEAL_SPAN_MAX)); if (far.length) { if (strict) throw new Error('A kijelölt napok legfeljebb ' + DEAL_SPAN_MAX + ' napon belül lehetnek.'); L = L.filter(x => far.indexOf(x) < 0); }
+  return L.length > 1 ? L : [];
 }
-/** zárolás alatt hívandó: a lehetőség utolsó napjának mentése / törlése */
-function dealEndPut_(u, id, end) {
+/** régi forma (első–utolsó nap) → napok listája */
+function dealRange_(start, end) { start = isoD_(start); end = isoD_(end); const L = []; if (!start || !end || end <= start) return L; for (let t = start; t <= end && L.length <= DEAL_SPAN_MAX; t = dayAdd_(t, 1)) L.push(t); return L; }
+function dealDaysMap_() { const o = {}; try { readAll_('dealDays').forEach(x => { if (!x.id) return; o[String(x.id)] = { L: String(x.days || '').split(',').map(isoD_).filter(Boolean), end: isoD_(x.eventEnd) }; }); } catch (e) { } return o; }
+/** a mentett napok listája (a korábbi, csak utolsó napos sorokból az első–utolsó tartomány) */
+function dealDaysOf_(m, id, start) { const x = m[String(id)]; if (!x) return []; return x.L.length ? x.L : dealRange_(start, x.end); }
+/** a kérésből: eventDays (lista) > eventEnd (régi, összefüggő tartomány) > a korábbi mentés */
+function dealDaysFromReq_(a, start, old) {
+  if (a.eventDays !== undefined) return dealDaysNorm_(start, a.eventDays, true);
+  if (a.eventEnd !== undefined) { const r = dealRange_(start, a.eventEnd); if (r.length > DEAL_DAYS_MAX) throw new Error('A rendezvény legfeljebb ' + DEAL_DAYS_MAX + ' napos lehet (most ' + r.length + ' nap).'); return dealDaysNorm_(start, r, true); }
+  return dealDaysNorm_(start, old || [], false);
+}
+/** zárolás alatt hívandó: a lehetőség napjainak mentése / törlése */
+function dealDaysPut_(u, id, L) {
   const sh = sheetFor_('dealDays'), row = findRow_(sh, id);
-  if (!end) { if (row) sh.deleteRow(row); return; }
-  const old = row ? readRow_('dealDays', sh, row) : null; if (old && iso_(old.eventEnd) === end) return;
-  putRow_('dealDays', sh, { id: id, eventEnd: end, updatedAt: now_(), updatedBy: u.name }, row || null);
+  if (!L || L.length < 2) { if (row) sh.deleteRow(row); return; }
+  const csv = L.join(','), old = row ? readRow_('dealDays', sh, row) : null; if (old && String(old.days || '') === csv) return;
+  putRow_('dealDays', sh, { id: id, eventEnd: L[L.length - 1], updatedAt: now_(), updatedBy: u.name, days: csv }, row || null);
 }
 function dealsFor_(u) {
   const pids = {}, projectById = {}; readAll_('projects').forEach(p => { pids[p.id] = 1; projectById[p.id] = p; });
@@ -241,9 +256,9 @@ function dealsFor_(u) {
   const dct = dealCtMap_(), bst = {}; try { readAll_('finBilling').forEach(b => { if (b.contractStatus) bst[b.projectId] = b.contractStatus; }); } catch (e) { }
   const ck = v => String(v || '').trim().toLowerCase(), tigC = {};   // visszatérő, TIG-gel (teljesítésigazolással) számlázott ügyfél vagy keretszerződés: nem kap díjbekérőt
   try { readAll_('finTig').forEach(x => { if (ck(x.client)) tigC[ck(x.client)] = 'tig'; }); readAll_('finFramework').forEach(x => { if (ck(x.client) && String(x.mode || '') !== 'nemkell') tigC[ck(x.client)] = 'keret'; }); } catch (e) { }
-  const dEnd = dealEndMap_();
+  const dDays = dealDaysMap_();
   const qd = {}, qs = {}; try { const pr = PropertiesService.getScriptProperties().getProperties(); Object.keys(pr).forEach(k => { if (k.indexOf('QS_') === 0) { try { qs[k.slice(3)] = JSON.parse(pr[k]).at || '1'; } catch (e) { qs[k.slice(3)] = '1'; } } if (k.indexOf('QD_') === 0) { try { qd[k.slice(3)] = JSON.parse(pr[k]).at || '1'; } catch (e) { qd[k.slice(3)] = '1'; } } }); } catch (e) { }   // mentett, ki nem küldött árajánlat
-  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { eventEnd: d.eventDate && dEnd[d.id] > d.eventDate ? dEnd[d.id] : '', qDraft: qd[d.id] || '', qSent: qs[d.id] || '', ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (dct[d.id] ? dct[d.id].s : ''), ctAt: dct[d.id] ? dct[d.id].at : '', advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: finalDealValue(d), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
+  return (u.role === 'admin' ? all : all.filter(d => d.ownerId === u.id)).map(d => Object.assign({}, d, { ...(() => { const L = d.eventDate ? dealDaysNorm_(d.eventDate, dealDaysOf_(dDays, d.id, d.eventDate), false) : []; return { eventDays: L, eventEnd: L.length ? L[L.length - 1] : '' }; })(), qDraft: qd[d.id] || '', qSent: qs[d.id] || '', ctStatus: d.projectId && bst[d.projectId] ? bst[d.projectId] : (dct[d.id] ? dct[d.id].s : ''), ctAt: dct[d.id] ? dct[d.id].at : '', advPaidAt: d.stage === 'nyert' && d.projectId && adv[d.projectId] ? adv[d.projectId] : '', noAdv: d.stage === 'nyert' && tigC[ck(d.client)] ? tigC[ck(d.client)] : '', ownerCrewId: String(d.ownerId || '').indexOf('crew:') === 0 ? String(d.ownerId).slice(5) : (uc[d.ownerId] && !uc[d.ownerId].sales ? uc[d.ownerId].crewId : ''), value: finalDealValue(d), chance: d.chance === '' || d.chance == null ? null : Number(d.chance), commPct: d.commPct === '' || d.commPct == null ? null : Number(d.commPct), commAmt: Number(d.commAmt) || 0 }));
 }
 function salesBootstrap_(u) {
   const base = loadBase_();
@@ -280,12 +295,12 @@ function saveDeal_(u, a) {
     if (['uj', 'ajanlat', 'targyalas'].indexOf(d.stage) >= 0 && (!d.nextStep || !d.nextDate)) throw new Error(!d.nextStep ? 'Add meg a következő lépést.' : 'Add meg a következő lépés dátumát.');   // nyitott lehetőségnél a következő lépés és a dátuma kötelező
     if (d.contactEmail2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.contactEmail2)) throw new Error('A másodlagos e-mail-cím érvénytelen.');
     if (d.stage === 'elveszett' && d.lostReason.length < 3) throw new Error('Írd be röviden, miért veszett el.');
-    const oldEnd = old ? (dealEndMap_()[id] || '') : '';   /* részleges mentés (pl. szakaszváltás) eventEnd nélkül: a korábbi utolsó nap megmarad */
-    let end = ''; if (d.eventDate) { if (a.eventEnd !== undefined) end = dealEndOk_(d.eventDate, a.eventEnd); else { try { end = dealEndOk_(d.eventDate, oldEnd); } catch (e) { end = ''; } } }
-    putRow_('deals', sh, d, row || null); dealEndPut_(u, id, end); dbFlush_();
+    const oldDays = old ? dealDaysOf_(dealDaysMap_(), id, old.eventDate) : [];   /* részleges mentés (pl. szakaszváltás) a napok nélkül: a korábbi napok megmaradnak */
+    const days = d.eventDate ? dealDaysFromReq_(a, d.eventDate, oldDays) : [], oldEnd = oldDays.join(','), end = days.join(',');
+    putRow_('deals', sh, d, row || null); dealDaysPut_(u, id, days); dbFlush_();
     logEvent_(u, old ? (old.stage !== d.stage ? 'Értékesítés: ' + dealStageLbl_(d.stage) : 'Értékesítés módosítva') : 'Értékesítés: új lehetőség', d.title, d.client);
     const K = ['title', 'value', 'stage', 'eventDate', 'contactEmail', 'contactName', 'contactPhone', 'client', 'ownerId', 'note', 'source'];
-    if (old && oldEnd !== end) logEvent_(u, 'Értékesítés: rendezvény napjai', d.title, end ? d.eventDate + ' – ' + end : 'egynapos');
+    if (old && oldEnd !== end) logEvent_(u, 'Értékesítés: rendezvény napjai', d.title, days.length ? days.length + ' nap: ' + days.join(', ') : 'egynapos');
     if (!old || K.some(k => String(old[k] || '') !== String(d[k] || ''))) saved = Object.assign({}, d, { _oldNote: old ? old.note : '' });   // csak érdemi változásnál megy a HubSpotba
     return { deals: dealsFor_(u) };
   });
@@ -333,7 +348,7 @@ function deleteDeal_(u, a) {
     const sh = sheetFor_('deals'), row = findRow_(sh, id); if (!row) return { deals: dealsFor_(u) };
     const d = readRow_('deals', sh, row); dealCan_(u, d);
     if (d.stage === 'nyert') throw new Error('Szerződött lehetőséget nem lehet törölni.');
-    sh.deleteRow(row); dealEndPut_(u, id, ''); dbFlush_(); logEvent_(u, 'Értékesítés: törölve', d.title, d.client);
+    sh.deleteRow(row); dealDaysPut_(u, id, []); dbFlush_(); logEvent_(u, 'Értékesítés: törölve', d.title, d.client);
     return { deals: dealsFor_(u) };
   });
 }
@@ -370,8 +385,8 @@ function winDeal_(u, a) {
   if (!pdate) throw new Error('Add meg a rendezvény dátumát – ezzel kerül a naptárba.');
   const pid = linkId || Utilities.getUuid();
   /* többnapos rendezvény: a projekt további napjai az első naptól az utolsóig (az időpontok a projektben pontosíthatók) */
-  let end = ''; try { end = date ? dealEndOk_(date, a.eventEnd !== undefined ? a.eventEnd : dealEndMap_()[id]) : ''; } catch (e) { end = ''; }
-  const moreDays = []; if (end) { for (let t = new Date(date + 'T12:00:00Z'); ;) { t = new Date(t.getTime() + 864e5); const di = Utilities.formatDate(t, 'UTC', 'yyyy-MM-dd'); if (di > end || moreDays.length >= 20) break; moreDays.push({ d: di, s: '', e: '' }); } }
+  let dl = []; try { dl = date ? dealDaysFromReq_(a, date, dealDaysOf_(dealDaysMap_(), id, d.eventDate || date)) : []; } catch (e) { dl = []; }
+  const moreDays = dl.slice(1).map(x => ({ d: x, s: '', e: '' }));   /* csak a kijelölt napok (nem feltétlenül egymás utániak) */
   if (!linkId) saveProject_({ id: u.id, name: u.name, email: u.email, role: 'admin' }, { id: pid, mutationId: Utilities.getUuid(), name: str_(a.title, 160) || d.title, client: d.client, venue: d.venue, eventType: d.eventType,
     date: date, contactName: d.contactName, contactEmail: d.contactEmail, contactPhone: d.contactPhone, notes: '',   // a lehetőség jegyzetei (érzékeny értékesítési infó) NEM kerülnek a projektbe – a stáb is látja a projekt jegyzeteit
     status: 'tervezes', crew: [], equipment: [], baseUpdatedAt: '', projectValue: value, deferCal: true, days: moreDays });
@@ -379,7 +394,7 @@ function winDeal_(u, a) {
     const ow = loadUsers_().find(x => x.id === q.ownerId);
     if (ow && ow.role === 'sales') { const c = salesCompOf_(ow), pct = value >= c.commLimit ? c.commHigh : c.commLow; q.commPct = pct; q.commAmt = Math.round(value * pct / 100); } else { q.commPct = ''; q.commAmt = ''; }   // jutalék a szerződéskori beállítás szerint
     q.stage = 'nyert'; q.projectId = pid; q.value = value; q.eventDate = date || pdate; q.wonAt = today_(); q.closedAt = today_(); q.chance = 100; q.updatedAt = now_(); q.updatedBy = u.name; if (!q.eventDate) q.eventDate = pdate;
-    putRow_('deals', sh, q, r2); if (a.eventEnd !== undefined) dealEndPut_(u, id, end); dbFlush_(); });
+    putRow_('deals', sh, q, r2); if (a.eventDays !== undefined || a.eventEnd !== undefined) dealDaysPut_(u, id, dl); dbFlush_(); });
   logEvent_(u, 'Értékesítés: szerződve', d.title, d.client + (linkId ? ' · meglévő projekthez kapcsolva' : ' · projekt létrehozva'));
   if (!linkId) try { const p = readAll_('projects').find(x => x.id === pid); if (p) syncCalendar_(fullProject_(p)); } catch (e) {}
   try { if (linkP && linkP.preDeal === id) preDealNotify_(pid, true); } catch (e) {}   /* véglegessé vált előfoglalás */

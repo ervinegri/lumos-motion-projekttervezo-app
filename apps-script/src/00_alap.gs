@@ -139,7 +139,7 @@ const TABLES = {
     ['paid', 'Kifizetve (összesen)'], ['paidAt', 'Utolsó kifizetés'], ['storno', 'Sztornózva (1)'], ['items', 'Tételek'], ['pdfUrl', 'PDF (Drive)'], ['receivedAt', 'Beérkezett'], ['crewId', 'Munkatárs (bejövő)'],
     ['status', 'Állapot (stab / kiadas / elvetve)'], ['expenseId', 'Kiadás sor'], ['handledBy', 'Kezelte'], ['handledAt', 'Kezelve']] },
   dealDays: { tab: 'Lehetőségek napjai', cols: [   // többnapos rendezvény: a lehetőség utolsó napja (az Értékesítés lapra nem kerül új oszlop)
-    ['id', 'Lehetőség azonosító (ne módosítsd)'], ['eventEnd', 'Rendezvény utolsó napja'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] }
+    ['id', 'Lehetőség azonosító (ne módosítsd)'], ['eventEnd', 'Rendezvény utolsó napja'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította'], ['days', 'Munkanapok (vesszővel)']] }
 };
 const NUM_FIELDS = new Set(['budgetVal', 'er_rooms', 'er_clips', 'er_subs', 'er_summary', 'er_total_n', 'er_close_n', 'er_creative_n', 'er_post_n', 'x_foto_n', 'priority', 'hours', 'aftermovie', 'interju', 'int_sarok', 'int_resztvevo', 'short60', 'short30', 'short15', 'foto_db', 'quotePrice', 'dayRate', 'qty', 'value', 'amount', 'prod', 'profit', 'ceo', 'rezsi', 'marketing', 'invNet', 'invGross', 'invPaid', 'advancePct']);
 const BOOL_FIELDS = new Set(FLAGS.concat(['legacy', 'leadRemote', 'editOnsite']));

@@ -40,7 +40,7 @@ const readAll_=key=>({
   finTig:[],
   finFramework:[]
 })[key]||[];
-const dealsFor=new Function('readAll_','loadUsers_','dealCtMap_','parseExtras_','dealEndMap_',backend.slice(a,b)+'\nreturn dealsFor_;')(
-  readAll_,()=>[{id:'current-admin',role:'admin'},{id:'legacy-admin',role:'admin'},{id:'peter',role:'sales'}],()=>({}),raw=>JSON.parse(raw||'[]'),()=>({}));
+const dealsFor=new Function('readAll_','loadUsers_','dealCtMap_','parseExtras_','dealDaysMap_','dealDaysNorm_','dealDaysOf_',backend.slice(a,b)+'\nreturn dealsFor_;')(
+  readAll_,()=>[{id:'current-admin',role:'admin'},{id:'legacy-admin',role:'admin'},{id:'peter',role:'sales'}],()=>({}),raw=>JSON.parse(raw||'[]'),()=>({}),()=>[],()=>[]);
 assert.deepEqual(dealsFor({role:'admin',id:'current-admin'}).slice(0,3).map(d=>d.value),[296000,29000,29000]);
 console.log('PASS sales owner deduplication, project value display and paid-month commission labels');

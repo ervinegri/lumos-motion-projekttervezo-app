@@ -7,10 +7,17 @@ const DEAL_STAGES=[['uj','Új érdeklődő','💡'],['ajanlat','Ajánlat kiküld
 /* ===== Többnapos rendezvény (napok száma, rövid kiírás) ===== */
 const DEAL_DAYS_MAX=14;
 const dDaysN=(a,b)=>a&&b&&b>a?Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5)+1:1;
-function dealDays(d){return d&&d.eventDate?dDaysN(d.eventDate,d.eventEnd):1;}
-/* rövid kiírás: „márc. 4.” vagy „márc. 4–6.” / „márc. 30. – ápr. 1.” */
-function dealDateTxt(d){if(!d||!d.eventDate)return '';if(!(d.eventEnd>d.eventDate))return fmtShort(d.eventDate);const a=new Date(d.eventDate+'T12:00:00'),b=new Date(d.eventEnd+'T12:00:00');
-  return a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear()?fmtShort(d.eventDate).replace(/\.?\s*$/,'')+'–'+b.getDate()+'.':fmtShort(d.eventDate)+' – '+fmtShort(d.eventEnd);}
+const dIso=x=>{const z=n=>String(n).padStart(2,'0');return x.getFullYear()+'-'+z(x.getMonth()+1)+'-'+z(x.getDate());};
+/* a lehetőség kijelölt napjai (nem kell egymás utániaknak lenniük); a régi, első–utolsó napos forma tartományként */
+function dealDayList(d){if(!d||!d.eventDate)return [];const L=Array.isArray(d.eventDays)?d.eventDays.filter(Boolean):String(d.eventDays||'').split(',').filter(Boolean);
+  if(L.length>1)return L.slice().sort();if(d.eventEnd>d.eventDate){const R=[];for(let t=new Date(d.eventDate+'T12:00:00');dIso(t)<=d.eventEnd&&R.length<62;t.setDate(t.getDate()+1))R.push(dIso(t));return R;}return [d.eventDate];}
+function dealDays(d){return Math.max(1,dealDayList(d).length);}
+/* napok kiírása: egymás utáni napok összevonva, hónaponként – „nov. 25., 27–29., dec. 1.” (long: „2026. november 25., 27–29., december 1.”) */
+function dDaysFmt(L,long){L=(L||[]).filter(Boolean).slice().sort();if(!L.length)return '';const D=L.map(x=>new Date(x+'T12:00:00')),M=x=>long?new Intl.DateTimeFormat('hu-HU',{month:'long'}).format(x):fmtShort(dIso(x)).replace(/\s*\d+\.?\s*$/,'');
+  const runs=[];D.forEach(x=>{const r=runs[runs.length-1];if(r&&x-r[1]===864e5&&x.getMonth()===r[1].getMonth())r[1]=x;else runs.push([x,x]);});
+  let out=[],lastM=-1,lastY=-1;runs.forEach(([a,b])=>{const head=(a.getMonth()!==lastM||a.getFullYear()!==lastY)?((long&&a.getFullYear()!==lastY?a.getFullYear()+'. ':'')+M(a)+' '):'';lastM=a.getMonth();lastY=a.getFullYear();out.push(head+a.getDate()+(b>a?'–'+b.getDate():'')+'.');});
+  return out.join(', ');}
+function dealDateTxt(d){return d&&d.eventDate?(dealDays(d)>1?dDaysFmt(dealDayList(d)):fmtShort(d.eventDate)):'';}
 const DEAL_OPEN=['uj','ajanlat','targyalas'],DEAL_CHANCE={uj:10,ajanlat:30,targyalas:60};
 const DEAL_SOURCES=['Ajánlás','Visszatérő ügyfél','Weboldal','E-mail / telefon','Közösségi média','Rendezvényen','Hideg megkeresés','Egyéb'];
 const DEAL_CT=[['','Még nincs kiküldve'],['kikuldve','Kiküldve, aláírásra vár'],['visszakuldve','Visszaküldték módosításra'],['alairva','Aláírva']];
@@ -191,16 +198,19 @@ const DEAL_SERVICES=['Előadásrögzítés','Élő közvetítés (stream)','Krea
    a megnevezés és a következő lépés magától kitöltődik. A „Rendezvény típusa” mezőben tároljuk (új oszlop nélkül). */
 const DEAL_GEN='Általános ajánlat',dealGen=d=>!!d&&d.eventType===DEAL_GEN;
 /* ===== Többnapos rendezvény: egy mezőben az első és (ha kell) az utolsó nap – naptárban két kattintás ===== */
-function dRangeField(k,label,start,end){return `<div class="field d-rangef"><label for="m-${k}R">${label}</label><input class="inp d-range" id="m-${k}R" type="text" readonly data-k="${k}" placeholder="Válaszd ki a napot – többnaposnál az első és az utolsót"><input type="hidden" name="${k}" id="m-${k}" value="${esc(start||'')}"><input type="hidden" name="${k}End" id="m-${k}End" value="${esc(start&&end>start?end:'')}"><small class="hint d-rangeh" id="m-${k}H"></small></div>`;}
-function dRangeInit(k){const el=$('m-'+k+'R'),a=$('m-'+k),b=$('m-'+k+'End');if(!el||!a||!window.flatpickr)return;
-  const hint=()=>{const h=$('m-'+k+'H');if(!h)return;const n=dDaysN(a.value,b.value);h.textContent=n>1?'🗓️ '+n+' napos rendezvény – az árajánlat és a projekt is ennyi nappal számol':(a.value?'Egynapos. Többnapos rendezvénynél kattints az utolsó napra is.':'');};
-  const fp=flatpickr(el,{mode:'range',locale:fpLocale(),dateFormat:'Y-m-d',altInput:true,altFormat:'Y. F j., l',disableMobile:true,defaultDate:[a.value,b.value].filter(Boolean),
-    onChange:(sel,str,inst)=>{const iso=x=>inst.formatDate(x,'Y-m-d');let s0=sel[0]?iso(sel[0]):'',s1=sel[1]?iso(sel[1]):'';
-      if(s1&&dDaysN(s0,s1)>DEAL_DAYS_MAX){toast('Legfeljebb '+DEAL_DAYS_MAX+' napos rendezvény jelölhető.',true);const t=new Date(s0+'T12:00:00');t.setDate(t.getDate()+DEAL_DAYS_MAX-1);s1=inst.formatDate(t,'Y-m-d');inst.setDate([s0,s1],false);}
-      a.value=s0;b.value=s1>s0?s1:'';hint();const f=a.form;if(f)f.dispatchEvent(new Event('input',{bubbles:true}));}});
+function dRangeField(k,label,start,days){const L=(days&&days.length>1?days:[start]).filter(Boolean);return `<div class="field d-rangef"><label for="m-${k}R">${label}</label><input class="inp d-range" id="m-${k}R" type="text" readonly data-k="${k}" placeholder="Válaszd ki a napot – többnaposnál a többit is"><input type="hidden" name="${k}" id="m-${k}" value="${esc(L[0]||'')}"><input type="hidden" name="${k}Days" id="m-${k}Days" value="${esc(L.length>1?L.join(','):'')}"><small class="hint d-rangeh" id="m-${k}H"></small></div>`;}
+/* naptár: tetszőleges napok kijelölése (pl. 25., 27., 29.) – kattintás kijelöl, újrakattintás kivesz */
+function dRangeInit(k){const el=$('m-'+k+'R'),a=$('m-'+k),b=$('m-'+k+'Days');if(!el||!a||!window.flatpickr)return;
+  const cur=()=>(b.value?b.value.split(','):[a.value]).filter(Boolean);
+  const hint=()=>{const h=$('m-'+k+'H');if(!h)return;const n=cur().length;h.textContent=n>1?'🗓️ '+n+' nap kijelölve – az árajánlat és a projekt is ennyi nappal számol. Újrakattintással kivehetsz egy napot.':(a.value?'Egynapos. Többnapos rendezvénynél kattints a többi napra is – nem kell egymás utániaknak lenniük.':'');};
+  const fp=flatpickr(el,{mode:'multiple',locale:fpLocale(),dateFormat:'Y-m-d',conjunction:',',altInput:true,altFormat:'Y. F j.',disableMobile:true,closeOnSelect:false,defaultDate:cur(),
+    onChange:(sel,str,inst)=>{let L=sel.map(x=>inst.formatDate(x,'Y-m-d')).filter((x,i,A)=>A.indexOf(x)===i).sort();
+      if(L.length>DEAL_DAYS_MAX){toast('Legfeljebb '+DEAL_DAYS_MAX+' nap jelölhető ki.',true);L=L.slice(0,DEAL_DAYS_MAX);inst.setDate(L,false);}
+      if(L.length>1&&dDaysN(L[0],L[L.length-1])>62){toast('A kijelölt napok legfeljebb 2 hónapon belül lehetnek.',true);L=L.filter(x=>dDaysN(L[0],x)<=62);inst.setDate(L,false);}
+      a.value=L[0]||'';b.value=L.length>1?L.join(','):'';hint();setTimeout(show,0);const f=a.form;if(f)f.dispatchEvent(new Event('input',{bubbles:true}));}});
   if(fp.altInput){fp.altInput.className=el.className+' fp-alt';fp.altInput.placeholder=el.placeholder;fp.altInput.setAttribute('aria-label',(document.querySelector('label[for="m-'+k+'R"]')||{}).textContent||'Dátum');}
-  /* kiírás: „2027. március 4., csütörtök – március 6., szombat” helyett tömörebben */
-  const show=()=>{if(!fp.altInput)return;const L=d=>new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'short'}).format(new Date(d+'T12:00:00'));const sd=fp.selectedDates.map(x=>fp.formatDate(x,'Y-m-d')),s0=sd[0]||'',s1=sd[1]&&sd[1]>s0?sd[1]:'';fp.altInput.value=s0?(s1?L(s0)+' – '+L(s1).replace(/^\d{4}\.\s*/,''):L(s0)):'';};
+  /* kiírás: egy napnál „2026. november 25., szerda”, többnél tömören: „2026. november 25., 27–29.” */
+  function show(){if(!fp.altInput)return;const L=cur();fp.altInput.value=!L.length?'':L.length===1?new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date(L[0]+'T12:00:00')):dDaysFmt(L,true)+' · '+L.length+' nap';}
   fp.config.onValueUpdate.push(()=>setTimeout(show,0));fp.config.onClose.push(()=>setTimeout(show,0));show();hint();}
 function dGenApply(on){const f=$('mform');if(!f)return;f.classList.toggle('dl-gen',on);['m-dTitle','m-dType','m-dVenue','m-dDate','m-dValue','m-pre'].forEach(id=>{const el=$(id),fl=el&&el.closest('.field');if(fl)fl.hidden=on;});   /* árlistánál nincs megnevezés (magától: „Általános ajánlat – cég”), várható érték és előfoglalás sem */
   document.querySelectorAll('#mform .dl-kind label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));
@@ -221,7 +231,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${isAdmin()&&!won?`<div class="field"><label for="m-dOwner">Értékesítő</label><select class="inp" id="m-dOwner" name="dOwner" data-cmb="Válassz értékesítőt…">${salesOwners(S.deals||[]).map(([id,n])=>`<option value="${esc(id)}"${(salesSelfIds(S.deals||[]).has(d.ownerId||S.salesF.owner)?S.me&&S.me.id:(d.ownerId||S.salesF.owner||(S.me&&S.me.id)))===id?' selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
     ${(()=>{const cur=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean);return mselField('dServices','Szóba jövő szolgáltatások',DEAL_SERVICES.concat(cur.filter(x=>!DEAL_SERVICES.includes(x))),cur,'Válaszd ki, mik jöhetnek szóba (többet is lehet)…',true).replace('<div class="field"',isAdmin()&&!won?'<div class="field"':'<div class="field full"');})()}   
     <div class="field"><label for="m-dVenue">Helyszín <a class="linkbtn" id="dl-map" href="${d.venue?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.venue):'#'}" target="_blank" rel="noopener" style="font-size:12px;margin-left:6px${d.venue?'':';display:none'}">📍 Térkép ↗</a></label><input class="inp" id="m-dVenue" name="dVenue" value="${esc(d.venue||'')}" maxlength="200" autocomplete="off" placeholder="kezdd el gépelni: helyszín neve vagy cím"></div>
-    ${dRangeField('dDate','Rendezvény napja(i)',d.eventDate,d.eventEnd)}
+    ${dRangeField('dDate','Rendezvény napja(i)',d.eventDate,dealDayList(d))}
     ${moneyField('dValue','Várható érték (nettó)',d.value==null?'':d.value,{steps:false,ph:'pl. 450 000'})}
     ${won?'':`<div class="field full dl-4row">${ms('dStage','Szakasz',stOpts,d.stage)}<div class="field"><label for="m-dChance">Esély (%)</label><input class="inp" id="m-dChance" name="dChance" type="number" min="0" max="100" step="5" value="${dealChance(d)}"></div><div class="field"><label for="m-dNext">Következő lépés <span class="req-star">*</span></label><input class="inp" id="m-dNext" name="dNext" value="${esc(d.nextStep||'')}" maxlength="200" placeholder="pl. ajánlat utánkövetése telefonon"></div><div class="field"><label for="m-dNextD">Mikor? <span class="req-star">*</span></label><input class="inp" id="m-dNextD" name="dNextD" type="date" value="${esc(d.nextDate||'')}" required></div></div>`}
     <div class="field full" id="dl-lostf"${d.stage==='elveszett'?'':' hidden'}><label for="m-dLost">Miért nem sikerült?</label><input class="inp" id="m-dLost" name="dLost" value="${esc(d.lostReason||'')}" maxlength="300" placeholder="pl. drága volt, más céget választottak, elmarad a rendezvény"></div>
@@ -234,7 +244,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
   </div>`,{left:(!isNew&&!won?`<button type="button" class="btn danger small" data-action="deal-del" data-id="${esc(d.id)}">Törlés</button>`:'')+(!isNew&&(isAdmin()||(S.me&&d.ownerId===S.me.id))?`${dealSentAt(d)?`<button type="button" class="btn outline" data-action="q-sent-open" data-id="${esc(d.id)}" data-work="Ajánlat betöltése – ${esc(d.title||'')}">📨 Kiküldött ajánlat</button>`:''}${d.qDraft?`<button type="button" class="btn q-cta" data-action="q-draft-cont" data-id="${esc(d.id)}">📄 Mentett ajánlat folytatása</button><button type="button" class="btn outline" data-action="q-draft-new" data-id="${esc(d.id)}">＋ Új árajánlat</button>`:`<button type="button" class="btn q-cta" data-action="deal-quote" data-id="${esc(d.id)}">📄 Árajánlat készítése</button>`}`:''),submitLabel:'Mentés',submit:async fd=>{
     const nd=Object.assign({},d0||{},{id:d.id||'',title:String(fd.get('dTitle')||'').trim(),client:String(fd.get('dClient')||'').trim(),eventType:fd.get('dType')||'',contactName:String(fd.get('dCName')||'').trim(),contactEmail:String(fd.get('dCEmail')||'').trim(),contactEmail2:String(fd.get('dCEmail2')||'').trim(),contactPhone:String(fd.get('dCPhone')||'').trim(),
-      venue:fd.get('dKind')==='gen'?'':String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dKind')==='gen'?'':fd.get('dDate')||'',eventEnd:fd.get('dKind')==='gen'?'':fd.get('dDateEnd')||'',value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',services:fd.getAll('dServices').join(', '),note:dNoteAdd(dNoteFix(String(fd.get('dNote')||''),dNoteFb(d),d.ownerName),String(fd.get('dNoteNew')||''))});
+      venue:fd.get('dKind')==='gen'?'':String(fd.get('dVenue')||'').trim(),eventDate:fd.get('dKind')==='gen'?'':fd.get('dDate')||'',eventDays:fd.get('dKind')==='gen'?[]:String(fd.get('dDateDays')||'').split(',').filter(Boolean),value:moneyVal(fd.get('dValue')),source:fd.get('dSource')||'',services:fd.getAll('dServices').join(', '),note:dNoteAdd(dNoteFix(String(fd.get('dNote')||''),dNoteFb(d),d.ownerName),String(fd.get('dNoteNew')||''))});
     if(fd.get('dKind')==='gen'){nd.eventType=DEAL_GEN;if(nd.title.length<2||/^Általános ajánlat – /.test(nd.title))nd.title='Általános ajánlat – '+(nd.client||nd.contactName||'érdeklődő');}else if(fd.get('dKind')==='ev'&&nd.eventType===DEAL_GEN)nd.eventType='';
     if(fd.get('dOwner'))nd.ownerId=fd.get('dOwner');   // az ügyvezető kioszthatja egy értékesítőnek (vagy magának)
     if(!won){nd.stage=fd.get('dStage')||'uj';nd.chance=fd.get('dChance')===''?'':Number(fd.get('dChance'));nd.nextStep=String(fd.get('dNext')||'').trim();nd.nextDate=fd.get('dNextD')||'';nd.lostReason=String(fd.get('dLost')||'').trim();}
@@ -261,10 +271,10 @@ function dealWinModal(d){
     ${linkF}
     ${mf('wTitle','Projekt neve',{v:d.title,full:true,max:160}).replace('<div class="field','<div class="field w-new')}
     ${moneyField('wValue','Szerződött összeg (nettó)',dealVal(d)||'',{steps:false})}
-    ${dRangeField('wDate','Rendezvény napja(i)',d.eventDate,d.eventEnd).replace('<div class="field','<div class="field w-new')}</div>`,{submitLabel:'✅ Szerződve',submit:async fd=>{
+    ${dRangeField('wDate','Rendezvény napja(i)',d.eventDate,dealDayList(d)).replace('<div class="field','<div class="field w-new')}</div>`,{submitLabel:'✅ Szerződve',submit:async fd=>{
     const value=moneyVal(fd.get('wValue')),date=fd.get('wDate')||'',title=String(fd.get('wTitle')||'').trim(),pid=String(fd.get('wProj')||'');
     if(!value){toast('Add meg a szerződött összeget.',true);return;}if(!pid&&!date){toast('Add meg a rendezvény napját.',true);return;}
-    try{const r=await call('winDeal',{id:d.id,value,eventDate:date,eventEnd:fd.get('wDateEnd')||'',title,projectId:pid});S.deals=r.deals||S.deals;closeModal();render(true);toast(pid?'Szerződve – a lehetőség a meglévő projekthez kapcsolódik.':'Szerződve – a projekt elkészült (Tervezés).');
+    try{const r=await call('winDeal',{id:d.id,value,eventDate:date,eventDays:String(fd.get('wDateDays')||'').split(',').filter(Boolean),title,projectId:pid});S.deals=r.deals||S.deals;closeModal();render(true);toast(pid?'Szerződve – a lehetőség a meglévő projekthez kapcsolódik.':'Szerződve – a projekt elkészült (Tervezés).');
       if(isAdmin()&&typeof load==='function')setTimeout(()=>{try{load(true);}catch(x){}},300);}catch(e){handleErr(e);}}});
   dRangeInit('wDate');const sync=()=>{const sel=$('m-wProj'),on=!!(sel&&sel.value);document.querySelectorAll('#mform .w-new').forEach(x=>x.hidden=on);};sync();
   const sel=$('m-wProj');if(sel)sel.addEventListener('change',sync);}

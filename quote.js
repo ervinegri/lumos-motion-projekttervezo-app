@@ -35,13 +35,11 @@ function qFirst(n){return huFirst(n);}
 /* ajánlaton: a rendezvény dátuma évvel, teljes hónapnévvel és napnévvel (pl. 2027. március 4., csütörtök) */
 const qEvDate=iso=>{if(!/^\d{4}-\d{2}-\d{2}/.test(String(iso||'')))return '';const d=new Date(String(iso).slice(0,10)+'T12:00:00');return new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(d);};
 /* többnapos rendezvény az ajánlaton: „2027. március 4–6. (3 nap)” / „2027. március 30. – április 1. (3 nap)” */
-/* az ajánlat napjainak száma: a lehetőség első–utolsó napja, ennek híján a kalkulátorban beállított napok, végül a tételek „N nap” mennyisége */
-function qDaysQ(d){const a=d&&d.eventDate&&d.eventEnd>d.eventDate?dDaysN(d.eventDate,d.eventEnd):0;if(a>1)return a;const q=S.q||{};if(q.days>1)return q.days;
+/* az ajánlat napjainak száma: a lehetőség kijelölt napjai, ennek híján a kalkulátorban beállított napok, végül a tételek „N nap” mennyisége */
+function qDaysQ(d){const a=d&&d.eventDate?dealDays(d):0;if(a>1)return a;const q=S.q||{};if(q.days>1)return q.days;
   let m=1;(q.items||[]).forEach(it=>{const x=/^(\d+)\s*nap\b/i.exec(String(it.qty||'').trim());if(x)m=Math.max(m,+x[1]);});return m;}
-function qEvRange(d,noN){if(!d||!d.eventDate)return '';if(!(d.eventEnd>d.eventDate)){const n=qDaysQ(d);if(n<2)return qEvDate(d.eventDate);const t=new Date(d.eventDate+'T12:00:00');t.setDate(t.getDate()+n-1);d=Object.assign({},d,{eventEnd:t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')});}
-  const a=new Date(d.eventDate+'T12:00:00'),b=new Date(d.eventEnd+'T12:00:00'),M=x=>new Intl.DateTimeFormat('hu-HU',{month:'long'}).format(x),n=dDaysN(d.eventDate,d.eventEnd);
-  const t=a.getFullYear()!==b.getFullYear()?qEvDate(d.eventDate).replace(/,.*$/,'')+' – '+qEvDate(d.eventEnd).replace(/,.*$/,''):a.getMonth()===b.getMonth()?a.getFullYear()+'. '+M(a)+' '+a.getDate()+'–'+b.getDate()+'.':a.getFullYear()+'. '+M(a)+' '+a.getDate()+'. – '+M(b)+' '+b.getDate()+'.';
-  return noN?t:t+' ('+n+' nap)';}
+/* az ajánlaton: egy napnál „2027. február 3., szerda”, többnél a kijelölt napok: „2027. február 3–4., 6.” (+ „(3 nap)”) */
+function qEvRange(d,noN){if(!d||!d.eventDate)return '';const L=dealDayList(d);if(L.length<2)return qEvDate(d.eventDate);const t=dDaysFmt(L,true);return noN?t:t+' ('+L.length+' nap)';}
 /* tételnévben a szóközök közötti kötőjel nagykötőjel (–) */
 const qDash=t=>String(t||'').replace(/ - /g,' – ');
 function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean),v=num(d.value);
