@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e9a4a7a3c7",
+"at": "2026-11-24T08:25:52+02:00",
+"msg": "Stáb kártya: 30 napon belüli projektnél a meg nem hívott tagnál piros „Még nincs meghívva · N nap múlva” jelzés"
+},
+{
 "id": "5dbafb56f5",
 "at": "2026-11-24T08:23:33+02:00",
 "msg": "Videó: verziók v1 / Revision 1 / Revision 2…, a hozzászólásoknál a folyamat lépései színnel és címkével elkülönítve"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mercedes Citan gépjármű-használati megállapodás sablon a szerződések között"
 },
 {
-"id": "26881fcdea",
-"at": "2026-11-23T08:13:07+01:00",
-"msg": "Lakatolt Alapadatok: kijelölhető, másolható, kattintható – de nem módosítható"
-},
-{
-"id": "e36cd5f9e6",
-"at": "2026-11-23T07:10:59Z",
+"id": "8710322538",
+"at": "2026-11-23T07:13:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
