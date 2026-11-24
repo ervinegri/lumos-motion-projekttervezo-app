@@ -65,8 +65,7 @@ const qDisc=()=>Math.round(qGross()*qDiscPct()/100);
 const qTotal=()=>qGross()-qDisc();   // nettó fizetendő
 /* az árajánlat az árkalkulátorral indul: a kiszámolt tételek kerülnek az ajánlatba (vagy kihagyható) */
 /* a lehetőség ablakából indított ajánlatkészítés: bezáráskor (küldés nélkül) vissza a lehetőséghez, nem a listára */
-function qBackCheck(){const id=S._qBack;if(!id||$('mform'))return;S._qBack=null;const d=(S.deals||[]).find(x=>x.id===id);if(d&&S.tab==='ertekesites')dealModal(d);}
-ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;if(b&&b.closest&&b.closest('#mform'))S._qBack=d.id;
+ACT['deal-quote']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;if(b&&b.closest&&b.closest('#mform'))modalStash();   /* a lehetőség ablaka félrekerül, és az ajánlatkészítés bezárásakor változatlanul visszajön */
   const fresh=()=>{if(!S.q||S.q.dealId!==d.id)qInit(d);qSig(d.id);ACT['ark-open']({dataset:{q:d.id}});};
   if(S.q&&S.q.dealId===d.id){fresh();return;}
   /* nincs ismert mentett ajánlat: a kalkulátor azonnal nyílik (nem várunk a szerverre); a háttérben azért ellenőrizzük, hátha másik gépen mentettek egyet */
@@ -210,7 +209,7 @@ function qPreview(){const q=S.q,s=q.sig||{};q._pdf=null;q._pdfP=null;if(!s.name&
     <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPages().join('')}</div></div></div>`,
     {submitLabel:'📨 Küldés',noDraft:true,
      submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
-       try{const pdf=await qPdfCached();S._qBack=null;const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:q.opts.length>1?0:qTotal(),opts:q.opts.length,q:(()=>{const st=Object.assign({},q);delete st._pdf;delete st._pdfP;delete st.sig;return st;})()});
+       try{const pdf=await qPdfCached();modalStashDrop();const r=await call('dealQuoteSend',{dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),total:q.opts.length>1?0:qTotal(),opts:q.opts.length,q:(()=>{const st=Object.assign({},q);delete st._pdf;delete st._pdfP;delete st.sig;return st;})()});
          if(r&&r.deals)S.deals=r.deals;closeModal();S.q=null;render(true);toast(r&&r.test?'TESZT: az ajánlat csak neked ment ki':'Árajánlat elküldve: '+q.to);}
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');

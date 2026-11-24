@@ -3256,3 +3256,6 @@ html body .pt-vcs{display:none}@media (max-width:700px){html body .proj-table .p
 
 /* teljesítménytábla: összesítő sor */
 .perf-tbl tfoot .perf-sum td{border-top:2px solid var(--line,#d9dee5);background:var(--panel2,#f7f8fa)}
+
+/* félretett (alsó) ablak: halványan látszik a felső alatt, nem kattintható */
+#modalStashBox>.modal{z-index:79;pointer-events:none;background:rgba(10,24,34,.35)}#modalStashBox>.modal .mbox{opacity:.55;filter:saturate(.7)}
