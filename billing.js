@@ -638,7 +638,14 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
         try{const it=(((await call('changesList'))||{}).items||[]).filter(x=>Date.parse(x.at)>T0).slice(0,8);
         d.setAttribute('data-tip',it.length?'Újdonságok:\n'+it.map(x=>'• '+String(x.msg||'').split('\n')[0].slice(0,140)).join('\n'):'Kisebb javítások');d.setAttribute('tabindex','0');}catch(e){}};
       tipUp();d.addEventListener('mouseenter',tipUp);}}catch(e){}}
-  setTimeout(check,4000);setInterval(check,180000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});})();
+  /* önfrissítés: ha a sávra nem kattintanak (pl. reggel óta nyitott lap), az új verzió magától betöltődik egy nyugodt pillanatban –
+     nincs nyitott ablak, nem gépel, nincs folyamatban lévő mentés; a lap visszatérésekor (más lapról / alvásból) vagy percenként */
+  function idle(){try{const mr=document.getElementById('modalRoot');if(mr&&mr.children.length)return false;const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&String(a.value||'').trim())return false;
+    if(document.querySelector('.cf-layer,.flatpickr-calendar.open,#bellPop.open'))return false;if(S&&(S._mutLive||S.loading))return false;return true;}catch(e){return false;}}
+  function autoReload(){if(!shown||!idle())return;try{if(typeof mdSave==='function')mdSave();}catch(e){}try{sessionStorage.setItem('lpm_autoreload',String(Date.now()));}catch(e){}location.reload();}
+  setTimeout(check,4000);setInterval(check,180000);let lastAct=Date.now();['pointerdown','keydown','wheel','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now();},{passive:true,capture:true}));
+  setInterval(()=>{if(!document.hidden&&Date.now()-lastAct>90000)autoReload();},60000);   /* éppen használt lapot nem töltünk újra alóla */
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(shown)autoReload();else check();});})();
 
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){const f=S.blf||(S.blf={v:'honap',q:''});setMonthAll(e.target.value);f.v='honap';render(true);}});
 
