@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ba4c0646b0",
+"at": "2026-11-24T09:53:02+02:00",
+"msg": "Telefonon a hozzászólások és jegyzetek teljes hosszukban látszanak (nem kis görgethető dobozban) – videó, lehetőség-jegyzetek, napló"
+},
+{
 "id": "7e3962f786",
 "at": "2026-11-24T09:52:06+02:00",
 "msg": "Telefonos frissülés: a válasz nélkül beragadt kérés (alvás / háttér) nem akasztja meg többé a frissítést – 90 mp időkorlát, a beragadt betöltés és mentés-számláló feloldása"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Belépés: Google-fiók ellenőrzés (gmail / Google által kezelt domain MX alapján) – figyelmeztetés a felhasználó ablakában és a listában, megerősítés mentéskor; a meghívó leírja, hogyan lesz Google-fiók a meglévő címhez"
 },
 {
-"id": "4693a6cd19",
-"at": "2026-11-23T16:04:39+02:00",
-"msg": "Visszadobás: a beírt szöveg nem veszhet el (háttérkoppintás nem zár, hibánál újraküldhető), csak időkód nem elég; Vissza gomb az ablakot zárja; ügyfélnek kiküldött verziók jelölve"
-},
-{
-"id": "c424c4dc74",
-"at": "2026-11-23T10:02:38Z",
+"id": "4a11799bd7",
+"at": "2026-11-23T14:04:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
