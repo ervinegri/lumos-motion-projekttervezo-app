@@ -271,6 +271,29 @@ const pcPick=(L,name)=>pcHits(L,name).f;
         else{const nx=/^\d/.test(m[2])?(parseInt(m[2],10)+1)+m[2].replace(/\d+/,''):m[2];const ins='\n'+m[1]+nx+' ';ta.value=v.slice(0,p)+ins+v.slice(p);ta.setSelectionRange(p+ins.length,p+ins.length);}
         ta.dispatchEvent(new Event('input',{bubbles:true}));},true);
       ta.addEventListener('input',upd);upd();});}
+  /* Fájlfeltöltés (logó, grafika, arculat, segédlet): darabokban a szerveren át a projekt Drive-mappájába; fájlonként folyamatjelző, hibánál újrapróbálás */
+  {const box=$('upBox'),inp=$('upIn'),list=$('upList');
+    const post=(fn,args)=>fetch(window.LUMOS_API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args})}).then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.error||'Hiba');return j.data;});
+    const b64=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=()=>rej(new Error('A fájl nem olvasható.'));r.readAsDataURL(blob);});
+    const fmt=n=>n>=1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
+    const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    let Q=Promise.resolve(),busy=0;
+    const one=f=>{const li=document.createElement('li');li.innerHTML=`<span class="un">${esc(f.name)}</span><span class="us">várakozik…</span><span class="ub"><i></i></span>`;list.appendChild(li);
+      const st=x=>li.querySelector('.us').textContent=x,bar=p=>li.querySelector('.ub i').style.width=Math.round(p*100)+'%';
+      if(f.size>300*1024*1024){li.classList.add('err');st('túl nagy (max. 300 MB)');return;}
+      if(DEMO||(LAST&&LAST.preview)){bar(1);li.classList.add('ok');st('előnézet – nem töltjük fel');return;}
+      busy++;Q=Q.then(async()=>{try{st('feltöltés…');const s0=await post('clientUpStart',[t,CUR,f.name,f.type||'',f.size]);let off=0,res=null;
+          while(off<f.size){const ch=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await b64(ch);let tries=0;
+            for(;;){try{res=await post('clientUpChunk',[t,s0.upId,off,d]);break;}catch(e){if(++tries>=3||/lejárt|Hibás/.test(e.message))throw e;await new Promise(r=>setTimeout(r,1500*tries));}}
+            off=res&&res.next?res.next:off+ch.size;bar(Math.min(1,off/f.size));st(fmt(Math.min(off,f.size))+' / '+fmt(f.size));if(res&&res.done)break;}
+          li.classList.add('ok');bar(1);st('✓ feltöltve ('+fmt(f.size)+')');}
+        catch(e){li.classList.add('err');st('nem sikerült: '+e.message);}finally{busy--;}});};
+    const add=files=>{[...files].forEach(one);if(inp)inp.value='';};
+    if(box&&inp){$('bUp').onclick=()=>inp.click();inp.onchange=()=>add(inp.files);
+      ['dragenter','dragover'].forEach(ev=>box.addEventListener(ev,e=>{e.preventDefault();box.classList.add('drag');}));['dragleave','drop'].forEach(ev=>box.addEventListener(ev,e=>{e.preventDefault();box.classList.remove('drag');}));
+      box.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)add(e.dataTransfer.files);});
+      addEventListener('beforeunload',e=>{if(busy>0){e.preventDefault();e.returnValue='';}});
+      window._upShow=()=>{box.hidden=!document.getElementById('main')||document.getElementById('main').hidden;};}}
   ['fb','okNote','note'].forEach(id=>{const ta=$(id);if(!ta)return;const grow=()=>{const pl=$('player'),sd=document.querySelector('.side'),plH=pl?pl.getBoundingClientRect().height:400,other=sd?sd.getBoundingClientRect().height-ta.getBoundingClientRect().height:250,mx=Math.max(110,Math.min(window.innerHeight*0.6,(window.innerWidth>860?plH:window.innerHeight)-other));   /* a panel legfeljebb a videó magasságáig nő, utána a mezőben görget */ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight+2,mx)+'px';ta.style.overflowY=ta.scrollHeight+2>mx?'auto':'hidden';};ta.addEventListener('input',grow);ta.addEventListener('focus',grow);window.addEventListener('resize',grow);});   /* gépelés közben a mező nő (görgetés nélkül) */
   /* Szóköz: rövid lenyomás = lejátszás / megállítás (az első hanggal indít); hosszan nyomva = 2× sebesség, amíg nyomod (mint a YouTube-on) */
   {let hold=0,fast=false,down=false;const typing=()=>{const a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable||a.tagName==='BUTTON'||a.tagName==='A');};

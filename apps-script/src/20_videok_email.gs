@@ -564,7 +564,7 @@ function clientDecide_(t, d, fb, vid) { PAID_Q_ = false;
       const msg = fb ? pinStrip_(fb) : '';
       const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124">'
         + '<div style="font-size:16px;font-weight:bold;color:' + (ok ? '#1e7a46' : '#b3261e') + ';margin:0 0 8px">' + (ok ? '✓ ' : '✎ ') + escapeHtml_(r.v.name) + '</div>'
-        + (msg ? '<div style="background:' + (ok ? '#eaf7ef;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + ';padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 16px;white-space:pre-wrap">' + escapeHtml_(msg).replace(/\n/g, '<br>') + '</div>' : '<p style="margin:0 0 16px;color:#4a5866">' + (ok ? 'Az ügyfél jóváhagyta, megjegyzés nélkül.' : 'Az ügyfél módosítást kért (üzenet nélkül).') + '</p>')
+        + (msg ? '<div style="background:' + (ok ? '#eaf7ef;border-left:4px solid #2e9e62' : '#fff4f2;border-left:4px solid #d93025') + ';padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 16px;white-space:pre-wrap">' + mdMail_(msg) + '</div>' : '<p style="margin:0 0 16px;color:#4a5866">' + (ok ? 'Az ügyfél jóváhagyta, megjegyzés nélkül.' : 'Az ügyfél módosítást kért (üzenet nélkül).') + '</p>')
         + '<a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 18px;border-radius:8px;font-weight:bold">▶ Megnyitás</a></div>';
       gmailSend_(o.s, subj, (ok ? '✓ ' : '✎ ') + r.v.name + '\n\n' + (msg || (ok ? 'Jóváhagyva, megjegyzés nélkül.' : 'Módosítást kért (üzenet nélkül).')) + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); 
       if (!ok) { try { const c = readAll_('crewAssign').some(z => z.projectId === r.p.id && z.crewId === r.v.editor) ? readAll_('crew').find(x => x.id === r.v.editor) : null, em = c && String(c.email || '').trim(), fn = c ? huFirst_(String(c.name || '')) : '';   // a vágó is megkapja (ügyfél említése nélkül)
@@ -1346,3 +1346,55 @@ function erVideosOnce_() {
   });
   P.setProperty('ER_VIDEOS_1', new Date().toISOString());
 }
+
+/* ===== Ügyfél fájlfeltöltése a jóváhagyó oldalon (logó, grafika, arculat, segédlet) =====
+   A fájl darabokban (≤ 8 MB) jön; a szerver a Drive „folytatható feltöltés” munkamenetébe írja, így nagy fájl is átmegy (max. 300 MB).
+   Helye: a projekt Drive-mappája / „Ügyféltől kapott anyagok”. Kész feltöltés után: bejegyzés a videó hozzászólásai közé (linkkel) és e-mail annak, aki a videót kiküldte. */
+const CUP_MAX = 300 * 1024 * 1024, CUP_CHUNK = 8 * 1024 * 1024, CUP_BAD = /\.(exe|msi|bat|cmd|com|scr|ps1|vbs|js|jse|wsf|jar|apk|app|dmg|pkg|sh|cpl|reg|lnk|hta|iso)$/i;
+function cupCtx_(t, vid) {
+  const o = clientTokenRead_(t); if (o.pv) throw new Error('Ez csak előnézet – itt nem lehet fájlt feltölteni.');
+  if (o.vs && o.vs.length > 1) { vid = str_(vid, 40); if (o.vs.indexOf(vid) < 0) throw new Error('Válaszd ki a videót.'); o.v = vid; }
+  const r = clientVideo_(o); return { o: o, r: r, who: { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' } };
+}
+function clientUpStart_(t, vid, name, mime, size) {
+  const c = cupCtx_(t, vid); name = String(name || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').trim().slice(0, 150) || 'fajl'; size = Math.round(Number(size) || 0);
+  if (CUP_BAD.test(name)) throw new Error('Ilyen típusú fájl (program, parancsfájl) nem tölthető fel. Ha mégis szükséges, csomagold ZIP-be.');
+  if (!(size > 0)) throw new Error('Üres fájl nem tölthető fel.'); if (size > CUP_MAX) throw new Error('A fájl legfeljebb 300 MB lehet. Nagyobb anyagot (pl. videót) kérlek, letöltési linkkel küldj.');
+  const C = CacheService.getScriptCache(), dk = 'cupN_' + c.o.p + '_' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyyMMdd'), n = Number(C.get(dk) || 0); if (n >= 40) throw new Error('Mára elérted a feltölthető fájlok számát. Kérlek, holnap folytasd, vagy küldj letöltési linket.'); C.put(dk, String(n + 1), 21600);
+  mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(mime || '')) ? String(mime) : 'application/octet-stream';
+  const root = DriveApp.getFolderById(createProjectFolder_(c.who, { id: c.o.p }).folderId), folder = folderPath_(root, 'Ügyféltől kapott anyagok', {});
+  const fname = uniqueName_(folder, name);
+  const res = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true', { method: 'post', contentType: 'application/json; charset=UTF-8', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type': mime, 'X-Upload-Content-Length': String(size) },
+    payload: JSON.stringify({ name: fname, parents: [folder.getId()], mimeType: mime, description: 'Az ügyfél töltötte fel a jóváhagyó oldalon · ' + c.r.p.name + ' · ' + c.r.v.name }) });
+  const loc = res.getHeaders()['Location'] || res.getHeaders()['location']; if (res.getResponseCode() >= 300 || !loc) throw new Error('A feltöltés most nem indítható (' + res.getResponseCode() + '). Kérlek, próbáld újra.');
+  const id = Utilities.getUuid(); C.put('cup_' + id, JSON.stringify({ loc: loc, p: c.o.p, v: c.o.v, name: fname, size: size, t: String(t).slice(0, 40) }), 21600);
+  return { upId: id, chunk: CUP_CHUNK, name: fname };
+}
+function clientUpChunk_(t, upId, offset, b64) {
+  const C = CacheService.getScriptCache(), raw = C.get('cup_' + str_(upId, 64)); if (!raw) throw new Error('A feltöltés lejárt – kérlek, kezdd újra.');
+  const u = JSON.parse(raw); if (String(t).slice(0, 40) !== u.t) throw new Error('Hibás feltöltés.');
+  const bytes = Utilities.base64Decode(String(b64 || '')), off = Math.round(Number(offset) || 0), end = off + bytes.length - 1;
+  if (!bytes.length || end >= u.size || (bytes.length !== CUP_CHUNK && end !== u.size - 1)) throw new Error('Hibás feltöltési darab.');
+  const res = UrlFetchApp.fetch(u.loc, { method: 'put', contentType: 'application/octet-stream', payload: bytes, muteHttpExceptions: true, headers: { 'Content-Range': 'bytes ' + off + '-' + end + '/' + u.size } });
+  const code = res.getResponseCode();
+  if (code === 308) { const rg = String(res.getHeaders()['Range'] || res.getHeaders()['range'] || ''), m = /-(\d+)$/.exec(rg); return { next: m ? Number(m[1]) + 1 : end + 1 }; }
+  if (code !== 200 && code !== 201) throw new Error('A feltöltés megszakadt (' + code + ') – kérlek, próbáld újra.');
+  const f = JSON.parse(res.getContentText() || '{}'); C.remove('cup_' + upId);
+  return cupDone_(t, u, f.id);
+}
+/** kész feltöltés: hozzászólás a videóhoz + értesítés */
+function cupDone_(t, u, fileId) {
+  const c = cupCtx_(t, u.v), url = 'https://drive.google.com/file/d/' + fileId + '/view', mb = (u.size / 1048576), sz = mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(u.size / 1024)) + ' KB';
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, u.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === u.v); if (!v) return;
+    v.cm = (v.cm || []).concat([{ by: c.who.name, at: now_(), t: '📎 Fájlt töltött fel: ' + u.name + ' (' + sz + ')\n' + url, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  try { if (c.o.s) { const subj = '📎 Fájlt küldött az ügyfél: ' + c.r.v.name + ' – ' + c.r.p.name, link = appUrl_() + '#p=' + u.p + '&v=' + encodeURIComponent(u.v);
+      const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><div style="font-size:16px;font-weight:bold;margin:0 0 8px">📎 ' + escapeHtml_(c.r.v.name) + '</div><p style="margin:0 0 12px">' + escapeHtml_(c.who.name) + ' fájlt töltött fel a jóváhagyó oldalon:</p>'
+        + '<p style="margin:0 0 16px"><a href="' + escapeHtml_(url) + '" style="font-weight:bold">' + escapeHtml_(u.name) + '</a> <span style="color:#6b7684">(' + sz + ')</span></p><a href="' + escapeHtml_(link) + '" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 18px;border-radius:8px;font-weight:bold">▶ Megnyitás az appban</a></div>';
+      gmailSend_(c.o.s, subj, c.who.name + ' fájlt töltött fel: ' + u.name + ' (' + sz + ')\n' + url + '\n\n' + link, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Feltöltés értesítés: ' + e); }
+  return { done: true, name: u.name, url: url, size: sz };
+}
+
+/** az ügyfél formázott üzenete e-mailben: **félkövér**, _dőlt_, „- ” felsorolás → HTML (biztonságosan, előbb escape) */
+function mdMail_(t) { return String(t || '').split('\n').map(L => { let h = escapeHtml_(L).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(„])_(?=\S)([^_]+?)_(?=$|[\s.,!?;:)”])/g, '$1<i>$2</i>');
+  const b = /^\s*[-•*]\s+(.*)$/.exec(h); return b ? '&nbsp;&nbsp;•&nbsp;' + b[1] : h; }).join('<br>'); }

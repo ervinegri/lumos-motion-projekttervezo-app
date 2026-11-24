@@ -178,6 +178,8 @@ function api_(raw) {
     else if (fn === 'clientReview') return clientReview_(args[0]);
     else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'clientUpStart') return clientUpStart_(args[0], args[1], args[2], args[3], args[4]);   // nyilvános (aláírt kulccsal): az ügyfél fájlfeltöltése
+    else if (fn === 'clientUpChunk') return clientUpChunk_(args[0], args[1], args[2], args[3]);
     else if (fn === 'clientQuote') return clientQuote_(args[0]);   // nyilvános: fizetős javítás árajánlata
     else if (fn === 'clientQuoteDecide') return clientQuoteDecide_(args[0], args[1], args[2]);
     else if (fn === 'dbStatus') return dbStatus_(args[0] === 'sizes');   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
