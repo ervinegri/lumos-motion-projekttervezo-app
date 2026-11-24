@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e00ad03436",
+"at": "2026-11-24T22:25:57+02:00",
+"msg": "Jóváhagyó oldal: az ügyfél üzenete formázható (félkövér, dőlt, felsorolás, számozott lista, Ctrl/⌘+B/I, élő előnézet); az appban formázva jelenik meg"
+},
+{
 "id": "45f6722ebb",
 "at": "2026-11-24T22:23:42+02:00",
 "msg": "Kifizetve, de számla nélkül: a „＋ Rezsi / ＋ Marketing” gomb hibánál kiírja az okát, eltérő azonosítónál frissíti a listát"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Részletek-napló: pontos változások (termelői díj: kinek, mennyiről mennyire; JSON-mezők tételesen; a csak formai változás nem kerül be); az automatikus lépés külön jelölve"
 },
 {
-"id": "139ca53b93",
-"at": "2026-11-24T11:09:23+02:00",
-"msg": "Frissülés: a betöltés eredményét legfeljebb 3-szor dobjuk el közbejött írás miatt (utána mindenképp frissül); az olvasó kérések (gbpList, companyIndex…) nem számítanak írásnak"
-},
-{
-"id": "a9f112597a",
-"at": "2026-11-24T08:51:40Z",
+"id": "19793f1eb0",
+"at": "2026-11-24T09:09:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
