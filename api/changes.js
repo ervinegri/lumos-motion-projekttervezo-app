@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f09f9f3d9d",
+"at": "2026-11-24T15:51:33+02:00",
+"msg": "Árajánlat: a lehetőség ablakából indítva bezáráskor visszatér a lehetőséghez (nem lép ki belőle)"
+},
+{
 "id": "5a82953f42",
 "at": "2026-11-24T15:48:41+02:00",
 "msg": "Többnapos rendezvény: tetszőleges napok kijelölése (nem kell egymás utániaknak lenniük), az ajánlat és a projekt csak a kijelölt napokkal számol"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: a csak időkódos visszadobás összevonva az előtte írt hozzászólással (egy bejegyzés, „Visszaküldve a vágónak” címkével)"
 },
 {
-"id": "c14574e446",
-"at": "2026-11-24T08:31:00+02:00",
-"msg": "Videó hozzászólások: „Ügyfélnek elküldve” és „Ügyfél jóváhagyta” címke is (a szöveg nem ismétli: Címzett: …)"
-},
-{
-"id": "cd5c09ff62",
-"at": "2026-11-24T06:27:14Z",
+"id": "3b128790e6",
+"at": "2026-11-24T06:31:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
