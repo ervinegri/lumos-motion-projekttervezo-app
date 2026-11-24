@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5a82953f42",
+"at": "2026-11-24T15:48:41+02:00",
+"msg": "Többnapos rendezvény: tetszőleges napok kijelölése (nem kell egymás utániaknak lenniük), az ajánlat és a projekt csak a kijelölt napokkal számol"
+},
+{
 "id": "fa67754b08",
 "at": "2026-11-24T15:39:35+02:00",
 "msg": "E-mail védőháló: ugyanaz a levél 15 percen belül nem megy ki kétszer, hozzászólás-értesítő videónként 10 percenként legfeljebb egy, a napi teendőlevél naponta egyszer, megerősítő gomb dupla kattintás ellen"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: „Ügyfélnek elküldve” és „Ügyfél jóváhagyta” címke is (a szöveg nem ismétli: Címzett: …)"
 },
 {
-"id": "8e360fc529",
-"at": "2026-11-24T08:27:03+02:00",
-"msg": "Videó hozzászólások: a vágó leadási szövege csak az új verziónál látszik (nem kétszer)"
-},
-{
-"id": "96c7bdc84d",
-"at": "2026-11-24T06:26:08Z",
+"id": "cd5c09ff62",
+"at": "2026-11-24T06:27:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
