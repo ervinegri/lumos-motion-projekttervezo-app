@@ -3253,3 +3253,6 @@ html body .pt-vcs{display:none}@media (max-width:700px){html body .proj-table .p
 
 /* árajánlat: többnapos rendezvény jelzése a Rendezvény dobozban */
 .qp .qp-ev em.qp-days{display:inline-block;align-self:flex-start;font-style:normal;font-size:12px;font-weight:600;color:#7a4b00;background:#fde7bf;border-radius:6px;padding:4px 8px;margin-top:8px;line-height:1.35}
+
+/* teljesítménytábla: összesítő sor */
+.perf-tbl tfoot .perf-sum td{border-top:2px solid var(--line,#d9dee5);background:var(--panel2,#f7f8fa)}
