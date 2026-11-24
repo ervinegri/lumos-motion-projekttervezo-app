@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac4a433a79",
+"at": "2026-11-24T19:02:30+01:00",
+"msg": "Tagi kölcsön: a kézi „+ Tétel” gomb kikerül"
+},
+{
 "id": "f6cad78e06",
 "at": "2026-11-24T18:48:48+01:00",
 "msg": "Tagi kölcsön: egyszeri bankkivonat-egyeztetés (2026-11-24)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefonos frissülés: a válasz nélkül beragadt kérés (alvás / háttér) nem akasztja meg többé a frissítést – 90 mp időkorlát, a beragadt betöltés és mentés-számláló feloldása"
 },
 {
-"id": "098c3c878a",
-"at": "2026-11-24T08:38:41+02:00",
-"msg": "Videó hozzászólások: a régi, sérült kódolású ikonok (��) helyreállítva a megjelenítésben"
-},
-{
-"id": "1afc2569ea",
-"at": "2026-11-24T06:37:08Z",
+"id": "ed0d1370df",
+"at": "2026-11-24T06:38:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
