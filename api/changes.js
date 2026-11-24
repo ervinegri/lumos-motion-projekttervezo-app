@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ad97f962bb",
+"at": "2026-11-24T22:29:03+02:00",
+"msg": "Jóváhagyó oldal: az ügyfél fájlt csatolhat (logó, grafika, arculat, segédlet – max. 300 MB, darabolt feltöltés a projekt Drive-mappájába, link a hozzászólások között, értesítés); a formázott üzenet e-mailben is formázva"
+},
+{
 "id": "10b6dfdf57",
 "at": "2026-11-24T21:26:10+01:00",
 "msg": "Kifizetve, de még nincs számla: a sorra kattintva megnyílnak az utalás részletei"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehúzás-frissítés telefonon: kisebb húzási küszöb (iOS rugalmas túlhúzás), a beragadt videó-áthelyezés számláló nem tiltja tovább"
 },
 {
-"id": "623b1c07b6",
-"at": "2026-11-24T11:17:18+02:00",
-"msg": "Telefon: a csengő lenyílója akkor is megjelenik, ha a fejléc oldalra van görgetve (a lap tetejére kerül, nem vágja le a fejléc)"
-},
-{
-"id": "37ecdf9531",
-"at": "2026-11-24T09:13:29Z",
+"id": "3925b05dda",
+"at": "2026-11-24T09:17:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
