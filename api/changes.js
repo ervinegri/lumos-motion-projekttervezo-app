@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4ca54a9122",
+"at": "2026-11-24T16:27:28+02:00",
+"msg": "Teljesítménytábla: „Jutalékalap” oszlop, a súgóban tételesen a befolyt összeg és a levont szervezői jutalék / továbbszámlázott költség"
+},
+{
 "id": "ecea68b7e8",
 "at": "2026-11-24T16:24:30+02:00",
 "msg": "Teljesítménytábla: az ajánlói jutalék is megjelenik (· ajánló sor), összesítő sor a befolyt díjra és a jutalékra, az Arány oszlop magyarázata"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó hozzászólások: az ügyfélnek küldés is összevonva az előtte (10 percen belül) írt saját üzenettel"
 },
 {
-"id": "3fe4b24921",
-"at": "2026-11-24T08:34:45+02:00",
-"msg": "Videó hozzászólások: a vízjel levétele és a fizetős javítás lépései (árajánlat, elfogadás) is kiemelve"
-},
-{
-"id": "422af21076",
-"at": "2026-11-24T06:33:57Z",
+"id": "32e51404a5",
+"at": "2026-11-24T06:34:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
