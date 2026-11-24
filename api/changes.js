@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "075b1bfe2c",
+"at": "2026-11-24T10:51:29+02:00",
+"msg": "Lábléc: a stábnak és a felhasználóknak (külső címen is) szóló levelekben sincs – csak az ügyfeleknek"
+},
+{
 "id": "c28f90cf2d",
 "at": "2026-11-24T10:48:44+02:00",
 "msg": "Belső (céges címre menő) értesítő levelekben nincs „Ezt az értesítést … küldte” lábléc"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "E-mail-cím: nem létező / levelet nem fogadó domain sem menthető, elírásnál javaslat (pl. lumsmotion.com → lumosmotion.com)"
 },
 {
-"id": "1d7da9204d",
-"at": "2026-11-23T16:48:51+02:00",
-"msg": "Nem Google-os e-mail-cím nem menthető (piros jelzés, háttér is ellenőrzi); távolabbi projekteknél is jelez, ha valaki nem válaszolt a meghívóra"
-},
-{
-"id": "6330a6c11f",
-"at": "2026-11-23T14:20:28Z",
+"id": "fade896d5d",
+"at": "2026-11-23T14:49:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
