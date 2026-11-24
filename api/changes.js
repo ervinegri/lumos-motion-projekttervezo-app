@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b715fa698",
+"at": "2026-11-24T11:46:47+02:00",
+"msg": "Lehúzás-frissítés telefonon: kisebb húzási küszöb (iOS rugalmas túlhúzás), a beragadt videó-áthelyezés számláló nem tiltja tovább"
+},
+{
 "id": "623b1c07b6",
 "at": "2026-11-24T11:17:18+02:00",
 "msg": "Telefon: a csengő lenyílója akkor is megjelenik, ha a fejléc oldalra van görgetve (a lap tetejére kerül, nem vágja le a fejléc)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új lehetőség: „Általános ajánlat” (árlista rendezvény nélkül) – nincs típus/helyszín/dátum, a megnevezés és a következő lépés magától kitöltődik; az árajánlat ilyenkor rendezvény nélkül készül"
 },
 {
-"id": "c735e5f2b3",
-"at": "2026-11-23T17:26:03+02:00",
-"msg": "Saját (lumosmotion.com) címnél a konkrét fiók létezését is ellenőrzi (naptár szabad/foglalt alapján, új jogosultság nélkül) – nem létező céges fiók nem menthető"
-},
-{
-"id": "d991a35e1a",
-"at": "2026-11-23T15:23:11Z",
+"id": "bff19ef053",
+"at": "2026-11-23T15:26:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
