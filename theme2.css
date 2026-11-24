@@ -3250,3 +3250,6 @@ html body .page-head.ph-mob{align-items:stretch!important}html body .page-head.p
 /* Projektek telefonon: csukott videóösszesítő az állapotcímke mellett, ugyanabban a sorban */
 @media (max-width:700px){html body .proj-table .pt-pills>div.pt-vids:not(:has(.pt-vid)){flex-direction:row!important;flex-wrap:nowrap;align-items:center;gap:6px;flex-basis:auto;width:auto!important;margin:0;min-width:0}html body .proj-table .pt-vids:not(:has(.pt-vid)) .pt-vtog{width:auto;margin:0;padding:3px 4px;flex-wrap:nowrap;white-space:nowrap}html body .proj-table .pt-vids:not(:has(.pt-vid)) .pt-vbar{flex:0 0 36px;width:36px;margin:0}html body .proj-table .pt-vids:not(:has(.pt-vid)) .pt-vcl{display:none}}
 html body .pt-vcs{display:none}@media (max-width:700px){html body .proj-table .pt-vids:not(:has(.pt-vid)) .pt-vcs{display:inline;color:#1f9d55}}
+
+/* árajánlat: többnapos rendezvény jelzése a Rendezvény dobozban */
+.qp .qp-ev em.qp-days{display:inline-block;align-self:flex-start;font-style:normal;font-size:12px;font-weight:600;color:#7a4b00;background:#fde7bf;border-radius:6px;padding:4px 8px;margin-top:8px;line-height:1.35}

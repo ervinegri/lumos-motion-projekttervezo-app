@@ -35,10 +35,13 @@ function qFirst(n){return huFirst(n);}
 /* ajánlaton: a rendezvény dátuma évvel, teljes hónapnévvel és napnévvel (pl. 2027. március 4., csütörtök) */
 const qEvDate=iso=>{if(!/^\d{4}-\d{2}-\d{2}/.test(String(iso||'')))return '';const d=new Date(String(iso).slice(0,10)+'T12:00:00');return new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(d);};
 /* többnapos rendezvény az ajánlaton: „2027. március 4–6. (3 nap)” / „2027. március 30. – április 1. (3 nap)” */
-function qEvRange(d){if(!d||!d.eventDate)return '';if(!(d.eventEnd>d.eventDate))return qEvDate(d.eventDate);
+/* az ajánlat napjainak száma: a lehetőség első–utolsó napja, ennek híján a kalkulátorban beállított napok, végül a tételek „N nap” mennyisége */
+function qDaysQ(d){const a=d&&d.eventDate&&d.eventEnd>d.eventDate?dDaysN(d.eventDate,d.eventEnd):0;if(a>1)return a;const q=S.q||{};if(q.days>1)return q.days;
+  let m=1;(q.items||[]).forEach(it=>{const x=/^(\d+)\s*nap\b/i.exec(String(it.qty||'').trim());if(x)m=Math.max(m,+x[1]);});return m;}
+function qEvRange(d,noN){if(!d||!d.eventDate)return '';if(!(d.eventEnd>d.eventDate)){const n=qDaysQ(d);if(n<2)return qEvDate(d.eventDate);const t=new Date(d.eventDate+'T12:00:00');t.setDate(t.getDate()+n-1);d=Object.assign({},d,{eventEnd:t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')});}
   const a=new Date(d.eventDate+'T12:00:00'),b=new Date(d.eventEnd+'T12:00:00'),M=x=>new Intl.DateTimeFormat('hu-HU',{month:'long'}).format(x),n=dDaysN(d.eventDate,d.eventEnd);
   const t=a.getFullYear()!==b.getFullYear()?qEvDate(d.eventDate).replace(/,.*$/,'')+' – '+qEvDate(d.eventEnd).replace(/,.*$/,''):a.getMonth()===b.getMonth()?a.getFullYear()+'. '+M(a)+' '+a.getDate()+'–'+b.getDate()+'.':a.getFullYear()+'. '+M(a)+' '+a.getDate()+'. – '+M(b)+' '+b.getDate()+'.';
-  return t+' ('+n+' nap)';}
+  return noN?t:t+' ('+n+' nap)';}
 /* tételnévben a szóközök közötti kötőjel nagykötőjel (–) */
 const qDash=t=>String(t||'').replace(/ - /g,' – ');
 function qInit(d){const sv=String(d.services||'').split(',').map(x=>x.trim()).filter(Boolean),v=num(d.value);
@@ -159,7 +162,7 @@ function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},s=
   return `<div class="qp"><div class="qp-head"><img src="mail/lumos-motion-stacked.png?v=2" alt="Lumos Motion" class="qp-logo"><div class="qp-meta"><b>ÁRAJÁNLAT</b><span>${esc(q.no)}</span><span class="qp-dates"><i>Kelt:</i><i>${qDate(now)}</i></span></div></div>
     <div class="qp-parties">${(()=>{const rc=q.rc||{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:''},em=q.to;return `<div><small>Ajánlatot kapja</small><b>${esc(rc.name||'')}</b>${rc.person?`<span>${esc(rc.person)}</span>`:''}${rc.addr&&q.ev?`<span>${esc(rc.addr)}</span>`:''}${em?`<span>${esc(em)}</span>`:''}</div>`;})()}
       <div><small>Ajánlatot adja</small><b>Lumos Motion Kft.</b><span>Adószám: 32701573-2-41</span><span>1136 Budapest, Tátra utca 20/B, 3/5.</span></div></div>
-    ${q.ev&&((q.evName!=null?q.evName:d.title)||d.eventDate||d.venue)?`<div class="qp-ev"><small>Rendezvény</small><b>${esc(q.evName!=null?q.evName:(d.title||''))}</b><span>${[d.eventDate?esc(qEvRange(d)):'',d.venue?esc(d.venue):''].filter(Boolean).join(' · ')}</span></div>`:''}
+    ${q.ev&&((q.evName!=null?q.evName:d.title)||d.eventDate||d.venue)?`<div class="qp-ev"><small>Rendezvény</small><b>${esc(q.evName!=null?q.evName:(d.title||''))}</b><span>${[d.eventDate?esc(qEvRange(d,true)):'',d.venue?esc(d.venue):''].filter(Boolean).join(' · ')}</span>${qDaysQ(d)>1?`<em class="qp-days">🗓️ ${qDaysQ(d)} napos rendezvény · a helyszíni tételek napidíjjal számolva</em>`:''}</div>`:''}
     ${q.opts.map((o,oi)=>{const dp=qDiscPct(o),g=qOptGross(o.items),dc=Math.round(g*dp/100),t=g-dc,v=Math.round(t*Q_VAT/100),multi=q.opts.length>1;
       return `<div class="${multi?'qp-opt':''}">${multi?`<div class="qp-opt-h"><b>${o.title?esc(o.title):(oi+1)+'. opció'}</b></div>`:''}<table class="qp-tbl"><thead><tr><th>#</th><th>Megnevezés</th><th class="r">Menny.</th><th class="r">Egységár (nettó)</th><th class="r">Nettó</th><th class="r">Bruttó <span class="nw">(${Q_VAT}%&nbsp;ÁFA)</span></th></tr></thead><tbody>${o.items.filter(it=>it.name).map(row).join('')}</tbody>${o.noTot?'':`<tfoot>${dp?`<tr class="qp-fullbig"><td></td><td colspan="3">Teljes ár</td><td class="r">${qFt(g)} Ft</td><td class="r">${qFt(Math.round(g*(1+Q_VAT/100)))} Ft</td></tr><tr class="qp-disc"><td></td><td colspan="3">${esc(o.discLbl||'Csomagkedvezmény')} (${String(dp).replace('.',',')}%)</td><td class="r">−${qFt(dc)} Ft</td><td class="r">−${qFt(Math.round(dc*(1+Q_VAT/100)))} Ft</td></tr>`:''}<tr class="${dp?'qp-final':'qp-net'}"><td></td><td colspan="3">${dp?'Kedvezményes ár':'Összesen'}</td><td class="r">${qFt(t)} Ft</td><td class="r">${qFt(t+v)} Ft</td></tr></tfoot>`}</table>
     <div></div></div>`;}).join('')}
