@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d20c8a8feb",
+"at": "2026-11-24T11:50:38+02:00",
+"msg": "Lehúzás-frissítés: iOS-en a töredék görgetési érték (pl. 0,33) nem tiltja le"
+},
+{
 "id": "221e97cd17",
 "at": "2026-11-24T11:47:20+02:00",
 "msg": "Csengő: megnyitás után olvasott marad frissítés után is (a később betöltődő kifizetések / értékelések is; az olvasottak listája nem íródik felül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új lehetőség: az Értékesítő a szóba jövő szolgáltatások után (teljes szélességben), a Szakasz és az Esély egy sorban"
 },
 {
-"id": "1503be350b",
-"at": "2026-11-23T18:47:54+02:00",
-"msg": "Általános ajánlat: nincs megnevezés, várható érték, előfoglalt projekt; telefon az e-mail mellett"
-},
-{
-"id": "5e09ee6d1e",
-"at": "2026-11-23T16:26:06Z",
+"id": "4626c122ec",
+"at": "2026-11-23T16:48:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
