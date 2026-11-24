@@ -196,7 +196,7 @@ function videoClient_(u, a) {
   ids.forEach(id => videoSet_(u, { projectId: pid, id: id, st: 'leadva' }));
   let p, v, names = [];
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
-    ids.forEach(id => { const w = vids.find(x => x.id === id); if (!w) return; names.push(w.name); if (id === vid || ids.length === 1) vidSetLink_(w, link); w.seenAt = ''; w.seenLast = ''; w.seenN = 0; w.cm = (w.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (ids.length > 1 ? ' – ' + ids.length + ' videó egy levélben' : '') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); });
+    ids.forEach(id => { const w = vids.find(x => x.id === id); if (!w) return; names.push(w.name); if (id === vid || ids.length === 1) w.link = link; w.seenAt = ''; w.seenLast = ''; w.seenN = 0; w.cm = (w.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (ids.length > 1 ? ' – ' + ids.length + ' videó egy levélben' : '') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); });
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
   const live = clientMailLive_(), sendTo = live ? to : String(u.email || '');   // TESZT: amíg nincs élesítve, a levél a küldőhöz megy, nem az ügyfélhez
   if (!sendTo) throw new Error('Tesztüzemben a levél neked menne, de nincs e-mail címed.');
