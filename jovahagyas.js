@@ -155,7 +155,7 @@ const pcPick=(L,name)=>pcHits(L,name).f;
   const huBol=n=>{n=Math.abs(Math.round(n));const back='-ból',front='-ből';if(n===0)return '-ból';if(n%10)return [0,0,0,1,0,0,1,0,1,0][n%10]?back:front;if(n%100)return [0,0,1,1,0,0,1,0,1,0][(n%100)/10]?back:front;if(n%1000)return back;return n%1e6?front:back;};
   /* a cím helye: álló videónál (széles képernyőn) jobbra, a panel tetején – így a videó nagyobb lehet; egyébként a videó fölött */
   function placeTtl(){const tt=$('ttl'),pl=$('player'),sd=document.querySelector('.side'),m=$('main');if(!tt||!pl||!sd)return;
-    if((m&&m.classList.contains('vside'))||innerWidth<=860){   /* telefonon mindig a videó alatt (a panel tetején) */if(sd.firstElementChild!==tt)sd.insertBefore(tt,sd.firstChild);tt.classList.add('in-side');}
+    if(m&&m.classList.contains('vside')&&innerWidth>860){   /* álló videónál széles képernyőn a panel tetején; telefonon a cím a videó fölött */if(sd.firstElementChild!==tt)sd.insertBefore(tt,sd.firstChild);tt.classList.add('in-side');}
     else{if(tt.nextElementSibling!==pl)pl.parentElement.insertBefore(tt,pl);tt.classList.remove('in-side');}}
   addEventListener('resize',()=>placeTtl());{const m=document.getElementById('main');if(m&&window.MutationObserver)new MutationObserver(()=>placeTtl()).observe(m,{attributes:true,attributeFilter:['class']});}
   const goV=id=>{if(!id||id===CUR)return;if(innerWidth<=860){const y=0;try{scrollTo({top:y,behavior:'smooth'});}catch(e){scrollTo(0,y);}}   /* a videó teteje a képernyő tetejére (a videó teljesen látszik) */   /* telefonon videóváltáskor fel a videóhoz */const u=new URLSearchParams(location.search);u.set('v',id);try{history.replaceState(null,'',location.pathname+'?'+u.toString());}catch(e){}
