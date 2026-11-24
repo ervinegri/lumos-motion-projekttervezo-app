@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e3962f786",
+"at": "2026-11-24T09:52:06+02:00",
+"msg": "Telefonos frissülés: a válasz nélkül beragadt kérés (alvás / háttér) nem akasztja meg többé a frissítést – 90 mp időkorlát, a beragadt betöltés és mentés-számláló feloldása"
+},
+{
 "id": "098c3c878a",
 "at": "2026-11-24T08:38:41+02:00",
 "msg": "Videó hozzászólások: a régi, sérült kódolású ikonok (��) helyreállítva a megjelenítésben"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Visszadobás: a beírt szöveg nem veszhet el (háttérkoppintás nem zár, hibánál újraküldhető), csak időkód nem elég; Vissza gomb az ablakot zárja; ügyfélnek kiküldött verziók jelölve"
 },
 {
-"id": "bc41955949",
-"at": "2026-11-23T11:02:29+01:00",
-"msg": "Dokumentumsor: az × nem törik új sorba"
-},
-{
-"id": "418dabecc1",
-"at": "2026-11-23T10:00:42Z",
+"id": "c424c4dc74",
+"at": "2026-11-23T10:02:38Z",
 "msg": "Változásnapló frissítése"
 }
 ];
