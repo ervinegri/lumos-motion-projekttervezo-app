@@ -328,8 +328,16 @@ function vvMergeBack(L){const ev=c=>/^(↩|Ügyfélnek elküldve|TESZT: az ügyf
 function cmTk(a){const m=/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(a||''));return m?Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)):0;}
 const REP_RE=/^⤷\{([^}]{1,60})\} ?/;   /* válasz egy időkódos észrevételre: „⤷{<hozzászólás ideje>#<sorszám>} szöveg” */
 /* az ügyfél (és a stáb) formázott üzenete: **félkövér**, _dőlt_, „- ” felsorolás, „1. ” számozott sor – soronként, hogy az időkódos pipák is megmaradjanak */
-const mdInl=h=>h.split(/(https:\/\/[^\s<"]+)/).map((part,k)=>k%2?'<a href="'+part+'" target="_blank" rel="noopener">'+(/drive\.google\.com/.test(part)?'📁 Megnyitás a Drive-on':part)+'</a>':part.replace(/\*\*(?=\S)(.+?\S)\*\*/g,'<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g,'<i>$1</i>')).join('');
-const mdLine=h=>{const b=/^(\s*)[-•*]\s+(.*)$/.exec(h),n=/^(\s*)(\d{1,2})[.)]\s+(.*)$/.exec(h);
+/* Gmail-szerű formázás az ügyfél üzenetében (a jóváhagyó oldallal egyező jelölések) */
+const BB_FONT={sans:'Arial,Helvetica,sans-serif',serif:"'Times New Roman',Times,serif",mono:"'Courier New',Courier,monospace",wide:"'Arial Black',Arial,sans-serif",narrow:"'Arial Narrow',Arial,sans-serif",comic:"'Comic Sans MS',cursive",georgia:'Georgia,serif',verdana:'Verdana,sans-serif'};
+const BB_SIZE={small:'0.82em',large:'1.3em',huge:'1.75em'};
+function bbInl(h){h=String(h);for(let k=0;k<6;k++){const p=h;h=h.replace(/\[u\]([\s\S]*?)\[\/u\]/g,'<u>$1</u>').replace(/\[s\]([\s\S]*?)\[\/s\]/g,'<s>$1</s>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/g,'<span style="color:$1">$2</span>')
+  .replace(/\[font=([a-z]+)\]([\s\S]*?)\[\/font\]/g,(m,f,x)=>BB_FONT[f]?'<span style="font-family:'+BB_FONT[f]+'">'+x+'</span>':x).replace(/\[size=([a-z]+)\]([\s\S]*?)\[\/size\]/g,(m,z,x)=>BB_SIZE[z]?'<span style="font-size:'+BB_SIZE[z]+'">'+x+'</span>':x);if(h===p)break;}return h;}
+function bbLine(L){L=String(L);let al='',ind=0,m;while((m=/^\[(center|right|justify|indent=([1-6]))\]/.exec(L))){if(m[2])ind=+m[2];else al=m[1];L=L.slice(m[0].length);}return {t:L,st:(al?'text-align:'+al+';':'')+(ind?'padding-left:'+(ind*2)+'em;':'')};}
+function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[^\]]*)?|center|right|justify|indent=\d)\]/g,'');}
+const mdInl=h=>h.split(/(https:\/\/[^\s<"]+)/).map((part,k)=>k%2?'<a href="'+part+'" target="_blank" rel="noopener">'+(/drive\.google\.com/.test(part)?'📁 Megnyitás a Drive-on':part)+'</a>':bbInl(part.replace(/\*\*(?=\S)(.+?\S)\*\*/g,'<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g,'<i>$1</i>'))).join('');
+const mdLine=h=>{const q=bbLine(h);if(q.st)return '<span style="display:block;'+q.st+'">'+mdLine0(q.t)+'</span>';return mdLine0(h);};
+const mdLine0=h=>{const b=/^(\s*)[-•*]\s+(.*)$/.exec(h),n=/^(\s*)(\d{1,2})[.)]\s+(.*)$/.exec(h);
   return b?`<span class="md-li"><i class="md-m">•</i>${mdInl(b[2])}</span>`:n?`<span class="md-li"><i class="md-m">${n[2]}.</i>${mdInl(n[3])}</span>`:mdInl(h);};
 function vidCmBody(v,c,reps){let n=0;const dn=new Set(v.dn||[]),can=tcCanDone(v),me=S.me&&S.me.name;
   return String(c.t||'').split('\n').map(line=>{const h=tcLinks(esc(line));if(h.indexOf('class="vv-ts')<0)return mdLine(esc(line))+'<br>';let first='';

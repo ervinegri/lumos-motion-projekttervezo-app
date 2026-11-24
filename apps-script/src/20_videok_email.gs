@@ -1396,5 +1396,12 @@ function cupDone_(t, u, fileId) {
 }
 
 /** az ügyfél formázott üzenete e-mailben: **félkövér**, _dőlt_, „- ” felsorolás → HTML (biztonságosan, előbb escape) */
-function mdMail_(t) { return String(t || '').split('\n').map(L => { let h = escapeHtml_(L).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g, '<i>$1</i>');
-  const b = /^\s*[-•*]\s+(.*)$/.exec(h); return b ? '&nbsp;&nbsp;•&nbsp;' + b[1] : h; }).join('<br>'); }
+/* Gmail-szerű formázás jelölései (a jóváhagyó oldallal és az appal egyezően) */
+var BB_FONT={sans:'Arial,Helvetica,sans-serif',serif:"'Times New Roman',Times,serif",mono:"'Courier New',Courier,monospace",wide:"'Arial Black',Arial,sans-serif",narrow:"'Arial Narrow',Arial,sans-serif",comic:"'Comic Sans MS',cursive",georgia:'Georgia,serif',verdana:'Verdana,sans-serif'};
+var BB_SIZE={small:'0.82em',large:'1.3em',huge:'1.75em'};
+function bbInl(h){h=String(h);for(let k=0;k<6;k++){const p=h;h=h.replace(/\[u\]([\s\S]*?)\[\/u\]/g,'<u>$1</u>').replace(/\[s\]([\s\S]*?)\[\/s\]/g,'<s>$1</s>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/g,'<span style="color:$1">$2</span>')
+  .replace(/\[font=([a-z]+)\]([\s\S]*?)\[\/font\]/g,(m,f,x)=>BB_FONT[f]?'<span style="font-family:'+BB_FONT[f]+'">'+x+'</span>':x).replace(/\[size=([a-z]+)\]([\s\S]*?)\[\/size\]/g,(m,z,x)=>BB_SIZE[z]?'<span style="font-size:'+BB_SIZE[z]+'">'+x+'</span>':x);if(h===p)break;}return h;}
+function bbLine(L){L=String(L);let al='',ind=0,m;while((m=/^\[(center|right|justify|indent=([1-6]))\]/.exec(L))){if(m[2])ind=+m[2];else al=m[1];L=L.slice(m[0].length);}return {t:L,st:(al?'text-align:'+al+';':'')+(ind?'padding-left:'+(ind*2)+'em;':'')};}
+function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[^\]]*)?|center|right|justify|indent=\d)\]/g,'');}
+function mdMail_(t) { return String(t || '').split('\n').map(L => { const q = bbLine(L); let h = bbInl(escapeHtml_(q.t).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g, '<i>$1</i>'));
+  const b = /^\s*[-•*]\s+(.*)$/.exec(h); h = b ? '&nbsp;&nbsp;•&nbsp;' + b[1] : h; return q.st ? '<span style="display:block;' + q.st + '">' + h + '</span>' : h; }).join('<br>'); }
