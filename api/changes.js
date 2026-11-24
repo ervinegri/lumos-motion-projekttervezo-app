@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "139ca53b93",
+"at": "2026-11-24T11:09:23+02:00",
+"msg": "Frissülés: a betöltés eredményét legfeljebb 3-szor dobjuk el közbejött írás miatt (utána mindenképp frissül); az olvasó kérések (gbpList, companyIndex…) nem számítanak írásnak"
+},
+{
 "id": "075b1bfe2c",
 "at": "2026-11-24T10:51:29+02:00",
 "msg": "Lábléc: a stábnak és a felhasználóknak (külső címen is) szóló levelekben sincs – csak az ügyfeleknek"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felhasználó ablak: hibás / nem Google-os e-mail-címnél a mentés gomb tiltva (el sem indul), ellenőrzés közben is; piros jelzés a mező alatt, a mező is piros; előnézet sem készül"
 },
 {
-"id": "4235322ea8",
-"at": "2026-11-23T17:12:15+02:00",
-"msg": "E-mail-cím: nem létező / levelet nem fogadó domain sem menthető, elírásnál javaslat (pl. lumsmotion.com → lumosmotion.com)"
-},
-{
-"id": "fade896d5d",
-"at": "2026-11-23T14:49:01Z",
+"id": "5442a9200a",
+"at": "2026-11-23T15:12:26Z",
 "msg": "Változásnapló frissítése"
 }
 ];
