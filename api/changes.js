@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5dbafb56f5",
+"at": "2026-11-24T08:23:33+02:00",
+"msg": "Videó: verziók v1 / Revision 1 / Revision 2…, a hozzászólásoknál a folyamat lépései színnel és címkével elkülönítve"
+},
+{
 "id": "c0371a0d6e",
 "at": "2026-11-24T08:18:35+02:00",
 "msg": "Videó verziók: az ügyfélnek küldéskor cserélt link nem új verzió (a háttér sem hoz létre újat; a korábbi ilyen bejegyzéseket a felület összevonja)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lakatolt Alapadatok: kijelölhető, másolható, kattintható – de nem módosítható"
 },
 {
-"id": "f2f5284c49",
-"at": "2026-11-23T08:10:49+01:00",
-"msg": "Közös kamera ugyanannál az operatőrnél egy idejű projektekben (+usecase teszt); meghívó újraküldése a fogaskerék menüben; Google-értékelés csillag kattintásra válasz"
-},
-{
-"id": "3c0133cd6f",
-"at": "2026-11-22T15:06:04Z",
+"id": "e36cd5f9e6",
+"at": "2026-11-23T07:10:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
