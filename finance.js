@@ -22,7 +22,7 @@ async function finLoad(force){if(!S.fin&&!S._finCacheTried){S._finCacheTried=tru
     else if(S.tab==='projektek'&&S.projectId&&$('proj-bill')&&typeof projBillingPanel==='function'){const p=S.draft||projById(S.projectId);$('proj-bill').outerHTML=projBillingPanel(p)||'';}}
   const sz=S.fin&&S.fin.sz;if(sz&&sz.hasKey&&!S._szAuto&&(S.fin.invoices||[]).some(x=>num(x.invPaid)<num(x.invGross)-1)){S._szAuto=true;szSync(true);}}   // betöltéskor egyszer csendben frissítjük a kifizetéseket
 const FIN_KEYS=['bankTx','bankPay','bankTxOff','bankTxLoan','szDocs','bankKeyAt','income','expense','loan','settings','invoices','billing','frameworks','tigs','sz'];
-function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});S.fin=Object.assign({},S.fin||{},part);finCacheSave(S.fin);   // a szerver csak a módosult táblát küldi vissza
+function finApply(d){const part={};FIN_KEYS.forEach(k=>{if(d&&d[k]!==undefined)part[k]=d[k];});if(part.bankPay)part.bankPay=bankPayHide(part.bankPay);S.fin=Object.assign({},S.fin||{},part);finCacheSave(S.fin);   // a szerver csak a módosult táblát küldi vissza
   (d.invoices||[]).forEach(x=>invPids(x).forEach(pid=>{const p=projById(pid);if(p){const st=szPayOf(pid);if(st)p.payStatus=st;}}));render(true);}
 /* Közös számla: a fő projekt + a projectIds-ben felsorolt további projektek; a projekt részaránya a projektértékek arányában */
 const invPids=x=>[x.projectId,...String(x.projectIds||'').split(',')].filter(Boolean);
@@ -214,6 +214,8 @@ function inDocsBox(){const D=(isAdmin()&&S.fin&&S.fin.szDocs)||{},L=D.open||[];i
   return `<div class="panel bank-box in-box"><h3>📥 Beérkezett szállítói számlák <span class="aside">${L.length} db</span></h3><p class="hint" style="margin:0 0 6px">A számlázz.hu-ba érkezett bejövő számlák. Kiadásként a teljesítés hónapjába kerülnek (nettó összeggel, a PDF linkjével); a szakemberek számlái maguktól a Kifizetésekhez párosulnak.</p>${rows}</div>`;}
 /* Kifizetett, de még számla nélküli kimenő utalások (pl. díjbekérő alapján fizetett szállító): azonnal rögzíthetők kiadásként; a végszámla később ugyanehhez kapcsolódik */
 /* a „＋ Rezsi / ＋ Marketing” gomb: hibánál nem némán áll meg, hanem kiírja az okát */
+/* a már kiadásként rögzített / elvetett utalások pár percig akkor se jöjjenek vissza, ha egy korábbi (párhuzamos) válasz még a régi listát hozza */
+function bankPayHide(L){const D=S._bpDone||{},now=Date.now();return (L||[]).filter(t=>!(D[t.id]&&now-D[t.id]<5*60e3));}
 function bankPayExp(b){ACT['bankpay-exp0'](b);}
 function payNoDocBox(){const L=(isAdmin()&&S.fin&&S.fin.bankPay)||[];if(!L.length)return '';
   const rows=L.map(t=>`<div class="bk-row"><span class="bk-d">${esc(fmtDay(t.valueDate))}</span><span class="bk-p" data-action="bank-info" data-id="${esc(t.id)}" role="button" tabindex="0" title="Az utalás részletei"><b>${esc(t.partnerName||'Ismeretlen partner')}</b>${t.note?`<small>${esc(t.note)}</small>`:''}</span><span class="bk-a ki">−${sFt(Math.round(Math.abs(Number(t.amount)||0)))}<small class="muted" style="display:block;font-weight:500;font-size:11.5px">bruttó</small></span><span class="bk-m"><button class="btn primary small" type="button" data-action="bankpay-exp" data-id="${esc(t.id)}" data-fund="rezsi">＋ Rezsi</button><button class="btn outline small" type="button" data-action="bankpay-exp" data-id="${esc(t.id)}" data-fund="marketing">＋ Marketing</button><button class="btn ghost small" type="button" data-action="bank-no" data-id="${esc(t.id)}" title="Nem kiadás (pl. saját átvezetés, már máshol rögzítve)">Elvetés</button></span></div>`).slice(0,S._payAll?999:6).join('')+(L.length>6&&!S._payAll?`<button class="btn ghost small bk-more" type="button" data-action="bankpay-all">Mind a ${L.length} tétel ▾</button>`:'');
@@ -753,7 +755,7 @@ Object.assign(ACT,{
     if(/^pay:/.test(b.dataset.inv||'')){const p=(S.payStatus||[]).find(x=>x.id===b.dataset.inv.slice(4));if(!p)return;openModal('Kimenő utalás párosítása',`<p style="margin:0"><b>${esc(t.partnerName||'')}</b> · −${sFt(Math.round(Number(t.amount)||0))} · ${esc(fmtDay(t.valueDate))}<br><br>→ <b>${esc(p.crewName||'')}</b> ${esc(p.month)} havi díja kifizetettre állítva, ${esc(fmtDay(t.valueDate))}-i dátummal.</p>`,{submitLabel:'✓ Kifizetve',noDraft:true,submit:async()=>{closeModal();const d=await finCall('szBankSet',{id:t.id,status:'parositva',invoiceId:b.dataset.inv},'Párosítva – a díj kifizetett');if(d&&typeof load==='function')load(true);}});return;}
     const x=((S.fin.invoices)||[]).find(i=>i.id===b.dataset.inv);if(!x)return;
     openModal('Utalás párosítása',`<p style="margin:0"><b>${esc(t.partnerName||'')}</b> · ${sFt(Math.round(Number(t.amount)||0))} · ${esc(fmtDay(t.valueDate))}${t.note?`<br><span class="muted">${esc(t.note)}</span>`:''}<br><br>→ <b>${esc(x.no)}</b> (${esc(x.buyer||'')}) kifizetettre állítva, a számlázz.hu-ban is jóváírva, ${esc(fmtDay(t.valueDate))}-i dátummal.</p>`,{submitLabel:'✓ Kifizetve',noDraft:true,submit:async()=>{closeModal();await finCall('szBankSet',{id:t.id,status:'parositva',invoiceId:x.id},'Párosítva – a számla kifizetett');}});},
-  'bank-no':b=>finCall('szBankSet',{id:b.dataset.id,status:'elvetve'},'Elvetve'),
+  'bank-no':b=>{const id=b.dataset.id;(S._bpDone=S._bpDone||{})[id]=Date.now();if(S.fin){S.fin.bankPay=(S.fin.bankPay||[]).filter(x=>x.id!==id);S.fin.bankTx=(S.fin.bankTx||[]).filter(x=>x.id!==id);render(true);}return finCall('szBankSet',{id,status:'elvetve'},'Elvetve');},
   'indoc-exp':b=>{const d=((S.fin.szDocs&&S.fin.szDocs.open)||[]).find(x=>x.id===b.dataset.id),m=String((d&&(d.telj||d.kelt))||todayISO()).slice(0,7);
     indocQuick(b.dataset.id,{status:'kiadas',fund:b.dataset.fund},'Kiadásként rögzítve: '+F_YM.format(toDate(m+'-01'))+', '+(b.dataset.fund==='marketing'?'marketing':'rezsi')+' (a teljesítés hónapja)');},
   'indoc-no':b=>indocQuick(b.dataset.id,{status:'elvetve'},''),
@@ -765,8 +767,8 @@ Object.assign(ACT,{
       ${moneyField('net','Összeg (nettó)',Math.round(gross/1.27),{steps:false})}
     </div><p class="hint" style="margin:0">A nettó összeget 27% ÁFÁ-val számoltam az utalt bruttóból – ha a szállító alanyi adómentes vagy más kulccsal számláz, írd át. A kiadás ${esc(F_YM.format(toDate(String(t.valueDate||todayISO()).slice(0,7)+'-01')))} hónapjába kerül.</p>`,
       {submitLabel:'Kiadás mentése',submit:async fd=>{const net=num(moneyVal(fd.get('net')));if(!net){toast('Add meg a nettó összeget.',true);return;}if(net>gross){toast('A nettó nem lehet több az utalt '+sFt(gross)+'-nál.',true);return;}
-        closeModal();S.fin.bankPay=(S.fin.bankPay||[]).filter(x=>x.id!==t.id);render(true);toast('Kiadásként rögzítve');
-        try{const d=await call('bankExpense',{id:t.id,fund,net,name:String(fd.get('name')||'').trim()});finApply(d);render(true);}catch(e){handleErr(e);finCall('finData',{},'');}}});},
+        closeModal();(S._bpDone=S._bpDone||{})[t.id]=Date.now();S.fin.bankPay=(S.fin.bankPay||[]).filter(x=>x.id!==t.id);render(true);toast('Kiadásként rögzítve');
+        try{const d=await call('bankExpense',{id:t.id,fund,net,name:String(fd.get('name')||'').trim()});finApply(d);render(true);}catch(e){delete S._bpDone[t.id];handleErr(e);finCall('finData',{},'');}}});},
   'sz-item-add':()=>{const box=$('sz-items');if(!box)return;box.insertAdjacentHTML('beforeend',szItemRow({name:'',qty:1,price:''},box.children.length));szTotals();},
   'sz-item-del':b=>{const box=$('sz-items');if(box&&box.children.length>1){b.closest('[data-szitem]').remove();szTotals();}else toast('Legalább egy tétel kell.',true);}
 });

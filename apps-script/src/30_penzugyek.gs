@@ -35,7 +35,7 @@ function finDataCached_() {
   cachePutJSON_(key, out, DATA_CACHE_TTL);
   return out;
 }
-function finData_() {
+function finData_() { try { SC_.memo = {}; } catch (e) { }   // mindig friss adatból (egy módosítás után ugyanabban a hívásban a korábbi olvasás memóriája ne hozzon vissza régi állapotot)
   return { bankTx: szBankOpen_(), bankPay: (() => { try { return szBankPayNoDoc_(); } catch (e) { return []; } })(), bankTxOff: szBankDismissed_(), bankTxLoan: (() => { try { return readAll_('bankTx').filter(t => !t.technical && (t.status === 'kolcson' || szLoanNote_(t.note))); } catch (e) { return []; } })(),   /* a tagi kölcsönnel kapcsolatos összes banki utalás, a kezdetektől (egyeztetéshez) */ szDocs: szDocsView_(), bankKeyAt: PropertiesService.getScriptProperties().getProperty('SZ_BANK_KEY_AT') || '', income: readAll_('finIncome'), expense: readAll_('finExpense'), loan: readAll_('finLoan'), settings: finSettings_(), invoices: readAll_('finInvoice'), billing: readAll_('finBilling'), frameworks: readAll_('finFramework'), tigs: readAll_('finTig'), sz: szSettingsView_() };
 }
 /* Gyors válasz: a módosító műveletek csak az érintett táblát adják vissza (a többi nem változott) */

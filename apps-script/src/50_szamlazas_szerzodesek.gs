@@ -1486,7 +1486,8 @@ function szBankExpense_(u, a) {
   withLock_(() => { const sh = sheetFor_('bankTx'), row = findRow_(sh, id); if (!row) return; const x = readRow_('bankTx', sh, row); if (x.status) { dup = true; return; }
     putRow_('finExpense', sheetFor_('finExpense'), r, 0); x.status = 'kiadas'; x.matchInvoice = 'exp:' + r.id; x.handledBy = u.name; x.handledAt = now_(); putRow_('bankTx', sh, x, row); dbFlush_(); });
   if (!dup) logEvent_(u, 'Bevétel és kiadás', t.partnerName || 'Banki utalás', 'Kiadásként rögzítve banki utalásból (számla nélkül): ' + gross + ' Ft');
-  dataBump_(); return finData_();
+  dataBump_(); try { SC_.memo = {}; } catch (e) { }   // a választ már a módosított adatból számoljuk (a korábbi olvasás memóriája nem hozhatja vissza a tételt)
+  return finData_();
 }
 /** A végszámla megérkezett: van-e hozzá már (banki utalásból rögzített) kiadás – azonos bruttó összeg és szállító */
 function szBankExpOf_(d) {
