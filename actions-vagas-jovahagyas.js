@@ -593,13 +593,16 @@ function vvRestore(){if(S._vvRestored)return;   /* a betöltés korán (még a f
     const ta=$('m-vvCm');if(ta&&o.draft){ta.value=o.draft;taHl();}vvSave({draft:o.draft||'',t:o.t||0});
     if(o.t){const go=()=>{const v=document.querySelector('.vv-player video');if(!v){if((go.n=(go.n||0)+1)<40)setTimeout(go,250);return;}const set=()=>{v.pause();v.currentTime=o.t;};if(v.readyState)set();else v.addEventListener('loadedmetadata',set,{once:true});};go();}};
   setTimeout(tryOpen,50);}
-async function vidFlush(pid,vid){{const p0=projById(pid),v0=p0&&(p0.videos||[]).find(x=>x.id===vid);if(v0&&v0.st==='leadva')return;}const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t||!t.replace(TC_RE,'').trim())return;   /* csak időkód, szöveg nélkül: nem mentjük */ta.value='';taHl();
+async function vidFlush(pid,vid){{const p0=projById(pid),v0=p0&&(p0.videos||[]).find(x=>x.id===vid);if(v0&&v0.st==='leadva')return;}const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();if(!t||!t.replace(TC_RE,'').trim())return;   /* csak időkód, szöveg nélkül: nem mentjük */let tk='';try{tk=txtKey(ta);}catch(e){}ta.value='';taHl();vvSave({draft:''});
   let lat='';{const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(v){const d=new Date(),z=n=>String(n).padStart(2,'0');v.cm=(v.cm||[]).concat([{by:S.me&&S.me.name||'',at:d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds()),t,ts:'',_local:1}]);lat=v.cm[v.cm.length-1].at;}}   /* azonnal látszik (gyors újranyitáskor is); a szerver válasza felülírja */
   try{const r=await call('videoComment',{projectId:pid,id:vid,text:t,ts:''});const pr2=r&&r.project;
     if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
     const lk=vid+'|cm|'+lat;if(lat&&S._cmDel&&S._cmDel[lk]){const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid),sc=v&&(v.cm||[]).slice().reverse().find(c=>c.t===t&&c.by===(S.me&&S.me.name));delete S._cmDel[lk];   /* a mentés előtt már törölted: most a szerveren is töröljük */
       if(sc){S._cmDel[vid+'|cm|'+sc.at]=1;VV_DEL_Q=VV_DEL_Q.then(()=>call('videoCommentDel',{projectId:pid,id:vid,kind:'',at:sc.at}).then(r=>{const q=r&&r.project;if(q){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(q);}delete S._cmDel[vid+'|cm|'+sc.at];}).catch(handleErr));}return;}
-    toast('💬 Hozzászólás elmentve');try{bdApply(pid);bdRefresh();}catch(e){}}catch(e){handleErr(e);}}
+    if(tk)txtPut(tk,'');toast(r&&r.dup?'Ez a hozzászólás már el van küldve – nem került be még egyszer.':'💬 Hozzászólás elmentve');try{bdApply(pid);bdRefresh();}catch(e){}}
+  catch(e){handleErr(e);   /* nem ment el: a szöveg visszakerül a mezőbe, nem vész el */
+    {const p=projById(pid),v=p&&(p.videos||[]).find(x=>x.id===vid);if(v&&lat)v.cm=(v.cm||[]).filter(c=>!(c._local&&c.at===lat));}
+    const ta2=$('m-vvCm');if(ta2&&!String(ta2.value||'').trim()){ta2.value=t;try{taHl();}catch(e2){}vvSave({draft:t});}if(tk)txtPut(tk,t);}}
 /* pCloud nyilvános link → közvetlen videócím (getpublinkdownload), és lejátszás a saját lejátszóban */
 async function pcloudLoad(){const el=document.querySelector('#modalRoot .vv-pc[data-pc-code]')||document.querySelector('.vv-pc[data-pc-code]');if(!el)return;const code=el.dataset.pcCode,hosts=el.dataset.pcEu?['eapi','api']:['api','eapi'];let why='';
   const fetch=(u,o)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),9000);return window.fetch(u,Object.assign({},o,{signal:ac.signal})).finally(()=>clearTimeout(t));};   // a pCloud néha nem válaszol – 9 mp után feladjuk, ne pörögjön örökké

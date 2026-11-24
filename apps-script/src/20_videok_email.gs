@@ -130,14 +130,18 @@ function videoComment_(u, a) {
   if (t.length < 1) throw new Error('Írj valamit a hozzászólásba.');
   if (!mgr && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó')) throw new Error('FORBIDDEN: Csak a vezetők és a projekt vágója szólhat hozzá.');
   const ts = a.ts !== '' && a.ts != null && isFinite(Number(a.ts)) ? Math.max(0, Math.round(Number(a.ts))) : '';
-  let p, v;
+  let p, v, dup = false;
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const isRep = /^⤷\{/.test(t);   // válasz egy meglévő hozzászólásra: minden állapotban mehet (beszélgetés)
     if (!isRep && v.st === 'leadva') throw new Error('Az ügyfél jóváhagyására váró videóhoz nem lehet hozzászólni.');
     if (!isRep && !mgr && v.st !== 'vagas') throw new Error('A videó már le van adva – most nem lehet hozzászólni.');
+    /* ugyanaz a hozzászólás kétszer (duplán kattintott küldés, visszatöltött szöveg újraküldése): 15 percen belül nem kerül be újra, e-mail sem megy */
+    const last = (v.cm || []).slice().reverse().find(c => c && c.by === u.name && c.k !== 'note');
+    if (last && String(last.t || '').trim() === t && Date.parse(now_().replace(' ', 'T')) - Date.parse(String(last.at || '').replace(' ', 'T')) < 15 * 60000) { dup = true; return; }
     v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: t, ts: ts }]).slice(-100);
     p.videos = JSON.stringify(vids); p.updatedAt = now_(); p.updatedBy = u.name; p.mutationId = Utilities.getUuid(); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  if (dup) return { project: projectView_(fullProject_(p), u), dup: true };
   try { const c = v.editor ? readAll_('crew').find(x => x.id === v.editor) : null, own = c && u.crewId && c.id === u.crewId;
     const to = own ? String(v.rvTo || '').trim() : c ? String(c.email || '').trim() : '';
     if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';

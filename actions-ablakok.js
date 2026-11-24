@@ -225,10 +225,12 @@ function txtKey(el){const ctx=[],seen=new Set();for(let n=el;n&&n!==document.bod
 function txtGet(k){try{const o=JSON.parse(localStorage.getItem(k)||'null');if(!o)return '';if(Date.now()-o.t>TXT_TTL){localStorage.removeItem(k);return '';}return o.v||'';}catch(e){return '';}}
 function txtPut(k,v){try{if(String(v).trim())localStorage.setItem(k,JSON.stringify({v,t:Date.now()}));else localStorage.removeItem(k);}catch(e){}}
 function txtRestore(root){(root.querySelectorAll?root.querySelectorAll('textarea'):[]).forEach(el=>{if(txtSkip(el)||el.value)return;const k=txtKey(el);
-  if(TXT_SENT[k]&&Date.now()-TXT_SENT[k]<20000){delete TXT_SENT[k];txtPut(k,'');return;}   /* elküldve: a kiürült mezőbe nem töltjük vissza */
-  const v=txtGet(k);if(v){el.value=v;el.classList.add('txt-restored');el.title='Visszaállítva a félbehagyott szöveg';}});}
+  const v=txtGet(k),sn=TXT_SENT[k];
+  if(sn&&(Date.now()-sn.t<20000||(v&&v.trim()===sn.v&&Date.now()-sn.t<6*3600e3))){delete TXT_SENT[k];txtPut(k,'');return;}   /* elküldve: a kiürült mezőbe nem töltjük vissza (később, egy frissítéskor sem) */if(v){el.value=v;el.classList.add('txt-restored');el.title='Visszaállítva a félbehagyott szöveg';}});}
 document.addEventListener('input',e=>{const el=e.target;if(txtSkip(el))return;const k=txtKey(el);delete TXT_SENT[k];txtPut(k,el.value);el.classList.remove('txt-restored');},true);
-const txtMarkSent=els=>els.forEach(el=>{if(!txtSkip(el))TXT_SENT[txtKey(el)]=Date.now();});
+const txtMarkSent=els=>els.forEach(el=>{if(txtSkip(el))return;const k=txtKey(el),v=String(el.value||'').trim();TXT_SENT[k]={t:Date.now(),v};
+  /* a küldés után a program üríti a mezőt (input esemény nélkül): ha kiürült vagy eltűnt, a mentett példány is törlődik – különben egy későbbi frissítés visszatöltené, és újra elküldhetnék */
+  [600,2000,6000,15000].forEach(ms=>setTimeout(()=>{const cur=String(el.value||'').trim();if(!el.isConnected||!cur||cur!==v){if(txtGet(k).trim()===v)txtPut(k,'');}},ms));});
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(!b)return;
   const lbl=(b.textContent||'')+' '+(b.dataset.action||'')+' '+(b.type==='submit'?'submit':'');if(!/küld|hozzáad|mentés|ment\b|send|add|post|save|submit|reply|comment|válasz/i.test(lbl))return;
   let c=b.parentElement;while(c&&c!==document.body&&!c.querySelector('textarea'))c=c.parentElement;if(!c||c===document.body)return;const L=[...c.querySelectorAll('textarea')],pre=L.filter(t=>t.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING);txtMarkSent([pre.length?pre[pre.length-1]:L[0]]);},true);   /* a gombhoz tartozó (előtte álló) szövegdoboz */
