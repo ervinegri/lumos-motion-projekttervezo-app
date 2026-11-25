@@ -346,7 +346,7 @@ function prepIssues(p){if(!p||ro()||isTent(p)||!PRE_SHOOT.has(p.status||'terveze
   if(G.wait.length)items.push('nem válaszolt: '+G.wait.map(nm).join(', '));
   if(G.no.length)items.push('visszautasította: '+G.no.map(nm).join(', '));
   return items.length?{left,items}:null;}
-function computeIssues(){
+function computeIssues(){if(typeof ro==='function'&&ro())return [];   /* csak a vezetőknek – a szakember mások ügyeit nem láthatja */
   const T=todayISO(),out=[],live=liveProjects();
   for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length;j++){
     const a=live[i],b=live[j];if(!clash(a,b)||sameVenue(a,b))continue;
@@ -361,7 +361,7 @@ function computeIssues(){
     else if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
   /* szabály: minden stábtagnak legyen e-mail-címe (meghívó, nyersanyag-levél, csatolt fájlok) – akik a futó projekteken dolgoznak és nincs címük */
-  {const seen=new Set();allProjects().filter(p=>p.status!=='lemondva'&&p.status!=='atadva').forEach(p=>(p.crew||[]).forEach(a=>{const c=crewById(a.crewId);if(!c||seen.has(c.id)||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(c.email||'').trim()))return;seen.add(c.id);
+  if((S.crew||[]).some(c=>'email' in c))/* csak ha a stáb e-mail-címei betöltődtek (különben mindenkit hiányzónak látnánk) */{const seen=new Set();allProjects().filter(p=>p.status!=='lemondva'&&p.status!=='atadva').forEach(p=>(p.crew||[]).forEach(a=>{const c=crewById(a.crewId);if(!c||seen.has(c.id)||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(c.email||'').trim()))return;seen.add(c.id);
     out.push({level:'bad',text:`✉️ ${c.name}: nincs e-mail-címe a Stáb listában – nem kap meghívót, nyersanyag-levelet és nem nyithatja meg a csatolt fájlokat. Add meg a Források → Stáb résznél.`,pids:allProjects().filter(q=>q.status!=='lemondva'&&q.status!=='atadva'&&(q.crew||[]).some(x=>x.crewId===c.id)).map(q=>q.id)});}));}
   /* a forgatás már lezajlott, de a projekt még a Helyszíni munkánál áll: a nyersanyag nincs feltöltve – a vágó nem tudja elkezdeni a munkát (piros) */
   allProjects().filter(p=>p.status==='helyszin').forEach(p=>{try{if(typeof rawPending!=='function'||!rawPending(p))return;const r=pr(p),end=r&&(r.end||r.start);if(!end||end>=T)return;const n=diffDays(end,T),eds=typeof rawEditors==='function'?rawEditors(p).map(c=>huFirst(String(c.name||''))).filter(Boolean):[];

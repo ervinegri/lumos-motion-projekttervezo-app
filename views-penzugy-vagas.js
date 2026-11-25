@@ -677,7 +677,7 @@ function tentBanner(p){if(!p||['atadva','lemondva'].includes(p.status))return ''
   const open=(S.deals||[]).filter(d=>['uj','ajanlat','targyalas'].includes(d.stage)&&!S.projects.some(q=>q.preDeal===d.id));if(!open.length)return '';
   return '';}   /* az összekötés az Értékesítésből indul (a felhívó sor nem kell) */
 function viewProject(p){
-  const c=calc(p),st=staffing(p),iss=computeIssues().filter(i=>i.pids.includes(p.id));
+  const c=calc(p),st=staffing(p),iss=ro()?[]:computeIssues().filter(i=>i.pids.includes(p.id));   /* szakember nézetben soha: a figyelmeztetések másokról is szólhatnak */
   const r=pr(p),T=todayISO(),di=dueInfo(p);
   const status=p.status||'tervezes',curIdx=STAGES.findIndex(s=>s.id===status);
   // átadandó anyag nélkül nincs utómunka lépés (kivéve, ha a projekt épp abban az állapotban van)
