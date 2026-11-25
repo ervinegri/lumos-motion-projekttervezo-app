@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3016ee5b4f",
+"at": "2026-11-25T09:37:24+01:00",
+"msg": "Kiküldött ajánlatok: szélesebb Gmail-keresés, és ha nincs találat, kiírja mit keresett"
+},
+{
 "id": "19fff20157",
 "at": "2026-11-25T09:34:01+01:00",
 "msg": "Lehetőség ablak: a kiküldött ajánlatok listája betöltés / hiba / üres állapotot is mutat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetve, de még számla nélkül: a díjbekérő alapján utalt összeg banki utalásból kiadásként rögzíthető, a később érkező végszámla ugyanahhoz kapcsolódik; elfogadott meghívásnál az elvállalt szerepkör nem vehető le"
 },
 {
-"id": "cca778506a",
-"at": "2026-11-24T20:27:29+02:00",
-"msg": "Hiányzó meghívó / beosztás: a figyelmeztetés a Helyszíni munka szakaszban is megjelenik (nem csak Tervezésben)"
-},
-{
-"id": "7358b1d220",
-"at": "2026-11-24T18:02:48Z",
+"id": "d49cb110cd",
+"at": "2026-11-24T18:27:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
