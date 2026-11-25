@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "55fac4939a",
+"at": "2026-11-25T16:08:12+01:00",
+"msg": "Projektoldal: egyforma hézag minden panel között és egyforma magas csukott kártyák (a Szolgáltatások kártya plusz térköze megszűnt)"
+},
+{
 "id": "c98b8cc9ff",
 "at": "2026-11-25T16:00:32+01:00",
 "msg": "Projektoldal: egyforma távolság minden panel között"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal feltöltései az új fájlkártya-stílusban (és a hozzászólásban kártyaként); vezetői bejegyzések kékek, az ügyfél jóváhagyása zöld"
 },
 {
-"id": "9da0bb08e8",
-"at": "2026-11-25T14:00:25+01:00",
-"msg": "Fájl csatolásakor a feltöltés sora rögtön látszik (odagörget)"
-},
-{
-"id": "23afcb1957",
-"at": "2026-11-25T12:58:23Z",
+"id": "cc677f1550",
+"at": "2026-11-25T13:00:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
