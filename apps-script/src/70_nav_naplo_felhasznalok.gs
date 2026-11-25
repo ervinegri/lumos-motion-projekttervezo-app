@@ -692,6 +692,7 @@ function quoteSent_(u, a) {
   }
   if (a.op === 'hist') return quoteHist_(d);
   if (a.op === 'mails') return quoteMails_(d);
+  if (a.op === 'all') return quoteAll_(u, d, a.em);
   if (a.op === 'mailpdf') {   // egy elküldött ajánlat-levél PDF-je (csak az ügyfél címére ment levél)
     const em = quoteClientEmails_(d), msg = GmailApp.getMessageById(str_(a.msg, 40)); if (!msg) return null;
     const to = String(msg.getTo() + ',' + msg.getCc()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0)) throw new Error('FORBIDDEN: Ez a levél nem ennek az ügyfélnek szólt.');
@@ -709,11 +710,46 @@ function quoteSent_(u, a) {
 /* Az ügyfél (cég) összes kiküldött ajánlat-levele a Gmail „Elküldött” mappájából – minden lehetőségéhez, a legújabb elöl. */
 function quoteClientEmails_(d) { const k = String(d.client || '').trim().toLowerCase(), S0 = new Set(); const add = e => String(e || '').split(/[,;\s]+/).forEach(x => { x = x.trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)) S0.add(x); });
   add(d.contactEmail); add(d.contactEmail2); if (k) readAll_('deals').filter(x => String(x.client || '').trim().toLowerCase() === k).forEach(x => { add(x.contactEmail); add(x.contactEmail2); }); return [...S0].slice(0, 6); }
-function quoteMails_(d) { const em = quoteClientEmails_(d); if (!em.length) return [];
+function quoteMails_(d) { const em = quoteClientEmails_(d); if (!em.length) return { empty: true, em: [], n: 0, me: '' };
   const qy = '(' + em.map(e => 'to:' + e).join(' OR ') + ') filename:pdf', th = GmailApp.search(qy, 0, 40), out = [];
   th.forEach(t => t.getMessages().forEach(m => { const to = String(m.getTo() + ',' + m.getCc()).toLowerCase(), fr = String(m.getFrom()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0) || em.some(e => fr.indexOf(e) >= 0)) return; if (!m.getAttachments().some(x => /pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf')) return;
     out.push({ id: m.getId(), at: Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), subject: m.getSubject(), to: m.getTo() }); }));
   out.sort((a, b) => b.at.localeCompare(a.at)); if (!out.length) return { empty: true, em: em, n: th.length, me: Session.getEffectiveUser().getEmail() }; return out.slice(0, 30); }
+/* Az ügyfél ÖSSZES kiküldött ajánlata, tartósan elmentve. Minden megnyitáskor: az ügyfél címeire a postafiókból kiment, PDF-et tartalmazó
+   levelek közül amelyik még nincs elmentve, annak a PDF-je a Drive mappába kerül és a lehetőség előzményei közé (QSH_) – így a régebbi,
+   a funkció előtt vagy felülírva küldött ajánlatok is megmaradnak, és a lista nem a levelekből, hanem a mentett adatokból áll. */
+function quoteAll_(u, d, extra) {
+  const k = String(d.client || '').trim().toLowerCase(), deals = readAll_('deals').filter(x => x.id === d.id || (k && String(x.client || '').trim().toLowerCase() === k));
+  const S0 = new Set(quoteClientEmails_(d));
+  if (u.role === 'admin') (Array.isArray(extra) ? extra : []).slice(0, 6).forEach(e => { e = String(e || '').trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) S0.add(e); });
+  const em = [...S0].slice(0, 8), diag = { em: em, n: 0, imp: 0, me: '' }; try { diag.me = Session.getEffectiveUser().getEmail(); } catch (e) {}
+  const store = {}; deals.forEach(x => { store[x.id] = quoteStore_(x); });
+  const tm = s => new Date(String(s || '').slice(0, 16).replace(' ', 'T') + ':00').getTime();
+  if (em.length) { try {
+    const th = GmailApp.search('(' + em.map(e => 'to:' + e + ' OR cc:' + e).join(' OR ') + ') has:attachment filename:pdf', 0, 50); diag.n = th.length;
+    const known = new Set(); Object.keys(store).forEach(id => store[id].forEach(r => { if (r.msgId) known.add(r.msgId); }));
+    th.forEach(t => t.getMessages().forEach(m => {
+      if (known.has(m.getId())) return;
+      const to = String(m.getTo() + ',' + m.getCc()).toLowerCase(), fr = String(m.getFrom()).toLowerCase();
+      if (!em.some(e => to.indexOf(e) >= 0) || em.some(e => fr.indexOf(e) >= 0)) return;   // csak a nekik küldött levelek (az ő válaszaik nem)
+      const att = m.getAttachments().find(x => /\.pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf'); if (!att) return;
+      const at = Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), t0 = tm(at), subj = String(m.getSubject() || '').replace(/^((Fwd?|Re|Vá|Továbbítás):\s*)+/i, '');
+      const sl = subj.toLowerCase(), tgt = deals.filter(x => x.title && sl.indexOf(String(x.title).toLowerCase()) >= 0).sort((a, b) => String(b.title).length - String(a.title).length)[0] || deals.find(x => quoteSends_(x).some(y => Math.abs(tm(y.at) - t0) < 15 * 60e3)) || d;
+      const L0 = store[tgt.id] || []; if (L0.some(r => r.fileId && Math.abs(tm(r.at) - t0) < 10 * 60e3)) return;   // az alkalmazásból küldött – már megvan
+      const sd = quoteSends_(tgt).filter(y => Math.abs(tm(y.at) - t0) < 15 * 60e3)[0];
+      const fid = quoteFolder_().createFile(att.copyBlob().setName(at.slice(0, 10) + ' ' + att.getName())).getId();
+      const meta = { at: at, by: sd ? sd.by : '', to: String(m.getTo() || ''), subject: subj, total: sd ? sd.total : 0, fileId: fid, q: null, msgId: m.getId(), imported: true };
+      const H = qGet_('QSH_' + tgt.id), L = (H && H.list) || []; L.push(meta); L.sort((a, b) => String(b.at).localeCompare(String(a.at))); qPut_('QSH_' + tgt.id, { at: now_(), list: L.slice(0, 40) });
+      store[tgt.id] = L0.concat([meta]); known.add(m.getId()); diag.imp++;
+    }));
+  } catch (e) { diag.err = String(e && e.message || e); } }
+  const out = [], seen = new Set();
+  deals.forEach(x => (store[x.id] || []).forEach(r => { if (!r || !r.fileId) return; const kk = x.id + '|' + String(r.at || '').slice(0, 16); if (seen.has(kk)) return; seen.add(kk);
+    out.push({ dealId: x.id, title: x.title || '', at: String(r.at || '').slice(0, 16), subject: r.subject || '', to: r.to || '', total: Number(r.total) || 0, by: r.by || '' }); }));
+  out.sort((a, b) => b.at.localeCompare(a.at));
+  if (diag.imp) { try { dataBump_(); } catch (e) {} }
+  return { list: out, diag: diag };
+}
 /* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
 function quoteSends_(d) { const out = [], re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/g; let m; const t = String(d.note || ''); while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0 }); return out; }
 function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
@@ -755,7 +791,7 @@ function dealQuoteSend_(u, a) {
   try {   // a kiküldött ajánlat megmarad: PDF a Drive-on (a szkript tulajdonosának saját mappájában), az adatai a lehetőséghez kötve
     const fid = quoteFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd') + ' ' + fname)).getId();
     const q = a.q && typeof a.q === 'object' ? a.q : null; if (q) ['_pdf', '_pdfP', 'sig'].forEach(k => { delete q[k]; });
-    let meta = { at: now_(), by: u.name, to: tos.join(', '), total: Number(a.total) || 0, fileId: fid, q: q };
+    let meta = { at: now_(), by: u.name, to: tos.join(', '), subject: str_(a.subject, 200), total: Number(a.total) || 0, fileId: fid, q: q };
     { const old = qGet_('QS_' + d.id); if (old && old.fileId) { const H = qGet_('QSH_' + d.id); const L = (H && H.list) || []; L.unshift(old); qPut_('QSH_' + d.id, { at: now_(), list: L.slice(0, 20) }); } }   // a korábbi kiküldött ajánlat megmarad (előzmények)
     qPut_('QS_' + d.id, meta);
   } catch (e) { Logger.log('Kiküldött ajánlat mentése: ' + e); }
