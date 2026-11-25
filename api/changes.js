@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ab13e8c6ca",
+"at": "2026-11-25T17:21:58+01:00",
+"msg": "Belső ellenőrzés jóváhagyása: a beírt szöveg tájékoztató megjegyzésként megy a vágónak (✅ Jóváhagyva – megjegyzés)"
+},
+{
 "id": "19884ddd74",
 "at": "2026-11-25T17:16:28+01:00",
 "msg": "Belső ellenőrzés: nincs külön hozzászólás – csak Visszadobás (a beírt észrevételekkel) vagy Jóváhagyás"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jégvarázs visszaállítás: robusztusabb (név egyezés, „Utómunka alatt” kártya is vissza), az eredmény az ügyvezetőnél megjelenik"
 },
 {
-"id": "5b755bc02c",
-"at": "2026-11-25T15:20:16+01:00",
-"msg": "„Ellenőrizd” levél: rögtön az utómunkás üzenetével kezdődik"
-},
-{
-"id": "e08b0b7b88",
-"at": "2026-11-25T14:18:09Z",
+"id": "d8417d79a1",
+"at": "2026-11-25T14:20:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
