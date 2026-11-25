@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0d7d55de68",
+"at": "2026-11-25T16:57:20+01:00",
+"msg": "Projektlista: megnyitáskor a mai nap (piros jelölő) a képernyő közepére gördül"
+},
+{
 "id": "24ad4a74c9",
 "at": "2026-11-25T16:56:12+01:00",
 "msg": "Ügyfél számlái: a régi (csak számlázz.hu-s) számla is megnyílik a sorszám alapján; kattintás után nem esik szét a sor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fájlmegosztás: a projekt keresése a videó objektuma alapján (a videóazonosító projektenként ismétlődhet); hozzászóláskor a háttér is megosztja"
 },
 {
-"id": "13d65064f6",
-"at": "2026-11-25T14:42:14+01:00",
-"msg": "Nyersanyag: a termelési vezető a zárolt kártyán egy kattintással kipipálja („📦 Nyersanyag feltöltve”), a NAS-levél ablakban e-mail nélkül is; a vágó tudja, kire vár"
-},
-{
-"id": "f40655173c",
-"at": "2026-11-25T13:36:12Z",
+"id": "bc58267b2e",
+"at": "2026-11-25T13:42:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
