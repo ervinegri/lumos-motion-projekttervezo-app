@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b31750a8da",
+"at": "2026-11-25T08:05:13+01:00",
+"msg": "Lehetőség ablak: az ügyfél ajánlatainak listája (kiküldött / mentett, kattintásra megnyílik) és „＋ Új ajánlat ennek az ügyfélnek” gomb"
+},
+{
 "id": "7a6097396f",
 "at": "2026-11-25T07:58:06+01:00",
 "msg": "Értékesítés: „＋ Új ajánlat ennek az ügyfélnek” a lehetőség kártyán – új lehetőség az ügyfél és a kapcsolattartó adataival, utána rögtön az árajánlat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Teljesítménytábla: „Jutalékalap” oszlop, a súgóban tételesen a befolyt összeg és a levont szervezői jutalék / továbbszámlázott költség"
 },
 {
-"id": "ecea68b7e8",
-"at": "2026-11-24T16:24:30+02:00",
-"msg": "Teljesítménytábla: az ajánlói jutalék is megjelenik (· ajánló sor), összesítő sor a befolyt díjra és a jutalékra, az Arány oszlop magyarázata"
-},
-{
-"id": "b20c976f57",
-"at": "2026-11-24T14:09:32Z",
+"id": "cdc6f0c56c",
+"at": "2026-11-24T14:24:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
