@@ -3320,3 +3320,5 @@ html body .rolepick label.raw-to{cursor:default}
 html body .dfull{display:flex;flex-direction:column;gap:inherit;row-gap:inherit;margin-bottom:0}html body .dfull>*{margin-top:0!important;margin-bottom:0!important}   /* a csoporton belül ugyanaz a távolság, mint a lap paneljei között */
 html body details.panel.content{margin:0;padding-bottom:24px;max-width:none}html body details.panel.content:not([open]){display:block}   /* a .content osztály (a fő tartalomterület) ne adjon plusz alsó térközt a Szolgáltatások kártyának */
 html body .crew-wide{margin-top:0}html body .money-panel{margin-top:0}
+/* a szolgáltatás-oszlopok (Terepi feladatok / Utómunka) lakatja az oszlop jobb felső sarkában, a címsor magasságában */
+html body details.panel.fold section:has(>.sec-lock)>.sec-lock{right:0!important;top:-4px!important}
