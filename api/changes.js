@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9da0bb08e8",
+"at": "2026-11-25T14:00:25+01:00",
+"msg": "Fájl csatolásakor a feltöltés sora rögtön látszik (odagörget)"
+},
+{
 "id": "e0ac088bb0",
 "at": "2026-11-25T13:58:13+01:00",
 "msg": "Csatolt fájl: nem a szövegbe kerül, hanem kártyaként a szövegdoboz alatt (levehető), a hozzászólásban és az e-mailben fájlkártya"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "8426c7f914",
 "at": "2026-11-24T21:55:07+01:00",
 "msg": "Jóváhagyó oldal: új javítási útmutató szöveg; az „Időkód beszúrása” gomb neve visszakerült, az eszköztár így is egy sorban"
-},
-{
-"id": "89394779a0",
-"at": "2026-11-24T21:52:22+01:00",
-"msg": "Jóváhagyó oldal: Gmail-szerű formázó eszköztár egy sorban az időkód gombbal (betűtípus, méret, félkövér, dőlt, aláhúzott, szín, igazítás, listák, behúzás, áthúzás, formázás törlése); az appban és az e-mailben is így jelenik meg"
 }
 ];
 const allowed = require('./_auth.js');
