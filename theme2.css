@@ -3291,3 +3291,14 @@ html body .pml-row:has(.pml-prev,.pml-prev-skip){flex-wrap:wrap;row-gap:6px}
 html body .pml-row .pml-prev{flex:1 1 calc(100% - 26px);box-sizing:border-box;display:flex;gap:8px;align-items:flex-start;margin:2px 0 0 26px;padding:8px 10px;background:#f3f8fc;border:1px solid #d3e3f0;border-radius:8px;font-size:13px;line-height:1.4;cursor:pointer}
 html body .pml-row .pml-prev input{margin-top:2px;flex:none}
 html body .pml-row .pml-prev-skip{flex:1 1 calc(100% - 26px);margin:2px 0 0 26px;font-size:12.5px}
+.md-li{display:flex;align-items:baseline;max-width:100%}.md-li .md-m{flex:none}.md-li .md-t{flex:1 1 auto;min-width:0}
+a.md-a{overflow-wrap:anywhere;word-break:break-word}
+.vv-att{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.vv-att-btn{align-self:flex-start;border:1px dashed var(--line,#d5dbe3);background:transparent;border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;font-weight:600;color:var(--fg-2,#44505c);cursor:pointer}
+.vv-att-btn:hover{background:var(--soft,#f3f5f8)}
+.vv-att-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.vv-att-n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vv-att-bar{flex:0 0 90px;height:5px;border-radius:3px;background:#e6e9ee;overflow:hidden}.vv-att-bar i{display:block;height:100%;background:#9aa4b0;transition:width .2s}
+.vv-att-row.ok .vv-att-bar i{background:#2e7d4f}.vv-att-row.bad .vv-att-st{color:#b4442f}
+.vv-att-st{flex:none;color:var(--muted,#6b7684)}
+.vv-cm-new.vv-drop{outline:2px dashed #7aa7d6;outline-offset:3px;border-radius:10px}

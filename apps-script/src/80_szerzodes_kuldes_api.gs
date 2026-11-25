@@ -517,6 +517,8 @@ function rpcInner_(token, name, arg) {
     case 'videoReviewBatch': return videoReviewBatch_(u, arg);
     case 'videoClient': return videoClient_(u, arg);
     case 'videoComment': return videoComment_(u, arg);
+    case 'vidUpStart': return vidUpStart_(u, arg);   // fájl csatolása a videó hozzászólásához
+    case 'vidUpChunk': return vidUpChunk_(u, arg);
     case 'postNotes': return postNotes_(u, arg);
     case 'postNoteAct': return postNoteAct_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);

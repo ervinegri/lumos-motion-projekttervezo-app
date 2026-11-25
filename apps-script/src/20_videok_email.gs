@@ -1395,6 +1395,46 @@ function cupDone_(t, u, fileId) {
   return { done: true, name: u.name, url: url, size: sz };
 }
 
+/* ===== Belső fájlcsatolás a videó hozzászólásához (vezetők és a projekt vágója): logó, grafika, segédanyag a vágáshoz =====
+   Ugyanúgy darabokban, a Drive folytatható feltöltésével (max. 300 MB); helye: a projekt Drive-mappája / „Anyagok a vágáshoz”.
+   Kész feltöltés után a link a hozzászólás szövegébe kerül (a felület teszi be), és a hozzászólással együtt megy ki. */
+function vupCheck_(u, pid, vid) {
+  const mgr = u.role === 'admin' || u.role === 'editor';
+  if (!mgr && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó')) throw new Error('FORBIDDEN: Csak a vezetők és a projekt vágója csatolhat fájlt.');
+  const p = readAll_('projects').find(x => x.id === pid); if (!p) throw new Error('A projekt nem található.');
+  const v = parseVideos_(p.videos).find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+  return { p: p, v: v };
+}
+function vidUpStart_(u, a) {
+  a = a || {}; const pid = str_(a.projectId, 64), vid = str_(a.id, 40), x = vupCheck_(u, pid, vid);
+  const name = String(a.name || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').trim().slice(0, 150) || 'fajl', size = Math.round(Number(a.size) || 0);
+  if (CUP_BAD.test(name)) throw new Error('Ilyen típusú fájl (program, parancsfájl) nem tölthető fel. Ha mégis szükséges, csomagold ZIP-be.');
+  if (!(size > 0)) throw new Error('Üres fájl nem tölthető fel.'); if (size > CUP_MAX) throw new Error('A fájl legfeljebb 300 MB lehet. Nagyobb anyagot letöltési linkkel küldj.');
+  const C = CacheService.getScriptCache(), dk = 'vupN_' + u.id + '_' + today_(), n = Number(C.get(dk) || 0); if (n >= 150) throw new Error('Mára elérted a feltölthető fájlok számát.'); C.put(dk, String(n + 1), 21600);
+  const mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(a.mime || '')) ? String(a.mime) : 'application/octet-stream';
+  const root = DriveApp.getFolderById(createProjectFolder_(u, { id: pid }).folderId), folder = folderPath_(root, 'Anyagok a vágáshoz', {}), fname = uniqueName_(folder, name);
+  const res = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true', { method: 'post', contentType: 'application/json; charset=UTF-8', muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type': mime, 'X-Upload-Content-Length': String(size) },
+    payload: JSON.stringify({ name: fname, parents: [folder.getId()], mimeType: mime, description: u.name + ' csatolta a videóhoz · ' + x.p.name + ' · ' + x.v.name }) });
+  const loc = res.getHeaders()['Location'] || res.getHeaders()['location']; if (res.getResponseCode() >= 300 || !loc) throw new Error('A feltöltés most nem indítható (' + res.getResponseCode() + '). Kérlek, próbáld újra.');
+  const id = Utilities.getUuid(); C.put('vup_' + id, JSON.stringify({ loc: loc, p: pid, v: vid, name: fname, size: size, uid: u.id }), 21600);
+  return { upId: id, chunk: CUP_CHUNK, name: fname };
+}
+function vidUpChunk_(u, a) {
+  a = a || {}; const C = CacheService.getScriptCache(), upId = str_(a.upId, 64), raw = C.get('vup_' + upId); if (!raw) throw new Error('A feltöltés lejárt – kérlek, kezdd újra.');
+  const r = JSON.parse(raw); if (r.uid !== u.id) throw new Error('Hibás feltöltés.');
+  const bytes = Utilities.base64Decode(String(a.b64 || '')), off = Math.round(Number(a.offset) || 0), end = off + bytes.length - 1;
+  if (!bytes.length || end >= r.size || (bytes.length !== CUP_CHUNK && end !== r.size - 1)) throw new Error('Hibás feltöltési darab.');
+  const res = UrlFetchApp.fetch(r.loc, { method: 'put', contentType: 'application/octet-stream', payload: bytes, muteHttpExceptions: true, headers: { 'Content-Range': 'bytes ' + off + '-' + end + '/' + r.size } });
+  const code = res.getResponseCode();
+  if (code === 308) { const rg = String(res.getHeaders()['Range'] || res.getHeaders()['range'] || ''), m = /-(\d+)$/.exec(rg); return { next: m ? Number(m[1]) + 1 : end + 1 }; }
+  if (code !== 200 && code !== 201) throw new Error('A feltöltés megszakadt (' + code + ') – kérlek, próbáld újra.');
+  const f = JSON.parse(res.getContentText() || '{}'); C.remove('vup_' + upId);
+  const mb = r.size / 1048576, sz = mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(r.size / 1024)) + ' KB';
+  try { logEvent_(u, 'Fájl csatolva a videóhoz', r.name, sz); } catch (e) {}
+  return { done: true, name: r.name, url: 'https://drive.google.com/file/d/' + f.id + '/view', size: sz };
+}
+
 /** az ügyfél formázott üzenete e-mailben: **félkövér**, _dőlt_, „- ” felsorolás → HTML (biztonságosan, előbb escape) */
 /* Gmail-szerű formázás jelölései (a jóváhagyó oldallal és az appal egyezően) */
 var BB_FONT={sans:'Arial,Helvetica,sans-serif',serif:"'Times New Roman',Times,serif",mono:"'Courier New',Courier,monospace",wide:"'Arial Black',Arial,sans-serif",narrow:"'Arial Narrow',Arial,sans-serif",comic:"'Comic Sans MS',cursive",georgia:'Georgia,serif',verdana:'Verdana,sans-serif'};
