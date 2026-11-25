@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "aa2ef75256",
+"at": "2026-11-25T15:17:58+01:00",
+"msg": "„Ellenőrizd” értesítő a vezetőknek: megszólítás nélkül"
+},
+{
 "id": "857242ec1b",
 "at": "2026-11-25T15:16:49+01:00",
 "msg": "Nyersanyag-levél: az elavult leadási mondat kikerült"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "91b1e0cbec",
 "at": "2026-11-25T08:06:09+01:00",
 "msg": "Lehetőség kártya: az „Új ajánlat ennek az ügyfélnek” gomb csak a megnyitott lehetőség ablakában"
-},
-{
-"id": "b31750a8da",
-"at": "2026-11-25T08:05:13+01:00",
-"msg": "Lehetőség ablak: az ügyfél ajánlatainak listája (kiküldött / mentett, kattintásra megnyílik) és „＋ Új ajánlat ennek az ügyfélnek” gomb"
 }
 ];
 const allowed = require('./_auth.js');
