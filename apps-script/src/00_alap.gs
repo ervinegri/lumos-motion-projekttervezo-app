@@ -106,7 +106,7 @@ const TABLES = {
   payStatus: { tab: 'Számlák és kifizetések', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['invoicedAt', 'Számlát kiállította'], ['invoicedBy', 'Rögzítette (számla)'], ['paidAt', 'Számla fizetve'], ['paidBy', 'Rögzítette (fizetés)'], ['invoiceNo', 'Számlaszám (NAV)'], ['invoiceNet', 'Számla nettó (NAV)'], ['invoiceTax', 'Szállító adószáma (NAV)'], ['invoiceMatch', 'Összeg egyezik (ok / diff)']] },
   paySent: { tab: 'Díjösszesítők', cols: [
-    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte'], ['subject', 'Tárgy'], ['html', 'A kiküldött levél (HTML)']] },
+    ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['email', 'E-mail'], ['amount', 'Kifizetendő (nettó Ft)'], ['sentAt', 'Kiküldve'], ['sentBy', 'Küldte'], ['subject', 'Tárgy'], ['html', 'A kiküldött levél (HTML)'], ['incl', 'Belefoglalt korábbi hónapok (JSON)']] },
   payAdjust: { tab: 'Fizetési korrekciók', cols: [
     ['id', 'Azonosító (ne módosítsd)'], ['month', 'Hónap'], ['crewId', 'Munkatárs azonosító'], ['crewName', 'Munkatárs'], ['amount', 'Korrekció (nettó Ft, + / −)'], ['note', 'Megjegyzés'], ['updatedAt', 'Módosítva'], ['updatedBy', 'Módosította']] },
   deals: { tab: 'Értékesítés', cols: [

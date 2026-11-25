@@ -385,6 +385,17 @@ function payStatementData(month,cid){
   const ajs=(S.payAdjust||[]).filter(x=>x.crewId===cid&&String(x.month)===month&&num(x.amount)),adj=ajs.reduce((s,x)=>s+num(x.amount),0);
   const total=rows.reduce((s,r)=>s+r.fee-r.ded,0)+rent+adj;
   return {month,crewId:cid,rows,pens,rent,adj,adjs:ajs.map(x=>({amount:num(x.amount),note:x.note||'',by:[x.updatedBy,stamp(x.updatedAt)].filter(Boolean).join(', ')})),total,retained:Math.max(0,retainedBal(cid,month,false).bal)};}
+/* Korábbi hónapok elmaradása egy díjösszesítőben: a kiküldött összesítő „incl” mezője sorolja fel, mely korábbi hónapok összegét foglalta magába.
+   Az így belefoglalt hónap külön már nem fizetendő (az egyenlegben a későbbi hónap viszi), és nem küldünk rá külön összesítőt. */
+const nextYM=x=>{const y=+x.slice(0,4),k=+x.slice(5,7);return new Date(Date.UTC(y,k,1)).toISOString().slice(0,7);};
+function payIncl(y){if(!y||!y.incl)return [];try{const v=typeof y.incl==='string'?JSON.parse(y.incl):y.incl;return Array.isArray(v)?v.filter(z=>z&&/^\d{4}-\d{2}$/.test(String(z.m))):[];}catch(e){return [];}}
+const payInclSum=y=>payIncl(y).reduce((a,z)=>a+num(z.amt),0);
+function payRolledInto(cid,m){return (S.paySent||[]).find(y=>y.crewId===cid&&String(y.month)>m&&payIncl(y).some(z=>String(z.m)===m))||null;}
+/* a kiválasztott hónap előtti, még ki nem számlázott és ki nem fizetett hónapok (ezek tehetők bele a mostani összesítőbe); a már kiszámlázott, de még nem fizetett hónap külön marad */
+function payPrevOpen(month,cid){const items=[],skip=[];for(let m=PAY_START;m<month;m=nextYM(m)){if(payRolledInto(cid,m))continue;
+    const sx=(S.paySent||[]).find(y=>y.crewId===cid&&String(y.month)===m),st=(S.payStatus||[]).find(y=>y.crewId===cid&&String(y.month)===m)||{};
+    const due=sx?Math.round(num(sx.amount)):Math.round(payStatementData(m,cid).total);if(!due||st.paidAt)continue;if(st.invoicedAt){skip.push({m,amt:due});continue;}items.push({m,amt:due,sent:!!sx});}
+  return {items,skip,sum:items.reduce((a,x)=>a+x.amt,0)};}
 const ftCell=n=>{const v=moneyFmt(n);return v?v+'\u00a0Ft':v;};   // kifizetések táblázat: összeg Ft-tal
 function viewPayouts(){
   const crewMode=ro()||isSales(),noSum=crewMode||!isAdmin(),myId=crewMode?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
@@ -420,7 +431,8 @@ function viewPayouts(){
   const empC=c=>isEmployee(crewById(c));
   const nameOf=c=>(crewById(c)||{}).name||(S.crewNames||{})[c]||(crewMode?(S.me.viewAs&&S.me.viewAs.crewName)||S.me.name:'Munkatárs');
   const stCell=(c,f)=>{if(f!=='paid'&&empC(c))return `<td class="r pay-st"><span class="muted" data-tip="Bérszámfejtett (munkaviszony / megbízás) – a könyvelő számfejti, nem állít ki számlát">bér</span></td>`;
-    const adm=isAdmin()&&!crewMode,cur=Math.round(colSum(c)),sx=sentOf(c);
+    const ro2=payRolledInto(c,sel);if(ro2){const ml=F_YM.format(toDate(ro2.month+'-01'));return `<td class="r pay-st"><span class="pst-sent" tabindex="0" data-tip="${esc(`↪ Ennek a hónapnak az összege a ${ml}i díjösszesítővel együtt ment ki (${ro2.sentAt||''}) – a számla és a kifizetés ott követhető.`)}">↪ ${esc(ml.replace(/^\d{4}\.\s*/,''))}</span></td>`;}
+    const adm=isAdmin()&&!crewMode,sx=sentOf(c),cur=Math.round(colSum(c))+(sx?payInclSum(sx):0);   // a korábbi hónapokat is magába foglaló összesítőnél azok összege is hozzáadódik
     if(f==='sent'){const s=sx,chg=s&&Math.round(num(s.amount))!==cur;
       const tip=s?esc(`📧 Kiküldve: ${s.sentAt}${s.sentBy?' · '+s.sentBy:''}\nCímzett: ${s.email||'–'}\nÖsszeg: ${ftFmt(num(s.amount))}${s.subject?'\nTárgy: '+s.subject:''}${chg?`\nℹ️ Azóta változott: most ${ftFmt(cur)} – érdemes újraküldeni`:''}`):'';
       const sendBtn=adm?`<button class="pst-act${s?'':' full'}" type="button" data-action="pay-mail" data-month="${sel}" data-cid="${esc(c)}" data-tip="${esc((s?'Díjösszesítő újraküldése: ':'Díjösszesítő kiküldése: ')+nameOf(c))}">${s?'újraküldés':'küldés'} 📧</button>`:'';
@@ -449,6 +461,7 @@ function viewPayouts(){
   const monthDue=(m,c)=>Object.values(by[m]||{}).reduce((a,r)=>a+num(r.cells[c]),0)+rent(c)+(S.payAdjust||[]).filter(x=>x.crewId===c&&String(x.month)===m).reduce((a,x)=>a+num(x.amount),0)+((salesPayOf(m,c)||{}).total||0);   // szakember nézet: a saját díjaiból (a projekt díjlistáját nem kapja meg)
   const owe=c=>{const items=[];let bal=0;   // még kifizetendő: hónaponként a kiküldött díjösszesítő (ha még nem ment ki, az aktuális összeg), mínusz amit már kifizettünk – PAY_START-tól a kiválasztott hónapig
     for(let m=PAY_START;m<=sel;m=(x=>{const y=Number(x.slice(0,4)),k=Number(x.slice(5,7));return new Date(Date.UTC(y,k,1)).toISOString().slice(0,7);})(m)){
+      if(payRolledInto(c,m))continue;   // egy későbbi díjösszesítő már magába foglalta
       const sx=(S.paySent||[]).find(y=>y.crewId===c&&String(y.month)===m),due=sx?Math.round(num(sx.amount)):Math.round(crewMode?monthDue(m,c):payStatementData(m,c).total);if(!due)continue;
       const st=(S.payStatus||[]).find(y=>y.crewId===c&&String(y.month)===m)||{},paid=st.paidAt?(st.invoiceNo?Math.round(num(st.invoiceNet)):due):0;bal+=due-paid;items.push({m,due,paid,sent:!!sx});}
     return {bal,items};};
