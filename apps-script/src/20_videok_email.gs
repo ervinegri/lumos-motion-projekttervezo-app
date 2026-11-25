@@ -99,8 +99,10 @@ function videoReview_(u, a) {
   const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid);
   const mk = em => { const first = huFirst_(String((SIG_DEFAULTS_[em] || {}).name || ''));
     const vn = vShort_(v ? v.name : 'videó'), who = huFirst_(u.name) || u.name;
-    const text = who + ' ellenőrzésre küldte: ' + vn + ' (' + p.name + ').' + (note ? '\n\n' + note : '') + '\n\n' + url;
-    const html = mailCard_('', escapeHtml_(who) + ' ellenőrzésre küldte: <b>' + escapeHtml_(vn) + '</b> <span style="color:#6b7680">(' + escapeHtml_(p.name) + ')</span>', note, url, '▶ Megnézem');
+    /* a levél rögtön az utómunkás üzenetével kezdődik (a munka neve a tárgyban van); üzenet nélkül egy rövid sor */
+    const text = (note ? who + ':\n' + note : who + ' ellenőrzésre küldte, üzenet nélkül.') + '\n\n' + url;
+    const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:520px">' + (note ? '<p style="margin:0 0 4px;font-size:13px;color:#6b7680">' + escapeHtml_(who) + ':</p><p style="margin:0 0 16px">' + escapeHtml_(note).replace(/\n/g, '<br>') + '</p>' : '<p style="margin:0 0 16px">' + escapeHtml_(who) + ' ellenőrzésre küldte, üzenet nélkül.</p>')
+      + '<p style="margin:0 0 18px"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:10px 18px;border-radius:8px">▶ Megnézem</a></p></div>';
     return { text: text, html: html }; };
   if (a.noMail) return { project: projectView_(fullProject_(p), u), mail: false, name: v ? v.name : 'videó', pname: p.name, pid: pid, vid: vid, link: link };   // csoportos küldés: egy közös levél megy
   let mail = false; tos.forEach(em => { const m = mk(em); try { if (gmailSend_(em, 'Ellenőrizd: ' + vShort_(v ? v.name : 'videó') + ' · ' + p.name, m.text, { htmlBody: m.html, name: 'Lumos Motion Projekttervező' })) mail = true; } catch (e) { Logger.log('Ellenőrzés e-mail hiba: ' + e); } });
