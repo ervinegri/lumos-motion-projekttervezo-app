@@ -33,3 +33,7 @@ A felhasználó által beírt szöveget SOHA nem vágjuk le csendben. A backend 
 Az „Apps Script telepítés” workflow `continue-on-error: true`, ezért a futás MINDIG „success”-nek látszik, akkor is, ha nem települt.
 Telepítés után a `backend-status.json` (`ok`) és a futás naplója (`gh run view <id> --log | grep "Verziók száma\|Created version"`) a mérvadó.
 200 verziónál a telepítés leáll: Ervinnek kell az Apps Script szerkesztőben a régi verziókat törölnie (Projekt előzményei → Verziók tömeges törlése).
+
+## Szakember-adatvédelem (2026-11-25) – SZIGORÚ
+A szakember (és a szakember-nézet) soha nem láthat másra vonatkozó adatot vagy figyelmeztetést: más díját, díjcsökkentését, jegyzetét, meghívását, e-mail-címét, más projektjeit vagy „X-nek nincs …” típusú jelzést.
+Új figyelmeztetés / jelzés csak `!ro()` mellett jelenhet meg; a háttér `projectView_` / `bootstrap_` szűrését ne lazítsd. A `tests/crew-privacy.test.cjs` ezt őrzi.
