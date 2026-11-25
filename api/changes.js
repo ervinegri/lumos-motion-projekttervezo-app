@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7d9edc75d6",
+"at": "2026-11-25T12:11:53+01:00",
+"msg": "Díjösszesítő-ablak: rendezett tördelés az előző hónapok sorával; korrekció / kiküldés után minden nyitott nézet frissül, a nyitott előnézet a friss adatból"
+},
+{
 "id": "7ef6d5697d",
 "at": "2026-11-25T12:05:16+01:00",
 "msg": "Díjösszesítő: az előző hónapok még ki nem számlázott összege is belefoglalható (egy számla), a belefoglalt hónap az egyenlegben nem számít kétszer"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "9a630fe01b",
 "at": "2026-11-24T21:30:40+01:00",
 "msg": "Kifizetve, de nincs számla: a Rezsi/Marketing/Elvetés után a tétel nem jön vissza (friss adatból válaszol a szerver, párhuzamos kattintások sem hozzák vissza)"
-},
-{
-"id": "ad97f962bb",
-"at": "2026-11-24T22:29:03+02:00",
-"msg": "Jóváhagyó oldal: az ügyfél fájlt csatolhat (logó, grafika, arculat, segédlet – max. 300 MB, darabolt feltöltés a projekt Drive-mappájába, link a hozzászólások között, értesítés); a formázott üzenet e-mailben is formázva"
 }
 ];
 const allowed = require('./_auth.js');
