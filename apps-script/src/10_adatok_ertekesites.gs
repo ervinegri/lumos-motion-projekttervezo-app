@@ -109,6 +109,7 @@ function noNegotiationOnce_() {
 function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lépések kimaradnak (gyorsabb) – a következő normál betöltés elvégzi
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   if (!light) {
+    if (u.role === 'admin') { try { migJegvarazsBack_(); } catch (e) { Logger.log('Jégvarázs visszaállítás: ' + e); } }
     try { migrateEmployeesOnce_(); } catch (e) {}
     try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') erVideosOnce_(); } catch (e) {} try { if (u.role === 'admin') noNegotiationOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteStoreMigrateOnce_(); } catch (e) {} try { if (u.role === 'admin') loanDupMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') loanFixOnce_(); } catch (e) {} try { if (u.role === 'admin') loanFixOnce2_(); } catch (e) {} try { if (u.role === 'admin') szDocCrewRetryOnce_(); } catch (e) {} try { if (u.role === 'admin') szDocExpDupOnce_(); } catch (e) {} try { if (u.role === 'admin') calAdminGuestCleanOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteValueOnce_(); } catch (e) {} try { if (u.role === 'admin') orgFeeFixOnce_(); } catch (e) {} try { if (u.role === 'admin') doneBackfillOnce_(); } catch (e) {} try { if (u.role === 'admin') crewRoleFixOnce_(); } catch (e) {} try { if (u.role === 'admin') finFixSep2026Once_(); } catch (e) {} try { if (u.role === 'admin') fixQueensRefOnce_(); } catch (e) {} try { if (u.role === 'admin') hsDealImportOnce_(); } catch (e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · HubSpot-deal áthozatal: ' + String(e && e.message || e).slice(0, 200)); } catch (x) {} }
     try { migrateFinalizedOnce_(); } catch (e) {}
@@ -467,3 +468,13 @@ function parseRentals_(raw) {
     .filter(x => x.name);
 }
 let CREW_MAP_CACHE_ = null;
+
+/* Egyszeri (Ervin kérése, 2026-11-25): a „Jégvarázs Klíma November” projekt vissza a Helyszíni munka lépésre, hogy a termelési vezető
+   az új folyamattal (nyersanyag-kérdés + e-mail a vágónak) húzza át az Utómunkába; addig a vágó kártyái zárva. Csak ha a videók még az elején tartanak. */
+function migJegvarazsBack_() { const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_JEGV_BACK_1')) return;
+  withLock_(() => { const p0 = readAll_('projects').find(x => /^Jégvarázs Klíma November$/i.test(String(x.name || '').trim())); if (!p0) { P.setProperty('MIG_JEGV_BACK_1', 'nincs'); return; }
+    const sh = sheetFor_('projects'), row = findRow_(sh, p0.id); if (!row) return; const p = readRow_('projects', sh, row);
+    if (p.status !== 'utomunka' || parseVideos_(p.videos).some(v => v.st && v.st !== 'vagasra')) { P.setProperty('MIG_JEGV_BACK_1', 'kihagyva:' + p.status); return; }
+    p.status = 'helyszin'; p.rawSentAt = ''; p.stepsDone = String(p.stepsDone || '').split(',').filter(x => x && x !== 'helyszin' && x !== 'utomunka' && x !== 'jovahagyas').join(',');
+    putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); P.setProperty('MIG_JEGV_BACK_1', 'kész ' + now_()); });
+  try { logEvent_({ name: 'Rendszer' }, 'Projekt vissza a Helyszíni munkára', 'Jégvarázs Klíma November', 'az új nyersanyag-folyamathoz (Ervin kérése)'); } catch (e) {} }
