@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b86c97382d",
+"at": "2026-11-25T16:17:37+01:00",
+"msg": "Szakember nézet: a projekt-figyelmeztetések (mások ügyei) soha nem látszanak; az e-mail-hiány figyelmeztetés csak betöltött címeknél"
+},
+{
 "id": "41c8533f61",
 "at": "2026-11-25T16:16:51+01:00",
 "msg": "Zár ikon: kinyitva jól láthatóan nyitott lakat (saját rajzolt ikon az emoji helyett)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az időkód mindig kék csipp (dőlt szövegben, listában, kézzel beírva vagy beillesztve is)"
 },
 {
-"id": "499ea8f6da",
-"at": "2026-11-25T14:17:14+01:00",
-"msg": "Feltöltés: kész fájl zöld pipával (bemutatóban is), belső feltöltés közben a lap bezárása előtt figyelmeztetés"
-},
-{
-"id": "4db577f38c",
-"at": "2026-11-25T13:10:07Z",
+"id": "301678fbb8",
+"at": "2026-11-25T13:17:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
