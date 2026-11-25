@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e0c85f9cc",
+"at": "2026-11-25T14:36:01+01:00",
+"msg": "Csatolt fájlok megosztása csak az utómunkásokkal (vágók), értesítő levél nélkül"
+},
+{
 "id": "7ea0ae254d",
 "at": "2026-11-25T14:31:13+01:00",
 "msg": "Csatolt fájlok csendes megosztása mindenkivel, aki a projekten dolgozik (bármely szerep, a videók vágói); feltöltéskor, küldéskor és a videó megnyitásakor (önjavító)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "0aa940e9c3",
 "at": "2026-11-24T22:19:28+01:00",
 "msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb helyén jelenik meg, a megírt üzenet és a csatolt fájlok látszanak"
-},
-{
-"id": "c99a47abc4",
-"at": "2026-11-24T22:12:26+01:00",
-"msg": "Jóváhagyó oldal: telefonon a videó címe a videó fölött"
 }
 ];
 const allowed = require('./_auth.js');
