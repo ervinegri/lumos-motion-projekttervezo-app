@@ -3277,3 +3277,11 @@ html body .dl-qrow{display:flex;justify-content:space-between;align-items:center
 html body .dl-qrow:hover{border-color:var(--accent,#2563eb)}html body .dl-qrow.cur{background:rgba(37,99,235,.06)}
 html body .dl-qr-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html body .dl-qr-m{color:var(--muted,#6b7480);font-size:12.5px;white-space:nowrap}
 @media (max-width:640px){html body .dl-qrow{flex-direction:column;align-items:flex-start;gap:2px}}
+
+/* árajánlat tételek: húzással rendezhető (a sorszámot fogd meg) */
+html body .q-row .q-no{cursor:grab;user-select:none;position:relative}html body .q-row .q-no .q-grip{display:none;font-style:normal;color:#8a94a0;font-size:15px}
+html body .q-row:hover .q-no .q-grip{display:inline}html body .q-row:hover .q-no b{display:none}
+html body .q-row.q-dragging{opacity:.45}html body .q-row.q-over-top{box-shadow:inset 0 3px 0 var(--accent,#2563eb)}html body .q-row.q-over-bot{box-shadow:inset 0 -3px 0 var(--accent,#2563eb)}
+html body .q-no b{font-weight:inherit}
+
+html body .dl-qgrp{display:flex;flex-direction:column;gap:3px}html body .dl-qold:empty{display:none}html body .dl-qold{display:flex;flex-direction:column;gap:3px;padding-left:14px}html body .dl-qrow-old{background:transparent;font-size:13px}html body .dl-qrow-old .dl-qr-t{font-weight:500;color:var(--muted,#6b7480)}

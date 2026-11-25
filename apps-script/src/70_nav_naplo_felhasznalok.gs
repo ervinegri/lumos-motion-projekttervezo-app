@@ -690,6 +690,9 @@ function quoteSent_(u, a) {
     qPut_('QS_' + d.id, ({ at: nm[1] || now_(), by: nm[2] || u.name, to: nm[3] || '', total: Number(String(nm[4] || '').replace(/\s/g, '')) || 0, fileId: fid, q: null, uploaded: u.name }));
     try { dataBump_(); } catch (e) {} a = { dealId: d.id, op: 'pdf' };
   }
+  if (a.op === 'hist') return quoteHist_(d);
+  if (a.at) {   // egy korábbi kiküldés PDF-je
+    const m0 = quoteSentAt_(d, str_(a.at, 30)); if (!m0) return null; const b64 = Utilities.base64Encode(DriveApp.getFileById(m0.fileId).getBlob().getBytes()); const r0 = Object.assign({}, m0); delete r0.fileId; r0.b64 = b64; r0.old = true; return r0; }
   let v = qGet_('QS_' + d.id); v = v ? JSON.stringify(v) : null;
   if (!v) { try { v = quoteSentRecover_(d); } catch (e) { Logger.log('Ajánlat visszakeresése: ' + e); } }   // a funkció előtt küldött ajánlat: a PDF visszakeresése a levelek közül
   if (!v) return null;
@@ -697,6 +700,17 @@ function quoteSent_(u, a) {
   if (a.op === 'pdf') { const b64 = Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()); delete m.fileId; m.b64 = b64; return m; }   // a PDF az adataival együtt
   delete m.fileId; return m;
 }
+/* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
+function quoteSends_(d) { const out = [], re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/g; let m; const t = String(d.note || ''); while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0 }); return out; }
+function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
+function quoteSentAt_(d, at) { at = String(at || '').slice(0, 16); const st = quoteStore_(d), hit = st.find(x => String(x.at || '').slice(0, 16) === at && x.fileId); if (hit) return hit;
+  const sd = quoteSends_(d).find(x => x.at === at); if (!sd) return null;
+  /* a funkció előtt felülírt kiküldés: a PDF a Drive mappában (a küldéskor mentett fájl) – a küldés ideje körül létrehozott, azonos napi fájl */
+  const t0 = new Date(at.replace(' ', 'T') + ':00').getTime(), it = quoteFolder_().getFilesByType('application/pdf'); let best = null, bd = 1e12;
+  while (it.hasNext()) { const f = it.next(); if (f.getName().indexOf(at.slice(0, 10)) !== 0) continue; const dt = Math.abs(f.getDateCreated().getTime() - t0); if (dt < 20 * 60e3 && dt < bd) { best = f; bd = dt; } }
+  if (!best) return null; const meta = { at: at, by: sd.by, to: sd.to, total: sd.total, fileId: best.getId(), q: null, recovered: true };
+  const H = qGet_('QSH_' + d.id); const L = (H && H.list) || []; L.push(meta); qPut_('QSH_' + d.id, { at: now_(), list: L.slice(0, 20) }); return meta; }
+function quoteHist_(d) { const st = quoteStore_(d), cur = qGet_('QS_' + d.id); return quoteSends_(d).map(x => ({ at: x.at, by: x.by, to: x.to, total: x.total, cur: !!(cur && String(cur.at || '').slice(0, 16) === x.at), has: st.some(y => String(y.at || '').slice(0, 16) === x.at) })); }
 /* Árajánlat-piszkozat: lehetőségenként egy mentett (még ki nem küldött) ajánlat – bármelyik eszközről folytatható; küldéskor törlődik. */
 function quoteDraft_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
@@ -728,6 +742,7 @@ function dealQuoteSend_(u, a) {
     const fid = quoteFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd') + ' ' + fname)).getId();
     const q = a.q && typeof a.q === 'object' ? a.q : null; if (q) ['_pdf', '_pdfP', 'sig'].forEach(k => { delete q[k]; });
     let meta = { at: now_(), by: u.name, to: tos.join(', '), total: Number(a.total) || 0, fileId: fid, q: q };
+    { const old = qGet_('QS_' + d.id); if (old && old.fileId) { const H = qGet_('QSH_' + d.id); const L = (H && H.list) || []; L.unshift(old); qPut_('QSH_' + d.id, { at: now_(), list: L.slice(0, 20) }); } }   // a korábbi kiküldött ajánlat megmarad (előzmények)
     qPut_('QS_' + d.id, meta);
   } catch (e) { Logger.log('Kiküldött ajánlat mentése: ' + e); }
   try { deals = dealsFor_(u); } catch (e) { }
