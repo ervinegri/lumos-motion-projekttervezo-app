@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c98b8cc9ff",
+"at": "2026-11-25T16:00:32+01:00",
+"msg": "Projektoldal: egyforma távolság minden panel között"
+},
+{
 "id": "3a599348f4",
 "at": "2026-11-25T15:57:53+01:00",
 "msg": "Lemondott projektnél a számlázás panel kezelhető marad"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fájl csatolásakor a feltöltés sora rögtön látszik (odagörget)"
 },
 {
-"id": "e0ac088bb0",
-"at": "2026-11-25T13:58:13+01:00",
-"msg": "Csatolt fájl: nem a szövegbe kerül, hanem kártyaként a szövegdoboz alatt (levehető), a hozzászólásban és az e-mailben fájlkártya"
-},
-{
-"id": "e78ca2f67f",
-"at": "2026-11-25T12:50:26Z",
+"id": "23afcb1957",
+"at": "2026-11-25T12:58:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
