@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4fbe88bf92",
+"at": "2026-11-25T15:57:39+01:00",
+"msg": "Projektoldal: a Szerződés és számlázás panel ugyanolyan távolságra, mint az Alapadatok és az Utómunka"
+},
+{
 "id": "d117a6ceaf",
 "at": "2026-11-25T15:52:02+01:00",
 "msg": "Díjcsökkentés: a példaesetek az illető munkájához igazodnak (forgatás, fotó, hang, vizuáltechnika, streaming, utómunka) a szerződés 10. pontja szerint, forgatási esetekkel; a projekt Szerződés és számlázás része alapból csukva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-hozzászólások: az ügyfél minden bejegyzése (megnyitás, sima hozzászólás) sárga; feltöltésnél százalék és MB"
 },
 {
-"id": "64519f078f",
-"at": "2026-11-25T12:24:58+01:00",
-"msg": "Videó-hozzászólás: fájl csatolása (Drive „Anyagok a vágáshoz”, link a hozzászólásba, húzással is); hosszú linkek rövidítve, a felsorolás tördelése nem esik szét"
-},
-{
-"id": "c0f4bb96d2",
-"at": "2026-11-25T11:12:04Z",
+"id": "95ead91815",
+"at": "2026-11-25T11:25:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
