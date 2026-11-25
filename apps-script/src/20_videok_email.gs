@@ -515,11 +515,11 @@ function clientInfoCore_(t, seen, vid) { const o = clientTokenRead_(t); if (seen
     if (!items.length) throw new Error('A videó nem található.');
     const cur = (vid && items.find(x => x.id === vid)) || items.find(x => x.state === 'wait') || items[0]; o.v = cur.id;
     const r2 = clientVideo_(o); let wm2 = false; try { wm2 = wmActive_(r2.p); } catch (e) { }
-    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, k: r2.v.k, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st), rounds: vidClientRounds_(r2.v), fbLast: !o.pv && stOf(r2.v.st) === 'mod' ? vidClientLastFb_(r2.v) : '' };
+    return { preview: !!o.pv, items: items.map(x => o.pv ? Object.assign({}, x, { state: 'wait' }) : x), cur: cur.id, wm: wm2, wmName: wm2 ? sval_(r2.p.client) : '', project: sval_(r2.p.name), video: r2.v.name, k: r2.v.k, link: r2.v.link, state: o.pv ? 'wait' : stOf(r2.v.st), rounds: vidClientRounds_(r2.v), fbLast: !o.pv && stOf(r2.v.st) === 'mod' ? vidClientLastFb_(r2.v) : '', up: o.pv ? [] : cupPendList_(r2.v) };
   }
   const r = clientVideo_(o); let wm = false; try { wm = wmActive_(r.p); } catch (e) { }
   if (o.pv) return { preview: true, wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: o.l || r.v.link, state: 'wait', rounds: vidClientRounds_(r.v) };   // belső előnézet: nem számít megnyitásnak, döntés nincs
-  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod', rounds: vidClientRounds_(r.v), fbLast: r.v.st !== 'jovahagyva' && r.v.st !== 'leadva' ? vidClientLastFb_(r.v) : '' }; }
+  return { wm: wm, wmName: wm ? sval_(r.p.client) : '', project: sval_(r.p.name), video: r.v.name, k: r.v.k, link: r.v.link, state: r.v.st === 'jovahagyva' ? 'ok' : r.v.st === 'leadva' ? 'wait' : 'mod', rounds: vidClientRounds_(r.v), fbLast: r.v.st !== 'jovahagyva' && r.v.st !== 'leadva' ? vidClientLastFb_(r.v) : '', up: cupPendList_(r.v) }; }
 /** Belső előnézet a küldő ablakból: ugyanaz az oldal, amit az ügyfél kap – megnyitásnak nem számít, dönteni nem lehet. */
 function clientPreview_(u, a) {
   if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN');
@@ -544,6 +544,8 @@ function clientDecide_(t, d, fb, vid) { PAID_Q_ = false;
   if (d === 'note') throw new Error('Üzenetet a jóváhagyással együtt tudsz küldeni.');   // külön üzenet jóváhagyás után már nincs
   if (r.v.st !== 'leadva') return clientInfo_(t, false, o.v);   // már döntöttek (vagy visszakerült az utómunkába)
   const who = { id: 'client', name: clientFirst_(r.p, String(o.c || '').split(',')[0]), email: '', role: 'editor', crewId: '' };
+  if (d === 'mod' && !fb.length) throw new Error('Írd le röviden, mit módosítsunk.');
+  { const F = (d === 'ok' || d === 'mod') ? cupPendTake_(o) : []; if (F.length) fb = (fb ? fb + '\n' : (d === 'ok' ? 'Csatolt fájlok:\n' : '')) + F.join('\n'); }   // a csatolt (várakozó) fájlok az üzenettel együtt mennek
   if (d === 'ok') { videoSet_(who, { projectId: o.p, id: o.v, st: 'jovahagyva' });
     withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v) return;
       v.cm = (v.cm || []).concat([{ by: who.name, at: now_(), t: v.k === 'foto' ? '✅ Jóváhagyta a fotókat' : '✅ Jóváhagyta a videót', ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });   // a hozzászólásoknál is látszik a jóváhagyás
@@ -1383,17 +1385,36 @@ function clientUpChunk_(t, upId, offset, b64) {
   const f = JSON.parse(res.getContentText() || '{}'); C.remove('cup_' + upId);
   return cupDone_(t, u, f.id);
 }
-/** kész feltöltés: hozzászólás a videóhoz + értesítés */
+/** kész feltöltés: PISZKOZAT – a videónál várakozik (upPend), és az ügyfél döntésével (módosításkérés / jóváhagyás) együtt kerül a hozzászólásba és az értesítőbe.
+    Ha 24 órán belül nem küldi el, az éjszakai karbantartás a Drive kukájába teszi (cupPendCleanup_). */
+const CUP_SZ_ = n => { const mb = n / 1048576; return mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; };
+function cupPendList_(v) { const lim = Date.now() - 24 * 3600e3; return (v.upPend || []).filter(x => x && x.fid && new Date(x.at).getTime() > lim).map(x => ({ id: x.fid, name: x.name, size: x.size })); }
 function cupDone_(t, u, fileId) {
-  const c = cupCtx_(t, u.v), url = 'https://drive.google.com/file/d/' + fileId + '/view', mb = (u.size / 1048576), sz = mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(u.size / 1024)) + ' KB';
+  const c = cupCtx_(t, u.v), url = 'https://drive.google.com/file/d/' + fileId + '/view', sz = CUP_SZ_(u.size);
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, u.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === u.v); if (!v) return;
-    v.cm = (v.cm || []).concat([{ by: c.who.name, at: now_(), t: '[file]' + url + '|' + String(u.name).replace(/[|\n]/g, ' ') + '|' + sz, ts: '' }]).slice(-100); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
-  try { if (c.o.s) { const subj = '📎 Fájlt küldött az ügyfél: ' + c.r.v.name + ' – ' + c.r.p.name, link = appUrl_() + '#p=' + u.p + '&v=' + encodeURIComponent(u.v);
-      const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#202124"><div style="font-size:16px;font-weight:bold;margin:0 0 8px">📎 ' + escapeHtml_(c.r.v.name) + '</div><p style="margin:0 0 12px">' + escapeHtml_(c.who.name) + ' fájlt töltött fel a jóváhagyó oldalon:</p>'
-        + '<p style="margin:0 0 16px"><a href="' + escapeHtml_(url) + '" style="font-weight:bold">' + escapeHtml_(u.name) + '</a> <span style="color:#6b7684">(' + sz + ')</span></p><a href="' + escapeHtml_(link) + '" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 18px;border-radius:8px;font-weight:bold">▶ Megnyitás az appban</a></div>';
-      gmailSend_(c.o.s, subj, c.who.name + ' fájlt töltött fel: ' + u.name + ' (' + sz + ')\n' + url + '\n\n' + link, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Feltöltés értesítés: ' + e); }
-  return { done: true, name: u.name, url: url, size: sz };
+    v.upPend = (v.upPend || []).concat([{ fid: fileId, name: String(u.name), size: sz, url: url, at: new Date().toISOString(), by: c.who.name }]).slice(-30); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dbFlush_(); });
+  return { done: true, id: fileId, name: u.name, size: sz };
 }
+/** az ügyfél leveszi a még el nem küldött fájlt: kikerül a várakozók közül, és a Drive kukájába kerül */
+function clientUpDel_(t, vid, fid) {
+  const c = cupCtx_(t, str_(vid, 40)), o = clientTokenRead_(t); fid = str_(fid, 100); let hit = false;
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === c.r.v.id); if (!v) return;
+    const L = v.upPend || []; hit = L.some(x => x.fid === fid); if (!hit) return; v.upPend = L.filter(x => x.fid !== fid); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dbFlush_(); });
+  if (hit) { try { DriveApp.getFileById(fid).setTrashed(true); } catch (e) {} }
+  return { ok: hit };
+}
+/** döntéskor: a várakozó fájlok sorai ([file]link|név|méret) – a hozzászólásba és a levelekbe ezekkel együtt kerül az üzenet; utána a várakozó lista kiürül */
+function cupPendTake_(o) { let L = [];
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, o.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === o.v); if (!v || !(v.upPend || []).length) return;
+    L = v.upPend; v.upPend = []; p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dbFlush_(); });
+  return L.map(x => '[file]' + x.url + '|' + String(x.name).replace(/[|\n]/g, ' ') + '|' + x.size); }
+/** éjszakai karbantartás: a 24 óránál régebbi, el nem küldött ügyfél-feltöltések a Drive kukájába (30 napig visszaállítható) */
+function cupPendCleanup_() { const lim = Date.now() - 24 * 3600e3, trash = [];
+  withLock_(() => { const sh = sheetFor_('projects'); readAll_('projects').forEach(p0 => { if (String(p0.videos || '').indexOf('upPend') < 0) return; const row = findRow_(sh, p0.id); if (!row) return;
+    const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos); let ch = false;
+    vids.forEach(v => { const L = v.upPend || [], keep = L.filter(x => new Date(x.at).getTime() > lim); if (keep.length !== L.length) { L.filter(x => keep.indexOf(x) < 0).forEach(x => trash.push(x.fid)); v.upPend = keep; ch = true; } });
+    if (ch) { p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); } }); dbFlush_(); });
+  trash.forEach(fid => { try { DriveApp.getFileById(fid).setTrashed(true); } catch (e) {} }); return trash.length; }
 
 /* ===== Belső fájlcsatolás a videó hozzászólásához (vezetők és a projekt vágója): logó, grafika, segédanyag a vágáshoz =====
    Ugyanúgy darabokban, a Drive folytatható feltöltésével (max. 300 MB); helye: a projekt Drive-mappája / „Anyagok a vágáshoz”.

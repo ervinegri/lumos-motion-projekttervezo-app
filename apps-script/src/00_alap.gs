@@ -178,6 +178,7 @@ function api_(raw) {
     else if (fn === 'clientReview') return clientReview_(args[0]);
     else if (fn === 'clientInfo') return clientInfo_(args[0], args[1] !== 'preview' && !staffTok_(args[3]), args[2]);   // bejelentkezett csapattag megnyitása nem számít az ügyfél megnyitásának   // nyilvános: az ügyfél jóváhagyó oldala (aláírt kulccsal)
     else if (fn === 'clientDecide') return clientDecide_(args[0], args[1], args[2], args[3]);
+    else if (fn === 'clientUpDel') return clientUpDel_(args[0], args[1], args[2]);
     else if (fn === 'clientUpStart') return clientUpStart_(args[0], args[1], args[2], args[3], args[4]);   // nyilvános (aláírt kulccsal): az ügyfél fájlfeltöltése
     else if (fn === 'clientUpChunk') return clientUpChunk_(args[0], args[1], args[2], args[3]);
     else if (fn === 'clientQuote') return clientQuote_(args[0]);   // nyilvános: fizetős javítás árajánlata
@@ -415,7 +416,7 @@ function dbBackup_() {
   return { ok: true, tables: out, at: now_() };
 }
 /* Éjszakai mentés (időzített futás, 2–3 óra között) */
-function dbNightlyBackup() { if (PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) === 'neon') dbBackup_(); }
+function dbNightlyBackup() { try { cupPendCleanup_(); } catch (e) { Logger.log('Feltöltés-karbantartás: ' + e); } if (PropertiesService.getScriptProperties().getProperty(DB_MODE_PROPERTY) === 'neon') dbBackup_(); }
 function installBackupTrigger() {
   if (ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'dbNightlyBackup')) return;
   ScriptApp.newTrigger('dbNightlyBackup').timeBased().atHour(2).everyDays(1).inTimezone(SHEET_TZ).create();
