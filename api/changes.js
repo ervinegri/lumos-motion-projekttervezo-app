@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "24a0f27dde",
+"at": "2026-11-25T15:36:45+01:00",
+"msg": "Ablakok: az előre kitöltött szövegdoboz megnyitáskor a tartalmához nő (nem vágódik le)"
+},
+{
 "id": "5e3967f7ed",
 "at": "2026-11-25T15:35:15+01:00",
 "msg": "Jégvarázs egyszeri visszaállítás kikapcsolva (marad az Utómunkában)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "3016ee5b4f",
 "at": "2026-11-25T09:37:24+01:00",
 "msg": "Kiküldött ajánlatok: szélesebb Gmail-keresés, és ha nincs találat, kiírja mit keresett"
-},
-{
-"id": "19fff20157",
-"at": "2026-11-25T09:34:01+01:00",
-"msg": "Lehetőség ablak: a kiküldött ajánlatok listája betöltés / hiba / üres állapotot is mutat"
 }
 ];
 const allowed = require('./_auth.js');
