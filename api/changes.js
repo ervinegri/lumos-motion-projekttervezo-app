@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "501c95711c",
+"at": "2026-11-25T16:59:36+01:00",
+"msg": "Projekt lépései: utómunka nélküli projektnél a Helyszíni munka áthúzható a Készre (a következő látható lépés a cél)"
+},
+{
 "id": "0d7d55de68",
 "at": "2026-11-25T16:57:20+01:00",
 "msg": "Projektlista: megnyitáskor a mai nap (piros jelölő) a képernyő közepére gördül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyersanyag-zár: a projekt Utómunka lépésbe tétele oldja fel (a kártyán nincs külön pipa)"
 },
 {
-"id": "623d40b0b2",
-"at": "2026-11-25T14:46:41+01:00",
-"msg": "Fájlmegosztás: a projekt keresése a videó objektuma alapján (a videóazonosító projektenként ismétlődhet); hozzászóláskor a háttér is megosztja"
-},
-{
-"id": "bc58267b2e",
-"at": "2026-11-25T13:42:25Z",
+"id": "9f2243d188",
+"at": "2026-11-25T13:46:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
