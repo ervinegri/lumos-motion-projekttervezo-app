@@ -1393,6 +1393,7 @@ function cupDone_(t, u, fileId) {
   const c = cupCtx_(t, u.v), url = 'https://drive.google.com/file/d/' + fileId + '/view', sz = CUP_SZ_(u.size);
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, u.p); if (!row) return; const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos), v = vids.find(x => x.id === u.v); if (!v) return;
     v.upPend = (v.upPend || []).concat([{ fid: fileId, name: String(u.name), size: sz, url: url, at: new Date().toISOString(), by: c.who.name }]).slice(-30); p.videos = JSON.stringify(vids); putRow_('projects', sh, p, row); dbFlush_(); });
+  try { vupShare_([fileId], vupEditorEmails_(u.p)); } catch (e) {}
   return { done: true, id: fileId, name: u.name, size: sz };
 }
 /** az ügyfél leveszi a még el nem küldött fájlt: kikerül a várakozók közül, és a Drive kukájába kerül */
@@ -1453,8 +1454,26 @@ function vidUpChunk_(u, a) {
   const f = JSON.parse(res.getContentText() || '{}'); C.remove('vup_' + upId);
   const mb = r.size / 1048576, sz = mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(r.size / 1024)) + ' KB';
   try { logEvent_(u, 'Fájl csatolva a videóhoz', r.name, sz); } catch (e) {}
+  try { vupShare_([f.id], vupEditorEmails_(r.p)); } catch (e) {}
   return { done: true, name: r.name, url: 'https://drive.google.com/file/d/' + f.id + '/view', fileId: f.id, size: sz };
 }
+/* A csatolt fájlok (belső és ügyféltől kapott) mindenkinek megnyithatók legyenek, aki a projekten dolgozik: csendes (értesítő levél nélküli) megtekintési jog
+   a projekthez rendelt szakemberek (bármely szerep) és a videók vágóinak e-mail-címére. Feltöltéskor, hozzászóláskor és a videó megnyitásakor is lefut (önjavító: későbbi vágó-hozzárendelésnél is). */
+function vupEditorEmails_(pid) { const p = readAll_('projects').find(x => x.id === pid), ids = readAll_('crewAssign').filter(r => r.projectId === pid).map(r => r.crewId);   // mindenki, aki a projekten dolgozik (bármely szerepben, bármelyik kártyán), és a videók vágói
+  if (p) parseVideos_(p.videos).forEach(v => { if (v.editor) ids.push(v.editor); }); const C = readAll_('crew');
+  return ids.map(id => (C.find(c => c.id === id) || {}).email).map(e => String(e || '').trim().toLowerCase()).filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)).filter((e, i, A) => A.indexOf(e) === i).slice(0, 25); }
+function vupShare_(fileIds, emails) { const C = CacheService.getScriptCache(); let n = 0;
+  fileIds.forEach(fid => emails.forEach(em => { const k = 'vsh_' + fid + '_' + em; if (C.get(k)) return;
+    try { const r = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fid) + '/permissions?sendNotificationEmail=false&supportsAllDrives=true', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, payload: JSON.stringify({ role: 'reader', type: 'user', emailAddress: em }) });
+      if (r.getResponseCode() < 300) { C.put(k, '1', 21600); n++; } else Logger.log('Megosztás (' + em + '): ' + r.getResponseCode() + ' ' + r.getContentText().slice(0, 200)); } catch (e) { Logger.log('Megosztás: ' + e); } }));
+  return n; }
+const FILE_ID_RE_ = /^\[file\]https:\/\/drive\.google\.com\/file\/d\/([\w-]{10,})\//gm;
+function vupShareProject_(pid, onlyText) { const em = vupEditorEmails_(pid); if (!em.length) return 0; const ids = [];
+  const scan = t => { let m; FILE_ID_RE_.lastIndex = 0; while ((m = FILE_ID_RE_.exec(String(t || '')))) ids.push(m[1]); };
+  if (onlyText != null) scan(onlyText); else { const p = readAll_('projects').find(x => x.id === pid); if (!p) return 0; parseVideos_(p.videos).forEach(v => { (v.cm || []).forEach(c => scan(c.t)); scan(v.fb); (v.upPend || []).forEach(x => ids.push(x.fid)); }); }
+  return vupShare_(ids.filter((x, i, A) => A.indexOf(x) === i).slice(0, 60), em); }
+function vidShareFiles_(u, a) { a = a || {}; const pid = str_(a.projectId, 64); vupCheck_(u, pid, str_(a.id, 40)); return { shared: vupShareProject_(pid) }; }
+
 /* a még el nem küldött csatolmány levétele: a fájl a Drive kukájába kerül (csak a saját, „Anyagok a vágáshoz” mappába feltöltött fájl) */
 function vidUpDel_(u, a) {
   a = a || {}; vupCheck_(u, str_(a.projectId, 64), str_(a.id, 40));

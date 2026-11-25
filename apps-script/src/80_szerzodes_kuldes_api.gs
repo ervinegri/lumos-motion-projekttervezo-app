@@ -520,6 +520,7 @@ function rpcInner_(token, name, arg) {
     case 'vidUpStart': return vidUpStart_(u, arg);   // fájl csatolása a videó hozzászólásához
     case 'vidUpChunk': return vidUpChunk_(u, arg);
     case 'vidUpDel': return vidUpDel_(u, arg);
+    case 'vidShareFiles': return vidShareFiles_(u, arg);   // a csatolt fájlok megosztása a projekt vágójával (önjavító)
     case 'postNotes': return postNotes_(u, arg);
     case 'postNoteAct': return postNoteAct_(u, arg);
     case 'videoCommentDel': return videoCommentDel_(u, arg);
