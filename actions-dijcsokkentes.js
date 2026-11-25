@@ -503,7 +503,7 @@ const RAW_SHOOT=new Set(['Operatőr','Kreatív operatőr','Statív operatőr','I
 const nasFolder=p=>{const r=pr(p),n=fold(p&&p.name).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/,'');return (r?r.start+'_':'')+(n||'projekt');};
 const rawShot=p=>!editOnly(p)&&(p.crew||[]).some(a=>RAW_SHOOT.has(a.role));
 /* feltöltésre vár: lezajlott a forgatás, és még nincs jelölve, hogy fent van a NAS-on */
-const rawPending=p=>p&&['helyszin','utomunka'].includes(p.status||'')&&!p.rawSentAt&&rawShot(p)&&pr(p)&&pr(p).start<=todayISO()&&pr(p).start>=addDays(todayISO(),-21)&&needsDelivery(p);   // csak a friss (3 héten belüli) forgatások
+const rawPending=p=>p&&(p.status||'')==='helyszin'&&!p.rawSentAt&&rawShot(p)&&pr(p)&&pr(p).start<=todayISO()&&pr(p).start>=addDays(todayISO(),-21)&&needsDelivery(p);   // csak a friss (3 héten belüli) forgatások
 const rawEditors=p=>editorsOf(p).filter(e=>(p.crew||[]).some(a=>RAW_SHOOT.has(a.role)&&a.crewId!==e.id));
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
 function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d),nf=nasFolder(d);
@@ -512,7 +512,7 @@ function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d)
   const text=`Szia${first?' '+first:''}!\n\n${(w=>w[0].toUpperCase()+w.slice(1))(huArt(d.name))} „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga fent van a NAS-on.\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nHa kész, a projektnél húzd át az „Utómunka” lépést a „Videók jóváhagyásra várnak” lépésre, és ott add le a linket.\n\nKöszi!`;
   openModal('📦 Nyersanyag a NAS-on – e-mail a vágónak',`<div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label><input type="checkbox" name="cut" value="${esc(c.id)}" checked${c.email?'':' disabled'}> ${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe</span>'}</label>`).join('')}</div></div>
     <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="9" maxlength="5000">${esc(text)}</textarea></div></div>`,
-    {left:`<button type="button" class="btn outline small" data-action="raw-skip" title="A nyersanyag még nincs fent – később pipálod ki">Még nincs fent</button><button type="button" class="btn outline small" data-action="raw-mark-nomail" title="Fent van, de nem küldök levelet (pl. a vágó már tud róla)">Kipipálás e-mail nélkül</button>`,submitLabel:'Küldés és kipipálás',submit:async fd=>{
+    {left:`<button type="button" class="btn outline small" data-action="raw-skip">Kihagyás – nem küldök</button>`,submitLabel:'Küldés és kipipálás',submit:async fd=>{
       const ids=fd.getAll('cut'),text=String(fd.get('rawText')||'');
       if(!ids.length){toast('Válaszd ki a vágót.',true);return;}
       try{await call('rawNotify',{projectId:d.id,crewIds:ids,link:'',text});closeModal();setDraft({rawSentAt:todayISO()});toast('E-mail elküldve a vágónak');next();}catch(e){handleErr(e);}}});

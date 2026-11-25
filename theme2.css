@@ -3314,6 +3314,3 @@ html body a.vv-file small{flex:none;color:var(--muted,#6b7684)}
 /* vezetői (ügyvezető, termelési vezető) bejegyzések: kék */
 html body .vv-cm-i.who-mgr{border-left:4px solid #2f6fdf;background:#eef4ff}html body .vv-cm-i.who-mgr .vv-step-tag{background:#d9e6fd;color:#1f4fa8}
 .vv-att-row.ok{border-color:#bfe3cc;background:#f1faf4}.vv-att-row.ok .vv-att-st{color:#1e7a46;font-weight:700}
-html body .bd-card .bd-raw{display:block;margin:6px 0 2px;padding:5px 10px;border:1px solid #2f6fdf;border-radius:8px;background:#eef4ff;color:#1f4fa8;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;pointer-events:auto;filter:none;opacity:1}
-html body .bd-card .bd-raw:hover{background:#dce8fe}
-html body .bd-card.bd-wait:has(.bd-raw){opacity:1;filter:none}html body .bd-card.bd-wait:has(.bd-raw)>:not(.bd-raw){opacity:.55;filter:grayscale(1)}

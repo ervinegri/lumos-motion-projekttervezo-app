@@ -239,10 +239,6 @@ document.addEventListener('dragend',()=>{FEE_DRAG=null;document.querySelectorAll
     if(Math.abs(dx)>Math.max(70,d.g.offsetWidth*.12))nav(dx<0?1:-1);else snap(d.g);});})();
 
 ACT['raw-skip']=()=>{const n=S._rawNext;closeModal();if(n)n();};
-/* a termelési vezető kipipálja, hogy a nyersanyag fent van (a vágó kártyája feloldódik) */
-ACT['raw-mark']=b=>{const p=projById(b.dataset.pid);if(!p)return;confirmModal('📦 Nyersanyag feltöltve',`Kipipálod, hogy ${huArt(p.name)} „${p.name}” nyersanyaga fent van? Ezzel a vágó elkezdheti az utómunkát (a kártyák feloldódnak).`,'Kipipálás',async()=>{
-  try{const r=await call('rawMark',{projectId:p.id,on:true});p.rawSentAt=r.rawSentAt||todayISO();toast('📦 Kipipálva – indulhat az utómunka');render();}catch(e){handleErr(e);}});};
-ACT['raw-mark-nomail']=()=>{const n=S._rawNext;closeModal();setDraft({rawSentAt:todayISO()});toast('📦 Nyersanyag kipipálva');if(n)n();};
 
 ACT['copy-pass']=async b=>{const v=b.dataset.pass||'';try{await navigator.clipboard.writeText(v);}catch(e){const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(e2){}t.remove();}toast('Jelszó a vágólapon');};
 document.addEventListener('mouseover',e=>{const w=e.target.closest&&e.target.closest('.pass-wrap');if(!w)return;const pop=w.querySelector('.pass-pop'),r=w.getBoundingClientRect();if(pop){pop.style.left=Math.max(8,Math.min(r.left,innerWidth-260))+'px';pop.style.top=(r.bottom+48>innerHeight?r.top-44:r.bottom+6)+'px';}});   // a jelszó-buborék a görgethető táblázatból se lógjon ki

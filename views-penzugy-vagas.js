@@ -438,7 +438,7 @@ const vidOwner=(p,v)=>{
   return cutters.length===1?cutters[0]:'';
 };
 /* Utómunkára vár: a kártya addig szürke és nem mozdítható, amíg nincs fent a nyersanyag (vagy még nem volt a forgatás) */
-function rawWait(p){const r=pr(p);if(!r||editOnly(p))return '';if(r.start>todayISO())return '⏳ Még nem volt a forgatás – a nyersanyag feltöltése után indulhat az utómunka';if(typeof rawPending==='function'&&rawPending(p))return '⏳ A nyersanyag még nincs kipipálva – amint a termelési vezető jelzi, hogy feltöltötte, indulhat az utómunka';return '';}
+function rawWait(p){const r=pr(p);if(!r||editOnly(p))return '';if(r.start>todayISO())return '⏳ Még nem volt a forgatás – a nyersanyag feltöltése után indulhat az utómunka';if(typeof rawPending==='function'&&rawPending(p))return '⏳ A nyersanyag még nincs feltöltve – amint a termelési vezető a projektet az Utómunka lépésbe teszi, indulhat a vágás';return '';}
 function boardCards(only){const me=boardMe(),f=S.boardCut||'';const out=[];   // only: egy projekt videói (a lezárt / Kész projekté is – pl. a naptárból megnyitva)
   S.projects.forEach(p=>{if(only&&p.id!==only)return;if(p.status==='lemondva'||(p.status==='atadva'&&!only)||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
   return out;}
@@ -449,7 +449,7 @@ function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:mgr?'leadva':''})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
     const rw=c.v.st==='vagasra'?rawWait(c.p):'';
-    return `<div class="bd-card st-${esc(c.v.st)}${c.v.link?' has-link':''}${rw?' bd-wait':''}"${rw?` data-tip="${esc(rw)}"`:''}${drag?' draggable="true"':''} data-action="vid-view" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.k==='foto'?'📷 Fotók utómunkája':c.v.name)}</div>${rw&&mgr&&rawPending(c.p)?`<button type="button" class="bd-raw" data-action="raw-mark" data-pid="${esc(c.p.id)}" title="Kipipálod, hogy a nyersanyag fent van – a vágó elkezdheti az utómunkát">📦 Nyersanyag feltöltve ✓</button>`:''}${(()=>{const tg=revPill(c.v)+seenPill(c.v);return tg?`<div class="bd-tags">${tg}</div>`:'';})()}
+    return `<div class="bd-card st-${esc(c.v.st)}${c.v.link?' has-link':''}${rw?' bd-wait':''}"${rw?` data-tip="${esc(rw)}"`:''}${drag?' draggable="true"':''} data-action="vid-view" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.k==='foto'?'📷 Fotók utómunkája':c.v.name)}</div>${(()=>{const tg=revPill(c.v)+seenPill(c.v);return tg?`<div class="bd-tags">${tg}</div>`:'';})()}
       ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((c.v.k==='foto'?'📷 ':'✂️ ')+((crewById(c.ow)||{}).name||'Kiosztásra vár'))}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
   const lanes=[...byP.values()].sort((a,b)=>String(dueDate(a.p)||'9999').localeCompare(String(dueDate(b.p)||'9999')));
