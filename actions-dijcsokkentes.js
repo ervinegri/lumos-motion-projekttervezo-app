@@ -424,9 +424,9 @@ function viewAsSalesModal(){
   const fi=()=>{const i=$('modalRoot').querySelector('.cmb-in');if(i)i.focus();};fi();setTimeout(fi,60);}
 $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v==='crew'||v==='crew-other')viewAsCrewModal();else if(v==='sales'||v==='sales-other')viewAsSalesModal();else switchView(v);});renderChrome();});
 /* Lezáráskor (Kész / Átadva) díjcsökkentés is kiróható – szakemberenként */
-function penCrewOpts(){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))];
+function penCrewOpts(site){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>!site||!isPostOnly(p,id));   // site: csak a helyszínen dolgozók (a csak utómunkás – pl. vágó – nem)
   return ids.map(id=>{const c=crewById(id);return c?[id,c.name]:null;}).filter(Boolean).sort((a,b)=>a[1].localeCompare(b[1],'hu'));}
-function penBlock(show){if(!canSeeFees())return '';const co=penCrewOpts();if(!co.length)return '';
+function penBlock(show,site){if(!canSeeFees())return '';const co=penCrewOpts(site);if(!co.length)return '';
   return `<div class="field full pen-block" id="penWrap"${show?'':' style="display:none"'}><div class="pen-block-h"><b>🚨 Hiba jelzése díjcsökkentéssel</b> <span class="muted">(nem kötelező – kattints a 🚨 jelre annál, aki hibázott)</span></div>
     <div class="pen-chips">${co.map(([id,nm])=>`<button class="pen-chip" type="button" data-action="pen-row-add" data-cid="${esc(id)}" title="Díjcsökkentés: ${esc(nm)}"><span>${esc(nm)}</span><span class="pen-btn" aria-hidden="true">🚨</span></button>`).join('')}</div><div id="penRows"></div>${penCopyBox('penCopy')}</div>`;}
 const penCopyBox=name=>`<label class="toggle pen-copy"><input type="checkbox" name="${name}" value="1"><span class="tl">📧 Másolatot kérek a szakembernek küldött e-mailről</span></label><p class="hint" style="margin:4px 0 0">${isAdmin()?'A termelési vezető':'Az ügyvezető'} mindenképp megkapja a másolatot.</p>`;
@@ -466,7 +466,7 @@ function siteModal(next,withPen){
         <label class="toggle"><input type="radio" name="siteOk" value="nem"${d.siteOk==='nem'?' checked':''}><span class="tl">🚨 Elakadás történt</span></label></div></div>
       <div class="field full"><label for="m-siteReport">Beszámoló <span class="muted" style="font-weight:600">(nem kötelező)</span></label><textarea class="inp" id="m-siteReport" name="siteReport" rows="4" maxlength="3000" placeholder="Hogy ment a forgatás, volt-e csúszás, technikai gond, ügyfél-visszajelzés…">${esc(d.siteReport||'')}</textarea></div>
       ${stuckSummary(Object.assign({},d,{siteOk:''}))}
-      ${penBlock(d.siteOk==='nem')}
+      ${penBlock(d.siteOk==='nem',true)}
     </div>`,{submitLabel:next?'Tovább':'Mentés',submit:async fd=>{
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
