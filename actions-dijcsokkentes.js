@@ -507,9 +507,9 @@ const rawPending=p=>p&&(p.status||'')==='helyszin'&&!p.rawSentAt&&rawShot(p)&&pr
 const rawEditors=p=>editorsOf(p).filter(e=>(p.crew||[]).some(a=>RAW_SHOOT.has(a.role)&&a.crewId!==e.id));
 /* Helyszíni munka → Utómunka: a termelési vezető megerősíti, hogy a nyersanyag fent van (csak utána indulhat a vágás) */
 function rawAskModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),nm=eds.map(c=>huFirst(String(c.name))).join(', ');
-  openModal('📦 Feltöltötted a nyersanyagot?',`<p style="margin:0 0 10px">A projekt az <b>Utómunka</b> lépésbe kerül. Ehhez a nyersanyagnak fent kell lennie a NAS-on.</p><p class="hint" style="margin:0">Ha igen: ${esc(nm||'a vágó')} e-mailt kap róla, és elkezdheti a vágást. Ha még nem: a projekt a helyszíni munkánál marad – feltöltés után pipáld ki újra.</p>`,
+  openModal('📦 Feltöltötted a nyersanyagot?',`<p style="margin:0 0 10px">A projekt az <b>Utómunka</b> lépésbe kerül. Ehhez a nyersanyagnak fent kell lennie a NAS-on.</p><p class="hint" style="margin:0">Ha igen: ${esc(nm||'a vágó')} e-mailt kap róla, és elkezdheti a vágást. Ha még nem: a projekt a helyszíni munkánál marad – feltöltés után húzd át újra az Utómunkára.</p>`,
     {left:`<button type="button" class="btn outline small" data-action="raw-not-yet">Még nem</button>`,submitLabel:'Igen, fent van',noDraft:true,submit:async()=>{closeModal();rawMailModal(next);}});}
-ACT['raw-not-yet']=()=>{closeModal();toast('Rendben – a projekt a helyszíni munkánál marad. Ha feltöltötted a nyersanyagot, pipáld ki újra a helyszíni munkát.');};
+ACT['raw-not-yet']=()=>{closeModal();toast('Rendben – a projekt a helyszíni munkánál marad. Ha feltöltötted a nyersanyagot, húzd át újra a Helyszíni munkát az Utómunkára.');};
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
 function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d),nf=nasFolder(d);
   const first=eds.length===1?huFirst(String(eds[0].name)):'';

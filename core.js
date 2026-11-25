@@ -360,6 +360,9 @@ function computeIssues(){
     if(names.length&&g.gap<TRAVEL_RED_MIN)out.push({level:'bad',text:`${names.join(', ')}: nincs idő a helyszínváltásra ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Ennyi idő alatt nem lehet eljutni az egyik helyszínről a másikra, módosítsátok a beosztást vagy az időpontokat.`,pids:[live[i].id,live[j].id]});
     else if(names.length)out.push({level:'warn',text:`${names.join(', ')}: szoros váltás ${fmtShort(pr(g.first).start)} – ${g.first.name} vége ${hhmm(g.end)}, ${g.second.name} kezdete ${hhmm(g.start)} (csak ${g.gap} perc). Győződjetek meg róla, hogy lesz elég idő eljutni az egyik helyszínről a másikra, és számoljatok esetleges csúszással is.`,pids:[live[i].id,live[j].id]});
   }
+  /* a forgatás már lezajlott, de a projekt még a Helyszíni munkánál áll: a nyersanyag nincs feltöltve – a vágó nem tudja elkezdeni a munkát (piros) */
+  allProjects().filter(p=>p.status==='helyszin').forEach(p=>{try{if(typeof rawPending!=='function'||!rawPending(p))return;const r=pr(p),end=r&&(r.end||r.start);if(!end||end>=T)return;const n=diffDays(end,T),eds=typeof rawEditors==='function'?rawEditors(p).map(c=>huFirst(String(c.name||''))).filter(Boolean):[];
+    out.push({level:'bad',text:`🚨 ${p.name||'Névtelen projekt'}: a forgatás óta ${n} napja nincs feltöltve a nyersanyag – ${eds.length?eds.join(', ')+' nem tudja':'a vágó nem tudja'} elkezdeni a vágást. Ha fent van, a projektben húzd a Helyszíni munkát az Utómunkára (a vágó e-mailt kap).`,pids:[p.id]});}catch(e){}});
   /* előfoglalás (tárgyalás alatt) csendes; a felszerelési figyelmeztetések csak 30 nappal a rendezvény előtt */
   const liveOps=live.filter(p=>!isTent(p)),liveEq=liveOps.filter(p=>diffDays(T,pr(p).start)<30);
   /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
