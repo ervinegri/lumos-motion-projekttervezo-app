@@ -517,13 +517,24 @@ function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d)
   const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.label+': '+t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
   const text=`Szia${first?' '+first:''}!\n\n${(w=>w[0].toUpperCase()+w.slice(1))(huArt(d.name))} „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga fent van a NAS-on.\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nKöszi!`;
   if(!eds.some(c=>c.email)){toast('A vágónak nincs e-mail-címe a Stáb listában – add meg, mert a vágó mindenképp e-mailt kap a nyersanyagról.',true);return;}   /* a vágó mindenképp levelet kap */
-  openModal('📦 A vágó e-mailt kap – indulhat a vágás',`<p class="hint" style="margin:0 0 10px">Ezt a levelet kapja a vágó: ebből tudja, hogy fent van a nyersanyag, és dolgozhat rajta. Nézd át (átírhatod), és küldd el – a projekt ezzel kerül az Utómunka lépésbe.</p><div class="mail-head"><div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion</div><div><span>Tárgy:</span> <b>Nyersanyag feltöltve – ${esc(d.name)}</b></div></div><div class="fields"><div class="field full"><span class="lbl">Címzett</span><div class="rolepick">${eds.map(c=>`<label class="raw-to">${c.email?`<input type="hidden" name="cut" value="${esc(c.id)}">✉️ `:'⚠️ '}${esc(c.name)}${c.email?` <span class="muted">· ${esc(c.email)}</span>`:' <span class="bad-txt">· nincs e-mail-címe – nem kapja meg</span>'}</label>`).join('')}</div></div>
-    <div class="field full"><label for="m-rawText">Üzenet</label><textarea class="inp" id="m-rawText" name="rawText" rows="9" maxlength="5000">${esc(text)}</textarea></div></div>`,
+  const toTxt=eds.filter(c=>c.email).map(c=>c.name+' <'+c.email+'>').join(', ');
+  openModal('📦 A vágó e-mailt kap – indulhat a vágás',`<p class="hint" style="margin:0 0 10px">Ezt a levelet kapja a vágó: ebből tudja, hogy fent van a nyersanyag, és dolgozhat rajta. Kattints a szövegbe, ha át akarsz írni valamit – a projekt a küldéssel kerül az Utómunka lépésbe.</p>
+    ${eds.filter(c=>c.email).map(c=>`<input type="hidden" name="cut" value="${esc(c.id)}">`).join('')}${eds.some(c=>!c.email)?`<p class="hint bad-txt" style="margin:0 0 8px">⚠️ ${eds.filter(c=>!c.email).map(c=>esc(c.name)).join(', ')}: nincs e-mail-címe – nem kapja meg.</p>`:''}
+    <div class="cl-prev-box"><div class="inv-h pe-head mail-head"><div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(toTxt)}</div><div><span>Tárgy:</span> <b>Nyersanyag feltöltve – ${esc(d.name)}</b></div></div><div id="raw-prev"></div></div>
+    <textarea id="m-rawText" name="rawText" hidden data-no-keep maxlength="5000">${esc(text)}</textarea>`,
     {submitLabel:'Küldés és tovább az utómunkára',submit:async fd=>{
       const ids=fd.getAll('cut'),text=String(fd.get('rawText')||'');
       if(!ids.length){toast('Válaszd ki a vágót.',true);return;}
       try{await call('rawNotify',{projectId:d.id,crewIds:ids,link:'',text});closeModal();setDraft({rawSentAt:todayISO()});toast('E-mail elküldve a vágónak');next();}catch(e){handleErr(e);}}});
-  S._rawNext=next;}
+  S._rawNext=next;rawPrev();(S._mySig!=null?Promise.resolve(S._mySig):call('mySignature').then(r=>(S._mySig=(r&&r.html)||'')).catch(()=>(S._mySig=''))).then(()=>rawPrev());}
+/* a nyersanyag-levél előnézete: formázott, szerkeszthető szöveg + aláírás (mint az ügyfél-levélnél); a szerkesztés a rejtett szövegmezőbe kerül vissza */
+function rawPrev(){const box=$('raw-prev'),bd=$('m-rawText');if(!box||!bd)return;const html=bd.value.split('\n').map(l=>esc(l)).join('<br>');
+  box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='A vágónak szóló levél (szerkeszthető)';
+  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#111}#ed:focus{outline:none}#ed{min-height:80px}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'')+'</div></body></html>';
+  const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
+  f.addEventListener('load',()=>{const dd=f.contentDocument;if(!dd)return;try{noNav(dd);}catch(_){}fit();setTimeout(fit,400);const ed=dd.getElementById('ed');
+    ed.addEventListener('input',()=>{const c=ed.cloneNode(true);c.querySelectorAll('br').forEach(x=>x.replaceWith(dd.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(dd.createTextNode('\n'));});bd.value=c.textContent.replace(/\u00a0/g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
+  box.appendChild(f);}
 
 /* A vágó leadja a videókat: link, megjegyzés, kit értesítsen (ügyvezető / termelési vezető) → „Videók jóváhagyásra várnak” */
 function cutDeliverModal(){const p=projById(S.projectId);if(!p)return;

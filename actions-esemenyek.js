@@ -199,8 +199,7 @@ const ACT={
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
     const raw=next=>()=>{const eds=rawEditors(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawAskModal(next);else next();};   /* helyszíni munka → utómunka: beszámoló, majd „Feltöltötted a nyersanyagot?” – igen: a vágó e-mailt kap és indulhat; még nem: a projekt a helyszíni munkánál marad */   // vágói munka: e-mail a vágónak a nyersanyagról
     if(on&&(v==='helyszin'||v==='utomunka')&&siteFuture(d)){toast(siteFutureMsg(d),true);return;}
-    if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
-    if(on&&v==='helyszin'){raw(apply)();return;}
+    if(on&&v==='helyszin'){siteModal(raw(apply));return;}   // a Helyszíni munka áthúzásakor mindig rákérdez (minden rendben ment-e), utána jön a nyersanyag
     if(on&&v==='utomunka'&&!set.has('helyszin')&&!editOnly(d)){toast('Előbb a helyszíni munkát pipáld ki – utána jöhet az utómunka.',true);return;}
     if(on&&v==='jovahagyas'&&!set.has('utomunka')){toast('Előbb az utómunkát pipáld ki.',true);return;}
     if(on&&v==='utomunka'&&needsDelivery(d)&&videoStagesOn()&&['utomunka','helyszin','tervezes'].includes(d.status||'tervezes')){deliveryModal('leadva');return;}   // egy ablak: utómunka kész + videók leadása (link, elakadás, észrevételek)

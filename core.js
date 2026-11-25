@@ -365,7 +365,7 @@ function computeIssues(){
     out.push({level:'bad',text:`✉️ ${c.name}: nincs e-mail-címe a Stáb listában – nem kap meghívót, nyersanyag-levelet és nem nyithatja meg a csatolt fájlokat. Add meg a Források → Stáb résznél.`,pids:allProjects().filter(q=>q.status!=='lemondva'&&q.status!=='atadva'&&(q.crew||[]).some(x=>x.crewId===c.id)).map(q=>q.id)});}));}
   /* a forgatás már lezajlott, de a projekt még a Helyszíni munkánál áll: a nyersanyag nincs feltöltve – a vágó nem tudja elkezdeni a munkát (piros) */
   allProjects().filter(p=>p.status==='helyszin').forEach(p=>{try{if(typeof rawPending!=='function'||!rawPending(p))return;const r=pr(p),end=r&&(r.end||r.start);if(!end||end>=T)return;const n=diffDays(end,T),eds=typeof rawEditors==='function'?rawEditors(p).map(c=>huFirst(String(c.name||''))).filter(Boolean):[];
-    out.push({level:'bad',text:`🚨 ${p.name||'Névtelen projekt'}: a forgatás óta ${n} napja nincs feltöltve a nyersanyag – ${eds.length?eds.join(', ')+' nem tudja':'a vágó nem tudja'} elkezdeni a vágást. Ha fent van, a projektben húzd a Helyszíni munkát az Utómunkára (a vágó e-mailt kap).`,pids:[p.id]});}catch(e){}});
+    out.push({level:'bad',text:`🚨 ${p.name||'Névtelen projekt'}: a forgatás óta ${n} napja nincs feltöltve a nyersanyag – ${eds.length?eds.join(', ')+' nem tudja':'a vágó nem tudja'} elkezdeni a vágást.`,pids:[p.id]});}catch(e){}});
   /* előfoglalás (tárgyalás alatt) csendes; a felszerelési figyelmeztetések csak 30 nappal a rendezvény előtt */
   const liveOps=live.filter(p=>!isTent(p)),liveEq=liveOps.filter(p=>diffDays(T,pr(p).start)<30);
   /* előadások utómunkája rögzítés nélkül: nincs miből vágni */
