@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "30d4f08bfe",
+"at": "2026-11-25T14:26:09+01:00",
+"msg": "Jóváhagyó oldal: a feltöltött fájlok piszkozatként várnak, és a módosításkéréssel / jóváhagyással együtt mennek el (hozzászólás + értesítő); 24 óra után a nem küldöttek a kukába"
+},
+{
 "id": "3e77520e5e",
 "at": "2026-11-25T14:21:10+01:00",
 "msg": "Jóváhagyó oldal: az időkód mindig kék csipp (dőlt szövegben, listában, kézzel beírva vagy beillesztve is)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "09b737435e",
 "at": "2026-11-24T22:10:45+01:00",
 "msg": "Jóváhagyó oldal: belső előnézetben a fájlfeltöltés folyamatjelzője bemutató (szürke), egyértelmű felirattal"
-},
-{
-"id": "c44e509d8a",
-"at": "2026-11-24T22:08:06+01:00",
-"msg": "Jóváhagyó oldal: a feltöltött fájl sora nem lesz zöld gomb (osztálynév-ütközés a Jóváhagyom gombbal)"
 }
 ];
 const allowed = require('./_auth.js');
