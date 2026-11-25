@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "58be31a17a",
+"at": "2026-11-25T17:07:38+01:00",
+"msg": "Telefonos indítás: nem fekete a képernyő – világos háttér az első kirajzolástól, iOS indítóképek, manifest"
+},
+{
 "id": "cb3fac4ba0",
 "at": "2026-11-25T17:06:16+01:00",
 "msg": "Felnyitott projekt: 🔒 Visszazárás gomb (ugyanarra a lezárási dátumra)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyersanyag-levél: az elavult leadási mondat kikerült"
 },
 {
-"id": "4642cb0f9e",
-"at": "2026-11-25T15:03:02+01:00",
-"msg": "Jégvarázs Klíma November: egyszeri visszaállítás a Helyszíni munka lépésre (az új nyersanyag-folyamathoz)"
-},
-{
-"id": "ad253afcf6",
-"at": "2026-11-25T14:00:21Z",
+"id": "771de74430",
+"at": "2026-11-25T14:03:13Z",
 "msg": "Változásnapló frissítése"
 }
 ];
