@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19884ddd74",
+"at": "2026-11-25T17:16:28+01:00",
+"msg": "Belső ellenőrzés: nincs külön hozzászólás – csak Visszadobás (a beírt észrevételekkel) vagy Jóváhagyás"
+},
+{
 "id": "50206f77ae",
 "at": "2026-11-25T17:10:35+01:00",
 "msg": "Időkódra ugrás telefonon (iOS): metaadatra várás, első koppintásnál a videó feloldása, ellenőrzött ugrás, videó a képbe gördül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "„Ellenőrizd” levél: rögtön az utómunkás üzenetével kezdődik"
 },
 {
-"id": "aa2ef75256",
-"at": "2026-11-25T15:17:58+01:00",
-"msg": "„Ellenőrizd” értesítő a vezetőknek: megszólítás nélkül"
-},
-{
-"id": "cce25827a6",
-"at": "2026-11-25T14:16:58Z",
+"id": "e08b0b7b88",
+"at": "2026-11-25T14:18:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
