@@ -3317,5 +3317,6 @@ html body .vv-cm-i.who-mgr{border-left:4px solid #2f6fdf;background:#eef4ff}html
 html body .mail-head{margin:0 0 12px;padding:10px 14px;border:1px solid var(--line,#e1e5ea);border-radius:10px;background:#f7f8fb;font-size:13.5px;line-height:1.6}html body .mail-head span{display:inline-block;min-width:56px;color:var(--muted,#6b7684)}
 html body .rolepick label.raw-to{cursor:default}
 /* projektoldal: a panelek között mindenhol egyforma (12px) távolság */
-html body .dfull{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}html body .dfull>*{margin-top:0!important;margin-bottom:0!important}
-html body .panel.content{margin-top:0}html body .crew-wide{margin-top:12px}html body .money-panel{margin-top:12px}
+html body .dfull{display:flex;flex-direction:column;gap:inherit;row-gap:inherit;margin-bottom:0}html body .dfull>*{margin-top:0!important;margin-bottom:0!important}   /* a csoporton belül ugyanaz a távolság, mint a lap paneljei között */
+html body details.panel.content{margin:0;padding-bottom:24px;max-width:none}html body details.panel.content:not([open]){display:block}   /* a .content osztály (a fő tartalomterület) ne adjon plusz alsó térközt a Szolgáltatások kártyának */
+html body .crew-wide{margin-top:0}html body .money-panel{margin-top:0}
