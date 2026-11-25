@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4c5fbd35ea",
+"at": "2026-11-25T13:50:16+01:00",
+"msg": "Videó-hozzászólások: az ügyfél minden bejegyzése (megnyitás, sima hozzászólás) sárga; feltöltésnél százalék és MB"
+},
+{
 "id": "64519f078f",
 "at": "2026-11-25T12:24:58+01:00",
 "msg": "Videó-hozzászólás: fájl csatolása (Drive „Anyagok a vágáshoz”, link a hozzászólásba, húzással is); hosszú linkek rövidítve, a felsorolás tördelése nem esik szét"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "bed085d6c3",
 "at": "2026-11-24T22:39:22+02:00",
 "msg": "Jóváhagyó oldal: a formázás szerkesztés közben azonnal látszik (mint egy Word-dokumentumban), időkód kék címkeként; a fájlcsatolás a módosításkérés része"
-},
-{
-"id": "4809b9af3d",
-"at": "2026-11-24T21:34:54+01:00",
-"msg": "Banki utalásból kiadás: külföldi szolgáltatónál ÁFA nélkül (nettó = utalt összeg); figyelmeztet, ha a hónapban már van hasonló kiadás"
 }
 ];
 const allowed = require('./_auth.js');
