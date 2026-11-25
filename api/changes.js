@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "759d70ecb6",
+"at": "2026-11-25T09:05:32+01:00",
+"msg": "Árajánlat: + Tétel nem ugrik a lap tetejére; tételek sorrendje húzással; a lehetőségnél korábban kiküldött (felülírt) ajánlatok is megmaradnak és megnyithatók"
+},
+{
 "id": "91b1e0cbec",
 "at": "2026-11-25T08:06:09+01:00",
 "msg": "Lehetőség kártya: az „Új ajánlat ennek az ügyfélnek” gomb csak a megnyitott lehetőség ablakában"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tagi kölcsön: egyszeri bankkivonat-egyeztetés (2026-11-24)"
 },
 {
-"id": "74049ce505",
-"at": "2026-11-24T17:41:35+02:00",
-"msg": "Ajánlatkészítés a lehetőségből: a lehetőség ablaka nem tűnik el – halványan alatta marad, és bezáráskor (Esc, ×, Bezárás) azonnal, a beírt adatokkal együtt visszajön"
-},
-{
-"id": "39e715b0e6",
-"at": "2026-11-24T14:27:45Z",
+"id": "c39f6e78c2",
+"at": "2026-11-24T15:41:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
