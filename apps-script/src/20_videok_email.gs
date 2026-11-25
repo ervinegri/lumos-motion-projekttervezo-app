@@ -1457,9 +1457,9 @@ function vidUpChunk_(u, a) {
   try { vupShare_([f.id], vupEditorEmails_(r.p)); } catch (e) {}
   return { done: true, name: r.name, url: 'https://drive.google.com/file/d/' + f.id + '/view', fileId: f.id, size: sz };
 }
-/* A csatolt fájlok (belső és ügyféltől kapott) mindenkinek megnyithatók legyenek, aki a projekten dolgozik: csendes (értesítő levél nélküli) megtekintési jog
-   a projekthez rendelt szakemberek (bármely szerep) és a videók vágóinak e-mail-címére. Feltöltéskor, hozzászóláskor és a videó megnyitásakor is lefut (önjavító: későbbi vágó-hozzárendelésnél is). */
-function vupEditorEmails_(pid) { const p = readAll_('projects').find(x => x.id === pid), ids = readAll_('crewAssign').filter(r => r.projectId === pid).map(r => r.crewId);   // mindenki, aki a projekten dolgozik (bármely szerepben, bármelyik kártyán), és a videók vágói
+/* A csatolt fájlok (belső és ügyféltől kapott) az utómunkásoknak is megnyithatók legyenek: csendes (a Google NEM küld értesítő levelet) megtekintési jog
+   a projekt vágóinak és a videókhoz rendelt vágók e-mail-címére – a szokásos értesítő levélben lévő linkre kattintva megnyitják. Feltöltéskor, hozzászóláskor és a videó megnyitásakor is lefut (önjavító: későbbi vágó-hozzárendelésnél is). */
+function vupEditorEmails_(pid) { const p = readAll_('projects').find(x => x.id === pid), ids = readAll_('crewAssign').filter(r => r.projectId === pid && r.role === 'Vágó').map(r => r.crewId);   // csak az utómunkások: a projekt vágói és a videókhoz rendelt vágók (Ervin, 2026-11-25)
   if (p) parseVideos_(p.videos).forEach(v => { if (v.editor) ids.push(v.editor); }); const C = readAll_('crew');
   return ids.map(id => (C.find(c => c.id === id) || {}).email).map(e => String(e || '').trim().toLowerCase()).filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)).filter((e, i, A) => A.indexOf(e) === i).slice(0, 25); }
 function vupShare_(fileIds, emails) { const C = CacheService.getScriptCache(); let n = 0;
