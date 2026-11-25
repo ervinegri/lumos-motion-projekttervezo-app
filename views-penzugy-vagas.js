@@ -763,8 +763,9 @@ function viewProject(p){
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
       ${projBoardPanel(p)}
-      ${isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
+      ${status!=='lemondva'&&isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   </div>
+  ${status==='lemondva'&&isAdmin()&&typeof projBillingPanel==='function'?`<div style="margin-top:12px">${projBillingPanel(p)}</div>`:''}
   
   ${ro()?roContentPanel(p):(()=>{const nSel=nRec+nKrea+nTech+nIntG+postTasks(p).length,openEd=FOLD.content!=null?FOLD.content:!nSel;   // egy panel: felül az összesítő (kiosztással), alatta a kiválasztás
     const SL=!ro()&&!projLocked()&&crewLocked(p),SP=crewPast(p);   // véglegesített csapatnál a szolgáltatások is zárolva (szürkén), feloldással bővíthetők
