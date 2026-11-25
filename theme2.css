@@ -3302,3 +3302,4 @@ a.md-a{overflow-wrap:anywhere;word-break:break-word}
 .vv-att-row.ok .vv-att-bar i{background:#2e7d4f}.vv-att-row.bad .vv-att-st{color:#b4442f}
 .vv-att-st{flex:none;color:var(--muted,#6b7684)}
 .vv-cm-new.vv-drop{outline:2px dashed #7aa7d6;outline-offset:3px;border-radius:10px}
+html body .vv-cm-i.st-seen,html body .vv-cm-i.st-clin{border-left-color:#d48a00;background:#fff6e5}html body .vv-cm-i.st-seen .vv-step-tag{background:#ffe7b8;color:#7a4a00}
