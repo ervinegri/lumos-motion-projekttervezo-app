@@ -487,6 +487,7 @@ function setPayStatus_(u, a) {
     cur.crewName = c.name; cur[field + 'At'] = on ? dt : ''; cur[field + 'By'] = on ? u.name : '';
     if (field === 'invoiced' && !on) { cur.invoiceNo = ''; cur.invoiceNet = ''; cur.invoiceTax = ''; cur.invoiceMatch = ''; }   // visszavonáskor a NAV-párosítás is törlődik
     putRow_('payStatus', sh, cur, row);
+    try { dataBump_(); } catch (e) {}
     logEvent_(u, field === 'paid' ? (on ? 'Számla fizetve' : 'Számla fizetve – visszavonva') : (on ? 'Számlát kiállította' : 'Számla kiállítása – visszavonva'), c.name, month);
     return readAll_('payStatus');
   });
@@ -517,6 +518,7 @@ function sendPayStatements_(u, a) {
       sent.push({ crewId: b.c.id, name: b.c.name, email: to });
     } catch (e) { failed.push({ crewId: str_(it && it.crewId, 64), name: '', error: String(e && e.message || e) }); }
   });
+  if (sent.length) { try { dataBump_(); } catch (e) {} }
   logEvent_(u, 'Díjösszesítő kiküldve', str_(list[0] && list[0].month, 7), sent.map(x => x.name).join(', ') + (failed.length ? ' · hiba: ' + failed.map(x => x.name || x.crewId).join(', ') : ''));
   return { sent: sent, failed: failed, paySent: paySentList_(u) };
 }

@@ -170,6 +170,7 @@ function savePayAdjust_(u, a) {   // havonta szakemberenként több korrekciós 
     if (!amount) { if (row) sh.deleteRow(row); }
     else putRow_('payAdjust', sh, { id: id, month: month, crewId: crewId, crewName: c.name, amount: amount, note: note, updatedAt: now_(), updatedBy: u.name }, row || null);
     dbFlush_();
+    try { dataBump_(); } catch (e) {}   // a többi megnyitott ablak / eszköz is frissüljön
     logEvent_(u, 'Fizetési korrekció', c.name, month + ': ' + (amount ? (amount > 0 ? '+' : '') + amount + ' Ft · ' + note : 'törölve'));
     return readAll_('payAdjust');
   });

@@ -552,7 +552,7 @@ function cdPreview(p){const body=$('cdPrevBody'),meta=$('cdPrevMeta'),f=$('mform
 function payItem(month,cid){const it=payStatementData(month,cid),cb=document.querySelector('#modalRoot input[name=pmPrev][value="'+CSS.escape(cid)+'"]');if(cb&&cb.checked){const pv=payPrevOpen(month,cid);if(pv.items.length)it.prev=pv.items.map(x=>({m:x.m,amt:x.amt}));}return it;}
 document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='pmPrev')return;const month=t.dataset.month,cid=t.value,k=month+'|'+cid;if(S._payEdit)delete S._payEdit[k];if(S._payHead)delete S._payHead[k];payEditMark();
   const am=t.closest('.pml-row')&&t.closest('.pml-row').querySelector('.pml-amt');if(am)am.textContent=ftFmt(num(t.dataset.own)+(t.checked?num(t.dataset.prev):0));payPreview(month,cid,true);});
-async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return;const k=month+'|'+cid,c=crewById(cid);S._payEdit=S._payEdit||{};
+async function payPreview(month,cid,fresh){const box=$('payPrev');if(!box)return;S._payPrevOn={month,cid};const k=month+'|'+cid,c=crewById(cid);S._payEdit=S._payEdit||{};
   let h=fresh?'':S._payEdit[k];S._payHead=S._payHead||{};
   if(!h||!S._payHead[k]){box.innerHTML='<p class="hint">Előnézet betöltése…</p>';try{const r=await call('payStatementPreview',payItem(month,cid));if(!h)h=r.html;S._payHead[k]={subject:r.subject||'',to:r.to||'',from:r.from||''};}catch(e){box.innerHTML=`<p class="hint bad-txt">${esc(errText(e))}</p>`;return;}}
   const hd=S._payHead[k]||{};
