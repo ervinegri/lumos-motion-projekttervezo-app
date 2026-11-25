@@ -43,7 +43,7 @@ textarea:focus{outline:none;border-color:#9aa6b2;box-shadow:0 0 0 3px rgba(29,42
 .tc:hover{border-color:#b9c5cf}.tc b{font-variant-numeric:tabular-nums}
 .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
 .row button{flex:1 1 0;min-width:0;white-space:normal;padding-left:8px;padding-right:8px;line-height:1.2;font-size:14px}.row .modx{flex:1 0 100%}   /* a két gomb egymás mellett */
-@media (min-width:861px){.body>.side{align-self:end}}   /* a panel a videó aljához igazodik */
+@media (min-width:861px){.body>.side{align-self:end}.body>div:first-child{align-self:center}}   /* ha a panel a magasabb, a videó függőlegesen középen; ha a videó, a panel az aljához igazodik */   /* a panel a videó aljához igazodik */
 button{font:inherit;font-weight:700;border-radius:12px;padding:12px 16px;cursor:pointer;border:1px solid transparent}
 button:disabled{opacity:.6;cursor:default}
 .ok{background:#2e9e62;color:#fff;transition:background .15s,box-shadow .15s}.ok:hover{background:#26874f;box-shadow:0 4px 12px rgba(46,158,98,.25)}.ok:active{background:#1f7444}
