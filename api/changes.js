@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "77ddead227",
+"at": "2026-11-25T16:27:43+01:00",
+"msg": "Ügyfél-levél: a vágó belső üzenete és a legutóbbi javítási levél egyedi szövege nem kerül bele (alap szöveg)"
+},
+{
 "id": "46231919b5",
 "at": "2026-11-25T16:20:11+01:00",
 "msg": "Adatvédelmi teszt és szabály: a szakember nézet nem mutathat másokra vonatkozó adatot (őrző teszt)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Csatolt fájlok csendes megosztása mindenkivel, aki a projekten dolgozik (bármely szerep, a videók vágói); feltöltéskor, küldéskor és a videó megnyitásakor (önjavító)"
 },
 {
-"id": "30d4f08bfe",
-"at": "2026-11-25T14:26:09+01:00",
-"msg": "Jóváhagyó oldal: a feltöltött fájlok piszkozatként várnak, és a módosításkéréssel / jóváhagyással együtt mennek el (hozzászólás + értesítő); 24 óra után a nem küldöttek a kukába"
-},
-{
-"id": "1bda7e0ec0",
-"at": "2026-11-25T13:21:19Z",
+"id": "2bc0ae7110",
+"at": "2026-11-25T13:26:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
