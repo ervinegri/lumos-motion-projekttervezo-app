@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "13d65064f6",
+"at": "2026-11-25T14:42:14+01:00",
+"msg": "Nyersanyag: a termelési vezető a zárolt kártyán egy kattintással kipipálja („📦 Nyersanyag feltöltve”), a NAS-levél ablakban e-mail nélkül is; a vágó tudja, kire vár"
+},
+{
 "id": "7e0c85f9cc",
 "at": "2026-11-25T14:36:01+01:00",
 "msg": "Csatolt fájlok megosztása csak az utómunkásokkal (vágók), értesítő levél nélkül"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "7612b78ded",
 "at": "2026-11-24T22:21:32+01:00",
 "msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb fölé úszik (nem változik a magasság, nem ugrik a szöveg); az „Igen, elküldöm” olyan, mint az „Elküldöm a módosítást”"
-},
-{
-"id": "0aa940e9c3",
-"at": "2026-11-24T22:19:28+01:00",
-"msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb helyén jelenik meg, a megírt üzenet és a csatolt fájlok látszanak"
 }
 ];
 const allowed = require('./_auth.js');
