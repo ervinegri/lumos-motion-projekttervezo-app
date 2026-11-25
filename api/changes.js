@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1c57c683fc",
+"at": "2026-11-25T15:46:01+01:00",
+"msg": "Helyszíni beszámoló: a díjcsökkentésnél csak a helyszínen dolgozók (a csak utómunkás vágó nem)"
+},
+{
 "id": "66b1b112d1",
 "at": "2026-11-25T15:43:37+01:00",
 "msg": "Nyersanyag-levél: darabszám „db”-vel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Díjösszesítő-ablak: rendezett tördelés az előző hónapok sorával; korrekció / kiküldés után minden nyitott nézet frissül, a nyitott előnézet a friss adatból"
 },
 {
-"id": "7ef6d5697d",
-"at": "2026-11-25T12:05:16+01:00",
-"msg": "Díjösszesítő: az előző hónapok még ki nem számlázott összege is belefoglalható (egy számla), a belefoglalt hónap az egyenlegben nem számít kétszer"
-},
-{
-"id": "33363569f2",
-"at": "2026-11-25T10:34:38Z",
+"id": "aa7da9e767",
+"at": "2026-11-25T11:05:28Z",
 "msg": "Változásnapló frissítése"
 }
 ];
