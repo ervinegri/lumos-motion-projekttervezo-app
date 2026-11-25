@@ -275,13 +275,14 @@ function crewModal(c){
     ${coEd?`<div class="field"><label for="m-tax">Adószám (a számla NAV-os párosításához)</label><div class="tax-row"><input class="inp" id="m-tax" name="tax" value="${esc(v.tax||'')}" placeholder="12345678-1-42" autocomplete="off" maxlength="20"><button class="btn outline small" type="button" data-action="crew-co-lookup" title="Cégnév betöltése az adószám alapján (NAV)">🔍</button></div></div>`:''}
     ${isAdmin()?`<div class="field"><span class="lbl">ÁFA</span><div class="rolepick"><label><input type="radio" name="vat" value="aam"${v.vat!=='afa'?' checked':''}> Alanyi adómentes</label><label><input type="radio" name="vat" value="afa"${v.vat==='afa'?' checked':''}> Áfakörös</label></div></div>`:''}
     ${phoneField({name:'phone',value:v.phone})}
-    ${mf('email','E-mail',{type:'email',v:v.email})}
+    ${mf('email','E-mail (kötelező)',{type:'email',v:v.email})}
     ${mf('note','Megjegyzés',{full:true,v:v.note,ph:'pl. saját drón, B kategóriás jogosítvány'})}
     ${isAdmin()&&c&&(c.roles||[]).includes('Értékesítő')?(()=>{const sp=(S.salesPeople||[]).find(x=>x.crewId===c.id);return `<div class="field full"><span class="lbl">💼 Értékesítői jutalék</span><div class="t-row" style="gap:10px;align-items:center">${sp?`<span>${esc(commTierTxt(sp))}${num(sp.salary)?' · fix '+huf(sp.salary)+' (nettó)':''}</span>`:'<span class="muted">Még nincs értékesítői belépése – a jutalékot a belépéssel együtt állítod be.</span>'}<button type="button" class="mini" data-action="crew-comm" data-id="${esc(c.id)}">${sp?'Jutalék módosítása':'Értékesítői belépés + jutalék'}</button></div></div>`;})():''}
     ${crewDocSection(c)}
   </div>`,{left:c?`<button type="button" class="btn danger small" data-action="del-crew" data-id="${esc(c.id)}">Törlés${uses?` (${uses} projektben szerepel)`:''}</button>`:'',
   submit:async(fd,form)=>{
     if(!needName(form))return;
+    {const em=String(fd.get('email')||'').trim(),inp=form.querySelector('[name=email]');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast('Az e-mail-cím kötelező a Stáb listában – erre mennek a meghívók, a nyersanyag-levél és a csatolt fájlok.',true);if(inp){inp.focus();inp.classList.add('bad');}return;}}   /* szabály (Ervin, 2026-11-25): minden stábtagnak legyen e-mail-címe */
     const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:'',company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam',tax:String(fd.get('tax')||'').trim()};
     try{let saved;try{saved=await call('saveCrew',data);}catch(e1){if(!c||!/CONFLICT/.test(errText(e1)))throw e1;   // közben máshol (pl. másik lapon) mentették: a friss adatra írjuk rá a mostani módosítást
         const b=await call('bootstrap',{});const fresh=(b.crew||[]).find(x=>x.id===c.id);if(!fresh)throw e1;data.baseUpdatedAt=fresh.updatedAt||'';saved=await call('saveCrew',data);}

@@ -108,6 +108,7 @@ function shortName_(s) { return String(s || '').replace(/\s*\(.*\)/, '').replace
 /* ===================== STÁB ÉS LELTÁR ===================== */
 function saveCrew_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(a.email || '').trim())) throw new Error('Az e-mail-cím kötelező a Stáb listában (erre mennek a meghívók, a nyersanyag-levél és a csatolt fájlok).');   // szabály: minden stábtagnak van e-mail-címe
   const id = str_(a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
   const c = {
