@@ -380,7 +380,8 @@ const ACT={
   copy:b=>{copyText(b.dataset.text);b.classList.add('copied');clearTimeout(b._ct);b._ct=setTimeout(()=>b.classList.remove('copied'),1400);},
   'tax-lookup':()=>taxLookup(),
   'pen-new':b=>penModal(b.dataset.cid),
-  'proj-unlock':()=>{const d=S.draft;if(!d||!isAdmin())return;closeModal();setDraft({status:needsDelivery(d)?'utomunka':'helyszin',deliveredAt:''});toast('Projekt felnyitva – a lépések újra módosíthatók');},
+  'proj-unlock':()=>{const d=S.draft;if(!d||!isAdmin())return;closeModal();unlockMark(d.id,{status:'atadva',deliveredAt:d.deliveredAt||''});setDraft({status:needsDelivery(d)?'utomunka':'helyszin',deliveredAt:''});toast('Projekt felnyitva – a lépések újra módosíthatók');},
+  'proj-relock':()=>{const d=S.draft;if(!d||!isAdmin())return;const m=unlockGet(d.id);if(!m)return;unlockMark(d.id,null);setDraft({status:'atadva',deliveredAt:m.deliveredAt||new Date().toISOString()});toast('Projekt visszazárva 🔒');},
   'crew-day':b=>{const d=S.draft;if(!d)return;const cid=b.dataset.cid,day=b.dataset.d,all=projDays(d);let cur=crewDaysOf(d,cid).slice();
     if(cur.includes(day)){if(cur.length===1){toast('Legalább egy napot hagyj meg (vagy vedd le a projektről).',true);return;}cur=cur.filter(x=>x!==day);}else cur.push(day);
     const cd=Object.assign({},d.crewDays||{});if(cur.length===all.length)delete cd[cid];else cd[cid]=all.filter(x=>cur.includes(x));
@@ -609,3 +610,8 @@ function crewRoleRemove(cid){const d=S.draft;if(!d||eqLockGuard_(d))return;const
   const go=k=>{if(k==='lead')ACT['lead-remove']();else ACT['crew-remove']({dataset:{i:k}});};
   const c=crewById(cid);openModal('Szerepkör eltávolítása – '+(c?c.name:''),`<div class="fields"><div class="field full"><label for="m-rmrole">Melyik szerepkört veszed le?</label><select class="inp" id="m-rmrole" name="k" data-cmb="Válassz szerepkört…">${L.map(x=>`<option value="${esc(x.k)}">${esc(x.lbl)}</option>`).join('')}</select></div></div>`,
     {submitLabel:'Szerepkör eltávolítása',noDraft:true,danger:true,submit:fd=>{const k=String(fd.get('k')||'');closeModal();go(k);}});}
+
+/* Felnyitott (korábban lezárt) projektek – hogy vissza lehessen zárni ugyanarra a dátumra. Böngészőnként megjegyezve. */
+function unlockAll(){try{return JSON.parse(localStorage.getItem('lm_unlocked')||'{}')||{};}catch(e){return S._unl||{};}}
+function unlockGet(id){return unlockAll()[id]||null;}
+function unlockMark(id,v){const m=unlockAll();if(v)m[id]=v;else delete m[id];S._unl=m;try{localStorage.setItem('lm_unlocked',JSON.stringify(m));}catch(e){}}
