@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0856859617",
+"at": "2026-11-25T18:11:44+01:00",
+"msg": "Saját beosztás (termelési vezető / ügyvezető): mentéskor azonnal elfogadott meghívás, e-mail nélkül; egyszeri átállítás a futó projekteken"
+},
+{
 "id": "ab13e8c6ca",
 "at": "2026-11-25T17:21:58+01:00",
 "msg": "Belső ellenőrzés jóváhagyása: a beírt szöveg tájékoztató megjegyzésként megy a vágónak (✅ Jóváhagyva – megjegyzés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jégvarázs egyszeri visszaállítás kikapcsolva (marad az Utómunkában)"
 },
 {
-"id": "55fed244f3",
-"at": "2026-11-25T15:25:05+01:00",
-"msg": "Jégvarázs visszaállítás: robusztusabb (név egyezés, „Utómunka alatt” kártya is vissza), az eredmény az ügyvezetőnél megjelenik"
-},
-{
-"id": "d8417d79a1",
-"at": "2026-11-25T14:20:27Z",
+"id": "70cc8bc5b5",
+"at": "2026-11-25T14:25:17Z",
 "msg": "Változásnapló frissítése"
 }
 ];
