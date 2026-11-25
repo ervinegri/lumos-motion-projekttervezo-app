@@ -2,6 +2,16 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7bcc08bc66",
+"at": "2026-11-25T11:34:25+01:00",
+"msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés alatt végzett javítás is elmegy (eddig a gombnyomáskori szöveg ment el); időkód dupla kattintással átírható"
+},
+{
+"id": "ac9845e918",
+"at": "2026-11-25T09:51:13Z",
+"msg": "Háttérkód telepítési állapota: rendben"
+},
+{
 "id": "d322eb7568",
 "at": "2026-11-25T09:53:14+01:00",
 "msg": "Háttér-telepítés: sikertelen telepítésnél (pl. 200 verziós korlát) piros figyelmeztetés az ügyvezetőnek az appban"
@@ -145,16 +155,6 @@ const ITEMS = [
 "id": "10b6dfdf57",
 "at": "2026-11-24T21:26:10+01:00",
 "msg": "Kifizetve, de még nincs számla: a sorra kattintva megnyílnak az utalás részletei"
-},
-{
-"id": "e00ad03436",
-"at": "2026-11-24T22:25:57+02:00",
-"msg": "Jóváhagyó oldal: az ügyfél üzenete formázható (félkövér, dőlt, felsorolás, számozott lista, Ctrl/⌘+B/I, élő előnézet); az appban formázva jelenik meg"
-},
-{
-"id": "e591dacc14",
-"at": "2026-11-24T20:23:52Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
