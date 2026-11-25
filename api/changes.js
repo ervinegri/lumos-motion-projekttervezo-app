@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e900a472b4",
+"at": "2026-11-25T15:38:37+01:00",
+"msg": "Nyersanyag-levél: a vágó címzett nem vehető ki (mindenképp megkapja)"
+},
+{
 "id": "46d99fb940",
 "at": "2026-11-25T15:38:08+01:00",
 "msg": "Piros hiba: lezajlott forgatás után a projekt még a Helyszíni munkánál (nyersanyag nincs feltöltve, a vágó nem tud kezdeni); szövegek: „húzd át” a „pipáld ki” helyett"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "dfc75b4dcc",
 "at": "2026-11-25T09:45:29+01:00",
 "msg": "Kiküldött ajánlatok: az ügyfélnek küldött összes ajánlat tartósan elmentve (levelekből automatikus import), a lista a mentett adatokból"
-},
-{
-"id": "8dd96017c5",
-"at": "2026-11-25T09:39:27+01:00",
-"msg": "Lehetőség ablak: az új ajánlat gombja lent (ha már ment ki ajánlat, az „Árajánlat készítése” helyén)"
 }
 ];
 const allowed = require('./_auth.js');
