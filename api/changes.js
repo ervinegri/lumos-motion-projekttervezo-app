@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "623d40b0b2",
+"at": "2026-11-25T14:46:41+01:00",
+"msg": "Fájlmegosztás: a projekt keresése a videó objektuma alapján (a videóazonosító projektenként ismétlődhet); hozzászóláskor a háttér is megosztja"
+},
+{
 "id": "13d65064f6",
 "at": "2026-11-25T14:42:14+01:00",
 "msg": "Nyersanyag: a termelési vezető a zárolt kártyán egy kattintással kipipálja („📦 Nyersanyag feltöltve”), a NAS-levél ablakban e-mail nélkül is; a vágó tudja, kire vár"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "adcb413dd0",
 "at": "2026-11-24T22:23:54+01:00",
 "msg": "Jóváhagyó oldal: szöveg után az időkód új sorba kerül; azonos időkódnál a kurzor az új időkód mögé áll"
-},
-{
-"id": "7612b78ded",
-"at": "2026-11-24T22:21:32+01:00",
-"msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés a küldés gomb fölé úszik (nem változik a magasság, nem ugrik a szöveg); az „Igen, elküldöm” olyan, mint az „Elküldöm a módosítást”"
 }
 ];
 const allowed = require('./_auth.js');
