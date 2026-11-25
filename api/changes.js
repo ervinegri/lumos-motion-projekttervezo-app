@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "54d6e4bf5b",
+"at": "2026-11-25T15:40:27+01:00",
+"msg": "Szabály: a Stáb listában kötelező az e-mail-cím (mentéskor ellenőrzés elöl-hátul; a futó projekteken cím nélküli stábtag piros hibaként)"
+},
+{
 "id": "e900a472b4",
 "at": "2026-11-25T15:38:37+01:00",
 "msg": "Nyersanyag-levél: a vágó címzett nem vehető ki (mindenképp megkapja)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "d322eb7568",
 "at": "2026-11-25T09:53:14+01:00",
 "msg": "Háttér-telepítés: sikertelen telepítésnél (pl. 200 verziós korlát) piros figyelmeztetés az ügyvezetőnek az appban"
-},
-{
-"id": "dfc75b4dcc",
-"at": "2026-11-25T09:45:29+01:00",
-"msg": "Kiküldött ajánlatok: az ügyfélnek küldött összes ajánlat tartósan elmentve (levelekből automatikus import), a lista a mentett adatokból"
 }
 ];
 const allowed = require('./_auth.js');
