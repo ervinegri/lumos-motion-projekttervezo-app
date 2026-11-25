@@ -226,6 +226,7 @@ function appReveal(){const h=document.documentElement;if(h.classList.contains('b
 function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);setTimeout(autoSiteStep,400);if(S._dlDrag){S._dlDragRender=1;return;}   // kártyahúzás közben (érintő) nem rajzolunk újra
 
   if(!S.me)return;
+  {const vk=S.tab+'|'+(S.projectId||'');if(vk!==window._lastViewKey){window._lastViewKey=vk;if(vk==='projektek|')S._ptScrollPending=true;}}   /* a projektlistára érkezéskor egyszer a mai nap kerül középre */
   document.body.classList.toggle('proj-locked',projLocked());
   const ae=document.activeElement;
   const keep=ae&&ae.id&&VIEW.contains(ae)&&ae.tagName!=='SELECT'?{id:ae.id,s:ae.selectionStart,e:ae.selectionEnd}:null;
@@ -549,7 +550,7 @@ function viewProjects(){
       return h+row(p).replace('class="pt-row ','class="pt-row pt-tf'+(first?' pt-tf-first':'')+(last?' pt-tf-last':'')+' ');}
     if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow)
     +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> Lezárt projektek <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
-  (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);});
+  (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);if(S._ptScrollPending){S._ptScrollPending=false;requestAnimationFrame(()=>{const t=document.querySelector('.pt-tf-first,.pt-today-row');if(t&&!f.q)t.scrollIntoView({block:'center'});});}});
   const qIn=`<input class="inp search pt-q" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">`;   // a keresőmező a táblázat „Projekt” fejlécében
   const mob=!ro()&&!!(window.matchMedia&&matchMedia('(max-width:700px)').matches);   /* telefonon: a kereső és az „Új projekt” egy sorban, a fül neve már kimondja, hol vagyunk */
   if(mob)return `<div class="page-head ph-mob">${qIn.replace('placeholder="Keresés név, ügyfél, helyszín szerint"','placeholder="Keresés: név, ügyfél, helyszín"')}<button class="btn primary w" type="button" data-action="new-project">+ Új</button></div>
