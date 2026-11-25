@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6f5827cfb3",
+"at": "2026-11-25T16:14:35+01:00",
+"msg": "Változás-értesítő: a csak vágóként beosztott szakember nem kap levelet a helyszíni időpont / helyszín változásáról"
+},
+{
 "id": "55fac4939a",
 "at": "2026-11-25T16:08:12+01:00",
 "msg": "Projektoldal: egyforma hézag minden panel között és egyforma magas csukott kártyák (a Szolgáltatások kártya plusz térköze megszűnt)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Csatolmányok ✕: várakozó kimarad, feltöltés alatti megszakad, kész (még el nem küldött) a Drive kukájába kerül; jóváhagyó oldalon is megszakítható"
 },
 {
-"id": "bf97a5ce1f",
-"at": "2026-11-25T14:04:26+01:00",
-"msg": "Jóváhagyó oldal feltöltései az új fájlkártya-stílusban (és a hozzászólásban kártyaként); vezetői bejegyzések kékek, az ügyfél jóváhagyása zöld"
-},
-{
-"id": "cc677f1550",
-"at": "2026-11-25T13:00:42Z",
+"id": "8289c554fb",
+"at": "2026-11-25T13:04:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
