@@ -197,7 +197,7 @@ const ACT={
         const ci=ids.indexOf(cur);if(i>=0&&i+1<ids.length&&ci<=i)setTimeout(()=>ACT.stage({dataset:{v:ids[i+1]}}),0);}};
     if(on&&v==='tervezes'){if(reqBlock()||invBlock(d))return;if(crewFinalOn()&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}}   // a tervezés csak kitöltött adatokkal és véglegesített stábbal zárható
     if(on&&(v==='helyszin'||v==='utomunka')&&crewFinalOn()&&!set.has('helyszin')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){crewFinalPopup(d,()=>ACT['step-done'](b));return;}   // előbb a stáb véglegesítése
-    const raw=next=>()=>{const eds=rawEditors(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawMailModal(next);else next();};   // vágói munka: e-mail a vágónak a nyersanyagról
+    const raw=next=>()=>{const eds=rawEditors(S.draft);if(v==='helyszin'&&eds.length&&needsDelivery(S.draft)&&!S.draft.rawSentAt)rawAskModal(next);else next();};   /* helyszíni munka → utómunka: beszámoló, majd „Feltöltötted a nyersanyagot?” – igen: a vágó e-mailt kap és indulhat; még nem: a projekt a helyszíni munkánál marad */   // vágói munka: e-mail a vágónak a nyersanyagról
     if(on&&(v==='helyszin'||v==='utomunka')&&siteFuture(d)){toast(siteFutureMsg(d),true);return;}
     if(on&&v==='helyszin'&&!d.siteOk){siteModal(raw(apply));return;}   // a helyszíni munka kipipálásakor jön a beszámoló
     if(on&&v==='helyszin'){raw(apply)();return;}
