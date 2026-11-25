@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "64519f078f",
+"at": "2026-11-25T12:24:58+01:00",
+"msg": "Videó-hozzászólás: fájl csatolása (Drive „Anyagok a vágáshoz”, link a hozzászólásba, húzással is); hosszú linkek rövidítve, a felsorolás tördelése nem esik szét"
+},
+{
 "id": "7d9edc75d6",
 "at": "2026-11-25T12:11:53+01:00",
 "msg": "Díjösszesítő-ablak: rendezett tördelés az előző hónapok sorával; korrekció / kiküldés után minden nyitott nézet frissül, a nyitott előnézet a friss adatból"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "4809b9af3d",
 "at": "2026-11-24T21:34:54+01:00",
 "msg": "Banki utalásból kiadás: külföldi szolgáltatónál ÁFA nélkül (nettó = utalt összeg); figyelmeztet, ha a hónapban már van hasonló kiadás"
-},
-{
-"id": "9a630fe01b",
-"at": "2026-11-24T21:30:40+01:00",
-"msg": "Kifizetve, de nincs számla: a Rezsi/Marketing/Elvetés után a tétel nem jön vissza (friss adatból válaszol a szerver, párhuzamos kattintások sem hozzák vissza)"
 }
 ];
 const allowed = require('./_auth.js');
