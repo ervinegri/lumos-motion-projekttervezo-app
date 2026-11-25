@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "40d48eed10",
+"at": "2026-11-25T09:12:55+01:00",
+"msg": "Lehetőség ablak: az ügyfélnek kiküldött összes ajánlat-levél listája a Gmailből (kattintásra a PDF)"
+},
+{
 "id": "759d70ecb6",
 "at": "2026-11-25T09:05:32+01:00",
 "msg": "Árajánlat: + Tétel nem ugrik a lap tetejére; tételek sorrendje húzással; a lehetőségnél korábban kiküldött (felülírt) ajánlatok is megmaradnak és megnyithatók"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Tagi kölcsön: a kézi „+ Tétel” gomb kikerül"
 },
 {
-"id": "f6cad78e06",
-"at": "2026-11-24T18:48:48+01:00",
-"msg": "Tagi kölcsön: egyszeri bankkivonat-egyeztetés (2026-11-24)"
-},
-{
-"id": "c39f6e78c2",
-"at": "2026-11-24T15:41:47Z",
+"id": "29ef28e0da",
+"at": "2026-11-24T17:49:00Z",
 "msg": "Változásnapló frissítése"
 }
 ];
