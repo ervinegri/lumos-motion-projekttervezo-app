@@ -30,6 +30,10 @@ function sigList_() { const o = {}; loadUsers_().filter(x => (x.role === 'admin'
 const FRONTEND_LABEL = FRONTEND_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');   // a levelekben így látszik: projekttervezo.lumosmotion.hu
 
 /** Nyersanyag feltöltve – e-mail a vágó(k)nak. a: {projectId, crewIds:[], link, text} */
+/** A termelési vezető (vagy az ügyvezető) kipipálja: a nyersanyag fent van – ezzel indulhat a vágó (a kártya feloldódik). on=false: visszavonás. */
+function rawMark_(u, a) { a = a || {}; const id = str_(a.projectId, 64), on = a.on !== false; let name = '';
+  withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, id); if (!row) throw new Error('A projekt nem található.'); const p = readRow_('projects', sh, row); name = p.name; p.rawSentAt = on ? today_() : ''; putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); });
+  logEvent_(u, on ? 'Nyersanyag feltöltve – kipipálva' : 'Nyersanyag kipipálás visszavonva', name, ''); return { rawSentAt: on ? today_() : '' }; }
 function rawNotify_(u, a) {
   a = a || {};
   const sh = sheetFor_('projects'), row = findRow_(sh, str_(a.projectId, 64)); if (!row) throw new Error('A projekt nem található.');
@@ -42,6 +46,7 @@ function rawNotify_(u, a) {
   const opts = mailOptsFor_(u, html); delete opts.__actor;
   sendAs_(to.join(','), subj_('Nyersanyag feltöltve – ' + p.name), text + (sig ? '\n\n' + sig.text : ''), opts);
   logEvent_(u, 'Nyersanyag feltöltve', p.name, 'E-mail a vágónak: ' + to.join(', ') + (link ? ' · ' + link : ''));
+  try { if (!p.rawSentAt) { withLock_(() => { const sh2 = sheetFor_('projects'), r2 = findRow_(sh2, p.id); if (!r2) return; const q = readRow_('projects', sh2, r2); q.rawSentAt = today_(); putRow_('projects', sh2, q, r2); dataBump_(); dbFlush_(); }); } } catch (e) {}   // a levél egyben a kipipálás is
   return { sentTo: to };
 }
 /** A kész videók linkjeinek módosítása (lezárt projektnél is): ügyvezető / termelési vezető. a: {projectId, link, links, pass} */
@@ -510,6 +515,7 @@ function rpcInner_(token, name, arg) {
     case 'decideBudgetChange': adminOnly(); return decideBudgetChange_(u, arg);
     case 'saveProject': canEdit(); return projectView_(saveProject_(u, arg), u);
     case 'rawNotify': canEdit(); return rawNotify_(u, arg);
+    case 'rawMark': canEdit(); return rawMark_(u, arg);
     case 'crewDeliver': return crewDeliver_(u, arg);
     case 'videoSet': return videoSet_(u, arg);
     case 'videoVerDelete': return videoVerDelete_(u, arg);   // próbából bent maradt korábbi verzió törlése
