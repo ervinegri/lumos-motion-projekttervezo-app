@@ -1432,7 +1432,14 @@ function vidUpChunk_(u, a) {
   const f = JSON.parse(res.getContentText() || '{}'); C.remove('vup_' + upId);
   const mb = r.size / 1048576, sz = mb >= 1 ? (Math.round(mb * 10) / 10).toString().replace('.', ',') + ' MB' : Math.max(1, Math.round(r.size / 1024)) + ' KB';
   try { logEvent_(u, 'Fájl csatolva a videóhoz', r.name, sz); } catch (e) {}
-  return { done: true, name: r.name, url: 'https://drive.google.com/file/d/' + f.id + '/view', size: sz };
+  return { done: true, name: r.name, url: 'https://drive.google.com/file/d/' + f.id + '/view', fileId: f.id, size: sz };
+}
+/* a még el nem küldött csatolmány levétele: a fájl a Drive kukájába kerül (csak a saját, „Anyagok a vágáshoz” mappába feltöltött fájl) */
+function vidUpDel_(u, a) {
+  a = a || {}; vupCheck_(u, str_(a.projectId, 64), str_(a.id, 40));
+  const f = DriveApp.getFileById(str_(a.fileId, 100)), par = f.getParents(), inMat = par.hasNext() && par.next().getName() === 'Anyagok a vágáshoz';
+  if (!inMat || String(f.getDescription() || '').indexOf(u.name + ' csatolta a videóhoz') !== 0) throw new Error('Ezt a fájlt nem lehet innen törölni.');
+  f.setTrashed(true); return { ok: true };
 }
 
 /** az ügyfél formázott üzenete e-mailben: **félkövér**, _dőlt_, „- ” felsorolás → HTML (biztonságosan, előbb escape) */

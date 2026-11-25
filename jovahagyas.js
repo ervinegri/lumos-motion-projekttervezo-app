@@ -340,15 +340,15 @@ function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[
     const fmt=n=>n>=1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
     const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     let Q=Promise.resolve(),busy=0;
-    const one=f=>{const li=document.createElement('li');li.innerHTML=`<span class="ui">📎</span><span class="un">${esc(f.name)}</span><span class="ub"><i></i></span><span class="us">várakozik…</span>`;list.appendChild(li);setTimeout(()=>{try{li.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(e){}},30);
+    const one=f=>{const li=document.createElement('li');li.innerHTML=`<span class="ui">📎</span><span class="un">${esc(f.name)}</span><span class="ub"><i></i></span><span class="us">várakozik…</span><button type="button" class="ux" title="Megszakítás" aria-label="Megszakítás">✕</button>`;list.appendChild(li);let cancel=false;li.querySelector('.ux').onclick=()=>{cancel=true;li.remove();};   /* várakozó / feltöltés alatti fájl levehető (a kész feltöltés már nálunk van) */setTimeout(()=>{try{li.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(e){}},30);
       const st=x=>li.querySelector('.us').textContent=x,bar=p=>li.querySelector('.ub i').style.width=Math.round(p*100)+'%';
       if(f.size>300*1024*1024){li.classList.add('u-err');st('túl nagy (max. 300 MB)');return;}
       if(DEMO||(LAST&&LAST.preview)){li.classList.add('u-pv');let k=0;const tm=setInterval(()=>{k=Math.min(1,k+0.1);bar(k);st(Math.round(k*100)+'% · előnézet');if(k>=1){clearInterval(tm);st('előnézet – itt nem töltjük fel (az ügyfélnél feltöltődik)');}},120);return;}   /* belső előnézet: a folyamatjelző csak bemutató, a fájl nem kerül fel */
-      busy++;Q=Q.then(async()=>{try{st('feltöltés… 0% · '+fmt(f.size));const s0=await post('clientUpStart',[t,CUR,f.name,f.type||'',f.size]);let off=0,res=null;
-          while(off<f.size){const ch=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await b64(ch);let tries=0;
+      busy++;Q=Q.then(async()=>{if(cancel)return;try{st('feltöltés… 0% · '+fmt(f.size));const s0=await post('clientUpStart',[t,CUR,f.name,f.type||'',f.size]);let off=0,res=null;
+          while(off<f.size){if(cancel)return;const ch=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await b64(ch);let tries=0;
             for(;;){try{res=await post('clientUpChunk',[t,s0.upId,off,d]);break;}catch(e){if(++tries>=3||/lejárt|Hibás/.test(e.message))throw e;await new Promise(r=>setTimeout(r,1500*tries));}}
             off=res&&res.next?res.next:off+ch.size;bar(Math.min(1,off/f.size));st('feltöltés… '+Math.round(Math.min(1,off/f.size)*100)+'% · '+fmt(Math.min(off,f.size))+' / '+fmt(f.size));if(res&&res.done)break;}
-          li.classList.add('u-ok');bar(1);st('✓ '+fmt(f.size));}
+          li.classList.add('u-ok');bar(1);st('✓ '+fmt(f.size));const ux=li.querySelector('.ux');if(ux)ux.remove();}
         catch(e){li.classList.add('u-err');st('nem sikerült: '+e.message);}finally{busy--;}});};
     const add=files=>{[...files].forEach(one);if(inp)inp.value='';};
     if(box&&inp){$('bUp').onclick=()=>inp.click();inp.onchange=()=>add(inp.files);
