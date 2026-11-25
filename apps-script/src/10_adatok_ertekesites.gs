@@ -1,3 +1,4 @@
+let MIG_NOTE_ = '';
 /* ===================== ADATOK BETÖLTÉSE ===================== */
 /* Gyorsítótár a betöltéshez: a táblázat teljes tartalmát (szerepkör-szűrés előtt) 10 percig a Script Cache-ben tartjuk.
    Minden módosító művelet után új verziószámot kap, így a változás azonnal látszik. (Ha valaki közvetlenül a táblázatban
@@ -109,7 +110,7 @@ function noNegotiationOnce_() {
 function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lépések kimaradnak (gyorsabb) – a következő normál betöltés elvégzi
   if (u.role === 'sales') return viewAsPick_(salesBootstrap_(u), u);   // az értékesítő csak a saját lehetőségeit és az ügyfeleket kapja meg – projektet, díjat, stábot nem
   if (!light) {
-    if (u.role === 'admin') { try { migJegvarazsBack_(); } catch (e) { Logger.log('Jégvarázs visszaállítás: ' + e); } }
+    if (u.role === 'admin') { try { MIG_NOTE_ = migJegvarazsBack_() || ''; } catch (e) { MIG_NOTE_ = 'Jégvarázs: ' + e; } }
     try { migrateEmployeesOnce_(); } catch (e) {}
     try { if (u.role === 'admin') dealNotesCleanupOnce_(); } catch (e) {} try { if (u.role === 'admin') crewMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') erVideosOnce_(); } catch (e) {} try { if (u.role === 'admin') noNegotiationOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteStoreMigrateOnce_(); } catch (e) {} try { if (u.role === 'admin') loanDupMergeOnce_(); } catch (e) {} try { if (u.role === 'admin') loanFixOnce_(); } catch (e) {} try { if (u.role === 'admin') loanFixOnce2_(); } catch (e) {} try { if (u.role === 'admin') szDocCrewRetryOnce_(); } catch (e) {} try { if (u.role === 'admin') szDocExpDupOnce_(); } catch (e) {} try { if (u.role === 'admin') calAdminGuestCleanOnce_(); } catch (e) {} try { if (u.role === 'admin') quoteValueOnce_(); } catch (e) {} try { if (u.role === 'admin') orgFeeFixOnce_(); } catch (e) {} try { if (u.role === 'admin') doneBackfillOnce_(); } catch (e) {} try { if (u.role === 'admin') crewRoleFixOnce_(); } catch (e) {} try { if (u.role === 'admin') finFixSep2026Once_(); } catch (e) {} try { if (u.role === 'admin') fixQueensRefOnce_(); } catch (e) {} try { if (u.role === 'admin') hsDealImportOnce_(); } catch (e) { try { PropertiesService.getScriptProperties().setProperty('HS_SYNC_ERR', now_() + ' · HubSpot-deal áthozatal: ' + String(e && e.message || e).slice(0, 200)); } catch (x) {} }
     try { migrateFinalizedOnce_(); } catch (e) {}
@@ -169,6 +170,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   try { out.leads = {}; loadUsers_().forEach(x => { if (x && (x.role === 'admin' || x.role === 'editor') && x.name) out.leads[String(x.name).trim()] = x.role; }); } catch (e) { }   // a hozzászólásoknál: ki ügyvezető / termelési vezető (ikon a név előtt)
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
 }
 /** Saját stábrekord azonosítása: fiók-kapcsolat, e-mail, majd egyedi teljes névegyezés. */
@@ -470,11 +472,18 @@ function parseRentals_(raw) {
 let CREW_MAP_CACHE_ = null;
 
 /* Egyszeri (Ervin kérése, 2026-11-25): a „Jégvarázs Klíma November” projekt vissza a Helyszíni munka lépésre, hogy a termelési vezető
-   az új folyamattal (nyersanyag-kérdés + e-mail a vágónak) húzza át az Utómunkába; addig a vágó kártyái zárva. Csak ha a videók még az elején tartanak. */
-function migJegvarazsBack_() { const P = PropertiesService.getScriptProperties(); if (P.getProperty('MIG_JEGV_BACK_1')) return;
-  withLock_(() => { const p0 = readAll_('projects').find(x => /^Jégvarázs Klíma November$/i.test(String(x.name || '').trim())); if (!p0) { P.setProperty('MIG_JEGV_BACK_1', 'nincs'); return; }
-    const sh = sheetFor_('projects'), row = findRow_(sh, p0.id); if (!row) return; const p = readRow_('projects', sh, row);
-    if (p.status !== 'utomunka' || parseVideos_(p.videos).some(v => v.st && v.st !== 'vagasra')) { P.setProperty('MIG_JEGV_BACK_1', 'kihagyva:' + p.status); return; }
-    p.status = 'helyszin'; p.rawSentAt = ''; p.stepsDone = String(p.stepsDone || '').split(',').filter(x => x && x !== 'helyszin' && x !== 'utomunka' && x !== 'jovahagyas').join(',');
-    putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); P.setProperty('MIG_JEGV_BACK_1', 'kész ' + now_()); });
-  try { logEvent_({ name: 'Rendszer' }, 'Projekt vissza a Helyszíni munkára', 'Jégvarázs Klíma November', 'az új nyersanyag-folyamathoz (Ervin kérése)'); } catch (e) {} }
+   az új folyamattal (nyersanyag-kérdés + e-mail a vágónak) húzza át az Utómunkába; addig a vágó kártyái zárva (a már „Utómunka alatt” kártya is vissza „Utómunkára vár”-ba).
+   Az eredmény az ügyvezető felületén egyszer megjelenik (bootstrap: migNote). */
+function migJegvarazsBack_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_JEGV_BACK_2'; if (P.getProperty(K)) return P.getProperty(K);
+  const fold = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); let res = '';
+  try { withLock_(() => { const L = readAll_('projects').filter(x => fold(x.name).indexOf('jegvarazs') >= 0 && fold(x.name).indexOf('november') >= 0 && x.status !== 'atadva' && x.status !== 'lemondva');
+      if (L.length !== 1) { res = 'Jégvarázs: ' + L.length + ' találat – nem módosítottam.'; return; }
+      const sh = sheetFor_('projects'), row = findRow_(sh, L[0].id); if (!row) { res = 'Jégvarázs: a projekt sora nem található.'; return; } const p = readRow_('projects', sh, row), vids = parseVideos_(p.videos);
+      if (p.status === 'helyszin') { res = 'Jégvarázs: már a Helyszíni munkán van.'; return; }
+      if (p.status !== 'utomunka') { res = 'Jégvarázs: a projekt állapota „' + p.status + '” – nem módosítottam.'; return; }
+      const far = vids.filter(v => v.st && v.st !== 'vagasra' && v.st !== 'vagas'); if (far.length) { res = 'Jégvarázs: ' + far.length + ' videó már ellenőrzésen / tovább jár – nem módosítottam.'; return; }
+      let back = 0; vids.forEach(v => { if (v.st === 'vagas') { v.st = 'vagasra'; back++; } });
+      p.videos = JSON.stringify(vids); p.status = 'helyszin'; p.rawSentAt = ''; p.stepsDone = String(p.stepsDone || '').split(',').filter(x => x && x !== 'helyszin' && x !== 'utomunka' && x !== 'jovahagyas').join(',');
+      putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); res = '✓ Jégvarázs Klíma November visszakerült a Helyszíni munkára' + (back ? ' (' + back + ' kártya vissza az „Utómunkára vár” oszlopba)' : '') + ' – a vágó kártyái zárva, amíg a termelési vezető át nem húzza.'; }); }
+  catch (e) { res = 'Jégvarázs visszaállítás hiba: ' + (e && e.message || e); }
+  P.setProperty(K, res || 'ismeretlen'); try { logEvent_({ name: 'Rendszer', email: '' }, 'Jégvarázs visszaállítás', 'Jégvarázs Klíma November', res); } catch (e) {} return res; }
