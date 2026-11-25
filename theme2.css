@@ -3303,3 +3303,11 @@ a.md-a{overflow-wrap:anywhere;word-break:break-word}
 .vv-att-st{flex:none;color:var(--muted,#6b7684)}
 .vv-cm-new.vv-drop{outline:2px dashed #7aa7d6;outline-offset:3px;border-radius:10px}
 html body .vv-cm-i.st-seen,html body .vv-cm-i.st-clin{border-left-color:#d48a00;background:#fff6e5}html body .vv-cm-i.st-seen .vv-step-tag{background:#ffe7b8;color:#7a4a00}
+/* csatolt fájl: kártya a hozzászólásban és a szövegdoboz alatt */
+html body a.vv-file{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:4px 0 2px;padding:7px 12px;border:1px solid var(--line,#d5dbe3);border-radius:10px;background:#fff;color:inherit;text-decoration:none;font-size:13.5px}
+html body a.vv-file:hover{border-color:#9db4cc;background:#f6f9fc}
+html body a.vv-file .vv-file-n{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body a.vv-file small{flex:none;color:var(--muted,#6b7684)}
+.vv-att-row{padding:6px 10px;border:1px solid var(--line,#e1e5ea);border-radius:10px;background:#fff}
+.vv-att-row .vv-att-n{font-weight:600}
+.vv-att-x{flex:none;border:0;background:transparent;cursor:pointer;color:var(--muted,#6b7684);font-size:14px;padding:0 2px;line-height:1}.vv-att-x:hover{color:#b4442f}

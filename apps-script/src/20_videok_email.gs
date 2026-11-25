@@ -123,7 +123,7 @@ function videoReviewBatch_(u, a) {
   return { projects: Object.keys(projects).map(k => projects[k]), mail: mail, n: done.length };
 }
 /** Hozzászólás egy videóhoz (vezető vagy a projekt vágója); ts: másodperc a videóban, ha a lejátszóból időponthoz kötötték. A vágó e-mailt kap, ha más írt; ha ő írt, az ellenőrző. */
-const pinStrip_ = t => String(t || '').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' – jelölés]');   // az e-mailben nincs emoji (a levelezők elrontják)   // a tű koordinátái az e-mailben nem kellenek
+const pinStrip_ = t => String(t || '').replace(/^\[file\](https:\/\/\S+?)\|([^|\n]*)\|([^\n]*)$/gm, 'Csatolt fájl: $2 ($3) – $1').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' – jelölés]');   // az e-mailben nincs emoji (a levelezők elrontják)   // a tű koordinátái az e-mailben nem kellenek
 function videoComment_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', t = str_(a.text, 6000).trim();
@@ -1443,5 +1443,5 @@ function bbInl(h){h=String(h);for(let k=0;k<6;k++){const p=h;h=h.replace(/\[u\](
   .replace(/\[font=([a-z]+)\]([\s\S]*?)\[\/font\]/g,(m,f,x)=>BB_FONT[f]?'<span style="font-family:'+BB_FONT[f]+'">'+x+'</span>':x).replace(/\[size=([a-z]+)\]([\s\S]*?)\[\/size\]/g,(m,z,x)=>BB_SIZE[z]?'<span style="font-size:'+BB_SIZE[z]+'">'+x+'</span>':x);if(h===p)break;}return h;}
 function bbLine(L){L=String(L);let al='',ind=0,m;while((m=/^\[(center|right|justify|indent=([1-6]))\]/.exec(L))){if(m[2])ind=+m[2];else al=m[1];L=L.slice(m[0].length);}return {t:L,st:(al?'text-align:'+al+';':'')+(ind?'padding-left:'+(ind*2)+'em;':'')};}
 function bbStrip(t){return String(t||'').replace(/\[(\/?(u|s|color|font|size)(=[^\]]*)?|center|right|justify|indent=\d)\]/g,'');}
-function mdMail_(t) { return String(t || '').split('\n').map(L => { const q = bbLine(L); let h = bbInl(escapeHtml_(q.t).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g, '<i>$1</i>'));
+function mdMail_(t) { return String(t || '').split('\n').map(L => { const fm = /^\[file\](https:\/\/\S+?)\|([^|]*)\|(.*)$/.exec(L); if (fm) return '📎 <a href="' + escapeHtml_(fm[1]) + '"><b>' + escapeHtml_(fm[2]) + '</b></a> <span style="color:#667788">(' + escapeHtml_(fm[3]) + ')</span>'; const q = bbLine(L); let h = bbInl(escapeHtml_(q.t).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/_(?=\S)([^_]*?\S)_/g, '<i>$1</i>'));
   const b = /^\s*[-•*]\s+(.*)$/.exec(h); h = b ? '&nbsp;&nbsp;•&nbsp;' + b[1] : h; return q.st ? '<span style="display:block;' + q.st + '">' + h + '</span>' : h; }).join('<br>'); }
