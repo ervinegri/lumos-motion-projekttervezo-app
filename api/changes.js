@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66b1b112d1",
+"at": "2026-11-25T15:43:37+01:00",
+"msg": "Nyersanyag-levél: darabszám „db”-vel"
+},
+{
 "id": "190a54dbdf",
 "at": "2026-11-25T15:43:24+01:00",
 "msg": "Nyersanyag-levél: formázott, szerkeszthető előnézet aláírással (mint az ügyfél-levél); a Helyszíni munka „Rendben” jelzése csak áthúzás után, áthúzáskor mindig rákérdez; a piros hiba szövege rövidebb"
@@ -147,14 +152,9 @@ const ITEMS = [
 "msg": "Díjösszesítő: az előző hónapok még ki nem számlázott összege is belefoglalható (egy számla), a belefoglalt hónap az egyenlegben nem számít kétszer"
 },
 {
-"id": "7bcc08bc66",
-"at": "2026-11-25T11:34:25+01:00",
-"msg": "Jóváhagyó oldal: a „Mindent leírtál?” kérdés alatt végzett javítás is elmegy (eddig a gombnyomáskori szöveg ment el); időkód dupla kattintással átírható"
-},
-{
-"id": "ac9845e918",
-"at": "2026-11-25T09:51:13Z",
-"msg": "Háttérkód telepítési állapota: rendben"
+"id": "33363569f2",
+"at": "2026-11-25T10:34:38Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
