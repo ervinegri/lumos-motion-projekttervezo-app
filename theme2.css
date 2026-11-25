@@ -3316,3 +3316,6 @@ html body .vv-cm-i.who-mgr{border-left:4px solid #2f6fdf;background:#eef4ff}html
 .vv-att-row.ok{border-color:#bfe3cc;background:#f1faf4}.vv-att-row.ok .vv-att-st{color:#1e7a46;font-weight:700}
 html body .mail-head{margin:0 0 12px;padding:10px 14px;border:1px solid var(--line,#e1e5ea);border-radius:10px;background:#f7f8fb;font-size:13.5px;line-height:1.6}html body .mail-head span{display:inline-block;min-width:56px;color:var(--muted,#6b7684)}
 html body .rolepick label.raw-to{cursor:default}
+/* projektoldal: a panelek között mindenhol egyforma (12px) távolság */
+html body .dfull{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}html body .dfull>*{margin-top:0!important;margin-bottom:0!important}
+html body .panel.content{margin-top:0}html body .crew-wide{margin-top:12px}html body .money-panel{margin-top:12px}
