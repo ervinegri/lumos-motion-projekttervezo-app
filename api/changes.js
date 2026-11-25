@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "41c8533f61",
+"at": "2026-11-25T16:16:51+01:00",
+"msg": "Zár ikon: kinyitva jól láthatóan nyitott lakat (saját rajzolt ikon az emoji helyett)"
+},
+{
 "id": "6f5827cfb3",
 "at": "2026-11-25T16:14:35+01:00",
 "msg": "Változás-értesítő: a csak vágóként beosztott szakember nem kap levelet a helyszíni időpont / helyszín változásáról"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Feltöltés: kész fájl zöld pipával (bemutatóban is), belső feltöltés közben a lap bezárása előtt figyelmeztetés"
 },
 {
-"id": "c039c5b0ec",
-"at": "2026-11-25T14:09:56+01:00",
-"msg": "Csatolmányok ✕: várakozó kimarad, feltöltés alatti megszakad, kész (még el nem küldött) a Drive kukájába kerül; jóváhagyó oldalon is megszakítható"
-},
-{
-"id": "8289c554fb",
-"at": "2026-11-25T13:04:37Z",
+"id": "4db577f38c",
+"at": "2026-11-25T13:10:07Z",
 "msg": "Változásnapló frissítése"
 }
 ];
