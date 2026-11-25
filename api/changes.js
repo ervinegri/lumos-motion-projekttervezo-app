@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4642cb0f9e",
+"at": "2026-11-25T15:03:02+01:00",
+"msg": "Jégvarázs Klíma November: egyszeri visszaállítás a Helyszíni munka lépésre (az új nyersanyag-folyamathoz)"
+},
+{
 "id": "a1560ca7ba",
 "at": "2026-11-25T15:00:05+01:00",
 "msg": "Utómunkába lépés: a vágó mindenképp e-mailt kap; a termelési vezető küldés előtt látja a levelet (feladó, tárgy, címzett, szöveg)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "7a6097396f",
 "at": "2026-11-25T07:58:06+01:00",
 "msg": "Értékesítés: „＋ Új ajánlat ennek az ügyfélnek” a lehetőség kártyán – új lehetőség az ügyfél és a kapcsolattartó adataival, utána rögtön az árajánlat"
-},
-{
-"id": "26699782ca",
-"at": "2026-11-25T07:51:25+01:00",
-"msg": "Jóváhagyó oldal: „A projektet lezártuk.”"
 }
 ];
 const allowed = require('./_auth.js');
