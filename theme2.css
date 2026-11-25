@@ -3285,3 +3285,5 @@ html body .q-row.q-dragging{opacity:.45}html body .q-row.q-over-top{box-shadow:i
 html body .q-no b{font-weight:inherit}
 
 html body .dl-qgrp{display:flex;flex-direction:column;gap:3px}html body .dl-qold:empty{display:none}html body .dl-qold{display:flex;flex-direction:column;gap:3px;padding-left:14px}html body .dl-qrow-old{background:transparent;font-size:13px}html body .dl-qrow-old .dl-qr-t{font-weight:500;color:var(--muted,#6b7480)}
+
+html body .dl-qmails{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line,#e2e6ea)}html body .dl-qm-h{font-size:13px;font-weight:700;color:var(--muted,#6b7480);margin-bottom:2px}

@@ -691,6 +691,12 @@ function quoteSent_(u, a) {
     try { dataBump_(); } catch (e) {} a = { dealId: d.id, op: 'pdf' };
   }
   if (a.op === 'hist') return quoteHist_(d);
+  if (a.op === 'mails') return quoteMails_(d);
+  if (a.op === 'mailpdf') {   // egy elküldött ajánlat-levél PDF-je (csak az ügyfél címére ment levél)
+    const em = quoteClientEmails_(d), msg = GmailApp.getMessageById(str_(a.msg, 40)); if (!msg) return null;
+    const to = String(msg.getTo() + ',' + msg.getCc()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0)) throw new Error('FORBIDDEN: Ez a levél nem ennek az ügyfélnek szólt.');
+    const att = msg.getAttachments().find(x => /pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf'); if (!att) return null;
+    return { at: Utilities.formatDate(msg.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), by: '', to: msg.getTo(), subject: msg.getSubject(), total: 0, b64: Utilities.base64Encode(att.getBytes()), old: true, q: null }; }
   if (a.at) {   // egy korábbi kiküldés PDF-je
     const m0 = quoteSentAt_(d, str_(a.at, 30)); if (!m0) return null; const b64 = Utilities.base64Encode(DriveApp.getFileById(m0.fileId).getBlob().getBytes()); const r0 = Object.assign({}, m0); delete r0.fileId; r0.b64 = b64; r0.old = true; return r0; }
   let v = qGet_('QS_' + d.id); v = v ? JSON.stringify(v) : null;
@@ -700,6 +706,14 @@ function quoteSent_(u, a) {
   if (a.op === 'pdf') { const b64 = Utilities.base64Encode(DriveApp.getFileById(m.fileId).getBlob().getBytes()); delete m.fileId; m.b64 = b64; return m; }   // a PDF az adataival együtt
   delete m.fileId; return m;
 }
+/* Az ügyfél (cég) összes kiküldött ajánlat-levele a Gmail „Elküldött” mappájából – minden lehetőségéhez, a legújabb elöl. */
+function quoteClientEmails_(d) { const k = String(d.client || '').trim().toLowerCase(), S0 = new Set(); const add = e => String(e || '').split(/[,;\s]+/).forEach(x => { x = x.trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)) S0.add(x); });
+  add(d.contactEmail); add(d.contactEmail2); if (k) readAll_('deals').filter(x => String(x.client || '').trim().toLowerCase() === k).forEach(x => { add(x.contactEmail); add(x.contactEmail2); }); return [...S0].slice(0, 6); }
+function quoteMails_(d) { const em = quoteClientEmails_(d); if (!em.length) return [];
+  const th = GmailApp.search('in:sent (' + em.map(e => 'to:' + e).join(' OR ') + ') subject:(árajánlat OR ajánlat) has:attachment filename:pdf', 0, 30), out = [];
+  th.forEach(t => t.getMessages().forEach(m => { const to = String(m.getTo() + ',' + m.getCc()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0)) return; if (!m.getAttachments().some(x => /pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf')) return;
+    out.push({ id: m.getId(), at: Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), subject: m.getSubject(), to: m.getTo() }); }));
+  out.sort((a, b) => b.at.localeCompare(a.at)); return out.slice(0, 30); }
 /* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
 function quoteSends_(d) { const out = [], re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/g; let m; const t = String(d.note || ''); while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0 }); return out; }
 function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
