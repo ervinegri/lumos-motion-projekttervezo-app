@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3e77520e5e",
+"at": "2026-11-25T14:21:10+01:00",
+"msg": "Jóváhagyó oldal: az időkód mindig kék csipp (dőlt szövegben, listában, kézzel beírva vagy beillesztve is)"
+},
+{
 "id": "499ea8f6da",
 "at": "2026-11-25T14:17:14+01:00",
 "msg": "Feltöltés: kész fájl zöld pipával (bemutatóban is), belső feltöltés közben a lap bezárása előtt figyelmeztetés"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "c44e509d8a",
 "at": "2026-11-24T22:08:06+01:00",
 "msg": "Jóváhagyó oldal: a feltöltött fájl sora nem lesz zöld gomb (osztálynév-ütközés a Jóváhagyom gombbal)"
-},
-{
-"id": "a32a2b1d47",
-"at": "2026-11-24T22:03:48+01:00",
-"msg": "Jóváhagyó oldal: az Enter újra időkódot szúr be (a videón / az oldalon; a szövegszerkesztőben új sor)"
 }
 ];
 const allowed = require('./_auth.js');
