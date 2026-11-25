@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "46231919b5",
+"at": "2026-11-25T16:20:11+01:00",
+"msg": "Adatvédelmi teszt és szabály: a szakember nézet nem mutathat másokra vonatkozó adatot (őrző teszt)"
+},
+{
 "id": "b86c97382d",
 "at": "2026-11-25T16:17:37+01:00",
 "msg": "Szakember nézet: a projekt-figyelmeztetések (mások ügyei) soha nem látszanak; az e-mail-hiány figyelmeztetés csak betöltött címeknél"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: a feltöltött fájlok piszkozatként várnak, és a módosításkéréssel / jóváhagyással együtt mennek el (hozzászólás + értesítő); 24 óra után a nem küldöttek a kukába"
 },
 {
-"id": "3e77520e5e",
-"at": "2026-11-25T14:21:10+01:00",
-"msg": "Jóváhagyó oldal: az időkód mindig kék csipp (dőlt szövegben, listában, kézzel beírva vagy beillesztve is)"
-},
-{
-"id": "301678fbb8",
-"at": "2026-11-25T13:17:23Z",
+"id": "1bda7e0ec0",
+"at": "2026-11-25T13:21:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
