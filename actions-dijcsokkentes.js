@@ -514,7 +514,7 @@ ACT['raw-not-yet']=()=>{closeModal();toast('Rendben – a projekt a helyszíni m
 /* Helyszíni munka után: e-mail a vágónak, hogy fent van a nyersanyag */
 function rawMailModal(next){const d=S.draft;if(!d)return;const eds=rawEditors(d),r=pr(d),due=dueDate(d),nf=nasFolder(d);
   const first=eds.length===1?huFirst(String(eds[0].name)):'';
-  const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.label+': '+t.n}${t.k==='foto_db'?' db':''}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
+  const tl=postTasks(d).map(t=>{const o=taskOwners(d,t.k).map(id=>(crewById(id)||{}).name).filter(Boolean);return `– ${t.k==='er_post_n'?t.n+' helyszín előadásainak utómunkája':t.label+': '+t.n+' db'}${eds.length>1&&o.length?' ('+o.join(', ')+')':''}`;});
   const text=`Szia${first?' '+first:''}!\n\n${(w=>w[0].toUpperCase()+w.slice(1))(huArt(d.name))} „${d.name}”${r?' ('+fmtRange(d)+')':''} nyersanyaga fent van a NAS-on.\n${due?'\nLeadási határidő: '+fmtDay(due)+'.':''}${tl.length?'\n\n'+(eds.length>1?'Feladatok:':'Amit el kell készítened:')+'\n'+tl.join('\n'):''}\n\nKöszi!`;
   if(!eds.some(c=>c.email)){toast('A vágónak nincs e-mail-címe a Stáb listában – add meg, mert a vágó mindenképp e-mailt kap a nyersanyagról.',true);return;}   /* a vágó mindenképp levelet kap */
   const toTxt=eds.filter(c=>c.email).map(c=>c.name+' <'+c.email+'>').join(', ');
