@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cb3fac4ba0",
+"at": "2026-11-25T17:06:16+01:00",
+"msg": "Felnyitott projekt: 🔒 Visszazárás gomb (ugyanarra a lezárási dátumra)"
+},
+{
 "id": "23296312af",
 "at": "2026-11-25T17:04:15+01:00",
 "msg": "Helyszíni munka → Kész: a beszámoló ablak nem jön fel kétszer egymás után"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jégvarázs Klíma November: egyszeri visszaállítás a Helyszíni munka lépésre (az új nyersanyag-folyamathoz)"
 },
 {
-"id": "a1560ca7ba",
-"at": "2026-11-25T15:00:05+01:00",
-"msg": "Utómunkába lépés: a vágó mindenképp e-mailt kap; a termelési vezető küldés előtt látja a levelet (feladó, tárgy, címzett, szöveg)"
-},
-{
-"id": "b095b4dc7c",
-"at": "2026-11-25T13:50:35Z",
+"id": "ad253afcf6",
+"at": "2026-11-25T14:00:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
