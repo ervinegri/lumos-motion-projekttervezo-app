@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "26699782ca",
+"at": "2026-11-25T07:51:25+01:00",
+"msg": "Jóváhagyó oldal: „A projektet lezártuk.”"
+},
+{
 "id": "f48ae0b323",
 "at": "2026-11-24T22:26:32+01:00",
 "msg": "Jóváhagyó oldal: a Google-értékelés kérése kikerült"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lehetőség mentése: az ablak azonnal bezárul (a mentés a háttérben fut, hibánál újranyílik a beírt adatokkal); a HubSpot-frissítés háttérsorba került, a mentés nem vár rá"
 },
 {
-"id": "f09f9f3d9d",
-"at": "2026-11-24T15:51:33+02:00",
-"msg": "Árajánlat: a lehetőség ablakából indítva bezáráskor visszatér a lehetőséghez (nem lép ki belőle)"
-},
-{
-"id": "bdd7ae920c",
-"at": "2026-11-24T13:48:52Z",
+"id": "582dc91bf1",
+"at": "2026-11-24T13:51:43Z",
 "msg": "Változásnapló frissítése"
 }
 ];
