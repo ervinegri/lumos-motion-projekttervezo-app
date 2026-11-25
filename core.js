@@ -778,3 +778,12 @@ document.addEventListener('focusin',e=>{const el=e.target;if(!el||!(el.tagName==
     if(len>max){e.preventDefault();warn(el,'A beillesztett szöveg túl hosszú: ebben a mezőben legfeljebb '+max.toLocaleString('hu-HU')+' karakter fér el (most '+len.toLocaleString('hu-HU')+' lenne). Rövidítsd, vagy oszd két részre.');}},true);
   document.addEventListener('input',e=>{const el=e.target;if(!el||!(el.tagName==='TEXTAREA'||el.tagName==='INPUT'))return;const max=+el.getAttribute('maxlength');if(!max||max<50)return;
     if(el.value.length>=max)warn(el,'Elérted a mező határát ('+max.toLocaleString('hu-HU')+' karakter) – innen nem lehet tovább írni. Ha több mondanivaló van, küldd el, és folytasd egy új hozzászólásban.');},true);})();
+/* A háttérkód (Apps Script) telepítésének állapota – csak az ügyvezetőnek: ha egy frissítés nem települt (pl. betelt a 200 verzió),
+   piros sáv jelzi, hogy a legutóbbi háttér-változások NEM élnek; 185 verzió fölött sárga figyelmeztetés, hogy takarítani kell. */
+async function beStatusCheck(){try{if(!isAdmin()||Date.now()-(S._beAt||0)<600000)return;S._beAt=Date.now();
+  const r=await fetch('/backend-status.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const o=await r.json();let el=document.getElementById('be-status');
+  const bad=o&&o.ok===false,warn=o&&o.ok&&Number(o.n)>=185;if(!bad&&!warn){if(el)el.remove();return;}
+  if(!el){el=document.createElement('div');el.id='be-status';el.setAttribute('role','alert');el.style.cssText='position:sticky;top:0;z-index:9999;padding:10px 16px;font-size:14px;line-height:1.4;color:#fff;display:flex;gap:12px;align-items:center;flex-wrap:wrap';document.body.prepend(el);}
+  el.style.background=bad?'#c62828':'#b26a00';
+  el.innerHTML=bad?'⚠️ <b>A háttérkód legutóbbi frissítései nem települtek</b> – '+esc(o.msg||'')+'. Amíg ez fennáll, az új funkciók háttér-része nem működik. Teendő: Apps Script szerkesztő → Projekt előzményei → Verziók tömeges törlése (a régieket), majd szólj Claude-nak.':'⚠️ Az Apps Script verziók száma '+esc(String(o.n))+'/200 – hamarosan takarítani kell (Projekt előzményei → Verziók tömeges törlése).';
+  const a=document.createElement('a');a.href='https://script.google.com/home';a.target='_blank';a.rel='noopener';a.textContent='Apps Script megnyitása ↗';a.style.cssText='color:#fff;font-weight:600;text-decoration:underline';el.appendChild(a);}catch(e){}}

@@ -9,6 +9,8 @@ on:
     branches: [main]
     paths: ['apps-script/src/**', 'apps-script/Templates.gs']
   workflow_dispatch:
+permissions:
+  contents: write   # a telepítés állapota (backend-status.json) visszaíródik: sikertelen telepítésnél az ügyvezető az appban piros figyelmeztetést lát
 concurrency: { group: apps-script-deploy, cancel-in-progress: true }   # gyors egymásutáni módosításoknál csak az utolsó települ (kevesebb verzió)
 jobs:
   deploy:
@@ -34,6 +36,7 @@ jobs:
         if: steps.chk.outputs.skip != '1'
         run: node tests/price-leak.test.cjs
       - name: Feltöltés és telepítés
+        id: dep
         if: steps.chk.outputs.skip != '1'
         env: { RC: '${{ secrets.CLASPRC_JSON }}', SID: '${{ secrets.CLASP_SCRIPT_ID }}' }
         run: |
@@ -53,7 +56,23 @@ jobs:
           cp "$GITHUB_WORKSPACE/apps-script/Templates.gs" Templates.js   # szerződéssablonok
           clasp push -f
           N=$(clasp versions 2>/dev/null | grep -cE '^[0-9]+ - ' || true)
-          echo "Verziók száma: $N / 200"
+          echo "Verziók száma: $N / 200"; echo "n=$N" >> "$GITHUB_OUTPUT"
           if [ "${N:-0}" -ge 200 ]; then echo "::error::Az Apps Script elérte a 200 verziós korlátot – Projekt előzmények → Verziók tömeges törlése"; exit 1; fi
           clasp deploy -i "$DEP" -d "auto $(echo $GITHUB_SHA | cut -c1-7)"
           [ "${N:-0}" -ge 170 ] && echo "::warning::Apps Script verziók: $((N+1))/200 – hamarosan takarítani kell" || true
+      - name: Telepítés állapota az appnak (backend-status.json)
+        if: always() && steps.chk.outputs.skip != '1'
+        env: { OUT: '${{ steps.dep.outcome }}', N: '${{ steps.dep.outputs.n }}' }
+        run: |
+          ok=true; [ "$OUT" = "success" ] || ok=false
+          n=${N:-0}; [ "$ok" = true ] && n=$((n+1))
+          msg=""; [ "$ok" = false ] && { [ "${N:-0}" -ge 200 ] && msg="Az Apps Script elérte a 200 verziós korlátot" || msg="A háttérkód telepítése nem sikerült"; }
+          printf '{"ok":%s,"n":%s,"sha":"%s","at":"%s","msg":"%s"}\n' "$ok" "$n" "$(echo $GITHUB_SHA | cut -c1-7)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$msg" > /tmp/bs.json
+          cat /tmp/bs.json
+          old_ok=$(node -e "try{const o=require('./backend-status.json');console.log(o.ok+'|'+(o.n>=185))}catch(e){console.log('none')}")
+          new_ok=$(node -e "const o=require('/tmp/bs.json');console.log(o.ok+'|'+(o.n>=185))")
+          if [ "$old_ok" = "$new_ok" ]; then echo "Az állapot nem változott – nincs commit."; exit 0; fi
+          cp /tmp/bs.json backend-status.json
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend-status.json && git commit -qm "Háttérkód telepítési állapota: $([ "$ok" = true ] && echo rendben || echo HIBA)"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done

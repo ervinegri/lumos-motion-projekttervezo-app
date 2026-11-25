@@ -28,3 +28,8 @@ Ha több út van és a jobbik a felhasználó közreműködését igényli (pl. 
 
 ## Szöveg hossza – általános szabály (2026-11-21)
 A felhasználó által beírt szöveget SOHA nem vágjuk le csendben. A backend `str_` hibát dob, ha a kérésben érkezett szöveg (≥300 karakteres határú mezőnél) hosszabb a határnál; a frontend a maxlength-nél megállítja az írást és a túl hosszú beillesztést, és szól. Új szövegmezőnél a frontend maxlength = a backend határa. Előnézethez / naplóhoz `.slice()`-t használj, ne `str_`-t.
+
+## Háttér-telepítés ellenőrzése (2026-11-25)
+Az „Apps Script telepítés” workflow `continue-on-error: true`, ezért a futás MINDIG „success”-nek látszik, akkor is, ha nem települt.
+Telepítés után a `backend-status.json` (`ok`) és a futás naplója (`gh run view <id> --log | grep "Verziók száma\|Created version"`) a mérvadó.
+200 verziónál a telepítés leáll: Ervinnek kell az Apps Script szerkesztőben a régi verziókat törölnie (Projekt előzményei → Verziók tömeges törlése).
