@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "50206f77ae",
+"at": "2026-11-25T17:10:35+01:00",
+"msg": "Időkódra ugrás telefonon (iOS): metaadatra várás, első koppintásnál a videó feloldása, ellenőrzött ugrás, videó a képbe gördül"
+},
+{
 "id": "58be31a17a",
 "at": "2026-11-25T17:07:38+01:00",
 "msg": "Telefonos indítás: nem fekete a képernyő – világos háttér az első kirajzolástól, iOS indítóképek, manifest"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "„Ellenőrizd” értesítő a vezetőknek: megszólítás nélkül"
 },
 {
-"id": "857242ec1b",
-"at": "2026-11-25T15:16:49+01:00",
-"msg": "Nyersanyag-levél: az elavult leadási mondat kikerült"
-},
-{
-"id": "771de74430",
-"at": "2026-11-25T14:03:13Z",
+"id": "cce25827a6",
+"at": "2026-11-25T14:16:58Z",
 "msg": "Változásnapló frissítése"
 }
 ];
