@@ -710,10 +710,10 @@ function quoteSent_(u, a) {
 function quoteClientEmails_(d) { const k = String(d.client || '').trim().toLowerCase(), S0 = new Set(); const add = e => String(e || '').split(/[,;\s]+/).forEach(x => { x = x.trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)) S0.add(x); });
   add(d.contactEmail); add(d.contactEmail2); if (k) readAll_('deals').filter(x => String(x.client || '').trim().toLowerCase() === k).forEach(x => { add(x.contactEmail); add(x.contactEmail2); }); return [...S0].slice(0, 6); }
 function quoteMails_(d) { const em = quoteClientEmails_(d); if (!em.length) return [];
-  const th = GmailApp.search('in:sent (' + em.map(e => 'to:' + e).join(' OR ') + ') subject:(árajánlat OR ajánlat) has:attachment filename:pdf', 0, 30), out = [];
-  th.forEach(t => t.getMessages().forEach(m => { const to = String(m.getTo() + ',' + m.getCc()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0)) return; if (!m.getAttachments().some(x => /pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf')) return;
+  const qy = '(' + em.map(e => 'to:' + e).join(' OR ') + ') filename:pdf', th = GmailApp.search(qy, 0, 40), out = [];
+  th.forEach(t => t.getMessages().forEach(m => { const to = String(m.getTo() + ',' + m.getCc()).toLowerCase(), fr = String(m.getFrom()).toLowerCase(); if (!em.some(e => to.indexOf(e) >= 0) || em.some(e => fr.indexOf(e) >= 0)) return; if (!m.getAttachments().some(x => /pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf')) return;
     out.push({ id: m.getId(), at: Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), subject: m.getSubject(), to: m.getTo() }); }));
-  out.sort((a, b) => b.at.localeCompare(a.at)); return out.slice(0, 30); }
+  out.sort((a, b) => b.at.localeCompare(a.at)); if (!out.length) return { empty: true, em: em, n: th.length, me: Session.getEffectiveUser().getEmail() }; return out.slice(0, 30); }
 /* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
 function quoteSends_(d) { const out = [], re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d\s]+) Ft)?/g; let m; const t = String(d.note || ''); while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0 }); return out; }
 function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
