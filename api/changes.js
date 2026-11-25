@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "23296312af",
+"at": "2026-11-25T17:04:15+01:00",
+"msg": "Helyszíni munka → Kész: a beszámoló ablak nem jön fel kétszer egymás után"
+},
+{
 "id": "1d2097f031",
 "at": "2026-11-25T17:01:48+01:00",
 "msg": "Szolgáltatások: a lakat az oszlop jobb felső sarkában"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Utómunkába lépés: a vágó mindenképp e-mailt kap; a termelési vezető küldés előtt látja a levelet (feladó, tárgy, címzett, szöveg)"
 },
 {
-"id": "6d35d81798",
-"at": "2026-11-25T14:50:24+01:00",
-"msg": "Helyszíni munka → Utómunka: beszámoló után „Feltöltötted a nyersanyagot?” (igen: a vágó e-mailt kap, indulhat; még nem: a projekt marad)"
-},
-{
-"id": "81ac0039c2",
-"at": "2026-11-25T13:49:20Z",
+"id": "b095b4dc7c",
+"at": "2026-11-25T13:50:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
