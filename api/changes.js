@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "91b1e0cbec",
+"at": "2026-11-25T08:06:09+01:00",
+"msg": "Lehetőség kártya: az „Új ajánlat ennek az ügyfélnek” gomb csak a megnyitott lehetőség ablakában"
+},
+{
 "id": "b31750a8da",
 "at": "2026-11-25T08:05:13+01:00",
 "msg": "Lehetőség ablak: az ügyfél ajánlatainak listája (kiküldött / mentett, kattintásra megnyílik) és „＋ Új ajánlat ennek az ügyfélnek” gomb"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ajánlatkészítés a lehetőségből: a lehetőség ablaka nem tűnik el – halványan alatta marad, és bezáráskor (Esc, ×, Bezárás) azonnal, a beírt adatokkal együtt visszajön"
 },
 {
-"id": "4ca54a9122",
-"at": "2026-11-24T16:27:28+02:00",
-"msg": "Teljesítménytábla: „Jutalékalap” oszlop, a súgóban tételesen a befolyt összeg és a levont szervezői jutalék / továbbszámlázott költség"
-},
-{
-"id": "cdc6f0c56c",
-"at": "2026-11-24T14:24:49Z",
+"id": "39e715b0e6",
+"at": "2026-11-24T14:27:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
