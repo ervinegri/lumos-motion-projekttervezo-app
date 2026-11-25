@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "19fff20157",
+"at": "2026-11-25T09:34:01+01:00",
+"msg": "Lehetőség ablak: a kiküldött ajánlatok listája betöltés / hiba / üres állapotot is mutat"
+},
+{
 "id": "40d48eed10",
 "at": "2026-11-25T09:12:55+01:00",
 "msg": "Lehetőség ablak: az ügyfélnek kiküldött összes ajánlat-levél listája a Gmailből (kattintásra a PDF)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Hiányzó meghívó / beosztás: a figyelmeztetés a Helyszíni munka szakaszban is megjelenik (nem csak Tervezésben)"
 },
 {
-"id": "ac4a433a79",
-"at": "2026-11-24T19:02:30+01:00",
-"msg": "Tagi kölcsön: a kézi „+ Tétel” gomb kikerül"
-},
-{
-"id": "29ef28e0da",
-"at": "2026-11-24T17:49:00Z",
+"id": "7358b1d220",
+"at": "2026-11-24T18:02:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
