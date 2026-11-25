@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d117a6ceaf",
+"at": "2026-11-25T15:52:02+01:00",
+"msg": "Díjcsökkentés: a példaesetek az illető munkájához igazodnak (forgatás, fotó, hang, vizuáltechnika, streaming, utómunka) a szerződés 10. pontja szerint, forgatási esetekkel; a projekt Szerződés és számlázás része alapból csukva"
+},
+{
 "id": "1c57c683fc",
 "at": "2026-11-25T15:46:01+01:00",
 "msg": "Helyszíni beszámoló: a díjcsökkentésnél csak a helyszínen dolgozók (a csak utómunkás vágó nem)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Videó-hozzászólás: fájl csatolása (Drive „Anyagok a vágáshoz”, link a hozzászólásba, húzással is); hosszú linkek rövidítve, a felsorolás tördelése nem esik szét"
 },
 {
-"id": "7d9edc75d6",
-"at": "2026-11-25T12:11:53+01:00",
-"msg": "Díjösszesítő-ablak: rendezett tördelés az előző hónapok sorával; korrekció / kiküldés után minden nyitott nézet frissül, a nyitott előnézet a friss adatból"
-},
-{
-"id": "aa7da9e767",
-"at": "2026-11-25T11:05:28Z",
+"id": "c0f4bb96d2",
+"at": "2026-11-25T11:12:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
