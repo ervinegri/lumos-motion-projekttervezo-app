@@ -128,6 +128,7 @@ function videoComment_(u, a) {
   a = a || {};
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', t = str_(a.text, 6000).trim();
   if (t.length < 1) throw new Error('Írj valamit a hozzászólásba.');
+  if (/^\[file\]/m.test(t)) { try { vupShareProject_(pid, t); } catch (e) { Logger.log('Megosztás (hozzászólás): ' + e); } }   // a csatolt fájlt az utómunkások is megnyithassák
   if (!mgr && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó')) throw new Error('FORBIDDEN: Csak a vezetők és a projekt vágója szólhat hozzá.');
   const ts = a.ts !== '' && a.ts != null && isFinite(Number(a.ts)) ? Math.max(0, Math.round(Number(a.ts))) : '';
   let p, v, dup = false;
