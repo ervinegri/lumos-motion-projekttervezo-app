@@ -519,7 +519,17 @@ ACT['vid-play']=b=>{const vd=document.querySelector('.vv-player video');if(!vd)r
   /* csak egy rövid részt játszik le: legfeljebb 2 mp-et, vagy a következő időkódig, ha az előbb jön */
   const sec=tc=>{const q=String(tc||'').split('|');return vidSnap(vd,tcSec(q[0],q[1],q[3],q[2]));},t0=sec(b.dataset.tc),nx=[...document.querySelectorAll('.vv-cm .vv-ts[data-tc]')].map(x=>sec(x.dataset.tc)).filter(x=>x>t0+0.02).sort((x,y)=>x-y)[0],end=Math.min(t0+2,nx!=null?nx:Infinity),tok=vd._clipTok=(vd._clipTok||0)+1;
   const T1=Date.now()+15000,watch=()=>{if(vd._clipTok!==tok||vd._playBtn!==b||Date.now()>T1)return;if(!vd.paused&&vd.currentTime>=end-0.02){vd.pause();vd.currentTime=end;return;}if(!vd.paused||vd.currentTime<t0+0.05)requestAnimationFrame(watch);};setTimeout(()=>requestAnimationFrame(watch),50);};
-ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}const q=String(b.dataset.tc||'').split('|');vd.pause();if(b.dataset.play)setTimeout(()=>vd.play().catch(()=>{}),0);   /* időkódra kattintva oda ugrik és el is indul (a jelölős időkódnál megáll, hogy a jelölő látsszon) */vd.currentTime=b.dataset.tc?vidSnap(vd,tcSec(q[0],q[1],q[3],q[2])):Number(b.dataset.ts)||0;vd._pinFocus=b.dataset.x?{x:+b.dataset.x,y:+b.dataset.y,t:vd.currentTime}:null;};
+ACT['vid-seek']=b=>{const vd=document.querySelector('.vv-player video');if(!vd){toast('Ennél a lejátszónál az időpontra ugrás nem érhető el – keresd meg kézzel.',true);return;}const q=String(b.dataset.tc||'').split('|');vd.pause();if(b.dataset.play)setTimeout(()=>vd.play().catch(()=>{}),0);   /* időkódra kattintva oda ugrik és el is indul (a jelölős időkódnál megáll, hogy a jelölő látsszon) */const t=b.dataset.tc?vidSnap(vd,tcSec(q[0],q[1],q[3],q[2])):Number(b.dataset.ts)||0;vvSeekTo(vd,t,!!b.dataset.play);vd._pinFocus=b.dataset.x?{x:+b.dataset.x,y:+b.dataset.y,t}:null;
+  const r=vd.getBoundingClientRect();if(r.bottom<40||r.top>innerHeight-80)vd.scrollIntoView({block:'center',behavior:'smooth'});};   /* telefonon a videó gyakran kigördül a képből: ugráskor visszahozzuk */
+/* Biztos ugrás – telefonon (iOS Safari) is. Ott a még el nem indított videónál a currentTime beállítása nem frissíti a képet,
+   illetve betöltött metaadat nélkül elvész. Ezért: metaadatra vár, a még nem játszott videót a koppintáson belül némán elindítja
+   és azonnal megállítja („feloldja”), majd ugrik, és ellenőrzi, hogy tényleg odaért – ha nem, újrapróbálja. */
+function vvSeekTo(vd,t,play){const tok=vd._seekTok=(vd._seekTok||0)+1;
+  const go=()=>{if(vd._seekTok!==tok)return;try{vd.currentTime=t;}catch(e){}
+    let n=0;const chk=()=>{if(vd._seekTok!==tok||play)return;if(Math.abs(vd.currentTime-t)>0.25&&++n<4){try{vd.currentTime=t;}catch(e){}setTimeout(chk,400);}};setTimeout(chk,400);};
+  if(!vd._unlocked&&!play&&vd.paused&&vd.played&&vd.played.length===0&&typeof vd.play==='function'){vd._unlocked=1;const mu=vd.muted;vd.muted=true;
+    const p=vd.play();if(p&&p.then)p.then(()=>{vd.pause();vd.muted=mu;go();}).catch(()=>{vd.muted=mu;go();});else{vd.pause();vd.muted=mu;}}
+  if(vd.readyState>=1)go();else vd.addEventListener('loadedmetadata',go,{once:true});}
 /* A videótábla ablakának másolata a következő ablak alá kerül (halványan látszik); visszaadja a projekt azonosítóját, ha volt tábla */
 function laneToUnder(){const lm=document.querySelector('#modalRoot .bd-modal');if(!lm)return '';let mu=$('modalUnder');if(!mu){mu=document.createElement('div');mu.id='modalUnder';document.body.insertBefore(mu,$('modalRoot'));}
   const m=lm.closest('.modal');if(m){mu.innerHTML=m.outerHTML;mu.querySelectorAll('[id]').forEach(x=>x.id=x.id+'-u');}return lm.dataset.pid||'';}
