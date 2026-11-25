@@ -128,7 +128,7 @@ function videoReviewBatch_(u, a) {
 const pinStrip_ = t => String(t || '').replace(/^\[file\](https:\/\/\S+?)\|([^|\n]*)\|([^\n]*)$/gm, 'Csatolt fájl: $2 ($3) – $1').replace(/\s*@\d{1,3}(?:\.\d)?,\d{1,3}(?:\.\d)?\]/g, ' – jelölés]');   // az e-mailben nincs emoji (a levelezők elrontják)   // a tű koordinátái az e-mailben nem kellenek
 function videoComment_(u, a) {
   a = a || {};
-  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', t = str_(a.text, 6000).trim();
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor', appr = a.appr === true && mgr, t0 = str_(a.text, 6000).trim(), t = appr && t0 ? '✅ Jóváhagyva – megjegyzés: ' + t0 : t0;   // appr: jóváhagyáskor írt tájékoztató megjegyzés a vágónak
   if (t.length < 1) throw new Error('Írj valamit a hozzászólásba.');
   if (/^\[file\]/m.test(t)) { try { vupShareProject_(pid, t); } catch (e) { Logger.log('Megosztás (hozzászólás): ' + e); } }   // a csatolt fájlt az utómunkások is megnyithassák
   if (!mgr && !readAll_('crewAssign').some(r => r.projectId === pid && r.crewId === u.crewId && r.role === 'Vágó')) throw new Error('FORBIDDEN: Csak a vezetők és a projekt vágója szólhat hozzá.');
@@ -137,8 +137,9 @@ function videoComment_(u, a) {
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); if (!row) throw new Error('A projekt nem található.');
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const isRep = /^⤷\{/.test(t);   // válasz egy meglévő hozzászólásra: minden állapotban mehet (beszélgetés)
-    if (v.st === 'ellen') throw new Error('Belső ellenőrzésben nincs külön hozzászólás: írd be az észrevételeket, és ↩ Visszadobás (vagy ✅ Jóváhagyás).');
-    if (!isRep && v.st === 'leadva') throw new Error('Az ügyfél jóváhagyására váró videóhoz nem lehet hozzászólni.');
+    if (appr && v.st !== 'leadva' && v.st !== 'jovahagyva') throw new Error('A jóváhagyási megjegyzés csak jóváhagyott videóhoz küldhető.');
+    if (!appr && v.st === 'ellen') throw new Error('Belső ellenőrzésben nincs külön hozzászólás: írd be az észrevételeket, és ↩ Visszadobás (vagy ✅ Jóváhagyás).');
+    if (!isRep && !appr && v.st === 'leadva') throw new Error('Az ügyfél jóváhagyására váró videóhoz nem lehet hozzászólni.');
     if (!isRep && !mgr && v.st !== 'vagas') throw new Error('A videó már le van adva – most nem lehet hozzászólni.');
     /* ugyanaz a hozzászólás kétszer (duplán kattintott küldés, visszatöltött szöveg újraküldése): 15 percen belül nem kerül be újra, e-mail sem megy */
     const last = (v.cm || []).slice().reverse().find(c => c && c.by === u.name && c.k !== 'note');
@@ -149,8 +150,8 @@ function videoComment_(u, a) {
   try { const c = v.editor ? readAll_('crew').find(x => x.id === v.editor) : null, own = c && u.crewId && c.id === u.crewId;
     const to = own ? String(v.rvTo || '').trim() : c ? String(c.email || '').trim() : '';
     if (to && to.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(vid), tl = ts !== '' ? ' [' + Math.floor(ts / 60) + ':' + ('0' + ts % 60).slice(-2) + ']' : '';
-      gmailSend_(to, 'Hozzászólás: ' + vShort_(v.name) + ' · ' + p.name, u.name + ' hozzászólt: ' + v.name + ' – ' + p.name + '\n\n' + tl.trim() + (tl ? ' ' : '') + pinStrip_(t) + '\n\n' + url,
-        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b> hozzászólt: <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidCm' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
+      gmailSend_(to, (appr ? '✅ Jóváhagyva: ' : 'Hozzászólás: ') + vShort_(v.name) + ' · ' + p.name, u.name + (appr ? ' jóváhagyta: ' : ' hozzászólt: ') + v.name + ' – ' + p.name + '\n\n' + tl.trim() + (tl ? ' ' : '') + pinStrip_(t) + '\n\n' + url,
+        { htmlBody: '<p><b>' + escapeHtml_(u.name) + '</b>' + (appr ? ' jóváhagyta' : ' hozzászólt') + ': <b>' + escapeHtml_(v.name) + '</b> – ' + escapeHtml_(p.name) + '</p><p style="padding:10px 12px;background:#f3f6fb;border-left:4px solid #2f6fdf">' + (tl ? '<b>' + escapeHtml_(tl.trim()) + '</b> ' : '') + escapeHtml_(pinStrip_(t)).replace(/\n/g, '<br>') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidCm' }); } } catch (e) { Logger.log('Hozzászólás e-mail hiba: ' + e); }
   logEvent_(u, 'Videó hozzászólás', p.name, v.name);
   return { project: projectView_(fullProject_(p), u) };
 }
