@@ -1,8 +1,8 @@
 'use strict';
 /* ===== Díjcsökkentés ===== */
 function penApply(pid,list){const p=projById(pid);if(p)p.penalties=list;if(S.draft&&S.draft.id===pid)S.draft.penalties=list;render(true);}
-function penCaseOpts(kind,name){const k=PEN_KINDS[kind];   // több eset is bejelölhető
-  return (k?k.cases:[]).concat(['Egyéb (az indoklásban leírva)']).map(c=>`<label class="pen-case-o"><input type="checkbox" name="${name}" value="${esc(c)}"><span>${esc(c)}</span></label>`).join('');}
+function penCaseOpts(kind,name,cid){const sc=cid?penScopes(projById(S.draft&&S.draft.id)||S.draft,cid):null;   // több eset is bejelölhető; csak az illető munkájához illő esetek
+  return penCaseList(kind,sc).concat(['Egyéb (az indoklásban leírva)']).map(c=>`<label class="pen-case-o"><input type="checkbox" name="${name}" value="${esc(c)}"><span>${esc(c)}</span></label>`).join('');}
 function penModal(cid){
   const d=S.draft;if(!d)return;const c=crewById(cid),f=(d.fees||[]).find(x=>x.crewId===cid&&x.kind!=='fixed'),fee=f?num(f.amount):0;
   const cds=projDays(d).length>1&&!isPostOnly(d,cid)?crewDaysOf(d,cid):[],da=(f&&f.dayAmounts)||{};PEN_CTX={fee,da};
@@ -13,7 +13,7 @@ function penModal(cid){
       <div class="field" id="m-penPctF" style="display:none"><label for="m-penPct">Mérték</label><select class="inp" id="m-penPct" name="pct" data-cmb="Mérték…">${[10,20,30,40,50].map(v=>`<option value="${v}">${v}%</option>`).join('')}</select></div>
       <div class="field" id="m-penAmtF" style="display:none"><label for="m-penAmt">Kártérítés összege (Ft)</label><input class="inp" id="m-penAmt" name="amount" inputmode="numeric" data-money="1" placeholder="pl. 50 000"></div>
       ${cds.length?`<div class="field" id="m-penDayF"><label for="m-penDay">Melyik napi munkájára?</label><select class="inp" id="m-penDay" name="day" data-cmb="Nap…">${cds.map(x=>`<option value="${x}">${esc(dayLbl(x))} – ${ftFmt(num(da[x]))}</option>`).join('')}<option value="">Teljes díj (minden nap) – ${ftFmt(fee)}</option></select></div>`:''}
-      <div class="field full"><label>Eset(ek) <span class="muted" style="font-weight:600">– több is bejelölhető</span></label><div class="pen-cases" id="m-penCase">${penCaseOpts('light','caseText')}</div></div>
+      <div class="field full"><label>Eset(ek) <span class="muted" style="font-weight:600">– több is bejelölhető</span></label><div class="pen-cases" id="m-penCase" data-cid="${esc(cid)}">${penCaseOpts('light','caseText',cid)}</div></div>
       <div class="field full"><label for="m-penReason">Írásos indoklás <span class="muted" style="font-weight:600">(3.6. pont – kötelező)</span></label><textarea class="inp" id="m-penReason" name="reason" rows="4" maxlength="3000" placeholder="Mi történt, mikor, milyen következménnyel…"></textarea></div>
       <div class="field full"><label for="m-penLink">Bizonyíték (link, nem kötelező)</label><input class="inp" id="m-penLink" name="link" type="url" placeholder="https://drive.google.com/…"></div>
       <div class="field full"><p class="hint" id="m-penCalc" style="margin:0"></p></div>
@@ -33,7 +33,7 @@ function penCalc(){const k=$('m-penKind');if(!k)return;const v=k.value;
   const t=$('m-penCalc'),K=PEN_KINDS[v];if(!t||!K)return;
   const pc=v==='prestige'?Number($('m-penPct').value):K.pct,day=$('m-penDay')?$('m-penDay').value:'',base=day?num(PEN_CTX.da[day]):PEN_CTX.fee;
   t.textContent=v==='damage'?'A kártérítés a díjon felül, külön követelésként jelenik meg.':`${day?'A '+dayLbl(day)+' napi díj':'A díj'} ${pc}%-át vonjuk le: −${ftFmt(Math.round(base*pc/100))}. Több levonás együtt legfeljebb a teljes díjat érintheti.`;}
-document.addEventListener('change',e=>{if(e.target.id==='m-penKind'){$('m-penCase').innerHTML=penCaseOpts(e.target.value,'caseText');penCalc();}else if(e.target.id==='m-penPct'||e.target.id==='m-penDay')penCalc();});
+document.addEventListener('change',e=>{if(e.target.id==='m-penKind'){$('m-penCase').innerHTML=penCaseOpts(e.target.value,'caseText',$('m-penCase').dataset.cid);penCalc();}else if(e.target.id==='m-penPct'||e.target.id==='m-penDay')penCalc();});
 function penObjectModal(pid,id){
   openModal('Kifogás a díjcsökkentés ellen',`<p class="hint" style="margin:0 0 10px">Írd le, miért nem értesz egyet. Az ügyvezető e-mailben értesítést kap, és megvizsgálja.</p><div class="fields"><div class="field full"><label for="m-objText">Kifogás</label><textarea class="inp" id="m-objText" name="text" rows="5" maxlength="3000"></textarea></div></div>`,
     {submitLabel:'Kifogás elküldése',submit:async fd=>{const text=String(fd.get('text')||'').trim();if(text.length<5){toast('Írd le röviden a kifogásodat.',true);return;}
@@ -426,14 +426,14 @@ $('viewAs').addEventListener('change',e=>{const v=e.target.value;guard(()=>{if(v
 /* Lezáráskor (Kész / Átadva) díjcsökkentés is kiróható – szakemberenként */
 function penCrewOpts(site){const p=projById(S.draft.id)||S.draft,ids=[...new Set([p.lead].concat((p.crew||[]).map(a=>a.crewId)).filter(Boolean))].filter(id=>!site||!isPostOnly(p,id));   // site: csak a helyszínen dolgozók (a csak utómunkás – pl. vágó – nem)
   return ids.map(id=>{const c=crewById(id);return c?[id,c.name]:null;}).filter(Boolean).sort((a,b)=>a[1].localeCompare(b[1],'hu'));}
-function penBlock(show,site){if(!canSeeFees())return '';const co=penCrewOpts(site);if(!co.length)return '';
+function penBlock(show,site){if(!canSeeFees())return '';window._penSite=!!site;const co=penCrewOpts(site);if(!co.length)return '';
   return `<div class="field full pen-block" id="penWrap"${show?'':' style="display:none"'}><div class="pen-block-h"><b>🚨 Hiba jelzése díjcsökkentéssel</b> <span class="muted">(nem kötelező – kattints a 🚨 jelre annál, aki hibázott)</span></div>
     <div class="pen-chips">${co.map(([id,nm])=>`<button class="pen-chip" type="button" data-action="pen-row-add" data-cid="${esc(id)}" title="Díjcsökkentés: ${esc(nm)}"><span>${esc(nm)}</span><span class="pen-btn" aria-hidden="true">🚨</span></button>`).join('')}</div><div id="penRows"></div>${penCopyBox('penCopy')}</div>`;}
 const penCopyBox=name=>`<label class="toggle pen-copy"><input type="checkbox" name="${name}" value="1"><span class="tl">📧 Másolatot kérek a szakembernek küldött e-mailről</span></label><p class="hint" style="margin:4px 0 0">${isAdmin()?'A termelési vezető':'Az ügyvezető'} mindenképp megkapja a másolatot.</p>`;
 let PEN_ROW_N=0;
-function penRowHtml(){const n=++PEN_ROW_N,co=penCrewOpts();
+function penRowHtml(){const n=++PEN_ROW_N,co=penCrewOpts(!!window._penSite);
   return `<div class="pen-rowf" data-penrow="${n}"><div class="pen-rowf-g">
-    <select class="inp" name="pen_cid_${n}" aria-label="Szakember" data-cmb="Szakember…" data-cmb-sub="crew"><option value="">Melyik szakember?</option>${co.map(([id,nm])=>`<option value="${esc(id)}">${esc(nm)}</option>`).join('')}</select>
+    <select class="inp" name="pen_cid_${n}" data-pencid="${n}" aria-label="Szakember" data-cmb="Szakember…" data-cmb-sub="crew"><option value="">Melyik szakember?</option>${co.map(([id,nm])=>`<option value="${esc(id)}">${esc(nm)}</option>`).join('')}</select>
     <select class="inp" name="pen_kind_${n}" data-penkind="${n}" aria-label="Kategória" data-cmb="Kategória…">${Object.entries(PEN_KINDS).map(([k,v])=>`<option value="${k}">${esc(v.label)}${v.pct!=null?' – '+v.pct+'%':v.min?' – '+v.min+'–'+v.max+'%':' – Ft'}</option>`).join('')}</select>
     <select class="inp" name="pen_pct_${n}" data-penpct="${n}" style="display:none" aria-label="Mérték">${[10,20,30,40,50].map(v=>`<option value="${v}">${v}%</option>`).join('')}</select>
     <input class="inp" name="pen_amt_${n}" data-penamt="${n}" style="display:none" inputmode="numeric" data-money="1" placeholder="Összeg (Ft)" aria-label="Kártérítés összege">
@@ -451,8 +451,9 @@ function penRowsCollect(fd,fallback){
 async function penRowsSubmit(pid,list){if(!list.length)return;let last=null,mailed=0;
   for(const x of list){try{const r=await call('addPenalty',Object.assign({projectId:pid},x));last=r.penalties;if(r.mailed)mailed++;}catch(e){toast('Díjcsökkentés: '+errText(e),true);}}
   if(last){penApply(pid,last);toast(isAdmin()?`${list.length} díjcsökkentés kiróva${mailed?', a szakember e-mailt kapott':''}`:`${list.length} díjcsökkentés jóváhagyásra elküldve`);}}
+document.addEventListener('change',e=>{const t=e.target,m=t.dataset&&t.dataset.pencid;if(!m)return;const row=t.closest('[data-penrow]'),kd=row&&row.querySelector('[data-penkind]');if(kd)row.querySelector('[data-pencase]').innerHTML=penCaseOpts(kd.value,'pen_case_'+m,t.value);});   /* szakember választáskor az esetek az ő munkájához igazodnak */
 document.addEventListener('change',e=>{const t=e.target,n=t.dataset&&t.dataset.penkind;if(!n)return;const row=t.closest('[data-penrow]');
-  row.querySelector('[data-pencase]').innerHTML=penCaseOpts(t.value,'pen_case_'+n);row.querySelector('[data-penpct]').style.display=t.value==='prestige'?'':'none';row.querySelector('[data-penamt]').style.display=t.value==='damage'?'':'none';});
+  row.querySelector('[data-pencase]').innerHTML=penCaseOpts(t.value,'pen_case_'+n,(row.querySelector('[data-pencid]')||{}).value);row.querySelector('[data-penpct]').style.display=t.value==='prestige'?'':'none';row.querySelector('[data-penamt]').style.display=t.value==='damage'?'':'none';});
 document.addEventListener('change',e=>{const t=e.target,w=$('penWrap');if(!w)return;
   if(t.name==='siteOk')w.style.display=t.value==='nem'?'':'none';else if(t.id==='m-stuck')w.style.display=t.checked?'':'none';});   // díjcsökkentés csak elakadásnál
 /* egy későbbi lépésre lépve az előtte lévő lépések kipipálódnak */

@@ -570,12 +570,47 @@ function phoneField(o){
 
 /* ===== Díjcsökkentés (megbízási szerződés minőségi melléklete) ===== */
 const PEN_KINDS={
-  light:{label:'Enyhe szakmai hiba',pct:10,ref:'3.1.',cases:['Betekintő monitor, projektor, LED-fal vagy kijelző rossz beállítása / működtetése','Zúgó, recsegő, torz vagy túl halk hang','Prezentáció szakszerűtlen kezelése (rossz diasor, kurzor, menekülőkép)','Léptető hibája / az előadó tájékoztatásának elmaradása','Színpad- vagy rendezvénytechnikai elemek esztétikailag kifogásolható elhelyezése','Eszközök vagy zavaró elemek a rendezvényterületen','Helyszínen javítható, de beavatkozást igénylő technikai hiányosság','Szakmai vagy esztétikai elvárások kisebb mértékű megsértése']},
-  severe:{label:'Súlyos szakmai hiba',pct:50,ref:'3.2.',cases:['Enyhe hiba ismétlődése / jelzett hiányosság kijavításának elmulasztása','Huzamosabb ideig nem megfelelő hangminőség','Életlen, hibásan exponált vagy használhatatlan felvétel jelentős mennyiségben','Fontos eseményrészlet, előadás vagy interjú részleges rögzítésének elmaradása','Előírt checklist, munkautasítás vagy ellenőrzés elmulasztása','Helytelen kamera-, hang- vagy streaming beállítás','Helyszíni technikai probléma késedelmes felismerése / kezelése','Az esemény menetét megzavaró hibás működtetés','Jelentős utómunkát vagy újraforgatást igénylő hiba']},
-  critical:{label:'Kritikus hiba vagy meghiúsulás',pct:100,ref:'3.3.',cases:['Felvétel teljes vagy részleges elvesztése','Hangrögzítés teljes hiánya vagy használhatatlansága','Előadás, interjú vagy kiemelt programelem rögzítésének teljes elmaradása','Élő közvetítés / streaming / rendezvénytechnika leállása','Memóriakártya, adattároló vagy felvételi adatok elvesztése','A nyersanyag teljesítést ellehetetlenítő sérülése vagy hiánya','Ügyfél felé csak kompenzációval teljesíthető mulasztás','Megalapozott, dokumentált ügyfélreklamáció','A projekt meghiúsulását okozó magatartás vagy mulasztás']},
+  /* esetek: [szöveg, területek] – a szerződés 10.2–10.4. pontjainak „különösen” felsorolása + forgatási példák; az ablak csak az illető munkájához illőket mutatja (penScopes) */
+  light:{label:'Enyhe szakmai hiba',pct:10,ref:'3.1.',cases:[
+    ['A leadott fotók / videók legfeljebb 5%-át érintő életlenség, hibás expozíció vagy színhőmérséklet, elmosódás (az anyag összességében felhasználható)','rec foto'],
+    ['A kért képtípusok, snittek, kompozíciók vagy darabszám kisebb mértékű hiánya','rec foto'],
+    ['Rossz keretezés, ferde horizont, zavaró elem a képen','rec foto'],
+    ['Felismerhető zúgás, recsegés, torzítás, túl halk hang vagy más kisebb hanghiba','rec snd vt'],
+    ['A nyersanyag késve vagy hiányosan került fel (NAS), ami a vágót kisebb mértékben hátráltatja','rec foto'],
+    ['A leadási határidő legfeljebb 2 napos túllépése','post foto'],
+    ['Betekintő monitor, projektor, LED-fal vagy kijelző rövid időn belül javítható beállítási / esztétikai hibája','vt live'],
+    ['Prezentáció, menekülőkép, léptető, kábelezés vagy rendezvénytechnikai elem kisebb kezelési / elhelyezési hibája','vt'],
+    ['Késés a helyszínről / a megbeszélt kezdésről','all'],
+    ['Helyszínen javítható, de beavatkozást igénylő technikai hiányosság','all'],
+    ['A Megrendelő dokumentált szakmai vagy esztétikai elvárásainak kisebb mértékű megsértése','all']]},
+  severe:{label:'Súlyos szakmai hiba',pct:50,ref:'3.2.',cases:[
+    ['Enyhe hibák ismétlődése / korábban jelzett hiányosság ismételt elkövetése','all'],
+    ['Huzamosabb ideig zajos, torz, túl halk vagy más módon nem megfelelő hangminőség','rec snd vt live'],
+    ['A leadási határidő több mint 2 napos túllépése','post foto'],
+    ['A felvételek / fotók legfeljebb 5%-ának elvesztése, vagy a leadott anyag több mint 5%-át érintő technikai hiba','rec foto post'],
+    ['Fontos eseményrészlet, előadásrészlet, interjú vagy programelem részleges rögzítési hiánya','rec foto'],
+    ['A felvételi lista / forgatókönyv lényeges részének elmaradása','rec foto'],
+    ['A nyersanyag jelentős késéssel vagy hiányosan került fel, ami a vágást akadályozza','rec foto'],
+    ['Előírt ellenőrzőlista vagy munkautasítás elmulasztása','all'],
+    ['Helytelen kamera-, hang-, streaming- vagy prezentációs beállítás','rec snd live vt'],
+    ['A rendezvény menetét megzavaró technikai vagy szakmai hiba','vt live snd'],
+    ['Jelentős utómunkát vagy részleges újraforgatást igénylő hiba','rec foto post']]},
+  critical:{label:'Kritikus hiba vagy meghiúsulás',pct:100,ref:'3.3.',cases:[
+    ['A felvételek / fotók több mint 5%-ának vagy egy kiemelt programelem teljes anyagának elvesztése','rec foto post'],
+    ['A lényeges hangrögzítés teljes hiánya vagy használhatatlansága','rec snd'],
+    ['Előadás, interjú, keynote vagy kiemelt programelem rögzítésének teljes elmaradása','rec'],
+    ['Élő közvetítés, streaming vagy rendezvénytechnikai szolgáltatás leállása','live vt'],
+    ['Adathordozó vagy felvételi adat elvesztése / sérülése, ami a teljesítést ellehetetleníti','rec foto post'],
+    ['A nyersanyag egyáltalán nem került fel / nem adható át','rec foto'],
+    ['Objektíven igazolt mulasztás, ami miatt az ügyfél felé nem vagy csak jelentős kompenzációval teljesíthető','all']]},
   prestige:{label:'Presztízsveszteség, jó hírnév sérelme',min:10,max:50,ref:'3.4.',cases:['Tiszteletlen, sértő vagy nem professzionális kommunikáció','Ügyfél előtti felkészületlenség vagy szakmai bizonytalanság','Öltözködési, megjelenési vagy viselkedési elvárások megszegése','Indokolatlan konfliktus vagy vita kezdeményezése','A Lumos Motion jó hírnevét sértő nyilatkozat vagy megjegyzés','Ügyfélpanaszt vagy bizalomvesztést okozó magatartás']},
   unfit:{label:'Munkavégzésre alkalmatlan állapot',pct:100,ref:'3.5.',cases:['Alkohol vagy tudatmódosító szer hatása alatt a helyszínen','Munkavégzésre alkalmatlan állapot alapos gyanúja']},
   damage:{label:'Kártérítés / eszközkár',ref:'4–5.',cases:['Ügyfélnek adott árengedmény vagy visszatérítés','Újraforgatás, pótfelvétel költsége','Helyettesítő szakember költsége','Sürgősségi utómunka költsége','Ügyfél által érvényesített kötbér / kártérítés','Eszköz javítási vagy pótlási költsége','Adatmentés, helyreállítás költsége','Egyéb dokumentált többletköltség']}};
+/* a díjcsökkentési esetek szűrése: az illető szerepei ezen a projekten → területek (a projektvezetőnél a projekt összes területe) */
+const PEN_ROLE_SC={'Operatőr':'rec','Kreatív operatőr':'rec','Statív operatőr':'rec','Interjú operatőr':'rec','Drónpilóta':'rec','Fotós':'foto','Hangtechnikus':'snd vt','Vizuáltechnikus':'vt','Fénytechnikus':'vt','Képkeverő / streaming':'live vt','Vágó':'post'};
+function penScopes(p,cid){if(!p||!cid)return null;const sc=new Set(),add=r=>String(PEN_ROLE_SC[r]||'').split(' ').filter(Boolean).forEach(x=>sc.add(x));
+  const mine=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);mine.forEach(add);if(p.lead===cid||mine.includes('Projektvezető'))(p.crew||[]).forEach(a=>add(a.role));return sc.size?sc:null;}
+const penCaseList=(kind,sc)=>{const k=PEN_KINDS[kind];if(!k)return [];return k.cases.map(c=>Array.isArray(c)?c:[c,'all']).filter(([t,a])=>!sc||a==='all'||a.split(' ').some(x=>sc.has(x))).map(c=>c[0]);};
 const OFFICE_RENT=[{name:'Zajácz Dávid',amount:60000}];   // fix havi irodabérlet: a Kifizetéseknél Dávid díjához adódik; a Bevétel és kiadás fülön NEM termelési költség, hanem kiadás („Irodabérlés”, Eszköz, rezsi alapból)
 const penOf=(p,cid,st)=>(p.penalties||[]).filter(x=>x.crewId===cid&&(!st||x.status===st));
 const penPct=(p,cid,st)=>Math.min(100,penOf(p,cid,st||'approved').filter(x=>x.kind!=='damage').reduce((s,x)=>s+num(x.pct),0));
