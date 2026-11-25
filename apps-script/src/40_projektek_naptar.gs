@@ -220,6 +220,10 @@ function saveProject_(u, a) {
         if (add.length && iv.via !== 'self') { inv[cid] = Object.assign(iv, { st: 'invited', at: '', ans: '', dl: '', prev: acc, roles: acc }); ch = true; }
         else if (String(iv.roles) !== String(now)) { iv.roles = now; ch = true; } });
       if (ch) p.invites = JSON.stringify(inv); } catch (e) { Logger.log('Új szerepkör ellenőrzés: ' + e); } }
+    if (u && (u.role === 'admin' || u.role === 'editor')) { try {   /* saját beosztás (termelési vezető / ügyvezető beosztja magát): azonnal elfogadottnak számít – meghívó, e-mail nélkül */
+      const own = u.crewId || inviteOwnCrewId_(u), myR = own ? rolesOfCid_(p.lead, crew, own) : [];
+      if (own && myR.length) { const inv = parseInvites_(p.invites || ''), cur = inv[own];
+        if (!cur || cur.st !== 'yes' || cur.pre) { inv[own] = { st: 'yes', at: now_(), by: u.name, bye: String(u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self', roles: myR }; p.invites = JSON.stringify(inv); } } } catch (e) { Logger.log('Saját beosztás elfogadása: ' + e); } }
     p.payStatus = old ? (old.payStatus || '') : (p.payStatus || ''); p.payOffset = old ? (old.payOffset || '') : ''; p.preDeal = old ? (old.preDeal || '') : '';   /* az előfoglalás-kapcsolatot csak a projPreDeal módosítja */   // a fizetési állapotot csak a pénzügyi műveletek (finSetPay / számlázás) módosítják
     // a közös csapat-véglegesítés megszűnt (szerepkörönként, külön meghívással véglegesítünk) – nincs lépés-zár
     if (p.penalties == null) p.penalties = '';   // díjcsökkentést csak a külön műveletek módosítanak

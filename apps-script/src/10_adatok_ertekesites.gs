@@ -170,6 +170,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   try { out.leads = {}; loadUsers_().forEach(x => { if (x && (x.role === 'admin' || x.role === 'editor') && x.name) out.leads[String(x.name).trim()] = x.role; }); } catch (e) { }   // a hozzászólásoknál: ki ügyvezető / termelési vezető (ikon a név előtt)
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (u.role === 'admin') { try { const r = migSelfAccept_(); if (r && r.fresh) MIG_NOTE_ = r.msg; } catch (e) { Logger.log('migSelfAccept: ' + e); } }
   if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
 }
@@ -487,3 +488,20 @@ function migJegvarazsBack_() { const P = PropertiesService.getScriptProperties()
       putRow_('projects', sh, p, row); dataBump_(); dbFlush_(); res = '✓ Jégvarázs Klíma November visszakerült a Helyszíni munkára' + (back ? ' (' + back + ' kártya vissza az „Utómunkára vár” oszlopba)' : '') + ' – a vágó kártyái zárva, amíg a termelési vezető át nem húzza.'; }); }
   catch (e) { res = 'Jégvarázs visszaállítás hiba: ' + (e && e.message || e); }
   P.setProperty(K, res || 'ismeretlen'); try { logEvent_({ name: 'Rendszer', email: '' }, 'Jégvarázs visszaállítás', 'Jégvarázs Klíma November', res); } catch (e) {} return res; }
+
+/* Egyszeri: a termelési vezető / ügyvezető saját beosztása mostantól azonnal elfogadott. A futó (nem lezárt, nem lemondott)
+   projekteken a már meglévő, még „meghívandó / meghívott” saját beosztásokat is elfogadottra állítja – e-mail nélkül. */
+function migSelfAccept_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_SELF_ACCEPT_1'; if (P.getProperty(K)) return { fresh: false, msg: P.getProperty(K) };
+  let msg = '';
+  try { withLock_(() => { const crew = readAll_('crew'), asgAll = readAll_('crewAssign'), leads = loadUsers_().filter(x => x && (x.role === 'admin' || x.role === 'editor'));
+      const own = leads.map(x => ({ u: x, cid: inviteOwnCrewId_(x, crew) })).filter(x => x.cid), done = [];
+      if (!own.length) { msg = 'Saját beosztás: nincs munkatárshoz kötött vezető.'; return; }
+      const sh = sheetFor_('projects');
+      readAll_('projects').filter(p => p.status !== 'atadva' && p.status !== 'lemondva').forEach(p0 => { const asg = asgAll.filter(x => x.projectId === p0.id); let inv = null, ch = false;
+        own.forEach(o => { const R = rolesOfCid_(p0.lead, asg, o.cid); if (!R.length) return; inv = inv || parseInvites_(p0.invites || ''); const cur = inv[o.cid]; if (cur && cur.st === 'yes' && !cur.pre) return;
+          inv[o.cid] = { st: 'yes', at: now_(), by: o.u.name, bye: String(o.u.email || '').toLowerCase(), dl: '', ans: now_(), via: 'self', roles: R }; ch = true; done.push(o.u.name + ' – ' + p0.name); });
+        if (!ch) return; const row = findRow_(sh, p0.id); if (!row) return; const p = readRow_('projects', sh, row); p.invites = JSON.stringify(inv); putRow_('projects', sh, p, row); });
+      if (done.length) { dataBump_(); dbFlush_(); }
+      msg = done.length ? '✓ Saját beosztás elfogadottra állítva (' + done.length + '): ' + done.join('; ') : '✓ Saját beosztás: nem volt függő saját meghívás.'; }); }
+  catch (e) { msg = 'Saját beosztás átállítás hiba: ' + (e && e.message || e); return { fresh: true, msg: msg }; }   // hibánál nem jegyezzük meg: a következő betöltéskor újra próbálja
+  P.setProperty(K, msg.slice(0, 8000)); try { logEvent_({ name: 'Rendszer', email: '' }, 'Saját beosztás átállítás', '', msg.slice(0, 400)); } catch (e) {} return { fresh: true, msg: msg }; }
