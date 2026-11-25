@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d322eb7568",
+"at": "2026-11-25T09:53:14+01:00",
+"msg": "Háttér-telepítés: sikertelen telepítésnél (pl. 200 verziós korlát) piros figyelmeztetés az ügyvezetőnek az appban"
+},
+{
 "id": "dfc75b4dcc",
 "at": "2026-11-25T09:45:29+01:00",
 "msg": "Kiküldött ajánlatok: az ügyfélnek küldött összes ajánlat tartósan elmentve (levelekből automatikus import), a lista a mentett adatokból"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Jóváhagyó oldal: az ügyfél üzenete formázható (félkövér, dőlt, felsorolás, számozott lista, Ctrl/⌘+B/I, élő előnézet); az appban formázva jelenik meg"
 },
 {
-"id": "45f6722ebb",
-"at": "2026-11-24T22:23:42+02:00",
-"msg": "Kifizetve, de számla nélkül: a „＋ Rezsi / ＋ Marketing” gomb hibánál kiírja az okát, eltérő azonosítónál frissíti a listát"
-},
-{
-"id": "1c8b47a556",
-"at": "2026-11-24T18:47:57Z",
+"id": "e591dacc14",
+"at": "2026-11-24T20:23:52Z",
 "msg": "Változásnapló frissítése"
 }
 ];
