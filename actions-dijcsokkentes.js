@@ -472,7 +472,7 @@ function siteModal(next,withPen){
       const ok=String(fd.get('siteOk')||''),txt=String(fd.get('siteReport')||'').trim();
       if(!ok){toast('Jelöld be, hogy minden rendben ment-e.',true);return;}
       let pens=[];try{pens=penRowsCollect(fd,txt);}catch(e){toast(e.message,true);return;}
-      const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next)next();penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
+      const pid=d.id;closeModal();setDraft({siteOk:ok,siteReport:txt});if(next){S._siteJust=pid;setTimeout(()=>{if(S._siteJust===pid)S._siteJust=null;},3000);next();}penRowsSubmit(pid,pens);setTimeout(()=>{if(S.dirty)saveDraft();},0);}});
 }
 /* Felugró figyelmeztetés: a helyszíni munka előtt véglegesíteni kell a stábot */
 const finalSkipped=d=>!!(d&&S._finalSkip&&S._finalSkip[d.id]);   // „saját felelősségre” kihagyott véglegesítés (erre a munkamenetre)

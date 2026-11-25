@@ -184,6 +184,7 @@ const ACT={
     if(crewFinalOn()&&['helyszin',...POST_STAGES,'atadva'].includes(v)&&['egyeztetes','tervezes',''].includes(d.status||'')&&crewFinalState(d)!=='ok'&&!finalSkipped(d)){
       crewFinalPopup(d,()=>ACT.stage({dataset:{v}}));return;}
     const closing=v==='atadva'&&d.status!=='atadva'&&!needsDelivery(d);   // „Kész”: lezáró ablak díjcsökkentéssel
+    if(closing&&S._siteJust===d.id){S._siteJust=null;go();return;}   /* a beszámolót épp most adta meg (Helyszíni munka → Kész): ne kérdezzük meg még egyszer */
     if(closing||(v!=='helyszin'&&d.status!==v&&!d.siteOk&&!editOnly(d))){siteModal(go,closing);return;}   // a helyszíni beszámoló csak a Helyszíni munka kipipálásakor jön fel; a „Kész” lezárásnál a díjcsökkentés miatt   // előbb a helyszíni beszámoló
     go();},
   'site-report':()=>siteModal(null),
