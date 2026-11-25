@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bf97a5ce1f",
+"at": "2026-11-25T14:04:26+01:00",
+"msg": "Jóváhagyó oldal feltöltései az új fájlkártya-stílusban (és a hozzászólásban kártyaként); vezetői bejegyzések kékek, az ügyfél jóváhagyása zöld"
+},
+{
 "id": "9da0bb08e8",
 "at": "2026-11-25T14:00:25+01:00",
 "msg": "Fájl csatolásakor a feltöltés sora rögtön látszik (odagörget)"
@@ -150,11 +155,6 @@ const ITEMS = [
 "id": "afa07fc729",
 "at": "2026-11-24T21:59:53+01:00",
 "msg": "Jóváhagyó oldal: Google Dokumentumok-szerű eszköztár (ikonok), az Időkód beszúrása feltűnő kék gomb külön sorban; az útmutató szöveg visszaállítva"
-},
-{
-"id": "8426c7f914",
-"at": "2026-11-24T21:55:07+01:00",
-"msg": "Jóváhagyó oldal: új javítási útmutató szöveg; az „Időkód beszúrása” gomb neve visszakerült, az eszköztár így is egy sorban"
 }
 ];
 const allowed = require('./_auth.js');
