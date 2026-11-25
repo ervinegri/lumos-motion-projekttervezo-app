@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dfc75b4dcc",
+"at": "2026-11-25T09:45:29+01:00",
+"msg": "Kiküldött ajánlatok: az ügyfélnek küldött összes ajánlat tartósan elmentve (levelekből automatikus import), a lista a mentett adatokból"
+},
+{
 "id": "8dd96017c5",
 "at": "2026-11-25T09:39:27+01:00",
 "msg": "Lehetőség ablak: az új ajánlat gombja lent (ha már ment ki ajánlat, az „Árajánlat készítése” helyén)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetve, de számla nélkül: a „＋ Rezsi / ＋ Marketing” gomb hibánál kiírja az okát, eltérő azonosítónál frissíti a listát"
 },
 {
-"id": "852c30c5b9",
-"at": "2026-11-24T20:47:46+02:00",
-"msg": "Bejövő díjbekérő: „díjbekérő” és „✓ kifizetve” jelzés a beérkezett számlák között; a később érkező végszámla magától a díjbekérőből rögzített kiadáshoz kapcsolódik"
-},
-{
-"id": "2098be0dd5",
-"at": "2026-11-24T18:34:31Z",
+"id": "1c8b47a556",
+"at": "2026-11-24T18:47:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
