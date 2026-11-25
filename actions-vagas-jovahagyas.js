@@ -791,6 +791,7 @@ ACT['vv-att']=b=>{const inp=b.parentNode.querySelector('.vv-att-in');if(inp){inp
 ACT['vv-att-x']=b=>{const bx=document.querySelector('.vv-cm');if(!bx)return;vvAtt(bx.dataset.vid).splice(+b.dataset.i,1);vvAttRender();};
 let VV_ATT_Q=Promise.resolve();
 function vvAttFiles(files){const bx=document.querySelector('.vv-cm');if(!bx)return;const pid=bx.dataset.pid,vid=bx.dataset.vid,A=vvAtt(vid);
+  setTimeout(()=>{const r=document.querySelector('.vv-att-list .vv-att-row:last-child');if(r)r.scrollIntoView({block:'nearest',behavior:'smooth'});},30);   /* a fájl sora rögtön látsszon (ne kelljen görgetni) */
   [...files].forEach(f=>{const x={name:f.name,p:0};A.push(x);vvAttRender();const up=()=>{if(document.querySelector('.vv-cm')&&document.querySelector('.vv-cm').dataset.vid===vid)vvAttRender();};
     VV_ATT_Q=VV_ATT_Q.then(async()=>{try{x.st='feltöltés… 0% · '+mbF(f.size);up();const s0=await call('vidUpStart',{projectId:pid,id:vid,name:f.name,mime:f.type||'',size:f.size});let off=0,res=null;
       while(off<f.size){const blob=f.slice(off,Math.min(f.size,off+s0.chunk)),d=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=()=>no(new Error('A fájl nem olvasható.'));r.readAsDataURL(blob);});
