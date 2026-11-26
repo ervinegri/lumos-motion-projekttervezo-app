@@ -18,10 +18,10 @@ module.exports = async (req, res) => {
   const t0 = Date.now(), send = (code, o) => { res.statusCode = code; res.end(typeof o === 'string' ? o : JSON.stringify(o)); };
   if (req.method === 'GET') {   // állapot (titok nélkül): egyezik-e a kód, megvan-e a tükör, hány háttérfeladat vár
     try { const { BUILD } = require('./_gasrt.js');
-      const r = await neonAsync({ queries: [{ query: "SELECT count(*)::text, coalesce(max(CASE WHEN k = 'm:build' THEN v END), ''), coalesce(max(CASE WHEN k = 'p:DB_MODE' THEN v END), ''), coalesce(max(at)::text, '') FROM lpm_kv", params: [] },
-        { query: "SELECT count(*) FILTER (WHERE done_at IS NULL)::text, count(*) FILTER (WHERE err IS NOT NULL AND done_at IS NULL)::text FROM lpm_jobs", params: [] }] }).catch(e => ({ err: String(e && e.message).slice(0, 120) }));
-      const a = r.results ? r.results[0].rows[0] : null, b = r.results ? r.results[1].rows[0] : null;
-      return send(200, { build: BUILD, mirror: a ? { keys: +a[0], build: a[1], match: a[1] === BUILD, mode: a[2], updated: a[3] } : r.err, jobs: b ? { waiting: +b[0], failing: +b[1] } : null, ms: Date.now() - t0 });
+      const q = sql => neonAsync({ query: sql, params: [] }).then(r => (r.rows || [])[0] || null, e => String(e && e.message).slice(0, 120));
+      const a = await q("SELECT count(*)::text, coalesce(max(CASE WHEN k = 'm:build' THEN v END), ''), coalesce(max(CASE WHEN k = 'p:DB_MODE' THEN v END), ''), coalesce(max(at)::text, '') FROM lpm_kv");
+      const b = await q("SELECT count(*) FILTER (WHERE done_at IS NULL)::text, count(*) FILTER (WHERE err IS NOT NULL AND done_at IS NULL)::text, count(*)::text FROM lpm_jobs");
+      return send(200, { build: BUILD, mirror: Array.isArray(a) ? { keys: +a[0], build: a[1], match: a[1] === BUILD, mode: a[2], updated: a[3] } : a, jobs: Array.isArray(b) ? { waiting: +b[0], failing: +b[1], total: +b[2] } : b, ms: Date.now() - t0 });
     } catch (e) { return send(200, { error: String(e && e.message).slice(0, 200) }); } }
   if (req.method !== 'POST') return send(405, { ok: false, error: 'Csak POST.' });
   let raw = req.body; if (raw && typeof raw !== 'string') raw = Buffer.isBuffer(raw) ? raw.toString('utf8') : JSON.stringify(raw);
