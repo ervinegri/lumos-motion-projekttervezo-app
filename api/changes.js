@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b9bab9b78e",
+"at": "2026-11-26T09:04:46+01:00",
+"msg": "Projekt fejléce 20%-kal kompaktabb (asztali nézet)"
+},
+{
 "id": "afc99a9802",
 "at": "2026-11-26T09:03:46+01:00",
 "msg": "Naptár (asztali havi nézet): teljes képernyő – széltől szélig, a hetek kitöltik a képernyőt, nincs görgetés; napcellában annyi esemény, amennyi kifér (+N további)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektoldal: a Szerződés és számlázás panel ugyanolyan távolságra, mint az Alapadatok és az Utómunka"
 },
 {
-"id": "d117a6ceaf",
-"at": "2026-11-25T15:52:02+01:00",
-"msg": "Díjcsökkentés: a példaesetek az illető munkájához igazodnak (forgatás, fotó, hang, vizuáltechnika, streaming, utómunka) a szerződés 10. pontja szerint, forgatási esetekkel; a projekt Szerződés és számlázás része alapból csukva"
-},
-{
-"id": "e8b3c9168c",
-"at": "2026-11-25T14:46:12Z",
+"id": "a4ee97917a",
+"at": "2026-11-25T14:52:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
