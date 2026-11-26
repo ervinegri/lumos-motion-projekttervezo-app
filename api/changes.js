@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5bd4311979",
+"at": "2026-11-26T10:23:51+02:00",
+"msg": "Naptár: asztali gépen keskeny ablakban (700 px alatt) is a teljes képernyős havi nézet – a rács alatti napi lista csak érintőképernyős telefonon jelenik meg"
+},
+{
 "id": "42d10bf6aa",
 "at": "2026-11-26T10:21:59+02:00",
 "msg": "Naptár: nem villognak az események – a napcellákba férő események száma már a kirajzolás előtt beáll (eddig egy pillanatra több esemény / más +N látszott), és a hónapváltáskor nem fut két animáció egymásra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni munka → Kész: a beszámoló ablak nem jön fel kétszer egymás után"
 },
 {
-"id": "1d2097f031",
-"at": "2026-11-25T17:01:48+01:00",
-"msg": "Szolgáltatások: a lakat az oszlop jobb felső sarkában"
-},
-{
-"id": "0f7c74f15d",
-"at": "2026-11-25T15:59:50Z",
+"id": "4e57001327",
+"at": "2026-11-25T16:01:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
