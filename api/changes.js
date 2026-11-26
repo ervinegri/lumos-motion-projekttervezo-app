@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "42dd7cb1a8",
+"at": "2026-11-26T11:02:07+01:00",
+"msg": "Stáb-lakat: lezajlott rendezvénynél nincs (a helyszíni stáb már nem módosítható); a feloldó szöveg pontosítva"
+},
+{
 "id": "0a52880f67",
 "at": "2026-11-26T10:59:36+01:00",
 "msg": "Projekt Részletek (előzmények) a termelési vezetőnek is – árak, számlázás, jutalék nélkül"
@@ -145,16 +150,6 @@ const ITEMS = [
 "id": "3cc8985901",
 "at": "2026-11-26T10:32:47+02:00",
 "msg": "Naptár (szakember, havi nézet): az utómunka csak a leadási határidő napján jelenik meg, nem a teljes vágási időszakban (az idővonalon marad az időszak)"
-},
-{
-"id": "1e596a695f",
-"at": "2026-11-26T10:32:09+02:00",
-"msg": "Naptár (havi nézet): a hónap már görgetés közben vált (nem csak a trackpad elengedésekor) – kisebb küszöb, a lassú húzás is számít; egérgörgővel az első kattanásra"
-},
-{
-"id": "b3e82acbc5",
-"at": "2026-11-26T08:31:39Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
