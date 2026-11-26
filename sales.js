@@ -657,12 +657,18 @@ function recStop(){if(!REC||!REC.mr||REC.mr.state==='inactive')return;if(!REC.pa
 async function recFinish(){if(!REC||REC.done)return;REC.done=1;clearInterval(REC.tick);recWakeOff();if(REC.onVis)document.removeEventListener('visibilitychange',REC.onVis);[REC.mic,REC.disp].forEach(s=>{if(s)s.getTracks().forEach(t=>t.stop());});try{if(REC.ctx)REC.ctx.close();}catch(e){}
   const blob=new Blob(REC.chunks,{type:REC.mime.split(';')[0]});REC.up='Feltöltés…';recBar();
   await recUpload({sid:REC.sid,did:REC.did,kind:REC.kind,title:REC.title,mime:REC.mime,dur:REC.dur||recElapsed()},blob);}
+/* darab feltöltése valódi százalékkal (XHR – a fetch nem jelzi a feltöltés haladását); hálózati hibánál a szokásos úton próbálja */
+function recXhr(name,arg,onProg){return new Promise((ok,no)=>{let x;try{x=new XMLHttpRequest();x.open('POST',API_URL);x.setRequestHeader('Content-Type','text/plain;charset=utf-8');}catch(e){call(name,arg).then(ok,no);return;}
+  x.timeout=240000;x.upload.onprogress=e=>{if(e.lengthComputable&&onProg)onProg(e.loaded/e.total);};
+  x.onload=()=>{let j=null;try{j=JSON.parse(x.responseText);}catch(e){}if(!j){call(name,arg).then(ok,no);return;}if(!j.ok){no(new Error(j.error||'Ismeretlen hiba.'));return;}ok(j.data);};
+  x.onerror=()=>{call(name,arg).then(ok,no);};x.ontimeout=()=>no(new Error('A feltöltés túl sokáig tartott – próbáld újra.'));
+  x.send(JSON.stringify({fn:'rpc',args:[TOKEN,name,arg]}));});}
 async function recUpload(m,blob){
   const setUp=t=>{if(REC){REC.up=t;recBar();}};
   try{if(!blob.size)throw new Error('A felvétel üres.');
     const st=await call('recUpStart',{dealId:m.did,size:blob.size,mime:m.mime,kind:m.kind,dur:Math.round(m.dur||0),consent:true});
     let off=0,res=null;while(off<blob.size){const part=blob.slice(off,off+st.chunk),b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=()=>no(fr.error);fr.readAsDataURL(part);});
-      setUp(blob.size<=st.chunk?'Feltöltés…':'Feltöltés… '+Math.round(off/blob.size*100)+'%');res=await call('recUpChunk',{upId:st.upId,offset:off,b64});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
+      const o0=off,pz=part.size;setUp('Feltöltés… '+Math.round(o0/blob.size*100)+'%');res=await recXhr('recUpChunk',{upId:st.upId,offset:off,b64},f=>{const pc=Math.min(99,Math.round((o0+f*pz)/blob.size*100));setUp(f>=1&&o0+pz>=blob.size?'Feltöltés… 100% · mentés':'Feltöltés… '+pc+'%');});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
     await recDbClear(m.sid);recHbStop();window.removeEventListener('beforeunload',recUnload);
     if(res&&res.deals)S.deals=res.deals;REC=null;recBar();if(res&&res.ai&&res.rec)recStatus('✓ Feltöltve · átirat készül…');else toast('✓ A felvétel feltöltve');
     recLoadIf(m.did);if(res&&res.ai&&res.rec)recRun(m.did,res.rec.id);}

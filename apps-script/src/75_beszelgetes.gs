@@ -46,7 +46,9 @@ function recUpStart_(u, a) {
 }
 /** Darab feltöltése: a: {upId, offset, b64}. Az utolsó darab után a felvétel bekerül a lehetőséghez. */
 function recUpChunk_(u, a) {
-  a = a || {}; const C = CacheService.getScriptCache(), upId = str_(a.upId, 64), raw = C.get('rec_' + upId); if (!raw) throw new Error('A feltöltés lejárt – kezdd újra (a felvétel a böngészőben megmaradt).');
+  a = a || {}; const C = CacheService.getScriptCache(), upId = str_(a.upId, 64), raw = C.get('rec_' + upId);
+  if (!raw) { const dn = C.get('recdone_' + upId); if (dn) { const x = JSON.parse(dn); let deals = null; try { deals = dealsFor_(u); } catch (e) {} return { done: true, rec: x.rec, ai: x.ai, deals: deals }; }   // ugyanaz a befejező darab másodszor (pl. megszakadt válasz után): nem lesz kétszer felvéve
+    throw new Error('A feltöltés lejárt – kezdd újra (a felvétel a böngészőben megmaradt).'); }
   const r = JSON.parse(raw); if (r.uid !== u.id) throw new Error('Hibás feltöltés.');
   const bytes = Utilities.base64Decode(String(a.b64 || '')), off = Math.round(Number(a.offset) || 0), end = off + bytes.length - 1;
   if (!bytes.length || end >= r.size || (bytes.length !== REC_CHUNK && end !== r.size - 1)) throw new Error('Hibás feltöltési darab.');
@@ -57,10 +59,11 @@ function recUpChunk_(u, a) {
   const f = JSON.parse(res.getContentText() || '{}'); C.remove('rec_' + upId);
   const rec = { id: Utilities.getUuid(), at: now_(), by: u.name, uid: u.id, kind: r.kind, dur: r.dur, size: r.size, mime: r.mime, fileId: f.id, st: 'felvéve', consent: true };
   withLock_(() => { const o = qGet_('REC_' + r.did) || { list: [] }; o.list = [rec].concat(o.list || []).slice(0, 200); qPut_('REC_' + r.did, o); });
-  try { recNote_(u, r.did, '🎙️ ' + (REC_KIND[r.kind] || 'Beszélgetés') + ' rögzítve (' + recDurTxt_(r.dur) + ') – a beszélgetőpartner hozzájárult a rögzítéshez.'); } catch (e) { Logger.log('recNote: ' + e); }
+  try { recNote_(u, r.did, '🎙️ ' + (REC_KIND[r.kind] || 'Beszélgetés') + ' rögzítve (' + recDurTxt_(r.dur) + ')'); } catch (e) { Logger.log('recNote: ' + e); }
   logEvent_(u, 'Beszélgetés rögzítve', r.name, recDurTxt_(r.dur));
   let deals = null; try { deals = dealsFor_(u); } catch (e) {}
-  return { done: true, rec: recPub_(rec), ai: !!(geminiKey_() || openaiKey_()), deals: deals };
+  const out = { done: true, rec: recPub_(rec), ai: !!(geminiKey_() || openaiKey_()), deals: deals }; try { C.put('recdone_' + upId, JSON.stringify({ rec: out.rec, ai: out.ai }), 3600); } catch (e) {}
+  return out;
 }
 /** Felvétel törlése (GDPR): a hangfájl és az átirat a Drive kukájába kerül. */
 function recDel_(u, a) {

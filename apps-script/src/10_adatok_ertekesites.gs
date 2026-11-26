@@ -524,16 +524,16 @@ function dealNotePrepend_(x, line) {
   x.note = (line + (old ? '\n' + old : '')).slice(0, 20000);
 }
 function noteHeadFix_(t, fb) { const L = String(t || '').split('\n'); let ch = false;
-  for (let i = 0; i < L.length - 1; i++) if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\) – a beszélgetőpartner hozzájárult a rögzítéshez\.|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) { L[i + 1] = '[' + fb + '] ' + L[i + 1]; ch = true; }
+  for (let i = 0; i < L.length - 1; i++) if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\)( – a beszélgetőpartner hozzájárult a rögzítéshez\.)?|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) { L[i + 1] = '[' + fb + '] ' + L[i + 1]; ch = true; }
   return ch ? L.join('\n') : String(t || ''); }
 /** Egyszeri javítás: a felvétel / ajánlatküldés egysoros bejegyzése alá „ragadt” régi, fejléc nélküli jegyzet visszakapja a saját fejlécét. */
 /* Egyszeri takarítás (2026-11-26, az ügyvezető kérésére): a bevezetés napján készült próba-összefoglalók („🎙️ Beszélgetés összefoglalója”) törlése a jegyzetekből.
    Csak a 2026-11-26-i ilyen bejegyzések – a valódi jegyzetek és a „rögzítve” sorok maradnak. */
 function recSumPurge_(t) { const L = String(t || '').split('\n'), out = []; let skip = false;
   L.forEach(l => { if (DNOTE_HEAD_RE_.test(l)) skip = /^\[2026-11-26 \d{2}:\d{2}[^\]]*\] \u{1F399}\uFE0F? ?Beszélgetés összefoglalója/u.test(l); if (!skip) out.push(l); });
-  return out.join('\n'); }
+  return out.join('\n').replace(/(rögzítve \(\d+(?::\d+)+\)) – a beszélgetőpartner hozzájárult a rögzítéshez\./g, '$1'); }   // a rövidebb „rögzítve (3:15)” alak (az ügyvezető kérésére)
 function noteFixAll_(t, fb) { return recSumPurge_(noteHeadFix_(t, fb)); }
-function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_RECSUM_PURGE_1'; if (P.getProperty(K)) return;
+function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_RECSUM_PURGE_2'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
     readAll_('deals').forEach(d => { const t = String(d.note || ''); if (recSumPurge_(t) === t) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = recSumPurge_(String(x.note || '')); putRow_('deals', sh, x, row); n++; });
     if (n) { dataBump_(); dbFlush_(); } Logger.log('migRecSumPurge: ' + n); });
