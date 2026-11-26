@@ -50,7 +50,6 @@ function oaiTranscribe_(blob, mime, name, ctx) {
   const file = blob.copyBlob().setName(String(name || 'beszelgetes').replace(/\.\w+$/, '') + '.' + ext).setContentType(mime || 'audio/webm');
   const prompt = 'Magyar nyelvű üzleti beszélgetés (Lumos Motion – rendezvény- és videógyártás, értékesítés).' + (ctx ? ' ' + ctx : '');
   const tries = [
-    { model: 'gpt-transcribe', 'languages[]': 'hu', response_format: 'diarized_json', chunking_strategy: 'auto', prompt: prompt },
     { model: 'gpt-transcribe', 'languages[]': 'hu', prompt: prompt },
     { model: 'gpt-transcribe', prompt: prompt },
     { model: 'gpt-4o-transcribe-diarize', language: 'hu', response_format: 'diarized_json', chunking_strategy: 'auto' },

@@ -619,6 +619,10 @@ function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar
   if(REC.up){if(bar.dataset.m!=='up'){bar.dataset.m='up';bar.innerHTML=`<span class="rec-dot up"></span><span class="rec-t"></span>`;}bar.querySelector('.rec-t').textContent=REC.up;return;}
   if(bar.dataset.m!=='rec'){bar.dataset.m='rec';bar.innerHTML=`<span class="rec-dot"></span><b class="rec-t"></b><canvas class="rec-wave" width="240" height="56" aria-hidden="true"></canvas><span class="rec-n">${esc(REC.title||'Beszélgetés')}</span><button type="button" class="btn small rec-pz" data-action="rec-pause"></button><button type="button" class="btn small primary" data-action="rec-stop">⏹ Befejezés</button>`;recWave();}
   bar.querySelector('.rec-dot').classList.toggle('p',REC.paused);bar.querySelector('.rec-t').textContent=recDur(recElapsed());bar.querySelector('.rec-pz').textContent=REC.paused?'▶ Folytatás':'⏸ Szünet';}
+/* feldolgozás-jelző ugyanott, ahol a felvétel sávja volt: feltöltés után az átirat / összefoglaló állapotát mutatja, amíg kész nem lesz */
+function recStatus(t){if(REC)return;let bar=document.getElementById('rec-bar');if(!t){if(bar&&bar.dataset.m==='st')bar.remove();document.body.classList.remove('rec-on');return;}
+  if(!bar){bar=document.createElement('div');bar.id='rec-bar';bar.className='rec-bar';document.body.appendChild(bar);}document.body.classList.add('rec-on');
+  if(bar.dataset.m!=='st'){bar.dataset.m='st';bar.innerHTML=`<span class="rec-spin" aria-hidden="true"></span><span class="rec-t"></span>`;}bar.querySelector('.rec-t').textContent=t;}
 /* élő hullámforma: a mikrofon (és a megosztott hang) hangereje oszlopokban, jobbról balra gördülve */
 function recWave(){const cv=document.querySelector('#rec-bar .rec-wave');if(!cv||!REC||!REC.an||REC.up)return;const g=cv.getContext('2d'),an=REC.an,buf=new Uint8Array(an.fftSize),hist=REC.wave=REC.wave||[];
   const W=cv.width,H=cv.height,bw=6,gap=3,n=Math.floor(W/(bw+gap));
@@ -637,20 +641,20 @@ async function recUpload(m,blob){
   try{if(!blob.size)throw new Error('A felvétel üres.');
     const st=await call('recUpStart',{dealId:m.did,size:blob.size,mime:m.mime,kind:m.kind,dur:Math.round(m.dur||0),consent:true});
     let off=0,res=null;while(off<blob.size){const part=blob.slice(off,off+st.chunk),b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=()=>no(fr.error);fr.readAsDataURL(part);});
-      setUp('Feltöltés… '+Math.round(off/blob.size*100)+'%');res=await call('recUpChunk',{upId:st.upId,offset:off,b64});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
+      setUp(blob.size<=st.chunk?'Feltöltés…':'Feltöltés… '+Math.round(off/blob.size*100)+'%');res=await call('recUpChunk',{upId:st.upId,offset:off,b64});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
     await recDbClear(m.sid);window.removeEventListener('beforeunload',recUnload);
-    if(res&&res.deals)S.deals=res.deals;REC=null;recBar();toast('✓ A felvétel feltöltve'+(res&&res.ai?' – készül az átirat…':''));
+    if(res&&res.deals)S.deals=res.deals;REC=null;recBar();if(res&&res.ai&&res.rec)recStatus('✓ Feltöltve · átirat készül…');else toast('✓ A felvétel feltöltve');
     recLoadIf(m.did);if(res&&res.ai&&res.rec)recRun(m.did,res.rec.id);}
   catch(e){window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
     confirmLayer('⚠️ A felvétel feltöltése nem sikerült',`<div style="margin:0 16px"><p class="bad-txt" style="margin:0 0 8px">${esc(errText(e))}</p><p class="hint" style="margin:0">A felvétel a böngészőben megmaradt – próbáld újra most, vagy később (az app induláskor is felajánlja).</p></div>`,'Újrapróbálás',(b,l)=>{l.remove();recRetry(m.sid);});}}
 function recLoadIf(did){const b=document.getElementById('rec-list');if(b&&b.dataset.did===did){delete b.dataset.loading;recLoad(did);}}
 /* átirat lépésenként (a háttér minden lépést külön kérésben végez) */
 async function recRun(did,rid){if(S._recRun)return;S._recRun=rid;let last=null;
-  try{let wait=null;for(let n=0;n<200;n++){const r=await call('recProcess',{dealId:did,id:rid});last=r.rec;recLoadIf(did);if(!r.more){if(r.deals)S.deals=r.deals;if(r.wait)wait=r.retryAt||'';break;}}
+  try{let wait=null;recStatus('Átirat készül…');for(let n=0;n<200;n++){const r=await call('recProcess',{dealId:did,id:rid});last=r.rec;recLoadIf(did);if(r.more&&last)recStatus(/összefoglal/.test(last.st||'')||(last.segs&&last.seg>=last.segs)?'Összefoglaló készül…':'Átirat készül…');if(!r.more){if(r.deals)S.deals=r.deals;if(r.wait)wait=r.retryAt||'';break;}}
     if(wait!==null){toast('⏳ A Google Gemini most túlterhelt – az átiratot automatikusan folytatom'+(wait?' '+wait.slice(11)+' körül':'')+', nem kell semmit tenned.');}   /* átmeneti hiba: nem hiba, a háttér magától újrapróbálja */
-    else if(last&&last.st==='kész'){toast('✓ Elkészült az átirat és az összefoglaló');recResult(did,last);}}
+    else if(last&&last.st==='kész'){recResult(did,last);}   /* az összefoglaló ablaka maga a jelzés – külön értesítés nem kell */}
   catch(e){toast('Az átirat most nem készült el: '+errText(e)+' – a „Átirat folytatása” gombbal később folytatható.',true);recLoadIf(did);}
-  finally{S._recRun=null;}}
+  finally{S._recRun=null;recStatus('');}}
 function recResult(did,r){const deal=(S.deals||[]).find(x=>x.id===did)||{};
   confirmLayer('✨ Beszélgetés összefoglalója',`<div style="margin:0 16px"><p class="hint" style="margin:0 0 8px"><b>${esc(deal.title||'')}</b> · ${esc(recDur(r.dur))}</p><div class="rec-res">${esc(r.summary||'').replace(/\n/g,'<br>')}</div>${r.needs?`<p style="margin:10px 0 0"><b>Az ügyfél igényei</b><br>${esc(r.needs).replace(/\n/g,'<br>')}</p>`:''}${r.next?`<p style="margin:10px 0 0"><b>Javasolt következő lépés:</b> ${esc(r.next)}${r.nextDate?' ('+esc(r.nextDate)+')':''}</p>`:''}${r.trUrl?`<p style="margin:10px 0 0"><a class="linkbtn" href="${esc(r.trUrl)}" target="_blank" rel="noopener">📄 Teljes, szó szerinti átirat</a></p>`:''}</div>`,
     r.next?'➜ Átveszem következő lépésnek':'Rendben',async(b,l)=>{l.remove();if(r.next)recApply(did,r.next,r.nextDate);});}
