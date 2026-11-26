@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ca3ae7d680",
+"at": "2026-11-26T18:01:14+02:00",
+"msg": "Projekt oldal: egyforma (8 px) távolság a szakaszok között"
+},
+{
 "id": "178af77cb3",
 "at": "2026-11-26T17:58:59+02:00",
 "msg": "Projektlista (gép): vékonyabb fejléc"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Lehetőség ablaka: az ajánlat- és a rögzítés-gomb a fejlécben (jobb felső sarok); a bevezetés napi próba-rögzítések sorai is törlődnek a jegyzetből (15:46 előttiek)"
 },
 {
-"id": "4c33205c3a",
-"at": "2026-11-26T15:41:04+01:00",
-"msg": "Rögzítés iPhone-on: a mikrofon-választó telefonon nem kér előre engedélyt (kattintás nélküli kérésre az iOS az egész munkamenetre tiltott) – telefonon nincs is választó; iPhone-ra szabott útmutató, ha mégis tiltott"
-},
-{
-"id": "df3d7a3093",
-"at": "2026-11-26T14:39:29Z",
+"id": "9c9591c034",
+"at": "2026-11-26T14:41:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
