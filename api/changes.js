@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "56caf36ba1",
+"at": "2026-11-26T22:39:45+02:00",
+"msg": "Telefon, Stáb lista: egyforma magas sorok (név+cég, szerepek+részletek egy-egy sorban, a többi …)"
+},
+{
 "id": "6e6d7b9fd6",
 "at": "2026-11-26T22:38:27+02:00",
 "msg": "Projektlista: vastagabb videó-állapotsáv"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "7c69778d58",
 "at": "2026-11-26T18:03:56+02:00",
 "msg": "Szolgáltatások: kisebb hézag a fejléc és a magyarázó sor között"
-},
-{
-"id": "2fb2851b01",
-"at": "2026-11-26T18:02:25+02:00",
-"msg": "Projekt fejléc (gép): név és gombok egy sorban; lemondás / törlés ikonként"
 }
 ];
 const allowed = require('./_auth.js');
