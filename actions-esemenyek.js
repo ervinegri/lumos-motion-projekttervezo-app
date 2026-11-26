@@ -65,7 +65,9 @@ const ACT={
   'new-crew':()=>crewModal(S.tab==='ertekesitok'?{roles:['Értékesítő'],_new:true}:S.tab==='statisztak'?{roles:['Szereplő'],_new:true}:null),
   'edit-crew':b=>{const c=crewById(b.dataset.id);if(c){crewModal(c);if(b.dataset.focus)setTimeout(()=>{const x=$(b.dataset.focus);if(x)x.scrollIntoView({block:'center'});},60);}},
   'crew-doc-up':b=>{const fi=$('cdoc-file');if(fi)fi.click();},
-  'crew-doc-open':async b=>{const w=window.open('about:blank','_blank');
+  'crew-doc-open':async b=>{const d=(S.crewDocs||[]).find(x=>x.id===b.dataset.id);
+    if(d&&/^[\w-]{20,}$/.test(d.fileId||'')){window.open('https://drive.google.com/file/d/'+encodeURIComponent(d.fileId)+'/view','_blank','noopener');return;}   /* azonnal: a Drive saját előnézete (nem kell megvárni, amíg a szerver letölti és átküldi a fájlt) */
+    const w=window.open('about:blank','_blank');if(w)try{w.document.title=(d&&d.title)||'Dokumentum';w.document.body.innerHTML='<p style="font:16px system-ui;padding:24px;color:#555">Dokumentum betöltése…</p>';}catch(e){}
     try{const r=await call('crewDocGet',{id:b.dataset.id});const bin=atob(r.b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
       const url=URL.createObjectURL(new Blob([u8],{type:r.mime||'application/pdf'}));
       if(w&&/pdf|image/.test(r.mime||'')){w.location.href=url;}else{if(w)w.close();const a=document.createElement('a');a.href=url;a.download=r.name||'szerzodes';document.body.appendChild(a);a.click();a.remove();}

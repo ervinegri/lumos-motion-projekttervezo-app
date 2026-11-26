@@ -645,7 +645,7 @@ function crewDocsFolder_() {
   try { f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (e) { }
   P.setProperty(CREW_DOCS_FOLDER_PROPERTY, f.getId()); return f;
 }
-function crewDocsList_() { return readAll_('crewDocs').map(d => ({ id: d.id, crewId: String(d.crewId || ''), title: d.title || '', fileName: d.fileName || '', mime: d.mime || '', signedAt: iso_(d.signedAt) || '', note: d.note || '', createdAt: d.createdAt || '', createdBy: d.createdBy || '' })); }
+function crewDocsList_() { return readAll_('crewDocs').map(d => ({ id: d.id, crewId: String(d.crewId || ''), title: d.title || '', fileName: d.fileName || '', fileId: String(d.fileId || ''), mime: d.mime || '', signedAt: iso_(d.signedAt) || '', note: d.note || '', createdAt: d.createdAt || '', createdBy: d.createdBy || '' })); }
 /* ===== Alvállalkozói keretszerződés a Stáb adataiból: sablon (Templates.gs „alv_keret”), küldés e-mailben, mentés a munkatárs dokumentumai közé ===== */
 function crewContractTpl_(a) { const k = a && (a.k === 'modell_keret' || a.k === 'auto_hasznalat') ? a.k : 'alv_keret'; if (typeof CONTRACT_TPL_ === 'undefined' || !CONTRACT_TPL_[k]) throw new Error('Hiányzik a keretszerződés-sablon.'); return { zip: CONTRACT_TPL_[k] }; }   // alvállalkozói vagy modell (statiszta) keretszerződés
 function crewContractSend_(u, a) {
