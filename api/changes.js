@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2cc8360dcd",
+"at": "2026-11-26T12:04:20+01:00",
+"msg": "Értékelés-párosítás: a „Nem párosítható (egyéb)” kategória kivéve"
+},
+{
 "id": "dbb4b351f0",
 "at": "2026-11-26T12:02:48+01:00",
 "msg": "Idővonal: görgetés közben nem vált hónapot / nem szűr sorokat / nem rajzol újra – csak a görgetés megállása után (nem akad)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Gyors út: a mindig Google-t igénylő lekérések (naptár, beállítások) egyből az Apps Scripthez mennek; ami kétszer a Google-ra szorult, a munkamenetben kihagyja a gyors utat"
 },
 {
-"id": "396031ed44",
-"at": "2026-11-26T11:35:10+02:00",
-"msg": "Gyors út: a betöltés (bootstrap) is gyors – a karbantartó lépései (naptár-visszajelzések, időzítők) háttérfeladatként az Apps Scriptben futnak, legfeljebb 5 percenként; a beállítások listázása a tükörből"
-},
-{
-"id": "45ebff7821",
-"at": "2026-11-26T09:34:24Z",
+"id": "4b9d425627",
+"at": "2026-11-26T09:35:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
