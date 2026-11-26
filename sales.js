@@ -580,7 +580,7 @@ ACT['rec-start']=b=>{const did=b.dataset.id;if(REC){toast('Már fut egy felvéte
 
 async function recBegin(did,kind,title){let mic=null,disp=null,ctx=null,stream;
   try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:kind!=='phone',noiseSuppression:true,autoGainControl:true}});}
-  catch(e){toast('A mikrofont nem engedélyezted (a böngésző címsorában engedélyezheted).',true);return;}
+  catch(e){const n=e&&e.name;toast(n==='NotFoundError'?'Nem található mikrofon ezen az eszközön.':n==='NotReadableError'?'A mikrofont most egy másik alkalmazás használja (pl. Zoom / Teams) – zárd be ott, vagy válaszd a megosztást.':'A mikrofon használata le van tiltva. Engedélyezd a böngésző címsorában a lakat / beállítások ikonnal (Mikrofon: Engedélyezés), majd próbáld újra.',true);return;}
   if(kind==='online'){try{disp=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});}catch(e){mic.getTracks().forEach(t=>t.stop());toast('A megosztást megszakítottad – a felvétel nem indult el.',true);return;}
     if(!disp.getAudioTracks().length){toast('A megosztásban nincs hang – a „Fül hangjának megosztása” kapcsolót kapcsold be. Most csak a mikrofont rögzítem.',true);}
     disp.getVideoTracks().forEach(t=>{t.onended=()=>{if(REC&&REC.disp===disp)recStop();};});
