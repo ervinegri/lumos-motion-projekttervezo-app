@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "05661c923a",
+"at": "2026-11-26T15:25:05+01:00",
+"msg": "Rögzítés telefonon: amíg fut, a képernyő ébren marad (Wake Lock); ha mégis megszakadt (lezárás, appváltás, hívás, a mikrofon elengedése), visszatéréskor szól – folytatás vagy befejezés és feltöltés, nem rögzít csendet"
+},
+{
 "id": "eeea03cd0d",
 "at": "2026-11-26T15:19:52+01:00",
 "msg": "Rögzítés iPhone-on: a hullámforma-elemző néma kimenethez kötve (Safari csak így adja az élő hangszintet)"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "fcece2e370",
 "at": "2026-11-26T12:07:47+01:00",
 "msg": "Google-értékelések: értékelés kérése e-mailben projekt nélkül (✉️ Küldés); rövidebb gombok (Küldés · Link · QR)"
-},
-{
-"id": "c0b663dc77",
-"at": "2026-11-26T12:06:16+01:00",
-"msg": "Idővonal: szélesebb betöltött időszak (2 hónap vissza, +2 előre) – görgetéskor ritkán kell újrarajzolni, nem ugrál"
 }
 ];
 const allowed = require('./_auth.js');
