@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a302b4fa3",
+"at": "2026-11-26T15:31:25+01:00",
+"msg": "Felvétel: valódi feltöltési százalék (XHR), a befejező darab ismétlése nem vesz fel kétszer; a jegyzetben rövidebb sor: „🎙️ Személyes megbeszélés rögzítve (3:15)” (a meglévők is)"
+},
+{
 "id": "c9d152fcb8",
 "at": "2026-11-26T15:29:01+01:00",
 "msg": "Rögzítés több fülön: a felvételt / feltöltést végző fül jelzi, hogy él – a másik fül nem ajánlja fel félbemaradtként (és nem tölti fel kétszer)"
@@ -122,9 +127,9 @@ const ITEMS = [
 "msg": "Beszélgetésrögzítés: a feltöltés / átirat mindig az Apps Scripten fut (a gyors út nem érte el a feltöltési munkamenetet → „lejárt”)"
 },
 {
-"id": "b17e8ebbf3",
-"at": "2026-11-26T13:07:24+01:00",
-"msg": "Rögzítő sáv: élő hullámforma, jól látható Szünet gomb, a sáv fent (nem takarja az ablak gombjait)"
+"id": "f050733d53",
+"at": "2026-11-26T12:07:33Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
