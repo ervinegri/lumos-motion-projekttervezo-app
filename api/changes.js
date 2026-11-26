@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bb11d4b1e8",
+"at": "2026-11-26T10:10:43+02:00",
+"msg": "Naptár (teljes képernyős havi nézet): teljesen fix – fel-le görgetésre semmi nem mozdul (nincs rugalmas túlgörgetés, nincs rács-követés / hónapváltás), a lap alsó térköze sem görgethető; hónapváltás oldalra görgetéssel vagy a nyilakkal"
+},
+{
 "id": "7e50027d33",
 "at": "2026-11-26T09:08:54+01:00",
 "msg": "Projekt: kisebb felső hézag a fejléc felett"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Változás-értesítő: a csak vágóként beosztott szakember nem kap levelet a helyszíni időpont / helyszín változásáról"
 },
 {
-"id": "55fac4939a",
-"at": "2026-11-25T16:08:12+01:00",
-"msg": "Projektoldal: egyforma hézag minden panel között és egyforma magas csukott kártyák (a Szolgáltatások kártya plusz térköze megszűnt)"
-},
-{
-"id": "11594c6b90",
-"at": "2026-11-25T15:00:47Z",
+"id": "229b652053",
+"at": "2026-11-25T15:08:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
