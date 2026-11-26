@@ -238,7 +238,8 @@ function anchorKey(t){const el=t&&t.closest&&t.closest('[data-fold],section[id],
 function anchorFix(){const a=ANCHOR;if(!a||Date.now()-a.at>1500)return;const fix=()=>{if(ANCHOR!==a)return;const el=VIEW.querySelector(a.k);if(!el)return;const d=el.getBoundingClientRect().top-a.top;if(Math.abs(d)>1)scrollBy(0,d);};
   fix();requestAnimationFrame(()=>{fix();requestAnimationFrame(fix);});setTimeout(fix,60);setTimeout(fix,250);}
 const IS_MAC=typeof navigator!=='undefined'&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||''),KBD_SAVE=IS_MAC?'⌘S':'Ctrl+S',KBD_UNDO=IS_MAC?'⌘Z':'Ctrl+Z';   // gyorsbillentyű felirata a géphez igazítva
-function appReveal(){const h=document.documentElement;if(h.classList.contains('booting'))requestAnimationFrame(()=>h.classList.remove('booting'));}
+function appReveal(){const h=document.documentElement;if(h.classList.contains('booting'))requestAnimationFrame(()=>h.classList.remove('booting'));
+  setTimeout(()=>{const sp=document.getElementById('splash');if(sp&&!h.classList.contains('booting'))sp.remove();},700);}   /* az indítóképernyő a felfedés után kikerül: láthatatlanul se maradjon a lap tetején (iOS 26: a fix, teljes képernyős réteg megzavarhatja a fejléc felismerését – elhomályosodó menü) */
 function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);setTimeout(calLockSync,0);setTimeout(autoSiteStep,400);if(S._dlDrag){S._dlDragRender=1;return;}   // kártyahúzás közben (érintő) nem rajzolunk újra
 
   if(!S.me)return;
