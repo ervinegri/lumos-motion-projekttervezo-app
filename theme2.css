@@ -3547,3 +3547,18 @@ html body #view>:first-child{margin-top:0!important}
 html body #view>.page-head{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;min-height:0!important}
 html body #view>.page-head+*{margin-top:0!important}
 }
+/* Egységes fejsor minden menüpontban (a Naptár eszköztára a minta): 30 px magas gombok / mezők, 13,5 px betű */
+@media (min-width:701px){
+html body #view>.page-head .btn,html body #view>.toolbar .btn,html body #view>.page-head .mnav-chip,
+html body #view>.page-head .inp,html body #view>.toolbar .inp,html body #view>.page-head .cmb-inp,html body #view>.toolbar .cmb-inp,
+html body #view>.page-head .seg button,html body #view>.toolbar .seg button,html body #view>.page-head .subtabs button,html body #view>.page-head .subtabs .subtab{
+  height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;line-height:1.2!important;box-sizing:border-box}
+html body #view>.page-head .btn,html body #view>.toolbar .btn{padding-left:12px!important;padding-right:12px!important;display:inline-flex;align-items:center;gap:6px}
+html body #view>.page-head .inp,html body #view>.toolbar .inp,html body #view>.page-head .cmb-inp,html body #view>.toolbar .cmb-inp{padding-left:10px!important;padding-right:10px!important}
+html body #view>.page-head .subtabs,html body #view>.page-head .seg,html body #view>.toolbar .seg{padding:2px!important;min-height:0!important}
+html body #view>.page-head .subtabs button,html body #view>.page-head .subtabs .subtab{height:26px!important;min-height:26px!important;padding-left:12px!important;padding-right:12px!important;display:inline-flex;align-items:center}
+html body #view>.page-head .seg button,html body #view>.toolbar .seg button{height:26px!important;min-height:26px!important}
+html body #view>.page-head h2{font-size:20px!important;line-height:30px!important;margin:0!important}
+html body #view>.page-head,html body #view>.toolbar{align-items:center!important;gap:8px!important;min-height:0!important}
+}
+@media (min-width:701px){html body #view>.page-head .cm-arr,html body #view>.page-head .sales-month-arrow,html body #view>.page-head .mn-arrow{font-size:18px!important}}
