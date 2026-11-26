@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     }
     const out = await runFast(raw);
     console.log(JSON.stringify({ op: name, ms: Date.now() - t0, fallback: out.fallback || '' }));
-    if (out.fallback) return send(200, { fallback: true, why: out.fallback });
+    if (out.fallback) return send(200, { fallback: true, why: out.fallback, gas: out.gas ? 1 : 0 });
     return send(200, out.text);
   } catch (e) {
     console.log(JSON.stringify({ op: name, ms: Date.now() - t0, error: String(e && e.message).slice(0, 200) }));

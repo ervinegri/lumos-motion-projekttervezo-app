@@ -454,7 +454,7 @@ async function gsFast(name,body){const t0=performance.now();let res,j=null;
   catch(e){return {net:true};}   // a kérés el sem jutott (vagy megszakadt): a hívó dönti el, mehet-e az Apps Scripthez
   if(!res.ok){FAST_BAD++;return {fallback:true};}
   try{j=await res.json();}catch(e){FAST_BAD++;return {fallback:true};}
-  if(!j||j.fallback){try{perfRec(name+' ↪',performance.now()-t0,null,false);}catch(_){}if(READ_RE.test(name))FAST_SKIP[name]=(FAST_SKIP[name]||0)+1;return {fallback:true,why:j&&j.why};}   /* olvasás, amely kétszer is a Google-ra szorult: ebben a munkamenetben egyből oda megy (nincs fölösleges kör) */
+  if(!j||j.fallback){try{perfRec(name+' ↪',performance.now()-t0,null,false);}catch(_){}if(j&&j.gas&&READ_RE.test(name))FAST_SKIP[name]=(FAST_SKIP[name]||0)+1;return {fallback:true,why:j&&j.why};}   /* olvasás, amely kétszer is a Google-ra szorult: ebben a munkamenetben egyből oda megy (nincs fölösleges kör) */
   FAST_BAD=0;delete FAST_SKIP[name];try{perfRec(name,performance.now()-t0,j.pf,!j.ok);}catch(_){}
   return {j};}
 async function gs(fn,...args){const waits=[1500,4000,8000];

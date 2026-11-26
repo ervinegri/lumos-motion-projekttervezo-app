@@ -64,6 +64,8 @@ jobs:
       - name: Gyors út – a háttérkód csomagja a Vercelnek (api/_gas_bundle.js)
         if: steps.dep.outcome == 'success'
         run: |
+          URL=$(grep -o 'https://script.google.com/macros/s/[A-Za-z0-9_-]*/exec' config.js | head -1)
+          [ -n "$URL" ] && curl -sL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data '{"fn":"jobsRun","args":[]}' "$URL" | head -c 300 || true; echo   # az új kód azonnal frissíti a tükröt (a gyors út kódazonosítója)
           node scripts/gas-bundle.cjs
           if git diff --quiet -- api/_gas_bundle.js; then echo "A csomag naprakész."; exit 0; fi
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

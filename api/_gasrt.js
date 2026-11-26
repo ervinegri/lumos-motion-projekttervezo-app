@@ -216,7 +216,7 @@ async function runFast(raw) {
   for (let att = 0; att < 3; att++) {
     const t0 = Date.now(); let r;
     try { r = runOnce(raw, kv); } catch (e) { return { fallback: 'hiba: ' + String(e && e.message).slice(0, 120) }; }
-    if (r.gas) return { fallback: r.gas };
+    if (r.gas) return { fallback: r.gas, gas: 1 };
     let j = null; try { j = JSON.parse(r.text); } catch (e) { }
     if (j && j.ok === false && /AUTH_REQUIRED/.test(String(j.error))) return { fallback: 'munkamenet nincs a tükörben' };
     if (r.RT.writes.length) {

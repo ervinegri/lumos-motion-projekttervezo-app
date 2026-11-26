@@ -192,7 +192,7 @@ function api_(raw) {
     };
     try { data = run(); if (DB_) dbFlush_();
       if (fn === 'googleLogin' || (fn === 'rpc' && (!READ_ONLY_RPC_[String(args[1])] || String(args[1]) === 'bootstrap'))) kvMirror_();
-      else if (fn === 'rpc' && typeof GAS_BUILD_ !== 'undefined') { try { if (CacheService.getScriptCache().get('kv_mirror_b') !== String(GAS_BUILD_)) kvMirror_(); } catch (e) { } } }   // új telepítés után az első kérés frissíti a tükröt (a gyors út csak egyező kóddal dolgozik)   // a gyors út a belépéseket, nézetváltásokat, beállításokat a Neon-tükörből látja
+      else if ((fn === 'rpc' || fn === 'jobsRun') && typeof GAS_BUILD_ !== 'undefined') { try { if (CacheService.getScriptCache().get('kv_mirror_b') !== String(GAS_BUILD_)) kvMirror_(); } catch (e) { } } }   // új telepítés után az első kérés frissíti a tükröt (a gyors út csak egyező kóddal dolgozik)   // a gyors út a belépéseket, nézetváltásokat, beállításokat a Neon-tükörből látja
     catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFailed_(e1); throw new Error('Az adatbázis most nem érhető el – várj egy percet, és próbáld újra.'); }   /* a kérést nem futtatjuk újra (egy számla vagy levél már kimehetett); tartós kiesésnél vált a táblázatra */
     out = { ok: true, data: data === undefined ? null : data };
     try { out.pf = perfEnd_(true); } catch (e) {}
