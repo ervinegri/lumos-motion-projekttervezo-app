@@ -144,6 +144,7 @@ function runOnce(raw, kv) {
   const urlFetch = {
     fetch(url, opt) {
       url = String(url); opt = opt || {};
+      if (/^https:\/\/[^/]+\/api\/changes$/.test(url) && /lumosmotion\.hu|vercel\.app/.test(url)) { let items = []; try { items = require('./changes.js').items || []; } catch (e) { need('változásnapló'); } return resp(200, JSON.stringify({ items }), {}); }   // a saját változásnapló (ugyanez a szerver)
       if (!DBHOST || url !== 'https://' + DBHOST + '/sql') need('külső hívás: ' + url.replace(/\?.*/, '').slice(0, 60));
       const body = JSON.parse(String(opt.payload || '{}')), list = body.queries || [body];
       const reads = list.filter(x => isRead(x.query)), writes = list.filter(x => !isRead(x.query));
@@ -192,8 +193,10 @@ function runOnce(raw, kv) {
     __job: (fn, argsJson) => { if (!RT.jobs) RT.writes.push({ query: 'CREATE TABLE IF NOT EXISTS lpm_jobs (id bigserial PRIMARY KEY, fn text NOT NULL, args jsonb NOT NULL, at timestamptz NOT NULL DEFAULT now(), claimed timestamptz, tries int NOT NULL DEFAULT 0, done_at timestamptz, err text)', params: [] });
       RT.jobs = (RT.jobs || 0) + 1; RT.writes.push({ query: 'INSERT INTO lpm_jobs (fn, args) VALUES ($1, $2::jsonb)', params: [String(fn), String(argsJson)] }); }
   };
-  ['GmailApp', 'MailApp', 'CalendarApp', 'Calendar', 'DriveApp', 'Drive', 'SpreadsheetApp', 'ScriptApp', 'DocumentApp', 'SlidesApp', 'XmlService', 'HtmlService', 'Maps', 'People', 'AdminDirectory', 'Gmail', 'FormApp', 'Charts', 'Browser', 'Jdbc', 'BigQuery', 'Sheets'].forEach(n => { sandbox[n] = deny(n); });
+  ['GmailApp', 'MailApp', 'CalendarApp', 'Calendar', 'DriveApp', 'Drive', 'SpreadsheetApp', 'DocumentApp', 'SlidesApp', 'XmlService', 'HtmlService', 'Maps', 'People', 'AdminDirectory', 'Gmail', 'FormApp', 'Charts', 'Browser', 'Jdbc', 'BigQuery', 'Sheets'].forEach(n => { sandbox[n] = deny(n); });
   Object.defineProperty(sandbox, 'CONTRACT_TPL_', { get: () => need('szerződéssablon') });
+  sandbox.GmailApp = new Proxy({ getAliases: () => { const a = kv['m:aliases']; if (a == null) need('GmailApp.getAliases'); return JSON.parse(a); } }, { get: (t, p) => p in t ? t[p] : need('GmailApp.' + String(p)) });   // az álnevek a tükörből; minden más Gmail-művelet az Apps Scriptben
+  sandbox.ScriptApp = new Proxy({ getOAuthToken: () => 'gyorsut' }, { get: (t, p) => p in t ? t[p] : need('ScriptApp.' + String(p)) });   // a token csak a saját szerverünkhöz (változásnapló) kell – Google-hoz a hívás úgyis tiltott
   const ctx = vm.createContext(sandbox);
   for (const s of scripts()) s.runInContext(ctx);
   let text;

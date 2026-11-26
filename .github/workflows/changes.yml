@@ -23,7 +23,7 @@ jobs:
           out=[]
           for l in sys.stdin:
               h,d,s=l.rstrip("\n").split("\t",2)
-              if s.startswith("Teszt") or s.startswith("Merge"): continue
+              if s.startswith("Teszt") or s.startswith("Merge") or s.startswith("Gyors út: háttérkód-csomag"): continue
               out.append({"id":h[:10],"at":d,"msg":s})
           t=open(".github/changes.tpl.js").read()
           open("api/changes.js","w").write(t.replace("__ITEMS__",json.dumps(out,ensure_ascii=False,indent=0)))'

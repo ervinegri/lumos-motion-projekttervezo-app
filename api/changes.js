@@ -163,3 +163,4 @@ module.exports = async (req, res) => {
   if (!(await allowed(req, res))) return;
   res.end(JSON.stringify({ items: ITEMS }));
 };
+module.exports.items = ITEMS;   // a gyors út (api/_gasrt.js) innen olvassa

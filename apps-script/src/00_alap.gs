@@ -392,6 +392,7 @@ function kvMirror_() {
     const P = PropertiesService.getScriptProperties().getProperties(), o = {};
     Object.keys(P).forEach(k => { if (!KV_SECRET_RE_.test(k)) o['p:' + k] = P[k]; else if (String(P[k] || '').trim()) o['m:has:' + k] = '1'; });   // titoknál csak annyi, hogy be van-e állítva
     try { o['m:owner'] = Session.getEffectiveUser().getEmail() || ''; } catch (e) { }
+    try { o['m:aliases'] = JSON.stringify(GmailApp.getAliases() || []); } catch (e) { }   // a feladó-álnevek (a gyors út a levelek összeállításához)
     o['m:build'] = typeof GAS_BUILD_ !== 'undefined' ? String(GAS_BUILD_) : '';   // a telepített kód azonosítója (zz_build.js, az Action írja) – a gyors út csak egyező kóddal dolgozik
     const js = JSON.stringify(o), h = sha256hex_(js), C = CacheService.getScriptCache();
     if (C.get('kv_mirror_h') === h) { if (typeof GAS_BUILD_ !== 'undefined') C.put('kv_mirror_b', String(GAS_BUILD_), 21600); return; }
