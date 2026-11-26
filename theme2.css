@@ -3487,3 +3487,19 @@ html body #view tr.pt-sz3 .cal{transform:none}}
 .dn-h{display:flex;align-items:center;gap:8px}
 .dn-h .dn-del{margin-left:auto;border:0;background:transparent;cursor:pointer;opacity:.45;font-size:14px;padding:2px 6px;border-radius:6px}
 .dn-h .dn-del:hover{opacity:1;background:rgba(200,60,60,.08)}
+/* telefonon (álló): Szerződés és számlázás / Bevétel és kiadás – a hónapváltó és a gombok egy sorban (csak ikon), mint a Fizetéseknél */
+@media (max-width:700px) and (orientation:portrait){
+ html body .page-head.bill-head{display:flex!important;flex-wrap:wrap!important;gap:6px!important;align-items:center!important;margin-bottom:6px!important}
+ html body .page-head.bill-head>.subtabs{flex:1 1 100%!important;margin:0!important}
+ html body .page-head.bill-head>.grow{flex:0 1 auto!important;width:auto!important;min-width:0;margin:0 auto 0 0!important;display:flex!important;align-items:center;gap:6px}
+ html body .page-head.bill-head>.grow>h2,html body .page-head.bill-head .ph-ttl{display:none!important}
+ html body .page-head.bill-head .mnav-row{margin:0!important}
+ html body .page-head.bill-head .mnav-chip:not(.on){display:none!important}
+ html body .page-head.bill-head>.btn,html body .page-head.bill-head>*:not(.subtabs):not(.grow){flex:0 0 auto!important;margin:0!important}
+ html body .page-head.bill-head .bh-lg,html body .page-head.bill-head .bh-lg2{display:none!important}
+ html body .page-head.bill-head .month-nav{gap:4px;flex-wrap:nowrap}
+ html body .page-head.bill-head .mn-arrow{width:34px!important;min-width:34px!important;padding:0!important}
+ html body .page-head.bill-head .month-nav .btn,html body .page-head.bill-head .mnav-chip{min-height:34px!important;padding:0 8px!important;font-size:13px!important}
+ html body .page-head.bill-head>.grow .mnav-row,html body .page-head.bill-head>.grow .month-nav{gap:3px!important}
+ html body .page-head.bill-head .btn.small{min-height:34px!important;padding:0 8px!important;font-size:13px!important;white-space:nowrap}
+ html body .page-head.bill-head{gap:5px!important}}

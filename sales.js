@@ -445,9 +445,14 @@ function dNotesHtml(t,hs){const own=dNotesParse(t).map(x=>x.text);hs=(hs||[]).fi
   return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?`<span class="hs-tag" style="margin:0">HubSpot${x.kind&&x.kind!=='Jegyzet'?' · '+esc(x.kind):''}</span>`:''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}${!x.hs&&x.at?`<button type="button" class="dn-del" data-action="dn-del" data-at="${esc(x.at)}" data-h="${esc(String(x.text||'').split('\n')[0].slice(0,80))}" title="Bejegyzés törlése" aria-label="Bejegyzés törlése">🗑</button>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
 
 /* jegyzet-bejegyzés törlése (pl. próba-összefoglaló) – azonnal, a háttérben; az ablak és a kártya is frissül */
-ACT['dn-del']=b=>{const box=b.closest('#m-dNotes'),did=box&&box.dataset.did;if(!did)return;const at=b.dataset.at,h=b.dataset.h||'';
-  confirmLayer('🗑 Jegyzet törlése',`<p style="margin:0 16px">Törlöd ezt a bejegyzést?<br><small class="muted">${esc(at)} · ${esc(h.slice(0,80))}</small></p>`,'Törlés',async(btn,l)=>{l.remove();
-    try{const r=await call('dealNoteDel',{dealId:did,at,head:h});if(r.deals)S.deals=r.deals;if(typeof r.note==='string'){const hi=$('m-dNote'),bx=$('m-dNotes');if(hi)hi.value=r.note;if(bx){bx.innerHTML=dNotesHtml(dNoteFix(r.note,bx.dataset.fb,bx.dataset.by));if(typeof dNotesLoadHs==='function')dNotesLoadHs();}}toast('Bejegyzés törölve');}catch(e){handleErr(e);}});};
+ACT['dn-del']=b=>{const box=b.closest('#m-dNotes'),did=box&&box.dataset.did;if(!did)return;const at=b.dataset.at,h=b.dataset.h||'',item=b.closest('.dn-item');
+  confirmLayer('🗑 Jegyzet törlése',`<p style="margin:0 16px">Törlöd ezt a bejegyzést?<br><small class="muted">${esc(at)} · ${esc(h.slice(0,80))}</small></p>`,'Törlés',(btn,l)=>{l.remove();
+    /* azonnal eltűnik (a helyi jegyzetből is), a mentés a háttérben fut; hiba esetén visszajön */
+    const hi=$('m-dNote'),old=hi?hi.value:'',d=(S.deals||[]).find(x=>x.id===did),oldD=d?d.note:'';
+    const strip=t=>{const L=String(t||'').split('\n'),out=[];let skip=false,done=false;L.forEach(x=>{const m=DN_RE.exec(x);if(m){skip=!done&&m[1]===at&&x.slice(m[0].length).trim().slice(0,80)===h;if(skip)done=true;}if(!skip)out.push(x);});return out.join('\n');};
+    if(item){item.style.transition='opacity .2s,max-height .25s';item.style.opacity='0';setTimeout(()=>item.remove(),200);}if(hi)hi.value=strip(old);if(d)d.note=strip(oldD);
+    call('dealNoteDel',{dealId:did,at,head:h}).then(r=>{if(r&&r.deals){const keep=S.deals;S.deals=r.deals;}if(r&&typeof r.note==='string'){const h2=$('m-dNote');if(h2&&$('m-dNotes')&&$('m-dNotes').dataset.did===did)h2.value=r.note;}})
+      .catch(e=>{if(hi&&$('m-dNote')===hi)hi.value=old;if(d)d.note=oldD;const bx=$('m-dNotes');if(bx&&bx.dataset.did===did){bx.innerHTML=dNotesHtml(dNoteFix(old,bx.dataset.fb,bx.dataset.by));if(typeof dNotesLoadHs==='function')dNotesLoadHs();}toast('A bejegyzést nem sikerült törölni: '+errText(e),true);});});};
 /* Kapcsolattartó megnyitása a HubSpotban (kártyán és a lehetőség ablakában) */
 ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
   const f=b.closest('form'),name=f?String(($('m-dCName')||{}).value||'').trim():b.dataset.name,email=f?String(($('m-dCEmail')||{}).value||'').trim():b.dataset.email,company=f?String(($('m-dClient')||{}).value||'').trim():b.dataset.company;
