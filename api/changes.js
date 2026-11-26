@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2ed8665875",
+"at": "2026-11-26T10:20:50+02:00",
+"msg": "Naptár (havi nézet): görgetéskor nem ugrik több hónapot – a trackpad lendületét az események átlagából ismeri fel (a remegés nem számít új mozdulatnak), egy mozdulat = egy hónap"
+},
+{
 "id": "e6d329e89d",
 "at": "2026-11-26T09:19:01+01:00",
 "msg": "Űrlap-piszkozat visszatöltésekor látható jelzés „Elvetés” gombbal (pl. új projektnél egy korábbi, félbehagyott jegyzet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektlista: megnyitáskor a mai nap (piros jelölő) a képernyő közepére gördül"
 },
 {
-"id": "24ad4a74c9",
-"at": "2026-11-25T16:56:12+01:00",
-"msg": "Ügyfél számlái: a régi (csak számlázz.hu-s) számla is megnyílik a sorszám alapján; kattintás után nem esik szét a sor"
-},
-{
-"id": "ed49e45f94",
-"at": "2026-11-25T15:30:16Z",
+"id": "cb6e5b8e95",
+"at": "2026-11-25T15:56:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
