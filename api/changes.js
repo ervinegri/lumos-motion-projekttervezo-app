@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7e50027d33",
+"at": "2026-11-26T09:08:54+01:00",
+"msg": "Projekt: kisebb felső hézag a fejléc felett"
+},
+{
 "id": "61bde06e85",
 "at": "2026-11-26T10:08:28+02:00",
 "msg": "Naptár (havi nézet): keskeny asztali ablakban (701–760 px) is a teljes képernyős nézet – széltől szélig, görgetés nélkül; az események nem nyomódnak össze (+N további), keskeny ablakban a hónapváltó egy sorban"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektoldal: egyforma hézag minden panel között és egyforma magas csukott kártyák (a Szolgáltatások kártya plusz térköze megszűnt)"
 },
 {
-"id": "c98b8cc9ff",
-"at": "2026-11-25T16:00:32+01:00",
-"msg": "Projektoldal: egyforma távolság minden panel között"
-},
-{
-"id": "8e8d234f9f",
-"at": "2026-11-25T14:58:08Z",
+"id": "11594c6b90",
+"at": "2026-11-25T15:00:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
