@@ -828,7 +828,7 @@ function projectView_(p, u) {
   }
   q.editTasks = parseEditTasks_(q.editTasks);
   { const inv = parseInvites_(q.invites);   // meghívások: a vezetők mindet látják; a szakember csak a sajátját, és csak azokat a munkatársakat, akik elfogadták (vagy nem kaptak meghívást)
-    if (role === 'crew') { const use = Object.keys(inv).length > 0; q.invUse = use; q.invites = u.crewId && inv[u.crewId] ? { [u.crewId]: inv[u.crewId] } : {}; if (Array.isArray(q.crew)) q.crew = q.crew.filter(a => a.crewId === u.crewId || (use ? !!(inv[a.crewId] && inv[a.crewId].st === 'yes') : true)); }   // meghívásos projektnél csak az elfogadott munkatársak látszanak
+    if (role === 'crew') { const use = Object.keys(inv).some(k => inv[k] && inv[k].via !== 'self');   /* a vezető saját (automatikusan elfogadott) beosztása nem teszi a régi projektet meghívásossá */ q.invUse = use; q.invites = u.crewId && inv[u.crewId] ? { [u.crewId]: inv[u.crewId] } : {}; if (Array.isArray(q.crew)) q.crew = q.crew.filter(a => a.crewId === u.crewId || (use ? !!(inv[a.crewId] && inv[a.crewId].st === 'yes') : true)); }   // meghívásos projektnél csak az elfogadott munkatársak látszanak
     else q.invites = inv; }
   q.recRooms = parseRooms_(q.recRooms);
   q.rentals = parseRentals_(q.rentals).map(r => role === 'crew' ? { id: r.id, crewId: r.crewId, name: r.name, company: r.company, own: r.own } : r);

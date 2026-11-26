@@ -350,10 +350,14 @@ const ACT={
     const sb=document.querySelector('#mform .mfoot button[type=submit]');if(sb)sb.className='btn alarm';},
   'eqp-open':b=>{const d=S.draft;if(!d)return;const cid=b.dataset.cid,c=crewById(cid);confirmModal('Eszközök módosítása',`${c?c.name:'A szakember'} már elfogadta a meghívót ezzel az eszközlistával. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt, és te döntöd el, elküldöd-e.`,'✏️ Módosítom',()=>{noticeSnapTake(d.id);(S.eqPersonEdit=S.eqPersonEdit||{})[d.id+'|'+cid]=true;render(true);});},
   'eqp-close':b=>{const d=S.draft;if(!d||!S.eqPersonEdit)return;delete S.eqPersonEdit[d.id+'|'+b.dataset.cid];render(true);toast('Visszazárva');noticeMaybe(d.id);},
-  'svc-lock-open':b=>{const d=S.draft;if(!d)return;const k=b.dataset.k,who=svcLockWho(d,k).map(id=>(crewById(id)||{}).name||'?').join(', ');
+  'svc-lock-open':b=>{const d=S.draft;if(!d)return;const K=String(b.dataset.k||'').split(',').filter(Boolean);
+    if(K.length>1){const who=[...new Set(K.flatMap(k=>svcLockWho(d,k)))].map(id=>(crewById(id)||{}).name||'?').join(', ');   /* Szolgáltatások: egy lakat a terepi feladatokra és az utómunkára */
+      const openAll=()=>{K.forEach(k=>{svcEditMap(k)[d.id]=true;});render(true);};if(!who){openAll();return;}
+      confirmModal('Feladatok módosítása',`${who} már megkapta / elfogadta a meghívót ezekkel a feladatokkal. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt (mi került le, mi jött hozzá), és te döntöd el, elküldöd-e.`,'✏️ Módosítom',()=>{noticeSnapTake(d.id);openAll();});return;}
+    const k=K[0],who=svcLockWho(d,k).map(id=>(crewById(id)||{}).name||'?').join(', ');
     if(!who){svcEditMap(k)[d.id]=true;render(true);return;}   // nincs meghívott: nincs kit értesíteni, azonnal szerkeszthető
     confirmModal(k==='post'?'Vágnivalók módosítása':k==='basic'?'Alapadatok módosítása':'Terepi feladatok módosítása',k==='basic'?`${who} már megkapta / elfogadta a meghívót erre az időpontra és helyszínre. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt a változásról, és te döntöd el, elküldöd-e.`:`${who} már megkapta / elfogadta a meghívót ezekkel a feladatokkal. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt (mi került le, mi jött hozzá), és te döntöd el, elküldöd-e.`,'✏️ Módosítom',()=>{noticeSnapTake(d.id);svcEditMap(k)[d.id]=true;render(true);});},
-  'svc-lock-close':b=>{const d=S.draft;if(!d)return;delete svcEditMap(b.dataset.k)[d.id];render(true);toast('Visszazárva');noticeMaybe(d.id);},
+  'svc-lock-close':b=>{const d=S.draft;if(!d)return;String(b.dataset.k||'').split(',').filter(Boolean).forEach(k=>{delete svcEditMap(k)[d.id];});render(true);toast('Visszazárva');noticeMaybe(d.id);},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
   'eq-relock':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=false;render(true);toast('Visszazárva');},
   'eq-finalize':async()=>{const d=S.draft;if(!d)return;if(!(d.equipment||[]).length&&!(d.rentals||[]).length){toast('Nincs még eszköz hozzárendelve – nincs mit véglegesíteni.',true);return;}flushSave();await SAVE_Q;if(S.dirty){toast('Előbb mentődjenek el a módosítások, aztán próbáld újra.',true);return;}
