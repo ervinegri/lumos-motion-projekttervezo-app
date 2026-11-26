@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c0b663dc77",
+"at": "2026-11-26T12:06:16+01:00",
+"msg": "Idővonal: szélesebb betöltött időszak (2 hónap vissza, +2 előre) – görgetéskor ritkán kell újrarajzolni, nem ugrál"
+},
+{
 "id": "2cc8360dcd",
 "at": "2026-11-26T12:04:20+01:00",
 "msg": "Értékelés-párosítás: a „Nem párosítható (egyéb)” kategória kivéve"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Gyors út: új telepítés után bármelyik kérés frissíti a tükör kódazonosítóját (ne maradjon a gyors út kikapcsolva olvasásoknál)"
 },
 {
-"id": "0e7ef88477",
-"at": "2026-11-26T11:35:31+02:00",
-"msg": "Gyors út: a mindig Google-t igénylő lekérések (naptár, beállítások) egyből az Apps Scripthez mennek; ami kétszer a Google-ra szorult, a munkamenetben kihagyja a gyors utat"
-},
-{
-"id": "4b9d425627",
-"at": "2026-11-26T09:35:19Z",
+"id": "d797843dbc",
+"at": "2026-11-26T09:35:42Z",
 "msg": "Változásnapló frissítése"
 }
 ];
