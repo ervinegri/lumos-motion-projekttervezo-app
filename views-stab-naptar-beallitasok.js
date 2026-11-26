@@ -147,6 +147,7 @@ function calItems(month){
   S.projects.forEach(p=>{const q=pr(p);let pre='';
     if(cutter){const cut=crewPostWork(p,me)&&!cutOkMine(p,me);
       if(cut){const due=dueDate(p),q0=pr(p);let st=q0?addDays(q0.end,1):due;if(due&&st>due)st=due;   // a vágás a projekt utáni naptól a leadás napjáig tart
+        if(S.cal.mode!=='ido')st=due;   /* havi nézetben csak a leadási határidő napja (mint a vezetői naptárban); az idővonalon a teljes vágási időszak */
         if(due&&st<=r.end&&due>=r.start)items.push({kind:'p',cut:true,id:p.id,title:(crewPhotoPost(p,me)&&!crewVideoPost(p,me)?'📷 ':'✂️ ')+(p.name||'Névtelen projekt'),date:st,endDate:due,time:'',status:p.status||'tervezes',venue:''});}   // a vágói leadási határidő külön, lilával
       if(editOnly(p))return;}
     if(!ro()&&!editOnly(p)&&(hasVideoCutWork(p)||photoPostWork(p))&&calCutDue()&&p.status!=='lemondva'&&(!S.cal.cutter||crewPostWork(p,S.cal.cutter))){const due=dueDate(p);   // vezetői havi naptár: a vágók leadási határideje (pipával ki-be kapcsolható)
