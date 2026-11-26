@@ -223,7 +223,7 @@ function anchorFix(){const a=ANCHOR;if(!a||Date.now()-a.at>1500)return;const fix
   fix();requestAnimationFrame(()=>{fix();requestAnimationFrame(fix);});setTimeout(fix,60);setTimeout(fix,250);}
 const IS_MAC=typeof navigator!=='undefined'&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||''),KBD_SAVE=IS_MAC?'⌘S':'Ctrl+S',KBD_UNDO=IS_MAC?'⌘Z':'Ctrl+Z';   // gyorsbillentyű felirata a géphez igazítva
 function appReveal(){const h=document.documentElement;if(h.classList.contains('booting'))requestAnimationFrame(()=>h.classList.remove('booting'));}
-function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);setTimeout(autoSiteStep,400);if(S._dlDrag){S._dlDragRender=1;return;}   // kártyahúzás közben (érintő) nem rajzolunk újra
+function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);setTimeout(calLockSync,0);setTimeout(autoSiteStep,400);if(S._dlDrag){S._dlDragRender=1;return;}   // kártyahúzás közben (érintő) nem rajzolunk újra
 
   if(!S.me)return;
   {const vk=S.tab+'|'+(S.projectId||'');if(vk!==window._lastViewKey){window._lastViewKey=vk;if(vk==='projektek|')S._ptScrollPending=true;}}   /* a projektlistára érkezéskor egyszer a mai nap kerül középre */
@@ -649,3 +649,10 @@ function payTextW(td,rg){const lines={};const tw=document.createTreeWalker(td,No
 
 /* telefon ↔ szélesebb nézet (forgatás): a Projektek fejléce az új szélességhez igazodik */
 try{matchMedia('(max-width:700px)').addEventListener('change',()=>{try{const a=document.activeElement;if(S.loaded&&S.tab==='projektek'&&!S.projectId&&!(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)))render(true);}catch(e){}});}catch(e){}
+
+/* Naptár (asztali, havi nézet): a lap nem görgethető – az eszköztár mindig látszik –, csak maga a naptár (saját görgetés; a szélén tovább görgetve hónapot vált). */
+function calLockSync(){try{const de=document.documentElement,w=document.querySelector('.cal-wrap'),on=S.tab==='naptar'&&!!w&&matchMedia('(min-width:761px)').matches&&!S.projectId&&!document.querySelector('.modal-open,#modal.open');
+  if(!on){if(de.classList.contains('cal-lock'))de.classList.remove('cal-lock');return;}
+  if(!de.classList.contains('cal-lock')){window.scrollTo(0,0);de.classList.add('cal-lock');}
+  const top=Math.max(0,Math.round(w.getBoundingClientRect().top));de.style.setProperty('--cal-top',top+'px');}catch(e){}}
+window.addEventListener('resize',()=>{clearTimeout(calLockSync._t);calLockSync._t=setTimeout(calLockSync,120);});
