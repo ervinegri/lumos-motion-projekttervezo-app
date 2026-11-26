@@ -124,6 +124,7 @@ function gemFetch_(url, opt) {
   const c = r.getResponseCode(); if (c < 300) return r;
   let msg = ''; try { msg = String((JSON.parse(r.getContentText()).error || {}).message || ''); } catch (e) {} if (!msg) msg = r.getContentText().slice(0, 300);
   const nice = c === 503 ? 'A Google Gemini most túlterhelt (ez átmeneti) – pár perc múlva próbáld újra.' : c === 429 ? 'Elértük a Gemini percenkénti / napi keretét – kicsit később próbáld újra.' : c >= 500 ? 'A Google Gemini szervere most hibát adott (átmeneti) – próbáld újra később.' : '';
+  try { const C = CacheService.getScriptCache(), L = JSON.parse(C.get('gem_errs') || '[]'); L.unshift(now_() + ' ' + c + ' ' + String(url).replace(/^https:\/\/generativelanguage\.googleapis\.com\//, '').replace(/[?].*$/, '').slice(0, 90) + ' – ' + msg.slice(0, 160)); C.put('gem_errs', JSON.stringify(L.slice(0, 12)), 21600); } catch (x) { }   // hibakereséshez (kulcs nélkül): /api/dbstatus
   const err = new Error('Gemini hiba (' + c + '): ' + (nice || msg.slice(0, 300))); err.gCode = c; err.gMsg = msg; throw err;
 }
 function gemJson_(parts, schema, maxTok) {
