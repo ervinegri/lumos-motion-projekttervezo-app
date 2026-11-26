@@ -1,5 +1,6 @@
 {"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
 "items":[
+    {"id":"gyors-mentes","at":"2026-11-26","msg":"⚡ Sokkal gyorsabb app: a mentések és a betöltés a legtöbb helyen a másodperc töredéke alatt lefutnak, és mentés közben az ablak eltűnik – nyugodtan dolgozhatsz tovább."},
     {"id":"naptar-vagoi-hatarido","at":"2026-11-26","msg":"🗓️ Átláthatóbb naptár: havi nézetben az utómunkáid a leadási határidő napján jelennek meg (a teljes vágási időszak az Idővonalon látszik), görgetéssel pedig hónapot válthatsz."},
     {"id":"helyszini-csapat","at":"2026-11-26","msg":"👥 Látod, kikkel dolgozol: a meghívóban a projektvezető és a tervezett helyszíni csapat, a projekt sorában a projektvezető és a már elfogadott kollégák."},
     {"id":"ugyfel-fajl-formazas","at":"2026-11-24","msg":"Az ügyfél a jóváhagyó oldalon formázhatja az üzenetét (félkövér, dőlt, felsorolás), és fájlt is csatolhat (logó, grafika, arculat). A feltöltött fájl linkje a videó hozzászólásai között jelenik meg."},
