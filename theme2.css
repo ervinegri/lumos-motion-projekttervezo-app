@@ -3382,3 +3382,5 @@ html body .crew-wide>details.money-panel{margin-top:20px!important}   /* Stáb �
 
 /* teljes képernyős naptár (asztali gép, keskeny ablakban is): a kiválasztott nap listája nem kell a rács alá */
 html.cal-lock body .cal-agenda{display:none!important}
+/* aktuális (sötét) lépéskártya teljesült állapota – pl. lezárt projekt „Kész” lépése: zöld kör, jól látható fehér pipa (nem üres fehér kör) */
+html body .stage.cur .stage-tick.on,html body .stage.cur.ticked .stage-tick.on{background:#2e9e62!important;border:0!important;color:#fff!important;font-size:17px!important;font-weight:800!important;box-shadow:0 0 0 3px rgba(46,158,98,.28)}
