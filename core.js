@@ -517,11 +517,11 @@ const call=(name,arg)=>{if(S._viewP&&name!=='setViewAs')return S._viewP.then(()=
   const pid0=OPT[name]&&arg?pendAdd(name,arg):'';if(pid0){try{pendPatchState();setTimeout(()=>{try{if(!$('modalRoot').innerHTML&&typeof render==='function')render(true);}catch(e){}},0);}catch(e){}}
   const pr=gs('rpc',TOKEN,name,arg===undefined?null:arg).then(r=>{if(pid0)pendDone(pid0);return pendPatch(r,pid0);},e=>{if(pid0){pendDone(pid0);setTimeout(()=>{try{load(true);if(S.fin&&typeof finLoad==='function')finLoad(true);}catch(_){}},200);}throw e;});if(wm){const done=()=>{if(fm){S._finLive--;S._finMut++;}S._mutLive--;S._mut++;};pr.then(r=>{done();try{const pj=r&&(r.project||(name==='saveProject'&&r.id&&r.updatedAt?r:null));if(pj&&pj.id&&typeof bootCachePatch==='function')bootCachePatch(pj);}catch(e){}},done);}return pr;};   /* a sikeres módosítás a helyi gyorsítótárba is bekerül: frissítéskor nem a régi állapot villan fel */   /* módosítás közben / alatt indult betöltés eredménye ne írja felül a friss mentést (eltűnik, majd visszajön) */   // pénzügyi módosítás: a közben futó finData-betöltés eredménye ne írja felül
 const errRaw=e=>String((e&&e.message)||e||'').replace(/^(Exception|Error):\s*/,'');
-const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}return /^FORBIDDEN/.test(m)?'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.':m;};   // nyers hibakód nem jut a felhasználó elé
+const errText=e=>{const m=errRaw(e);if(/^FORBIDDEN/.test(m)){try{forbiddenHeal();}catch(_){}}const why=String(m).replace(/^FORBIDDEN:?\s*/,'').replace(/^ehhez nincs jogosultságod\.?$/i,'').trim();return /^FORBIDDEN/.test(m)?(why?'Ehhez nincs jogosultságod: '+why:'Ehhez nincs jogosultságod – frissítem az adataidat, próbáld újra.'):m;};   /* a háttér pontos indoka is látsszon */   // nyers hibakód nem jut a felhasználó elé
 function handleErr(e){
   const m=errRaw(e);
   if(m.indexOf('AUTH_REQUIRED')>=0){try{localStorage.removeItem('lpm_boot_v1');}catch(err){}showLogin('Lépj be újra.');return true;}
-  if(m.indexOf('FORBIDDEN')===0){forbiddenHeal();toast('Ehhez nincs jogosultságod – frissítettem az adataidat, próbáld újra.',true);return true;}
+  if(m.indexOf('FORBIDDEN')===0){forbiddenHeal();const why=m.replace(/^FORBIDDEN:?\s*/,'').replace(/^ehhez nincs jogosultságod\.?$/i,'').trim();toast(why?'Ehhez nincs jogosultságod: '+why:'Ehhez nincs jogosultságod – frissítettem az adataidat, próbáld újra.',true);try{console.warn('FORBIDDEN',window._lastAct&&window._lastAct.a,m);}catch(_){}return true;}
   toast(m.replace(/^CONFLICT:\s*/,'')||'Hiba történt. Próbáld újra.',true);return false;
 }
 /* Jogosultsági hiba: többnyire elavult munkamenet / nézet (pl. közben megváltozott a szerepkör) – csendben újratöltjük az adatokat (legfeljebb percenként egyszer) */
@@ -780,6 +780,11 @@ function rtClean(html){const doc=new DOMParser().parseFromString('<div>'+String(
 function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.test(s)?rtClean(s):esc(s).replace(/\n/g,'<br>');}
 
 /* Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna */
+/* rövid név a felületen (Dávid, Kata, Ervin): keresztnév – ha két ismert embernek ugyanaz, a teljes név marad */
+function nmShort(n){const full=String(n||'').trim(),f=huFirst(full);if(!f||f===full)return full;
+  const all=[...(S.crew||[]).map(c=>c.name),...Object.keys(S.leads||{}),(S.me&&S.me.name)||''].filter(Boolean),same=new Set(all.filter(x=>huFirst(x)===f).map(x=>String(x).trim()));
+  if(!all.some(x=>String(x).trim()===full))return full;   // csak a csapat tagjait rövidítjük (az ügyfél neve teljes marad)
+  return same.size>1?full:f;}
 function huFirst(n){const w=String(n||'').replace(/\([^)]*\)/g,' ').split(',')[0].trim().split(/\s+/).filter(x=>x&&!/^(dr|prof|ifj|id|özv|med|habil)\.?$/i.test(x));return w.length>1?w[1]:w[0]||'';}
 
 /* Meghívások: a helyszíni munkára lépés feltétele, hogy a projekt minden szereplője (projektvezető + szerepkörök) elfogadta a meghívást */
