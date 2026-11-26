@@ -19,7 +19,7 @@ function recList_(u, a) { const did = str_(a && a.dealId, 64), d = recDeal_(u, d
   } catch (e) { Logger.log('recList noteFix: ' + e); }
   return out; }
 function recPub_(r) { return { id: r.id, at: r.at, by: r.by, kind: r.kind, kindTxt: REC_KIND[r.kind] || '', dur: r.dur || 0, size: r.size || 0, url: r.fileId ? 'https://drive.google.com/file/d/' + r.fileId + '/view' : '',
-  st: r.st || 'felvéve', seg: r.seg || 0, segs: r.segs || 0, summary: r.summary || '', needs: r.needs || '', next: r.next || '', nextDate: r.nextDate || '', err: r.err || '',
+  st: r.st || 'felvéve', seg: r.seg || 0, segs: r.segs || 0, summary: r.summary || '', needs: r.needs || '', next: r.next || '', nextDate: r.nextDate || '', err: r.err || '', retryAt: r.retryAt || '',
   trUrl: r.trId ? 'https://drive.google.com/file/d/' + r.trId + '/view' : '' }; }
 function recEdit_(did, rid, fn) { let out = null; withLock_(() => { const o = qGet_('REC_' + did) || { list: [] }, r = (o.list || []).find(x => x.id === rid); if (!r) throw new Error('A felvétel nem található.'); fn(r, o); qPut_('REC_' + did, o); out = r; }); return out; }
 function recNote_(u, did, txt) {   // a lehetőség jegyzetének elejére (mint az ajánlatküldésnél)
@@ -135,6 +135,8 @@ function gemJson_(parts, schema, maxTok) {
 function recProcess_(u, a) {
   const did = str_(a && a.dealId, 64), rid = str_(a && a.id, 64), d = recDeal_(u, did);
   const o0 = qGet_('REC_' + did) || {}, r0 = (o0.list || []).find(x => x.id === rid); if (!r0) throw new Error('A felvétel nem található.');
+  if (r0.st === 'várakozik' || r0.retryAt) recRetryDrop_(did, rid);   // kézzel folytatva / az időzítő hívta: nem fut kétszer
+  if (r0.st === 'kész') return { rec: recPub_(r0), more: false };   // már elkészült (pl. közben kézzel folytatták) – nem készül új összefoglaló
   try {
     if (!r0.gUri) {   // 1) a hangfájl a Gemini Files API-ba
       const blob = DriveApp.getFileById(r0.fileId).getBlob(), bytes = blob.getBytes(), mime = r0.mime || blob.getContentType() || 'audio/webm';
@@ -145,21 +147,21 @@ function recProcess_(u, a) {
       const fin = UrlFetchApp.fetch(up, { method: 'post', contentType: mime, payload: bytes, muteHttpExceptions: true, headers: { 'X-Goog-Upload-Command': 'upload, finalize', 'X-Goog-Upload-Offset': '0' } });
       if (fin.getResponseCode() >= 300) throw new Error('A Gemini feltöltés hibás (' + fin.getResponseCode() + ').');
       const fj = JSON.parse(fin.getContentText()).file || {}, segs = Math.max(1, Math.ceil((Number(r0.dur) || 60) / REC_SEG));
-      const r = recEdit_(did, rid, x => { x.gUri = fj.uri; x.gName = fj.name; x.gMime = mime; x.segs = segs; x.seg = 0; x.st = 'átirat készül'; x.err = ''; x.tr = []; });
+      const r = recEdit_(did, rid, x => { x.retries = 0; x.retryAt = ''; x.gUri = fj.uri; x.gName = fj.name; x.gMime = mime; x.segs = segs; x.seg = 0; x.st = 'átirat készül'; x.err = ''; x.tr = []; });
       return { rec: recPub_(r), more: true };
     }
     if (r0.gName && r0.seg === 0 && !r0.gReady) {   // a feltöltött fájl feldolgozása (ACTIVE állapotig)
       const s = JSON.parse(gemFetch_('https://generativelanguage.googleapis.com/v1beta/' + r0.gName).getContentText());
       if (s.state === 'FAILED') throw new Error('A Gemini nem tudta feldolgozni a hangfájlt.');
       if (s.state !== 'ACTIVE') { Utilities.sleep(3000); return { rec: recPub_(r0), more: true }; }
-      const r = recEdit_(did, rid, x => { x.gReady = 1; }); return { rec: recPub_(r), more: true };
+      const r = recEdit_(did, rid, x => { x.retries = 0; x.retryAt = ''; x.gReady = 1; }); return { rec: recPub_(r), more: true };
     }
     if ((r0.seg || 0) < (r0.segs || 1)) {   // 2) szakaszonkénti szó szerinti átirat
       const i = r0.seg || 0, from = i * REC_SEG, to = Math.min((i + 1) * REC_SEG, Math.max(Number(r0.dur) || 0, (i + 1) * REC_SEG)), mmss = s => ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + s % 60).slice(-2);
       const prompt = 'Ez egy magyar nyelvű üzleti beszélgetés hangfelvétele (Lumos Motion – rendezvény- és videógyártás, értékesítés). Írd le SZÓ SZERINT a felvétel ' + mmss(from) + ' és ' + mmss(to) + ' közötti részét (csak ezt a részt!). '
         + 'Minden beszélőváltásnál új sor: [pp:mm] Beszélő: szöveg. A beszélőket jelöld „Beszélő 1”, „Beszélő 2”… néven, de ha a beszélgetésből kiderül a nevük, használd a nevet. Ne foglald össze, ne javítsd ki a mondatokat, ne találj ki semmit; az érthetetlen részt [érthetetlen] jelöld. Ha ebben a szakaszban nincs beszéd, a lines legyen üres.';
       const out = gemJson_([{ file_data: { mime_type: r0.gMime || 'audio/webm', file_uri: r0.gUri } }, { text: prompt }], { type: 'OBJECT', properties: { lines: { type: 'STRING' } }, required: ['lines'] }, 24000);
-      const r = recEdit_(did, rid, x => { x.tr = (x.tr || []).concat([String(out.lines || '').trim()]); x.seg = i + 1; });
+      const r = recEdit_(did, rid, x => { x.retries = 0; x.retryAt = ''; x.tr = (x.tr || []).concat([String(out.lines || '').trim()]); x.seg = i + 1; });
       return { rec: recPub_(r), more: true };
     }
     // 3) összefoglaló + átirat-fájl
@@ -170,16 +172,44 @@ function recProcess_(u, a) {
     const head = (d.title || '') + ' – ' + (REC_KIND[r0.kind] || 'beszélgetés') + '\n' + r0.at + ' · rögzítette: ' + r0.by + ' · hossz: ' + recDurTxt_(r0.dur) + '\n\nÖSSZEFOGLALÓ\n' + (sum.summary || '') + '\n\nAZ ÜGYFÉL IGÉNYEI\n' + (sum.needs || '–') + '\n\nKÖVETKEZŐ LÉPÉS\n' + (sum.next || '–') + (sum.nextDate ? ' (' + sum.nextDate + ')' : '') + '\n\nSZÓ SZERINTI ÁTIRAT\n' + full + '\n';
     let trId = r0.trId || ''; try { if (trId) DriveApp.getFileById(trId).setContent(head); else trId = recFolder_().createFile(Utilities.newBlob(head, 'text/plain', DriveApp.getFileById(r0.fileId).getName().replace(/\.\w+$/, '') + ' – átirat.txt')).getId(); } catch (e) { Logger.log('Átirat-fájl: ' + e); }
     const nd = /^\d{4}-\d{2}-\d{2}$/.test(String(sum.nextDate || '')) ? sum.nextDate : '';
-    const r = recEdit_(did, rid, x => { x.summary = String(sum.summary || '').slice(0, 4000); x.needs = String(sum.needs || '').slice(0, 3000); x.next = String(sum.next || '').slice(0, 300); x.nextDate = nd; x.trId = trId; x.st = 'kész'; x.err = ''; delete x.tr; });
+    const r = recEdit_(did, rid, x => { x.retries = 0; x.retryAt = ''; x.summary = String(sum.summary || '').slice(0, 4000); x.needs = String(sum.needs || '').slice(0, 3000); x.next = String(sum.next || '').slice(0, 300); x.nextDate = nd; x.trId = trId; x.st = 'kész'; x.err = ''; delete x.tr; });
     try { gemFetch_('https://generativelanguage.googleapis.com/v1beta/' + r0.gName, { method: 'delete' }); } catch (e) {}   // a Gemini-példány törlése (a felvétel a Drive-on marad)
     try { recNote_(u, did, '🎙️ Beszélgetés összefoglalója (' + recDurTxt_(r0.dur) + '):\n' + String(sum.summary || '').slice(0, 1500) + (sum.next ? '\n➜ ' + sum.next : '')); } catch (e) {}
     let deals = null; try { deals = dealsFor_(u); } catch (e) {}
     return { rec: recPub_(r), more: false, deals: deals };
   } catch (e) {
-    try { recEdit_(did, rid, x => { x.err = String(e && e.message || e).slice(0, 300); x.st = 'hiba'; }); } catch (_) {}
+    /* átmeneti Gemini-hiba (túlterhelés, keret, szerverhiba): nem hiba, hanem várakozás – a háttér magától újrapróbálja (2, 5, 10, 20, 40, 60 perc múlva) */
+    const tries = (Number(r0.retries) || 0) + 1;
+    if ((e.gCode === 429 || e.gCode >= 500) && tries <= REC_RETRY_MIN.length) {
+      const at = new Date(Date.now() + REC_RETRY_MIN[tries - 1] * 60000), atTxt = Utilities.formatDate(at, SHEET_TZ, 'yyyy-MM-dd HH:mm');
+      let r = null; try { r = recEdit_(did, rid, x => { x.st = 'várakozik'; x.retries = tries; x.retryAt = atTxt; x.uid = u.id; x.err = String(e && e.message || e).slice(0, 300); }); } catch (_) {}
+      recRetryAdd_(did, rid, u.id, at.getTime());
+      return { rec: recPub_(r || r0), more: false, wait: true, retryAt: atTxt };
+    }
+    try { recEdit_(did, rid, x => { x.err = String(e && e.message || e).slice(0, 300); x.st = 'hiba'; x.retryAt = ''; }); } catch (_) {}
     throw e;
   }
 }
+/* ---- automatikus újrapróbálás (2026-11-26): átmeneti Gemini-hibánál a háttér magától folytatja, nem kell gombot nyomni ---- */
+const REC_RETRY_MIN = [2, 5, 10, 20, 40, 60];
+function recRetryList_() { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('REC_RETRY') || '[]'); } catch (e) { return []; } }
+function recRetrySave_(L) { PropertiesService.getScriptProperties().setProperty('REC_RETRY', JSON.stringify(L.slice(-50))); recRetrySchedule_(L); }
+function recRetryAdd_(did, rid, uid, atMs) { const L = recRetryList_().filter(x => !(x.did === did && x.rid === rid)); L.push({ did: did, rid: rid, uid: uid, at: atMs }); recRetrySave_(L); }
+function recRetryDrop_(did, rid) { const L = recRetryList_(), M = L.filter(x => !(x.did === did && x.rid === rid)); if (M.length !== L.length) recRetrySave_(M); }
+function recRetrySchedule_(L) {   // egyetlen egyszeri időzítő a legkorábbi esedékességre
+  try { ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'recRetryTick').forEach(t => ScriptApp.deleteTrigger(t));
+    if (!L.length) return; const ms = Math.max(60000, Math.min.apply(null, L.map(x => x.at)) - Date.now());
+    ScriptApp.newTrigger('recRetryTick').timeBased().after(ms).create(); } catch (e) { Logger.log('Átirat-újrapróbálás időzítő: ' + e); }
+}
+function recRetryTick() {
+  const t0 = Date.now(), users = loadUsers_(); let L = recRetryList_();
+  const due = L.filter(x => x.at <= Date.now() + 30000); L = L.filter(x => due.indexOf(x) < 0); recRetrySave_(L);   // a sorra kerülőket kivesszük (újabb átmeneti hibánál a feldolgozás visszateszi)
+  due.forEach(x => { const u = users.find(v => v.id === x.uid && !v.disabled); if (!u) return;
+    try { let done = false; for (let n = 0; n < 60 && Date.now() - t0 < 4.5 * 60000; n++) { const r = recProcess_(u, { dealId: x.did, id: x.rid }); if (!r.more) { done = true; break; } }
+      if (!done) recRetryAdd_(x.did, x.rid, x.uid, Date.now() + 60000); }   // időkeret vége: egy perc múlva folytatja
+    catch (e) { Logger.log('Átirat-újrapróbálás (' + x.rid + '): ' + e); } });
+}
+
 /** A javasolt következő lépés átvétele a lehetőséghez: a: {dealId, next, nextDate} */
 function recApplyNext_(u, a) {
   const did = str_(a && a.dealId, 64); recDeal_(u, did); const ns = str_(a.next, 300).trim(), nd = /^\d{4}-\d{2}-\d{2}$/.test(String(a.nextDate || '')) ? a.nextDate : '';
