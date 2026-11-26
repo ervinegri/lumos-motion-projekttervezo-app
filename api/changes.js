@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dbd4373627",
+"at": "2026-11-26T15:53:52+01:00",
+"msg": "Telefon: a projektlista dátumkártyája és a mellette lévő hézag keskenyebb"
+},
+{
 "id": "785c77cf63",
 "at": "2026-11-26T15:52:17+01:00",
 "msg": "Telefon: a görgethető ablak (lehetőség) a képernyő magasságában – fejléc fent, gombsor lent rögzítve, csak a tartalom görög (nincs üres rész a gombsor alatt); Pénzügyek panel nyila a jobb szélen"
@@ -125,11 +130,6 @@ const ITEMS = [
 "id": "ae30081fb8",
 "at": "2026-11-26T14:05:50+01:00",
 "msg": "Forgalom-elemzés: táblánkénti és kulcs-tár méret a /api/dbstatus?sizes=1-ben (titok nélkül)"
-},
-{
-"id": "6f8e6e9f21",
-"at": "2026-11-26T12:32:01Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
