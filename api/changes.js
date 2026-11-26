@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "135a455c3c",
+"at": "2026-11-26T11:43:30+01:00",
+"msg": "Google-értékelések, telefon: cím és értékelés egy sorban"
+},
+{
 "id": "cf11442efa",
 "at": "2026-11-26T11:43:17+01:00",
 "msg": "Google-értékelések ablak: az átlag és a darabszám a címsorban (kompaktabb)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "822e215e0e",
 "at": "2026-11-26T11:07:48+02:00",
 "msg": "Sebesség: a műveletenkénti időtartamok a /api/dbstatus-ban is (titok nélkül), a hibakereséshez"
-},
-{
-"id": "00d6458de2",
-"at": "2026-11-26T11:05:13+02:00",
-"msg": "Sebesség: a Neon saját ideje külön mérve (a közvetítő fejlécéből), a /api/dbstatus mutatja az Apps Script teljes körét, a Neon válaszidejét és a régiókat"
 }
 ];
 const allowed = require('./_auth.js');
