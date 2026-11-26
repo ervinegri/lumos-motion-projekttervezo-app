@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "10c960b02c",
+"at": "2026-11-26T18:17:08+02:00",
+"msg": "Projekt fejléc: a gombok csak akkor kerülnek külön sorba, ha mellettük nem férne ki a teljes név"
+},
+{
 "id": "3c55aa2884",
 "at": "2026-11-26T18:15:43+02:00",
 "msg": "Projekt fejléc: keskenyebb ablakban a gombok külön sorba kerülnek, a név mindig látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: a kész lépés cellája (kiküldve, számla kiállítva, kifizetve) teljesen zöld"
 },
 {
-"id": "63204338d8",
-"at": "2026-11-26T16:05:51+01:00",
-"msg": "Érintőképernyő: érintésre / hosszú nyomásra nem jelölődik ki a szöveg a listákban, kártyákon, menüben (a mezők és jegyzetek szövege kijelölhető marad)"
-},
-{
-"id": "cfb183d454",
-"at": "2026-11-26T15:04:50Z",
+"id": "9aff1646f0",
+"at": "2026-11-26T15:06:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
