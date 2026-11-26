@@ -556,12 +556,32 @@ ACT['rev-link-copy']=async()=>{try{await navigator.clipboard.writeText(REVIEW_UR
 ACT['rev-qr']=async()=>{let img='';try{await loadQr();const q=qrcode(0,'M');q.addData(REVIEW_URL);q.make();img=q.createDataURL(10,16);}catch(e){toast('A QR-kód most nem készíthető el.',true);return;}
   confirmLayer('▦ Értékelési QR-kód',`<div style="margin:0 16px;text-align:center"><img src="${img}" alt="QR-kód: Google-értékelés" style="width:min(70vw,300px);height:auto;image-rendering:pixelated;border:1px solid var(--line,#e3e6eb);border-radius:12px"><p class="hint" style="margin:8px 0 0;word-break:break-all">${esc(REVIEW_URL)}</p><p style="margin:10px 0 0"><a class="btn outline small" href="${img}" download="Lumos-Motion-Google-ertekeles-QR.png">⬇ Letöltés (PNG)</a></p></div>`,'🔗 Link másolása',(b,l)=>{l.remove();ACT['rev-link-copy']();});};
 
+/* Értékelés-kérő levél: a szokásos levélnézet (Feladó / Címzett / Tárgy fejléc + a levél szerkeszthetően, formázva, alatta az aláírásod).
+   A szerkesztett szöveg a rejtett „text” mezőbe kerül vissza; a háttér ugyanígy, az aláírással küldi ki. */
+function rvMailBox(pre){return `<div class="cl-prev-box rv-mbox"><div class="inv-h pe-head mail-head" id="${pre}-ph"></div><div id="${pre}-pb"></div></div>`;}
+function rvMailHead(pre,toId,subjId){const h=$(pre+'-ph');if(!h)return;h.innerHTML=`<div><span>Feladó:</span> ${esc((S.me&&S.me.name)||'')} · Lumos Motion &lt;${esc((S.me&&S.me.email)||'')}&gt;</div><div><span>Címzett:</span> ${esc(String(($(toId)||{}).value||'').trim()||'(add meg fent)')}</div><div><span>Tárgy:</span> <b>${esc(String(($(subjId)||{}).value||''))}</b></div>`;}
+function rvMailBody(pre,taId){const box=$(pre+'-pb'),ta=$(taId);if(!box||!ta)return;
+  const html=ta.value.split('\n').map(l=>esc(l).replace(/(https?:\/\/[^\s<]+)/g,'<a href="#" onclick="return false">$1</a>')).join('<br>');
+  box.innerHTML='';const f=document.createElement('iframe');f.className='mail-frame';f.title='A levél (szerkeszthető)';
+  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><style>body{margin:16px;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.55;color:#202124}#ed:focus{outline:none}#ed{min-height:80px}a{color:#1a5fb4}</style></head><body><div id="ed" contenteditable="true" spellcheck="true">'+html+'</div><br><div contenteditable="false">'+(S._mySig||'<span style="color:#888">(az aláírásod)</span>')+'</div></body></html>';
+  const fit=()=>{try{f.style.height=ifrH(f)+'px';}catch(_){}};
+  f.addEventListener('load',()=>{const d=f.contentDocument;if(!d)return;try{noNav(d);}catch(_){}fit();setTimeout(fit,400);const ed=d.getElementById('ed');
+    ed.addEventListener('paste',e=>{const cd=e.clipboardData;if(!cd)return;e.preventDefault();d.execCommand('insertText',false,(cd.getData('text/plain')||'').replace(/\r/g,''));});   /* a levél szövegként megy ki: beillesztéskor a formázás nem keveredik bele */
+    ed.addEventListener('input',()=>{const c=ed.cloneNode(true);c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>{x.prepend(d.createTextNode('\n'));});
+      ta.value=c.textContent.replace(/ /g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
+  box.appendChild(f);}
+function rvMailWire(pre,toId,subjId,taId){const fm=$('mform');const head=()=>rvMailHead(pre,toId,subjId);if(fm)fm.addEventListener('input',e=>{if(e.target.id===toId||e.target.id===subjId)head();});head();rvMailBody(pre,taId);
+  {const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide');}
+  if(S._mySig==null)call('mySignature').then(r=>{S._mySig=(r&&r.html)||'';}).catch(()=>{S._mySig='';}).then(()=>rvMailBody(pre,taId));}
+
 /* értékelés kérése e-mailben, projekt nélkül (Google-értékelések ablakból) */
 ACT['rev-mail']=()=>{const txt='Kedves …!\n\nKöszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész. Akár csak pár szóban leírhatod, mit csináltunk nálatok:\n'+REVIEW_URL+'\n\nKöszönjük!';
   window.MODAL_BEFORE_CLOSE=null;
-  openModal('✉️ Értékelés kérése e-mailben',`<div class="fields"><div class="field full"><label for="m-rmTo">Címzett</label><input class="inp" id="m-rmTo" name="to" type="email" maxlength="300" placeholder="nev@ceg.hu"></div>
-    <div class="field full"><label for="m-rmSubj">Tárgy</label><input class="inp" id="m-rmSubj" name="subject" maxlength="200" value="Egy kérés: egy perc a Lumos Motionre"></div>
-    <div class="field full"><label for="m-rmText">Levél</label><textarea class="inp" id="m-rmText" name="text" rows="10" maxlength="6000" data-no-keep>${esc(txt)}</textarea><span class="hint">Írd át a megszólítást („Kedves …!”). Az aláírásod automatikusan a levél alá kerül.</span></div></div>`,
-    {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim(),text=String(fd.get('text')||'');if(!to){toast('Add meg a címzettet.',true);return;}
+  openModal('✉️ Értékelés kérése e-mailben',`<div class="fields"><div class="field"><label for="m-rmTo">Címzett</label><input class="inp" id="m-rmTo" name="to" type="email" maxlength="300" placeholder="nev@ceg.hu"></div>
+    <div class="field"><label for="m-rmSubj">Tárgy</label><input class="inp" id="m-rmSubj" name="subject" maxlength="200" value="Egy kérés: egy perc a Lumos Motionre"></div></div>
+    <p class="hint" style="margin:10px 0 4px">Kattints a levélbe és írd át – így megy ki. A megszólítást („Kedves …!”) ne felejtsd el.</p>
+    ${rvMailBox('rm')}<textarea id="m-rmText" name="text" hidden data-no-keep maxlength="6000">${esc(txt)}</textarea>`,
+    {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim(),text=String(fd.get('text')||'');if(!to){toast('Add meg a címzettet.',true);const i=$('m-rmTo');if(i)i.focus();return;}
       if(/Kedves …!/.test(text)&&!confirm('A megszólítás még „Kedves …!” – így küldöd el?'))return;if(!text.includes(REVIEW_URL)&&!confirm('A levélből kimaradt az értékelés linkje. Így is elküldöd?'))return;
-      try{await call('reviewSend',{to,subject:String(fd.get('subject')||''),text});closeModal();toast('Elküldve: '+to);setTimeout(()=>{if(!$('mform'))ACT['gbp-open']();},50);}catch(e){handleErr(e);}}});};
+      try{await call('reviewSend',{to,subject:String(fd.get('subject')||''),text});closeModal();toast('Elküldve: '+to);setTimeout(()=>{if(!$('mform'))ACT['gbp-open']();},50);}catch(e){handleErr(e);}}});
+  rvMailWire('rm','m-rmTo','m-rmSubj','m-rmText');};

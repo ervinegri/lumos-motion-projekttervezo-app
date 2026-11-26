@@ -555,13 +555,17 @@ function handleErr(e){
 let FORB_T=0;function forbiddenHeal(){if(Date.now()-FORB_T<60000)return;FORB_T=Date.now();try{if(typeof load==='function')load(true);}catch(e){}}
 let toastTimer=0;
 function toast(msg,isErr,center){if(isErr){center=true;msg=String(msg||'');if(!/^[\u2190-\u2BFF\u{1F000}-\u{1FAFF}]/u.test(msg))msg='⚠️ '+msg;}   /* minden figyelmeztető / tiltó üzenet: ⚠️, középen, elsötétített háttérrel */
-  const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);t.classList.toggle('mid',!center);   /* a sima visszajelzés is középen jelenik meg, de magától eltűnik (háttér-sötétítés nélkül) */   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');clearTimeout(toastTimer);
+  const t=$('toast');t.textContent=msg;t.classList.toggle('error',!!isErr);t.classList.toggle('center',!!center);t.classList.toggle('mid',!center);   /* a sima visszajelzés is középen jelenik meg, de magától eltűnik (háttér-sötétítés nélkül) */   /* center: fontos, blokkoló üzenet a képernyő közepén */t.classList.add('show');t._at=Date.now();clearTimeout(toastTimer);
   const ms=Math.min(15000,Math.max(isErr?6000:3500,String(msg||'').length*70));   // hosszabb üzenet tovább marad (kb. olvasási idő)
   let dim=document.getElementById('toastDim');if(center&&!dim){dim=document.createElement('div');dim.id='toastDim';dim.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');dim.remove();});document.body.appendChild(dim);}else if(!center&&dim)dim.remove();   /* középre kitett üzenetnél elsötétül a háttér; kattintásra bezárul */
   const hide=()=>{if(center)return;toastTimer=setTimeout(()=>{t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();},ms);};hide();   /* a középre kitett figyelmeztetés csak kattintásra tűnik el */
   t.onclick=()=>{clearTimeout(toastTimer);t.classList.remove('show');const z=document.getElementById('toastDim');if(z)z.remove();};
   if(!t._wired){t._wired=1;t.title='Kattints a bezáráshoz';t.addEventListener('mouseenter',()=>clearTimeout(toastTimer));t.addEventListener('mouseleave',()=>{if(t.classList.contains('center'))return;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);});t.addEventListener('click',()=>{clearTimeout(toastTimer);t.classList.remove('show');});}}
 
+/* a sima (nem figyelmeztető) visszajelzés eltűnik, amint bárhová kattintasz vagy új ablak nyílik – ne takarja a következő lépést */
+function toastHideInfo(minAge){const t=$('toast');if(!t||!t.classList.contains('show')||t.classList.contains('center'))return;if(minAge&&Date.now()-(t._at||0)<minAge)return;   /* a most megjelent (pl. „Elküldve”, majd új ablak) maradjon */
+  clearTimeout(toastTimer);t.classList.remove('show');}
+document.addEventListener('pointerdown',e=>{const t=$('toast');if(t&&e.target&&t.contains(e.target))return;toastHideInfo();},true);
 
 /* ===== Telefonszám országhívószámmal (alapból +36) ===== */
 const PH_CC=[['HU','🇭🇺','+36'],['AT','🇦🇹','+43'],['SK','🇸🇰','+421'],['RO','🇷🇴','+40'],['RS','🇷🇸','+381'],['HR','🇭🇷','+385'],['SI','🇸🇮','+386'],['UA','🇺🇦','+380'],
