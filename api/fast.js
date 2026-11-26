@@ -3,7 +3,7 @@
 // { fallback: true } a válasz – semmit nem írt –, és a böngésző az Apps Scripthez fordul.
 'use strict';
 const crypto = require('crypto');
-const { runFast, neonAsync } = require('./_gasrt.js');
+const { runFast, neonAsync, selfTest } = require('./_gasrt.js');
 /* ezeket mindig az Apps Script végzi (belépés, nézetváltás, feltöltés, levél-előnézet, külső szinkronok) */
 const DENY = /^(logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
 async function sessionOk(token) {
@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
     if (/selftest/.test(String(req.url || ''))) {   // próba valódi adatokkal, írás nélkül: a nyilvános árlista-lekérés a gyors úton (csak időt és méretet ad vissza)
       const out = await runFast(JSON.stringify({ fn: 'arkPrices', args: [] })).catch(e => ({ fallback: 'hiba: ' + String(e && e.message).slice(0, 150) }));
       let ok = null; try { ok = JSON.parse(out.text || 'null'); } catch (e) { }
-      return send(200, { ms: Date.now() - t0, fallback: out.fallback || '', ok: ok ? ok.ok : null, error: ok && !ok.ok ? ok.error : '', bytes: out.text ? out.text.length : 0, pf: ok && ok.pf }); }
+      const st = await selfTest().catch(e => ({ error: String(e && e.message).slice(0, 200) })), st2 = await selfTest().catch(e => ({ error: String(e && e.message).slice(0, 200) }));
+      return send(200, { ms: Date.now() - t0, fallback: out.fallback || '', ok: ok ? ok.ok : null, error: ok && !ok.ok ? ok.error : '', bytes: out.text ? out.text.length : 0, pf: ok && ok.pf, read: st, readWarm: st2 }); }
     try { const { BUILD } = require('./_gasrt.js');
       const q = sql => neonAsync({ query: sql, params: [] }).then(r => (r.rows || [])[0] || null, e => String(e && e.message).slice(0, 120));
       const a = await q("SELECT count(*)::text, coalesce(max(CASE WHEN k = 'm:build' THEN v END), ''), coalesce(max(CASE WHEN k = 'p:DB_MODE' THEN v END), ''), coalesce(max(at)::text, '') FROM lpm_kv");

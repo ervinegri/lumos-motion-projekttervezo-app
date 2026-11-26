@@ -194,12 +194,14 @@ function runOnce(raw, kv) {
   const ctx = vm.createContext(sandbox);
   for (const s of scripts()) s.runInContext(ctx);
   let text;
-  try { text = MOCK && /^\/\/TEST\n/.test(raw) ? String(vm.runInContext(raw, ctx)) : vm.runInContext('api_(__raw).getContent()', Object.assign(ctx, { __raw: raw })); }   // //TEST: csak a tesztekben (memóriabeli adatbázissal)
+  try { text = raw === SELFTEST_ ? String(vm.runInContext('(function(){ const t = Date.now(); const p = readAll_("projects").length, c = readAll_("crew").length, d = readAll_("deals").length; return JSON.stringify({ projects: p, crew: c, deals: d, loadMs: Date.now() - t }); })()', ctx)) : MOCK && /^\/\/TEST\n/.test(raw) ? String(vm.runInContext(raw, ctx)) : vm.runInContext('api_(__raw).getContent()', Object.assign(ctx, { __raw: raw })); }   // //TEST: csak a tesztekben (memóriabeli adatbázissal)
   catch (e) { if (e && e.needsGas) return { gas: RT.gas }; throw e; }
   if (RT.gas) return { gas: RT.gas };   // a kód elkapta a jelzést, de a Google-szolgáltatás kellett volna: biztosan nem itt fejezzük be
   return { text, RT };
 }
 
+const SELFTEST_ = '__selftest__';   // rögzített, csak olvasó próba (darabszámok), valódi adatokkal
+async function selfTest() { const kv = {}; const r = await neonAsync({ query: "SELECT k, v FROM lpm_kv WHERE k LIKE 'p:%' OR k LIKE 'm:%'", params: [] }); (r.rows || []).forEach(x => { kv[x[0]] = x[1]; }); const t0 = Date.now(), o = runOnce(SELFTEST_, kv); return { ms: Date.now() - t0, gas: o.gas || '', out: o.text ? JSON.parse(o.text) : null, writes: o.RT ? o.RT.writes.length : 0, dbHits: o.RT ? o.RT.dbHit : 0, dbMs: o.RT ? o.RT.dbMs : 0 }; }
 /** Egy kérés a gyors úton. Vissza: { text } (kész válasz) vagy { fallback: ok } (nem írt semmit – az Apps Script dolgozza fel). */
 async function runFast(raw) {
   if (!DBHOST) return { fallback: 'nincs DATABASE_URL' };
@@ -226,4 +228,4 @@ async function runFast(raw) {
   }
   return { fallback: 'ütközés' };
 }
-module.exports = { BUILD: BUNDLE.build, runFast, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); } };
+module.exports = { BUILD: BUNDLE.build, runFast, selfTest, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); } };
