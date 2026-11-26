@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3c55aa2884",
+"at": "2026-11-26T18:15:43+02:00",
+"msg": "Projekt fejléc: keskenyebb ablakban a gombok külön sorba kerülnek, a név mindig látszik"
+},
+{
 "id": "47fc5ac4e8",
 "at": "2026-11-26T18:14:08+02:00",
 "msg": "Szakaszok állapota csak ugyanannál a projektnél töltődik vissza"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Érintőképernyő: érintésre / hosszú nyomásra nem jelölődik ki a szöveg a listákban, kártyákon, menüben (a mezők és jegyzetek szövege kijelölhető marad)"
 },
 {
-"id": "35ffdefc33",
-"at": "2026-11-26T16:04:35+01:00",
-"msg": "Fekvő telefon: a felső sáv csak saját görgetésre tűnik el (menüváltáskor nem), a Bevétel-táblázat fejléce fent marad, a projektlista sorai feleakkorák"
-},
-{
-"id": "c35352e24a",
-"at": "2026-11-26T15:03:16Z",
+"id": "cfb183d454",
+"at": "2026-11-26T15:04:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
