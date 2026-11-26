@@ -1,6 +1,6 @@
 {"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
 "items":[
-    {"id":"helyszini-csapat","at":"2026-11-26","msg":"👥 Látod, kikkel leszel a helyszínen: a projekt sorában és a meghívóban is ott vannak a csapattársaid (a projektvezető és az elfogadott helyszíni kollégák)."},
+    {"id":"helyszini-csapat","at":"2026-11-26","msg":"👥 Látod, kikkel dolgozol: a meghívóban a projektvezető és a tervezett helyszíni csapat, a projekt sorában a projektvezető és a már elfogadott kollégák."},
     {"id":"ugyfel-fajl-formazas","at":"2026-11-24","msg":"Az ügyfél a jóváhagyó oldalon formázhatja az üzenetét (félkövér, dőlt, felsorolás), és fájlt is csatolhat (logó, grafika, arculat). A feltöltött fájl linkje a videó hozzászólásai között jelenik meg."},
 {"id":"2026-11-24-verziok-lepesek","at":"2026-11-24","msg":"🎬 A videók verziói mostantól így szerepelnek: v1, Revision 1, Revision 2… A hozzászólások között színnel látszanak a lépések: belső ellenőrzésre küldés (lila), ügyfélnek küldés (zöld), ügyfél módosítási kérése (narancs), jóváhagyás (zöld)."},
 {"id":"2026-11-23-vissza-verziok","at":"2026-11-23","msg":"↩ A telefon / böngésző Vissza gombja mostantól a megnyitott ablakot zárja be (pl. a videót), és a táblára tér vissza. A videó verzióinál látszik, melyik ment ki az ügyfélnek (zöld „ügyfél” jelölés), és melyik volt belső."},
