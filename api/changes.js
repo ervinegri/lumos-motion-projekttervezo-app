@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4006b5c786",
+"at": "2026-11-26T11:49:31+02:00",
+"msg": "Gyors út: a változásnapló és a feladó-álnevek is a gyors úton (a változásnaplót a saját szerver adja, az álnevek a tükörből); a csomag-frissítések nem kerülnek a változásnaplóba"
+},
+{
 "id": "0966b574ca",
 "at": "2026-11-26T11:48:49+02:00",
 "msg": "Újdonság: gyorsabb mentés és betöltés"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: asztali gépen keskeny ablakban (700 px alatt) is a teljes képernyős havi nézet – a rács alatti napi lista csak érintőképernyős telefonon jelenik meg"
 },
 {
-"id": "42d10bf6aa",
-"at": "2026-11-26T10:21:59+02:00",
-"msg": "Naptár: nem villognak az események – a napcellákba férő események száma már a kirajzolás előtt beáll (eddig egy pillanatra több esemény / más +N látszott), és a hónapváltáskor nem fut két animáció egymásra"
-},
-{
-"id": "a3ed176375",
-"at": "2026-11-26T08:21:48Z",
+"id": "a9ddf763ce",
+"at": "2026-11-26T08:22:09Z",
 "msg": "Változásnapló frissítése"
 }
 ];
