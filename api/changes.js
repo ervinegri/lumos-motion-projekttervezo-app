@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4a691d2b88",
+"at": "2026-11-26T14:45:07+01:00",
+"msg": "Gemini: modell-sorrend kimerült keretű / túlterhelt modellek félretételével (nem kezd újra és újra a 429-es modellel), időkereten belül több modell, érthető kerethiány-üzenet"
+},
+{
 "id": "9e49a9245d",
 "at": "2026-11-26T14:40:28+01:00",
 "msg": "Hibakeresés: utolsó Gemini-hibák és a választott modell a /api/dbstatus-ban (kulcs nélkül)"
@@ -125,16 +130,6 @@ const ITEMS = [
 "id": "e4db7bc39d",
 "at": "2026-11-26T11:47:43+01:00",
 "msg": "Google-értékelések: alapból 12 értékelés látszik (6 helyett)"
-},
-{
-"id": "b8955e7a82",
-"at": "2026-11-26T11:45:07+01:00",
-"msg": "Google-értékelések: link másolása és QR-kód betöltés közben is"
-},
-{
-"id": "017a2ad535",
-"at": "2026-11-26T10:43:38Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
