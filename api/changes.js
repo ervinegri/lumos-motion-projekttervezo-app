@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0966b574ca",
+"at": "2026-11-26T11:48:49+02:00",
+"msg": "Újdonság: gyorsabb mentés és betöltés"
+},
+{
 "id": "44ec20257e",
 "at": "2026-11-26T11:47:17+02:00",
 "msg": "Gyors út: írás-próba valódi adatbázison (külön üres próbalap; feltételes írás, ütközés, visszaürítés) – ritkítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: nem villognak az események – a napcellákba férő események száma már a kirajzolás előtt beáll (eddig egy pillanatra több esemény / más +N látszott), és a hónapváltáskor nem fut két animáció egymásra"
 },
 {
-"id": "0dc5c3e08e",
-"at": "2026-11-26T09:21:41+01:00",
-"msg": "Új projekt: a jegyzet nem marad meg félbehagyott szövegként (a beragadt példányok törlése)"
-},
-{
-"id": "d87a9f4376",
-"at": "2026-11-26T08:20:59Z",
+"id": "a3ed176375",
+"at": "2026-11-26T08:21:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
