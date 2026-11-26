@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e99c7d97d8",
+"at": "2026-11-26T11:29:30+02:00",
+"msg": "Gyors út: állapotlekérdezés külön lekérdezésekkel"
+},
+{
 "id": "930ede482d",
 "at": "2026-11-26T11:25:52+02:00",
 "msg": "Gyors út: állapotlekérdezés (GET /api/fast – kódváltozat, tükör, várakozó háttérfeladatok; titok nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (teljes képernyős havi nézet): teljesen fix – fel-le görgetésre semmi nem mozdul (nincs rugalmas túlgörgetés, nincs rács-követés / hónapváltás), a lap alsó térköze sem görgethető; hónapváltás oldalra görgetéssel vagy a nyilakkal"
 },
 {
-"id": "7e50027d33",
-"at": "2026-11-26T09:08:54+01:00",
-"msg": "Projekt: kisebb felső hézag a fejléc felett"
-},
-{
-"id": "58180b4205",
-"at": "2026-11-26T08:08:38Z",
+"id": "1a03d53712",
+"at": "2026-11-26T08:09:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
