@@ -24,6 +24,7 @@ function scripts() {
     kvMirror_ = function () { };
     /* levél és HubSpot-szinkron: sorba (az adatokkal egy tranzakcióban), az Apps Script küldi el ugyanezzel a függvénnyel */
     sendAs_ = function (to, subject, text, opts) { opts = opts || {}; if (opts.attachments || opts.inlineImages) __need('levél melléklettel'); __job('sendAs_', JSON.stringify([to, subject, text, opts])); return true; };
+    var __boot = bootstrap_; bootstrap_ = function (u, light) { if (light || !u) return __boot(u, light); const r = __boot(u, true); __jobOnce('bootMaint_', JSON.stringify([u]), 'bm_' + u.role + '_' + (u.crewId || u.id)); return r; };   // a karbantartás (Google Naptár stb.) az Apps Scriptben, a háttérben
     hsOn_ = function () { return __has('HUBSPOT_TOKEN') && PropertiesService.getScriptProperties().getProperty('HS_WRITE') !== '0'; };
     hsDealQueue_ = function (d) { if (!d || typeof hsOn_ === 'function' && !hsOn_()) return; __job('hsDealQueue_', JSON.stringify([d])); };`, { filename: '__fast_patch.js' }));
   return SCRIPTS;
@@ -122,7 +123,8 @@ function runOnce(raw, kv) {
   const SECRET = /(SECRET|PASS|TOKEN|KEY|REFRESH|LOGIN|AGENT|CRED|PRIVATE)/i;
   const props = {
     getProperty(k) { k = String(k); if (k === 'NEON_URL') return DBURL; if (SECRET.test(k)) need('titok: ' + k); const v = kv['p:' + k]; return v === undefined ? null : v; },
-    getProperties() { need('getProperties'); }, getKeys() { need('getKeys'); },
+    getProperties() { const o = {}; Object.keys(kv).forEach(k => { if (k.slice(0, 2) === 'p:') o[k.slice(2)] = kv[k]; }); return o; },   // a titkok nélkül (azokat csak az Apps Script látja)
+    getKeys() { return Object.keys(kv).filter(k => k.slice(0, 2) === 'p:').map(k => k.slice(2)); },
     setProperty(k) { need('beállítás írása: ' + k); }, setProperties() { need('beállítás írása'); }, deleteProperty(k) { need('beállítás törlése: ' + k); }, deleteAllProperties() { need('beállítás törlése'); }
   };
   const cache = {
@@ -186,6 +188,7 @@ function runOnce(raw, kv) {
     CONTRACT_TPL_: undefined,
     __need: why => need(String(why)),
     __has: k => kv['m:has:' + String(k)] === '1',
+    __jobOnce: (fn, argsJson, key) => { const k = 'jobonce_' + key; if (memGet(k) || RT.cacheStage.has(k)) return; RT.cacheStage.set(k, { v: '1', exp: Date.now() + 300000 }); sandbox.__job(fn, argsJson); },
     __job: (fn, argsJson) => { if (!RT.jobs) RT.writes.push({ query: 'CREATE TABLE IF NOT EXISTS lpm_jobs (id bigserial PRIMARY KEY, fn text NOT NULL, args jsonb NOT NULL, at timestamptz NOT NULL DEFAULT now(), claimed timestamptz, tries int NOT NULL DEFAULT 0, done_at timestamptz, err text)', params: [] });
       RT.jobs = (RT.jobs || 0) + 1; RT.writes.push({ query: 'INSERT INTO lpm_jobs (fn, args) VALUES ($1, $2::jsonb)', params: [String(fn), String(argsJson)] }); }
   };

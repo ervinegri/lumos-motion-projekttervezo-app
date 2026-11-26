@@ -361,7 +361,9 @@ function dbLoadInner_() {
 /* Háttérfeladatok (2026-11-26): a gyors út (Vercel) a levelet / HubSpot-szinkront nem küldi el, hanem ide teszi – az adatokkal EGY tranzakcióban –,
    és az Apps Script végzi el: azonnal (a böngésző jelez), biztonsági hálóként 5 percenként. Ugyanaz a függvény fut, ugyanazokkal az ellenőrzésekkel. */
 const JOBS_DDL_ = 'CREATE TABLE IF NOT EXISTS lpm_jobs (id bigserial PRIMARY KEY, fn text NOT NULL, args jsonb NOT NULL, at timestamptz NOT NULL DEFAULT now(), claimed timestamptz, tries int NOT NULL DEFAULT 0, done_at timestamptz, err text)';
-const JOB_FNS_ = { sendAs_: 1, hsDealQueue_: 1 };
+const JOB_FNS_ = { sendAs_: 1, hsDealQueue_: 1, bootMaint_: 1 };
+/* a betöltés karbantartó lépései (naptár-visszajelzések átvétele, időzítők, egyszeri átalakítások) – a gyors úton betöltött app után itt futnak, legfeljebb 5 percenként */
+function bootMaint_(u) { if (!u || !u.id) return; const C = CacheService.getScriptCache(), k = 'bmaint_' + u.role + '_' + (u.crewId || u.id); if (C.get(k)) return; C.put(k, '1', 300); bootstrap_(u, false); }
 function jobsRun_() {
   if (!dbOn_()) return { done: 0 };
   try { const P = PropertiesService.getScriptProperties(); if (!P.getProperty('JOBS_TICK_V1')) { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'jobsTick')) ScriptApp.newTrigger('jobsTick').timeBased().everyMinutes(5).create(); P.setProperty('JOBS_TICK_V1', '1'); } } catch (e) { Logger.log('jobsTick időzítő: ' + e); }
@@ -370,7 +372,7 @@ function jobsRun_() {
   catch (e) { Logger.log('jobsRun: ' + e); return { done: 0, error: String(e && e.message).slice(0, 200) }; }
   let n = 0;
   rows.forEach(r => { let err = '';
-    try { if (!JOB_FNS_[r[1]]) throw new Error('Nem engedélyezett feladat: ' + r[1]); const fnx = { sendAs_: sendAs_, hsDealQueue_: hsDealQueue_ }[r[1]]; fnx.apply(null, JSON.parse(r[2] || '[]')); n++; }
+    try { if (!JOB_FNS_[r[1]]) throw new Error('Nem engedélyezett feladat: ' + r[1]); const fnx = { sendAs_: sendAs_, hsDealQueue_: hsDealQueue_, bootMaint_: bootMaint_ }[r[1]]; fnx.apply(null, JSON.parse(r[2] || '[]')); n++; }
     catch (e) { err = String(e && e.message || e).slice(0, 500); Logger.log('Háttérfeladat hiba (' + r[1] + '): ' + err); }
     try { neonSql_([{ query: 'UPDATE lpm_jobs SET done_at = CASE WHEN $2 = \'\' OR tries >= 5 OR $2 LIKE \'Ugyanez a levél%\' THEN now() ELSE NULL END, err = NULLIF($2, \'\'), claimed = NULL WHERE id = $1::bigint', params: [r[0], err] }]); } catch (e) { } });
   try { neonSql_([{ query: "DELETE FROM lpm_jobs WHERE done_at < now() - interval '14 days'" }]); } catch (e) { }
