@@ -14,7 +14,7 @@ html.th2{
   --bg:#f0f4f7;--surface:#ffffff;--surface-2:#f6f8fa;--line:#dde4eb;--line-strong:#ced9e5;
   --fg:#101923;--fg-2:#36414d;--fg-3:#5e6873;--fg-4:#9099a3;
   --accent:var(--ink);--accent-hover:var(--ink-2);--accent-soft:#e8eef3;--accent-line:#ced9e5;
-  --ok:#2c7a4b;--ok-soft:#e6f4ea;--warn:#8a5a00;--warn-soft:#fff4d9;--bad:#b23b3b;--bad-soft:#fdeaea;--bad-line:#f1c2c2;
+  --ok:#2f8a55;--ok-soft:#e6f4ea;--warn:#8a5a00;--warn-soft:#fff4d9;--bad:#b23b3b;--bad-soft:#fdeaea;--bad-line:#f1c2c2;
   --brand-yellow:#ffde59;--brand-orange:#ff914d;--grad-brand:linear-gradient(96deg,#ffde59,#ff914d);
   --tungsten:#f1bf5e;--tungsten-ink:#1b0f00;--haze:#78a9c3;
   --shadow:0 1px 2px rgba(16,25,35,.05);
@@ -2895,7 +2895,7 @@ html.th2:where(.ax-stone){
   --bg:#f0f0f7;--surface:#ffffff;--surface-2:#f7f7fb;--line:#e2e2e8;--line-strong:#d4d3dd;
   --fg:#25252a;--fg-2:#5f5f64;--fg-3:#707076;--fg-4:#919197;--muted:#707076;
   --accent:#25252a;--accent-hover:#3a3a42;--accent-soft:#ececf2;--accent-line:#d4d3dd;
-  --ok:#354f31;--ok-soft:#e3eee1;--warn:#524818;--warn-soft:#f8eed6;--bad:#8a3b33;--bad-soft:#f7e4e1;--bad-line:#e0bdb8;
+  --ok:#2f8a55;--ok-soft:#e5f3ea;--warn:#524818;--warn-soft:#f8eed6;--bad:#8a3b33;--bad-soft:#f7e4e1;--bad-line:#e0bdb8;
   --grad-brand:#25252a;--tungsten-ink:#ffffff;--brand-yellow:#25252a;--brand-orange:#25252a;
   --shadow:var(--ax-shadow-low);
   --font:Figtree,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -3524,3 +3524,26 @@ html body #view tr.pt-sz3 .cal{transform:none}}
 html body .pay-sheet td.pay-st:has(.pst-sent:not(.chg)),html body .pay-sheet td.pay-st:has(.pst-card:not(.diff):not(.part)){background:var(--ok,#2e7d52)!important;color:#fff!important}
 html body .pay-sheet td.pay-st:has(.pst-sent:not(.chg)) .pst-sent,html body .pay-sheet td.pay-st:has(.pst-card:not(.diff):not(.part)) .pst-card{background:transparent!important;border-color:transparent!important;color:#fff!important;box-shadow:none!important}
 html body .pay-sheet td.pay-st:has(.pst-sent:not(.chg)) .pst-sub,html body .pay-sheet td.pay-st:has(.pst-sent:not(.chg)) .pst-sub *,html body .pay-sheet td.pay-st:has(.pst-card:not(.diff):not(.part)) .pst-sub *{color:rgba(255,255,255,.85)!important;background:transparent!important;border-color:rgba(255,255,255,.35)!important}
+/* asztali gép is (mint telefonon): a Fizetések táblázat a saját keretében görög, a fejléc (nevek) és az első oszlop fent / balra marad */
+@media (min-width:701px){
+html body .pay-wrap{overflow:auto!important;max-height:calc(100dvh - var(--topbar-h,76px) - 16px);overscroll-behavior-y:auto}
+html body .pay-wrap .pay-sheet thead th{position:sticky!important;top:0!important;z-index:3!important}
+html body .pay-wrap .pay-sheet thead th:first-child{left:0!important;z-index:6!important}
+}
+/* Fizetések: vékonyabb állapotsorok (díjösszesítő / számla / kifizetés) */
+html body .pay-sheet tr.pay-strow td{padding-top:2px!important;padding-bottom:2px!important;line-height:1.15!important}
+html body .pay-sheet tr.pay-strow td.pay-st .pst-card,html body .pay-sheet tr.pay-strow td.pay-st .pst-sent{padding:1px 4px!important;line-height:1.15!important}
+html body .pay-sheet tr.pay-strow td.pay-st .pst-sub{margin-top:0!important;font-size:11px!important;line-height:1.1!important}
+html body .pay-sheet tr.pay-strow td.pay-st button{padding-top:2px!important;padding-bottom:2px!important;min-height:0!important;line-height:1.2!important}
+html body .pay-sheet tr.pay-strow td.pay-st input[type=checkbox]{width:16px!important;height:16px!important}
+/* Projektek: a fejléc egy sor (kereső a „Projekt”, „Új projekt” a „Státusz” oszlop fejlécében) */
+html body .proj-table thead .pt-th-st{display:flex;align-items:center;justify-content:space-between;gap:10px}
+html body .proj-table thead .pt-th-st .btn{padding:6px 12px!important;font-size:13px!important;min-height:0!important;white-space:nowrap}
+/* minden menüpontban ugyanakkora (kicsi) hézag a menüsáv, a fejsor és a tartalom között – mint a Naptárban */
+@media (min-width:701px){
+html body #view{padding-top:7px!important;row-gap:8px!important}
+html body #view:has(.pay-head,.bill-head){padding-top:7px!important}
+html body #view>:first-child{margin-top:0!important}
+html body #view>.page-head{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;min-height:0!important}
+html body #view>.page-head+*{margin-top:0!important}
+}

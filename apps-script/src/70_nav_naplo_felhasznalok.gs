@@ -127,6 +127,7 @@ function navSync_(u, a) {
   });
   PropertiesService.getScriptProperties().setProperty('NAV_LAST_SYNC', now_());
   if (found.length) logEvent_(u, 'NAV-számlák párosítva', found.map(f => f.name).join(', '), found.map(f => f.month + ': ' + f.number).join(' · '));
+  try { szBankCrewAuto_(); } catch (e) { Logger.log('szBankCrewAuto_: ' + e); }   // a most érkezett számlákhoz a már megtörtént utalások
   return { found: found, missingTax: missingTax.filter((v, i, arr) => arr.indexOf(v) === i), payStatus: readAll_('payStatus'), at: now_() };
 }
 function addMonths_(ym, n) { const y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)) - 1 + n; return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7); }

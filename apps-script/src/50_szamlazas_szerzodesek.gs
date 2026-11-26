@@ -1211,22 +1211,47 @@ function szBankIn_(root) {
     if (t.dir === 'KI' && !t.technical && /^HUF$/i.test(t.currency)) { const m = szBankCrewMatch_(t); if (m) { t.matchInvoice = 'pay:' + m.id; t.matchScore = m.sc; t.status = 'javaslat'; } }   // kimenő utalás: melyik szakember melyik havi díja
     putRow_('bankTx', sh, t, 0); dbFlush_();
   });
+  if (t.dir === 'KI') { try { szBankCrewAuto_(); } catch (e) { Logger.log('szBankCrewAuto_: ' + e); } }
 }
 const szDigits_ = s => String(s || '').replace(/\D/g, '');
 /** Kimenő utalás → szakember havi díja: a szakember bankszámlája (a bejövő számláiból tanulva) vagy neve / vállalkozása, és a kiállított, még ki nem fizetett számlájának összege. */
 function szBankCrewMatch_(t) {
-  const crew = readAll_('crew'), docs = readAll_('szDocs').filter(d => d.kind === 'be' && d.crewId), acc = szDigits_(t.partnerAccount), pn = szBankNorm_(t.partnerName), amt = Math.round(Number(t.amount) || 0);
+  const crew = readAll_('crew'), docs = readAll_('szDocs').filter(d => d.kind === 'be' && d.crewId), acc = szDigits_(t.partnerAccount), pn = szBankNorm_(t.partnerName), amt = Math.abs(Math.round(Number(t.amount) || 0));   // a kimenő tétel összege negatív
   const byAcc = acc.length >= 16 ? docs.filter(d => szDigits_(d.partnerAccount) === acc).map(d => d.crewId) : [];
-  const cands = crew.filter(c => byAcc.indexOf(c.id) >= 0 || (pn && [c.name, c.company].some(n => { const w = szBankNorm_(n); return w && (w === pn || (w.length > 5 && pn.indexOf(w) >= 0) || (pn.length > 5 && w.indexOf(pn) >= 0)); })));
-  if (!cands.length) return null;
+  const byName = crew.filter(c => pn && [c.name, c.company].some(n => { const w = szBankNorm_(n); return w && (w === pn || (w.length > 5 && pn.indexOf(w) >= 0) || (pn.length > 5 && w.indexOf(pn) >= 0)); })).map(c => c.id);
+  const noteK = szNoKey_(t.note);
   let best = null;
-  readAll_('payStatus').filter(p => p.invoicedAt && !p.paidAt && cands.some(c => c.id === p.crewId)).forEach(p => {
+  readAll_('payStatus').filter(p => p.invoicedAt && !p.paidAt).forEach(p => {
     const nos = String(p.invoiceNo || '').split(/\s*,\s*/).filter(Boolean), dd = docs.filter(d => d.crewId === p.crewId && nos.indexOf(d.no) >= 0);
+    const inNote = nos.some(n => { const k = szNoKey_(n); return k.length >= 4 && noteK.indexOf(k) >= 0; });   // a közleményben a számla száma
+    const ac = byAcc.indexOf(p.crewId) >= 0, nm = byName.indexOf(p.crewId) >= 0; if (!ac && !nm && !inNote) return;
     const exp = dd.length ? dd.reduce((s, d) => s + Math.round(Number(d.gross) || 0), 0) : Math.round(Number(p.invoiceNet) || 0);
-    const sc = (Math.abs(exp - amt) <= 1 ? 60 : 0) + (byAcc.indexOf(p.crewId) >= 0 ? 35 : 20);
-    if (sc >= 80 && (!best || sc > best.sc || (sc === best.sc && p.month < best.month))) best = { id: p.id, sc: sc, month: p.month };
+    const net = Math.round(Number(p.invoiceNet) || 0), amtOk = Math.abs(exp - amt) <= 1 || (net && Math.abs(net - amt) <= 1) || (net && Math.abs(Math.round(net * 1.27) - amt) <= 1);
+    const sc = (amtOk ? 60 : 0) + (inNote ? 40 : 0) + (ac ? 35 : nm ? 20 : 0);
+    /* biztos (magától kifizetettnek jelöljük): egyezik az összeg, és a közleményben a számla száma vagy a szakember bankszámlája / neve */
+    const strong = amtOk && (inNote || ac || nm);
+    if (sc >= 80 && (!best || sc > best.sc || (sc === best.sc && p.month < best.month))) best = { id: p.id, sc: sc, month: p.month, strong: strong };
   });
   return best;
+}
+/** Kimenő utalások → szakemberek díja (2026-11-26): ha az utalás biztosan egy kiállított, még ki nem fizetett számlához tartozik (egyezik az összeg,
+    és a közleményben a számla száma vagy a szakember bankszámlája / neve), a díj magától „kifizetve” lesz az utalás napjával; ha csak valószínű, javaslat.
+    Újra is lefut (NAV-szinkron, banki tétel érkezése, Pénzügyek megnyitása), mert a számla gyakran az utalás után érkezik a NAV-ból. */
+function szBankCrewAuto_() {
+  let txs = []; try { txs = readAll_('bankTx'); } catch (e) { return 0; }
+  const lim = Utilities.formatDate(new Date(Date.now() - 120 * 864e5), SHEET_TZ, 'yyyy-MM-dd'), bot = { name: 'Bank (automatikus)', role: 'admin', id: '', email: '' };
+  let n = 0;
+  txs.filter(t => t.dir === 'KI' && !t.technical && /^HUF$/i.test(t.currency || 'HUF') && String(t.valueDate || '') >= lim && (!t.status || (t.status === 'javaslat' && /^pay:/.test(t.matchInvoice || ''))) && Math.abs(Number(t.amount) || 0) >= 1000)
+    .forEach(t => { try {
+      const m = szBankCrewMatch_(t); if (!m) return;
+      if (m.strong) { const p = readAll_('payStatus').find(x => x.id === m.id); if (!p || p.paidAt) return;
+        setPayStatus_(bot, { month: p.month, crewId: p.crewId, field: 'paid', on: true, date: t.valueDate });
+        withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, t.id); if (!r) return; const row = readRow_('bankTx', sh, r); row.status = 'parositva'; row.matchInvoice = 'pay:' + m.id; row.matchScore = m.sc; row.handledBy = bot.name; row.handledAt = now_(); putRow_('bankTx', sh, row, r); dbFlush_(); });
+        n++; }
+      else if (!t.status) withLock_(() => { const sh = sheetFor_('bankTx'), r = findRow_(sh, t.id); if (!r) return; const row = readRow_('bankTx', sh, r); if (row.status) return; row.status = 'javaslat'; row.matchInvoice = 'pay:' + m.id; row.matchScore = m.sc; putRow_('bankTx', sh, row, r); dbFlush_(); });
+    } catch (e) { Logger.log('Kimenő utalás párosítása (' + t.id + '): ' + e); } });
+  if (n) try { dataBump_(); } catch (e) { }
+  return n;
 }
 /** Kimenő / bejövő számla a számlázz.hu-ból: tárolás (PDF a Drive-ra), kimenőnél a kifizetések átvétele, bejövőnél a szakember havi díjához párosítás. */
 function szDocIn_(root, kind) {
