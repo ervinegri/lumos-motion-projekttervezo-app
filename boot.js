@@ -172,3 +172,10 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   document.addEventListener('scroll',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('tl-wrap'))return;if(W!==t){W=t;C=null;}go();},{capture:true,passive:true});
   window.addEventListener('resize',()=>{C=null;go();},{passive:true});
   window.tlNameFix=()=>{W=document.querySelector('#view .tl-wrap');C=null;if(W)go();};})();
+/* érintőképernyő: hosszú nyomásra semmi ne jelölődjön ki (a CSS user-select:none-t az iOS nem minden elemnél tartja be) –
+   kivétel: beviteli mezők, szerkeszthető szöveg, jegyzetek, átiratok (.selectable) */
+(()=>{let mq=null;try{mq=matchMedia('(hover:none)');}catch(e){}if(!mq)return;
+  const OK=n=>{const el=n&&(n.nodeType===1?n:n.parentElement);return !!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"],[contenteditable=""],.dn-t,.rec-res,.selectable'));};
+  document.addEventListener('selectstart',e=>{if(mq.matches&&!OK(e.target))e.preventDefault();},true);
+  document.addEventListener('selectionchange',()=>{if(!mq.matches)return;const s=document.getSelection&&document.getSelection();if(!s||s.isCollapsed||!s.rangeCount)return;if(OK(s.anchorNode)||OK(s.focusNode))return;try{s.removeAllRanges();}catch(e){}});
+})();
