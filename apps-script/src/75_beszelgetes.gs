@@ -4,7 +4,7 @@
    API-kulcsot, a felvételből szó szerinti átirat (beszélőkkel, időbélyeggel) és összefoglaló készül, lépésenként (minden lépés külön kérés,
    így hosszú felvételnél sem fut ki az Apps Script időkorlátja). Az adatok a lehetőséghez kötve: qPut_('REC_' + dealId).
    Hozzájárulás nélkül nem indulhat felvétel (GDPR) – a tény a lehetőség jegyzetébe is bekerül. */
-const REC_MAX = 120 * 1024 * 1024, REC_CHUNK = 8 * 1024 * 1024, REC_SEG = 8 * 60, GEMINI_PROP = 'GEMINI_API_KEY', GEMINI_MODEL = 'gemini-2.5-flash';
+const REC_MAX = 120 * 1024 * 1024, REC_CHUNK = 8 * 1024 * 1024, REC_SEG = 8 * 60, GEMINI_PROP = 'GEMINI_API_KEY', GEMINI_MODEL_PROP = 'GEMINI_MODEL';
 const REC_KIND = { mic: 'Személyes megbeszélés', phone: 'Telefonhívás (kihangosítva)', online: 'Online megbeszélés' };
 function recFolder_() {
   const P = PropertiesService.getScriptProperties(); let f = null; try { const id = P.getProperty('REC_FOLDER'); f = id ? DriveApp.getFolderById(id) : null; } catch (e) { f = null; }
@@ -20,7 +20,7 @@ function recEdit_(did, rid, fn) { let out = null; withLock_(() => { const o = qG
 function recNote_(u, did, txt) {   // a lehetőség jegyzetének elejére (mint az ajánlatküldésnél)
   withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) return; const x = readRow_('deals', sh, row);
     const line = '[' + Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd HH:mm') + ' · ' + (u.name || '') + '] ' + txt;
-    x.note = (line + (String(x.note || '').trim() ? '\n' + String(x.note).trim() : '')).slice(0, 20000); x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
+    dealNotePrepend_(x, line); x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); });
 }
 const recDurTxt_ = s => { s = Math.round(Number(s) || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60; return (h ? h + ':' + ('0' + m).slice(-2) : m) + ':' + ('0' + ss).slice(-2); };
 
@@ -67,14 +67,37 @@ function recDel_(u, a) {
 
 /* ---- Gemini: átirat + összefoglaló ---- */
 function geminiKey_() { return PropertiesService.getScriptProperties().getProperty(GEMINI_PROP) || ''; }
-function geminiStatus_() { const k = geminiKey_(); return { on: !!k, tail: k ? k.slice(-4) : '', model: GEMINI_MODEL }; }
+function geminiStatus_() { const k = geminiKey_(); return { on: !!k, tail: k ? k.slice(-4) : '', model: k ? (PropertiesService.getScriptProperties().getProperty(GEMINI_MODEL_PROP) || '') : '' }; }
+/** A legújabb stabil „gemini-X.Y-flash” modell, amit a kulcs használhat (a Google időnként kivezeti a régieket → nem égetjük be). */
+function geminiPickModel_(k, avoid) {
+  let tok = '', all = [];
+  for (let i = 0; i < 10; i++) {
+    const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000' + (tok ? '&pageToken=' + encodeURIComponent(tok) : ''), { muteHttpExceptions: true, headers: { 'x-goog-api-key': k } });
+    if (r.getResponseCode() !== 200) throw new Error('A kulcs nem működik (' + r.getResponseCode() + '): ' + r.getContentText().slice(0, 200));
+    const j = JSON.parse(r.getContentText()); all = all.concat(j.models || []); tok = j.nextPageToken || ''; if (!tok) break;
+  }
+  const ok = all.filter(m => (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0).map(m => String(m.name || '').replace(/^models\//, ''))
+    .filter(n => avoid.indexOf(n) < 0);
+  const ver = n => { const m = n.match(/^gemini-(\d+)(?:\.(\d+))?-flash$/); return m ? Number(m[1]) * 100 + Number(m[2] || 0) : -1; };
+  let best = ok.filter(n => ver(n) >= 0).sort((a, b) => ver(b) - ver(a))[0];
+  if (!best) best = ok.filter(n => /^gemini-[\d.]+-flash(-latest)?$/.test(n) || n === 'gemini-flash-latest')[0];
+  if (!best) best = ok.filter(n => /^gemini-[\d.]+-flash/.test(n) && !/lite|image|tts|live|audio|embed/.test(n)).sort().reverse()[0];
+  if (!best) throw new Error('A kulccsal nem érhető el Gemini Flash modell.');
+  return best;
+}
+function geminiModel_(force, avoid) {
+  const P = PropertiesService.getScriptProperties(); let m = force ? '' : P.getProperty(GEMINI_MODEL_PROP);
+  if (!m) { m = geminiPickModel_(geminiKey_(), avoid || []); P.setProperty(GEMINI_MODEL_PROP, m); }
+  return m;
+}
 function geminiSet_(u, a) {
   a = a || {}; const P = PropertiesService.getScriptProperties();
-  if (a.clear) { P.deleteProperty(GEMINI_PROP); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kikapcsolva'); return geminiStatus_(); }
+  if (a.clear) { P.deleteProperty(GEMINI_PROP); P.deleteProperty(GEMINI_MODEL_PROP); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kikapcsolva'); return geminiStatus_(); }
   const k = String(a.key || '').trim(); if (!/^[\w.\-]{20,300}$/.test(k)) throw new Error('Ez nem tűnik Gemini API-kulcsnak (a Google AI Studióban létrehozott kulcsot másold be, szóköz nélkül).');   // a régi „AIza…” és az új „AQ.…” formátum is
-  const t = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL, { muteHttpExceptions: true, headers: { 'x-goog-api-key': k } });
+  const m = geminiPickModel_(k, []);
+  const t = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { 'x-goog-api-key': k }, payload: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Válaszolj egy szóval: ok' }] }], generationConfig: { maxOutputTokens: 20 } }) });
   if (t.getResponseCode() !== 200) throw new Error('A kulcs nem működik (' + t.getResponseCode() + '): ' + t.getContentText().slice(0, 200));
-  P.setProperty(GEMINI_PROP, k); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kulcs mentve'); return geminiStatus_();
+  P.setProperty(GEMINI_PROP, k); P.setProperty(GEMINI_MODEL_PROP, m); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kulcs mentve'); return geminiStatus_();
 }
 function gemFetch_(url, opt) {
   const k = geminiKey_(); if (!k) throw new Error('Az átirathoz az ügyvezetőnek meg kell adnia a Gemini API-kulcsot (Beállítások).');
@@ -83,8 +106,14 @@ function gemFetch_(url, opt) {
   const c = r.getResponseCode(); if (c >= 300) throw new Error('Gemini hiba (' + c + '): ' + r.getContentText().slice(0, 300)); return r;
 }
 function gemJson_(parts, schema, maxTok) {
-  const body = { contents: [{ role: 'user', parts: parts }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTok || 16000, responseMimeType: 'application/json', responseSchema: schema, thinkingConfig: { thinkingBudget: 0 } } };
-  const r = gemFetch_('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body) });
+  const body = { contents: [{ role: 'user', parts: parts }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTok || 16000, responseMimeType: 'application/json', responseSchema: schema } };
+  const call = m => gemFetch_('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body) });
+  let m = geminiModel_(), r;
+  try { r = call(m); } catch (e) {   // kivezetett / nem elérhető modell → új választás és újrapróbálás
+    if (!/\((404|400)\)/.test(e.message) || !/model/i.test(e.message)) throw e;
+    const hint = (e.message.match(/models\/(gemini-[\w.\-]+)/g) || []).map(x => x.replace('models/', '')).filter(x => x !== m)[0];
+    m = hint || geminiModel_(true, [m]); PropertiesService.getScriptProperties().setProperty(GEMINI_MODEL_PROP, m); r = call(m);
+  }
   const j = JSON.parse(r.getContentText()), t = (((j.candidates || [])[0] || {}).content || {}).parts || [];
   const txt = t.map(x => x.text || '').join(''); try { return JSON.parse(txt); } catch (e) { throw new Error('A Gemini válasza nem értelmezhető – próbáld újra.'); }
 }

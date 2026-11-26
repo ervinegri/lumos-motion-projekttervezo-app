@@ -171,6 +171,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   if (u.role === 'admin') { try { migNickNandi_(); } catch (e) { Logger.log('migNick: ' + e); } }
+  if (u.role === 'admin') { try { migNoteHead_(); } catch (e) { Logger.log('migNoteHead: ' + e); } }
   if (u.role === 'admin') { try { const r = migSelfAccept_(); if (r && r.fresh) MIG_NOTE_ = r.msg; } catch (e) { Logger.log('migSelfAccept: ' + e); } }
   if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
@@ -508,6 +509,30 @@ function migSelfAccept_() { const P = PropertiesService.getScriptProperties(), K
   P.setProperty(K, msg.slice(0, 8000)); try { logEvent_({ name: 'Rendszer', email: '' }, 'Saját beosztás átállítás', '', msg.slice(0, 400)); } catch (e) {} return { fresh: true, msg: msg }; }
 
 /* Egyszeri: Koós Nándor beceneve „Nándi” (Ervin kérése, 2026-11-26) – a felületen így jelenik meg. */
+/** Új, dátumozott bejegyzés a lehetőség jegyzetének elejére. A régi, fejléc nélküli jegyzet saját fejlécet kap (a lehetőség felvételének ideje),
+ *  különben a felület az új bejegyzés folytatásának látná (és a mostani időponttal mutatná). */
+const DNOTE_HEAD_RE_ = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}|Korábbi)(?: · [^\]]*)?\]/;
+function dealNoteFb_(x) {
+  const c = x && x.createdAt; let d = c instanceof Date ? c : (c ? new Date(String(c).replace(' ', 'T')) : null);
+  if (d && !isNaN(d.getTime())) return Utilities.formatDate(d, SHEET_TZ, 'yyyy-MM-dd HH:mm');
+  const t = String(c || ''); return /^\d{4}-\d{2}-\d{2}/.test(t) ? t.slice(0, 10) + ' 00:00' : 'Korábbi';
+}
+function dealNotePrepend_(x, line) {
+  let old = String(x.note || '').trim();
+  if (old && !DNOTE_HEAD_RE_.test(old)) old = '[' + dealNoteFb_(x) + '] ' + old;
+  x.note = (line + (old ? '\n' + old : '')).slice(0, 20000);
+}
+/** Egyszeri javítás: a felvétel / ajánlatküldés egysoros bejegyzése alá „ragadt” régi, fejléc nélküli jegyzet visszakapja a saját fejlécét. */
+function migNoteHead_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NOTE_HEAD_1'; if (P.getProperty(K)) return;
+  withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
+    readAll_('deals').forEach(d => { const t = String(d.note || ''); if (!t) return; const L = t.split('\n'); let ch = false;
+      for (let i = 0; i < L.length - 1; i++) {
+        if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\) – a beszélgetőpartner hozzájárult a rögzítéshez\.|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) {
+          L[i + 1] = '[' + dealNoteFb_(d) + '] ' + L[i + 1]; ch = true; }
+      }
+      if (!ch) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = L.join('\n'); putRow_('deals', sh, x, row); n++; });
+    if (n) { dataBump_(); dbFlush_(); } Logger.log('migNoteHead: ' + n); });
+  P.setProperty(K, '1'); }
 function migNickNandi_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NICK_NANDI_1'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('crew'), c = readAll_('crew').find(x => /^ko[oó]s\s+n[aá]ndor$/i.test(String(x.name || '').trim())); if (!c) return; const row = findRow_(sh, c.id); if (!row) return;
     const r = readRow_('crew', sh, row); if (!r.nick) { r.nick = 'Nándi'; r.updatedAt = now_(); putRow_('crew', sh, r, row); dataBump_(); dbFlush_(); } });
