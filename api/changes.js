@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fa9f3e5a96",
+"at": "2026-11-26T13:26:47+01:00",
+"msg": "Felvétel: a hozzájárulás jelölőnégyzete alapból bepipálva"
+},
+{
 "id": "e95e344be7",
 "at": "2026-11-26T13:23:31+01:00",
 "msg": "Gemini: túlterhelésnél automatikus újrapróbálás és tartalék modell, érthető hibaüzenet; a felvétel alá ragadt régi jegyzet az ablak megnyitásakor szétválik"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "b1caea9986",
 "at": "2026-11-26T11:14:07+01:00",
 "msg": "Napló: változás nélküli mentés nem kerül az Előzményekbe (nincs több üres „Beosztás módosítva”)"
-},
-{
-"id": "42dd7cb1a8",
-"at": "2026-11-26T11:02:07+01:00",
-"msg": "Stáb-lakat: lezajlott rendezvénynél nincs (a helyszíni stáb már nem módosítható); a feloldó szöveg pontosítva"
 }
 ];
 const allowed = require('./_auth.js');
