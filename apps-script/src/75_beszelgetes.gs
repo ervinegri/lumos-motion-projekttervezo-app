@@ -12,7 +12,12 @@ function recFolder_() {
   return f;
 }
 function recDeal_(u, dealId) { const d = readAll_('deals').find(x => x.id === dealId); if (!d) throw new Error('A lehetőség nem található.'); dealCan_(u, d); return d; }
-function recList_(u, a) { const did = str_(a && a.dealId, 64); recDeal_(u, did); const o = qGet_('REC_' + did) || {}; return { list: (o.list || []).map(recPub_), ai: !!geminiKey_() }; }
+function recList_(u, a) { const did = str_(a && a.dealId, 64), d = recDeal_(u, did), o = qGet_('REC_' + did) || {}, out = { list: (o.list || []).map(recPub_), ai: !!geminiKey_() };
+  try {   // a felvétel bejegyzése alá ragadt régi jegyzet szétválasztása (a felület a javított jegyzetet kapja vissza, hogy mentéskor ne írja vissza a régit)
+    if (noteHeadFix_(d && d.note, 'x') !== String(d && d.note || '')) withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) return; const x = readRow_('deals', sh, row), f = noteHeadFix_(x.note, dealNoteFb_(x));
+      if (f !== String(x.note || '')) { x.note = f; putRow_('deals', sh, x, row); dataBump_(); dbFlush_(); } out.note = f; });
+  } catch (e) { Logger.log('recList noteFix: ' + e); }
+  return out; }
 function recPub_(r) { return { id: r.id, at: r.at, by: r.by, kind: r.kind, kindTxt: REC_KIND[r.kind] || '', dur: r.dur || 0, size: r.size || 0, url: r.fileId ? 'https://drive.google.com/file/d/' + r.fileId + '/view' : '',
   st: r.st || 'felvéve', seg: r.seg || 0, segs: r.segs || 0, summary: r.summary || '', needs: r.needs || '', next: r.next || '', nextDate: r.nextDate || '', err: r.err || '',
   trUrl: r.trId ? 'https://drive.google.com/file/d/' + r.trId + '/view' : '' }; }
@@ -103,16 +108,25 @@ function gemFetch_(url, opt) {
   const k = geminiKey_(); if (!k) throw new Error('Az átirathoz az ügyvezetőnek meg kell adnia a Gemini API-kulcsot (Beállítások).');
   const o = Object.assign({ muteHttpExceptions: true }, opt || {}); o.headers = Object.assign({}, o.headers || {}, { 'x-goog-api-key': k });   // a kulcs fejlécben (nem az URL-ben)
   const r = UrlFetchApp.fetch(url, o);
-  const c = r.getResponseCode(); if (c >= 300) throw new Error('Gemini hiba (' + c + '): ' + r.getContentText().slice(0, 300)); return r;
+  const c = r.getResponseCode(); if (c < 300) return r;
+  let msg = ''; try { msg = String((JSON.parse(r.getContentText()).error || {}).message || ''); } catch (e) {} if (!msg) msg = r.getContentText().slice(0, 300);
+  const nice = c === 503 ? 'A Google Gemini most túlterhelt (ez átmeneti) – pár perc múlva próbáld újra.' : c === 429 ? 'Elértük a Gemini percenkénti / napi keretét – kicsit később próbáld újra.' : c >= 500 ? 'A Google Gemini szervere most hibát adott (átmeneti) – próbáld újra később.' : '';
+  const err = new Error('Gemini hiba (' + c + '): ' + (nice || msg.slice(0, 300))); err.gCode = c; err.gMsg = msg; throw err;
 }
 function gemJson_(parts, schema, maxTok) {
   const body = { contents: [{ role: 'user', parts: parts }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTok || 16000, responseMimeType: 'application/json', responseSchema: schema } };
   const call = m => gemFetch_('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body) });
   let m = geminiModel_(), r;
-  try { r = call(m); } catch (e) {   // kivezetett / nem elérhető modell → új választás és újrapróbálás
-    if (!/\((404|400)\)/.test(e.message) || !/model/i.test(e.message)) throw e;
-    const hint = (e.message.match(/models\/(gemini-[\w.\-]+)/g) || []).map(x => x.replace('models/', '')).filter(x => x !== m)[0];
-    m = hint || geminiModel_(true, [m]); PropertiesService.getScriptProperties().setProperty(GEMINI_MODEL_PROP, m); r = call(m);
+  const tryCall = mm => { const wait = [0, 3000, 8000];   // átmeneti hiba (túlterhelés, keret, szerverhiba) → rövid várakozás és újrapróbálás
+    for (let i = 0; ; i++) { try { return call(mm); } catch (e) { if (!(e.gCode === 429 || e.gCode >= 500) || i >= wait.length - 1) throw e; Utilities.sleep(wait[i + 1]); } } };
+  try { r = tryCall(m); } catch (e) {
+    if ((e.gCode === 404 || e.gCode === 400) && /model/i.test(e.gMsg || '')) {   // kivezetett / nem elérhető modell → új választás (tartósan)
+      const hint = (String(e.gMsg).match(/models\/(gemini-[\w.\-]+)/g) || []).map(x => x.replace('models/', '')).filter(x => x !== m)[0];
+      m = hint || geminiModel_(true, [m]); PropertiesService.getScriptProperties().setProperty(GEMINI_MODEL_PROP, m); r = tryCall(m);
+    } else if (e.gCode === 503 || e.gCode === 500) {   // a választott modell túlterhelt → egyszer egy másik Flash modellel (csak erre a kérésre)
+      let alt = ''; try { alt = geminiPickModel_(geminiKey_(), [m]); } catch (_) {}
+      if (!alt) throw e; try { r = call(alt); } catch (_) { throw e; }
+    } else throw e;
   }
   const j = JSON.parse(r.getContentText()), t = (((j.candidates || [])[0] || {}).content || {}).parts || [];
   const txt = t.map(x => x.text || '').join(''); try { return JSON.parse(txt); } catch (e) { throw new Error('A Gemini válasza nem értelmezhető – próbáld újra.'); }

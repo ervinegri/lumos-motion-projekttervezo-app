@@ -522,15 +522,14 @@ function dealNotePrepend_(x, line) {
   if (old && !DNOTE_HEAD_RE_.test(old)) old = '[' + dealNoteFb_(x) + '] ' + old;
   x.note = (line + (old ? '\n' + old : '')).slice(0, 20000);
 }
+function noteHeadFix_(t, fb) { const L = String(t || '').split('\n'); let ch = false;
+  for (let i = 0; i < L.length - 1; i++) if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\) – a beszélgetőpartner hozzájárult a rögzítéshez\.|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) { L[i + 1] = '[' + fb + '] ' + L[i + 1]; ch = true; }
+  return ch ? L.join('\n') : String(t || ''); }
 /** Egyszeri javítás: a felvétel / ajánlatküldés egysoros bejegyzése alá „ragadt” régi, fejléc nélküli jegyzet visszakapja a saját fejlécét. */
 function migNoteHead_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NOTE_HEAD_1'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
-    readAll_('deals').forEach(d => { const t = String(d.note || ''); if (!t) return; const L = t.split('\n'); let ch = false;
-      for (let i = 0; i < L.length - 1; i++) {
-        if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\) – a beszélgetőpartner hozzájárult a rögzítéshez\.|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) {
-          L[i + 1] = '[' + dealNoteFb_(d) + '] ' + L[i + 1]; ch = true; }
-      }
-      if (!ch) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = L.join('\n'); putRow_('deals', sh, x, row); n++; });
+    readAll_('deals').forEach(d => { const t = String(d.note || ''), f = noteHeadFix_(t, dealNoteFb_(d)); if (f === t) return;
+      const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = noteHeadFix_(String(x.note || ''), dealNoteFb_(x)); putRow_('deals', sh, x, row); n++; });
     if (n) { dataBump_(); dbFlush_(); } Logger.log('migNoteHead: ' + n); });
   P.setProperty(K, '1'); }
 function migNickNandi_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NICK_NANDI_1'; if (P.getProperty(K)) return;

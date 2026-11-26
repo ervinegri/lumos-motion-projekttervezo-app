@@ -554,9 +554,12 @@ async function recDbDo(store,mode,fn){try{const db=await recDb();return await ne
 async function recDbChunks(sid){const all=[];try{const db=await recDb();await new Promise(ok=>{const t=db.transaction('c','readonly'),q=t.objectStore('c').openCursor();q.onsuccess=()=>{const c=q.result;if(!c){ok();return;}if(c.value&&c.value.sid===sid)all.push(c.value);c.continue();};q.onerror=()=>ok();});}catch(e){}return all.sort((a,b)=>a.i-b.i).map(x=>x.b);}
 async function recDbClear(sid){try{const db=await recDb();await new Promise(ok=>{const t=db.transaction(['c','m'],'readwrite'),q=t.objectStore('c').openCursor();q.onsuccess=()=>{const c=q.result;if(!c)return;if(c.value&&c.value.sid===sid)c.delete();c.continue();};t.objectStore('m').delete(sid);t.oncomplete=ok;t.onerror=ok;});}catch(e){}}
 
+/* a háttér javította a jegyzetet (régi szöveg a felvétel bejegyzése alá ragadt) → a nyitott ablak is a javítottat mutassa és mentse */
+function recNoteSync(did,note){const d=(S.deals||[]).find(x=>x.id===did);if(d)d.note=note;const h=$('m-dNote'),box=$('m-dNotes');if(!h||!box||h.value===note)return;h.value=note;
+  box.innerHTML=dNotesHtml(dNoteFix(note,box.dataset.fb,box.dataset.by));if(typeof dNotesLoadHs==='function')dNotesLoadHs();}
 /* lista a lehetőség ablakában */
 async function recLoad(did){const box=document.getElementById('rec-list');if(!box||box.dataset.did===did&&box.dataset.loading)return;box.dataset.did=did;box.dataset.loading='1';
-  try{const r=await call('recList',{dealId:did});S._recAi=!!r.ai;recFill(did,r.list||[]);}catch(e){const b=document.getElementById('rec-list');if(b)b.innerHTML=`<p class="bad-txt" style="margin:0">${esc(errText(e))}</p>`;}}
+  try{const r=await call('recList',{dealId:did});S._recAi=!!r.ai;recFill(did,r.list||[]);if(typeof r.note==='string')recNoteSync(did,r.note);}catch(e){const b=document.getElementById('rec-list');if(b)b.innerHTML=`<p class="bad-txt" style="margin:0">${esc(errText(e))}</p>`;}}
 function recFill(did,list){const box=document.getElementById('rec-list');if(!box)return;delete box.dataset.loading;
   box.innerHTML=list.length?list.map(r=>`<div class="rec-row" data-rid="${esc(r.id)}"><div class="rec-h"><b>${esc(r.kindTxt||'Beszélgetés')}</b> <span class="muted">· ${esc(String(r.at).slice(0,16))} · ${esc(recDur(r.dur))} · ${esc(nmShort(r.by||''))}</span>
       <span class="rec-st st-${r.st==='kész'?'ok':r.st==='hiba'?'bad':'wait'}">${r.st==='kész'?'✓ átirat kész':r.st==='hiba'?'⚠️ hiba':r.st==='átirat készül'?'⏳ átirat '+(r.segs?Math.min(r.seg,r.segs)+'/'+r.segs:'…'):'🎧 felvéve'}</span></div>
