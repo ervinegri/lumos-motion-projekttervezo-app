@@ -3393,3 +3393,6 @@ html body .perf-panel h4{margin:16px 0 6px;font-size:13.5px}html body .perf-tbl{
 /* háttérmentés: a mentés alatt az ablak rejtve (a beírt adatok megmaradnak), a lap használható */
 html body #modalRoot.md-bg{display:none!important}
 html.md-bg-on,html.md-bg-on body{overflow:auto!important}
+/* zárolt rész: tiltó (áthúzott kör) kurzor – mutatja, hogy most nem módosítható (a panel fejléce kattintható marad) */
+html body :has(>[inert].svc-locked),html body :has(>.tcards[inert]),html body .pcrew.eq-locked .pcrew-eq{cursor:not-allowed!important}
+html body details:has(>[inert].svc-locked)>summary{cursor:pointer!important}
