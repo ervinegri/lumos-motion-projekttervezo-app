@@ -3628,3 +3628,9 @@ html body .dl-board .dl-card .dl-next,html body .dl-board .dl-card .dl-won,html 
  html body #view tr.pt-row td.pt-status .pill,html body #view tr.pt-row td.pt-status .st-pill,html body #view tr.pt-row td.pt-status [class*="pill"]:not(.pt-pills){padding-top:2px!important;padding-bottom:2px!important}
  html body #view tr.pt-row .ev-sub{margin-top:1px!important}
 }
+/* gép / tablet: vékonyabb projektlista-fejléc (kereső és „+ Új projekt” 30 px, mint a többi eszköztárban) */
+@media (min-width:701px) and (min-height:561px){
+ html body .proj-table thead th{padding-top:5px!important;padding-bottom:5px!important}
+ html body .proj-table thead #q-projects,html body .proj-table thead .inp{height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;box-sizing:border-box}
+ html body .proj-table thead .btn{height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;display:inline-flex;align-items:center;box-sizing:border-box}
+}
