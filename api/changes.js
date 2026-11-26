@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6af016938",
+"at": "2026-11-26T11:16:36+01:00",
+"msg": "Kifizetések: „Értékesítés (fix fizetés)”; értékesítési kártyán minden nézetben az értékesítő neve"
+},
+{
 "id": "b1caea9986",
 "at": "2026-11-26T11:14:07+01:00",
 "msg": "Napló: változás nélküli mentés nem kerül az Előzményekbe (nincs több üres „Beosztás módosítva”)"
@@ -142,14 +147,9 @@ const ITEMS = [
 "msg": "Becenév a Stáb listában (pl. Nándi) – a kanbanon és a hozzászólásoknál ez látszik; Koós Nándor = Nándi"
 },
 {
-"id": "fd47a2f98f",
-"at": "2026-11-26T10:38:28+02:00",
-"msg": "Naptár (havi nézet): a görgetéses hónapváltást nem akasztja meg a nyitva maradt esemény-súgó – görgetéskor a súgó eltűnik, és a súgó fölött görgetve is vált (görgethető hosszú súgóban a súgó görget)"
-},
-{
-"id": "50b96ccd94",
-"at": "2026-11-26T10:33:56+02:00",
-"msg": "Naptár (havi nézet): finom trackpad-húzásra is hónapot vált (kisebb küszöb)"
+"id": "44d0d03aa8",
+"at": "2026-11-26T08:38:41Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
