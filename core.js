@@ -646,6 +646,12 @@ const POST_ROLES=['Vágó','Értékesítő'];
 /* Díjtáblázat: az értékesítő a helyszíni stábban szerepel (egy összeggel), csak a vágó kerül az Utómunkába */
 const feeSales=(p,cid)=>isPostOnly(p,cid)&&!(p.crew||[]).some(a=>a.crewId===cid&&a.role==='Vágó');
 const feePost=(p,cid)=>isPostOnly(p,cid)&&!feeSales(p,cid);
+/* A helyszíni csapat (szakember-nézet): a projektvezető mindig (távolról vezetve is), a többiek csak ha a helyszínen dolgoznak
+   (a csak utómunkás vágó / értékesítő nem). A háttér a szakembernek már csak az elfogadott meghívású munkatársakat küldi. */
+function teamOnSite(p,me){const ids=[],add=id=>{if(id&&id!==me&&!ids.includes(id))ids.push(id);};add(p.lead);
+  (p.crew||[]).forEach(a=>{const cid=a.crewId;if(!cid||cid===p.lead)return;const r=(p.crew||[]).filter(x=>x.crewId===cid).map(x=>x.role);
+    if(r.every(x=>POST_ROLES.includes(x)&&!(x==='Vágó'&&typeof onsiteCut==='function'&&onsiteCut(p,cid))))return;add(cid);});
+  return ids.map(id=>{const c=crewById(id);return c&&c.name?{id,name:c.name,lead:id===p.lead}:null;}).filter(Boolean);}
 function isPostOnly(p,cid){if(!cid||p.lead===cid)return false;const r=(p.crew||[]).filter(a=>a.crewId===cid).map(a=>a.role);return r.length>0&&r.every(x=>POST_ROLES.includes(x));}
 function hasVideoPost(p){return !!p.er_post||num(p.er_summary)>0||num(p.er_clips)>0||num(p.er_subs)>0||DELIVERABLES.some(it=>num(p[it.k])>0);}
 
