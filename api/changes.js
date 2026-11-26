@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "34df921929",
+"at": "2026-11-26T09:38:48+01:00",
+"msg": "Becenév a Stáb listában (pl. Nándi) – a kanbanon és a hozzászólásoknál ez látszik; Koós Nándor = Nándi"
+},
+{
 "id": "fd47a2f98f",
 "at": "2026-11-26T10:38:28+02:00",
 "msg": "Naptár (havi nézet): a görgetéses hónapváltást nem akasztja meg a nyitva maradt esemény-súgó – görgetéskor a súgó eltűnik, és a súgó fölött görgetve is vált (görgethető hosszú súgóban a súgó görget)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Mai teendők levél: köszönés nélkül"
 },
 {
-"id": "0856859617",
-"at": "2026-11-25T18:11:44+01:00",
-"msg": "Saját beosztás (termelési vezető / ügyvezető): mentéskor azonnal elfogadott meghívás, e-mail nélkül; egyszeri átállítás a futó projekteken"
-},
-{
-"id": "1386b3456c",
-"at": "2026-11-25T16:22:08Z",
+"id": "2349a8c309",
+"at": "2026-11-25T17:11:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
