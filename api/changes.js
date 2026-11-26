@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b2cb96fc01",
+"at": "2026-11-26T17:37:38+02:00",
+"msg": "Telefon, projekt Pénzügyek: Szerződés és Termelés egy sorban, alatta tömör értékesítő-kártya (nem lóg ki)"
+},
+{
 "id": "dc43ade555",
 "at": "2026-11-26T17:36:54+02:00",
 "msg": "Telefon: fele olyan széles Értékesítés-oszlopok, tömörebb kártyák"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Rögzítő sáv: a lehetőség mellett a kapcsolattartó neve is"
 },
 {
-"id": "6aa337e348",
-"at": "2026-11-26T15:25:57+01:00",
-"msg": "Egyszeri takarítás az ügyvezető kérésére: a bevezetés napi próba-beszélgetésösszefoglalók törlése a lehetőségek jegyzeteiből (a nyitott ablak is frissül)"
-},
-{
-"id": "48bb047078",
-"at": "2026-11-26T14:25:15Z",
+"id": "d7cfe0c4f3",
+"at": "2026-11-26T14:26:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
