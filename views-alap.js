@@ -202,7 +202,8 @@ function zebra(root){(root||document).querySelectorAll('table tbody').forEach(tb
 function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+projSlug(projById(S.projectId)||{id:S.projectId}):S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
 /* iPhone / iPad: az iOS 26.2 hibája miatt (WebKit 305546) az appon belüli előzmény-bejegyzés után elhomályosodik a felső menü – ott nem írunk új bejegyzést, csak a címet frissítjük */
 const NO_HIST=(()=>{try{return /iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}catch(e){return false;}})();
-function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady&&!NO_HIST)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
+function syncHash(){const h=wantedHash();if(NO_HIST){try{sessionStorage.setItem('lpm_hash',JSON.stringify({h,base:location.hash||''}));}catch(e){}S._histReady=!!S.loaded;return;}   /* iOS: a címet nem írjuk át (az is „belső navigáció” az iOS-nek) – a hely a böngészőfülben marad meg, frissítéskor onnan */
+  if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady&&!NO_HIST)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
 /* Böngésző vissza/előre: az előző nézetre (fül vagy projekt) lépünk; a folyamatban lévő módosítás előtte elmentődik. */
 /* Felugró ablak és a Vissza gomb: megnyíláskor egy saját előzmény-bejegyzés kerül be, így a (telefonos / böngészős) Vissza az ablakot zárja be,
    és a mögötte lévő nézetre (pl. a videótáblára) tér vissza – nem hagyja el az appot. Ha az ablak máshogy zárul, a bejegyzést mi vesszük vissza. */

@@ -233,6 +233,9 @@ const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u03
 /* Rövid, olvasható projektlink: #p=ecommerce-expo-promo-shortok-d3f68107 – a régi (teljes azonosítós) linkek is működnek */
 const projSlug=p=>String((p&&p.id)||'').slice(0,8);   // rövid projektlink: #p=d3f68107 (a régi, hosszabb linkek is működnek)
 const HASH_P=/^#p=([A-Za-z0-9-]{8,120})$/;
+/* iOS (iOS 26.2 hiba – elhomályosodó felső menü): menet közben nem írjuk át a címet; frissítéskor a betöltés elején egyszer visszaírjuk a megjegyzett helyet */
+try{if((/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))){const z=JSON.parse(sessionStorage.getItem('lpm_hash')||'null'),h=z&&z.h;   /* csak ha a cím azóta nem változott (egy levélből megnyitott új link elsőbbséget kap) */
+  if(z&&(location.hash||'')===(z.base||'')&&h!==(location.hash||'')&&(!h||/^#[pt]=[\w-]+$/.test(h)))history.replaceState(null,'',location.pathname+location.search+(h||''));}}catch(e){}
 window.__INV=((/[#&]inv=([\w-]+)/.exec(location.hash||''))||[])[1]||'';   // meghívó levél linkje – még mielőtt a fülváltás átírja a címet
 {const m=/^#p=([A-Za-z0-9-]{8,120})&v=([A-Za-z0-9_-]{1,64})$/.exec(location.hash||'');if(m){try{const j=JSON.stringify({pid:m[1],vid:m[2],t:Date.now()});localStorage.setItem('lpm_hash_vid',j);sessionStorage.setItem('lpm_hash_vid',j);history.replaceState(null,'',location.pathname+location.search);}catch(e){}}}   /* levélből: #p=projekt&v=videó → a projekt, és rajta a videó a hozzászólásokkal */
 function projFromHash(x){x=String(x||'');if(!x)return null;const p0=(S.projects||[]).find(p=>p.id===x);if(p0)return p0;x=x.toLowerCase();return (S.projects||[]).find(p=>{const k=String(p.id).slice(0,8).toLowerCase();return k.length===8&&(x===k||x.endsWith('-'+k));})||null;}
