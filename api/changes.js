@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eeea03cd0d",
+"at": "2026-11-26T15:19:52+01:00",
+"msg": "Rögzítés iPhone-on: a hullámforma-elemző néma kimenethez kötve (Safari csak így adja az élő hangszintet)"
+},
+{
 "id": "c4a7f2f987",
 "at": "2026-11-26T15:19:38+01:00",
 "msg": "Rögzítés iPhone-on: a hangkörnyezet a kattintáskor indul (különben a Safari felfüggeszti, és a hullámforma áll), érintésre újraindul"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "c0b663dc77",
 "at": "2026-11-26T12:06:16+01:00",
 "msg": "Idővonal: szélesebb betöltött időszak (2 hónap vissza, +2 előre) – görgetéskor ritkán kell újrarajzolni, nem ugrál"
-},
-{
-"id": "2cc8360dcd",
-"at": "2026-11-26T12:04:20+01:00",
-"msg": "Értékelés-párosítás: a „Nem párosítható (egyéb)” kategória kivéve"
 }
 ];
 const allowed = require('./_auth.js');
