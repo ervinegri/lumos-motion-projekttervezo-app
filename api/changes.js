@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "260a86b1b0",
+"at": "2026-11-26T09:06:35+01:00",
+"msg": "Projekt fejléce: a betűméret marad, csak a hézagok kisebbek (a nagyítás visszavonva)"
+},
+{
 "id": "b9bab9b78e",
 "at": "2026-11-26T09:04:46+01:00",
 "msg": "Projekt fejléce 20%-kal kompaktabb (asztali nézet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Lemondott projektnél a számlázás panel kezelhető marad"
 },
 {
-"id": "4fbe88bf92",
-"at": "2026-11-25T15:57:39+01:00",
-"msg": "Projektoldal: a Szerződés és számlázás panel ugyanolyan távolságra, mint az Alapadatok és az Utómunka"
-},
-{
-"id": "a4ee97917a",
-"at": "2026-11-25T14:52:11Z",
+"id": "3888336f2b",
+"at": "2026-11-25T14:57:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
