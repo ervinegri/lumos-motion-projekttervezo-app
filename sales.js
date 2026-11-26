@@ -574,15 +574,30 @@ ACT['rec-start']=b=>{const did=b.dataset.id;if(REC){toast('Már fut egy felvéte
   const deal=(S.deals||[]).find(x=>x.id===did)||{};
   confirmLayer('🎙️ Beszélgetés rögzítése',`<div style="margin:0 16px"><p class="hint" style="margin:0 0 10px"><b>${esc(deal.title||'')}</b></p>
     <div class="rec-kinds">${REC_KINDS.map((k,i)=>`<label class="rec-kind"><input type="radio" name="recKind" value="${k[0]}"${i===0?' checked':''}> <b>${k[1]}</b><small>${k[2]}</small></label>`).join('')}</div>
+    <label class="rec-mic"><span class="hint" style="display:block;margin:10px 0 4px">Mikrofon</span><select id="rec-mic" data-cmb="Alapértelmezett mikrofon" data-cmb-ro="1"><option value="" data-keep="1">Alapértelmezett mikrofon</option></select></label>
     <p class="hint rec-onl" style="margin:8px 0 0" hidden>A következő ablakban válaszd ki a megbeszélés <b>böngészőfülét</b>, és kapcsold be a <b>„Fül hangjának megosztása”</b> lehetőséget (Chrome). A partner hangja így tisztán rögzül.</p>
     <label class="rec-consent"><input type="checkbox" id="rec-ok" checked> <span>A beszélgetőpartner(ek) <b>hozzájárult(ak) a rögzítéshez</b>. <small class="muted">Kérdezd meg a beszélgetés elején: „Rögzíthetem a beszélgetést, hogy ne maradjon ki semmi?” – a hozzájárulás ténye a lehetőség jegyzetébe is bekerül.</small></span></label>
     <p class="hint" style="margin:8px 0 0">Felvétel közben az app használható (alul egy sáv mutatja). Telefonon a böngésző a hívás hangját nem éri el – hívásnál kihangosíts, és a gépen indítsd a rögzítést.</p></div>`,'● Rögzítés indítása',async(btn,lay)=>{
     const ok=document.getElementById('rec-ok');if(!ok||!ok.checked){toast('A rögzítéshez a partner hozzájárulása kell – pipáld be, ha megkérdezted.',true);return;}
-    const kind=(lay.querySelector('input[name=recKind]:checked')||{}).value||'mic';lay.remove();recBegin(did,kind,deal.title||'');});
+    const kind=(lay.querySelector('input[name=recKind]:checked')||{}).value||'mic',ms=document.getElementById('rec-mic'),dev=ms?ms.value:'';try{localStorage.setItem('lpm_rec_mic',dev);}catch(e){}lay.remove();recBegin(did,kind,deal.title||'',dev);});
+  setTimeout(recMicFill,0);
   setTimeout(()=>{const L=document.querySelector('.cf-layer');if(!L)return;L.querySelectorAll('input[name=recKind]').forEach(x=>x.addEventListener('change',()=>{const o=L.querySelector('.rec-onl');if(o)o.hidden=x.value!=='online'||!x.checked;}));},0);};
 
-async function recBegin(did,kind,title){let mic=null,disp=null,ctx=null,stream;
-  try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:kind!=='phone',noiseSuppression:true,autoGainControl:true}});}
+/* Mikrofon-választó: a böngésző a rendszer alapértelmezettjét adná (Macen ez lehet a közeli iPhone is – Continuity). A választás megmarad;
+   ha még nincs, a gép beépített mikrofonja az alapértelmezett. A nevekhez egyszer engedély kell – ezt a párbeszéd megnyitásakor kérjük. */
+async function recMicFill(){const sel=document.getElementById('rec-mic');if(!sel||!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return;
+  let L=(await navigator.mediaDevices.enumerateDevices().catch(()=>[])).filter(d=>d.kind==='audioinput');
+  if(L.length&&!L.some(d=>d.label)){try{const t=await navigator.mediaDevices.getUserMedia({audio:true});t.getTracks().forEach(x=>x.stop());L=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');}catch(e){}}
+  if(!document.getElementById('rec-mic'))return;
+  L=L.filter(d=>d.deviceId&&d.deviceId!=='default'&&d.deviceId!=='communications');
+  let saved='';try{saved=localStorage.getItem('lpm_rec_mic')||'';}catch(e){}
+  const builtin=L.find(d=>/beépített|built-?in|macbook|internal|belső|integrált|integrated/i.test(d.label)&&!/iphone|ipad|airpods|continuity|bluetooth/i.test(d.label));
+  const pick=(saved&&L.some(d=>d.deviceId===saved))?saved:builtin?builtin.deviceId:'';
+  sel.innerHTML=`<option value="" data-keep="1">Alapértelmezett mikrofon</option>`+L.map((d,i)=>`<option value="${esc(d.deviceId)}"${d.deviceId===pick?' selected':''}>${esc(d.label||('Mikrofon '+(i+1)))}</option>`).join('');
+  if(!sel._cmb&&typeof cmbAuto==='function')cmbAuto();const ci=sel.parentNode&&sel.parentNode.querySelector('.cmb-in');if(ci)ci.value=sel.value===''?'Alapértelmezett mikrofon':(sel.selectedOptions[0]||{}).textContent||'';}
+async function recBegin(did,kind,title,dev){let mic=null,disp=null,ctx=null,stream;
+  const ac0={echoCancellation:kind!=='phone',noiseSuppression:true,autoGainControl:true};
+  try{try{mic=await navigator.mediaDevices.getUserMedia({audio:dev?Object.assign({deviceId:{exact:dev}},ac0):ac0});}catch(e0){if(dev&&e0&&(e0.name==='OverconstrainedError'||e0.name==='NotFoundError'))mic=await navigator.mediaDevices.getUserMedia({audio:ac0});else throw e0;}}
   catch(e){const n=e&&e.name;toast(n==='NotFoundError'?'Nem található mikrofon ezen az eszközön.':n==='NotReadableError'?'A mikrofont most egy másik alkalmazás használja (pl. Zoom / Teams) – zárd be ott, vagy válaszd a megosztást.':'A mikrofon használata le van tiltva. Engedélyezd a böngésző címsorában a lakat / beállítások ikonnal (Mikrofon: Engedélyezés), majd próbáld újra.',true);return;}
   if(kind==='online'){try{disp=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});}catch(e){mic.getTracks().forEach(t=>t.stop());toast('A megosztást megszakítottad – a felvétel nem indult el.',true);return;}
     if(!disp.getAudioTracks().length){toast('A megosztásban nincs hang – a „Fül hangjának megosztása” kapcsolót kapcsold be. Most csak a mikrofont rögzítem.',true);}
@@ -596,10 +611,10 @@ async function recBegin(did,kind,title){let mic=null,disp=null,ctx=null,stream;
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
   mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
   mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
-  REC.tick=setInterval(recBar,1000);toast('● Rögzítés elindult');}
+  REC.tick=setInterval(recBar,1000);document.body.classList.add('rec-on');let mn='';try{mn=(mic.getAudioTracks()[0]||{}).label||'';}catch(e){}toast('● Rögzítés elindult'+(mn?' – mikrofon: '+mn:''));}
 const recUnload=e=>{if(REC){e.preventDefault();e.returnValue='Fut a beszélgetés rögzítése.';}};
 const recElapsed=()=>!REC?0:(REC.acc+(REC.paused?0:Date.now()-REC.t0))/1000;
-function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar.remove();return;}
+function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar.remove();document.body.classList.remove('rec-on');return;}document.body.classList.add('rec-on');
   if(!bar){bar=document.createElement('div');bar.id='rec-bar';bar.className='rec-bar';document.body.appendChild(bar);}
   if(REC.up){if(bar.dataset.m!=='up'){bar.dataset.m='up';bar.innerHTML=`<span class="rec-dot up"></span><span class="rec-t"></span>`;}bar.querySelector('.rec-t').textContent=REC.up;return;}
   if(bar.dataset.m!=='rec'){bar.dataset.m='rec';bar.innerHTML=`<span class="rec-dot"></span><b class="rec-t"></b><canvas class="rec-wave" width="240" height="56" aria-hidden="true"></canvas><span class="rec-n">${esc(REC.title||'Beszélgetés')}</span><button type="button" class="btn small rec-pz" data-action="rec-pause"></button><button type="button" class="btn small primary" data-action="rec-stop">⏹ Befejezés</button>`;recWave();}

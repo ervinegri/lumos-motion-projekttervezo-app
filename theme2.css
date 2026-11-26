@@ -3444,8 +3444,10 @@ html body .gbp-ttl{font-size:14px;font-weight:500;margin-left:8px;white-space:no
 @media (max-width:700px){html body .gbp-lbl{display:none}html body .gbp-ttl{margin-left:2px;font-size:15px}html body .gbp-hd .gbp-tools{margin-left:0;justify-content:flex-start}}
 html body .mhead .gbp-tools.in-head{margin-left:auto;margin-right:10px;display:flex;gap:8px;flex-wrap:nowrap}
 html body .mhead:has(.gbp-tools.in-head){display:flex;align-items:center;gap:8px}
-/* rögzítő sáv: fent, középen (nem takarja az ablakok gombjait); hullámforma; jól látható Szünet gomb */
-html body .rec-bar{top:calc(10px + env(safe-area-inset-top));bottom:auto;z-index:100000}
+/* rögzítő sáv: lent, középen; hullámforma; jól látható Szünet gomb. Amíg fut, az ablakok alsó gombsora feljebb kerül, hogy ne takarja */
+html body .rec-bar{top:auto;bottom:calc(14px + env(safe-area-inset-bottom));z-index:100000}
+body.rec-on .mfoot{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important}
+body.rec-on .cf-layer .cf-box,body.rec-on .cf-layer .btns{margin-bottom:64px}
 html body .rec-bar .rec-wave{width:120px;height:28px;display:block}
 html body .rec-bar .btn.rec-pz{color:#fff!important;background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.3)!important}
 @media (max-width:700px){html body .rec-bar .rec-n{display:none}html body .rec-bar .rec-wave{width:80px}}
