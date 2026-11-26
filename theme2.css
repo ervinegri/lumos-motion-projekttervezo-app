@@ -3355,3 +3355,4 @@ html body details.panel.fold section:has(>.sec-lock)>.sec-lock{top:-4px!importan
 
 /* keskeny asztali ablak (701–1000 px): a hónapváltó két szélső címkéje (előző / következő hónap neve) elmarad, hogy az eszköztár ne törjön több sorba */
 @media (min-width:701px) and (max-width:1000px){html body .cal-mnav .cm-side{display:none!important}}
+html body main.content:has(>.dhead){padding-top:10px!important}   /* projekt: a fejléc közelebb a felső sávhoz (24 → 10 px) */
