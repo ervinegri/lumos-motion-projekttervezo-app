@@ -574,7 +574,7 @@ ACT['rec-start']=b=>{const did=b.dataset.id;if(REC){toast('Már fut egy felvéte
   const deal=(S.deals||[]).find(x=>x.id===did)||{};
   confirmLayer('🎙️ Beszélgetés rögzítése',`<div style="margin:0 16px"><p class="hint" style="margin:0 0 10px"><b>${esc(deal.title||'')}</b></p>
     <div class="rec-kinds">${REC_KINDS.map((k,i)=>`<label class="rec-kind"><input type="radio" name="recKind" value="${k[0]}"${i===0?' checked':''}> <b>${k[1]}</b><small>${k[2]}</small></label>`).join('')}</div>
-    <label class="rec-mic"><span class="hint" style="display:block;margin:10px 0 4px">Mikrofon</span><select id="rec-mic" data-cmb="Alapértelmezett mikrofon" data-cmb-ro="1"><option value="" data-keep="1">Alapértelmezett mikrofon</option></select></label>
+    <label class="rec-mic"><span class="hint" style="display:block;margin:10px 0 4px">Mikrofon</span><select id="rec-mic" data-cmb="Alapértelmezett mikrofon"><option value="" data-keep="1">Alapértelmezett mikrofon</option></select></label>
     <p class="hint rec-onl" style="margin:8px 0 0" hidden>A következő ablakban válaszd ki a megbeszélés <b>böngészőfülét</b>, és kapcsold be a <b>„Fül hangjának megosztása”</b> lehetőséget (Chrome). A partner hangja így tisztán rögzül.</p>
     <label class="rec-consent"><input type="checkbox" id="rec-ok" checked> <span>A beszélgetőpartner(ek) <b>hozzájárult(ak) a rögzítéshez</b>. <small class="muted">Kérdezd meg a beszélgetés elején: „Rögzíthetem a beszélgetést, hogy ne maradjon ki semmi?” – a hozzájárulás ténye a lehetőség jegyzetébe is bekerül.</small></span></label>
     <p class="hint" style="margin:8px 0 0">Felvétel közben az app használható (alul egy sáv mutatja). Telefonon a böngésző a hívás hangját nem éri el – hívásnál kihangosíts, és a gépen indítsd a rögzítést.</p></div>`,'● Rögzítés indítása',async(btn,lay)=>{
@@ -594,7 +594,7 @@ async function recMicFill(){const sel=document.getElementById('rec-mic');if(!sel
   const builtin=L.find(d=>/beépített|built-?in|macbook|internal|belső|integrált|integrated/i.test(d.label)&&!/iphone|ipad|airpods|continuity|bluetooth/i.test(d.label));
   const pick=(saved&&L.some(d=>d.deviceId===saved))?saved:builtin?builtin.deviceId:'';
   sel.innerHTML=`<option value="" data-keep="1">Alapértelmezett mikrofon</option>`+L.map((d,i)=>`<option value="${esc(d.deviceId)}"${d.deviceId===pick?' selected':''}>${esc(d.label||('Mikrofon '+(i+1)))}</option>`).join('');
-  if(!sel._cmb&&typeof cmbAuto==='function')cmbAuto();const ci=sel.parentNode&&sel.parentNode.querySelector('.cmb-in');if(ci)ci.value=sel.value===''?'Alapértelmezett mikrofon':(sel.selectedOptions[0]||{}).textContent||'';}
+  if(!sel._cmb&&typeof cmbAuto==='function')cmbAuto();const ci=sel.parentNode&&sel.parentNode.querySelector('.cmb-in');if(ci&&document.activeElement!==ci)ci.value=sel.value===''?'':(sel.selectedOptions[0]||{}).textContent||'';}
 async function recBegin(did,kind,title,dev){let mic=null,disp=null,ctx=null,stream;
   const ac0={echoCancellation:kind!=='phone',noiseSuppression:true,autoGainControl:true};
   try{try{mic=await navigator.mediaDevices.getUserMedia({audio:dev?Object.assign({deviceId:{exact:dev}},ac0):ac0});}catch(e0){if(dev&&e0&&(e0.name==='OverconstrainedError'||e0.name==='NotFoundError'))mic=await navigator.mediaDevices.getUserMedia({audio:ac0});else throw e0;}}
