@@ -551,7 +551,7 @@ function cutAsg(p,k){const o=k==='er_post_n'&&erSplit(p)?[...new Set(erKeys(p).f
 function ptFrames(){document.querySelectorAll('.pt-tf-ov').forEach(e=>e.remove());let pill=true;
   document.querySelectorAll('#view tr.pt-tf-first').forEach(a=>{const tb=a.closest('table'),w=tb&&tb.parentElement;if(!w)return;let b=a;while(b&&!b.classList.contains('pt-tf-last')){b=b.nextElementSibling;}if(!b)b=a;
     w.classList.add('pt-has-tf');const wr=w.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),tr=tb.getBoundingClientRect();
-    const o=document.createElement('div');o.className='pt-tf-ov';o.style.cssText=`left:${w.scrollLeft-w.clientLeft}px;top:${ra.top-wr.top-w.clientTop+w.scrollTop}px;width:${w.offsetWidth}px;height:${rb.bottom-ra.top}px`;
+    const o=document.createElement('div');o.className='pt-tf-ov';o.style.cssText=`left:${w.scrollLeft-w.clientLeft}px;top:${Math.round(ra.top-wr.top-w.clientTop+w.scrollTop)-1}px;width:${w.offsetWidth}px;height:${Math.round(rb.bottom-ra.top)+1}px`;   /* fent is ráfed az előző sor elválasztó vonalára (lent a saját sorvonalát fedi) – így a keret körben egyforma vastag */
     if(pill){pill=false;o.innerHTML=`<span class="pt-tf-pill">📍 Ma · ${esc(fmtDay(todayISO()))} · <span class="pt-clock">${nowHM()}</span></span>`;}w.appendChild(o);});}
 window.addEventListener('resize',()=>{clearTimeout(window._ptfT);window._ptfT=setTimeout(()=>{if(document.querySelector('#view tr.pt-tf-first'))ptFrames();},120);});
 /* a „Ma” sávon a pontos idő, percenként frissül */
