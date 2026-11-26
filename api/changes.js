@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "928be73a41",
+"at": "2026-11-26T15:06:43+02:00",
+"msg": "Beszélgetés-átirat: átmeneti Gemini-hibánál (túlterhelés, keret) nem hibát mutat, hanem automatikusan újrapróbálja a háttérben (2, 5, 10, 20, 40, 60 perc múlva – akkor is, ha az app be van zárva); látszik, mikor próbálja újra; kész átiratnál nem készül dupla összefoglaló"
+},
+{
 "id": "ae30081fb8",
 "at": "2026-11-26T14:05:50+01:00",
 "msg": "Forgalom-elemzés: táblánkénti és kulcs-tár méret a /api/dbstatus?sizes=1-ben (titok nélkül)"
@@ -127,14 +132,9 @@ const ITEMS = [
 "msg": "Sötét mód: olvasható szerepkör-választó; érintésre nincs sárga szövegkijelölés a sorokon; egyforma panelhézag a Szerződés és számlázás előtt; zárolt Alapadatok nem kattintható (tiltó kurzor); Ügyfelek fejléce egy sorban; Google-értékelési link másolása és QR-kód"
 },
 {
-"id": "3e30254769",
-"at": "2026-11-26T11:29:19+01:00",
-"msg": "Értékesítés: beszélgetésrögzítés (személyes / kihangosított hívás / online megbeszélés), hozzájárulással; Drive-ra mentés, Gemini-átirat (szó szerinti + összefoglaló + következő lépés), félbemaradt felvétel mentése a böngészőben"
-},
-{
-"id": "b9b5f6bceb",
-"at": "2026-11-26T11:26:00+01:00",
-"msg": "Indítóképernyő (fehér háttér, középen a logó) a fekete helyett; projektlap: minden szakasz csukva nyílik, új sorrend (Stáb → Utómunka → Pénzügyek → Szerződés és számlázás), egyforma lenyitó nyíl"
+"id": "015fa809ed",
+"at": "2026-11-26T10:29:30Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
