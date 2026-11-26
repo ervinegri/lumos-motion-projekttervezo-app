@@ -3673,3 +3673,5 @@ html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bot
  html body #view .dhead>.dtitle .sub{grid-column:3/-1;grid-row:2;align-self:start;margin:-4px 0 0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  html body #view .dhead>.btns{grid-column:4;grid-row:1;align-self:end;margin:0!important;flex-wrap:nowrap!important;max-width:100%}
 }
+/* gép / tablet: a projekt fejlécében a dátumkártya ugyanolyan széles, mint a projektlistában */
+@media (min-width:701px){html body #view .dhead>.dtitle>.cal{width:62px!important;min-width:62px!important;box-sizing:border-box;align-items:center;justify-content:center}}
