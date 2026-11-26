@@ -51,7 +51,8 @@ jobs:
           rm -f Code.js Code.gs Templates.js Templates.gs ./[0-9][0-9]_*.js   # a régi egyfájlos kód (Code.js) helyére a modulok kerülnek; más fájlhoz nem nyúlunk
           ORDER='"appsscript.json"'
           for f in "$GITHUB_WORKSPACE"/apps-script/src/*.gs; do n=$(basename "$f" .gs); cp "$f" "$n.js"; ORDER="$ORDER,\"$n.js\""; done   # betöltési sorrend: a fájlnév eleji szám
-          printf '{"scriptId":"%s","rootDir":".","filePushOrder":[%s,"Templates.js"]}' "$SID" "$ORDER" > .clasp.json
+          BID=$(node "$GITHUB_WORKSPACE/scripts/gas-bundle.cjs" --id); printf "var GAS_BUILD_ = '%s';   // a kód azonosítója: a gyors út (Vercel) csak ezzel egyező csomaggal dolgozik\n" "$BID" > zz_build.js; echo "Kódváltozat: $BID"
+          printf '{"scriptId":"%s","rootDir":".","filePushOrder":[%s,"zz_build.js","Templates.js"]}' "$SID" "$ORDER" > .clasp.json
           ls -1 *.js
           cp "$GITHUB_WORKSPACE/apps-script/Templates.gs" Templates.js   # szerződéssablonok
           clasp push -f
@@ -60,6 +61,14 @@ jobs:
           if [ "${N:-0}" -ge 200 ]; then echo "::error::Az Apps Script elérte a 200 verziós korlátot – Projekt előzmények → Verziók tömeges törlése"; exit 1; fi
           clasp deploy -i "$DEP" -d "auto $(echo $GITHUB_SHA | cut -c1-7)"
           [ "${N:-0}" -ge 170 ] && echo "::warning::Apps Script verziók: $((N+1))/200 – hamarosan takarítani kell" || true
+      - name: Gyors út – a háttérkód csomagja a Vercelnek (api/_gas_bundle.js)
+        if: steps.dep.outcome == 'success'
+        run: |
+          node scripts/gas-bundle.cjs
+          if git diff --quiet -- api/_gas_bundle.js; then echo "A csomag naprakész."; exit 0; fi
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add api/_gas_bundle.js && git commit -qm "Gyors út: háttérkód-csomag ($(node scripts/gas-bundle.cjs --id))"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
       - name: Telepítés állapota az appnak (backend-status.json)
         if: always() && steps.chk.outputs.skip != '1'
         env: { OUT: '${{ steps.dep.outcome }}', N: '${{ steps.dep.outputs.n }}' }

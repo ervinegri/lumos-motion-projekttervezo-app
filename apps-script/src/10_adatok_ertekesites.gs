@@ -5,7 +5,7 @@ let MIG_NOTE_ = '';
    szerkeszt, az legkésőbb 10 perc múlva vagy a következő app-beli mentés után jelenik meg.) */
 const DATA_CACHE_TTL = 600;
 function dataVer_() { const c = CacheService.getScriptCache(); let v = c.get('pm_data_ver'); if (!v) { v = String(Date.now()); c.put('pm_data_ver', v, 21600); } return v; }
-function dataBump_() { try { CacheService.getScriptCache().put('pm_data_ver', Date.now() + '_' + Math.floor(Math.random() * 1e6), 21600); } catch (e) {} }
+function dataBump_() { try { CacheService.getScriptCache().put('pm_data_ver', Date.now() + '_' + Math.floor(Math.random() * 1e6), 21600); } catch (e) {} try { if (DB_ && !DB_.kvBumped) DB_.kvBump = true; } catch (e) {} }   // a Neon-beli változásjelző a kérés végén (a következő írással együtt) frissül
 function cacheGetJSON_(key) {
   try {
     const c = CacheService.getScriptCache(), n = Number(c.get(key + ':n') || 0);

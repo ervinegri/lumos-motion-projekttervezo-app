@@ -186,10 +186,12 @@ function api_(raw) {
     else if (fn === 'clientQuoteDecide') return clientQuoteDecide_(args[0], args[1], args[2]);
     else if (fn === 'dbStatus') return dbStatus_(args[0] === 'sizes');   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
     else if (fn === 'szBank' || fn === 'szData') return szDataIn_(args[0], args[1]);   // nyilvános (a Vercel /api/szbank továbbítja): a számlázz.hu banki tranzakciója, azonosító kulccsal
+    else if (fn === 'jobsRun') return jobsRun_();   // nyilvános, titok nélkül: a gyors út által sorba tett levelek / szinkronok elvégzése (csak a sorban lévőket végzi el)
     else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
     };
-    try { data = run(); if (DB_) dbFlush_(); }
+    try { data = run(); if (DB_) dbFlush_();
+      if (fn === 'googleLogin' || (fn === 'rpc' && (!READ_ONLY_RPC_[String(args[1])] || String(args[1]) === 'bootstrap'))) kvMirror_(); }   // a gyors út a belépéseket, nézetváltásokat, beállításokat a Neon-tükörből látja
     catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFailed_(e1); throw new Error('Az adatbázis most nem érhető el – várj egy percet, és próbáld újra.'); }   /* a kérést nem futtatjuk újra (egy számla vagy levél már kimehetett); tartós kiesésnél vált a táblázatra */
     out = { ok: true, data: data === undefined ? null : data };
     try { out.pf = perfEnd_(true); } catch (e) {}
@@ -347,20 +349,72 @@ function dbLoadInner_() {
   if (need.length) (neonSql_([{ query: 'SELECT tab, ver::text, rows::text FROM lpm_sheet WHERE tab = ANY(string_to_array($1, chr(31)))', params: [need.join(String.fromCharCode(31))] }])[0].rows || []).forEach(x => { tabCachePut_(x[0], x[1], x[2] || '[]'); rows0.push([x[0], x[2]]); });
   const r = { rows: rows0 };
   const seen = {};
+  const verOf = {}; vers.forEach(x => { verOf[x[0]] = x[1]; });
   (r.rows || []).forEach(row => { const tab = row[0], rows = JSON.parse(row[1] || '[]'); seen[tab] = 1;
     if (DB_.sheets[tab]) { const s = DB_.sheets[tab]; s.v = rows; s.cols = rows.reduce((m, x) => Math.max(m, x.length), 0); s.dirty = false; s.isNew = false; }
-    else DB_.sheets[tab] = new NSheet_(tab, rows); });
+    else DB_.sheets[tab] = new NSheet_(tab, rows);
+    DB_.sheets[tab].ver = verOf[tab] != null ? String(verOf[tab]) : null; });   // a betöltött változat: íráskor csak akkor írunk rá, ha közben más nem írta (gyors út / másik kérés)
   Object.keys(DB_.sheets).forEach(tab => { if (!seen[tab] && !DB_.sheets[tab].dirty) { DB_.sheets[tab].v = []; DB_.sheets[tab].cols = 0; } });
   DB_.loaded = true;
 }
 /** A módosított munkalapok visszaírása egy tranzakcióban. Munkalap-módban a Google-táblázat flush-a. */
+/* Háttérfeladatok (2026-11-26): a gyors út (Vercel) a levelet / HubSpot-szinkront nem küldi el, hanem ide teszi – az adatokkal EGY tranzakcióban –,
+   és az Apps Script végzi el: azonnal (a böngésző jelez), biztonsági hálóként 5 percenként. Ugyanaz a függvény fut, ugyanazokkal az ellenőrzésekkel. */
+const JOBS_DDL_ = 'CREATE TABLE IF NOT EXISTS lpm_jobs (id bigserial PRIMARY KEY, fn text NOT NULL, args jsonb NOT NULL, at timestamptz NOT NULL DEFAULT now(), claimed timestamptz, tries int NOT NULL DEFAULT 0, done_at timestamptz, err text)';
+const JOB_FNS_ = { sendAs_: 1, hsDealQueue_: 1 };
+function jobsRun_() {
+  if (!dbOn_()) return { done: 0 };
+  try { const P = PropertiesService.getScriptProperties(); if (!P.getProperty('JOBS_TICK_V1')) { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'jobsTick')) ScriptApp.newTrigger('jobsTick').timeBased().everyMinutes(5).create(); P.setProperty('JOBS_TICK_V1', '1'); } } catch (e) { Logger.log('jobsTick időzítő: ' + e); }
+  let rows = [];
+  try { rows = (neonSql_([{ query: JOBS_DDL_ }, { query: "UPDATE lpm_jobs SET claimed = now(), tries = tries + 1 WHERE id IN (SELECT id FROM lpm_jobs WHERE done_at IS NULL AND tries < 5 AND (claimed IS NULL OR claimed < now() - interval '5 minutes') ORDER BY id LIMIT 25) RETURNING id::text, fn, args::text" }])[1].rows || []); }
+  catch (e) { Logger.log('jobsRun: ' + e); return { done: 0, error: String(e && e.message).slice(0, 200) }; }
+  let n = 0;
+  rows.forEach(r => { let err = '';
+    try { if (!JOB_FNS_[r[1]]) throw new Error('Nem engedélyezett feladat: ' + r[1]); const fnx = { sendAs_: sendAs_, hsDealQueue_: hsDealQueue_ }[r[1]]; fnx.apply(null, JSON.parse(r[2] || '[]')); n++; }
+    catch (e) { err = String(e && e.message || e).slice(0, 500); Logger.log('Háttérfeladat hiba (' + r[1] + '): ' + err); }
+    try { neonSql_([{ query: 'UPDATE lpm_jobs SET done_at = CASE WHEN $2 = \'\' OR tries >= 5 OR $2 LIKE \'Ugyanez a levél%\' THEN now() ELSE NULL END, err = NULLIF($2, \'\'), claimed = NULL WHERE id = $1::bigint', params: [r[0], err] }]); } catch (e) { } });
+  try { neonSql_([{ query: "DELETE FROM lpm_jobs WHERE done_at < now() - interval '14 days'" }]); } catch (e) { }
+  return { done: n, of: rows.length };
+}
+function jobsTick() { jobsRun_(); }
+/* Kulcs–érték tár a Neonban (2026-11-26): a gyors út (Vercel) ebből látja a felhasználókat, munkameneteket, beállításokat (titkok nélkül) és a változásjelzőt */
+const KV_DDL_ = 'CREATE TABLE IF NOT EXISTS lpm_kv (k text PRIMARY KEY, v text, at timestamptz NOT NULL DEFAULT now())';
+const KV_SECRET_RE_ = /(SECRET|PASS|TOKEN|KEY|REFRESH|LOGIN|NEON_URL|AGENT|CRED|PRIVATE)/i;
+function kvOk_() { try { return CacheService.getScriptCache().get('kv_ok') === '1'; } catch (e) { return false; } }
+function kvOkSet_() { try { CacheService.getScriptCache().put('kv_ok', '1', 21600); } catch (e) { } }
+/** A szkripttulajdonságok tükre a Neonban (titkok nélkül) – csak ha változott (ellenőrzőösszeg a gyorsítótárban). */
+function kvMirror_() {
+  if (!dbOn_()) return;
+  try {
+    const P = PropertiesService.getScriptProperties().getProperties(), o = {};
+    Object.keys(P).forEach(k => { if (!KV_SECRET_RE_.test(k)) o['p:' + k] = P[k]; else if (String(P[k] || '').trim()) o['m:has:' + k] = '1'; });   // titoknál csak annyi, hogy be van-e állítva
+    try { o['m:owner'] = Session.getEffectiveUser().getEmail() || ''; } catch (e) { }
+    o['m:build'] = typeof GAS_BUILD_ !== 'undefined' ? String(GAS_BUILD_) : '';   // a telepített kód azonosítója (zz_build.js, az Action írja) – a gyors út csak egyező kóddal dolgozik
+    const js = JSON.stringify(o), h = sha256hex_(js), C = CacheService.getScriptCache();
+    if (C.get('kv_mirror_h') === h) return;
+    neonSql_([{ query: KV_DDL_ },
+      { query: 'INSERT INTO lpm_kv (k, v) SELECT key, value FROM jsonb_each_text($1::jsonb) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v, at = now()', params: [js] },
+      { query: "DELETE FROM lpm_kv WHERE (k LIKE 'p:%' OR k LIKE 'm:%') AND NOT ($1::jsonb ? k)", params: [js] }]);
+    C.put('kv_mirror_h', h, 21600); kvOkSet_();
+  } catch (e) { Logger.log('kv-tükör: ' + e); }
+}
 function dbFlush_() {
   if (!dbOn_()) { SpreadsheetApp.flush(); scBump_(); return; }
   const dirty = Object.keys(DB_.sheets).map(k => DB_.sheets[k]).filter(s => s.dirty), logs = DB_.pendingLog || [];
-  if (!dirty.length && !logs.length) return;
+  const kvB = !!(DB_.kvBump && !DB_.kvBumped);
+  if (!dirty.length && !logs.length && !kvB) return;
   DB_.pendingLog = [];
-  neonSql_(logs.map(r => ({ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) VALUES ($1,$2,$3,$4,$5,$6)', params: r })).concat(dirty.map(s => { const n = s.getLastRow(), rows = s.v.slice(0, n).map(r => (r || []).slice(0, Math.max(s.cols, 1)).map(x => x === undefined || x === null ? '' : x));
-    s._json = JSON.stringify(rows); return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now() RETURNING tab, ver::text', params: [s.tab, s._json] }; }))).forEach(res => { try { const x = res && res.rows && res.rows[0]; if (!x) return; const s = DB_.sheets[x[0]]; if (s && s._json) tabCachePut_(x[0], x[1], s._json); } catch (e) { } });   // a most írt tábla rögtön a gyorsítótárba (a következő olvasás nem tölti le)
+  const Q = logs.map(r => ({ query: 'INSERT INTO lpm_log (at, who, role, action, subject, details) VALUES ($1,$2,$3,$4,$5,$6)', params: r })).concat(dirty.map(s => { const n = s.getLastRow(), rows = s.v.slice(0, n).map(r => (r || []).slice(0, Math.max(s.cols, 1)).map(x => x === undefined || x === null ? '' : x));
+    s._json = JSON.stringify(rows);
+    if (s.ver != null && !s.isNew)   /* feltételes írás (2026-11-26): csak ha a lap a betöltés óta nem változott – különben a tranzakció „division by zero”-val elakad, és újrapróbáljuk friss adattal */
+      return { query: 'WITH u AS (UPDATE lpm_sheet SET rows = $2::jsonb, ver = ver + 1, updated_at = now() WHERE tab = $1 AND ver = $3::bigint RETURNING tab, ver::text AS ver) SELECT u.tab, u.ver, (SELECT 1 / (SELECT count(*)::int FROM u)) AS chk FROM (SELECT 1) one LEFT JOIN u ON true', params: [s.tab, s._json, s.ver] };
+    return { query: 'INSERT INTO lpm_sheet (tab, rows, ver, updated_at) VALUES ($1, $2::jsonb, 1, now()) ON CONFLICT (tab) DO UPDATE SET rows = EXCLUDED.rows, ver = lpm_sheet.ver + 1, updated_at = now() RETURNING tab, ver::text', params: [s.tab, s._json] }; }));
+  if (dirty.length || kvB) { if (!kvOk_()) Q.unshift({ query: KV_DDL_ }); Q.push({ query: "INSERT INTO lpm_kv (k, v) VALUES ('dv', $1) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v, at = now()", params: [String(Date.now()) + Math.random().toString(36).slice(2, 6)] }); DB_.kvBumped = true; }   // változásjelző a gyors úthoz is (a nyitott lapok ebből frissülnek)
+  let res;
+  try { res = neonSql_(Q); }
+  catch (e) { if (/division by zero/i.test(String(e && e.message))) { DB_.pendingLog = logs.concat(DB_.pendingLog || []); DB_.kvBumped = false; throw new Error('CONFLICT_DB: Közben valaki más is mentett ugyanide – frissítsd az oldalt, és próbáld újra.'); } throw e; }
+  res.forEach(r => { try { const x = r && r.rows && r.rows[0]; if (!x || !x[1]) return; const s = DB_.sheets[x[0]]; if (s && s._json) { s.ver = String(x[1]); tabCachePut_(x[0], x[1], s._json); } } catch (e) { } });   // a most írt tábla rögtön a gyorsítótárba (a következő olvasás nem tölti le)
+  if (kvB || dirty.length) kvOkSet_();
   dirty.forEach(s => { s.dirty = false; s.isNew = false; });
   if (dirty.length) dataBump_();   // bármilyen írás (a betöltés karbantartó lépései is): a többi nyitott lap frissül
 }
@@ -622,9 +676,16 @@ function withLock_(fn) {
   if (PERF_) PERF_.lock += Date.now() - lt0;
   SC_.lock++;
   try {
-    if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
-    const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
-    try { const r = fn(); dbFlush_(); return r; } catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; }); throw e; } finally { if (outer) DB_.inLock = false; }
+    for (let att = 0; ; att++) {
+      if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk
+      const outer = dbOn_() && !DB_.inLock; if (outer) DB_.inLock = true;
+      const logs0 = outer ? (DB_.pendingLog || []).slice() : null;
+      try { const r = fn(); dbFlush_(); return r; }
+      catch (e) { if (dbOn_()) Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; DB_.loaded = false; });
+        if (outer && att < 2 && /^CONFLICT_DB/.test(String(e && e.message))) { DB_.pendingLog = logs0; continue; }   // közben más (pl. a gyors út) írt ugyanabba a lapba: friss adattal újra
+        throw e; }
+      finally { if (outer) DB_.inLock = false; }
+    }
   } finally { SC_.lock = Math.max(0, SC_.lock - 1); if (!dbOn_()) scBump_(); if (!SC_.lock) lock.releaseLock();
     if (!SC_.lock && WM_PAID_.length) try { wmPaidMailFlush_(); } catch (e) { Logger.log('Vízjel-levél: ' + e); } }   // a zár után: vízjel-levél (ha kifizetés miatt lekerült)
 }
