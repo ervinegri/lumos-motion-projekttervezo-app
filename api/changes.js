@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6e6d7b9fd6",
+"at": "2026-11-26T22:38:27+02:00",
+"msg": "Projektlista: vastagabb videó-állapotsáv"
+},
+{
 "id": "9cc65355fb",
 "at": "2026-11-26T21:34:10+01:00",
 "msg": "Kifizetés felismerése a bankból: a kimenő utalás akkor is párosul, ha a szakember számlája csak az utalás után került be (újraellenőrzés), fordított névsorrend és nettó/bruttó összeg is; a Fizetések cellájában „🏦 utalva … ✓” gomb egy kattintásos jóváhagyással"
@@ -140,16 +145,6 @@ const ITEMS = [
 "id": "2fb2851b01",
 "at": "2026-11-26T18:02:25+02:00",
 "msg": "Projekt fejléc (gép): név és gombok egy sorban; lemondás / törlés ikonként"
-},
-{
-"id": "ca3ae7d680",
-"at": "2026-11-26T18:01:14+02:00",
-"msg": "Projekt oldal: egyforma (8 px) távolság a szakaszok között"
-},
-{
-"id": "e5d310c5c5",
-"at": "2026-11-26T15:59:10Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
