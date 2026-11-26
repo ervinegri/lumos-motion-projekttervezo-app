@@ -589,6 +589,7 @@ async function recBegin(did,kind,title){let mic=null,disp=null,ctx=null,stream;
   const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
   let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});}catch(e){try{mr=new MediaRecorder(stream);}catch(e2){toast('A felvétel nem indítható: '+(e2.message||e2),true);return;}}
   const sid='r'+Date.now().toString(36);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
+  try{const ac=ctx||new (window.AudioContext||window.webkitAudioContext)();if(!ctx)REC.ctx=ac;const an=ac.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=0.6;ac.createMediaStreamSource(stream).connect(an);REC.an=an;if(ac.state==='suspended')ac.resume();}catch(e){}   /* élő hullámforma a sávon */
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
   mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
   mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
@@ -597,8 +598,16 @@ const recUnload=e=>{if(REC){e.preventDefault();e.returnValue='Fut a beszélgeté
 const recElapsed=()=>!REC?0:(REC.acc+(REC.paused?0:Date.now()-REC.t0))/1000;
 function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar.remove();return;}
   if(!bar){bar=document.createElement('div');bar.id='rec-bar';bar.className='rec-bar';document.body.appendChild(bar);}
-  if(REC.up){bar.innerHTML=`<span class="rec-dot up"></span><span class="rec-t">${esc(REC.up)}</span>`;return;}
-  bar.innerHTML=`<span class="rec-dot${REC.paused?' p':''}"></span><b class="rec-t">${recDur(recElapsed())}</b><span class="rec-n">${esc(REC.title||'Beszélgetés')}</span><button type="button" class="btn small ghost" data-action="rec-pause">${REC.paused?'▶ Folytatás':'⏸ Szünet'}</button><button type="button" class="btn small primary" data-action="rec-stop">⏹ Befejezés</button>`;}
+  if(REC.up){if(bar.dataset.m!=='up'){bar.dataset.m='up';bar.innerHTML=`<span class="rec-dot up"></span><span class="rec-t"></span>`;}bar.querySelector('.rec-t').textContent=REC.up;return;}
+  if(bar.dataset.m!=='rec'){bar.dataset.m='rec';bar.innerHTML=`<span class="rec-dot"></span><b class="rec-t"></b><canvas class="rec-wave" width="240" height="56" aria-hidden="true"></canvas><span class="rec-n">${esc(REC.title||'Beszélgetés')}</span><button type="button" class="btn small rec-pz" data-action="rec-pause"></button><button type="button" class="btn small primary" data-action="rec-stop">⏹ Befejezés</button>`;recWave();}
+  bar.querySelector('.rec-dot').classList.toggle('p',REC.paused);bar.querySelector('.rec-t').textContent=recDur(recElapsed());bar.querySelector('.rec-pz').textContent=REC.paused?'▶ Folytatás':'⏸ Szünet';}
+/* élő hullámforma: a mikrofon (és a megosztott hang) hangereje oszlopokban, jobbról balra gördülve */
+function recWave(){const cv=document.querySelector('#rec-bar .rec-wave');if(!cv||!REC||!REC.an||REC.up)return;const g=cv.getContext('2d'),an=REC.an,buf=new Uint8Array(an.fftSize),hist=REC.wave=REC.wave||[];
+  const W=cv.width,H=cv.height,bw=6,gap=3,n=Math.floor(W/(bw+gap));
+  (function f(){if(!REC||!cv.isConnected||REC.up)return;an.getByteTimeDomainData(buf);let pk=0;for(let i=0;i<buf.length;i++){const v=Math.abs(buf[i]-128);if(v>pk)pk=v;}
+    const lv=REC.paused?0:Math.min(1,Math.pow(pk/90,0.7));hist.push(lv);while(hist.length>n)hist.shift();g.clearRect(0,0,W,H);
+    for(let i=0;i<hist.length;i++){const h=Math.max(3,hist[i]*(H-4)),x=W-(hist.length-i)*(bw+gap);g.fillStyle=REC.paused?'rgba(255,255,255,.3)':'rgba(255,110,110,'+(0.45+hist[i]*0.55)+')';const y=(H-h)/2;if(g.roundRect){g.beginPath();g.roundRect(x,y,bw,h,3);g.fill();}else g.fillRect(x,y,bw,h);}
+    setTimeout(()=>requestAnimationFrame(f),60);})();}
 ACT['rec-pause']=()=>{if(!REC||!REC.mr)return;if(REC.paused){REC.mr.resume();REC.t0=Date.now();REC.paused=false;}else{REC.mr.pause();REC.acc+=Date.now()-REC.t0;REC.paused=true;}recBar();};
 ACT['rec-stop']=()=>recStop();
 function recStop(){if(!REC||!REC.mr||REC.mr.state==='inactive')return;if(!REC.paused)REC.acc+=Date.now()-REC.t0;REC.paused=true;REC.dur=REC.acc/1000;try{REC.mr.stop();}catch(e){recFinish();}}
