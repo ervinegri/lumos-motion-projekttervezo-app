@@ -260,6 +260,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
       return `<div class="field full"><label for="m-pre">🤝 Előfoglalt projekt <span class="muted" style="font-weight:400">(ha a dátum / stáb már foglalva van)</span></label><select class="inp" id="m-pre" name="preProj" data-cmb="Nincs – válassz projektet, ha már van előfoglalás…"><option value="">— nincs —</option>${cand.map(q=>`<option value="${esc(q.id)}"${cur&&cur.id===q.id?' selected':''}>${esc(q.name)}${q.date?' · '+esc(fmtDay(q.date)):''}</option>`).join('')}</select></div>`;})():''}
     <div class="field full"><label for="m-dNoteNew">Jegyzetek</label><textarea class="inp" id="m-dNoteNew" name="dNoteNew" rows="2" maxlength="3000" placeholder="Új jegyzet: igények, egyeztetett részletek, ajánlat verziói… (mentéskor dátummal kerül a listába)"></textarea>
       <input type="hidden" name="dNote" id="m-dNote" value="${esc(d.note||'')}"><p class="hint" id="m-dHsSt" style="margin:8px 0 0"></p><div class="dnotes" id="m-dNotes" data-fb="${esc(dNoteFb(d))}" data-by="${esc(d.ownerName||'')}">${dNotesHtml(dNoteFix(d.note,dNoteFb(d),d.ownerName))}</div></div>
+    ${isNew?'':`<div class="field full rec-sec" data-did="${esc(d.id)}"><span class="lbl">🎙️ Beszélgetések</span><div class="rec-list" id="rec-list"><p class="hint" style="margin:0">Betöltés…</p></div><div class="btns" style="margin-top:8px"><button type="button" class="btn outline small" data-action="rec-start" data-id="${esc(d.id)}">🎙️ Beszélgetés rögzítése</button></div></div>`}
     ${won?`<div class="field full"><p class="hint" style="margin:0">✅ Szerződve ${d.wonAt?esc(fmtShort(d.wonAt)):''} – a projekt elkészült, a további részleteket a projektnél kezeli a csapat.${isAdmin()&&d.projectId&&projById(d.projectId)?` <button class="linkbtn" type="button" data-action="deal-proj" data-id="${esc(d.projectId)}">Projekt megnyitása →</button>`:''}</p></div>`:''}
     ${!isNew&&d.ctStatus!=='nemkell'&&(['nyert','fizetve'].includes(d.stage)||d.ctStatus)?`<div class="field"><label for="m-dCt">Szerződés állapota</label><select class="inp" id="m-dCt" name="dCt" data-cmb="Válassz…">${DEAL_CT.map(([v,l])=>`<option value="${v}"${(d.ctStatus||'')===v?' selected':''}>${l}</option>`).join('')}</select></div>`:''}
     ${!isNew?`<div class="field full"><p class="hint" style="margin:0">${esc(d.ownerName||'')}${d.createdAt?' · felvéve: '+esc(String(d.createdAt).slice(0,10)):''}${d.updatedAt?' · módosítva: '+esc(String(d.updatedAt).slice(0,16).replace('T',' '))+(d.updatedBy?' ('+esc(d.updatedBy)+')':''):''}</p></div>`:''}
@@ -540,3 +541,104 @@ ACT['deal-vcf']=async()=>{const v=id=>String(($(id)||{}).value||'').trim(),row=d
   if(!o.name&&!o.tel&&!o.email){toast('Előbb add meg a kapcsolattartó adatait.',true);return;}
   let img='';try{await loadQr();qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const q=qrcode(0,'M');q.addData(vcfText(o),'Byte');q.make();img=q.createDataURL(6,8);}catch(e){}
   confirmLayer('📇 Névjegy a telefonra',`<div class="vcf-box" style="text-align:center">${img?`<img class="vcf-qr" src="${img}" alt="QR-kód: ${esc(o.name)} névjegye"><p class="hint">Olvasd be a telefon kamerájával, majd koppints a „Kapcsolat hozzáadása” gombra.</p>`:'<p class="hint">A QR-kód most nem készíthető el.</p>'}<p style="margin:6px 0 0"><b>${esc(o.name)}</b>${o.org?' · '+esc(o.org):''}<br>${esc(o.tel)}${o.email?' · '+esc(o.email):''}</p></div>`,'Kész',(b,d)=>{d.remove();});};
+
+/* ===== Beszélgetésrögzítés (Értékesítés, 2026-11-26) =====
+   Személyes megbeszélés / kihangosított telefonhívás: mikrofon; online megbeszélés: mikrofon + a megosztott böngészőfül / képernyő hangja.
+   A felvétel közben az app használható (lebegő sáv), a darabok a böngészőben (IndexedDB) is megmaradnak – lefagyás / újratöltés után feltölthető.
+   Feltöltés után (ha be van állítva a Gemini) szó szerinti átirat + összefoglaló + javasolt következő lépés készül. A partner hozzájárulása kötelező. */
+const REC_KINDS=[['mic','🤝 Személyes megbeszélés','a gép / telefon mikrofonja'],['phone','📞 Telefonhívás','kihangosítva – a gép mikrofonja rögzíti mindkét felet'],['online','💻 Online megbeszélés','Meet / Zoom / Teams: a megosztott böngészőfül hangja + a mikrofonod']];
+let REC=null;   // a futó felvétel
+const recDur=s=>{s=Math.max(0,Math.round(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
+function recDb(){return new Promise((ok,no)=>{try{const q=indexedDB.open('lpm_rec',1);q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains('c'))db.createObjectStore('c',{autoIncrement:true});if(!db.objectStoreNames.contains('m'))db.createObjectStore('m',{keyPath:'sid'});};q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error);}catch(e){no(e);}});}
+async function recDbDo(store,mode,fn){try{const db=await recDb();return await new Promise((ok,no)=>{const t=db.transaction(store,mode),st=t.objectStore(store);let r;try{r=fn(st);}catch(e){no(e);return;}t.oncomplete=()=>ok(r&&r.result!==undefined?r.result:r);t.onerror=()=>no(t.error);});}catch(e){return null;}}
+async function recDbChunks(sid){const all=[];try{const db=await recDb();await new Promise(ok=>{const t=db.transaction('c','readonly'),q=t.objectStore('c').openCursor();q.onsuccess=()=>{const c=q.result;if(!c){ok();return;}if(c.value&&c.value.sid===sid)all.push(c.value);c.continue();};q.onerror=()=>ok();});}catch(e){}return all.sort((a,b)=>a.i-b.i).map(x=>x.b);}
+async function recDbClear(sid){try{const db=await recDb();await new Promise(ok=>{const t=db.transaction(['c','m'],'readwrite'),q=t.objectStore('c').openCursor();q.onsuccess=()=>{const c=q.result;if(!c)return;if(c.value&&c.value.sid===sid)c.delete();c.continue();};t.objectStore('m').delete(sid);t.oncomplete=ok;t.onerror=ok;});}catch(e){}}
+
+/* lista a lehetőség ablakában */
+async function recLoad(did){const box=document.getElementById('rec-list');if(!box||box.dataset.did===did&&box.dataset.loading)return;box.dataset.did=did;box.dataset.loading='1';
+  try{const r=await call('recList',{dealId:did});S._recAi=!!r.ai;recFill(did,r.list||[]);}catch(e){const b=document.getElementById('rec-list');if(b)b.innerHTML=`<p class="bad-txt" style="margin:0">${esc(errText(e))}</p>`;}}
+function recFill(did,list){const box=document.getElementById('rec-list');if(!box)return;delete box.dataset.loading;
+  box.innerHTML=list.length?list.map(r=>`<div class="rec-row" data-rid="${esc(r.id)}"><div class="rec-h"><b>${esc(r.kindTxt||'Beszélgetés')}</b> <span class="muted">· ${esc(String(r.at).slice(0,16))} · ${esc(recDur(r.dur))} · ${esc(nmShort(r.by||''))}</span>
+      <span class="rec-st st-${r.st==='kész'?'ok':r.st==='hiba'?'bad':'wait'}">${r.st==='kész'?'✓ átirat kész':r.st==='hiba'?'⚠️ hiba':r.st==='átirat készül'?'⏳ átirat '+(r.segs?Math.min(r.seg,r.segs)+'/'+r.segs:'…'):'🎧 felvéve'}</span></div>
+    <div class="rec-a">${r.url?`<a class="linkbtn" href="${esc(r.url)}" target="_blank" rel="noopener">🎧 Hangfelvétel</a>`:''}${r.trUrl?`<a class="linkbtn" href="${esc(r.trUrl)}" target="_blank" rel="noopener">📄 Teljes átirat</a>`:''}${r.st!=='kész'&&S._recAi?`<button type="button" class="linkbtn" data-action="rec-proc" data-did="${esc(did)}" data-rid="${esc(r.id)}">✨ ${r.st==='hiba'||r.st==='átirat készül'?'Átirat folytatása':'Átirat és összefoglaló'}</button>`:''}${r.next?`<button type="button" class="linkbtn" data-action="rec-next" data-did="${esc(did)}" data-n="${esc(r.next)}" data-d="${esc(r.nextDate||'')}">➜ Következő lépésnek</button>`:''}<button type="button" class="linkbtn bad-txt" data-action="rec-del" data-did="${esc(did)}" data-rid="${esc(r.id)}">Törlés</button></div>
+    ${r.err&&r.st==='hiba'?`<p class="bad-txt" style="margin:4px 0 0;font-size:13px">${esc(r.err)}</p>`:''}${r.summary?`<details class="rec-sum"><summary>Összefoglaló</summary><div>${esc(r.summary).replace(/\n/g,'<br>')}${r.needs?`<p style="margin:8px 0 0"><b>Az ügyfél igényei</b><br>${esc(r.needs).replace(/\n/g,'<br>')}</p>`:''}${r.next?`<p style="margin:8px 0 0"><b>Következő lépés:</b> ${esc(r.next)}${r.nextDate?' ('+esc(r.nextDate)+')':''}</p>`:''}</div></details>`:''}</div>`).join('')
+    :`<p class="hint" style="margin:0">Még nincs rögzített beszélgetés.${S._recAi?'':' (Átirat és összefoglaló akkor készül, ha az ügyvezető megadja a Gemini-kulcsot a Beállításokban – a hangfelvétel enélkül is megmarad.)'}</p>`;}
+try{new MutationObserver(()=>{const b=document.getElementById('rec-list');if(b&&!b.dataset.did){const s=b.closest('.rec-sec');if(s)recLoad(s.dataset.did);}}).observe(document.getElementById('modalRoot')||document.body,{childList:true,subtree:true});}catch(e){}
+
+/* indítás: forrás + hozzájárulás */
+ACT['rec-start']=b=>{const did=b.dataset.id;if(REC){toast('Már fut egy felvétel – előbb fejezd be.',true);return;}
+  if(!navigator.mediaDevices||!window.MediaRecorder){toast('Ez a böngésző nem tud hangot rögzíteni (használj Chrome-ot vagy Safarit).',true);return;}
+  const deal=(S.deals||[]).find(x=>x.id===did)||{};
+  confirmLayer('🎙️ Beszélgetés rögzítése',`<div style="margin:0 16px"><p class="hint" style="margin:0 0 10px"><b>${esc(deal.title||'')}</b></p>
+    <div class="rec-kinds">${REC_KINDS.map((k,i)=>`<label class="rec-kind"><input type="radio" name="recKind" value="${k[0]}"${i===0?' checked':''}> <b>${k[1]}</b><small>${k[2]}</small></label>`).join('')}</div>
+    <p class="hint rec-onl" style="margin:8px 0 0" hidden>A következő ablakban válaszd ki a megbeszélés <b>böngészőfülét</b>, és kapcsold be a <b>„Fül hangjának megosztása”</b> lehetőséget (Chrome). A partner hangja így tisztán rögzül.</p>
+    <label class="rec-consent"><input type="checkbox" id="rec-ok"> <span>A beszélgetőpartner(ek) <b>hozzájárult(ak) a rögzítéshez</b>. <small class="muted">Kérdezd meg a beszélgetés elején: „Rögzíthetem a beszélgetést, hogy ne maradjon ki semmi?” – a hozzájárulás ténye a lehetőség jegyzetébe is bekerül.</small></span></label>
+    <p class="hint" style="margin:8px 0 0">Felvétel közben az app használható (alul egy sáv mutatja). Telefonon a böngésző a hívás hangját nem éri el – hívásnál kihangosíts, és a gépen indítsd a rögzítést.</p></div>`,'● Rögzítés indítása',async(btn,lay)=>{
+    const ok=document.getElementById('rec-ok');if(!ok||!ok.checked){toast('A rögzítéshez a partner hozzájárulása kell – pipáld be, ha megkérdezted.',true);return;}
+    const kind=(lay.querySelector('input[name=recKind]:checked')||{}).value||'mic';lay.remove();recBegin(did,kind,deal.title||'');});
+  setTimeout(()=>{const L=document.querySelector('.cf-layer');if(!L)return;L.querySelectorAll('input[name=recKind]').forEach(x=>x.addEventListener('change',()=>{const o=L.querySelector('.rec-onl');if(o)o.hidden=x.value!=='online'||!x.checked;}));},0);};
+
+async function recBegin(did,kind,title){let mic=null,disp=null,ctx=null,stream;
+  try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:kind!=='phone',noiseSuppression:true,autoGainControl:true}});}
+  catch(e){toast('A mikrofont nem engedélyezted (a böngésző címsorában engedélyezheted).',true);return;}
+  if(kind==='online'){try{disp=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});}catch(e){mic.getTracks().forEach(t=>t.stop());toast('A megosztást megszakítottad – a felvétel nem indult el.',true);return;}
+    if(!disp.getAudioTracks().length){toast('A megosztásban nincs hang – a „Fül hangjának megosztása” kapcsolót kapcsold be. Most csak a mikrofont rögzítem.',true);}
+    disp.getVideoTracks().forEach(t=>{t.onended=()=>{if(REC&&REC.disp===disp)recStop();};});
+    ctx=new (window.AudioContext||window.webkitAudioContext)();const dst=ctx.createMediaStreamDestination();ctx.createMediaStreamSource(mic).connect(dst);if(disp.getAudioTracks().length)ctx.createMediaStreamSource(new MediaStream(disp.getAudioTracks())).connect(dst);stream=dst.stream;}
+  else stream=mic;
+  const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
+  let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});}catch(e){try{mr=new MediaRecorder(stream);}catch(e2){toast('A felvétel nem indítható: '+(e2.message||e2),true);return;}}
+  const sid='r'+Date.now().toString(36);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
+  await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
+  mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
+  mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
+  REC.tick=setInterval(recBar,1000);toast('● Rögzítés elindult');}
+const recUnload=e=>{if(REC){e.preventDefault();e.returnValue='Fut a beszélgetés rögzítése.';}};
+const recElapsed=()=>!REC?0:(REC.acc+(REC.paused?0:Date.now()-REC.t0))/1000;
+function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar.remove();return;}
+  if(!bar){bar=document.createElement('div');bar.id='rec-bar';bar.className='rec-bar';document.body.appendChild(bar);}
+  if(REC.up){bar.innerHTML=`<span class="rec-dot up"></span><span class="rec-t">${esc(REC.up)}</span>`;return;}
+  bar.innerHTML=`<span class="rec-dot${REC.paused?' p':''}"></span><b class="rec-t">${recDur(recElapsed())}</b><span class="rec-n">${esc(REC.title||'Beszélgetés')}</span><button type="button" class="btn small ghost" data-action="rec-pause">${REC.paused?'▶ Folytatás':'⏸ Szünet'}</button><button type="button" class="btn small primary" data-action="rec-stop">⏹ Befejezés</button>`;}
+ACT['rec-pause']=()=>{if(!REC||!REC.mr)return;if(REC.paused){REC.mr.resume();REC.t0=Date.now();REC.paused=false;}else{REC.mr.pause();REC.acc+=Date.now()-REC.t0;REC.paused=true;}recBar();};
+ACT['rec-stop']=()=>recStop();
+function recStop(){if(!REC||!REC.mr||REC.mr.state==='inactive')return;if(!REC.paused)REC.acc+=Date.now()-REC.t0;REC.paused=true;REC.dur=REC.acc/1000;try{REC.mr.stop();}catch(e){recFinish();}}
+async function recFinish(){if(!REC||REC.done)return;REC.done=1;clearInterval(REC.tick);[REC.mic,REC.disp].forEach(s=>{if(s)s.getTracks().forEach(t=>t.stop());});try{if(REC.ctx)REC.ctx.close();}catch(e){}
+  const blob=new Blob(REC.chunks,{type:REC.mime.split(';')[0]});REC.up='Feltöltés…';recBar();
+  await recUpload({sid:REC.sid,did:REC.did,kind:REC.kind,title:REC.title,mime:REC.mime,dur:REC.dur||recElapsed()},blob);}
+async function recUpload(m,blob){
+  const setUp=t=>{if(REC){REC.up=t;recBar();}};
+  try{if(!blob.size)throw new Error('A felvétel üres.');
+    const st=await call('recUpStart',{dealId:m.did,size:blob.size,mime:m.mime,kind:m.kind,dur:Math.round(m.dur||0),consent:true});
+    let off=0,res=null;while(off<blob.size){const part=blob.slice(off,off+st.chunk),b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=()=>no(fr.error);fr.readAsDataURL(part);});
+      setUp('Feltöltés… '+Math.round(off/blob.size*100)+'%');res=await call('recUpChunk',{upId:st.upId,offset:off,b64});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
+    await recDbClear(m.sid);window.removeEventListener('beforeunload',recUnload);
+    if(res&&res.deals)S.deals=res.deals;REC=null;recBar();toast('✓ A felvétel feltöltve'+(res&&res.ai?' – készül az átirat…':''));
+    recLoadIf(m.did);if(res&&res.ai&&res.rec)recRun(m.did,res.rec.id);}
+  catch(e){window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
+    confirmLayer('⚠️ A felvétel feltöltése nem sikerült',`<div style="margin:0 16px"><p class="bad-txt" style="margin:0 0 8px">${esc(errText(e))}</p><p class="hint" style="margin:0">A felvétel a böngészőben megmaradt – próbáld újra most, vagy később (az app induláskor is felajánlja).</p></div>`,'Újrapróbálás',(b,l)=>{l.remove();recRetry(m.sid);});}}
+function recLoadIf(did){const b=document.getElementById('rec-list');if(b&&b.dataset.did===did){delete b.dataset.loading;recLoad(did);}}
+/* átirat lépésenként (a háttér minden lépést külön kérésben végez) */
+async function recRun(did,rid){if(S._recRun)return;S._recRun=rid;let last=null;
+  try{for(let n=0;n<200;n++){const r=await call('recProcess',{dealId:did,id:rid});last=r.rec;recLoadIf(did);if(!r.more){if(r.deals)S.deals=r.deals;break;}}
+    if(last&&last.st==='kész'){toast('✓ Elkészült az átirat és az összefoglaló');recResult(did,last);}}
+  catch(e){toast('Az átirat most nem készült el: '+errText(e)+' – a „Átirat folytatása” gombbal később folytatható.',true);recLoadIf(did);}
+  finally{S._recRun=null;}}
+function recResult(did,r){const deal=(S.deals||[]).find(x=>x.id===did)||{};
+  confirmLayer('✨ Beszélgetés összefoglalója',`<div style="margin:0 16px"><p class="hint" style="margin:0 0 8px"><b>${esc(deal.title||'')}</b> · ${esc(recDur(r.dur))}</p><div class="rec-res">${esc(r.summary||'').replace(/\n/g,'<br>')}</div>${r.needs?`<p style="margin:10px 0 0"><b>Az ügyfél igényei</b><br>${esc(r.needs).replace(/\n/g,'<br>')}</p>`:''}${r.next?`<p style="margin:10px 0 0"><b>Javasolt következő lépés:</b> ${esc(r.next)}${r.nextDate?' ('+esc(r.nextDate)+')':''}</p>`:''}${r.trUrl?`<p style="margin:10px 0 0"><a class="linkbtn" href="${esc(r.trUrl)}" target="_blank" rel="noopener">📄 Teljes, szó szerinti átirat</a></p>`:''}</div>`,
+    r.next?'➜ Átveszem következő lépésnek':'Rendben',async(b,l)=>{l.remove();if(r.next)recApply(did,r.next,r.nextDate);});}
+async function recApply(did,next,nd){try{const r=await call('recApplyNext',{dealId:did,next,nextDate:nd||''});if(r.deals)S.deals=r.deals;toast('✓ Következő lépés: '+next);if(!$('mform'))render(true);}catch(e){handleErr(e);}}
+ACT['rec-proc']=b=>recRun(b.dataset.did,b.dataset.rid);
+ACT['rec-next']=b=>recApply(b.dataset.did,b.dataset.n,b.dataset.d);
+ACT['rec-del']=b=>{const did=b.dataset.did,rid=b.dataset.rid;confirmLayer('Felvétel törlése','<p style="margin:0 16px">A hangfelvétel és az átirat a Drive kukájába kerül (30 napig visszaállítható). A jegyzetben lévő összefoglaló megmarad.</p>','Törlés',async(x,l)=>{l.remove();try{const r=await call('recDel',{dealId:did,id:rid});recFill(did,r.list||[]);toast('Felvétel törölve');}catch(e){handleErr(e);}});};
+/* félbemaradt (fel nem töltött) felvétel: induláskor felajánljuk */
+async function recRetry(sid){const m=await recDbDo('m','readonly',st=>st.get(sid));if(!m){toast('A felvétel már nincs meg a böngészőben.',true);return;}const parts=await recDbChunks(sid);if(!parts.length){await recDbClear(sid);toast('A felvétel üres volt.',true);return;}
+  REC={sid,did:m.did,kind:m.kind,title:m.title,up:'Feltöltés…',done:1};recBar();await recUpload({sid,did:m.did,kind:m.kind,title:m.title,mime:m.mime,dur:m.dur||Math.round(parts.length)},new Blob(parts,{type:String(m.mime||'audio/webm').split(';')[0]}));}
+setTimeout(async()=>{try{if(!S.me||!(isAdmin()||isSales()))return;const L=await recDbDo('m','readonly',st=>st.getAll());(L||[]).filter(x=>!REC||x.sid!==REC.sid).slice(0,1).forEach(m=>{
+  confirmLayer('🎙️ Fel nem töltött felvétel',`<p style="margin:0 16px">Van egy félbemaradt beszélgetés-felvétel (${esc(m.title||'')}, ${esc(new Date(m.start).toLocaleString('hu-HU'))}). Feltöltöm most?</p>`,'Feltöltés',(b,l)=>{l.remove();recRetry(m.sid);});});}catch(e){}},6000);
+
+/* Beállítások: Gemini-kulcs (átirat + összefoglaló) – csak az ügyvezető */
+function geminiPanel(){if(!isAdmin()||!S.gemini)return '';const g=S.gemini;
+  return `<div class="panel dwd-panel"><div class="mp-head"><div class="grow"><h3>🎙️ Beszélgetés-átirat (Google Gemini)</h3><p class="hint">${g.on?`Bekapcsolva – a rögzített beszélgetésekből szó szerinti átirat és összefoglaló készül (modell: ${esc(g.model)}, kulcs: …${esc(g.tail)}).`:'Kikapcsolva – a beszélgetések hangfelvétele elkészül, de átirat és összefoglaló nem. A kulcsot a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studióban</a> hozhatod létre (Create API key), majd ide másold be.'}</p></div></div>
+    <div class="dwd-body">${g.on?`<div class="btns"><button type="button" class="btn ghost small" data-action="gem-clear">Kikapcsolás</button></div>`:`<div class="btns"><input class="inp" id="gem-key" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…" style="max-width:340px"><button type="button" class="btn primary small" data-action="gem-save">Mentés és ellenőrzés</button></div>`}</div></div>`;}
+ACT['gem-save']=async b=>{const t=document.getElementById('gem-key'),v=t?t.value.trim():'';if(!v){toast('Másold be a kulcsot.',true);return;}b.disabled=true;try{S.gemini=await call('geminiSet',{key:v});render(true);toast('✓ A kulcs működik – mostantól készül az átirat');}catch(e){handleErr(e);}finally{b.disabled=false;}};
+ACT['gem-clear']=async()=>{try{S.gemini=await call('geminiSet',{clear:true});render(true);toast('Kikapcsolva');}catch(e){handleErr(e);}};
