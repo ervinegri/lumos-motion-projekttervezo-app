@@ -3692,3 +3692,6 @@ html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bot
  html body #view .dhead .stages .stage-tick{width:16px!important;height:16px!important;font-size:10px!important;top:4px!important;right:4px!important;transform:none!important}
  html body #view .dhead .stages .stage-w.has-tick .stage{padding-right:18px!important}
 }
+/* érintőképernyő (iPhone): az oldal teteje nem rugózik le – iOS 26-on a lehúzáskor a rendszer elhomályosítja a felső menüt.
+   A lehúzásos frissítés továbbra is működik (saját, érintés-alapú). */
+@media (hover:none){html{overscroll-behavior-y:none}}
