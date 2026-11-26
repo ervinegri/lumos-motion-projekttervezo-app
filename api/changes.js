@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "175a2dabd4",
+"at": "2026-11-26T08:03:38+01:00",
+"msg": "Mai teendők levél: köszönés nélkül"
+},
+{
 "id": "0856859617",
 "at": "2026-11-25T18:11:44+01:00",
 "msg": "Saját beosztás (termelési vezető / ügyvezető): mentéskor azonnal elfogadott meghívás, e-mail nélkül; egyszeri átállítás a futó projekteken"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ablakok: az előre kitöltött szövegdoboz megnyitáskor a tartalmához nő (nem vágódik le)"
 },
 {
-"id": "5e3967f7ed",
-"at": "2026-11-25T15:35:15+01:00",
-"msg": "Jégvarázs egyszeri visszaállítás kikapcsolva (marad az Utómunkában)"
-},
-{
-"id": "70cc8bc5b5",
-"at": "2026-11-25T14:25:17Z",
+"id": "b2da28698c",
+"at": "2026-11-25T14:35:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
