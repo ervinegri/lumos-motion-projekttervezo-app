@@ -3441,4 +3441,4 @@ html body .gbp-hd{flex-wrap:wrap}html body .gbp-hd .gbp-tools .gbp-rf{margin-lef
 html body .cl-head .cl-q{margin-right:auto!important}   /* a gombok a sor jobb szélére */
 @media (max-width:700px){html body .cl-head>.grow{display:none!important}}   /* telefonon az Ügyfelek cím / darabszám nem kell (a kereső mögé csúszott) */
 html body .gbp-ttl{font-size:14px;font-weight:500;margin-left:8px;white-space:nowrap}html body .gbp-ttl .gbp-avg{font-size:15px}
-@media (max-width:700px){html body .gbp-ttl{display:block;margin:2px 0 0}html body .gbp-hd .gbp-tools{margin-left:0;justify-content:flex-start}}
+@media (max-width:700px){html body .gbp-lbl{display:none}html body .gbp-ttl{margin-left:2px;font-size:15px}html body .gbp-hd .gbp-tools{margin-left:0;justify-content:flex-start}}
