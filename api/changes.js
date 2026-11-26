@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "671d8fe2a7",
+"at": "2026-11-26T21:31:12+02:00",
+"msg": "iPhone: az oldal teteje nem rugózik le, így a felső menü nem homályosodik el (iOS 26)"
+},
+{
 "id": "eda0679087",
 "at": "2026-11-26T21:28:25+02:00",
 "msg": "Telefon: a lépés-kártyák egy sorban, tömören"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Érintőképernyő: hosszú nyomásra nem jelölődik ki szöveg a listákban (JS-védelem is, nem csak CSS)"
 },
 {
-"id": "6d052941a1",
-"at": "2026-11-26T17:31:14+02:00",
-"msg": "Értékelés-kérő levél a szokásos levélnézetben (fejléc, szerkeszthető szöveg, aláírás); a visszajelző üzenet eltűnik kattintásra / új ablaknál"
-},
-{
-"id": "de4e491649",
-"at": "2026-11-26T15:29:42Z",
+"id": "9f0a8d157f",
+"at": "2026-11-26T15:31:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
