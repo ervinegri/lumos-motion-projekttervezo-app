@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "61bde06e85",
+"at": "2026-11-26T10:08:28+02:00",
+"msg": "Naptár (havi nézet): keskeny asztali ablakban (701–760 px) is a teljes képernyős nézet – széltől szélig, görgetés nélkül; az események nem nyomódnak össze (+N további), keskeny ablakban a hónapváltó egy sorban"
+},
+{
 "id": "260a86b1b0",
 "at": "2026-11-26T09:06:35+01:00",
 "msg": "Projekt fejléce: a betűméret marad, csak a hézagok kisebbek (a nagyítás visszavonva)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projektoldal: egyforma távolság minden panel között"
 },
 {
-"id": "3a599348f4",
-"at": "2026-11-25T15:57:53+01:00",
-"msg": "Lemondott projektnél a számlázás panel kezelhető marad"
-},
-{
-"id": "3888336f2b",
-"at": "2026-11-25T14:57:49Z",
+"id": "8e8d234f9f",
+"at": "2026-11-25T14:58:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
