@@ -3342,5 +3342,10 @@ html body details.panel.fold section:has(>.sec-lock)>.sec-lock{top:-4px!importan
   html.cal-lock body .cal-grid{height:100%;grid-template-rows:auto;grid-auto-rows:minmax(0,1fr)}
   html.cal-lock body .cal-day{min-height:0!important;overflow:hidden}
 }
-/* projekt fejléce (cím, gombok, lépések, lezárás sor) – 20%-kal kompaktabb */
-@media (min-width:761px){html body main.content>.dhead{zoom:.8}}
+/* projekt fejléce: kisebb hézagok (a betűméret változatlan) */
+@media (min-width:761px){
+  html body main.content>.dhead{gap:8px!important}
+  html body main.content>.dhead .btns .mini,html body main.content>.dhead .btns .proj-save{padding-top:4px!important;padding-bottom:4px!important}
+  html body main.content>.dhead .stage{padding-top:5px!important;padding-bottom:5px!important}
+  html body main.content>.dhead .locked-hint{margin-top:0!important}
+}
