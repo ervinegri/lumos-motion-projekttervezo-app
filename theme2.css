@@ -3721,3 +3721,15 @@ html body #view .toolbar.crew-tools>.cmb{align-self:stretch;display:flex}
 .pst-bank{border:1px solid var(--ok,#2e7d52);background:#eaf6ef;color:var(--ok,#2e7d52);font-weight:700;font-size:11.5px;border-radius:6px;padding:2px 6px;cursor:pointer;white-space:nowrap}
 /* projektlista: vastagabb videó-állapotsáv */
 html body .pt-vbar{height:8px!important;border-radius:5px!important}
+/* telefon, Stáb / Szereplők lista: egyforma magas sorok – minden cella legfeljebb két sor (a név és a cég, a szerepek és a részletek egy-egy sorban, a többi „…”) */
+@media (max-width:700px){
+ html body #view .crew-tbl tbody tr.crew-row>td{height:62px;box-sizing:border-box;vertical-align:middle;padding-top:6px!important;padding-bottom:6px!important}
+ html body #view .crew-tbl tbody tr.crew-row>td>*,html body #view .crew-tbl tbody tr.crew-row .nm{max-width:100%}
+ html body #view .crew-tbl tbody tr.crew-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex!important;min-width:0}
+ html body #view .crew-tbl tbody tr.crew-row .ser{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ html body #view .crew-tbl tbody tr.crew-row>td:nth-child(2){display:table-cell}
+ html body #view .crew-tbl tbody tr.crew-row>td:nth-child(1) :is(.nm,.ser){max-width:calc(34vw - 20px)}
+ html body #view .crew-tbl tbody tr.crew-row>td:nth-child(2) :is(.crw-l1,.ser){max-width:calc(40vw - 20px)}
+ html body #view .crew-tbl tbody tr.crew-row>td:nth-child(3) .crw-l1{max-width:calc(26vw - 16px)}
+ html body #view .crew-tbl .crw-l1{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
