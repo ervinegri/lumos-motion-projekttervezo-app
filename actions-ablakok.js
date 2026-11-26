@@ -235,6 +235,7 @@ document.addEventListener('input',e=>{if(e.target.id==='m-contactName'){const b=
    másik ablakot nyitsz vagy újratöltöd az oldalt. Visszatöltés csak üres mezőbe; küldés (Küldés / Hozzáadás / Mentés gomb, ⌘/Ctrl+Enter) után törlődik.
    A Mentés-gombos űrlapokat (MD_KEY) és a projekt mezőit (data-field) a saját mentésük kezeli. */
 const TXT_PFX='lpm_txt_',TXT_TTL=14*864e5,TXT_SENT={};
+try{Object.keys(localStorage).forEach(k=>{if(k.indexOf(TXT_PFX)===0&&k.indexOf('|m-notes|notes|')>=0)localStorage.removeItem(k);});}catch(e){}   /* az új projekt jegyzete nem marad meg (régi, beragadt példányok törlése) */
 function txtSkip(el){return !el||el.tagName!=='TEXTAREA'||el.readOnly||el.disabled||el.dataset.field!==undefined||el.dataset.crewNote!==undefined||el.dataset.noKeep!==undefined||(MD_KEY&&el.closest('#mform'));}
 function txtKey(el){const ctx=[],seen=new Set();for(let n=el;n&&n!==document.body;n=n.parentElement){if(!n.dataset)continue;['pid','vid','id','k','cid','lane'].forEach(a=>{const v=n.dataset[a];if(v&&!seen.has(a)){seen.add(a);ctx.push(a+'='+v);}});}
   const f=el.closest('#mform'),t=f?f.getAttribute('aria-label')||'':'';
