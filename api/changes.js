@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "75c90da55a",
+"at": "2026-11-26T21:46:11+02:00",
+"msg": "iOS: menet közben a cím sem változik (elhomályosodó menü elleni második próba); telefonon fele olyan széles utómunka-oszlopok"
+},
+{
 "id": "5c05dc9b0b",
 "at": "2026-11-26T21:39:17+02:00",
 "msg": "Telefon, projekt oldal: a szakaszok széltől szélig (oldalsó margó és keret nélkül)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Telefon, projekt Pénzügyek: Szerződés és Termelés egy sorban, alatta tömör értékesítő-kártya (nem lóg ki)"
 },
 {
-"id": "dc43ade555",
-"at": "2026-11-26T17:36:54+02:00",
-"msg": "Telefon: fele olyan széles Értékesítés-oszlopok, tömörebb kártyák"
-},
-{
-"id": "4da72dcbac",
-"at": "2026-11-26T15:36:08Z",
+"id": "d12ed59b0c",
+"at": "2026-11-26T15:37:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
