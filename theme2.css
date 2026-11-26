@@ -3697,3 +3697,7 @@ html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bot
  html body .proj-table .pt-pills>div.pt-vids:not(:has(.pt-vid)){flex:1 1 auto!important;width:auto!important}
  html body .proj-table .pt-vids:not(:has(.pt-vid)) .pt-vbar{flex:1 1 auto!important;width:auto!important;min-width:60px;margin-right:4px!important}
 }
+/* álló telefon, projekt oldal: a szakaszok (Alapadatok, Szolgáltatások, Stáb…) széltől szélig érnek – nincs oldalsó margó, kerekítés, oldalkeret */
+@media (max-width:700px){
+ html body #view details.panel.fold{margin-left:-12px!important;margin-right:-12px!important;width:auto!important;max-width:none!important;align-self:stretch!important;border-radius:0!important;border-left:0!important;border-right:0!important;box-shadow:none!important}
+}
