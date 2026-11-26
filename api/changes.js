@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3e30254769",
+"at": "2026-11-26T11:29:19+01:00",
+"msg": "Értékesítés: beszélgetésrögzítés (személyes / kihangosított hívás / online megbeszélés), hozzájárulással; Drive-ra mentés, Gemini-átirat (szó szerinti + összefoglaló + következő lépés), félbemaradt felvétel mentése a böngészőben"
+},
+{
 "id": "b9b5f6bceb",
 "at": "2026-11-26T11:26:00+01:00",
 "msg": "Indítóképernyő (fehér háttér, középen a logó) a fekete helyett; projektlap: minden szakasz csukva nyílik, új sorrend (Stáb → Utómunka → Pénzügyek → Szerződés és számlázás), egyforma lenyitó nyíl"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a csapattársak stábkártyája semleges fehér (nem „meghívatlan” szürke)"
 },
 {
-"id": "b986996f2c",
-"at": "2026-11-26T10:40:37+02:00",
-"msg": "Projekt lépései: az aktuális (sötét) kártya teljesült pipája – pl. lezárt projekt „Kész” lépése – zöld körben jól látható fehér pipa (eddig üres fehér kör)"
-},
-{
-"id": "869ee19308",
-"at": "2026-11-26T08:38:57Z",
+"id": "44c3ebf155",
+"at": "2026-11-26T08:40:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
