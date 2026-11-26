@@ -531,6 +531,7 @@ function rpcInner_(token, name, arg) {
     case 'recApplyNext': return recApplyNext_(u, arg);
     case 'recDel': return recDel_(u, arg);
     case 'geminiSet': adminOnly(); return geminiSet_(u, arg);
+    case 'openaiSet': adminOnly(); return openaiSet_(u, arg);
     case 'vidUpStart': return vidUpStart_(u, arg);   // fájl csatolása a videó hozzászólásához
     case 'vidUpChunk': return vidUpChunk_(u, arg);
     case 'vidUpDel': return vidUpDel_(u, arg);
@@ -616,7 +617,7 @@ function rpcInner_(token, name, arg) {
     case 'deleteClient': canEdit(); return deleteClient_(u, arg);
     case 'getLog': adminOnly(); return getLog_();
     case 'projectHistory': canEdit(); return projectHistory_(u, arg);   // a termelési vezető is (az árak / számlázás / jutalék nélkül – projectHistory_ szűri)
-    case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [], dwd: role === 'admin' ? dwdStatus_() : null, gemini: role === 'admin' ? geminiStatus_() : null };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
+    case 'settingsData': canEdit(); return { users: loadUsers_().filter(x => role === 'admin' || x.role === 'crew' || x.id === u.id).map(adminListUser_), sigs: role === 'admin' ? sigList_() : (o => { const r = {}; if (o[u.id]) r[u.id] = o[u.id]; return r; })(sigList_()), log: role === 'admin' ? getLog_().slice(0, 600) : [], dwd: role === 'admin' ? dwdStatus_() : null, gemini: role === 'admin' ? geminiStatus_() : null, openai: role === 'admin' ? openaiStatus_() : null };   // a termelési vezető a hozzáféréseket látja, a naplót nem   // egy kérésben a Beállítások fülhöz
     case 'cancelRecipients': canEdit(); return loadUsers_().filter(x => (x.role === 'editor' || x.role === 'admin') && !x.disabled && /@/.test(String(x.email || '')) && String(x.email).toLowerCase() !== String(u.email || '').toLowerCase()).map(x => ({ name: String(x.name || x.email), role: x.role === 'admin' ? 'ügyvezető' : 'termelési vezető' }));   // a lemondás-értesítés címzettjei (csak nevek) – ugyanaz a kör, mint a cancelNotify_-ban
     case 'listUsers': adminOnly(); return loadUsers_().map(adminListUser_);
     case 'emailCheck': canEdit(); return { kind: emailGoogleKind_(arg && arg.email) };

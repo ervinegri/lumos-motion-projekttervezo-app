@@ -490,7 +490,7 @@ function viewSettings(){
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
       ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2></div></div>
-    ${mailPanel}${dwdPanel()}${typeof geminiPanel==='function'?geminiPanel():''}${isAdmin()?dbPanel()+perfPanel():''}
+    ${mailPanel}${dwdPanel()}${typeof openaiPanel==='function'?openaiPanel():''}${typeof geminiPanel==='function'?geminiPanel():''}${isAdmin()?dbPanel()+perfPanel():''}
     ${S.links.folder?`<div class="btns"><a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a></div>`:''}
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
@@ -502,7 +502,7 @@ function viewSettings(){
 }
 async function loadSettings(){   // egy kérés; a már betöltött adatot azonnal mutatjuk, a háttérben frissítjük
   if(S._settingsLoading)return;S._settingsLoading=true;
-  try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S.dwd=r.dwd||null;S.gemini=r.gemini||null;S._settingsAt=Date.now();}
+  try{const r=await call('settingsData');S.users=r.users||[];S.sigs=r.sigs||{};S.log=r.log||[];S.dwd=r.dwd||null;S.gemini=r.gemini||null;S.openai=r.openai||null;S._settingsAt=Date.now();}
   catch(e){handleErr(e);S.users=S.users||[];S.log=S.log||[];S._settingsAt=Date.now();}   // hiba után se próbálja újra minden kirajzolásnál (30 mp múlva újra)
   finally{S._settingsLoading=false;if(S.tab==='beallitasok'&&!$('modalRoot').innerHTML)render(true);}
 }
