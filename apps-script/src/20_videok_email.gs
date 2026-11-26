@@ -138,7 +138,7 @@ function videoComment_(u, a) {
     p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
     const isRep = /^⤷\{/.test(t);   // válasz egy meglévő hozzászólásra: minden állapotban mehet (beszélgetés)
     if (appr && v.st !== 'leadva' && v.st !== 'jovahagyva') throw new Error('A jóváhagyási megjegyzés csak jóváhagyott videóhoz küldhető.');
-    if (!appr && v.st === 'ellen') throw new Error('Belső ellenőrzésben nincs külön hozzászólás: írd be az észrevételeket, és ↩ Visszadobás (vagy ✅ Jóváhagyás).');
+    if (!appr && v.st === 'ellen') throw new Error('Belső ellenőrzésben nincs külön hozzászólás: írd be az észrevételeket, és ✏️ Módosítás kérése (vagy ✅ Jóváhagyás).');
     if (!isRep && !appr && v.st === 'leadva') throw new Error('Az ügyfél jóváhagyására váró videóhoz nem lehet hozzászólni.');
     if (!isRep && !mgr && v.st !== 'vagas') throw new Error('A videó már le van adva – most nem lehet hozzászólni.');
     /* ugyanaz a hozzászólás kétszer (duplán kattintott küldés, visszatöltött szöveg újraküldése): 15 percen belül nem kerül be újra, e-mail sem megy */
