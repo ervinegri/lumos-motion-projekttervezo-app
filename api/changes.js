@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f2f5b5a693",
+"at": "2026-11-26T10:25:06+02:00",
+"msg": "Naptár (havi nézet): MacBook trackpaddel sem ugrik kettőt – váltás után 0,45 mp-ig nem vált újra (a még tartó, közben gyorsuló mozdulat sem), utána csak szünet vagy erősen gyorsuló új mozdulat vált"
+},
+{
 "id": "5bd4311979",
 "at": "2026-11-26T10:23:51+02:00",
 "msg": "Naptár: asztali gépen keskeny ablakban (700 px alatt) is a teljes képernyős havi nézet – a rács alatti napi lista csak érintőképernyős telefonon jelenik meg"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Felnyitott projekt: 🔒 Visszazárás gomb (ugyanarra a lezárási dátumra)"
 },
 {
-"id": "23296312af",
-"at": "2026-11-25T17:04:15+01:00",
-"msg": "Helyszíni munka → Kész: a beszámoló ablak nem jön fel kétszer egymás után"
-},
-{
-"id": "4e57001327",
-"at": "2026-11-25T16:01:57Z",
+"id": "a916b6d0a6",
+"at": "2026-11-25T16:04:24Z",
 "msg": "Változásnapló frissítése"
 }
 ];
