@@ -10,7 +10,8 @@ module.exports = async (req, res) => {
   const m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(url);
   if (!m) { res.statusCode = 500; return res.end(JSON.stringify({ message: 'Nincs beállítva a DATABASE_URL.' })); }
   let body = req.body; if (typeof body !== 'string') body = JSON.stringify(body || {});
+  const t0 = Date.now();
   const r = await fetch('https://' + m[1] + '/sql', { method: 'POST', body, headers: { 'Content-Type': 'application/json', 'Neon-Connection-String': url, 'Neon-Raw-Text-Output': 'true', 'Neon-Array-Mode': 'true' } });
-  res.statusCode = r.status; res.setHeader('Content-Type', 'application/json');
+  res.statusCode = r.status; res.setHeader('Content-Type', 'application/json'); res.setHeader('X-Neon-Ms', String(Date.now() - t0)); res.setHeader('X-Fn-Region', process.env.VERCEL_REGION || '');   // sebességmérés: a Neon ideje ebből a kérésből
   res.end(await r.text());
 };

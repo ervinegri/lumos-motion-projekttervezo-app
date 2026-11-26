@@ -237,7 +237,7 @@ function neonSql_(list, url) {
   } catch (e) { if (/NEON_URL nem érvényes/.test(String(e && e.message))) throw e; if (att < 2) { Utilities.sleep(400 + att * 1200); continue; } throw new Error('Adatbázis-hiba (hálózat): ' + String(e && e.message || e).slice(0, 200)); }
   if (att < 2 && (res.getResponseCode() >= 500 || res.getResponseCode() === 429)) { Utilities.sleep(400 + att * 1200); continue; }
   break; }
-  if (PERF_) { PERF_.db += Date.now() - pt0; PERF_.dbN++; }
+  if (PERF_) { PERF_.db += Date.now() - pt0; PERF_.dbN++; try { const hm = res.getHeaders() || {}; PERF_.neon += Number(hm['X-Neon-Ms'] || hm['x-neon-ms'] || 0) || 0; } catch (e) {} }
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
@@ -247,21 +247,21 @@ function neonSql_(list, url) {
 /* ===== Sebességmérés (2026-11-26): kérésenként mennyi idő ment el és mire (adatbázis, betöltés, zárra várás, gyorsítótár).
    A válaszban „pf”, a műveletenkénti összesítés a gyorsítótárban (óránként, 6 óráig) – az ügyvezető a Beállítások → Sebesség alatt látja. */
 let PERF_ = null;
-function perfStart_(op) { PERF_ = { t0: Date.now(), op: String(op || '?').slice(0, 40), db: 0, dbN: 0, lock: 0, cache: 0, load: 0, nq: {} }; }
+function perfStart_(op) { PERF_ = { t0: Date.now(), op: String(op || '?').slice(0, 40), db: 0, dbN: 0, neon: 0, lock: 0, cache: 0, load: 0, nq: {} }; }
 function perfEnd_(ok) {
   const P = PERF_; if (!P) return null; PERF_ = null;
-  const ms = Date.now() - P.t0, pf = { ms: ms, db: P.db, dbN: P.dbN, lock: P.lock, cache: P.cache, load: P.load };
+  const ms = Date.now() - P.t0, pf = { ms: ms, db: P.db, dbN: P.dbN, neon: P.neon, lock: P.lock, cache: P.cache, load: P.load };
   try { const C = CacheService.getScriptCache(), h = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyyMMddHH'), kq = 'nq_' + h, kp = 'pf_' + h, m = C.getAll([kq, kp]);
     let q = {}, f = {}; try { q = JSON.parse(m[kq] || '{}'); } catch (e) {} try { f = JSON.parse(m[kp] || '{}'); } catch (e) {}
     Object.keys(P.nq).forEach(c => { q[c] = (q[c] || 0) + P.nq[c]; });
-    const r = f[P.op] || (f[P.op] = [0, 0, 0, 0, 0, 0, 0, 0]); r[0]++; r[1] += ms; r[2] += P.db; r[3] += P.dbN; r[4] += P.lock; r[5] += P.load; r[6] = Math.max(r[6], ms); if (!ok) r[7]++;
+    const r = f[P.op] || (f[P.op] = [0, 0, 0, 0, 0, 0, 0, 0, 0]); r[8] = (r[8] || 0) + P.neon; r[0]++; r[1] += ms; r[2] += P.db; r[3] += P.dbN; r[4] += P.lock; r[5] += P.load; r[6] = Math.max(r[6], ms); if (!ok) r[7]++;
     const o = {}; if (Object.keys(P.nq).length) o[kq] = JSON.stringify(q); o[kp] = JSON.stringify(f); C.putAll(o, 21600); } catch (e) {}
   return pf; }
 function perfStats_() {   // az elmúlt 6 óra műveletenként: [db, összidő, adatbázis-idő, lekérdezések, zárra várás, betöltés, max, hiba]
   const C = CacheService.getScriptCache(), now = Date.now(), keys = [];
   for (let i = 0; i < 6; i++) keys.push('pf_' + Utilities.formatDate(new Date(now - i * 3600e3), SHEET_TZ, 'yyyyMMddHH'));
   const m = C.getAll(keys), tot = {};
-  keys.forEach(k => { let f = {}; try { f = JSON.parse(m[k] || '{}'); } catch (e) {} Object.keys(f).forEach(op => { const a = f[op], t = tot[op] || (tot[op] = [0, 0, 0, 0, 0, 0, 0, 0]); for (let i = 0; i < 8; i++) t[i] = i === 6 ? Math.max(t[i], a[i] || 0) : t[i] + (a[i] || 0); }); });
+  keys.forEach(k => { let f = {}; try { f = JSON.parse(m[k] || '{}'); } catch (e) {} Object.keys(f).forEach(op => { const a = f[op], t = tot[op] || (tot[op] = [0, 0, 0, 0, 0, 0, 0, 0, 0]); for (let i = 0; i < 9; i++) t[i] = i === 6 ? Math.max(t[i], a[i] || 0) : t[i] + (a[i] || 0); }); });
   return { hours: 6, ops: tot }; }
 /* Neon-forgalom figyelése: óránként, forrásonként hány lekérdezés ment (Google-gyorsítótár, 6 óra) – ebből látszik, mi tartja ébren az adatbázist */
 let NQ_CTX_ = '';
