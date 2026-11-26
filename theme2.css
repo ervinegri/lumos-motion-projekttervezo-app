@@ -3458,3 +3458,10 @@ html body .rec-bar .btn.rec-pz{color:#fff!important;background:rgba(255,255,255,
 
 .rec-bar .rec-n b{font-weight:600;color:#fff}
 html body .rec-bar .rec-n{max-width:38vw}
+
+/* lehetőség ablaka: ajánlat- és rögzítés-gomb a fejlécben, jobbra */
+html body #modalRoot .mhead:has(.deal-ht){display:flex;align-items:center;gap:10px}
+html body #modalRoot .mhead:has(.deal-ht) h3{flex:1;min-width:0}
+.deal-ht{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.deal-ht .btn{white-space:nowrap}
+@media (max-width:700px){html body #modalRoot .mhead:has(.deal-ht){flex-wrap:wrap}.deal-ht{order:3;width:100%;justify-content:flex-start}.deal-ht .btn{flex:1}}

@@ -236,6 +236,11 @@ async function dealQuoteMails(did){const box=document.querySelector('#mform .dl-
 /* ugyanannál a lehetőségnél korábban kiküldött (felülírt) ajánlatok is: a napló alapján, a legutóbbi alatt */
 async function dealQuotesHist(ids){for(const id of ids){let H=null;try{H=await call('quoteSent',{dealId:id,op:'hist'});}catch(e){continue;}const g=document.querySelector('.dl-qgrp[data-qg="'+CSS.escape(id)+'"] .dl-qold');if(!g||!Array.isArray(H))continue;const old=H.filter(x=>!x.cur);
   g.innerHTML=old.map(x=>`<button type="button" class="dl-qrow dl-qrow-old" data-action="q-sent-open" data-id="${esc(id)}" data-at="${esc(x.at)}" data-work="Korábbi ajánlat betöltése"><span class="dl-qr-t">↳ korábbi kiküldés</span><span class="dl-qr-m">kiküldve ${esc(fmtShort(x.at.slice(0,10)))} · ${x.total?ftFmt(x.total):'–'}</span></button>`).join('');}}
+/* a lehetőség ablakában az ajánlat- és a rögzítés-gomb a fejlécbe kerül (jobb felső sarok, a bezárás mellé) – így görgetés nélkül is elérhetők */
+function dealHeadTools(){const mh=document.querySelector('#modalRoot .mbox .mhead');if(!mh||mh.querySelector('.deal-ht'))return;
+  const bx=document.createElement('div');bx.className='deal-ht';
+  document.querySelectorAll('#modalRoot .mfoot [data-action=q-sent-open],#modalRoot .mfoot [data-action=q-draft-cont],#modalRoot .mfoot [data-action=q-draft-new],#modalRoot .mfoot [data-action=deal-more-quote],#modalRoot .mfoot [data-action=deal-quote],#modalRoot .rec-sec [data-action=rec-start]').forEach(b=>{const w=b.parentElement;b.classList.remove('small');bx.appendChild(b);if(w&&w.classList.contains('btns')&&!w.children.length)w.remove();});
+  if(!bx.children.length)return;const x=mh.querySelector('.x');if(x)mh.insertBefore(bx,x);else mh.appendChild(bx);}
 function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||{}),isNew=!d0,won=d.stage==='nyert';if(isNew&&!d.id)d.id=uuid();   // az új lehetőség azonosítója már itt megvan: újrapróbálkozáskor sem jön létre kétszer
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert'&&x[0]!=='fizetve').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
@@ -284,7 +289,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
           .catch(e=>{handleErr(e);setTimeout(()=>{if(!$('mform'))dealModal(keep);},300);});return;}}
     try{const before=new Set((S.deals||[]).map(x=>x.id));const r=await call('saveDeal',nd);S.deals=r.deals||S.deals;if(isNew&&S._qAfterNew){S._qAfterNew=false;const nw=(S.deals||[]).find(x=>!before.has(x.id));if(nw)setTimeout(()=>ACT['deal-quote']({dataset:{id:nw.id}}),50);}const pp=fd.get('preProj');if(!isNew&&pp!==null){const cur=(S.projects||[]).find(q=>q.preDeal===d.id);if((cur&&cur.id)!==(pp||undefined)&&!(!cur&&!pp)){if(cur&&cur.id!==pp){await call('projPreDeal',{projectId:cur.id,dealId:''});cur.preDeal='';}if(pp){await call('projPreDeal',{projectId:pp,dealId:d.id});const q=projById(pp);if(q)q.preDeal=d.id;}}}   /* előfoglalás összekötése innen */
     const ct=fd.get('dCt');if(!isNew&&ct!==null&&ct!==(d.ctStatus||'')){const r2=await call('ctStatus',{dealId:d.id,status:ct});if(r2.deals)S.deals=r2.deals;if(r2.billing&&S.fin)S.fin.billing=r2.billing;}closeModal();render(true);if(nd.stage==='elveszett'&&d.stage!=='elveszett')setTimeout(()=>preLostOffer(d.id),80);toast(isNew?'Lehetőség felvéve':'Mentve');}catch(e){handleErr(e);}}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(!isNew)setTimeout(dNotesLoadHs,50);dSourceLoad(d.source||'');dRangeInit('dDate');if(dealGen(d))setTimeout(()=>dGenApply(true),0);}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(!isNew)dealHeadTools();if(!isNew)setTimeout(dNotesLoadHs,50);dSourceLoad(d.source||'');dRangeInit('dDate');if(dealGen(d))setTimeout(()=>dGenApply(true),0);}
 
 function dealWinModal(d){
   /* Ha a projekt már létezik a projekttervezőben, a lehetőség ahhoz kapcsolható (nem jön létre másodpéldány) */
