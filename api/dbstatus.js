@@ -3,7 +3,7 @@ const API_URL = process.env.LUMOS_API_URL || 'https://script.google.com/macros/s
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
   const t0 = Date.now();
-  try { const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'dbStatus', args: [] }), redirect: 'follow' });
+  try { const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'dbStatus', args: /[?&]sizes=1/.test(String(req.url || '')) ? ['sizes'] : [] }), redirect: 'follow' });
     const j = await r.json(); const gsMs = Date.now() - t0;
     /* sebesség (titok nélkül): az Apps Script teljes köre innen, a Neon egy lekérdezése innen, a Neon és a függvény régiója */
     const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || '', m = /^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(url), speed = { appsScriptMs: gsMs, fnRegion: process.env.VERCEL_REGION || '', neonRegion: m ? ((/\.([a-z]{2}-[a-z]+-\d)\./.exec(m[1]) || [])[1] || '') : '' };
