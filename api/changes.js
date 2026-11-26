@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b17e8ebbf3",
+"at": "2026-11-26T13:07:24+01:00",
+"msg": "Rögzítő sáv: élő hullámforma, jól látható Szünet gomb, a sáv fent (nem takarja az ablak gombjait)"
+},
+{
 "id": "0045f67f79",
 "at": "2026-11-26T13:02:30+01:00",
 "msg": "Gemini-kulcs: az új „AQ.…” formátum is elfogadott; a kulcs fejlécben megy (x-goog-api-key)"
@@ -132,14 +137,9 @@ const ITEMS = [
 "msg": "Gyors út: nézetváltás és kilépés után a munkamenet tükre azonnal frissül; jogosultsági tiltásnál mindig az Apps Script dönt (nem jön téves „nincs jogosultságod” profilváltáskor)"
 },
 {
-"id": "4006b5c786",
-"at": "2026-11-26T11:49:31+02:00",
-"msg": "Gyors út: a változásnapló és a feladó-álnevek is a gyors úton (a változásnaplót a saját szerver adja, az álnevek a tükörből); a csomag-frissítések nem kerülnek a változásnaplóba"
-},
-{
-"id": "0966b574ca",
-"at": "2026-11-26T11:48:49+02:00",
-"msg": "Újdonság: gyorsabb mentés és betöltés"
+"id": "7d6b4a0625",
+"at": "2026-11-26T09:49:40Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
