@@ -3465,3 +3465,14 @@ html body #modalRoot .mhead:has(.deal-ht) h3{flex:1;min-width:0}
 .deal-ht{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .deal-ht .btn{white-space:nowrap}
 @media (max-width:700px){html body #modalRoot .mhead:has(.deal-ht){flex-wrap:wrap;row-gap:10px}html body #modalRoot .mhead:has(.deal-ht) h3{flex:1 1 100%;order:1}.deal-ht{order:2;flex:1 1 0;min-width:0;flex-wrap:nowrap;justify-content:flex-start}.deal-ht .btn{flex:1 1 0;min-width:0;padding-left:8px!important;padding-right:8px!important;font-size:14px!important;overflow:hidden;text-overflow:ellipsis}html body #modalRoot .mhead:has(.deal-ht) .x{order:3;flex:none;margin:0!important;position:static!important}}
+
+/* telefonon is: a görgethető ablak (pl. lehetőség) a képernyő magasságában – fejléc fent, gombsor lent rögzítve, csak a tartalom görög (nem lehet a gombsor alá / üres részbe görgetni) */
+@media (max-width:600px){html body #modalRoot .modal:has(>.mbox.mbox-scroll){overflow:hidden}
+html body #modalRoot .mbox.mbox-scroll{display:flex!important;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden!important;padding-top:0;padding-bottom:0}
+html body #modalRoot .mbox.mbox-scroll>.mhead{flex:none;padding-top:calc(14px + env(safe-area-inset-top))}
+html body #modalRoot .mbox.mbox-scroll>:not(.mhead):not(.mfoot){flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0 -22px;padding:2px 22px 14px}
+html body #modalRoot .mbox.mbox-scroll>.mfoot{flex:none;position:static!important;margin:0 -22px;padding:10px 22px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line,#e6e9ee)}}
+/* Pénzügyek panel: a lenyitó nyíl a jobb szélen, mint a többi panelnél (a hosszú cím mellett se tapadjon a szöveghez) */
+html body details.money-panel>summary{display:flex;align-items:center}
+html body details.money-panel>summary>h3{display:flex!important;align-items:center;flex:1 1 auto;min-width:0;gap:8px}
+html body details.money-panel>summary>h3::after{margin-left:auto!important;flex:none}
