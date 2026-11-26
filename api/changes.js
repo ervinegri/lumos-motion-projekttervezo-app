@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e4db7bc39d",
+"at": "2026-11-26T11:47:43+01:00",
+"msg": "Google-értékelések: alapból 12 értékelés látszik (6 helyett)"
+},
+{
 "id": "b8955e7a82",
 "at": "2026-11-26T11:45:07+01:00",
 "msg": "Google-értékelések: link másolása és QR-kód betöltés közben is"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "d99b63bf7a",
 "at": "2026-11-26T11:23:40+02:00",
 "msg": "Gyors út: a mentések és lekérések a Vercelen futnak, közvetlenül a Neon mellett (ugyanaz a háttérkód) – Google-szolgáltatást igénylő művelet az Apps Scripten marad; az írás feltételes (verziós), ütközésnél friss adattal újrafut; levél / HubSpot-szinkron háttérfeladatként; beállítás- és munkamenet-tükör a Neonban (titkok nélkül)"
-},
-{
-"id": "b87c83bfc0",
-"at": "2026-11-26T11:10:36+02:00",
-"msg": "Mentés a háttérben: ha egy ablak mentése a szerverre vár, az ablak eltűnik és lehet tovább dolgozni (⏳ Mentés folyamatban jelző); hibánál az ablak a beírt adatokkal visszajön; közben nyitott új ablak a mentés után nyílik"
 }
 ];
 const allowed = require('./_auth.js');
