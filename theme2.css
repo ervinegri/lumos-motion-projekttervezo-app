@@ -3402,7 +3402,7 @@ html body .pcrew-add-card.add-locked .addrow{pointer-events:none;user-select:non
 html body .pcrew-add-card .add-lock-hint{margin:2px 0 8px;font-size:12.5px;color:#5d6875;filter:none}
 /* projektlap sorrend (2026-11-26): Alapadatok · Szolgáltatások · Stáb és eszközök · Utómunka · Pénzügyek · Szerződés és számlázás – egyforma hézagokkal */
 html body .crew-wide>details.proj-board{margin-top:20px!important}
-html body .bill-after{margin-top:20px}
+html body .bill-after{margin-top:0}
 html body .bill-after:empty{display:none}
 /* Pénzügyek panel: a lenyitó nyíl ugyanakkora, mint a többinél; a cím is kattintható (nagyobb célterület) */
 html body details.money-panel>summary>h3::after{padding:0!important;margin-left:0!important}
@@ -3422,3 +3422,14 @@ html body details.money-panel>summary>h3{pointer-events:auto;cursor:pointer}
 .rec-bar .btn.ghost{color:#fff;border-color:rgba(255,255,255,.3);background:transparent}
 .rec-dot{width:11px;height:11px;border-radius:50%;background:#ff4d4f;box-shadow:0 0 0 0 rgba(255,77,79,.6);animation:recPulse 1.4s infinite}.rec-dot.p{background:#f0b400;animation:none}.rec-dot.up{background:#5aa9ff;animation:none}
 @keyframes recPulse{0%{box-shadow:0 0 0 0 rgba(255,77,79,.6)}70%{box-shadow:0 0 0 8px rgba(255,77,79,0)}100%{box-shadow:0 0 0 0 rgba(255,77,79,0)}}
+/* zárolt Alapadatok: kattintás nem jut át (átlátszó réteg), tiltó kurzor */
+html body .b-grid.svc-locked.ro-lock{position:relative}
+html body .b-grid.svc-locked.ro-lock::after{content:"";position:absolute;inset:-4px;z-index:6;cursor:not-allowed;background:transparent}
+/* sötét mód: a szerepkör-választó (hatáskör) olvasható – .topbar-ral, hogy a sötétítő ne fordítsa vissza */
+html.dark body .topbar .view-as,html.dark body .topbar #viewAs{color:#eef0f6!important;background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.28)!important}
+html.dark body .topbar .view-as option{color:#101923;background:#fff}
+html.dark body .topbar .view-as.on,html.dark body .topbar #viewAs.on{color:#ffe2a0!important;background:rgba(240,180,0,.16)!important;border-color:rgba(240,180,0,.5)!important}
+/* érintőképernyő: a kattintható sorok / kártyák hosszú érintésre ne jelöljenek ki szöveget (sárga kijelölés) */
+@media (hover:none){html body tr.cl-row,html body tr.pt-row,html body .dl-card,html body .bd-card,html body .stage,html body details.panel>summary{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
+/* Ügyfelek fejléc: a cím és a darabszám egy sorban */
+html body .cl-head>.grow{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}html body .cl-head>.grow>h2{margin:0}html body .cl-head>.grow>.sub{margin:0}

@@ -456,7 +456,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.da
 Object.assign(ACT,{
   'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');gbpRefresh();}catch(e){b.disabled=false;handleErr(e);}},
   'perf-load':()=>{call('perfStats',{}).then(r=>{S.perfSrv=r||{ops:{}};render(true);},e=>handleErr(e));},
-  'gbp-open':()=>{openModal('⭐ Google-értékelések',`<div id="gbp-modal" class="gbp">${gbpBody()}</div>`,{cancelLabel:'Bezárás',noDraft:true});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(typeof cmbAuto==='function')cmbAuto();if(S.gbp&&S.gbp.connected)gbpLoad(true,true);},   // megnyitáskor magától frissít (csak új értékelésnél szól)
+  'gbp-open':()=>{openModal('⭐ Google-értékelések',`<div id="gbp-modal" class="gbp">${gbpBody()}</div>`,{cancelLabel:'Bezárás',noDraft:true,left:'<button type="button" class="btn outline small" data-action="rev-link-copy">🔗 Értékelési link másolása</button> <button type="button" class="btn outline small" data-action="rev-qr">▦ QR-kód</button>'});const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');if(typeof cmbAuto==='function')cmbAuto();if(S.gbp&&S.gbp.connected)gbpLoad(true,true);},   // megnyitáskor magától frissít (csak új értékelésnél szól)
   'gbp-more':()=>{S._gbpAll=!S._gbpAll;gbpRefresh();},
   'gbp-sync':b=>{if(b)b.disabled=true;gbpLoad(true);},
   'gbp-connect':()=>{if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast('A Google-belépés még töltődik – próbáld újra pár másodperc múlva.',true);return;}
@@ -550,3 +550,8 @@ ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvSta
   document.addEventListener('keydown',e=>{if(!IN(e))return;const k=e.key;if((e.metaKey||e.ctrlKey)&&/^[ac]$/i.test(k))return;if(['Tab','Shift','Meta','Control','Alt','ArrowLeft','ArrowRight','Home','End','Escape'].includes(k))return;stop(e);if(k.length===1||k==='Backspace'||k==='Delete')tip();},true);
   ['focus','focusin'].forEach(t=>document.addEventListener(t,e=>{if(IN(e))e.stopImmediatePropagation();},true));   /* a keresőlisták (ügyfél, helyszín…) ne nyíljanak le */
 })();
+
+/* Google-értékelési link: másolás és QR-kód (pl. rendezvényen kitenni, névjegyre, e-mail aláírásba) */
+ACT['rev-link-copy']=async()=>{try{await navigator.clipboard.writeText(REVIEW_URL);toast('✓ Az értékelési link a vágólapon: '+REVIEW_URL);}catch(e){prompt('Másold ki a linket:',REVIEW_URL);}};
+ACT['rev-qr']=async()=>{let img='';try{await loadQr();const q=qrcode(0,'M');q.addData(REVIEW_URL);q.make();img=q.createDataURL(10,16);}catch(e){toast('A QR-kód most nem készíthető el.',true);return;}
+  confirmLayer('▦ Értékelési QR-kód',`<div style="margin:0 16px;text-align:center"><img src="${img}" alt="QR-kód: Google-értékelés" style="width:min(70vw,300px);height:auto;image-rendering:pixelated;border:1px solid var(--line,#e3e6eb);border-radius:12px"><p class="hint" style="margin:8px 0 0;word-break:break-all">${esc(REVIEW_URL)}</p><p style="margin:10px 0 0"><a class="btn outline small" href="${img}" download="Lumos-Motion-Google-ertekeles-QR.png">⬇ Letöltés (PNG)</a></p></div>`,'🔗 Link másolása',(b,l)=>{l.remove();ACT['rev-link-copy']();});};
