@@ -203,8 +203,8 @@ const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
 const tlGrpClosed=()=>{try{return JSON.parse(localStorage.getItem('lpm_tl_grp_closed')||'[]')||[];}catch(e){return [];}};   // idővonal: lecsukott vágó-csoportok
 function calTimeline(m,items0,T,ahead){
-  const months=Array.from({length:ahead+2},(_,i)=>shiftMonth(m,i-1));
-  const first=months[0]+'-01',last=addDays(shiftMonth(m,ahead+1)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
+  const months=Array.from({length:ahead+5},(_,i)=>shiftMonth(m,i-2));   /* szélesebb betöltött időszak (2 hónap vissza, +2 előre): ritkán kell görgetés közben újrarajzolni */
+  const first=months[0]+'-01',last=addDays(shiftMonth(m,ahead+3)+'-01',-1),N=diffDays(first,last)+1,days=[];for(let i=0;i<N;i++)days.push(addDays(first,i));
   const col=d=>diffDays(first,d)+1;
   const items=[],ik=new Set();months.forEach(month=>(month===m?items0:calItems(month)).forEach(it=>{const k=it.kind+':'+it.id+(it.cut?':c':'');if(!ik.has(k)){ik.add(k);items.push(it);}}));
   /* Vágás: a projekt utáni naptól a leadási határidőig lila sáv a projekt sorában; ha a határidő a projekt napjára esik, alatta */
