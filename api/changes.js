@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6ca144b358",
+"at": "2026-11-26T17:40:00+02:00",
+"msg": "Fekvő telefon, projektlista: az állapot-oszlop minden sorban egy vonalban"
+},
+{
 "id": "b2cb96fc01",
 "at": "2026-11-26T17:37:38+02:00",
 "msg": "Telefon, projekt Pénzügyek: Szerződés és Termelés egy sorban, alatta tömör értékesítő-kártya (nem lóg ki)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "71ddf23d12",
 "at": "2026-11-26T15:28:05+01:00",
 "msg": "Rögzítő sáv: a lehetőség mellett a kapcsolattartó neve is"
-},
-{
-"id": "d7cfe0c4f3",
-"at": "2026-11-26T14:26:06Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
