@@ -172,6 +172,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
   if (u.role === 'admin') { try { migNickNandi_(); } catch (e) { Logger.log('migNick: ' + e); } }
   if (u.role === 'admin') { try { migNoteHead_(); } catch (e) { Logger.log('migNoteHead: ' + e); } }
+  if (u.role === 'admin') { try { migRecSumPurge_(); } catch (e) { Logger.log('migRecSumPurge: ' + e); } }
   if (u.role === 'admin') { try { const r = migSelfAccept_(); if (r && r.fresh) MIG_NOTE_ = r.msg; } catch (e) { Logger.log('migSelfAccept: ' + e); } }
   if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
@@ -526,6 +527,17 @@ function noteHeadFix_(t, fb) { const L = String(t || '').split('\n'); let ch = f
   for (let i = 0; i < L.length - 1; i++) if (DNOTE_HEAD_RE_.test(L[i]) && /\] (🎙️ .* rögzítve \(.*\) – a beszélgetőpartner hozzájárult a rögzítéshez\.|📄 Árajánlat elküldve .*)$/.test(L[i]) && L[i + 1].trim() && !DNOTE_HEAD_RE_.test(L[i + 1])) { L[i + 1] = '[' + fb + '] ' + L[i + 1]; ch = true; }
   return ch ? L.join('\n') : String(t || ''); }
 /** Egyszeri javítás: a felvétel / ajánlatküldés egysoros bejegyzése alá „ragadt” régi, fejléc nélküli jegyzet visszakapja a saját fejlécét. */
+/* Egyszeri takarítás (2026-11-26, az ügyvezető kérésére): a bevezetés napján készült próba-összefoglalók („🎙️ Beszélgetés összefoglalója”) törlése a jegyzetekből.
+   Csak a 2026-11-26-i ilyen bejegyzések – a valódi jegyzetek és a „rögzítve” sorok maradnak. */
+function recSumPurge_(t) { const L = String(t || '').split('\n'), out = []; let skip = false;
+  L.forEach(l => { if (DNOTE_HEAD_RE_.test(l)) skip = /^\[2026-11-26 \d{2}:\d{2}[^\]]*\] \u{1F399}\uFE0F? ?Beszélgetés összefoglalója/u.test(l); if (!skip) out.push(l); });
+  return out.join('\n'); }
+function noteFixAll_(t, fb) { return recSumPurge_(noteHeadFix_(t, fb)); }
+function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_RECSUM_PURGE_1'; if (P.getProperty(K)) return;
+  withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
+    readAll_('deals').forEach(d => { const t = String(d.note || ''); if (recSumPurge_(t) === t) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = recSumPurge_(String(x.note || '')); putRow_('deals', sh, x, row); n++; });
+    if (n) { dataBump_(); dbFlush_(); } Logger.log('migRecSumPurge: ' + n); });
+  P.setProperty(K, now_()); }
 function migNoteHead_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NOTE_HEAD_1'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
     readAll_('deals').forEach(d => { const t = String(d.note || ''), f = noteHeadFix_(t, dealNoteFb_(d)); if (f === t) return;

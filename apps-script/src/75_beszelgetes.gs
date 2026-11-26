@@ -14,7 +14,7 @@ function recFolder_() {
 function recDeal_(u, dealId) { const d = readAll_('deals').find(x => x.id === dealId); if (!d) throw new Error('A lehetőség nem található.'); dealCan_(u, d); return d; }
 function recList_(u, a) { const did = str_(a && a.dealId, 64), d = recDeal_(u, did), o = qGet_('REC_' + did) || {}, out = { list: (o.list || []).map(recPub_), ai: !!(geminiKey_() || openaiKey_()) };
   try {   // a felvétel bejegyzése alá ragadt régi jegyzet szétválasztása (a felület a javított jegyzetet kapja vissza, hogy mentéskor ne írja vissza a régit)
-    if (noteHeadFix_(d && d.note, 'x') !== String(d && d.note || '')) withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) return; const x = readRow_('deals', sh, row), f = noteHeadFix_(x.note, dealNoteFb_(x));
+    if (noteFixAll_(d && d.note, 'x') !== String(d && d.note || '')) withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) return; const x = readRow_('deals', sh, row), f = noteFixAll_(x.note, dealNoteFb_(x));
       if (f !== String(x.note || '')) { x.note = f; putRow_('deals', sh, x, row); dataBump_(); dbFlush_(); } out.note = f; });
   } catch (e) { Logger.log('recList noteFix: ' + e); }
   return out; }
