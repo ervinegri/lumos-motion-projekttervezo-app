@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9cc65355fb",
+"at": "2026-11-26T21:34:10+01:00",
+"msg": "Kifizetés felismerése a bankból: a kimenő utalás akkor is párosul, ha a szakember számlája csak az utalás után került be (újraellenőrzés), fordított névsorrend és nettó/bruttó összeg is; a Fizetések cellájában „🏦 utalva … ✓” gomb egy kattintásos jóváhagyással"
+},
+{
 "id": "53e214beeb",
 "at": "2026-11-26T22:02:51+02:00",
 "msg": "Stáb / Szereplők: csak lista (a kártyanézet és a váltó megszűnt); kereső és szerep-szűrő egy sorban"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Projekt oldal: egyforma (8 px) távolság a szakaszok között"
 },
 {
-"id": "178af77cb3",
-"at": "2026-11-26T17:58:59+02:00",
-"msg": "Projektlista (gép): vékonyabb fejléc"
-},
-{
-"id": "8c5938b492",
-"at": "2026-11-26T15:57:57Z",
+"id": "e5d310c5c5",
+"at": "2026-11-26T15:59:10Z",
 "msg": "Változásnapló frissítése"
 }
 ];
