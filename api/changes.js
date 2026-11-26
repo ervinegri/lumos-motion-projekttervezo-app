@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "108982d67e",
+"at": "2026-11-26T09:50:49+01:00",
+"msg": "Közeli forgatás: lakat a Stáb panelen (utolsó 3 nap / helyszíni munkától), sürgős meghívó a forgatás előtti estéig tartó határidővel; visszamondás szöveg pontosítva"
+},
+{
 "id": "7ac615cf1d",
 "at": "2026-11-26T09:44:10+01:00",
 "msg": "Szakember nézet: a (látható, tehát elfogadott) csapattársak kártyája zöld"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Fizetések: a vezető saját beosztása nem teszi a régi projektet meghívásossá (Vegan Summit, Veganuár díjai újra számítanak); Szolgáltatások: egyetlen lakat"
 },
 {
-"id": "cda0535a68",
-"at": "2026-11-26T08:48:28+01:00",
-"msg": "Meghívó: „🎬 Projektvezető” + „👥 Meghívót kap” – a tervezett helyszíni csapat (egyszerre kiküldött meghívóknál is látják egymást)"
-},
-{
-"id": "43b5428c75",
-"at": "2026-11-26T07:24:08Z",
+"id": "07209f781e",
+"at": "2026-11-26T07:48:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
