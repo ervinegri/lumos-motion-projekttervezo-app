@@ -200,13 +200,15 @@ const ZB_SKIP=/(^|\s)(sep-row|pt-month|pt-group|grp|bill-month|pt-today-row)(\s|
 function zebra(root){(root||document).querySelectorAll('table tbody').forEach(tb=>{let n=0;[...tb.rows].forEach(r=>{if(ZB_SKIP.test(r.className)){n=0;return;}r.classList.toggle('zb',n%2===1);r.classList.toggle('zw',n%2===0);n++;});});}
 /* A cím (#p=projekt vagy #t=fül) mindig az aktuális helyet mutatja, így frissítés után ugyanide térünk vissza. */
 function wantedHash(){return S.tab==='projektek'&&S.projectId?'#p='+projSlug(projById(S.projectId)||{id:S.projectId}):S.tab&&S.tab!=='projektek'?'#t='+S.tab:'';}
-function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
+/* iPhone / iPad: az iOS 26.2 hibája miatt (WebKit 305546) az appon belüli előzmény-bejegyzés után elhomályosodik a felső menü – ott nem írunk új bejegyzést, csak a címet frissítjük */
+const NO_HIST=(()=>{try{return /iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}catch(e){return false;}})();
+function syncHash(){const h=wantedHash();if((location.hash||'')!==h){try{const url=location.pathname+location.search+h;if(S._histReady&&!NO_HIST)history.pushState(null,'',url);else history.replaceState(null,'',url);}catch(e){}}S._histReady=!!S.loaded;}
 /* Böngésző vissza/előre: az előző nézetre (fül vagy projekt) lépünk; a folyamatban lévő módosítás előtte elmentődik. */
 /* Felugró ablak és a Vissza gomb: megnyíláskor egy saját előzmény-bejegyzés kerül be, így a (telefonos / böngészős) Vissza az ablakot zárja be,
    és a mögötte lévő nézetre (pl. a videótáblára) tér vissza – nem hagyja el az appot. Ha az ablak máshogy zárul, a bejegyzést mi vesszük vissza. */
 const MD_HIST={on:false,skip:0,t:0};
 function mdHistSync(){clearTimeout(MD_HIST.t);MD_HIST.t=setTimeout(()=>{const open=!!document.querySelector('#modalRoot .mbox');
-  if(open&&!MD_HIST.on){try{history.pushState({lpmModal:1},'',location.href);MD_HIST.on=true;}catch(e){}}
+  if(open&&!MD_HIST.on){if(NO_HIST)return;try{history.pushState({lpmModal:1},'',location.href);MD_HIST.on=true;}catch(e){}}
   else if(!open&&MD_HIST.on){MD_HIST.on=false;if(history.state&&history.state.lpmModal){MD_HIST.skip++;try{history.back();}catch(e){MD_HIST.skip--;}}}},120);}
 (()=>{const go=()=>{const r=document.getElementById('modalRoot');if(!r)return setTimeout(go,200);try{new MutationObserver(mdHistSync).observe(r,{childList:true,subtree:false});}catch(e){}};go();})();
 function mdHistBack(){   /* Vissza nyitott ablaknál: a legfelső réteg zárul; beírt szöveget tartalmazó réteg nem zárul el (a szöveg nem veszhet el) */
