@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5c05dc9b0b",
+"at": "2026-11-26T21:39:17+02:00",
+"msg": "Telefon, projekt oldal: a szakaszok széltől szélig (oldalsó margó és keret nélkül)"
+},
+{
 "id": "4b092297b5",
 "at": "2026-11-26T21:38:24+02:00",
 "msg": "iPhone / iPad: az appon belüli navigáció nem ír előzmény-bejegyzést (iOS 26.2 hiba: elhomályosodó felső menü)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Telefon: fele olyan széles Értékesítés-oszlopok, tömörebb kártyák"
 },
 {
-"id": "5b9aad7d4b",
-"at": "2026-11-26T17:35:58+02:00",
-"msg": "Lezárt Alapadatok: a mezők csak olvashatónak látszanak (nincs keret, lenyíló nyíl, Nap hozzáadása)"
-},
-{
-"id": "d4c0c84f71",
-"at": "2026-11-26T15:35:45Z",
+"id": "4da72dcbac",
+"at": "2026-11-26T15:36:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
