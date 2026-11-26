@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dfe7a656da",
+"at": "2026-11-26T11:55:24+02:00",
+"msg": "Gyors út: nézetváltás és kilépés után a munkamenet tükre azonnal frissül; jogosultsági tiltásnál mindig az Apps Script dönt (nem jön téves „nincs jogosultságod” profilváltáskor)"
+},
+{
 "id": "4006b5c786",
 "at": "2026-11-26T11:49:31+02:00",
 "msg": "Gyors út: a változásnapló és a feladó-álnevek is a gyors úton (a változásnaplót a saját szerver adja, az álnevek a tükörből); a csomag-frissítések nem kerülnek a változásnaplóba"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (havi nézet): MacBook trackpaddel sem ugrik kettőt – váltás után 0,45 mp-ig nem vált újra (a még tartó, közben gyorsuló mozdulat sem), utána csak szünet vagy erősen gyorsuló új mozdulat vált"
 },
 {
-"id": "5bd4311979",
-"at": "2026-11-26T10:23:51+02:00",
-"msg": "Naptár: asztali gépen keskeny ablakban (700 px alatt) is a teljes képernyős havi nézet – a rács alatti napi lista csak érintőképernyős telefonon jelenik meg"
-},
-{
-"id": "a9ddf763ce",
-"at": "2026-11-26T08:22:09Z",
+"id": "10206eff76",
+"at": "2026-11-26T08:24:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
