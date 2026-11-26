@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e0baca908d",
+"at": "2026-11-26T15:49:02+01:00",
+"msg": "Rögzítés: frissítés ellen védve (lehúzás / automatikus újratöltés nem indul rögzítés közben); ha mégis megszakadt, az új lap rögtön felajánlja: Feltöltés, vagy Feltöltés és folytatás (új felvétel indul, az előző rész a háttérben töltődik fel). Lehetőség ablaka telefonon: a két gomb és a bezárás egy sorban, rövid felirattal"
+},
+{
 "id": "a47a783901",
 "at": "2026-11-26T15:43:30+01:00",
 "msg": "Lehetőség ablaka: az ajánlat- és a rögzítés-gomb a fejlécben (jobb felső sarok); a bevezetés napi próba-rögzítések sorai is törlődnek a jegyzetből (15:46 előttiek)"
@@ -122,13 +127,8 @@ const ITEMS = [
 "msg": "Hibakeresés: az utolsó Neon-hibák szövege (titok nélkül) a /api/dbstatus-ban"
 },
 {
-"id": "fa9f3e5a96",
-"at": "2026-11-26T13:26:47+01:00",
-"msg": "Felvétel: a hozzájárulás jelölőnégyzete alapból bepipálva"
-},
-{
-"id": "fa24e8f102",
-"at": "2026-11-26T12:23:48Z",
+"id": "0cc6fda2fd",
+"at": "2026-11-26T12:26:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
