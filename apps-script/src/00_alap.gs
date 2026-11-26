@@ -294,14 +294,18 @@ function dbSchema_(url) {
 /* Memóriabeli munkalap: a Google Sheets API általunk használt részét valósítja meg */
 function NSheet_(tab, rows) { this.tab = tab; this.v = rows || []; this.cols = this.v.reduce((m, r) => Math.max(m, r.length), 0); this.dirty = false; this.isNew = false; }
 NSheet_.prototype.getName = function () { return this.tab; };
+/* 2026-11-26 (forgalom): az első módosítás előtt a lap mentési alakja megjegyezve – ha a kérés végére tartalmilag ugyanaz, nem írjuk vissza
+   (nem lép a változat, így a gyorsítótárak és a többi példány sem tölti le újra a teljes lapot) */
+NSheet_.prototype._ser = function () { const n = this.getLastRow(), c = Math.max(this.cols, 1); return JSON.stringify(this.v.slice(0, n).map(r => (r || []).slice(0, c).map(x => x === undefined || x === null ? '' : x))); };
+NSheet_.prototype._snap = function () { if (!this.dirty && !this.isNew && this._base == null) { try { this._base = this._ser(); } catch (e) { this._base = null; } } };
 NSheet_.prototype.getLastRow = function () { for (let i = this.v.length - 1; i >= 0; i--) { const r = this.v[i] || []; if (r.some(x => x !== '' && x !== null && x !== undefined)) return i + 1; } return 0; };
 NSheet_.prototype.getMaxRows = function () { return Math.max(this.v.length, 1); };
 NSheet_.prototype.getMaxColumns = function () { return Math.max(this.cols, 1); };
-NSheet_.prototype.insertColumnsAfter = function (c, n) { this.cols = Math.max(this.cols, c + n); this.dirty = true; return this; };
-NSheet_.prototype.deleteColumns = function (c, n) { this.cols = Math.min(this.cols, c - 1); this.v.forEach(r => { if (r.length > c - 1) r.length = c - 1; }); this.dirty = true; return this; };
+NSheet_.prototype.insertColumnsAfter = function (c, n) { this._snap(); this.cols = Math.max(this.cols, c + n); this.dirty = true; return this; };
+NSheet_.prototype.deleteColumns = function (c, n) { this._snap(); this.cols = Math.min(this.cols, c - 1); this.v.forEach(r => { if (r.length > c - 1) r.length = c - 1; }); this.dirty = true; return this; };
 NSheet_.prototype.setFrozenRows = function () { return this; };
 NSheet_.prototype.protect = function () { const o = { setDescription: () => o, setWarningOnly: () => o }; return o; };
-NSheet_.prototype.deleteRow = function (r) { this.v.splice(r - 1, 1); this.dirty = true; return this; };
+NSheet_.prototype.deleteRow = function (r) { this._snap(); this.v.splice(r - 1, 1); this.dirty = true; return this; };
 NSheet_.prototype.getRange = function (r, c, nr, nc) { return new NRange_(this, r, c, nr || 1, nc || 1); };
 NSheet_.prototype.getDataRange = function () { return new NRange_(this, 1, 1, Math.max(1, this.getLastRow()), Math.max(1, this.cols)); };
 function NRange_(sh, r, c, nr, nc) { this.sh = sh; this.r = r; this.c = c; this.nr = nr; this.nc = nc; }
@@ -309,7 +313,7 @@ NRange_.prototype.getValues = function () { const out = []; for (let i = 0; i < 
 NRange_.prototype.getDisplayValues = function () { return this.getValues().map(r => r.map(x => x === true ? 'TRUE' : x === false ? 'FALSE' : String(x))); };
 NRange_.prototype.getValue = function () { return this.getValues()[0][0]; };
 NRange_.prototype.setValues = function (vals) {
-  const sh = this.sh;
+  const sh = this.sh; sh._snap();
   for (let i = 0; i < vals.length; i++) { const ri = this.r - 1 + i; while (sh.v.length <= ri) sh.v.push([]); const row = sh.v[ri];
     for (let j = 0; j < vals[i].length; j++) { const ci = this.c - 1 + j; while (row.length < ci) row.push(''); row[ci] = vals[i][j] instanceof Date ? Utilities.formatDate(vals[i][j], SHEET_TZ, 'yyyy-MM-dd HH:mm:ss') : vals[i][j]; } }
   sh.cols = Math.max(sh.cols, this.c - 1 + (vals[0] ? vals[0].length : 0)); sh.dirty = true; return this; };
@@ -352,7 +356,7 @@ function dbLoadInner_() {
   const seen = {};
   const verOf = {}; vers.forEach(x => { verOf[x[0]] = x[1]; });
   (r.rows || []).forEach(row => { const tab = row[0], rows = JSON.parse(row[1] || '[]'); seen[tab] = 1;
-    if (DB_.sheets[tab]) { const s = DB_.sheets[tab]; s.v = rows; s.cols = rows.reduce((m, x) => Math.max(m, x.length), 0); s.dirty = false; s.isNew = false; }
+    if (DB_.sheets[tab]) { const s = DB_.sheets[tab]; s.v = rows; s.cols = rows.reduce((m, x) => Math.max(m, x.length), 0); s.dirty = false; s.isNew = false; s._base = null; }
     else DB_.sheets[tab] = new NSheet_(tab, rows);
     DB_.sheets[tab].ver = verOf[tab] != null ? String(verOf[tab]) : null; });   // a betöltött változat: íráskor csak akkor írunk rá, ha közben más nem írta (gyors út / másik kérés)
   Object.keys(DB_.sheets).forEach(tab => { if (!seen[tab] && !DB_.sheets[tab].dirty) { DB_.sheets[tab].v = []; DB_.sheets[tab].cols = 0; } });
@@ -425,6 +429,7 @@ function kvMirror_() {
 }
 function dbFlush_() {
   if (!dbOn_()) { SpreadsheetApp.flush(); scBump_(); return; }
+  Object.keys(DB_.sheets).forEach(k => { const s = DB_.sheets[k]; if (s.dirty && !s.isNew && s._base != null) { try { if (s._ser() === s._base) s.dirty = false; } catch (e) { } } });   // tartalmilag változatlan lap: nincs írás
   const dirty = Object.keys(DB_.sheets).map(k => DB_.sheets[k]).filter(s => s.dirty), logs = DB_.pendingLog || [];
   const kvB = !!(DB_.kvBump && !DB_.kvBumped);
   if (!dirty.length && !logs.length && !kvB) return;
@@ -440,7 +445,7 @@ function dbFlush_() {
   catch (e) { if (/division by zero/i.test(String(e && e.message))) { DB_.pendingLog = logs.concat(DB_.pendingLog || []); DB_.kvBumped = false; throw new Error('CONFLICT_DB: Közben valaki más is mentett ugyanide – frissítsd az oldalt, és próbáld újra.'); } throw e; }
   res.forEach(r => { try { const x = r && r.rows && r.rows[0]; if (!x || !x[1]) return; const s = DB_.sheets[x[0]]; if (s && s._json) { s.ver = String(x[1]); tabCachePut_(x[0], x[1], s._json); } } catch (e) { } });   // a most írt tábla rögtön a gyorsítótárba (a következő olvasás nem tölti le)
   if (kvB || dirty.length) kvOkSet_();
-  dirty.forEach(s => { s.dirty = false; s.isNew = false; });
+  dirty.forEach(s => { s.dirty = false; s.isNew = false; }); Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k]._base = null; });
   if (dirty.length) dataBump_();   // bármilyen írás (a betöltés karbantartó lépései is): a többi nyitott lap frissül
 }
 /* Napló az adatbázisban (csak hozzáfűzés; a lista az utolsó 300 bejegyzés) */
