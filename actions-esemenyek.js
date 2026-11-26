@@ -360,7 +360,7 @@ const ACT={
   'crew-lock-open':()=>{const d=S.draft;if(!d)return;const r=pr(d),dd=r?diffDays(todayISO(),r.start):null,why=crewLockNeed(d);
     const when=why==='site'?'A projekt már a helyszíni munkánál tart.':dd<=0?'Ma van a forgatás.':dd===1?'Holnap lesz a forgatás.':dd+' nap múlva lesz a forgatás.';
     const acc=Object.keys(d.invites||{}).filter(k=>{const iv=d.invites[k];return iv&&!iv.pre&&iv.st==='yes'&&iv.via!=='self';}).map(k=>(crewById(k)||{}).name||'?').join(', ');
-    const msg=(why?when+' Biztosan módosítod a stábot vagy új embert hívsz meg? Az új meghívó sürgősként megy ki, rövid válaszadási határidővel (legkésőbb a forgatás előtti este).':'')+(acc?(why?' ':'')+acc+' már elfogadta a meghívót. Ha az eszközeiken változtatsz, visszazáráskor (🔓 vagy a projekt elhagyásakor) megmutatom az értesítő e-mailt, és te döntöd el, elküldöd-e.':'');
+    const msg=(why?when+' Biztosan módosítod a stábot vagy új embert hívsz meg? Az új meghívó sürgősként megy ki, rövid válaszadási határidővel (a forgatás előtt).':'')+(acc?(why?' ':'')+acc+' már elfogadta a meghívót. Ha az eszközeiken változtatsz, visszazáráskor (🔓 vagy a projekt elhagyásakor) megmutatom az értesítő e-mailt, és te döntöd el, elküldöd-e.':'');
     confirmModal('Stáb módosítása',msg,'✏️ Módosítom',()=>{if(acc)noticeSnapTake(d.id);(S.crewEdit=S.crewEdit||{})[d.id]=true;render(true);});},
   'crew-lock-close':()=>{const d=S.draft;if(!d)return;if(S.crewEdit)delete S.crewEdit[d.id];render(true);toast('Visszazárva');noticeMaybe(d.id);},
   'svc-lock-close':b=>{const d=S.draft;if(!d)return;String(b.dataset.k||'').split(',').filter(Boolean).forEach(k=>{delete svcEditMap(k)[d.id];});render(true);toast('Visszazárva');noticeMaybe(d.id);},
