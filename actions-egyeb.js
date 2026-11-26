@@ -452,7 +452,7 @@ document.addEventListener('drop',async e=>{if(!CAL_DRAG)return;const d=e.target.
 /* Google-értékelések: műveletek (a panel a views-stab-naptar-beallitasok.js-ben) */
 document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.gbpmatch)return;const id=t.dataset.gbpmatch,cl=t.value;
   const r=(S.gbp&&S.gbp.reviews||[]).find(x=>x.id===id);if(r){r.client=cl;r.manual='1';}
-  call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;gbpRefresh();toast(cl?'Párosítva: '+cl:'Párosítás törölve');}).catch(handleErr);});
+  call('gbpMatch',{id,client:cl}).then(x=>{S.gbp=x;gbpRefresh();toast(cl?'Párosítva: '+(typeof gbpClLabel==='function'?gbpClLabel(cl):cl):'Párosítás törölve');}).catch(handleErr);});
 Object.assign(ACT,{
   'gbp-secret':async b=>{const i=$('gbp-secret'),v=i&&i.value.trim();if(!v){toast('Másold be a titkos kulcsot.',true);return;}b.disabled=true;try{S.gbp=await call('gbpSecret',{secret:v});toast('Titkos kulcs elmentve ✓');gbpRefresh();}catch(e){b.disabled=false;handleErr(e);}},
   'perf-load':()=>{call('perfStats',{}).then(r=>{S.perfSrv=r||{ops:{}};render(true);},e=>handleErr(e));},

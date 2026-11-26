@@ -561,7 +561,7 @@ function rpcInner_(token, name, arg) {
     case 'videoQuote': return videoQuote_(u, arg);
     case 'videoQuoteSend': return videoQuoteSend_(u, arg);   // fizetős javítás árajánlata (ügyvezető)
     case 'reviewSend': return reviewSend_(u, arg);   // kézi értékeléskérés
-    case 'gbpList': adminOnly(); return gbpList_(u, arg);   // Google-értékelések
+    case 'gbpList': canEdit(); return gbpList_(u, arg);   // a termelési vezető is látja (válaszolni / párosítani csak az ügyvezető)   // Google-értékelések
     case 'gbpConnect': adminOnly(); return gbpConnect_(u, arg);
     case 'gbpReply': adminOnly(); return gbpReply_(u, arg);
     case 'gbpMatch': adminOnly(); return gbpMatch_(u, arg);
