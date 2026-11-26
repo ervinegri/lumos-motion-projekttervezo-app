@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "17acd41743",
+"at": "2026-11-26T17:31:52+02:00",
+"msg": "Érintőképernyő: hosszú nyomásra nem jelölődik ki szöveg a listákban (JS-védelem is, nem csak CSS)"
+},
+{
 "id": "6d052941a1",
 "at": "2026-11-26T17:31:14+02:00",
 "msg": "Értékelés-kérő levél a szokásos levélnézetben (fejléc, szerkeszthető szöveg, aláírás); a visszajelző üzenet eltűnik kattintásra / új ablaknál"
@@ -135,11 +140,6 @@ const ITEMS = [
 "id": "348c37cba9",
 "at": "2026-11-26T15:15:52+01:00",
 "msg": "Rögzítés: feltöltés után a sáv helyén feldolgozás-jelző (átirat / összefoglaló készül), egyetlen darabnál nincs félrevezető 0%; az összefoglaló ablaka mellett nincs külön értesítés; OpenAI: a felesleges beszélő-szerinti próbálkozás kimarad"
-},
-{
-"id": "e616dba93c",
-"at": "2026-11-26T15:13:45+01:00",
-"msg": "Mikrofon-választó: a lista nem csukódik be magától (a többi rövid legördülővel azonos viselkedés), az alapértelmezettnél is minden mikrofon látszik"
 }
 ];
 const allowed = require('./_auth.js');
