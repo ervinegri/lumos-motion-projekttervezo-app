@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b8955e7a82",
+"at": "2026-11-26T11:45:07+01:00",
+"msg": "Google-értékelések: link másolása és QR-kód betöltés közben is"
+},
+{
 "id": "135a455c3c",
 "at": "2026-11-26T11:43:30+01:00",
 "msg": "Google-értékelések, telefon: cím és értékelés egy sorban"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "b87c83bfc0",
 "at": "2026-11-26T11:10:36+02:00",
 "msg": "Mentés a háttérben: ha egy ablak mentése a szerverre vár, az ablak eltűnik és lehet tovább dolgozni (⏳ Mentés folyamatban jelző); hibánál az ablak a beírt adatokkal visszajön; közben nyitott új ablak a mentés után nyílik"
-},
-{
-"id": "822e215e0e",
-"at": "2026-11-26T11:07:48+02:00",
-"msg": "Sebesség: a műveletenkénti időtartamok a /api/dbstatus-ban is (titok nélkül), a hibakereséshez"
 }
 ];
 const allowed = require('./_auth.js');
