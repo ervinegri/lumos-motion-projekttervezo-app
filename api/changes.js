@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "42fb3de629",
+"at": "2026-11-26T17:17:01+02:00",
+"msg": "Kifizetések: a banki utalás magától kifizetettnek jelöli a szakember számláját (egyező összeg + számlaszám a közleményben vagy bankszámla / név; utólag érkező NAV-számlánál is); a kimenő utalás összege negatív – ezért nem párosított eddig. Felület: kellemesebb zöld az egész appban, vékonyabb állapotsorok, Fizetések fejléce görgetéskor fent marad, egységes kis hézag a menüsáv alatt, Projektek fejléce egy sorban"
+},
+{
 "id": "01fbeec04c",
 "at": "2026-11-26T16:08:31+01:00",
 "msg": "Fizetések: a kész lépés cellája (kiküldve, számla kiállítva, kifizetve) teljesen zöld"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "4a691d2b88",
 "at": "2026-11-26T14:45:07+01:00",
 "msg": "Gemini: modell-sorrend kimerült keretű / túlterhelt modellek félretételével (nem kezd újra és újra a 429-es modellel), időkereten belül több modell, érthető kerethiány-üzenet"
-},
-{
-"id": "3258ece2c3",
-"at": "2026-11-26T13:40:45Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
