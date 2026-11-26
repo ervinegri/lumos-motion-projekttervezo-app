@@ -3661,4 +3661,4 @@ html body #view>details.panel.fold,html body #view>.dfull>details.panel.fold{mar
 /* gép: a fejléc sorában a Lemondás / Törlés csak ikon (rámutatva kiírja); telefonon felirattal */
 @media (min-width:701px){html body #view .dhead>.btns .dh-ic .dh-lbl{display:none}html body #view .dhead>.btns .dh-ic{padding-left:9px!important;padding-right:9px!important}}
 /* Szolgáltatások: a fejléc alatti magyarázó sor ugyanolyan közel van, mint az Alapadatoknál a mezők; alatta is kisebb a hézag */
-html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bottom:6px!important}
+html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bottom:10px!important}
