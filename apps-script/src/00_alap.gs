@@ -191,7 +191,8 @@ function api_(raw) {
     else throw new Error('Ismeretlen művelet.');
     };
     try { data = run(); if (DB_) dbFlush_();
-      if (fn === 'googleLogin' || (fn === 'rpc' && (!READ_ONLY_RPC_[String(args[1])] || String(args[1]) === 'bootstrap'))) kvMirror_(); }   // a gyors út a belépéseket, nézetváltásokat, beállításokat a Neon-tükörből látja
+      if (fn === 'googleLogin' || (fn === 'rpc' && (!READ_ONLY_RPC_[String(args[1])] || String(args[1]) === 'bootstrap'))) kvMirror_();
+      else if (fn === 'rpc' && typeof GAS_BUILD_ !== 'undefined') { try { if (CacheService.getScriptCache().get('kv_mirror_b') !== String(GAS_BUILD_)) kvMirror_(); } catch (e) { } } }   // új telepítés után az első kérés frissíti a tükröt (a gyors út csak egyező kóddal dolgozik)   // a gyors út a belépéseket, nézetváltásokat, beállításokat a Neon-tükörből látja
     catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFailed_(e1); throw new Error('Az adatbázis most nem érhető el – várj egy percet, és próbáld újra.'); }   /* a kérést nem futtatjuk újra (egy számla vagy levél már kimehetett); tartós kiesésnél vált a táblázatra */
     out = { ok: true, data: data === undefined ? null : data };
     try { out.pf = perfEnd_(true); } catch (e) {}
@@ -393,11 +394,11 @@ function kvMirror_() {
     try { o['m:owner'] = Session.getEffectiveUser().getEmail() || ''; } catch (e) { }
     o['m:build'] = typeof GAS_BUILD_ !== 'undefined' ? String(GAS_BUILD_) : '';   // a telepített kód azonosítója (zz_build.js, az Action írja) – a gyors út csak egyező kóddal dolgozik
     const js = JSON.stringify(o), h = sha256hex_(js), C = CacheService.getScriptCache();
-    if (C.get('kv_mirror_h') === h) return;
+    if (C.get('kv_mirror_h') === h) { if (typeof GAS_BUILD_ !== 'undefined') C.put('kv_mirror_b', String(GAS_BUILD_), 21600); return; }
     neonSql_([{ query: KV_DDL_ },
       { query: 'INSERT INTO lpm_kv (k, v) SELECT key, value FROM jsonb_each_text($1::jsonb) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v, at = now()', params: [js] },
       { query: "DELETE FROM lpm_kv WHERE (k LIKE 'p:%' OR k LIKE 'm:%') AND NOT ($1::jsonb ? k)", params: [js] }]);
-    C.put('kv_mirror_h', h, 21600); kvOkSet_();
+    C.put('kv_mirror_h', h, 21600); kvOkSet_(); if (typeof GAS_BUILD_ !== 'undefined') C.put('kv_mirror_b', String(GAS_BUILD_), 21600);
   } catch (e) { Logger.log('kv-tükör: ' + e); }
 }
 function dbFlush_() {
