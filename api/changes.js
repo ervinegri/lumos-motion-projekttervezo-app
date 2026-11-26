@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "bd1de43c54",
+"at": "2026-11-26T08:23:59+01:00",
+"msg": "Vágás: „Visszadobás” helyett barátságosabb „✏️ Módosítás kérése” (gomb, súgó, jelzés, hibaüzenet)"
+},
+{
 "id": "130152a89e",
 "at": "2026-11-26T08:21:36+01:00",
 "msg": "Helyszíni csapat: a meghívóban „👥 Veled lesz” sor, a szakember projektsorában a csapattársak (projektvezető + elfogadott helyszíni kollégák, utómunkások nélkül)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyersanyag-levél: a vágó címzett nem vehető ki (mindenképp megkapja)"
 },
 {
-"id": "46d99fb940",
-"at": "2026-11-25T15:38:08+01:00",
-"msg": "Piros hiba: lezajlott forgatás után a projekt még a Helyszíni munkánál (nyersanyag nincs feltöltve, a vágó nem tud kezdeni); szövegek: „húzd át” a „pipáld ki” helyett"
-},
-{
-"id": "a39e24003e",
-"at": "2026-11-25T14:36:59Z",
+"id": "32b8e75067",
+"at": "2026-11-25T14:38:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
