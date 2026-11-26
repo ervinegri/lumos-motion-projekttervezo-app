@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "35ffdefc33",
+"at": "2026-11-26T16:04:35+01:00",
+"msg": "Fekvő telefon: a felső sáv csak saját görgetésre tűnik el (menüváltáskor nem), a Bevétel-táblázat fejléce fent marad, a projektlista sorai feleakkorák"
+},
+{
 "id": "8cf87cb9c3",
 "at": "2026-11-26T16:03:07+01:00",
 "msg": "Jegyzet-törlés azonnal (a háttérben ment, hibánál visszajön); telefonon a Szerződés / Bevétel fejléce egy sorban, mint a Fizetéseknél"
@@ -125,11 +130,6 @@ const ITEMS = [
 "id": "957ba86834",
 "at": "2026-11-26T14:34:02+01:00",
 "msg": "Gemini túlterhelés: sorban a többi elérhető Flash modell is (stabil → latest → előzetes → lite), a válaszoló modell 3 óráig elsőként; a hibában a kipróbált modellek"
-},
-{
-"id": "d98cbdd01e",
-"at": "2026-11-26T13:12:29Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
