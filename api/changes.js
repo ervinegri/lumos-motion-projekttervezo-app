@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0a52880f67",
+"at": "2026-11-26T10:59:36+01:00",
+"msg": "Projekt Részletek (előzmények) a termelési vezetőnek is – árak, számlázás, jutalék nélkül"
+},
+{
 "id": "3f15be1bac",
 "at": "2026-11-26T11:58:05+02:00",
 "msg": "Stáb: zárt lakatnál a „Szerepkör hozzáadása” szürke és nem használható (jelzi, hogy a lakattal nyitható)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (havi nézet): a hónap már görgetés közben vált (nem csak a trackpad elengedésekor) – kisebb küszöb, a lassú húzás is számít; egérgörgővel az első kattanásra"
 },
 {
-"id": "385f26cd4b",
-"at": "2026-11-26T09:31:29+01:00",
-"msg": "Kanban és hozzászólások: rövid nevek (Dávid, Kata, Ervin – azonos keresztnévnél teljes név); jogosultsági hibánál a pontos indok is látszik"
-},
-{
-"id": "ff3be9e78f",
-"at": "2026-11-26T08:25:15Z",
+"id": "b3e82acbc5",
+"at": "2026-11-26T08:31:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
