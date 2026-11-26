@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01fbeec04c",
+"at": "2026-11-26T16:08:31+01:00",
+"msg": "Fizetések: a kész lépés cellája (kiküldve, számla kiállítva, kifizetve) teljesen zöld"
+},
+{
 "id": "63204338d8",
 "at": "2026-11-26T16:05:51+01:00",
 "msg": "Érintőképernyő: érintésre / hosszú nyomásra nem jelölődik ki a szöveg a listákban, kártyákon, menüben (a mezők és jegyzetek szövege kijelölhető marad)"
@@ -127,9 +132,9 @@ const ITEMS = [
 "msg": "Gemini: modell-sorrend kimerült keretű / túlterhelt modellek félretételével (nem kezd újra és újra a 429-es modellel), időkereten belül több modell, érthető kerethiány-üzenet"
 },
 {
-"id": "9e49a9245d",
-"at": "2026-11-26T14:40:28+01:00",
-"msg": "Hibakeresés: utolsó Gemini-hibák és a választott modell a /api/dbstatus-ban (kulcs nélkül)"
+"id": "3258ece2c3",
+"at": "2026-11-26T13:40:45Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
