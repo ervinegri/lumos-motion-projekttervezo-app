@@ -130,7 +130,7 @@ window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro()
 /* Lenyíló szekciók a projektlapon: alapból csukva, a nyitott állapotot megjegyezzük újrarajzolás között. */
 const FOLD={basics:false,svc:false,crew:false,money:false,billing:false,board:false,content:false};   /* frissítés után is csukva (mint projekt megnyitásakor) */
 /* oldalfrissítéskor ugyanaz a projekt ugyanazokkal a nyitott / csukott szakaszokkal jelenik meg (a böngészőfülön belül megjegyezve) */
-try{const z=JSON.parse(sessionStorage.getItem('lpm_fold')||'null');if(z&&z.f&&z.pid&&String(location.hash||'').length>1)Object.assign(FOLD,z.f),FOLD._pid=z.pid;}catch(e){}
+try{const z=JSON.parse(sessionStorage.getItem('lpm_fold')||'null');if(z&&z.f&&z.pid&&String(location.hash||'').indexOf('p='+String(z.pid).slice(0,8))>=0)Object.assign(FOLD,z.f),FOLD._pid=z.pid;}catch(e){}
 function foldSave(){try{if(typeof S!=='undefined'&&S.projectId){const f={};Object.keys(FOLD).forEach(k=>{if(k!=='_pid'&&typeof FOLD[k]==='boolean')f[k]=FOLD[k];});sessionStorage.setItem('lpm_fold',JSON.stringify({pid:S.projectId,f}));}}catch(e){}}
 /* Tartalom-csoport lenyíló: alapból nyitva, ha van benne kiválasztott tétel; a nyitás/zárás megmarad. */
 const stepRow=(p,it)=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
