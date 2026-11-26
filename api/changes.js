@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4b092297b5",
+"at": "2026-11-26T21:38:24+02:00",
+"msg": "iPhone / iPad: az appon belüli navigáció nem ír előzmény-bejegyzést (iOS 26.2 hiba: elhomályosodó felső menü)"
+},
+{
 "id": "35278c7ccb",
 "at": "2026-11-26T21:36:35+02:00",
 "msg": "Visszavonva: a rugózás tiltása nem oldotta meg a felső menü homályát"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Lezárt Alapadatok: a mezők csak olvashatónak látszanak (nincs keret, lenyíló nyíl, Nap hozzáadása)"
 },
 {
-"id": "4a0b4a9327",
-"at": "2026-11-26T17:35:34+02:00",
-"msg": "Telefon: tömör projektfejléc (vissza, dátum, név egy alacsony sorban; kisebb gombsor)"
-},
-{
-"id": "3b761b994e",
-"at": "2026-11-26T15:32:27Z",
+"id": "d4c0c84f71",
+"at": "2026-11-26T15:35:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
