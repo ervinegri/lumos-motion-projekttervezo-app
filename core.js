@@ -446,7 +446,7 @@ function perfRec(op,ms,pf,bad){const P=perfLoad(),r=P.ops[op]||(P.ops[op]=[0,0,0
 /* Gyors út (2026-11-26): a kérés először a saját szerverünkre (Vercel, közvetlenül a Neon mellett) megy – ~0,2–0,5 mp a 3–4 mp helyett.
    Ha a művelet Google-szolgáltatást igényel (levél, naptár, Drive…), a gyors út semmit nem ír, és jelzi: ilyenkor az Apps Script végzi, mint eddig.
    Kikapcsolható: localStorage lpm_fast = '0'. Ismétlődő szerverhibánál a munkamenetre magától kikapcsol. */
-const FAST_DENY=/^(calendarEvents|settingsData|googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
+const FAST_DENY=/^(calendarEvents|settingsData|googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|rec(Up\w+|List|Process|ApplyNext|Del)|gemini\w*|reviewSend|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
 let FAST_BAD=0;const FAST_SKIP={};
 function fastOn(){try{if(localStorage.getItem('lpm_fast')==='0')return false;}catch(e){}return FAST_BAD<3&&location.protocol==='https:';}
 async function gsFast(name,body){const t0=performance.now();let res,j=null;
