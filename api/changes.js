@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7d73aefaa9",
+"at": "2026-11-26T12:10:45+01:00",
+"msg": "Google-értékelések: a gombok a címsorban (gépen egy sor)"
+},
+{
 "id": "fcece2e370",
 "at": "2026-11-26T12:07:47+01:00",
 "msg": "Google-értékelések: értékelés kérése e-mailben projekt nélkül (✉️ Küldés); rövidebb gombok (Küldés · Link · QR)"
@@ -135,16 +140,6 @@ const ITEMS = [
 "id": "44ec20257e",
 "at": "2026-11-26T11:47:17+02:00",
 "msg": "Gyors út: írás-próba valódi adatbázison (külön üres próbalap; feltételes írás, ütközés, visszaürítés) – ritkítva"
-},
-{
-"id": "67f786c017",
-"at": "2026-11-26T11:44:22+02:00",
-"msg": "Gyors út: telepítés után az Action azonnal frissíti a tükröt; csak a valódi Google-igény miatti visszalépés kapcsolja ki a gyors utat egy olvasásra"
-},
-{
-"id": "8bad62df1c",
-"at": "2026-11-26T09:37:22Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
