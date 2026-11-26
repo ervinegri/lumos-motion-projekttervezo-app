@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d08b93d43e",
+"at": "2026-11-26T09:00:52+01:00",
+"msg": "Naptár (asztali havi nézet): a lap nem görgethető, csak maga a naptár; a szélén tovább görgetve hónapot vált"
+},
+{
 "id": "1959a9f047",
 "at": "2026-11-26T08:55:41+01:00",
 "msg": "Fizetések: a vezető saját beosztása nem teszi a régi projektet meghívásossá (Vegan Summit, Veganuár díjai újra számítanak); Szolgáltatások: egyetlen lakat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Nyersanyag-levél: darabszám „db”-vel"
 },
 {
-"id": "190a54dbdf",
-"at": "2026-11-25T15:43:24+01:00",
-"msg": "Nyersanyag-levél: formázott, szerkeszthető előnézet aláírással (mint az ügyfél-levél); a Helyszíni munka „Rendben” jelzése csak áthúzás után, áthúzáskor mindig rákérdez; a piros hiba szövege rövidebb"
-},
-{
-"id": "1609aabd30",
-"at": "2026-11-25T14:40:36Z",
+"id": "6f7608e661",
+"at": "2026-11-25T14:43:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
