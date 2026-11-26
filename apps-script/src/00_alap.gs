@@ -171,6 +171,7 @@ function api_(raw) {
     const fn = String(body.fn || ''), args = Array.isArray(body.args) ? body.args : [];
     IN_TXT_ = new Set(); try { inTxtCollect_(args, IN_TXT_, 0); } catch (e) {}
     NQ_CTX_ = fn === 'rpc' ? 'app: ' + String(args[1] || '') : fn;   // adatbázis-forgalom: melyik művelet kérdezte
+    perfStart_(fn === 'rpc' ? String(args[1] || '') : fn);
     let data;
     const run = () => {
     if (fn === 'rpc') return rpc(args[0], args[1], args[2]);
@@ -191,9 +192,11 @@ function api_(raw) {
     try { data = run(); if (DB_) dbFlush_(); }
     catch (e1) { if (!DB_ || !neonDown_(e1)) throw e1; neonFailed_(e1); throw new Error('Az adatbázis most nem érhető el – várj egy percet, és próbáld újra.'); }   /* a kérést nem futtatjuk újra (egy számla vagy levél már kimehetett); tartós kiesésnél vált a táblázatra */
     out = { ok: true, data: data === undefined ? null : data };
+    try { out.pf = perfEnd_(true); } catch (e) {}
   } catch (err) {
     try { if (DB_) { Object.keys(DB_.sheets).forEach(k => { DB_.sheets[k].dirty = false; }); dbFlush_(); } } catch (e2) { }   // hibánál a félkész módosításokat eldobjuk, csak a napló megy
     out = { ok: false, error: String((err && err.message) || err) };
+    try { out.pf = perfEnd_(false); } catch (e) {}
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -220,7 +223,7 @@ function neonSql_(list, url) {
   url = url || (DB_ && DB_.url) || neonUrl_();
   const single = list.length === 1;
   const payload = JSON.stringify(single ? { query: list[0].query, params: list[0].params || [] } : { queries: list.map(q => ({ query: q.query, params: q.params || [] })) });
-  let res;
+  let res; const pt0 = Date.now();
   for (let att = 0; ; att++) {   // átmeneti hiba (hálózat, 5xx, 429): rövid várakozás után még kétszer próbálja
   try {
   if (url) {   // közvetlen kapcsolat (ha a NEON_URL szkripttulajdonság be van állítva)
@@ -234,15 +237,36 @@ function neonSql_(list, url) {
   } catch (e) { if (/NEON_URL nem érvényes/.test(String(e && e.message))) throw e; if (att < 2) { Utilities.sleep(400 + att * 1200); continue; } throw new Error('Adatbázis-hiba (hálózat): ' + String(e && e.message || e).slice(0, 200)); }
   if (att < 2 && (res.getResponseCode() >= 500 || res.getResponseCode() === 429)) { Utilities.sleep(400 + att * 1200); continue; }
   break; }
+  if (PERF_) { PERF_.db += Date.now() - pt0; PERF_.dbN++; }
   const code = res.getResponseCode(), txt = res.getContentText();
   if (code !== 200) { let msg = txt; try { msg = JSON.parse(txt).message || txt; } catch (e) { } throw new Error('Adatbázis-hiba (' + code + '): ' + String(msg).slice(0, 300)); }
   const j = JSON.parse(txt);
   nqCount_(list.length);
   return single ? [j] : (j.results || []);
 }
+/* ===== Sebességmérés (2026-11-26): kérésenként mennyi idő ment el és mire (adatbázis, betöltés, zárra várás, gyorsítótár).
+   A válaszban „pf”, a műveletenkénti összesítés a gyorsítótárban (óránként, 6 óráig) – az ügyvezető a Beállítások → Sebesség alatt látja. */
+let PERF_ = null;
+function perfStart_(op) { PERF_ = { t0: Date.now(), op: String(op || '?').slice(0, 40), db: 0, dbN: 0, lock: 0, cache: 0, load: 0, nq: {} }; }
+function perfEnd_(ok) {
+  const P = PERF_; if (!P) return null; PERF_ = null;
+  const ms = Date.now() - P.t0, pf = { ms: ms, db: P.db, dbN: P.dbN, lock: P.lock, cache: P.cache, load: P.load };
+  try { const C = CacheService.getScriptCache(), h = Utilities.formatDate(new Date(), SHEET_TZ, 'yyyyMMddHH'), kq = 'nq_' + h, kp = 'pf_' + h, m = C.getAll([kq, kp]);
+    let q = {}, f = {}; try { q = JSON.parse(m[kq] || '{}'); } catch (e) {} try { f = JSON.parse(m[kp] || '{}'); } catch (e) {}
+    Object.keys(P.nq).forEach(c => { q[c] = (q[c] || 0) + P.nq[c]; });
+    const r = f[P.op] || (f[P.op] = [0, 0, 0, 0, 0, 0, 0, 0]); r[0]++; r[1] += ms; r[2] += P.db; r[3] += P.dbN; r[4] += P.lock; r[5] += P.load; r[6] = Math.max(r[6], ms); if (!ok) r[7]++;
+    const o = {}; if (Object.keys(P.nq).length) o[kq] = JSON.stringify(q); o[kp] = JSON.stringify(f); C.putAll(o, 21600); } catch (e) {}
+  return pf; }
+function perfStats_() {   // az elmúlt 6 óra műveletenként: [db, összidő, adatbázis-idő, lekérdezések, zárra várás, betöltés, max, hiba]
+  const C = CacheService.getScriptCache(), now = Date.now(), keys = [];
+  for (let i = 0; i < 6; i++) keys.push('pf_' + Utilities.formatDate(new Date(now - i * 3600e3), SHEET_TZ, 'yyyyMMddHH'));
+  const m = C.getAll(keys), tot = {};
+  keys.forEach(k => { let f = {}; try { f = JSON.parse(m[k] || '{}'); } catch (e) {} Object.keys(f).forEach(op => { const a = f[op], t = tot[op] || (tot[op] = [0, 0, 0, 0, 0, 0, 0, 0]); for (let i = 0; i < 8; i++) t[i] = i === 6 ? Math.max(t[i], a[i] || 0) : t[i] + (a[i] || 0); }); });
+  return { hours: 6, ops: tot }; }
 /* Neon-forgalom figyelése: óránként, forrásonként hány lekérdezés ment (Google-gyorsítótár, 6 óra) – ebből látszik, mi tartja ébren az adatbázist */
 let NQ_CTX_ = '';
 function nqCount_(n) {
+  if (PERF_) { const c = NQ_CTX_ || 'app'; PERF_.nq[c] = (PERF_.nq[c] || 0) + (n || 1); return; }   // kérés közben csak összeadjuk – a kérés végén egyetlen gyorsítótár-írás (perfEnd_)
   try {
     let ctx = NQ_CTX_;
     if (!ctx) { const st = String(new Error().stack || '').split('\n').map(l => (/at (\w+)/.exec(l) || [])[1]).filter(x => x && !/^(nqCount_|neonSql_|dbLoad_|dbFlush_|withLock_|readAll_|sheetFor_|getSheetByName|Error)$/.test(x)); ctx = 'időzített: ' + (st[st.length - 1] || '?'); }
@@ -306,10 +330,19 @@ function tabCacheGet_(tab, ver) { try { const C = CacheService.getScriptCache(),
   const keys = []; for (let i = 0; i < n; i++) keys.push(k + '_' + i); const m = C.getAll(keys); let str = ''; for (let i = 0; i < n; i++) { const x = m[k + '_' + i]; if (x == null) return null; str += x; } return str; } catch (e) { return null; } }
 function tabCachePut_(tab, ver, str) { try { const C = CacheService.getScriptCache(), k = TABC_ + tab + '_' + ver, n = Math.ceil(str.length / TABC_CH_) || 1, o = {};
   for (let i = 0; i < n; i++) o[k + '_' + i] = str.slice(i * TABC_CH_, (i + 1) * TABC_CH_); o[k + '_n'] = String(n); C.putAll(o, 21600); } catch (e) { } }
+/* Több lap egyszerre a gyorsítótárból: 1 hívás a darabszámokra, 1 a darabokra (lapként külön hívás helyett) */
+function tabCacheGetMany_(vers) {
+  const out = {}; try { const C = CacheService.getScriptCache(), base = vers.map(x => TABC_ + x[0] + '_' + x[1]), nm = C.getAll(base.map(k => k + '_n')), keys = [], cnt = {};
+    vers.forEach((x, i) => { const n = Number(nm[base[i] + '_n'] || 0); if (!n) return; cnt[x[0]] = n; for (let j = 0; j < n; j++) keys.push(base[i] + '_' + j); });
+    const m = {}; for (let i = 0; i < keys.length; i += 40) Object.assign(m, C.getAll(keys.slice(i, i + 40)));   // csomagokban (a gyorsítótár válaszmérete korlátos)
+    vers.forEach((x, i) => { const n = cnt[x[0]]; if (!n) return; let str = ''; for (let j = 0; j < n; j++) { const v = m[base[i] + '_' + j]; if (v == null) { str = null; break; } str += v; } if (str != null) out[x[0]] = str; });
+  } catch (e) { } return out; }
 function dbLoad_(force) {
   if (DB_.loaded && !force) return;
+  const lt0 = Date.now(); try { dbLoadInner_(); } finally { if (PERF_) PERF_.load += Date.now() - lt0; } }
+function dbLoadInner_() {
   const vers = (neonSql_([{ query: 'SELECT tab, ver::text FROM lpm_sheet' }])[0].rows || []), have = {}, need = [];
-  vers.forEach(x => { const str = tabCacheGet_(x[0], x[1]); if (str != null) have[x[0]] = str; else need.push(x[0]); });
+  { const ct0 = Date.now(), got = tabCacheGetMany_(vers); vers.forEach(x => { const str = got[x[0]]; if (str != null) have[x[0]] = str; else need.push(x[0]); }); if (PERF_) PERF_.cache += Date.now() - ct0; }   // két gyorsítótár-hívás az összes lapra (eddig lapként kettő)
   const rows0 = vers.filter(x => have[x[0]] != null).map(x => [x[0], have[x[0]]]);
   if (need.length) (neonSql_([{ query: 'SELECT tab, ver::text, rows::text FROM lpm_sheet WHERE tab = ANY(string_to_array($1, chr(31)))', params: [need.join(String.fromCharCode(31))] }])[0].rows || []).forEach(x => { tabCachePut_(x[0], x[1], x[2] || '[]'); rows0.push([x[0], x[2]]); });
   const r = { rows: rows0 };
@@ -584,8 +617,9 @@ function int_(v, min, max, def) {
   return Math.min(max, Math.max(min, n));
 }
 function withLock_(fn) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(30000);
+  const lock = LockService.getScriptLock(), lt0 = Date.now();
+  if (!SC_.lock) lock.waitLock(30000);   // egymásba ágyazott zárnál nem várunk újra
+  if (PERF_) PERF_.lock += Date.now() - lt0;
   SC_.lock++;
   try {
     if (dbOn_() && DB_.loaded && !DB_.inLock) { dbFlush_(); dbLoad_(true); }   // zárolás alatt mindig friss adatból dolgozunk

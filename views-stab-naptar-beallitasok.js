@@ -427,6 +427,15 @@ function viewMyNotify(){const n=S.myNotify||{},sales=isSales(),cut=!sales&&crewI
     ${cut||sales?`<div class="panel ntf-panel"><h3>🔔 Értesítések az appban</h3>${(sales?SAP:AP).map(row).join('')}</div>`:''}</div>`;}
 /* ===== Beállítások (admin) ===== */
 /* Neon adatbázis kártya: kapcsolat-teszt, átváltás, és az automatikus visszaesés jelzése */
+/* ⚡ Sebesség: mennyi ideig tartanak a mentések és lekérések (ezen az eszközön, ill. a háttérben minden felhasználónál) */
+const PERF_NAMES={saveProject:'Projekt mentése',saveDeal:'Lehetőség mentése',bootstrap:'Betöltés (indulás)',dataVer:'Változásfigyelés',finData:'Pénzügyek betöltése',calendarEvents:'Naptár lekérése',videoSet:'Videó módosítása',saveCrew:'Szakember mentése',saveClient:'Ügyfél mentése',setPayStatus:'Kifizetés jelölése',finUpsert:'Pénzügyi tétel mentése',crewInvite:'Meghívás',videoComment:'Hozzászólás',settingsData:'Beállítások betöltése',perfStats:'Sebesség-kimutatás'};
+function perfPanel(){const P=typeof perfLoad==='function'?perfLoad():{ops:{},last:[]},sv=S.perfSrv,nm=k=>esc(PERF_NAMES[k]||k),sec=v=>(v/1000).toFixed(1).replace('.',',')+' mp';
+  const loc=Object.entries(P.ops).sort((a,b)=>b[1][0]-a[1][0]).slice(0,14).map(([k,r])=>{const n=r[0]||1,t=r[1]/n,sv2=r[2]/n,db=r[3]/n;return `<tr><td>${nm(k)}</td><td class="num">${r[0]}</td><td class="num"><b>${sec(t)}</b></td><td class="num">${sec(Math.max(0,t-sv2))}</td><td class="num">${sec(sv2)}</td><td class="num">${sec(db)}</td><td class="num">${sec(r[4])}</td></tr>`;}).join('');
+  const srv=sv&&sv.ops?Object.entries(sv.ops).sort((a,b)=>b[1][1]-a[1][1]).slice(0,14).map(([k,r])=>{const n=r[0]||1;return `<tr><td>${nm(k)}</td><td class="num">${r[0]}</td><td class="num"><b>${sec(r[1]/n)}</b></td><td class="num">${sec(r[2]/n)}</td><td class="num">${(r[3]/n).toFixed(1).replace('.',',')}</td><td class="num">${sec(r[5]/n)}</td><td class="num">${sec(r[4]/n)}</td><td class="num">${sec(r[6])}</td></tr>`;}).join(''):'';
+  return `<details class="panel perf-panel"${S.perfOpen?' open':''}><summary><h3>⚡ Sebesség</h3><span class="hint">mennyi ideig tartanak a mentések és lekérések – és mire megy el az idő</span></summary>
+    <h4>Ezen az eszközön (az elmúlt 7 nap)</h4>${loc?`<div class="tbl-wrap"><table class="tbl perf-tbl"><thead><tr><th>Művelet</th><th class="num">Db</th><th class="num">Átlag</th><th class="num" title="A böngésző és a Google szervere közötti út, a Google indítási ideje">Hálózat + Google</th><th class="num">Háttér</th><th class="num" title="A háttéren belül az adatbázis-lekérdezések">ebből adatbázis</th><th class="num">Leglassabb</th></tr></thead><tbody>${loc}</tbody></table></div>`:'<p class="hint">Még nincs mérés ezen az eszközön.</p>'}
+    <h4>A háttérben, minden felhasználónál (az elmúlt 6 óra)</h4>${sv?srv?`<div class="tbl-wrap"><table class="tbl perf-tbl"><thead><tr><th>Művelet</th><th class="num">Db</th><th class="num">Átlag</th><th class="num">Adatbázis</th><th class="num" title="Adatbázis-lekérdezések száma kérésenként">Lekérdezés</th><th class="num">Betöltés</th><th class="num">Zárra várás</th><th class="num">Leglassabb</th></tr></thead><tbody>${srv}</tbody></table></div>`:'<p class="hint">Az elmúlt 6 órában nem volt mérés.</p>':`<p class="hint"><span class="spin"></span> Betöltés…</p>`}
+    <div class="btns"><button class="btn outline small" type="button" data-action="perf-load">↻ Frissítés</button></div></details>`;}
 function dbPanel(){const d=S.dbInfo||{},m=d.mode,fb=d.fallback;
   const st=m?`<p class="hint">Jelenleg: <b>${m==='neon'?'Neon adatbázis':'Google-táblázat'}</b>${m==='neon'&&d.lastBackup?` · utolsó mentés a táblázatba: ${esc(d.lastBackup)}`:''}</p>`:'';
   const fbTxt=fb&&m!=='neon'?`<p class="bad-txt">⚠️ ${esc(fb.at||'')}: a Neon nem volt elérhető, ezért az app automatikusan visszaváltott a táblázatra${fb.backup?` (a táblázat a ${esc(fb.backup)}-i mentés állapotával folytatta)`:''}. Az azóta a Neonba írt változások a Neonban maradtak – Neonra váltáskor a táblázat tartalma felülírja őket.</p>`:'';
@@ -478,7 +487,7 @@ function viewSettings(){
       <p class="hint" style="margin:0 0 10px">Csak az itt felvett, aktív e-mail-címekkel lehet belépni (Google-fiókkal). Szakemberek hozzáférését veheted fel, módosíthatod, tilthatod le vagy törölheted; az ügyvezető és a termelési vezető fiókját csak az ügyvezető kezeli.</p>
       ${userTabs}<div class="alist">${users||empty('Nincs felhasználó.')}</div></div>`;   // termelési vezető: csak a hozzáférések
   return `<div class="page-head"><div class="grow"><h2>Beállítások</h2></div></div>
-    ${mailPanel}${dwdPanel()}${isAdmin()?dbPanel():''}
+    ${mailPanel}${dwdPanel()}${isAdmin()?dbPanel()+perfPanel():''}
     ${S.links.folder?`<div class="btns"><a class="mini" href="${esc(S.links.folder)}" target="_blank" rel="noopener">📁 Projektek mappa ↗</a></div>`:''}
     <div class="grid2">
       <div class="panel"><h3>👤 Hozzáférések – ki léphet be <span class="aside"><button class="btn primary small" type="button" data-action="new-user">+ Kolléga felvétele</button></span></h3>
@@ -526,3 +535,5 @@ function gbpBtn(){if(!isAdmin())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp
 /* háttérfrissítés (percenként, csak ügyvezető): a Google azonnal szól a háttérnek (Pub/Sub), az behúzza az új értékelést, a csengő innen tudja meg */
 function gbpPoll(){if(!isAdmin()||S._gbpL||(S._gbpAt&&Date.now()-S._gbpAt<60000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
 function gbpRefresh(){const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}else if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);}
+
+document.addEventListener('toggle',e=>{const d=e.target;if(!d||!d.classList||!d.classList.contains('perf-panel'))return;S.perfOpen=d.open;if(d.open&&!S.perfSrv&&ACT['perf-load'])ACT['perf-load']();},true);   /* a Sebesség panel megnyitásakor tölti be a háttér mérését */

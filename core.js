@@ -435,12 +435,20 @@ function computeIssues(){if(typeof ro==='function'&&ro())return [];   /* csak a 
 const API_URL=String(window.LUMOS_API_URL||'').trim();
 /* Átmeneti hiba (pl. épp frissül a háttér, megszakadt a kapcsolat, túlterhelés): a hívás magától újrapróbálkozik, így a mentés nem vész el */
 const GS_TRANSIENT=/Nincs kapcsolat a szerverrel|nem a várt választ|Service (?:invoked too many times|unavailable|Spreadsheets)|Script function not found|timed? ?out|Túl sok|Lock|zárolás|try again|Internal error|Server error|HTTP 5\d\d|Exceeded maximum execution|Address unavailable/i;
+/* Sebességmérés (2026-11-26): minden kérés teljes ideje ezen az eszközön (hálózat + Google + háttér) és a háttér saját mérése (pf).
+   Műveletenként összesítve (localStorage, 7 nap) – az ügyvezető a Beállítások → Sebesség alatt látja. */
+const PERF_KEY='lpm_perf_v1';let PERF_MEM=null,PERF_T=0;
+function perfLoad(){if(PERF_MEM)return PERF_MEM;try{const o=JSON.parse(localStorage.getItem(PERF_KEY)||'null');PERF_MEM=o&&o.at&&Date.now()-o.at<7*864e5?o:{at:Date.now(),ops:{},last:[]};}catch(e){PERF_MEM={at:Date.now(),ops:{},last:[]};}return PERF_MEM;}
+function perfRec(op,ms,pf,bad){const P=perfLoad(),r=P.ops[op]||(P.ops[op]=[0,0,0,0,0,0]);ms=Math.round(ms);   // [db, összidő, háttéridő, adatbázis, max, hiba]
+  r[0]++;r[1]+=ms;r[2]+=pf&&pf.ms||0;r[3]+=pf&&pf.db||0;r[4]=Math.max(r[4],ms);if(bad)r[5]++;
+  P.last.unshift({op,ms,s:pf&&pf.ms||0,db:pf&&pf.db||0,n:pf&&pf.dbN||0,ld:pf&&pf.load||0,lk:pf&&pf.lock||0,at:Date.now()});if(P.last.length>40)P.last.length=40;
+  clearTimeout(PERF_T);PERF_T=setTimeout(()=>{try{localStorage.setItem(PERF_KEY,JSON.stringify(P));}catch(e){}},1500);}
 async function gs(fn,...args){const waits=[1500,4000,8000];
   for(let i=0;;i++){try{return await gsOnce(fn,...args);}
     catch(e){if(i>=waits.length||!GS_TRANSIENT.test(String((e&&e.message)||e)))throw e;await new Promise(r=>setTimeout(r,waits[i]));}}}
 async function gsOnce(fn,...args){
   if(!API_URL)throw new Error('Az app még nincs összekötve az Apps Script háttérrel.');
-  const body=JSON.stringify({fn,args});
+  const body=JSON.stringify({fn,args}),pt0=performance.now();
   const modes=body.length<6000?['get','post']:['post','post'];
   let j=null,netErr=false;
   for(const mode of modes){
@@ -457,12 +465,13 @@ async function gsOnce(fn,...args){
     break;
   }
   if(netErr||!j)throw new Error('Nincs kapcsolat a szerverrel. Ellenőrizd az internetet, és próbáld újra.');
+  try{perfRec(fn==='rpc'?String(args[1]||''):fn,performance.now()-pt0,j.pf,!j.ok);}catch(_){}
   if(!j.ok)throw new Error(j.error||'Ismeretlen hiba.');
   if(!('data' in j))throw new Error('A szerver nem a várt választ adta. Töltsd újra az oldalt, és próbáld újra.');
   return j.data;
 }
 const FIN_MUT_RE=/^(bill(Save|Upload)|fw(Save|Delete)|clientDoc(Delete|Upload)|fin(?!Data$)[A-Z]\w*|sz(Invoice|Link|Unlink|Sync|Manual|LinkBatch|SetKind|BankSet|DocSet)|tig(Create|Save|Send)|inc\w*|exp\w*|loan\w*)$/;
-const READ_RE=/^(vidUp\w+|vidShareFiles|emailCheck|contractPdf|gbpList|companyIndex|hsClientLinks|ctTplList|clientInvoices|inviteStatus|crewAddress|crewContractTpl|inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
+const READ_RE=/^(perfStats|vidUp\w+|vidShareFiles|emailCheck|contractPdf|gbpList|companyIndex|hsClientLinks|ctTplList|clientInvoices|inviteStatus|crewAddress|crewContractTpl|inviteCancelInfo|viewBoot|hsActivity|contractTpl|bootstrap|finData|calendarEvents|dataVer|dbPing|geoSearch|getLog|settingsData|szPdf|szSearch|szPeek|lookupTaxpayer|hubspot\w*|changesList|projectHistory|\w*Preview|mySignature|crewDocGet|clientDocs|clientFolder|deliverRecipients|cancelRecipients|navInvoices|tigReplies|paySentHtml|arkPricesGet|projSales\w*|rawNotify|setViewAs|logout|whoAmI)$/;
 const BG_RE=/^(szSync|salesSyncNow|crewDocsImport|navSync|syncCalendar)$/;   // háttér-szinkronok: nem tartják vissza a betöltést
 /* ===== AZONNALI MÓDOSÍTÁSOK, VISSZAUGRÁS NÉLKÜL (2026-11-21) =====
    A regisztrált műveletek (állapotváltások) azonnal látszanak, és egy helyi „függő” listába kerülnek (localStorage – oldalfrissítést is túlél).

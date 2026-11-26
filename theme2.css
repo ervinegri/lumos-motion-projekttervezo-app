@@ -3387,3 +3387,6 @@ html body .stage.cur+.stage-tick.on,html body .stage.cur .stage-tick.on{backgrou
 /* szakember nézet: a csapattársak kártyája semleges, fehér (a meghívás-állapotukat a szakember nem látja) */
 html body .pcrew.pos-card.inv-neutral{background:#fff!important;border:1px solid var(--line,#e3e6eb)!important;box-shadow:0 1px 2px rgba(16,24,40,.05)!important}
 html body .pcrew.pos-card.inv-neutral .pcrew-top{background:none!important}
+/* ⚡ Sebesség panel */
+html body .perf-panel>summary{display:flex;align-items:baseline;gap:12px;cursor:pointer;list-style:none}html body .perf-panel>summary::-webkit-details-marker{display:none}html body .perf-panel>summary h3{margin:0}
+html body .perf-panel h4{margin:16px 0 6px;font-size:13.5px}html body .perf-tbl{width:100%;font-size:13px}html body .perf-tbl td,html body .perf-tbl th{padding:5px 8px;white-space:nowrap}html body .perf-tbl .num{text-align:right;font-variant-numeric:tabular-nums}
