@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6be8ba7b5d",
+"at": "2026-11-26T15:39:19+01:00",
+"msg": "Mobil: lehúzással frissítés nyitott ablakban akkor is, ha a mögötte lévő lap le volt görgetve (frissítés után az ablak visszajön)"
+},
+{
 "id": "1a302b4fa3",
 "at": "2026-11-26T15:31:25+01:00",
 "msg": "Felvétel: valódi feltöltési százalék (XHR), a befejező darab ismétlése nem vesz fel kétszer; a jegyzetben rövidebb sor: „🎙️ Személyes megbeszélés rögzítve (3:15)” (a meglévők is)"
@@ -120,16 +125,6 @@ const ITEMS = [
 "id": "30ac79b8c1",
 "at": "2026-11-26T13:13:42+01:00",
 "msg": "Gemini: automatikus modellválasztás (kivezetett modell esetén újraválaszt); jegyzet: a régi, fejléc nélküli szöveg nem ragad az új bejegyzés alá + egyszeri javítás"
-},
-{
-"id": "7b0e5475a9",
-"at": "2026-11-26T13:08:24+01:00",
-"msg": "Beszélgetésrögzítés: a feltöltés / átirat mindig az Apps Scripten fut (a gyors út nem érte el a feltöltési munkamenetet → „lejárt”)"
-},
-{
-"id": "f050733d53",
-"at": "2026-11-26T12:07:33Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
