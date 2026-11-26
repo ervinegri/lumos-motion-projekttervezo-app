@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e6db746a5a",
+"at": "2026-11-26T10:34:14+01:00",
+"msg": "Stáb: a kártyákon nincs külön lakat (a panel lakatja kezeli az elfogadottak eszközeit is); zárolt résznél tiltó kurzor"
+},
+{
 "id": "a1f81d715b",
 "at": "2026-11-26T11:32:53+02:00",
 "msg": "Gyors út: önpróba – valódi lapok betöltése (csak darabszám)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (teljes képernyős havi nézet): görgetéssel újra hónapot vált, de az oldal és a rács fix – nincs követés, visszarugózás, utómozgás; egy görgetés = egy hónap (a trackpad tehetetlenségi görgetése nem vált tovább), a régi hónap kicsúszik, az új becsúszik; fejléc / eszköztár nem nyomódik össze"
 },
 {
-"id": "4fc1fce782",
-"at": "2026-11-26T09:13:41+01:00",
-"msg": "Panel csukásakor a fejléc a helyén marad (nem ugrik el a lap); Stáb és Pénzügyek között egyforma hézag"
-},
-{
-"id": "6717068fb5",
-"at": "2026-11-26T08:12:22Z",
+"id": "3a98ab7711",
+"at": "2026-11-26T08:13:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
