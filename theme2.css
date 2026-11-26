@@ -3356,3 +3356,11 @@ html body details.panel.fold section:has(>.sec-lock)>.sec-lock{top:-4px!importan
 /* keskeny asztali ablak (701–1000 px): a hónapváltó két szélső címkéje (előző / következő hónap neve) elmarad, hogy az eszköztár ne törjön több sorba */
 @media (min-width:701px) and (max-width:1000px){html body .cal-mnav .cm-side{display:none!important}}
 html body main.content:has(>.dhead){padding-top:10px!important}   /* projekt: a fejléc közelebb a felső sávhoz (24 → 10 px) */
+
+/* teljes képernyős havi naptár: a lap teljesen fix – nincs rugalmas túlgörgetés, és a lap alsó térköze sem görgethető */
+@media (min-width:701px){
+  html.cal-lock,html.cal-lock body{height:100%!important;overflow:hidden!important;overscroll-behavior:none!important}
+  html.cal-lock body .page{position:fixed!important;inset:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+  html.cal-lock body .page>#view{flex:1 1 auto!important;min-height:0!important;padding-bottom:0!important}
+  html.cal-lock body .cal-wrap{flex:1 1 0!important;height:auto!important;min-height:0!important;overscroll-behavior:none!important}
+}
