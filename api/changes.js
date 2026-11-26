@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2fb2851b01",
+"at": "2026-11-26T18:02:25+02:00",
+"msg": "Projekt fejléc (gép): név és gombok egy sorban; lemondás / törlés ikonként"
+},
+{
 "id": "ca3ae7d680",
 "at": "2026-11-26T18:01:14+02:00",
 "msg": "Projekt oldal: egyforma (8 px) távolság a szakaszok között"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Rögzítés: frissítés ellen védve (lehúzás / automatikus újratöltés nem indul rögzítés közben); ha mégis megszakadt, az új lap rögtön felajánlja: Feltöltés, vagy Feltöltés és folytatás (új felvétel indul, az előző rész a háttérben töltődik fel). Lehetőség ablaka telefonon: a két gomb és a bezárás egy sorban, rövid felirattal"
 },
 {
-"id": "a47a783901",
-"at": "2026-11-26T15:43:30+01:00",
-"msg": "Lehetőség ablaka: az ajánlat- és a rögzítés-gomb a fejlécben (jobb felső sarok); a bevezetés napi próba-rögzítések sorai is törlődnek a jegyzetből (15:46 előttiek)"
-},
-{
-"id": "9c9591c034",
-"at": "2026-11-26T14:41:15Z",
+"id": "b740e762b4",
+"at": "2026-11-26T14:43:40Z",
 "msg": "Változásnapló frissítése"
 }
 ];
