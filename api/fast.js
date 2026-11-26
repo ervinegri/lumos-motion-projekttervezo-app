@@ -5,7 +5,7 @@
 const crypto = require('crypto');
 const { runFast, neonAsync, selfTest } = require('./_gasrt.js');
 /* ezeket mindig az Apps Script végzi (belépés, nézetváltás, feltöltés, levél-előnézet, külső szinkronok) */
-const DENY = /^(logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
+const DENY = /^(calendarEvents|settingsData|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
 async function sessionOk(token) {
   if (!/^[0-9a-f]{64}$/.test(String(token || ''))) return false;
   const h = crypto.createHash('sha256').update(String(token), 'utf8').digest('hex');

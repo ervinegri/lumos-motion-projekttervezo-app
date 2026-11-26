@@ -446,19 +446,19 @@ function perfRec(op,ms,pf,bad){const P=perfLoad(),r=P.ops[op]||(P.ops[op]=[0,0,0
 /* Gyors út (2026-11-26): a kérés először a saját szerverünkre (Vercel, közvetlenül a Neon mellett) megy – ~0,2–0,5 mp a 3–4 mp helyett.
    Ha a művelet Google-szolgáltatást igényel (levél, naptár, Drive…), a gyors út semmit nem ír, és jelzi: ilyenkor az Apps Script végzi, mint eddig.
    Kikapcsolható: localStorage lpm_fast = '0'. Ismétlődő szerverhibánál a munkamenetre magától kikapcsol. */
-const FAST_DENY=/^(googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
-let FAST_BAD=0;
+const FAST_DENY=/^(calendarEvents|settingsData|googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
+let FAST_BAD=0;const FAST_SKIP={};
 function fastOn(){try{if(localStorage.getItem('lpm_fast')==='0')return false;}catch(e){}return FAST_BAD<3&&location.protocol==='https:';}
 async function gsFast(name,body){const t0=performance.now();let res,j=null;
   try{res=await fetch('/api/fast',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:body.length<60000});}
   catch(e){return {net:true};}   // a kérés el sem jutott (vagy megszakadt): a hívó dönti el, mehet-e az Apps Scripthez
   if(!res.ok){FAST_BAD++;return {fallback:true};}
   try{j=await res.json();}catch(e){FAST_BAD++;return {fallback:true};}
-  if(!j||j.fallback){try{perfRec(name+' ↪',performance.now()-t0,null,false);}catch(_){}return {fallback:true,why:j&&j.why};}
-  FAST_BAD=0;try{perfRec(name,performance.now()-t0,j.pf,!j.ok);}catch(_){}
+  if(!j||j.fallback){try{perfRec(name+' ↪',performance.now()-t0,null,false);}catch(_){}if(READ_RE.test(name))FAST_SKIP[name]=(FAST_SKIP[name]||0)+1;return {fallback:true,why:j&&j.why};}   /* olvasás, amely kétszer is a Google-ra szorult: ebben a munkamenetben egyből oda megy (nincs fölösleges kör) */
+  FAST_BAD=0;delete FAST_SKIP[name];try{perfRec(name,performance.now()-t0,j.pf,!j.ok);}catch(_){}
   return {j};}
 async function gs(fn,...args){const waits=[1500,4000,8000];
-  if(fn==='rpc'&&fastOn()&&!FAST_DENY.test(String(args[1]||''))){const name=String(args[1]||''),f=await gsFast(name,JSON.stringify({fn,args}));
+  if(fn==='rpc'&&fastOn()&&!FAST_DENY.test(String(args[1]||''))&&(FAST_SKIP[String(args[1]||'')]||0)<2){const name=String(args[1]||''),f=await gsFast(name,JSON.stringify({fn,args}));
     if(f.j){if(f.j.pf&&f.j.pf.jobs)setTimeout(()=>{gsOnce('jobsRun').catch(()=>{});},50);   /* sorba tett levél / szinkron: az Apps Script most rögtön elküldi (a háttérben) */
       if(!f.j.ok)throw new Error(f.j.error||'Ismeretlen hiba.');return f.j.data;}
     if(f.net&&!READ_RE.test(name))throw new Error('Nincs kapcsolat a szerverrel. Ellenőrizd az internetet, és próbáld újra.');}   /* íráskor bizonytalan hálózati hibánál nem küldjük el másodszor */
