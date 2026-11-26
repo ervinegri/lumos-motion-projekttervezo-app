@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "25ada52641",
+"at": "2026-11-26T22:00:26+02:00",
+"msg": "iOS: az állapotsor saját sávot kap (default) – a felső menü nem homályosodik el (újratelepítés után); újdonság a többieknek"
+},
+{
 "id": "4d8325432b",
 "at": "2026-11-26T21:53:44+02:00",
 "msg": "Indítóképernyő: felfedés után kikerül az oldalból (iOS fejléc-homály gyanús rétege)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Projektlista (gép): kb. 20%-kal vékonyabb sorok"
 },
 {
-"id": "55bb269f53",
-"at": "2026-11-26T17:55:57+02:00",
-"msg": "Projektlista: a mai projekt piros kerete körben egyforma vastag"
-},
-{
-"id": "5c2f3a6750",
-"at": "2026-11-26T15:54:56Z",
+"id": "40434c6b8e",
+"at": "2026-11-26T15:56:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
