@@ -3364,3 +3364,14 @@ html body main.content:has(>.dhead){padding-top:10px!important}   /* projekt: a 
   html.cal-lock body .page>#view{flex:1 1 auto!important;min-height:0!important;padding-bottom:0!important}
   html.cal-lock body .cal-wrap{flex:1 1 0!important;height:auto!important;min-height:0!important;overscroll-behavior:none!important}
 }
+/* Naptár eszköztára és a napok fejléce: kompaktabb (a betűméret változatlan) */
+@media (min-width:701px){
+  html body main.content:has(.cal-toolbar){padding-top:6px!important}
+  html body .cal-toolbar{margin-bottom:0!important}
+  html body main.content:has(.cal-toolbar){row-gap:6px!important}
+  html body .cal-toolbar .btns .btn{height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important}
+  html body .cal-toolbar h2.cm-cur-h{min-height:0!important;height:30px!important}
+  html body .cal-toolbar .cal-mnav button,html body .cal-toolbar .cal-mnav .btn,html body .cal-toolbar .cal-mnav a.btn,html body .cal-toolbar .cal-tog,html body .cal-toolbar .seg button,html body .cal-toolbar .cmb-in,html body .cal-toolbar input.inp,html body .cal-toolbar select.inp{height:30px!important;min-height:30px!important}
+  html body .cal-toolbar .cal-mnav,html body .cal-toolbar .seg{min-height:0!important}
+  html body .cal-wrap .cal-wd{padding-top:5px!important;padding-bottom:5px!important}
+}
