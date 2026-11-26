@@ -607,7 +607,7 @@ async function recBegin(did,kind,title,dev,actx){let mic=null,disp=null,ctx=null
   const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
   let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});}catch(e){try{mr=new MediaRecorder(stream);}catch(e2){toast('A felvétel nem indítható: '+(e2.message||e2),true);acStop();return;}}
   const sid='r'+Date.now().toString(36);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
-  try{const ac=ctx||actx||new (window.AudioContext||window.webkitAudioContext)();if(!ctx)REC.ctx=ac;const an=ac.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=0.6;ac.createMediaStreamSource(stream).connect(an);REC.an=an;if(ac.state==='suspended')ac.resume();}catch(e){}   /* élő hullámforma a sávon */
+  try{const ac=ctx||actx||new (window.AudioContext||window.webkitAudioContext)();if(!ctx)REC.ctx=ac;const an=ac.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=0.6;ac.createMediaStreamSource(stream).connect(an);try{const g=ac.createGain();g.gain.value=0;an.connect(g);g.connect(ac.destination);}catch(e){}REC.an=an;if(ac.state==='suspended')ac.resume();}catch(e){}   /* élő hullámforma a sávon */
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
   mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
   mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
