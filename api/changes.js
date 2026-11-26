@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "67f786c017",
+"at": "2026-11-26T11:44:22+02:00",
+"msg": "Gyors út: telepítés után az Action azonnal frissíti a tükröt; csak a valódi Google-igény miatti visszalépés kapcsolja ki a gyors utat egy olvasásra"
+},
+{
 "id": "76bf66367b",
 "at": "2026-11-26T11:37:11+02:00",
 "msg": "Gyors út: új telepítés után bármelyik kérés frissíti a tükör kódazonosítóját (ne maradjon a gyors út kikapcsolva olvasásoknál)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (havi nézet): görgetéskor nem ugrik több hónapot – a trackpad lendületét az események átlagából ismeri fel (a remegés nem számít új mozdulatnak), egy mozdulat = egy hónap"
 },
 {
-"id": "e6d329e89d",
-"at": "2026-11-26T09:19:01+01:00",
-"msg": "Űrlap-piszkozat visszatöltésekor látható jelzés „Elvetés” gombbal (pl. új projektnél egy korábbi, félbehagyott jegyzet)"
-},
-{
-"id": "dbccf58f10",
-"at": "2026-11-26T08:18:06Z",
+"id": "e85c293cf9",
+"at": "2026-11-26T08:19:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
