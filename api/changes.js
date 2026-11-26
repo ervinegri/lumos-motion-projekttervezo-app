@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0045f67f79",
+"at": "2026-11-26T13:02:30+01:00",
+"msg": "Gemini-kulcs: az új „AQ.…” formátum is elfogadott; a kulcs fejlécben megy (x-goog-api-key)"
+},
+{
 "id": "7d73aefaa9",
 "at": "2026-11-26T12:10:45+01:00",
 "msg": "Google-értékelések: a gombok a címsorban (gépen egy sor)"
@@ -135,11 +140,6 @@ const ITEMS = [
 "id": "0966b574ca",
 "at": "2026-11-26T11:48:49+02:00",
 "msg": "Újdonság: gyorsabb mentés és betöltés"
-},
-{
-"id": "44ec20257e",
-"at": "2026-11-26T11:47:17+02:00",
-"msg": "Gyors út: írás-próba valódi adatbázison (külön üres próbalap; feltételes írás, ütközés, visszaürítés) – ritkítva"
 }
 ];
 const allowed = require('./_auth.js');
