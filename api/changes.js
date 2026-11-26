@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dbb4b351f0",
+"at": "2026-11-26T12:02:48+01:00",
+"msg": "Idővonal: görgetés közben nem vált hónapot / nem szűr sorokat / nem rajzol újra – csak a görgetés megállása után (nem akad)"
+},
+{
 "id": "c5b43f6cdd",
 "at": "2026-11-26T11:59:01+01:00",
 "msg": "Google-értékelések a termelési vezetőnek is (megtekintés, link, QR, értékeléskérés; válasz és párosítás csak az ügyvezetőnek); párosítás: nem ügyfél kategóriák (szereplő/modell/statiszta, munkatárs, vendég, egyéb) és bővebb ügyfélkör"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Gyors út: a betöltés (bootstrap) is gyors – a karbantartó lépései (naptár-visszajelzések, időzítők) háttérfeladatként az Apps Scriptben futnak, legfeljebb 5 percenként; a beállítások listázása a tükörből"
 },
 {
-"id": "e6db746a5a",
-"at": "2026-11-26T10:34:14+01:00",
-"msg": "Stáb: a kártyákon nincs külön lakat (a panel lakatja kezeli az elfogadottak eszközeit is); zárolt résznél tiltó kurzor"
-},
-{
-"id": "a1f81d715b",
-"at": "2026-11-26T11:32:53+02:00",
-"msg": "Gyors út: önpróba – valódi lapok betöltése (csak darabszám)"
+"id": "45ebff7821",
+"at": "2026-11-26T09:34:24Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
