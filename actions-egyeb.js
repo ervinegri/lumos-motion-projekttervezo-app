@@ -555,3 +555,13 @@ ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvSta
 ACT['rev-link-copy']=async()=>{try{await navigator.clipboard.writeText(REVIEW_URL);toast('✓ Az értékelési link a vágólapon: '+REVIEW_URL);}catch(e){prompt('Másold ki a linket:',REVIEW_URL);}};
 ACT['rev-qr']=async()=>{let img='';try{await loadQr();const q=qrcode(0,'M');q.addData(REVIEW_URL);q.make();img=q.createDataURL(10,16);}catch(e){toast('A QR-kód most nem készíthető el.',true);return;}
   confirmLayer('▦ Értékelési QR-kód',`<div style="margin:0 16px;text-align:center"><img src="${img}" alt="QR-kód: Google-értékelés" style="width:min(70vw,300px);height:auto;image-rendering:pixelated;border:1px solid var(--line,#e3e6eb);border-radius:12px"><p class="hint" style="margin:8px 0 0;word-break:break-all">${esc(REVIEW_URL)}</p><p style="margin:10px 0 0"><a class="btn outline small" href="${img}" download="Lumos-Motion-Google-ertekeles-QR.png">⬇ Letöltés (PNG)</a></p></div>`,'🔗 Link másolása',(b,l)=>{l.remove();ACT['rev-link-copy']();});};
+
+/* értékelés kérése e-mailben, projekt nélkül (Google-értékelések ablakból) */
+ACT['rev-mail']=()=>{const txt='Kedves …!\n\nKöszönjük, hogy minket választottatok! Ha elégedett voltál a munkánkkal, nagyon sokat segítene nekünk egy rövid Google-értékelés – egy perc az egész. Akár csak pár szóban leírhatod, mit csináltunk nálatok:\n'+REVIEW_URL+'\n\nKöszönjük!';
+  window.MODAL_BEFORE_CLOSE=null;
+  openModal('✉️ Értékelés kérése e-mailben',`<div class="fields"><div class="field full"><label for="m-rmTo">Címzett</label><input class="inp" id="m-rmTo" name="to" type="email" maxlength="300" placeholder="nev@ceg.hu"></div>
+    <div class="field full"><label for="m-rmSubj">Tárgy</label><input class="inp" id="m-rmSubj" name="subject" maxlength="200" value="Egy kérés: egy perc a Lumos Motionre"></div>
+    <div class="field full"><label for="m-rmText">Levél</label><textarea class="inp" id="m-rmText" name="text" rows="10" maxlength="6000" data-no-keep>${esc(txt)}</textarea><span class="hint">Írd át a megszólítást („Kedves …!”). Az aláírásod automatikusan a levél alá kerül.</span></div></div>`,
+    {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim(),text=String(fd.get('text')||'');if(!to){toast('Add meg a címzettet.',true);return;}
+      if(/Kedves …!/.test(text)&&!confirm('A megszólítás még „Kedves …!” – így küldöd el?'))return;if(!text.includes(REVIEW_URL)&&!confirm('A levélből kimaradt az értékelés linkje. Így is elküldöd?'))return;
+      try{await call('reviewSend',{to,subject:String(fd.get('subject')||''),text});closeModal();toast('Elküldve: '+to);setTimeout(()=>{if(!$('mform'))ACT['gbp-open']();},50);}catch(e){handleErr(e);}}});};
