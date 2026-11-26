@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dc43ade555",
+"at": "2026-11-26T17:36:54+02:00",
+"msg": "Telefon: fele olyan széles Értékesítés-oszlopok, tömörebb kártyák"
+},
+{
 "id": "5b9aad7d4b",
 "at": "2026-11-26T17:35:58+02:00",
 "msg": "Lezárt Alapadatok: a mezők csak olvashatónak látszanak (nincs keret, lenyíló nyíl, Nap hozzáadása)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Egyszeri takarítás az ügyvezető kérésére: a bevezetés napi próba-beszélgetésösszefoglalók törlése a lehetőségek jegyzeteiből (a nyitott ablak is frissül)"
 },
 {
-"id": "05661c923a",
-"at": "2026-11-26T15:25:05+01:00",
-"msg": "Rögzítés telefonon: amíg fut, a képernyő ébren marad (Wake Lock); ha mégis megszakadt (lezárás, appváltás, hívás, a mikrofon elengedése), visszatéréskor szól – folytatás vagy befejezés és feltöltés, nem rögzít csendet"
-},
-{
-"id": "e3607e6dce",
-"at": "2026-11-26T14:20:08Z",
+"id": "48bb047078",
+"at": "2026-11-26T14:25:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
