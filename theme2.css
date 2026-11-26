@@ -3342,3 +3342,5 @@ html body details.panel.fold section:has(>.sec-lock)>.sec-lock{top:-4px!importan
   html.cal-lock body .cal-grid{height:100%;grid-template-rows:auto;grid-auto-rows:minmax(0,1fr)}
   html.cal-lock body .cal-day{min-height:0!important;overflow:hidden}
 }
+/* projekt fejléce (cím, gombok, lépések, lezárás sor) – 20%-kal kompaktabb */
+@media (min-width:761px){html body main.content>.dhead{zoom:.8}}
