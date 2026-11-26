@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "47fc5ac4e8",
+"at": "2026-11-26T18:14:08+02:00",
+"msg": "Szakaszok állapota csak ugyanannál a projektnél töltődik vissza"
+},
+{
 "id": "dec1ec1e67",
 "at": "2026-11-26T18:13:54+02:00",
 "msg": "Projekt oldal: frissítés után a szakaszok nem nyílnak ki – a nyitott / csukott állapot megmarad"
@@ -147,9 +152,9 @@ const ITEMS = [
 "msg": "Fekvő telefon: a felső sáv csak saját görgetésre tűnik el (menüváltáskor nem), a Bevétel-táblázat fejléce fent marad, a projektlista sorai feleakkorák"
 },
 {
-"id": "8cf87cb9c3",
-"at": "2026-11-26T16:03:07+01:00",
-"msg": "Jegyzet-törlés azonnal (a háttérben ment, hibánál visszajön); telefonon a Szerződés / Bevétel fejléce egy sorban, mint a Fizetéseknél"
+"id": "c35352e24a",
+"at": "2026-11-26T15:03:16Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
