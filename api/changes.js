@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e616dba93c",
+"at": "2026-11-26T15:13:45+01:00",
+"msg": "Mikrofon-választó: a lista nem csukódik be magától (a többi rövid legördülővel azonos viselkedés), az alapértelmezettnél is minden mikrofon látszik"
+},
+{
 "id": "badddf3827",
 "at": "2026-11-26T15:11:46+01:00",
 "msg": "Rögzítés: mikrofon-választó (alapból a gép beépített mikrofonja, nem a közeli iPhone; a választás megmarad), a sáv a képernyő alján – amíg fut, az ablakok gombsora feljebb kerül"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "c5b43f6cdd",
 "at": "2026-11-26T11:59:01+01:00",
 "msg": "Google-értékelések a termelési vezetőnek is (megtekintés, link, QR, értékeléskérés; válasz és párosítás csak az ügyvezetőnek); párosítás: nem ügyfél kategóriák (szereplő/modell/statiszta, munkatárs, vendég, egyéb) és bővebb ügyfélkör"
-},
-{
-"id": "47c7def607",
-"at": "2026-11-26T11:52:31+01:00",
-"msg": "Beszélgetésrögzítés: a mikrofon és a képernyőmegosztás engedélyezése (Permissions-Policy tiltotta); pontosabb hibaüzenet"
 }
 ];
 const allowed = require('./_auth.js');
