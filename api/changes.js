@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "396031ed44",
+"at": "2026-11-26T11:35:10+02:00",
+"msg": "Gyors út: a betöltés (bootstrap) is gyors – a karbantartó lépései (naptár-visszajelzések, időzítők) háttérfeladatként az Apps Scriptben futnak, legfeljebb 5 percenként; a beállítások listázása a tükörből"
+},
+{
 "id": "e6db746a5a",
 "at": "2026-11-26T10:34:14+01:00",
 "msg": "Stáb: a kártyákon nincs külön lakat (a panel lakatja kezeli az elfogadottak eszközeit is); zárolt résznél tiltó kurzor"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Saját beosztás: a súgóban nincs „Meghívó kiküldve” sor"
 },
 {
-"id": "4419dedff9",
-"at": "2026-11-26T10:14:41+02:00",
-"msg": "Naptár (teljes képernyős havi nézet): görgetéssel újra hónapot vált, de az oldal és a rács fix – nincs követés, visszarugózás, utómozgás; egy görgetés = egy hónap (a trackpad tehetetlenségi görgetése nem vált tovább), a régi hónap kicsúszik, az új becsúszik; fejléc / eszköztár nem nyomódik össze"
-},
-{
-"id": "3a98ab7711",
-"at": "2026-11-26T08:13:51Z",
+"id": "aafbb8fcc0",
+"at": "2026-11-26T08:14:50Z",
 "msg": "Változásnapló frissítése"
 }
 ];
