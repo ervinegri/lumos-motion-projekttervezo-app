@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f4f06cb451",
+"at": "2026-11-26T17:54:46+02:00",
+"msg": "Projektlista: a hónap-elválasztó sorok kikerültek"
+},
+{
 "id": "6ca144b358",
 "at": "2026-11-26T17:40:00+02:00",
 "msg": "Fekvő telefon, projektlista: az állapot-oszlop minden sorban egy vonalban"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "c9d152fcb8",
 "at": "2026-11-26T15:29:01+01:00",
 "msg": "Rögzítés több fülön: a felvételt / feltöltést végző fül jelzi, hogy él – a másik fül nem ajánlja fel félbemaradtként (és nem tölti fel kétszer)"
-},
-{
-"id": "71ddf23d12",
-"at": "2026-11-26T15:28:05+01:00",
-"msg": "Rögzítő sáv: a lehetőség mellett a kapcsolattartó neve is"
 }
 ];
 const allowed = require('./_auth.js');
