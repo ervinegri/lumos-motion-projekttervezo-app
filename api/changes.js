@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "53e214beeb",
+"at": "2026-11-26T22:02:51+02:00",
+"msg": "Stáb / Szereplők: csak lista (a kártyanézet és a váltó megszűnt); kereső és szerep-szűrő egy sorban"
+},
+{
 "id": "25ada52641",
 "at": "2026-11-26T22:00:26+02:00",
 "msg": "iOS: az állapotsor saját sávot kap (default) – a felső menü nem homályosodik el (újratelepítés után); újdonság a többieknek"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Projektlista (gép): vékonyabb fejléc"
 },
 {
-"id": "171f75f99c",
-"at": "2026-11-26T17:57:47+02:00",
-"msg": "Projektlista (gép): kb. 20%-kal vékonyabb sorok"
-},
-{
-"id": "40434c6b8e",
-"at": "2026-11-26T15:56:06Z",
+"id": "8c5938b492",
+"at": "2026-11-26T15:57:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
