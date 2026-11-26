@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1a408afeca",
+"at": "2026-11-26T15:56:46+01:00",
+"msg": "Lehetőség jegyzetei: a bejegyzések (pl. beszélgetés-összefoglaló) egyenként törölhetők – 🗑, megerősítés után azonnal (ügyvezető / a lehetőség értékesítője)"
+},
+{
 "id": "373fb49ea9",
 "at": "2026-11-26T15:55:34+01:00",
 "msg": "Rejtett ajánlat-doboz / mikrofon-választó biztosan nem látszik"
@@ -125,16 +130,6 @@ const ITEMS = [
 "id": "7c6f9de7e0",
 "at": "2026-11-26T13:10:46Z",
 "msg": "Háttérkód telepítési állapota: rendben"
-},
-{
-"id": "55b0e2ef7c",
-"at": "2026-11-26T13:08:50Z",
-"msg": "Háttérkód telepítési állapota: HIBA"
-},
-{
-"id": "93456ae60a",
-"at": "2026-11-26T13:08:45Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
