@@ -3375,3 +3375,4 @@ html body main.content:has(>.dhead){padding-top:10px!important}   /* projekt: a 
   html body .cal-toolbar .cal-mnav,html body .cal-toolbar .seg{min-height:0!important}
   html body .cal-wrap .cal-wd{padding-top:5px!important;padding-bottom:5px!important}
 }
+html body .crew-wide>details.money-panel{margin-top:20px!important}   /* Stáb és Pénzügyek között ugyanakkora hézag, mint a többi panel között */

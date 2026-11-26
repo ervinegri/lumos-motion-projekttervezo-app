@@ -132,7 +132,16 @@ const FOLD={};
 const stepRow=(p,it)=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
   <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;};
 const foldAside=n=>`<span class="aside">${n?n+' kiválasztva':'nincs kiválasztva'}</span>`;
-document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold)FOLD[d.dataset.fold]=d.open;if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
+/* Panel csukása / nyitása: a fejléc (ahol a kurzor van) ugyanott marad a képernyőn – akkor is, ha a lap alja „elfogyna” (ideiglenes térköz alul) */
+let FOLD_ANCHOR=null;
+document.addEventListener('click',e=>{const sm=e.target.closest&&e.target.closest('details.fold>summary');if(!sm)return;FOLD_ANCHOR={d:sm.parentElement,top:sm.getBoundingClientRect().top,at:Date.now()};},true);
+function foldKeep(d){const a=FOLD_ANCHOR;if(!a||a.d!==d||Date.now()-a.at>1000)return;FOLD_ANCHOR=null;const k=d.dataset.fold;
+  const fix=()=>{const dd=(d.isConnected?d:VIEW.querySelector('details[data-fold="'+k+'"]')),sm=dd&&dd.querySelector(':scope>summary');if(!sm)return;const diff=sm.getBoundingClientRect().top-a.top;if(Math.abs(diff)<1)return;const de=document.documentElement,need=scrollY+diff+innerHeight-de.scrollHeight;
+    if(need>0){let sp=document.getElementById('fold-spacer');if(!sp){sp=document.createElement('div');sp.id='fold-spacer';sp.setAttribute('aria-hidden','true');VIEW.appendChild(sp);}sp.style.height=(parseFloat(sp.style.height)||0)+need+'px';}
+    scrollBy(0,diff);};
+  fix();requestAnimationFrame(fix);setTimeout(fix,80);}
+window.addEventListener('scroll',()=>{const sp=document.getElementById('fold-spacer');if(!sp)return;const r=sp.getBoundingClientRect();if(r.top>innerHeight)sp.remove();},{passive:true});   // a térköz eltűnik, amint már nem látszik
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold){FOLD[d.dataset.fold]=d.open;foldKeep(d);}if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
 function autoGrow(t){if(!t)return;const min=Math.max(t.classList.contains('pcrew-note')?58:110,num(t.dataset.userH));t.style.height='auto';const h=Math.max(min,t.scrollHeight+2);t.style.height=h+'px';t.dataset.autoH=h;}
 /* kézzel nagyobbra húzott szövegmező: az automatikus méretezés ennél kisebbre már nem húzza vissza (pl. törléskor) */
 (()=>{let rt=null,h0=0;document.addEventListener('pointerdown',e=>{const t=e.target;if(t&&t.matches&&t.matches('textarea.inp')){rt=t;h0=t.offsetHeight;}else rt=null;},true);
