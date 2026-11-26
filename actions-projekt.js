@@ -3,7 +3,7 @@
 function openProject(id){if(isSales())return;   // az értékesítő nem nyithat meg projektet
 
   const p=projById(id);if(!p)return;S.crewDay='';
-  if(S.projectId!==id)['basics','svc','crew','money','billing','board','content'].forEach(k=>{FOLD[k]=false;});   /* projekt megnyitásakor minden szakasz csukva */
+  if(S.projectId!==id&&FOLD._pid!==id)['basics','svc','crew','money','billing','board','content'].forEach(k=>{FOLD[k]=false;});delete FOLD._pid;   /* frissítés után a megjegyzett állapot marad */   /* projekt megnyitásakor minden szakasz csukva */
   if(!S.projectId){S._fromTab=S.tab!=='projektek'?S.tab:'';S._fromY=scrollY;}   /* a Vissza oda visz, ahonnan jöttél (pl. Naptár / idővonal) */
   S.tab='projektek';S.projectId=id;S.draft=prepDraft(p);S.draftBase=clone(S.draft);S.dirty=false;histReset();S.addCrew={person:'',role:''};S.addEq={item:'',qty:1};
   {const d=S.draft,ids=[...crewIds(d)];if(!ro()&&canSeeFees()&&!projLocked()&&(d.fees||[]).some(f=>f.crewId&&!ids.includes(f.crewId))){syncFeesWithCrew(d);S.dirty=true;setTimeout(()=>{if(S.dirty&&S.draft===d)saveDraft();},0);}}   /* korábban lecserélt szakember árva díjsora: eltávolítjuk és mentjük */

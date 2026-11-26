@@ -128,7 +128,10 @@ window.addEventListener('beforeunload',e=>{if(S.saving||(S.dirty&&S.draft&&!ro()
 
 /* ===== Megjelenítés ===== */
 /* Lenyíló szekciók a projektlapon: alapból csukva, a nyitott állapotot megjegyezzük újrarajzolás között. */
-const FOLD={};
+const FOLD={basics:false,svc:false,crew:false,money:false,billing:false,board:false,content:false};   /* frissítés után is csukva (mint projekt megnyitásakor) */
+/* oldalfrissítéskor ugyanaz a projekt ugyanazokkal a nyitott / csukott szakaszokkal jelenik meg (a böngészőfülön belül megjegyezve) */
+try{const z=JSON.parse(sessionStorage.getItem('lpm_fold')||'null');if(z&&z.f&&z.pid&&String(location.hash||'').length>1)Object.assign(FOLD,z.f),FOLD._pid=z.pid;}catch(e){}
+function foldSave(){try{if(typeof S!=='undefined'&&S.projectId){const f={};Object.keys(FOLD).forEach(k=>{if(k!=='_pid'&&typeof FOLD[k]==='boolean')f[k]=FOLD[k];});sessionStorage.setItem('lpm_fold',JSON.stringify({pid:S.projectId,f}));}}catch(e){}}
 /* Tartalom-csoport lenyíló: alapból nyitva, ha van benne kiválasztott tétel; a nyitás/zárás megmarad. */
 const stepRow=(p,it)=>{const n=num(p[it.k]);return `<div class="dl${n>it.min?' on':''}"><div><div class="dl-name">${it.label}</div></div>
   <div class="stepper"><button type="button" data-action="rec-step" data-k="${it.k}" data-d="-1" aria-label="${it.label}: kevesebb"${n<=it.min||ro()?' disabled':''}>−</button><input class="step-in" type="text" inputmode="numeric" pattern="[0-9]*" data-step-k="${it.k}" data-min="${it.min}" data-max="${it.max}" aria-label="${it.label} (db)" value="${n}"${D()}><button type="button" data-action="rec-step" data-k="${it.k}" data-d="1" aria-label="${it.label}: több"${n>=it.max||ro()?' disabled':''}>+</button></div></div>`;};
@@ -142,7 +145,7 @@ function foldKeep(d){const a=FOLD_ANCHOR;if(!a||a.d!==d||Date.now()-a.at>1000)re
     scrollBy(0,diff);};
   fix();requestAnimationFrame(fix);setTimeout(fix,80);}
 window.addEventListener('scroll',()=>{const sp=document.getElementById('fold-spacer');if(!sp)return;const r=sp.getBoundingClientRect();if(r.top>innerHeight)sp.remove();},{passive:true});   // a térköz eltűnik, amint már nem látszik
-document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold){FOLD[d.dataset.fold]=d.open;foldKeep(d);}if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.fold){FOLD[d.dataset.fold]=d.open;foldKeep(d);foldSave();}if(d&&d.open)d.querySelectorAll('textarea.inp').forEach(autoGrow);},true);
 function autoGrow(t){if(!t)return;const min=Math.max(t.classList.contains('pcrew-note')?58:110,num(t.dataset.userH));t.style.height='auto';const h=Math.max(min,t.scrollHeight+2);t.style.height=h+'px';t.dataset.autoH=h;}
 /* kézzel nagyobbra húzott szövegmező: az automatikus méretezés ennél kisebbre már nem húzza vissza (pl. törléskor) */
 (()=>{let rt=null,h0=0;document.addEventListener('pointerdown',e=>{const t=e.target;if(t&&t.matches&&t.matches('textarea.inp')){rt=t;h0=t.offsetHeight;}else rt=null;},true);
