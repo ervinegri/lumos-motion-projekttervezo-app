@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "30ac79b8c1",
+"at": "2026-11-26T13:13:42+01:00",
+"msg": "Gemini: automatikus modellválasztás (kivezetett modell esetén újraválaszt); jegyzet: a régi, fejléc nélküli szöveg nem ragad az új bejegyzés alá + egyszeri javítás"
+},
+{
 "id": "7b0e5475a9",
 "at": "2026-11-26T13:08:24+01:00",
 "msg": "Beszélgetésrögzítés: a feltöltés / átirat mindig az Apps Scripten fut (a gyors út nem érte el a feltöltési munkamenetet → „lejárt”)"
@@ -132,13 +137,8 @@ const ITEMS = [
 "msg": "Projekt Részletek (előzmények) a termelési vezetőnek is – árak, számlázás, jutalék nélkül"
 },
 {
-"id": "3f15be1bac",
-"at": "2026-11-26T11:58:05+02:00",
-"msg": "Stáb: zárt lakatnál a „Szerepkör hozzáadása” szürke és nem használható (jelzi, hogy a lakattal nyitható)"
-},
-{
-"id": "e60687f309",
-"at": "2026-11-26T09:55:36Z",
+"id": "8ce1db9ef6",
+"at": "2026-11-26T09:58:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
