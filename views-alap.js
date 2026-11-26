@@ -652,7 +652,12 @@ try{matchMedia('(max-width:700px)').addEventListener('change',()=>{try{const a=d
 
 /* Naptár (asztali, havi nézet): a lap nem görgethető – az eszköztár mindig látszik –, csak maga a naptár (saját görgetés; a szélén tovább görgetve hónapot vált). */
 function calLockSync(){try{const de=document.documentElement,w=document.querySelector('.cal-wrap'),on=S.tab==='naptar'&&!!w&&matchMedia('(min-width:761px)').matches&&!S.projectId&&!document.querySelector('.modal-open,#modal.open');
-  if(!on){if(de.classList.contains('cal-lock'))de.classList.remove('cal-lock');return;}
+  if(!on){if(de.classList.contains('cal-lock'))de.classList.remove('cal-lock');calFit();return;}
   if(!de.classList.contains('cal-lock')){window.scrollTo(0,0);de.classList.add('cal-lock');}
-  const top=Math.max(0,Math.round(w.getBoundingClientRect().top));de.style.setProperty('--cal-top',top+'px');}catch(e){}}
+  const top=Math.max(0,Math.round(w.getBoundingClientRect().top));de.style.setProperty('--cal-top',top+'px');calFit();}catch(e){}}
+/* A naptár napjaiban annyi esemény látszik, amennyi kifér (teljes képernyős nézet); a többit a „+N további” jelzi. Egyébként legfeljebb 4. */
+function calFit(){try{const lock=document.documentElement.classList.contains('cal-lock');
+  document.querySelectorAll('.cal-grid .cal-day').forEach(day=>{const more=day.querySelector(':scope>.cal-more'),ch=[...day.children].filter(x=>!x.classList.contains('cal-dh')&&x!==more);if(!ch.length)return;ch.forEach(x=>x.removeAttribute('data-cx'));
+    let n=lock?ch.length:Math.min(4,ch.length);const show=k=>{ch.forEach((x,i)=>{x.style.display=i<k?'':'none';});if(more){const rest=ch.length-k;more.hidden=rest<=0;more.textContent='+'+rest+' további';}};
+    show(n);if(lock)while(n>0&&day.scrollHeight>day.clientHeight+1){n--;show(n);} });}catch(e){}}
 window.addEventListener('resize',()=>{clearTimeout(calLockSync._t);calLockSync._t=setTimeout(calLockSync,120);});
