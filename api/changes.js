@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7c88f03295",
+"at": "2026-11-26T15:55:15+01:00",
+"msg": "Lehetőség ablaka: ha az ügyfélnek nincs ajánlata (sem mentett, sem kiküldött levél), az „Ajánlatok ennek az ügyfélnek” doboz nem jelenik meg / nem foglal helyet"
+},
+{
 "id": "6e9e124ca7",
 "at": "2026-11-26T15:54:33+01:00",
 "msg": "Telefon: a lehetőség ablaka egészében görög (a cím és a Rögzítés / Árajánlat gomb is), a gombsor lent marad; Mégse helyett Vissza"
@@ -127,9 +132,9 @@ const ITEMS = [
 "msg": "Neon-forgalom csökkentése a gyorsaság romlása nélkül"
 },
 {
-"id": "928be73a41",
-"at": "2026-11-26T15:06:43+02:00",
-"msg": "Beszélgetés-átirat: átmeneti Gemini-hibánál (túlterhelés, keret) nem hibát mutat, hanem automatikusan újrapróbálja a háttérben (2, 5, 10, 20, 40, 60 perc múlva – akkor is, ha az app be van zárva); látszik, mikor próbálja újra; kész átiratnál nem készül dupla összefoglaló"
+"id": "250cd95ab7",
+"at": "2026-11-26T13:06:53Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
