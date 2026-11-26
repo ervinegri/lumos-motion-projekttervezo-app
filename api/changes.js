@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5b9aad7d4b",
+"at": "2026-11-26T17:35:58+02:00",
+"msg": "Lezárt Alapadatok: a mezők csak olvashatónak látszanak (nincs keret, lenyíló nyíl, Nap hozzáadása)"
+},
+{
 "id": "4a0b4a9327",
 "at": "2026-11-26T17:35:34+02:00",
 "msg": "Telefon: tömör projektfejléc (vissza, dátum, név egy alacsony sorban; kisebb gombsor)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Rögzítés telefonon: amíg fut, a képernyő ébren marad (Wake Lock); ha mégis megszakadt (lezárás, appváltás, hívás, a mikrofon elengedése), visszatéréskor szól – folytatás vagy befejezés és feltöltés, nem rögzít csendet"
 },
 {
-"id": "eeea03cd0d",
-"at": "2026-11-26T15:19:52+01:00",
-"msg": "Rögzítés iPhone-on: a hullámforma-elemző néma kimenethez kötve (Safari csak így adja az élő hangszintet)"
-},
-{
-"id": "96a159ce62",
-"at": "2026-11-26T14:19:49Z",
+"id": "e3607e6dce",
+"at": "2026-11-26T14:20:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
