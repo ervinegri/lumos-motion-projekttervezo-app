@@ -3433,3 +3433,8 @@ html.dark body .topbar .view-as.on,html.dark body .topbar #viewAs.on{color:#ffe2
 @media (hover:none){html body tr.cl-row,html body tr.pt-row,html body .dl-card,html body .bd-card,html body .stage,html body details.panel>summary{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
 /* Ügyfelek fejléc: a cím és a darabszám egy sorban */
 html body .cl-head>.grow{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}html body .cl-head>.grow>h2{margin:0}html body .cl-head>.grow>.sub{margin:0}
+html body .gbp-hd .gbp-tools{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+/* Ügyfelek: cím, darabszám, keresés és gombok egy sorban */
+html body .cl-head{flex-wrap:wrap;align-items:center;gap:10px 12px}html body .cl-head>.grow{flex:0 0 auto}
+html body .cl-head .cl-q{flex:1 1 280px;max-width:520px;min-width:200px;margin:0}
+html body .gbp-hd{flex-wrap:wrap}html body .gbp-hd .gbp-tools .gbp-rf{margin-left:0}
