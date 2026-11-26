@@ -138,10 +138,13 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   const clear=t=>{t.querySelectorAll('[data-stk]').forEach(c=>{c.style.position='';c.style.left='';c.style.zIndex='';c.style.backgroundColor='';c.style.boxShadow='';c.removeAttribute('data-stk');});t.removeAttribute('data-stk-n');};
   const fix=()=>{q=false;const v=document.getElementById('view');if(!v)return;
     v.querySelectorAll('table.sheet').forEach(t=>{const w=t.parentElement;if(!mq.matches||!w||w.classList.contains('dock-wrap')||w.scrollWidth<=w.clientWidth+2){if(t.hasAttribute('data-stk-n'))clear(t);return;}
-      const hr=t.tHead&&t.tHead.rows[t.tHead.rows.length-1];if(!hr)return;const hs=[...hr.cells];let n=hs.findIndex(c=>/projekt|megnevez|értékesítő|ügyfél/i.test(c.textContent||''))+1;if(n<1)n=1;if(n>3)n=1;
-      const lefts=[];let x=0;for(let i=0;i<n;i++){lefts.push(x);x+=hs[i]?hs[i].getBoundingClientRect().width:0;}
+      /* oszloptérkép a fejlécből – a több soros (rowspan / colspan) fejlécnél is a valódi oszlop szerint (pl. Értékesítők teljesítménytáblája) */
+      const grid=[];[...(t.tHead?t.tHead.rows:[])].forEach((r,ri)=>{grid[ri]=grid[ri]||[];let col=0;for(const c of r.cells){while(grid[ri][col])col++;const cs=c.colSpan||1,rs=c.rowSpan||1;for(let a=0;a<rs;a++){grid[ri+a]=grid[ri+a]||[];for(let b=0;b<cs;b++)grid[ri+a][col+b]=c;}col+=cs;}});
+      const last=grid[grid.length-1]||[];if(!last.length)return;const hs=last.map((c,i)=>last[i-1]===c&&(c.colSpan||1)>1?null:c);
+      let n=last.findIndex(c=>(c.colSpan||1)===1&&/projekt|megnevez|értékesítő|ügyfél/i.test(c.textContent||''))+1;if(n<1)n=1;if(n>3)n=1;
+      const br=t.tBodies[0]&&t.tBodies[0].rows[0],lefts=[];let x=0;for(let i=0;i<n;i++){lefts.push(x);const bc=br&&br.cells[i]&&(br.cells[i].colSpan||1)===1?br.cells[i]:null;x+=(bc||last[i])?(bc||last[i]).getBoundingClientRect().width:0;}
       t.setAttribute('data-stk-n',n);
-      [...t.rows].forEach(r=>{let col=0;for(const c of r.cells){if(col>=n)break;const span=c.colSpan||1;if(col+span>n&&span>1){col+=span;continue;}
+      const occ={};[...t.rows].forEach((r,ri)=>{let col=0;for(const c of r.cells){while(occ[ri+'_'+col])col++;if(col>=n)break;for(let a=1;a<(c.rowSpan||1);a++)for(let b=0;b<(c.colSpan||1);b++)occ[(ri+a)+'_'+(col+b)]=1;const span=c.colSpan||1;if(col+span>n&&span>1){col+=span;continue;}
         c.setAttribute('data-stk','1');c.style.position='sticky';c.style.left=lefts[col]+'px';c.style.zIndex=r.parentElement.tagName==='THEAD'?'7':'4';c.style.backgroundColor=bg(c);
         if(col+span===n)c.style.boxShadow='1px 0 0 var(--line,#d6dee6)';col+=span;}});});};
   const sch=()=>{if(!q){q=true;requestAnimationFrame(fix);}};
