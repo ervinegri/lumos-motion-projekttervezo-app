@@ -3638,3 +3638,25 @@ html body .dl-board .dl-card .dl-next,html body .dl-board .dl-card .dl-won,html 
 html body #view .crew-wide{display:flex!important;flex-direction:column;gap:8px!important}
 html body #view .crew-wide>*{margin-top:0!important;margin-bottom:0!important}
 html body #view>details.panel.fold,html body #view>.dfull>details.panel.fold{margin-top:0!important;margin-bottom:0!important}
+/* gép / tablet: a projekt fejléce egy sorban – vissza, dátum, név balra, a gombok (Mentve, Projektmappa, Részletek…) jobbra; ha nem fér ki, a gombok alá törnek */
+@media (min-width:701px){
+ html body #view .dhead{flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;column-gap:16px!important}
+ html body #view .dhead>*{flex:1 1 100%;min-width:0}
+ html body #view .dhead>.dtitle{flex:1 1 320px!important;min-width:0}
+ html body #view .dhead>.btns{flex:0 1 auto!important;margin:0 0 0 auto!important;justify-content:flex-end;flex-wrap:wrap;gap:6px!important}
+ html body #view .dhead>.btns :is(.btn,.mini){height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13px!important;display:inline-flex;align-items:center;box-sizing:border-box;white-space:nowrap}
+ html body #view .dhead .dtitle .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media (min-width:701px){
+ html body #view .dhead>.dtitle{flex:1 1 260px!important}
+ html body #view .dhead>.btns :is(.btn,.mini){padding-left:10px!important;padding-right:10px!important;font-size:12.5px!important;gap:5px!important}
+}
+@media (min-width:701px){
+ html body #view .dhead>.dtitle{flex-wrap:nowrap!important;align-items:center!important}
+ html body #view .dhead>.dtitle>.grow{min-width:0;flex:1 1 auto}
+ html body #view .dhead>.dtitle h2{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap}
+ html body #view .dhead>.dtitle h2 .pname{min-width:0;overflow:hidden;text-overflow:ellipsis}
+ html body #view .dhead>.btns>.hint{font-size:12px!important;white-space:nowrap}
+}
+/* gép: a fejléc sorában a Lemondás / Törlés csak ikon (rámutatva kiírja); telefonon felirattal */
+@media (min-width:701px){html body #view .dhead>.btns .dh-ic .dh-lbl{display:none}html body #view .dhead>.btns .dh-ic{padding-left:9px!important;padding-right:9px!important}}
