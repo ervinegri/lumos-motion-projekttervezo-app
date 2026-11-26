@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1f9c8253d3",
+"at": "2026-11-26T11:50:35+01:00",
+"msg": "Google-értékelések: az alsó „Értékelési link ↗” gomb törölve (fent ott a másolás és a QR)"
+},
+{
 "id": "ccb1dd49ae",
 "at": "2026-11-26T11:48:18+01:00",
 "msg": "Google-értékelések: megnyitáskor nem frissít újra, ha az elmúlt 10 percben (induláskor) már frissült"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "e99c7d97d8",
 "at": "2026-11-26T11:29:30+02:00",
 "msg": "Gyors út: állapotlekérdezés külön lekérdezésekkel"
-},
-{
-"id": "930ede482d",
-"at": "2026-11-26T11:25:52+02:00",
-"msg": "Gyors út: állapotlekérdezés (GET /api/fast – kódváltozat, tükör, várakozó háttérfeladatok; titok nélkül)"
 }
 ];
 const allowed = require('./_auth.js');
