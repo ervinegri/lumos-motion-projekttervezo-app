@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ccb1dd49ae",
+"at": "2026-11-26T11:48:18+01:00",
+"msg": "Google-értékelések: megnyitáskor nem frissít újra, ha az elmúlt 10 percben (induláskor) már frissült"
+},
+{
 "id": "e4db7bc39d",
 "at": "2026-11-26T11:47:43+01:00",
 "msg": "Google-értékelések: alapból 12 értékelés látszik (6 helyett)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "930ede482d",
 "at": "2026-11-26T11:25:52+02:00",
 "msg": "Gyors út: állapotlekérdezés (GET /api/fast – kódváltozat, tükör, várakozó háttérfeladatok; titok nélkül)"
-},
-{
-"id": "d99b63bf7a",
-"at": "2026-11-26T11:23:40+02:00",
-"msg": "Gyors út: a mentések és lekérések a Vercelen futnak, közvetlenül a Neon mellett (ugyanaz a háttérkód) – Google-szolgáltatást igénylő művelet az Apps Scripten marad; az írás feltételes (verziós), ütközésnél friss adattal újrafut; levél / HubSpot-szinkron háttérfeladatként; beállítás- és munkamenet-tükör a Neonban (titkok nélkül)"
 }
 ];
 const allowed = require('./_auth.js');
