@@ -35,10 +35,11 @@ async function bdMove(pid,vid,st,extra,fb){const p=projById(pid);const v=p&&(p.v
       {submitLabel:'✅ Jóváhagyva',noDraft:true,submit:async fd=>{const l=String(fd.get('link')||'').trim();if(!/^https?:\/\/\S+$/i.test(l)){toast('Illeszd be a videó linkjét (https://…).',true);return;}closeModal();bdMove(pid,vid,'jovahagyva',{noMail:true,link:l});}});return;}
   let nmLink='';if(extra&&extra.noMail){nmLink=extra.link||'';extra=null;}   // belső ellenőrzés: kinek, link, megjegyzés
   const old=v.st,k=pid+'|'+vid,tok={st};BD_PEND[k]=tok;v.st=st;if(nmLink)v.link=nmLink;if(extra&&extra.client){v.seenAt='';v.seenLast='';v.seenN=0;}   /* újraküldés: azonnal „Még nem nyitották meg” (nem ugrál) */bdRefresh();if(!extra)bdKeep(k,{pid,vid,st,fb:fb||'',at:Date.now()});
-  window.BD_BUSY=(window.BD_BUSY||0)+1;window.BD_AT=Date.now();BD_Q=BD_Q.then(async()=>{try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{},nmLink?{link:nmLink}:{}));const pr2=r&&r.project;
+  window.BD_BUSY=(window.BD_BUSY||0)+1;window.BD_AT=Date.now();BD_Q=BD_Q.then(async()=>{const an=old==='ellen'&&(st==='leadva'||st==='jovahagyva')?apprNotePeek(pid,vid):null,AN=an?{apprNote:an.t}:{};   /* a jóváhagyás megjegyzése ugyanabban a kérésben megy → a vágó EGY levelet kap */
+    try{const r=extra&&extra.client?await call('videoClient',Object.assign({projectId:pid,id:vid},extra.client,AN)):extra?await call('videoReview',Object.assign({projectId:pid,id:vid},extra)):await call('videoSet',Object.assign({projectId:pid,id:vid,st},fb?{fb}:{},nmLink?{link:nmLink}:{},AN));const pr2=r&&r.project;
       if(BD_PEND[k]===tok)delete BD_PEND[k];bdKeep(k,null);BD_DONE[k]={st,at:Date.now()};
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);[S.draft,S.draftBase].forEach(d=>{if(d&&d.id===pid)['videos','status','leadvaAt','stepsDone','updatedAt','updatedBy'].forEach(f=>{d[f]=pr2[f];});});}
-      if(old==='ellen'&&(st==='leadva'||st==='jovahagyva'))apprNoteSend(pid,vid);
+      if(old==='ellen'&&(st==='leadva'||st==='jovahagyva')){if(an&&r&&r.apprNote)apprNoteDone(an);else apprNoteSend(pid,vid);}   /* régi háttérnél (nincs apprNote a válaszban) a külön küldés a tartalék */
       bdApply(pid);bdRefresh();if(extra&&extra.client)toast(r&&r.test?'🧪 TESZT: a levél neked ment ki, nem az ügyfélnek':r&&r.mail?'📧 Elküldve az ügyfélnek':'Ügyfél jóváhagyására jelölve (az e-mail most nem ment ki)',!(r&&r.mail));else if(extra)toast(r&&r.mail?'📧 Elküldve ellenőrzésre':'Belső ellenőrzésre jelölve (e-mail most nem ment ki)');else if(fb)toast('↩ Visszadobva – a vágó e-mailt kapott');}
     catch(e){bdKeep(k,null);if(BD_PEND[k]===tok){delete BD_PEND[k];const q=projById(pid),w=q&&(q.videos||[]).find(x=>x.id===vid);if(w)w.st=old;}bdRefresh();if(fb)bdFbFail(pid,vid,st,fb,e);else handleErr(e);}finally{window.BD_BUSY=Math.max(0,(window.BD_BUSY||1)-1);}});}
 /* visszadobás indokkal nem sikerült: a beírt szöveg NEM veszhet el – újra megnyílik, a hibával, és egy gombbal újraküldhető */
@@ -826,6 +827,8 @@ function vvShareOnce(v){try{if(!v||ro()||!(isAdmin()||(S.me&&S.me.role==='editor
    ha az ügyfélnek küldő ablakot bezárja, nem megy el (a szöveg piszkozatként megmarad). */
 function apprNoteGrab(pid,vid){const ta=$('m-vvCm'),t=String(ta&&ta.value||'').trim();
   window._apprNote=t&&t.replace(TC_RE,'').trim()?{pid,vid,t,at:Date.now(),k:typeof txtKey==='function'&&ta?txtKey(ta):''}:null;}
+function apprNotePeek(pid,vid){const n=window._apprNote;return n&&n.pid===pid&&n.vid===vid&&Date.now()-n.at<=3600e3?n:null;}
+function apprNoteDone(n){if(window._apprNote===n)window._apprNote=null;if(n.k&&typeof txtPut==='function')txtPut(n.k,'');vvSave({draft:''});}
 async function apprNoteSend(pid,vid){const n=window._apprNote;if(!n||n.pid!==pid||n.vid!==vid||Date.now()-n.at>3600e3)return;window._apprNote=null;
   const go=async tries=>{try{const r=await call('videoComment',{projectId:pid,id:vid,text:n.t,ts:'',appr:true});const pr2=r&&r.project;
       if(pr2){const i=S.projects.findIndex(x=>x.id===pid);if(i>=0)S.projects[i]=normProj(pr2);}if(n.k&&typeof txtPut==='function')txtPut(n.k,'');vvSave({draft:''});toast('✅ A megjegyzést is megkapta a vágó');}

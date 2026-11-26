@@ -202,7 +202,7 @@ function videoClient_(u, a) {
   const link = str_(a.link, 500).trim(); if (!/^https?:\/\/\S+$/i.test(link)) throw new Error('Illeszd be a videó linkjét (https://…).');
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), note = str_(a.note, 6000).trim(); let text = str_(a.text, 6000).trim();
   const ids = (Array.isArray(a.ids) && a.ids.length > 1 ? a.ids : [vid]).map(x => str_(x, 40)).filter(Boolean).slice(0, 30);   // több videó egy levélben (közös jóváhagyó oldal)
-  ids.forEach(id => videoSet_(u, { projectId: pid, id: id, st: 'leadva' }));
+  let apprOk = false; ids.forEach(id => { const r0 = videoSet_(u, Object.assign({ projectId: pid, id: id, st: 'leadva', _via: 'client' }, id === vid && a.apprNote ? { apprNote: a.apprNote } : {})); if (r0 && r0.apprNote) apprOk = true; });   /* a belső jóváhagyás megjegyzése a vágónak szóló EGY levélben megy (Ervin, 2026-11-26) */
   let p, v, names = [];
   withLock_(() => { const sh = sheetFor_('projects'), row = findRow_(sh, pid); p = readRow_('projects', sh, row); const vids = parseVideos_(p.videos); v = vids.find(x => x.id === vid);
     ids.forEach(id => { const w = vids.find(x => x.id === id); if (!w) return; names.push(w.name); if (id === vid || ids.length === 1) w.link = link; w.seenAt = ''; w.seenLast = ''; w.seenN = 0; w.cm = (w.cm || []).concat([{ by: u.name, at: now_(), t: (clientMailLive_() ? 'Ügyfélnek elküldve (' + to + ')' : 'TESZT: az ügyfélnek szóló levél (' + to + ') csak neked ment ki') + (ids.length > 1 ? ' – ' + ids.length + ' videó egy levélben' : '') + (note ? ': ' + note : ''), ts: '' }]).slice(-100); });
@@ -223,7 +223,7 @@ function videoClient_(u, a) {
   const tpl = ids.length > 1 ? '' : str_(a.tpl, 4000).trim();   // a kiküldött levél sablonként megmarad az ügyfélnél ({video}, {projekt}, {link} helyőrzőkkel)
   if (tpl) { try { const cn = String(p.client || '').trim().toLowerCase(), csh = sheetFor_('clients'); withLock_(() => { const c = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === cn); if (!c) return; const r = findRow_(csh, c.id); if (!r) return; const q = readRow_('clients', csh, r); q.vidMail = tpl; q.updatedAt = now_(); putRow_('clients', csh, q, r); dbFlush_(); }); } catch (e) { Logger.log('Sablon mentése: ' + e); } }
   logEvent_(u, 'Videó ügyfélnek elküldve', p.name, (ids.length > 1 ? names.join(', ') : (v ? v.name : '')) + ' → ' + to);
-  return { project: projectView_(fullProject_(p), u), mail: mail, test: !live };
+  return { project: projectView_(fullProject_(p), u), mail: mail, test: !live, apprNote: apprOk };
 }
 /* Az ügyfél jóváhagyó oldala (jovahagyas.html): aláírt, 60 napig érvényes kulcs – bejelentkezés nélkül csak ezt az egy videót látja és döntheti el. */
 /** Ügyfél-levelek élesen mennek (Ervin, 2026-11-09). Tesztüzem visszakapcsolása: Script Property LUMOS_CLIENT_MAIL_LIVE = '0' */
@@ -624,7 +624,7 @@ function mailCard_(first, line, box, btnUrl, btnLabel, boxColor) {
     + '<p style="margin:0 0 18px"><a href="' + escapeHtml_(btnUrl) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:10px 18px;border-radius:8px">' + escapeHtml_(btnLabel) + '</a></p></div>';
 }
 let FB_MAIL_ = null;
-let OK_MAIL_ = null;   // jóváhagyási értesítés a vágónak (a mentés után megy ki)
+let OK_MAIL_ = null, APPR_NOTE_OK_ = false;   // jóváhagyási értesítés a vágónak (a mentés után megy ki)
 /* ===== Fizetős (3.+) javítás árajánlata – az ügyvezető készíti és küldi, az ügyfél egy linken fogadja el vagy utasítja el (2026-11-21) =====
    Elfogadáskor a javítás automatikusan feloldódik (a vágó / termelési vezető onnantól mozgathatja), az összeg extraként a projekthez kerül (számlázandó).
    Elutasításkor a videó visszakerül „Jóváhagyásra vár” állapotba (az utolsó változat jóváhagyható). */
@@ -737,6 +737,7 @@ function videoVerFix_(u, a) {
 }
 function videoSet_(u, a) {
   a = a || {};
+  APPR_NOTE_OK_ = false;
   const pid = str_(a.projectId, 64), vid = str_(a.id, 40), mgr = u.role === 'admin' || u.role === 'editor';
   const myAssignment = readAll_('crewAssign').filter(r => r.projectId === pid && r.crewId === u.crewId);
   const isCutter = myAssignment.some(r => r.role === 'Vágó');
@@ -777,6 +778,9 @@ function videoSet_(u, a) {
       if (mgr && (a.st === 'modositas' || a.st === 'vagas') && a.fb) { v.fb = str_(a.fb, 6000); v.fbBy = u.name; v.fbAt = now_(); v.cm = (v.cm || []).concat([{ by: u.name, at: v.fbAt, t: '↩ ' + v.fb, ts: '' }]).slice(-100); if (u.id !== 'client') FB_MAIL_ = { v: v, by: u.name }; }   /* az ügyfél kérésénél a vágó az új stílusú levelet kapja (clientDecide_) */   // visszadobás indokkal → a vágó e-mailt kap
       if (mgr && a.link !== undefined && /^https?:\/\/\S+$/i.test(String(a.link).trim())) vidSetLink_(v, str_(String(a.link).trim(), 500));   // e-mail nélküli áthelyezésnél is a videó linkje
       if (u.id !== 'client' && v.editor && ((a.st === 'jovahagyva' && v.st !== 'jovahagyva') || (mgr && a.st === 'leadva' && v.st === 'ellen'))) OK_MAIL_ = { v: v, by: u.name, kind: a.st === 'jovahagyva' ? 'ok' : 'rv' };   /* a vágó értesítést kap: átment a belső ellenőrzésen / jóváhagyták (az ügyfél döntésénél a clientDecide_ küldi) */
+      if (mgr && u.id !== 'client' && v.st === 'ellen' && (a.st === 'leadva' || a.st === 'jovahagyva') && a.apprNote) { const n = str_(a.apprNote, 6000).trim();   /* jóváhagyáskor írt megjegyzés: hozzászólásként is bekerül, és a vágó egyetlen levélben kapja meg (nem külön „Jóváhagyva” levélben) */
+        if (n) { v.cm = (v.cm || []).concat([{ by: u.name, at: now_(), t: '✅ Jóváhagyva – megjegyzés: ' + n, ts: '' }]).slice(-100); APPR_NOTE_OK_ = true; if (OK_MAIL_ && OK_MAIL_.v === v) OK_MAIL_.note = n; } }
+      if (OK_MAIL_ && OK_MAIL_.v === v && a._via === 'client') OK_MAIL_.via = 'client';
       if (a.st === 'jovahagyva' && v.st !== 'jovahagyva') v.okAt = now_();   // a jóváhagyás időpontja (a videóablakban látszik)
       if (a.st === 'leadva' && v.st !== 'leadva') { v.seenAt = ''; v.seenLast = ''; v.seenN = 0; }   // újbóli leadás: a korábbi megnyitás már nem számít
       v.st = a.st; if (a.st === 'leadva') v.at = today_(); if (!v.editor && !mgr && v.k !== 'foto') v.editor = u.crewId; changed += (changed ? ', ' : '') + v.name + ': ' + a.st;
@@ -796,15 +800,18 @@ function videoSet_(u, a) {
   logEvent_(u, 'Videó állapota', p.name, changed);
   if (SALES_DONE_) { const sd = SALES_DONE_; SALES_DONE_ = null; salesNotify_(sd, 'done'); }   // automatikus lezárás: az értékesítő értesül az átadásról
   if (OK_MAIL_) { const om = OK_MAIL_; OK_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === om.v.editor), em = c && String(c.email || '').trim();
-    if (em && em.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(om.v.id), first = huFirst_(String(c.name || '')), ok = om.kind === 'ok';
-      const head = ok ? 'Jó hír: a videót jóváhagyták' : 'Átment a belső ellenőrzésen – ' + om.by + ' továbbküldte az ügyfélnek jóváhagyásra';
-      gmailSend_(em, (ok ? '✅ Jóváhagyva: ' : '✅ Átment az ellenőrzésen: ') + vShort_(om.v.name) + ' · ' + p.name, 'Kedves ' + first + '!\n\n' + head + (vShort_(om.v.name) !== om.v.name ? ': ' + om.v.name : '') + '.\n\n' + (ok ? 'Köszönjük a munkádat!' : 'Ha az ügyfél módosítást kér, értesítünk.') + '\n\n' + url,
-        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62"><b>' + escapeHtml_(head) + '</b>' + (vShort_(om.v.name) !== om.v.name ? '<br>' + escapeHtml_(om.v.name) : '') + '</p><p>' + (ok ? 'Köszönjük a munkádat!' : 'Ha az ügyfél módosítást kér, értesítünk.') + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágói értesítés: ' + e); } }
+    if (em && em.toLowerCase() !== String(u.email || '').toLowerCase()) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(om.v.id), first = huFirst_(String(c.name || '')), ok = om.kind === 'ok', fwd = !ok && om.via === 'client';
+      /* EGY levél (Ervin, 2026-11-26): jóváhagyás + (ha volt) a megjegyzés és az időkódos észrevételek; ügyfélnek küldésnél a tárgy „Ügyfélnek továbbküldve: …” */
+      const head = ok ? 'Jó hír: a videót jóváhagyták' : fwd ? '✅ ' + om.by + ' jóváhagyta, és továbbküldte az ügyfélnek jóváhagyásra' : '✅ ' + om.by + ' jóváhagyta – az ügyfél jóváhagyására vár';
+      const subj = (ok ? '✅ Jóváhagyva: ' : fwd ? 'Ügyfélnek továbbküldve: ' : '✅ Jóváhagyva: ') + vShort_(om.v.name) + ' · ' + p.name, nt = om.note ? pinStrip_(om.note) : '', vn = vShort_(om.v.name) !== om.v.name ? om.v.name : '';
+      const ntH = escapeHtml_(nt).replace(/\[(\d{1,3}:\d{2}(?:[–-]\d{1,3}:\d{2})?)\]/g, '<b>[$1]</b>').replace(/\n/g, '<br>'), tail = ok ? 'Köszönjük a munkádat!' : 'Ha az ügyfél módosítást kér, értesítünk.';
+      gmailSend_(em, subj, 'Kedves ' + first + '!\n\n' + head + (vn ? '\n' + vn : '') + (nt ? '\n\nMegjegyzés:\n' + nt : '') + '\n\n' + tail + '\n\n' + url,
+        { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><div style="padding:10px 12px;background:#eaf7ef;border-left:4px solid #2e9e62;margin:0 0 14px"><b>' + escapeHtml_(head) + '</b>' + (vn ? '<br>' + escapeHtml_(vn) : '') + (nt ? '<div style="margin-top:8px"><span style="font-size:12px;color:#5f6b76">Megjegyzés:</span><br>' + ntH + '</div>' : '') + '</div><p>' + tail + '</p><p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Vágói értesítés: ' + e); } }
   if (FB_MAIL_) { const fm = FB_MAIL_; FB_MAIL_ = null; try { const c = readAll_('crew').find(x => x.id === fm.v.editor), em = c && String(c.email || '').trim();
     if (em) { const url = appUrl_() + '#p=' + pid + '&v=' + encodeURIComponent(fm.v.id), first = huFirst_(String(c.name || ''));
       gmailSend_(em, 'Módosítás kell: ' + vShort_(fm.v.name) + ' · ' + p.name, 'Kedves ' + first + '!\n\n' + fm.by + ' átnézte, és módosítást kér' + (vShort_(fm.v.name) !== fm.v.name ? ': ' + fm.v.name : '.') + (fm.v.fb ? '\n\n' + pinStrip_(fm.v.fb) : '') + '\n\n' + url,
         { htmlBody: '<p>Kedves ' + escapeHtml_(first) + '!</p><p><b>' + escapeHtml_(fm.by) + '</b> átnézte, és módosítást kér' + (vShort_(fm.v.name) !== fm.v.name ? ': <b>' + escapeHtml_(fm.v.name) + '</b>' : '.') + '</p>' + (fm.v.fb ? '<p style="padding:10px 12px;background:#fff4f2;border-left:4px solid #d93025">' + escapeHtml_(pinStrip_(fm.v.fb)).replace(/\n/g, '<br>') + '</p>' : '') + '<p><a href="' + escapeHtml_(url) + '">A videó megnyitása</a></p>', name: 'Lumos Motion Projekttervező', __nk: 'vidMod' }); } } catch (e) { Logger.log('Visszadobás e-mail hiba: ' + e); } }
-  return { project: projectView_(fullProject_(p), u) };
+  return Object.assign({ project: projectView_(fullProject_(p), u) }, APPR_NOTE_OK_ ? { apprNote: true } : {});
 }
 function projectView_(p, u) {
   const q = Object.assign({}, p);
