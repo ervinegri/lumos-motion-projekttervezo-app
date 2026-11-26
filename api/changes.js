@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "781e4e168b",
+"at": "2026-11-26T11:41:55+01:00",
+"msg": "Ügyfelek, telefon: a kereső mögötti cím elrejtve"
+},
+{
 "id": "d6c1841b1c",
 "at": "2026-11-26T11:40:57+01:00",
 "msg": "Ügyfelek fejléce: a gombok jobbra igazítva"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "f67ed7c1a5",
 "at": "2026-11-26T11:02:51+02:00",
 "msg": "Sebesség: mérés kérésenként (adatbázis, betöltés, zárra várás, gyorsítótár; a böngészőben a teljes kör) – Beállítások → ⚡ Sebesség; gyorsítás: a lapok gyorsítótárból 2 hívással töltődnek (eddig lapként 2), az adatbázis-forgalom számlálója kérésenként egyszer ír"
-},
-{
-"id": "f886a2f050",
-"at": "2026-11-26T10:52:11+02:00",
-"msg": "Projekt lépései: a „Kész” (aktuális) kártya pipája most tényleg zöld körben fehér pipa – a pipa a kártya mellett van, nem benne (javított kijelölés)"
 }
 ];
 const allowed = require('./_auth.js');
