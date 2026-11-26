@@ -109,7 +109,8 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||t.dataset
   /* görgetéskor a projekt neve fent marad: vékony sáv a fejléc alatt, amikor a cím kicsúszik a képből */
   const bar=()=>{let b=$('ptbar');if(!b){b=document.createElement('div');b.id='ptbar';b.className='ptbar';b.innerHTML='<div class="ptbar-in"><b></b><span></span></div>';b.querySelector('b').onclick=()=>scrollTo({top:0,behavior:'smooth'});(document.querySelector('.topbar')||document.body).appendChild(b);}return b;};   // a felső sávon belül: rugózáskor együtt mozognak, nem válnak szét
   const upd=()=>{const d=document.querySelector('.dtitle');const b=$('ptbar');if(!d||ro()){   // szakember nézetben nincs ragadós címsáv: a cím a többi tartalommal görgetődik
-if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=d.getBoundingClientRect().bottom<top;
+if(b)b.classList.remove('on');return;}const top=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tbh'))||58,on=(()=>{const r=d.getBoundingClientRect();if(r.height)return r.bottom<top;   /* gépen a .dtitle csak csoportosít (display:contents, nincs saját doboza) – ilyenkor a név és a leírás alja számít */
+      return Math.max(...[...d.querySelectorAll('h2,.sub,.cal,.back-ic')].map(x=>x.getBoundingClientRect().bottom).concat([-1]))<top;})();
     const x=bar();if(on){const h=d.querySelector('h2'),sub=d.querySelector('.sub');const t=h?h.childNodes[0].textContent.trim():'',st=sub?sub.textContent.trim():'';if(x._t!==t+st){x._t=t+st;x.querySelector('b').textContent=t;x.querySelector('span').textContent=st;}}x.classList.toggle('on',on);};
   window.addEventListener('scroll',upd,{passive:true});setInterval(upd,1500);})();
 
