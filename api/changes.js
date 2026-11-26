@@ -2,6 +2,21 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "285887361f",
+"at": "2026-11-26T14:12:20+01:00",
+"msg": "Neon-forgalom: tartalmilag változatlan lapot nem írunk vissza (nem lép a változat → a gyorsítótárak és a gyors út példányai nem töltik le újra a teljes lapot)"
+},
+{
+"id": "7c6f9de7e0",
+"at": "2026-11-26T13:10:46Z",
+"msg": "Háttérkód telepítési állapota: rendben"
+},
+{
+"id": "55b0e2ef7c",
+"at": "2026-11-26T13:08:50Z",
+"msg": "Háttérkód telepítési állapota: HIBA"
+},
+{
 "id": "2eaefc7473",
 "at": "2026-11-26T14:08:35+01:00",
 "msg": "Neon-forgalom csökkentése a gyorsaság romlása nélkül"
@@ -122,19 +137,9 @@ const ITEMS = [
 "msg": "Ügyfelek, telefon: a kereső mögötti cím elrejtve"
 },
 {
-"id": "d6c1841b1c",
-"at": "2026-11-26T11:40:57+01:00",
-"msg": "Ügyfelek fejléce: a gombok jobbra igazítva"
-},
-{
-"id": "e31d3a754c",
-"at": "2026-11-26T11:40:04+01:00",
-"msg": "Ügyfelek: keresés a fejléc sorában; értékelési link / QR a Frissítés mellett; induláskor a Google-értékelések automatikus behúzása"
-},
-{
-"id": "e90f4fb51d",
-"at": "2026-11-26T11:35:48+01:00",
-"msg": "Sötét mód: olvasható szerepkör-választó; érintésre nincs sárga szövegkijelölés a sorokon; egyforma panelhézag a Szerződés és számlázás előtt; zárolt Alapadatok nem kattintható (tiltó kurzor); Ügyfelek fejléce egy sorban; Google-értékelési link másolása és QR-kód"
+"id": "2e96f09715",
+"at": "2026-11-26T10:41:05Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
