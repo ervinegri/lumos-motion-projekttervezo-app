@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0313e6e896",
+"at": "2026-11-26T18:06:03+02:00",
+"msg": "Szolgáltatások: a magyarázó sor nem csúszik rá az alatta lévő dobozra"
+},
+{
 "id": "7c69778d58",
 "at": "2026-11-26T18:03:56+02:00",
 "msg": "Szolgáltatások: kisebb hézag a fejléc és a magyarázó sor között"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "785c77cf63",
 "at": "2026-11-26T15:52:17+01:00",
 "msg": "Telefon: a görgethető ablak (lehetőség) a képernyő magasságában – fejléc fent, gombsor lent rögzítve, csak a tartalom görög (nincs üres rész a gombsor alatt); Pénzügyek panel nyila a jobb szélen"
-},
-{
-"id": "e0baca908d",
-"at": "2026-11-26T15:49:02+01:00",
-"msg": "Rögzítés: frissítés ellen védve (lehúzás / automatikus újratöltés nem indul rögzítés közben); ha mégis megszakadt, az új lap rögtön felajánlja: Feltöltés, vagy Feltöltés és folytatás (új felvétel indul, az előző rész a háttérben töltődik fel). Lehetőség ablaka telefonon: a két gomb és a bezárás egy sorban, rövid felirattal"
 }
 ];
 const allowed = require('./_auth.js');
