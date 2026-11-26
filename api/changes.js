@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "badddf3827",
+"at": "2026-11-26T15:11:46+01:00",
+"msg": "Rögzítés: mikrofon-választó (alapból a gép beépített mikrofonja, nem a közeli iPhone; a választás megmarad), a sáv a képernyő alján – amíg fut, az ablakok gombsora feljebb kerül"
+},
+{
 "id": "d1cb165537",
 "at": "2026-11-26T14:54:36+01:00",
 "msg": "Beszélgetés-átirat OpenAI-jal (elsődleges, ha meg van adva a kulcs): gpt-transcribe beszélők szerint (ha a modell tudja, különben egyszerűsít), összefoglaló a legújabb gpt-mini modellel kötött JSON-szerkezettel; Beállítások → OpenAI-kulcs; a Gemini tartalék"
@@ -120,16 +125,6 @@ const ITEMS = [
 "id": "47c7def607",
 "at": "2026-11-26T11:52:31+01:00",
 "msg": "Beszélgetésrögzítés: a mikrofon és a képernyőmegosztás engedélyezése (Permissions-Policy tiltotta); pontosabb hibaüzenet"
-},
-{
-"id": "1f9c8253d3",
-"at": "2026-11-26T11:50:35+01:00",
-"msg": "Google-értékelések: az alsó „Értékelési link ↗” gomb törölve (fent ott a másolás és a QR)"
-},
-{
-"id": "cdba649558",
-"at": "2026-11-26T10:48:27Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
