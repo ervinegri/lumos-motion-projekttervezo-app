@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f886a2f050",
+"at": "2026-11-26T10:52:11+02:00",
+"msg": "Projekt lépései: a „Kész” (aktuális) kártya pipája most tényleg zöld körben fehér pipa – a pipa a kártya mellett van, nem benne (javított kijelölés)"
+},
+{
 "id": "108982d67e",
 "at": "2026-11-26T09:50:49+01:00",
 "msg": "Közeli forgatás: lakat a Stáb panelen (utolsó 3 nap / helyszíni munkától), sürgős meghívó a forgatás előtti estéig tartó határidővel; visszamondás szöveg pontosítva"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (asztali havi nézet): a lap nem görgethető, csak maga a naptár; a szélén tovább görgetve hónapot vált"
 },
 {
-"id": "1959a9f047",
-"at": "2026-11-26T08:55:41+01:00",
-"msg": "Fizetések: a vezető saját beosztása nem teszi a régi projektet meghívásossá (Vegan Summit, Veganuár díjai újra számítanak); Szolgáltatások: egyetlen lakat"
-},
-{
-"id": "07209f781e",
-"at": "2026-11-26T07:48:37Z",
+"id": "0f54c074a2",
+"at": "2026-11-26T07:55:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
