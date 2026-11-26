@@ -136,12 +136,18 @@ function needName(form,msg){const el=form.querySelector('[name=name]');if(el.val
 $('modalRoot').addEventListener('submit',async e=>{
   e.preventDefault();if(!modalSubmit)return;
   const form=e.target,btn=form.querySelector('[type=submit]');if(btn){btn.dataset.l=btn.textContent;btn.textContent=btn.textContent.replace(/…$/,'')+'…';btn.disabled=true;}
-  const k=MD_KEY;
+  const k=MD_KEY,root=$('modalRoot');
+  /* Háttérmentés (2026-11-26): ha a mentés a szerverre vár (negyed másodpercnél tovább), az ablak eltűnik és dolgozhatsz tovább – a „Mentés folyamatban” jelző mutatja.
+     Hiba esetén az ablak a beírt adatokkal együtt visszajön, és szól. Ha közben kérdés / új tartalom jelenik meg az ablakban, azonnal előkerül. */
+  let hid=false,mo=null;const unhide=()=>{if(!hid)return;hid=false;root.classList.remove('md-bg');document.documentElement.classList.remove('md-bg-on');S.saving=Math.max(0,(S.saving||0)-1);if(mo)mo.disconnect();try{renderChrome();}catch(_){}};
+  const ht=setTimeout(()=>{if(!form.isConnected||form.dataset.noBg==='1'||root.querySelector('.cf-layer')||!((S._mutLive||0)>0))return;
+    hid=true;root.classList.add('md-bg');document.documentElement.classList.add('md-bg-on');S.saving=(S.saving||0)+1;try{renderChrome();}catch(_){}
+    mo=new MutationObserver(()=>{if(root.querySelector('.cf-layer')||!form.isConnected)unhide();});mo.observe(root,{childList:true,subtree:true});},250);
   try{await workTrack(modalSubmit(new FormData(form),form));if(MD_KEY!==k||!$('mform'))mdClear(k);}   // sikeres mentés: a piszkozat törlődik
-  catch(err){console.error(err);try{handleErr(err);}catch(_){toast('Hiba történt: '+((err&&err.message)||err),true);}}   // váratlan hiba se maradjon néma
-  finally{if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}}
+  catch(err){clearTimeout(ht);unhide();console.error(err);try{handleErr(err);}catch(_){toast('Hiba történt: '+((err&&err.message)||err),true);}}   // váratlan hiba se maradjon néma; a beírt adatok az ablakban maradnak
+  finally{clearTimeout(ht);unhide();if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=btn.dataset.l;}{const q=window._mdBgQ;window._mdBgQ=null;if(q)setTimeout(()=>{if(!$('modalRoot').innerHTML)q();},60);}}
 });
-document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('modalRoot').innerHTML)return;const cf=$('modalRoot').querySelector('.cf-layer');if(cf){cf.remove();return;}closeModal();});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||!$('modalRoot').innerHTML||$('modalRoot').classList.contains('md-bg'))return;const cf=$('modalRoot').querySelector('.cf-layer');if(cf){cf.remove();return;}closeModal();});
 /* Folyamatban lévő művelet gombja (pl. „Mentés…”, „Feltöltés…”, „Rögzítés…”): forgó jel + fénycsík, amíg tart */
 const BUSY_SYNC=b=>{if(!b||b.tagName!=='BUTTON')return;const on=!!b.dataset.busy||b.disabled&&/…\s*$/.test(b.textContent||'');b.classList.toggle('is-busy',on);if(on)b.setAttribute('aria-busy','true');else b.removeAttribute('aria-busy');};
 if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')BUSY_SYNC(m.target);else if(m.type==='characterData')BUSY_SYNC(m.target.parentElement&&m.target.parentElement.closest('button'));else{BUSY_SYNC(m.target.closest&&m.target.closest('button'));}}))
