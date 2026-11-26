@@ -11,11 +11,16 @@ function mdSig(){const f=$('mform');if(!f)return '';let h=5381;const str=[...f.q
   for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return (h>>>0).toString(36);}
 function mdClear(k){try{localStorage.removeItem(k||MD_KEY);}catch(e){}}
 function mdRestore(key){let o=null;try{o=JSON.parse(localStorage.getItem(key)||'null');}catch(e){}if(!o)return;const f=$('mform');if(!f||MD_KEY!==key)return;
+  const undo=[];   /* a visszatöltés előtti értékek – az „Elvetés” ezekre állít vissza */
   Object.entries(o).forEach(([n,x])=>{if(/^b(Email2?|Name|Tax|Zip|City|Addr)$/.test(n))return;   // a számla vevőadatai mindig a friss ügyféladatokból jönnek (nem a félbehagyott űrlapból)
     const els=[...f.querySelectorAll(`[name="${CSS.escape(n)}"]`)];if(!els.length)return;
-    els.forEach((el,i)=>{let ch=false;if(el.type==='checkbox'){if(x.c){const v=x.c.includes(el.value);if(el.checked!==v){el.checked=v;ch=true;}}}
+    els.forEach((el,i)=>{let ch=false;const before={el,v:el.value,c:el.checked};if(el.type==='checkbox'){if(x.c){const v=x.c.includes(el.value);if(el.checked!==v){el.checked=v;ch=true;}}}
       else if(el.type==='radio'){if(x.v!=null&&el.value===x.v&&!el.checked){el.checked=true;ch=true;}}else{const v=els.length>1?(x.a?x.a[i]:undefined):x.v;if(v!=null&&el.value!==v){el.value=v;ch=true;}}
-      if(ch){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}});});}
+      if(ch){undo.push(before);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}});});
+  if(undo.length&&!f.querySelector('.md-restored')){const hasText=undo.some(u=>u.el.tagName==='TEXTAREA'||(u.el.type==='text'&&String(u.el.value).length>2));if(!hasText)return;
+    f.insertAdjacentHTML('afterbegin','<div class="md-restored" role="status">↩️ Visszatöltöttem egy korábban félbehagyott, el nem küldött űrlap tartalmát. <button type="button" class="linkbtn" data-md-discard>Elvetés</button></div>');
+    f.querySelector('[data-md-discard]').addEventListener('click',ev=>{ev.preventDefault();undo.forEach(u=>{if(u.el.type==='checkbox'||u.el.type==='radio')u.el.checked=u.c;else u.el.value=u.v;u.el.classList.remove('txt-restored');u.el.dispatchEvent(new Event('input',{bubbles:true}));u.el.dispatchEvent(new Event('change',{bubbles:true}));});
+      const k=MD_KEY;setTimeout(()=>mdClear(k),350);const b=f.querySelector('.md-restored');if(b)b.remove();});}}
 document.addEventListener('input',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform')){clearTimeout(mdSave._t);mdSave._t=setTimeout(mdSave,300);}});
 document.addEventListener('change',e=>{if(MD_KEY&&e.target.closest&&e.target.closest('#mform'))setTimeout(mdSave,0);});
 document.addEventListener('change',e=>{if(e.target.id==='m-endDate'&&e.target.value){const w=e.target.closest('.np-end');if(w&&w.hidden){w.hidden=false;const m=document.querySelector('.np-multi');if(m)m.hidden=true;}}});   // visszatöltött piszkozatnál is látsszon
