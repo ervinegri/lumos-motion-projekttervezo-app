@@ -3400,3 +3400,10 @@ html body details:has(>[inert].svc-locked)>summary{cursor:pointer!important}
 html body .pcrew-add-card.add-locked{opacity:.55;filter:grayscale(1);background:#f4f5f7}
 html body .pcrew-add-card.add-locked .addrow{pointer-events:none;user-select:none}
 html body .pcrew-add-card .add-lock-hint{margin:2px 0 8px;font-size:12.5px;color:#5d6875;filter:none}
+/* projektlap sorrend (2026-11-26): Alapadatok · Szolgáltatások · Stáb és eszközök · Utómunka · Pénzügyek · Szerződés és számlázás – egyforma hézagokkal */
+html body .crew-wide>details.proj-board{margin-top:20px!important}
+html body .bill-after{margin-top:20px}
+html body .bill-after:empty{display:none}
+/* Pénzügyek panel: a lenyitó nyíl ugyanakkora, mint a többinél; a cím is kattintható (nagyobb célterület) */
+html body details.money-panel>summary>h3::after{padding:0!important;margin-left:0!important}
+html body details.money-panel>summary>h3{pointer-events:auto;cursor:pointer}

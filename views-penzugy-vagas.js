@@ -779,8 +779,6 @@ function viewProject(p){
         const lkB=svcLockOf(p,'basic');return `${svcLockBar(p,'basic',lkB)}<div class="field full b-grid${ro()?' b-one':''}${lkB.on?' svc-locked ro-lock':''}"${lkB.on?' data-ro-lock="1"':''}>${ev}${cl}</div>`;})()}
         <div class="field full"><label for="f-notes">Jegyzetek</label><div class="inp rt-notes" id="f-notes" data-rt="notes" role="textbox" aria-multiline="true" data-ph="${D()?'–':'Parkolás, beléptetés, öltözet, helyszíni kapcsolattartó… (beillesztéskor a formázás megmarad)'}" contenteditable="${D()?'false':'true'}">${notesHtml(p.notes)}</div></div>
       </div></details>
-      ${projBoardPanel(p)}
-      ${status!=='lemondva'&&isAdmin()&&typeof projBillingPanel==='function'?projBillingPanel(p):''}
   </div>
   ${status==='lemondva'&&isAdmin()&&typeof projBillingPanel==='function'?`<div style="margin-top:12px">${projBillingPanel(p)}</div>`:''}
   
@@ -789,9 +787,10 @@ function viewProject(p){
     return `<details class="panel content fold svc${SL?' svc-locked':''}" data-fold="svc"${FOLD.svc!==false?' open':''}><summary><h3>🧾 Szolgáltatások ${foldAside(nRec+nKrea+nTech+nIntG)}${SL&&!SP?'<button class="btn outline small svc-unlock-btn" type="button" data-action="crew-edit" title="Ha utólag extra szolgáltatást kérnek: feloldja a szolgáltatásokat és a csapatot">🔓 Szolgáltatások módosítása</button>':''}</h3></summary><p class="hint" style="margin:-4px 0 12px">${SL&&SP?'A rendezvény már lezajlott, ezért a szolgáltatások és a csapat nem módosíthatók.':SL?'A csapat véglegesítve van, ezért a szolgáltatások zárolva vannak. Ha utólag extra szolgáltatást kérnek, a „Szolgáltatások módosítása” gombbal oldhatod fel.':'Jelöld be, mit kell csinálni – a kiválasztott tétel alatt rögtön kiválaszthatod, ki csinálja. A kiválasztott szakember a szerepével a Stáb és eszközök közé is bekerül.'}</p>
     ${(()=>{const tc=topicCards(p,{camRow,dlRow,D}),i=tc.indexOf('<div class="tc-cols');return (i>0?tc.slice(0,i):'')+`<div class="svc-body"${SL?' inert':''}>${i>0?tc.slice(i):tc}</div>`;})()}</details>`;})()}
   <div class="crew-wide">${canSeeFees()?(()=>{const ce=crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole,true);
-    const CK=crewLockOf(p);return `<details class="panel fold crew-fin${CK.on?' svc-locked':''}" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary>${CK.btn}<div class="crew-body${CK.on?' svc-locked':''}"${CK.on?' inert':''}>${ce.body}</div></details>
+    const CK=crewLockOf(p);return `<details class="panel fold crew-fin${CK.on?' svc-locked':''}" data-fold="crew"${FOLD.crew!==false?' open':''}><summary><h3>👥 Stáb és eszközök <span class="aside">${ce.aside}</span></h3></summary>${CK.btn}<div class="crew-body${CK.on?' svc-locked':''}"${CK.on?' inert':''}>${ce.body}</div></details>${projBoardPanel(p)}
       <details class="panel fold money-panel" data-fold="money"${FOLD.money!==false?' open':''}><summary><h3>💰 ${isAdmin()?'Pénzügyek – büdzsé, termelői keret és díjak':'Termelői díjak és keret'}</h3></summary>${projLocked()?`<p class="hint locked-hint">🔒 A projekt lezárva – a pénzügyek sem módosíthatók.${isAdmin()?' <button class="linkbtn" type="button" data-action="proj-unlock" style="margin-left:6px">🔓 Felnyitás</button>':''}</p>`:''}<div class="money-body${projLocked()?' is-locked':''}"${projLocked()?' inert':''}>${financePanel(p,true)}</div></details>`;})()
-    :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)}</div>
+    :crewEquipPanel(p,st,c,sortedCrew,leadOpts,leadBusy,personOpts,selRole)+projBoardPanel(p)}</div>
+  ${status!=='lemondva'&&isAdmin()&&typeof projBillingPanel==='function'?`<div class="bill-after">${projBillingPanel(p)}</div>`:''}
   ${ro()&&p.myFee&&num(p.myFee.amount)&&(p.penalties||[]).some(x=>x.crewId===(S.me&&S.me.crewId))?myFeePanel(p):''}`;   // a díj a Kifizetések fülön látszik; itt csak díjcsökkentésnél (a kifogás miatt)
 }
 

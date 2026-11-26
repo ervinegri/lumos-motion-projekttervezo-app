@@ -2,7 +2,7 @@
 <html lang="hu" class="th2">
 <head>
 <meta charset="utf-8">
-<style>html{background:#f3f3fa}</style><!-- az első kirajzolástól világos háttér (telefonon nem fekete a betöltés) -->
+<style>html{background:#fff}#splash{position:fixed;inset:0;z-index:2147483000;background:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .4s ease,visibility 0s linear .4s}#splash img{width:min(58vw,300px);height:auto;display:block}html.th2:not(.booting) #splash,html.no-auth #splash{opacity:0;visibility:hidden;pointer-events:none}</style><!-- indítóképernyő: fehér háttér, középen a logó – az első kirajzolástól, amíg az app betölt (utána elhalványul) -->
 <meta name="format-detection" content="telephone=no">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive">
@@ -30,7 +30,6 @@
 <link rel="apple-touch-startup-image" media="(device-width:420px) and (device-height:912px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="splash/ios-1260x2736.png">
 <link rel="apple-touch-startup-image" media="(device-width:360px) and (device-height:780px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)" href="splash/ios-1080x2340.png">
 <script src="theme2.js"></script>
-<link rel="stylesheet" href="theme2.css">
 <style>
 /* A Lumos Motion Sales App színei és formái */
 :root{
@@ -1148,6 +1147,8 @@ html body .tl-row .tl-track .cal-chip.p.cut.tl-bar.tl-cut.cut-ok.cut-ok,html bod
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><img src="logo.png" alt="" width="1169" height="285"></div>
+<link rel="stylesheet" href="theme2.css"><!-- a nagy stíluslap az indítókép után: a logó már előtte kirajzolódik -->
 <div id="loginGate" class="login-gate hidden" role="dialog" aria-modal="true" aria-label="Belépés">
   <form id="loginForm" class="login-card g-only lc-wait" autocomplete="off">
     <img class="login-brand" src="logo.png" width="1169" height="285" alt="Lumos Motion Projekttervező">
