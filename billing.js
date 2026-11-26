@@ -640,7 +640,7 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
       tipUp();d.addEventListener('mouseenter',tipUp);}}catch(e){}}
   /* önfrissítés: ha a sávra nem kattintanak (pl. reggel óta nyitott lap), az új verzió magától betöltődik egy nyugodt pillanatban –
      nincs nyitott ablak, nem gépel, nincs folyamatban lévő mentés; a lap visszatérésekor (más lapról / alvásból) vagy percenként */
-  function idle(){try{const mr=document.getElementById('modalRoot');if(mr&&mr.children.length)return false;const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&String(a.value||'').trim())return false;
+  function idle(){try{if(typeof REC!=='undefined'&&REC)return false;   /* rögzítés / feltöltés közben nincs automatikus újratöltés */const mr=document.getElementById('modalRoot');if(mr&&mr.children.length)return false;const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&String(a.value||'').trim())return false;
     if(document.querySelector('.cf-layer,.flatpickr-calendar.open,#bellPop.open'))return false;if(S&&(S._mutLive||S.loading))return false;return true;}catch(e){return false;}}
   function autoReload(){if(!shown||!idle())return;try{if(typeof mdSave==='function')mdSave();}catch(e){}try{sessionStorage.setItem('lpm_autoreload',String(Date.now()));}catch(e){}location.reload();}
   setTimeout(check,4000);setInterval(check,180000);let lastAct=Date.now();['pointerdown','keydown','wheel','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now();},{passive:true,capture:true}));

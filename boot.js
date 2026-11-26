@@ -15,6 +15,7 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
     if(dy<=0||(window.scrollY>2&&!PTR_MODAL)||(Math.abs(dx)>Math.abs(dy)&&dy<24)){reset();return;}
     const d=Math.min(120,dy*.55);ind.classList.add('on');ind.style.transform=`translate(-50%,${d-44}px)`;armed=d>=52;   /* iOS-en a rugalmas túlhúzás miatt az ujj útja rövidebbnek tűnik – kisebb küszöb */ind.classList.toggle('armed',armed);txt(armed?'Engedd el a frissítéshez':'Húzd le a frissítéshez');},{passive:true});
   const end=()=>{if(y0==null&&!armed){return;}if(!armed){reset();return;}
+    if(typeof REC!=='undefined'&&REC&&!REC.done){reset();toast('Rögzítés közben nem frissítek (a frissítés megszakítaná a felvételt). Előbb fejezd be.');return;}
     if(window.S&&(S.dirty||S.saving)){try{flushSave();}catch(_){}reset();toast('Előbb mentem a módosításaidat – húzd le újra egy pillanat múlva.');return;}
     busy=true;ind.classList.add('busy');ind.style.transform='translate(-50%,40px)';txt('Frissítés…');setTimeout(()=>location.reload(),120);};
   document.addEventListener('touchend',end,{passive:true});document.addEventListener('touchcancel',()=>{if(!busy)reset();},{passive:true});})();

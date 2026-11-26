@@ -240,7 +240,8 @@ async function dealQuotesHist(ids){for(const id of ids){let H=null;try{H=await c
 function dealHeadTools(){const mh=document.querySelector('#modalRoot .mbox .mhead');if(!mh||mh.querySelector('.deal-ht'))return;
   const bx=document.createElement('div');bx.className='deal-ht';
   document.querySelectorAll('#modalRoot .mfoot [data-action=q-sent-open],#modalRoot .mfoot [data-action=q-draft-cont],#modalRoot .mfoot [data-action=q-draft-new],#modalRoot .mfoot [data-action=deal-more-quote],#modalRoot .mfoot [data-action=deal-quote],#modalRoot .rec-sec [data-action=rec-start]').forEach(b=>{const w=b.parentElement;b.classList.remove('small');bx.appendChild(b);if(w&&w.classList.contains('btns')&&!w.children.length)w.remove();});
-  if(!bx.children.length)return;const x=mh.querySelector('.x');if(x)mh.insertBefore(bx,x);else mh.appendChild(bx);}
+  if(!bx.children.length)return;if(window.matchMedia&&matchMedia('(max-width:700px)').matches){const SH={'rec-start':'🎙️ Rögzítés','deal-quote':'📄 Árajánlat','q-draft-cont':'📄 Folytatás','q-draft-new':'＋ Új ajánlat','deal-more-quote':'＋ Új ajánlat','q-sent-open':'📨 Kiküldött'};bx.querySelectorAll('[data-action]').forEach(b=>{const t=SH[b.dataset.action];if(t){b.title=b.textContent.trim();b.textContent=t;}});}   /* telefonon rövid felirat, hogy egy sorba férjen a bezárással */
+  const x=mh.querySelector('.x');if(x)mh.insertBefore(bx,x);else mh.appendChild(bx);}
 function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||{}),isNew=!d0,won=d.stage==='nyert';if(isNew&&!d.id)d.id=uuid();   // az új lehetőség azonosítója már itt megvan: újrapróbálkozáskor sem jön létre kétszer
   const cl=knownClients('').map(c=>c.company),stOpts=DEAL_STAGES.filter(x=>x[0]!=='nyert'&&x[0]!=='fizetve').map(x=>[x[0],x[2]+' '+x[1]]);
   openModal(isNew?'+ Új lehetőség':(won?'✅ ':'')+(d.title||'Lehetőség'),`<div class="fields">
@@ -615,7 +616,7 @@ async function recBegin(did,kind,title,dev,actx){let mic=null,disp=null,ctx=null
   const sid='r'+Date.now().toString(36);recHbStart(sid);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
   try{const ac=ctx||actx||new (window.AudioContext||window.webkitAudioContext)();if(!ctx)REC.ctx=ac;const an=ac.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=0.6;ac.createMediaStreamSource(stream).connect(an);try{const g=ac.createGain();g.gain.value=0;an.connect(g);g.connect(ac.destination);}catch(e){}REC.an=an;if(ac.state==='suspended')ac.resume();}catch(e){}   /* élő hullámforma a sávon */
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
-  mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
+  mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));if(i%10===9)recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0,last:Date.now(),dur:Math.round(recElapsed())}));};   /* a meta időnként frissül: frissítés után látszik, mikor rögzített utoljára és meddig */
   mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
   REC.tick=setInterval(recBar,1000);recGuard();{const rs=()=>{try{if(REC&&REC.ctx&&REC.ctx.state!=='running'&&REC.ctx.state!=='closed')REC.ctx.resume();}catch(e){}};document.addEventListener('touchend',rs,{passive:true});document.addEventListener('click',rs);}document.body.classList.add('rec-on');let mn='';try{mn=(mic.getAudioTracks()[0]||{}).label||'';}catch(e){}toast('● Rögzítés elindult'+(mn?' – mikrofon: '+mn:''));}
 const recUnload=e=>{if(REC){e.preventDefault();e.returnValue='Fut a beszélgetés rögzítése.';}};
@@ -669,16 +670,16 @@ function recXhr(name,arg,onProg){return new Promise((ok,no)=>{let x;try{x=new XM
   x.onload=()=>{let j=null;try{j=JSON.parse(x.responseText);}catch(e){}if(!j){call(name,arg).then(ok,no);return;}if(!j.ok){no(new Error(j.error||'Ismeretlen hiba.'));return;}ok(j.data);};
   x.onerror=()=>{call(name,arg).then(ok,no);};x.ontimeout=()=>no(new Error('A feltöltés túl sokáig tartott – próbáld újra.'));
   x.send(JSON.stringify({fn:'rpc',args:[TOKEN,name,arg]}));});}
-async function recUpload(m,blob){
-  const setUp=t=>{if(REC){REC.up=t;recBar();}};
+async function recUpload(m,blob,bg){
+  const setUp=t=>{if(!bg&&REC){REC.up=t;recBar();}};
   try{if(!blob.size)throw new Error('A felvétel üres.');
     const st=await call('recUpStart',{dealId:m.did,size:blob.size,mime:m.mime,kind:m.kind,dur:Math.round(m.dur||0),consent:true});
     let off=0,res=null;while(off<blob.size){const part=blob.slice(off,off+st.chunk),b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=()=>no(fr.error);fr.readAsDataURL(part);});
       const o0=off,pz=part.size;setUp('Feltöltés… '+Math.round(o0/blob.size*100)+'%');res=await recXhr('recUpChunk',{upId:st.upId,offset:off,b64},f=>{const pc=Math.min(99,Math.round((o0+f*pz)/blob.size*100));setUp(f>=1&&o0+pz>=blob.size?'Feltöltés… 100% · mentés':'Feltöltés… '+pc+'%');});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
-    await recDbClear(m.sid);recHbStop();window.removeEventListener('beforeunload',recUnload);
-    if(res&&res.deals)S.deals=res.deals;REC=null;recBar();if(res&&res.ai&&res.rec)recStatus('✓ Feltöltve · átirat készül…');else toast('✓ A felvétel feltöltve');
+    await recDbClear(m.sid);recHbStop(m.sid);if(!bg)window.removeEventListener('beforeunload',recUnload);
+    if(res&&res.deals)S.deals=res.deals;if(bg)toast('✓ Az előző rész feltöltve');else{REC=null;recBar();if(res&&res.ai&&res.rec)recStatus('✓ Feltöltve · átirat készül…');else toast('✓ A felvétel feltöltve');}
     recLoadIf(m.did);if(res&&res.ai&&res.rec)recRun(m.did,res.rec.id);}
-  catch(e){recHbStop();window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
+  catch(e){recHbStop(m.sid);if(bg){toast('Az előző rész feltöltése nem sikerült ('+errText(e)+') – a rögzítés után felajánlom újra.',true);return;}window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
     confirmLayer('⚠️ A felvétel feltöltése nem sikerült',`<div style="margin:0 16px"><p class="bad-txt" style="margin:0 0 8px">${esc(errText(e))}</p><p class="hint" style="margin:0">A felvétel a böngészőben megmaradt – próbáld újra most, vagy később (az app induláskor is felajánlja).</p></div>`,'Újrapróbálás',(b,l)=>{l.remove();recRetry(m.sid);});}}
 function recLoadIf(did){const b=document.getElementById('rec-list');if(b&&b.dataset.did===did){delete b.dataset.loading;recLoad(did);}}
 /* átirat lépésenként (a háttér minden lépést külön kérésben végez) */
@@ -697,15 +698,24 @@ ACT['rec-next']=b=>recApply(b.dataset.did,b.dataset.n,b.dataset.d);
 ACT['rec-del']=b=>{const did=b.dataset.did,rid=b.dataset.rid;confirmLayer('Felvétel törlése','<p style="margin:0 16px">A hangfelvétel és az átirat a Drive kukájába kerül (30 napig visszaállítható). A jegyzetben lévő összefoglaló megmarad.</p>','Törlés',async(x,l)=>{l.remove();try{const r=await call('recDel',{dealId:did,id:rid});recFill(did,r.list||[]);toast('Felvétel törölve');}catch(e){handleErr(e);}});};
 /* félbemaradt (fel nem töltött) felvétel: induláskor felajánljuk */
 /* Több fül: a felvételt (és a feltöltését) végző fül 2 mp-enként jelzi, hogy él – a többi fül ezt nem ajánlja fel „félbemaradt” felvételként */
-let REC_HB=null;
+const REC_HB={};   /* felvételenként (egy új felvétel mellett az előző rész a háttérben töltődhet fel) */
 const recHb=sid=>{try{localStorage.setItem('lpm_rec_hb_'+sid,String(Date.now()));}catch(e){}};
 const recHbLive=sid=>{try{return Date.now()-Number(localStorage.getItem('lpm_rec_hb_'+sid)||0)<10000;}catch(e){return false;}};
-function recHbStart(sid){recHbStop();recHb(sid);REC_HB={sid,iv:setInterval(()=>recHb(sid),2000)};}
-function recHbStop(){if(REC_HB){clearInterval(REC_HB.iv);try{localStorage.removeItem('lpm_rec_hb_'+REC_HB.sid);}catch(e){}REC_HB=null;}}
-async function recRetry(sid){if(recHbLive(sid)&&!(REC_HB&&REC_HB.sid===sid)){toast('Ezt a felvételt egy másik böngészőfül még rögzíti / tölti fel.',true);return;}const m=await recDbDo('m','readonly',st=>st.get(sid));if(!m){toast('A felvétel már nincs meg a böngészőben.',true);return;}const parts=await recDbChunks(sid);if(!parts.length){await recDbClear(sid);toast('A felvétel üres volt.',true);return;}
+function recHbStart(sid){recHbStop(sid);recHb(sid);REC_HB[sid]=setInterval(()=>recHb(sid),2000);}
+window.addEventListener('pagehide',()=>{Object.keys(REC_HB).forEach(k=>{try{localStorage.removeItem('lpm_rec_hb_'+k);}catch(e){}});});   /* frissítéskor / bezáráskor a jelzés azonnal megszűnik – az új lap rögtön felajánlhatja */
+function recHbStop(sid){if(!sid||!REC_HB[sid])return;clearInterval(REC_HB[sid]);delete REC_HB[sid];try{localStorage.removeItem('lpm_rec_hb_'+sid);}catch(e){}}
+async function recRetry(sid){if(recHbLive(sid)&&!REC_HB[sid]){toast('Ezt a felvételt egy másik böngészőfül még rögzíti / tölti fel.',true);return;}const m=await recDbDo('m','readonly',st=>st.get(sid));if(!m){toast('A felvétel már nincs meg a böngészőben.',true);return;}const parts=await recDbChunks(sid);if(!parts.length){await recDbClear(sid);toast('A felvétel üres volt.',true);return;}
   REC={sid,did:m.did,kind:m.kind,title:m.title,up:'Feltöltés…',done:1};recHbStart(sid);recBar();await recUpload({sid,did:m.did,kind:m.kind,title:m.title,mime:m.mime,dur:m.dur||Math.round(parts.length)},new Blob(parts,{type:String(m.mime||'audio/webm').split(';')[0]}));}
-setTimeout(async()=>{try{if(!S.me||!(isAdmin()||isSales()))return;const L=await recDbDo('m','readonly',st=>st.getAll());(L||[]).filter(x=>(!REC||x.sid!==REC.sid)&&!recHbLive(x.sid)).slice(0,1).forEach(m=>{
-  confirmLayer('🎙️ Fel nem töltött felvétel',`<p style="margin:0 16px">Van egy félbemaradt beszélgetés-felvétel (${esc(m.title||'')}, ${esc(new Date(m.start).toLocaleString('hu-HU'))}). Feltöltöm most?</p>`,'Feltöltés',(b,l)=>{l.remove();recRetry(m.sid);});});}catch(e){}},6000);
+async function recOrphanCheck(again){try{if(!S.me||!(isAdmin()||isSales()))return;const L=await recDbDo('m','readonly',st=>st.getAll());if(!again&&(L||[]).some(x=>(!REC||x.sid!==REC.sid)&&recHbLive(x.sid)))setTimeout(()=>recOrphanCheck(true),11000);   /* ha egy másik fül jelzése még friss: 11 mp múlva újra megnézzük */
+  if(document.querySelector('.cf-layer'))return;(L||[]).filter(x=>(!REC||x.sid!==REC.sid)&&!recHbLive(x.sid)).slice(0,1).forEach(m=>{
+  const fresh=Date.now()-Number(m.last||m.start||0)<10*60000;   /* néhány perce még rögzített: valószínűleg frissítés / bezárás szakította meg */
+  confirmLayer(fresh?'🎙️ A rögzítés megszakadt':'🎙️ Fel nem töltött felvétel',`<p style="margin:0 16px">${fresh?'Az oldal frissítése / bezárása megszakította a rögzítést':'Van egy félbemaradt beszélgetés-felvétel'} (${esc(m.title||'')}, ${esc(new Date(m.start).toLocaleString('hu-HU'))}). Az eddig rögzített rész megvan – feltöltöm most?${fresh?' Ha a beszélgetés még tart, a „Feltöltés és folytatás” egy új felvételt indít ugyanehhez a lehetőséghez.':''}</p>`,'Feltöltés',(b,l)=>{l.remove();recRetry(m.sid);});
+  if(fresh&&m.did)setTimeout(()=>{const lay=document.querySelector('.cf-layer');if(!lay)return;const ok=lay.querySelector('[data-cf=ok]');if(!ok)return;const go=document.createElement('button');go.type='button';go.className='btn';go.textContent='🎙️ Feltöltés és folytatás';
+    go.onclick=e=>{e.stopPropagation();lay.remove();const d=(S.deals||[]).find(x=>x.id===m.did)||{};let actx=null;try{actx=new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume();}catch(_){}let dev='';try{dev=recMobile()?'':(localStorage.getItem('lpm_rec_mic')||'');}catch(_){}
+      const up=async()=>{try{const parts=await recDbChunks(m.sid);if(!parts.length){await recDbClear(m.sid);return;}recHbStart(m.sid);await recUpload({sid:m.sid,did:m.did,kind:m.kind,title:m.title,mime:m.mime,dur:m.dur||Math.round(parts.length)},new Blob(parts,{type:String(m.mime||'audio/webm').split(';')[0]}),true);}catch(_){}};
+      recBegin(m.did,m.kind||'mic',d.title||m.title||'',dev,actx).then(up);};   /* az új felvétel a kattintásra indul (mikrofon-engedély), az előző rész közben a háttérben feltöltődik */
+    ok.parentNode.insertBefore(go,ok);},0);});}catch(e){}}
+setTimeout(()=>recOrphanCheck(false),1500);
 
 /* Beállítások: OpenAI-kulcs (elsődleges átirat + összefoglaló) – csak az ügyvezető */
 function openaiPanel(){if(!isAdmin()||!S.openai)return '';const g=S.openai;

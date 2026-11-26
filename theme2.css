@@ -3464,4 +3464,4 @@ html body #modalRoot .mhead:has(.deal-ht){display:flex;align-items:center;gap:10
 html body #modalRoot .mhead:has(.deal-ht) h3{flex:1;min-width:0}
 .deal-ht{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .deal-ht .btn{white-space:nowrap}
-@media (max-width:700px){html body #modalRoot .mhead:has(.deal-ht){flex-wrap:wrap}.deal-ht{order:3;width:100%;justify-content:flex-start}.deal-ht .btn{flex:1}}
+@media (max-width:700px){html body #modalRoot .mhead:has(.deal-ht){flex-wrap:wrap;row-gap:10px}html body #modalRoot .mhead:has(.deal-ht) h3{flex:1 1 100%;order:1}.deal-ht{order:2;flex:1 1 0;min-width:0;flex-wrap:nowrap;justify-content:flex-start}.deal-ht .btn{flex:1 1 0;min-width:0;padding-left:8px!important;padding-right:8px!important;font-size:14px!important;overflow:hidden;text-overflow:ellipsis}html body #modalRoot .mhead:has(.deal-ht) .x{order:3;flex:none;margin:0!important;position:static!important}}
