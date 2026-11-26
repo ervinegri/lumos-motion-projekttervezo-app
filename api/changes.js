@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "385f26cd4b",
+"at": "2026-11-26T09:31:29+01:00",
+"msg": "Kanban és hozzászólások: rövid nevek (Dávid, Kata, Ervin – azonos keresztnévnél teljes név); jogosultsági hibánál a pontos indok is látszik"
+},
+{
 "id": "f2f5b5a693",
 "at": "2026-11-26T10:25:06+02:00",
 "msg": "Naptár (havi nézet): MacBook trackpaddel sem ugrik kettőt – váltás után 0,45 mp-ig nem vált újra (a még tartó, közben gyorsuló mozdulat sem), utána csak szünet vagy erősen gyorsuló új mozdulat vált"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Telefonos indítás: nem fekete a képernyő – világos háttér az első kirajzolástól, iOS indítóképek, manifest"
 },
 {
-"id": "cb3fac4ba0",
-"at": "2026-11-25T17:06:16+01:00",
-"msg": "Felnyitott projekt: 🔒 Visszazárás gomb (ugyanarra a lezárási dátumra)"
-},
-{
-"id": "a916b6d0a6",
-"at": "2026-11-25T16:04:24Z",
+"id": "33dad71fa9",
+"at": "2026-11-25T16:06:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
