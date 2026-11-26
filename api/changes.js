@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "785c77cf63",
+"at": "2026-11-26T15:52:17+01:00",
+"msg": "Telefon: a görgethető ablak (lehetőség) a képernyő magasságában – fejléc fent, gombsor lent rögzítve, csak a tartalom görög (nincs üres rész a gombsor alatt); Pénzügyek panel nyila a jobb szélen"
+},
+{
 "id": "e0baca908d",
 "at": "2026-11-26T15:49:02+01:00",
 "msg": "Rögzítés: frissítés ellen védve (lehúzás / automatikus újratöltés nem indul rögzítés közben); ha mégis megszakadt, az új lap rögtön felajánlja: Feltöltés, vagy Feltöltés és folytatás (új felvétel indul, az előző rész a háttérben töltődik fel). Lehetőség ablaka telefonon: a két gomb és a bezárás egy sorban, rövid felirattal"
@@ -122,13 +127,8 @@ const ITEMS = [
 "msg": "Forgalom-elemzés: táblánkénti és kulcs-tár méret a /api/dbstatus?sizes=1-ben (titok nélkül)"
 },
 {
-"id": "35c4a3c0c1",
-"at": "2026-11-26T13:31:51+01:00",
-"msg": "Hibakeresés: az utolsó Neon-hibák szövege (titok nélkül) a /api/dbstatus-ban"
-},
-{
-"id": "0cc6fda2fd",
-"at": "2026-11-26T12:26:56Z",
+"id": "6f8e6e9f21",
+"at": "2026-11-26T12:32:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
