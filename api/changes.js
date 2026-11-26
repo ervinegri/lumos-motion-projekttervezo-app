@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "44ec20257e",
+"at": "2026-11-26T11:47:17+02:00",
+"msg": "Gyors út: írás-próba valódi adatbázison (külön üres próbalap; feltételes írás, ütközés, visszaürítés) – ritkítva"
+},
+{
 "id": "67f786c017",
 "at": "2026-11-26T11:44:22+02:00",
 "msg": "Gyors út: telepítés után az Action azonnal frissíti a tükröt; csak a valódi Google-igény miatti visszalépés kapcsolja ki a gyors utat egy olvasásra"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Új projekt: a jegyzet nem marad meg félbehagyott szövegként (a beragadt példányok törlése)"
 },
 {
-"id": "2ed8665875",
-"at": "2026-11-26T10:20:50+02:00",
-"msg": "Naptár (havi nézet): görgetéskor nem ugrik több hónapot – a trackpad lendületét az események átlagából ismeri fel (a remegés nem számít új mozdulatnak), egy mozdulat = egy hónap"
-},
-{
-"id": "e85c293cf9",
-"at": "2026-11-26T08:19:12Z",
+"id": "d87a9f4376",
+"at": "2026-11-26T08:20:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
