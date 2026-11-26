@@ -24,7 +24,10 @@ if(TOKEN){const fast=bootFromCache();load(fast);}else{VIEW.innerHTML='';showLogi
 (()=>{const mq=window.matchMedia&&matchMedia('(orientation:landscape) and (max-height:560px)');if(!mq)return;let last=window.scrollY,tick=false;
   const bar=()=>document.querySelector('.topbar');
   const upd=()=>{tick=false;const b=bar();if(!b)return;const y=window.scrollY;if(!mq.matches||y<60){b.classList.remove('tb-hide');last=y;return;}
-    if(y>last+6)b.classList.add('tb-hide');else if(y<last-6)b.classList.remove('tb-hide');last=y;};
+    if(Date.now()-userAt>600){last=y;return;}   /* csak a felhasználó saját görgetésére tűnik el (menüváltáskor / programból görgetve nem) */
+    if(y>last+12)b.classList.add('tb-hide');else if(y<last-6)b.classList.remove('tb-hide');last=y;};
+  let userAt=0;['touchmove','wheel'].forEach(ev=>window.addEventListener(ev,()=>{userAt=Date.now();},{passive:true}));
+  document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('.topbar,[data-action=tab]')){const b=bar();if(b)b.classList.remove('tb-hide');userAt=0;}},true);
   window.addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});
   if(mq.addEventListener)mq.addEventListener('change',upd);})();
 

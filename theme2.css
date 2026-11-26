@@ -3503,3 +3503,17 @@ html body #view tr.pt-sz3 .cal{transform:none}}
  html body .page-head.bill-head>.grow .mnav-row,html body .page-head.bill-head>.grow .month-nav{gap:3px!important}
  html body .page-head.bill-head .btn.small{min-height:34px!important;padding:0 8px!important;font-size:13px!important;white-space:nowrap}
  html body .page-head.bill-head{gap:5px!important}}
+/* fekvő telefon: a Bevétel-táblázat fejléce görgetéskor is fent marad (a táblázat belül görög, mint a Fizetéseknél) */
+@media (orientation:landscape) and (max-height:560px){html body .sheet-wrap:has(.fin-inc){max-height:calc(100dvh - 12px)!important;overflow:auto!important}}
+/* fekvő telefon: a projektlista sorai feleakkorák – az állapot és a videók a sor jobb oldalán, a cím mellett; kisebb dátumkártya */
+@media (orientation:landscape) and (max-height:560px){
+ html body #view tr.pt-row{display:flex!important;align-items:center;gap:10px}
+ html body #view tr.pt-row>td{padding-top:6px!important;padding-bottom:6px!important;border:0}
+ html body #view tr.pt-row>td.pt-proj{flex:1 1 auto;min-width:0}
+ html body #view tr.pt-row>td.pt-status{flex:0 1 auto;max-width:46%;display:block!important;padding-left:0!important}
+ html body #view tr.pt-row .pt-pills{display:flex!important;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:4px!important;margin:0!important}
+ html body #view tr.pt-row .pt-vids{display:inline-flex!important;margin:0!important;width:auto!important}
+ html body #view tr.pt-row .pt-flex{gap:10px!important;align-items:center}
+ html body #view tr.pt-row .cal{flex:0 0 40px!important;width:40px!important;min-width:40px!important;height:auto!important;padding:4px 0!important;border-radius:9px!important;gap:0!important}
+ html body #view tr.pt-row .cal-m{font-size:10px!important}html body #view tr.pt-row .cal-d{font-size:17px!important;line-height:1.05}html body #view tr.pt-row .cal-w{font-size:10px!important}
+ html body #view tr.pt-row .ev-sub{margin-top:1px!important}}
