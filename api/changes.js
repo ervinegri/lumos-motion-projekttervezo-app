@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cda0535a68",
+"at": "2026-11-26T08:48:28+01:00",
+"msg": "Meghívó: „🎬 Projektvezető” + „👥 Meghívót kap” – a tervezett helyszíni csapat (egyszerre kiküldött meghívóknál is látják egymást)"
+},
+{
 "id": "bd1de43c54",
 "at": "2026-11-26T08:23:59+01:00",
 "msg": "Vágás: „Visszadobás” helyett barátságosabb „✏️ Módosítás kérése” (gomb, súgó, jelzés, hibaüzenet)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szabály: a Stáb listában kötelező az e-mail-cím (mentéskor ellenőrzés elöl-hátul; a futó projekteken cím nélküli stábtag piros hibaként)"
 },
 {
-"id": "e900a472b4",
-"at": "2026-11-25T15:38:37+01:00",
-"msg": "Nyersanyag-levél: a vágó címzett nem vehető ki (mindenképp megkapja)"
-},
-{
-"id": "32b8e75067",
-"at": "2026-11-25T14:38:18Z",
+"id": "7725ee05b3",
+"at": "2026-11-25T14:38:46Z",
 "msg": "Változásnapló frissítése"
 }
 ];
