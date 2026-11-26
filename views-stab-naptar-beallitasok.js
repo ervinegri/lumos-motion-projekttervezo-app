@@ -537,7 +537,10 @@ function gbpBody(){const g0=S.gbp;if(!g0)return '<div class="gbp-hd"><span class
   const lk='<span class="gbp-tools"><button type="button" class="btn outline small" data-action="rev-mail" title="Értékelés kérése e-mailben">✉️ Küldés</button><button type="button" class="btn outline small" data-action="rev-link-copy" title="Értékelési link másolása">🔗 Link</button><button type="button" class="btn outline small" data-action="rev-qr" title="Értékelési QR-kód">▦ QR</button>'+rb+'</span>';
   setTimeout(()=>gbpTitle(head),0);   /* az átlag és a darabszám a címsorba kerül (egy sor: ⭐ Google-értékelések 4,9 ★★★★★ 31 értékelés ×) */
   return `<div class="gbp-hd">${lk}</div>${body}`;}
-function gbpTitle(head){const h=document.querySelector('#modalRoot .mhead h3');if(!h||!document.getElementById('gbp-modal'))return;h.innerHTML='⭐ <span class="gbp-lbl">Google-értékelések</span> <span class="gbp-ttl">'+head+'</span>';}
+function gbpTitle(head){const h=document.querySelector('#modalRoot .mhead h3');if(!h||!document.getElementById('gbp-modal'))return;
+  /* gépen a gombok (Küldés · Link · QR · Frissítés) a címsorba kerülnek – egy sor */
+  const mh=h.parentElement,old=mh.querySelector('.gbp-tools.in-head');if(old)old.remove();const t=document.querySelector('#gbp-modal .gbp-tools');
+  if(t&&matchMedia('(min-width:701px)').matches){t.classList.add('in-head');h.after(t);const hd=document.querySelector('#gbp-modal .gbp-hd');if(hd&&!hd.children.length)hd.remove();}h.innerHTML='⭐ <span class="gbp-lbl">Google-értékelések</span> <span class="gbp-ttl">'+head+'</span>';}
 function gbpBtn(){if(!gbpCan())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp||{},R=g.reviews||[],noRep=R.filter(r=>!r.reply).length;
   return `<button class="btn outline w" type="button" data-action="gbp-open" title="Google-értékelések">⭐ <span class="mlg">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')+' · '+(g.total||R.length)+' értékelés':'Értékelések'}</span><span class="msm">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',','):''}</span>${noRep?` <span class="gbp-badge">${noRep}</span>`:''}</button>`;}
 /* a nyitott értékelés-ablak frissítése (újrarajzolás nélkül) */
