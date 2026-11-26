@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4c33205c3a",
+"at": "2026-11-26T15:41:04+01:00",
+"msg": "Rögzítés iPhone-on: a mikrofon-választó telefonon nem kér előre engedélyt (kattintás nélküli kérésre az iOS az egész munkamenetre tiltott) – telefonon nincs is választó; iPhone-ra szabott útmutató, ha mégis tiltott"
+},
+{
 "id": "6be8ba7b5d",
 "at": "2026-11-26T15:39:19+01:00",
 "msg": "Mobil: lehúzással frissítés nyitott ablakban akkor is, ha a mögötte lévő lap le volt görgetve (frissítés után az ablak visszajön)"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "e95e344be7",
 "at": "2026-11-26T13:23:31+01:00",
 "msg": "Gemini: túlterhelésnél automatikus újrapróbálás és tartalék modell, érthető hibaüzenet; a felvétel alá ragadt régi jegyzet az ablak megnyitásakor szétválik"
-},
-{
-"id": "30ac79b8c1",
-"at": "2026-11-26T13:13:42+01:00",
-"msg": "Gemini: automatikus modellválasztás (kivezetett modell esetén újraválaszt); jegyzet: a régi, fejléc nélküli szöveg nem ragad az új bejegyzés alá + egyszeri javítás"
 }
 ];
 const allowed = require('./_auth.js');
