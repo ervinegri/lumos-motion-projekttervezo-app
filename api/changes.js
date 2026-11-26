@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1e596a695f",
+"at": "2026-11-26T10:32:09+02:00",
+"msg": "Naptár (havi nézet): a hónap már görgetés közben vált (nem csak a trackpad elengedésekor) – kisebb küszöb, a lassú húzás is számít; egérgörgővel az első kattanásra"
+},
+{
 "id": "385f26cd4b",
 "at": "2026-11-26T09:31:29+01:00",
 "msg": "Kanban és hozzászólások: rövid nevek (Dávid, Kata, Ervin – azonos keresztnévnél teljes név); jogosultsági hibánál a pontos indok is látszik"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Időkódra ugrás telefonon (iOS): metaadatra várás, első koppintásnál a videó feloldása, ellenőrzött ugrás, videó a képbe gördül"
 },
 {
-"id": "58be31a17a",
-"at": "2026-11-25T17:07:38+01:00",
-"msg": "Telefonos indítás: nem fekete a képernyő – világos háttér az első kirajzolástól, iOS indítóképek, manifest"
-},
-{
-"id": "33dad71fa9",
-"at": "2026-11-25T16:06:25Z",
+"id": "88be0b7b2a",
+"at": "2026-11-25T16:07:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
