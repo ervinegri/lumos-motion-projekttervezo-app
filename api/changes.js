@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "76bf66367b",
+"at": "2026-11-26T11:37:11+02:00",
+"msg": "Gyors út: új telepítés után bármelyik kérés frissíti a tükör kódazonosítóját (ne maradjon a gyors út kikapcsolva olvasásoknál)"
+},
+{
 "id": "0e7ef88477",
 "at": "2026-11-26T11:35:31+02:00",
 "msg": "Gyors út: a mindig Google-t igénylő lekérések (naptár, beállítások) egyből az Apps Scripthez mennek; ami kétszer a Google-ra szorult, a munkamenetben kihagyja a gyors utat"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Űrlap-piszkozat visszatöltésekor látható jelzés „Elvetés” gombbal (pl. új projektnél egy korábbi, félbehagyott jegyzet)"
 },
 {
-"id": "c0f5a48f95",
-"at": "2026-11-26T10:17:51+02:00",
-"msg": "Naptár (havi nézet): a görgetéses hónapváltás nem akad be – váltás után csak a trackpad lendülete van kiszűrve, új mozdulatra (szünet vagy újra gyorsuló görgetés) azonnal vált; egérgörgővel kattanásonként"
-},
-{
-"id": "69a7fef528",
-"at": "2026-11-26T08:15:55Z",
+"id": "dbccf58f10",
+"at": "2026-11-26T08:18:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
