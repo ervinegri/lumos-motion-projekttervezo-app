@@ -3562,3 +3562,8 @@ html body #view>.page-head h2{font-size:20px!important;line-height:30px!importan
 html body #view>.page-head,html body #view>.toolbar{align-items:center!important;gap:8px!important;min-height:0!important}
 }
 @media (min-width:701px){html body #view>.page-head .cm-arr,html body #view>.page-head .sales-month-arrow,html body #view>.page-head .mn-arrow{font-size:18px!important}}
+/* asztali gép, Fizetések: az oldal nem görget / nem húzható le (csak a tábla a saját keretében); vékonyabb fejléc */
+html.pay-lock,html.pay-lock body{overscroll-behavior:none!important}
+html.pay-lock body{overflow-y:hidden}
+html.pay-lock body .pay-wrap{overscroll-behavior:none!important}
+@media (min-width:701px){html body .pay-wrap .pay-sheet thead th{padding-top:5px!important;padding-bottom:5px!important;line-height:1.2!important}}

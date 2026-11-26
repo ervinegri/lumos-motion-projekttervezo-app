@@ -247,7 +247,7 @@ function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);s
   {const L=window.POST_RENDER||[];window.POST_RENDER=[];L.forEach(f=>{try{f();}catch(e){}});}
   if(S.tab==='naptar')calLockSync();   /* a naptár napjaiban a beférő események száma még a kirajzolás ELŐTT áll be (különben egy pillanatra több esemény / más „+N” villan fel) */
   let pwN=VIEW.querySelector('.pay-wrap,.tl-wrap');const pwKeep=!!(pwS&&pwN&&pwS.k===pwK());
-  try{payFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
+  try{payFit();}catch(e){}try{payHFit();}catch(e){}   /* fizetések táblája: a munkatársak oszlopa pont a legszélesebb összegnyi */   // még a kirajzolás előtt (pl. az idővonal görgetési helyzete) – nincs villanás
   if(['stab','ertekesitok','statisztak','leltar','kifizetesek','szerzodes','penzugy'].includes(S.tab)&&!(S.tab==='kifizetesek'&&ro())){const sn=VIEW.querySelector(':scope > .subtabs'),ph=sn&&sn.nextElementSibling;if(ph&&ph.classList.contains('page-head')){ph.prepend(sn);ph.classList.add('ph-sub');}}   /* az altabok és a fejléc egy sorban */
   try{payDock();}catch(e){}
   try{if(window.tabStick)tabStick();}catch(e){}
@@ -633,7 +633,13 @@ function payFit(){const VIEW=document.getElementById('view');if(!VIEW)return;VIE
   /* rögzített elrendezés csak megadott táblaszélességgel működik: az oszlopok összege (különben a hosszú projektnév kitolja az oszlopot) */
   const pw=matchMedia('(max-width:700px)').matches?134:307,sw=t.querySelector('col.pay-c-sum')?112:0;   /* a CSS-ben megadott szélességek (pay-c-proj / pay-c-sum) */
   t.style.setProperty('width',(pw+sw+n*parseInt(w,10))+'px','important');});}
-window.addEventListener('resize',()=>{try{payFit();}catch(e){}});   /* forgatáskor újraszámol */
+window.addEventListener('resize',()=>{try{payFit();}catch(e){}try{payHFit();}catch(e){}});   /* forgatáskor újraszámol */
+/* Asztali gép: a Fizetések tábla kerete pontosan a képernyő aljáig ér, így csak a tábla görget – az oldal nem húzható le, nem rugózik */
+function payHFit(){const de=document.documentElement,w=document.querySelector('#view .pay-wrap:not(.dock-wrap)'),on=!!w&&matchMedia('(min-width:701px)').matches&&!matchMedia('(orientation:landscape) and (max-height:560px)').matches;
+  de.classList.toggle('pay-lock',on);if(!on){if(w)w.style.removeProperty('max-height');return;}
+  const top=w.getBoundingClientRect().top+window.scrollY,h=Math.max(240,Math.floor(window.innerHeight-top-10));w.style.setProperty('max-height',h+'px','important');
+  const ex=document.documentElement.scrollHeight-window.innerHeight;if(ex>0)w.style.setProperty('max-height',Math.max(240,h-ex)+'px','important');   /* az alatta lévő margó is beférjen */
+  if(window.scrollY)window.scrollTo(0,0);}
 
 /* Telefon (álló és fekvő), Fizetések tábla: a tábla feletti rész (altabok, hónapváltó…) a tábla görgető felületébe kerül, a tábla
    fölé – így lefelé görgetve előbb az gördül ki natívan (lendülettel, akadás nélkül), és utána görget a tábla; a nevek sora fent
