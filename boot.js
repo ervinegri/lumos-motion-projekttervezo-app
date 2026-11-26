@@ -177,5 +177,5 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
 (()=>{let mq=null;try{mq=matchMedia('(hover:none)');}catch(e){}if(!mq)return;
   const OK=n=>{const el=n&&(n.nodeType===1?n:n.parentElement);return !!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"],[contenteditable=""],.dn-t,.rec-res,.selectable'));};
   document.addEventListener('selectstart',e=>{if(mq.matches&&!OK(e.target))e.preventDefault();},true);
-  document.addEventListener('selectionchange',()=>{if(!mq.matches)return;const s=document.getSelection&&document.getSelection();if(!s||s.isCollapsed||!s.rangeCount)return;if(OK(s.anchorNode)||OK(s.focusNode))return;try{s.removeAllRanges();}catch(e){}});
+  document.addEventListener('selectionchange',()=>{if(!mq.matches)return;const s=document.getSelection&&document.getSelection();if(!s||s.isCollapsed||!s.rangeCount)return;if(OK(s.anchorNode)||OK(s.focusNode)||OK(document.activeElement))return;try{s.removeAllRanges();}catch(e){}});
 })();
