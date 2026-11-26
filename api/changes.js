@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b986996f2c",
+"at": "2026-11-26T10:40:37+02:00",
+"msg": "Projekt lépései: az aktuális (sötét) kártya teljesült pipája – pl. lezárt projekt „Kész” lépése – zöld körben jól látható fehér pipa (eddig üres fehér kör)"
+},
+{
 "id": "34df921929",
 "at": "2026-11-26T09:38:48+01:00",
 "msg": "Becenév a Stáb listában (pl. Nándi) – a kanbanon és a hozzászólásoknál ez látszik; Koós Nándor = Nándi"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Helyszíni csapat: a meghívóban „👥 Veled lesz” sor, a szakember projektsorában a csapattársak (projektvezető + elfogadott helyszíni kollégák, utómunkások nélkül)"
 },
 {
-"id": "175a2dabd4",
-"at": "2026-11-26T08:03:38+01:00",
-"msg": "Mai teendők levél: köszönés nélkül"
-},
-{
-"id": "2349a8c309",
-"at": "2026-11-25T17:11:54Z",
+"id": "94e2ed25e3",
+"at": "2026-11-26T07:03:47Z",
 "msg": "Változásnapló frissítése"
 }
 ];
