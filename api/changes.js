@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e95e344be7",
+"at": "2026-11-26T13:23:31+01:00",
+"msg": "Gemini: túlterhelésnél automatikus újrapróbálás és tartalék modell, érthető hibaüzenet; a felvétel alá ragadt régi jegyzet az ablak megnyitásakor szétválik"
+},
+{
 "id": "30ac79b8c1",
 "at": "2026-11-26T13:13:42+01:00",
 "msg": "Gemini: automatikus modellválasztás (kivezetett modell esetén újraválaszt); jegyzet: a régi, fejléc nélküli szöveg nem ragad az új bejegyzés alá + egyszeri javítás"
@@ -130,16 +135,6 @@ const ITEMS = [
 "id": "42dd7cb1a8",
 "at": "2026-11-26T11:02:07+01:00",
 "msg": "Stáb-lakat: lezajlott rendezvénynél nincs (a helyszíni stáb már nem módosítható); a feloldó szöveg pontosítva"
-},
-{
-"id": "0a52880f67",
-"at": "2026-11-26T10:59:36+01:00",
-"msg": "Projekt Részletek (előzmények) a termelési vezetőnek is – árak, számlázás, jutalék nélkül"
-},
-{
-"id": "8ce1db9ef6",
-"at": "2026-11-26T09:58:15Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
