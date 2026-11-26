@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fdd52899d5",
+"at": "2026-11-26T21:11:22+02:00",
+"msg": "Stáb- / utómunka-instrukció: a beírt, el nem küldött szöveg nem vész el (újrarajzolás és frissítés után visszatöltődik, küldés után törlődik)"
+},
+{
 "id": "10c960b02c",
 "at": "2026-11-26T18:17:08+02:00",
 "msg": "Projekt fejléc: a gombok csak akkor kerülnek külön sorba, ha mellettük nem férne ki a teljes név"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kifizetések: a banki utalás magától kifizetettnek jelöli a szakember számláját (egyező összeg + számlaszám a közleményben vagy bankszámla / név; utólag érkező NAV-számlánál is); a kimenő utalás összege negatív – ezért nem párosított eddig. Felület: kellemesebb zöld az egész appban, vékonyabb állapotsorok, Fizetések fejléce görgetéskor fent marad, egységes kis hézag a menüsáv alatt, Projektek fejléce egy sorban"
 },
 {
-"id": "01fbeec04c",
-"at": "2026-11-26T16:08:31+01:00",
-"msg": "Fizetések: a kész lépés cellája (kiküldve, számla kiállítva, kifizetve) teljesen zöld"
-},
-{
-"id": "9aff1646f0",
-"at": "2026-11-26T15:06:03Z",
+"id": "8f6b25771f",
+"at": "2026-11-26T15:08:41Z",
 "msg": "Változásnapló frissítése"
 }
 ];
