@@ -3634,3 +3634,7 @@ html body .dl-board .dl-card .dl-next,html body .dl-board .dl-card .dl-won,html 
  html body .proj-table thead #q-projects,html body .proj-table thead .inp{height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;box-sizing:border-box}
  html body .proj-table thead .btn{height:30px!important;min-height:30px!important;padding-top:0!important;padding-bottom:0!important;font-size:13.5px!important;display:inline-flex;align-items:center;box-sizing:border-box}
 }
+/* projekt oldal: a szakaszok (Alapadatok, Szolgáltatások, Stáb, Utómunka, Pénzügyek, Szerződés) között mindenhol ugyanakkora (8 px) a távolság */
+html body #view .crew-wide{display:flex!important;flex-direction:column;gap:8px!important}
+html body #view .crew-wide>*{margin-top:0!important;margin-bottom:0!important}
+html body #view>details.panel.fold,html body #view>.dfull>details.panel.fold{margin-top:0!important;margin-bottom:0!important}
