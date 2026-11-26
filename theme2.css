@@ -3396,3 +3396,7 @@ html.md-bg-on,html.md-bg-on body{overflow:auto!important}
 /* zárolt rész: tiltó (áthúzott kör) kurzor – mutatja, hogy most nem módosítható (a panel fejléce kattintható marad) */
 html body :has(>[inert].svc-locked),html body :has(>.tcards[inert]),html body .pcrew.eq-locked .pcrew-eq{cursor:not-allowed!important}
 html body details:has(>[inert].svc-locked)>summary{cursor:pointer!important}
+/* zárt stáb-lakat: a „Szerepkör hozzáadása” kártya szürke, nem kattintható */
+html body .pcrew-add-card.add-locked{opacity:.55;filter:grayscale(1);background:#f4f5f7}
+html body .pcrew-add-card.add-locked .addrow{pointer-events:none;user-select:none}
+html body .pcrew-add-card .add-lock-hint{margin:2px 0 8px;font-size:12.5px;color:#5d6875;filter:none}
