@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "63204338d8",
+"at": "2026-11-26T16:05:51+01:00",
+"msg": "Érintőképernyő: érintésre / hosszú nyomásra nem jelölődik ki a szöveg a listákban, kártyákon, menüben (a mezők és jegyzetek szövege kijelölhető marad)"
+},
+{
 "id": "35ffdefc33",
 "at": "2026-11-26T16:04:35+01:00",
 "msg": "Fekvő telefon: a felső sáv csak saját görgetésre tűnik el (menüváltáskor nem), a Bevétel-táblázat fejléce fent marad, a projektlista sorai feleakkorák"
@@ -125,11 +130,6 @@ const ITEMS = [
 "id": "9e49a9245d",
 "at": "2026-11-26T14:40:28+01:00",
 "msg": "Hibakeresés: utolsó Gemini-hibák és a választott modell a /api/dbstatus-ban (kulcs nélkül)"
-},
-{
-"id": "957ba86834",
-"at": "2026-11-26T14:34:02+01:00",
-"msg": "Gemini túlterhelés: sorban a többi elérhető Flash modell is (stabil → latest → előzetes → lite), a válaszoló modell 3 óráig elsőként; a hibában a kipróbált modellek"
 }
 ];
 const allowed = require('./_auth.js');
