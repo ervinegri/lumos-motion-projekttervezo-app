@@ -17,6 +17,10 @@ module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
   const t0 = Date.now(), send = (code, o) => { res.statusCode = code; res.end(typeof o === 'string' ? o : JSON.stringify(o)); };
   if (req.method === 'GET') {   // állapot (titok nélkül): egyezik-e a kód, megvan-e a tükör, hány háttérfeladat vár
+    if (/selftest/.test(String(req.url || ''))) {   // próba valódi adatokkal, írás nélkül: a nyilvános árlista-lekérés a gyors úton (csak időt és méretet ad vissza)
+      const out = await runFast(JSON.stringify({ fn: 'arkPrices', args: [] })).catch(e => ({ fallback: 'hiba: ' + String(e && e.message).slice(0, 150) }));
+      let ok = null; try { ok = JSON.parse(out.text || 'null'); } catch (e) { }
+      return send(200, { ms: Date.now() - t0, fallback: out.fallback || '', ok: ok ? ok.ok : null, error: ok && !ok.ok ? ok.error : '', bytes: out.text ? out.text.length : 0, pf: ok && ok.pf }); }
     try { const { BUILD } = require('./_gasrt.js');
       const q = sql => neonAsync({ query: sql, params: [] }).then(r => (r.rows || [])[0] || null, e => String(e && e.message).slice(0, 120));
       const a = await q("SELECT count(*)::text, coalesce(max(CASE WHEN k = 'm:build' THEN v END), ''), coalesce(max(CASE WHEN k = 'p:DB_MODE' THEN v END), ''), coalesce(max(at)::text, '') FROM lpm_kv");
