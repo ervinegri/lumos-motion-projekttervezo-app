@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c9d152fcb8",
+"at": "2026-11-26T15:29:01+01:00",
+"msg": "Rögzítés több fülön: a felvételt / feltöltést végző fül jelzi, hogy él – a másik fül nem ajánlja fel félbemaradtként (és nem tölti fel kétszer)"
+},
+{
 "id": "71ddf23d12",
 "at": "2026-11-26T15:28:05+01:00",
 "msg": "Rögzítő sáv: a lehetőség mellett a kapcsolattartó neve is"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "b17e8ebbf3",
 "at": "2026-11-26T13:07:24+01:00",
 "msg": "Rögzítő sáv: élő hullámforma, jól látható Szünet gomb, a sáv fent (nem takarja az ablak gombjait)"
-},
-{
-"id": "0045f67f79",
-"at": "2026-11-26T13:02:30+01:00",
-"msg": "Gemini-kulcs: az új „AQ.…” formátum is elfogadott; a kulcs fejlécben megy (x-goog-api-key)"
 }
 ];
 const allowed = require('./_auth.js');
