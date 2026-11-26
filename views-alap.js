@@ -661,7 +661,7 @@ function payTextW(td,rg){const lines={};const tw=document.createTreeWalker(td,No
 try{matchMedia('(max-width:700px)').addEventListener('change',()=>{try{const a=document.activeElement;if(S.loaded&&S.tab==='projektek'&&!S.projectId&&!(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)))render(true);}catch(e){}});}catch(e){}
 
 /* Naptár (asztali, havi nézet): a lap nem görgethető – az eszköztár mindig látszik –, csak maga a naptár (saját görgetés; a szélén tovább görgetve hónapot vált). */
-function calLockSync(){try{const de=document.documentElement,w=document.querySelector('.cal-wrap'),on=S.tab==='naptar'&&!!w&&matchMedia('(min-width:701px)').matches&&!S.projectId&&!document.querySelector('.modal-open,#modal.open');
+function calLockSync(){try{const de=document.documentElement,w=document.querySelector('.cal-wrap'),on=S.tab==='naptar'&&!!w&&matchMedia('(min-width:701px),(pointer:fine)').matches&&!S.projectId&&!document.querySelector('.modal-open,#modal.open');
   if(!on){if(de.classList.contains('cal-lock'))de.classList.remove('cal-lock');calFit();return;}
   if(!de.classList.contains('cal-lock')){window.scrollTo(0,0);de.classList.add('cal-lock');}
   const top=Math.max(0,Math.round(w.getBoundingClientRect().top));de.style.setProperty('--cal-top',top+'px');calFit();}catch(e){}}

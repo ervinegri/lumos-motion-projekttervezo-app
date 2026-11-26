@@ -16,7 +16,7 @@ document.addEventListener('pointerdown',e=>{
 document.addEventListener('dblclick',e=>{const g=e.target.closest&&e.target.closest('.col-grip');if(!g)return;try{localStorage.removeItem('lpm_fin_cols5');}catch(err){}render(true);});
 
 /* ===== Naptár: nap kijelölése, buborék a projektekről, jobb klikkes törlés ===== */
-const CAL_MOB=()=>window.matchMedia&&matchMedia('(max-width:700px)').matches;   // mobilon a havi rács alatt a kiválasztott nap listája
+const CAL_MOB=()=>window.matchMedia&&matchMedia('(max-width:700px) and (pointer:coarse)').matches;   // mobilon (érintőképernyő) a havi rács alatt a kiválasztott nap listája
 document.addEventListener('click',e=>{const day=e.target.closest&&e.target.closest('.cal-day');if(!day)return;if(e.target.closest('button')&&!CAL_MOB())return;if(CAL_MOB()){e.preventDefault();e.stopPropagation();}
   S.cal.sel=day.dataset.day;if(CAL_MOB()){const d=day.dataset.day;let hit=false;document.querySelectorAll('.cal-agenda .ag-day').forEach(x=>{const on=x.dataset.agd===d;x.classList.toggle('on',on);hit=hit||on;});if(!hit&&d.slice(0,7)===S.cal.month){render(true);return;}if(d.slice(0,7)!==S.cal.month){S.cal.month=d.slice(0,7);render(true);return;}}document.querySelectorAll('.cal-day.sel').forEach(x=>x.classList.remove('sel'));day.classList.add('sel');});
 function calTipHtml(el){
