@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b1caea9986",
+"at": "2026-11-26T11:14:07+01:00",
+"msg": "Napló: változás nélküli mentés nem kerül az Előzményekbe (nincs több üres „Beosztás módosítva”)"
+},
+{
 "id": "42dd7cb1a8",
 "at": "2026-11-26T11:02:07+01:00",
 "msg": "Stáb-lakat: lezajlott rendezvénynél nincs (a helyszíni stáb már nem módosítható); a feloldó szöveg pontosítva"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "50b96ccd94",
 "at": "2026-11-26T10:33:56+02:00",
 "msg": "Naptár (havi nézet): finom trackpad-húzásra is hónapot vált (kisebb küszöb)"
-},
-{
-"id": "3cc8985901",
-"at": "2026-11-26T10:32:47+02:00",
-"msg": "Naptár (szakember, havi nézet): az utómunka csak a leadási határidő napján jelenik meg, nem a teljes vágási időszakban (az idővonalon marad az időszak)"
 }
 ];
 const allowed = require('./_auth.js');
