@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8990d6316b",
+"at": "2026-11-26T09:12:08+01:00",
+"msg": "Naptár: kompaktabb eszköztár és napfejléc (a betűméret változatlan)"
+},
+{
 "id": "bb11d4b1e8",
 "at": "2026-11-26T10:10:43+02:00",
 "msg": "Naptár (teljes képernyős havi nézet): teljesen fix – fel-le görgetésre semmi nem mozdul (nincs rugalmas túlgörgetés, nincs rács-követés / hónapváltás), a lap alsó térköze sem görgethető; hónapváltás oldalra görgetéssel vagy a nyilakkal"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Zár ikon: kinyitva jól láthatóan nyitott lakat (saját rajzolt ikon az emoji helyett)"
 },
 {
-"id": "6f5827cfb3",
-"at": "2026-11-25T16:14:35+01:00",
-"msg": "Változás-értesítő: a csak vágóként beosztott szakember nem kap levelet a helyszíni időpont / helyszín változásáról"
-},
-{
-"id": "229b652053",
-"at": "2026-11-25T15:08:23Z",
+"id": "e6e5d6eab6",
+"at": "2026-11-25T15:14:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
