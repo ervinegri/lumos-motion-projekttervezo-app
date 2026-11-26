@@ -3455,3 +3455,6 @@ html body .rec-bar .btn.rec-pz{color:#fff!important;background:rgba(255,255,255,
 /* rögzítés után: feldolgozás-jelző (forgó kör) */
 .rec-bar .rec-spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:recSpin .8s linear infinite;flex:none}
 @keyframes recSpin{to{transform:rotate(360deg)}}
+
+.rec-bar .rec-n b{font-weight:600;color:#fff}
+html body .rec-bar .rec-n{max-width:38vw}
