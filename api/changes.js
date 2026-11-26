@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "348c37cba9",
+"at": "2026-11-26T15:15:52+01:00",
+"msg": "Rögzítés: feltöltés után a sáv helyén feldolgozás-jelző (átirat / összefoglaló készül), egyetlen darabnál nincs félrevezető 0%; az összefoglaló ablaka mellett nincs külön értesítés; OpenAI: a felesleges beszélő-szerinti próbálkozás kimarad"
+},
+{
 "id": "e616dba93c",
 "at": "2026-11-26T15:13:45+01:00",
 "msg": "Mikrofon-választó: a lista nem csukódik be magától (a többi rövid legördülővel azonos viselkedés), az alapértelmezettnél is minden mikrofon látszik"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "dbb4b351f0",
 "at": "2026-11-26T12:02:48+01:00",
 "msg": "Idővonal: görgetés közben nem vált hónapot / nem szűr sorokat / nem rajzol újra – csak a görgetés megállása után (nem akad)"
-},
-{
-"id": "c5b43f6cdd",
-"at": "2026-11-26T11:59:01+01:00",
-"msg": "Google-értékelések a termelési vezetőnek is (megtekintés, link, QR, értékeléskérés; válasz és párosítás csak az ügyvezetőnek); párosítás: nem ügyfél kategóriák (szereplő/modell/statiszta, munkatárs, vendég, egyéb) és bővebb ügyfélkör"
 }
 ];
 const allowed = require('./_auth.js');
