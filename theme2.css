@@ -3362,6 +3362,7 @@ html body main.content:has(>.dhead){padding-top:10px!important}   /* projekt: a 
   html.cal-lock,html.cal-lock body{height:100%!important;overflow:hidden!important;overscroll-behavior:none!important}
   html.cal-lock body .page{position:fixed!important;inset:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
   html.cal-lock body .page>#view{flex:1 1 auto!important;min-height:0!important;padding-bottom:0!important}
+  html.cal-lock body .page>*:not(#view),html.cal-lock body .page>#view>*:not(.cal-wrap){flex-shrink:0!important}   /* a fejléc és az eszköztár sosem nyomódik össze */
   html.cal-lock body .cal-wrap{flex:1 1 0!important;height:auto!important;min-height:0!important;overscroll-behavior:none!important}
 }
 /* Naptár eszköztára és a napok fejléce: kompaktabb (a betűméret változatlan) */
