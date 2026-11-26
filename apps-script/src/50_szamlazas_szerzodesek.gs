@@ -1218,7 +1218,10 @@ const szDigits_ = s => String(s || '').replace(/\D/g, '');
 function szBankCrewMatch_(t) {
   const crew = readAll_('crew'), docs = readAll_('szDocs').filter(d => d.kind === 'be' && d.crewId), acc = szDigits_(t.partnerAccount), pn = szBankNorm_(t.partnerName), amt = Math.abs(Math.round(Number(t.amount) || 0));   // a kimenő tétel összege negatív
   const byAcc = acc.length >= 16 ? docs.filter(d => szDigits_(d.partnerAccount) === acc).map(d => d.crewId) : [];
-  const byName = crew.filter(c => pn && [c.name, c.company].some(n => { const w = szBankNorm_(n); return w && (w === pn || (w.length > 5 && pn.indexOf(w) >= 0) || (pn.length > 5 && w.indexOf(pn) >= 0)); })).map(c => c.id);
+  const toks = x => szBankNorm_(x).split(' ').filter(w => w.length >= 3), pt = toks(t.partnerName);
+  const nameHit = n => { const w = szBankNorm_(n); if (!w) return false; if (w === pn || (w.length > 5 && pn.indexOf(w) >= 0) || (pn.length > 5 && w.indexOf(pn) >= 0)) return true;
+    const ct = toks(n); return ct.length >= 2 && ct.every(x => pt.indexOf(x) >= 0); };   // fordított névsorrend is (pl. „Csanád Lakatos” / „LAKATOS CSANÁD E.V.”)
+  const byName = crew.filter(c => pn && [c.name, c.company].some(nameHit)).map(c => c.id);
   const noteK = szNoKey_(t.note);
   let best = null;
   readAll_('payStatus').filter(p => p.invoicedAt && !p.paidAt).forEach(p => {
@@ -1479,6 +1482,8 @@ function szBankOpen_() {
   let all = []; try { all = readAll_('bankTx'); } catch (e) { return []; }
   const lim = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), SHEET_TZ, 'yyyy-MM-dd'), inv = {}; readAll_('finInvoice').forEach(x => { inv[x.id] = x; });
   const docs = szBankDocIndex_(Object.keys(inv).map(k => inv[k]));
+  /* kimenő utalás, amely érkezésekor még nem volt párosítható (pl. a szakember számlája később került be): most újra megnézzük */
+  all = all.map(t => { if (t.dir !== 'KI' || t.status || t.technical || String(t.valueDate || '') < lim || !/^HUF$/i.test(t.currency || 'HUF')) return t; let m = null; try { m = szBankCrewMatch_(t); } catch (e) { } return m ? Object.assign({}, t, { matchInvoice: 'pay:' + m.id, matchScore: m.sc, status: 'javaslat' }) : t; });
   return all.filter(t => (t.dir === 'BE' || (t.dir === 'KI' && (t.status === 'javaslat' || szLoanNote_(t.note)))) && !t.technical && (!t.status || t.status === 'javaslat') && String(t.valueDate || '') >= lim)
     .map(t => szBankRefFix_(t, inv, docs)).filter(t => t)
     .filter(t => { const x = t.matchInvoice && inv[t.matchInvoice]; return !(x && t.status === 'javaslat' && (Number(x.invPaid) || 0) >= (Number(x.invGross) || 0) && Number(t.matchScore) >= 95); })   // a számlázz.hu közben magától párosította
