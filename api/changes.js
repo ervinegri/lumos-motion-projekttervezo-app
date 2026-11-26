@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4a0b4a9327",
+"at": "2026-11-26T17:35:34+02:00",
+"msg": "Telefon: tömör projektfejléc (vissza, dátum, név egy alacsony sorban; kisebb gombsor)"
+},
+{
 "id": "c6bb590204",
 "at": "2026-11-26T17:32:00+02:00",
 "msg": "Kijelölés-védelem: beviteli mezőben a kijelölés érintetlen marad"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Rögzítés iPhone-on: a hullámforma-elemző néma kimenethez kötve (Safari csak így adja az élő hangszintet)"
 },
 {
-"id": "c4a7f2f987",
-"at": "2026-11-26T15:19:38+01:00",
-"msg": "Rögzítés iPhone-on: a hangkörnyezet a kattintáskor indul (különben a Safari felfüggeszti, és a hullámforma áll), érintésre újraindul"
-},
-{
-"id": "f528b49788",
-"at": "2026-11-26T14:16:03Z",
+"id": "96a159ce62",
+"at": "2026-11-26T14:19:49Z",
 "msg": "Változásnapló frissítése"
 }
 ];
