@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "00d6458de2",
+"at": "2026-11-26T11:05:13+02:00",
+"msg": "Sebesség: a Neon saját ideje külön mérve (a közvetítő fejlécéből), a /api/dbstatus mutatja az Apps Script teljes körét, a Neon válaszidejét és a régiókat"
+},
+{
 "id": "f67ed7c1a5",
 "at": "2026-11-26T11:02:51+02:00",
 "msg": "Sebesség: mérés kérésenként (adatbázis, betöltés, zárra várás, gyorsítótár; a böngészőben a teljes kör) – Beállítások → ⚡ Sebesség; gyorsítás: a lapok gyorsítótárból 2 hívással töltődnek (eddig lapként 2), az adatbázis-forgalom számlálója kérésenként egyszer ír"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (asztali havi nézet): teljes képernyő – széltől szélig, a hetek kitöltik a képernyőt, nincs görgetés; napcellában annyi esemény, amennyi kifér (+N további)"
 },
 {
-"id": "924ece1392",
-"at": "2026-11-26T09:02:16+01:00",
-"msg": "Panel-lakat: nem takarja a „kiválasztva” feliratot, és egy vonalban van a címmel"
-},
-{
-"id": "5f52e47c4c",
-"at": "2026-11-26T08:01:02Z",
+"id": "675ae67e20",
+"at": "2026-11-26T08:02:25Z",
 "msg": "Változásnapló frissítése"
 }
 ];
