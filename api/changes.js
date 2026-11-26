@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "f67ed7c1a5",
+"at": "2026-11-26T11:02:51+02:00",
+"msg": "Sebesség: mérés kérésenként (adatbázis, betöltés, zárra várás, gyorsítótár; a böngészőben a teljes kör) – Beállítások → ⚡ Sebesség; gyorsítás: a lapok gyorsítótárból 2 hívással töltődnek (eddig lapként 2), az adatbázis-forgalom számlálója kérésenként egyszer ír"
+},
+{
 "id": "f886a2f050",
 "at": "2026-11-26T10:52:11+02:00",
 "msg": "Projekt lépései: a „Kész” (aktuális) kártya pipája most tényleg zöld körben fehér pipa – a pipa a kártya mellett van, nem benne (javított kijelölés)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Panel-lakat: nem takarja a „kiválasztva” feliratot, és egy vonalban van a címmel"
 },
 {
-"id": "d08b93d43e",
-"at": "2026-11-26T09:00:52+01:00",
-"msg": "Naptár (asztali havi nézet): a lap nem görgethető, csak maga a naptár; a szélén tovább görgetve hónapot vált"
-},
-{
-"id": "0f54c074a2",
-"at": "2026-11-26T07:55:51Z",
+"id": "5f52e47c4c",
+"at": "2026-11-26T08:01:02Z",
 "msg": "Változásnapló frissítése"
 }
 ];
