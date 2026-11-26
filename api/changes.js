@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4d8325432b",
+"at": "2026-11-26T21:53:44+02:00",
+"msg": "Indítóképernyő: felfedés után kikerül az oldalból (iOS fejléc-homály gyanús rétege)"
+},
+{
 "id": "43edfbcb28",
 "at": "2026-11-26T21:52:09+02:00",
 "msg": "Visszaállítva: iOS-en is működik a „vissza” mozdulat (a menü homályát nem ez okozta)"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Projektlista: a mai projekt piros kerete körben egyforma vastag"
 },
 {
-"id": "f4f06cb451",
-"at": "2026-11-26T17:54:46+02:00",
-"msg": "Projektlista: a hónap-elválasztó sorok kikerültek"
-},
-{
-"id": "ad07f5d62c",
-"at": "2026-11-26T15:40:09Z",
+"id": "5c2f3a6750",
+"at": "2026-11-26T15:54:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
