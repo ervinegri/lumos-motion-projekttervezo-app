@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eda0679087",
+"at": "2026-11-26T21:28:25+02:00",
+"msg": "Telefon: a lépés-kártyák egy sorban, tömören"
+},
+{
 "id": "3a06416fd2",
 "at": "2026-11-26T21:22:01+02:00",
 "msg": "E-mailek: a tárgyban szereplő projekt- / videónév nem ismétlődik a levélben; az instrukciók nem törölhetők"
@@ -142,14 +147,9 @@ const ITEMS = [
 "msg": "Értékelés-kérő levél a szokásos levélnézetben (fejléc, szerkeszthető szöveg, aláírás); a visszajelző üzenet eltűnik kattintásra / új ablaknál"
 },
 {
-"id": "0b244219f2",
-"at": "2026-11-26T17:29:31+02:00",
-"msg": "Fizetések (gép): az oldal nem húzható le, csak a tábla görget; vékonyabb fejléc"
-},
-{
-"id": "64a054b33b",
-"at": "2026-11-26T17:23:35+02:00",
-"msg": "Egységes fejsor minden menüpontban (a Naptár eszköztára a minta): 30 px magas gombok, keresők, fülek, 13,5 px betű"
+"id": "de4e491649",
+"at": "2026-11-26T15:29:42Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
