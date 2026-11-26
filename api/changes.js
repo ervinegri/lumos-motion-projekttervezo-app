@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e61918a208",
+"at": "2026-11-26T09:15:42+01:00",
+"msg": "Saját beosztás: a súgóban nincs „Meghívó kiküldve” sor"
+},
+{
 "id": "4419dedff9",
 "at": "2026-11-26T10:14:41+02:00",
 "msg": "Naptár (teljes képernyős havi nézet): görgetéssel újra hónapot vált, de az oldal és a rács fix – nincs követés, visszarugózás, utómozgás; egy görgetés = egy hónap (a trackpad tehetetlenségi görgetése nem vált tovább), a régi hónap kicsúszik, az új becsúszik; fejléc / eszköztár nem nyomódik össze"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Ügyfél-levél: a vágó belső üzenete és a legutóbbi javítási levél egyedi szövege nem kerül bele (alap szöveg)"
 },
 {
-"id": "46231919b5",
-"at": "2026-11-25T16:20:11+01:00",
-"msg": "Adatvédelmi teszt és szabály: a szakember nézet nem mutathat másokra vonatkozó adatot (őrző teszt)"
-},
-{
-"id": "9ab8f01135",
-"at": "2026-11-25T15:17:48Z",
+"id": "57d2fb067d",
+"at": "2026-11-25T15:20:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
