@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3a06416fd2",
+"at": "2026-11-26T21:22:01+02:00",
+"msg": "E-mailek: a tárgyban szereplő projekt- / videónév nem ismétlődik a levélben; az instrukciók nem törölhetők"
+},
+{
 "id": "9e0292ebd1",
 "at": "2026-11-26T21:12:45+02:00",
 "msg": "Instrukciók: ugyanaz a bejegyzés / hozzászólás nem kerül be kétszer (dupla koppintás, hálózati újrapróbálás), a levél sem megy ki újra"
@@ -145,16 +150,6 @@ const ITEMS = [
 "id": "64a054b33b",
 "at": "2026-11-26T17:23:35+02:00",
 "msg": "Egységes fejsor minden menüpontban (a Naptár eszköztára a minta): 30 px magas gombok, keresők, fülek, 13,5 px betű"
-},
-{
-"id": "cc59ac2949",
-"at": "2026-11-26T17:17:34+02:00",
-"msg": "Munkatársi dokumentumok: azonnal nyílnak (a Drive előnézetében, nem kell megvárni, amíg a szerver letölti és átküldi); ahol mégis a szerver hozza, a lapon „betöltés…” látszik"
-},
-{
-"id": "9244df8b83",
-"at": "2026-11-26T15:17:14Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
