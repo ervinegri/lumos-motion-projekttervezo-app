@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ae30081fb8",
+"at": "2026-11-26T14:05:50+01:00",
+"msg": "Forgalom-elemzés: táblánkénti és kulcs-tár méret a /api/dbstatus?sizes=1-ben (titok nélkül)"
+},
+{
 "id": "35c4a3c0c1",
 "at": "2026-11-26T13:31:51+01:00",
 "msg": "Hibakeresés: az utolsó Neon-hibák szövege (titok nélkül) a /api/dbstatus-ban"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "b9b5f6bceb",
 "at": "2026-11-26T11:26:00+01:00",
 "msg": "Indítóképernyő (fehér háttér, középen a logó) a fekete helyett; projektlap: minden szakasz csukva nyílik, új sorrend (Stáb → Utómunka → Pénzügyek → Szerződés és számlázás), egyforma lenyitó nyíl"
-},
-{
-"id": "a6af016938",
-"at": "2026-11-26T11:16:36+01:00",
-"msg": "Kifizetések: „Értékesítés (fix fizetés)”; értékesítési kártyán minden nézetben az értékesítő neve"
 }
 ];
 const allowed = require('./_auth.js');
