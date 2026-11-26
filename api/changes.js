@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d6c1841b1c",
+"at": "2026-11-26T11:40:57+01:00",
+"msg": "Ügyfelek fejléce: a gombok jobbra igazítva"
+},
+{
 "id": "e31d3a754c",
 "at": "2026-11-26T11:40:04+01:00",
 "msg": "Ügyfelek: keresés a fejléc sorában; értékelési link / QR a Frissítés mellett; induláskor a Google-értékelések automatikus behúzása"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "f886a2f050",
 "at": "2026-11-26T10:52:11+02:00",
 "msg": "Projekt lépései: a „Kész” (aktuális) kártya pipája most tényleg zöld körben fehér pipa – a pipa a kártya mellett van, nem benne (javított kijelölés)"
-},
-{
-"id": "108982d67e",
-"at": "2026-11-26T09:50:49+01:00",
-"msg": "Közeli forgatás: lakat a Stáb panelen (utolsó 3 nap / helyszíni munkától), sürgős meghívó a forgatás előtti estéig tartó határidővel; visszamondás szöveg pontosítva"
 }
 ];
 const allowed = require('./_auth.js');
