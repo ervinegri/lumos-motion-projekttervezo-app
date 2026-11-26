@@ -3,7 +3,7 @@
 // { fallback: true } a válasz – semmit nem írt –, és a böngésző az Apps Scripthez fordul.
 'use strict';
 const crypto = require('crypto');
-const { runFast, neonAsync, selfTest } = require('./_gasrt.js');
+const { runFast, neonAsync, selfTest, selfTestWrite } = require('./_gasrt.js');
 /* ezeket mindig az Apps Script végzi (belépés, nézetváltás, feltöltés, levél-előnézet, külső szinkronok) */
 const DENY = /^(calendarEvents|settingsData|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
 async function sessionOk(token) {
@@ -17,6 +17,8 @@ module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
   const t0 = Date.now(), send = (code, o) => { res.statusCode = code; res.end(typeof o === 'string' ? o : JSON.stringify(o)); };
   if (req.method === 'GET') {   // állapot (titok nélkül): egyezik-e a kód, megvan-e a tükör, hány háttérfeladat vár
+    if (/selftest=write/.test(String(req.url || ''))) { if (Date.now() - (global.__stw || 0) < 600000) return send(429, { error: 'Írás-próba legfeljebb 10 percenként.' }); global.__stw = Date.now();   // nyilvános, de ritkítva (minden lap frissítését váltja ki)
+      return send(200, await selfTestWrite().catch(e => ({ error: String(e && e.message).slice(0, 200) }))); }
     if (/selftest/.test(String(req.url || ''))) {   // próba valódi adatokkal, írás nélkül: a nyilvános árlista-lekérés a gyors úton (csak időt és méretet ad vissza)
       const out = await runFast(JSON.stringify({ fn: 'arkPrices', args: [] })).catch(e => ({ fallback: 'hiba: ' + String(e && e.message).slice(0, 150) }));
       let ok = null; try { ok = JSON.parse(out.text || 'null'); } catch (e) { }

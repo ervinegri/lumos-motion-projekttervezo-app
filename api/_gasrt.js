@@ -197,7 +197,9 @@ function runOnce(raw, kv) {
   const ctx = vm.createContext(sandbox);
   for (const s of scripts()) s.runInContext(ctx);
   let text;
-  try { text = raw === SELFTEST_ ? String(vm.runInContext('(function(){ const t = Date.now(); const p = readAll_("projects").length, c = readAll_("crew").length, d = readAll_("deals").length; return JSON.stringify({ projects: p, crew: c, deals: d, loadMs: Date.now() - t }); })()', ctx)) : MOCK && /^\/\/TEST\n/.test(raw) ? String(vm.runInContext(raw, ctx)) : vm.runInContext('api_(__raw).getContent()', Object.assign(ctx, { __raw: raw })); }   // //TEST: csak a tesztekben (memóriabeli adatbázissal)
+  const SW = { '__selftest_w1__': 'const ss = ss_(); let sh = ss.getSheetByName("_gyorsut_proba") || ss.insertSheet("_gyorsut_proba"); sh.v = [[String(Date.now())]]; sh.cols = 1; sh.dirty = true; dbFlush_(); JSON.stringify({ ver: sh.ver || null })',
+    '__selftest_w0__': 'const ss = ss_(); let sh = ss.getSheetByName("_gyorsut_proba"); if (sh) { sh.v = []; sh.cols = 1; sh.dirty = true; dbFlush_(); } JSON.stringify({ ver: sh ? sh.ver : null })' };
+  try { text = SW[raw] ? String(vm.runInContext(SW[raw], ctx)) : raw === SELFTEST_ ? String(vm.runInContext('(function(){ const t = Date.now(); const p = readAll_("projects").length, c = readAll_("crew").length, d = readAll_("deals").length; return JSON.stringify({ projects: p, crew: c, deals: d, loadMs: Date.now() - t }); })()', ctx)) : MOCK && /^\/\/TEST\n/.test(raw) ? String(vm.runInContext(raw, ctx)) : vm.runInContext('api_(__raw).getContent()', Object.assign(ctx, { __raw: raw })); }   // //TEST: csak a tesztekben (memóriabeli adatbázissal)
   catch (e) { if (e && e.needsGas) return { gas: RT.gas }; throw e; }
   if (RT.gas) return { gas: RT.gas };   // a kód elkapta a jelzést, de a Google-szolgáltatás kellett volna: biztosan nem itt fejezzük be
   return { text, RT };
@@ -205,6 +207,20 @@ function runOnce(raw, kv) {
 
 const SELFTEST_ = '__selftest__';   // rögzített, csak olvasó próba (darabszámok), valódi adatokkal
 async function selfTest() { const kv = {}; const r = await neonAsync({ query: "SELECT k, v FROM lpm_kv WHERE k LIKE 'p:%' OR k LIKE 'm:%'", params: [] }); (r.rows || []).forEach(x => { kv[x[0]] = x[1]; }); const t0 = Date.now(), o = runOnce(SELFTEST_, kv); return { ms: Date.now() - t0, gas: o.gas || '', out: o.text ? JSON.parse(o.text) : null, writes: o.RT ? o.RT.writes.length : 0, dbHits: o.RT ? o.RT.dbHit : 0, dbMs: o.RT ? o.RT.dbMs : 0 }; }
+/** Írás-próba valódi adatbázison, egy külön, üres próbalapon (_gyorsut_proba – a végén üres, a mentés kihagyja):
+    1) új lap / sor írása, 2) feltételes frissítés, 3) ütközés: két párhuzamos írásból a második elakad, 4) visszaürítés. */
+async function selfTestWrite() {
+  const kv = {}; const r0 = await neonAsync({ query: "SELECT k, v FROM lpm_kv WHERE k LIKE 'p:%' OR k LIKE 'm:%'", params: [] }); (r0.rows || []).forEach(x => { kv[x[0]] = x[1]; });
+  const commit = async RTx => { try { if (RTx.writes.length) await neonAsync({ queries: RTx.writes.map(x => ({ query: x.query, params: x.params || [] })) }); return 'ok'; } catch (e) { return /division by zero/i.test(String(e && e.message)) ? 'ütközés' : 'hiba: ' + String(e && e.message).slice(0, 150); } };
+  const out = {};
+  let a = runOnce('__selftest_w1__', kv); out.write = { gas: a.gas || '', writes: a.RT && a.RT.writes.length, commit: a.RT ? await commit(a.RT) : '-' };
+  a = runOnce('__selftest_w1__', kv); out.update = { writes: a.RT && a.RT.writes.length, cond: a.RT ? a.RT.writes.some(w => /^\s*WITH u AS/.test(w.query)) : false, commit: a.RT ? await commit(a.RT) : '-' };
+  const x = runOnce('__selftest_w1__', kv), y = runOnce('__selftest_w1__', kv);
+  out.conflict = { first: await commit(x.RT), second: await commit(y.RT) };   // ugyanarról a változatról indultak: a második nem írhat rá
+  a = runOnce('__selftest_w0__', kv); out.cleanup = a.RT ? await commit(a.RT) : a.gas;
+  const v = await neonAsync({ query: "SELECT ver::text, rows::text FROM lpm_sheet WHERE tab = '_gyorsut_proba'", params: [] }); out.final = (v.rows || [])[0] || null;
+  return out;
+}
 /** Egy kérés a gyors úton. Vissza: { text } (kész válasz) vagy { fallback: ok } (nem írt semmit – az Apps Script dolgozza fel). */
 async function runFast(raw) {
   if (!DBHOST) return { fallback: 'nincs DATABASE_URL' };
@@ -231,4 +247,4 @@ async function runFast(raw) {
   }
   return { fallback: 'ütközés' };
 }
-module.exports = { BUILD: BUNDLE.build, runFast, selfTest, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); } };
+module.exports = { BUILD: BUNDLE.build, runFast, selfTest, selfTestWrite, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); } };

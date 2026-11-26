@@ -12,6 +12,7 @@ function fakeNeon() {
     p = p || []; const Q = String(q).replace(/\s+/g, ' ').trim();
     if (/^SELECT k, v FROM lpm_kv WHERE k LIKE/.test(Q)) return [...db.kv].filter(([k]) => /^(p|m):/.test(k)).map(([k, v]) => [k, v]);
     if (/^SELECT v FROM lpm_kv WHERE k = \$1/.test(Q)) return db.kv.has(p[0]) ? [[db.kv.get(p[0])]] : [];
+    if (/^SELECT ver::text, rows::text FROM lpm_sheet WHERE tab = '_gyorsut_proba'/.test(Q)) { const x = db.sheet.get('_gyorsut_proba'); return x ? [[String(x.ver), x.rows]] : []; }
     if (/^SELECT tab, ver::text FROM lpm_sheet$/.test(Q)) return [...db.sheet].map(([k, s]) => [k, String(s.ver)]);
     if (/^SELECT tab, ver::text, rows::text FROM lpm_sheet WHERE tab = ANY/.test(Q)) { const want = String(p[0]).split(String.fromCharCode(31)); return [...db.sheet].filter(([k]) => want.includes(k)).map(([k, s]) => [k, String(s.ver), s.rows]); }
     if (/^SELECT coalesce\(sum\(ver\)/.test(Q)) return [[String([...db.sheet.values()].reduce((a, s) => a + s.ver, 0)), db.kv.get('dv') || '']];
@@ -98,6 +99,11 @@ const req = (name, arg) => JSON.stringify({ fn: 'rpc', args: [token, name, arg =
     const jobs = r.RT.writes.filter(w => /INSERT INTO lpm_jobs/.test(w.query)); assert.strictEqual(jobs.length, 1, 'HubSpot nincs bekapcsolva → csak a levél');
     assert.deepStrictEqual(JSON.parse(jobs[0].params[1]).slice(0, 2), ['a@b.hu', 'Tárgy']);
     const r2 = RT._runOnce('//TEST\nsendAs_("a@b.hu", "T", "S", { attachments: [1] }); "x"', Object.fromEntries(N.db.kv)); assert.ok(r2.gas, 'melléklettel az Apps Script küld');
+  });
+  await t('írás-próba: feltételes írás és ütközés', async () => {
+    const o = await RT.selfTestWrite();
+    assert.strictEqual(o.write.commit, 'ok', JSON.stringify(o)); assert.strictEqual(o.update.commit, 'ok'); assert.ok(o.update.cond, 'feltételes frissítés');
+    assert.deepStrictEqual(o.conflict, { first: 'ok', second: 'ütközés' }); assert.strictEqual(o.cleanup, 'ok'); assert.strictEqual(o.final[1], '[]');
   });
   { const T = []; for (let i = 0; i < 5; i++) { const a = Date.now(); await RT.runFast(req('whoAmI')); T.push(Date.now() - a); } console.log('     whoAmI ms: ' + T.join(', ')); }
   if (fails) { console.log(fails + ' FAIL'); process.exit(1); }
