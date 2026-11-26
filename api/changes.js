@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0b244219f2",
+"at": "2026-11-26T17:29:31+02:00",
+"msg": "Fizetések (gép): az oldal nem húzható le, csak a tábla görget; vékonyabb fejléc"
+},
+{
 "id": "64a054b33b",
 "at": "2026-11-26T17:23:35+02:00",
 "msg": "Egységes fejsor minden menüpontban (a Naptár eszköztára a minta): 30 px magas gombok, keresők, fülek, 13,5 px betű"
@@ -135,11 +140,6 @@ const ITEMS = [
 "id": "badddf3827",
 "at": "2026-11-26T15:11:46+01:00",
 "msg": "Rögzítés: mikrofon-választó (alapból a gép beépített mikrofonja, nem a közeli iPhone; a választás megmarad), a sáv a képernyő alján – amíg fut, az ablakok gombsora feljebb kerül"
-},
-{
-"id": "c3ce307e3d",
-"at": "2026-11-26T13:54:48Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
