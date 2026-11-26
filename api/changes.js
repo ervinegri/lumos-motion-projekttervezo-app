@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dec1ec1e67",
+"at": "2026-11-26T18:13:54+02:00",
+"msg": "Projekt oldal: frissítés után a szakaszok nem nyílnak ki – a nyitott / csukott állapot megmarad"
+},
+{
 "id": "8cc0709858",
 "at": "2026-11-26T18:12:46+02:00",
 "msg": "Projekt fejléc (gép): dátumkártya 54 px"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "8cf87cb9c3",
 "at": "2026-11-26T16:03:07+01:00",
 "msg": "Jegyzet-törlés azonnal (a háttérben ment, hibánál visszajön); telefonon a Szerződés / Bevétel fejléce egy sorban, mint a Fizetéseknél"
-},
-{
-"id": "1a408afeca",
-"at": "2026-11-26T15:56:46+01:00",
-"msg": "Lehetőség jegyzetei: a bejegyzések (pl. beszélgetés-összefoglaló) egyenként törölhetők – 🗑, megerősítés után azonnal (ügyvezető / a lehetőség értékesítője)"
 }
 ];
 const allowed = require('./_auth.js');
