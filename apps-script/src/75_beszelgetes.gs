@@ -90,6 +90,19 @@ function geminiPickModel_(k, avoid) {
   if (!best) throw new Error('A kulccsal nem érhető el Gemini Flash modell.');
   return best;
 }
+/** Tartalék-sorrend túlterheléshez: a kulccsal elérhető Flash modellek (stabil, újabb elöl → „latest” → előzetes → lite); 6 órára megjegyezve. */
+function geminiCandidates_() {
+  const C = CacheService.getScriptCache(); try { const c = C.get('gem_cands'); if (c) return JSON.parse(c); } catch (e) { }
+  const k = geminiKey_(); let tok = '', all = [];
+  for (let i = 0; i < 10; i++) { const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000' + (tok ? '&pageToken=' + encodeURIComponent(tok) : ''), { muteHttpExceptions: true, headers: { 'x-goog-api-key': k } });
+    if (r.getResponseCode() !== 200) return []; const j = JSON.parse(r.getContentText()); all = all.concat(j.models || []); tok = j.nextPageToken || ''; if (!tok) break; }
+  const ok = all.filter(m => (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0).map(m => String(m.name || '').replace(/^models\//, ''))
+    .filter(n => /^gemini-/.test(n) && /flash/.test(n) && !/image|tts|live|audio|embed|thinking|exp/.test(n));
+  const ver = n => { const m = n.match(/^gemini-(\d+)(?:\.(\d+))?/); return m ? Number(m[1]) * 100 + Number(m[2] || 0) : 0; };
+  const rank = n => (/lite/.test(n) ? 3 : /preview/.test(n) ? 2 : /latest/.test(n) ? 1 : 0);
+  const out = ok.sort((a, b) => rank(a) - rank(b) || ver(b) - ver(a) || a.localeCompare(b));
+  try { C.put('gem_cands', JSON.stringify(out), 6 * 3600); } catch (e) { } return out;
+}
 function geminiModel_(force, avoid) {
   const P = PropertiesService.getScriptProperties(); let m = force ? '' : P.getProperty(GEMINI_MODEL_PROP);
   if (!m) { m = geminiPickModel_(geminiKey_(), avoid || []); P.setProperty(GEMINI_MODEL_PROP, m); }
@@ -116,16 +129,19 @@ function gemFetch_(url, opt) {
 function gemJson_(parts, schema, maxTok) {
   const body = { contents: [{ role: 'user', parts: parts }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTok || 16000, responseMimeType: 'application/json', responseSchema: schema } };
   const call = m => gemFetch_('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body) });
-  let m = geminiModel_(), r;
+  let m = geminiModel_(), r; try { const ok = CacheService.getScriptCache().get('gem_ok'); if (ok) m = ok; } catch (e) { }   // ami legutóbb túlterheléskor is válaszolt
   const tryCall = mm => { const wait = [0, 3000, 8000];   // átmeneti hiba (túlterhelés, keret, szerverhiba) → rövid várakozás és újrapróbálás
     for (let i = 0; ; i++) { try { return call(mm); } catch (e) { if (!(e.gCode === 429 || e.gCode >= 500) || i >= wait.length - 1) throw e; Utilities.sleep(wait[i + 1]); } } };
   try { r = tryCall(m); } catch (e) {
     if ((e.gCode === 404 || e.gCode === 400) && /model/i.test(e.gMsg || '')) {   // kivezetett / nem elérhető modell → új választás (tartósan)
       const hint = (String(e.gMsg).match(/models\/(gemini-[\w.\-]+)/g) || []).map(x => x.replace('models/', '')).filter(x => x !== m)[0];
       m = hint || geminiModel_(true, [m]); PropertiesService.getScriptProperties().setProperty(GEMINI_MODEL_PROP, m); r = tryCall(m);
-    } else if (e.gCode === 503 || e.gCode === 500) {   // a választott modell túlterhelt → egyszer egy másik Flash modellel (csak erre a kérésre)
-      let alt = ''; try { alt = geminiPickModel_(geminiKey_(), [m]); } catch (_) {}
-      if (!alt) throw e; try { r = call(alt); } catch (_) { throw e; }
+    } else if (e.gCode === 503 || e.gCode === 500 || e.gCode === 429) {   // a választott modell túlterhelt → sorban a többi elérhető Flash modell (amelyik válaszol, azt használjuk 3 óráig)
+      const C = CacheService.getScriptCache(), tried = [m]; let last = e;
+      for (const alt of geminiCandidates_().filter(x => tried.indexOf(x) < 0).slice(0, 5)) {
+        tried.push(alt); try { r = call(alt); C.put('gem_ok', alt, 3 * 3600); break; } catch (e2) { last = e2; if (!(e2.gCode === 429 || e2.gCode >= 500 || e2.gCode === 404)) break; }
+      }
+      if (!r) { const err = new Error(String(last.message || last) + ' (kipróbált modellek: ' + tried.join(', ') + ')'); err.gCode = last.gCode; err.gMsg = last.gMsg; throw err; }
     } else throw e;
   }
   const j = JSON.parse(r.getContentText()), t = (((j.candidates || [])[0] || {}).content || {}).parts || [];
