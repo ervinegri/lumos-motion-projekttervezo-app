@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6e9e124ca7",
+"at": "2026-11-26T15:54:33+01:00",
+"msg": "Telefon: a lehetőség ablaka egészében görög (a cím és a Rögzítés / Árajánlat gomb is), a gombsor lent marad; Mégse helyett Vissza"
+},
+{
 "id": "dbd4373627",
 "at": "2026-11-26T15:53:52+01:00",
 "msg": "Telefon: a projektlista dátumkártyája és a mellette lévő hézag keskenyebb"
@@ -125,11 +130,6 @@ const ITEMS = [
 "id": "928be73a41",
 "at": "2026-11-26T15:06:43+02:00",
 "msg": "Beszélgetés-átirat: átmeneti Gemini-hibánál (túlterhelés, keret) nem hibát mutat, hanem automatikusan újrapróbálja a háttérben (2, 5, 10, 20, 40, 60 perc múlva – akkor is, ha az app be van zárva); látszik, mikor próbálja újra; kész átiratnál nem készül dupla összefoglaló"
-},
-{
-"id": "ae30081fb8",
-"at": "2026-11-26T14:05:50+01:00",
-"msg": "Forgalom-elemzés: táblánkénti és kulcs-tár méret a /api/dbstatus?sizes=1-ben (titok nélkül)"
 }
 ];
 const allowed = require('./_auth.js');
