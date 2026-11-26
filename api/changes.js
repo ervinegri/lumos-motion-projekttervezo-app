@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b1f9881e99",
+"at": "2026-11-26T11:31:09+02:00",
+"msg": "Gyors út: önpróba valódi adatokkal (írás nélkül)"
+},
+{
 "id": "e99c7d97d8",
 "at": "2026-11-26T11:29:30+02:00",
 "msg": "Gyors út: állapotlekérdezés külön lekérdezésekkel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár: kompaktabb eszköztár és napfejléc (a betűméret változatlan)"
 },
 {
-"id": "bb11d4b1e8",
-"at": "2026-11-26T10:10:43+02:00",
-"msg": "Naptár (teljes képernyős havi nézet): teljesen fix – fel-le görgetésre semmi nem mozdul (nincs rugalmas túlgörgetés, nincs rács-követés / hónapváltás), a lap alsó térköze sem görgethető; hónapváltás oldalra görgetéssel vagy a nyilakkal"
-},
-{
-"id": "1a03d53712",
-"at": "2026-11-26T08:09:03Z",
+"id": "5b4517042e",
+"at": "2026-11-26T08:10:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
