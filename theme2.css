@@ -3438,3 +3438,4 @@ html body .gbp-hd .gbp-tools{margin-left:auto;display:flex;flex-wrap:wrap;gap:8p
 html body .cl-head{flex-wrap:wrap;align-items:center;gap:10px 12px}html body .cl-head>.grow{flex:0 0 auto}
 html body .cl-head .cl-q{flex:1 1 280px;max-width:520px;min-width:200px;margin:0}
 html body .gbp-hd{flex-wrap:wrap}html body .gbp-hd .gbp-tools .gbp-rf{margin-left:0}
+html body .cl-head .cl-q{margin-right:auto!important}   /* a gombok a sor jobb szélére */
