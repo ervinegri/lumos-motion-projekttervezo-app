@@ -253,6 +253,20 @@ document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.targ
   const lbl=(b.textContent||'')+' '+(b.dataset.action||'')+' '+(b.type==='submit'?'submit':'');if(!/küld|hozzáad|mentés|ment\b|send|add|post|save|submit|reply|comment|válasz/i.test(lbl))return;
   let c=b.parentElement;while(c&&c!==document.body&&!c.querySelector('textarea'))c=c.parentElement;if(!c||c===document.body)return;const L=[...c.querySelectorAll('textarea')],pre=L.filter(t=>t.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING);txtMarkSent([pre.length?pre[pre.length-1]:L[0]]);},true);   /* a gombhoz tartozó (előtte álló) szövegdoboz */
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&e.target&&e.target.tagName==='TEXTAREA')txtMarkSent([e.target]);},true);
+/* Formázott (contenteditable) új bejegyzés-mezők – pl. Stáb- / Utómunka-instrukciók: ugyanúgy megmaradnak, mint a szövegdobozok
+   (újrarajzolás, adatfrissítés, oldalfrissítés után visszatöltődnek; sikeres küldés után törlődnek). Jelölés: data-keep="…" */
+function ceKey(el){const ctx=[];for(let n=el;n&&n!==document.body;n=n.parentElement){if(!n.dataset)continue;['pnNew','pid','id','vid','k'].forEach(a=>{if(n.dataset[a])ctx.push(a+'='+n.dataset[a]);});}return TXT_PFX+'ce|'+(el.dataset.keep||'')+'|'+((S&&S.projectId)||'')+'|'+ctx.join(',');}
+const CE_SENT={};
+function ceRestore(root){(root.querySelectorAll?root.querySelectorAll('[contenteditable="true"][data-keep]'):[]).forEach(el=>{if((el.innerText||'').trim())return;const k=ceKey(el),v=txtGet(k),sn=CE_SENT[k];
+  if(sn&&Date.now()-sn<20000)return;   /* épp küldés alatt: a mentés utáni újrarajzolásnál nem töltjük vissza */
+  if(v){el.innerHTML=v;el.classList.add('txt-restored');el.title='Visszaállítva a félbehagyott szöveg';}});}
+document.addEventListener('input',e=>{const el=e.target&&e.target.closest&&e.target.closest('[contenteditable="true"][data-keep]');if(!el)return;const k=ceKey(el);delete CE_SENT[k];txtPut(k,(el.innerText||'').trim()?el.innerHTML:'');el.classList.remove('txt-restored');},true);
+/* küldés: a gombhoz tartozó formázott mező tartalma akkor törlődik, ha a küldés után a mező kiürült / eltűnt (sikeres mentés) – hibánál megmarad */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(!b)return;const lbl=(b.textContent||'')+' '+(b.dataset.action||'');if(!/küld|hozzáad|mentés|ment\b|send|add|post|save/i.test(lbl))return;
+  let c=b.parentElement;while(c&&c!==document.body&&!c.querySelector('[contenteditable="true"][data-keep]'))c=c.parentElement;if(!c||c===document.body)return;const el=c.querySelector('[contenteditable="true"][data-keep]'),k=ceKey(el),v=el.innerHTML;
+  CE_SENT[k]=Date.now();txtPut(k+'|bak',v);txtPut(k,'');   /* küldés: a tárolt példány félre (ha a küldés nem sikerül, a mező a helyén marad, és 20 mp múlva visszakerül a tárolóba) */
+  setTimeout(()=>{delete CE_SENT[k];if(el.isConnected&&(el.innerText||'').trim()&&!txtGet(k))txtPut(k,el.innerHTML);txtPut(k+'|bak','');},20000);},true);
+try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)ceRestore(n.matches&&n.matches('[data-keep]')?(n.parentElement||n):n);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 (function(){const go=()=>{try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.tagName==='TEXTAREA')txtRestore(n.parentElement||n);else txtRestore(n);}}).observe(document.body,{childList:true,subtree:true});txtRestore(document.body);}catch(e){}};
   if(document.body)go();else document.addEventListener('DOMContentLoaded',go);})();
 
