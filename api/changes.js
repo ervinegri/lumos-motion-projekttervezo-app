@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "afc99a9802",
+"at": "2026-11-26T09:03:46+01:00",
+"msg": "Naptár (asztali havi nézet): teljes képernyő – széltől szélig, a hetek kitöltik a képernyőt, nincs görgetés; napcellában annyi esemény, amennyi kifér (+N további)"
+},
+{
 "id": "924ece1392",
 "at": "2026-11-26T09:02:16+01:00",
 "msg": "Panel-lakat: nem takarja a „kiválasztva” feliratot, és egy vonalban van a címmel"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Díjcsökkentés: a példaesetek az illető munkájához igazodnak (forgatás, fotó, hang, vizuáltechnika, streaming, utómunka) a szerződés 10. pontja szerint, forgatási esetekkel; a projekt Szerződés és számlázás része alapból csukva"
 },
 {
-"id": "1c57c683fc",
-"at": "2026-11-25T15:46:01+01:00",
-"msg": "Helyszíni beszámoló: a díjcsökkentésnél csak a helyszínen dolgozók (a csak utómunkás vágó nem)"
-},
-{
-"id": "5f744dc430",
-"at": "2026-11-25T14:43:47Z",
+"id": "e8b3c9168c",
+"at": "2026-11-25T14:46:12Z",
 "msg": "Változásnapló frissítése"
 }
 ];
