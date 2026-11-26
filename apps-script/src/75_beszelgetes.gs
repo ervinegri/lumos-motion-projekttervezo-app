@@ -71,14 +71,15 @@ function geminiStatus_() { const k = geminiKey_(); return { on: !!k, tail: k ? k
 function geminiSet_(u, a) {
   a = a || {}; const P = PropertiesService.getScriptProperties();
   if (a.clear) { P.deleteProperty(GEMINI_PROP); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kikapcsolva'); return geminiStatus_(); }
-  const k = String(a.key || '').trim(); if (!/^[\w-]{20,80}$/.test(k)) throw new Error('Ez nem tűnik Gemini API-kulcsnak (a Google AI Studióban létrehozott kulcsot másold be).');
-  const t = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + '?key=' + encodeURIComponent(k), { muteHttpExceptions: true });
+  const k = String(a.key || '').trim(); if (!/^[\w.\-]{20,300}$/.test(k)) throw new Error('Ez nem tűnik Gemini API-kulcsnak (a Google AI Studióban létrehozott kulcsot másold be, szóköz nélkül).');   // a régi „AIza…” és az új „AQ.…” formátum is
+  const t = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL, { muteHttpExceptions: true, headers: { 'x-goog-api-key': k } });
   if (t.getResponseCode() !== 200) throw new Error('A kulcs nem működik (' + t.getResponseCode() + '): ' + t.getContentText().slice(0, 200));
   P.setProperty(GEMINI_PROP, k); logEvent_(u, 'Beszélgetés-átirat (Gemini)', '', 'kulcs mentve'); return geminiStatus_();
 }
 function gemFetch_(url, opt) {
   const k = geminiKey_(); if (!k) throw new Error('Az átirathoz az ügyvezetőnek meg kell adnia a Gemini API-kulcsot (Beállítások).');
-  const r = UrlFetchApp.fetch(url + (url.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(k), Object.assign({ muteHttpExceptions: true }, opt || {}));
+  const o = Object.assign({ muteHttpExceptions: true }, opt || {}); o.headers = Object.assign({}, o.headers || {}, { 'x-goog-api-key': k });   // a kulcs fejlécben (nem az URL-ben)
+  const r = UrlFetchApp.fetch(url, o);
   const c = r.getResponseCode(); if (c >= 300) throw new Error('Gemini hiba (' + c + '): ' + r.getContentText().slice(0, 300)); return r;
 }
 function gemJson_(parts, schema, maxTok) {
