@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "3f15be1bac",
+"at": "2026-11-26T11:58:05+02:00",
+"msg": "Stáb: zárt lakatnál a „Szerepkör hozzáadása” szürke és nem használható (jelzi, hogy a lakattal nyitható)"
+},
+{
 "id": "dfe7a656da",
 "at": "2026-11-26T11:55:24+02:00",
 "msg": "Gyors út: nézetváltás és kilépés után a munkamenet tükre azonnal frissül; jogosultsági tiltásnál mindig az Apps Script dönt (nem jön téves „nincs jogosultságod” profilváltáskor)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Kanban és hozzászólások: rövid nevek (Dávid, Kata, Ervin – azonos keresztnévnél teljes név); jogosultsági hibánál a pontos indok is látszik"
 },
 {
-"id": "f2f5b5a693",
-"at": "2026-11-26T10:25:06+02:00",
-"msg": "Naptár (havi nézet): MacBook trackpaddel sem ugrik kettőt – váltás után 0,45 mp-ig nem vált újra (a még tartó, közben gyorsuló mozdulat sem), utána csak szünet vagy erősen gyorsuló új mozdulat vált"
-},
-{
-"id": "10206eff76",
-"at": "2026-11-26T08:24:01Z",
+"id": "ff3be9e78f",
+"at": "2026-11-26T08:25:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
