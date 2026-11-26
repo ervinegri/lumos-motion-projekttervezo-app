@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c5b43f6cdd",
+"at": "2026-11-26T11:59:01+01:00",
+"msg": "Google-értékelések a termelési vezetőnek is (megtekintés, link, QR, értékeléskérés; válasz és párosítás csak az ügyvezetőnek); párosítás: nem ügyfél kategóriák (szereplő/modell/statiszta, munkatárs, vendég, egyéb) és bővebb ügyfélkör"
+},
+{
 "id": "47c7def607",
 "at": "2026-11-26T11:52:31+01:00",
 "msg": "Beszélgetésrögzítés: a mikrofon és a képernyőmegosztás engedélyezése (Permissions-Policy tiltotta); pontosabb hibaüzenet"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "a1f81d715b",
 "at": "2026-11-26T11:32:53+02:00",
 "msg": "Gyors út: önpróba – valódi lapok betöltése (csak darabszám)"
-},
-{
-"id": "b1f9881e99",
-"at": "2026-11-26T11:31:09+02:00",
-"msg": "Gyors út: önpróba valódi adatokkal (írás nélkül)"
 }
 ];
 const allowed = require('./_auth.js');
