@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "373fb49ea9",
+"at": "2026-11-26T15:55:34+01:00",
+"msg": "Rejtett ajánlat-doboz / mikrofon-választó biztosan nem látszik"
+},
+{
 "id": "7c88f03295",
 "at": "2026-11-26T15:55:15+01:00",
 "msg": "Lehetőség ablaka: ha az ügyfélnek nincs ajánlata (sem mentett, sem kiküldött levél), az „Ajánlatok ennek az ügyfélnek” doboz nem jelenik meg / nem foglal helyet"
@@ -127,13 +132,8 @@ const ITEMS = [
 "msg": "Háttérkód telepítési állapota: HIBA"
 },
 {
-"id": "2eaefc7473",
-"at": "2026-11-26T14:08:35+01:00",
-"msg": "Neon-forgalom csökkentése a gyorsaság romlása nélkül"
-},
-{
-"id": "250cd95ab7",
-"at": "2026-11-26T13:06:53Z",
+"id": "93456ae60a",
+"at": "2026-11-26T13:08:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
