@@ -252,7 +252,8 @@ function saveProject_(u, a) {
     dbFlush_();
     logArgs = [old ? 'Projekt módosítva' : 'Projekt létrehozva', p.name, old ? diffProject_(old, p, assignDiff_(oldCrew, crew, oldEq, equipment, crewMap, invMap), crewMap) : (p.date ? 'Dátum: ' + p.date : '')];   // naplózás a zár után (adatbázis-módban a mentéssel együtt megy)
     if (old && a && a.autoStep) logArgs[0] = 'Automatikus lépés (az app léptette – minden feltétel teljesült)';   /* nem a felhasználó kézi módosítása */
-    if (dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
+    if (old && !logArgs[2]) logArgs = null;   /* mentés változás nélkül: nem naplózzuk (félrevezető „Projekt módosítva” sor lenne) */
+    if (logArgs && dbOn_()) { logEvent_(u, logArgs[0], logArgs[1], logArgs[2]); logArgs = null; }
     const out = Object.assign({}, p, { crew: crew, equipment: equipment });
     delete out.mutationId;
     return out;
@@ -346,7 +347,7 @@ function diffProject_(a, b, extra, crewMap) {
     if (x !== y) changed.push(k === 'status' ? 'Állapot: ' + (STATUS_LABELS[a.status] || a.status) + ' → ' + (STATUS_LABELS[b.status] || b.status) : short(x) && short(y) ? labels[k] + ': ' + (x || '–') + ' → ' + (y || '–') : labels[k]);
   });
   (extra || []).forEach(x => changed.push(x));
-  return changed.length ? changed.join('; ') : 'Beosztás módosítva';
+  return changed.length ? changed.join('; ') : '';   // nincs kimutatható változás: üres (nem kerül a naplóba)
 }
 
 function deleteProject_(u, a) {
